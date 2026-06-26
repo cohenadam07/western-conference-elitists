@@ -1237,3 +1237,76 @@ export const NEWS_ITEMS = [
       "Teams picking in the 30s and 40s are quietly circling the same name. He won't stay a secret much longer.",
   },
 ]
+
+export const PODCAST_SHOW = {
+  name: 'The Board Room',
+  tagline: 'The WCE podcast — one big board, argued out loud every week.',
+  platforms: [
+    { label: 'Apple Podcasts', href: '#' },
+    { label: 'Spotify', href: '#' },
+    { label: 'YouTube', href: '#' },
+  ],
+}
+
+export const PODCASTS = [
+  {
+    episode: 14,
+    slug: 'blue-chips-ranked-and-re-ranked',
+    title: 'The Blue Chips, Ranked and Re-Ranked',
+    category: 'Big Board',
+    date: 'Jun 19, 2026',
+    duration: '54 min',
+    description:
+      'We re-litigate the top three on the board one more time before the season tips — where the analytics and the eye test actually agree, and the one spot we still go back and forth on every week.',
+  },
+  {
+    episode: 13,
+    slug: 'trade-deadline-postmortem',
+    title: 'Trade Deadline Postmortem: Grading Every Quiet Front Office',
+    category: 'NBA',
+    date: 'Jun 12, 2026',
+    duration: '48 min',
+    description:
+      'Not making a move is still a decision. We go team by team on who stood pat out of conviction versus who just ran out of good options.',
+  },
+  {
+    episode: 12,
+    slug: 'second-tier-of-depth',
+    title: 'The Second Tier of Depth Is Deeper Than the Board Suggests',
+    category: 'Draft',
+    date: 'Jun 5, 2026',
+    duration: '61 min',
+    description:
+      "Ranks 17 through 21 are where this class gets genuinely fun to argue about. We walk through the tools-versus-translation gap one prospect at a time.",
+  },
+  {
+    episode: 11,
+    slug: 'shot-profile-model-live-test',
+    title: 'Stress-Testing the Shot-Profile Model, Live',
+    category: 'Analytics',
+    date: 'May 29, 2026',
+    duration: '52 min',
+    description:
+      'We feed three contested evaluations into our translation model on air and argue with the output in real time. It is right more than we want to admit.',
+  },
+  {
+    episode: 10,
+    slug: 'switchable-wing-shortage',
+    title: 'The Switchable-Wing Shortage, and Who Is Actually Paying For It',
+    category: 'Team Building',
+    date: 'May 22, 2026',
+    duration: '45 min',
+    description:
+      "Every front office wants the same archetype. We talk through who overpaid for it this cycle and who's quietly building a real pipeline instead.",
+  },
+  {
+    episode: 9,
+    slug: 'defensive-feel-on-tape',
+    title: 'How We Actually Grade Defensive Feel on Tape',
+    category: 'Scouting',
+    date: 'May 15, 2026',
+    duration: '57 min',
+    description:
+      'Steals and blocks are noise. We break down closeout angles, tag timing, and recovery speed using clips from this cycle\'s board.',
+  },
+]

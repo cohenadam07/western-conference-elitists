@@ -43,6 +43,7 @@ website/
     pages/
       Home.jsx
       News.jsx              # short-form wire/headlines feed, distinct from long-form Analysis
+      Podcasts.jsx          # episode archive with category filter
       About.jsx
       Draft.jsx             # draft hub + featured prospect + filterable pool
       Rankings.jsx          # big board, expandable rows

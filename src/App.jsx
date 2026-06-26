@@ -4,6 +4,7 @@ import Footer from './components/Footer.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import Home from './pages/Home.jsx'
 import News from './pages/News.jsx'
+import Podcasts from './pages/Podcasts.jsx'
 import About from './pages/About.jsx'
 import Draft from './pages/Draft.jsx'
 import Rankings from './pages/Rankings.jsx'
@@ -22,6 +23,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/news" element={<News />} />
+          <Route path="/podcasts" element={<Podcasts />} />
           <Route path="/about" element={<About />} />
           <Route path="/draft" element={<Draft />} />
           <Route path="/rankings" element={<Rankings />} />

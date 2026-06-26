@@ -33,6 +33,7 @@ export default function Footer() {
             </h4>
             <ul className="mt-4 space-y-3 text-sm">
               <li><Link className="text-bone-dim hover:text-bone" to="/news">News</Link></li>
+              <li><Link className="text-bone-dim hover:text-bone" to="/podcasts">Podcasts</Link></li>
               <li><Link className="text-bone-dim hover:text-bone" to="/draft">Draft Hub</Link></li>
               <li><Link className="text-bone-dim hover:text-bone" to="/rankings">Big Board</Link></li>
               <li><Link className="text-bone-dim hover:text-bone" to="/articles">Analysis</Link></li>

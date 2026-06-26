@@ -6,6 +6,7 @@ import Button from './Button.jsx'
 const LINKS = [
   { to: '/', label: 'Home' },
   { to: '/news', label: 'News' },
+  { to: '/podcasts', label: 'Podcasts' },
   { to: '/draft', label: 'Draft' },
   { to: '/rankings', label: 'Big Board' },
   { to: '/articles', label: 'Analysis' },
