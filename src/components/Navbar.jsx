@@ -10,6 +10,7 @@ const LINKS = [
   { to: '/draft', label: 'Draft' },
   { to: '/rankings', label: 'Big Board' },
   { to: '/articles', label: 'Analysis' },
+  { href: '/basketball-savant.html', label: 'Basketball Savant' },
   { to: '/about', label: 'About' },
 ]
 
@@ -40,19 +41,29 @@ export default function Navbar() {
         <Logo />
 
         <div className="hidden items-center gap-8 lg:flex">
-          {LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                `underline-grow text-sm font-medium uppercase tracking-wide transition-colors ${
-                  isActive ? 'text-bone' : 'text-bone-dim hover:text-bone'
-                }`
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
+          {LINKS.map((link) =>
+            link.href ? (
+              <a
+                key={link.href}
+                href={link.href}
+                className="underline-grow text-sm font-medium uppercase tracking-wide text-bone-dim transition-colors hover:text-bone"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  `underline-grow text-sm font-medium uppercase tracking-wide transition-colors ${
+                    isActive ? 'text-bone' : 'text-bone-dim hover:text-bone'
+                  }`
+                }
+              >
+                {link.label}
+              </NavLink>
+            )
+          )}
         </div>
 
         <div className="hidden lg:block">
@@ -87,20 +98,31 @@ export default function Navbar() {
         }`}
       >
         <div className="flex flex-col gap-1 px-6 py-4">
-          {LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              onClick={() => setOpen(false)}
-              className={({ isActive }) =>
-                `rounded-sm px-3 py-3 text-sm font-medium uppercase tracking-wide ${
-                  isActive ? 'bg-surface-2 text-bone' : 'text-bone-dim'
-                }`
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
+          {LINKS.map((link) =>
+            link.href ? (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className="rounded-sm px-3 py-3 text-sm font-medium uppercase tracking-wide text-bone-dim"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `rounded-sm px-3 py-3 text-sm font-medium uppercase tracking-wide ${
+                    isActive ? 'bg-surface-2 text-bone' : 'text-bone-dim'
+                  }`
+                }
+              >
+                {link.label}
+              </NavLink>
+            )
+          )}
           <Button to="/contact" variant="primary" className="mt-2" onClick={() => setOpen(false)}>
             Subscribe
           </Button>
