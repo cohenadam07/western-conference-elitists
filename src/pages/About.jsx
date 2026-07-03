@@ -38,7 +38,7 @@ export default function About() {
           <h1 className="text-display mt-4 text-4xl text-ink sm:text-5xl lg:text-6xl">
             We built the basketball media outlet we couldn't find anywhere else.
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-faintd">
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted">
             Western Conference Elitists covers the NBA year-round — trades,
             team building, playoff strategy, and the draft prospects who will
             be running the league in five years. Most basketball media drowns
@@ -53,7 +53,7 @@ export default function About() {
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           <div>
             <SectionHeading eyebrow="Mission" title="Evaluation Over Entertainment" />
-            <p className="mt-6 text-base leading-relaxed text-faintd">
+            <p className="mt-6 text-base leading-relaxed text-muted">
               Basketball media rewards volume — hot takes after every game,
               reaction content to every transaction, opinions calibrated for
               engagement instead of accuracy. We built Western Conference
@@ -62,7 +62,7 @@ export default function About() {
               everything from trade analysis to team-building philosophy to
               the draft.
             </p>
-            <p className="mt-4 text-base leading-relaxed text-faintd">
+            <p className="mt-4 text-base leading-relaxed text-muted">
               We happen to take the draft more seriously than most outlets —
               but that is one specialty inside a broader mission. We are not
               trying to predict outcomes for clicks. We are trying to explain
@@ -79,7 +79,7 @@ export default function About() {
                   <h3 className="text-sm font-bold uppercase tracking-wide text-navy">
                     {m.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-faintd">{m.body}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">{m.body}</p>
                 </div>
               ))}
             </div>
@@ -99,7 +99,7 @@ export default function About() {
             {VOICE_TRAITS.map((v) => (
               <div key={v.label} className="card-hover rounded-md border border-line bg-surface p-6">
                 <h3 className="text-display text-2xl text-navy">{v.label}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-faintd">{v.body}</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted">{v.body}</p>
               </div>
             ))}
           </div>
@@ -121,7 +121,7 @@ export default function About() {
             <p className="mt-1 text-sm font-medium uppercase tracking-wide text-navy">
               {FOUNDER.title}
             </p>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-faintd">
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">
               {FOUNDER.bio}
             </p>
           </div>
@@ -131,7 +131,7 @@ export default function About() {
       <section className="mx-auto max-w-7xl px-6 pb-24 lg:px-10">
         <div className="flex flex-col items-center gap-6 rounded-md border border-line bg-surface p-12 text-center">
           <h3 className="text-display text-3xl text-ink">Think we got a grade wrong?</h3>
-          <p className="max-w-md text-sm leading-relaxed text-faintd">
+          <p className="max-w-md text-sm leading-relaxed text-muted">
             Good. Tell us why. The best feedback we get comes from people who
             disagree with the board for a real reason.
           </p>

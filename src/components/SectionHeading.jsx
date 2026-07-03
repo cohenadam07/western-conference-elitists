@@ -8,7 +8,7 @@ export default function SectionHeading({ eyebrow, title, subtitle, align = 'left
         </span>
       )}
       <h2 className="text-display text-3xl text-ink sm:text-4xl">{title}</h2>
-      {subtitle && <p className="text-base leading-relaxed text-faintd">{subtitle}</p>}
+      {subtitle && <p className="text-base leading-relaxed text-muted">{subtitle}</p>}
     </div>
   )
 }

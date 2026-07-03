@@ -39,7 +39,7 @@ export default function Articles() {
           <h1 className="text-display mt-4 max-w-3xl text-4xl text-ink sm:text-5xl lg:text-6xl">
             Draft and NBA analysis worth your time.
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-faintd">
+          <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
             Scouting breakdowns, team-building theory, and the analytics that
             actually hold up under pressure.
           </p>
@@ -73,7 +73,7 @@ export default function Articles() {
                 className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
                   activeCategory === cat
                     ? 'border-navy bg-navy text-white'
-                    : 'border-line bg-surface text-faintd hover:border-faintd hover:text-ink'
+                    : 'border-line bg-surface text-muted hover:border-muted hover:text-ink'
                 }`}
               >
                 {cat}
@@ -86,7 +86,7 @@ export default function Articles() {
               <ArticleCard key={a.slug} article={a} />
             ))}
             {filtered.length === 0 && (
-              <p className="col-span-full py-10 text-center text-faintd">
+              <p className="col-span-full py-10 text-center text-muted">
                 Nothing matches that search yet. Try a different term or category.
               </p>
             )}

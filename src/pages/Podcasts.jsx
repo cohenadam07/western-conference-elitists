@@ -21,7 +21,7 @@ export default function Podcasts() {
           <h1 className="text-display mt-4 max-w-3xl text-4xl text-ink sm:text-5xl lg:text-6xl">
             {PODCAST_SHOW.name}
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-faintd">
+          <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
             {PODCAST_SHOW.tagline}
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -29,7 +29,7 @@ export default function Podcasts() {
               <a
                 key={p.label}
                 href={p.href}
-                className="rounded-full border border-line bg-surface px-4 py-2 text-xs font-semibold uppercase tracking-wide text-faintd transition-colors hover:border-navy hover:text-navy"
+                className="rounded-full border border-line bg-surface px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted transition-colors hover:border-navy hover:text-navy"
               >
                 {p.label}
               </a>
@@ -48,7 +48,7 @@ export default function Podcasts() {
           <h2 className="text-display mt-4 max-w-2xl text-3xl leading-tight text-ink sm:text-4xl">
             {latest.title}
           </h2>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-faintd">
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">
             {latest.description}
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-4">
@@ -75,7 +75,7 @@ export default function Podcasts() {
                   className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
                     filter === cat
                       ? 'border-navy bg-navy text-white'
-                      : 'border-line bg-surface text-faintd hover:border-faint hover:text-ink'
+                      : 'border-line bg-surface text-muted hover:border-faint hover:text-ink'
                   }`}
                 >
                   {cat}
@@ -100,7 +100,7 @@ export default function Podcasts() {
                     </span>
                   </div>
                   <h4 className="mt-1 text-lg font-bold leading-snug text-ink">{p.title}</h4>
-                  <p className="mt-1.5 text-sm leading-relaxed text-faintd">{p.description}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted">{p.description}</p>
                 </div>
                 <div className="shrink-0 text-left font-mono-tight text-xs text-faint sm:text-right">
                   <p>{p.date}</p>
@@ -109,7 +109,7 @@ export default function Podcasts() {
               </article>
             ))}
             {filtered.length === 0 && (
-              <p className="py-10 text-center text-faintd">
+              <p className="py-10 text-center text-muted">
                 No episodes in this category yet.
               </p>
             )}

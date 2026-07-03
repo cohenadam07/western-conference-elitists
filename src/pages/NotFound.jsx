@@ -7,7 +7,7 @@ export default function NotFound() {
       <h1 className="text-display mt-4 text-3xl text-ink">
         This prospect didn't make the board.
       </h1>
-      <p className="mt-4 max-w-md text-faintd">
+      <p className="mt-4 max-w-md text-muted">
         Whatever you were looking for isn't here. Head back to the board and
         try again.
       </p>

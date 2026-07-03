@@ -23,7 +23,7 @@ export default function ArticleDetail() {
         <div className="mx-auto max-w-3xl px-6 py-20 lg:px-10 lg:py-24">
           <Link
             to="/articles"
-            className="text-xs font-semibold uppercase tracking-wide text-faintd hover:text-ink"
+            className="text-xs font-semibold uppercase tracking-wide text-muted hover:text-ink"
           >
             ← All Analysis
           </Link>
@@ -42,10 +42,10 @@ export default function ArticleDetail() {
       </section>
 
       <section className="mx-auto max-w-3xl px-6 py-16 lg:px-10">
-        <p className="text-lg leading-relaxed text-faintd">{article.excerpt}</p>
+        <p className="text-lg leading-relaxed text-muted">{article.excerpt}</p>
         <div className="mt-8 space-y-6">
           {BODY.map((para, i) => (
-            <p key={i} className="text-base leading-relaxed text-faintd">
+            <p key={i} className="text-base leading-relaxed text-muted">
               {para}
             </p>
           ))}

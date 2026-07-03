@@ -15,7 +15,7 @@ export default function ArticleCard({ article, featured = false }) {
         <h3 className="relative mt-4 max-w-3xl text-display text-3xl leading-tight text-ink sm:text-4xl">
           {article.title}
         </h3>
-        <p className="relative mt-4 max-w-2xl text-base leading-relaxed text-faintd">
+        <p className="relative mt-4 max-w-2xl text-base leading-relaxed text-muted">
           {article.excerpt}
         </p>
         <div className="relative mt-6 flex items-center gap-3 text-xs text-faint">
@@ -38,7 +38,7 @@ export default function ArticleCard({ article, featured = false }) {
       <h3 className="mt-3 text-lg font-bold leading-snug text-ink transition-colors group-hover:text-gold-deep">
         {article.title}
       </h3>
-      <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-faintd">
+      <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted">
         {article.excerpt}
       </p>
       <div className="mt-5 flex items-center gap-3 text-xs text-faint">

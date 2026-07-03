@@ -3,7 +3,7 @@ const GRADE_COLORS = {
   'A-': 'text-green border-green/40 bg-green/10',
   'B+': 'text-gold-deep border-gold/40 bg-gold/10',
   'B': 'text-gold-deep border-gold/40 bg-gold/10',
-  'B-': 'text-faintd border-line bg-paper',
+  'B-': 'text-muted border-line bg-paper',
 }
 
 export default function ProspectCard({ prospect }) {
@@ -36,7 +36,7 @@ export default function ProspectCard({ prospect }) {
         </span>
       )}
 
-      <p className="mt-4 text-sm leading-relaxed text-faintd">{prospect.summary}</p>
+      <p className="mt-4 text-sm leading-relaxed text-muted">{prospect.summary}</p>
 
       <div className="mt-5 grid grid-cols-4 gap-2 border-t border-line pt-4 font-mono-tight text-center text-xs">
         <div>

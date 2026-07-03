@@ -26,7 +26,7 @@ export default function Contact() {
           <h1 className="text-display mt-4 max-w-3xl text-4xl text-ink sm:text-5xl lg:text-6xl">
             Tell us where the board is wrong.
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-faintd">
+          <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
             Writing pitches, scouting disagreements, partnership ideas, or
             just a take you want to argue about — this is where it goes.
           </p>
@@ -113,7 +113,7 @@ export default function Contact() {
           <div className="flex flex-col gap-6">
             <div className="rounded-md border border-line bg-surface p-8">
               <h3 className="text-lg font-bold text-ink">Writing & Consulting</h3>
-              <p className="mt-3 text-sm leading-relaxed text-faintd">
+              <p className="mt-3 text-sm leading-relaxed text-muted">
                 We work with select front offices, media partners, and
                 contributors on scouting consulting and freelance analysis.
                 If that's you, say so in the reason field above.
@@ -121,7 +121,7 @@ export default function Contact() {
             </div>
             <div className="rounded-md border border-line bg-surface p-8">
               <h3 className="text-lg font-bold text-ink">Follow the Board</h3>
-              <p className="mt-3 text-sm leading-relaxed text-faintd">
+              <p className="mt-3 text-sm leading-relaxed text-muted">
                 Real-time prospect notes and board movement happen on social
                 before they make it into a full article.
               </p>
@@ -130,7 +130,7 @@ export default function Contact() {
                   <a
                     key={s.label}
                     href={s.href}
-                    className="underline-grow w-fit text-sm font-medium text-faintd hover:text-ink"
+                    className="underline-grow w-fit text-sm font-medium text-muted hover:text-ink"
                   >
                     {s.label}
                   </a>

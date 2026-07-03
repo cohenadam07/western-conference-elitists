@@ -16,9 +16,15 @@ import NotFound from './pages/NotFound.jsx'
 function App() {
   return (
     <div className="flex min-h-screen flex-col bg-paper">
+      <a
+        href="#main"
+        className="sr-only z-50 rounded-sm bg-navy px-4 py-2 text-sm font-semibold text-white focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
+      >
+        Skip to content
+      </a>
       <ScrollToTop />
       <Navbar />
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/news" element={<News />} />

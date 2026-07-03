@@ -5,7 +5,7 @@ const VARIANTS = {
   secondary:
     'bg-transparent text-ink border border-line hover:border-faint hover:bg-paper',
   ghost:
-    'bg-transparent text-faintd hover:text-ink',
+    'bg-transparent text-muted hover:text-ink',
 }
 
 export default function Button({

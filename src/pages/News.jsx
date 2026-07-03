@@ -19,7 +19,7 @@ export default function News() {
           <h1 className="text-display mt-4 max-w-3xl text-4xl text-ink sm:text-5xl">
             News
           </h1>
-          <p className="mt-4 max-w-xl text-lg leading-relaxed text-faintd">
+          <p className="mt-4 max-w-xl text-lg leading-relaxed text-muted">
             Fast hits on trades, injuries, front-office moves, and the draft
             circuit — the short version. For the long version, head to{' '}
             <span className="font-semibold text-navy">Analysis</span>.
@@ -36,7 +36,7 @@ export default function News() {
               className={`rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors ${
                 filter === cat
                   ? 'border-navy bg-navy text-white'
-                  : 'border-line bg-surface text-faintd hover:border-faint hover:text-ink'
+                  : 'border-line bg-surface text-muted hover:border-faint hover:text-ink'
               }`}
             >
               {cat}
@@ -59,12 +59,12 @@ export default function News() {
                 <h2 className="mt-1.5 text-lg font-bold leading-snug text-ink transition-colors group-hover:text-navy">
                   {item.headline}
                 </h2>
-                <p className="mt-1.5 text-sm leading-relaxed text-faintd">{item.blurb}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted">{item.blurb}</p>
               </div>
             </article>
           ))}
           {filtered.length === 0 && (
-            <p className="py-10 text-center text-faintd">
+            <p className="py-10 text-center text-muted">
               Nothing in this category yet — check back soon.
             </p>
           )}

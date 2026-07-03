@@ -70,7 +70,7 @@ export default function Home() {
               The NBA, broken down by people who actually watch the{' '}
               <span className="marker">film</span>.
             </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-faintd">
+            <p className="max-w-xl text-lg leading-relaxed text-muted">
               Western Conference Elitists covers the league year-round —
               trades, team building, playoff strategy, and the prospects who
               will be running it in five years. Built on tape, backed by
@@ -102,7 +102,7 @@ export default function Home() {
             <SectionHeading eyebrow="Latest" title="Fresh Analysis" />
             <Link
               to="/articles"
-              className="underline-grow hidden text-sm font-semibold uppercase tracking-wide text-faintd hover:text-ink sm:block"
+              className="underline-grow hidden text-sm font-semibold uppercase tracking-wide text-muted hover:text-ink sm:block"
             >
               View All →
             </Link>
@@ -135,7 +135,7 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <p className="mt-6 text-base leading-relaxed text-faintd">
+            <p className="mt-6 text-base leading-relaxed text-muted">
               {SPOTLIGHT_PROSPECT.summary}
             </p>
             <p className="mt-4 text-sm font-medium text-green">
@@ -178,7 +178,7 @@ export default function Home() {
             />
             <Link
               to="/rankings"
-              className="underline-grow hidden text-sm font-semibold uppercase tracking-wide text-faintd hover:text-ink sm:block"
+              className="underline-grow hidden text-sm font-semibold uppercase tracking-wide text-muted hover:text-ink sm:block"
             >
               Full Board →
             </Link>
@@ -213,7 +213,7 @@ export default function Home() {
                 {String(i + 1).padStart(2, '0')}
               </span>
               <h3 className="mt-4 text-lg font-bold text-ink">{p.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-faintd">{p.body}</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted">{p.body}</p>
             </div>
           ))}
         </div>

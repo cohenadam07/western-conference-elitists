@@ -30,7 +30,7 @@ export default function Draft() {
                 Thirty-{year === 2026 ? 'six' : 'two'} prospects, ranked one through
                 thirty-{year === 2026 ? 'six' : 'two'}.
               </h1>
-              <p className="mt-5 max-w-xl text-lg leading-relaxed text-faintd">
+              <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
                 Full scouting profiles, measurements, and role projections —
                 analytics first, scouting always. One board, opinions
                 included, consensus optional.
@@ -61,7 +61,7 @@ export default function Draft() {
               </div>
             </div>
 
-            <p className="mt-6 text-base leading-relaxed text-faintd">
+            <p className="mt-6 text-base leading-relaxed text-muted">
               {spotlight.summary}
             </p>
 
@@ -94,7 +94,7 @@ export default function Draft() {
               <h3 className="text-sm font-bold uppercase tracking-wide text-green">
                 Strengths
               </h3>
-              <ul className="mt-4 space-y-3 text-sm leading-relaxed text-faintd">
+              <ul className="mt-4 space-y-3 text-sm leading-relaxed text-muted">
                 {spotlight.strengths.map((s) => (
                   <li key={s} className="flex gap-2">
                     <span className="text-green">+</span>
@@ -107,7 +107,7 @@ export default function Draft() {
               <h3 className="text-sm font-bold uppercase tracking-wide text-red">
                 Weaknesses
               </h3>
-              <ul className="mt-4 space-y-3 text-sm leading-relaxed text-faintd">
+              <ul className="mt-4 space-y-3 text-sm leading-relaxed text-muted">
                 {spotlight.weaknesses.map((s) => (
                   <li key={s} className="flex gap-2">
                     <span className="text-red">−</span>
@@ -120,7 +120,7 @@ export default function Draft() {
               <h3 className="text-sm font-bold uppercase tracking-wide text-gold-deep">
                 Role Projection
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-faintd">
+              <p className="mt-3 text-sm leading-relaxed text-muted">
                 {spotlight.projection}
               </p>
             </div>
@@ -141,7 +141,7 @@ export default function Draft() {
                   className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
                     filter === pos
                       ? 'border-navy bg-navy text-white'
-                      : 'border-line bg-surface text-faintd hover:border-faintd hover:text-ink'
+                      : 'border-line bg-surface text-muted hover:border-muted hover:text-ink'
                   }`}
                 >
                   {pos}
@@ -165,7 +165,7 @@ export default function Draft() {
                       </p>
                     </div>
                   </div>
-                  <span className="rounded-sm border border-line bg-paper px-2 py-1 font-mono-tight text-xs font-bold text-faintd">
+                  <span className="rounded-sm border border-line bg-paper px-2 py-1 font-mono-tight text-xs font-bold text-muted">
                     {p.grade}
                   </span>
                 </div>
@@ -174,7 +174,7 @@ export default function Draft() {
                     ▲ {p.tag}
                   </span>
                 )}
-                <p className="mt-4 text-sm leading-relaxed text-faintd">{p.summary}</p>
+                <p className="mt-4 text-sm leading-relaxed text-muted">{p.summary}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <span className="rounded-sm bg-paper px-2 py-1 text-xs text-faint">
                     {p.height}
@@ -189,7 +189,7 @@ export default function Draft() {
               </div>
             ))}
             {filtered.length === 0 && (
-              <p className="col-span-full py-10 text-center text-faintd">
+              <p className="col-span-full py-10 text-center text-muted">
                 No prospects match that position yet — check back as the board updates.
               </p>
             )}

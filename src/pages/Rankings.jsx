@@ -25,16 +25,16 @@ function ProspectRow({ p, isOpen, onToggle }) {
           </p>
         </div>
 
-        <span className="hidden font-mono-tight text-xs text-faintd sm:block">
+        <span className="hidden font-mono-tight text-xs text-muted sm:block">
           {p.height} / {p.wingspan}
         </span>
 
-        <span className="hidden rounded-sm border border-line bg-paper px-2 py-1 text-center font-mono-tight text-xs font-bold text-faintd sm:block">
+        <span className="hidden rounded-sm border border-line bg-paper px-2 py-1 text-center font-mono-tight text-xs font-bold text-muted sm:block">
           {p.grade}
         </span>
 
         <span
-          className={`flex h-8 w-8 items-center justify-center rounded-full border border-line text-faintd transition-transform ${
+          className={`flex h-8 w-8 items-center justify-center rounded-full border border-line text-muted transition-transform ${
             isOpen ? 'rotate-45 border-navy text-navy' : ''
           }`}
         >
@@ -53,14 +53,14 @@ function ProspectRow({ p, isOpen, onToggle }) {
               ▲ {p.tag}
             </span>
           )}
-          <p className="text-sm leading-relaxed text-faintd">{p.summary}</p>
+          <p className="text-sm leading-relaxed text-muted">{p.summary}</p>
 
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <h4 className="text-xs font-bold uppercase tracking-wide text-green">
                 Strengths
               </h4>
-              <ul className="mt-2 space-y-1.5 text-sm text-faintd">
+              <ul className="mt-2 space-y-1.5 text-sm text-muted">
                 {p.strengths.map((s) => (
                   <li key={s} className="flex gap-2">
                     <span className="text-green">+</span> {s}
@@ -73,7 +73,7 @@ function ProspectRow({ p, isOpen, onToggle }) {
                 <h4 className="text-xs font-bold uppercase tracking-wide text-red">
                   Weaknesses
                 </h4>
-                <ul className="mt-2 space-y-1.5 text-sm text-faintd">
+                <ul className="mt-2 space-y-1.5 text-sm text-muted">
                   {p.weaknesses.map((s) => (
                     <li key={s} className="flex gap-2">
                       <span className="text-red">−</span> {s}
@@ -84,7 +84,7 @@ function ProspectRow({ p, isOpen, onToggle }) {
             )}
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-3 font-mono-tight text-xs text-faintd">
+          <div className="mt-5 flex flex-wrap gap-3 font-mono-tight text-xs text-muted">
             <span className="rounded-sm bg-paper px-2 py-1">{p.height} HT</span>
             <span className="rounded-sm bg-paper px-2 py-1">{p.wingspan} WS</span>
             <span className="rounded-sm bg-paper px-2 py-1">{p.weight}</span>
@@ -118,7 +118,7 @@ export default function Rankings() {
               <h1 className="text-display mt-4 max-w-3xl text-4xl text-ink sm:text-5xl lg:text-6xl">
                 The <span className="marker">Board</span>
               </h1>
-              <p className="mt-5 max-w-xl text-lg leading-relaxed text-faintd">
+              <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
                 {prospects.length} prospects, ranked one through {prospects.length}.
                 Analytics first, scouting always. Click any row to expand the
                 full breakdown.
