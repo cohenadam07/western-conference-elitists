@@ -5,8 +5,10 @@ import ArticleCard from '../components/ArticleCard.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import FilterChips from '../components/FilterChips.jsx'
 import { ARTICLES, CATEGORIES, FEATURED_ARTICLE } from '../data/content.js'
+import usePageMeta from '../lib/usePageMeta.js'
 
 export default function Articles() {
+  usePageMeta('Analysis', 'Scouting breakdowns, team-building theory, and NBA analytics that hold up under pressure.')
   const [searchParams, setSearchParams] = useSearchParams()
   const activeCategory = searchParams.get('category') || 'All'
   const [query, setQuery] = useState('')

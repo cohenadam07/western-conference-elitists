@@ -3,6 +3,7 @@ import SectionHeading from '../components/SectionHeading.jsx'
 import YearSelector from '../components/YearSelector.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import { DRAFT_CLASSES, DRAFT_YEARS } from '../data/content.js'
+import usePageMeta from '../lib/usePageMeta.js'
 
 function ProspectRow({ p, isOpen, onToggle }) {
   return (
@@ -102,6 +103,7 @@ function ProspectRow({ p, isOpen, onToggle }) {
 }
 
 export default function Rankings() {
+  usePageMeta('Big Board', 'The WCE Big Board — every prospect ranked and tiered, analytics first, scouting always.')
   const [year, setYear] = useState(DRAFT_YEARS[0].year)
   const [expanded, setExpanded] = useState(null)
 

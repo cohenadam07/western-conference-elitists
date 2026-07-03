@@ -4,10 +4,12 @@ import YearSelector from '../components/YearSelector.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import FilterChips from '../components/FilterChips.jsx'
 import { DRAFT_CLASSES, DRAFT_YEARS, POSITION_GROUPS } from '../data/content.js'
+import usePageMeta from '../lib/usePageMeta.js'
 
 const POSITIONS = ['All', ...POSITION_GROUPS]
 
 export default function Draft() {
+  usePageMeta('Draft Hub', 'Full scouting profiles, measurements, and role projections for the NBA Draft class.')
   const [year, setYear] = useState(DRAFT_YEARS[0].year)
   const [filter, setFilter] = useState('All')
 

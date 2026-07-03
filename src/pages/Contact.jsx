@@ -3,8 +3,10 @@ import SectionHeading from '../components/SectionHeading.jsx'
 import NewsletterCTA from '../components/NewsletterCTA.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import { SOCIALS } from '../data/content.js'
+import usePageMeta from '../lib/usePageMeta.js'
 
 export default function Contact() {
+  usePageMeta('Contact', 'Pitches, scouting disagreements, partnerships — get in touch with Western Conference Elitists.')
   const [form, setForm] = useState({ name: '', email: '', reason: 'General', message: '' })
   const [sent, setSent] = useState(false)
 

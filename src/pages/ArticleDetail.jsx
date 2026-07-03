@@ -4,6 +4,7 @@ import { ARTICLES, FOUNDER } from '../data/content.js'
 import ArticleCard from '../components/ArticleCard.jsx'
 import NewsletterCTA from '../components/NewsletterCTA.jsx'
 import CourtLines from '../components/CourtLines.jsx'
+import usePageMeta from '../lib/usePageMeta.js'
 
 // Placeholder long-form body paragraphs, reused across articles for the demo.
 const BODY = [
@@ -78,6 +79,8 @@ export default function ArticleDetail() {
   const { slug } = useParams()
   const article = ARTICLES.find((a) => a.slug === slug) || ARTICLES[0]
   const related = ARTICLES.filter((a) => a.slug !== article.slug).slice(0, 3)
+
+  usePageMeta(article.title, article.excerpt)
 
   return (
     <article>

@@ -2,6 +2,7 @@ import SectionHeading from '../components/SectionHeading.jsx'
 import Button from '../components/Button.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import { FOUNDER } from '../data/content.js'
+import usePageMeta from '../lib/usePageMeta.js'
 
 const VOICE_TRAITS = [
   { label: 'Confident', body: 'We take positions and defend them with evidence, not hedges.' },
@@ -29,6 +30,7 @@ const METHOD = [
 ]
 
 export default function About() {
+  usePageMeta('About', 'Who we are and how we work: film-first, data-honest NBA and draft coverage.')
   return (
     <div>
       <PageHeader

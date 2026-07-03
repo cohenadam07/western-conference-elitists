@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom'
 import PageHeader from '../components/PageHeader.jsx'
 import FilterChips from '../components/FilterChips.jsx'
 import { CATEGORIES, NEWS_ITEMS } from '../data/content.js'
+import usePageMeta from '../lib/usePageMeta.js'
 
 export default function News() {
+  usePageMeta('News', 'Fast hits on trades, injuries, front-office moves, and the draft circuit from Western Conference Elitists.')
   const [filter, setFilter] = useState('All')
 
   const filtered = useMemo(

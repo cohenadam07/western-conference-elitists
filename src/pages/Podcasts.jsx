@@ -2,8 +2,10 @@ import { useMemo, useState } from 'react'
 import PageHeader from '../components/PageHeader.jsx'
 import FilterChips from '../components/FilterChips.jsx'
 import { CATEGORIES, PODCASTS, PODCAST_SHOW } from '../data/content.js'
+import usePageMeta from '../lib/usePageMeta.js'
 
 export default function Podcasts() {
+  usePageMeta('Podcasts', 'The WCE podcast — draft breakdowns, trade talk, and film-room conversations.')
   const [filter, setFilter] = useState('All')
 
   const filtered = useMemo(

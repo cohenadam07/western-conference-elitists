@@ -7,6 +7,7 @@ import NewsletterCTA from '../components/NewsletterCTA.jsx'
 import CourtLines from '../components/CourtLines.jsx'
 import Reveal from '../components/Reveal.jsx'
 import { ARTICLES, FEATURED_ARTICLE, PROSPECTS, SPOTLIGHT_PROSPECT } from '../data/content.js'
+import usePageMeta from '../lib/usePageMeta.js'
 
 const TICKER = [
   'LEAGUE POWER RANKINGS UPDATED',
@@ -77,6 +78,7 @@ function Ticker() {
 }
 
 export default function Home() {
+  usePageMeta(null)
   return (
     <div>
       <Ticker />
