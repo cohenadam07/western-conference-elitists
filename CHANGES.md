@@ -21,7 +21,7 @@ The source is now on the real WCE brand (it previously still had an older Inter/
 
 ## Deliberately left alone
 
-- **`public/basketball-savant.html` — byte-for-byte identical** (sha256 `da0e100f…` verified before and after). Still linked as a full page from nav, footer, and the homepage band.
+- **`public/basketball-savant.html`** — kept byte-for-byte identical during the overnight redesign (sha256 verified). The morning after, per request, a slim navy site-nav ribbon (WCE wordmark + News/Podcasts/Draft/Big Board/Analysis links, gold rule) was added above the tool's own header — a purely additive style block + markup insert; the tool itself is untouched and still works.
 - All routes and page inventory; **all content in `src/data/content.js`** (one exception: fixed "on-court evidence" in About.jsx after the token rename briefly turned it into "on-gold evidence" — caught and corrected in the same session).
 - Build tooling, dependencies (nothing added), README.
 
