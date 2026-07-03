@@ -159,10 +159,11 @@ body {
   transform: none;
 }
 
-/* On-load entrance — apply with inline animation-delay for stagger */
+/* On-load entrance — apply with inline animation-delay for stagger.
+   fill-mode both keeps the from-frame during the delay, and the base
+   state stays visible if animations never run at all. */
 .animate-rise {
-  opacity: 0;
-  animation: rise-fade 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: rise-fade 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

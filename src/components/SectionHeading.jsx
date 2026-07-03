@@ -1,14 +1,19 @@
 export default function SectionHeading({ eyebrow, title, subtitle, align = 'left' }) {
-  const alignClass = align === 'center' ? 'items-center text-center mx-auto' : 'items-start text-left'
+  const centered = align === 'center'
   return (
-    <div className={`flex max-w-2xl flex-col gap-3 ${alignClass}`}>
-      {eyebrow && (
-        <span className="font-mono-tight text-xs font-semibold uppercase tracking-[0.2em] text-navy">
-          {eyebrow}
-        </span>
+    <div
+      className={`flex max-w-2xl flex-col ${
+        centered ? 'mx-auto items-center text-center' : 'items-start text-left'
+      }`}
+    >
+      <span className="rule-gold" aria-hidden="true" />
+      {eyebrow && <span className="kicker mt-4 text-navy">{eyebrow}</span>}
+      <h2 className="text-display mt-3 text-[28px] leading-[1.15] text-ink sm:text-4xl">
+        {title}
+      </h2>
+      {subtitle && (
+        <p className="mt-4 text-[15px] leading-relaxed text-muted">{subtitle}</p>
       )}
-      <h2 className="text-display text-3xl text-ink sm:text-4xl">{title}</h2>
-      {subtitle && <p className="text-base leading-relaxed text-muted">{subtitle}</p>}
     </div>
   )
 }

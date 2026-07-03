@@ -4,6 +4,7 @@ import SectionHeading from '../components/SectionHeading.jsx'
 import ArticleCard from '../components/ArticleCard.jsx'
 import ProspectCard from '../components/ProspectCard.jsx'
 import NewsletterCTA from '../components/NewsletterCTA.jsx'
+import CourtLines from '../components/CourtLines.jsx'
 import { ARTICLES, FEATURED_ARTICLE, PROSPECTS, SPOTLIGHT_PROSPECT } from '../data/content.js'
 
 const TICKER = [
@@ -38,71 +39,116 @@ const PILLARS = [
   },
 ]
 
+const SAVANT_FEATURES = ['Percentile Sliders', 'Player Compare', 'Team Browser', 'On/Off Splits']
+
+const SAVANT_BARS = [
+  { label: 'TS%', pct: 92 },
+  { label: 'AST%', pct: 84 },
+  { label: 'USG%', pct: 71 },
+  { label: 'DREB%', pct: 58 },
+  { label: 'STL%', pct: 76 },
+]
+
+function Ticker() {
+  return (
+    <div className="group relative overflow-hidden bg-navy py-2.5">
+      <div className="animate-marquee flex w-max gap-12 whitespace-nowrap group-hover:[animation-play-state:paused]">
+        {[false, true].map((clone) => (
+          <div
+            key={clone ? 'clone' : 'original'}
+            aria-hidden={clone || undefined}
+            className="flex gap-12"
+          >
+            {TICKER.map((t) => (
+              <span
+                key={t}
+                className="font-mono-tight flex items-center gap-3 text-xs font-medium uppercase tracking-widest text-white/85"
+              >
+                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-gold" />
+                {t}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   return (
     <div>
-      {/* Breaking ticker */}
-      <div className="relative overflow-hidden bg-navy py-2.5">
-        <div className="animate-marquee flex w-max gap-12 whitespace-nowrap">
-          {[...TICKER, ...TICKER].map((t, i) => (
-            <span
-              key={i}
-              className="font-mono-tight flex items-center gap-3 text-xs font-semibold uppercase tracking-widest text-white"
-            >
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red" />
-              </span>
-              {t}
-            </span>
-          ))}
-        </div>
-      </div>
+      <Ticker />
 
-      {/* Hero */}
-      <section className="relative border-b border-line bg-wash">
-        <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-24">
-          <div className="flex flex-col items-start gap-6">
-            <span className="font-mono-tight rounded-sm bg-navy px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-white">
-              NBA Coverage, Year-Round
+      {/* Hero — the featured piece */}
+      <section className="relative border-b border-line">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 py-14 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-20 lg:px-10 lg:py-24">
+          <div>
+            <span
+              className="animate-rise kicker flex flex-wrap items-center gap-x-3 gap-y-1 text-navy"
+              style={{ animationDelay: '60ms' }}
+            >
+              The Feature
+              <span aria-hidden="true" className="text-gold">◆</span>
+              {FEATURED_ARTICLE.category}
+              <span aria-hidden="true" className="text-gold">◆</span>
+              {FEATURED_ARTICLE.date}
             </span>
-            <h1 className="text-display max-w-4xl text-5xl leading-[1.05] text-ink sm:text-6xl lg:text-7xl">
-              The NBA, broken down by people who actually watch the{' '}
-              <span className="marker">film</span>.
+            <h1
+              className="animate-rise text-display mt-5 text-[38px] leading-[1.06] text-ink sm:text-5xl lg:text-[58px]"
+              style={{ animationDelay: '140ms' }}
+            >
+              <Link
+                to={`/articles/${FEATURED_ARTICLE.slug}`}
+                className="transition-colors duration-300 hover:text-navy"
+              >
+                {FEATURED_ARTICLE.title}
+              </Link>
             </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-muted">
-              Western Conference Elitists covers the league year-round —
-              trades, team building, playoff strategy, and the prospects who
-              will be running it in five years. Built on tape, backed by
-              data, written for people who know the difference between a
-              good stat line and a good player.
+            <p
+              className="animate-rise mt-6 max-w-xl text-lg leading-relaxed text-muted"
+              style={{ animationDelay: '220ms' }}
+            >
+              {FEATURED_ARTICLE.excerpt}
             </p>
-            <div className="mt-2 flex flex-wrap gap-4">
-              <Button to="/articles">Read the Latest</Button>
+            <div
+              className="animate-rise mt-8 flex flex-wrap items-center gap-4"
+              style={{ animationDelay: '300ms' }}
+            >
+              <Button to={`/articles/${FEATURED_ARTICLE.slug}`}>Read the Feature</Button>
               <Button to="/rankings" variant="secondary">
                 View the Big Board
               </Button>
+              <span className="font-mono-tight text-xs text-faint">
+                {FEATURED_ARTICLE.readTime}
+              </span>
+            </div>
+          </div>
+
+          <div
+            className="animate-rise relative hidden lg:block"
+            style={{ animationDelay: '260ms' }}
+          >
+            <div className="relative overflow-hidden rounded-md border border-line bg-surface p-6 shadow-[0_24px_48px_-32px_rgba(24,43,71,0.35)]">
+              <div className="absolute inset-x-0 top-0 h-[3px] bg-gold" aria-hidden="true" />
+              <CourtLines className="h-[420px] w-full text-navy/30" />
+              <div className="mt-5 flex items-center justify-between border-t border-line-soft pt-4">
+                <span className="kicker text-faint">Western Conference Elitists</span>
+                <span className="font-mono-tight text-xs text-gold-deep">FIG. 01 · THE HALF COURT</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Featured content */}
-      <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
-        <SectionHeading eyebrow="Featured" title="Start Here" />
-        <div className="mt-10">
-          <ArticleCard article={FEATURED_ARTICLE} featured />
-        </div>
-      </section>
-
       {/* Latest analysis */}
-      <section className="border-y border-line bg-wash">
+      <section className="border-b border-line bg-wash">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
           <div className="flex items-end justify-between">
             <SectionHeading eyebrow="Latest" title="Fresh Analysis" />
             <Link
               to="/articles"
-              className="underline-grow hidden text-sm font-semibold uppercase tracking-wide text-muted hover:text-ink sm:block"
+              className="underline-grow hidden font-mono text-xs font-medium uppercase tracking-[0.14em] text-muted hover:text-ink sm:block"
             >
               View All →
             </Link>
@@ -115,6 +161,75 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Basketball Savant — flagship product band */}
+      <section className="relative overflow-hidden bg-navy text-white">
+        <CourtLines
+          className="pointer-events-none absolute -right-24 -top-16 h-[520px] w-auto text-white/[0.07]"
+          accent="rgba(194,162,99,0.25)"
+        />
+        <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20 lg:px-10 lg:py-24">
+          <div>
+            <span className="rule-gold" aria-hidden="true" />
+            <span className="kicker mt-4 block text-gold">The Data Tool · Built In-House</span>
+            <h2 className="text-display mt-3 text-4xl text-white sm:text-5xl">
+              Basketball Savant
+            </h2>
+            <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/75">
+              Every NBA player, sortable by percentile. Compare players across
+              seasons, browse full team rosters, and see who actually moves the
+              numbers when they are on the floor — the same data our analysis
+              runs on, opened up for you.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {SAVANT_FEATURES.map((f) => (
+                <span
+                  key={f}
+                  className="rounded-full border border-white/20 px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-white/80"
+                >
+                  {f}
+                </span>
+              ))}
+            </div>
+            <div className="mt-8">
+              <Button href="/basketball-savant.html" variant="light">
+                Launch Basketball Savant
+                <span aria-hidden="true">↗</span>
+              </Button>
+            </div>
+          </div>
+
+          <div className="rounded-md border border-white/15 bg-white/[0.06] p-6 backdrop-blur-sm lg:p-8">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <span className="font-mono-tight text-xs uppercase tracking-[0.14em] text-white/60">
+                Percentile Profile
+              </span>
+              <span className="font-mono-tight text-xs text-gold">2025–26</span>
+            </div>
+            <div className="mt-5 flex flex-col gap-4">
+              {SAVANT_BARS.map((b) => (
+                <div key={b.label} className="flex items-center gap-4">
+                  <span className="w-14 shrink-0 font-mono-tight text-xs text-white/70">
+                    {b.label}
+                  </span>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-gold"
+                      style={{ width: `${b.pct}%`, opacity: 0.45 + (b.pct / 100) * 0.55 }}
+                    />
+                  </div>
+                  <span className="w-8 shrink-0 text-right font-mono-tight text-xs text-white/85">
+                    {b.pct}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-5 border-t border-white/10 pt-4 font-mono-tight text-[11px] uppercase tracking-[0.12em] text-white/45">
+              League percentiles · every player · every team
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Draft spotlight */}
       <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
         <SectionHeading
@@ -122,23 +237,24 @@ export default function Home() {
           title="No. 1 on the Board"
           subtitle="Every week we put one prospect under the microscope. This week: the wing who has not left the top spot since February."
         />
-        <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_1fr]">
-          <div className="flex flex-col justify-center rounded-md border border-line bg-surface p-8 lg:p-10">
+        <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[1.1fr_1fr]">
+          <div className="relative flex flex-col justify-center overflow-hidden rounded-md border border-line bg-surface p-8 lg:p-10">
+            <div className="absolute inset-x-0 top-0 h-[3px] bg-gold" aria-hidden="true" />
             <div className="flex items-baseline gap-4">
               <span className="text-display text-6xl text-navy">01</span>
               <div>
                 <h3 className="text-display text-3xl text-ink">
                   {SPOTLIGHT_PROSPECT.name}
                 </h3>
-                <p className="text-sm uppercase tracking-wide text-faint">
+                <p className="kicker mt-1.5 text-faint">
                   {SPOTLIGHT_PROSPECT.school} · {SPOTLIGHT_PROSPECT.position}
                 </p>
               </div>
             </div>
-            <p className="mt-6 text-base leading-relaxed text-muted">
+            <p className="mt-6 text-[15px] leading-relaxed text-muted">
               {SPOTLIGHT_PROSPECT.summary}
             </p>
-            <p className="mt-4 text-sm font-medium text-green">
+            <p className="mt-4 border-l-[3px] border-gold pl-4 text-sm font-medium leading-relaxed text-navy">
               {SPOTLIGHT_PROSPECT.projection}
             </p>
             <Button to="/draft" variant="secondary" className="mt-8 w-fit">
@@ -158,9 +274,7 @@ export default function Home() {
                 className="flex flex-col items-center justify-center gap-2 rounded-md border border-line bg-surface py-8"
               >
                 <span className="font-mono-tight text-3xl text-ink">{value}</span>
-                <span className="text-xs uppercase tracking-widest text-faint">
-                  {label}
-                </span>
+                <span className="kicker text-faint">{label}</span>
               </div>
             ))}
           </div>
@@ -178,7 +292,7 @@ export default function Home() {
             />
             <Link
               to="/rankings"
-              className="underline-grow hidden text-sm font-semibold uppercase tracking-wide text-muted hover:text-ink sm:block"
+              className="underline-grow hidden font-mono text-xs font-medium uppercase tracking-[0.14em] text-muted hover:text-ink sm:block"
             >
               Full Board →
             </Link>
@@ -203,16 +317,13 @@ export default function Home() {
           title="Built for People Who Already Know the Game"
           subtitle="We are not chasing hot takes or volume. We are building the basketball media outlet we wish existed when we started doing this."
         />
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
           {PILLARS.map((p, i) => (
-            <div
-              key={p.title}
-              className="card-hover flex flex-col rounded-md border border-line bg-surface p-6"
-            >
-              <span className="font-mono-tight text-3xl text-navy">
+            <div key={p.title} className="flex flex-col border-t-2 border-navy pt-5">
+              <span className="text-display text-3xl text-gold-deep">
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <h3 className="mt-4 text-lg font-bold text-ink">{p.title}</h3>
+              <h3 className="text-display mt-3 text-xl text-ink">{p.title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted">{p.body}</p>
             </div>
           ))}

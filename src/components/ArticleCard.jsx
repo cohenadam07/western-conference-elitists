@@ -5,23 +5,28 @@ export default function ArticleCard({ article, featured = false }) {
     return (
       <Link
         to={`/articles/${article.slug}`}
-        className="card-hover group relative flex flex-col overflow-hidden rounded-md border border-line bg-surface p-8 lg:p-10"
+        className="card-hover group relative flex flex-col overflow-hidden rounded-md border border-line bg-surface p-8 lg:p-12"
       >
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-navy via-red to-gold" />
-        <div className="absolute inset-0 bg-gradient-to-br from-navy/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-        <span className="relative w-fit rounded-full bg-navy px-3 py-1 font-mono-tight text-xs font-semibold uppercase tracking-widest text-white">
+        <div className="absolute inset-x-0 top-0 h-[3px] bg-gold" aria-hidden="true" />
+        <span className="kicker text-gold-deep">
           {article.category} · Featured
         </span>
-        <h3 className="relative mt-4 max-w-3xl text-display text-3xl leading-tight text-ink sm:text-4xl">
+        <h3 className="text-display mt-4 max-w-3xl text-3xl leading-[1.12] text-ink transition-colors duration-300 group-hover:text-navy sm:text-4xl">
           {article.title}
         </h3>
-        <p className="relative mt-4 max-w-2xl text-base leading-relaxed text-muted">
+        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted">
           {article.excerpt}
         </p>
-        <div className="relative mt-6 flex items-center gap-3 text-xs text-faint">
+        <div className="mt-6 flex items-center gap-3 font-mono-tight text-xs text-faint">
           <span>{article.date}</span>
-          <span>·</span>
+          <span aria-hidden="true">·</span>
           <span>{article.readTime}</span>
+          <span
+            aria-hidden="true"
+            className="ml-2 inline-block transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none"
+          >
+            →
+          </span>
         </div>
       </Link>
     )
@@ -32,18 +37,16 @@ export default function ArticleCard({ article, featured = false }) {
       to={`/articles/${article.slug}`}
       className="card-hover group flex flex-col rounded-md border border-line bg-surface p-6"
     >
-      <span className="font-mono-tight text-xs font-semibold uppercase tracking-widest text-navy">
-        {article.category}
-      </span>
-      <h3 className="mt-3 text-lg font-bold leading-snug text-ink transition-colors group-hover:text-gold-deep">
+      <span className="kicker text-gold-deep">{article.category}</span>
+      <h3 className="text-display mt-3 text-[21px] leading-snug text-ink transition-colors duration-300 group-hover:text-navy">
         {article.title}
       </h3>
       <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted">
         {article.excerpt}
       </p>
-      <div className="mt-5 flex items-center gap-3 text-xs text-faint">
+      <div className="mt-auto flex items-center gap-3 pt-5 font-mono-tight text-xs text-faint">
         <span>{article.date}</span>
-        <span>·</span>
+        <span aria-hidden="true">·</span>
         <span>{article.readTime}</span>
       </div>
     </Link>
