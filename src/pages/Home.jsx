@@ -5,6 +5,7 @@ import ArticleCard from '../components/ArticleCard.jsx'
 import ProspectCard from '../components/ProspectCard.jsx'
 import NewsletterCTA from '../components/NewsletterCTA.jsx'
 import CourtLines from '../components/CourtLines.jsx'
+import Reveal from '../components/Reveal.jsx'
 import { ARTICLES, FEATURED_ARTICLE, PROSPECTS, SPOTLIGHT_PROSPECT } from '../data/content.js'
 
 const TICKER = [
@@ -144,20 +145,24 @@ export default function Home() {
       {/* Latest analysis */}
       <section className="border-b border-line bg-wash">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
-          <div className="flex items-end justify-between">
-            <SectionHeading eyebrow="Latest" title="Fresh Analysis" />
-            <Link
-              to="/articles"
-              className="underline-grow hidden font-mono text-xs font-medium uppercase tracking-[0.14em] text-muted hover:text-ink sm:block"
-            >
-              View All →
-            </Link>
-          </div>
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {ARTICLES.slice(1, 4).map((a) => (
-              <ArticleCard key={a.slug} article={a} />
-            ))}
-          </div>
+          <Reveal>
+            <div className="flex items-end justify-between">
+              <SectionHeading eyebrow="Latest" title="Fresh Analysis" />
+              <Link
+                to="/articles"
+                className="underline-grow hidden font-mono text-xs font-medium uppercase tracking-[0.14em] text-muted hover:text-ink sm:block"
+              >
+                View All →
+              </Link>
+            </div>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {ARTICLES.slice(1, 4).map((a) => (
+                <ArticleCard key={a.slug} article={a} />
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -168,7 +173,7 @@ export default function Home() {
           accent="rgba(194,162,99,0.25)"
         />
         <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20 lg:px-10 lg:py-24">
-          <div>
+          <Reveal>
             <span className="rule-gold" aria-hidden="true" />
             <span className="kicker mt-4 block text-gold">The Data Tool · Built In-House</span>
             <h2 className="text-display mt-3 text-4xl text-white sm:text-5xl">
@@ -196,9 +201,9 @@ export default function Home() {
                 <span aria-hidden="true">↗</span>
               </Button>
             </div>
-          </div>
+          </Reveal>
 
-          <div className="rounded-md border border-white/15 bg-white/[0.06] p-6 backdrop-blur-sm lg:p-8">
+          <Reveal delay={120} className="rounded-md border border-white/15 bg-white/[0.06] p-6 backdrop-blur-sm lg:p-8">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <span className="font-mono-tight text-xs uppercase tracking-[0.14em] text-white/60">
                 Percentile Profile
@@ -226,17 +231,20 @@ export default function Home() {
             <p className="mt-5 border-t border-white/10 pt-4 font-mono-tight text-[11px] uppercase tracking-[0.12em] text-white/45">
               League percentiles · every player · every team
             </p>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* Draft spotlight */}
       <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
-        <SectionHeading
-          eyebrow="Draft Spotlight"
-          title="No. 1 on the Board"
-          subtitle="Every week we put one prospect under the microscope. This week: the wing who has not left the top spot since February."
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow="Draft Spotlight"
+            title="No. 1 on the Board"
+            subtitle="Every week we put one prospect under the microscope. This week: the wing who has not left the top spot since February."
+          />
+        </Reveal>
+        <Reveal delay={100}>
         <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[1.1fr_1fr]">
           <div className="relative flex flex-col justify-center overflow-hidden rounded-md border border-line bg-surface p-8 lg:p-10">
             <div className="absolute inset-x-0 top-0 h-[3px] bg-gold" aria-hidden="true" />
@@ -279,29 +287,34 @@ export default function Home() {
             ))}
           </div>
         </div>
+        </Reveal>
       </section>
 
       {/* Rankings preview */}
       <section className="border-y border-line bg-wash">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
-          <div className="flex items-end justify-between">
-            <SectionHeading
-              eyebrow="Big Board"
-              title="Top Prospects Right Now"
-              subtitle="Updated weekly as the film and data come in. These are evaluation rankings, not mock draft slots."
-            />
-            <Link
-              to="/rankings"
-              className="underline-grow hidden font-mono text-xs font-medium uppercase tracking-[0.14em] text-muted hover:text-ink sm:block"
-            >
-              Full Board →
-            </Link>
-          </div>
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {PROSPECTS.slice(0, 3).map((p) => (
-              <ProspectCard key={p.rank} prospect={p} />
-            ))}
-          </div>
+          <Reveal>
+            <div className="flex items-end justify-between">
+              <SectionHeading
+                eyebrow="Big Board"
+                title="Top Prospects Right Now"
+                subtitle="Updated weekly as the film and data come in. These are evaluation rankings, not mock draft slots."
+              />
+              <Link
+                to="/rankings"
+                className="underline-grow hidden font-mono text-xs font-medium uppercase tracking-[0.14em] text-muted hover:text-ink sm:block"
+              >
+                Full Board →
+              </Link>
+            </div>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {PROSPECTS.slice(0, 3).map((p) => (
+                <ProspectCard key={p.rank} prospect={p} />
+              ))}
+            </div>
+          </Reveal>
           <div className="mt-10 flex justify-center sm:hidden">
             <Button to="/rankings" variant="secondary">
               View Full Board
@@ -312,11 +325,14 @@ export default function Home() {
 
       {/* Brand positioning */}
       <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
-        <SectionHeading
-          eyebrow="Why WCE"
-          title="Built for People Who Already Know the Game"
-          subtitle="We are not chasing hot takes or volume. We are building the basketball media outlet we wish existed when we started doing this."
-        />
+        <Reveal>
+          <SectionHeading
+            eyebrow="Why WCE"
+            title="Built for People Who Already Know the Game"
+            subtitle="We are not chasing hot takes or volume. We are building the basketball media outlet we wish existed when we started doing this."
+          />
+        </Reveal>
+        <Reveal delay={100}>
         <div className="mt-12 grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
           {PILLARS.map((p, i) => (
             <div key={p.title} className="flex flex-col border-t-2 border-navy pt-5">
@@ -328,11 +344,14 @@ export default function Home() {
             </div>
           ))}
         </div>
+        </Reveal>
       </section>
 
       {/* Newsletter */}
       <section className="mx-auto max-w-7xl px-6 pb-24 lg:px-10">
-        <NewsletterCTA />
+        <Reveal>
+          <NewsletterCTA />
+        </Reveal>
       </section>
     </div>
   )

@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
@@ -14,6 +14,7 @@ import Contact from './pages/Contact.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 function App() {
+  const { pathname } = useLocation()
   return (
     <div className="flex min-h-screen flex-col bg-paper">
       <a
@@ -25,7 +26,9 @@ function App() {
       <ScrollToTop />
       <Navbar />
       <main id="main" className="flex-1">
-        <Routes>
+        {/* Keyed by path so page content fades in on route change */}
+        <div key={pathname} className="route-fade">
+          <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/news" element={<News />} />
           <Route path="/podcasts" element={<Podcasts />} />
@@ -36,7 +39,8 @@ function App() {
           <Route path="/articles/:slug" element={<ArticleDetail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
-        </Routes>
+          </Routes>
+        </div>
       </main>
       <Footer />
     </div>
