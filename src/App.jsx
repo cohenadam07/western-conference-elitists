@@ -15,8 +15,7 @@ import NotFound from './pages/NotFound.jsx'
 
 function App() {
   return (
-    <div className="flex min-h-screen flex-col bg-ink">
-      <div className="grain-overlay" />
+    <div className="flex min-h-screen flex-col bg-paper">
       <ScrollToTop />
       <Navbar />
       <main className="flex-1">

@@ -33,8 +33,8 @@ export default function Navbar() {
     <header
       className={`sticky top-0 z-40 w-full transition-all duration-300 ${
         scrolled
-          ? 'border-b border-line bg-ink/95 shadow-sm backdrop-blur-md'
-          : 'border-b border-transparent bg-ink'
+          ? 'border-b border-line bg-paper/95 shadow-sm backdrop-blur-md'
+          : 'border-b border-transparent bg-paper'
       }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
@@ -46,7 +46,7 @@ export default function Navbar() {
               <a
                 key={link.href}
                 href={link.href}
-                className="underline-grow text-sm font-medium uppercase tracking-wide text-bone-dim transition-colors hover:text-bone"
+                className="underline-grow text-sm font-medium uppercase tracking-wide text-faintd transition-colors hover:text-ink"
               >
                 {link.label}
               </a>
@@ -56,7 +56,7 @@ export default function Navbar() {
                 to={link.to}
                 className={({ isActive }) =>
                   `underline-grow text-sm font-medium uppercase tracking-wide transition-colors ${
-                    isActive ? 'text-bone' : 'text-bone-dim hover:text-bone'
+                    isActive ? 'text-ink' : 'text-faintd hover:text-ink'
                   }`
                 }
               >
@@ -75,16 +75,16 @@ export default function Navbar() {
         <button
           aria-label="Toggle menu"
           onClick={() => setOpen((v) => !v)}
-          className="flex h-10 w-10 items-center justify-center rounded-sm border border-line text-bone lg:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-sm border border-line text-ink lg:hidden"
         >
           <div className="flex flex-col gap-1.5">
             <span
-              className={`block h-[1.5px] w-5 bg-bone transition-transform duration-300 ${
+              className={`block h-[1.5px] w-5 bg-ink transition-transform duration-300 ${
                 open ? 'translate-y-[3px] rotate-45' : ''
               }`}
             />
             <span
-              className={`block h-[1.5px] w-5 bg-bone transition-transform duration-300 ${
+              className={`block h-[1.5px] w-5 bg-ink transition-transform duration-300 ${
                 open ? '-translate-y-[3px] -rotate-45' : ''
               }`}
             />
@@ -93,7 +93,7 @@ export default function Navbar() {
       </nav>
 
       <div
-        className={`overflow-hidden border-b border-line bg-ink lg:hidden transition-[max-height] duration-300 ease-in-out ${
+        className={`overflow-hidden border-b border-line bg-paper lg:hidden transition-[max-height] duration-300 ease-in-out ${
           open ? 'max-h-96' : 'max-h-0'
         }`}
       >
@@ -104,7 +104,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="rounded-sm px-3 py-3 text-sm font-medium uppercase tracking-wide text-bone-dim"
+                className="rounded-sm px-3 py-3 text-sm font-medium uppercase tracking-wide text-faintd"
               >
                 {link.label}
               </a>
@@ -115,7 +115,7 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
                   `rounded-sm px-3 py-3 text-sm font-medium uppercase tracking-wide ${
-                    isActive ? 'bg-surface-2 text-bone' : 'text-bone-dim'
+                    isActive ? 'bg-surface text-ink' : 'text-faintd'
                   }`
                 }
               >

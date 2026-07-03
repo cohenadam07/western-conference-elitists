@@ -13,7 +13,7 @@ export default function NewsletterCTA({ compact = false }) {
 
   return (
     <div
-      className={`rounded-md bg-ember ${compact ? 'p-6' : 'p-10 lg:p-14'}`}
+      className={`rounded-md bg-navy ${compact ? 'p-6' : 'p-10 lg:p-14'}`}
     >
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-lg">
@@ -39,7 +39,7 @@ export default function NewsletterCTA({ compact = false }) {
           />
           <button
             type="submit"
-            className="whitespace-nowrap rounded-sm bg-white px-6 py-3 text-sm font-semibold uppercase tracking-wider text-ember transition-colors hover:bg-white/90"
+            className="whitespace-nowrap rounded-sm bg-white px-6 py-3 text-sm font-semibold uppercase tracking-wider text-navy transition-colors hover:bg-white/90"
           >
             {submitted ? "You're In" : 'Subscribe'}
           </button>

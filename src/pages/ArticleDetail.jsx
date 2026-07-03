@@ -19,21 +19,21 @@ export default function ArticleDetail() {
 
   return (
     <div>
-      <section className="border-b border-line bg-surface">
+      <section className="border-b border-line bg-wash">
         <div className="mx-auto max-w-3xl px-6 py-20 lg:px-10 lg:py-24">
           <Link
             to="/articles"
-            className="text-xs font-semibold uppercase tracking-wide text-bone-dim hover:text-bone"
+            className="text-xs font-semibold uppercase tracking-wide text-faintd hover:text-ink"
           >
             ← All Analysis
           </Link>
-          <span className="mt-6 block font-mono-tight text-xs font-semibold uppercase tracking-[0.2em] text-ember">
+          <span className="mt-6 block font-mono-tight text-xs font-semibold uppercase tracking-[0.2em] text-navy">
             {article.category}
           </span>
-          <h1 className="text-display mt-4 text-3xl leading-tight text-bone sm:text-4xl lg:text-5xl">
+          <h1 className="text-display mt-4 text-3xl leading-tight text-ink sm:text-4xl lg:text-5xl">
             {article.title}
           </h1>
-          <div className="mt-6 flex items-center gap-3 text-xs text-mute">
+          <div className="mt-6 flex items-center gap-3 text-xs text-faint">
             <span>{article.date}</span>
             <span>·</span>
             <span>{article.readTime}</span>
@@ -42,19 +42,19 @@ export default function ArticleDetail() {
       </section>
 
       <section className="mx-auto max-w-3xl px-6 py-16 lg:px-10">
-        <p className="text-lg leading-relaxed text-bone-dim">{article.excerpt}</p>
+        <p className="text-lg leading-relaxed text-faintd">{article.excerpt}</p>
         <div className="mt-8 space-y-6">
           {BODY.map((para, i) => (
-            <p key={i} className="text-base leading-relaxed text-bone-dim">
+            <p key={i} className="text-base leading-relaxed text-faintd">
               {para}
             </p>
           ))}
         </div>
       </section>
 
-      <section className="border-t border-line bg-surface">
+      <section className="border-t border-line bg-wash">
         <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
-          <h3 className="text-display text-2xl text-bone">Keep Reading</h3>
+          <h3 className="text-display text-2xl text-ink">Keep Reading</h3>
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((a) => (
               <ArticleCard key={a.slug} article={a} />

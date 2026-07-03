@@ -31,15 +31,15 @@ export default function Articles() {
 
   return (
     <div>
-      <section className="border-b border-line bg-surface">
+      <section className="border-b border-line bg-wash">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-24">
-          <span className="font-mono-tight text-xs font-semibold uppercase tracking-[0.2em] text-ember">
+          <span className="font-mono-tight text-xs font-semibold uppercase tracking-[0.2em] text-navy">
             Analysis
           </span>
-          <h1 className="text-display mt-4 max-w-3xl text-4xl text-bone sm:text-5xl lg:text-6xl">
+          <h1 className="text-display mt-4 max-w-3xl text-4xl text-ink sm:text-5xl lg:text-6xl">
             Draft and NBA analysis worth your time.
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-bone-dim">
+          <p className="mt-5 max-w-xl text-lg leading-relaxed text-faintd">
             Scouting breakdowns, team-building theory, and the analytics that
             actually hold up under pressure.
           </p>
@@ -50,7 +50,7 @@ export default function Articles() {
         <ArticleCard article={FEATURED_ARTICLE} featured />
       </section>
 
-      <section className="border-t border-line bg-surface">
+      <section className="border-t border-line bg-wash">
         <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <SectionHeading eyebrow="Browse" title="All Articles" />
@@ -60,7 +60,7 @@ export default function Articles() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search articles..."
-                className="w-full rounded-sm border border-line bg-surface-2 px-4 py-3 text-sm text-bone placeholder:text-mute focus:border-ember focus:outline-none"
+                className="w-full rounded-sm border border-line bg-surface px-4 py-3 text-sm text-ink placeholder:text-faint focus:border-navy focus:outline-none"
               />
             </div>
           </div>
@@ -72,8 +72,8 @@ export default function Articles() {
                 onClick={() => setCategory(cat)}
                 className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
                   activeCategory === cat
-                    ? 'border-ember bg-ember text-ink'
-                    : 'border-line bg-surface-2 text-bone-dim hover:border-bone-dim hover:text-bone'
+                    ? 'border-navy bg-navy text-white'
+                    : 'border-line bg-surface text-faintd hover:border-faintd hover:text-ink'
                 }`}
               >
                 {cat}
@@ -86,7 +86,7 @@ export default function Articles() {
               <ArticleCard key={a.slug} article={a} />
             ))}
             {filtered.length === 0 && (
-              <p className="col-span-full py-10 text-center text-bone-dim">
+              <p className="col-span-full py-10 text-center text-faintd">
                 Nothing matches that search yet. Try a different term or category.
               </p>
             )}

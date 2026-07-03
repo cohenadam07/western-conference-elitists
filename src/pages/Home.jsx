@@ -42,16 +42,16 @@ export default function Home() {
   return (
     <div>
       {/* Breaking ticker */}
-      <div className="relative overflow-hidden bg-ember py-2.5">
+      <div className="relative overflow-hidden bg-navy py-2.5">
         <div className="animate-marquee flex w-max gap-12 whitespace-nowrap">
           {[...TICKER, ...TICKER].map((t, i) => (
             <span
               key={i}
-              className="font-mono-tight flex items-center gap-3 text-xs font-semibold uppercase tracking-widest text-ink"
+              className="font-mono-tight flex items-center gap-3 text-xs font-semibold uppercase tracking-widest text-white"
             >
               <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-foul opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-foul" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red" />
               </span>
               {t}
             </span>
@@ -60,17 +60,17 @@ export default function Home() {
       </div>
 
       {/* Hero */}
-      <section className="relative border-b border-line bg-surface">
+      <section className="relative border-b border-line bg-wash">
         <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-24">
           <div className="flex flex-col items-start gap-6">
-            <span className="font-mono-tight rounded-sm bg-ember px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-ink">
+            <span className="font-mono-tight rounded-sm bg-navy px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-white">
               NBA Coverage, Year-Round
             </span>
-            <h1 className="text-display max-w-4xl text-5xl leading-[1.05] text-bone sm:text-6xl lg:text-7xl">
+            <h1 className="text-display max-w-4xl text-5xl leading-[1.05] text-ink sm:text-6xl lg:text-7xl">
               The NBA, broken down by people who actually watch the{' '}
               <span className="marker">film</span>.
             </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-bone-dim">
+            <p className="max-w-xl text-lg leading-relaxed text-faintd">
               Western Conference Elitists covers the league year-round —
               trades, team building, playoff strategy, and the prospects who
               will be running it in five years. Built on tape, backed by
@@ -96,13 +96,13 @@ export default function Home() {
       </section>
 
       {/* Latest analysis */}
-      <section className="border-y border-line bg-surface">
+      <section className="border-y border-line bg-wash">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
           <div className="flex items-end justify-between">
             <SectionHeading eyebrow="Latest" title="Fresh Analysis" />
             <Link
               to="/articles"
-              className="underline-grow hidden text-sm font-semibold uppercase tracking-wide text-bone-dim hover:text-bone sm:block"
+              className="underline-grow hidden text-sm font-semibold uppercase tracking-wide text-faintd hover:text-ink sm:block"
             >
               View All →
             </Link>
@@ -123,22 +123,22 @@ export default function Home() {
           subtitle="Every week we put one prospect under the microscope. This week: the wing who has not left the top spot since February."
         />
         <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_1fr]">
-          <div className="flex flex-col justify-center rounded-md border border-line bg-surface-2 p-8 lg:p-10">
+          <div className="flex flex-col justify-center rounded-md border border-line bg-surface p-8 lg:p-10">
             <div className="flex items-baseline gap-4">
-              <span className="text-display text-6xl text-ember">01</span>
+              <span className="text-display text-6xl text-navy">01</span>
               <div>
-                <h3 className="text-display text-3xl text-bone">
+                <h3 className="text-display text-3xl text-ink">
                   {SPOTLIGHT_PROSPECT.name}
                 </h3>
-                <p className="text-sm uppercase tracking-wide text-mute">
+                <p className="text-sm uppercase tracking-wide text-faint">
                   {SPOTLIGHT_PROSPECT.school} · {SPOTLIGHT_PROSPECT.position}
                 </p>
               </div>
             </div>
-            <p className="mt-6 text-base leading-relaxed text-bone-dim">
+            <p className="mt-6 text-base leading-relaxed text-faintd">
               {SPOTLIGHT_PROSPECT.summary}
             </p>
-            <p className="mt-4 text-sm font-medium text-arena">
+            <p className="mt-4 text-sm font-medium text-green">
               {SPOTLIGHT_PROSPECT.projection}
             </p>
             <Button to="/draft" variant="secondary" className="mt-8 w-fit">
@@ -155,10 +155,10 @@ export default function Home() {
             ].map(([label, value]) => (
               <div
                 key={label}
-                className="flex flex-col items-center justify-center gap-2 rounded-md border border-line bg-surface-2 py-8"
+                className="flex flex-col items-center justify-center gap-2 rounded-md border border-line bg-surface py-8"
               >
-                <span className="font-mono-tight text-3xl text-bone">{value}</span>
-                <span className="text-xs uppercase tracking-widest text-mute">
+                <span className="font-mono-tight text-3xl text-ink">{value}</span>
+                <span className="text-xs uppercase tracking-widest text-faint">
                   {label}
                 </span>
               </div>
@@ -168,7 +168,7 @@ export default function Home() {
       </section>
 
       {/* Rankings preview */}
-      <section className="border-y border-line bg-surface">
+      <section className="border-y border-line bg-wash">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
           <div className="flex items-end justify-between">
             <SectionHeading
@@ -178,7 +178,7 @@ export default function Home() {
             />
             <Link
               to="/rankings"
-              className="underline-grow hidden text-sm font-semibold uppercase tracking-wide text-bone-dim hover:text-bone sm:block"
+              className="underline-grow hidden text-sm font-semibold uppercase tracking-wide text-faintd hover:text-ink sm:block"
             >
               Full Board →
             </Link>
@@ -207,13 +207,13 @@ export default function Home() {
           {PILLARS.map((p, i) => (
             <div
               key={p.title}
-              className="card-hover flex flex-col rounded-md border border-line bg-surface-2 p-6"
+              className="card-hover flex flex-col rounded-md border border-line bg-surface p-6"
             >
-              <span className="font-mono-tight text-3xl text-ember">
+              <span className="font-mono-tight text-3xl text-navy">
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <h3 className="mt-4 text-lg font-bold text-bone">{p.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-bone-dim">{p.body}</p>
+              <h3 className="mt-4 text-lg font-bold text-ink">{p.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-faintd">{p.body}</p>
             </div>
           ))}
         </div>

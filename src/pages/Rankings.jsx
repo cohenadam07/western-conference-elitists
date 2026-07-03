@@ -7,35 +7,35 @@ function ProspectRow({ p, isOpen, onToggle }) {
   return (
     <div
       className={`overflow-hidden rounded-md border transition-colors ${
-        isOpen ? 'border-ember' : 'border-line'
-      } bg-surface-2`}
+        isOpen ? 'border-navy' : 'border-line'
+      } bg-surface`}
     >
       <button
         onClick={onToggle}
         className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-5 text-left sm:grid-cols-[auto_1fr_auto_auto_auto] sm:gap-6"
       >
-        <span className="text-display text-3xl text-ember sm:text-4xl">
+        <span className="text-display text-3xl text-navy sm:text-4xl">
           {String(p.rank).padStart(2, '0')}
         </span>
 
         <div>
-          <h3 className="text-base font-bold text-bone sm:text-lg">{p.name}</h3>
-          <p className="text-xs uppercase tracking-wide text-mute">
+          <h3 className="text-base font-bold text-ink sm:text-lg">{p.name}</h3>
+          <p className="text-xs uppercase tracking-wide text-faint">
             {p.school} · {p.position}
           </p>
         </div>
 
-        <span className="hidden font-mono-tight text-xs text-bone-dim sm:block">
+        <span className="hidden font-mono-tight text-xs text-faintd sm:block">
           {p.height} / {p.wingspan}
         </span>
 
-        <span className="hidden rounded-sm border border-line bg-surface-3 px-2 py-1 text-center font-mono-tight text-xs font-bold text-bone-dim sm:block">
+        <span className="hidden rounded-sm border border-line bg-paper px-2 py-1 text-center font-mono-tight text-xs font-bold text-faintd sm:block">
           {p.grade}
         </span>
 
         <span
-          className={`flex h-8 w-8 items-center justify-center rounded-full border border-line text-bone-dim transition-transform ${
-            isOpen ? 'rotate-45 border-ember text-ember' : ''
+          className={`flex h-8 w-8 items-center justify-center rounded-full border border-line text-faintd transition-transform ${
+            isOpen ? 'rotate-45 border-navy text-navy' : ''
           }`}
         >
           +
@@ -49,34 +49,34 @@ function ProspectRow({ p, isOpen, onToggle }) {
       >
         <div className="border-t border-line px-5 pb-6 pt-5 sm:px-6">
           {p.tag && (
-            <span className="mb-3 inline-block w-fit rounded-sm bg-arena/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-arena">
+            <span className="mb-3 inline-block w-fit rounded-sm bg-green/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-green">
               ▲ {p.tag}
             </span>
           )}
-          <p className="text-sm leading-relaxed text-bone-dim">{p.summary}</p>
+          <p className="text-sm leading-relaxed text-faintd">{p.summary}</p>
 
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wide text-arena">
+              <h4 className="text-xs font-bold uppercase tracking-wide text-green">
                 Strengths
               </h4>
-              <ul className="mt-2 space-y-1.5 text-sm text-bone-dim">
+              <ul className="mt-2 space-y-1.5 text-sm text-faintd">
                 {p.strengths.map((s) => (
                   <li key={s} className="flex gap-2">
-                    <span className="text-arena">+</span> {s}
+                    <span className="text-green">+</span> {s}
                   </li>
                 ))}
               </ul>
             </div>
             {p.weaknesses.length > 0 && (
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wide text-foul">
+                <h4 className="text-xs font-bold uppercase tracking-wide text-red">
                   Weaknesses
                 </h4>
-                <ul className="mt-2 space-y-1.5 text-sm text-bone-dim">
+                <ul className="mt-2 space-y-1.5 text-sm text-faintd">
                   {p.weaknesses.map((s) => (
                     <li key={s} className="flex gap-2">
-                      <span className="text-foul">−</span> {s}
+                      <span className="text-red">−</span> {s}
                     </li>
                   ))}
                 </ul>
@@ -84,16 +84,16 @@ function ProspectRow({ p, isOpen, onToggle }) {
             )}
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-3 font-mono-tight text-xs text-bone-dim">
-            <span className="rounded-sm bg-surface-3 px-2 py-1">{p.height} HT</span>
-            <span className="rounded-sm bg-surface-3 px-2 py-1">{p.wingspan} WS</span>
-            <span className="rounded-sm bg-surface-3 px-2 py-1">{p.weight}</span>
-            <span className="rounded-sm bg-surface-3 px-2 py-1">Age {p.age}</span>
-            <span className="rounded-sm bg-surface-3 px-2 py-1">{p.archetype}</span>
+          <div className="mt-5 flex flex-wrap gap-3 font-mono-tight text-xs text-faintd">
+            <span className="rounded-sm bg-paper px-2 py-1">{p.height} HT</span>
+            <span className="rounded-sm bg-paper px-2 py-1">{p.wingspan} WS</span>
+            <span className="rounded-sm bg-paper px-2 py-1">{p.weight}</span>
+            <span className="rounded-sm bg-paper px-2 py-1">Age {p.age}</span>
+            <span className="rounded-sm bg-paper px-2 py-1">{p.archetype}</span>
           </div>
 
-          <p className="mt-4 text-sm font-medium text-court">{p.projection}</p>
-          <p className="mt-1 text-xs text-mute">{p.take}</p>
+          <p className="mt-4 text-sm font-medium text-gold-deep">{p.projection}</p>
+          <p className="mt-1 text-xs text-faint">{p.take}</p>
         </div>
       </div>
     </div>
@@ -108,17 +108,17 @@ export default function Rankings() {
 
   return (
     <div>
-      <section className="border-b border-line bg-surface">
+      <section className="border-b border-line bg-wash">
         <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-20">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <span className="font-mono-tight text-xs font-semibold uppercase tracking-[0.2em] text-ember">
+              <span className="font-mono-tight text-xs font-semibold uppercase tracking-[0.2em] text-navy">
                 Personal Big Board · Not a Consensus Mock
               </span>
-              <h1 className="text-display mt-4 max-w-3xl text-4xl text-bone sm:text-5xl lg:text-6xl">
+              <h1 className="text-display mt-4 max-w-3xl text-4xl text-ink sm:text-5xl lg:text-6xl">
                 The <span className="marker">Board</span>
               </h1>
-              <p className="mt-5 max-w-xl text-lg leading-relaxed text-bone-dim">
+              <p className="mt-5 max-w-xl text-lg leading-relaxed text-faintd">
                 {prospects.length} prospects, ranked one through {prospects.length}.
                 Analytics first, scouting always. Click any row to expand the
                 full breakdown.
@@ -143,12 +143,12 @@ export default function Rankings() {
           {tiers.map((t) => (
             <div key={t.tier}>
               <div className="mb-4 flex items-baseline gap-3 border-b border-line pb-3">
-                <span className="text-display text-2xl text-ember">
+                <span className="text-display text-2xl text-navy">
                   {String(t.tier).padStart(2, '0')}
                 </span>
                 <div>
-                  <h3 className="text-display text-xl text-bone">{t.name}</h3>
-                  <p className="text-xs uppercase tracking-wide text-mute">
+                  <h3 className="text-display text-xl text-ink">{t.name}</h3>
+                  <p className="text-xs uppercase tracking-wide text-faint">
                     {t.range} · {t.blurb}
                   </p>
                 </div>
@@ -167,7 +167,7 @@ export default function Rankings() {
           ))}
         </div>
 
-        <p className="mt-10 text-center text-xs text-mute">
+        <p className="mt-10 text-center text-xs text-faint">
           Board reflects film and data through the most recent publish date.
           Rankings are evaluation-based, not predictions of draft slot.
         </p>

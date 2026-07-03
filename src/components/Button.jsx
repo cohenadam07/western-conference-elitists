@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
 
 const VARIANTS = {
-  primary: 'bg-ember text-ink hover:bg-ember-dim',
+  primary: 'bg-navy text-white hover:bg-navy-deep',
   secondary:
-    'bg-transparent text-bone border border-line hover:border-mute hover:bg-surface-3',
+    'bg-transparent text-ink border border-line hover:border-faint hover:bg-paper',
   ghost:
-    'bg-transparent text-bone-dim hover:text-bone',
+    'bg-transparent text-faintd hover:text-ink',
 }
 
 export default function Button({
