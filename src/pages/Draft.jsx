@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import SectionHeading from '../components/SectionHeading.jsx'
 import YearSelector from '../components/YearSelector.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import FilterChips from '../components/FilterChips.jsx'
 import { DRAFT_CLASSES, DRAFT_YEARS, POSITION_GROUPS } from '../data/content.js'
 
 const POSITIONS = ['All', ...POSITION_GROUPS]
@@ -19,32 +21,19 @@ export default function Draft() {
 
   return (
     <div>
-      <section className="border-b border-line bg-wash">
-        <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-20">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <span className="font-mono-tight text-xs font-semibold uppercase tracking-[0.2em] text-navy">
-                Draft Hub
-              </span>
-              <h1 className="text-display mt-4 max-w-3xl text-4xl text-ink sm:text-5xl lg:text-6xl">
-                Thirty-{year === 2026 ? 'six' : 'two'} prospects, ranked one through
-                thirty-{year === 2026 ? 'six' : 'two'}.
-              </h1>
-              <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
-                Full scouting profiles, measurements, and role projections —
-                analytics first, scouting always. One board, opinions
-                included, consensus optional.
-              </p>
-            </div>
-            <YearSelector years={DRAFT_YEARS} selected={year} onChange={(y) => { setYear(y); setFilter('All') }} />
-          </div>
-        </div>
-      </section>
+      <PageHeader
+        eyebrow="Draft Hub"
+        title={`Thirty-${year === 2026 ? 'six' : 'two'} prospects, ranked one through thirty-${year === 2026 ? 'six' : 'two'}.`}
+        lede="Full scouting profiles, measurements, and role projections — analytics first, scouting always. One board, opinions included, consensus optional."
+      >
+        <YearSelector years={DRAFT_YEARS} selected={year} onChange={(y) => { setYear(y); setFilter('All') }} />
+      </PageHeader>
 
       {/* Featured spotlight */}
       <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
         <SectionHeading eyebrow={`Featured Prospect · ${year}`} title="Under the Microscope" />
-        <div className="mt-10 grid grid-cols-1 gap-8 rounded-md border border-line bg-surface p-8 lg:grid-cols-[1fr_1fr] lg:p-12">
+        <div className="relative mt-10 grid grid-cols-1 gap-8 overflow-hidden rounded-md border border-line bg-surface p-8 lg:grid-cols-[1fr_1fr] lg:p-12">
+          <div className="absolute inset-x-0 top-0 h-[3px] bg-gold" aria-hidden="true" />
           <div>
             <div className="flex items-baseline gap-4">
               <span className="text-display text-6xl text-navy">
@@ -54,7 +43,7 @@ export default function Draft() {
                 <h2 className="text-display text-3xl text-ink">
                   {spotlight.name}
                 </h2>
-                <p className="text-sm uppercase tracking-wide text-faint">
+                <p className="kicker mt-1.5 text-faint">
                   {spotlight.school} · {spotlight.position} ·{' '}
                   {spotlight.archetype}
                 </p>
@@ -133,21 +122,12 @@ export default function Draft() {
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <SectionHeading eyebrow={`Full Pool · ${prospects.length} Prospects`} title="Browse Prospects" />
-            <div className="flex flex-wrap gap-2">
-              {POSITIONS.map((pos) => (
-                <button
-                  key={pos}
-                  onClick={() => setFilter(pos)}
-                  className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
-                    filter === pos
-                      ? 'border-navy bg-navy text-white'
-                      : 'border-line bg-surface text-muted hover:border-muted hover:text-ink'
-                  }`}
-                >
-                  {pos}
-                </button>
-              ))}
-            </div>
+            <FilterChips
+              options={POSITIONS}
+              active={filter}
+              onChange={setFilter}
+              label="Filter prospects by position"
+            />
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -159,39 +139,42 @@ export default function Draft() {
                       {String(p.rank).padStart(2, '0')}
                     </span>
                     <div>
-                      <h3 className="font-bold text-ink">{p.name}</h3>
-                      <p className="text-xs uppercase tracking-wide text-faint">
+                      <h3 className="text-display text-lg text-ink">{p.name}</h3>
+                      <p className="kicker mt-0.5 text-faint">
                         {p.school} · {p.position}
                       </p>
                     </div>
                   </div>
-                  <span className="rounded-sm border border-line bg-paper px-2 py-1 font-mono-tight text-xs font-bold text-muted">
+                  <span className="rounded-sm border border-line bg-paper px-2 py-1 font-mono-tight text-xs font-semibold text-muted">
                     {p.grade}
                   </span>
                 </div>
                 {p.tag && (
-                  <span className="mt-3 w-fit rounded-sm bg-green/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-green">
+                  <span className="mt-3 w-fit rounded-sm bg-green/10 px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-green">
                     ▲ {p.tag}
                   </span>
                 )}
                 <p className="mt-4 text-sm leading-relaxed text-muted">{p.summary}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="rounded-sm bg-paper px-2 py-1 text-xs text-faint">
+                <div className="mt-auto flex flex-wrap gap-2 pt-4">
+                  <span className="rounded-sm bg-paper px-2 py-1 font-mono-tight text-xs text-muted">
                     {p.height}
                   </span>
-                  <span className="rounded-sm bg-paper px-2 py-1 text-xs text-faint">
+                  <span className="rounded-sm bg-paper px-2 py-1 font-mono-tight text-xs text-muted">
                     {p.wingspan} WS
                   </span>
-                  <span className="rounded-sm bg-paper px-2 py-1 text-xs text-faint">
+                  <span className="rounded-sm bg-paper px-2 py-1 font-mono-tight text-xs text-muted">
                     {p.archetype}
                   </span>
                 </div>
               </div>
             ))}
             {filtered.length === 0 && (
-              <p className="col-span-full py-10 text-center text-muted">
-                No prospects match that position yet — check back as the board updates.
-              </p>
+              <div className="col-span-full flex flex-col items-center gap-3 py-16 text-center">
+                <span className="text-display text-3xl text-faint">Empty board</span>
+                <p className="max-w-sm text-sm leading-relaxed text-muted">
+                  No prospects match that position yet — check back as the board updates.
+                </p>
+              </div>
             )}
           </div>
         </div>

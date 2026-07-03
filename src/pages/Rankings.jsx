@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import SectionHeading from '../components/SectionHeading.jsx'
 import YearSelector from '../components/YearSelector.jsx'
+import PageHeader from '../components/PageHeader.jsx'
 import { DRAFT_CLASSES, DRAFT_YEARS } from '../data/content.js'
 
 function ProspectRow({ p, isOpen, onToggle }) {
@@ -19,8 +20,8 @@ function ProspectRow({ p, isOpen, onToggle }) {
         </span>
 
         <div>
-          <h3 className="text-base font-bold text-ink sm:text-lg">{p.name}</h3>
-          <p className="text-xs uppercase tracking-wide text-faint">
+          <h3 className="text-display text-lg text-ink sm:text-xl">{p.name}</h3>
+          <p className="kicker mt-0.5 text-faint">
             {p.school} · {p.position}
           </p>
         </div>
@@ -108,30 +109,21 @@ export default function Rankings() {
 
   return (
     <div>
-      <section className="border-b border-line bg-wash">
-        <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-20">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <span className="font-mono-tight text-xs font-semibold uppercase tracking-[0.2em] text-navy">
-                Personal Big Board · Not a Consensus Mock
-              </span>
-              <h1 className="text-display mt-4 max-w-3xl text-4xl text-ink sm:text-5xl lg:text-6xl">
-                The <span className="marker">Board</span>
-              </h1>
-              <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
-                {prospects.length} prospects, ranked one through {prospects.length}.
-                Analytics first, scouting always. Click any row to expand the
-                full breakdown.
-              </p>
-            </div>
-            <YearSelector
-              years={DRAFT_YEARS}
-              selected={year}
-              onChange={(y) => { setYear(y); setExpanded(null) }}
-            />
-          </div>
-        </div>
-      </section>
+      <PageHeader
+        eyebrow="Personal Big Board · Not a Consensus Mock"
+        title={
+          <>
+            The <span className="marker">Board</span>
+          </>
+        }
+        lede={`${prospects.length} prospects, ranked one through ${prospects.length}. Analytics first, scouting always. Click any row to expand the full breakdown.`}
+      >
+        <YearSelector
+          years={DRAFT_YEARS}
+          selected={year}
+          onChange={(y) => { setYear(y); setExpanded(null) }}
+        />
+      </PageHeader>
 
       <section className="mx-auto max-w-6xl px-6 py-16 lg:px-10">
         <SectionHeading
@@ -142,15 +134,17 @@ export default function Rankings() {
         <div className="mt-12 flex flex-col gap-12">
           {tiers.map((t) => (
             <div key={t.tier}>
-              <div className="mb-4 flex items-baseline gap-3 border-b border-line pb-3">
-                <span className="text-display text-2xl text-navy">
-                  {String(t.tier).padStart(2, '0')}
-                </span>
-                <div>
-                  <h3 className="text-display text-xl text-ink">{t.name}</h3>
-                  <p className="text-xs uppercase tracking-wide text-faint">
-                    {t.range} · {t.blurb}
-                  </p>
+              <div className="mb-4 border-b-2 border-navy pb-3">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-display text-2xl text-gold-deep">
+                    {String(t.tier).padStart(2, '0')}
+                  </span>
+                  <div>
+                    <h3 className="text-display text-xl text-ink">{t.name}</h3>
+                    <p className="kicker mt-1 text-faint">
+                      {t.range} · {t.blurb}
+                    </p>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col gap-3">

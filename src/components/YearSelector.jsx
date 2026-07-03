@@ -19,7 +19,7 @@ export default function YearSelector({ years, selected, onChange }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         className={`group flex items-center gap-3 rounded-md border bg-surface px-4 py-3 text-left transition-all duration-200 ${
-          open ? 'border-navy shadow-[0_0_0_3px_rgba(28,63,110,0.12)]' : 'border-line hover:border-faint'
+          open ? 'border-navy shadow-[0_0_0_3px_rgba(34,57,90,0.15)]' : 'border-line hover:border-faint'
         }`}
       >
         <span className="flex flex-col leading-tight">
