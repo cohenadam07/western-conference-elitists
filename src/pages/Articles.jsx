@@ -15,6 +15,11 @@ export default function Articles() {
 
   const filtered = useMemo(() => {
     return ARTICLES.filter((a) => {
+      // The featured article gets its own card above the grid — don't repeat it,
+      // but only exclude it while browsing "All" with no active search.
+      const isFeaturedDuplicate =
+        a.slug === FEATURED_ARTICLE?.slug && activeCategory === 'All' && query.trim() === ''
+      if (isFeaturedDuplicate) return false
       const matchesCategory = activeCategory === 'All' || a.category === activeCategory
       const matchesQuery =
         query.trim() === '' ||
@@ -90,7 +95,7 @@ export default function Articles() {
             {filtered.map((a) => (
               <ArticleCard key={a.slug} article={a} />
             ))}
-            {filtered.length === 0 && (
+            {filtered.length === 0 && !(activeCategory === 'All' && query.trim() === '') && (
               <div className="col-span-full flex flex-col items-center gap-3 py-16 text-center">
                 <span className="text-display text-3xl text-faint">No matches</span>
                 <p className="max-w-sm text-sm leading-relaxed text-muted">

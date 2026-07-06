@@ -153,6 +153,137 @@ body {
   z-index: -1;
 }
 
+/* Published article body — styles the HTML produced by the docx publish
+   pipeline (ArticleBody.jsx) so it matches the site's editorial voice. */
+.article-body {
+  color: color-mix(in srgb, var(--color-ink) 90%, transparent);
+  font-size: 17px;
+  line-height: 1.75;
+}
+.article-body > * + * {
+  margin-top: 1.6rem;
+}
+.article-body p {
+  font-size: 17px;
+  line-height: 1.75;
+}
+/* Drop cap on the opening paragraph, mirroring the demo layout */
+.article-body > p:first-of-type::first-letter {
+  float: left;
+  margin-right: 0.75rem;
+  margin-top: 0.35rem;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 56px;
+  line-height: 0.85;
+  color: var(--color-navy);
+}
+.article-body h2,
+.article-body h3,
+.article-body h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  line-height: 1.2;
+}
+.article-body h2 {
+  margin-top: 2.75rem;
+  font-size: 27px;
+}
+.article-body h3 {
+  margin-top: 2.25rem;
+  font-size: 22px;
+}
+.article-body h4 {
+  margin-top: 2rem;
+  font-size: 19px;
+}
+.article-body strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.article-body em {
+  font-style: italic;
+}
+.article-body a {
+  color: var(--color-navy);
+  text-decoration: underline;
+  text-decoration-color: var(--color-gold);
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+.article-body a:hover {
+  color: var(--color-gold-deep);
+}
+.article-body ul,
+.article-body ol {
+  padding-left: 1.35rem;
+}
+.article-body ul {
+  list-style: disc;
+}
+.article-body ol {
+  list-style: decimal;
+}
+.article-body li {
+  margin-top: 0.5rem;
+  padding-left: 0.25rem;
+}
+.article-body li::marker {
+  color: var(--color-gold-deep);
+}
+.article-body blockquote {
+  margin: 2.25rem 0;
+  border-left: 3px solid var(--color-gold);
+  padding: 0.25rem 0 0.25rem 1.5rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--color-navy);
+}
+.article-body img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 2rem auto;
+  border: 1px solid var(--color-line);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+}
+.article-body figure {
+  margin: 2rem 0;
+}
+.article-body figcaption {
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  font-size: 12px;
+  color: var(--color-faint);
+}
+.article-body hr {
+  margin: 2.75rem 0;
+  border: 0;
+  border-top: 1px solid var(--color-line);
+}
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.article-body th,
+.article-body td {
+  border: 1px solid var(--color-line);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+.article-body th {
+  background: var(--color-wash);
+  font-weight: 600;
+}
+
 /* Scroll reveal — Reveal.jsx toggles is-visible once via IntersectionObserver */
 .reveal {
   opacity: 0;

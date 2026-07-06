@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Source Word documents (inputs to npm run publish-article)
+*.docx

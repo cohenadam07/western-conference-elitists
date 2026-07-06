@@ -1,6 +1,8 @@
 // Centralized placeholder content for Western Conference Elitists.
 // Swap any of this out — components just read from these arrays/objects.
 
+import { PUBLISHED_ARTICLES } from './publishedArticles.js'
+
 export const CATEGORIES = [
   'Draft',
   'NBA',
@@ -1029,108 +1031,9 @@ export const PROSPECTS = PROSPECTS_2026
 export const TIERS = TIERS_2026
 export const SPOTLIGHT_PROSPECT = PROSPECTS_2026[0]
 
-export const ARTICLES = [
-  {
-    slug: 'contender-tiers-real-time',
-    title: 'The Contender Tiers Are Being Sorted in Real Time, and the Standings Are Lying to You',
-    category: 'NBA',
-    excerpt:
-      'Strip away preseason expectations and look at point differential, lineup data, and shot quality instead. The real championship hierarchy looks nothing like the standings suggest.',
-    readTime: '8 min read',
-    date: 'Jun 21, 2026',
-    featured: true,
-  },
-  {
-    slug: 'quiet-trade-deadlines-still-decisions',
-    title: 'Quiet Trade Deadlines Are Still Decisions: What Standing Still Actually Signals',
-    category: 'NBA',
-    excerpt:
-      'Not making a move is a choice too. A look at which front offices stayed quiet out of conviction this year, and which stayed quiet out of inertia.',
-    readTime: '6 min read',
-    date: 'Jun 20, 2026',
-  },
-  {
-    slug: 'lottery-tiers-this-cycle',
-    title: 'The Lottery Has Tiers This Year, and Only One of Them Has Stars In It',
-    category: 'Big Board',
-    excerpt:
-      'Strip away team need and draft slot mythology — when you sort this class by skill translation alone, it breaks into three distinct tiers, and the gap between tier one and tier two is larger than usual.',
-    readTime: '9 min read',
-    date: 'Jun 18, 2026',
-  },
-  {
-    slug: 'switchable-wings-supply-problem',
-    title: "The League's Switchable-Wing Shortage Is Reshaping How Teams Build Rosters",
-    category: 'Team Building',
-    excerpt:
-      'Every front office wants the same archetype and the position is the scarcest resource in the sport. Here is how that scarcity is warping rosters, trades, and draft boards alike.',
-    readTime: '7 min read',
-    date: 'Jun 15, 2026',
-  },
-  {
-    slug: 'sophomore-leap-index',
-    title: "The Sophomore Leap Index: Grading Every Second-Year Player's Real Improvement",
-    category: 'NBA',
-    excerpt:
-      'Year-two breakouts usually get judged on scoring bumps alone. Our index weights shot quality, defensive role, and offensive responsibility — and it reorders the conversation completely.',
-    readTime: '9 min read',
-    date: 'Jun 13, 2026',
-  },
-  {
-    slug: 'reading-defensive-feel-on-tape',
-    title: 'How We Actually Grade Defensive Feel on Film (It Is Not Steals and Blocks)',
-    category: 'Scouting',
-    excerpt:
-      'Box score defensive stats are mostly noise at the prospect level. Our process leans on closeout angles, tag timing, and recovery speed — the things that translate, not the things that get highlighted.',
-    readTime: '11 min read',
-    date: 'Jun 11, 2026',
-  },
-  {
-    slug: 'shot-profile-translation-model',
-    title: 'A Shot-Profile Model for Predicting Which Scorers Translate',
-    category: 'Analytics',
-    excerpt:
-      'We built a translation model off release height, defender distance, and shot type diversity. It is not perfect, but it has flagged three of the last four draft scoring busts a year early.',
-    readTime: '12 min read',
-    date: 'Jun 7, 2026',
-  },
-  {
-    slug: 'point-guard-class-deeper-than-ranked',
-    title: 'This Point Guard Class Is Deeper Than the Rankings Suggest',
-    category: 'Draft',
-    excerpt:
-      "Public boards have one lead guard in the top ten. Our film grades have three — the difference comes down to how you weight live-dribble passing versus catch-and-shoot gravity.",
-    readTime: '8 min read',
-    date: 'Jun 3, 2026',
-  },
-  {
-    slug: 'second-round-value-archetypes',
-    title: 'Three Second-Round Archetypes That Outperform Their Draft Slot',
-    category: 'Draft',
-    excerpt:
-      'History says certain skill profiles consistently outplay where they get picked in the 30s and 40s. We isolated the traits and found this year\'s class has more of them than usual.',
-    readTime: '6 min read',
-    date: 'May 29, 2026',
-  },
-  {
-    slug: 'offense-without-touches',
-    title: 'The Value of an Offense That Does Not Need the Ball',
-    category: 'Team Building',
-    excerpt:
-      'Off-ball gravity is the most undervalued trait in evaluating frontcourt players. A look at how spacing and cutting translate to winning long before usage rate ever climbs.',
-    readTime: '7 min read',
-    date: 'May 24, 2026',
-  },
-  {
-    slug: 'combine-measurements-that-matter',
-    title: 'The Only Three Combine Measurements That Actually Predict Anything',
-    category: 'Analytics',
-    excerpt:
-      'Wingspan-to-height ratio gets the headlines. Standing reach, lateral quickness, and adjusted vertical have a far stronger correlation to long-term outcomes — and we have the data to prove it.',
-    readTime: '10 min read',
-    date: 'May 19, 2026',
-  },
-]
+// Articles published from Word documents via `npm run publish-article`.
+// Files in src/data/articles/*.json are auto-discovered and sorted newest-first.
+export const ARTICLES = PUBLISHED_ARTICLES
 
 export const FEATURED_ARTICLE = ARTICLES[0]
 

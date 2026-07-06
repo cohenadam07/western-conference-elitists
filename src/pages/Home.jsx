@@ -144,29 +144,31 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Latest analysis */}
-      <section className="border-b border-line bg-wash">
-        <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
-          <Reveal>
-            <div className="flex items-end justify-between">
-              <SectionHeading eyebrow="Latest" title="Fresh Analysis" />
-              <Link
-                to="/articles"
-                className="underline-grow hidden font-mono text-xs font-medium uppercase tracking-[0.14em] text-muted hover:text-ink sm:block"
-              >
-                View All →
-              </Link>
-            </div>
-          </Reveal>
-          <Reveal delay={100}>
-            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {ARTICLES.slice(1, 4).map((a) => (
-                <ArticleCard key={a.slug} article={a} />
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      {/* Latest analysis — only when there's more than just the featured piece */}
+      {ARTICLES.length > 1 && (
+        <section className="border-b border-line bg-wash">
+          <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
+            <Reveal>
+              <div className="flex items-end justify-between">
+                <SectionHeading eyebrow="Latest" title="Fresh Analysis" />
+                <Link
+                  to="/articles"
+                  className="underline-grow hidden font-mono text-xs font-medium uppercase tracking-[0.14em] text-muted hover:text-ink sm:block"
+                >
+                  View All →
+                </Link>
+              </div>
+            </Reveal>
+            <Reveal delay={100}>
+              <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {ARTICLES.slice(1, 4).map((a) => (
+                  <ArticleCard key={a.slug} article={a} />
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       {/* Basketball Savant — flagship product band */}
       <section className="relative overflow-hidden bg-navy text-white">

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ARTICLES, FOUNDER } from '../data/content.js'
 import ArticleCard from '../components/ArticleCard.jsx'
+import ArticleBody from '../components/ArticleBody.jsx'
 import NewsletterCTA from '../components/NewsletterCTA.jsx'
 import CourtLines from '../components/CourtLines.jsx'
 import usePageMeta from '../lib/usePageMeta.js'
@@ -80,6 +81,13 @@ export default function ArticleDetail() {
   const article = ARTICLES.find((a) => a.slug === slug) || ARTICLES[0]
   const related = ARTICLES.filter((a) => a.slug !== article.slug).slice(0, 3)
 
+  // Published articles carry a real HTML body; demo/seed articles fall back to
+  // the placeholder layout below.
+  const hasBody = Boolean(article.html)
+  const authorName = article.author || FOUNDER.name
+  const authorTitle = article.author ? 'Contributor' : FOUNDER.title
+  const initials = authorName.split(' ').map((n) => n[0]).join('').slice(0, 3)
+
   usePageMeta(article.title, article.excerpt)
 
   return (
@@ -109,11 +117,11 @@ export default function ArticleDetail() {
           <div className="mt-8 flex flex-wrap items-center justify-between gap-6">
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-navy font-mono-tight text-xs font-semibold text-white">
-                {FOUNDER.name.split(' ').map((n) => n[0]).join('')}
+                {initials}
               </span>
               <div className="leading-tight">
-                <p className="text-sm font-semibold text-ink">By {FOUNDER.name}</p>
-                <p className="mt-0.5 font-mono-tight text-xs text-faint">{FOUNDER.title}</p>
+                <p className="text-sm font-semibold text-ink">By {authorName}</p>
+                <p className="mt-0.5 font-mono-tight text-xs text-faint">{authorTitle}</p>
               </div>
             </div>
             <ShareRow article={article} />
@@ -127,34 +135,38 @@ export default function ArticleDetail() {
           {article.excerpt}
         </p>
 
-        <div className="mt-10 space-y-7">
-          <p className="text-[17px] leading-[1.75] text-ink/90 first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:font-display first-letter:text-[56px] first-letter:leading-[0.85] first-letter:text-navy">
-            {BODY[0]}
-          </p>
-          <p className="text-[17px] leading-[1.75] text-ink/90">{BODY[1]}</p>
-
-          <blockquote className="my-10 border-l-[3px] border-gold py-1 pl-6 lg:-ml-10">
-            <p className="text-display text-2xl italic leading-[1.4] text-navy sm:text-[26px]">
-              “{PULL_QUOTE}”
+        {hasBody ? (
+          <ArticleBody html={article.html} />
+        ) : (
+          <div className="mt-10 space-y-7">
+            <p className="text-[17px] leading-[1.75] text-ink/90 first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:font-display first-letter:text-[56px] first-letter:leading-[0.85] first-letter:text-navy">
+              {BODY[0]}
             </p>
-            <cite className="kicker mt-4 block not-italic text-faint">The WCE position</cite>
-          </blockquote>
+            <p className="text-[17px] leading-[1.75] text-ink/90">{BODY[1]}</p>
 
-          <p className="text-[17px] leading-[1.75] text-ink/90">{BODY[2]}</p>
+            <blockquote className="my-10 border-l-[3px] border-gold py-1 pl-6 lg:-ml-10">
+              <p className="text-display text-2xl italic leading-[1.4] text-navy sm:text-[26px]">
+                “{PULL_QUOTE}”
+              </p>
+              <cite className="kicker mt-4 block not-italic text-faint">The WCE position</cite>
+            </blockquote>
 
-          <figure className="my-10">
-            <div className="relative overflow-hidden rounded-md border border-line bg-surface p-6">
-              <CourtLines className="h-64 w-full text-navy/25" />
-            </div>
-            <figcaption className="mt-3 flex items-baseline gap-3 font-mono-tight text-xs text-faint">
-              <span className="whitespace-nowrap font-semibold text-gold-deep">FIG. 01</span>
-              Possession charting happens against the geometry of the floor, not the box score.
-            </figcaption>
-          </figure>
+            <p className="text-[17px] leading-[1.75] text-ink/90">{BODY[2]}</p>
 
-          <p className="text-[17px] leading-[1.75] text-ink/90">{BODY[3]}</p>
-          <p className="text-[17px] leading-[1.75] text-ink/90">{CLOSING}</p>
-        </div>
+            <figure className="my-10">
+              <div className="relative overflow-hidden rounded-md border border-line bg-surface p-6">
+                <CourtLines className="h-64 w-full text-navy/25" />
+              </div>
+              <figcaption className="mt-3 flex items-baseline gap-3 font-mono-tight text-xs text-faint">
+                <span className="whitespace-nowrap font-semibold text-gold-deep">FIG. 01</span>
+                Possession charting happens against the geometry of the floor, not the box score.
+              </figcaption>
+            </figure>
+
+            <p className="text-[17px] leading-[1.75] text-ink/90">{BODY[3]}</p>
+            <p className="text-[17px] leading-[1.75] text-ink/90">{CLOSING}</p>
+          </div>
+        )}
 
         <div className="mt-12 flex flex-wrap items-center justify-between gap-6 border-t border-line pt-8">
           <Link
@@ -167,18 +179,20 @@ export default function ArticleDetail() {
         </div>
       </section>
 
-      {/* Related */}
-      <section className="border-t border-line bg-wash">
-        <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
-          <span className="rule-gold" aria-hidden="true" />
-          <h2 className="text-display mt-4 text-2xl text-ink sm:text-3xl">Keep Reading</h2>
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((a) => (
-              <ArticleCard key={a.slug} article={a} />
-            ))}
+      {/* Related — only when there's something else to point to */}
+      {related.length > 0 && (
+        <section className="border-t border-line bg-wash">
+          <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
+            <span className="rule-gold" aria-hidden="true" />
+            <h2 className="text-display mt-4 text-2xl text-ink sm:text-3xl">Keep Reading</h2>
+            <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((a) => (
+                <ArticleCard key={a.slug} article={a} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
         <NewsletterCTA />
