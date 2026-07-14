@@ -11,7 +11,7 @@
     "publish-article": "node scripts/publish-article.mjs"
   },
   "dependencies": {
-    "bad-words": "^3.0.4",
+    "obscenity": "^0.4.6",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.0"
