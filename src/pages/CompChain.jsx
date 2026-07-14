@@ -2,6 +2,7 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import GRAPH from '../data/compChain.json'
 import usePageMeta from '../lib/usePageMeta.js'
 import { pickCelebration } from '../lib/celebrations.js'
+import { useLeaderboard } from '../lib/useLeaderboard.js'
 
 // Comp Chain — standalone game page (its own dark scoreboard look). Hop from a
 // random NBA player through his statistical comps (Basketball Savant) to reach the
@@ -192,8 +193,9 @@ export default function CompChain() {
   const [copied, setCopied] = useState(false)
   // leaderboard
   const [name, setName] = useState(() => { try { return localStorage.getItem('cc_name') || '' } catch { return '' } })
-  const [lb, setLb] = useState({ status: 'idle', entries: [], count: 0, myRank: 0 })
   const [submitted, setSubmitted] = useState(false)
+  const [myRank, setMyRank] = useState(0)
+  const board = useLeaderboard(true)   // fetches today's board on mount
   const confettiRef = useRef(null)
   const lastFx = useRef(-1)
   const recorded = useRef(false)
@@ -202,8 +204,7 @@ export default function CompChain() {
     const g = m === 'daily'
       ? makeGame(adj, nodes, mulberry32(hashStr('wce-comp-chain-' + todayKey())), 2, 4)
       : makeGame(adj, nodes, Math.random, 2, 3)
-    setGame(g); setPath([g.start]); setWon(false); setHints(0); setProfilesOn(false); setCopied(false); setSubmitted(false)
-    setLb({ status: 'idle', entries: [], count: 0, myRank: 0 })
+    setGame(g); setPath([g.start]); setWon(false); setHints(0); setProfilesOn(false); setCopied(false); setSubmitted(false); setMyRank(0)
     recorded.current = false
   }, [adj, nodes])
 
@@ -221,28 +222,13 @@ export default function CompChain() {
   const flawless = won && clicks <= (game?.par ?? 0) && hints === 0
   const shownMoves = useCountUp(clicks, won)
 
-  /* leaderboard fetch/submit */
-  const fetchBoard = useCallback(async () => {
-    setLb((s) => ({ ...s, status: 'loading' }))
-    try {
-      const r = await fetch(`/api/leaderboard?day=${todayKey()}`)
-      const j = await r.json()
-      if (j.configured === false) { setLb({ status: 'unconfigured', entries: [], count: 0, myRank: 0 }); return }
-      setLb({ status: 'ready', entries: j.entries || [], count: j.count || 0, myRank: 0 })
-    } catch { setLb({ status: 'error', entries: [], count: 0, myRank: 0 }) }
-  }, [])
+  /* leaderboard submit */
   const submitScore = useCallback(async () => {
     const nm = name.trim().slice(0, 18) || 'Anonymous'
     try { localStorage.setItem('cc_name', nm) } catch { /* ignore */ }
-    setLb((s) => ({ ...s, status: 'loading' }))
-    try {
-      const r = await fetch('/api/leaderboard', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ day: todayKey(), name: nm, moves: clicks, hints }) })
-      const j = await r.json()
-      if (j.configured === false) { setLb({ status: 'unconfigured', entries: [], count: 0, myRank: 0 }); return }
-      setSubmitted(true)
-      setLb({ status: 'ready', entries: j.entries || [], count: j.count || 0, myRank: j.rank || 0 })
-    } catch { setLb({ status: 'error', entries: [], count: 0, myRank: 0 }) }
-  }, [name, clicks, hints])
+    const { rank } = await board.submit({ name: nm, moves: clicks, hints })
+    setSubmitted(true); setMyRank(rank)
+  }, [name, clicks, hints, board])
 
   /* win side effects */
   useEffect(() => {
@@ -260,7 +246,7 @@ export default function CompChain() {
     })
     winJingle(flawless)
     try { navigator.vibrate?.([35, 45, 35, 45, 150]) } catch { /* none */ }
-    if (mode === 'daily') fetchBoard()
+    if (mode === 'daily') board.refresh()
     if (!reduceMotion && confettiRef.current) {
       const { idx, run: runFx } = pickCelebration(lastFx.current)
       lastFx.current = idx
@@ -414,43 +400,6 @@ export default function CompChain() {
                 </div>
               </div>
             </div>
-
-            {mode === 'daily' && lb.status !== 'unconfigured' && (
-              <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-white/10 bg-black/30 p-5">
-                <div className="flex items-center justify-between">
-                  <div className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#c2a263]">Daily Leaderboard</div>
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">{todayLabel()}{lb.count ? ` · ${lb.count} players` : ''}</div>
-                </div>
-                {!submitted && (
-                  <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                    <input value={name} onChange={(e) => setName(e.target.value)} maxLength={18} placeholder="Your name" aria-label="Your name for the leaderboard"
-                      className="flex-1 rounded-lg border border-white/15 bg-white/[0.04] px-3 py-2 font-mono text-sm text-white placeholder:text-white/30 focus:border-[#c2a263]/60 focus:outline-none" />
-                    <Btn onClick={submitScore} primary disabled={lb.status === 'loading'}>{lb.status === 'loading' ? 'Submitting…' : `Submit ${clicks}/${game.par}`}</Btn>
-                  </div>
-                )}
-                {submitted && lb.myRank > 0 && <div className="mt-3 font-mono text-xs text-white/70">You&rsquo;re <b className="text-[#c2a263]">#{lb.myRank}</b> of {lb.count} today.</div>}
-                <div className="mt-4">
-                  {lb.status === 'loading' && !lb.entries.length && <div className="py-3 text-center font-mono text-[11px] text-white/40">Loading…</div>}
-                  {lb.status === 'error' && <div className="py-3 text-center font-mono text-[11px] text-[#f0a89f]">Leaderboard unavailable right now.</div>}
-                  {lb.entries.length > 0 && (
-                    <ol className="space-y-1">
-                      {lb.entries.map((e, i) => {
-                        const mine = submitted && e.name.toLowerCase() === name.trim().toLowerCase()
-                        return (
-                          <li key={i} className={`flex items-center gap-3 rounded-lg px-3 py-1.5 font-mono text-[12px] ${mine ? 'bg-[#c2a263]/15 text-white' : 'text-white/70'}`}>
-                            <span className="w-6 shrink-0 text-right text-white/40">{i + 1}</span>
-                            <span className="min-w-0 flex-1 truncate">{e.name}</span>
-                            <span className="shrink-0 tabular-nums text-[#c2a263]">{e.moves}<span className="text-white/40"> mv</span></span>
-                            <span className="w-14 shrink-0 text-right tabular-nums text-white/40">{e.hints ? `${e.hints} hint${e.hints === 1 ? '' : 's'}` : 'clean'}</span>
-                          </li>
-                        )
-                      })}
-                    </ol>
-                  )}
-                  {lb.status === 'ready' && !lb.entries.length && <div className="py-3 text-center font-mono text-[11px] text-white/40">Be the first to post a score today.</div>}
-                </div>
-              </div>
-            )}
           </>
         ) : (
           <>
@@ -491,6 +440,47 @@ export default function CompChain() {
               </p>
             )}
           </>
+        )}
+
+        {/* daily leaderboard — always visible */}
+        {board.status !== 'unconfigured' && (
+          <div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-[#c2a263]/25 bg-black/40 p-5 sm:p-6" style={{ boxShadow: '0 0 60px -30px rgba(194,162,99,0.5)' }}>
+            <div className="flex items-center justify-between">
+              <div className="font-mono text-sm font-bold uppercase tracking-[0.2em] text-[#c2a263]">🏆 Daily Leaderboard</div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">{todayLabel()}{board.count ? ` · ${board.count} player${board.count === 1 ? '' : 's'}` : ''}</div>
+            </div>
+
+            {won && mode === 'daily' && !submitted && (
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <input value={name} onChange={(e) => setName(e.target.value)} maxLength={18} placeholder="Your name" aria-label="Your name for the leaderboard"
+                  className="flex-1 rounded-lg border border-white/15 bg-white/[0.04] px-3 py-2 font-mono text-sm text-white placeholder:text-white/30 focus:border-[#c2a263]/60 focus:outline-none" />
+                <Btn onClick={submitScore} primary disabled={board.status === 'loading'}>{board.status === 'loading' ? 'Submitting…' : `Post ${clicks}/${game.par}`}</Btn>
+              </div>
+            )}
+            {submitted && myRank > 0 && <div className="mt-3 font-mono text-xs text-white/75">You&rsquo;re <b className="text-[#c2a263]">#{myRank}</b> of {board.count} today.</div>}
+            {!won && mode === 'daily' && !submitted && <p className="mt-2 font-mono text-[10.5px] uppercase tracking-[0.12em] text-white/40">Solve today&rsquo;s daily to post your score.</p>}
+
+            <div className="mt-4">
+              {board.status === 'loading' && !board.entries.length && <div className="py-4 text-center font-mono text-[11px] text-white/40">Loading today&rsquo;s standings…</div>}
+              {board.status === 'error' && <div className="py-4 text-center font-mono text-[11px] text-[#f0a89f]">Leaderboard unavailable right now.</div>}
+              {board.entries.length > 0 && (
+                <ol className="space-y-1">
+                  {board.entries.map((e, i) => {
+                    const mine = submitted && e.name.toLowerCase() === name.trim().toLowerCase()
+                    return (
+                      <li key={i} className={`flex items-center gap-3 rounded-lg px-3 py-1.5 font-mono text-[12.5px] ${mine ? 'bg-[#c2a263]/15 text-white ring-1 ring-[#c2a263]/40' : 'text-white/70'}`}>
+                        <span className={`w-6 shrink-0 text-right ${i < 3 ? 'text-[#c2a263]' : 'text-white/40'}`}>{i + 1}</span>
+                        <span className="min-w-0 flex-1 truncate">{e.name}</span>
+                        <span className="shrink-0 tabular-nums text-[#c2a263]">{e.moves}<span className="text-white/40"> mv</span></span>
+                        <span className="w-16 shrink-0 text-right tabular-nums text-white/40">{e.hints ? `${e.hints} hint${e.hints === 1 ? '' : 's'}` : 'clean'}</span>
+                      </li>
+                    )
+                  })}
+                </ol>
+              )}
+              {board.status === 'ready' && !board.entries.length && <div className="py-4 text-center font-mono text-[11px] text-white/40">No scores yet today — be the first.</div>}
+            </div>
+          </div>
         )}
 
         {/* lifetime stats + footer */}

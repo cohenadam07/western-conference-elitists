@@ -5,6 +5,7 @@ import ArticleCard from '../components/ArticleCard.jsx'
 import ProspectCard from '../components/ProspectCard.jsx'
 import NewsletterCTA from '../components/NewsletterCTA.jsx'
 import CourtLines from '../components/CourtLines.jsx'
+import CompChainBoard from '../components/CompChainBoard.jsx'
 import Reveal from '../components/Reveal.jsx'
 import { ARTICLES, FEATURED_ARTICLE, PROSPECTS, SPOTLIGHT_PROSPECT } from '../data/content.js'
 import usePageMeta from '../lib/usePageMeta.js'
@@ -238,6 +239,9 @@ export default function Home() {
           </Reveal>
         </div>
       </section>
+
+      {/* Comp Chain daily leaderboard */}
+      <CompChainBoard />
 
       {/* Draft spotlight */}
       <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
