@@ -1,16 +1,18 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import GRAPH from '../data/compChain.json'
 import usePageMeta from '../lib/usePageMeta.js'
+import { pickCelebration } from '../lib/celebrations.js'
 
 // Comp Chain — standalone game page with its own dark scoreboard look.
 // Hop from a random NBA player through his statistical comps (Basketball Savant)
-// to reach the target. Targets are drawn from the start's reachable set, so every
-// round is solvable. Modes: Daily (seeded by the date — same puzzle for everyone)
-// and Free Play. Hints are counted; winning triggers the full celebration.
+// to reach the target. The game graph gives 4 comps per player, spread by an
+// in-degree cap so no hub player absorbs every chain, and targets are drawn from
+// the start's reachable set at low par — every round is solvable and short.
+// Modes: Daily (seeded by the date, same puzzle for everyone) and Free Play.
+// Hints are counted; each win fires one of several over-the-top celebrations.
 
 const HEAD = (id) => `https://cdn.nba.com/headshots/nba/latest/1040x760/${id}.png`
 const GOLD = '#c2a263'
-const CONFETTI_COLORS = [GOLD, '#e6cf9b', '#22395a', '#5b7cab', '#ffffff', '#bc3a2c']
 
 /* ---------- graph ---------- */
 function buildMaps() {
@@ -49,7 +51,7 @@ function hashStr(s) {
   for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) }
   return h >>> 0
 }
-const todayKey = () => new Date().toLocaleDateString('en-CA') // YYYY-MM-DD local
+const todayKey = () => new Date().toLocaleDateString('en-CA')
 const todayLabel = () =>
   new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
@@ -62,7 +64,7 @@ function makeGame(adj, nodes, rng, parMin, parMax) {
     const dist = bfs(adj, start)
     const cand = Object.keys(dist).map(Number)
       .filter((id) => id !== start && dist[id] >= parMin && dist[id] <= parMax)
-      .sort((a, b) => a - b) // deterministic order for the seeded daily
+      .sort((a, b) => a - b)
     if (cand.length) { target = cand[(rng() * cand.length) | 0]; par = dist[target] }
   }
   if (target == null) {
@@ -82,54 +84,27 @@ function loadStats() {
 }
 function saveStats(s) { try { localStorage.setItem(LS, JSON.stringify(s)) } catch { /* private mode */ } }
 
-/* ---------- confetti (canvas, no deps) ---------- */
-function fireConfetti(canvas) {
-  const ctx = canvas.getContext('2d')
-  const dpr = Math.min(window.devicePixelRatio || 1, 2)
-  const W = (canvas.width = canvas.offsetWidth * dpr)
-  const H = (canvas.height = canvas.offsetHeight * dpr)
-  const parts = []
-  const spawn = (n, x, y, spread, power, up) => {
-    for (let i = 0; i < n; i++) {
-      const a = (Math.random() - 0.5) * spread + (up ? -Math.PI / 2 : Math.random() * Math.PI * 2)
-      const v = power * (0.4 + Math.random() * 0.8)
-      parts.push({
-        x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v,
-        rot: Math.random() * Math.PI * 2, vr: (Math.random() - 0.5) * 0.3,
-        w: (4 + Math.random() * 7) * dpr, h: (6 + Math.random() * 10) * dpr,
-        color: CONFETTI_COLORS[(Math.random() * CONFETTI_COLORS.length) | 0],
-        life: 1, decay: 0.004 + Math.random() * 0.006,
-        shape: Math.random() < 0.25 ? 'circle' : 'rect',
-      })
-    }
-  }
-  // wave 1: center blast
-  spawn(140, W / 2, H * 0.42, 1.6, 16 * dpr, true)
-  // wave 2: side cannons
-  setTimeout(() => { spawn(90, 0, H * 0.75, 1.1, 20 * dpr, true); spawn(90, W, H * 0.75, 1.1, 20 * dpr, true) }, 280)
-  // wave 3: gold rain
-  setTimeout(() => { for (let i = 0; i < 70; i++) parts.push({ x: Math.random() * W, y: -20, vx: (Math.random() - 0.5) * 2, vy: (2 + Math.random() * 3) * dpr, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.25, w: 4 * dpr, h: 9 * dpr, color: Math.random() < 0.7 ? GOLD : '#e6cf9b', life: 1, decay: 0.003, shape: 'rect' }) }, 750)
-
-  let raf
-  const t0 = performance.now()
-  const tick = (t) => {
-    ctx.clearRect(0, 0, W, H)
-    for (const p of parts) {
-      p.vy += 0.16 * dpr; p.vx *= 0.992; p.vy *= 0.992
-      p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.decay
-      if (p.life <= 0 || p.y > H + 30) continue
-      ctx.save()
-      ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 1.4))
-      ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.color
-      if (p.shape === 'circle') { ctx.beginPath(); ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2); ctx.fill() }
-      else ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h)
-      ctx.restore()
-    }
-    if (t - t0 < 5200 && parts.some((p) => p.life > 0 && p.y < H + 30)) raf = requestAnimationFrame(tick)
-    else ctx.clearRect(0, 0, W, H)
-  }
-  raf = requestAnimationFrame(tick)
-  return () => cancelAnimationFrame(raf)
+/* win jingle — tiny WebAudio arpeggio, no assets */
+function winJingle(flawless) {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext
+    if (!AC) return
+    const ac = new AC()
+    const t0 = ac.currentTime + 0.02
+    const notes = flawless ? [523.25, 659.25, 783.99, 1046.5, 1318.51] : [523.25, 659.25, 783.99, 1046.5]
+    notes.forEach((f, i) => {
+      const o = ac.createOscillator()
+      const g = ac.createGain()
+      o.type = 'triangle'; o.frequency.value = f
+      const t = t0 + i * 0.085
+      g.gain.setValueAtTime(0.0001, t)
+      g.gain.exponentialRampToValueAtTime(0.13, t + 0.02)
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5)
+      o.connect(g); g.connect(ac.destination)
+      o.start(t); o.stop(t + 0.55)
+    })
+    setTimeout(() => ac.close(), 1800)
+  } catch { /* audio unavailable */ }
 }
 
 /* ---------- small pieces ---------- */
@@ -200,22 +175,23 @@ export default function CompChain() {
   const reduceMotion = useMemo(
     () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches, [])
 
-  const [mode, setMode] = useState('daily')            // 'daily' | 'free'
+  const [mode, setMode] = useState('daily')
   const [game, setGame] = useState(null)
   const [path, setPath] = useState([])
   const [won, setWon] = useState(false)
-  const [hints, setHints] = useState(0)                 // hints used this round
-  const [hintOn, setHintOn] = useState(false)           // hint visible at current position
+  const [hints, setHints] = useState(0)
+  const [hintOn, setHintOn] = useState(false)
   const [revealed, setRevealed] = useState(null)
   const [stats, setStats] = useState(loadStats)
   const [copied, setCopied] = useState(false)
   const confettiRef = useRef(null)
+  const lastFx = useRef(-1)
   const recorded = useRef(false)
 
   const newRound = useCallback((m) => {
     const g = m === 'daily'
-      ? makeGame(adj, nodes, mulberry32(hashStr('wce-comp-chain-' + todayKey())), 4, 9)
-      : makeGame(adj, nodes, Math.random, 3, 9)
+      ? makeGame(adj, nodes, mulberry32(hashStr('wce-comp-chain-' + todayKey())), 2, 4)
+      : makeGame(adj, nodes, Math.random, 2, 3)
     setGame(g); setPath([g.start]); setWon(false); setHints(0); setHintOn(false); setRevealed(null); setCopied(false)
     recorded.current = false
   }, [adj, nodes])
@@ -239,7 +215,6 @@ export default function CompChain() {
   const flawless = won && clicks <= (game?.par ?? 0) && hints === 0
   const shownMoves = useCountUp(clicks, won)
 
-  /* win side-effects: stats + confetti */
   useEffect(() => {
     if (!won || !game || recorded.current) return
     recorded.current = true
@@ -248,14 +223,19 @@ export default function CompChain() {
       if (mode === 'daily' && !prev.daily[todayKey()]) {
         s.daily = { ...prev.daily, [todayKey()]: { moves: clicks, par: game.par, hints } }
         const y = new Date(); y.setDate(y.getDate() - 1)
-        const yKey = y.toLocaleDateString('en-CA')
-        s.streak = prev.lastDaily === yKey ? prev.streak + 1 : 1
+        s.streak = prev.lastDaily === y.toLocaleDateString('en-CA') ? prev.streak + 1 : 1
         s.lastDaily = todayKey()
       }
       saveStats(s)
       return s
     })
-    if (!reduceMotion && confettiRef.current) return fireConfetti(confettiRef.current)
+    winJingle(flawless)
+    try { navigator.vibrate?.([35, 45, 35, 45, 150]) } catch { /* no haptics */ }
+    if (!reduceMotion && confettiRef.current) {
+      const { idx, run: runFx } = pickCelebration(lastFx.current)   // a different celebration every win
+      lastFx.current = idx
+      return runFx(confettiRef.current)
+    }
   }, [won]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!game) return <div className="min-h-[60vh] bg-[#0b0f18]" />
@@ -282,7 +262,7 @@ export default function CompChain() {
     if (!found) return
     const p = []; let u = game.target
     while (u != null) { p.unshift(u); u = parent[u] }
-    setHints(hints + 2)                                  // a full reveal costs two hints
+    setHints(hints + 2)
     setRevealed(p)
   }
   const share = async () => {
@@ -305,13 +285,25 @@ export default function CompChain() {
   return (
     <div className="relative overflow-hidden bg-[#0b0f18] text-white">
       <style>{`
-        @keyframes cc-flash { 0%{opacity:.85} 100%{opacity:0} }
-        @keyframes cc-ring { 0%{transform:translate(-50%,-50%) scale(.2);opacity:.9} 100%{transform:translate(-50%,-50%) scale(3.2);opacity:0} }
-        @keyframes cc-pop { 0%{transform:scale(.4) rotate(-14deg);opacity:0} 55%{transform:scale(1.18) rotate(5deg);opacity:1} 100%{transform:scale(1) rotate(0)} }
-        @keyframes cc-shake { 0%,100%{transform:translate(0,0)} 15%{transform:translate(-7px,2px) rotate(-.6deg)} 30%{transform:translate(6px,-3px) rotate(.5deg)} 45%{transform:translate(-5px,-2px)} 60%{transform:translate(4px,2px) rotate(.4deg)} 75%{transform:translate(-3px,1px)} 90%{transform:translate(2px,-1px)} }
+        @keyframes cc-flash { 0%{opacity:.9} 100%{opacity:0} }
+        @keyframes cc-ring { 0%{transform:translate(-50%,-50%) scale(.15);opacity:1} 100%{transform:translate(-50%,-50%) scale(3.6);opacity:0} }
+        @keyframes cc-ray { 0%{transform:translate(-50%,-50%) rotate(var(--a)) scaleY(.1);opacity:.95} 100%{transform:translate(-50%,-50%) rotate(var(--a)) scaleY(1);opacity:0} }
+        @keyframes cc-pop { 0%{transform:scale(.35) rotate(-16deg);opacity:0} 55%{transform:scale(1.16) rotate(4deg);opacity:1} 100%{transform:scale(1) rotate(0)} }
+        @keyframes cc-shake { 0%,100%{transform:translate(0,0)} 12%{transform:translate(-9px,3px) rotate(-.7deg)} 26%{transform:translate(8px,-4px) rotate(.6deg)} 40%{transform:translate(-7px,-2px)} 54%{transform:translate(5px,3px) rotate(.4deg)} 70%{transform:translate(-4px,1px)} 85%{transform:translate(2px,-1px)} }
+        @keyframes cc-screenshake { 0%,100%{transform:translate(0,0)} 20%{transform:translate(-5px,3px)} 40%{transform:translate(5px,-4px)} 60%{transform:translate(-4px,-2px)} 80%{transform:translate(3px,2px)} }
         @keyframes cc-crumb { 0%{color:rgba(255,255,255,.45);text-shadow:none} 60%{color:#ffe9bd;text-shadow:0 0 18px rgba(194,162,99,.95)} 100%{color:#c2a263;text-shadow:0 0 8px rgba(194,162,99,.5)} }
         @keyframes cc-stat { 0%{transform:scale(1.35)} 100%{transform:scale(1)} }
-        @keyframes cc-glowpulse { 0%,100%{box-shadow:0 0 60px -18px rgba(194,162,99,.55)} 50%{box-shadow:0 0 110px -12px rgba(194,162,99,.95)} }
+        @keyframes cc-glowpulse { 0%,100%{box-shadow:0 0 60px -18px rgba(194,162,99,.55)} 50%{box-shadow:0 0 120px -10px rgba(194,162,99,.95)} }
+        @keyframes cc-spin { to{transform:rotate(360deg)} }
+        @keyframes cc-holo { 0%{transform:translateX(-160%) skewX(-18deg)} 100%{transform:translateX(220%) skewX(-18deg)} }
+        @keyframes cc-glitch {
+          0%,100%{clip-path:inset(0 0 0 0);text-shadow:0 0 14px rgba(194,162,99,.7)}
+          8%{clip-path:inset(12% 0 62% 0);transform:translateX(-3px);text-shadow:-3px 0 #5b7cab,3px 0 #c2a263}
+          16%{clip-path:inset(55% 0 18% 0);transform:translateX(3px);text-shadow:3px 0 #bc3a2c,-3px 0 #c2a263}
+          24%{clip-path:inset(0 0 0 0);transform:none}
+          62%{clip-path:inset(30% 0 40% 0);transform:translateX(2px);text-shadow:-2px 0 #5b7cab,2px 0 #c2a263}
+          70%{clip-path:inset(0 0 0 0);transform:none}
+        }
         .cc-stat-pop { animation: cc-stat .28s cubic-bezier(.22,.61,.36,1) }
         @media (prefers-reduced-motion: reduce){ .cc-anim { animation: none !important } }
       `}</style>
@@ -320,19 +312,24 @@ export default function CompChain() {
       <div aria-hidden="true" className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[#c2a263]/10 blur-[120px]" />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
 
-      {/* win overlays */}
+      {/* win overlays: flash, shockwaves, starburst rays */}
       {won && !reduceMotion && (
         <>
-          <div aria-hidden="true" className="cc-anim pointer-events-none fixed inset-0 z-50 bg-[#c2a263]" style={{ animation: 'cc-flash .5s ease-out forwards' }} />
-          {[0, 1, 2].map((i) => (
-            <div key={i} aria-hidden="true" className="cc-anim pointer-events-none fixed left-1/2 top-1/2 z-40 h-64 w-64 rounded-full border-2 border-[#c2a263]"
-              style={{ animation: `cc-ring 1.1s ${i * 0.18}s cubic-bezier(.22,.61,.36,1) forwards`, opacity: 0 }} />
+          <div aria-hidden="true" className="cc-anim pointer-events-none fixed inset-0 z-50 bg-[#c2a263]" style={{ animation: 'cc-flash .55s ease-out forwards' }} />
+          {[0, 1, 2, 3].map((i) => (
+            <div key={`r${i}`} aria-hidden="true" className="cc-anim pointer-events-none fixed left-1/2 top-1/2 z-40 h-64 w-64 rounded-full border-2 border-[#c2a263]"
+              style={{ animation: `cc-ring 1.15s ${i * 0.16}s cubic-bezier(.22,.61,.36,1) forwards`, opacity: 0 }} />
+          ))}
+          {[0, 30, 60, 90, 120, 150].map((a) => (
+            <div key={`ray${a}`} aria-hidden="true" className="cc-anim pointer-events-none fixed left-1/2 top-1/2 z-40 h-[130vmax] w-[3px] origin-center bg-gradient-to-b from-transparent via-[#c2a263]/70 to-transparent"
+              style={{ '--a': `${a}deg`, animation: `cc-ray .9s .1s ease-out forwards`, opacity: 0 }} />
           ))}
         </>
       )}
       <canvas ref={confettiRef} aria-hidden="true" className="pointer-events-none fixed inset-0 z-50 h-full w-full" />
 
-      <div className="relative mx-auto max-w-4xl px-6 py-14 lg:py-18">
+      <div className="relative mx-auto max-w-5xl px-6 py-14 lg:py-18"
+        style={won && !reduceMotion ? { animation: 'cc-screenshake .5s .12s ease' } : undefined}>
         {/* header */}
         <div className="text-center">
           <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.32em] text-[#c2a263]">Basketball Savant · Game</span>
@@ -367,7 +364,7 @@ export default function CompChain() {
         )}
 
         {/* start -> target */}
-        <div className="mt-10 flex items-stretch gap-3 sm:gap-4">
+        <div className="mx-auto mt-10 flex max-w-3xl items-stretch gap-3 sm:gap-4">
           <EndCard id={game.start} role="Start" info={info} tone="start" />
           <div className="flex flex-col items-center justify-center px-1 text-[#c2a263]">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -401,21 +398,33 @@ export default function CompChain() {
         </div>
 
         {won ? (
-          <div className="cc-anim mt-10 rounded-2xl border border-[#c2a263]/50 bg-[#c2a263]/[0.07] px-6 py-9 text-center"
-            style={reduceMotion ? undefined : { animation: `cc-pop .6s .15s cubic-bezier(.22,.61,.36,1) both, cc-shake .55s .75s ease both, cc-glowpulse 2.4s 1s ease-in-out infinite` }}>
-            <div className="text-5xl" aria-hidden="true">{flawless ? '👑' : '🏆'}</div>
-            <div className="mt-3 font-mono text-xs font-semibold uppercase tracking-[0.34em] text-[#c2a263]">
-              {flawless ? 'Flawless victory' : 'Chain complete'}
-            </div>
-            <div className="mt-3 font-mono text-4xl font-bold text-white sm:text-5xl">
-              {shownMoves} {clicks === 1 ? 'move' : 'moves'}
-            </div>
-            <div className="mt-2 font-mono text-xs text-white/60">
-              {verdict} Best possible was {game.par} · {hints === 0 ? 'no hints' : `${hints} hint${hints === 1 ? '' : 's'}`}.
-            </div>
-            <div className="mt-7 flex flex-wrap justify-center gap-2.5">
-              <Btn onClick={share} primary>{copied ? 'Copied!' : 'Share result'}</Btn>
-              <Btn onClick={() => newRound(mode === 'daily' ? 'free' : mode)}>{mode === 'daily' ? 'Keep playing (free)' : 'Play again'}</Btn>
+          /* win panel: spinning conic border + holo sweep + pop/shake/glow */
+          <div className="cc-anim relative mx-auto mt-10 max-w-2xl overflow-hidden rounded-2xl p-[2px]"
+            style={reduceMotion ? undefined : { animation: 'cc-pop .6s .15s cubic-bezier(.22,.61,.36,1) both, cc-shake .5s .8s ease both, cc-glowpulse 2.4s 1.1s ease-in-out infinite' }}>
+            <div aria-hidden="true" className="cc-anim absolute left-1/2 top-1/2 h-[300%] w-[300%] -translate-x-1/2 -translate-y-1/2"
+              style={{ background: `conic-gradient(from 0deg, transparent 0 40deg, ${GOLD} 70deg, #fff3d6 90deg, ${GOLD} 110deg, transparent 140deg 220deg, ${GOLD}88 260deg, transparent 300deg)`, animation: reduceMotion ? 'none' : 'cc-spin 3.2s linear infinite' }} />
+            <div className="relative overflow-hidden rounded-[14px] bg-[#131a28] px-6 py-9 text-center">
+              <div aria-hidden="true" className="cc-anim pointer-events-none absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/15 to-transparent"
+                style={reduceMotion ? { display: 'none' } : { animation: 'cc-holo 1.5s .5s ease-in-out 2 both' }} />
+              <div className="relative mx-auto h-20 w-20">
+                <div aria-hidden="true" className="cc-anim absolute -inset-2 rounded-full border-2 border-dashed border-[#c2a263]/70"
+                  style={reduceMotion ? undefined : { animation: 'cc-spin 7s linear infinite' }} />
+                <Head id={game.target} className="h-20 w-20 rounded-full bg-white/5 object-cover object-[center_top] ring-2 ring-[#c2a263]" />
+              </div>
+              <div className="cc-anim mt-4 font-mono text-sm font-bold uppercase tracking-[0.34em] text-[#c2a263]"
+                style={reduceMotion ? undefined : { animation: 'cc-glitch 1.8s .4s steps(1) 2' }}>
+                {flawless ? '👑 Flawless victory' : '🏆 Chain complete'}
+              </div>
+              <div className="mt-3 font-mono text-5xl font-bold text-white sm:text-6xl" style={{ textShadow: '0 0 30px rgba(194,162,99,.45)' }}>
+                {shownMoves}<span className="text-2xl text-white/50"> {clicks === 1 ? 'move' : 'moves'}</span>
+              </div>
+              <div className="mt-2 font-mono text-xs text-white/60">
+                {verdict} Best possible was {game.par} · {hints === 0 ? 'no hints' : `${hints} hint${hints === 1 ? '' : 's'}`}.
+              </div>
+              <div className="mt-7 flex flex-wrap justify-center gap-2.5">
+                <Btn onClick={share} primary>{copied ? 'Copied!' : 'Share result'}</Btn>
+                <Btn onClick={() => newRound(mode === 'daily' ? 'free' : mode)}>{mode === 'daily' ? 'Keep playing (free)' : 'Play again'}</Btn>
+              </div>
             </div>
           </div>
         ) : (
@@ -428,7 +437,7 @@ export default function CompChain() {
             <div className="mt-10 text-center font-mono text-[10px] uppercase tracking-[0.22em] text-white/40">
               At <span className="text-white/80">{info[cur]?.name}</span> — pick a comp to hop to
             </div>
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {(adj[cur] || []).map((id) => {
                 const oi = info[id] || { name: '?', team: '—' }
                 const comp = (info[cur]?.comps || []).find((c) => c.id === id)
@@ -436,16 +445,16 @@ export default function CompChain() {
                 const isHint = hintOn && id === bestNext
                 return (
                   <button key={id} type="button" onClick={() => hop(id)}
-                    className={`group flex items-center gap-3 rounded-2xl border bg-white/[0.03] px-3.5 py-3 text-left transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.06] ${
+                    className={`group flex items-center gap-2.5 rounded-2xl border bg-white/[0.03] px-3 py-2.5 text-left transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.06] ${
                       isHint ? 'border-[#c2a263] ring-2 ring-[#c2a263]/40' : isTarget ? 'border-[#c2a263]/70' : 'border-white/12 hover:border-[#c2a263]/50'}`}
                     style={isHint ? { boxShadow: '0 0 26px -8px rgba(194,162,99,0.55)' } : undefined}>
-                    <Head id={id} className="h-12 w-12 shrink-0 rounded-xl bg-white/5 object-cover object-[center_top] ring-1 ring-white/10" />
+                    <Head id={id} className="h-10 w-10 shrink-0 rounded-xl bg-white/5 object-cover object-[center_top] ring-1 ring-white/10" />
                     <div className="min-w-0">
-                      <div className="truncate font-semibold leading-tight text-white">
+                      <div className="truncate text-sm font-semibold leading-tight text-white">
                         {oi.name}
                         {isTarget && <span className="ml-1.5 rounded bg-[#c2a263] px-1 py-px align-middle font-mono text-[8px] font-bold tracking-wide text-[#0b0f18]">TARGET</span>}
                       </div>
-                      <div className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-white/45">
+                      <div className="mt-0.5 font-mono text-[9.5px] uppercase tracking-[0.1em] text-white/45">
                         {oi.team}{comp ? ` · ${comp.score}%` : ''}
                       </div>
                     </div>
@@ -478,7 +487,7 @@ export default function CompChain() {
           <span>Daily streak <b className="text-white/70">{stats.streak}</b></span>
         </div>
         <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.18em] text-white/30">
-          Similarity from 9 percentile stats · usage · shooting · playmaking · rebounding · rim protection
+          Similarity from 10 percentile stats · usage · shooting · 3-point shooting · playmaking · rebounding · rim protection
         </p>
       </div>
     </div>
