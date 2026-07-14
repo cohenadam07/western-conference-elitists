@@ -9,6 +9,7 @@ const LINKS = [
   { to: '/draft', label: 'Draft' },
   { to: '/rankings', label: 'Big Board' },
   { to: '/articles', label: 'Analysis' },
+  { to: '/comp-chain', label: 'Comp Chain' },
   { to: '/about', label: 'About' },
 ]
 
