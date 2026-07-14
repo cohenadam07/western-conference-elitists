@@ -54,23 +54,36 @@ function hashStr(s) {
 const todayKey = () => new Date().toLocaleDateString('en-CA')
 const todayLabel = () => new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
-function makeGame(adj, nodes, rng, parMin, parMax) {
-  let start
-  let target = null
-  let par = 0
-  for (let t = 0; t < 400 && target == null; t++) {
-    start = nodes[(rng() * nodes.length) | 0]
+// Bell-curve difficulty: par 3-4 are the common middle, 2 and 5 the rare tails.
+const PAR_WEIGHTS = { 2: 1, 3: 3, 4: 3, 5: 1 }
+function weightedPar(rng, avail) {
+  const total = avail.reduce((s, p) => s + PAR_WEIGHTS[p], 0)
+  let r = rng() * total
+  for (const p of avail) { r -= PAR_WEIGHTS[p]; if (r <= 0) return p }
+  return avail[avail.length - 1]
+}
+function makeGame(adj, nodes, rng) {
+  const pars = Object.keys(PAR_WEIGHTS).map(Number)
+  const minP = Math.min(...pars), maxP = Math.max(...pars)
+  for (let t = 0; t < 400; t++) {
+    const start = nodes[(rng() * nodes.length) | 0]
     const dist = bfs(adj, start)
-    const cand = Object.keys(dist).map(Number).filter((id) => id !== start && dist[id] >= parMin && dist[id] <= parMax).sort((a, b) => a - b)
-    if (cand.length) { target = cand[(rng() * cand.length) | 0]; par = dist[target] }
+    const buckets = {}
+    for (const k of Object.keys(dist)) {
+      const id = Number(k); const d = dist[id]
+      if (id !== start && d >= minP && d <= maxP) (buckets[d] = buckets[d] || []).push(id)
+    }
+    const avail = pars.filter((p) => buckets[p] && buckets[p].length)
+    if (!avail.length) continue
+    const par = weightedPar(rng, avail)
+    const bucket = buckets[par].sort((a, b) => a - b)   // deterministic order for the seeded daily
+    return { start, target: bucket[(rng() * bucket.length) | 0], par }
   }
-  if (target == null) {
-    const dist = bfs(adj, start)
-    const cand = Object.keys(dist).map(Number).filter((id) => id !== start && dist[id] > 0).sort((a, b) => a - b)
-    target = cand[(rng() * cand.length) | 0]
-    par = dist[target]
-  }
-  return { start, target, par }
+  const start = nodes[(rng() * nodes.length) | 0]   // fallback: any reachable node
+  const dist = bfs(adj, start)
+  const cand = Object.keys(dist).map(Number).filter((id) => id !== start && dist[id] > 0).sort((a, b) => a - b)
+  const target = cand[(rng() * cand.length) | 0]
+  return { start, target, par: dist[target] }
 }
 
 /* ---------- localStorage stats ---------- */
@@ -203,8 +216,8 @@ export default function CompChain() {
 
   const newRound = useCallback((m) => {
     const g = m === 'daily'
-      ? makeGame(adj, nodes, mulberry32(hashStr('wce-comp-chain-' + todayKey())), 2, 4)
-      : makeGame(adj, nodes, Math.random, 2, 3)
+      ? makeGame(adj, nodes, mulberry32(hashStr('wce-comp-chain-' + todayKey())))
+      : makeGame(adj, nodes, Math.random)
     setGame(g); setPath([g.start]); setWon(false); setHints(0); setProfilesOn(false); setCopied(false); setSubmitted(false); setMyRank(0); setNameError(false)
     recorded.current = false
   }, [adj, nodes])
