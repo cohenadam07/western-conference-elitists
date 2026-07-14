@@ -8,8 +8,17 @@
 // kept. Keys expire after 4 days. Scores are self-reported — this is a fun board,
 // not a ranked ladder — but inputs are validated and clamped.
 
+import Filter from 'bad-words'
+
 const URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
+
+// Explicit-name filter (word-boundary matching, so innocent names like "Hitchcock"
+// pass). Also check a leetspeak-normalized copy to catch "sh1t", "b!tch", etc.
+const filter = new Filter()
+filter.addWords('coon', 'kike', 'spic', 'chink', 'wetback', 'tranny', 'fag', 'faggot', 'nigger', 'nigga', 'retard', 'rape', 'rapist', 'nazi', 'jizz', 'cum')
+const leet = (s) => String(s).toLowerCase().replace(/[@4]/g, 'a').replace(/3/g, 'e').replace(/[1!|]/g, 'i').replace(/0/g, 'o').replace(/[5$]/g, 's').replace(/7/g, 't')
+const isBadName = (name) => { try { return filter.isProfane(name) || filter.isProfane(leet(name)) } catch { return false } }
 
 async function redis(cmd) {
   const r = await fetch(URL, {
@@ -56,6 +65,7 @@ export default async function handler(req, res) {
       if (!validDay(day)) { res.status(400).json({ error: 'bad day' }); return }
       let name = String(b.name || '').replace(/[^\w \-.'#!]/g, '').trim().slice(0, 18)
       if (!name) name = 'Anonymous'
+      if (isBadName(name)) { res.status(400).json({ error: 'name', reason: 'inappropriate' }); return }
       const moves = Math.max(1, Math.min(40, parseInt(b.moves, 10) || 0))
       const hints = Math.max(0, Math.min(30, parseInt(b.hints, 10) || 0))
       const key = 'cc:lb:' + day

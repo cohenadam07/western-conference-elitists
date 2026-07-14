@@ -195,6 +195,7 @@ export default function CompChain() {
   const [name, setName] = useState(() => { try { return localStorage.getItem('cc_name') || '' } catch { return '' } })
   const [submitted, setSubmitted] = useState(false)
   const [myRank, setMyRank] = useState(0)
+  const [nameError, setNameError] = useState(false)
   const board = useLeaderboard(true)   // fetches today's board on mount
   const confettiRef = useRef(null)
   const lastFx = useRef(-1)
@@ -204,7 +205,7 @@ export default function CompChain() {
     const g = m === 'daily'
       ? makeGame(adj, nodes, mulberry32(hashStr('wce-comp-chain-' + todayKey())), 2, 4)
       : makeGame(adj, nodes, Math.random, 2, 3)
-    setGame(g); setPath([g.start]); setWon(false); setHints(0); setProfilesOn(false); setCopied(false); setSubmitted(false); setMyRank(0)
+    setGame(g); setPath([g.start]); setWon(false); setHints(0); setProfilesOn(false); setCopied(false); setSubmitted(false); setMyRank(0); setNameError(false)
     recorded.current = false
   }, [adj, nodes])
 
@@ -235,9 +236,11 @@ export default function CompChain() {
   /* leaderboard submit */
   const submitScore = useCallback(async () => {
     const nm = name.trim().slice(0, 18) || 'Anonymous'
+    setNameError(false)
+    const res = await board.submit({ name: nm, moves: clicks, hints })
+    if (res.error) { setNameError(true); return }   // explicit name rejected — let them retry
     try { localStorage.setItem('cc_name', nm) } catch { /* ignore */ }
-    const { rank } = await board.submit({ name: nm, moves: clicks, hints })
-    setSubmitted(true); setMyRank(rank)
+    setSubmitted(true); setMyRank(res.rank)
   }, [name, clicks, hints, board])
 
   /* win side effects */
@@ -461,10 +464,13 @@ export default function CompChain() {
             </div>
 
             {won && mode === 'daily' && !submitted && (
-              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                <input value={name} onChange={(e) => setName(e.target.value)} maxLength={18} placeholder="Your name" aria-label="Your name for the leaderboard"
-                  className="flex-1 rounded-lg border border-white/15 bg-white/[0.04] px-3 py-2 font-mono text-sm text-white placeholder:text-white/30 focus:border-[#c2a263]/60 focus:outline-none" />
-                <Btn onClick={submitScore} primary disabled={board.status === 'loading'}>{board.status === 'loading' ? 'Submitting…' : `Post ${clicks}/${game.par}`}</Btn>
+              <div className="mt-4">
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <input value={name} onChange={(e) => { setName(e.target.value); setNameError(false) }} maxLength={18} placeholder="Your name" aria-label="Your name for the leaderboard"
+                    className={`flex-1 rounded-lg border bg-white/[0.04] px-3 py-2 font-mono text-sm text-white placeholder:text-white/30 focus:outline-none ${nameError ? 'border-[#bc3a2c]/70 focus:border-[#bc3a2c]' : 'border-white/15 focus:border-[#c2a263]/60'}`} />
+                  <Btn onClick={submitScore} primary disabled={board.status === 'loading'}>{board.status === 'loading' ? 'Submitting…' : `Post ${clicks}/${game.par}`}</Btn>
+                </div>
+                {nameError && <p className="mt-2 font-mono text-[11px] text-[#f0a89f]">That name isn&rsquo;t allowed — please choose another.</p>}
               </div>
             )}
             {submitted && myRank > 0 && <div className="mt-3 font-mono text-xs text-white/75">You&rsquo;re <b className="text-[#c2a263]">#{myRank}</b> of {board.count} today.</div>}

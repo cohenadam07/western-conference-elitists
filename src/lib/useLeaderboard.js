@@ -29,6 +29,7 @@ export function useLeaderboard(auto = true) {
       })
       const j = await r.json()
       if (j.configured === false) { setState({ status: 'unconfigured', entries: [], count: 0 }); return { rank: 0 } }
+      if (j.error) return { error: j.error }   // e.g. rejected name — leave the board untouched
       setState({ status: 'ready', entries: j.entries || [], count: j.count || 0 })
       return { rank: j.rank || 0 }
     } catch { setState((s) => ({ ...s, status: 'error' })); return { rank: 0 } }
