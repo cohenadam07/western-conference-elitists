@@ -366,12 +366,15 @@ export default function CompChain() {
 
         {/* start -> target (stacks on mobile) */}
         <div className="mx-auto mt-8 flex max-w-3xl flex-col items-stretch gap-3 sm:flex-row sm:items-stretch">
-          <EndCard id={game.start} role="Start" info={info} tone="start" showProfile={profilesOn} />
+          <EndCard id={game.start} role="Start" info={info} tone="start" showProfile />
           <div className="flex items-center justify-center text-[#c2a263]">
             <svg className="h-6 w-6 rotate-90 sm:h-7 sm:w-7 sm:rotate-0" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m0 0l-6-6m6 6l-6 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </div>
-          <EndCard id={game.target} role="Target" info={info} tone="target" showProfile={profilesOn} />
+          <EndCard id={game.target} role="Target" info={info} tone="target" showProfile />
         </div>
+        <p className="mx-auto mt-3 max-w-3xl text-center font-mono text-[10px] uppercase tracking-[0.12em] text-white/40">
+          Bars = percentile in 10 stats (USG · TS · 3P · 3PA · FTr · AST · TOV · ORB · DRB · BLK). Steer the chain toward the Target&rsquo;s shape.
+        </p>
 
         {/* scoreboard */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:gap-4">
@@ -477,7 +480,7 @@ export default function CompChain() {
             </div>
 
             <div className="mt-8 flex flex-wrap justify-center gap-2.5">
-              <Btn onClick={showProfiles} disabled={profilesOn}>{profilesOn ? 'Profiles shown ✓' : 'Show profiles (+1)'}</Btn>
+              <Btn onClick={showProfiles} disabled={profilesOn}>{profilesOn ? 'Option profiles shown ✓' : 'Show option profiles (+1)'}</Btn>
               <Btn onClick={autoSolve} disabled={bestNext == null}>Auto-solve hop (+2)</Btn>
               <Btn onClick={undo} disabled={path.length < 2}>Undo</Btn>
               <Btn onClick={() => newRound(mode)}>New game</Btn>
