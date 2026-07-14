@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 // Shared Comp Chain daily-leaderboard data hook. Fetches today's board from the
 // /api/leaderboard serverless function and can submit a score. Statuses:
@@ -35,6 +35,18 @@ export function useLeaderboard(auto = true) {
   }, [])
 
   useEffect(() => { if (auto) refresh() }, [auto, refresh])
+
+  // Roll the board over at local midnight: when the puzzle's day changes, the
+  // day key changes, so refetch to show the new (empty) day's board.
+  const dayRef = useRef(dayKey())
+  useEffect(() => {
+    if (!auto) return
+    const id = setInterval(() => {
+      const d = dayKey()
+      if (d !== dayRef.current) { dayRef.current = d; refresh() }
+    }, 30000)
+    return () => clearInterval(id)
+  }, [auto, refresh])
 
   return { ...state, refresh, submit }
 }

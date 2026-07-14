@@ -210,6 +210,16 @@ export default function CompChain() {
 
   useEffect(() => { newRound(mode) }, [mode, newRound])
 
+  // At local midnight the seeded daily puzzle changes; reset to it so the puzzle
+  // and the (auto-refreshing) leaderboard roll over together.
+  const dayRef = useRef(todayKey())
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (todayKey() !== dayRef.current) { dayRef.current = todayKey(); if (mode === 'daily') newRound('daily') }
+    }, 30000)
+    return () => clearInterval(id)
+  }, [mode, newRound])
+
   const cur = path[path.length - 1]
   const clicks = path.length - 1
   const reachable = won || (game != null && bfs(adj, cur)[game.target] != null)
