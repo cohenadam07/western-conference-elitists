@@ -6,7 +6,7 @@ import Button from './Button.jsx'
 const LINKS = [
   { to: '/news', label: 'News' },
   { to: '/podcasts', label: 'Podcasts' },
-  { to: '/draft', label: 'Draft' },
+  { href: '/draft-savant.html', label: 'Draft Savant', external: true },
   { to: '/rankings', label: 'Big Board' },
   { to: '/articles', label: 'Analysis' },
   { to: '/comp-chain', label: 'Comp Chain' },
@@ -47,29 +47,39 @@ export default function Navbar() {
         <Logo />
 
         <div className="hidden items-center gap-7 lg:flex">
-          {LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                `relative py-1 font-mono text-[11.5px] font-medium uppercase tracking-[0.14em] transition-colors ${
-                  isActive ? 'text-ink' : 'underline-grow text-muted hover:text-ink'
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  {link.label}
-                  {isActive && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute inset-x-0 -bottom-[3px] h-[3px] bg-gold"
-                    />
-                  )}
-                </>
-              )}
-            </NavLink>
-          ))}
+          {LINKS.map((link) =>
+            link.external ? (
+              <a
+                key={link.href}
+                href={link.href}
+                className="relative py-1 font-mono text-[11.5px] font-medium uppercase tracking-[0.14em] underline-grow text-muted transition-colors hover:text-ink"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  `relative py-1 font-mono text-[11.5px] font-medium uppercase tracking-[0.14em] transition-colors ${
+                    isActive ? 'text-ink' : 'underline-grow text-muted hover:text-ink'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {link.label}
+                    {isActive && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-x-0 -bottom-[3px] h-[3px] bg-gold"
+                      />
+                    )}
+                  </>
+                )}
+              </NavLink>
+            )
+          )}
           <a
             href={SAVANT.href}
             className="group flex items-center gap-2 rounded-full border border-navy/25 px-3.5 py-1.5 font-mono text-[11.5px] font-medium uppercase tracking-[0.14em] text-navy transition-colors hover:border-gold hover:bg-surface"
@@ -124,26 +134,39 @@ export default function Navbar() {
       >
         <div className="min-h-0 overflow-hidden">
           <div className="flex flex-col px-6 pb-6 pt-2">
-            {[{ to: '/', label: 'Home' }, ...LINKS].map((link, i) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.to === '/'}
-                style={{ transitionDelay: open ? `${60 + i * 35}ms` : '0ms' }}
-                className={({ isActive }) =>
-                  `border-b border-line-soft py-3.5 font-mono text-[13px] font-medium uppercase tracking-[0.14em] transition-[opacity,transform,color] duration-300 ${
+            {[{ to: '/', label: 'Home' }, ...LINKS].map((link, i) =>
+              link.external ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  style={{ transitionDelay: open ? `${60 + i * 35}ms` : '0ms' }}
+                  className={`border-b border-line-soft py-3.5 font-mono text-[13px] font-medium uppercase tracking-[0.14em] text-muted transition-[opacity,transform,color] duration-300 ${
                     open ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
-                  } ${isActive ? 'text-ink' : 'text-muted'}`
-                }
-              >
-                {({ isActive }) => (
-                  <span className="flex items-center gap-3">
-                    {isActive && <span aria-hidden="true" className="h-[3px] w-6 bg-gold" />}
-                    {link.label}
-                  </span>
-                )}
-              </NavLink>
-            ))}
+                  }`}
+                >
+                  <span className="flex items-center gap-3">{link.label}</span>
+                </a>
+              ) : (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  end={link.to === '/'}
+                  style={{ transitionDelay: open ? `${60 + i * 35}ms` : '0ms' }}
+                  className={({ isActive }) =>
+                    `border-b border-line-soft py-3.5 font-mono text-[13px] font-medium uppercase tracking-[0.14em] transition-[opacity,transform,color] duration-300 ${
+                      open ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+                    } ${isActive ? 'text-ink' : 'text-muted'}`
+                  }
+                >
+                  {({ isActive }) => (
+                    <span className="flex items-center gap-3">
+                      {isActive && <span aria-hidden="true" className="h-[3px] w-6 bg-gold" />}
+                      {link.label}
+                    </span>
+                  )}
+                </NavLink>
+              )
+            )}
             <a
               href={SAVANT.href}
               style={{ transitionDelay: open ? `${60 + (LINKS.length + 1) * 35}ms` : '0ms' }}
