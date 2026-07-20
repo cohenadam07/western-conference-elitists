@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
 :root{
   --bg:#ECEBE8; --surface:#FFFFFF; --ink:#191B1F; --muted:#4E535B; --faint:#8B9099;
@@ -179,6 +180,42 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
   .brow{flex-wrap:wrap}
   .brow .bmeta,.brow .bteam{width:100%;padding-left:38px}
 }
+/* Share button (top bar) */
+.exportbtn{height:36px;flex:none;display:inline-flex;align-items:center;gap:6px;background:var(--navy);border:none;border-radius:18px;padding:0 14px 0 12px;cursor:pointer;color:var(--gold);font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;transition:filter .16s ease}
+.exportbtn svg{width:13px;height:13px;stroke:var(--gold);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.exportbtn:hover{filter:brightness(1.12)}
+.exportbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.exportbtn[disabled]{opacity:.6;cursor:default;filter:none}
+/* off-screen one-frame share card (built by buildShareShell()). Hex/rgb/rgba only — no
+   color-mix — so html2canvas 1.4.1 can rasterize it; initials avatar avoids CORS. */
+.export-shell{position:fixed;left:-10000px;top:0;width:1060px;background:var(--surface);padding:26px 30px 20px;font-family:var(--body);color:var(--ink)}
+.export-shell *{animation:none!important;transition:none!important}
+.export-shell .sc-head{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.export-shell .sc-tag{margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+.export-shell .sc-id{display:flex;align-items:center;gap:16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:13px 0;margin-bottom:12px}
+.export-shell .sc-ava{width:60px;height:60px;flex:none;border-radius:12px;background:var(--track);display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;font-size:23px;color:var(--muted)}
+.export-shell .sc-name{font-family:var(--disp);font-weight:600;font-size:34px;line-height:1.02;letter-spacing:-.01em}
+.export-shell .sc-meta{color:var(--muted);font-size:13px;margin-top:3px}
+.export-shell .sc-meta b{color:var(--ink);font-weight:600}
+.export-shell .sc-arch{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--navy);background:rgba(34,57,90,.08);border:1px solid rgba(34,57,90,.22);border-radius:6px;padding:3px 8px;margin-top:7px}
+.export-shell .sc-statline{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.export-shell .sc-statline .st b{font-size:14px;color:var(--ink);font-weight:500;margin-right:2px}
+.export-shell .sc-meas{display:flex;flex-wrap:wrap;gap:26px;margin-bottom:14px}
+.export-shell .sc-ml{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+.export-shell .sc-mv{font-family:var(--mono);font-weight:500;font-size:15px;margin-top:2px}
+.export-shell .sc-ctx{margin-bottom:14px}
+.export-shell .sc-cols{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.export-shell .sc-coltitle{font-family:var(--disp);font-weight:600;font-size:22px;border-bottom:3px solid var(--gold);padding-bottom:3px;display:inline-block;line-height:1;margin-bottom:6px}
+.export-shell .sc-sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--line);padding-bottom:4px;margin:11px 0 4px}
+.export-shell .sc-row{display:grid;grid-template-columns:150px 1fr 24px 62px;align-items:center;column-gap:10px;height:25px}
+.export-shell .sc-lab{font-size:12px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.export-shell .sc-lab .diamond{color:var(--gold);font-size:9px;vertical-align:1px;margin-right:3px}
+.export-shell .sc-track{position:relative;height:9px;background:var(--track);border-radius:5px;overflow:hidden}
+.export-shell .sc-fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px;box-shadow:inset 0 0 0 1px rgba(20,26,32,.10)}
+.export-shell .sc-pct{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink);text-align:right}
+.export-shell .sc-val{font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:right;white-space:nowrap}
+.export-shell .sc-foot{margin-top:15px;padding-top:11px;border-top:2px solid var(--gold);display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.export-shell .sc-foot b{color:var(--navy)}
 </style>
 </head>
 <body>
@@ -189,7 +226,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
       <div><div class="brand-word">Draft <span>Savant</span></div>
         <div style="display:flex;gap:8px;align-items:center;margin-top:6px"><span class="eyebrow-pill" id="srcpill">preview data</span><a class="backlink" href="/" title="Back to WCE Hoops home">&larr; wcehoops</a><a class="backlink" href="basketball-savant.html">basketball savant &rarr;</a></div></div>
     </div>
-    <div class="search" id="searchWrap"><button class="chip" id="boardBtn" aria-pressed="false" aria-expanded="false">Draft board</button><input id="q" placeholder="Search a prospect…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Search a prospect"/><div class="results" id="results" hidden></div></div>
+    <div class="search" id="searchWrap"><button class="exportbtn" id="exportbtn" aria-label="Share this prospect card as an image"><svg viewBox="0 0 24 24"><path d="M12 14V3"/><path d="M8.5 6.5L12 3l3.5 3.5"/><path d="M6 10H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg><span id="exportlab">Share</span></button><button class="chip" id="boardBtn" aria-pressed="false" aria-expanded="false">Draft board</button><input id="q" placeholder="Search a prospect…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Search a prospect"/><div class="results" id="results" hidden></div></div>
   </div>
   <div class="chips" id="chips" role="group" aria-label="Lottery picks"></div>
   <div class="col boardpanel" id="boardPanel" hidden></div>
@@ -742,6 +779,112 @@ function byKey(k){return METRICS.find(m=>m.key===k);}
 
 function stat(l,v,dec){return '<span class="st"><b>'+(miss(v)?'—':(+v).toFixed(dec==null?1:dec))+'</b> '+l+'</span>';}
 
+/* ---- Share: a compact one-frame card of the whole profile (only the bars he fills) ---- */
+function initials(n){return (n||'').split(/\s+/).map(w=>w[0]||'').slice(0,2).join('').toUpperCase();}
+function slug(n){return (n||'player').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');}
+function poolBasis(ref){
+  const field=(poolPop==='past5')?'past drafts':(ref.draft_year===2026?'class':ref.draft_year+' class');
+  if(pop==='pos') return ref.pos.toLowerCase()+'s · '+field;
+  if(pop==='age') return 'similar age · '+field;
+  return field;
+}
+// One share-card row — same era-gate + hide-missing rules as the page, so nothing renders blank.
+function scRow(m,ref,cls){
+  if(!validEra(m,ref)) return '';
+  let v=val(ref,m.key);
+  if(m.key==='bpm' && miss(v) && ref.bpm_torvik!=null) v=ref.bpm_torvik;
+  if(miss(v)) return '';
+  const pct=pctOf(v,poolVals(m.key,ref),m.lower), shown=(pct==null?50:pct);
+  return '<div class="'+(cls||'sc-row')+'"><div class="sc-lab">'+shortLabel(m)+'</div>'
+    +'<div class="sc-track"><div class="sc-fill" style="width:'+Math.max(shown,2)+'%;background:'+colorAt(shown)+'"></div></div>'
+    +'<div class="sc-pct">'+(pct==null?'·':pct)+'</div>'
+    +'<div class="sc-val">'+fmt(m.unit,v)+'</div></div>';
+}
+function scGroup(group,ref){
+  const subs=[];
+  for(const m of METRICS){ if(m.group!==group) continue;
+    if(!subs.length||subs[subs.length-1].sub!==m.sub) subs.push({sub:m.sub,rows:''});
+    subs[subs.length-1].rows+=scRow(m,ref);
+  }
+  let html='';
+  for(const s of subs){ if(s.rows) html+='<div class="sc-sub">'+s.sub+'</div>'+s.rows; }
+  return html;
+}
+function buildShareShell(){
+  const p=byId(curId);
+  const meta=[p.conference?(p.college+' ('+p.conference+')'):p.college, p.pos];
+  if(p.gp!=null) meta.push(p.gp+' GP');
+  const badge=(p.draft_year===2026?'Projected No. '+p.draft_pick:p.draft_year+' · No. '+p.draft_pick)+' · '+p.draft_team;
+  const hasLine=p.line && (p.line.ppg!=null||p.line.rpg!=null||p.line.apg!=null);
+  const sl=hasLine?('<div class="sc-statline">'+stat('PPG',p.line.ppg)+stat('RPG',p.line.rpg)+stat('APG',p.line.apg)+(p.line.tpg!=null?stat('TPG',p.line.tpg):'')+'</div>'):'';
+  let measHtml='';
+  for(const [lab,key] of [['Height','height'],['Wingspan','wing'],['Reach','reach'],['Max vert','vert'],['Weight','weight']]){
+    const v=val(p,key); if(miss(v)) continue;
+    const disp=(key==='vert')?(+v).toFixed(1)+'"':(key==='weight')?String(Math.round(v)):fmt('ftin',v);
+    measHtml+='<div class="sc-m"><div class="sc-ml">'+lab+'</div><div class="sc-mv">'+disp+'</div></div>';
+  }
+  measHtml=measHtml?'<div class="sc-meas">'+measHtml+'</div>':'';
+  const ctx=scRow(byKey('age'),p)+scRow(byKey('sos'),p);
+  const off=scGroup('off',p), def=scGroup('def',p);
+  const shell=document.createElement('div');
+  shell.className='export-shell';
+  shell.innerHTML=
+    '<div class="sc-head"><span class="wce">WCE</span><div class="brand-word">Draft <span>Savant</span></div>'
+     +'<span class="sc-tag">'+badge+' · vs '+poolBasis(p)+'</span></div>'
+    +'<div class="sc-id"><div class="sc-ava">'+initials(p.name)+'</div>'
+       +'<div><div class="sc-name">'+p.name+'</div><div class="sc-meta">'+meta.join(' · ')+'</div>'
+       +(p.archetype?'<div class="sc-arch">'+p.archetype+'</div>':'')+sl+'</div></div>'
+    +measHtml
+    +(ctx?'<div class="sc-ctx">'+ctx+'</div>':'')
+    +'<div class="sc-cols"><div class="sc-col"><div class="sc-coltitle">Offense</div>'+(off||'<div class="sc-val" style="text-align:left;padding-top:6px">No college data</div>')+'</div>'
+       +'<div class="sc-col"><div class="sc-coltitle">Defense &amp; tools</div>'+(def||'<div class="sc-val" style="text-align:left;padding-top:6px">—</div>')+'</div></div>'
+    +'<div class="sc-foot"><span><b>wcehoops.com</b> · Draft Savant</span><span>'+p.name+' · '+(p.draft_year===2026?'2026 class':p.draft_year+' draft')+'</span></div>';
+  return shell;
+}
+// html2canvas can exceed mobile-Safari's ~4096px per-side canvas cap at scale 2 on a tall card,
+// which yields a blank image; clamp scale so neither dimension blows past a safe ceiling.
+function safeScale(el){
+  const w=el.offsetWidth||1060, h=el.offsetHeight||1200, cap=4000;
+  return Math.max(1, Math.min(2, cap/Math.max(w,h)));
+}
+const isTouch = (typeof window!=='undefined') && (('ontouchstart' in window) ||
+  (window.matchMedia && window.matchMedia('(pointer:coarse)').matches));
+async function exportCard(){
+  if(typeof html2canvas==='undefined'){ alert('Still loading — try again in a second.'); return; }
+  const btn=document.getElementById('exportbtn'), lab=document.getElementById('exportlab');
+  const prev=lab.textContent; btn.disabled=true; lab.textContent='…';
+  let shell=null;
+  try{
+    if(document.fonts && document.fonts.ready) await document.fonts.ready;
+    shell=buildShareShell(); document.body.appendChild(shell);
+    const canvas=await html2canvas(shell,{backgroundColor:'#FFFFFF',scale:safeScale(shell),useCORS:true,logging:false});
+    const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));
+    if(!blob) throw new Error('no blob');
+    const p=byId(curId), fname=slug(p.name)+'_'+p.draft_year+'_draftsavant.png';
+    const file=new File([blob],fname,{type:'image/png'});
+    const shareData={files:[file],title:p.name+' — Draft Savant',
+      text:p.name+' · '+(p.draft_year===2026?'2026 class':p.draft_year+' draft')+' — Draft Savant · wcehoops.com'};
+    // 1) Native share sheet — the mobile path. Only exists in a secure context (HTTPS/localhost).
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share(shareData); return; }
+      catch(err){ if(err && err.name==='AbortError') return; }        // user dismissed — stop here
+    }
+    // 2) Fallbacks. iOS Safari ignores <a download>, so on touch devices open the image inline
+    //    (long-press → Save Image / Share); desktop gets a real download.
+    const url=URL.createObjectURL(blob);
+    if(isTouch){
+      const w=window.open();
+      if(w){ w.document.title=fname; w.document.body.style.margin='0';
+             w.document.body.innerHTML='<img src="'+url+'" style="width:100%;height:auto" alt="'+p.name+'">'; }
+      else { location.href=url; }                                     // popup blocked — navigate to the image
+    }else{
+      const a=document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click(); a.remove();
+    }
+    setTimeout(()=>URL.revokeObjectURL(url),30000);
+  }catch(err){ console.error('share failed',err); alert('Sorry — couldn’t build the share image.'); }
+  finally{ if(shell)shell.remove(); btn.disabled=false; lab.textContent=prev; }
+}
+
 function render(){
   const p=byId(curId);
   const wt=val(p,'weight'), vt=val(p,'vert');
@@ -905,6 +1048,7 @@ document.querySelectorAll('#poolseg button').forEach(b=>b.onclick=()=>{poolPop=b
   if(PAST_YEARS.length===0){const ps=document.getElementById('poolseg')&&document.getElementById('poolseg').closest('.ctl'); if(ps) ps.style.display='none';}
   document.querySelector('.wrap').classList.add('anim');
   document.getElementById('srcpill').textContent=PLAYERS.length+' prospects · '+Math.min(...YEARS)+'–'+String(Math.max(...YEARS)).slice(2)+' draft classes';
+  const eb=document.getElementById('exportbtn'); if(eb) eb.onclick=exportCard;
   fillChips(); initSearch(); render();
 })();
 </script>
