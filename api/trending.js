@@ -54,9 +54,9 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
-      const keys = dayKeys(DAYS)
+      const keys = dayKeys(DAYS)                               // day0 (today) .. day6
       const dest = 'bs:trend:u' + DAYS
-      const weights = keys.map((_, i) => DAYS - i)            // today heaviest
+      const weights = keys.map((_, i) => DAYS - i)             // today heaviest -> ranking
       await redis(['ZUNIONSTORE', dest, keys.length, ...keys, 'WEIGHTS', ...weights])
       await redis(['EXPIRE', dest, 300])
       const flat = (await redis(['ZREVRANGE', dest, 0, TOP - 1, 'WITHSCORES'])) || []
@@ -65,6 +65,30 @@ export default async function handler(req, res) {
         const id = parseInt(flat[i], 10)
         if (Number.isInteger(id)) top.push({ id, score: Number(flat[i + 1]) || 0 })
       }
+
+      // Momentum: recent window (last 3 days) vs prior window (days 3-6), per-day averages.
+      // trend = 'up' (fire) when a player is searched notably more lately, 'down' (ice) when cooling.
+      if (top.length) {
+        const rKeys = keys.slice(0, 3), pKeys = keys.slice(3, 7)
+        const rDest = 'bs:trend:r3', pDest = 'bs:trend:p4'
+        await redis(['ZUNIONSTORE', rDest, rKeys.length, ...rKeys])
+        await redis(['ZUNIONSTORE', pDest, pKeys.length, ...pKeys])
+        await redis(['EXPIRE', rDest, 300]); await redis(['EXPIRE', pDest, 300])
+        const ids = top.map((t) => String(t.id))
+        const rS = (await redis(['ZMSCORE', rDest, ...ids])) || []
+        const pS = (await redis(['ZMSCORE', pDest, ...ids])) || []
+        top.forEach((t, i) => {
+          const rawR = Number(rS[i]) || 0, rawP = Number(pS[i]) || 0
+          let trend = 'flat'
+          if (rawR + rawP >= 2) {                              // need a little signal before calling it
+            const r = rawR / rKeys.length, p = rawP / pKeys.length
+            if (p <= 0 && r > 0) trend = 'up'
+            else { const ratio = r / (p || 1e-9); trend = ratio >= 1.3 ? 'up' : ratio <= 0.7 ? 'down' : 'flat' }
+          }
+          t.trend = trend
+        })
+      }
+
       res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300')
       res.status(200).json({ configured: true, ids: top.map((t) => t.id), top })
       return
