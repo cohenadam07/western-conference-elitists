@@ -216,9 +216,186 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .export-shell .sc-val{font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:right;white-space:nowrap}
 .export-shell .sc-foot{margin-top:15px;padding-top:11px;border-top:2px solid var(--gold);display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .export-shell .sc-foot b{color:var(--navy)}
+
+/* ===== Home screen (branded landing) — Draft Savant ===== */
+.home{position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;padding:66px 24px 30px;
+  flex-direction:column;align-items:center;justify-content:center;display:none;
+  background:radial-gradient(125% 95% at 50% -12%, #F6F5F2 0%, var(--bg) 52%, #E5E3DF 100%)}
+body.home-open .home{display:flex}
+body.home-open .wrap{display:none}
+.home-nav{position:absolute;top:0;left:0;right:0;z-index:7;display:flex;align-items:center;
+  justify-content:space-between;gap:18px;padding:15px 26px;
+  opacity:0;animation:home-rise .7s .02s cubic-bezier(.2,.7,.2,1) forwards}
+.home-nav-home{font-family:var(--body);font-weight:800;font-size:13px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--ink);text-decoration:none;flex:none;white-space:nowrap}
+.home-nav-home span{color:var(--navy)}
+.home-nav-home:hover{opacity:.7}
+.home-nav-links{display:flex;align-items:center;gap:24px;overflow-x:auto;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch}
+.home-nav-links::-webkit-scrollbar{display:none}
+.home-nav-links a{position:relative;font-family:var(--mono);font-size:11.5px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none;
+  white-space:nowrap;padding:4px 0;transition:color .18s}
+.home-nav-links a::after{content:"";position:absolute;left:0;bottom:0;height:1.5px;width:0;
+  background:var(--navy);transition:width .22s ease}
+.home-nav-links a:hover{color:var(--ink)}
+.home-nav-links a:hover::after{width:100%}
+.home-court{position:absolute;left:50%;top:54%;width:min(155vh,1500px);height:min(155vh,1500px);
+  transform:translate(-50%,-50%);pointer-events:none;opacity:.06;color:var(--navy)}
+.home-court svg{width:100%;height:100%;transform-origin:center;animation:home-breathe 16s ease-in-out infinite}
+@keyframes home-breathe{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.045);opacity:.55}}
+.home-inner{position:relative;z-index:2;width:100%;max-width:680px;text-align:center;
+  display:flex;flex-direction:column;align-items:center}
+.home-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--faint);display:flex;align-items:center;gap:10px;margin-bottom:22px;
+  opacity:0;animation:home-rise .7s .04s cubic-bezier(.2,.7,.2,1) forwards}
+.home-eyebrow .wce{background:var(--navy);color:#fff;font-family:var(--body);font-weight:800;
+  font-size:11px;letter-spacing:.08em;padding:3px 6px;border-radius:4px}
+.home-title{font-family:var(--disp);font-weight:600;line-height:.98;letter-spacing:-.012em;
+  font-size:clamp(46px,9vw,90px);color:var(--ink);margin:0;
+  opacity:0;animation:home-rise .85s .12s cubic-bezier(.2,.7,.2,1) forwards}
+.home-title em{font-style:italic;color:var(--navy);position:relative;white-space:nowrap}
+.home-title em::after{content:"";position:absolute;left:0;bottom:.02em;height:.06em;width:0;
+  background:linear-gradient(90deg,var(--gold),var(--navy));border-radius:3px;
+  animation:home-underline 1s 1.05s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes home-underline{to{width:100%}}
+.home-tag{font-size:16px;line-height:1.55;color:var(--muted);margin:18px 0 34px;max-width:470px;
+  opacity:0;animation:home-rise .85s .22s cubic-bezier(.2,.7,.2,1) forwards}
+.home-search{position:relative;width:100%;max-width:544px;z-index:20;
+  opacity:0;animation:home-rise .85s .32s cubic-bezier(.2,.7,.2,1) forwards}
+.home-inp{display:flex;align-items:center;gap:13px;background:var(--surface);
+  border:1px solid var(--line);border-radius:16px;padding:16px 20px;
+  box-shadow:0 1px 2px rgba(20,26,32,.04),0 14px 36px -16px rgba(34,57,90,.3);
+  transition:border-color .22s,box-shadow .22s,transform .22s}
+.home-search.focus .home-inp{border-color:var(--navy);transform:translateY(-1px);
+  box-shadow:0 1px 2px rgba(20,26,32,.04),0 18px 44px -14px rgba(34,57,90,.42)}
+.home-inp>svg{width:22px;height:22px;color:var(--faint);flex:none}
+.home-inp input{border:none;outline:none;background:none;flex:1;min-width:0;
+  font-family:var(--body);font-size:19px;color:var(--ink)}
+.home-inp input::placeholder{color:var(--faint)}
+.home-inp kbd{font-family:var(--mono);font-size:11px;color:var(--faint);flex:none;
+  border:1px solid var(--line);border-radius:6px;padding:3px 7px;background:var(--bg)}
+.home-results{position:absolute;left:0;right:0;top:calc(100% + 10px);z-index:5;text-align:left;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 22px 54px -20px rgba(20,26,32,.42);max-height:344px;overflow-y:auto}
+.home-results .res{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;
+  border-bottom:1px solid var(--line)}
+.home-results .res:last-child{border-bottom:none}
+.home-results .res:hover{background:var(--bg)}
+.home-results .rn{font-weight:600;font-size:15px;color:var(--ink)}
+.home-results .rs{font-size:12.5px;color:var(--muted)}
+.pick-badge{width:30px;height:30px;border-radius:8px;flex:none;display:flex;align-items:center;
+  justify-content:center;background:var(--navy);color:#fff;font-family:var(--mono);
+  font-weight:600;font-size:13px;line-height:1}
+.home-trend{margin-top:32px;width:100%;max-width:620px;position:relative;z-index:1;
+  opacity:0;animation:home-rise .85s .44s cubic-bezier(.2,.7,.2,1) forwards}
+.home-trend-lab{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:15px}
+.home-chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
+.home-chip{display:inline-flex;align-items:center;gap:9px;background:var(--surface);
+  border:1px solid var(--line);border-radius:999px;padding:6px 16px 6px 6px;cursor:pointer;
+  font-family:var(--body);font-size:14px;font-weight:500;color:var(--ink);
+  transition:transform .16s,border-color .16s,box-shadow .16s;
+  opacity:0;animation:home-rise .6s cubic-bezier(.2,.7,.2,1) forwards}
+.home-chip:hover{transform:translateY(-2px);border-color:var(--navy);
+  box-shadow:0 10px 22px -12px rgba(34,57,90,.5)}
+.home-chip .pick-badge{width:26px;height:26px;font-size:12px;border-radius:7px}
+.home-chip.skel{pointer-events:none;cursor:default;position:relative;overflow:hidden;animation:none;opacity:1}
+.home-chip.skel .sk-a{width:26px;height:26px;border-radius:7px;background:var(--track);flex:none}
+.home-chip.skel .sk-b{height:11px;border-radius:6px;background:var(--track)}
+.home-chip.skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);
+  animation:home-shimmer 1.3s ease-in-out infinite}
+@keyframes home-shimmer{100%{transform:translateX(100%)}}
+.home-board-link{display:inline-block;margin-top:18px;font-family:var(--mono);font-size:11.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--navy);text-decoration:none;
+  border-bottom:1px solid transparent;transition:border-color .18s}
+.home-board-link:hover{border-color:var(--navy)}
+.home-foot{position:absolute;bottom:22px;left:0;right:0;text-align:center;
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--faint);
+  opacity:0;animation:home-rise .8s .62s ease forwards}
+.brand-word{cursor:pointer}
+@keyframes home-rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@media (max-width:560px){
+  .home{padding:52px 16px 22px}
+  .home-nav{padding:11px 15px;gap:12px}
+  .home-nav-home{font-size:12px}
+  .home-nav-links{gap:16px}
+  .home-nav-links a{font-size:11px;letter-spacing:.1em}
+  .home-eyebrow{flex-wrap:wrap;justify-content:center;font-size:10.5px;letter-spacing:.16em;
+    margin-bottom:18px;gap:8px;line-height:1.5}
+  .home-title{font-size:clamp(38px,12.5vw,66px)}
+  .home-tag{font-size:14.5px;margin:13px 0 24px;max-width:340px}
+  .home-inp{padding:13px 15px;gap:10px;border-radius:14px}
+  .home-inp input{font-size:16px}.home-inp kbd{display:none}.home-inp>svg{width:20px;height:20px}
+  .home-trend{margin-top:26px}
+  .home-chip{font-size:13.5px}
+  .home-foot{bottom:16px}
+}
+@media (max-width:360px){
+  .home-title{font-size:34px}
+  .home-eyebrow{font-size:10px;letter-spacing:.12em}
+}
+@media (prefers-reduced-motion:reduce){
+  .home *{animation-duration:.001s!important}
+  .home-title em::after{width:100%;animation:none}
+  .home-chip.skel::after{animation:none}
+}
 </style>
 </head>
-<body>
+<body class="home-open">
+<div class="home" id="home">
+  <nav class="home-nav" aria-label="WCE Hoops navigation">
+    <a class="home-nav-home" href="/">WCE <span>Hoops</span></a>
+    <div class="home-nav-links">
+      <a href="/news">News</a>
+      <a href="/podcasts">Podcasts</a>
+      <a href="/basketball-savant.html">Basketball Savant</a>
+      <a href="/rankings">Big Board</a>
+      <a href="/articles">Analysis</a>
+      <a href="/comp-chain">Comp Chain</a>
+      <a href="/about">About</a>
+    </div>
+  </nav>
+  <div class="home-court" aria-hidden="true">
+    <svg viewBox="0 0 400 460" fill="none" stroke="currentColor" stroke-width="1.4">
+      <rect x="8" y="8" width="384" height="444" rx="6"/>
+      <circle cx="200" cy="452" r="66"/>
+      <rect x="140" y="300" width="120" height="152"/>
+      <rect x="164" y="300" width="72" height="152"/>
+      <circle cx="200" cy="300" r="60"/>
+      <path d="M44 452 A156 156 0 0 1 356 452"/>
+      <circle cx="200" cy="418" r="8"/>
+      <line x1="8" y1="120" x2="392" y2="120"/>
+    </svg>
+  </div>
+  <div class="home-inner">
+    <div class="home-eyebrow"><span class="wce">WCE</span> Hoops · Draft Savant</div>
+    <h1 class="home-title">Draft <em>Savant</em></h1>
+    <p class="home-tag">The 2026 class and every draft back to 2010 — measured, modeled, and ranked against his class. Start with a name.</p>
+    <div class="home-search" id="homeSearch">
+      <div class="home-inp">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+        <input id="homeq" placeholder="Search a prospect or school…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Search a prospect or school"/>
+        <kbd>Enter</kbd>
+      </div>
+      <div class="home-results" id="homeResults" hidden></div>
+    </div>
+    <div class="home-trend" id="homeTrend">
+      <div class="home-trend-lab" id="homeTrendLab">Top of the 2026 board</div>
+      <div class="home-chips" id="homeChips" aria-busy="true">
+        <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:118px"></span></div>
+        <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:96px"></span></div>
+        <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:140px"></span></div>
+        <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:108px"></span></div>
+        <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:124px"></span></div>
+        <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:100px"></span></div>
+      </div>
+      <a class="home-board-link" id="homeBoardLink" href="#board">See the full 2026 board →</a>
+    </div>
+  </div>
+  <div class="home-foot">wcehoops.com · Draft Savant</div>
+</div>
 <div class="wrap">
   <div class="top">
     <div class="brandwrap">
@@ -1029,6 +1206,93 @@ document.addEventListener('click',function(e){
 });
 document.querySelectorAll('#popseg button').forEach(b=>b.onclick=()=>{pop=b.dataset.v;setSeg('popseg',b);render();});
 document.querySelectorAll('#poolseg button').forEach(b=>b.onclick=()=>{poolPop=b.dataset.v;setSeg('poolseg',b);render();});
+/* ===== Home screen (branded landing) — Draft Savant ===== */
+function homeClass(){ return (YEARS && YEARS.indexOf(2026)>=0) ? 2026 : (YEARS && YEARS.length ? YEARS[0] : 2026); }
+function homeTopProspects(){
+  var y=homeClass();
+  return PLAYERS.filter(function(p){return p.draft_year===y;})
+    .sort(function(a,b){return a.draft_pick-b.draft_pick;}).slice(0,6);
+}
+function homeSearchHits(term){
+  term=(term||'').trim().toLowerCase(); if(!term) return [];
+  return PLAYERS.filter(function(p){
+    return p.name.toLowerCase().indexOf(term)>=0 || (p.college||'').toLowerCase().indexOf(term)>=0;
+  }).slice(0,8);
+}
+function pickBadge(n){ return '<span class="pick-badge">'+n+'</span>'; }
+function pickHome(id){                                // leave home -> a prospect (Back returns home)
+  try{ history.pushState({app:1},'',location.pathname+location.search+'#p'); }catch(e){}
+  hideHome(); selectPlayer(id);
+}
+function skeletonChips(n){
+  var chips=document.getElementById('homeChips'); if(!chips) return;
+  chips.setAttribute('aria-busy','true');
+  var w=[118,96,140,108,124,100], h='';
+  for(var i=0;i<n;i++){ h+='<div class="home-chip skel"><span class="sk-a"></span>'
+    +'<span class="sk-b" style="width:'+w[i%w.length]+'px"></span></div>'; }
+  chips.innerHTML=h;
+}
+function renderHomeChips(list){
+  var chips=document.getElementById('homeChips'); if(!chips) return;
+  chips.innerHTML=''; chips.removeAttribute('aria-busy');
+  list.slice(0,6).forEach(function(p,i){
+    var b=document.createElement('button'); b.className='home-chip'; b.dataset.id=p.id;
+    b.style.animationDelay=(0.05+i*0.05)+'s';
+    b.innerHTML=pickBadge(p.draft_pick)+'<span>'+p.name+'</span>';
+    b.onclick=function(){ pickHome(p.id); };
+    chips.appendChild(b);
+  });
+}
+function showHome(){                                  // switch to the home VIEW (app removed via body.home-open)
+  document.body.classList.add('home-open');
+  var y=homeClass();
+  var lab=document.getElementById('homeTrendLab'); if(lab) lab.textContent='Top of the '+y+' board';
+  var bl=document.getElementById('homeBoardLink'); if(bl) bl.textContent='See the full '+y+' board →';
+  renderHomeChips(homeTopProspects());
+  window.scrollTo(0,0);
+  var r=document.getElementById('homeResults'); if(r){ r.hidden=true; r.innerHTML=''; }
+  var q=document.getElementById('homeq');
+  if(q){ q.value='';
+    if(window.matchMedia&&window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+      setTimeout(function(){try{q.focus();}catch(e){}},420); } }
+}
+function hideHome(){ document.body.classList.remove('home-open'); window.scrollTo(0,0); }
+function goHome(){ try{ if(location.hash){ history.pushState(null,'',location.pathname+location.search); } }catch(e){} showHome(); }
+function openBoardFromHome(){
+  try{ history.pushState({app:1},'',location.pathname+location.search+'#p'); }catch(e){}
+  hideHome(); boardYear=homeClass(); toggleBoard(true);
+}
+function wireHome(){
+  var q=document.getElementById('homeq'), res=document.getElementById('homeResults'),
+      wrap=document.getElementById('homeSearch');
+  if(!q) return;
+  var close=function(){ res.hidden=true; res.innerHTML=''; };
+  q.addEventListener('focus',function(){ wrap.classList.add('focus'); });
+  q.addEventListener('blur',function(){ wrap.classList.remove('focus'); });
+  q.addEventListener('input',function(){
+    var hits=homeSearchHits(q.value);
+    if(!hits.length){ close(); return; }
+    res.innerHTML=hits.map(function(p){ return '<div class="res" data-id="'+p.id+'">'+pickBadge(p.draft_pick)
+      +'<div><div class="rn">'+p.name+'</div><div class="rs">No. '+p.draft_pick+' · '+p.pos+' · '+p.college+'</div></div></div>'; }).join('');
+    res.hidden=false;
+    res.querySelectorAll('.res').forEach(function(el){ el.onclick=function(){ pickHome(el.dataset.id); }; });
+  });
+  q.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){ var f=res.querySelector('.res'); if(f) f.click(); }
+    if(e.key==='Escape'){ close(); }
+  });
+  var bw=document.querySelector('.top .brand-word');
+  if(bw){ bw.title='Home'; bw.setAttribute('role','button'); bw.tabIndex=0;
+    bw.onclick=goHome;
+    bw.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); goHome(); } }; }
+  var bl=document.getElementById('homeBoardLink');
+  if(bl) bl.onclick=function(e){ e.preventDefault(); openBoardFromHome(); };
+  window.addEventListener('popstate',function(){
+    if(location.hash==='#p'){ document.body.classList.remove('home-open'); }
+    else { showHome(); }
+  });
+}
+
 // Fetch the player dataset, then wire up everything that depends on it. Keeping the ~540-player
 // payload out of the HTML keeps the page light; it must be served over http (as it is on the site).
 (async function init(){
@@ -1050,6 +1314,7 @@ document.querySelectorAll('#poolseg button').forEach(b=>b.onclick=()=>{poolPop=b
   document.getElementById('srcpill').textContent=PLAYERS.length+' prospects · '+Math.min(...YEARS)+'–'+String(Math.max(...YEARS)).slice(2)+' draft classes';
   const eb=document.getElementById('exportbtn'); if(eb) eb.onclick=exportCard;
   fillChips(); initSearch(); render();
+  wireHome(); showHome();
 })();
 </script>
 </body>
