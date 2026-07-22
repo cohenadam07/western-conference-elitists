@@ -143,25 +143,8 @@ export default function Gateway() {
               </div>
             </a>
 
-            {/* Podcasts */}
-            <a className="card c-pods" href="/podcasts">
-              <Skeleton />
-              <div className="viz">
-                <div className="eq"><b /><b /><b /><b /><b /><b /><b /></div>
-                <div className="play">
-                  <svg viewBox="0 0 12 12" fill="currentColor"><path d="M2.5 1.5 L10 6 L2.5 10.5 Z" /></svg>
-                </div>
-              </div>
-              <div className="meta">
-                <span className="ck">Listen</span>
-                <h3>Podcasts</h3>
-                <p>The WCE Hoops show — film, takes, arguments.</p>
-                <span className="go">Play ↗</span>
-              </div>
-            </a>
-
             {/* Analysis */}
-            <a className="card c-analysis" href="/articles">
+            <a className="card c-analysis span2" href="/articles">
               <Skeleton />
               <div className="viz">
                 <div className="np">

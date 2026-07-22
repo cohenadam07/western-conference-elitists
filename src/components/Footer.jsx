@@ -49,7 +49,6 @@ export default function Footer() {
             <h4 className="kicker text-white/45">Navigate</h4>
             <ul className="mt-5 space-y-3 text-sm">
               <li><Link className="text-white/70 transition-colors hover:text-gold" to="/news">News</Link></li>
-              <li><Link className="text-white/70 transition-colors hover:text-gold" to="/podcasts">Podcasts</Link></li>
               <li><Link className="text-white/70 transition-colors hover:text-gold" to="/draft">Draft Hub</Link></li>
               <li><Link className="text-white/70 transition-colors hover:text-gold" to="/rankings">Big Board</Link></li>
               <li><Link className="text-white/70 transition-colors hover:text-gold" to="/articles">Analysis</Link></li>

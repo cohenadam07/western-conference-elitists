@@ -5,7 +5,7 @@ import Button from './Button.jsx'
 
 const LINKS = [
   { to: '/news', label: 'News' },
-  { to: '/podcasts', label: 'Podcasts' },
+  // { to: '/podcasts', label: 'Podcasts' },  // hidden for now
   { href: '/draft-savant.html', label: 'Draft Savant', external: true },
   { to: '/rankings', label: 'Big Board' },
   { to: '/articles', label: 'Analysis' },
