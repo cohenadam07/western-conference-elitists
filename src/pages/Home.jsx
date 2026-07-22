@@ -6,6 +6,7 @@ import ProspectCard from '../components/ProspectCard.jsx'
 import NewsletterCTA from '../components/NewsletterCTA.jsx'
 import CourtLines from '../components/CourtLines.jsx'
 import CompChainBoard from '../components/CompChainBoard.jsx'
+import Gateway from '../components/Gateway.jsx'
 import Reveal from '../components/Reveal.jsx'
 import { ARTICLES, FEATURED_ARTICLE, PROSPECTS, SPOTLIGHT_PROSPECT } from '../data/content.js'
 import usePageMeta from '../lib/usePageMeta.js'
@@ -83,6 +84,9 @@ export default function Home() {
   return (
     <div>
       <Ticker />
+
+      {/* Landing gateway — one card per destination, in that page's own style */}
+      <Gateway />
 
       {/* Hero — the featured piece */}
       <section className="relative border-b border-line">
