@@ -46,6 +46,10 @@ ARTICLE_TIMEOUT = 12
 ARTICLE_MAX_CHARS = 2200
 ARTICLE_MIN_WORDS = 60     # below this, treat extraction as failed
 FETCH_WORKERS = 8
+# A story needs this much grounding text (extracted article, or a substantive RSS
+# blurb) before the model may write a line. A bare headline gets no line — the
+# validation gate blocks fabricated numbers, this blocks fabricated prose.
+MIN_GROUNDING_WORDS = 25
 
 # Windows / limits.
 HEADLINES_WINDOW_DAYS = 7

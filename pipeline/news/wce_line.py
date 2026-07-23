@@ -174,7 +174,7 @@ def annotate(headlines, analytics, stats, log):
         return
 
     total = len(items)
-    ok = rejected = errored = 0
+    ok = rejected = errored = skipped = 0
 
     def run_one(system, context, headline):
         nonlocal ok, rejected, errored
@@ -190,13 +190,32 @@ def annotate(headlines, analytics, stats, log):
         ok += 1
         return line
 
+    def grounded(it):
+        # Papers always ship an abstract; other items need extracted text or a
+        # substantive blurb — never generate from a bare headline alone.
+        if it.get("source_type") == "paper":
+            return bool((it.get("summary") or "").strip())
+        if it.get("article_text"):
+            return True
+        return len((it.get("summary") or "").split()) >= config.MIN_GROUNDING_WORDS
+
     for it in headlines:
+        if not grounded(it):
+            it["wce_line"] = None
+            skipped += 1
+            log.info("  skip [no source text]: %s", it["title"][:60])
+            continue
         it["wce_line"] = run_one(_SYSTEM, _headline_context(it, stats), it["title"])
     for it in analytics:
+        if not grounded(it):
+            it["wce_line"] = None
+            skipped += 1
+            log.info("  skip [no source text]: %s", it["title"][:60])
+            continue
         it["wce_line"] = run_one(_SYSTEM + _ANALYTICS_EXTRA, _analytics_context(it), it["title"])
 
-    log.info("WCE line: %d published, %d rejected, %d errored of %d (model=%s)",
-             ok, rejected, errored, total, config.OLLAMA_MODEL)
+    log.info("WCE line: %d published, %d rejected, %d skipped (no source), %d errored of %d (model=%s)",
+             ok, rejected, skipped, errored, total, config.OLLAMA_MODEL)
     if total and rejected / total > config.LINE_REJECT_WARN_RATIO:
         log.warning("WCE line: rejection rate %.0f%% exceeds %.0f%% — review model/prompt",
                     100 * rejected / total, 100 * config.LINE_REJECT_WARN_RATIO)
