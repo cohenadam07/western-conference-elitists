@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.wcehoops.news</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/adamcohen/nba_prospect_model/website/pipeline/news/run.sh</string>
+  </array>
+
+  <!-- launchd starts with a minimal PATH; give git and python what they need. -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin</string>
+  </dict>
+
+  <!-- Three runs a day: early morning, afternoon, and late evening after games. -->
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Hour</key><integer>14</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Hour</key><integer>23</integer><key>Minute</key><integer>30</integer></dict>
+  </array>
+
+  <key>StandardOutPath</key>
+  <string>/Users/adamcohen/nba_prospect_model/website/pipeline/news/logs/launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/adamcohen/nba_prospect_model/website/pipeline/news/logs/launchd.err.log</string>
+</dict>
+</plist>

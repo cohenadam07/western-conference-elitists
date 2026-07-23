@@ -25,3 +25,7 @@ dist-ssr
 
 # Source Word documents (inputs to npm run publish-article)
 *.docx
+
+# Python
+__pycache__/
+*.pyc
