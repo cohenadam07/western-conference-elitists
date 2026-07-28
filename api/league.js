@@ -61,7 +61,7 @@ const sleeperDict = () => cached('lg:dict:sleeper', DICT_TTL, async () => {
   for (const id in all || {}) {
     const p = all[id]
     const nm = p.full_name || [p.first_name, p.last_name].filter(Boolean).join(' ')
-    if (nm) out[id] = nm
+    if (nm) out[id] = { n: nm, p: p.fantasy_positions || (p.position ? [p.position] : []) }
   }
   return out
 })
@@ -93,9 +93,10 @@ async function sleeper(code, leagueId) {
     lid = leagues[0].id
   }
 
-  const [rosters, users, dict] = await Promise.all([
+  const [rosters, users, league, dict] = await Promise.all([
     jget(`https://api.sleeper.app/v1/league/${lid}/rosters`),
     jget(`https://api.sleeper.app/v1/league/${lid}/users`),
+    jget(`https://api.sleeper.app/v1/league/${lid}`),
     sleeperDict(),
   ])
   if (!rosters || !rosters.length) return { error: 'no-league' }
@@ -104,9 +105,12 @@ async function sleeper(code, leagueId) {
   const teams = rosters.map((r) => ({
     id: String(r.roster_id),
     name: owner[r.owner_id] || `Team ${r.roster_id}`,
-    players: (r.players || []).map((pid) => dict[pid]).filter(Boolean),
+    players: (r.players || []).map((pid) => dict[pid]).filter(Boolean)
+      .map((e) => (typeof e === 'string' ? { name: e, pos: [] } : { name: e.n, pos: e.p || [] })),
   })).filter((t) => t.players.length)
-  return teams.length ? { teams } : { error: 'empty' }
+  // the league's own starting slots, so the lineup we optimise is the one they actually play
+  const slots = (league && league.roster_positions || []).filter((x) => x !== 'BN' && x !== 'IR' && x !== 'TAXI')
+  return teams.length ? { teams, slots, leagueName: league && league.name } : { error: 'empty' }
 }
 
 // ---------------------------------------------------------------- fantrax
@@ -118,7 +122,8 @@ const fantraxDict = () => cached('lg:dict:fantrax', DICT_TTL, async () => {
     if (!raw) continue
     // Fantrax spells names "Last, First" — flip so they match everything else
     const m = String(raw).split(',')
-    out[id] = m.length > 1 ? `${m[1].trim()} ${m[0].trim()}` : String(raw).trim()
+    const nm = m.length > 1 ? `${m[1].trim()} ${m[0].trim()}` : String(raw).trim()
+    out[id] = { n: nm, p: String(all[id].position || '').split(',').map((x) => x.trim()).filter(Boolean) }
   }
   return out
 })
@@ -135,13 +140,19 @@ async function fantrax(code) {
     const t = src[tid]
     if (!t || typeof t !== 'object') continue
     const items = t.rosterItems || t.players || []
-    const players = items.map((it) => dict[it.id] || it.name).filter(Boolean)
+    const players = items.map((it) => {
+      const d = dict[it.id]
+      if (d) return { name: d.n, pos: d.p }
+      return it.name ? { name: it.name, pos: [] } : null
+    }).filter(Boolean)
     if (players.length) teams.push({ id: String(tid), name: t.teamName || `Team ${tid}`, players })
   }
   return teams.length ? { teams } : { error: 'empty' }
 }
 
 // ---------------------------------------------------------------- espn
+// ESPN talks in numeric lineup-slot ids; these are the ones that describe eligibility.
+const ESPN_SLOT = { 0: 'PG', 1: 'SG', 2: 'SF', 3: 'PF', 4: 'C', 5: 'G', 6: 'F' }
 async function espn(code, season) {
   const now = new Date()
   const yr = season || String(now.getUTCMonth() >= 8 ? now.getUTCFullYear() + 1 : now.getUTCFullYear())
@@ -153,7 +164,11 @@ async function espn(code, season) {
     id: String(t.id),
     name: t.name || [t.location, t.nickname].filter(Boolean).join(' ') || `Team ${t.id}`,
     players: ((t.roster && t.roster.entries) || [])
-      .map((e) => e.playerPoolEntry && e.playerPoolEntry.player && e.playerPoolEntry.player.fullName)
+      .map((e) => {
+        const pl = e.playerPoolEntry && e.playerPoolEntry.player
+        if (!pl || !pl.fullName) return null
+        return { name: pl.fullName, pos: (pl.eligibleSlots || []).map((n) => ESPN_SLOT[n]).filter(Boolean) }
+      })
       .filter(Boolean),
   })).filter((t) => t.players.length)
   return teams.length ? { teams } : { error: 'empty' }

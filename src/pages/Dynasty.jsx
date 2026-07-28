@@ -28,9 +28,12 @@ function uid() {
 /* Every asset needs a symbol. First initial + surname, stripped and capped — Victor
  * Wembanyama trades as VWEMB, Shai Gilgeous-Alexander as SGILG. */
 function symbolOf(name = '') {
+  // Suffixes are dropped as whole tokens before picking the surname. Trimming them off the
+  // last token instead leaves nothing behind, which is how Trey Murphy III once traded as TIII.
   const parts = String(name).replace(/[.'’]/g, '').split(/[\s-]+/).filter(Boolean)
+    .filter((t, i, a) => i === 0 || !/^(jr|sr|ii|iii|iv|v)$/i.test(t) || a.length === 1)
   if (!parts.length) return '—'
-  const last = parts[parts.length - 1].replace(/(Jr|Sr|II|III|IV)$/i, '') || parts[parts.length - 1]
+  const last = parts.length > 1 ? parts[parts.length - 1] : parts[0]
   return (parts[0][0] + last).toUpperCase().slice(0, 5)
 }
 
@@ -53,6 +56,51 @@ const PLATFORMS = [
   { id: 'other', name: 'Other', manual: true,
     how: 'Any other platform works the same way: select your roster on your team page, copy it, and paste it in. Names are matched loosely, so extra numbering or positions will not break it.' },
 ]
+
+/* Which players a lineup slot will accept. G/F are the combo slots and UTIL takes anyone,
+ * which is what makes "best possible lineup" a real question rather than a sort. */
+const SLOT_OK = {
+  PG: (p) => p.includes('PG'), SG: (p) => p.includes('SG'),
+  SF: (p) => p.includes('SF'), PF: (p) => p.includes('PF'),
+  C: (p) => p.includes('C'),
+  G: (p) => p.includes('PG') || p.includes('SG') || p.includes('G'),
+  F: (p) => p.includes('SF') || p.includes('PF') || p.includes('F'),
+  UTIL: () => true,
+}
+// Leagues that don't tell us their slots get the common 10-man shape.
+const DEFAULT_SLOTS = ['PG', 'SG', 'G', 'SF', 'PF', 'F', 'C', 'UTIL', 'UTIL', 'UTIL']
+
+/* Best possible starting lineup, exactly — not a greedy fill.
+ *
+ * Each player is worth the same wherever he slots, so the value of a lineup depends only on
+ * WHICH players start. Sets of players that can simultaneously fill distinct slots form a
+ * transversal matroid, and on a matroid, taking the most valuable player that can still be
+ * added is provably optimal. "Can still be added" is the bit greedy alone gets wrong — a
+ * centre already sitting in UTIL may need to shuffle to C to make room — so each candidate
+ * gets an augmenting-path search (Kuhn's) rather than a single look at the free slots.
+ */
+function bestLineup(players, slots) {
+  const slotOf = slots.map((s) => SLOT_OK[s] || SLOT_OK.UTIL)
+  const filled = new Array(slots.length).fill(-1)      // slot -> player index
+  const ranked = players.map((p, i) => i).sort((a, b) => players[b].value - players[a].value)
+
+  const tryPlace = (pi, seen) => {
+    for (let s = 0; s < slots.length; s++) {
+      if (seen[s] || !slotOf[s](players[pi].pos)) continue
+      seen[s] = true
+      if (filled[s] === -1 || tryPlace(filled[s], seen)) { filled[s] = pi; return true }
+    }
+    return false
+  }
+
+  const starters = []
+  for (const pi of ranked) {
+    if (starters.length >= slots.length) break
+    if (tryPlace(pi, new Array(slots.length).fill(false))) starters.push(pi)
+  }
+  const lineup = slots.map((name, s) => ({ slot: name, player: filled[s] === -1 ? null : players[filled[s]] }))
+  return { lineup, total: lineup.reduce((a, l) => a + (l.player ? l.player.value : 0), 0) }
+}
 
 const pctOf = (delta, rating) => (!rating || !delta ? 0 : (delta / (rating - delta)) * 100)
 
@@ -151,6 +199,32 @@ function TicketCard({ p, slot, onPick, disabled }) {
   )
 }
 
+/* Defined at module scope on purpose. A component declared inside Dynasty() is a NEW
+ * component type on every render, so React unmounts and remounts the whole subtree —
+ * which is why typing in the league-code field lost focus after each keystroke. */
+function Shell({ title, kicker, total, onHome, children }) {
+  return (
+    <div className="dyn-term">
+      <div className="border-b border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-3">
+          <button type="button" onClick={onHome}
+            className="dyn-mono text-[10px] tracking-widest text-[var(--dyn-faint)] hover:text-[var(--dyn-text)]">
+            ← DYNASTY
+          </button>
+          <div className="flex items-center gap-3">
+            <span className="dyn-label text-[var(--dyn-gold)]">{kicker}</span>
+            <span className="dyn-mono text-[11px] text-[var(--dyn-text)]">{title}</span>
+          </div>
+          <span className="dyn-mono text-[10px] text-[var(--dyn-faint)]">
+            VOL {Number(total || 0).toLocaleString()}
+          </span>
+        </div>
+      </div>
+      {children}
+    </div>
+  )
+}
+
 export default function Dynasty() {
   usePageMeta(
     'Dynasty Exchange',
@@ -181,6 +255,8 @@ export default function Dynasty() {
   const [lg, setLg] = useState(null)          // {leagues}|{teams} awaiting a choice
   const [lgBusy, setLgBusy] = useState(false)
   const [lgErr, setLgErr] = useState(null)
+  const [rankMode, setRankMode] = useState('full')     // full | start
+  const [myTeam, setMyTeam] = useState(null)
   const me = useRef(uid())
   const lastPrices = useRef({})
 
@@ -195,7 +271,7 @@ export default function Dynasty() {
   }, [])
 
   const loadBoard = useCallback(() => {
-    fetch(`${API}?action=board&limit=200`)
+    fetch(`${API}?action=board&limit=400`)
       .then((r) => r.json())
       .then((j) => {
         if (!j || j.configured === false) { setLive(false); return }
@@ -253,7 +329,7 @@ export default function Dynasty() {
 
   const rows = live && board.length
     ? board
-    : (seed?.players || []).slice(0, 200).map((p, i) => ({
+    : (seed?.players || []).map((p, i) => ({
         id: String(p.id), rating: Math.round(p.rating), rank: i + 1, delta: 0, rankDelta: 0, streak: 0, seen: 0,
       }))
 
@@ -270,9 +346,11 @@ export default function Dynasty() {
   // matched loosely (case, punctuation and accents ignored, surname as a fallback) and any
   // line we cannot place is reported rather than quietly dropped — a total that silently
   // skipped your best player would be worse than no total.
-  const valueRoster = (explicit) => {
+  // One matcher, used for a pasted roster and for every team in a connected league.
+  const priceList = (entries) => {
     const key = (t) => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim()
+      .replace(/ (jr|sr|ii|iii|iv|v)$/, '')
     const idx = {}, bySurname = {}
     ;(seed?.players || []).forEach((pl) => {
       const k = key(pl.name)
@@ -283,29 +361,59 @@ export default function Dynasty() {
     const priced = {}
     rows.forEach((r) => { priced[String(r.id)] = r })
 
-    const lines = (explicit && explicit.length ? explicit : roster.split(/[\n,;\t]+/))
-      .map((l) => String(l).replace(/^\s*\d+[.)]?\s*/, '').trim()).filter(Boolean)
-    const hits = [], misses = []
-    const seen = new Set()
-    lines.forEach((line) => {
-      const k = key(line)
+    const hits = [], misses = [], seenIds = new Set()
+    entries.forEach((entry) => {
+      const raw = typeof entry === 'string' ? entry : entry.name
+      const platformPos = typeof entry === 'string' ? [] : (entry.pos || [])
+      const k = key(String(raw).replace(/^\s*\d+[.)]?\s*/, ''))
       if (!k) return
       let pl = idx[k]
       if (!pl) {
         const cands = bySurname[k.split(' ').slice(-1)[0]] || []
         if (cands.length === 1) pl = cands[0]
       }
-      const r = pl && priced[String(pl.id)]
-      if (r && !seen.has(String(pl.id))) { seen.add(String(pl.id)); hits.push({ pl, r }) }
-      else if (!pl) misses.push(line)
+      if (!pl) { misses.push(raw); return }
+      if (seenIds.has(String(pl.id))) return                    // duplicate line, already counted
+      seenIds.add(String(pl.id))
+      // A player deeper than the loaded board still has a seed price; quoting that beats
+      // dropping him, which is how a roster could come back missing someone with no
+      // explanation at all.
+      const r = priced[String(pl.id)] || { id: pl.id, rating: Math.round(pl.rating), rank: null, delta: 0 }
+      // trust the platform's eligibility when it gave us any; fall back to our own label
+      const pos = platformPos.length ? platformPos : (pl.pos ? [pl.pos] : [])
+      hits.push({ pl, r, pos, value: r.rating, name: pl.name })
     })
-    hits.sort((a, b) => b.r.rating - a.r.rating)
-    const total = hits.reduce((a, h) => a + h.r.rating, 0)
-    setValued({ hits, misses, total, lines: lines.length })
+    hits.sort((a, b) => b.value - a.value)
+    return { hits, misses, total: hits.reduce((a, h) => a + h.value, 0), lines: entries.length }
   }
+
+  const valueRoster = (explicit) => {
+    const entries = (explicit && explicit.length)
+      ? explicit
+      : roster.split(/[\n,;\t]+/).map((l) => l.trim()).filter(Boolean)
+    setValued(priceList(entries))
+  }
+
 
   // Public, unauthenticated reads only — we never ask anyone for a password, which is also
   // why Yahoo is not on the list rather than being on it and failing.
+  // Value every team in a connected league, both ways, so the toggle needs no refetch.
+  const leagueRanks = useMemo(() => {
+    if (!lg?.teams || !rows.length) return null
+    const slots = (lg.slots && lg.slots.length ? lg.slots : DEFAULT_SLOTS)
+      .map((x) => (SLOT_OK[x] ? x : 'UTIL'))
+    return {
+      slots,
+      teams: lg.teams.map((t) => {
+        const p = priceList(t.players)
+        const best = bestLineup(p.hits, slots)
+        return { id: t.id, name: t.name, hits: p.hits, misses: p.misses,
+                 full: p.total, start: best.total, lineup: best.lineup, count: p.hits.length }
+      }),
+    }
+    // priceList closes over seed+rows, both in the dep list
+  }, [lg, rows, seed])       // eslint-disable-line react-hooks/exhaustive-deps
+
   const connectLeague = (leagueId) => {
     setLgBusy(true); setLgErr(null)
     const qs = new URLSearchParams({ platform, code: code.trim() })
@@ -327,27 +435,6 @@ export default function Dynasty() {
       .catch(() => setLgErr('Could not reach that league. Paste your roster instead.'))
       .finally(() => setLgBusy(false))
   }
-
-  const Shell = ({ title, kicker, children }) => (
-    <div className="dyn-term">
-      <div className="border-b border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-3">
-          <button type="button" onClick={() => { setView('hub'); setValued(null) }}
-            className="dyn-mono text-[10px] tracking-widest text-[var(--dyn-faint)] hover:text-[var(--dyn-text)]">
-            ← DYNASTY
-          </button>
-          <div className="flex items-center gap-3">
-            <span className="dyn-label text-[var(--dyn-gold)]">{kicker}</span>
-            <span className="dyn-mono text-[11px] text-[var(--dyn-text)]">{title}</span>
-          </div>
-          <span className="dyn-mono text-[10px] text-[var(--dyn-faint)]">
-            VOL {total.toLocaleString()}
-          </span>
-        </div>
-      </div>
-      {children}
-    </div>
-  )
 
   // ---- the hub -------------------------------------------------------------
   if (view === 'hub') {
@@ -422,7 +509,8 @@ export default function Dynasty() {
   // ---- value my team -------------------------------------------------------
   if (view === 'team') {
     return (
-      <Shell kicker="Your roster" title="VALUE MY TEAM">
+      <Shell kicker="Your roster" title="VALUE MY TEAM" total={total}
+        onHome={() => { setView('hub'); setValued(null) }}>
         <div className="mx-auto max-w-3xl px-5 py-10">
           <h2 className="text-3xl leading-tight text-[var(--dyn-text)]">What is your team worth?</h2>
           <p className="mt-3 text-[14px] leading-relaxed text-[var(--dyn-dim)]">
@@ -502,21 +590,83 @@ export default function Dynasty() {
                 </div>
               )}
 
-              {lg?.teams && (
-                <div className="mt-4">
-                  <div className="dyn-label mb-2">Which team is yours?</div>
-                  <ul className="divide-y divide-[var(--dyn-line-soft)] border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
-                    {lg.teams.map((t) => (
-                      <li key={t.id}>
-                        <button type="button"
-                          onClick={() => { setRoster(t.players.join('\n')); valueRoster(t.players) }}
-                          className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-[var(--dyn-panel-2)]">
-                          <span className="truncate text-[13px] text-[var(--dyn-text)]">{t.name}</span>
-                          <span className="dyn-mono shrink-0 text-[11px] text-[var(--dyn-faint)]">{t.players.length} PLAYERS</span>
+              {leagueRanks && (
+                <div className="mt-6">
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                    <span className="dyn-label text-[var(--dyn-gold)]">
+                      League power rankings{lg.leagueName ? ` · ${lg.leagueName}` : ''}
+                    </span>
+                    <div className="inline-flex border border-[var(--dyn-line)]">
+                      {[['full', 'Full roster'], ['start', 'Starters only']].map(([m, label]) => (
+                        <button key={m} type="button" onClick={() => setRankMode(m)}
+                          aria-pressed={rankMode === m}
+                          className={`dyn-mono px-4 py-2 text-[10px] uppercase tracking-[0.1em] ${
+                            rankMode === m ? 'bg-[var(--dyn-gold)] text-[#0a0d12]' : 'text-[var(--dyn-dim)] hover:text-[var(--dyn-text)]'}`}>
+                          {label}
                         </button>
-                      </li>
-                    ))}
-                  </ul>
+                      ))}
+                    </div>
+                  </div>
+
+                  <ol className="divide-y divide-[var(--dyn-line-soft)] border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+                    {[...leagueRanks.teams].sort((a, b) => b[rankMode] - a[rankMode]).map((t, i, arr) => {
+                      const top = arr[0][rankMode] || 1
+                      const mine = myTeam === t.id
+                      return (
+                        <li key={t.id}>
+                          <button type="button"
+                            onClick={() => { setMyTeam(t.id); setRoster(t.hits.map((h) => h.name).join('\n')); valueRoster(t.hits.map((h) => h.name)) }}
+                            className={`flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-[var(--dyn-panel-2)] ${mine ? 'bg-[var(--dyn-panel-2)]' : ''}`}>
+                            <span className="dyn-mono w-6 text-[12px] text-[var(--dyn-faint)]">{i + 1}</span>
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-[13px] text-[var(--dyn-text)]">
+                                {t.name}
+                                {mine && <span className="dyn-mono ml-2 bg-[var(--dyn-gold)] px-1.5 py-0.5 text-[9px] text-[#0a0d12]">YOURS</span>}
+                              </span>
+                              <span className="mt-1 block h-1 w-full max-w-[220px] bg-[var(--dyn-line)]">
+                                <span className="block h-full bg-[var(--dyn-up)]"
+                                  style={{ width: `${Math.max(3, Math.round((t[rankMode] / top) * 100))}%` }} />
+                              </span>
+                            </span>
+                            <span className="text-right">
+                              <span className="dyn-mono block text-[13px] text-[var(--dyn-text)]">{t[rankMode].toLocaleString()}</span>
+                              <span className="dyn-mono block text-[10px] text-[var(--dyn-faint)]">
+                                {rankMode === 'start' ? `${leagueRanks.slots.length} STARTERS` : `${t.count} PLAYERS`}
+                              </span>
+                            </span>
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ol>
+
+                  <p className="mt-3 text-[12px] leading-relaxed text-[var(--dyn-faint)]">
+                    {rankMode === 'start'
+                      ? `Best possible lineup for each team at ${leagueRanks.slots.join(' / ')} — every roster is optimised, not taken as currently set, so this compares ceilings rather than who remembered to set their lineup.`
+                      : 'Every rostered player, summed. Measures accumulated equity, which rewards depth a starting lineup never plays.'}
+                    {' '}Tap a team to price it player by player.
+                  </p>
+
+                  {rankMode === 'start' && myTeam && (() => {
+                    const t = leagueRanks.teams.find((x) => x.id === myTeam)
+                    if (!t) return null
+                    return (
+                      <div className="mt-4">
+                        <div className="dyn-label mb-2">Your best lineup</div>
+                        <ol className="divide-y divide-[var(--dyn-line-soft)] border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+                          {t.lineup.map((l, i) => (
+                            <li key={i} className="flex items-center gap-3 px-4 py-2.5">
+                              <span className="dyn-mono w-12 text-[11px] text-[var(--dyn-gold)]">{l.slot}</span>
+                              <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--dyn-text)]">
+                                {l.player ? l.player.name : <span className="text-[var(--dyn-faint)]">— empty —</span>}
+                              </span>
+                              <span className="dyn-mono text-[12px] text-[var(--dyn-text)]">{l.player ? l.player.value : ''}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    )
+                  })()}
                 </div>
               )}
             </div>
@@ -561,7 +711,7 @@ export default function Dynasty() {
               <ol className="mt-4 divide-y divide-[var(--dyn-line-soft)] border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
                 {valued.hits.map(({ pl, r }) => (
                   <li key={pl.id} className="flex items-center gap-3 px-4 py-3">
-                    <span className="dyn-mono w-10 text-[11px] text-[var(--dyn-faint)]">#{r.rank}</span>
+                    <span className="dyn-mono w-10 text-[11px] text-[var(--dyn-faint)]">{r.rank ? `#${r.rank}` : '—'}</span>
                     {pl.id && (
                       <img src={HEAD(pl.id)} alt="" width="34" height="25" loading="lazy"
                         className="h-[25px] w-[34px] shrink-0 object-contain"
