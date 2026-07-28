@@ -148,6 +148,10 @@ export default function Dynasty() {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
   const [flash, setFlash] = useState({})
+  // Opening the tab drops you in the lobby: what this is, where the market stands,
+  // and a deliberate step onto the floor. Being handed four strangers to rank with no
+  // framing is a bad first ten seconds.
+  const [entered, setEntered] = useState(false)
   const me = useRef(uid())
   const lastPrices = useRef({})
 
@@ -232,6 +236,109 @@ export default function Dynasty() {
   const topLoser = useMemo(() => rows.slice().sort((a, b) => a.delta - b.delta)[0], [rows])
   const nameOf = (id) => (byId[String(id)] || {}).name || `#${id}`
 
+  if (!entered) {
+    const top = rows.slice(0, 5)
+    return (
+      <div className="dyn-term">
+        <div className="dyn-grid border-b border-[var(--dyn-line)]">
+          <div className="mx-auto max-w-5xl px-5 py-16 text-center sm:py-24">
+            <div className="flex items-center justify-center gap-2">
+              <span className="dyn-live inline-block h-1.5 w-1.5 rounded-full bg-[var(--dyn-up)]" />
+              <span className="dyn-label text-[var(--dyn-up)]">Market open</span>
+            </div>
+            <h1 className="mt-4 text-5xl leading-none tracking-tight text-[var(--dyn-text)] sm:text-7xl">
+              DYNASTY <span className="text-[var(--dyn-gold)]">EXCHANGE</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-xl text-[15px] leading-relaxed text-[var(--dyn-dim)]">
+              A dynasty board priced by the people who argue about it. There is no panel of experts
+              here — every number on the board is what the crowd’s picks imply.
+            </p>
+
+            <div className="mx-auto mt-10 grid max-w-3xl gap-px bg-[var(--dyn-line)] sm:grid-cols-3">
+              {[
+                ['01', 'Rank four', 'You get four players with their season line and age. Put them in order of dynasty value.'],
+                ['02', 'Six verdicts', 'That one answer is six head-to-head results. Each reprices both sides against the market.'],
+                ['03', 'The board moves', 'Beat someone far above you and you jump. Keep landing first and you move in bigger steps.'],
+              ].map(([n, h, b]) => (
+                <div key={n} className="bg-[var(--dyn-panel)] p-6 text-left">
+                  <div className="dyn-mono text-[11px] text-[var(--dyn-gold)]">{n}</div>
+                  <div className="mt-2 text-[15px] text-[var(--dyn-text)]">{h}</div>
+                  <p className="mt-2 text-[13px] leading-relaxed text-[var(--dyn-dim)]">{b}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+              <button type="button" onClick={() => setEntered(true)} className="dyn-btn px-8 py-4 text-[12px]">
+                {group?.daily ? 'Take today’s session' : 'Start ranking'}
+              </button>
+              <button type="button" onClick={() => setEntered(true)} className="dyn-btn-ghost px-6 py-4">
+                Just show me the board
+              </button>
+            </div>
+            {group?.daily && (
+              <p className="dyn-mono mt-4 text-[10px] tracking-widest text-[var(--dyn-faint)]">
+                DAILY SESSION · SAME FOUR FOR EVERYONE · ONCE PER DAY
+              </p>
+            )}
+          </div>
+        </div>
+
+        <Ticker rows={rows} byId={byId} />
+
+        <div className="border-b border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+          <div className="mx-auto flex max-w-5xl flex-wrap divide-x divide-[var(--dyn-line)]">
+            <Stat label="Volume · all time" value={total.toLocaleString()} />
+            <Stat label="Listed" value={rows.length} />
+            <Stat label="Top gainer"
+              value={topGainer?.delta ? `${symbolOf(nameOf(topGainer.id))} +${topGainer.delta}` : '—'}
+              tone={topGainer?.delta ? 'dyn-up' : ''} />
+            <Stat label="Top loser"
+              value={topLoser?.delta < 0 ? `${symbolOf(nameOf(topLoser.id))} ${topLoser.delta}` : '—'}
+              tone={topLoser?.delta < 0 ? 'dyn-down' : ''} />
+          </div>
+        </div>
+
+        <div className="mx-auto max-w-5xl px-5 py-12">
+          <div className="mb-3 flex items-baseline justify-between">
+            <span className="dyn-label text-[var(--dyn-gold)]">Top of the board</span>
+            <button type="button" onClick={() => setEntered(true)}
+              className="dyn-mono text-[10px] tracking-widest text-[var(--dyn-faint)] hover:text-[var(--dyn-text)]">
+              FULL BOARD →
+            </button>
+          </div>
+          <ol className="divide-y divide-[var(--dyn-line-soft)] border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+            {top.map((r) => {
+              const p = byId[String(r.id)] || {}
+              return (
+                <li key={r.id} className="flex items-center gap-3 px-4 py-3">
+                  <span className="dyn-mono w-6 text-[11px] text-[var(--dyn-faint)]">{r.rank}</span>
+                  {p.id && (
+                    <img src={HEAD(p.id)} alt="" width="34" height="25" loading="lazy"
+                      className="h-[25px] w-[34px] shrink-0 object-contain"
+                      onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+                  )}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[13px] text-[var(--dyn-text)]">{p.name || `#${r.id}`}</span>
+                    <span className="dyn-mono block text-[10px] tracking-wider text-[var(--dyn-faint)]">
+                      {symbolOf(p.name || '')} · {[p.pos, p.team, p.age ? `${p.age}Y` : null].filter(Boolean).join(' ')}
+                    </span>
+                  </span>
+                  <span className="dyn-mono text-[13px] text-[var(--dyn-text)]">{r.rating}</span>
+                  <span className="w-20 text-right text-[11px]"><Chg delta={r.delta} /></span>
+                </li>
+              )
+            })}
+          </ol>
+          <p className="mt-4 text-[12px] leading-relaxed text-[var(--dyn-faint)]">
+            Opening prices come from Hashtag Basketball’s points-league dynasty ranking. That is a
+            starting line, not a verdict — it moves from the first pick onward.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="dyn-term">
       {/* ---------------- masthead ---------------- */}
@@ -253,6 +360,10 @@ export default function Dynasty() {
               </p>
             </div>
             <div className="dyn-mono text-right text-[11px] text-[var(--dyn-faint)]">
+              <button type="button" onClick={() => setEntered(false)}
+                className="dyn-mono mb-2 block w-full text-right text-[10px] tracking-widest text-[var(--dyn-faint)] hover:text-[var(--dyn-text)]">
+                ← LOBBY
+              </button>
               <div>SEED · HASHTAG BASKETBALL</div>
               <div>POINTS-LEAGUE DYNASTY</div>
               <div className="mt-1 text-[var(--dyn-dim)]">{rows.length} LISTED</div>
