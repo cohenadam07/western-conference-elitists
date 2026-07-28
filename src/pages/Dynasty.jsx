@@ -34,6 +34,26 @@ function symbolOf(name = '') {
   return (parts[0][0] + last).toUpperCase().slice(0, 5)
 }
 
+/* How to connect each league. Sleeper and Fantrax expose public read APIs, and ESPN does for
+ * public leagues — so those three take a code. Yahoo is OAuth-only: there is no code a reader
+ * could paste that would work, so it says so and points at the manual box instead of failing
+ * at them after they have typed something. */
+const PLATFORMS = [
+  { id: 'sleeper', name: 'Sleeper', label: 'Sleeper username or league ID',
+    placeholder: 'e.g. yourusername',
+    how: 'Enter your Sleeper username and pick the league — that is all it needs. Or open the league in a browser and copy the long number out of the URL (sleeper.com/leagues/1234567890123456789).' },
+  { id: 'fantrax', name: 'Fantrax', label: 'Fantrax league ID',
+    placeholder: 'e.g. abcd1234efgh5678',
+    how: 'Open your league on Fantrax and copy the ID from the URL after /league/ — it is the string before the next slash. Works for any league with the standard public league info enabled.' },
+  { id: 'espn', name: 'ESPN', label: 'ESPN league ID',
+    placeholder: 'e.g. 123456',
+    how: 'From your league URL, copy the number after leagueId=. ESPN only lets outsiders read leagues set to Public — if yours is private, use Enter manually.' },
+  { id: 'yahoo', name: 'Yahoo', manual: true,
+    how: 'Yahoo requires a signed-in connection, so there is no league code that works from here. Open your team on Yahoo, select the roster and copy it, then paste it into the manual box.' },
+  { id: 'other', name: 'Other', manual: true,
+    how: 'Any other platform works the same way: select your roster on your team page, copy it, and paste it in. Names are matched loosely, so extra numbering or positions will not break it.' },
+]
+
 const pctOf = (delta, rating) => (!rating || !delta ? 0 : (delta / (rating - delta)) * 100)
 
 function Chg({ delta, pct }) {
@@ -155,6 +175,12 @@ export default function Dynasty() {
   const [view, setView] = useState('hub')       // hub | rank | board | trending | team
   const [roster, setRoster] = useState('')      // paste-your-team box
   const [valued, setValued] = useState(null)
+  const [teamMode, setTeamMode] = useState('connect')   // connect | paste
+  const [platform, setPlatform] = useState('sleeper')
+  const [code, setCode] = useState('')
+  const [lg, setLg] = useState(null)          // {leagues}|{teams} awaiting a choice
+  const [lgBusy, setLgBusy] = useState(false)
+  const [lgErr, setLgErr] = useState(null)
   const me = useRef(uid())
   const lastPrices = useRef({})
 
@@ -244,7 +270,7 @@ export default function Dynasty() {
   // matched loosely (case, punctuation and accents ignored, surname as a fallback) and any
   // line we cannot place is reported rather than quietly dropped — a total that silently
   // skipped your best player would be worse than no total.
-  const valueRoster = () => {
+  const valueRoster = (explicit) => {
     const key = (t) => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim()
     const idx = {}, bySurname = {}
@@ -257,7 +283,8 @@ export default function Dynasty() {
     const priced = {}
     rows.forEach((r) => { priced[String(r.id)] = r })
 
-    const lines = roster.split(/[\n,;\t]+/).map((l) => l.replace(/^\s*\d+[.)]?\s*/, '').trim()).filter(Boolean)
+    const lines = (explicit && explicit.length ? explicit : roster.split(/[\n,;\t]+/))
+      .map((l) => String(l).replace(/^\s*\d+[.)]?\s*/, '').trim()).filter(Boolean)
     const hits = [], misses = []
     const seen = new Set()
     lines.forEach((line) => {
@@ -275,6 +302,30 @@ export default function Dynasty() {
     hits.sort((a, b) => b.r.rating - a.r.rating)
     const total = hits.reduce((a, h) => a + h.r.rating, 0)
     setValued({ hits, misses, total, lines: lines.length })
+  }
+
+  // Public, unauthenticated reads only — we never ask anyone for a password, which is also
+  // why Yahoo is not on the list rather than being on it and failing.
+  const connectLeague = (leagueId) => {
+    setLgBusy(true); setLgErr(null)
+    const qs = new URLSearchParams({ platform, code: code.trim() })
+    if (leagueId) qs.set('league', leagueId)
+    fetch(`/api/league?${qs}`)
+      .then((r) => r.json())
+      .then((j) => {
+        if (!j.ok) {
+          setLgErr({
+            'no-user': 'No Sleeper user with that username.',
+            'no-leagues': 'That account has no NBA leagues we can see.',
+            'no-league': 'Could not read that league. If it is private, paste your roster instead.',
+            'empty': 'That league came back with no rosters yet.',
+            'bad-code': 'That does not look like a valid code.',
+          }[j.error] || 'Could not reach that league. Paste your roster instead.')
+          setLg(null)
+        } else setLg(j)
+      })
+      .catch(() => setLgErr('Could not reach that league. Paste your roster instead.'))
+      .finally(() => setLgBusy(false))
   }
 
   const Shell = ({ title, kicker, children }) => (
@@ -375,25 +426,126 @@ export default function Dynasty() {
         <div className="mx-auto max-w-3xl px-5 py-10">
           <h2 className="text-3xl leading-tight text-[var(--dyn-text)]">What is your team worth?</h2>
           <p className="mt-3 text-[14px] leading-relaxed text-[var(--dyn-dim)]">
-            Paste your roster — one name per line, or comma separated. Copy straight out of Sleeper,
-            Fantrax, Yahoo or ESPN; numbering and punctuation are fine. The market prices each player
-            at the crowd’s current value.
+            Connect a league and pick your team, or type the roster in yourself. Either way the
+            market prices every player at the crowd’s current value.
           </p>
-          <textarea
-            value={roster} onChange={(e) => setRoster(e.target.value)} rows={8} spellCheck="false"
-            placeholder={'Victor Wembanyama\nAnthony Edwards\nAlperen Sengun\n…'}
-            className="dyn-mono mt-5 w-full resize-y border border-[var(--dyn-line)] bg-[var(--dyn-panel)] p-4 text-[13px] text-[var(--dyn-text)] outline-none placeholder:text-[var(--dyn-faint)] focus:border-[var(--dyn-gold)]"
-          />
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <button type="button" onClick={valueRoster} disabled={!roster.trim()} className="dyn-btn">
-              Price this roster
-            </button>
-            {valued && (
-              <button type="button" onClick={() => { setRoster(''); setValued(null) }} className="dyn-btn-ghost">
-                Clear
+
+          <div className="mt-6 inline-flex border border-[var(--dyn-line)]">
+            {[['connect', 'Connect a league'], ['paste', 'Enter manually']].map(([m, label]) => (
+              <button key={m} type="button" onClick={() => { setTeamMode(m); setValued(null) }}
+                aria-pressed={teamMode === m}
+                className={`dyn-mono px-5 py-3 text-[11px] uppercase tracking-[0.12em] ${
+                  teamMode === m ? 'bg-[var(--dyn-gold)] text-[#0a0d12]' : 'text-[var(--dyn-dim)] hover:text-[var(--dyn-text)]'}`}>
+                {label}
               </button>
-            )}
+            ))}
           </div>
+
+          {teamMode === 'connect' && (
+            <div className="mt-6">
+              <div className="flex flex-wrap gap-px bg-[var(--dyn-line)]">
+                {PLATFORMS.map((pf) => (
+                  <button key={pf.id} type="button"
+                    onClick={() => { setPlatform(pf.id); setLg(null); setLgErr(null); setCode('') }}
+                    aria-pressed={platform === pf.id}
+                    className={`dyn-mono flex-1 px-4 py-3 text-[11px] uppercase tracking-[0.1em] ${
+                      platform === pf.id ? 'bg-[var(--dyn-panel-2)] text-[var(--dyn-text)]' : 'bg-[var(--dyn-panel)] text-[var(--dyn-faint)] hover:text-[var(--dyn-dim)]'}`}>
+                    {pf.name}
+                  </button>
+                ))}
+              </div>
+
+              {(() => {
+                const pf = PLATFORMS.find((x) => x.id === platform)
+                if (pf.manual) {
+                  return (
+                    <div className="border border-t-0 border-[var(--dyn-line)] bg-[var(--dyn-panel)] p-5">
+                      <p className="text-[13px] leading-relaxed text-[var(--dyn-dim)]">{pf.how}</p>
+                      <button type="button" onClick={() => setTeamMode('paste')} className="dyn-btn-ghost mt-4">
+                        Enter it manually →
+                      </button>
+                    </div>
+                  )
+                }
+                return (
+                  <div className="border border-t-0 border-[var(--dyn-line)] bg-[var(--dyn-panel)] p-5">
+                    <label className="dyn-label block" htmlFor="lgcode">{pf.label}</label>
+                    <div className="mt-2 flex flex-wrap gap-3">
+                      <input id="lgcode" value={code} spellCheck="false" autoComplete="off"
+                        onChange={(e) => { setCode(e.target.value); setLg(null); setLgErr(null) }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' && code.trim()) connectLeague() }}
+                        placeholder={pf.placeholder}
+                        className="dyn-mono min-w-0 flex-1 border border-[var(--dyn-line)] bg-[var(--dyn-bg)] px-3 py-3 text-[13px] text-[var(--dyn-text)] outline-none placeholder:text-[var(--dyn-faint)] focus:border-[var(--dyn-gold)]" />
+                      <button type="button" onClick={() => connectLeague()} disabled={!code.trim() || lgBusy} className="dyn-btn">
+                        {lgBusy ? 'Connecting…' : 'Connect'}
+                      </button>
+                    </div>
+                    <p className="mt-3 text-[12.5px] leading-relaxed text-[var(--dyn-faint)]">{pf.how}</p>
+                    {lgErr && <p className="dyn-mono dyn-down mt-3 text-[11px]">{lgErr}</p>}
+                  </div>
+                )
+              })()}
+
+              {lg?.leagues && (
+                <div className="mt-4">
+                  <div className="dyn-label mb-2">Which league?</div>
+                  <ul className="divide-y divide-[var(--dyn-line-soft)] border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+                    {lg.leagues.map((l) => (
+                      <li key={l.id}>
+                        <button type="button" onClick={() => connectLeague(l.id)}
+                          className="w-full px-4 py-3 text-left text-[13px] text-[var(--dyn-text)] hover:bg-[var(--dyn-panel-2)]">
+                          {l.name}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {lg?.teams && (
+                <div className="mt-4">
+                  <div className="dyn-label mb-2">Which team is yours?</div>
+                  <ul className="divide-y divide-[var(--dyn-line-soft)] border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+                    {lg.teams.map((t) => (
+                      <li key={t.id}>
+                        <button type="button"
+                          onClick={() => { setRoster(t.players.join('\n')); valueRoster(t.players) }}
+                          className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-[var(--dyn-panel-2)]">
+                          <span className="truncate text-[13px] text-[var(--dyn-text)]">{t.name}</span>
+                          <span className="dyn-mono shrink-0 text-[11px] text-[var(--dyn-faint)]">{t.players.length} PLAYERS</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
+          {teamMode === 'paste' && (
+            <>
+              <textarea
+                value={roster} onChange={(e) => setRoster(e.target.value)} rows={8} spellCheck="false"
+                placeholder={'Victor Wembanyama\nAnthony Edwards\nAlperen Sengun\n…'}
+                className="dyn-mono mt-5 w-full resize-y border border-[var(--dyn-line)] bg-[var(--dyn-panel)] p-4 text-[13px] text-[var(--dyn-text)] outline-none placeholder:text-[var(--dyn-faint)] focus:border-[var(--dyn-gold)]"
+              />
+              <p className="mt-2 text-[12.5px] leading-relaxed text-[var(--dyn-faint)]">
+                One name per line, or comma separated. Numbering, punctuation and accents are all
+                fine — anything we cannot place gets listed back to you rather than dropped.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <button type="button" onClick={() => valueRoster()} disabled={!roster.trim()} className="dyn-btn">
+                  Price this roster
+                </button>
+                {valued && (
+                  <button type="button" onClick={() => { setRoster(''); setValued(null) }} className="dyn-btn-ghost">
+                    Clear
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
 
           {valued && (
             <div className="mt-8">
