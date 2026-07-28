@@ -112,7 +112,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .col-h{font-family:var(--disp);font-weight:600;font-size:25px;letter-spacing:0;margin:2px 0 10px;display:inline-block;border-bottom:3px solid var(--gold);padding-bottom:3px;line-height:1}
 .group-h{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
 .group-h:first-of-type{margin-top:8px}
-.row{display:grid;grid-template-columns:140px 1fr 58px;grid-template-areas:"lab bar val";align-items:center;column-gap:12px;padding:7px 0}
+.row{display:grid;grid-template-columns:140px 1fr 58px 22px;grid-template-areas:"lab bar val btn";align-items:center;column-gap:12px;padding:7px 0}
+/* rows that carry no chart button (compare view, inferred-role bars) drop the button lane
+   rather than leaving a 22px gutter where a control isn't */
+.row.nochart{grid-template-columns:140px 1fr 58px;grid-template-areas:"lab bar val"}
 .rl{min-width:0;grid-area:lab}
 .rl .name{font-size:13.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rl .tag{font-family:var(--mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin-top:2px}
@@ -138,7 +141,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
   .wrap{padding:16px 12px 48px}
   .col{padding:14px 12px 16px}
   .id{padding:16px 14px}
-  .row{grid-template-columns:1fr auto;grid-template-areas:"lab val" "bar bar";row-gap:5px;padding:9px 0}
+  .row{grid-template-columns:1fr auto auto;grid-template-areas:"lab val btn" "bar bar bar";row-gap:5px;padding:9px 0}
+  .row.nochart{grid-template-columns:1fr auto;grid-template-areas:"lab val" "bar bar"}
   .rl .name{white-space:normal}
   .track{height:22px}
   .search{flex-wrap:wrap}
@@ -237,7 +241,39 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .role-cap{font-size:12.5px;color:var(--muted);background:var(--bg);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:9px 12px;margin:2px 0 12px;line-height:1.5}
 .role-cap b{color:var(--ink);font-weight:600}
 
-/* Trend pill — sits on the name line, reads his own arc at a glance.
+/* Per-stat rolling chart — a quiet glyph at the end of every bar row that opens the
+   stat's own history inline, directly beneath the row it belongs to. Kept faint until
+   hovered so 40-odd rows don't turn into 40 competing buttons. */
+.statbtn{grid-area:btn;width:22px;height:22px;padding:0;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid transparent;border-radius:6px;background:none;color:var(--faint);cursor:pointer;transition:color .12s,background .12s,border-color .12s}
+.statbtn:hover{color:var(--navy);border-color:var(--line);background:var(--surface)}
+.statbtn:focus-visible{outline:2px solid var(--navy);outline-offset:1px}
+.statbtn[aria-expanded="true"]{color:var(--surface);background:var(--navy);border-color:var(--navy)}
+.statbtn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.row.un .statbtn{opacity:.6}
+
+.statchart{background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:12px 14px 10px;margin:1px 0 9px}
+.rc-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.rc-name{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.2}
+.rc-name em{font-style:normal;color:var(--faint);font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;margin-left:7px}
+.rc-tools{display:flex;align-items:center;gap:7px}
+.rc-seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:2px;gap:2px}
+.rc-seg button{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:none;border:none;border-radius:5px;padding:4px 9px;cursor:pointer;line-height:1}
+.rc-seg button:hover:not(:disabled){color:var(--ink)}
+.rc-seg button[aria-pressed="true"]{background:var(--navy);color:var(--surface)}
+.rc-seg button:disabled{opacity:.4;cursor:not-allowed}
+.rc-seg button:focus-visible{outline:2px solid var(--navy);outline-offset:1px}
+.rc-x{font-family:var(--mono);font-size:14px;line-height:1;color:var(--faint);background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:5px}
+.rc-x:hover{color:var(--ink)}
+.rc-x:focus-visible{outline:2px solid var(--navy);outline-offset:1px}
+.rc-plot{display:block;width:100%;height:auto;overflow:visible}
+.rc-gl{stroke:var(--line);stroke-width:1}
+.rc-ln{fill:none;stroke:var(--navy);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.rc-ar{fill:var(--navy);opacity:.07}
+.rc-pt{stroke:var(--sunk);stroke-width:1.5}
+.rc-ax{font-family:var(--mono);font-size:9px;fill:var(--faint);letter-spacing:.02em}
+.rc-note{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin-top:7px}
+.rc-empty{font-size:12.5px;color:var(--muted);padding:6px 0 2px}
    Sizing rules, widest to narrowest: the pill never exceeds the card (max-width),
    its parts stay whole (nowrap on the children) but may drop to a second row inside
    the pill rather than spilling out (flex-wrap on the pill itself — the last-resort
@@ -1576,7 +1612,7 @@ function cmpRow(m,entries){
     return '<div class="cv"><span class="cdot" style="background:'+CMP_COLORS[i]+'"></span>'+it.txt+'</div>';
   }).join('');
   const tt=items.map(function(it){return it.nm+" '"+it.season.slice(2,4)+': '+(it.p==null?'n/a':it.p+' pct');}).join('   ·   ');
-  return '<div class="row" data-k="'+m.key+'" title="'+tt+'">'
+  return '<div class="row nochart" data-k="'+m.key+'" title="'+tt+'">'
     +'<div class="rl" title="Click for what this stat means"><div class="name">'+m.label+'</div><div class="tag">'+m.layer.toUpperCase()+'</div></div>'
     +'<div class="track" style="height:'+trH+'px"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div>'+bars+'</div>'
     +'<div class="rv rv-cmp">'+vals+'</div></div>';
@@ -1604,7 +1640,18 @@ function barRow(m){
     +'<div class="track"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div>'
       +'<div class="fill" data-w="'+shown+'" style="background:'+col+'"><div class="hatch"></div></div>'
       +'<div class="pnum" style="left:'+numLeft+';'+numTf+'">'+(pct==null?'·':pct)+'</div></div>'
-    +'<div class="rv">'+fmt(m.unit,v,pct)+'</div></div>';
+    +'<div class="rv">'+fmt(m.unit,v,pct)+'</div>'
+    +statBtn(m.key,m.label)+'</div>';
+}
+/* The glyph is a three-point rising line — a chart, not a generic "more" chevron, so its
+   job is legible before anyone clicks it. */
+function statBtn(key,label){
+  return '<button type="button" class="statbtn" data-stat="'+key+'" aria-expanded="false"'
+    +' title="Chart '+String(label).replace(/"/g,'&quot;')+' over time"'
+    +' aria-label="Chart '+String(label).replace(/"/g,'&quot;')+' over time">'
+    +'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 11.5L6 7l3 2.5L14 4"/>'
+    +'<circle cx="2" cy="11.5" r="1.1"/><circle cx="6" cy="7" r="1.1"/>'
+    +'<circle cx="9" cy="9.5" r="1.1"/><circle cx="14" cy="4" r="1.1"/></svg></button>';
 }
 function groupBlocks(group){
   // Buffer rows per subheader so a sub whose every bar was hidden drops out entirely
@@ -1676,6 +1723,7 @@ function render(){
   // the pill above was just rebuilt with aria-expanded="false", so the panel resets with it
   const tcEl=document.getElementById('trendchart');
   if(tcEl){ tcEl.hidden=true; tcEl.innerHTML=''; }
+  rcClose();   // any open per-stat chart belongs to the rows we are about to replace
   document.getElementById('ctx').innerHTML=groupBlocks('ctx');
   document.getElementById('off').innerHTML=groupBlocks('off');
   document.getElementById('def').innerHTML=groupBlocks('def');
@@ -1799,7 +1847,7 @@ function roleBar(b){
   const shown=pct==null?50:pct, col=colorAt(shown);
   const numLeft=shown>88?'calc('+shown+'% - 22px)':shown+'%';
   const numTf=shown>88?'transform:translateY(-50%)':'transform:translate(6px,-50%)';
-  return '<div class="row" data-k="'+b.key+'">'
+  return '<div class="row nochart" data-k="'+b.key+'">'
     +'<div class="rl" title="Click for what this means"><div class="name">'+b.label+'</div><div class="tag">ROLE · VS BIGS</div></div>'
     +'<div class="track"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div>'
       +'<div class="fill" data-w="'+shown+'" style="background:'+col+'"></div>'
@@ -1816,6 +1864,173 @@ function renderRole(){
     +'<div class="role-foot">'+curSeason+' &middot; '+cur.role.poss+' matchup poss &middot; '+cur.role.dfga+' shots defended</div>';
   el.hidden=false;
 }
+/* ================= Per-stat rolling chart ========================================
+   Opens inline under the bar it belongs to. Two axes:
+     YEAR  — this stat, season by season, straight out of the dataset the page already
+             has. Era-gated exactly like the bars: a season predating the stat's tier
+             is absent rather than plotted as zero.
+     MONTH — the same stat split by calendar month inside the current season, from
+             months/<pid>.json (built by savant_months.py, fetched only when asked, so
+             a reader who never opens a month chart downloads none of it).
+   Month is offered only for stats the NBA will split by date — the box/advanced-derived
+   ones. BPM, PER and VORP come from Basketball Reference and tracking/hustle/synergy
+   have no monthly form, so their toggle is disabled with the reason in its tooltip. */
+const MONTHLY_KEYS=new Set(['mpg','ts','efg','pps','tp3','tp3a','tp3r','tp2','ft','fta',
+  'ftr','p3pt','pts','ast','ast75','asttov','tov','tov75','usg','oreb','dreb','reb75',
+  'stl','blk','stk75','gmsc']);            // must match MONTHLY_KEYS in savant_months.py
+const MONTH_ABBR=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let MONTHS_INDEX=null;                     // {pid:[season,...]} — fetched once, on first use
+const MONTHS_CACHE={};                     // pid -> data | 'loading' | 'missing'
+let rcMode='year';                         // sticky across opens within a session
+
+const metricBy=key=>METRICS.find(function(m){return m.key===key;});
+
+function rcYearSeries(key){
+  const m=metricBy(key), out=[];
+  DATA.seasons.slice().reverse().forEach(function(s){       // oldest -> newest
+    if(m&&m.tier&&seasonTier(s)<m.tier) return;             // not tracked that era
+    const row=rowFor(cur.id,s); if(!row) return;
+    const v=val(row,key,'season'); if(miss(v)) return;
+    out.push({v:v, lab:"'"+s.slice(2,4), full:s,
+              pct:pctOf(v,poolVals(key,'season',row,s),m&&m.lower)});
+  });
+  return out;
+}
+function rcMonthSeries(key){
+  const md=MONTHS_CACHE[cur.id];
+  if(!md||md==='loading'||md==='missing') return null;
+  const sm=md[curSeason]; if(!sm) return [];
+  return Object.keys(sm).sort().map(function(mk){
+    const row=sm[mk], v=row[key];
+    if(v==null) return null;
+    const mo=+mk.slice(5,7);
+    return {v:v, lab:MONTH_ABBR[mo-1], full:MONTH_ABBR[mo-1]+" "+mk.slice(0,4),
+            gp:row.gp, pct:null};
+  }).filter(Boolean);
+}
+function rcLoadMonths(pid,then){
+  if(MONTHS_CACHE[pid]&&MONTHS_CACHE[pid]!=='loading') return then();
+  MONTHS_CACHE[pid]='loading';
+  const done=function(v){ MONTHS_CACHE[pid]=v; then(); };
+  const go=function(){
+    if(!MONTHS_INDEX||!MONTHS_INDEX[pid]) return done('missing');
+    fetch('months/'+pid+'.json').then(function(r){return r.ok?r.json():null;})
+      .then(function(j){ done(j||'missing'); }).catch(function(){ done('missing'); });
+  };
+  if(MONTHS_INDEX) return go();
+  fetch('months/index.json').then(function(r){return r.ok?r.json():{};})
+    .then(function(j){ MONTHS_INDEX=j; go(); }).catch(function(){ MONTHS_INDEX={}; go(); });
+}
+
+/* Nice-ish axis bounds: pad the observed range, then snap to a readable step so the
+   labels aren't 0.6173. A flat series still gets a band so the line isn't on an edge. */
+function rcBounds(vals){
+  let lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals);
+  if(hi===lo){ const p=Math.abs(hi)*0.1||1; return [lo-p,hi+p]; }
+  const pad=(hi-lo)*0.15; lo-=pad; hi+=pad;
+  if(lo>0&&lo<(hi-lo)*0.6) lo=0;                    // let volume-ish stats sit on zero
+  return [lo,hi];
+}
+function rcRender(host,key){
+  const m=metricBy(key)||{unit:'num1',label:key};
+  const monthly=MONTHLY_KEYS.has(key);
+  const isMonth=(rcMode==='month'&&monthly);
+  let pts=isMonth?rcMonthSeries(key):rcYearSeries(key);
+  const loading=isMonth&&pts===null;
+
+  const seg='<div class="rc-seg" role="group" aria-label="Chart axis">'
+    +'<button type="button" data-rc="year" aria-pressed="'+(!isMonth)+'">Year</button>'
+    +'<button type="button" data-rc="month" aria-pressed="'+(isMonth)+'"'
+      +(monthly?'':' disabled title="Only box-score stats split by month — this one is a season figure"')
+      +'>Month</button></div>';
+  const head='<div class="rc-top"><div class="rc-name">'+m.label
+      +'<em>'+(isMonth?curSeason:'by season')+'</em></div>'
+      +'<div class="rc-tools">'+seg
+      +'<button type="button" class="rc-x" data-rc="close" aria-label="Close chart">&times;</button>'
+      +'</div></div>';
+
+  if(loading){ host.innerHTML=head+'<div class="rc-empty">Loading monthly splits…</div>'; return; }
+  if(!pts||pts.length<2){
+    host.innerHTML=head+'<div class="rc-empty">'
+      +(isMonth?'No month-by-month data for '+cur.name+' in '+curSeason+'.'
+               :'Only one season of this stat — nothing to plot yet.')+'</div>';
+    return;
+  }
+
+  const W=Math.max(260,Math.min(680,(host.clientWidth||host.parentElement.clientWidth||520)-28));
+  const H=W<360?132:158, L=W<360?38:44, R=10, T=10, B=22;
+  const vals=pts.map(function(p){return p.v;});
+  const bd=rcBounds(vals), lo=bd[0], hi=bd[1];
+  const X=i=>pts.length===1?L+(W-L-R)/2:L+(W-L-R)*i/(pts.length-1);
+  const Y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+
+  let g='';
+  for(let t=0;t<=2;t++){
+    const v=lo+(hi-lo)*t/2, y=Y(v);
+    g+='<line class="rc-gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'"/>'
+      +'<text class="rc-ax" x="'+(L-7)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+fmt(m.unit,v,null)+'</text>';
+  }
+  const step=Math.max(1,Math.ceil(pts.length/(W<360?4:8)));
+  for(let i=pts.length-1;i>=0;i-=step)
+    g+='<text class="rc-ax" x="'+X(i).toFixed(1)+'" y="'+(H-B+14)+'" text-anchor="middle">'+pts[i].lab+'</text>';
+
+  const line=pts.map(function(p,i){return (i?'L':'M')+X(i).toFixed(1)+' '+Y(p.v).toFixed(1);}).join(' ');
+  g+='<path class="rc-ar" d="'+line+' L'+X(pts.length-1).toFixed(1)+' '+(H-B)+' L'+X(0).toFixed(1)+' '+(H-B)+' Z"/>';
+  g+='<path class="rc-ln" d="'+line+'"/>';
+  pts.forEach(function(p,i){
+    const c=(p.pct==null)?'var(--navy)':colorAt(p.pct);
+    g+='<circle class="rc-pt" cx="'+X(i).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="3.4" fill="'+c+'">'
+      +'<title>'+p.full+' — '+fmt(m.unit,p.v,p.pct)
+      +(p.pct!=null?' ('+p.pct+'th pct)':'')+(p.gp!=null?' · '+p.gp+' g':'')+'</title></circle>';
+  });
+
+  const first=pts[0], last=pts[pts.length-1];
+  const dir=last.v>first.v?'up':(last.v<first.v?'down':'flat');
+  host.innerHTML=head
+    +'<svg class="rc-plot" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'
+      +m.label+' for '+cur.name+', '+first.full+' to '+last.full+', trending '+dir+'.">'+g+'</svg>'
+    +'<div class="rc-note">'+pts.length+(isMonth?' months · ':' seasons · ')
+      +first.full+' &rarr; '+last.full
+      +(isMonth?'':' · dot colour = percentile that season')+'</div>';
+}
+function rcOpen(btn,key){
+  const row=btn.closest('.row'); if(!row) return;
+  rcClose();
+  const host=document.createElement('div');
+  host.className='statchart'; host.dataset.stat=key;
+  row.parentNode.insertBefore(host,row.nextSibling);
+  btn.setAttribute('aria-expanded','true');
+  rcRender(host,key);
+  if(rcMode==='month'&&MONTHLY_KEYS.has(key))
+    rcLoadMonths(cur.id,function(){ const h=document.querySelector('.statchart'); if(h) rcRender(h,key); });
+}
+/* restore=true when the reader closed it themselves (the x, or re-pressing the glyph):
+   the panel is about to be removed from under the keyboard, so hand focus back to the
+   control they pressed. Left false when we are closing to open another chart, or when
+   render() is replacing the rows wholesale — stealing focus there would be a jolt. */
+function rcClose(restore){
+  const open=document.querySelector('.statbtn[aria-expanded="true"]');
+  document.querySelectorAll('.statchart').forEach(function(n){n.remove();});
+  document.querySelectorAll('.statbtn[aria-expanded="true"]').forEach(function(b){b.setAttribute('aria-expanded','false');});
+  if(restore&&open&&document.contains(open)) open.focus();
+}
+// Delegated — every render() rebuilds these rows, so direct binding would go stale.
+document.addEventListener('click',function(e){
+  const t=e.target;
+  const b=t&&t.closest?t.closest('.statbtn'):null;
+  if(b){ const key=b.dataset.stat;
+    if(b.getAttribute('aria-expanded')==='true') rcClose(true); else rcOpen(b,key);
+    return; }
+  const tool=t&&t.closest?t.closest('.statchart [data-rc]'):null;
+  if(!tool) return;
+  const host=tool.closest('.statchart'), key=host.dataset.stat, mode=tool.dataset.rc;
+  if(mode==='close') return rcClose(true);
+  rcMode=mode;
+  rcRender(host,key);
+  if(mode==='month'&&MONTHLY_KEYS.has(key))
+    rcLoadMonths(cur.id,function(){ const h=document.querySelector('.statchart'); if(h) rcRender(h,key); });
+});
+
 /* ================= Trend — his own arc, nobody else's ============================
    One pill at the top of the card: is this player still climbing, or sliding? The
    only yardstick is his own record — where he sits now against where he sat in his
