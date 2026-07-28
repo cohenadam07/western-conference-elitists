@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import usePageMeta from '../lib/usePageMeta.js'
+import { buildScale, displayValue } from '../lib/dynastyValue.js'
 
 /* Dynasty Exchange — a crowd-priced trade-value board, dressed as the thing it actually is.
  *
@@ -116,7 +117,7 @@ function Chg({ delta, pct }) {
   )
 }
 
-function Ticker({ rows, byId }) {
+function Ticker({ rows, byId, val, valDelta }) {
   const movers = useMemo(() => {
     const withMove = rows.filter((r) => r.delta)
     const pool = (withMove.length >= 8 ? withMove : rows).slice(0, 28)
@@ -128,8 +129,8 @@ function Ticker({ rows, byId }) {
       {movers.map((m, i) => (
         <span key={i} className="dyn-mono flex items-center gap-2 whitespace-nowrap px-5 py-2 text-[11px]">
           <span className="text-[var(--dyn-dim)]">{symbolOf(m.name)}</span>
-          <span className="text-[var(--dyn-text)]">{m.rating}</span>
-          <Chg delta={m.delta} />
+          <span className="text-[var(--dyn-text)]">{val ? val(m.rating).toLocaleString() : m.rating}</span>
+          <Chg delta={valDelta ? valDelta(m) : m.delta} />
         </span>
       ))}
     </div>
@@ -333,6 +334,13 @@ export default function Dynasty() {
         id: String(p.id), rating: Math.round(p.rating), rank: i + 1, delta: 0, rankDelta: 0, streak: 0, seen: 0,
       }))
 
+  // One curve for the whole page: Elo decides the order, this decides what the order is worth.
+  const scale = useMemo(() => buildScale(rows.map((r) => r.rating)), [rows])
+  const val = useCallback((rating) => displayValue(scale, rating), [scale])
+  // A 24h move is quoted in value, not Elo — the same rating gain is worth far more near the
+  // top of the curve than in the tail, and the tail is where Elo drifts most.
+  const valDelta = useCallback((r) => (!r.delta ? 0 : val(r.rating) - val(r.rating - r.delta)), [val])
+
   const session = useMemo(() => {
     const cut = Date.now() - 864e5
     return recent.filter((r) => (r.ts || 0) > cut).length
@@ -381,7 +389,7 @@ export default function Dynasty() {
       const r = priced[String(pl.id)] || { id: pl.id, rating: Math.round(pl.rating), rank: null, delta: 0 }
       // trust the platform's eligibility when it gave us any; fall back to our own label
       const pos = platformPos.length ? platformPos : (pl.pos ? [pl.pos] : [])
-      hits.push({ pl, r, pos, value: r.rating, name: pl.name })
+      hits.push({ pl, r, pos, value: val(r.rating), name: pl.name })
     })
     hits.sort((a, b) => b.value - a.value)
     return { hits, misses, total: hits.reduce((a, h) => a + h.value, 0), lines: entries.length }
@@ -481,17 +489,17 @@ export default function Dynasty() {
           </div>
         </div>
 
-        <Ticker rows={rows} byId={byId} />
+        <Ticker rows={rows} byId={byId} val={val} valDelta={valDelta} />
 
         <div className="border-b border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
           <div className="mx-auto flex max-w-6xl flex-wrap divide-x divide-[var(--dyn-line)]">
             <Stat label="Volume · all time" value={total.toLocaleString()} />
             <Stat label="Listed" value={rows.length} />
             <Stat label="Top gainer"
-              value={topGainer?.delta ? `${symbolOf(nameOf(topGainer.id))} +${topGainer.delta}` : '—'}
+              value={topGainer?.delta ? `${symbolOf(nameOf(topGainer.id))} +${valDelta(topGainer)}` : '—'}
               tone={topGainer?.delta ? 'dyn-up' : ''} />
             <Stat label="Top loser"
-              value={topLoser?.delta < 0 ? `${symbolOf(nameOf(topLoser.id))} ${topLoser.delta}` : '—'}
+              value={topLoser?.delta < 0 ? `${symbolOf(nameOf(topLoser.id))} ${valDelta(topLoser)}` : '—'}
               tone={topLoser?.delta < 0 ? 'dyn-down' : ''} />
           </div>
         </div>
@@ -723,8 +731,8 @@ export default function Dynasty() {
                         {symbolOf(pl.name)} · {[pl.pos, pl.team, pl.age ? `${pl.age}Y` : null].filter(Boolean).join(' ')}
                       </span>
                     </span>
-                    <span className="dyn-mono text-[13px] text-[var(--dyn-text)]">{r.rating}</span>
-                    <span className="w-20 text-right text-[11px]"><Chg delta={r.delta} /></span>
+                    <span className="dyn-mono text-[13px] text-[var(--dyn-text)]">{val(r.rating).toLocaleString()}</span>
+                    <span className="w-20 text-right text-[11px]"><Chg delta={valDelta(r)} /></span>
                   </li>
                 ))}
                 {!valued.hits.length && (
@@ -788,7 +796,7 @@ export default function Dynasty() {
         </div>
       </div>
 
-      <Ticker rows={rows} byId={byId} />
+      <Ticker rows={rows} byId={byId} val={val} valDelta={valDelta} />
 
       {/* ---------------- market stats ---------------- */}
       <div className="border-b border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
@@ -797,10 +805,10 @@ export default function Dynasty() {
           <Stat label="Session" value={session.toLocaleString()} />
           <Stat label="Listed" value={rows.length} />
           <Stat label="Top gainer"
-            value={topGainer?.delta ? `${symbolOf(nameOf(topGainer.id))} +${topGainer.delta}` : '—'}
+            value={topGainer?.delta ? `${symbolOf(nameOf(topGainer.id))} +${valDelta(topGainer)}` : '—'}
             tone={topGainer?.delta ? 'dyn-up' : ''} />
           <Stat label="Top loser"
-            value={topLoser?.delta < 0 ? `${symbolOf(nameOf(topLoser.id))} ${topLoser.delta}` : '—'}
+            value={topLoser?.delta < 0 ? `${symbolOf(nameOf(topLoser.id))} ${valDelta(topLoser)}` : '—'}
             tone={topLoser?.delta < 0 ? 'dyn-down' : ''} />
         </div>
       </div>
@@ -924,8 +932,8 @@ export default function Dynasty() {
                               )}
                             </span>
                           </span>
-                          <span className="dyn-mono text-[13px] text-[var(--dyn-text)]">{r.rating}</span>
-                          <span className="w-24 text-right text-[11px]"><Chg delta={r.delta} pct={pctOf(r.delta, r.rating)} /></span>
+                          <span className="dyn-mono text-[13px] text-[var(--dyn-text)]">{val(r.rating).toLocaleString()}</span>
+                          <span className="w-24 text-right text-[11px]"><Chg delta={valDelta(r)} pct={pctOf(valDelta(r), val(r.rating))} /></span>
                         </li>
                       )
                     })}
@@ -946,7 +954,7 @@ export default function Dynasty() {
           <section className="dyn-panel">
             <header className="flex items-center justify-between border-b border-[var(--dyn-line)] px-5 py-3">
               <span className="dyn-label text-[var(--dyn-gold)]">The board</span>
-              <span className="dyn-mono text-[10px] text-[var(--dyn-faint)]">PRICE · 24H CHANGE · VOLUME</span>
+              <span className="dyn-mono text-[10px] text-[var(--dyn-faint)]">VALUE · 24H CHANGE · VOLUME</span>
             </header>
 
             <div className="grid grid-cols-[2.2rem_1fr_4.5rem_5.5rem] items-center gap-3 border-b border-[var(--dyn-line)] px-4 py-2 sm:grid-cols-[2.2rem_1fr_4.5rem_6.5rem_3.5rem]">
@@ -991,8 +999,8 @@ export default function Dynasty() {
                         </span>
                       </span>
                     </span>
-                    <span className="dyn-mono text-right text-[13px] text-[var(--dyn-text)]">{r.rating}</span>
-                    <span className="text-right text-[11px]"><Chg delta={r.delta} pct={pctOf(r.delta, r.rating)} /></span>
+                    <span className="dyn-mono text-right text-[13px] text-[var(--dyn-text)]">{val(r.rating).toLocaleString()}</span>
+                    <span className="text-right text-[11px]"><Chg delta={valDelta(r)} pct={pctOf(valDelta(r), val(r.rating))} /></span>
                     <span className="dyn-mono hidden text-right text-[11px] text-[var(--dyn-faint)] sm:block">{r.seen || 0}</span>
                   </li>
                 )
@@ -1000,9 +1008,12 @@ export default function Dynasty() {
             </ol>
 
             <footer className="border-t border-[var(--dyn-line)] px-5 py-3 text-[11px] leading-relaxed text-[var(--dyn-faint)]">
-              Last is the crowd’s Elo. 24h compares against a snapshot taken once a day, so a fresh
-              board reads flat until the market has a day behind it. Vol is how many books an asset
-              has appeared in — a thin price is a provisional one.
+              Value is the crowd’s order priced on a dynasty curve — steeply convex at the top,
+              because roster spots are scarce and depth does not substitute for a franchise player.
+              The order is exactly how the market voted; only the spacing is curved. 24h compares
+              against a snapshot taken once a day, so a fresh board reads flat until the market has
+              a day behind it. Vol is how many books an asset has appeared in — a thin value is a
+              provisional one.
             </footer>
           </section>
 
