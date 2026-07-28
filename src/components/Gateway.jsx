@@ -57,6 +57,37 @@ export default function Gateway() {
           </header>
 
           <div className="grid">
+            {/* Dynasty Exchange — the only live, crowd-driven thing here, so it leads */}
+            <a className="card c-dyn span4" href="/dynasty">
+              <Skeleton />
+              <div className="viz">
+                <div className="grid-bg" />
+                <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="gwDynFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0" stopColor="#16c784" stopOpacity="0.22" />
+                      <stop offset="1" stopColor="#16c784" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <path className="dfill" d="M0 118 L80 104 L160 112 L240 76 L320 88 L400 52 L480 62 L560 30 L640 38 L640 150 L0 150 Z" />
+                  <path className="dline" d="M0 118 L80 104 L160 112 L240 76 L320 88 L400 52 L480 62 L560 30 L640 38" />
+                  <circle className="dtip" cx="560" cy="30" r="4" />
+                </svg>
+                <div className="dtape">
+                  <span>VWEMB <b>1850</b></span>
+                  <span className="u">DBANE <b>1407</b> ▲</span>
+                  <span className="d">SBARN <b>1716</b> ▼</span>
+                  <span className="u">WKESS <b>1362</b> ▲</span>
+                </div>
+              </div>
+              <div className="meta">
+                <span className="ck">Live · Crowd-priced</span>
+                <h3>Dynasty Exchange</h3>
+                <p>A dynasty board priced by the people who argue about it. Rank four players and move the market — or paste your roster and see what it is worth.</p>
+                <span className="go">Enter ↗</span>
+              </div>
+            </a>
+
             {/* Basketball Savant */}
             <a className="card c-savant span2" href="/basketball-savant.html">
               <Skeleton />

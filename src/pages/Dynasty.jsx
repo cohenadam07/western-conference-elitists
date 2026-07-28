@@ -151,7 +151,10 @@ export default function Dynasty() {
   // Opening the tab drops you in the lobby: what this is, where the market stands,
   // and a deliberate step onto the floor. Being handed four strangers to rank with no
   // framing is a bad first ten seconds.
-  const [entered, setEntered] = useState(false)
+  // 'hub' is the front door; the rest are the rooms behind it.
+  const [view, setView] = useState('hub')       // hub | rank | board | trending | team
+  const [roster, setRoster] = useState('')      // paste-your-team box
+  const [valued, setValued] = useState(null)
   const me = useRef(uid())
   const lastPrices = useRef({})
 
@@ -236,12 +239,82 @@ export default function Dynasty() {
   const topLoser = useMemo(() => rows.slice().sort((a, b) => a.delta - b.delta)[0], [rows])
   const nameOf = (id) => (byId[String(id)] || {}).name || `#${id}`
 
-  if (!entered) {
-    const top = rows.slice(0, 5)
+  // ---- paste-your-roster valuation -----------------------------------------
+  // Every fantasy platform lets you copy a roster as text, so text is the input. Names are
+  // matched loosely (case, punctuation and accents ignored, surname as a fallback) and any
+  // line we cannot place is reported rather than quietly dropped — a total that silently
+  // skipped your best player would be worse than no total.
+  const valueRoster = () => {
+    const key = (t) => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim()
+    const idx = {}, bySurname = {}
+    ;(seed?.players || []).forEach((pl) => {
+      const k = key(pl.name)
+      idx[k] = pl
+      const sn = k.split(' ').slice(-1)[0]
+      ;(bySurname[sn] = bySurname[sn] || []).push(pl)
+    })
+    const priced = {}
+    rows.forEach((r) => { priced[String(r.id)] = r })
+
+    const lines = roster.split(/[\n,;\t]+/).map((l) => l.replace(/^\s*\d+[.)]?\s*/, '').trim()).filter(Boolean)
+    const hits = [], misses = []
+    const seen = new Set()
+    lines.forEach((line) => {
+      const k = key(line)
+      if (!k) return
+      let pl = idx[k]
+      if (!pl) {
+        const cands = bySurname[k.split(' ').slice(-1)[0]] || []
+        if (cands.length === 1) pl = cands[0]
+      }
+      const r = pl && priced[String(pl.id)]
+      if (r && !seen.has(String(pl.id))) { seen.add(String(pl.id)); hits.push({ pl, r }) }
+      else if (!pl) misses.push(line)
+    })
+    hits.sort((a, b) => b.r.rating - a.r.rating)
+    const total = hits.reduce((a, h) => a + h.r.rating, 0)
+    setValued({ hits, misses, total, lines: lines.length })
+  }
+
+  const Shell = ({ title, kicker, children }) => (
+    <div className="dyn-term">
+      <div className="border-b border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-3">
+          <button type="button" onClick={() => { setView('hub'); setValued(null) }}
+            className="dyn-mono text-[10px] tracking-widest text-[var(--dyn-faint)] hover:text-[var(--dyn-text)]">
+            ← DYNASTY
+          </button>
+          <div className="flex items-center gap-3">
+            <span className="dyn-label text-[var(--dyn-gold)]">{kicker}</span>
+            <span className="dyn-mono text-[11px] text-[var(--dyn-text)]">{title}</span>
+          </div>
+          <span className="dyn-mono text-[10px] text-[var(--dyn-faint)]">
+            VOL {total.toLocaleString()}
+          </span>
+        </div>
+      </div>
+      {children}
+    </div>
+  )
+
+  // ---- the hub -------------------------------------------------------------
+  if (view === 'hub') {
+    const doors = [
+      { id: 'rank', k: group?.daily ? 'Daily session ready' : 'Set the price',
+        t: 'Rank players', d: 'Four at a time, best dynasty value first. Every answer is six head-to-head results and moves the board.',
+        cta: group?.daily ? 'Take today’s session →' : 'Start ranking →', accent: true },
+      { id: 'board', k: 'The board', t: 'View rankings',
+        d: `All ${seed?.count ?? rows.length} assets, priced by the crowd, with 24h movement and how thin each price is.`, cta: 'Open the board →' },
+      { id: 'trending', k: 'Activity', t: 'Trending',
+        d: 'What is actually moving right now — biggest gainers and fallers, momentum runs, and the live trade tape.', cta: 'See what is moving →' },
+      { id: 'team', k: 'Your roster', t: 'Value my team',
+        d: 'Paste your roster from any platform and the market prices it, player by player, with a total.', cta: 'Paste a roster →' },
+    ]
     return (
       <div className="dyn-term">
         <div className="dyn-grid border-b border-[var(--dyn-line)]">
-          <div className="mx-auto max-w-5xl px-5 py-16 text-center sm:py-24">
+          <div className="mx-auto max-w-6xl px-5 py-14 text-center sm:py-20">
             <div className="flex items-center justify-center gap-2">
               <span className="dyn-live inline-block h-1.5 w-1.5 rounded-full bg-[var(--dyn-up)]" />
               <span className="dyn-label text-[var(--dyn-up)]">Market open</span>
@@ -249,45 +322,31 @@ export default function Dynasty() {
             <h1 className="mt-4 text-5xl leading-none tracking-tight text-[var(--dyn-text)] sm:text-7xl">
               DYNASTY <span className="text-[var(--dyn-gold)]">EXCHANGE</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-xl text-[15px] leading-relaxed text-[var(--dyn-dim)]">
-              A dynasty board priced by the people who argue about it. There is no panel of experts
-              here — every number on the board is what the crowd’s picks imply.
+            <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-[var(--dyn-dim)]">
+              A dynasty board priced by the people who argue about it. No panel of experts —
+              every number here is what the crowd’s picks imply.
             </p>
 
-            <div className="mx-auto mt-10 grid max-w-3xl gap-px bg-[var(--dyn-line)] sm:grid-cols-3">
-              {[
-                ['01', 'Rank four', 'You get four players with their season line and age. Put them in order of dynasty value.'],
-                ['02', 'Six verdicts', 'That one answer is six head-to-head results. Each reprices both sides against the market.'],
-                ['03', 'The board moves', 'Beat someone far above you and you jump. Keep landing first and you move in bigger steps.'],
-              ].map(([n, h, b]) => (
-                <div key={n} className="bg-[var(--dyn-panel)] p-6 text-left">
-                  <div className="dyn-mono text-[11px] text-[var(--dyn-gold)]">{n}</div>
-                  <div className="mt-2 text-[15px] text-[var(--dyn-text)]">{h}</div>
-                  <p className="mt-2 text-[13px] leading-relaxed text-[var(--dyn-dim)]">{b}</p>
-                </div>
+            <div className="mx-auto mt-10 grid max-w-4xl gap-px bg-[var(--dyn-line)] sm:grid-cols-2">
+              {doors.map((d) => (
+                <button key={d.id} type="button" onClick={() => setView(d.id)}
+                  className="group bg-[var(--dyn-panel)] p-6 text-left transition-colors hover:bg-[var(--dyn-panel-2)]">
+                  <div className={`dyn-label ${d.accent ? 'text-[var(--dyn-up)]' : 'text-[var(--dyn-gold)]'}`}>{d.k}</div>
+                  <div className="mt-2 text-xl text-[var(--dyn-text)]">{d.t}</div>
+                  <p className="mt-2 text-[13px] leading-relaxed text-[var(--dyn-dim)]">{d.d}</p>
+                  <span className="dyn-mono mt-4 inline-block text-[11px] tracking-wider text-[var(--dyn-gold)] opacity-0 transition-opacity group-hover:opacity-100">
+                    {d.cta}
+                  </span>
+                </button>
               ))}
             </div>
-
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <button type="button" onClick={() => setEntered(true)} className="dyn-btn px-8 py-4 text-[12px]">
-                {group?.daily ? 'Take today’s session' : 'Start ranking'}
-              </button>
-              <button type="button" onClick={() => setEntered(true)} className="dyn-btn-ghost px-6 py-4">
-                Just show me the board
-              </button>
-            </div>
-            {group?.daily && (
-              <p className="dyn-mono mt-4 text-[10px] tracking-widest text-[var(--dyn-faint)]">
-                DAILY SESSION · SAME FOUR FOR EVERYONE · ONCE PER DAY
-              </p>
-            )}
           </div>
         </div>
 
         <Ticker rows={rows} byId={byId} />
 
         <div className="border-b border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
-          <div className="mx-auto flex max-w-5xl flex-wrap divide-x divide-[var(--dyn-line)]">
+          <div className="mx-auto flex max-w-6xl flex-wrap divide-x divide-[var(--dyn-line)]">
             <Stat label="Volume · all time" value={total.toLocaleString()} />
             <Stat label="Listed" value={rows.length} />
             <Stat label="Top gainer"
@@ -299,43 +358,94 @@ export default function Dynasty() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-5xl px-5 py-12">
-          <div className="mb-3 flex items-baseline justify-between">
-            <span className="dyn-label text-[var(--dyn-gold)]">Top of the board</span>
-            <button type="button" onClick={() => setEntered(true)}
-              className="dyn-mono text-[10px] tracking-widest text-[var(--dyn-faint)] hover:text-[var(--dyn-text)]">
-              FULL BOARD →
-            </button>
-          </div>
-          <ol className="divide-y divide-[var(--dyn-line-soft)] border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
-            {top.map((r) => {
-              const p = byId[String(r.id)] || {}
-              return (
-                <li key={r.id} className="flex items-center gap-3 px-4 py-3">
-                  <span className="dyn-mono w-6 text-[11px] text-[var(--dyn-faint)]">{r.rank}</span>
-                  {p.id && (
-                    <img src={HEAD(p.id)} alt="" width="34" height="25" loading="lazy"
-                      className="h-[25px] w-[34px] shrink-0 object-contain"
-                      onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
-                  )}
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] text-[var(--dyn-text)]">{p.name || `#${r.id}`}</span>
-                    <span className="dyn-mono block text-[10px] tracking-wider text-[var(--dyn-faint)]">
-                      {symbolOf(p.name || '')} · {[p.pos, p.team, p.age ? `${p.age}Y` : null].filter(Boolean).join(' ')}
-                    </span>
-                  </span>
-                  <span className="dyn-mono text-[13px] text-[var(--dyn-text)]">{r.rating}</span>
-                  <span className="w-20 text-right text-[11px]"><Chg delta={r.delta} /></span>
-                </li>
-              )
-            })}
-          </ol>
-          <p className="mt-4 text-[12px] leading-relaxed text-[var(--dyn-faint)]">
+        <div className="mx-auto max-w-6xl px-5 py-10">
+          <p className="text-[12px] leading-relaxed text-[var(--dyn-faint)]">
             Opening prices come from Hashtag Basketball’s points-league dynasty ranking. That is a
             starting line, not a verdict — it moves from the first pick onward.
           </p>
         </div>
       </div>
+    )
+  }
+
+  // ---- value my team -------------------------------------------------------
+  if (view === 'team') {
+    return (
+      <Shell kicker="Your roster" title="VALUE MY TEAM">
+        <div className="mx-auto max-w-3xl px-5 py-10">
+          <h2 className="text-3xl leading-tight text-[var(--dyn-text)]">What is your team worth?</h2>
+          <p className="mt-3 text-[14px] leading-relaxed text-[var(--dyn-dim)]">
+            Paste your roster — one name per line, or comma separated. Copy straight out of Sleeper,
+            Fantrax, Yahoo or ESPN; numbering and punctuation are fine. The market prices each player
+            at the crowd’s current value.
+          </p>
+          <textarea
+            value={roster} onChange={(e) => setRoster(e.target.value)} rows={8} spellCheck="false"
+            placeholder={'Victor Wembanyama\nAnthony Edwards\nAlperen Sengun\n…'}
+            className="dyn-mono mt-5 w-full resize-y border border-[var(--dyn-line)] bg-[var(--dyn-panel)] p-4 text-[13px] text-[var(--dyn-text)] outline-none placeholder:text-[var(--dyn-faint)] focus:border-[var(--dyn-gold)]"
+          />
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button type="button" onClick={valueRoster} disabled={!roster.trim()} className="dyn-btn">
+              Price this roster
+            </button>
+            {valued && (
+              <button type="button" onClick={() => { setRoster(''); setValued(null) }} className="dyn-btn-ghost">
+                Clear
+              </button>
+            )}
+          </div>
+
+          {valued && (
+            <div className="mt-8">
+              <div className="flex flex-wrap divide-x divide-[var(--dyn-line)] border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+                <Stat label="Total value" value={valued.total.toLocaleString()} />
+                <Stat label="Priced" value={`${valued.hits.length} / ${valued.lines}`} />
+                <Stat label="Top asset"
+                  value={valued.hits[0] ? symbolOf(valued.hits[0].pl.name) : '—'} />
+                <Stat label="Avg price"
+                  value={valued.hits.length ? Math.round(valued.total / valued.hits.length).toLocaleString() : '—'} />
+              </div>
+
+              <ol className="mt-4 divide-y divide-[var(--dyn-line-soft)] border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+                {valued.hits.map(({ pl, r }) => (
+                  <li key={pl.id} className="flex items-center gap-3 px-4 py-3">
+                    <span className="dyn-mono w-10 text-[11px] text-[var(--dyn-faint)]">#{r.rank}</span>
+                    {pl.id && (
+                      <img src={HEAD(pl.id)} alt="" width="34" height="25" loading="lazy"
+                        className="h-[25px] w-[34px] shrink-0 object-contain"
+                        onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+                    )}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[13px] text-[var(--dyn-text)]">{pl.name}</span>
+                      <span className="dyn-mono block text-[10px] tracking-wider text-[var(--dyn-faint)]">
+                        {symbolOf(pl.name)} · {[pl.pos, pl.team, pl.age ? `${pl.age}Y` : null].filter(Boolean).join(' ')}
+                      </span>
+                    </span>
+                    <span className="dyn-mono text-[13px] text-[var(--dyn-text)]">{r.rating}</span>
+                    <span className="w-20 text-right text-[11px]"><Chg delta={r.delta} /></span>
+                  </li>
+                ))}
+                {!valued.hits.length && (
+                  <li className="dyn-mono px-4 py-5 text-[12px] text-[var(--dyn-faint)]">
+                    NOTHING MATCHED — CHECK THE NAMES AND TRY AGAIN.
+                  </li>
+                )}
+              </ol>
+
+              {valued.misses.length > 0 && (
+                <p className="dyn-mono mt-3 text-[11px] leading-relaxed text-[var(--dyn-faint)]">
+                  NOT ON THE BOARD ({valued.misses.length}): {valued.misses.slice(0, 12).join(' · ')}
+                  {valued.misses.length > 12 ? ' …' : ''}
+                </p>
+              )}
+              <p className="mt-3 text-[12px] leading-relaxed text-[var(--dyn-faint)]">
+                Totals are the sum of crowd prices, so they measure accumulated value, not roster
+                construction — two studs and filler can out-total a deep, balanced team.
+              </p>
+            </div>
+          )}
+        </div>
+      </Shell>
     )
   }
 
@@ -351,16 +461,20 @@ export default function Dynasty() {
                 <span className="dyn-label text-[var(--dyn-up)]">Market open</span>
               </div>
               <h1 className="mt-3 text-4xl leading-none tracking-tight text-[var(--dyn-text)] sm:text-6xl">
-                DYNASTY <span className="text-[var(--dyn-gold)]">EXCHANGE</span>
+                {view === 'board' ? <>THE <span className="text-[var(--dyn-gold)]">BOARD</span></>
+                  : view === 'trending' ? <>WHAT IS <span className="text-[var(--dyn-gold)]">MOVING</span></>
+                  : <>DYNASTY <span className="text-[var(--dyn-gold)]">EXCHANGE</span></>}
               </h1>
               <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--dyn-dim)]">
-                Prices are set by the crowd, not by us. Rank four players — that single answer is
-                six head-to-head results, and each one reprices both sides against what the market
-                already believed.
+                {view === 'board'
+                  ? 'Every listed asset at the crowd’s current price, with 24h movement and how many books it has been through.'
+                  : view === 'trending'
+                  ? 'The board reprices on every pick. This is where it is happening fastest — and who is on a run.'
+                  : 'Prices are set by the crowd, not by us. Rank four players — that single answer is six head-to-head results, and each one reprices both sides against what the market already believed.'}
               </p>
             </div>
             <div className="dyn-mono text-right text-[11px] text-[var(--dyn-faint)]">
-              <button type="button" onClick={() => setEntered(false)}
+              <button type="button" onClick={() => setView('hub')}
                 className="dyn-mono mb-2 block w-full text-right text-[10px] tracking-widest text-[var(--dyn-faint)] hover:text-[var(--dyn-text)]">
                 ← LOBBY
               </button>
@@ -396,7 +510,8 @@ export default function Dynasty() {
           </p>
         )}
 
-        {/* ---------------- order ticket ---------------- */}
+        {/* ---------------- order ticket (ranking room only) ---------------- */}
+        {view === 'rank' && (
         <section className="dyn-panel">
           <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--dyn-line)] px-5 py-3">
             <div className="flex items-center gap-3">
@@ -472,6 +587,57 @@ export default function Dynasty() {
             )}
           </div>
         </section>
+        )}
+
+        {/* ---------------- movers (trending room) ---------------- */}
+        {view === 'trending' && (
+          <section className="dyn-panel">
+            <header className="flex items-center justify-between border-b border-[var(--dyn-line)] px-5 py-3">
+              <span className="dyn-label text-[var(--dyn-gold)]">Movers</span>
+              <span className="dyn-mono text-[10px] text-[var(--dyn-faint)]">SINCE THE LAST DAILY SNAPSHOT</span>
+            </header>
+            <div className="grid gap-px bg-[var(--dyn-line)] sm:grid-cols-2">
+              {[['Climbing', rows.filter((r) => r.delta > 0).sort((a, b) => b.delta - a.delta).slice(0, 8)],
+                ['Falling', rows.filter((r) => r.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, 8)]].map(([label, list]) => (
+                <div key={label} className="bg-[var(--dyn-panel)]">
+                  <div className="dyn-label border-b border-[var(--dyn-line-soft)] px-4 py-2">{label}</div>
+                  <ol>
+                    {list.map((r) => {
+                      const pl = byId[String(r.id)] || {}
+                      return (
+                        <li key={r.id} className="flex items-center gap-3 border-b border-[var(--dyn-line-soft)] px-4 py-2.5 last:border-0">
+                          {pl.id && (
+                            <img src={HEAD(pl.id)} alt="" width="30" height="22" loading="lazy"
+                              className="h-[22px] w-[30px] shrink-0 object-contain"
+                              onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+                          )}
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-[13px] text-[var(--dyn-text)]">{pl.name || `#${r.id}`}</span>
+                            <span className="dyn-mono block text-[10px] tracking-wider text-[var(--dyn-faint)]">
+                              {symbolOf(pl.name || '')} · #{r.rank}
+                              {Math.abs(r.streak) >= 2 && (
+                                <span className={r.streak > 0 ? 'dyn-up' : 'dyn-down'}>
+                                  {' '}· {r.streak > 0 ? 'BID' : 'ASK'} ×{Math.min(9, Math.abs(r.streak))}
+                                </span>
+                              )}
+                            </span>
+                          </span>
+                          <span className="dyn-mono text-[13px] text-[var(--dyn-text)]">{r.rating}</span>
+                          <span className="w-24 text-right text-[11px]"><Chg delta={r.delta} pct={pctOf(r.delta, r.rating)} /></span>
+                        </li>
+                      )
+                    })}
+                    {!list.length && (
+                      <li className="dyn-mono px-4 py-4 text-[11px] text-[var(--dyn-faint)]">
+                        NOTHING {label === 'Climbing' ? 'UP' : 'DOWN'} YET TODAY.
+                      </li>
+                    )}
+                  </ol>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ---------------- board + blotter ---------------- */}
         <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">

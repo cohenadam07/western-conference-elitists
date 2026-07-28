@@ -346,6 +346,7 @@ body {
 .gw .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
 .gw .card { grid-column: span 1; position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--color-line); background: var(--color-surface); min-height: 210px; display: flex; flex-direction: column; cursor: pointer; isolation: isolate; text-decoration: none; transition: transform 0.32s cubic-bezier(0.16,1,0.3,1), box-shadow 0.32s ease, border-color 0.25s ease; opacity: 0; transform: translateY(18px); animation: gw-rise 0.7s cubic-bezier(0.2,0.7,0.2,1) forwards; }
 .gw .card.span2 { grid-column: span 2; }
+.gw .card.span4 { grid-column: span 4; }
 .gw .card:hover { transform: translateY(-4px); box-shadow: 0 26px 48px -28px rgba(34,57,90,0.5); }
 .gw .card .viz { position: relative; flex: 1 1 auto; min-height: 96px; overflow: hidden; }
 .gw .card .meta { position: relative; z-index: 3; flex: none; padding: 14px 20px 18px; border-top: 1px solid var(--color-line-soft); background: var(--color-surface); }
@@ -499,10 +500,11 @@ body {
 @media (max-width: 860px) {
   .gw .grid { grid-template-columns: repeat(2, 1fr); }
   .gw .card.span2 { grid-column: span 2; }
+  .gw .card.span4 { grid-column: span 2; }
 }
 @media (max-width: 560px) {
   .gw .grid { grid-template-columns: 1fr; gap: 12px; }
-  .gw .card, .gw .card.span2 { grid-column: span 1; min-height: 196px; }
+  .gw .card, .gw .card.span2, .gw .card.span4 { grid-column: span 1; min-height: 196px; }
   .gw .card .viz { min-height: 104px; }
   .gw .card .meta { padding: 13px 17px 16px; }
   .gw .card h3 { font-size: 22px; }
@@ -597,3 +599,42 @@ body {
 @keyframes dyn-pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
 .dyn-live { animation: dyn-pulse 2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .dyn-live { animation: none; } }
+
+/* Dynasty Exchange tile — the one dark card in the gateway, because the tab it opens is
+   the one dark room on the site. Chart climbs, tape sits under it, last tick pulses. */
+.gw .c-dyn { background: #0a0d12; border-color: #1f2733; }
+.gw .c-dyn .viz { background: radial-gradient(120% 120% at 70% 0%, #131a24, #0a0d12); min-height: 150px; }
+.gw .c-dyn .grid-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.gw .c-dyn svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.gw .c-dyn .dfill { fill: url(#gwDynFill); opacity: 0; animation: gw-rise 0.9s ease 0.5s forwards; }
+.gw .c-dyn .dline {
+  fill: none; stroke: #16c784; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round;
+  stroke-dasharray: 900; stroke-dashoffset: 900;
+  animation: gw-draw-line 1.5s cubic-bezier(0.2,0.7,0.2,1) 0.35s forwards;
+}
+@keyframes gw-draw-line { to { stroke-dashoffset: 0; } }
+.gw .c-dyn .dtip { fill: #16c784; opacity: 0; animation: gw-rise 0.4s ease 1.6s forwards, gw-pulse 2.4s ease-in-out 2s infinite; }
+.gw .c-dyn .dtape {
+  position: absolute; left: 0; right: 0; bottom: 10px; display: flex; gap: 18px; padding: 0 20px;
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em; color: #5a6472;
+  overflow: hidden; white-space: nowrap;
+}
+.gw .c-dyn .dtape b { color: #e9edf3; font-weight: 500; }
+.gw .c-dyn .dtape .u, .gw .c-dyn .dtape .u b { color: #16c784; }
+.gw .c-dyn .dtape .d, .gw .c-dyn .dtape .d b { color: #ea3943; }
+.gw .c-dyn .meta { background: #0a0d12; border-top-color: #1f2733; }
+.gw .c-dyn .ck { color: #16c784; }
+.gw .c-dyn h3 { color: #e9edf3; }
+.gw .c-dyn p { color: #8d97a6; max-width: 62ch; }
+.gw .c-dyn .go { color: #c2a263; }
+.gw .c-dyn:hover { border-color: #c2a263; }
+@media (prefers-reduced-motion: reduce) {
+  .gw .c-dyn .dline { animation: none; stroke-dashoffset: 0; }
+  .gw .c-dyn .dtip, .gw .c-dyn .dfill { animation: none; opacity: 1; }
+}
