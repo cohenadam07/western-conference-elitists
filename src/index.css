@@ -516,3 +516,84 @@ body {
   .gw .c-savant .bar i, .gw .c-board .meter i { width: var(--w, 70%); }
   .gw .c-draft .drow { opacity: 1; transform: none; }
 }
+
+/* ============================================================================
+   Dynasty Exchange — a trading terminal living inside an editorial site.
+   Scoped entirely to .dyn-term so the warm paper palette everywhere else is
+   untouched; only this tab goes dark. Green/red here deliberately overrides the
+   site's blue-to-red percentile ramp: on a price, green-up/red-down is the one
+   convention every reader already knows, and fighting it would cost more than
+   the consistency is worth.
+   ========================================================================== */
+.dyn-term {
+  --dyn-bg: #0a0d12;
+  --dyn-panel: #11161f;
+  --dyn-panel-2: #161c26;
+  --dyn-line: #1f2733;
+  --dyn-line-soft: #171d27;
+  --dyn-text: #e9edf3;
+  --dyn-dim: #8d97a6;
+  --dyn-faint: #5a6472;
+  --dyn-up: #16c784;
+  --dyn-down: #ea3943;
+  --dyn-flat: #6b7280;
+  --dyn-gold: #c2a263;
+  background: var(--dyn-bg);
+  color: var(--dyn-text);
+  font-variant-numeric: tabular-nums;
+}
+.dyn-term ::selection { background: var(--dyn-gold); color: #0a0d12; }
+
+/* faint grid, like a chart backdrop */
+.dyn-grid {
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.028) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.028) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+
+.dyn-panel { background: var(--dyn-panel); border: 1px solid var(--dyn-line); }
+.dyn-mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.dyn-label {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--dyn-faint);
+}
+.dyn-up { color: var(--dyn-up); }
+.dyn-down { color: var(--dyn-down); }
+.dyn-flat { color: var(--dyn-flat); }
+
+/* the tape: two identical runs side by side, translated -50% for a seamless loop */
+.dyn-tape { display: flex; width: max-content; animation: marquee 60s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .dyn-tape { animation: none; } }
+
+/* a row flashes when its price moves — the one piece of motion a market needs */
+@keyframes dyn-flash-up   { from { background: rgba(22,199,132,.20); } to { background: transparent; } }
+@keyframes dyn-flash-down { from { background: rgba(234,57,67,.20); } to { background: transparent; } }
+.dyn-fu { animation: dyn-flash-up .9s ease-out; }
+.dyn-fd { animation: dyn-flash-down .9s ease-out; }
+
+.dyn-row { border-bottom: 1px solid var(--dyn-line-soft); }
+.dyn-row:hover { background: var(--dyn-panel-2); }
+
+/* order-ticket cards */
+.dyn-card { background: var(--dyn-panel); border: 1px solid var(--dyn-line); transition: border-color .12s, background .12s; }
+.dyn-card:hover:not(:disabled) { border-color: var(--dyn-gold); }
+.dyn-card[data-picked="1"] { border-color: var(--dyn-gold); background: var(--dyn-panel-2); }
+.dyn-card:focus-visible { outline: 2px solid var(--dyn-gold); outline-offset: 2px; }
+
+.dyn-btn {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  background: var(--dyn-up); color: #06210f; border: 0; padding: 12px 22px; cursor: pointer;
+}
+.dyn-btn:disabled { background: var(--dyn-line); color: var(--dyn-faint); cursor: not-allowed; }
+.dyn-btn-ghost {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  background: transparent; color: var(--dyn-dim); border: 1px solid var(--dyn-line); padding: 12px 18px; cursor: pointer;
+}
+.dyn-btn-ghost:hover { color: var(--dyn-text); border-color: var(--dyn-faint); }
+.dyn-btn:focus-visible, .dyn-btn-ghost:focus-visible { outline: 2px solid var(--dyn-gold); outline-offset: 2px; }
+
+/* live dot */
+@keyframes dyn-pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+.dyn-live { animation: dyn-pulse 2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .dyn-live { animation: none; } }

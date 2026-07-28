@@ -13,6 +13,7 @@ import Articles from './pages/Articles.jsx'
 import ArticleDetail from './pages/ArticleDetail.jsx'
 import Contact from './pages/Contact.jsx'
 import CompChain from './pages/CompChain.jsx'
+import Dynasty from './pages/Dynasty.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
           <Route path="/articles/:slug" element={<ArticleDetail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/comp-chain" element={<CompChain />} />
+          <Route path="/dynasty" element={<Dynasty />} />
           <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

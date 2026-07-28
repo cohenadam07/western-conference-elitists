@@ -10,6 +10,7 @@ const LINKS = [
   { to: '/rankings', label: 'Big Board' },
   { to: '/articles', label: 'Analysis' },
   { to: '/comp-chain', label: 'Comp Chain' },
+  { to: '/dynasty', label: 'Dynasty' },
   { to: '/about', label: 'About' },
 ]
 
