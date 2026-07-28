@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-28T03:34:56.349492+00:00",
+  "generated_at": "2026-07-28T12:08:18.881781+00:00",
   "headlines": [
     {
       "id": "e3e18261338753f3",
@@ -11,7 +11,7 @@
         "RealGM",
         "Hoops Rumors"
       ],
-      "wce_line": "LeBron James, signing a two-year, $8 million deal with the Philadelphia 76ers, aims to continue his legacy despite being in his career's 24th season.",
+      "wce_line": "LeBron James, despite declining in some categories, remains a top facilitator and rebounder at 96th and 61st percentile respectively.",
       "players": [
         {
           "name": "LeBron James",
@@ -28,7 +28,7 @@
       "also_covered_by": [
         "Hoops Rumors"
       ],
-      "wce_line": "The Lakers' roster now stands at 16 players, setting the stage for a potential trade involving Bronny James by the start of the season.",
+      "wce_line": "The Lakers' roster now stands at 16 players, setting the stage for a potential trade involving Bronny James by the season's start.",
       "players": [
         {
           "name": "Matisse Thybulle",
@@ -41,6 +41,23 @@
       ]
     },
     {
+      "id": "1b562df857e9f927",
+      "title": "LeBron James free agency: Making the case for each finalist",
+      "url": "https://www.sbnation.com/nba/1122790/lebron-james-free-agency-making-the-case-for-each-finalist",
+      "outlet": "SB Nation NBA",
+      "published": "2026-07-20T14:36:05+00:00",
+      "also_covered_by": [
+        "Yahoo Sports NBA"
+      ],
+      "wce_line": "LeBron James' versatile skill set, highlighted by his 92nd percentile usage rate and 96th percentile assist percentage, makes him a valuable glue guy for any contender.",
+      "players": [
+        {
+          "name": "LeBron James",
+          "savant_url": "/basketball-savant.html?p=2544"
+        }
+      ]
+    },
+    {
       "id": "0473399d1ad3733a",
       "title": "Why the 76ers have the Celtics and Knicks to thank for landing LeBron James",
       "url": "https://www.cbssports.com/nba/news/lebron-james-signs-with-76ers-celtics-knicks-nba/",
@@ -49,7 +66,7 @@
       "also_covered_by": [
         "Yahoo Sports NBA"
       ],
-      "wce_line": "The Knicks winning the title this summer shifted LeBron James' thinking, making him reconsider his options and ultimately choose Philadelphia.",
+      "wce_line": "The Knicks winning the title this summer opened the door for LeBron James to consider Philadelphia, as Rich Paul noted it was a crucial factor in his decision.",
       "players": [
         {
           "name": "LeBron James",
@@ -66,7 +83,7 @@
       "also_covered_by": [
         "ESPN NBA"
       ],
-      "wce_line": "LeBron James's decision to join the 76ers could significantly alter playoff matchups, with Philadelphia becoming a top championship contender.",
+      "wce_line": "The NBA's schedule-makers now face a season filled with high-stakes matchups due to LeBron James joining the 76ers.",
       "players": [
         {
           "name": "LeBron James",
@@ -83,59 +100,13 @@
       "also_covered_by": [
         "Hoops Rumors"
       ],
-      "wce_line": "Peyton Watson is considering a $6.5 million qualifying offer, potentially staying with the Nuggets after they matched an offer sheet for Spencer Jones.",
+      "wce_line": "Peyton Watson is considering a $6.5 million offer that would keep him with the Denver Nuggets next season.",
       "players": [
         {
           "name": "Peyton Watson",
           "savant_url": "/basketball-savant.html?p=1631212"
         }
       ]
-    },
-    {
-      "id": "0c4620c8b936d4d4",
-      "title": "Draymond Green Expected To Re-Sign With Warriors For $28M",
-      "url": "https://basketball.realgm.com/wiretap/286818/Draymond-Green-Expected-To-Re-Sign-With-Warriors-For-$28M",
-      "outlet": "RealGM",
-      "published": "2026-07-25T14:22:21+00:00",
-      "also_covered_by": [
-        "CBS Sports NBA"
-      ],
-      "wce_line": "Draymond Green's re-signing with the Warriors for $28M signals their commitment to maintaining a roster centered around his strong assist and rebounding skills.",
-      "players": [
-        {
-          "name": "Draymond Green",
-          "savant_url": "/basketball-savant.html?p=203110"
-        }
-      ]
-    },
-    {
-      "id": "1b562df857e9f927",
-      "title": "LeBron James free agency: Making the case for each finalist",
-      "url": "https://www.sbnation.com/nba/1122790/lebron-james-free-agency-making-the-case-for-each-finalist",
-      "outlet": "SB Nation NBA",
-      "published": "2026-07-20T14:36:05+00:00",
-      "also_covered_by": [
-        "RealGM"
-      ],
-      "wce_line": "LeBron James' assist percentage of 96th percentile would significantly bolster Denver's already strong passing game, making them a top contender for his services.",
-      "players": [
-        {
-          "name": "LeBron James",
-          "savant_url": "/basketball-savant.html?p=2544"
-        }
-      ]
-    },
-    {
-      "id": "1ed5933f9ec3de6b",
-      "title": "NBA Reacts: Are the LeBron Sixers the best team in the East?",
-      "url": "https://sports.yahoo.com/articles/nba-reacts-lebron-sixers-best-212828950.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-07-27T21:28:28+00:00",
-      "also_covered_by": [
-        "SB Nation NBA"
-      ],
-      "wce_line": "The addition of LeBron James and Jaylen Brown significantly boosts the Philadelphia 76ers' roster but doesn't guarantee they are the best team in the Eastern Conference.",
-      "players": []
     },
     {
       "id": "0bb4c51dd9177a29",
@@ -146,44 +117,117 @@
       "also_covered_by": [
         "Yahoo Sports NBA"
       ],
-      "wce_line": "The Western Conference Finals rematch between the San Antonio Spurs and Oklahoma City Thunder would likely feature a star-studded lineup and intense drama.",
+      "wce_line": "The predicted opening night matchup between the Philadelphia 76ers and New York Knicks is expected to generate significant excitement due to LeBron James joining the 76ers.",
       "players": []
     },
     {
-      "id": "91cdc074813131fa",
-      "title": "Steph Curry to the Hornets is the wild NBA rumor that might have legs",
-      "url": "https://sports.yahoo.com/articles/steph-curry-hornets-wild-nba-162100391.html",
+      "id": "47ff2bd4e3b90c66",
+      "title": "Dumb, Fun and Affordable LeBron James Collectibles",
+      "url": "https://sports.yahoo.com/articles/dumb-fun-affordable-lebron-james-114500668.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-07-27T16:21:00+00:00",
-      "also_covered_by": [
-        "SB Nation NBA"
-      ],
-      "wce_line": "The Charlotte Hornets, with their unique circumstances and potential assets, could make a sentimental move to bring Steph Curry back home to North Carolina.",
-      "players": []
+      "published": "2026-07-28T11:45:00+00:00",
+      "also_covered_by": [],
+      "wce_line": "The Campioni di Futuro (mini) rookie card is under $100 for a raw version and considered the favorite among affordable LeBron collectibles.",
+      "players": [
+        {
+          "name": "LeBron James",
+          "savant_url": "/basketball-savant.html?p=2544"
+        }
+      ]
     },
     {
-      "id": "9717754d73da2dd1",
-      "title": "NBA The Run review: A special game facing an existential threat",
-      "url": "https://tech.yahoo.com/gaming/articles/nba-run-review-special-game-143253589.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-07-27T14:32:53+00:00",
-      "also_covered_by": [
-        "SB Nation NBA"
-      ],
-      "wce_line": "The game's unique tournament structure and rule-based roulette add layers of unpredictability and strategy to each match.",
-      "players": []
+      "id": "fef7fb86a23d21c7",
+      "title": "Bucks Favorites To Acquire Peyton Watson; Nuggets Looking For Two First-Round Picks In Sign-And-Trade",
+      "url": "https://basketball.realgm.com/wiretap/286844/Bucks-Favorites-To-Acquire-Peyton-Watson;-Nuggets-Looking-For-Two-First-Round-Picks-In-Sign-And-Trade",
+      "outlet": "RealGM",
+      "published": "2026-07-28T05:53:27+00:00",
+      "also_covered_by": [],
+      "wce_line": "The Bucks have a $25.5 million trade exception to offer in acquiring Peyton Watson, who has a 91th percentile three-point shooting rate.",
+      "players": [
+        {
+          "name": "Peyton Watson",
+          "savant_url": "/basketball-savant.html?p=1631212"
+        }
+      ]
     },
     {
-      "id": "a3e939af206e7f2e",
-      "title": "7 NBA stars who could be traded next",
-      "url": "https://sports.yahoo.com/articles/7-nba-stars-could-traded-120000296.html",
+      "id": "e1954393cc8e5759",
+      "title": "Lakers, Cavs Remain Interested In Jonathan Kuminga",
+      "url": "https://basketball.realgm.com/wiretap/286843/Lakers-Cavs-Remain-Interested-In-Jonathan-Kuminga",
+      "outlet": "RealGM",
+      "published": "2026-07-28T05:43:53+00:00",
+      "also_covered_by": [],
+      "wce_line": "Kuminga's true shooting percentage ranks below the league average at 32nd percentile this season.",
+      "players": [
+        {
+          "name": "Jonathan Kuminga",
+          "savant_url": "/basketball-savant.html?p=1630228"
+        }
+      ]
+    },
+    {
+      "id": "439f5e37576cc9de",
+      "title": "James Harden's New Deal With Cavs Expected To Max Out At Two Years",
+      "url": "https://basketball.realgm.com/wiretap/286842/James-Hardens-New-Deal-With-Cavs-Expected-To-Max-Out-At-Two-Years",
+      "outlet": "RealGM",
+      "published": "2026-07-28T05:33:28+00:00",
+      "also_covered_by": [],
+      "wce_line": "The potential new deal between James Harden and the Cleveland Cavaliers is expected to last no more than two years.",
+      "players": [
+        {
+          "name": "James Harden",
+          "savant_url": "/basketball-savant.html?p=201935"
+        }
+      ]
+    },
+    {
+      "id": "0c4620c8b936d4d4",
+      "title": "Draymond Green Expected To Re-Sign With Warriors For $28M",
+      "url": "https://basketball.realgm.com/wiretap/286818/Draymond-Green-Expected-To-Re-Sign-With-Warriors-For-$28M",
+      "outlet": "RealGM",
+      "published": "2026-07-25T14:22:21+00:00",
+      "also_covered_by": [],
+      "wce_line": "Draymond Green's re-signing with the Warriors for $28M signals their commitment to maintaining a roster centered around his strong assist and rebounding skills.",
+      "players": [
+        {
+          "name": "Draymond Green",
+          "savant_url": "/basketball-savant.html?p=203110"
+        }
+      ]
+    },
+    {
+      "id": "0c36214ab4fd925c",
+      "title": "Sixers Looking To Trade Johni Broome To Open Roster Space For Kentavious Caldwell-Pope Signing",
+      "url": "https://basketball.realgm.com/wiretap/286840/Sixers-Looking-To-Trade-Johni-Broome-To-Open-Roster-Space-For-Kentavious-Caldwell-Pope-Signing",
+      "outlet": "RealGM",
+      "published": "2026-07-28T05:10:49+00:00",
+      "also_covered_by": [],
+      "wce_line": "The Sixers aim to trade Johni Broome, who ranks at the 1st percentile in Box Plus/Minus, to create space for signing Kentavious Caldwell-Pope.",
+      "players": [
+        {
+          "name": "Johni Broome",
+          "savant_url": "/basketball-savant.html?p=1641780"
+        },
+        {
+          "name": "Kentavious Caldwell-Pope",
+          "savant_url": "/basketball-savant.html?p=203484"
+        }
+      ]
+    },
+    {
+      "id": "885f075a7f9e319a",
+      "title": "Warriors have the assets to reshape team around Stephen Curry",
+      "url": "https://sports.yahoo.com/articles/warriors-assets-reshape-team-around-031151309.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-07-27T12:00:00+00:00",
-      "also_covered_by": [
-        "SB Nation NBA"
-      ],
-      "wce_line": "The Rockets could face pressure to trade Kevin Durant if they fail to compete despite a strong roster.",
-      "players": []
+      "published": "2026-07-28T03:11:51+00:00",
+      "also_covered_by": [],
+      "wce_line": "The Warriors have the draft picks to potentially make a significant move, but Curry's contract could limit their options next summer.",
+      "players": [
+        {
+          "name": "Stephen Curry",
+          "savant_url": "/basketball-savant.html?p=201939"
+        }
+      ]
     },
     {
       "id": "9902e21511651773",
@@ -192,11 +236,26 @@
       "outlet": "Hoops Rumors",
       "published": "2026-07-28T02:54:50+00:00",
       "also_covered_by": [],
-      "wce_line": "Oduro joins Melbourne United after posting a Box Plus/Minus at the 5th percentile in his NBA career.",
+      "wce_line": "Oduro's move to Melbourne United comes after posting a 5th percentile Box Plus/Minus in his NBA career.",
       "players": [
         {
           "name": "Josh Oduro",
           "savant_url": "/basketball-savant.html?p=1642490"
+        }
+      ]
+    },
+    {
+      "id": "4978ba8a6026f297",
+      "title": "Spencer Jones explains ‘business decision’ that led to historic Nuggets offer sheet match",
+      "url": "https://sports.yahoo.com/articles/spencer-jones-explains-business-decision-023447628.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-07-28T02:34:47+00:00",
+      "also_covered_by": [],
+      "wce_line": "Jones' $12 million offer sheet with Oklahoma City is the largest fully guaranteed deal ever for an undrafted player from a two-way contract.",
+      "players": [
+        {
+          "name": "Spencer Jones",
+          "savant_url": "/basketball-savant.html?p=1642461"
         }
       ]
     },
@@ -207,7 +266,7 @@
       "outlet": "Hoops Rumors",
       "published": "2026-07-28T01:14:56+00:00",
       "also_covered_by": [],
-      "wce_line": "Lively's ongoing foot issues have limited him to just seven games played in the 2025/26 season.",
+      "wce_line": "Lively's ongoing foot issues have kept him sidelined for much of the past two seasons, though he remains optimistic about his future durability.",
       "players": [
         {
           "name": "Dereck Lively II",
@@ -231,13 +290,28 @@
       ]
     },
     {
+      "id": "50bdd58bf2baeecc",
+      "title": "76ers plans for LeBron James’ position on stacked roster revealed, per NBA Insider",
+      "url": "https://sports.yahoo.com/articles/76ers-plans-lebron-james-position-235521618.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-07-27T23:55:21+00:00",
+      "also_covered_by": [],
+      "wce_line": "The 76ers plan to use LeBron James as their primary point guard, leveraging his assist skills despite his advanced age and the team's deep roster.",
+      "players": [
+        {
+          "name": "LeBron James",
+          "savant_url": "/basketball-savant.html?p=2544"
+        }
+      ]
+    },
+    {
       "id": "a588dfb932ca471d",
       "title": "DeMar DeRozan Receiving Interest From Heat, Nuggets, Cavaliers",
       "url": "https://basketball.realgm.com/wiretap/286839/DeMar-DeRozan-Receiving-Interest-From-Heat-Nuggets-Cavaliers",
       "outlet": "RealGM",
       "published": "2026-07-27T23:08:41+00:00",
       "also_covered_by": [],
-      "wce_line": "DeMar DeRozan, with a partial contract guarantee of $10 million out of $26.74 million, is attracting interest from multiple Western Conference teams.",
+      "wce_line": "DeRozan's partial contract guarantee of $10 million out of $26.74 million makes him an attractive option for interested teams.",
       "players": [
         {
           "name": "DeMar DeRozan",
@@ -252,11 +326,26 @@
       "outlet": "RealGM",
       "published": "2026-07-27T23:03:19+00:00",
       "also_covered_by": [],
-      "wce_line": "Isaiah Stevens, who ranks 86th percentile in Box Plus/Minute despite being waived from the Kings' two-way contract, continues to impress with his play.",
+      "wce_line": "Isaiah Stevens, who ranks at the 86th percentile in Box Plus/Minus, was waived from his two-way contract with the Sacramento Kings.",
       "players": [
         {
           "name": "Isaiah Stevens",
           "savant_url": "/basketball-savant.html?p=1641815"
+        }
+      ]
+    },
+    {
+      "id": "19dd65b76a2cc642",
+      "title": "Suns Reacts Survey: Can Devin Booker reclaim superstar status?",
+      "url": "https://sports.yahoo.com/articles/suns-reacts-survey-devin-booker-230000185.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-07-27T23:00:00+00:00",
+      "also_covered_by": [],
+      "wce_line": "Devin Booker's current season stats, while impressive in points and usage, show declining rebounds and three-point shooting, affecting his superstar status perception.",
+      "players": [
+        {
+          "name": "Devin Booker",
+          "savant_url": "/basketball-savant.html?p=1626164"
         }
       ]
     },
@@ -267,7 +356,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-07-27T22:57:24+00:00",
       "also_covered_by": [],
-      "wce_line": "The Heat staffer's vacation plans led to a misleading YouTube press conference, confusing fans and affecting betting odds on James' destination.",
+      "wce_line": "The Heat staffer's vacation plans led to a misleading YouTube press conference for LeBron James, causing fan speculation before his decision with the 76ers.",
       "players": [
         {
           "name": "LeBron James",
@@ -361,7 +450,7 @@
       "outlet": "RealGM",
       "published": "2026-07-27T19:52:59+00:00",
       "also_covered_by": [],
-      "wce_line": "Curry noted that injuries to Jimmy Butler and Moses Moody significantly impacted the Warriors' season prospects, regardless of LeBron James's decision.",
+      "wce_line": "Curry acknowledged the impact of Jimmy Butler and Moses Moody's injuries on the Warriors' title aspirations this season.",
       "players": [
         {
           "name": "Stephen Curry",
@@ -380,7 +469,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-07-27T19:29:08+00:00",
       "also_covered_by": [],
-      "wce_line": "The Warriors' struggles this season, with their No. 19 offense and No. 16 defense, highlight the gap LeBron James could have filled.",
+      "wce_line": "The Warriors' top two players, Curry and Butler, will miss significant time next season due to injuries.",
       "players": [
         {
           "name": "LeBron James",
@@ -389,81 +478,6 @@
         {
           "name": "Stephen Curry",
           "savant_url": "/basketball-savant.html?p=201939"
-        }
-      ]
-    },
-    {
-      "id": "bd951dad0b5aeb6e",
-      "title": "LeBron James, star-studded Sixers heading to Brooklyn for preseason game",
-      "url": "https://sports.yahoo.com/articles/lebron-james-star-studded-sixers-190532892.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-07-27T19:05:32+00:00",
-      "also_covered_by": [],
-      "wce_line": "LeBron James, posting above-average stats this season, joins the Philadelphia 76ers for their preseason game against Brooklyn on October 8.",
-      "players": [
-        {
-          "name": "LeBron James",
-          "savant_url": "/basketball-savant.html?p=2544"
-        }
-      ]
-    },
-    {
-      "id": "35d25e2cbdd07f66",
-      "title": "A case for Khaman Maluach to be the Suns’ starting center",
-      "url": "https://sports.yahoo.com/articles/case-khaman-maluach-suns-starting-190000696.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-07-27T19:00:00+00:00",
-      "also_covered_by": [],
-      "wce_line": "Khaman Maluach's rebounding prowess at 93rd percentile stands out despite his overall efficiency lagging behind in points and assists.",
-      "players": [
-        {
-          "name": "Khaman Maluach",
-          "savant_url": "/basketball-savant.html?p=1642863"
-        }
-      ]
-    },
-    {
-      "id": "f3e2be9ab3e2d710",
-      "title": "A.J. Lawson Signs With Spanish Club Baskonia",
-      "url": "https://www.hoopsrumors.com/2026/07/a-j-lawson-signs-with-spanish-club-baskonia.html",
-      "outlet": "Hoops Rumors",
-      "published": "2026-07-27T18:31:45+00:00",
-      "also_covered_by": [],
-      "wce_line": "A.J. Lawson signed a two-year contract with Baskonia, averaging 4.2 points and 1.8 rebounds in 9.4 minutes per NBA game during his time with the Raptors.",
-      "players": [
-        {
-          "name": "A.J. Lawson",
-          "savant_url": "/basketball-savant.html?p=1630639"
-        }
-      ]
-    },
-    {
-      "id": "2d3165c10ecb9ed9",
-      "title": "NBA offseason grades 2.0: 76ers get LeBron James and only A+, nobody is having a worse summer than the Cavs",
-      "url": "https://www.cbssports.com/nba/news/nba-offseason-grades-2026-76ers-lebron-james-cavaliers/",
-      "outlet": "CBS Sports NBA",
-      "published": "2026-07-27T18:17:08+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Philadelphia 76ers traded Paul George and two first-round picks for LeBron James, significantly reshaping their roster for potential championship contention.",
-      "players": [
-        {
-          "name": "LeBron James",
-          "savant_url": "/basketball-savant.html?p=2544"
-        }
-      ]
-    },
-    {
-      "id": "6d03ae6016a5bcfb",
-      "title": "Peyton Watson reportedly considering the qualifying offer: Why it would be a huge win for the Nuggets",
-      "url": "https://www.cbssports.com/nba/news/nuggets-peyton-watson-contract-qualifying-offer/",
-      "outlet": "CBS Sports NBA",
-      "published": "2026-07-27T18:17:02+00:00",
-      "also_covered_by": [],
-      "wce_line": "Peyton Watson's qualifying offer would make him an unrestricted free agent next summer, potentially doubling his initial $6.5 million Denver offer.",
-      "players": [
-        {
-          "name": "Peyton Watson",
-          "savant_url": "/basketball-savant.html?p=1631212"
         }
       ]
     }
@@ -478,7 +492,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Statistical analysis shows Jokić's offensive responsibilities have increased, with more ball-handling and late-game involvement over the past five seasons.",
+      "wce_line": "Jokić's offensive responsibilities have increased, with more possessions initiated from the top of the key and greater involvement in late-game situations over the past five seasons.",
       "source_type": "article"
     },
     {
@@ -490,7 +504,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The Phoenix Suns prioritized defensive depth over a star player in free agency to address their underperforming offense.",
+      "wce_line": "The offseason moves focused on enhancing offensive shooting to complement their already strong defense, with only one trade that deviated from this strategy.",
       "source_type": "article"
     },
     {
@@ -502,7 +516,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Projected game outcomes can shift dramatically within minutes due to injury updates, with top scorers having the biggest impact on expected margins and team strategies.",
+      "wce_line": "Injury reports can drastically alter NBA game predictions just minutes before tipoff, significantly impacting expected margins and player performance evaluations.",
       "source_type": "article"
     },
     {
@@ -514,7 +528,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The Boston-Philadelphia trade could define the Eastern Conference, with both teams believing they've strengthened their chances for a title.",
+      "wce_line": "The Boston-Philadelphia trade could significantly impact their respective playoff performances, with both teams believing they've strengthened for the championship race.",
       "source_type": "article"
     },
     {
@@ -527,7 +541,7 @@
         "Nirek Duma",
         "Leo Benaharon"
       ],
-      "wce_line": "The study found that increasing rim attempts and decreasing midrange and perimeter shots could improve overall team performance near the efficient frontier.",
+      "wce_line": "The study found that increasing rim attempts while decreasing midrange and perimeter shots could improve overall team performance according to an optimized shot selection model.",
       "source_type": "paper"
     },
     {
@@ -563,7 +577,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "True Shooting Percentage (TS%) helps distinguish between players who score efficiently and those reliant on volume, even if their point totals are similar.",
+      "wce_line": "True Shooting Percentage (TS%) helps distinguish between players who score efficiently and those who rely on volume, even if their point totals are similar.",
       "source_type": "article"
     },
     {
@@ -575,7 +589,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Rest days significantly impact player efficiency, altering their performance in various ways depending on usage rate and physical demands.",
+      "wce_line": "Rest days significantly impact player efficiency, altering their stats based on recent game conditions and physical state.",
       "source_type": "article"
     },
     {
@@ -587,7 +601,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article finds that roster instability and aging rosters make superstar players more likely to change teams in the upcoming offseason.",
+      "wce_line": null,
       "source_type": "article"
     },
     {
@@ -599,7 +613,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how the San Antonio Spurs exploited weaknesses in the New York Knicks' defensive strategy.",
+      "wce_line": "The article analyzes how San Antonio effectively exploited New York's defensive weaknesses.",
       "source_type": "article"
     },
     {
@@ -611,7 +625,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how New York's defensive strategy has improved KAT's performance.",
+      "wce_line": "The article analyzes how New York's defensive strategies have improved KAT's performance.",
       "source_type": "article"
     },
     {
@@ -623,7 +637,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article examines how regular-season performance correlates with NBA Finals success.",
+      "wce_line": "The article explores how regular-season performance correlates with teams reaching the NBA Finals.",
       "source_type": "article"
     },
     {
@@ -647,7 +661,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how the Spurs adjusted their defensive strategies and Oklahoma City's focus on scoring against Kawhi Leonard.",
+      "wce_line": "The article discusses how the Spurs adjusted their defensive strategies and Oklahoma City's focus on Wesley Matthews.",
       "source_type": "article"
     },
     {
@@ -659,7 +673,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how Oklahoma City adjusted their offense to create new play designs.",
+      "wce_line": "The article analyzes how Oklahoma City adjusted their offense, introducing new plays like the \"Wemby blocker.\"",
       "source_type": "article"
     },
     {
@@ -671,7 +685,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how the Spurs used defensive tactics to limit Sacramento's scoring opportunities in Game 1.",
+      "wce_line": "This article analyzes how the Spurs used defensive tactics to limit Sacramento's scoring opportunities in Game 1.",
       "source_type": "article"
     },
     {
@@ -696,7 +710,7 @@
         "Nirek Duma",
         "Leo Benaharon"
       ],
-      "wce_line": "The study introduces RIM, a metric that quantifies officiating impact by aggregating win-probability changes from foul events in NBA games.",
+      "wce_line": "The study introduces RIM, a metric measuring the impact of officiating on game outcomes using ESPN's win-probability data from NBA seasons 2021-2022 through 2024-2025.",
       "source_type": "paper"
     },
     {
@@ -708,7 +722,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article explores Dylan Harper's skill development and future prospects in basketball.",
+      "wce_line": "The article explores Dylan Harper's potential through advanced analytics.",
       "source_type": "article"
     },
     {
@@ -720,7 +734,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes Spurs' performance shifts in Game 2 against Minnesota.",
+      "wce_line": "The article analyzes why the Spurs performed better in Game 2 against Minnesota.",
       "source_type": "article"
     },
     {
@@ -732,7 +746,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes strategies the Minnesota Timberwolves might use to defend against Victor Wembanyama.",
+      "wce_line": "The article analyzes strategies Minnesota Wolves coaches use to defend against Victor Wembanyama.",
       "source_type": "article"
     },
     {
@@ -773,7 +787,7 @@
         "Yue Yu",
         "Guanyu Hu"
       ],
-      "wce_line": "The study found that adjusting for selection mechanisms using MS-PEM shifts the hazard of injury back toward a more accurate relationship with workload.",
+      "wce_line": null,
       "source_type": "paper"
     },
     {
@@ -786,7 +800,7 @@
         "Kazuhiro Yamada",
         "Keisuke Fujii"
       ],
-      "wce_line": "The study developed a model that improves shot-chart analysis by considering different types of shots across teams and court areas, providing better predictive performance than simpler methods.",
+      "wce_line": "The STAMP model provides a unified framework to compare shot-type-specific tendencies across teams in basketball, offering better predictive performance than simpler models.",
       "source_type": "paper"
     },
     {
@@ -800,7 +814,7 @@
         "David Grimsman",
         "Christopher Archibald"
       ],
-      "wce_line": "The study found that incorporating graph embeddings improved the accuracy of NBA player salary predictions for veteran players and those with high-salary contracts.",
+      "wce_line": null,
       "source_type": "paper"
     }
   ]
