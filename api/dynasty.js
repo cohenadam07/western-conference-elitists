@@ -1,7 +1,8 @@
 // api/dynasty.js — crowd-sourced dynasty rankings, backed by Upstash Redis (Vercel KV),
 // the same store behind api/trending.js and api/leaderboard.js. Until KV is configured this
 // returns { configured: false } and the page falls back to the static seed board, so the
-// tab always renders something.
+// tab always renders something. The pool syncs additively on read, so a new draft class
+// appears without touching a price the crowd has already set.
 //
 // THE MODEL
 // A submitted ranking of four players is not one datapoint, it is six pairwise results
@@ -12,10 +13,10 @@
 //
 // MOMENTUM
 // A player who keeps landing first (or keeps landing last) is repriced in bigger jumps: we
-// track a signed streak of extreme finishes and scale that player's K-factor up to 2.25x.
-// The same streak also widens their matchmaking — a hot player gets drawn against opponents
-// further up the board, so the crowd is asked the harder question rather than re-confirming
-// one it has already answered.
+// track a signed streak of extreme finishes and scale that player's K-factor, quadratically,
+// so a run has to be sustained before it earns a real move. The same streak also widens their
+// matchmaking — a hot player gets drawn against opponents further up the board, so the crowd
+// is asked the harder question rather than re-confirming one it has already answered.
 //
 // KEYS
 //   dyn:rating           ZSET  pid -> rating (the live price)
@@ -34,12 +35,24 @@ const URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
 
 const GROUP = 4                 // players per pick
-const K_BASE = 24               // Elo step at neutral momentum
-const K_MOMENTUM_MAX = 2.25     // multiplier ceiling for a player on a streak
+// A single ranking should nudge a settled player, not relocate him. K_BASE is the step for
+// an established asset with no momentum; two multipliers sit on top of it:
+//
+//   momentum   1x -> 3x, but QUADRATIC in the streak, so two results in a row barely register
+//              and only a sustained run earns a real jump. This is the "unless they have a lot
+//              of momentum" clause: the crowd has to keep saying it.
+//   provisional up to 2.5x while a player has almost no picks behind him, decaying to 1x by
+//              PROVISIONAL_N. Standard Elo practice, and it is what lets a mis-seeded rookie
+//              find his level in a few books instead of a few hundred — without which a low
+//              K_BASE would freeze the seed's mistakes in place.
+const K_BASE = 10
+const K_MOMENTUM_MAX = 3.0
+const K_PROVISIONAL_MAX = 2.5
+const PROVISIONAL_N = 40        // picks after which a player is considered settled
 const STREAK_CAP = 5
 const RECENT_KEEP = 50
 const RATE_PER_MIN = 40         // picks per IP per minute
-const BOARD_MAX = 400
+const BOARD_MAX = 600         // must exceed the pool, or the tail is unreachable
 const NONCE_TTL = 600           // a served group is submittable for 10 minutes
 
 const ID_RE = /^[0-9]{1,12}$/
@@ -102,25 +115,42 @@ async function rateLimited(ip) {
 // requests racing to seed converge on the same board instead of doubling it; and because
 // live ratings are ZINCRBY'd on top, a re-seed can never silently reset crowd work — the
 // ZCARD guard means it only ever runs while the board is genuinely empty.
+let poolCache = null              // module scope: warm lambdas skip the fetch entirely
+
 async function ensureSeeded(req) {
   const n = Number(await redis(['ZCARD', 'dyn:rating']))
-  if (n > 0) return n
-  const proto = (req.headers['x-forwarded-proto'] || 'https').split(',')[0]
-  const host = req.headers['x-forwarded-host'] || req.headers.host
-  const r = await fetch(`${proto}://${host}/dynasty/players.json`)
-  if (!r.ok) return 0
-  const doc = await r.json()
-  const players = (doc.players || []).filter((p) => p.id != null)
-  if (!players.length) return 0
+  if (n > 0 && poolCache && n >= poolCache.length) return n   // nothing new to add
+  let players = poolCache
+  if (!players) {
+    const proto = (req.headers['x-forwarded-proto'] || 'https').split(',')[0]
+    const host = req.headers['x-forwarded-host'] || req.headers.host
+    const r = await fetch(`${proto}://${host}/dynasty/players.json`)
+    if (!r.ok) return n
+    const doc = await r.json()
+    players = (doc.players || []).filter((p) => p.id != null)
+    if (!players.length) return n
+    poolCache = players
+  }
+  if (n >= players.length) return n
+
+  // ZADD NX adds only members that are absent, so a rookie class can be dropped into a live
+  // board without disturbing a single price the crowd has already set. Re-running is a no-op.
+  const prevFlat = await redis(['HGETALL', 'dyn:prev'])
+  const hasPrev = new Set()
+  for (let i = 0; i + 1 < (prevFlat || []).length; i += 2) hasPrev.add(prevFlat[i])
+
   for (let i = 0; i < players.length; i += 120) {
     const chunk = players.slice(i, i + 120)
-    const zadd = ['ZADD', 'dyn:rating']
+    const zadd = ['ZADD', 'dyn:rating', 'NX']
     const hset = ['HSET', 'dyn:prev']
+    let anyPrev = false
     chunk.forEach((p) => {
       zadd.push(String(p.rating), String(p.id))
-      hset.push(String(p.id), String(p.rating))   // day one shows no movement, not a fake surge
+      // only seed a baseline for players who have none, or an existing asset would have its
+      // 24h reference quietly reset to today and show flat when it had actually moved
+      if (!hasPrev.has(String(p.id))) { hset.push(String(p.id), String(p.rating)); anyPrev = true }
     })
-    await pipe([zadd, hset])
+    await pipe(anyPrev ? [zadd, hset] : [zadd])
   }
   return players.length
 }
@@ -206,12 +236,15 @@ async function orderedIds() {
 }
 
 // ---------------------------------------------------------------- pick submission
-export function eloUpdates(order, ratings, streaks) {
+export function eloUpdates(order, ratings, streaks, seen = {}) {
   const delta = {}
   order.forEach((id) => { delta[id] = 0 })
   const kOf = (id) => {
-    const s = Math.min(STREAK_CAP, Math.abs(Number(streaks[id] || 0)))
-    return K_BASE * (1 + (K_MOMENTUM_MAX - 1) * (s / STREAK_CAP))
+    const st = Math.min(STREAK_CAP, Math.abs(Number(streaks[id] || 0)))
+    const momentum = 1 + (K_MOMENTUM_MAX - 1) * Math.pow(st / STREAK_CAP, 2)
+    const n = Number(seen[id] || 0)
+    const provisional = 1 + (K_PROVISIONAL_MAX - 1) * Math.max(0, 1 - n / PROVISIONAL_N)
+    return K_BASE * momentum * provisional
   }
   for (let i = 0; i < order.length; i++) {
     for (let j = i + 1; j < order.length; j++) {
@@ -337,16 +370,19 @@ export default async function handler(req, res) {
       const weight = isDaily ? 1 / (1 + (dailyN - 1) / 10) : 1
 
       // current prices + streaks for the four
-      const [scores, sflat] = await pipe([
+      const [scores, sflat, nflat] = await pipe([
         ['ZMSCORE', 'dyn:rating', ...order],
         ['HGETALL', 'dyn:streak'],
+        ['HGETALL', 'dyn:seen'],
       ])
+      const seenCounts = {}
+      for (let i = 0; i + 1 < (nflat || []).length; i += 2) seenCounts[nflat[i]] = nflat[i + 1]
       const ratings = {}
       order.forEach((id, i) => { ratings[id] = scores && scores[i] != null ? Number(scores[i]) : 1500 })
       const streaks = {}
       for (let i = 0; i + 1 < (sflat || []).length; i += 2) streaks[sflat[i]] = sflat[i + 1]
 
-      const delta = eloUpdates(order, ratings, streaks)
+      const delta = eloUpdates(order, ratings, streaks, seenCounts)
       if (weight !== 1) Object.keys(delta).forEach((k) => { delta[k] *= weight })
 
       const cmds = []

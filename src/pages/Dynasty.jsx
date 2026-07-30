@@ -272,7 +272,7 @@ export default function Dynasty() {
   }, [])
 
   const loadBoard = useCallback(() => {
-    fetch(`${API}?action=board&limit=400`)
+    fetch(`${API}?action=board&limit=600`)
       .then((r) => r.json())
       .then((j) => {
         if (!j || j.configured === false) { setLive(false); return }
