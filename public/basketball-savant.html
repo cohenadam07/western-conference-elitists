@@ -34,14 +34,14 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .id{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden}
 .idbtns{position:absolute;top:16px;right:18px;display:flex;align-items:center;gap:8px;z-index:2}
-/* Career-best ribbon. It sits in the BOTTOM-right corner, not the top: the top-right corner
-   of this card already belongs to the play and share buttons, and the top-left is the
-   headshot. Bottom-right is the only corner the card actually has spare. .id already clips
-   with overflow:hidden, which is what makes the mitre read as a ribbon rather than a tag. */
-.peakflag{position:absolute;right:-42px;bottom:22px;width:150px;transform:rotate(-38deg);
-  background:var(--gold);color:#2A2208;font-family:var(--mono);font-size:9.5px;font-weight:600;
-  letter-spacing:.14em;text-align:center;padding:4px 0;z-index:1;cursor:help;
-  box-shadow:0 1px 3px rgba(20,26,32,.18)}
+/* Career-best ribbon, top-left. .id clips with overflow:hidden, which is what makes the
+   mitre read as a ribbon rather than a tag. It crosses the headshot's top-left corner, so
+   it sits ABOVE the image (z-index over .headwrap) and is deliberately short — the corner
+   of an NBA headshot is background and hair, the face sits lower and centre. */
+.peakflag{position:absolute;left:-46px;top:9px;width:126px;transform:rotate(-38deg);
+  background:var(--gold);color:#2A2208;font-family:var(--mono);font-size:9px;font-weight:600;
+  letter-spacing:.12em;text-align:center;padding:3.5px 0;z-index:3;cursor:help;
+  box-shadow:0 1px 4px rgba(20,26,32,.28)}
 .peakflag[hidden]{display:none}
 @keyframes peakflare{
   0%{filter:brightness(1)}
@@ -50,10 +50,20 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 }
 .peakflag.flare{animation:peakflare 1.15s ease-out}
 
-/* Career arc rail. The right gutter is permanent, not applied only when the ribbon shows:
-   the corner belongs to the ribbon either way, and reserving it always is what stops the
-   whole rail from reflowing every time you step onto or off a peak season. */
-.arcrail{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);padding-right:96px}
+/* Career arc rail — collapsed behind .arcbtn, so the card stays compact until asked.
+   No right gutter any more: the ribbon moved to the top-left corner and freed this one. */
+.arcbtn{display:inline-flex;align-items:center;gap:6px;margin-top:14px;background:var(--surface);
+  border:1px solid var(--line);border-radius:16px;padding:5px 12px;cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted)}
+.arcbtn:hover{border-color:var(--navy);color:var(--ink)}
+.arcbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.arcbtn[hidden]{display:none}
+.arcbtn .caret{font-size:8px;transition:transform .18s ease}
+.arcbtn[aria-expanded="true"]{border-color:var(--navy);color:var(--ink)}
+.arcbtn[aria-expanded="true"] .caret{transform:rotate(180deg)}
+.arcbtn .pk{color:var(--gold)}
+.arcrail{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .arcrail[hidden]{display:none}
 .arc-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
   color:var(--faint);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:7px}
@@ -128,7 +138,13 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .measur .m{padding-right:26px}
 .measur .ml{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
 .measur .mv{font-family:var(--mono);font-weight:500;font-size:16px;margin-top:3px}
-.controls{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin:0 2px 14px}
+/* z-index here is load-bearing, not decoration: the .anim entrance animation leaves a
+   transform on this row, and any transform creates a stacking context — which traps the
+   season popup's own z-index inside it and lets the panels below paint over the open list.
+   Lifting the whole row above them fixes it; 50 keeps it under .top (60) so the search
+   results still win over the popup. */
+.controls{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin:0 2px 14px;
+  position:relative;z-index:50}
 .ctl{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .ctl-lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
 .seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:2px;gap:2px}
@@ -138,6 +154,36 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .season-sel{font-family:var(--mono);font-size:12.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 28px 6px 11px;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2322395A' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
 .season-sel:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 26%,transparent)}
+/* Season picker. A native <select> hands its list to the OS, which is the one part of this
+   page the design can't reach — grey Helvetica rows on a white sheet, no star, no sense of
+   which years the player was even in the league. This is the same control drawn in the
+   page's own hand: mono type, navy selection, gold star, disabled years greyed in place
+   rather than dropped, so the shape of a career is legible in the list too. */
+.selx{position:relative}
+.selx-btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;
+  color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  padding:6px 11px;cursor:pointer;min-width:112px;justify-content:space-between}
+.selx-btn:hover{border-color:var(--navy)}
+.selx-btn:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 26%,transparent)}
+.selx-caret{font-size:8px;color:var(--navy);transition:transform .18s ease}
+.selx-btn[aria-expanded="true"]{border-color:var(--navy)}
+.selx-btn[aria-expanded="true"] .selx-caret{transform:rotate(180deg)}
+.selx-star{color:var(--gold)}
+.selx-pop{position:absolute;z-index:70;top:calc(100% + 6px);left:0;min-width:100%;
+  max-height:284px;overflow-y:auto;background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;padding:5px;box-shadow:0 10px 28px rgba(20,26,32,.16)}
+.selx-pop[hidden]{display:none}
+.selx-opt{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;
+  font-family:var(--mono);font-size:12.5px;color:var(--ink);background:none;border:0;
+  border-radius:6px;padding:6px 9px;cursor:pointer;text-align:left;white-space:nowrap}
+.selx-opt:hover{background:var(--track)}
+.selx-opt[aria-selected="true"]{background:var(--navy);color:#fff}
+.selx-opt[aria-selected="true"] .selx-star{color:var(--gold)}
+.selx-opt[aria-disabled="true"]{color:var(--faint);cursor:default}
+.selx-opt[aria-disabled="true"]:hover{background:none}
+.selx-opt.here{box-shadow:inset 0 0 0 1px var(--navy)}
+.selx-tag{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.selx-opt[aria-selected="true"] .selx-tag{color:rgba(255,255,255,.72)}
 .mpgband{display:flex;align-items:center;gap:12px}
 .mpgband[hidden]{display:none}
 .dr{position:relative;width:200px;height:26px}
@@ -189,9 +235,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
   .wrap{padding:16px 12px 48px}
   .col{padding:14px 12px 16px}
   .id{padding:16px 14px}
-  /* narrow card: a 96px gutter would eat the arc, so the ribbon shrinks with it */
-  .arcrail{padding-right:74px}
-  .peakflag{width:112px;right:-34px;bottom:16px;font-size:8.5px;letter-spacing:.1em}
+  .peakflag{width:118px;left:-34px;top:16px;font-size:8.5px;letter-spacing:.1em}
   .row{grid-template-columns:1fr auto auto;grid-template-areas:"lab val btn" "bar bar bar";row-gap:5px;padding:9px 0}
   .row.nochart{grid-template-columns:1fr auto;grid-template-areas:"lab val" "bar bar"}
   .rl .name{white-space:normal}
@@ -268,7 +312,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .trow .rn{font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trow .rs{font-family:var(--mono);font-size:11px;color:var(--muted)}
 .injury{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.03em;text-transform:uppercase;color:var(--red);background:color-mix(in srgb,var(--red) 10%,transparent);border:1px solid color-mix(in srgb,var(--red) 30%,transparent);border-radius:6px;padding:3px 9px;margin-top:9px}
-#seasonSel option:disabled{color:var(--faint)}
+.cmp-season option:disabled{color:var(--faint)}
 /* Statistical Comps — supporting module below the bars */
 .comps{margin-top:16px}
 .comps[hidden]{display:none}
@@ -698,6 +742,7 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
       <button class="exportbtn" id="exportbtn" aria-label="Share this player card as an image"><svg viewBox="0 0 24 24"><path d="M12 14V3"/><path d="M8.5 6.5L12 3l3.5 3.5"/><path d="M6 10H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg><span id="exportlab">Share</span></button>
     </div>
     <div id="idbody"></div>
+    <button type="button" class="arcbtn" id="arcBtn" hidden aria-expanded="false" aria-controls="arcrail"></button>
     <div class="arcrail" id="arcrail" hidden></div>
     <div class="peakflag" id="peakflag" hidden aria-hidden="true">PEAK</div>
     <div class="playbar" id="playbar"></div>
@@ -705,7 +750,11 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
   <div class="col trendchart" id="trendchart" hidden></div>
   <div class="controls">
     <div class="ctl"><span class="ctl-lab">Season</span>
-      <select id="seasonSel" class="season-sel" aria-label="Season"></select>
+      <div class="selx" id="seasonPick">
+        <button type="button" class="selx-btn" id="seasonBtn" aria-haspopup="listbox"
+          aria-expanded="false" aria-label="Season"><span id="seasonBtnLab">—</span><span class="selx-caret" aria-hidden="true">▾</span></button>
+        <div class="selx-pop" id="seasonPop" role="listbox" aria-label="Season" hidden></div>
+      </div>
     </div>
     <div class="ctl"><span class="ctl-lab">Compare</span>
       <div class="seg" id="popseg" role="group" aria-label="Comparison population">
@@ -1758,6 +1807,7 @@ function render(){
           document.getElementById('ctx').innerHTML=document.getElementById('off').innerHTML=document.getElementById('def').innerHTML=document.getElementById('val').innerHTML='';
           document.getElementById('peakflag').hidden=true;
           document.getElementById('arcrail').hidden=true;
+          document.getElementById('arcBtn').hidden=true;
           document.getElementById('comps').hidden=true; document.getElementById('role').hidden=true; document.getElementById('guard').hidden=true; return; }
   const wt=val(p,'strength',S), vt=val(p,'vert',S), la=val(p,'lateral',S);
   const bd=fmtBirth(p.birthdate);
@@ -1864,9 +1914,11 @@ function shotSvg(sd,mode){
    the season you are on is ringed, and a year that missed the games floor is drawn as a
    stub — still clickable, but visibly never in the running, with the reason on hover.
    That stub is the honest way to show a floor: the season is not hidden, it is disqualified. */
+let arcOpen=false;      // sticky across season changes: once opened, the rail IS the navigation
 function renderPeak(){
   const flag=document.getElementById('peakflag'), rail=document.getElementById('arcrail');
-  if(!flag||!rail) return;
+  const btn=document.getElementById('arcBtn');
+  if(!flag||!rail||!btn) return;
   const arc=(curId!=null)?careerArc(curId):null;
   const pk=(arc&&arc.peak)?arc.peak.season:null;
   const isPeak=(pk!=null&&pk===curSeason&&!(cur&&cur._injury));
@@ -1876,8 +1928,16 @@ function renderPeak(){
     +PEAK_MIN_SHARE+'% of his team’s. BPM is a model estimate, not a measurement.';
 
   const pts=arc?arc.pts:[];
-  if(pts.length<2){ rail.hidden=true; rail.innerHTML=''; return; }
-  rail.hidden=false;
+  if(pts.length<2){ rail.hidden=true; rail.innerHTML=''; btn.hidden=true; return; }
+  /* The button carries the answer even while collapsed — a control that only says "Career
+     arc" makes you open it to learn the one fact you came for. */
+  btn.hidden=false;
+  btn.innerHTML='Career arc'+(pk?' <span class="pk">★ '+pk+'</span>':'')
+    +'<span class="caret" aria-hidden="true">▾</span>';
+  btn.setAttribute('aria-expanded',String(arcOpen));
+  btn.title=(pk?'Best season: '+pk+'. ':'')+'Show every season as a tick — height is his BPM against his own career range.';
+  rail.hidden=!arcOpen;
+  if(!arcOpen){ rail.innerHTML=''; return; }
   /* Columns are flex:1, so a three-season career would otherwise render three 370px slabs.
      Capping the rail's own width keeps a tick a tick, and the footer spans exactly the same
      box as the ticks so the end-year labels stay pinned to the ends of the arc. */
@@ -2533,20 +2593,51 @@ function resolveCur(){
   else if(curId!=null && inSpan(curId,curSeason)){ cur=injuryStub(curId,curSeason); }
   else { cur=null; }
 }
+/* Single place that syncs the season picker to curSeason / curId. Everything else just
+   changes curSeason and calls this — no caller pokes at the control directly. */
 function updateSeasonOptions(){
-  const sel=document.getElementById('seasonSel'); if(!sel) return;
+  const lab=document.getElementById('seasonBtnLab'), pop=document.getElementById('seasonPop');
+  if(!lab||!pop) return;
   const pk=(curId!=null)?peakSeasonOf(curId):null;
-  Array.from(sel.options).forEach(function(o){
-    o.disabled=(curId!=null && !inSpan(curId,o.value));
-    o.textContent=o.value+(o.value===pk?' ★':'');   // findable before you land on it
-  });
+  lab.innerHTML=curSeason+(curSeason===pk?' <span class="selx-star">★</span>':'');
+  pop.innerHTML=DATA.seasons.map(function(s){
+    const off=(curId!=null&&!inSpan(curId,s));
+    const sel=(s===curSeason), isPk=(s===pk);
+    return '<button type="button" class="selx-opt" role="option" data-s="'+s+'"'
+      +' aria-selected="'+sel+'"'+(off?' aria-disabled="true" tabindex="-1"':'')+'>'
+      +'<span>'+s+(isPk?' <span class="selx-star">★</span>':'')+'</span>'
+      +(off?'<span class="selx-tag">not in league</span>'
+           :(isPk?'<span class="selx-tag">best</span>':''))
+      +'</button>';
+  }).join('');
+}
+function seasonPopOpen(){ return !document.getElementById('seasonPop').hidden; }
+function openSeasonPop(){
+  const pop=document.getElementById('seasonPop'), btn=document.getElementById('seasonBtn');
+  pop.hidden=false; btn.setAttribute('aria-expanded','true');
+  const on=pop.querySelector('.selx-opt[aria-selected="true"]');
+  if(on){ on.classList.add('here'); on.focus(); pop.scrollTop=on.offsetTop-pop.clientHeight/2+on.offsetHeight/2; }
+}
+function closeSeasonPop(back){
+  const pop=document.getElementById('seasonPop'), btn=document.getElementById('seasonBtn');
+  if(pop.hidden) return;
+  pop.hidden=true; btn.setAttribute('aria-expanded','false');
+  if(back) btn.focus();
+}
+function seasonPopMove(d){
+  const pop=document.getElementById('seasonPop');
+  const opts=Array.prototype.filter.call(pop.querySelectorAll('.selx-opt'),
+    function(o){return o.getAttribute('aria-disabled')!=='true';});
+  if(!opts.length) return;
+  let i=opts.indexOf(document.activeElement);
+  i=(i<0)?0:Math.max(0,Math.min(opts.length-1,i+d));
+  opts[i].focus();
 }
 function selectPlayer(id){
   curId=id;
   cmp=cmp.filter(function(e){return !(e.id===id && e.season===curSeason);});
   if(!inSpan(id,curSeason)){                       // player wasn't around this season -> jump to one he played
     curSeason=PIDX[id].newest;
-    const sel=document.getElementById('seasonSel'); if(sel) sel.value=curSeason;
     fillRoster();
   }
   resolveCur(); updateSeasonOptions();
@@ -2556,7 +2647,6 @@ function selectPlayer(id){
 }
 function setSeason(s){
   curSeason=s; fillRoster();
-  const _sel=document.getElementById('seasonSel'); if(_sel) _sel.value=s;
   if(curId!=null && inSpan(curId,s)){ resolveCur(); }
   else { cur = trending()[0] || seasonPlayers()[0] || null; curId = cur?cur.id:null; }
   const ts=document.getElementById('teamSel');
@@ -2594,7 +2684,6 @@ function stepPlay(){
     const i=seq.indexOf(curSeason);
     if(i>=seq.length-1){ stopPlay(); return; }        // reached the current season -> stop
     const next=seq[i+1];
-    document.getElementById('seasonSel').value=next;
     setSeason(next);
     stepPlay();
   },2000);
@@ -2604,7 +2693,6 @@ function startPlay(){
   if(seq.length<2) return;
   playing=true; setPlayIcon();
   curSeason=seq[0];
-  document.getElementById('seasonSel').value=seq[0];
   setSeason(seq[0]);                                   // begin at the player's earliest season
   stepPlay();
 }
@@ -2702,15 +2790,41 @@ async function exportCard(){
 }
 function build(){
   document.getElementById('srcpill').textContent=(DATA.source==='fixture'?'demo data':'live data')+' · '+DATA.seasons.length+' season'+(DATA.seasons.length>1?'s':'');
-  const sel=document.getElementById('seasonSel');
-  DATA.seasons.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
-  sel.value=curSeason;
-  sel.addEventListener('change',e=>{stopPlay();setSeason(e.target.value);});
+  const sbtn=document.getElementById('seasonBtn'), spop=document.getElementById('seasonPop');
+  updateSeasonOptions();
+  sbtn.addEventListener('click',function(){ seasonPopOpen()?closeSeasonPop(true):openSeasonPop(); });
+  sbtn.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'||e.key==='Enter'||e.key===' '){ e.preventDefault(); openSeasonPop(); }
+  });
+  spop.addEventListener('click',function(e){
+    const o=e.target.closest('.selx-opt'); if(!o||o.getAttribute('aria-disabled')==='true') return;
+    closeSeasonPop(true); stopPlay(); setSeason(o.getAttribute('data-s'));
+  });
+  spop.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){ e.preventDefault(); closeSeasonPop(true); }
+    else if(e.key==='ArrowDown'){ e.preventDefault(); seasonPopMove(1); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); seasonPopMove(-1); }
+    else if(e.key==='Home'){ e.preventDefault(); seasonPopMove(-999); }
+    else if(e.key==='End'){ e.preventDefault(); seasonPopMove(999); }
+    else if(e.key==='Enter'||e.key===' '){
+      const o=e.target.closest('.selx-opt'); if(!o||o.getAttribute('aria-disabled')==='true') return;
+      e.preventDefault(); closeSeasonPop(true); stopPlay(); setSeason(o.getAttribute('data-s'));
+    }
+  });
+  // click-away and focus-away both close it; a popup that outlives its context is a bug
+  document.addEventListener('mousedown',function(e){
+    if(seasonPopOpen()&&!e.target.closest('#seasonPick')) closeSeasonPop(false);
+  });
+  spop.addEventListener('focusout',function(e){
+    if(!e.relatedTarget||!e.relatedTarget.closest('#seasonPick')) closeSeasonPop(false);
+  });
   const ar=document.getElementById('arcrail');
   if(ar) ar.addEventListener('click',function(e){
     const b=e.target.closest('.arc-col'); if(!b) return;
     stopPlay(); setSeason(b.getAttribute('data-s'));
   });
+  const ab=document.getElementById('arcBtn');
+  if(ab) ab.addEventListener('click',function(){ arcOpen=!arcOpen; renderPeak(); });
   const pb=document.getElementById('playbtn'); pb.hidden=DATA.seasons.length<2;
   pb.onclick=()=>{ playing?stopPlay():startPlay(); }; setPlayIcon();
   const eb=document.getElementById('exportbtn'); if(eb) eb.onclick=exportCard;
