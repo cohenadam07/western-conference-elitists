@@ -34,6 +34,51 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .id{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden}
 .idbtns{position:absolute;top:16px;right:18px;display:flex;align-items:center;gap:8px;z-index:2}
+/* Career-best ribbon. It sits in the BOTTOM-right corner, not the top: the top-right corner
+   of this card already belongs to the play and share buttons, and the top-left is the
+   headshot. Bottom-right is the only corner the card actually has spare. .id already clips
+   with overflow:hidden, which is what makes the mitre read as a ribbon rather than a tag. */
+.peakflag{position:absolute;right:-42px;bottom:22px;width:150px;transform:rotate(-38deg);
+  background:var(--gold);color:#2A2208;font-family:var(--mono);font-size:9.5px;font-weight:600;
+  letter-spacing:.14em;text-align:center;padding:4px 0;z-index:1;cursor:help;
+  box-shadow:0 1px 3px rgba(20,26,32,.18)}
+.peakflag[hidden]{display:none}
+@keyframes peakflare{
+  0%{filter:brightness(1)}
+  22%{filter:brightness(1.28) saturate(1.15)}
+  100%{filter:brightness(1)}
+}
+.peakflag.flare{animation:peakflare 1.15s ease-out}
+
+/* Career arc rail. The right gutter is permanent, not applied only when the ribbon shows:
+   the corner belongs to the ribbon either way, and reserving it always is what stops the
+   whole rail from reflowing every time you step onto or off a peak season. */
+.arcrail{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);padding-right:96px}
+.arcrail[hidden]{display:none}
+.arc-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:7px}
+.arc-h span{text-transform:none;letter-spacing:.02em;color:var(--faint);opacity:.85}
+.arc-ticks{display:flex;align-items:flex-end;gap:2px;height:46px}
+.arc-col{flex:1;min-width:3px;height:100%;display:flex;flex-direction:column;
+  justify-content:flex-end;background:none;border:0;padding:0;cursor:pointer;position:relative}
+.arc-bar{display:block;width:100%;border-radius:2px 2px 0 0;transition:filter .15s ease}
+.arc-col:hover .arc-bar{filter:brightness(.92)}
+.arc-col.on .arc-bar{box-shadow:0 0 0 2px var(--navy)}
+.arc-col.out .arc-bar{background:var(--track);opacity:.85}
+.arc-col:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+/* The peak is by definition the full-height bar, so the star always lands ON gold —
+   ink, not gold, or it disappears into the bar it is marking. */
+.arc-star{position:absolute;top:1px;left:0;right:0;text-align:center;font-size:9px;
+  line-height:1;color:#2A2208;pointer-events:none}
+.arc-foot{display:flex;justify-content:space-between;gap:8px;margin-top:5px;
+  font-family:var(--mono);font-size:9px;letter-spacing:.04em;color:var(--faint)}
+.arc-pklab{color:var(--gold)}
+
+/* Career-high tick on a stat bar. Same idiom as the quartile .tick marks it sits among —
+   the track clips, so it reads as a rule through the bar rather than a pin above it. */
+.chmark{position:absolute;top:0;bottom:0;width:2px;background:var(--gold);
+  box-shadow:0 0 0 1px rgba(255,255,255,.55);cursor:help;z-index:1}
+@media (prefers-reduced-motion:reduce){ .peakflag.flare{animation:none} }
 .playbtn{width:34px;height:34px;flex:none;border-radius:50%;background:var(--navy);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 .playbtn svg{width:13px;height:13px;fill:#fff}
 .playbtn:hover{filter:brightness(1.12)}
@@ -49,6 +94,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .export-shell{position:fixed;left:-10000px;top:0;width:1040px;background:var(--surface);padding:26px 30px 20px;font-family:var(--body);color:var(--ink)}
 .export-shell .sc-head{display:flex;align-items:center;gap:11px;margin-bottom:14px}
 .export-shell .sc-tag{margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+/* hex/rgb only, like everything else in this shell — html2canvas 1.4.1 can't read color-mix */
+.export-shell .sc-peak{margin-left:10px;background:#C2A263;color:#2A2208;font-family:var(--mono);
+  font-size:10px;font-weight:600;letter-spacing:.11em;padding:4px 9px;border-radius:4px}
 .export-shell .sc-id{display:flex;align-items:center;gap:16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:13px 0;margin-bottom:14px}
 .export-shell .sc-ava{width:60px;height:60px;flex:none;border-radius:12px;background:var(--track);display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;font-size:23px;color:var(--muted)}
 .export-shell .sc-name{font-family:var(--disp);font-weight:600;font-size:34px;line-height:1.02;letter-spacing:-.01em}
@@ -141,6 +189,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
   .wrap{padding:16px 12px 48px}
   .col{padding:14px 12px 16px}
   .id{padding:16px 14px}
+  /* narrow card: a 96px gutter would eat the arc, so the ribbon shrinks with it */
+  .arcrail{padding-right:74px}
+  .peakflag{width:112px;right:-34px;bottom:16px;font-size:8.5px;letter-spacing:.1em}
   .row{grid-template-columns:1fr auto auto;grid-template-areas:"lab val btn" "bar bar bar";row-gap:5px;padding:9px 0}
   .row.nochart{grid-template-columns:1fr auto;grid-template-areas:"lab val" "bar bar"}
   .rl .name{white-space:normal}
@@ -647,6 +698,8 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
       <button class="exportbtn" id="exportbtn" aria-label="Share this player card as an image"><svg viewBox="0 0 24 24"><path d="M12 14V3"/><path d="M8.5 6.5L12 3l3.5 3.5"/><path d="M6 10H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg><span id="exportlab">Share</span></button>
     </div>
     <div id="idbody"></div>
+    <div class="arcrail" id="arcrail" hidden></div>
+    <div class="peakflag" id="peakflag" hidden aria-hidden="true">PEAK</div>
     <div class="playbar" id="playbar"></div>
   </div>
   <div class="col trendchart" id="trendchart" hidden></div>
@@ -1431,8 +1484,8 @@ function buildIndex(){
   PIDX={};
   DATA.seasons.forEach(function(s){
     (DATA.data[s]||{players:[]}).players.forEach(function(p){
-      let e=PIDX[p.id]; if(!e){e=PIDX[p.id]={ref:p,seasons:new Set()};}
-      e.seasons.add(s);
+      let e=PIDX[p.id]; if(!e){e=PIDX[p.id]={ref:p,seasons:new Set(),rows:{}};}
+      e.seasons.add(s); e.rows[s]=p;      // season -> row, so rowFor is a lookup not a scan
     });
   });
   Object.keys(PIDX).forEach(function(id){
@@ -1447,7 +1500,7 @@ function inSpan(id,s){                            // was the player in the leagu
   const o=DATA.seasons, i=o.indexOf(s), iN=o.indexOf(e.newest), iO=o.indexOf(e.oldest);
   return i>=iN && i<=iO;                          // newest-first: newer = smaller index
 }
-function rowFor(id,s){ return (DATA.data[s]||{players:[]}).players.find(function(p){return p.id===id;}); }
+function rowFor(id,s){ const e=PIDX[id]; return e?e.rows[s]:undefined; }
 function injuryStub(id,s){                        // in league but no stats -> blank card
   const ref=PIDX[id]?PIDX[id].ref:{name:'Unknown',pos:'—'};
   return {id:id,name:ref.name,team:'—',pos:ref.pos,qualified:false,m:{},line:null,_injury:true};
@@ -1626,8 +1679,25 @@ function barRow(m){
   // player-season — is hidden entirely (the page reformats around what's actually there),
   // rather than shown as a greyed row. Compare mode keeps every bar so eras line up.
   if((m.tier && seasonTier(curSeason) < m.tier) || miss(v)) return '';
-  const pct=pctOf(v,poolVals(m.key,win),m.lower);
+  const pool=poolVals(m.key,win);
+  const pct=pctOf(v,pool,m.lower);
   const shown=pct==null?50:pct;
+  /* Career-high tick. His best eligible mark for this stat, ranked against THIS season's
+     population — so the tick answers "where would his best year stand in this league",
+     which is the only reading that shares a scale with the bar underneath it. Drawn only
+     when it is clear of the bar; when this season is the high it would sit on the bar's
+     own end and say nothing. Windowed views (L10/L25/L75) get no tick — a career high is
+     a season fact, and hanging it off a ten-game bar would be comparing two different things. */
+  let chMark='';
+  if(win==='season' && curId!=null){
+    const hi=careerHigh(curId,m.key,m.lower);
+    if(!miss(hi)){
+      const hp=pctOf(hi,pool,m.lower);
+      if(hp!=null && hp>shown+1)
+        chMark='<div class="chmark" style="left:'+hp+'%" title="Career high: '+fmt(m.unit,hi,hp)
+              +' — would rank '+hp+' against this season’s league"></div>';
+    }
+  }
   const n=smpl(cur,m.key,win);
   const stable=(n==null)||(m.thr?n>=m.thr:true);
   const col=colorAt(shown);
@@ -1639,6 +1709,7 @@ function barRow(m){
     +'<div class="rl" title="Click for what this stat means"><div class="name">'+m.label+'</div><div class="tag">'+tagTxt+'</div></div>'
     +'<div class="track"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div>'
       +'<div class="fill" data-w="'+shown+'" style="background:'+col+'"><div class="hatch"></div></div>'
+      +chMark
       +'<div class="pnum" style="left:'+numLeft+';'+numTf+'">'+(pct==null?'·':pct)+'</div></div>'
     +'<div class="rv">'+fmt(m.unit,v,pct)+'</div>'
     +statBtn(m.key,m.label)+'</div>';
@@ -1675,8 +1746,9 @@ function fmtBirth(b){if(!b)return null;const d=String(b).split('T')[0].split('-'
 function stat(l,v){return '<span class="st"><b>'+(miss(v)?'—':(+v).toFixed(1))+'</b> '+l+'</span>';}
 
 function cmpSeasonSelect(id,season,idx,isMain){
+  const pk=peakSeasonOf(id);            // each compared player carries his own star
   const opts=DATA.seasons.filter(function(s){return inSpan(id,s);})
-    .map(function(s){return '<option value="'+s+'"'+(s===season?' selected':'')+'>'+s+'</option>';}).join('');
+    .map(function(s){return '<option value="'+s+'"'+(s===season?' selected':'')+'>'+s+(s===pk?' ★':'')+'</option>';}).join('');
   const attr=isMain?'data-main="1"':'data-idx="'+idx+'"';
   return '<select class="cmp-season" '+attr+' title="Season for this player" onclick="event.stopPropagation()">'+opts+'</select>';
 }
@@ -1684,6 +1756,8 @@ function render(){
   const p=cur, S='season';
   if(!p){ document.getElementById('idbody').innerHTML='<div class="id-meta">No player data for '+curSeason+'.</div>';
           document.getElementById('ctx').innerHTML=document.getElementById('off').innerHTML=document.getElementById('def').innerHTML=document.getElementById('val').innerHTML='';
+          document.getElementById('peakflag').hidden=true;
+          document.getElementById('arcrail').hidden=true;
           document.getElementById('comps').hidden=true; document.getElementById('role').hidden=true; document.getElementById('guard').hidden=true; return; }
   const wt=val(p,'strength',S), vt=val(p,'vert',S), la=val(p,'lateral',S);
   const bd=fmtBirth(p.birthdate);
@@ -1720,6 +1794,7 @@ function render(){
       +meas('Height',inFt(val(p,'height',S)))+meas('Wingspan',inFt(val(p,'length',S)))+meas('Reach',inFt(val(p,'reach',S)))
       +meas('Max vert',miss(vt)?'—':vt.toFixed(1)+'"')+meas('Weight',miss(wt)?'—':Math.round(wt))+meas('Lane agility',miss(la)?'—':la.toFixed(1)+'s')
     +'</div>';
+  renderPeak();
   // the pill above was just rebuilt with aria-expanded="false", so the panel resets with it
   const tcEl=document.getElementById('trendchart');
   if(tcEl){ tcEl.hidden=true; tcEl.innerHTML=''; }
@@ -1782,6 +1857,56 @@ function shotSvg(sd,mode){
   }
   return '<svg class="shot-svg" viewBox="0 0 516 486" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="shot heatmap">'
     +'<rect x="'+SHOT_MX+'" y="'+SHOT_MY+'" width="500" height="470" fill="#FBFAF8"/>'+cells+SHOT_COURT+'</svg>';
+}
+/* The career arc — the cue and the navigation in one control. Every season he played is a
+   tick: height and colour are both his position-adjusted BPM percentile that year, so the
+   shape of a career reads before any number does. The peak tick is full gold and starred,
+   the season you are on is ringed, and a year that missed the games floor is drawn as a
+   stub — still clickable, but visibly never in the running, with the reason on hover.
+   That stub is the honest way to show a floor: the season is not hidden, it is disqualified. */
+function renderPeak(){
+  const flag=document.getElementById('peakflag'), rail=document.getElementById('arcrail');
+  if(!flag||!rail) return;
+  const arc=(curId!=null)?careerArc(curId):null;
+  const pk=(arc&&arc.peak)?arc.peak.season:null;
+  const isPeak=(pk!=null&&pk===curSeason&&!(cur&&cur._injury));
+  flag.hidden=!isPeak;
+  if(isPeak) flag.title='Career best — '+pk+' is his highest Box Plus/Minus ('
+    +arc.peak.b.toFixed(1)+'), counting only seasons of at least '+PEAK_MIN_GP+' games or '
+    +PEAK_MIN_SHARE+'% of his team’s. BPM is a model estimate, not a measurement.';
+
+  const pts=arc?arc.pts:[];
+  if(pts.length<2){ rail.hidden=true; rail.innerHTML=''; return; }
+  rail.hidden=false;
+  /* Columns are flex:1, so a three-season career would otherwise render three 370px slabs.
+     Capping the rail's own width keeps a tick a tick, and the footer spans exactly the same
+     box as the ticks so the end-year labels stay pinned to the ends of the arc. */
+  rail.style.maxWidth=(pts.length*48+96)+'px';
+  let bars='';
+  pts.forEach(function(p){
+    const on=(p.s===curSeason), isPk=(p.s===pk);
+    const h=p.ok?(14+86*p.h):7;
+    const bg=isPk?'var(--gold)':(p.ok?goldAt(100*p.h):'var(--track)');
+    const t=p.ok?(p.s+' · '+(p.b>0?'+':'')+p.b.toFixed(1)+' BPM'
+                  +(p.pct!=null?' · '+Math.round(p.pct)+'th at his position':'')
+                  +(isPk?' · career best':'')+(p.gp!=null?' · '+p.gp+' games':''))
+                :(p.s+' · not in the running: '+p.why);
+    const ta=t.replace(/"/g,'&quot;');
+    bars+='<button type="button" class="arc-col'+(on?' on':'')+(isPk?' pk':'')+(p.ok?'':' out')+'"'
+      +' data-s="'+p.s+'" title="'+ta+'" aria-label="'+ta+'"'+(on?' aria-current="true"':'')+'>'
+      +(isPk?'<span class="arc-star" aria-hidden="true">★</span>':'')
+      +'<span class="arc-bar" style="height:'+h.toFixed(1)+'%;background:'+bg+'"></span></button>';
+  });
+  const nOut=pts.filter(function(p){return !p.ok;}).length;
+  rail.innerHTML='<div class="arc-h">Career arc<span>Box Plus/Minus, against his own range'
+      +(nOut?' · '+nOut+' season'+(nOut>1?'s':'')+' under the '+PEAK_MIN_GP+'-game floor':'')+'</span></div>'
+    +'<div class="arc-ticks">'+bars+'</div>'
+    +'<div class="arc-foot"><span>'+pts[0].s+'</span>'
+      /* "best" spelled out: when the peak is also his newest or oldest season the centre
+         label repeats an end label, and without the word that reads as a duplication bug. */
+      +(pk?'<span class="arc-pklab">★ best '+pk+'</span>'
+          :'<span class="arc-pklab">no season clears the floor</span>')
+      +'<span>'+pts[pts.length-1].s+'</span></div>';
 }
 function renderShots(){
   const el=document.getElementById('shots'); if(!el) return;
@@ -2086,6 +2211,103 @@ function trendSlope(pts){               // least squares, percentile points per 
   const den=pts.reduce((a,p)=>a+(p.y-mx)*(p.y-mx),0);
   return den?pts.reduce((a,p)=>a+(p.y-mx)*(p.v-my),0)/den:null;
 }
+
+/* ---------------------------------------------------------------- career peak
+   "His best season" is his highest Box Plus/Minus. BPM is a model estimate rather than a
+   measurement, so every surface that shows the peak says what it is measuring rather than
+   asserting a bare verdict.
+
+   WHY RAW BPM AND NOT THE PERCENTILE the trend pill uses. Percentile saturates. Once a man
+   is the best big in the league he scores ~99.5 every year, and the differences left are
+   pool-size noise: by percentile Jokic's best season is 2016-17 (7.3 BPM, 99.33) over
+   2025-26 (14.2 BPM, 99.21), which is absurd. Percentile is an ordinal scale and a career
+   peak is a cardinal question. BPM is already league-relative by construction — 0 is an
+   average player per 100 possessions — so it carries across eras without the ranking step.
+   The percentile is still shown alongside, because it answers a different, useful question.
+
+   ELIGIBILITY is the whole ballgame. A fourteen-game cameo can post a gaudy rate, and
+   without a floor that cameo is crowned a career year. A season competes only if it is
+   a real sample:
+     * qualified — the engine's own 20 GP / 15 MPG gate, so garbage-time rates are out; and
+     * PEAK_MIN_GP games, OR PEAK_MIN_SHARE% of his team's games.
+   The OR is deliberate. A flat games count would bar 1998-99 (50-game lockout) and
+   2019-20 / 2020-21 (COVID) from ever being anyone's peak — three seasons struck off the
+   record for a scheduling accident. The share clause lets a short season qualify on its
+   own terms while a full season still has to clear the real 58. */
+const PEAK_MIN_GP=58;       // the NBA's own cutoff for per-game leaderboards over 82 games
+const PEAK_MIN_SHARE=70;    // ...expressed as a share of team games, for the short seasons
+const QUAL_GP=20, QUAL_MPG=15;               // mirrors QUALIFY in savant_config.py
+
+function peakEligible(row){
+  if(!row||row._injury||!row.qualified) return false;
+  const gp=smpl(row,'avail','season');       // avail carries GP as its sample size
+  const share=val(row,'avail','season');     // ...and % of team games as its value
+  return (!miss(gp)&&gp>=PEAK_MIN_GP) || (!miss(share)&&share>=PEAK_MIN_SHARE);
+}
+function peakWhy(row){                       // why a season is out of the running
+  if(!row||row._injury) return 'did not play';
+  const gp=smpl(row,'avail','season'), share=val(row,'avail','season');
+  if(!row.qualified) return 'under the '+QUAL_GP+' GP / '+QUAL_MPG+' MPG qualifier';
+  return (miss(gp)?'too few games':gp+' games')+
+         (miss(share)?'':' ('+share.toFixed(0)+'% of the team’s)')+
+         ' — under the '+PEAK_MIN_GP+'-game floor';
+}
+
+/* One pass per player, cached: his BPM and percentile in every season he played, which
+   season won, and why the others were skipped. `h` is the season's height in his OWN career
+   range — 0 at his worst eligible year, 1 at his best — which is what the rail draws. That
+   normalisation is the point of the arc: it asks where a season sits against the rest of
+   this man's work, not against the league. The rail, the ribbon and the star all read here. */
+const ARC_CACHE={};
+function careerArc(id){
+  if(id==null) return null;
+  if(ARC_CACHE[id]) return ARC_CACHE[id];
+  const e=PIDX[id]; if(!e) return (ARC_CACHE[id]={pts:[],peak:null});
+  const pts=[]; let peak=null;
+  DATA.seasons.slice().reverse().forEach(function(s){        // oldest -> newest
+    if(!e.seasons.has(s)) return;
+    const row=e.rows[s]; if(!row) return;
+    const ok=peakEligible(row);
+    const b=ok?val(row,'bpm','season'):null;
+    const good=(ok&&!miss(b));
+    pts.push({s:s,b:good?b:null,pct:good?trendPctOf(row,s):null,h:0,ok:good,
+              gp:smpl(row,'avail','season'),why:ok?null:peakWhy(row)});
+    if(good&&(!peak||b>peak.b)) peak={season:s,b:b};
+  });
+  const live=pts.filter(function(p){return p.ok;});
+  if(live.length){
+    let lo=Infinity,hi=-Infinity;
+    live.forEach(function(p){ if(p.b<lo)lo=p.b; if(p.b>hi)hi=p.b; });
+    const span=hi-lo;
+    live.forEach(function(p){ p.h=span>0?(p.b-lo)/span:1; });
+  }
+  return (ARC_CACHE[id]={pts:pts,peak:peak});
+}
+function peakSeasonOf(id){ const a=careerArc(id); return (a&&a.peak)?a.peak.season:null; }
+
+/* The "degrees" ramp: parchment at the bottom of a man's own range, full gold at the top.
+   Distinct from colorAt(), which ranks him against the league — this one is entirely
+   self-referential, which is the whole point of a career arc. */
+function goldAt(p){
+  const LO=[230,227,219], HI=[194,162,99];
+  const t=Math.max(0,Math.min(100,p))/100;
+  return 'rgb('+LO.map(function(c,i){return Math.round(c+(HI[i]-c)*t);}).join(',')+')';
+}
+
+/* His best raw mark for one metric, over eligible seasons only — same floor, so a career
+   high can't come from a cameo either. */
+const CH_CACHE={};
+function careerHigh(id,key,lower){
+  const ck=id+'|'+key;
+  if(CH_CACHE[ck]!==undefined) return CH_CACHE[ck];
+  const e=PIDX[id]; let best=null;
+  if(e) DATA.seasons.forEach(function(s){
+    const row=e.rows[s]; if(!peakEligible(row)) return;
+    const v=val(row,key,'season'); if(miss(v)) return;
+    if(best==null||(lower?v<best:v>best)) best=v;
+  });
+  return (CH_CACHE[ck]=best);
+}
 function trendBadge(){
   const pts=trendSeries(); if(!pts) return '';
   const sl=trendSlope(pts); if(sl==null) return '';
@@ -2313,7 +2535,11 @@ function resolveCur(){
 }
 function updateSeasonOptions(){
   const sel=document.getElementById('seasonSel'); if(!sel) return;
-  Array.from(sel.options).forEach(function(o){ o.disabled=(curId!=null && !inSpan(curId,o.value)); });
+  const pk=(curId!=null)?peakSeasonOf(curId):null;
+  Array.from(sel.options).forEach(function(o){
+    o.disabled=(curId!=null && !inSpan(curId,o.value));
+    o.textContent=o.value+(o.value===pk?' ★':'');   // findable before you land on it
+  });
 }
 function selectPlayer(id){
   curId=id;
@@ -2337,6 +2563,13 @@ function setSeason(s){
   if(ts && ts.value && !document.getElementById('teamPanel').hidden) openTeam(ts.value);
   updateSeasonOptions();
   render();
+  if(playing) flarePeak();     // walking the seasons should land on the peak, not slide past it
+}
+/* Autoplay crossing the best year is the one moment the ribbon can afford to move. */
+function flarePeak(){
+  const f=document.getElementById('peakflag');
+  if(!f||f.hidden) return;
+  f.classList.remove('flare'); void f.offsetWidth; f.classList.add('flare');
 }
 function setPlayIcon(){
   const b=document.getElementById('playbtn');
@@ -2422,7 +2655,12 @@ function buildShareShell(){
   shell.className='export-shell';
   shell.innerHTML=
     '<div class="sc-head"><span class="wce">WCE</span><div class="brand-word">Basketball <span>Savant</span></div>'
-     +'<span class="sc-tag">'+curSeason+' · '+win.toUpperCase()+' · vs '+basis+'</span></div>'
+     +'<span class="sc-tag">'+curSeason+' · '+win.toUpperCase()+' · vs '+basis+'</span>'
+     /* The shared image is the thing that actually travels, so the peak has to survive the
+        raster. Flat tag rather than the card's rotated ribbon: html2canvas 1.4.1 rasterizes
+        this shell, and a rotated element is exactly what it renders unreliably. */
+     +((peakSeasonOf(curId)===curSeason&&!p._injury)?'<span class="sc-peak">CAREER BEST</span>':'')
+     +'</div>'
     +'<div class="sc-id"><div class="sc-ava">'+initials(p.name)+'</div>'
        +'<div><div class="sc-name">'+p.name+'</div><div class="sc-meta">'+meta.join(' · ')+'</div>'+sl+'</div></div>'
     +scRow(byKey('mpg'),'sc-mpg')
@@ -2468,6 +2706,11 @@ function build(){
   DATA.seasons.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
   sel.value=curSeason;
   sel.addEventListener('change',e=>{stopPlay();setSeason(e.target.value);});
+  const ar=document.getElementById('arcrail');
+  if(ar) ar.addEventListener('click',function(e){
+    const b=e.target.closest('.arc-col'); if(!b) return;
+    stopPlay(); setSeason(b.getAttribute('data-s'));
+  });
   const pb=document.getElementById('playbtn'); pb.hidden=DATA.seasons.length<2;
   pb.onclick=()=>{ playing?stopPlay():startPlay(); }; setPlayIcon();
   const eb=document.getElementById('exportbtn'); if(eb) eb.onclick=exportCard;
