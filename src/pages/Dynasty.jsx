@@ -319,10 +319,20 @@ export default function Dynasty() {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...body, uid: me.current }),
     })
-    const j = await r.json().catch(() => ({}))
-    // This API reports its own failures as HTTP 200 with { configured: false } — checking
-    // r.ok alone lets that through as success, and the room then silently never opens.
-    if (!r.ok || j.configured === false || j.error) throw new Error(j.error || 'lobby unavailable')
+    // Everything below is a failure this endpoint can report while still looking like a
+    // success, and each one of them used to end as a click that did nothing:
+    //   non-JSON  — an auth wall (protected preview) answering the API with its login page
+    //   200 + configured:false — how the handler reports its own caught exceptions
+    //   200 + seeded:false     — Redis reachable but the board has no players in it
+    //   200 + no code          — anything else shaped wrong
+    // Treat the response as a room or throw; never hand back something half-formed.
+    const ct = r.headers.get('content-type') || ''
+    if (!ct.includes('json')) throw new Error('got a web page instead of data — is this deployment behind a login?')
+    const j = await r.json().catch(() => null)
+    if (!j) throw new Error('unreadable response')
+    if (!r.ok || j.configured === false || j.error) throw new Error(j.error || 'the lobby service is unavailable')
+    if (j.seeded === false) throw new Error('the dynasty board has no players on this deployment')
+    if (!j.code) throw new Error('the server did not return a room')
     return j
   }, [])
 

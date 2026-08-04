@@ -432,7 +432,12 @@ export default async function handler(req, res) {
         if (await rateLimited(ipOf(req))) { res.status(429).json({ error: 'slow down' }); return }
         await ensureSeeded(req)
         const { ids } = await orderedIds()
-        if (!ids.length) { res.status(200).json({ seeded: false }); return }
+        // An empty board is a real failure for a room, not a quiet state to shrug at: there
+        // is nothing to rank. Say so with a status the client cannot mistake for success.
+        if (!ids.length) {
+          res.status(503).json({ error: 'the dynasty board is empty on this deployment', seeded: false })
+          return
+        }
         // Collide-and-retry rather than trusting 923k combinations: rooms are short-lived and
         // a collision would drop two groups into one argument.
         let made = ''
