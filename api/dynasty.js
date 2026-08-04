@@ -147,7 +147,13 @@ async function ensureSeeded(req) {
     const host = req.headers['x-forwarded-host'] || req.headers.host
     const r = await fetch(`${proto}://${host}/dynasty/players.json`)
     if (!r.ok) return n
-    const doc = await r.json()
+    // A protected preview answers this with the SSO login page: fetch follows the 302, so
+    // the status is a cheerful 200 and only the content type gives it away. Parsing that as
+    // JSON throws and takes the whole endpoint down with it, which reads as the board being
+    // unconfigured rather than unreachable. Seeding is optional — bail and keep serving.
+    if (!(r.headers.get('content-type') || '').includes('json')) return n
+    const doc = await r.json().catch(() => null)
+    if (!doc) return n
     players = (doc.players || []).filter((p) => p.id != null)
     if (!players.length) return n
     poolCache = players

@@ -319,8 +319,10 @@ export default function Dynasty() {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...body, uid: me.current }),
     })
-    const j = await r.json()
-    if (!r.ok) throw new Error(j.error || 'lobby error')
+    const j = await r.json().catch(() => ({}))
+    // This API reports its own failures as HTTP 200 with { configured: false } — checking
+    // r.ok alone lets that through as success, and the room then silently never opens.
+    if (!r.ok || j.configured === false || j.error) throw new Error(j.error || 'lobby unavailable')
     return j
   }, [])
 
@@ -340,7 +342,12 @@ export default function Dynasty() {
   const lobCreate = async () => {
     setLobBusy(true); setLobErr(null)
     try { setLob(await lobCall('lobby-create', { name: lobName })); setLobOrder([]) }
-    catch (e) { setLobErr(e.message === 'slow down' ? 'Too many rooms too fast — wait a moment.' : 'Could not open a room.') }
+    catch (e) {
+      // Show what the server actually said. "Could not open a room" on its own sends you
+      // hunting through the client for a fault that is usually the backend or its config.
+      setLobErr(e.message === 'slow down' ? 'Too many rooms too fast — wait a moment.'
+        : `Could not open a room — ${e.message}`)
+    }
     setLobBusy(false)
   }
   const lobJoin = async () => {
