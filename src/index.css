@@ -594,6 +594,12 @@ body {
 }
 .dyn-btn-ghost:hover { color: var(--dyn-text); border-color: var(--dyn-faint); }
 .dyn-btn:focus-visible, .dyn-btn-ghost:focus-visible { outline: 2px solid var(--dyn-gold); outline-offset: 2px; }
+.dyn-input {
+  border: 1px solid var(--dyn-line); background: var(--dyn-bg); padding: 12px;
+  font-size: 13px; color: var(--dyn-text); outline: none; min-width: 0;
+}
+.dyn-input::placeholder { color: var(--dyn-faint); }
+.dyn-input:focus { border-color: var(--dyn-gold); }
 
 /* live dot */
 @keyframes dyn-pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
