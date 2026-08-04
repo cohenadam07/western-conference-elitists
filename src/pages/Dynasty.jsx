@@ -247,7 +247,15 @@ export default function Dynasty() {
   // and a deliberate step onto the floor. Being handed four strangers to rank with no
   // framing is a bad first ten seconds.
   // 'hub' is the front door; the rest are the rooms behind it.
-  const [view, setView] = useState('hub')       // hub | rank | board | trending | team
+  const [view, setView] = useState('hub')       // hub | rank | board | trending | team | lobby
+  // ---- lobby (a room of people ranking the same four) ----
+  // `code`/`setCode` below belong to the fantasy-league connect, hence lob* here.
+  const [lobCode, setLobCode] = useState('')    // what the user typed on the join form
+  const [lob, setLob] = useState(null)          // server state for the room we're actually in
+  const [lobName, setLobName] = useState('')
+  const [lobOrder, setLobOrder] = useState([])
+  const [lobBusy, setLobBusy] = useState(false)
+  const [lobErr, setLobErr] = useState(null)
   const [roster, setRoster] = useState('')      // paste-your-team box
   const [valued, setValued] = useState(null)
   const [teamMode, setTeamMode] = useState('connect')   // connect | paste
@@ -302,6 +310,88 @@ export default function Dynasty() {
   }, [])
 
   useEffect(() => { loadBoard(); nextGroup() }, [loadBoard, nextGroup])
+
+  // ---- lobby plumbing ------------------------------------------------------
+  const lobCall = useCallback(async (action, body) => {
+    const isGet = action === 'lobby-state'
+    const qs = new URLSearchParams({ action, uid: me.current, ...(isGet ? { code: body.code } : {}) })
+    const r = await fetch(`${API}?${qs}`, isGet ? undefined : {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...body, uid: me.current }),
+    })
+    // Everything below is a failure this endpoint can report while still looking like a
+    // success, and each one of them used to end as a click that did nothing:
+    //   non-JSON  — an auth wall (protected preview) answering the API with its login page
+    //   200 + configured:false — how the handler reports its own caught exceptions
+    //   200 + seeded:false     — Redis reachable but the board has no players in it
+    //   200 + no code          — anything else shaped wrong
+    // Treat the response as a room or throw; never hand back something half-formed.
+    const ct = r.headers.get('content-type') || ''
+    if (!ct.includes('json')) throw new Error('got a web page instead of data — is this deployment behind a login?')
+    const j = await r.json().catch(() => null)
+    if (!j) throw new Error('unreadable response')
+    if (!r.ok || j.configured === false || j.error) throw new Error(j.error || 'the lobby service is unavailable')
+    if (j.seeded === false) throw new Error('the dynasty board has no players on this deployment')
+    if (!j.code) throw new Error('the server did not return a room')
+    return j
+  }, [])
+
+  // Poll while the room is open. Vercel supports WebSockets now, but a room is a handful of
+  // people making one decision — a 2s poll costs a few Redis reads and needs no connection
+  // to keep alive, reconnect, or reason about on a flaky phone.
+  useEffect(() => {
+    if (view !== 'lobby' || !lob?.code || lob.status !== 'open') return undefined
+    const t = setInterval(() => {
+      lobCall('lobby-state', { code: lob.code })
+        .then((j) => setLob((p) => (p && p.code === j.code ? { ...p, ...j } : p)))
+        .catch(() => { /* transient — the next tick retries */ })
+    }, 2000)
+    return () => clearInterval(t)
+  }, [view, lob?.code, lob?.status, lobCall])
+
+  const lobCreate = async () => {
+    setLobBusy(true); setLobErr(null)
+    try { setLob(await lobCall('lobby-create', { name: lobName })); setLobOrder([]) }
+    catch (e) {
+      // Show what the server actually said. "Could not open a room" on its own sends you
+      // hunting through the client for a fault that is usually the backend or its config.
+      setLobErr(e.message === 'slow down' ? 'Too many rooms too fast — wait a moment.'
+        : `Could not open a room — ${e.message}`)
+    }
+    setLobBusy(false)
+  }
+  const lobJoin = async () => {
+    const c = lobCode.trim().toUpperCase()
+    if (c.length !== 4) { setLobErr('Codes are four characters.'); return }
+    setLobBusy(true); setLobErr(null)
+    try { setLob(await lobCall('lobby-join', { code: c, name: lobName })); setLobOrder([]) }
+    catch (e) {
+      setLobErr(e.message === 'no such lobby' ? 'No room with that code — it may have expired.'
+        : e.message === 'lobby full' ? 'That room is full.' : 'Could not join.')
+    }
+    setLobBusy(false)
+  }
+  const lobSubmit = async () => {
+    if (lobOrder.length !== 4 || lobBusy) return
+    setLobBusy(true); setLobErr(null)
+    try {
+      const j = await lobCall('lobby-submit', { code: lob.code, order: lobOrder })
+      setLob((p) => ({ ...p, ...j }))
+    } catch { setLobErr('Ranking rejected.') }
+    setLobBusy(false)
+  }
+  const lobClose = async () => {
+    setLobBusy(true)
+    try {
+      const j = await lobCall('lobby-close', { code: lob.code })
+      setLob((p) => ({ ...p, ...j }))
+    } catch { setLobErr('Could not close the room.') }
+    setLobBusy(false)
+  }
+  const lobPick = (id) => {
+    if (lobBusy || lob?.status === 'settled' || lob?.submitted?.includes(me.current)) return
+    setLobOrder((o) => (o.includes(id) ? o.filter((x) => x !== id) : o.length < 4 ? [...o, id] : o))
+  }
 
   const pick = (id) => {
     if (busy || result) return
@@ -454,6 +544,9 @@ export default function Dynasty() {
         d: `All ${seed?.count ?? rows.length} assets, priced by the crowd, with 24h movement and how thin each price is.`, cta: 'Open the board →' },
       { id: 'trending', k: 'Activity', t: 'Trending',
         d: 'What is actually moving right now — biggest gainers and fallers, momentum runs, and the live trade tape.', cta: 'See what is moving →' },
+      { id: 'lobby', k: 'With friends', t: 'Settle it in a room',
+        d: 'Open a room, share the code, and everyone ranks the same four. The room settles as one answer — and a room that agrees moves the board harder than a room that splits.',
+        cta: 'Open a room →' },
       { id: 'team', k: 'Your roster', t: 'Value my team',
         d: 'Paste your roster from any platform and the market prices it, player by player, with a total.', cta: 'Paste a roster →' },
     ]
@@ -511,6 +604,159 @@ export default function Dynasty() {
           </p>
         </div>
       </div>
+    )
+  }
+
+  // ---- lobby ---------------------------------------------------------------
+  if (view === 'lobby') {
+    const inRoom = !!lob?.code
+    const meIn = !!lob?.submitted?.includes(me.current)
+    const roster = Object.entries(lob?.roster || {})
+    const res = lob?.result
+    const settled = lob?.status === 'settled'
+    return (
+      <Shell kicker="With friends" title="THE ROOM" total={total}
+        onHome={() => { setView('hub'); setLobErr(null) }}>
+        <div className="mx-auto max-w-3xl px-5 py-10">
+          {!inRoom && (
+            <section className="dyn-panel p-5">
+              <div className="dyn-label text-[var(--dyn-gold)]">Start or join</div>
+              <p className="mt-2 text-[13px] leading-relaxed text-[var(--dyn-dim)]">
+                Everyone in a room ranks the identical four. When the last person has ranked, the
+                room settles as a single answer — the more you agree, the harder it moves the board.
+              </p>
+              <label className="dyn-label mt-5 block text-[var(--dyn-faint)]" htmlFor="lobname">Your name</label>
+              <input id="lobname" value={lobName} onChange={(e) => setLobName(e.target.value)}
+                placeholder="Shown to the room" maxLength={24}
+                className="dyn-input mt-1 w-full" />
+              <div className="mt-5 flex flex-wrap items-end gap-3">
+                <button type="button" onClick={lobCreate} disabled={lobBusy} className="dyn-btn">
+                  {lobBusy ? 'Opening…' : 'Open a room'}
+                </button>
+                <span className="dyn-mono text-[11px] text-[var(--dyn-faint)]">OR</span>
+                <div>
+                  <label className="dyn-label block text-[var(--dyn-faint)]" htmlFor="lobcode">Room code</label>
+                  <input id="lobcode" value={lobCode} maxLength={4}
+                    onChange={(e) => setLobCode(e.target.value.toUpperCase())}
+                    placeholder="ABCD"
+                    className="dyn-input dyn-mono mt-1 w-28 tracking-[0.3em]" />
+                </div>
+                <button type="button" onClick={lobJoin} disabled={lobBusy} className="dyn-btn-ghost">Join</button>
+              </div>
+              {lobErr && <p className="dyn-mono dyn-down mt-3 text-[11px]">{lobErr}</p>}
+            </section>
+          )}
+
+          {inRoom && (
+            <>
+              <section className="dyn-panel">
+                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--dyn-line)] px-5 py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="dyn-label text-[var(--dyn-gold)]">Room</span>
+                    <span className="dyn-mono text-lg tracking-[0.3em] text-[var(--dyn-text)]">{lob.code}</span>
+                  </div>
+                  <span className="dyn-mono text-[11px] text-[var(--dyn-faint)]">
+                    {settled ? 'SETTLED' : `${lob.submitted?.length || 0}/${roster.length} RANKED`}
+                  </span>
+                </header>
+
+                <div className="border-b border-[var(--dyn-line)] px-5 py-3">
+                  <div className="flex flex-wrap gap-2">
+                    {roster.map(([uid, nm]) => {
+                      const done = lob.submitted?.includes(uid)
+                      return (
+                        <span key={uid}
+                          className={`dyn-mono rounded-sm border px-2 py-1 text-[10px] tracking-wider ${
+                            done ? 'border-[var(--dyn-up)] text-[var(--dyn-up)]'
+                                 : 'border-[var(--dyn-line)] text-[var(--dyn-faint)]'}`}>
+                          {done ? '✓ ' : '· '}{nm}{uid === me.current ? ' (you)' : ''}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <div className="p-5">
+                  {!settled && (
+                    <>
+                      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                        {lob.group.map((id) => (
+                          <TicketCard key={id} p={byId[String(id)] || { id, name: `#${id}` }}
+                            slot={lobOrder.indexOf(String(id)) + 1}
+                            disabled={lobBusy || meIn} onPick={() => lobPick(String(id))} />
+                        ))}
+                      </div>
+                      <div className="mt-5 flex flex-wrap items-center gap-3">
+                        {!meIn && (
+                          <button type="button" onClick={lobSubmit}
+                            disabled={lobOrder.length !== 4 || lobBusy} className="dyn-btn">
+                            {lobBusy ? 'Locking in…' : lobOrder.length === 4 ? 'Lock in my ranking'
+                              : `Select ${4 - lobOrder.length} more`}
+                          </button>
+                        )}
+                        {meIn && (
+                          <span className="dyn-mono text-[11px] text-[var(--dyn-up)]">
+                            LOCKED IN · WAITING ON THE ROOM
+                          </span>
+                        )}
+                        {/* host escape hatch: somebody always wanders off mid-argument */}
+                        {lob.host && (lob.submitted?.length || 0) > 0
+                          && lob.submitted.length < roster.length && (
+                          <button type="button" onClick={lobClose} className="dyn-btn-ghost">
+                            Settle without the stragglers
+                          </button>
+                        )}
+                        {lobErr && <span className="dyn-mono dyn-down text-[11px]">{lobErr}</span>}
+                      </div>
+                    </>
+                  )}
+
+                  {settled && res && (
+                    <>
+                      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                        {res.consensus.map((id, i) => {
+                          const mv = res.moved.find((x) => String(x.id) === String(id))
+                          return (
+                            <div key={id} className="dyn-card p-4 text-center">
+                              <div className="dyn-label">Room #{i + 1}</div>
+                              <div className="dyn-mono mt-1 text-[10px] tracking-widest text-[var(--dyn-faint)]">
+                                {symbolOf(nameOf(id))}
+                              </div>
+                              <div className="mt-1 text-sm text-[var(--dyn-text)]">{nameOf(id)}</div>
+                              <div className="mt-2"><Chg delta={mv?.delta ?? 0} /></div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <div className="mt-5 grid gap-px bg-[var(--dyn-line)] sm:grid-cols-3">
+                        <Stat label="Voters" value={res.voters} />
+                        <Stat label="Agreement" value={`${Math.round(res.agreement * 100)}%`}
+                          tone={res.agreement >= 0.5 ? 'dyn-up' : ''} />
+                        <Stat label="Worth" value={`${res.weight}× a single pick`}
+                          tone={res.weight === 0 ? 'dyn-down' : 'dyn-up'} />
+                      </div>
+                      <p className="mt-4 text-[12px] leading-relaxed text-[var(--dyn-faint)]">
+                        {res.weight === 0
+                          ? 'The room split evenly, so nothing moved. A room only moves the board when it actually agrees.'
+                          : `The room's answer was applied once, worth ${res.weight}× a single pick. A room's influence is capped no matter how many people are in it.`}
+                      </p>
+                      <div className="mt-5 flex flex-wrap items-center gap-3">
+                        <button type="button"
+                          onClick={() => { setLob(null); setLobOrder([]); setLobCode(''); loadBoard() }}
+                          className="dyn-btn-ghost">Another room →</button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </section>
+
+              <p className="dyn-mono mt-4 text-center text-[11px] text-[var(--dyn-faint)]">
+                SHARE THE CODE <span className="text-[var(--dyn-gold)]">{lob.code}</span> — ROOMS EXPIRE AFTER SIX HOURS
+              </p>
+            </>
+          )}
+        </div>
+      </Shell>
     )
   }
 

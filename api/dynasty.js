@@ -30,6 +30,11 @@
 //   dyn:daily:<day>:res  HASH  pid -> "rankSum:count" for the post-submit averages
 //   dyn:daily:<day>:u    SET   client ids that already played today (one attempt each)
 //   dyn:rl:<ip>:<min>    STR   per-minute rate limit
+//   dyn:lob:<code>       HASH  a lobby: group, host, status, createdAt, result
+//   dyn:lob:<code>:m     HASH  uid -> display name (members)
+//   dyn:lob:<code>:s     HASH  uid -> submitted order
+
+import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity'
 
 const URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
@@ -57,6 +62,22 @@ const NONCE_TTL = 600           // a served group is submittable for 10 minutes
 
 const ID_RE = /^[0-9]{1,12}$/
 const NONCE_RE = /^[a-z0-9]{8,40}$/i
+
+// ---------------------------------------------------------------- lobbies
+// A room where everyone ranks the SAME four and the room's answer settles as one result.
+//
+// LOBBY_W_CAP is the whole safety story, so it is worth being explicit about. A room's vote
+// is worth sqrt(members) x agreement single votes, capped here. sqrt because the tenth person
+// to say the same thing is not as informative as the second; agreement because a room split
+// four ways has told us nothing and should move nothing; and the cap because `uid` is a
+// localStorage string — anyone can mint a hundred of them in a loop. With the cap, the worst
+// a brigade achieves is six ordinary votes, which the board absorbs. Without it, the same
+// brigade owns the market.
+const LOBBY_TTL = 6 * 3600      // rooms are an evening's argument, not a fixture
+const LOBBY_MAX = 200           // members per room
+const LOBBY_W_CAP = 6           // max single-votes one room can be worth, globally
+const LOBBY_CODE_RE = /^[A-HJ-NP-Z2-9]{4}$/          // no O/0/I/L/1 — these get read aloud
+const NAME_MAX = 24
 
 async function redis(cmd) {
   const r = await fetch(URL, {
@@ -126,7 +147,13 @@ async function ensureSeeded(req) {
     const host = req.headers['x-forwarded-host'] || req.headers.host
     const r = await fetch(`${proto}://${host}/dynasty/players.json`)
     if (!r.ok) return n
-    const doc = await r.json()
+    // A protected preview answers this with the SSO login page: fetch follows the 302, so
+    // the status is a cheerful 200 and only the content type gives it away. Parsing that as
+    // JSON throws and takes the whole endpoint down with it, which reads as the board being
+    // unconfigured rather than unreachable. Seeding is optional — bail and keep serving.
+    if (!(r.headers.get('content-type') || '').includes('json')) return n
+    const doc = await r.json().catch(() => null)
+    if (!doc) return n
     players = (doc.players || []).filter((p) => p.id != null)
     if (!players.length) return n
     poolCache = players
@@ -189,6 +216,127 @@ async function readBoard(limit) {
   prevOrder.forEach((id, i) => { prevRank[id] = i + 1 })
   rows.forEach((r) => { r.rankDelta = prevRank[r.id] ? prevRank[r.id] - r.rank : 0 })
   return { rows, total: Number(total || 0) }
+}
+
+// ---------------------------------------------------------------- lobby helpers
+const LOBBY_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
+const makeCode = () => Array.from({ length: 4 },
+  () => LOBBY_ALPHABET[Math.floor(Math.random() * LOBBY_ALPHABET.length)]).join('')
+
+const lobK = (code, suffix = '') => 'dyn:lob:' + code + suffix
+
+// The room's four, drawn the same deterministic way the daily group is drawn — seeded on the
+// code instead of the date. Same guarantee (everyone who opens this room sees the identical
+// four) with no new mechanism, and it means a code is the only state a person needs to join.
+function lobbyGroup(code, ids) {
+  const rnd = mulberry(hashStr('wce-lobby-' + code))
+  const poolSize = Math.min(ids.length, 120)         // top of the board: a real argument
+  const picks = []
+  let guard = 0
+  while (picks.length < GROUP && guard++ < 500) {
+    const c = ids[Math.floor(rnd() * poolSize)]
+    if (!picks.includes(c)) picks.push(c)
+  }
+  return picks
+}
+
+// Borda across every submitted ranking, plus how much the room actually agreed.
+//
+// Points are (GROUP-1) for a first-place vote down to 0 for last, so a player's total is his
+// support. `agreement` is the spread of those totals measured against the spread a unanimous
+// room would produce: 1 when everyone submitted the identical order, 0 when the room split so
+// evenly that every player drew level. That zero is the case worth naming — four friends
+// picking four different guys is the example that started this, and it falls out of the maths
+// rather than needing a rule of its own. Nobody agreed, so nothing moves.
+export function borda(orders, group) {
+  const pts = {}
+  group.forEach((id) => { pts[id] = 0 })
+  orders.forEach((o) => o.forEach((id, i) => {
+    if (pts[id] !== undefined) pts[id] += (GROUP - 1 - i)
+  }))
+  const n = orders.length || 1
+  const consensus = group.slice().sort((a, b) => (pts[b] - pts[a]) || (a < b ? -1 : 1))
+
+  const mean = n * (GROUP - 1) / 2
+  let dev = 0
+  group.forEach((id) => { dev += Math.abs(pts[id] - mean) })
+  let maxDev = 0
+  for (let r = 0; r < GROUP; r++) maxDev += Math.abs(n * (GROUP - 1 - r) - mean)
+  const agreement = maxDev > 0 ? Math.min(1, dev / maxDev) : 0
+
+  return { consensus, pts, agreement }
+}
+
+// What the room is worth as a multiplier on one ordinary vote. See LOBBY_W_CAP above.
+export const lobbyWeight = (n, agreement) =>
+  Math.min(LOBBY_W_CAP, Math.sqrt(Math.max(1, n)) * agreement)
+
+// Upstash returns hashes as a flat [k, v, k, v] array.
+function unflatten(flat) {
+  const o = {}
+  for (let i = 0; i + 1 < (flat || []).length; i += 2) o[flat[i]] = flat[i + 1]
+  return o
+}
+
+// Same filter api/leaderboard.js uses — these names are shown to the whole room.
+const nameMatcher = new RegExpMatcher({ ...englishDataset.build(), ...englishRecommendedTransformers })
+function cleanName(raw) {
+  const s = String(raw || '').replace(/[^\w \-.'#!]/g, '').trim().slice(0, NAME_MAX)
+  if (!s) return 'Anonymous'
+  try {
+    if (nameMatcher.hasMatch(s) || nameMatcher.hasMatch(s.replace(/[^a-zA-Z0-9]/g, ''))) return 'Anonymous'
+  } catch { /* filter unavailable — fall through with the stripped name */ }
+  return s
+}
+
+// Settle a room: one consensus, one Elo update, weighted as described at LOBBY_W_CAP.
+// Deliberately a single application rather than one per member — n members re-answering the
+// same question is not n independent results, which is the same reasoning behind the daily
+// group's damping further down.
+async function settleLobby(code, group, orders) {
+  const { consensus, pts, agreement } = borda(orders, group)
+  const weight = lobbyWeight(orders.length, agreement)
+
+  const [scores, sflat, nflat] = await pipe([
+    ['ZMSCORE', 'dyn:rating', ...consensus],
+    ['HGETALL', 'dyn:streak'],
+    ['HGETALL', 'dyn:seen'],
+  ])
+  const ratings = {}
+  consensus.forEach((id, i) => { ratings[id] = scores && scores[i] != null ? Number(scores[i]) : 1500 })
+  const streaks = unflatten(sflat), seenCounts = unflatten(nflat)
+
+  const delta = eloUpdates(consensus, ratings, streaks, seenCounts)
+  Object.keys(delta).forEach((k) => { delta[k] *= weight })
+
+  const cmds = []
+  // A room that could not agree has produced no information, so it writes nothing at all —
+  // no rating change, no streak flip, no seen count. It still gets its result screen.
+  if (weight > 0) {
+    consensus.forEach((id, idx) => {
+      cmds.push(['ZINCRBY', 'dyn:rating', delta[id].toFixed(4), id])
+      cmds.push(['HINCRBY', 'dyn:seen', id, 1])
+      const prev = Number(streaks[id] || 0)
+      let next = 0
+      if (idx === 0) next = prev > 0 ? prev + 1 : 1
+      else if (idx === GROUP - 1) next = prev < 0 ? prev - 1 : -1
+      cmds.push(['HSET', 'dyn:streak', id, String(Math.max(-STREAK_CAP * 2, Math.min(STREAK_CAP * 2, next)))])
+    })
+    cmds.push(['INCR', 'dyn:n'])
+    cmds.push(['LPUSH', 'dyn:recent', JSON.stringify({ order: consensus, ts: Date.now(), lobby: code })])
+    cmds.push(['LTRIM', 'dyn:recent', 0, RECENT_KEEP - 1])
+  }
+  const result = {
+    consensus, pts, agreement: Number(agreement.toFixed(3)), weight: Number(weight.toFixed(2)),
+    voters: orders.length,
+    moved: consensus.map((id) => ({
+      id, delta: Math.round(delta[id] || 0), rating: Math.round(ratings[id] + (delta[id] || 0)),
+    })),
+  }
+  cmds.push(['HSET', lobK(code), 'status', 'settled', 'result', JSON.stringify(result)])
+  cmds.push(['EXPIRE', lobK(code), LOBBY_TTL])
+  await pipe(cmds)
+  return { result }
 }
 
 // ---------------------------------------------------------------- matchmaking
@@ -266,6 +414,108 @@ export default async function handler(req, res) {
 
   try {
     const action = String((req.query && req.query.action) || 'board')
+
+    // ---- lobbies ----------------------------------------------------------
+    // dyn:lob:<code>    HASH  group, host, status, createdAt, result (JSON, once settled)
+    // dyn:lob:<code>:m  HASH  uid -> display name
+    // dyn:lob:<code>:s  HASH  uid -> submitted order, comma separated
+    if (action.startsWith('lobby')) {
+      const body = req.method === 'POST'
+        ? (typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {}))
+        : {}
+      const code = String((req.query.code ?? body.code) || '').toUpperCase().slice(0, 4)
+      const uid = String((req.query.uid ?? body.uid) || '').slice(0, 64)
+      const name = cleanName(body.name)
+      if (!uid) { res.status(400).json({ error: 'no uid' }); return }
+
+      if (req.method === 'POST' && action === 'lobby-create') {
+        if (await rateLimited(ipOf(req))) { res.status(429).json({ error: 'slow down' }); return }
+        await ensureSeeded(req)
+        const { ids } = await orderedIds()
+        // An empty board is a real failure for a room, not a quiet state to shrug at: there
+        // is nothing to rank. Say so with a status the client cannot mistake for success.
+        if (!ids.length) {
+          res.status(503).json({ error: 'the dynasty board is empty on this deployment', seeded: false })
+          return
+        }
+        // Collide-and-retry rather than trusting 923k combinations: rooms are short-lived and
+        // a collision would drop two groups into one argument.
+        let made = ''
+        for (let t = 0; t < 8 && !made; t++) {
+          const c = makeCode()
+          const [ok] = await pipe([['HSETNX', lobK(c), 'host', uid]])
+          if (Number(ok) === 1) made = c
+        }
+        if (!made) { res.status(503).json({ error: 'could not allocate a code' }); return }
+        const group = lobbyGroup(made, ids)
+        await pipe([
+          ['HSET', lobK(made), 'group', group.join(','), 'status', 'open', 'createdAt', String(Date.now())],
+          ['HSET', lobK(made, ':m'), uid, name],
+          ['EXPIRE', lobK(made), LOBBY_TTL],
+          ['EXPIRE', lobK(made, ':m'), LOBBY_TTL],
+        ])
+        // Return the full room shape, not just the code: the creator is already a member, and
+        // a response missing roster/status leaves the host staring at "0/0 ranked" until the
+        // first poll lands.
+        res.status(200).json({
+          ok: true, code: made, group, host: true, status: 'open',
+          roster: { [uid]: name }, submitted: [], result: null,
+        })
+        return
+      }
+
+      if (!LOBBY_CODE_RE.test(code)) { res.status(400).json({ error: 'bad code' }); return }
+      const [meta, members, subs] = await pipe([
+        ['HGETALL', lobK(code)], ['HGETALL', lobK(code, ':m')], ['HGETALL', lobK(code, ':s')],
+      ])
+      const m = unflatten(meta)
+      if (!m.group) { res.status(404).json({ error: 'no such lobby' }); return }
+      const roster = unflatten(members), submitted = unflatten(subs)
+      const group = String(m.group).split(',')
+
+      if (req.method === 'POST' && action === 'lobby-join') {
+        if (!roster[uid] && Object.keys(roster).length >= LOBBY_MAX) {
+          res.status(409).json({ error: 'lobby full' }); return
+        }
+        if (!roster[uid]) {
+          await pipe([['HSET', lobK(code, ':m'), uid, name], ['EXPIRE', lobK(code, ':m'), LOBBY_TTL]])
+          roster[uid] = name
+        }
+      }
+
+      if (req.method === 'POST' && action === 'lobby-submit') {
+        const order = Array.isArray(body.order) ? body.order.map(String) : []
+        if (m.status !== 'open') { res.status(409).json({ error: 'already settled' }); return }
+        if (!roster[uid]) { res.status(403).json({ error: 'join first' }); return }
+        if (order.length !== GROUP || new Set(order).size !== GROUP
+            || !order.every((id) => group.includes(id))) {
+          res.status(400).json({ error: 'bad order' }); return
+        }
+        await pipe([
+          ['HSET', lobK(code, ':s'), uid, order.join(',')],
+          ['EXPIRE', lobK(code, ':s'), LOBBY_TTL],
+        ])
+        submitted[uid] = order.join(',')
+      }
+
+      // Settle once every member present has ranked. The host can also close early via
+      // lobby-close, because somebody always wanders off mid-argument.
+      const everyoneIn = Object.keys(roster).length > 0
+        && Object.keys(roster).every((u) => submitted[u])
+      const wantClose = action === 'lobby-close' && uid === m.host
+      if (m.status === 'open' && (everyoneIn || wantClose) && Object.keys(submitted).length > 0) {
+        const settled = await settleLobby(code, group, Object.values(submitted).map((s) => s.split(',')))
+        res.status(200).json({ ok: true, code, group, status: 'settled', roster, submitted: Object.keys(submitted), ...settled })
+        return
+      }
+
+      res.status(200).json({
+        ok: true, code, group, status: m.status || 'open', host: m.host === uid,
+        roster, submitted: Object.keys(submitted),
+        result: m.result ? JSON.parse(m.result) : null,
+      })
+      return
+    }
 
     // ---- GET board (+ totals + recent feed) -------------------------------
     if (req.method === 'GET' && action === 'board') {
