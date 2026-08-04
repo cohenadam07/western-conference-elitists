@@ -68,6 +68,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .arcbtn .caret{font-size:8px;transition:transform .18s ease}
 .arcbtn[aria-expanded="true"]{border-color:var(--navy);color:var(--ink)}
 .arcbtn[aria-expanded="true"] .caret{transform:rotate(180deg)}
+.arcbtn .cur{color:var(--ink)}   /* the season you're on — ink, so gold still means "best" */
 .arcbtn .pk{color:var(--gold)}
 .arcrail{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .arcrail[hidden]{display:none}
@@ -187,8 +188,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .selx-opt:hover{background:var(--track)}
 .selx-opt[aria-selected="true"]{background:var(--navy);color:#fff}
 .selx-opt[aria-selected="true"] .selx-star{color:var(--gold)}
-.selx-opt[aria-disabled="true"]{color:var(--faint);cursor:default}
-.selx-opt[aria-disabled="true"]:hover{background:none}
+/* greyed because the player wasn't in the league that year — still selectable, so it keeps
+   the pointer cursor and the hover state a working row has */
+.selx-off{color:var(--faint)}
 .selx-opt.here{box-shadow:inset 0 0 0 1px var(--navy)}
 .selx-tag{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 .selx-opt[aria-selected="true"] .selx-tag{color:rgba(255,255,255,.72)}
@@ -1944,10 +1946,19 @@ function renderPeak(){
   /* The button carries the answer even while collapsed — a control that only says "Career
      arc" makes you open it to learn the one fact you came for. */
   btn.hidden=false;
-  btn.innerHTML='Career arc'+(pk?' <span class="pk">★ '+pk+'</span>':'')
+  /* Two years, doing two different jobs: the plain one tracks the season picker so the
+     control agrees with the card it sits on, and the ★ one stays pinned to his best season
+     so the collapsed button still answers "when was he best?" without being opened. When
+     they're the same season one year is enough — printing it twice just looks like a bug. */
+  const atPeak=(pk!=null&&pk===curSeason);
+  btn.innerHTML='Career arc'
+    +(curSeason&&!atPeak?' <span class="cur">'+curSeason+'</span>':'')
+    +(pk?' <span class="pk">★ '+pk+'</span>':'')
     +'<span class="caret" aria-hidden="true">▾</span>';
   btn.setAttribute('aria-expanded',String(arcOpen));
-  btn.title=(pk?'Best season: '+pk+'. ':'')+'Show every season as a tick — height is his BPM against his own career range.';
+  btn.title=(atPeak?curSeason+' is his best season. '
+             :(pk?'Showing '+curSeason+'. Best season: '+pk+'. ':'Showing '+curSeason+'. '))
+    +'Show every season as a tick — height is his BPM against his own career range.';
   rail.hidden=!arcOpen;
   if(!arcOpen){ rail.innerHTML=''; return; }
   /* Columns are flex:1, so a three-season career would otherwise render three 370px slabs.
@@ -2648,8 +2659,12 @@ function updateSeasonOptions(){
   pop.innerHTML=DATA.seasons.map(function(s){
     const off=(curId!=null&&!inSpan(curId,s));
     const sel=(s===curSeason), isPk=(s===pk);
-    return '<button type="button" class="selx-opt" role="option" data-s="'+s+'"'
-      +' aria-selected="'+sel+'"'+(off?' aria-disabled="true" tabindex="-1"':'')+'>'
+    // "not in league" greys the row and explains why, but the row still WORKS. Disabling it
+    // outright meant a click did nothing at all and left the menu sitting open, which reads
+    // as a broken control rather than a deliberate one — the year is what the user asked
+    // for, so go there and let setSeason pick that season's headline player.
+    return '<button type="button" class="selx-opt'+(off?' selx-off':'')+'" role="option" data-s="'+s+'"'
+      +' aria-selected="'+sel+'"'+'>'
       +'<span>'+s+(isPk?' <span class="selx-star">★</span>':'')+'</span>'
       +(off?'<span class="selx-tag">not in league</span>'
            :(isPk?'<span class="selx-tag">best</span>':''))
