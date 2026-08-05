@@ -21,6 +21,12 @@ const NAME_KEY = 'wce_hoops_name'
 const BEST_KEY = 'flaphoops.bests'
 const GHOST_LAG_MS = 500
 const VH = 620
+/* The opening shot. You cannot plan a route to a hoop you have not seen, and every hole here
+   starts with the hoop off screen — so hold on it, pan to the ball, then count down. These
+   sum to the server's lead-in; the client reads that from the payload so the two cannot drift. */
+const REVEAL_MS = 1000
+const PAN_MS = 1200
+const COUNT_MS = 3000
 
 function uid() {
   try {
@@ -90,21 +96,61 @@ export default function Hoops() {
     c.st = HP.makeState(li)
     c.trail = []; c.myInputs = []; c.sank = false
     c.startAt = startAt || 0
-    c.running = mode === 'solo'
+    // Solo has no server clock, so its opening runs on a local timer. Play begins when the
+    // pan lands, not before — otherwise gravity is already working while you are still
+    // being shown the hoop.
+    c.introUntil = mode === 'solo' ? performance.now() + REVEAL_MS + PAN_MS : 0
+    c.running = false
     c.t0 = performance.now()
     c.ghosts = new Map()
     snapCam(true)
   }, [])
 
+  // Where the camera is allowed to sit: a level smaller than the viewport centres instead of
+  // clamping, or it sticks to a corner with dead space on one side.
+  function clampCam(x, y) {
+    const c = g.current, L = HP.LEVELS[c.li]
+    return {
+      x: c.vw >= L.w ? L.w / 2 : Math.max(c.vw / 2, Math.min(L.w - c.vw / 2, x)),
+      y: c.vh >= L.h ? L.h / 2 : Math.max(c.vh / 2, Math.min(L.h - c.vh / 2, y)),
+    }
+  }
   function snapCam(instant) {
     const c = g.current
     if (!c.st) return
-    const L = HP.LEVELS[c.li]
-    const tx = c.vw >= L.w ? L.w / 2 : Math.max(c.vw / 2, Math.min(L.w - c.vw / 2, c.st.x))
-    const ty = c.vh >= L.h ? L.h / 2 : Math.max(c.vh / 2, Math.min(L.h - c.vh / 2, c.st.y))
-    if (instant) { c.cam.x = tx; c.cam.y = ty; return }
-    c.cam.x += (tx - c.cam.x) * 0.12
-    c.cam.y += (ty - c.cam.y) * 0.12
+    const t = clampCam(c.st.x, c.st.y)
+    if (instant) { c.cam.x = t.x; c.cam.y = t.y; return }
+    c.cam.x += (t.x - c.cam.x) * 0.12
+    c.cam.y += (t.y - c.cam.y) * 0.12
+  }
+  /* Which beat of the opening we are on. Returns null once play has started. */
+  function introPhase() {
+    const c = g.current
+    if (c.mode === 'race') {
+      if (!c.startAt) return null
+      const left = c.startAt - (Date.now() + c.skew)
+      if (left <= 0) return null
+      if (left > COUNT_MS + PAN_MS) return { phase: 'reveal' }
+      if (left > COUNT_MS) return { phase: 'pan', k: 1 - (left - COUNT_MS) / PAN_MS }
+      return { phase: 'count', n: Math.ceil(left / 1000) }
+    }
+    if (!c.introUntil) return null
+    const left = c.introUntil - performance.now()
+    if (left <= 0) { c.introUntil = 0; c.running = true; return null }
+    if (left > PAN_MS) return { phase: 'reveal' }
+    return { phase: 'pan', k: 1 - left / PAN_MS }
+  }
+  function runIntroCamera(intro) {
+    const c = g.current, h = HP.hoopOf(c.li)
+    if (intro.phase === 'reveal') { const t = clampCam(h.x, h.y); c.cam.x = t.x; c.cam.y = t.y; return }
+    if (intro.phase === 'pan') {
+      const e = intro.k < 0.5 ? 2 * intro.k * intro.k : 1 - Math.pow(-2 * intro.k + 2, 2) / 2  // ease in-out
+      const a = clampCam(h.x, h.y), b = clampCam(c.st.x, c.st.y)
+      c.cam.x = a.x + (b.x - a.x) * e
+      c.cam.y = a.y + (b.y - a.y) * e
+      return
+    }
+    const t = clampCam(c.st.x, c.st.y); c.cam.x = t.x; c.cam.y = t.y
   }
 
   const resize = useCallback(() => {
@@ -223,7 +269,7 @@ export default function Hoops() {
           c.sank = true
           call('finish', { code: race.code, inputs: encodeInputs(c.myInputs) }).catch(() => {})
         }
-      } else if (c.running && !c.st.sank) {
+      } else if (c.running && !c.st.sank && !c.introUntil) {
         while (acc >= HP.DT) {
           HP.step(c.st, HP.DEFAULTS)
           c.trail.push({ x: c.st.x, y: c.st.y }); if (c.trail.length > 90) c.trail.shift()
@@ -233,7 +279,8 @@ export default function Hoops() {
         if (c.st.sank && !c.sank) { c.sank = true; c.running = false; recordBest(); force((n) => n + 1) }
       }
       acc = 0
-      snapCam(false)
+      const intro = introPhase()
+      if (intro) runIntroCamera(intro); else snapCam(false)
       draw(ctx)
     }
 
@@ -282,6 +329,18 @@ export default function Hoops() {
       }
       ctx2.strokeStyle = c.st.sank ? '#6FB07A' : pal.rim; ctx2.lineWidth = HP.RIM_R * 2
       ctx2.beginPath(); ctx2.moveTo(h.lx, h.y); ctx2.lineTo(h.rx, h.y); ctx2.stroke()
+
+      // During the opening, ring the hoop so "this is where you are going" is unmissable.
+      const introNow = introPhase()
+      if (introNow && introNow.phase !== 'count') {
+        const pulse = (performance.now() % 1400) / 1400
+        for (const k of [0, 0.5]) {
+          const u = (pulse + k) % 1
+          ctx2.strokeStyle = `rgba(217,98,43,${(1 - u) * 0.55})`
+          ctx2.lineWidth = 3
+          ctx2.beginPath(); ctx2.arc(h.x, h.y, 60 + u * 90, 0, 7); ctx2.stroke()
+        }
+      }
 
       // ghosts, on a delay so their inputs have arrived by the time they are needed
       if (c.mode === 'race' && c.startAt) {
@@ -411,8 +470,12 @@ export default function Hoops() {
   const c = g.current
   const level = HP.LEVELS[c.li] || HP.LEVELS[0]
   const world = HP.WORLDS[level.world] || HP.WORLDS.house
-  const counting = c.mode === 'race' && c.startAt && (Date.now() + c.skew) < c.startAt
-  const countdown = counting ? Math.ceil((c.startAt - (Date.now() + c.skew)) / 1000) : 0
+  const lead = race?.lead || (REVEAL_MS + PAN_MS + COUNT_MS)
+  const msLeft = c.mode === 'race' && c.startAt ? c.startAt - (Date.now() + c.skew) : 0
+  const showingHole = msLeft > COUNT_MS || (c.mode === 'solo' && c.introUntil)
+  const counting = msLeft > 0 && msLeft <= COUNT_MS
+  const countdown = counting ? Math.ceil(msLeft / 1000) : 0
+  void lead
 
   /* Portalled to <body>. Every route on this site is wrapped in .route-fade, whose entrance
      animation uses a transform with fill-mode: both — so the wrapper keeps a transform
@@ -465,6 +528,13 @@ export default function Hoops() {
           </div>
         )}
 
+        {showingHole && (
+          <div className="hoops-reveal">
+            <span className="hr-k">Hole {race ? race.hole + 1 : c.li + 1}</span>
+            <span className="hr-n">{level.name}</span>
+            <span className="hr-p">Par {level.par}</span>
+          </div>
+        )}
         {counting && (
           <div className="hoops-count"><span>{countdown || 'GO'}</span></div>
         )}

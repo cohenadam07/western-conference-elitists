@@ -23,7 +23,10 @@ const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TO
 const TTL = 4 * 3600
 const MAX_PLAYERS = 8            // ghosts stay readable, and everyone gets a colour
 const MIN_START = 2
-const COUNTDOWN_MS = 3500        // between "go" and the first step, so everyone starts level
+/* Lead-in before step 0. Long enough for the opening shot — hold on the hoop, pan to the
+   ball — and then the 3-2-1. The client derives those phases from this, so it ships in the
+   payload rather than being hardcoded in two places that can quietly drift apart. */
+const COUNTDOWN_MS = 5200
 const CHASE_MS = 20000           // once someone sinks, this is how long the rest have
 const HOLE_CAP_MS = 120000       // nobody has sunk it and the hole has to end sometime
 const POINTS = [10, 6, 4, 3, 2, 1]   // by finishing place; anyone unfinished scores nothing
@@ -257,7 +260,7 @@ export default async function handler(req, res) {
       ok: true, code, you: uid, host: meta.host === uid, world: meta.world,
       status: meta.status, hole, holeCount: holes.length,
       levelIndex: hole >= 0 ? holes[hole] : null,
-      startAt: Number(meta.startAt || 0), deadline: Number(meta.deadline || 0),
+      startAt: Number(meta.startAt || 0), deadline: Number(meta.deadline || 0), lead: COUNTDOWN_MS,
       firstAt: meta.firstAt ? Number(meta.firstAt) : null,
       now: Date.now(),                 // lets a client correct for its own clock skew
       roster, inputs, finishes, table, standings,
