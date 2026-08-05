@@ -14,6 +14,7 @@ import ArticleDetail from './pages/ArticleDetail.jsx'
 import Contact from './pages/Contact.jsx'
 import CompChain from './pages/CompChain.jsx'
 import Dynasty from './pages/Dynasty.jsx'
+import Hoops from './pages/Hoops.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
         <div key={pathname} className="route-fade">
           <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/hoops" element={<Hoops />} />
           <Route path="/news" element={<News />} />
           <Route path="/podcasts" element={<Navigate to="/" replace />} /> {/* hidden for now */}
           <Route path="/about" element={<About />} />
