@@ -27,8 +27,10 @@ const MIN_START = 2
    ball — and then the 3-2-1. The client derives those phases from this, so it ships in the
    payload rather than being hardcoded in two places that can quietly drift apart. */
 const COUNTDOWN_MS = 5200
-const CHASE_MS = 20000           // once someone sinks, this is how long the rest have
-const HOLE_CAP_MS = 120000       // nobody has sunk it and the hole has to end sometime
+/* No chase clock. Cutting everyone off twenty seconds after the first finisher punished the
+   people having the most interesting time — the ones taking the long route, or fighting a
+   hole they had not read yet. A hole now ends when everyone has sunk it, or at this cap. */
+const HOLE_CAP_MS = 120000
 const POINTS = [10, 6, 4, 3, 2, 1]   // by finishing place; anyone unfinished scores nothing
 const MAX_INPUTS = 400           // a run is ~10-30 flaps; this is a wildly generous ceiling
 const CODE_RE = /^[A-HJ-NP-Z2-9]{4}$/
@@ -99,6 +101,9 @@ const encodeInputs = (arr) => arr.map((i) => `${i.s}:${i.d}`).join(',')
 function verify(levelIndex, inputsStr) {
   const inputs = parseInputs(inputsStr)
   if (!inputs) return null
+  /* Pass the BASE params. simulate() resolves the world's own physics itself, so handing it
+     an already-resolved set applies Denver's multipliers twice, squares them, and an honest
+     run stops reproducing — which reads as the player cheating. */
   const r = simulate(levelIndex, DEFAULTS, inputs, 40000)
   return r.sank ? { steps: r.steps, flaps: r.flaps } : null
 }
@@ -221,11 +226,10 @@ export default async function handler(req, res) {
         ['HSET', finKey, uid, `${v.steps}:${v.flaps}`],
         ['EXPIRE', inKey, TTL], ['EXPIRE', finKey, TTL],
       ]
-      // first one home starts the chase clock for everybody else
+      // record who got home first, for the scoreboard — but do not shorten anyone's hole
       if (!meta.firstAt) {
-        const dl = Date.now() + CHASE_MS
-        cmds.push(['HSET', K(code), 'firstAt', String(Date.now()), 'deadline', String(dl)])
-        meta.firstAt = String(Date.now()); meta.deadline = String(dl)
+        cmds.push(['HSET', K(code), 'firstAt', String(Date.now())])
+        meta.firstAt = String(Date.now())
       }
       await pipe(cmds)
     }

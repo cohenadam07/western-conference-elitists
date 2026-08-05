@@ -11,6 +11,7 @@ const LINKS = [
   { to: '/articles', label: 'Analysis' },
   { to: '/comp-chain', label: 'Comp Chain' },
   { to: '/dynasty', label: 'Dynasty' },
+  { to: '/hoops', label: 'Hoops' },
   { to: '/about', label: 'About' },
 ]
 

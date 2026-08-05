@@ -748,3 +748,30 @@ body {
   color: #D9622B; }
 @keyframes hoops-reveal-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .hoops-reveal { animation: none; } }
+
+/* Course picker */
+.hoops-pick { align-items: stretch; justify-content: flex-start; overflow: auto; padding: 20px 18px 40px; }
+.hp-head { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 880px; margin: 0 auto 14px; }
+.hp-head h2 { flex: 1; text-align: left; margin: 0; font-family: var(--font-cond, Impact, sans-serif);
+  font-size: 26px; letter-spacing: .05em; text-transform: uppercase; }
+.hp-worlds { width: 100%; max-width: 880px; margin: 0 auto; display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.hp-world { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,.14);
+  padding: 16px; text-align: left; cursor: pointer; color: inherit; display: flex;
+  flex-direction: column; gap: 3px; }
+.hp-world:hover { border-color: rgba(255,255,255,.42); }
+.hp-swatch { position: absolute; right: 0; top: 0; bottom: 0; width: 8px; }
+.hp-name { font-family: var(--font-cond, Impact, sans-serif); font-size: 24px; letter-spacing: .04em;
+  text-transform: uppercase; }
+.hp-sub { font-size: 12px; color: rgba(255,255,255,.62); }
+.hp-meta { margin-top: 6px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em;
+  text-transform: uppercase; color: rgba(255,255,255,.5); }
+.hp-holes { width: 100%; max-width: 880px; margin: 0 auto; display: grid; gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+.hp-hole { display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,.14);
+  background: transparent; color: inherit; padding: 10px 12px; cursor: pointer; text-align: left; }
+.hp-hole:hover { border-color: rgba(255,255,255,.42); }
+.hp-n { font-family: var(--font-mono); font-size: 15px; color: #9C8D7C; min-width: 20px; }
+.hp-hn { flex: 1; font-size: 13px; }
+.hp-par { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em;
+  text-transform: uppercase; color: #9C8D7C; }

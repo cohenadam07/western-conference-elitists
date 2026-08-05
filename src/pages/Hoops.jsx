@@ -58,6 +58,7 @@ export default function Hoops() {
   const [race, setRace] = useState(null)            // server state while in a party
   const [err, setErr] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [picking, setPicking] = useState(null)   // null | 'worlds' | a world key
   const [, force] = useState(0)
 
   /* Everything the render loop touches lives in a ref, not state: the loop runs at 120Hz and
@@ -93,6 +94,7 @@ export default function Hoops() {
   const loadLevel = useCallback((li, mode, startAt) => {
     const c = g.current
     c.li = li; c.mode = mode
+    c.P = HP.paramsFor(li, HP.DEFAULTS)   // world physics, resolved once per hole
     c.st = HP.makeState(li)
     c.trail = []; c.myInputs = []; c.sank = false
     c.startAt = startAt || 0
@@ -178,7 +180,7 @@ export default function Hoops() {
       if (race?.code) pushInputs(race.code)
     } else {
       if (!c.running) return
-      HP.flap(c.st, HP.DEFAULTS, dir)
+      HP.flap(c.st, c.P, dir)
     }
   }, [race?.code, pushInputs])
 
@@ -231,6 +233,7 @@ export default function Hoops() {
     resize()
 
     const ghostStateAt = (inputs, li, step) => {
+      const P = HP.paramsFor(li, HP.DEFAULTS)
       // Re-simulate from scratch. A run is a few thousand steps, so this is cheap, and it
       // means a late-arriving flap corrects the ghost instead of desyncing it forever.
       const st = HP.makeState(li)
@@ -238,8 +241,8 @@ export default function Hoops() {
       for (const i of inputs) { if (!at.has(i.s)) at.set(i.s, []); at.get(i.s).push(i.d) }
       for (let s = 0; s < step && !st.sank; s++) {
         const fl = at.get(s)
-        if (fl) for (const d of fl) HP.flap(st, HP.DEFAULTS, d)
-        HP.step(st, HP.DEFAULTS)
+        if (fl) for (const d of fl) HP.flap(st, P, d)
+        HP.step(st, P)
       }
       return st
     }
@@ -261,8 +264,8 @@ export default function Hoops() {
         let guard = 0
         while (c.st.t < target && !c.st.sank && guard++ < 5000) {
           const fl = at.get(c.st.t)
-          if (fl) for (const d of fl) HP.flap(c.st, HP.DEFAULTS, d)
-          HP.step(c.st, HP.DEFAULTS)
+          if (fl) for (const d of fl) HP.flap(c.st, c.P, d)
+          HP.step(c.st, c.P)
           c.trail.push({ x: c.st.x, y: c.st.y }); if (c.trail.length > 90) c.trail.shift()
         }
         if (c.st.sank && !c.sank) {
@@ -271,7 +274,7 @@ export default function Hoops() {
         }
       } else if (c.running && !c.st.sank && !c.introUntil) {
         while (acc >= HP.DT) {
-          HP.step(c.st, HP.DEFAULTS)
+          HP.step(c.st, c.P)
           c.trail.push({ x: c.st.x, y: c.st.y }); if (c.trail.length > 90) c.trail.shift()
           acc -= HP.DT
           if (c.st.sank) break
@@ -295,20 +298,128 @@ export default function Hoops() {
       } catch { /* private mode */ }
     }
 
+    /* Backdrop. Drawn in SCREEN space with the camera applied as a fraction, which is what
+       makes it read as distance: the far ridge barely moves, the near haze drifts, the court
+       tracks you exactly. Doing it in world space instead would nail the sky to the floor and
+       the whole thing would look like wallpaper. */
+    const drawAir = (ctx2, world, cv2) => {
+      const c = g.current, w = HP.WORLDS[world] || HP.WORLDS.house, air = w.air, pal = w.pal
+      const W = cv2.width, H = cv2.height, k = c.dpr
+      const sky = ctx2.createLinearGradient(0, 0, 0, H)
+      sky.addColorStop(0, air.sky[0]); sky.addColorStop(1, air.sky[1])
+      ctx2.fillStyle = sky; ctx2.fillRect(0, 0, W, H)
+
+      if (air.stars) {
+        // fixed pseudo-random field: seeded by index, so the sky does not shimmer each frame
+        ctx2.fillStyle = 'rgba(255,255,255,.5)'
+        for (let i = 0; i < 90; i++) {
+          const sx = ((i * 9301 + 49297) % 233280) / 233280
+          const sy = ((i * 4021 + 12987) % 233280) / 233280
+          const px = (sx * W * 1.4 - c.cam.x * 0.06 * c.scale) % W
+          ctx2.globalAlpha = 0.25 + ((i % 5) / 8)
+          ctx2.fillRect((px + W) % W, sy * H * 0.55, 1.6 * k, 1.6 * k)
+        }
+        ctx2.globalAlpha = 1
+      }
+
+      const px = (mul) => -c.cam.x * mul * c.scale
+      const py = (mul) => -c.cam.y * mul * c.scale
+
+      if (air.ridge === 'mountains') {
+        // two ranges at different depths; the near one is darker and moves more
+        for (const [mul, base, col] of [[0.10, 0.66, '#161D42'], [0.20, 0.80, '#0A0E28']]) {
+          ctx2.fillStyle = col
+          ctx2.beginPath(); ctx2.moveTo(0, H)
+          const off = px(mul) % (W / 2)
+          for (let i = -1; i <= 6; i++) {
+            const bx = off + (i * W) / 4
+            ctx2.lineTo(bx, H * base)
+            ctx2.lineTo(bx + W / 8, H * (base - 0.22 - (i % 2) * 0.07))
+            ctx2.lineTo(bx + W / 4, H * base)
+          }
+          ctx2.lineTo(W, H); ctx2.closePath(); ctx2.fill()
+          // snow caps on the near range
+          if (mul > 0.15) {
+            ctx2.fillStyle = 'rgba(226,232,248,.5)'
+            for (let i = -1; i <= 6; i++) {
+              const bx = off + (i * W) / 4 + W / 8
+              const ty = H * (base - 0.22 - (i % 2) * 0.07)
+              ctx2.beginPath(); ctx2.moveTo(bx, ty)
+              ctx2.lineTo(bx - W / 46, ty + H * 0.045); ctx2.lineTo(bx + W / 46, ty + H * 0.045)
+              ctx2.closePath(); ctx2.fill()
+            }
+            ctx2.fillStyle = col
+          }
+        }
+      } else if (air.ridge === 'skyline') {
+        ctx2.fillStyle = '#0E1E36'
+        const off = px(0.14) % (W / 3)
+        for (let i = -1; i <= 9; i++) {
+          const bx = off + (i * W) / 6, bw = W / 14 + (i % 3) * (W / 40)
+          const bh = H * (0.16 + ((i * 37) % 11) / 44)
+          ctx2.fillRect(bx, H * 0.74 - bh, bw, bh + H * 0.3)
+          ctx2.fillStyle = 'rgba(207,224,234,.16)'
+          for (let wy = 0; wy < 5; wy++) for (let wx = 0; wx < 2; wx++) {
+            if ((i + wy + wx) % 3) ctx2.fillRect(bx + 6 * k + wx * (bw / 2.4), H * 0.74 - bh + 10 * k + wy * (bh / 6), 3 * k, 5 * k)
+          }
+          ctx2.fillStyle = '#0E1E36'
+        }
+      } else if (air.ridge === 'rafters') {
+        // championship banners in the dark up top — the whole point of the building
+        ctx2.strokeStyle = 'rgba(226,214,178,.14)'; ctx2.lineWidth = 2 * k
+        ctx2.beginPath(); ctx2.moveTo(0, H * 0.11); ctx2.lineTo(W, H * 0.11); ctx2.stroke()
+        const off = px(0.16)
+        for (let i = 0; i < air.banners; i++) {
+          const bx = ((i * (W / 7) + off) % (W * 1.25) + W * 1.25) % (W * 1.25) - W * 0.12
+          const bw = W / 26, bh = H * (0.15 + (i % 3) * 0.02)
+          ctx2.fillStyle = i % 2 ? 'rgba(29,82,55,.85)' : 'rgba(12,40,26,.85)'
+          ctx2.beginPath(); ctx2.moveTo(bx, H * 0.11); ctx2.lineTo(bx + bw, H * 0.11)
+          ctx2.lineTo(bx + bw, H * 0.11 + bh); ctx2.lineTo(bx + bw / 2, H * 0.11 + bh + H * 0.03)
+          ctx2.lineTo(bx, H * 0.11 + bh); ctx2.closePath(); ctx2.fill()
+          ctx2.strokeStyle = 'rgba(226,214,178,.5)'; ctx2.lineWidth = 1.5 * k; ctx2.stroke()
+        }
+      }
+
+      // arena light spill from above, and a vignette to sit the court in the room
+      const lamp = ctx2.createRadialGradient(W * 0.5, -H * 0.15, 0, W * 0.5, -H * 0.15, H * 1.15)
+      lamp.addColorStop(0, (air.lamp || '#fff') + '22'); lamp.addColorStop(1, 'rgba(0,0,0,0)')
+      ctx2.fillStyle = lamp; ctx2.fillRect(0, 0, W, H)
+
+      if (air.motes) {
+        const t = performance.now() / 1000
+        ctx2.fillStyle = air.motes === 'snow' ? 'rgba(226,232,248,.5)' : 'rgba(232,220,200,.22)'
+        for (let i = 0; i < 34; i++) {
+          const sx = ((i * 7919) % 1000) / 1000, sp = 0.25 + ((i % 7) / 12)
+          const mx = (sx * W + px(0.35) + (air.motes === 'snow' ? t * 14 * sp : Math.sin(t * 0.4 + i) * 26)) % W
+          const my = (((i * 104729) % 1000) / 1000 * H + (air.motes === 'snow' ? t * 34 * sp : t * 5 * sp) + py(0.35)) % H
+          const r = (air.motes === 'snow' ? 2.1 : 1.5) * k
+          ctx2.beginPath(); ctx2.arc((mx + W) % W, (my + H) % H, r, 0, 7); ctx2.fill()
+        }
+      }
+      ctx2.fillStyle = air.haze; ctx2.fillRect(0, 0, W, H)
+      void pal
+    }
+
     const draw = (ctx2) => {
       const c = g.current
       const L = HP.LEVELS[c.li], h = HP.hoopOf(c.li), segs = HP.segsOf(c.li)
-      const pal = (HP.WORLDS[L.world] || HP.WORLDS.house).pal
+      const world = HP.WORLDS[L.world] || HP.WORLDS.house
+      const pal = world.pal
       const cv2 = cvRef.current
       ctx2.setTransform(1, 0, 0, 1, 0, 0)
       ctx2.fillStyle = '#0E0906'; ctx2.fillRect(0, 0, cv2.width, cv2.height)
+      drawAir(ctx2, L.world, cv2)
       ctx2.setTransform(c.scale, 0, 0, c.scale, cv2.width / 2 - c.cam.x * c.scale, cv2.height / 2 - c.cam.y * c.scale)
 
+      // the court itself, lit against the room behind it
+      /* Deliberately translucent. At full opacity the court is a lid on the whole backdrop and
+         the sky, ridge and drifting motes are wasted work — you only ever see them in the
+         margins. Letting them through is what makes the play area feel like it is standing
+         somewhere rather than floating on a colour. */
       const grad = ctx2.createLinearGradient(0, 0, 0, L.h)
-      grad.addColorStop(0, pal.bg1); grad.addColorStop(1, pal.bg2)
+      grad.addColorStop(0, pal.bg1 + 'A6'); grad.addColorStop(1, pal.bg2 + 'D9')
       ctx2.fillStyle = grad; ctx2.fillRect(0, 0, L.w, L.h)
-      ctx2.strokeStyle = pal.grain; ctx2.lineWidth = 1
-      for (let x = 0; x < L.w; x += 26) { ctx2.beginPath(); ctx2.moveTo(x, 0); ctx2.lineTo(x, L.h); ctx2.stroke() }
+      drawFloor(ctx2, L, world)
 
       drawZones(ctx2, L, pal, c.st.t)
 
@@ -394,6 +505,33 @@ export default function Hoops() {
       }
     }
 
+    /* Floor grain. Boston gets the actual parquet — alternating blocks of opposed grain,
+       which is the most recognisable floor in the sport and the reason its dead spots are
+       folklore. Everywhere else gets long boards. */
+    const drawFloor = (ctx2, L, world) => {
+      const pal = world.pal
+      if (world.air.floor === 'parquet') {
+        const B = 96
+        for (let y = 0; y < L.h; y += B) {
+          for (let x = 0; x < L.w; x += B) {
+            const flip = ((x / B | 0) + (y / B | 0)) % 2 === 0
+            ctx2.strokeStyle = 'rgba(226,214,178,.07)'; ctx2.lineWidth = 1
+            for (let i = 6; i < B; i += 11) {
+              ctx2.beginPath()
+              if (flip) { ctx2.moveTo(x + i, y); ctx2.lineTo(x + i, y + B) }
+              else { ctx2.moveTo(x, y + i); ctx2.lineTo(x + B, y + i) }
+              ctx2.stroke()
+            }
+            ctx2.strokeStyle = 'rgba(226,214,178,.13)'; ctx2.lineWidth = 1.5
+            ctx2.strokeRect(x, y, B, B)
+          }
+        }
+      } else {
+        ctx2.strokeStyle = pal.grain; ctx2.lineWidth = 1
+        for (let x = 0; x < L.w; x += 26) { ctx2.beginPath(); ctx2.moveTo(x, 0); ctx2.lineTo(x, L.h); ctx2.stroke() }
+      }
+    }
+
     const drawZones = (ctx2, L, pal, t) => {
       if (!L.zones) return
       for (const z of L.zones) {
@@ -409,6 +547,14 @@ export default function Hoops() {
           ctx2.setLineDash([7, 9]); ctx2.beginPath(); ctx2.arc(z.x, z.y, z.r, 0, 7); ctx2.stroke()
           ctx2.setLineDash([])
           ctx2.fillStyle = pal.accent; ctx2.beginPath(); ctx2.arc(z.x, z.y, 9, 0, 7); ctx2.fill()
+        } else if (z.t === 'dead') {
+          // a scuff in the parquet: visible if you look, easy to miss if you do not
+          ctx2.fillStyle = 'rgba(10,20,14,.55)'
+          ctx2.fillRect(z.x, z.y - 5, z.w, 10)
+          ctx2.strokeStyle = 'rgba(226,214,178,.30)'; ctx2.lineWidth = 1.5
+          ctx2.setLineDash([5, 6])
+          ctx2.beginPath(); ctx2.moveTo(z.x, z.y); ctx2.lineTo(z.x + z.w, z.y); ctx2.stroke()
+          ctx2.setLineDash([])
         } else if (z.t === 'weed') {
           const w = HP.weedAt(z, t)
           ctx2.strokeStyle = 'rgba(214,198,160,.85)'; ctx2.lineWidth = 2
@@ -468,6 +614,7 @@ export default function Hoops() {
   }
 
   const c = g.current
+  const worldKeys = HP.LEVELS.reduce((acc, L) => (acc.includes(L.world) ? acc : acc.concat(L.world)), [])
   const level = HP.LEVELS[c.li] || HP.LEVELS[0]
   const world = HP.WORLDS[level.world] || HP.WORLDS.house
   const lead = race?.lead || (REVEAL_MS + PAN_MS + COUNT_MS)
@@ -492,6 +639,9 @@ export default function Hoops() {
         <div className="hh-grp"><span className="hh-k">Par</span><span className="hh-v">{level.par}</span></div>
         <span className="hh-sp" />
         {race && <span className="hh-code">{race.code}</span>}
+        {!race && view !== 'menu' && (
+          <button type="button" className="hh-btn" onClick={() => setPicking('worlds')}>Courts</button>
+        )}
         <button type="button" className="hh-btn" onClick={() => { setView('menu'); setRace(null) }}>Menu</button>
       </div>
 
@@ -604,6 +754,47 @@ export default function Hoops() {
             <button type="button" className="hoops-ghost" onClick={() => { setView('menu'); setRace(null) }}>
               Back to the menu
             </button>
+          </div>
+        )}
+
+        {picking && (
+          <div className="hoops-card hoops-pick">
+            <div className="hp-head">
+              <h2>{picking === 'worlds' ? 'Choose a court' : HP.WORLDS[picking].name}</h2>
+              {picking !== 'worlds' && (
+                <button type="button" className="hh-btn" onClick={() => setPicking('worlds')}>&larr; All courts</button>
+              )}
+              <button type="button" className="hh-btn" onClick={() => setPicking(null)}>Close</button>
+            </div>
+            {picking === 'worlds' ? (
+              <div className="hp-worlds">
+                {worldKeys.map((k) => {
+                  const w = HP.WORLDS[k]
+                  const n = HP.LEVELS.filter((l) => l.world === k).length
+                  return (
+                    <button key={k} type="button" className="hp-world"
+                      style={{ background: `linear-gradient(135deg, ${w.pal.bg1}, ${w.pal.bg2})` }}
+                      onClick={() => setPicking(k)}>
+                      <span className="hp-swatch" style={{ background: w.pal.rim }} />
+                      <span className="hp-name">{w.name}</span>
+                      <span className="hp-sub">{w.sub}</span>
+                      <span className="hp-meta">{n} holes{w.phys ? ' \u00b7 thin air' : ''}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="hp-holes">
+                {HP.LEVELS.map((L, idx) => L.world !== picking ? null : (
+                  <button key={L.name} type="button" className="hp-hole"
+                    onClick={() => { setPicking(null); g.current.mode = 'solo'; loadLevel(idx, 'solo', 0); setView('solo'); force((x) => x + 1) }}>
+                    <span className="hp-n">{HP.LEVELS.filter((x) => x.world === picking).indexOf(L) + 1}</span>
+                    <span className="hp-hn">{L.name}</span>
+                    <span className="hp-par">Par {L.par}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

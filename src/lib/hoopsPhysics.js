@@ -15,7 +15,8 @@
 'use strict';
 
 const DT = 1 / 120;
-const RB = 17, RIM_R = 7, RIM_HALF = 52;   // ball radius, rim tube radius, half hoop width
+const RB = 17, RIM_R = 7, RIM_HALF = 52;
+const BACKBOARD_SOFT = 0.38;   // fraction of the ball's normal bounce the glass returns   // ball radius, rim tube radius, half hoop width
 
 /* These seven numbers ARE the game. Levels, art and input can all be rebuilt; if these are
    wrong it simply is not fun, and nothing else rescues it. */
@@ -25,12 +26,45 @@ const DEFAULTS = { gravity: 850, lift: 450, side: 180, bounce: 0.95, grip: 0.75,
    a rendering change. The ball stays basketball-orange everywhere — it is the one object
    that should never take on a team's colours. */
 const WORLDS = {
-  house: { name: 'The gym', sub: '', pal: {
-    bg1:'#241a12', bg2:'#332317', wall:'#6B5240', edge:'rgba(232,220,200,.30)',
-    rim:'#C24A24', glass:'#6E96A6', accent:'#E8DCC8', grain:'rgba(232,220,200,.05)' } },
-  dallas: { name: 'Dallas', sub: 'Hardwood & horses', pal: {
-    bg1:'#08131F', bg2:'#122A44', wall:'#1E4470', edge:'rgba(184,196,202,.55)',
-    rim:'#00538C', glass:'#B8C4CA', accent:'#B8C4CA', grain:'rgba(184,196,202,.06)' } },
+  house: {
+    name: 'The gym', sub: 'Where it started', team: '',
+    pal: { bg1:'#241a12', bg2:'#332317', wall:'#6B5240', edge:'rgba(232,220,200,.30)',
+           rim:'#C24A24', glass:'#6E96A6', accent:'#E8DCC8', grain:'rgba(232,220,200,.05)' },
+    /* `air` describes the room behind the play, and the renderer reads only these keys — so a
+       new city is a data entry, not a new drawing routine. sky/haze paint the backdrop,
+       ridge is a silhouette profile, motes are the things drifting in the light. */
+    air: { sky:['#1a120c','#2b1e14'], haze:'rgba(232,220,200,.03)', ridge:'none',
+           motes:'dust', banners:0, floor:'boards', lamp:'#F2D9A8' },
+  },
+
+  dallas: {
+    name: 'Dallas', sub: 'Hardwood & horses', team: 'Mavericks',
+    pal: { bg1:'#08131F', bg2:'#122A44', wall:'#1E4470', edge:'rgba(184,196,202,.55)',
+           rim:'#00538C', glass:'#B8C4CA', accent:'#B8C4CA', grain:'rgba(184,196,202,.06)' },
+    air: { sky:['#050B14','#123056'], haze:'rgba(184,196,202,.05)', ridge:'skyline',
+           motes:'dust', banners:0, floor:'boards', lamp:'#CFE0EA', stars: 1 },
+  },
+
+  boston: {
+    /* Dead spots are the mechanic and the folklore at once: the old Garden parquet really did
+       have places the ball came up flat, and the home side was said to know every one. */
+    name: 'Boston', sub: 'Know the floor', team: 'Celtics',
+    pal: { bg1:'#0A1810', bg2:'#123021', wall:'#1D5237', edge:'rgba(226,214,178,.55)',
+           rim:'#BA9653', glass:'#CFE3D4', accent:'#E2D6B2', grain:'rgba(226,214,178,.05)' },
+    air: { sky:['#06120C','#0F2A1C'], haze:'rgba(226,214,178,.045)', ridge:'rafters',
+           motes:'dust', banners:17, floor:'parquet', lamp:'#F5E7BF' },
+  },
+
+  denver: {
+    /* Thin air, and it is not decoration: less drag means the ball carries, so every hole
+       here is judged with a lighter touch than the same shape at sea level. */
+    name: 'Denver', sub: 'A mile of thin air', team: 'Nuggets',
+    phys: { drag: 0.45, gravity: 0.94 },
+    pal: { bg1:'#0B1020', bg2:'#1B2350', wall:'#33407F', edge:'rgba(254,200,72,.5)',
+           rim:'#FEC524', glass:'#C7CEE8', accent:'#FEC524', grain:'rgba(199,206,232,.05)' },
+    air: { sky:['#070B1A','#2A2F63'], haze:'rgba(199,206,232,.06)', ridge:'mountains',
+           motes:'snow', banners:0, floor:'boards', lamp:'#FFE9A8', stars: 1 },
+  },
 };
 
 /* Hand-placed, not generated. A generator gives infinite mediocre holes; deliberate ones
@@ -41,79 +75,109 @@ const WORLDS = {
    you already know, and the last few open up into two routes — a short line that asks for
    precision and a longer one that forgives. A world that teaches nothing is just a list. */
 const LEVELS = [
+  /* ---------------- The gym: where it started ---------------- */
   { name: "Warm-up", world: "house", par: 4, w: 1000, h: 600,
     ball: { x: 120, y: 430 }, hoop: { x: 780, y: 300 },
     inner: [[420,600,420,470]] },
-
   { name: "The long two", world: "house", par: 10, w: 2600, h: 700,
     ball: { x: 110, y: 560 }, hoop: { x: 2380, y: 300 },
     inner: [[520,700,520,420],[900,0,900,300],[1300,700,1300,380],[1300,380,1700,380],[2000,0,2000,340]] },
-
   { name: "Upstairs", world: "house", par: 12, w: 682, h: 806,
     ball: { x: 81, y: 732 }, hoop: { x: 508, y: 149 },
     inner: [[0,558,434,558],[260,347,682,347]] },
 
+  /* ---------------- Dallas: hardwood & horses ---------------- */
   { name: "Sundown", world: "dallas", par: 6, w: 1300, h: 700,
     ball: { x: 130, y: 600 }, hoop: { x: 1120, y: 280 },
     inner: [[560,700,560,430],[860,0,860,300]] },
-
   { name: "The fadeaway", world: "dallas", par: 10, w: 1900, h: 1100,
     ball: { x: 110, y: 1020 }, hoop: { x: 1740, y: 220 },
     inner: [[0,900,1000,900],[1000,900,1000,240],[200,720,520,720],[700,460,1050,460]],
     zones: [
       {"t":"bronco","x":880,"y":1060,"dx":0.4,"dy":-0.92,"power":2100} ] },
-
   { name: "Tumbleweed", world: "dallas", par: 10, w: 2100, h: 900,
     ball: { x: 130, y: 800 }, hoop: { x: 1940, y: 300 },
     inner: [[700,900,700,560],[1300,0,1300,420]],
     zones: [
       {"t":"weed","x1":820,"y1":820,"x2":1220,"y2":820,"r":34,"period":260},
       {"t":"weed","x1":1420,"y1":300,"x2":1820,"y2":300,"r":30,"period":190} ] },
-
   { name: "T-shirt cannon", world: "dallas", par: 10, w: 2200, h: 1000,
     ball: { x: 130, y: 900 }, hoop: { x: 2040, y: 280 },
     inner: [[640,1000,640,640],[1180,0,1180,460],[1660,1000,1660,620]],
     zones: [
       {"t":"cannon","x":60,"y":420,"dx":1,"dy":0,"range":1000,"period":300,"phase":0},
       {"t":"cannon","x":2140,"y":760,"dx":-1,"dy":0,"range":1100,"period":260,"phase":130} ] },
-
   { name: "Roped", world: "dallas", par: 11, w: 1440, h: 648,
     ball: { x: 94, y: 576 }, hoop: { x: 1325, y: 216 },
     inner: [[432,648,432,432],[864,0,864,302]],
     zones: [
       {"t":"lasso","x":619,"y":245,"r":144},
       {"t":"lasso","x":1094,"y":403,"r":144} ] },
-
   { name: "Crude", world: "dallas", par: 12, w: 780, h: 840,
     ball: { x: 90, y: 780 }, hoop: { x: 648, y: 168 },
     inner: [[0,588,492,588],[264,336,780,336]],
     zones: [
       {"t":"gush","x":564,"y":372,"w":120,"h":420,"force":1500} ] },
-
   { name: "Eight seconds", world: "dallas", par: 12, w: 1600, h: 800,
     ball: { x: 112, y: 720 }, hoop: { x: 1472, y: 208 },
     inner: [[608,800,608,544],[944,352,1360,352]],
     zones: [
       {"t":"bronco","x":512,"y":768,"dx":0.6,"dy":-0.8,"power":900},
       {"t":"bronco","x":1200,"y":768,"dx":0.3,"dy":-0.95,"power":980} ] },
-
-  { name: "Step-back", world: "dallas", par: 17, w: 930, h: 930,
-    ball: { x: 87, y: 868 }, hoop: { x: 806, y: 155 },
-    inner: [[0,694,322,694],[608,471,930,471]],
+  { name: "Step-back", world: "dallas", par: 12, w: 763, h: 763,
+    ball: { x: 71, y: 712 }, hoop: { x: 661, y: 127 },
+    inner: [[0,569,264,569],[499,386,763,386]],
     zones: [
-      {"t":"stepback","id":1,"x":471,"y":694,"w":161},
-      {"t":"stepback","id":2,"x":310,"y":471,"w":161},
-      {"t":"stepback","id":3,"x":558,"y":260,"w":149},
-      {"t":"gush","x":37,"y":310,"w":105,"h":558,"force":1450} ] },
-
-  { name: "Stockyards", world: "dallas", par: 17, w: 1820, h: 1050,
-    ball: { x: 105, y: 980 }, hoop: { x: 1694, y: 210 },
-    inner: [[392,1050,392,784],[700,784,1820,784],[700,490,1330,490],[1540,490,1540,252]],
+      {"t":"stepback","id":1,"x":386,"y":569,"w":132},
+      {"t":"stepback","id":2,"x":254,"y":386,"w":132},
+      {"t":"stepback","id":3,"x":458,"y":213,"w":122},
+      {"t":"gush","x":30,"y":254,"w":86,"h":458,"force":1450} ] },
+  { name: "Stockyards", world: "dallas", par: 14, w: 1420, h: 819,
+    ball: { x: 82, y: 764 }, hoop: { x: 1321, y: 164 },
+    inner: [[306,819,306,612],[546,612,1420,612],[546,382,1037,382],[1201,382,1201,197]],
     zones: [
-      {"t":"gush","x":490,"y":434,"w":133,"h":574,"force":1500},
-      {"t":"lasso","x":1050,"y":266,"r":140},
-      {"t":"weed","x1":805,"y1":742,"x2":1225,"y2":742,"r":22,"period":280},
-      {"t":"bronco","x":1624,"y":756,"dx":-0.1,"dy":-0.99,"power":1050} ] },
+      {"t":"gush","x":382,"y":339,"w":104,"h":448,"force":1500},
+      {"t":"lasso","x":819,"y":207,"r":109},
+      {"t":"weed","x1":628,"y1":579,"x2":956,"y2":579,"r":17,"period":280},
+      {"t":"bronco","x":1267,"y":590,"dx":-0.1,"dy":-0.99,"power":1050} ] },
+
+  /* ---------------- Boston: know the floor ---------------- */
+  { name: "Garden floor", world: "boston", par: 6, w: 1300, h: 700,
+    ball: { x: 130, y: 600 }, hoop: { x: 1130, y: 280 },
+    inner: [[600,700,600,430]],
+    zones: [
+      {"t":"dead","x":320,"y":660,"w":220},
+      {"t":"dead","x":800,"y":660,"w":200} ] },
+  { name: "Sixteen banners", world: "boston", par: 10, w: 1700, h: 900,
+    ball: { x: 130, y: 800 }, hoop: { x: 1540, y: 280 },
+    inner: [[560,900,560,560],[1020,0,1020,420]],
+    zones: [
+      {"t":"dead","x":620,"y":860,"w":260},
+      {"t":"dead","x":1120,"y":860,"w":240},
+      {"t":"lasso","x":1240,"y":540,"r":170} ] },
+  { name: "The parquet", world: "boston", par: 13, w: 1520, h: 880,
+    ball: { x: 112, y: 800 }, hoop: { x: 1392, y: 208 },
+    inner: [[0,608,720,608],[992,608,1520,608],[512,880,512,720]],
+    zones: [
+      {"t":"dead","x":240,"y":848,"w":208},
+      {"t":"dead","x":784,"y":576,"w":192},
+      {"t":"gush","x":752,"y":240,"w":136,"h":336,"force":1500} ] },
+
+  /* ---------------- Denver: a mile of thin air ---------------- */
+  { name: "Mile high", world: "denver", par: 7, w: 1600, h: 700,
+    ball: { x: 130, y: 600 }, hoop: { x: 1440, y: 260 },
+    inner: [[700,700,700,420],[1100,0,1100,300]] },
+  { name: "Timberline", world: "denver", par: 12, w: 2100, h: 1000,
+    ball: { x: 140, y: 900 }, hoop: { x: 1940, y: 280 },
+    inner: [[620,1000,620,660],[1080,0,1080,460],[1500,1000,1500,620]],
+    zones: [
+      {"t":"weed","x1":760,"y1":940,"x2":1040,"y2":940,"r":32,"period":240} ] },
+  { name: "Altitude", world: "denver", par: 14, w: 1584, h: 936,
+    ball: { x: 108, y: 864 }, hoop: { x: 1469, y: 216 },
+    inner: [[0,634,720,634],[965,634,1584,634],[504,936,504,749],[1152,403,1584,403]],
+    zones: [
+      {"t":"gush","x":763,"y":259,"w":130,"h":360,"force":1450},
+      {"t":"lasso","x":1195,"y":216,"r":137} ] },
 ];
 
 /* Border walls, generated from the level's own dimensions so a map cannot leak. */
@@ -123,6 +187,18 @@ function segsOf(li) {
     L._segs = [[0,0,L.w,0],[0,L.h,L.w,L.h],[0,0,0,L.h],[L.w,0,L.w,L.h]].concat(L.inner || []);
   }
   return L._segs;
+}
+
+/* A world may bend the feel — Denver's thin air, say. Both the browser and the server derive
+   params through this one function from level data alone, so a replay on the server lands on
+   exactly the numbers the player had. Anything that varies per world MUST come through here;
+   a value read from anywhere else breaks verification the moment a world uses it. */
+function paramsFor(li, base) {
+  const L = LEVELS[li], w = WORLDS[L.world]
+  const P = { ...(base || DEFAULTS) }
+  const m = (w && w.phys) || null
+  if (m) for (const k of Object.keys(m)) P[k] = P[k] * m[k]
+  return P
 }
 
 const hoopOf = (li) => {
@@ -318,6 +394,9 @@ function step(st, P) {
 
 /* Replay a whole attempt from its inputs. inputs = [{s: stepIndex, d: -1|1}, ...] */
 function simulate(li, P, inputs, maxSteps) {
+  // Resolves world physics itself — callers pass BASE params, never an already-resolved set,
+  // or the world's multipliers apply twice.
+  P = paramsFor(li, P);
   const st = makeState(li);
   const at = new Map();
   for (const i of inputs) { if (!at.has(i.s)) at.set(i.s, []); at.get(i.s).push(i.d); }
@@ -330,4 +409,4 @@ function simulate(li, P, inputs, maxSteps) {
   return { sank: false, steps: maxSteps, flaps: st.flaps, x: st.x, y: st.y };
 }
 
-export { DT, RB, RIM_R, RIM_HALF, DEFAULTS, WORLDS, LEVELS, segsOf, hoopOf, makeState, flap, step, simulate, weedAt, shotAt };
+export { DT, RB, RIM_R, RIM_HALF, BACKBOARD_SOFT, DEFAULTS, WORLDS, LEVELS, segsOf, hoopOf, paramsFor, makeState, flap, step, simulate, weedAt, shotAt };
