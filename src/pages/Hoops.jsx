@@ -14,6 +14,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import * as HP from '../lib/hoopsPhysics.js'
+import * as SHOP from '../lib/hoopsShop.js'
 
 const API = '/api/race'
 const UID_KEY = 'wce_hoops_uid'
@@ -59,6 +60,10 @@ export default function Hoops() {
   const [err, setErr] = useState(null)
   const [busy, setBusy] = useState(false)
   const [picking, setPicking] = useState(null)   // null | 'worlds' | a world key
+  const [wallet, setWallet] = useState(() => SHOP.loadWallet())
+  const [shopOpen, setShopOpen] = useState(false)
+  const [teaser, setTeaser] = useState(null)     // world key whose intro card is showing
+  const [earned, setEarned] = useState(0)
   const [, force] = useState(0)
 
   /* Everything the render loop touches lives in a ref, not state: the loop runs at 120Hz and
@@ -95,6 +100,8 @@ export default function Hoops() {
     const c = g.current
     c.li = li; c.mode = mode
     c.P = HP.paramsFor(li, HP.DEFAULTS)   // world physics, resolved once per hole
+    c.skin = SHOP.itemById(SHOP.loadWallet().ball)
+    c.trailStyle = SHOP.itemById(SHOP.loadWallet().trail)
     c.st = HP.makeState(li)
     c.trail = []; c.myInputs = []; c.sank = false
     c.startAt = startAt || 0
@@ -182,6 +189,10 @@ export default function Hoops() {
       if (!c.running) return
       HP.flap(c.st, c.P, dir)
     }
+    // The count lives in a ref so the 120Hz loop never re-renders React. That means nothing
+    // repaints the HUD on its own, and the flap counter sat on 0 all game. A flap is a human
+    // action a few times a second, so nudging a render here costs nothing.
+    force((n) => n + 1)
   }, [race?.code, pushInputs])
 
   useEffect(() => {
@@ -207,6 +218,8 @@ export default function Hoops() {
         setRace(j)
         if (j.status === 'running' && j.levelIndex != null
             && (c.li !== j.levelIndex || c.mode !== 'race' || c.startAt !== j.startAt)) {
+          // only on the opening hole: after that everyone knows where they are
+          if (j.hole === 0) setTeaser(j.world)
           loadLevel(j.levelIndex, 'race', j.startAt)
         }
         if (j.status === 'running') {
@@ -279,7 +292,13 @@ export default function Hoops() {
           acc -= HP.DT
           if (c.st.sank) break
         }
-        if (c.st.sank && !c.sank) { c.sank = true; c.running = false; recordBest(); force((n) => n + 1) }
+        if (c.st.sank && !c.sank) {
+          c.sank = true; c.running = false; recordBest()
+          const L = HP.LEVELS[c.li]
+          const got = SHOP.coinsForHole(L.par, c.st.flaps, true)
+          setEarned(got); setWallet((w) => SHOP.award(w, got))
+          force((n) => n + 1)
+        }
       }
       acc = 0
       const intro = introPhase()
@@ -474,17 +493,49 @@ export default function Hoops() {
       }
 
       if (c.trail.length > 1) {
-        ctx2.strokeStyle = 'rgba(217,98,43,.30)'; ctx2.lineWidth = 2
-        ctx2.beginPath(); ctx2.moveTo(c.trail[0].x, c.trail[0].y)
-        for (const p of c.trail) ctx2.lineTo(p.x, p.y)
-        ctx2.stroke()
+        const ts = c.trailStyle || { color: 'rgba(217,98,43,.30)', width: 2 }
+        if (ts.rainbow) {
+          // hue walks the trail rather than the clock, so the ribbon reads as a path
+          for (let i = 1; i < c.trail.length; i++) {
+            ctx2.strokeStyle = `hsla(${(i * 6) % 360},85%,62%,.6)`
+            ctx2.lineWidth = ts.width
+            ctx2.beginPath(); ctx2.moveTo(c.trail[i - 1].x, c.trail[i - 1].y)
+            ctx2.lineTo(c.trail[i].x, c.trail[i].y); ctx2.stroke()
+          }
+        } else if (ts.fade) {
+          for (let i = 1; i < c.trail.length; i++) {
+            ctx2.globalAlpha = i / c.trail.length
+            ctx2.strokeStyle = ts.color; ctx2.lineWidth = ts.width * (i / c.trail.length)
+            ctx2.beginPath(); ctx2.moveTo(c.trail[i - 1].x, c.trail[i - 1].y)
+            ctx2.lineTo(c.trail[i].x, c.trail[i].y); ctx2.stroke()
+          }
+          ctx2.globalAlpha = 1
+        } else {
+          ctx2.strokeStyle = ts.color; ctx2.lineWidth = ts.width
+          ctx2.beginPath(); ctx2.moveTo(c.trail[0].x, c.trail[0].y)
+          for (const p of c.trail) ctx2.lineTo(p.x, p.y)
+          ctx2.stroke()
+          if (ts.spark) {
+            ctx2.fillStyle = ts.color
+            for (let i = 0; i < c.trail.length; i += 7) {
+              const p = c.trail[i]
+              ctx2.fillRect(p.x - 1.5, p.y - 1.5, 3, 3)
+            }
+          }
+        }
       }
 
+      const skin = c.skin || SHOP.BALLS[0]
       ctx2.save(); ctx2.translate(c.st.x, c.st.y); ctx2.rotate(c.st.rot)
+      if (skin.glow) {
+        const gl = ctx2.createRadialGradient(0, 0, HP.RB * 0.6, 0, 0, HP.RB * 2.1)
+        gl.addColorStop(0, skin.glow + '66'); gl.addColorStop(1, 'rgba(0,0,0,0)')
+        ctx2.fillStyle = gl; ctx2.beginPath(); ctx2.arc(0, 0, HP.RB * 2.1, 0, 7); ctx2.fill()
+      }
       const bg = ctx2.createRadialGradient(-5, -6, 2, 0, 0, HP.RB)
-      bg.addColorStop(0, '#F0803F'); bg.addColorStop(1, '#A8441B')
+      bg.addColorStop(0, skin.a); bg.addColorStop(1, skin.b)
       ctx2.fillStyle = bg; ctx2.beginPath(); ctx2.arc(0, 0, HP.RB, 0, 7); ctx2.fill()
-      ctx2.strokeStyle = 'rgba(40,16,6,.8)'; ctx2.lineWidth = 1.6
+      ctx2.strokeStyle = skin.seam; ctx2.lineWidth = 1.6
       ctx2.beginPath(); ctx2.moveTo(-HP.RB, 0); ctx2.lineTo(HP.RB, 0); ctx2.stroke()
       ctx2.beginPath(); ctx2.moveTo(0, -HP.RB); ctx2.lineTo(0, HP.RB); ctx2.stroke()
       ctx2.beginPath(); ctx2.arc(0, 0, HP.RB, 0, 7); ctx2.stroke()
@@ -671,9 +722,13 @@ export default function Hoops() {
               <button type="button" className="hoops-ghost" disabled={busy} onClick={joinParty}>Join</button>
             </div>
             <button type="button" className="hoops-ghost"
-              onClick={() => { g.current.mode = 'solo'; loadLevel(0, 'solo', 0); setView('solo') }}>
+              onClick={() => { g.current.mode = 'solo'; setTeaser(HP.LEVELS[0].world); loadLevel(0, 'solo', 0); setView('solo') }}>
               Play on my own
             </button>
+            <div className="hoops-actions">
+              <span className="hoops-coins">{wallet.coins}<i>coins</i></span>
+              <button type="button" className="hoops-ghost" onClick={() => setShopOpen(true)}>Shop</button>
+            </div>
             {err && <p className="hoops-err">{err}</p>}
           </div>
         )}
@@ -757,6 +812,54 @@ export default function Hoops() {
           </div>
         )}
 
+        {shopOpen && (
+          <div className="hoops-card hoops-shopwrap">
+            <div className="hp-head">
+              <h2>Shop</h2>
+              <span className="hoops-coins">{wallet.coins}<i>coins</i></span>
+              <button type="button" className="hh-btn" onClick={() => setShopOpen(false)}>Close</button>
+            </div>
+            {[['Balls', SHOP.BALLS], ['Trails', SHOP.TRAILS]].map(([label, items]) => (
+              <div key={label} className="shop-sect">
+                <h3>{label}</h3>
+                <div className="shop-grid">
+                  {items.map((it) => {
+                    const owned = wallet.owned.includes(it.id)
+                    const on = wallet[it.kind] === it.id
+                    const afford = wallet.coins >= it.price
+                    return (
+                      <button key={it.id} type="button"
+                        className={`shop-item${on ? ' on' : ''}${!owned && !afford ? ' locked' : ''}`}
+                        onClick={() => setWallet((w) => (owned ? SHOP.equip(w, it.id) : SHOP.buy(w, it.id)))}>
+                        <span className="shop-swatch" style={it.kind === 'ball'
+                          ? { background: `radial-gradient(circle at 35% 32%, ${it.a}, ${it.b})`,
+                              boxShadow: it.glow ? `0 0 14px ${it.glow}` : 'none' }
+                          : { background: it.rainbow
+                              ? 'linear-gradient(90deg,#e5534b,#e0a13a,#63b45e,#4a90d9,#9060c0)'
+                              : (it.color || '#6b5240'), height: '8px', borderRadius: '4px' }} />
+                        <span className="shop-name">{it.name}</span>
+                        <span className="shop-price">
+                          {on ? 'Equipped' : owned ? 'Equip' : `${it.price} coins`}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+            <p className="shop-note">Beat par to earn more. Racing pays best.</p>
+          </div>
+        )}
+
+        {teaser && HP.WORLDS[teaser] && (
+          <div className="hoops-card hoops-teaser">
+            <span className="ht-k">{HP.WORLDS[teaser].team || 'Warm-up'}</span>
+            <h1>{HP.WORLDS[teaser].name}</h1>
+            <p>{HP.WORLDS[teaser].teaser}</p>
+            <button type="button" className="hoops-go" onClick={() => setTeaser(null)}>Let&rsquo;s go</button>
+          </div>
+        )}
+
         {picking && (
           <div className="hoops-card hoops-pick">
             <div className="hp-head">
@@ -787,7 +890,7 @@ export default function Hoops() {
               <div className="hp-holes">
                 {HP.LEVELS.map((L, idx) => L.world !== picking ? null : (
                   <button key={L.name} type="button" className="hp-hole"
-                    onClick={() => { setPicking(null); g.current.mode = 'solo'; loadLevel(idx, 'solo', 0); setView('solo'); force((x) => x + 1) }}>
+                    onClick={() => { setPicking(null); setTeaser(L.world); g.current.mode = 'solo'; loadLevel(idx, 'solo', 0); setView('solo'); force((x) => x + 1) }}>
                     <span className="hp-n">{HP.LEVELS.filter((x) => x.world === picking).indexOf(L) + 1}</span>
                     <span className="hp-hn">{L.name}</span>
                     <span className="hp-par">Par {L.par}</span>
@@ -802,6 +905,7 @@ export default function Hoops() {
           <div className="hoops-card">
             <h1>{c.st.flaps <= level.par ? 'Nothing but net' : 'Bucket'}</h1>
             <p>{c.st.flaps} flaps. Par is {level.par}.</p>
+            <p className="hoops-earned">+{earned} coins</p>
             <button type="button" className="hoops-go"
               onClick={() => { const n = (c.li + 1) % HP.LEVELS.length; loadLevel(n, 'solo', 0); force((x) => x + 1) }}>
               Next hole

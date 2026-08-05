@@ -775,3 +775,35 @@ body {
 .hp-hn { flex: 1; font-size: 13px; }
 .hp-par { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em;
   text-transform: uppercase; color: #9C8D7C; }
+
+/* Coins, shop, world teaser */
+.hoops-coins { font-family: var(--font-mono); font-size: 18px; color: #E8C86A;
+  display: inline-flex; align-items: baseline; gap: 5px; font-variant-numeric: tabular-nums; }
+.hoops-coins i { font-style: normal; font-size: 9px; letter-spacing: .16em;
+  text-transform: uppercase; color: #9C8D7C; }
+.hoops-earned { color: #E8C86A !important; font-family: var(--font-mono); font-size: 15px; }
+.hoops-shopwrap { align-items: stretch; justify-content: flex-start; overflow: auto; padding: 20px 18px 40px; }
+.shop-sect { width: 100%; max-width: 880px; margin: 0 auto 18px; }
+.shop-sect h3 { font-family: var(--font-mono); font-size: 10px; letter-spacing: .2em;
+  text-transform: uppercase; color: #9C8D7C; margin: 0 0 8px; text-align: left; }
+.shop-grid { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.shop-item { display: flex; flex-direction: column; align-items: flex-start; gap: 7px;
+  border: 1px solid rgba(255,255,255,.14); background: transparent; color: inherit;
+  padding: 12px; cursor: pointer; text-align: left; }
+.shop-item:hover { border-color: rgba(255,255,255,.42); }
+.shop-item.on { border-color: #6FB07A; }
+.shop-item.locked { opacity: .45; }
+.shop-swatch { width: 38px; height: 38px; border-radius: 50%; }
+.shop-name { font-size: 13px; }
+.shop-price { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em;
+  text-transform: uppercase; color: #9C8D7C; }
+.shop-item.on .shop-price { color: #6FB07A; }
+.shop-note { font-family: var(--font-mono); font-size: 11px; color: #9C8D7C !important; }
+.hoops-teaser .ht-k { font-family: var(--font-mono); font-size: 10px; letter-spacing: .22em;
+  text-transform: uppercase; color: #D9622B; }
+.hoops-teaser h1 { margin: 2px 0 6px; }
+.hoops-teaser p { font-size: 15px; line-height: 1.6; max-width: 30ch; }
+
+/* Full-screen panels sit on an opaque ground. At 88% the menu card underneath reads straight
+   through them and the headline collides with the shop grid. */
+.hoops-shopwrap, .hoops-pick, .hoops-teaser { background: #0E0906; }
