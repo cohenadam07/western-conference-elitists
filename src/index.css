@@ -663,3 +663,75 @@ body {
   .gw .c-dyn .dline { animation: none; stroke-dashoffset: 0; }
   .gw .c-dyn .dtip, .gw .c-dyn .dfill { animation: none; opacity: 1; }
 }
+
+/* ------------------------------------------------------------------ Flap Hoops
+   Committed to a single dark world rather than following the site's light theme: the
+   game is a lit court in a dark arena, and a "light mode" version of that is not a
+   different palette, it is a different idea. */
+.hoops { position: fixed; inset: 0; display: flex; flex-direction: column;
+  background: #0E0906; color: #E8DCC8; user-select: none; -webkit-user-select: none; z-index: 40; }
+.hoops-hud { display: flex; align-items: baseline; gap: 16px; padding: 9px 14px; flex: 0 0 auto;
+  border-bottom: 1px solid #3D2D21; background: linear-gradient(#261c14, #1b1310); }
+.hh-title { font-family: var(--font-cond, Impact, sans-serif); font-size: 19px; letter-spacing: .06em;
+  text-transform: uppercase; }
+.hh-grp { display: flex; flex-direction: column; gap: 1px; }
+.hh-k { font-family: var(--font-mono); font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: #9C8D7C; }
+.hh-v { font-family: var(--font-mono); font-size: 14px; font-variant-numeric: tabular-nums; }
+.hh-sp { flex: 1; }
+.hh-code { font-family: var(--font-mono); font-size: 16px; letter-spacing: .3em; color: #D9622B; }
+.hh-btn { font-family: var(--font-mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase;
+  background: transparent; color: #9C8D7C; border: 1px solid #3D2D21; padding: 6px 10px; cursor: pointer; }
+.hh-btn:hover { color: #E8DCC8; border-color: #9C8D7C; }
+.hoops-stage { position: relative; flex: 1; min-height: 0; }
+.hoops-stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+.hoops-card { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 14px; text-align: center; padding: 24px; background: rgba(14,9,6,.88); }
+.hoops-card h1 { font-family: var(--font-cond, Impact, sans-serif); font-size: clamp(30px, 7vw, 54px);
+  letter-spacing: .03em; margin: 0; text-transform: uppercase; line-height: .95; text-wrap: balance; }
+.hoops-card h1 em { font-style: normal; color: #D9622B; }
+.hoops-card p { margin: 0; max-width: 40ch; font-size: 14px; line-height: 1.55; color: #C3B6A6; }
+.hoops-go { background: #D9622B; color: #1E0F09; border: 0; padding: 12px 26px;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .15em; text-transform: uppercase; cursor: pointer; }
+.hoops-go:disabled { background: #3D2D21; color: #9C8D7C; cursor: not-allowed; }
+.hoops-ghost { background: transparent; color: #C3B6A6; border: 1px solid #3D2D21; padding: 11px 20px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; cursor: pointer; }
+.hoops-input { border: 1px solid #3D2D21; background: #0E0906; padding: 11px 12px; font-size: 14px;
+  color: #E8DCC8; outline: none; min-width: 0; }
+.hoops-input:focus { border-color: #D9622B; }
+.hoops-input.code { width: 108px; font-family: var(--font-mono); letter-spacing: .3em; text-align: center; }
+.hoops-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; }
+.hoops-err { color: #C4614A; font-family: var(--font-mono); font-size: 12px; }
+.hoops-wait { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em;
+  text-transform: uppercase; color: #9C8D7C; }
+.hoops-roster, .hoops-standings { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
+.hoops-chip { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em;
+  border: 1px solid #3D2D21; padding: 5px 10px; color: #C3B6A6; }
+.hoops-table { font-family: var(--font-mono); font-size: 13px; border-collapse: collapse; }
+.hoops-table td { padding: 6px 12px; border-bottom: 1px solid #241a12; text-align: left; }
+.hoops-table td:last-child { color: #6FB07A; text-align: right; }
+.hoops-table tr.mine td { color: #E8DCC8; }
+
+/* countdown between "go" and step zero, so nobody starts early */
+.hoops-count { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  pointer-events: none; }
+.hoops-count span { font-family: var(--font-cond, Impact, sans-serif); font-size: clamp(70px, 22vw, 190px);
+  color: #D9622B; opacity: .9; }
+
+/* champion */
+.hoops-winner .hoops-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .22em;
+  text-transform: uppercase; color: #B08A4A; }
+.hoops-champ { font-size: clamp(42px, 13vw, 104px) !important; color: #E8DCC8;
+  animation: hoops-pop .7s cubic-bezier(.2,1.5,.4,1) both; }
+@keyframes hoops-pop { from { transform: scale(.55); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.hoops-confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.hoops-confetti i { position: absolute; top: -6vh; width: 8px; height: 14px; opacity: .9;
+  left: calc(var(--i) * 3.9%); background: #D9622B;
+  animation: hoops-fall 2.6s linear infinite; animation-delay: calc(var(--i) * -0.13s); }
+.hoops-confetti i:nth-child(3n) { background: #B08A4A; }
+.hoops-confetti i:nth-child(3n+1) { background: #6E96A6; }
+@keyframes hoops-fall { to { transform: translateY(112vh) rotate(540deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .hoops-confetti { display: none; }
+  .hoops-champ { animation: none; }
+}
