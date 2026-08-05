@@ -336,18 +336,36 @@ export default function Dynasty() {
     return j
   }, [])
 
-  // Poll while the room is open. Vercel supports WebSockets now, but a room is a handful of
-  // people making one decision — a 2s poll costs a few Redis reads and needs no connection
-  // to keep alive, reconnect, or reason about on a flaky phone.
+  // Poll while the room is unsettled. Vercel supports WebSockets now, but a room is a handful
+  // of people making one decision — polling costs a few Redis reads and needs no connection to
+  // keep alive, reconnect, or reason about on a flaky phone. Faster during a live round, both
+  // so the clock looks honest and so somebody hits the endpoint promptly once the deadline
+  // passes: serverless has no timers, and the settle happens on the first request after it.
   useEffect(() => {
-    if (view !== 'lobby' || !lob?.code || lob.status !== 'open') return undefined
+    if (view !== 'lobby' || !lob?.code || lob.status === 'settled') return undefined
+    const every = lob.status === 'live' ? 1000 : 2000
     const t = setInterval(() => {
       lobCall('lobby-state', { code: lob.code })
         .then((j) => setLob((p) => (p && p.code === j.code ? { ...p, ...j } : p)))
         .catch(() => { /* transient — the next tick retries */ })
-    }, 2000)
+    }, every)
     return () => clearInterval(t)
   }, [view, lob?.code, lob?.status, lobCall])
+
+  // Local countdown, corrected against the server's clock so a skewed device does not show a
+  // different number from everyone else. The server still owns the actual cutoff.
+  const [skew, setSkew] = useState(0)
+  useEffect(() => {
+    if (typeof lob?.now === 'number') setSkew(lob.now - Date.now())
+  }, [lob?.now])
+  const [left, setLeft] = useState(0)
+  useEffect(() => {
+    if (lob?.status !== 'live' || !lob?.deadline) { setLeft(0); return undefined }
+    const tick = () => setLeft(Math.max(0, Math.ceil((lob.deadline - (Date.now() + skew)) / 1000)))
+    tick()
+    const t = setInterval(tick, 200)
+    return () => clearInterval(t)
+  }, [lob?.status, lob?.deadline, skew])
 
   const lobCreate = async () => {
     setLobBusy(true); setLobErr(null)
@@ -380,16 +398,16 @@ export default function Dynasty() {
     } catch { setLobErr('Ranking rejected.') }
     setLobBusy(false)
   }
-  const lobClose = async () => {
-    setLobBusy(true)
+  const lobStart = async () => {
+    setLobBusy(true); setLobErr(null); setLobOrder([])
     try {
-      const j = await lobCall('lobby-close', { code: lob.code })
+      const j = await lobCall('lobby-start', { code: lob.code })
       setLob((p) => ({ ...p, ...j }))
-    } catch { setLobErr('Could not close the room.') }
+    } catch (e) { setLobErr(e.message) }
     setLobBusy(false)
   }
   const lobPick = (id) => {
-    if (lobBusy || lob?.status === 'settled' || lob?.submitted?.includes(me.current)) return
+    if (lobBusy || lob?.status !== 'live' || lob?.submitted?.includes(me.current)) return
     setLobOrder((o) => (o.includes(id) ? o.filter((x) => x !== id) : o.length < 4 ? [...o, id] : o))
   }
 
@@ -614,6 +632,10 @@ export default function Dynasty() {
     const roster = Object.entries(lob?.roster || {})
     const res = lob?.result
     const settled = lob?.status === 'settled'
+    const waiting = lob?.status === 'waiting'
+    const live = lob?.status === 'live'
+    const minToStart = lob?.minToStart || 2
+    const roundMs = 10000
     return (
       <Shell kicker="With friends" title="THE ROOM" total={total}
         onHome={() => { setView('hub'); setLobErr(null) }}>
@@ -649,6 +671,13 @@ export default function Dynasty() {
 
           {inRoom && (
             <>
+              {/* Missed the buzzer. Drifts across the top and is gone the moment the next
+                  round starts, because `settled` is what puts it on screen. */}
+              {settled && lob.youAbstained && (
+                <div className="dyn-tooslow" aria-live="polite">
+                  <span>TOO&nbsp;SLOW</span>
+                </div>
+              )}
               <section className="dyn-panel">
                 <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--dyn-line)] px-5 py-3">
                   <div className="flex items-center gap-3">
@@ -656,7 +685,9 @@ export default function Dynasty() {
                     <span className="dyn-mono text-lg tracking-[0.3em] text-[var(--dyn-text)]">{lob.code}</span>
                   </div>
                   <span className="dyn-mono text-[11px] text-[var(--dyn-faint)]">
-                    {settled ? 'SETTLED' : `${lob.submitted?.length || 0}/${roster.length} RANKED`}
+                    {waiting ? `${roster.length} IN THE ROOM`
+                      : settled ? `ROUND ${lob.round} SETTLED`
+                      : `${lob.submitted?.length || 0}/${roster.length} RANKED`}
                   </span>
                 </header>
 
@@ -677,8 +708,41 @@ export default function Dynasty() {
                 </div>
 
                 <div className="p-5">
-                  {!settled && (
+                  {/* nobody sees a matchup until the host starts: no head starts */}
+                  {waiting && (
+                    <div className="py-6 text-center">
+                      <div className="dyn-mono text-[11px] tracking-widest text-[var(--dyn-faint)]">
+                        {roster.length < minToStart
+                          ? 'WAITING FOR SOMEONE ELSE TO JOIN'
+                          : lob.host ? 'READY WHEN YOU ARE' : 'WAITING FOR THE HOST TO START'}
+                      </div>
+                      <p className="mx-auto mt-3 max-w-md text-[13px] leading-relaxed text-[var(--dyn-dim)]">
+                        Share the code. Once the host starts, everyone gets the same four and{' '}
+                        <span className="text-[var(--dyn-text)]">{Math.round(roundMs / 1000)} seconds</span>{' '}
+                        to rank them. Miss the buzzer and you sit the round out.
+                      </p>
+                      {lob.host && (
+                        <button type="button" onClick={lobStart}
+                          disabled={lobBusy || roster.length < minToStart}
+                          className="dyn-btn mt-5">
+                          {lobBusy ? 'Starting…'
+                            : roster.length < minToStart ? `Need ${minToStart - roster.length} more`
+                            : lob.round > 0 ? 'Start the next round' : 'Start round 1'}
+                        </button>
+                      )}
+                      {lobErr && <p className="dyn-mono dyn-down mt-3 text-[11px]">{lobErr}</p>}
+                    </div>
+                  )}
+
+                  {live && (
                     <>
+                      <div className="mb-4 flex items-center justify-center gap-3">
+                        <span className={`dyn-mono text-3xl tabular-nums ${
+                          left <= 3 ? 'dyn-down' : 'text-[var(--dyn-text)]'}`}>{left}</span>
+                        <span className="dyn-label text-[var(--dyn-faint)]">
+                          {meIn ? 'locked in' : 'seconds to rank'}
+                        </span>
+                      </div>
                       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                         {lob.group.map((id) => (
                           <TicketCard key={id} p={byId[String(id)] || { id, name: `#${id}` }}
@@ -690,7 +754,7 @@ export default function Dynasty() {
                         {!meIn && (
                           <button type="button" onClick={lobSubmit}
                             disabled={lobOrder.length !== 4 || lobBusy} className="dyn-btn">
-                            {lobBusy ? 'Locking in…' : lobOrder.length === 4 ? 'Lock in my ranking'
+                            {lobBusy ? 'Locking in…' : lobOrder.length === 4 ? 'Lock it in'
                               : `Select ${4 - lobOrder.length} more`}
                           </button>
                         )}
@@ -698,13 +762,6 @@ export default function Dynasty() {
                           <span className="dyn-mono text-[11px] text-[var(--dyn-up)]">
                             LOCKED IN · WAITING ON THE ROOM
                           </span>
-                        )}
-                        {/* host escape hatch: somebody always wanders off mid-argument */}
-                        {lob.host && (lob.submitted?.length || 0) > 0
-                          && lob.submitted.length < roster.length && (
-                          <button type="button" onClick={lobClose} className="dyn-btn-ghost">
-                            Settle without the stragglers
-                          </button>
                         )}
                         {lobErr && <span className="dyn-mono dyn-down text-[11px]">{lobErr}</span>}
                       </div>
@@ -736,14 +793,32 @@ export default function Dynasty() {
                           tone={res.weight === 0 ? 'dyn-down' : 'dyn-up'} />
                       </div>
                       <p className="mt-4 text-[12px] leading-relaxed text-[var(--dyn-faint)]">
-                        {res.weight === 0
-                          ? 'The room split evenly, so nothing moved. A room only moves the board when it actually agrees.'
-                          : `The room's answer was applied once, worth ${res.weight}× a single pick. A room's influence is capped no matter how many people are in it.`}
+                        {/* Three different reasons the board might not have moved, and saying
+                            the wrong one tells people something untrue about their own round. */}
+                        {res.voters === 0
+                          ? 'Nobody beat the buzzer, so the round was void. Nothing moved.'
+                          : res.weight === 0
+                            ? 'The room split evenly, so nothing moved. A room only moves the board when it actually agrees.'
+                            : `The room's answer was applied once, worth ${res.weight}× a single pick`
+                              + `${res.abstained?.length ? `, from the ${res.voters} who ranked in time` : ''}`
+                              + '. A room’s influence is capped no matter how many people are in it.'}
                       </p>
                       <div className="mt-5 flex flex-wrap items-center gap-3">
+                        {lob.host && (
+                          <button type="button" onClick={lobStart} disabled={lobBusy}
+                            className="dyn-btn">
+                            {lobBusy ? 'Starting…' : 'Next round'}
+                          </button>
+                        )}
+                        {!lob.host && (
+                          <span className="dyn-mono text-[11px] text-[var(--dyn-faint)]">
+                            WAITING FOR THE HOST TO START THE NEXT ROUND
+                          </span>
+                        )}
                         <button type="button"
                           onClick={() => { setLob(null); setLobOrder([]); setLobCode(''); loadBoard() }}
-                          className="dyn-btn-ghost">Another room →</button>
+                          className="dyn-btn-ghost">Leave</button>
+                        {lobErr && <span className="dyn-mono dyn-down text-[11px]">{lobErr}</span>}
                       </div>
                     </>
                   )}

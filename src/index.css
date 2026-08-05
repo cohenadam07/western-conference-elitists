@@ -601,6 +601,25 @@ body {
 .dyn-input::placeholder { color: var(--dyn-faint); }
 .dyn-input:focus { border-color: var(--dyn-gold); }
 
+/* "TOO SLOW" — you missed the pick clock. A slow drift rather than a flash: it should feel
+   like being gently laughed at across the room, and it needs to still be there when you look
+   up from the result. 22s to cross, then it holds at the far edge until the next round
+   unmounts it. */
+.dyn-tooslow {
+  position: relative; overflow: hidden; height: 34px; margin-bottom: 10px;
+  border-bottom: 1px solid var(--dyn-line); pointer-events: none;
+}
+.dyn-tooslow span {
+  position: absolute; top: 4px; white-space: nowrap;
+  font-family: var(--font-mono); font-size: 15px; letter-spacing: .34em;
+  color: var(--dyn-down); opacity: .9;
+  animation: dyn-crawl 22s linear forwards;
+}
+@keyframes dyn-crawl { from { left: -28%; } to { left: 100%; } }
+@media (prefers-reduced-motion: reduce) {
+  .dyn-tooslow span { animation: none; left: 50%; transform: translateX(-50%); }
+}
+
 /* live dot */
 @keyframes dyn-pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
 .dyn-live { animation: dyn-pulse 2s ease-in-out infinite; }

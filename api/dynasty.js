@@ -75,6 +75,8 @@ const NONCE_RE = /^[a-z0-9]{8,40}$/i
 // brigade owns the market.
 const LOBBY_TTL = 6 * 3600      // rooms are an evening's argument, not a fixture
 const LOBBY_MAX = 200           // members per room
+const LOBBY_MIN_START = 2       // a room of one is just the solo book with extra steps
+const LOBBY_ROUND_MS = 10000    // pick clock. Brisk on purpose — snap judgement is the game
 const LOBBY_W_CAP = 6           // max single-votes one room can be worth, globally
 const LOBBY_CODE_RE = /^[A-HJ-NP-Z2-9]{4}$/          // no O/0/I/L/1 — these get read aloud
 const NAME_MAX = 24
@@ -293,7 +295,20 @@ function cleanName(raw) {
 // Deliberately a single application rather than one per member — n members re-answering the
 // same question is not n independent results, which is the same reasoning behind the daily
 // group's damping further down.
-async function settleLobby(code, group, orders) {
+async function settleLobby(code, group, orders, meta = {}) {
+  // No rankings at all — everybody let the clock run out. Nothing to learn, nothing to write.
+  if (!orders.length) {
+    const empty = {
+      consensus: group, pts: {}, agreement: 0, weight: 0, voters: 0,
+      abstained: meta.abstained || [], round: meta.round || 0,
+      moved: group.map((id) => ({ id, delta: 0, rating: null })),
+    }
+    await pipe([
+      ['HSET', lobK(code), 'status', 'settled', 'result', JSON.stringify(empty)],
+      ['EXPIRE', lobK(code), LOBBY_TTL],
+    ])
+    return { result: empty }
+  }
   const { consensus, pts, agreement } = borda(orders, group)
   const weight = lobbyWeight(orders.length, agreement)
 
@@ -328,7 +343,7 @@ async function settleLobby(code, group, orders) {
   }
   const result = {
     consensus, pts, agreement: Number(agreement.toFixed(3)), weight: Number(weight.toFixed(2)),
-    voters: orders.length,
+    voters: orders.length, abstained: meta.abstained || [], round: meta.round || 0,
     moved: consensus.map((id) => ({
       id, delta: Math.round(delta[id] || 0), rating: Math.round(ratings[id] + (delta[id] || 0)),
     })),
@@ -447,31 +462,30 @@ export default async function handler(req, res) {
           if (Number(ok) === 1) made = c
         }
         if (!made) { res.status(503).json({ error: 'could not allocate a code' }); return }
-        const group = lobbyGroup(made, ids)
+        // A room opens EMPTY of a matchup: no four, no timer, nothing to rank. It is a waiting
+        // room until the host starts round one, so nobody can get a head start on a group the
+        // rest of the room has not seen yet.
         await pipe([
-          ['HSET', lobK(made), 'group', group.join(','), 'status', 'open', 'createdAt', String(Date.now())],
+          ['HSET', lobK(made), 'status', 'waiting', 'round', '0', 'createdAt', String(Date.now())],
           ['HSET', lobK(made, ':m'), uid, name],
           ['EXPIRE', lobK(made), LOBBY_TTL],
           ['EXPIRE', lobK(made, ':m'), LOBBY_TTL],
         ])
-        // Return the full room shape, not just the code: the creator is already a member, and
-        // a response missing roster/status leaves the host staring at "0/0 ranked" until the
-        // first poll lands.
         res.status(200).json({
-          ok: true, code: made, group, host: true, status: 'open',
-          roster: { [uid]: name }, submitted: [], result: null,
+          ok: true, code: made, host: true, status: 'waiting', round: 0, group: [],
+          roster: { [uid]: name }, submitted: [], result: null, minToStart: LOBBY_MIN_START,
         })
         return
       }
 
       if (!LOBBY_CODE_RE.test(code)) { res.status(400).json({ error: 'bad code' }); return }
-      const [meta, members, subs] = await pipe([
-        ['HGETALL', lobK(code)], ['HGETALL', lobK(code, ':m')], ['HGETALL', lobK(code, ':s')],
-      ])
-      const m = unflatten(meta)
-      if (!m.group) { res.status(404).json({ error: 'no such lobby' }); return }
-      const roster = unflatten(members), submitted = unflatten(subs)
-      const group = String(m.group).split(',')
+      let [meta, members] = await pipe([['HGETALL', lobK(code)], ['HGETALL', lobK(code, ':m')]])
+      let m = unflatten(meta)
+      if (!m.status) { res.status(404).json({ error: 'no such lobby' }); return }
+      const roster = unflatten(members)
+      let round = Number(m.round || 0)
+      let subs = unflatten(await redis(['HGETALL', lobK(code, ':s' + round)]))
+      let group = m.group ? String(m.group).split(',') : []
 
       if (req.method === 'POST' && action === 'lobby-join') {
         if (!roster[uid] && Object.keys(roster).length >= LOBBY_MAX) {
@@ -483,36 +497,83 @@ export default async function handler(req, res) {
         }
       }
 
+      // ---- host starts a round ------------------------------------------
+      // Deliberately gated on a second person. A one-person "room" is just the solo book with
+      // extra steps, and the whole point of the weighting is that a room is more than one
+      // opinion. The deadline is set HERE, on the server, and every client reads the same
+      // instant — a countdown owned by the browser is one devtools pause away from unlimited
+      // thinking time, and worse, two people would disagree about when the round ended.
+      if (req.method === 'POST' && action === 'lobby-start') {
+        if (uid !== m.host) { res.status(403).json({ error: 'only the host can start' }); return }
+        if (m.status === 'live') { res.status(409).json({ error: 'already running' }); return }
+        if (Object.keys(roster).length < LOBBY_MIN_START) {
+          res.status(409).json({ error: 'need at least ' + LOBBY_MIN_START + ' people' }); return
+        }
+        await ensureSeeded(req)
+        const { ids } = await orderedIds()
+        if (!ids.length) { res.status(503).json({ error: 'the dynasty board is empty', seeded: false }); return }
+        round += 1
+        // Seeded on code AND round, so each round is a fresh four that every member sees
+        // identically, without the server having to remember what it dealt.
+        group = lobbyGroup(code + ':' + round, ids)
+        const deadline = Date.now() + LOBBY_ROUND_MS
+        await pipe([
+          ['DEL', lobK(code, ':s' + round)],
+          ['HSET', lobK(code), 'status', 'live', 'round', String(round),
+            'group', group.join(','), 'deadline', String(deadline), 'result', ''],
+          ['EXPIRE', lobK(code), LOBBY_TTL],
+        ])
+        m = { ...m, status: 'live', round: String(round), group: group.join(','), deadline: String(deadline), result: '' }
+        subs = {}
+      }
+
       if (req.method === 'POST' && action === 'lobby-submit') {
         const order = Array.isArray(body.order) ? body.order.map(String) : []
-        if (m.status !== 'open') { res.status(409).json({ error: 'already settled' }); return }
+        if (m.status !== 'live') { res.status(409).json({ error: 'no round is running' }); return }
+        if (Date.now() > Number(m.deadline || 0)) { res.status(409).json({ error: 'too slow' }); return }
         if (!roster[uid]) { res.status(403).json({ error: 'join first' }); return }
         if (order.length !== GROUP || new Set(order).size !== GROUP
             || !order.every((id) => group.includes(id))) {
           res.status(400).json({ error: 'bad order' }); return
         }
         await pipe([
-          ['HSET', lobK(code, ':s'), uid, order.join(',')],
-          ['EXPIRE', lobK(code, ':s'), LOBBY_TTL],
+          ['HSET', lobK(code, ':s' + round), uid, order.join(',')],
+          ['EXPIRE', lobK(code, ':s' + round), LOBBY_TTL],
         ])
-        submitted[uid] = order.join(',')
+        subs[uid] = order.join(',')
       }
 
-      // Settle once every member present has ranked. The host can also close early via
-      // lobby-close, because somebody always wanders off mid-argument.
-      const everyoneIn = Object.keys(roster).length > 0
-        && Object.keys(roster).every((u) => submitted[u])
-      const wantClose = action === 'lobby-close' && uid === m.host
-      if (m.status === 'open' && (everyoneIn || wantClose) && Object.keys(submitted).length > 0) {
-        const settled = await settleLobby(code, group, Object.values(submitted).map((s) => s.split(',')))
-        res.status(200).json({ ok: true, code, group, status: 'settled', roster, submitted: Object.keys(submitted), ...settled })
+      // ---- settle ---------------------------------------------------------
+      // Serverless has no timers, so the deadline is enforced lazily: whichever request
+      // arrives first past it does the settling. Clients poll every second while a round is
+      // live, so in practice that happens within a second of the buzzer.
+      const expired = m.status === 'live' && Date.now() > Number(m.deadline || 0)
+      const everyoneIn = m.status === 'live' && Object.keys(roster).length > 0
+        && Object.keys(roster).every((u) => subs[u])
+      if (m.status === 'live' && (expired || everyoneIn)) {
+        const orders = Object.values(subs).map((s) => s.split(','))
+        // Whoever let the clock run out simply is not counted. Abstaining is a real outcome,
+        // not an error: a round where nobody ranked in time settles at weight 0 and moves
+        // nothing, same as a room that could not agree.
+        const abstained = Object.keys(roster).filter((u) => !subs[u])
+        const settled = await settleLobby(code, group, orders, { abstained, round })
+        res.status(200).json({
+          ok: true, code, group, round, status: 'settled', host: m.host === uid,
+          roster, submitted: Object.keys(subs), abstained,
+          youAbstained: abstained.includes(uid), minToStart: LOBBY_MIN_START, ...settled,
+        })
         return
       }
 
+      const stored = m.result ? JSON.parse(m.result) : null
       res.status(200).json({
-        ok: true, code, group, status: m.status || 'open', host: m.host === uid,
-        roster, submitted: Object.keys(submitted),
-        result: m.result ? JSON.parse(m.result) : null,
+        ok: true, code, group, round, status: m.status, host: m.host === uid,
+        roster, submitted: Object.keys(subs),
+        deadline: m.status === 'live' ? Number(m.deadline || 0) : null,
+        now: Date.now(),              // lets the client correct for clock skew
+        abstained: stored?.abstained || [],
+        youAbstained: !!stored?.abstained?.includes(uid),
+        minToStart: LOBBY_MIN_START, result: stored,
       })
       return
     }
