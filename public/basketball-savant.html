@@ -2857,6 +2857,12 @@ function build(){
   sbtn.addEventListener('keydown',function(e){
     if(e.key==='ArrowDown'||e.key==='Enter'||e.key===' '){ e.preventDefault(); openSeasonPop(); }
   });
+  /* Pressing an option must not move focus. WebKit doesn't focus a <button> on tap, so the
+     press blurs the option openSeasonPop() focused and the focusout below used to fire
+     mid-tap — see there. Suppressing the mousedown default keeps focus where it is. */
+  spop.addEventListener('mousedown',function(e){
+    if(e.target.closest('.selx-opt')) e.preventDefault();
+  });
   spop.addEventListener('click',function(e){
     const o=e.target.closest('.selx-opt'); if(!o||o.getAttribute('aria-disabled')==='true') return;
     closeSeasonPop(true); stopPlay(); setSeason(o.getAttribute('data-s'));
@@ -2872,12 +2878,18 @@ function build(){
       e.preventDefault(); closeSeasonPop(true); stopPlay(); setSeason(o.getAttribute('data-s'));
     }
   });
-  // click-away and focus-away both close it; a popup that outlives its context is a bug
-  document.addEventListener('mousedown',function(e){
+  // click-away and focus-away both close it; a popup that outlives its context is a bug.
+  // pointerdown, not mousedown: iOS synthesizes mouse events only for elements it considers
+  // clickable, so a tap on plain page furniture would leave the menu hanging open.
+  document.addEventListener('pointerdown',function(e){
     if(seasonPopOpen()&&!e.target.closest('#seasonPick')) closeSeasonPop(false);
   });
+  /* Only a real focus move out of the control closes it. A null relatedTarget means focus
+     went nowhere, which on WebKit is what a tap on an option looks like — closing on that
+     hid the menu before the click resolved, so picking a season did nothing at all. Tapping
+     outside is already covered by the pointerdown handler above. */
   spop.addEventListener('focusout',function(e){
-    if(!e.relatedTarget||!e.relatedTarget.closest('#seasonPick')) closeSeasonPop(false);
+    if(e.relatedTarget && !e.relatedTarget.closest('#seasonPick')) closeSeasonPop(false);
   });
   const ar=document.getElementById('arcrail');
   if(ar) ar.addEventListener('click',function(e){
