@@ -94,7 +94,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-white/45 sm:flex-row">
-          <p>© {new Date().getFullYear()} Western Conference Elitists. All rights reserved.</p>
+          <p>Western Conference Elitists · {new Date().getFullYear()}</p>
           <p className="font-mono-tight text-gold/80">Built on film, backed by data.</p>
         </div>
       </div>
