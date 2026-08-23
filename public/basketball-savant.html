@@ -340,6 +340,26 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .comp-meter{position:relative;height:4px;border-radius:2px;background:var(--track);overflow:hidden}
 .comp-meter i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--navy)}
 @media (max-width:640px){ .comps-grid{grid-template-columns:1fr} }
+/* Weakness Comps — the mirror module: named flaws, then who shares them.
+   Meters reuse the page's colorAt ramp, so a short bar reads as weak here exactly as it
+   does on every stat row above; nothing turns red just because it is a weakness. */
+.wcomps{margin-top:16px}
+.wcomps[hidden]{display:none}
+.wk-flaws{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.wk-flaw{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 13px;display:flex;flex-direction:column;gap:7px}
+.wk-lab{font-size:14px;font-weight:500;color:var(--ink);line-height:1.2}
+.wk-meter{position:relative;height:4px;border-radius:2px;background:var(--track);overflow:hidden}
+.wk-meter i{position:absolute;left:0;top:0;bottom:0;border-radius:2px}
+.wk-pct{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+.wk-sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:0 0 7px}
+/* Weak-match banner: the honest read when nobody in the league really shares his profile. */
+.wk-banner{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--muted);background:color-mix(in srgb,var(--gold) 13%,transparent);border:1px solid color-mix(in srgb,var(--gold) 36%,transparent);border-radius:10px;padding:8px 11px;margin-bottom:9px}
+.wk-banner b{color:var(--ink);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.wk-banner span{text-transform:none;letter-spacing:.01em}
+/* A flagged grid keeps the cards but drops the gold "confident match" signal. */
+.comps-grid.wk-low .comp-score{color:var(--faint)}
+.comps-grid.wk-low .comp-meter i{background:var(--faint)}
+@media (max-width:640px){ .wk-flaws{grid-template-columns:1fr} }
 /* Inferred Defensive Role module (bigs only) */
 .role{margin-top:14px}
 .role[hidden]{display:none}
@@ -805,6 +825,7 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
   <div class="ctxrow"><div class="col" style="padding:12px 18px"><h2 class="col-h">Value</h2><div id="val"></div></div></div>
   <div class="col guard" id="guard" hidden></div>
   <div class="comps" id="comps" hidden></div>
+  <div class="wcomps" id="wcomps" hidden></div>
   <div class="col role" id="role" hidden></div>
 </div>
 
@@ -1501,7 +1522,26 @@ const CFG  = {
       "tier": 1,
       "since": "1979-80"
     }
-  ]
+  ],
+  "weakness": {
+    "dims": {
+      "ts": "True shooting %",
+      "tp3": "3-point %",
+      "ft": "Free throw %",
+      "tov": "Turnover %",
+      "ast": "Assist %",
+      "selfcr": "Self-creation",
+      "oreb": "Offensive rebound %",
+      "dreb": "Def. rebound %",
+      "stlpct": "Steal %",
+      "blkpct": "Block %",
+      "rim": "Rim FG% def. diff",
+      "oppfg": "Opp FG% on matchups",
+      "avail": "Availability"
+    },
+    "low_match": 62,
+    "min_minutes": 500
+  }
 };
 /* Season honours, baked inline — small enough (tens of KB) that a second fetch would cost
    more than it saves. {players:{pid:{season:[code]}}, labels:{code:"Most Valuable Player"}}.
@@ -1822,7 +1862,7 @@ function render(){
           document.getElementById('peakflag').hidden=true;
           document.getElementById('arcrail').hidden=true;
           document.getElementById('arcBtn').hidden=true;
-          document.getElementById('comps').hidden=true; document.getElementById('role').hidden=true; document.getElementById('guard').hidden=true; return; }
+          document.getElementById('comps').hidden=true; document.getElementById('wcomps').hidden=true; document.getElementById('role').hidden=true; document.getElementById('guard').hidden=true; return; }
   const wt=val(p,'strength',S), vt=val(p,'vert',S), la=val(p,'lateral',S);
   const bd=fmtBirth(p.birthdate);
   const ax=(p.age==null)?null:(typeof p.age==='number'?p.age.toFixed(2):p.age);
@@ -1872,6 +1912,7 @@ function render(){
   hideEmpty('ctx','.ctxrow'); hideEmpty('off','.col'); hideEmpty('def','.col'); hideEmpty('val','.ctxrow');
   renderGuard();
   renderComps();
+  renderWeak();
   renderRole();
   renderShots();
   document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.id==p.id));
@@ -2040,6 +2081,68 @@ function renderComps(){
   el.innerHTML='<div class="comps-h"><b>Statistical Comps</b>'
     +'<span class="comps-cap">closest profiles by usage, shooting, playmaking, rebounding &amp; rim protection &middot; '+curSeason+' &middot; 500+ min</span></div>'
     +'<div class="comps-grid">'+cards+'</div>';
+  el.hidden=false;
+  el.querySelectorAll('.comp-card').forEach(function(b){ b.onclick=function(){ stopPlay(); selectPlayer(asId(b.dataset.id)); }; });
+}
+/* ================= Weakness Comps ===============================================
+   The mirror of Statistical Comps. Those ask who a player resembles; this asks whose
+   flaws look like his, which is a different question because the vector behind it is
+   hinged at the median — everything a player is GOOD at contributes exactly zero, so
+   two players who share one real weakness match even when their full profiles never
+   would. Percentiles are ranked inside his own Guard/Wing/Big bucket, so a named flaw
+   always means "worse than his peers at this", never "small number for a guard".
+   Both halves are optional and independent: a player short of the shared-dimension
+   floor gets no neighbours but keeps his diagnosis, which is the more useful half. */
+function wkOrd(n){
+  const t=n%100; if(t>=11&&t<=13) return n+'th';
+  return n+({1:'st',2:'nd',3:'rd'}[n%10]||'th');
+}
+function wkPeers(pos){ return pos==='Big'?'bigs':pos==='Wing'?'wings':'guards'; }
+function renderWeak(){
+  const el=document.getElementById('wcomps'); if(!el) return;
+  const fl=(cur&&cur.wflaws&&cur.wflaws.length)?cur.wflaws:null;
+  const cs=(cur&&cur.wcomps&&cur.wcomps.length)?cur.wcomps:null;
+  if(!fl&&!cs){ el.hidden=true; el.innerHTML=''; return; }   // current-season 500+ min only
+  const WK=(typeof CFG!=='undefined'&&CFG.weakness)?CFG.weakness:{};
+  const LAB=WK.dims||{}, LOW=(WK.low_match!=null?WK.low_match:62);
+  const peers=wkPeers(cur.pos);
+
+  let html='<div class="comps-h"><b>Weakness Comps</b>'
+    +'<span class="comps-cap">who shares his flaws &mdash; ranked against other '+peers
+    +' &middot; '+curSeason+' &middot; '+(WK.min_minutes||500)+'+ min</span></div>';
+
+  if(fl){
+    html+='<div class="wk-sub">Where he ranks worst</div><div class="wk-flaws">'
+      +fl.map(function(f){
+        const nm=LAB[f.k]||f.k;
+        return '<div class="wk-flaw"><div class="wk-lab">'+nm+'</div>'
+          +'<div class="wk-meter"><i style="width:'+Math.max(f.pct,2)+'%;background:'+colorAt(f.pct)+'"></i></div>'
+          +'<div class="wk-pct">'+wkOrd(f.pct)+' percentile</div></div>';
+      }).join('')+'</div>';
+  }
+
+  if(cs){
+    // The banner is driven by the BEST match: if even his closest neighbour is a stretch,
+    // the honest read is that nobody in the league really shares this profile. The cards
+    // stay — hiding them would be less informative than showing them with the caveat.
+    const best=Math.max.apply(null,cs.map(function(c){return c.score;}));
+    const weak=best<=LOW;
+    if(weak){
+      html+='<div class="wk-banner"><b>Low match</b><span>No one in '+curSeason
+        +' really shares this weakness profile &mdash; his closest is only '+best
+        +'% comparable. Read these as loose, not as comps.</span></div>';
+    }
+    html+='<div class="comps-grid'+(weak?' wk-low':'')+'">'+cs.map(function(c){
+      return '<button class="comp-card" data-id="'+c.id+'" aria-label="'+c.name+', '+c.team+', '
+        +c.score+' percent comparable weaknesses'+(weak?' — low match':'')+' — open his card">'
+        +'<div class="comp-top"><span class="comp-name">'+c.name+'</span>'
+        +'<span class="comp-score">'+c.score+'%</span></div>'
+        +'<div class="comp-meter"><i style="width:'+c.score+'%"></i></div>'
+        +'<span class="comp-team">'+c.team+' &middot; comparable</span></button>';
+    }).join('')+'</div>';
+  }
+
+  el.innerHTML=html;
   el.hidden=false;
   el.querySelectorAll('.comp-card').forEach(function(b){ b.onclick=function(){ stopPlay(); selectPlayer(asId(b.dataset.id)); }; });
 }
