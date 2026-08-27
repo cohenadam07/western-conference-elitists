@@ -94,6 +94,27 @@ export default function Gateway() {
               </div>
             </a>
 
+            {/* Football Savant — the NFL sibling of the tool above. Its own palette on
+                purpose: this card is the one place on a paper-white site that shows the
+                film-room ground the tool actually lives on. */}
+            <a className="card c-fball span2" href="/football-savant.html">
+              <Skeleton />
+              <div className="viz">
+                <div className="fyard" />
+                <div className="fbars">
+                  <div className="fbar"><i /></div>
+                  <div className="fbar"><i /></div>
+                  <div className="fbar"><i /></div>
+                </div>
+              </div>
+              <div className="meta">
+                <span className="ck">Tool · Analytics</span>
+                <h3>Football Savant</h3>
+                <p>Every NFL player back to 1999, ranked against the men who play his position — with throw maps, run-gap maps and comps.</p>
+                <span className="go">Open ↗</span>
+              </div>
+            </a>
+
             {/* Dynasty Exchange — the only live, crowd-driven thing here, so it leads */}
             <a className="card c-dyn span4" href="/dynasty">
               <Skeleton />

@@ -63,6 +63,25 @@ Almost everything you'll want to change on day one lives in **`src/data/content.
 - `CATEGORIES` — the tag list used for filter pills on `/articles`, `/news`, and the footer. Add/remove categories here and the filters update automatically.
 - `NEWSLETTER_COPY`, `FOUNDER`, `SOCIALS` — newsletter section copy, About page founder card, and footer/contact social links (currently `href: '#'` placeholders — point these at real profiles).
 
+### The Savant tools
+
+Three single-file tools live in `public/` and are served as static pages, outside the React
+app: `basketball-savant.html`, `draft-savant.html`, and `football-savant.html`.
+
+**Football Savant** (`public/football-savant.html`) is the NFL successor to Basketball
+Savant. Same argument — every number is a percentile against a qualified population, every
+row is labelled with what kind of number it is, a bar below its stabilization threshold is
+hatched, and a metric its era never tracked is absent rather than zero — but position-scoped,
+because a cornerback and a center share no box score. It has its own palette and art
+direction (slate ground, chalk rules, a gridiron rather than a half-court) so it reads as a
+sibling rather than a re-skin.
+
+Its data is built by `pipeline/football/` from open [nflverse](https://github.com/nflverse/nflverse-data)
+releases and lands in `public/football-savant-data.json` and `public/football-maps/`. See
+`pipeline/football/README.md` for how to rebuild it, and `FOOTBALL-SAVANT-RESEARCH.md` for
+the metric research behind it — what football can measure, what stabilizes at NFL sample
+sizes, and what is licensed and therefore missing.
+
 ### Visual identity
 
 Colors, fonts, and a few reusable effects are defined as design tokens in **`src/index.css`** under `@theme`. Change a hex value there (e.g. `--color-ember`) and it updates everywhere that uses `text-ember`, `bg-ember`, etc. — token names describe their *original* role, not necessarily their current hue (e.g. `--color-ember` is the primary navy brand accent, not orange; `--color-ink`/`--color-bone` are the light page background and dark body text, "ink on paper"). Headlines use Source Serif 4 (`text-display`) for an editorial, newspaper-style feel, body copy uses Inter, and stat/timestamp figures use JetBrains Mono (`font-mono-tight`) — all loaded via Google Fonts in `index.html`. The semantic accents are: `ember` (navy, primary brand/links/buttons), `court` (gold, secondary highlights/B-tier grades), `arena` (forest green, positive/strengths), `foul` (crimson, negative/weaknesses/breaking-news ticker).

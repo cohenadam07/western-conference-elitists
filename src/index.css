@@ -383,6 +383,17 @@ body {
 .gw .c-savant .bar:nth-child(3) i { animation-delay: 0.55s; --w: 79%; }
 .gw .c-savant .bar:nth-child(4) i { animation-delay: 0.65s; --w: 52%; }
 
+/* ── Football Savant: a strip of turf, chalked ── */
+.gw .c-fball .viz { background: #12151A; }
+.gw .c-fball .fyard { position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(90deg, rgba(237,237,232,0.16) 0 1px, transparent 1px 34px); }
+.gw .c-fball .fbars { position: absolute; left: 20px; right: 20px; top: 30px; display: flex; flex-direction: column; gap: 10px; }
+.gw .c-fball .fbar { height: 8px; border-radius: 5px; background: rgba(237,237,232,0.10); overflow: hidden; }
+.gw .c-fball .fbar i { display: block; height: 100%; border-radius: 5px; width: 0; background: linear-gradient(90deg, #4c86c4, #646d7a 52%, #e4552b); animation: gw-fill 1.1s cubic-bezier(0.2,0.7,0.2,1) forwards; }
+.gw .c-fball .fbar:nth-child(1) i { animation-delay: 0.35s; --w: 91%; }
+.gw .c-fball .fbar:nth-child(2) i { animation-delay: 0.47s; --w: 58%; }
+.gw .c-fball .fbar:nth-child(3) i { animation-delay: 0.59s; --w: 74%; }
+
 /* ── Draft Savant: mini board ── */
 .gw .c-draft .viz { background: radial-gradient(120% 90% at 20% 0%, #f7f6f3, transparent); }
 .gw .c-draft .rows { position: absolute; left: 20px; right: 22px; top: 20px; display: flex; flex-direction: column; gap: 7px; }
@@ -515,7 +526,7 @@ body {
   .gw *, .gw .card { animation-duration: 0.001s !important; animation-iteration-count: 1 !important; }
   .gw .hero-title em::after { width: 100%; }
   .gw .card { opacity: 1; transform: none; }
-  .gw .c-savant .bar i, .gw .c-board .meter i { width: var(--w, 70%); }
+  .gw .c-savant .bar i, .gw .c-board .meter i, .gw .c-fball .fbar i { width: var(--w, 70%); }
   .gw .c-draft .drow { opacity: 1; transform: none; }
 }
 
