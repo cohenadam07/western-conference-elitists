@@ -31,18 +31,33 @@
                Same logic as Basketball Savant's blue->bone->red, re-lit for a dark ground.
    ========================================================================= */
 :root{
-  --bg:#12151A; --surface:#191D24; --raise:#1F242C; --ink:#EDEDE8; --muted:#9AA3AF;
-  --faint:#69727E; --line:#2A313B; --line2:#333B47; --track:#212832;
-  --turf:#3DA35D; --turf-dk:#2C7A45; --flag:#E8B23A; --red:#E4552B;
-  --c-lo:#4C86C4; --c-mid:#646D7A; --c-hi:#E4552B; --hatch:rgba(237,237,232,.26);
+  /* The ground is a football field: deep grass, mowed into stripes, chalked with yard
+     lines. Everything sits on top of it, so the surfaces are green too — a grey card on
+     a green field would read as a window cut into the pitch rather than part of it. */
+  --bg:#0A2414; --bg2:#0D2C19;
+  --surface:#123020; --raise:#17402A;
+  --ink:#F3F8F3; --muted:#A9C7B4; --faint:#7BA189;
+  --line:#1F4B32; --line2:#2A6141; --track:#0C2E1B;
+  --turf:#45D07C; --turf-dk:#2F9B57; --flag:#FFD34A; --red:#FF5C33;
+  /* poor -> average -> elite. Brighter than a dark-slate design can get away with,
+     because a green ground swallows muddy colour. */
+  --c-lo:#4FA3E3; --c-mid:#E4D8A6; --c-hi:#FF5C33; --hatch:rgba(243,248,243,.30);
   --disp:'Archivo',system-ui,sans-serif; --body:'Archivo',system-ui,sans-serif;
   --mono:'Roboto Mono',ui-monospace,monospace;
-  --shadow:0 12px 34px rgba(0,0,0,.45);
+  --shadow:0 14px 38px rgba(0,0,0,.5);
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;
-  line-height:1.5;-webkit-font-smoothing:antialiased;font-variation-settings:'wdth' 100}
+/* The mowed stripes and the chalked yard lines. Both are almost subliminal on purpose —
+   they should register as "this is a field" without ever competing with a number. */
+body{margin:0;color:var(--ink);font-family:var(--body);font-size:15px;
+  line-height:1.5;-webkit-font-smoothing:antialiased;font-variation-settings:'wdth' 100;
+  background-color:var(--bg);
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.045) 0 2px, transparent 2px 132px),
+    repeating-linear-gradient(180deg, rgba(255,255,255,.016) 0 74px, transparent 74px 148px),
+    radial-gradient(120% 80% at 50% 0%, rgba(69,208,124,.10), transparent 62%);
+  background-attachment:fixed}
 a{color:inherit}
 button{font-family:inherit}
 ::selection{background:rgba(61,163,93,.35)}
@@ -150,11 +165,21 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 .statline{display:flex;flex-wrap:wrap;gap:16px;margin-top:9px;font-family:var(--mono);
   font-size:12px;color:var(--muted)}
 .statline .st b{font-size:15px;color:var(--ink);font-weight:500;margin-right:3px}
-.accos{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+/* Team record for the season, so a card says whether this was done on a 12-win team. */
+.teamrec{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:9px;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.03em}
+.tr-rec{font-weight:700;font-size:14px;color:var(--ink)}
+.tr-po{color:var(--faint)}
+.tr-po.in{color:var(--turf)}
+.teamrec.champ .tr-po{color:var(--flag);font-weight:700}
+.tr-coach{color:var(--faint);border-left:1px solid var(--line2);padding-left:9px}
+.accos{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
 .acco{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
   border:1px solid var(--line2);color:var(--muted);background:var(--raise);border-radius:4px;
   padding:3px 7px;white-space:nowrap;cursor:help}
-.acco.major{background:rgba(61,163,93,.16);border-color:rgba(61,163,93,.5);color:var(--turf)}
+.acco.major{background:rgba(69,208,124,.16);border-color:rgba(69,208,124,.55);color:var(--turf)}
+.acco.rank{background:rgba(255,211,74,.12);border-color:rgba(255,211,74,.45);color:var(--flag)}
+.acco.lead{background:var(--flag);border-color:var(--flag);color:#31240A;font-weight:700}
 .measur{display:flex;flex-wrap:wrap;margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
 .measur .m{padding-right:28px;padding-bottom:4px}
 .measur .ml{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
@@ -255,7 +280,8 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 .dr-read{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
 .legend{display:flex;align-items:center;gap:16px;margin-left:auto;flex-wrap:wrap}
 .legbox{width:132px}
-.legbar{height:7px;border-radius:4px;background:linear-gradient(90deg,var(--c-lo),var(--c-mid),var(--c-hi))}
+.legbar{height:9px;border-radius:5px;
+  background:linear-gradient(90deg,rgb(62,150,222),rgb(96,186,196),rgb(228,216,166),rgb(255,150,62),rgb(255,74,35))}
 .ends{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;
   letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-top:4px}
 .leg{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;
@@ -276,49 +302,64 @@ body.lb-open .wrap,body.lb-open .home{display:none}
   margin:9px 0 10px;line-height:1.5}
 .group-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--faint);border-bottom:1px solid var(--line);padding-bottom:5px;margin:15px 0 6px}
-.row{display:grid;grid-template-columns:152px 1fr 66px 22px;align-items:center;column-gap:11px;
-  min-height:30px;padding:2px 0}
-.row.nochart{grid-template-columns:152px 1fr 66px}
+.row{display:grid;grid-template-columns:190px 1fr 78px 26px;align-items:center;column-gap:13px;
+  min-height:42px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.035)}
+.row:last-child{border-bottom:none}
+.row.nochart{grid-template-columns:190px 1fr 78px}
 @media(max-width:560px){
-  .row{grid-template-columns:104px 1fr 54px 20px}
-  .row.nochart{grid-template-columns:104px 1fr 54px}
+  .row{grid-template-columns:118px 1fr 62px 22px;column-gap:9px}
+  .row.nochart{grid-template-columns:118px 1fr 62px}
   .col{padding:14px 13px 12px}
-  .rv{font-size:11px}
+  .rv{font-size:12px}
+  .track{height:15px}
 }
 .rl{cursor:pointer;min-width:0}
-.rl .name{font-size:12.8px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rl .tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--faint);margin-top:2px}
+.rl .name{font-size:14px;font-weight:500;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rl:hover .name{color:var(--turf)}
+.rl .tag{font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint);margin-top:3px}
 .row.un .tag{color:var(--flag)}
-.track{position:relative;height:11px;background:var(--track);border-radius:6px;overflow:hidden}
-.tick{position:absolute;top:0;bottom:0;width:1px;background:rgba(237,237,232,.14)}
-.tick.mid{background:rgba(237,237,232,.26)}
-.fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:6px;transition:width .5s cubic-bezier(.2,.7,.3,1)}
+.track{position:relative;height:19px;background:var(--track);border-radius:5px;overflow:hidden;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
+.tick{position:absolute;top:0;bottom:0;width:1px;background:rgba(243,248,243,.16)}
+.tick.mid{background:rgba(243,248,243,.30)}
+.fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:5px;
+  transition:width .55s cubic-bezier(.2,.7,.3,1);box-shadow:0 0 14px rgba(0,0,0,.22) inset}
 .hatch{position:absolute;inset:0;display:none}
 .row.un .hatch{display:block;background-image:repeating-linear-gradient(135deg,var(--hatch) 0 2px,transparent 2px 5px)}
-.chmark{position:absolute;top:0;bottom:0;width:2px;background:var(--flag);
-  box-shadow:0 0 0 1px rgba(0,0,0,.4);cursor:help;z-index:1}
-.pnum{position:absolute;top:50%;font-family:var(--mono);font-size:9.5px;font-weight:700;
-  color:var(--ink);text-shadow:0 1px 2px rgba(0,0,0,.6);pointer-events:none}
-.rv{font-family:var(--mono);font-size:12px;text-align:right;color:var(--ink);white-space:nowrap}
+.chmark{position:absolute;top:0;bottom:0;width:3px;background:var(--flag);
+  box-shadow:0 0 0 1px rgba(0,0,0,.45);cursor:help;z-index:1}
+.pnum{position:absolute;top:50%;font-family:var(--mono);font-size:12px;font-weight:700;
+  color:#08160D;text-shadow:0 1px 0 rgba(255,255,255,.28);pointer-events:none;letter-spacing:-.02em}
+.pnum.out{color:var(--ink);text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.rv{font-family:var(--mono);font-size:14.5px;font-weight:500;text-align:right;color:var(--ink);white-space:nowrap}
 .rv-cmp{display:flex;flex-direction:column;gap:2px;align-items:flex-end}
 .cv{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--muted)}
 .cbar{position:absolute;left:0;border-radius:3px}
 .cbar-lab{position:absolute;left:5px;top:50%;transform:translateY(-50%);font-family:var(--mono);
   font-size:8.5px;color:#07130C;font-weight:700;white-space:nowrap}
-.statbtn{width:20px;height:20px;border-radius:5px;background:none;border:1px solid transparent;
+.statbtn{width:24px;height:24px;border-radius:5px;background:none;border:1px solid transparent;
   cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
-.statbtn svg{width:13px;height:13px;stroke:var(--faint);fill:none;stroke-width:1.6;
+.statbtn svg{width:15px;height:15px;stroke:var(--faint);fill:none;stroke-width:1.6;
   stroke-linecap:round;stroke-linejoin:round}
 .statbtn:hover{border-color:var(--line2)} .statbtn:hover svg{stroke:var(--turf)}
 .statbtn[aria-expanded="true"]{background:var(--track);border-color:var(--turf)}
 .statbtn[aria-expanded="true"] svg{stroke:var(--turf)}
 .statbtn:focus-visible{outline:2px solid var(--turf);outline-offset:1px}
 /* stat explainer, opened by clicking a row label */
-.expl{grid-column:1/-1;background:var(--raise);border-left:2px solid var(--turf);border-radius:0 8px 8px 0;
-  padding:9px 12px;margin:2px 0 8px;font-size:12.5px;color:var(--muted);line-height:1.55}
-.expl b{color:var(--ink);font-weight:600}
-.expl .src{display:block;margin-top:6px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;
+.expl{grid-column:1/-1;background:var(--raise);border-left:3px solid var(--turf);
+  border-radius:0 10px 10px 0;padding:14px 16px;margin:4px 0 12px}
+.expl h4{margin:0 0 3px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--turf);font-weight:700}
+.expl h4.why{color:var(--flag)}
+.expl p{margin:0 0 11px;font-size:14.5px;line-height:1.6;color:var(--ink)}
+.expl p:last-of-type{margin-bottom:0}
+.expl .formula{margin:0 0 11px;font-family:var(--mono);font-size:12.5px;line-height:1.6;
+  color:var(--muted);background:rgba(0,0,0,.24);border-radius:7px;padding:9px 12px;
+  overflow-x:auto;white-space:pre-wrap}
+.expl .caveat{font-size:13px;line-height:1.6;color:var(--muted);border-top:1px solid var(--line);
+  padding-top:10px;margin-top:2px}
+.expl .src{display:block;margin-top:10px;font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;
   text-transform:uppercase;color:var(--faint)}
 
 /* inline per-stat chart */
@@ -882,11 +923,28 @@ function pctOf(v,pool,lower){
   return p==null?null:Math.max(1,Math.min(99,Math.round(p)));
 }
 function mix(a,b,u){return [0,1,2].map(function(i){return Math.round(a[i]+(b[i]-a[i])*u);});}
+/* Five stops rather than three. A straight blue-to-sand blend passes through grey, which
+   on a green field reads as mud and leaves the middle of every distribution looking dead.
+   Routing it through teal and amber keeps the whole ramp saturated. */
+var RAMP=[[ 62,150,222],   //   0  cold blue      poor
+          [ 96,186,196],   //  25  teal
+          [228,216,166],   //  50  sand           average
+          [255,150, 62],   //  75  amber
+          [255, 74, 35]];  // 100  hot orange     elite
 function colorAt(p){
-  var LO=[76,134,196],MID=[100,109,122],HI=[228,85,43];
-  var t=Math.max(0,Math.min(100,p))/100,c;
-  if(t<0.5)c=mix(LO,MID,t/0.5); else c=mix(MID,HI,(t-0.5)/0.5);
+  var t=Math.max(0,Math.min(100,p))/100*(RAMP.length-1);
+  var i=Math.min(RAMP.length-2,Math.floor(t));
+  var c=mix(RAMP[i],RAMP[i+1],t-i);
   return 'rgb('+c[0]+','+c[1]+','+c[2]+')';
+}
+/* Whether a label sitting on that colour should be dark or light. Computed from the
+   colour's own brightness rather than from the percentile, because the ramp is not
+   uniformly light on one half and dark on the other. */
+function onColorIsDark(p){
+  var t=Math.max(0,Math.min(100,p))/100*(RAMP.length-1);
+  var i=Math.min(RAMP.length-2,Math.floor(t));
+  var c=mix(RAMP[i],RAMP[i+1],t-i);
+  return (0.299*c[0]+0.587*c[1]+0.114*c[2])>150;
 }
 function word(p){return p>=82?'elite':p>=62?'high':p>=40?'avg':'low';}
 
@@ -1002,8 +1060,11 @@ function barRow(m,p,season,pos){
     }
   }
   var tag=m.layer.toUpperCase()+(smp.ok?'':' · low sample');
-  var numLeft=shown>88?('calc('+shown+'% - 22px)'):(shown+'%');
-  var numTf=shown>88?'transform:translateY(-50%)':'transform:translate(7px,-50%)';
+  // the number rides just inside the bar's end where there is room for it, and hops
+  // outside when the bar is nearly full — so it is always legible against something
+  var inside=shown>=14, darkNum=onColorIsDark(shown);
+  var numLeft=inside?('calc('+shown+'% - 30px)'):(shown+'%');
+  var numTf=inside?'transform:translateY(-50%)':'transform:translate(8px,-50%)';
   var title=smp.ok?'':('Only '+Math.round(smp.n)+' '+(CFG.denoms[m.den]||m.den)+' — below the '
     +m.thr+' this stat needs before it settles down.');
   return '<div class="row '+(smp.ok?'':'un')+'" data-k="'+m.key+'" title="'+esc(title)+'">'
@@ -1011,7 +1072,7 @@ function barRow(m,p,season,pos){
     +'<div class="track"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div>'
       +'<div class="fill" data-w="'+shown+'" style="background:'+col+'"><div class="hatch"></div></div>'
       +chMark
-      +'<div class="pnum" style="left:'+numLeft+';'+numTf+'">'+(pct==null?'·':pct)+'</div></div>'
+      +'<div class="pnum'+(inside&&darkNum?'':' out')+'" style="left:'+numLeft+';'+numTf+'">'+(pct==null?'·':pct)+'</div></div>'
     +'<div class="rv">'+fmt(m.unit,v)+'</div>'
     +statBtn(m.key,m.label)+'</div>';
 }
@@ -1237,8 +1298,21 @@ function statLine(p){
   if(!out.length) out.push(stat('GAMES',p.m.g,0));
   return '<div class="statline">'+out.join('')+'</div>';
 }
+/* The badge row under a player's name: how his team did, what he led the league in, and
+   the few facts about him that aren't a rate. League ranks are the accolades a fan
+   already speaks — "3rd in receptions" needs no explaining. */
+function ordSuffix(n){ var t=n%100; if(t>=11&&t<=13) return n+'th';
+  return n+({1:'st',2:'nd',3:'rd'}[n%10]||'th'); }
 function draftBadges(p){
   var out=[];
+  if(p.acc){
+    p.acc.forEach(function(a){
+      var lead=a.r===1;
+      out.push('<span class="acco '+(lead?'lead':'rank')+'" title="'
+        +esc((lead?'Led the NFL in ':ordSuffix(a.r)+' in the NFL in ')+a.s+' this season')+'">'
+        +(lead?'★ Led NFL · ':ordSuffix(a.r)+' · ')+esc(a.s)+'</span>');
+    });
+  }
   if(p.dr) out.push('<span class="acco'+(p.dr===1?' major':'')+'" title="'+esc('Drafted '+(p.dy||'')+' — round '+p.dr+', pick '+(p.dp||'?')+(p.dt?' by '+p.dt:''))+'">Rd '+p.dr+' · #'+(p.dp||'?')+'</span>');
   else if(p.udfa) out.push('<span class="acco" title="Went undrafted">Undrafted</span>');
   if(p.exp===0) out.push('<span class="acco major" title="Rookie season">Rookie</span>');
@@ -1247,6 +1321,18 @@ function draftBadges(p){
     out.push('<span class="acco major" title="His best qualified season on this page\'s profile score">Career year</span>');
   if(!p.qualified) out.push('<span class="acco" title="Below the qualifying line for his position, so he is not in the percentile pool">Unqualified</span>');
   return out.length?'<div class="accos">'+out.join('')+'</div>':'';
+}
+function teamRecord(p){
+  if(!p.rec) return '';
+  var w=p.rec[0], l=p.rec[1], t=p.rec[2];
+  var line=w+'–'+l+(t?'–'+t:'');
+  var won=(p.po||'').indexOf('Won Super Bowl')===0;
+  var made=p.po&&p.po!=='Missed the playoffs';
+  return '<div class="teamrec'+(won?' champ':'')+'">'
+    +'<span class="tr-rec">'+line+'</span>'
+    +(p.po?'<span class="tr-po'+(made?' in':'')+'">'+(won?'🏆 ':'')+esc(p.po)+'</span>':'')
+    +(p.coach?'<span class="tr-coach" title="Head coach">'+esc(p.coach)+'</span>':'')
+    +'</div>';
 }
 function cmpSeasonSelect(id,season,idx,isMain){
   var pk=peakSeasonOf(id);
@@ -1296,7 +1382,7 @@ function render(){
     +'<div class="id-headtext"><div class="id-nameline"><div class="id-name">'+esc(p.name)+'</div>'
       +'<span class="posbadge">'+esc(pos)+'</span></div>'
       +'<div class="id-meta">'+meta.join(' · ')+'</div>'
-      +statLine(p)+draftBadges(p)+ch+'</div></div>'
+      +teamRecord(p)+statLine(p)+draftBadges(p)+ch+'</div></div>'
     +measurRow(p);
 
   renderPeak();
@@ -1654,17 +1740,18 @@ function toggleExpl(rowEl,key){
   if(openExpl===id){ closeExpl(); return; }
   closeExpl();
   var m=MBY[key]; if(!m) return;
-  var bits=[];
-  bits.push('<b>'+esc(m.label)+'.</b> '+esc(m.note||'')||'');
-  var meta=[];
-  meta.push(m.layer.toUpperCase());
-  if(m.thr&&m.den) meta.push('settles around '+m.thr+' '+(CFG.denoms[m.den]||m.den));
-  if(m.since>1999) meta.push('tracked from '+m.since);
-  if(m.lower) meta.push('lower is better — the bar is flipped');
+  var x=m.exp||{};
+  var meta=[m.layer.toUpperCase()];
+  if(m.thr&&m.den) meta.push('needs about '+m.thr+' '+(CFG.denoms[m.den]||m.den)+' to settle');
+  if(m.since>1999) meta.push('first tracked in '+m.since);
+  if(m.lower) meta.push('lower is better, so the bar is flipped');
   var el=document.createElement('div');
   el.className='expl'; el.id=id;
-  el.innerHTML='<b>'+esc(m.label)+'.</b> '+(m.note?esc(m.note):'')
-    +'<span class="src">'+meta.join(' · ')+'</span>';
+  el.innerHTML=
+     '<h4>What it is</h4><p>'+esc(x.w||m.label)+'</p>'
+    +(x.f?'<h4>How it\'s worked out</h4><div class="formula">'+esc(x.f)+'</div>':'')
+    +'<h4 class="why">Why it matters</h4><p>'+esc(x.y||'')+'</p>'
+    +'<span class="src">'+esc(meta.join(' · '))+'</span>';
   rowEl.insertAdjacentElement('afterend',el);
   openExpl=id;
 }
@@ -2186,7 +2273,7 @@ function lbRender(){
   }
   var cols=LB.cols.filter(function(k){ return MBY[k]&&MBY[k].pos.indexOf(LB.pos)>=0&&eraOK(MBY[k],LB.season); });
   var head='<thead><tr><th>#</th><th>Player</th><th>Tm</th>'
-    +cols.map(function(k){return '<th title="'+esc((MBY[k].note||''))+'">'+esc(MBY[k].label)+'</th>';}).join('')
+    +cols.map(function(k){return '<th title="'+esc(((MBY[k].exp||{}).w)||'')+'">'+esc(MBY[k].label)+'</th>';}).join('')
     +'</tr></thead>';
   var anyThin=false;
   var body='<tbody>'+rows.map(function(p,i){
@@ -2224,7 +2311,7 @@ function lbRender(){
     'Ranking qualified '+esc((CFG.posLabel[LB.pos]||LB.pos).toLowerCase())+'s in '+esc(LB.season)
     +' by <b>'+esc(m.label)+'</b>'+(m.lower?' (lower is better)':'')+'. '
     +'Number colour is the percentile, taken '+(LB.basis==='all'?'against every season on record':'inside this season')+'. '
-    +(m.note?esc(m.note):'');
+    +esc(((m.exp||{}).w)||'')+' '+esc(((m.exp||{}).y)||'');
   lbSyncURL();
 }
 function lbOpt(id,items,valf,txtf,curv){

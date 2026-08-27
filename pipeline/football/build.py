@@ -239,6 +239,90 @@ def load_qbr(by_espn):
     return out
 
 
+def load_records():
+    """Team win-loss records and how each season ended, from the schedule.
+
+    The schedule carries every game 1999 on with scores, the round (REG / WC / DIV / CON /
+    SB) and both head coaches, so a season's record and its playoff fate fall straight out
+    of it. A player card is much easier to read when you know whether he did this on a
+    12-win team or a 3-win one.
+    """
+    p = os.path.join(RAW, 'schedules.csv')
+    if not os.path.exists(p):
+        return {}
+    g = pd.read_csv(p, low_memory=False)
+    g = g[g.home_score.notna() & g.away_score.notna()]
+    rec = defaultdict(lambda: dict(w=0, l=0, t=0, pf=0, po=None, coach=None))
+    ROUND = {'WC': 'Lost wild card', 'DIV': 'Lost divisional',
+             'CON': 'Lost conference championship', 'SB': 'Lost Super Bowl'}
+    for r in g.itertuples(index=False):
+        yr = int(r.season)
+        for team, own, opp, coach in ((r.home_team, r.home_score, r.away_score, r.home_coach),
+                                      (r.away_team, r.away_score, r.home_score, r.away_coach)):
+            k = (team, yr)
+            e = rec[k]
+            if isinstance(coach, str):
+                e['coach'] = coach
+            if r.game_type == 'REG':
+                if own > opp:
+                    e['w'] += 1
+                elif own < opp:
+                    e['l'] += 1
+                else:
+                    e['t'] += 1
+                e['pf'] += float(own)
+            else:
+                # the last postseason game a team played is how its season ended
+                e['po'] = 'Won Super Bowl' if (r.game_type == 'SB' and own > opp) else ROUND.get(r.game_type)
+    return dict(rec)
+
+
+# Season leaderboards worth a badge. Counting stats, because "led the league in receptions"
+# is a claim about totals, not rates — and it is the kind of accolade a fan already knows.
+ACCOLADE_STATS = [
+    ('passing_yards', 'passing yards'), ('passing_tds', 'passing TDs'),
+    ('completions', 'completions'), ('attempts', 'pass attempts'),
+    ('rushing_yards', 'rushing yards'), ('rushing_tds', 'rushing TDs'),
+    ('carries', 'carries'),
+    ('receptions', 'receptions'), ('receiving_yards', 'receiving yards'),
+    ('receiving_tds', 'receiving TDs'), ('targets', 'targets'),
+    ('def_sacks', 'sacks'), ('def_tackles_solo', 'solo tackles'),
+    ('def_tackles_for_loss', 'tackles for loss'), ('def_interceptions', 'interceptions'),
+    ('def_pass_defended', 'passes defended'), ('def_fumbles_forced', 'forced fumbles'),
+    ('def_qb_hits', 'QB hits'),
+    ('fg_made', 'field goals'), ('pt_inside_20', 'punts inside the 20'),
+    ('fantasy_points_ppr', 'fantasy points'),
+]
+
+
+def season_accolades(df):
+    """Top-10 league finishes for one season, keyed by player id.
+
+    Ranked across the whole league rather than inside a position, because that is what the
+    phrase means: leading the league in receptions is a fact about everybody.
+    """
+    out = defaultdict(list)
+    for col, label in ACCOLADE_STATS:
+        if col not in df.columns:
+            continue
+        vals = pd.to_numeric(df[col], errors='coerce').fillna(0)
+        if vals.max() <= 0:
+            continue
+        order = vals.sort_values(ascending=False)
+        rank, prev, shown = 0, None, 0
+        for idx, v in order.items():
+            if v <= 0:
+                break
+            shown += 1
+            if v != prev:
+                rank = shown
+                prev = v
+            if rank > 10:
+                break
+            out[df.at[idx, 'player_id']].append(dict(r=rank, s=label))
+    return out
+
+
 def load_onfield(y):
     """Per-player on-field counters plus the team totals they are differenced against."""
     p = os.path.join(AGG, 'onfield_%d.json' % y)
@@ -847,6 +931,7 @@ def add_comps(players, pos_pools):
 # ---------------------------------------------------------------- main
 def main():
     bio, by_pfr, by_espn = load_players()
+    records = load_records()
     comb = load_combine(by_pfr)
     ngs = load_ngs()
     pfr = load_pfr(by_pfr)
@@ -867,6 +952,7 @@ def main():
             continue
         df = regs[y]
         qb_a, rush_a, rec_a, pen_a = load_pbp(y)
+        accos = season_accolades(df.reset_index(drop=True))
         onf_a, onf_teams = load_onfield(y)
         starts_a = load_starts(y, by_pfr)
         team_games = 17 if y >= 2021 else 16
@@ -906,6 +992,18 @@ def main():
             )
             if age:
                 rec_out['age'] = age
+            tr = records.get((rec_out['team'], y))
+            if tr:
+                rec_out['rec'] = [tr['w'], tr['l'], tr['t']]
+                if tr['po']:
+                    rec_out['po'] = tr['po']
+                elif tr['w'] + tr['l'] + tr['t'] >= 8:
+                    rec_out['po'] = 'Missed the playoffs'
+                if tr['coach']:
+                    rec_out['coach'] = tr['coach']
+            acc = accos.get(gid)
+            if acc:
+                rec_out['acc'] = sorted(acc, key=lambda a: a['r'])[:6]
             for k in ('college', 'head', 'jersey', 'birth'):
                 v = b.get(k)
                 if isinstance(v, str):
