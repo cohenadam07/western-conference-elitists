@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#12151A"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=Roboto+Mono:wght@400;500;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
 /* ============================================================================
@@ -633,6 +633,259 @@ body.lb-open .lb{display:block}
   .home-field svg{animation:none}.peakflag.flare{animation:none}
   .fill{transition:none}.skel::after{animation:none}.home-chip:hover{transform:none}
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PIXEL TURF
+
+   The whole page re-skinned as a stadium light board sitting on mowed grass.
+   Three rules carry it:
+
+     1. Nothing is soft. Borders are 2–3px of near-black, corners are square, and
+        shadows are hard offsets rather than blur. That is what reads as "pixel"
+        without resorting to a novelty typeface for body copy.
+     2. Panels are cream, the ground is turf. Inverting the previous attempt —
+        dark cards on a green field had no contrast; light cards on it have plenty.
+     3. The bars are 20 lit-or-unlit blocks, each bar one solid colour taken from
+        a blue→red diverging scale. You can count a percentile instead of
+        estimating it, and one bar is one reading rather than a gradient.
+
+   Silkscreen carries the numbers, labels and headings — anywhere a reader scans
+   rather than reads. Prose stays in Archivo, because a pixel face is miserable
+   for a paragraph.
+   ══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#1D6B3A; --bg2:#196034;
+  --surface:#F2F7EE; --raise:#E4EFE0;
+  --ink:#0E2A17; --muted:#3E6B4C; --faint:#7A9384;
+  --line:#DDE7DA; --line2:#C6CDC4; --track:#DFE3DC;
+  --turf:#1D6B3A; --turf-dk:#0E2A17; --flag:#F4C430; --red:#A2161E;
+  --c-lo:#0E3A6A; --c-mid:#B0BEC9; --c-hi:#A2161E; --hatch:rgba(14,42,23,.30);
+  --shadow:6px 6px 0 rgba(14,42,23,.5);
+  --pix:'Silkscreen',ui-monospace,monospace;
+}
+body{background-color:#1D6B3A;color:var(--ink);
+  background-image:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.10) 0 4px,transparent 4px 8px),
+    repeating-linear-gradient(90deg,rgba(0,0,0,.10) 0 64px,rgba(255,255,255,.05) 64px 128px);
+  background-attachment:fixed;image-rendering:pixelated}
+
+/* ---- surfaces: hard edges, hard shadows, no radius anywhere */
+.col,.id,.comps,.wcomps,.gapnote,.teampanel,.lb-controls,.lb-tablewrap,.expl,.rc,.export-shell{
+  background:var(--surface);border:3px solid var(--turf-dk);border-radius:0;box-shadow:var(--shadow)}
+.id::before{background:repeating-linear-gradient(90deg,var(--flag) 0 22px,transparent 22px 30px);
+  height:5px;opacity:1}
+.gapnote{border-left:10px solid var(--flag);border-radius:0}
+.expl,.rc{box-shadow:4px 4px 0 rgba(14,42,23,.3)}
+
+/* ---- type: Silkscreen anywhere a reader scans, Archivo anywhere they read */
+.brand-word,.col-h,.id-name,.lb-title,.home-title,.comps-h b,h1,h2{font-family:var(--pix)!important;
+  font-variation-settings:normal!important;letter-spacing:.01em}
+.id-name{font-size:34px}
+.col-h{font-size:17px;text-transform:none;padding-bottom:0}
+.col-h::after{display:none}
+.comps-h b{font-size:16px;text-transform:none}
+.brand-word{font-size:17px;text-transform:none;color:var(--ink)}
+.brand-word span{color:var(--turf)}
+.rv,.pct,.mv,.statline,.st,.acco,.eyebrow-pill,.ctl-lab,.tag,.selx-btn,.selx-opt,.dr-read,
+.arc-h,.arc-foot,.arcbtn,.group-h,.col-cap,.comps-cap,.cap,.backlink,.tr-rec,.tr-po,.tr-coach,
+.lb-lab,.lb-colchip,.lb-table th,.lb-table td,.leg,.ends,.fm-modes button,.fm-srow,.rc-t,.rc-foot,
+.wk-sub,.wk-pct,.comp-score,.comp-team,.expl h4,.formula,.src,.tp-p,.res .rs,.home-eyebrow,
+.home-trend-lab,.home-poschip,.home-foot,.cpos,.pill{font-family:var(--pix)!important}
+
+/* ---- the light board */
+.row{grid-template-columns:186px 1fr 42px 74px 24px;column-gap:12px;min-height:40px;
+  border-bottom:2px solid var(--line)}
+.row.nochart{grid-template-columns:186px 1fr 42px 74px}
+.row:last-child{border-bottom:none}
+.rl .name{font-size:13px;font-family:var(--pix);color:var(--ink);font-weight:400}
+.rl:hover .name{color:var(--turf)}
+.rl .tag{font-size:8px;color:#9DB2A2;margin-top:4px}
+.row.un .tag{color:#B8541F}
+.track{display:flex;gap:2px;height:22px;background:none;border-radius:0;box-shadow:none;
+  position:relative;overflow:visible}
+.track i{flex:1;background:var(--track);border:2px solid var(--line2);display:block;
+  transition:background .18s steps(1),border-color .18s steps(1)}
+.track i.on{border-color:var(--turf-dk)}
+.track:not(.lit) i.on{background:var(--track)!important;border-color:var(--line2)}
+.pct{font-family:var(--pix);font-size:13px;text-align:right;color:var(--ink)}
+.rv{font-size:12.5px;color:var(--ink);font-weight:400}
+.chmark{width:3px;background:var(--flag);box-shadow:0 0 0 2px var(--turf-dk);z-index:3;top:-2px;bottom:-2px}
+/* hollow is the whole signal for an unsettled reading; no extra weight needed */
+.cstack{display:flex;flex-direction:column;gap:4px}
+.ctrack{display:flex;gap:2px;height:13px}
+.ctrack i{flex:1;background:var(--track);border:1px solid var(--line2);display:block}
+.ctrack i.on{border-color:var(--turf-dk)}
+.group-h{font-size:9px;color:#7A9384;border-bottom:2px solid var(--line);letter-spacing:.08em}
+.col-cap{font-size:9.5px;color:#7A9384;line-height:1.7}
+
+/* ---- controls */
+.chip,.seg,.selx-btn,.selx-pop,.season-sel,.search input,.results,.home-inp,.home-results,
+.lb-seg,.lb-preset,.lb-act,.lb-field select,.lb-field input,.lb-colchip,.arcbtn,.cmp-pill,
+.cmp-add,.home-poschip,.home-chip,.tp-row,.comp-card,.wk-flaw,.fm-modes,.playbtn,.exportbtn,
+.acco,.eyebrow-pill,.pill,.home-lb{border-radius:0!important}
+.chip,.seg,.selx-btn,.season-sel,.search input,.lb-field select,.lb-field input,.lb-colchip,
+.arcbtn,.cmp-pill,.cmp-add,.home-poschip,.home-chip,.tp-row,.comp-card,.wk-flaw,.fm-modes,
+.lb-preset,.lb-act{background:#FFF;border:2px solid var(--turf-dk);color:var(--ink)}
+.seg button,.lb-seg button,.fm-modes button{border-radius:0;color:var(--muted);font-family:var(--pix);font-size:10px}
+.seg button[aria-pressed="true"],.lb-seg button.on,.fm-modes button[aria-pressed="true"],
+.chip[aria-pressed="true"],.lb-colchip.on{background:var(--turf);color:#FFF;font-weight:400}
+.seg{padding:0;gap:0} .seg button{padding:7px 12px;border-right:2px solid var(--turf-dk)}
+.seg button:last-child{border-right:none}
+.ctl-lab{font-size:9px;color:#5A7A66}
+.selx-pop{border:3px solid var(--turf-dk);box-shadow:5px 5px 0 rgba(14,42,23,.4);background:#FFF}
+.selx-opt[aria-selected="true"]{background:var(--turf);color:#FFF}
+.selx-star{color:#B8860B} .selx-opt[aria-selected="true"] .selx-star{color:var(--flag)}
+.dr-track{background:var(--track);border:2px solid var(--turf-dk);border-radius:0;height:8px;top:9px}
+.dr-range{background:var(--turf);border-radius:0}
+.dr input::-webkit-slider-thumb{border-radius:0;background:var(--flag);border:2px solid var(--turf-dk)}
+.dr input::-moz-range-thumb{border-radius:0;background:var(--flag);border:2px solid var(--turf-dk)}
+.legbar{border:2px solid var(--turf-dk);border-radius:0;height:10px;
+  background:linear-gradient(90deg,rgb(14,58,106),rgb(60,126,190),rgb(176,190,201),rgb(201,88,78),rgb(162,22,30))}
+.ends,.leg{color:#7A9384;font-size:8.5px}
+.hatchswatch{border:3px solid var(--c-hi);border-radius:0;background:#FBFDF9;width:14px;height:14px}
+
+/* ---- identity block */
+.wce{border-radius:0;background:var(--flag);color:var(--turf-dk);border:3px solid var(--turf-dk);
+  box-shadow:3px 3px 0 rgba(14,42,23,.45);font-family:var(--pix);font-size:11px}
+.eyebrow-pill{background:var(--turf-dk);color:#7BE08F;border:none;font-size:9px}
+.backlink{color:var(--muted);border-bottom:2px solid var(--line2);font-size:9px}
+.backlink:hover{color:var(--turf);border-color:var(--turf)}
+.headwrap{border-radius:0;border:3px solid var(--turf-dk);background:var(--turf);width:88px;height:88px}
+.headwrap .initials{color:var(--flag);font-family:var(--pix);font-size:24px}
+.posbadge{border-radius:0;background:var(--turf-dk);color:#7BE08F;font-family:var(--pix);font-size:10px}
+.id-meta{font-size:11px;font-family:var(--pix);color:var(--muted);line-height:1.8}
+.teamdot{border-radius:0;box-shadow:0 0 0 2px var(--turf-dk)}
+.statline .st b{font-size:15px}
+.st{font-size:9.5px;color:#5A7A66}
+.acco{border:2px solid var(--turf-dk);background:#FFF;color:var(--ink);font-size:8.5px;padding:5px 8px}
+.acco.major{background:#DDF0E2;color:var(--turf-dk);border-color:var(--turf-dk)}
+.acco.rank{background:#FFF3C9;color:#6B5310;border-color:var(--turf-dk)}
+.acco.lead{background:var(--flag);color:#2A2208;border-color:var(--turf-dk)}
+.tr-rec{font-size:14px} .tr-po{color:var(--turf)} .teamrec.champ .tr-po{color:#8A6B14}
+.tr-coach{color:#7A9384;border-left:2px solid var(--line2)}
+.measur{border-top:2px solid var(--line)}
+.ml{font-size:8.5px;color:#7A9384} .mv{font-size:14px}
+.peakflag{background:var(--flag);color:#2A2208;font-family:var(--pix);font-size:8px;
+  box-shadow:0 2px 0 rgba(14,42,23,.5);letter-spacing:.1em}
+.playbar{background:var(--flag)}
+.playbtn{background:#FFF;border:2px solid var(--turf-dk)}
+.playbtn svg{fill:var(--turf)}
+.exportbtn{background:var(--turf);color:#FFF;border:2px solid var(--turf-dk);
+  box-shadow:3px 3px 0 rgba(14,42,23,.4);font-family:var(--pix);font-size:9px}
+.exportbtn svg{stroke:#FFF}
+.arcbtn{font-size:9px;color:var(--muted)}
+.arc-bar{border-radius:0;border:2px solid var(--turf-dk)}
+.arc-col.out .arc-bar{border-color:var(--line2)}
+.arc-star{color:#2A2208}
+.arcrail{border-top:2px solid var(--line)}
+.arc-h,.arc-foot{font-size:8.5px;color:#7A9384}
+.arc-pklab{color:#8A6B14}
+
+/* ---- explanation, comps, maps, notes */
+.expl{background:var(--raise);border-left:10px solid var(--turf);padding:16px 18px}
+.expl h4{color:var(--turf);font-size:9px}
+.expl h4.why{color:#B8541F}
+.expl p{color:#20402C;font-size:14.5px}
+.expl .formula{background:var(--turf-dk);color:#7BE08F;border-radius:0;font-size:11px;
+  line-height:1.9;border:2px solid var(--turf-dk)}
+.expl .src{color:#7A9384;font-size:8.5px}
+.comp-card{box-shadow:4px 4px 0 rgba(14,42,23,.3)}
+.comp-card:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 rgba(14,42,23,.4)}
+.comp-name{font-size:12.5px;font-family:var(--pix);font-weight:400}
+.comp-score{color:var(--turf);font-size:11px}
+.comp-meter{background:var(--track);border:2px solid var(--turf-dk);border-radius:0;height:9px}
+.comp-meter i{background:var(--turf);border-radius:0}
+.comp-team{color:#9DB2A2;font-size:8px}
+.wk-meter{background:var(--track);border:2px solid var(--turf-dk);border-radius:0;height:9px}
+.wk-meter i{border-radius:0}
+.wk-lab{font-family:var(--pix);font-size:11px}
+.wk-banner{background:#FFF3C9;border:2px solid var(--turf-dk);border-radius:0}
+.wk-banner b{color:#8A6B14}
+.gapnote{background:var(--raise);color:#20402C;font-size:13px}
+.gapnote b{color:var(--turf-dk);font-family:var(--pix);font-size:9px}
+.fm-srow{border-bottom:2px solid var(--line);color:var(--muted);font-size:10px}
+.fm-srow b{color:var(--ink)}
+.tp-row:hover{border-color:var(--turf);transform:translate(-1px,-1px)}
+.tp-n{font-family:var(--pix);font-size:11px}
+.tp-p{font-size:8.5px;color:#9DB2A2}
+.res:hover,.res.on{background:var(--raise)}
+.res .rn{color:var(--ink)} .res .rs{color:#7A9384;font-size:9px}
+.results,.home-results{border:3px solid var(--turf-dk);box-shadow:5px 5px 0 rgba(14,42,23,.4);background:#FFF}
+.rc-t{font-size:9px;color:#7A9384} .rc-t b{color:var(--ink)}
+.rc-foot{font-size:8.5px;color:#9DB2A2}
+.rc{background:var(--raise)}
+
+/* ---- home splash */
+.home-nav-home{font-family:var(--pix);color:#FFF;font-size:12px;text-shadow:2px 2px 0 var(--turf-dk)}
+.home-nav-home span{color:var(--flag)}
+.home-nav-links a{color:rgba(255,255,255,.72);font-family:var(--pix);font-size:9.5px}
+.home-nav-links a:hover{color:#FFF} .home-nav-links a::after{background:var(--flag)}
+.home-field{color:rgba(255,255,255,.16)}
+.home-fade{background:radial-gradient(ellipse 62% 52% at 50% 46%,rgba(29,107,58,.90) 0%,rgba(29,107,58,.62) 46%,rgba(29,107,58,0) 78%)}
+.home-glow{display:none}
+.home-eyebrow{color:rgba(255,255,255,.78);font-size:10px}
+.home-eyebrow .wce{width:28px;height:28px;font-size:9px}
+.home-title{color:#FFF;text-shadow:5px 5px 0 var(--turf-dk);letter-spacing:.02em;
+  font-size:clamp(38px,8vw,76px);line-height:1.08}
+.home-title em{color:var(--flag)}
+.home-title em::after{display:none}
+.home-tag{color:rgba(255,255,255,.86);font-size:15px}
+.home-inp{background:#FFF;border:3px solid var(--turf-dk);box-shadow:6px 6px 0 rgba(14,42,23,.5)}
+.home-search.focus .home-inp{border-color:var(--turf-dk);transform:translate(-2px,-2px);
+  box-shadow:8px 8px 0 rgba(14,42,23,.5)}
+.home-inp input{color:var(--ink)} .home-inp input::placeholder{color:#9DB2A2}
+.home-inp>svg{color:var(--turf)}
+.home-inp kbd{border:2px solid var(--line2);border-radius:0;color:#7A9384;font-family:var(--pix)}
+.home-poschip{background:#FFF;color:var(--muted);font-size:9px}
+.home-poschip:hover{background:var(--flag);color:var(--turf-dk);border-color:var(--turf-dk)}
+.home-trend-lab{color:rgba(255,255,255,.8);font-size:9.5px}
+.home-chip{background:#FFF;border:2px solid var(--turf-dk);box-shadow:3px 3px 0 rgba(14,42,23,.4);
+  color:var(--ink);font-size:12px}
+.home-chip:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 rgba(14,42,23,.4)}
+.home-chip img{border-radius:0;border:2px solid var(--turf-dk)}
+.home-chip .cpos{color:#7A9384;font-size:8px}
+.home-lb{background:var(--flag);color:var(--turf-dk);border:3px solid var(--turf-dk);
+  box-shadow:5px 5px 0 rgba(14,42,23,.5);font-family:var(--pix);font-size:11px}
+.home-lb:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 rgba(14,42,23,.5);filter:none}
+.home-foot{color:rgba(255,255,255,.6);font-size:8.5px}
+.skel .sk-a,.skel .sk-b{background:var(--track);border-radius:0}
+
+/* ---- leaderboard */
+.lb-title{font-size:28px;color:#FFF;text-shadow:4px 4px 0 var(--turf-dk);text-transform:none}
+.lb-title em{color:var(--flag)}
+.lb-back,.lb-toggles,.lb-hint{color:#FFF}
+.lb-back{font-family:var(--pix);font-size:9px}
+.lb-hint{background:var(--surface);border:3px solid var(--turf-dk);padding:13px 15px;color:#20402C;
+  box-shadow:4px 4px 0 rgba(14,42,23,.35)}
+.lb-lab,.lb-toggles{font-size:9px;color:#FFF}
+.lb-presets-row .lb-lab{color:rgba(255,255,255,.85)}
+.lb-field label{color:#5A7A66;font-size:8.5px}
+.lb-table th{color:#5A7A66;border-bottom:3px solid var(--turf-dk);font-size:8.5px}
+.lb-table td{border-bottom:2px solid var(--line);font-size:11px}
+.lb-table td:nth-child(2){font-family:var(--pix);font-size:11.5px;font-weight:400}
+.lb-table tbody tr:hover{background:var(--raise)}
+.lb-table tr.thin td{opacity:.5}
+.lb-foot{border-top:2px solid var(--line);color:#7A9384;font-size:8.5px}
+.lb-foot b{color:#8A6B14}
+.loading{color:#FFF;font-family:var(--pix);font-size:10px}
+
+/* Anything sitting straight on the grass is illegible — dark ink on turf has no
+   contrast. So nothing sits on the grass: the masthead and the control rail get their
+   own cream plates, exactly like every other block on the page. */
+.top,.controls{background:var(--surface);border:3px solid var(--turf-dk);
+  box-shadow:var(--shadow);padding:14px 16px;margin-bottom:14px;border-radius:0}
+.controls{margin:0 0 14px;gap:16px 22px}
+.legend{margin-left:auto}
+.chips{gap:7px}
+
+@media(max-width:560px){
+  .top,.controls{padding:11px 12px}
+  .row{grid-template-columns:104px 1fr 32px 58px 20px;column-gap:7px}
+  .row.nochart{grid-template-columns:104px 1fr 32px 58px}
+  .track{gap:1px;height:18px} .track i{border-width:1px}
+  .rl .name{font-size:10.5px} .pct{font-size:11px} .rv{font-size:10.5px}
+  .id-name{font-size:22px}
+}
 </style>
 </head>
 <body class="home-open">
@@ -923,28 +1176,43 @@ function pctOf(v,pool,lower){
   return p==null?null:Math.max(1,Math.min(99,Math.round(p)));
 }
 function mix(a,b,u){return [0,1,2].map(function(i){return Math.round(a[i]+(b[i]-a[i])*u);});}
-/* Five stops rather than three. A straight blue-to-sand blend passes through grey, which
-   on a green field reads as mud and leaves the middle of every distribution looking dead.
-   Routing it through teal and amber keeps the whole ramp saturated. */
-var RAMP=[[ 62,150,222],   //   0  cold blue      poor
-          [ 96,186,196],   //  25  teal
-          [228,216,166],   //  50  sand           average
-          [255,150, 62],   //  75  amber
-          [255, 74, 35]];  // 100  hot orange     elite
-function colorAt(p){
+/* Blue to red, and nothing in between but the blend of the two. A diverging scale is
+   the right shape for a percentile: distance from average is the message, and the
+   direction of that distance is the sign. Dark at both ends, pale at the hinge. */
+var RAMP=[[ 14, 58,106],   //   0  deep blue    poor
+          [ 60,126,190],   //  25  blue
+          [176,190,201],   //  50  pale slate   average
+          [201, 88, 78],   //  75  red
+          [162, 22, 30]];  // 100  deep red     elite
+function rampAt(p){
   var t=Math.max(0,Math.min(100,p))/100*(RAMP.length-1);
   var i=Math.min(RAMP.length-2,Math.floor(t));
-  var c=mix(RAMP[i],RAMP[i+1],t-i);
-  return 'rgb('+c[0]+','+c[1]+','+c[2]+')';
+  return mix(RAMP[i],RAMP[i+1],t-i);
 }
-/* Whether a label sitting on that colour should be dark or light. Computed from the
-   colour's own brightness rather than from the percentile, because the ramp is not
-   uniformly light on one half and dark on the other. */
+function colorAt(p){ var c=rampAt(p); return 'rgb('+c[0]+','+c[1]+','+c[2]+')'; }
+/* Whether a label sitting on that colour should be dark or light — computed from the
+   colour's own brightness, because this ramp is dark at both ends and light in the middle. */
 function onColorIsDark(p){
-  var t=Math.max(0,Math.min(100,p))/100*(RAMP.length-1);
-  var i=Math.min(RAMP.length-2,Math.floor(t));
-  var c=mix(RAMP[i],RAMP[i+1],t-i);
+  var c=rampAt(p);
   return (0.299*c[0]+0.587*c[1]+0.114*c[2])>150;
+}
+/* The bar is 20 lit-or-unlit blocks, like a stadium light board: you can count a
+   percentile instead of estimating it. Every lit block takes the bar's own colour, so
+   one bar is one solid reading rather than a gradient you have to interpret. */
+var BLOCKS=20;
+function blockBar(pct,extra,unsettled){
+  var shown=pct==null?0:pct;
+  var lit=shown<=0?0:Math.max(1,Math.round(shown/100*BLOCKS));
+  var col=colorAt(pct==null?50:pct);
+  // A block that hasn't earned its reading is drawn hollow — outlined in its colour but
+  // not filled in. At this scale a hatch just fills the block and reads as black.
+  var on=unsettled?('background:#FBFDF9;border-color:'+col):('background:'+col);
+  var out='';
+  for(var i=0;i<BLOCKS;i++)
+    // an explicit class, not the presence of a style attribute: animateFills writes a
+    // transition delay onto every block, which would make an [style] selector match all of them
+    out+= i<lit ? '<i class="on" style="'+on+'"></i>' : '<i class="off"></i>';
+  return '<div class="track">'+out+(extra||'')+'</div>';
 }
 function word(p){return p>=82?'elite':p>=62?'high':p>=40?'avg':'low';}
 
@@ -979,8 +1247,9 @@ function fmt(unit,v){
   return String(v);
 }
 function teamColor(t){ var e=CFG.teams[t]; return e?e[1]:'#59616D'; }
-/* Half the league's primary mark is a near-black navy or forest green, which is invisible
-   as text on this ground. Lift it into a readable band without losing the hue. */
+/* Team marks as text. The panels are cream now, so the problem is the opposite of a dark
+   theme: the pale marks (Dolphins aqua, Chargers powder blue) wash out. Push every mark
+   *down* into a readable band instead of up, keeping its hue. */
 var _tcCache={};
 function teamInk(t){
   if(_tcCache[t]) return _tcCache[t];
@@ -993,7 +1262,7 @@ function teamInk(t){
     h = mx===r ? ((g-b)/dd+(g<b?6:0)) : mx===g ? ((b-r)/dd+2) : ((r-g)/dd+4);
     h/=6;
   }
-  l=Math.max(l,0.62); s=Math.max(s,0.28);
+  l=Math.min(l,0.40); s=Math.max(s,0.30);
   function hue(p,q,x){ if(x<0)x+=1; if(x>1)x-=1;
     if(x<1/6) return p+(q-p)*6*x; if(x<1/2) return q; if(x<2/3) return p+(q-p)*(2/3-x)*6; return p; }
   var q2=l<0.5?l*(1+s):l+s-l*s, p2=2*l-q2;
@@ -1060,22 +1329,16 @@ function barRow(m,p,season,pos){
     }
   }
   var tag=m.layer.toUpperCase()+(smp.ok?'':' · low sample');
-  // the number rides just inside the bar's end where there is room for it, and hops
-  // outside when the bar is nearly full — so it is always legible against something
-  var inside=shown>=14, darkNum=onColorIsDark(shown);
-  var numLeft=inside?('calc('+shown+'% - 30px)'):(shown+'%');
-  var numTf=inside?'transform:translateY(-50%)':'transform:translate(8px,-50%)';
   var title=smp.ok?'':('Only '+Math.round(smp.n)+' '+(CFG.denoms[m.den]||m.den)+' — below the '
     +m.thr+' this stat needs before it settles down.');
   return '<div class="row '+(smp.ok?'':'un')+'" data-k="'+m.key+'" title="'+esc(title)+'">'
     +'<div class="rl" title="'+esc(m.label+' — click for what it means')+'"><div class="name">'+esc(m.label)+'</div><div class="tag">'+tag+'</div></div>'
-    +'<div class="track"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div>'
-      +'<div class="fill" data-w="'+shown+'" style="background:'+col+'"><div class="hatch"></div></div>'
-      +chMark
-      +'<div class="pnum'+(inside&&darkNum?'':' out')+'" style="left:'+numLeft+';'+numTf+'">'+(pct==null?'·':pct)+'</div></div>'
+    +blockBar(pct,chMark,!smp.ok)
+    +'<div class="pct">'+(pct==null?'·':pct)+'</div>'
     +'<div class="rv">'+fmt(m.unit,v)+'</div>'
     +statBtn(m.key,m.label)+'</div>';
 }
+
 function cmpRow(m,entries,pos,season){
   var bh=entries.length>2?12:14, gap=4, pad=5;
   var trH=entries.length*bh+(entries.length-1)*gap+10;
@@ -1088,19 +1351,21 @@ function cmpRow(m,entries,pos,season){
   });
   if(items.every(function(i){return i.p==null;})) return '';
   var bars=items.map(function(it,i){
-    var top=pad+i*(bh+gap);
-    var lab=it.pct>=24?('<span class="cbar-lab">'+esc(shortName(it.nm))+'</span>'):'';
-    return '<div class="cbar" style="top:'+top+'px;height:'+bh+'px;width:'+Math.max(it.pct,1.5)+'%;background:'+CMP_COLORS[i]+'">'+lab+'</div>';
+    var lit=it.pct<=0?0:Math.max(1,Math.round(it.pct/100*BLOCKS)), blk='';
+    for(var k=0;k<BLOCKS;k++)
+      blk+= k<lit ? '<i class="on" style="background:'+CMP_COLORS[i]+'"></i>' : '<i class="off"></i>';
+    return '<div class="ctrack">'+blk+'</div>';
   }).join('');
   var vals=items.map(function(it,i){
     return '<div class="cv"><span class="cdot" style="background:'+CMP_COLORS[i]+'"></span>'+it.txt+'</div>';
   }).join('');
   var tt=items.map(function(it){return it.nm+" '"+String(it.season).slice(2)+': '+(it.p==null?'n/a':it.p+' pct');}).join('   ·   ');
-  return '<div class="row nochart" data-k="'+m.key+'" title="'+esc(tt)+'">'
+  return '<div class="row nochart cmprow" data-k="'+m.key+'" title="'+esc(tt)+'">'
     +'<div class="rl" title="'+esc(m.label+' — click for what it means')+'"><div class="name">'+esc(m.label)+'</div><div class="tag">'+m.layer.toUpperCase()+'</div></div>'
-    +'<div class="track" style="height:'+trH+'px"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div>'+bars+'</div>'
+    +'<div class="cstack">'+bars+'</div>'
     +'<div class="rv rv-cmp">'+vals+'</div></div>';
 }
+
 function rowFor_metric(m,pos){
   if(cmp.length){
     var entries=[{p:cur,season:curSeason}].concat(cmp.map(function(c){return {p:c.p,season:c.season};}));
@@ -1121,9 +1386,14 @@ function groupBlocks(grp,pos){
   flush();
   return html;
 }
+/* Blocks light up left to right instead of a width transition — the animation the bar's
+   own shape suggests. */
 function animateFills(){
   requestAnimationFrame(function(){
-    document.querySelectorAll('.fill').forEach(function(f){ f.style.width=f.dataset.w+'%'; });
+    document.querySelectorAll('.track').forEach(function(t){
+      t.querySelectorAll('i').forEach(function(b,i){ b.style.transitionDelay=(i*11)+'ms'; });
+      t.classList.add('lit');
+    });
   });
 }
 function panelHTML(grp,pos,cap){
@@ -1475,13 +1745,10 @@ function loadMap(season,then){
     .then(function(j){ MAP_CACHE[season]=j||{}; then(MAP_CACHE[season]); })
     .catch(function(){ MAP_CACHE[season]={}; then(MAP_CACHE[season]); });
 }
-function heat(t){                            // slate -> turf -> hot, for map cells
-  t=Math.max(0,Math.min(1,t));
-  var stops=[[30,36,45],[38,92,64],[61,163,93],[224,160,52],[228,85,43]];
-  var x=t*(stops.length-1), i=Math.min(stops.length-2,Math.floor(x)), u=x-i;
-  var c=[0,1,2].map(function(k){return Math.round(stops[i][k]+(stops[i+1][k]-stops[i][k])*u);});
-  return 'rgb('+c[0]+','+c[1]+','+c[2]+')';
+function heat(t){                            // map cells ride the same blue -> red scale
+  return colorAt(Math.max(0,Math.min(1,t))*100);
 }
+function heatDark(t){ return onColorIsDark(Math.max(0,Math.min(1,t))*100); }
 function throwSvg(z,total,kind){
   // rows top->bottom are deep, mid, short, behind — downfield is up, the way it's watched
   var rows=[['d',20,100],['m',100,146],['s',146,196],['b',196,240]];
@@ -1510,27 +1777,27 @@ function throwSvg(z,total,kind){
       var tip=BAND_LABEL[rw[0]]+' · '+DIR_LABEL[cl[0]]+' — '+a+' '+(kind==='qb'?'attempts':'targets')
         +', '+comp+' complete, '+yds.toFixed(0)+' yards'+(a?', '+(yds/a).toFixed(1)+' per attempt':'');
       cells+='<g><rect x="'+(cl[1]+2)+'" y="'+(rw[1]+2)+'" width="'+(cl[2]-cl[1]-4)+'" height="'+(rw[2]-rw[1]-4)
-        +'" rx="4" fill="'+(a<3?'#1B212A':heat(t))+'" stroke="rgba(237,237,232,.10)"><title>'+esc(tip)+'</title></rect>'
+        +'" rx="4" fill="'+(a<3?'#DFE3DC':heat(t))+'" stroke="rgba(14,42,23,.35)"><title>'+esc(tip)+'</title></rect>'
         +'<text x="'+((cl[1]+cl[2])/2)+'" y="'+((rw[1]+rw[2])/2+4)+'" text-anchor="middle" '
         +'font-family="Roboto Mono, monospace" font-size="12.5" font-weight="700" '
-        +'fill="'+(t>0.55?'#0E1116':'#EDEDE8')+'" opacity="'+(a<3?.35:1)+'">'+lab+'</text>'
+        +'fill="'+(a<3?'#7A9384':(heatDark(t)?'#0E2A17':'#FFFFFF'))+'" opacity="'+(a<3?.35:1)+'">'+lab+'</text>'
         +'<text x="'+((cl[1]+cl[2])/2)+'" y="'+((rw[1]+rw[2])/2+17)+'" text-anchor="middle" '
-        +'font-family="Roboto Mono, monospace" font-size="8.5" fill="'+(a<3?'#69727E':(t>0.55?'rgba(14,17,22,.72)':'rgba(237,237,232,.78)'))
+        +'font-family="Roboto Mono, monospace" font-size="8.5" fill="'+(a<3?'#9DB2A2':(heatDark(t)?'rgba(14,42,23,.75)':'rgba(255,255,255,.85)'))
         +'" opacity="'+(a<3?.35:1)+'">'+(a?a:'')+'</text></g>';
     });
   });
   var lines='';
-  [100,146].forEach(function(y){ lines+='<line x1="20" y1="'+y+'" x2="293" y2="'+y+'" stroke="rgba(237,237,232,.10)" stroke-dasharray="3 5"/>'; });
-  lines+='<line x1="14" y1="196" x2="299" y2="196" stroke="#3DA35D" stroke-width="2"/>';
-  var ylab='<text x="8" y="204" font-family="Roboto Mono, monospace" font-size="8" fill="#69727E" text-anchor="end" transform="translate(6,0)">LOS</text>';
+  [100,146].forEach(function(y){ lines+='<line x1="20" y1="'+y+'" x2="293" y2="'+y+'" stroke="rgba(14,42,23,.35)" stroke-dasharray="3 5"/>'; });
+  lines+='<line x1="14" y1="196" x2="299" y2="196" stroke="#1D6B3A" stroke-width="2"/>';
+  var ylab='<text x="8" y="204" font-family="Roboto Mono, monospace" font-size="8" fill="#7A9384" text-anchor="end" transform="translate(6,0)">LOS</text>';
   return '<svg viewBox="0 0 300 252" role="img" aria-label="Throw map by depth and direction">'
-    +'<rect x="20" y="20" width="273" height="220" rx="6" fill="none" stroke="rgba(237,237,232,.09)"/>'
+    +'<rect x="20" y="20" width="273" height="220" rx="6" fill="none" stroke="rgba(14,42,23,.30)"/>'
     +lines+cells
-    +'<text x="156" y="14" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8.5" letter-spacing="1.6" fill="#69727E">DOWNFIELD</text>'
-    +'<text x="12" y="63" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8" fill="#69727E">20+</text>'
-    +'<text x="12" y="126" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8" fill="#69727E">10</text>'
-    +'<text x="12" y="174" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8" fill="#69727E">0</text>'
-    +'<text x="12" y="222" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8" fill="#69727E">−</text>'
+    +'<text x="156" y="14" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8.5" letter-spacing="1.6" fill="#7A9384">DOWNFIELD</text>'
+    +'<text x="12" y="63" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8" fill="#7A9384">20+</text>'
+    +'<text x="12" y="126" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8" fill="#7A9384">10</text>'
+    +'<text x="12" y="174" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8" fill="#7A9384">0</text>'
+    +'<text x="12" y="222" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8" fill="#7A9384">−</text>'
     +'</svg>';
 }
 function gapSvg(g,total){
@@ -1543,26 +1810,26 @@ function gapSvg(g,total){
     var v=vals[i], t=att<3?0:Math.max(0,Math.min(1,(v==null?0:v/mx)));
     var lab=att<3?'·':(mapMode==='vol'?Math.round(att/total*100)+'%':(yds/att).toFixed(1));
     var x=x0+i*w;
-    cells+='<g><rect x="'+(x+2)+'" y="26" width="'+(w-4)+'" height="86" rx="4" fill="'+(att<3?'#1B212A':heat(t))
-      +'" stroke="rgba(237,237,232,.10)"><title>'+esc(GAP_LABEL[i]+' — '+att+' carries, '+yds.toFixed(0)+' yards'
+    cells+='<g><rect x="'+(x+2)+'" y="26" width="'+(w-4)+'" height="86" rx="4" fill="'+(att<3?'#DFE3DC':heat(t))
+      +'" stroke="rgba(14,42,23,.35)"><title>'+esc(GAP_LABEL[i]+' — '+att+' carries, '+yds.toFixed(0)+' yards'
       +(att?', '+(yds/att).toFixed(1)+' per carry':''))+'</title></rect>'
       +'<text x="'+(x+w/2)+'" y="66" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="12.5" '
-      +'font-weight="700" fill="'+(t>0.55?'#0E1116':'#EDEDE8')+'" opacity="'+(att<3?.35:1)+'">'+lab+'</text>'
+      +'font-weight="700" fill="'+(t>0.55?'#0E1116':'#0E2A17')+'" opacity="'+(att<3?.35:1)+'">'+lab+'</text>'
       +'<text x="'+(x+w/2)+'" y="80" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8.5" '
-      +'fill="'+(att<3?'#69727E':(t>0.55?'rgba(14,17,22,.72)':'rgba(237,237,232,.78)'))+'" opacity="'+(att<3?.35:1)+'">'+(att||'')+'</text>'
+      +'fill="'+(att<3?'#9DB2A2':(heatDark(t)?'rgba(14,42,23,.75)':'rgba(255,255,255,.85)'))+'" opacity="'+(att<3?.35:1)+'">'+(att||'')+'</text>'
       +'<text x="'+(x+w/2)+'" y="132" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="7.5" '
-      +'letter-spacing="0.4" fill="#69727E">'+GAP_SHORT[i]+'</text></g>';
+      +'letter-spacing="0.4" fill="#7A9384">'+GAP_SHORT[i]+'</text></g>';
   }
   // the line of scrimmage, with five blockers on it
   var ol='';
   for(var k=0;k<5;k++){
     var cx=16+(k+1)*w;
-    ol+='<rect x="'+(cx-7)+'" y="114" width="14" height="7" rx="2" fill="#39414D"/>';
+    ol+='<rect x="'+(cx-7)+'" y="114" width="14" height="7" rx="2" fill="#7A9384"/>';
   }
   return '<svg viewBox="0 0 300 142" role="img" aria-label="Rushing map by gap">'
-    +'<line x1="10" y1="117.5" x2="292" y2="117.5" stroke="#3DA35D" stroke-width="1.6" opacity=".55"/>'
+    +'<line x1="10" y1="117.5" x2="292" y2="117.5" stroke="#1D6B3A" stroke-width="1.6" opacity=".55"/>'
     +ol+cells
-    +'<text x="152" y="16" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8.5" letter-spacing="1.6" fill="#69727E">DOWNFIELD</text>'
+    +'<text x="152" y="16" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8.5" letter-spacing="1.6" fill="#7A9384">DOWNFIELD</text>'
     +'</svg>';
 }
 function renderFieldMap(){
@@ -1787,24 +2054,24 @@ function chartSvg(pts,m){
   var line=pts.map(function(p,i){return (i?'L':'M')+X(i).toFixed(1)+' '+Y(p.v).toFixed(1);}).join(' ');
   var area=line+' L'+X(pts.length-1).toFixed(1)+' '+(H-PB)+' L'+X(0).toFixed(1)+' '+(H-PB)+' Z';
   var dots=pts.map(function(p,i){
-    var c=p.pct==null?'#59616D':colorAt(p.pct);
-    return '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="3.4" fill="'+c+'" stroke="#191D24" stroke-width="1.4">'
+    var c=p.pct==null?'#B0BEC9':colorAt(p.pct);
+    return '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="3.4" fill="'+c+'" stroke="#0E2A17" stroke-width="1.6">'
       +'<title>'+esc(p.full+' — '+fmt(m.unit,p.v)+(p.pct!=null?' ('+p.pct+'th percentile among '+p.pos+'s that year)':''))+'</title></circle>';
   }).join('');
   var labs=pts.map(function(p,i){
     if(pts.length>14 && i%2) return '';
-    return '<text x="'+X(i).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8.5" fill="#69727E">'+p.lab+'</text>';
+    return '<text x="'+X(i).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8.5" fill="#7A9384">'+p.lab+'</text>';
   }).join('');
   return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'
     +'<defs><linearGradient id="rcg" x1="0" y1="0" x2="0" y2="1">'
-    +'<stop offset="0%" stop-color="#3DA35D" stop-opacity=".26"/><stop offset="100%" stop-color="#3DA35D" stop-opacity="0"/>'
+    +'<stop offset="0%" stop-color="#1D6B3A" stop-opacity=".22"/><stop offset="100%" stop-color="#1D6B3A" stop-opacity="0"/>'
     +'</linearGradient></defs>'
-    +'<line x1="'+PL+'" y1="'+(H-PB)+'" x2="'+(W-PR)+'" y2="'+(H-PB)+'" stroke="rgba(237,237,232,.12)"/>'
+    +'<line x1="'+PL+'" y1="'+(H-PB)+'" x2="'+(W-PR)+'" y2="'+(H-PB)+'" stroke="rgba(14,42,23,.25)"/>'
     +'<path d="'+area+'" fill="url(#rcg)"/>'
-    +'<path d="'+line+'" fill="none" stroke="#3DA35D" stroke-width="1.8" stroke-linejoin="round"/>'
+    +'<path d="'+line+'" fill="none" stroke="#1D6B3A" stroke-width="2" stroke-linejoin="round"/>'
     +dots
-    +'<text x="'+(PL-6)+'" y="'+(Y(hi-pad)+3)+'" text-anchor="end" font-family="Roboto Mono, monospace" font-size="8.5" fill="#69727E">'+esc(fmt(m.unit,hi-pad))+'</text>'
-    +'<text x="'+(PL-6)+'" y="'+(Y(lo+pad)+3)+'" text-anchor="end" font-family="Roboto Mono, monospace" font-size="8.5" fill="#69727E">'+esc(fmt(m.unit,lo+pad))+'</text>'
+    +'<text x="'+(PL-6)+'" y="'+(Y(hi-pad)+3)+'" text-anchor="end" font-family="Roboto Mono, monospace" font-size="8.5" fill="#7A9384">'+esc(fmt(m.unit,hi-pad))+'</text>'
+    +'<text x="'+(PL-6)+'" y="'+(Y(lo+pad)+3)+'" text-anchor="end" font-family="Roboto Mono, monospace" font-size="8.5" fill="#7A9384">'+esc(fmt(m.unit,lo+pad))+'</text>'
     +labs+'</svg>';
 }
 function toggleChart(btn,key){
