@@ -882,16 +882,26 @@ function word(p){return p>=82?'elite':p>=62?'high':p>=40?'avg':'low';}
 
 /* ---------------------------------------------------------------- formatting */
 function inFt(n){ if(miss(n))return '—'; var f=Math.floor(n/12); return f+"'"+Math.round(n-f*12)+'"'; }
+/* Sign after rounding, never before: −0.0004 rounds to zero at three places, and printing
+   it as "−.000" reads like a bug on an axis label. `plus` is for stats where the sign is
+   the point (CPOE); `strip` drops the leading zero on numbers that are always fractional. */
+function signed(v,dp,plus,strip){
+  var mag=Math.abs(v).toFixed(dp);
+  var isZero=!/[1-9]/.test(mag);
+  var body=strip?mag.replace(/^0/,''):mag;
+  if(isZero) return body;
+  return (v<0?'\u2212':(plus?'+':''))+body;
+}
 function fmt(unit,v){
-  if(miss(v)) return '—';
+  if(miss(v)) return '\u2014';
   v=+v;
   switch(unit){
     case 'pct1': return v.toFixed(1)+'%';
-    case 'num0': return String(Math.round(v));
-    case 'num1': return v.toFixed(1);
-    case 'num2': return v.toFixed(2);
-    case 'num3': return (v<0?'−':'')+Math.abs(v).toFixed(3).replace(/^0/,'');
-    case 'sgn1': return (v>=0?'+':'−')+Math.abs(v).toFixed(1);
+    case 'num0': return String(Math.round(v)===0?0:Math.round(v));
+    case 'num1': return signed(v,1,false,false);
+    case 'num2': return signed(v,2,false,false);
+    case 'num3': return signed(v,3,false,true);
+    case 'sgn1': return signed(v,1,true,false);
     case 'sec':  return v.toFixed(2)+'s';
     case 'inch': return v.toFixed(1)+'"';
     case 'lb':   return Math.round(v)+' lb';
