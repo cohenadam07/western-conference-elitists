@@ -205,8 +205,10 @@ METRICS = [
       note='Read this one first. A shutdown corner\'s reward is not being thrown at, and every rate below it is computed on whatever is left.'),
     M('cmpall',   'Completion % allowed', 'cov', 'Coverage', 'output', 'pct1', COV, tier=6, den='ctgt', thr=50, lower=True),
     M('yptall',   'Yards / target allowed', 'cov', 'Coverage', 'output', 'num2', COV, tier=6, den='ctgt', thr=50, lower=True),
-    M('ycs',      'Yards allowed / defensive snap', 'cov', 'Coverage', 'output', 'num2', COV, tier=6, den='dsnap', thr=250, lower=True,
-      note='The key coverage rate — and polluted by drops and off-target throws he had nothing to do with, which is exactly why ball production sits below it.'),
+    M('ycs',      'Yards allowed / defensive snap', 'cov', 'Coverage', 'output', 'num2', COV, tier=6, den='ctgt', thr=50, lower=True,
+      note='The key coverage rate — and polluted by drops and off-target throws he had nothing to do with, which is exactly why ball production sits below it. '
+           'Note the split between its denominator and its sample: it is measured per snap, but its noise comes from targets. A corner nobody threw at all '
+           'season posts a spectacular number off eight throws, so the stabilization bar here is counted in targets, not snaps.'),
     M('ratall',   'Passer rating allowed', 'cov', 'Coverage', 'output', 'num1', COV, tier=6, den='ctgt', thr=50, lower=True),
     M('yacall',   'YAC allowed / completion', 'cov', 'Coverage', 'output', 'num2', COV, tier=6, den='ctgt', thr=50, lower=True),
     M('dadot',    'Depth of target covered', 'cov', 'Assignment', 'context', 'num1', COV, tier=6, den='ctgt', thr=40,

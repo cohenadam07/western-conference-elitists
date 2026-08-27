@@ -532,6 +532,14 @@ body.lb-open .lb{display:block}
 .lb-table tr:last-child td{border-bottom:none}
 .lb-table tbody tr:hover{background:var(--raise)}
 .lb-empty{padding:30px;text-align:center;color:var(--faint);font-family:var(--mono);font-size:12px}
+/* A row whose ranking stat hasn't reached its stabilization threshold. The card hatches
+   such a bar; here the whole row is dimmed and flagged, because on a leaderboard the
+   thin-sample players are the ones that float to the top. */
+.lb-table tr.thin td{opacity:.55}
+.lb-table tr.thin td:nth-child(2)::after{content:"*";color:var(--flag);margin-left:4px;font-weight:700}
+.lb-foot{padding:10px 14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.05em;color:var(--faint);line-height:1.6}
+.lb-foot b{color:var(--flag)}
 
 /* off-screen export shell — hex/rgb only, html2canvas 1.4.1 cannot read color-mix */
 .export-shell{position:fixed;left:-10000px;top:0;width:1040px;background:#191D24;padding:26px 30px 20px;
@@ -733,6 +741,8 @@ body.lb-open .lb{display:block}
       <span class="lb-seg" id="lbDisplay"><button type="button" data-v="value" class="on">Values</button><button type="button" data-v="pct">Percentiles</button></span>
       <span>Rank against</span>
       <span class="lb-seg" id="lbBasis"><button type="button" data-v="season" class="on">Season</button><button type="button" data-v="all">All-time</button></span>
+      <span>Sample</span>
+      <span class="lb-seg" id="lbSample"><button type="button" data-v="settled" class="on">Settled</button><button type="button" data-v="all">Everyone</button></span>
     </div>
   </div>
   <p class="lb-hint" id="lbHint"></p>
@@ -2098,7 +2108,7 @@ function exportCard(){
    leaderboard of cornerbacks from offering to sort by pocket time. */
 var LB={season:null,pos:'QB',rank:null,topN:25,team:'',share:0,
         ageMin:null,ageMax:null,expMin:null,expMax:null,
-        display:'value',basis:'season',cols:[]};
+        display:'value',basis:'season',sample:'settled',cols:[]};
 var LB_PRESETS=[
   {n:'Best quarterbacks',pos:'QB',rank:'epadb',cols:['epadb','cpoe','anya','srdb','sackpct','qbr']},
   {n:'Most accurate passers',pos:'QB',rank:'cpoe',cols:['cpoe','ontgt','badthrow','cmppct','adot']},
@@ -2147,7 +2157,14 @@ function lbRender(){
   var t=document.getElementById('lbTable');
   var m=MBY[LB.rank];
   if(!m){ t.innerHTML='<tbody><tr><td class="lb-empty">Pick a stat to rank by.</td></tr></tbody>'; return; }
-  var rows=lbPool().filter(function(p){ return !miss(p.m[LB.rank])&&eraOK(m,LB.season); });
+  var all=lbPool().filter(function(p){ return !miss(p.m[LB.rank])&&eraOK(m,LB.season); });
+  /* The stabilization threshold matters more here than anywhere else on the site. Sort a
+     coverage rate and the top of the list fills with corners nobody threw at, because a
+     tiny denominator produces extreme rates in both directions. "Settled" holds the list
+     to players who have enough of the metric's own denominator to mean it; "Everyone"
+     shows the rest, dimmed and starred rather than silently mixed in. */
+  var thin=all.filter(function(p){ return !sampleOf(p,m).ok; });
+  var rows = LB.sample==='settled' ? all.filter(function(p){ return sampleOf(p,m).ok; }) : all;
   rows.sort(function(a,b){
     var x=a.m[LB.rank], y=b.m[LB.rank];
     return m.lower ? x-y : y-x;
@@ -2155,15 +2172,25 @@ function lbRender(){
   rows=rows.slice(0,LB.topN);
   if(!rows.length){
     t.innerHTML='<tbody><tr><td class="lb-empty">Nothing qualifies. '
-      +(eraOK(m,LB.season)?'Loosen the filters.':(esc(m.label)+' was not tracked in '+esc(LB.season)+'.'))+'</td></tr></tbody>';
+      +(eraOK(m,LB.season)
+          ? (LB.sample==='settled'&&thin.length
+              ? ('No one reached '+m.thr+' '+(CFG.denoms[m.den]||m.den)+' — switch Sample to Everyone, or loosen the filters.')
+              : 'Loosen the filters.')
+          : (esc(m.label)+' was not tracked in '+esc(LB.season)+'.'))+'</td></tr></tbody>';
     return;
   }
   var cols=LB.cols.filter(function(k){ return MBY[k]&&MBY[k].pos.indexOf(LB.pos)>=0&&eraOK(MBY[k],LB.season); });
   var head='<thead><tr><th>#</th><th>Player</th><th>Tm</th>'
     +cols.map(function(k){return '<th title="'+esc((MBY[k].note||''))+'">'+esc(MBY[k].label)+'</th>';}).join('')
     +'</tr></thead>';
+  var anyThin=false;
   var body='<tbody>'+rows.map(function(p,i){
-    return '<tr><td>'+(i+1)+'</td><td data-id="'+esc(p.id)+'">'+esc(p.name)+'</td>'
+    var smp=sampleOf(p,m);
+    if(!smp.ok) anyThin=true;
+    var tip=smp.ok?'':('Only '+Math.round(smp.n)+' '+(CFG.denoms[m.den]||m.den)+' — below the '
+      +m.thr+' this stat needs before it settles down.');
+    return '<tr class="'+(smp.ok?'':'thin')+'"'+(tip?' title="'+esc(tip)+'"':'')+'>'
+      +'<td>'+(i+1)+'</td><td data-id="'+esc(p.id)+'">'+esc(p.name)+'</td>'
       +'<td style="color:'+teamInk(p.team)+'">'+esc(p.team||'')+'</td>'
       +cols.map(function(k){
         var v=p.m[k];
@@ -2173,7 +2200,18 @@ function lbRender(){
         return '<td style="color:'+lbTextColor(pct)+'">'+esc(txt)+'</td>';
       }).join('')+'</tr>';
   }).join('')+'</tbody>';
-  t.innerHTML=head+body;
+  var foot='';
+  if(LB.sample==='settled'&&thin.length){
+    foot='<tfoot><tr><td class="lb-foot" colspan="'+(3+cols.length)+'">'
+      +thin.length+' player'+(thin.length===1?'':'s')+' hidden: fewer than '+m.thr+' '
+      +(CFG.denoms[m.den]||m.den)+', the point where '+esc(m.label).toLowerCase()
+      +' stops wobbling. Switch Sample to <b>Everyone</b> to see them.</td></tr></tfoot>';
+  } else if(anyThin){
+    foot='<tfoot><tr><td class="lb-foot" colspan="'+(3+cols.length)+'">'
+      +'Dimmed rows marked <b>*</b> are below '+m.thr+' '+(CFG.denoms[m.den]||m.den)
+      +' — the rate is real, the ranking is not yet earned.</td></tr></tfoot>';
+  }
+  t.innerHTML=head+body+foot;
   t.querySelectorAll('td[data-id]').forEach(function(td){
     td.onclick=function(){ hideLB(); selectPlayer(td.dataset.id); };
   });
@@ -2238,7 +2276,8 @@ function lbBuildControls(){
 function lbEncode(){
   return '#lb?s='+LB.season+'&p='+LB.pos+'&r='+LB.rank+'&n='+LB.topN
     +'&c='+LB.cols.join('.')+(LB.team?'&t='+LB.team:'')+(LB.share?'&h='+LB.share:'')
-    +(LB.display!=='value'?'&d=pct':'')+(LB.basis!=='season'?'&b=all':'');
+    +(LB.display!=='value'?'&d=pct':'')+(LB.basis!=='season'?'&b=all':'')
+    +(LB.sample!=='settled'?'&x=all':'');
 }
 function lbSyncURL(){ try{ history.replaceState(null,'',lbEncode()); }catch(e){} }
 function lbParseHash(){
@@ -2254,12 +2293,19 @@ function lbParseHash(){
   if(o.h) LB.share=+o.h||0;
   if(o.d==='pct') LB.display='pct';
   if(o.b==='all') LB.basis='all';
+  if(o.x==='all') LB.sample='all';
 }
 function showLB(){
   if(!LB.season) LB.season=DATA.seasons[0];
   stopPlay();
   document.body.classList.remove('home-open');
   document.body.classList.add('lb-open');
+  ['lbDisplay|display','lbBasis|basis','lbSample|sample'].forEach(function(pair){
+    var bits=pair.split('|');
+    document.querySelectorAll('#'+bits[0]+' button').forEach(function(x){
+      x.classList.toggle('on',x.dataset.v===LB[bits[1]]);
+    });
+  });
   lbBuildControls(); lbRender();
   window.scrollTo(0,0);
 }
@@ -2298,6 +2344,13 @@ function wireLB(){
     b.onclick=function(){
       LB.basis=b.dataset.v;
       document.querySelectorAll('#lbBasis button').forEach(function(x){x.classList.toggle('on',x===b);});
+      lbRender();
+    };
+  });
+  document.querySelectorAll('#lbSample button').forEach(function(b){
+    b.onclick=function(){
+      LB.sample=b.dataset.v;
+      document.querySelectorAll('#lbSample button').forEach(function(x){x.classList.toggle('on',x===b);});
       lbRender();
     };
   });
