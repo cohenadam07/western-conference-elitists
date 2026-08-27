@@ -911,6 +911,7 @@ function fmt(unit,v){
     case 'num1': return signed(v,1,false,false);
     case 'num2': return signed(v,2,false,false);
     case 'num3': return signed(v,3,false,true);
+    case 'sgn3': return signed(v,3,true,true);
     case 'sgn1': return signed(v,1,true,false);
     case 'sec':  return v.toFixed(2)+'s';
     case 'inch': return v.toFixed(1)+'"';
@@ -1223,7 +1224,8 @@ var STATLINE={
   K: [['FG%','fgpct',1],['FGOE/att','fgoe',2],['50+%','fg50',1],['LONG','fglong',0],
       ['FGA/g','fga',1]],
   P: [['NET','pnet',1],['GROSS','pgross',1],['IN20%','pin20',1],['PUNTS/g','punts',1]],
-  OL:[['SNAP%','snapshr',1],['SNAPS/g','snaps',1],['GAMES','g',0],['PEN/g','pen',2]]
+  OL:[['PRS% ALL','prsallow',1],['SACK% ALL','sackallow',1],['SNAP%','snapshr',1],
+      ['STARTS','starts',0],['SNAPS/g','snaps',1],['GAMES','g',0]]
 };
 function statLine(p){
   var list=STATLINE[p.pos]||STATLINE.OL, out=[];
@@ -1610,12 +1612,15 @@ function wireCompCards(el){
 
 /* What this page can't see. Naming the gap is more credible than papering over it. */
 var GAPS_BY_POS={
-  OL:'Almost everything that makes a lineman good — pass-block win rate, pressures allowed, '
-    +'run-block wins, who he was actually blocking — is charted by PFF and ESPN and is not open data. '
-    +'What is here is his workload, his availability and his flags. Read this card as a usage record, not an evaluation.',
-  TE:'Alignment is missing. Inline, slot and wide are three different jobs, and open data does not '
-    +'split a tight end\'s snaps between them, so a blocking tight end is being compared with a slot receiver '
-    +'on receiving numbers alone.',
+  OL:'Two of these three sections are the unit\'s, not his. Nobody publishes who beat whom on a given '
+    +'snap, so there is no individual pass-block win rate here; what there is, is what the offense did while he '
+    +'was on the field. Five linemen share a huddle, so a teammate who never leaves the field posts an identical '
+    +'number — which is why the on/off rows matter more than the raw ones, and why they are blank for iron men '
+    +'who never gave you a sample without them. His snaps, his starts, his alignment and his flags are genuinely his.',
+  TE:'The blocking panel splits his snaps into pass protection and run blocking, so a blocking tight end is '
+    +'no longer judged on receiving numbers alone. What is still missing is alignment: inline, slot and wide are '
+    +'three different jobs and open data does not say which he lined up in. And as with the offensive line, the '
+    +'protection and run-game rows are the unit\'s performance on his snaps, not a grade on him.',
   WR:'Routes run are charted by PFF and are not public, so the two best receiver numbers there are — '
     +'yards per route run and targets per route run — cannot be computed here. Yards per snap and targets per snap '
     +'stand in for them: same idea, blunter denominator, because it counts the snaps he spent blocking.',

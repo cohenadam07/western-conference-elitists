@@ -27,6 +27,16 @@ for k in passing rushing receiving; do
     echo "ok   ngs_$k.csv"
   fi
 done
+# Participation: the eleven on the field per play, plus was_pressure. 2016 on.
+# This is what makes offensive-line measurement possible at all.
+mkdir -p "$OUT/part"
+for y in $(seq 2016 2025); do
+  f="$OUT/part/part_$y.csv"
+  [ -s "$f" ] && continue
+  code=$(curl -sSL -m 300 -o "$f.tmp" -w "%{http_code}" "$BASE/pbp_participation/pbp_participation_$y.csv")
+  if [ "$code" = "200" ]; then mv "$f.tmp" "$f"; echo "ok   part_$y.csv";
+  else rm -f "$f.tmp"; echo "MISS part_$y ($code)"; fi
+done
 # Play-by-play, as parquet — a twentieth the size of the CSV and column-selectable
 mkdir -p "$OUT/pbp"
 for y in $(seq 1999 2025); do

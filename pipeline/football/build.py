@@ -239,10 +239,54 @@ def load_qbr(by_espn):
     return out
 
 
+def load_onfield(y):
+    """Per-player on-field counters plus the team totals they are differenced against."""
+    p = os.path.join(AGG, 'onfield_%d.json' % y)
+    if not os.path.exists(p):
+        return {}, {}
+    j = json.load(open(p))
+    per = defaultdict(list)
+    for r in j['players']:
+        per[r['pid']].append(r)
+    return per, j['teams']
+
+
+def load_starts(y, by_pfr):
+    """Games started and positions played, from weekly snap counts (2013+).
+
+    Open data has no start column. A game in which he took at least half his unit's
+    offensive snaps is the closest honest proxy, and it is also what separates a starter
+    from a swing lineman in the percentile pool.
+    """
+    p = os.path.join(RAW, 'snaps_%d.csv' % y)
+    if not os.path.exists(p) or os.path.getsize(p) < 1000:
+        return {}
+    df = pd.read_csv(p, low_memory=False)
+    if 'game_type' in df.columns:
+        df = df[df.game_type == 'REG']
+    df = df[df.offense_snaps.notna()]
+    out = {}
+    for pid, grp in df.groupby('pfr_player_id'):
+        gid = by_pfr.get(pid)
+        if not gid:
+            continue
+        starts = int((pd.to_numeric(grp.offense_pct, errors='coerce') >= 0.5).sum())
+        snaps = pd.to_numeric(grp.offense_snaps, errors='coerce').fillna(0)
+        tot = float(snaps.sum())
+        played = int(((snaps > 0) | (pd.to_numeric(grp.defense_snaps, errors='coerce').fillna(0) > 0)
+                      | (pd.to_numeric(grp.st_snaps, errors='coerce').fillna(0) > 0)).sum())
+        # a position counts as "played" only past a real share of his snaps, so one
+        # emergency series at guard doesn't make a tackle look versatile
+        byp = grp.assign(s=snaps).groupby('position').s.sum()
+        nvers = int((byp >= max(30.0, 0.15 * tot)).sum()) if tot else 0
+        out[gid] = dict(starts=starts, vers=nvers, games=played)
+    return out
+
+
 def load_pbp(y):
     p = os.path.join(AGG, 'pbp_%d.json' % y)
     if not os.path.exists(p):
-        return {}, {}, {}
+        return {}, {}, {}, {}
     j = json.load(open(p))
     def roll(rows):
         acc = defaultdict(lambda: defaultdict(float))
@@ -253,7 +297,7 @@ def load_pbp(y):
                     continue
                 acc[pid][k] += float(v or 0)
         return acc
-    return roll(j['qb']), roll(j['rush']), roll(j['rec'])
+    return roll(j['qb']), roll(j['rush']), roll(j['rec']), roll(j.get('pen', []))
 
 
 def fg_curve(reg_by_season):
@@ -303,9 +347,18 @@ def fg_curve(reg_by_season):
 
 
 # ---------------------------------------------------------------- metric assembly
-def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, team_games, pmake, y):
+def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
+                 onf, onf_teams, starts, team_games, pmake, y):
     m, d = {}, {}
+    # `games` in the season table counts games in which he recorded a *stat*. For skill
+    # players and defenders that is every game he played; for an offensive lineman it is
+    # only the games he was flagged in, which read Trent Williams as a five-game season.
+    # Snap counts know who actually took the field, so they win where they exist.
     G = num(r.get('games'), 0) or 0
+    if starts and starts.get('games'):
+        G = max(G, float(starts['games']))
+    elif onf:
+        G = max(G, float(sum(x['g'] for x in onf)))
     d['g'] = G
     if G:
         m['g'] = G
@@ -613,6 +666,61 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, team_gam
         if G:
             m['punts'] = pa_ / G
 
+    # ------------------------------------------------------------------ blocking
+    # Three tiers of claim, kept apart because they are not equally his: what he did
+    # (penalties, starts, alignment), what the offense did on his snaps, and the
+    # difference between his snaps and his bench time.
+    st = starts
+    if pens and G:
+        m['fsg'] = pens.get('pen_fs', 0.0) / G
+        m['holdg'] = pens.get('pen_hold', 0.0) / G
+    if st:
+        m['starts'] = st['starts']
+        if st['vers']:
+            m['posver'] = st['vers']
+    if onf:
+        pblk = sum(x['pblk'] for x in onf)
+        rblk = sum(x['rblk'] for x in onf)
+        d['pblk'] = pblk
+        d['rblk'] = rblk
+        if G:
+            m['pblkg'] = pblk / G
+            m['rblkg'] = rblk / G
+        prs_n = sum(x['prs_n'] for x in onf)
+        if prs_n >= 1:
+            m['prsallow'] = sum(x['prs'] for x in onf) / prs_n * 100.0
+        if pblk:
+            m['sackallow'] = sum(x['sk'] for x in onf) / pblk * 100.0
+            m['epadbon'] = sum(x['pepa'] for x in onf) / pblk
+            m['srdbon'] = sum(x['psucc'] for x in onf) / pblk * 100.0
+        rn = sum(x['rush_n'] for x in onf)
+        if rn:
+            m['rushfaced'] = sum(x['rush_sum'] for x in onf) / rn
+        if rblk:
+            m['ypcon'] = sum(x['ryds'] for x in onf) / rblk
+            m['srrunon'] = sum(x['rsucc'] for x in onf) / rblk * 100.0
+            m['stuffon'] = sum(x['stuff'] for x in onf) / rblk * 100.0
+        bn = sum(x['box_n'] for x in onf)
+        if bn:
+            m['boxfaced'] = sum(x['box_sum'] for x in onf) / bn
+
+        # On/off. The off-field half is his team's totals minus his own, so it only
+        # exists for players who actually left the field — an iron-man lineman has
+        # nothing to be compared against and gets no value at all rather than a zero.
+        off = defaultdict(float)
+        for x in onf:
+            t = onf_teams.get(x['tm'])
+            if not t:
+                continue
+            for k in ('pblk', 'rblk', 'prs_n', 'prs', 'pepa', 'rsucc'):
+                off[k] += t[k] - x[k]
+        if off['prs_n'] >= 60 and prs_n >= 60 and 'prsallow' in m:
+            m['prsoo'] = m['prsallow'] - off['prs'] / off['prs_n'] * 100.0
+        if off['pblk'] >= 60 and pblk >= 60 and 'epadbon' in m:
+            m['epaoo'] = m['epadbon'] - off['pepa'] / off['pblk']
+        if off['rblk'] >= 50 and rblk >= 50 and 'srrunon' in m:
+            m['sroo'] = m['srrunon'] - off['rsucc'] / off['rblk'] * 100.0
+
     # ------------------------------------------------------------------ value
     epa_tot = sum(num(r.get(k), 0) or 0 for k in
                   ('passing_epa', 'rushing_epa', 'receiving_epa'))
@@ -689,11 +797,17 @@ def add_comps(players, pos_pools):
             return out
         vecs = {p['id']: vec(p, dims) for p in qual}
         wvecs = {p['id']: vec(p, wdims) for p in qual}
+        # An offensive lineman's headline stats are his unit's, so his four best matches
+        # are otherwise always the four men beside him — true, and useless. Comps for the
+        # line look outside his own team.
+        same_team_ok = pos != 'OL'
         for p in qual:
             a = vecs[p['id']]
             scored = []
             for q in qual:
                 if q['id'] == p['id']:
+                    continue
+                if not same_team_ok and q.get('team') and q['team'] == p.get('team'):
                     continue
                 b = vecs[q['id']]
                 pairs = [(x, y) for x, y in zip(a, b) if x is not None and y is not None]
@@ -716,6 +830,8 @@ def add_comps(players, pos_pools):
             wscored = []
             for q in qual:
                 if q['id'] == p['id']:
+                    continue
+                if not same_team_ok and q.get('team') and q['team'] == p.get('team'):
                     continue
                 bw = [None if x is None else min(x - 50.0, 0.0) for x in wvecs[q['id']]]
                 pairs = [(x, y) for x, y in zip(aw, bw) if x is not None and y is not None]
@@ -750,7 +866,9 @@ def main():
         if y not in regs:
             continue
         df = regs[y]
-        qb_a, rush_a, rec_a = load_pbp(y)
+        qb_a, rush_a, rec_a, pen_a = load_pbp(y)
+        onf_a, onf_teams = load_onfield(y)
+        starts_a = load_starts(y, by_pfr)
         team_games = 17 if y >= 2021 else 16
         players, pos_pools = [], defaultdict(list)
         for r in df.to_dict('records'):
@@ -763,7 +881,8 @@ def main():
                 continue
             m, d = build_player(r, pos, bio, ngs, pfr, snap, qbr, comb,
                                 qb_a.get(gid), rush_a.get(gid), rec_a.get(gid),
-                                team_games, pmake, y)
+                                pen_a.get(gid), onf_a.get(gid), onf_teams,
+                                starts_a.get(gid), team_games, pmake, y)
             if not m:
                 continue
             qkey, qmin = QUALIFY.get(pos, ('g', 6))

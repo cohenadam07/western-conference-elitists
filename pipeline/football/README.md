@@ -16,8 +16,9 @@ behind the metric choices; `metrics.py` is that argument in code.
 ```bash
 cd pipeline/football          # or anywhere — the scripts take paths from env vars
 mkdir -p raw agg maps
-./fetch.sh                    # ~750 MB of source data into raw/
+./fetch.sh                    # ~1 GB of source data into raw/
 python3 pbp_agg.py            # play-by-play -> weekly per-player aggregates in agg/
+python3 onfield_agg.py        # participation + pbp -> who was on the field, and what happened
 python3 maps.py               # agg/ -> maps/<season>.json + maps/index.json
 python3 build.py              # everything -> football-savant-data.json
 cp football-savant-data.json ../../public/
@@ -37,12 +38,34 @@ Needs Python 3.9+ with `pandas` and `pyarrow`. Paths are overridable:
 - **`pbp_agg.py`** — one pass over each season's play-by-play, producing *weekly* per-player
   aggregates: success counts, air-yards lattices, run gaps, third downs, red zone. Weekly
   rather than seasonal because a season total can't be un-summed.
+- **`onfield_agg.py`** — joins the participation release (the exact eleven on the field per
+  play, plus `was_pressure`, 2016 on) to play-by-play, and accumulates what the offense did
+  on each player's snaps, alongside his team's totals so the off-field half can be got by
+  subtraction. This is the whole basis of the offensive-line card.
 - **`maps.py`** — turns those aggregates into the field maps, one file per season.
 - **`build.py`** — joins the season tables, PFR charting, Next Gen Stats, snap counts, the
   combine and ESPN QBR; computes every metric; fits the season-by-season field-goal
   make-rate curve behind FG-over-expected; and precomputes statistical and weakness comps.
 - **`teams.py`** — team names and primary colours, including the franchises that moved
   inside the window (STL, SD, OAK).
+
+## The offensive line, specifically
+
+A lineman has no box score, so his card is built from three different kinds of claim and the
+metric table keeps them in separate sub-sections because they are not equally his:
+
+1. **His own** — penalties by type (play-by-play attributes flags to a player, 92–100%
+   complete back to 1999), snaps, snap share, games started, positions played.
+2. **The unit's, on his snaps** — pressure rate allowed, sack rate allowed, EPA per dropback,
+   rush success, stuffed rate. Five linemen share a huddle, so two teammates who never leave
+   the field post *identical* numbers. This is presence, not performance.
+3. **On/off** — the same rates differenced against his team's totals without him. The only
+   open-data figure that tries to separate one blocker from the four beside him, and it is
+   deliberately absent for anyone who never came off the field, because there is nothing to
+   difference against. Roughly 60% of qualified linemen have a usable off-field sample.
+
+Comps for the line exclude teammates, for the same reason: on unit-derived stats a lineman's
+four closest matches are otherwise always the four men next to him.
 
 ## Things worth knowing before you change it
 
@@ -60,6 +83,11 @@ Needs Python 3.9+ with `pandas` and `pyarrow`. Paths are overridable:
 - **PFR's percent columns are inconsistent.** `advstats_season_pass` stores percentages
   (0–100); `advstats_season_rec` and `advstats_season_def` store fractions (0–1). `build.py`
   scales the latter two.
+- **`games` in the season table is not games played.** It counts games in which the player
+  recorded a *stat*. For skill players and defenders that is every game; for an offensive
+  lineman it is only the games he was flagged in, which reads a 16-game Trent Williams
+  season as five games and silently corrupts availability, snaps-per-game and penalties-per
+  -game. `build.py` prefers the games count from snap counts, then participation.
 - **`json.dump` will happily write `NaN`,** which is not JSON and which `JSON.parse` rejects
   for the whole file. `clean()` strips it and the dump runs with `allow_nan=False`.
 - **Scrambles count as carries** in the box score, so `pbp_agg.py` includes them in the

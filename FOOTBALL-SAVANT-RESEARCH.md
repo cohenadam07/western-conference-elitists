@@ -180,24 +180,60 @@ not to paper over.
 
 ## 7. Offensive line
 
-The hardest position group to measure from public data, and the reason most "OL rankings" are
-really team-level rankings.
+The hardest position group to measure, and the reason most "OL rankings" are really team
+rankings wearing a player's name. But "unmeasurable from open data" — which is what a first
+pass concludes — turns out to be wrong, and the distinction that matters is *whose* number
+each one is.
 
+**Charted, and genuinely individual — not open data**
 - **Pass block win rate (PBWR)** — ESPN/NGS: share of pass blocks sustained ≥2.5 seconds.
 - **Run block win rate (RBWR)** — beat your assignment in the run game.
-- **Pressures / sacks / hurries / hits allowed**, and **pressure rate allowed** (per pass-block snap).
-- **Adjusted line yards** — splits a run's yardage credit between line and back on a distance curve
-  (0–4 yards mostly line, 5–10 half, 11+ back), opponent-adjusted.
-- **Stuff rate**, **second-level yards**, **open-field yards** — the ALY family.
-- **Penalties** — holds and false starts, per snap. One of the few OL stats that's individually
-  attributable from open play-by-play.
-- **Snap share and position-flexibility** (games at each of LT/LG/C/RG/RT).
+- **Pressures / sacks / hurries allowed**, charted to the man who gave them up.
+- **Blown-block rate**, and who he was actually assigned to.
 
-Everything above except penalties, snaps and team-level line yards is licensed (ESPN, PFF, FTN).
-An honest open-data OL page shows: snaps, games started by alignment, penalties, and the team
-run/pass context his line produced — labelled as team, not as him.
+Nobody publishes who beat whom on a given snap. That is the real gap, and no amount of
+open data closes it.
 
----
+**Individual, and open**
+- **Penalties by type.** Play-by-play attributes a flag to a player, 92–100% complete back
+  to 1999. False starts and offensive holding together are about 40% of all offensive
+  penalties and are overwhelmingly called on blockers. This is the one production line on a
+  lineman's record that is unambiguously his.
+- **Snaps, snap share, availability.** A lineman's durability is a large part of his value.
+- **Games started** — no open source has a start column, but a game in which he took at
+  least half his unit's offensive snaps is a good proxy.
+- **Positions played** — snap counts carry a position per game, so tackle/guard/centre
+  versatility is visible. It is worth a roster place on its own.
+
+**The unit's, on his snaps — open, via participation data**
+
+nflverse's participation release carries the exact eleven offensive players on the field
+for every play from 2016, plus a `was_pressure` flag. Joining it to play-by-play gives, for
+each lineman, what the offense did while he was blocking:
+
+- **pressure rate allowed**, **sack rate allowed**
+- **EPA per dropback**, **dropback success rate**
+- **yards per carry**, **rush success rate**, **stuffed rate**
+- **pass rushers faced** and **defenders in the box faced** — the context that says whether
+  those rates were earned against four rushers or six
+
+The catch, and it is a big one: five linemen are on the field together, so their on-field
+numbers are near-identical. Two teammates who never leave the field post exactly the same
+pressure rate. This is unit performance attributed to presence, which is a much weaker claim
+than a grade, and it has to be labelled that way.
+
+**The one thing that tries to separate them: on/off**
+
+Subtract a lineman from his team's totals and you have what the offense did *without* him.
+The difference — pressure rate with him minus pressure rate without him — is the only
+open-data number that even attempts to isolate one blocker from the four beside him. It is
+the same idea as basketball's on/off net, and it carries the same two caveats: it is noisy,
+and it does not exist at all for a player who never left the field. About 60% of qualified
+linemen have a usable off-field sample in a given season; for the rest the honest answer is
+no number.
+
+Measured across 2016–2025, on-field pressure rate for qualified linemen spreads from roughly
+20% to 42%, so there is real signal in the on-field rates even before differencing.
 
 ## 8. Interior defensive line and edge
 
@@ -311,6 +347,16 @@ What is actually obtainable from open data (nflverse), and when it starts:
 | 3 | **2016** | Next Gen Stats tracking: time to throw, aggressiveness, air yards to sticks, expected completion % and CPOE, separation, cushion, xYAC and YAC over expected, RYOE, 8+ box rate, time to LOS |
 | 4 | **2018** | PFR charting: pressure/blitz/hurry/hit, pocket time, bad-throw and on-target %, drops, RPO and play-action, YBC/YAC splits, broken tackles, and the full coverage line for defenders (targets, cmp% allowed, yds/target, passer rating allowed, dADOT, missed tackle %) |
 
+Also **2016**: the participation release — the eleven offensive and eleven defensive players
+on the field for every play, `was_pressure`, pass-rusher count, defenders in the box, offensive
+formation and personnel. This is what makes any offensive-line measurement possible at all,
+and it is the single most under-used open football dataset.
+
+One trap worth recording: `receiver_player_id` is only populated on **completions** between
+2000 and 2011, because the old gamebooks named a receiver only when the pass was caught. So
+targets — and every per-target rate — genuinely begin in 2012, and a tool that shows a 2005
+catch rate is inventing it.
+
 Also open: ESPN Total QBR (2006+), the combine table (1987+ measurements, 2000+ full testing),
 injuries, depth charts, and FTN charting (2022+, with play-action / RPO / screen / box-count /
 QB-out-of-pocket flags).
@@ -319,6 +365,11 @@ QB-out-of-pocket flags).
 PFF grades and WAR, ESPN's PBWR/RBWR/PRWR win rates, PFF's turnover-worthy plays and big-time
 throws, punt hang time, and coverage alignment splits. A tool that pretends to have these is
 lying; a tool that names the gap is more credible than one that doesn't.
+
+A near miss worth knowing about: the participation data has a `route` column, which looks at
+first like it unlocks YPRR. It doesn't — it holds the route run by the **targeted** receiver
+only, one per pass play, not the routes run by all five eligibles. It is still useful, as a
+route-tree distribution for a receiver's targets, but routes run remain out of reach.
 
 ---
 
@@ -337,6 +388,11 @@ Position-scoped, layer-tagged, era-gated, each with its own stabilization thresh
 - **Receiving:** target share, air yards share, WOPR, targets per snap, aDOT, YPT, RACR,
   receiving EPA/target, catch rate, drop %, separation, cushion, YAC, YAC over expected,
   broken tackles, first-down rate, passer rating when targeted, explosive rate.
+- **Blocking (OL, TE):** pass-block and run-block snaps, games started, positions played,
+  false starts and holding per game; and on his snaps — pressure rate allowed, sack rate
+  allowed, EPA per dropback, dropback success rate, pass rushers faced, yards per carry,
+  rush success rate, stuffed rate, defenders in the box; plus pressure rate, EPA per
+  dropback and rush success rate as on/off differentials.
 - **Pass rush:** pressures, pressure rate, pass-rush productivity, sacks, QB hits, hurries,
   TFL, TFL rate, missed tackle %, batted passes.
 - **Run defense / tackling:** tackles per snap, solo rate, TFL rate, missed tackle %, forced fumbles.

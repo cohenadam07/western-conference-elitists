@@ -19,6 +19,7 @@ RAW = os.environ.get("NFL_RAW", "raw")
 OUT = os.environ.get("NFL_AGG", "agg")
 
 COLS = ['season','week','season_type','down','ydstogo','yardline_100','goal_to_go',
+        'penalty','penalty_player_id','penalty_type','penalty_yards',
         'play_type','yards_gained','epa','qb_epa','success','air_yards','yards_after_catch',
         'xyac_mean_yardage','cp','cpoe','pass_length','pass_location','run_location','run_gap',
         'qb_dropback','qb_scramble','qb_kneel','qb_spike','sack','qb_hit','complete_pass',
@@ -144,6 +145,28 @@ def agg_rec(d):
     return base.groupby(['week', 'pid'], as_index=False).sum()
 
 
+def agg_pen(d):
+    """Penalties by type, per player-week.
+
+    The only line on a lineman's record that is unambiguously his. False starts and
+    offensive holding are ~40% of all offensive flags and are overwhelmingly called on
+    blockers, so they get their own counters; the rest are pooled. Attribution runs
+    92–100% complete back to 1999.
+    """
+    p = d[(d.penalty == 1) & d.penalty_player_id.notna()].copy()
+    if not len(p):
+        return []
+    t = p.penalty_type.fillna('')
+    base = pd.DataFrame({
+        'week': p.week, 'pid': p.penalty_player_id,
+        'pen': 1.0,
+        'pen_fs': t.eq('False Start').astype(float),
+        'pen_hold': t.eq('Offensive Holding').astype(float),
+        'pen_yds': _num(p.penalty_yards),
+    })
+    return base.groupby(['week', 'pid'], as_index=False).sum().to_dict(orient='records')
+
+
 def run_season(year):
     path = os.path.join(RAW, 'pbp', 'pbp_%d.parquet' % year)
     if not os.path.exists(path):
@@ -155,7 +178,7 @@ def run_season(year):
     d = d[d.season_type == 'REG']
     for c in ['qb_dropback', 'qb_scramble', 'qb_kneel', 'qb_spike', 'sack', 'qb_hit',
               'complete_pass', 'interception', 'touchdown', 'first_down', 'fumble_lost',
-              'goal_to_go', 'down', 'yardline_100']:
+              'goal_to_go', 'down', 'yardline_100', 'penalty']:
         if c not in d.columns:
             d[c] = 0
         d[c] = pd.to_numeric(d[c], errors='coerce').fillna(0)
@@ -167,6 +190,7 @@ def run_season(year):
         'qb': agg_qb(d).to_dict(orient='records'),
         'rush': agg_rush(d).to_dict(orient='records'),
         'rec': agg_rec(d).to_dict(orient='records'),
+        'pen': agg_pen(d),
     }
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, 'pbp_%d.json' % year), 'w') as f:

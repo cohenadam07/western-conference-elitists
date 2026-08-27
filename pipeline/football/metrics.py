@@ -33,6 +33,7 @@ TIER_SINCE = {1: 1999, 2: 2006, 3: 2012, 4: 2013, 5: 2016, 6: 2018}
 DENOMS = {
     'db': 'dropbacks', 'att': 'pass attempts', 'car': 'carries', 'tgt': 'targets',
     'rec': 'receptions', 'snap': 'snaps', 'dsnap': 'defensive snaps',
+    'pblk': 'pass-blocking snaps', 'rblk': 'run-blocking snaps',
     'ctgt': 'targets defended', 'fga': 'field goal attempts', 'punt': 'punts',
     'g': 'games',
 }
@@ -172,6 +173,45 @@ METRICS = [
     M('tdtgt',    'TD rate / target',    'rec', 'Situational', 'output', 'pct1', PASSC, tier=3, den='tgt', thr=250),
     M('rztgtr',   'Red-zone target rate', 'rec', 'Situational', 'context', 'pct1', PASSC, tier=3, den='tgt', thr=100),
 
+
+    # ---------------------------------------------------------------- blocking
+    # An offensive lineman has no box score. What open data can say about him splits three
+    # ways, and the page keeps them apart because they are not equally his:
+    #   Workload and Discipline  — unambiguously his
+    #   Protection / Run game    — the unit's, on his snaps
+    #   On / off                 — the unit's, differenced against his bench time
+    M('pblkg',    'Pass-block snaps / game', 'block', 'Workload', 'context', 'num1', ['OL', 'TE'], tier=5),
+    M('rblkg',    'Run-block snaps / game',  'block', 'Workload', 'context', 'num1', ['OL', 'TE'], tier=5),
+    M('starts',   'Games started',           'block', 'Workload', 'context', 'num0', ['OL', 'TE'], tier=4,
+      note='Games he took at least half his unit\'s offensive snaps — the closest thing open data has to a start.'),
+    M('posver',   'Positions played',        'block', 'Workload', 'context', 'num0', ['OL'], tier=4,
+      note='How many spots on the line he took real snaps at this season. Versatility is worth a roster place '
+           'on its own, and it is one of the few lineman traits open data can actually see.'),
+    M('fsg',      'False starts / game',     'block', 'Discipline', 'output', 'num2', ['OL', 'TE'], den='g', thr=10, lower=True,
+      note='Along with holding, the only production stat on a lineman\'s record that is unambiguously his. '
+           'Read it next to snap share above: this is per game, not per snap, so a rotational lineman is flattered.'),
+    M('holdg',    'Holding / game',          'block', 'Discipline', 'output', 'num2', ['OL', 'TE'], den='g', thr=10, lower=True),
+    M('prsallow', 'Pressure rate allowed',   'block', 'Protection (unit, on his snaps)', 'output', 'pct1', ['OL', 'TE'], tier=5, den='pblk', thr=200, lower=True,
+      note='How often the quarterback was pressured on the snaps he was on the field for. This is the unit\'s number, '
+           'not his: five linemen share a huddle, so teammates who never leave the field post identical figures. '
+           'The on/off rows below are the only part of this section that tries to separate them.'),
+    M('sackallow','Sack rate allowed',       'block', 'Protection (unit, on his snaps)', 'output', 'pct1', ['OL', 'TE'], tier=5, den='pblk', thr=300, lower=True),
+    M('epadbon',  'EPA / dropback',          'block', 'Protection (unit, on his snaps)', 'output', 'num3', ['OL', 'TE'], tier=5, den='pblk', thr=200),
+    M('srdbon',   'Dropback success rate',   'block', 'Protection (unit, on his snaps)', 'output', 'pct1', ['OL', 'TE'], tier=5, den='pblk', thr=200),
+    M('rushfaced','Pass rushers faced',      'block', 'Protection (unit, on his snaps)', 'context', 'num2', ['OL', 'TE'], tier=5, den='pblk', thr=200,
+      note='Average number of defenders rushing the passer on his pass-blocking snaps. Context for the rate above it: '
+           'holding up against five is a different job from holding up against four.'),
+    M('ypcon',    'Yards / carry',           'block', 'Run game (unit, on his snaps)', 'output', 'num2', ['OL', 'TE'], tier=5, den='rblk', thr=150),
+    M('srrunon',  'Rush success rate',       'block', 'Run game (unit, on his snaps)', 'output', 'pct1', ['OL', 'TE'], tier=5, den='rblk', thr=150),
+    M('stuffon',  'Stuffed rate',            'block', 'Run game (unit, on his snaps)', 'output', 'pct1', ['OL', 'TE'], tier=5, den='rblk', thr=150, lower=True),
+    M('boxfaced', 'Defenders in the box',    'block', 'Run game (unit, on his snaps)', 'context', 'num2', ['OL', 'TE'], tier=5, den='rblk', thr=150),
+    M('prsoo',    'Pressure rate, on minus off', 'block', 'On / off', 'output', 'sgn1', ['OL', 'TE'], tier=5, den='pblk', thr=250, lower=True,
+      note='His unit\'s pressure rate with him blocking, minus its rate with him on the bench. Negative is good: '
+           'the pocket held up better when he played. This is the one row here that even tries to separate a lineman '
+           'from the four men beside him — and it is blank for anyone who never left the field, because there is '
+           'nothing to compare against.'),
+    M('epaoo',    'EPA / dropback, on minus off', 'block', 'On / off', 'output', 'sgn3', ['OL', 'TE'], tier=5, den='pblk', thr=250),
+    M('sroo',     'Rush success, on minus off', 'block', 'On / off', 'output', 'sgn1', ['OL', 'TE'], tier=5, den='rblk', thr=200),
     # ---------------------------------------------------------------- pass rush
     M('prss',     'Pressures / game',    'prsh', 'Pressure', 'output', 'num1', FRONT, tier=6, den='g', thr=8,
       note='Pressures are far more stable and more predictive than sacks. A sack is the tail of the pressure distribution — this is the distribution.'),
@@ -259,6 +299,7 @@ GROUP_LABEL = {
     'ctx': 'Context', 'pass': 'Passing', 'rush': 'Rushing', 'rec': 'Receiving',
     'prsh': 'Pass rush', 'rdef': 'Run defense', 'cov': 'Coverage',
     'kick': 'Kicking & punting', 'val': 'Value', 'ath': 'Athletic profile',
+    'block': 'Blocking',
 }
 
 # Which panels a cohort shows, in order. Position is the page's organizing principle:
@@ -267,8 +308,8 @@ POS_PANELS = {
     'QB':  ['ctx', 'pass', 'rush', 'val', 'ath'],
     'RB':  ['ctx', 'rush', 'rec', 'val', 'ath'],
     'WR':  ['ctx', 'rec', 'rush', 'val', 'ath'],
-    'TE':  ['ctx', 'rec', 'val', 'ath'],
-    'OL':  ['ctx', 'ath'],
+    'TE':  ['ctx', 'rec', 'block', 'val', 'ath'],
+    'OL':  ['ctx', 'block', 'ath'],
     'ED':  ['ctx', 'prsh', 'rdef', 'cov', 'ath'],
     'DI':  ['ctx', 'prsh', 'rdef', 'ath'],
     'LB':  ['ctx', 'rdef', 'prsh', 'cov', 'ath'],
@@ -290,7 +331,7 @@ HEADLINE = {
     'RB': ['epacar', 'srcar', 'ypc', 'yacr', 'rushy'],
     'WR': ['ypsnap', 'ypt', 'epatgt', 'srtgt', 'wopr', 'yprec', 'recy'],
     'TE': ['ypsnap', 'ypt', 'epatgt', 'srtgt', 'wopr', 'yprec', 'recy'],
-    'OL': ['snapshr', 'avail', 'pen'],
+    'OL': ['prsallow', 'sackallow', 'srrunon', 'snapshr', 'fsg'],
     'ED': ['prsssnap', 'sksnap', 'tflsnap', 'mtklpct', 'hits'],
     'DI': ['prsssnap', 'sksnap', 'tflsnap', 'mtklpct', 'tklsnap'],
     'LB': ['tklsnap', 'tflsnap', 'mtklpct', 'ycs', 'prsssnap'],
@@ -303,6 +344,7 @@ HEADLINE = {
 # Weakness comps hinge at the median, so a player's strengths contribute nothing and two
 # players match on a shared flaw even when their full profiles never would.
 WEAK_DIMS = {
+    'OL': ['prsallow', 'sackallow', 'stuffon', 'fsg', 'holdg', 'snapshr'],
     'QB': ['epadb', 'cpoe', 'srdb', 'sackpct', 'intpct', 'ontgt', 'ypa'],
     'RB': ['srcar', 'ypc', 'yacr', 'stuff', 'ypt', 'catch', 'fumrate'],
     'WR': ['ypt', 'catch', 'srtgt', 'dropr', 'sep', 'racr', 'yacoe'],
