@@ -249,8 +249,18 @@ table.seasons{width:100%;border-collapse:collapse;font-size:12.5px}
 .tfind{position:absolute;left:12px;top:12px;z-index:5;font-family:var(--body);font-size:13px;
   background:#FFF;border:2px solid var(--turf-dk);box-shadow:3px 3px 0 rgba(14,42,23,.4);
   padding:8px 11px;width:210px;max-width:calc(100% - 24px);outline:none}
-.treestage:fullscreen,.treestage.isfull{height:100vh;width:100vw;border:0;box-shadow:none}
+/* Each full-screen selector gets its own rule on purpose: a browser that does not
+   know one of these pseudo-classes throws away the whole selector list it sits in,
+   which would take the .isfull fallback down with it. */
+.treestage.isfull{height:100vh;width:100vw;border:0;box-shadow:none;background:var(--surface)}
 .treestage:fullscreen{background:var(--surface)}
+.treestage:-webkit-full-screen{background:var(--surface)}
+/* iOS Safari has no element full screen at any prefix, so there we cover the
+   viewport ourselves. dvh keeps the canvas clear of the address bar. */
+.treestage.pseudo{position:fixed;left:0;top:0;right:0;bottom:0;z-index:1000;margin:0;
+  width:100vw;height:100vh;height:100dvh;max-width:none;border:0;box-shadow:none;
+  background:var(--surface)}
+html.fslock,html.fslock body{overflow:hidden}
 .loading{text-align:center;padding:70px 20px;font-family:var(--pix);font-size:11px;color:#FFF}
 @media(max-width:620px){
   .wrap,.home{padding-left:12px;padding-right:12px}
@@ -942,8 +952,12 @@ function applyTransform(){
 function fitTree(){
   var st=document.getElementById('treestage'), F=FOREST;
   if(!st||!F) return;
+  // Fit to height and let the forest run wide -- it is several screens across by
+  // nature, and panning sideways beats shrinking it to an unreadable strip.
   tScale=Math.max(0.14, Math.min(1.1, (st.clientHeight-24)/F.h));
-  tX=14; tY=-F.top*tScale+12;
+  var cw=F.w*tScale;
+  tX=(cw<st.clientWidth-28) ? (st.clientWidth-cw)/2 : 14;   // centre it when it fits
+  tY=-F.top*tScale+12;
   var svg=document.getElementById('treesvg');
   svg.setAttribute('width',st.clientWidth); svg.setAttribute('height',st.clientHeight);
   applyTransform();
@@ -991,18 +1005,44 @@ function wireTree(){
   document.getElementById('zout').onclick=function(){ zoomBy(1/1.3); };
   document.getElementById('zfit').onclick=fitTree;
   var fsBtn=document.getElementById('zfull');
-  fsBtn.onclick=function(){
-    if(document.fullscreenElement) document.exitFullscreen();
-    else if(st.requestFullscreen) st.requestFullscreen();
-  };
-  // the stage changes size on the way in and on the way out, so refit both times
-  document.addEventListener('fullscreenchange',function(){
-    var on=document.fullscreenElement===st;
-    st.classList.toggle('isfull',on);
+  // Chrome and Firefox expose element full screen unprefixed, older Safari hides it
+  // behind -webkit-, and iOS Safari has no element full screen at all. Where the API
+  // is missing or refuses, fall back to covering the viewport with CSS so the button
+  // always does something.
+  function fsEl(){ return document.fullscreenElement||document.webkitFullscreenElement||null; }
+  function isPseudo(){ return st.classList.contains('pseudo'); }
+  function fsPaint(){
+    var real=fsEl()===st, on=real||isPseudo();
+    st.classList.toggle('isfull',real);
+    document.documentElement.classList.toggle('fslock',on);
     fsBtn.textContent=on?'⤡':'⛶';
     fsBtn.title=on?'Leave full screen':'Full screen';
-    setTimeout(fitTree,60);
+    setTimeout(fitTree,60);            // the stage resizes both on the way in and out
+  }
+  function pseudo(on){ st.classList.toggle('pseudo',on); fsPaint(); }
+  function fsExit(){
+    if(isPseudo()){ pseudo(false); return; }
+    var ex=document.exitFullscreen||document.webkitExitFullscreen;
+    if(ex&&fsEl()) try{ ex.call(document); }catch(e){}
+  }
+  fsBtn.onclick=function(){
+    if(isPseudo()||fsEl()){ fsExit(); return; }
+    var req=st.requestFullscreen||st.webkitRequestFullscreen;
+    if(!req){ pseudo(true); return; }             // iOS
+    var r;
+    try{ r=req.call(st); }catch(e){ pseudo(true); return; }
+    if(r&&r.catch) r['catch'](function(){ pseudo(true); });
+    // the prefixed call returns nothing, so check whether it actually took
+    else setTimeout(function(){ if(fsEl()!==st) pseudo(true); },250);
+  };
+  document.addEventListener('fullscreenchange',fsPaint);
+  document.addEventListener('webkitfullscreenchange',fsPaint);
+  // Escape leaves the CSS fallback, the same way it leaves the real thing.
+  document.addEventListener('keydown',function(e){
+    if((e.key==='Escape'||e.keyCode===27)&&isPseudo()) pseudo(false);
   });
+  // Clicking through to a coach should not leave a fixed canvas pinned over the page.
+  window.addEventListener('hashchange',function(){ if(isPseudo()) pseudo(false); });
   document.getElementById('treeBack').onclick=function(){ history.back(); };
   var find=document.getElementById('tfind');
   find.addEventListener('input',function(){
