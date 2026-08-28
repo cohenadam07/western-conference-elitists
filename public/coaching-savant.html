@@ -81,6 +81,25 @@ body.view-home .treewrap,body.view-coach .treewrap{display:none}
 .btn.ghost{background:#FFF}
 
 /* ---------------------------------------------------------------- home */
+/* Top ribbon — the same strip every Savant carries, so the four tools read as one
+   site. Static rather than absolute here: this home screen is a normal scrolling
+   column, not a full-bleed splash. */
+.home-nav{display:flex;align-items:center;justify-content:space-between;gap:20px;
+  padding:0 0 20px}
+.home-nav-home{font-family:var(--pix);font-size:12px;color:#FFF;text-decoration:none;
+  text-shadow:2px 2px 0 var(--turf-dk);white-space:nowrap;flex:none}
+.home-nav-home span{color:var(--flag)}
+.home-nav-home:hover{opacity:.75}
+.home-nav-links{display:flex;align-items:center;gap:22px;overflow-x:auto;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch}
+.home-nav-links::-webkit-scrollbar{display:none}
+.home-nav-links a{position:relative;font-family:var(--pix);font-size:9.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:rgba(255,255,255,.72);text-decoration:none;
+  padding-bottom:3px;white-space:nowrap}
+.home-nav-links a::after{content:"";position:absolute;left:0;bottom:0;height:1.5px;width:0;
+  background:var(--flag);transition:width .22s ease}
+.home-nav-links a:hover{color:#FFF}
+.home-nav-links a:hover::after{width:100%}
 .home{min-height:100vh;padding:26px 20px 60px;max-width:1160px;margin:0 auto}
 .hero{text-align:center;padding:34px 0 26px}
 .hero h1{font-family:var(--pix);font-size:clamp(30px,6.6vw,58px);color:#FFF;margin:0 0 14px;
@@ -264,6 +283,10 @@ html.fslock,html.fslock body{overflow:hidden}
 .loading{text-align:center;padding:70px 20px;font-family:var(--pix);font-size:11px;color:#FFF}
 @media(max-width:620px){
   .wrap,.home{padding-left:12px;padding-right:12px}
+  .home-nav{padding-bottom:14px;gap:12px}
+  .home-nav-home{font-size:11px}
+  .home-nav-links{gap:15px}
+  .home-nav-links a{font-size:9px}
   .plate{padding:14px 12px}
   .treewrap{padding:12px}
   .cava{width:64px;height:64px;font-size:17px}
@@ -273,6 +296,20 @@ html.fslock,html.fslock body{overflow:hidden}
 <body class="view-home">
 
 <div class="home" id="home">
+  <nav class="home-nav" aria-label="WCE Hoops navigation">
+    <a class="home-nav-home" href="/">WCE <span>Hoops</span></a>
+    <div class="home-nav-links">
+        <a href="/basketball-savant.html">Basketball Savant</a>
+        <a href="/draft-savant.html">Draft Savant</a>
+        <a href="/football-savant.html">Football Savant</a>
+        <a href="/dynasty">Dynasty</a>
+        <a href="/rankings">Big Board</a>
+        <a href="/comp-chain">Comp Chain</a>
+        <a href="/articles">Analysis</a>
+        <a href="/news">News</a>
+        <a href="/about">About</a>
+    </div>
+  </nav>
   <div class="top">
     <div class="brandwrap">
       <a class="wce" href="/" title="Back to WCE home">WCE</a>
