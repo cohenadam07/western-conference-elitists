@@ -210,9 +210,9 @@ table.seasons{width:100%;border-collapse:collapse;font-size:12.5px}
 .turfline{stroke:#2C7A45;stroke-width:6}
 .branch{fill:none;stroke:#4A3620;stroke-linecap:round}
 .branch.trunk{stroke:#3B2A18}
-.leaf ellipse{stroke:#26401F;stroke-width:1.6;cursor:pointer}
-.leaf.unknown ellipse{stroke-dasharray:3 2;opacity:.75}
-.leaf:hover ellipse{stroke-width:3}
+.leaf ellipse{cursor:pointer}
+.leaf.unknown ellipse{opacity:.75}
+.leaf:hover ellipse{stroke:#0E2A17;stroke-width:3.4}
 .lbl{font-family:var(--pix);font-size:8px;fill:#20402C;text-anchor:middle;pointer-events:none;
   paint-order:stroke;stroke:rgba(242,247,238,.92);stroke-width:3px;stroke-linejoin:round}
 .lbl.minor{display:none}
@@ -244,8 +244,13 @@ table.seasons{width:100%;border-collapse:collapse;font-size:12.5px}
 .tlegend .sw{width:64px;height:12px;border:2px solid var(--turf-dk);
   background:linear-gradient(90deg,rgb(14,58,106),rgb(60,126,190),rgb(176,190,201),rgb(201,88,78),rgb(162,22,30))}
 .tlegend .box{width:14px;height:14px;border:2px solid var(--turf-dk);background:var(--track)}
-.tfind{font-family:var(--body);font-size:13px;background:#FFF;border:2px solid var(--turf-dk);
-  padding:8px 11px;width:220px;outline:none}
+.tlegend .box.hollow{background:#F4F8F1;border-color:#A2161E;border-width:3px}
+/* Sitting inside the canvas rather than above it, so it survives going full screen. */
+.tfind{position:absolute;left:12px;top:12px;z-index:5;font-family:var(--body);font-size:13px;
+  background:#FFF;border:2px solid var(--turf-dk);box-shadow:3px 3px 0 rgba(14,42,23,.4);
+  padding:8px 11px;width:210px;max-width:calc(100% - 24px);outline:none}
+.treestage:fullscreen,.treestage.isfull{height:100vh;width:100vw;border:0;box-shadow:none}
+.treestage:fullscreen{background:var(--surface)}
 .loading{text-align:center;padding:70px 20px;font-family:var(--pix);font-size:11px;color:#FFF}
 @media(max-width:620px){
   .wrap,.home{padding-left:12px;padding-right:12px}
@@ -319,19 +324,21 @@ table.seasons{width:100%;border-collapse:collapse;font-size:12.5px}
   <div class="treebar">
     <button class="btn ghost" id="treeBack">← Back</button>
     <h1>The coaching <em>tree</em></h1>
-    <input class="tfind" id="tfind" placeholder="Find a coach…" aria-label="Find a coach in the tree"/>
   </div>
   <div class="tree-note" id="treeNote"></div>
   <div class="treestage" id="treestage">
     <svg id="treesvg"></svg>
+    <input class="tfind" id="tfind" placeholder="Find a coach…" aria-label="Find a coach in the tree"/>
     <div class="tctl">
       <button id="zin" title="Zoom in">+</button>
       <button id="zout" title="Zoom out">−</button>
-      <button id="zfit" title="Fit">⤢</button>
+      <button id="zfit" title="Fit the whole forest">⤢</button>
+      <button id="zfull" title="Full screen">⛶</button>
     </div>
   </div>
   <div class="tlegend">
     <span class="lg"><span class="sw"></span> leaf colour = career win % vs other head coaches</span>
+    <span class="lg"><span class="box hollow"></span> fewer than 3 seasons — colour shown, ranking not earned yet</span>
     <span class="lg"><span class="box"></span> no head-coaching record since 1999</span>
     <span class="lg">hover a leaf to light his branch · click to open his page · drag to pan · scroll in to read the names</span>
   </div>
@@ -801,11 +808,24 @@ function layoutForest(){
           w:maxX+pad, h:(ground-minY)+pad*2, groundY:ground, top:minY-pad};
 }
 
-function nodeFill(name){
+/* Leaf colour is career win percentage on the blue-to-red scale — the more a coach won,
+   the redder his leaf. Three states, because a third of the forest used to be flat grey
+   and carried no signal at all:
+
+     solid   3+ seasons, so the rate has earned its ranking
+     hollow  a real record but a short one — outlined in his colour, pale in the middle,
+             the same "hasn't settled yet" idiom the player tool uses for its notches
+     grey    no head-coaching record since 1999 at all (the older ancestors) */
+function nodeStyle(name){
   var c=COACHES[name];
-  if(!c||c.career.seasons<MIN_SEASONS||c.career.winpct==null) return '#CBD6C7';
-  return colorAt(pctOf(c.career.winpct, pool('winpct'), false));
+  if(!c||c.career.winpct==null)
+    return {fill:'#CBD6C7', stroke:'#7A9384', w:1.6, dash:'3 2', ghost:true};
+  var col=colorAt(pctOf(c.career.winpct, pool('winpct'), false));
+  if(c.career.seasons<MIN_SEASONS)
+    return {fill:'#F4F8F1', stroke:col, w:3.2, dash:null, thin:true};
+  return {fill:col, stroke:'#26401F', w:1.6, dash:null};
 }
+function nodeFill(name){ return nodeStyle(name).fill; }
 
 /* ---------------------------------------------------------------- drawing */
 function renderTree(){
@@ -834,11 +854,13 @@ function renderTree(){
       +'" d="M'+r.gx.toFixed(1)+' '+(F.groundY+8)+' L'+r.gx.toFixed(1)+' '+r.gy.toFixed(1)+'"/>';
 
     t.nodes.forEach(function(nd){
-      var known=!!COACHES[nd.name];
+      var st=nodeStyle(nd.name);
       var rr=nd.leaf?LEAF_R:LEAF_R-1.4;
-      leaves+='<g class="leaf'+(known?'':' unknown')+'" data-n="'+esc(nd.name)+'" '
+      leaves+='<g class="leaf'+(st.ghost?' unknown':'')+(st.thin?' thin':'')+'" data-n="'+esc(nd.name)+'" '
         +'transform="translate('+nd.gx.toFixed(1)+','+nd.gy.toFixed(1)+') rotate('+(nd.ang+90).toFixed(1)+')">'
-        +'<ellipse rx="'+(rr*0.78).toFixed(1)+'" ry="'+(rr*1.25).toFixed(1)+'" fill="'+nodeFill(nd.name)+'"/>'
+        +'<ellipse rx="'+(rr*0.78).toFixed(1)+'" ry="'+(rr*1.25).toFixed(1)+'" fill="'+st.fill
+        +'" stroke="'+st.stroke+'" stroke-width="'+st.w+'"'
+        +(st.dash?' stroke-dasharray="'+st.dash+'"':'')+'/>'
         +'<title>'+esc(nd.name+(COACHES[nd.name]
             ? ' — '+COACHES[nd.name].career.w+'–'+COACHES[nd.name].career.l+', '
               +COACHES[nd.name].career.seasons+' seasons'
@@ -968,6 +990,19 @@ function wireTree(){
   document.getElementById('zin').onclick=function(){ zoomBy(1.3); };
   document.getElementById('zout').onclick=function(){ zoomBy(1/1.3); };
   document.getElementById('zfit').onclick=fitTree;
+  var fsBtn=document.getElementById('zfull');
+  fsBtn.onclick=function(){
+    if(document.fullscreenElement) document.exitFullscreen();
+    else if(st.requestFullscreen) st.requestFullscreen();
+  };
+  // the stage changes size on the way in and on the way out, so refit both times
+  document.addEventListener('fullscreenchange',function(){
+    var on=document.fullscreenElement===st;
+    st.classList.toggle('isfull',on);
+    fsBtn.textContent=on?'⤡':'⛶';
+    fsBtn.title=on?'Leave full screen':'Full screen';
+    setTimeout(fitTree,60);
+  });
   document.getElementById('treeBack').onclick=function(){ history.back(); };
   var find=document.getElementById('tfind');
   find.addEventListener('input',function(){
