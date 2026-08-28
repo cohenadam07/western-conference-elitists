@@ -65,8 +65,9 @@ Almost everything you'll want to change on day one lives in **`src/data/content.
 
 ### The Savant tools
 
-Three single-file tools live in `public/` and are served as static pages, outside the React
-app: `basketball-savant.html`, `draft-savant.html`, and `football-savant.html`.
+Four single-file tools live in `public/` and are served as static pages, outside the React
+app: `basketball-savant.html`, `draft-savant.html`, `football-savant.html`, and
+`coaching-savant.html`.
 
 **Football Savant** (`public/football-savant.html`) is the NFL successor to Basketball
 Savant. Same argument — every number is a percentile against a qualified population, every
@@ -75,6 +76,13 @@ hatched, and a metric its era never tracked is absent rather than zero — but p
 because a cornerback and a center share no box score. It has its own palette and art
 direction (slate ground, chalk rules, a gridiron rather than a half-court) so it reads as a
 sibling rather than a re-skin.
+
+**Coaching Savant** (`public/coaching-savant.html`) is its companion: all 173 men who have
+held an NFL head-coaching job since 1999 — records, playoff history, whether their teams beat
+what the betting market expected of them, what they actually called, and whose staff they
+learned it on. Its flagship is a coaching tree drawn back to Paul Brown, with each coach
+coloured by career win rate. The lineage is hand-curated in `pipeline/football/coach_tree.py`
+because no open dataset records who assisted whom, and the page says so wherever it appears.
 
 Its data is built by `pipeline/football/` from open [nflverse](https://github.com/nflverse/nflverse-data)
 releases and lands in `public/football-savant-data.json` and `public/football-maps/`. See

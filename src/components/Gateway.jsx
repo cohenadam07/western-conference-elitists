@@ -115,6 +115,23 @@ export default function Gateway() {
               </div>
             </a>
 
+            {/* Coaching Savant — the tree is the thing worth showing on the card */}
+            <a className="card c-coach span2" href="/coaching-savant.html">
+              <Skeleton />
+              <div className="viz">
+                <div className="ctree">
+                  <span className="cn r" /><span className="cbr" />
+                  <span className="cn a" /><span className="cn b" /><span className="cn c" />
+                </div>
+              </div>
+              <div className="meta">
+                <span className="ck">Tool · Coaching</span>
+                <h3>Coaching Savant</h3>
+                <p>Every head coach since 1999 — records, playoff history, what they called, and a coaching tree drawn back to Paul Brown.</p>
+                <span className="go">Open ↗</span>
+              </div>
+            </a>
+
             {/* Dynasty Exchange — the only live, crowd-driven thing here, so it leads */}
             <a className="card c-dyn span4" href="/dynasty">
               <Skeleton />

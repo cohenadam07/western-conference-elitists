@@ -394,6 +394,17 @@ body {
 .gw .c-fball .fbar:nth-child(2) i { animation-delay: 0.47s; --w: 58%; }
 .gw .c-fball .fbar:nth-child(3) i { animation-delay: 0.59s; --w: 74%; }
 
+/* ── Coaching Savant: a branch of the tree ── */
+.gw .c-coach .viz { background: #1D6B3A; }
+.gw .c-coach .ctree { position: absolute; inset: 0; }
+.gw .c-coach .cn { position: absolute; height: 11px; border: 2px solid #0E2A17; display: block; }
+.gw .c-coach .cn.r { left: 18px; top: 62px; width: 44px; background: #F4C430; }
+.gw .c-coach .cn.a { left: 96px; top: 34px; width: 52px; background: #A2161E; opacity: 0; animation: gw-pop .4s ease forwards .38s; }
+.gw .c-coach .cn.b { left: 96px; top: 62px; width: 52px; background: #C9584E; opacity: 0; animation: gw-pop .4s ease forwards .50s; }
+.gw .c-coach .cn.c { left: 96px; top: 90px; width: 52px; background: #3C7EBE; opacity: 0; animation: gw-pop .4s ease forwards .62s; }
+.gw .c-coach .cbr { position: absolute; left: 66px; top: 39px; width: 2px; height: 56px; background: rgba(255,255,255,0.5); }
+@keyframes gw-pop { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+
 /* ── Draft Savant: mini board ── */
 .gw .c-draft .viz { background: radial-gradient(120% 90% at 20% 0%, #f7f6f3, transparent); }
 .gw .c-draft .rows { position: absolute; left: 20px; right: 22px; top: 20px; display: flex; flex-direction: column; gap: 7px; }
@@ -527,6 +538,7 @@ body {
   .gw .hero-title em::after { width: 100%; }
   .gw .card { opacity: 1; transform: none; }
   .gw .c-savant .bar i, .gw .c-board .meter i, .gw .c-fball .fbar i { width: var(--w, 70%); }
+  .gw .c-coach .cn { opacity: 1; animation: none; }
   .gw .c-draft .drow { opacity: 1; transform: none; }
 }
 

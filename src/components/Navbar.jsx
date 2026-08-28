@@ -8,6 +8,7 @@ const LINKS = [
   // { to: '/podcasts', label: 'Podcasts' },  // hidden for now
   { href: '/draft-savant.html', label: 'Draft Savant', external: true },
   { href: '/football-savant.html', label: 'Football Savant', external: true },
+  { href: '/coaching-savant.html', label: 'Coaching Savant', external: true },
   { to: '/rankings', label: 'Big Board' },
   { to: '/articles', label: 'Analysis' },
   { to: '/comp-chain', label: 'Comp Chain' },

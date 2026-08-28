@@ -6,6 +6,7 @@ Builds the two data assets `public/football-savant.html` reads:
 |---|---|
 | `public/football-savant-data.json` | the metric table (`cfg`) plus every player-season, 1999–2025 |
 | `public/football-maps/<season>.json` | throw maps, target maps and run-gap maps, loaded on demand |
+| `public/coaching-savant-data.json` | every head coach since 1999, plus the curated coaching tree |
 
 Everything comes from [nflverse](https://github.com/nflverse/nflverse-data/releases) — open
 data, no scraping, no keys. `FOOTBALL-SAVANT-RESEARCH.md` at the repo root is the argument
@@ -21,6 +22,7 @@ python3 pbp_agg.py            # play-by-play -> weekly per-player aggregates in 
 python3 onfield_agg.py        # participation + pbp -> who was on the field, and what happened
 python3 maps.py               # agg/ -> maps/<season>.json + maps/index.json
 python3 build.py              # everything -> football-savant-data.json
+python3 coaches.py            # schedules + pbp -> coaching-savant-data.json
 cp football-savant-data.json ../../public/
 cp maps/*.json ../../public/football-maps/
 ```
@@ -48,6 +50,13 @@ Needs Python 3.9+ with `pandas` and `pyarrow`. Paths are overridable:
   make-rate curve behind FG-over-expected; and precomputes statistical and weakness comps.
 - **`teams.py`** — team names and primary colours, including the franchises that moved
   inside the window (STL, SD, OAK).
+- **`coaches.py`** — builds Coaching Savant. Records, playoff history and performance
+  against the closing spread come from the schedule; play-calling and unit ratings come
+  from play-by-play. Both are attributed **per game**, not per season, so a coach fired in
+  week 9 gets exactly the games he coached and his interim replacement gets the rest.
+- **`coach_tree.py`** — the coaching lineage. Hand-curated, because who assisted whom is in
+  no open dataset. It is the one file here that can simply be wrong, which is why it is flat,
+  editable and quoted verbatim in the UI.
 
 ## The offensive line, specifically
 
@@ -66,6 +75,22 @@ metric table keeps them in separate sub-sections because they are not equally hi
 
 Comps for the line exclude teammates, for the same reason: on unit-derived stats a lineman's
 four closest matches are otherwise always the four men next to him.
+
+## Coaching Savant, specifically
+
+Three measurement decisions carry the whole thing:
+
+1. **The spread is the expectation.** A coach's record says as much about his roster as
+   about him. The closing line already prices the roster in, so wins above what the spread
+   implied — and the average margin against it — are the closest thing to a fair test.
+   The spread-to-win-probability curve is read empirically off 27 seasons rather than fitted.
+2. **Tendencies are measured in neutral game states only** — first three quarters, win
+   probability between 20% and 80%. Everybody throws when losing and runs when ahead, so
+   without that filter "pass rate" mostly measures whether a coach was winning.
+3. **Fourth-down aggression is measured against the same spot.** The league's go-for-it rate
+   in that distance and field-position bucket is the baseline, and only neutral game states
+   count — otherwise trailing teams look bold and every winning coach looks timid. Measured
+   this way the metric centres on zero, which is the check that it is working.
 
 ## Things worth knowing before you change it
 

@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Coaching Savant — WCE</title>
+<meta name="description" content="Every NFL head coach since 1999 — records, playoff history, performance against the spread, play-calling tendencies, and the coaching tree."/>
+<meta name="theme-color" content="#1D6B3A"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=Roboto+Mono:wght@400;500;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   COACHING SAVANT — the same Pixel Turf language as Football Savant: cream panels
+   on mowed grass, hard borders and offset shadows, Silkscreen for anything you
+   scan and Archivo for anything you read, and percentile notches that run blue
+   (poor) to red (elite).
+
+   The one thing here that is not computed is the coaching tree. It is curated by
+   hand in pipeline/football/coach_tree.py, because who assisted whom is in no
+   open dataset, and the page says so wherever the lineage appears.
+   ========================================================================= */
+:root{
+  --bg:#1D6B3A; --surface:#F2F7EE; --raise:#E4EFE0;
+  --ink:#0E2A17; --muted:#3E6B4C; --faint:#7A9384;
+  --line:#DDE7DA; --line2:#C6CDC4; --track:#DFE3DC;
+  --turf:#1D6B3A; --turf-dk:#0E2A17; --flag:#F4C430; --red:#A2161E;
+  --shadow:6px 6px 0 rgba(14,42,23,.5);
+  --disp:'Archivo',system-ui,sans-serif; --body:'Archivo',system-ui,sans-serif;
+  --mono:'Roboto Mono',ui-monospace,monospace; --pix:'Silkscreen',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background-color:#1D6B3A;color:var(--ink);font-family:var(--body);font-size:15px;
+  line-height:1.5;-webkit-font-smoothing:antialiased;
+  background-image:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.10) 0 4px,transparent 4px 8px),
+    repeating-linear-gradient(90deg,rgba(0,0,0,.10) 0 64px,rgba(255,255,255,.05) 64px 128px);
+  background-attachment:fixed;image-rendering:pixelated}
+a{color:inherit}
+button{font-family:inherit}
+.wrap{max-width:1160px;margin:0 auto;padding:20px 20px 70px}
+.plate{background:var(--surface);border:3px solid var(--turf-dk);box-shadow:var(--shadow);
+  padding:18px 20px;margin-bottom:16px}
+body.view-home .wrap,body.view-tree .wrap{display:none}
+body.view-coach .home,body.view-tree .home{display:none}
+body.view-home .treewrap,body.view-coach .treewrap{display:none}
+
+/* ---------------------------------------------------------------- masthead */
+/* Nothing legible sits on the grass: dark ink on turf has no contrast, so the masthead
+   gets the same cream plate every other block on the page has. */
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  background:var(--surface);border:3px solid var(--turf-dk);box-shadow:var(--shadow);
+  padding:14px 16px;margin-bottom:16px}
+.brandwrap{display:flex;align-items:center;gap:11px}
+.wce{width:42px;height:42px;background:var(--flag);color:var(--turf-dk);border:3px solid var(--turf-dk);
+  box-shadow:3px 3px 0 rgba(14,42,23,.45);font-family:var(--pix);font-size:11px;
+  display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none}
+.brand-word{font-family:var(--pix);font-size:17px;line-height:1.3;cursor:pointer}
+.brand-word span{color:var(--turf)}
+.sublinks{display:flex;gap:9px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.pill{font-family:var(--pix);font-size:9px;background:var(--turf-dk);color:#7BE08F;padding:5px 7px}
+.backlink{font-family:var(--pix);font-size:9px;color:var(--muted);text-decoration:none;
+  border-bottom:2px solid var(--line2)}
+.backlink:hover{color:var(--turf);border-color:var(--turf)}
+.search{position:relative;display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-width:0}
+.search input{font-family:var(--body);font-size:14px;color:var(--ink);background:#FFF;
+  border:2px solid var(--turf-dk);padding:9px 12px;width:250px;max-width:100%;outline:none;flex:1 1 170px}
+.search input:focus{box-shadow:3px 3px 0 rgba(14,42,23,.35)}
+.results{position:absolute;top:calc(100% + 6px);right:0;width:300px;max-height:300px;overflow:auto;
+  background:#FFF;border:3px solid var(--turf-dk);box-shadow:5px 5px 0 rgba(14,42,23,.4);padding:5px;z-index:40}
+.results[hidden]{display:none}
+.res{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;cursor:pointer}
+.res:hover,.res.on{background:var(--raise)}
+.res .rn{font-size:14px;font-weight:600}
+.res .rs{font-family:var(--pix);font-size:9px;color:var(--faint)}
+.btn{background:var(--flag);color:var(--turf-dk);border:3px solid var(--turf-dk);
+  box-shadow:4px 4px 0 rgba(14,42,23,.45);font-family:var(--pix);font-size:11px;
+  padding:11px 18px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(14,42,23,.45)}
+.btn.ghost{background:#FFF}
+
+/* ---------------------------------------------------------------- home */
+.home{min-height:100vh;padding:26px 20px 60px;max-width:1160px;margin:0 auto}
+.hero{text-align:center;padding:34px 0 26px}
+.hero h1{font-family:var(--pix);font-size:clamp(30px,6.6vw,58px);color:#FFF;margin:0 0 14px;
+  text-shadow:5px 5px 0 var(--turf-dk);line-height:1.16}
+.hero h1 em{font-style:normal;color:var(--flag)}
+.hero p{color:rgba(255,255,255,.9);max-width:600px;margin:0 auto 24px;font-size:15.5px}
+.hero .search{justify-content:center}
+.hero .search input{width:min(520px,90vw);flex:0 1 auto;font-size:16px;padding:14px 16px;
+  border:3px solid var(--turf-dk);box-shadow:6px 6px 0 rgba(14,42,23,.5)}
+.herobtns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.leaders{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.lead-h{font-family:var(--pix);font-size:13px;margin:0 0 10px}
+.lrow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding:6px 0;border-bottom:2px solid var(--line);cursor:pointer;font-size:13.5px}
+.lrow:last-child{border-bottom:none}
+.lrow:hover .ln{color:var(--turf)}
+.ln{font-weight:600}
+.lv{font-family:var(--pix);font-size:11px;color:var(--muted)}
+.lrk{font-family:var(--pix);font-size:10px;color:var(--faint);width:20px;flex:none}
+
+/* ---------------------------------------------------------------- coach card */
+.chead{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;position:relative}
+.chead::before{content:"";position:absolute;left:-20px;right:-20px;top:-18px;height:5px;
+  background:repeating-linear-gradient(90deg,var(--flag) 0 22px,transparent 22px 30px)}
+.cava{width:92px;height:92px;flex:none;background:var(--turf);border:3px solid var(--turf-dk);
+  color:var(--flag);font-family:var(--pix);font-size:24px;display:flex;align-items:center;justify-content:center}
+.cid{flex:1;min-width:260px}
+.cname{font-family:var(--pix);font-size:clamp(22px,3.6vw,34px);margin:0;line-height:1.2}
+.cmeta{font-family:var(--pix);font-size:11px;color:var(--muted);margin-top:9px;line-height:1.9}
+.crec{display:flex;gap:18px;flex-wrap:wrap;margin-top:11px}
+.crec .st{font-family:var(--pix);font-size:9.5px;color:#5A7A66}
+.crec .st b{display:block;font-size:19px;color:var(--ink);margin-bottom:2px}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.badge{font-family:var(--pix);font-size:8.5px;border:2px solid var(--turf-dk);background:#FFF;padding:5px 8px}
+.badge.gold{background:var(--flag)}
+.badge.green{background:#DDF0E2}
+
+/* lineage */
+.lineage{margin-top:16px;padding-top:14px;border-top:2px solid var(--line)}
+.lin-h{font-family:var(--pix);font-size:9px;color:var(--faint);letter-spacing:.08em;margin-bottom:9px}
+.chain{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{font-family:var(--pix);font-size:10px;border:2px solid var(--turf-dk);background:#FFF;
+  padding:6px 9px;cursor:pointer}
+.chip:hover{background:var(--flag)}
+.chip.self{background:var(--turf);color:#FFF;cursor:default}
+.chip.root{background:var(--raise)}
+.chip.dead{opacity:.6;cursor:default}
+.arrow{font-family:var(--pix);font-size:11px;color:var(--faint)}
+.lin-role{font-size:12.5px;color:var(--muted);margin-top:9px;line-height:1.6}
+.protg{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.curated{font-size:12px;color:var(--muted);line-height:1.6;background:var(--raise);
+  border-left:8px solid var(--flag);padding:11px 13px;margin-top:12px}
+.curated b{font-family:var(--pix);font-size:8.5px;display:block;margin-bottom:5px;color:var(--turf-dk)}
+
+/* ---------------------------------------------------------------- bars */
+.panel-h{font-family:var(--pix);font-size:15px;margin:0 0 3px}
+.panel-cap{font-family:var(--pix);font-size:9px;color:#7A9384;margin:8px 0 12px;line-height:1.7}
+.grp{font-family:var(--pix);font-size:9px;color:#7A9384;border-bottom:2px solid var(--line);
+  padding-bottom:5px;margin:16px 0 8px;letter-spacing:.08em}
+.row{display:grid;grid-template-columns:196px minmax(0,520px) 44px 78px 1fr;align-items:center;
+  column-gap:13px;min-height:40px;border-bottom:2px solid var(--line);padding:3px 0}
+.row:last-child{border-bottom:none}
+.rl{cursor:pointer;min-width:0}
+.rl .name{font-family:var(--pix);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rl:hover .name{color:var(--turf)}
+.rl .tag{font-family:var(--pix);font-size:8px;color:#9DB2A2;margin-top:4px}
+.track{display:flex;gap:3px;width:fit-content;max-width:100%;align-items:flex-start}
+.track i{flex:0 0 auto;width:var(--nw,23px);height:var(--nw,23px);background:var(--track);
+  border:2px solid var(--line2);display:block}
+.track i.on{border-color:var(--turf-dk)}
+.pct{font-family:var(--pix);font-size:13px;text-align:right}
+.rv{font-family:var(--pix);font-size:12.5px;text-align:right;white-space:nowrap}
+.plate{container-type:inline-size}
+@container (max-width:980px){
+  .track i:nth-child(even){display:none}
+  .plate .row{--nw:26px}
+}
+@container (max-width:760px){
+  .plate .row{grid-template-columns:1fr auto auto;
+    grid-template-areas:"lab pct val" "bar bar bar";row-gap:8px;column-gap:10px;padding:10px 0;min-height:0}
+  .plate .row .rl{grid-area:lab} .plate .row .pct{grid-area:pct}
+  .plate .row .rv{grid-area:val} .plate .row .track{grid-area:bar}
+  .plate .row .rl .name{white-space:normal}
+  .plate .row .pct{border:2px solid var(--line2);background:#FFF;padding:2px 7px;min-width:34px;text-align:center}
+}
+@container (min-width:500px) and (max-width:760px){
+  .plate .row .track i{display:block} .plate .row{--nw:21px}
+}
+@container (max-width:300px){ .plate .row{--nw:21px} }
+.expl{grid-column:1/-1;background:var(--raise);border-left:8px solid var(--turf);
+  padding:14px 16px;margin:4px 0 10px}
+.expl h4{margin:0 0 3px;font-family:var(--pix);font-size:9px;color:var(--turf)}
+.expl h4.why{color:#B8541F}
+.expl p{margin:0 0 10px;font-size:14.5px;line-height:1.6;color:#20402C}
+.expl p:last-child{margin-bottom:0}
+.expl .formula{font-family:var(--pix);font-size:11px;background:var(--turf-dk);color:#7BE08F;
+  padding:9px 12px;margin:0 0 10px;line-height:1.9;overflow-x:auto}
+
+/* ---------------------------------------------------------------- seasons */
+.tblwrap{overflow-x:auto}
+table.seasons{width:100%;border-collapse:collapse;font-size:12.5px}
+.seasons th{font-family:var(--pix);font-size:8.5px;color:#5A7A66;text-align:right;
+  padding:9px 8px;border-bottom:3px solid var(--turf-dk);white-space:nowrap}
+.seasons th:nth-child(-n+3){text-align:left}
+.seasons td{font-family:var(--pix);font-size:11px;text-align:right;padding:8px;
+  border-bottom:2px solid var(--line);white-space:nowrap}
+.seasons td:nth-child(-n+3){text-align:left}
+.seasons tbody tr:hover{background:var(--raise)}
+.po-tag{font-family:var(--pix);font-size:8.5px;padding:3px 6px;border:2px solid var(--turf-dk);background:#FFF}
+.po-tag.sb{background:var(--flag)} .po-tag.deep{background:#DDF0E2}
+
+/* ---------------------------------------------------------------- the tree */
+.treewrap{padding:16px 16px 30px;max-width:1600px;margin:0 auto}
+.treebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.treebar h1{font-family:var(--pix);font-size:clamp(18px,3vw,28px);color:#FFF;margin:0;
+  text-shadow:4px 4px 0 var(--turf-dk)}
+.treebar h1 em{font-style:normal;color:var(--flag)}
+.tree-note{background:var(--surface);border:3px solid var(--turf-dk);box-shadow:var(--shadow);
+  padding:13px 16px;margin-bottom:14px;font-size:13px;line-height:1.65;color:#20402C}
+.tree-note b{font-family:var(--pix);font-size:8.5px;display:block;margin-bottom:6px}
+.treestage{background:var(--surface);border:3px solid var(--turf-dk);box-shadow:var(--shadow);
+  overflow:hidden;position:relative;height:min(78vh,860px);cursor:grab;touch-action:none}
+.treestage.drag{cursor:grabbing}
+.treestage svg{display:block;user-select:none}
+.tnode rect{stroke:var(--turf-dk);stroke-width:2}
+.tnode text{font-family:var(--pix);font-size:9px;pointer-events:none}
+.tnode{cursor:pointer}
+.tnode:hover rect{stroke-width:4}
+.tnode.dim{opacity:.24}
+.tnode.hl rect{stroke:#0E2A17;stroke-width:4}
+.tlink{fill:none;stroke:rgba(14,42,23,.32);stroke-width:2}
+.tlink.hl{stroke:var(--turf-dk);stroke-width:3.5}
+.tlink.dim{opacity:.12}
+.tctl{position:absolute;right:12px;bottom:12px;display:flex;gap:6px;z-index:5}
+.tctl button{width:36px;height:36px;background:#FFF;border:2px solid var(--turf-dk);
+  box-shadow:3px 3px 0 rgba(14,42,23,.4);font-family:var(--pix);font-size:13px;cursor:pointer}
+.tctl button:hover{background:var(--flag)}
+.tlegend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;
+  background:var(--surface);border:3px solid var(--turf-dk);box-shadow:var(--shadow);padding:11px 14px}
+.tlegend .lg{font-family:var(--pix);font-size:9px;color:#5A7A66;display:flex;align-items:center;gap:7px}
+.tlegend .sw{width:64px;height:12px;border:2px solid var(--turf-dk);
+  background:linear-gradient(90deg,rgb(14,58,106),rgb(60,126,190),rgb(176,190,201),rgb(201,88,78),rgb(162,22,30))}
+.tlegend .box{width:14px;height:14px;border:2px solid var(--turf-dk);background:var(--track)}
+.tfind{font-family:var(--body);font-size:13px;background:#FFF;border:2px solid var(--turf-dk);
+  padding:8px 11px;width:220px;outline:none}
+.loading{text-align:center;padding:70px 20px;font-family:var(--pix);font-size:11px;color:#FFF}
+@media(max-width:620px){
+  .wrap,.home{padding-left:12px;padding-right:12px}
+  .plate{padding:14px 12px}
+  .treewrap{padding:12px}
+  .cava{width:64px;height:64px;font-size:17px}
+}
+</style>
+</head>
+<body class="view-home">
+
+<div class="home" id="home">
+  <div class="top">
+    <div class="brandwrap">
+      <a class="wce" href="/" title="Back to WCE home">WCE</a>
+      <div>
+        <div class="brand-word" id="brandHome">Coaching <span>Savant</span></div>
+        <div class="sublinks">
+          <span class="pill">1999–2025</span>
+          <a class="backlink" href="/football-savant.html">← Football Savant</a>
+          <a class="backlink" href="/basketball-savant.html">Basketball Savant</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1>Every coach, and <em>where he came from</em></h1>
+    <p>All 173 men who have held an NFL head-coaching job since 1999 — what they won, how
+       often they reached the playoffs, whether their teams beat what the market expected of
+       them, what they actually called, and whose staff they learned it on.</p>
+    <div class="search" id="homeSearch">
+      <input id="homeq" placeholder="Search a coach…" autocomplete="off" autocorrect="off"
+             autocapitalize="off" spellcheck="false" aria-label="Search a coach"/>
+      <div class="results" id="homeResults" hidden></div>
+    </div>
+    <div class="herobtns">
+      <button class="btn" id="treeBtn">See the coaching tree →</button>
+      <button class="btn ghost" id="randomBtn">Surprise me</button>
+    </div>
+  </div>
+
+  <div class="plate">
+    <div class="leaders" id="leaders"></div>
+  </div>
+</div>
+
+<div class="wrap" id="app">
+  <div class="top">
+    <div class="brandwrap">
+      <a class="wce" href="/" title="Back to WCE home">WCE</a>
+      <div>
+        <div class="brand-word" id="brandApp">Coaching <span>Savant</span></div>
+        <div class="sublinks">
+          <span class="pill">1999–2025</span>
+          <a class="backlink" href="/football-savant.html">← Football Savant</a>
+          <button class="backlink" id="treeBtn2" style="background:none;border:0;border-bottom:2px solid var(--line2);cursor:pointer;padding:0">Coaching tree</button>
+        </div>
+      </div>
+    </div>
+    <div class="search" id="appSearch">
+      <input id="q" placeholder="Search a coach…" autocomplete="off" autocorrect="off"
+             autocapitalize="off" spellcheck="false" aria-label="Search a coach"/>
+      <div class="results" id="results" hidden></div>
+    </div>
+  </div>
+  <div id="coach"></div>
+</div>
+
+<div class="treewrap" id="treewrap">
+  <div class="treebar">
+    <button class="btn ghost" id="treeBack">← Back</button>
+    <h1>The coaching <em>tree</em></h1>
+    <input class="tfind" id="tfind" placeholder="Find a coach…" aria-label="Find a coach in the tree"/>
+  </div>
+  <div class="tree-note" id="treeNote"></div>
+  <div class="treestage" id="treestage">
+    <svg id="treesvg"></svg>
+    <div class="tctl">
+      <button id="zin" title="Zoom in">+</button>
+      <button id="zout" title="Zoom out">−</button>
+      <button id="zfit" title="Fit">⤢</button>
+    </div>
+  </div>
+  <div class="tlegend">
+    <span class="lg"><span class="sw"></span> career win % vs other head coaches</span>
+    <span class="lg"><span class="box"></span> no head-coaching record since 1999</span>
+    <span class="lg">click a name to open his page · drag to pan · scroll to zoom</span>
+  </div>
+</div>
+
+<div class="loading" id="boot">Loading the coaches…</div>
+<script>
+/* ============================================================================
+   COACHING SAVANT
+
+   Same engine idea as Football Savant: hold the whole dataset in memory, rank
+   everything in the browser, and never show a number without showing what it is
+   measured against. A coach's population is other head coaches with at least
+   three seasons — below that a career rate is a coin toss.
+   ========================================================================= */
+var DATA=null, COACHES={}, NAMES=[], cur=null, openExpl=null;
+var MIN_SEASONS=3;
+
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function _norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function miss(v){return v==null||(typeof v==='number'&&!isFinite(v));}
+
+/* The same blue-to-red diverging scale the player tool uses, so a notch means the
+   same thing on both pages. */
+var RAMP=[[14,58,106],[60,126,190],[176,190,201],[201,88,78],[162,22,30]];
+function mix(a,b,u){return [0,1,2].map(function(i){return Math.round(a[i]+(b[i]-a[i])*u);});}
+function rampAt(p){var t=Math.max(0,Math.min(100,p))/100*(RAMP.length-1);
+  var i=Math.min(RAMP.length-2,Math.floor(t));return mix(RAMP[i],RAMP[i+1],t-i);}
+function colorAt(p){var c=rampAt(p);return 'rgb('+c[0]+','+c[1]+','+c[2]+')';}
+var BLOCKS=20;
+function blockBar(pct){
+  var lit=pct==null?0:Math.max(1,Math.round(pct/100*BLOCKS));
+  var col=colorAt(pct==null?50:pct), out='';
+  for(var i=0;i<BLOCKS;i++) out+= i<lit?'<i class="on" style="background:'+col+'"></i>':'<i class="off"></i>';
+  return '<div class="track">'+out+'</div>';
+}
+
+function fmt(unit,v){
+  if(miss(v)) return '—';
+  v=+v;
+  function signed(dp,plus,strip){
+    var mag=Math.abs(v).toFixed(dp), zero=!/[1-9]/.test(mag);
+    var body=strip?mag.replace(/^0/,''):mag;
+    return zero?body:((v<0?'−':(plus?'+':''))+body);
+  }
+  switch(unit){
+    case 'pct1': return v.toFixed(1)+'%';
+    case 'num1': return signed(1,false,false);
+    case 'num2': return signed(2,false,false);
+    case 'sgn1': return signed(1,true,false);
+    case 'sgn2': return signed(2,true,false);
+    case 'sgn3': return signed(3,true,true);
+    case 'num0': return String(Math.round(v));
+    case 'sec':  return v.toFixed(1)+'s';
+  }
+  return String(v);
+}
+
+/* ---------------------------------------------------------------- the metric table
+   Every row carries what it is, why it matters and how it is worked out, in the same
+   plain-language shape as the player tool. `lower` flips the notches so a long bar
+   always means good. */
+function M(key,label,grp,unit,lower,w,y,f){
+  return {key:key,label:label,grp:grp,unit:unit,lower:!!lower,exp:{w:w,y:y,f:f}};
+}
+var METRICS=[
+  M('winpct','Win %','Record','pct1',false,
+    "The share of his regular-season games he won.",
+    "The bluntest measure there is, and the one everybody keeps. It says nothing about the roster he was handed, which is what the two rows below it are for.",
+    "(wins + half of ties) ÷ games"),
+  M('porate','Playoff rate','Record','pct1',false,
+    "The share of his seasons that ended in the playoffs.",
+    "Getting in is most of the job — once you are in, a single game can end anybody's year. A coach who makes it two years in three is doing something durable.",
+    "seasons reaching the playoffs ÷ seasons coached"),
+  M('waa','Wins above expectation','Record','sgn1',false,
+    "Wins beyond what the betting market expected of his teams.",
+    "This is the closest thing to a fair test of a coach. The spread already prices in how good his roster was thought to be, so beating it repeatedly is the part that is actually him rather than his talent.",
+    "actual wins − the wins implied by each game's closing spread, added up over his career"),
+  M('mov_oe','Points vs the spread','Record','sgn2',false,
+    "How much his teams beat the point spread by, per game.",
+    "The same idea as the row above but measured in points rather than wins, so it doesn't hinge on close finishes going his way.",
+    "(actual margin − the closing spread) ÷ games"),
+  M('pw','Playoff wins','Record','num0',false,
+    "How many playoff games he has won.",
+    "The games that decide how a career gets remembered. Counting, not a rate — it rewards both getting there and lasting.",
+    null),
+  M('off_epa','Offence','Units','sgn3',false,
+    "Points his offence added per play.",
+    "How good his offence actually was, in the currency the rest of this site uses. Read it with the defence row: most coaches are one or the other.",
+    "expected points added ÷ offensive plays"),
+  M('def_epa','Defence','Units','sgn3',true,
+    "Points his defence gave up per play.",
+    "The mirror image. Lower is better, so the notches are flipped — a long bar is a defence that gave up little.",
+    "expected points added by opponents ÷ plays faced"),
+  M('st_epa','Special teams','Units','sgn3',false,
+    "Points his kicking game added per play.",
+    "The third phase, and the one most coaches ignore until it loses them a game.",
+    "expected points added ÷ special-teams plays"),
+  M('pass_rate','Pass rate','Style','pct1',false,
+    "How often he threw it, with the game still in the balance.",
+    "The single clearest signature of how a coach thinks. Restricted to the first three quarters of competitive games, because everybody throws when losing late.",
+    "dropbacks ÷ plays, first three quarters, win probability between 20% and 80%"),
+  M('proe','Pass rate over expected','Style','sgn1',false,
+    "How much more he threw than the situation called for.",
+    "Pass rate on its own mostly measures whether he was ahead. This prices in the down, distance, score and clock, so what's left is the coach's own lean. Available from 2006.",
+    "his pass rate − the pass rate expected on those exact situations"),
+  M('early_pass','Early-down pass rate','Style','pct1',false,
+    "How often he threw on first and second down.",
+    "First and second down are where a coach is freest to do what he actually believes. Third down calls itself.",
+    "dropbacks ÷ plays on 1st and 2nd down, neutral situations"),
+  M('go_oe','Fourth-down aggression','Style','sgn1',false,
+    "How much more often he goes for it than the league would, in the same spot.",
+    "Compared against what everybody else does at that distance and field position, and only in competitive game states — otherwise a coach looks bold simply because he was losing.",
+    "his go-for-it rate − the league's rate in the same distance and field-position bucket"),
+  M('go_rate','Fourth-down go rate','Style','pct1',false,
+    "How often he goes for it on fourth down.",
+    "The raw version of the row above, before adjusting for where on the field he was.",
+    "fourth downs gone for ÷ fourth downs, neutral situations"),
+  M('sec_play','Tempo','Style','sec',true,
+    "Seconds between his snaps.",
+    "How fast he plays. Fewer seconds means a quicker tempo, so the notches are flipped and a long bar is a fast offence.",
+    "average seconds between consecutive snaps, neutral situations"),
+  M('shotgun','Shotgun rate','Style','pct1',false,
+    "How often his quarterback lines up in shotgun.",
+    "A decent proxy for how modern an offence is — the league has moved from under centre to shotgun steadily since 1999.",
+    "shotgun snaps ÷ plays, neutral situations"),
+  M('nohuddle','No-huddle rate','Style','pct1',false,
+    "How often he skips the huddle.",
+    "Tempo as a weapon: no-huddle stops the defence substituting and wears it down.",
+    "no-huddle snaps ÷ plays, neutral situations"),
+  M('plays_g','Plays per game','Style','num1',false,
+    "How many offensive plays his teams run per game.",
+    "The product of tempo and staying on the field. More plays is more chances.",
+    "offensive plays ÷ games"),
+];
+var MBY={}; METRICS.forEach(function(m){MBY[m.key]=m;});
+var GRPS=['Record','Units','Style'];
+
+/* ---------------------------------------------------------------- percentiles */
+var POOL={};
+function pool(key){
+  if(POOL[key]) return POOL[key];
+  var out=[];
+  for(var n in COACHES){
+    var c=COACHES[n].career;
+    if(c.seasons<MIN_SEASONS) continue;
+    var v=c[key];
+    if(!miss(v)) out.push(v);
+  }
+  out.sort(function(a,b){return a-b;});
+  POOL[key]=out;
+  return out;
+}
+function pctOf(v,arr,lower){
+  var n=arr.length; if(v==null||n<2) return null;
+  var lo=0,hi=n;
+  while(lo<hi){var m=(lo+hi)>>1; if(arr[m]<v) lo=m+1; else hi=m;}
+  var less=lo; hi=n; var lo2=less;
+  while(lo2<hi){var m2=(lo2+hi)>>1; if(arr[m2]<=v) lo2=m2+1; else hi=m2;}
+  var pct=100*(less+0.5*(lo2-less))/n;
+  if(lower) pct=100-pct;
+  return Math.max(1,Math.min(99,Math.round(pct)));
+}
+
+/* ---------------------------------------------------------------- lineage */
+function chainOf(name){
+  var out=[], seen={}, cur=name;
+  while(cur && DATA.tree[cur] && !seen[cur]){
+    seen[cur]=1;
+    var e=DATA.tree[cur];
+    out.push({from:cur, to:e.mentor, role:e.role, also:e.also||null});
+    cur=e.mentor;
+  }
+  return {steps:out, root:cur};
+}
+var KIDS=null;
+function kidsOf(name){
+  if(!KIDS){
+    KIDS={};
+    for(var c in DATA.tree){
+      var m=DATA.tree[c].mentor;
+      (KIDS[m]=KIDS[m]||[]).push(c);
+    }
+    for(var k in KIDS) KIDS[k].sort();
+  }
+  return KIDS[name]||[];
+}
+function known(name){ return !!COACHES[name]; }
+function chip(name,cls){
+  if(known(name)) return '<button class="chip '+(cls||'')+'" data-go="'+esc(name)+'">'+esc(name)+'</button>';
+  // an ancestor who never held a head job inside the window still belongs on the chain
+  return '<span class="chip dead" title="No head-coaching record here — his career predates 1999 or was spent as an assistant">'+esc(name)+'</span>';
+}
+
+/* ---------------------------------------------------------------- coach page */
+function initials(n){return (n||'').split(' ').map(function(s){return s[0]||'';}).slice(0,2).join('').toUpperCase();}
+function ord(n){var t=n%100; if(t>=11&&t<=13) return n+'th';
+  return n+({1:'st',2:'nd',3:'rd'}[n%10]||'th');}
+var ROUND_NAME={1:'Wild card',2:'Divisional',3:'Conference championship',4:'Super Bowl'};
+
+function badges(c,car){
+  var out=[];
+  if(car.sb) out.push('<span class="badge gold">'+(car.sb>1?car.sb+' × ':'')+'SUPER BOWL</span>');
+  var lost=c.seasons.filter(function(s){return s.best===4&&!s.sb;}).length;
+  if(lost) out.push('<span class="badge">'+(lost>1?lost+' × ':'')+'SB APPEARANCE</span>');
+  if(car.po) out.push('<span class="badge green">'+car.po+' PLAYOFF '+(car.po===1?'YEAR':'YEARS')+'</span>');
+  var best=Math.max.apply(null,c.seasons.map(function(s){return s.w;}));
+  out.push('<span class="badge">BEST YEAR '+best+' WINS</span>');
+  if(car.seasons>=15) out.push('<span class="badge">'+car.seasons+' SEASONS</span>');
+  return out.join('');
+}
+
+function lineageBlock(name){
+  var ch=chainOf(name);
+  var html='<div class="lineage"><div class="lin-h">WHERE HE COMES FROM</div>';
+  if(!ch.steps.length){
+    html+='<div class="chain">'+chip(name,'self')+'<span class="arrow">— root of his own line</span></div>'
+      +'<div class="lin-role">No mentor is recorded for him here. That means the lineage is missing, '
+      +'not that he learned it alone.</div>';
+  } else {
+    var parts=[chip(name,'self')];
+    ch.steps.forEach(function(s,i){
+      parts.push('<span class="arrow">◀</span>');
+      parts.push(chip(s.to, i===ch.steps.length-1?'root':''));
+    });
+    html+='<div class="chain">'+parts.join('')+'</div>';
+    var first=ch.steps[0];
+    html+='<div class="lin-role"><b>'+esc(first.to)+'</b> — '+esc(first.role)+'.';
+    if(first.also) first.also.forEach(function(a){
+      html+=' Also shaped by <b>'+esc(a.mentor)+'</b>: '+esc(a.role)+'.';
+    });
+    html+=' Traces back to the <b>'+esc(ch.root||ch.steps[ch.steps.length-1].to)+'</b> tree.</div>';
+  }
+  var kids=kidsOf(name);
+  if(kids.length){
+    html+='<div class="lin-h" style="margin-top:14px">HEAD COACHES OFF HIS STAFF</div><div class="protg">'
+      +kids.map(function(k){return chip(k);}).join('')+'</div>';
+  }
+  html+='</div>';
+  return html;
+}
+
+function statCell(lab,val){ return '<span class="st"><b>'+val+'</b>'+lab+'</span>'; }
+
+function renderCoach(name){
+  cur=name;
+  var c=COACHES[name], car=c.career;
+  var rec=car.w+'–'+car.l+(car.t?'–'+car.t:'');
+  var prec=car.pw+'–'+car.pl;
+  var el=document.getElementById('coach');
+  var qualified=car.seasons>=MIN_SEASONS;
+
+  var head='<div class="plate"><div class="chead">'
+    +'<div class="cava">'+esc(initials(name))+'</div>'
+    +'<div class="cid"><h1 class="cname">'+esc(name)+'</h1>'
+    +'<div class="cmeta">'+esc(car.teams.join(' · '))+' &nbsp;·&nbsp; '+car.first+'–'+car.last
+      +' &nbsp;·&nbsp; '+car.seasons+' season'+(car.seasons===1?'':'s')+'</div>'
+    +'<div class="crec">'
+      +statCell('RECORD',rec)
+      +statCell('WIN %',car.winpct==null?'—':car.winpct.toFixed(1)+'%')
+      +statCell('PLAYOFFS',prec)
+      +statCell('PLAYOFF YEARS',car.po+'/'+car.seasons)
+      +(car.waa!=null?statCell('WINS VS EXPECTED',fmt('sgn1',car.waa)):'')
+    +'</div>'
+    +'<div class="badges">'+badges(c,car)+'</div>'
+    +'</div></div>'
+    +lineageBlock(name)
+    +'<div class="curated"><b>ABOUT THE LINEAGE</b>'+esc(DATA.treeNote)+'</div>'
+    +'</div>';
+
+  var bars='';
+  if(qualified){
+    GRPS.forEach(function(g){
+      var rows='';
+      METRICS.filter(function(m){return m.grp===g;}).forEach(function(m){
+        var v=car[m.key];
+        if(miss(v)) return;
+        var p=pctOf(v,pool(m.key),m.lower);
+        rows+='<div class="row" data-k="'+m.key+'">'
+          +'<div class="rl" title="'+esc(m.label+' — click for what it means')+'">'
+            +'<div class="name">'+esc(m.label)+'</div><div class="tag">'+g.toUpperCase()+'</div></div>'
+          +blockBar(p)
+          +'<div class="pct">'+(p==null?'·':p)+'</div>'
+          +'<div class="rv">'+fmt(m.unit,v)+'</div></div>';
+      });
+      if(rows) bars+='<div class="grp">'+g.toUpperCase()+'</div>'+rows;
+    });
+    bars='<div class="plate"><h2 class="panel-h">Career profile</h2>'
+      +'<div class="panel-cap">Ranked against the '+pool('winpct').length
+      +' head coaches with at least '+MIN_SEASONS+' seasons since 1999. '
+      +'Career figures are weighted by games, so a long run counts for more than a cameo.</div>'
+      +bars+'</div>';
+  } else {
+    bars='<div class="plate"><h2 class="panel-h">Career profile</h2>'
+      +'<div class="panel-cap">Fewer than '+MIN_SEASONS+' seasons — too short to rank against '
+      +'other coaches without inventing precision. His seasons are below.</div></div>';
+  }
+
+  el.innerHTML=head+bars+seasonTable(c);
+  wireCoach(el);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function seasonTable(c){
+  var rows=c.seasons.slice().reverse().map(function(s){
+    var po='';
+    if(s.sb) po='<span class="po-tag sb">WON SB</span>';
+    else if(s.best===4) po='<span class="po-tag deep">LOST SB</span>';
+    else if(s.best) po='<span class="po-tag'+(s.best>=3?' deep':'')+'">'+esc(ROUND_NAME[s.best])+'</span>';
+    return '<tr><td>'+s.season+'</td><td>'+esc(s.team)+'</td><td>'+po+'</td>'
+      +'<td>'+s.w+'–'+s.l+(s.t?'–'+s.t:'')+'</td>'
+      +'<td>'+(s.waa==null?'—':fmt('sgn1',s.waa))+'</td>'
+      +'<td>'+(s.off_epa==null?'—':fmt('sgn3',s.off_epa))+'</td>'
+      +'<td>'+(s.def_epa==null?'—':fmt('sgn3',s.def_epa))+'</td>'
+      +'<td>'+(s.pass_rate==null?'—':fmt('pct1',s.pass_rate))+'</td>'
+      +'<td>'+(s.proe==null?'—':fmt('sgn1',s.proe))+'</td>'
+      +'<td>'+(s.go_oe==null?'—':fmt('sgn1',s.go_oe))+'</td></tr>';
+  }).join('');
+  return '<div class="plate"><h2 class="panel-h">Season by season</h2>'
+    +'<div class="panel-cap">Wins vs expected is measured against the closing spread. '
+    +'A blank means the number was not tracked that year.</div>'
+    +'<div class="tblwrap"><table class="seasons"><thead><tr>'
+    +'<th>Year</th><th>Team</th><th>Result</th><th>Record</th><th>W vs exp</th>'
+    +'<th>Off EPA</th><th>Def EPA</th><th>Pass %</th><th>PROE</th><th>4th agg</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+/* ============================================================================
+   THE TREE
+
+   A tidy horizontal dendrogram: generations run left to right, so the founders sit
+   on the left edge and today's coaches on the right. Leaves are stacked in depth-first
+   order and every parent is centred on its children — the classic layout, and the only
+   one that stays readable at ~180 nodes without crossing lines.
+
+   Node colour is career win percentage on the same blue-to-red scale as everything
+   else, so the tree answers "who was any good" as well as "who came from whom".
+   Ancestors with no head-coaching record inside 1999+ are drawn empty.
+   ========================================================================= */
+var TREE_LAYOUT=null, tScale=1, tX=0, tY=0;
+var NODE_W=132, NODE_H=22, COL_GAP=54, ROW_GAP=6;
+
+function buildForest(){
+  var kids={}, all={};
+  for(var c in DATA.tree){
+    all[c]=1; all[DATA.tree[c].mentor]=1;
+    (kids[DATA.tree[c].mentor]=kids[DATA.tree[c].mentor]||[]).push(c);
+  }
+  for(var n in COACHES) all[n]=1;
+  var roots=Object.keys(all).filter(function(n){return !DATA.tree[n];});
+  // biggest lines first, and a coach with no recorded lineage and no protégés sinks
+  // to the bottom rather than cluttering the top of the canvas
+  function size(n){ var k=kids[n]||[]; return 1+k.reduce(function(a,b){return a+size(b);},0); }
+  roots.sort(function(a,b){ return size(b)-size(a) || a.localeCompare(b); });
+  return {kids:kids, roots:roots, size:size};
+}
+
+function layoutTree(){
+  var f=buildForest();
+  // A coach with no recorded mentor AND no protégés is a single floating box. Thirty of
+  // them stacked in the main canvas triple its height and say nothing about lineage, so
+  // they go in a compact block underneath, labelled for what they are.
+  var linked=[], lonely=[];
+  f.roots.forEach(function(r){ ((f.kids[r]||[]).length?linked:lonely).push(r); });
+  var nodes=[], links=[], y=0;
+  function walk(name, depth){
+    var kids=(f.kids[name]||[]).slice().sort(function(a,b){
+      return f.size(b)-f.size(a) || a.localeCompare(b);
+    });
+    var node={name:name, depth:depth, y:0};
+    if(!kids.length){
+      node.y = y; y += NODE_H + ROW_GAP;
+    } else {
+      var ys=[];
+      kids.forEach(function(k){
+        var child=walk(k, depth+1);
+        ys.push(child.y);
+        links.push({a:node, b:child});
+      });
+      node.y = (ys[0]+ys[ys.length-1])/2;
+    }
+    node.x = depth*(NODE_W+COL_GAP);
+    nodes.push(node);
+    return node;
+  }
+  linked.forEach(function(r){ walk(r,0); y += ROW_GAP*3; });
+  var treeBottom=y;
+  var maxX=0;
+  nodes.forEach(function(n){ maxX=Math.max(maxX,n.x+NODE_W); });
+  var perRow=Math.max(1,Math.floor((maxX+COL_GAP)/(NODE_W+12)));
+  var lonelyTop=treeBottom+42;
+  lonely.sort();
+  lonely.forEach(function(n,i){
+    nodes.push({name:n, depth:0, lonely:true,
+                x:(i%perRow)*(NODE_W+12),
+                y:lonelyTop+Math.floor(i/perRow)*(NODE_H+ROW_GAP)});
+  });
+  var maxY=0;
+  nodes.forEach(function(n){ maxX=Math.max(maxX,n.x+NODE_W); maxY=Math.max(maxY,n.y+NODE_H); });
+  return {nodes:nodes, links:links, w:maxX+20, h:maxY+20,
+          lonelyTop:lonely.length?lonelyTop:null, lonelyN:lonely.length};
+}
+
+function nodeFill(name){
+  var c=COACHES[name];
+  if(!c||c.career.seasons<MIN_SEASONS||c.career.winpct==null) return '#DFE3DC';
+  return colorAt(pctOf(c.career.winpct, pool('winpct'), false));
+}
+function nodeInk(name){
+  var c=COACHES[name];
+  if(!c||c.career.seasons<MIN_SEASONS||c.career.winpct==null) return '#7A9384';
+  var p=pctOf(c.career.winpct,pool('winpct'),false), col=rampAt(p);
+  return (0.299*col[0]+0.587*col[1]+0.114*col[2])>150?'#0E2A17':'#FFFFFF';
+}
+
+function renderTree(){
+  if(!TREE_LAYOUT) TREE_LAYOUT=layoutTree();
+  var L=TREE_LAYOUT;
+  var paths=L.links.map(function(l){
+    var x1=l.a.x+NODE_W, y1=l.a.y+NODE_H/2, x2=l.b.x, y2=l.b.y+NODE_H/2, mid=x1+COL_GAP/2;
+    return '<path class="tlink" data-a="'+esc(l.a.name)+'" data-b="'+esc(l.b.name)+'" d="M'+x1+' '+y1
+      +' H'+mid+' V'+y2+' H'+x2+'"/>';
+  }).join('');
+  var boxes=L.nodes.map(function(n){
+    var lab=n.name.length>17?n.name.slice(0,16)+'…':n.name;
+    return '<g class="tnode" data-n="'+esc(n.name)+'" transform="translate('+n.x+','+n.y+')">'
+      +'<rect width="'+NODE_W+'" height="'+NODE_H+'" fill="'+nodeFill(n.name)+'"/>'
+      +'<text x="6" y="15" fill="'+nodeInk(n.name)+'">'+esc(lab)+'</text>'
+      +'<title>'+esc(n.name+(COACHES[n.name]
+          ? ' — '+COACHES[n.name].career.w+'–'+COACHES[n.name].career.l
+            +', '+COACHES[n.name].career.seasons+' seasons'
+          : ' — no head-coaching record since 1999'))+'</title></g>';
+  }).join('');
+  var caption='';
+  if(L.lonelyTop!=null){
+    caption='<text x="0" y="'+(L.lonelyTop-16)+'" font-family="Silkscreen,monospace" '
+      +'font-size="10" fill="#7A9384">'+L.lonelyN+' COACHES WHOSE LINEAGE IS NOT RECORDED HERE</text>'
+      +'<line x1="0" y1="'+(L.lonelyTop-8)+'" x2="'+(L.w-20)+'" y2="'+(L.lonelyTop-8)
+      +'" stroke="rgba(14,42,23,.28)" stroke-width="2" stroke-dasharray="6 5"/>';
+  }
+  var svg=document.getElementById('treesvg');
+  svg.innerHTML='<g id="tg">'+paths+caption+boxes+'</g>';
+  fitTree();
+  svg.querySelectorAll('.tnode').forEach(function(g){
+    g.addEventListener('click',function(){
+      var n=g.dataset.n;
+      if(COACHES[n]) show('coach', n);
+    });
+    g.addEventListener('mouseenter',function(){ highlight(g.dataset.n); });
+    g.addEventListener('mouseleave',function(){ highlight(null); });
+  });
+}
+
+/* Hovering a coach lights the path back to his founder and dims everything else —
+   the fastest way to answer "where does this one come from" on a canvas this size. */
+function highlight(name){
+  var svg=document.getElementById('treesvg');
+  if(!name){
+    svg.querySelectorAll('.tnode,.tlink').forEach(function(e){ e.classList.remove('dim','hl'); });
+    return;
+  }
+  var path={}, edges={}, cur=name;
+  path[cur]=1;
+  while(DATA.tree[cur]){
+    var m=DATA.tree[cur].mentor;
+    edges[m+'>'+cur]=1; path[m]=1; cur=m;
+  }
+  svg.querySelectorAll('.tnode').forEach(function(e){
+    var on=path[e.dataset.n];
+    e.classList.toggle('hl',!!on); e.classList.toggle('dim',!on);
+  });
+  svg.querySelectorAll('.tlink').forEach(function(e){
+    var on=edges[e.dataset.a+'>'+e.dataset.b];
+    e.classList.toggle('hl',!!on); e.classList.toggle('dim',!on);
+  });
+}
+
+function applyTransform(){
+  var g=document.getElementById('tg');
+  if(g) g.setAttribute('transform','translate('+tX+','+tY+') scale('+tScale+')');
+}
+/* Fit the WIDTH, not the whole thing. Six generations are about 1,100px across but the
+   forest is several thousand tall, so fitting both shrinks every name into an unreadable
+   smudge. Fit across, start at the top, and let the reader pan down. */
+function fitTree(){
+  var st=document.getElementById('treestage'), L=TREE_LAYOUT;
+  if(!st||!L) return;
+  tScale=Math.max(0.35,Math.min(1.4, st.clientWidth/L.w));
+  tX=10; tY=10;
+  var svg=document.getElementById('treesvg');
+  svg.setAttribute('width',st.clientWidth); svg.setAttribute('height',st.clientHeight);
+  applyTransform();
+}
+function zoomBy(f,cx,cy){
+  var st=document.getElementById('treestage');
+  var r=st.getBoundingClientRect();
+  cx=(cx==null?r.width/2:cx); cy=(cy==null?r.height/2:cy);
+  var ns=Math.max(0.12,Math.min(3,tScale*f));
+  tX = cx-(cx-tX)*(ns/tScale);
+  tY = cy-(cy-tY)*(ns/tScale);
+  tScale=ns; applyTransform();
+}
+function wireTree(){
+  var st=document.getElementById('treestage');
+  var drag=false,lx=0,ly=0;
+  st.addEventListener('pointerdown',function(e){
+    if(e.target.closest('.tctl')) return;
+    drag=true;lx=e.clientX;ly=e.clientY;st.classList.add('drag');st.setPointerCapture(e.pointerId);
+  });
+  st.addEventListener('pointermove',function(e){
+    if(!drag) return;
+    tX+=e.clientX-lx; tY+=e.clientY-ly; lx=e.clientX; ly=e.clientY; applyTransform();
+  });
+  ['pointerup','pointercancel'].forEach(function(ev){
+    st.addEventListener(ev,function(){ drag=false; st.classList.remove('drag'); });
+  });
+  st.addEventListener('wheel',function(e){
+    e.preventDefault();
+    var r=st.getBoundingClientRect();
+    zoomBy(e.deltaY<0?1.12:1/1.12, e.clientX-r.left, e.clientY-r.top);
+  },{passive:false});
+  document.getElementById('zin').onclick=function(){ zoomBy(1.25); };
+  document.getElementById('zout').onclick=function(){ zoomBy(1/1.25); };
+  document.getElementById('zfit').onclick=fitTree;
+  document.getElementById('treeBack').onclick=function(){ history.back(); };
+  var find=document.getElementById('tfind');
+  find.addEventListener('input',function(){
+    var q=_norm(find.value).trim();
+    if(!q){ highlight(null); return; }
+    var hit=TREE_LAYOUT.nodes.filter(function(n){ return _norm(n.name).indexOf(q)>=0; })[0];
+    if(!hit) return;
+    highlight(hit.name);
+    // centre the match without changing zoom
+    var st=document.getElementById('treestage');
+    tX = st.clientWidth/2 - (hit.x+NODE_W/2)*tScale;
+    tY = st.clientHeight/2 - (hit.y+NODE_H/2)*tScale;
+    applyTransform();
+  });
+  window.addEventListener('resize',function(){ if(document.body.className==='view-tree') fitTree(); });
+}
+
+/* ---------------------------------------------------------------- search, routing, boot */
+function searchHits(term){
+  term=_norm(term).trim();
+  if(!term) return [];
+  var starts=[],last=[],rest=[];
+  NAMES.forEach(function(e){
+    if(e.n.indexOf(term)===0) starts.push(e);
+    else if(e.last.indexOf(term)===0) last.push(e);
+    else if(e.n.indexOf(term)>=0) rest.push(e);
+  });
+  var all=starts.concat(last,rest);
+  all.sort(function(a,b){ return b.g-a.g; });   // the man with the longer career first
+  return all.slice(0,10);
+}
+function resRow(e){
+  var c=COACHES[e.name].career;
+  return '<div class="res" data-n="'+esc(e.name)+'" role="option"><div class="rn">'+esc(e.name)+'</div>'
+    +'<div class="rs">'+c.w+'–'+c.l+' · '+c.first+'–'+c.last+'</div></div>';
+}
+function wireSearch(inputId,boxId){
+  var inp=document.getElementById(inputId), box=document.getElementById(boxId), sel=-1;
+  function close(){ box.hidden=true; box.innerHTML=''; sel=-1; }
+  function open(hits){
+    if(!hits.length){ close(); return; }
+    box.innerHTML=hits.map(resRow).join(''); box.hidden=false; sel=-1;
+    box.querySelectorAll('.res').forEach(function(r){
+      r.onmousedown=function(ev){ ev.preventDefault(); close(); inp.value=''; show('coach',r.dataset.n); };
+    });
+  }
+  inp.addEventListener('input',function(){ open(searchHits(inp.value)); });
+  inp.addEventListener('focus',function(){ if(inp.value) open(searchHits(inp.value)); });
+  inp.addEventListener('blur',function(){ setTimeout(close,130); });
+  inp.addEventListener('keydown',function(e){
+    var rows=box.querySelectorAll('.res');
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+      if(!rows.length) return;
+      e.preventDefault();
+      sel=(sel+(e.key==='ArrowDown'?1:-1)+rows.length)%rows.length;
+      rows.forEach(function(r,i){ r.classList.toggle('on',i===sel); });
+      rows[sel].scrollIntoView({block:'nearest'});
+    } else if(e.key==='Enter'){
+      if(rows.length){ var p=rows[sel<0?0:sel]; close(); inp.value=''; show('coach',p.dataset.n); }
+    } else if(e.key==='Escape'){ close(); inp.blur(); }
+  });
+}
+
+function wireCoach(el){
+  el.querySelectorAll('[data-go]').forEach(function(b){
+    b.onclick=function(){ show('coach', b.dataset.go); };
+  });
+  el.addEventListener('click',function(e){
+    var rl=e.target.closest('.rl'); if(!rl) return;
+    var row=rl.closest('.row'), key=row.dataset.k, id='x-'+key;
+    if(openExpl===id){ var old=document.getElementById(id); if(old) old.remove(); openExpl=null; return; }
+    if(openExpl){ var o=document.getElementById(openExpl); if(o) o.remove(); }
+    var m=MBY[key]; if(!m) return;
+    var d=document.createElement('div');
+    d.className='expl'; d.id=id;
+    d.innerHTML='<h4>What it is</h4><p>'+esc(m.exp.w)+'</p>'
+      +(m.exp.f?'<div class="formula">'+esc(m.exp.f)+'</div>':'')
+      +'<h4 class="why">Why it matters</h4><p>'+esc(m.exp.y)+'</p>';
+    row.insertAdjacentElement('afterend',d);
+    openExpl=id;
+  });
+}
+
+/* Leaderboards on the front page — the handful of questions people actually arrive with. */
+function renderLeaders(){
+  var qual=Object.keys(COACHES).filter(function(n){return COACHES[n].career.seasons>=MIN_SEASONS;});
+  function board(title,key,fmtv,lower,note){
+    var rows=qual.filter(function(n){return !miss(COACHES[n].career[key]);})
+      .sort(function(a,b){
+        var x=COACHES[a].career[key], y=COACHES[b].career[key];
+        return lower? x-y : y-x;
+      }).slice(0,10);
+    return '<div><div class="lead-h">'+esc(title)+'</div>'
+      +rows.map(function(n,i){
+        return '<div class="lrow" data-n="'+esc(n)+'"><span class="lrk">'+(i+1)+'</span>'
+          +'<span class="ln">'+esc(n)+'</span>'
+          +'<span class="lv">'+fmtv(COACHES[n].career)+'</span></div>';
+      }).join('')
+      +(note?'<div class="panel-cap">'+esc(note)+'</div>':'')+'</div>';
+  }
+  document.getElementById('leaders').innerHTML=
+     board('Most wins','w',function(c){return c.w+'–'+c.l;},false)
+    +board('Wins above expectation','waa',function(c){return fmt('sgn1',c.waa);},false,
+           'Wins beyond what the closing spread implied — the fairest single test here.')
+    +board('Playoff rate','porate',function(c){return c.porate.toFixed(0)+'% ('+c.po+'/'+c.seasons+')';},false)
+    +board('Most aggressive on fourth down','go_oe',function(c){return fmt('sgn1',c.go_oe);},false,
+           'Versus what the league does in the same spot, in competitive game states.')
+    +board('Most pass-happy','proe',function(c){return fmt('sgn1',c.proe);},false,
+           'Pass rate over expected, 2006 on.')
+    +board('Fastest tempo','sec_play',function(c){return c.sec_play.toFixed(1)+'s';},true,
+           'Seconds between snaps in neutral situations.');
+  document.querySelectorAll('.lrow').forEach(function(r){
+    r.onclick=function(){ show('coach', r.dataset.n); };
+  });
+}
+
+/* The hash is the single source of truth for what is on screen. `show` only sets it;
+   `route` does the rendering. That way the back button, a pasted deep link and an in-page
+   click all take exactly the same path, and none of them can disagree with the URL. */
+function show(view,name){
+  var want = view==='tree' ? '#tree' : (view==='coach' ? '#c='+encodeURIComponent(name) : '#');
+  if(location.hash===want || (want==='#'&&!location.hash)){ route(); return; }
+  location.hash=want;                    // fires hashchange -> route()
+}
+function route(){
+  var raw=location.hash.replace(/^#/,'');
+  var h=raw; try{ h=decodeURIComponent(raw); }catch(e){}
+  if(h==='tree'){
+    document.body.className='view-tree'; renderTree();
+  } else if(h.indexOf('c=')===0 && COACHES[h.slice(2)]){
+    document.body.className='view-coach'; renderCoach(h.slice(2));
+  } else {
+    document.body.className='view-home'; cur=null;
+  }
+  window.scrollTo(0,0);
+}
+
+function init(){
+  fetch('coaching-savant-data.json').then(function(r){
+    if(!r.ok) throw new Error('data '+r.status);
+    return r.json();
+  }).then(function(j){
+    DATA=j; COACHES=j.coaches;
+    NAMES=Object.keys(COACHES).map(function(n){
+      var p=n.split(' ');
+      return {name:n, n:_norm(n), last:_norm(p[p.length-1]), g:COACHES[n].career.g};
+    });
+    document.getElementById('boot').remove();
+    document.getElementById('treeNote').innerHTML='<b>A NOTE ON THIS TREE</b>'+esc(j.treeNote);
+    renderLeaders();
+    wireSearch('homeq','homeResults');
+    wireSearch('q','results');
+    wireTree();
+    document.getElementById('treeBtn').onclick=function(){ show('tree'); };
+    document.getElementById('treeBtn2').onclick=function(){ show('tree'); };
+    document.getElementById('brandHome').onclick=function(){ show('home'); };
+    document.getElementById('brandApp').onclick=function(){ show('home'); };
+    document.getElementById('randomBtn').onclick=function(){
+      var q=Object.keys(COACHES).filter(function(n){return COACHES[n].career.seasons>=MIN_SEASONS;});
+      show('coach', q[Math.floor(Math.random()*q.length)]);
+    };
+    window.addEventListener('hashchange', route);
+    route();
+  }).catch(function(err){
+    var b=document.getElementById('boot');
+    if(b) b.innerHTML='Could not load the coaches.<br><span style="text-transform:none">'
+      +esc(String(err&&err.message||err))+'</span>';
+  });
+}
+init();
+
+</script>
+</body>
+</html>

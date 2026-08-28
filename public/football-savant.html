@@ -770,7 +770,8 @@ body{background-color:#1D6B3A;color:var(--ink);
 .acco.rank{background:#FFF3C9;color:#6B5310;border-color:var(--turf-dk)}
 .acco.lead{background:var(--flag);color:#2A2208;border-color:var(--turf-dk)}
 .tr-rec{font-size:14px} .tr-po{color:var(--turf)} .teamrec.champ .tr-po{color:#8A6B14}
-.tr-coach{color:#7A9384;border-left:2px solid var(--line2)}
+.tr-coach{color:var(--muted);border-left:2px solid var(--line2);text-decoration:none}
+.tr-coach:hover{color:var(--turf)}
 .measur{border-top:2px solid var(--line)}
 .ml{font-size:8.5px;color:#7A9384} .mv{font-size:14px}
 .peakflag{background:var(--flag);color:#2A2208;font-family:var(--pix);font-size:8px;
@@ -942,6 +943,7 @@ body{background-color:#1D6B3A;color:var(--ink);
   <nav class="home-nav" aria-label="WCE navigation">
     <a class="home-nav-home" href="/">WCE <span>Football</span></a>
     <div class="home-nav-links">
+      <a href="/coaching-savant.html">Coaching Savant</a>
       <a href="/basketball-savant.html">Basketball Savant</a>
       <a href="/draft-savant.html">Draft Savant</a>
       <a href="/news">News</a>
@@ -999,6 +1001,7 @@ body{background-color:#1D6B3A;color:var(--ink);
         <div style="display:flex;gap:9px;align-items:center;margin-top:7px">
           <span class="eyebrow-pill" id="srcpill">nflverse data</span>
           <a class="backlink" href="/">&larr; wcehoops.com</a>
+          <a class="backlink" href="/coaching-savant.html">Coaching Savant</a>
           <a class="backlink" href="/basketball-savant.html">Basketball Savant</a>
         </div>
       </div>
@@ -1649,7 +1652,8 @@ function teamRecord(p){
   return '<div class="teamrec'+(won?' champ':'')+'">'
     +'<span class="tr-rec">'+line+'</span>'
     +(p.po?'<span class="tr-po'+(made?' in':'')+'">'+(won?'🏆 ':'')+esc(p.po)+'</span>':'')
-    +(p.coach?'<span class="tr-coach" title="Head coach">'+esc(p.coach)+'</span>':'')
+    +(p.coach?'<a class="tr-coach" title="'+esc(p.coach+' — open his page in Coaching Savant')
+        +'" href="/coaching-savant.html#c='+encodeURIComponent(p.coach)+'">'+esc(p.coach)+' ↗</a>':'')
     +'</div>';
 }
 function cmpSeasonSelect(id,season,idx,isMain){
