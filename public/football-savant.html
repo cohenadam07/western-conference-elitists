@@ -693,17 +693,24 @@ body{background-color:#1D6B3A;color:var(--ink);
 .home-trend-lab,.home-poschip,.home-foot,.cpos,.pill{font-family:var(--pix)!important}
 
 /* ---- the light board */
-.row{grid-template-columns:186px 1fr 42px 74px 24px;column-gap:12px;min-height:40px;
-  border-bottom:2px solid var(--line)}
-.row.nochart{grid-template-columns:186px 1fr 42px 74px}
+.row{grid-template-columns:186px minmax(0,520px) 42px 74px 24px 1fr;column-gap:12px;
+  min-height:40px;border-bottom:2px solid var(--line)}
+.row.nochart{grid-template-columns:186px minmax(0,520px) 42px 74px 1fr}
 .row:last-child{border-bottom:none}
 .rl .name{font-size:13px;font-family:var(--pix);color:var(--ink);font-weight:400}
 .rl:hover .name{color:var(--turf)}
 .rl .tag{font-size:8px;color:#9DB2A2;margin-top:4px}
 .row.un .tag{color:#B8541F}
-.track{display:flex;gap:2px;height:22px;background:none;border-radius:0;box-shadow:none;
-  position:relative;overflow:visible}
-.track i{flex:1;background:var(--track);border:2px solid var(--line2);display:block;
+/* The notch is a square of a known size, not a flex sliver that happens to be square.
+   Letting it stretch to fill the column is what produced 3px slivers in a two-up panel
+   and 46px slabs on a phablet; a fixed --nw per breakpoint lands every layout between
+   21 and 26px. The track shrink-wraps its notches so the career-high tick, positioned by
+   percentage, lines up with them rather than with unused column space. */
+.track{display:flex;gap:3px;background:none;border-radius:0;box-shadow:none;
+  position:relative;overflow:visible;height:auto;align-items:flex-start;
+  width:fit-content;max-width:100%}
+.track i{flex:0 0 auto;width:var(--nw,23px);height:var(--nw,23px);background:var(--track);
+  border:2px solid var(--line2);display:block;
   transition:background .18s steps(1),border-color .18s steps(1)}
 .track i.on{border-color:var(--turf-dk)}
 .track:not(.lit) i.on{background:var(--track)!important;border-color:var(--line2)}
@@ -712,8 +719,9 @@ body{background-color:#1D6B3A;color:var(--ink);
 .chmark{width:3px;background:var(--flag);box-shadow:0 0 0 2px var(--turf-dk);z-index:3;top:-2px;bottom:-2px}
 /* hollow is the whole signal for an unsettled reading; no extra weight needed */
 .cstack{display:flex;flex-direction:column;gap:4px}
-.ctrack{display:flex;gap:2px;height:13px}
-.ctrack i{flex:1;background:var(--track);border:1px solid var(--line2);display:block}
+.ctrack{display:flex;gap:3px;height:auto;align-items:flex-start;width:fit-content;max-width:100%}
+.ctrack i{flex:0 0 auto;width:var(--nw,23px);height:var(--nw,23px);background:var(--track);
+  border:2px solid var(--line2);display:block}
 .ctrack i.on{border-color:var(--turf-dk)}
 .group-h{font-size:9px;color:#7A9384;border-bottom:2px solid var(--line);letter-spacing:.08em}
 .col-cap{font-size:9.5px;color:#7A9384;line-height:1.7}
@@ -869,6 +877,46 @@ body{background-color:#1D6B3A;color:var(--ink);
 .lb-foot b{color:#8A6B14}
 .loading{color:#FFF;font-family:var(--pix);font-size:10px}
 
+.col,.ctxrow .col,.panels .col{container-type:inline-size}
+/* Container queries, not viewport ones: a two-up panel on a wide desktop is exactly as
+   narrow as a phone, and it is the panel's width — not the window's — that decides how
+   many notches can breathe. Twenty notches need a wide panel; below that, ten. */
+@container (max-width: 980px){
+  .track i:nth-child(even),.ctrack i:nth-child(even){display:none}
+  .col .row{--nw:26px}
+}
+/* Narrower still and the notches move onto their own line, taking the full width of the
+   panel. This is the two-up-panel case as well as the phone one. */
+@container (max-width: 760px){
+  .col .row,.col .row.nochart{
+    grid-template-columns:1fr auto auto;
+    grid-template-areas:"lab pct val" "bar bar bar";
+    column-gap:10px;row-gap:8px;padding:10px 0;min-height:0}
+  .col .row .rl{grid-area:lab;min-width:0}
+  .col .row .pct{grid-area:pct}
+  .col .row .rv{grid-area:val}
+  .col .row .track,.col .row .cstack{grid-area:bar}
+  .col .row .statbtn{display:none}
+  .col .row .rl .name{white-space:normal}
+  /* Stacked, the percentile and the value sit side by side with no column headers to tell
+     them apart — "58 16" reads as one number. The percentile gets a chip so the two are
+     obviously different kinds of thing. */
+  .col .row .pct{border:2px solid var(--line2);background:#FFF;padding:2px 7px;min-width:34px;
+    text-align:center;line-height:1.35}
+  .col .row.un .pct{border-style:dashed}
+}
+/* Once the notches have a line of their own there is room to put all twenty back, at a
+   slightly smaller square — better resolution for the same clarity. Thresholds are in
+   content-box terms, which is what @container measures. */
+@container (min-width: 500px) and (max-width: 760px){
+  .col .row .track i,.col .row .ctrack i{display:block}
+  .col .row{--nw:21px}
+}
+@container (max-width: 300px){ .col .row{--nw:21px} }
+/* The field map's SVG scales to whatever it is given, so its floor only ever caused a
+   320px screen to scroll sideways by five pixels. */
+.fm-svg{min-width:0}
+
 /* Anything sitting straight on the grass is illegible — dark ink on turf has no
    contrast. So nothing sits on the grass: the masthead and the control rail get their
    own cream plates, exactly like every other block on the page. */
@@ -880,10 +928,10 @@ body{background-color:#1D6B3A;color:var(--ink);
 
 @media(max-width:560px){
   .top,.controls{padding:11px 12px}
-  .row{grid-template-columns:104px 1fr 32px 58px 20px;column-gap:7px}
-  .row.nochart{grid-template-columns:104px 1fr 32px 58px}
-  .track{gap:1px;height:18px} .track i{border-width:1px}
-  .rl .name{font-size:10.5px} .pct{font-size:11px} .rv{font-size:10.5px}
+  /* Row layout is handled by the container queries above — the panel's width is what
+     matters, and a phone is just the narrowest case of it. */
+  .col{padding:14px 12px 12px}
+  .rl .name{font-size:12.5px} .pct{font-size:13px} .rv{font-size:12.5px}
   .id-name{font-size:22px}
 }
 </style>
