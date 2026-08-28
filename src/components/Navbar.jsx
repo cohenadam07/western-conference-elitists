@@ -7,6 +7,8 @@ const LINKS = [
   { to: '/news', label: 'News' },
   // { to: '/podcasts', label: 'Podcasts' },  // hidden for now
   { href: '/draft-savant.html', label: 'Draft Savant', external: true },
+  { href: '/football-savant.html', label: 'Football Savant', external: true },
+  { href: '/coaching-savant.html', label: 'Coaching Savant', external: true },
   { to: '/rankings', label: 'Big Board' },
   { to: '/articles', label: 'Analysis' },
   { to: '/comp-chain', label: 'Comp Chain' },
@@ -44,11 +46,14 @@ export default function Navbar() {
     >
       <nav
         aria-label="Primary"
-        className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10"
+        className="mx-auto flex max-w-7xl items-center justify-between gap-8 px-6 py-4 lg:px-10"
       >
-        <Logo />
+        {/* shrink-0: without it the wordmark gets squeezed and the first link lands on top of it */}
+        <div className="shrink-0">
+          <Logo />
+        </div>
 
-        <div className="hidden items-center gap-7 lg:flex">
+        <div className="hidden items-center gap-6 min-[1440px]:flex">
           {LINKS.map((link) =>
             link.external ? (
               <a
@@ -100,7 +105,7 @@ export default function Navbar() {
           </a>
         </div>
 
-        <div className="hidden lg:block">
+        <div className="hidden min-[1440px]:block">
           <Button to="/contact" variant="primary" className="px-5 py-2.5">
             Subscribe
           </Button>
@@ -111,7 +116,7 @@ export default function Navbar() {
           aria-expanded={open}
           aria-controls="mobile-menu"
           onClick={() => setOpen((v) => !v)}
-          className="flex h-10 w-10 items-center justify-center rounded-[9px] border border-line bg-surface text-ink transition-colors hover:border-faint lg:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-[9px] border border-line bg-surface text-ink transition-colors hover:border-faint min-[1440px]:hidden"
         >
           <div className="flex flex-col gap-1.5">
             <span
@@ -130,7 +135,7 @@ export default function Navbar() {
 
       <div
         id="mobile-menu"
-        className={`grid overflow-hidden bg-paper/95 backdrop-blur-md transition-[grid-template-rows] duration-300 ease-out lg:hidden ${
+        className={`grid overflow-hidden bg-paper/95 backdrop-blur-md transition-[grid-template-rows] duration-300 ease-out min-[1440px]:hidden ${
           open ? 'grid-rows-[1fr] border-b border-line' : 'grid-rows-[0fr]'
         }`}
       >

@@ -383,6 +383,33 @@ body {
 .gw .c-savant .bar:nth-child(3) i { animation-delay: 0.55s; --w: 79%; }
 .gw .c-savant .bar:nth-child(4) i { animation-delay: 0.65s; --w: 52%; }
 
+/* ── Football Savant: a strip of turf, chalked ── */
+/* Pixel Turf, matching the tool this tile opens: chalk on green, and bars built from
+   hard-edged blocks, each one a single solid colour -- red for high, blue for low.
+   Square corners throughout; nothing in the tool is rounded. */
+.gw .c-fball .viz { background: #1D6B3A; }
+.gw .c-fball .fyard { position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.20) 0 2px, transparent 2px 36px); }
+.gw .c-fball .fbars { position: absolute; left: 20px; right: 20px; top: 28px; display: flex; flex-direction: column; gap: 11px; }
+.gw .c-fball .fbar { height: 11px; background: rgba(14,42,23,0.34); overflow: hidden; }
+.gw .c-fball .fbar i { display: block; height: 100%; width: 0; animation: gw-fill 1.1s cubic-bezier(0.2,0.7,0.2,1) forwards;
+  -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 9px, transparent 9px 12px);
+  mask-image: repeating-linear-gradient(90deg, #000 0 9px, transparent 9px 12px); }
+.gw .c-fball .fbar:nth-child(1) i { animation-delay: 0.35s; --w: 91%; background: #A2161E; }
+.gw .c-fball .fbar:nth-child(2) i { animation-delay: 0.47s; --w: 34%; background: #3C7EBE; }
+.gw .c-fball .fbar:nth-child(3) i { animation-delay: 0.59s; --w: 74%; background: #C9584E; }
+
+/* ── Coaching Savant: a branch of the tree ── */
+.gw .c-coach .viz { background: #1D6B3A; }
+.gw .c-coach .ctree { position: absolute; inset: 0; }
+.gw .c-coach .cn { position: absolute; height: 11px; border: 2px solid #0E2A17; display: block; }
+.gw .c-coach .cn.r { left: 18px; top: 62px; width: 44px; background: #F4C430; }
+.gw .c-coach .cn.a { left: 96px; top: 34px; width: 52px; background: #A2161E; opacity: 0; animation: gw-pop .4s ease forwards .38s; }
+.gw .c-coach .cn.b { left: 96px; top: 62px; width: 52px; background: #C9584E; opacity: 0; animation: gw-pop .4s ease forwards .50s; }
+.gw .c-coach .cn.c { left: 96px; top: 90px; width: 52px; background: #3C7EBE; opacity: 0; animation: gw-pop .4s ease forwards .62s; }
+.gw .c-coach .cbr { position: absolute; left: 66px; top: 39px; width: 2px; height: 56px; background: rgba(255,255,255,0.5); }
+@keyframes gw-pop { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+
 /* ── Draft Savant: mini board ── */
 .gw .c-draft .viz { background: radial-gradient(120% 90% at 20% 0%, #f7f6f3, transparent); }
 .gw .c-draft .rows { position: absolute; left: 20px; right: 22px; top: 20px; display: flex; flex-direction: column; gap: 7px; }
@@ -515,7 +542,8 @@ body {
   .gw *, .gw .card { animation-duration: 0.001s !important; animation-iteration-count: 1 !important; }
   .gw .hero-title em::after { width: 100%; }
   .gw .card { opacity: 1; transform: none; }
-  .gw .c-savant .bar i, .gw .c-board .meter i { width: var(--w, 70%); }
+  .gw .c-savant .bar i, .gw .c-board .meter i, .gw .c-fball .fbar i { width: var(--w, 70%); }
+  .gw .c-coach .cn { opacity: 1; animation: none; }
   .gw .c-draft .drow { opacity: 1; transform: none; }
 }
 
