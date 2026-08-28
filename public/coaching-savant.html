@@ -350,7 +350,7 @@ html.fslock,html.fslock body{overflow:hidden}
     <span class="lg"><span class="sw"></span> leaf colour = career win % vs other head coaches</span>
     <span class="lg"><span class="box hollow"></span> fewer than 3 seasons — colour shown, ranking not earned yet</span>
     <span class="lg"><span class="box"></span> no head-coaching record since 1999</span>
-    <span class="lg">hover a leaf to light his branch · click to open his page · drag to pan · scroll in to read the names</span>
+    <span class="lg">hover a leaf to light his branch · click to open his page · drag to pan · pinch or scroll to zoom in on the names</span>
   </div>
 </div>
 
@@ -691,6 +691,7 @@ function seasonTable(c){
    every time you load it.
    ========================================================================= */
 var FOREST=null, tScale=1, tX=0, tY=0, labelsOn=-1;
+var tMoved=0;   // pixels travelled in the current gesture, so a pan is not read as a tap
 
 var TRUNK_LEN=152, DECAY=0.85, SPREAD_MAX=150, LEAF_R=8;
 
@@ -892,7 +893,10 @@ function renderTree(){
   applyLabelZoom();
 
   svg.querySelectorAll('.leaf').forEach(function(g){
-    g.addEventListener('click',function(){ if(COACHES[g.dataset.n]) show('coach', g.dataset.n); });
+    g.addEventListener('click',function(){
+      if(tMoved>8) return;                 // this was a pan or a pinch, not a tap
+      if(COACHES[g.dataset.n]) show('coach', g.dataset.n);
+    });
     g.addEventListener('mouseenter',function(){ highlight(g.dataset.n); });
     g.addEventListener('mouseleave',function(){ highlight(null); });
   });
@@ -983,23 +987,73 @@ function flyTo(name,scale){
 }
 function wireTree(){
   var st=document.getElementById('treestage');
-  var drag=false,lx=0,ly=0,moved=0;
+  // Every live finger or pen, keyed by pointer id: one is a pan, two are a pinch.
+  var pts={}, drag=false, lx=0, ly=0, pinch=null, cap=0;
+  function at(e){ var r=st.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
+  function pair(){ var k=Object.keys(pts); return k.length>=2?[pts[k[0]],pts[k[1]]]:null; }
+  function gap(a,b){ return Math.sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y)); }
+  // Capturing the pointer on the way down would retarget the click to the stage and
+  // swallow every leaf tap, so hold off until the gesture is clearly a drag.
+  function grab(id){ if(cap) return; try{ st.setPointerCapture(id); cap=id||1; }catch(err){} }
+  function zoomTo(ns,cx,cy){
+    ns=Math.max(0.1,Math.min(4,ns));
+    tX=cx-(cx-tX)*(ns/tScale); tY=cy-(cy-tY)*(ns/tScale);
+    tScale=ns; applyTransform();
+  }
   st.addEventListener('pointerdown',function(e){
-    if(e.target.closest('.tctl')) return;
-    drag=true;moved=0;lx=e.clientX;ly=e.clientY;st.classList.add('drag');st.setPointerCapture(e.pointerId);
+    if(e.target.closest('.tctl')||e.target.closest('.tfind')) return;
+    pts[e.pointerId]=at(e);
+    var t=pair();
+    if(t){                                  // a second finger landed: pan becomes pinch
+      drag=false; st.classList.remove('drag');
+      grab(e.pointerId);
+      pinch={d:gap(t[0],t[1]), mid:{x:(t[0].x+t[1].x)/2, y:(t[0].y+t[1].y)/2}};
+    }else{
+      drag=true; tMoved=0; lx=e.clientX; ly=e.clientY; st.classList.add('drag');
+    }
   });
   st.addEventListener('pointermove',function(e){
+    if(!(e.pointerId in pts)) return;
+    pts[e.pointerId]=at(e);
+    var t=pair();
+    if(t&&pinch){
+      var d=gap(t[0],t[1]);
+      if(d<12) return;                      // fingers together: the ratio goes wild
+      var mid={x:(t[0].x+t[1].x)/2, y:(t[0].y+t[1].y)/2};
+      tMoved+=Math.abs(d-pinch.d)+Math.abs(mid.x-pinch.mid.x)+Math.abs(mid.y-pinch.mid.y);
+      tX+=mid.x-pinch.mid.x; tY+=mid.y-pinch.mid.y;   // let the pinch drag the canvas too
+      zoomTo(tScale*(d/pinch.d), mid.x, mid.y);       // and zoom about the point between them
+      pinch.d=d; pinch.mid=mid;
+      return;
+    }
     if(!drag) return;
-    moved+=Math.abs(e.clientX-lx)+Math.abs(e.clientY-ly);
+    tMoved+=Math.abs(e.clientX-lx)+Math.abs(e.clientY-ly);
+    if(tMoved>4) grab(e.pointerId);         // now it is a drag, so keep the events coming
     tX+=e.clientX-lx; tY+=e.clientY-ly; lx=e.clientX; ly=e.clientY; applyTransform();
   });
-  ['pointerup','pointercancel'].forEach(function(ev){
-    st.addEventListener(ev,function(){ drag=false; st.classList.remove('drag'); });
+  ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
+    st.addEventListener(ev,function(e){
+      delete pts[e.pointerId];
+      var k=Object.keys(pts);
+      if(k.length<2) pinch=null;
+      if(k.length===1){                     // lifted one of two: keep panning with the other
+        var r=st.getBoundingClientRect();
+        lx=pts[k[0]].x+r.left; ly=pts[k[0]].y+r.top;
+        drag=true; st.classList.add('drag');
+      }else if(!k.length){
+        drag=false; st.classList.remove('drag');
+        if(cap){ try{ st.releasePointerCapture(e.pointerId); }catch(err){} cap=0; }
+      }
+    });
   });
   st.addEventListener('wheel',function(e){
     e.preventDefault();
-    var r=st.getBoundingClientRect();
-    zoomBy(e.deltaY<0?1.14:1/1.14, e.clientX-r.left, e.clientY-r.top);
+    var p=at(e);
+    // A trackpad pinch arrives as a wheel with ctrlKey set. Scaling by the delta
+    // rather than a fixed step is what makes both it and a wheel feel continuous.
+    var dy=e.deltaY*(e.deltaMode===1?16:(e.deltaMode===2?st.clientHeight:1));
+    var f=Math.exp(-dy*(e.ctrlKey?0.012:0.0032));
+    zoomTo(tScale*Math.max(0.2,Math.min(5,f)), p.x, p.y);
   },{passive:false});
   document.getElementById('zin').onclick=function(){ zoomBy(1.3); };
   document.getElementById('zout').onclick=function(){ zoomBy(1/1.3); };
