@@ -205,15 +205,35 @@ table.seasons{width:100%;border-collapse:collapse;font-size:12.5px}
   overflow:hidden;position:relative;height:min(78vh,860px);cursor:grab;touch-action:none}
 .treestage.drag{cursor:grabbing}
 .treestage svg{display:block;user-select:none}
-.tnode rect{stroke:var(--turf-dk);stroke-width:2}
-.tnode text{font-family:var(--pix);font-size:9px;pointer-events:none}
-.tnode{cursor:pointer}
-.tnode:hover rect{stroke-width:4}
-.tnode.dim{opacity:.24}
-.tnode.hl rect{stroke:#0E2A17;stroke-width:4}
-.tlink{fill:none;stroke:rgba(14,42,23,.32);stroke-width:2}
-.tlink.hl{stroke:var(--turf-dk);stroke-width:3.5}
-.tlink.dim{opacity:.12}
+/* the forest: wood, foliage, soil */
+.soil{fill:#8A6A3C}
+.turfline{stroke:#2C7A45;stroke-width:6}
+.branch{fill:none;stroke:#4A3620;stroke-linecap:round}
+.branch.trunk{stroke:#3B2A18}
+.leaf ellipse{stroke:#26401F;stroke-width:1.6;cursor:pointer}
+.leaf.unknown ellipse{stroke-dasharray:3 2;opacity:.75}
+.leaf:hover ellipse{stroke-width:3}
+.lbl{font-family:var(--pix);font-size:8px;fill:#20402C;text-anchor:middle;pointer-events:none;
+  paint-order:stroke;stroke:rgba(242,247,238,.92);stroke-width:3px;stroke-linejoin:round}
+.lbl.minor{display:none}
+#labels.leaves-too .lbl.minor{display:inline}
+.lbl.major{font-size:8.5px}
+.rootlbl{font-family:var(--pix);font-size:10px;fill:#F2F7EE;text-anchor:middle;pointer-events:none;
+  paint-order:stroke;stroke:rgba(14,42,23,.7);stroke-width:3px;stroke-linejoin:round}
+.patch{font-family:var(--pix);font-size:10px;fill:#F2F7EE;pointer-events:none;
+  paint-order:stroke;stroke:rgba(14,42,23,.7);stroke-width:3px;stroke-linejoin:round}
+.leaf.dim,.branch.dim,.lbl.dim{opacity:.13}
+.leaf.hl ellipse{stroke:#0E2A17;stroke-width:3.4}
+.branch.hl{stroke:#F4C430}
+.lbl.hl{fill:#0E2A17;font-weight:700}
+/* the forest grows in on arrival rather than snapping into place */
+#tg.growing .branch{animation:limb .85s ease-out backwards}
+#tg.growing .leaf{animation:bud .5s ease-out backwards .5s}
+@keyframes limb{from{stroke-dasharray:0 400;opacity:.2}to{stroke-dasharray:400 0;opacity:1}}
+@keyframes bud{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  #tg.growing .branch,#tg.growing .leaf{animation:none}
+}
 .tctl{position:absolute;right:12px;bottom:12px;display:flex;gap:6px;z-index:5}
 .tctl button{width:36px;height:36px;background:#FFF;border:2px solid var(--turf-dk);
   box-shadow:3px 3px 0 rgba(14,42,23,.4);font-family:var(--pix);font-size:13px;cursor:pointer}
@@ -311,9 +331,9 @@ table.seasons{width:100%;border-collapse:collapse;font-size:12.5px}
     </div>
   </div>
   <div class="tlegend">
-    <span class="lg"><span class="sw"></span> career win % vs other head coaches</span>
+    <span class="lg"><span class="sw"></span> leaf colour = career win % vs other head coaches</span>
     <span class="lg"><span class="box"></span> no head-coaching record since 1999</span>
-    <span class="lg">click a name to open his page · drag to pan · scroll to zoom</span>
+    <span class="lg">hover a leaf to light his branch · click to open his page · drag to pan · scroll in to read the names</span>
   </div>
 </div>
 
@@ -641,19 +661,27 @@ function seasonTable(c){
 }
 
 /* ============================================================================
-   THE TREE
+   THE FOREST
 
-   A tidy horizontal dendrogram: generations run left to right, so the founders sit
-   on the left edge and today's coaches on the right. Leaves are stacked in depth-first
-   order and every parent is centred on its children — the classic layout, and the only
-   one that stays readable at ~180 nodes without crossing lines.
+   Every founding coach is a tree growing out of the turf. His branches are the
+   men who coached under him, splitting again for each generation, and every
+   coach is a leaf on the branch that carried him. Trunks thicken with the size
+   of the line beneath them, so Bill Walsh is an oak and a one-off hire is a
+   seedling — which is the honest shape of the thing.
 
-   Node colour is career win percentage on the same blue-to-red scale as everything
-   else, so the tree answers "who was any good" as well as "who came from whom".
-   Ancestors with no head-coaching record inside 1999+ are drawn empty.
+   The geometry is deterministic: the wobble in each branch comes from a hash of
+   the coach's name, not a random number, so the same forest grows the same way
+   every time you load it.
    ========================================================================= */
-var TREE_LAYOUT=null, tScale=1, tX=0, tY=0;
-var NODE_W=132, NODE_H=22, COL_GAP=54, ROW_GAP=6;
+var FOREST=null, tScale=1, tX=0, tY=0, labelsOn=-1;
+
+var TRUNK_LEN=152, DECAY=0.85, SPREAD_MAX=150, LEAF_R=8;
+
+function hash01(s){                       // stable pseudo-random in [0,1) from a name
+  var h=2166136261;
+  for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
+  return ((h>>>0)%100000)/100000;
+}
 
 function buildForest(){
   var kids={}, all={};
@@ -663,115 +691,192 @@ function buildForest(){
   }
   for(var n in COACHES) all[n]=1;
   var roots=Object.keys(all).filter(function(n){return !DATA.tree[n];});
-  // biggest lines first, and a coach with no recorded lineage and no protégés sinks
-  // to the bottom rather than cluttering the top of the canvas
-  function size(n){ var k=kids[n]||[]; return 1+k.reduce(function(a,b){return a+size(b);},0); }
-  roots.sort(function(a,b){ return size(b)-size(a) || a.localeCompare(b); });
+  var sizeMemo={};
+  function size(n){
+    if(sizeMemo[n]!=null) return sizeMemo[n];
+    var k=kids[n]||[], s=1;
+    for(var i=0;i<k.length;i++) s+=size(k[i]);
+    return (sizeMemo[n]=s);
+  }
+  roots.forEach(size);
   return {kids:kids, roots:roots, size:size};
 }
 
-function layoutTree(){
-  var f=buildForest();
-  // A coach with no recorded mentor AND no protégés is a single floating box. Thirty of
-  // them stacked in the main canvas triple its height and say nothing about lineage, so
-  // they go in a compact block underneath, labelled for what they are.
-  var linked=[], lonely=[];
-  f.roots.forEach(function(r){ ((f.kids[r]||[]).length?linked:lonely).push(r); });
-  var nodes=[], links=[], y=0;
-  function walk(name, depth){
+/* Grow one tree from a point, upward, and return its nodes, branches and extent. */
+function growTree(root, f){
+  var nodes=[], branches=[];
+  var rootSize=f.size(root);
+  var maxW=Math.max(7, Math.min(17, 5+Math.sqrt(rootSize)*1.9));
+
+  function grow(name, x, y, ang, depth, len){
+    var s=f.size(name);
+    var w=Math.max(2.2, maxW*Math.pow(s/rootSize, 0.34));
     var kids=(f.kids[name]||[]).slice().sort(function(a,b){
       return f.size(b)-f.size(a) || a.localeCompare(b);
     });
-    var node={name:name, depth:depth, y:0};
-    if(!kids.length){
-      node.y = y; y += NODE_H + ROW_GAP;
-    } else {
-      var ys=[];
-      kids.forEach(function(k){
-        var child=walk(k, depth+1);
-        ys.push(child.y);
-        links.push({a:node, b:child});
-      });
-      node.y = (ys[0]+ys[ys.length-1])/2;
-    }
-    node.x = depth*(NODE_W+COL_GAP);
-    nodes.push(node);
-    return node;
+    nodes.push({name:name, x:x, y:y, depth:depth, size:s, ang:ang,
+                leaf:!kids.length, w:w});
+    if(!kids.length) return;
+
+    // Children fan across an arc centred on the branch's own direction. The arc is then
+    // slid and squeezed to stay inside the upward half of the circle — trees do not grow
+    // into the ground, and before this clamp a wide fan on an already-steep branch sent
+    // its outermost children down through the soil.
+    var spread=Math.min(SPREAD_MAX, 34+16*kids.length);
+    var n=kids.length;
+    var lo=ang-spread/2, hi=ang+spread/2;
+    var UP_MIN=-172, UP_MAX=-8;
+    if(lo<UP_MIN){ hi+=UP_MIN-lo; lo=UP_MIN; }
+    if(hi>UP_MAX){ lo-=hi-UP_MAX; hi=UP_MAX; }
+    lo=Math.max(lo,UP_MIN); hi=Math.min(hi,UP_MAX);
+    kids.forEach(function(k,i){
+      var t = n===1 ? 0.5 : (i+0.5)/n;
+      var jitter=(hash01(k)-0.5)*(n===1?26:14);
+      var a = lo + (hi-lo)*t + jitter;
+      a = Math.max(UP_MIN, Math.min(UP_MAX, a));
+      var kl = len*DECAY*(0.82+0.36*hash01(k+'l'));
+      var rad=a*Math.PI/180;
+      var nx=x+Math.cos(rad)*kl, ny=y+Math.sin(rad)*kl;
+      // a slight perpendicular bow so nothing is a straight stick
+      var bow=(hash01(k+'b')-0.5)*kl*0.30;
+      var mx=(x+nx)/2 + Math.cos(rad+Math.PI/2)*bow;
+      var my=(y+ny)/2 + Math.sin(rad+Math.PI/2)*bow;
+      branches.push({from:name, to:k, x1:x, y1:y, cx:mx, cy:my, x2:nx, y2:ny,
+                     w:Math.max(2, maxW*Math.pow(f.size(k)/rootSize,0.34))});
+      grow(k, nx, ny, a, depth+1, kl);
+    });
   }
-  linked.forEach(function(r){ walk(r,0); y += ROW_GAP*3; });
-  var treeBottom=y;
-  var maxX=0;
-  nodes.forEach(function(n){ maxX=Math.max(maxX,n.x+NODE_W); });
-  var perRow=Math.max(1,Math.floor((maxX+COL_GAP)/(NODE_W+12)));
-  var lonelyTop=treeBottom+42;
-  lonely.sort();
-  lonely.forEach(function(n,i){
-    nodes.push({name:n, depth:0, lonely:true,
-                x:(i%perRow)*(NODE_W+12),
-                y:lonelyTop+Math.floor(i/perRow)*(NODE_H+ROW_GAP)});
+  // -90° is straight up in SVG coordinates. The root sits a trunk's height above the
+  // soil so there is actually a trunk before the first fork.
+  var trunk=TRUNK_LEN*(0.75+0.4*Math.min(1,Math.log(rootSize+1)/Math.log(40)));
+  grow(root, 0, -trunk*0.85, -90, 0, trunk);
+
+  var minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;
+  nodes.forEach(function(nd){
+    minX=Math.min(minX,nd.x); maxX=Math.max(maxX,nd.x);
+    minY=Math.min(minY,nd.y); maxY=Math.max(maxY,nd.y);
   });
-  var maxY=0;
-  nodes.forEach(function(n){ maxX=Math.max(maxX,n.x+NODE_W); maxY=Math.max(maxY,n.y+NODE_H); });
-  return {nodes:nodes, links:links, w:maxX+20, h:maxY+20,
-          lonelyTop:lonely.length?lonelyTop:null, lonelyN:lonely.length};
+  return {root:root, nodes:nodes, branches:branches, size:rootSize,
+          minX:minX-LEAF_R, maxX:maxX+LEAF_R, minY:minY-LEAF_R, maxY:maxY+LEAF_R};
+}
+
+function layoutForest(){
+  var f=buildForest();
+  var grown=f.roots.map(function(r){ return growTree(r,f); });
+  // oaks first, then the seedlings — a coach with no recorded lineage and no
+  // protégés is a single sprout, and thirty of them belong in a nursery patch
+  var trees=grown.filter(function(t){return t.nodes.length>1;})
+                 .sort(function(a,b){return b.size-a.size;});
+  var sprouts=grown.filter(function(t){return t.nodes.length===1;})
+                   .sort(function(a,b){return a.root.localeCompare(b.root);});
+
+  var GAP=90, x=0, ground=0, all=[];
+  trees.forEach(function(t){
+    var wdt=t.maxX-t.minX;
+    t.ox = x - t.minX; t.oy = ground;
+    x += wdt + GAP;
+    all.push(t);
+  });
+  var nurseryStart = x + GAP*1.6;
+  x = nurseryStart;
+  sprouts.forEach(function(t){
+    t.ox = x + 46; t.oy = ground; t.sprout=true;
+    x += 116;
+    all.push(t);
+  });
+
+  var minY=0, maxX=x;
+  all.forEach(function(t){
+    t.nodes.forEach(function(nd){ nd.gx=nd.x+t.ox; nd.gy=nd.y+t.oy; });
+    t.branches.forEach(function(br){
+      br.gx1=br.x1+t.ox; br.gy1=br.y1+t.oy;
+      br.gcx=br.cx+t.ox; br.gcy=br.cy+t.oy;
+      br.gx2=br.x2+t.ox; br.gy2=br.y2+t.oy;
+    });
+    minY=Math.min(minY, t.minY+t.oy);
+  });
+  var pad=70;
+  return {trees:all, nurseryStart:nurseryStart, hasSprouts:sprouts.length,
+          sproutN:sprouts.length,
+          w:maxX+pad, h:(ground-minY)+pad*2, groundY:ground, top:minY-pad};
 }
 
 function nodeFill(name){
   var c=COACHES[name];
-  if(!c||c.career.seasons<MIN_SEASONS||c.career.winpct==null) return '#DFE3DC';
+  if(!c||c.career.seasons<MIN_SEASONS||c.career.winpct==null) return '#CBD6C7';
   return colorAt(pctOf(c.career.winpct, pool('winpct'), false));
 }
-function nodeInk(name){
-  var c=COACHES[name];
-  if(!c||c.career.seasons<MIN_SEASONS||c.career.winpct==null) return '#7A9384';
-  var p=pctOf(c.career.winpct,pool('winpct'),false), col=rampAt(p);
-  return (0.299*col[0]+0.587*col[1]+0.114*col[2])>150?'#0E2A17':'#FFFFFF';
-}
 
+/* ---------------------------------------------------------------- drawing */
 function renderTree(){
-  if(!TREE_LAYOUT) TREE_LAYOUT=layoutTree();
-  var L=TREE_LAYOUT;
-  var paths=L.links.map(function(l){
-    var x1=l.a.x+NODE_W, y1=l.a.y+NODE_H/2, x2=l.b.x, y2=l.b.y+NODE_H/2, mid=x1+COL_GAP/2;
-    return '<path class="tlink" data-a="'+esc(l.a.name)+'" data-b="'+esc(l.b.name)+'" d="M'+x1+' '+y1
-      +' H'+mid+' V'+y2+' H'+x2+'"/>';
-  }).join('');
-  var boxes=L.nodes.map(function(n){
-    var lab=n.name.length>17?n.name.slice(0,16)+'…':n.name;
-    return '<g class="tnode" data-n="'+esc(n.name)+'" transform="translate('+n.x+','+n.y+')">'
-      +'<rect width="'+NODE_W+'" height="'+NODE_H+'" fill="'+nodeFill(n.name)+'"/>'
-      +'<text x="6" y="15" fill="'+nodeInk(n.name)+'">'+esc(lab)+'</text>'
-      +'<title>'+esc(n.name+(COACHES[n.name]
-          ? ' — '+COACHES[n.name].career.w+'–'+COACHES[n.name].career.l
-            +', '+COACHES[n.name].career.seasons+' seasons'
-          : ' — no head-coaching record since 1999'))+'</title></g>';
-  }).join('');
-  var caption='';
-  if(L.lonelyTop!=null){
-    caption='<text x="0" y="'+(L.lonelyTop-16)+'" font-family="Silkscreen,monospace" '
-      +'font-size="10" fill="#7A9384">'+L.lonelyN+' COACHES WHOSE LINEAGE IS NOT RECORDED HERE</text>'
-      +'<line x1="0" y1="'+(L.lonelyTop-8)+'" x2="'+(L.w-20)+'" y2="'+(L.lonelyTop-8)
-      +'" stroke="rgba(14,42,23,.28)" stroke-width="2" stroke-dasharray="6 5"/>';
-  }
+  if(!FOREST) FOREST=layoutForest();
+  var F=FOREST;
   var svg=document.getElementById('treesvg');
-  svg.innerHTML='<g id="tg">'+paths+caption+boxes+'</g>';
-  fitTree();
-  svg.querySelectorAll('.tnode').forEach(function(g){
-    g.addEventListener('click',function(){
-      var n=g.dataset.n;
-      if(COACHES[n]) show('coach', n);
+
+  // the ground: a turf band the trunks rise out of
+  var ground='<rect class="soil" x="'+(-40)+'" y="'+F.groundY+'" width="'+(F.w+80)+'" height="900"/>'
+    +'<line class="turfline" x1="'+(-40)+'" y1="'+F.groundY+'" x2="'+(F.w+40)+'" y2="'+F.groundY+'"/>';
+  if(F.hasSprouts){
+    ground+='<text class="patch" x="'+(F.nurseryStart+16)+'" y="'+(F.groundY+30)+'">'
+      +F.sproutN+' COACHES WITH NO RECORDED LINEAGE</text>';
+  }
+
+  var wood='', leaves='', labels='', roots='';
+  F.trees.forEach(function(t){
+    t.branches.forEach(function(br){
+      wood+='<path class="branch" data-from="'+esc(br.from)+'" data-to="'+esc(br.to)+'" '
+        +'stroke-width="'+br.w.toFixed(1)+'" d="M'+br.gx1.toFixed(1)+' '+br.gy1.toFixed(1)
+        +' Q'+br.gcx.toFixed(1)+' '+br.gcy.toFixed(1)+' '+br.gx2.toFixed(1)+' '+br.gy2.toFixed(1)+'"/>';
     });
+    // the trunk stub below the first fork, so every tree is planted rather than floating
+    var r=t.nodes[0];
+    wood+='<path class="branch trunk" data-to="'+esc(r.name)+'" stroke-width="'+(r.w+2).toFixed(1)
+      +'" d="M'+r.gx.toFixed(1)+' '+(F.groundY+8)+' L'+r.gx.toFixed(1)+' '+r.gy.toFixed(1)+'"/>';
+
+    t.nodes.forEach(function(nd){
+      var known=!!COACHES[nd.name];
+      var rr=nd.leaf?LEAF_R:LEAF_R-1.4;
+      leaves+='<g class="leaf'+(known?'':' unknown')+'" data-n="'+esc(nd.name)+'" '
+        +'transform="translate('+nd.gx.toFixed(1)+','+nd.gy.toFixed(1)+') rotate('+(nd.ang+90).toFixed(1)+')">'
+        +'<ellipse rx="'+(rr*0.78).toFixed(1)+'" ry="'+(rr*1.25).toFixed(1)+'" fill="'+nodeFill(nd.name)+'"/>'
+        +'<title>'+esc(nd.name+(COACHES[nd.name]
+            ? ' — '+COACHES[nd.name].career.w+'–'+COACHES[nd.name].career.l+', '
+              +COACHES[nd.name].career.seasons+' seasons'
+            : ' — no head-coaching record since 1999'))+'</title></g>';
+      var up=Math.sin(nd.ang*Math.PI/180)<=0;   // label above or below, following the branch
+      // Two tiers: a coach who forked the tree is named at any zoom, a leaf only once you
+      // are close enough for the names not to sit on top of each other.
+      labels+='<text class="lbl '+(nd.leaf?'minor':'major')+'" data-n="'+esc(nd.name)+'" x="'
+        +nd.gx.toFixed(1)+'" y="'+(nd.gy+(up?-13:19)).toFixed(1)+'">'+esc(nd.name)+'</text>';
+    });
+    roots+='<text class="rootlbl" x="'+t.nodes[0].gx.toFixed(1)+'" y="'+(F.groundY+30)+'">'
+      +esc(t.sprout?'':t.root.toUpperCase())+'</text>';
+  });
+
+  svg.innerHTML='<g id="tg">'+ground+wood+roots+'<g id="leaves">'+leaves+'</g>'
+    +'<g id="labels">'+labels+'</g></g>';
+
+  fitTree();
+  applyLabelZoom();
+
+  svg.querySelectorAll('.leaf').forEach(function(g){
+    g.addEventListener('click',function(){ if(COACHES[g.dataset.n]) show('coach', g.dataset.n); });
     g.addEventListener('mouseenter',function(){ highlight(g.dataset.n); });
     g.addEventListener('mouseleave',function(){ highlight(null); });
   });
+  // a fresh forest grows in rather than snapping into place
+  if(!window.matchMedia||!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    var g=document.getElementById('tg');
+    g.classList.add('growing');
+    setTimeout(function(){ g.classList.remove('growing'); }, 1400);
+  }
 }
 
-/* Hovering a coach lights the path back to his founder and dims everything else —
-   the fastest way to answer "where does this one come from" on a canvas this size. */
+/* Hovering a coach lights the branch he grew on, all the way down to the trunk. */
 function highlight(name){
   var svg=document.getElementById('treesvg');
   if(!name){
-    svg.querySelectorAll('.tnode,.tlink').forEach(function(e){ e.classList.remove('dim','hl'); });
+    svg.querySelectorAll('.leaf,.branch,.lbl').forEach(function(e){ e.classList.remove('dim','hl'); });
     return;
   }
   var path={}, edges={}, cur=name;
@@ -780,50 +885,76 @@ function highlight(name){
     var m=DATA.tree[cur].mentor;
     edges[m+'>'+cur]=1; path[m]=1; cur=m;
   }
-  svg.querySelectorAll('.tnode').forEach(function(e){
+  edges['>'+cur]=1;                       // the trunk stub of that tree
+  svg.querySelectorAll('.leaf').forEach(function(e){
     var on=path[e.dataset.n];
     e.classList.toggle('hl',!!on); e.classList.toggle('dim',!on);
   });
-  svg.querySelectorAll('.tlink').forEach(function(e){
-    var on=edges[e.dataset.a+'>'+e.dataset.b];
+  svg.querySelectorAll('.lbl').forEach(function(e){
+    var on=path[e.dataset.n];
+    e.classList.toggle('hl',!!on); e.classList.toggle('dim',!on);
+  });
+  svg.querySelectorAll('.branch').forEach(function(e){
+    var key=(e.dataset.from||'')+'>'+e.dataset.to;
+    var on=edges[key];
     e.classList.toggle('hl',!!on); e.classList.toggle('dim',!on);
   });
 }
 
+/* Labels are unreadable at forest scale and essential at branch scale, so they
+   appear once you have zoomed in far enough to have room for them. */
+function applyLabelZoom(){
+  var tier = tScale>=1.0 ? 2 : (tScale>=0.42 ? 1 : 0);
+  if(tier===labelsOn) return;
+  labelsOn=tier;
+  var l=document.getElementById('labels');
+  if(!l) return;
+  l.style.display = tier===0 ? 'none' : '';
+  l.classList.toggle('leaves-too', tier===2);
+}
 function applyTransform(){
   var g=document.getElementById('tg');
   if(g) g.setAttribute('transform','translate('+tX+','+tY+') scale('+tScale+')');
+  applyLabelZoom();
 }
-/* Fit the WIDTH, not the whole thing. Six generations are about 1,100px across but the
-   forest is several thousand tall, so fitting both shrinks every name into an unreadable
-   smudge. Fit across, start at the top, and let the reader pan down. */
 function fitTree(){
-  var st=document.getElementById('treestage'), L=TREE_LAYOUT;
-  if(!st||!L) return;
-  tScale=Math.max(0.35,Math.min(1.4, st.clientWidth/L.w));
-  tX=10; tY=10;
+  var st=document.getElementById('treestage'), F=FOREST;
+  if(!st||!F) return;
+  tScale=Math.max(0.14, Math.min(1.1, (st.clientHeight-24)/F.h));
+  tX=14; tY=-F.top*tScale+12;
   var svg=document.getElementById('treesvg');
   svg.setAttribute('width',st.clientWidth); svg.setAttribute('height',st.clientHeight);
   applyTransform();
 }
 function zoomBy(f,cx,cy){
-  var st=document.getElementById('treestage');
-  var r=st.getBoundingClientRect();
+  var st=document.getElementById('treestage'), r=st.getBoundingClientRect();
   cx=(cx==null?r.width/2:cx); cy=(cy==null?r.height/2:cy);
-  var ns=Math.max(0.12,Math.min(3,tScale*f));
-  tX = cx-(cx-tX)*(ns/tScale);
-  tY = cy-(cy-tY)*(ns/tScale);
+  var ns=Math.max(0.1,Math.min(4,tScale*f));
+  tX=cx-(cx-tX)*(ns/tScale); tY=cy-(cy-tY)*(ns/tScale);
   tScale=ns; applyTransform();
+}
+function flyTo(name,scale){
+  var F=FOREST; if(!F) return;
+  var hit=null;
+  F.trees.forEach(function(t){ t.nodes.forEach(function(nd){ if(nd.name===name) hit=nd; }); });
+  if(!hit) return;
+  var st=document.getElementById('treestage');
+  tScale=scale||Math.max(tScale,0.85);
+  tX=st.clientWidth/2-hit.gx*tScale;
+  tY=st.clientHeight/2-hit.gy*tScale;
+  applyTransform();
+  highlight(name);
 }
 function wireTree(){
   var st=document.getElementById('treestage');
-  var drag=false,lx=0,ly=0;
+  var drag=false,lx=0,ly=0,moved=0;
   st.addEventListener('pointerdown',function(e){
     if(e.target.closest('.tctl')) return;
-    drag=true;lx=e.clientX;ly=e.clientY;st.classList.add('drag');st.setPointerCapture(e.pointerId);
+    drag=true;moved=0;lx=e.clientX;ly=e.clientY;st.classList.add('drag');st.setPointerCapture(e.pointerId);
   });
   st.addEventListener('pointermove',function(e){
     if(!drag) return;
+    moved+=Math.abs(e.clientX-lx)+Math.abs(e.clientY-ly);
     tX+=e.clientX-lx; tY+=e.clientY-ly; lx=e.clientX; ly=e.clientY; applyTransform();
   });
   ['pointerup','pointercancel'].forEach(function(ev){
@@ -832,26 +963,23 @@ function wireTree(){
   st.addEventListener('wheel',function(e){
     e.preventDefault();
     var r=st.getBoundingClientRect();
-    zoomBy(e.deltaY<0?1.12:1/1.12, e.clientX-r.left, e.clientY-r.top);
+    zoomBy(e.deltaY<0?1.14:1/1.14, e.clientX-r.left, e.clientY-r.top);
   },{passive:false});
-  document.getElementById('zin').onclick=function(){ zoomBy(1.25); };
-  document.getElementById('zout').onclick=function(){ zoomBy(1/1.25); };
+  document.getElementById('zin').onclick=function(){ zoomBy(1.3); };
+  document.getElementById('zout').onclick=function(){ zoomBy(1/1.3); };
   document.getElementById('zfit').onclick=fitTree;
   document.getElementById('treeBack').onclick=function(){ history.back(); };
   var find=document.getElementById('tfind');
   find.addEventListener('input',function(){
     var q=_norm(find.value).trim();
     if(!q){ highlight(null); return; }
-    var hit=TREE_LAYOUT.nodes.filter(function(n){ return _norm(n.name).indexOf(q)>=0; })[0];
-    if(!hit) return;
-    highlight(hit.name);
-    // centre the match without changing zoom
-    var st=document.getElementById('treestage');
-    tX = st.clientWidth/2 - (hit.x+NODE_W/2)*tScale;
-    tY = st.clientHeight/2 - (hit.y+NODE_H/2)*tScale;
-    applyTransform();
+    var names=[]; FOREST.trees.forEach(function(t){ t.nodes.forEach(function(n){ names.push(n.name); }); });
+    var hit=names.filter(function(n){ return _norm(n).indexOf(q)>=0; })[0];
+    if(hit) flyTo(hit);
   });
-  window.addEventListener('resize',function(){ if(document.body.className==='view-tree') fitTree(); });
+  window.addEventListener('resize',function(){
+    if(document.body.className==='view-tree') fitTree();
+  });
 }
 
 /* ---------------------------------------------------------------- search, routing, boot */
