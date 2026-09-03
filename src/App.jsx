@@ -15,7 +15,6 @@ import Contact from './pages/Contact.jsx'
 import CompChain from './pages/CompChain.jsx'
 import Dynasty from './pages/Dynasty.jsx'
 import Hoops from './pages/Hoops.jsx'
-import GM from './pages/GM.jsx'
 import AnalyticsArchive from './pages/AnalyticsArchive.jsx'
 import NotFound from './pages/NotFound.jsx'
 
@@ -40,7 +39,6 @@ function App() {
           <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/hoops" element={<Hoops />} />
-          <Route path="/gm" element={<GM />} />
           <Route path="/news" element={<News />} />
           <Route path="/podcasts" element={<Navigate to="/" replace />} /> {/* hidden for now */}
           <Route path="/about" element={<About />} />
