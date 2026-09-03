@@ -262,6 +262,7 @@ export default function AnalyticsArchive() {
   const [range, setRange] = useState('30d');
   const [grain, setGrain] = useState('auto');
   const [showTable, setShowTable] = useState(false);
+  const [sync, setSync] = useState('');
 
   useEffect(() => {
     document.title = 'Analytics archive — WCE';
@@ -330,6 +331,27 @@ export default function AnalyticsArchive() {
 
   const rows = useMemo(() => bucketize(daily, effectiveGrain), [daily, effectiveGrain]);
 
+  // Runs the snapshot job on demand. Sends the password as a header, so no
+  // shell quoting or URL encoding is ever involved.
+  const syncNow = async () => {
+    setSync('running');
+    setError('');
+    try {
+      const res = await fetch('/api/analytics/snapshot?days=30', {
+        headers: { 'x-analytics-key': key },
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.ok) {
+        throw new Error(json.error || json.hint || `HTTP ${res.status}`);
+      }
+      setSync(`synced — ${json.daysArchived} days archived`);
+      await load(key, range);
+    } catch (e) {
+      setSync('');
+      setError(`Sync failed: ${e.message || e}`);
+    }
+  };
+
   const exportCsv = () => {
     const header = 'date,pageviews,visitors';
     const body = daily.map((d) => `${d.date},${d.pageviews},${d.visitors}`).join('\n');
@@ -380,10 +402,14 @@ export default function AnalyticsArchive() {
               : 'no data yet'}
             {archive?.lastRun && ` · last sync ${new Date(archive.lastRun).toLocaleString()}`}
           </p>
+          {sync && sync !== 'running' && <p className="wa-sub">{sync}</p>}
         </div>
         <div className="wa-head-actions">
           <button onClick={() => load(key, range)} disabled={loading}>
             {loading ? 'Loading…' : 'Refresh'}
+          </button>
+          <button onClick={syncNow} disabled={sync === 'running'}>
+            {sync === 'running' ? 'Syncing…' : 'Sync now'}
           </button>
           <button onClick={exportCsv} disabled={!daily.length}>
             Export CSV
