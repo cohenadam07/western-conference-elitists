@@ -16,6 +16,7 @@ import { buildScale, displayValue } from '../lib/dynastyValue.js'
 const API = '/api/dynasty'
 const SEED_URL = '/dynasty/players.json'
 const UID_KEY = 'wce_dyn_uid'
+const NAME_KEY = 'wce_dyn_name'
 const HEAD = (id) => `https://cdn.nba.com/headshots/nba/latest/1040x760/${id}.png`
 
 function uid() {
@@ -24,6 +25,17 @@ function uid() {
     if (!v) { v = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem(UID_KEY, v) }
     return v
   } catch { return 'anon' }
+}
+
+// The name is remembered next to the uid, because they are the same fact from two directions:
+// who the board counts you as, and who the room calls you. Retyping it every time you open a
+// room is how you end up with a room of Anonymouses, which is precisely the thing the ballot
+// grid cannot survive.
+function savedName() {
+  try { return localStorage.getItem(NAME_KEY) || '' } catch { return '' }
+}
+function rememberName(v) {
+  try { localStorage.setItem(NAME_KEY, v) } catch { /* private mode — it just will not stick */ }
 }
 
 /* Every asset needs a symbol. First initial + surname, stripped and capped — Victor
@@ -37,6 +49,10 @@ function symbolOf(name = '') {
   const last = parts.length > 1 ? parts[parts.length - 1] : parts[0]
   return (parts[0][0] + last).toUpperCase().slice(0, 5)
 }
+
+/* Slot labels for the ballot grid and the per-player tallies. GROUP is four, so this never
+ * needs the 11th/12th/13th special cases a general ordinal helper would carry. */
+const ORDINAL = ['1ST', '2ND', '3RD', '4TH']
 
 /* How to connect each league. Sleeper and Fantrax expose public read APIs, and ESPN does for
  * public leagues — so those three take a code. Yahoo is OAuth-only: there is no code a reader
@@ -252,7 +268,9 @@ export default function Dynasty() {
   // `code`/`setCode` below belong to the fantasy-league connect, hence lob* here.
   const [lobCode, setLobCode] = useState('')    // what the user typed on the join form
   const [lob, setLob] = useState(null)          // server state for the room we're actually in
-  const [lobName, setLobName] = useState('')
+  const [lobName, setLobName] = useState(savedName)
+  const [renaming, setRenaming] = useState(false)
+  const [nameDraft, setNameDraft] = useState('')
   const [lobOrder, setLobOrder] = useState([])
   const [lobBusy, setLobBusy] = useState(false)
   const [lobErr, setLobErr] = useState(null)
@@ -336,21 +354,40 @@ export default function Dynasty() {
     return j
   }, [])
 
-  // Poll while the room is unsettled. Vercel supports WebSockets now, but a room is a handful
-  // of people making one decision — polling costs a few Redis reads and needs no connection to
-  // keep alive, reconnect, or reason about on a flaky phone. Faster during a live round, both
-  // so the clock looks honest and so somebody hits the endpoint promptly once the deadline
-  // passes: serverless has no timers, and the settle happens on the first request after it.
+  // Poll for as long as we are in the room — including after a round settles. That last part
+  // is not an optimisation, it is the round-to-round flow: the host starting round two is a
+  // server-side event, and a client that stopped polling at 'settled' never learns about it.
+  // It sits on the last result screen while everyone else is ranking, which is exactly what
+  // "it doesn't carry on to the next group" looks like from the outside.
+  //
+  // Vercel supports WebSockets now, but a room is a handful of people making one decision —
+  // polling costs a few Redis reads and needs no connection to keep alive, reconnect, or
+  // reason about on a flaky phone. Faster during a live round, both so the clock looks honest
+  // and so somebody hits the endpoint promptly once the deadline passes: serverless has no
+  // timers, and the settle happens on the first request after it.
   useEffect(() => {
-    if (view !== 'lobby' || !lob?.code || lob.status === 'settled') return undefined
+    if (view !== 'lobby' || !lob?.code) return undefined
     const every = lob.status === 'live' ? 1000 : 2000
     const t = setInterval(() => {
       lobCall('lobby-state', { code: lob.code })
-        .then((j) => setLob((p) => (p && p.code === j.code ? { ...p, ...j } : p)))
+        // Merge, but let the server win outright on the fields that define which round we are
+        // in. A spread alone would keep a stale `result` alive into the next round, because
+        // the next round's payload carries result: null and undefined-vs-null is the kind of
+        // difference that leaves last round's answer on screen under this round's four.
+        .then((j) => setLob((p) => (p && p.code === j.code
+          ? { ...p, ...j, result: j.result ?? null, deadline: j.deadline ?? null }
+          : p)))
         .catch(() => { /* transient — the next tick retries */ })
     }, every)
     return () => clearInterval(t)
   }, [view, lob?.code, lob?.status, lobCall])
+
+  // A new round is a new four, so anything half-selected against the old one is meaningless —
+  // and worse, the ids no longer exist on screen, so it would silently block the submit button.
+  // Keyed on the round number rather than on status, so it fires once per round and not on
+  // every settle/live flicker.
+  const liveRound = lob?.status === 'live' ? lob?.round : null
+  useEffect(() => { if (liveRound != null) { setLobOrder([]); setLobErr(null) } }, [liveRound])
 
   // Local countdown, corrected against the server's clock so a skewed device does not show a
   // different number from everyone else. The server still owns the actual cutoff.
@@ -367,9 +404,21 @@ export default function Dynasty() {
     return () => clearInterval(t)
   }, [lob?.status, lob?.deadline, skew])
 
+  // The server is allowed to change the name it was handed — the profanity filter and the
+  // duplicate suffix both live there — so the local copy is taken from what came back, not
+  // from what was typed. Otherwise the form says one thing and the roster chip says another.
+  const adoptName = (j) => {
+    const mine = j?.roster?.[me.current]
+    if (mine) { setLobName(mine); rememberName(mine) }
+  }
+
   const lobCreate = async () => {
+    if (!lobName.trim()) { setLobErr('Pick a name first — the room needs something to call you.'); return }
     setLobBusy(true); setLobErr(null)
-    try { setLob(await lobCall('lobby-create', { name: lobName })); setLobOrder([]) }
+    try {
+      const j = await lobCall('lobby-create', { name: lobName })
+      setLob(j); adoptName(j); setLobOrder([]); setRenaming(false)
+    }
     catch (e) {
       // Show what the server actually said. "Could not open a room" on its own sends you
       // hunting through the client for a fault that is usually the backend or its config.
@@ -381,8 +430,12 @@ export default function Dynasty() {
   const lobJoin = async () => {
     const c = lobCode.trim().toUpperCase()
     if (c.length !== 4) { setLobErr('Codes are four characters.'); return }
+    if (!lobName.trim()) { setLobErr('Pick a name first — the room needs something to call you.'); return }
     setLobBusy(true); setLobErr(null)
-    try { setLob(await lobCall('lobby-join', { code: c, name: lobName })); setLobOrder([]) }
+    try {
+      const j = await lobCall('lobby-join', { code: c, name: lobName })
+      setLob(j); adoptName(j); setLobOrder([]); setRenaming(false)
+    }
     catch (e) {
       setLobErr(e.message === 'no such lobby' ? 'No room with that code — it may have expired.'
         : e.message === 'lobby full' ? 'That room is full.' : 'Could not join.')
@@ -406,6 +459,17 @@ export default function Dynasty() {
     } catch (e) { setLobErr(e.message) }
     setLobBusy(false)
   }
+  const lobRename = async () => {
+    const n = nameDraft.trim()
+    if (!n || lobBusy) return
+    setLobBusy(true); setLobErr(null)
+    try {
+      const j = await lobCall('lobby-name', { code: lob.code, name: n })
+      setLob((p) => ({ ...p, ...j })); adoptName(j); setRenaming(false)
+    } catch { setLobErr('Could not change your name.') }
+    setLobBusy(false)
+  }
+
   const lobPick = (id) => {
     if (lobBusy || lob?.status !== 'live' || lob?.submitted?.includes(me.current)) return
     setLobOrder((o) => (o.includes(id) ? o.filter((x) => x !== id) : o.length < 4 ? [...o, id] : o))
@@ -635,7 +699,9 @@ export default function Dynasty() {
     const waiting = lob?.status === 'waiting'
     const live = lob?.status === 'live'
     const minToStart = lob?.minToStart || 2
-    const roundMs = 10000
+    // The clock is the server's, not ours — showing a number the deadline disagrees with is
+    // how you get people who think they were robbed of three seconds.
+    const roundMs = lob?.roundMs || 15000
     return (
       <Shell kicker="With friends" title="THE ROOM" total={total}
         onHome={() => { setView('hub'); setLobErr(null) }}>
@@ -651,8 +717,13 @@ export default function Dynasty() {
               <input id="lobname" value={lobName} onChange={(e) => setLobName(e.target.value)}
                 placeholder="Shown to the room" maxLength={24}
                 className="dyn-input mt-1 w-full" />
+              <p className="mt-1 text-[11px] text-[var(--dyn-faint)]">
+                {/* Required, not optional-with-a-fallback. Every ballot on the result screen is
+                    labelled with this, and a room of Anonymouses cannot argue about anything. */}
+                This is the name on your ballot when the round settles. Remembered on this device.
+              </p>
               <div className="mt-5 flex flex-wrap items-end gap-3">
-                <button type="button" onClick={lobCreate} disabled={lobBusy} className="dyn-btn">
+                <button type="button" onClick={lobCreate} disabled={lobBusy || !lobName.trim()} className="dyn-btn">
                   {lobBusy ? 'Opening…' : 'Open a room'}
                 </button>
                 <span className="dyn-mono text-[11px] text-[var(--dyn-faint)]">OR</span>
@@ -663,7 +734,8 @@ export default function Dynasty() {
                     placeholder="ABCD"
                     className="dyn-input dyn-mono mt-1 w-28 tracking-[0.3em]" />
                 </div>
-                <button type="button" onClick={lobJoin} disabled={lobBusy} className="dyn-btn-ghost">Join</button>
+                <button type="button" onClick={lobJoin} disabled={lobBusy || !lobName.trim()}
+                  className="dyn-btn-ghost">Join</button>
               </div>
               {lobErr && <p className="dyn-mono dyn-down mt-3 text-[11px]">{lobErr}</p>}
             </section>
@@ -704,6 +776,35 @@ export default function Dynasty() {
                         </span>
                       )
                     })}
+                  </div>
+                  {/* Changeable from inside the room, and mid-round on purpose: the name is a
+                      label, `uid` is the identity, so renaming settles nothing and loses no
+                      ballot. Somebody who arrived as "asdf" should not have to leave to fix it. */}
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {!renaming ? (
+                      <>
+                        <span className="dyn-mono text-[10px] tracking-wider text-[var(--dyn-faint)]">
+                          YOU ARE {(lob.roster?.[me.current] || 'ANONYMOUS').toUpperCase()}
+                        </span>
+                        <button type="button"
+                          onClick={() => { setNameDraft(lob.roster?.[me.current] || ''); setRenaming(true) }}
+                          className="dyn-mono text-[10px] tracking-wider text-[var(--dyn-gold)] underline underline-offset-2">
+                          CHANGE
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)}
+                          maxLength={24} aria-label="Your name in this room"
+                          className="dyn-input w-44 py-1 text-[12px]" />
+                        <button type="button" onClick={lobRename}
+                          disabled={lobBusy || !nameDraft.trim()} className="dyn-btn-ghost">Save</button>
+                        <button type="button" onClick={() => setRenaming(false)}
+                          className="dyn-mono text-[10px] tracking-wider text-[var(--dyn-faint)] underline underline-offset-2">
+                          CANCEL
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -781,6 +882,14 @@ export default function Dynasty() {
                               </div>
                               <div className="mt-1 text-sm text-[var(--dyn-text)]">{nameOf(id)}</div>
                               <div className="mt-2"><Chg delta={mv?.delta ?? 0} /></div>
+                              {/* The order alone hides the shape of the vote: 4-0 at the top and
+                                  2-1-1 read identically once sorted, and they are not the same
+                                  argument. */}
+                              <div className="dyn-mono mt-2 text-[10px] tracking-wider text-[var(--dyn-faint)]">
+                                {(res.tally?.[String(id)] || [])
+                                  .map((c, r) => (c ? `${c}×${ORDINAL[r]}` : null))
+                                  .filter(Boolean).join(' · ') || '—'}
+                              </div>
                             </div>
                           )
                         })}
@@ -792,6 +901,87 @@ export default function Dynasty() {
                         <Stat label="Worth" value={`${res.weight}× a single pick`}
                           tone={res.weight === 0 ? 'dyn-down' : 'dyn-up'} />
                       </div>
+                      {/* Who ranked what. The room's answer is one line of a longer argument,
+                          and without the individual ballots nobody can tell whether they were
+                          the outlier or the one who was right. Cells that disagree with the
+                          room are marked, not scolded — being alone on a guy is the point of
+                          playing. */}
+                      {!!res.ballots?.length && (
+                        <div className="mt-5 border border-[var(--dyn-line)]">
+                          <div className="dyn-label border-b border-[var(--dyn-line)] px-4 py-2 text-[var(--dyn-gold)]">
+                            How the room voted
+                          </div>
+                          <div className="overflow-x-auto">
+                            <table className="w-full min-w-[420px] border-collapse text-left">
+                              <thead>
+                                <tr>
+                                  <th className="dyn-label px-4 py-2 font-normal text-[var(--dyn-faint)]">Voter</th>
+                                  {res.consensus.map((_, r) => (
+                                    <th key={r} className="dyn-label px-2 py-2 font-normal text-[var(--dyn-faint)]">
+                                      {ORDINAL[r]}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr className="border-t border-[var(--dyn-line)] bg-[var(--dyn-panel-2)]">
+                                  <td className="dyn-mono px-4 py-2 text-[11px] tracking-wider text-[var(--dyn-gold)]">
+                                    THE ROOM
+                                  </td>
+                                  {res.consensus.map((id) => (
+                                    <td key={id} className="dyn-mono px-2 py-2 text-[11px] tracking-wider text-[var(--dyn-gold)]">
+                                      {symbolOf(nameOf(id))}
+                                    </td>
+                                  ))}
+                                </tr>
+                                {res.ballots.map((b) => (
+                                  <tr key={b.uid} className="border-t border-[var(--dyn-line)]">
+                                    <td className="px-4 py-2 text-[12px] text-[var(--dyn-text)]">
+                                      {/* Live roster first: someone who fixed their name after
+                                          the buzzer should not still be "asdf" on the board. */}
+                                      {lob.roster?.[b.uid] || b.name}
+                                      {b.uid === me.current && (
+                                        <span className="dyn-mono ml-1 text-[10px] text-[var(--dyn-faint)]">(YOU)</span>
+                                      )}
+                                    </td>
+                                    {b.order.map((id, r) => {
+                                      const agrees = String(res.consensus[r]) === String(id)
+                                      return (
+                                        <td key={r}
+                                          className={`dyn-mono px-2 py-2 text-[11px] tracking-wider ${
+                                            agrees ? 'text-[var(--dyn-dim)]' : 'text-[var(--dyn-text)]'}`}>
+                                          {symbolOf(nameOf(id))}
+                                          {!agrees && <span className="dyn-label ml-1 text-[var(--dyn-gold)]">•</span>}
+                                        </td>
+                                      )
+                                    })}
+                                  </tr>
+                                ))}
+                                {/* Named rather than omitted: a blank where somebody's row should
+                                    be reads as a bug, and sitting a round out is a real outcome. */}
+                                {(res.abstained || []).map((u) => (
+                                  <tr key={u} className="border-t border-[var(--dyn-line)]">
+                                    <td className="px-4 py-2 text-[12px] text-[var(--dyn-faint)]">
+                                      {lob.roster?.[u] || 'Someone'}
+                                      {u === me.current && (
+                                        <span className="dyn-mono ml-1 text-[10px] text-[var(--dyn-faint)]">(YOU)</span>
+                                      )}
+                                    </td>
+                                    <td colSpan={res.consensus.length}
+                                      className="dyn-mono px-2 py-2 text-[11px] tracking-wider text-[var(--dyn-faint)]">
+                                      MISSED THE BUZZER
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                          <div className="dyn-mono border-t border-[var(--dyn-line)] px-4 py-2 text-[10px] tracking-wider text-[var(--dyn-faint)]">
+                            <span className="text-[var(--dyn-gold)]">•</span> MARKS A SLOT WHERE YOU DIFFERED FROM THE ROOM
+                          </div>
+                        </div>
+                      )}
+
                       <p className="mt-4 text-[12px] leading-relaxed text-[var(--dyn-faint)]">
                         {/* Three different reasons the board might not have moved, and saying
                             the wrong one tells people something untrue about their own round. */}
@@ -816,7 +1006,9 @@ export default function Dynasty() {
                           </span>
                         )}
                         <button type="button"
-                          onClick={() => { setLob(null); setLobOrder([]); setLobCode(''); loadBoard() }}
+                          onClick={() => {
+                            setLob(null); setLobOrder([]); setLobCode(''); setRenaming(false); loadBoard()
+                          }}
                           className="dyn-btn-ghost">Leave</button>
                         {lobErr && <span className="dyn-mono dyn-down text-[11px]">{lobErr}</span>}
                       </div>

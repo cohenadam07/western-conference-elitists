@@ -76,7 +76,8 @@ const NONCE_RE = /^[a-z0-9]{8,40}$/i
 const LOBBY_TTL = 6 * 3600      // rooms are an evening's argument, not a fixture
 const LOBBY_MAX = 200           // members per room
 const LOBBY_MIN_START = 2       // a room of one is just the solo book with extra steps
-const LOBBY_ROUND_MS = 10000    // pick clock. Brisk on purpose — snap judgement is the game
+const LOBBY_ROUND_MS = 15000    // pick clock. Brisk on purpose — snap judgement is the game,
+                                // but four names is enough reading that ten was rushing people
 const LOBBY_W_CAP = 6           // max single-votes one room can be worth, globally
 const LOBBY_CODE_RE = /^[A-HJ-NP-Z2-9]{4}$/          // no O/0/I/L/1 — these get read aloud
 const NAME_MAX = 24
@@ -291,6 +292,23 @@ function cleanName(raw) {
   return s
 }
 
+// Two people called "Adam" was survivable when names were only chips in a header. Now that
+// every ballot is listed by name on the result screen, a duplicate makes the one thing that
+// screen exists to answer — who ranked what — unanswerable. Suffix the second one rather than
+// rejecting it: being told your own name is taken by your friend is a bad way to join a room.
+function uniqueName(name, roster, self) {
+  const taken = new Set(Object.entries(roster || {})
+    .filter(([u]) => u !== self)
+    .map(([, n]) => String(n).toLowerCase()))
+  if (!taken.has(name.toLowerCase())) return name
+  const base = name.length > NAME_MAX - 5 ? name.slice(0, NAME_MAX - 5).trim() : name
+  for (let i = 2; i <= LOBBY_MAX + 1; i++) {
+    const c = `${base} (${i})`
+    if (!taken.has(c.toLowerCase())) return c
+  }
+  return name
+}
+
 // Settle a room: one consensus, one Elo update, weighted as described at LOBBY_W_CAP.
 // Deliberately a single application rather than one per member — n members re-answering the
 // same question is not n independent results, which is the same reasoning behind the daily
@@ -301,6 +319,7 @@ async function settleLobby(code, group, orders, meta = {}) {
     const empty = {
       consensus: group, pts: {}, agreement: 0, weight: 0, voters: 0,
       abstained: meta.abstained || [], round: meta.round || 0,
+      ballots: [], tally: {},
       moved: group.map((id) => ({ id, delta: 0, rating: null })),
     }
     await pipe([
@@ -341,9 +360,17 @@ async function settleLobby(code, group, orders, meta = {}) {
     cmds.push(['LPUSH', 'dyn:recent', JSON.stringify({ order: consensus, ts: Date.now(), lobby: code })])
     cmds.push(['LTRIM', 'dyn:recent', 0, RECENT_KEEP - 1])
   }
+  // How many people put each player in each slot. The consensus line says what the room
+  // decided; this says how lopsided that decision was — a 4-0 first place and a 2-1-1 read
+  // the same in the final order and are nothing alike to argue about.
+  const tally = {}
+  group.forEach((id) => { tally[id] = new Array(GROUP).fill(0) })
+  orders.forEach((o) => o.forEach((id, i) => { if (tally[id]) tally[id][i] += 1 }))
+
   const result = {
     consensus, pts, agreement: Number(agreement.toFixed(3)), weight: Number(weight.toFixed(2)),
     voters: orders.length, abstained: meta.abstained || [], round: meta.round || 0,
+    ballots: meta.ballots || [], tally,
     moved: consensus.map((id) => ({
       id, delta: Math.round(delta[id] || 0), rating: Math.round(ratings[id] + (delta[id] || 0)),
     })),
@@ -474,6 +501,7 @@ export default async function handler(req, res) {
         res.status(200).json({
           ok: true, code: made, host: true, status: 'waiting', round: 0, group: [],
           roster: { [uid]: name }, submitted: [], result: null, minToStart: LOBBY_MIN_START,
+          roundMs: LOBBY_ROUND_MS,
         })
         return
       }
@@ -491,9 +519,26 @@ export default async function handler(req, res) {
         if (!roster[uid] && Object.keys(roster).length >= LOBBY_MAX) {
           res.status(409).json({ error: 'lobby full' }); return
         }
-        if (!roster[uid]) {
-          await pipe([['HSET', lobK(code, ':m'), uid, name], ['EXPIRE', lobK(code, ':m'), LOBBY_TTL]])
-          roster[uid] = name
+        // Apply the name on every join, not only the first. Rejoining with a different name
+        // used to be silently ignored, which is a confusing way to discover you are stuck
+        // being whatever you typed the first time you ever opened this page.
+        const nm = uniqueName(name, roster, uid)
+        if (roster[uid] !== nm) {
+          await pipe([['HSET', lobK(code, ':m'), uid, nm], ['EXPIRE', lobK(code, ':m'), LOBBY_TTL]])
+          roster[uid] = nm
+        }
+      }
+
+      // ---- rename in place -------------------------------------------------
+      // Deliberately allowed mid-round. The name is a label on a chip and a row, not an
+      // identity — `uid` is what the ballots and the submitted set are keyed on — so changing
+      // it settles nothing and breaks nothing.
+      if (req.method === 'POST' && action === 'lobby-name') {
+        if (!roster[uid]) { res.status(403).json({ error: 'join first' }); return }
+        const nm = uniqueName(name, roster, uid)
+        if (roster[uid] !== nm) {
+          await pipe([['HSET', lobK(code, ':m'), uid, nm], ['EXPIRE', lobK(code, ':m'), LOBBY_TTL]])
+          roster[uid] = nm
         }
       }
 
@@ -556,11 +601,17 @@ export default async function handler(req, res) {
         // not an error: a round where nobody ranked in time settles at weight 0 and moves
         // nothing, same as a room that could not agree.
         const abstained = Object.keys(roster).filter((u) => !subs[u])
-        const settled = await settleLobby(code, group, orders, { abstained, round })
+        // Who ranked what, by name. Stored with the result rather than recomputed, because
+        // the per-round submission hash is what expires first and the result screen outlives it.
+        const ballots = Object.entries(subs).map(([u, o]) => ({
+          uid: u, name: roster[u] || 'Anonymous', order: o.split(','),
+        }))
+        const settled = await settleLobby(code, group, orders, { abstained, round, ballots })
         res.status(200).json({
           ok: true, code, group, round, status: 'settled', host: m.host === uid,
           roster, submitted: Object.keys(subs), abstained,
-          youAbstained: abstained.includes(uid), minToStart: LOBBY_MIN_START, ...settled,
+          youAbstained: abstained.includes(uid), minToStart: LOBBY_MIN_START,
+          roundMs: LOBBY_ROUND_MS, ...settled,
         })
         return
       }
@@ -573,7 +624,7 @@ export default async function handler(req, res) {
         now: Date.now(),              // lets the client correct for clock skew
         abstained: stored?.abstained || [],
         youAbstained: !!stored?.abstained?.includes(uid),
-        minToStart: LOBBY_MIN_START, result: stored,
+        minToStart: LOBBY_MIN_START, roundMs: LOBBY_ROUND_MS, result: stored,
       })
       return
     }
