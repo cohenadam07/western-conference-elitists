@@ -29,3 +29,9 @@ dist-ssr
 # Python
 __pycache__/
 *.pyc
+
+# Football Savant pipeline scratch (raw nflverse pulls, aggregates, local map output)
+pipeline/football/raw/
+pipeline/football/agg/
+pipeline/football/maps/
+pipeline/football/*.json

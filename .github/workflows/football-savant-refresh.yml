@@ -1,0 +1,67 @@
+# Football Savant — refresh the season in progress.
+#
+# Rebuilds only the current season from nflverse and commits the small result
+# (public/football-savant-current.json + that season's field map) to main, which Vercel
+# deploys. The 1999–2025 archive is never touched here; see pipeline/football/README.md.
+#
+# Schedule, in UTC (nflverse's feeds settle overnight, NGS by ~5am ET):
+#   12:00 every day           8am EDT / 7am EST — the everyday morning refresh
+#   05:30 Fri, Mon, Tue       ~1am ET after Thursday, Sunday and Monday night games
+# Run it by hand from the Actions tab (workflow_dispatch) any time.
+name: Football Savant refresh
+
+on:
+  schedule:
+    - cron: '0 12 * * *'
+    - cron: '30 5 * * 1,2,5'
+  workflow_dispatch:
+    inputs:
+      season:
+        description: 'Season to rebuild (blank = current)'
+        required: false
+        default: ''
+
+concurrency:
+  group: football-savant-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pandas + pyarrow
+        run: pip install --quiet pandas pyarrow
+
+      - name: Rebuild the current season
+        working-directory: pipeline/football
+        run: ./refresh_current.sh ${{ github.event.inputs.season }}
+
+      - name: Commit if anything changed
+        run: |
+          git config user.name "football-savant-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add public/football-savant-current.json public/football-maps/
+          if git diff --cached --quiet; then
+            echo "no data change — nothing to commit"
+            exit 0
+          fi
+          SEASON=$(python3 -c "import json;j=json.load(open('public/football-savant-current.json'));print(j['seasons'][0])")
+          WEEK=$(python3 -c "import json;j=json.load(open('public/football-savant-current.json'));print(j['data'][j['seasons'][0]].get('week','final'))")
+          git commit -m "Football Savant: refresh $SEASON (week $WEEK)"
+          # someone may have pushed while this ran; the data files are ours alone, so a
+          # rebase never conflicts on them
+          git pull --rebase origin main
+          git push origin HEAD:main

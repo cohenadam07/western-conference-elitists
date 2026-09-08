@@ -16,9 +16,12 @@ downloads it once instead of three times.
 import json, os, sys
 from collections import defaultdict
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from seasons import seasons as season_list_from_env
+
 AGG = os.environ.get('NFL_AGG', 'agg')
 OUT = os.environ.get('NFL_MAPS', 'maps')
-SEASONS = list(range(1999, 2026))
+SEASONS = season_list_from_env()
 GAPS = ['le', 'lt', 'lg', 'md', 'rg', 'rt', 're']
 CELLS = [d + x for d in 'bsmd' for x in 'lmr']
 MIN_PLAYS = 12          # below this a 12-cell map is noise wearing a picture
@@ -62,7 +65,19 @@ def gap_block(acc):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    index = {}
+    # The index spans every season on the site. A one-season refresh must not wipe the
+    # other twenty-six, so start from the index already there and only replace the
+    # seasons being rebuilt.
+    index, ip = {}, os.path.join(OUT, 'index.json')
+    if os.path.exists(ip):
+        index = json.load(open(ip))
+        for pid in list(index):
+            for kind in list(index[pid]):
+                index[pid][kind] = [y for y in index[pid][kind] if y not in SEASONS]
+                if not index[pid][kind]:
+                    del index[pid][kind]
+            if not index[pid]:
+                del index[pid]
     zkeys = ['z_' + c for c in CELLS] + ['zc_' + c for c in CELLS] + ['zy_' + c for c in CELLS]
     gkeys = ['g_' + g for g in GAPS] + ['gy_' + g for g in GAPS]
     for y in SEASONS:
@@ -84,7 +99,7 @@ def main():
             for pid in d:
                 index.setdefault(pid, {}).setdefault(kind, []).append(y)
         print(y, {k: len(v) for k, v in block.items()}, flush=True)
-    with open(os.path.join(OUT, 'index.json'), 'w') as f:
+    with open(ip, 'w') as f:
         json.dump(index, f, separators=(',', ':'))
     print('index', len(index), 'players')
 
