@@ -107,6 +107,33 @@ h1,h2,h3,.disp{font-family:var(--disp);text-transform:uppercase;letter-spacing:.
   margin-bottom:14px;position:relative;overflow:hidden}
 .id::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--red)}
 .id.champ::before{background:linear-gradient(90deg,var(--gold),var(--red))}
+/* ---- the champion's gold. Restrained at tier 0, and each tier adds a layer. ---- */
+.belt-lab .defs{display:inline-block;margin-left:8px;color:var(--gold);font-size:9px;letter-spacing:2px;vertical-align:middle}
+body.champ .posbadge{background:var(--gold);color:#1a1400}
+body.champ .id-name{text-shadow:0 0 18px rgba(212,175,55,.35)}
+body.champ .id-nick{color:var(--gold)}
+body.champ .headwrap{border-color:rgba(212,175,55,.6)}
+body.champ .belt.now .belt-bar i{box-shadow:0 0 14px rgba(212,175,55,.8)}
+/* tier 1 (1–2 defenses): the panel headers and hairlines take the gold */
+body.champ-t1 .col-h::after{background:var(--gold)}
+body.champ-t1 .group-h{border-bottom-color:rgba(212,175,55,.35);color:#B39A4A}
+body.champ-t1 .tr-rec{color:var(--gold)}
+body.champ-t1 .id{border-color:rgba(212,175,55,.35)}
+/* tier 2 (3–5): the card and panels are edged in gold and the page glows warm */
+body.champ-t2 .id{border-color:rgba(212,175,55,.6);box-shadow:0 0 0 1px rgba(212,175,55,.15),0 18px 50px -20px rgba(212,175,55,.35)}
+body.champ-t2 .col,body.champ-t2 .comps,body.champ-t2 .wcomps,body.champ-t2 .log{border-color:rgba(212,175,55,.3)}
+body.champ-t2{background-image:radial-gradient(90% 55% at 50% 0%,rgba(212,175,55,.14),transparent 60%)}
+body.champ-t2 .measur .mv{color:var(--gold)}
+body.champ-t2 .brand-word span{color:var(--gold)}
+body.champ-t2 .wce{background:var(--gold);color:#1a1400}
+/* tier 3 (6+): a dynasty. Gold in the track ticks, the statline, the fight-log wins, the lot */
+body.champ-t3 .tick{background:rgba(212,175,55,.25)} body.champ-t3 .tick.mid{background:rgba(212,175,55,.45)}
+body.champ-t3 .statline .st b{color:var(--gold)}
+body.champ-t3 .col{background:linear-gradient(180deg,rgba(212,175,55,.05),transparent 40%),var(--surface)}
+body.champ-t3 .id{background:linear-gradient(180deg,rgba(212,175,55,.09),transparent 55%),var(--surface)}
+body.champ-t3 .seg button[aria-pressed="true"]{background:var(--gold);color:#1a1400}
+body.champ-t3 .eyebrow-pill{border-color:rgba(212,175,55,.6);color:var(--gold);background:rgba(212,175,55,.1)}
+body.champ-t3 .log-table .res.W{box-shadow:0 0 8px rgba(212,175,55,.6)}
 .idbtns{position:absolute;top:15px;right:18px;display:flex;align-items:center;gap:8px;z-index:4}
 .exportbtn,.mubtn{height:34px;flex:none;display:inline-flex;align-items:center;gap:6px;background:var(--red);
   border:none;border-radius:4px;padding:0 14px 0 12px;cursor:pointer;color:#fff;
@@ -219,37 +246,41 @@ h1,h2,h3,.disp{font-family:var(--disp);text-transform:uppercase;letter-spacing:.
 .col-cap{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--faint);margin:9px 0 10px;line-height:1.5}
 .group-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--faint);border-bottom:1px solid var(--line);padding-bottom:5px;margin:15px 0 6px}
-.row{display:grid;grid-template-columns:240px 1fr 40px 90px 26px;align-items:center;column-gap:12px;
-  min-height:42px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.035)}
+/* Each row is two lines: the label with its percentile and value on the first, and the bar
+   alone on the second, running the full width of the panel — Basketball Savant's mobile
+   layout, used at every size so the bar is the thing you read. */
+.row{display:grid;grid-template-columns:1fr auto auto;grid-template-areas:"lab pct val" "bar bar bar";
+  align-items:center;column-gap:14px;row-gap:6px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.035)}
 .row:last-child{border-bottom:none}
-.row.nochart{grid-template-columns:240px 1fr 100px}
+.row .rl{grid-area:lab} .row .track{grid-area:bar} .row .pct{grid-area:pct} .row .rv{grid-area:val}
+.row .cstack{grid-area:bar} .row .rv-cmp{grid-area:val}
+.row.nochart{grid-template-areas:"lab val val" "bar bar bar"}
+.row>div:empty{display:none}
 @media(max-width:560px){
-  .row{grid-template-columns:116px 1fr 28px 60px 22px;column-gap:8px}
-  .row.nochart{grid-template-columns:116px 1fr 70px}
   .col{padding:14px 13px 12px}
   .rv{font-size:12px}
 }
 .rl{cursor:pointer;min-width:0}
-.rl .name{font-size:14px;font-weight:500;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rl .name{font-size:15px;font-weight:500;line-height:1.2}
 .rl:hover .name{color:var(--gold)}
-.rl .tag{font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+.rl .tag{font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin-top:2px}
 .row.un .tag{color:var(--gold)}
 /* The bar. One fixed red -> orange -> gold ramp laid across the whole track; the fill is a
    window onto it, so a 20th-percentile bar shows only the red end and a 95th reaches gold.
    Hatched when the sample is below the metric's threshold. */
-.track{position:relative;height:14px;background:var(--track);border-radius:2px;overflow:hidden;border:1px solid #1c1c1c}
+.track{position:relative;height:18px;background:var(--track);border-radius:2px;overflow:hidden;border:1px solid #1c1c1c}
 .tick{position:absolute;top:0;bottom:0;width:1px;background:rgba(245,243,236,.10)}
 .tick.mid{background:rgba(245,243,236,.22)}
 .fill{position:absolute;left:0;top:0;bottom:0;width:0;transition:width .6s cubic-bezier(.2,.7,.3,1)}
 .hatch{position:absolute;inset:0;display:none}
 .row.un .hatch{display:block;background-image:repeating-linear-gradient(135deg,rgba(11,11,11,.55) 0 2px,transparent 2px 5px)}
 .chmark{position:absolute;top:-1px;bottom:-1px;width:3px;background:var(--gold);box-shadow:0 0 0 1px rgba(0,0,0,.6);cursor:help;z-index:1}
-.pct{font-family:var(--mono);font-size:12.5px;font-weight:700;text-align:right;letter-spacing:-.02em}
-.rv{font-family:var(--mono);font-size:14.5px;font-weight:500;text-align:right;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pct{font-family:var(--mono);font-size:14px;font-weight:700;text-align:right;letter-spacing:-.02em;min-width:34px}
+.rv{font-family:var(--mono);font-size:16px;font-weight:500;text-align:right;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums;min-width:70px}
 .rv-cmp{display:flex;flex-direction:column;gap:2px;align-items:flex-end}
 .cv{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 .cstack{display:flex;flex-direction:column;gap:3px}
-.ctrack{position:relative;height:9px;background:var(--track);border-radius:2px;overflow:hidden}
+.ctrack{position:relative;height:12px;background:var(--track);border-radius:2px;overflow:hidden}
 .cfill{position:absolute;left:0;top:0;bottom:0}
 .statbtn{width:24px;height:24px;border-radius:4px;background:none;border:1px solid transparent;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
 .statbtn svg{width:15px;height:15px;stroke:var(--faint);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
@@ -810,6 +841,8 @@ function commas(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
 function headURL(e,big){ return e.h?('https://a.espncdn.com/combiner/i?img=/i/headshots/mma/players/full/'+e.h+'.png&w='+(big?260:120)+'&h='+(big?190:88)+'&scale=crop'):null; }
 function fmtDate(d){ if(!d) return ''; var p=d.split('-'); var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return M[+p[1]-1]+' '+(+p[2])+', '+p[0]; }
 function rankOf(e,div){ return (e.rks&&e.rks[div]!=null)?e.rks[div]:null; }
+function nickOf(e){ var n=(e.nick||'').replace(/["“”'\s]+$/,'').replace(/^["“”'\s]+/,''); return n.length>1?n:''; }
+function rankAny(e){ var best=null; if(e.rks) Object.keys(e.rks).forEach(function(d){ if(best==null||e.rks[d]<best.n) best={div:d,n:e.rks[d]}; }); return best; }
 function rankTxt(n){ return n==null?'—':(n===0?'C':n===0.5?'IC':'#'+n); }
 /* A reign's length in words: "2y 4m", "11m", "26d". */
 function spanTxt(days){
@@ -832,7 +865,7 @@ function beltsHTML(e){
     var how={current:'reigning',lost:'lost the belt',vacated:'vacated',unified:'unified'}[b.how]||b.how;
     return '<div class="belt'+(b.interim?' interim':'')+(b.how==='current'?' now':'')+'">'
       +'<span class="belt-ic" aria-hidden="true">'+(b.interim?'◇':'◆')+'</span>'
-      +'<span class="belt-lab">'+lab+'<small>'+esc(when)+' · '+esc(how)+(b.defenses?' · '+b.defenses+' defense'+(b.defenses>1?'s':''):'')+'</small></span>'
+      +'<span class="belt-lab">'+lab+(b.how==='current'&&b.defenses?'<span class="defs" title="'+b.defenses+' title defenses">'+Array(Math.min(b.defenses,14)+1).join('◆')+(b.defenses>14?'+':'')+'</span>':'')+'<small>'+esc(when)+' · '+esc(how)+(b.defenses?' · '+b.defenses+' defense'+(b.defenses>1?'s':''):'')+'</small></span>'
       +'<span class="belt-bar"><i style="width:'+Math.max(2,Math.min(100,(b.days||0)/maxd*100)).toFixed(1)+'%"></i></span>'
       +'<span class="belt-len">'+spanTxt(b.days)+'</span></div>';
   }).join('');
@@ -988,13 +1021,19 @@ function render(){
   if(1+cmp.length<3) ch+='<button class="cmp-add" id="cmpAdd">+ Compare</button>';
   ch+='</div>';
   if(cmp.length) ch+='<div class="cmp-note">Each fighter is ranked inside his own division over his own window.</div>';
-  var champ=(e.log||[]).some(function(f){return f.title&&f.res==='W';});
-  $('id').classList.toggle('champ',champ);
+  // The champion's page wears gold, and more of it the longer he has kept the belt:
+  // tier 0 at zero defenses, tier 1 at 1–2, tier 2 at 3–5, tier 3 at 6+.
+  var reigning=(e.belts||[]).filter(function(b){return b.how==='current'&&!b.interim;});
+  var defs=reigning.reduce(function(s,b){return Math.max(s,b.defenses||0);},0);
+  var tier=reigning.length?(defs>=6?3:defs>=3?2:defs>=1?1:0):-1;
+  document.body.classList.remove('champ','champ-t1','champ-t2','champ-t3');
+  if(tier>=0){ document.body.classList.add('champ'); for(var t=1;t<=tier;t++) document.body.classList.add('champ-t'+t); }
+  $('id').classList.toggle('champ',tier>=0);
   idbody.innerHTML=
     '<div class="id-head"><div class="headwrap"><div class="initials">'+esc(initials(e.name))+'</div>'
       +(head?'<img class="headshot" src="'+esc(head)+'" alt="" onerror="this.style.display=\'none\'">':'')+'</div>'
     +'<div class="id-headtext"><div class="id-nameline"><div class="id-name">'+esc(e.name)+'</div>'
-      +'<span class="posbadge'+(DIVSEX[div]==='F'?' f':'')+'">'+esc(div||'—')+'</span>'+(e.nick?'<span class="id-nick">“'+esc(e.nick)+'”</span>':'')+'</div>'
+      +'<span class="posbadge'+(DIVSEX[div]==='F'?' f':'')+'">'+esc(div||'—')+'</span>'+(nickOf(e)?'<span class="id-nick">“'+esc(nickOf(e))+'”</span>':'')+'</div>'
       +'<div class="id-meta">'+meta.join(' · ')+'</div>'
       +recordLine(e,r)+statLine(r)+badges(e,r)+ch+'</div></div>'
     +measurRow(e,r)+beltsHTML(e);
@@ -1214,7 +1253,7 @@ function searchHits(term){
 function resRow(e){
   var h=headURL(e,false), r=e.w.career, rec=e.rec;
   return '<div class="res" data-id="'+e.id+'">'+(h?'<img class="rimg" src="'+esc(h)+'" alt="" onerror="this.outerHTML=\'<span class=rini>'+esc(initials(e.name))+'</span>\'">':'<span class="rini">'+esc(initials(e.name))+'</span>')
-    +'<div><div class="rname">'+esc(e.name)+(e.nick?' <span style="color:var(--faint);font-size:12px">“'+esc(e.nick)+'”</span>':'')+'</div>'
+    +'<div><div class="rname">'+esc(e.name)+(nickOf(e)?' <span style="color:var(--faint);font-size:12px">“'+esc(nickOf(e))+'”</span>':'')+'</div>'
     +'<div class="rsub">'+esc(DIVLAB[e.div]||'')+' · '+(rec?rec[0]+'-'+rec[1]+(rec[2]?'-'+rec[2]:''):'')+' · '+r.n+' UFC fight'+(r.n===1?'':'s')+(e.active?'':' · inactive')+'</div></div></div>';
 }
 function wireSearch(inputId,boxId,after){
@@ -1254,7 +1293,8 @@ function updateWinSeg(){
   seg.innerHTML=CFG.windows.map(function(w){ var n=cur?((cur.w[w[0]]||{}).n||0):0; return '<button data-v="'+w[0]+'" aria-pressed="'+(w[0]===win)+'" title="'+n+' fights">'+esc(w[1])+'</button>'; }).join('');
   seg.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ setWin(b.dataset.v); }; });
 }
-function showHome(){ document.body.classList.add('home-open'); document.body.classList.remove('lb-open','mu-open'); $('homeq').focus(); }
+function dropGold(){ document.body.classList.remove('champ','champ-t1','champ-t2','champ-t3'); }
+function showHome(){ dropGold(); document.body.classList.add('home-open'); document.body.classList.remove('lb-open','mu-open'); $('homeq').focus(); }
 function hideHome(){ document.body.classList.remove('home-open'); }
 function syncURL(){
   try{
@@ -1320,7 +1360,7 @@ function renderHome(){
 var mu={a:null,b:null,win:'l5',basis:'active'};
 function openMatchup(a,b,w){
   mu.a=a||mu.a||curId; mu.b=b||mu.b||null; if(w) mu.win=w;
-  document.body.classList.remove('home-open','lb-open'); document.body.classList.add('mu-open');
+  dropGold(); document.body.classList.remove('home-open','lb-open'); document.body.classList.add('mu-open');
   renderMatchup(); syncURL(); window.scrollTo(0,0);
 }
 function muEncode(){ return '#mu='+(mu.a||'')+','+(mu.b||'')+'&w='+mu.win; }
@@ -1337,7 +1377,7 @@ function renderMatchup(){
   var da=divOf(A,mu.win), db=divOf(B,mu.win);
   var saveB=baseline; baseline=mu.basis; POOL_CACHE={};
   var saveW=win; win=mu.win;
-  function side(e,cls){ var h=headURL(e,true); return '<div class="tf '+cls+'"><div class="thead">'+(h?'<img src="'+esc(h)+'" alt="">':esc(initials(e.name)))+'</div><div class="tname">'+esc(e.name)+'</div><div class="tsub">'+esc(DIVLAB[divOf(e,mu.win)]||'')+(e.nick?' · “'+esc(e.nick)+'”':'')+'</div></div>'; }
+  function side(e,cls){ var h=headURL(e,true); return '<div class="tf '+cls+'"><div class="thead">'+(h?'<img src="'+esc(h)+'" alt="">':esc(initials(e.name)))+'</div><div class="tname">'+esc(e.name)+'</div><div class="tsub">'+esc(DIVLAB[divOf(e,mu.win)]||'')+(nickOf(e)?' · “'+esc(nickOf(e))+'”':'')+'</div></div>'; }
   var pa=eloProb(ra.m.elo||1500,rb.m.elo||1500);
   function tr(lab,va,vb,txta,txtb,higher){
     var adv=0; if(!miss(va)&&!miss(vb)&&va!==vb) adv=(higher?(va>vb):(va<vb))?1:2;
@@ -1347,7 +1387,9 @@ function renderMatchup(){
   var tape='<div class="tape">'+side(A,'l')+'<div class="mu-vs" style="font-size:30px;color:var(--red)">VS</div>'+side(B,'r')
     +'<div class="tmid">'
     +tr('Record',null,null,recA,recB,true)
-    +tr('UFC rank',(rankOf(A,da)==null?null:-rankOf(A,da)),(rankOf(B,db)==null?null:-rankOf(B,db)),rankTxt(rankOf(A,da)),rankTxt(rankOf(B,db)),true)
+    +(function(){ var xa=rankAny(A), xb=rankAny(B);
+        function t(x,d){ return x?rankTxt(x.n)+(x.div!==d?' <small style="color:var(--faint)">'+esc(x.div)+'</small>':''):'—'; }
+        return tr('UFC rank',xa?-xa.n:null,xb?-xb.n:null,t(xa,da),t(xb,db),true); })()
     +tr('Days as champion',ra.m.beltdays||0,rb.m.beltdays||0,ra.m.beltdays?spanTxt(ra.m.beltdays)+' · '+(ra.m.defenses||0)+' def':'—',rb.m.beltdays?spanTxt(rb.m.beltdays)+' · '+(rb.m.defenses||0)+' def':'—',true)
     +tr('Rating',ra.m.elo,rb.m.elo,Math.round(ra.m.elo||1500),Math.round(rb.m.elo||1500),true)
     +tr('Age',A.age,B.age,miss(A.age)?'—':A.age,miss(B.age)?'—':B.age,false)
@@ -1495,7 +1537,7 @@ function lbParseHash(q){
   if(q.c) lb.cols=q.c.split(',').filter(function(k){return MBY[k];}).slice(0,6);
   if(q.disp) lb.display=q.disp; if(q.b) lb.basis=q.b; if(q.s) lb.sample=q.s; if(q.dir) lb.dir=q.dir;
 }
-function openLB(){ document.body.classList.remove('home-open','mu-open'); document.body.classList.add('lb-open'); lbBuildControls(); lbRender(); lbSyncURL(); window.scrollTo(0,0); }
+function openLB(){ dropGold(); document.body.classList.remove('home-open','mu-open'); document.body.classList.add('lb-open'); lbBuildControls(); lbRender(); lbSyncURL(); window.scrollTo(0,0); }
 function openLBFor(div){ lb.div=div; openLB(); }
 
 /* ================= SHARE ====================================================== */
