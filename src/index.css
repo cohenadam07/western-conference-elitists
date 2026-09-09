@@ -383,21 +383,23 @@ body {
 .gw .c-savant .bar:nth-child(3) i { animation-delay: 0.55s; --w: 79%; }
 .gw .c-savant .bar:nth-child(4) i { animation-delay: 0.65s; --w: 52%; }
 
-/* ── Football Savant: a strip of turf, chalked ── */
-/* Pixel Turf, matching the tool this tile opens: chalk on green, and bars built from
-   hard-edged blocks, each one a single solid colour -- red for high, blue for low.
-   Square corners throughout; nothing in the tool is rounded. */
+/* ── UFC Savant: the arena at fight time. Solid bars, each the colour its percentile
+   lands on in the tool's red -> orange -> gold scale. ── */
 .gw .c-ufc .viz { background: #0B0B0B; }
 .gw .c-ufc .ucage { position: absolute; inset: 0; opacity: .55;
   background-image: linear-gradient(60deg, rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(-60deg, rgba(255,255,255,.06) 1px, transparent 1px);
   background-size: 26px 45px; }
 .gw .c-ufc .ubars { position: absolute; left: 20px; right: 20px; top: 28px; display: flex; flex-direction: column; gap: 11px; }
 .gw .c-ufc .ubar { height: 11px; background: #171717; border: 1px solid #262626; overflow: hidden; }
-.gw .c-ufc .ubar i { display: block; height: 100%; width: 0; animation: gw-fill 1.1s cubic-bezier(0.2,0.7,0.2,1) forwards;
-  background-image: linear-gradient(90deg, #D20A11 0%, #F28C28 50%, #D4AF37 100%); background-repeat: no-repeat; }
-.gw .c-ufc .ubar:nth-child(1) i { animation-delay: 0.35s; --w: 88%; background-size: 113.6% 100%; }
-.gw .c-ufc .ubar:nth-child(2) i { animation-delay: 0.47s; --w: 31%; background-size: 322.6% 100%; }
-.gw .c-ufc .ubar:nth-child(3) i { animation-delay: 0.59s; --w: 64%; background-size: 156.3% 100%; }
+.gw .c-ufc .ubar i { display: block; height: 100%; width: 0; animation: gw-fill 1.1s cubic-bezier(0.2,0.7,0.2,1) forwards; }
+.gw .c-ufc .ubar:nth-child(1) i { animation-delay: 0.35s; --w: 88%; background: #DBA733; }
+.gw .c-ufc .ubar:nth-child(2) i { animation-delay: 0.47s; --w: 31%; background: #E65B1F; }
+.gw .c-ufc .ubar:nth-child(3) i { animation-delay: 0.59s; --w: 64%; background: #EA962C; }
+
+/* ── Football Savant: a strip of turf, chalked ── */
+/* Pixel Turf, matching the tool this tile opens: chalk on green, and bars built from
+   hard-edged blocks, each one a single solid colour -- red for high, blue for low.
+   Square corners throughout; nothing in the tool is rounded. */
 .gw .c-fball .viz { background: #1D6B3A; }
 .gw .c-fball .fyard { position: absolute; inset: 0;
   background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.20) 0 2px, transparent 2px 36px); }
