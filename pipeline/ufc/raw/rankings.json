@@ -1,0 +1,265 @@
+{
+"fetched": "2026-09-09",
+"lists": {
+"P4P_M": {
+"champion": null,
+"ranked": [
+"Ilia Topuria",
+"Islam Makhachev",
+"Merab Dvalishvili",
+"Dricus Du Plessis",
+"Alexandre Pantoja",
+"Alexander Volkanovski",
+"Magomed Ankalaev",
+"Jack Della Maddalena",
+"Tom Aspinall",
+"Alex Pereira",
+"Max Holloway",
+"Belal Muhammad",
+"Arman Tsarukyan",
+"Khamzat Chimaev",
+"Charles Oliveira"
+]
+},
+"FLW": {
+"champion": "Alexandre Pantoja",
+"ranked": [
+"Joshua Van",
+"Brandon Moreno",
+"Brandon Royval",
+"Amir Albazi",
+"Kai Kara-France",
+"Tatsuro Taira",
+"Manel Kape",
+"Alex Perez",
+"Asu Almabayev",
+"Steve Erceg",
+"Tim Elliott",
+"Tagir Ulanbekov",
+"Ramazan Temirov",
+"Bruno Silva",
+"Kai Asakura"
+]
+},
+"BW": {
+"champion": "Merab Dvalishvili",
+"ranked": [
+"Sean O'Malley",
+"Umar Nurmagomedov",
+"Petr Yan",
+"Cory Sandhagen",
+"Song Yadong",
+"Deiveson Figueiredo",
+"Marlon Vera",
+"Mario Bautista",
+"Rob Font",
+"Henry Cejudo",
+"Aiemann Zahabi",
+"Kyler Phillips",
+"Marcus McGhee",
+"Montel Jackson",
+"Vinicius Oliveira"
+]
+},
+"FW": {
+"champion": "Alexander Volkanovski",
+"ranked": [
+"Max Holloway",
+"Movsar Evloev",
+"Diego Lopes",
+"Yair Rodriguez",
+"Brian Ortega",
+"Arnold Allen",
+"Lerone Murphy",
+"Aljamain Sterling",
+"Josh Emmett",
+"Jean Silva",
+"Youssef Zalal",
+"Dan Ige",
+"David Onama",
+"Calvin Kattar",
+"Giga Chikadze"
+]
+},
+"LW": {
+"champion": "Ilia Topuria",
+"ranked": [
+"Islam Makhachev",
+"Arman Tsarukyan",
+"Charles Oliveira",
+"Justin Gaethje",
+"Max Holloway",
+"Dustin Poirier",
+"Dan Hooker",
+"Mateusz Gamrot",
+"Beneil Dariush",
+"Paddy Pimblett",
+"Rafael Fiziev",
+"Renato Moicano",
+"Michael Chandler",
+"Benoît Saint Denis",
+"Grant Dawson"
+]
+},
+"WW": {
+"champion": "Jack Della Maddalena",
+"ranked": [
+"Belal Muhammad",
+"Sean Brady",
+"Shavkat Rakhmonov",
+"Leon Edwards",
+"Kamaru Usman",
+"Ian Machado Garry",
+"Joaquin Buckley",
+"Michael Morales",
+"Colby Covington",
+"Gilbert Burns",
+"Geoff Neal",
+"Stephen Thompson",
+"Carlos Prates",
+"Kevin Holland",
+"Michael Page"
+]
+},
+"MW": {
+"champion": "Dricus Du Plessis",
+"ranked": [
+"Nassourdine Imavov",
+"Sean Strickland",
+"Khamzat Chimaev",
+"Israel Adesanya",
+"Robert Whittaker",
+"Caio Borralho",
+"Jared Cannonier",
+"Roman Dolidze",
+"Anthony Hernandez",
+"Marvin Vettori",
+"Brendan Allen",
+"Reinier de Ridder",
+"Paulo Costa",
+"Roman Kopylov",
+"Abus Magomedov"
+]
+},
+"LHW": {
+"champion": "Magomed Ankalaev",
+"ranked": [
+"Alex Pereira",
+"Jiří Procházka",
+"Carlos Ulberg",
+"Khalil Rountree Jr.",
+"Jan Błachowicz",
+"Jamahal Hill",
+"Aleksandar Rakić",
+"Dominick Reyes",
+"Volkan Oezdemir",
+"Nikita Krylov",
+"Azamat Murzakanov",
+"Johnny Walker",
+"Bogdan Guskov",
+"Zhang Mingyang",
+"Alonzo Menifield"
+]
+},
+"HW": {
+"champion": "Tom Aspinall",
+"ranked": [
+"Ciryl Gane",
+"Alexander Volkov",
+"Sergei Pavlovich",
+"Curtis Blaydes",
+"Jailton Almeida",
+"Waldo Cortes Acosta",
+"Marcin Tybura",
+"Serghei Spivac",
+"Derrick Lewis",
+"Tai Tuivasa",
+"Shamil Gaziev",
+"Mick Parkin",
+"Tallison Teixeira",
+"Martin Buday",
+"Rizvan Kuniev"
+]
+},
+"P4P_F": {
+"champion": null,
+"ranked": [
+"Valentina Shevchenko",
+"Zhang Weili",
+"Kayla Harrison",
+"Manon Fiorot",
+"Julianna Peña",
+"Natalia Silva",
+"Alexa Grasso",
+"Erin Blanchfield",
+"Virna Jandiroba",
+"Raquel Pennington",
+"Tatiana Suarez",
+"Rose Namajunas",
+"Yan Xiaonan",
+"Amanda Lemos",
+"Maycee Barber"
+]
+},
+"WSW": {
+"champion": "Zhang Weili",
+"ranked": [
+"Virna Jandiroba",
+"Tatiana Suarez",
+"Yan Xiaonan",
+"Amanda Lemos",
+"Jéssica Andrade",
+"Mackenzie Dern",
+"Amanda Ribas",
+"Iasmin Lucindo",
+"Gillian Robertson",
+"Tabatha Ricci",
+"Loopy Godinez",
+"Angela Hill",
+"Tecia Pennington",
+"Loma Lookboonmee",
+"Denise Gomes"
+]
+},
+"WFLW": {
+"champion": "Valentina Shevchenko",
+"ranked": [
+"Natalia Silva",
+"Manon Fiorot",
+"Alexa Grasso",
+"Erin Blanchfield",
+"Jasmine Jasudavicius",
+"Maycee Barber",
+"Rose Namajunas",
+"Tracy Cortez",
+"Jéssica Andrade",
+"Viviane Araújo",
+"Miranda Maverick",
+"Karine Silva",
+"Casey O'Neill",
+"Wang Cong",
+"JJ Aldrich"
+]
+},
+"WBW": {
+"champion": "Kayla Harrison",
+"ranked": [
+"Julianna Peña",
+"Raquel Pennington",
+"Ketlen Vieira",
+"Norma Dumont",
+"Macy Chiasson",
+"Irene Aldana",
+"Ailin Perez",
+"Mayra Bueno Silva",
+"Yana Santos",
+"Karol Rosa",
+"Jacqueline Cavalcanti",
+"Nora Cornolle",
+"Miesha Tate",
+"Joselyne Edwards",
+"Daria Zhelezniakova"
+]
+}
+}
+}

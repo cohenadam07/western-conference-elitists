@@ -92,32 +92,23 @@ function DesktopItem({ link, activeGroup }) {
       {activeGroup && !link.to && (
         <span aria-hidden="true" className="absolute inset-x-0 -bottom-[3px] h-[3px] bg-gold" />
       )}
-      {/* The dropdown. A padded bridge above it keeps the hover alive on the way down. */}
-      <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3 opacity-0 transition-[opacity,transform,visibility] duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 translate-y-1 group-focus-within:visible group-focus-within:opacity-100">
-        <div className="min-w-[188px] rounded-[10px] border border-line bg-paper p-1.5 shadow-[0_18px_40px_-18px_rgba(25,27,31,0.35)]">
-          {link.children.map((c) =>
-            c.external ? (
-              <a
-                key={c.href}
-                href={c.href}
-                className="block whitespace-nowrap rounded-[7px] px-3 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-muted transition-colors hover:bg-surface hover:text-ink"
-              >
+      {/* The dropdown, in the site's own dropdown dress (the Big Board year picker):
+          a bordered surface panel, rows divided by hairlines, bold row labels. */}
+      <div className="invisible absolute left-0 top-full z-50 origin-top-left pt-2 opacity-0 transition-[opacity,transform,visibility] duration-150 scale-95 group-hover:visible group-hover:scale-100 group-hover:opacity-100 group-focus-within:visible group-focus-within:scale-100 group-focus-within:opacity-100">
+        <div className="w-56 overflow-hidden rounded-md border border-line bg-surface shadow-xl">
+          {link.children.map((c) => {
+            const row = 'flex w-full items-center justify-between gap-3 border-b border-line px-4 py-3 text-left text-sm font-bold text-ink transition-colors last:border-b-0 hover:bg-paper'
+            return c.external ? (
+              <a key={c.href} href={c.href} className={row}>
                 {c.label}
+                <span aria-hidden="true" className="text-gold-deep">↗</span>
               </a>
             ) : (
-              <NavLink
-                key={c.to}
-                to={c.to}
-                className={({ isActive }) =>
-                  `block whitespace-nowrap rounded-[7px] px-3 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.14em] transition-colors hover:bg-surface hover:text-ink ${
-                    isActive ? 'text-ink' : 'text-muted'
-                  }`
-                }
-              >
+              <NavLink key={c.to} to={c.to} className={({ isActive }) => `${row} ${isActive ? 'bg-paper' : ''}`}>
                 {c.label}
               </NavLink>
             )
-          )}
+          })}
         </div>
       </div>
     </div>

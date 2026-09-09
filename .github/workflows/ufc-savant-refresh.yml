@@ -43,6 +43,7 @@ jobs:
           if [ "${{ inputs.refighters }}" = "true" ]; then ARGS="$ARGS --refighters"; fi
           python3 scrape.py $ARGS
           python3 headshots.py
+          python3 rankings.py
       - name: Build
         run: cd pipeline/ufc && python3 build.py
       - name: Commit if changed
