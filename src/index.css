@@ -387,6 +387,17 @@ body {
 /* Pixel Turf, matching the tool this tile opens: chalk on green, and bars built from
    hard-edged blocks, each one a single solid colour -- red for high, blue for low.
    Square corners throughout; nothing in the tool is rounded. */
+.gw .c-ufc .viz { background: #0B0B0B; }
+.gw .c-ufc .ucage { position: absolute; inset: 0; opacity: .55;
+  background-image: linear-gradient(60deg, rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(-60deg, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size: 26px 45px; }
+.gw .c-ufc .ubars { position: absolute; left: 20px; right: 20px; top: 28px; display: flex; flex-direction: column; gap: 11px; }
+.gw .c-ufc .ubar { height: 11px; background: #171717; border: 1px solid #262626; overflow: hidden; }
+.gw .c-ufc .ubar i { display: block; height: 100%; width: 0; animation: gw-fill 1.1s cubic-bezier(0.2,0.7,0.2,1) forwards;
+  background-image: linear-gradient(90deg, #D20A11 0%, #F28C28 50%, #D4AF37 100%); background-repeat: no-repeat; }
+.gw .c-ufc .ubar:nth-child(1) i { animation-delay: 0.35s; --w: 88%; background-size: 113.6% 100%; }
+.gw .c-ufc .ubar:nth-child(2) i { animation-delay: 0.47s; --w: 31%; background-size: 322.6% 100%; }
+.gw .c-ufc .ubar:nth-child(3) i { animation-delay: 0.59s; --w: 64%; background-size: 156.3% 100%; }
 .gw .c-fball .viz { background: #1D6B3A; }
 .gw .c-fball .fyard { position: absolute; inset: 0;
   background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.20) 0 2px, transparent 2px 36px); }
@@ -542,7 +553,7 @@ body {
   .gw *, .gw .card { animation-duration: 0.001s !important; animation-iteration-count: 1 !important; }
   .gw .hero-title em::after { width: 100%; }
   .gw .card { opacity: 1; transform: none; }
-  .gw .c-savant .bar i, .gw .c-board .meter i, .gw .c-fball .fbar i { width: var(--w, 70%); }
+  .gw .c-savant .bar i, .gw .c-board .meter i, .gw .c-fball .fbar i, .gw .c-ufc .ubar i { width: var(--w, 70%); }
   .gw .c-coach .cn { opacity: 1; animation: none; }
   .gw .c-draft .drow { opacity: 1; transform: none; }
 }
@@ -711,7 +722,12 @@ body {
   background: transparent; color: #9C8D7C; border: 1px solid #3D2D21; padding: 6px 10px; cursor: pointer; }
 .hh-btn:hover { color: #E8DCC8; border-color: #9C8D7C; }
 .hoops-stage { position: relative; flex: 1; min-height: 0; }
-.hoops-stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+/* The canvas now renders at full device resolution (see resize() in Hoops.jsx), so there is no
+   upscale to control and `image-rendering: pixelated` has been removed — left in, it would
+   re-alias the very curves the smoothed terrain outlines exist to draw. */
+.hoops-stage canvas {
+  display: block; width: 100%; height: 100%; touch-action: none;
+}
 
 .hoops-card { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
   justify-content: center; gap: 14px; text-align: center; padding: 24px; background: rgba(14,9,6,.88); }
@@ -745,6 +761,21 @@ body {
   pointer-events: none; }
 .hoops-count span { font-family: var(--font-cond, Impact, sans-serif); font-size: clamp(70px, 22vw, 190px);
   color: #D9622B; opacity: .9; }
+
+/* hazard notice — shown while the sim holds the ball at the tee after an oil hit */
+.hoops-hazard { position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px; pointer-events: none;
+  background: rgba(10,6,4,.44); }
+.hoops-hazard .hh-word { font-family: var(--font-cond, Impact, sans-serif);
+  font-size: clamp(46px, 13vw, 120px); color: #E2452B; letter-spacing: .04em; line-height: 1; }
+.hoops-hazard .hh-sub { font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: clamp(13px, 3vw, 20px); letter-spacing: .32em; color: #F2E2C8; text-transform: uppercase; }
+.hoops-hazard .hh-sub i { font-style: normal; animation: hh-dot 1.2s infinite; }
+.hoops-hazard .hh-sub i:nth-child(2) { animation-delay: .2s; }
+.hoops-hazard .hh-sub i:nth-child(3) { animation-delay: .4s; }
+@keyframes hh-dot { 0%, 60%, 100% { opacity: .2 } 30% { opacity: 1 } }
+.hoops-hazard .hh-note { font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: clamp(10px, 2.2vw, 13px); letter-spacing: .12em; color: rgba(242,226,200,.72); }
 
 /* champion */
 .hoops-winner .hoops-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .22em;
@@ -835,3 +866,101 @@ body {
 /* Full-screen panels sit on an opaque ground. At 88% the menu card underneath reads straight
    through them and the headline collides with the shop grid. */
 .hoops-shopwrap, .hoops-pick, .hoops-teaser { background: #0E0906; }
+
+/* Ghost-hole badge on an arena card. Sits top-right of the tile rather than in the meta line so
+   it reads as a seal on the court, not as another stat about it. */
+.hp-badge {
+  position: absolute;
+  top: .55rem;
+  right: .6rem;
+  font-size: .95rem;
+  line-height: 1;
+  color: #FFD54A;
+  text-shadow: 0 0 10px rgba(255, 213, 74, .55);
+  pointer-events: none;
+}
+.hp-world { position: relative; }
+
+/* A locked arena is shown, not hidden — a course that conceals what is coming gives the player
+   nothing to aim at. Desaturated and dimmed rather than removed, with the requirement in place
+   of the teaser. */
+.hp-locked {
+  filter: grayscale(0.85) brightness(0.55);
+  cursor: not-allowed;
+}
+.hp-locked .hp-name { opacity: .75; }
+.hp-locked .hp-sub { opacity: .9; font-style: italic; }
+.hp-locked::after {
+  content: "\1F512";
+  position: absolute;
+  top: .55rem;
+  right: .6rem;
+  font-size: .8rem;
+  opacity: .75;
+}
+
+/* ---- Flap Hoops HUD, rebuilt to the Flappy Golf reference ------------------------------
+   Big outlined hole number, three medal thresholds, controls right. The type is heavy and
+   outlined rather than the site's editorial mono, because this is the one screen on the site
+   that is a toy and not a publication. */
+.hoops-hud {
+  align-items: center;
+  gap: 18px;
+  padding: 10px 16px;
+  background: linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,0));
+  border: 0;
+}
+.hh-hole { display: flex; flex-direction: column; align-items: center; line-height: .82; }
+.hh-holek {
+  font-family: var(--font-cond, Impact, sans-serif);
+  font-size: 13px; letter-spacing: .16em; text-transform: uppercase;
+  color: #fff; -webkit-text-stroke: 2px rgba(20,22,26,.65); paint-order: stroke fill;
+}
+.hh-num {
+  font-family: var(--font-cond, Impact, sans-serif);
+  font-size: 40px; color: #fff;
+  -webkit-text-stroke: 3px rgba(20,22,26,.7); paint-order: stroke fill;
+}
+.hh-medals { display: flex; align-items: center; gap: 14px; }
+.hh-medal { display: inline-flex; align-items: center; gap: 6px; }
+.hh-star { font-size: 20px; line-height: 1; -webkit-text-stroke: 1.5px rgba(20,22,26,.6); paint-order: stroke fill; }
+.hh-gold   .hh-star { color: #FFC72C; }
+.hh-silver .hh-star { color: #E4E8EC; }
+.hh-bronze .hh-star { color: #E56020; }
+.hh-mn {
+  font-family: var(--font-cond, Impact, sans-serif);
+  font-size: 15px; color: #fff; white-space: nowrap;
+  -webkit-text-stroke: 2px rgba(20,22,26,.6); paint-order: stroke fill;
+}
+.hh-live { display: flex; align-items: baseline; gap: 5px; }
+.hh-lv {
+  font-family: var(--font-cond, Impact, sans-serif); font-size: 26px; color: #7FE08A;
+  -webkit-text-stroke: 2.5px rgba(20,22,26,.7); paint-order: stroke fill;
+}
+.hh-lk { font-family: var(--font-mono); font-size: 9px; letter-spacing: .14em;
+  text-transform: uppercase; color: rgba(255,255,255,.6); }
+.hh-icon {
+  font-size: 17px; line-height: 1; color: #fff; background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.22); border-radius: 9px; padding: 5px 10px; cursor: pointer;
+}
+.hh-icon:hover { background: rgba(255,255,255,.2); }
+
+/* The winged paddles in the bottom corners. Decorative: the canvas takes the tap. */
+.hoops-pads { position: absolute; inset: auto 0 0 0; height: 0; pointer-events: none; }
+.hp-pad {
+  position: absolute; bottom: 20px;
+  width: 96px; height: 96px; border-radius: 24px;
+  display: grid; place-items: center;
+  font-size: 40px; color: rgba(255,255,255,.55);
+  background: rgba(255,255,255,.10);
+  border: 2px solid rgba(255,255,255,.18);
+  text-shadow: 0 2px 6px rgba(0,0,0,.4);
+}
+.hp-padl { left: 20px; }
+.hp-padr { right: 20px; }
+@media (max-width: 640px) {
+  .hp-pad { width: 78px; height: 78px; font-size: 32px; bottom: 14px; }
+  .hh-num { font-size: 32px; }
+  .hh-medals { gap: 9px; }
+  .hh-mn { font-size: 12px; }
+}

@@ -9,10 +9,12 @@ const LINKS = [
   { href: '/draft-savant.html', label: 'Draft Savant', external: true },
   { href: '/football-savant.html', label: 'Football Savant', external: true },
   { href: '/coaching-savant.html', label: 'Coaching Savant', external: true },
+  { href: '/ufc-savant.html', label: 'UFC Savant', external: true },
   { to: '/rankings', label: 'Big Board' },
   { to: '/articles', label: 'Analysis' },
   { to: '/comp-chain', label: 'Comp Chain' },
   { to: '/dynasty', label: 'Dynasty' },
+  { to: '/gm', label: 'Front Office' },
   { to: '/hoops', label: 'Hoops' },
   { to: '/about', label: 'About' },
 ]

@@ -1,0 +1,55 @@
+name: UFC Savant refresh
+
+# ufcstats.com (the official FightMetric feed) posts a card's stats within a day or two of
+# the event, and answers cloud IPs — so unlike Basketball Savant this can run here.
+# Cards land on Saturday nights; the feed is usually complete by Monday morning ET.
+on:
+  schedule:
+    - cron: '0 13 * * 1'      # Monday 9:00 ET
+    - cron: '0 13 * * 3'      # Wednesday 9:00 ET (late corrections, midweek cards)
+  workflow_dispatch:
+    inputs:
+      full:
+        description: 'Re-scrape everything (slow, ~20 min)'
+        type: boolean
+        default: false
+      refighters:
+        description: 'Re-pull every fighter page (records, reach, DOB)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ufc-savant-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r pipeline/ufc/requirements.txt
+      - name: Scrape ufcstats
+        run: |
+          cd pipeline/ufc
+          ARGS=""
+          if [ "${{ inputs.full }}" = "true" ]; then ARGS="--full"; fi
+          if [ "${{ inputs.refighters }}" = "true" ]; then ARGS="$ARGS --refighters"; fi
+          python3 scrape.py $ARGS
+          python3 headshots.py
+      - name: Build
+        run: cd pipeline/ufc && python3 build.py
+      - name: Commit if changed
+        run: |
+          git config user.name "ufc-savant-bot"
+          git config user.email "bot@wcehoops.com"
+          git add pipeline/ufc/raw public/ufc-savant-data.json public/ufc-savant-fights.json
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "UFC Savant: refresh $(date -u +%Y-%m-%d)"
+          git push
