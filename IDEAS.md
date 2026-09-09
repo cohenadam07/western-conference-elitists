@@ -13,9 +13,6 @@ future session can pick it up cold. Move an item to the bottom "Done" list when 
   matcher (date + both surnames) and a new `mx` field on each window; the strike map then
   becomes a real 3×3 heat grid. Verified reachable from cloud on Sep 9, 2026; the
   `site.api.espn.com` scoreboard endpoint is Akamai-blocked, the core API is not.
-- **Rankings and champion status.** octagon-api.com `/rankings` mirrors UFC.com's official
-  rankings for free. Would let the profile show "#3 at lightweight" and the home page lead
-  with champions instead of Elo leaders.
 - **Chart button per metric** (the fight-by-fight sparkline Football Savant has per season).
   Per-fight values for SLpM, SApM, differential, KD, TD and control are already in each
   fighter's `log`; the button was left out of v1 to keep the row simple.
@@ -28,13 +25,7 @@ future session can pick it up cold. Move an item to the bottom "Done" list when 
   scores ("Ben Cartlidge 28 - 29 …"). Parse it for a "robbed / gift" flag and a
   decision-margin metric.
 
-## Football Savant
-
-- **Apply the Sept 8 refresh patch.** As of Sep 9 the repo had no `.github/workflows/`
-  and no `pipeline/football/seasons.py`, so the in-season auto-refresh described in
-  `football-savant-refresh.md` never landed. `bash pipeline/football/apply-football-refresh.sh`
-  if the patch file is still there; otherwise redo it.
-
 ## Done
 
 - UFC Savant v1 — Sep 9, 2026.
+- Official rankings + champions in UFC Savant (leaderboard order, profile badge, home chips) — Sep 9, 2026.

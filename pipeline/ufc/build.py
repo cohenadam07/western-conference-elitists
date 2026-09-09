@@ -268,6 +268,51 @@ def aggregate(rows, fighter, asof):
     return m, d, sm, rc, div
 
 
+# ------------------------------------------------------------------ official rankings
+def _norm_name(s):
+    import unicodedata
+    s = (s or '').translate(str.maketrans({'ł': 'l', 'Ł': 'L', 'ø': 'o', 'Ø': 'O', 'đ': 'd', 'Đ': 'D', 'ß': 'ss', 'æ': 'ae'}))
+    s = unicodedata.normalize('NFD', s).encode('ascii', 'ignore').decode().lower()
+    return ' '.join(re.sub(r"[^a-z ]", ' ', s).split())
+
+def attach_rankings(out_f, rankings):
+    """UFC.com's rankings, matched to ufcstats fighters by name. A division list prefers a
+    fighter whose current division matches; pound-for-pound lists take anyone active.
+    Writes e['rks'] = {division: 0 for champion, 1..15} (a fighter can be ranked in two
+    divisions at once) and e['p4p'] = 1..15."""
+    by_name = defaultdict(list)
+    for e in out_f.values():
+        by_name[_norm_name(e['name'])].append(e)
+    def find(name, div=None):
+        cands = by_name.get(_norm_name(name), [])
+        if not cands:
+            # 'Jr.' / middle-name variants: match on first + last token
+            toks = _norm_name(name).split()
+            if len(toks) >= 2:
+                key = toks[0] + ' ' + toks[-1]
+                cands = [e for k, es in by_name.items() for e in es
+                         if k.split()[:1] == [toks[0]] and k.split()[-1:] == [toks[-1]]]
+        if not cands:
+            return None
+        cands.sort(key=lambda e: ((div and e['w']['career']['div'] == div) or False, e['active'], e['last']), reverse=True)
+        return cands[0]
+    n_hit = n_miss = 0
+    for key, lst in rankings.get('lists', {}).items():
+        div = None if key.startswith('P4P') else key
+        names = ([lst['champion']] if lst.get('champion') else []) + list(lst.get('ranked', []))
+        start = 0 if lst.get('champion') else 1
+        for i, nm in enumerate(names):
+            e = find(nm, div)
+            if not e:
+                n_miss += 1; continue
+            n_hit += 1
+            if div:
+                e.setdefault('rks', {})[div] = start + i
+            else:
+                e['p4p'] = i + 1
+    print(f'rankings: matched {n_hit}, unmatched {n_miss}')
+
+
 # ------------------------------------------------------------------ comps
 def pct_rank(v, pool, lower):
     n = len(pool)
@@ -336,6 +381,8 @@ def main():
 
     events, fights, fighters = load('events'), load('fights'), load('fighters')
     heads = json.load(open(os.path.join(HERE, 'raw', 'headshots.json'))) if os.path.exists(os.path.join(HERE, 'raw', 'headshots.json')) else {}
+    rpath = os.path.join(HERE, 'raw', 'rankings.json')
+    rankings = json.load(open(rpath)) if os.path.exists(rpath) else {'fetched': None, 'lists': {}}
     print(f'{len(events)} events, {len(fights)} fights, {len(fighters)} fighters, {sum(1 for v in heads.values() if v)} headshots')
     for f in fights.values():
         if not f.get('date') and f['event'] in events:
@@ -394,6 +441,7 @@ def main():
                 win_rows[wkey][div].append(w)
         out_f[pid] = entry
 
+    attach_rankings(out_f, rankings)
     for wkey, _ in WINDOWS:
         add_comps(win_rows[wkey])
     for e in out_f.values():
@@ -418,7 +466,8 @@ def main():
                weakDims=WEAK_DIMS, qualify={k: list(v) for k, v in QUALIFY.items()},
                denoms=DENOMS, windows=[list(w) for w in WINDOWS],
                divisions=[dict(key=k, label=l, sex=s) for k, l, _, s in DIVISIONS],
-               activeMonths=ACTIVE_MONTHS, activeCut=active_cut, latest=latest)
+               activeMonths=ACTIVE_MONTHS, activeCut=active_cut, latest=latest,
+               rankingsAt=rankings.get('fetched'))
     data = dict(generated=datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ'), cfg=cfg,
                 fighters=out_f, upcoming=up,
                 events={eid: dict(name=e['name'], date=e['date'], location=e.get('location', '')) for eid, e in events.items()})

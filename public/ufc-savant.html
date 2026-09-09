@@ -513,7 +513,7 @@ body.home-open .home{display:flex}
     </div>
     <div class="home-pos" id="homePos" aria-label="Browse by division"></div>
     <div class="home-trend" id="homeTrend">
-      <div class="home-trend-lab">Highest rated right now</div>
+      <div class="home-trend-lab">The champions</div>
       <div class="home-chips" id="homeChips" aria-busy="true">
         <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:108px"></span></div>
         <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:142px"></span></div>
@@ -791,6 +791,8 @@ function shortName(nm){ var p=(nm||'').split(' '); return p.length>1?p[p.length-
 function commas(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
 function headURL(e,big){ return e.h?('https://a.espncdn.com/combiner/i?img=/i/headshots/mma/players/full/'+e.h+'.png&w='+(big?260:120)+'&h='+(big?190:88)+'&scale=crop'):null; }
 function fmtDate(d){ if(!d) return ''; var p=d.split('-'); var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return M[+p[1]-1]+' '+(+p[2])+', '+p[0]; }
+function rankOf(e,div){ return (e.rks&&e.rks[div]!=null)?e.rks[div]:null; }
+function rankTxt(n){ return n==null?'—':(n===0?'C':'#'+n); }
 function winLabel(w){ for(var i=0;i<CFG.windows.length;i++) if(CFG.windows[i][0]===w) return CFG.windows[i][1]; return w; }
 function sampleOf(r,m){
   if(!m.thr||!m.den) return {n:null,ok:true};
@@ -899,6 +901,9 @@ function recordLine(e,r){
 }
 function badges(e,r){
   var out=[], log=e.log||[];
+  if(e.rks){ Object.keys(e.rks).sort(function(a,b){return e.rks[a]-e.rks[b];}).forEach(function(d){ var n=e.rks[d];
+    out.push('<span class="acco gold" title="Official UFC ranking as of '+esc(fmtDate(CFG.rankingsAt))+'">'+(n===0?'★ '+esc(DIVLAB[d]||d)+' champion':'UFC #'+n+' · '+esc(DIVLAB[d]||d))+'</span>'); }); }
+  if(e.p4p) out.push('<span class="acco gold" title="Official pound-for-pound ranking">#'+e.p4p+' pound-for-pound</span>');
   var titles=log.filter(function(f){return f.title;});
   var tw=titles.filter(function(f){return f.res==='W';}).length;
   if(titles.length) out.push('<span class="acco '+(tw?'gold':'')+'" title="'+esc(tw+' of '+titles.length+' title fights won')+'">'+(tw?'★ ':'')+titles.length+' title fight'+(titles.length>1?'s':'')+(tw?' · '+tw+' won':'')+'</span>');
@@ -1234,8 +1239,9 @@ function bestNow(){
   CFG.divisions.forEach(function(d){
     if(d.key==='OPEN') return;
     var best=null;
-    NAMES.forEach(function(e){ var r=e.w.career; if(!e.active||!r.qualified||r.div!==d.key) return; if(!best||(r.m.elo||0)>(best.w.career.m.elo||0)) best=e; });
-    if(best) out.push({e:best,div:d});
+    NAMES.forEach(function(e){ if(rankOf(e,d.key)===0) best=e; });
+    if(!best) NAMES.forEach(function(e){ var r=e.w.career; if(!e.active||!r.qualified||r.div!==d.key) return; if(!best||(r.m.elo||0)>(best.w.career.m.elo||0)) best=e; });
+    if(best) out.push({e:best,div:d,champ:rankOf(best,d.key)===0});
   });
   return out;
 }
@@ -1246,7 +1252,7 @@ function renderHome(){
   var chips=$('homeChips');
   chips.innerHTML=bestNow().map(function(x){ var h=headURL(x.e,false);
     return '<button type="button" class="home-chip" data-id="'+x.e.id+'">'+(h?'<img src="'+esc(h)+'" alt="" onerror="this.outerHTML=\'<span class=hini>'+esc(initials(x.e.name))+'</span>\'">':'<span class="hini">'+esc(initials(x.e.name))+'</span>')
-      +'<span>'+esc(x.e.name)+'</span><small>'+esc(x.div.label.replace("Women's ","W. "))+' · '+Math.round(x.e.w.career.m.elo)+'</small></button>'; }).join('');
+      +'<span>'+esc(x.e.name)+'</span><small>'+esc(x.div.label.replace("Women's ","W. "))+(x.champ?' · champion':' · '+Math.round(x.e.w.career.m.elo))+'</small></button>'; }).join('');
   chips.setAttribute('aria-busy','false');
   chips.querySelectorAll('.home-chip').forEach(function(b){ b.onclick=function(){ selectFighter(b.dataset.id,'career'); }; });
   // the next card
@@ -1296,6 +1302,7 @@ function renderMatchup(){
   var tape='<div class="tape">'+side(A,'l')+'<div class="mu-vs" style="font-size:30px;color:var(--red)">VS</div>'+side(B,'r')
     +'<div class="tmid">'
     +tr('Record',null,null,recA,recB,true)
+    +tr('UFC rank',(rankOf(A,da)==null?null:-rankOf(A,da)),(rankOf(B,db)==null?null:-rankOf(B,db)),rankTxt(rankOf(A,da)),rankTxt(rankOf(B,db)),true)
     +tr('Rating',ra.m.elo,rb.m.elo,Math.round(ra.m.elo||1500),Math.round(rb.m.elo||1500),true)
     +tr('Age',A.age,B.age,miss(A.age)?'—':A.age,miss(B.age)?'—':B.age,false)
     +tr('Height',A.ht,B.ht,inFt(A.ht),inFt(B.ht),true)
@@ -1328,8 +1335,9 @@ function renderMatchup(){
 }
 
 /* ================= LEADERBOARD ================================================ */
-var lb={win:'career',div:'LW',rank:'diff',top:25,minMin:0,ageMin:null,ageMax:null,stance:'',minN:0,cols:['slpm','sapm','diff','td15','tddef','finrate'],display:'value',basis:'active',sample:'settled',dir:'desc'};
+var lb={win:'career',div:'LW',rank:'rank',top:25,minMin:0,ageMin:null,ageMax:null,stance:'',minN:0,cols:['elo','diff','slpm','sapm','td15','tddef'],display:'value',basis:'active',sample:'settled',dir:'desc'};
 var LB_PRESETS=[
+  ['Official rankings','rank',['elo','diff','slpm','sapm','td15','tddef']],
   ['Best differential','diff',['slpm','sapm','diff','sacc','sdef','pace']],
   ['Power','kd15',['kd15','kd100','kowin','finrate','slpm','r1fin']],
   ['Wrestling','td15',['td15','tdacc','tddef','ctrl15','ctrldiff','sub15']],
@@ -1344,18 +1352,29 @@ function lbPool(){
     var e=NAMES[i], r=e.w[lb.win]; if(!r) continue;
     if(lb.basis==='active'&&!e.active) continue;
     var d=r.div||e.div;
+    var ranked=lb.rank==='rank'&&lbRankVal(e)!=null;   // ranked in this division: in, whatever his modal weight class
     if(lb.div==='M'||lb.div==='F'){ if((DIVSEX[d]||'M')!==lb.div) continue; }
-    else if(lb.div&&d!==lb.div) continue;
+    else if(lb.div&&d!==lb.div&&!ranked) continue;
     if(lb.minMin&&(r.d.min||0)<lb.minMin) continue;
     if(lb.minN&&r.n<lb.minN) continue;
     if(lb.stance&&e.stance!==lb.stance) continue;
     if(lb.ageMin!=null&&(miss(e.age)||e.age<lb.ageMin)) continue;
     if(lb.ageMax!=null&&(miss(e.age)||e.age>lb.ageMax)) continue;
+    if(lb.rank==='rank'){
+      if(lbRankVal(e)==null && lb.sample==='settled' && !r.qualified) continue;
+      out.push(e); continue;
+    }
     var v=r.m[lb.rank]; if(miss(v)) continue;
     if(lb.sample==='settled'){ if(!r.qualified) continue; var s=sampleOf(r,MBY[lb.rank]); if(!s.ok) continue; }
     out.push(e);
   }
   return out;
+}
+/* The official UFC ranking for the leaderboard's division: champion 0, then 1..15. The
+   all-men / all-women pools use the pound-for-pound list. */
+function lbRankVal(e){
+  if(lb.div==='M'||lb.div==='F') return e.p4p||null;
+  return rankOf(e,lb.div);
 }
 function lbPct(e,key){
   var r=e.w[lb.win], m=MBY[key];
@@ -1366,14 +1385,23 @@ function lbPct(e,key){
   return p;
 }
 function lbRender(){
-  var pool=lbPool(), m=MBY[lb.rank];
+  var pool=lbPool(), m=MBY[lb.rank], byRank=lb.rank==='rank';
+  if(byRank){
+    // ranked fighters in official order, then everyone else by rating
+    pool.sort(function(a,b){ var ra=lbRankVal(a), rb=lbRankVal(b);
+      if(ra!=null&&rb!=null) return ra-rb; if(ra!=null) return -1; if(rb!=null) return 1;
+      return (b.w[lb.win].m.elo||0)-(a.w[lb.win].m.elo||0); });
+    if(lb.dir==='asc') pool.reverse();
+  } else {
     pool.sort(function(a,b){ var va=a.w[lb.win].m[lb.rank], vb=b.w[lb.win].m[lb.rank]; return (m.lower?(va-vb):(vb-va))*(lb.dir==='desc'?1:-1); });
+  }
   var rows=pool.slice(0,lb.top);
-  var cols=[lb.rank].concat(lb.cols.filter(function(c){return c!==lb.rank;})).slice(0,6);
-  var th='<tr><th class="rk">#</th><th class="l">Fighter</th><th class="l">Division</th>'+cols.map(function(c){return '<th data-k="'+c+'" class="'+(c===lb.rank?'on':'')+'" title="'+esc(MBY[c].label)+'">'+esc(shortLabel(c))+'</th>';}).join('')+'</tr>';
+  var cols=(byRank?[]:[lb.rank]).concat(lb.cols.filter(function(c){return c!==lb.rank;})).slice(0,6);
+  var th='<tr><th class="rk">#</th>'+(byRank?'<th data-k="rank" class="on" title="Official UFC ranking">UFC</th>':'')+'<th class="l">Fighter</th><th class="l">Division</th>'+cols.map(function(c){return '<th data-k="'+c+'" class="'+(c===lb.rank?'on':'')+'" title="'+esc(MBY[c].label)+'">'+esc(shortLabel(c))+'</th>';}).join('')+'</tr>';
   var body=rows.map(function(e,i){
     var r=e.w[lb.win];
-    return '<tr><td class="rk">'+(i+1)+'</td><td class="l"><span class="nm" data-id="'+e.id+'">'+esc(e.name)+'<small>'+r.n+' F'+(e.active?'':' · INACTIVE')+'</small></span></td><td class="l" style="color:var(--muted);font-size:12px">'+esc(DIVLAB[r.div||e.div]||'')+'</td>'
+    var rv=byRank?lbRankVal(e):null;
+    return '<tr><td class="rk">'+(i+1)+'</td>'+(byRank?'<td style="color:'+(rv==null?'var(--faint)':'var(--gold)')+';font-weight:700;text-align:left">'+rankTxt(rv)+'</td>':'')+'<td class="l"><span class="nm" data-id="'+e.id+'">'+esc(e.name)+'<small>'+r.n+' F'+(e.active?'':' · INACTIVE')+'</small></span></td><td class="l" style="color:var(--muted);font-size:12px">'+esc(DIVLAB[r.div||e.div]||'')+'</td>'
       +cols.map(function(c){ var v=r.m[c], mm=MBY[c]; if(miss(v)) return '<td class="un">—</td>';
         var s=sampleOf(r,mm);
         if(lb.display==='pct'){ var p=lbPct(e,c); return '<td style="color:'+(p==null?'var(--faint)':colorAt(p))+';font-weight:700"'+(s.ok?'':' class="un" title="thin sample"')+'>'+(p==null?'·':p)+'</td>'; }
@@ -1383,7 +1411,7 @@ function lbRender(){
   t.innerHTML=rows.length?('<thead>'+th+'</thead><tbody>'+body+'</tbody>'):'<tbody><tr><td class="lb-empty">Nobody clears these filters. Loosen the sample or the cage-time floor.</td></tr></tbody>';
   t.querySelectorAll('th[data-k]').forEach(function(h){ h.onclick=function(){ if(lb.rank===h.dataset.k) lb.dir=lb.dir==='desc'?'asc':'desc'; else { lb.rank=h.dataset.k; lb.dir='desc'; } $('lbRank').value=lb.rank; lbRender(); lbSyncURL(); }; });
   t.querySelectorAll('.nm').forEach(function(s){ s.onclick=function(){ selectFighter(s.dataset.id,lb.win); }; });
-  $('lbHint').textContent='Ranked by '+m.label+(m.lower?' (lower is better)':'')+' · '+winLabel(lb.win)+' · '+(lb.basis==='active'?'active fighters':'all-time')+' · '+pool.length+' fighters'+(lb.sample==='settled'?' with a settled sample':'')+'. Colour is the percentile inside the fighter\'s own division.';
+  $('lbHint').textContent=(byRank?'Official UFC rankings as of '+fmtDate(CFG.rankingsAt)+', champion first, then everyone else by Savant rating':'Ranked by '+m.label+(m.lower?' (lower is better)':''))+' · '+winLabel(lb.win)+' · '+(lb.basis==='active'?'active fighters':'all-time')+' · '+pool.length+' fighters'+(lb.sample==='settled'?' with a settled sample':'')+'. Colour is the percentile inside the fighter\'s own division.';
 }
 function shortLabel(k){ var m=MBY[k]; return m.label.replace('Sig. strikes','Sig. str.').replace(' / 15 min','/15').replace(' / min','/min').replace('per fight','/fight'); }
 function lbOpt(id,items,valf,txtf,curv){ var s=$(id); s.innerHTML=items.map(function(it){var v=valf(it); return '<option value="'+esc(v)+'"'+(v===curv?' selected':'')+'>'+esc(txtf(it))+'</option>';}).join(''); }
@@ -1391,7 +1419,7 @@ function lbBuildControls(){
   lbOpt('lbWin',CFG.windows,function(w){return w[0];},function(w){return w[1];},lb.win);
   var divs=[{key:'M',label:'All men'},{key:'F',label:'All women'}].concat(CFG.divisions.filter(function(d){return d.key!=='OPEN';}));
   lbOpt('lbPos',divs,function(d){return d.key;},function(d){return d.label;},lb.div);
-  lbOpt('lbRank',lbMetrics(),function(m){return m.key;},function(m){return m.label+(m.lower?' ↓':'');},lb.rank);
+  lbOpt('lbRank',[{key:'rank',label:'Official UFC ranking'}].concat(lbMetrics()),function(m){return m.key;},function(m){return m.label+(m.lower?' ↓':'');},lb.rank);
   $('lbTopN').value=String(lb.top);
   $('lbShare').value=lb.minMin; $('lbMinN').value=lb.minN; $('lbStance').value=lb.stance;
   $('lbAgeMin').value=lb.ageMin==null?'':lb.ageMin; $('lbAgeMax').value=lb.ageMax==null?'':lb.ageMax;
@@ -1414,7 +1442,7 @@ function lbEncode(){
 function lbSyncURL(){ try{ history.replaceState(null,'',location.pathname+lbEncode()); }catch(e){} }
 function lbParseHash(q){
   if(q.w&&CFG.windows.some(function(w){return w[0]===q.w;})) lb.win=q.w;
-  if(q.d) lb.div=q.d; if(q.r&&MBY[q.r]) lb.rank=q.r; if(q.n) lb.top=+q.n||25;
+  if(q.d) lb.div=q.d; if(q.r&&(MBY[q.r]||q.r==='rank')) lb.rank=q.r; if(q.n) lb.top=+q.n||25;
   if(q.mm) lb.minMin=+q.mm||0; if(q.mn) lb.minN=+q.mn||0; if(q.st!=null) lb.stance=q.st;
   if(q.a0) lb.ageMin=+q.a0; if(q.a1) lb.ageMax=+q.a1;
   if(q.c) lb.cols=q.c.split(',').filter(function(k){return MBY[k];}).slice(0,6);

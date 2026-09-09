@@ -8,6 +8,7 @@ answers cloud IPs, so nothing here needs your Mac.
 ```
 scrape.py      ufcstats.com -> raw/{events,fights,fighters}.jsonl.gz + raw/upcoming.json
 headshots.py   ESPN athlete ids for images -> raw/headshots.json
+rankings.py    official UFC rankings (octagon-api.com mirror of UFC.com) -> raw/rankings.json
 metrics.py     the metric table (label, panel, layer, unit, threshold, era, explanation)
 build.py       raw -> public/ufc-savant-data.json (fighters × windows) + ufc-savant-fights.json
 ```
@@ -19,6 +20,7 @@ pip install -r requirements.txt
 python3 scrape.py            # incremental: new events + fighters touched by them (~1 min)
 python3 scrape.py --full     # everything, ~14k pages, ~20 min at 6 workers
 python3 headshots.py         # only asks ESPN about fighters it has never asked about
+python3 rankings.py          # official rankings; keeps the old file if the mirror is down
 python3 build.py             # ~20 s
 ```
 
@@ -57,6 +59,11 @@ strength-of-schedule metric can use "as he was that night".
 **Percentiles** are not computed here — the page does that in the browser against whatever
 pool the reader picks (division / everyone × active / all-time × cage-time band).
 
+**Rankings.** `rankings.py` pulls UFC.com's official lists; `build.py` matches names to
+ufcstats fighters (diacritics folded, first+last fallback) and writes `rks` = {division:
+rank} (0 = champion; a fighter can hold two) and `p4p`. The leaderboard opens in that
+order; the profile shows the badge.
+
 **Comps** are computed here, per division and window, as mean absolute percentile distance
 across the `HEADLINE` dimensions (weakness comps use `WEAK_DIMS`, hinged at the median).
 
@@ -72,5 +79,4 @@ Career rates for modern fighters match the ufcstats fighter page to the rounding
 - The 3×3 position × target strike matrix (ESPN's core API has it per fight; ufcstats
   only gives the two marginals). `sports.core.api.espn.com/v2/sports/mma/leagues/ufc/events?dates=YYYYMMDD`
   → `competitions[].competitors[].statistics`.
-- Rankings / champion status (octagon-api.com `/rankings` is a free mirror of UFC.com's).
 - Non-UFC fights.
