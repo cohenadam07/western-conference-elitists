@@ -9,13 +9,15 @@ import Button from './Button.jsx'
 // is a hover dropdown on desktop and an indented run of links on mobile.
 const LINKS = [
   { href: '/basketball-savant.html', label: 'Basketball Savant', external: true },
-  { href: '/draft-savant.html', label: 'Draft Savant', external: true },
+  {
+    href: '/draft-savant.html', label: 'Draft Savant', external: true,
+    children: [{ to: '/rankings', label: 'Big Board' }],
+  },
   {
     href: '/football-savant.html', label: 'Football Savant', external: true,
     children: [{ href: '/coaching-savant.html', label: 'Coaching Savant', external: true }],
   },
   { href: '/ufc-savant.html', label: 'UFC Savant', external: true },
-  { to: '/rankings', label: 'Big Board' },
   { to: '/articles', label: 'Analysis' },
   { to: '/news', label: 'News' },
   // { to: '/podcasts', label: 'Podcasts' },  // hidden for now
