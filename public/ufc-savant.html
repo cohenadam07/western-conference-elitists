@@ -144,6 +144,24 @@ h1,h2,h3,.disp{font-family:var(--disp);text-transform:uppercase;letter-spacing:.
 .acco.major{background:rgba(210,10,17,.16);border-color:rgba(210,10,17,.55);color:#FF6B70}
 .acco.gold{background:rgba(212,175,55,.12);border-color:rgba(212,175,55,.5);color:var(--gold)}
 .measur{display:flex;flex-wrap:wrap;margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+/* Belts: one row per reign, the bar is its length on a fixed scale (1,500 days ≈ Anderson
+   Silva territory), so a short reign stays visibly short. Interim belts are hollow. */
+.belts{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.belts-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.belts-h b{font-family:var(--disp);font-weight:800;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.belts-h span{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.belt{display:grid;grid-template-columns:18px minmax(180px,1fr) minmax(120px,2fr) 60px;align-items:center;gap:10px;padding:5px 0}
+.belt-ic{color:var(--gold);font-size:13px;text-align:center}
+.belt.interim .belt-ic{color:var(--faint)}
+.belt-lab{font-size:13.5px;font-weight:500;line-height:1.2}
+.belt-lab small{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin-top:2px}
+.belt-bar{height:8px;background:var(--track);border-radius:2px;overflow:hidden;border:1px solid #1c1c1c}
+.belt-bar i{display:block;height:100%;background:var(--gold)}
+.belt.interim .belt-bar i{background:repeating-linear-gradient(90deg,var(--gold) 0 4px,transparent 4px 7px);opacity:.7}
+.belt.now .belt-bar i{box-shadow:0 0 10px rgba(212,175,55,.6)}
+.belt-len{font-family:var(--mono);font-size:13px;font-weight:700;text-align:right;color:var(--gold);font-variant-numeric:tabular-nums}
+.belt.interim .belt-len{color:var(--muted);font-weight:500}
+@media(max-width:560px){.belt{grid-template-columns:14px 1fr 50px}.belt-bar{display:none}}
 .measur .m{padding-right:28px;padding-bottom:4px}
 .measur .ml{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 .measur .mv{font-family:var(--mono);font-weight:500;font-size:16px;margin-top:3px}
@@ -792,7 +810,34 @@ function commas(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
 function headURL(e,big){ return e.h?('https://a.espncdn.com/combiner/i?img=/i/headshots/mma/players/full/'+e.h+'.png&w='+(big?260:120)+'&h='+(big?190:88)+'&scale=crop'):null; }
 function fmtDate(d){ if(!d) return ''; var p=d.split('-'); var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return M[+p[1]-1]+' '+(+p[2])+', '+p[0]; }
 function rankOf(e,div){ return (e.rks&&e.rks[div]!=null)?e.rks[div]:null; }
-function rankTxt(n){ return n==null?'—':(n===0?'C':'#'+n); }
+function rankTxt(n){ return n==null?'—':(n===0?'C':n===0.5?'IC':'#'+n); }
+/* A reign's length in words: "2y 4m", "11m", "26d". */
+function spanTxt(days){
+  if(days==null) return '—';
+  if(days<60) return days+'d';
+  var mo=Math.round(days/30.44); if(mo<24) return mo+'m';
+  var y=Math.floor(days/365.25), m=Math.round((days-y*365.25)/30.44);
+  if(m>=12){ y++; m=0; }
+  return y+'y'+(m?' '+m+'m':'');
+}
+function beltsHTML(e){
+  var belts=(e.belts||[]).slice().sort(function(a,b){return (b.days||0)-(a.days||0);});
+  if(!belts.length) return '';
+  var maxd=Math.max(1500, belts[0].days||0);
+  var undisputed=belts.filter(function(b){return !b.interim;});
+  var total=undisputed.reduce(function(s,b){return s+(b.days||0);},0), defs=undisputed.reduce(function(s,b){return s+(b.defenses||0);},0);
+  var rows=belts.map(function(b){
+    var lab=esc(DIVLAB[b.div]||b.div)+(b.interim?' interim':'')+' champion';
+    var when=fmtDate(b.start)+' – '+(b.how==='current'?'present':fmtDate(b.end));
+    var how={current:'reigning',lost:'lost the belt',vacated:'vacated',unified:'unified'}[b.how]||b.how;
+    return '<div class="belt'+(b.interim?' interim':'')+(b.how==='current'?' now':'')+'">'
+      +'<span class="belt-ic" aria-hidden="true">'+(b.interim?'◇':'◆')+'</span>'
+      +'<span class="belt-lab">'+lab+'<small>'+esc(when)+' · '+esc(how)+(b.defenses?' · '+b.defenses+' defense'+(b.defenses>1?'s':''):'')+'</small></span>'
+      +'<span class="belt-bar"><i style="width:'+Math.max(2,Math.min(100,(b.days||0)/maxd*100)).toFixed(1)+'%"></i></span>'
+      +'<span class="belt-len">'+spanTxt(b.days)+'</span></div>';
+  }).join('');
+  return '<div class="belts"><div class="belts-h"><b>Belts</b><span>'+(undisputed.length?spanTxt(total)+' as champion · '+defs+' defense'+(defs===1?'':'s'):'interim only')+'</span></div>'+rows+'</div>';
+}
 function winLabel(w){ for(var i=0;i<CFG.windows.length;i++) if(CFG.windows[i][0]===w) return CFG.windows[i][1]; return w; }
 function sampleOf(r,m){
   if(!m.thr||!m.den) return {n:null,ok:true};
@@ -902,7 +947,7 @@ function recordLine(e,r){
 function badges(e,r){
   var out=[], log=e.log||[];
   if(e.rks){ Object.keys(e.rks).sort(function(a,b){return e.rks[a]-e.rks[b];}).forEach(function(d){ var n=e.rks[d];
-    out.push('<span class="acco gold" title="Official UFC ranking as of '+esc(fmtDate(CFG.rankingsAt))+'">'+(n===0?'★ '+esc(DIVLAB[d]||d)+' champion':'UFC #'+n+' · '+esc(DIVLAB[d]||d))+'</span>'); }); }
+    out.push('<span class="acco gold" title="Official UFC ranking as of '+esc(fmtDate(CFG.rankingsAt))+'">'+(n===0?'★ '+esc(DIVLAB[d]||d)+' champion':n===0.5?'★ '+esc(DIVLAB[d]||d)+' interim champion':'UFC #'+n+' · '+esc(DIVLAB[d]||d))+'</span>'); }); }
   if(e.p4p) out.push('<span class="acco gold" title="Official pound-for-pound ranking">#'+e.p4p+' pound-for-pound</span>');
   var titles=log.filter(function(f){return f.title;});
   var tw=titles.filter(function(f){return f.res==='W';}).length;
@@ -952,7 +997,7 @@ function render(){
       +'<span class="posbadge'+(DIVSEX[div]==='F'?' f':'')+'">'+esc(div||'—')+'</span>'+(e.nick?'<span class="id-nick">“'+esc(e.nick)+'”</span>':'')+'</div>'
       +'<div class="id-meta">'+meta.join(' · ')+'</div>'
       +recordLine(e,r)+statLine(r)+badges(e,r)+ch+'</div></div>'
-    +measurRow(e,r);
+    +measurRow(e,r)+beltsHTML(e);
   closeExpl();
   var ctxHTML='',gridHTML='';
   CFG.panels.forEach(function(g){
@@ -1303,6 +1348,7 @@ function renderMatchup(){
     +'<div class="tmid">'
     +tr('Record',null,null,recA,recB,true)
     +tr('UFC rank',(rankOf(A,da)==null?null:-rankOf(A,da)),(rankOf(B,db)==null?null:-rankOf(B,db)),rankTxt(rankOf(A,da)),rankTxt(rankOf(B,db)),true)
+    +tr('Days as champion',ra.m.beltdays||0,rb.m.beltdays||0,ra.m.beltdays?spanTxt(ra.m.beltdays)+' · '+(ra.m.defenses||0)+' def':'—',rb.m.beltdays?spanTxt(rb.m.beltdays)+' · '+(rb.m.defenses||0)+' def':'—',true)
     +tr('Rating',ra.m.elo,rb.m.elo,Math.round(ra.m.elo||1500),Math.round(rb.m.elo||1500),true)
     +tr('Age',A.age,B.age,miss(A.age)?'—':A.age,miss(B.age)?'—':B.age,false)
     +tr('Height',A.ht,B.ht,inFt(A.ht),inFt(B.ht),true)
@@ -1344,6 +1390,7 @@ var LB_PRESETS=[
   ['Iron chins','koloss100',['koloss100','kdabs15','finloss','sapm','sdef','min']],
   ['Cardio','fade',['fade','r1out','r3out','r3abs','pace','avgtime']],
   ['Ratings','elo',['elo','sos','winpct','finrate','n','act']],
+  ['Longest reigns','beltdays',['beltdays','defenses','elo','winpct','finrate','n']],
 ];
 function lbMetrics(){ return METRICS; }
 function lbPool(){

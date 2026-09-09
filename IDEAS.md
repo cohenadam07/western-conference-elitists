@@ -29,3 +29,4 @@ future session can pick it up cold. Move an item to the bottom "Done" list when 
 
 - UFC Savant v1 — Sep 9, 2026.
 - Official rankings + champions in UFC Savant (leaderboard order, profile badge, home chips) — Sep 9, 2026.
+- Belts: title reigns with length and defenses on every profile, a Longest Reigns leaderboard preset — Sep 9, 2026.

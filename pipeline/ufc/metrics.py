@@ -207,6 +207,16 @@ METRICS = [
     M('r3abs', 'Round 3 absorbed / min', 'rounds', 'By round', 'output', 'num2', den='r3min', thr=15, lower=True,
       w='Significant strikes absorbed per minute in third rounds.',
       y='Whether the other man is still landing on him late. Tired fighters get hit.'),
+
+    # ---------------------------------------------------------------- belts (leaderboard only —
+    # the 'belt' group is not in PANELS, so these never draw as bars on a profile)
+    M('beltdays', 'Days as champion', 'belt', '', 'output', 'num0', den='n',
+      w='Total days he has held a UFC title (undisputed reigns; interim belts not counted), across his career.',
+      y='The belt is the point. Reigns are reconstructed from the title-fight record: a reign starts when he wins the belt and ends when he loses it, or when the next title fight in the division happens without him (vacated or stripped).',
+      f='sum of reign lengths in days'),
+    M('defenses', 'Title defenses', 'belt', '', 'output', 'num0', den='n',
+      w='Successful undisputed title defenses across his career.',
+      y='Winning a belt is one night; keeping it is a résumé.'),
 ]
 
 # Which panels each cohort shows, in story order. Every division shows every panel — a
