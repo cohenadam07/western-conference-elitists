@@ -268,6 +268,94 @@ def aggregate(rows, fighter, asof):
     return m, d, sm, rc, div
 
 
+# ------------------------------------------------------------------ title reigns
+def title_reigns(fights, rankings, latest):
+    """Reconstruct every UFC title reign from the title-fight record.
+    Returns {fighter id: [reign, ...]} with reign = dict(div, start, end|None, days, defenses,
+    how='lost'|'vacated'|'current', interim=bool). A reign ends when the champion loses the
+    belt, or when the next title fight in the division happens without him (he vacated or
+    was stripped — the true date is unknown, so the next title fight's date is used).
+    The official rankings settle the present: if UFC.com lists a different champion (or
+    none), the derived reign is closed as vacated at the data's latest date."""
+    by_div = defaultdict(list)
+    for f in fights.values():
+        wc = (f.get('wc') or '').lower()
+        if 'title' not in wc and not f.get('title'):
+            continue
+        if 'tournament' in wc:
+            continue
+        div = division_of(f.get('wc'))
+        if not div:
+            continue
+        by_div[(div, 'interim' in wc)].append(f)
+    reigns = defaultdict(list)
+    champ_now = {}
+    for (div, interim), fl in by_div.items():
+        fl.sort(key=lambda f: (f['date'], f['id']))
+        champ, cur = None, None
+        def close(how, date):
+            nonlocal champ, cur
+            if cur:
+                cur['end'] = date; cur['how'] = how
+                cur['days'] = (datetime.strptime(date, '%Y-%m-%d') - datetime.strptime(cur['start'], '%Y-%m-%d')).days
+            champ, cur = None, None
+        for f in fl:
+            a, b = f['f']
+            ids = (a['id'], b['id'])
+            if champ and champ not in ids:
+                close('vacated', f['date'])
+            winner = a['id'] if a['res'] == 'W' else (b['id'] if b['res'] == 'W' else None)
+            if winner is None:
+                continue                       # draw / NC: the champion keeps it, no defense credited
+            if winner == champ:
+                cur['defenses'] += 1
+            else:
+                if champ:
+                    close('lost', f['date'])
+                champ = winner
+                cur = dict(div=div, start=f['date'], end=None, days=None, defenses=0, how='current', interim=interim)
+                reigns[winner].append(cur)
+        if cur:
+            if interim:
+                close('vacated', latest)       # settled below: an interim reign ends at the holder's next title fight
+            else:
+                champ_now[div] = (champ, cur)
+    # An interim belt lasts until the holder's next title fight in the division — a
+    # unification he wins (the undisputed reign starts that night), or a loss.
+    title_by_fighter = defaultdict(list)
+    for (div, interim), fl in by_div.items():
+        for f in fl:
+            for x in f['f']:
+                title_by_fighter[(x['id'], div)].append((f['date'], interim, x['res']))
+    for pid, rl in reigns.items():
+        for r in rl:
+            if not r['interim']:
+                continue
+            nxt = sorted(t for t in title_by_fighter[(pid, r['div'])] if t[0] > r['start'])
+            if not nxt:
+                # still the interim champion if UFC.com says so; otherwise it dissolved
+                official_ic = (rankings.get('lists', {}).get(r['div']) or {}).get('interim')
+                if official_ic and _norm_name(official_ic) == _norm_name(FNAME.get(pid, '')):
+                    r['end'] = None; r['how'] = 'current'
+            if nxt:
+                d, was_interim, res = nxt[0]
+                r['end'] = d
+                r['how'] = 'unified' if (res == 'W' and not was_interim) else ('lost' if res == 'L' else 'vacated')
+                r['days'] = (datetime.strptime(d, '%Y-%m-%d') - datetime.strptime(r['start'], '%Y-%m-%d')).days
+    # settle the present against the official rankings
+    lists = rankings.get('lists', {})
+    for div, (pid, cur) in champ_now.items():
+        official = (lists.get(div) or {}).get('champion')
+        if div in lists and (not official or _norm_name(official) != _norm_name(FNAME.get(pid, ''))):
+            cur['end'] = latest; cur['how'] = 'vacated'
+            cur['days'] = (datetime.strptime(latest, '%Y-%m-%d') - datetime.strptime(cur['start'], '%Y-%m-%d')).days
+        else:
+            cur['days'] = (datetime.strptime(latest, '%Y-%m-%d') - datetime.strptime(cur['start'], '%Y-%m-%d')).days
+    return reigns
+
+FNAME = {}
+
+
 # ------------------------------------------------------------------ official rankings
 def _norm_name(s):
     import unicodedata
@@ -283,8 +371,14 @@ def attach_rankings(out_f, rankings):
     by_name = defaultdict(list)
     for e in out_f.values():
         by_name[_norm_name(e['name'])].append(e)
+    # UFC.com / Wikipedia spellings that ufcstats writes differently
+    ALIAS = {'su mudaerji': 'sumudaerji', 'beatriz mesquita': 'bia mesquita',
+             'abusupiyan magomedov': 'abus magomedov', 'sharabutdin magomedov': 'shara magomedov',
+             'mizuki inoue': 'mizuki', 'weili zhang': 'zhang weili', 'lone er kavanagh': 'loneer kavanagh'}
     def find(name, div=None):
-        cands = by_name.get(_norm_name(name), [])
+        key = _norm_name(name)
+        key = ALIAS.get(key, key)
+        cands = by_name.get(key, [])
         if not cands:
             # 'Jr.' / middle-name variants: match on first + last token
             toks = _norm_name(name).split()
@@ -299,17 +393,23 @@ def attach_rankings(out_f, rankings):
     n_hit = n_miss = 0
     for key, lst in rankings.get('lists', {}).items():
         div = None if key.startswith('P4P') else key
-        names = ([lst['champion']] if lst.get('champion') else []) + list(lst.get('ranked', []))
-        start = 0 if lst.get('champion') else 1
-        for i, nm in enumerate(names):
+        # champion 0, interim champion 0.5, then the ranked list 1..15 (Wikipedia's rank
+        # numbers are kept as given — the list can have gaps or ties)
+        items = []
+        if lst.get('champion'):
+            items.append((0, lst['champion']))
+        if lst.get('interim'):
+            items.append((0.5, lst['interim']))
+        items += [(i + 1, nm) for i, nm in enumerate(lst.get('ranked', []))]
+        for n, nm in items:
             e = find(nm, div)
             if not e:
                 n_miss += 1; continue
             n_hit += 1
             if div:
-                e.setdefault('rks', {})[div] = start + i
+                e.setdefault('rks', {})[div] = n
             else:
-                e['p4p'] = i + 1
+                e['p4p'] = n
     print(f'rankings: matched {n_hit}, unmatched {n_miss}')
 
 
@@ -401,6 +501,11 @@ def main():
     for pid in by_f:
         by_f[pid].sort(key=lambda r: (r['date'], r['id']))
 
+    for pid, bio in fighters.items():
+        FNAME[pid] = bio.get('name', '')
+    reigns = title_reigns(fights, rankings, latest)
+    print('title reigns:', sum(len(v) for v in reigns.values()), 'across', len(reigns), 'fighters')
+
     out_f = {}
     win_rows = {w: defaultdict(list) for w, _ in WINDOWS}
     for pid, rows in by_f.items():
@@ -412,7 +517,7 @@ def main():
             reach=bio.get('reach'), stance=bio.get('stance'), dob=bio.get('dob'),
             rec=bio.get('rec'), h=heads.get(pid), last=last, first=rows[0]['date'],
             active=last >= active_cut, age=age_at(bio.get('dob'), latest),
-            w={}, log=[],
+            w={}, log=[], belts=sorted(reigns.get(pid, []), key=lambda r: r['start']),
         )
         # the fight log, newest first
         for r in reversed(rows):
@@ -430,6 +535,10 @@ def main():
             # Elo at the end of the window: the rating after the window's last fight, which
             # for every window is his current rating (windows all end at his latest fight).
             m['elo'] = round(final_elo[pid])
+            undisputed = [r for r in reigns.get(pid, []) if not r['interim']]
+            if undisputed:
+                m['beltdays'] = sum(r['days'] or 0 for r in undisputed)
+                m['defenses'] = sum(r['defenses'] for r in undisputed)
             q = QUALIFY[wkey]
             qualified = d['n'] >= q[0] and (d['min'] or 0) >= q[1] and div is not None
             first_date = sub[0]['date']
@@ -467,7 +576,7 @@ def main():
                denoms=DENOMS, windows=[list(w) for w in WINDOWS],
                divisions=[dict(key=k, label=l, sex=s) for k, l, _, s in DIVISIONS],
                activeMonths=ACTIVE_MONTHS, activeCut=active_cut, latest=latest,
-               rankingsAt=rankings.get('fetched'))
+               rankingsAt=rankings.get('released') or rankings.get('fetched'))
     data = dict(generated=datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ'), cfg=cfg,
                 fighters=out_f, upcoming=up,
                 events={eid: dict(name=e['name'], date=e['date'], location=e.get('location', '')) for eid, e in events.items()})
