@@ -93,6 +93,13 @@ export default function Footer() {
               Open Football Savant
               <span aria-hidden="true">↗</span>
             </a>
+            <a
+              href="/ufc-savant.html"
+              className="mt-2 flex items-center gap-2 text-sm font-semibold text-gold transition-colors hover:text-white"
+            >
+              Open UFC Savant
+              <span aria-hidden="true">↗</span>
+            </a>
             <p className="mt-6 text-xs leading-relaxed text-white/45">
               Independent NBA scouting and analysis. Not affiliated with the
               NBA, NCAA, or any franchise.

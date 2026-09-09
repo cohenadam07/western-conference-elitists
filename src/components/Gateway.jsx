@@ -115,6 +115,26 @@ export default function Gateway() {
               </div>
             </a>
 
+            {/* UFC Savant — the arena at fight time: near-black, one red, one gold. The card
+                shows the red-to-gold bar the tool is built on. */}
+            <a className="card c-ufc span2" href="/ufc-savant.html">
+              <Skeleton />
+              <div className="viz">
+                <div className="ucage" />
+                <div className="ubars">
+                  <div className="ubar"><i /></div>
+                  <div className="ubar"><i /></div>
+                  <div className="ubar"><i /></div>
+                </div>
+              </div>
+              <div className="meta">
+                <span className="ck">Tool · Analytics</span>
+                <h3>UFC Savant</h3>
+                <p>Every UFC fighter since 1993, ranked against his weight class — strike maps, round curves, head-to-heads and comps.</p>
+                <span className="go">Open ↗</span>
+              </div>
+            </a>
+
             {/* Coaching Savant — the tree is the thing worth showing on the card */}
             <a className="card c-coach span2" href="/coaching-savant.html">
               <Skeleton />
