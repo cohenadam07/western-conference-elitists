@@ -1049,6 +1049,19 @@ def main():
                generated=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                source='nflverse (nflfastR pbp, PFR advanced, Next Gen Stats, snap counts, combine, ESPN QBR)',
                cfg=cfg, data=data)
+
+    # Career awards, if awards.py has been run. They are career-level and keyed by player
+    # id, so they ride along as one top-level map rather than on every player-season.
+    awards_path = os.environ.get('NFL_AWARDS', os.path.join(AGG, 'awards.json'))
+    if os.path.exists(awards_path):
+        import patch_awards
+        with open(awards_path) as f:
+            n = patch_awards.attach(out, json.load(f))
+        print('awards attached for', n, 'players', flush=True)
+    else:
+        print('no awards.json at', awards_path, '— run awards.py to add Pro Bowls, '
+              'All-Pro, Hall of Fame and the individual honours', flush=True)
+
     with open(OUT, 'w') as f:
         json.dump(clean(out), f, separators=(',', ':'), allow_nan=False)
     print('wrote', OUT, os.path.getsize(OUT) // 1024, 'KB')

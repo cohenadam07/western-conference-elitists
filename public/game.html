@@ -1,0 +1,477 @@
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Game — Football Savant</title>
+<meta name="description" content="A postseason game rebuilt from the play-by-play: win probability, box score, scoring, drives."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=Roboto+Mono:wght@400;500;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1D6B3A; --surface:#F2F7EE; --raise:#E4EFE0;
+  --ink:#0E2A17; --muted:#3E6B4C; --faint:#7A9384;
+  --line:#DDE7DA; --line2:#C6CDC4;
+  --turf:#1D6B3A; --turf-dk:#0E2A17; --flag:#F4C430; --red:#A2161E;
+  --shadow:6px 6px 0 rgba(14,42,23,.5);
+  --pix:'Silkscreen',ui-monospace,monospace;
+  --body:'Archivo',system-ui,sans-serif;
+  --mono:'Roboto Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background-color:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;
+  background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.10) 0 4px,transparent 4px 8px),
+    repeating-linear-gradient(90deg,rgba(0,0,0,.10) 0 64px,rgba(255,255,255,.05) 64px 128px);
+  background-attachment:fixed;image-rendering:pixelated}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:16px 56px;
+  display:flex;flex-direction:column;gap:14px}
+.plate{background:var(--surface);border:3px solid var(--turf-dk);box-shadow:var(--shadow);padding:18px 20px}
+h1,h2{font-family:var(--pix);margin:0}
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-family:var(--pix);font-size:16px}
+.brand span{color:var(--turf)}
+.blink{font-family:var(--pix);font-size:9px;letter-spacing:.08em;color:var(--muted);
+  text-decoration:none;border-bottom:2px solid var(--line2);padding-bottom:2px}
+.blink:hover{color:var(--turf);border-color:var(--turf)}
+.wce{width:34px;height:34px;background:var(--flag);border:3px solid var(--turf-dk);
+  display:grid;place-items:center;font-family:var(--pix);font-size:9px;color:var(--turf-dk)}
+h2.panel-h{font-size:14px;border-bottom:2px solid var(--line);padding-bottom:9px;margin-bottom:12px}
+.cap{font-family:var(--pix);font-size:8.5px;letter-spacing:.06em;color:var(--faint);line-height:1.9;
+  margin-bottom:12px;text-transform:none}
+
+/* ---- hero */
+.hero{padding:0;overflow:hidden;position:relative}
+.hero-top{height:6px;background:repeating-linear-gradient(90deg,var(--flag) 0 22px,transparent 22px 30px)}
+.heroin{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding:22px 20px 6px}
+.side{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.side svg{width:100%;max-width:210px;height:auto}
+.tname{font-family:var(--pix);font-size:13px;text-align:center;line-height:1.5}
+.tcity{font-family:var(--pix);font-size:8.5px;color:var(--faint);letter-spacing:.08em}
+.tscore{font-family:var(--pix);font-size:38px;line-height:1}
+.win .tscore{color:var(--turf)}
+.lose .tscore{color:var(--faint)}
+.wtag{font-family:var(--pix);font-size:8px;letter-spacing:.1em;background:var(--flag);
+  border:2px solid var(--turf-dk);padding:3px 6px}
+.emblem{display:flex;flex-direction:column;align-items:center;gap:6px}
+.emblem svg{width:132px;height:132px}
+.gmeta{font-family:var(--pix);font-size:8.5px;color:var(--muted);letter-spacing:.06em;text-align:center;
+  line-height:1.9;padding:4px 20px 18px}
+
+/* ---- line score */
+.tblwrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:13px;
+  font-variant-numeric:tabular-nums}
+th{font-family:var(--pix);font-size:8.5px;letter-spacing:.09em;color:var(--faint);text-align:right;
+  padding:6px 9px;border-bottom:2px solid var(--line2);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.nm{font-family:var(--pix);font-size:10px}
+td.tt{font-family:var(--pix);font-size:9px;color:var(--muted)}
+.ls td.fin{font-family:var(--pix);font-size:15px}
+
+/* ---- win probability */
+.wpwrap{position:relative}
+.wp svg{width:100%;height:auto;display:block}
+.wpkey{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-family:var(--pix);font-size:8.5px;
+  color:var(--muted);letter-spacing:.05em}
+.sw{display:inline-block;width:11px;height:11px;border:2px solid var(--turf-dk);vertical-align:-2px;margin-right:5px}
+.modes{display:flex;gap:0;margin-left:auto}
+.modes button{font-family:var(--pix);font-size:8px;letter-spacing:.06em;padding:6px 9px;cursor:pointer;
+  background:#FFF;color:var(--ink);border:2px solid var(--turf-dk);border-right-width:0}
+.modes button:last-child{border-right-width:2px}
+.modes button[aria-pressed="true"]{background:var(--flag)}
+
+/* ---- team stats */
+.ts{display:flex;flex-direction:column;gap:9px}
+.tsr{display:grid;grid-template-columns:64px 1fr 96px 1fr 64px;align-items:center;gap:9px}
+.tsr .lab{grid-column:3;text-align:center;font-family:var(--pix);font-size:8px;letter-spacing:.06em;color:var(--faint)}
+.tsr .va,.tsr .vb{font-family:var(--mono);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.tsr .va{text-align:right} .tsr .vb{text-align:left}
+.tsr .ba,.tsr .bb{height:12px;border:2px solid var(--turf-dk);background:#FFF;position:relative}
+.tsr .ba i,.tsr .bb i{position:absolute;top:0;bottom:0;display:block}
+.tsr .ba i{right:0} .tsr .bb i{left:0}
+
+/* ---- key plays + scoring + drives */
+.plays{display:flex;flex-direction:column;gap:0;border:2px solid var(--line2);background:#FFF}
+.play{display:grid;grid-template-columns:74px 46px 1fr auto;gap:12px;align-items:start;
+  padding:10px 12px;border-bottom:2px solid var(--line);font-size:13.5px;line-height:1.5}
+.play:last-child{border-bottom:none}
+.play .when{font-family:var(--pix);font-size:8.5px;color:var(--faint);letter-spacing:.05em;padding-top:3px}
+.play .who{font-family:var(--pix);font-size:9px;padding:3px 5px;border:2px solid var(--turf-dk);
+  text-align:center;color:#FFF}
+.play .sw2{font-family:var(--mono);font-size:12px;font-weight:700;white-space:nowrap;padding-top:2px}
+.play .up{color:var(--turf)} .play .dn{color:var(--red)}
+.dchart{display:flex;flex-direction:column;gap:3px}
+.drow{display:grid;grid-template-columns:46px 1fr 120px;gap:10px;align-items:center;font-family:var(--mono);font-size:11.5px}
+.dbar{height:14px;border:2px solid var(--turf-dk);background:#FFF;position:relative}
+.dbar i{position:absolute;top:0;bottom:0;left:0}
+.dres{font-family:var(--pix);font-size:8px;letter-spacing:.05em;color:var(--muted)}
+.miss{font-family:var(--pix);font-size:10px;color:var(--faint);padding:22px 0;text-align:center}
+@media (max-width:720px){
+  .heroin{grid-template-columns:1fr;gap:16px}
+  .emblem svg{width:104px;height:104px}
+  .tsr{grid-template-columns:52px 1fr 84px 1fr 52px;gap:6px}
+  .play{grid-template-columns:60px 40px 1fr;gap:8px}
+  .play .sw2{grid-column:1/-1;padding-left:0}
+  .drow{grid-template-columns:40px 1fr;}
+  .drow .dres{grid-column:1/-1}
+}
+</style>
+
+<div class="wrap">
+  <div class="plate bar">
+    <div class="wce">WCE</div>
+    <div class="brand">Football <span>Savant</span></div>
+    <a class="blink" href="/football-savant.html">← PLAYERS</a>
+    <a class="blink" href="/coaching-savant.html">COACHES</a>
+  </div>
+  <div id="body"></div>
+</div>
+
+<script>
+var G=null, TEAMS=null, wpMode='vegas';
+
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function tName(t){return (TEAMS[t]||[t])[0]||t;}
+function tCol(t){return (TEAMS[t]||[0,'#59616D'])[1]||'#59616D';}
+function tCol2(t){return (TEAMS[t]||[0,0,'#101820'])[2]||'#101820';}
+function lum(hex){var c=hex.replace('#','');if(c.length===3)c=c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
+  var r=parseInt(c.slice(0,2),16),g=parseInt(c.slice(2,4),16),b=parseInt(c.slice(4,6),16);
+  return (0.2126*r+0.7152*g+0.0722*b)/255;}
+function onDark(hex){return lum(hex)<0.55?'#FFF':'#0E2A17';}
+function lighten(hex,amt){var c=hex.replace('#','');
+  if(c.length===3)c=c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
+  var v=[0,2,4].map(function(i){var n=parseInt(c.substr(i,2),16);
+    return Math.round(n+(255-n)*amt).toString(16).padStart(2,'0');});
+  return '#'+v.join('');}
+
+/* ---------------------------------------------------------------- the helmet
+   Drawn, not licensed. The shell is an ellipse carved into a jaw, the mask is bars hung
+   off the front, and the only thing borrowed from a real team is its two colours — which
+   are facts about the team, not marks belonging to anyone. Same pixel grid as the rest of
+   the board, so it sits with the lettering instead of on top of it. */
+var HW=24, HH=18, HELM=(function(){
+  var g=[],y,x;
+  for(y=0;y<HH;y++){ g.push([]); for(x=0;x<HW;x++) g[y].push('.'); }
+  var cx=9.2, cy=8.4, rx=8.6, ry=8.2;
+  for(y=0;y<HH;y++) for(x=0;x<HW;x++){
+    var dx=(x+0.5-cx)/rx, dy=(y+0.5-cy)/ry;
+    if(dx*dx+dy*dy<=1) g[y][x]='S';
+  }
+  for(y=13;y<HH;y++) for(x=0;x<HW;x++){ if(x<5+(y-13)*1.4) g[y][x]='.'; }
+  for(y=0;y<2;y++) for(x=0;x<HW;x++){ if(x<6||x>13) g[y][x]='.'; }
+  for(y=0;y<6;y++){ if(g[y][9]==='S'){ g[y][9]='T'; if(g[y][10]==='S') g[y][10]='T'; } }
+  for(y=8;y<10;y++) for(x=5;x<7;x++) if(g[y][x]==='S') g[y][x]='E';
+  var bars=[[14,21,10],[13,21,12],[12,20,14]];
+  bars.forEach(function(b){ for(x=b[0];x<=b[1];x++) if(g[b[2]][x]==='.'||g[b[2]][x]==='S') g[b[2]][x]='M'; });
+  for(y=10;y<=14;y++) if(g[y][21]==='.'||g[y][21]==='S') g[y][21]='M';
+  for(y=10;y<=12;y++) if(g[y][20]==='.') g[y][20]='M';
+  /* a one-pixel prong left by the jaw cut reads as a spike, not a chin */
+  for(y=0;y<HH;y++) for(x=0;x<HW;x++){
+    if(g[y][x]==='.') continue;
+    var l=x>0&&g[y][x-1]!=='.', r=x<HW-1&&g[y][x+1]!=='.';
+    var u=y>0&&g[y-1][x]!=='.', d=y<HH-1&&g[y+1][x]!=='.';
+    if(!l&&!r&&!(u&&d)) g[y][x]='.';
+  }
+  var out=g.map(function(r){return r.slice();});
+  for(y=0;y<HH;y++) for(x=0;x<HW;x++){
+    if(g[y][x]==='.') continue;
+    var n=[[1,0],[-1,0],[0,1],[0,-1]];
+    for(var i=0;i<n.length;i++){
+      var nx=x+n[i][0], ny=y+n[i][1];
+      if(nx<0||ny<0||nx>=HW||ny>=HH||g[ny][nx]==='.'){ out[y][x]='K'; break; }
+    }
+  }
+  return out;
+})();
+function helmetSVG(team,flip,w){
+  var p=tCol(team), s=tCol2(team), mask='#DDE3DE';
+  /* a near-black shell would swallow a near-black outline, so dark teams get a light rim */
+  /* a near-black shell swallows a near-black outline, so a very dark team is rimmed in a
+     lightened version of its own colour rather than a grey borrowed from nowhere */
+  var ink=lum(p)<0.15?lighten(p,0.55):'#0E2A17';
+  if(s.toLowerCase()==='#000000'&&lum(p)<0.3) s='#FFFFFF';
+  var px='';
+  for(var y=0;y<HH;y++){
+    for(var x=0;x<HW;x++){
+      var ch=HELM[y][x]; if(ch==='.') continue;
+      var c = ch==='K'?ink : ch==='S'?p : ch==='T'?s : ch==='M'?mask : ink;
+      var run=1; while(x+run<HW&&HELM[y][x+run]===ch) run++;
+      var X=flip?(HW-x-run):x;
+      px+='<rect x="'+X+'" y="'+y+'" width="'+run+'" height="1" fill="'+c+'"/>';
+      x+=run-1;
+    }
+  }
+  return '<svg viewBox="0 0 '+HW+' '+HH+'" width="'+w+'" shape-rendering="crispEdges" '
+    +'role="img" aria-label="'+esc(tName(team))+' helmet">'+px+'</svg>';
+}
+
+/* The centrepiece. Not the league's emblem — a plate of our own with the game's number on
+   it, which is the part that actually identifies the game. */
+function emblemSVG(g){
+  var label = g.type==='SB' ? g.name.replace('Super Bowl ','') : shortRound(g.type);
+  var sub = (g.date||'').slice(0,4);
+  var big = label.length>4 ? 15 : (label.length>2?21:26);
+  return '<svg viewBox="0 0 100 100" role="img" aria-label="'+esc(g.name)+'">'
+    +'<polygon points="50,3 89,26 89,74 50,97 11,74 11,26" fill="#0E2A17"/>'
+    +'<polygon points="50,9 84,29 84,71 50,91 16,71 16,29" fill="#F4C430"/>'
+    +'<polygon points="50,15 79,32 79,68 50,85 21,68 21,32" fill="#0E2A17"/>'
+    +'<text x="50" y="52" text-anchor="middle" font-family="Silkscreen,monospace" '
+      +'font-size="'+big+'" fill="#F4C430">'+esc(label)+'</text>'
+    +'<text x="50" y="70" text-anchor="middle" font-family="Silkscreen,monospace" '
+      +'font-size="9" fill="#F2F7EE">'+esc(sub)+'</text></svg>';
+}
+function shortRound(t){return t==='CON'?'CONF':(t==='DIV'?'DIV':(t==='WC'?'WILD':t));}
+
+function q(n){ return n<=4 ? ('Q'+n) : (n===5?'OT':('OT'+(n-4))); }
+function commas(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+
+/* ---------------------------------------------------------------- hero */
+function hero(g){
+  var a=g.away, h=g.home;
+  var aw=a.score>h.score, hw=h.score>a.score;
+  function side(t,win,flip){
+    return '<div class="side '+(win?'win':'lose')+'">'
+      +helmetSVG(t.t,flip,210)
+      +'<div class="tname">'+esc(tName(t.t).split(' ').slice(-1)[0].toUpperCase())+'</div>'
+      +'<div class="tcity">'+esc(tName(t.t).split(' ').slice(0,-1).join(' ').toUpperCase())+'</div>'
+      +'<div class="tscore">'+t.score+'</div>'
+      +(win?'<div class="wtag">WINNER</div>':'')+'</div>';
+  }
+  var bits=[g.date, g.stadium];
+  if(g.roof&&g.roof!=='outdoors') bits.push(g.roof);
+  if(g.temp!=null&&g.roof==='outdoors') bits.push(g.temp+'°F'+(g.wind?', wind '+g.wind:''));
+  if(g.ot) bits.push('OVERTIME');
+  if(g.ref) bits.push('REF '+g.ref);
+  return '<div class="plate hero"><div class="hero-top"></div>'
+    +'<div class="heroin">'+side(a,aw,false)
+    +'<div class="emblem">'+emblemSVG(g)
+      +'<div class="tcity">'+esc(g.name.toUpperCase())+'</div></div>'
+    +side(h,hw,true)+'</div>'
+    +'<div class="gmeta">'+esc(bits.join('  ·  ').toUpperCase())+'</div></div>';
+}
+
+/* ---------------------------------------------------------------- line score */
+function lineScore(g){
+  var n=Math.max(g.home.line.length,g.away.line.length,4);
+  var head='<tr><th>Team</th>';
+  for(var i=0;i<n;i++) head+='<th>'+(i<4?(i+1):q(i+1))+'</th>';
+  head+='<th>Final</th></tr>';
+  function row(t){
+    var r='<tr><td class="nm">'+esc(tName(t.t))+'</td>';
+    for(var i=0;i<n;i++) r+='<td>'+(t.line[i]==null?0:t.line[i])+'</td>';
+    return r+'<td class="fin">'+t.score+'</td></tr>';
+  }
+  return '<div class="plate"><h2 class="panel-h">Line score</h2><div class="tblwrap">'
+    +'<table class="ls"><thead>'+head+'</thead><tbody>'+row(g.away)+row(g.home)+'</tbody></table></div></div>';
+}
+
+/* ---------------------------------------------------------------- win probability
+   The spine of the page: one line, the home team's chance of winning, from kickoff to the
+   whistle. Filled to the floor in the home colour and to the ceiling in the away colour,
+   so the shape of the game is legible before a single number is read. */
+function wpChart(g){
+  var series = (wpMode==='vegas'&&g.vwp&&g.vwp.length>4) ? g.vwp : g.wp;
+  if(!series||series.length<4) return '';
+  var W=1000,H=306,PL=44,PR=16,PT=14,PB=34;
+  var maxT=Math.max(3600,series[series.length-1][0]);
+  var X=function(t){ return PL+(W-PL-PR)*t/maxT; };
+  var Y=function(v){ return PT+(H-PT-PB)*(1-v); };
+  var pts=series.map(function(p){ return X(p[0])+','+Y(p[1]); });
+  var hc=tCol(g.home.t), ac=tCol(g.away.t);
+  var floor=Y(0), ceil=Y(1);
+  var below='M'+X(0)+','+floor+' L'+pts.join(' L')+' L'+X(maxT)+','+floor+' Z';
+  var above='M'+X(0)+','+ceil+' L'+pts.join(' L')+' L'+X(maxT)+','+ceil+' Z';
+  var grid='';
+  for(var i=1;i<=Math.ceil(maxT/900);i++){
+    var t=Math.min(i*900,maxT);
+    var lab=i<=4?('END Q'+i):(i===5?'END OT':'END OT'+(i-4));
+    grid+='<line x1="'+X(t)+'" y1="'+PT+'" x2="'+X(t)+'" y2="'+floor+'" stroke="#0E2A17" '
+      +'stroke-opacity=".28" stroke-width="2" stroke-dasharray="3 4"/>';
+    grid+='<text x="'+(X(t)-4)+'" y="'+(floor+20)+'" text-anchor="end" '
+      +'font-family="Silkscreen,monospace" font-size="9" fill="#7A9384">'+lab+'</text>';
+  }
+  var ticks='';
+  [0,0.25,0.5,0.75,1].forEach(function(v){
+    ticks+='<line x1="'+PL+'" y1="'+Y(v)+'" x2="'+(W-PR)+'" y2="'+Y(v)+'" stroke="#0E2A17" '
+      +'stroke-opacity="'+(v===0.5?'.5':'.14')+'" stroke-width="2"'+(v===0.5?'':' stroke-dasharray="2 5"')+'/>'
+      +'<text x="'+(PL-8)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-family="Silkscreen,monospace" '
+      +'font-size="9" fill="#7A9384">'+Math.round(v*100)+'</text>';
+  });
+  var marks='';
+  (g.scoring||[]).forEach(function(s){
+    var v=null;
+    for(var i=0;i<series.length;i++){ if(series[i][0]>=s.s){ v=series[i][1]; break; } }
+    if(v==null) v=series[series.length-1][1];
+    marks+='<circle cx="'+X(s.s)+'" cy="'+Y(v)+'" r="4" fill="'+(s.t===g.home.t?hc:ac)
+      +'" stroke="#0E2A17" stroke-width="2"><title>'+esc(q(s.q)+' '+s.c+' — '+s.d)+'</title></circle>';
+  });
+  return '<div class="plate wp"><h2 class="panel-h">Win probability</h2>'
+    +'<div class="cap">'+esc(tName(g.home.t))+' chance of winning, play by play. '
+    +(wpMode==='vegas'
+      ? 'This line starts from the closing spread, so kickoff is where the market had it.'
+      : 'This line is the pure game-state model, which hands the home team a small edge at kickoff — at a neutral-site Super Bowl that is the model talking, not the game.')
+    +' Dots are scoring plays.</div>'
+    +'<div class="wpwrap"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" '
+      +'style="height:306px" role="img" aria-label="Win probability chart">'
+    +'<rect x="'+PL+'" y="'+PT+'" width="'+(W-PL-PR)+'" height="'+(floor-PT)+'" fill="#FFF"/>'
+    +'<path d="'+above+'" fill="'+ac+'" fill-opacity=".22"/>'
+    +'<path d="'+below+'" fill="'+hc+'" fill-opacity=".30"/>'
+    +ticks+grid
+    +'<polyline points="'+pts.join(' ')+'" fill="none" stroke="#0E2A17" stroke-width="3" '
+      +'stroke-linejoin="round"/>'+marks
+    +'<rect x="'+PL+'" y="'+PT+'" width="'+(W-PL-PR)+'" height="'+(floor-PT)+'" fill="none" '
+      +'stroke="#0E2A17" stroke-width="3"/></svg></div>'
+    +'<div class="wpkey"><span><span class="sw" style="background:'+hc+'"></span>'
+      +esc(tName(g.home.t))+' ahead in win probability</span>'
+    +'<span><span class="sw" style="background:'+ac+'"></span>'+esc(tName(g.away.t))+' ahead</span>'
+    +'<span class="modes"><button data-m="vegas" aria-pressed="'+(wpMode==='vegas')+'">From the spread</button>'
+    +'<button data-m="model" aria-pressed="'+(wpMode==='model')+'">Game state only</button></span></div></div>';
+}
+
+/* ---------------------------------------------------------------- key plays */
+function keyPlays(g){
+  if(!g.key||!g.key.length) return '';
+  var rows=g.key.map(function(k){
+    var c=k.t?tCol(k.t):'#59616D';
+    var up=k.wpa>0;
+    return '<div class="play"><div class="when">'+q(k.q)+' '+esc(k.c)+'</div>'
+      +'<div class="who" style="background:'+c+';color:'+onDark(c)+'">'+esc(k.t||'')+'</div>'
+      +'<div>'+esc(k.d)+'</div>'
+      +'<div class="sw2 '+(up?'up':'dn')+'">'+(up?'+':'')+(k.wpa*100).toFixed(1)+'%</div></div>';
+  }).join('');
+  return '<div class="plate"><h2 class="panel-h">The plays that moved it</h2>'
+    +'<div class="cap">Ranked by how much each swung the win probability, then put back in order. '
+    +'The percentage is the swing toward the team with the ball.</div>'
+    +'<div class="plays">'+rows+'</div></div>';
+}
+
+/* ---------------------------------------------------------------- team stats */
+var TS_ROWS=[
+  ['yds','Total yards',0],['passYds','Net pass yards',0],['rushYds','Rush yards',0],
+  ['fd','First downs',0],['plays','Plays',0],
+  ['third','Third down',0],['fourth','Fourth down',0],
+  ['to','Turnovers',1],['sacksMade','Sacks made',0],
+  ['pen','Penalties',1],['epaPlay','EPA / play',0],['success','Success rate',0]
+];
+function tsVal(s,k){
+  if(k==='third') return s.thirdC+' / '+s.thirdA;
+  if(k==='fourth') return s.fourthA?(s.fourthC+' / '+s.fourthA):'—';
+  if(k==='pen') return s.pen+' · '+s.penYds+'y';
+  if(k==='epaPlay') return s.epaPlay==null?'—':(s.epaPlay>0?'+':'')+s.epaPlay.toFixed(3);
+  if(k==='success') return s.success==null?'—':s.success.toFixed(1)+'%';
+  return commas(s[k]);
+}
+function tsNum(s,k){
+  if(k==='third') return s.thirdA?s.thirdC/s.thirdA:0;
+  if(k==='fourth') return s.fourthA?s.fourthC/s.fourthA:0;
+  if(k==='pen') return s.penYds;
+  if(k==='epaPlay') return (s.epaPlay||0)+0.5;
+  return s[k]||0;
+}
+function teamStats(g){
+  var a=g.team[g.away.t], h=g.team[g.home.t];
+  if(!a||!h) return '';
+  var ac=tCol(g.away.t), hc=tCol(g.home.t);
+  var rows=TS_ROWS.map(function(r){
+    var k=r[0], va=tsNum(a,k), vh=tsNum(h,k), m=Math.max(va,vh,0.0001);
+    return '<div class="tsr"><div class="va">'+tsVal(a,k)+'</div>'
+      +'<div class="ba"><i style="width:'+(100*va/m)+'%;background:'+ac+'"></i></div>'
+      +'<div class="lab">'+esc(r[1].toUpperCase())+'</div>'
+      +'<div class="bb"><i style="width:'+(100*vh/m)+'%;background:'+hc+'"></i></div>'
+      +'<div class="vb">'+tsVal(h,k)+'</div></div>';
+  }).join('');
+  return '<div class="plate"><h2 class="panel-h">Team stats</h2>'
+    +'<div class="cap">'+esc(tName(g.away.t))+' on the left, '+esc(tName(g.home.t))+' on the right. '
+    +'Bars are scaled to the higher of the two, so length is a comparison and not a rate. '
+    +'On turnovers and penalties the longer bar is the worse night.</div>'
+    +'<div class="ts">'+rows+'</div></div>';
+}
+
+/* ---------------------------------------------------------------- box score */
+function boxTable(title,rows,cols){
+  if(!rows.length) return '';
+  var head='<tr><th>Player</th><th>Tm</th>'+cols.map(function(c){return '<th>'+c[1]+'</th>';}).join('')+'</tr>';
+  var body=rows.map(function(r){
+    return '<tr><td class="nm">'+esc(r.n)+'</td><td class="tt">'+esc(r.t)+'</td>'
+      +cols.map(function(c){
+        var v=r[c[0]];
+        if(c[0]==='epa') return '<td>'+(v==null?'—':(v>0?'+':'')+v.toFixed(1))+'</td>';
+        return '<td>'+(v==null?'—':v)+'</td>';
+      }).join('')+'</tr>';
+  }).join('');
+  return '<h2 class="panel-h" style="margin-top:20px">'+title+'</h2>'
+    +'<div class="tblwrap"><table><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>';
+}
+function boxScore(g){
+  var b=g.box||{};
+  var html=boxTable('Passing',(b.pass||[]).filter(function(r){return r.att>0;}),
+      [['cmp','CMP'],['att','ATT'],['yds','YDS'],['td','TD'],['int','INT'],['sk','SK'],['epa','EPA']])
+    +boxTable('Rushing',(b.rush||[]).filter(function(r){return r.att>0;}),
+      [['att','ATT'],['yds','YDS'],['td','TD'],['epa','EPA']])
+    +boxTable('Receiving',(b.rec||[]).filter(function(r){return r.tgt>0;}),
+      [['rec','REC'],['tgt','TGT'],['yds','YDS'],['td','TD'],['epa','EPA']]);
+  if(!html) return '';
+  return '<div class="plate"><h2 class="panel-h" style="margin-top:0">Box score</h2>'
+    +'<div class="cap">EPA is the expected points the player added across the game. '
+    +'Names are as the play-by-play writes them.</div>'
+    +html.replace('<h2 class="panel-h" style="margin-top:20px">','<h2 class="panel-h">')+'</div>';
+}
+
+/* ---------------------------------------------------------------- scoring */
+function scoring(g){
+  if(!g.scoring||!g.scoring.length) return '';
+  var rows=g.scoring.map(function(s){
+    var c=s.t?tCol(s.t):'#59616D';
+    return '<div class="play"><div class="when">'+q(s.q)+' '+esc(s.c)+'</div>'
+      +'<div class="who" style="background:'+c+';color:'+onDark(c)+'">'+esc(s.t||'')+'</div>'
+      +'<div>'+esc(s.d)+'</div>'
+      +'<div class="sw2">'+s.a+'–'+s.h+'</div></div>';
+  }).join('');
+  return '<div class="plate"><h2 class="panel-h">Scoring</h2>'
+    +'<div class="cap">Every play that put points on the board. The score reads '
+    +esc(g.away.t)+'–'+esc(g.home.t)+'.</div>'
+    +'<div class="plays">'+rows+'</div></div>';
+}
+
+/* ---------------------------------------------------------------- drives */
+function drives(g){
+  if(!g.drives||!g.drives.length) return '';
+  var max=Math.max.apply(null,g.drives.map(function(d){return Math.max(d.y,1);}));
+  var rows=g.drives.map(function(d){
+    var c=tCol(d.t);
+    var res=(d.r||'').toUpperCase();
+    return '<div class="drow"><div>'+esc(d.t)+'</div>'
+      +'<div class="dbar"><i style="width:'+Math.max(2,100*Math.max(d.y,0)/max)+'%;background:'+c+'"></i></div>'
+      +'<div class="dres">'+esc(res||'—')+' · '+d.p+'p '+d.y+'y</div></div>';
+  }).join('');
+  return '<div class="plate"><h2 class="panel-h">Drives</h2>'
+    +'<div class="cap">Every possession in order, bar length by yards gained.</div>'
+    +'<div class="dchart">'+rows+'</div></div>';
+}
+
+function render(){
+  var g=G;
+  document.getElementById('body').innerHTML =
+    hero(g)+lineScore(g)+wpChart(g)+keyPlays(g)+teamStats(g)+boxScore(g)+scoring(g)+drives(g);
+  document.title=g.name+' — '+tName(g.away.t)+' '+g.away.score+', '+tName(g.home.t)+' '+g.home.score;
+  document.querySelectorAll('.modes button').forEach(function(b){
+    b.onclick=function(){ wpMode=b.dataset.m; render(); window.scrollTo({top:document.querySelector('.wp').offsetTop-10}); };
+  });
+}
+
+function fail(msg){
+  document.getElementById('body').innerHTML='<div class="plate"><div class="miss">'+esc(msg)+'</div></div>';
+}
+(function init(){
+  var m=/[#&]g=([^&]+)/.exec(location.hash);
+  if(!m){ fail('No game in the link.'); return; }
+  var id=decodeURIComponent(m[1]);
+  Promise.all([
+    fetch('football-games/'+encodeURIComponent(id)+'.json').then(function(r){
+      if(!r.ok) throw new Error('no game '+id); return r.json(); }),
+    fetch('football-games/teams.json').then(function(r){return r.json();})
+  ]).then(function(v){ G=v[0]; TEAMS=v[1]; render(); })
+   .catch(function(e){ fail('Could not load that game. '+(e&&e.message||e)); });
+  window.addEventListener('hashchange',function(){ location.reload(); });
+})();
+</script>
