@@ -28,7 +28,43 @@ cp maps/*.json ../../public/football-maps/
 ```
 
 Needs Python 3.9+ with `pandas` and `pyarrow`. Paths are overridable:
-`NFL_RAW`, `NFL_AGG`, `NFL_MAPS`, `NFL_OUT`.
+`NFL_RAW`, `NFL_AGG`, `NFL_MAPS`, `NFL_OUT`. Seasons too: `NFL_SEASONS=2026`,
+`2024,2025` or `1999-2026` (default: 1999 through the current season — see `seasons.py`).
+
+## In-season refresh (automatic)
+
+The archive above is a full local run and changes a few times a year. The season in
+progress is a separate, small file, rebuilt by `refresh_current.sh` and committed by the
+GitHub Action in `.github/workflows/football-savant-refresh.yml`:
+
+| Output | What it is |
+|---|---|
+| `public/football-savant-current.json` | the current season only (a few hundred KB, ~2 MB by January) |
+| `public/football-maps/<season>.json` + `index.json` | that season's field maps; the index is merged, not overwritten |
+
+The page fetches both files and merges them (`mergeData` in `football-savant.html`); where
+both carry the same season the more recently generated wins, so the archive takes over
+cleanly once a finished season is baked into it. Runs every morning at 8am ET and at ~1am
+ET after Thursday, Sunday and Monday night games, or by hand from the Actions tab. Nothing
+is committed when the data hasn't changed, so an off-season run is a no-op.
+
+```bash
+cd pipeline/football && ./refresh_current.sh        # the same thing, locally
+```
+
+Three things are different about a season in progress, all in `build.py`:
+
+- **Qualifying lines are pro-rated.** 150 dropbacks is a full-season claim; in week 2
+  nobody has it and the percentile pool would be empty. The line scales with how much of
+  the season *his team* has played (from the schedule), so a starter is a starter from the
+  first Sunday.
+- **Availability** is games played over his team's games so far, not over 17.
+- **"Missed the playoffs"** is not asserted until the season is over. The season block
+  carries `week: N` while it is partial, and the page shows "through week N".
+
+What the automatic refresh cannot give you: the offensive-line on/off card, because FTN's
+participation data is published after the season; and Coaching Savant, which needs every
+season's play-by-play and stays a local run.
 
 ## The files
 

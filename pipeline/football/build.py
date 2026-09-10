@@ -23,11 +23,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from metrics import (METRICS, POS_PANELS, POS_LABEL, GROUP_LABEL, HEADLINE, WEAK_DIMS,
                      QUALIFY, QUALIFY_FALLBACK, TIER_SINCE, DENOMS)
 from teams import TEAMS
+from seasons import seasons as season_list_from_env
 
 RAW = os.environ.get('NFL_RAW', 'raw')
 AGG = os.environ.get('NFL_AGG', 'agg')
 OUT = os.environ.get('NFL_OUT', 'football-savant-data.json')
-SEASONS = list(range(1999, 2026))
+SEASONS = season_list_from_env()
+REG_WEEKS = 18            # the regular season is 17 games over 18 weeks (2021 on)
 
 MBY = {m['key']: m for m in METRICS}
 
@@ -202,7 +204,7 @@ def load_pfr(by_pfr):
 def load_snaps(by_pfr):
     """Season snap totals plus snap share, from weekly snap counts (2013+)."""
     out = {}
-    for y in range(2013, 2026):
+    for y in range(2013, max(SEASONS) + 1):
         p = os.path.join(RAW, 'snaps_%d.csv' % y)
         if not os.path.exists(p) or os.path.getsize(p) < 1000:
             continue
@@ -321,6 +323,43 @@ def season_accolades(df):
                 break
             out[df.at[idx, 'player_id']].append(dict(r=rank, s=label))
     return out
+
+
+def weeks_played(y):
+    """The last regular-season week with a stat line in the weekly table, or None if the
+    weekly file isn't there. This is how the build knows a season is still in progress."""
+    p = os.path.join(RAW, 'wk_%d.csv' % y)
+    if not os.path.exists(p) or os.path.getsize(p) < 1000:
+        return None
+    df = pd.read_csv(p, usecols=['week', 'season_type'], low_memory=False)
+    df = df[df.season_type == 'REG']
+    if df.empty:
+        return None
+    return int(pd.to_numeric(df.week, errors='coerce').max())
+
+
+def season_progress(y, records):
+    """(weeks played, games each team has played, share of the season complete).
+
+    A qualifying line is a claim about a full season — 150 dropbacks is a starter's
+    September and October. In week 2 nobody has 150 of anything, so an in-progress season
+    would have an empty percentile pool and a blank front page. The line therefore scales
+    with how much of the season his *team* has played, so a starter is a starter from the
+    first Sunday and the pool fills the same way the leaderboards do.
+
+    Team games come from the schedule where it has scores; the weekly table's last week is
+    the fallback (right until byes start, one high for teams that have had theirs).
+    """
+    wk = weeks_played(y)
+    full = 17 if y >= 2021 else 16
+    if wk is None or wk >= (REG_WEEKS if y >= 2021 else 17):
+        return None, {}, 1.0
+    team_games = {}
+    for (team, yr), tr in records.items():
+        if yr == y:
+            team_games[team] = tr['w'] + tr['l'] + tr['t']
+    frac = min(1.0, (max(team_games.values()) if team_games else wk) / float(full))
+    return wk, team_games, frac
 
 
 def load_onfield(y):
@@ -944,7 +983,15 @@ def main():
         p = os.path.join(RAW, 'reg_%d.csv' % y)
         if os.path.exists(p):
             regs[y] = pd.read_csv(p, low_memory=False)
-    pmake = fg_curve(regs)
+    # The FG curve's pooled fallback wants every season on disk, not just the ones being
+    # built — a one-season refresh in September has a dozen kicks from 55 to learn from.
+    curve_regs = dict(regs)
+    for y in range(1999, max(SEASONS) + 1):
+        p = os.path.join(RAW, 'reg_%d.csv' % y)
+        if y not in curve_regs and os.path.exists(p):
+            curve_regs[y] = pd.read_csv(p, usecols=['fg_made_list', 'fg_missed_list'],
+                                        low_memory=False)
+    pmake = fg_curve(curve_regs)
 
     data, season_list = {}, []
     for y in SEASONS:
@@ -955,7 +1002,11 @@ def main():
         accos = season_accolades(df.reset_index(drop=True))
         onf_a, onf_teams = load_onfield(y)
         starts_a = load_starts(y, by_pfr)
-        team_games = 17 if y >= 2021 else 16
+        full_games = 17 if y >= 2021 else 16
+        wk, tgames, frac = season_progress(y, records)
+        partial = wk is not None
+        if partial:
+            print(y, 'in progress: through week', wk, '(%.0f%% of the season)' % (frac * 100), flush=True)
         players, pos_pools = [], defaultdict(list)
         for r in df.to_dict('records'):
             gid = r.get('player_id')
@@ -965,6 +1016,9 @@ def main():
             pos = cohort(r.get('position'), b.get('pff_pos'), b.get('ngs_pos'))
             if not pos:
                 continue
+            team_games = full_games
+            if partial:
+                team_games = tgames.get(sstr(r.get('recent_team'))) or wk
             m, d = build_player(r, pos, bio, ngs, pfr, snap, qbr, comb,
                                 qb_a.get(gid), rush_a.get(gid), rec_a.get(gid),
                                 pen_a.get(gid), onf_a.get(gid), onf_teams,
@@ -976,6 +1030,9 @@ def main():
             if have is None and pos in QUALIFY_FALLBACK:
                 qkey, qmin = QUALIFY_FALLBACK[pos]
                 have = d.get(qkey)
+            if partial:
+                # pro-rated to his team's share of the season, never below one game's worth
+                qmin = max(qmin * (team_games / float(full_games)), qmin / float(full_games))
             qualified = bool(have is not None and have >= qmin)
             age = None
             if b.get('birth'):
@@ -997,7 +1054,7 @@ def main():
                 rec_out['rec'] = [tr['w'], tr['l'], tr['t']]
                 if tr['po']:
                     rec_out['po'] = tr['po']
-                elif tr['w'] + tr['l'] + tr['t'] >= 8:
+                elif not partial and tr['w'] + tr['l'] + tr['t'] >= 8:
                     rec_out['po'] = 'Missed the playoffs'
                 if tr['coach']:
                     rec_out['coach'] = tr['coach']
@@ -1035,9 +1092,13 @@ def main():
                         p['m'][key] = rnd(z / len(parts), 3)
 
         add_comps(players, pos_pools)
-        data[str(y)] = dict(players=players)
+        block = dict(players=players)
+        if partial:
+            block['week'] = wk          # the page says "through Week N" while this is set
+        data[str(y)] = block
         season_list.append(str(y))
-        print(y, len(players), 'players', flush=True)
+        print(y, len(players), 'players,', sum(1 for p in players if p['qualified']),
+              'qualified', flush=True)
 
     cfg = dict(metrics=METRICS, panels=POS_PANELS, posLabel=POS_LABEL,
                groupLabel=GROUP_LABEL, headline=HEADLINE, weakDims=WEAK_DIMS,

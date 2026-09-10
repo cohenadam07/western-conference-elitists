@@ -12,6 +12,8 @@ Output: agg/pbp_<season>.json  ->  {"qb":[...],"rush":[...],"rec":[...]} rows ke
 population and mixing it into a season rate is how per-game stats start lying.
 """
 import json, os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from seasons import seasons as season_list_from_env
 import numpy as np
 import pandas as pd
 
@@ -199,7 +201,7 @@ def run_season(year):
 
 
 if __name__ == '__main__':
-    years = [int(a) for a in sys.argv[1:]] or list(range(1999, 2026))
+    years = [int(a) for a in sys.argv[1:]] or season_list_from_env()
     for y in years:
         r = run_season(y)
         print(y, r, flush=True)

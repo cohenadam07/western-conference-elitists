@@ -3633,14 +3633,39 @@ function addCompare(id){
 }
 
 /* ================= BOOT ==================================================== */
+/* Two files. The archive (football-savant-data.json, 1999 to the last finished season) is
+   built by a full local run and changes a few times a year. The season in progress lives
+   in football-savant-current.json, a few hundred KB rebuilt by the refresh job every
+   morning and after every game night. Merging them here is what lets the small file be
+   the only thing that moves during the season. Where both carry the same season, the
+   more recently generated one wins — after the season is baked into the archive, a stale
+   current file can't paper over it. */
+function mergeData(base, cur){
+  if(!cur||!cur.data) return base;
+  var newer=!base.generated||!cur.generated||cur.generated>=base.generated;
+  Object.keys(cur.data).forEach(function(s){
+    if(!base.data[s]||newer) base.data[s]=cur.data[s];
+  });
+  base.seasons=Object.keys(base.data).sort(function(a,b){return +b-+a;});
+  if(!base.cfg&&cur.cfg) base.cfg=cur.cfg;
+  if(base.cfg) base.cfg.season=base.seasons[0];
+  return base;
+}
 function init(){
-  fetch('football-savant-data.json').then(function(r){
-    if(!r.ok) throw new Error('data '+r.status);
-    return r.json();
-  }).then(function(j){
-    DATA=j; prepData();
+  var cache='?v='+Math.floor(Date.now()/3600000);   // the current file changes daily; an hour of cache is plenty
+  Promise.all([
+    fetch('football-savant-data.json').then(function(r){
+      if(!r.ok) throw new Error('data '+r.status);
+      return r.json();
+    }),
+    fetch('football-savant-current.json'+cache).then(function(r){return r.ok?r.json():null;})
+      .catch(function(){return null;})
+  ]).then(function(res){
+    DATA=mergeData(res[0],res[1]); prepData();
     document.getElementById('boot').remove();
-    document.getElementById('srcpill').textContent='nflverse · '+DATA.seasons[DATA.seasons.length-1]+'–'+DATA.seasons[0];
+    var wk=(DATA.data[DATA.seasons[0]]||{}).week;
+    document.getElementById('srcpill').textContent='nflverse · '+DATA.seasons[DATA.seasons.length-1]+'–'+DATA.seasons[0]
+      +(wk?' · through week '+wk:'');
     curSeason=DATA.seasons[0];
     renderHomePos();
     renderHomeChips(leagueBest(curSeason,8));

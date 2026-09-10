@@ -18,6 +18,8 @@ Output: agg/onfield_<season>.json
   {"players":[{pid, tm, ...counters}], "teams":{tm: {...same counters}}}
 """
 import json, os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from seasons import seasons as season_list_from_env
 from collections import defaultdict
 
 import numpy as np
@@ -121,6 +123,6 @@ def run_season(year):
 
 
 if __name__ == '__main__':
-    years = [int(a) for a in sys.argv[1:]] or list(range(FIRST, 2026))
+    years = [int(a) for a in sys.argv[1:]] or [y for y in season_list_from_env() if y >= FIRST]
     for y in years:
         print(y, run_season(y), flush=True)
