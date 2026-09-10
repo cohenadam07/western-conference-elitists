@@ -210,6 +210,10 @@ table.seasons{width:100%;border-collapse:collapse;font-size:12.5px}
 .seasons tbody tr:hover{background:var(--raise)}
 .po-tag{font-family:var(--pix);font-size:8.5px;padding:3px 6px;border:2px solid var(--turf-dk);background:#FFF}
 .po-tag.sb{background:var(--flag)} .po-tag.deep{background:#DDF0E2}
+.po-tag{display:inline-block;line-height:1.5;white-space:nowrap}
+.po-link{text-decoration:none;color:var(--ink);cursor:pointer}
+.po-link:hover{box-shadow:2px 2px 0 rgba(14,42,23,.45)}
+.po-link i{display:block;font-style:normal;font-size:7.5px;letter-spacing:.06em;opacity:.72;margin-top:2px}
 
 /* ---------------------------------------------------------------- the tree */
 .treewrap{padding:16px 16px 30px;max-width:1600px;margin:0 auto}
@@ -402,6 +406,35 @@ html.fslock,html.fslock body{overflow:hidden}
    three seasons — below that a career rate is a coin toss.
    ========================================================================= */
 var DATA=null, COACHES={}, NAMES=[], cur=null, openExpl=null;
+
+/* ---------------------------------------------------------------- games
+   A season row already knows how far the team went; the game index knows which game that
+   was. Joining them on season + round + team turns "LOST SB" into the name of the game,
+   who it was against, how it ended, and a way in. */
+var GIDX=null;
+var ROUND_TYPE={1:'WC', 2:'DIV', 3:'CON', 4:'SB'};
+function sbName(season){
+  var n=(+String(season).slice(0,4))-1965;
+  if(!isFinite(n)||n<1) return '';
+  if(n===50) return '50';
+  var M=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],
+         [50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']], out='';
+  for(var i=0;i<M.length;i++){ while(n>=M[i][0]){ out+=M[i][1]; n-=M[i][0]; } }
+  return out;
+}
+function findGame(season,team,round){
+  if(!GIDX) return null;
+  var ty=ROUND_TYPE[round];
+  if(!ty) return null;
+  for(var id in GIDX){
+    var g=GIDX[id];
+    if(g.s!==+season||g.ty!==ty) continue;
+    if(g.h!==team&&g.a!==team) continue;
+    var us=g.h===team, mine=us?g.hs:g.as, theirs=us?g.as:g.hs;
+    return {id:id, opp:us?g.a:g.h, mine:mine, theirs:theirs, won:mine>theirs, name:g.n};
+  }
+  return null;
+}
 var MIN_SEASONS=3;
 
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
@@ -693,9 +726,20 @@ function renderCoach(name){
 function seasonTable(c){
   var rows=c.seasons.slice().reverse().map(function(s){
     var po='';
-    if(s.sb) po='<span class="po-tag sb">WON SB</span>';
-    else if(s.best===4) po='<span class="po-tag deep">LOST SB</span>';
-    else if(s.best) po='<span class="po-tag'+(s.best>=3?' deep':'')+'">'+esc(ROUND_NAME[s.best])+'</span>';
+    if(s.best){
+      var cls = s.sb ? 'po-tag sb' : (s.best>=3 ? 'po-tag deep' : 'po-tag');
+      var lab = s.best===4 ? ('SUPER BOWL '+sbName(s.season))
+                           : esc(ROUND_NAME[s.best]).toUpperCase();
+      var g=findGame(s.season,s.team,s.best);
+      if(g){
+        var line=(g.won?'BEAT ':'LOST TO ')+esc(g.opp)+' '+g.mine+'–'+g.theirs;
+        po='<a class="'+cls+' po-link" href="/game.html#g='+encodeURIComponent(g.id)+'" '
+          +'title="'+esc(g.name+' — '+(g.won?'beat ':'lost to ')+g.opp+' '+g.mine+'–'+g.theirs
+            +'. Open the game.')+'">'+lab+'<i>'+line+' \u2197</i></a>';
+      } else {
+        po='<span class="'+cls+'">'+lab+'</span>';
+      }
+    }
     return '<tr><td>'+s.season+'</td><td>'+esc(s.team)+'</td><td>'+po+'</td>'
       +'<td>'+s.w+'–'+s.l+(s.t?'–'+s.t:'')+'</td>'
       +'<td>'+(s.waa==null?'—':fmt('sgn1',s.waa))+'</td>'
@@ -1269,6 +1313,9 @@ function route(){
 }
 
 function init(){
+  fetch('football-games/index.json').then(function(r){ return r.ok?r.json():null; })
+    .then(function(j){ GIDX=j; if(cur) openCoach(cur.name||cur); })
+    .catch(function(){ GIDX=null; });
   fetch('coaching-savant-data.json').then(function(r){
     if(!r.ok) throw new Error('data '+r.status);
     return r.json();

@@ -173,6 +173,38 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 .tr-po.in{color:var(--turf)}
 .teamrec.champ .tr-po{color:var(--flag);font-weight:700}
 .tr-coach{color:var(--faint);border-left:1px solid var(--line2);padding-left:9px}
+.tr-game{text-decoration:none;border-bottom:1px dotted currentColor;cursor:pointer}
+.tr-game b{font-weight:700;opacity:.78}
+.tr-game:hover{border-bottom-style:solid}
+/* ---- career mode: the button that pools a man's seasons, and what it puts on the card */
+.careerbtn{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  background:var(--raise);color:var(--muted);border:1px solid var(--line2);border-radius:6px;
+  padding:8px 13px;margin-left:7px;cursor:pointer;white-space:nowrap}
+.careerbtn:hover{color:var(--ink);border-color:var(--turf)}
+.careerbtn[aria-pressed="true"]{background:var(--turf);border-color:var(--turf);color:#08160D;font-weight:700}
+.ctl-off{opacity:.42;pointer-events:none}
+.cacc{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.cacc-i{display:flex;align-items:baseline;gap:6px;border:1px solid var(--line2);background:var(--raise);
+  border-radius:5px;padding:5px 10px;font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);cursor:help;white-space:nowrap}
+.cacc-i b{font-family:var(--body);font-size:15px;font-weight:700;letter-spacing:0;color:var(--ink)}
+.cacc-i.ring{background:rgba(255,211,74,.15);border-color:rgba(255,211,74,.5);color:var(--flag)}
+.cacc-i.ring b,.cacc-i.award b{color:var(--flag)}
+.cacc-i.award{background:rgba(255,211,74,.09);border-color:rgba(255,211,74,.34);color:var(--flag)}
+.cacc-i.lead{background:rgba(69,208,124,.14);border-color:rgba(69,208,124,.45);color:var(--turf)}
+.cacc-i.unk{background:transparent;border-style:dashed;color:var(--faint)}
+.cacc-i.lead b{color:var(--turf)}
+.ctot{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 20px;margin-top:13px;padding-top:12px;
+  border-top:1px solid var(--line)}
+.ctot .ct{display:flex;flex-direction:column;gap:2px}
+.ctot .tv{font-family:var(--body);font-size:17px;font-weight:700;color:var(--ink);
+  font-variant-numeric:tabular-nums;line-height:1.1}
+.ctot .tl{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.ctot .tl i{font-style:normal;color:var(--line2)}
+.ctot .ct.part{cursor:help}
+.ctot-note{font-family:var(--mono);font-size:8.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint);border:1px dashed var(--line2);border-radius:4px;padding:3px 7px;cursor:help;
+  align-self:center}
 .accos{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
 .acco{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
   border:1px solid var(--line2);color:var(--muted);background:var(--raise);border-radius:4px;
@@ -207,6 +239,7 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 .arcbtn:hover{border-color:var(--turf);color:var(--ink)}
 .arcbtn:focus-visible{outline:2px solid var(--turf);outline-offset:2px}
 .arcbtn[hidden]{display:none}
+.playbtn[hidden]{display:none}
 .arcbtn .caret{font-size:8px;transition:transform .18s ease}
 .arcbtn[aria-expanded="true"] .caret{transform:rotate(180deg)}
 .arcbtn .cur{color:var(--ink)} .arcbtn .pk{color:var(--flag)}
@@ -770,6 +803,20 @@ body{background-color:#1D6B3A;color:var(--ink);
 .acco.rank{background:#FFF3C9;color:#6B5310;border-color:var(--turf-dk)}
 .acco.lead{background:var(--flag);color:#2A2208;border-color:var(--turf-dk)}
 .tr-rec{font-size:14px} .tr-po{color:var(--turf)} .teamrec.champ .tr-po{color:#8A6B14}
+.careerbtn{font-family:var(--pix);font-size:9px;border:2px solid var(--turf-dk);border-radius:0;
+  background:#FFF;color:var(--ink);box-shadow:2px 2px 0 rgba(14,42,23,.35)}
+.careerbtn[aria-pressed="true"]{background:var(--flag);color:#2A2208;box-shadow:none}
+.cacc-i{font-family:var(--pix);font-size:8.5px;border:2px solid var(--turf-dk);border-radius:0;
+  background:#FFF;color:var(--ink);padding:5px 9px}
+.cacc-i b{font-family:var(--pix);font-size:13px;font-weight:400}
+.cacc-i.ring{background:var(--flag);color:#2A2208} .cacc-i.ring b{color:#2A2208}
+.cacc-i.award{background:#FFF3C9;color:#6B5310} .cacc-i.award b{color:#6B5310}
+.cacc-i.lead{background:#DDF0E2;color:var(--turf-dk)} .cacc-i.lead b{color:var(--turf-dk)}
+.cacc-i.unk{background:transparent;border-style:dashed;color:#7A9384}
+.ctot{border-top:2px solid var(--line)}
+.ctot .tv{font-family:var(--pix);font-size:15px;font-weight:400}
+.ctot .tl{font-family:var(--pix);font-size:8px;color:#7A9384}
+.ctot-note{font-family:var(--pix);font-size:8px;border:2px dashed var(--line2)}
 .tr-coach{color:var(--muted);border-left:2px solid var(--line2);text-decoration:none}
 .tr-coach:hover{color:var(--turf)}
 .measur{border-top:2px solid var(--line)}
@@ -1037,6 +1084,8 @@ body{background-color:#1D6B3A;color:var(--ink);
         <button type="button" class="selx-btn" id="seasonBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Season"><span id="seasonBtnLab">—</span><span class="selx-caret" aria-hidden="true">▾</span></button>
         <div class="selx-pop" id="seasonPop" role="listbox" aria-label="Season" hidden></div>
       </div>
+      <button type="button" class="careerbtn" id="careerBtn" aria-pressed="false"
+        title="Every season he played, pooled into one profile">Career</button>
     </div>
     <div class="ctl"><span class="ctl-lab">Rank against</span>
       <div class="seg" id="baseseg" role="group" aria-label="Baseline population">
@@ -1163,8 +1212,10 @@ function prepData(){
   NAMES.forEach(function(e){ e.n=_norm(e.name); e.last=_norm(e.name.split(' ').slice(-1)[0]); });
 }
 function seasonPlayers(s){ return (DATA.data[s||curSeason]||{players:[]}).players; }
-function rowFor(id,s){ var e=PIDX[id]; return e?(e.rows[s]||null):null; }
+function rowFor(id,s){ if(isCareer(s)) return careerRow(id);
+  var e=PIDX[id]; return e?(e.rows[s]||null):null; }
 function inSpan(id,s){
+  if(isCareer(s)) return true;
   var e=PIDX[id]; if(!e) return false;
   var ss=Array.from(e.seasons).sort();
   return s>=ss[0] && s<=ss[ss.length-1];
@@ -1175,7 +1226,7 @@ function yearOf(s){ return +String(s).slice(0,4); }
 
 /* Era gate. A metric its season never tracked is absent from the page, not shown as zero
    or as a grey stub — the profile reformats around what actually exists. */
-function eraOK(m,s){ return yearOf(s)>=m.since; }
+function eraOK(m,s){ return isCareer(s)?true:yearOf(s)>=m.since; }
 
 /* ---------------------------------------------------------------- percentiles */
 var POOL_CACHE={};
@@ -1191,6 +1242,7 @@ function bandOK(p){
 }
 function poolVals(key,pos,season){
   var m=MBY[key]; if(!m) return [];
+  if(isCareer(season)) return careerPool(key,pos);
   var ck=key+'|'+cohortKey(pos)+'|'+(baseline==='all'?'ALL':season)+'|'+(bandOn?band.min+'-'+band.max:'');
   if(POOL_CACHE[ck]) return POOL_CACHE[ck];
   var seasons = baseline==='all' ? DATA.seasons : [season];
@@ -1339,6 +1391,207 @@ function sampleOf(p,m){
   return {n:n, ok:n>=m.thr};
 }
 
+/* ================= CAREER ===================================================
+   A career is not the average of a man's seasons. It is his seasons added together and
+   divided once, at the end.
+
+   That distinction is the whole engine. Every rate on this page is a ratio with a named
+   denominator — dropbacks, carries, targets, games — and every player-season stores the
+   denominator it was built on. So the career rate is the denominator-weighted mean of the
+   season rates, which is arithmetically identical to pooling every play of his life and
+   dividing at the end. A 600-dropback year outweighs a 90-dropback one because it should.
+
+   A short list of stats are not ratios and get their own rule: games and starts add up,
+   the longest field goal is a maximum, total EPA is a sum, and a man's height does not
+   change. Availability gets its own treatment too, because weighting it by games played
+   would quietly excuse the seasons he was hurt — the exact reading is his games over his
+   teams' games, summed separately.
+
+   Era-gated metrics aggregate only over the seasons that tracked them. A quarterback who
+   started in 2003 has a CPOE built from 2006 on, and the page says so rather than
+   pretending the number covers his whole career. */
+var CAREER='career';
+var CAREER_SUM={g:1,starts:1,epatot:1};
+var CAREER_MAX={fglong:1,posver:1};
+var CAREER_CONST={ht:1,wt:1,forty:1,vert:1,broad:1,cone:1,shuttle:1,bench:1,spdscore:1};
+/* How much volume a career needs before it joins the ranking pool: the season qualifying
+   bar times this, so roughly three seasons of work. A man with one half-season of carries
+   should not set the scale Emmitt Smith is measured on. His own bars still draw — they
+   are marked low-sample, exactly the way the season page already marks a thin season. */
+var CAREER_POOL_MULT=3;
+
+function isCareer(s){ return s===CAREER; }
+
+/* One career row, shaped exactly like a player-season row, so every renderer on this page
+   — bars, panels, statline, field map, comps — takes it without knowing the difference. */
+var CROW_CACHE={}, CROW_BUILT=false;
+function careerRow(id){
+  if(CROW_CACHE[id]!==undefined) return CROW_CACHE[id];
+  var e=PIDX[id];
+  if(!e){ CROW_CACHE[id]=null; return null; }
+  var ss=Array.from(e.seasons).sort();
+  if(!ss.length){ CROW_CACHE[id]=null; return null; }
+
+  var out={id:id, name:e.name, career:true, seasons:ss, m:{}, d:{}, cov:{},
+           span:[ss[0],ss[ss.length-1]]};
+  var last=e.rows[ss[ss.length-1]], first=e.rows[ss[0]];
+
+  /* denominators add up — these are true counts, not estimates */
+  var D={};
+  ss.forEach(function(s){
+    var r=e.rows[s]; if(!r||!r.d) return;
+    for(var k in r.d){ D[k]=(D[k]||0)+r.d[k]; }
+  });
+  out.d=D;
+
+  /* the cohort a career belongs to is where he actually played, by games */
+  var byPos={};
+  ss.forEach(function(s){
+    var r=e.rows[s]; if(!r) return;
+    var g=(r.d&&r.d.g)||1;
+    byPos[r.pos]=(byPos[r.pos]||0)+g;
+  });
+  var bestPos=last?last.pos:e.pos, bestG=-1;
+  for(var pk in byPos){ if(byPos[pk]>bestG){ bestG=byPos[pk]; bestPos=pk; } }
+  out.pos=bestPos;
+  out.posmix=byPos;
+
+  /* every metric his position is measured by, each under its own rule */
+  for(var i=0;i<METRICS.length;i++){
+    var m=METRICS[i];
+    if(m.pos.indexOf(out.pos)<0) continue;
+    var key=m.key;
+    if(CAREER_CONST[key]){
+      for(var a=ss.length-1;a>=0;a--){
+        var rv=e.rows[ss[a]]; var cv=rv&&rv.m[key];
+        if(!miss(cv)){ out.m[key]=cv; break; }
+      }
+      continue;
+    }
+    var acc=0, wt=0, n=0, lo=null, hi=null, seen=[];
+    for(var j=0;j<ss.length;j++){
+      var s=ss[j], r=e.rows[s];
+      if(!r) continue;
+      if(yearOf(s)<m.since) continue;              // the era never tracked it
+      var v=r.m[key];
+      if(miss(v)) continue;
+      if(CAREER_SUM[key]){ acc+=v; n++; seen.push(s); continue; }
+      if(CAREER_MAX[key]){
+        if(lo==null||(m.lower?v<lo:v>lo)) lo=v;
+        n++; seen.push(s); continue;
+      }
+      var w=(r.d||{})[m.den];
+      if(miss(w)||w<=0) continue;                  // no weight, no vote
+      acc+=v*w; wt+=w; n++; seen.push(s);
+    }
+    if(!n) continue;
+    var val;
+    if(CAREER_SUM[key]) val=acc;
+    else if(CAREER_MAX[key]) val=lo;
+    else if(wt>0) val=acc/wt;
+    else continue;
+    out.m[key]=val;
+    out.cov[key]=[n, seen[0], seen[seen.length-1]];
+  }
+
+  /* Availability, done honestly. Weighting it by games played would let a healthy year
+     speak for a hurt one; his games over his teams' games is the number he actually lived. */
+  var pg=0, tg=0;
+  ss.forEach(function(s){
+    var r=e.rows[s]; if(!r) return;
+    var g=r.m.g, av=r.m.avail;
+    if(miss(g)||miss(av)||av<=0) return;
+    pg+=g; tg+=g/(av/100);
+  });
+  if(tg>0){ out.m.avail=100*pg/tg; out.cov.avail=[ss.length,ss[0],ss[ss.length-1]]; }
+
+  /* career record, rings, and the Super Bowls he reached */
+  var W=0,L=0,T=0,rings=[],sbLost=[],po=0,teams=[],tseen={};
+  ss.forEach(function(s){
+    var r=e.rows[s]; if(!r) return;
+    if(r.rec){ W+=r.rec[0]; L+=r.rec[1]; T+=r.rec[2]||0; }
+    var pp=r.po||'';
+    if(pp.indexOf('Won Super Bowl')===0) rings.push(s);
+    else if(pp==='Lost Super Bowl') sbLost.push(s);
+    if(pp&&pp!=='Missed the playoffs') po++;
+    if(r.team&&!tseen[r.team]){ tseen[r.team]=1; teams.push(r.team); }
+  });
+  out.rec=[W,L,T]; out.rings=rings; out.sbLost=sbLost; out.poyears=po; out.teams=teams;
+
+  /* league-leader finishes, collapsed across the career: how many times he led the NFL in
+     a thing, and how many times he finished top ten in it */
+  var accm={};
+  ss.forEach(function(s){
+    var r=e.rows[s]; if(!r||!r.acc) return;
+    r.acc.forEach(function(x){
+      var slot=accm[x.s]||(accm[x.s]={s:x.s,led:0,top:0,best:99,years:[],ledYears:[]});
+      if(x.r===1){ slot.led++; slot.ledYears.push(s); }
+      slot.top++;
+      if(x.r<slot.best) slot.best=x.r;
+      slot.years.push(s);
+    });
+  });
+  var accl=[];
+  for(var ak in accm) accl.push(accm[ak]);
+  accl.sort(function(a,b){ return (b.led-a.led)||(b.top-a.top)||(a.best-b.best); });
+  out.acc=accl;
+
+  /* identity carries from the seasons that hold it */
+  var src=last||first;
+  out.team=src.team; out.college=src.college; out.h=src.h; out.jersey=src.jersey;
+  out.birth=src.birth; out.dr=src.dr; out.dp=src.dp; out.dy=src.dy; out.dt=src.dt;
+  out.udfa=src.udfa; out.rawpos=src.rawpos;
+  out.exp=ss.length;
+  out.aw=(DATA.awards||{})[id]||null;
+
+  /* does this career belong in the ranking pool */
+  var q=CFG.qualify[out.pos], qf=CFG.qualifyFallback[out.pos];
+  var ok=false;
+  if(q && !miss(D[q[0]]) && D[q[0]]>=q[1]*CAREER_POOL_MULT) ok=true;
+  if(!ok && qf && !miss(D[qf[0]]) && D[qf[0]]>=qf[1]*CAREER_POOL_MULT) ok=true;
+  out.poolOK=ok;
+  out.qualified=ok;
+
+  CROW_CACHE[id]=out;
+  return out;
+}
+function buildCareers(){
+  if(CROW_BUILT) return;
+  for(var i=0;i<NAMES.length;i++) careerRow(NAMES[i].id);
+  CROW_BUILT=true;
+}
+/* The career ranking pool: every other career at his position, not every other season.
+   "84th percentile" here means 84th among careers, which is the only reading that makes
+   sense of a number built from a whole career. */
+var CPOOL_CACHE={};
+function careerPool(key,pos){
+  var m=MBY[key]; if(!m) return [];
+  var ck=key+'|'+cohortKey(pos)+'|CAREER|'+(bandOn?band.min+'-'+band.max:'');
+  if(CPOOL_CACHE[ck]) return CPOOL_CACHE[ck];
+  buildCareers();
+  var out=[];
+  for(var i=0;i<NAMES.length;i++){
+    var r=CROW_CACHE[NAMES[i].id];
+    if(!r||!r.poolOK) continue;
+    if(!inCohort(r,pos)) continue;
+    if(!bandOK(r)) continue;
+    var v=r.m[key];
+    if(!miss(v)) out.push(v);
+  }
+  out.sort(function(a,b){return a-b;});
+  CPOOL_CACHE[ck]=out;
+  return out;
+}
+function careerPoolCount(pos){
+  buildCareers();
+  var n=0;
+  for(var i=0;i<NAMES.length;i++){
+    var r=CROW_CACHE[NAMES[i].id];
+    if(r&&r.poolOK&&inCohort(r,pos)&&bandOK(r)) n++;
+  }
+  return n;
+}
+
 /* ================= BARS =====================================================
    One row per metric. Single-profile view hides a bar whose era never tracked it or
    whose value simply doesn't exist for this player-season, and the page reformats around
@@ -1373,7 +1626,7 @@ function barRow(m,p,season,pos){
      reading that shares a scale with it. Drawn only when it clears the bar; when this
      season is the high, a tick on the bar's own end would say nothing. */
   var chMark='';
-  if(curId!=null && cmp.length===0){
+  if(curId!=null && cmp.length===0 && !isCareer(season)){
     var hi=careerHigh(curId,m.key,m.lower);
     if(!miss(hi)){
       var hp=pctOf(hi,pool,m.lower);
@@ -1383,6 +1636,10 @@ function barRow(m,p,season,pos){
     }
   }
   var tag=m.layer.toUpperCase()+(smp.ok?'':' · low sample');
+  /* Snap counts start in 2012, pressure charting in 2016. When a career bar rests on only
+     some of his seasons, the row says which — the same footnote the totals strip carries. */
+  if(isCareer(season)&&p.cov&&p.cov[m.key]&&p.seasons&&p.cov[m.key][0]<p.seasons.length)
+    tag+=" · "+yr2(p.cov[m.key][1])+'–'+yr2(p.cov[m.key][2]);
   var title=smp.ok?'':('Only '+Math.round(smp.n)+' '+(CFG.denoms[m.den]||m.den)+' — below the '
     +m.thr+' this stat needs before it settles down.');
   return '<div class="row '+(smp.ok?'':'un')+'" data-k="'+m.key+'" title="'+esc(title)+'">'
@@ -1463,6 +1720,16 @@ var SIDE_WORD={OFF:'offensive players',DEF:'defenders',ST:'specialists'};
 function commas(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
 function cohortNote(pos){
   var who = cohortMode==='side' ? (SIDE_WORD[SIDE[pos]]||'players') : (COHORT_WORD[pos]||pos);
+  if(isCareer(curSeason)){
+    var q=CFG.qualify[pos];
+    return 'Ranked against the careers of '+commas(careerPoolCount(pos))+' '+who
+      + (q?(', each with at least '+commas(q[1]*CAREER_POOL_MULT)+' career '+(CFG.denoms[q[0]]||q[0])):'')
+      + (bandOn ? (', filtered to '+band.min+'–'+band.max+'% career snap share') : '')
+      + '. A percentile here is his place among careers, not among seasons.'
+      + (cohortMode==='side'
+          ? ' Side-of-ball pools mix positions on purpose — useful for volume and availability, misleading for anything a position specialises in.'
+          : '');
+  }
   var when = baseline==='all'
     ? 'across every season each stat has existed'
     : ('in '+curSeason);
@@ -1547,7 +1814,9 @@ function renderPeak(){
   btn.hidden=false;
   var mine=arc.pts.filter(function(p){return p.season===curSeason;})[0];
   btn.innerHTML='<span class="caret">▾</span>Career arc · <span class="cur">'
-    +(mine&&mine.score!=null?Math.round(mine.score)+' this year':'this year unranked')+'</span>'
+    +(isCareer(curSeason)
+        ? (arc.pts.length+' seasons')
+        : (mine&&mine.score!=null?Math.round(mine.score)+' this year':'this year unranked'))+'</span>'
     +(pk?' · <span class="pk">peak '+pk+'</span>':'');
   if(btn.getAttribute('aria-expanded')==='true') renderArcRail(arc);
 }
@@ -1582,7 +1851,18 @@ function renderArcRail(arc){
 }
 
 /* ================= THE ID CARD ============================================= */
-function headURL(p){ return p.h||null; }
+/* ---------------------------------------------------------------- the GOAT
+   Brady's face on this page is a goat in a number 12 jersey, because the argument is over.
+   It lives as a file rather than inline: the artwork has real shading, so there is no small
+   pixel grid to snap it to and no honest way to shrink it into a data URI. 256px covers the
+   88px card at two-times density with room to spare.
+
+   Every face on the page is drawn through faceURL, so the goat follows him onto the search
+   rows, the featured chips, the team panel and the shared card — not only his profile. */
+var GOAT_ID='00-0019596';
+var GOAT_SRC='/goat.png';
+function faceURL(id,url){ return id===GOAT_ID?GOAT_SRC:(url||null); }
+function headURL(p){ return faceURL(p.id,p.h); }
 function stat(l,v,dp){ return '<span class="st"><b>'+(miss(v)?'—':(+v).toFixed(dp==null?1:dp))+'</b> '+l+'</span>'; }
 /* The headline numbers under a player's name. Ordered by what a scout would ask first,
    and filtered to what the season actually recorded — a 2003 receiver has no target data,
@@ -1646,15 +1926,68 @@ function draftBadges(p){
   if(!p.qualified) out.push('<span class="acco" title="Below the qualifying line for his position, so he is not in the percentile pool">Unqualified</span>');
   return out.length?'<div class="accos">'+out.join('')+'</div>':'';
 }
+/* Super Bowls are known by their number, not their year — "Super Bowl LII" is the name of
+   the game, the way a fan says it. The count starts with the 1966 season, so the numeral
+   falls out of arithmetic and keeps working for every season added later. The one
+   exception is the league's own: it branded the fiftieth in Arabic rather than as "L". */
+function sbName(season){
+  var n=(+String(season).slice(0,4))-1965;
+  if(!isFinite(n)||n<1) return '';
+  if(n===50) return '50';
+  var M=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],
+         [50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']], out='';
+  for(var i=0;i<M.length;i++){ while(n>=M[i][0]){ out+=M[i][1]; n-=M[i][0]; } }
+  return out;
+}
+/* The postseason label already says how the season ended. The game index says which game
+   that was, so the label can open it. The index is small and fetched once, in the
+   background; until it lands the label simply renders as plain text. */
+var GIDX=null;
+var PO_ROUND={'Lost wild card':1,'Lost divisional':2,'Lost conference championship':3,
+              'Lost Super Bowl':4};
+function loadGameIndex(){
+  if(GIDX!==null) return;
+  GIDX={};
+  fetch('football-games/index.json').then(function(r){ return r.ok?r.json():{}; })
+    .then(function(j){ GIDX=j; if(cur) render(); })
+    .catch(function(){ GIDX={}; });
+}
+function gameFor(season,team,po){
+  if(!GIDX||!team||isCareer(season)) return null;
+  var round=(po||'').indexOf('Won Super Bowl')===0?4:PO_ROUND[po];
+  if(!round) return null;
+  var ty=({1:'WC',2:'DIV',3:'CON',4:'SB'})[round];
+  for(var id in GIDX){
+    var g=GIDX[id];
+    if(g.s!==+season||g.ty!==ty) continue;
+    if(g.h!==team&&g.a!==team) continue;
+    var us=g.h===team;
+    return {id:id, opp:us?g.a:g.h, mine:us?g.hs:g.as, theirs:us?g.as:g.hs, name:g.n};
+  }
+  return null;
+}
 function teamRecord(p){
   if(!p.rec) return '';
   var w=p.rec[0], l=p.rec[1], t=p.rec[2];
   var line=w+'–'+l+(t?'–'+t:'');
-  var won=(p.po||'').indexOf('Won Super Bowl')===0;
-  var made=p.po&&p.po!=='Missed the playoffs';
+  var po=p.po||'';
+  var won=po.indexOf('Won Super Bowl')===0;
+  var made=po&&po!=='Missed the playoffs';
+  /* The trophy already says he won it, so a winner's label is just the game's name.
+     A loser keeps his verb — nothing else on that line tells you how it ended. */
+  var sb=(won||po==='Lost Super Bowl')?sbName(curSeason):'';
+  var label=won?('Super Bowl'+(sb?' '+sb:'')):(sb?po+' '+sb:po);
   return '<div class="teamrec'+(won?' champ':'')+'">'
     +'<span class="tr-rec">'+line+'</span>'
-    +(p.po?'<span class="tr-po'+(made?' in':'')+'">'+(won?'🏆 ':'')+esc(p.po)+'</span>':'')
+    +(po?(function(){
+        var g=gameFor(curSeason,p.team,po);
+        var inner=(won?'🏆 ':'')+esc(label);
+        if(!g) return '<span class="tr-po'+(made?' in':'')+'" title="'+esc(won?'Won '+label:label)+'">'+inner+'</span>';
+        var res=(g.mine>g.theirs?'beat ':'lost to ')+g.opp+' '+g.mine+'\u2013'+g.theirs;
+        return '<a class="tr-po tr-game'+(made?' in':'')+'" href="/game.html#g='
+          +encodeURIComponent(g.id)+'" title="'+esc(g.name+' \u2014 '+res+'. Open the game.')
+          +'">'+inner+' <b>'+esc(g.mine+'\u2013'+g.theirs+' vs '+g.opp)+'</b> \u2197</a>';
+      })():'')
     +(p.coach?'<a class="tr-coach" title="'+esc(p.coach+' — open his page in Coaching Savant')
         +'" href="/coaching-savant.html#c='+encodeURIComponent(p.coach)+'">'+esc(p.coach)+' ↗</a>':'')
     +'</div>';
@@ -1667,6 +2000,183 @@ function cmpSeasonSelect(id,season,idx,isMain){
   var attr=isMain?'data-main="1"':'data-idx="'+idx+'"';
   return '<select class="cmp-season" '+attr+' title="Season for this player" onclick="event.stopPropagation()">'+opts+'</select>';
 }
+/* ---------------------------------------------------------------- career furniture */
+function commaN(n){ return miss(n)?'—':commas(Math.round(n)); }
+function mulN(a,b){ return (miss(a)||miss(b))?null:a*b; }
+function pctN(a,b){ return (miss(a)||miss(b))?null:a*b/100; }
+
+/* Career counting totals.
+
+   A derived total is a rate times the volume the rate was built from — and it has to be
+   exactly that volume. Multiplying a 2012-on touchdown rate by every target of a career
+   that started in 2004 invents touchdowns that were never scored. So each figure carries
+   the seasons it actually covers, and when those seasons fall short of his whole career
+   the strip prints the span underneath rather than passing a partial off as a total.
+   Snap counts start in 2012 and starts in 2013, so this is a common, honest footnote. */
+function careerDenomOf(r,den){
+  var e=PIDX[r.id], v=0, seen=[];
+  r.seasons.forEach(function(s){
+    var row=e.rows[s]; if(!row||!row.d) return;
+    var w=row.d[den]; if(miss(w)) return;
+    v+=w; seen.push(s);
+  });
+  if(!seen.length) return null;
+  return {v:v, from:seen[0], to:seen[seen.length-1], full:seen.length===r.seasons.length};
+}
+function careerTotalOf(r,key,pct){
+  var m=MBY[key]; if(!m||miss(r.m[key])) return null;
+  var e=PIDX[r.id], part=0, seen=[], anyDen=0;
+  r.seasons.forEach(function(s){
+    var row=e.rows[s]; if(!row||!row.d) return;
+    var w=row.d[m.den]; if(miss(w)) return;
+    anyDen++;
+    if(yearOf(s)<m.since||miss(row.m[key])) return;
+    part+=w; seen.push(s);
+  });
+  if(!seen.length||part<=0) return null;
+  var v=r.m[key]*part;
+  return {v:pct?v/100:v, from:seen[0], to:seen[seen.length-1],
+          full:seen.length===r.seasons.length};
+}
+function cflat(v){ return v==null?null:{v:v,full:true}; }
+var CTOT={
+  QB:function(r){return [['Games',cflat(r.m.g)],['Starts',careerTotalOf(r,'starts')],
+      ['Att',careerDenomOf(r,'att')],['Pass yds',careerTotalOf(r,'ypa')],
+      ['Pass TD',careerTotalOf(r,'tdpct',1)],['Int',careerTotalOf(r,'intpct',1)],
+      ['Rush yds',careerTotalOf(r,'rushy')]];},
+  RB:function(r){return [['Games',cflat(r.m.g)],['Carries',careerDenomOf(r,'car')],
+      ['Rush yds',careerTotalOf(r,'ypc')],['Rec',careerDenomOf(r,'rec')],
+      ['Rec yds',careerTotalOf(r,'yprec')]];},
+  WR:function(r){return [['Games',cflat(r.m.g)],['Targets',careerDenomOf(r,'tgt')],
+      ['Rec',careerDenomOf(r,'rec')],['Rec yds',careerTotalOf(r,'yprec')],
+      ['Rec TD',careerTotalOf(r,'tdtgt',1)]];},
+  OL:function(r){return [['Games',cflat(r.m.g)],['Starts',careerTotalOf(r,'starts')],
+      ['Snaps',careerDenomOf(r,'snap')],['Prs allowed',careerTotalOf(r,'prsallow',1)]];},
+  ED:function(r){return [['Games',cflat(r.m.g)],['Snaps',careerDenomOf(r,'dsnap')],
+      ['Sacks',careerTotalOf(r,'sk')],['TFL',careerTotalOf(r,'tfl')],
+      ['QB hits',careerTotalOf(r,'hits')],['Tackles',careerTotalOf(r,'tkl')]];},
+  LB:function(r){return [['Games',cflat(r.m.g)],['Snaps',careerDenomOf(r,'dsnap')],
+      ['Tackles',careerTotalOf(r,'tkl')],['TFL',careerTotalOf(r,'tfl')],
+      ['Sacks',careerTotalOf(r,'sk')],['PD',careerTotalOf(r,'pd')]];},
+  CB:function(r){return [['Games',cflat(r.m.g)],['Snaps',careerDenomOf(r,'dsnap')],
+      ['Tackles',careerTotalOf(r,'tkl')],['PD',careerTotalOf(r,'pd')],
+      ['Int',careerTotalOf(r,'int')]];},
+  K:function(r){return [['Games',cflat(r.m.g)],['FG att',careerDenomOf(r,'fga')],
+      ['FG made',careerTotalOf(r,'fgpct',1)],['Longest',cflat(r.m.fglong)]];},
+  P:function(r){return [['Games',cflat(r.m.g)],['Punts',careerDenomOf(r,'punt')],
+      ['Gross avg',cflat(r.m.pgross)],['Inside 20',careerTotalOf(r,'pin20',1)]];}
+};
+CTOT.TE=CTOT.WR; CTOT.DI=CTOT.ED; CTOT.S=CTOT.CB;
+function yr2(s){ return "'"+String(s).slice(2); }
+function careerTotals(r){
+  var f=CTOT[r.pos]; if(!f) return '';
+  var items=f(r).filter(function(t){ return t[1]&&!miss(t[1].v); });
+  if(!items.length) return '';
+  return '<div class="ctot">'+items.map(function(t){
+      var o=t[1];
+      var v=(t[0]==='Gross avg')?(+o.v).toFixed(1):commaN(o.v);
+      return '<span class="ct'+(o.full?'':' part')+'"'
+        +(o.full?'':' title="'+esc('Covers '+o.from+'–'+o.to+' only. '
+            +(t[0]==='Snaps'?'Snap counts start in 2012.':(t[0]==='Starts'?'Start counts begin in 2013.':'The rate behind this figure was not charted earlier.')))+'"')
+        +'><span class="tv">'+v+'</span><span class="tl">'+esc(t[0])
+        +(o.full?'':'<i> '+yr2(o.from)+'–'+yr2(o.to)+'</i>')+'</span></span>';
+    }).join('')
+    +'<span class="ctot-note" title="Counts of attempts, carries, targets and snaps come '
+    +'straight from the data. Yardage and touchdown figures are a career rate times the '
+    +'volume that rate was built from, so they can land a yard or two off the official book.">'
+    +'derived</span></div>';
+}
+
+/* The accolade block: what a career is remembered for, before any of the bars. */
+function careerAccolades(r){
+  var out=[];
+  if(r.rings&&r.rings.length){
+    var names=r.rings.map(function(s){ var n=sbName(s); return n?('Super Bowl '+n):s; });
+    out.push('<span class="cacc-i ring" title="'+esc(names.join(', '))+'">'
+      +'<b>'+r.rings.length+'</b>'+(r.rings.length===1?'ring':'rings')+'</span>');
+  }
+  if(r.sbLost&&r.sbLost.length){
+    var ln=r.sbLost.map(function(s){ var n=sbName(s); return n?('Super Bowl '+n):s; });
+    out.push('<span class="cacc-i" title="'+esc('Lost '+ln.join(', '))+'"><b>'+r.sbLost.length+'</b>'
+      +'SB '+(r.sbLost.length===1?'loss':'losses')+'</span>');
+  }
+  /* Awards. Nothing is ever printed as a zero: a man with no Pro Bowl chip either has
+     none or is one of the undrafted players the source doesn't cover, and the block says
+     which rather than letting the reader guess. */
+  var aw=r.aw;
+  if(aw){
+    var yr=function(k){ return (aw.years&&aw.years[k])?aw.years[k].join(', '):''; };
+    [['mvp','MVP','Associated Press NFL Most Valuable Player'],
+     ['opoy','Off. POY','AP Offensive Player of the Year'],
+     ['dpoy','Def. POY','AP Defensive Player of the Year'],
+     ['oroy','Off. ROY','AP Offensive Rookie of the Year'],
+     ['droy','Def. ROY','AP Defensive Rookie of the Year']].forEach(function(a){
+      if(!aw[a[0]]) return;
+      var y=yr(a[0]);
+      out.push('<span class="cacc-i award" title="'+esc(a[2]+(y?' — '+y:''))+'"><b>'
+        +aw[a[0]]+'</b>'+a[1]+'</span>');
+    });
+    if(aw.allpro) out.push('<span class="cacc-i award" title="First-team Associated Press '
+      +'All-Pro selections, career total">' +'<b>'+aw.allpro+'</b>All-Pro</span>');
+    if(aw.probowl) out.push('<span class="cacc-i award" title="Pro Bowl selections, career '
+      +'total — includes any seasons before 1999, which this dataset does not cover">'
+      +'<b>'+aw.probowl+'</b>Pro Bowl</span>');
+    if(aw.hof) out.push('<span class="cacc-i award hof" title="Pro Football Hall of Fame">'
+      +'Hall of Fame</span>');
+  }
+  if(!r.dr&&(!aw||!aw.pbScope))
+    out.push('<span class="cacc-i unk" title="Pro Bowl and All-Pro counts come from a '
+      +'draft-pick table, which has no row for a player who went undrafted. His individual '
+      +'awards above are complete; his selections simply are not known here.">'
+      +'Pro Bowls n/a</span>');
+  /* One chip per category he actually won, which is what a leader board finish means to
+     anyone. The old pair of totals counted a quarterback's big season four times over —
+     yards, touchdowns, completions and attempts all move together — and the top-ten total
+     silently contained the league-leading one. Fantasy points is a tracked category but not
+     a football honour, so it stays on the season card and off the career résumé. */
+  (r.acc||[]).filter(function(a){ return a.led&&a.s!=='fantasy points'; })
+    .sort(function(a,b){ return (b.led-a.led)||(a.s<b.s?-1:1); })
+    .forEach(function(a){
+      out.push('<span class="cacc-i lead" title="'
+        +esc('Led the NFL in '+a.s+' in '+a.ledYears.join(', '))+'">'
+        +'<b>'+a.led+'</b>\u00d7 led NFL · '+esc(a.s)+'</span>');
+    });
+  if(r.poyears) out.push('<span class="cacc-i"><b>'+r.poyears+'</b>playoff '
+    +(r.poyears===1?'year':'years')+'</span>');
+  return out.length?'<div class="cacc">'+out.join('')+'</div>':'';
+}
+
+/* The record row, for a whole career. It is the record of the teams he was on, not of the
+   games he started — a backup's ring counts here, and the label says teams for that reason. */
+function careerRecord(r){
+  if(!r.rec) return '';
+  var w=r.rec[0],l=r.rec[1],t=r.rec[2];
+  if(!(w+l+t)) return '';
+  var pct=(w+0.5*t)/(w+l+t);
+  var champ=r.rings&&r.rings.length;
+  var ring=(r.rings||[]).map(function(s){ return sbName(s)||s; });
+  return '<div class="teamrec'+(champ?' champ':'')+'">'
+    +'<span class="tr-rec">'+w+'–'+l+(t?'–'+t:'')+'</span>'
+    +'<span class="tr-po in" title="His teams\' regular-season record across the seasons he '
+      +'played, not his record as a starter.">his teams · '+pct.toFixed(3).replace(/^0/,'')+'</span>'
+    +(champ?'<span class="tr-po" title="'+esc(r.rings.join(', '))+'">🏆 Super Bowl '
+        +esc(ring.join(', '))+'</span>':'')
+    +'</div>';
+}
+
+/* Career badges: the season badges don't translate, so this is its own short row. */
+function careerBadges(r){
+  var out=[];
+  if(r.dr) out.push('<span class="acco'+(r.dr===1?' major':'')+'" title="'
+    +esc('Drafted '+(r.dy||'')+' — round '+r.dr+', pick '+(r.dp||'?')+(r.dt?' by '+r.dt:''))
+    +'">Rd '+r.dr+' · #'+(r.dp||'?')+'</span>');
+  else out.push('<span class="acco" title="Went undrafted">Undrafted</span>');
+  if(!r.poolOK) out.push('<span class="acco" title="His career volume is below the bar this '
+    +'page uses to enter the ranking pool, so his bars draw but he does not set anyone else\'s '
+    +'scale.">Outside the pool</span>');
+  return '<div class="accos">'+out.join('')+'</div>';
+}
+
 function render(){
   var p=cur;
   var idbody=document.getElementById('idbody');
@@ -1680,11 +2190,26 @@ function render(){
     return;
   }
   var pos=p.pos;
-  var meta=['<span class="teamdot" style="background:'+teamColor(p.team)+'"></span><b>'+esc(teamName(p.team))+'</b>',
-            CFG.posLabel[pos]||pos, curSeason];
-  if(p.college) meta.push(esc(p.college));
-  if(p.exp!=null) meta.push(p.exp===0?'rookie':'year '+(p.exp+1));
-  if(p.age) meta.push('age '+p.age);
+  var career=isCareer(curSeason);
+  var meta;
+  if(career){
+    /* A career belongs to no single team and no single year, so the meta line says the
+       span and the shape of it instead. */
+    var tms=(p.teams||[]).length;
+    meta=[(tms>1?'':'<span class="teamdot" style="background:'+teamColor(p.team)+'"></span>')
+            +'<b title="'+esc((p.teams||[]).map(teamName).join(', '))+'">'
+            +esc(tms>1?(tms+' teams'):teamName(p.team))+'</b>',
+          CFG.posLabel[pos]||pos,
+          p.span[0]+'–'+p.span[1],
+          p.seasons.length+(p.seasons.length===1?' season':' seasons')];
+    if(p.college) meta.push(esc(p.college));
+  } else {
+    meta=['<span class="teamdot" style="background:'+teamColor(p.team)+'"></span><b>'+esc(teamName(p.team))+'</b>',
+          CFG.posLabel[pos]||pos, curSeason];
+    if(p.college) meta.push(esc(p.college));
+    if(p.exp!=null) meta.push(p.exp===0?'rookie':'year '+(p.exp+1));
+    if(p.age) meta.push('age '+p.age);
+  }
   var head=headURL(p);
   var ch='<div class="cmpbar">';
   if(cmp.length){
@@ -1707,11 +2232,23 @@ function render(){
     +'<div class="id-headtext"><div class="id-nameline"><div class="id-name">'+esc(p.name)+'</div>'
       +'<span class="posbadge">'+esc(pos)+'</span></div>'
       +'<div class="id-meta">'+meta.join(' · ')+'</div>'
-      +teamRecord(p)+statLine(p)+draftBadges(p)+ch+'</div></div>'
+      +(career ? careerRecord(p)+careerAccolades(p)+statLine(p)+careerBadges(p)
+               : teamRecord(p)+statLine(p)+draftBadges(p))
+      +ch+'</div></div>'
+    +(career?careerTotals(p):'')
     +measurRow(p);
 
   renderPeak();
   closeChart(); closeExpl();
+  /* The play control walks his seasons and the peak flag marks one of them; neither has
+     anything to say when every season is already on the page at once. */
+  loadGameIndex();
+  document.getElementById('playbtn').hidden=career;
+  if(career){ stopPlay(); document.getElementById('peakflag').hidden=true; }
+  document.getElementById('baseseg').classList.toggle('ctl-off',career);
+  document.getElementById('baseseg').title=career
+    ? 'A career is already measured against every career on record, so this has nothing left to switch.'
+    : '';
 
   // Panels, in the order this position's story is told. A panel whose whole denominator is
   // a rounding error — a receiver's three carries, a nose tackle's two targets in coverage —
@@ -1891,11 +2428,16 @@ function renderFieldMap(){
   var el=document.getElementById('fieldmap');
   if(!cur||cmp.length){ el.hidden=true; el.innerHTML=''; return; }
   var kind=mapKindFor(cur.pos);
-  if(!kind||!mapAvail(cur.id,curSeason,kind)){ el.hidden=true; el.innerHTML=''; return; }
-  loadMap(curSeason,function(pack){
+  var career=isCareer(curSeason);
+  if(!kind){ el.hidden=true; el.innerHTML=''; return; }
+  if(!career&&!mapAvail(cur.id,curSeason,kind)){ el.hidden=true; el.innerHTML=''; return; }
+  if(career&&!careerMapSeasons(cur.id,kind).length){ el.hidden=true; el.innerHTML=''; return; }
+  var draw=function(rec,years){
     if(!cur||mapKindFor(cur.pos)!==kind) return;
-    var rec=(pack[kind]||{})[cur.id];
     if(!rec){ el.hidden=true; el.innerHTML=''; return; }
+    var when=career
+      ? (years.length+' charted '+(years.length===1?'season':'seasons')+' · '+years[0]+'–'+years[years.length-1])
+      : curSeason;
     var isGap=kind==='rush';
     var modes = isGap
       ? [['vol','Volume'],['ypc','Yards / carry']]
@@ -1909,7 +2451,7 @@ function renderFieldMap(){
       : ('Where the ball was '+(kind==='qb'?'thrown':'aimed')+', by depth and direction. '
          +'Air yards are charted from 2006 on; shading is scaled to his own hottest cell.');
     el.innerHTML='<div class="fm-head"><div><h2 class="col-h">'+title+'</h2>'
-      +'<div class="col-cap">'+cap+' · '+curSeason+' · '+rec.n+' '+(isGap?'carries':(kind==='qb'?'attempts':'targets'))+'</div></div>'
+      +'<div class="col-cap">'+cap+' · '+when+' · '+commas(rec.n)+' '+(isGap?'carries':(kind==='qb'?'attempts':'targets'))+'</div></div>'
       +'<div class="fm-modes" role="group" aria-label="Map mode">'
       +modes.map(function(mm){return '<button data-v="'+mm[0]+'" aria-pressed="'+(mapMode===mm[0])+'">'+mm[1]+'</button>';}).join('')
       +'</div></div>'
@@ -1918,7 +2460,9 @@ function renderFieldMap(){
     el.querySelectorAll('.fm-modes button').forEach(function(b){
       b.onclick=function(){ mapMode=b.dataset.v; renderFieldMap(); };
     });
-  });
+  };
+  if(career) loadCareerMap(cur.id,kind,draw);
+  else loadMapOnce(curSeason,function(pack){ draw((pack[kind]||{})[cur.id],[curSeason]); });
 }
 function throwSide(rec,kind){
   var bands={b:[0,0,0],s:[0,0,0],m:[0,0,0],d:[0,0,0]};
@@ -1959,15 +2503,123 @@ function gapSide(rec){
    everything he is good at contributes exactly zero, so two players match on one shared
    hole even when their whole profiles never would. Both are precomputed inside the
    position cohort, so a named flaw always means "worse than the men at his position". */
+/* ---------------------------------------------------------------- career comps + map */
+/* Comps between careers, measured the same way the season comps are: in percentile space,
+   over the handful of numbers that define the position. Distance is the average gap in
+   percentile across those numbers, so "88% match" means their profiles sit, on average,
+   twelve percentiles apart. */
+var CCOMP_CACHE={};
+function careerCompsFor(r,dims,cacheTag){
+  var ck=r.id+'|'+cacheTag+'|'+cohortKey(r.pos)+'|'+(bandOn?band.min+'-'+band.max:'');
+  if(CCOMP_CACHE[ck]) return CCOMP_CACHE[ck];
+  buildCareers();
+  var pools={}, mine={}, keys=[];
+  dims.forEach(function(k){
+    if(!MBY[k]||miss(r.m[k])) return;
+    var pool=poolVals(k,r.pos,CAREER);
+    var pc=pctRaw(r.m[k],pool,MBY[k].lower);
+    if(pc==null) return;
+    pools[k]=pool; mine[k]=pc; keys.push(k);
+  });
+  if(keys.length<2){ CCOMP_CACHE[ck]=[]; return []; }
+  var out=[];
+  for(var i=0;i<NAMES.length;i++){
+    var o=CROW_CACHE[NAMES[i].id];
+    if(!o||o.id===r.id||!o.poolOK) continue;
+    if(!inCohort(o,r.pos)) continue;
+    if(!bandOK(o)) continue;
+    var sum=0,n=0,ok=true;
+    for(var j=0;j<keys.length;j++){
+      var k=keys[j], v=o.m[k];
+      if(miss(v)){ ok=false; break; }
+      var pc=pctRaw(v,pools[k],MBY[k].lower);
+      if(pc==null){ ok=false; break; }
+      sum+=Math.abs(pc-mine[k]); n++;
+    }
+    if(!ok||!n) continue;
+    out.push({id:o.id,name:o.name,team:o.span[0]+'–'+o.span[1],score:Math.round(100-sum/n)});
+  }
+  out.sort(function(a,b){return b.score-a.score;});
+  out=out.slice(0,6);
+  CCOMP_CACHE[ck]=out;
+  return out;
+}
+function careerFlaws(r){
+  var dims=(CFG.weakDims[r.pos]||[]);
+  var out=[];
+  dims.forEach(function(k){
+    if(!MBY[k]||miss(r.m[k])) return;
+    var pc=pctOf(r.m[k],poolVals(k,r.pos,CAREER),MBY[k].lower);
+    if(pc==null) return;
+    out.push({k:k,pct:pc});
+  });
+  out.sort(function(a,b){return a.pct-b.pct;});
+  return out.filter(function(f){return f.pct<50;}).slice(0,3);
+}
+
+/* The field map, pooled. Every cell in a season map is a raw count — attempts, completions,
+   yards, carries — so a career map is those cells added together, which is the same map his
+   whole life would have drawn. Seasons before charting started simply aren't in the sum,
+   and the caption says which years are. */
+function careerMapSeasons(id,kind){
+  var idx=(MAP_INDEX&&MAP_INDEX[id]&&MAP_INDEX[id][kind])||[];
+  return idx.slice().sort();
+}
+function loadCareerMap(id,kind,then){
+  var ys=careerMapSeasons(id,kind);
+  if(!ys.length){ then(null,[]); return; }
+  var left=ys.length, packs={};
+  ys.forEach(function(y){
+    loadMapOnce(String(y),function(pack){
+      packs[y]=pack; left--;
+      if(left>0) return;
+      var sum=null;
+      ys.forEach(function(yy){
+        var rec=((packs[yy]||{})[kind]||{})[id];
+        if(!rec) return;
+        if(!sum){ sum={n:0, z:null, g:null}; }
+        sum.n+=rec.n||0;
+        ['z','g'].forEach(function(f){
+          if(!rec[f]) return;
+          if(!sum[f]) sum[f]=rec[f].map(function(cell){ return cell.map(function(){return 0;}); });
+          rec[f].forEach(function(cell,ci){
+            cell.forEach(function(v,vi){ sum[f][ci][vi]+=(v||0); });
+          });
+        });
+      });
+      then(sum,ys);
+    });
+  });
+}
+/* loadMap bails out while a season is already in flight, which is fine for one map and
+   wrong for twenty at once — this one queues the waiters instead. */
+var MAP_WAIT={};
+function loadMapOnce(season,then){
+  var c=MAP_CACHE[season];
+  if(c&&c!=='loading'){ then(c); return; }
+  (MAP_WAIT[season]=MAP_WAIT[season]||[]).push(then);
+  if(c==='loading') return;
+  MAP_CACHE[season]='loading';
+  fetch('football-maps/'+season+'.json').then(function(r){return r.ok?r.json():null;})
+    .then(function(j){ done(j||{}); }).catch(function(){ done({}); });
+  function done(j){
+    MAP_CACHE[season]=j;
+    var ws=MAP_WAIT[season]||[]; MAP_WAIT[season]=[];
+    ws.forEach(function(w){ w(j); });
+  }
+}
+
 function renderComps(){
   var el=document.getElementById('comps');
-  var cs=(cur&&cur.comps)?cur.comps:null;
+  var career=isCareer(curSeason);
+  var cs=career?(cur?careerCompsFor(cur,CFG.headline[cur.pos]||[],'H'):null)
+               :((cur&&cur.comps)?cur.comps:null);
   if(!cs||!cs.length||cmp.length){ el.hidden=true; el.innerHTML=''; return; }
-  el.innerHTML='<div class="comps-h"><b>Statistical Comps</b><span class="comps-cap">'
-    +'closest '+esc((CFG.posLabel[cur.pos]||cur.pos).toLowerCase())+' profiles by '
+  el.innerHTML='<div class="comps-h"><b>'+(career?'Career Comps':'Statistical Comps')+'</b><span class="comps-cap">'
+    +'closest '+esc((CFG.posLabel[cur.pos]||cur.pos).toLowerCase())+(career?' careers':' profiles')+' by '
     +(CFG.headline[cur.pos]||[]).filter(function(k){return !miss(cur.m[k]);})
        .map(function(k){return esc((MBY[k]||{}).label||k);}).join(', ')
-    +' · '+curSeason+'</span></div><div class="comps-grid">'
+    +' · '+(career?'whole careers':curSeason)+'</span></div><div class="comps-grid">'
     +cs.map(function(c){
       return '<button class="comp-card" data-id="'+esc(c.id)+'" aria-label="'+esc(c.name+', '+c.team+', '+c.score+' percent statistical match — open his card')+'">'
         +'<div class="comp-top"><span class="comp-name">'+esc(c.name)+'</span><span class="comp-score">'+c.score+'%</span></div>'
@@ -1979,12 +2631,19 @@ function renderComps(){
 }
 function renderWeak(){
   var el=document.getElementById('wcomps');
-  var fl=(cur&&cur.wflaws&&cur.wflaws.length)?cur.wflaws:null;
-  var cs=(cur&&cur.wcomps&&cur.wcomps.length)?cur.wcomps:null;
+  var career=isCareer(curSeason);
+  var fl,cs;
+  if(career&&cur){
+    fl=careerFlaws(cur); fl=fl.length?fl:null;
+    cs=careerCompsFor(cur,CFG.weakDims[cur.pos]||[],'W'); cs=cs.length?cs:null;
+  } else {
+    fl=(cur&&cur.wflaws&&cur.wflaws.length)?cur.wflaws:null;
+    cs=(cur&&cur.wcomps&&cur.wcomps.length)?cur.wcomps:null;
+  }
   if((!fl&&!cs)||cmp.length){ el.hidden=true; el.innerHTML=''; return; }
-  var peers=(CFG.posLabel[cur.pos]||cur.pos).toLowerCase()+'s';
+  var peers=(CFG.posLabel[cur.pos]||cur.pos).toLowerCase()+(career?' careers':'s');
   var html='<div class="comps-h"><b>Weakness Comps</b><span class="comps-cap">who shares his flaws — '
-    +'ranked against other '+esc(peers)+' · '+curSeason+'</span></div>';
+    +'ranked against other '+esc(peers)+' · '+(career?'whole careers':curSeason)+'</span></div>';
   if(fl){
     html+='<div class="wk-sub">Where he ranks worst</div><div class="wk-flaws">'
       +fl.map(function(f){
@@ -1994,12 +2653,14 @@ function renderWeak(){
           +'<div class="wk-pct">'+ordinal(f.pct)+' percentile</div></div>';
       }).join('')+'</div>';
   } else {
-    html+='<div class="wk-sub">No dimension of his game ranks below the pack this season.</div>';
+    html+='<div class="wk-sub">No dimension of his game ranks below the pack '
+      +(career?'across his career':'this season')+'.</div>';
   }
   if(cs){
     var best=Math.max.apply(null,cs.map(function(c){return c.score;}));
     var weak=best<=62;
-    if(weak) html+='<div class="wk-banner"><b>Low match</b><span>No '+esc(peers)+' in '+curSeason
+    if(weak) html+='<div class="wk-banner"><b>Low match</b><span>No '+esc(peers)
+      +(career?'':(' in '+curSeason))
       +' really shares this weakness profile — his closest is only '+best
       +'% comparable. Read these as loose, not as comps.</span></div>';
     html+='<div class="comps-grid'+(weak?' wk-low':'')+'">'+cs.map(function(c){
@@ -2184,7 +2845,7 @@ function resRow(e){
   var span=ss.length?(ss[0]===ss[ss.length-1]?ss[0]:ss[0]+'–'+String(ss[ss.length-1]).slice(2)):'';
   var last=rowFor(e.id,ss[ss.length-1])||{};
   return '<div class="res" data-id="'+esc(e.id)+'" role="option">'
-    +(e.head?'<img class="rimg" src="'+esc(e.head)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="rimg"></span>')
+    +(faceURL(e.id,e.head)?'<img class="rimg" src="'+esc(faceURL(e.id,e.head))+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="rimg"></span>')
     +'<div><div class="rn">'+esc(e.name)+'</div><div class="rs">'+esc(e.pos)+' · '+esc(last.team||'')+' · '+span+'</div></div></div>';
 }
 function wireSearch(inputId,boxId,after){
@@ -2220,8 +2881,14 @@ function updateSeasonPicker(){
   var pop=document.getElementById('seasonPop');
   var lab=document.getElementById('seasonBtnLab');
   var pk=curId?peakSeasonOf(curId):null;
-  lab.innerHTML=esc(curSeason)+(pk===curSeason?' <span class="selx-star">★</span>':'');
-  pop.innerHTML=DATA.seasons.map(function(s){
+  lab.innerHTML=isCareer(curSeason)?'Career'
+    :(esc(curSeason)+(pk===curSeason?' <span class="selx-star">★</span>':''));
+  document.getElementById('careerBtn').setAttribute('aria-pressed',isCareer(curSeason)?'true':'false');
+  var span=curId?seasonsOf(curId):[];
+  pop.innerHTML='<button type="button" class="selx-opt selx-career" role="option" data-s="'+CAREER+'"'
+      +' aria-selected="'+isCareer(curSeason)+'"><span>Career</span>'
+      +'<span class="selx-tag">'+(span.length?(span.length+' seasons'):'')+'</span></button>'
+    +DATA.seasons.map(function(s){
     var has=curId?!!rowFor(curId,s):true;
     var within=curId?inSpan(curId,s):true;
     var tag = !curId ? '' : (has?'':(within?'did not play':'out of league'));
@@ -2250,6 +2917,8 @@ function closeSeasonPop(back){
 /* ================= SELECTION + PLAY ======================================== */
 function resolveCur(){
   cur=curId?rowFor(curId,curSeason):null;
+  if(!cur&&curId&&isCareer(curSeason)) curSeason=seasonsOf(curId).slice(-1)[0]||curSeason;
+  cur=curId?rowFor(curId,curSeason):null;
   if(!cur&&curId){
     // he wasn't in the league (or had no stats) that year — show the nearest season he did
     var ss=seasonsOf(curId);
@@ -2263,7 +2932,7 @@ function resolveCur(){
 function selectPlayer(id){
   curId=id;
   var ss=seasonsOf(id);
-  if(ss.indexOf(curSeason)<0) curSeason=ss[ss.length-1];
+  if(!isCareer(curSeason)&&ss.indexOf(curSeason)<0) curSeason=ss[ss.length-1];
   hideHome();
   resolveCur(); cmp=[];
   updateSeasonPicker(); render(); syncURL();
@@ -2388,7 +3057,7 @@ function renderHomeChips(items){
   box.innerHTML=items.map(function(it){
     var p=it.p;
     return '<button class="home-chip" data-id="'+esc(p.id)+'">'
-      +(p.h?'<img src="'+esc(p.h)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="sk-a"></span>')
+      +(faceURL(p.id,p.h)?'<img src="'+esc(faceURL(p.id,p.h))+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="sk-a"></span>')
       +'<span>'+esc(p.name)+'</span><span class="cpos">'+esc(p.pos)+'</span></button>';
   }).join('');
   box.querySelectorAll('.home-chip').forEach(function(b){
@@ -2434,7 +3103,7 @@ function readURL(){
   h.split('&').forEach(function(kv){ var i=kv.indexOf('='); if(i>0) o[kv.slice(0,i)]=decodeURIComponent(kv.slice(i+1)); });
   if(!o.p||!PIDX[o.p]) return false;
   curId=o.p;
-  curSeason=(o.s&&DATA.seasons.indexOf(o.s)>=0)?o.s:seasonsOf(o.p).slice(-1)[0];
+  curSeason=(o.s&&(isCareer(o.s)||DATA.seasons.indexOf(o.s)>=0))?o.s:seasonsOf(o.p).slice(-1)[0];
   if(o.b==='all') baseline='all';
   if(o.c==='side') cohortMode='side';
   hideHome(); resolveCur();
@@ -2484,7 +3153,7 @@ function buildShareShell(){
     +'<div style="font-weight:800;font-size:16px;letter-spacing:.05em;text-transform:uppercase">FOOTBALL <span style="color:#3DA35D">SAVANT</span></div>'
     +(isPeak?'<div class="sc-peak">CAREER YEAR</div>':'')
     +'<div class="sc-tag">'+esc(curSeason)+' · vs '+esc((CFG.posLabel[pos]||pos).toLowerCase())+'s</div></div>'
-    +'<div class="sc-id"><div class="sc-ava">'+(p.h?'<img src="'+esc(p.h)+'" crossorigin="anonymous" alt="">':esc(initials(p.name)))+'</div>'
+    +'<div class="sc-id"><div class="sc-ava">'+(faceURL(p.id,p.h)?'<img src="'+esc(faceURL(p.id,p.h))+'" crossorigin="anonymous" alt="">':esc(initials(p.name)))+'</div>'
     +'<div><div class="sc-name">'+esc(p.name)+'</div>'
     +'<div class="sc-meta"><b>'+esc(teamName(p.team))+'</b> · '+esc(CFG.posLabel[pos]||pos)+' · '+esc(curSeason)
     +(p.age?' · age '+p.age:'')+'</div>'
@@ -2814,7 +3483,7 @@ function openTeam(t){
     +'<span class="comps-cap">'+esc(curSeason)+' · '+ps.length+' players with recorded stats</span></div>'
     +'<div class="tp-grid">'+ps.map(function(p){
       return '<button class="tp-row" data-id="'+esc(p.id)+'">'
-        +(p.h?'<img src="'+esc(p.h)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="sk-a"></span>')
+        +(faceURL(p.id,p.h)?'<img src="'+esc(faceURL(p.id,p.h))+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="sk-a"></span>')
         +'<span><span class="tp-n">'+esc(p.name)+'</span><br><span class="tp-p">'+esc(p.pos)
         +(miss(p.m.snapshr)?'':' · '+Math.round(p.m.snapshr)+'% snaps')+'</span></span></button>';
     }).join('')+'</div>';
@@ -2870,6 +3539,12 @@ function wire(){
 
   document.getElementById('seasonBtn').onclick=function(){
     document.getElementById('seasonPop').hidden?openSeasonPop():closeSeasonPop(false);
+  };
+  document.getElementById('careerBtn').onclick=function(){
+    stopPlay();
+    /* Off career mode, land on the season he was best in — the most useful year to see
+       after looking at the whole thing. */
+    setSeason(isCareer(curSeason) ? (peakSeasonOf(curId)||seasonsOf(curId).slice(-1)[0]) : CAREER);
   };
   document.addEventListener('click',function(e){
     if(!e.target.closest('#seasonPick')) closeSeasonPop(false);
