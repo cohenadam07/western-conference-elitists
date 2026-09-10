@@ -1524,8 +1524,8 @@ function careerRow(id){
   ss.forEach(function(s){
     var r=e.rows[s]; if(!r||!r.acc) return;
     r.acc.forEach(function(x){
-      var slot=accm[x.s]||(accm[x.s]={s:x.s,led:0,top:0,best:99,years:[]});
-      if(x.r===1) slot.led++;
+      var slot=accm[x.s]||(accm[x.s]={s:x.s,led:0,top:0,best:99,years:[],ledYears:[]});
+      if(x.r===1){ slot.led++; slot.ledYears.push(s); }
       slot.top++;
       if(x.r<slot.best) slot.best=x.r;
       slot.years.push(s);
@@ -2129,15 +2129,18 @@ function careerAccolades(r){
       +'draft-pick table, which has no row for a player who went undrafted. His individual '
       +'awards above are complete; his selections simply are not known here.">'
       +'Pro Bowls n/a</span>');
-  var led=0, top=0, ledBits=[];
-  (r.acc||[]).forEach(function(a){
-    led+=a.led; top+=a.top;
-    if(a.led) ledBits.push(a.led+'× '+a.s);
-  });
-  if(led) out.push('<span class="cacc-i lead" title="'+esc(ledBits.join(', '))+'">'
-    +'<b>'+led+'</b>× led NFL</span>');
-  if(top>led) out.push('<span class="cacc-i" title="Top-ten finishes in a league category, '
-    +'season by season"><b>'+top+'</b>top-10 finishes</span>');
+  /* One chip per category he actually won, which is what a leader board finish means to
+     anyone. The old pair of totals counted a quarterback's big season four times over —
+     yards, touchdowns, completions and attempts all move together — and the top-ten total
+     silently contained the league-leading one. Fantasy points is a tracked category but not
+     a football honour, so it stays on the season card and off the career résumé. */
+  (r.acc||[]).filter(function(a){ return a.led&&a.s!=='fantasy points'; })
+    .sort(function(a,b){ return (b.led-a.led)||(a.s<b.s?-1:1); })
+    .forEach(function(a){
+      out.push('<span class="cacc-i lead" title="'
+        +esc('Led the NFL in '+a.s+' in '+a.ledYears.join(', '))+'">'
+        +'<b>'+a.led+'</b>\u00d7 led NFL · '+esc(a.s)+'</span>');
+    });
   if(r.poyears) out.push('<span class="cacc-i"><b>'+r.poyears+'</b>playoff '
     +(r.poyears===1?'year':'years')+'</span>');
   return out.length?'<div class="cacc">'+out.join('')+'</div>':'';
