@@ -6,6 +6,7 @@ import ArticleBody from '../components/ArticleBody.jsx'
 import NewsletterCTA from '../components/NewsletterCTA.jsx'
 import CourtLines from '../components/CourtLines.jsx'
 import usePageMeta from '../lib/usePageMeta.js'
+import NotFound from './NotFound.jsx'
 
 // Placeholder long-form body paragraphs, reused across articles for the demo.
 const BODY = [
@@ -78,7 +79,13 @@ function ShareRow({ article }) {
 
 export default function ArticleDetail() {
   const { slug } = useParams()
-  const article = ARTICLES.find((a) => a.slug === slug) || ARTICLES[0]
+  const article = ARTICLES.find((a) => a.slug === slug)
+  // A mistyped or removed slug is a 404, not the newest article under the wrong URL.
+  if (!article) return <NotFound />
+  return <ArticleView article={article} />
+}
+
+function ArticleView({ article }) {
   const related = ARTICLES.filter((a) => a.slug !== article.slug).slice(0, 3)
 
   // Published articles carry a real HTML body; demo/seed articles fall back to

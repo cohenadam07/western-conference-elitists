@@ -2,3 +2,5 @@ User-agent: *
 Allow: /
 Disallow: /analytics
 Disallow: /inbox
+
+Sitemap: https://wcehoops.com/sitemap.xml

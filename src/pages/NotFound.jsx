@@ -1,9 +1,18 @@
+import { useEffect } from 'react'
 import Button from '../components/Button.jsx'
 import CourtLines from '../components/CourtLines.jsx'
 import usePageMeta from '../lib/usePageMeta.js'
 
 export default function NotFound() {
   usePageMeta('Page Not Found')
+  // Keep soft-404s out of search results.
+  useEffect(() => {
+    const meta = document.createElement('meta')
+    meta.name = 'robots'
+    meta.content = 'noindex'
+    document.head.appendChild(meta)
+    return () => meta.remove()
+  }, [])
   return (
     <div className="relative overflow-hidden">
       <CourtLines className="pointer-events-none absolute left-1/2 top-1/2 h-[560px] w-auto -translate-x-1/2 -translate-y-1/2 text-navy/[0.06]" accent="rgba(194,162,99,0.18)" />

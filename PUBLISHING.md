@@ -64,3 +64,11 @@ npm run publish-article -- "article.docx" --newsletter
 ```
 
 Or build the weekly digest later with `npm run newsletter-draft`. See `NEWSLETTER.md`.
+
+## Share previews
+
+Every published article gets its own title, dek and share card in the HTML at build
+time (`scripts/lib/seo-build.mjs`), so links posted to iMessage, X, Slack or Discord
+show the article instead of the homepage. To use a custom image instead of the
+default card (`public/og-card.png`, 1200×630), add `"ogImage": "/articles/<slug>/img-1.png"`
+to the article's JSON. New articles are added to `sitemap.xml` automatically.
