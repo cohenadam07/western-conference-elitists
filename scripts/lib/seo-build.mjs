@@ -8,14 +8,17 @@
 //   dist/articles/<slug>/index.html  each article with its own title, dek, canonical,
 //                                    Open Graph / Twitter tags and article JSON-LD
 //   dist/<page>/index.html           the same for the key static pages (PAGES below)
-//   dist/404.html                    served with a real 404 status for unknown URLs
+//   dist/404.html                    noindex shell for any URL the SPA rewrite doesn't catch
 //   dist/sitemap.xml                 every public page, articles with their dates
 //   dist/*-savant.html, game.html    favicon, Vercel Analytics, and share tags injected
 //                                    (those pages are hand-built HTML outside React, so
 //                                    they had none of it)
 //
 // Nothing here changes what a visitor sees. React still renders every page; this only
-// changes the HTML that arrives before it does.
+// changes the HTML that arrives before it does. Vercel serves these files ahead of the
+// catch-all rewrite in vercel.json (verified on a preview deploy), so /articles/<slug>
+// and /newsletter get their own HTML. An unknown slug still falls through to the app,
+// which shows Not Found with a noindex tag (status 200).
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'

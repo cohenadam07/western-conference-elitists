@@ -1,6 +1,5 @@
 {
   "rewrites": [
-    { "source": "/articles/:slug", "destination": "/articles/:slug/index.html" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "crons": [{ "path": "/api/analytics/snapshot", "schedule": "0 7 * * *" }]
