@@ -8,7 +8,9 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "publish-article": "node scripts/publish-article.mjs"
+    "publish-article": "node scripts/publish-article.mjs",
+    "newsletter-draft": "node scripts/newsletter-draft.mjs",
+    "check:forms": "node --test tools/forms/check.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

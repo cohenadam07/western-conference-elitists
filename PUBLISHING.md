@@ -53,3 +53,14 @@ To unpublish, delete those two paths for that slug.
 ```bash
 npm run dev        # then open the /articles/<slug> link the script printed
 ```
+
+## Sending it to the newsletter
+
+Add `--newsletter` to start a Buttondown draft for the piece at the same time.
+Nothing is sent until you hit send in Buttondown:
+
+```bash
+npm run publish-article -- "article.docx" --newsletter
+```
+
+Or build the weekly digest later with `npm run newsletter-draft`. See `NEWSLETTER.md`.

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import Navbar from './components/Navbar.jsx'
@@ -16,7 +17,12 @@ import CompChain from './pages/CompChain.jsx'
 import Dynasty from './pages/Dynasty.jsx'
 import Hoops from './pages/Hoops.jsx'
 import AnalyticsArchive from './pages/AnalyticsArchive.jsx'
+import Newsletter from './pages/Newsletter.jsx'
+import Privacy from './pages/Privacy.jsx'
 import NotFound from './pages/NotFound.jsx'
+
+// Private admin page: lazy, so no visitor downloads it unless they open /inbox.
+const Inbox = lazy(() => import('./pages/Inbox.jsx'))
 
 function App() {
   const { pathname } = useLocation()
@@ -47,9 +53,12 @@ function App() {
           <Route path="/articles" element={<Articles />} />
           <Route path="/articles/:slug" element={<ArticleDetail />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/newsletter" element={<Newsletter />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="/comp-chain" element={<CompChain />} />
           <Route path="/dynasty" element={<Dynasty />} />
           <Route path="/analytics" element={<AnalyticsArchive />} />
+          <Route path="/inbox" element={<Suspense fallback={null}><Inbox /></Suspense>} /> {/* private: contact messages + list health */}
           <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

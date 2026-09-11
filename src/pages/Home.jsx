@@ -362,7 +362,7 @@ export default function Home() {
       {/* Newsletter */}
       <section className="mx-auto max-w-7xl px-6 pb-24 lg:px-10">
         <Reveal>
-          <NewsletterCTA />
+          <NewsletterCTA source="home" />
         </Reveal>
       </section>
     </div>

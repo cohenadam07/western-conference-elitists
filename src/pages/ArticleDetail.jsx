@@ -195,7 +195,7 @@ export default function ArticleDetail() {
       )}
 
       <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
-        <NewsletterCTA />
+        <NewsletterCTA source="article" />
       </section>
     </article>
   )

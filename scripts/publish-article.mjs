@@ -13,6 +13,8 @@
  *   --excerpt  "..."   Dek / summary (default: first paragraph, trimmed)
  *   --date     "..."   Display date, e.g. "Jul 6, 2026" (default: today)
  *   --slug     "..."   URL slug (default: derived from the title)
+ *   --newsletter       Also start a Buttondown draft for this article (needs
+ *                      BUTTONDOWN_API_KEY in .env.local). Never sends anything.
  *
  * What it does:
  *   1. Converts the .docx to clean HTML with mammoth.
@@ -28,6 +30,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import mammoth from 'mammoth'
+import { buildDraft, createButtondownDraft, readApiKey } from './lib/newsletter.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
@@ -35,6 +38,8 @@ const ARTICLES_DATA_DIR = path.join(ROOT, 'src', 'data', 'articles')
 const PUBLIC_ARTICLES_DIR = path.join(ROOT, 'public', 'articles')
 
 // ── args ──────────────────────────────────────────────────────────────────
+const SWITCHES = new Set(['newsletter', 'help']) // flags that never take a value
+
 function parseArgs(argv) {
   const opts = {}
   const positional = []
@@ -43,7 +48,7 @@ function parseArgs(argv) {
     if (a.startsWith('--')) {
       const key = a.slice(2)
       const next = argv[i + 1]
-      if (next === undefined || next.startsWith('--')) {
+      if (SWITCHES.has(key) || next === undefined || next.startsWith('--')) {
         opts[key] = true
       } else {
         opts[key] = next
@@ -234,6 +239,22 @@ async function main() {
   console.log(`  images    ${imgCount} → public/articles/${slug}/`)
   console.log(`  data      src/data/articles/${slug}.json`)
   console.log(`\n  Preview at  /articles/${slug}\n`)
+
+  if (opts.newsletter) {
+    const key = readApiKey(ROOT)
+    if (!key) {
+      console.log('  Newsletter draft skipped: BUTTONDOWN_API_KEY not found in .env.local or the environment.\n')
+      return
+    }
+    try {
+      await createButtondownDraft(buildDraft([record]), key)
+      console.log(`  ✓ Newsletter draft created in Buttondown: "${record.title}". Edit and send it there.\n`)
+    } catch (e) {
+      console.log(`  Newsletter draft failed (the article itself is published): ${e.message}\n`)
+    }
+  } else {
+    console.log(`  Newsletter: npm run newsletter-draft -- ${slug}\n`)
+  }
 }
 
 main().catch((err) => {
