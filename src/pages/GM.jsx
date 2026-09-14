@@ -1,4 +1,4 @@
-import { Component, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import usePageMeta from '../lib/usePageMeta.js'
 import './gm.css'
 
@@ -10,8 +10,14 @@ import {
 import { CLUB, CITY, themeVars, initials, clubInk } from '../lib/gm/theme.js'
 import Shell, { SCREENS } from '../components/gm/Shell.jsx'
 import GameCast from '../components/gm/GameCast.jsx'
+import LeagueScreen from '../components/gm/League.jsx'
+import BoxScore from '../components/gm/BoxScore.jsx'
+import HistoryScreen from '../components/gm/History.jsx'
+import LotteryNight from '../components/gm/LotteryNight.jsx'
+import Dismissal from '../components/gm/Dismissal.jsx'
+import DraftCard from '../components/gm/DraftCard.jsx'
 import Celebration from '../components/gm/Celebration.jsx'
-import { Card, Tip, Ring, Donut, Arena, money, short, useCountUp } from '../components/gm/ui.jsx'
+import { Card, Tip, Ring, Donut, Arena, money, short, useCountUp, PlayerLink, PName } from '../components/gm/ui.jsx'
 import Avatar, {
   DEFAULT_GM, randomGM, SKIN, HAIR_COLOR, SUIT, SHIRT, TIE, HAIR_STYLES, FACIAL, GLASSES,
 } from '../lib/gm/avatar.jsx'
@@ -29,7 +35,7 @@ import {
   rollSeason, runContracts, ageRoster, refill, rookieContract, reSign, labelRookie, BADGES,
   applyPractice, developmentReport,
 } from '../lib/gm/offseason.js'
-import { runLottery, generateClass, scout, scoutWithStaff, runDraft } from '../lib/gm/draft.js'
+import { runLottery, generateClass, scout, scoutWithStaff, runDraft, LOTTERY_ODDS } from '../lib/gm/draft.js'
 import { openFreeAgency, resolveFreeAgency, askingPrice, maxOffer } from '../lib/gm/leagueYear.js'
 import { enrich, scoutedProfile, report as scoutReport, gradeOf, SKILL_LABEL } from '../lib/gm/prospects.js'
 import { makeScoutMarket, describeScout, coverage, payroll, accuracyFor,
@@ -47,17 +53,20 @@ import {
 import { generateOffers, offerMargin, DEADLINE_GAME } from '../lib/gm/deadline.js'
 import { applyTrade } from '../lib/gm/trades.js'
 import { seasonReport } from '../lib/gm/report.js'
+import { archiveSeason, careerFor, careerTotals } from '../lib/gm/history.js'
+import { allLines } from '../lib/gm/box.js'
+import { record as logMove } from '../lib/gm/ledger.js'
 import { playerMarketValue, talentVorp, TIERS } from '../lib/gm/trade/market.js'
 import { teamContext } from '../lib/gm/trade/context.js'
 import { decideTrade, availabilityOf, verdictText, VERDICT, AVAILABILITY } from '../lib/gm/trade/accept.js'
 import { makeItWork, shopPackage } from '../lib/gm/trade/negotiate.js'
 import { runMarket, offersForUser, describeFO } from '../lib/gm/trade/agents.js'
 import { vote as voteAwards, yours as awardsYours } from '../lib/gm/awards.js'
-import { issueMandate, gradeSecondary } from '../lib/gm/mandate.js'
+import { issueMandate, gradeMandate, roundReached } from '../lib/gm/mandate.js'
 // `roundName` and `ROUNDS` are both taken by playoffs.js — the postseason has rounds too, and
 // they mean something different. Aliased rather than renamed at the source, because the Cup's
 // own module reads better with the plain names.
-import { groupTable, qualifiers, openKnockout, raiseBanner,
+import { groupTable, qualifiers, openKnockout, raiseBanner, applyMorale,
   roundName as cupRoundName, ROUNDS as CUP_ROUNDS_META,
   CUP_BOOST, DEFERRED_BOOST, CUP_NAME } from '../lib/gm/cup.js'
 import { cupGroupDone, playCupRound, currentDay } from '../lib/gm/season.js'
@@ -74,7 +83,7 @@ import {
   PHASES, phaseOf, nextPhase, objectives, allowed, canAdvance, chapterOf,
   coachingFor, isFirstCareerYear, visited, markVisited, runStep,
 } from '../lib/gm/phase.js'
-import { MODES, MODE, modeOf, controls, handledBy } from '../lib/gm/modes.js'
+import { MODES, MODE, modeOf, controls, delegated, handledBy, DOMAIN_STATUS, LIVE_DOMAINS, yoursIn } from '../lib/gm/modes.js'
 import { track, EV } from '../lib/gm/track.js'
 import { LESSON, nextLesson, learn, glossary } from '../lib/gm/lessons.js'
 import { badgesFor, tendenciesFor, BADGES as BADGE_LIST, TIERS as BADGE_TIERS } from '../lib/gm/badges.js'
@@ -494,7 +503,9 @@ function ModePicker({ levels, onPick }) {
     <div className="fo-modes">
       {MODES.map((m) => {
         const on = current.key === m.key
-        const mine = Object.values(m.levels).filter((v) => v === 'manual').length
+        // Counted against the domains that are actually wired, not all ten — see
+        // DOMAIN_STATUS. The old count promised work the game did not hand over.
+        const mine = yoursIn(m.levels)
         return (
           <button key={m.key} type="button" className={`mode${on ? ' on' : ''}`}
             aria-pressed={on} onClick={() => onPick(m)}>
@@ -502,7 +513,7 @@ function ModePicker({ levels, onPick }) {
             <b>{m.label}</b>
             <span className="bl">{m.blurb}</span>
             <span className="dt">{m.detail}</span>
-            <span className="ct">{mine} of 10 decisions are yours</span>
+            <span className="ct">{mine} of {LIVE_DOMAINS.length} decisions are yours</span>
           </button>
         )
       })}
@@ -523,23 +534,41 @@ function ControlSurface({ preset, levels, onPreset, onLevel }) {
       <p className="fo-muted" style={{ marginTop: 0 }}>{SEED.presets[preset]?.blurb
         || 'Custom — you have changed individual domains.'}</p>
       <div style={{ display: 'grid', gap: '0 26px', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', marginTop: 14 }}>
-        {Object.entries(SEED.domains).map(([k, d]) => (
-          <div key={k} style={{ display: 'flex', alignItems: 'flex-start', gap: 12,
-            padding: '11px 0', borderBottom: '1px solid var(--line)' }}>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 13.5 }}>{d.label}</div>
-              <div className="fo-faint" style={{ fontSize: 11.5, lineHeight: 1.45, marginTop: 3 }}>
-                {levels[k] === 'auto' ? d.auto : d.blurb}
+        {Object.entries(SEED.domains).map(([k, d]) => {
+          // A dial that does nothing is worse than a dial that is not there: the user sets it,
+          // nothing changes, and they learn that the control surface is decoration.
+          const status = DOMAIN_STATUS[k] || 'planned'
+          const planned = status === 'planned'
+          return (
+            <div key={k} style={{ display: 'flex', alignItems: 'flex-start', gap: 12,
+              padding: '11px 0', borderBottom: '1px solid var(--line)',
+              opacity: planned ? 0.55 : 1 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 13.5 }}>
+                  {d.label}
+                  {planned && <span className="fo-tag">not built yet</span>}
+                  {status === 'yours' && (
+                    <Tip tip="This work is yours and it is on a screen — but the dial cannot hand it to the assistant yet, so leaving it on Auto changes nothing.">
+                      <span className="fo-tag">always yours</span>
+                    </Tip>
+                  )}
+                </div>
+                <div className="fo-faint" style={{ fontSize: 11.5, lineHeight: 1.45, marginTop: 3 }}>
+                  {planned
+                    ? 'No system behind this one yet. It is handled for you because there is nothing to hand over.'
+                    : levels[k] === 'auto' ? d.auto : d.blurb}
+                </div>
+              </div>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 4, flex: 'none' }}>
+                {LEVELS.map(([v, lab]) => (
+                  <button key={v} type="button" className="fo-opt" disabled={planned}
+                    aria-pressed={levels[k] === v}
+                    onClick={() => onLevel(k, v)} style={{ padding: '5px 8px', fontSize: 10 }}>{lab}</button>
+                ))}
               </div>
             </div>
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: 4, flex: 'none' }}>
-              {LEVELS.map(([v, lab]) => (
-                <button key={v} type="button" className="fo-opt" aria-pressed={levels[k] === v}
-                  onClick={() => onLevel(k, v)} style={{ padding: '5px 8px', fontSize: 10 }}>{lab}</button>
-              ))}
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
@@ -886,21 +915,8 @@ function HomeScreen({ save, roster, rating, onGo, phaseCtx, onAdvance, onCamp, b
 // components that render a name would have meant ten chances to forget one, and a name that
 // is clickable in four places and dead in six is worse than one that is never clickable at
 // all — so the handler goes in a context and `PName` is the only thing that renders a name.
-const PlayerLink = createContext(null)
-
-function PName({ p, name, className = '', children, ...rest }) {
-  const open = useContext(PlayerLink)
-  const id = p ? (p.uid || p.n) : name
-  const label = children ?? (p ? p.n : name)
-  if (!open || !id) return <span className={className} {...rest}>{label}</span>
-  return (
-    <span role="button" tabIndex={0} className={`fo-name ${className}`} {...rest}
-      onClick={(e) => { e.stopPropagation(); open(id) }}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); open(id) } }}>
-      {label}
-    </span>
-  )
-}
+// Both now live in components/gm/ui.jsx, so screens in their own files can render a
+// clickable name without GM.jsx having to hand one down.
 
 /* ------------------------------------------------------------- the player page */
 
@@ -946,7 +962,33 @@ function Spark({ points, height = 46 }) {
   )
 }
 
-function PlayerProfile({ entry, onBack, onOpen, depth, mine }) {
+// One line of a statistical table, in the language the game is argued in. `now` marks the
+// season in progress, because an unfinished year read against completed ones is misleading
+// unless it says so.
+function StatRow({ label, r, now, total }) {
+  const one = (x) => (x ?? 0).toFixed(1)
+  const pc = (x) => (x ? `${(x * 100).toFixed(1)}` : '—')
+  return (
+    <tr className={total ? 'tot' : now ? 'on' : undefined}>
+      <td>{label}{now ? <span className="fo-tag">NOW</span> : null}</td>
+      <td className="n fo-faint">{r.team || '—'}</td>
+      <td className="n fo-faint">{r.g}</td>
+      <td className="n fo-faint">{r.started ?? '—'}</td>
+      <td className="n fo-faint">{one(r.mpg)}</td>
+      <td className="n" style={{ fontWeight: 600 }}>{one(r.pts)}</td>
+      <td className="n">{one(r.reb)}</td>
+      <td className="n">{one(r.ast)}</td>
+      <td className="n fo-faint">{one(r.stl)}</td>
+      <td className="n fo-faint">{one(r.blk)}</td>
+      <td className="n fo-faint">{one(r.tov)}</td>
+      <td className="n fo-faint">{pc(r.fgPct)}</td>
+      <td className="n fo-faint">{pc(r.fg3Pct)}</td>
+      <td className="n">{pc(r.ts)}</td>
+    </tr>
+  )
+}
+
+function PlayerProfile({ entry, onBack, onOpen, depth, mine, line, career, careerTotal, season }) {
   const { cap, sim, team } = entry
   const pr = useMemo(() => savantProfile(cap, sim, team), [cap, sim, team])
   const [c1] = CLUB[team] || ['#5B6478']
@@ -1018,6 +1060,40 @@ function PlayerProfile({ entry, onBack, onOpen, depth, mine }) {
           <div className="sv-sec">
             <div className="fo-k" style={{ marginBottom: 8 }}>What he is good at</div>
             <BadgeRow badges={pr.badges} max={10} />
+          </div>
+        )}
+
+        {/* WHAT HE HAS ACTUALLY DONE.
+            The page was excellent on percentiles, badges, projection and comparisons, and
+            carried not one counting stat — so it could tell you a man was in the 94th
+            percentile for rim protection and not that he had played sixty games. The season
+            line comes from the accumulator; the career table from the archive, which is why
+            it fills in as the years go by rather than being there on day one. */}
+        {(line || (career && career.length > 0)) && (
+          <div className="sv-sec sv-stats">
+            <div className="fo-k" style={{ marginBottom: 8 }}>The numbers</div>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="fo-tbl sv-statline">
+                <thead><tr>
+                  <th>Season</th><th>Team</th><th>G</th><th>GS</th><th>MIN</th><th>PTS</th>
+                  <th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th>
+                  <th>FG%</th><th>3P%</th><th>TS%</th>
+                </tr></thead>
+                <tbody>
+                  {(career || []).map((r) => <StatRow key={r.season} label={r.season} r={r} />)}
+                  {line && <StatRow label={season || 'this season'} r={line} now />}
+                  {careerTotal && career && career.length > 1 && (
+                    <StatRow key="career" total
+                      label={`Career · ${careerTotal.seasons} seasons`} r={careerTotal} />
+                  )}
+                </tbody>
+              </table>
+            </div>
+            {!line && (
+              <p className="fo-faint" style={{ fontSize: 11.5, marginTop: 8 }}>
+                He has not appeared in a game this season.
+              </p>
+            )}
           </div>
         )}
 
@@ -1278,7 +1354,7 @@ function RotationScreen({ roster, sim, minutes, wear, onSet, onAuto, onEven }) {
   )
 }
 
-function RosterScreen({ roster, sim, needs }) {
+function RosterScreen({ roster, sim, needs, stats }) {
   const tot = teamSalary(roster)
   const rated = roster.map((p) => ({ ...p, ovr: ovrOf(p) }))
   const [pick, setPick] = useState(null)
@@ -1328,6 +1404,8 @@ function RosterScreen({ roster, sim, needs }) {
                 <th>Player</th><th>Pos</th><th>Age</th><th>Archetype</th>
                 <th>Yrs</th>
                 <th><Tip tip="Share of last season the player was available for. It decides how often he DRESSES, not how much he plays: he is drawn for before each game, and the men who dress share the night by what they actually play.">AVL</Tip></th>
+                <th><Tip tip="Games played this season.">G</Tip></th>
+                <th>PTS</th><th>REB</th><th>AST</th>
                 <th><Tip tip={OVR_TIP}>OVR</Tip></th><th>{SEED.season}</th>
               </tr>
             </thead>
@@ -1346,13 +1424,27 @@ function RosterScreen({ roster, sim, needs }) {
                   <td className="n fo-faint">{p.yr}</td>
                   <td className="n" style={{ color: typeof p.av === 'number' && p.av < 62 ? 'var(--warn)' : 'var(--faint)' }}>
                     {typeof p.av === 'number' ? `${Math.round(p.av)}%` : '—'}</td>
+                  {(() => {
+                    // What he has actually done this year, next to what the model thinks of
+                    // him. The accumulator has carried these numbers since the first game
+                    // and no screen had ever shown one.
+                    const b = stats ? stats.get(p.n) : null
+                    return (
+                      <>
+                        <td className="n fo-faint">{b ? b.g : '—'}</td>
+                        <td className="n" style={{ fontWeight: 600 }}>{b ? b.pts.toFixed(1) : '—'}</td>
+                        <td className="n fo-faint">{b ? b.reb.toFixed(1) : '—'}</td>
+                        <td className="n fo-faint">{b ? b.ast.toFixed(1) : '—'}</td>
+                      </>
+                    )
+                  })()}
                   <td className="n" style={{ color: p.ovr >= 85 ? 'var(--acc)' : 'inherit', fontWeight: 600 }}>
                     {p.ovr || '—'}</td>
                   <td className="n">{fmt(p.s)}</td>
                 </tr>
               ))}
               <tr className="tot">
-                <td colSpan={7}>Team salary</td>
+                <td colSpan={11}>Team salary</td>
                 <td className="n">{fmt(tot)}</td>
               </tr>
             </tbody>
@@ -3070,13 +3162,13 @@ function UpNext({ season, mine }) {
   )
 }
 
-function SeasonScreen({ save, season, po, run, report, inbox, auto, phase, phaseCtx, onAdvance,
+function SeasonScreen({ save, season, po, run, report, inbox, auto, phase, phaseCtx, onAdvance, onBox,
   onPlay, onWatch, onStop, onRun, onPlayoffs, onAccept, onPass, onRoll, onCup }) {
   const mine = save.franchise.team
   const tab = useMemo(() => standings(season), [season.played, season])
   const rec = season.rec[mine]
   const games = teamGames(season, mine)
-  const recent = games.slice(-6).reverse()
+  const recent = games.slice(-12).reverse()
   const seed = tab.East.concat(tab.West).length
     && (tab.East.findIndex((r) => r.team === mine) + 1 || tab.West.findIndex((r) => r.team === mine) + 1)
   const wCount = useCountUp(rec.w, 420)
@@ -3215,14 +3307,19 @@ function SeasonScreen({ save, season, po, run, report, inbox, auto, phase, phase
             const home = g.home === mine
             const my = home ? g.hs : g.as
             const th = home ? g.as : g.hs
+            const log = onBox ? (season.gamelog || []).find((x) => x.i === g.i) : null
             return (
-              <div key={g.i} className="fo-row" style={{ padding: '9px 15px' }}>
+              <div key={g.i} className={`fo-row${log ? ' fo-clickable' : ''}`}
+                style={{ padding: '9px 15px' }}
+                role={log ? 'button' : undefined} tabIndex={log ? 0 : undefined}
+                onClick={log ? () => onBox(log) : undefined}
+                onKeyDown={log ? (e) => { if (e.key === 'Enter' || e.key === ' ') onBox(log) } : undefined}>
                 <span className="fo-av sm" style={{ background: CLUB[home ? g.away : g.home]?.[0],
                   color: clubInk(home ? g.away : g.home) }}>
                   {home ? g.away : g.home}</span>
                 <span style={{ minWidth: 0 }}>
                   <span className="nm">{home ? 'vs' : 'at'} {CITY[home ? g.away : g.home][1]}</span>
-                  <span className="sub">{g.nPoss} possessions</span>
+                  <span className="sub">{g.nPoss} possessions{log ? ' · box score' : ''}</span>
                 </span>
                 <span className="r">
                   <b style={{ color: my > th ? 'var(--good)' : 'var(--bad)' }}>{my > th ? 'W' : 'L'}</b>
@@ -4004,6 +4101,32 @@ function JobScreen({ save, onLevel, onPreset, onFire, onReset, onQuit }) {
               ))}
             </div>
           )}
+          {/* WHAT OWNERSHIP ACTUALLY SAID. The mandate was drawn every season and graded in
+              none of them, so a year that met every word of it was still marked against a win
+              total nobody had been told about. This is the grader's own verdict. */}
+          {save.status.lastVerdict && (
+            <div className={`fo-verdict ${save.status.lastVerdict.met ? 'met' : 'missed'}`}>
+              <span className="fo-k">
+                {save.status.lastVerdict.season} · {save.status.lastVerdict.met ? 'Mandate met' : 'Mandate missed'}
+              </span>
+              <p>{save.status.lastVerdict.line}</p>
+              {save.status.lastVerdict.of > 0 && (
+                <>
+                  <div className="fo-k" style={{ marginTop: 9 }}>
+                    And the {save.status.lastVerdict.of} other things they asked —
+                    you did {save.status.lastVerdict.kept}
+                  </div>
+                  {save.status.lastVerdict.secondaries.map((o, i) => (
+                    <div key={i} className={`vr ${o.met ? 'yes' : 'no'}`}>
+                      <span className="mk">{o.met ? '✓' : '✗'}</span>
+                      <span><b>{o.label}</b><i>{o.line}</i></span>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
+
           <div className="fo-cells" style={{ gridTemplateColumns: 'repeat(3,1fr)', marginTop: 16 }}>
             <div><span className="fo-k">Seasons</span><div className="v">{rec.seasonsCompleted}</div></div>
             <div><span className="fo-k">Record</span><div className="v">{rec.totalWins}–{rec.totalLosses}</div></div>
@@ -4047,6 +4170,10 @@ function JobScreen({ save, onLevel, onPreset, onFire, onReset, onQuit }) {
           </div>
         </Card>
       </div>
+
+      {/* WHAT THE FRANCHISE REMEMBERS. Written to the save every season since the first
+          build, rendered nowhere until now. */}
+      <HistoryScreen save={save} mine={save.franchise.team} />
 
       <ControlSurface preset={save.controlSurface.preset} levels={save.controlSurface.levels}
         onPreset={onPreset} onLevel={onLevel} />
@@ -4167,6 +4294,11 @@ function GMInner() {
     if (found) setTrail((t) => [...t, found])
   }
   const backPlayer = () => setTrail((t) => t.slice(0, -1))
+  // The statistical archive is keyed by the SIM PROFILE's id, which is what the engine
+  // credits a bucket to. A cap-sheet row carries a uid, which is a different identity for a
+  // different purpose — matching one against the other is how a career table comes back
+  // empty for a man who has played four hundred games.
+  const statIdOf = (e) => e?.sim?.id ?? null
   const [chapter, setChapter] = useState(null)
   const [dev, setDev] = useState(null)
   const [screen, setScreenRaw] = useState('home')
@@ -4294,6 +4426,15 @@ function GMInner() {
   const mine = save?.franchise.team
   const roster = save ? rosterOf(save) : []
   const rating = useMemo(() => teamRating(roster), [roster])
+  // This season's statistical line for every man on your roster, keyed by name so a cap
+  // sheet row can find it. Built once per season change rather than per table row.
+  // Keyed on `played`, NOT on `season.stats`. The accumulator is mutated in place and
+  // `cloneSeason` spreads the season, so the stats object is the same reference from October
+  // to April — a memo watching it computes once, on an empty accumulator, and every cap-sheet
+  // row shows a dash for the rest of the career.
+  const myLines = useMemo(() => new Map(
+    allLines(season?.stats).filter((r) => r.team === mine).map((r) => [r.n, r])),
+  [season?.stats, season?.played, mine])
 
   useEffect(() => { if (save) saveCareer(save) }, [save])
 
@@ -4313,7 +4454,10 @@ function GMInner() {
     // gives back the exact same standings. Before this, closing the tab in February lost
     // the season while the calendar kept insisting you were at the deadline.
     const done = save.seasonProgress?.played || 0
-    if (done > 0 && done <= s.schedule.length) playNext(s, done)
+    // Replayed WITH the log, so the game-by-game record is rebuilt exactly as it was. The
+    // gamelog is derived from the seed like everything else on the season — it is never
+    // persisted, so a reload that did not ask for it would silently lose every box score.
+    if (done > 0 && done <= s.schedule.length) playNext(s, done, { logTeam: save.franchise.team })
     seasonRef.current = s
     setSeason(s)
     // The draft room is rebuilt the same way — deterministically, from the same save and
@@ -4324,6 +4468,23 @@ function GMInner() {
   }, [save, season])
 
   const push = (html) => setWire((w) => [html, ...w].slice(0, 14))
+
+  // THE MOVE, WRITTEN DOWN.
+  //
+  // `push` puts a line on the marquee, where it scrolls past once and is gone on reload. That
+  // was the only record this game kept of its own decisions. `noteMove` is the durable half:
+  // the same event, on the save, indexed by season, so a franchise can be asked in year twelve
+  // what it gave up in year three. Both are called at every transaction — the ticker is the
+  // notification, the ledger is the record.
+  const noteMove = (kind, text, detail = null) => setSave((prev) => {
+    if (!prev) return prev
+    const next = { ...prev, ledger: logMove(prev.ledger, {
+      season: prev.franchise.currentSeason, phase: prev.phase, kind, text, detail,
+      day: seasonRef.current ? currentDay(seasonRef.current) : 0,
+    }) }
+    saveCareer(next)
+    return next
+  })
 
   // A CHECKPOINT IN THE STORY LAYER.
   //
@@ -4407,17 +4568,29 @@ function GMInner() {
     if (!s) return
     // Push the chosen minutes into the profiles before the games run, then let what those
     // minutes cost show up in them. Wear is spent here and nowhere else.
-    if (save.rotation && controls(save, 'rotations')) {
+    // What the roster is playing at tonight, pushed into the profiles before the games run.
+    // Morale applies whether or not the rotation is yours — the Cup banner is a decision every
+    // control preset gets to make, so its consequence cannot be gated on one of them.
+    {
       const L = save.league
       const mine2 = save.franchise.team
       const rs = rosterOf(save) || []
-      const withMinutes = applyRotation(L.sim[mine2] || [], rs, save.rotation)
-      L.sim = { ...L.sim, [mine2]:
-        applySulk(applyWear(withMinutes, rs, save.wear), rs, save.sulk) }
-      setLeague(L)
+      let profiles = L.sim[mine2] || []
+      if (save.rotation && controls(save, 'rotations')) {
+        profiles = applySulk(applyWear(applyRotation(profiles, rs, save.rotation), rs, save.wear),
+          rs, save.sulk)
+      }
+      profiles = applyMorale(profiles, save, currentDay(s))
+      if (profiles !== (L.sim[mine2] || [])) {
+        L.sim = { ...L.sim, [mine2]: profiles }
+        setLeague(L)
+      }
     }
     const c = cloneSeason(s)
-    const opts = watch ? { traceTeam: mine } : undefined
+    // `logTeam` is always on: the box score of a game you have played is the first thing
+    // anybody asks for after a result lands, and it costs nothing on the save because the
+    // season is replayed from its seed rather than stored.
+    const opts = watch ? { logTeam: mine, traceTeam: mine } : { logTeam: mine }
     let myPlayed = teamGames(c, mine).length
     let mine_done = 0
     let hitDeadline = false
@@ -4445,7 +4618,7 @@ function GMInner() {
     }
     // Your 82 can finish before the league's 1230. The rest of the schedule still has to
     // be played or the standings — and therefore the bracket — are wrong.
-    if (myPlayed >= 82 && c.played < c.schedule.length) playNext(c, c.schedule.length - c.played)
+    if (myPlayed >= 82 && c.played < c.schedule.length) playNext(c, c.schedule.length - c.played, opts)
     seasonRef.current = c
     setSeason(c)
     // Remember how far in we are, so a reload can replay to exactly here — and spend the
@@ -4482,7 +4655,7 @@ function GMInner() {
 
     if (watch && c.last?.trace) {
       const g = c.last
-      setCast({ game: { home: g.home, away: g.away, hs: g.hs, as: g.as },
+      setCast({ game: { i: g.i, home: g.home, away: g.away, hs: g.hs, as: g.as },
         trace: g.trace, box: g.box })
     }
     // Mark the checkpoint spent before running it, for the same reason the All-Star break
@@ -4597,6 +4770,13 @@ function GMInner() {
   // reload replays the season from its progress marker — carrying it on the save would mean
   // two copies that disagree. The banner decision is the opposite: it outlives the season, so
   // that goes on the save.
+  // The box score of a game you have already played. Held here rather than on the screen so
+  // it survives a tab change, and so the gamecast can hand one over when a watched game ends.
+  const [boxGame, setBoxGame] = useState(null)
+  // Lottery night: the fourteen envelopes, held until the user has watched them open.
+  const [lottery, setLottery] = useState(null)
+  const [fired, setFired] = useState(null)
+  const [picked, setPicked] = useState(null)
   const [cupOpen, setCupOpen] = useState(false)
   function openCup() {
     const s = seasonRef.current
@@ -4694,6 +4874,11 @@ function GMInner() {
     saveAndSync(next)
     push(`<b>Trade</b> — ${mine} send ${deal.out.map((p) => p.n).join(', ') || 'picks'} to ` +
       `${deal.other} for ${deal.inc.map((p) => p.n).join(', ') || 'picks'}.`)
+    noteMove('trade',
+      `Traded ${deal.out.map((p) => p.n).join(', ') || 'draft capital'} to ${deal.other} for `
+      + `${deal.inc.map((p) => p.n).join(', ') || 'draft capital'}`,
+      { with: deal.other, out: deal.out.map((p) => p.n), in: deal.inc.map((p) => p.n),
+        outPicks: (deal.outPicks || []).length, inPicks: (deal.inPicks || []).length })
   }
 
   function acceptOffer(o) {
@@ -4763,6 +4948,33 @@ function GMInner() {
       nextLabel: `${year}-${String((year + 1) % 100).padStart(2, '0')}`,
     })
     setScreen('draft')
+    // DELEGATED DRAFT. The picker offers "your assistant makes the picks" in two of the three
+    // modes and, until now, the offseason screen put you on the clock regardless — the dial
+    // was a label. If the draft is not yours, the assistant takes the best man on your own
+    // department's board, which is exactly what the auto-behaviour text promises.
+    // Only on `auto`. On `advised` the pick is still yours — that is the whole difference
+    // between the two levels, and resolving it here would take the draft away from the
+    // recommended first career without ever telling anybody.
+    if (delegated(save, 'draft')) {
+      setTimeout(() => setOffs((o) => {
+        if (!o) return o
+        let next = o
+        let guard = 0
+        for (;;) {
+          const clock = next.draftRes.picks.find((x) => x.userPick && !next.made[x.overall])
+          if (!clock || guard++ > 4) break
+          const taken = new Set(next.taken)
+          const pick = next.board.find((x) => !taken.has(x.id))
+          if (!pick) break
+          taken.add(pick.id)
+          next = { ...next, taken, made: { ...next.made, [clock.overall]: pick },
+            additions: [...next.additions,
+              labelRookie(rookieContract(pick, clock.overall, next.r))] }
+          push(`<b>Your assistant</b> takes ${pick.name} at #${clock.overall}.`)
+        }
+        return next
+      }), 0)
+    }
     // The year's page turns here, with the development report on the card: this is the one
     // chapter break where what happened to your players IS the news.
     const ch = chapterOf(save, 'review', 'offseason', {
@@ -4771,6 +4983,20 @@ function GMInner() {
     })
     if (ch) setChapter(ch)
     push(`<b>${CITY[lot[0]][1]}</b> win the lottery.`)
+    // LOTTERY NIGHT, as an event rather than a line that scrolls past.
+    //
+    // The pre-lottery order is the standings, worst first; the post-lottery order is what the
+    // draw produced. The difference is the story, and the odds each club actually held are
+    // what make it one — a 3% team landing fourth is only remarkable if the 3% is on the card.
+    setLottery(lot.slice(0, 14).map((team, i) => {
+      const pre = worstFirst.indexOf(team)
+      return {
+        pick: i + 1,
+        team,
+        odds: pre < LOTTERY_ODDS.length ? LOTTERY_ODDS[pre] : null,
+        jump: pre - i,
+      }
+    }))
   }
 
   // Hiring changes what you can see, so the board is rebuilt the moment the staff does.
@@ -4843,6 +5069,30 @@ function GMInner() {
         additions: [...o.additions, labelRookie(rookieContract(prospect, pick.overall, o.r))] }
     })
     push(`<b>${mine}</b> select ${prospect.name} at #${pick.overall}.`)
+    noteMove('draft', `Drafted ${prospect.name} at #${pick.overall}`,
+      { name: prospect.name, overall: pick.overall })
+    // The pick is the moment, so it gets one. Board rank comes from the department's own
+    // ordering, which is what makes a reach visible as a reach.
+    {
+      const rank = (offs?.board || []).findIndex((x) => x.id === prospect.id) + 1
+      setPicked({
+        pick: pick.overall,
+        prospect,
+        boardRank: rank || null,
+        grade: rank ? gradeOf(rank, (offs?.board || []).length || 60) : null,
+        // Regenerated from the same seed the board uses, so the card quotes the report the
+        // user was reading rather than rolling a fresh opinion at the moment of the pick.
+        projection: (() => {
+          try {
+            const seed = rng((parseInt(String(prospect.id).replace(/\D/g, ''), 10) || 1) * 7919
+              + Object.keys(save.workouts || {}).length * 13 + (save.scouts || []).length)
+            const view = scoutedProfile(prospect, save.scouts || [], seed,
+              { workouts: save.workouts || {} })
+            return scoutReport(prospect, view).projection
+          } catch { return null }
+        })(),
+      })
+    }
   }
 
   function negotiate(p, aav, years) {
@@ -4862,8 +5112,14 @@ function GMInner() {
       talks: { ...o.talks, [p.uid]: { ask: neg.ask, state: neg.state, message: res.message, tone } },
       additions: res.result === 'signed' ? [...o.additions, reSign(p, sim, aav, years)] : o.additions,
     }))
-    if (res.result === 'signed') push(`<b>${p.n}</b> re-signs with ${mine} — ${short(aav)} × ${years}.`)
-    if (res.result === 'lost') push(`<b>${p.n}</b> leaves for ${res.to}.`)
+    if (res.result === 'signed') {
+      push(`<b>${p.n}</b> re-signs with ${mine} — ${short(aav)} × ${years}.`)
+      noteMove('resign', `Re-signed ${p.n} — ${short(aav)} × ${years}`, { name: p.n, aav, years })
+    }
+    if (res.result === 'lost') {
+      push(`<b>${p.n}</b> leaves for ${res.to}.`)
+      noteMove('loss', `${p.n} signs with ${res.to}`, { name: p.n, to: res.to })
+    }
   }
 
   function letGo(p) {
@@ -4890,14 +5146,64 @@ function GMInner() {
       sim: (save.league.sim[m.player.from] || []).find((x) => x.n === m.player.n) || null,
     }))
     const filled = refill(offs.aged.sim, offs.kept, [...offs.additions, ...won], offs.r, offs.year, 14)
+    // THE MANDATE, GRADED.
+    //
+    // `issueMandate` has always been called to DRAW the mandate and `gradeMandate` was never
+    // called at all — so the two or three specific things ownership asked for were shown on
+    // three screens and checked on none. Everything the grader needs exists here and only
+    // here: the season that was played, the bracket it ended in, and the cap sheet as it
+    // finished. Anything that cannot be measured is left undefined rather than guessed, and
+    // an objective with no reading grades as unmet with a line that says why.
+    const verdict = (() => {
+      try {
+        const md = issueMandate(mine, save)
+        if (!md) return null
+        const myLinesNow = allLines(s.stats).filter((r) => r.team === mine)
+        const minutesOf = Object.fromEntries(myLinesNow.map((r) => [r.n, r.mpg]))
+        // "Became a starter" is started-most-of-his-games and real minutes — the two things a
+        // front office actually means by it.
+        const developed = myLinesNow.filter((r) => {
+          const cap = (save.league.rosters[mine] || []).find((p) => p.n === r.n)
+          return cap && (cap.a ?? 30) <= 23.9 && r.started >= r.g * 0.5 && r.mpg >= 24
+        }).length
+        const firsts = (ownedBy(save.picks || {}, mine) || [])
+          .filter((p) => p.round === 1 && !p.forfeit).length
+        const needZ = Object.fromEntries((adv?.needs || [])
+          .filter((x) => Number.isFinite(x.z)).map((x) => [x.key, x.z]))
+        return gradeMandate(md, {
+          wins: rec.w,
+          round: roundReached(po, mine),
+          developed,
+          firsts,
+          minutesOf,
+          salary: teamSalary(save.league.rosters[mine] || []),
+          needZ,
+        })
+      } catch { return null }
+    })()
+
     const next = rollSeason(save, {
       season: save.franchise.currentSeason, wins: rec.w, losses: rec.l, seed: s.seed,
       run: run || { made: false, seriesWon: 0, confTitle: false, champion: false },
-      pf: rec.pf, pa: rec.pa,
+      pf: rec.pf, pa: rec.pa, verdict,
     })
     next.league = { ...save.league,
       rosters: { ...save.league.rosters, [mine]: filled.cap },
       sim: { ...save.league.sim, [mine]: filled.sim } }
+    // THE YEAR GOES INTO THE RECORD BOOK BEFORE IT IS THROWN AWAY.
+    //
+    // `state.stats` is a complete statistical account of all thirty teams and it lived
+    // exactly as long as the season object did — so a career could tell you it had won 340
+    // games and could not tell you who scored them. Archived here, once, at the only moment
+    // both the finished season and the save exist at the same time.
+    next.history = archiveSeason(save.history, {
+      season: save.franchise.currentSeason,
+      stats: s.stats,
+      rec: s.rec,
+      champion: po?.champion || ((run && run.champion) ? mine : null),
+      honours: (save.honours || []).find((h) => h.season === save.franchise.currentSeason)?.hits || [],
+      team: mine,
+    })
     // A new year: back to training camp, with the season counter reset. Set BEFORE the
     // save is written, or the persisted copy carries last season's progress.
     next.phase = 'camp'
@@ -4947,6 +5253,10 @@ function GMInner() {
     if (!next.status.employed) {
       track(EV.fired, { n: next.records.seasonsCompleted, team: next.franchise.team })
       push('<b>You have been fired.</b>')
+      noteMove('fired', `Relieved of duty by ${CITY[mine]?.[0] || mine}`)
+      // The one ending this game has, held on screen instead of scrolling past in a marquee
+      // on a page that has already navigated away.
+      setFired({ save: next, verdict: next.status.lastVerdict || null })
     }
   }
 
@@ -4967,7 +5277,7 @@ function GMInner() {
     setSave(null)
     seasonRef.current = null
     setSeason(null); setPo(null); setRun(null); setReport(null); setInbox(null)
-    setDeadlineDone(false); setOffs(null); setParty(null); setCast(null)
+    setDeadlineDone(false); setOffs(null); setParty(null); setCast(null); setLottery(null); setFired(null); setPicked(null)
     setAsWk(null); setAsGame(null); setAsEvent(null); setAsk(null); setTradeFocus(null)
     setAuto(0); setSimTarget(0); setWire([]); setWire2([])
     setScreen('home')
@@ -5192,7 +5502,8 @@ function GMInner() {
             onAdvance={advancePhase}
             onCamp={(patch) => { const n = { ...save, camp: { ...save.camp, ...patch } }; setSave(n); saveCareer(n) }} />
         )}
-        {screen === 'roster' && <RosterScreen roster={roster} sim={save.league?.sim?.[mine]} needs={adv?.needs} />}
+        {screen === 'roster' && <RosterScreen roster={roster} sim={save.league?.sim?.[mine]}
+          needs={adv?.needs} stats={myLines} />}
         {screen === 'rotation' && (
           <RotationScreen roster={roster} sim={save.league?.sim?.[mine]}
             minutes={save.rotation || {}} wear={save.wear || {}}
@@ -5218,9 +5529,11 @@ function GMInner() {
         {screen === 'market' && (
           <MarketScreen save={save} roster={roster} needs={adv?.needs}
             onSign={(p, terms) => { const n = signFromPool(save, p, terms); setSave(n); saveCareer(n)
-              setLeague(n.league); push(`<b>${p.n}</b> signs with ${mine}.`) }}
+              setLeague(n.league); push(`<b>${p.n}</b> signs with ${mine}.`)
+              noteMove('sign', `Signed ${p.n}`, { name: p.n, salary: terms?.salary ?? null }) }}
             onWaive={(p) => { const n = waiveToPool(save, p); setSave(n); saveCareer(n)
-              setLeague(n.league); push(`${mine} waive <b>${p.n}</b>.`) }} />
+              setLeague(n.league); push(`${mine} waive <b>${p.n}</b>.`)
+              noteMove('waive', `Waived ${p.n}`, { name: p.n, dead: p.s ?? null }) }} />
         )}
         {screen === 'season' && po && phase.key === 'postseason' && (
           <PostseasonScreen save={save} po={po} run={run} report={report}
@@ -5240,6 +5553,7 @@ function GMInner() {
             onCup={openCup}
             onAccept={acceptOffer}
             onPass={(o) => setInbox((cur) => (o ? (cur || []).filter((x) => x.id !== o.id) : null))}
+            onBox={setBoxGame}
             onRoll={beginOffseason} />
         )}
         {screen === 'draft' && (
@@ -5248,6 +5562,7 @@ function GMInner() {
             onOffer={offerTo} onWithdraw={withdrawOffer} onMarket={openMarket}
             onNegotiate={negotiate} onLetGo={letGo} onFinish={finishOffseason} />
         )}
+        {screen === 'league' && <LeagueScreen save={save} season={season} mine={mine} />}
         {screen === 'finances' && <FinancesScreen save={save} roster={roster} />}
         {screen === 'report' && <ReportScreen save={save} roster={roster} />}
         {screen === 'job' && (
@@ -5261,7 +5576,20 @@ function GMInner() {
       </Shell>
       {trail.length > 0 && (
         <PlayerProfile entry={trail[trail.length - 1]} depth={trail.length} mine={mine}
+          season={save.franchise.currentSeason}
+          line={allLines(season?.stats).find((r) => r.n === trail[trail.length - 1].cap.n) || null}
+          career={careerFor(save.history, statIdOf(trail[trail.length - 1]))}
+          careerTotal={careerTotals(save.history, statIdOf(trail[trail.length - 1]))}
           onBack={backPlayer} onOpen={openPlayer} />
+      )}
+      {boxGame && <BoxScore game={boxGame} mine={mine} onClose={() => setBoxGame(null)} />}
+      {lottery && <LotteryNight rows={lottery} mine={mine} onDone={() => setLottery(null)} />}
+      {picked && (
+        <DraftCard {...picked} mine={mine} onDone={() => setPicked(null)} />
+      )}
+      {fired && (
+        <Dismissal save={fired.save} verdict={fired.verdict}
+          onDone={() => { setFired(null); setScreen('job') }} />
       )}
       {cupOpen && season?.knockout && (
         <CupNight season={season} kn={season.knockout} mine={mine}
@@ -5366,6 +5694,11 @@ function GMInner() {
       )}
       {cast && (
         <GameCast game={cast.game} trace={cast.trace} box={cast.box} mine={mine}
+          lines={(season?.gamelog || []).find((x) => x.i === cast.game.i)?.lines || []}
+          onBox={() => {
+            const log = (season?.gamelog || []).find((x) => x.i === cast.game.i)
+            if (log) { setCast(null); setBoxGame(log) }
+          }}
           onDone={() => setCast(null)} />
       )}
       {party && (

@@ -23,6 +23,7 @@ export const SCREENS = [
   ['trades', 'Trade desk', 'Build a deal. The cap rules and the other team both answer live.'],
   ['market', 'Open market', 'Free agents, all year. The minimum-salary door never closes.'],
   ['season', 'Season', 'Play the 82, the deadline, the play-in and the bracket.'],
+  ['league', 'The league', 'Leaders, every player\u2019s numbers, and all thirty rosters.'],
   ['draft', 'Offseason', 'The lottery, your pick, and re-signing your own expiring players.'],
   ['finances', 'Finances', 'Payroll, the tax bill, and what ownership will tolerate.'],
   ['report', 'Analytics', '53 metrics across 47 seasons — where every rating here comes from.'],
@@ -46,7 +47,7 @@ export const AREAS = [
   [null, ['home']],
   ['Team', ['roster', 'rotation']],
   ['Front office', ['trades', 'market', 'draft']],
-  ['Season', ['season', 'report']],
+  ['Season', ['season', 'league', 'report']],
   ['The club', ['finances', 'job']],
 ]
 

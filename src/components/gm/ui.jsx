@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 
 /* Primitives for the Front Office interface. Deliberately plain CSS classes (gm.css)
    rather than Tailwind — this screen should share nothing with the rest of the site. */
@@ -169,5 +169,30 @@ export function Ticker({ items }) {
       <span className="tag">League wire</span>
       <div className="win"><div>{line}{line}</div></div>
     </div>
+  )
+}
+
+/* ------------------------------------------------------------------ player names */
+
+// EVERY PLAYER'S NAME IN THIS GAME OPENS HIS PAGE.
+//
+// Threading a handler down to the dozen components that render a name would have meant a
+// dozen chances to forget one, and a name that is clickable in four places and dead in eight
+// is worse than one that is never clickable at all. So the handler goes in a context and
+// `PName` is the only thing that renders a name — which is also what lets a screen living in
+// its own file link a player without GM.jsx passing it anything.
+export const PlayerLink = createContext(null)
+
+export function PName({ p, name, className = '', children, ...rest }) {
+  const open = useContext(PlayerLink)
+  const id = p ? (p.uid || p.n) : name
+  const label = children ?? (p ? p.n : name)
+  if (!open || !id) return <span className={className} {...rest}>{label}</span>
+  return (
+    <span role="button" tabIndex={0} className={`fo-name ${className}`} {...rest}
+      onClick={(e) => { e.stopPropagation(); open(id) }}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); open(id) } }}>
+      {label}
+    </span>
   )
 }

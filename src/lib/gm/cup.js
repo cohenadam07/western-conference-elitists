@@ -191,6 +191,20 @@ export function raiseBanner(save, { raised, day }) {
   }
 }
 
+// AND THE WAY IT REACHES THE FLOOR.
+//
+// `moraleNow` computed a multiplier and, for a long time, nothing anywhere in `src/` ever
+// called it — the game offered a choice, named a consequence, and delivered none. It reaches
+// the simulation through `load`, the same single channel wear and a refused trade request
+// use: a team riding something plays harder, it is not suddenly better at shooting. Applied
+// to the profiles OUTSIDE the possession loop, like form and wear, so the engine stays a pure
+// function of what it is handed and the cross-runtime fixtures still hold.
+export function applyMorale(simRoster, save, day) {
+  const { mult } = moraleNow(save, day)
+  if (!mult || mult === 1) return simRoster
+  return simRoster.map((s) => ({ ...s, load: Math.max(1, s.load * mult) }))
+}
+
 // What the team is playing at today, as a multiplier on its own profiles.
 export function moraleNow(save, day) {
   const m = save?.morale

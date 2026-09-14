@@ -13,8 +13,8 @@
 import { SEED } from './seed.js'
 import { playableSim } from './league.js'
 import { withForm } from './form.js'
-import { simulate, rng } from './sim.js'
-import { accrue } from './box.js'
+import { simulate, rng, startersOf } from './sim.js'
+import { accrue, GAME_MINUTES } from './box.js'
 import { drawGroups, groupPairings, qualifiers, openKnockout, advanceKnockout } from './cup.js'
 import { assignDays, dayToDate } from './calendar.js'
 
@@ -154,6 +154,15 @@ export function newSeason(seed, opts = {}) {
     // What actually happened, player by player, folded forward game by game. Everything
     // voted on at the end of the year is argued from this and nothing else.
     stats: {},
+    // AND WHAT HAPPENED ON EACH PARTICULAR NIGHT, for one team.
+    //
+    // The season aggregate answers "what is he averaging". It cannot answer "what did he do
+    // last night", which is the question anybody asks first after a result lands. Keeping
+    // every box score for all 1,230 games would be several megabytes of localStorage a year;
+    // keeping them for the eighty-two games the user actually cares about is about two
+    // hundred kilobytes, and covers both sides of every one of those games, because a box
+    // score with one team in it is not a box score.
+    gamelog: [],
     last: null,
   }
 }
@@ -167,6 +176,31 @@ export const isCupGame = (state, i) => !!state.cup?.[i]
 // Deterministic per-game seed: derived from the season seed and the game index, so the
 // same season always produces the same games regardless of how it was stepped through.
 const gameSeed = (seasonSeed, i) => (Math.imul(seasonSeed ^ (i + 1), 0x9e3779b1) >>> 0) % 2147483647
+
+// One game's box, flattened for storage: player id, side, and the fourteen counting stats
+// the accumulator already speaks, plus the minutes the engine actually gave him. Anyone who
+// did not appear is left out rather than stored as a row of zeroes.
+export function packBox(box, homeRoster, awayRoster, lineups) {
+  const rows = []
+  const side = (roster, played, which) => {
+    const pool = played || roster
+    const starters = startersOf(pool)
+    for (const p of pool) {
+      const b = box[p.id]
+      if (!b) continue
+      rows.push({
+        id: p.id, n: p.n, side: which, st: starters.has(p.id) ? 1 : 0,
+        min: Math.round(p._share * GAME_MINUTES * 10) / 10,
+        pts: b.pts || 0, reb: b.reb || 0, ast: b.ast || 0, stl: b.stl || 0, blk: b.blk || 0,
+        tov: b.tov || 0, fgm: b.fgm || 0, fga: b.fga || 0, fg3m: b.fg3m || 0, fg3a: b.fg3a || 0,
+        ftm: b.ftm || 0, fta: b.fta || 0,
+      })
+    }
+  }
+  side(homeRoster, lineups?.home, 'home')
+  side(awayRoster, lineups?.away, 'away')
+  return rows
+}
 
 export function playNext(state, n = 1, opts = {}) {
   const out = []
@@ -198,6 +232,15 @@ export function playNext(state, n = 1, opts = {}) {
     state.rec[a].pf += score.away; state.rec[a].pa += score.home
     const g = { i, home: h, away: a, hs: score.home, as: score.away, nPoss }
     state.results.push(g)
+    // Keep the night. `logTeam` is the user's club: only its games are retained, and the
+    // stored line is the engine's own, trimmed to the men who actually played.
+    if (state.gamelog && opts.logTeam && (h === opts.logTeam || a === opts.logTeam)) {
+      state.gamelog.push({
+        i, home: h, away: a, hs: score.home, as: score.away, nPoss,
+        day: state.day?.[i] ?? 0, cup: !!state.cup?.[i],
+        lines: packBox(box, hs, as, lineups),
+      })
+    }
     if (wantTrace) state.last = { ...g, trace, box }
     out.push(g)
     state.played++

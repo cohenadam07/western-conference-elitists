@@ -221,10 +221,14 @@ export function runContracts(capRoster) {
   return { kept, expiring }
 }
 
-export function rollSeason(save, { season, wins, losses, seed, run, pf, pa }) {
+export function rollSeason(save, { season, wins, losses, seed, run, pf, pa, verdict = null }) {
   const s = JSON.parse(JSON.stringify(save))
   const rec = s.records
+  // `seed` is the REPLAY seed, not a playoff seed — it is what lets the server re-simulate
+  // the year to verify a claim. `made` and the points for/against are what a record book
+  // needs, and they were being handed to this function and dropped.
   s.seasons.push({ season, wins, losses, seed,
+    made: !!run.made, pf: pf ?? null, pa: pa ?? null,
     playoffRounds: run.seriesWon, confTitle: run.confTitle, champion: run.champion })
   rec.seasonsCompleted += 1
   rec.totalWins += wins
@@ -240,12 +244,38 @@ export function rollSeason(save, { season, wins, losses, seed, run, pf, pa }) {
   if (!rec.bestRecord || wins > rec.bestRecord.wins) rec.bestRecord = { season, wins, losses }
   if (!rec.worstRecord || wins < rec.worstRecord.wins) rec.worstRecord = { season, wins, losses }
 
-  // The owner judges against the MANDATE, not raw wins — a 25-win rebuild can be a
-  // success and a 45-win title-or-bust season a failure.
-  const target = SEED.mandates[s.status.mandate]?.target ?? 44
-  let score = (wins - target) / 12 + run.seriesWon * 0.35
-  if (s.status.mandate === 'develop') score += 0.3
+  // THE OWNER JUDGES AGAINST THE MANDATE HE ACTUALLY ISSUED.
+  //
+  // mandate.js builds a primary target from this roster plus two or three checkable
+  // secondaries, `gradeMandate` grades all of it, and for a long time neither was ever
+  // called by the game: confidence ran off a four-bucket win target looked up in the seed.
+  // So the mandate on the screen — "play the 21-year-old thirty minutes", "get under the
+  // second apron" — was decoration, and a season that met every word of it could still be
+  // marked down for finishing two wins short of a number nobody had been told.
+  //
+  // The verdict is computed by the caller, because grading it needs the finished season, the
+  // bracket and the cap sheet all at once. When one is not supplied the old formula still
+  // runs, so a test or an older save is never left without an owner.
+  let score
+  if (verdict) {
+    // `score` comes back on 0..1, where 0.7 is the primary alone. Centred so that meeting the
+    // primary and half the secondaries is a good year and missing the primary is a bad one.
+    score = (verdict.score - 0.6) * 4
+  } else {
+    const target = SEED.mandates[s.status.mandate]?.target ?? 44
+    score = (wins - target) / 12 + run.seriesWon * 0.35
+    if (s.status.mandate === 'develop') score += 0.3
+  }
   s.status.ownerConfidence = Math.round((s.status.ownerConfidence + clamp(score, -2, 2)) * 100) / 100
+  // What ownership actually said about the year, kept so the next screen can quote it rather
+  // than inventing a sentence.
+  if (verdict) {
+    s.status.lastVerdict = {
+      season, met: !!verdict.primary?.met, line: verdict.primary?.line || '',
+      kept: verdict.kept, of: verdict.of,
+      secondaries: (verdict.secondaries || []).map((o) => ({ label: o.label, met: !!o.met, line: o.line })),
+    }
+  }
   s.status.employed = s.status.ownerConfidence > -3.0
   s.franchise.currentSeason = nextSeasonLabel(season)
   s.badges = earnedBadges(rec, s.seasons)

@@ -118,6 +118,7 @@ const nav = (re) => byText('.fo-navbtn', re)
 // -------------------------------------------------------------- every screen
 for (const [label, marker] of [
   [/Roster/, /Cap sheet/i], [/Trade desk/, /Trade desk/i], [/Season/, /The season/i],
+  [/The league/, /The league/i],
   [/Offseason/, /Offseason/i], [/Finances/, /Finances/i], [/Analytics/, /Analytics/i],
   [/The job/, /The job/i], [/Home/, /Welcome/i],
 ]) {
@@ -392,16 +393,116 @@ check('the calendar walks a whole year on the advance button alone',
   saveNow().phase === 'offseason', `stuck at ${saveNow().phase} after ${guard} steps`)
 check('the deadline arrived as its own stage', sawDeadline)
 
+// -------------------------------------------------- the numbers reach a screen
+//
+// The engine has folded a complete box score into the season after every game since box.js
+// was written, and for a long time the only consumers were the award ballot and the All-Star
+// vote — no screen in the game showed a single counting stat. These checks exist because that
+// class of bug is invisible to a unit test: every number was correct and none of it was
+// rendered.
+{
+  await click(nav(/The league/), 260)
+  check('the league screen renders its leaders', /Who is having the best year/i.test(text()))
+  const leadRows = all('.lg-lead li').filter((li) => !/Nothing played/.test(li.textContent))
+  check('somebody actually leads the league in something', leadRows.length > 0,
+    `${leadRows.length} leaderboard rows`)
+  check('a leader carries a number, not a dash',
+    leadRows.some((li) => /\d/.test(li.querySelector('b')?.textContent || '')), '')
+
+  const players = byText('.fo-seg button', /^Players$/)
+  if (players) await click(players, 300)
+  const rows = all('.fo-tbl tbody tr')
+  check('every player in the league can be listed', rows.length > 40, `${rows.length} rows`)
+
+  const teams = byText('.fo-seg button', /^Teams$/)
+  if (teams) await click(teams, 300)
+  check('all thirty clubs are browsable', all('.lg-club').length === 30,
+    `${all('.lg-club').length} clubs`)
+  const other = all('.lg-club').find((b) => b.getAttribute('aria-pressed') !== 'true')
+  if (other) {
+    await click(other, 260)
+    check('another club\'s roster opens', all('.fo-tbl tbody tr').length > 5, '')
+  }
+}
+
+// A box score for a game that was actually played.
+{
+  await click(nav(/Season/), 260)
+  const row = all('.fo-row.fo-clickable')[0]
+  check('a result is worth clicking on', !!row, 'no clickable result')
+  if (row) {
+    await click(row, 300)
+    const sides = all('.bx-side')
+    check('the box score opens with both teams in it', sides.length === 2, `${sides.length} sides`)
+    const ptsCells = all('.bx-tbl tbody tr:not(.tot) td:nth-child(3)')
+      .map((td) => Number(td.textContent) || 0)
+    check('somebody scored in it', ptsCells.some((x) => x > 0), '')
+    const close = byText('.bx-foot button', /^Close$/)
+    if (close) await click(close, 200)
+    check('and it closes', !doc.querySelector('.bx-side'), '')
+  }
+}
+
+// The cap sheet carries what he has done, not only what the model thinks of him.
+{
+  await click(nav(/Roster/), 260)
+  const heads = all('.fo-tbl thead th').map((th) => th.textContent.trim())
+  check('the cap sheet has a points column', heads.includes('PTS'), heads.join(','))
+  const ptsCol = heads.indexOf('PTS') + 1
+  const vals = all('.fo-tbl tbody tr').map((tr) =>
+    Number(tr.querySelector(`td:nth-child(${ptsCol})`)?.textContent) || 0)
+  check('and somebody on your roster has scored', vals.some((v) => v > 0),
+    `col ${ptsCol} of ${heads.length}: ${all('.fo-tbl tbody tr')[0]?.textContent.slice(0, 120)}`)
+}
+
 // --------------------------------------------------------------- to the bracket
 check('the postseason ran', !!saveNow().phase, '')
 
 // ------------------------------------------------------------------- offseason
 const toOff = byText('button', /Take the offseason/)
 if (toOff) await click(toOff, 600)
+
+// LOTTERY NIGHT. It used to be one line in the ticker for the single most consequential
+// random event a rebuilding club experiences. Now it is an event, which means it is also a
+// thing that can wedge the offseason if it cannot be closed.
+{
+  const lot = doc.querySelector('.lt-in')
+  check('lottery night happens', !!lot, 'no lottery modal')
+  if (lot) {
+    const showAll = byText('.lt-bar button', /Show me all of it/)
+    if (showAll) await click(showAll, 300)
+    check('fourteen envelopes open', all('.lt-row.open').length === 14,
+      `${all('.lt-row.open').length} open`)
+    check('each one names the odds that club held',
+      all('.lt-row.open .od').every((e) => /%/.test(e.textContent)), '')
+    const on = byText('.lt-bar button', /On to the draft/)
+    check('and it can be closed', !!on, 'no way out of lottery night')
+    if (on) await click(on, 300)
+    check('lottery night is not a dead end', !doc.querySelector('.lt-in'), '')
+  }
+}
+
 await click(nav(/Offseason/), 300)
 check('the offseason opens on the draft', /Offseason ·/i.test(text()))
 let draftGuard = 0
-while (byText('button', /^Draft$/) && draftGuard++ < 4) await click(byText('button', /^Draft$/), 200)
+let sawDraftCard = false
+while (byText('button', /^Draft$/) && draftGuard++ < 4) {
+  await click(byText('button', /^Draft$/), 200)
+  const card = doc.querySelector('.dc-in')
+  if (card) {
+    sawDraftCard = true
+    const back = byText('.dc-bar button', /Back to the board/)
+    if (back) await click(back, 200)
+  }
+}
+// THE DEFAULT CAREER IS ON `advised`, AND ADVISED IS NOT AUTO.
+//
+// The assistant resolving anything that is not set to `manual` would quietly take the draft
+// away from the recommended first career — the user would arrive at the offseason to find
+// their pick already spent. The clock has to still be theirs here.
+check('the pick is a moment, not a ticker line', sawDraftCard,
+  `draft level ${saveNow().controlSurface?.levels?.draft}; no card after ${draftGuard} clicks`)
+check('and the draft card does not trap you', !doc.querySelector('.dc-in'), '')
 const meet = byText('button', /^Meet /)
 if (meet) await click(meet, 200)
 // Free agency is the whole league's, not just yours: bid on somebody else's player and
@@ -433,6 +534,40 @@ if (finish) {
     `${saved.league.rosters[saved.franchise.team].length} contracts`)
   check('the calendar advances', saved.franchise.currentSeason !== '2026-27',
     saved.franchise.currentSeason)
+
+  // ---------------------------------------------------- and the franchise remembers it
+  //
+  // `seasons[]`, `honours[]` and the statistical archive are all written at the rollover.
+  // Before the history screen existed, all three went straight to disk and were never read
+  // by anything — a franchise mode with no memory of its own past.
+  check('the year went into the statistical archive',
+    (saved.history?.seasons || []).length === 1,
+    `${(saved.history?.seasons || []).length} archived`)
+  check('and the archive covers the whole league, not just your club',
+    (saved.history?.seasons?.[0]?.lines || []).length > 300,
+    `${(saved.history?.seasons?.[0]?.lines || []).length} lines`)
+  check('ownership wrote a verdict against the mandate it actually issued',
+    !!saved.status.lastVerdict?.line, JSON.stringify(saved.status.lastVerdict || null).slice(0, 120))
+
+  await click(nav(/The job/), 300)
+  check('the record book shows the season that was played',
+    /Season by season/i.test(text()), '')
+  const seasonRows = all('.fo-tbl tbody tr')
+  check('with a row for it', seasonRows.length >= 1, `${seasonRows.length} rows`)
+
+  const movesTab = byText('.fo-seg button', /^Transactions$/)
+  check('and every move you made is on the record', !!movesTab, 'no transactions tab')
+  if (movesTab) {
+    await click(movesTab, 250)
+    check('the ledger is not empty', all('.hs-year .row').length > 0,
+      `${(saved.ledger?.entries || []).length} entries on the save`)
+  }
+  const allTime = byText('.fo-seg button', /^All-time$/)
+  if (allTime) {
+    await click(allTime, 250)
+    check('an all-time leaderboard exists once a season has been played',
+      all('.lg-lead li').some((li) => /\d/.test(li.textContent)), '')
+  }
 }
 
 // ------------------------------------------------------------------ reload

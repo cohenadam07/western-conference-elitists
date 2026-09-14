@@ -13,6 +13,41 @@ const AUTO = {
   tactics: 'auto', two_way: 'auto',
 }
 
+// WHICH OF THE TEN DIALS ACTUALLY DO ANYTHING.
+//
+// The control surface declares ten domains and the mode picker counted all ten, so the
+// recommended career told a new user that "4 of 10 decisions are yours" when the code
+// consulted exactly two. That is not a rounding error — it is the game describing a job it
+// does not give you, on the first screen, before you have played a minute.
+//
+// Three honest states, and the surface shows which is which:
+//   routed  the dial changes what happens — set it to auto and the assistant does it
+//   yours   the work exists and is yours to do, but the dial cannot hand it to the assistant
+//   planned nothing is built yet; it is handled for you because there is nothing to hand over
+//
+// The rule for moving something up this list is the same as everywhere else in this codebase:
+// a `controls()` call site, or it does not count.
+export const DOMAIN_STATUS = {
+  rotations: 'routed',
+  draft: 'routed',
+  trades: 'yours',
+  free_agency: 'yours',
+  staff: 'yours',
+  practice: 'yours',
+  extensions: 'planned',
+  finances: 'planned',
+  tactics: 'planned',
+  two_way: 'planned',
+}
+
+export const LIVE_DOMAINS = Object.keys(DOMAIN_STATUS)
+  .filter((k) => DOMAIN_STATUS[k] !== 'planned')
+
+// How many of the levers that exist this preset hands you. Counted against the live ones, so
+// the number on the card is a number the game can keep.
+export const yoursIn = (levels = {}) =>
+  LIVE_DOMAINS.filter((k) => (levels[k] ?? 'manual') === 'manual').length
+
 export const MODES = [
   {
     key: 'easy',
@@ -66,6 +101,16 @@ export function modeOf(save) {
 
 // Is this domain the user's problem, or the staff's?
 export const controls = (save, domain) => (save?.controlSurface?.levels?.[domain] ?? 'manual') === 'manual'
+
+// THE THIRD LEVEL IS NOT THE SECOND ONE.
+//
+// `controls()` answers manual-or-not, which is the right question for "should this screen
+// exist" and the WRONG one for "should the assistant just do it". There are three levels and
+// `advised` is the interesting one — the assistant recommends and you approve — so a feature
+// that resolves itself on anything that is not `manual` silently takes the decision away from
+// the default career, where every domain is set to advised.
+export const levelOf = (save, domain) => save?.controlSurface?.levels?.[domain] ?? 'manual'
+export const delegated = (save, domain) => levelOf(save, domain) === 'auto'
 
 // Who handles it when it is not you. Used to tell the player what happened rather than
 // silently doing it behind their back.

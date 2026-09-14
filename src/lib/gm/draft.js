@@ -10,6 +10,10 @@ import { rng } from './sim.js'
 import { accuracyFor } from './scouts.js'
 
 const D = SEED.draft
+
+// The published lottery odds, worst record first. Exported because lottery night is worth
+// showing, and a reveal that cannot name the odds a team actually held is a slot machine.
+export const LOTTERY_ODDS = D.odds
 const FIRST = ['Amari', 'Kai', 'Deshawn', 'Luka', 'Tariq', 'Bode', 'Marcus', 'Ivan', 'Jalen',
   'Obi', 'Theo', 'Rui', 'Cade', 'Nikola', 'Emeka', 'Silas', 'Dante', 'Kofi', 'Mateo', 'Zion',
   'Trey', 'Andrei', 'Malik', 'Jonas', 'Hugo', 'Diego', 'Ade', 'Kristaps', 'Noah', 'Elias']

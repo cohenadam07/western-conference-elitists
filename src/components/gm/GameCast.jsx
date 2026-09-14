@@ -146,7 +146,7 @@ function drawDot(x, s, px, py, color, ink, label, glow) {
 
 /* ----------------------------------------------------------------- component */
 
-export default function GameCast({ game, trace, box, mine, onDone }) {
+export default function GameCast({ game, trace, box, lines, mine, onDone, onBox }) {
   const { home, away } = game
   const cvs = useRef(null)
   const st = useRef({ i: 0, b: 0, t: 0, ball: [W / 2, H / 2], flash: null, fl: 0 })
@@ -312,14 +312,17 @@ export default function GameCast({ game, trace, box, mine, onDone }) {
   const wp = done ? (game.hs > game.as ? 1 : 0) : cur.wp
   const myWp = Math.round((myHome ? wp : 1 - wp) * 100)
 
-  const top = (side) => {
-    const roster = side === 'home' ? home : away
-    return Object.entries(box || {})
-      .map(([id, b]) => ({ id, ...b }))
-      .filter((b) => b.pts)
-      .sort((a, b) => b.pts - a.pts).slice(0, 3).map((b) => ({ ...b, roster }))
-  }
-  void top
+  // WHO ACTUALLY PLAYED WELL.
+  //
+  // This function existed and its result was thrown away on the very next line — `void top`.
+  // So a user could watch a whole game, see every possession animate, and come away unable to
+  // name the leading scorer. The box score was in scope the entire time.
+  // The packed lines carry the names; `box` alone is keyed by profile id and cannot render a
+  // scoreboard a person can read.
+  const leaders = (which) => (lines || [])
+    .filter((r) => r.side === which && (r.pts || r.reb || r.ast))
+    .sort((x, y) => (y.pts || 0) - (x.pts || 0))
+    .slice(0, 3)
 
   return (
     <div className="fo-cast">
@@ -366,6 +369,31 @@ export default function GameCast({ game, trace, box, mine, onDone }) {
             </div>
           ))}
         </div>
+
+        {done && (
+          <div className="fo-cast-lead">
+            {['away', 'home'].map((which) => {
+              const t = which === 'home' ? home : away
+              const rows = leaders(which)
+              if (!rows.length) return null
+              return (
+                <div key={which} className="col">
+                  <div className="fo-k">{t}</div>
+                  {rows.map((r) => (
+                    <div key={r.id} className="ld">
+                      <span className="nm">{r.n}</span>
+                      <span className="ln">{r.pts || 0} pts · {r.reb || 0} reb · {r.ast || 0} ast</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            })}
+            {onBox && (
+              <button type="button" className="fo-btn ghost sm box"
+                onClick={onBox}>Full box score</button>
+            )}
+          </div>
+        )}
 
         <div className="fo-cast-bar">
           {!done ? (
