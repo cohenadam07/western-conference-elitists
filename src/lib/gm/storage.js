@@ -4,6 +4,7 @@ import { DEFAULT_GM } from './gmProfile.js'
 import { SEED } from './seed.js'
 import { newPickLedger, rebuildLedger, strengthRanks } from './picks.js'
 import { newLeague, setLeague, migrateLeague, DATA_REV } from './league.js'
+import { SAVE_VERSION } from './schema.js'
 import { makeFrontOffices } from './trade/agents.js'
 import { makeScoutMarket } from './scouts.js'
 import { seedPool } from './pool.js'
@@ -23,7 +24,8 @@ const INDEX_KEY = 'wce.gm.franchises.v1'
 export const MAX_FRANCHISES = 3
 export const SLOTS = [1, 2, 3]
 const slotKey = (n) => `${LEGACY_KEY}.s${n}`
-export const SAVE_VERSION = 2
+// The one definition lives in schema.js, which api/gm.js imports as well.
+export { SAVE_VERSION }
 
 const ls = {
   get(k) { try { return localStorage.getItem(k) } catch { return null } },
@@ -57,13 +59,37 @@ function migrateLegacy() {
   ls.del(LEGACY_KEY)
 }
 
+// Slots holding a career this build cannot read. Populated by readSlot.
+const stranded = {}
+export const strandedSaves = () => ({ ...stranded })
+
 function readSlot(n) {
   migrateLegacy()
   try {
     const raw = ls.get(slotKey(n))
     if (!raw) return null
     const save = JSON.parse(raw)
-    if (!save || save.schema !== SAVE_VERSION || !save.league) return null
+    if (!save || !save.league) return null
+    if (save.schema !== SAVE_VERSION) {
+      // NOT A REASON TO PRETEND IT ISN'T THERE.
+      //
+      // This returned null and said nothing. The data was never deleted — it just went
+      // invisible — so the day the save format changes, somebody who has put twelve
+      // seasons into a franchise opens the game to three empty slots and no explanation.
+      // That is the worst bug report a save-based game can get, and it would have looked
+      // like data loss because there is no way for them to tell the difference.
+      //
+      // The slot still cannot be loaded, but it is remembered, so the picker can say what
+      // happened instead of showing a blank file.
+      stranded[n] = {
+        schema: save.schema ?? null,
+        team: save.franchise?.team ?? null,
+        gm: save.gm?.name ?? null,
+        seasons: save.records?.seasonsCompleted ?? 0,
+      }
+      return null
+    }
+    delete stranded[n]
     return save
   } catch {
     return null
@@ -261,17 +287,34 @@ export function clearCareer() {
 // and then pushes — so a career survives a dropped connection, and the boards only ever
 // show careers the server has replayed and confirmed.
 
-export async function pushCareer(save) {
+// `kickoffLeague` is the roster state that PLAYED the season being claimed. The server
+// cannot verify a season without it — a season is a function of (seed, league), and for a
+// long time only the seed was sent, so the server replayed every career against the
+// default rosters and nobody who had ever made a trade could verify. It is sent once, at
+// the moment a season completes, and never stored: the save would double in size.
+//
+// Failures used to return a bare { ok: false } and vanish. That is how a dead endpoint
+// and a schema mismatch both went unnoticed — the client was built to say nothing. The
+// reason now comes back, and lastSync records it for anything that wants to show it.
+export async function pushCareer(save, { kickoffLeague = null } = {}) {
   try {
     const r = await fetch('/api/gm?action=save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ career: save }),
+      body: JSON.stringify({ career: save, kickoff: kickoffLeague }),
     })
-    if (!r.ok) return { ok: false }
-    return await r.json()
-  } catch {
-    return { ok: false }
+    let body = null
+    try { body = await r.json() } catch { /* not JSON: a proxy page, or nothing at all */ }
+    if (!r.ok) {
+      const why = body?.error || `HTTP ${r.status}`
+      if (typeof console !== 'undefined') console.warn('[gm] career sync refused:', why)
+      return { ok: false, error: why, status: r.status }
+    }
+    return body || { ok: false, error: 'empty response' }
+  } catch (e) {
+    const why = String(e?.message || e)
+    if (typeof console !== 'undefined') console.warn('[gm] career sync failed:', why)
+    return { ok: false, error: why, offline: true }
   }
 }
 
@@ -286,9 +329,15 @@ export async function fetchBoards() {
   }
 }
 
+// What the last push did, for anything that wants to tell the user their career is or is
+// not on the boards. Deliberately not persisted: it describes this tab, right now.
+export let lastSync = null
+export const syncState = () => lastSync
+
 // Save locally, then push. Local never waits on the network.
-export function saveAndSync(save) {
+export function saveAndSync(save, opts) {
   const ok = saveCareer(save)
-  pushCareer(save)
+  pushCareer(save, opts).then((r) => { lastSync = { at: Date.now(), ...r } })
   return ok
 }
+

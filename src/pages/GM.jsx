@@ -17,7 +17,7 @@ import Avatar, {
 } from '../lib/gm/avatar.jsx'
 import {
   newCareer, loadCareer, saveCareer, saveAndSync, fetchBoards,
-  franchises, activeSlot, leaveCareer, deleteFranchise, MAX_FRANCHISES,
+  franchises, activeSlot, leaveCareer, deleteFranchise, MAX_FRANCHISES, strandedSaves,
 } from '../lib/gm/storage.js'
 import { rostersOf, allRosters, rosterOf as leagueRosterOf, setLeague } from '../lib/gm/league.js'
 import { newSeason, playNext, standings, teamGames, TEAMS } from '../lib/gm/season.js'
@@ -75,6 +75,7 @@ import {
   coachingFor, isFirstCareerYear, visited, markVisited, runStep,
 } from '../lib/gm/phase.js'
 import { MODES, MODE, modeOf, controls, handledBy } from '../lib/gm/modes.js'
+import { track, EV } from '../lib/gm/track.js'
 import { LESSON, nextLesson, learn, glossary } from '../lib/gm/lessons.js'
 import { badgesFor, tendenciesFor, BADGES as BADGE_LIST, TIERS as BADGE_TIERS } from '../lib/gm/badges.js'
 import { TEAM_MINUTES, MAX_MINUTES, sustainable, strain, autoRotation, checkRotation,
@@ -206,13 +207,28 @@ function FranchiseMenu({ slots, onOpen, onNew, onDelete }) {
 
       <div className="fo-slots">
         {slots.map(({ slot, summary: f }) => {
+          const stranded = strandedSaves()
           if (!f) {
+            // A slot can be empty, or it can be holding a career this build cannot read.
+            // Those are very different things to the person looking at them, and until
+            // now they looked identical.
+            const old = stranded[slot]
             return (
               <button key={slot} type="button" className="fo-slot empty" onClick={() => onNew(slot)}>
                 <span className="no">{String(slot).padStart(2, '0')}</span>
-                <b>Empty file</b>
-                <span className="bl">Take a job with any of the thirty clubs.</span>
-                <span className="fo-btn sm" style={{ marginTop: 'auto' }}>Start a franchise</span>
+                <b>{old ? 'Older save' : 'Empty file'}</b>
+                <span className="bl">
+                  {old
+                    ? `A ${old.seasons > 0 ? `${old.seasons}-season ` : ''}career${
+                      old.team ? ` with ${CITY[old.team]?.[1] || old.team}` : ''
+                    } is still in this slot, saved by an older version of the game. It is `
+                      + 'not lost, but this build cannot open it. Starting a new franchise here '
+                      + 'will write over it.'
+                    : 'Take a job with any of the thirty clubs.'}
+                </span>
+                <span className={`fo-btn sm${old ? ' danger' : ''}`} style={{ marginTop: 'auto' }}>
+                  {old ? 'Start over in this slot' : 'Start a franchise'}
+                </span>
               </button>
             )
           }
@@ -4911,17 +4927,41 @@ function GMInner() {
     next.warned = {}
     setLeague(next.league)
     setSave(next)
-    saveAndSync(next)
+    // The one moment the roster state that played this season still exists: `save.league`
+    // is what took the floor, `next.league` is what the summer made of it. The server
+    // needs the former to replay the claim, and this is the only push that carries it.
+    saveAndSync(next, { kickoffLeague: save.league })
     seasonRef.current = null
     setSeason(null); setPo(null); setRun(null); setReport(null)
     setInbox(null); setDeadlineDone(false); setOffs(null); setParty(null); setScreen('home')
-    if (!next.status.employed) push('<b>You have been fired.</b>')
+    // A finished season is the unit of this game. How many people reach one at all, and
+    // how many come back for a second, is the number that says whether it works.
+    track(EV.season, {
+      n: next.records.seasonsCompleted,
+      team: next.franchise.team,
+      wins: rec.w,
+      playoffs: !!(run && run.made),
+      champion: !!(run && run.champion),
+    })
+    if (run && run.champion) track(EV.title, { n: next.records.seasonsCompleted, team: next.franchise.team })
+    if (!next.status.employed) {
+      track(EV.fired, { n: next.records.seasonsCompleted, team: next.franchise.team })
+      push('<b>You have been fired.</b>')
+    }
   }
 
   // Walking out. Every piece of derived state has to go with it — the season, the bracket,
   // the open offseason, the inbox — or the next career you open inherits the last one's
   // playoff bracket, which is exactly the class of bug that made the league feel frozen.
   const leaveToMenu = (destroy) => {
+    // Where people stop. The screen they were on when they walked out is the single most
+    // useful thing this game can learn about itself.
+    track(EV.quit, {
+      screen,
+      phase: save?.phase || 'none',
+      seasons: save?.records?.seasonsCompleted ?? 0,
+      deleted: !!destroy,
+    })
     if (destroy) { deleteFranchise(save.slot) } else { saveCareer(save); leaveCareer() }
     setQuitting(false)
     setSave(null)
@@ -4948,6 +4988,8 @@ function GMInner() {
           ? <Hiring slot={hiring} onCancel={() => { setHiring(null); setSlots(franchises()) }}
               onHire={(cfg) => {
                 const c = newCareer(cfg)
+                // The top of the funnel: somebody got through setup and took a job.
+                track(EV.start, { team: cfg.team, preset: cfg.preset || 'guided' })
                 setSave(c); saveCareer(c); setHiring(null); setSlots(franchises()); setScreen('home')
               }} />
           : <FranchiseMenu slots={slots} onOpen={openSlot} onNew={(n) => setHiring(n)}

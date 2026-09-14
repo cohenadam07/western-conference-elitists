@@ -26,7 +26,28 @@ import NotFound from './pages/NotFound.jsx'
 // every other page here is imported, every visitor who lands on the front page pays for
 // it before they see a headline. Behind React.lazy it is a separate chunk that is only
 // fetched when somebody actually opens /gm.
-const GM = lazy(() => import('./pages/GM.jsx'))
+// A DEPLOY UNDER AN OPEN TAB.
+//
+// Chunk filenames carry a content hash, so the moment a new version ships, the hash this
+// page is holding stops existing. Anyone who had the site open and then clicks through to
+// /gm asks for a file that 404s, React.lazy rejects, and the error boundary catches a
+// blank failure that looks exactly like the game being broken. It is the most common way
+// a working single-page app appears broken in production, and it only happens to people
+// who were already using the site.
+//
+// One reload fixes it, because the fresh index.html names the fresh chunk. Guarded by a
+// session flag so a genuine failure cannot become a reload loop.
+const RELOADED = 'fo.chunk.reloaded'
+const GM = lazy(() => import('./pages/GM.jsx').catch((err) => {
+  let already = true
+  try {
+    already = sessionStorage.getItem(RELOADED) === '1'
+    if (!already) sessionStorage.setItem(RELOADED, '1')
+  } catch { already = true }   // private mode: take the error rather than loop
+  if (already) throw err
+  window.location.reload()
+  return new Promise(() => {})  // the reload wins; never resolve
+}))
 
 function App() {
   const { pathname } = useLocation()

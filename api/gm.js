@@ -24,6 +24,10 @@
 //   gm:rl:<ip>:<min>   STR   per-minute rate limit
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity'
 import { newSeason, playNext } from '../src/lib/gm/season.js'
+import { runPlayoffs } from '../src/lib/gm/playoffs.js'
+import { setLeague } from '../src/lib/gm/league.js'
+import { CBA } from '../src/lib/gm/cap.js'
+import { ACCEPTED_VERSIONS } from '../src/lib/gm/schema.js'
 
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
@@ -33,7 +37,11 @@ const NAME_MAX = 28
 const BOARD_N = 25
 const ID_RE = /^[A-Z]{3}-[a-z0-9]{4,12}$/
 
-const matcher = new RegExpMatcher({ ...englishDataset, ...englishRecommendedTransformers })
+// englishDataset is a builder, not a payload. Spreading it hands RegExpMatcher an
+// object whose `terms` is not iterable, and the module throws on import — which means
+// this whole endpoint was dead on arrival, not merely wrong: every request to /api/gm
+// failed before a line of it ran. It needs .build().
+const matcher = new RegExpMatcher({ ...englishDataset.build(), ...englishRecommendedTransformers })
 const badName = (n) => {
   try {
     const s = String(n)
@@ -72,27 +80,128 @@ async function rateLimited(req) {
   return n > RATE_PER_MIN
 }
 
-// Replay one claimed season and compare the wins. The seed is the whole input.
-function verifySeason(team, claim) {
+// Replay one claimed season — the regular season AND the postseason — and report what
+// actually happened. The seed is the whole input: runPlayoffs derives the play-in, the
+// bracket and every series from state.seed, so a title is as reproducible as a win total.
+//
+// This used to compare wins and losses only, which left the headline board unguarded:
+// gm:titles was ranked on save.records.championships, a number the client simply
+// asserted. Verifying a season and ranking a different quantity is not verification.
+export function replaySeason(team, claim, league) {
+  // THE MISSING INPUT.
+  //
+  // A season is a function of (seed, the league that played it). The server used to get
+  // only the seed and replay against the default rosters, so verification held for
+  // exactly one kind of career: one that never made a trade. Measured: an untouched
+  // OKC reproduced 55-27, and the same seed after moving a single player claimed 56-26
+  // while the server still computed 55-27. Every real career failed, silently, and
+  // therefore never reached a board.
+  //
+  // The claim now carries the roster state that played the season, and the caller has
+  // already checked that state is a legal league.
+  setLeague(league)
   const st = newSeason(claim.seed)
   playNext(st, st.schedule.length)
   const got = st.rec[team]
-  return {
-    ok: got && got.w === claim.wins && got.l === claim.losses,
-    recomputed: got ? { w: got.w, l: got.l } : null,
+  if (!got) return { ok: false, why: 'team not in the replayed league' }
+  if (got.w !== claim.wins || got.l !== claim.losses) {
+    return { ok: false, why: 'record does not reproduce',
+      claimed: { w: claim.wins, l: claim.losses }, recomputed: { w: got.w, l: got.l } }
   }
+  let run = { seriesWon: 0, confTitle: false, champion: false }
+  try {
+    const po = runPlayoffs(st)
+    run = {
+      seriesWon: (po.rounds || []).filter((r) => r.winner === team).length,
+      confTitle: !!(po.rounds || []).some((r) => r.name === 'Conference final' && r.winner === team),
+      champion: po.champion === team,
+    }
+  } catch (e) {
+    return { ok: false, why: 'postseason did not replay: ' + String(e.message || e) }
+  }
+  return { ok: true, wins: got.w, losses: got.l, ...run }
 }
 
-function sane(save) {
-  if (!save || save.schema !== 1) return 'unrecognised save version'
-  if (!ID_RE.test(String(save.careerId || ''))) return 'bad career id'
-  if (!save.franchise?.team) return 'no franchise'
-  if (!Array.isArray(save.seasons)) return 'no season history'
-  if (save.seasons.length > 60) return 'too many seasons'
-  const n = String(save.gm?.name || '').slice(0, NAME_MAX)
-  if (!n.trim()) return 'name your GM'
-  if (badName(n)) return 'pick another name'
-  return null
+// What the server has proven for itself, built only from seasons it replayed. Nothing
+// the client asserts ever reaches a board.
+export function emptyTally() {
+  return { through: 0, wins: 0, losses: 0, titles: 0, confTitles: 0,
+    seriesWon: 0, best: 0, fastestTitle: null }
+}
+
+// IS THIS A LEAGUE, OR A WISH.
+//
+// Accepting the roster state from the client closes the "I invented a win total" hole
+// and opens a smaller one: "I gave myself five Jokićs". These are the cheap, certain
+// checks — every man in exactly one place, rosters the size rosters are, no contract
+// above what the CBA allows. It does not prove the league is the one the career
+// actually arrived at; it proves nobody handed themselves an impossible one.
+const ROSTER_MIN = 8
+const ROSTER_MAX = 21
+
+export function leagueIsLegal(league) {
+  if (!league || typeof league !== 'object') return { ok: false, why: 'no roster state sent' }
+  const sim = league.sim
+  const caps = league.rosters
+  if (!sim || !caps) return { ok: false, why: 'roster state is not a league' }
+  const teams = Object.keys(sim)
+  if (teams.length !== 30) return { ok: false, why: `league has ${teams.length} clubs, not 30` }
+  const seen = new Set()
+  const maxDeal = (CBA?.max || CBA?.cap || 60e6) * 1.5
+  for (const t of teams) {
+    const r = sim[t]
+    const c = caps[t]
+    if (!Array.isArray(r) || !Array.isArray(c)) return { ok: false, why: `${t} has no roster` }
+    if (c.length < ROSTER_MIN || c.length > ROSTER_MAX) {
+      return { ok: false, why: `${t} carries ${c.length} players` }
+    }
+    for (const p of c) {
+      const id = String(p.uid || `${t}:${p.n}`)
+      if (seen.has(id)) return { ok: false, why: `${p.n} appears on more than one roster` }
+      seen.add(id)
+      if (Number.isFinite(p.s) && p.s > maxDeal) {
+        return { ok: false, why: `${p.n} is on an impossible contract` }
+      }
+    }
+  }
+  return { ok: true, players: seen.size }
+}
+
+// One season per save, at the moment it completes — that is when the client still holds
+// the roster state that played it, and it is the only time it sends it. The server keeps
+// its own running tally and advances it strictly in order; a season that never arrives
+// leaves a gap, and the tally stops there rather than quietly skipping it. `pending` is
+// how far behind the board is, and it is reported rather than hidden.
+export function verifyNewest(team, seasons, kickoff, prev) {
+  const t = { ...emptyTally(), ...(prev || {}) }
+  const idx = (seasons?.length || 0) - 1
+  const pendingOf = (tt) => Math.max(0, (seasons?.length || 0) - tt.through)
+  if (idx < 0) return { tally: t, verified: false, why: 'no seasons yet', pending: 0 }
+  if (t.through > idx) return { tally: t, verified: true, why: 'already counted', pending: 0 }
+  if (t.through !== idx) {
+    return { tally: t, verified: false, pending: pendingOf(t),
+      why: `verified through season ${t.through} of ${seasons.length}; the ones between never arrived` }
+  }
+  const legal = leagueIsLegal(kickoff)
+  if (!legal.ok) return { tally: t, verified: false, pending: pendingOf(t), why: legal.why }
+  const claim = seasons[idx]
+  if (!claim || !Number.isFinite(claim.seed)) {
+    return { tally: t, verified: false, pending: pendingOf(t), why: 'season has no seed' }
+  }
+  const r = replaySeason(team, claim, kickoff)
+  if (!r.ok) return { tally: t, verified: false, pending: pendingOf(t), why: r.why, detail: r }
+
+  t.through = idx + 1
+  t.wins += r.wins
+  t.losses += r.losses
+  t.seriesWon += r.seriesWon
+  if (r.confTitle) t.confTitles += 1
+  if (r.champion) {
+    t.titles += 1
+    if (t.fastestTitle === null || t.through < t.fastestTitle) t.fastestTitle = t.through
+  }
+  if (r.wins > t.best) t.best = r.wins
+  return { tally: t, verified: true, pending: pendingOf(t), why: null }
 }
 
 export default async function handler(req, res) {
@@ -140,28 +249,42 @@ export default async function handler(req, res) {
       const bad = sane(save)
       if (bad) return res.status(400).json({ error: bad })
 
-      // Verify the most recent season by replaying it. A career whose newest claim does
-      // not reproduce is stored but never reaches a board.
-      let verified = true
-      let check = null
-      const last = save.seasons[save.seasons.length - 1]
-      if (last && Number.isFinite(last.seed)) {
-        check = verifySeason(save.franchise.team, last)
-        verified = check.ok
-      }
-
       const id = save.careerId
-      const doc = { ...save, verified, verifiedAt: Date.now() }
+      const team = save.franchise.team
+
+      // Carry forward what the server has already proven for this career, so a save only
+      // ever replays the seasons it has not seen. The previous tally is read from the
+      // server's own copy — never from the incoming body, which the client controls.
+      let prev = null
+      try {
+        const existing = await redis(['GET', `gm:c:${id}`])
+        if (existing) {
+          const old = JSON.parse(existing)
+          // A tally only carries forward for the same franchise. Switch clubs under the
+          // same id and it starts again rather than inheriting someone else's wins.
+          if (old?.tally && old.franchise?.team === team) prev = old.tally
+        }
+      } catch { prev = null }
+
+      const kickoff = req.body?.kickoff || null
+      const { tally, verified, pending, why } = verifyNewest(team, save.seasons, kickoff, prev)
+      const failure = verified ? null : { why }
+
+      // The document keeps the client's own history for display, but the score written to
+      // every board comes from the tally the server built by replaying. A career can post
+      // whatever records it likes; nothing reads them here.
+      const doc = { ...save, tally, verified, pending,
+        failure: failure || null, verifiedAt: Date.now() }
       const cmds = [['SET', `gm:c:${id}`, JSON.stringify(doc)]]
-      if (verified) {
-        const r = save.records || {}
-        cmds.push(['ZADD', 'gm:titles', r.championships || 0, id])
-        cmds.push(['ZADD', 'gm:wins', r.totalWins || 0, id])
-        cmds.push(['ZADD', 'gm:best', r.bestRecord?.wins || 0, id])
-        if (r.fastestTitle) cmds.push(['ZADD', 'gm:fast', r.fastestTitle, id])
+      if (tally.through > 0 && !failure) {
+        cmds.push(['ZADD', 'gm:titles', tally.titles, id])
+        cmds.push(['ZADD', 'gm:wins', tally.wins, id])
+        cmds.push(['ZADD', 'gm:best', tally.best, id])
+        if (tally.fastestTitle) cmds.push(['ZADD', 'gm:fast', tally.fastestTitle, id])
       }
       await pipe(cmds)
-      return res.status(200).json({ configured: true, ok: true, verified, check })
+      return res.status(200).json({ configured: true, ok: true, verified,
+        pending, tally, failure })
     }
 
     return res.status(405).json({ error: 'method not allowed' })

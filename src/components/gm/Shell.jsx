@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { CITY, initials } from '../../lib/gm/theme.js'
 import { Tip, Ticker, money, useCountUp } from './ui.jsx'
 import Avatar from '../../lib/gm/avatar.jsx'
@@ -65,6 +66,19 @@ export function railFor(levels = {}) {
 }
 
 export default function Shell({ save, screen, setScreen, badges = {}, strip, news, onQuit, children }) {
+  // KEEP THE CURRENT SCREEN ON SCREEN.
+  //
+  // On a phone the rail is one horizontal scroller. Change screens from anywhere other
+  // than the rail — a phase card, an objective, a lesson's "comes up at" link — and the
+  // button that is now current can be sitting well off the right edge, so the bar looks
+  // like it did not respond. Nudge it into view whenever the screen changes.
+  const navRef = useRef(null)
+  useEffect(() => {
+    const el = navRef.current?.querySelector('[aria-current="true"]')
+    if (!el || typeof el.scrollIntoView !== 'function') return
+    try { el.scrollIntoView({ inline: 'nearest', block: 'nearest' }) } catch { /* older engines */ }
+  }, [screen])
+
   const team = save.franchise.team
   const payroll = useCountUp(strip.payroll, 520)
   const trust = useCountUp(strip.trust, 520)
@@ -87,7 +101,7 @@ export default function Shell({ save, screen, setScreen, badges = {}, strip, new
           </span>
         </div>
 
-        <nav className="fo-nav">
+        <nav className="fo-nav" ref={navRef}>
           {railFor(save.controlSurface?.levels).map(([area, rows]) => (
             <div key={area || 'top'} className="fo-navgroup">
               {area && <div className="fo-navhead">{area}</div>}
