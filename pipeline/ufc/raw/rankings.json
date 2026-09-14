@@ -1,11 +1,12 @@
 {
-"fetched": "2026-09-09",
+"fetched": "2026-09-14",
 "released": "2026-09-05",
 "lists": {
 "HW": {
-"champion": "Tom Aspinall",
-"interim": "Ciryl Gane",
+"champion": "Ciryl Gane",
+"interim": null,
 "ranked": [
+"Tom Aspinall",
 "Alexander Volkov",
 "Sergei Pavlovich",
 "Josh Hokit",
