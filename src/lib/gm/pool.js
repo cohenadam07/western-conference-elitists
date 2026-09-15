@@ -153,7 +153,13 @@ export function signFromPool(save, player, { salary, years = 1 }) {
   }
   const sim = player.sim
     ? { ...player.sim, n: player.n }
-    : { n: player.n, load: Math.min(18, 8 + Math.max(0, (player.v ?? 0)) * 6), v: player.v ?? 0 }
+    // `mpg` is not optional. A profile without one gives `availabilityOf` a divide-by-one and
+    // an availability of ten — the man dresses every night for ever and can never be injured,
+    // because `load / mpg` is the only thing either system has to go on.
+    : (() => {
+      const load = Math.min(18, 8 + Math.max(0, (player.v ?? 0)) * 6)
+      return { n: player.n, load, mpg: Math.max(load, Math.round(load * 1.35 * 10) / 10), v: player.v ?? 0 }
+    })()
   const rosters = { ...L.rosters, [team]: [...rostersOf(team), cap] }
   const sims = { ...L.sim, [team]: [...simOf(team), sim] }
   L.rosters = rosters
@@ -208,7 +214,7 @@ export function cpuFillFromPool(save, r) {
       pool = pool.filter((p) => p !== best)
       rosters[t] = [...(rosters[t] || []), { ...best, s: MIN_SALARY, yr: 1, pool: undefined,
         uid: `${t}-sign-${(r ? r.randrange(1e6) : Math.floor(Math.random() * 1e6)).toString(36)}` }]
-      sims[t] = [...(sims[t] || []), { n: best.n, load: 10, v: best.v ?? 0 }]
+      sims[t] = [...(sims[t] || []), { n: best.n, load: 10, mpg: 13.5, v: best.v ?? 0 }]
       news.push(`${SEED.teams[t]?.name || t} sign <b>${best.n}</b> to fill the roster.`)
     }
   }

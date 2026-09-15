@@ -55,6 +55,7 @@ import { applyTrade } from '../lib/gm/trades.js'
 import { seasonReport } from '../lib/gm/report.js'
 import { archiveSeason, careerFor, careerTotals } from '../lib/gm/history.js'
 import { allLines } from '../lib/gm/box.js'
+import { outFor, gamesLeft, describe as describeInjury } from '../lib/gm/injury.js'
 import { record as logMove } from '../lib/gm/ledger.js'
 import { playerMarketValue, talentVorp, TIERS } from '../lib/gm/trade/market.js'
 import { teamContext } from '../lib/gm/trade/context.js'
@@ -1354,7 +1355,7 @@ function RotationScreen({ roster, sim, minutes, wear, onSet, onAuto, onEven }) {
   )
 }
 
-function RosterScreen({ roster, sim, needs, stats }) {
+function RosterScreen({ roster, sim, needs, stats, hurt = [], hurtBy, day = 0 }) {
   const tot = teamSalary(roster)
   const rated = roster.map((p) => ({ ...p, ovr: ovrOf(p) }))
   const [pick, setPick] = useState(null)
@@ -1396,6 +1397,32 @@ function RosterScreen({ roster, sim, needs, stats }) {
           </Card>
         </div>
       )}
+      {hurt.length > 0 && (
+        <Card title="Injury report" note={`${hurt.length} out`}>
+          <div className="inj-list">
+            {hurt.map((x) => (
+              <div key={x.id} className={`inj ${x.sev}`}>
+                <span className="mk" />
+                <span className="who">
+                  <PName name={x.n} />
+                  <i>{describeInjury(x)}</i>
+                </span>
+                <span className="out">
+                  <b>{gamesLeft(x, day)}</b>
+                  <i>games</i>
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="fo-faint" style={{ fontSize: 11.5, marginTop: 10 }}>
+            Games remaining is an estimate from the timeline, not a promise — a man comes back
+            when the calendar reaches his return date. Minutes are what put them here: riding
+            somebody past what he can carry raises his risk every night, and the second half of
+            a back-to-back raises everybody&apos;s.
+          </p>
+        </Card>
+      )}
+
       <Card flush note={`${roster.length} contracts · ${short(tot)}`}>
         <div style={{ overflowX: 'auto' }}>
           <table className="fo-tbl">
@@ -1417,6 +1444,11 @@ function RosterScreen({ roster, sim, needs, stats }) {
                   <td>
                     <PName p={p} />
                     {p.o && <span className="fo-tag">{p.o}</span>}
+                    {hurtBy?.get(p.n) && (
+                      <Tip tip={`${describeInjury(hurtBy.get(p.n))} — about ${gamesLeft(hurtBy.get(p.n), day)} games.`}>
+                        <span className="fo-tag bad">OUT</span>
+                      </Tip>
+                    )}
                   </td>
                   <td className="n fo-faint">{p.pos || '—'}</td>
                   <td className="n fo-faint">{typeof p.a === 'number' ? p.a.toFixed(1) : '—'}</td>
@@ -4432,6 +4464,15 @@ function GMInner() {
   // `cloneSeason` spreads the season, so the stats object is the same reference from October
   // to April — a memo watching it computes once, on an empty accumulator, and every cap-sheet
   // row shows a dash for the rest of the career.
+  // WHO IS HURT, RIGHT NOW.
+  //
+  // Held on the season, so it is derived rather than stored and can never disagree with the
+  // games that produced it. Keyed by the sim profile's id, which is what the engine credits.
+  const today = season ? currentDay(season) : 0
+  const hurt = useMemo(() => (season?.injuries ? outFor(season.injuries, today, mine) : []),
+    [season?.injuries, season?.played, today, mine])
+  const hurtByName = useMemo(() => new Map(hurt.map((x) => [x.n, x])), [hurt])
+
   const myLines = useMemo(() => new Map(
     allLines(season?.stats).filter((r) => r.team === mine).map((r) => [r.n, r])),
   [season?.stats, season?.played, mine])
@@ -4593,6 +4634,9 @@ function GMInner() {
     const opts = watch ? { logTeam: mine, traceTeam: mine } : { logTeam: mine }
     let myPlayed = teamGames(c, mine).length
     let mine_done = 0
+    // Where the casualty list stood before tonight, so only NEW injuries are reported.
+    const injuriesBefore = c.injuryLog.length
+    let hitInjury = null
     let hitDeadline = false
     let hitBreak = false
     let hitStory = null
@@ -4614,6 +4658,25 @@ function GMInner() {
         // exactly what it did, and the headless play-through caught it. The sweep happens
         // after the block finishes, and only a question addressed to the user stops anything.
         if (!(save.storiesRun || {}).december && myPlayed >= 25) hitStory = 'december'
+        // SOMEBODY GOING DOWN STOPS THE RUN — BUT ONLY WHEN IT IS ACTUALLY A DECISION.
+        //
+        // The first cut halted on every injury that was not day-to-day: about ten a season on
+        // top of the five stops the calendar already makes. The headless play-through stopped
+        // finishing at all, which is the honest verdict on it — a run interrupted every fourth
+        // game is not a run, and most injuries do not change what a general manager does.
+        //
+        // Two conditions, both necessary: he has to be somebody who plays, and it has to cost
+        // real games. That is two or three stops a year, each a genuine question about minutes
+        // and about the deadline. Everything else goes on the wire, where it belongs.
+        const rotationMen = new Set((rosterOf(save) || [])
+          .slice()
+          .sort((x, y) => (y.mpg ?? 0) - (x.mpg ?? 0))
+          .slice(0, 9)
+          .map((x) => x.n))
+        const fresh = c.injuryLog.slice(injuriesBefore).filter((x) => x.team === mine
+          && (x.sev === 'moderate' || x.sev === 'major' || x.sev === 'severe')
+          && rotationMen.has(x.n))
+        if (fresh.length && !hitInjury) { hitInjury = fresh[fresh.length - 1]; break }
       }
     }
     // Your 82 can finish before the league's 1230. The rest of the schedule still has to
@@ -4652,6 +4715,16 @@ function GMInner() {
       return n
     })
     for (const x of newlyWorn) push(`<b>${x.p.n}</b> is ${x.note}.`)
+    // Everything the league lost tonight goes on the wire — yours in full, everybody else's
+    // when it is serious enough to change what they will do at the deadline.
+    for (const x of c.injuryLog.slice(injuriesBefore)) {
+      if (x.team === mine) {
+        push(`<b>${x.n}</b> — ${x.partLabel.toLowerCase()}, out about ${x.games} game${x.games === 1 ? '' : 's'}.`)
+      } else if (x.sev === 'major' || x.sev === 'severe') {
+        push(`<b>${x.n}</b> (${x.team}) — ${x.partLabel.toLowerCase()}, out about ${x.games} games.`)
+      }
+    }
+    if (hitInjury) setInjuryAlert(hitInjury)
 
     if (watch && c.last?.trace) {
       const g = c.last
@@ -4775,6 +4848,7 @@ function GMInner() {
   const [boxGame, setBoxGame] = useState(null)
   // Lottery night: the fourteen envelopes, held until the user has watched them open.
   const [lottery, setLottery] = useState(null)
+  const [injuryAlert, setInjuryAlert] = useState(null)
   const [fired, setFired] = useState(null)
   const [picked, setPicked] = useState(null)
   const [cupOpen, setCupOpen] = useState(false)
@@ -5277,7 +5351,7 @@ function GMInner() {
     setSave(null)
     seasonRef.current = null
     setSeason(null); setPo(null); setRun(null); setReport(null); setInbox(null)
-    setDeadlineDone(false); setOffs(null); setParty(null); setCast(null); setLottery(null); setFired(null); setPicked(null)
+    setDeadlineDone(false); setOffs(null); setParty(null); setCast(null); setLottery(null); setFired(null); setPicked(null); setInjuryAlert(null)
     setAsWk(null); setAsGame(null); setAsEvent(null); setAsk(null); setTradeFocus(null)
     setAuto(0); setSimTarget(0); setWire([]); setWire2([])
     setScreen('home')
@@ -5503,7 +5577,7 @@ function GMInner() {
             onCamp={(patch) => { const n = { ...save, camp: { ...save.camp, ...patch } }; setSave(n); saveCareer(n) }} />
         )}
         {screen === 'roster' && <RosterScreen roster={roster} sim={save.league?.sim?.[mine]}
-          needs={adv?.needs} stats={myLines} />}
+          needs={adv?.needs} stats={myLines} hurt={hurt} hurtBy={hurtByName} day={today} />}
         {screen === 'rotation' && (
           <RotationScreen roster={roster} sim={save.league?.sim?.[mine]}
             minutes={save.rotation || {}} wear={save.wear || {}}
@@ -5584,6 +5658,36 @@ function GMInner() {
       )}
       {boxGame && <BoxScore game={boxGame} mine={mine} onClose={() => setBoxGame(null)} />}
       {lottery && <LotteryNight rows={lottery} mine={mine} onDone={() => setLottery(null)} />}
+      {injuryAlert && (
+        <div className="fo-cast" role="dialog" aria-modal="true">
+          <div className="fo-cast-in" style={{ width: 'min(460px,100%)' }}>
+            <div className="ds-head" style={{ borderTopColor: 'var(--bad)' }}>
+              <div>
+                <div className="fo-k">Injury report</div>
+                <h3>{injuryAlert.n}</h3>
+              </div>
+            </div>
+            <div className="ds-body">
+              <p className="say">{describeInjury(injuryAlert)}.</p>
+              <p className="fo-muted">
+                Out roughly {injuryAlert.games} game{injuryAlert.games === 1 ? '' : 's'}. His
+                minutes have to go somewhere, and the men who absorb them carry more risk for
+                as long as he is gone.
+              </p>
+            </div>
+            <div className="ds-bar">
+              {controls(save, 'rotations') && (
+                <button type="button" className="fo-btn ghost sm"
+                  onClick={() => { setInjuryAlert(null); setScreen('rotation') }}>
+                  Set the rotation
+                </button>
+              )}
+              <button type="button" className="fo-btn"
+                onClick={() => setInjuryAlert(null)}>Carry on</button>
+            </div>
+          </div>
+        </div>
+      )}
       {picked && (
         <DraftCard {...picked} mine={mine} onDone={() => setPicked(null)} />
       )}

@@ -17,6 +17,9 @@ import { simulate, rng, startersOf } from './sim.js'
 import { accrue, GAME_MINUTES } from './box.js'
 import { drawGroups, groupPairings, qualifiers, openKnockout, advanceKnockout } from './cup.js'
 import { assignDays, dayToDate } from './calendar.js'
+import {
+  availableRoster, drawInjury, hazardFor, isOut, MIN_AVAILABLE, HAZARD_SCALE,
+} from './injury.js'
 
 export const TEAMS = Object.keys(SEED.teams).sort()
 const conf = (t) => SEED.teams[t].conf
@@ -163,6 +166,18 @@ export function newSeason(seed, opts = {}) {
     // hundred kilobytes, and covers both sides of every one of those games, because a box
     // score with one team in it is not a box score.
     gamelog: [],
+    // WHO IS HURT, AND UNTIL WHEN.
+    //
+    // On the season rather than the save, for the same reason everything else here is: a
+    // season is replayed from its seed on load, so a second copy on disk could only ever
+    // disagree with this one. The server's verification replays through this same loop, which
+    // is why the roll has to live here and not in the interface.
+    // `injuries: null` turns the whole layer off, which is how the engine's own calibration
+    // harnesses measure the possession model without a second source of variance on top.
+    injuries: opts.injuries === false ? null : {},
+    injuryLog: [],
+    // The day each club last played, which is all a back-to-back is.
+    lastPlayed: {},
     last: null,
   }
 }
@@ -202,15 +217,63 @@ export function packBox(box, homeRoster, awayRoster, lineups) {
   return rows
 }
 
+// One club's casualties from one game.
+//
+// The floor matters: a real club signs hardship deals long before it runs out of bodies, and
+// the engine needs a rotation. Below MIN_AVAILABLE nobody else goes down — which is a cap on
+// the pile-up, not a cap on any individual's risk.
+function rollGameInjuries(state, team, profiles, played, day, i) {
+  const pool = played || profiles
+  if (!pool || !pool.length) return
+  const healthy = profiles.filter((p) => !isOut(state.injuries, p.id, day)).length
+  if (healthy <= MIN_AVAILABLE) return
+  // Per TEAM as well as per game. Seeding on the game index alone handed both clubs the same
+  // stream, so the first man to go down on each side went down with the identical diagnosis
+  // and the identical number of games — visible immediately in the log, invisible to any
+  // aggregate check.
+  let tk = 0
+  for (let c = 0; c < team.length; c++) tk = (Math.imul(tk ^ team.charCodeAt(c), 0x9e3779b1) >>> 0)
+  const r = rng((Math.imul(state.seed ^ (i + 0x1f17) ^ tk, 0x85ebca6b) >>> 0) % 2147483647)
+  const b2b = state.lastPlayed?.[team] === day - 1
+  let room = healthy - MIN_AVAILABLE
+  // Drawn in id order for the same reason the engine dresses in id order: the moment a draw is
+  // spent per man in sequence, the order decides who gets which number.
+  const order = [...pool].sort((x, y) => (String(x.id) < String(y.id) ? -1
+    : String(x.id) > String(y.id) ? 1 : 0))
+  for (const p of order) {
+    if (isOut(state.injuries, p.id, day)) continue
+    const minutes = (p._share ?? 0) * 240 || p.mpg
+    const hz = hazardFor(p, { minutes, b2b, wear: state.wear?.[p.n] || 0 }) * HAZARD_SCALE
+    // ONE DRAW PER MAN, ALWAYS — never conditional on the outcome, or a replay falls out of
+    // step on the very next number.
+    const u = r.rand()
+    if (u < hz && room > 0) {
+      const inj = drawInjury(p, r, { day, team })
+      state.injuries[inj.id] = inj
+      state.injuryLog.push({ ...inj, game: i })
+      room--
+    } else {
+      // Spend the injury's two draws anyway so every man costs the same three numbers.
+      r.rand(); r.rand(); r.rand()
+    }
+  }
+}
+
 export function playNext(state, n = 1, opts = {}) {
   const out = []
   for (let k = 0; k < n && state.played < state.schedule.length; k++) {
     const i = state.played
     const [h, a] = state.schedule[i]
     const wantTrace = opts.traceTeam && (h === opts.traceTeam || a === opts.traceTeam)
+    const day = state.day?.[i] ?? 0
+    // Injured men do not dress, and everyone else is handed the residual availability the
+    // engine's own nightly draw is meant to represent — see injury.js on why absence has to be
+    // counted once. Applied to the profiles, never inside the engine.
+    const hFit = state.injuries ? availableRoster(playableSim(h), state.injuries, day) : playableSim(h)
+    const aFit = state.injuries ? availableRoster(playableSim(a), state.injuries, day) : playableSim(a)
     // Form is applied to the profiles, never inside the engine — see form.js.
-    const hs = withForm(playableSim(h), gameSeed(state.seed, i))
-    const as = withForm(playableSim(a), gameSeed(state.seed, i) ^ 0x5f5f)
+    const hs = withForm(hFit, gameSeed(state.seed, i))
+    const as = withForm(aFit, gameSeed(state.seed, i) ^ 0x5f5f)
     const { score, box, nPoss, trace, lineups } = simulate(hs, as, gameSeed(state.seed, i), !!wantTrace)
     // Keep the box. The engine hands one back for every game and the season used to drop
     // it on the floor, which meant nothing that happened on a Tuesday in January could ever
@@ -242,6 +305,18 @@ export function playNext(state, n = 1, opts = {}) {
       })
     }
     if (wantTrace) state.last = { ...g, trace, box }
+    // AND WHAT THE GAME COST THEM.
+    //
+    // Rolled after the game and only for the men who actually took the floor, because exposure
+    // is minutes: somebody who did not dress cannot pull a hamstring. A separate stream from
+    // the game's own seed, so adding this could not shift a single possession — and derived
+    // from the season seed, so the server's replay produces the same casualty list.
+    if (state.injuries) {
+      rollGameInjuries(state, h, hs, lineups?.home, day, i)
+      rollGameInjuries(state, a, as, lineups?.away, day, i)
+      state.lastPlayed[h] = day
+      state.lastPlayed[a] = day
+    }
     out.push(g)
     state.played++
   }

@@ -1344,7 +1344,7 @@
   font-variant-numeric:tabular-nums}
 .ds-note{margin-top:14px;padding:9px 11px;border-left:2px solid var(--line-2);
   color:var(--muted);font-size:12.5px}
-.ds-bar{padding:13px 16px;display:flex;justify-content:flex-end;border-top:1px solid var(--line)}
+.ds-bar{padding:13px 16px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--line)}
 
 /* ------------------------------------------------------------------ draft card */
 .dc-in{width:min(480px,100%)}
@@ -1364,3 +1364,22 @@
 .dc-body .board.reach{border-left-color:var(--warn)}
 .dc-body .board.steal{border-left-color:var(--good)}
 .dc-bar{padding:12px 16px;display:flex;justify-content:flex-end;border-top:1px solid var(--line)}
+
+/* -------------------------------------------------------------- injury report */
+.inj-list{display:grid;gap:1px}
+.inj{display:grid;grid-template-columns:4px minmax(0,1fr) 52px;gap:11px;align-items:center;
+  padding:7px 0;border-bottom:1px solid var(--line)}
+.inj:last-child{border-bottom:0}
+.inj .mk{width:4px;height:26px;border-radius:2px;background:var(--faint)}
+.inj.knock .mk{background:var(--muted)}
+.inj.minor .mk{background:var(--warn)}
+.inj.moderate .mk{background:var(--warn)}
+.inj.major .mk,.inj.severe .mk{background:var(--bad)}
+.inj .who{min-width:0}
+.inj .who .fo-name{display:block;font-size:13px;font-weight:600}
+.inj .who i{display:block;font-style:normal;font-size:11.5px;color:var(--muted)}
+.inj .out{text-align:right}
+.inj .out b{display:block;font:700 16px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.inj .out i{display:block;font:500 9px/1.5 "IBM Plex Mono",monospace;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--faint);font-style:normal}
+.fo-tag.bad{border-color:color-mix(in srgb,var(--bad) 55%,transparent);color:var(--bad)}

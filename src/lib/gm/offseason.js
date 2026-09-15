@@ -21,6 +21,21 @@ const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x))
 const EFF_PER_VORP = 0.045
 const LOAD_PER_VORP = 0.16
 
+// WHAT A PLAYER IS WORTH, FROM WHAT HE DOES.
+//
+// VORP is value over replacement, and by construction it is box plus/minus above the
+// replacement line scaled by the share of the game a man is on the floor for. That is not a
+// guess: regressing `v` on `(bpm + 2) x (mpg / 48)` across the 463 real contracts in the seed
+// recovers it at R² 0.91, slope 0.657, intercept 0.05.
+//
+// It exists because several places in this codebase create a player and have to say what he
+// is worth — the draft most of all — and the alternative to deriving it was typing a number,
+// which is how every rookie in the league came to be worth exactly zero.
+export const vorpFrom = (bpm, mpg) =>
+  Math.round((0.6573 * ((bpm ?? -2) + 2) * ((mpg ?? 12) / 48) + 0.0515) * 100) / 100
+// The most anybody can average over a season. See ageRoster.
+export const MAX_SEASON_MPG = 42
+
 // WHAT TRAINING CAMP BOUGHT.
 //
 // The camp screen has always offered an emphasis and it has never done anything, which is
@@ -121,8 +136,8 @@ export function ageRoster(simRoster, capRoster, yearIndex, r) {
       for (const k of ['fg3', 'fg2', 'ft']) {
         if (typeof np[k] === 'number') np[k] = clamp(np[k] * (1 + lift), 0.05, 0.95)
       }
-      np.load = Math.max(0.5, (p.load || 10) * (1 + growth))
-      np.mpg = Math.max(2, (p.mpg || 12) * (1 + growth))
+      np.mpg = Math.max(2, Math.min(MAX_SEASON_MPG, (p.mpg || 12) * (1 + growth)))
+      np.load = Math.max(0.5, Math.min(np.mpg * 0.995, (p.load || 10) * (1 + growth)))
       // Young players grow out of the two things young players are bad at, and minutes are
       // most of how: defensive discipline and taking care of the ball are learned on the
       // floor rather than in the summer.
@@ -185,8 +200,25 @@ export function ageRoster(simRoster, capRoster, yearIndex, r) {
     for (const k of ['fg3', 'fg2', 'ft']) np[k] = clamp(p[k] * eff, 0.05, 0.95)
     np.usg = clamp(p.usg * (1 + d * 0.03), 0.05, 0.42)
     np.tov = clamp(p.tov / eff, 0.02, 0.30)
-    np.load = Math.max(0.5, p.load * load)
-    np.mpg = Math.max(2, p.mpg * load)
+    // MINUTES ARE A PHYSICAL QUANTITY AND THIS HAD NO CEILING.
+    //
+    // `load` reaches 1.45 for a player having a big year, and it was applied to last year's
+    // minutes every summer with nothing to stop it compounding. Five good seasons in a row is
+    // 1.45^5, so a 33-minute guard became a 211-minute one; a probe of an eight-year career
+    // found the best team in the league fielding a man at 236 minutes a night by year seven,
+    // with his club winning 79 games. It never looked like a bug from inside the simulation
+    // because `rotation()` normalises shares — an impossible number simply meant he took every
+    // minute there was — but it inflated team strength, decided the award ballot (which reads
+    // minutes), broke the starters list, and made availability meaningless.
+    //
+    // Forty-two is the ceiling. Nobody has averaged more than about forty-four in the modern
+    // era, and the engine's own per-game cap is thirty-eight.
+    np.mpg = Math.max(2, Math.min(MAX_SEASON_MPG, p.mpg * load))
+    // Load has to follow minutes, not drift away from them: `load / mpg` IS a player's
+    // availability, read by the injury model and by the engine's own nightly draw, and letting
+    // the two scale under different floors pushed it above 1.0 — men who were available more
+    // than every night.
+    np.load = Math.max(0.5, Math.min(np.mpg * 0.995, p.load * load))
     for (const k of ['dr', 'dp', 'de']) np[k] = clamp(p[k] + d * 3.2 + devGain * 12, 1, 99)
     np.vol = volatilityFor({ ...cap, a: age }, np)
     outSim.push(np)
@@ -207,7 +239,41 @@ export function ageRoster(simRoster, capRoster, yearIndex, r) {
       })
     }
   }
-  return { sim: outSim, cap: outCap, departed }
+  return { sim: conserveMinutes(outSim), cap: outCap, departed }
+}
+
+// MINUTES ARE ZERO-SUM AND NOTHING WAS ENFORCING IT.
+//
+// `ageRoster` scales every man's minutes by his own change in projected value, independently
+// of his team-mates. A good roster is full of men whose projections are rising, so every
+// summer each of them was handed more minutes than the summer before — and there are only
+// forty-eight of them a night to give out. A probe of an eight-year career watched the best
+// team's top-ten minutes climb from 306 to 553 while its leader pinned at the ceiling every
+// year, which is not a team improving, it is arithmetic with nothing to push back on it.
+//
+// It hid because `rotation()` normalises shares before the engine ever sees them: impossible
+// minutes simply meant a man took every minute there was. So the box score stayed plausible
+// while team strength, the award ballot (voted off minutes), the starters list and — once the
+// injury model started reading `load / mpg` — availability all quietly drifted.
+//
+// 264 is not a round number chosen for neatness. It is what the thirty REAL rosters in the
+// seed actually sum to across their top ten (range 245-300); higher than the 240 a game
+// contains, because these are last season's averages carried by men who changed teams. Aged
+// rosters are held to the same figure the measured ones meet.
+export const TOP10_MPG = 264
+
+export function conserveMinutes(simRoster) {
+  if (!simRoster || simRoster.length < 3) return simRoster
+  const top = [...simRoster].sort((a, b) => (b.mpg || 0) - (a.mpg || 0)).slice(0, 10)
+  const sum = top.reduce((s, p) => s + (p.mpg || 0), 0)
+  if (sum <= TOP10_MPG) return simRoster
+  // Only ever scaled DOWN. A roster that has been stripped to minimum deals legitimately sums
+  // low, and inflating it to meet a target would invent a rotation that is not there.
+  const k = TOP10_MPG / sum
+  return simRoster.map((p) => {
+    const mpg = Math.max(2, (p.mpg || 0) * k)
+    return { ...p, mpg, load: Math.max(0.5, Math.min(mpg * 0.995, (p.load || 0) * k)) }
+  })
 }
 
 // Contracts run down. A deal at its last year expires into free agency.
@@ -353,9 +419,16 @@ export function replacementPlayer(r, i, year) {
     },
     // A position and archetype, so a generated body reads like a player on the cap sheet
     // rather than a row of em-dashes. Derived from the profile that was just rolled.
-    cap: { uid: `rep-${year}-${i}-${r.randrange(1e6)}`, n: '', s: MIN_SALARY, o: null, yr: 1,
-           a: 25 + r.randrange(6), v: 0.0, mpg: 13, pos: null, arch: null,
-           av: 85, bpm: Math.round(r.gauss(-2.6, 0.7) * 10) / 10 },
+    // Replacement level is by definition worth about nothing, but it is derived here too
+    // rather than typed — one source of truth for what a player is worth, so a change to the
+    // relationship cannot leave a whole class of player behind.
+    cap: (() => {
+      const bpm = Math.round(r.gauss(-2.6, 0.7) * 10) / 10
+      const mpg = 13
+      return { uid: `rep-${year}-${i}-${r.randrange(1e6)}`, n: '', s: MIN_SALARY, o: null, yr: 1,
+        a: 25 + r.randrange(6), v: vorpFrom(bpm, mpg), mpg, pos: null, arch: null,
+        av: 85, bpm }
+    })(),
   }
 }
 
@@ -423,10 +496,20 @@ export function rookieContract(prospect, pickNo, r) {
   // project is not, and an older prospect is further along whatever his label.
   const floor = Math.max(0, Math.min(1,
     (prospect.type === 'ready' ? 0.62 : 0.2) + Math.max(0, age - 19) * 0.07))
+  // Minutes are drawn ONCE and used by both halves. They were rolled in the sim profile
+  // (10 + grade x 12, so about 22 for a top pick) and hard-coded at 12 on the cap sheet, so a
+  // first overall pick's two records disagreed by a factor of two — and since VORP is minutes
+  // times rate, the cap sheet undervalued every lottery pick in the league from the day he
+  // arrived.
+  const rookieMpg = Math.max(4, jitter(10 + grade * 12, 3))
   return {
     sim: {
       id: `rook-${prospect.id}`, n: prospect.name,
-      mpg: jitter(10 + grade * 12, 3), load: jitter(9 + grade * 11, 3),
+      // Load is drawn against those minutes rather than independently: two jitters around
+      // 10+12g and 9+11g cross each other often enough that a rookie could arrive with more
+      // load than minutes, which is an availability above 1.0 and a man who is never hurt.
+      mpg: rookieMpg,
+      load: Math.max(3, Math.min(rookieMpg * 0.97, jitter(9 + grade * 11, 3))),
       usg: Math.max(0.08, jitter(0.15 + grade * 0.07, 0.02)),
       fg3r: Math.max(0.1, jitter(0.4, 0.08)), fg3: Math.max(0.2, jitter(0.32 + grade * 0.02, 0.03)),
       fg2: Math.max(0.35, jitter(0.5 + grade * 0.04, 0.03)), ft: Math.max(0.5, jitter(0.73, 0.05)),
@@ -444,9 +527,24 @@ export function rookieContract(prospect, pickNo, r) {
     },
     // A rate to be rated on, from the same draft grade that shaped the profile above —
     // roughly a +4 box plus/minus at the top of the lottery down to −3 late in the round.
-    cap: { uid: `rook-${prospect.id}`, n: prospect.name, s: scale, o: null, yr: 4,
-           a: age, v: 0.0, mpg: 12, av: 90, upside, floor,
-           bpm: Math.round((-3 + grade * 7) * 10) / 10 },
+    //
+    // AND A VORP THAT FOLLOWS FROM IT. This was `v: 0.0`, hard-coded, for every player
+    // entering the league — the first pick in the draft and the last one alike. It is one
+    // line and it was the largest single leak in the whole simulation: sixty men arrive every
+    // summer, they are what the league has to replace retirement with, and they were worth
+    // nothing. Measured over six league years the draft contributed exactly zero VORP while
+    // retirement removed forty to seventy players a year, and the league's total talent fell
+    // from 340 to 92.
+    //
+    // `vorpFrom` is not invented either — see its definition. VORP is a function of box
+    // plus/minus and minutes by construction, and fitting the real 463 contracts recovers it
+    // at R² 0.91.
+    cap: (() => {
+      const bpm = Math.round((-3 + grade * 7) * 10) / 10
+      return { uid: `rook-${prospect.id}`, n: prospect.name, s: scale, o: null, yr: 4,
+        a: age, v: vorpFrom(bpm, rookieMpg), mpg: Math.round(rookieMpg * 10) / 10,
+        av: 90, upside, floor, bpm }
+    })(),
   }
 }
 

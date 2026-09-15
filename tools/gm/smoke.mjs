@@ -243,6 +243,7 @@ let sawAllStar = false
 let sawRequest = false
 let refusalCost = 0
 let sawDeadline = false
+let sawInjuryStop = false
 let sawChapter = false
 const sawRounds = new Set()
 let sawGamecast = false
@@ -254,6 +255,12 @@ while (guard++ < 40) {
   if (skip) { await click(skip, 250); const c = byText('button', /Continue$/); if (c) await click(c, 250) }
   const banner = byText('button', /Raise the banner/)
   if (banner) await click(banner, 300)
+
+  // An injury to a rotation player stops the run and asks a question. It is a real interrupt,
+  // so the walk answers it the way a person would — and a walk that could not was exactly how
+  // the first version of that stop rule got caught halting the season every fourth game.
+  const hurt = byText('button', /^Carry on$/)
+  if (hurt) { sawInjuryStop = true; await click(hurt, 250) }
 
   // Deadline: take a call if one is there.
   if (/The phone is ringing/i.test(text())) {
@@ -391,6 +398,8 @@ check('the postseason is played round by round, not in one click', sawRounds.siz
   [...sawRounds].join(' | '))
 check('the calendar walks a whole year on the advance button alone',
   saveNow().phase === 'offseason', `stuck at ${saveNow().phase} after ${guard} steps`)
+check('an injury to a rotation player interrupted the season', sawInjuryStop,
+  'no injury stop across a full year — the rule may now be too narrow')
 check('the deadline arrived as its own stage', sawDeadline)
 
 // -------------------------------------------------- the numbers reach a screen
