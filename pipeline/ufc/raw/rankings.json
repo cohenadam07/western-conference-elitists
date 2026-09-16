@@ -1,6 +1,6 @@
 {
-"fetched": "2026-09-14",
-"released": "2026-09-05",
+"fetched": "2026-09-16",
+"released": "2026-09-12",
 "lists": {
 "HW": {
 "champion": "Ciryl Gane",
@@ -10,8 +10,8 @@
 "Alexander Volkov",
 "Sergei Pavlovich",
 "Josh Hokit",
-"Waldo Cortes-Acosta",
 "Curtis Blaydes",
+"Waldo Cortes-Acosta",
 "Rizvan Kuniev",
 "Vitor Petrino",
 "Serghei Spivac",
@@ -113,8 +113,8 @@
 "Diego Lopes",
 "Lerone Murphy",
 "Aljamain Sterling",
-"Yair Rodríguez",
 "Jean Silva",
+"Yair Rodríguez",
 "Arnold Allen",
 "Youssef Zalal",
 "Kevin Vallejos",
@@ -161,8 +161,8 @@
 "Brandon Moreno",
 "Amir Albazi",
 "Ramazan Temirov",
-"Steve Erceg",
 "Tim Elliott",
+"Steve Erceg",
 "Su Mudaerji",
 "Tagir Ulanbekov",
 "Alex Perez"
@@ -194,8 +194,8 @@
 "interim": null,
 "ranked": [
 "Natália Silva",
-"Manon Fiorot",
 "Alexa Grasso",
+"Manon Fiorot",
 "Erin Blanchfield",
 "Rose Namajunas",
 "Maycee Barber",
@@ -207,7 +207,7 @@
 "Casey O'Neill",
 "Eduarda Moura",
 "Gabriella Fernandes",
-"JJ Aldrich"
+"Regina Tarin"
 ]
 },
 "WSW": {
@@ -244,6 +244,8 @@
 "Sean Strickland",
 "Merab Dvalishvili",
 "Alex Pereira",
+"Ciryl Gane",
+"Joshua Van",
 "Khamzat Chimaev",
 "Alexandre Pantoja",
 "Arman Tsarukyan",
@@ -259,14 +261,12 @@
 "Zhang Weili",
 "Natália Silva",
 "Mackenzie Dern",
-"Manon Fiorot",
 "Alexa Grasso",
+"Manon Fiorot",
 "Erin Blanchfield",
 "Tatiana Suarez",
 "Julianna Peña",
 "Virna Jandiroba",
-"Rose Namajunas",
-"Raquel Pennington",
 "Denise Gomes",
 "Maycee Barber"
 ]
