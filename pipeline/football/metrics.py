@@ -24,12 +24,17 @@ TIERS. Football's data history has five hard edges, and pretending otherwise is 
            target share, catch rate and every per-target rate begin here
   4  2013  snap counts
   5  2016  Next Gen Stats tracking
-  6  2018  Pro-Football-Reference charting (pressure, drops, broken tackles, coverage)
+  6  2018  Pro-Football-Reference charting (pressure, broken tackles, coverage)
+  7  2022  FTN charting (blitzers, play-action, RPO, catchable balls, drops, box counts)
+
+PFR publishes a season at a time, months after it ends, so every tier-6 row goes blank
+each September and stays blank until spring. FTN posts weekly, in season, which is why
+the rows it can carry were moved onto it.
 """
 
 from explain import EXPLAIN
 
-TIER_SINCE = {1: 1999, 2: 2006, 3: 2012, 4: 2013, 5: 2016, 6: 2018}
+TIER_SINCE = {1: 1999, 2: 2006, 3: 2012, 4: 2013, 5: 2016, 6: 2018, 7: 2022}
 
 # Sample-size denominators. A metric's stabilization threshold is expressed in whichever
 # of these it actually accumulates, so the page can hatch a bar honestly rather than
@@ -85,17 +90,28 @@ METRICS = [
     M('pocket',   'Pocket time',         'pass', 'Pocket',     'ingredient', 'sec', ['QB'], tier=6, den='att', thr=150),
     M('prsspct',  'Pressure rate faced', 'pass', 'Pocket',     'context',  'pct1', ['QB'], tier=6, den='db', thr=200, lower=True),
     M('blitzpct', 'Blitz rate faced',    'pass', 'Pocket',     'context',  'pct1', ['QB'], tier=6, den='db', thr=200),
+    M('rushfaceq','Pass rushers faced',  'pass', 'Pocket',     'context',  'num2', ['QB'], tier=7, den='db', thr=200),
+    M('oop',      'Out-of-pocket rate',  'pass', 'Pocket',     'ingredient', 'pct1', ['QB'], tier=7, den='db', thr=200),
+    M('faultsack','Sacks that were his fault', 'pass', 'Pocket', 'output',  'pct1', ['QB'], tier=7, den='db', thr=250, lower=True),
     M('scrrate',  'Scramble rate',       'pass', 'Pocket',     'ingredient', 'pct1', ['QB'], den='db', thr=150),
     M('adot',     'Average depth of target', 'pass', 'Shot selection', 'ingredient', 'num1', ['QB'], tier=2, den='att', thr=150),
     M('aysticks', 'Air yards to sticks', 'pass', 'Shot selection', 'ingredient', 'num1', ['QB'], tier=5, den='att', thr=150),
     M('aggr',     'Aggressiveness',      'pass', 'Shot selection', 'ingredient', 'pct1', ['QB'], tier=5, den='att', thr=150),
     M('deeprate', 'Deep attempt rate',   'pass', 'Shot selection', 'ingredient', 'pct1', ['QB'], tier=2, den='att', thr=150),
-    M('parate',   'Play-action rate',    'pass', 'Shot selection', 'ingredient', 'pct1', ['QB'], tier=6, den='att', thr=150),
-    M('rporate',  'RPO rate',            'pass', 'Shot selection', 'ingredient', 'pct1', ['QB'], tier=6, den='att', thr=150),
+    M('parate',   'Play-action rate',    'pass', 'Shot selection', 'ingredient', 'pct1', ['QB'], tier=7, den='db', thr=150),
+    M('rporate',  'RPO rate',            'pass', 'Shot selection', 'ingredient', 'pct1', ['QB'], tier=7, den='db', thr=150),
+    M('screen',   'Screen rate',         'pass', 'Shot selection', 'ingredient', 'pct1', ['QB'], tier=7, den='att', thr=150),
+    M('motion',   'Pre-snap motion rate', 'pass', 'Shot selection', 'context', 'pct1', ['QB'], tier=7, den='db', thr=150),
+    M('nohuddle', 'No-huddle rate',      'pass', 'Shot selection', 'context', 'pct1', ['QB'], tier=7, den='db', thr=150),
+    M('firstread', 'First-read throw rate', 'pass', 'Reads', 'ingredient', 'pct1', ['QB'], tier=7, den='att', thr=150),
+    M('checkdown', 'Checkdown rate',     'pass', 'Reads', 'ingredient', 'pct1', ['QB'], tier=7, den='att', thr=150),
     M('xcomp',    'Expected completion %', 'pass', 'Accuracy', 'expected', 'pct1', ['QB'], tier=5, den='att', thr=150),
     M('ontgt',    'On-target %',         'pass', 'Accuracy', 'output', 'pct1', ['QB'], tier=6, den='att', thr=150),
     M('badthrow', 'Bad throw %',         'pass', 'Accuracy', 'output', 'pct1', ['QB'], tier=6, den='att', thr=150, lower=True),
     M('droppct',  'Drop % (his throws)', 'pass', 'Accuracy', 'context', 'pct1', ['QB'], tier=6, den='att', thr=200, lower=True),
+    M('catchable', 'Catchable ball %',   'pass', 'Accuracy', 'output', 'pct1', ['QB'], tier=7, den='att', thr=150),
+    M('throwaway', 'Throwaway rate',     'pass', 'Accuracy', 'ingredient', 'pct1', ['QB'], tier=7, den='att', thr=150),
+    M('iwrate',   'Interception-worthy rate', 'pass', 'Accuracy', 'output', 'pct1', ['QB'], tier=7, den='att', thr=200, lower=True),
     M('fddb',     'First-down rate',     'pass', 'Situational', 'output', 'pct1', ['QB'], den='db', thr=200),
     M('td3conv',  'Third/fourth-down conversion', 'pass', 'Situational', 'output', 'pct1', ['QB'], den='db', thr=80),
     M('rztd',     'Red-zone TD rate',    'pass', 'Situational', 'output', 'pct1', ['QB'], den='db', thr=60),
@@ -114,6 +130,7 @@ METRICS = [
     M('ex10',     '10+ yard run rate',   'rush', 'Explosiveness', 'output', 'pct1', ['RB', 'QB', 'WR'], den='car', thr=100),
     M('ex20',     '20+ yard run rate',   'rush', 'Explosiveness', 'output', 'pct1', ['RB', 'QB', 'WR'], den='car', thr=150),
     M('box8',     '8+ in the box',       'rush', 'Context', 'context', 'pct1', ['RB'], tier=5, den='car', thr=80),
+    M('boxcar',   'Defenders in the box', 'rush', 'Context', 'context', 'num2', ['RB'], tier=7, den='car', thr=80),
     M('tlos',     'Time behind the line', 'rush', 'Context', 'ingredient', 'sec', ['RB'], tier=5, den='car', thr=80, lower=True),
     M('fdcar',    'First-down rate',     'rush', 'Situational', 'output', 'pct1', ['RB', 'QB'], den='car', thr=100),
     M('rztdcar',  'Red-zone TD rate',    'rush', 'Situational', 'output', 'pct1', ['RB'], den='car', thr=30),
@@ -134,16 +151,21 @@ METRICS = [
     M('srtgt',    'Target success rate', 'rec', 'Efficiency', 'output', 'pct1', PASSC, tier=3, den='tgt', thr=120),
     M('catch',    'Catch rate',          'rec', 'Efficiency', 'output', 'pct1', PASSC, tier=3, den='tgt', thr=100),
     M('racr',     'RACR',                'rec', 'Efficiency', 'output', 'num2', PASSC, tier=3, den='tgt', thr=120),
-    M('rattgt',   'Passer rating when targeted', 'rec', 'Efficiency', 'output', 'num1', PASSC, tier=6, den='tgt', thr=100),
+    M('rattgt',   'Passer rating when targeted', 'rec', 'Efficiency', 'output', 'num1', PASSC, tier=3, den='tgt', thr=100),
     M('adotr',    'Average depth of target', 'rec', 'Route profile', 'ingredient', 'num1', PASSC, tier=3, den='tgt', thr=80),
     M('deeptgt',  'Deep target rate',    'rec', 'Route profile', 'ingredient', 'pct1', PASSC, tier=3, den='tgt', thr=100),
     M('sep',      'Average separation',  'rec', 'Route profile', 'output', 'num2', PASSC, tier=5, den='tgt', thr=80),
     M('cush',     'Average cushion',     'rec', 'Route profile', 'context', 'num2', PASSC, tier=5, den='tgt', thr=80, lower=True),
     M('yacrec',   'YAC / reception',     'rec', 'After the catch', 'output', 'num2', PASSC, tier=2, den='rec', thr=60),
     M('yacoe',    'YAC over expected / rec', 'rec', 'After the catch', 'expected', 'num2', PASSC, tier=5, den='rec', thr=60),
-    M('ybcr',     'Yards before catch / rec', 'rec', 'After the catch', 'ingredient', 'num2', PASSC, tier=6, den='rec', thr=60),
+    M('ybcr',     'Yards before catch / rec', 'rec', 'After the catch', 'ingredient', 'num2', PASSC, tier=2, den='rec', thr=60),
     M('brkrec',   'Broken tackle rate',  'rec', 'After the catch', 'output', 'pct1', PASSC, tier=6, den='rec', thr=60),
-    M('dropr',    'Drop %',              'rec', 'After the catch', 'output', 'pct1', PASSC, tier=6, den='tgt', thr=120, lower=True),
+    M('created',  'Created reception rate', 'rec', 'After the catch', 'output', 'pct1', PASSC, tier=7, den='tgt', thr=100),
+    M('dropr',    'Drop %',              'rec', 'Hands', 'output', 'pct1', PASSC, tier=6, den='tgt', thr=120, lower=True),
+    M('ctchtgt',  'Catchable target %',  'rec', 'Hands', 'context', 'pct1', PASSC, tier=7, den='tgt', thr=100),
+    M('ctchhand', 'Catch rate on catchable balls', 'rec', 'Hands', 'output', 'pct1', PASSC, tier=7, den='tgt', thr=100),
+    M('contest',  'Contested target rate', 'rec', 'Hands', 'context', 'pct1', PASSC, tier=7, den='tgt', thr=100),
+    M('contestw', 'Contested catch rate', 'rec', 'Hands', 'output', 'pct1', PASSC, tier=7, den='tgt', thr=150),
     M('fdtgt',    'First-down rate',     'rec', 'Situational', 'output', 'pct1', PASSC, tier=3, den='tgt', thr=120),
     M('ex20rec',  '20+ yard catch rate', 'rec', 'Situational', 'output', 'pct1', PASSC, tier=3, den='tgt', thr=120),
     M('tdtgt',    'TD rate / target',    'rec', 'Situational', 'output', 'pct1', PASSC, tier=3, den='tgt', thr=250),

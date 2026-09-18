@@ -5,15 +5,21 @@
 # deploys. The 1999–2025 archive is never touched here; see pipeline/football/README.md.
 #
 # Schedule, in UTC (nflverse's feeds settle overnight, NGS by ~5am ET):
-#   12:00 every day           8am EDT / 7am EST — the everyday morning refresh
-#   05:30 Fri, Mon, Tue       ~1am ET after Thursday, Sunday and Monday night games
+#   11:11 every day           7:11am EDT / 6:11am EST — the everyday morning refresh
+#   04:41 Fri, Mon, Tue       ~12:41am ET after Thursday, Sunday and Monday night games
+#
+# The odd minutes are deliberate. GitHub queues scheduled workflows, and :00 and :30 are
+# where everybody's crons pile up: through the first two weeks of the 2026 season every
+# run of this job landed three and a half to five hours after its slot, so the "8am"
+# refresh was reaching the site at half past twelve. An off-peak minute is the one lever
+# a repository has.
 # Run it by hand from the Actions tab (workflow_dispatch) any time.
 name: Football Savant refresh
 
 on:
   schedule:
-    - cron: '0 12 * * *'
-    - cron: '30 5 * * 1,2,5'
+    - cron: '11 11 * * *'
+    - cron: '41 4 * * 1,2,5'
   workflow_dispatch:
     inputs:
       season:

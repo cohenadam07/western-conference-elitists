@@ -19,6 +19,7 @@ cd pipeline/football          # or anywhere — the scripts take paths from env 
 mkdir -p raw agg maps
 ./fetch.sh                    # ~1 GB of source data into raw/
 python3 pbp_agg.py            # play-by-play -> weekly per-player aggregates in agg/
+python3 ftn_agg.py            # FTN charting + pbp -> weekly charted rates (2022+)
 python3 onfield_agg.py        # participation + pbp -> who was on the field, and what happened
 python3 maps.py               # agg/ -> maps/<season>.json + maps/index.json
 python3 build.py              # everything -> football-savant-data.json
@@ -48,6 +49,33 @@ cleanly once a finished season is baked into it. Runs every morning at 8am ET an
 ET after Thursday, Sunday and Monday night games, or by hand from the Actions tab. Nothing
 is committed when the data hasn't changed, so an off-season run is a no-op.
 
+The schedules say 7:11am and 12:41am ET rather than round hours on purpose: GitHub queues
+scheduled workflows, and :00 and :30 are where every repository's crons pile up. Through
+the first fortnight of the 2026 season every run landed three and a half to five hours
+after its slot.
+
+The run ends with a staleness check, because the failure mode this job actually has is the
+quiet one — a 404 upstream, a build on last week's numbers, a green tick and a frozen site.
+It asks the schedule which regular-season games kicked off more than two days ago and still
+have no score. More than three of those and the job fails, which sends mail.
+
+## Full archive rebuild (on demand)
+
+`.github/workflows/football-savant-rebuild.yml` does the whole 1999-onward build in
+Actions: Actions -> **Football Savant full rebuild** -> Run workflow. It fetches
+everything, runs every aggregate, and commits `public/football-savant-data.json`. Takes
+the better part of an hour.
+
+Use it whenever the metric table changes. The daily job rebuilds only the season in
+progress, and since the page now takes its metric table from whichever file was built more
+recently, a new metric appears on the current season the next morning and on the other
+twenty-seven seasons only after this rebuild runs.
+
+It carries the career awards forward out of the shipped archive before building, then
+tries to refresh them, and keeps the old set if that fails. `agg/awards.json` is not in the
+repository, and a rebuild without it would strip every Pro Bowl and MVP off every career
+page.
+
 ```bash
 cd pipeline/football && ./refresh_current.sh        # the same thing, locally
 ```
@@ -76,6 +104,14 @@ season's play-by-play and stays a local run.
 - **`pbp_agg.py`** — one pass over each season's play-by-play, producing *weekly* per-player
   aggregates: success counts, air-yards lattices, run gaps, third downs, red zone. Weekly
   rather than seasonal because a season total can't be un-summed.
+- **`ftn_agg.py`** — the same shape, over FTN Data's play charting (2022 on): how many men
+  rushed, play-action and RPO, catchable balls and drops, contested and created catches,
+  defenders in the box, which read was thrown. FTN posts weekly during the season, which is
+  the point of it — Pro-Football-Reference publishes a season at a time, months after it
+  ends, so every row that depends on PFR goes blank each September. What FTN does *not*
+  chart is pressure, hurries, and any defender's name, so pressure rate faced, the pass-rush
+  pressure rows and the whole coverage panel still wait for PFR, and nothing here pretends
+  otherwise.
 - **`onfield_agg.py`** — joins the participation release (the exact eleven on the field per
   play, plus `was_pressure`, 2016 on) to play-by-play, and accumulates what the offense did
   on each player's snaps, alongside his team's totals so the off-field half can be got by

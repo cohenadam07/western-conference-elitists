@@ -124,6 +124,11 @@ def agg_rec(d):
         'tgt_succ': _num(t.success),
         'tgt_epa': _num(t.epa),
         'ay': ay,
+        # air yards on the ones he caught, which is what "yards before catch" means; the
+        # rating line needs his catches, yards, touchdowns and the picks thrown his way
+        'ay_c': ay.where(comp == 1, 0.0),
+        'td': _num(t.touchdown).where(comp == 1, 0.0),
+        'int': _num(t.interception),
         'yds': _num(t.yards_gained).where(comp == 1, 0.0),
         'yac': _num(t.yards_after_catch).where(comp == 1, 0.0),
         'xyac': _num(t.xyac_mean_yardage).where(comp == 1, 0.0),

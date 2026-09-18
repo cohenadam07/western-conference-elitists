@@ -98,10 +98,10 @@ _e('deeprate', "The share of his throws that go deep.",
      "throws travelling 20+ yards in the air ÷ attempts")
 _e('parate', "How often he throws off play-action — faking a handoff first.",
      "The fake freezes linebackers for a split second and opens up throws behind them. It works nearly everywhere, and some teams still barely use it.",
-     "play-action attempts ÷ attempts")
+     "play-action dropbacks ÷ dropbacks")
 _e('rporate', "How often he runs a run-pass option, deciding after the snap.",
      "A modern trick that makes one defender wrong no matter what he does.",
-     "RPO attempts ÷ attempts")
+     "RPO dropbacks ÷ dropbacks")
 _e('xcomp', "The completion percentage an average QB would post on his exact throws.",
      "It's the difficulty of his menu before he touches it. Compare it to his real completion percentage to see whether he beat it.")
 _e('ontgt', "The share of his throws that were actually catchable.",
@@ -422,3 +422,66 @@ _e('spdscore', "Speed and size combined into one number.",
      "A 4.50 forty at 235 pounds is far more impressive than the same time at 190. This prices that in.",
      "(weight × 200) ÷ 40-time⁴")
 
+
+
+# ---------------------------------------------------------------- FTN charting (2022+)
+# Pro-Football-Reference publishes a season at a time, months after it ends. FTN charts
+# every play within days of it being played, so these are the rows that stay alive in
+# September. What FTN does not chart - pressure, hurries, a defender's name - is not
+# invented here.
+_e('rushfaceq', "How many pass rushers come at him on an average dropback.",
+     "Four is the standard rush. A quarterback who sees more than that is being attacked; one who sees fewer is being respected, with everyone else dropping into coverage.",
+     "pass rushers ÷ dropbacks where rushers were counted")
+_e('oop', "How often he ends up throwing or running from outside the pocket.",
+     "Some of this is pressure chasing him out, and some of it is a quarterback who would rather be moving. Either way it changes what the offense can ask for.",
+     "out-of-pocket dropbacks ÷ dropbacks")
+_e('faultsack', "Of the sacks he took, the share charters judged to be his own doing.",
+     "A sack is usually blamed on the line. Sometimes it should be blamed on the man holding the ball for four and a half seconds. This separates the two.",
+     "his-fault sacks ÷ sacks")
+_e('screen', "How often he throws a screen.",
+     "A screen is a called completion. A passing line propped up by them looks better than the arm behind it.",
+     "screen attempts ÷ attempts")
+_e('motion', "How often somebody is moving before the snap on his dropbacks.",
+     "This is his coordinator, not him. Motion tells a quarterback whether the defense is in man or zone before the ball is snapped, so an offense that never uses it is making his reads harder.",
+     "dropbacks with pre-snap motion ÷ dropbacks")
+_e('nohuddle', "How often his offense skips the huddle.",
+     "Tempo. It tires a defense and stops it substituting, and it puts the game in the quarterback's hands at the line.",
+     "no-huddle dropbacks ÷ dropbacks")
+_e('firstread', "How often he throws to the first man he looks at.",
+     "Not good or bad on its own. A scheme can be built to make the first read right; a quarterback who never gets past it against a defense that knows this is a different story.",
+     "first-read throws ÷ throws where the read was charted")
+_e('checkdown', "How often he gives up on the play downfield and takes the safe short one.",
+     "The checkdown is the right answer more often than fans think, and the wrong one when it becomes a habit.",
+     "checkdowns ÷ throws where the read was charted")
+_e('catchable', "The share of his throws a receiver could actually have caught.",
+     "Completion percentage blames him for drops. This does not: it is accuracy with the receivers' hands taken out of it.",
+     "catchable balls ÷ attempts")
+_e('throwaway', "How often he throws it away on purpose.",
+     "A throwaway is a small win disguised as an incompletion - it beats a sack and it beats a turnover. It also drags his completion percentage down.",
+     "throwaways ÷ attempts")
+_e('iwrate', "How often he makes a throw that deserved to be intercepted.",
+     "Interceptions are half luck: dropped by the safety, tipped to a linebacker. This counts the decision rather than the outcome, so it tells you sooner whether he is playing with fire.",
+     "interception-worthy throws ÷ attempts")
+_e('boxcar', "How many defenders are in the box on his average carry.",
+     "Context, not skill. Seven men in the box is a hard afternoon; six is a light one. It is the fairest way to ask whether his yards were there to be taken.",
+     "defenders in the box ÷ carries where the box was counted")
+_e('created', "How often a target becomes a catch he had to invent.",
+     "A reception charted as created is one the throw did not give him - he adjusted, or beat a man to it, or caught it somewhere it had no business being caught.",
+     "created receptions ÷ targets")
+_e('ctchtgt', "The share of balls thrown his way that were catchable.",
+     "This is about his quarterback, not him. A receiver with a low number is being asked to catch passes nobody could.",
+     "catchable targets ÷ targets")
+_e('ctchhand', "Of the catchable balls thrown to him, how many he caught.",
+     "Catch rate, with the bad throws taken out. This is as close as public data gets to grading a pair of hands.",
+     "catches on catchable balls ÷ catchable targets")
+_e('contest', "How often he is targeted with a defender right on him.",
+     "A measure of the job he is given. Number one receivers draw coverage; slot men and backs are often thrown to in space.",
+     "contested targets ÷ targets")
+_e('contestw', "How often he wins the ball when a defender is right there.",
+     "The 50-50 ball. Size, timing and nerve, in one number.",
+     "contested catches ÷ contested targets")
+
+
+# Blitz rate and the two drop rates are charted by Pro-Football-Reference from 2018 and
+# by FTN from 2022. The two crews agree closely (r = .90 to .95, with matching league
+# averages), which is why one row carries both rather than splitting in two.

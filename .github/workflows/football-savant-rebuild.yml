@@ -1,0 +1,112 @@
+# Football Savant — rebuild the whole archive, on demand.
+#
+# The daily job (football-savant-refresh.yml) rebuilds only the season in progress, into
+# public/football-savant-current.json. The 1999–last-season archive in
+# public/football-savant-data.json is a separate, much bigger build, and until now it was
+# a local run on one laptop — which meant that adding a metric to the pipeline reached
+# 2026 the next morning and the other twenty-seven seasons whenever somebody found an
+# afternoon. This does that run here instead: Actions → Football Savant full rebuild →
+# Run workflow.
+#
+# It is deliberately manual. It downloads about 750 MB from nflverse, takes the better
+# part of an hour, and commits a 43 MB file, so it should happen when a metric changes,
+# not on a timer.
+name: Football Savant full rebuild
+
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: 'Seasons to build — blank for 1999 to now, or e.g. 2022-2026'
+        required: false
+        default: ''
+
+concurrency:
+  group: football-savant-rebuild
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    env:
+      NFL_SEASONS: ${{ github.event.inputs.seasons }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pandas + pyarrow
+        run: pip install --quiet pandas pyarrow
+
+      # The career awards (Pro Bowls, All-Pro, Hall of Fame, MVP and the rest) live in a
+      # pipeline artifact that is not in the repository, and a rebuild without it would
+      # quietly strip every award off every career page. So: lift the ones already in the
+      # shipped archive first, then try to refresh them, and keep the old set if the
+      # refresh fails. Losing them is not an acceptable outcome of a rebuild.
+      - name: Carry the career awards forward
+        working-directory: pipeline/football
+        run: |
+          mkdir -p agg
+          python3 - <<'PY'
+          import json, os
+          src = '../../public/football-savant-data.json'
+          if not os.path.exists(src):
+              print('no shipped archive to lift awards from'); raise SystemExit(0)
+          j = json.load(open(src))
+          aw = j.get('awards') or {}
+          if aw:
+              json.dump(aw, open('agg/awards.json', 'w'), separators=(',', ':'))
+          print('carried forward awards for %d players' % len(aw))
+          PY
+
+      - name: Refresh the career awards (best effort)
+        working-directory: pipeline/football
+        continue-on-error: true
+        run: |
+          NFL_AGG=agg_awards python3 awards.py
+          if [ -s agg_awards/awards.json ]; then
+            python3 -c "import json,sys; d=json.load(open('agg_awards/awards.json')); sys.exit(0 if len(d)>500 else 1)" \
+              && cp agg_awards/awards.json agg/awards.json && echo "awards refreshed"
+          fi
+
+      - name: Fetch every nflverse source
+        working-directory: pipeline/football
+        run: ./fetch.sh
+
+      - name: Aggregate play-by-play, charting and participation
+        working-directory: pipeline/football
+        run: |
+          python3 pbp_agg.py
+          python3 ftn_agg.py
+          python3 onfield_agg.py
+
+      - name: Field maps
+        working-directory: pipeline/football
+        run: NFL_MAPS="$GITHUB_WORKSPACE/public/football-maps" python3 maps.py
+
+      - name: Build the archive
+        working-directory: pipeline/football
+        run: NFL_OUT="$GITHUB_WORKSPACE/public/football-savant-data.json" python3 build.py
+
+      - name: Commit if anything changed
+        run: |
+          git config user.name "football-savant-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add public/football-savant-data.json public/football-maps/
+          if git diff --cached --quiet; then
+            echo "no change — nothing to commit"
+            exit 0
+          fi
+          SPAN=$(python3 -c "import json;j=json.load(open('public/football-savant-data.json'));print(j['seasons'][-1]+'-'+j['seasons'][0])")
+          git commit -m "Football Savant: full archive rebuild ($SPAN)"
+          git pull --rebase origin main
+          git push origin HEAD:main

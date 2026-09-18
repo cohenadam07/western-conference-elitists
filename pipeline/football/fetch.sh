@@ -32,7 +32,7 @@ esac
 if [ -n "${NFL_REFRESH:-}" ]; then
   y=$NFL_REFRESH
   rm -f "$OUT/reg_$y.csv" "$OUT/wk_$y.csv" "$OUT/snaps_$y.csv" \
-        "$OUT/part/part_$y.csv" "$OUT/pbp/pbp_$y.parquet" \
+        "$OUT/part/part_$y.csv" "$OUT/pbp/pbp_$y.parquet" "$OUT/ftn_$y.csv" \
         "$OUT"/adv_*.csv "$OUT"/ngs_*.csv "$OUT"/ngs_*.csv.gz \
         "$OUT/players.csv" "$OUT/qbr.csv" "$OUT/schedules.csv" "$OUT/combine.csv"
   echo "refreshing $y"
@@ -54,6 +54,10 @@ for y in $(seq "$FIRST" "$LAST"); do
   # Participation: the eleven on the field per play, plus was_pressure. 2016 on. Since
   # 2023 it is published after the season, so an in-progress season will MISS — expected.
   [ "$y" -ge 2016 ] && get "pbp_participation/pbp_participation_$y.csv" "part/part_$y.csv"
+  # FTN charting: blitzers, play-action, RPO, catchable balls, drops, box counts. 2022
+  # on, and unlike PFR it is posted weekly during the season — it is what keeps the
+  # charting rows alive between September and the following spring.
+  [ "$y" -ge 2022 ] && get "ftn_charting/ftn_charting_$y.csv" "ftn_$y.csv"
   # Play-by-play, as parquet — a twentieth the size of the CSV and column-selectable
   get "pbp/play_by_play_$y.parquet" "pbp/pbp_$y.parquet"
 done

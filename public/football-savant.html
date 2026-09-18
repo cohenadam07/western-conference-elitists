@@ -333,6 +333,8 @@ body.lb-open .wrap,body.lb-open .home{display:none}
   background:repeating-linear-gradient(90deg,var(--turf) 0 9px,transparent 9px 13px)}
 .col-cap{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--faint);
   margin:9px 0 10px;line-height:1.5}
+.col-note{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--faint);
+  margin:12px 0 2px;line-height:1.6;border-top:1px dashed var(--line);padding-top:8px}
 .group-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--faint);border-bottom:1px solid var(--line);padding-bottom:5px;margin:15px 0 6px}
 .row{display:grid;grid-template-columns:190px 1fr 78px 26px;align-items:center;column-gap:13px;
@@ -758,6 +760,7 @@ body{background-color:#1D6B3A;color:var(--ink);
 .ctrack i.on{border-color:var(--turf-dk)}
 .group-h{font-size:9px;color:#7A9384;border-bottom:2px solid var(--line);letter-spacing:.08em}
 .col-cap{font-size:9.5px;color:#7A9384;line-height:1.7}
+.col-note{font-size:9px;color:#7A9384;line-height:1.7;border-top-style:dotted}
 
 /* ---- controls */
 .chip,.seg,.selx-btn,.selx-pop,.season-sel,.search input,.results,.home-inp,.home-results,
@@ -1171,8 +1174,8 @@ body{background-color:#1D6B3A;color:var(--ink);
    What is different is that football has no single population. A corner and a center share
    no box score, so the metric table is position-scoped (cfg.panels decides which panels a
    cohort even has), the default comparison group is his position rather than the league,
-   and era gating has five edges rather than four — 1999 play-by-play, 2006 air yards,
-   2013 snap counts, 2016 tracking, 2018 charting.
+   and era gating has six edges rather than four — 1999 play-by-play, 2006 air yards,
+   2012 targets, 2013 snap counts, 2016 tracking, 2018 PFR charting, 2022 FTN charting.
 
    Data (cfg + every player-season) ships in football-savant-data.json, built by
    pipeline/football/build.py. Field maps load per season, on demand.
@@ -1200,6 +1203,7 @@ function prepData(){
   CFG=DATA.cfg; METRICS=CFG.metrics;
   METRICS.forEach(function(m){MBY[m.key]=m;});
   DATA.seasons.forEach(function(s){
+    var has={};
     (DATA.data[s]||{players:[]}).players.forEach(function(p){
       var e=PIDX[p.id];
       if(!e){ e=PIDX[p.id]={id:p.id,name:p.name,seasons:new Set(),rows:{},pos:p.pos,head:p.h||null};
@@ -1207,10 +1211,14 @@ function prepData(){
       e.seasons.add(s); e.rows[s]=p;
       e.name=p.name; e.pos=p.pos;             // latest season wins for the search row
       if(p.h) e.head=p.h;
+      var mm=p.m||{};
+      for(var k in mm){ if(mm[k]!=null) has[k]=1; }
     });
+    SEASON_HAS[s]=has;
   });
   NAMES.forEach(function(e){ e.n=_norm(e.name); e.last=_norm(e.name.split(' ').slice(-1)[0]); });
 }
+var SEASON_HAS={};
 function seasonPlayers(s){ return (DATA.data[s||curSeason]||{players:[]}).players; }
 function rowFor(id,s){ if(isCareer(s)) return careerRow(id);
   var e=PIDX[id]; return e?(e.rows[s]||null):null; }
@@ -1708,11 +1716,31 @@ function animateFills(){
     });
   });
 }
+/* A stat its era tracks but its season has not got: Pro-Football-Reference publishes its
+   charting a season at a time, months after the season ends, so in September a
+   quarterback's pressure and pocket rows are not missing data — they are data that does
+   not exist yet. A panel that silently reformats around the hole reads as though the
+   stats were never there. This says which ones, and why. */
+function notYet(grp,pos,s){
+  if(isCareer(s)||!SEASON_HAS[s]) return [];
+  var have=SEASON_HAS[s], out=[];
+  METRICS.forEach(function(m){
+    if(m.grp!==grp||m.pos.indexOf(pos)<0||!eraOK(m,s)) return;
+    if(!have[m.key]) out.push(m.label);
+  });
+  return out;
+}
 function panelHTML(grp,pos,cap){
   var body=groupBlocks(grp,pos);
   if(!body) return '';
+  var ny=notYet(grp,pos,curSeason), live=liveWeek(curSeason);
+  var foot = ny.length
+    ? ('<div class="col-note">Not charted yet in '+esc(curSeason)+': '+esc(ny.join(', '))
+       +'. '+(live?'Some charting is published a season at a time, after it ends.'
+                  :'Nobody in this season has one.')+'</div>')
+    : '';
   return '<div class="col"><h2 class="col-h">'+esc(CFG.groupLabel[grp]||grp)+'</h2>'
-    +(cap?'<div class="col-cap">'+cap+'</div>':'')+body+'</div>';
+    +(cap?'<div class="col-cap">'+cap+'</div>':'')+body+foot+'</div>';
 }
 var COHORT_WORD={QB:'quarterbacks',RB:'running backs',WR:'wide receivers',TE:'tight ends',
   OL:'offensive linemen',ED:'edge rushers',DI:'interior linemen',LB:'linebackers',
@@ -3261,12 +3289,20 @@ function lbRender(){
   });
   rows=rows.slice(0,LB.topN);
   if(!rows.length){
-    t.innerHTML='<tbody><tr><td class="lb-empty">Nothing qualifies. '
-      +(eraOK(m,LB.season)
-          ? (LB.sample==='settled'&&thin.length
-              ? ('No one reached '+m.thr+' '+(CFG.denoms[m.den]||m.den)+' — switch Sample to Everyone, or loosen the filters.')
-              : 'Loosen the filters.')
-          : (esc(m.label)+' was not tracked in '+esc(LB.season)+'.'))+'</td></tr></tbody>';
+    /* Three different nothings, and telling a reader to loosen his filters when the
+       stat simply has not been published yet sends him looking for a mistake he did not
+       make. */
+    var uncharted = eraOK(m,LB.season) && !isCareer(LB.season)
+                    && SEASON_HAS[LB.season] && !SEASON_HAS[LB.season][m.key];
+    t.innerHTML='<tbody><tr><td class="lb-empty">'
+      +(!eraOK(m,LB.season)
+          ? ('Nothing qualifies. '+esc(m.label)+' was not tracked in '+esc(LB.season)+'.')
+       :uncharted
+          ? ('Nobody has a '+esc(m.label).toLowerCase()+' in '+esc(LB.season)+' yet'
+             +(liveWeek(LB.season)?' — some charting is only published once the season ends.':'.'))
+       :(LB.sample==='settled'&&thin.length)
+          ? ('Nothing qualifies. No one reached '+m.thr+' '+(CFG.denoms[m.den]||m.den)+' — switch Sample to Everyone, or loosen the filters.')
+          : 'Nothing qualifies. Loosen the filters.')+'</td></tr></tbody>';
     return;
   }
   var cols=LB.cols.filter(function(k){ return MBY[k]&&MBY[k].pos.indexOf(LB.pos)>=0&&eraOK(MBY[k],LB.season); });
@@ -3654,7 +3690,12 @@ function mergeData(base, cur){
     if(!base.data[s]||newer) base.data[s]=cur.data[s];
   });
   base.seasons=Object.keys(base.data).sort(function(a,b){return +b-+a;});
-  if(!base.cfg&&cur.cfg) base.cfg=cur.cfg;
+  /* The metric table comes from whichever file was built last. The archive is rebuilt a
+     few times a year and the current file every morning, so a stat added to the pipeline
+     shows up on the page the next morning rather than waiting for a 42MB rebuild; the
+     seasons in the archive simply have no value for it until that rebuild happens, which
+     is a hole the panels already know how to describe. */
+  if(cur.cfg&&(newer||!base.cfg)) base.cfg=cur.cfg;
   if(base.cfg) base.cfg.season=base.seasons[0];
   return base;
 }
@@ -3670,9 +3711,9 @@ function init(){
   ]).then(function(res){
     DATA=mergeData(res[0],res[1]); prepData();
     document.getElementById('boot').remove();
-    var wk=(DATA.data[DATA.seasons[0]]||{}).week;
+    var top=DATA.data[DATA.seasons[0]]||{}, wk=top.week, wp=top.weekPlaying;
     document.getElementById('srcpill').textContent='nflverse · '+DATA.seasons[DATA.seasons.length-1]+'–'+DATA.seasons[0]
-      +(wk?' · through week '+wk:'');
+      +(wk?(' · through week '+wk+(wp&&wp>wk?', week '+wp+' under way':'')):'');
     curSeason=DATA.seasons[0];
     renderHomePos();
     renderHomeChips(leagueBest(curSeason,8));

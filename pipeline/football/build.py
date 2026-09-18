@@ -349,6 +349,11 @@ def season_progress(y, records):
 
     Team games come from the schedule where it has scores; the weekly table's last week is
     the fallback (right until byes start, one high for teams that have had theirs).
+
+    Two different weeks come out of this. `wk` is the last week anybody has played, which
+    is what decides whether the season is still in progress. `done` is the week most
+    teams have finished, which is what the page should say out loud: on the Friday of
+    week 2, one Thursday game does not put thirty-one other teams through two.
     """
     wk = weeks_played(y)
     full = 17 if y >= 2021 else 16
@@ -359,7 +364,11 @@ def season_progress(y, records):
         if yr == y:
             team_games[team] = tr['w'] + tr['l'] + tr['t']
     frac = min(1.0, (max(team_games.values()) if team_games else wk) / float(full))
-    return wk, team_games, frac
+    done = wk
+    if team_games:
+        counts = sorted(team_games.values())
+        done = int(counts[len(counts) // 2])          # the median team's games played
+    return wk, team_games, frac, done
 
 
 def load_onfield(y):
@@ -423,6 +432,27 @@ def load_pbp(y):
     return roll(j['qb']), roll(j['rush']), roll(j['rec']), roll(j.get('pen', []))
 
 
+def load_ftn(y):
+    """FTN charting aggregates from ftn_agg.py, rolled from weekly to season.
+
+    Absent before 2022, and absent for a season nflverse has not charted yet, in which
+    case every metric built from it simply is not set."""
+    p = os.path.join(AGG, 'ftn_%d.json' % y)
+    if not os.path.exists(p):
+        return {}, {}, {}
+    j = json.load(open(p))
+    def roll(rows):
+        acc = defaultdict(lambda: defaultdict(float))
+        for r in rows:
+            pid = r['pid']
+            for k, v in r.items():
+                if k in ('pid', 'week'):
+                    continue
+                acc[pid][k] += float(v or 0)
+        return acc
+    return roll(j.get('qb', [])), roll(j.get('rush', [])), roll(j.get('rec', []))
+
+
 def fg_curve(reg_by_season):
     """League make-rate by distance, per season, for FG over expected.
 
@@ -471,7 +501,8 @@ def fg_curve(reg_by_season):
 
 # ---------------------------------------------------------------- metric assembly
 def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
-                 onf, onf_teams, starts, team_games, pmake, y):
+                 onf, onf_teams, starts, team_games, pmake, y, fqb=None, frush=None,
+                 frec=None):
     m, d = {}, {}
     # `games` in the season table counts games in which he recorded a *stat*. For skill
     # players and defenders that is every game he played; for an offensive lineman it is
@@ -577,9 +608,43 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
             pap = num(pf.get('pass_pa_pass_att'))
             if pap is not None and pa:
                 m['parate'] = pap / pa * 100.0
-            rpo = num(pf.get('pass_rpo_pass_att'))
-            if rpo is not None and pa:
-                m['rporate'] = rpo / pa * 100.0
+
+        # FTN charts within days of a game, so this is the block that is alive in
+        # September. It runs after the PFR block and overwrites it where the two crews
+        # measure the same thing - blitz rate and both drop rates, which agree at
+        # r = .90 to .95 with matching league means - so those rows keep their 2018 start
+        # and change hands in 2022. Play-action and RPO are NOT the same measurement
+        # (PFR stopped publishing play-action after 2023, and its RPO count is four times
+        # FTN's), so they are tier 7: FTN's number from 2022, and nothing before it.
+        # Each rate divides by its own charted denominator: the join to
+        # play-by-play is high but not total, and a charted numerator over an uncharted
+        # denominator is a number that is quietly too small.
+        if y >= TIER_SINCE[7] and fqb:
+            cdb = fqb.get('chart_db') or 0
+            catt = fqb.get('chart_att') or 0
+            rn = fqb.get('rush_n') or 0
+            if rn:
+                m['blitzpct'] = fqb['blitz'] / rn * 100.0
+                m['rushfaceq'] = fqb['rush_sum'] / rn
+            if cdb:
+                m['parate'] = fqb['pa'] / cdb * 100.0
+                m['rporate'] = fqb['rpo'] / cdb * 100.0
+                m['motion'] = fqb['motion'] / cdb * 100.0
+                m['nohuddle'] = fqb['nohuddle'] / cdb * 100.0
+                m['oop'] = fqb['oop'] / cdb * 100.0
+            if catt:
+                m['catchable'] = fqb['catchable'] / catt * 100.0
+                m['droppct'] = fqb['drop'] / catt * 100.0
+                m['throwaway'] = fqb['throwaway'] / catt * 100.0
+                m['iwrate'] = fqb['iw'] / catt * 100.0
+                m['screen'] = fqb['screen'] / catt * 100.0
+            rdn = fqb.get('read_n') or 0
+            if rdn:
+                m['firstread'] = fqb['read_1'] / rdn * 100.0
+                m['checkdown'] = fqb['read_chk'] / rdn * 100.0
+            skn = fqb.get('sack_n') or 0
+            if skn:
+                m['faultsack'] = fqb['sack_fault'] / skn * 100.0
 
     # ------------------------------------------------------------------ rushing
     car = num(r.get('carries'), 0) or 0
@@ -621,6 +686,13 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
             bt = num(pf.get('rush_brk_tkl'))
             if bt is not None and ra:
                 m['brkrate'] = bt / ra * 100.0
+        if y >= TIER_SINCE[7] and frush:
+            # Next Gen Stats says how often he saw eight or more; FTN says how many he
+            # saw. Scrambles are excluded upstream, so this is the front he ran into on
+            # designed runs.
+            bn = frush.get('box_n') or 0
+            if bn:
+                m['boxcar'] = frush['box_sum'] / bn
 
     # ------------------------------------------------------------------ receiving
     tgt = num(r.get('targets'), 0) or 0
@@ -666,6 +738,16 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
                 m['deeptgt'] = rec['deep'] / n * 100.0
                 if rec.get('rec'):
                     m['yacrec'] = rec['yac'] / rec['rec']
+                    # Yards before catch is where he was standing when it arrived, which
+                    # is air yards on the balls he caught. PFR charts the same thing from
+                    # 2018; this agrees with it to r = 0.997 on 2025 and reaches back to
+                    # the first season air yards were recorded.
+                    m['ybcr'] = rec['ay_c'] / rec['rec']
+            if y >= TIER_SINCE[3]:
+                # The rating his quarterback earns throwing at him. It needs incompletions
+                # attributed to a receiver, which the gamebooks start doing in 2012.
+                m['rattgt'] = passer_rating(rec.get('rec', 0.0), n, rec.get('yds', 0.0),
+                                            rec.get('td', 0.0), rec.get('int', 0.0))
             m['rztgtr'] = rec['rz_tgt'] / n * 100.0
         if off_s:
             m['tprs'] = tgt / off_s * 100.0
@@ -677,15 +759,27 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
                 if v is not None:
                     m[key] = v
         if y >= TIER_SINCE[6]:
-            for src, key, sc in (('rec_ybc_r', 'ybcr', 1.0),
-                                 ('rec_drop_percent', 'dropr', 100.0),
-                                 ('rec_rat', 'rattgt', 1.0)):
-                v = num(pf.get(src))
-                if v is not None:
-                    m[key] = v * sc
+            v = num(pf.get('rec_drop_percent'))
+            if v is not None:
+                m['dropr'] = v * 100.0
             bt, rc = num(pf.get('rec_brk_tkl')), num(pf.get('rec_rec'))
             if bt is not None and rc:
                 m['brkrec'] = bt / rc * 100.0
+        # The hands panel. Its whole point is that it separates a receiver from the man
+        # throwing to him: a ball that was never catchable is not a failure of the hands.
+        if y >= TIER_SINCE[7] and frec:
+            ct = frec.get('chart_tgt') or 0
+            if ct:
+                m['dropr'] = frec['drop'] / ct * 100.0
+                m['ctchtgt'] = frec['catchable'] / ct * 100.0
+                m['contest'] = frec['contested'] / ct * 100.0
+                m['created'] = frec['created'] / ct * 100.0
+            cb = frec.get('catchable') or 0
+            if cb:
+                m['ctchhand'] = frec['catchable_rec'] / cb * 100.0
+            cn = frec.get('contested') or 0
+            if cn:
+                m['contestw'] = frec['contested_rec'] / cn * 100.0
 
     # ------------------------------------------------------------------ defense
     tkl_s = num(r.get('def_tackles_solo'), 0) or 0
@@ -999,11 +1093,12 @@ def main():
             continue
         df = regs[y]
         qb_a, rush_a, rec_a, pen_a = load_pbp(y)
+        fqb_a, frush_a, frec_a = load_ftn(y)
         accos = season_accolades(df.reset_index(drop=True))
         onf_a, onf_teams = load_onfield(y)
         starts_a = load_starts(y, by_pfr)
         full_games = 17 if y >= 2021 else 16
-        wk, tgames, frac = season_progress(y, records)
+        wk, tgames, frac, wk_done = season_progress(y, records)
         partial = wk is not None
         if partial:
             print(y, 'in progress: through week', wk, '(%.0f%% of the season)' % (frac * 100), flush=True)
@@ -1022,7 +1117,8 @@ def main():
             m, d = build_player(r, pos, bio, ngs, pfr, snap, qbr, comb,
                                 qb_a.get(gid), rush_a.get(gid), rec_a.get(gid),
                                 pen_a.get(gid), onf_a.get(gid), onf_teams,
-                                starts_a.get(gid), team_games, pmake, y)
+                                starts_a.get(gid), team_games, pmake, y,
+                                fqb_a.get(gid), frush_a.get(gid), frec_a.get(gid))
             if not m:
                 continue
             qkey, qmin = QUALIFY.get(pos, ('g', 6))
@@ -1094,7 +1190,11 @@ def main():
         add_comps(players, pos_pools)
         block = dict(players=players)
         if partial:
-            block['week'] = wk          # the page says "through Week N" while this is set
+            # The page says "through week N" while this is set, and everything that has
+            # to wait for a finished season keys off its presence.
+            block['week'] = max(wk_done, 1)
+            if wk > wk_done:
+                block['weekPlaying'] = wk
         data[str(y)] = block
         season_list.append(str(y))
         print(y, len(players), 'players,', sum(1 for p in players if p['qualified']),
@@ -1108,7 +1208,7 @@ def main():
                season=season_list[-1] if season_list else None)
     out = dict(seasons=list(reversed(season_list)),
                generated=datetime.datetime.now(datetime.timezone.utc).isoformat(),
-               source='nflverse (nflfastR pbp, PFR advanced, Next Gen Stats, snap counts, combine, ESPN QBR)',
+               source='nflverse (nflfastR pbp, FTN charting, PFR advanced, Next Gen Stats, snap counts, combine, ESPN QBR)',
                cfg=cfg, data=data)
 
     # Career awards, if awards.py has been run. They are career-level and keyed by player
