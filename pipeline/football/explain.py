@@ -98,10 +98,16 @@ _e('deeprate', "The share of his throws that go deep.",
      "throws travelling 20+ yards in the air ÷ attempts")
 _e('parate', "How often he throws off play-action — faking a handoff first.",
      "The fake freezes linebackers for a split second and opens up throws behind them. It works nearly everywhere, and some teams still barely use it.",
-     "play-action dropbacks ÷ dropbacks")
+     "play-action dropbacks ÷ dropbacks. Two charting crews sit behind this line: "
+     "Pro-Football-Reference from 2018 to 2021, FTN from 2022 on. PFR stopped publishing "
+     "play-action after 2023, which is why the handover happened.")
 _e('rporate', "How often he runs a run-pass option, deciding after the snap.",
      "A modern trick that makes one defender wrong no matter what he does.",
-     "RPO dropbacks ÷ dropbacks")
+     "RPO dropbacks ÷ dropbacks. Read the jump at 2022 carefully: "
+     "Pro-Football-Reference charted this through 2021 and FTN charts it from 2022, and "
+     "the two do not mean the same thing by the word. PFR counts roughly four times as "
+     "many RPOs as FTN does, so a quarterback whose rate falls off a cliff in 2022 did "
+     "not change — the definition did.")
 _e('xcomp', "The completion percentage an average QB would post on his exact throws.",
      "It's the difficulty of his menu before he touches it. Compare it to his real completion percentage to see whether he beat it.")
 _e('ontgt', "The share of his throws that were actually catchable.",

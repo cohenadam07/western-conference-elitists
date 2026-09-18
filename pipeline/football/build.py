@@ -358,7 +358,7 @@ def season_progress(y, records):
     wk = weeks_played(y)
     full = 17 if y >= 2021 else 16
     if wk is None or wk >= (REG_WEEKS if y >= 2021 else 17):
-        return None, {}, 1.0
+        return None, {}, 1.0, None
     team_games = {}
     for (team, yr), tr in records.items():
         if yr == y:
@@ -605,9 +605,17 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
             tb = num(pf.get('pass_times_blitzed'))
             if tb is not None and pa:
                 m['blitzpct'] = tb / pa * 100.0
+            # Play-action and RPO run 2018-2021 on PFR's charting and 2022 on FTN's, and
+            # unlike blitz rate and the drop rates the two crews do not agree: PFR's RPO
+            # count runs about four times FTN's. The history is worth having, so both are
+            # here, and the step at 2022 is named in the metric's own explanation rather
+            # than left for a reader to trip over.
             pap = num(pf.get('pass_pa_pass_att'))
             if pap is not None and pa:
                 m['parate'] = pap / pa * 100.0
+            rpo = num(pf.get('pass_rpo_pass_att'))
+            if rpo is not None and pa:
+                m['rporate'] = rpo / pa * 100.0
 
         # FTN charts within days of a game, so this is the block that is alive in
         # September. It runs after the PFR block and overwrites it where the two crews
