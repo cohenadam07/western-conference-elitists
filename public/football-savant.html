@@ -1522,6 +1522,7 @@ function careerRow(id){
      a thing, and how many times he finished top ten in it */
   var accm={};
   ss.forEach(function(s){
+    if(liveWeek(s)) return;   /* he has not led a season anyone is still playing */
     var r=e.rows[s]; if(!r||!r.acc) return;
     r.acc.forEach(function(x){
       var slot=accm[x.s]||(accm[x.s]={s:x.s,led:0,top:0,best:99,years:[],ledYears:[]});
@@ -1907,21 +1908,27 @@ function statLine(p){
    already speaks — "3rd in receptions" needs no explaining. */
 function ordSuffix(n){ var t=n%100; if(t>=11&&t<=13) return n+'th';
   return n+({1:'st',2:'nd',3:'rd'}[n%10]||'th'); }
+/* A season still being played carries a week on its block; a finished one does not. It is
+   the only honest place to draw the line between "leads" and "led". Nothing on this page
+   should say a man led the league in a thing while the league is still playing for it. */
+function liveWeek(s){ var b=DATA.data&&DATA.data[s]; return (b&&b.week)||0; }
 function draftBadges(p){
   var out=[];
   if(p.acc){
     p.acc.forEach(function(a){
-      var lead=a.r===1;
+      var lead=a.r===1, wk=liveWeek(curSeason);
+      var when=wk?(' through week '+wk+', with the season still being played'):' this season';
       out.push('<span class="acco '+(lead?'lead':'rank')+'" title="'
-        +esc((lead?'Led the NFL in ':ordSuffix(a.r)+' in the NFL in ')+a.s+' this season')+'">'
-        +(lead?'★ Led NFL · ':ordSuffix(a.r)+' · ')+esc(a.s)+'</span>');
+        +esc((lead?(wk?'Leads the NFL in ':'Led the NFL in ')
+                  :ordSuffix(a.r)+' in the NFL in ')+a.s+when)+'">'
+        +(lead?(wk?'★ Leads NFL · ':'★ Led NFL · '):ordSuffix(a.r)+' · ')+esc(a.s)+'</span>');
     });
   }
   if(p.dr) out.push('<span class="acco'+(p.dr===1?' major':'')+'" title="'+esc('Drafted '+(p.dy||'')+' — round '+p.dr+', pick '+(p.dp||'?')+(p.dt?' by '+p.dt:''))+'">Rd '+p.dr+' · #'+(p.dp||'?')+'</span>');
   else if(p.udfa) out.push('<span class="acco" title="Went undrafted">Undrafted</span>');
   if(p.exp===0) out.push('<span class="acco major" title="Rookie season">Rookie</span>');
   var arc=careerArc(p.id);
-  if(arc.peak&&arc.peak.season===curSeason&&arc.pts.length>2)
+  if(arc.peak&&arc.peak.season===curSeason&&arc.pts.length>2&&!liveWeek(curSeason))
     out.push('<span class="acco major" title="His best qualified season on this page\'s profile score">Career year</span>');
   if(!p.qualified) out.push('<span class="acco" title="Below the qualifying line for his position, so he is not in the percentile pool">Unqualified</span>');
   return out.length?'<div class="accos">'+out.join('')+'</div>':'';
