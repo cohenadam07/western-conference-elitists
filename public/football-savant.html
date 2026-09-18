@@ -212,6 +212,9 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 .acco.major{background:rgba(69,208,124,.16);border-color:rgba(69,208,124,.55);color:var(--turf)}
 .acco.rank{background:rgba(255,211,74,.12);border-color:rgba(255,211,74,.45);color:var(--flag)}
 .acco.lead{background:var(--flag);border-color:var(--flag);color:#31240A;font-weight:700}
+.acco.hurt{background:rgba(224,122,95,.10);border-color:rgba(224,122,95,.40);color:#C9765C}
+.acco.hurt.quest{background:rgba(224,122,95,.16);border-color:rgba(224,122,95,.6)}
+.acco.hurt.out{background:#C9765C;border-color:#C9765C;color:#2A1410;font-weight:700}
 .measur{display:flex;flex-wrap:wrap;margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
 .measur .m{padding-right:28px;padding-bottom:4px}
 .measur .ml{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
@@ -805,6 +808,8 @@ body{background-color:#1D6B3A;color:var(--ink);
 .acco.major{background:#DDF0E2;color:var(--turf-dk);border-color:var(--turf-dk)}
 .acco.rank{background:#FFF3C9;color:#6B5310;border-color:var(--turf-dk)}
 .acco.lead{background:var(--flag);color:#2A2208;border-color:var(--turf-dk)}
+.acco.hurt{background:#FBE4DC;color:#8A3B22;border-color:var(--turf-dk)}
+.acco.hurt.out{background:#C9765C;color:#2A1410;border-color:var(--turf-dk)}
 .tr-rec{font-size:14px} .tr-po{color:var(--turf)} .teamrec.champ .tr-po{color:#8A6B14}
 .careerbtn{font-family:var(--pix);font-size:9px;border:2px solid var(--turf-dk);border-radius:0;
   background:#FFF;color:var(--ink);box-shadow:2px 2px 0 rgba(14,42,23,.35)}
@@ -1201,6 +1206,12 @@ function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'
 /* ---------------------------------------------------------------- indexing */
 function prepData(){
   CFG=DATA.cfg; METRICS=CFG.metrics;
+  /* Tackle, guard and centre are ranked apart but read the same. They share the blocking
+     panel, its caption, its leaderboard columns and its career totals, so the line's
+     entries are cloned onto the three spots rather than written out four times over. */
+  ['OT','OG','OC'].forEach(function(k){
+    SIDE[k]=SIDE.OL; STATLINE[k]=STATLINE.OL; CTOT[k]=CTOT.OL; GAPS_BY_POS[k]=GAPS_BY_POS.OL;
+  });
   METRICS.forEach(function(m){MBY[m.key]=m;});
   DATA.seasons.forEach(function(s){
     var has={};
@@ -1220,6 +1231,10 @@ function prepData(){
 }
 var SEASON_HAS={};
 function seasonPlayers(s){ return (DATA.data[s||curSeason]||{players:[]}).players; }
+/* The season table records one team - his last - so a man traded in October used to
+   vanish from the club he left. `tms` is every team he appeared for that year, in week
+   order, and both the filter and the card honour it. */
+function onTeam(p,t){ return p.team===t || (p.tms&&p.tms.indexOf(t)>=0); }
 function rowFor(id,s){ if(isCareer(s)) return careerRow(id);
   var e=PIDX[id]; return e?(e.rows[s]||null):null; }
 function inSpan(id,s){
@@ -1743,7 +1758,8 @@ function panelHTML(grp,pos,cap){
     +(cap?'<div class="col-cap">'+cap+'</div>':'')+body+foot+'</div>';
 }
 var COHORT_WORD={QB:'quarterbacks',RB:'running backs',WR:'wide receivers',TE:'tight ends',
-  OL:'offensive linemen',ED:'edge rushers',DI:'interior linemen',LB:'linebackers',
+  OL:'offensive linemen',OT:'offensive tackles',OG:'guards',OC:'centers',
+  ED:'edge rushers',DI:'interior linemen',LB:'linebackers',
   CB:'cornerbacks',S:'safeties',K:'kickers',P:'punters'};
 var SIDE_WORD={OFF:'offensive players',DEF:'defenders',ST:'specialists'};
 function commas(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
@@ -1955,6 +1971,17 @@ function draftBadges(p){
   if(p.dr) out.push('<span class="acco'+(p.dr===1?' major':'')+'" title="'+esc('Drafted '+(p.dy||'')+' — round '+p.dr+', pick '+(p.dp||'?')+(p.dt?' by '+p.dt:''))+'">Rd '+p.dr+' · #'+(p.dp||'?')+'</span>');
   else if(p.udfa) out.push('<span class="acco" title="Went undrafted">Undrafted</span>');
   if(p.exp===0) out.push('<span class="acco major" title="Rookie season">Rookie</span>');
+  /* The injury report, and only while the season is being played. A game-day designation
+     is the real answer; most weeks there isn't one, and a man who missed practice with a
+     named injury is reported as exactly that rather than dressed up as a designation.
+     Players simply being rested are not here at all. */
+  if(p.inj){
+    var sev=/^(Out|Doubtful)$/.test(p.inj.st)?' out':(p.inj.st==='Questionable'?' quest':'');
+    out.push('<span class="acco hurt'+sev+'" title="'
+      +esc("This week's injury report (week "+p.inj.wk+'): '+p.inj.st
+           +(p.inj.inj?' \u2014 '+p.inj.inj:''))+'">'
+      +esc(p.inj.st)+(p.inj.inj?' \u00b7 '+esc(p.inj.inj):'')+'</span>');
+  }
   var arc=careerArc(p.id);
   if(arc.peak&&arc.peak.season===curSeason&&arc.pts.length>2&&!liveWeek(curSeason))
     out.push('<span class="acco major" title="His best qualified season on this page\'s profile score">Career year</span>');
@@ -2239,7 +2266,10 @@ function render(){
           p.seasons.length+(p.seasons.length===1?' season':' seasons')];
     if(p.college) meta.push(esc(p.college));
   } else {
-    meta=['<span class="teamdot" style="background:'+teamColor(p.team)+'"></span><b>'+esc(teamName(p.team))+'</b>',
+    var path=(p.tms&&p.tms.length>1)?p.tms:null;
+    meta=['<span class="teamdot" style="background:'+teamColor(p.team)+'"></span>'
+            +'<b'+(path?' title="'+esc(path.map(teamName).join(' \u2192 '))+'"':'')+'>'
+            +esc(path?path.join(' \u2192 '):teamName(p.team))+'</b>',
           CFG.posLabel[pos]||pos, curSeason];
     if(p.college) meta.push(esc(p.college));
     if(p.exp!=null) meta.push(p.exp===0?'rookie':'year '+(p.exp+1));
@@ -3367,7 +3397,7 @@ function lbBuildControls(){
   if(!MBY[LB.rank]||MBY[LB.rank].pos.indexOf(LB.pos)<0) LB.rank=(CFG.headline[LB.pos]||[ms[0]&&ms[0].key])[0];
   lbOpt('lbRank',ms,function(m){return m.key;},function(m){return m.label;},LB.rank);
   var teams=Object.keys(CFG.teams).filter(function(t){
-    return seasonPlayers(LB.season).some(function(p){return p.team===t;});
+    return seasonPlayers(LB.season).some(function(p){return onTeam(p,t);});
   }).sort();
   document.getElementById('lbTeam').innerHTML='<option value="">All teams</option>'
     +teams.map(function(t){return '<option value="'+t+'"'+(t===LB.team?' selected':'')+'>'+esc(teamName(t))+'</option>';}).join('');
@@ -3516,7 +3546,7 @@ function openTeam(t){
   var el=document.getElementById('teamPanel');
   if(!t){ el.hidden=true; el.innerHTML=''; return; }
   var order=['QB','RB','WR','TE','OL','ED','DI','LB','CB','S','K','P'];
-  var ps=seasonPlayers(curSeason).filter(function(p){return p.team===t;});
+  var ps=seasonPlayers(curSeason).filter(function(p){return onTeam(p,t);});
   ps.sort(function(a,b){
     var d=order.indexOf(a.pos)-order.indexOf(b.pos);
     if(d) return d;

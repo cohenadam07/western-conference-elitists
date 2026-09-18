@@ -37,6 +37,8 @@ echo "== play-by-play aggregates"
 python3 pbp_agg.py "$Y"
 echo "== FTN charting aggregates (skips if the season isn't charted yet)"
 python3 ftn_agg.py "$Y"
+echo "== offensive line spots from the depth charts"
+python3 line_agg.py "$Y"
 echo "== on-field aggregates (skips if participation isn't published yet)"
 python3 onfield_agg.py "$Y"
 

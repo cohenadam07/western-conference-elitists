@@ -13,7 +13,7 @@ Design notes worth keeping:
     stabilization thresholds are expressed in. Together they are what a bar needs.
   * Comps and weakness comps ARE precomputed, because they need the whole league at once.
 """
-import json, math, os, sys, datetime
+import csv, json, math, os, sys, datetime
 from collections import defaultdict
 
 import numpy as np
@@ -451,6 +451,110 @@ def load_ftn(y):
                 acc[pid][k] += float(v or 0)
         return acc
     return roll(j.get('qb', [])), roll(j.get('rush', [])), roll(j.get('rec', []))
+
+
+def load_line(y):
+    """Which spot on the offensive line each man played, from line_agg.py. 2001 on."""
+    p = os.path.join(AGG, 'line_%d.json' % y)
+    return json.load(open(p)) if os.path.exists(p) else {}
+
+
+def load_weekteams(y, by_pfr):
+    """Every team a player actually appeared for that season, in week order.
+
+    The season table records one team - his last - so a man traded in October used to read
+    as though he had spent the year where he finished it, and vanish from the club he left.
+    His numbers really are the season's, and splitting six games off into their own row
+    would make a percentile out of nothing, so the season stays whole and simply names
+    both teams.
+
+    "Appeared for" is the test, and it is deliberately narrower than the roster: the weekly
+    roster file counts practice squads and waiver claims, which turns a journeyman into
+    NYJ -> NYG -> PHI -> NYG without his ever having played a down for three of them. A
+    weekly stat line settles it for anyone who touches the ball or makes a tackle, and
+    weekly snap counts settle it for the linemen who do neither - which matters more now
+    that a lineman is ranked against the others who play his spot.
+    """
+    weeks = defaultdict(list)
+    p = os.path.join(RAW, 'wk_%d.csv' % y)
+    if os.path.exists(p):
+        with open(p, newline='', encoding='utf-8', errors='replace') as f:
+            for r in csv.DictReader(f):
+                if (r.get('season_type') or 'REG') != 'REG':
+                    continue
+                gid, team = (r.get('player_id') or '').strip(), sstr(r.get('team'))
+                if gid and team:
+                    weeks[gid].append((num(r.get('week'), 0) or 0, team))
+    p = os.path.join(RAW, 'snaps_%d.csv' % y)
+    if os.path.exists(p):
+        with open(p, newline='', encoding='utf-8', errors='replace') as f:
+            for r in csv.DictReader(f):
+                if (r.get('game_type') or 'REG') != 'REG':
+                    continue
+                gid = by_pfr.get((r.get('pfr_player_id') or '').strip())
+                team = sstr(r.get('team'))
+                if gid and team:
+                    weeks[gid].append((num(r.get('week'), 0) or 0, team))
+    out = {}
+    for gid, rows in weeks.items():
+        rows.sort()
+        path = []
+        for _, team in rows:
+            if not path or path[-1] != team:
+                path.append(team)
+        if len(path) > 1:
+            out[gid] = path
+    return out
+
+
+def load_injuries(y):
+    """The latest week's injury report, by player. 2009 on.
+
+    Only the most recent week matters: this is a fact about right now, not a season-long
+    rate, and it is attached only while the season is being played. The game-day
+    designation is the real answer; most rows do not carry one, so a man who simply did
+    not practise is reported as that and not dressed up as a designation.
+    """
+    p = os.path.join(RAW, 'injuries_%d.csv' % y)
+    if not os.path.exists(p):
+        return {}
+    rows = []
+    with open(p, newline='', encoding='utf-8', errors='replace') as f:
+        for r in csv.DictReader(f):
+            if (r.get('season_type') or 'REG') not in ('REG', 'POST'):
+                continue
+            rows.append(r)
+    if not rows:
+        return {}
+    last = max(num(r.get('week'), 0) or 0 for r in rows)
+    out = {}
+    for r in rows:
+        if (num(r.get('week'), 0) or 0) != last:
+            continue
+        gid = (r.get('gsis_id') or '').strip()
+        if not gid:
+            continue
+        status = sstr(r.get('report_status'))
+        prac = sstr(r.get('practice_status')) or ''
+        if not status:
+            if prac.startswith('Did Not'):
+                status = 'Did not practise'
+            elif prac.startswith('Limited'):
+                status = 'Limited in practice'
+            else:
+                continue                      # full participation is not news
+        hurt = sstr(r.get('report_primary_injury')) or sstr(r.get('practice_primary_injury'))
+        if hurt and hurt.lower().startswith('not injury related'):
+            # "Not injury related - resting player" is a thirty-four-year-old getting a
+            # Wednesday off. Without a game-day designation there is nothing to report.
+            if not sstr(r.get('report_status')):
+                continue
+            hurt = ''
+        rec = dict(st=status, wk=int(last))
+        if hurt:
+            rec['inj'] = hurt
+        out[gid] = rec
+    return out
 
 
 def fg_curve(reg_by_season):
@@ -1102,12 +1206,16 @@ def main():
         df = regs[y]
         qb_a, rush_a, rec_a, pen_a = load_pbp(y)
         fqb_a, frush_a, frec_a = load_ftn(y)
+        line_a = load_line(y)
+        wteams = load_weekteams(y, by_pfr)
         accos = season_accolades(df.reset_index(drop=True))
         onf_a, onf_teams = load_onfield(y)
         starts_a = load_starts(y, by_pfr)
         full_games = 17 if y >= 2021 else 16
         wk, tgames, frac, wk_done = season_progress(y, records)
         partial = wk is not None
+        # An injury report is a fact about this week. A finished season has no this week.
+        injuries = load_injuries(y) if partial else {}
         if partial:
             print(y, 'in progress: through week', wk, '(%.0f%% of the season)' % (frac * 100), flush=True)
         players, pos_pools = [], defaultdict(list)
@@ -1119,6 +1227,11 @@ def main():
             pos = cohort(r.get('position'), b.get('pff_pos'), b.get('ngs_pos'))
             if not pos:
                 continue
+            # A lineman is graded against the men who do his job. Where the depth charts
+            # do not say - every season before 2001, and anybody who never made one - he
+            # keeps the undifferentiated cohort rather than being guessed into one.
+            if pos == 'OL':
+                pos = line_a.get(gid) or 'OL'
             team_games = full_games
             if partial:
                 team_games = tgames.get(sstr(r.get('recent_team'))) or wk
@@ -1151,6 +1264,10 @@ def main():
                 m=m, d={k: rnd(v, 1) for k, v in d.items() if v},
                 qualified=qualified,
             )
+            if gid in wteams:
+                rec_out['tms'] = wteams[gid]      # every team he appeared for, in order
+            if gid in injuries:
+                rec_out['inj'] = injuries[gid]    # this week's report, in season only
             if age:
                 rec_out['age'] = age
             tr = records.get((rec_out['team'], y))

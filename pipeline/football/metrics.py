@@ -52,7 +52,11 @@ PASSC = ['WR', 'TE', 'RB']
 DEF = ['ED', 'DI', 'LB', 'CB', 'S']
 FRONT = ['ED', 'DI', 'LB']
 COV = ['CB', 'S', 'LB']
-ALL = ['QB', 'RB', 'WR', 'TE', 'OL', 'ED', 'DI', 'LB', 'CB', 'S', 'K', 'P']
+# A lineman's cohort is his spot on the line where the depth charts say so (2001 on) and
+# the undifferentiated OL where they don't, so every blocking row applies to all four.
+OLINE = ['OL', 'OT', 'OG', 'OC']
+ALL = ['QB', 'RB', 'WR', 'TE', 'OL', 'OT', 'OG', 'OC',
+       'ED', 'DI', 'LB', 'CB', 'S', 'K', 'P']
 
 
 def M(key, label, grp, sub, layer, unit, pos, tier=1, den='g', thr=0, lower=False):
@@ -178,24 +182,24 @@ METRICS = [
     #   Workload and Discipline  — unambiguously his
     #   Protection / Run game    — the unit's, on his snaps
     #   On / off                 — the unit's, differenced against his bench time
-    M('pblkg',    'Pass-block snaps / game', 'block', 'Workload', 'context', 'num1', ['OL', 'TE'], tier=5),
-    M('rblkg',    'Run-block snaps / game',  'block', 'Workload', 'context', 'num1', ['OL', 'TE'], tier=5),
-    M('starts',   'Games started',           'block', 'Workload', 'context', 'num0', ['OL', 'TE'], tier=4),
-    M('posver',   'Positions played',        'block', 'Workload', 'context', 'num0', ['OL'], tier=4),
-    M('fsg',      'False starts / game',     'block', 'Discipline', 'output', 'num2', ['OL', 'TE'], den='g', thr=10, lower=True),
-    M('holdg',    'Holding / game',          'block', 'Discipline', 'output', 'num2', ['OL', 'TE'], den='g', thr=10, lower=True),
-    M('prsallow', 'Pressure rate allowed',   'block', 'Protection (unit, on his snaps)', 'output', 'pct1', ['OL', 'TE'], tier=5, den='pblk', thr=200, lower=True),
-    M('sackallow','Sack rate allowed',       'block', 'Protection (unit, on his snaps)', 'output', 'pct1', ['OL', 'TE'], tier=5, den='pblk', thr=300, lower=True),
-    M('epadbon',  'EPA / dropback',          'block', 'Protection (unit, on his snaps)', 'output', 'num3', ['OL', 'TE'], tier=5, den='pblk', thr=200),
-    M('srdbon',   'Dropback success rate',   'block', 'Protection (unit, on his snaps)', 'output', 'pct1', ['OL', 'TE'], tier=5, den='pblk', thr=200),
-    M('rushfaced','Pass rushers faced',      'block', 'Protection (unit, on his snaps)', 'context', 'num2', ['OL', 'TE'], tier=5, den='pblk', thr=200),
-    M('ypcon',    'Yards / carry',           'block', 'Run game (unit, on his snaps)', 'output', 'num2', ['OL', 'TE'], tier=5, den='rblk', thr=150),
-    M('srrunon',  'Rush success rate',       'block', 'Run game (unit, on his snaps)', 'output', 'pct1', ['OL', 'TE'], tier=5, den='rblk', thr=150),
-    M('stuffon',  'Stuffed rate',            'block', 'Run game (unit, on his snaps)', 'output', 'pct1', ['OL', 'TE'], tier=5, den='rblk', thr=150, lower=True),
-    M('boxfaced', 'Defenders in the box',    'block', 'Run game (unit, on his snaps)', 'context', 'num2', ['OL', 'TE'], tier=5, den='rblk', thr=150),
-    M('prsoo',    'Pressure rate, on minus off', 'block', 'On / off', 'output', 'sgn1', ['OL', 'TE'], tier=5, den='pblk', thr=250, lower=True),
-    M('epaoo',    'EPA / dropback, on minus off', 'block', 'On / off', 'output', 'sgn3', ['OL', 'TE'], tier=5, den='pblk', thr=250),
-    M('sroo',     'Rush success, on minus off', 'block', 'On / off', 'output', 'sgn1', ['OL', 'TE'], tier=5, den='rblk', thr=200),
+    M('pblkg',    'Pass-block snaps / game', 'block', 'Workload', 'context', 'num1', OLINE + ['TE'], tier=5),
+    M('rblkg',    'Run-block snaps / game',  'block', 'Workload', 'context', 'num1', OLINE + ['TE'], tier=5),
+    M('starts',   'Games started',           'block', 'Workload', 'context', 'num0', OLINE + ['TE'], tier=4),
+    M('posver',   'Positions played',        'block', 'Workload', 'context', 'num0', OLINE, tier=4),
+    M('fsg',      'False starts / game',     'block', 'Discipline', 'output', 'num2', OLINE + ['TE'], den='g', thr=10, lower=True),
+    M('holdg',    'Holding / game',          'block', 'Discipline', 'output', 'num2', OLINE + ['TE'], den='g', thr=10, lower=True),
+    M('prsallow', 'Pressure rate allowed',   'block', 'Protection (unit, on his snaps)', 'output', 'pct1', OLINE + ['TE'], tier=5, den='pblk', thr=200, lower=True),
+    M('sackallow','Sack rate allowed',       'block', 'Protection (unit, on his snaps)', 'output', 'pct1', OLINE + ['TE'], tier=5, den='pblk', thr=300, lower=True),
+    M('epadbon',  'EPA / dropback',          'block', 'Protection (unit, on his snaps)', 'output', 'num3', OLINE + ['TE'], tier=5, den='pblk', thr=200),
+    M('srdbon',   'Dropback success rate',   'block', 'Protection (unit, on his snaps)', 'output', 'pct1', OLINE + ['TE'], tier=5, den='pblk', thr=200),
+    M('rushfaced','Pass rushers faced',      'block', 'Protection (unit, on his snaps)', 'context', 'num2', OLINE + ['TE'], tier=5, den='pblk', thr=200),
+    M('ypcon',    'Yards / carry',           'block', 'Run game (unit, on his snaps)', 'output', 'num2', OLINE + ['TE'], tier=5, den='rblk', thr=150),
+    M('srrunon',  'Rush success rate',       'block', 'Run game (unit, on his snaps)', 'output', 'pct1', OLINE + ['TE'], tier=5, den='rblk', thr=150),
+    M('stuffon',  'Stuffed rate',            'block', 'Run game (unit, on his snaps)', 'output', 'pct1', OLINE + ['TE'], tier=5, den='rblk', thr=150, lower=True),
+    M('boxfaced', 'Defenders in the box',    'block', 'Run game (unit, on his snaps)', 'context', 'num2', OLINE + ['TE'], tier=5, den='rblk', thr=150),
+    M('prsoo',    'Pressure rate, on minus off', 'block', 'On / off', 'output', 'sgn1', OLINE + ['TE'], tier=5, den='pblk', thr=250, lower=True),
+    M('epaoo',    'EPA / dropback, on minus off', 'block', 'On / off', 'output', 'sgn3', OLINE + ['TE'], tier=5, den='pblk', thr=250),
+    M('sroo',     'Rush success, on minus off', 'block', 'On / off', 'output', 'sgn1', OLINE + ['TE'], tier=5, den='rblk', thr=200),
     # ---------------------------------------------------------------- pass rush
     M('prss',     'Pressures / game',    'prsh', 'Pressure', 'output', 'num1', FRONT, tier=6, den='g', thr=8),
     M('prsssnap', 'Pressures / defensive snap', 'prsh', 'Pressure', 'output', 'pct1', FRONT, tier=6, den='dsnap', thr=250),
@@ -277,6 +281,9 @@ POS_PANELS = {
     'WR':  ['ctx', 'rec', 'rush', 'val', 'ath'],
     'TE':  ['ctx', 'rec', 'block', 'val', 'ath'],
     'OL':  ['ctx', 'block', 'ath'],
+    'OT':  ['ctx', 'block', 'ath'],
+    'OG':  ['ctx', 'block', 'ath'],
+    'OC':  ['ctx', 'block', 'ath'],
     'ED':  ['ctx', 'prsh', 'rdef', 'cov', 'ath'],
     'DI':  ['ctx', 'prsh', 'rdef', 'ath'],
     'LB':  ['ctx', 'rdef', 'prsh', 'cov', 'ath'],
@@ -288,7 +295,8 @@ POS_PANELS = {
 
 POS_LABEL = {
     'QB': 'Quarterback', 'RB': 'Running back', 'WR': 'Wide receiver', 'TE': 'Tight end',
-    'OL': 'Offensive line', 'ED': 'Edge', 'DI': 'Interior D-line', 'LB': 'Linebacker',
+    'OL': 'Offensive line', 'OT': 'Offensive tackle', 'OG': 'Guard', 'OC': 'Center',
+    'ED': 'Edge', 'DI': 'Interior D-line', 'LB': 'Linebacker',
     'CB': 'Cornerback', 'S': 'Safety', 'K': 'Kicker', 'P': 'Punter',
 }
 
@@ -299,6 +307,9 @@ HEADLINE = {
     'WR': ['ypsnap', 'ypt', 'epatgt', 'srtgt', 'wopr', 'yprec', 'recy'],
     'TE': ['ypsnap', 'ypt', 'epatgt', 'srtgt', 'wopr', 'yprec', 'recy'],
     'OL': ['prsallow', 'sackallow', 'srrunon', 'snapshr', 'fsg'],
+    'OT': ['prsallow', 'sackallow', 'srrunon', 'snapshr', 'fsg'],
+    'OG': ['prsallow', 'sackallow', 'srrunon', 'snapshr', 'fsg'],
+    'OC': ['prsallow', 'sackallow', 'srrunon', 'snapshr', 'fsg'],
     'ED': ['prsssnap', 'sksnap', 'tflsnap', 'mtklpct', 'hits'],
     'DI': ['prsssnap', 'sksnap', 'tflsnap', 'mtklpct', 'tklsnap'],
     'LB': ['tklsnap', 'tflsnap', 'mtklpct', 'ycs', 'prsssnap'],
@@ -312,6 +323,9 @@ HEADLINE = {
 # players match on a shared flaw even when their full profiles never would.
 WEAK_DIMS = {
     'OL': ['prsallow', 'sackallow', 'stuffon', 'fsg', 'holdg', 'snapshr'],
+    'OT': ['prsallow', 'sackallow', 'stuffon', 'fsg', 'holdg', 'snapshr'],
+    'OG': ['prsallow', 'sackallow', 'stuffon', 'fsg', 'holdg', 'snapshr'],
+    'OC': ['prsallow', 'sackallow', 'stuffon', 'fsg', 'holdg', 'snapshr'],
     'QB': ['epadb', 'cpoe', 'srdb', 'sackpct', 'intpct', 'ontgt', 'ypa'],
     'RB': ['srcar', 'ypc', 'yacr', 'stuff', 'ypt', 'catch', 'fumrate'],
     'WR': ['ypt', 'catch', 'srtgt', 'dropr', 'sep', 'racr', 'yacoe'],
@@ -328,7 +342,8 @@ WEAK_DIMS = {
 # What it takes to be in a cohort's percentile pool for a season.
 QUALIFY = {
     'QB': ('db', 150), 'RB': ('car', 60), 'WR': ('tgt', 35), 'TE': ('tgt', 25),
-    'OL': ('snap', 250), 'ED': ('dsnap', 250), 'DI': ('dsnap', 250),
+    'OL': ('snap', 250), 'OT': ('snap', 250), 'OG': ('snap', 250), 'OC': ('snap', 250),
+    'ED': ('dsnap', 250), 'DI': ('dsnap', 250),
     'LB': ('dsnap', 250), 'CB': ('dsnap', 250), 'S': ('dsnap', 250),
     'K': ('fga', 12), 'P': ('punt', 20),
 }
@@ -336,6 +351,7 @@ QUALIFY = {
 # Before snap counts (2013) defenders and linemen fall back to games played; before targets
 # were charted (2012) receivers fall back to catches. Without these, twelve seasons of the
 # archive would have no percentile pool at all for half the positions.
-QUALIFY_FALLBACK = {'OL': ('g', 8), 'ED': ('g', 8), 'DI': ('g', 8),
+QUALIFY_FALLBACK = {'OL': ('g', 8), 'OT': ('g', 8), 'OG': ('g', 8), 'OC': ('g', 8),
+                    'ED': ('g', 8), 'DI': ('g', 8),
                     'LB': ('g', 8), 'CB': ('g', 8), 'S': ('g', 8),
                     'WR': ('rec', 20), 'TE': ('rec', 15)}

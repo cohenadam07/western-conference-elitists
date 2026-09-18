@@ -20,6 +20,7 @@ mkdir -p raw agg maps
 ./fetch.sh                    # ~1 GB of source data into raw/
 python3 pbp_agg.py            # play-by-play -> weekly per-player aggregates in agg/
 python3 ftn_agg.py            # FTN charting + pbp -> weekly charted rates (2022+)
+python3 line_agg.py           # depth charts -> which spot on the line each man played (2001+)
 python3 onfield_agg.py        # participation + pbp -> who was on the field, and what happened
 python3 maps.py               # agg/ -> maps/<season>.json + maps/index.json
 python3 build.py              # everything -> football-savant-data.json
@@ -116,6 +117,16 @@ season's play-by-play and stays a local run.
   play, plus `was_pressure`, 2016 on) to play-by-play, and accumulates what the offense did
   on each player's snaps, alongside his team's totals so the off-field half can be got by
   subtraction. This is the whole basis of the offensive-line card.
+- **`line_agg.py`** — reads the depth charts and decides whether a lineman is a tackle, a
+  guard or a centre, so the three are ranked apart instead of in one undifferentiated pool.
+  Two file shapes: the NFL's weekly file through 2024, an ESPN daily snapshot from 2025.
+  Left and right pool together — LT and RT are different jobs, but thirty-two men a season
+  is too thin a pool to rank anybody in honestly. Nothing before 2001, and a man who never
+  made a depth chart keeps the plain `OL` cohort.
+
+  The five line spots are the only part of a depth chart that is named consistently. The
+  2024 file has 2,562 rows that simply say "CB" against 242 that say LCB, so slot corner
+  and outside corner are **not** derivable from it and are not attempted.
 - **`maps.py`** — turns those aggregates into the field maps, one file per season.
 - **`build.py`** — joins the season tables, PFR charting, Next Gen Stats, snap counts, the
   combine and ESPN QBR; computes every metric; fits the season-by-season field-goal
@@ -129,6 +140,29 @@ season's play-by-play and stays a local run.
 - **`coach_tree.py`** — the coaching lineage. Hand-curated, because who assisted whom is in
   no open dataset. It is the one file here that can simply be wrong, which is why it is flat,
   editable and quoted verbatim in the UI.
+
+## What the weekly feeds add
+
+Three things that are facts about a week rather than a season:
+
+- **Which spot on the line** (`line_agg.py`, above) — the cohorts are now `OT`, `OG` and
+  `OC`, with `OL` kept for the seasons and the men the depth charts do not cover.
+- **Every team he played for** (`load_weekteams` in `build.py`) — the season table records
+  only his last, so a man traded in October used to vanish from the club he left. The test
+  is a weekly stat line or a weekly snap count, deliberately *not* the weekly roster file:
+  that one counts practice squads and waiver claims, which turns a journeyman into
+  `NYJ -> NYG -> PHI -> NYG` without his having played a down for three of them. 107 men in
+  2025 by the strict test, against 199 by the loose one.
+- **This week's injury report** (`load_injuries`) — attached only while the season is being
+  played, and only for the latest week. Most rows carry no game-day designation at all, so
+  a man who missed practice with a named injury is reported as that rather than dressed up
+  as one; "not injury related — resting player" is dropped entirely unless there is a real
+  designation beside it.
+
+Week-level QBR is deliberately **not** wired in. It was wanted for recent-form windows, and
+there are none: `pbp_agg.py` has written weekly aggregates from the start and `build.py`
+rolls every one to a season total before the page sees it. Form windows are a feature, not
+a field.
 
 ## The offensive line, specifically
 
