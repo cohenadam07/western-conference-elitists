@@ -82,11 +82,16 @@ jobs:
         working-directory: pipeline/football
         run: ./fetch.sh
 
-      - name: Aggregate play-by-play, charting and participation
+      # Every aggregate stage refresh_current.sh runs, in the same order. Leaving one out
+      # does not fail the build - build.py treats a missing aggregate as a season that
+      # simply has no data for it - so the first rebuild rebuilt all twenty-eight seasons
+      # with every lineman still in one undifferentiated pool, and looked like a success.
+      - name: Aggregate play-by-play, charting, line spots and participation
         working-directory: pipeline/football
         run: |
           python3 pbp_agg.py
           python3 ftn_agg.py
+          python3 line_agg.py
           python3 onfield_agg.py
 
       - name: Field maps
