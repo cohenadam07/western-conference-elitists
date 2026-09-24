@@ -48,6 +48,9 @@ NFL_MAPS="$PUB/football-maps" python3 maps.py
 echo "== build -> public/football-savant-current.json"
 NFL_OUT="$PUB/football-savant-current.json" python3 build.py
 
+echo "== week-by-week game lines -> public/football-weekly/$Y/"
+NFL_WEEKLY="$PUB/football-weekly" python3 weekly.py
+
 python3 - "$PUB/football-savant-current.json" "$NFL_RAW/schedules.csv" "$Y" <<'EOF'
 import csv, datetime, json, sys
 

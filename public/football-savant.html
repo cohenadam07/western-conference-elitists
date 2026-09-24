@@ -408,7 +408,6 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 .rc-t b{color:var(--ink)}
 .rc-x{background:none;border:none;color:var(--faint);cursor:pointer;font-size:16px;line-height:1;padding:0 2px}
 .rc-x:hover{color:var(--red)}
-.rc svg{width:100%;height:118px;display:block;overflow:visible}
 .rc-foot{font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:5px;letter-spacing:.04em}
 
 /* ---------------------------------------------------------------- field maps */
@@ -726,7 +725,7 @@ body{background-color:#1D6B3A;color:var(--ink);
 .brand-word span{color:var(--turf)}
 .rv,.pct,.mv,.statline,.st,.acco,.eyebrow-pill,.ctl-lab,.tag,.selx-btn,.selx-opt,.dr-read,
 .arc-h,.arc-foot,.arcbtn,.group-h,.col-cap,.comps-cap,.cap,.backlink,.tr-rec,.tr-po,.tr-coach,
-.lb-lab,.lb-colchip,.lb-table th,.lb-table td,.leg,.ends,.fm-modes button,.fm-srow,.rc-t,.rc-foot,
+.lb-lab,.lb-colchip,.lb-table th,.lb-table td,.leg,.ends,.fm-modes button,.fm-srow,
 .wk-sub,.wk-pct,.comp-score,.comp-team,.expl h4,.formula,.src,.tp-p,.res .rs,.home-eyebrow,
 .home-trend-lab,.home-poschip,.home-foot,.cpos,.pill{font-family:var(--pix)!important}
 
@@ -875,9 +874,84 @@ body{background-color:#1D6B3A;color:var(--ink);
 .res:hover,.res.on{background:var(--raise)}
 .res .rn{color:var(--ink)} .res .rs{color:#7A9384;font-size:9px}
 .results,.home-results{border:3px solid var(--turf-dk);box-shadow:5px 5px 0 rgba(14,42,23,.4);background:#FFF}
-.rc-t{font-size:9px;color:#7A9384} .rc-t b{color:var(--ink)}
-.rc-foot{font-size:8.5px;color:#9DB2A2}
-.rc{background:var(--raise)}
+/* ---- per-stat chart. Cream plate, one hard rule per edge, Silkscreen for anything scanned.
+   The plot is drawn at its real width (see plotSvg), so every size here is a real pixel. */
+.rc{background:var(--surface);padding:14px 16px 12px;margin:6px 0 12px;position:relative;container-type:inline-size}
+.rc-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.rc-t{font-family:var(--pix);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:#7A9384;line-height:1.5}
+.rc-t b{font-size:12px;color:var(--ink);letter-spacing:.03em;font-weight:400}
+.rc-sub{margin-left:2px}
+.rc-ctl{display:flex;align-items:center;gap:10px}
+.rc-seg{display:inline-flex;border:2px solid var(--turf-dk);background:#FFF}
+.rc-seg button{font-family:var(--pix);font-size:9px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);background:none;border:none;border-right:2px solid var(--turf-dk);padding:6px 11px;cursor:pointer}
+.rc-seg button:last-child{border-right:none}
+.rc-seg button:hover:not([aria-pressed="true"]):not(:disabled){background:var(--raise);color:var(--ink)}
+.rc-seg button[aria-pressed="true"]{background:var(--turf);color:#FFF}
+.rc-seg button:disabled{opacity:.45;cursor:not-allowed}
+.rc-seg button:focus-visible,.rc-x:focus-visible{outline:2px solid var(--flag);outline-offset:1px}
+.rc-x{width:28px;height:28px;background:#FFF;border:2px solid var(--turf-dk);color:var(--ink);
+  font-family:var(--pix);font-size:12px;line-height:1;cursor:pointer;padding:0}
+.rc-x:hover{background:var(--red);color:#FFF}
+.rc-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
+  border:2px solid var(--turf-dk);background:#FFF;margin-bottom:12px}
+.rc-kpi{padding:8px 11px 7px;border-right:2px solid var(--line);display:flex;flex-direction:column;gap:3px;min-width:0}
+.rc-kpi:last-child{border-right:none}
+.rc-kl{font-family:var(--pix);font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:#7A9384;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc-kpi b{font-family:var(--pix);font-size:17px;font-weight:400;color:var(--ink);line-height:1.1;
+  display:flex;align-items:center;gap:7px}
+.rc-kpi b.hasc::before{content:"";width:9px;height:9px;flex:0 0 auto;background:var(--kc);box-shadow:0 0 0 2px var(--turf-dk)}
+.rc-ks{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc-plot{position:relative;background:#FFF;border:2px solid var(--turf-dk);min-height:120px;touch-action:pan-y}
+.rc-svg{display:block;width:100%;height:auto;overflow:visible}
+.rc-grid{stroke:#E6ECE3;stroke-width:1;shape-rendering:crispEdges}
+.rc-grid.zero{stroke:#B9C6BC}
+.rc-axis{stroke:var(--turf-dk);stroke-width:2;shape-rendering:crispEdges}
+.rc-axis.cut{stroke:#B9C6BC;stroke-width:1}
+.rc-ylab,.rc-xlab,.rc-xsub,.rc-vlab,.rc-reflab,.rc-gaplab{font-family:var(--pix);font-size:8px;fill:#7A9384;letter-spacing:.04em}
+.rc-xlab{fill:var(--muted)} .rc-xlab.gap{fill:#B3C2B7}
+.rc-xsub{fill:#9DB2A2;font-size:7.5px;text-transform:uppercase}
+.rc-vlab{fill:var(--ink)} .rc-vlab.best{fill:#8A6B14}
+.rc-gaplab{fill:#B3C2B7}
+.rc-reflab.med{fill:#7A9384} .rc-reflab.szn{fill:var(--turf)}
+.rc-line{fill:none;stroke:var(--turf-dk);stroke-width:2.5;stroke-linejoin:miter}
+.rc-area{fill:var(--turf);opacity:.07}
+.rc-ref{fill:none;stroke-width:1.5;shape-rendering:crispEdges}
+.rc-ref.med{stroke:#8FA597;stroke-dasharray:5 4}
+.rc-ref.szn{stroke:var(--turf);stroke-width:2.5}
+.rc-dot{stroke:var(--turf-dk);stroke-width:2;shape-rendering:crispEdges}
+.rc-dot.live{fill:#FBFDF9;stroke-width:3}
+.rc-best{fill:none;stroke:var(--flag);stroke-width:3;shape-rendering:crispEdges}
+.rc-bar{stroke:var(--turf-dk);stroke-width:2;shape-rendering:crispEdges}
+.rc-guide{stroke:var(--turf-dk);stroke-width:1;stroke-dasharray:2 3;shape-rendering:crispEdges}
+.rc-empty{padding:34px 18px;text-align:center;font-size:13.5px;line-height:1.55;color:var(--muted)}
+.rc-empty b{font-family:var(--pix);font-size:10px;font-weight:400;color:var(--ink)}
+.rc-tip{position:absolute;z-index:5;pointer-events:none;background:#FFF;border:2px solid var(--turf-dk);
+  box-shadow:3px 3px 0 rgba(14,42,23,.35);padding:7px 10px;display:flex;flex-direction:column;gap:2px;
+  min-width:120px;max-width:230px;font-size:12px;line-height:1.35;color:var(--ink)}
+.rc-tip[hidden]{display:none}
+.rc-tip b{font-family:var(--pix);font-size:8.5px;font-weight:400;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.rc-tip .big{font-family:var(--pix);font-size:16px;line-height:1.2}
+.rc-tip .dim{color:#7A9384;font-size:11px}
+.rc-bot{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.rc-leg{display:flex;flex-wrap:wrap;gap:6px 16px}
+.rc-li{display:inline-flex;align-items:center;gap:6px;font-family:var(--pix);font-size:8px;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--muted)}
+.rc-sw{display:inline-block;flex:0 0 auto}
+.rc-sw.sq{width:9px;height:9px;background:linear-gradient(90deg,rgb(60,126,190) 50%,rgb(201,88,78) 50%);box-shadow:0 0 0 2px var(--turf-dk)}
+.rc-sw.bar{width:8px;height:12px;background:linear-gradient(180deg,rgb(201,88,78) 50%,rgb(60,126,190) 50%);box-shadow:0 0 0 2px var(--turf-dk)}
+.rc-sw.best{width:11px;height:11px;box-shadow:inset 0 0 0 3px var(--flag)}
+.rc-sw.live{width:9px;height:9px;background:#FBFDF9;box-shadow:inset 0 0 0 3px #C9584E}
+.rc-sw.med{width:18px;height:0;border-top:2px dashed #8FA597}
+.rc-sw.szn{width:18px;height:0;border-top:3px solid var(--turf)}
+.rc-foot{font-family:var(--body);font-size:11.5px;line-height:1.5;color:#7A9384;margin:0;letter-spacing:0}
+@container (max-width:600px){
+  .rc-kpis{grid-template-columns:1fr 1fr}
+  .rc-kpi:nth-child(2n){border-right:none}
+  .rc-kpi:nth-child(-n+2){border-bottom:2px solid var(--line)}
+  .rc-kpi b{font-size:14px}
+}
 
 /* ---- home splash */
 .home-nav-home{font-family:var(--pix);color:#FFF;font-size:12px;text-shadow:2px 2px 0 var(--turf-dk)}
@@ -945,14 +1019,15 @@ body{background-color:#1D6B3A;color:var(--ink);
    panel. This is the two-up-panel case as well as the phone one. */
 @container (max-width: 760px){
   .col .row,.col .row.nochart{
-    grid-template-columns:1fr auto auto;
-    grid-template-areas:"lab pct val" "bar bar bar";
+    grid-template-columns:1fr auto auto auto;
+    grid-template-areas:"lab pct val btn" "bar bar bar bar";
     column-gap:10px;row-gap:8px;padding:10px 0;min-height:0}
   .col .row .rl{grid-area:lab;min-width:0}
   .col .row .pct{grid-area:pct}
   .col .row .rv{grid-area:val}
   .col .row .track,.col .row .cstack{grid-area:bar}
-  .col .row .statbtn{display:none}
+  .col .row .statbtn{grid-area:btn}
+  .col .row.nochart .statbtn{display:none}
   .col .row .rl .name{white-space:normal}
   /* Stacked, the percentile and the value sit side by side with no column headers to tell
      them apart — "58 16" reads as one number. The percentile gets a chip so the two are
@@ -1633,7 +1708,7 @@ function careerHigh(id,key,lower){
 }
 function statBtn(key,label){
   return '<button type="button" class="statbtn" data-stat="'+key+'" aria-expanded="false"'
-    +' title="Chart '+esc(label)+' season by season" aria-label="Chart '+esc(label)+' season by season">'
+    +' title="Chart '+esc(label)+' by season or by week" aria-label="Chart '+esc(label)+'">'
     +'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 11.5L6 7l3 2.5L14 4"/>'
     +'<circle cx="2" cy="11.5" r="1.1"/><circle cx="6" cy="7" r="1.1"/>'
     +'<circle cx="9" cy="9.5" r="1.1"/><circle cx="14" cy="4" r="1.1"/></svg></button>';
@@ -2779,7 +2854,7 @@ function renderGapNote(pos){
   el.hidden=false;
 }
 
-/* ================= STAT EXPLAINER + PER-STAT CHART ========================= */
+/* ================= STAT EXPLAINER ========================================== */
 function closeExpl(){
   if(openExpl){ var e=document.getElementById(openExpl); if(e) e.remove(); openExpl=null; }
 }
@@ -2803,9 +2878,52 @@ function toggleExpl(rowEl,key){
   rowEl.insertAdjacentElement('afterend',el);
   openExpl=id;
 }
+/* ================= PER-STAT CHART =========================================
+   One chart, two lenses on the same number.
+
+   SEASONS  every season of his career, each dot coloured by where it ranked inside that
+            season's cohort, against a dashed line for the cohort's median.
+   WEEKLY   the season in progress, game by game. The same metric, worked out by the same
+            build code over one game's inputs (pipeline/football/weekly.py), so a game's
+            yards per attempt means exactly what the season's does. A bar's colour is where
+            that single game would rank among this season's full-season lines at his
+            position — "one game at a 90th-percentile level", not a weekly leaderboard,
+            because a single week has no qualified pool worth ranking in.
+
+   The SVG is drawn at the pixel width it is shown at and redrawn on resize, so nothing is
+   ever stretched: squares stay square and type stays the size it was set at. */
+var chartMode='season';                 // remembered across charts for the session
+var SEASON_TOTAL_ONLY={g:1,avail:1,starts:1,posver:1,comp:1};
+var WK_ROOT=null, WK_IDX={}, WK_FILE={};
+function wkTag(){ return '?v='+Math.floor(Date.now()/3600000); }   // same hour-cache as the current file
+function wkRoot(){
+  if(!WK_ROOT) WK_ROOT=fetch('football-weekly/index.json'+wkTag())
+    .then(function(r){return r.ok?r.json():{seasons:[]};}).catch(function(){return {seasons:[]};});
+  return WK_ROOT;
+}
+function wkIndex(s){
+  if(!WK_IDX[s]) WK_IDX[s]=fetch('football-weekly/'+s+'/index.json'+wkTag())
+    .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+  return WK_IDX[s];
+}
+function wkPlayer(s,id){
+  var k=s+'/'+id;
+  if(!(k in WK_FILE)) WK_FILE[k]=fetch('football-weekly/'+k+'.json'+wkTag())
+    .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+  return WK_FILE[k];
+}
+/* The weekly season: the one on screen if it has game lines, otherwise the newest that does. */
+function wkSeasonFor(root){
+  var ss=(root&&root.seasons||[]).map(String);
+  if(!ss.length) return null;
+  if(!isCareer(curSeason)&&ss.indexOf(String(yearOf(curSeason)))>=0) return String(yearOf(curSeason));
+  return ss.sort().slice(-1)[0];
+}
+
 function closeChart(){
   if(openStat){
-    var e=document.getElementById('rc-'+openStat); if(e) e.remove();
+    var e=document.getElementById('rc-'+openStat);
+    if(e){ if(e._ro) e._ro.disconnect(); e.remove(); }
     var b=document.querySelector('.statbtn[data-stat="'+openStat+'"]');
     if(b) b.setAttribute('aria-expanded','false');
     openStat=null;
@@ -2818,60 +2936,341 @@ function yearSeries(key){
     if(!eraOK(m,s)) continue;
     var r=rowFor(curId,s); if(!r) continue;
     var v=r.m[key]; if(miss(v)) continue;
-    out.push({v:v, lab:"'"+String(s).slice(2), full:s, pos:r.pos,
-              pct:pctOf(v,poolVals(key,r.pos,s),m.lower)});
+    var pool=poolVals(key,r.pos,s);
+    out.push({v:v, lab:"'"+String(s).slice(2), full:s, pos:r.pos, team:r.team,
+              pct:pctOf(v,pool,m.lower), med:median(pool), live:liveWeek(s)>0,
+              n:r.d&&m.den?r.d[m.den]:null});
   }
   return out;
 }
-function chartSvg(pts,m){
-  if(pts.length<2) return '<div class="rc-foot">Only one season of this stat — nothing to plot yet.</div>';
-  var W=560,H=118,PL=34,PR=12,PT=12,PB=22;
-  var vs=pts.map(function(p){return p.v;});
-  var lo=Math.min.apply(null,vs), hi=Math.max.apply(null,vs);
-  if(lo===hi){ lo-=Math.abs(lo||1)*0.1; hi+=Math.abs(hi||1)*0.1; }
-  var pad=(hi-lo)*0.12; lo-=pad; hi+=pad;
-  function X(i){ return PL+(W-PL-PR)*(pts.length===1?0.5:i/(pts.length-1)); }
-  function Y(v){ return PT+(H-PT-PB)*(1-(v-lo)/(hi-lo)); }
-  var line=pts.map(function(p,i){return (i?'L':'M')+X(i).toFixed(1)+' '+Y(p.v).toFixed(1);}).join(' ');
-  var area=line+' L'+X(pts.length-1).toFixed(1)+' '+(H-PB)+' L'+X(0).toFixed(1)+' '+(H-PB)+' Z';
-  var dots=pts.map(function(p,i){
-    var c=p.pct==null?'#B0BEC9':colorAt(p.pct);
-    return '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="3.4" fill="'+c+'" stroke="#0E2A17" stroke-width="1.6">'
-      +'<title>'+esc(p.full+' — '+fmt(m.unit,p.v)+(p.pct!=null?' ('+p.pct+'th percentile among '+p.pos+'s that year)':''))+'</title></circle>';
-  }).join('');
-  var labs=pts.map(function(p,i){
-    if(pts.length>14 && i%2) return '';
-    return '<text x="'+X(i).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-family="Roboto Mono, monospace" font-size="8.5" fill="#7A9384">'+p.lab+'</text>';
-  }).join('');
-  return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'
-    +'<defs><linearGradient id="rcg" x1="0" y1="0" x2="0" y2="1">'
-    +'<stop offset="0%" stop-color="#1D6B3A" stop-opacity=".22"/><stop offset="100%" stop-color="#1D6B3A" stop-opacity="0"/>'
-    +'</linearGradient></defs>'
-    +'<line x1="'+PL+'" y1="'+(H-PB)+'" x2="'+(W-PR)+'" y2="'+(H-PB)+'" stroke="rgba(14,42,23,.25)"/>'
-    +'<path d="'+area+'" fill="url(#rcg)"/>'
-    +'<path d="'+line+'" fill="none" stroke="#1D6B3A" stroke-width="2" stroke-linejoin="round"/>'
-    +dots
-    +'<text x="'+(PL-6)+'" y="'+(Y(hi-pad)+3)+'" text-anchor="end" font-family="Roboto Mono, monospace" font-size="8.5" fill="#7A9384">'+esc(fmt(m.unit,hi-pad))+'</text>'
-    +'<text x="'+(PL-6)+'" y="'+(Y(lo+pad)+3)+'" text-anchor="end" font-family="Roboto Mono, monospace" font-size="8.5" fill="#7A9384">'+esc(fmt(m.unit,lo+pad))+'</text>'
-    +labs+'</svg>';
+function median(a){
+  if(!a||a.length<5) return null;                  // too few to call a middle
+  var n=a.length; return n%2?a[(n-1)/2]:(a[n/2-1]+a[n/2])/2;
+}
+function posWord(pos,plural){
+  var l=(CFG.posLabel[pos]||pos).toLowerCase();
+  return plural?(/s$/.test(l)?l:l+'s'):l;
+}
+
+/* ---- axis */
+function niceStep(span,n){
+  var raw=span/Math.max(1,n), mag=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)), e=raw/mag;
+  return mag*(e>=7.5?10:e>=3.5?5:e>=1.5?2:1);
+}
+function axisFmt(unit,v,step){
+  if(unit==='ftin') return inFt(v);
+  var dp=Math.max(0,Math.min(3,-Math.floor(Math.log(step)/Math.LN10+1e-9)));
+  var s=signed(v,dp,unit==='sgn3'||unit==='sgn1',false);
+  if(unit==='pct1') return s+'%';
+  if(unit==='sec') return s+'s';
+  return s;
+}
+
+/* ---- the drawing itself. `pts` is one slot per x position:
+     {lab, sub, v, pct, kind:'val'|'gap', gapLab, best, live}. */
+function plotSvg(o){
+  var W=o.W, H=o.H, m=o.m, pts=o.pts;
+  var PL=46, PR=o.refLab?70:14, PT=24, PB=o.sub?34:22;
+  var iw=W-PL-PR, ih=H-PT-PB;
+  var vals=pts.filter(function(p){return p.kind==='val';}).map(function(p){return p.v;});
+  (o.refs||[]).forEach(function(r){ (r.vals||[r.v]).forEach(function(v){ if(!miss(v)) vals.push(v); }); });
+  var lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals);
+  // Bars are measured from zero, and a bar on a cut-off axis is a lie about size. So the
+  // weekly view keeps zero in frame and draws bars when zero is near enough to matter; when
+  // every game sits in a narrow band far from zero (time to throw, 2.6s to 3.1s) it draws
+  // markers on a fitted axis instead.
+  var bars=o.bars && !(lo>0 && lo>0.6*hi) && !(hi<0 && hi<0.6*lo);
+  if(bars){ lo=Math.min(lo,0); hi=Math.max(hi,0); }
+  if(lo===hi){ var d0=Math.abs(lo)||1; lo-=d0*0.25; hi+=d0*0.25; }
+  var step=niceStep(hi-lo,ih<120?3:4);
+  var a0=Math.floor(lo/step+1e-9)*step, a1=Math.ceil(hi/step-1e-9)*step;
+  if(!bars){                                      // breathing room so markers never sit on the frame
+    if(lo-a0<step*0.15) a0-=step; if(a1-hi<step*0.15) a1+=step;
+  }
+  function Y(v){ return PT+ih*(1-(v-a0)/(a1-a0)); }
+  var n=pts.length, slot=iw/n;
+  function X(i){ return PL+slot*(i+0.5); }
+  var out=[];
+  // grid + y labels
+  for(var t=a0;t<=a1+step*1e-6;t+=step){
+    var y=Y(t).toFixed(1), isZero=Math.abs(t)<step*1e-6;
+    out.push('<line class="rc-grid'+(isZero&&a0<0?' zero':'')+'" x1="'+PL+'" x2="'+(W-PR)+'" y1="'+y+'" y2="'+y+'"/>');
+    out.push('<text class="rc-ylab" x="'+(PL-8)+'" y="'+(+y+3)+'" text-anchor="end">'+esc(axisFmt(m.unit,t,step))+'</text>');
+  }
+  var base=Y(bars?Math.max(a0,Math.min(0,a1)):a0);
+  out.push('<line class="rc-axis'+(bars||a0===0?'':' cut')+'" x1="'+PL+'" x2="'+(W-PR)+'" y1="'+base.toFixed(1)+'" y2="'+base.toFixed(1)+'"/>');
+  // x labels (thinned when crowded)
+  var every=Math.max(1,Math.ceil(26/slot));
+  pts.forEach(function(p,i){
+    var show=(i%every===0)||(i===n-1&&(n-1)%every>=Math.ceil(every/2));
+    if(!show) return;
+    out.push('<text class="rc-xlab'+(p.kind==='gap'?' gap':'')+'" x="'+X(i).toFixed(1)+'" y="'+(H-PB+15)+'" text-anchor="middle">'+esc(p.lab)+'</text>');
+    if(o.sub&&p.sub&&slot>=24) out.push('<text class="rc-xsub" x="'+X(i).toFixed(1)+'" y="'+(H-PB+27)+'" text-anchor="middle">'+esc(p.sub)+'</text>');
+  });
+  // reference lines: median (dashed) and, weekly, his season line
+  (o.refs||[]).forEach(function(r){
+    if(r.vals){
+      var d='', pen=false;
+      r.vals.forEach(function(v,i){
+        if(miss(v)){ pen=false; return; }
+        d+=(pen?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1)+' '; pen=true;
+      });
+      if(d) out.push('<path class="rc-ref '+r.cls+'" d="'+d+'"/>');
+      var lastI=-1; r.vals.forEach(function(v,i){ if(!miss(v)) lastI=i; });
+      if(lastI>=0&&o.refLab) out.push('<text class="rc-reflab '+r.cls+'" x="'+(W-PR+6)+'" y="'+(Y(r.vals[lastI])+3).toFixed(1)+'">'+esc(r.label)+'</text>');
+    } else if(!miss(r.v)){
+      var yy=Y(r.v).toFixed(1);
+      out.push('<line class="rc-ref '+r.cls+'" x1="'+PL+'" x2="'+(W-PR)+'" y1="'+yy+'" y2="'+yy+'"/>');
+      if(o.refLab) out.push('<text class="rc-reflab '+r.cls+'" x="'+(W-PR+6)+'" y="'+(+yy+3)+'">'+esc(r.label)+'</text>');
+    }
+  });
+  // guide line for hover, drawn under the marks
+  out.push('<line class="rc-guide" x1="0" x2="0" y1="'+PT+'" y2="'+(H-PB)+'" visibility="hidden"/>');
+  // the series
+  var sq=Math.max(7,Math.min(11,slot*0.34)), hs=sq/2;
+  if(bars){
+    var bw=Math.max(4,Math.min(34,slot*0.62)), zero=Y(Math.max(a0,Math.min(0,a1)));
+    pts.forEach(function(p,i){
+      var x=X(i);
+      if(p.kind!=='val'){
+        if(slot>=22) out.push('<text class="rc-gaplab" x="'+x.toFixed(1)+'" y="'+(base-6).toFixed(1)+'" text-anchor="middle">'+esc(p.gapLab||'')+'</text>');
+        return;
+      }
+      var y=Y(p.v), top=Math.min(y,zero), h=Math.max(2,Math.abs(zero-y));
+      var col=p.pct==null?'var(--c-mid)':colorAt(p.pct);
+      out.push('<rect class="rc-bar" x="'+(x-bw/2).toFixed(1)+'" y="'+top.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+col+'"/>');
+      if(slot>=30) out.push('<text class="rc-vlab" x="'+x.toFixed(1)+'" y="'+(p.v<0?(y+12):(y-6)).toFixed(1)+'" text-anchor="middle">'+esc(fmt(m.unit,p.v))+'</text>');
+    });
+  } else {
+    // a line only joins adjacent readings; a gap in the record stays a gap
+    var d='', pen=false, area='', seg=[];
+    pts.forEach(function(p,i){
+      if(p.kind!=='val'||(o.bars)){ pen=false; return; }
+      d+=(pen?'L':'M')+X(i).toFixed(1)+' '+Y(p.v).toFixed(1)+' '; pen=true;
+    });
+    if(!o.bars&&d){
+      var first=-1,last=-1; pts.forEach(function(p,i){ if(p.kind==='val'){ if(first<0) first=i; last=i; } });
+      out.push('<path class="rc-area" d="'+d+'L'+X(last).toFixed(1)+' '+base.toFixed(1)+' L'+X(first).toFixed(1)+' '+base.toFixed(1)+' Z"/>');
+      out.push('<path class="rc-line" d="'+d+'"/>');
+    }
+    var nv=vals.length, labelAll=pts.filter(function(p){return p.kind==='val';}).length<=10 && slot>=34;
+    pts.forEach(function(p,i){
+      var x=X(i);
+      if(p.kind!=='val'){
+        if(o.bars&&slot>=22) out.push('<text class="rc-gaplab" x="'+x.toFixed(1)+'" y="'+(base-6).toFixed(1)+'" text-anchor="middle">'+esc(p.gapLab||'')+'</text>');
+        return;
+      }
+      var y=Y(p.v), col=p.pct==null?'var(--c-mid)':colorAt(p.pct);
+      if(p.best) out.push('<rect class="rc-best" x="'+(x-hs-3.5).toFixed(1)+'" y="'+(y-hs-3.5).toFixed(1)+'" width="'+(sq+7).toFixed(1)+'" height="'+(sq+7).toFixed(1)+'"/>');
+      out.push(p.live
+        ? '<rect class="rc-dot live" x="'+(x-hs).toFixed(1)+'" y="'+(y-hs).toFixed(1)+'" width="'+sq.toFixed(1)+'" height="'+sq.toFixed(1)+'" style="stroke:'+col+'"/>'
+        : '<rect class="rc-dot" x="'+(x-hs).toFixed(1)+'" y="'+(y-hs).toFixed(1)+'" width="'+sq.toFixed(1)+'" height="'+sq.toFixed(1)+'" fill="'+col+'"/>');
+      if(labelAll||p.best||i===n-1)
+        out.push('<text class="rc-vlab'+(p.best?' best':'')+'" x="'+x.toFixed(1)+'" y="'+(y-hs-(p.best?9:6)).toFixed(1)+'" text-anchor="middle">'+esc(fmt(m.unit,p.v))+'</text>');
+    });
+  }
+  return {svg:'<svg class="rc-svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(o.aria||'')+'">'+out.join('')+'</svg>',
+          xs:pts.map(function(p,i){return X(i);}), PT:PT, PB:PB, H:H, slot:slot};
+}
+
+/* ---- the panel */
+function kpi(lab,val,sub,pct){
+  return '<div class="rc-kpi"><span class="rc-kl">'+esc(lab)+'</span>'
+    +'<b'+(pct!=null?' style="--kc:'+colorAt(pct)+'"':'')+' class="'+(pct!=null?'hasc':'')+'">'+esc(val)+'</b>'
+    +(sub?'<span class="rc-ks">'+esc(sub)+'</span>':'')+'</div>';
+}
+function legendHtml(items){
+  return '<div class="rc-leg">'+items.map(function(it){
+    return '<span class="rc-li"><i class="rc-sw '+it[0]+'"></i>'+esc(it[1])+'</span>';
+  }).join('')+'</div>';
 }
 function toggleChart(btn,key){
   if(openStat===key){ closeChart(); return; }
   closeChart();
   var m=MBY[key]; if(!m||curId==null) return;
-  var pts=yearSeries(key);
   var row=btn.closest('.row');
   var el=document.createElement('div');
-  el.className='rc'; el.id='rc-'+key;
-  var best=null; pts.forEach(function(p){ if(best==null||(m.lower?p.v<best.v:p.v>best.v)) best=p; });
-  el.innerHTML='<div class="rc-h"><div class="rc-t"><b>'+esc(m.label)+'</b> · season by season'
-    +(best?' · best '+esc(best.full)+' ('+esc(fmt(m.unit,best.v))+')':'')+'</div>'
-    +'<button class="rc-x" aria-label="Close chart">×</button></div>'+chartSvg(pts,m)
-    +'<div class="rc-foot">Dot colour is his percentile that season, inside that season\'s cohort.</div>';
+  el.className='rc'; el.id='rc-'+key; el.dataset.key=key;
+  el.innerHTML='<div class="rc-h"><div class="rc-t"><b>'+esc(m.label)+'</b><span class="rc-sub"></span></div>'
+    +'<div class="rc-ctl"><div class="rc-seg" role="group" aria-label="Chart range">'
+    +'<button type="button" data-mode="season">Seasons</button>'
+    +'<button type="button" data-mode="week">Weekly</button></div>'
+    +'<button type="button" class="rc-x" aria-label="Close chart">×</button></div></div>'
+    +'<div class="rc-kpis"></div><div class="rc-plot"><div class="rc-tip" hidden></div></div><div class="rc-bot"></div>';
   row.insertAdjacentElement('afterend',el);
   el.querySelector('.rc-x').onclick=function(){ closeChart(); };
+  el.querySelectorAll('.rc-seg button').forEach(function(b){
+    b.onclick=function(){ if(b.disabled) return; chartMode=b.dataset.mode; drawChart(el); };
+  });
   btn.setAttribute('aria-expanded','true');
   openStat=key;
+  wireHover(el);
+  if(window.ResizeObserver){
+    var lastW=0;
+    el._ro=new ResizeObserver(function(){
+      var w=el.querySelector('.rc-plot').clientWidth;
+      if(Math.abs(w-lastW)>2){ lastW=w; paint(el); }
+    });
+    el._ro.observe(el.querySelector('.rc-plot'));
+  }
+  drawChart(el);
+  wkRoot().then(function(root){
+    var s=wkSeasonFor(root), wb=el.querySelector('.rc-seg [data-mode="week"]');
+    if(!wb) return;
+    if(s){ wb.textContent='Weekly · '+s; el._wkSeason=s; }
+    else { wb.disabled=true; wb.title='No game-by-game lines published yet'; if(chartMode==='week'){ chartMode='season'; drawChart(el);} }
+  });
+}
+function setPlotState(el,state){
+  el.querySelectorAll('.rc-seg button').forEach(function(b){
+    b.setAttribute('aria-pressed',String(b.dataset.mode===chartMode));
+  });
+  el._state=state;
+  el.querySelector('.rc-sub').innerHTML=state.sub||'';
+  el.querySelector('.rc-kpis').innerHTML=state.kpis||'';
+  el.querySelector('.rc-bot').innerHTML=(state.legend||'')+(state.foot?'<div class="rc-foot">'+state.foot+'</div>':'');
+  paint(el);
+}
+function paint(el){
+  var st=el._state; if(!st) return;
+  var plot=el.querySelector('.rc-plot'), tip=plot.querySelector('.rc-tip');
+  var old=plot.querySelector('.rc-svg, .rc-empty'); if(old) old.remove();
+  tip.hidden=true;
+  if(st.empty){
+    plot.insertAdjacentHTML('afterbegin','<div class="rc-empty">'+st.empty+'</div>');
+    el._layout=null; return;
+  }
+  var W=Math.max(260,plot.clientWidth), narrow=W<520;
+  var res=plotSvg({W:W, H:narrow?196:224, m:st.m, pts:st.pts, refs:st.refs, bars:st.bars,
+                   sub:st.sub2, refLab:!narrow, aria:st.aria});
+  plot.insertAdjacentHTML('afterbegin',res.svg);
+  el._layout=res;
+}
+function drawChart(el){
+  var key=el.dataset.key, m=MBY[key];
+  if(chartMode==='week') return drawWeekly(el,key,m);
+  var pts=yearSeries(key), best=null;
+  pts.forEach(function(p){ if(!p.live&&(best==null||(m.lower?p.v<best.v:p.v>best.v))) best=p; });
+  if(!best) pts.forEach(function(p){ if(best==null||(m.lower?p.v<best.v:p.v>best.v)) best=p; });
+  var last=pts[pts.length-1], pos=last?last.pos:posOf(curId,curSeason);
+  var allTime=baseline==='all';
+  var medLab=(allTime?'all-time ':'')+posWord(pos)+' median';
+  if(pts.length<2){
+    return setPlotState(el,{sub:' · season by season',
+      empty:pts.length?'One season of '+esc(m.label.toLowerCase())+' so far ('+esc(pts[0].full)+': '+esc(fmt(m.unit,pts[0].v))+') — nothing to draw a line through yet.'
+        +(SEASON_TOTAL_ONLY[key]?'':' Try <b>Weekly</b> for his games this year.')
+        :'No seasons of this stat on record.'});
+  }
+  pts.forEach(function(p){ p.kind='val'; p.best=(p===best); });
+  var kp=kpi('Career best',fmt(m.unit,best.v),best.full+(best.pct!=null?' · '+ordinal(best.pct):''),best.pct)
+    +kpi(last.live?'This season':'Latest',fmt(m.unit,last.v),last.full+(last.live?' · wk '+liveWeek(last.full):'')+(last.pct!=null?' · '+ordinal(last.pct):''),last.pct)
+    +(last.med!=null?kpi(posWord(last.pos)+' median',fmt(m.unit,last.med),last.full+(allTime?' · all-time':''),null):'')
+    +kpi('Seasons',String(pts.length),pts[0].full+'–'+String(last.full).slice(2),null);
+  var legend=legendHtml([['sq','His season, coloured by percentile'],['best','Career best'],['med',medLab.charAt(0).toUpperCase()+medLab.slice(1)]]
+    .concat(last.live?[['live','In progress']]:[]));
+  setPlotState(el,{m:m, sub:' · season by season'+(m.lower?' · lower is better':''),
+    pts:pts, bars:false, kpis:kp, legend:legend,
+    refs:[{cls:'med', label:'median', vals:pts.map(function(p){return p.med;})}],
+    aria:m.label+' by season, '+pts[0].full+' to '+last.full,
+    foot:'Colour is his percentile that season, inside that season\'s '+(allTime?'all-time ':'')+esc(posWord(pos))+' cohort.',
+    tip:function(p){
+      return '<b>'+esc(p.full)+(p.team?' · '+esc(p.team):'')+'</b>'
+        +'<span class="big">'+esc(fmt(m.unit,p.v))+'</span>'
+        +(p.pct!=null?'<span>'+ordinal(p.pct)+' percentile among '+esc(posWord(p.pos,true))+'</span>':'')
+        +(p.n&&m.den!=='g'?'<span class="dim">on '+commas(Math.round(p.n))+' '+esc(CFG.denoms[m.den]||m.den)+'</span>':'')
+        +(p.live?'<span class="dim">through week '+liveWeek(p.full)+'</span>':'');
+    }});
+}
+function drawWeekly(el,key,m){
+  setPlotState(el,{sub:' · game by game', empty:'Loading his games…'});
+  if(SEASON_TOTAL_ONLY[key]||m.grp==='ath'){
+    return setPlotState(el,{sub:' · game by game',
+      empty:esc(m.label)+' only exists over a season — there is no one-game version of it. <b>Seasons</b> shows how it has moved.'});
+  }
+  var id=curId;
+  wkRoot().then(function(root){
+    var s=wkSeasonFor(root);
+    if(!s) return setPlotState(el,{sub:' · game by game',empty:'Game-by-game lines haven\'t been published yet.'});
+    return Promise.all([wkIndex(s),wkPlayer(s,id)]).then(function(r){
+      if(chartMode!=='week'||el.dataset.key!==key||!el.isConnected||curId!==id) return;
+      var idx=r[0], f=r[1], row=rowFor(id,s);
+      var sub=' · game by game · '+s;
+      if(!idx||!f) return setPlotState(el,{sub:sub,empty:'He hasn\'t appeared in a '+esc(s)+' game yet.'});
+      var col=f.m[key];
+      if(!col||!col.some(function(v){return v!=null;})){
+        var why=m.tier===6?'It comes from PFR\'s charting, which is only published for whole seasons.'
+               :m.grp==='block'?'It comes from on-field participation data, which is only published after a season ends.'
+               :'It isn\'t recorded game by game, or he hasn\'t had a game where it applies.';
+        return setPlotState(el,{sub:sub,empty:'No weekly line for '+esc(m.label.toLowerCase())+' in '+esc(s)+'. '+why});
+      }
+      var pos=(row&&row.pos)||f.pos, pool=poolVals(key,pos,s);
+      var seasonV=row?row.m[key]:null, seasonPct=row&&!miss(seasonV)?pctOf(seasonV,pool,m.lower):null;
+      var den=m.den&&m.den!=='g'?f.d[m.den]:null;
+      var nW=Math.max(idx.week||0,f.w[f.w.length-1]||0), team=(row&&row.team)||f.t[f.t.length-1];
+      var pts=[], best=null, lastP=null, nGames=0;
+      for(var w=1;w<=nW;w++){
+        var i=f.w.indexOf(w);
+        if(i<0||col[i]==null){
+          var tm=i>=0?f.t[i]:team, sl=((idx.teams||{})[tm]||{})[String(w)]||'';
+          var bye=sl==='BYE';
+          pts.push({kind:'gap', lab:'W'+w, sub:bye?'bye':(i>=0?(f.o[i]||'').replace(/^@/,'@'):(sl||'')),
+                    gapLab:bye?'BYE':(i>=0?'·':'DNP'), w:w, why:bye?'Bye week':(i>=0?'Played, but no '+m.label.toLowerCase()+' reading':'Did not play'),
+                    opp:i>=0?f.o[i]:sl});
+          continue;
+        }
+        var v=col[i], p={kind:'val', v:v, w:w, lab:'W'+w, sub:f.o[i]||'', opp:f.o[i], team:f.t[i],
+                         pct:pctOf(v,pool,m.lower), n:den?den[i]:null};
+        pts.push(p); nGames++; lastP=p;
+        if(best==null||(m.lower?v<best.v:v>best.v)) best=p;
+      }
+      if(best) best.best=true;
+      function vs(o){ return !o?'':(o.charAt(0)==='@'?'at '+o.slice(1):'vs '+o); }
+      var medV=median(pool), allTime=baseline==='all';
+      var kp=(!miss(seasonV)?kpi(s+' season',fmt(m.unit,seasonV),(liveWeek(s)?'thru wk '+liveWeek(s):'full season')+(seasonPct!=null?' · '+ordinal(seasonPct):''),seasonPct):'')
+        +kpi('Best game',fmt(m.unit,best.v),'Wk '+best.w+' '+vs(best.opp),best.pct)
+        +kpi('Last game',fmt(m.unit,lastP.v),'Wk '+lastP.w+' '+vs(lastP.opp),lastP.pct)
+        +(medV!=null?kpi(posWord(pos)+' median',fmt(m.unit,medV),(allTime?'all-time':s+' season'),null):'');
+      var refs=[];
+      if(medV!=null) refs.push({cls:'med', label:'median', v:medV});
+      if(!miss(seasonV)) refs.push({cls:'szn', label:s+' avg', v:seasonV});
+      var legend=legendHtml([['bar','One game, coloured by percentile'],['szn','His '+s+' season'],['med',(allTime?'All-time ':'')+posWord(pos)+' median']]);
+      setPlotState(el,{m:m, sub:sub+(m.lower?' · lower is better':''), pts:pts, bars:true, sub2:true,
+        refs:refs, kpis:kp, legend:legend,
+        aria:m.label+', game by game, '+s,
+        foot:'A game\'s colour is where that one game would rank among '+esc(s)+' full-season lines by '
+          +esc(posWord(pos,true))+'. One game is a small sample — the season line is the settled reading.',
+        tip:function(p){
+          if(p.kind!=='val') return '<b>Week '+p.w+(p.opp&&p.opp!=='BYE'?' · '+esc(vs(p.opp)):'')+'</b><span>'+esc(p.why)+'</span>';
+          return '<b>Week '+p.w+' · '+esc(vs(p.opp))+'</b>'
+            +'<span class="big">'+esc(fmt(m.unit,p.v))+'</span>'
+            +(p.pct!=null?'<span>'+ordinal(p.pct)+'-percentile level for a '+esc(posWord(pos))+'</span>':'')
+            +(p.n?'<span class="dim">on '+commas(Math.round(p.n))+' '+esc(CFG.denoms[m.den]||m.den)+'</span>':'');
+        }});
+    });
+  });
+}
+function wireHover(el){
+  var plot=el.querySelector('.rc-plot'), tip=plot.querySelector('.rc-tip');
+  function hide(){ tip.hidden=true; var g=plot.querySelector('.rc-guide'); if(g) g.setAttribute('visibility','hidden');
+    plot.querySelectorAll('.rc-hot').forEach(function(x){x.classList.remove('rc-hot');}); }
+  function show(ev){
+    var L=el._layout, st=el._state; if(!L||!st||!st.tip) return;
+    var svg=plot.querySelector('.rc-svg'); if(!svg) return;
+    var bx=svg.getBoundingClientRect(), x=ev.clientX-bx.left, y=ev.clientY-bx.top;
+    if(y<0||y>L.H){ hide(); return; }
+    var bestI=0, bd=1e9;
+    L.xs.forEach(function(xx,i){ var dd=Math.abs(xx-x); if(dd<bd){ bd=dd; bestI=i; } });
+    if(bd>L.slot*0.75){ hide(); return; }
+    var p=st.pts[bestI], g=svg.querySelector('.rc-guide');
+    g.setAttribute('x1',L.xs[bestI]); g.setAttribute('x2',L.xs[bestI]); g.setAttribute('visibility','visible');
+    tip.innerHTML=st.tip(p); tip.hidden=false;
+    var tw=tip.offsetWidth, left=L.xs[bestI]+14;
+    if(left+tw>bx.width-4) left=L.xs[bestI]-14-tw;
+    tip.style.left=Math.max(4,left)+'px'; tip.style.top=(L.PT-4)+'px';
+  }
+  plot.addEventListener('pointermove',show);
+  plot.addEventListener('pointerdown',show);
+  plot.addEventListener('pointerleave',hide);
 }
 
 /* ================= SEARCH + NAVIGATION ===================================== */

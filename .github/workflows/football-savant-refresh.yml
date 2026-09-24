@@ -1,7 +1,8 @@
 # Football Savant — refresh the season in progress.
 #
 # Rebuilds only the current season from nflverse and commits the small result
-# (public/football-savant-current.json + that season's field map) to main, which Vercel
+# (public/football-savant-current.json, that season's field map and its week-by-week
+# game lines in public/football-weekly/) to main, which Vercel
 # deploys. The 1999–2025 archive is never touched here; see pipeline/football/README.md.
 #
 # Schedule, in UTC (nflverse's feeds settle overnight, NGS by ~5am ET):
@@ -59,7 +60,7 @@ jobs:
         run: |
           git config user.name "football-savant-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add public/football-savant-current.json public/football-maps/
+          git add public/football-savant-current.json public/football-maps/ public/football-weekly/
           if git diff --cached --quiet; then
             echo "no data change — nothing to commit"
             exit 0

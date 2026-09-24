@@ -35,7 +35,7 @@ if [ -n "${NFL_REFRESH:-}" ]; then
         "$OUT/part/part_$y.csv" "$OUT/pbp/pbp_$y.parquet" "$OUT/ftn_$y.csv" \
         "$OUT/depth_$y.csv" "$OUT/injuries_$y.csv" \
         "$OUT"/adv_*.csv "$OUT"/ngs_*.csv "$OUT"/ngs_*.csv.gz \
-        "$OUT/players.csv" "$OUT/qbr.csv" "$OUT/schedules.csv" "$OUT/combine.csv"
+        "$OUT/players.csv" "$OUT/qbr.csv" "$OUT/qbr_week.csv" "$OUT/schedules.csv" "$OUT/combine.csv"
   echo "refreshing $y"
 fi
 
@@ -82,4 +82,6 @@ done
 get "combine/combine.csv" "combine.csv"
 get "players/players.csv" "players.csv"
 get "espn_data/qbr_season_level.csv" "qbr.csv"
+# Game-level QBR (2006 on) for the week-by-week charts; weekly.py reads it.
+get "espn_data/qbr_week_level.csv" "qbr_week.csv"
 get "schedules/games.csv" "schedules.csv"

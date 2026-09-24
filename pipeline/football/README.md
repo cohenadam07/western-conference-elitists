@@ -24,6 +24,7 @@ python3 line_agg.py           # depth charts -> which spot on the line each man 
 python3 onfield_agg.py        # participation + pbp -> who was on the field, and what happened
 python3 maps.py               # agg/ -> maps/<season>.json + maps/index.json
 python3 build.py              # everything -> football-savant-data.json
+python3 weekly.py             # the same metrics, one game at a time -> public/football-weekly/<season>/
 python3 coaches.py            # schedules + pbp -> coaching-savant-data.json
 cp football-savant-data.json ../../public/
 cp maps/*.json ../../public/football-maps/
@@ -131,6 +132,14 @@ season's play-by-play and stays a local run.
 - **`build.py`** — joins the season tables, PFR charting, Next Gen Stats, snap counts, the
   combine and ESPN QBR; computes every metric; fits the season-by-season field-goal
   make-rate curve behind FG-over-expected; and precomputes statistical and weakness comps.
+- **`weekly.py`** — the week-by-week charts. For every game a man appeared in it runs
+  `build.py`'s own `build_player()` over that one week's inputs (weekly stat line, snaps,
+  play-by-play and FTN aggregates, the week's Next Gen Stats row, ESPN's game-level QBR), so
+  a game's number is worked out exactly the way the season's is. PFR's tables and
+  participation are season-only and are not used; season totals (games, availability,
+  starts, the combine) are dropped. One file per player, rewritten only when it changes.
+  The refresh runs it for the season in progress; nothing earlier is shipped yet
+  (`NFL_SEASONS=2025 python3 weekly.py` would backfill a season, ~9 MB each).
 - **`teams.py`** — team names and primary colours, including the franchises that moved
   inside the window (STL, SD, OAK).
 - **`coaches.py`** — builds Coaching Savant. Records, playoff history and performance
@@ -159,10 +168,9 @@ Three things that are facts about a week rather than a season:
   as one; "not injury related — resting player" is dropped entirely unless there is a real
   designation beside it.
 
-Week-level QBR is deliberately **not** wired in. It was wanted for recent-form windows, and
-there are none: `pbp_agg.py` has written weekly aggregates from the start and `build.py`
-rolls every one to a season total before the page sees it. Form windows are a feature, not
-a field.
+Week-level QBR now feeds the weekly charts (`weekly.py`, from `qbr_week_level.csv`). It
+still isn't in recent-form windows (L4 / L8), because those don't exist yet; the game lines
+in `public/football-weekly/` are what they would be built from.
 
 ## The offensive line, specifically
 
