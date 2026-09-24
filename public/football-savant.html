@@ -646,9 +646,9 @@ body.lb-open .lb{display:block}
   border-bottom:3px solid #3DA35D;padding-bottom:3px;display:inline-block;line-height:1;margin-bottom:6px}
 .export-shell .sc-sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
   color:#69727E;border-bottom:1px solid #2A313B;padding-bottom:4px;margin:11px 0 4px}
-.export-shell .sc-row{display:grid;grid-template-columns:132px 1fr 24px 56px;align-items:center;
+.export-shell .sc-row{display:grid;grid-template-columns:174px 1fr 24px 56px;align-items:center;
   column-gap:10px;height:25px}
-.export-shell .sc-lab{font-size:12px;color:#EDEDE8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.export-shell .sc-lab{font-size:12px;color:#EDEDE8;white-space:nowrap}   /* 174px holds the longest name in full */
 .export-shell .sc-track{position:relative;height:9px;background:#212832;border-radius:5px;overflow:hidden}
 .export-shell .sc-fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
 .export-shell .sc-pct{font-family:var(--mono);font-size:11px;font-weight:700;color:#EDEDE8;text-align:right}
@@ -734,7 +734,11 @@ body{background-color:#1D6B3A;color:var(--ink);
   min-height:40px;border-bottom:2px solid var(--line)}
 .row.nochart{grid-template-columns:186px minmax(0,520px) 42px 74px 1fr}
 .row:last-child{border-bottom:none}
-.rl .name{font-size:13px;font-family:var(--pix);color:var(--ink);font-weight:400}
+.rl .name{font-size:13px;font-family:var(--pix);color:var(--ink);font-weight:400;
+  /* The full name, always. A long one ("Rush yards over expected / att") takes a second
+     line rather than an ellipsis; the row is set by the light board's height, so a
+     two-line label barely moves it. */
+  white-space:normal;overflow:visible;text-overflow:clip;line-height:1.3;overflow-wrap:break-word}
 .rl:hover .name{color:var(--turf)}
 .rl .tag{font-size:8px;color:#9DB2A2;margin-top:4px}
 .row.un .tag{color:#B8541F}
@@ -1011,6 +1015,18 @@ body{background-color:#1D6B3A;color:var(--ink);
 /* Container queries, not viewport ones: a two-up panel on a wide desktop is exactly as
    narrow as a phone, and it is the panel's width — not the window's — that decides how
    many notches can breathe. Twenty notches need a wide panel; below that, ten. */
+/* The label column widens to fit the longest name ("Rush yards over expected / att",
+   272px in Silkscreen) wherever the panel has room for it beside the notches: 20 notches
+   need 517px, 10 need 287px, and the fixed columns and gaps take 200px. Between those
+   bands, and in the stacked layout, a long name wraps to a second line instead. */
+@container (min-width: 1000px){
+  .row{grid-template-columns:minmax(186px,280px) minmax(0,520px) 42px 74px 24px 1fr}
+  .row.nochart{grid-template-columns:minmax(186px,280px) minmax(0,520px) 42px 74px 1fr}
+}
+@container (min-width: 780px) and (max-width: 980px){
+  .row{grid-template-columns:minmax(186px,280px) minmax(0,520px) 42px 74px 24px 1fr}
+  .row.nochart{grid-template-columns:minmax(186px,280px) minmax(0,520px) 42px 74px 1fr}
+}
 @container (max-width: 980px){
   .track i:nth-child(even),.ctrack i:nth-child(even){display:none}
   .col .row{--nw:26px}
