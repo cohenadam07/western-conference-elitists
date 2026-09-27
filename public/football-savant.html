@@ -427,28 +427,17 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 @media(max-width:700px){.fm-side{width:100%}}
 /* ---------------------------------------------------------------- route tree */
 .routetree{margin-top:14px}
-.rt-wrap{align-items:center;gap:26px}
-.rt-svg{max-width:560px}
-.rt-side{width:330px}
-.rt-row{display:grid;grid-template-columns:118px minmax(0,1fr) 38px 64px;gap:10px;align-items:center;
-  font-family:var(--mono);font-size:10.5px;color:var(--ink);padding:5px 0;border-bottom:1px solid var(--line)}
-.rt-row>span:nth-child(n+3){text-align:right}
-.rt-row.rt-hd{color:var(--faint);font-size:8px;letter-spacing:.08em;text-transform:uppercase;border-bottom-width:2px}
-.rt-row.rt-thin{opacity:.45}
-.rt-name i{font-style:normal;color:var(--faint);font-size:9px;margin-left:6px}
-.rt-share{display:flex;align-items:center;gap:8px}
-.rt-track{position:relative;flex:1;height:12px;display:flex;align-items:center}
-.rt-track b{display:block;height:6px;background:#9DB2A2;min-width:2px}
-.rt-track u{position:absolute;top:1px;bottom:1px;width:2px;margin-left:-1px;background:var(--turf-dk);text-decoration:none}
-.rt-share em{font-style:normal;font-size:9.5px;color:var(--muted);white-space:nowrap;width:28px;text-align:right}
-.rt-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rt-epa{display:flex;align-items:center;justify-content:flex-end;gap:6px}
-.rt-epa b{width:8px;height:8px;display:inline-block}
-.rt-legend{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:8.5px;color:var(--faint);margin:6px 0 0 8%}
-.rt-legend i{width:70px;height:7px;background:linear-gradient(90deg,rgb(14,58,106),rgb(60,126,190),rgb(176,190,201),rgb(201,88,78),rgb(162,22,30))}
-.rt-foot{font-family:var(--mono);font-size:8.5px;color:var(--faint);margin-top:12px;line-height:1.7;border-top:1px solid var(--line);padding-top:8px}
-.rt-note{font-family:var(--mono);font-size:9px;color:var(--muted);background:var(--raise);padding:7px 10px;margin-top:10px}
-@media(max-width:700px){.rt-side{width:100%}.rt-legend{margin-left:0}}
+.rt-side{width:300px}
+.rt-svg{max-width:600px}
+.rt-row{display:grid;grid-template-columns:1.6fr .6fr 1fr .8fr .7fr .9fr;gap:6px;align-items:baseline;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink);padding:4px 0;border-bottom:1px solid var(--line)}
+.rt-row span:not(:first-child){text-align:right}
+.rt-row i{font-style:normal;color:var(--faint);font-size:9px;margin-left:4px}
+.rt-row.rt-hd{color:var(--faint);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase}
+.rt-row.rt-thin{opacity:.5}
+.rt-foot,.rt-note{font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:7px;line-height:1.6}
+.rt-note{background:var(--raise);padding:7px 10px;margin-top:10px}
+@media(max-width:700px){.rt-side{width:100%}}
 
 /* ---------------------------------------------------------------- comps */
 .comps,.wcomps{background:var(--surface);border:1px solid var(--line);border-radius:14px;
@@ -2768,29 +2757,27 @@ var RT_LABEL={SCREEN:'Screen',FLAT:'Flat / swing',SLANT:'Slant',QOUT:'Quick out'
   HITCH:'Hitch / curl',CROSS:'Crosser / drag',IN:'In / dig',CORNER:'Corner',POST:'Post',GO:'Go',WHEEL:'Wheel',ANGLE:'Angle'};
 /* The receiver stands at (190,205) with the sideline to his right and the field to his left;
    one yard is about 6.5px. Each route is the path a coach would chalk. */
-var RT_SHORT={SCREEN:'Screen',FLAT:'Flat',SLANT:'Slant',QOUT:'Quick out',DOUT:'Deep out',OUT:'Out',HITCH:'Hitch',
-  CROSS:'Drag',IN:'Dig',CORNER:'Corner',POST:'Post',GO:'Go',WHEEL:'Wheel',ANGLE:'Angle'};
-/* Every route is a stem straight upfield and then a break. The stems are drawn once, in
-   quiet grey, as the trunk; only the breaks carry colour and width, so each branch reads
-   as its own route instead of a pile-up at the line. The receiver stands at (200,205),
-   sideline to his right; a yard is 6.5px, so 10 yards up is y=140. */
-var RT_Y=function(yd){ return 205-6.5*yd; };
-var RT_GEO={
-  SCREEN:{stem:0, br:[[200,205],[214,215]], lab:[220,223,'start']},
-  FLAT:  {stem:0, br:[[200,205],[212,199],[256,196]], lab:[262,199,'start']},
-  SLANT: {stem:2, br:[[200,RT_Y(2)],[156,165]], lab:[150,165,'end']},
-  QOUT:  {stem:5, br:[[200,RT_Y(5)],[258,RT_Y(5)]], lab:[264,RT_Y(5)+3,'start']},
-  OUT:   {stem:8, br:[[200,RT_Y(8)],[258,RT_Y(8)]], lab:[264,RT_Y(8)+3,'start']},
-  DOUT:  {stem:12,br:[[200,RT_Y(12)],[258,RT_Y(12)]], lab:[264,RT_Y(12)+3,'start']},
-  HITCH: {stem:10,br:[[200,RT_Y(10)],[189,RT_Y(10)+8]], lab:[184,RT_Y(10)+11,'end']},
-  CROSS: {stem:2, br:[[200,RT_Y(2)],[60,RT_Y(2)+5]], lab:[56,RT_Y(2)+8,'end']},
-  IN:    {stem:12,br:[[200,RT_Y(12)],[110,RT_Y(12)]], lab:[104,RT_Y(12)+3,'end']},
-  CORNER:{stem:11,br:[[200,RT_Y(11)],[252,74]], lab:[257,72,'start']},
-  POST:  {stem:11,br:[[200,RT_Y(11)],[146,64]], lab:[141,62,'end']},
-  GO:    {stem:12,br:[[200,RT_Y(12)],[200,36]], lab:[200,27,'middle']},
-  WHEEL: {stem:0, br:[[200,205],[232,200],[246,188],[246,98]], lab:[246,90,'middle']},
-  ANGLE: {stem:0, br:[[200,205],[220,194],[170,172]], lab:[168,183,'end']}
+var RT_SHORT={SCREEN:'SCREEN',FLAT:'FLAT',SLANT:'SLANT',QOUT:'QUICK OUT',DOUT:'DEEP OUT',OUT:'OUT',HITCH:'HITCH',
+  CROSS:'DRAG',IN:'DIG',CORNER:'CORNER',POST:'POST',GO:'GO',WHEEL:'WHEEL',ANGLE:'ANGLE'};
+var RT_PATH={
+  SCREEN:[[200,205],[214,217]],
+  FLAT:[[200,205],[212,198],[258,194]],
+  SLANT:[[200,205],[200,194],[152,164]],
+  QOUT:[[200,205],[200,176],[262,176]],
+  OUT:[[200,205],[200,152],[262,152]],
+  DOUT:[[200,205],[200,126],[262,126]],
+  HITCH:[[200,205],[200,140],[188,149]],
+  CROSS:[[200,205],[200,194],[52,188]],
+  IN:[[200,205],[200,126],[100,126]],
+  CORNER:[[200,205],[200,130],[256,70]],
+  POST:[[200,205],[200,130],[136,60]],
+  GO:[[200,205],[200,34]],
+  WHEEL:[[200,205],[234,199],[250,184],[250,92]],
+  ANGLE:[[200,205],[222,193],[168,168]]
 };
+var RT_LAB_AT={SCREEN:[220,227,'start'],FLAT:[266,197,'start'],SLANT:[148,176,'end'],QOUT:[268,179,'start'],
+  OUT:[268,155,'start'],DOUT:[268,129,'start'],HITCH:[183,146,'end'],CROSS:[48,184,'start'],IN:[94,122,'end'],
+  CORNER:[262,66,'start'],POST:[130,56,'end'],GO:[206,32,'start'],WHEEL:[254,88,'start'],ANGLE:[162,166,'end']};
 
 fetch('football-routes/index.json').then(function(r){return r.ok?r.json():{};})
   .then(function(j){ RT_INDEX=j; if(cur) renderRouteTree(); })
@@ -2844,66 +2831,60 @@ function rtLean(me,lg,mode){
   if(mode==='catch'){ lv=L.rec/L.tg; mv=(s.rec+RT_K*lv)/(s.tg+RT_K); return {d:mv-lv, scale:0.22}; }
   lv=L.yds/L.tg; mv=(s.yds+RT_K*lv)/(s.tg+RT_K); return {d:mv-lv, scale:3.5};
 }
-function rtCol(lean,tg){
-  if(!lean||tg<3) return '#C9D2C6';
-  return colorAt(Math.max(4,Math.min(96,50+50*lean.d/lean.scale)));
-}
-function rtSvg(sum,pos){
-  var me=sum.me, lg=sum.lg, n=0, mx=0, top=0;
-  me.forEach(function(c){ n+=c[0]; });
+function rtSvg(sum){
+  var me=sum.me, lg=sum.lg, n=0, ln=0, mx=0;
+  me.forEach(function(c){ n+=c[0]; }); lg.forEach(function(c){ ln+=c[0]; });
   me.forEach(function(c){ if(n&&c[0]/n>mx) mx=c[0]/n; });
-  RT_SLOTS.forEach(function(s,i){ if(me[i][0]) top=Math.max(top,RT_GEO[s].stem); });
-  var F='font-family="Roboto Mono, monospace"';
-  var grid='';
-  [[10,RT_Y(10)],[20,RT_Y(20)]].forEach(function(t){
-    grid+='<line x1="28" y1="'+t[1]+'" x2="326" y2="'+t[1]+'" stroke="#E3E9E0" stroke-width="1"/>'
-      +'<text x="24" y="'+(t[1]+3)+'" text-anchor="end" '+F+' font-size="7" fill="#9DB2A2">'+t[0]+'</text>';
-  });
-  var trunk=top?'<line x1="200" y1="205" x2="200" y2="'+RT_Y(top)+'" stroke="#AEBBAA" stroke-width="3" stroke-linecap="round"/>':'';
-  var br='', dots='', labs='';
+  var paths='', labs='', dots='';
+  // lightest first, so the big branches sit on top
   var order=RT_SLOTS.map(function(s,i){return i;}).sort(function(a,b){return me[a][0]-me[b][0];});
   order.forEach(function(i){
-    var slot=RT_SLOTS[i], c=me[i], g=RT_GEO[slot];
+    var slot=RT_SLOTS[i], c=me[i], pts=RT_PATH[slot];
     if(!c[0]) return;
-    var share=c[0]/n, w=1.5+6.5*(mx?share/mx:0);
-    var col=rtCol(rtLean(c,lg[i],rtMode),c[0]);
-    var s=rtStats(c);
-    var tip=RT_LABEL[slot]+': '+c[0]+' targets ('+Math.round(share*100)+'%), '+s.rec+' catches, '
-      +Math.round(s.yds)+' yards, '+(s.epa>=0?'+':'')+(s.epa/s.tg).toFixed(2)+' EPA per target';
-    var d='M'+g.br.map(function(p){return p[0]+' '+p[1];}).join(' L');
-    br+='<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+w.toFixed(1)+'" stroke-linecap="round" stroke-linejoin="round"><title>'+esc(tip)+'</title></path>';
-    var e=g.br[g.br.length-1];
-    dots+='<circle cx="'+e[0]+'" cy="'+e[1]+'" r="'+(w/2+1.4).toFixed(1)+'" fill="'+col+'"><title>'+esc(tip)+'</title></circle>';
-    if(share<0.03) return;                   // small branches are drawn, not labelled
-    labs+='<text x="'+g.lab[0]+'" y="'+g.lab[1]+'" text-anchor="'+g.lab[2]+'" '+F+' font-size="8" fill="#3E6B4C">'
-      +esc(RT_SHORT[slot])+' <tspan fill="#0E2A17" font-weight="700">'+Math.round(share*100)+'%</tspan></text>';
+    var share=c[0]/n, w=1.4+7.5*(mx?share/mx:0);
+    var ln_=rtLean(c,lg[i],rtMode), col=(c[0]<3||!ln_)?'#B8C4B6':colorAt(Math.max(3,Math.min(97,50+50*ln_.d/ln_.scale)));
+    var d='M'+pts.map(function(p){return p[0]+' '+p[1];}).join(' L');
+    var s=rtStats(c), L=rtStats(lg[i]);
+    var tip=RT_LABEL[slot]+' — '+c[0]+' targets ('+Math.round(share*100)+'% of his; '+(ln?Math.round(L.tg/ln*100):0)
+      +'% at his position), '+s.rec+' catches, '+Math.round(s.yds)+' yards, '
+      +(s.epa/s.tg>=0?'+':'')+(s.epa/s.tg).toFixed(2)+' EPA per target';
+    paths+='<path d="'+d+'" fill="none" stroke="rgba(14,42,23,.55)" stroke-width="'+(w+1.6).toFixed(1)+'" stroke-linecap="round" stroke-linejoin="round"/>'
+      +'<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+w.toFixed(1)+'" stroke-linecap="round" stroke-linejoin="round"><title>'+esc(tip)+'</title></path>';
+    var end=pts[pts.length-1];
+    dots+='<circle cx="'+end[0]+'" cy="'+end[1]+'" r="'+(w/2+1.2).toFixed(1)+'" fill="'+col+'" stroke="rgba(14,42,23,.55)"><title>'+esc(tip)+'</title></circle>';
+    var la=RT_LAB_AT[slot];
+    if(share<0.02) return;                  // a one-off branch is drawn, not labelled
+    labs+='<text x="'+la[0]+'" y="'+la[1]+'" text-anchor="'+la[2]+'" font-family="Roboto Mono, monospace" font-size="8" fill="#20402C">'
+      +esc(RT_SHORT[slot])+' <tspan font-weight="700">'+Math.round(share*100)+'%</tspan></text>';
   });
-  return '<svg viewBox="0 0 340 232" role="img" aria-label="Route tree: targets by route">'
-    +grid
-    +'<line x1="28" y1="205" x2="326" y2="205" stroke="#1D6B3A" stroke-width="1.5" opacity=".6"/>'
-    +'<text x="24" y="208" text-anchor="end" '+F+' font-size="7" fill="#9DB2A2">LOS</text>'
-    +'<text x="326" y="226" text-anchor="end" '+F+' font-size="7" letter-spacing="1" fill="#9DB2A2">SIDELINE ›</text>'
-    +'<text x="28" y="226" '+F+' font-size="7" letter-spacing="1" fill="#9DB2A2">‹ MIDDLE</text>'
-    +trunk+br+dots+labs
-    +'<circle cx="200" cy="208" r="5.5" fill="#0E2A17"/></svg>';
+  var yl='';
+  [[10,140],[20,75]].forEach(function(t){
+    yl+='<line x1="20" y1="'+t[1]+'" x2="330" y2="'+t[1]+'" stroke="rgba(14,42,23,.18)" stroke-dasharray="3 5"/>'
+      +'<text x="16" y="'+(t[1]+3)+'" text-anchor="end" font-family="Roboto Mono, monospace" font-size="7.5" fill="#7A9384">'+t[0]+'</text>';
+  });
+  return '<svg viewBox="0 0 340 236" role="img" aria-label="Route tree by targets">'
+    +yl+'<line x1="14" y1="205" x2="330" y2="205" stroke="#1D6B3A" stroke-width="2"/>'
+    +'<text x="16" y="208" text-anchor="end" font-family="Roboto Mono, monospace" font-size="7.5" fill="#7A9384">LOS</text>'
+    +'<text x="330" y="16" text-anchor="end" font-family="Roboto Mono, monospace" font-size="7.5" letter-spacing="1.2" fill="#7A9384">SIDELINE →</text>'
+    +'<text x="20" y="16" font-family="Roboto Mono, monospace" font-size="7.5" letter-spacing="1.2" fill="#7A9384">← MIDDLE</text>'
+    +paths+dots+labs
+    +'<rect x="193" y="205" width="14" height="10" rx="2" fill="#0E2A17"/></svg>';
 }
 function rtSide(sum,pos){
-  var me=sum.me, lg=sum.lg, n=0, ln=0, mx=0;
+  var me=sum.me, lg=sum.lg, n=0, ln=0;
   me.forEach(function(c){ n+=c[0]; }); lg.forEach(function(c){ ln+=c[0]; });
   var rows=RT_SLOTS.map(function(s,i){return i;}).filter(function(i){return me[i][0]>0;})
     .sort(function(a,b){return me[b][0]-me[a][0];});
-  rows.forEach(function(i){ mx=Math.max(mx,me[i][0]/n,ln?lg[i][0]/ln:0); });
-  var head='<div class="rt-row rt-hd"><span>Route</span><span>Share</span><span>Catch</span><span>EPA/tgt</span></div>';
+  var head='<div class="rt-row rt-hd"><span>Route</span><span>Tgt</span><span>Share</span><span>Catch</span><span>Y/T</span><span>EPA/T</span></div>';
   return head+rows.map(function(i){
-    var s=rtStats(me[i]), L=rtStats(lg[i]), sh=s.tg/n, lsh=ln?L.tg/ln:0;
-    var lean=rtLean(me[i],lg[i],'epa'), col=rtCol(lean,s.tg);
-    return '<div class="rt-row'+(s.tg<5?' rt-thin':'')+'" title="'+esc(RT_LABEL[RT_SLOTS[i]]+': '+s.tg+' targets, '
-        +Math.round(s.yds)+' yards, '+(s.yds/s.tg).toFixed(1)+' per target. The average '+pos+' gets '+Math.round(lsh*100)+'% of his targets on this route.')+'">'
-      +'<span class="rt-name">'+esc(RT_LABEL[RT_SLOTS[i]].replace(/ \/ /g,'/'))+'<i>'+s.tg+'</i></span>'
-      +'<span class="rt-share"><span class="rt-track"><b style="width:'+(100*sh/mx).toFixed(1)+'%"></b><u style="left:'+(100*lsh/mx).toFixed(1)+'%"></u></span><em>'+Math.round(sh*100)+'%</em></span>'
-      +'<span>'+Math.round(s.rec/s.tg*100)+'%</span>'
-      +'<span class="rt-epa"><b style="background:'+col+'"></b>'+(s.epa>=0?'+':'−')+Math.abs(s.epa/s.tg).toFixed(2)+'</span></div>';
-  }).join('');
+    var s=rtStats(me[i]), L=rtStats(lg[i]);
+    var lean=rtLean(me[i],lg[i],'epa');
+    return '<div class="rt-row'+(s.tg<5?' rt-thin':'')+'"><span>'+esc(RT_LABEL[RT_SLOTS[i]])+'</span><span>'+s.tg+'</span>'
+      +'<span>'+Math.round(s.tg/n*100)+'%<i>'+(ln?Math.round(L.tg/ln*100):0)+'%</i></span>'
+      +'<span>'+Math.round(s.rec/s.tg*100)+'%</span><span>'+(s.yds/s.tg).toFixed(1)+'</span>'
+      +'<span style="color:'+(lean&&s.tg>=3?colorAt(Math.max(3,Math.min(97,50+50*lean.d/lean.scale))):'inherit')+'">'
+      +(s.epa/s.tg>=0?'+':'−')+Math.abs(s.epa/s.tg).toFixed(2)+'</span></div>';
+  }).join('')+'<div class="rt-foot">Share: his / the average '+esc(pos)+'\'s. Faded rows are under five targets.</div>';
 }
 function renderRouteTree(){
   var el=document.getElementById('routetree');
@@ -2920,7 +2901,7 @@ function renderRouteTree(){
     var prior=all.filter(function(y){return y<+curSeason;});
     if(!prior.length||+curSeason<2016){ el.hidden=true; el.innerHTML=''; return; }
     ys=[prior[prior.length-1]];
-    note=esc(curSeason)+'\'s routes arrive in February, when the NFL publishes the season\'s participation data — showing '+ys[0]+'.';
+    note='<div class="rt-note">'+esc(curSeason)+'\'s routes arrive in February, when the NFL publishes the season\'s participation file. Showing '+ys[0]+'.</div>';
   }
   var id=cur.id, want=cur, left=ys.length, packs={};
   ys.forEach(function(y){ rtLoad(y,function(pk){ packs[y]=pk; left--; if(!left) draw(); }); });
@@ -2929,21 +2910,18 @@ function renderRouteTree(){
     var sum=rtSum(packs,ys,id,pos);
     if(!sum){ el.hidden=true; el.innerHTML=''; return; }
     var n=0; sum.me.forEach(function(c){n+=c[0];});
-    var when=career?(ys[0]+'–'+ys[ys.length-1]):String(ys[0]);
-    var modes=[['epa','EPA'],['catch','Catch %'],['ypt','Yds / tgt']];
-    var what={epa:'EPA per target',catch:'catch rate',ypt:'yards per target'}[rtMode];
+    var when=career?(ys.length+' charted '+(ys.length===1?'season':'seasons')+' · '+ys[0]+'–'+ys[ys.length-1]):String(ys[0]);
+    var modes=[['epa','EPA / target'],['catch','Catch rate'],['ypt','Yards / target']];
     el.innerHTML='<div class="fm-head"><div><h2 class="col-h">Route Tree</h2>'
-      +'<div class="col-cap">Targets by route · '+when+' · '+commas(n)+' targets</div></div>'
-      +'<div class="fm-modes" role="group" aria-label="Colour the branches by">'
+      +'<div class="col-cap">The route he ran on the throws that came to him — public charting records the targeted man\'s route only, '
+      +'so this is a tree of targets, not of every route run. Width is his share of targets; colour is '
+      +(rtMode==='epa'?'EPA per target':rtMode==='catch'?'catch rate':'yards per target')
+      +' against the average '+esc(pos)+' on the same route, pulled toward average on small samples · '+when+' · '+commas(n)+' targets</div></div>'
+      +'<div class="fm-modes" role="group" aria-label="Route colour">'
       +modes.map(function(mm){return '<button data-v="'+mm[0]+'" aria-pressed="'+(rtMode===mm[0])+'">'+mm[1]+'</button>';}).join('')
-      +'</div></div>'
-      +(note?'<div class="rt-note">'+note+'</div>':'')
-      +'<div class="fm-wrap rt-wrap"><div class="fm-svg rt-svg">'+rtSvg(sum,pos)
-      +'<div class="rt-legend"><span>worse</span><i></i><span>better than the average '+esc(pos)+' on that route, by '+what+'</span></div></div>'
-      +'<div class="fm-side rt-side">'+rtSide(sum,pos)+'</div></div>'
-      +'<div class="rt-foot">Public charting records only the route of the receiver who was targeted, so this counts targets, not routes run. '
-      +'Branch width is his share of targets; colour is pulled toward average when a route has few targets. The tick in each share bar is the average '+esc(pos)+'.'
-      +(sum.folded?' The source renamed routes in 2023 — across his career, quick outs, deep outs and the earlier "out" are counted as one Out.':'')+'</div>';
+      +'</div></div>'+note
+      +'<div class="fm-wrap"><div class="fm-svg rt-svg">'+rtSvg(sum)+'</div><div class="fm-side rt-side">'+rtSide(sum,pos)+'</div></div>'
+      +(sum.folded?'<div class="rt-note">The charting source renamed routes in 2023, splitting "out" into quick and deep outs. Across a career that spans the change they are counted as one Out.</div>':'');
     el.hidden=false;
     el.querySelectorAll('.fm-modes button').forEach(function(b){ b.onclick=function(){ rtMode=b.dataset.v; renderRouteTree(); }; });
   }
