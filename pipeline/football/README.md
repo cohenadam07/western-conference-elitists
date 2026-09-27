@@ -6,6 +6,7 @@ Builds the two data assets `public/football-savant.html` reads:
 |---|---|
 | `public/football-savant-data.json` | the metric table (`cfg`) plus every player-season, 1999–2025 |
 | `public/football-maps/<season>.json` | throw maps, target maps and run-gap maps, loaded on demand |
+| `public/football-routes/<season>.json` | receiver route trees (route of the targeted receiver), 2016 on, loaded on demand |
 | `public/coaching-savant-data.json` | every head coach since 1999, every play-caller since 2018, their units, fourth-down decisions since 2014, and the curated coaching tree |
 | `public/coaching-savant-current.json` | the in-season overlay for Coaching Savant (see below) |
 
@@ -23,6 +24,7 @@ python3 pbp_agg.py            # play-by-play -> weekly per-player aggregates in 
 python3 ftn_agg.py            # FTN charting + pbp -> weekly charted rates (2022+)
 python3 line_agg.py           # depth charts -> which spot on the line each man played (2001+)
 python3 onfield_agg.py        # participation + pbp -> who was on the field, and what happened
+NFL_ROUTES=../../public/football-routes python3 route_agg.py   # participation + pbp -> route trees (2016+)
 python3 maps.py               # agg/ -> maps/<season>.json + maps/index.json
 python3 build.py              # everything -> football-savant-data.json
 python3 weekly.py             # the same metrics, one game at a time -> public/football-weekly/<season>/

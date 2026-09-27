@@ -437,9 +437,12 @@ def tells(pb, era):
     return grid, pred
 
 
-ROUTES = ['SCREEN', 'FLAT', 'SWING', 'QUICK OUT', 'SLANT', 'HITCH/CURL', 'SHALLOW CROSS/DRAG',
+# The charting source renamed routes in 2023. Before it there is one OUT (quick and deep
+# together) and a FLAT; after it, QUICK OUT / DEEP OUT and SWING. OUT keeps its own name
+# rather than being passed off as a quick out.
+ROUTES = ['SCREEN', 'FLAT', 'SWING', 'QUICK OUT', 'OUT', 'SLANT', 'HITCH/CURL', 'SHALLOW CROSS/DRAG',
           'IN/DIG', 'DEEP OUT', 'CORNER', 'POST', 'GO', 'WHEEL', 'TEXAS/ANGLE']
-ROUTE_FIX = {'HITCH': 'HITCH/CURL', 'CURL': 'HITCH/CURL', 'IN': 'IN/DIG', 'OUT': 'QUICK OUT',
+ROUTE_FIX = {'HITCH': 'HITCH/CURL', 'CURL': 'HITCH/CURL', 'IN': 'IN/DIG',
              'CROSS': 'SHALLOW CROSS/DRAG', 'ANGLE': 'TEXAS/ANGLE'}
 
 

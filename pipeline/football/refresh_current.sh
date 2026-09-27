@@ -42,6 +42,9 @@ python3 line_agg.py "$Y"
 echo "== on-field aggregates (skips if participation isn't published yet)"
 python3 onfield_agg.py "$Y"
 
+echo "== route trees -> public/football-routes/ (skips until participation is published)"
+NFL_ROUTES="$PUB/football-routes" python3 route_agg.py
+
 echo "== field maps -> public/football-maps/"
 NFL_MAPS="$PUB/football-maps" python3 maps.py
 

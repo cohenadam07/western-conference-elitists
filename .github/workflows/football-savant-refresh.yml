@@ -75,7 +75,7 @@ jobs:
         run: |
           git config user.name "football-savant-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add public/football-savant-current.json public/football-maps/ public/football-weekly/
+          git add public/football-savant-current.json public/football-maps/ public/football-weekly/ public/football-routes/
           [ -f public/coaching-savant-current.json ] && git add public/coaching-savant-current.json
           if git diff --cached --quiet; then
             echo "no data change — nothing to commit"

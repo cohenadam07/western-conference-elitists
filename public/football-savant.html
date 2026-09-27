@@ -425,6 +425,19 @@ body.lb-open .wrap,body.lb-open .home{display:none}
   font-family:var(--mono);font-size:11px;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--line)}
 .fm-srow b{color:var(--ink);font-weight:500}
 @media(max-width:700px){.fm-side{width:100%}}
+/* ---------------------------------------------------------------- route tree */
+.routetree{margin-top:14px}
+.rt-side{width:300px}
+.rt-svg{max-width:600px}
+.rt-row{display:grid;grid-template-columns:1.6fr .6fr 1fr .8fr .7fr .9fr;gap:6px;align-items:baseline;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink);padding:4px 0;border-bottom:1px solid var(--line)}
+.rt-row span:not(:first-child){text-align:right}
+.rt-row i{font-style:normal;color:var(--faint);font-size:9px;margin-left:4px}
+.rt-row.rt-hd{color:var(--faint);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase}
+.rt-row.rt-thin{opacity:.5}
+.rt-foot,.rt-note{font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:7px;line-height:1.6}
+.rt-note{background:var(--raise);padding:7px 10px;margin-top:10px}
+@media(max-width:700px){.rt-side{width:100%}}
 
 /* ---------------------------------------------------------------- comps */
 .comps,.wcomps{background:var(--surface);border:1px solid var(--line);border-radius:14px;
@@ -1286,6 +1299,7 @@ body{background-color:#1D6B3A;color:var(--ink);
   <div id="ctxrow"></div>
   <div class="panels" id="panels"></div>
   <div class="col fieldmap" id="fieldmap" hidden></div>
+  <div class="col fieldmap routetree" id="routetree" hidden></div>
   <div id="valrow"></div>
   <div class="comps" id="comps" hidden></div>
   <div class="wcomps" id="wcomps" hidden></div>
@@ -2404,7 +2418,7 @@ function render(){
   if(!p){
     idbody.innerHTML='<div class="id-meta">No data for '+esc(curSeason)+'.</div>';
     ['ctxrow','panels','valrow','athrow'].forEach(function(i){document.getElementById(i).innerHTML='';});
-    ['fieldmap','comps','wcomps','gapnote'].forEach(function(i){var e=document.getElementById(i);e.hidden=true;e.innerHTML='';});
+    ['fieldmap','routetree','comps','wcomps','gapnote'].forEach(function(i){var e=document.getElementById(i);e.hidden=true;e.innerHTML='';});
     document.getElementById('peakflag').hidden=true;
     document.getElementById('arcBtn').hidden=true;
     document.getElementById('arcrail').hidden=true;
@@ -2497,6 +2511,7 @@ function render(){
     (gridHTML.split('class="col"').length-1)<2 ? '1fr' : '';
 
   renderFieldMap();
+  renderRouteTree();
   renderComps();
   renderWeak();
   renderGapNote(pos);
@@ -2719,6 +2734,197 @@ function gapSide(rec){
   if(best!=null) out+='<div class="fm-srow" style="margin-top:9px"><span>Best gap</span><b>'
     +GAP_LABEL[best]+' · '+(rec.g[best][1]/rec.g[best][0]).toFixed(1)+'</b></div>';
   return out;
+}
+
+
+/* ================= ROUTE TREE ==============================================
+   The receiver's route tree, drawn from the one route that public charting records: the
+   route of the man who was TARGETED. Nobody publishes the routes he ran without the ball,
+   so every number here is per target — how often he was thrown to on a dig, and what came
+   of it — never per route run.
+
+   Branch width is his share of targets on that route; colour is how well it went against
+   the average player at his position on the same route that year (EPA, catch rate or
+   yards per target), pulled toward average when the sample is small.
+
+   Route names changed with the charting source in 2023 (one "out" became a quick out and
+   a deep out; "flat" became "swing"). Seasons keep their own names; a career that spans
+   2023 folds the outs back into one, so it adds up. Loaded per season from
+   football-routes/<season>.json, only when a receiver card is open. */
+var RT_INDEX=null, RT_CACHE={}, RT_WAIT={}, rtMode='epa';
+var RT_SLOTS=['SCREEN','FLAT','SLANT','QOUT','DOUT','OUT','HITCH','CROSS','IN','CORNER','POST','GO','WHEEL','ANGLE'];
+var RT_LABEL={SCREEN:'Screen',FLAT:'Flat / swing',SLANT:'Slant',QOUT:'Quick out',DOUT:'Deep out',OUT:'Out',
+  HITCH:'Hitch / curl',CROSS:'Crosser / drag',IN:'In / dig',CORNER:'Corner',POST:'Post',GO:'Go',WHEEL:'Wheel',ANGLE:'Angle'};
+/* The receiver stands at (190,205) with the sideline to his right and the field to his left;
+   one yard is about 6.5px. Each route is the path a coach would chalk. */
+var RT_SHORT={SCREEN:'SCREEN',FLAT:'FLAT',SLANT:'SLANT',QOUT:'QUICK OUT',DOUT:'DEEP OUT',OUT:'OUT',HITCH:'HITCH',
+  CROSS:'DRAG',IN:'DIG',CORNER:'CORNER',POST:'POST',GO:'GO',WHEEL:'WHEEL',ANGLE:'ANGLE'};
+var RT_PATH={
+  SCREEN:[[200,205],[214,217]],
+  FLAT:[[200,205],[212,198],[258,194]],
+  SLANT:[[200,205],[200,194],[152,164]],
+  QOUT:[[200,205],[200,176],[262,176]],
+  OUT:[[200,205],[200,152],[262,152]],
+  DOUT:[[200,205],[200,126],[262,126]],
+  HITCH:[[200,205],[200,140],[188,149]],
+  CROSS:[[200,205],[200,194],[52,188]],
+  IN:[[200,205],[200,126],[100,126]],
+  CORNER:[[200,205],[200,130],[256,70]],
+  POST:[[200,205],[200,130],[136,60]],
+  GO:[[200,205],[200,34]],
+  WHEEL:[[200,205],[234,199],[250,184],[250,92]],
+  ANGLE:[[200,205],[222,193],[168,168]]
+};
+var RT_LAB_AT={SCREEN:[220,227,'start'],FLAT:[266,197,'start'],SLANT:[148,176,'end'],QOUT:[268,179,'start'],
+  OUT:[268,155,'start'],DOUT:[268,129,'start'],HITCH:[183,146,'end'],CROSS:[48,184,'start'],IN:[94,122,'end'],
+  CORNER:[262,66,'start'],POST:[130,56,'end'],GO:[206,32,'start'],WHEEL:[254,88,'start'],ANGLE:[162,166,'end']};
+
+fetch('football-routes/index.json').then(function(r){return r.ok?r.json():{};})
+  .then(function(j){ RT_INDEX=j; if(cur) renderRouteTree(); })
+  .catch(function(){ RT_INDEX={}; });
+
+function rtLoad(season,then){
+  var c=RT_CACHE[season];
+  if(c&&c!=='loading'){ then(c); return; }
+  (RT_WAIT[season]=RT_WAIT[season]||[]).push(then);
+  if(c==='loading') return;
+  RT_CACHE[season]='loading';
+  fetch('football-routes/'+season+'.json').then(function(r){return r.ok?r.json():null;})
+    .then(function(j){ done(j||{}); }).catch(function(){ done({}); });
+  function done(j){ RT_CACHE[season]=j; var ws=RT_WAIT[season]||[]; RT_WAIT[season]=[]; ws.forEach(function(w){ w(j); }); }
+}
+function rtPos(pos){ return pos==='WR'||pos==='TE'||pos==='RB'?pos:(pos==='FB'?'RB':null); }
+function rtYears(id){ return ((RT_INDEX&&RT_INDEX[id])||[]).slice().sort(); }
+
+/* Sum seasons slot by slot. Every cell is a count or a sum, so a career is just addition. */
+function rtSum(packs,ys,id,pos){
+  var me=null, lg=null;
+  ys.forEach(function(y){
+    var p=packs[y]; if(!p||!p.p) return;
+    var r=p.p[id], l=p.lg&&p.lg[pos];
+    if(!r) return;
+    if(!me){ me=r.r.map(function(c){return c.map(function(){return 0;});}); lg=me.map(function(c){return c.map(function(){return 0;});}); }
+    r.r.forEach(function(c,i){ c.forEach(function(v,k){ me[i][k]+=v; }); });
+    if(l) l.forEach(function(c,i){ c.forEach(function(v,k){ lg[i][k]+=v; }); });
+  });
+  if(!me) return null;
+  // across the 2023 renaming, the three outs are one route
+  var early=ys.some(function(y){return +y<2023;}), late=ys.some(function(y){return +y>=2023;});
+  if(early&&late){
+    var o=RT_SLOTS.indexOf('OUT'), q=RT_SLOTS.indexOf('QOUT'), d=RT_SLOTS.indexOf('DOUT');
+    [me,lg].forEach(function(t){
+      for(var k=0;k<t[o].length;k++){ t[o][k]+=t[q][k]+t[d][k]; t[q][k]=0; t[d][k]=0; }
+    });
+  }
+  return {me:me, lg:lg, folded:early&&late};
+}
+
+function rtStats(c){ return {tg:c[0], rec:c[1], yds:c[2], epa:c[3], air:c[4], fd:c[5]}; }
+/* How well a route went, against his position on the same route. Small samples are pulled
+   toward average: K phantom league targets are mixed into his own. */
+var RT_K=8;
+function rtLean(me,lg,mode){
+  var s=rtStats(me), L=rtStats(lg);
+  if(!s.tg||!L.tg) return null;
+  var lv, mv;
+  if(mode==='epa'){ lv=L.epa/L.tg; mv=(s.epa+RT_K*lv)/(s.tg+RT_K); return {d:mv-lv, scale:0.45}; }
+  if(mode==='catch'){ lv=L.rec/L.tg; mv=(s.rec+RT_K*lv)/(s.tg+RT_K); return {d:mv-lv, scale:0.22}; }
+  lv=L.yds/L.tg; mv=(s.yds+RT_K*lv)/(s.tg+RT_K); return {d:mv-lv, scale:3.5};
+}
+function rtSvg(sum){
+  var me=sum.me, lg=sum.lg, n=0, ln=0, mx=0;
+  me.forEach(function(c){ n+=c[0]; }); lg.forEach(function(c){ ln+=c[0]; });
+  me.forEach(function(c){ if(n&&c[0]/n>mx) mx=c[0]/n; });
+  var paths='', labs='', dots='';
+  // lightest first, so the big branches sit on top
+  var order=RT_SLOTS.map(function(s,i){return i;}).sort(function(a,b){return me[a][0]-me[b][0];});
+  order.forEach(function(i){
+    var slot=RT_SLOTS[i], c=me[i], pts=RT_PATH[slot];
+    if(!c[0]) return;
+    var share=c[0]/n, w=1.4+7.5*(mx?share/mx:0);
+    var ln_=rtLean(c,lg[i],rtMode), col=(c[0]<3||!ln_)?'#B8C4B6':colorAt(Math.max(3,Math.min(97,50+50*ln_.d/ln_.scale)));
+    var d='M'+pts.map(function(p){return p[0]+' '+p[1];}).join(' L');
+    var s=rtStats(c), L=rtStats(lg[i]);
+    var tip=RT_LABEL[slot]+' — '+c[0]+' targets ('+Math.round(share*100)+'% of his; '+(ln?Math.round(L.tg/ln*100):0)
+      +'% at his position), '+s.rec+' catches, '+Math.round(s.yds)+' yards, '
+      +(s.epa/s.tg>=0?'+':'')+(s.epa/s.tg).toFixed(2)+' EPA per target';
+    paths+='<path d="'+d+'" fill="none" stroke="rgba(14,42,23,.55)" stroke-width="'+(w+1.6).toFixed(1)+'" stroke-linecap="round" stroke-linejoin="round"/>'
+      +'<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+w.toFixed(1)+'" stroke-linecap="round" stroke-linejoin="round"><title>'+esc(tip)+'</title></path>';
+    var end=pts[pts.length-1];
+    dots+='<circle cx="'+end[0]+'" cy="'+end[1]+'" r="'+(w/2+1.2).toFixed(1)+'" fill="'+col+'" stroke="rgba(14,42,23,.55)"><title>'+esc(tip)+'</title></circle>';
+    var la=RT_LAB_AT[slot];
+    if(share<0.02) return;                  // a one-off branch is drawn, not labelled
+    labs+='<text x="'+la[0]+'" y="'+la[1]+'" text-anchor="'+la[2]+'" font-family="Roboto Mono, monospace" font-size="8" fill="#20402C">'
+      +esc(RT_SHORT[slot])+' <tspan font-weight="700">'+Math.round(share*100)+'%</tspan></text>';
+  });
+  var yl='';
+  [[10,140],[20,75]].forEach(function(t){
+    yl+='<line x1="20" y1="'+t[1]+'" x2="330" y2="'+t[1]+'" stroke="rgba(14,42,23,.18)" stroke-dasharray="3 5"/>'
+      +'<text x="16" y="'+(t[1]+3)+'" text-anchor="end" font-family="Roboto Mono, monospace" font-size="7.5" fill="#7A9384">'+t[0]+'</text>';
+  });
+  return '<svg viewBox="0 0 340 236" role="img" aria-label="Route tree by targets">'
+    +yl+'<line x1="14" y1="205" x2="330" y2="205" stroke="#1D6B3A" stroke-width="2"/>'
+    +'<text x="16" y="208" text-anchor="end" font-family="Roboto Mono, monospace" font-size="7.5" fill="#7A9384">LOS</text>'
+    +'<text x="330" y="16" text-anchor="end" font-family="Roboto Mono, monospace" font-size="7.5" letter-spacing="1.2" fill="#7A9384">SIDELINE →</text>'
+    +'<text x="20" y="16" font-family="Roboto Mono, monospace" font-size="7.5" letter-spacing="1.2" fill="#7A9384">← MIDDLE</text>'
+    +paths+dots+labs
+    +'<rect x="193" y="205" width="14" height="10" rx="2" fill="#0E2A17"/></svg>';
+}
+function rtSide(sum,pos){
+  var me=sum.me, lg=sum.lg, n=0, ln=0;
+  me.forEach(function(c){ n+=c[0]; }); lg.forEach(function(c){ ln+=c[0]; });
+  var rows=RT_SLOTS.map(function(s,i){return i;}).filter(function(i){return me[i][0]>0;})
+    .sort(function(a,b){return me[b][0]-me[a][0];});
+  var head='<div class="rt-row rt-hd"><span>Route</span><span>Tgt</span><span>Share</span><span>Catch</span><span>Y/T</span><span>EPA/T</span></div>';
+  return head+rows.map(function(i){
+    var s=rtStats(me[i]), L=rtStats(lg[i]);
+    var lean=rtLean(me[i],lg[i],'epa');
+    return '<div class="rt-row'+(s.tg<5?' rt-thin':'')+'"><span>'+esc(RT_LABEL[RT_SLOTS[i]])+'</span><span>'+s.tg+'</span>'
+      +'<span>'+Math.round(s.tg/n*100)+'%<i>'+(ln?Math.round(L.tg/ln*100):0)+'%</i></span>'
+      +'<span>'+Math.round(s.rec/s.tg*100)+'%</span><span>'+(s.yds/s.tg).toFixed(1)+'</span>'
+      +'<span style="color:'+(lean&&s.tg>=3?colorAt(Math.max(3,Math.min(97,50+50*lean.d/lean.scale))):'inherit')+'">'
+      +(s.epa/s.tg>=0?'+':'−')+Math.abs(s.epa/s.tg).toFixed(2)+'</span></div>';
+  }).join('')+'<div class="rt-foot">Share: his / the average '+esc(pos)+'\'s. Faded rows are under five targets.</div>';
+}
+function renderRouteTree(){
+  var el=document.getElementById('routetree');
+  if(!el) return;
+  var pos=cur?rtPos(cur.pos):null;
+  if(!cur||cmp.length||!pos||!RT_INDEX){ el.hidden=true; el.innerHTML=''; return; }
+  var all=rtYears(cur.id);
+  if(!all.length){ el.hidden=true; el.innerHTML=''; return; }
+  var career=isCareer(curSeason), ys, note='';
+  if(career) ys=all;
+  else if(all.indexOf(+curSeason)>=0) ys=[+curSeason];
+  else {
+    // the season on screen isn't charted yet (it's in progress) - show his latest one
+    var prior=all.filter(function(y){return y<+curSeason;});
+    if(!prior.length||+curSeason<2016){ el.hidden=true; el.innerHTML=''; return; }
+    ys=[prior[prior.length-1]];
+    note='<div class="rt-note">'+esc(curSeason)+'\'s routes arrive in February, when the NFL publishes the season\'s participation file. Showing '+ys[0]+'.</div>';
+  }
+  var id=cur.id, want=cur, left=ys.length, packs={};
+  ys.forEach(function(y){ rtLoad(y,function(pk){ packs[y]=pk; left--; if(!left) draw(); }); });
+  function draw(){
+    if(cur!==want) return;
+    var sum=rtSum(packs,ys,id,pos);
+    if(!sum){ el.hidden=true; el.innerHTML=''; return; }
+    var n=0; sum.me.forEach(function(c){n+=c[0];});
+    var when=career?(ys.length+' charted '+(ys.length===1?'season':'seasons')+' · '+ys[0]+'–'+ys[ys.length-1]):String(ys[0]);
+    var modes=[['epa','EPA / target'],['catch','Catch rate'],['ypt','Yards / target']];
+    el.innerHTML='<div class="fm-head"><div><h2 class="col-h">Route Tree</h2>'
+      +'<div class="col-cap">The route he ran on the throws that came to him — public charting records the targeted man\'s route only, '
+      +'so this is a tree of targets, not of every route run. Width is his share of targets; colour is '
+      +(rtMode==='epa'?'EPA per target':rtMode==='catch'?'catch rate':'yards per target')
+      +' against the average '+esc(pos)+' on the same route, pulled toward average on small samples · '+when+' · '+commas(n)+' targets</div></div>'
+      +'<div class="fm-modes" role="group" aria-label="Route colour">'
+      +modes.map(function(mm){return '<button data-v="'+mm[0]+'" aria-pressed="'+(rtMode===mm[0])+'">'+mm[1]+'</button>';}).join('')
+      +'</div></div>'+note
+      +'<div class="fm-wrap"><div class="fm-svg rt-svg">'+rtSvg(sum)+'</div><div class="fm-side rt-side">'+rtSide(sum,pos)+'</div></div>'
+      +(sum.folded?'<div class="rt-note">The charting source renamed routes in 2023, splitting "out" into quick and deep outs. Across a career that spans the change they are counted as one Out.</div>':'');
+    el.hidden=false;
+    el.querySelectorAll('.fm-modes button').forEach(function(b){ b.onclick=function(){ rtMode=b.dataset.v; renderRouteTree(); }; });
+  }
 }
 
 /* ================= COMPS ===================================================
