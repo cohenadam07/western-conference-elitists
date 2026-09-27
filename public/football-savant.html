@@ -553,6 +553,31 @@ body:not(.home-open) .home{display:none}
 .home-lb:hover{filter:brightness(1.08)}
 .home-foot{position:absolute;bottom:20px;left:0;right:0;text-align:center;font-family:var(--mono);
   font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);z-index:2}
+/* The All-Savant Team: three units, each a centred run of chips, slot label first */
+.home{padding-bottom:64px}
+.home-trend{max-width:none;width:min(940px,calc(100vw - 48px))}
+.ast-title{font-size:13px;letter-spacing:.22em;color:var(--ink);margin-bottom:6px}
+.ast-sub{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:16px;min-height:1em}
+.ast-team{display:flex;flex-direction:column;gap:16px}
+.ast-grp .home-chips+.home-chips{margin-top:9px}
+.ast-grp-h{display:flex;align-items:center;gap:12px;justify-content:center;font-family:var(--mono);
+  font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
+.ast-grp-h::before,.ast-grp-h::after{content:"";flex:0 1 70px;height:2px;background:currentColor;opacity:.45}
+.ast-chip{padding-left:5px}
+.ast-slot{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.06em;min-width:30px;
+  text-align:center;padding:4px 5px;border-radius:12px;background:var(--turf);color:#07130C;flex:none}
+.ast-chip.nolink{cursor:default}
+.ast-chip.nolink:hover{transform:none}
+.ast-note{max-width:620px;margin:10px auto 0;font-size:12px;line-height:1.5;color:var(--muted)}
+.ast-note b{color:var(--ink)}
+@media(max-width:560px){
+  .home-trend{width:calc(100vw - 32px)}
+  .ast-team .home-chips{gap:7px}
+  .ast-chip{font-size:11.5px;gap:7px;padding-right:10px}
+  .ast-chip img{width:22px;height:22px}
+  .ast-chip .cpos{display:none}
+}
 
 /* ---------------------------------------------------------------- leaderboard */
 .lb{display:none;max-width:1180px;margin:0 auto;padding:24px 20px 70px}
@@ -986,6 +1011,16 @@ body{background-color:#1D6B3A;color:var(--ink);
 .home-chip:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 rgba(14,42,23,.4)}
 .home-chip img{border-radius:0;border:2px solid var(--turf-dk)}
 .home-chip .cpos{color:#7A9384;font-size:8px}
+.ast-title{font-family:var(--pix);font-size:clamp(15px,2.6vw,20px);letter-spacing:.12em;color:var(--flag);
+  text-shadow:3px 3px 0 var(--turf-dk);margin-bottom:8px}
+.ast-sub{font-family:var(--pix);font-size:8.5px;color:rgba(255,255,255,.78)}
+.ast-grp-h{font-family:var(--pix);font-size:9px;color:#FFF;letter-spacing:.2em}
+.ast-grp-h::before,.ast-grp-h::after{background:rgba(255,255,255,.55);opacity:1}
+.ast-slot{font-family:var(--pix);font-size:8px;font-weight:400;border-radius:0;background:var(--turf-dk);
+  color:#FFF;padding:4px 5px}
+.ast-chip.nolink:hover{transform:none;box-shadow:3px 3px 0 rgba(14,42,23,.4)}
+.ast-note{color:rgba(255,255,255,.82)}
+.ast-note b{color:var(--flag);font-weight:600}
 .home-lb{background:var(--flag);color:var(--turf-dk);border:3px solid var(--turf-dk);
   box-shadow:5px 5px 0 rgba(14,42,23,.5);font-family:var(--pix);font-size:11px}
 .home-lb:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 rgba(14,42,23,.5);filter:none}
@@ -1126,15 +1161,16 @@ body{background-color:#1D6B3A;color:var(--ink);
     </div>
     <div class="home-pos" id="homePos" aria-label="Browse by position"></div>
     <div class="home-trend" id="homeTrend">
-      <div class="home-trend-lab">Best in the league right now</div>
-      <div class="home-chips" id="homeChips" aria-busy="true">
+      <div class="home-trend-lab ast-title">The All-Savant Team</div>
+      <div class="ast-sub" id="astSub"></div>
+      <div class="ast-team" id="homeChips" aria-busy="true"><div class="home-chips">
         <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:108px"></span></div>
         <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:142px"></span></div>
         <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:92px"></span></div>
         <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:150px"></span></div>
         <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:100px"></span></div>
         <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:124px"></span></div>
-      </div>
+      </div></div>
     </div>
     <button class="home-lb" id="homeLbBtn" type="button">Build a Leaderboard <span aria-hidden="true">→</span></button>
   </div>
@@ -3511,36 +3547,150 @@ function drawField(){
    career arc uses. No API — the whole league is already in memory. */
 /* A headline pick needs a real workload behind it, not just a qualifying one: the
    qualifying line is set low on purpose so the percentile pools stay honest, and a corner
-   with five targets in six games would otherwise top every coverage rate on the page. */
+   with five targets in six games would otherwise top every coverage rate on the page.
+   "Real workload" means different things by job. A kicker or punter plays every game and
+   almost no snaps, so for them it is games; a lineman is judged by starts; everyone else by
+   snap share. During a season every test is a share of his team's games so far, never a
+   full-season count. */
+function teamGamesOf(p){
+  var g=p.m.g||0, a=p.m.avail;
+  return (!miss(a)&&a>0)?g*100/a:null;
+}
 function heavyUse(p){
-  if(!miss(p.m.snapshr)) return p.m.snapshr>=55;
-  return (p.m.g||0)>=12;                       // pre-2013 there are no snap counts to ask
+  var g=p.m.g||0, tg=teamGamesOf(p);
+  if(p.pos==='K'||p.pos==='P') return tg?g>=0.75*tg:g>=12;
+  if(/^O[LTGC]$/.test(p.pos)){
+    if(!miss(p.m.starts)&&tg) return p.m.starts>=0.75*tg;
+    return tg?g>=0.75*tg:g>=12;
+  }
+  if(!miss(p.m.snapshr)&&p.m.snapshr>0) return p.m.snapshr>=55;
+  return tg?g>=0.75*tg:g>=12;                  // pre-2013 there are no snap counts to ask
+}
+/* Everyone at a position with a real workload, best profile score first. */
+function rankedAt(season,pos){
+  var out=[], ps=seasonPlayers(season);
+  for(var i=0;i<ps.length;i++){
+    var p=ps[i];
+    if(p.pos!==pos||!p.qualified||!heavyUse(p)) continue;
+    var sc=profileScore(p.id,season);
+    if(sc!=null) out.push({p:p,score:Math.round(sc),raw:sc});
+  }
+  out.sort(function(a,b){ return b.raw-a.raw; });
+  return out;
 }
 function leagueBest(season,n){
   var out=[], order=['QB','WR','RB','ED','CB','TE','LB','S','DI','K'];
   order.forEach(function(pos){
-    var best=null,bs=-1;
-    var ps=seasonPlayers(season);
-    for(var i=0;i<ps.length;i++){
-      var p=ps[i];
-      if(p.pos!==pos||!p.qualified||!heavyUse(p)) continue;
-      var sc=profileScore(p.id,season);
-      if(sc!=null&&sc>bs){ bs=sc; best=p; }
-    }
-    if(best) out.push({p:best,score:Math.round(bs)});
+    var top=rankedAt(season,pos)[0];
+    if(top) out.push(top);
   });
   return out.slice(0,n||8);
 }
-function renderHomeChips(items){
+
+/* ================= THE ALL-SAVANT TEAM ======================================
+   Our All-Pro team, picked by the numbers alone: the best Savant profile score at every
+   spot the AP fills, shaped the way the AP shapes its first team. It is worked out here
+   from the data already in memory, so it moves every time the nightly refresh does.
+
+   Two spots can't be picked the way the rest are:
+   - The offensive line, during a season. Pressure and sack blame for one blocker comes from
+     the participation file, which nflverse publishes after the season. Until then the
+     line is picked as a unit - the best line by sack rate allowed, QB-hit rate allowed and
+     rush success, all from every snap - and its five starters go on the team. Once the
+     individual numbers land, the page switches to picking tackles, guards and a centre on
+     their own, with no change needed.
+   - Returners, who have no profile of their own. They are graded on yards and EPA per
+     return against every returner with a starter's volume (build.py, grade_returns). */
+var AST={
+  off:[['QB','QB',1],['RB','RB',1],['WR','WR',3],['TE','TE',1]],
+  def:[['ED','EDGE',2],['DI','IDL',2],['LB','LB',2],['CB','CB',3],['S','S',2]],
+  st:[['K','K',1],['P','P',1]]
+};
+var AST_PEERS={QB:'quarterbacks',RB:'running backs',WR:'wide receivers',TE:'tight ends',
+  OT:'tackles',OG:'guards',OC:'centers',ED:'edge rushers',DI:'interior linemen',LB:'linebackers',
+  CB:'cornerbacks',S:'safeties',K:'kickers',P:'punters'};
+function allSavant(season){
+  var blk=DATA.data[season]||{}, used={};
+  function fill(list){
+    var out=[];
+    list.forEach(function(sl){
+      var ranked=rankedAt(season,sl[0]), k=0;
+      for(var i=0;i<ranked.length&&k<sl[2];i++){
+        var it=ranked[i]; if(used[it.p.id]) continue;
+        used[it.p.id]=1; k++;
+        out.push({slot:sl[1],id:it.p.id,name:it.p.name,h:it.p.h,team:it.p.team,
+          why:'Savant profile score '+it.score+' — the average percentile of his headline stats vs qualified '
+            +(AST_PEERS[sl[0]]||posWord(sl[0],true))+', '+season});
+      }
+    });
+    return out;
+  }
+  var off=fill(AST.off), line=null;
+  // Individual linemen once their blocking numbers exist; the best line as a unit until then.
+  var withPrs=seasonPlayers(season).filter(function(p){
+    return p.pos==='OT'&&p.qualified&&!miss(p.m.prsallow);
+  }).length;
+  if(withPrs>=16){
+    off=off.concat(fill([['OT','T',2],['OG','G',2],['OC','C',1]]));
+  } else if(blk.lines&&blk.lines.length){
+    var L=blk.lines[0];
+    line={tm:L.tm,score:L.score,pct:L.pct,g:L.g,sackr:L.sackr,hitr:L.hitr,runsr:L.runsr};
+    L.five.forEach(function(f){
+      off.push({slot:f.slot,id:f.id,name:f.name,h:f.h,team:L.tm,line:true,
+        why:'Line pick: '+teamName(L.tm)+' have the best offensive line in '+season+' by sack rate allowed ('
+          +ordinal(Math.round(L.pct.sackr))+' percentile), QB-hit rate allowed ('+ordinal(Math.round(L.pct.hitr))+') and rush success ('
+          +ordinal(Math.round(L.pct.runsr))+'), vs all 32 lines. Team numbers, shared with the quarterback and backs.'});
+    });
+  }
+  var def=fill(AST.def), st=fill(AST.st);
+  var RET={kr:['KR','kick returner'],pr:['PR','punt returner']};
+  ['kr','pr'].forEach(function(k){
+    var r=((blk.ret||{})[k]||[])[0]; if(!r) return;
+    var p=rowFor(r.id,season)||{};
+    st.push({slot:RET[k][0],id:r.id,name:p.name||r.id,h:p.h,team:r.tm,
+      why:'Best '+RET[k][1]+' in '+season+': '+r.ypr.toFixed(1)+' yards and '+(r.epa>=0?'+':'')+r.epa.toFixed(2)
+        +' EPA per return on '+r.n+' returns ('+ordinal(Math.round(r.pct.ypr))+' and '+ordinal(Math.round(r.pct.epa))
+        +' percentile vs returners with a starter\'s volume)'});
+  });
+  return {off:off,def:def,st:st,line:line};
+}
+function astChip(it){
+  var can=!!PIDX[it.id];
+  var face=faceURL(it.id,it.h);
+  return '<'+(can?'button type="button"':'span')+' class="home-chip ast-chip'+(can?'':' nolink')+'"'
+    +(can?' data-id="'+esc(it.id)+'"':'')+' title="'+esc(it.why)+'">'
+    +'<span class="ast-slot">'+esc(it.slot)+'</span>'
+    +(face?'<img src="'+esc(face)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'<span class="sk-a"></span>')
+    +'<span class="ast-name">'+esc(it.name)+'</span><span class="cpos">'+esc(it.team||'')+'</span>'
+    +'</'+(can?'button':'span')+'>';
+}
+function renderAllSavant(season){
   var box=document.getElementById('homeChips');
+  var sub=document.getElementById('astSub');
   box.removeAttribute('aria-busy');
-  box.innerHTML=items.map(function(it){
-    var p=it.p;
-    return '<button class="home-chip" data-id="'+esc(p.id)+'">'
-      +(faceURL(p.id,p.h)?'<img src="'+esc(faceURL(p.id,p.h))+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="sk-a"></span>')
-      +'<span>'+esc(p.name)+'</span><span class="cpos">'+esc(p.pos)+'</span></button>';
-  }).join('');
-  box.querySelectorAll('.home-chip').forEach(function(b){
+  var t=allSavant(season), blk=DATA.data[season]||{};
+  if(sub) sub.textContent=season+(blk.week?' · through week '+blk.week:'')
+    +' · the best Savant profile at every All-Pro spot';
+  // each group is one or more rows of chips; the offense runs skill players, then the line,
+  // in one flow - five line chips on a row of their own orphan one at any width that fits
+  function group(label,rows,extra){
+    rows=rows.filter(function(r){return r.length;});
+    if(!rows.length) return '';
+    return '<div class="ast-grp"><div class="ast-grp-h">'+label+'</div>'
+      +rows.map(function(r){ return '<div class="home-chips">'+r.map(astChip).join('')+'</div>'; }).join('')
+      +(extra||'')+'</div>';
+  }
+  var LINE_SLOTS={LT:1,LG:1,C:1,RG:1,RT:1,T:1,G:1};
+  var skill=t.off.filter(function(x){return !LINE_SLOTS[x.slot];}),
+      ol=t.off.filter(function(x){return LINE_SLOTS[x.slot];});
+  var lineNote='';
+  if(t.line){
+    lineNote='<div class="ast-note">Line picked as a unit: <b>'+esc(teamName(t.line.tm))+'</b> · '
+      +'sack rate '+t.line.sackr.toFixed(1)+'% · QB hit rate '+t.line.hitr.toFixed(1)+'% · rush success '
+      +t.line.runsr.toFixed(0)+'%. One-man blocking numbers arrive after the season.</div>';
+  }
+  box.innerHTML=group('Offense',[skill.concat(ol)],lineNote)+group('Defense',[t.def])+group('Special teams',[t.st]);
+  box.querySelectorAll('button.ast-chip').forEach(function(b){
     b.onclick=function(){ selectPlayer(b.dataset.id); };
   });
 }
@@ -4161,7 +4311,7 @@ function init(){
       +(wk?(' · through week '+wk+(wp&&wp>wk?', week '+wp+' under way':'')):'');
     curSeason=DATA.seasons[0];
     renderHomePos();
-    renderHomeChips(leagueBest(curSeason,8));
+    renderAllSavant(curSeason);
     wire();
     var restored=readURL();
     if(restored){

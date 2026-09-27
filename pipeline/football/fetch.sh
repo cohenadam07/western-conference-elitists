@@ -33,7 +33,7 @@ if [ -n "${NFL_REFRESH:-}" ]; then
   y=$NFL_REFRESH
   rm -f "$OUT/reg_$y.csv" "$OUT/wk_$y.csv" "$OUT/snaps_$y.csv" \
         "$OUT/part/part_$y.csv" "$OUT/pbp/pbp_$y.parquet" "$OUT/ftn_$y.csv" \
-        "$OUT/depth_$y.csv" "$OUT/injuries_$y.csv" \
+        "$OUT/depth_$y.csv" "$OUT/injuries_$y.csv" "$OUT"/advw_*_$y.csv \
         "$OUT"/adv_*.csv "$OUT"/ngs_*.csv "$OUT"/ngs_*.csv.gz \
         "$OUT/players.csv" "$OUT/qbr.csv" "$OUT/qbr_week.csv" "$OUT/schedules.csv" "$OUT/combine.csv"
   echo "refreshing $y"
@@ -65,6 +65,12 @@ for y in $(seq "$FIRST" "$LAST"); do
   # on, and unlike PFR it is posted weekly during the season — it is what keeps the
   # charting rows alive between September and the following spring.
   [ "$y" -ge 2022 ] && get "ftn_charting/ftn_charting_$y.csv" "ftn_$y.csv"
+  # PFR charting, week by week (2018 on). The all-seasons file above only gains a season
+  # once it is over, so during the season this is where coverage, pressures, missed
+  # tackles and yards after contact come from; pfr_week.py sums it back to season rows.
+  if [ "$y" -ge 2018 ]; then
+    for k in def rush rec; do get "pfr_advstats/advstats_week_${k}_$y.csv" "advw_${k}_$y.csv"; done
+  fi
   # Play-by-play, as parquet — a twentieth the size of the CSV and column-selectable
   get "pbp/play_by_play_$y.parquet" "pbp/pbp_$y.parquet"
 done

@@ -114,6 +114,21 @@ season's play-by-play and stays a local run.
   chart is pressure, hurries, and any defender's name, so pressure rate faced, the pass-rush
   pressure rows and the whole coverage panel still wait for PFR, and nothing here pretends
   otherwise.
+- **`pfr_week.py`** — the fix for that wait. PFR's season file only gains a season once it
+  is over, but nflverse also posts the same charting week by week (`advstats_week_*`,
+  fetched as `raw/advw_<kind>_<y>.csv`). For a season the season file doesn't have yet,
+  `build.py` sums the weekly rows back into season rows of exactly the same shape: coverage
+  (targets, completions, yards, rating allowed), pressures, hurries, hits, blitzes, missed
+  tackle %, yards before/after contact and broken tackles. Checked against 2025's season
+  file: counts agree exactly for the median player (`python3 pfr_week.py 2025`). Batted
+  balls and the quarterback-side PFR rows are not in the weekly files and stay blank in season.
+- **The All-Savant Team blocks** (`pbp_agg.py` → `build.py`). `pbp_agg.py` also writes a
+  team-week `line` table (dropbacks, sacks, hits-or-sacks, designed runs and their
+  successes) and a returner-week `ret` table (kick and punt returns actually run back, with
+  EPA turned to the returning team's side). `build.py` grades every line on sack rate, hit
+  rate and rush success and names its five starters (`lines`, best first), and grades
+  returners with a starter's volume on yards and EPA per return (`ret.kr`, `ret.pr`). The
+  front page's All-Savant Team reads both; everything else on it is the profile score.
 - **`onfield_agg.py`** — joins the participation release (the exact eleven on the field per
   play, plus `was_pressure`, 2016 on) to play-by-play, and accumulates what the offense did
   on each player's snaps, alongside his team's totals so the off-field half can be got by

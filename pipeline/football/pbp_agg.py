@@ -26,7 +26,10 @@ COLS = ['season','week','season_type','down','ydstogo','yardline_100','goal_to_g
         'xyac_mean_yardage','cp','cpoe','pass_length','pass_location','run_location','run_gap',
         'qb_dropback','qb_scramble','qb_kneel','qb_spike','sack','qb_hit','complete_pass',
         'interception','touchdown','first_down','fumble_lost','two_point_attempt',
-        'passer_player_id','rusher_player_id','receiver_player_id']
+        'passer_player_id','rusher_player_id','receiver_player_id',
+        # the line as a unit, and the return game
+        'posteam','return_team','return_yards','return_touchdown','touchback',
+        'punt_fair_catch','kickoff_returner_player_id','punt_returner_player_id']
 
 # Target depth x direction. The 4 depth bands are the ones coaches actually talk in:
 # behind the line (screens/swings), the quick game, the intermediate, and the shot.
@@ -174,6 +177,68 @@ def agg_pen(d):
     return base.groupby(['week', 'pid'], as_index=False).sum().to_dict(orient='records')
 
 
+def agg_line(d):
+    """The offensive line as a unit, per team-week.
+
+    Open data has no way to hang a sack or a pressure on one blocker in season - the
+    participation file that would say who was on the field is only published after the
+    season - so the line is graded where it can be graded honestly: as five men together.
+    Three numbers, all from every snap:
+
+      sack rate allowed      sacks / dropbacks
+      QB-hit rate allowed    dropbacks on which the quarterback was hit or sacked
+      rush success rate      designed runs that stayed on schedule (EPA > 0)
+
+    They are team numbers, and the page says so: a quarterback who holds the ball and a
+    back who runs well are in them too.
+    """
+    db = d[(d.qb_dropback == 1) & (d.qb_kneel == 0) & (d.qb_spike == 0) & d.posteam.notna()]
+    a = pd.DataFrame({
+        'week': db.week, 'tm': db.posteam,
+        'db': 1.0,
+        'sk': _num(db.sack),
+        'hit': ((_num(db.sack) + _num(db.qb_hit)) > 0).astype(float),
+    }).groupby(['week', 'tm'], as_index=False).sum()
+    ru = d[(d.play_type == 'run') & (d.qb_scramble == 0) & (d.qb_kneel == 0) & d.posteam.notna()]
+    b = pd.DataFrame({
+        'week': ru.week, 'tm': ru.posteam,
+        'run': 1.0,
+        'run_succ': _num(ru.success),
+    }).groupby(['week', 'tm'], as_index=False).sum()
+    return a.merge(b, on=['week', 'tm'], how='outer').fillna(0).to_dict(orient='records')
+
+
+def agg_ret(d):
+    """Kick and punt returns, per returner-week.
+
+    Only balls actually run back count: a touchback or a fair catch is not a return, and
+    counting it would reward a returner for standing still. EPA is turned to the returning
+    team's side - nflfastR credits a kickoff to the receiving team but a punt to the
+    punting team - so a big return is positive either way.
+    """
+    out = []
+    for kind, col, pt in (('kr', 'kickoff_returner_player_id', 'kickoff'),
+                          ('pr', 'punt_returner_player_id', 'punt')):
+        if col not in d.columns:
+            continue
+        r = d[(d.play_type == pt) & d[col].notna() & (_num(d.touchback) == 0)]
+        if 'punt_fair_catch' in r.columns:
+            r = r[_num(r.punt_fair_catch) == 0]
+        if not len(r):
+            continue
+        sign = np.where(r.posteam == r.return_team, 1.0, -1.0)
+        g = pd.DataFrame({
+            'week': r.week, 'pid': r[col], 'k': kind,
+            'n': 1.0,
+            'yds': _num(r.return_yards),
+            'epa': _num(r.epa) * sign,
+            'td': _num(r.return_touchdown),
+            'fum': _num(r.fumble_lost),
+        }).groupby(['week', 'pid', 'k'], as_index=False).sum()
+        out.extend(g.to_dict(orient='records'))
+    return out
+
+
 def run_season(year):
     path = os.path.join(RAW, 'pbp', 'pbp_%d.parquet' % year)
     if not os.path.exists(path):
@@ -198,6 +263,8 @@ def run_season(year):
         'rush': agg_rush(d).to_dict(orient='records'),
         'rec': agg_rec(d).to_dict(orient='records'),
         'pen': agg_pen(d),
+        'line': agg_line(d) if 'posteam' in d.columns else [],
+        'ret': agg_ret(d) if 'return_team' in d.columns else [],
     }
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, 'pbp_%d.json' % year), 'w') as f:

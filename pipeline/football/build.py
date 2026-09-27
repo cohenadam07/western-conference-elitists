@@ -198,6 +198,18 @@ def load_pfr(by_pfr):
             if not gid:
                 continue
             out[(gid, int(r['season']))].update({kind + '_' + k: v for k, v in r.items()})
+    # A season the all-seasons files don't have yet - the one being played - is summed up
+    # from PFR's weekly files instead, into rows of exactly the same shape (pfr_week.py).
+    have = {y for (_, y) in out}
+    import pfr_week
+    for y in SEASONS:
+        if y in have:
+            continue
+        rows = pfr_week.season_rows(y, by_pfr, RAW)
+        if rows:
+            print(y, 'PFR charting from the weekly files:', len(rows), 'players', flush=True)
+        for k, v in rows.items():
+            out[k].update(v)
     return out
 
 
@@ -632,9 +644,15 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
         d['dsnap'] = def_s
         if G:
             m['snaps'] = tot / G
-        base = sn['offt'] if pos in ('QB', 'RB', 'WR', 'TE', 'OL') else sn['deft']
-        side = off_s if pos in ('QB', 'RB', 'WR', 'TE', 'OL') else def_s
-        if base:
+        # A lineman arrives here already split into OT / OG / OC, so the offense test has
+        # to name those too - it used to name only 'OL', which sent every tackle, guard and
+        # centre down the defensive branch and gave the whole line a 0% snap share.
+        # Kickers and punters live on special teams, where "share of the unit's snaps"
+        # has no meaning, so they get no snap share at all rather than a false zero.
+        offense = pos in ('QB', 'RB', 'WR', 'TE', 'OL', 'OT', 'OG', 'OC')
+        base = sn['offt'] if offense else sn['deft']
+        side = off_s if offense else def_s
+        if base and pos not in ('K', 'P'):
             m['snapshr'] = side / base * 100.0
     pen = num(r.get('penalties'))
     if pen is not None and G:
@@ -1173,6 +1191,177 @@ def add_comps(players, pos_pools):
                            for s, q in wscored[:4]]
 
 
+# ---------------------------------------------------------------- the line, the returners
+# The All-Savant Team on the front page needs two things no single player row can give it.
+# Both are season-level blocks, graded here (like the comps) because they need the whole
+# league at once, and both are small.
+
+LINE_SPOTS = ('LT', 'LG', 'C', 'RG', 'RT')
+
+
+def load_units(y):
+    """The line (team-week) and return (returner-week) rows pbp_agg.py wrote."""
+    p = os.path.join(AGG, 'pbp_%d.json' % y)
+    if not os.path.exists(p):
+        return [], []
+    j = json.load(open(p))
+    return j.get('line', []), j.get('ret', [])
+
+
+def line_starters(y, by_pfr):
+    """{team: [{id, slot}, ...]} - the five men who have played each spot most this season.
+
+    The depth chart says where a man lines up (LT, LG, C, RG, RT) but not whether he
+    played; snap counts say who played but not where. So each lineman's spot is the one
+    the depth chart lists him first-string at most often during the regular season, and the
+    spot goes to whoever has taken the most offensive snaps among the men listed there.
+    Offseason snapshots are ignored - a July depth chart is a guess.
+    """
+    dp = os.path.join(RAW, 'depth_%d.csv' % y)
+    sp = os.path.join(RAW, 'snaps_%d.csv' % y)
+    if not os.path.exists(dp) or not os.path.exists(sp):
+        return {}
+    # regular-season window
+    start = None
+    sch = os.path.join(RAW, 'schedules.csv')
+    if os.path.exists(sch):
+        g = pd.read_csv(sch, usecols=['season', 'game_type', 'gameday'], low_memory=False)
+        g = g[(g.season == y) & (g.game_type == 'REG')]
+        if len(g):
+            start = str(g.gameday.min())
+    spot_ct = defaultdict(lambda: defaultdict(float))      # (team, gid) -> spot -> listings
+    with open(dp, newline='', encoding='utf-8', errors='replace') as f:
+        rd = csv.DictReader(f)
+        cols = rd.fieldnames or []
+        espn = 'pos_abb' in cols
+        for r in rd:
+            if espn:
+                spot, rank, team = r.get('pos_abb'), r.get('pos_rank'), r.get('team')
+                if start and (r.get('dt') or '')[:10] < start:
+                    continue
+            else:
+                spot, rank, team = r.get('depth_position'), r.get('depth_team'), r.get('club_code')
+                if (r.get('game_type') or 'REG') != 'REG':
+                    continue
+            spot = (spot or '').strip().upper()
+            gid = (r.get('gsis_id') or '').strip()
+            if spot not in LINE_SPOTS or not gid or not team:
+                continue
+            spot_ct[(team.strip(), gid)][spot] += 2.0 if (rank or '').strip() == '1' else 1.0
+    sn = pd.read_csv(sp, low_memory=False)
+    if 'game_type' in sn.columns:
+        sn = sn[sn.game_type == 'REG']
+    sn = sn[sn.position.isin(['T', 'G', 'C', 'OT', 'OG', 'OL'])]
+    snaps = defaultdict(float)
+    for r in sn.itertuples(index=False):
+        gid = by_pfr.get(r.pfr_player_id)
+        if gid:
+            snaps[(r.team, gid)] += float(num(r.offense_snaps, 0) or 0)
+    out = {}
+    for team in sorted({t for t, _ in snaps}):
+        used, five = set(), []
+        home = {}                                   # gid -> his most-listed spot
+        for (t, gid), sc in spot_ct.items():
+            if t == team:
+                home[gid] = max(sorted(sc), key=lambda k: sc[k])
+        for spot in ('C', 'LT', 'RT', 'LG', 'RG'):
+            cands = [(snaps.get((team, g), 0.0), g) for g, h in home.items()
+                     if h == spot and g not in used]
+            cands = [c for c in cands if c[0] > 0]
+            if not cands:                           # nobody listed there has played:
+                cands = [(v, g) for (t, g), v in snaps.items()      # the busiest spare
+                         if t == team and g not in used and v > 0]
+            if not cands:
+                continue
+            best = max(cands)[1]
+            used.add(best)
+            five.append(dict(id=best, slot=spot))
+        five.sort(key=lambda x: LINE_SPOTS.index(x['slot']))
+        out[team] = five
+    return out
+
+
+def grade_lines(y, line_rows, by_pfr, bio):
+    """Every team's line, graded on sack rate, QB-hit rate and rush success, best first."""
+    acc = defaultdict(lambda: defaultdict(float))
+    for r in line_rows:
+        a = acc[r['tm']]
+        a['g'] += 1
+        for k in ('db', 'sk', 'hit', 'run', 'run_succ'):
+            a[k] += float(r.get(k) or 0)
+    rows = []
+    for tm, a in acc.items():
+        if not a['db'] or not a['run']:
+            continue
+        rows.append(dict(tm=tm, g=int(a['g']), db=int(a['db']), run=int(a['run']),
+                         sackr=a['sk'] / a['db'] * 100.0, hitr=a['hit'] / a['db'] * 100.0,
+                         runsr=a['run_succ'] / a['run'] * 100.0))
+    if len(rows) < 8:
+        return []
+    pools = {k: [r[k] for r in rows] for k in ('sackr', 'hitr', 'runsr')}
+    lower = {'sackr': True, 'hitr': True, 'runsr': False}
+    starters = line_starters(y, by_pfr)
+    for r in rows:
+        r['pct'] = {k: int(round(pct_rank(r[k], pools[k], lower[k]))) for k in pools}
+        r['score'] = int(round(sum(r['pct'].values()) / 3.0))
+        for k in ('sackr', 'hitr', 'runsr'):
+            r[k] = round(r[k], 2)
+        # Name and face ride along: plenty of linemen never touch a stat sheet, so they
+        # have no player row this season for the page to look them up in.
+        five = []
+        for f in starters.get(r['tm'], []):
+            b = bio.get(f['id']) or {}
+            e = dict(f, name=b.get('name') or f['id'])
+            if isinstance(b.get('head'), str) and b['head'].strip():
+                e['h'] = b['head'].strip()
+            five.append(e)
+        r['five'] = five
+    rows.sort(key=lambda r: (-r['score'], r['tm']))
+    return rows
+
+
+RET_MIN = {'kr': 1.5, 'pr': 1.25}      # returns per team game: a primary returner's volume
+
+
+def grade_returns(ret_rows, line_rows, players):
+    """Kick and punt returners, graded on yards and EPA per return, best first.
+
+    Qualifying volume pro-rates to the games his team has in the play-by-play, the same way
+    every other qualifying line on the page does, so the list means something in September.
+    """
+    team_g = defaultdict(set)
+    for r in line_rows:
+        team_g[r['tm']].add(r['week'])
+    by_id = {p['id']: p for p in players}
+    acc = defaultdict(lambda: defaultdict(float))
+    for r in ret_rows:
+        a = acc[(r['k'], r['pid'])]
+        for k in ('n', 'yds', 'epa', 'td', 'fum'):
+            a[k] += float(r.get(k) or 0)
+    out = {}
+    for kind in ('kr', 'pr'):
+        rows = []
+        for (k, pid), a in acc.items():
+            p = by_id.get(pid)
+            if k != kind or not p or not a['n']:
+                continue
+            tg = len(team_g.get(p.get('team'), ())) or max((len(v) for v in team_g.values()), default=0)
+            if a['n'] < RET_MIN[kind] * tg:
+                continue
+            rows.append(dict(id=pid, tm=p.get('team'), n=int(a['n']), td=int(a['td']),
+                             fum=int(a['fum']), ypr=a['yds'] / a['n'], epa=a['epa'] / a['n']))
+        if len(rows) < 5:
+            continue
+        pools = {k: [r[k] for r in rows] for k in ('ypr', 'epa')}
+        for r in rows:
+            r['pct'] = {k: int(round(pct_rank(r[k], pools[k], False))) for k in pools}
+            r['score'] = int(round(sum(r['pct'].values()) / 2.0))
+            r['ypr'], r['epa'] = round(r['ypr'], 1), round(r['epa'], 3)
+        rows.sort(key=lambda r: (-r['score'], -r['n']))
+        out[kind] = rows[:12]
+    return out
+
+
 # ---------------------------------------------------------------- main
 def main():
     bio, by_pfr, by_espn = load_players()
@@ -1314,6 +1503,13 @@ def main():
 
         add_comps(players, pos_pools)
         block = dict(players=players)
+        line_rows, ret_rows = load_units(y)
+        lines = grade_lines(y, line_rows, by_pfr, bio)
+        if lines:
+            block['lines'] = lines
+        rets = grade_returns(ret_rows, line_rows, players)
+        if rets:
+            block['ret'] = rets
         if partial:
             # The page says "through week N" while this is set, and everything that has
             # to wait for a finished season keys off its presence.
