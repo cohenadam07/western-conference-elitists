@@ -35,7 +35,8 @@ if [ -n "${NFL_REFRESH:-}" ]; then
         "$OUT/part/part_$y.csv" "$OUT/pbp/pbp_$y.parquet" "$OUT/ftn_$y.csv" \
         "$OUT/depth_$y.csv" "$OUT/injuries_$y.csv" "$OUT"/advw_*_$y.csv \
         "$OUT"/adv_*.csv "$OUT"/ngs_*.csv "$OUT"/ngs_*.csv.gz \
-        "$OUT/players.csv" "$OUT/qbr.csv" "$OUT/qbr_week.csv" "$OUT/schedules.csv" "$OUT/combine.csv"
+        "$OUT/players.csv" "$OUT/qbr.csv" "$OUT/qbr_week.csv" "$OUT/schedules.csv" "$OUT/combine.csv" \
+        "$OUT/nfl4th.rds"
   echo "refreshing $y"
 fi
 
@@ -91,3 +92,13 @@ get "espn_data/qbr_season_level.csv" "qbr.csv"
 # Game-level QBR (2006 on) for the week-by-week charts; weekly.py reads it.
 get "espn_data/qbr_week_level.csv" "qbr_week.csv"
 get "schedules/games.csv" "schedules.csv"
+# Fourth-down decisions (2014 on): Ben Baldwin's nfl4th model, precomputed for every fourth
+# down and republished during the season - win probability if the team goes for it, punts
+# or kicks. Lives in the nfl4th repository's releases, not nflverse-data's. coaches.py
+# reads it; without it Coaching Savant simply has no decision panel.
+if [ ! -s "$OUT/nfl4th.rds" ]; then
+  code=$(curl -sSL -m 300 --retry 3 --retry-delay 5 -o "$OUT/nfl4th.rds.tmp" -w "%{http_code}" \
+    "https://github.com/nflverse/nfl4th/releases/download/nfl4th_infrastructure/pre_computed_go_boost.rds")
+  if [ "$code" = "200" ]; then mv "$OUT/nfl4th.rds.tmp" "$OUT/nfl4th.rds"; echo "ok   nfl4th.rds";
+  else rm -f "$OUT/nfl4th.rds.tmp"; echo "MISS nfl4th.rds ($code)"; fi
+else echo "have nfl4th.rds"; fi

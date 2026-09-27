@@ -295,6 +295,57 @@ html.fslock,html.fslock body{overflow:hidden}
   .treewrap{padding:12px}
   .cava{width:64px;height:64px;font-size:17px}
 }
+
+/* ---------------------------------------------------------------- v2: scheme, decisions */
+.dim{color:#7A9384;font-weight:400}
+.unsure{font-family:var(--pix);font-size:7.5px;background:#FCE9C6;border:2px solid #B8541F;color:#7A3A12;
+  padding:2px 5px;margin-left:6px;vertical-align:middle}
+.uchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
+.uchip{font-family:var(--pix);font-size:9px;border:2px solid var(--turf-dk);background:#FFF;padding:6px 8px;cursor:pointer}
+.uchip:hover{background:var(--raise)} .uchip.on{background:var(--turf);color:#FFF}
+.uhead{border-top:3px solid var(--turf-dk);padding-top:12px;margin-bottom:10px}
+.utitle{font-family:var(--pix);font-size:15px}
+.umeta{font-size:13px;margin-top:7px;line-height:1.9}
+.umeta .chip{font-size:9px;padding:4px 7px}
+.scout{background:var(--raise);border-left:8px solid var(--flag);padding:12px 14px;margin:10px 0 6px}
+.scout ul{margin:0;padding-left:18px} .scout li{font-size:14px;line-height:1.55;margin:4px 0}
+.pairv{display:block;font-size:8.5px;color:#7A9384;margin-top:3px}
+.predline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 10px}
+.predline span{font-family:var(--pix);font-size:8.5px;color:#5A7A66;line-height:1.5}
+.predline b{display:block;font-size:18px;color:var(--ink)}
+table.tg td.lk{font-family:var(--body);font-size:12.5px;font-weight:600}
+.lean{display:inline-block;min-width:34px;text-align:center;padding:2px 5px}
+.mix{display:grid;gap:5px}
+.mixrow{display:grid;grid-template-columns:150px minmax(0,1fr) 58px 70px;align-items:center;gap:10px}
+.mixrow .ml{font-family:var(--pix);font-size:9.5px;text-transform:uppercase}
+.mixrow .mt{position:relative;height:14px;background:var(--track);border:2px solid var(--line2)}
+.mixrow .mt i{position:absolute;left:0;top:0;bottom:0;background:var(--turf)}
+.mixrow .mt b{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--flag);border:1px solid var(--turf-dk)}
+.mixrow .mv{font-family:var(--pix);font-size:10.5px;text-align:right}
+.mixrow .mg{font-family:var(--pix);font-size:8.5px;color:#7A9384}
+.arrs{display:grid;gap:4px}
+.arr{display:flex;justify-content:space-between;gap:10px;border-bottom:2px solid var(--line);padding:5px 0;font-size:13.5px}
+.arr .al{font-family:var(--pix);font-size:10px} .arr .av{font-family:var(--pix);font-size:11px}
+.seasons td.cb{text-align:left;line-height:2}
+.cbl{font-size:7.5px;color:#7A9384}
+.ulink{font-family:var(--pix);font-size:9.5px;background:none;border:0;border-bottom:2px solid var(--line2);
+  padding:0;cursor:pointer;color:var(--ink)}
+.ulink:hover{color:var(--turf);border-color:var(--turf)} .ulink i{font-style:normal;color:#7A9384;font-size:8px}
+.crec .st small{font-size:10px;color:#7A9384;font-family:var(--pix)}
+.d4map{display:grid;grid-template-columns:78px repeat(5,minmax(0,1fr));gap:3px;margin-top:14px}
+.d4c{font-family:var(--pix);font-size:10px;color:#FFF;text-align:center;padding:8px 2px;border:2px solid var(--turf-dk);line-height:1.4}
+.d4c i{display:block;font-style:normal;font-size:7.5px;opacity:.85}
+.d4c.h{background:none;border:0;color:#5A7A66;font-size:8px;display:flex;align-items:center;justify-content:center}
+.d4c.e{background:var(--track);color:#9DB2A2;border-color:var(--line2)}
+.worst{display:grid;grid-template-columns:150px 1fr 1.2fr;gap:10px;border-bottom:2px solid var(--line);padding:7px 0;font-size:13px}
+.worst .wh{font-family:var(--pix);font-size:9.5px}
+.lrow .dim{font-family:var(--pix);font-size:9px}
+@media(max-width:620px){
+  .mixrow{grid-template-columns:96px minmax(0,1fr) 50px;} .mixrow .mg{display:none}
+  .worst{grid-template-columns:1fr}
+  .d4map{grid-template-columns:52px repeat(5,minmax(0,1fr))} .d4c{font-size:8.5px;padding:6px 1px}
+  .d4c.h{font-size:6.5px}
+}
 </style>
 </head>
 <body class="view-home">
@@ -320,7 +371,7 @@ html.fslock,html.fslock body{overflow:hidden}
       <div>
         <div class="brand-word" id="brandHome">Coaching <span>Savant</span></div>
         <div class="sublinks">
-          <span class="pill">1999–2025</span>
+          <span class="pill yrs">1999–2025</span>
           <a class="backlink" href="/football-savant.html">← Football Savant</a>
           <a class="backlink" href="/basketball-savant.html">Basketball Savant</a>
         </div>
@@ -330,9 +381,9 @@ html.fslock,html.fslock body{overflow:hidden}
 
   <div class="hero">
     <h1>Every coach, and <em>where he came from</em></h1>
-    <p>All 173 men who have held an NFL head-coaching job since 1999 — what they won, how
-       often they reached the playoffs, whether their teams beat what the market expected of
-       them, what they actually called, and whose staff they learned it on.</p>
+    <p id="heroText">Every NFL head coach since 1999 and every play-caller since 2018 — what
+       they won, whether they beat what the market expected, how they handle fourth down, what
+       their offences and defences actually look like, and whose staff they learned it on.</p>
     <div class="search" id="homeSearch">
       <input id="homeq" placeholder="Search a coach…" autocomplete="off" autocorrect="off"
              autocapitalize="off" spellcheck="false" aria-label="Search a coach"/>
@@ -356,7 +407,7 @@ html.fslock,html.fslock body{overflow:hidden}
       <div>
         <div class="brand-word" id="brandApp">Coaching <span>Savant</span></div>
         <div class="sublinks">
-          <span class="pill">1999–2025</span>
+          <span class="pill yrs">1999–2025</span>
           <a class="backlink" href="/football-savant.html">← Football Savant</a>
           <button class="backlink" id="treeBtn2" style="background:none;border:0;border-bottom:2px solid var(--line2);cursor:pointer;padding:0">Coaching tree</button>
         </div>
@@ -405,7 +456,7 @@ html.fslock,html.fslock body{overflow:hidden}
    measured against. A coach's population is other head coaches with at least
    three seasons — below that a career rate is a coin toss.
    ========================================================================= */
-var DATA=null, COACHES={}, NAMES=[], cur=null, openExpl=null;
+var DATA=null, COACHES={}, NAMES=[], cur=null, openExpl=null, CJ=null;
 
 /* ---------------------------------------------------------------- games
    A season row already knows how far the team went; the game index knows which game that
@@ -565,7 +616,7 @@ function pool(key){
   var out=[];
   for(var n in COACHES){
     var c=COACHES[n].career;
-    if(c.seasons<MIN_SEASONS) continue;
+    if(key.indexOf('d4_')===0 ? !(c.d4_g>=48) : c.seasons<MIN_SEASONS) continue;
     var v=c[key];
     if(!miss(v)) out.push(v);
   }
@@ -607,7 +658,7 @@ function kidsOf(name){
   }
   return KIDS[name]||[];
 }
-function known(name){ return !!COACHES[name]; }
+function known(name){ return isPerson(name); }
 function chip(name,cls){
   if(known(name)) return '<button class="chip '+(cls||'')+'" data-go="'+esc(name)+'">'+esc(name)+'</button>';
   // an ancestor who never held a head job inside the window still belongs on the chain
@@ -629,6 +680,9 @@ function badges(c,car){
   var best=Math.max.apply(null,c.seasons.map(function(s){return s.w;}));
   out.push('<span class="badge">BEST YEAR '+best+' WINS</span>');
   if(car.seasons>=15) out.push('<span class="badge">'+car.seasons+' SEASONS</span>');
+  var cc=CALLERS[c.name];
+  if(cc&&cc.O) out.push('<span class="badge green">CALLED THE OFFENCE '+callerYears(c.name,'O')+'</span>');
+  if(cc&&cc.D) out.push('<span class="badge green">CALLED THE DEFENCE '+callerYears(c.name,'D')+'</span>');
   return out.join('');
 }
 
@@ -675,7 +729,7 @@ function renderCoach(name){
   var head='<div class="plate"><div class="chead">'
     +'<div class="cava">'+esc(initials(name))+'</div>'
     +'<div class="cid"><h1 class="cname">'+esc(name)+'</h1>'
-    +'<div class="cmeta">'+esc(car.teams.join(' · '))+' &nbsp;·&nbsp; '+car.first+'–'+car.last
+    +'<div class="cmeta">'+esc(car.teams.join(' · '))+' &nbsp;·&nbsp; '+(car.first===car.last?car.first:car.first+'–'+car.last)
       +' &nbsp;·&nbsp; '+car.seasons+' season'+(car.seasons===1?'':'s')+'</div>'
     +'<div class="crec">'
       +statCell('RECORD',rec)
@@ -697,6 +751,7 @@ function renderCoach(name){
       METRICS.filter(function(m){return m.grp===g;}).forEach(function(m){
         var v=car[m.key];
         if(miss(v)) return;
+        if(m.key.indexOf('d4_')===0 && !(car.d4_g>=48)) return;
         var p=pctOf(v,pool(m.key),m.lower);
         rows+='<div class="row" data-k="'+m.key+'">'
           +'<div class="rl" title="'+esc(m.label+' — click for what it means')+'">'
@@ -718,11 +773,18 @@ function renderCoach(name){
       +'other coaches without inventing precision. His seasons are below.</div></div>';
   }
 
-  el.innerHTML=head+bars+seasonTable(c);
+  el.innerHTML=head+bars+d4Panel(c)+(CALLERS[name]?styleMatch(name):'')+schemePlate(name,'hc')+seasonTable(c);
   wireCoach(el);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+function callersCell(s,side){
+  var ids=sortUnits((s.units||[]).filter(function(id){return UNITS[id]&&UNITS[id].side===side;})).reverse();
+  if(!ids.length) return '—';
+  return ids.map(function(id){ var u=UNITS[id];
+    return '<button class="ulink" data-unit="'+esc(id)+'">'+esc(lastName(u.caller))+(u.sure===false?'?':'')
+      +(ids.length>1?' <i>'+u.wk[0]+'–'+u.wk[1]+'</i>':'')+'</button>'; }).join(' ');
+}
 function seasonTable(c){
   var rows=c.seasons.slice().reverse().map(function(s){
     var po='';
@@ -747,14 +809,18 @@ function seasonTable(c){
       +'<td>'+(s.def_epa==null?'—':fmt('sgn3',s.def_epa))+'</td>'
       +'<td>'+(s.pass_rate==null?'—':fmt('pct1',s.pass_rate))+'</td>'
       +'<td>'+(s.proe==null?'—':fmt('sgn1',s.proe))+'</td>'
-      +'<td>'+(s.go_oe==null?'—':fmt('sgn1',s.go_oe))+'</td></tr>';
+      +'<td>'+(s.go_oe==null?'—':fmt('sgn1',s.go_oe))+'</td>'
+      +'<td>'+(s.d4_lost==null?'—':'−'+(+s.d4_lost).toFixed(1))+'</td>'
+      +'<td class="cb">'+(s.units&&s.units.length?'<span class="cbl">OFF</span> '+callersCell(s,'O')+'<br><span class="cbl">DEF</span> '+callersCell(s,'D'):'—')+'</td></tr>';
   }).join('');
   return '<div class="plate"><h2 class="panel-h">Season by season</h2>'
     +'<div class="panel-cap">Wins vs expected is measured against the closing spread. '
-    +'A blank means the number was not tracked that year.</div>'
+    +'A blank means the number was not tracked that year. Play-callers are recorded from 2018.</div>'
     +'<div class="tblwrap"><table class="seasons"><thead><tr>'
     +'<th>Year</th><th>Team</th><th>Result</th><th>Record</th><th>W vs exp</th>'
     +'<th>Off EPA</th><th>Def EPA</th><th>Pass %</th><th>PROE</th><th>4th agg</th>'
+    +'<th title="Win probability his fourth-down calls gave away, against the model\'s best option">4th WP lost</th>'
+    +'<th>Plays called by</th>'
     +'</tr></thead><tbody>'+rows+'</tbody></table></div></div>';
 }
 
@@ -976,7 +1042,7 @@ function renderTree(){
   svg.querySelectorAll('.leaf').forEach(function(g){
     g.addEventListener('click',function(){
       if(tMoved>8) return;                 // this was a pan or a pinch, not a tap
-      if(COACHES[g.dataset.n]) show('coach', g.dataset.n);
+      if(isPerson(g.dataset.n)) show('coach', g.dataset.n);
     });
     g.addEventListener('mouseenter',function(){ highlight(g.dataset.n); });
     g.addEventListener('mouseleave',function(){ highlight(null); });
@@ -1192,6 +1258,587 @@ function wireTree(){
   });
 }
 
+/* ============================================================================
+   V2: DECISIONS, PLAY-CALLERS AND SCHEME
+
+   Three new things ride on the same data file:
+     callers   everyone who called an offence or a defence since 2018, from the
+               hand-curated play_callers.py (an "unconfirmed" row says so on screen)
+     units     one man calling one side for one team over a run of weeks
+     league    per-season context for the fourth-down model
+
+   A unit is ranked against the other units of its own season and side, never across
+   years, because the league moves (motion, the pistol) faster than any one coach.
+   ========================================================================= */
+var CALLERS={}, UNITS={}, LEAGUE={}, CURINFO=null, curUnit=null;
+
+function isPerson(n){ return !!(COACHES[n]||CALLERS[n]); }
+/* 2018, 2023–26 rather than a 2018–2026 that claims the years in between */
+function yearsLabel(ys){
+  ys=ys.slice().sort(function(a,b){return a-b;}).filter(function(y,i,a){return i===0||a[i-1]!==y;});
+  var out=[], i=0;
+  while(i<ys.length){ var j=i; while(j+1<ys.length&&ys[j+1]===ys[j]+1) j++;
+    out.push(i===j?String(ys[i]):ys[i]+'–'+String(ys[j]).slice(2)); i=j+1; }
+  return out.join(', ');
+}
+function callerYears(name,side){
+  var c=CALLERS[name]; if(!c) return '';
+  return yearsLabel(c.units.filter(function(id){return UNITS[id]&&UNITS[id].side===side;})
+    .map(function(id){return UNITS[id].season;}));
+}
+function UM(key,label,grp,unit,flags,w,y,f){
+  flags=flags||'';
+  return {key:key,label:label,grp:grp,unit:unit,lower:flags.indexOf('L')>=0,
+          style:flags.indexOf('S')>=0, pair:null, exp:{w:w,y:y,f:f}};
+}
+/* Offence. S = a style row (the bar says how much, not how good). */
+var OFF_M=[
+  UM('off_epa','Offence','Results','sgn3','', "Expected points added per snap.",
+     "The one number for how good the offence was. Everything below it is how it got there.",
+     "EPA ÷ scrimmage snaps"),
+  UM('pass_epa','Dropbacks','Results','sgn3','', "EPA per dropback — passes, sacks and scrambles.",
+     "Passing efficiency with the sacks left in, because avoiding them is part of the design.",
+     "EPA ÷ dropbacks"),
+  UM('run_epa','Designed runs','Results','sgn3','', "EPA per designed run.",
+     "Most runs lose value next to passes; the question is how much.", "EPA ÷ designed runs"),
+  UM('success','Success rate','Results','pct1','', "Share of snaps that added expected points.",
+     "Staying on schedule. Less spiky than EPA, so it reads the week-to-week offence better.",
+     "snaps with EPA > 0 ÷ snaps"),
+  UM('explosive','Explosive rate','Results','pct1','', "Runs of 10+ and passes of 20+ yards.",
+     "Big plays are how offences score without needing twelve clean snaps in a row.",
+     "10+ yd runs and 20+ yd passes ÷ snaps"),
+  UM('pass_rate','Pass rate','Tendencies','pct1','S', "How often he called a dropback with the game still in the balance.",
+     "The plainest signature a play-caller has. First three quarters, win probability 20–80%, because everybody throws when losing late.",
+     "dropbacks ÷ snaps, neutral situations"),
+  UM('proe','Pass rate over expected','Tendencies','sgn1','S', "How much more he threw than the down, distance, score and clock called for.",
+     "Pass rate mostly measures whether you were ahead. This is the lean left over once the situation is priced in.",
+     "his pass rate − nflverse's expected pass rate on the same snaps"),
+  UM('early_proe','Early-down lean','Tendencies','sgn1','S', "Pass rate over expected on first and second down.",
+     "Third down calls itself. First and second are where a play-caller shows what he believes.",
+     "pass rate over expected, 1st and 2nd down, neutral"),
+  UM('sec_play','Tempo','Tendencies','sec','SL', "Seconds between snaps.",
+     "Fewer seconds is a faster offence, so the bar is flipped: a long bar is quick.",
+     "average gap between snaps, neutral situations"),
+  UM('nohuddle','No-huddle','Tendencies','pct1','S', "How often he skipped the huddle.",
+     "Tempo as a weapon — the defence can't substitute.", "no-huddle snaps ÷ snaps, neutral"),
+  UM('uc','Under center','Formation','pct1','S', "How often the quarterback took the snap under center.",
+     "The dividing line of modern offence: under center is where play-action and the wide-zone run game live; shotgun is where spread passing lives.",
+     "snaps not in shotgun or pistol ÷ snaps, neutral"),
+  UM('pistol','Pistol','Formation','pct1','S', "How often he lined up in the pistol. FTN charting, 2022 on.",
+     "A back directly behind a shotgun quarterback — the run game of under center with the vision of shotgun.",
+     "pistol snaps ÷ charted snaps, neutral"),
+  UM('empty','Empty backfield','Formation','pct1','S', "How often nobody stood in the backfield. FTN charting, 2022 on.",
+     "Five receivers out: the clearest way to make a defence show its coverage.",
+     "snaps with 0 backs ÷ charted snaps, neutral"),
+  UM('motion','Pre-snap motion','Toolkit','pct1','S', "How often someone moved before the snap. FTN charting, 2022 on.",
+     "Motion tells the offence whether it's man or zone and makes defenders move their feet before the ball does.",
+     "snaps with motion ÷ charted snaps"),
+  UM('pa','Play-action','Toolkit','pct1','S', "How often a dropback started with a fake handoff. FTN charting, 2022 on.",
+     "The most reliable efficiency boost in football, and still under-used by most offences.",
+     "play-action dropbacks ÷ charted dropbacks"),
+  UM('rpo','RPO','Toolkit','pct1','S', "Run-pass options — the quarterback reads a defender after the snap. FTN charting, 2022 on.",
+     "FTN counts only the true post-snap reads, so these rates are lower than you may see elsewhere.",
+     "RPO snaps ÷ charted snaps"),
+  UM('screen','Screens','Toolkit','pct1','S', "How often a dropback was a screen. FTN charting, 2022 on.",
+     "A screen is a run you throw — it slows a pass rush down and gets the ball out fast.",
+     "screens ÷ charted dropbacks"),
+  UM('oop','Moving pocket','Toolkit','pct1','S', "How often the quarterback left the pocket, by design or not. FTN charting, 2022 on.",
+     "Boots, rollouts and scrambles. High numbers are either a plan or a problem — the EPA beside it says which.",
+     "dropbacks with the QB out of the pocket ÷ charted dropbacks"),
+  UM('adot','Average depth of target','Passing','num1','S', "How far past the line of scrimmage his throws went.",
+     "Shot plays versus quick game, in one number.", "air yards ÷ pass attempts"),
+  UM('deep','Deep shots','Passing','pct1','S', "Share of throws 20+ yards downfield.",
+     "How often the offence tries to take the top off.", "attempts of 20+ air yards ÷ attempts"),
+  UM('sticks3','Third down vs the sticks','Passing','sgn1','S', "Where his third-down throws went relative to the line to gain.",
+     "Negative is throwing short of the sticks and hoping for yards after catch — a habit analysts love to hate.",
+     "air yards − yards to go, third-down attempts"),
+  UM('ttt','Time to throw','Passing','sec','S', "Seconds from snap to throw. Next Gen Stats, published after the season.",
+     "Quick game or deep drops. It is the quarterback's too, but the play-caller designs the timing.",
+     "average time to throw"),
+  UM('quick','Quick game','Passing','pct1','S', "Share of dropbacks with the ball out in under 2.5 seconds.",
+     "Ball out before the rush arrives — a protection plan as much as a passing one.",
+     "throws under 2.5s ÷ timed dropbacks"),
+  UM('first_read','First-read throws','Passing','pct1','S', "Throws to the first read in the progression. FTN charting, 2022 on.",
+     "High numbers mean the design is getting receivers open where the quarterback looks first.",
+     "throws to the 1st read ÷ throws with a read charted"),
+  UM('designed','Designed throws','Passing','pct1','S', "Throws with no progression at all — screens, many RPOs, pre-determined shots. FTN charting.",
+     "How much of the passing game is the play-caller deciding, rather than the quarterback reading.",
+     "designed-read throws ÷ throws with a read charted"),
+  UM('press_allowed','Pressure allowed','Passing','pct1','L', "Share of dropbacks where the quarterback was pressured. Published after the season.",
+     "Scheme, line and quarterback all own a piece of this; the play-caller's piece is the timing of the calls.",
+     "pressured dropbacks ÷ dropbacks"),
+  UM('outside','Outside runs','Running','pct1','S', "Share of designed runs aimed outside the tackles.",
+     "Run gap is the play-by-play's note of where the run went, not the blocking scheme — a proxy, labelled as one.",
+     "runs to the end ÷ designed runs"),
+  UM('light_box','Runs into light boxes','Running','pct1','S', "Share of designed runs against six or fewer in the box. FTN, 2022 on.",
+     "Running where the numbers favour you is a play-caller's choice — often made through formation.",
+     "runs vs ≤6 in the box ÷ charted runs"),
+  UM('rz_run','Red-zone run rate','Running','pct1','S', "How often he ran on first and second down inside the 20, neutral games.",
+     "The field shrinks and so do the options. Some coaches pound it; some keep throwing.",
+     "runs ÷ snaps, 1st/2nd down, inside the 20, neutral"),
+  UM('p11','11 personnel','Personnel','pct1','S', "Snaps with 1 back, 1 tight end, 3 receivers. Published after the season.",
+     "The league's default grouping.", "11 personnel snaps ÷ snaps, neutral"),
+  UM('p12','12 personnel','Personnel','pct1','S', "1 back, 2 tight ends, 2 receivers.",
+     "The grouping that lets an offence run or pass without tipping which.", "12 personnel ÷ snaps, neutral"),
+  UM('p21','21 personnel','Personnel','pct1','S', "2 backs (usually a fullback), 1 tight end, 2 receivers.",
+     "Nearly extinct outside a few offences — which is exactly why it's a fingerprint.", "21 personnel ÷ snaps, neutral"),
+  UM('heavy','Heavy personnel','Personnel','pct1','S', "Snaps with two or more backs or tight ends.",
+     "Bigger bodies force bigger defences, which is what makes the passes behind them easier.",
+     "12, 13, 21, 22 personnel ÷ snaps, neutral"),
+  UM('pred_own','Predictability','Tells','pct1','S', "How often a defence would call run or pass correctly if it knew his tendencies by look.",
+     "Measured on first and second down in neutral games, each snap guessed from his OTHER snaps, so it isn't fitting itself.",
+     "correct run/pass guesses ÷ snaps, using his look-by-look rates"),
+  UM('tell','His own tells','Tells','sgn1','S', "How many points of that accuracy come from HIS tendencies rather than the league's.",
+     "Every offence throws more from shotgun. This is what is left once the league-wide tells are accounted for — the part a defence has to scout him for.",
+     "accuracy using his look tendencies − accuracy using the league's")
+];
+var DEF_M=[
+  UM('def_epa','Defence','Results','sgn3','L', "Expected points allowed per snap.",
+     "Lower is better, so the bar is flipped: a long bar is a stingy defence.", "EPA allowed ÷ snaps"),
+  UM('pass_epa','Against the pass','Results','sgn3','L', "EPA allowed per dropback.", "Sacks included — they are the defence's best play.", "EPA ÷ dropbacks faced"),
+  UM('run_epa','Against the run','Results','sgn3','L', "EPA allowed per designed run.", "Run defence matters less than pass defence, but it decides how often an offence gets to be patient.", "EPA ÷ runs faced"),
+  UM('success','Success allowed','Results','pct1','L', "Share of opposing snaps that added expected points.", "Keeping offences off schedule.", "successful snaps ÷ snaps faced"),
+  UM('explosive','Explosives allowed','Results','pct1','L', "10+ yard runs and 20+ yard passes allowed.", "The two-high philosophy in one number: give up the underneath, never the top.", "explosive plays ÷ snaps faced"),
+  UM('third','Third downs allowed','Results','pct1','L', "Third-down conversion rate allowed.", "Getting off the field.", "conversions ÷ third downs faced"),
+  UM('takeaway','Takeaway rate','Results','pct1','', "Interceptions and lost fumbles per snap.", "Noisy year to year, but the swing plays that decide games.", "takeaways ÷ snaps faced"),
+  UM('man','Man coverage','Coverage','pct1','S', "Share of dropbacks in man coverage. Charted coverage, 2018 on, published after the season.",
+     "Man asks corners to win alone; zone asks everybody to see the same picture.", "man-coverage dropbacks ÷ charted dropbacks"),
+  UM('two_high','Two-high shells','Coverage','pct1','S', "Share of dropbacks in a two-deep-safety coverage (Cover 2, 2-Man, 4, 6).",
+     "The Fangio-era signature: take away the deep ball, make the offence be patient. Charting sees the shell after the snap, so disguise can't be measured.",
+     "Cover 2, 2-Man, 4, 6 ÷ charted coverages"),
+  UM('c0','Cover 0','Coverage','pct1','S', "All-out man with no deep safety — usually with a blitz.", "The riskiest call in football.", "Cover 0 ÷ charted coverages"),
+  UM('c1','Cover 1','Coverage','pct1','S', "Man coverage with one deep safety.", "The aggressive base of man-heavy defences.", "Cover 1 ÷ charted coverages"),
+  UM('c2','Cover 2','Coverage','pct1','S', "Two deep safeties splitting the field, zone underneath.", "", "Cover 2 ÷ charted coverages"),
+  UM('c3','Cover 3','Coverage','pct1','S', "Three deep zones, four underneath.", "The most common coverage in football for twenty years.", "Cover 3 ÷ charted coverages"),
+  UM('c4','Cover 4 (quarters)','Coverage','pct1','S', "Four deep quarters.", "Pattern-matching quarters is the modern answer to spread passing.", "Cover 4 ÷ charted coverages"),
+  UM('c6','Cover 6','Coverage','pct1','S', "Quarters to one side, Cover 2 to the other.", "", "Cover 6 ÷ charted coverages"),
+  UM('man3','Man on third down','Coverage','pct1','S', "Man coverage on third down.", "Plenty of zone teams turn to man when the sticks are close.", "man ÷ charted 3rd-down dropbacks"),
+  UM('blitz','Blitz rate','Pressure','pct1','S', "Share of dropbacks with at least one blitzer (a non-lineman rushing). FTN, 2022 on.",
+     "The loudest choice a defensive play-caller makes.", "dropbacks with a blitzer ÷ charted dropbacks"),
+  UM('rushers','Pass rushers','Pressure','num1','S', "Average number of pass rushers.", "Four is the default. Above it is pressure bought with coverage.", "rushers ÷ dropbacks"),
+  UM('rush5','Five or more rushers','Pressure','pct1','S', "Share of dropbacks with 5+ rushers.", "", "5+ rushers ÷ dropbacks"),
+  UM('rush3','Three-man rushes','Pressure','pct1','S', "Share of dropbacks with 3 or fewer rushers.", "Dropping eight — the opposite bet.", "≤3 rushers ÷ dropbacks"),
+  UM('pressure','Pressure rate','Pressure','pct1','', "Share of dropbacks where the quarterback was pressured. Published after the season.", "", "pressured dropbacks ÷ dropbacks"),
+  UM('press4','Pressure with four','Pressure','pct1','', "Pressure rate when rushing four or fewer.",
+     "The cleanest read of the front itself — pressure the play-caller didn't have to buy with a blitz.", "pressured ÷ dropbacks with ≤4 rushers"),
+  UM('nickel','Nickel','Personnel & boxes','pct1','S', "Snaps with five defensive backs.", "Today's base defence.", "5-DB snaps ÷ snaps"),
+  UM('dime','Dime','Personnel & boxes','pct1','S', "Snaps with six or more defensive backs.", "", "6+ DB snaps ÷ snaps"),
+  UM('base','Base','Personnel & boxes','pct1','S', "Snaps with four or fewer defensive backs.", "", "≤4 DB snaps ÷ snaps"),
+  UM('box','Box count','Personnel & boxes','num1','S', "Average defenders in the box on runs.", "", "box defenders ÷ runs faced"),
+  UM('light_vheavy','Light box vs heavy sets','Personnel & boxes','pct1','S', "How often he kept six or fewer in the box against two-back or two-tight-end runs.",
+     "Refusing to match size with size — trusting the secondary to fit the run.", "≤6 in the box ÷ runs vs 12/13/21/22"),
+  UM('man_v11','Man vs 11 personnel','Answers','pct1','S', "Man coverage against three-receiver sets.", "", "man ÷ dropbacks vs 11"),
+  UM('man_vheavy','Man vs heavy sets','Answers','pct1','S', "Man coverage against two-back or two-tight-end sets.", "", "man ÷ dropbacks vs 12/13/21/22"),
+  UM('two_v11','Two-high vs 11','Answers','pct1','S', "Two-deep shells against three-receiver sets.", "", "two-high ÷ dropbacks vs 11"),
+  UM('two_vheavy','Two-high vs heavy sets','Answers','pct1','S', "Two-deep shells against heavy personnel.", "How a defence answers 12 personnel is the chess match of the modern game.", "two-high ÷ dropbacks vs 12/13/21/22")
+];
+// the toolkit rows carry EPA with and without, shown beside the usage rate
+['motion','pa','rpo','screen','oop'].forEach(function(k){ OFF_M.forEach(function(m){ if(m.key===k) m.pair=[k+'_epa',k+'_epa_off']; }); });
+DEF_M.forEach(function(m){ if(m.key==='man') m.pair=['man_epa','zone_epa','man','zone'];
+  if(m.key==='blitz') m.pair=['blitz_epa','noblitz_epa','blitz','no blitz']; });
+var UMBY={};
+OFF_M.forEach(function(m){UMBY['O:'+m.key]=m;});
+DEF_M.forEach(function(m){UMBY['D:'+m.key]=m;});
+var OFF_GRPS=['Results','Tendencies','Formation','Toolkit','Passing','Running','Personnel','Tells'];
+var DEF_GRPS=['Results','Coverage','Pressure','Personnel & boxes','Answers'];
+
+/* ---- decision metrics join the head-coach career profile */
+METRICS.push(
+  M('d4_follow','Follows the model','Fourth downs','pct1',false,
+    "How often he went for it when the fourth-down model said going was clearly right.",
+    "The model is nfl4th: it prices the win probability of going, punting and kicking. \"Clearly right\" means going was worth more than 4 points of win probability. Measured 2014 on.",
+    "went for it ÷ fourth downs where the model gained 4+ WP points by going"),
+  M('d4_follow_p','Follows on close calls','Fourth downs','pct1',false,
+    "How often he went for it when going was right by 1 to 4 points of win probability.",
+    "The spots where most coaches still kick. Aggressive coaches separate themselves here.",
+    "went for it ÷ fourth downs where going gained 1–4 WP points"),
+  M('d4_lost_g','Win probability given away','Fourth downs','sgn2',true,
+    "Win probability his fourth-down choices cost him per game, against the best option.",
+    "Decisions within a point of the best option are not counted — that's inside the model's own error. Lower is better, so the bar is flipped.",
+    "Σ (best option's WP − chosen option's WP) ÷ games, on calls that lost 1+ point"),
+  M('d4_rash','Goes against a kick call','Fourth downs','pct1',false,
+    "How often he went for it when the model said to kick.",
+    "The other side of aggression. Rare, and usually desperation or a bet on his own offence.",
+    "went for it ÷ fourth downs where kicking gained 1+ WP points")
+);
+MBY={}; METRICS.forEach(function(m){MBY[m.key]=m;});
+GRPS=['Record','Units','Style','Fourth downs'];
+
+/* ---------------------------------------------------------------- unit pools */
+var UPOOL={};
+function unitPool(season,side,key){
+  var k=season+':'+side+':'+key;
+  if(UPOOL[k]) return UPOOL[k];
+  var out=[];
+  for(var id in UNITS){
+    var u=UNITS[id];
+    if(u.season!==season||u.side!==side||u.small) continue;
+    var v=u.m[key];
+    if(!miss(v)) out.push(v);
+  }
+  out.sort(function(a,b){return a-b;});
+  return (UPOOL[k]=out);
+}
+function lgMean(season,side,key){
+  var p=unitPool(season,side,key); if(!p.length) return null;
+  var s=0; p.forEach(function(v){s+=v;}); return s/p.length;
+}
+function unitPct(u,m){
+  if(u.small) return null;
+  return pctOf(u.m[m.key],unitPool(u.season,u.side,m.key),m.lower);
+}
+function capP(p){ if(p>=99) return Math.min(99.9,Math.floor(p*10)/10).toFixed(1); return String(Math.max(1,Math.round(p))); }
+function sideWord(s){ return s==='O'?'offence':'defence'; }
+function sideWordPl(s){ return s==='O'?'offences':'defences'; }
+function lastName(n){ var p=(n||'').split(' '); return p[p.length-1]; }
+function unitTitle(u){ return u.season+' '+u.team+' '+(u.side==='O'?'offence':'defence'); }
+function wkLabel(u){ return 'weeks '+u.wk[0]+(u.wk[1]!==u.wk[0]?'–'+u.wk[1]:''); }
+function pchip(name,cls){
+  if(isPerson(name)) return '<button class="chip '+(cls||'')+'" data-go="'+esc(name)+'">'+esc(name)+'</button>';
+  return '<span class="chip dead">'+esc(name)+'</span>';
+}
+function unsureTag(u){ return u.sure===false?'<span class="unsure" title="No report found naming the play-caller; this is the coordinator who held the title.">UNCONFIRMED</span>':''; }
+
+/* ---------------------------------------------------------------- scouting report
+   Built by rule from the unit's most extreme, well-sampled numbers. Every sentence carries
+   its percentile or its sample, so nothing on it is implied. */
+var SCOUT_O=['pass_rate','proe','uc','pistol','empty','motion','pa','rpo','screen','oop','nohuddle',
+  'sec_play','heavy','p21','adot','deep','quick','first_read','designed','light_box','rz_run','outside','sticks3'];
+var SCOUT_D=['man','two_high','c0','c1','c3','c4','c6','blitz','rush5','rush3','press4','nickel','dime',
+  'base','light_vheavy','man3','two_vheavy'];
+function scoutLines(u){
+  var keys=u.side==='O'?SCOUT_O:SCOUT_D, cand=[];
+  keys.forEach(function(k){
+    var m=UMBY[u.side+':'+k]; if(!m||miss(u.m[k])) return;
+    var p=pctOf(u.m[k],unitPool(u.season,u.side,k),false);
+    if(p==null) return;
+    if(p>=88||p<=12) cand.push({m:m,p:p,x:Math.abs(p-50)});
+  });
+  cand.sort(function(a,b){return b.x-a.x;});
+  var n=unitPool(u.season,u.side,cand.length?cand[0].m.key:'plays').length;
+  var out=cand.slice(0,4).map(function(c){
+    var hi=c.p>=50, lg=lgMean(u.season,u.side,c.m.key);
+    var rank=hi?('more than '+c.p+'% of '):('less than '+(100-c.p)+'% of ');
+    if(c.m.key==='sec_play') rank=hi?'slower than '+c.p+'% of ':'faster than '+(100-c.p)+'% of ';
+    return '<b>'+esc(c.m.label)+'</b> '+fmt(c.m.unit,u.m[c.m.key])
+      +(lg!=null?' <span class="dim">(league '+fmt(c.m.unit,lg)+')</span>':'')
+      +' — '+rank+sideWordPl(u.side)+' in '+u.season+'.';
+  });
+  // the loudest tell in the grid
+  if(u.looks&&u.looks.cells){
+    var best=null;
+    u.looks.cells.forEach(function(c){
+      if(c.n<25||c.x==null) return;
+      var d=c.p-c.x, s=Math.abs(d)*Math.sqrt(c.n);
+      if(Math.abs(d)>=12&&(!best||s>best.s)) best={c:c,d:d,s:s};
+    });
+    if(best) out.push('<b>Tell:</b> from <b>'+esc(best.c.k)+'</b> he threw '+best.c.p.toFixed(0)
+      +'% of the time where the league, in the same spots, throws '+best.c.x.toFixed(0)+'% ('+best.c.n+' snaps).');
+  }
+  var ek=u.side==='O'?'off_epa':'def_epa', em=UMBY[u.side+':'+ek];
+  var ep=u.small?null:pctOf(u.m[ek],unitPool(u.season,u.side,ek),em.lower);
+  if(ep!=null) out.push('<b>Result:</b> '+fmt('sgn3',u.m[ek])+' EPA per snap'+(u.side==='D'?' allowed':'')
+    +' — '+(ep>=50?'better than ':'worse than ')+(ep>=50?ep:100-ep)+'% of '+sideWordPl(u.side)+' in '+u.season+'.');
+  if(!out.length) return '';
+  return '<div class="scout"><div class="lin-h">SCOUTING REPORT</div><ul>'
+    +out.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ul>'
+    +'<div class="panel-cap">Written by rule from his most extreme numbers, ranked against the '
+    +n+' '+sideWordPl(u.side)+' of '+u.season+'. Nothing here is typed by hand.</div></div>';
+}
+
+/* ---------------------------------------------------------------- the bars */
+function unitBars(u){
+  var ms=u.side==='O'?OFF_M:DEF_M, grps=u.side==='O'?OFF_GRPS:DEF_GRPS, html='';
+  grps.forEach(function(g){
+    var rows='';
+    ms.filter(function(m){return m.grp===g;}).forEach(function(m){
+      var v=u.m[m.key]; if(miss(v)) return;
+      var p=unitPct(u,m), extra='';
+      if(m.pair){
+        var a=u.m[m.pair[0]], b=u.m[m.pair[1]];
+        if(!miss(a)&&!miss(b)) extra='<span class="pairv" title="EPA per snap with and without">'
+          +fmt('sgn3',a)+' / '+fmt('sgn3',b)+'</span>';
+      }
+      rows+='<div class="row" data-k="u:'+u.side+':'+m.key+'">'
+        +'<div class="rl" title="'+esc(m.label+' — click for what it means')+'">'
+          +'<div class="name">'+esc(m.label)+'</div><div class="tag">'+(m.style?'HOW MUCH':'HOW GOOD')+'</div></div>'
+        +blockBar(p)+'<div class="pct">'+(p==null?'·':p)+'</div>'
+        +'<div class="rv">'+fmt(m.unit,v)+extra+'</div></div>';
+    });
+    if(rows) html+='<div class="grp">'+g.toUpperCase()+'</div>'+rows;
+  });
+  return html;
+}
+function missingNote(u){
+  var bits=[];
+  if(u.era==='ftn') bits.push('Personnel, coverage shells, routes, time to throw and pressure come from the participation file, which is published only after the Super Bowl — '
+    +'this season shows them in February.');
+  if(u.era==='pers') bits.push('Motion, play-action, RPOs, screens, the pistol and blitzers come from FTN charting, which starts in 2022.');
+  return bits.length?'<div class="curated"><b>NOT IN THIS SEASON</b>'+esc(bits.join(' '))+'</div>':'';
+}
+
+/* ---------------------------------------------------------------- the Tell Grid */
+var LOOK_NOTE={
+  'ftn+pers':'A look is personnel + where the quarterback stands (or an empty backfield) + whether anyone motioned.',
+  'ftn':'A look is backs in the backfield + where the quarterback stands + motion. Personnel joins in February, when the participation file is published.',
+  'pers':'A look is personnel + the formation the NFL charted. Motion was not charted publicly before 2022.'};
+function tellGrid(u){
+  if(!u.looks||!u.looks.cells||!u.looks.cells.length) return '';
+  var rows=u.looks.cells.map(function(c){
+    var lean=(c.x==null)?null:c.p-c.x;
+    var col=lean==null?'':'background:'+colorAt(Math.max(0,Math.min(100,50+lean*2.2)))+';color:#fff';
+    return '<tr><td class="lk">'+esc(c.k)+'</td><td>'+c.n+'</td><td>'+c.p.toFixed(0)+'%</td>'
+      +'<td>'+(c.x==null?'—':c.x.toFixed(0)+'%')+'</td>'
+      +'<td><span class="lean" style="'+col+'">'+(lean==null?'—':(lean>0?'+':lean<0?'−':'')+Math.abs(lean).toFixed(0))+'</span></td>'
+      +'<td>'+(c.pa==null?'—':c.pa.toFixed(0)+'%')+'</td>'
+      +'<td>'+fmt('sgn3',c.epa)+'</td></tr>';
+  }).join('');
+  var m=u.m, pred='';
+  if(!miss(m.pred_own)) pred='<div class="predline">'
+    +'<span><b>'+m.pred_sit.toFixed(0)+'%</b>guess from the situation alone</span>'
+    +'<span class="arrow">▶</span><span><b>'+m.pred_look.toFixed(0)+'%</b>knowing the league\'s tendencies by look</span>'
+    +'<span class="arrow">▶</span><span><b>'+m.pred_own.toFixed(0)+'%</b>knowing his</span></div>';
+  return '<div class="lin-h" style="margin-top:18px">THE TELL GRID — FIRST AND SECOND DOWN, GAME IN THE BALANCE</div>'
+    +pred
+    +'<div class="tblwrap"><table class="seasons tg"><thead><tr><th>Look</th><th>Snaps</th><th>Pass %</th>'
+    +'<th title="What the league does from this look in the same down, distance, score and clock">League, same spots</th>'
+    +'<th>His lean</th><th>Play-action</th><th>EPA/snap</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+    +'<div class="panel-cap">'+esc(LOOK_NOTE[u.era]||'')+' Showing his '+u.looks.cells.length+' most-used looks ('
+    +u.looks.shown+' of '+u.looks.total+' snaps). Red leans pass, blue leans run, against what the league does from the same look in the same situations.</div>';
+}
+
+/* ---------------------------------------------------------------- mix bars (routes, shells) */
+function mixBars(title,items,note){
+  if(!items.length) return '';
+  var max=0; items.forEach(function(it){ max=Math.max(max,it.v,it.lg||0); });
+  return '<div class="lin-h" style="margin-top:18px">'+esc(title)+'</div><div class="mix">'
+    +items.map(function(it){
+      var w=max?100*it.v/max:0, l=it.lg==null?null:100*it.lg/max;
+      return '<div class="mixrow"><span class="ml">'+esc(it.k)+'</span><span class="mt"><i style="width:'+w.toFixed(1)+'%"></i>'
+        +(l==null?'':'<b style="left:'+l.toFixed(1)+'%" title="league average"></b>')+'</span>'
+        +'<span class="mv">'+it.v.toFixed(1)+'%</span><span class="mg">'+(it.lg==null?'':'lg '+it.lg.toFixed(1)+'%')+'</span></div>';
+    }).join('')+'</div>'+(note?'<div class="panel-cap">'+esc(note)+'</div>':'');
+}
+function routeMix(u){
+  if(!u.m.routes) return '';
+  var tot={}, n=0;
+  for(var id in UNITS){ var x=UNITS[id]; if(x.season===u.season&&x.side==='O'&&!x.small&&x.m.routes){ n++;
+    for(var k in x.m.routes) tot[k]=(tot[k]||0)+x.m.routes[k]; } }
+  var items=Object.keys(u.m.routes).map(function(k){ return {k:k.toLowerCase(), v:u.m.routes[k], lg:n?(tot[k]||0)/n:null}; })
+    .sort(function(a,b){return b.v-a.v;});
+  return mixBars('WHERE THE BALL WENT — ROUTE OF THE TARGETED RECEIVER',items,
+    'Only the targeted receiver\'s route is charted publicly, so this is the route tree of his completions and incompletions, not his play designs. The tick is the league average.');
+}
+function covMix(u){
+  var ks=[['c0','Cover 0'],['c1','Cover 1'],['c2','Cover 2'],['c2m','2-Man'],['c3','Cover 3'],['c4','Cover 4'],['c6','Cover 6'],['c9','Cover 9']];
+  var items=ks.filter(function(k){return !miss(u.m[k[0]]);}).map(function(k){
+    return {k:k[1], v:u.m[k[0]], lg:lgMean(u.season,'D',k[0])}; });
+  return mixBars('THE COVERAGE MIX',items,
+    'Share of charted dropbacks in each shell. Coverage labels before 2023 come from Next Gen Stats and from 2023 on from FTN, so a jump across that line can be the source, not the coach.');
+}
+
+/* ---------------------------------------------------------------- arrival, comps */
+function arrivalBlock(u){
+  var a=u.arrival; if(!a||!a.changes.length) return '';
+  var rows=a.changes.map(function(c){
+    var m=UMBY[u.side+':'+c[0]]; if(!m) return '';
+    return '<div class="arr"><span class="al">'+esc(m.label)+'</span><span class="av">'+fmt(m.unit,c[1])
+      +' <span class="arrow">▶</span> <b>'+fmt(m.unit,c[2])+'</b></span></div>';
+  }).join('');
+  var prev=UNITS[a.prev];
+  return '<div class="lin-h" style="margin-top:18px">WHAT CHANGED WHEN HE TOOK IT OVER</div>'
+    +'<div class="arrs">'+rows+'</div><div class="panel-cap">Against '+esc(a.prev_caller)+'\'s '
+    +(prev?unitTitle(prev)+' ('+wkLabel(prev)+')':'unit before him')
+    +'. The biggest moves relative to each season\'s league; a new roster moves numbers too.</div>';
+}
+function compsBlock(u){
+  if(!u.comps||!u.comps.length) return '';
+  var rows=u.comps.map(function(c){
+    var x=UNITS[c[0]]; if(!x) return '';
+    return '<div class="lrow" data-unit="'+esc(x.id)+'"><span class="ln">'+esc(x.caller)+'</span>'
+      +'<span class="lv">'+x.season+' '+x.team+' · closer than '+capP(c[2])+'% of pairs</span></div>';
+  }).join('');
+  return '<div class="lin-h" style="margin-top:18px">'+(u.side==='O'?'OFFENCES':'DEFENCES')+' THAT LOOKED MOST LIKE THIS ONE</div>'
+    +rows+'<div class="panel-cap">Matched on style only — how often, not how well — with every number measured against its own season\'s league. 2018 on.</div>';
+}
+
+function unitView(u){
+  var hcs=(u.hc||[]).map(function(h){return pchip(h);}).join(' ');
+  var head='<div class="uhead"><div class="utitle">'+esc(unitTitle(u))+' <span class="dim">· '+wkLabel(u)+'</span></div>'
+    +'<div class="umeta">Called by '+pchip(u.caller)+unsureTag(u)+(hcs?' &nbsp;·&nbsp; Head coach '+hcs:'')+'</div>'
+    +'<div class="umeta dim">'+u.m.plays+' snaps · '+u.m.games+' game'+(u.m.games===1?'':'s')
+    +(u.small?' · <b>too few snaps to rank</b> — values shown, percentiles not':'')+'</div></div>';
+  return head+scoutLines(u)+missingNote(u)+unitBars(u)
+    +(u.side==='O'?tellGrid(u)+routeMix(u):covMix(u))
+    +arrivalBlock(u)+compsBlock(u);
+}
+
+function unitChips(ids,sel,mode){
+  return '<div class="uchips">'+ids.map(function(id){
+    var u=UNITS[id]; if(!u) return '';
+    var lab=u.season+' '+u.team+' '+(u.side==='O'?'OFF':'DEF')+(mode==='hc'?' · '+lastName(u.caller):'')+(u.sure===false?'?':'')
+      +(u.wk[0]>1||u.wk[1]<17?' · wk '+u.wk[0]+'–'+u.wk[1]:'');
+    return '<button class="uchip'+(id===sel?' on':'')+'" data-unit="'+esc(id)+'">'+esc(lab)+'</button>';
+  }).join('')+'</div>';
+}
+function sortUnits(ids){
+  return ids.filter(function(id){return UNITS[id];}).sort(function(a,b){
+    var x=UNITS[a], y=UNITS[b];
+    return y.season-x.season || (x.side<y.side?1:x.side>y.side?-1:0) || y.wk[0]-x.wk[0];
+  });
+}
+function pickUnit(ids){
+  for(var i=0;i<ids.length;i++) if(!UNITS[ids[i]].small) return ids[i];
+  return ids[0];
+}
+function schemePlate(name,mode){
+  var ids;
+  if(mode==='hc'){
+    ids=[]; (COACHES[name].seasons||[]).forEach(function(s){ (s.units||[]).forEach(function(x){ if(ids.indexOf(x)<0) ids.push(x); }); });
+    // a head coach who also called plays elsewhere keeps those units on his page too
+    ((CALLERS[name]&&CALLERS[name].units)||[]).forEach(function(x){ if(ids.indexOf(x)<0) ids.push(x); });
+  } else ids=(CALLERS[name]&&CALLERS[name].units)||[];
+  ids=sortUnits(ids);
+  if(!ids.length) return '';
+  var own=ids.filter(function(id){return UNITS[id].caller===name;});
+  var sel=(curUnit&&ids.indexOf(curUnit)>=0)?curUnit:pickUnit(own.length?own:ids);
+  var cap=mode==='hc'
+    ? 'His teams\' offences and defences since 2018, credited to whoever called them'+(CALLERS[name]?', plus the units he called himself':'')+'. Pick one.'
+    : 'Every unit he called since 2018. Each is ranked against the other '+'units of its own season.';
+  return '<div class="plate" id="scheme"><h2 class="panel-h">'+(mode==='hc'?'Scheme — who called his team\'s plays':'Scheme — what he called')+'</h2>'
+    +'<div class="panel-cap">'+esc(cap)+'</div>'+unitChips(ids,sel,mode)
+    +'<div id="unitview">'+unitView(UNITS[sel])+'</div>'
+    +'<div class="curated"><b>ABOUT THE PLAY-CALLERS</b>'+esc(DATA.callerNote||'')+'</div></div>';
+}
+function openUnit(id){
+  curUnit=id;
+  var v=document.getElementById('unitview'); if(!v||!UNITS[id]) return false;
+  document.querySelectorAll('.uchip').forEach(function(b){ b.classList.toggle('on',b.dataset.unit===id); });
+  if(!document.querySelector('.uchip.on')) return false;
+  v.innerHTML=unitView(UNITS[id]);
+  return true;
+}
+
+/* ---------------------------------------------------------------- style match (caller level) */
+function styleMatch(name){
+  var c=CALLERS[name]; if(!c) return '';
+  var html='';
+  ['O','D'].forEach(function(side){
+    var s=c[side]; if(!s||!s.comps) return;
+    html+='<div class="lin-h" style="margin-top:14px">'+(side==='O'?'OFFENSIVE':'DEFENSIVE')+' PLAY-CALLERS MOST LIKE HIM</div>'
+      +'<div class="protg">'+s.comps.map(function(x){
+        return '<button class="chip" data-go="'+esc(x[0])+'" title="Closer than '+capP(x[2])+'% of pairs">'
+          +esc(x[0])+' <span class="dim">'+capP(x[2])+'</span></button>'; }).join('')+'</div>';
+    (s.mentors||[]).forEach(function(mn){
+      var p=capP(mn[2]);
+      var verdict=p>=75?'The tree shows up in the play-calling.':(p>=40?'Some of it shows up.':'Whatever he learned there, it isn\'t in the play-calling.');
+      html+='<div class="lin-role">Against '+(mn[3]?'his mentor ':'')+'<b>'+esc(mn[0])+'</b>: closer than '+p
+        +'% of '+sideWord(side)+' play-caller pairs. '+verdict+'</div>';
+    });
+  });
+  if(!html) return '';
+  return '<div class="plate"><h2 class="panel-h">Style match</h2>'
+    +'<div class="panel-cap">Career fingerprints — every style number, measured against its own season\'s league and averaged over his units by snaps. '
+    +'The number on each name is how many play-caller pairs sit further apart.</div>'+html+'</div>';
+}
+
+/* ---------------------------------------------------------------- fourth downs */
+var YTG_LAB=['1','2–3','4–6','7+'], FLD_LAB=['Opp 1–20','Opp 21–35','Opp 36–50','Own 30–49','Own 1–29'];
+function d4Panel(c){
+  var car=c.career; if(!car.d4_n) return '';
+  var yrs=c.seasons.filter(function(s){return s.d4_n;});
+  var span=yrs[0].season+(yrs.length>1?'–'+yrs[yrs.length-1].season:'');
+  var lgYears=Object.keys(LEAGUE).filter(function(y){return LEAGUE[y].d4;}).sort();
+  var trend='';
+  if(lgYears.length>2){
+    var a=lgYears[0], b=lgYears[lgYears.length-1];
+    if(CURINFO&&+b===CURINFO.season&&lgYears.length>3) b=lgYears[lgYears.length-2];
+    trend=' League-wide, coaches went for it on '+LEAGUE[a].d4.dg_follow.toFixed(0)+'% of clear "go" spots in '+a
+      +' and '+LEAGUE[b].d4.dg_follow.toFixed(0)+'% in '+b+'.';
+  }
+  var strip='<div class="crec">'
+    +statCell('CLEAR GO SPOTS TAKEN',(car.d4_follow==null?'—':car.d4_follow.toFixed(0)+'%')+' <small>'+car.d4_dg_go+'/'+car.d4_dg+'</small>')
+    +statCell('CLOSE CALLS TAKEN',(car.d4_follow_p==null?'—':car.d4_follow_p.toFixed(0)+'%')+' <small>'+car.d4_pg_go+'/'+car.d4_pg+'</small>')
+    +statCell('WP GIVEN AWAY / GAME',car.d4_lost_g==null?'—':car.d4_lost_g.toFixed(2)+' pts')
+    +statCell('FOURTH DOWNS JUDGED',car.d4_n)+'</div>';
+  var grid='';
+  if(car.d4_grid){
+    grid='<div class="d4map"><div class="d4c h"></div>'+FLD_LAB.map(function(f){return '<div class="d4c h">'+f+'</div>';}).join('');
+    car.d4_grid.forEach(function(row,i){
+      grid+='<div class="d4c h">4th &amp; '+YTG_LAB[i]+'</div>';
+      row.forEach(function(cell){
+        var n=cell[0], went=cell[1], go=cell[2];
+        if(!n){ grid+='<div class="d4c e">·</div>'; return; }
+        var lean=(went-go)/n, col=colorAt(Math.max(0,Math.min(100,50+lean*60)));
+        grid+='<div class="d4c" style="background:'+col+'" title="'+n+' fourth downs: went for it '+went
+          +', the model said go on '+go+', kick on '+cell[3]+'"><b>'+went+'/'+n+'</b><i>model: go '+go+'</i></div>';
+      });
+    });
+    grid+='</div><div class="panel-cap">Each cell: times he went for it / fourth downs in that spot, and how many of them the model said to go. '
+      +'Red cells he went more than the model asked; blue cells he kicked when it said go.</div>';
+  }
+  var worst='';
+  if(car.d4_worst&&car.d4_worst.length){
+    worst='<div class="lin-h" style="margin-top:14px">THE CALLS THE MODEL LIKED LEAST</div>'
+      +car.d4_worst.map(function(w){
+        var ch={punt:'Punted',fg:'Kicked the field goal',go:'Went for it'}[w.ch]||w.ch;
+        var best={punt:'punt',fg:'kick',go:'go for it'}[w.best]||w.best;
+        var sc=w.sd==null?'':(w.sd>0?'up '+w.sd:(w.sd<0?'down '+(-w.sd):'tied'));
+        return '<div class="worst"><span class="wh">'+w.season+' wk '+w.wk+' vs '+esc(w.opp)+'</span>'
+          +'<span>4th &amp; '+w.ytg+' at '+esc(w.spot)+', Q'+w.q+' '+esc(w.t)+(sc?', '+sc:'')+'</span>'
+          +'<span>'+ch+'. Model: '+best+' — <b>−'+w.lost.toFixed(1)+' WP</b></span></div>';
+      }).join('');
+  }
+  return '<div class="plate"><h2 class="panel-h">Fourth downs</h2>'
+    +'<div class="panel-cap">Every fourth down since 2014, '+span+' for him, scored by the nfl4th model (Ben Baldwin): the win probability of going, punting and kicking. '
+    +'Clear "go" means going was worth 4+ points of win probability; a close call, 1 to 4.'+trend+'</div>'
+    +strip+(car.d4_n<60?'<div class="panel-cap"><b>Small sample:</b> '+car.d4_n+' fourth downs so far. Read these as what happened, not who he is yet.</div>':'')+grid+worst
+    +'<div class="curated"><b>WHAT THE MODEL CAN\'T SEE</b>Injuries, his kicker beyond the league average, the wind on the day. '
+    +'A single call it dislikes can be right for reasons it doesn\'t know, so read the career numbers, not one Sunday.</div></div>';
+}
+
+/* ---------------------------------------------------------------- the play-caller page */
+function callerHead(name){
+  var c=CALLERS[name], roles=[];
+  ['O','D'].forEach(function(side){
+    var s=c[side]; if(!s) return;
+    roles.push((side==='O'?'Called the offence':'Called the defence')+' '+callerYears(name,side)+' · '+s.teams.join(', '));
+  });
+  var units=c.units.length, seasons={};
+  c.units.forEach(function(id){ if(UNITS[id]) seasons[UNITS[id].season]=1; });
+  var uns=(c.O&&c.O.unsure||0)+(c.D&&c.D.unsure||0);
+  return '<div class="plate"><div class="chead">'
+    +'<div class="cava">'+esc(initials(name))+'</div>'
+    +'<div class="cid"><h1 class="cname">'+esc(name)+'</h1>'
+    +'<div class="cmeta">'+roles.map(esc).join('<br>')+'</div>'
+    +'<div class="crec">'+statCell('SEASONS CALLING',Object.keys(seasons).length)+statCell('UNITS',units)
+      +(c.O?statCell('OFFENSIVE SNAPS',c.O.plays):'')+(c.D?statCell('DEFENSIVE SNAPS',c.D.plays):'')+'</div>'
+    +'<div class="badges">'+(c.O?'<span class="badge green">PLAY-CALLER · OFFENCE</span>':'')
+      +(c.D?'<span class="badge green">PLAY-CALLER · DEFENCE</span>':'')
+      +(uns?'<span class="badge">'+uns+' UNCONFIRMED '+(uns===1?'SEASON':'SEASONS')+'</span>':'')+'</div>'
+    +'</div></div>'
+    +((DATA.tree[name]||kidsOf(name).length)?lineageBlock(name)+'<div class="curated"><b>ABOUT THE LINEAGE</b>'+esc(DATA.treeNote)+'</div>':'')
+    +'</div>';
+}
+function renderCaller(name){
+  cur=name;
+  var el=document.getElementById('coach');
+  el.innerHTML=callerHead(name)+styleMatch(name)+schemePlate(name,'caller');
+  wireCoach(el);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---------------------------------------------------------------- data merge */
+function mergeCurrent(cj){
+  if(!cj) return;
+  CURINFO={season:cj.season, week:cj.week};
+  if(DATA.generated&&cj.generated&&cj.generated<DATA.generated) return;   // archive is newer
+  for(var n in (cj.coaches||{})) COACHES[n]=cj.coaches[n];
+  for(var k in (cj.units||{})) UNITS[k]=cj.units[k];
+  for(var c in (cj.callers||{})) CALLERS[c]=cj.callers[c];
+  for(var y in (cj.league||{})) LEAGUE[y]=cj.league[y];
+}
+
 /* ---------------------------------------------------------------- search, routing, boot */
 function searchHits(term){
   term=_norm(term).trim();
@@ -1207,9 +1854,11 @@ function searchHits(term){
   return all.slice(0,10);
 }
 function resRow(e){
-  var c=COACHES[e.name].career;
+  var sub;
+  if(COACHES[e.name]){ var c=COACHES[e.name].career; sub=c.w+'–'+c.l+' · '+c.first+'–'+c.last; }
+  else { var k=CALLERS[e.name], r=k.O?k.O:k.D; sub=(k.O?'OFF':'DEF')+' play-caller · '+r.teams.join(' ')+' · '+(r.first===r.last?r.first:r.first+'–'+r.last); }
   return '<div class="res" data-n="'+esc(e.name)+'" role="option"><div class="rn">'+esc(e.name)+'</div>'
-    +'<div class="rs">'+c.w+'–'+c.l+' · '+c.first+'–'+c.last+'</div></div>';
+    +'<div class="rs">'+sub+'</div></div>';
 }
 function wireSearch(inputId,boxId){
   var inp=document.getElementById(inputId), box=document.getElementById(boxId), sel=-1;
@@ -1243,21 +1892,43 @@ function wireCoach(el){
     b.onclick=function(){ show('coach', b.dataset.go); };
   });
   el.addEventListener('click',function(e){
+    var ub=e.target.closest('[data-unit]');
+    if(ub){
+      var id=ub.dataset.unit;
+      if(!openUnit(id)){ curUnit=id; var u=UNITS[id]; if(u) show('coach',u.caller); }
+      else if(ub.classList.contains('ulink')||ub.classList.contains('lrow')){
+        var sc=document.getElementById('scheme'); if(sc) sc.scrollIntoView({behavior:'smooth'});
+      }
+      return;
+    }
+    var gb=e.target.closest('[data-go]');
+    if(gb&&el.contains(gb)&&gb.closest('#unitview')){ show('coach',gb.dataset.go); return; }
     var rl=e.target.closest('.rl'); if(!rl) return;
-    var row=rl.closest('.row'), key=row.dataset.k, id='x-'+key;
+    var row=rl.closest('.row'), key=row.dataset.k, id='x-'+key.replace(/[^A-Za-z0-9_-]/g,'_');
     if(openExpl===id){ var old=document.getElementById(id); if(old) old.remove(); openExpl=null; return; }
     if(openExpl){ var o=document.getElementById(openExpl); if(o) o.remove(); }
-    var m=MBY[key]; if(!m) return;
+    var m=key.indexOf('u:')===0?UMBY[key.slice(2)]:MBY[key]; if(!m) return;
     var d=document.createElement('div');
     d.className='expl'; d.id=id;
     d.innerHTML='<h4>What it is</h4><p>'+esc(m.exp.w)+'</p>'
       +(m.exp.f?'<div class="formula">'+esc(m.exp.f)+'</div>':'')
-      +'<h4 class="why">Why it matters</h4><p>'+esc(m.exp.y)+'</p>';
+      +(m.exp.y?'<h4 class="why">Why it matters</h4><p>'+esc(m.exp.y)+'</p>':'');
     row.insertAdjacentElement('afterend',d);
     openExpl=id;
   });
 }
 
+function paintPills(){
+  var ys=DATA.seasons||[]; var hi=ys.length?ys[0]:'2025', lo=ys.length?ys[ys.length-1]:'1999';
+  var txt=lo+'–'+hi;
+  if(CURINFO&&CURINFO.week&&String(CURINFO.season)===String(hi)) txt+=' · through wk '+CURINFO.week;
+  document.querySelectorAll('.pill.yrs').forEach(function(el){ el.textContent=txt; });
+  var nh=Object.keys(COACHES).length, nc=Object.keys(CALLERS).length;
+  var ht=document.getElementById('heroText');
+  if(ht) ht.textContent='All '+nh+' NFL head coaches since '+lo+' and the '+nc+' play-callers since 2018 — what '
+    +'they won, whether they beat what the market expected, how they handle fourth down, what their '
+    +'offences and defences actually look like, and whose staff they learned it on.';
+}
 /* Leaderboards on the front page — the handful of questions people actually arrive with. */
 function renderLeaders(){
   var qual=Object.keys(COACHES).filter(function(n){return COACHES[n].career.seasons>=MIN_SEASONS;});
@@ -1285,10 +1956,36 @@ function renderLeaders(){
     +board('Most pass-happy','proe',function(c){return fmt('sgn1',c.proe);},false,
            'Pass rate over expected, 2006 on.')
     +board('Fastest tempo','sec_play',function(c){return c.sec_play.toFixed(1)+'s';},true,
-           'Seconds between snaps in neutral situations.');
-  document.querySelectorAll('.lrow').forEach(function(r){
-    r.onclick=function(){ show('coach', r.dataset.n); };
+           'Seconds between snaps in neutral situations.')
+    +d4Board()
+    +unitBoard('O','motion','Most pre-snap motion','pct1',false)
+    +unitBoard('D','blitz','Blitz-happiest defence','pct1',false)
+    +unitBoard('O','pred_own','Hardest offence to read','pct1',true,true);
+  document.querySelectorAll('#leaders .lrow').forEach(function(r){
+    r.onclick=function(){ if(r.dataset.unit) curUnit=r.dataset.unit; show('coach', r.dataset.n); };
   });
+  function d4Board(){
+    var rows=Object.keys(COACHES).filter(function(n){ var c=COACHES[n].career; return c.d4_g>=48&&!miss(c.d4_lost_g); })
+      .sort(function(a,b){return COACHES[a].career.d4_lost_g-COACHES[b].career.d4_lost_g;}).slice(0,10);
+    return '<div><div class="lead-h">Best fourth-down decisions</div>'
+      +rows.map(function(n,i){ return '<div class="lrow" data-n="'+esc(n)+'"><span class="lrk">'+(i+1)+'</span>'
+        +'<span class="ln">'+esc(n)+'</span><span class="lv">'+COACHES[n].career.d4_lost_g.toFixed(2)+' WP/g</span></div>'; }).join('')
+      +'<div class="panel-cap">Least win probability given away per game on fourth down, against the nfl4th model. 2014 on, 3+ seasons.</div></div>';
+  }
+  function unitBoard(side,key,title,unit,low,settled){
+    var seasons={}; for(var id in UNITS) if(UNITS[id].side===side&&!UNITS[id].small&&!miss(UNITS[id].m[key])
+      &&!(settled&&CURINFO&&UNITS[id].season===CURINFO.season)) seasons[UNITS[id].season]=1;
+    var ys=Object.keys(seasons).map(Number).sort(function(a,b){return b-a;}); if(!ys.length) return '';
+    var y=ys[0];
+    var us=Object.keys(UNITS).map(function(id){return UNITS[id];}).filter(function(u){
+      return u.season===y&&u.side===side&&!u.small&&!miss(u.m[key]); })
+      .sort(function(a,b){return low?a.m[key]-b.m[key]:b.m[key]-a.m[key];}).slice(0,10);
+    return '<div><div class="lead-h">'+esc(title)+' — '+y+'</div>'
+      +us.map(function(u,i){ return '<div class="lrow" data-n="'+esc(u.caller)+'" data-unit="'+esc(u.id)+'"><span class="lrk">'+(i+1)+'</span>'
+        +'<span class="ln">'+esc(u.caller)+' <span class="dim">'+u.team+'</span></span><span class="lv">'+fmt(unit,u.m[key])+'</span></div>'; }).join('')
+      +'<div class="panel-cap">'+esc((UMBY[side+':'+key]||{}).exp?UMBY[side+':'+key].exp.w:'')
+      +(CURINFO&&y===CURINFO.season?' This season so far.':'')+'</div></div>';
+  }
 }
 
 /* The hash is the single source of truth for what is on screen. `show` only sets it;
@@ -1306,6 +2003,8 @@ function route(){
     document.body.className='view-tree'; renderTree();
   } else if(h.indexOf('c=')===0 && COACHES[h.slice(2)]){
     document.body.className='view-coach'; renderCoach(h.slice(2));
+  } else if(h.indexOf('c=')===0 && CALLERS[h.slice(2)]){
+    document.body.className='view-coach'; renderCaller(h.slice(2));
   } else {
     document.body.className='view-home'; cur=null;
   }
@@ -1314,17 +2013,25 @@ function route(){
 
 function init(){
   fetch('football-games/index.json').then(function(r){ return r.ok?r.json():null; })
-    .then(function(j){ GIDX=j; if(cur) openCoach(cur.name||cur); })
+    .then(function(j){ GIDX=j; if(cur&&document.body.className==='view-coach'&&window.scrollY<60) route(); })
     .catch(function(){ GIDX=null; });
-  fetch('coaching-savant-data.json').then(function(r){
+  var cur=fetch('coaching-savant-current.json',{cache:'no-cache'})
+    .then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; });
+  Promise.all([fetch('coaching-savant-data.json').then(function(r){
     if(!r.ok) throw new Error('data '+r.status);
     return r.json();
-  }).then(function(j){
+  }), cur]).then(function(pair){ var j=pair[0]; CJ=pair[1];
     DATA=j; COACHES=j.coaches;
-    NAMES=Object.keys(COACHES).map(function(n){
+    CALLERS=j.callers||{}; UNITS=j.units||{}; LEAGUE=j.league||{};
+    mergeCurrent(CJ);
+    var all={}; Object.keys(COACHES).forEach(function(n){all[n]=1;}); Object.keys(CALLERS).forEach(function(n){all[n]=1;});
+    NAMES=Object.keys(all).map(function(n){
       var p=n.split(' ');
-      return {name:n, n:_norm(n), last:_norm(p[p.length-1]), g:COACHES[n].career.g};
+      var g=COACHES[n]?COACHES[n].career.g:0;
+      if(CALLERS[n]) ['O','D'].forEach(function(s){ if(CALLERS[n][s]) g=Math.max(g,CALLERS[n][s].games); });
+      return {name:n, n:_norm(n), last:_norm(p[p.length-1]), g:g};
     });
+    paintPills();
     document.getElementById('boot').remove();
     document.getElementById('treeNote').innerHTML='<b>A NOTE ON THIS TREE</b>'+esc(j.treeNote);
     renderLeaders();

@@ -6,7 +6,8 @@ Builds the two data assets `public/football-savant.html` reads:
 |---|---|
 | `public/football-savant-data.json` | the metric table (`cfg`) plus every player-season, 1999–2025 |
 | `public/football-maps/<season>.json` | throw maps, target maps and run-gap maps, loaded on demand |
-| `public/coaching-savant-data.json` | every head coach since 1999, plus the curated coaching tree |
+| `public/coaching-savant-data.json` | every head coach since 1999, every play-caller since 2018, their units, fourth-down decisions since 2014, and the curated coaching tree |
+| `public/coaching-savant-current.json` | the in-season overlay for Coaching Savant (see below) |
 
 Everything comes from [nflverse](https://github.com/nflverse/nflverse-data/releases) — open
 data, no scraping, no keys. `FOOTBALL-SAVANT-RESEARCH.md` at the repo root is the argument
@@ -30,7 +31,7 @@ cp football-savant-data.json ../../public/
 cp maps/*.json ../../public/football-maps/
 ```
 
-Needs Python 3.9+ with `pandas` and `pyarrow`. Paths are overridable:
+Needs Python 3.9+ with `pandas` and `pyarrow` (and `pyreadr` for Coaching Savant's fourth-down model). Paths are overridable:
 `NFL_RAW`, `NFL_AGG`, `NFL_MAPS`, `NFL_OUT`. Seasons too: `NFL_SEASONS=2026`,
 `2024,2025` or `1999-2026` (default: 1999 through the current season — see `seasons.py`).
 
@@ -247,3 +248,83 @@ Three measurement decisions carry the whole thing:
 - **Scrambles count as carries** in the box score, so `pbp_agg.py` includes them in the
   rushing aggregate — otherwise a quarterback's EPA-per-carry and his yards-per-carry would
   be computed on different denominators.
+
+## Coaching Savant, specifically
+
+Three measurement decisions carry the whole thing:
+
+1. **The spread is the expectation.** A coach's record says as much about his roster as
+   about him. The closing line already prices the roster in, so wins above what the spread
+   implied — and the average margin against it — are the closest thing to a fair test.
+   The spread-to-win-probability curve is read empirically off 27 seasons rather than fitted.
+2. **Tendencies are measured in neutral game states only** — first three quarters, win
+   probability between 20% and 80%. Everybody throws when losing and runs when ahead, so
+   without that filter "pass rate" mostly measures whether a coach was winning.
+3. **Fourth-down aggression is measured against the same spot.** The league's go-for-it rate
+   in that distance and field-position bucket is the baseline, and only neutral game states
+   count — otherwise trailing teams look bold and every winning coach looks timid. Measured
+   this way the metric centres on zero, which is the check that it is working.
+
+## Things worth knowing before you change it
+
+- **Percentiles are not computed here.** The page computes them, because the reader changes
+  the cohort and the baseline (this season vs all-time) at will. This file ships values and
+  denominators; the browser does the ranking.
+- **Five era edges, and they are load-bearing.** 1999 play-by-play, 2006 air yards, 2012
+  targets, 2013 snap counts, 2016 tracking, 2018 charting. A metric is dropped from any
+  season older than its tier — `build.py` enforces it on write and the page enforces it
+  again on render.
+- **Targets do not exist between 2000 and 2011.** The old gamebooks only named a receiver on
+  completions, so `receiver_player_id` is present on roughly 10,000 plays a year instead of
+  18,000. Everything per-target starts in 2012; receptions, receiving yards and yards per
+  reception carry the older cards, and receivers fall back to catches to qualify.
+- **PFR's percent columns are inconsistent.** `advstats_season_pass` stores percentages
+  (0–100); `advstats_season_rec` and `advstats_season_def` store fractions (0–1). `build.py`
+  scales the latter two.
+- **`games` in the season table is not games played.** It counts games in which the player
+  recorded a *stat*. For skill players and defenders that is every game; for an offensive
+  lineman it is only the games he was flagged in, which reads a 16-game Trent Williams
+  season as five games and silently corrupts availability, snaps-per-game and penalties-per
+  -game. `build.py` prefers the games count from snap counts, then participation.
+- **`json.dump` will happily write `NaN`,** which is not JSON and which `JSON.parse` rejects
+  for the whole file. `clean()` strips it and the dump runs with `allow_nan=False`.
+- **Scrambles count as carries** in the box score, so `pbp_agg.py` includes them in the
+  rushing aggregate — otherwise a quarterback's EPA-per-carry and his yards-per-carry would
+  be computed on different denominators.
+
+## Coaching Savant
+
+`coaches.py` builds it, from four layers with four start years:
+
+| Layer | Source | From | Credited to |
+|---|---|---|---|
+| Records, wins vs the spread | nflverse schedule | 1999 | head coach |
+| Style (pass rate, tempo, 4th-down go rate) | play-by-play | 1999 | head coach |
+| Fourth-down decisions | nfl4th's precomputed model (`raw/nfl4th.rds`) | 2014 | head coach |
+| Units: tendencies, toolkit, personnel, coverage, the Tell Grid | play-by-play + FTN (2022) + participation (2016/2018) | 2018 | **the play-caller** |
+
+Three files are hand-curated, because no open dataset holds them:
+
+- `coach_tree.py` — who coached under whom.
+- `play_callers.py` — who called each team's offence and defence each week since 2018. A
+  trailing `?` marks a row no report confirms; the page tags it "unconfirmed".
+- `play_callers.py` also carries `HC_FIXES`: the nflverse schedule's coach columns stopped
+  following in-season changes in 2024 and carried three 2025 head coaches into 2026. Each
+  fix is a team, the first day the new man was in charge, and his name.
+
+`coach_units.py` builds the units and the decisions; `coach_identity.py` the fingerprints,
+comps, arrival effects and mentor distances.
+
+Two ways to run it:
+
+```bash
+python3 coaches.py                                       # the whole archive
+NFL_SEASONS=2026 COACH_BASE=../../public/coaching-savant-data.json \
+  COACH_OUT=/tmp/full.json COACH_CURRENT=../../public/coaching-savant-current.json \
+  python3 coaches.py                                     # the season in progress only
+```
+
+The second is what the daily refresh Action runs, after Football Savant's own refresh. It
+rebuilds only the current season, carries every other season over from the archive
+(byte-identical to a full build — checked), and writes the overlay the page lays over the
+archive. The full-rebuild Action rebuilds the archive itself.

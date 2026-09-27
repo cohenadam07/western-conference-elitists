@@ -206,7 +206,7 @@ TREE = {
     'Eric Studesville': _t('Josh McDaniels', 'running backs, Denver Broncos'),
     'Rich Bisaccia':    _t('Jon Gruden', 'special teams, Tampa Bay Buccaneers'),
     'Chris Tabor':      _t('Pat Shurmur', 'special teams, Cleveland Browns'),
-    'Jay Rosburg':      _t('John Harbaugh', 'special teams, Baltimore Ravens'),
+    'Jerry Rosburg':    _t('John Harbaugh', 'special teams, Baltimore Ravens'),
     'Giff Smith':       _t('Brandon Staley', 'defensive line, Los Angeles Chargers'),
     'Antonio Pierce':   _t('Josh McDaniels', 'linebackers, Las Vegas Raiders'),
     'Mel Tucker':       _t('Nick Saban', 'assistant, Michigan State and NFL'),
@@ -226,9 +226,25 @@ TREE = {
     'Jim Bates':        _t('Dave Wannstedt', 'defensive coordinator, Miami Dolphins'),
     'Jim Zorn':         _t('Mike Holmgren', 'quarterbacks, Seattle Seahawks'),
     'Marc Trestman':    _t('Steve Mariucci', 'offensive coordinator, San Francisco 49ers'),
+    # ── the 2026 hires, and the interim coaches the schedule used to miss (added Sept 2026)
+    'Mike LaFleur':     _t('Kyle Shanahan', 'passing game coordinator, San Francisco 49ers',
+                           [dict(mentor='Sean McVay', role='offensive coordinator, Los Angeles Rams')]),
+    'Joe Brady':        _t('Sean Payton', 'offensive assistant, New Orleans Saints',
+                           [dict(mentor='Sean McDermott', role='offensive coordinator, Buffalo Bills')]),
+    'Jesse Minter':     _t('Jim Harbaugh', 'defensive coordinator, Michigan and Los Angeles Chargers',
+                           [dict(mentor='John Harbaugh', role='assistant, Baltimore Ravens')]),
+    'Todd Monken':      _t('John Harbaugh', 'offensive coordinator, Baltimore Ravens',
+                           [dict(mentor='Dirk Koetter', role='offensive coordinator, Tampa Bay Buccaneers')]),
+    'Jeff Hafley':      _t('Matt LaFleur', 'defensive coordinator, Green Bay Packers'),
+    'Mike Kafka':       _t('Andy Reid', 'quarterbacks and passing game coordinator, Kansas City Chiefs',
+                           [dict(mentor='Brian Daboll', role='offensive coordinator, New York Giants')]),
+    'Thomas Brown':     _t('Sean McVay', 'running backs and assistant head coach, Los Angeles Rams'),
+    'Jeff Ulbrich':     _t('Dan Quinn', 'linebackers then defensive coordinator, Atlanta Falcons'),
+    'Darren Rizzi':     _t('Sean Payton', 'special teams coordinator, New Orleans Saints'),
+    'John Fassel':      _t('Jeff Fisher', 'special teams coordinator, Los Angeles Rams'),
 }
 
 # entries above that exist only as a named ancestor, never as a head coach in the data
 # named only as an ancestor here — never a head coach inside the 1999+ window
 BRIDGE = ['Jim Johnson', 'Monte Kiffin', 'Rob Ryan', 'Sam Wyche', 'Tom Flores',
-          'John Madden', 'Klint Kubiak']
+          'John Madden']

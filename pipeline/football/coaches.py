@@ -1,4 +1,4 @@
-"""Build public/coaching-savant-data.json.
+"""Build public/coaching-savant-data.json (and, in season, coaching-savant-current.json).
 
 A head coach leaves two kinds of trace in open data, and they answer different questions:
 
@@ -10,8 +10,24 @@ A head coach leaves two kinds of trace in open data, and they answer different q
 Both are joined on the game, not the season, so a coach fired in week 9 gets exactly the
 games he coached and his interim replacement gets the rest.
 
-What is NOT here: the coaching tree. No open dataset records who assisted whom, so that
-lives in coach_tree.py as hand-curated data — see the note at the top of that file.
+Since v2 there are two more layers, built in coach_units.py and coach_identity.py:
+
+  decisions   every fourth down since 2014 scored by the nfl4th model - the head coach's
+  units       every offence and defence since 2018 credited to the man who CALLED it,
+              from the hand-curated play_callers.py, with its scheme fingerprint
+
+What is NOT computed: the coaching tree (coach_tree.py) and who called the plays
+(play_callers.py). No open dataset records either.
+
+Runs two ways:
+
+  full         NFL_SEASONS unset (1999..current) -> the whole archive
+  merge        COACH_BASE=<an existing archive> NFL_SEASONS=2026 -> rebuild only those
+               seasons' play-by-play layers and carry every other season over from the
+               base. Records always come from the whole schedule, which is cheap.
+
+With COACH_CURRENT=<path> it also writes the small in-season file the page overlays on
+the archive: the current season's units, and the full records of everyone active in it.
 """
 import json, math, os, sys, datetime
 from collections import defaultdict
@@ -19,12 +35,16 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from seasons import seasons as season_list, current_season
+from coach_tree import TREE, TREE_NOTE, ROOTS
+from play_callers import fix_head_coaches, FIRST_SEASON as CALLER_FIRST
+
 RAW = os.environ.get('NFL_RAW', 'raw')
 OUT = os.environ.get('COACH_OUT', 'coaching-savant-data.json')
-SEASONS = list(range(1999, 2026))
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from coach_tree import TREE, TREE_NOTE, ROOTS
+BASE = os.environ.get('COACH_BASE')
+CURRENT = os.environ.get('COACH_CURRENT')
+SEASONS = season_list()
 
 ROUND_ORDER = {'WC': 1, 'DIV': 2, 'CON': 3, 'SB': 4}
 ROUND_NAME = {1: 'Wild card', 2: 'Divisional', 3: 'Conference championship', 4: 'Super Bowl'}
@@ -73,7 +93,7 @@ def build_records(g, pwin):
     """Per coach-season: record, playoff result, and performance against the spread."""
     seasons = defaultdict(lambda: dict(
         w=0, l=0, t=0, pf=0, pa=0, pw=0, pl=0, best=0, sb_w=0,
-        exp_w=0.0, cover=0, atsn=0, mov_oe=0.0, games=0, teams=set()))
+        exp_w=0.0, cover=0, atsn=0, mov_oe=0.0, games=0, teams=set(), wks=[]))
     for r in g.itertuples(index=False):
         yr = int(r.season)
         spread = float(r.spread_line) if pd.notna(r.spread_line) else None
@@ -88,6 +108,7 @@ def build_records(g, pwin):
             won = own > opp
             tie = own == opp
             if r.game_type == 'REG':
+                e['wks'].append(int(r.week))
                 e['w' if won else ('t' if tie else 'l')] += 1
                 e['pf'] += float(own)
                 e['pa'] += float(opp)
@@ -224,81 +245,218 @@ def build_style(year, g):
     return out
 
 
+STYLE_KEYS = ('pass_rate', 'early_pass', 'proe', 'shotgun', 'nohuddle', 'sec_play',
+              'plays_g', 'off_epa', 'def_epa', 'st_epa', 'go_rate', 'go_oe', 'fourths', 'two_pt')
+D4_SUM = ('d4_n', 'd4_go', 'd4_dg', 'd4_dg_go', 'd4_pg', 'd4_pg_go', 'd4_pk', 'd4_pk_go',
+          'd4_dk', 'd4_dk_go', 'd4_bad')
+D4_KEYS = D4_SUM + ('d4_lost', 'd4_grid', 'd4_worst')
+
+
+def load_base():
+    if not BASE or not os.path.exists(BASE):
+        return None
+    with open(BASE) as f:
+        return json.load(f)
+
+
+def career_of(ss):
+    tot = dict(g=0, w=0, l=0, t=0, pw=0, pl=0, sb=0, po=0, exp_w=0.0, waa=0.0,
+               cover=0.0, atsn=0, mov=0.0)
+    for s in ss:
+        tot['g'] += s['g']; tot['w'] += s['w']; tot['l'] += s['l']; tot['t'] += s['t']
+        tot['pw'] += s['pw']; tot['pl'] += s['pl']; tot['sb'] += s['sb']
+        if s['best'] > 0:
+            tot['po'] += 1
+        if 'waa' in s:
+            tot['waa'] += s['waa']; tot['exp_w'] += s['exp_w']
+            tot['mov'] += s['mov_oe'] * s['g']; tot['atsn'] += s['g']
+    wl = tot['w'] + tot['l'] + tot['t']
+    career = dict(
+        seasons=len(ss), g=tot['g'], w=tot['w'], l=tot['l'], t=tot['t'],
+        winpct=rnd(100.0 * (tot['w'] + 0.5 * tot['t']) / wl, 1) if wl else None,
+        pw=tot['pw'], pl=tot['pl'], sb=tot['sb'], po=tot['po'],
+        porate=rnd(100.0 * tot['po'] / len(ss), 1),
+        waa=rnd(tot['waa'], 2),
+        mov_oe=rnd(tot['mov'] / tot['atsn'], 2) if tot['atsn'] else None,
+        first=ss[0]['season'], last=ss[-1]['season'],
+        teams=sorted({t for s in ss for t in s['team'].split('/')}),
+    )
+    # career style is a games-weighted mean of the seasons that carry each number
+    for k in ('pass_rate', 'early_pass', 'proe', 'shotgun', 'nohuddle', 'sec_play',
+              'plays_g', 'off_epa', 'def_epa', 'st_epa', 'go_rate', 'go_oe'):
+        num = den = 0.0
+        for s in ss:
+            if s.get(k) is not None:
+                num += s[k] * s['g']; den += s['g']
+        if den:
+            career[k] = rnd(num / den, 3)
+    # fourth downs: counts add up, and the rates are taken on the totals
+    d4 = [s for s in ss if s.get('d4_n')]
+    if d4:
+        for k in D4_SUM:
+            career[k] = sum(s.get(k, 0) for s in d4)
+        career['d4_g'] = sum(s['g'] for s in d4)
+        career['d4_lost'] = rnd(sum(s.get('d4_lost') or 0 for s in d4), 2)
+        career['d4_lost_g'] = rnd(career['d4_lost'] / career['d4_g'], 3) if career['d4_g'] else None
+        career['d4_follow'] = rnd(100.0 * career['d4_dg_go'] / career['d4_dg'], 1) if career['d4_dg'] else None
+        career['d4_follow_p'] = rnd(100.0 * career['d4_pg_go'] / career['d4_pg'], 1) if career['d4_pg'] else None
+        kicks = career['d4_pk'] + career['d4_dk']
+        career['d4_rash'] = rnd(100.0 * (career['d4_pk_go'] + career['d4_dk_go']) / kicks, 1) if kicks else None
+        # the decision map, summed across seasons
+        grid = None
+        for s in d4:
+            gd = s.get('d4_grid')
+            if not gd:
+                continue
+            if grid is None:
+                grid = [[[0, 0, 0, 0] for _ in row] for row in gd]
+            for i, row in enumerate(gd):
+                for j, cell in enumerate(row):
+                    for k in range(4):
+                        grid[i][j][k] += cell[k]
+        career['d4_grid'] = grid
+        worst = [dict(w, season=s['season'], team=s['team']) for s in d4 for w in (s.get('d4_worst') or [])]
+        worst.sort(key=lambda w: -(w.get('lost') or 0))
+        career['d4_worst'] = worst[:5]
+    return career
+
+
 def main():
+    from coach_units import load_season, build_units
+    from coach_identity import build_identity
+
     g = pd.read_csv(os.path.join(RAW, 'schedules.csv'), low_memory=False)
-    g = g[g.home_score.notna() & g.away_score.notna() & (g.season <= max(SEASONS))]
+    g = fix_head_coaches(g)
+    last = max(max(SEASONS), current_season())
+    g = g[g.home_score.notna() & g.away_score.notna() & (g.season <= last)]
     pwin = spread_win_curve(g[g.spread_line.notna()])
     recs = build_records(g, pwin)
+    base = load_base()
+    built = set()
 
-    style = {}
+    style, dec, units, league = {}, {}, {}, {}
     for y in SEASONS:
-        for k, v in build_style(y, g).items():
+        st = build_style(y, g)
+        if not st:
+            continue                      # nflverse has nothing for this season yet
+        built.add(y)
+        for k, v in st.items():
             style[(k[0], y, k[1])] = v
-        print('style', y, flush=True)
+        if y >= 2014:
+            pb = load_season(y, g)
+            if pb is not None:
+                u, d, lg = build_units(pb, y)
+                units.update(u)
+                for k, v in d.items():
+                    dec[(k[0], y, k[1])] = v
+                if lg:
+                    league[str(y)] = dict(d4=lg)
+        print('season', y, '— units', sum(1 for x in units.values() if x['season'] == y), flush=True)
+
+    # everything not rebuilt comes over from the base archive untouched
+    carried = 0
+    if base:
+        for name, c in base.get('coaches', {}).items():
+            for s in c['seasons']:
+                if s['season'] in built:
+                    continue
+                key = (name, s['season'], s['team'].split('/')[0])
+                st = {k: s[k] for k in STYLE_KEYS if s.get(k) is not None}
+                if st:
+                    style.setdefault(key, st)
+                dd = {k: s[k] for k in D4_KEYS if s.get(k) is not None}
+                if dd:
+                    dec.setdefault(key, dd)
+                carried += 1
+        for uid, u in base.get('units', {}).items():
+            if u['season'] not in built:
+                u = dict(u)
+                for k in ('z', 'comps', 'arrival'):
+                    u.pop(k, None)
+                units[uid] = u
+        for y, v in base.get('league', {}).items():
+            if int(y) not in built:
+                league[y] = v
+    print('carried', carried, 'season rows from the base archive')
 
     coaches = defaultdict(lambda: dict(seasons=[]))
     for (coach, yr), e in sorted(recs.items(), key=lambda kv: (kv[0][0], kv[0][1])):
         teams = sorted(e['teams'])
-        st = {}
-        for t in teams:
-            st.update(style.get((coach, yr, t), {}))
         row = dict(season=yr, team='/'.join(teams), g=e['games'],
                    w=e['w'], l=e['l'], t=e['t'], pf=e['pf'], pa=e['pa'],
                    pw=e['pw'], pl=e['pl'], best=e['best'], sb=e['sb_w'])
+        if e['wks']:
+            row['wk'] = [min(e['wks']), max(e['wks'])]
         if e['atsn']:
             row['exp_w'] = rnd(e['exp_w'], 2)
             row['cover'] = rnd(100.0 * e['cover'] / e['atsn'], 1)
             row['mov_oe'] = rnd(e['mov_oe'] / e['games'], 2)
             row['waa'] = rnd((e['w'] + 0.5 * e['t'] + e['pw']) - e['exp_w'], 2)
-        for k, v in st.items():
-            row[k] = rnd(v, 3)
+        for t in teams:
+            for k, v in style.get((coach, yr, t), {}).items():
+                row[k] = rnd(v, 3) if isinstance(v, float) else v
+            for k, v in dec.get((coach, yr, t), {}).items():
+                row[k] = v
+        # the units his team fielded while he was the head coach, whoever called them
+        if yr >= CALLER_FIRST and 'wk' in row:
+            a, b = row['wk']
+            row['units'] = sorted(uid for uid, u in units.items()
+                                  if u['season'] == yr and u['team'] in teams
+                                  and u['wk'][0] <= b and u['wk'][1] >= a)
         coaches[coach]['seasons'].append(row)
 
     out_coaches = {}
     for coach, d in coaches.items():
-        ss = d['seasons']
-        tot = dict(g=0, w=0, l=0, t=0, pw=0, pl=0, sb=0, po=0, exp_w=0.0, waa=0.0,
-                   cover=0.0, atsn=0, mov=0.0)
-        for s in ss:
-            tot['g'] += s['g']; tot['w'] += s['w']; tot['l'] += s['l']; tot['t'] += s['t']
-            tot['pw'] += s['pw']; tot['pl'] += s['pl']; tot['sb'] += s['sb']
-            if s['best'] > 0:
-                tot['po'] += 1
-            if 'waa' in s:
-                tot['waa'] += s['waa']; tot['exp_w'] += s['exp_w']
-                tot['mov'] += s['mov_oe'] * s['g']; tot['atsn'] += s['g']
-        wl = tot['w'] + tot['l'] + tot['t']
-        career = dict(
-            seasons=len(ss), g=tot['g'], w=tot['w'], l=tot['l'], t=tot['t'],
-            winpct=rnd(100.0 * (tot['w'] + 0.5 * tot['t']) / wl, 1) if wl else None,
-            pw=tot['pw'], pl=tot['pl'], sb=tot['sb'], po=tot['po'],
-            porate=rnd(100.0 * tot['po'] / len(ss), 1),
-            waa=rnd(tot['waa'], 2),
-            mov_oe=rnd(tot['mov'] / tot['atsn'], 2) if tot['atsn'] else None,
-            first=ss[0]['season'], last=ss[-1]['season'],
-            teams=sorted({t for s in ss for t in s['team'].split('/')}),
-        )
-        # career style is a games-weighted mean of the seasons that carry each number
-        for k in ('pass_rate', 'early_pass', 'proe', 'shotgun', 'nohuddle', 'sec_play',
-                  'plays_g', 'off_epa', 'def_epa', 'st_epa', 'go_rate', 'go_oe'):
-            num = den = 0.0
-            for s in ss:
-                if s.get(k) is not None:
-                    num += s[k] * s['g']; den += s['g']
-            if den:
-                career[k] = rnd(num / den, 3)
-        out_coaches[coach] = dict(name=coach, seasons=ss, career=career,
-                                  tree=TREE.get(coach))
+        out_coaches[coach] = dict(name=coach, seasons=d['seasons'],
+                                  career=career_of(d['seasons']), tree=TREE.get(coach))
 
+    callers = build_identity(units, TREE)
+    for c in callers.values():
+        c['hc'] = c['name'] in out_coaches
+        c['tree'] = TREE.get(c['name'])
+
+    seasons_all = sorted({s['season'] for c in out_coaches.values() for s in c['seasons']}, reverse=True)
+    cur = current_season()
+    wk = None
+    gc = g[(g.season == cur) & (g.game_type == 'REG')]
+    if len(gc):
+        wk = int(gc.week.max())
     payload = dict(
         generated=datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        source='nflverse schedules + play-by-play; coaching lineage hand-curated',
-        seasons=[str(y) for y in reversed(SEASONS)],
+        source='nflverse schedules, play-by-play, FTN charting and participation; nfl4th '
+               'fourth-down model; coaching lineage and play-callers hand-curated',
+        seasons=[str(y) for y in seasons_all],
         treeNote=TREE_NOTE, roots=ROOTS, tree=TREE,
-        coaches=out_coaches)
+        callerNote=CALLER_NOTE,
+        coaches=out_coaches, callers=callers, units=units, league=league,
+        current=dict(season=cur, week=wk))
     with open(OUT, 'w') as f:
         json.dump(payload, f, separators=(',', ':'), allow_nan=False)
-    print('wrote', OUT, os.path.getsize(OUT) // 1024, 'KB —', len(out_coaches), 'coaches')
+    print('wrote', OUT, os.path.getsize(OUT) // 1024, 'KB —', len(out_coaches), 'head coaches,',
+          len(callers), 'play-callers,', len(units), 'units')
+
+    if CURRENT:
+        # The in-season overlay: everybody active this season, in full, and this season's
+        # units. The page lays it over the archive, so the archive only needs rebuilding
+        # when a season is finished.
+        active = {n: c for n, c in out_coaches.items() if any(s['season'] == cur for s in c['seasons'])}
+        cu = {uid: u for uid, u in units.items() if u['season'] == cur}
+        cc = {n: c for n, c in callers.items() if any(units[x]['season'] == cur for x in c['units'])}
+        small = dict(generated=payload['generated'], season=cur, week=wk,
+                     coaches=active, callers=cc, units=cu,
+                     league={str(cur): league[str(cur)]} if str(cur) in league else {})
+        with open(CURRENT, 'w') as f:
+            json.dump(small, f, separators=(',', ':'), allow_nan=False)
+        print('wrote', CURRENT, os.path.getsize(CURRENT) // 1024, 'KB')
+
+
+CALLER_NOTE = (
+    "Scheme belongs to whoever called the plays, not automatically to the head coach, so "
+    "every offence and defence since 2018 is credited to its play-caller. No open dataset "
+    "records who that was: the list is hand-curated from team announcements and beat "
+    "reporting, and when play-calling changed hands mid-season the season is split at the "
+    "week it did. Rows marked unconfirmed are the coordinator with the title where no report "
+    "names the caller. Before 2018, style is shown under the head coach.")
 
 
 if __name__ == '__main__':
