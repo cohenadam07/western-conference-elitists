@@ -15,7 +15,7 @@ import ArticleDetail from './pages/ArticleDetail.jsx'
 import Contact from './pages/Contact.jsx'
 import CompChain from './pages/CompChain.jsx'
 import Dynasty from './pages/Dynasty.jsx'
-import Hoops from './pages/Hoops.jsx'
+import FlappyHoops from './pages/FlappyHoops.jsx'
 import AnalyticsArchive from './pages/AnalyticsArchive.jsx'
 import Newsletter from './pages/Newsletter.jsx'
 import Privacy from './pages/Privacy.jsx'
@@ -26,9 +26,10 @@ const Inbox = lazy(() => import('./pages/Inbox.jsx'))
 
 function App() {
   const { pathname } = useLocation()
-  // /gm is a standalone game, not a page on the site: no site chrome, no page padding, and
-  // it owns the whole viewport so the front-office shell can scroll its own panes.
-  const standalone = pathname.startsWith('/gm')
+  // /gm and /hoops are standalone games, not pages on the site: no site chrome, no page padding,
+  // and each owns the whole viewport (the front-office shell scrolls its own panes; Flappy Hoops
+  // fills it with its frame).
+  const standalone = pathname.startsWith('/gm') || pathname.startsWith('/hoops')
   return (
     <div className={standalone ? 'flex h-screen flex-col overflow-hidden' : 'flex min-h-screen flex-col bg-paper'}>
       <a
@@ -44,7 +45,7 @@ function App() {
         <div key={pathname} className={standalone ? 'h-full' : 'route-fade'}>
           <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/hoops" element={<Hoops />} />
+          <Route path="/hoops" element={<FlappyHoops />} />
           <Route path="/news" element={<News />} />
           <Route path="/podcasts" element={<Navigate to="/" replace />} /> {/* hidden for now */}
           <Route path="/about" element={<About />} />

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#22395A">
+<title>Flappy Hoops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="/flappy-hoops/assets/index-DPI8RBay.js"></script>
+  <link rel="stylesheet" crossorigin href="/flappy-hoops/assets/index-0bFTL9fA.css">
+</head>
+<body>
+<div id="app">
+  <div id="sky"></div>
+  <div id="game"></div>
+
+  <div id="hud" class="hidden">
+    <div class="hud-hole"><span>HOLE</span><b id="hudHole">1</b></div>
+    <div class="hud-stars" id="hudStars"></div>
+    <div class="hud-actions">
+      <button class="hud-btn" id="btnRetry" aria-label="Restart hole" title="Restart (R)">
+        <svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M4 3.8v4.4h4.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="hud-btn" id="btnMenu" aria-label="Pause" title="Pause (Esc)">
+        <svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1.5" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.5" fill="currentColor"/></svg>
+      </button>
+    </div>
+    <div id="counter" class="counter">0</div>
+    <div id="ghostTag" class="ghost-tag hidden">GHOST · YOUR BEST</div>
+    <div class="pad pad-l" id="padL"><svg viewBox="0 0 64 64"><path d="M40 44 20 24M20 24h15M20 24v15" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M46 20c3 3 4 7 3 11M52 16c5 5 6 12 4 18" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" opacity=".7"/></svg></div>
+    <div class="pad pad-r" id="padR"><svg viewBox="0 0 64 64"><path d="M24 44 44 24M44 24H29M44 24v15" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 20c-3 3-4 7-3 11M12 16c-5 5-6 12-4 18" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" opacity=".7"/></svg></div>
+    <div id="hint" class="hint hidden"><span class="hint-l">Tap left to flap ↖<small class="kb">or press A / ←</small></span><span class="hint-r">↗ Tap right to flap<small class="kb">or press D / →</small></span></div>
+  </div>
+
+  <div id="banner" class="banner hidden">
+    <div class="banner-k" id="bnK">HOLE 1 · WEST 4TH STREET</div>
+    <div class="banner-t" id="bnT">The Cage</div>
+    <div class="banner-m hidden" id="bnM"></div>
+    <div class="banner-l" id="bnL">Flap to climb. Drop through the rim from above.</div>
+    <div class="banner-p" id="bnP"></div>
+    <div class="banner-skip">tap to start</div>
+  </div>
+
+  <div id="popup" class="popup hidden"><b id="popT">SWISH!</b><span id="popS"></span></div>
+  <div id="toast" class="toast hidden"></div>
+  <div id="shotClock" class="shotclock hidden"><span>SHOT CLOCK</span><b id="scN">4</b></div>
+
+  <div id="card" class="modal hidden">
+    <div class="card">
+      <div class="card-head">
+        <div class="badge">WCE</div>
+        <div><div class="card-k" id="cdK">HOLE 1 · WEST 4TH STREET</div><div class="card-t" id="cdT">The Cage</div></div>
+      </div>
+      <div class="card-body">
+      <div class="card-score">
+        <div class="card-flaps"><b id="cdF">5</b><span>flaps</span></div>
+        <div class="card-res"><div class="card-term" id="cdTerm">BIRDIE</div><div class="card-stars" id="cdStars"></div><div class="card-tix hidden" id="cdTix"></div><div class="card-note" id="cdNote"></div></div>
+      </div>
+      <table class="scorecard" id="cdTable"></table>
+      </div>
+      <div class="card-actions">
+        <button class="btn ghost" id="cdRetry">Retry</button>
+        <button class="btn ghost" id="cdWatch">Watch the Savant line</button>
+        <button class="btn primary" id="cdNext">Next hole</button>
+        <button class="btn primary hidden" id="cdWorld">Next world</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="menu" class="modal hidden">
+    <div class="card menu-card">
+      <div class="card-head"><div class="badge">WCE</div><div><div class="card-k">PAUSED</div><div class="card-t" id="mnT">The Cage</div></div></div>
+      <div class="menu-holes" id="mnHoles"></div>
+      <div class="card-actions col">
+        <button class="btn primary" id="mnResume">Resume</button>
+        <button class="btn ghost" id="mnRestart">Restart hole</button>
+        <button class="btn ghost" id="mnSound">Sound: on</button>
+        <button class="btn ghost" id="mnShop">Item shop</button>
+        <button class="btn ghost" id="mnQuit">Quit to title</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="title" class="title">
+    <div class="title-inner">
+      <div class="title-cities" id="tCities"></div>
+      <h1 class="logo"><span class="logo-a">FLAPPY</span><span class="logo-b">HOOPS</span></h1>
+      <div class="title-holes" id="tHoles"></div>
+      <div class="title-cta"><button class="btn primary big" id="tPlay">Play</button><button class="btn shop-open" id="tShop"><span class="tix-pill" id="tTix">0</span><span>Item shop</span></button></div>
+      <div class="title-help">Tap the left or right side to flap that way. Drop it through the rim from above. Fewest flaps wins.</div>
+    </div>
+    <div class="title-brand"><div class="badge sm">WCE</div><span>WESTERN CONFERENCE ELITISTS</span></div>
+  </div>
+
+  <div id="shop" class="modal hidden">
+    <div class="card shop-card">
+      <div class="card-head shop-head">
+        <div class="badge">WCE</div>
+        <div><div class="card-k">TRADE IN YOUR TICKETS</div><div class="card-t">Item Shop</div></div>
+        <div class="shop-bal"><span id="shopTix">0</span></div>
+        <button class="shop-x" id="shopClose" aria-label="Close the shop">✕</button>
+      </div>
+      <div class="shop-tabs"><button class="shop-tab on" data-tab="balls">Balls</button><button class="shop-tab" data-tab="trails">Trails</button><button class="shop-tab wheel" data-tab="wheel">★ Prize Wheel</button></div>
+      <div class="shop-body" id="shopBody"></div>
+    </div>
+  </div>
+
+  <div id="rotate" class="rotate hidden">Turn your phone sideways for the full court ↻</div>
+</div>
+</body>
+</html>
