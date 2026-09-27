@@ -575,7 +575,7 @@ body:not(.home-open) .home{display:none}
 .ast-nm{font-size:11px;font-weight:600;line-height:1.15;max-width:100%;text-align:center;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
 .ast-tm{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;color:var(--faint)}
-.ast-pos{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--faint)}
+.ast-pos{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--faint)}
 .ast-los{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:center;gap:10px;
   font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);
   padding:6px 2px;border-top:2px dashed currentColor;border-bottom:0;margin:2px 0}
@@ -1046,7 +1046,9 @@ body{background-color:#1D6B3A;color:var(--ink);
 .ast-card.line{border-color:#8A6A00}
 .ast-face{border-radius:0;border:2px solid var(--turf-dk);box-sizing:border-box}
 .ast-tm{font-family:var(--pix);font-size:7.5px;color:#7A9384}
-.ast-pos{font-family:var(--pix);font-size:9px;font-weight:400;color:var(--flag);text-shadow:2px 2px 0 var(--turf-dk)}
+.ast-pos{font-family:var(--pix);font-size:14px;font-weight:400;letter-spacing:.06em;color:var(--flag);
+  text-shadow:2px 2px 0 var(--turf-dk);margin-top:2px}
+@media(max-width:560px){.ast-pos{font-size:12px}}
 .ast-swipe{font-family:var(--pix);font-size:8px;color:var(--flag)}
 .ast-los{font-family:var(--pix);font-size:8px;color:rgba(255,255,255,.85);border-top-color:rgba(255,255,255,.7)}
 .ast-note{color:rgba(255,255,255,.82)}
@@ -3712,7 +3714,7 @@ function astCard(it,col,row){
     +'<span class="ast-face">'+(face?'<img src="'+esc(face)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'')+'</span>'
     +'<span class="ast-nm">'+esc(astShort(it.name))+'</span>'
     +'<span class="ast-tm">'+esc(it.team||'')+'</span>'
-    +'</'+tag+'><span class="ast-pos">'+esc(it.slot)+'</span></div>';
+    +'</'+tag+'><span class="ast-pos">'+esc(it.label||it.slot)+'</span></div>';
 }
 function renderAllSavant(season){
   var box=document.getElementById('homeChips');
@@ -3724,6 +3726,13 @@ function renderAllSavant(season){
   // Individual linemen come back as T, T, G, G, C; they take the spots left to right.
   var IND={T:['LT','RT'],G:['LG','RG'],C:['C']}, seen={};
   var used={}, cards='';
+  // Spots filled more than once are numbered in rank order - WR1 is the top receiver.
+  var total={}, nth={};
+  t.def.concat(t.off).forEach(function(it){ total[it.slot]=(total[it.slot]||0)+1; });
+  t.def.concat(t.off).forEach(function(it){
+    nth[it.slot]=(nth[it.slot]||0)+1;
+    it.label=it.slot+(total[it.slot]>1?nth[it.slot]:'');
+  });
   t.def.concat(t.off).forEach(function(it){
     var key=it.slot;
     if(IND[key]&&!it.line){ var k=seen[key]||0; seen[key]=k+1; key=IND[key][k]; }
