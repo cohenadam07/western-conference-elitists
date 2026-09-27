@@ -553,30 +553,52 @@ body:not(.home-open) .home{display:none}
 .home-lb:hover{filter:brightness(1.08)}
 .home-foot{position:absolute;bottom:20px;left:0;right:0;text-align:center;font-family:var(--mono);
   font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);z-index:2}
-/* The All-Savant Team: three units, each a centred run of chips, slot label first */
+/* The All-Savant Team: a formation, defense over offense, then special teams */
 .home{padding-bottom:64px}
-.home-trend{max-width:none;width:min(940px,calc(100vw - 48px))}
+.home-trend{max-width:none;width:min(1060px,calc(100vw - 48px))}
 .ast-title{font-size:13px;letter-spacing:.22em;color:var(--ink);margin-bottom:6px}
 .ast-sub{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
   color:var(--faint);margin-bottom:16px;min-height:1em}
-.ast-team{display:flex;flex-direction:column;gap:16px}
-.ast-grp .home-chips+.home-chips{margin-top:9px}
+.ast-team{display:flex;flex-direction:column;gap:14px}
+.ast-scroll{width:100%;overflow-x:auto;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.ast-field{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));column-gap:6px;row-gap:10px;
+  padding:18px 14px;min-width:720px;box-sizing:border-box;border:1px solid var(--line);border-radius:12px;
+  background:rgba(0,0,0,.12)}
+.ast-cell{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.ast-card{width:100%;max-width:104px;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 4px 5px;background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  color:var(--ink);cursor:pointer;font:inherit;min-width:0;transition:transform .18s ease}
+.ast-card:hover{transform:translateY(-2px);border-color:var(--turf)}
+.ast-card.nolink{cursor:default} .ast-card.nolink:hover{transform:none}
+.ast-face{width:46px;height:46px;background:var(--track);overflow:hidden;flex:none;border-radius:50%}
+.ast-face img{width:100%;height:100%;object-fit:cover;display:block}
+.ast-nm{font-size:11px;font-weight:600;line-height:1.15;max-width:100%;text-align:center;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.ast-tm{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;color:var(--faint)}
+.ast-pos{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--faint)}
+.ast-los{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);
+  padding:6px 2px;border-top:2px dashed currentColor;border-bottom:0;margin:2px 0}
 .ast-grp-h{display:flex;align-items:center;gap:12px;justify-content:center;font-family:var(--mono);
   font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
 .ast-grp-h::before,.ast-grp-h::after{content:"";flex:0 1 70px;height:2px;background:currentColor;opacity:.45}
-.ast-chip{padding-left:5px}
-.ast-slot{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.06em;min-width:30px;
-  text-align:center;padding:4px 5px;border-radius:12px;background:var(--turf);color:#07130C;flex:none}
-.ast-chip.nolink{cursor:default}
-.ast-chip.nolink:hover{transform:none}
-.ast-note{max-width:620px;margin:10px auto 0;font-size:12px;line-height:1.5;color:var(--muted)}
+.ast-st{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.ast-st .ast-cell{width:104px}
+.ast-note{max-width:640px;margin:0 auto;font-size:12px;line-height:1.5;color:var(--muted)}
 .ast-note b{color:var(--ink)}
+.ast-swipe{display:none;font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:-6px}
+.ast-wide .ast-swipe{display:block}
+.ast-wide .ast-scroll{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%)}
 @media(max-width:560px){
   .home-trend{width:calc(100vw - 32px)}
-  .ast-team .home-chips{gap:7px}
-  .ast-chip{font-size:11.5px;gap:7px;padding-right:10px}
-  .ast-chip img{width:22px;height:22px}
-  .ast-chip .cpos{display:none}
+  .ast-field{min-width:620px;column-gap:4px;row-gap:8px;padding:14px 10px}
+  .ast-face{width:36px;height:36px}
+  .ast-nm{font-size:10px}
+  .ast-card{padding:5px 3px 4px}
+  .ast-st{gap:7px}
+  .ast-st .ast-cell{width:calc((100% - 21px)/4)}
 }
 
 /* ---------------------------------------------------------------- leaderboard */
@@ -1016,9 +1038,17 @@ body{background-color:#1D6B3A;color:var(--ink);
 .ast-sub{font-family:var(--pix);font-size:8.5px;color:rgba(255,255,255,.78)}
 .ast-grp-h{font-family:var(--pix);font-size:9px;color:#FFF;letter-spacing:.2em}
 .ast-grp-h::before,.ast-grp-h::after{background:rgba(255,255,255,.55);opacity:1}
-.ast-slot{font-family:var(--pix);font-size:8px;font-weight:400;border-radius:0;background:var(--turf-dk);
-  color:#FFF;padding:4px 5px}
-.ast-chip.nolink:hover{transform:none;box-shadow:3px 3px 0 rgba(14,42,23,.4)}
+.ast-field{border:3px solid var(--turf-dk);border-radius:0;box-shadow:5px 5px 0 rgba(14,42,23,.45);
+  background:repeating-linear-gradient(90deg,rgba(14,42,23,.22) 0 calc(100%/9),rgba(14,42,23,.12) calc(100%/9) calc(200%/9))}
+.ast-card{background:#FFF;border:2px solid var(--turf-dk);border-radius:0;box-shadow:3px 3px 0 rgba(14,42,23,.45)}
+.ast-card:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 rgba(14,42,23,.45);border-color:var(--turf-dk)}
+.ast-card.nolink:hover{transform:none;box-shadow:3px 3px 0 rgba(14,42,23,.45)}
+.ast-card.line{border-color:#8A6A00}
+.ast-face{border-radius:0;border:2px solid var(--turf-dk);box-sizing:border-box}
+.ast-tm{font-family:var(--pix);font-size:7.5px;color:#7A9384}
+.ast-pos{font-family:var(--pix);font-size:9px;font-weight:400;color:var(--flag);text-shadow:2px 2px 0 var(--turf-dk)}
+.ast-swipe{font-family:var(--pix);font-size:8px;color:var(--flag)}
+.ast-los{font-family:var(--pix);font-size:8px;color:rgba(255,255,255,.85);border-top-color:rgba(255,255,255,.7)}
 .ast-note{color:rgba(255,255,255,.82)}
 .ast-note b{color:var(--flag);font-weight:600}
 .home-lb{background:var(--flag);color:var(--turf-dk);border:3px solid var(--turf-dk);
@@ -3654,15 +3684,35 @@ function allSavant(season){
   });
   return {off:off,def:def,st:st,line:line};
 }
-function astChip(it){
-  var can=!!PIDX[it.id];
-  var face=faceURL(it.id,it.h);
-  return '<'+(can?'button type="button"':'span')+' class="home-chip ast-chip'+(can?'':' nolink')+'"'
-    +(can?' data-id="'+esc(it.id)+'"':'')+' title="'+esc(it.why)+'">'
-    +'<span class="ast-slot">'+esc(it.slot)+'</span>'
-    +(face?'<img src="'+esc(face)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'<span class="sk-a"></span>')
-    +'<span class="ast-name">'+esc(it.name)+'</span><span class="cpos">'+esc(it.team||'')+'</span>'
-    +'</'+(can?'button':'span')+'>';
+/* Madden's lineup screen, not a list: every man stands where he lines up. One field, the
+   defense on top facing the offense across the line of scrimmage, on an 18-column grid
+   (each card two columns wide) so the formation stays centred on the ball.
+   Offense is 11 personnel: two receivers wide, one in the slot, the tight end on the
+   right, the back behind the quarterback. The defense answers it in nickel - the third
+   corner over the slot receiver, two linebackers, two deep safeties. */
+var AST_SPOTS={
+  // slot -> [[grid column, grid row], ...] in pick order (best first)
+  S:[[5,1],[13,1]],
+  LB:[[7,2],[11,2]], CB:[[1,3],[17,3],[3,2]],
+  EDGE:[[6,3],[12,3]], IDL:[[8,3],[10,3]],
+  WR:[[1,5],[17,5],[3,6]],
+  LT:[[5,5]], LG:[[7,5]], C:[[9,5]], RG:[[11,5]], RT:[[13,5]], TE:[[15,5]],
+  QB:[[9,6]], RB:[[9,7]]
+};
+function astShort(n){
+  var w=String(n||'').split(' ');
+  return w.length>1?w[0].charAt(0)+'. '+w.slice(1).join(' '):String(n||'');
+}
+function astCard(it,col,row){
+  var can=!!PIDX[it.id], face=faceURL(it.id,it.h), tag=can?'button':'span';
+  var pos=(col!=null)?' style="grid-column:'+col+' / span 2;grid-row:'+row+'"':'';
+  return '<div class="ast-cell"'+pos+'>'
+    +'<'+tag+(can?' type="button" data-id="'+esc(it.id)+'"':'')+' class="ast-card'+(can?'':' nolink')
+    +(it.line?' line':'')+'" title="'+esc(it.name+' — '+it.why)+'">'
+    +'<span class="ast-face">'+(face?'<img src="'+esc(face)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'')+'</span>'
+    +'<span class="ast-nm">'+esc(astShort(it.name))+'</span>'
+    +'<span class="ast-tm">'+esc(it.team||'')+'</span>'
+    +'</'+tag+'><span class="ast-pos">'+esc(it.slot)+'</span></div>';
 }
 function renderAllSavant(season){
   var box=document.getElementById('homeChips');
@@ -3671,28 +3721,38 @@ function renderAllSavant(season){
   var t=allSavant(season), blk=DATA.data[season]||{};
   if(sub) sub.textContent=season+(blk.week?' · through week '+blk.week:'')
     +' · the best Savant profile at every All-Pro spot';
-  // each group is one or more rows of chips; the offense runs skill players, then the line,
-  // in one flow - five line chips on a row of their own orphan one at any width that fits
-  function group(label,rows,extra){
-    rows=rows.filter(function(r){return r.length;});
-    if(!rows.length) return '';
-    return '<div class="ast-grp"><div class="ast-grp-h">'+label+'</div>'
-      +rows.map(function(r){ return '<div class="home-chips">'+r.map(astChip).join('')+'</div>'; }).join('')
-      +(extra||'')+'</div>';
-  }
-  var LINE_SLOTS={LT:1,LG:1,C:1,RG:1,RT:1,T:1,G:1};
-  var skill=t.off.filter(function(x){return !LINE_SLOTS[x.slot];}),
-      ol=t.off.filter(function(x){return LINE_SLOTS[x.slot];});
+  // Individual linemen come back as T, T, G, G, C; they take the spots left to right.
+  var IND={T:['LT','RT'],G:['LG','RG'],C:['C']}, seen={};
+  var used={}, cards='';
+  t.def.concat(t.off).forEach(function(it){
+    var key=it.slot;
+    if(IND[key]&&!it.line){ var k=seen[key]||0; seen[key]=k+1; key=IND[key][k]; }
+    var spots=AST_SPOTS[key]; if(!spots) return;
+    var i=used[key]||0; used[key]=i+1;
+    var sp=spots[i]; if(!sp) return;
+    cards+=astCard(it,sp[0],sp[1]);
+  });
   var lineNote='';
   if(t.line){
     lineNote='<div class="ast-note">Line picked as a unit: <b>'+esc(teamName(t.line.tm))+'</b> · '
       +'sack rate '+t.line.sackr.toFixed(1)+'% · QB hit rate '+t.line.hitr.toFixed(1)+'% · rush success '
       +t.line.runsr.toFixed(0)+'%. One-man blocking numbers arrive after the season.</div>';
   }
-  box.innerHTML=group('Offense',[skill.concat(ol)],lineNote)+group('Defense',[t.def])+group('Special teams',[t.st]);
-  box.querySelectorAll('button.ast-chip').forEach(function(b){
+  box.innerHTML='<div class="ast-swipe" aria-hidden="true">◀ swipe the field ▶</div>'
+    +'<div class="ast-scroll"><div class="ast-field">'
+      +'<div class="ast-los" style="grid-row:4"><span>▲ Defense</span><span>Line of scrimmage</span><span>Offense ▼</span></div>'
+      +cards+'</div></div>'+lineNote
+    +(t.st.length?'<div class="ast-grp"><div class="ast-grp-h">Special teams</div><div class="ast-st">'
+      +t.st.map(function(it){ return astCard(it); }).join('')+'</div></div>':'');
+  box.querySelectorAll('button.ast-card').forEach(function(b){
     b.onclick=function(){ selectPlayer(b.dataset.id); };
   });
+  // on a phone the field is wider than the screen: start it centred on the ball
+  var sc=box.querySelector('.ast-scroll');
+  if(sc&&sc.scrollWidth>sc.clientWidth+4){
+    sc.scrollLeft=(sc.scrollWidth-sc.clientWidth)/2;
+    box.classList.add('ast-wide');
+  } else box.classList.remove('ast-wide');
 }
 function renderHomePos(){
   var box=document.getElementById('homePos');
