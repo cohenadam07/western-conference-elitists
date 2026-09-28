@@ -1,1 +1,1 @@
-{"s":2026,"pos":"S","w":[1,2],"t":["NO","NO"],"o":["@DET","@BAL"],"m":{"ff":[0.0,null],"int":[0.0,null],"pd":[0.0,null],"pen":[0.0,null],"snaps":[25.0,18.0],"snapshr":[0.0,0.0],"solopct":[50.0,null],"tfl":[0.0,null],"tkl":[2.0,null]},"d":{}}
+{"s":2026,"pos":"S","w":[1,2,3],"t":["NO","NO","NO"],"o":["@DET","@BAL","LV"],"m":{"ff":[0.0,null,null],"int":[0.0,null,null],"pd":[0.0,null,null],"pen":[0.0,null,0.0],"snaps":[25.0,18.0,25.0],"snapshr":[0.0,0.0,2.857],"solopct":[50.0,null,null],"tfl":[0.0,null,null],"tkl":[2.0,null,null]},"d":{"dsnap":[null,null,2.0]}}

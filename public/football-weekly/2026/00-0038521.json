@@ -1,1 +1,1 @@
-{"s":2026,"pos":"CB","w":[2],"t":["MIA"],"o":["@SF"],"m":{"int":[0.0],"pd":[0.0],"pen":[0.0],"snaps":[6.0],"snapshr":[0.0],"solopct":[100.0],"tkl":[1.0]},"d":{}}
+{"s":2026,"pos":"CB","w":[2,3],"t":["MIA","MIA"],"o":["@SF","KC"],"m":{"int":[0.0,null],"pd":[0.0,null],"pen":[0.0,null],"snaps":[6.0,3.0],"snapshr":[0.0,0.0],"solopct":[100.0,null],"tkl":[1.0,null]},"d":{}}
