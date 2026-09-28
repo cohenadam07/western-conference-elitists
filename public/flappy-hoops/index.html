@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="/flappy-hoops/assets/index-DPI8RBay.js"></script>
-  <link rel="stylesheet" crossorigin href="/flappy-hoops/assets/index-0bFTL9fA.css">
+  <script type="module" crossorigin src="/flappy-hoops/assets/index-BJLC11M4.js"></script>
+  <link rel="stylesheet" crossorigin href="/flappy-hoops/assets/index-C8_tajOg.css">
 </head>
 <body>
 <div id="app">
@@ -76,7 +76,7 @@
       <div class="card-actions col">
         <button class="btn primary" id="mnResume">Resume</button>
         <button class="btn ghost" id="mnRestart">Restart hole</button>
-        <button class="btn ghost" id="mnSound">Sound: on</button>
+        <div class="menu-row"><button class="btn ghost" id="mnSound">Sound: on</button><button class="btn ghost hidden" id="mnFull">Full screen</button></div>
         <button class="btn ghost" id="mnShop">Item shop</button>
         <button class="btn ghost" id="mnQuit">Quit to title</button>
       </div>
@@ -92,6 +92,7 @@
       <div class="title-help">Tap the left or right side to flap that way. Drop it through the rim from above. Fewest flaps wins.</div>
     </div>
     <div class="title-brand"><div class="badge sm">WCE</div><span>WESTERN CONFERENCE ELITISTS</span></div>
+    <button class="title-fs hidden" id="tFull" title="Full screen (F)"><span class="fs-t">FULL SCREEN</span><span class="fs-ic"></span></button>
   </div>
 
   <div id="shop" class="modal hidden">
@@ -104,6 +105,19 @@
       </div>
       <div class="shop-tabs"><button class="shop-tab on" data-tab="balls">Balls</button><button class="shop-tab" data-tab="trails">Trails</button><button class="shop-tab wheel" data-tab="wheel">★ Prize Wheel</button></div>
       <div class="shop-body" id="shopBody"></div>
+    </div>
+  </div>
+
+  <div id="homeSheet" class="modal hidden">
+    <div class="card home-card">
+      <div class="card-head"><div class="badge">WCE</div><div><div class="card-k">PLAY IT LIKE AN APP</div><div class="card-t">Add to Home Screen</div></div></div>
+      <p class="home-why">iPhone doesn't let websites go full screen. Put Flappy Hoops on your Home Screen instead and it opens like its own app, with no browser bars.</p>
+      <ol class="home-steps">
+        <li><span class="home-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18.5" cy="12" r="2" fill="currentColor"/></svg></span><span>In Safari, tap <b>···</b> next to the address bar, then <b>Share</b>. (On older iPhones, tap <b>Share</b> at the bottom.)</span></li>
+        <li><span class="home-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 8.5v7M8.5 12h7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span><span>Scroll down and tap <b>Add to Home Screen</b>. Keep <b>Open as Web App</b> on, then tap <b>Add</b>.</span></li>
+        <li><span class="home-ic ball"></span><span>Play from the <b>Flappy Hoops</b> icon. The app keeps its own save, separate from Safari’s, so it starts you at New York.</span></li>
+      </ol>
+      <div class="card-actions"><button class="btn primary" id="homeOk">Got it</button></div>
     </div>
   </div>
 

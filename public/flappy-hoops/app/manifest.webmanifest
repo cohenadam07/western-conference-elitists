@@ -1,0 +1,17 @@
+{
+  "id": "/hoops",
+  "name": "Flappy Hoops",
+  "short_name": "Flappy Hoops",
+  "description": "Flap a basketball through eleven cities and sink it through the rim in as few flaps as you can.",
+  "start_url": "/hoops",
+  "scope": "/hoops",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#22395A",
+  "theme_color": "#22395A",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

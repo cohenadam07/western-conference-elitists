@@ -27,6 +27,12 @@ export const SITE = 'https://wcehoops.com'
 const SITE_NAME = 'Western Conference Elitists'
 const OG_CARD = `${SITE}/og-card.png` // 1200×630, public/og-card.png
 
+// Flappy Hoops as a home-screen app: its own icon, name and manifest on /hoops, so Add to Home
+// Screen (iPhone) or Install (Android, desktop Chrome) opens the game with no browser bars. The
+// files ship with the game in public/flappy-hoops/app/; src/pages/FlappyHoops.jsx sets the same
+// tags when you reach /hoops from elsewhere on the site.
+export const HOOPS_APP = { name: 'Flappy Hoops', icon: '/flappy-hoops/app/icon-180.png', manifest: '/flappy-hoops/app/manifest.webmanifest' }
+
 // Static pages worth sharing, with the same title/description their component sets via
 // usePageMeta. `title: null` means the site default (the home page).
 const PAGES = [
@@ -38,7 +44,7 @@ const PAGES = [
   { path: '/news', title: 'News', description: 'The biggest NBA and college basketball stories, plus basketball research and analytics — aggregated and annotated by Western Conference Elitists.', priority: '0.7' },
   { path: '/comp-chain', title: 'Comp Chain', description: 'Hop from one NBA player to another through their statistical comps — a daily game built on Basketball Savant data.', priority: '0.6' },
   { path: '/dynasty', title: 'Dynasty Exchange', description: 'Crowd-priced NBA dynasty rankings — rank four players at a time and move the market.', priority: '0.6' },
-  { path: '/hoops', title: 'Flappy Hoops', description: 'Flap it through the rim in as few taps as you can: six cities, nine holes each, a hidden ghost hole in every one.', priority: '0.5' },
+  { path: '/hoops', title: 'Flappy Hoops', description: 'Flap it through the rim in as few taps as you can: eleven cities, nine holes each, a hidden ghost hole in every one.', priority: '0.5', app: HOOPS_APP },
   { path: '/about', title: 'About', description: 'Who we are and how we work: film-first, data-honest NBA and draft coverage.', priority: '0.5' },
   { path: '/contact', title: 'Contact', description: 'Pitches, scouting disagreements, partnerships — get in touch with Western Conference Elitists.', priority: '0.4' },
   { path: '/privacy', title: 'Privacy Policy', description: 'What wcehoops.com collects, why, who else touches it, and how to get it removed.', priority: '0.2' },
@@ -69,7 +75,15 @@ function setLink(html, rel, href) {
   return re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\n  </head>`)
 }
 
-function pageHtml(shell, { title, description, url, image = OG_CARD, type = 'website', extraHead = '' }) {
+function appHead(html, app) {
+  html = html.replace(/<link rel="apple-touch-icon"[^>]*>/, `<link rel="apple-touch-icon" sizes="180x180" href="${esc(app.icon)}" />`)
+  html = setMeta(html, 'name', 'apple-mobile-web-app-title', app.name)
+  html = setMeta(html, 'name', 'apple-mobile-web-app-capable', 'yes')
+  html = setMeta(html, 'name', 'mobile-web-app-capable', 'yes')
+  return setLink(html, 'manifest', app.manifest)
+}
+
+function pageHtml(shell, { title, description, url, image = OG_CARD, type = 'website', extraHead = '', app = null }) {
   const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | NBA Analysis & Scouting`
   let html = shell.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(full)}</title>`)
   if (description) {
@@ -84,6 +98,7 @@ function pageHtml(shell, { title, description, url, image = OG_CARD, type = 'web
   html = setMeta(html, 'property', 'og:image', image)
   html = setMeta(html, 'name', 'twitter:image', image)
   html = setLink(html, 'canonical', url)
+  if (app) html = appHead(html, app)
   if (extraHead) html = html.replace('</head>', `${extraHead}\n  </head>`)
   return html
 }
@@ -176,7 +191,7 @@ export function buildSeo({ root, dist }) {
   // URL, so it must not claim a canonical of its own (usePageMeta sets one in the browser).
   const statics = PAGES.filter((p) => p.path !== '/')
   for (const p of statics) {
-    write(dist, `${p.path.slice(1)}/index.html`, pageHtml(shell, { title: p.title, description: p.description, url: `${SITE}${p.path}` }))
+    write(dist, `${p.path.slice(1)}/index.html`, pageHtml(shell, { title: p.title, description: p.description, url: `${SITE}${p.path}`, app: p.app }))
   }
   report.push(`${statics.length} static pages`)
 
