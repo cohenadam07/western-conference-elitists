@@ -15,6 +15,10 @@ const APP_HEAD = [
   ['meta[name="apple-mobile-web-app-title"]', 'meta', { name: 'apple-mobile-web-app-title' }, 'content', 'Flappy Hoops'],
   ['meta[name="apple-mobile-web-app-capable"]', 'meta', { name: 'apple-mobile-web-app-capable' }, 'content', 'yes'],
   ['meta[name="mobile-web-app-capable"]', 'meta', { name: 'mobile-web-app-capable' }, 'content', 'yes'],
+  // edge to edge: the game fills the whole screen, under the notch and a see-through status bar, and
+  // keeps its own buttons clear of them (it reads this page's safe areas)
+  ['meta[name="apple-mobile-web-app-status-bar-style"]', 'meta', { name: 'apple-mobile-web-app-status-bar-style' }, 'content', 'black-translucent'],
+  ['meta[name="viewport"]', 'meta', { name: 'viewport' }, 'content', 'width=device-width, initial-scale=1.0, viewport-fit=cover'],
 ]
 
 export default function FlappyHoops() {
@@ -35,8 +39,12 @@ export default function FlappyHoops() {
       document.head.appendChild(el)
       return () => el.remove()
     })
+    // the game's own dark ground behind the frame (no flash of the site's paper while it loads)
+    const grounds = [document.documentElement, document.body].map((el) => [el, el.style.backgroundColor])
+    grounds.forEach(([el]) => { el.style.backgroundColor = '#1a2740' })
     return () => {
       document.title = before
+      grounds.forEach(([el, prev]) => { el.style.backgroundColor = prev })
       undo.reverse().forEach((f) => f())
     }
   }, [])

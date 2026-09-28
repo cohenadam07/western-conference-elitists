@@ -31,7 +31,12 @@ const OG_CARD = `${SITE}/og-card.png` // 1200×630, public/og-card.png
 // Screen (iPhone) or Install (Android, desktop Chrome) opens the game with no browser bars. The
 // files ship with the game in public/flappy-hoops/app/; src/pages/FlappyHoops.jsx sets the same
 // tags when you reach /hoops from elsewhere on the site.
-export const HOOPS_APP = { name: 'Flappy Hoops', icon: '/flappy-hoops/app/icon-180.png', manifest: '/flappy-hoops/app/manifest.webmanifest' }
+// The page also runs edge to edge (viewport-fit=cover, and under a see-through status bar as a
+// home-screen app): the game fills the whole screen and keeps its buttons clear of the notch itself.
+export const HOOPS_APP = {
+  name: 'Flappy Hoops', icon: '/flappy-hoops/app/icon-180.png', manifest: '/flappy-hoops/app/manifest.webmanifest',
+  viewport: 'width=device-width, initial-scale=1.0, viewport-fit=cover', statusBar: 'black-translucent',
+}
 
 // Static pages worth sharing, with the same title/description their component sets via
 // usePageMeta. `title: null` means the site default (the home page).
@@ -80,6 +85,8 @@ function appHead(html, app) {
   html = setMeta(html, 'name', 'apple-mobile-web-app-title', app.name)
   html = setMeta(html, 'name', 'apple-mobile-web-app-capable', 'yes')
   html = setMeta(html, 'name', 'mobile-web-app-capable', 'yes')
+  html = setMeta(html, 'name', 'apple-mobile-web-app-status-bar-style', app.statusBar)
+  html = setMeta(html, 'name', 'viewport', app.viewport)
   return setLink(html, 'manifest', app.manifest)
 }
 
