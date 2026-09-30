@@ -1,6 +1,6 @@
 {
-"fetched": "2026-09-28",
-"released": "2026-09-19",
+"fetched": "2026-09-30",
+"released": "2026-09-26",
 "lists": {
 "HW": {
 "champion": "Ciryl Gane",
@@ -100,6 +100,8 @@
 "Maurício Ruffy",
 "Salahdine Parnasse",
 "Mateusz Gamrot",
+"Rafael Fiziev",
+"Renato Moicano",
 "Dan Hooker",
 "Tom Nolan",
 "Beneil Dariush"
@@ -140,10 +142,10 @@
 "David Martínez",
 "Deiveson Figueiredo",
 "Marlon Vera",
-"Payton Talbott",
 "Raul Rosas Jr.",
-"Raoni Barcelos",
+"Payton Talbott",
 "Farid Basharat",
+"Raoni Barcelos",
 "Marcus McGhee"
 ]
 },
@@ -173,10 +175,8 @@
 "interim": null,
 "ranked": [
 "Julianna Peña",
-"Raquel Pennington",
 "Joselyne Edwards",
 "Norma Dumont",
-"Ailín Pérez",
 "Yana Santos",
 "Luana Santos",
 "Macy Chiasson",
@@ -206,8 +206,8 @@
 "Karine Silva",
 "Casey O'Neill",
 "Eduarda Moura",
-"Gabriella Fernandes",
-"Regina Tarin"
+"Regina Tarin",
+"Gabriella Fernandes"
 ]
 },
 "WSW": {
@@ -267,6 +267,8 @@
 "Tatiana Suarez",
 "Julianna Peña",
 "Virna Jandiroba",
+"Rose Namajunas",
+"Raquel Pennington",
 "Denise Gomes",
 "Maycee Barber"
 ]
