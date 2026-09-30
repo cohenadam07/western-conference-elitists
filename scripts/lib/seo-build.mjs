@@ -49,7 +49,7 @@ const PAGES = [
   { path: '/news', title: 'News', description: 'The biggest NBA and college basketball stories, plus basketball research and analytics — aggregated and annotated by Western Conference Elitists.', priority: '0.7' },
   { path: '/comp-chain', title: 'Comp Chain', description: 'Hop from one NBA player to another through their statistical comps — a daily game built on Basketball Savant data.', priority: '0.6' },
   { path: '/dynasty', title: 'Dynasty Exchange', description: 'Crowd-priced NBA dynasty rankings — rank four players at a time and move the market.', priority: '0.6' },
-  { path: '/hoops', title: 'Flappy Hoops', description: 'Flap it through the rim in as few taps as you can: twelve cities, nine holes each, a hidden ghost hole in every one.', priority: '0.5', app: HOOPS_APP },
+  { path: '/hoops', title: 'Flappy Hoops', description: 'Flap it through the rim in as few taps as you can: thirteen cities, nine holes each, a hidden ghost hole in every one.', priority: '0.5', app: HOOPS_APP },
   { path: '/about', title: 'About', description: 'Who we are and how we work: film-first, data-honest NBA and draft coverage.', priority: '0.5' },
   { path: '/contact', title: 'Contact', description: 'Pitches, scouting disagreements, partnerships — get in touch with Western Conference Elitists.', priority: '0.4' },
   { path: '/privacy', title: 'Privacy Policy', description: 'What wcehoops.com collects, why, who else touches it, and how to get it removed.', priority: '0.2' },
