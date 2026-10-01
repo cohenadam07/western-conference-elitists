@@ -1,51 +1,25 @@
-// api/race.js — live Flap Hoops races. A party plays a whole world; each hole is a race,
-// places score points, and the highest total after the last hole wins the match.
+// api/race.js — Flappy Hoops online races: the party's storage and its one endpoint. The rules
+// (lobby, vote, nine holes, boards, tickets) are in ./_race.js; read that first.
 //
-// WHAT TRAVELS. Not ball positions — flaps. `src/lib/hoopsPhysics.js` is deterministic at a
-// fixed 120Hz, so a player's entire run is described by which buttons they pressed and on
-// which step. Every client replays everyone else's flaps through that identical module and
-// gets a pixel-identical ball, at full framerate, with no interpolation. It is a few bytes
-// per flap instead of a position broadcast ten times a second, and the same property lets
-// this file re-run a claimed finish and reject one that does not reproduce.
+// Redis (the same Upstash the rest of the site uses), one hash per party, fhr:<CODE>:
+//   v            the party's version: every change to `j` is compare-and-set on it
+//   j            the party itself, as JSON (who's in, the phase and its clock, the results)
+//   p:<id>       what that player's game last said about itself (overwritten on every poll; only
+//                that player writes it, so it never contends): its vote, its flaps so far
+//   d:<m>:<h>:<id>   that player's finish on hole h of match m, "steps:flaps:when" (first one stands)
 //
-// Redis (the same Upstash the rest of the site uses):
-//   race:<code>            HASH  host, world, status, hole, startAt, firstAt, deadline
-//   race:<code>:m          HASH  uid -> display name
-//   race:<code>:pts        HASH  uid -> points so far
-//   race:<code>:h<n>:in    HASH  uid -> "12:1,45:-1,90:1"   (that player's flaps, this hole)
-//   race:<code>:h<n>:fin   HASH  uid -> "<steps>:<flaps>"   (verified finishes)
-import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity'
-import { LEVELS, WORLDS, DEFAULTS, simulate } from '../src/lib/hoopsPhysics.js'
+// A poll is ONE Redis command (an EVAL: store my blob, maybe my finish, return the whole hash).
+// Phase changes are a second one (compare-and-set), and only the request that notices the deadline
+// pays for it. At about one poll a second per player, a four-player match is roughly 2,500 commands.
+import { createHmac, randomBytes } from 'node:crypto'
+import {
+  CODE_RE, ID_RE, TTL, makeCode, newRoom, addPlayer, removePlayer, cleanLive, finValue, parseFin, finField,
+  startVote, toLobby, advance, view,
+} from './_race.js'
 
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
-
-const TTL = 4 * 3600
-const MAX_PLAYERS = 8            // ghosts stay readable, and everyone gets a colour
-const MIN_START = 2
-/* Lead-in before step 0. Long enough for the opening shot — hold on the hoop, pan to the
-   ball — and then the 3-2-1. The client derives those phases from this, so it ships in the
-   payload rather than being hardcoded in two places that can quietly drift apart. */
-const COUNTDOWN_MS = 5200
-/* No chase clock. Cutting everyone off twenty seconds after the first finisher punished the
-   people having the most interesting time — the ones taking the long route, or fighting a
-   hole they had not read yet. A hole now ends when everyone has sunk it, or at this cap. */
-const HOLE_CAP_MS = 120000
-const POINTS = [10, 6, 4, 3, 2, 1]   // by finishing place; anyone unfinished scores nothing
-const MAX_INPUTS = 400           // a run is ~10-30 flaps; this is a wildly generous ceiling
-const CODE_RE = /^[A-HJ-NP-Z2-9]{4}$/
-const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
-const NAME_MAX = 18
-
-const matcher = new RegExpMatcher({ ...englishDataset.build(), ...englishRecommendedTransformers })
-function cleanName(raw) {
-  const s = String(raw || '').replace(/[^\w \-.'#!]/g, '').trim().slice(0, NAME_MAX)
-  if (!s) return 'Anonymous'
-  try {
-    if (matcher.hasMatch(s) || matcher.hasMatch(s.replace(/[^a-zA-Z0-9]/g, ''))) return 'Anonymous'
-  } catch { /* filter unavailable — the stripped name still stands */ }
-  return s
-}
+const SECRET = process.env.RACE_SECRET || TOKEN || ''
 
 async function redis(cmd) {
   const r = await fetch(URL_, {
@@ -56,223 +30,162 @@ async function redis(cmd) {
   if (!r.ok) throw new Error('redis ' + r.status)
   return (await r.json()).result
 }
-async function pipe(cmds) {
-  if (!cmds.length) return []
-  const r = await fetch(URL_ + '/pipeline', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(cmds),
-  })
-  if (!r.ok) throw new Error('redis pipeline ' + r.status)
-  return (await r.json()).map((x) => x.result)
-}
-function unflatten(flat) {
-  const o = {}
-  for (let i = 0; i + 1 < (flat || []).length; i += 2) o[flat[i]] = flat[i + 1]
-  return o
-}
 
-const K = (code, suffix = '') => 'race:' + code + suffix
-const makeCode = () => Array.from({ length: 4 },
-  () => ALPHABET[Math.floor(Math.random() * ALPHABET.length)]).join('')
+const K = (code) => 'fhr:' + code
+// store my blob (ARGV 1,2), my finish if I have one and none is stored (ARGV 3,4), and read it all
+const POLL = `local k = KEYS[1]
+if redis.call('EXISTS', k) == 0 then return false end
+if ARGV[1] ~= '' then redis.call('HSET', k, ARGV[1], ARGV[2]) end
+if ARGV[3] ~= '' then redis.call('HSETNX', k, ARGV[3], ARGV[4]) end
+redis.call('EXPIRE', k, tonumber(ARGV[5]))
+return redis.call('HGETALL', k)`
+// write the party if nobody else has since I read it (ARGV: old version, new version, json, ttl, fields to drop...)
+const CAS = `local k = KEYS[1]
+if redis.call('HGET', k, 'v') ~= ARGV[1] then return 0 end
+redis.call('HSET', k, 'v', ARGV[2], 'j', ARGV[3])
+for i = 5, #ARGV do redis.call('HDEL', k, ARGV[i]) end
+redis.call('EXPIRE', k, tonumber(ARGV[4]))
+return 1`
+const CREATE = `if redis.call('EXISTS', KEYS[1]) == 1 then return 0 end
+redis.call('HSET', KEYS[1], 'v', '1', 'j', ARGV[1])
+redis.call('EXPIRE', KEYS[1], tonumber(ARGV[2]))
+return 1`
 
-// holes of a world, as indices into LEVELS
-const holesOf = (world) => LEVELS.map((L, i) => (L.world === world ? i : -1)).filter((i) => i >= 0)
+const keyFor = (code, id) => createHmac('sha256', SECRET).update(code + ':' + id).digest('hex').slice(0, 20)
+const newId = () => randomBytes(6).toString('hex').slice(0, 8)
 
-/* "12:1,45:-1" -> [{s,d}]. Hostile input is the norm on a public endpoint, so this is strict:
-   anything malformed yields an empty run rather than throwing mid-verification. */
-function parseInputs(str) {
-  const out = []
-  for (const part of String(str || '').split(',')) {
-    if (!part) continue
-    const [s, d] = part.split(':')
-    const step = Number(s), dir = Number(d)
-    if (!Number.isInteger(step) || step < 0 || step > 100000) return null
-    if (dir !== 1 && dir !== -1) return null
-    out.push({ s: step, d: dir })
-    if (out.length > MAX_INPUTS) return null
+// The hash, unpacked: the party, everyone's blobs, and the finishes of the hole being played.
+function unpack(flat) {
+  const h = {}
+  for (let i = 0; i + 1 < (flat || []).length; i += 2) h[flat[i]] = flat[i + 1]
+  let room = null
+  try { room = JSON.parse(h.j) } catch { /* a party with no body is no party */ }
+  if (!room) return null
+  const live = {}, fins = {}, old = []
+  const mine = `d:${room.match}:${room.hole}:`
+  for (const f in h) {
+    if (f.startsWith('p:')) { try { live[f.slice(2)] = JSON.parse(h[f]) } catch { /* skip */ } }
+    else if (f.startsWith('d:')) {
+      if (f.startsWith(mine)) { const v = parseFin(h[f]); if (v) fins[f.slice(mine.length)] = v }
+      if (!f.startsWith(`d:${room.match}:`)) old.push(f)
+    }
   }
-  return out
-}
-const encodeInputs = (arr) => arr.map((i) => `${i.s}:${i.d}`).join(',')
-
-/* Replay a claimed run. This is the whole anti-cheat story: the client says "I sank it on
-   step 412 in 9 flaps"; we run its own inputs through the same physics and see. */
-function verify(levelIndex, inputsStr) {
-  const inputs = parseInputs(inputsStr)
-  if (!inputs) return null
-  /* Pass the BASE params. simulate() resolves the world's own physics itself, so handing it
-     an already-resolved set applies Denver's multipliers twice, squares them, and an honest
-     run stops reproducing — which reads as the player cheating. */
-  const r = simulate(levelIndex, DEFAULTS, inputs, 40000)
-  return r.sank ? { steps: r.steps, flaps: r.flaps } : null
+  return { v: h.v, room, live, fins, old, fields: Object.keys(h) }
 }
 
-/* Score a finished hole: sort by finishing step, hand out POINTS by place. Unfinished players
-   score nothing — the incentive is to actually sink it, not to be tidily last. */
-function scoreHole(finishes, roster) {
-  const done = Object.entries(finishes)
-    .map(([uid, v]) => { const [steps, flaps] = String(v).split(':').map(Number); return { uid, steps, flaps } })
-    .filter((f) => Number.isFinite(f.steps))
-    .sort((a, b) => a.steps - b.steps || a.flaps - b.flaps)
-  const rows = done.map((f, i) => ({ ...f, place: i + 1, points: POINTS[i] ?? 0 }))
-  for (const uid of Object.keys(roster)) {
-    if (!rows.some((r) => r.uid === uid)) rows.push({ uid, steps: null, flaps: null, place: null, points: 0 })
+const read = async (code) => unpack(await redis(['HGETALL', K(code)]))
+const cas = (code, v, room, drop = []) => redis(['EVAL', CAS, 1, K(code), String(v), String(Number(v) + 1), JSON.stringify(room), String(TTL), ...drop])
+
+// Read the party, change it, write it back; if someone else got there first, read again.
+async function mutate(code, fn) {
+  for (let t = 0; t < 6; t++) {
+    const S = await read(code)
+    if (!S) return { error: 'That party is gone.', status: 404 }
+    const now = Date.now()
+    const r = fn(S, now) || {}
+    if (r.error) return r
+    if (r.gone) { await redis(['DEL', K(code)]); return { gone: true } }
+    const drop = r.drop || []
+    if (Number(await cas(code, S.v, S.room, drop)) === 1) return { S, now, extra: r }
   }
-  return rows
+  return { error: 'The party is busy. Try again.', status: 503 }
 }
 
 export default async function handler(req, res) {
-  if (!URL_ || !TOKEN) { res.status(503).json({ error: 'racing is not configured on this deployment' }); return }
   res.setHeader('Cache-Control', 'no-store')
+  if (!URL_ || !TOKEN) { res.status(503).json({ error: 'Racing is not set up on this deployment.' }); return }
+  if (req.method !== 'POST') { res.status(200).json({ ok: true, races: true }); return }
   try {
-    const body = req.method === 'POST'
-      ? (typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {}))
-      : {}
-    const action = String((req.query && req.query.action) || 'state')
-    const uid = String((req.query.uid ?? body.uid) || '').slice(0, 64)
-    const code = String((req.query.code ?? body.code) || '').toUpperCase().slice(0, 4)
-    if (!uid) { res.status(400).json({ error: 'no uid' }); return }
+    const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {})
+    const a = String(body.a || 'poll')
+    const fail = (status, error) => res.status(status).json({ error })
 
-    // ---- create ------------------------------------------------------------
-    if (req.method === 'POST' && action === 'create') {
-      let made = ''
-      for (let t = 0; t < 8 && !made; t++) {
-        const c = makeCode()
-        const [ok] = await pipe([['HSETNX', K(c), 'host', uid]])
-        if (Number(ok) === 1) made = c
+    // ---- start a party --------------------------------------------------------
+    if (a === 'create') {
+      const now = Date.now(), id = newId()
+      for (let t = 0; t < 10; t++) {
+        const code = makeCode()
+        const room = newRoom(code, now)
+        addPlayer(room, id, body.name, now)
+        if (Number(await redis(['EVAL', CREATE, 1, K(code), JSON.stringify(room), String(TTL)])) === 1) {
+          res.status(200).json({ ...view(room, {}, {}, id, now), key: keyFor(code, id) })
+          return
+        }
       }
-      if (!made) { res.status(503).json({ error: 'could not allocate a code' }); return }
-      const world = WORLDS[body.world] ? body.world : 'dallas'
-      await pipe([
-        ['HSET', K(made), 'world', world, 'status', 'lobby', 'hole', '-1',
-          'startAt', '0', 'firstAt', '', 'deadline', '0'],
-        ['HSET', K(made, ':m'), uid, cleanName(body.name)],
-        ['HSET', K(made, ':pts'), uid, '0'],
-        ['EXPIRE', K(made), TTL], ['EXPIRE', K(made, ':m'), TTL], ['EXPIRE', K(made, ':pts'), TTL],
-      ])
-      res.status(200).json({ ok: true, code: made, created: true })
+      return fail(503, 'Could not open a party. Try again.')
+    }
+
+    const code = String(body.code || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4)
+    if (!CODE_RE.test(code)) return fail(400, 'That isn’t a party code (four letters).')
+
+    // ---- join one (or come back to it) -----------------------------------------
+    if (a === 'join') {
+      const back = ID_RE.test(String(body.id || '')) && body.key === keyFor(code, body.id)
+      const id = back ? body.id : newId()
+      // (someone coming back keeps what their game last said: a reload mid-hole still has its flaps)
+      const r = await mutate(code, (S, now) => {
+        const add = addPlayer(S.room, id, body.name, now)
+        if (add.error) return add
+      })
+      if (r.error) return fail(r.status || 400, r.status === 404 ? 'No party has that code.' : r.error)
+      res.status(200).json({ ...view(r.S.room, r.S.live, r.S.fins, id, r.now), key: keyFor(code, id) })
       return
     }
 
-    if (!CODE_RE.test(code)) { res.status(400).json({ error: 'bad code' }); return }
-    let meta = unflatten(await redis(['HGETALL', K(code)]))
-    if (!meta.status) { res.status(404).json({ error: 'no such party' }); return }
-    const roster = unflatten(await redis(['HGETALL', K(code, ':m')]))
-    let hole = Number(meta.hole)
-    const holes = holesOf(meta.world)
+    const id = String(body.id || '')
+    if (!ID_RE.test(id) || body.key !== keyFor(code, id)) return fail(403, 'Join the party first.')
 
-    // ---- join --------------------------------------------------------------
-    if (req.method === 'POST' && action === 'join') {
-      if (!roster[uid]) {
-        if (Object.keys(roster).length >= MAX_PLAYERS) { res.status(409).json({ error: 'party is full' }); return }
-        if (meta.status !== 'lobby') { res.status(409).json({ error: 'that match already started' }); return }
-        await pipe([
-          ['HSET', K(code, ':m'), uid, cleanName(body.name)],
-          ['HSET', K(code, ':pts'), uid, '0'],
-          ['EXPIRE', K(code, ':m'), TTL], ['EXPIRE', K(code, ':pts'), TTL],
-        ])
-        roster[uid] = cleanName(body.name)
-      }
+    // ---- leave ----------------------------------------------------------------
+    if (a === 'leave') {
+      const r = await mutate(code, (S) => {
+        removePlayer(S.room, id)
+        if (!S.room.players.length) return { gone: true }
+        return { drop: ['p:' + id] }
+      })
+      if (r.error && r.status !== 404) return fail(r.status || 400, r.error)
+      res.status(200).json({ ok: true, left: true })
+      return
     }
 
-    // ---- host starts the match, or the next hole ---------------------------
-    if (req.method === 'POST' && (action === 'start' || action === 'next')) {
-      if (uid !== meta.host) { res.status(403).json({ error: 'only the host can do that' }); return }
-      if (action === 'start' && Object.keys(roster).length < MIN_START) {
-        res.status(409).json({ error: `need at least ${MIN_START} players` }); return
-      }
-      const nextHole = action === 'start' ? 0 : hole + 1
-      if (nextHole >= holes.length) {
-        await pipe([['HSET', K(code), 'status', 'finished'], ['EXPIRE', K(code), TTL]])
-        meta.status = 'finished'
-      } else {
-        const startAt = Date.now() + COUNTDOWN_MS
-        await pipe([
-          ['DEL', K(code, `:h${nextHole}:in`)], ['DEL', K(code, `:h${nextHole}:fin`)],
-          ['HSET', K(code), 'status', 'running', 'hole', String(nextHole),
-            'startAt', String(startAt), 'firstAt', '', 'deadline', String(startAt + HOLE_CAP_MS)],
-          ['EXPIRE', K(code), TTL],
-        ])
-        meta = { ...meta, status: 'running', hole: String(nextHole), startAt: String(startAt),
-          firstAt: '', deadline: String(startAt + HOLE_CAP_MS) }
-        hole = nextHole
-      }
+    // ---- the host starts the vote, or takes everyone back to the lobby -----------
+    if (a === 'start' || a === 'lobby') {
+      const r = await mutate(code, (S, now) => {
+        if (S.room.host !== id) return { error: 'Only the host can do that.', status: 403 }
+        if (a === 'start') {
+          if (S.room.phase !== 'lobby' && S.room.phase !== 'final') return { error: 'A race is already on.', status: 409 }
+          const st = startVote(S.room, S.live, body.worlds, now)
+          if (st.error) return st
+        } else {
+          if (S.room.phase !== 'final') return { error: 'The race isn’t over yet.', status: 409 }
+          toLobby(S.room)
+        }
+        // the last match's finishes aren't needed any more
+        return { drop: S.fields.filter((f) => f.startsWith('d:')) }
+      })
+      if (r.error) return fail(r.status || 400, r.error)
+      res.status(200).json(view(r.S.room, r.S.live, {}, id, r.now))
+      return
     }
 
-    const inKey = K(code, `:h${hole}:in`), finKey = K(code, `:h${hole}:fin`)
-
-    // ---- a flap ------------------------------------------------------------
-    // The client sends its WHOLE input string every time rather than appending. Idempotent,
-    // so a retried or out-of-order request can never interleave two players' flaps or
-    // duplicate one, which an append-based design has to work hard to avoid.
-    if (req.method === 'POST' && action === 'input') {
-      if (meta.status !== 'running') { res.status(409).json({ error: 'no hole is running' }); return }
-      if (!roster[uid]) { res.status(403).json({ error: 'join first' }); return }
-      if (parseInputs(body.inputs) === null) { res.status(400).json({ error: 'bad inputs' }); return }
-      await pipe([['HSET', inKey, uid, String(body.inputs || '')], ['EXPIRE', inKey, TTL]])
+    // ---- poll: say where I am, hear where everyone is --------------------------
+    const now = Date.now()
+    const mine = body.me ? cleanLive(body.me, now) : null
+    const fv = mine && body.fin ? finValue(body.fin, now) : null
+    let S = unpack(await redis(['EVAL', POLL, 1, K(code), mine ? 'p:' + id : '', mine ? JSON.stringify(mine) : '',
+      fv ? finField(mine.m, mine.h, id) : '', fv || '', String(TTL)]))
+    if (!S) return fail(404, 'That party is gone.')
+    if (!S.room.players.some((p) => p.id === id)) return fail(410, 'You’re not in that party any more.')
+    const was = S.room.match + ':' + S.room.hole
+    const step = advance(S.room, S.live, S.fins, now)
+    if (step.changed) {
+      const drop = step.clear ? S.fields.filter((f) => f.startsWith('d:')) : S.old
+      if (Number(await cas(code, S.v, S.room, drop)) !== 1) {
+        S = await read(code)                 // someone else moved it along first: theirs stands
+        if (!S) return fail(404, 'That party is gone.')
+      } else if (S.room.match + ':' + S.room.hole !== was) S.fins = {}   // (a new hole: nobody's in yet)
     }
-
-    // ---- a claimed finish, verified by replay ------------------------------
-    if (req.method === 'POST' && action === 'finish') {
-      if (meta.status !== 'running') { res.status(409).json({ error: 'no hole is running' }); return }
-      if (!roster[uid]) { res.status(403).json({ error: 'join first' }); return }
-      const already = await redis(['HGET', finKey, uid])
-      if (already) { res.status(409).json({ error: 'already finished' }); return }
-      const v = verify(holes[hole], body.inputs)
-      if (!v) { res.status(400).json({ error: 'that run does not replay as a make' }); return }
-      const cmds = [
-        ['HSET', inKey, uid, String(body.inputs || '')],
-        ['HSET', finKey, uid, `${v.steps}:${v.flaps}`],
-        ['EXPIRE', inKey, TTL], ['EXPIRE', finKey, TTL],
-      ]
-      // record who got home first, for the scoreboard — but do not shorten anyone's hole
-      if (!meta.firstAt) {
-        cmds.push(['HSET', K(code), 'firstAt', String(Date.now())])
-        meta.firstAt = String(Date.now())
-      }
-      await pipe(cmds)
-    }
-
-    // ---- lazily close the hole --------------------------------------------
-    // Serverless has no timers, so whichever request arrives first past the deadline does the
-    // scoring. Clients poll while a hole is live, so that lands within a second of the buzzer.
-    let inputs = unflatten(await redis(['HGETALL', inKey]))
-    let finishes = unflatten(await redis(['HGETALL', finKey]))
-    let table = null
-    if (meta.status === 'running' && hole >= 0) {
-      const everyone = Object.keys(roster).length > 0 && Object.keys(roster).every((u) => finishes[u])
-      const expired = Date.now() > Number(meta.deadline || 0)
-      if (everyone || expired) {
-        table = scoreHole(finishes, roster)
-        const cmds = [['HSET', K(code), 'status', 'hole-done'], ['EXPIRE', K(code), TTL]]
-        for (const row of table) if (row.points) cmds.push(['HINCRBY', K(code, ':pts'), row.uid, row.points])
-        await pipe(cmds)
-        meta.status = 'hole-done'
-      }
-    }
-
-    const pts = unflatten(await redis(['HGETALL', K(code, ':pts')]))
-    if (!table && (meta.status === 'hole-done' || meta.status === 'finished') && hole >= 0) {
-      table = scoreHole(finishes, roster)
-    }
-    const standings = Object.keys(roster)
-      .map((u) => ({ uid: u, name: roster[u], points: Number(pts[u] || 0) }))
-      .sort((a, b) => b.points - a.points)
-
-    res.status(200).json({
-      ok: true, code, you: uid, host: meta.host === uid, world: meta.world,
-      status: meta.status, hole, holeCount: holes.length,
-      levelIndex: hole >= 0 ? holes[hole] : null,
-      startAt: Number(meta.startAt || 0), deadline: Number(meta.deadline || 0), lead: COUNTDOWN_MS,
-      firstAt: meta.firstAt ? Number(meta.firstAt) : null,
-      now: Date.now(),                 // lets a client correct for its own clock skew
-      roster, inputs, finishes, table, standings,
-      winner: meta.status === 'finished' ? (standings[0] || null) : null,
-    })
+    res.status(200).json(view(S.room, S.live, S.fins, id, now))
   } catch (e) {
     res.status(500).json({ error: String((e && e.message) || e) })
   }
 }
-
-export { parseInputs, encodeInputs, scoreHole, holesOf, POINTS }

@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="/flappy-hoops/assets/index-DpenDO6_.js"></script>
-  <link rel="stylesheet" crossorigin href="/flappy-hoops/assets/index-D1MN8ee7.css">
+  <script type="module" crossorigin src="/flappy-hoops/assets/index-B7h8pXOP.js"></script>
+  <link rel="stylesheet" crossorigin href="/flappy-hoops/assets/index-D4ANnsdB.css">
 </head>
 <body>
 <div id="app">
@@ -88,7 +88,7 @@
       <div class="title-cities" id="tCities"></div>
       <h1 class="logo"><span class="logo-a">FLAPPY</span><span class="logo-b">HOOPS</span></h1>
       <div class="title-holes" id="tHoles"></div>
-      <div class="title-cta"><button class="btn primary big" id="tPlay">Play</button><button class="btn shop-open" id="tShop"><span class="tix-pill" id="tTix">0</span><span>Item shop</span></button></div>
+      <div class="title-cta"><button class="btn primary big" id="tPlay">Play</button><button class="btn race-open" id="tRace"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M5 4.5h13.5l-3 4 3 4H5z" fill="#F58426" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span>Race friends</span></button><button class="btn shop-open" id="tShop"><span class="tix-pill" id="tTix">0</span><span>Item shop</span></button></div>
       <div class="title-help">Tap the left or right side to flap that way. Drop it through the rim from above. Fewest flaps wins.</div>
       <div class="title-rotate">Turn your phone sideways for the full court ↻</div>
     </div>
@@ -121,6 +121,13 @@
       <div class="card-actions"><button class="btn primary" id="homeOk">Got it</button></div>
     </div>
   </div>
+
+  <!-- online races (src/race.js): the list of who's where, the hole's clock, the 3-2-1, and the party's cards -->
+  <div id="raceHud" class="race-hud hidden"><div class="race-clock" id="raceClock"></div><div class="race-list" id="raceList"></div></div>
+  <div id="raceWait" class="race-wait hidden"></div>
+  <div id="raceCount" class="race-count hidden"></div>
+  <div id="raceNet" class="race-net hidden">Reconnecting…</div>
+  <div id="race" class="modal hidden"><div class="card race-card" id="raceCard"></div></div>
 
   <div id="rotate" class="rotate hidden">Turn your phone sideways for the full court ↻</div>
 </div>

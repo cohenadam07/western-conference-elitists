@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-// Flappy Hoops v2: its own app (Phaser, fifteen cities), built into public/flappy-hoops/ from
+// Flappy Hoops v2: its own app (Phaser, sixteen cities), built into public/flappy-hoops/ from
 // prototypes/flappy-hoops-v2 (`npx vite build --base /flappy-hoops/ --outDir dist-site`).
 // This page is just a frame around it that fills the viewport; the game's title links back
 // to the site (?site=1). The frame allows full screen: the game has its own button for it.
@@ -21,8 +21,17 @@ const APP_HEAD = [
   ['meta[name="viewport"]', 'meta', { name: 'viewport' }, 'content', 'width=device-width, initial-scale=1.0, viewport-fit=cover'],
 ]
 
+// An invite to an online race is /hoops?party=CODE: the code goes on to the game (which also reads
+// it from this page's address, and takes it off again once you're in). Races go through /api/race.
+function gameSrc() {
+  let party = ''
+  try { party = (new URLSearchParams(window.location.search).get('party') || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4) } catch { /* no address to read */ }
+  return '/flappy-hoops/index.html?site=1' + (party.length === 4 ? `&party=${party}` : '')
+}
+
 export default function FlappyHoops() {
   const frame = useRef(null)
+  const src = useRef(gameSrc())
   useEffect(() => {
     const before = document.title
     document.title = 'Flappy Hoops | Western Conference Elitists'
@@ -52,9 +61,9 @@ export default function FlappyHoops() {
     <iframe
       ref={frame}
       title="Flappy Hoops"
-      src="/flappy-hoops/index.html?site=1"
+      src={src.current}
       className="block h-full w-full border-0"
-      allow="autoplay; fullscreen"
+      allow="autoplay; fullscreen; clipboard-write"
       allowFullScreen
       onLoad={() => frame.current?.focus()}
     />
