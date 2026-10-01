@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-// Flappy Hoops v2: its own app (Phaser, fourteen cities), built into public/flappy-hoops/ from
+// Flappy Hoops v2: its own app (Phaser, fifteen cities), built into public/flappy-hoops/ from
 // prototypes/flappy-hoops-v2 (`npx vite build --base /flappy-hoops/ --outDir dist-site`).
 // This page is just a frame around it that fills the viewport; the game's title links back
 // to the site (?site=1). The frame allows full screen: the game has its own button for it.
