@@ -12,8 +12,15 @@
 // daily data commits small.
 //
 // Bonus: Basketball Savant now downloads ~10 MB instead of 64.5 MB before it can render.
+//
+// The same treatment goes to Football Savant's packed game lines: every finished season's
+// week-by-week numbers, public/football-weekly/<season>/pack-NN.json, a hundred files a
+// season back to 1999. That is 57 MB as JSON and 14 MB gzipped, in every one of those forty
+// deployments. They are matched by pattern rather than listed, because a season joins them
+// by itself when it ends; vercel.json carries the matching pattern rewrite. The season in
+// progress is small per-player files that change twice a day, and is left alone.
 
-import { existsSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
 
@@ -25,11 +32,30 @@ export const COMPRESSED = [
   'ufc-savant-fights.json',
 ]
 
+// football-weekly/<season>/pack-NN.json — keep in step with the rewrite in vercel.json.
+const SEASON_DIR = /^\d{4}$/
+const PACK_FILE = /^pack-\d+\.json$/
+
+export function weeklyPacks(dist) {
+  const root = path.join(dist, 'football-weekly')
+  if (!existsSync(root)) return []
+  const out = []
+  for (const season of readdirSync(root)) {
+    if (!SEASON_DIR.test(season)) continue
+    const dir = path.join(root, season)
+    if (!statSync(dir).isDirectory()) continue
+    for (const f of readdirSync(dir)) {
+      if (PACK_FILE.test(f)) out.push(`football-weekly/${season}/${f}`)
+    }
+  }
+  return out
+}
+
 const mb = (n) => (n / 1048576).toFixed(1)
 
 export function compressData(dist) {
   const done = []
-  for (const name of COMPRESSED) {
+  for (const name of [...COMPRESSED, ...weeklyPacks(dist)]) {
     const file = path.join(dist, name)
     if (!existsSync(file)) continue
     const raw = statSync(file).size

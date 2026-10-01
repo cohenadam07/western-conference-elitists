@@ -1,4 +1,4 @@
-"""Week-by-week game lines for the season in progress -> public/football-weekly/<season>/.
+"""Week-by-week game lines, every season -> public/football-weekly/<season>/.
 
 The page's per-stat chart has always been season by season, because build.py rolls every
 weekly aggregate into a season total before the page sees it. This stage keeps the weeks
@@ -15,18 +15,35 @@ What goes into one game:
     anyway. Metrics that only mean something over a season (games played, availability,
     starts, positions played, the combine) are dropped rather than shown as a line of 1s.
 
-Output, one small file per player so the page fetches only the man it is showing:
+What comes out of an old season is whatever that season tracked: snap counts start in 2012,
+Next Gen Stats in 2016, FTN charting in 2022, game-level QBR in 2006. A 2003 game has its
+stat line and its play-by-play rates and nothing else, exactly as the 2003 season card does.
 
-  football-weekly/index.json            {seasons:[2026]}
-  football-weekly/2026/index.json       {s, week, teams:{BUF:{"1":"@MIA","2":"NYJ",...}}}
+Output. The season in progress is one small file per player, so the page fetches only the
+man it is showing and a refresh rewrites only the men who played:
+
+  football-weekly/index.json            {seasons:[1999, ..., 2026]}
+  football-weekly/2026/index.json       {s, week, n, teams:{BUF:{"1":"@MIA","2":"NYJ",...}}}
   football-weekly/2026/<gsis_id>.json   {s, pos, w:[1,2], t:[team], o:[opp],
                                          m:{key:[v per week]}, d:{denom:[n per week]}}
+
+A finished season never changes again, and two thousand files a year for twenty-seven
+years is fifty thousand files nobody will ever rewrite. So a finished season is packed:
+the same per-player records, a hundred to a file, keyed by the last two digits of the
+player id. The season's index says so, and the page reads whichever shape it finds:
+
+  football-weekly/2025/index.json       {s, week, n, pack:2, teams:{...}}
+  football-weekly/2025/pack-57.json     {"00-0034857":{s, pos, w, t, o, m, d}, ...}
+
+"Finished" is the line build.py draws: the weekly table has reached the last regular-season
+week. The first run after that packs the season and removes its per-player files.
 
 A file is rewritten only when its contents change, and nothing in it is a timestamp, so a
 refresh that brings no new game touches nothing and the repository's history stays small:
 a player's file changes about once a week, when he plays.
 
   NFL_SEASONS=2026 python3 weekly.py            # writes to $NFL_WEEKLY (default below)
+  NFL_SEASONS=1999-2025 python3 weekly.py       # backfill; needs those seasons' raw/ and agg/
 """
 import json, os, sys
 from collections import defaultdict
@@ -41,6 +58,10 @@ OUT_ROOT = os.environ.get('NFL_WEEKLY', os.path.join('..', '..', 'public', 'foot
 
 # A season total, not a game fact. Everything else build_player makes survives.
 SEASON_ONLY = {'g', 'avail', 'starts', 'posver', 'comp'}
+
+# A finished season's players are packed by the last PACK characters of their id: two
+# digits, so a hundred files a season of about twenty men each. The page fetches one.
+PACK = 2
 
 
 def sig(v):
@@ -260,17 +281,38 @@ def build_season(y, bio, by_pfr, by_espn, pmake):
 
     out_dir = os.path.join(OUT_ROOT, str(y))
     os.makedirs(out_dir, exist_ok=True)
-    changed = 0
+    recs = {}
     for gid, e in per.items():
         n = len(e['w'])
-        rec = dict(s=y, pos=e['pos'], w=e['w'], t=e['t'], o=e['o'],
-                   m={k: [col.get(i) for i in range(n)] for k, col in sorted(e['m'].items())},
-                   d={k: [col.get(i) for i in range(n)] for k, col in sorted(e['d'].items())})
-        changed += write_if_changed(os.path.join(out_dir, gid + '.json'), rec)
+        recs[gid] = dict(s=y, pos=e['pos'], w=e['w'], t=e['t'], o=e['o'],
+                         m={k: [col.get(i) for i in range(n)] for k, col in sorted(e['m'].items())},
+                         d={k: [col.get(i) for i in range(n)] for k, col in sorted(e['d'].items())})
     last = int(wk.week.max()) if len(wk) else 0
-    write_if_changed(os.path.join(out_dir, 'index.json'),
-                     dict(s=y, week=last, n=len(per), teams=slates))
-    print(y, 'weekly: %d players through week %d, %d file(s) changed' % (len(per), last, changed))
+    # The same line build.py draws between a season in progress and a finished one.
+    done = last >= (B.REG_WEEKS if y >= 2021 else 17)
+    index = dict(s=y, week=last, n=len(recs), teams=slates)
+    changed = 0
+    if done:
+        packs = defaultdict(dict)
+        for gid in sorted(recs):
+            packs[gid[-PACK:]][gid] = recs[gid]
+        keep = {'index.json'}
+        for key, body in packs.items():
+            name = 'pack-%s.json' % key
+            keep.add(name)
+            changed += write_if_changed(os.path.join(out_dir, name), body)
+        index['pack'] = PACK
+        # the per-player files this season had while it was being played
+        for name in os.listdir(out_dir):
+            if name.endswith('.json') and name not in keep:
+                os.remove(os.path.join(out_dir, name))
+                changed += 1
+    else:
+        for gid, rec in recs.items():
+            changed += write_if_changed(os.path.join(out_dir, gid + '.json'), rec)
+    write_if_changed(os.path.join(out_dir, 'index.json'), index)
+    print(y, 'weekly: %d players through week %d%s, %d file(s) changed'
+          % (len(recs), last, ', packed' if done else '', changed))
 
 
 def main():

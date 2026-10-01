@@ -3173,18 +3173,23 @@ function toggleExpl(rowEl,key){
 
    SEASONS  every season of his career, each dot coloured by where it ranked inside that
             season's cohort, against a dashed line for the cohort's median.
-   WEEKLY   the season in progress, game by game. The same metric, worked out by the same
+   WEEKLY   the season on screen, game by game — 2025's games on his 2025 card, 2011's on
+            his 2011 card, back to 1999. The same metric, worked out by the same
             build code over one game's inputs (pipeline/football/weekly.py), so a game's
             yards per attempt means exactly what the season's does. A bar's colour is where
-            that single game would rank among this season's full-season lines at his
+            that single game would rank among that season's full-season lines at his
             position — "one game at a 90th-percentile level", not a weekly leaderboard,
             because a single week has no qualified pool worth ranking in.
+
+            The season in progress is one file per player; a finished season is packed a
+            hundred players to a file (its index.json says `pack`), and wkPlayer reads
+            whichever it finds.
 
    The SVG is drawn at the pixel width it is shown at and redrawn on resize, so nothing is
    ever stretched: squares stay square and type stays the size it was set at. */
 var chartMode='season';                 // remembered across charts for the session
 var SEASON_TOTAL_ONLY={g:1,avail:1,starts:1,posver:1,comp:1};
-var WK_ROOT=null, WK_IDX={}, WK_FILE={};
+var WK_ROOT=null, WK_IDX={}, WK_FILE={}, WK_PACK={};
 function wkTag(){ return '?v='+Math.floor(Date.now()/3600000); }   // same hour-cache as the current file
 function wkRoot(){
   if(!WK_ROOT) WK_ROOT=fetch('football-weekly/index.json'+wkTag())
@@ -3196,18 +3201,33 @@ function wkIndex(s){
     .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
   return WK_IDX[s];
 }
+function wkJson(path){
+  return fetch('football-weekly/'+path+'.json'+wkTag())
+    .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+}
+/* One man's games in one season. The season's index says which shape it is stored in. */
 function wkPlayer(s,id){
   var k=s+'/'+id;
-  if(!(k in WK_FILE)) WK_FILE[k]=fetch('football-weekly/'+k+'.json'+wkTag())
-    .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+  if(!(k in WK_FILE)) WK_FILE[k]=wkIndex(s).then(function(idx){
+    if(!idx) return null;
+    if(!idx.pack) return wkJson(k);
+    var pk=s+'/pack-'+String(id).slice(-idx.pack);
+    if(!(pk in WK_PACK)) WK_PACK[pk]=wkJson(pk);
+    return WK_PACK[pk].then(function(b){ return (b&&b[id])||null; });
+  });
   return WK_FILE[k];
 }
-/* The weekly season: the one on screen if it has game lines, otherwise the newest that does. */
+/* The weekly season is the one on screen. Only when no single season is on screen (the
+   career view), or that season has no game lines, does it fall back — and then to his own
+   most recent season that has them, so a retired man's chart shows his last year rather
+   than a season he never played in. */
 function wkSeasonFor(root){
   var ss=(root&&root.seasons||[]).map(String);
   if(!ss.length) return null;
   if(!isCareer(curSeason)&&ss.indexOf(String(yearOf(curSeason)))>=0) return String(yearOf(curSeason));
-  return ss.sort().slice(-1)[0];
+  var mine=seasonsOf(curId).map(function(s){return String(yearOf(s));})
+    .filter(function(s){return ss.indexOf(s)>=0;});
+  return (mine.length?mine:ss).sort().slice(-1)[0];
 }
 
 function closeChart(){
@@ -3323,7 +3343,7 @@ function plotSvg(o){
     pts.forEach(function(p,i){
       var x=X(i);
       if(p.kind!=='val'){
-        if(slot>=22) out.push('<text class="rc-gaplab" x="'+x.toFixed(1)+'" y="'+(base-6).toFixed(1)+'" text-anchor="middle">'+esc(p.gapLab||'')+'</text>');
+        if(slot>=18) out.push('<text class="rc-gaplab" x="'+x.toFixed(1)+'" y="'+(base-6).toFixed(1)+'" text-anchor="middle">'+esc(p.gapLab||'')+'</text>');
         return;
       }
       var y=Y(p.v), top=Math.min(y,zero), h=Math.max(2,Math.abs(zero-y));
@@ -3347,7 +3367,7 @@ function plotSvg(o){
     pts.forEach(function(p,i){
       var x=X(i);
       if(p.kind!=='val'){
-        if(o.bars&&slot>=22) out.push('<text class="rc-gaplab" x="'+x.toFixed(1)+'" y="'+(base-6).toFixed(1)+'" text-anchor="middle">'+esc(p.gapLab||'')+'</text>');
+        if(o.bars&&slot>=18) out.push('<text class="rc-gaplab" x="'+x.toFixed(1)+'" y="'+(base-6).toFixed(1)+'" text-anchor="middle">'+esc(p.gapLab||'')+'</text>');
         return;
       }
       var y=Y(p.v), col=p.pct==null?'var(--c-mid)':colorAt(p.pct);
@@ -3448,7 +3468,7 @@ function drawChart(el){
   if(pts.length<2){
     return setPlotState(el,{sub:' · season by season',
       empty:pts.length?'One season of '+esc(m.label.toLowerCase())+' so far ('+esc(pts[0].full)+': '+esc(fmt(m.unit,pts[0].v))+') — nothing to draw a line through yet.'
-        +(SEASON_TOTAL_ONLY[key]?'':' Try <b>Weekly</b> for his games this year.')
+        +(SEASON_TOTAL_ONLY[key]?'':' Try <b>Weekly</b> for that season game by game.')
         :'No seasons of this stat on record.'});
   }
   pts.forEach(function(p){ p.kind='val'; p.best=(p===best); });
@@ -3488,9 +3508,10 @@ function drawWeekly(el,key,m){
       if(!idx||!f) return setPlotState(el,{sub:sub,empty:'He hasn\'t appeared in a '+esc(s)+' game yet.'});
       var col=f.m[key];
       if(!col||!col.some(function(v){return v!=null;})){
-        var why=m.tier===6?'It comes from PFR\'s charting, which is only published for whole seasons.'
-               :m.grp==='block'?'It comes from on-field participation data, which is only published after a season ends.'
-               :'It isn\'t recorded game by game, or he hasn\'t had a game where it applies.';
+        var why=m.tier===6?'It comes from PFR\'s charting, which this chart reads a season at a time.'
+               :m.grp==='block'?(liveWeek(s)?'It comes from on-field participation data, which is only published after a season ends.'
+                                            :'It is an on-field / off-field comparison across a whole season, with no one-game version.')
+               :'It isn\'t recorded game by game, or he didn\'t have a game where it applies.';
         return setPlotState(el,{sub:sub,empty:'No weekly line for '+esc(m.label.toLowerCase())+' in '+esc(s)+'. '+why});
       }
       var pos=(row&&row.pos)||f.pos, pool=poolVals(key,pos,s);
@@ -3498,13 +3519,34 @@ function drawWeekly(el,key,m){
       var den=m.den&&m.den!=='g'?f.d[m.den]:null;
       var nW=Math.max(idx.week||0,f.w[f.w.length-1]||0), team=(row&&row.team)||f.t[f.t.length-1];
       var pts=[], best=null, lastP=null, nGames=0;
+      /* Whose schedule a missed week is read off. Inside one stint it is that team's. His
+         season-ending team would call a bye wrong for every week before an October trade,
+         so a week that falls between two clubs is only called a bye if it was one for
+         both; otherwise the chart says he was between teams, which is all it knows. */
+      function slate(t,w){ return ((idx.teams||{})[t]||{})[String(w)]||''; }
+      function missed(w){
+        var prev=null, next=null;
+        for(var k=0;k<f.w.length;k++){
+          if(!f.t[k]) continue;
+          if(f.w[k]<w) prev=f.t[k];
+          else if(f.w[k]>w){ next=f.t[k]; break; }
+        }
+        if(prev&&next&&prev!==next){
+          if(slate(prev,w)==='BYE'&&slate(next,w)==='BYE') return {sl:'BYE'};
+          return {between:prev+' → '+next};
+        }
+        return {sl:slate(prev||next||team,w)};
+      }
       for(var w=1;w<=nW;w++){
         var i=f.w.indexOf(w);
         if(i<0||col[i]==null){
-          var tm=i>=0?f.t[i]:team, sl=((idx.teams||{})[tm]||{})[String(w)]||'';
+          var g=i>=0?{sl:f.t[i]?slate(f.t[i],w):''}:missed(w), sl=g.sl||'';
           var bye=sl==='BYE';
-          pts.push({kind:'gap', lab:'W'+w, sub:bye?'bye':(i>=0?(f.o[i]||'').replace(/^@/,'@'):(sl||'')),
-                    gapLab:bye?'BYE':(i>=0?'·':'DNP'), w:w, why:bye?'Bye week':(i>=0?'Played, but no '+m.label.toLowerCase()+' reading':'Did not play'),
+          pts.push({kind:'gap', lab:'W'+w, w:w,
+                    sub:bye?'bye':(i>=0?(f.o[i]||''):(sl||'')),
+                    gapLab:bye?'BYE':(i>=0?'·':(g.between?'–':'DNP')),
+                    why:bye?'Bye week':(i>=0?'Played, but no '+m.label.toLowerCase()+' reading'
+                                           :(g.between?'Between teams ('+g.between+')':'Did not play')),
                     opp:i>=0?f.o[i]:sl});
           continue;
         }
@@ -3527,7 +3569,7 @@ function drawWeekly(el,key,m){
       setPlotState(el,{m:m, sub:sub+(m.lower?' · lower is better':''), pts:pts, bars:true, sub2:true,
         refs:refs, kpis:kp, legend:legend,
         aria:m.label+', game by game, '+s,
-        foot:'A game\'s colour is where that one game would rank among '+esc(s)+' full-season lines by '
+        foot:'A game\'s colour is where that one game would rank among '+(allTime?'all-time':esc(s))+' full-season lines by '
           +esc(posWord(pos,true))+'. One game is a small sample — the season line is the settled reading.',
         tip:function(p){
           if(p.kind!=='val') return '<b>Week '+p.w+(p.opp&&p.opp!=='BYE'?' · '+esc(vs(p.opp)):'')+'</b><span>'+esc(p.why)+'</span>';
