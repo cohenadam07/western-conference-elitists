@@ -17,6 +17,10 @@
       "destination": "/ufc-savant-fights.json.gz"
     },
     {
+      "source": "/football-weekly/:season(\\d{4})/:pack(pack-\\d+\\.json)",
+      "destination": "/football-weekly/:season/:pack.gz"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
@@ -115,6 +119,32 @@
     },
     {
       "source": "/ufc-savant-fights.json.gz",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/football-weekly/:season(\\d{4})/:pack(pack-\\d+\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/football-weekly/:season(\\d{4})/:pack(pack-\\d+\\.json\\.gz)",
       "headers": [
         {
           "key": "Content-Encoding",

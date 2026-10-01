@@ -103,6 +103,15 @@ jobs:
         working-directory: pipeline/football
         run: NFL_OUT="$GITHUB_WORKSPACE/public/football-savant-data.json" python3 build.py
 
+      # The Weekly chart reads game lines for the season on screen, whichever it is, and
+      # they are worked out by build.py's own build_player(). So when a metric changes, every
+      # season's game lines have to be redone with it, or the archive's weekly charts would
+      # be missing the new row. About a minute for all of them; files are rewritten only
+      # when their contents change.
+      - name: Week-by-week game lines
+        working-directory: pipeline/football
+        run: NFL_WEEKLY="$GITHUB_WORKSPACE/public/football-weekly" python3 weekly.py
+
       # Coaching Savant's archive: records from the whole schedule, style from every season,
       # fourth downs from 2014 and play-caller units from 2018. With a season list the
       # other seasons are carried over from the shipped archive rather than dropped.
@@ -117,7 +126,7 @@ jobs:
         run: |
           git config user.name "football-savant-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add public/football-savant-data.json public/football-maps/ public/football-routes/ public/coaching-savant-data.json
+          git add public/football-savant-data.json public/football-maps/ public/football-routes/ public/football-weekly/ public/coaching-savant-data.json
           if git diff --cached --quiet; then
             echo "no change — nothing to commit"
             exit 0

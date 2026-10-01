@@ -155,9 +155,20 @@ season's play-by-play and stays a local run.
   play-by-play and FTN aggregates, the week's Next Gen Stats row, ESPN's game-level QBR), so
   a game's number is worked out exactly the way the season's is. PFR's tables and
   participation are season-only and are not used; season totals (games, availability,
-  starts, the combine) are dropped. One file per player, rewritten only when it changes.
-  The refresh runs it for the season in progress; nothing earlier is shipped yet
-  (`NFL_SEASONS=2025 python3 weekly.py` would backfill a season, ~9 MB each).
+  starts, the combine) are dropped. Every season since 1999 is shipped, and the page's
+  Weekly chart shows the games of whichever season is on screen. An old season carries what
+  that season tracked and nothing more (snap counts from 2012, Next Gen Stats from 2016,
+  FTN charting from 2022, game-level QBR from 2006).
+
+  Two shapes on disk, and the season's `index.json` says which. The season in progress is
+  one file per player, rewritten only when it changes, so a refresh touches only the men
+  who played. A finished season is packed a hundred players to a file (`pack-57.json`,
+  keyed by the last two digits of the player id; `"pack": 2` in the index) - about 100
+  files and 1 to 3 MB a season instead of 2,000 files, 58 MB for 1999-2025 in all. The
+  first run after the last regular-season week packs a season and removes its per-player
+  files by itself. The refresh runs `weekly.py` for the season in progress; the full
+  rebuild runs it for every season, which is what carries a new metric into the archive's
+  weekly charts. By hand: `NFL_SEASONS=1999-2025 python3 weekly.py`.
 - **`teams.py`** — team names and primary colours, including the franchises that moved
   inside the window (STL, SD, OAK).
 - **`coaches.py`** — builds Coaching Savant. Records, playoff history and performance
