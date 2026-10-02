@@ -70,6 +70,32 @@ The script only ever creates a **draft**. Open Buttondown → Emails → Drafts,
 replace the `[Your intro…]` line, edit, and send from there. Sent issues show up
 on `/newsletter` within about 15 minutes.
 
+## The weekly movers issue (Basketball Savant)
+
+During the season a second kind of draft builds itself: the week's biggest percentile movers.
+
+- Every Thursday morning a GitHub Action (`.github/workflows/savant-weekly.yml`) saves a small
+  snapshot of where every qualified player stands (`data/savant-snapshots/<season>/<date>.json`)
+  and, from the two newest snapshots, creates a **draft** in Buttondown: five risers, five
+  fallers, each linked to the player's page. It never sends. Open the draft, write the intro,
+  cut what you don't believe, and send it yourself.
+- **One-time setup:** add `BUTTONDOWN_API_KEY` as a repository secret on GitHub (Settings →
+  Secrets and variables → Actions). Until then the job still saves snapshots and prints the
+  subject line in the run summary, but creates no draft.
+- **When it starts:** a snapshot needs at least 30 qualified players, and the first draft needs
+  two snapshots a week apart. With the tool's 20-game qualifier that is roughly six weeks into a
+  season. Before that the job runs, says why there's nothing yet, and stays green.
+- A move only counts when the player qualified in both weeks and the stat is past its
+  stabilization sample in both, and each player is listed once (under his largest change).
+
+```bash
+npm run savant-snapshot                 # save today's snapshot by hand
+npm run movers-draft -- --dry-run       # build the email locally, send nothing
+npm run movers-draft -- --from 2026-12-03 --to 2026-12-10
+```
+
+Signups from the player pages carry `utm_campaign` `player-page` or `player-directory`.
+
 ## Where signups came from
 
 Each subscriber carries `utm_campaign` set to where they signed up: `home`,
