@@ -25,6 +25,30 @@
       "destination": "/savant-api/basketball/v1/seasons/:season.gz"
     },
     {
+      "source": "/savant-api/football/v1/seasons/:season(\\d{4}\\.json)",
+      "destination": "/savant-api/football/v1/seasons/:season.gz"
+    },
+    {
+      "source": "/savant-api/ufc/v1/fighters/:shard([0-9a-f]\\.json)",
+      "destination": "/savant-api/ufc/v1/fighters/:shard.gz"
+    },
+    {
+      "source": "/savant-api/coaching/v1/profiles/all.json",
+      "destination": "/savant-api/coaching/v1/profiles/all.json.gz"
+    },
+    {
+      "source": "/savant-api/coaching/v1/units/:season(\\d{4}\\.json)",
+      "destination": "/savant-api/coaching/v1/units/:season.gz"
+    },
+    {
+      "source": "/savant-api/draft/v1/classes/:year(\\d{4}\\.json)",
+      "destination": "/savant-api/draft/v1/classes/:year.gz"
+    },
+    {
+      "source": "/savant-api/site/v1/articles/:slug([a-z0-9-]+\\.json)",
+      "destination": "/savant-api/site/v1/articles/:slug.gz"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
@@ -185,8 +209,169 @@
           "value": "application/json; charset=utf-8"
         }
       ]
+    },
+    {
+      "source": "/savant-api/football/v1/seasons/:season(\\d{4}\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/football/v1/seasons/:season(\\d{4}\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/ufc/v1/fighters/:shard([0-9a-f]\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/ufc/v1/fighters/:shard([0-9a-f]\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/coaching/v1/profiles/all.json",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/coaching/v1/profiles/all.json.gz",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/coaching/v1/units/:season(\\d{4}\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/coaching/v1/units/:season(\\d{4}\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/draft/v1/classes/:year(\\d{4}\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/draft/v1/classes/:year(\\d{4}\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/site/v1/articles/:slug([a-z0-9-]+\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/site/v1/articles/:slug([a-z0-9-]+\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
     }
   ],
+  "functions": {
+    "api/mcp.js": {
+      "maxDuration": 30
+    }
+  },
   "crons": [
     {
       "path": "/api/analytics/snapshot",

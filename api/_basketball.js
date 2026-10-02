@@ -135,9 +135,10 @@ async function resolvePlayer(input, season) {
     if (there.length === 1) return there[0]
     if (there.length > 1) best = there
   }
-  // One clear answer: the only player at the top who matched on whole words or a prefix, or
-  // the only player who matched at all (a typo that could be nobody else).
-  if (best.length === 1 && (top >= 60 || ranked.length === 1)) return best[0]
+  // One clear answer: the only player at the top, matched on whole words or a prefix. A name
+  // that matches only as a near spelling never resolves on its own, even alone: it may be
+  // someone who is not in the data, one letter away from someone who is.
+  if (best.length === 1 && top >= 60) return best[0]
 
   const list = (best.length > 1 ? best : ranked.slice(0, 6).map((r) => r.row)).slice(0, 8)
   const why = best.length > 1 ? `${best.length} players match "${raw}"` : `"${raw}" is not an exact match`

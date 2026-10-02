@@ -14,19 +14,26 @@
 //      happened, the data being down — does it say what to do next rather than guess or
 //      fall over?
 //
-// The data is built in memory from public/ and served from a local port, so there is no
-// network and no dependence on what is live. Takes a few seconds.
+// It also makes one pass over the whole connector: every tool of every section, called
+// through the real endpoint, against files written the way the build writes them and served
+// the way Vercel serves them (x.json answered from x.json.gz). Each section's own check, in
+// the folder beside this one, is where its numbers are held to its page.
+//
+// The data is built from public/ and served from a local port, so there is no network and no
+// dependence on what is live. Takes a few seconds.
 
 import { after, before, test } from 'node:test'
 import assert from 'node:assert/strict'
 import http from 'node:http'
-import { readFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import vm from 'node:vm'
 import { fileURLToPath } from 'node:url'
+import { gunzipSync } from 'node:zlib'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
-import { buildSavantApi } from '../../scripts/lib/savant-api.mjs'
+import { buildSavantApi, writeAll } from '../../scripts/lib/savant-api.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const html = readFileSync(path.join(ROOT, 'public/basketball-savant.html'), 'utf8')
@@ -38,17 +45,33 @@ const latest = files.meta.latestSeason
 
 const listen = (server) => new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(server.address().port)))
 
-// The site's CDN: the three kinds of file, and the homepage for anything else (which is
-// what the live catch-all rewrite does, with a 200).
+// Every section's files, written to a scratch folder exactly as the build writes them.
+const dist = mkdtempSync(path.join(os.tmpdir(), 'savant-mcp-'))
+const built = writeAll({ publicDir: path.join(ROOT, 'public'), dist, log: () => {} })
+
+// The site's CDN. Basketball comes from the in-memory build above, so a test can take a file
+// away. Every other section comes off the scratch folder the way Vercel serves it: x.json is
+// answered from x.json.gz when that is what was written. Anything else gets the homepage
+// with a 200, which is what the live catch-all rewrite does. The Dynasty board's live
+// endpoint answers as the real one does when its store is not set up.
 let hits = 0
+const html200 = (res) => { res.writeHead(200, { 'content-type': 'text/html', connection: 'close' }); res.end('<!doctype html><title>WCE</title>') }
+const json200 = (res, body) => { res.writeHead(200, { 'content-type': 'application/json', connection: 'close' }); res.end(body) }
 const cdn = http.createServer((req, res) => {
   hits++
-  const p = decodeURIComponent(req.url).replace('/savant-api/basketball/v1/', '')
-  const season = p.match(/^seasons\/(.+)\.json$/)
-  const body = p === 'meta.json' ? files.meta : p === 'players.json' ? files.players : season ? files.seasons[season[1]] : null
-  if (!body) { res.writeHead(200, { 'content-type': 'text/html' }); return res.end('<!doctype html><title>WCE</title>') }
-  res.writeHead(200, { 'content-type': 'application/json' })
-  res.end(JSON.stringify(body))
+  const url = decodeURIComponent(req.url.split('?')[0])
+  if (url === '/api/dynasty') return json200(res, JSON.stringify({ configured: false }))
+  if (url.startsWith('/savant-api/basketball/v1/')) {
+    const p = url.replace('/savant-api/basketball/v1/', '')
+    const season = p.match(/^seasons\/(.+)\.json$/)
+    const body = p === 'meta.json' ? files.meta : p === 'players.json' ? files.players : season ? files.seasons[season[1]] : null
+    return body ? json200(res, JSON.stringify(body)) : html200(res)
+  }
+  const file = path.join(dist, url)
+  if (!file.startsWith(dist)) return html200(res)
+  if (existsSync(file) && statSync(file).isFile()) return json200(res, readFileSync(file))
+  if (existsSync(`${file}.gz`)) return json200(res, gunzipSync(readFileSync(`${file}.gz`)))
+  return html200(res)
 })
 
 let savant
@@ -79,6 +102,7 @@ after(async () => {
   await client.close()
   app.close()
   cdn.close()
+  rmSync(dist, { recursive: true, force: true })
 })
 
 const call = (name, args) => client.callTool({ name, arguments: args })
@@ -202,15 +226,26 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   assert.equal(client.getServerVersion().name, 'wcehoops')
   assert.match(client.getInstructions(), /percentile/)
   const { tools } = await client.listTools()
-  // Other sections have their own checks; this one owns the basketball tools.
-  assert.deepEqual(tools.map((t) => t.name).filter((n) => n.startsWith('nba_') && !n.startsWith('nba_draft_')).sort(), ['nba_get_player_profile', 'nba_search_players'])
-  assert.equal(new Set(tools.map((t) => t.name)).size, tools.length, 'tool names are unique')
+  // The whole list, by name. Adding or dropping a tool should be a decision, not a side effect.
+  assert.deepEqual(tools.map((t) => t.name).sort(), [
+    'nba_draft_get_prospect_profile', 'nba_draft_search_prospects',
+    'nba_get_player_profile', 'nba_search_players',
+    'nfl_get_coach_profile', 'nfl_get_player_profile', 'nfl_search_coaches', 'nfl_search_players',
+    'ufc_get_fighter_profile', 'ufc_get_upcoming_cards', 'ufc_search_fighters',
+    'wce_get_article', 'wce_get_big_board', 'wce_get_dynasty_rankings', 'wce_get_news', 'wce_search_articles',
+  ])
+  // What an assistant is handed before anyone asks anything: names, descriptions and input
+  // shapes. Kept in check, because every conversation with the connector on pays for it.
+  const upfront = tools.reduce((n, t) => n + JSON.stringify({ name: t.name, description: t.description, inputSchema: t.inputSchema }).length, 0)
+  assert.ok(upfront < 30000, `tool names, descriptions and inputs came to ${upfront} characters`)
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)
     assert.equal(t.annotations.readOnlyHint, true, `${t.name}: read-only`)
     assert.equal(t.annotations.destructiveHint, false)
-    assert.ok(t.description.length > 80, `${t.name}: description`)
+    assert.ok(t.description.length > 80 && t.description.length < 1300, `${t.name}: description is ${t.description.length} characters`)
+    // A description says what the tool returns. It does not tell the assistant what to do.
+    assert.doesNotMatch(t.description, /\b(you must|you should|always call|never call|ignore (all|any|previous)|system prompt|do not tell)\b/i, `${t.name}: description gives orders`)
     assert.equal(t.inputSchema.type, 'object')
     assert.ok(t.outputSchema, `${t.name}: output schema`)
     for (const [k, prop] of Object.entries(t.inputSchema.properties)) assert.ok(prop.description, `${t.name}.${k}: described`)
@@ -287,10 +322,51 @@ test('HTTP manners: stateless, POST only, CORS, clean errors', async () => {
   assert.equal(list.status, 200)
   assert.equal(list.headers.get('mcp-session-id'), null)
   assert.match(list.headers.get('content-type'), /application\/json/)
-  assert.ok((await list.json()).result.tools.length >= 2)
+  assert.equal((await list.json()).result.tools.length, 16)
 
   const note = await post({ jsonrpc: '2.0', method: 'notifications/initialized' })
   assert.equal(note.status, 202)
+})
+
+test('every tool of every section answers through the endpoint', async () => {
+  assert.equal(built.failed, 0, 'a section failed to write its files')
+  // callTool validates each result against its tool's declared output shape.
+  const ok = async (name, args, expect) => {
+    const r = await call(name, args)
+    const text = textOf(r)
+    assert.ok(!r.isError, `${name} ${JSON.stringify(args)}: ${text.slice(0, 300)}`)
+    assert.match(text, expect, `${name} ${JSON.stringify(args)}`)
+    assert.ok(text.length < 13000, `${name}: ${text.length} characters`)
+    assert.match(text, /wcehoops\.com/, `${name}: links to the site`)
+    return r.structuredContent
+  }
+  await ok('nba_search_players', { query: 'jokic' }, /Nikola Jokic/)
+  await ok('nba_get_player_profile', { player: 'Nikola Jokic' }, /vs\. bigs/)
+
+  const qb = await ok('nfl_search_players', { query: 'patrick mahomes' }, /Patrick Mahomes/)
+  await ok('nfl_get_player_profile', { player: qb.players[0].id }, /vs\. quarterbacks/)
+  await ok('nfl_get_player_profile', { player: 'Patrick Mahomes', season: '2022', group: 'passing' }, /2022 regular season/)
+
+  await ok('nfl_search_coaches', { query: 'shanahan' }, /Kyle Shanahan/)
+  await ok('nfl_get_coach_profile', { coach: 'Andy Reid' }, /hand-curated/)
+
+  const fighter = await ok('ufc_search_fighters', { query: 'makhachev' }, /Islam Makhachev/)
+  await ok('ufc_get_fighter_profile', { fighter: fighter.fighters[0].id }, /vs\. active /)
+  await ok('ufc_get_fighter_profile', { fighter: 'Islam Makhachev', window: 'l3', group: 'striking' }, /last 3 fights/i)
+  await ok('ufc_get_upcoming_cards', {}, /upcoming UFC card/)
+
+  const prospect = await ok('nba_draft_search_prospects', { query: 'flagg' }, /Cooper Flagg/)
+  await ok('nba_draft_get_prospect_profile', { prospect: prospect.prospects[0].id }, /not NBA stats/)
+
+  await ok('wce_get_news', { section: 'headlines', limit: 3 }, /generated \d{4}-\d{2}-\d{2}/)
+  const articles = await ok('wce_search_articles', {}, /WCE article/)
+  if (articles.articles.length) await ok('wce_get_article', { article: articles.articles[0].slug }, /wcehoops\.com\/articles\//)
+  await ok('wce_get_big_board', {}, /Big Board/)
+
+  // The Dynasty board is live. With its store not set up it must say so plainly, not guess.
+  const board = await call('wce_get_dynasty_rankings', {})
+  assert.ok(board.isError)
+  assert.doesNotMatch(textOf(board), /127\.0\.0\.1|ECONNREFUSED|\.js:\d+/)
 })
 
 // ---- 3. when it cannot answer --------------------------------------------------------
@@ -311,6 +387,12 @@ test('a shared name lists the candidates, and a season settles it', async () => 
   assert.match(textOf(jj), /Jaren Jackson Jr\./)
   const jr = await call('nba_get_player_profile', { player: 'Jaren Jackson Jr.', group: 'context' })
   assert.equal(jr.structuredContent.player.id, '1628991')
+  // A near spelling never opens a card on its own, even when only one man is close: he is
+  // named with his id instead, because a name one letter off may belong to someone who is
+  // not in the data.
+  const typo = await call('nba_get_player_profile', { player: 'Nikola Jokich' })
+  assert.ok(typo.isError)
+  assert.match(textOf(typo), /"Nikola Jokich" is not an exact match\. Call again with one of these ids:\n- Nikola Jokic \(id 203999\)/)
 })
 
 test('impossible questions get an answer that says what to try', async () => {
