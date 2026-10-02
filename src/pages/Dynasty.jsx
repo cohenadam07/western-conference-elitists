@@ -243,9 +243,10 @@ function Shell({ title, kicker, total, onHome, children }) {
 }
 
 export default function Dynasty() {
+  // Keep in step with PAGES in scripts/lib/seo-build.mjs (npm run check:seo compares them).
   usePageMeta(
-    'Dynasty Exchange',
-    'Crowd-priced NBA dynasty rankings — rank four players at a time and move the market.',
+    'Dynasty Exchange: Crowd-Priced NBA Dynasty Rankings',
+    'Dynasty Exchange is a dynasty basketball trade-value board priced by the crowd. Rank four NBA players at a time and move the market, or paste your roster and see what it is worth.',
   )
 
   const [seed, setSeed] = useState(null)

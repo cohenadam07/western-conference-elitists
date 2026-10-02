@@ -13,20 +13,33 @@
 //   dist/sitemap.xml                 every public page, articles with their dates, every player
 //   dist/*-savant.html, game.html    favicon, Vercel Analytics, and share tags injected
 //                                    (those pages are hand-built HTML outside React, so
-//                                    they had none of it)
+//                                    they had none of it). The five Savant tools also get a
+//                                    title that says what the tool is, structured data that
+//                                    names it, and a "What is X?" panel under the landing
+//                                    screen (copy in seo-content.mjs)
+//   dist/index.html                  the homepage, with its own canonical, structured data
+//                                    and first-paint text
+//   dist/spa.html                    the bare app shell. vercel.json sends every URL that has
+//                                    no file of its own here (it used to be index.html, which
+//                                    is why the homepage could not have a canonical)
 //
-// Nothing here changes what a visitor sees. React still renders every page; this only
-// changes the HTML that arrives before it does. Vercel serves these files ahead of the
-// catch-all rewrite in vercel.json (verified on a preview deploy), so /articles/<slug>
-// and /newsletter get their own HTML. An unknown slug still falls through to the app,
-// which shows Not Found with a noindex tag (status 200).
+// React still renders every page; this changes the HTML that arrives before it does. Each
+// page it writes carries a few sentences of real text and links to every product inside
+// <div id="root">, for crawlers that do not run JavaScript. React replaces that text when
+// it mounts, and it is held back for a second and a half, so a visitor only sees it if the
+// app is slow to start. Vercel serves these files ahead of the catch-all rewrite in
+// vercel.json (verified on a preview deploy), so /articles/<slug> and /newsletter get their
+// own HTML. An unknown slug still falls through to the app, which shows Not Found with a
+// noindex tag (status 200).
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { buildPlayerPages } from './player-pages.mjs'
+import { ABOUT_MARK, FALLBACK_CSS, LEDES, SITE, SITE_NAME, TOOLS, fallbackHtml, homeJsonLd, pageJsonLd, toolAbout, toolJsonLd } from './seo-content.mjs'
 
-export const SITE = 'https://wcehoops.com'
-const SITE_NAME = 'Western Conference Elitists'
+export { SITE }
+const SITE_DESCRIPTION =
+  'Western Conference Elitists — NBA analysis and draft scouting for people who watch the film, plus the Savant tools, which rank NBA and NFL players and UFC fighters by percentile.'
 const OG_CARD = `${SITE}/og-card.png` // 1200×630, public/og-card.png
 
 // Flappy Hoops as a home-screen app: its own icon, name and manifest on /hoops, so Add to Home
@@ -41,8 +54,10 @@ export const HOOPS_APP = {
 }
 
 // Static pages worth sharing, with the same title/description their component sets via
-// usePageMeta. `title: null` means the site default (the home page).
-const PAGES = [
+// usePageMeta (`npm run check:seo` fails if the two drift apart). `title: null` means the
+// site default (the home page). `name` is the page's plain name, for the first-paint
+// heading, where the title says more than the name.
+export const PAGES = [
   { path: '/', title: null, priority: '1.0' }, // sitemap only: dist/index.html is also the SPA fallback
   { path: '/articles', title: 'Analysis', description: 'Scouting breakdowns, team-building theory, and NBA analytics that hold up under pressure.', priority: '0.9' },
   { path: '/newsletter', title: 'The Weekly Board', description: 'The Weekly Board: one board move, one prospect we’re buying or fading, and one stat, in your inbox. Free.', priority: '0.8' },
@@ -50,7 +65,7 @@ const PAGES = [
   { path: '/draft', title: 'Draft Hub', description: 'Full scouting profiles, measurements, and role projections for the NBA Draft class.', priority: '0.8' },
   { path: '/news', title: 'News', description: 'The biggest NBA and college basketball stories, plus basketball research and analytics — aggregated and annotated by Western Conference Elitists.', priority: '0.7' },
   { path: '/comp-chain', title: 'Comp Chain', description: 'Hop from one NBA player to another through their statistical comps — a daily game built on Basketball Savant data.', priority: '0.6' },
-  { path: '/dynasty', title: 'Dynasty Exchange', description: 'Crowd-priced NBA dynasty rankings — rank four players at a time and move the market.', priority: '0.6' },
+  { path: '/dynasty', title: 'Dynasty Exchange: Crowd-Priced NBA Dynasty Rankings', name: 'Dynasty Exchange', description: 'Dynasty Exchange is a dynasty basketball trade-value board priced by the crowd. Rank four NBA players at a time and move the market, or paste your roster and see what it is worth.', priority: '0.6' },
   { path: '/hoops', title: 'Flappy Hoops', description: 'Flap it through the rim in as few taps as you can: sixteen cities, nine holes each, a hidden ghost hole in every one. Race up to eight friends online.', priority: '0.5', app: HOOPS_APP },
   { path: '/about', title: 'About', description: 'Who we are and how we work: film-first, data-honest NBA and draft coverage.', priority: '0.5' },
   { path: '/contact', title: 'Contact', description: 'Pitches, scouting disagreements, partnerships — get in touch with Western Conference Elitists.', priority: '0.4' },
@@ -58,6 +73,7 @@ const PAGES = [
 ]
 
 // The hand-built tool pages in public/. Descriptions only fill in where a page has none.
+// The five Savant tools take their title and description from TOOLS in seo-content.mjs.
 const STANDALONE = {
   'basketball-savant.html': { description: 'Percentile sliders, player comparisons, shot charts and on/off data for every NBA player.', sitemap: '0.9' },
   'draft-savant.html': { description: 'Draft prospect profiles, percentiles and comps from Western Conference Elitists.', sitemap: '0.8' },
@@ -94,7 +110,7 @@ function appHead(html, app) {
   return setLink(html, 'manifest', app.manifest)
 }
 
-function pageHtml(shell, { title, description, url, image = OG_CARD, type = 'website', extraHead = '', app = null }) {
+function pageHtml(shell, { title, description, url, image = OG_CARD, type = 'website', extraHead = '', app = null, fallback = '' }) {
   const full = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | NBA Analysis & Scouting`
   let html = shell.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(full)}</title>`)
   if (description) {
@@ -111,7 +127,17 @@ function pageHtml(shell, { title, description, url, image = OG_CARD, type = 'web
   html = setLink(html, 'canonical', url)
   if (app) html = appHead(html, app)
   if (extraHead) html = html.replace('</head>', `${extraHead}\n  </head>`)
+  if (fallback) html = withFallback(html, fallback)
   return html
+}
+
+// Put first-paint text inside the app's root div (see FALLBACK_CSS in seo-content.mjs for when
+// a visitor would ever see it). If the shell's root div ever changes shape this does nothing,
+// and `npm run check:seo` says so.
+const ROOT_DIV = '<div id="root"></div>'
+function withFallback(html, fallback) {
+  if (!html.includes(ROOT_DIV)) return html
+  return html.replace('</head>', `    ${FALLBACK_CSS}\n  </head>`).replace(ROOT_DIV, `<div id="root">\n    ${fallback}\n    </div>`)
 }
 
 function write(dist, rel, html) {
@@ -132,6 +158,30 @@ const VA_SNIPPET = [
   '<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>',
   '<script defer src="/_vercel/insights/script.js"></script>',
 ]
+
+// A Savant tool's own <title> is its name and nothing else ("Football Savant — WCE"), and its
+// landing screen is a search box. Give the page a title and description that say what the tool
+// is, structured data that names it, and the "What is X?" panel under the landing screen. This
+// runs before decorateStandalone, so the share tags it adds pick up the new title.
+function brandTool(html, file) {
+  const t = TOOLS[file]
+  if (!t) return html
+  html = html.replace(/<title>[^<]*<\/title>/, `<title>${esc(t.title)}</title>`)
+  const desc = `<meta name="description" content="${esc(t.description)}"/>`
+  html = /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i.test(html)
+    ? html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, desc)
+    : html.replace(/<\/title>/, `</title>\n${desc}`)
+  if (!html.includes('application/ld+json')) html = html.replace(/<\/head>/i, `${toolJsonLd(file)}\n</head>`)
+  // The panel goes between the landing screen and the tool itself: straight before the first
+  // <div class="wrap"> in the body.
+  if (!html.includes(ABOUT_MARK)) {
+    const body = html.search(/<body[\s>]/i)
+    const at = body === -1 ? -1 : html.indexOf('<div class="wrap"', body)
+    if (at === -1) console.error(`\n  seo: no place found for the about panel in ${file} — the page ships without it\n`)
+    else html = html.slice(0, at) + toolAbout(file) + html.slice(at)
+  }
+  return html
+}
 
 // Add what a hand-built page is missing; never touch what it already has.
 function decorateStandalone(html, file, meta) {
@@ -194,7 +244,9 @@ export function buildSeo({ root, dist }) {
     }
     let extra = `    <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`
     if (published) extra = `    <meta property="article:published_time" content="${esc(published)}" />\n${extra}`
-    write(dist, `articles/${a.slug}/index.html`, pageHtml(shell, { title: a.title, description: a.excerpt, url, image, type: 'article', extraHead: extra }))
+    const byline = [a.author, a.date].filter(Boolean).join(' · ')
+    const fallback = fallbackHtml({ route: `/articles/${a.slug}`, h1: a.title, paras: [byline, a.excerpt].filter(Boolean), bodyHtml: a.html || '' })
+    write(dist, `articles/${a.slug}/index.html`, pageHtml(shell, { title: a.title, description: a.excerpt, url, image, type: 'article', extraHead: extra, fallback }))
   }
   report.push(`${articles.length} article page${articles.length === 1 ? '' : 's'}`)
 
@@ -202,9 +254,23 @@ export function buildSeo({ root, dist }) {
   // URL, so it must not claim a canonical of its own (usePageMeta sets one in the browser).
   const statics = PAGES.filter((p) => p.path !== '/')
   for (const p of statics) {
-    write(dist, `${p.path.slice(1)}/index.html`, pageHtml(shell, { title: p.title, description: p.description, url: `${SITE}${p.path}`, app: p.app }))
+    const fallback = fallbackHtml({ route: p.path, h1: p.name || p.title, paras: LEDES[p.path] || [p.description] })
+    const ld = pageJsonLd(p.path, p.description)
+    write(dist, `${p.path.slice(1)}/index.html`, pageHtml(shell, { title: p.title, description: p.description, url: `${SITE}${p.path}`, app: p.app, fallback, extraHead: ld && `    ${ld}` }))
   }
   report.push(`${statics.length} static pages`)
+
+  // The homepage and the app shell part ways here. dist/index.html used to be both, so it could
+  // carry nothing that was only true of the homepage. Now the bare shell is spa.html (what
+  // vercel.json serves for any URL with no file of its own) and index.html is the homepage:
+  // canonical, who we are and what we make as structured data, and every product by name.
+  write(dist, 'spa.html', shell)
+  write(dist, 'index.html', pageHtml(shell, {
+    title: null,
+    url: `${SITE}/`,
+    extraHead: `    ${homeJsonLd()}`,
+    fallback: fallbackHtml({ route: '/', h1: SITE_NAME, paras: [SITE_DESCRIPTION] }),
+  }))
 
   // 404 — same shell, told not to be indexed. React renders the Not Found page.
   let notFound = shell.replace(/<title>[\s\S]*?<\/title>/, `<title>Page Not Found | ${SITE_NAME}</title>`)
@@ -231,7 +297,7 @@ export function buildSeo({ root, dist }) {
     const p = path.join(dist, file)
     if (!existsSync(p)) continue
     const before = readFileSync(p, 'utf8')
-    let after = decorateStandalone(before, file, meta)
+    let after = decorateStandalone(brandTool(before, file), file, meta)
     // Basketball Savant gets the script that ties it to the player pages (player-links.client.js),
     // straight after its own script so it is in place before the data finishes loading.
     if (file === 'basketball-savant.html' && players && !after.includes(TOOL_SCRIPT_MARK)) {

@@ -1,4 +1,31 @@
 {
+  "redirects": [
+    {
+      "source": "/basketball-savant",
+      "destination": "/basketball-savant.html",
+      "permanent": true
+    },
+    {
+      "source": "/football-savant",
+      "destination": "/football-savant.html",
+      "permanent": true
+    },
+    {
+      "source": "/ufc-savant",
+      "destination": "/ufc-savant.html",
+      "permanent": true
+    },
+    {
+      "source": "/coaching-savant",
+      "destination": "/coaching-savant.html",
+      "permanent": true
+    },
+    {
+      "source": "/draft-savant",
+      "destination": "/draft-savant.html",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/savant-data.json",
@@ -50,7 +77,7 @@
     },
     {
       "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "destination": "/spa.html"
     }
   ],
   "headers": [

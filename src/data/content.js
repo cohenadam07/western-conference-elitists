@@ -1050,12 +1050,16 @@ export const FOUNDER = {
     "Started grading prospects on spreadsheets before it was a personality trait. Western Conference Elitists exists because most basketball coverage — draft or otherwise — either over-indexes on measurements or under-indexes on film. We try not to do either.",
 }
 
+// Only the accounts that exist. An entry whose href is '#' is not shown (Footer, Contact):
+// a dead link in the footer of every page tells a search engine nothing and a reader less.
+// To add one, give it its real address.
 export const SOCIALS = [
   { label: 'X / Twitter', href: '#' },
   { label: 'Instagram', href: '#' },
-  { label: 'YouTube', href: '#' },
+  { label: 'YouTube', href: 'https://www.youtube.com/@WesternConferenceElitists' },
   { label: 'TikTok', href: '#' },
 ]
+export const LIVE_SOCIALS = SOCIALS.filter((s) => s.href && s.href !== '#')
 
 // Short-form wire items for the News page — fast hits, distinct from the long-form Analysis pieces.
 export const NEWS_ITEMS = [

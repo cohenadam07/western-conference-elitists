@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import Logo from './Logo.jsx'
-import { CATEGORIES, SOCIALS } from '../data/content.js'
+import { CATEGORIES, LIVE_SOCIALS } from '../data/content.js'
 
 const SOCIAL_ICONS = {
   'X / Twitter': (
@@ -30,10 +30,12 @@ export default function Footer() {
               watch the film before they check the box score.
             </p>
             <div className="mt-6 flex gap-3">
-              {SOCIALS.map((s) => (
+              {LIVE_SOCIALS.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
+                  target="_blank"
+                  rel="noopener"
                   aria-label={s.label}
                   className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors hover:border-gold hover:text-gold"
                 >
