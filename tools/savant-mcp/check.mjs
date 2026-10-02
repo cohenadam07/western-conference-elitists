@@ -34,6 +34,7 @@ import { gunzipSync } from 'node:zlib'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { buildSavantApi, writeAll } from '../../scripts/lib/savant-api.mjs'
+import { CONNECTOR_URL, EXAMPLE, PROMPTS } from '../../src/data/connector.js'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const html = readFileSync(path.join(ROOT, 'public/basketball-savant.html'), 'utf8')
@@ -367,6 +368,42 @@ test('every tool of every section answers through the endpoint', async () => {
   const board = await call('wce_get_dynasty_rankings', {})
   assert.ok(board.isError)
   assert.doesNotMatch(textOf(board), /127\.0\.0\.1|ECONNREFUSED|\.js:\d+/)
+})
+
+// The homepage shows one worked answer and three questions to try (src/data/connector.js,
+// drawn by AiConnector.jsx and Gateway.jsx). The answer is presented as real, so it has to
+// be: every figure on it is held here to what the connector says for that player and season.
+test('what the homepage says about the connector is true', async () => {
+  const r = await call('nba_get_player_profile', { player: EXAMPLE.id, season: EXAMPLE.season })
+  assert.ok(!r.isError, textOf(r))
+  const p = r.structuredContent
+  assert.equal(p.player.name, EXAMPLE.name)
+  assert.equal(p.player.team, EXAMPLE.team)
+  assert.equal(p.player.qualified, true)
+  assert.equal(p.pools.league, EXAMPLE.pool)
+  for (const k of ['points', 'rebounds', 'assists']) assert.equal(p.per_game[k], EXAMPLE.perGame[k], k)
+  for (const shown of EXAMPLE.stats) {
+    const got = p.stats.find((x) => x.key === shown.key)
+    assert.ok(got, `${shown.key} is a stat on his profile`)
+    assert.equal(got.label, shown.label)
+    assert.equal(got.display, shown.display, shown.key)
+    assert.equal(got.league_percentile, shown.percentile, shown.key)
+    assert.equal(got.low_sample, false, shown.key)
+  }
+  assert.equal(p.url, `https://wcehoops.com${EXAMPLE.card}`)
+
+  // The address the homepage hands out is this endpoint's.
+  assert.equal(CONNECTOR_URL, 'https://wcehoops.com/api/mcp')
+
+  // Each suggested question has a tool that answers it.
+  assert.equal(PROMPTS.length, 3)
+  const brown = await call('nfl_search_players', { query: 'Chase Brown' })
+  assert.ok(!brown.isError && brown.structuredContent.players.some((x) => x.name === 'Chase Brown'), PROMPTS[0])
+  const cards = await call('ufc_get_upcoming_cards', {})
+  assert.ok(!cards.isError, PROMPTS[1])
+  const boardTop = await call('wce_get_big_board', {})
+  assert.ok(!boardTop.isError, PROMPTS[2])
+  assert.match(textOf(boardTop), /\b1\. /, 'the Big Board has a No. 1')
 })
 
 // ---- 3. when it cannot answer --------------------------------------------------------

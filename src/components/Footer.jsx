@@ -53,6 +53,7 @@ export default function Footer() {
               <li><Link className="text-white/70 transition-colors hover:text-gold" to="/rankings">Big Board</Link></li>
               <li><Link className="text-white/70 transition-colors hover:text-gold" to="/articles">Analysis</Link></li>
               <li><Link className="text-white/70 transition-colors hover:text-gold" to="/newsletter">Newsletter</Link></li>
+              <li><Link className="text-white/70 transition-colors hover:text-gold" to="/#ai">AI Connector</Link></li>
               <li><Link className="text-white/70 transition-colors hover:text-gold" to="/about">About</Link></li>
               <li><Link className="text-white/70 transition-colors hover:text-gold" to="/contact">Contact</Link></li>
             </ul>

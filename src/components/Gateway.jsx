@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PROMPTS } from '../data/connector.js'
 
 // The homepage landing gateway: one card per destination, each rendered in that
 // page's own visual identity. Styles live in index.css under the `.gw` scope;
@@ -38,18 +39,38 @@ export default function Gateway() {
       <div className="mx-auto max-w-7xl px-6 py-12 lg:px-10 lg:py-16">
         <div className={`gw${booting ? ' booting' : ''}`}>
           <header className="hero">
-            <div className="hero-top">
-              <span className="badge">WCE</span>
-              <span className="hero-eyebrow">Western Conference Elitists · NBA</span>
+            <div className="hero-main">
+              <div className="hero-top">
+                <span className="badge">WCE</span>
+                <span className="hero-eyebrow">
+                  Western Conference Elitists<span className="sep"> · </span><span className="lg">NBA · NFL · UFC</span>
+                </span>
+              </div>
+              <h1 className="hero-title">
+                Watch the film.<br />
+                <em>Trust the model.</em>
+              </h1>
+              <p className="hero-tag">
+                Analysis, scouting, and the tools behind them — built for people who actually watch the
+                games. Pick your entry point.
+              </p>
             </div>
-            <h1 className="hero-title">
-              Watch the film.<br />
-              <em>Trust the model.</em>
-            </h1>
-            <p className="hero-tag">
-              Analysis, scouting, and the tools behind them — built for people who actually watch the
-              games. Pick your entry point.
-            </p>
+
+            {/* The newest thing on the site, said once at the top: the AI connector. It takes
+                you down to the section that explains it (AiConnector.jsx). The questions
+                rolling through the box are ones it answers. */}
+            <a className="hero-new" href="#ai">
+              <span className="hn-top"><span className="hn-badge">New</span> The AI connector</span>
+              <span className="hn-title">Ask Claude about any player.</span>
+              <span className="hn-prompt" aria-hidden="true">
+                <span className="hn-roll">
+                  {[...PROMPTS, PROMPTS[0]].map((q, i) => <span key={i}>{q}</span>)}
+                </span>
+                <span className="hn-send">↑</span>
+              </span>
+              <span className="hn-foot">It looks the answer up here. <b>How to add it ↓</b></span>
+            </a>
+
             <div className="hero-rule">
               <span className="k">Explore</span>
               <span className="r" />
@@ -276,7 +297,7 @@ export default function Gateway() {
               <div className="meta">
                 <span className="ck">Rankings</span>
                 <h3>Big Board</h3>
-                <p>League power rankings, re-graded and refreshed weekly.</p>
+                <p>Every draft prospect ranked and tiered. A personal board, not a consensus mock.</p>
                 <span className="go">View ↗</span>
               </div>
             </a>
@@ -315,6 +336,83 @@ export default function Gateway() {
                 <h3>Comp Chain</h3>
                 <p>Hop player to player through their statistical comps in as few moves as you can. A new puzzle every day.</p>
                 <span className="go">Enter ↗</span>
+              </div>
+            </a>
+
+            {/* Flappy Hoops — the game's own daylight: a sky, the blacktop with its court line,
+                and the ball flapping its way over to drop through the rim. The dotted line is
+                the ball's exact flight (three flaps), so it never leaves it. */}
+            <a className="card c-hoops span2" href="/hoops">
+              <Skeleton />
+              <div className="viz">
+                <svg className="court" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="gwSky" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0" stopColor="#4a93e0" />
+                      <stop offset="1" stopColor="#d3e9fb" />
+                    </linearGradient>
+                    <radialGradient id="gwBall" cx="0.36" cy="0.3" r="0.85">
+                      <stop offset="0" stopColor="#ffb057" />
+                      <stop offset="1" stopColor="#ee7712" />
+                    </radialGradient>
+                  </defs>
+                  <rect width="600" height="150" fill="url(#gwSky)" />
+                  <g className="clouds">
+                    <path d="M62 40a11 11 0 0 1 20-7a15 15 0 0 1 28 4a9 9 0 0 1 4 16H60a8 8 0 0 1 2-13z" />
+                    <path d="M300 22a8 8 0 0 1 15-5a11 11 0 0 1 20 3a7 7 0 0 1 3 12h-40a6 6 0 0 1 2-10z" />
+                    <path d="M520 46a8 8 0 0 1 15-5a11 11 0 0 1 20 3a7 7 0 0 1 3 12h-40a6 6 0 0 1 2-10z" />
+                  </g>
+                  <g className="town">
+                    <rect x="34" y="74" width="50" height="50" rx="3" /><rect x="92" y="58" width="38" height="66" rx="3" />
+                    <rect x="212" y="82" width="56" height="42" rx="3" /><rect x="276" y="66" width="34" height="58" rx="3" />
+                    <rect x="352" y="88" width="48" height="36" rx="3" /><rect x="516" y="70" width="44" height="54" rx="3" />
+                  </g>
+                  <g className="trees">
+                    <circle cx="20" cy="112" r="17" /><circle cx="186" cy="114" r="15" /><circle cx="330" cy="116" r="13" /><circle cx="578" cy="112" r="18" />
+                  </g>
+                  <rect className="top" x="-10" y="116" width="620" height="44" />
+                  <path className="paint" d="M-10 121H610" />
+                  <path className="edge" d="M-10 117H610" />
+                  <path className="trail" d="M150 106 L157 95 L164 85 L170 77 L177 70 L184 65 L190 61 L197 59 L204 58 L209 58 L214 60 L219 62 L224 64 L229 68 L234 73 L239 78 L244 84 L251 74 L258 65 L265 57 L272 51 L278 46 L285 43 L292 41 L298 40 L304 40 L309 42 L314 44 L319 46 L324 50 L329 55 L334 60 L339 66 L346 56 L352 47 L359 39 L366 33 L373 28 L380 25 L386 23 L393 22 L399 23 L404 24 L410 27 L416 32 L421 37 L427 43 L432 51 L438 60" />
+                  <g className="hud">
+                    <rect x="84" y="12" width="64" height="22" rx="11" />
+                    <path className="on" d="M100 16.5l1.9 3.9 4.3.6-3.1 3 .7 4.3-3.8-2-3.8 2 .7-4.3-3.1-3 4.3-.6z" />
+                    <path className="on" d="M116 16.5l1.9 3.9 4.3.6-3.1 3 .7 4.3-3.8-2-3.8 2 .7-4.3-3.1-3 4.3-.6z" />
+                    <path className="off" d="M132 16.5l1.9 3.9 4.3.6-3.1 3 .7 4.3-3.8-2-3.8 2 .7-4.3-3.1-3 4.3-.6z" />
+                  </g>
+                  <g className="hoop">
+                    <rect className="pole" x="484" y="50" width="10" height="68" rx="4" />
+                    <path className="arm" d="M488 62H462" />
+                    <path className="board" d="M466 26l12-5v52l-12 5z" />
+                    <path className="square" d="M469 50l6-2.4v15l-6 2.4z" />
+                    <path className="rim back" d="M416 62a22 6 0 0 1 44 0" />
+                  </g>
+                  <g className="fx">
+                    <g className="fy">
+                      <g className="flaps">
+                        <path d="M-15 -5q-6 5 0 11M-20 -8q-9 8 0 17" />
+                        <path d="M15 -5q6 5 0 11M20 -8q9 8 0 17" />
+                      </g>
+                      <g className="spin">
+                        <circle r="10" fill="url(#gwBall)" />
+                        <path className="seam" d="M-10 0H10M0 -10V10M-7.2 -7q5.4 7 0 14M7.2 -7q-5.4 7 0 14" />
+                        <circle className="skin" r="10" />
+                      </g>
+                    </g>
+                  </g>
+                  <g className="hoop">
+                    <g className="net">
+                      <path d="M417 63l7 30M426 66l4 28M438 67v27M450 66l-4 28M459 63l-7 30M420 74h36M422 84h32M424 93h28" />
+                    </g>
+                    <path className="rim" d="M416 62a22 6 0 0 0 44 0" />
+                  </g>
+                </svg>
+              </div>
+              <div className="meta">
+                <span className="ck">Play · Arcade</span>
+                <h3>Flappy Hoops</h3>
+                <p>Flap the ball through the rim in as few taps as you can. Sixteen NBA cities, nine holes in each, and online races with up to eight friends.</p>
+                <span className="go">Play ↗</span>
               </div>
             </a>
 

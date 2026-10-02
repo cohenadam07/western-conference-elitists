@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import AiConnector from '../components/AiConnector.jsx'
 import Button from '../components/Button.jsx'
 import SectionHeading from '../components/SectionHeading.jsx'
 import ArticleCard from '../components/ArticleCard.jsx'
@@ -11,14 +13,24 @@ import Reveal from '../components/Reveal.jsx'
 import { ARTICLES, FEATURED_ARTICLE, PROSPECTS, SPOTLIGHT_PROSPECT } from '../data/content.js'
 import usePageMeta from '../lib/usePageMeta.js'
 
+// The moving banner. Every line is a standing fact about the site with somewhere to go, not a
+// headline: nothing here goes out of date on its own. `to` is a page of this app, `href` a
+// page the build writes (or a place on this one).
 const TICKER = [
-  'LEAGUE POWER RANKINGS UPDATED',
-  'BIG BOARD REFRESHED WEEKLY',
-  'TRADE DEADLINE GRADES ARE LIVE',
-  'AJ DYBANTSA HOLDS AT NO. 1',
-  'SOPHOMORE LEAP INDEX OUT NOW',
-  'MOCK DRAFT 3.0 OUT THURSDAY',
+  { tag: 'New', text: 'Ask Claude about any player: add the WCE connector', href: '#ai' },
+  { text: 'Flappy Hoops: 16 cities, and races with up to 8 friends', to: '/hoops' },
+  { text: 'Basketball Savant: a page for every player since 1979-80', href: '/player' },
+  { text: 'Football Savant: refreshed every day of the NFL season', href: '/football-savant.html' },
+  { text: 'UFC Savant: every fighter since 1993, updated after each card', href: '/ufc-savant.html' },
+  { text: 'Coaching Savant: every NFL head coach since 1999', href: '/coaching-savant.html' },
+  { text: 'Draft Savant: every class back to 2010', href: '/draft-savant.html' },
+  { text: 'Dynasty Exchange: a board priced by the crowd', to: '/dynasty' },
+  { text: 'Comp Chain: a new puzzle every day', to: '/comp-chain' },
 ]
+
+// One pass takes as long as it takes to read: the banner keeps the pace it had with six
+// short lines (about 37px a second) however many lines it carries.
+const TICKER_SECONDS = Math.round(TICKER.reduce((n, t) => n + t.text.length + (t.tag ? 8 : 4), 0) * 0.235)
 
 const PILLARS = [
   {
@@ -54,24 +66,36 @@ const SAVANT_BARS = [
 ]
 
 function Ticker() {
+  const item =
+    'font-mono-tight flex items-center gap-3 text-xs font-medium uppercase tracking-widest text-white/85 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:underline'
   return (
     <div className="group relative overflow-hidden bg-navy py-2.5">
-      <div className="animate-marquee flex w-max gap-12 whitespace-nowrap group-hover:[animation-play-state:paused]">
+      <div
+        className="animate-marquee flex w-max gap-12 whitespace-nowrap group-hover:[animation-play-state:paused] group-focus-within:[animation-play-state:paused]"
+        style={{ animationDuration: `${TICKER_SECONDS}s` }}
+      >
         {[false, true].map((clone) => (
           <div
             key={clone ? 'clone' : 'original'}
             aria-hidden={clone || undefined}
             className="flex gap-12"
           >
-            {TICKER.map((t) => (
-              <span
-                key={t}
-                className="font-mono-tight flex items-center gap-3 text-xs font-medium uppercase tracking-widest text-white/85"
-              >
-                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-gold" />
-                {t}
-              </span>
-            ))}
+            {TICKER.map((t) => {
+              const inner = (
+                <>
+                  <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-gold" />
+                  {t.tag && <span className="rounded-[3px] bg-gold px-1.5 pb-px pt-0.5 text-[10px] text-navy-deep">{t.tag}</span>}{' '}
+                  {t.text}
+                </>
+              )
+              // The second copy only exists to make the loop seamless: out of the tab order.
+              const tab = clone ? -1 : undefined
+              return t.to ? (
+                <Link key={t.text} to={t.to} tabIndex={tab} className={item}>{inner}</Link>
+              ) : (
+                <a key={t.text} href={t.href} tabIndex={tab} className={item}>{inner}</a>
+              )
+            })}
           </div>
         ))}
       </div>
@@ -81,12 +105,27 @@ function Ticker() {
 
 export default function Home() {
   usePageMeta(null)
+
+  // /#ai (and any other #place on this page) opens at that place. The browser cannot do it
+  // itself: on arrival the page has not been drawn yet, and ScrollToTop has just sent it to
+  // the top. So wait a beat for both, then go.
+  const { hash } = useLocation()
+  useEffect(() => {
+    const el = hash.length > 1 && document.getElementById(hash.slice(1))
+    if (!el) return
+    const t = setTimeout(() => el.scrollIntoView(), 80)
+    return () => clearTimeout(t)
+  }, [hash])
+
   return (
     <div>
       <Ticker />
 
       {/* Landing gateway — one card per destination, in that page's own style */}
       <Gateway />
+
+      {/* The AI connector: what it is, a real answer, how to add it */}
+      <AiConnector />
 
       {/* Hero — the featured piece */}
       <section className="relative border-b border-line">
