@@ -9,7 +9,8 @@
 //                                    Open Graph / Twitter tags and article JSON-LD
 //   dist/<page>/index.html           the same for the key static pages (PAGES below)
 //   dist/404.html                    noindex shell for any URL the SPA rewrite doesn't catch
-//   dist/sitemap.xml                 every public page, articles with their dates
+//   dist/player/<slug>/index.html    a page per Basketball Savant player (player-pages.mjs)
+//   dist/sitemap.xml                 every public page, articles with their dates, every player
 //   dist/*-savant.html, game.html    favicon, Vercel Analytics, and share tags injected
 //                                    (those pages are hand-built HTML outside React, so
 //                                    they had none of it)
@@ -20,8 +21,9 @@
 // and /newsletter get their own HTML. An unknown slug still falls through to the app,
 // which shows Not Found with a noindex tag (status 200).
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+import { buildPlayerPages } from './player-pages.mjs'
 
 export const SITE = 'https://wcehoops.com'
 const SITE_NAME = 'Western Conference Elitists'
@@ -64,6 +66,8 @@ const STANDALONE = {
   'ufc-savant.html': { sitemap: '0.7' },
   'game.html': { share: false }, // one template for many games (query string); no canonical, no sitemap
 }
+
+const TOOL_SCRIPT_MARK = '<!-- player links: added at build by scripts/lib/seo-build.mjs -->'
 
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
@@ -207,13 +211,34 @@ export function buildSeo({ root, dist }) {
   notFound = notFound.replace('</head>', '    <meta name="robots" content="noindex" />\n  </head>')
   write(dist, '404.html', notFound)
 
+  // A page per Basketball Savant player. A failure here must not take the whole deploy down
+  // with it (the data bots push to main all day), so it is logged loudly and the site ships
+  // without player pages instead. `npm run check:players` reproduces it locally.
+  let players = null
+  try {
+    players = buildPlayerPages({ root, dist, site: SITE })
+    report.push(`${players.count} player pages (${(players.bytes / 1e6).toFixed(1)} MB)`)
+    if (players.skipped.length) console.error(`\n  seo: ${players.skipped.length} player page(s) not built — ${players.skipped.join('; ')}\n`)
+  } catch (e) {
+    rmSync(path.join(dist, 'player'), { recursive: true, force: true }) // all or nothing: no orphaned pages
+    console.error(`\n  seo: PLAYER PAGES SKIPPED — ${e && e.stack ? e.stack : e}\n`)
+    report.push('player pages SKIPPED (see error above)')
+  }
+
   // Hand-built pages
   let decorated = 0
   for (const [file, meta] of Object.entries(STANDALONE)) {
     const p = path.join(dist, file)
     if (!existsSync(p)) continue
     const before = readFileSync(p, 'utf8')
-    const after = decorateStandalone(before, file, meta)
+    let after = decorateStandalone(before, file, meta)
+    // Basketball Savant gets the script that ties it to the player pages (player-links.client.js),
+    // straight after its own script so it is in place before the data finishes loading.
+    if (file === 'basketball-savant.html' && players && !after.includes(TOOL_SCRIPT_MARK)) {
+      const tag = `${TOOL_SCRIPT_MARK}\n<script>\n${players.toolScript}</script>\n`
+      const at = after.lastIndexOf('</body>')
+      if (at !== -1) after = after.slice(0, at) + tag + after.slice(at)
+    }
     if (after !== before) { writeFileSync(p, after); decorated++ }
   }
   report.push(`${decorated} standalone pages decorated`)
@@ -228,6 +253,9 @@ export function buildSeo({ root, dist }) {
     ...Object.entries(STANDALONE)
       .filter(([f, m]) => m.sitemap && existsSync(path.join(dist, f)))
       .map(([f, m]) => ({ loc: `${SITE}/${f}`, priority: m.sitemap, lastmod: today })),
+    // lastmod is the day the data was generated, not the day of the build: the pages only
+    // change when the numbers do, and a sitemap that says "today" on every deploy gets ignored.
+    ...(players ? players.urls.map((u) => ({ ...u, lastmod: u.lastmod || today })) : []),
   ]
   const xml =
     '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +

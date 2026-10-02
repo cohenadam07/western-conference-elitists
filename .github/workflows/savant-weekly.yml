@@ -1,0 +1,62 @@
+name: Basketball Savant weekly snapshot
+
+# Once a week: save where every qualified player stands (data/savant-snapshots/), then start
+# the "biggest percentile movers" email as a Buttondown DRAFT from the two newest snapshots.
+# Nothing is sent from here; the draft waits in Buttondown to be edited and sent by a person.
+#
+# The data itself is not refreshed here. stats.nba.com blocks cloud IPs, so the nightly
+# Basketball Savant refresh runs on Adam's Mac and pushes public/savant-data.json; this job
+# only reads whatever is on main.
+#
+# Quiet weeks are normal and exit green: no refresh since the last snapshot (offseason), or
+# too few qualified players yet for percentiles to mean anything (the first weeks of a season).
+#
+# The draft step needs the BUTTONDOWN_API_KEY repository secret. Without it the step prints
+# the subject line to the run summary and stops there.
+on:
+  schedule:
+    - cron: '17 12 * * 4'     # Thursday 8:17 ET (7:17 in winter)
+  workflow_dispatch:
+    inputs:
+      draft:
+        description: 'Build the movers draft even if no new snapshot was saved'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: savant-weekly
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # No npm install: both scripts use only what ships with Node.
+      - name: Snapshot
+        id: snap
+        run: node scripts/savant-snapshot.mjs
+      - name: Commit if changed
+        run: |
+          git config user.name "basketball-savant-bot"
+          git config user.email "bot@wcehoops.com"
+          if [ ! -d data/savant-snapshots ]; then echo "no snapshots yet"; exit 0; fi
+          git add data/savant-snapshots
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "Basketball Savant: weekly snapshot $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push
+      # Only when this run saved a new snapshot, so re-running the job can't stack up
+      # duplicate drafts in Buttondown.
+      - name: Movers draft
+        if: steps.snap.outputs.written == 'true' || inputs.draft
+        env:
+          BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
+        run: node scripts/movers-draft.mjs
