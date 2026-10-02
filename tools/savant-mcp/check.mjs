@@ -1,4 +1,5 @@
-// End-to-end check for the AI connector (api/mcp.js + api/_savant.js).
+// End-to-end check for the AI connector (api/mcp.js) and its basketball section
+// (api/_basketball.js, on api/_core.js).
 //
 //   npm run check:savant-mcp        (node --test tools/savant-mcp/check.mjs)
 //
@@ -58,7 +59,7 @@ let client
 
 before(async () => {
   process.env.SAVANT_API_ORIGIN = `http://127.0.0.1:${await listen(cdn)}`
-  savant = await import('../../api/_savant.js')
+  savant = { ...(await import('../../api/_core.js')), ...(await import('../../api/_basketball.js')) }
   handler = (await import('../../api/mcp.js')).default
   // The function as Vercel calls it: the body is read and parsed before the handler runs,
   // and reading req.body throws when it is not JSON.
@@ -198,10 +199,12 @@ test('the latest season carries comps, flaws and matchups, with their own pool n
 // ---- 2. the protocol -----------------------------------------------------------------
 
 test('the handshake and tool list are what a directory reviewer expects', async () => {
-  assert.equal(client.getServerVersion().name, 'wce-basketball-savant')
+  assert.equal(client.getServerVersion().name, 'wcehoops')
   assert.match(client.getInstructions(), /percentile/)
   const { tools } = await client.listTools()
-  assert.deepEqual(tools.map((t) => t.name).sort(), ['nba_get_player_profile', 'nba_search_players'])
+  // Other sections have their own checks; this one owns the basketball tools.
+  assert.deepEqual(tools.map((t) => t.name).filter((n) => n.startsWith('nba_') && !n.startsWith('nba_draft_')).sort(), ['nba_get_player_profile', 'nba_search_players'])
+  assert.equal(new Set(tools.map((t) => t.name)).size, tools.length, 'tool names are unique')
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)
@@ -284,7 +287,7 @@ test('HTTP manners: stateless, POST only, CORS, clean errors', async () => {
   assert.equal(list.status, 200)
   assert.equal(list.headers.get('mcp-session-id'), null)
   assert.match(list.headers.get('content-type'), /application\/json/)
-  assert.equal((await list.json()).result.tools.length, 2)
+  assert.ok((await list.json()).result.tools.length >= 2)
 
   const note = await post({ jsonrpc: '2.0', method: 'notifications/initialized' })
   assert.equal(note.status, 202)
