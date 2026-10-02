@@ -114,6 +114,33 @@ npm run check:savant-api
 It lifts the page's own functions out of the HTML and compares every stat of every player in
 every season. If it fails, fix the slicer; do not relax the check.
 
+### The AI connector (MCP)
+
+`https://wcehoops.com/api/mcp` is an MCP server: add that URL to an AI assistant and it can
+look up Basketball Savant numbers mid-conversation and link back to the player's card. In
+Claude it goes under **Customize > Connectors > Add custom connector**, with "No sign in".
+It is public and read-only.
+
+| Tool | What it returns |
+|---|---|
+| `nba_search_players` | Players matching a name: id, position, team, first and last season |
+| `nba_get_player_profile` | One player, one season: every stat with its league and position percentile, comps, and the card link. Last 10 / 25 / 75 games for the latest season |
+
+`api/mcp.js` speaks the protocol (the official SDK, stateless, one function).
+`api/_savant.js` is the basketball: it reads the Savant API files above off the live site, so
+a data push reaches the connector with no redeploy, and it never recomputes a percentile. An
+answer always names its pool ("vs. guards"), flags low samples, and lists a stat its season
+did not track rather than showing a zero.
+
+```bash
+npm run check:savant-mcp
+```
+
+That builds the data in memory, talks to the endpoint with a real MCP client, and checks
+every player-season's profile against the files. Run it with `check:savant-api` after any
+change to the page's ranking rules, the data shape, or the tools. To point a local run at
+other data, set `SAVANT_API_ORIGIN`.
+
 ### Visual identity
 
 Colors, fonts, and a few reusable effects are defined as design tokens in **`src/index.css`** under `@theme`. Change a hex value there (e.g. `--color-ember`) and it updates everywhere that uses `text-ember`, `bg-ember`, etc. — token names describe their *original* role, not necessarily their current hue (e.g. `--color-ember` is the primary navy brand accent, not orange; `--color-ink`/`--color-bone` are the light page background and dark body text, "ink on paper"). Headlines use Source Serif 4 (`text-display`) for an editorial, newspaper-style feel, body copy uses Inter, and stat/timestamp figures use JetBrains Mono (`font-mono-tight`) — all loaded via Google Fonts in `index.html`. The semantic accents are: `ember` (navy, primary brand/links/buttons), `court` (gold, secondary highlights/B-tier grades), `arena` (forest green, positive/strengths), `foul` (crimson, negative/weaknesses/breaking-news ticker).
