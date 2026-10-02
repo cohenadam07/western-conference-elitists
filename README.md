@@ -90,6 +90,30 @@ releases and lands in `public/football-savant-data.json` and `public/football-ma
 the metric research behind it — what football can measure, what stabilizes at NFL sample
 sizes, and what is licensed and therefore missing.
 
+### The Savant API files
+
+Basketball Savant works its percentiles out in the browser from one 67 MB file, which no AI
+assistant or script can use. So every build also writes the same numbers down as small
+files under `/savant-api/basketball/v1/`:
+
+- `meta.json` — the seasons, the stat glossary (label, plain-language explanation, since
+  when it is tracked, low-sample threshold) and the size of each percentile pool
+- `players.json` — every player: id, name, position, first and last season
+- `seasons/<season>.json` — every player that season, each stat as
+  `[value, league percentile, position percentile]`
+
+They are built by `scripts/lib/savant-api.mjs` (a Vite plugin, like the SEO and gzip steps)
+from `public/savant-data.json` and the rules inside `public/basketball-savant.html`, so they
+refresh with every data push and nothing is committed. **The numbers must match the page.**
+After any change to how the page ranks players, or to the shape of the data, run:
+
+```bash
+npm run check:savant-api
+```
+
+It lifts the page's own functions out of the HTML and compares every stat of every player in
+every season. If it fails, fix the slicer; do not relax the check.
+
 ### Visual identity
 
 Colors, fonts, and a few reusable effects are defined as design tokens in **`src/index.css`** under `@theme`. Change a hex value there (e.g. `--color-ember`) and it updates everywhere that uses `text-ember`, `bg-ember`, etc. — token names describe their *original* role, not necessarily their current hue (e.g. `--color-ember` is the primary navy brand accent, not orange; `--color-ink`/`--color-bone` are the light page background and dark body text, "ink on paper"). Headlines use Source Serif 4 (`text-display`) for an editorial, newspaper-style feel, body copy uses Inter, and stat/timestamp figures use JetBrains Mono (`font-mono-tight`) — all loaded via Google Fonts in `index.html`. The semantic accents are: `ember` (navy, primary brand/links/buttons), `court` (gold, secondary highlights/B-tier grades), `arena` (forest green, positive/strengths), `foul` (crimson, negative/weaknesses/breaking-news ticker).
