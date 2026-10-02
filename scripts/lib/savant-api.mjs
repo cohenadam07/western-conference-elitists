@@ -38,6 +38,11 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
+import { writeCoachingApi } from './savant-api-coaching.mjs'
+import { writeDraftApi } from './savant-api-draft.mjs'
+import { writeFootballApi } from './savant-api-football.mjs'
+import { writeSiteApi } from './savant-api-site.mjs'
+import { writeUfcApi } from './savant-api-ufc.mjs'
 
 export const SITE = 'https://wcehoops.com'
 export const BASE = 'savant-api/basketball/v1'
@@ -393,10 +398,56 @@ export function writeSavantApi({ publicDir, dist }) {
   let bytes = 0
   for (const [name, buf] of files) { writeFileSync(path.join(root, name), buf); bytes += buf.length }
 
-  return { seasons: Object.keys(out.seasons).length, players: out.players.count, raw, bytes }
+  const seasons = Object.keys(out.seasons).length
+  return {
+    seasons,
+    players: out.players.count,
+    files: files.length,
+    raw,
+    bytes,
+    summary: `${out.players.count.toLocaleString('en-US')} players, ${seasons} seasons`,
+  }
 }
 
 const mb = (n) => (n / 1048576).toFixed(1)
+
+// Every section of the site that the AI connector (api/mcp.js) answers for. Each has its own
+// slicer, built the same way as the one above and for the same reason: read the page's rules,
+// work the rankings out once, write small files. Each has its own parity check in tools/.
+//
+//   basketball  this file                  tools/savant-api/check.mjs
+//   football    savant-api-football.mjs    tools/savant-football/check.mjs
+//   ufc         savant-api-ufc.mjs         tools/savant-ufc/check.mjs
+//   coaching    savant-api-coaching.mjs    tools/savant-coaching/check.mjs
+//   draft       savant-api-draft.mjs       tools/savant-draft/check.mjs
+//   site        savant-api-site.mjs        tools/savant-site/check.mjs   (news, articles, boards)
+export const SECTIONS = [
+  ['basketball', writeSavantApi],
+  ['football', writeFootballApi],
+  ['ufc', writeUfcApi],
+  ['coaching', writeCoachingApi],
+  ['draft', writeDraftApi],
+  ['site', writeSiteApi],
+]
+
+// Write every section. One failing never stops the others, and none of them ever fails the
+// build: a section that cannot be written is simply absent from that deploy, and says so.
+export function writeAll({ publicDir, dist, log = console.log, warn = console.warn }) {
+  let bytes = 0
+  let failed = 0
+  for (const [name, write] of SECTIONS) {
+    try {
+      const r = write({ publicDir, dist })
+      bytes += r.bytes
+      log(`  savant-api/${name}: ${r.summary}, ${mb(r.raw)} MB → ${mb(r.bytes)} MB on disk`)
+    } catch (e) {
+      failed++
+      warn(`  savant-api/${name}: SKIPPED, not written — ${e.message}`)
+    }
+  }
+  log(`  savant-api: ${mb(bytes)} MB on disk in all${failed ? `, ${failed} section${failed === 1 ? '' : 's'} skipped` : ''}`)
+  return { bytes, failed }
+}
 
 export default function savantApiPlugin() {
   let dist
@@ -408,14 +459,6 @@ export default function savantApiPlugin() {
       dist = path.resolve(c.root, c.build.outDir)
       publicDir = c.publicDir
     },
-    closeBundle() {
-      try {
-        const r = writeSavantApi({ publicDir, dist })
-        console.log(`  savant-api: ${r.players} players, ${r.seasons} seasons, ${mb(r.raw)} MB of season data → ${mb(r.bytes)} MB on disk`)
-      } catch (e) {
-        // Never fail the site over this. /savant-api/ is simply absent from this deploy.
-        console.warn(`  savant-api: SKIPPED, not written — ${e.message}`)
-      }
-    },
+    closeBundle() { writeAll({ publicDir, dist }) },
   }
 }

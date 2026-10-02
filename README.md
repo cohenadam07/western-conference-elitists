@@ -92,54 +92,72 @@ sizes, and what is licensed and therefore missing.
 
 ### The Savant API files
 
-Basketball Savant works its percentiles out in the browser from one 67 MB file, which no AI
-assistant or script can use. So every build also writes the same numbers down as small
-files under `/savant-api/basketball/v1/`:
+Every Savant page works its rankings out in the browser from a large data file, which no AI
+assistant or script can use. So every build also writes the same numbers down as small files
+under `/savant-api/<section>/v1/`, with every percentile already worked out:
 
-- `meta.json` — the seasons, the stat glossary (label, plain-language explanation, since
-  when it is tracked, low-sample threshold) and the size of each percentile pool
-- `players.json` — every player: id, name, position, first and last season
-- `seasons/<season>.json` — every player that season, each stat as
-  `[value, league percentile, position percentile]`
+| Section | Slicer (`scripts/lib/`) | What it writes | Check (`tools/`) |
+|---|---|---|---|
+| `basketball` | `savant-api.mjs` | glossary, player index, one file per season | `savant-api/` |
+| `football` | `savant-api-football.mjs` | glossary, player index, one file per season | `savant-football/` |
+| `ufc` | `savant-api-ufc.mjs` | glossary, fighter index, upcoming cards, fighters in 16 files | `savant-ufc/` |
+| `coaching` | `savant-api-coaching.mjs` | glossary, coach index, profiles, play-calling units per season | `savant-coaching/` |
+| `draft` | `savant-api-draft.mjs` | glossary, prospect index, one file per draft class | `savant-draft/` |
+| `site` | `savant-api-site.mjs` | the News list, published articles, the Big Board, Dynasty names | `savant-site/` |
 
-They are built by `scripts/lib/savant-api.mjs` (a Vite plugin, like the SEO and gzip steps)
-from `public/savant-data.json` and the rules inside `public/basketball-savant.html`, so they
-refresh with every data push and nothing is committed. **The numbers must match the page.**
-After any change to how the page ranks players, or to the shape of the data, run:
+They are built by one Vite plugin (`scripts/lib/savant-api.mjs`, like the SEO and gzip steps)
+from the data files in `public/` and the rules inside each page, so they refresh with every
+data push and nothing is committed. They add about 19 MB to a deployment. The bulk files are
+written gzipped; `vercel.json` rewrites `<name>.json` to `<name>.json.gz` for each pattern.
+
+**The numbers must match the page.** Each slicer reads its page's rules rather than copying
+them, and each check runs the page's own code against the real data and compares every
+value. After any change to how a page ranks things, or to the shape of its data, run:
 
 ```bash
-npm run check:savant-api
+npm run check:savant            # all of them, a few minutes
+npm run check:savant-football   # or one section
 ```
 
-It lifts the page's own functions out of the HTML and compares every stat of every player in
-every season. If it fails, fix the slicer; do not relax the check.
+If a check fails, fix the slicer; do not relax the check. If a page changes shape and its
+slicer can no longer read it, the build carries on without that section and says so in the
+build log.
 
 ### The AI connector (MCP)
 
 `https://wcehoops.com/api/mcp` is an MCP server: add that URL to an AI assistant and it can
-look up Basketball Savant numbers mid-conversation and link back to the player's card. In
-Claude it goes under **Customize > Connectors > Add custom connector**, with "No sign in".
-It is public and read-only.
+look things up on the site mid-conversation and link back to the page. In Claude it goes
+under **Customize > Connectors > Add custom connector**, with "No sign in". It is public and
+read-only: nothing in it can vote, write or change anything.
 
-| Tool | What it returns |
-|---|---|
-| `nba_search_players` | Players matching a name: id, position, team, first and last season |
-| `nba_get_player_profile` | One player, one season: every stat with its league and position percentile, comps, and the card link. Last 10 / 25 / 75 games for the latest season |
+| Tools | Section | What they return |
+|---|---|---|
+| `nba_search_players`, `nba_get_player_profile` | Basketball Savant | Every stat with its league and position percentile, 1979-80 on; last 10 / 25 / 75 games for the latest season |
+| `nfl_search_players`, `nfl_get_player_profile` | Football Savant | Every stat on a player's card, ranked against his position, in-season and all-time, 1999 on |
+| `nfl_search_coaches`, `nfl_get_coach_profile` | Coaching Savant | Records, wins against the spread, career ranks, fourth downs, play-calling units, lineage |
+| `ufc_search_fighters`, `ufc_get_fighter_profile`, `ufc_get_upcoming_cards` | UFC Savant | Records, every stat ranked inside the division (active and all-time), recent fights, title reigns |
+| `nba_draft_search_prospects`, `nba_draft_get_prospect_profile` | Draft Savant | Pre-draft production and measurements, ranked against a named pool |
+| `wce_get_news`, `wce_search_articles`, `wce_get_article`, `wce_get_big_board`, `wce_get_dynasty_rankings` | The site | The News list, WCE's articles, the Big Board, the live Dynasty board |
 
-`api/mcp.js` speaks the protocol (the official SDK, stateless, one function).
-`api/_savant.js` is the basketball: it reads the Savant API files above off the live site, so
-a data push reaches the connector with no redeploy, and it never recomputes a percentile. An
-answer always names its pool ("vs. guards"), flags low samples, and lists a stat its season
-did not track rather than showing a zero.
+`api/mcp.js` speaks the protocol (the official SDK, stateless, one function) and knows no
+sport. Each section is one module (`api/_basketball.js`, `_football.js`, `_coaching.js`,
+`_ufc.js`, `_draft.js`, `_site.js`) that declares its own tools; shared loading, caching and
+name matching live in `api/_core.js`. Sections read the Savant API files above off the live
+site, so a data push reaches the connector with no redeploy, and they never recompute a
+percentile. The one live read is the Dynasty board, which calls the site's own
+`/api/dynasty?action=board` and nothing else.
+
+An answer always names the pool a percentile is from ("vs. guards", "vs. quarterbacks"),
+flags low samples, lists a stat its season did not track rather than showing a zero, and
+states the date of its data. A name that fits several people returns their ids instead of a
+guess, and a misspelled name is never opened on its own.
 
 ```bash
 npm run check:savant-mcp
 ```
 
-That builds the data in memory, talks to the endpoint with a real MCP client, and checks
-every player-season's profile against the files. Run it with `check:savant-api` after any
-change to the page's ranking rules, the data shape, or the tools. To point a local run at
-other data, set `SAVANT_API_ORIGIN`.
+That talks to the endpoint with a real MCP client and calls every tool of every section.
+To point a local run at other data, set `SAVANT_API_ORIGIN`.
 
 ### Visual identity
 

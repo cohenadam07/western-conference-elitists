@@ -17,27 +17,50 @@
 // one module that declares its own tools — name, description, input and output shape, and
 // the function that answers — and this file registers whatever they declare:
 //
-//   api/_basketball.js   Basketball Savant        nba_*
+//   api/_basketball.js   Basketball Savant        nba_search_players, nba_get_player_profile
+//   api/_football.js     Football Savant          nfl_search_players, nfl_get_player_profile
+//   api/_coaching.js     Coaching Savant          nfl_search_coaches, nfl_get_coach_profile
+//   api/_ufc.js          UFC Savant               ufc_search_fighters, ufc_get_fighter_profile,
+//                                                 ufc_get_upcoming_cards
+//   api/_draft.js        Draft Savant             nba_draft_search_prospects,
+//                                                 nba_draft_get_prospect_profile
+//   api/_site.js         News, articles, boards   wce_get_news, wce_search_articles,
+//                                                 wce_get_article, wce_get_big_board,
+//                                                 wce_get_dynasty_rankings
 //
 // A section's run() returns { text, structured }: the answer in words, and the same answer
 // as data. To add a section, write its module and add it to SECTIONS below.
 //
-// tools/savant-mcp/check.mjs talks to this handler with a real MCP client.
+// Every section answers from small files the build writes under /savant-api/ (see
+// scripts/lib/savant-api.mjs), with one exception: the Dynasty board is live, so that tool
+// reads the site's own /api/dynasty, and only ever its read-only board.
+//
+// tools/savant-mcp/check.mjs talks to this handler with a real MCP client; each section has
+// its own check beside it in tools/.
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { SavantError } from './_core.js'
 import { tools as basketball } from './_basketball.js'
+import { tools as coaching } from './_coaching.js'
+import { tools as draft } from './_draft.js'
+import { tools as football } from './_football.js'
+import { tools as site } from './_site.js'
+import { tools as ufc } from './_ufc.js'
 
-const SECTIONS = [basketball]
+const SECTIONS = [basketball, football, coaching, ufc, draft, site]
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '1.1.0' }
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '2.0.0' }
 
 const INSTRUCTIONS = [
-  'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant. Tools are grouped by prefix: nba_ is Basketball Savant, NBA player stats as percentiles from 1979-80 to the latest season.',
-  'Every percentile belongs to a pool, and results label which, e.g. "league" for all qualified players that season or "vs. guards" for qualified players at the same position. A percentile is only meaningful with its pool.',
-  'A stat marked low sample is below its stabilization threshold. A stat a season did not track is listed as not tracked rather than shown as zero.',
-  'Results include the link to the matching page on wcehoops.com.',
+  'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
+  'nba_ is Basketball Savant: NBA player stats as percentiles, 1979-80 to the latest season, ranked against the league and against the same position.',
+  'nfl_ is Football Savant and Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; and NFL head coaches and play-callers.',
+  'ufc_ is UFC Savant: fighters ranked inside their division, against active fighters and all-time.',
+  'nba_draft_ is Draft Savant: college and pre-draft data on draft prospects, not NBA stats.',
+  'wce_ is the site itself: its news page, its articles, its draft Big Board and its crowd-priced Dynasty board.',
+  'Every percentile belongs to a pool, and each result names it. A percentile is only meaningful with its pool.',
+  'A stat marked low sample is below its stabilization threshold. A stat a season did not track is listed as not tracked rather than shown as zero. Results state the date of their data and link to the matching page on wcehoops.com.',
 ].join(' ')
 
 // Run a tool and turn what it returns, or throws, into an MCP result. A SavantError carries
