@@ -19,7 +19,9 @@
 
 export const SITE = 'https://wcehoops.com'
 
-const ORIGIN = () => (process.env.SAVANT_API_ORIGIN || SITE).replace(/\/+$/, '')
+// Where the data files (and the site's own read-only endpoints) are fetched from. The live
+// site, unless a test or a local run points somewhere else.
+export const origin = () => (process.env.SAVANT_API_ORIGIN || SITE).replace(/\/+$/, '')
 const SCHEMA = 1
 const TTL_MS = 10 * 60 * 1000
 const FETCH_TIMEOUT_MS = 8000
@@ -34,17 +36,20 @@ export class SavantError extends Error {}
 // ---- loading -------------------------------------------------------------------------
 
 const loaders = new Set()
+let clock = 0 // a counter, not a time: orders reads for eviction
 
 // A loader for one section's files, e.g. makeLoader('savant-api/basketball/v1').
 //   load(path)  -> the parsed file, from memory when fresh
 //   clear()     -> forget everything (tests)
 // `what` names the data in the error a caller sees when it cannot be loaded.
-// `maxCached` bounds memory: the oldest file is dropped past it.
+// `maxCached` bounds memory: past it, the file that has gone longest without being read is
+// dropped. By last read, not by age, so a section's glossary and index (read on every call)
+// outlive the bulk files around them.
 export function makeLoader(base, { what = 'Savant', maxCached = 16 } = {}) {
-  const cache = new Map() // path -> { at, value } | { at, value, pending }
+  const cache = new Map() // path -> { at, used, value } | { at, used, value, pending }
 
   async function fetchJson(path) {
-    const res = await fetch(`${ORIGIN()}/${base}/${path}`, {
+    const res = await fetch(`${origin()}/${base}/${path}`, {
       headers: { accept: 'application/json' },
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     })
@@ -59,15 +64,17 @@ export function makeLoader(base, { what = 'Savant', maxCached = 16 } = {}) {
   async function load(path) {
     const now = Date.now()
     const hit = cache.get(path)
+    if (hit) hit.used = ++clock
     if (hit && hit.pending) return hit.pending
     if (hit && now - hit.at < TTL_MS) return hit.value
 
     const pending = fetchJson(path).then(
       (value) => {
-        cache.set(path, { at: Date.now(), value })
-        if (cache.size > maxCached) {
-          const oldest = [...cache.entries()].filter(([, v]) => !v.pending).sort((a, b) => a[1].at - b[1].at)[0]
-          if (oldest && oldest[0] !== path) cache.delete(oldest[0])
+        cache.set(path, { at: Date.now(), used: ++clock, value })
+        while (cache.size > maxCached) {
+          const idle = [...cache.entries()].filter(([k, v]) => !v.pending && k !== path).sort((a, b) => a[1].used - b[1].used)[0]
+          if (!idle) break
+          cache.delete(idle[0])
         }
         return value
       },
@@ -75,14 +82,14 @@ export function makeLoader(base, { what = 'Savant', maxCached = 16 } = {}) {
         console.error(`[savant] ${base}/${path} failed:`, err.message)
         if (hit && hit.value) {
           // Stale beats down. Hold it for a minute so an outage is not re-tried on every call.
-          cache.set(path, { at: Date.now() - TTL_MS + 60 * 1000, value: hit.value })
+          cache.set(path, { at: Date.now() - TTL_MS + 60 * 1000, used: ++clock, value: hit.value })
           return hit.value
         }
         cache.delete(path)
         throw new SavantError(`${what} data could not be loaded right now. Try again in a minute.`)
       },
     )
-    cache.set(path, { at: hit ? hit.at : now, value: hit && hit.value, pending })
+    cache.set(path, { at: hit ? hit.at : now, used: ++clock, value: hit && hit.value, pending })
     return pending
   }
 
@@ -107,17 +114,24 @@ export function norm(s) {
     .trim()
 }
 
+// Edits between two words, giving up past `max`. A letter added, dropped or changed is one
+// edit, and so is two neighbouring letters swapped ("Ried" for "Reid").
 function editDistance(a, b, max) {
   if (Math.abs(a.length - b.length) > max) return max + 1
+  let before = null
   let prev = Array.from({ length: b.length + 1 }, (_, i) => i)
   for (let i = 1; i <= a.length; i++) {
     const cur = [i]
     let best = i
     for (let j = 1; j <= b.length; j++) {
       cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
+      if (before && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) cur[j] = Math.min(cur[j], before[j - 2] + 1)
       if (cur[j] < best) best = cur[j]
     }
-    if (best > max) return max + 1
+    // A swap can still pull the next row under `max`, so only give up when the row before
+    // was out of reach as well.
+    if (best > max && (!before || Math.min(...prev) > max)) return max + 1
+    before = prev
     prev = cur
   }
   return prev[b.length]
