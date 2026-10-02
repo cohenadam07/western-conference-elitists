@@ -30,7 +30,9 @@ export const CAP_MS = env('RACE_CAP_MS', 120000)      // a hole's time limit
 export const GRACE_MS = 2500          // a finish just before the cap can still arrive after it
 export const BOARD_MS = env('RACE_BOARD_MS', 9000)    // the leaderboard after each hole
 export const FINAL_MS = 180000        // the final standings, before the party drops back to the lobby
-export const AWAY_MS = env('RACE_AWAY_MS', 15000)          // not heard from for this long: away (doesn't hold a hole or a vote up)
+// not heard from for this long: away (doesn't hold a hole or a vote up). Games connected directly ask
+// every 4 or 5 seconds, so this leaves room for a slow phone to miss a couple.
+export const AWAY_MS = env('RACE_AWAY_MS', 20000)
 export const RACER_MS = 60000         // heard from this recently: still dealt in for the next hole
 export const GONE_MS = 150000         // in the lobby, not heard from for this long: off the list
 export const TTL = 3 * 3600           // seconds a party outlives its last request
