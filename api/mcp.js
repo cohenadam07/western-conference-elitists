@@ -35,12 +35,23 @@
 // scripts/lib/savant-api.mjs), with one exception: the Dynasty board is live, so that tool
 // reads the site's own /api/dynasty, and only ever its read-only board.
 //
+// LIMITS
+// It is public and announced on the homepage, so it has a brake (api/_limit.js): each caller
+// gets RATE_PER_MINUTE requests a minute, counted by network address, and past that a
+// request is answered at once with HTTP 429 and "wait N seconds" before any tool runs. The
+// number is generous on purpose. People who use it through Claude all arrive from Claude's
+// servers, not their own homes, so one address can be many fans at once; the limit is there
+// to stop a loop or a script, not a busy evening. MCP_RATE_PER_MINUTE on Vercel overrides
+// it. A request body past MAX_BODY_BYTES is refused unread: real requests are a few hundred
+// bytes. None of this is a firewall; api/_limit.js says what it cannot do.
+//
 // tools/savant-mcp/check.mjs talks to this handler with a real MCP client; each section has
 // its own check beside it in tools/.
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { SavantError } from './_core.js'
+import { makeLimiter } from './_limit.js'
 import { tools as basketball } from './_basketball.js'
 import { tools as coaching } from './_coaching.js'
 import { tools as draft } from './_draft.js'
@@ -49,6 +60,24 @@ import { tools as site } from './_site.js'
 import { tools as ufc } from './_ufc.js'
 
 const SECTIONS = [basketball, football, coaching, ufc, draft, site]
+
+const RATE_PER_MINUTE = 300
+const MAX_BODY_BYTES = 64 * 1024
+const limiter = makeLimiter()
+
+// Read per request, so a change on Vercel takes effect without touching the code.
+function ratePerMinute() {
+  const n = Number(process.env.MCP_RATE_PER_MINUTE)
+  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : RATE_PER_MINUTE
+}
+
+// Who is calling, for counting only. Vercel sets both headers itself and overwrites
+// anything the caller sent, so they cannot be forged from outside.
+const callerOf = (req) =>
+  String(req.headers['x-real-ip'] || '').trim() ||
+  String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
+  req.socket?.remoteAddress ||
+  'unknown'
 
 const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '2.0.0' }
 
@@ -86,14 +115,14 @@ export function buildServer() {
   return server
 }
 
-const rpcError = (code, message) => ({ jsonrpc: '2.0', error: { code, message }, id: null })
+const rpcError = (code, message, id = null) => ({ jsonrpc: '2.0', error: { code, message }, id })
 
 // Any site's page or tool may call this: it is public, read-only, and carries no cookies.
 function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, Mcp-Protocol-Version, Mcp-Session-Id, Last-Event-ID')
-  res.setHeader('Access-Control-Expose-Headers', 'Mcp-Session-Id, Mcp-Protocol-Version')
+  res.setHeader('Access-Control-Expose-Headers', 'Mcp-Session-Id, Mcp-Protocol-Version, Retry-After')
   res.setHeader('Access-Control-Max-Age', '86400')
 }
 
@@ -112,10 +141,26 @@ export default async function handler(req, res) {
     return send(res, 405, rpcError(-32000, 'This is the Western Conference Elitists MCP server. It answers JSON-RPC over POST; add this URL to an MCP client such as Claude as a custom connector.'))
   }
 
+  // Too big to be a real request: refuse it by its stated size, without reading it.
+  if (Number(req.headers['content-length']) > MAX_BODY_BYTES) {
+    return send(res, 413, rpcError(-32600, 'Request too large for the Western Conference Elitists connector.'))
+  }
+
   // Vercel parses the JSON body on first access and throws if it is malformed.
   let body
   try { body = req.body } catch { return send(res, 400, rpcError(-32700, 'Parse error: the request body is not valid JSON.')) }
   if (body == null || typeof body !== 'object') return send(res, 400, rpcError(-32700, 'Parse error: expected a JSON-RPC message.'))
+
+  // The brake. Several messages sent as one request count as several.
+  const messages = Array.isArray(body) ? body : [body]
+  const turn = limiter.take(callerOf(req), ratePerMinute(), Math.max(1, messages.length))
+  if (!turn.ok) {
+    res.setHeader('Retry-After', String(turn.retryAfter))
+    // Answer the request that was asked, so the caller can tell which one to send again.
+    const asked = messages.length === 1 && messages[0] ? messages[0].id : null
+    const id = typeof asked === 'string' || typeof asked === 'number' ? asked : null
+    return send(res, 429, rpcError(-32000, `Too many requests to the Western Conference Elitists connector. Wait ${turn.retryAfter} seconds, then try again.`, id))
+  }
 
   const server = buildServer()
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true })

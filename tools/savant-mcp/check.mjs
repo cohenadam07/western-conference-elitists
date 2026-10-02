@@ -329,6 +329,86 @@ test('HTTP manners: stateless, POST only, CORS, clean errors', async () => {
   assert.equal(note.status, 202)
 })
 
+// The connector is announced on the homepage, so it has a brake (api/_limit.js): a caller past
+// its limit is told to wait, at once, before any tool runs. First the counting, on a clock the
+// test controls; then the real endpoint, with callers told apart the way Vercel tells them.
+test('the brake: a caller past the limit is told to wait, and nobody else is', async () => {
+  const { makeLimiter } = await import('../../api/_limit.js')
+  let t = 1_000_000
+  const lim = makeLimiter({ windowMs: 60_000, maxKeys: 50, now: () => t })
+  for (let i = 0; i < 5; i++) assert.deepEqual(lim.take('a', 5), { ok: true })
+  assert.deepEqual(lim.take('a', 5), { ok: false, retryAfter: 60 })
+  assert.deepEqual(lim.take('b', 5), { ok: true }, 'another caller is not affected')
+  t += 59_000
+  assert.deepEqual(lim.take('a', 5), { ok: false, retryAfter: 1 })
+  t += 1_000
+  assert.deepEqual(lim.take('a', 5), { ok: true }, 'a new minute starts a new count')
+  assert.deepEqual(lim.take('c', 5, 5), { ok: true }, 'five at once count as five')
+  assert.equal(lim.take('c', 5).ok, false)
+  assert.equal(lim.take('d', 5, 6).ok, false, 'more than the limit at once never fits')
+  assert.equal(lim.take('d', 5, 5).ok, true, '...and a refusal costs the caller nothing')
+  for (let i = 0; i < 2000; i++) lim.take(`caller-${i}`, 5)
+  assert.ok(lim.size() <= 50, `memory is bounded: ${lim.size()} callers held`)
+  assert.equal(lim.take('caller-1999', 5).ok, true, 'the newest callers are the ones kept')
+
+  const ping = { jsonrpc: '2.0', id: 7, method: 'ping' }
+  const from = (ip, body = ping, headers = { 'x-real-ip': ip }) => post(body, headers)
+  process.env.MCP_RATE_PER_MINUTE = '8'
+  try {
+    for (let i = 0; i < 8; i++) assert.equal((await from('203.0.113.9')).status, 200, `request ${i + 1} of 8`)
+    const stopped = await from('203.0.113.9')
+    assert.equal(stopped.status, 429)
+    const wait = Number(stopped.headers.get('retry-after'))
+    assert.ok(wait >= 1 && wait <= 60, `Retry-After: ${wait}`)
+    assert.match(stopped.headers.get('access-control-expose-headers'), /Retry-After/)
+    const said = await stopped.json()
+    assert.equal(said.id, 7, 'the refusal answers the request that was asked')
+    assert.equal(said.error.code, -32000)
+    assert.match(said.error.message, new RegExp(`Wait ${wait} seconds`))
+    assert.doesNotMatch(JSON.stringify(said), /203\.0\.113/, 'the caller\'s address is not echoed back')
+
+    // A stopped caller's tool call does not run: nothing is fetched for it.
+    savant.clearCache()
+    const before = hits
+    const profile = { jsonrpc: '2.0', id: 8, method: 'tools/call', params: { name: 'nba_get_player_profile', arguments: { player: 'Nikola Jokic' } } }
+    assert.equal((await from('203.0.113.9', profile)).status, 429)
+    assert.equal(hits, before, 'a refused tool call fetched data')
+    // Somebody else, at the same moment, is answered.
+    const other = await from('203.0.113.10', profile)
+    assert.equal(other.status, 200)
+    assert.ok(hits > before)
+    assert.ok(!(await other.json()).result.isError)
+
+    // Without x-real-ip the first address in x-forwarded-for is the caller.
+    for (let i = 0; i < 8; i++) assert.equal((await from(null, ping, { 'x-forwarded-for': '203.0.113.20, 10.0.0.1' })).status, 200)
+    assert.equal((await from(null, ping, { 'x-forwarded-for': '203.0.113.20, 10.0.0.2' })).status, 429)
+
+    // Several messages in one request count as several.
+    const five = [1, 2, 3, 4, 5].map((id) => ({ jsonrpc: '2.0', id, method: 'ping' }))
+    assert.notEqual((await from('203.0.113.30', five)).status, 429, 'five of eight')
+    const over = await from('203.0.113.30', five)
+    assert.equal(over.status, 429, 'ten of eight')
+    assert.equal((await over.json()).id, null)
+
+    // An id that is not a string or a number is not echoed back.
+    for (let i = 0; i < 8; i++) await from('203.0.113.40')
+    assert.equal((await (await from('203.0.113.40', { jsonrpc: '2.0', id: { evil: true }, method: 'ping' })).json()).id, null)
+  } finally {
+    delete process.env.MCP_RATE_PER_MINUTE
+  }
+
+  // Back on the real limit, the caller stopped above is still inside its minute but well
+  // under 300, so it is answered again: the number is read on every request.
+  assert.equal((await from('203.0.113.9')).status, 200)
+  process.env.MCP_RATE_PER_MINUTE = 'not a number'
+  try { assert.equal((await from('203.0.113.9')).status, 200, 'a bad setting falls back to the default') } finally { delete process.env.MCP_RATE_PER_MINUTE }
+
+  // A body too big to be a real request is refused by its stated size.
+  const big = await post({ jsonrpc: '2.0', id: 1, method: 'ping', params: { pad: 'x'.repeat(70_000) } })
+  assert.equal(big.status, 413)
+  assert.equal((await big.json()).error.code, -32600)
+})
+
 test('every tool of every section answers through the endpoint', async () => {
   assert.equal(built.failed, 0, 'a section failed to write its files')
   // callTool validates each result against its tool's declared output shape.

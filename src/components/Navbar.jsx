@@ -27,7 +27,7 @@ const LINKS = [
     label: 'Games',
     children: [
       { to: '/hoops', label: 'Hoops' },
-      { to: '/gm', label: 'Front Office' },
+      // { to: '/gm', label: 'Front Office' },  // hidden until the game is back: /gm has no page on main, so this led to Not Found
     ],
   },
   { to: '/about', label: 'About' },

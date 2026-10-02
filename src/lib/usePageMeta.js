@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 const SITE = 'Western Conference Elitists'
 const DEFAULT_TITLE = `${SITE} | NBA Analysis & Scouting`
 const DEFAULT_DESC =
-  'Western Conference Elitists — NBA analysis, team building, trade coverage, and draft scouting built for people who actually watch the film.'
+  'Western Conference Elitists — NBA analysis and draft scouting for people who watch the film, plus the Savant tools, which rank NBA and NFL players and UFC fighters by percentile.'
 
 /**
  * Keeps document.title, the meta description, the OG/Twitter title tags and the

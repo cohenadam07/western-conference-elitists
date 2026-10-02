@@ -292,7 +292,7 @@ export default function Home() {
           <SectionHeading
             eyebrow="Draft Spotlight"
             title="No. 1 on the Board"
-            subtitle="Every week we put one prospect under the microscope. This week: the wing who has not left the top spot since February."
+            subtitle="The prospect at the top of the WCE Big Board, and the case for him."
           />
         </Reveal>
         <Reveal delay={100}>
@@ -349,7 +349,7 @@ export default function Home() {
               <SectionHeading
                 eyebrow="Big Board"
                 title="Top Prospects Right Now"
-                subtitle="Updated weekly as the film and data come in. These are evaluation rankings, not mock draft slots."
+                subtitle="These are evaluation rankings, not mock draft slots."
               />
               <Link
                 to="/rankings"

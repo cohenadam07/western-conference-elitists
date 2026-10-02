@@ -159,6 +159,20 @@ npm run check:savant-mcp
 That talks to the endpoint with a real MCP client and calls every tool of every section.
 To point a local run at other data, set `SAVANT_API_ORIGIN`.
 
+**Limits.** Each caller gets 300 requests a minute, counted by network address
+(`api/_limit.js`); past that a request is answered at once with HTTP 429 and "wait N
+seconds", before any tool runs. The number is generous on purpose: everyone who uses the
+connector through Claude arrives from Claude's servers, so one address can be many fans. Set
+`MCP_RATE_PER_MINUTE` on Vercel to change it. A request body over 64 KB is refused unread.
+
+That brake lives inside the function, so a refused request still counts as a function
+invocation, and each running copy of the function keeps its own count. The wall, if one is
+ever needed, is a rule in Vercel's Firewall, which stops requests before they reach the
+function. The Hobby plan includes one rate-limit rule per project. To add it: the project
+on vercel.com > **Firewall** > **Configure** > **+ New Rule**; If *Request Path* equals
+`/api/mcp`; Then **Rate Limit**, Fixed Window, 60 seconds, 300 requests, key **IP**;
+**Save Rule**, **Review Changes**, **Publish**.
+
 The homepage introduces the connector in its own section (`src/components/AiConnector.jsx`,
 linked as `/#ai`, from the hero and the footer). What that section claims lives in one file,
 `src/data/connector.js`: the address, the worked example and the three questions to try.

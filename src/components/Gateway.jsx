@@ -444,10 +444,12 @@ export default function Gateway() {
                   <span className="live"><span className="dot" />On the wire</span>
                   <div className="feed">
                     <ul>
-                      <li><b>TRADE</b> deadline grades live</li>
-                      <li><b>INJURY</b> report updated</li>
-                      <li><b>SIGNING</b> buyout market opens</li>
-                      <li><b>TRADE</b> deadline grades live</li>
+                      {/* what the News page carries, not events: these lines never go stale.
+                          The last repeats the first so the roll loops without a jump. */}
+                      <li><b>HEADLINES</b> the biggest NBA stories</li>
+                      <li><b>ANALYTICS</b> research worth reading</li>
+                      <li><b>SOURCED</b> every item links out</li>
+                      <li><b>HEADLINES</b> the biggest NBA stories</li>
                     </ul>
                   </div>
                 </div>
