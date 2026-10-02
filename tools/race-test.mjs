@@ -71,12 +71,20 @@ if (process.argv[2] !== 'live') {
   }
   // ---- the notes that let the games connect to each other directly
   {
-    const big = 'x'.repeat(6001)
+    const big = 'x'.repeat(12001)
     const notes = R.cleanNotes([{ to: id(1), v: '{"t":"o"}' }, { to: id(0), v: '{"t":"o"}' }, { to: 'NOT AN ID', v: '{}' }, { to: id(2), v: big }, { to: id(2), v: 7 }, null], id(0))
     ok(notes.length === 1 && notes[0].to === id(1), 'a note goes to another player, is a bounded string, and is never to yourself')
     ok(R.cleanNotes(Array.from({ length: 40 }, () => ({ to: id(1), v: '{}' })), id(0)).length === 16, 'no more than a handful of notes a poll')
     const lv = R.cleanLive({ m: 1, n: 'ab12cd' }, 5)
     ok(lv.n === 'ab12cd' && R.cleanLive({ n: 'NOPE!' }, 5).n === '', 'each load of the page names itself, so the others know to connect again after a reload')
+    const rep = R.cleanLive({ d: 'v29 iOS 18.1 Safari | Sam:open/relay t0 h1s1r1\u0000\n' + 'x'.repeat(900) }, 5).d
+    ok(rep.startsWith('v29 iOS 18.1 Safari | Sam:open/relay t0 h1s1r1x') && rep.length === 600 && R.cleanLive({ d: 7 }, 5).d === '', 'a game’s report on its links is kept as a short plain line')
+    {
+      const { room: r2, live: l2 } = party(['A', 'B'], 1000)
+      l2[id(0)].d = 'v29 Mac Chrome | B:open/direct'
+      const dg = R.diag(r2, l2, 1500)
+      ok(dg.ok && dg.players.length === 2 && dg.players[0].d === 'v29 Mac Chrome | B:open/direct' && dg.players[1].d === '' && dg.players[0].name === 'A' && !('id' in dg.players[0]), 'the reports can be read back for the party: names and lines, no ids or keys')
+    }
     const { room, live } = party(['A', 'B'], 1000)
     live[id(0)] = lv
     ok(R.view(room, live, {}, id(1), 2000).players[0].n === 'ab12cd', 'and the others are told that name')
@@ -216,6 +224,11 @@ if (process.argv[2] !== 'live') {
   const again2 = await call({ a: 'poll', code, id: b.you, key: b.key, me: { n: 'bbbb22' } })
   ok(!forC.sig && forB.sig && forB.sig.length === 1 && forB.sig[0].from === a.you && forB.sig[0].v === '{"t":"o","g":1}' && !again2.sig, 'a note for another game is handed over on its next poll, once')
   ok(forB.players.find((p) => p.id === a.you).n === 'aaaa11', 'and each player’s page name comes back with the party')
+  // a game's report on its links, read back by the party's code
+  await call({ a: 'poll', code, id: a.you, key: a.key, me: { n: 'aaaa11', d: 'v29 test | Sam:open/direct t0 h1s1r0' } })
+  const dg = await (await fetch(base + '/api/race?diag=' + code)).json()
+  ok(dg.ok && dg.players.length === 3 && dg.players[0].d === 'v29 test | Sam:open/direct t0 h1s1r0' && typeof dg.relay === 'boolean' && !JSON.stringify(dg).includes(a.key), 'a party’s link reports can be read back by its code (and nothing secret with them)')
+  ok((await fetch(base + '/api/race?diag=ZZZZ')).status === 404, 'and a code with no party says so')
   ok((await call({ a: 'start', code, id: b.you, key: b.key, worlds: WORLDS })).status === 403, 'only the host starts the vote')
   let v = await call({ a: 'start', code, id: a.you, key: a.key, worlds: WORLDS })
   ok(v.phase === 'vote' && v.opts.length === 4 && Math.abs(v.until - v.now - R.VOTE_MS) < 500, 'the vote opens: ' + v.opts.map((o) => o.id).join(', '))

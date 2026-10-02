@@ -102,7 +102,16 @@ export function cleanLive(me, now) {
   // and a new one tells them to connect again)
   return { t: now, m: int(m.m, 0, 1e6), h: int(m.h, -1, 64), k: int(m.k, 0, 1e6), f: int(m.f, 0, 9999), in: inp,
     vw: typeof m.vw === 'string' && WORLD_RE.test(m.vw) ? m.vw : '', vm: MODES.includes(m.vm) ? m.vm : '',
-    n: typeof m.n === 'string' && NONCE_RE.test(m.n) ? m.n : '' }
+    n: typeof m.n === 'string' && NONCE_RE.test(m.n) ? m.n : '',
+    // (d: how this game's links to the others are doing, in its own words: only ever read back by
+    // someone asking after the party by its code, to find out why two games didn't connect)
+    d: typeof m.d === 'string' ? m.d.replace(/[^\x20-\x7e]/g, '').slice(0, 600) : '' }
+}
+
+// What a party's games say about their links to each other (GET /api/race?diag=CODE).
+export function diag(room, live, now) {
+  return { ok: true, code: room.code, phase: room.phase, match: room.match, hole: room.hole,
+    players: room.players.map((p) => { const l = live[p.id] || {}; return { name: p.name, here: isHere(room, live, p.id, now), seen: l.t ? Math.round((now - l.t) / 1000) : null, d: l.d || '' } }) }
 }
 
 // Notes one game leaves for another so the two can connect directly (a WebRTC offer or answer):
@@ -111,7 +120,7 @@ export function cleanNotes(list, from) {
   const out = []
   for (const n of Array.isArray(list) ? list.slice(0, 2 * MAX_PLAYERS) : []) {
     if (!n || typeof n.to !== 'string' || !ID_RE.test(n.to) || n.to === from) continue
-    if (typeof n.v !== 'string' || n.v.length < 2 || n.v.length > 6000) continue
+    if (typeof n.v !== 'string' || n.v.length < 2 || n.v.length > 12000) continue      // (an offer with a relay's routes in it runs to a few thousand)
     out.push({ to: n.to, v: n.v })
   }
   return out

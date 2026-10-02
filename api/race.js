@@ -19,7 +19,7 @@
 import { createHmac, randomBytes } from 'node:crypto'
 import {
   CODE_RE, ID_RE, TTL, makeCode, newRoom, addPlayer, removePlayer, cleanLive, finValue, parseFin, finField,
-  startVote, toLobby, advance, view, cleanNotes, iceServers,
+  startVote, toLobby, advance, view, cleanNotes, iceServers, diag,
 } from './_race.js'
 
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
@@ -68,6 +68,37 @@ const CREATE = `if redis.call('EXISTS', KEYS[1]) == 1 then return 0 end
 redis.call('HSET', KEYS[1], 'v', '1', 'j', ARGV[1])
 redis.call('EXPIRE', KEYS[1], tonumber(ARGV[2]))
 return 1`
+
+// Where the games look for a way to each other. With a relay's two settings on the deployment
+// (Cloudflare's TURN: RACE_TURN_KEY_ID and RACE_TURN_API_TOKEN), each player is handed short-lived
+// credentials for it along with the party, so two games can connect by way of the relay on networks
+// where they can't reach each other directly (which turned out to be most of them). The credentials
+// are made at most once every ten minutes per server instance and last three hours (as long as a party).
+const TURN_ID = process.env.RACE_TURN_KEY_ID || '', TURN_TOKEN = process.env.RACE_TURN_API_TOKEN || ''
+let turn = { at: 0, ice: null }
+async function iceFor() {
+  if (process.env.RACE_ICE || !TURN_ID || !TURN_TOKEN) return iceServers()
+  if (turn.ice && Date.now() - turn.at < 600e3) return turn.ice
+  try {
+    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 2500)
+    const r = await fetch(`https://rtc.live.cloudflare.com/v1/turn/keys/${TURN_ID}/credentials/generate-ice-servers`, {
+      method: 'POST', signal: ctl.signal,
+      headers: { Authorization: `Bearer ${TURN_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ttl: 3 * 3600 }),
+    })
+    clearTimeout(timer)
+    const j = r.ok ? await r.json() : null
+    const list = j && Array.isArray(j.iceServers) ? j.iceServers : null
+    if (!list) throw new Error('turn ' + r.status)
+    // (browsers won't open port 53, and a url that can't be opened only slows the handshake down)
+    const ice = list.map((s) => ({ ...s, urls: [].concat(s.urls || []).filter((u) => !/:53(\?|$)/.test(u)) })).filter((s) => s.urls.length)
+    turn = { at: Date.now(), ice: [{ urls: ['stun:stun.l.google.com:19302'] }, ...ice] }
+    return turn.ice
+  } catch (e) {
+    console.error('race: no relay credentials', String((e && e.message) || e))
+    return iceServers()
+  }
+}
 
 const keyFor = (code, id) => createHmac('sha256', SECRET).update(code + ':' + id).digest('hex').slice(0, 20)
 const newId = () => randomBytes(6).toString('hex').slice(0, 8)
@@ -118,7 +149,16 @@ async function mutate(code, fn) {
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
   if (!URL_ || !TOKEN) { res.status(503).json({ error: 'Racing is not set up on this deployment.' }); return }
-  if (req.method !== 'POST') { res.status(200).json({ ok: true, races: true }); return }
+  if (req.method !== 'POST') {
+    // (how a party's games say their links are doing, for whoever has its code)
+    const q = String((req.query && req.query.diag) || '').toUpperCase()
+    if (CODE_RE.test(q)) {
+      try { const S = await read(q); res.status(S ? 200 : 404).json(S ? { ...diag(S.room, S.live, Date.now()), relay: !!(TURN_ID && TURN_TOKEN) || !!process.env.RACE_ICE } : { error: 'No party has that code.' }) }
+      catch (e) { res.status(500).json({ error: String((e && e.message) || e) }) }
+      return
+    }
+    res.status(200).json({ ok: true, races: true, relay: !!(TURN_ID && TURN_TOKEN) || !!process.env.RACE_ICE }); return
+  }
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {})
     const a = String(body.a || 'poll')
@@ -132,7 +172,7 @@ export default async function handler(req, res) {
         const room = newRoom(code, now)
         addPlayer(room, id, body.name, now)
         if (Number(await redis(['EVAL', CREATE, 1, K(code), JSON.stringify(room), String(TTL)])) === 1) {
-          res.status(200).json({ ...view(room, {}, {}, id, now), key: keyFor(code, id), ice: iceServers() })
+          res.status(200).json({ ...view(room, {}, {}, id, now), key: keyFor(code, id), ice: await iceFor() })
           return
         }
       }
@@ -152,7 +192,7 @@ export default async function handler(req, res) {
         if (add.error) return add
       })
       if (r.error) return fail(r.status || 400, r.status === 404 ? 'No party has that code.' : r.error)
-      res.status(200).json({ ...view(r.S.room, r.S.live, r.S.fins, id, r.now), key: keyFor(code, id), ice: iceServers() })
+      res.status(200).json({ ...view(r.S.room, r.S.live, r.S.fins, id, r.now), key: keyFor(code, id), ice: await iceFor() })
       return
     }
 
