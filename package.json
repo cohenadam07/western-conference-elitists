@@ -11,14 +11,17 @@
     "publish-article": "node scripts/publish-article.mjs",
     "newsletter-draft": "node scripts/newsletter-draft.mjs",
     "check:forms": "node --test tools/forms/check.mjs",
-    "check:savant-api": "node --test tools/savant-api/check.mjs"
+    "check:savant-api": "node --test tools/savant-api/check.mjs",
+    "check:savant-mcp": "node --test tools/savant-mcp/check.mjs"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.31.0",
     "@vercel/analytics": "^2.0.1",
     "obscenity": "^0.4.6",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "react-router-dom": "^7.18.0"
+    "react-router-dom": "^7.18.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.1",
