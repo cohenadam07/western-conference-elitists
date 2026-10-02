@@ -35,6 +35,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { buildSavantApi, writeAll } from '../../scripts/lib/savant-api.mjs'
 import { CONNECTOR_URL, EXAMPLE, PROMPTS } from '../../src/data/connector.js'
+import { startStore } from './redis.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const html = readFileSync(path.join(ROOT, 'public/basketball-savant.html'), 'utf8')
@@ -75,6 +76,9 @@ const cdn = http.createServer((req, res) => {
   return html200(res)
 })
 
+// A real, throwaway data store for the usage log's tests; null where redis-server is missing.
+const store = await startStore()
+
 let savant
 let handler
 let app
@@ -100,6 +104,7 @@ before(async () => {
 })
 
 after(async () => {
+  if (store) await store.stop()
   await client.close()
   app.close()
   cdn.close()
@@ -337,12 +342,14 @@ test('the brake: a caller past the limit is told to wait, and nobody else is', a
   let t = 1_000_000
   const lim = makeLimiter({ windowMs: 60_000, maxKeys: 50, now: () => t })
   for (let i = 0; i < 5; i++) assert.deepEqual(lim.take('a', 5), { ok: true })
-  assert.deepEqual(lim.take('a', 5), { ok: false, retryAfter: 60 })
+  assert.deepEqual(lim.take('a', 5), { ok: false, retryAfter: 60, first: true })
   assert.deepEqual(lim.take('b', 5), { ok: true }, 'another caller is not affected')
   t += 59_000
-  assert.deepEqual(lim.take('a', 5), { ok: false, retryAfter: 1 })
+  assert.deepEqual(lim.take('a', 5), { ok: false, retryAfter: 1, first: false }, 'only the first refusal of a window is marked')
   t += 1_000
   assert.deepEqual(lim.take('a', 5), { ok: true }, 'a new minute starts a new count')
+  for (let i = 0; i < 4; i++) lim.take('a', 5)
+  assert.equal(lim.take('a', 5).first, true, '...and a new minute\'s first refusal is marked again')
   assert.deepEqual(lim.take('c', 5, 5), { ok: true }, 'five at once count as five')
   assert.equal(lim.take('c', 5).ok, false)
   assert.equal(lim.take('d', 5, 6).ok, false, 'more than the limit at once never fits')
@@ -407,6 +414,216 @@ test('the brake: a caller past the limit is told to wait, and nobody else is', a
   const big = await post({ jsonrpc: '2.0', id: 1, method: 'ping', params: { pad: 'x'.repeat(70_000) } })
   assert.equal(big.status, 413)
   assert.equal((await big.json()).error.code, -32600)
+})
+
+// ---- the usage log -------------------------------------------------------------------
+// The connector keeps a tally of its own use (api/_usage.js). Two things have to be true of
+// it: it holds counts and nothing else, and it can never cost the site more than its cap or
+// get in the way of an answer.
+
+test('the usage log: which app is which, and the summary the page shows', async () => {
+  const usage = await import('../../api/_usage.js')
+  for (const [name, family] of [
+    ['claude-ai', 'claude'], ['Claude Code', 'claude'], ['Anthropic/ClaudeAI', 'claude'],
+    ['openai-mcp', 'chatgpt'], ['ChatGPT', 'chatgpt'], ['gemini-cli-mcp-client', 'gemini'],
+    ['cursor-vscode', 'cursor'], ['Visual Studio Code', 'vscode'], ['github-copilot-developer', 'copilot'],
+    ['windsurf-client', 'windsurf'], ['mcp-inspector', 'inspector'],
+    ['check', 'other'], ['', 'other'], [undefined, 'other'], [null, 'other'], [{ name: 'claude' }, 'other'],
+    ['x'.repeat(500) + 'claude', 'other'],
+  ]) assert.equal(usage.clientFamily(name), family, String(name).slice(0, 30))
+
+  const months = {
+    '2026-10': {
+      '02|t:nba_get_player_profile': '7', '02|e:nba_get_player_profile': '2', '02|t:wce_get_news': '1',
+      '02|c:claude': '3', '02|c:other': '1', '02|writes': '12',
+      '03|t:nfl_search_players': '4', '03|limited': '2', '03|writes': '5001',
+      junk: '9', '3|t:short_day': '1', '02|t:nothing': '0', '02|t:not_a_number': 'abc',
+    },
+    '2026-11': { '01|t:nba_get_player_profile': '5', '01|writes': '5' },
+  }
+  const all = usage.summarise(months, { cap: 5000 })
+  assert.deepEqual(all.totals, { calls: 17, errors: 2, connections: 4, limited: 2, days: 3 })
+  assert.deepEqual(all.daily, [
+    { date: '2026-10-02', calls: 8, errors: 2, connections: 4, limited: 0, capped: false },
+    { date: '2026-10-03', calls: 4, errors: 0, connections: 0, limited: 2, capped: true },
+    { date: '2026-11-01', calls: 5, errors: 0, connections: 0, limited: 0, capped: false },
+  ])
+  assert.deepEqual(all.tools, [
+    { key: 'nba_get_player_profile', calls: 12, errors: 2 },
+    { key: 'nfl_search_players', calls: 4, errors: 0 },
+    { key: 'wce_get_news', calls: 1, errors: 0 },
+  ])
+  assert.deepEqual(all.clients, [{ key: 'claude', count: 3 }, { key: 'other', count: 1 }])
+  assert.deepEqual(all.cappedDays, ['2026-10-03'])
+  assert.equal(all.cap, 5000)
+  // A range keeps only its own days.
+  const late = usage.summarise(months, { from: '2026-10-03', to: '2026-10-31', cap: 5000 })
+  assert.deepEqual(late.totals, { calls: 4, errors: 0, connections: 0, limited: 2, days: 1 })
+  assert.deepEqual(late.tools.map((t) => t.key), ['nfl_search_players'])
+  assert.deepEqual(usage.summarise({}, {}).totals, { calls: 0, errors: 0, connections: 0, limited: 0, days: 0 })
+
+  // With no store set up, counting is a quiet no-op.
+  assert.equal(await usage.count(['t:wce_get_news']), false)
+})
+
+test('the usage log: counts only, one command a write, capped, and never in the way', { skip: store ? false : 'redis-server is not installed here' }, async () => {
+  const usage = await import('../../api/_usage.js')
+  const today = usage.dayOf(Date.now())
+  const dd = today.slice(8)
+  const key = `wce:mcp:usage:${today.slice(0, 7)}`
+  // What the store holds for today, with the day prefix taken off.
+  const stored = async (k = key, day = dd) => {
+    const flat = await store.send(['HGETALL', k])
+    const out = {}
+    for (let i = 0; i < flat.length; i += 2) if (flat[i].startsWith(`${day}|`)) out[flat[i].slice(3)] = Number(flat[i + 1])
+    return out
+  }
+  const ping = { jsonrpc: '2.0', id: 7, method: 'ping' }
+  const hello = (name) => post({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name, version: '1' } } })
+
+  process.env.KV_REST_API_URL = store.url
+  process.env.KV_REST_API_TOKEN = store.token
+  usage.resetUsage()
+  try {
+    // A call that works: one count, one command.
+    let before = store.commands
+    assert.ok(!(await call('nba_get_player_profile', { player: 'Nikola Jokic' })).isError)
+    assert.equal(store.commands - before, 1, 'a call costs one command')
+    assert.deepEqual(await stored(), { writes: 1, 't:nba_get_player_profile': 1 })
+
+    // A call that cannot be answered is a call and an error.
+    before = store.commands
+    assert.ok((await call('nba_get_player_profile', { player: 'Zzyzx Nobody' })).isError)
+    assert.equal(store.commands - before, 2)
+
+    // Listing the tools and pinging are not use: nothing is counted.
+    before = store.commands
+    await client.listTools()
+    await client.ping()
+    assert.equal(store.commands - before, 0)
+
+    // Apps saying hello are counted by family.
+    for (const name of ['claude-ai', 'claude-ai', 'ChatGPT', 'Some New App 9000']) assert.equal((await hello(name)).status, 200)
+
+    // The brake is logged once per caller per minute, not once per refusal.
+    process.env.MCP_RATE_PER_MINUTE = '2'
+    const statuses = []
+    for (let i = 0; i < 6; i++) statuses.push((await post(ping, { 'x-real-ip': '203.0.113.77' })).status)
+    delete process.env.MCP_RATE_PER_MINUTE
+    assert.deepEqual(statuses, [200, 200, 429, 429, 429, 429])
+
+    assert.deepEqual(await stored(), {
+      writes: 8,
+      't:nba_get_player_profile': 2,
+      'e:nba_get_player_profile': 1,
+      'c:claude': 2,
+      'c:chatgpt': 1,
+      'c:other': 1,
+      limited: 1,
+    })
+
+    // Counts and nothing else. The whole store, searched for anything a caller sent.
+    assert.deepEqual(await store.send(['KEYS', '*']), [key])
+    assert.doesNotMatch(JSON.stringify(await store.send(['HGETALL', key])), /jokic|zzyzx|nobody|203\.0\.113|127\.0\.0\.1|new app|9000/i)
+    const ttl = await store.send(['TTL', key])
+    assert.ok(ttl > 399 * 86400 && ttl <= 400 * 86400, `kept 400 days: ${ttl}s`)
+
+    // Reading it back is one command a month, and the private page's endpoint carries it.
+    before = store.commands
+    const log = await usage.readUsage()
+    assert.equal(store.commands - before, 1)
+    assert.deepEqual(log.totals, { calls: 2, errors: 1, connections: 4, limited: 1, days: 1 })
+    assert.deepEqual(log.daily, [{ date: today, calls: 2, errors: 1, connections: 4, limited: 1, capped: false }])
+    assert.deepEqual(log.clients, [{ key: 'claude', count: 2 }, { key: 'chatgpt', count: 1 }, { key: 'other', count: 1 }])
+
+    const history = (await import('../../api/analytics/history.js')).default
+    const ask = async (headers) => {
+      let status = 200
+      let body
+      const res = { setHeader() {}, status(c) { status = c; return res }, json(b) { body = b; return res } }
+      await history({ url: '/api/analytics/history', method: 'GET', headers }, res)
+      return { status, body }
+    }
+    process.env.ANALYTICS_DASHBOARD_PASSWORD = 'the-password'
+    assert.equal((await ask({})).status, 401, 'the page\'s endpoint is still behind its password')
+    assert.equal((await ask({ 'x-analytics-key': 'wrong' })).body.connector, undefined)
+    const page = await ask({ 'x-analytics-key': 'the-password' })
+    assert.equal(page.status, 200)
+    assert.deepEqual(page.body.connector.totals, log.totals)
+    assert.deepEqual(page.body.connector.tools, [{ key: 'nba_get_player_profile', calls: 2, errors: 1 }])
+
+    // The cap. After it, the store counts nothing more that day, and this copy stops asking.
+    await store.send(['FLUSHALL'])
+    usage.resetUsage()
+    process.env.MCP_USAGE_DAILY_CAP = '3'
+    for (let i = 0; i < 3; i++) assert.equal(await usage.count(['t:wce_get_news']), true)
+    before = store.commands
+    assert.equal(await usage.count(['t:wce_get_news']), false, 'the write past the cap counts nothing')
+    assert.equal(store.commands - before, 1)
+    assert.equal(await usage.count(['t:wce_get_news']), false)
+    assert.ok(!(await call('wce_get_big_board', {})).isError, 'a capped day still answers')
+    assert.equal(store.commands - before, 1, 'once it knows, it sends nothing more that day')
+    assert.deepEqual(await stored(), { writes: 4, 't:wce_get_news': 3 })
+    // Another copy of the function finds out with one command of its own.
+    usage.resetUsage()
+    assert.equal(await usage.count(['t:wce_get_news']), false)
+    assert.equal(await usage.count(['t:wce_get_news']), false)
+    assert.equal(store.commands - before, 2)
+    assert.deepEqual(await stored(), { writes: 5, 't:wce_get_news': 3 })
+    const capped = await usage.readUsage()
+    assert.deepEqual(capped.cappedDays, [today])
+    assert.equal(capped.cap, 3)
+    // Tomorrow it counts again.
+    assert.equal(await usage.count(['t:wce_get_news'], Date.now() + 24 * 60 * 60 * 1000), true)
+    delete process.env.MCP_USAGE_DAILY_CAP
+
+    // Days are UTC days, and a month is its own hash.
+    await store.send(['FLUSHALL'])
+    usage.resetUsage()
+    assert.equal(await usage.count(['t:nba_search_players'], Date.UTC(2026, 9, 31, 23, 59, 59)), true)
+    assert.equal(await usage.count(['t:nba_search_players'], Date.UTC(2026, 10, 1, 0, 0, 1)), true)
+    assert.deepEqual((await store.send(['KEYS', '*'])).sort(), ['wce:mcp:usage:2026-10', 'wce:mcp:usage:2026-11'])
+    assert.deepEqual(await stored('wce:mcp:usage:2026-10', '31'), { writes: 1, 't:nba_search_players': 1 })
+    before = store.commands
+    const two = await usage.readUsage({ from: '2026-10-01', to: '2026-11-30' })
+    assert.equal(store.commands - before, 2, 'one command a month')
+    assert.deepEqual(two.daily.map((d) => [d.date, d.calls]), [['2026-10-31', 1], ['2026-11-01', 1]])
+    assert.deepEqual((await usage.readUsage({ from: '2026-11-01', to: '2026-11-30' })).daily.map((d) => d.date), ['2026-11-01'])
+
+    // Only the names it knows are ever written, whatever it is handed.
+    before = store.requests
+    assert.equal(await usage.count(['t:Nikola Jokic', 'q:who', `t:${'a'.repeat(60)}`, 'limited ', '']), false)
+    assert.equal(store.requests, before)
+
+    // The store is down: the answer still goes out, and the store is left alone for a minute.
+    usage.resetUsage()
+    store.down = true
+    before = store.requests
+    assert.ok(!(await call('wce_get_big_board', {})).isError)
+    assert.equal(store.requests - before, 1)
+    assert.ok(!(await call('wce_get_big_board', {})).isError)
+    assert.equal(store.requests - before, 1, 'after a failure the store is left alone')
+    store.down = false
+    assert.equal(await usage.count(['t:wce_get_big_board'], Date.now() + 30 * 1000), false, 'still left alone 30 seconds on')
+    assert.equal(await usage.count(['t:wce_get_big_board'], Date.now() + 61 * 1000), true, 'and tried again after a minute')
+
+    // The store is slow: the call does not wait for it past 700 ms.
+    usage.resetUsage()
+    store.delay = 1500
+    const started = Date.now()
+    assert.ok(!(await call('wce_get_big_board', {})).isError)
+    const took = Date.now() - started
+    assert.ok(took >= 650 && took < 1300, `a slow store held the answer ${took} ms`)
+    store.delay = 0
+    await new Promise((r) => setTimeout(r, 1000)) // let the held request finish before the store stops
+  } finally {
+    delete process.env.KV_REST_API_URL
+    delete process.env.KV_REST_API_TOKEN
+    delete process.env.MCP_RATE_PER_MINUTE
+    delete process.env.MCP_USAGE_DAILY_CAP
+    delete process.env.ANALYTICS_DASHBOARD_PASSWORD
+    usage.resetUsage()
+  }
 })
 
 test('every tool of every section answers through the endpoint', async () => {

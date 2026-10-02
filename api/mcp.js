@@ -45,6 +45,13 @@
 // it. A request body past MAX_BODY_BYTES is refused unread: real requests are a few hundred
 // bytes. None of this is a firewall; api/_limit.js says what it cannot do.
 //
+// COUNTING
+// It keeps a tally of its own use (api/_usage.js): calls per tool per day, how many of them
+// could not be answered, which AI apps connect, and how often the brake came on. Counts
+// only: never what was asked, and never who asked. This tally is the one thing the
+// connector writes, and it is about the connector, not the site: READ-ONLY above still
+// holds for everything a caller can reach. The private /analytics page shows it.
+//
 // tools/savant-mcp/check.mjs talks to this handler with a real MCP client; each section has
 // its own check beside it in tools/.
 
@@ -52,6 +59,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { SavantError } from './_core.js'
 import { makeLimiter } from './_limit.js'
+import { clientFamily, count } from './_usage.js'
 import { tools as basketball } from './_basketball.js'
 import { tools as coaching } from './_coaching.js'
 import { tools as draft } from './_draft.js'
@@ -109,7 +117,15 @@ export function buildServer() {
   const server = new McpServer(SERVER, { instructions: INSTRUCTIONS })
   for (const section of SECTIONS) {
     for (const tool of section) {
-      server.registerTool(tool.name, tool.config, (args) => answer(() => tool.run(args)))
+      server.registerTool(tool.name, tool.config, async (args) => {
+        // The tally is written while the tool runs, not after it, so it adds no wait of its
+        // own; it cannot fail the call and gives up after 700 ms (api/_usage.js).
+        const counted = count([`t:${tool.name}`])
+        const result = await answer(() => tool.run(args))
+        await counted
+        if (result.isError) await count([`e:${tool.name}`])
+        return result
+      })
     }
   }
   return server
@@ -155,12 +171,17 @@ export default async function handler(req, res) {
   const messages = Array.isArray(body) ? body : [body]
   const turn = limiter.take(callerOf(req), ratePerMinute(), Math.max(1, messages.length))
   if (!turn.ok) {
+    if (turn.first) await count(['limited'])
     res.setHeader('Retry-After', String(turn.retryAfter))
     // Answer the request that was asked, so the caller can tell which one to send again.
     const asked = messages.length === 1 && messages[0] ? messages[0].id : null
     const id = typeof asked === 'string' || typeof asked === 'number' ? asked : null
     return send(res, 429, rpcError(-32000, `Too many requests to the Western Conference Elitists connector. Wait ${turn.retryAfter} seconds, then try again.`, id))
   }
+
+  // An app saying hello: note which family of app it is. Only the family is kept.
+  const hellos = messages.filter((m) => m && m.method === 'initialize').map((m) => `c:${clientFamily(m.params?.clientInfo?.name)}`)
+  if (hellos.length) await count(hellos)
 
   const server = buildServer()
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true })

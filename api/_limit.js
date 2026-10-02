@@ -36,8 +36,10 @@ export function makeLimiter({ windowMs = 60 * 1000, maxKeys = 5000, now = Date.n
   }
 
   // Count `cost` requests for `key` against `limit` a window.
-  //   { ok: true }                 counted; go ahead
-  //   { ok: false, retryAfter }    over the limit; the window ends in `retryAfter` seconds
+  //   { ok: true }                        counted; go ahead
+  //   { ok: false, retryAfter, first }    over the limit; the window ends in `retryAfter`
+  //                                       seconds. `first` is true for the first refusal of
+  //                                       this caller's window, so it can be logged once.
   function take(key, limit, cost = 1) {
     const t = now()
     let w = windows.get(key)
@@ -47,7 +49,11 @@ export function makeLimiter({ windowMs = 60 * 1000, maxKeys = 5000, now = Date.n
       w = { start: t, count: 0 }
       windows.set(key, w)
     }
-    if (w.count + cost > limit) return { ok: false, retryAfter: Math.max(1, Math.ceil((w.start + windowMs - t) / 1000)) }
+    if (w.count + cost > limit) {
+      const first = !w.refused
+      w.refused = true
+      return { ok: false, retryAfter: Math.max(1, Math.ceil((w.start + windowMs - t) / 1000)), first }
+    }
     w.count += cost
     return { ok: true }
   }
