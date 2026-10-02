@@ -1,16 +1,12 @@
-// api/_savant.js — Basketball Savant, as answers. The half of the AI connector (api/mcp.js)
-// that knows basketball; the other half only speaks the protocol.
+// api/_basketball.js — Basketball Savant, as answers. One section of the AI connector
+// (api/mcp.js): it knows basketball, the connector only speaks the protocol.
 //
 // It reads the small files the build writes under /savant-api/basketball/v1/ (see
 // scripts/lib/savant-api.mjs): a glossary, a player index, and one file per season in which
 // every stat already carries its league and position percentile. Nothing is computed here
 // that the page computes — percentiles are read, never re-derived — so an answer from this
-// file is the number on the player's card.
-//
-// The files come off the live site's CDN rather than out of the function bundle. That keeps
-// the function small and means a nightly data push reaches the connector with no redeploy
-// of its own. Parsed files are held in memory for ten minutes per warm instance; if a
-// refresh fails, the last good copy is served rather than an error.
+// file is the number on the player's card. Loading, caching and name matching are shared
+// with the other sections and live in api/_core.js.
 //
 // WHAT AN ANSWER ALWAYS SAYS
 //   - which pool a percentile is from: the league, or his position ("vs. guards")
@@ -24,173 +20,39 @@
 //
 // Not a function itself: Vercel skips api files that start with an underscore.
 
-const ORIGIN = () => (process.env.SAVANT_API_ORIGIN || 'https://wcehoops.com').replace(/\/+$/, '')
-const BASE = 'savant-api/basketball/v1'
-const SCHEMA = 1
-const TTL_MS = 10 * 60 * 1000
-const FETCH_TIMEOUT_MS = 8000
-const MAX_CACHED = 16 // meta + players + a dozen seasons; the latest season is ~2 MB parsed
+import { z } from 'zod'
+import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, ordinal, prepare, rank, signed, thousands, tidy, topTier } from './_core.js'
+
+const files = makeLoader('savant-api/basketball/v1', { what: 'Basketball Savant' })
 
 export const GROUPS = { context: 'ctx', offense: 'off', defense: 'def', value: 'val' }
 const GROUP_ORDER = ['ctx', 'off', 'def', 'val']
 const PEERS = { Guard: 'guards', Wing: 'wings', Big: 'bigs' }
 const WINDOW_TEXT = { season: 'full season', l10: 'last 10 games', l25: 'last 25 games', l75: 'last 75 games' }
 
-// An error whose message is meant for the person (or model) on the other end: it says what
-// went wrong and what to try. Anything else that throws is a bug and is reported blandly.
-export class SavantError extends Error {}
-
-// ---- loading -------------------------------------------------------------------------
-
-const cache = new Map() // path -> { at, value } | { at, pending }
-
-async function fetchJson(path) {
-  const res = await fetch(`${ORIGIN()}/${BASE}/${path}`, {
-    headers: { accept: 'application/json' },
-    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-  })
-  if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`)
-  // A missing file falls through to the site's catch-all and comes back as HTML with a 200,
-  // so "it parsed as JSON and carries our schema" is the only real success signal.
-  const body = JSON.parse(await res.text())
-  if (!body || body.schema !== SCHEMA) throw new Error(`${path}: unexpected schema`)
-  return body
-}
-
-async function load(path) {
-  const now = Date.now()
-  const hit = cache.get(path)
-  if (hit && hit.pending) return hit.pending
-  if (hit && now - hit.at < TTL_MS) return hit.value
-
-  const pending = fetchJson(path).then(
-    (value) => {
-      cache.set(path, { at: Date.now(), value })
-      if (cache.size > MAX_CACHED) {
-        const oldest = [...cache.entries()].filter(([, v]) => !v.pending).sort((a, b) => a[1].at - b[1].at)[0]
-        if (oldest && oldest[0] !== path) cache.delete(oldest[0])
-      }
-      return value
-    },
-    (err) => {
-      console.error('[savant] load failed:', err.message)
-      if (hit && hit.value) {
-        // Stale beats down. Hold it for a minute so an outage is not re-tried on every call.
-        cache.set(path, { at: Date.now() - TTL_MS + 60 * 1000, value: hit.value })
-        return hit.value
-      }
-      cache.delete(path)
-      throw new SavantError('Basketball Savant data could not be loaded right now. Try again in a minute.')
-    },
-  )
-  cache.set(path, { at: hit ? hit.at : now, value: hit && hit.value, pending })
-  return pending
-}
-
-export function clearCache() { cache.clear() }
-
-const loadMeta = () => load('meta.json')
-const loadSeason = (season) => load(`seasons/${season}.json`)
+const loadMeta = () => files.load('meta.json')
+const loadSeason = (season) => files.load(`seasons/${season}.json`)
 
 // The player index, with each name prepared for matching once per load.
 const prepared = new WeakMap()
 async function loadPlayers() {
-  const file = await load('players.json')
+  const file = await files.load('players.json')
   let rows = prepared.get(file)
-  if (!rows) {
-    rows = file.players.map((p) => { const n = norm(p.name); return { ...p, n, tokens: n.split(' ') } })
-    prepared.set(file, rows)
-  }
+  if (!rows) { rows = prepare(file.players); prepared.set(file, rows) }
   return rows
-}
-
-// ---- names ---------------------------------------------------------------------------
-
-// "Day'Ron Sharpe" -> "dayron sharpe", "P.J. Washington" -> "pj washington",
-// "Karl-Anthony Towns" -> "karl anthony towns", "Nikola Jokić" -> "nikola jokic"
-export function norm(s) {
-  return String(s || '')
-    .toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[.'’`]/g, '')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim()
-}
-
-function editDistance(a, b, max) {
-  if (Math.abs(a.length - b.length) > max) return max + 1
-  let prev = Array.from({ length: b.length + 1 }, (_, i) => i)
-  for (let i = 1; i <= a.length; i++) {
-    const cur = [i]
-    let best = i
-    for (let j = 1; j <= b.length; j++) {
-      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
-      if (cur[j] < best) best = cur[j]
-    }
-    if (best > max) return max + 1
-    prev = cur
-  }
-  return prev[b.length]
-}
-
-// "jaren jackson jr" -> "jaren jackson"; a name with no suffix is returned as it is.
-const SUFFIX = /\s(jr|sr|ii|iii|iv|v)$/
-const base = (n) => n.replace(SUFFIX, '')
-
-// How well a prepared name answers a query. 0 means not at all.
-function matchScore(q, qTokens, row) {
-  if (row.n === q) return 100
-  // "Jaren Jackson" is also a fair way to ask for Jaren Jackson Jr. Scored just under an
-  // exact match so that both men come back and the caller chooses, rather than the father
-  // winning on spelling alone.
-  if (!SUFFIX.test(q) && base(row.n) === q) return 95
-  if (qTokens.every((t) => row.tokens.includes(t))) return 75
-  if (qTokens.every((t) => row.tokens.some((n) => n.startsWith(t)))) return 60
-  if (row.n.includes(q)) return 50
-  // Typos: every word of the query is within a letter or two of a word in the name.
-  const close = qTokens.every((t) => {
-    const max = t.length >= 8 ? 2 : t.length >= 4 ? 1 : 0
-    return row.tokens.some((n) => (max ? editDistance(t, n, max) <= max : n === t))
-  })
-  return close ? 30 : 0
 }
 
 const startYear = (season) => +String(season).slice(0, 4)
 
-function rank(rows, query) {
-  const q = norm(query)
-  const qTokens = q.split(' ').filter(Boolean)
-  if (!qTokens.length) return []
-  const out = []
-  for (const row of rows) {
-    const score = matchScore(q, qTokens, row)
-    if (score) out.push({ row, score })
-  }
-  // Best match first; among equals, the more recent and then the longer career.
-  out.sort((a, b) => b.score - a.score
-    || startYear(b.row.to) - startYear(a.row.to)
-    || b.row.seasons - a.row.seasons
-    || a.row.name.localeCompare(b.row.name))
-  return out
-}
+// Among equally good name matches: the more recent player, then the longer career.
+const recent = (a, b) => startYear(b.to) - startYear(a.to) || b.seasons - a.seasons
 
 // ---- small formatting helpers ----------------------------------------------------------
 
-export const cardUrl = (id) => `https://wcehoops.com/basketball-savant.html?p=${encodeURIComponent(id)}`
+export const cardUrl = (id) => `${SITE}/basketball-savant.html?p=${encodeURIComponent(id)}`
 
-export function ordinal(n) {
-  const t = n % 100
-  if (t >= 11 && t <= 13) return `${n}th`
-  return `${n}${{ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'}`
-}
-
-const miss = (v) => v == null || (typeof v === 'number' && !Number.isFinite(v))
 const tier = (p) => (p >= 82 ? 'elite' : p >= 62 ? 'high' : p >= 40 ? 'avg' : 'low') // the page's word()
 const feetInches = (n) => { const f = Math.floor(n / 12); return `${f}'${Math.round(n - f * 12)}"` }
-const signed = (v) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1)
-const thousands = (n) => Number(n).toLocaleString('en-US')
-const tidy = (n) => (n == null ? null : Math.round(n * 10) / 10)
-const day = (iso) => (iso ? String(iso).slice(0, 10) : 'unknown')
 
 // A stat's value the way the page prints it (its fmt()), with the exceptions in the header:
 // signed stats carry no "%", and the composite stats print their number without a tier word
@@ -263,12 +125,11 @@ async function resolvePlayer(input, season) {
     throw new SavantError(`No player has the id "${raw}". Search by name with nba_search_players.`)
   }
 
-  const ranked = rank(rows, raw)
+  const ranked = rank(rows, raw, recent)
   if (!ranked.length) throw new SavantError(`No player matches "${raw}". Check the spelling, or search with nba_search_players.`)
 
   const top = ranked[0].score
-  // Exact matches and their Jr./Sr. namesakes are one tier: any of them could be meant.
-  let best = ranked.filter((r) => (top >= 95 ? r.score >= 95 : r.score === top)).map((r) => r.row)
+  let best = topTier(ranked)
   if (best.length > 1 && season) {
     const there = best.filter((r) => inSpan(r, season))
     if (there.length === 1) return there[0]
@@ -288,7 +149,7 @@ async function resolvePlayer(input, season) {
 
 export async function searchPlayers({ query, limit = 10 }) {
   const rows = await loadPlayers()
-  const ranked = rank(rows, query)
+  const ranked = rank(rows, query, recent)
   const shown = ranked.slice(0, limit).map(({ row }) => ({
     id: String(row.id),
     name: row.name,
@@ -478,3 +339,112 @@ export async function playerProfile({ player, season, window = 'season', group =
   L.push('', `Card: ${structured.url}`, `Source: ${structured.source}. Data as of ${structured.data_as_of}.`)
   return { structured, text: L.join('\n') }
 }
+
+// ---- the tools -----------------------------------------------------------------------
+
+const pct = z.number().int().min(1).max(99).nullable()
+const comp = z.object({ id: z.string(), name: z.string(), team: z.string(), match: z.number() })
+
+// What api/mcp.js registers: { name, config, run }. run returns { text, structured }.
+export const tools = [
+  {
+    name: 'nba_search_players',
+    config: {
+      title: 'Search NBA players',
+      description:
+        'Find NBA players in Basketball Savant (Western Conference Elitists, wcehoops.com) by name. Covers every player with stats from 1979-80 through the latest season. Returns each match with its id, position, most recent team, and first and last season, plus the link to his card. Matching ignores accents and punctuation and tolerates small typos. Some players whose careers began before 1996-97 appear under two ids, one for each part of the career.',
+      inputSchema: {
+        query: z.string().trim().min(2).max(80).describe('Player name or part of one, e.g. "Jokic", "LeBron James", "Gilgeous".'),
+        limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return (1-25, default 10).'),
+      },
+      outputSchema: {
+        query: z.string(),
+        total: z.number().int().describe('How many players matched in all.'),
+        count: z.number().int().describe('How many are returned here.'),
+        players: z.array(z.object({
+          id: z.string().describe('Player id, for nba_get_player_profile.'),
+          name: z.string(),
+          position: z.string().describe('Guard, Wing or Big, in his most recent season.'),
+          team: z.string().describe('Team in his most recent season.'),
+          first_season: z.string(),
+          last_season: z.string(),
+          seasons: z.number().int().describe('Number of seasons with stats.'),
+          url: z.string().describe('His Basketball Savant card.'),
+        })),
+      },
+      annotations: { title: 'Search NBA players', ...READ_ONLY },
+    },
+    run: ({ query, limit }) => searchPlayers({ query, limit }),
+  },
+  {
+    name: 'nba_get_player_profile',
+    config: {
+      title: 'Get an NBA player\'s Savant profile',
+      description:
+        'Get one NBA player\'s Basketball Savant profile (Western Conference Elitists, wcehoops.com) for one season: his per-game line and every tracked stat with its value and two percentiles, one against all qualified players that season ("league") and one against qualified players at his position ("vs. guards", "vs. wings" or "vs. bigs"). Covers shooting, creation and playmaking, rebounding, defense, physical measurements and overall-value stats such as BPM. Defaults to his most recent season. For the latest season it can instead return his last 10, 25 or 75 games, and it adds his statistical comps, weakness comps and who he guards. Seasons from 1979-80 on; stats a season did not track are listed as not tracked. Includes the link to his card.',
+      inputSchema: {
+        player: z.string().trim().min(1).max(80).describe('Player id from nba_search_players (e.g. "203999") or a full name (e.g. "Nikola Jokic"). If a name fits more than one player, the error lists their ids.'),
+        season: z.string().trim().max(12).optional().describe('Season written as two years, e.g. "2025-26". Omit for his most recent season.'),
+        window: z.enum(['season', 'l10', 'l25', 'l75']).default('season').describe('"season" for the full season (default). "l10", "l25" or "l75" for his last 10, 25 or 75 games, latest season only.'),
+        group: z.enum(['all', ...Object.keys(GROUPS)]).default('all').describe('Which stats to return: "all" (default), "context" (minutes, availability), "offense", "defense" or "value" (BPM, win shares, VORP and similar).'),
+      },
+      outputSchema: {
+        player: z.object({
+          id: z.string(),
+          name: z.string(),
+          team: z.string(),
+          position: z.string().describe('Guard, Wing or Big that season.'),
+          age: z.number().nullable(),
+          experience: z.number().nullable().describe('Years of NBA experience.'),
+          qualified: z.boolean().describe('Whether he is in the percentile pools that season.'),
+          games: z.number().nullable(),
+          minutes: z.number().nullable(),
+        }),
+        season: z.string(),
+        window: z.string().describe('season, l10, l25 or l75.'),
+        per_game: z.object({
+          points: z.number().nullable(),
+          rebounds: z.number().nullable(),
+          assists: z.number().nullable(),
+          turnovers: z.number().nullable(),
+          minutes: z.number().nullable(),
+        }).nullable().describe('Full-season per-game line.'),
+        pools: z.object({
+          league: z.number().nullable().describe('Qualified players that season.'),
+          position: z.number().nullable().describe('Qualified players at his position that season.'),
+          position_label: z.string().describe('guards, wings or bigs.'),
+        }),
+        stats: z.array(z.object({
+          key: z.string(),
+          label: z.string(),
+          group: z.string(),
+          subgroup: z.string().nullable(),
+          value: z.number().describe('Raw value.'),
+          display: z.string().describe('The value as the site prints it.'),
+          league_percentile: pct.describe('Against all qualified players that season. Higher is better.'),
+          position_percentile: pct.describe('Against qualified players at his position. Higher is better.'),
+          lower_is_better: z.boolean().describe('True when a lower raw value is better. The percentiles are already flipped.'),
+          low_sample: z.boolean().describe('True when the stat is below its stabilization threshold.'),
+        })),
+        not_tracked: z.array(z.object({ key: z.string(), label: z.string(), since: z.string() })).describe('Stats that season did not track.'),
+        notes: z.array(z.string()).describe('How to read the numbers: what the pools are, and any caution that applies to this player.'),
+        comps: z.array(comp).optional().describe('Closest statistical profiles, among players with 500+ minutes.'),
+        weakest: z.array(z.object({ key: z.string(), label: z.string(), percentile: z.number() })).optional().describe('Where he ranks worst among players at his position with 500+ minutes.'),
+        weakness_comps: z.array(comp).optional().describe('Players who share his flaws.'),
+        defensive_matchups: z.object({ guards: z.number(), wings: z.number(), bigs: z.number(), possessions: z.number().nullable() }).optional().describe('Share of his defensive matchups by position guarded, in percent.'),
+        defensive_role: z.object({
+          perimeter_assignment_rate: z.number().nullable(),
+          rim_contest_rate: z.number().nullable(),
+          rim_fg_allowed_vs_expected: z.number().nullable(),
+          possessions: z.number().nullable(),
+          shots_defended: z.number().nullable(),
+        }).optional().describe('Bigs only. Reflects role, not ability.'),
+        url: z.string().describe('His Basketball Savant card.'),
+        data_as_of: z.string(),
+        source: z.string(),
+      },
+      annotations: { title: 'Get an NBA player\'s Savant profile', ...READ_ONLY },
+    },
+    run: ({ player, season, window, group }) => playerProfile({ player, season, window, group }),
+  },
+]
