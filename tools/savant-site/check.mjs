@@ -823,7 +823,9 @@ test('no template copy reaches a file or an answer', async () => {
   ]
   assert.ok(template.length > 50, 'the template copy could not be collected')
   assert.ok(template.some((s) => s.startsWith('Strip the noise away')) && template.some((s) => s.startsWith('Bet on translatable skills')), 'ArticleDetail.jsx\'s stock paragraphs were not found')
-  assert.ok(content.SOCIALS.every((s) => s.href === '#'), 'SOCIALS has real links now: decide whether they belong in an answer')
+  // The YouTube link is real (the footer shows it); the others are still the template's "#" and are
+  // not shown. No tool returns any of them. A new real link fails here so the question is asked again.
+  assert.deepEqual(content.SOCIALS.filter((s) => s.href !== '#').map((s) => s.label), ['YouTube'], 'SOCIALS has a new real link: decide whether it belongs in an answer')
 
   const haystacks = [['the built files', JSON.stringify(built)]]
   const answers = [

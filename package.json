@@ -20,6 +20,7 @@
     "check:savant-site": "node --test tools/savant-site/check.mjs",
     "check:savant": "node --test tools/savant-api/check.mjs && node --test tools/savant-mcp/check.mjs && node --test tools/savant-football/check.mjs && node --test tools/savant-ufc/check.mjs && node --test tools/savant-coaching/check.mjs && node --test tools/savant-draft/check.mjs && node --test tools/savant-site/check.mjs",
     "check:players": "node --test tools/players/check.mjs",
+    "check:seo": "node --test tools/seo/check.mjs",
     "savant-snapshot": "node scripts/savant-snapshot.mjs",
     "movers-draft": "node scripts/movers-draft.mjs"
   },

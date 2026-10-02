@@ -35,8 +35,8 @@
 // content.js began life as a template, and some of it still is one. An article counts as
 // published only if it came from the publish script and carries a body: one without a body
 // would render ArticleDetail.jsx's stock paragraphs, which are nobody's writing. NEWS_ITEMS,
-// PODCASTS and SOCIALS are never read: no live page shows the first two, and the third is a
-// list of "#" links. The one-line "WCE" note the News page shows under an item is left out as
+// PODCASTS and SOCIALS are never read: no live page shows the first two, and the third is the
+// footer's social links (one real, the rest "#"). The one-line "WCE" note the News page shows under an item is left out as
 // well, pending an editorial decision on whether the connector carries it. meta.json records
 // all of it, so the omissions can be checked.
 //
@@ -433,7 +433,7 @@ const TEMPLATE_ONLY = {
   NEWS_ITEMS: 'template wire items; the News page reads /news.json and no page imports these',
   PODCASTS: 'template episodes; the Podcasts page is hidden and /podcasts redirects home',
   PODCAST_SHOW: 'template show details; the Podcasts page is hidden',
-  SOCIALS: 'footer links, which the template ships as "#"; no tool returns them',
+  SOCIALS: 'footer links: YouTube is real, the rest are still the template\'s "#"; no tool returns them',
 }
 
 export function buildSiteApi({ news, articles, contentJs, dynastyPlayers, dynastyValueJs, dynastyApiJs }) {

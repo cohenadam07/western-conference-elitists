@@ -90,6 +90,12 @@ releases and lands in `public/football-savant-data.json` and `public/football-ma
 the metric research behind it — what football can measure, what stabilizes at NFL sample
 sizes, and what is licensed and therefore missing.
 
+### Showing up in search
+
+Each Savant tool's title, its "What is X?" panel, the structured data and the text every page
+arrives with before JavaScript runs are added at build time. `SEARCH.md` says what is done and
+why; the words are in `scripts/lib/seo-content.mjs`; `npm run check:seo` checks them.
+
 ### The Savant API files
 
 Every Savant page works its rankings out in the browser from a large data file, which no AI

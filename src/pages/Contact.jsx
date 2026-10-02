@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import SectionHeading from '../components/SectionHeading.jsx'
 import NewsletterCTA from '../components/NewsletterCTA.jsx'
 import PageHeader from '../components/PageHeader.jsx'
-import { SOCIALS } from '../data/content.js'
+import { LIVE_SOCIALS } from '../data/content.js'
 import { sendContact } from '../lib/forms.js'
 import usePageMeta from '../lib/usePageMeta.js'
 
@@ -275,10 +275,12 @@ export default function Contact() {
                 before they make it into a full article.
               </p>
               <div className="mt-5 flex flex-col gap-2">
-                {SOCIALS.map((s) => (
+                {LIVE_SOCIALS.map((s) => (
                   <a
                     key={s.label}
                     href={s.href}
+                    target="_blank"
+                    rel="noopener"
                     className="underline-grow w-fit text-sm font-medium text-muted hover:text-ink"
                   >
                     {s.label}
