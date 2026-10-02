@@ -30,7 +30,7 @@ export const CAP_MS = env('RACE_CAP_MS', 120000)      // a hole's time limit
 export const GRACE_MS = 2500          // a finish just before the cap can still arrive after it
 export const BOARD_MS = env('RACE_BOARD_MS', 9000)    // the leaderboard after each hole
 export const FINAL_MS = 180000        // the final standings, before the party drops back to the lobby
-export const AWAY_MS = 15000          // not heard from for this long: away (doesn't hold a hole or a vote up)
+export const AWAY_MS = env('RACE_AWAY_MS', 15000)          // not heard from for this long: away (doesn't hold a hole or a vote up)
 export const RACER_MS = 60000         // heard from this recently: still dealt in for the next hole
 export const GONE_MS = 150000         // in the lobby, not heard from for this long: off the list
 export const TTL = 3 * 3600           // seconds a party outlives its last request
@@ -49,6 +49,7 @@ export const ALPHABET = 'BCDFGHJKLMNPQRSTVWXZ'
 export const CODE_RE = /^[BCDFGHJKLMNPQRSTVWXZ]{4}$/
 export const ID_RE = /^[a-z0-9]{6,10}$/
 const INPUTS_RE = /^(\d{1,6}:(-1|0|1|R)(,\d{1,6}:(-1|0|1|R)){0,699})?$/
+const NONCE_RE = /^[a-z0-9]{4,10}$/
 const WORLD_RE = /^[a-z0-9-]{2,24}$/
 
 const matcher = new RegExpMatcher({ ...englishDataset.build(), ...englishRecommendedTransformers })
@@ -95,8 +96,33 @@ export function removePlayer(room, id) {
 export function cleanLive(me, now) {
   const m = me && typeof me === 'object' ? me : {}
   const inp = typeof m.in === 'string' && m.in.length <= 9000 && INPUTS_RE.test(m.in) ? m.in : ''
+  // (n: a name for this load of the page, new on every reload: the other games connect to it directly,
+  // and a new one tells them to connect again)
   return { t: now, m: int(m.m, 0, 1e6), h: int(m.h, -1, 64), k: int(m.k, 0, 1e6), f: int(m.f, 0, 9999), in: inp,
-    vw: typeof m.vw === 'string' && WORLD_RE.test(m.vw) ? m.vw : '', vm: MODES.includes(m.vm) ? m.vm : '' }
+    vw: typeof m.vw === 'string' && WORLD_RE.test(m.vw) ? m.vw : '', vm: MODES.includes(m.vm) ? m.vm : '',
+    n: typeof m.n === 'string' && NONCE_RE.test(m.n) ? m.n : '' }
+}
+
+// Notes one game leaves for another so the two can connect directly (a WebRTC offer or answer):
+// [{ to, v }], v a short JSON string this file never looks inside. A handful at most, each bounded.
+export function cleanNotes(list, from) {
+  const out = []
+  for (const n of Array.isArray(list) ? list.slice(0, 2 * MAX_PLAYERS) : []) {
+    if (!n || typeof n.to !== 'string' || !ID_RE.test(n.to) || n.to === from) continue
+    if (typeof n.v !== 'string' || n.v.length < 2 || n.v.length > 6000) continue
+    out.push({ to: n.to, v: n.v })
+  }
+  return out
+}
+
+// Where the games look to find a way to each other: public STUN servers by default. RACE_ICE (JSON,
+// the iceServers list) replaces them, which is how a TURN relay would be added later.
+export function iceServers() {
+  try {
+    const v = JSON.parse((typeof process !== 'undefined' && process.env && process.env.RACE_ICE) || 'null')
+    if (Array.isArray(v) && v.length && v.length <= 6) return v
+  } catch { /* not JSON: the defaults stand */ }
+  return [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] }]
 }
 
 // A finish, as stored: "steps:flaps:when" (a give-up is "x:0:when").
@@ -270,6 +296,7 @@ export function view(room, live, fins, you, now) {
   const players = room.players.map((p) => {
     const l = live[p.id], cur = l && l.m === room.match
     const o = { id: p.id, name: p.name, color: p.color, here: isHere(room, live, p.id, now) }
+    if (l && l.n) o.n = l.n
     if (room.phase === 'vote' && cur) { o.vw = l.vw; o.vm = l.vm }
     if (racing && cur && l.h === room.hole) { o.k = l.k; o.f = l.f; if (p.id !== you) o.in = l.in }
     if (racing && fins[p.id]) o.fin = fins[p.id].dnf ? { dnf: 1 } : { k: fins[p.id].k, f: fins[p.id].f }

@@ -69,6 +69,19 @@ if (process.argv[2] !== 'live') {
     ok(new Set(none).size === 4, 'no votes at all: any of the four')
     ok(R.cleanLive({ m: 1, vw: 'DROP TABLE', vm: 'fast' }, 1).vw === '' && R.cleanLive({ m: 1, vw: 'x', vm: 'fast' }, 1).vm === '', 'a vote for something that isn’t on the card doesn’t count')
   }
+  // ---- the notes that let the games connect to each other directly
+  {
+    const big = 'x'.repeat(6001)
+    const notes = R.cleanNotes([{ to: id(1), v: '{"t":"o"}' }, { to: id(0), v: '{"t":"o"}' }, { to: 'NOT AN ID', v: '{}' }, { to: id(2), v: big }, { to: id(2), v: 7 }, null], id(0))
+    ok(notes.length === 1 && notes[0].to === id(1), 'a note goes to another player, is a bounded string, and is never to yourself')
+    ok(R.cleanNotes(Array.from({ length: 40 }, () => ({ to: id(1), v: '{}' })), id(0)).length === 16, 'no more than a handful of notes a poll')
+    const lv = R.cleanLive({ m: 1, n: 'ab12cd' }, 5)
+    ok(lv.n === 'ab12cd' && R.cleanLive({ n: 'NOPE!' }, 5).n === '', 'each load of the page names itself, so the others know to connect again after a reload')
+    const { room, live } = party(['A', 'B'], 1000)
+    live[id(0)] = lv
+    ok(R.view(room, live, {}, id(1), 2000).players[0].n === 'ab12cd', 'and the others are told that name')
+    ok(R.iceServers()[0].urls.some((u) => u.startsWith('stun:')), 'the games are pointed at public STUN servers by default')
+  }
   // ---- a hole, speed
   const play = (mode, fin, extra = {}) => {
     const { room, live } = party(['A', 'B', 'C', 'D'], 1000)
@@ -195,6 +208,14 @@ if (process.argv[2] !== 'live') {
   const again = await call({ a: 'join', code, name: 'Sam', id: b.you, key: b.key })
   ok(again.you === b.you && again.players.length === 3, 'joining again with your id brings you back as yourself')
   const P = [a, b, c].map((x) => ({ id: x.you, key: x.key }))
+  ok(Array.isArray(b.ice) && b.ice.length > 0, 'joining says where the games can look for a way to each other')
+  // a note from A to B is handed to B once, and to nobody else
+  await call({ a: 'poll', code, id: a.you, key: a.key, me: { n: 'aaaa11' }, sig: [{ to: b.you, v: '{"t":"o","g":1}' }, { to: 'zzzzzzzz', v: '{}' }] })
+  const forC = await call({ a: 'poll', code, id: c.you, key: c.key, me: { n: 'cccc33' } })
+  const forB = await call({ a: 'poll', code, id: b.you, key: b.key, me: { n: 'bbbb22' } })
+  const again2 = await call({ a: 'poll', code, id: b.you, key: b.key, me: { n: 'bbbb22' } })
+  ok(!forC.sig && forB.sig && forB.sig.length === 1 && forB.sig[0].from === a.you && forB.sig[0].v === '{"t":"o","g":1}' && !again2.sig, 'a note for another game is handed over on its next poll, once')
+  ok(forB.players.find((p) => p.id === a.you).n === 'aaaa11', 'and each player’s page name comes back with the party')
   ok((await call({ a: 'start', code, id: b.you, key: b.key, worlds: WORLDS })).status === 403, 'only the host starts the vote')
   let v = await call({ a: 'start', code, id: a.you, key: a.key, worlds: WORLDS })
   ok(v.phase === 'vote' && v.opts.length === 4 && Math.abs(v.until - v.now - R.VOTE_MS) < 500, 'the vote opens: ' + v.opts.map((o) => o.id).join(', '))

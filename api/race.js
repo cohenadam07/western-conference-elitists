@@ -7,14 +7,19 @@
 //   p:<id>       what that player's game last said about itself (overwritten on every poll; only
 //                that player writes it, so it never contends): its vote, its flaps so far
 //   d:<m>:<h>:<id>   that player's finish on hole h of match m, "steps:flaps:when" (first one stands)
+//   s:<to>:<from>    a note from one player's game to another's: the handshake that lets the two connect
+//                to each other directly (WebRTC: an offer, an answer). Handed over on the addressee's
+//                next poll and deleted as it's handed over. Once two games are connected, flaps go
+//                straight between them and this endpoint is polled much less.
 //
-// A poll is ONE Redis command (an EVAL: store my blob, maybe my finish, return the whole hash).
-// Phase changes are a second one (compare-and-set), and only the request that notices the deadline
-// pays for it. At about one poll a second per player, a four-player match is roughly 2,500 commands.
+// A poll is ONE Redis command (an EVAL: store my blob, maybe my finish, post and collect notes,
+// return the whole hash). Phase changes are a second one (compare-and-set), and only the request
+// that notices the deadline pays for it. With everyone connected directly, a four-player match is
+// roughly 800 commands; on the fallback (polling about once a second), roughly 2,000.
 import { createHmac, randomBytes } from 'node:crypto'
 import {
   CODE_RE, ID_RE, TTL, makeCode, newRoom, addPlayer, removePlayer, cleanLive, finValue, parseFin, finField,
-  startVote, toLobby, advance, view,
+  startVote, toLobby, advance, view, cleanNotes, iceServers,
 } from './_race.js'
 
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
@@ -32,13 +37,26 @@ async function redis(cmd) {
 }
 
 const K = (code) => 'fhr:' + code
-// store my blob (ARGV 1,2), my finish if I have one and none is stored (ARGV 3,4), and read it all
+// store my blob (ARGV 1,2), my finish if I have one and none is stored (ARGV 3,4), leave my notes for
+// the other games (ARGV 7.. in pairs; only for someone who's in the party, so the hash can't be
+// filled with notes to nobody), read it all, and take the notes addressed to me out of it
+// (ARGV 6 is "s:<me>:")
 const POLL = `local k = KEYS[1]
 if redis.call('EXISTS', k) == 0 then return false end
 if ARGV[1] ~= '' then redis.call('HSET', k, ARGV[1], ARGV[2]) end
 if ARGV[3] ~= '' then redis.call('HSETNX', k, ARGV[3], ARGV[4]) end
+local j = redis.call('HGET', k, 'j') or ''
+for i = 7, #ARGV, 2 do
+  local c = string.find(ARGV[i], ':', 3, true)
+  if c and string.find(j, '"id":"' .. string.sub(ARGV[i], 3, c - 1) .. '"', 1, true) then redis.call('HSET', k, ARGV[i], ARGV[i + 1]) end
+end
 redis.call('EXPIRE', k, tonumber(ARGV[5]))
-return redis.call('HGETALL', k)`
+local all = redis.call('HGETALL', k)
+local n = string.len(ARGV[6])
+for i = 1, #all, 2 do
+  if string.sub(all[i], 1, n) == ARGV[6] then redis.call('HDEL', k, all[i]) end
+end
+return all`
 // write the party if nobody else has since I read it (ARGV: old version, new version, json, ttl, fields to drop...)
 const CAS = `local k = KEYS[1]
 if redis.call('HGET', k, 'v') ~= ARGV[1] then return 0 end
@@ -54,23 +72,29 @@ return 1`
 const keyFor = (code, id) => createHmac('sha256', SECRET).update(code + ':' + id).digest('hex').slice(0, 20)
 const newId = () => randomBytes(6).toString('hex').slice(0, 8)
 
-// The hash, unpacked: the party, everyone's blobs, and the finishes of the hole being played.
-function unpack(flat) {
+// The hash, unpacked: the party, everyone's blobs, the finishes of the hole being played, and (for
+// `me`) the notes waiting for that player.
+function unpack(flat, me) {
   const h = {}
   for (let i = 0; i + 1 < (flat || []).length; i += 2) h[flat[i]] = flat[i + 1]
   let room = null
   try { room = JSON.parse(h.j) } catch { /* a party with no body is no party */ }
   if (!room) return null
-  const live = {}, fins = {}, old = []
+  const live = {}, fins = {}, old = [], sig = []
   const mine = `d:${room.match}:${room.hole}:`
+  const inParty = new Set(room.players.map((p) => p.id))
   for (const f in h) {
     if (f.startsWith('p:')) { try { live[f.slice(2)] = JSON.parse(h[f]) } catch { /* skip */ } }
     else if (f.startsWith('d:')) {
       if (f.startsWith(mine)) { const v = parseFin(h[f]); if (v) fins[f.slice(mine.length)] = v }
       if (!f.startsWith(`d:${room.match}:`)) old.push(f)
+    } else if (f.startsWith('s:')) {
+      const [, to, from] = f.split(':')
+      if (to === me) sig.push({ from, v: h[f] })
+      else if (!inParty.has(to) || !inParty.has(from)) old.push(f)     // (a note to or from someone who's gone)
     }
   }
-  return { v: h.v, room, live, fins, old, fields: Object.keys(h) }
+  return { v: h.v, room, live, fins, old, sig, fields: Object.keys(h) }
 }
 
 const read = async (code) => unpack(await redis(['HGETALL', K(code)]))
@@ -108,7 +132,7 @@ export default async function handler(req, res) {
         const room = newRoom(code, now)
         addPlayer(room, id, body.name, now)
         if (Number(await redis(['EVAL', CREATE, 1, K(code), JSON.stringify(room), String(TTL)])) === 1) {
-          res.status(200).json({ ...view(room, {}, {}, id, now), key: keyFor(code, id) })
+          res.status(200).json({ ...view(room, {}, {}, id, now), key: keyFor(code, id), ice: iceServers() })
           return
         }
       }
@@ -128,7 +152,7 @@ export default async function handler(req, res) {
         if (add.error) return add
       })
       if (r.error) return fail(r.status || 400, r.status === 404 ? 'No party has that code.' : r.error)
-      res.status(200).json({ ...view(r.S.room, r.S.live, r.S.fins, id, r.now), key: keyFor(code, id) })
+      res.status(200).json({ ...view(r.S.room, r.S.live, r.S.fins, id, r.now), key: keyFor(code, id), ice: iceServers() })
       return
     }
 
@@ -140,7 +164,7 @@ export default async function handler(req, res) {
       const r = await mutate(code, (S) => {
         removePlayer(S.room, id)
         if (!S.room.players.length) return { gone: true }
-        return { drop: ['p:' + id] }
+        return { drop: ['p:' + id, ...S.fields.filter((f) => f.startsWith('s:') && f.split(':').slice(1).includes(id))] }
       })
       if (r.error && r.status !== 404) return fail(r.status || 400, r.error)
       res.status(200).json({ ok: true, left: true })
@@ -171,9 +195,13 @@ export default async function handler(req, res) {
     const now = Date.now()
     const mine = body.me ? cleanLive(body.me, now) : null
     const fv = mine && body.fin ? finValue(body.fin, now) : null
-    let S = unpack(await redis(['EVAL', POLL, 1, K(code), mine ? 'p:' + id : '', mine ? JSON.stringify(mine) : '',
-      fv ? finField(mine.m, mine.h, id) : '', fv || '', String(TTL)]))
+    // (notes for the other games: a few at a time, each bounded)
+    const notes = cleanNotes(body.sig, id)
+    const got = await redis(['EVAL', POLL, 1, K(code), mine ? 'p:' + id : '', mine ? JSON.stringify(mine) : '',
+      fv ? finField(mine.m, mine.h, id) : '', fv || '', String(TTL), 's:' + id + ':', ...notes.flatMap((n) => ['s:' + n.to + ':' + id, n.v])])
+    let S = got ? unpack(got, id) : null
     if (!S) return fail(404, 'That party is gone.')
+    const sig = S.sig
     if (!S.room.players.some((p) => p.id === id)) return fail(410, 'You’re not in that party any more.')
     const was = S.room.match + ':' + S.room.hole
     const step = advance(S.room, S.live, S.fins, now)
@@ -184,7 +212,9 @@ export default async function handler(req, res) {
         if (!S) return fail(404, 'That party is gone.')
       } else if (S.room.match + ':' + S.room.hole !== was) S.fins = {}   // (a new hole: nobody's in yet)
     }
-    res.status(200).json(view(S.room, S.live, S.fins, id, now))
+    const out = view(S.room, S.live, S.fins, id, now)
+    if (sig.length) out.sig = sig
+    res.status(200).json(out)
   } catch (e) {
     res.status(500).json({ error: String((e && e.message) || e) })
   }
