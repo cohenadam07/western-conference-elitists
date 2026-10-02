@@ -159,6 +159,14 @@ npm run check:savant-mcp
 That talks to the endpoint with a real MCP client and calls every tool of every section.
 To point a local run at other data, set `SAVANT_API_ORIGIN`.
 
+The homepage introduces the connector in its own section (`src/components/AiConnector.jsx`,
+linked as `/#ai`, from the hero and the footer). What that section claims lives in one file,
+`src/data/connector.js`: the address, the worked example and the three questions to try.
+The worked example is a real answer for a finished season, and the check above calls the
+connector and fails if any number in it, or any of the three questions, stops being true.
+The steps for adding it follow Claude's own help page, which the section links to; if
+Claude renames a menu, the wording to change is step 02 in `AiConnector.jsx`.
+
 ### Visual identity
 
 Colors, fonts, and a few reusable effects are defined as design tokens in **`src/index.css`** under `@theme`. Change a hex value there (e.g. `--color-ember`) and it updates everywhere that uses `text-ember`, `bg-ember`, etc. — token names describe their *original* role, not necessarily their current hue (e.g. `--color-ember` is the primary navy brand accent, not orange; `--color-ink`/`--color-bone` are the light page background and dark body text, "ink on paper"). Headlines use Source Serif 4 (`text-display`) for an editorial, newspaper-style feel, body copy uses Inter, and stat/timestamp figures use JetBrains Mono (`font-mono-tight`) — all loaded via Google Fonts in `index.html`. The semantic accents are: `ember` (navy, primary brand/links/buttons), `court` (gold, secondary highlights/B-tier grades), `arena` (forest green, positive/strengths), `foul` (crimson, negative/weaknesses/breaking-news ticker).
