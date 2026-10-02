@@ -2,6 +2,10 @@
 //
 // GET /api/analytics/history?key=<password>&from=2026-01-01&to=2026-09-03
 //   from / to are optional; omit both for everything ever recorded.
+//
+// The answer also carries `connector`: the AI connector's usage log for the same range
+// (api/_usage.js). It is read alongside the archive and can fail on its own without taking
+// the page down: on a failure `connector` is { error }.
 
 import {
   DIMENSIONS,
@@ -14,6 +18,7 @@ import {
   timingSafeEqual,
   toHash,
 } from './_lib.js';
+import { readUsage } from '../_usage.js';
 
 export const config = { maxDuration: 30 };
 
@@ -42,10 +47,13 @@ export default async function handler(req, res) {
     : DIMENSIONS;
 
   try {
-    const results = await redisPipeline([
-      ['HGETALL', K_DAILY],
-      ['HGETALL', K_META],
-      ...dims.map((d) => ['HGETALL', kDim(d.id)]),
+    const [results, connector] = await Promise.all([
+      redisPipeline([
+        ['HGETALL', K_DAILY],
+        ['HGETALL', K_META],
+        ...dims.map((d) => ['HGETALL', kDim(d.id)]),
+      ]),
+      readUsage({ from, to }).catch((err) => ({ error: String(err?.message || err) })),
     ]);
 
     const dailyHash = toHash(results[0]?.result);
@@ -106,6 +114,7 @@ export default async function handler(req, res) {
       totals,
       daily,
       dimensions,
+      connector,
     });
   } catch (err) {
     return res.status(500).json({ error: String(err?.message || err) });

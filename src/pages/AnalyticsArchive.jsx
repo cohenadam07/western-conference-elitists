@@ -235,6 +235,145 @@ function DimensionPanel({ title, rows, note }) {
   );
 }
 
+/* ------------------------------------------------- the AI connector's log */
+
+// Plain names for the connector's tools and for the families of AI app it recognises
+// (api/_usage.js keeps the list of families). Anything new falls back to its own key.
+const TOOL_LABELS = {
+  nba_search_players: 'Basketball Savant · find a player',
+  nba_get_player_profile: 'Basketball Savant · player profile',
+  nfl_search_players: 'Football Savant · find a player',
+  nfl_get_player_profile: 'Football Savant · player profile',
+  nfl_search_coaches: 'Coaching Savant · find a coach',
+  nfl_get_coach_profile: 'Coaching Savant · coach profile',
+  ufc_search_fighters: 'UFC Savant · find a fighter',
+  ufc_get_fighter_profile: 'UFC Savant · fighter profile',
+  ufc_get_upcoming_cards: 'UFC Savant · upcoming cards',
+  nba_draft_search_prospects: 'Draft Savant · find a prospect',
+  nba_draft_get_prospect_profile: 'Draft Savant · prospect profile',
+  wce_get_news: 'News',
+  wce_search_articles: 'Articles · search',
+  wce_get_article: 'Articles · read one',
+  wce_get_big_board: 'Big Board',
+  wce_get_dynasty_rankings: 'Dynasty board',
+};
+const APP_LABELS = {
+  claude: 'Claude', chatgpt: 'ChatGPT', gemini: 'Gemini', cursor: 'Cursor', copilot: 'Copilot',
+  vscode: 'VS Code', windsurf: 'Windsurf', inspector: 'MCP Inspector (a testing tool)', other: 'Other apps',
+};
+
+function CountBars({ title, note, rows, unit }) {
+  const max = Math.max(1, ...rows.map((r) => r.value));
+  const total = rows.reduce((n, r) => n + r.value, 0) || 1;
+  return (
+    <section className="wa-panel">
+      <header className="wa-panel-head">
+        <h3>{title}</h3>
+        {note && <span className="wa-note">{note}</span>}
+      </header>
+      {rows.length === 0 ? (
+        <p className="wa-empty">Nothing yet.</p>
+      ) : (
+        <ol className="wa-bars">
+          {rows.map((r) => (
+            <li key={r.key} title={`${r.label}: ${fmtInt(r.value)} ${unit}${r.extra ? `, ${r.extra}` : ''}`}>
+              <span className="wa-bar-fill" style={{ width: `${(r.value / max) * 100}%` }} />
+              <span className="wa-bar-key">{r.label}</span>
+              <span className="wa-bar-val">
+                {fmtInt(r.value)}
+                <em>{((r.value / total) * 100).toFixed(1)}%</em>
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </section>
+  );
+}
+
+// What wcehoops.com/api/mcp was asked for in the selected range. Counts only: the log holds
+// no questions and nothing about who asked. Days are UTC, like the rest of this page.
+function ConnectorUsage({ log }) {
+  const [showDays, setShowDays] = useState(false);
+  if (!log) return null;
+  const t = log.totals || { calls: 0, errors: 0, connections: 0, limited: 0, days: 0 };
+  const tools = (log.tools || []).map((x) => ({
+    key: x.key,
+    label: TOOL_LABELS[x.key] || x.key,
+    value: x.calls,
+    extra: x.errors ? `${fmtInt(x.errors)} could not be answered` : '',
+  }));
+  const apps = (log.clients || []).map((x) => ({ key: x.key, label: APP_LABELS[x.key] || x.key, value: x.count }));
+  const capped = log.cappedDays || [];
+  return (
+    <div className="wa-connector">
+      <div className="wa-section">
+        <h2>The AI connector</h2>
+        <p className="wa-sub">
+          What AI apps looked up through wcehoops.com/api/mcp in this range. Counts only: no questions, and
+          nothing about who asked.
+        </p>
+      </div>
+      {log.error ? (
+        <p className="wa-error">The connector’s log could not be read: {log.error}</p>
+      ) : (
+        <>
+          {capped.length > 0 && (
+            <p className="wa-warn">
+              The log stops counting after {fmtInt(log.cap)} entries in a day, to protect the data store. It
+              reached that on {capped.map((d) => fmtDate(d, 'long')).join(', ')}: the real numbers for{' '}
+              {capped.length === 1 ? 'that day' : 'those days'} are higher than shown.
+            </p>
+          )}
+          <div className="wa-tiles">
+            <StatTile label="Lookups" value={fmtInt(t.calls)} sub="times a tool was used" />
+            <StatTile
+              label="Could not answer"
+              value={fmtInt(t.errors)}
+              sub={t.calls ? `${((t.errors / t.calls) * 100).toFixed(1)}% of lookups · no match, or a shared name` : 'no match, or a shared name'}
+            />
+            <StatTile label="Connections" value={fmtInt(t.connections)} sub="times an AI app connected" />
+            <StatTile label="Slowed down" value={fmtInt(t.limited)} sub="callers stopped by the limit" />
+          </div>
+          {t.days === 0 ? (
+            <p className="wa-empty">Nothing counted in this range yet. The log began in October 2026.</p>
+          ) : (
+            <>
+              <div className="wa-panels">
+                <CountBars title="By tool" note="lookups" rows={tools} unit="lookups" />
+                <CountBars title="By app" note="connections" rows={apps} unit="connections" />
+              </div>
+              <button className="wa-more" onClick={() => setShowDays((v) => !v)}>
+                {showDays ? 'Hide days' : 'Day by day'}
+              </button>
+              {showDays && (
+                <div className="wa-table-scroll">
+                  <table className="wa-table">
+                    <thead>
+                      <tr><th>Date</th><th>Lookups</th><th>Could not answer</th><th>Connections</th><th>Slowed down</th></tr>
+                    </thead>
+                    <tbody>
+                      {[...(log.daily || [])].reverse().map((d) => (
+                        <tr key={d.date}>
+                          <td>{d.date}{d.capped ? ' (capped)' : ''}</td>
+                          <td>{fmtInt(d.calls)}</td>
+                          <td>{fmtInt(d.errors)}</td>
+                          <td>{fmtInt(d.connections)}</td>
+                          <td>{fmtInt(d.limited)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function StatTile({ label, value, sub }) {
   return (
     <div className="wa-tile">
@@ -514,6 +653,8 @@ export default function AnalyticsArchive() {
         ))}
       </div>
 
+      <ConnectorUsage log={data?.connector} />
+
       <footer className="wa-foot">
         Vercel keeps 30 days. This archive keeps everything since{' '}
         {archive?.firstSeen ? fmtDate(archive.firstSeen, 'long') : '—'} · {fmtInt(archive?.runs)} syncs.
@@ -559,6 +700,12 @@ const CSS = `
 .wa-root h3 { font-size: 13px; font-weight: 600; margin: 0; color: var(--ink-2);
   text-transform: uppercase; letter-spacing: 0.06em; }
 .wa-sub { color: var(--muted); margin: 4px 0 0; font-size: 13px; }
+.wa-root h2 { font-size: 18px; font-weight: 650; margin: 0; letter-spacing: -0.01em; }
+.wa-section { margin: 34px 0 14px; padding-top: 22px; border-top: 1px solid var(--hair); }
+.wa-section .wa-sub { max-width: 68ch; }
+.wa-connector .wa-table-scroll { background: var(--surface); border: 1px solid var(--hair);
+  border-radius: 12px; padding: 4px 6px; }
+.wa-connector .wa-table td:first-child { white-space: nowrap; }
 
 .wa-head { display: flex; justify-content: space-between; align-items: flex-start;
   gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }

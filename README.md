@@ -173,6 +173,19 @@ on vercel.com > **Firewall** > **Configure** > **+ New Rule**; If *Request Path*
 `/api/mcp`; Then **Rate Limit**, Fixed Window, 60 seconds, 300 requests, key **IP**;
 **Save Rule**, **Review Changes**, **Publish**.
 
+**Usage log.** The connector keeps a tally of its own use (`api/_usage.js`): lookups per
+tool per day, how many could not be answered, which family of AI app connected (Claude,
+ChatGPT, and so on), and how often the limit came on. Counts only: never what was asked,
+and never who asked. The private `/analytics` page shows it under "The AI connector".
+
+It lives in the site's data store, one hash a month, kept 400 days. Each write is one
+command, and after 5,000 writes in a day the log stops counting until the next day (UTC),
+so a flood cannot spend the store's monthly allowance; the page marks a capped day. Set
+`MCP_USAGE_DAILY_CAP` on Vercel to change the ceiling. If the store is slow or down the
+answer goes out anyway: a write waits 700 ms at most. The tests run against a real,
+throwaway `redis-server` (`tools/savant-mcp/redis.mjs`) and are skipped where one is not
+installed.
+
 The homepage introduces the connector in its own section (`src/components/AiConnector.jsx`,
 linked as `/#ai`, from the hero and the footer). What that section claims lives in one file,
 `src/data/connector.js`: the address, the worked example and the three questions to try.
