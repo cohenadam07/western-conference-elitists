@@ -3,7 +3,7 @@ import PageHeader from '../components/PageHeader.jsx'
 import usePageMeta from '../lib/usePageMeta.js'
 
 // Update this date whenever the substance below changes.
-const UPDATED = 'September 11, 2026'
+const UPDATED = 'October 2, 2026'
 
 function Section({ id, title, children }) {
   return (
@@ -105,6 +105,11 @@ export default function Privacy() {
                 League lookups in Dynasty read public data from the fantasy platform you pick. We don't store the
                 league, and we never ask for a password.
               </li>
+              <li>
+                The AI connector (the address you can add to an AI app such as Claude) counts how often each kind
+                of lookup is used and which kind of AI app connected. It doesn't record what was asked or who
+                asked.
+              </li>
             </ul>
           </Section>
 
@@ -113,13 +118,17 @@ export default function Privacy() {
               To stop floods of fake signups and messages, the forms use your IP address to limit how many
               submissions can come from one place. For that purpose it's kept for about ten minutes.
             </p>
+            <p>
+              The AI connector does the same to stop one caller from flooding it. There, the caller's IP address is
+              only held in the running program's short-term memory. It is never saved.
+            </p>
           </Section>
 
           <Section id="providers" title="Who else touches your data">
             <p>These services run parts of the site and handle data on our behalf:</p>
             <ul>
               <li><strong>Vercel</strong> hosts the site and provides the analytics above.</li>
-              <li><strong>Upstash</strong> is the database behind contact messages, held newsletter signups, leaderboards and the games.</li>
+              <li><strong>Upstash</strong> is the database behind contact messages, held newsletter signups, leaderboards, the games and the AI connector's counts.</li>
               <li><strong>Buttondown</strong> stores the newsletter list and sends the newsletter.</li>
               <li><strong>Resend</strong> emails us a copy of contact-form messages.</li>
               <li>
