@@ -1,1 +1,1 @@
-{"s":2026,"pos":"CB","w":[2,3],"t":["NE","NE"],"o":["PIT","@JAX"],"m":{"int":[0.0,null],"pd":[0.0,null],"pen":[0.0,null],"snaps":[13.0,18.0],"snapshr":[0.0,5.085],"solopct":[100.0,null],"tkl":[1.0,null]},"d":{"dsnap":[null,3.0]}}
+{"s":2026,"pos":"CB","w":[2,3,4],"t":["NE","NE","NE"],"o":["PIT","@JAX","@BUF"],"m":{"int":[0.0,null,null],"pd":[0.0,null,null],"pen":[0.0,null,null],"snaps":[13.0,18.0,18.0],"snapshr":[0.0,5.085,0.0],"solopct":[100.0,null,null],"tkl":[1.0,null,null]},"d":{"dsnap":[null,3.0,null]}}

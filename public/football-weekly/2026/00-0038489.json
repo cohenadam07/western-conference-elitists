@@ -1,1 +1,1 @@
-{"s":2026,"pos":"RB","w":[1,2,3],"t":["KC","KC","KC"],"o":["DEN","IND","@MIA"],"m":{"fppg":[0.0,null,0.0],"pen":[0.0,null,0.0],"snaps":[25.0,18.0,10.0],"snapshr":[4.348,0.0,0.0]},"d":{"snap":[3.0,null,null]}}
+{"s":2026,"pos":"RB","w":[1,2,3,4],"t":["KC","KC","KC","KC"],"o":["DEN","IND","@MIA","@LV"],"m":{"fppg":[0.0,null,0.0,null],"pen":[0.0,null,0.0,null],"snaps":[25.0,18.0,10.0,22.0],"snapshr":[4.348,0.0,0.0,1.667]},"d":{"snap":[3.0,null,null,1.0]}}

@@ -1,1 +1,1 @@
-{"s":2026,"pos":"OC","w":[1,2,3],"t":["SF","SF","SF"],"o":["@LA","MIA","ARI"],"m":{"pen":[0.0,null,null],"snaps":[65.0,44.0,54.0],"snapshr":[100.0,84.62,100.0]},"d":{"rec":[1.0,null,null],"snap":[65.0,44.0,54.0],"tgt":[1.0,null,null]}}
+{"s":2026,"pos":"OC","w":[1,2,3,4],"t":["SF","SF","SF","SF"],"o":["@LA","MIA","ARI","DEN"],"m":{"pen":[0.0,null,null,null],"snaps":[65.0,44.0,54.0,66.0],"snapshr":[100.0,84.62,100.0,100.0]},"d":{"rec":[1.0,null,null,null],"snap":[65.0,44.0,54.0,66.0],"tgt":[1.0,null,null,null]}}
