@@ -40,6 +40,19 @@ def safe(a, b, scale=1.0):
         return None
     return a / b * scale
 
+# ufcstats marks a fight-night bonus on the FIGHT (an icon beside the weight class), not on
+# the fighter who was paid it. Fight of the Night goes to both men, so it belongs on both
+# logs. Performance, KO and Submission of the Night are individual awards and go to the man
+# who won, so they belong on the winner's log only. A fight with no winner on the books (a
+# draw, or a result later overturned to a no contest) keeps Fight of the Night and shows no
+# individual bonus for either man: the feed does not say whose it was, and an overturned
+# result usually takes the bonus with it.
+SHARED_BONUS = {'fight'}
+
+def bonus_for(fight_bonus, res):
+    """The bonuses of a fight that belong on one fighter's log, given his result."""
+    return [b for b in (fight_bonus or []) if b in SHARED_BONUS or res == 'W']
+
 def round_lengths(fmt):
     """'3 Rnd (5-5-5)' -> [5,5,5] minutes per round; None when the format has none."""
     m = re.search(r'\(([\d\-]+)\)', fmt or '')
@@ -526,7 +539,7 @@ def main():
                 id=r['id'], date=r['date'], opp=r['opp'], oppname=r['oppname'], res=r['res'],
                 method=f.get('method'), kind=r['kind'], rnd=r['rnd'], time=f.get('time'), wc=r['wc'],
                 title=bool(r['title']), ev=f['event'],
-                elo=r.get('elo'), oelo=r.get('oelo'), bonus=f.get('bonus') or [],
+                elo=r.get('elo'), oelo=r.get('oelo'), bonus=bonus_for(f.get('bonus'), r['res']),
                 ss=r['ss'], oss=r['oss'], kd=r['kd'], td=r['td'], ctrl=r['ctrl'], secs=r['secs'],
             ))
         for wkey, _ in WINDOWS:
