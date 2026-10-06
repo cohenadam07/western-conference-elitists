@@ -647,6 +647,9 @@ async function compareTools(built, page) {
         assert.equal(s.draft.label, card.badge, `${where}: pick badge`)
         assert.equal(s.prospect.reduced_sample, card.sample != null, `${where}: the page's reduced-sample note`)
         assert.equal(s.prospect.archetype, card.arch, `${where}: archetype on the page`)
+        // The label when the card has one, and a plain "none" when it does not, so a tool
+        // that promises the label is never just silent about it.
+        assert.ok(text.includes(card.arch ? `Archetype, as the page labels it: ${card.arch}.` : 'The page gives him no archetype label.'), `${where}: the archetype line`)
         assert.equal(s.pool.size, card.size, `${where}: pool size on the page`)
         assert.deepEqual(s.stats.map((x) => x.key), card.rows.map((r) => r.key), `${where}: the page's bars`)
         s.stats.forEach((x, k) => {

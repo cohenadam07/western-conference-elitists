@@ -363,6 +363,8 @@ test('a leaderboard: one team, the per-game line, the bottom of the board, and s
     assert.equal((await savant.leaderboard({ stat: said, limit: 1 })).structured.stat.key, key, said)
   }
   await assert.rejects(() => savant.leaderboard({ stat: 'rebound' }), (e) => e instanceof savant.SavantError && /could be more than one stat/.test(e.message) && /key "oreb"/.test(e.message) && /key "dreb"/.test(e.message))
+  // One loose match is offered as a guess, not acted on and not called "more than one".
+  await assert.rejects(() => savant.leaderboard({ stat: 'selfc' }), (e) => e instanceof savant.SavantError && /No stat is called "selfc"\. The closest is Self-creation \(key "selfcr"\): call again with that key/.test(e.message))
   await assert.rejects(() => savant.leaderboard({ stat: 'clutch gene' }), /No stat matches "clutch gene"\. nba_list_stats lists every stat/)
 })
 
@@ -403,10 +405,18 @@ test('a comparison and a career say what the cards say', async () => {
       const on = card.stats.find((x) => x.key === st.key)
       const v = st.values[i]
       if (!on) { assert.equal(v.status, 'no value'); continue }
-      assert.deepEqual([v.status, v.value, v.display, v.league_percentile, v.position_percentile, v.league_rank, v.low_sample], ['ok', on.value, on.display, on.league_percentile, on.position_percentile, on.league_rank, on.low_sample], `${row.name} ${st.key}`)
+      assert.deepEqual([v.status, v.value, v.display, v.league_percentile, v.position_percentile, v.league_rank, v.league_rank_of, v.low_sample], ['ok', on.value, on.display, on.league_percentile, on.position_percentile, on.league_rank, on.league_rank_of, on.low_sample], `${row.name} ${st.key}`)
       assert.equal(st.what, on.what)
+      // A place is written as a place ("3rd of 349"), which cannot be read as a percentile.
+      if (v.league_rank <= 10) assert.ok(cmp.text.includes(`; ${ordinalOf(v.league_rank)} of ${v.league_rank_of})`), `${row.name} ${st.key}: the place`)
     }
+    // A stat that describes a player rather than grades him says so on its own line.
+    assert.match((await savant.playerProfile({ player: String(row.id) })).text, /\n- Usage %: [^\n]*\) \[describes role or build, not a grade\]\n/)
   }
+  assert.ok(cmp.structured.stats.some((st) => st.values.some((v) => v.league_rank <= 10)), 'two 25-point scorers and no top-ten place between them')
+  assert.ok(!/in the league\)/.test(cmp.text))
+  assert.match(cmp.text, /" after a semicolon is a place among the qualified players who have that stat, not a percentile/)
+  assert.match(cmp.text, /\n- Usage % \[describes role or build, not a grade\]: /)
   // One man against himself in two seasons, and a stat one of those seasons did not track.
   const veteran = files.players.players.filter((p) => p.seasons >= 12 && +p.from.slice(0, 4) < 2010 && +p.to.slice(0, 4) >= 2018 && !String(p.id).startsWith('br:'))[0]
   const self = await savant.comparePlayers({ players: [String(veteran.id), String(veteran.id)], seasons: [veteran.from, veteran.to], stats: ['ts', 'defl'] })
@@ -454,6 +464,19 @@ test('the glossary gives every stat its key and the page\'s own explanation', as
   assert.ok(per75.notes.some((n) => /per 75 possessions/.test(n)))
   assert.deepEqual((await savant.listStats({ group: 'value' })).structured.stats.map((x) => x.key), files.meta.metrics.filter((m) => m.group === 'val').map((m) => m.key))
   assert.match((await savant.listStats({ query: 'zzzz' })).text, /No Basketball Savant stat matches "zzzz"/)
+  // Asked the way a fan says it, the stat meant comes first. ("what is points per 75" is the
+  // example the tool's own description gives.)
+  for (const [said, key] of [['points per 75', 'pts'], ['Points / 75', 'pts'], ['true shooting percentage', 'ts'], ['rebounds per 75', 'reb75'], ['defensive bpm', 'dbpm']]) {
+    assert.equal((await savant.listStats({ query: said })).structured.stats[0].key, key, said)
+  }
+  // A panel here is the panel a profile returns: Defensive BPM is with defense, Offensive BPM
+  // with offense, and both stay in overall value.
+  const anyone = String(files.seasons[latest].players.find((p) => p.qualified && p.m.dbpm && p.m.obpm).id)
+  for (const [group, crossed] of [['defense', 'dbpm'], ['offense', 'obpm']]) {
+    const keys = (await savant.listStats({ group })).structured.stats.map((x) => x.key)
+    assert.ok(keys.includes(crossed), `${crossed} is missing from the ${group} glossary`)
+    for (const st of (await savant.playerProfile({ player: anyone, group })).structured.stats) assert.ok(keys.includes(st.key), `${group}: ${st.key} is on the card's panel and not in the glossary's`)
+  }
 })
 
 // ---- 2. the protocol -----------------------------------------------------------------

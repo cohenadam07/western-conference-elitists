@@ -104,9 +104,10 @@ function metricRow(m, extra = {}) {
   }
   if (!UNITS_OF_MEASURE[m.unit]) throw new Error(`coaching-savant.html: unknown unit "${m.unit}" on ${m.key}`)
   // `what` is the page's one-line "what it is" for the stat, the line a reader gets by
-  // clicking its bar. (The page also has a "why it matters" and a formula; the tools do not
-  // use them, so they are left out.)
-  return { key: m.key, label: m.label, group: m.grp, unit: m.unit, lowerIsBetter: !!m.lower, ...extra, what: (m.exp && m.exp.w) || null }
+  // clicking its bar, and `formula` the page's line for how it is worked out: for a bare
+  // signed number ("+10.4") the formula is what says it is a difference between two rates.
+  // (The page also has a "why it matters"; the tools do not use it, so it is left out.)
+  return { key: m.key, label: m.label, group: m.grp, unit: m.unit, lowerIsBetter: !!m.lower, ...extra, what: (m.exp && m.exp.w) || null, formula: (m.exp && m.exp.f) || null }
 }
 
 export function readPage(html) {

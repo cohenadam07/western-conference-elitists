@@ -199,7 +199,7 @@ test('the in-season file is laid over the archive exactly as the page does it', 
 
 test('the stat tables, pools and labels in meta.json are the page\'s', () => {
   const ctx = page.ctx
-  const row = (m) => ({ key: m.key, label: m.label, group: m.grp, unit: m.unit, lowerIsBetter: !!m.lower, what: m.exp.w || null })
+  const row = (m) => ({ key: m.key, label: m.label, group: m.grp, unit: m.unit, lowerIsBetter: !!m.lower, what: m.exp.w || null, formula: m.exp.f || null })
   sameDeep(meta.groups, plain(ctx.GRPS))
   sameDeep(meta.metrics.map(({ since: _s, pool: _p, ...m }) => m), plain(ctx.METRICS).map(row))
   sameDeep(meta.unitGroups, { O: plain(ctx.OFF_GRPS), D: plain(ctx.DEF_GRPS) })
@@ -943,6 +943,9 @@ test('the fourth-down view carries every ranked fourth-down stat, each with its 
     for (const x of ranks) {
       assert.ok(view.text.includes(`- ${x.label}: ${x.display} (${ordinal(x.percentile)} percentile among ${x.pool_size} ${x.pool})`), `${row.name} ${x.key}`)
       assert.equal(x.display, fmt(meta.metrics.find((m) => m.key === x.key).unit, x.value))
+      // How the number is worked out, in the page's words: what tells "+10.4" from a percentage.
+      assert.equal(x.formula, meta.metrics.find((m) => m.key === x.key).formula)
+      if (x.formula) assert.ok(view.text.includes(` Worked out as: ${x.formula.replace(/\.\s*$/, '')}.`), `${row.name} ${x.key}: no formula`)
     }
     if (new Set(ranks.map((x) => x.pool)).size > 1) { both++; assert.match(view.text, /These come from two pools, so the same percentile means a different thing in each/) }
     // The overview already has them in the career profile, so it does not repeat them.
@@ -994,6 +997,19 @@ test('a leaderboard is the page\'s own board: same coaches, same order', async (
   // Wins are counted, not a ranked stat: the record is what the page prints.
   const wins = (await run(board, { stat: 'Wins', limit: 3 })).structured
   assert.deepEqual(wins.leaders.map((l) => [l.value, l.display, l.percentile]), wins.leaders.map((l) => [people[l.name].hc.w, l.record, null]))
+  // The wins board keeps the three-season line too: a coach with a shorter record is in no
+  // pool, and the bottom of the board is the bottom of that pool, not a one-season coach.
+  const ranked = Object.keys(C).filter((n) => C[n].career.seasons >= MIN)
+  assert.equal(wins.ranked, ranked.length)
+  const fewest = (await run(board, { stat: 'wins', limit: 10, order: 'bottom' })).structured.leaders
+  assert.deepEqual(fewest.map((l) => l.value), ranked.map((n) => people[n].hc.w).sort((a, b) => a - b).slice(0, 10))
+  for (const l of fewest) assert.ok(l.seasons >= MIN, `${l.name} has ${l.seasons} seasons and is on the wins board`)
+  // A bare signed number gets its unit from the page's own formula line.
+  const formulaOf = Object.fromEntries(vm.runInContext('METRICS', page.ctx).map((m) => [m.key, m.exp.f || null]))
+  for (const m of meta.metrics) assert.equal(m.formula, formulaOf[m.key], `${m.key}: the formula is not the page's`)
+  const aggr = await run(board, { stat: 'go_oe', limit: 1 })
+  assert.ok(formulaOf.go_oe && aggr.text.includes(`Worked out as: ${formulaOf.go_oe.replace(/\.\s*$/, '')}.`))
+  assert.equal(aggr.structured.stat.formula, formulaOf.go_oe)
   // A stat by the name people use; and one that is not there says what is.
   for (const [said, key] of [['fourth down aggression', 'go_oe'], ['Fourth-down go rate', 'go_rate'], ['win %', 'winpct'], ['tempo', 'sec_play'], ['pass rate over expected', 'proe'], ['wins above expectation', 'waa']]) {
     assert.equal((await run(board, { stat: said, limit: 1 })).structured.stat.key, key, said)

@@ -595,6 +595,9 @@ const poolText = (meta, m) => (isD4(m)
 // Every ranked stat about fourth downs, wherever the page files it: the two under Style and
 // the model's four. Each with its percentile and the pool it was ranked in.
 const FOURTH_DOWN_STYLE = ['go_oe', 'go_rate']
+// The page's formula line, ready to end a sentence.
+const worked = (f) => String(f).replace(/\.\s*$/, '')
+
 function fourthDownRanks(meta, p, notes) {
   const h = p.hc
   const wanted = meta.metrics.filter((m) => FOURTH_DOWN_STYLE.includes(m.key) || isD4(m))
@@ -618,10 +621,11 @@ function fourthDownRanks(meta, p, notes) {
       pool_size: m.pool,
       lower_is_better: m.lowerIsBetter,
       what: m.what,
+      formula: m.formula || null,
     })
   }
   for (const st of stats) {
-    L.push(`- ${st.label}: ${st.display} (${st.percentile == null ? 'not ranked' : `${ordinal(st.percentile)} percentile`} among ${st.pool_size} ${st.pool})${st.lower_is_better ? ' [lower is better]' : ''}${st.what ? `. ${st.what}` : ''}`)
+    L.push(`- ${st.label}: ${st.display} (${st.percentile == null ? 'not ranked' : `${ordinal(st.percentile)} percentile`} among ${st.pool_size} ${st.pool})${st.lower_is_better ? ' [lower is better]' : ''}${st.what ? `. ${st.what}` : ''}${st.formula ? ` Worked out as: ${worked(st.formula)}.` : ''}`)
   }
   if (new Set(stats.map((st) => st.pool)).size > 1) say(notes, L, 'These come from two pools, so the same percentile means a different thing in each: aggression and go rate cover his whole head-coaching career back to 1999, the model\'s stats only the seasons it covers.')
   say(notes, L, 'A higher percentile means a higher value, except on a stat tagged "lower is better", where the page flips it. Aggression and go rate are tendencies: higher means he goes for it more, which is not the same as deciding better. The model\'s stats are the ones that judge the decisions.')
@@ -668,7 +672,7 @@ export async function coachLeaderboard({ stat, limit = 10, order = 'top' }) {
   if (shown.some((r) => r.tied)) notes.push('Equal values share a place.')
 
   const structured = {
-    stat: { key: m.key, label: m.label, group: m.group, what: m.what || null, lower_is_better: m.lowerIsBetter },
+    stat: { key: m.key, label: m.label, group: m.group, what: m.what || null, formula: m.formula || null, lower_is_better: m.lowerIsBetter },
     order,
     ranked: all.length,
     count: shown.length,
@@ -697,7 +701,7 @@ export async function coachLeaderboard({ stat, limit = 10, order = 'top' }) {
   }
   if (!shown.length) return { structured, text: `No head coach has a ranked value for ${m.label}.\n\n${notes.join('\n')}\n\nSource: ${SOURCE}.` }
   const L = [`NFL head coaches by ${m.label}: the ${order === 'bottom' ? 'bottom' : 'top'} ${shown.length} of ${all.length}`]
-  if (m.what) L.push(m.what)
+  if (m.what) L.push(`${m.what}${m.formula ? ` Worked out as: ${worked(m.formula)}.` : ''}`)
   L.push('')
   for (const l of structured.leaders) {
     L.push(`${l.tied ? 'T-' : ''}${l.rank}. ${l.name}: ${l.display}${l.percentile == null ? '' : ` (${ordinal(l.percentile)} percentile)`}, ${span(l.first_season, l.last_season)} (${l.teams.join(', ')}), ${plural(l.seasons, 'season')}${m.record ? '' : `, ${l.record}`}`)
@@ -975,7 +979,7 @@ export const tools = [
         }).nullable().optional(),
         fourth_down_ranks: z.array(z.object({
           key: z.string(), label: z.string(), value: z.number(), display: z.string(), percentile: pct, pool: z.string(), pool_size: z.number().int(),
-          lower_is_better: z.boolean(), what: z.string().nullable(),
+          lower_is_better: z.boolean(), what: z.string().nullable(), formula: z.string().nullable().describe('The page\'s line for how the stat is worked out.'),
         })).optional().describe('With group "fourth_downs": every ranked fourth-down stat (aggression, go rate, and the model\'s four), each with its percentile and pool.'),
         seasons: z.array(z.object({
           season: z.number().int(),
@@ -1034,7 +1038,7 @@ export const tools = [
         order: z.enum(['top', 'bottom']).default('top').describe('Best first (default) or worst first.'),
       },
       outputSchema: {
-        stat: z.object({ key: z.string(), label: z.string(), group: z.string(), what: z.string().nullable(), lower_is_better: z.boolean() }),
+        stat: z.object({ key: z.string(), label: z.string(), group: z.string(), what: z.string().nullable(), formula: z.string().nullable().describe('The page\'s line for how the stat is worked out.'), lower_is_better: z.boolean() }),
         order: z.string(),
         ranked: z.number().int().describe('How many head coaches the board ranks.'),
         count: z.number().int(),

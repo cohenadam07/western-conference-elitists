@@ -646,6 +646,7 @@ test('a profile says what the files say, for every player in every season, and f
 test('a group is one panel of the card, and a panel the position lacks is said to be lacking', async () => {
   load()
   const labelOf = Object.fromEntries(Object.entries(savant.GROUPS).map(([name, g]) => [name, meta.groups[g]]))
+  const headlineScores = []
   let checked = 0
   for (const season of [meta.seasons[0], '2019', '2003']) {
     const seen = new Set()
@@ -660,10 +661,32 @@ test('a group is one panel of the card, and a panel the position lacks is said t
         if (!meta.positions[row.pos].panels.includes(savant.GROUPS[name])) assert.match(text, /card has no .* panel\. It has: /)
         checked++
       }
+      // "headline" is the stats his profile score is the mean of, as the card has them, each
+      // explained, and nothing else: the short answer to "is he playing well".
+      const head = meta.positions[row.pos].headline
+      const { structured: h, text: short } = await savant.playerProfile({ player: row.id, season, group: 'headline' })
+      assert.deepEqual(h.stats, all.stats.filter((x) => head.includes(x.key)), `${season} ${row.name} headline`)
+      assert.equal(h.comps, undefined)
+      for (const st of h.stats) if (st.what) assert.ok(short.includes(`\n  ${st.what}`), `${season} ${row.name}: ${st.key} is not explained`)
+      if (all.profile_score) {
+        const { text: full } = await savant.playerProfile({ player: row.id, season })
+        const labels = head.map((k) => meta.metrics.find((m) => m.key === k).label).join(', ')
+        assert.ok(full.includes(`headline ${meta.positions[row.pos].label.charAt(0).toLowerCase()}${meta.positions[row.pos].label.slice(1)} stats (${labels}), each ranked inside ${season}`), `${season} ${row.name}: the profile score does not name its stats`)
+        // The page's rule, worked from the lines the headline view returns: the settled stats
+        // when at least two have settled, otherwise all of them.
+        const have = h.stats.filter((x) => x.season_percentile != null)
+        const settled = have.filter((x) => !x.low_sample)
+        const use = settled.length >= 2 ? settled : have
+        if (use.length) headlineScores.push([all.profile_score.score, use.reduce((a, x) => a + x.season_percentile, 0) / use.length, `${season} ${row.name}`])
+        assert.match(full, /A stat still on a low sample is left out of the mean once two others have settled, and one the season lacks is skipped\./)
+      }
     }
     assert.ok(seen.size >= 12, `${season}: only ${seen.size} positions were seen`)
   }
   assert.ok(checked > 400)
+  // And the score is what those lines average to.
+  assert.ok(headlineScores.length >= 20, `only ${headlineScores.length} scored players were checked`)
+  for (const [score, mean, who] of headlineScores) assert.equal(score, Math.round(mean), `${who}: profile score ${score}, headline lines average ${mean}`)
 })
 
 test('position is the one he played that season, and every team he played for is named', async () => {

@@ -37,7 +37,7 @@
 // Not a function itself: Vercel skips api files that start with an underscore.
 
 import { z } from 'zod'
-import { READ_ONLY, SITE, SavantError, boardSlice, day, findStat, makeLoader, mapLimit, miss, norm, ordinal, prepare, prepareStats, rank, ranked, signed, thousands, tidy, topTier } from './_core.js'
+import { READ_ONLY, SITE, SavantError, boardSlice, day, findStat, makeLoader, mapLimit, miss, norm, ordinal, prepare, prepareStats, rank, ranked, signed, statNorm, thousands, tidy, topTier } from './_core.js'
 
 const files = makeLoader('savant-api/basketball/v1', { what: 'Basketball Savant' })
 
@@ -71,6 +71,7 @@ const PER_75 = 'A stat labelled "/ 75" is per 75 possessions, which adjusts for 
 // Stats that describe a player rather than grade him. Named one by one: the page's own tag
 // ("ingredient", "context") does not sort them, since Block % and Defensive BPM are
 // ingredients too and more of those is plainly better.
+const NOT_A_GRADE = 'describes role or build, not a grade'
 const DESCRIBES = new Set(['mpg', 'minshare', 'usg', 'tp3a', 'tp3r', 'fta', 'p3pt', 'drv', 'selfcr', 'mtch', 'ddiff', 'height', 'length', 'strength', 'reach'])
 const STYLE = 'Not every stat is a grade. Some describe role, style or build rather than quality (usage, 3-point rate, share of points from three, matchup difficulty, minutes, height): on those a higher percentile means more of it, not better.'
 
@@ -408,7 +409,7 @@ export async function playerProfile({ player, season, window = 'season', group =
       const h = crossed.has(s.key) ? `${s.group} (the ${group} half)` : s.subgroup && s.subgroup !== s.group ? `${s.group}: ${s.subgroup}` : s.group
       if (h !== heading) { L.push('', h); heading = h }
       const pct = (p) => (p == null ? 'n/a' : ordinal(p))
-      const tags = [s.lower_is_better ? 'lower is better' : null, s.low_sample ? 'low sample' : null].filter(Boolean)
+      const tags = [s.lower_is_better ? 'lower is better' : null, s.low_sample ? 'low sample' : null, DESCRIBES.has(s.key) ? NOT_A_GRADE : null].filter(Boolean)
       // The place is said only near the top, where a percentile can no longer tell men apart.
       const place = s.league_rank != null && s.league_rank <= 10 ? `; ${ordinal(s.league_rank)} of ${s.league_rank_of} qualified` : ''
       L.push(`- ${s.label}: ${s.display} (league ${pct(s.league_percentile)}, vs. ${peers} ${pct(s.position_percentile)}${place})${tags.length ? ` [${tags.join(', ')}]` : ''}`)
@@ -659,11 +660,11 @@ export async function comparePlayers({ players, seasons, group = 'headline', sta
     lower_is_better: m.lowerIsBetter,
     what: m.explain || null,
     values: sides.map((x) => {
-      if (startYear(x.seasonId) < startYear(m.since)) return { status: 'not tracked that season', value: null, display: null, league_percentile: null, position_percentile: null, league_rank: null, low_sample: false }
+      if (startYear(x.seasonId) < startYear(m.since)) return { status: 'not tracked that season', value: null, display: null, league_percentile: null, position_percentile: null, league_rank: null, league_rank_of: null, low_sample: false }
       const c = cellOf(x.row, m)
-      if (!c) return { status: 'no value', value: null, display: null, league_percentile: null, position_percentile: null, league_rank: null, low_sample: false }
+      if (!c) return { status: 'no value', value: null, display: null, league_percentile: null, position_percentile: null, league_rank: null, league_rank_of: null, low_sample: false }
       const place = m.line ? null : placeOf(x.file, x.row, m)
-      return { status: 'ok', value: c[0], display: display(m.unit, c[0], c[1]), league_percentile: c[1], position_percentile: c[2], league_rank: place ? place.rank : null, low_sample: (x.row.low || []).includes(m.key) }
+      return { status: 'ok', value: c[0], display: display(m.unit, c[0], c[1]), league_percentile: c[1], position_percentile: c[2], league_rank: place ? place.rank : null, league_rank_of: place ? place.of : null, low_sample: (x.row.low || []).includes(m.key) }
     }),
   }))
 
@@ -676,6 +677,8 @@ export async function comparePlayers({ players, seasons, group = 'headline', sta
   const unqualified = sides.filter((x) => !x.row.qualified)
   if (unqualified.length) notes.push(`Below the qualifying line, so ranked against a pool he is not in: ${unqualified.map(tag).join(', ')}. Treat those percentiles with caution.`)
   if (rows.some((r) => / 75\b/.test(r.label))) notes.push(PER_75)
+  const placed = rows.flatMap((r) => r.values).find((v) => v.league_rank != null && v.league_rank <= 10)
+  if (placed) notes.push(`"${ordinal(placed.league_rank)} of ${placed.league_rank_of}" after a semicolon is a place among the qualified players who have that stat, not a percentile. It is given for the top ten only; equal values share a place.`)
 
   const structured = {
     players: sides.map((x) => ({
@@ -706,10 +709,10 @@ export async function comparePlayers({ players, seasons, group = 'headline', sta
     const cells = r.values.map((v, i) => {
       const who = short(sides[i])
       if (v.status !== 'ok') return `${who} ${v.status}`
-      const pct = v.league_percentile == null ? '' : ` (league ${nth(v.league_percentile)}, vs. ${PEERS[sides[i].row.pos]} ${nth(v.position_percentile)}${v.league_rank != null && v.league_rank <= 10 ? `; ${ordinal(v.league_rank)} in the league` : ''})`
+      const pct = v.league_percentile == null ? '' : ` (league ${nth(v.league_percentile)}, vs. ${PEERS[sides[i].row.pos]} ${nth(v.position_percentile)}${v.league_rank != null && v.league_rank <= 10 ? `; ${ordinal(v.league_rank)} of ${v.league_rank_of}` : ''})`
       return `${who} ${v.display}${pct}${v.low_sample ? ' [low sample]' : ''}`
     })
-    L.push(`- ${r.label}${r.lower_is_better ? ' [lower is better]' : ''}: ${cells.join(' | ')}`)
+    L.push(`- ${r.label}${r.lower_is_better ? ' [lower is better]' : ''}${DESCRIBES.has(r.key) ? ` [${NOT_A_GRADE}]` : ''}: ${cells.join(' | ')}`)
     if (r.what && !PER_GAME.some((g) => g.key === r.key)) L.push(`  ${r.what}`)
   }
   L.push('', ...notes, '', ...sides.map((x) => `${tag(x)}: ${cardUrl(x.row.id)}`), `Source: ${SOURCE}. Data as of ${structured.data_as_of}.`)
@@ -816,9 +819,12 @@ export async function playerCareer({ player, stats, from, to }) {
 export async function listStats({ group, query } = {}) {
   const meta = await loadMeta()
   let rows = statsOf(meta)
-  if (group) rows = rows.filter((m) => (group === 'per_game' ? m.line : m.group === GROUPS[group]))
+  // A panel here is the panel nba_get_player_profile returns, so Defensive BPM is in "defense"
+  // and Offensive BPM in "offense" as well as in "value".
+  if (group) rows = rows.filter((m) => (group === 'per_game' ? m.line : m.group === GROUPS[group] || (ALSO_IN[GROUPS[group]] || []).includes(m.key)))
   if (query) {
-    const found = rank(rows, query, () => 0, (x) => x).map((r) => r.row)
+    // Read the way a stat's name is read anywhere else: "points per 75" is "Points / 75".
+    const found = rank(rows, query, () => 0, statNorm).map((r) => r.row)
     const q = norm(query)
     const inWhat = rows.filter((m) => !found.includes(m) && (m.key === q || norm(m.explain || '').includes(q)))
     rows = [...found, ...inWhat]
@@ -1036,7 +1042,8 @@ export const tools = [
           values: z.array(z.object({
             status: z.string().describe('"ok", "no value" (a gap, not a zero) or "not tracked that season".'),
             value: z.number().nullable(), display: z.string().nullable(), league_percentile: pct, position_percentile: pct,
-            league_rank: z.number().int().nullable().describe('His place among qualified players that season.'), low_sample: z.boolean(),
+            league_rank: z.number().int().nullable().describe('His place among qualified players that season.'),
+            league_rank_of: z.number().int().nullable().describe('How many qualified players have the stat.'), low_sample: z.boolean(),
           })).describe('One per player, in the order of players.'),
         })),
         notes: z.array(z.string()),

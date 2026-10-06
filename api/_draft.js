@@ -347,7 +347,7 @@ export async function prospectProfile({ prospect, compare = 'all', pool = 'class
   const facts = [row.pos, row.conf ? `${where(row)} (${row.conf})` : where(row)]
   if (row.gp != null) facts.push(plural(row.gp, 'game'))
   L.push(`${facts.join(', ')}.`)
-  if (row.arch) L.push(`Archetype, as the page labels it: ${row.arch}.`)
+  L.push(row.arch ? `Archetype, as the page labels it: ${row.arch}.` : 'The page gives him no archetype label.')
   if (row.line) {
     const l = row.line
     L.push(`Per game: ${one(l.ppg)} points, ${one(l.rpg)} rebounds, ${one(l.apg)} assists${l.tpg != null ? `, ${one(l.tpg)} turnovers` : ''}.`)

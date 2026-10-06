@@ -107,7 +107,7 @@ const INSTRUCTIONS = [
   'ufc_ is UFC Savant: fighters ranked inside their division, against active fighters and all-time.',
   'nba_draft_ is Draft Savant: college and pre-draft data on draft prospects, not NBA stats.',
   'wce_ is the site itself: its news page, its articles, its draft Big Board and its crowd-priced Dynasty board.',
-  'Pick the tool by the question. One named player, coach or fighter: a _profile tool. "Who led", "top ten", "best on the team": a _leaderboard tool, never a string of profiles. Two or more side by side: a _compare tool. One player over the years: a _career tool. What a stat means, or its key: a _list_stats tool.',
+  'Pick the tool by the question. One named player, coach or fighter: a _profile tool. "Who led", "top ten", "best on the team": a _leaderboard tool, never a string of profiles. Two or more players or fighters side by side: a _compare tool (for two coaches, one profile each). One player over the years: a _career tool. What a stat means, or its key: a _list_stats tool.',
   'Every percentile belongs to a pool, and each result names it. A percentile is only meaningful with its pool. A percentile stops at 99, so "led the league" comes from a leaderboard or a stated place, not from a 99th percentile.',
   'A stat marked low sample is below its stabilization threshold. A stat a season did not track is listed as not tracked rather than shown as zero. Results state the date of their data and link to the matching page on wcehoops.com.',
 ].join(' ')

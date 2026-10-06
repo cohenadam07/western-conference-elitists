@@ -267,7 +267,10 @@ export function findStat(rows, input, { tool = null, what = 'stat' } = {}) {
   if (!found.length) throw new SavantError(`No ${what} matches "${raw}".${hint}`)
   const best = found.filter((r) => r.score === found[0].score)
   if (best.length === 1 && found[0].score >= 60) return best[0].row
-  const list = (best.length > 1 ? best : found).slice(0, 8).map((r) => `- ${r.row.label} (key "${r.row.key}")`)
+  const near = best.length > 1 ? best : found
+  const list = near.slice(0, 8).map((r) => `- ${r.row.label} (key "${r.row.key}")`)
+  // One loose match is a guess, and is offered as one, not acted on.
+  if (near.length === 1) throw new SavantError(`No ${what} is called "${raw}". The closest is ${near[0].row.label} (key "${near[0].row.key}"): call again with that key if it is the one meant.${hint}`)
   throw new SavantError(`"${raw}" could be more than one ${what}. Call again with one of these keys:\n${list.join('\n')}`)
 }
 

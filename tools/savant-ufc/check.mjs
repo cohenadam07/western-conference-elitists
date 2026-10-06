@@ -1011,7 +1011,12 @@ test('a comparison says what the profiles say, and lists the fights between them
     const met = data.fighters[pair[0]].log.slice(0, RECENT_FIGHTS).filter((x) => x.opp === pair[1])
     assert.deepEqual(st.meetings.map((m) => [m.date, m.winner_id]), met.map((x) => [x.date, x.res === 'W' ? pair[0] : x.res === 'L' ? pair[1] : null]))
     assert.ok(text.includes('Fights between them, newest first:'))
-    assert.equal(st.matchup_url, matchupUrl(meta, pair[0], pair[1]))
+    // The head-to-head link opens the page on the same two fighters over the window compared.
+    assert.equal(st.matchup_url, matchupUrl(meta, pair[0], pair[1], win))
+    ctx.mu.a = null
+    ctx.mu.b = null
+    assert.equal(page.open(st.matchup_url), true)
+    assert.deepEqual([ctx.mu.a, ctx.mu.b, ctx.mu.win], [pair[0], pair[1], win], `${win}: the page opened another head-to-head`)
   }
   const chosen = (await call('ufc_compare_fighters', { fighters: pair, stats: ['takedown defense', 'slpm'] })).structured
   assert.deepEqual(chosen.stats.map((x) => x.key), ['tddef', 'slpm'])

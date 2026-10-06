@@ -101,7 +101,7 @@ function findFighters(idx, query) {
 // ---- small formatting helpers ----------------------------------------------------------
 
 export const fighterUrl = (meta, id, window) => meta.fighterUrl.replace('{id}', encodeURIComponent(id)).replace('{window}', window || meta.defaults.window)
-export const matchupUrl = (meta, a, b) => meta.matchupUrl.replace('{a}', encodeURIComponent(a)).replace('{b}', encodeURIComponent(b)).replace('{window}', meta.matchupWindow)
+export const matchupUrl = (meta, a, b, window = meta.matchupWindow) => meta.matchupUrl.replace('{a}', encodeURIComponent(a)).replace('{b}', encodeURIComponent(b)).replace('{window}', window)
 
 // The page's mmss(), signed() and inFt().
 export const clock = (sec) => { const s = Math.round(sec); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` }
@@ -828,7 +828,7 @@ export async function compareFighters({ fighters, window, group = 'headline', st
     }),
     stats: rows,
     meetings: meetings.map(({ ids: _ids, ...rest }) => rest),
-    matchup_url: sides.length === 2 ? matchupUrl(meta, sides[0].row.id, sides[1].row.id) : null,
+    matchup_url: sides.length === 2 ? matchupUrl(meta, sides[0].row.id, sides[1].row.id, win) : null,
     notes,
     data_through: meta.latest,
     source: SOURCE,

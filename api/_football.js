@@ -297,7 +297,10 @@ export async function playerProfile({ player, season, group = 'all' }) {
 
   const pos = meta.positions[row.pos] || { label: row.pos, peers: row.pos, panels: [], headline: [] }
   const peers = pos.peers
-  const groupKey = group === 'all' ? null : GROUPS[group]
+  // "headline" is the handful of stats his profile score is the mean of: the short answer
+  // to "is he playing well", in the card's order, each explained.
+  const headline = group === 'headline' ? new Set(pos.headline) : null
+  const groupKey = group === 'all' || headline ? null : GROUPS[group]
   const onCard = pos.panels.filter((g) => !(row.off || []).includes(g))
   const groupLabel = (g) => meta.groups[g] || g
   const first = meta.seasons[meta.seasons.length - 1]
@@ -316,6 +319,7 @@ export async function playerProfile({ player, season, group = 'all' }) {
     if (groupKey && g !== groupKey) continue
     for (const m of meta.metrics) {
       if (m.group !== g || !m.positions.includes(row.pos)) continue
+      if (headline && !headline.has(m.key)) continue
       if (+seasonId < m.since) { notTracked.push({ key: m.key, label: m.label, group: groupLabel(g), since: m.since }); continue }
       const cell = row.m[m.key]
       if (!cell) {
@@ -418,7 +422,7 @@ export async function playerProfile({ player, season, group = 'all' }) {
   if (structured.sample.length) L.push(`Built on: ${structured.sample.map((d) => `${count(d.value)} ${d.value === 1 ? singular(d.label) : d.label}`).join(', ')}.`)
   if (structured.profile_score) {
     const ps = structured.profile_score
-    L.push(`Profile score ${ps.score}: his mean percentile across the ${ps.headline_stats} headline ${lowerFirst(pos.label)} stats, each ranked inside ${seasonId}, skipping any the season lacks.${ps.peak_season ? ` His peak season by that score is ${ps.peak_season}${live && ps.peak_season === seasonId ? ', so far' : ''}.` : ''}`)
+    L.push(`Profile score ${ps.score}: his mean percentile across the ${ps.headline_stats} headline ${lowerFirst(pos.label)} stats (${headlineOf(meta, row.pos).map((m) => m.label).join(', ')}), each ranked inside ${seasonId}. A stat still on a low sample is left out of the mean once two others have settled, and one the season lacks is skipped.${group === 'all' ? ' Group "headline" returns just those stats.' : ''}${ps.peak_season ? ` His peak season by that score is ${ps.peak_season}${live && ps.peak_season === seasonId ? ', so far' : ''}.` : ''}`)
   }
   L.push('')
 
@@ -466,7 +470,7 @@ export async function playerProfile({ player, season, group = 'all' }) {
     ].filter(Boolean)
     L.push(`- ${s.label}${s.kind && s.kind !== 'output' ? ` (${s.kind})` : ''}: ${s.display} (vs. ${peers}: ${nth(s.season_percentile)} in ${seasonId}, ${nth(s.all_time_percentile)} all-time)${tags.length ? ` [${tags.join('; ')}]` : ''}`)
     // Asked for one panel, each stat is explained in the page's words.
-    if (groupKey && s.what) L.push(`  ${s.what}`)
+    if ((groupKey || headline) && s.what) L.push(`  ${s.what}`)
   }
   if (!stats.length) {
     L.push('', groupKey && !pos.panels.includes(groupKey)
@@ -477,7 +481,7 @@ export async function playerProfile({ player, season, group = 'all' }) {
     notes.push('"low sample" marks a stat that has not had enough of its denominator to settle; the page draws those bars hollow. The tag gives what he has and what the stat needs.')
     L.push('', notes[notes.length - 1])
   }
-  const off = (row.off || []).filter((g) => !groupKey || g === groupKey)
+  const off = headline ? [] : (row.off || []).filter((g) => !groupKey || g === groupKey)
   if (off.length) {
     const why = off.map((g) => {
       const [den, floor] = meta.panelFloor[g]
@@ -1152,7 +1156,7 @@ export const tools = [
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nfl_search_players (e.g. "00-0033873") or a full name (e.g. "Patrick Mahomes"). If a name fits more than one player, the error lists their ids.'),
         season: z.string().trim().max(12).optional().describe('The year the season began, e.g. "2024". Omit for his most recent season.'),
-        group: z.enum(['all', ...Object.keys(GROUPS)]).default('all').describe('Which panel of stats to return: "all" (default), or one panel with each stat explained: "context" (games, snaps, penalties), "passing", "rushing", "receiving", "blocking", "pass_rush", "run_defense", "coverage", "kicking" (kicking and punting), "value" (total EPA, fantasy points) or "athletic" (size and combine).'),
+        group: z.enum(['all', 'headline', ...Object.keys(GROUPS)]).default('all').describe('Which stats to return: "all" (default); "headline" (the few stats behind his profile score, each explained: the short answer to how he is playing); or one panel with each stat explained: "context" (games, snaps, penalties), "passing", "rushing", "receiving", "blocking", "pass_rush", "run_defense", "coverage", "kicking" (kicking and punting), "value" (total EPA, fantasy points) or "athletic" (size and combine).'),
       },
       outputSchema: {
         player: z.object({
