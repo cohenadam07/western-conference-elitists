@@ -17,11 +17,17 @@
 // one module that declares its own tools — name, description, input and output shape, and
 // the function that answers — and this file registers whatever they declare:
 //
-//   api/_basketball.js   Basketball Savant        nba_search_players, nba_get_player_profile
-//   api/_football.js     Football Savant          nfl_search_players, nfl_get_player_profile
-//   api/_coaching.js     Coaching Savant          nfl_search_coaches, nfl_get_coach_profile
+//   api/_basketball.js   Basketball Savant        nba_search_players, nba_get_player_profile,
+//                                                 nba_get_leaderboard, nba_compare_players,
+//                                                 nba_get_player_career, nba_list_stats
+//   api/_football.js     Football Savant          nfl_search_players, nfl_get_player_profile,
+//                                                 nfl_get_leaderboard, nfl_compare_players,
+//                                                 nfl_get_player_career, nfl_list_stats
+//   api/_coaching.js     Coaching Savant          nfl_search_coaches, nfl_get_coach_profile,
+//                                                 nfl_get_coach_leaderboard
 //   api/_ufc.js          UFC Savant               ufc_search_fighters, ufc_get_fighter_profile,
-//                                                 ufc_get_upcoming_cards
+//                                                 ufc_get_upcoming_cards, ufc_get_leaderboard,
+//                                                 ufc_compare_fighters, ufc_list_stats
 //   api/_draft.js        Draft Savant             nba_draft_search_prospects,
 //                                                 nba_draft_get_prospect_profile
 //   api/_site.js         News, articles, boards   wce_get_news, wce_search_articles,
@@ -30,6 +36,11 @@
 //
 // A section's run() returns { text, structured }: the answer in words, and the same answer
 // as data. To add a section, write its module and add it to SECTIONS below.
+//
+// Each Savant answers the same five kinds of question, and its tools are named for them:
+// search (find someone), profile (one card), leaderboard (who is top), compare (side by side)
+// and career (one player over the years), plus list_stats, the glossary. A leaderboard is the
+// page's own Leaderboard Builder: the same pool and the same order, never a new ranking.
 //
 // Every section answers from small files the build writes under /savant-api/ (see
 // scripts/lib/savant-api.mjs), with one exception: the Dynasty board is live, so that tool
@@ -87,7 +98,7 @@ const callerOf = (req) =>
   req.socket?.remoteAddress ||
   'unknown'
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '2.0.0' }
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '2.1.0' }
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
@@ -96,7 +107,8 @@ const INSTRUCTIONS = [
   'ufc_ is UFC Savant: fighters ranked inside their division, against active fighters and all-time.',
   'nba_draft_ is Draft Savant: college and pre-draft data on draft prospects, not NBA stats.',
   'wce_ is the site itself: its news page, its articles, its draft Big Board and its crowd-priced Dynasty board.',
-  'Every percentile belongs to a pool, and each result names it. A percentile is only meaningful with its pool.',
+  'Pick the tool by the question. One named player, coach or fighter: a _profile tool. "Who led", "top ten", "best on the team": a _leaderboard tool, never a string of profiles. Two or more side by side: a _compare tool. One player over the years: a _career tool. What a stat means, or its key: a _list_stats tool.',
+  'Every percentile belongs to a pool, and each result names it. A percentile is only meaningful with its pool. A percentile stops at 99, so "led the league" comes from a leaderboard or a stated place, not from a 99th percentile.',
   'A stat marked low sample is below its stabilization threshold. A stat a season did not track is listed as not tracked rather than shown as zero. Results state the date of their data and link to the matching page on wcehoops.com.',
 ].join(' ')
 

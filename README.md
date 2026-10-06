@@ -136,12 +136,16 @@ look things up on the site mid-conversation and link back to the page. In Claude
 under **Customize > Connectors > Add custom connector**, with "No sign in". It is public and
 read-only: nothing in it can vote, write or change anything.
 
+Each Savant answers the same kinds of question, under the same names: find someone
+(`search`), one card (`profile`), who is top (`leaderboard`), side by side (`compare`), one
+player over the years (`career`), and what a stat means (`list_stats`).
+
 | Tools | Section | What they return |
 |---|---|---|
-| `nba_search_players`, `nba_get_player_profile` | Basketball Savant | Every stat with its league and position percentile, 1979-80 on; last 10 / 25 / 75 games for the latest season |
-| `nfl_search_players`, `nfl_get_player_profile` | Football Savant | Every stat on a player's card, ranked against his position, in-season and all-time, 1999 on |
-| `nfl_search_coaches`, `nfl_get_coach_profile` | Coaching Savant | Records, wins against the spread, career ranks, fourth downs, play-calling units, lineage |
-| `ufc_search_fighters`, `ufc_get_fighter_profile`, `ufc_get_upcoming_cards` | UFC Savant | Records, every stat ranked inside the division (active and all-time), recent fights, title reigns |
+| `nba_search_players`, `nba_get_player_profile`, `nba_get_leaderboard`, `nba_compare_players`, `nba_get_player_career`, `nba_list_stats` | Basketball Savant | Every stat with its league and position percentile, 1979-80 on; last 10 / 25 / 75 games for the latest season; the Leaderboard Builder's boards; two to four player-seasons side by side; a career season by season; the glossary |
+| `nfl_search_players`, `nfl_get_player_profile`, `nfl_get_leaderboard`, `nfl_compare_players`, `nfl_get_player_career`, `nfl_list_stats` | Football Savant | Every stat on a player's card, ranked against his position, in-season and all-time, 1999 on; counting totals; position boards and the NFL's top ten in a counting stat; side by side; a career; the glossary |
+| `nfl_search_coaches`, `nfl_get_coach_profile`, `nfl_get_coach_leaderboard` | Coaching Savant | Records, wins against the spread, career ranks, fourth downs, play-calling units, lineage; head coaches ranked by a career stat |
+| `ufc_search_fighters`, `ufc_get_fighter_profile`, `ufc_get_upcoming_cards`, `ufc_get_leaderboard`, `ufc_compare_fighters`, `ufc_list_stats` | UFC Savant | Records, every stat ranked inside the division (active and all-time), recent fights, title reigns; the next card, judged against today; division boards and the official ranking; side by side; the glossary |
 | `nba_draft_search_prospects`, `nba_draft_get_prospect_profile` | Draft Savant | Pre-draft production and measurements, ranked against a named pool |
 | `wce_get_news`, `wce_search_articles`, `wce_get_article`, `wce_get_big_board`, `wce_get_dynasty_rankings` | The site | The News list, WCE's articles, the Big Board, the live Dynasty board |
 
@@ -154,9 +158,31 @@ percentile. The one live read is the Dynasty board, which calls the site's own
 `/api/dynasty?action=board` and nothing else.
 
 An answer always names the pool a percentile is from ("vs. guards", "vs. quarterbacks"),
-flags low samples, lists a stat its season did not track rather than showing a zero, and
-states the date of its data. A name that fits several people returns their ids instead of a
-guess, and a misspelled name is never opened on its own.
+flags low samples, lists a stat its season did not track (or tracked and has no number for
+him) rather than showing a zero, and states the date of its data. A name that fits several
+people returns their ids instead of a guess, and a misspelled name is never opened on its own.
+
+**A leaderboard is the page's own Leaderboard Builder**, never a new ranking: the same pool
+(qualified players; one position in football; a division, active or all-time, in the UFC),
+the same sort, the same "settled samples only" default, and a link that opens the same board
+on the site. Each section's check runs the page's own code and compares row for row. Equal
+values share a place. Because a percentile stops at 99, a Basketball Savant card also gives
+a stat's place among qualified players when it is in the top ten ("1st of 349"), which is the
+leaderboard's place.
+
+**Football totals are derived, and say so.** The data holds rates (yards per attempt), not
+totals. The page derives a career's totals as a rate times the volume it was built from (its
+`CTOT` table); a season's totals are the same arithmetic on one season, with the recipes read
+out of the page at build time (`meta.totals`). `check:savant-football` holds them to the league
+ranks on the cards, which come from the pipeline's real totals: across every season, a better
+place never has a smaller total.
+
+**The next UFC card is judged against today.** The list of scheduled cards is only as fresh
+as the last data build, so each card is marked past, today or upcoming against the date on the
+US west coast, by the page (`nextCard()` in `ufc-savant.html`) and by the tool alike.
+
+Stats are named the way people say them ("true shooting", "three point percentage", "ts"):
+`findStat()` in `api/_core.js`. A name that fits several stats lists them rather than guess.
 
 ```bash
 npm run check:savant-mcp

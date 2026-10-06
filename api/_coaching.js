@@ -30,10 +30,21 @@
 // coach's answer names who called his offence and defence each season; it does not hand him
 // their numbers.
 //
+// THE FOURTH-DOWN VIEW CARRIES EVERY FOURTH-DOWN NUMBER
+// The page files "Fourth-down aggression" and "Fourth-down go rate" under Style, in the career
+// profile, and the model's verdicts under Fourth downs. Asked for fourth downs, a caller
+// wants both, so group "fourth_downs" gives the model's verdicts and then all six ranked
+// fourth-down stats, each with its percentile and its own pool.
+//
+// LEADERBOARD
+// nfl_get_coach_leaderboard ranks head coaches by one career stat, by the rule the page's
+// front-page boards use: head coaches with three seasons (and, for the fourth-down model's
+// stats, 48 games in its data) who have a value.
+//
 // Not a function itself: Vercel skips api files that start with an underscore.
 
 import { z } from 'zod'
-import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, norm, ordinal, prepare, rank, thousands, topTier } from './_core.js'
+import { READ_ONLY, SITE, SavantError, boardSlice, day, findStat, makeLoader, miss, norm, ordinal, prepare, prepareStats, rank, ranked, thousands, topTier } from './_core.js'
 
 const files = makeLoader('savant-api/coaching/v1', { what: 'Coaching Savant' })
 
@@ -575,6 +586,126 @@ function unitDetail(meta, file, u, notes, explained) {
   return { structured, lines: L }
 }
 
+// The pool a career stat is ranked in, in words.
+const isD4 = (m) => m.key.startsWith('d4_')
+const poolText = (meta, m) => (isD4(m)
+  ? `head coaches with at least ${meta.rules.d4MinGames} games in the fourth-down data, which starts in ${meta.rules.d4From}`
+  : `head coaches with at least ${meta.rules.minSeasons} seasons since ${meta.firstSeason}`)
+
+// Every ranked stat about fourth downs, wherever the page files it: the two under Style and
+// the model's four. Each with its percentile and the pool it was ranked in.
+const FOURTH_DOWN_STYLE = ['go_oe', 'go_rate']
+function fourthDownRanks(meta, p, notes) {
+  const h = p.hc
+  const wanted = meta.metrics.filter((m) => FOURTH_DOWN_STYLE.includes(m.key) || isD4(m))
+  const L = ['How he ranks on fourth down']
+  if (!h.qualified) {
+    say(notes, L, `Career stats are not ranked for him: fewer than ${meta.rules.minSeasons} seasons as a head coach, too short to rank against other coaches without inventing precision. His seasons carry the numbers.`)
+    return { stats: [], lines: L }
+  }
+  const stats = []
+  const missing = []
+  for (const m of wanted) {
+    const cell = h.m[m.key]
+    if (!cell) { missing.push(m); continue }
+    stats.push({
+      key: m.key,
+      label: m.label,
+      value: cell[0],
+      display: display(m.unit, cell[0]),
+      percentile: cell[1],
+      pool: poolText(meta, m),
+      pool_size: m.pool,
+      lower_is_better: m.lowerIsBetter,
+      what: m.what,
+    })
+  }
+  for (const st of stats) {
+    L.push(`- ${st.label}: ${st.display} (${st.percentile == null ? 'not ranked' : `${ordinal(st.percentile)} percentile`} among ${st.pool_size} ${st.pool})${st.lower_is_better ? ' [lower is better]' : ''}${st.what ? `. ${st.what}` : ''}`)
+  }
+  if (new Set(stats.map((st) => st.pool)).size > 1) say(notes, L, 'These come from two pools, so the same percentile means a different thing in each: aggression and go rate cover his whole head-coaching career back to 1999, the model\'s stats only the seasons it covers.')
+  say(notes, L, 'A higher percentile means a higher value, except on a stat tagged "lower is better", where the page flips it. Aggression and go rate are tendencies: higher means he goes for it more, which is not the same as deciding better. The model\'s stats are the ones that judge the decisions.')
+  if (missing.length) L.push(`Not shown for him: ${missing.map((m) => m.label).join(', ')} (ranked only with ${meta.rules.d4MinGames} games in the fourth-down data, which starts in ${meta.rules.d4From}).`)
+  return { stats, lines: L }
+}
+
+// ---- leaderboard -----------------------------------------------------------------------
+
+// Head coaches ranked by one career stat, the way the page's front-page boards do it: coaches
+// with three seasons who have a value, best first (lowest first where lower is better). The
+// files hold a ranked stat only for a coach who is in its pool, so "has the stat" is the pool.
+const WINS = { key: 'wins', label: 'Wins', group: 'Record', unit: 'num0', lowerIsBetter: false, what: 'Regular-season games he has won as a head coach since 1999.', record: true }
+const statIndex = new WeakMap()
+function statsOf(meta) {
+  let rows = statIndex.get(meta)
+  if (!rows) { rows = prepareStats([WINS, ...meta.metrics]); statIndex.set(meta, rows) }
+  return rows
+}
+
+export async function coachLeaderboard({ stat, limit = 10, order = 'top' }) {
+  const meta = await loadMeta()
+  const stats = statsOf(meta)
+  let m
+  try { m = findStat(stats, stat, { what: 'coaching stat' }) } catch (err) {
+    if (!(err instanceof SavantError) || /could be more than one/.test(err.message)) throw err
+    throw new SavantError(`${err.message} The career stats Coaching Savant ranks: ${stats.map((x) => `${x.label} (key "${x.key}")`).join(', ')}.`)
+  }
+  const people = Object.values((await loadProfiles()).people).filter((p) => p.hc && p.hc.qualified)
+  const valueOf = (p) => (m.record ? p.hc.w : p.hc.m[m.key] ? p.hc.m[m.key][0] : null)
+  const pool = people.filter((p) => !miss(valueOf(p)))
+  const all = ranked(pool, valueOf, { lower: m.lowerIsBetter })
+  const shown = boardSlice(all, limit, order)
+  const cur = meta.current
+
+  const notes = [
+    `Ranked among the ${all.length} ${m.record ? `head coaches with at least ${meta.rules.minSeasons} seasons since ${meta.firstSeason}` : poolText(meta, m)}. Career figures are weighted by games. A coach with a shorter record is not ranked, whatever his number.`,
+  ]
+  if (m.lowerIsBetter) notes.push(`${m.label} is a lower-is-better stat, so the lowest value is 1st.`)
+  if (order === 'bottom') notes.push(`This is the bottom of the board, worst first. Places are counted from the top: ${all.length ? ordinal(all[all.length - 1].rank) : 'last'} is last.`)
+  if (m.group === 'Style') notes.push(`${m.label} is a tendency: leading it means the most of it, not the best.`)
+  if (m.since && m.since > meta.firstSeason) notes.push(`${m.label} is tracked from ${m.since}, so earlier seasons are not in it.`)
+  if (cur && cur.week != null) notes.push(`${cur.season} is counted through week ${cur.week} of its regular season for coaches active now.`)
+  if (shown.some((r) => r.tied)) notes.push('Equal values share a place.')
+
+  const structured = {
+    stat: { key: m.key, label: m.label, group: m.group, what: m.what || null, lower_is_better: m.lowerIsBetter },
+    order,
+    ranked: all.length,
+    count: shown.length,
+    leaders: shown.map((r) => {
+      const h = r.row.hc
+      const cell = m.record ? null : h.m[m.key]
+      return {
+        rank: r.rank,
+        tied: r.tied,
+        name: r.row.name,
+        value: r.value,
+        display: m.record ? record(h.w, h.l, h.t) : display(m.unit, r.value),
+        percentile: cell ? cell[1] : null,
+        seasons: h.seasons,
+        first_season: h.first,
+        last_season: h.last,
+        teams: h.teams,
+        record: record(h.w, h.l, h.t),
+        url: coachUrl(r.row.name),
+      }
+    }),
+    notes,
+    url: meta.page,
+    data_as_of: day(meta.generated),
+    source: SOURCE,
+  }
+  if (!shown.length) return { structured, text: `No head coach has a ranked value for ${m.label}.\n\n${notes.join('\n')}\n\nSource: ${SOURCE}.` }
+  const L = [`NFL head coaches by ${m.label}: the ${order === 'bottom' ? 'bottom' : 'top'} ${shown.length} of ${all.length}`]
+  if (m.what) L.push(m.what)
+  L.push('')
+  for (const l of structured.leaders) {
+    L.push(`${l.tied ? 'T-' : ''}${l.rank}. ${l.name}: ${l.display}${l.percentile == null ? '' : ` (${ordinal(l.percentile)} percentile)`}, ${span(l.first_season, l.last_season)} (${l.teams.join(', ')}), ${plural(l.seasons, 'season')}${m.record ? '' : `, ${l.record}`}`)
+  }
+  L.push('', ...notes, '', `Page: ${meta.page}`, `Source: ${SOURCE}. Data as of ${structured.data_as_of}.`)
+  return { structured, text: L.join('\n') }
+}
+
 // ---- profile -------------------------------------------------------------------------
 
 export async function coachProfile({ coach, group = 'all', season }) {
@@ -643,6 +774,13 @@ export async function coachProfile({ coach, group = 'all', season }) {
     const d = fourthDowns(meta, p, notes, group === 'fourth_downs')
     structured.fourth_downs = d.structured
     L.push('', ...d.lines)
+    // Asked for on its own, the view also carries every ranked fourth-down stat (see the
+    // header). In the overview the career profile already has them.
+    if (group === 'fourth_downs') {
+      const r = fourthDownRanks(meta, p, notes)
+      structured.fourth_down_ranks = r.stats
+      L.push('', ...r.lines)
+    }
   }
   if (want('lineage')) {
     const t = lineage(meta, p, notes)
@@ -777,7 +915,7 @@ export const tools = [
         'Get one NFL head coach\'s or play-caller\'s Coaching Savant profile (Western Conference Elitists, wcehoops.com). For a head coach since 1999: regular-season and playoff record, Super Bowls, wins against what the closing betting spreads expected, his career stats each with a percentile against the head coaches with at least three seasons, his fourth-down decisions scored by the nfl4th model, his seasons one by one with who called the offence and defence, and the coach he learned under. For a play-caller since 2018: the units he called, and one unit in full, every stat with its percentile against the other offences or defences of that season. Each percentile is returned with the pool it was ranked in. Coaches and units too short to rank are returned unranked. The lineage and the play-caller attribution are hand-curated and are returned with that caveat. Includes the link to his page.',
       inputSchema: {
         coach: z.string().trim().min(1).max(80).describe('Coach name, e.g. "Andy Reid". If a name fits more than one coach, the error lists them.'),
-        group: z.enum(GROUPS).default('all').describe('Which part to return: "all" (default), "career" (ranked career stats), "fourth_downs" (with the calls the model liked least), "seasons" (season by season, every column), "play_calling" (what he called, one unit in full with each stat explained) or "lineage".'),
+        group: z.enum(GROUPS).default('all').describe('Which part to return: "all" (default), "career" (ranked career stats), "fourth_downs" (the model\'s verdicts, every ranked fourth-down stat including aggression and go rate, and the calls the model liked least), "seasons" (season by season, every column), "play_calling" (what he called, one unit in full with each stat explained) or "lineage".'),
         season: z.number().int().min(1990).max(2100).optional().describe('With "play_calling" or "all": the season whose unit to return in full, e.g. 2024. Omit for the unit his page opens on, his most recent one with enough snaps to rank.'),
       },
       outputSchema: {
@@ -835,6 +973,10 @@ export const tools = [
             model_preferred: z.string(), win_probability_lost: z.number(),
           })).optional(),
         }).nullable().optional(),
+        fourth_down_ranks: z.array(z.object({
+          key: z.string(), label: z.string(), value: z.number(), display: z.string(), percentile: pct, pool: z.string(), pool_size: z.number().int(),
+          lower_is_better: z.boolean(), what: z.string().nullable(),
+        })).optional().describe('With group "fourth_downs": every ranked fourth-down stat (aggression, go rate, and the model\'s four), each with its percentile and pool.'),
         seasons: z.array(z.object({
           season: z.number().int(),
           team: z.string(),
@@ -879,5 +1021,44 @@ export const tools = [
       annotations: { title: 'Get an NFL coach\'s Savant profile', ...READ_ONLY },
     },
     run: ({ coach, group, season }) => coachProfile({ coach, group, season }),
+  },
+  {
+    name: 'nfl_get_coach_leaderboard',
+    config: {
+      title: 'Get an NFL head-coach leaderboard',
+      description:
+        'Rank NFL head coaches by one career stat from Coaching Savant (wcehoops.com), as the page\'s front-page boards do. Use for "which coach is most aggressive on fourth down", "who beats the spread most" instead of looking coaches up one by one. Ranks head coaches since 1999 with three or more seasons; each comes with place, value, percentile, years, teams and record.',
+      inputSchema: {
+        stat: z.string().trim().min(1).max(60).describe('Key or name: "wins", "winpct", "porate" (playoff rate), "waa" (wins above expectation), "mov_oe" (points vs the spread), "off_epa", "def_epa", "proe" (pass rate over expected), "go_oe" (fourth-down aggression), "go_rate", "sec_play" (tempo), "d4_follow" (follows the fourth-down model), "d4_lost_g" (win probability given away).'),
+        limit: z.number().int().min(1).max(25).default(10).describe('Rows to list (default 10).'),
+        order: z.enum(['top', 'bottom']).default('top').describe('Best first (default) or worst first.'),
+      },
+      outputSchema: {
+        stat: z.object({ key: z.string(), label: z.string(), group: z.string(), what: z.string().nullable(), lower_is_better: z.boolean() }),
+        order: z.string(),
+        ranked: z.number().int().describe('How many head coaches the board ranks.'),
+        count: z.number().int(),
+        leaders: z.array(z.object({
+          rank: z.number().int().describe('Place, counted from the top. Equal values share a place.'),
+          tied: z.boolean(),
+          name: z.string().describe('His name, which is the id for nfl_get_coach_profile.'),
+          value: z.number(),
+          display: z.string().describe('The value as the site prints it.'),
+          percentile: pct,
+          seasons: z.number().int(),
+          first_season: z.number().int(),
+          last_season: z.number().int(),
+          teams: z.array(z.string()),
+          record: z.string().describe('Regular-season wins–losses(–ties) as a head coach since 1999.'),
+          url: z.string(),
+        })),
+        notes: z.array(z.string()).describe('Who is ranked, and how to read the board.'),
+        url: z.string(),
+        data_as_of: z.string(),
+        source: z.string(),
+      },
+      annotations: { title: 'Get an NFL head-coach leaderboard', ...READ_ONLY },
+    },
+    run: (args) => coachLeaderboard(args),
   },
 ]

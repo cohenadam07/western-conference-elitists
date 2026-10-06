@@ -840,6 +840,20 @@ function shortName(nm){ var p=(nm||'').split(' '); return p.length>1?p[p.length-
 function commas(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
 function headURL(e,big){ return e.h?('https://a.espncdn.com/combiner/i?img=/i/headshots/mma/players/full/'+e.h+'.png&w='+(big?260:120)+'&h='+(big?190:88)+'&scale=crop'):null; }
 function fmtDate(d){ if(!d) return ''; var p=d.split('-'); var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return M[+p[1]-1]+' '+(+p[2])+', '+p[0]; }
+/* The next card. The list of scheduled cards is only as fresh as the last data build, so its
+   first entry can be a card that has already been fought; calling that one "Next card" is
+   wrong the morning after. A card stays current through its own date on the US west coast
+   (ufcstats dates are US dates, and a main event can run past midnight in the east), and
+   the first card that is not yet past is the next one. A card with no date is kept. */
+function todayPT(){
+  try{ return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()); }
+  catch(e){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+}
+function nextCard(){
+  var cards=(DATA.upcoming&&DATA.upcoming.cards)||[], today=todayPT();
+  for(var i=0;i<cards.length;i++){ if(!cards[i].date||cards[i].date>=today) return cards[i]; }
+  return null;
+}
 function rankOf(e,div){ return (e.rks&&e.rks[div]!=null)?e.rks[div]:null; }
 function nickOf(e){ var n=(e.nick||'').replace(/["“”'\s]+$/,'').replace(/^["“”'\s]+/,''); return n.length>1?n:''; }
 function rankAny(e){ var best=null; if(e.rks) Object.keys(e.rks).forEach(function(d){ if(best==null||e.rks[d]<best.n) best={div:d,n:e.rks[d]}; }); return best; }
@@ -1340,8 +1354,8 @@ function renderHome(){
       +'<span>'+esc(x.e.name)+'</span><small>'+esc(x.div.label.replace("Women's ","W. "))+(x.champ?' · champion':' · '+Math.round(x.e.w.career.m.elo))+'</small></button>'; }).join('');
   chips.setAttribute('aria-busy','false');
   chips.querySelectorAll('.home-chip').forEach(function(b){ b.onclick=function(){ selectFighter(b.dataset.id,'career'); }; });
-  // the next card
-  var card=$('homeCard'), up=DATA.upcoming&&DATA.upcoming.cards&&DATA.upcoming.cards[0];
+  // the next card: the first one that has not happened yet (see nextCard())
+  var card=$('homeCard'), up=nextCard();
   if(up&&up.bouts&&up.bouts.length){
     card.hidden=false;
     card.innerHTML='<div class="home-card-h"><b>Next card · '+esc(up.name)+'</b><span>'+esc(fmtDate(up.date))+(up.location?' · '+esc(up.location):'')+'</span></div>'

@@ -121,6 +121,20 @@ function explanations(html) {
   return out
 }
 
+// The page's own leaderboard builder: the stat it opens ranked by, the columns it shows by
+// default (LB_COMMON), and how many rows it lists. The connector's leaderboard and its
+// side-by-side comparison start from the same stats, so "the headline stats" means the same
+// thing in an answer as on the page. Optional: without it the connector falls back to its own
+// short list.
+function leaderboardDefaults(html, keys) {
+  const state = html.match(/var\s+LB\s*=\s*\{[^}]*?rankKey\s*:\s*'(\w+)'[^}]*?topN\s*:\s*(\d+)/)
+  const common = html.match(/var\s+LB_COMMON\s*=\s*\[([^\]]*)\]/)
+  if (!state || !common) return null
+  const list = [...common[1].matchAll(/'(\w+)'/g)].map((m) => m[1]).filter((k) => keys.has(k))
+  if (!keys.has(state[1]) || !list.length) return null
+  return { rank: state[1], common: list, rows: +state[2] }
+}
+
 export function readPageConfig(html) {
   const at = html.search(/const\s+CFG\s*=\s*\{/)
   if (at < 0) throw new Error('CFG not found in basketball-savant.html')
@@ -138,6 +152,7 @@ export function readPageConfig(html) {
     posFixId: posFix(html, 'POS_FIX_ID'),
     posFixName: posFix(html, 'POS_FIX_NAME'),
     explain: explanations(html),
+    leaderboard: leaderboardDefaults(html, new Set(cfg.metrics.map((m) => m.key))),
   }
 }
 
@@ -224,7 +239,7 @@ function stats(p, season, metrics, pool, w) {
 const sampleOf = (p, key) => { const c = cell(p, key, 'season'); return c && c.n != null ? c.n : null }
 
 export function buildSavantApi({ data, html }) {
-  const { cfg, posFixId, posFixName, explain } = readPageConfig(html)
+  const { cfg, posFixId, posFixName, explain, leaderboard } = readPageConfig(html)
   if (!Array.isArray(data.seasons) || !data.data) throw new Error('savant-data.json: expected { seasons, data }')
   const metrics = cfg.metrics
   const latest = data.seasons[0]
@@ -302,6 +317,9 @@ export function buildSavantApi({ data, html }) {
     site: SITE,
     page: `${SITE}/basketball-savant.html`,
     playerUrl: `${SITE}/basketball-savant.html?p={id}`,
+    // The page's leaderboard builder, opened on a stat: its lbEncode() hash.
+    leaderboardUrl: `${SITE}/basketball-savant.html#lb?s={season}&r={stat}`,
+    leaderboard,
     generated: data.generated || null,
     source: data.source || null,
     latestSeason: latest,

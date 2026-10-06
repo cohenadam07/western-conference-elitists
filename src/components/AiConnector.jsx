@@ -141,7 +141,8 @@ export default function AiConnector() {
               Add Western Conference Elitists to Claude, then ask about any NBA or NFL player, UFC
               fighter, head coach or draft prospect in plain words. Instead of guessing, it looks
               the answer up here: the same percentiles you see on the page, the group each one is
-              measured against, and a link back to the card.
+              measured against, and a link back to the card. It can also rank a whole league by
+              any stat, set players side by side, and follow one through his career.
             </p>
             <div className="mt-7">
               <span className="kicker text-[10.5px] text-faint">What it can look up</span>

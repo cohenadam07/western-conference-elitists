@@ -677,10 +677,10 @@ const fails = async (tool, args, re) => {
   })
 }
 
-test('the two tools are declared the way the connector expects', async () => {
-  assert.deepEqual(api.tools.map((t) => t.name), ['nfl_search_coaches', 'nfl_get_coach_profile'])
+test('the tools are declared the way the connector expects', async () => {
+  assert.deepEqual(api.tools.map((t) => t.name), ['nfl_search_coaches', 'nfl_get_coach_profile', 'nfl_get_coach_leaderboard'])
   const { tools } = await client.listTools()
-  assert.deepEqual(tools.map((t) => t.name).sort(), ['nfl_get_coach_profile', 'nfl_search_coaches'])
+  assert.deepEqual(tools.map((t) => t.name).sort(), ['nfl_get_coach_leaderboard', 'nfl_get_coach_profile', 'nfl_search_coaches'])
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)
@@ -913,6 +913,92 @@ test('each part of a profile can be asked for alone, and every answer fits its s
   const old = await run(profile, { coach: out.coaches.people.find((r) => r.hc && r.last < 2018).name, group: 'play_calling' })
   assert.match(old.text, /Play-callers are recorded from 2018, after his last season/)
   assert.equal(old.structured.play_calling, null)
+})
+
+// The page files "Fourth-down aggression" and "Fourth-down go rate" under Style and the
+// model's verdicts under Fourth downs. Asked for fourth downs, a caller wants all of it: the
+// view alone has to carry every ranked fourth-down stat, with the percentile and pool the
+// career profile gives it. (Without this, "is A more aggressive than B" is answered from
+// unranked rates, with the one stat that settles it left in another view.)
+test('the fourth-down view carries every ranked fourth-down stat, each with its percentile and pool', async () => {
+  const wanted = meta.metrics.filter((m) => m.key === 'go_oe' || m.key === 'go_rate' || m.key.startsWith('d4_')).map((m) => m.key)
+  assert.deepEqual(wanted, ['go_oe', 'go_rate', 'd4_follow', 'd4_follow_p', 'd4_lost_g', 'd4_rash'])
+  let coaches = 0
+  let both = 0
+  for (const row of out.coaches.people.filter((r) => r.hc)) {
+    const h = people[row.name].hc
+    const view = await run(profile, { coach: row.name, group: 'fourth_downs' })
+    const career = await run(profile, { coach: row.name, group: 'career' })
+    const ranks = view.structured.fourth_down_ranks
+    coaches++
+    if (!h.qualified) {
+      assert.deepEqual(ranks, [], row.name)
+      assert.match(view.text, /How he ranks on fourth down\nCareer stats are not ranked for him: fewer than 3 seasons/)
+      continue
+    }
+    // The same rows the career profile holds for those stats: value, print, percentile, pool.
+    const inCareer = career.structured.career_stats.filter((x) => wanted.includes(x.key))
+    assert.deepEqual(ranks.map((x) => [x.key, x.value, x.display, x.percentile, x.pool, x.pool_size, x.lower_is_better, x.what]), inCareer.map((x) => [x.key, x.value, x.display, x.percentile, x.pool, x.pool_size, x.lower_is_better, x.what]), row.name)
+    assert.deepEqual(ranks.map((x) => x.key), wanted.filter((k) => h.m[k]))
+    for (const x of ranks) {
+      assert.ok(view.text.includes(`- ${x.label}: ${x.display} (${ordinal(x.percentile)} percentile among ${x.pool_size} ${x.pool})`), `${row.name} ${x.key}`)
+      assert.equal(x.display, fmt(meta.metrics.find((m) => m.key === x.key).unit, x.value))
+    }
+    if (new Set(ranks.map((x) => x.pool)).size > 1) { both++; assert.match(view.text, /These come from two pools, so the same percentile means a different thing in each/) }
+    // The overview already has them in the career profile, so it does not repeat them.
+    assert.equal((await run(profile, { coach: row.name })).structured.fourth_down_ranks, undefined)
+  }
+  assert.ok(coaches > 150 && both > 30)
+})
+
+// The page's front page ranks head coaches by a career stat: its board() keeps coaches with
+// three seasons (48 games in the model's data, for the model's stats) who have a value, and
+// sorts them. Worked out here from the page's own COACHES, and compared row for row.
+test('a leaderboard is the page\'s own board: same coaches, same order', async () => {
+  const board = api.tools.find((t) => t.name === 'nfl_get_coach_leaderboard')
+  const C = page.ctx.COACHES
+  const MIN = vm.runInContext('MIN_SEASONS', page.ctx)
+  for (const m of meta.metrics) {
+    const names = Object.keys(C).filter((n) => (m.key.startsWith('d4_') ? C[n].career.d4_g >= 48 : C[n].career.seasons >= MIN) && C[n].career[m.key] != null && Number.isFinite(C[n].career[m.key]))
+    const expected = names.map((n) => [n, C[n].career[m.key]]).sort((a, b) => (m.lowerIsBetter ? a[1] - b[1] : b[1] - a[1]))
+    assert.equal(expected.length, m.pool, `${m.key}: the pool the files state`)
+    for (const order of ['top', 'bottom']) {
+      const { structured: st, text } = await run(board, { stat: m.key, limit: 25, order })
+      assert.equal(st.ranked, expected.length, m.key)
+      const want = order === 'top' ? expected.slice(0, 25) : expected.slice(-25).reverse()
+      assert.deepEqual(st.leaders.map((l) => l.value), want.map((x) => x[1]), `${m.key} ${order}`)
+      for (const l of st.leaders) {
+        assert.equal(C[l.name].career[m.key], l.value, `${m.key} ${l.name}`)
+        assert.equal(l.rank, 1 + expected.filter((x) => (m.lowerIsBetter ? x[1] < l.value : x[1] > l.value)).length)
+        assert.equal(l.display, fmt(m.unit, l.value))
+        assert.equal(l.percentile, people[l.name].hc.m[m.key][1], `${m.key} ${l.name}: the percentile on his page`)
+        assert.equal(l.record, `${people[l.name].hc.w}–${people[l.name].hc.l}${people[l.name].hc.t ? `–${people[l.name].hc.t}` : ''}`)
+      }
+      assert.ok(text.includes(`NFL head coaches by ${m.label}: the ${order} ${st.count} of ${expected.length}`))
+      if (m.lowerIsBetter) assert.match(text, /lower-is-better stat, so the lowest value is 1st/)
+    }
+  }
+  // The six boards on the page's front page, read off the page's own render.
+  const drawn = (() => { let htmlOut = ''; const el = { innerHTML: '' }; const real = page.ctx.document.getElementById; page.ctx.document.getElementById = () => el; page.ctx.document.querySelectorAll = () => []; page.ctx.renderLeaders(); htmlOut = el.innerHTML; page.ctx.document.getElementById = real; return htmlOut })()
+  const boards = all(drawn, /<div class="lead-h">([^<]*)<\/div>((?:<div class="lrow"[^>]*>.*?<\/div>)+)/g).map((b) => [unescape(b[1]), all(b[2], /<span class="ln">([^<]*)<\/span>/g).map((r) => unescape(r[1]).trim())])
+  const onPage = new Map(boards)
+  for (const [title, stat] of [['Most wins', 'wins'], ['Wins above expectation', 'waa'], ['Playoff rate', 'porate'], ['Most aggressive on fourth down', 'go_oe'], ['Most pass-happy', 'proe'], ['Fastest tempo', 'sec_play'], ['Best fourth-down decisions', 'd4_lost_g']]) {
+    assert.ok(onPage.has(title), `the page no longer has a "${title}" board`)
+    const mine = (await run(board, { stat, limit: 10 })).structured.leaders
+    // Coaches level on the stat can sit in either order; the page's ten are ten of mine.
+    const tenth = mine[mine.length - 1].value
+    const pool = (await run(board, { stat, limit: 25 })).structured.leaders.filter((l) => (stat === 'sec_play' || stat === 'd4_lost_g' ? l.value <= tenth : l.value >= tenth)).map((l) => l.name)
+    for (const n of onPage.get(title)) assert.ok(pool.includes(n), `${title}: ${n} is on the page's board and not on the tool's`)
+    assert.equal(onPage.get(title).length, 10)
+  }
+  // Wins are counted, not a ranked stat: the record is what the page prints.
+  const wins = (await run(board, { stat: 'Wins', limit: 3 })).structured
+  assert.deepEqual(wins.leaders.map((l) => [l.value, l.display, l.percentile]), wins.leaders.map((l) => [people[l.name].hc.w, l.record, null]))
+  // A stat by the name people use; and one that is not there says what is.
+  for (const [said, key] of [['fourth down aggression', 'go_oe'], ['Fourth-down go rate', 'go_rate'], ['win %', 'winpct'], ['tempo', 'sec_play'], ['pass rate over expected', 'proe'], ['wins above expectation', 'waa']]) {
+    assert.equal((await run(board, { stat: said, limit: 1 })).structured.stat.key, key, said)
+  }
+  await fails(board, { stat: 'blitz rate' }, [/No coaching stat matches "blitz rate"/, /The career stats Coaching Savant ranks: Wins \(key "wins"\), Win % \(key "winpct"\)/])
 })
 
 test('the cautions that apply to one coach reach the answer', async () => {

@@ -7,6 +7,8 @@
 //
 //   makeLoader(base)   fetch + cache for one section's files
 //   prepare / rank     name search that ignores accents, punctuation and small typos
+//   findStat           a stat by the name a person gives it ("true shooting", "ts")
+//   ranked             a leaderboard's order, with ties sharing a place
 //   SavantError        an error whose message is written for the person asking
 //
 // THE LOADER
@@ -93,9 +95,33 @@ export function makeLoader(base, { what = 'Savant', maxCached = 16 } = {}) {
     return pending
   }
 
-  const loader = { load, clear: () => cache.clear() }
+  // One read that is not kept, for a question that walks many bulk files once: a career is
+  // a file per season. A copy already in memory is used; otherwise the file is fetched, read
+  // and let go, so a twenty-season career cannot push the index and the glossary (which
+  // every call needs) out of the cache.
+  async function once(path) {
+    const hit = cache.get(path)
+    if (hit && hit.pending) return hit.pending
+    if (hit && hit.value && Date.now() - hit.at < TTL_MS) { hit.used = ++clock; return hit.value }
+    try { return await fetchJson(path) } catch (err) {
+      console.error(`[savant] ${base}/${path} failed:`, err.message)
+      if (hit && hit.value) return hit.value
+      throw new SavantError(`${what} data could not be loaded right now. Try again in a minute.`)
+    }
+  }
+
+  const loader = { load, once, clear: () => cache.clear() }
   loaders.add(loader)
   return loader
+}
+
+// Run `fn` over `items`, at most `limit` at a time, keeping the order of the results.
+export async function mapLimit(items, limit, fn) {
+  const out = new Array(items.length)
+  let next = 0
+  const worker = async () => { while (next < items.length) { const i = next++; out[i] = await fn(items[i], i) } }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker))
+  return out
 }
 
 // Forget every section's files (tests).
@@ -171,8 +197,8 @@ export function prepare(rows, nameOf = (r) => r.name) {
 
 // Prepared rows that answer `query`, best first: [{ row, score }]. `tiebreak(a, b)` orders
 // rows whose scores are equal (the more recent, the more prominent — the section decides).
-export function rank(rows, query, tiebreak = () => 0) {
-  const q = norm(query)
+export function rank(rows, query, tiebreak = () => 0, normalise = norm) {
+  const q = normalise(query)
   const qTokens = q.split(' ').filter(Boolean)
   if (!qTokens.length) return []
   const out = []
@@ -192,6 +218,78 @@ export function topTier(ranked) {
   const top = ranked[0].score
   return ranked.filter((r) => (top >= 95 ? r.score >= 95 : r.score === top)).map((r) => r.row)
 }
+
+// ---- stats by name ---------------------------------------------------------------------
+
+// A stat's name the way people say it. On top of norm(): "percentage" and "per" are dropped
+// (the labels write % and /, which norm() already strips), and the few spellings that differ
+// between a fan and a label are brought together. "Three point percentage" and "3-point %"
+// both come out as "3 point"; "points per game" and "Points / game" both as "points g".
+const STAT_WORDS = [
+  [/\b(percentage|percent|pct)\b/g, ' '],
+  [/\bper\b/g, ' '],
+  [/\bsignificant\b/g, 'sig'],
+  [/\bgames?\b/g, 'g'],
+  [/\bminutes?\b/g, 'min'],
+  [/\bthree\b/g, '3'],
+  [/\btwo\b/g, '2'],
+  [/\b3 ?(pt|p|pointers?|points)\b/g, '3 point'],
+  [/\b2 ?(pt|p|pointers?|points)\b/g, '2 point'],
+  [/\bfree throws?\b/g, 'ft'],
+  [/\bfield goals?\b/g, 'fg'],
+  [/\btouchdowns?\b/g, 'td'],
+  [/\byards\b/g, 'yds'],
+]
+export function statNorm(s) {
+  let n = norm(s)
+  for (const [re, to] of STAT_WORDS) n = n.replace(re, to)
+  return n.replace(/\s+/g, ' ').trim()
+}
+
+// Stats ready for findStat(): each row is { key, label, ... } and gains its searchable name.
+export function prepareStats(stats) {
+  return stats.map((m) => { const n = statNorm(m.label); return { ...m, name: m.label, n, tokens: n.split(' ') } })
+}
+
+// The stat a caller means: its key, its label, or something close to the label. A name that
+// could be several stats is not guessed at: the error lists them by key. `tool` names the
+// tool that lists every stat, for the error to point at.
+export function findStat(rows, input, { tool = null, what = 'stat' } = {}) {
+  const raw = String(input || '').trim()
+  const hint = tool ? ` ${tool} lists every stat with its key.` : ''
+  if (!raw) throw new SavantError(`Give a ${what}: its key or its name.${hint}`)
+  const byKey = rows.find((r) => r.key.toLowerCase() === raw.toLowerCase())
+  if (byKey) return byKey
+  const q = statNorm(raw)
+  const exact = rows.filter((r) => r.n === q)
+  if (exact.length === 1) return exact[0]
+  const found = rank(rows, raw, () => 0, statNorm)
+  if (!found.length) throw new SavantError(`No ${what} matches "${raw}".${hint}`)
+  const best = found.filter((r) => r.score === found[0].score)
+  if (best.length === 1 && found[0].score >= 60) return best[0].row
+  const list = (best.length > 1 ? best : found).slice(0, 8).map((r) => `- ${r.row.label} (key "${r.row.key}")`)
+  throw new SavantError(`"${raw}" could be more than one ${what}. Call again with one of these keys:\n${list.join('\n')}`)
+}
+
+// ---- leaderboards ----------------------------------------------------------------------
+
+// Rows in leaderboard order by `valueOf`, each with its place. Equal values share a place and
+// the next one skips ahead (1, 2, 2, 4), so a tie is never passed off as a win. `lower` puts
+// the smallest value first, for stats where less is better.
+export function ranked(rows, valueOf, { lower = false } = {}) {
+  const dir = lower ? 1 : -1
+  const sorted = rows.map((row) => ({ row, value: valueOf(row) })).sort((a, b) => dir * (a.value - b.value))
+  let place = 0
+  return sorted.map((r, i) => {
+    if (i === 0 || r.value !== sorted[i - 1].value) place = i + 1
+    return { ...r, rank: place, tied: (i > 0 && sorted[i - 1].value === r.value) || (i + 1 < sorted.length && sorted[i + 1].value === r.value) }
+  })
+}
+
+// The rows a leaderboard shows: the first `limit`, or with order "bottom" the last `limit`,
+// worst first. A place is always counted from the top, so the bottom of a board of 178 reads
+// 178, 177, 176.
+export const boardSlice = (all, limit, order) => (order === 'bottom' ? all.slice(-limit).reverse() : all.slice(0, limit))
 
 // ---- small formatting helpers ----------------------------------------------------------
 

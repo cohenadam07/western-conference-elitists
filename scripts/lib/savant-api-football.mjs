@@ -105,6 +105,44 @@ function literal(html, name) {
   return JSON.parse(JSON.stringify(value))
 }
 
+// The page's counting totals (its CTOT table): which totals a position's career strip shows
+// and what each is built from. The page has no totals for a single season, only rates, and it
+// derives a career's totals as "a rate times the volume that rate was built from". The same
+// arithmetic on one season gives that season's totals, so the recipes are read out of the
+// page rather than copied: each entry is run against stand-ins that record what it asks for.
+//
+//   { label: 'Pass yds', kind: 'rate', key: 'ypa' }             ypa x the stat's denominator
+//   { label: 'Pass TD', kind: 'rate', key: 'tdpct', pct: true } a percentage, so / 100
+//   { label: 'Att', kind: 'count', den: 'att' }                  a denominator, as counted
+//   { label: 'Longest', kind: 'value', key: 'fglong' }           a stat's value as it stands
+//
+// Optional: if the table can no longer be read this way the files carry no totals, and say
+// nothing false.
+function totalsRecipes(html, line) {
+  const at = html.search(/\bvar\s+CTOT\s*=\s*\{/)
+  if (at < 0) return null
+  const open = html.indexOf('{', at)
+  const end = closing(html, open)
+  if (end < 0) return null
+  try {
+    const sandbox = {
+      careerTotalOf: (r, key, pct) => ({ kind: 'rate', key, pct: !!pct }),
+      careerDenomOf: (r, den) => ({ kind: 'count', den }),
+      cflat: (v) => (v && v.seen ? { kind: 'value', key: v.seen } : null),
+    }
+    const table = vm.runInNewContext(`(${html.slice(open, end + 1)})`, sandbox, { timeout: 1000 })
+    const row = { id: 'x', m: new Proxy({}, { get: (_, k) => ({ seen: String(k) }) }) }
+    const out = {}
+    for (const pos of Object.keys(table)) {
+      out[pos] = table[pos](row).filter((t) => t[1]).map(([label, spec]) => ({ label: String(label), ...spec }))
+    }
+    // CTOT.TE=CTOT.WR; and the line's entry copied onto tackle, guard and centre.
+    for (const m of html.matchAll(/\bCTOT\.(\w+)\s*=\s*CTOT\.(\w+)\s*;/g)) if (out[m[2]]) out[m[1]] = out[m[2]]
+    if (/CTOT\[k\]\s*=\s*CTOT\.OL/.test(html)) for (const k of line) if (out.OL && !out[k]) out[k] = out.OL
+    return JSON.parse(JSON.stringify(out))
+  } catch { return null }
+}
+
 export function readPage(html) {
   const cohortWord = literal(html, 'COHORT_WORD')   // QB -> "quarterbacks"
   const panelFloor = literal(html, 'PANEL_FLOOR')   // rush -> ['car', 12]
@@ -117,7 +155,9 @@ export function readPage(html) {
   // renderWeak(): at or under this best match, the page says nobody shares the profile.
   const low = html.match(/var\s+weak\s*=\s*best\s*<=\s*(\d+)\s*;/)
   if (!low) throw new Error(`the low-match line in renderWeak() changed in ${PAGE}`)
-  return { cohortWord, panelFloor, gaps, line, lowMatch: +low[1] }
+  // The Leaderboard Builder's link (its lbEncode()), and that it still reads one back.
+  const board = html.includes("return '#lb?s='+LB.season+'&p='+LB.pos+'&r='+LB.rank+'&n='+LB.topN") && html.includes("if(o.x==='all') LB.sample='all';")
+  return { cohortWord, panelFloor, gaps, line, lowMatch: +low[1], totals: totalsRecipes(html, line), board }
 }
 
 // ---- the page's arithmetic -------------------------------------------------------------
@@ -350,8 +390,22 @@ export function buildFootballApi({ data, current = null, html }) {
       const m = {}
       const low = []
       const off = []
+      // Stats in a panel the page leaves off his card. The card does not draw them, but the
+      // page's Leaderboard Builder still ranks him by them, so the values are kept (values
+      // only: there is no bar, so no percentile) for the leaderboard to be the page's exactly.
+      const x = {}
+      const xlow = []
       for (const [group, list] of card[pos] || []) {
-        if (!panelWorthIt(group, p, pos, page.panelFloor)) { off.push(group); continue }
+        if (!panelWorthIt(group, p, pos, page.panelFloor)) {
+          off.push(group)
+          for (const mt of list) {
+            const v = (p.m || {})[mt.key]
+            if (!tracked(mt, season) || miss(v)) continue
+            x[mt.key] = v
+            if (lowSample(p, mt)) xlow.push(mt.key)
+          }
+          continue
+        }
         for (const mt of list) {
           const v = (p.m || {})[mt.key]
           if (!tracked(mt, season) || miss(v)) continue   // barRow(): absent, not zero
@@ -370,6 +424,8 @@ export function buildFootballApi({ data, current = null, html }) {
       row.m = m
       if (low.length) row.low = low
       if (off.length) row.off = off
+      if (Object.keys(x).length) row.x = x
+      if (xlow.length) row.xlow = xlow
       // The page prints the score on the career-arc button, which needs two seasons to exist.
       const sc = (scores.get(p.id) || {})[season]
       if (sc != null && index.get(p.id).all.length >= 2) row.score = Math.round(sc)
@@ -402,6 +458,14 @@ export function buildFootballApi({ data, current = null, html }) {
     site: SITE,
     page: `${SITE}/${PAGE}`,
     playerUrl: `${SITE}/${PAGE}#p={id}&s={season}`,
+    // The page's Leaderboard Builder opened on a season, position and stat. "&t=<team>" and
+    // "&x=all" (everyone, not only settled samples) can follow.
+    leaderboardUrl: page.board ? `${SITE}/${PAGE}#lb?s={season}&p={pos}&r={stat}&n={n}` : null,
+    teams: Object.fromEntries(Object.entries(cfg.teams || {}).map(([k, v]) => [k, Array.isArray(v) ? v[0] : String(v)])),
+    // Counting totals by position: see totalsRecipes(). Only recipes whose stat exists.
+    totals: page.totals
+      ? Object.fromEntries(Object.entries(page.totals).filter(([pos]) => cfg.posLabel[pos]).map(([pos, list]) => [pos, list.filter((t) => (t.kind === 'count' ? cfg.denoms[t.den] : byKey[t.key] && (t.kind !== 'rate' || byKey[t.key].den)))]))
+      : null,
     generated: merged.generated,
     source: merged.source,
     latestSeason: latest,
@@ -465,6 +529,7 @@ export function buildFootballApi({ data, current = null, html }) {
       d: 'What his rates are built on, by denominator (denoms has the words): games, dropbacks, carries, targets, snaps and so on.',
       m: 'The bars on his card, by stat key: [value, percentile among his position that season, percentile among his position all-time]. A stat that is absent was not tracked that season, has no value for him, or belongs to a panel the page drops for too small a sample. It is not zero.',
       off: 'Panels the page leaves off his card because their whole sample is under the floor in panelFloor (a receiver\'s three carries).',
+      x: 'The values of the stats in those panels, by key: not on his card and with no percentile, kept because the page\'s Leaderboard Builder still ranks him by them. xlow lists the ones under their stabilization threshold.',
       low: 'Keys of stats whose denominator is under the stabilization threshold (metrics[].lowSampleBelow of metrics[].den). Quote them with that caveat.',
       score: 'Profile score: the mean season percentile across his position\'s headline stats (positions[].headline), as on the page\'s career-arc button. Qualified seasons only, and only for players with two or more seasons.',
       rec: 'His team\'s record: [wins, losses, ties]. po is how its season ended; coach is its head coach.',

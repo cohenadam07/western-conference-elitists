@@ -161,6 +161,11 @@ export function readPage(html) {
     beltEnd: wordMap(html, 'var how={', 'the words for how a title reign ended'),
     // The window the page opens a head-to-head in when a bout on the next card is clicked.
     matchupWindow: capture(html, /openMatchup\(s\.dataset\.a,s\.dataset\.b,'(\w+)'\)/, 'the head-to-head window'),
+    // The Leaderboard Builder: its link (lbEncode() writes it, readURL() opens it) and what
+    // it starts on. Optional: the connector's leaderboard works without the link.
+    board: html.includes("return '#lb=1&w='+lb.win+'&d='+lb.div+'&r='+lb.rank+'&n='+lb.top") && html.includes('if(q.lb!=null){ lbParseHash(q); openLB(); return true; }'),
+    // "Next card" is the first card that has not happened, judged on this clock.
+    nextCardZone: (html.match(/function todayPT\(\)\{[\s\S]{0,200}?timeZone:'([A-Za-z_/]+)'/) || [])[1] || null,
   }
 }
 
@@ -244,6 +249,9 @@ export function buildUfcApi({ data, html }) {
   // (the two title stats) exist only on the leaderboard and are left out.
   const metrics = cfg.panels.flatMap((g) => cfg.metrics.filter((m) => m.grp === g))
   if (!metrics.length) throw new Error(`${DATA}: no stat belongs to a panel the page draws`)
+  // The rest: stats the page's leaderboard offers and its profiles do not (its lbMetrics()
+  // is every stat in the data).
+  const boardOnly = cfg.metrics.filter((m) => !cfg.panels.includes(m.grp))
   for (const g of cfg.panels) if (!(cfg.groupLabel && cfg.groupLabel[g])) throw new Error(`${DATA}: panel "${g}" has no label`)
   // Every stat carries a `since` year, but only those above the earliest are a real era
   // gate (control time). The page treats them the same way.
@@ -315,6 +323,10 @@ export function buildUfcApi({ data, html }) {
       if (!s.ok) low[mt.key] = s.n
     }
     const row = { div, qualified: !!r.qualified, since: r.since, n: r.n, m }
+    // Stats the page's leaderboard can rank by that are not on a profile (the title stats).
+    const x = {}
+    for (const mt of boardOnly) if (!miss(r.m[mt.key])) x[mt.key] = r.m[mt.key]
+    if (Object.keys(x).length) row.x = x
     if (Object.keys(low).length) row.low = low
     if (untracked.length) row.untracked = untracked
     if (partial.length) row.partial = partial
@@ -386,6 +398,19 @@ export function buildUfcApi({ data, html }) {
     })),
   }))
 
+  const describe = (m) => ({
+    key: m.key,
+    label: m.label,
+    group: m.grp,
+    sub: m.sub || null,
+    layer: m.layer || null,
+    unit: m.unit,
+    lowerIsBetter: !!m.lower,
+    since: m.since,
+    sample: m.den || null,
+    lowSampleBelow: m.thr || null,
+    explain: m.exp || null,
+  })
   const meta = {
     schema: SCHEMA,
     name: 'UFC Savant',
@@ -395,6 +420,10 @@ export function buildUfcApi({ data, html }) {
     fighterUrl: `${SITE}/${PAGE}#f={id}&w={window}`,
     matchupUrl: `${SITE}/${PAGE}#mu={a},{b}&w={window}`,
     matchupWindow: page.matchupWindow,
+    // The page's Leaderboard Builder opened on a window, a division (or M / F for all men /
+    // all women), a stat ("rank" is the official UFC ranking), a pool and a sample.
+    leaderboardUrl: page.board ? `${SITE}/${PAGE}#lb=1&w={window}&d={division}&r={stat}&n={n}&b={baseline}&s={sample}&dir={dir}` : null,
+    nextCardZone: page.nextCardZone,
     generated: data.generated || null,
     earliest: fighters.map((e) => e.first).filter(Boolean).sort()[0] || null,
     latest: cfg.latest,
@@ -426,19 +455,11 @@ export function buildUfcApi({ data, html }) {
     groups: Object.fromEntries(cfg.panels.map((g) => [g, cfg.groupLabel[g]])),
     denoms: cfg.denoms || {},
     eraBase: baseEra,
-    metrics: metrics.map((m) => ({
-      key: m.key,
-      label: m.label,
-      group: m.grp,
-      sub: m.sub || null,
-      layer: m.layer || null,
-      unit: m.unit,
-      lowerIsBetter: !!m.lower,
-      since: m.since,
-      sample: m.den || null,
-      lowSampleBelow: m.thr || null,
-      explain: m.exp || null,
-    })),
+    metrics: metrics.map(describe),
+    // The page's headline stats: the ones its comps are matched on. A side-by-side starts here.
+    headline: (cfg.headline || []).filter((k) => metrics.some((m) => m.key === k)),
+    // Leaderboard-only stats (the title stats). Their values are in a window's `x`.
+    boardMetrics: boardOnly.map(describe),
     bonus: page.bonus,
     beltEnd: page.beltEnd,
     row: {
@@ -454,6 +475,7 @@ export function buildUfcApi({ data, html }) {
       belts: 'Title reigns, oldest first: div, start, end (null while reigning), days, defenses, how (a key of meta.beltEnd), interim.',
       fights: `His ${RECENT_FIGHTS} most recent UFC fights, newest first. time is seconds into the final round; ss/oss significant strikes landed and absorbed; ctrl seconds of control; oelo the opponent's Savant rating going in; bonus keys are in meta.bonus.`,
       w: 'One entry per window. div is his division in that window, n the fights in it, since the year of its earliest fight. m holds each stat as [value, ...percentiles in meta.views order]. A stat that is absent has no value in that window: it is not zero.',
+      x: 'Leaderboard-only stats (boardMetrics) by key: the raw value, no percentile.',
       low: 'Stats whose sample is under the threshold (metrics[].lowSampleBelow), with the sample they are on.',
       untracked: 'Stats the fights in the window predate (metrics[].since).',
       partial: 'Stats that cover only the fights in the window from their since year on.',

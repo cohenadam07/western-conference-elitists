@@ -525,9 +525,9 @@ const clean = (e, args) => {
 }
 const cardLink = (id, season) => `https://wcehoops.com/football-savant.html#p=${id}&s=${season}`
 
-test('the section declares its two tools the way the connector expects', () => {
+test('the section declares its tools the way the connector expects', () => {
   load()
-  assert.deepEqual(savant.tools.map((t) => t.name), ['nfl_search_players', 'nfl_get_player_profile'])
+  assert.deepEqual(savant.tools.map((t) => t.name), ['nfl_search_players', 'nfl_get_player_profile', 'nfl_get_leaderboard', 'nfl_compare_players', 'nfl_get_player_career', 'nfl_list_stats'])
   for (const t of savant.tools) {
     assert.equal(typeof t.run, 'function')
     assert.ok(t.config.title && t.config.annotations.title, `${t.name}: title`)
@@ -556,6 +556,15 @@ test('the section declares its two tools the way the connector expects', () => {
   for (const bad of [{ player: '' }, { player: 'a'.repeat(81) }, { player: 'x', group: 'defense' }, { player: 'x', season: '2024-2025-2026' }, { season: '2024' }]) {
     assert.ok(!profile.safeParse(bad).success, JSON.stringify(bad))
   }
+  const board = z.object(tool('nfl_get_leaderboard').config.inputSchema)
+  assert.deepEqual(board.parse({ position: 'QB' }), { position: 'QB', limit: 10, order: 'top', sample: 'settled' })
+  assert.deepEqual(board.parse({ stat: 'rushing yards', season: '2024', limit: 5 }), { stat: 'rushing yards', season: '2024', limit: 5, order: 'top', sample: 'settled' })
+  for (const bad of [{ position: 'QB', limit: 26 }, { position: 'QB', order: 'sideways' }, { position: 'QB', sample: 'some' }]) assert.ok(!board.safeParse(bad).success, JSON.stringify(bad))
+  const compare = z.object(tool('nfl_compare_players').config.inputSchema)
+  assert.ok(compare.safeParse({ players: ['a', 'b'] }).success)
+  for (const bad of [{ players: ['a'] }, { players: ['a', 'b', 'c', 'd', 'e'] }, { players: ['a', 'b'], group: 'defense' }, { players: ['a', 'b'], stats: Array(13).fill('x') }]) assert.ok(!compare.safeParse(bad).success, JSON.stringify(bad))
+  const career = z.object(tool('nfl_get_player_career').config.inputSchema)
+  assert.ok(career.safeParse({ player: 'a' }).success && !career.safeParse({ player: 'a', stats: Array(9).fill('x') }).success)
 })
 
 test('a profile says what the files say, for every player in every season, and fits its declared shape', async () => {
@@ -828,6 +837,226 @@ test('files are fetched once and reused; when the data is down the answer says s
   assert.equal((await savant.searchPlayers({ query: 'mahomes' })).structured.players[0].name, 'Patrick Mahomes')
 })
 
+// ---- 3. beyond one card ----------------------------------------------------------------
+
+// The page's stabilization rule (its sampleOf()), on the page's own merged data.
+const settledOn = (p, m) => !(m.thr && m.den && (p.d || {})[m.den] != null && p.d[m.den] < m.thr)
+
+// The page's Leaderboard Builder: lbPool() keeps the season's qualified players at one
+// position; lbRender() drops anyone without the stat or (Sample: Settled, its default) with
+// too little of the stat's denominator, and sorts. Worked out here from the page's own merged
+// data and stat table, never from the files under test, and compared row for row.
+test('a position leaderboard is the page\'s Leaderboard Builder: same pool, same order', async () => {
+  load()
+  const byKey = new Map(page.cfg.metrics.map((m) => [m.key, m]))
+  let boards = 0
+  let fellBack = 0
+  for (const season of [meta.latestSeason, '2024', '2015', '2003']) {
+    const players = page.data.data[season].players
+    for (const pos of Object.keys(meta.positions)) {
+      const mine = page.cfg.metrics.filter((m) => m.pos.includes(pos) && !['ath', 'ctx'].includes(m.grp))
+      const head = (page.cfg.headline[pos] || [])[0]
+      for (const key of [...new Set([head, ...mine.filter((_, i) => i % 9 === 4).map((m) => m.key)])].filter(Boolean)) {
+        const m = byKey.get(key)
+        if (+season < m.since) {
+          await assert.rejects(() => savant.leaderboard({ position: pos, stat: key, season }), (e) => e instanceof savant.SavantError && e.message.includes(`tracked from ${m.since}`))
+          continue
+        }
+        const pool = players.filter((p) => p.pos === pos && p.qualified && !page.miss(p.m[key]))
+        const settled = pool.filter((p) => settledOn(p, m))
+        const sort = (list) => list.map((p) => [p.id, p.m[key]]).sort((a, b) => (m.lower ? a[1] - b[1] : b[1] - a[1]))
+        const { structured: st, text } = await savant.leaderboard({ position: pos, stat: key === head ? undefined : key, season, limit: 25 })
+        boards++
+        assert.equal(st.stat.key, key, `${season} ${pos}: the stat it opens on is the page's`)
+        assert.equal(st.position, meta.positions[pos].label)
+        // With nobody settled (the first weeks of a season) the board lists everyone and says so.
+        const expected = settled.length || !pool.length ? settled : pool
+        assert.equal(st.fell_back_to_everyone, !settled.length && pool.length > 0, `${season} ${pos} ${key}`)
+        if (st.fell_back_to_everyone) { fellBack++; assert.match(text, /so this lists every qualified player and every place is on a low sample/) }
+        assert.equal(st.ranked, expected.length, `${season} ${pos} ${key}: who is ranked`)
+        assert.equal(st.hidden_low_sample, st.fell_back_to_everyone ? 0 : pool.length - settled.length)
+        assert.deepEqual(st.leaders.map((l) => [l.id, l.value]), sort(expected).slice(0, 25), `${season} ${pos} ${key}`)
+        for (const l of st.leaders) {
+          assert.equal(l.rank, 1 + expected.filter((p) => (m.lower ? p.m[key] < l.value : p.m[key] > l.value)).length)
+          // The value prints as the page prints it, and the percentile is the card's. A man
+          // whose whole panel the page leaves off his card is still on the page's board: he is
+          // listed, marked, with no percentile, because his card has no such bar.
+          assert.equal(l.display, page.fmt(m.unit, l.value))
+          const src = players.find((p) => p.id === l.id)
+          assert.equal(l.on_card, page.panelWorthIt(m.grp, src, pos), `${season} ${pos} ${key} ${l.name}: on his card`)
+          const cell = seasonFile(season).players.find((p) => p.id === l.id).m[key]
+          assert.deepEqual([l.season_percentile, l.all_time_percentile], cell ? [cell[1], cell[2]] : [null, null])
+          assert.equal(l.low_sample, !settledOn(src, m))
+        }
+        if (expected.length) assert.ok(text.includes(`${meta.positions[pos].label}s by ${m.label}, ${season}`), text.slice(0, 120))
+      }
+    }
+  }
+  assert.ok(boards > 150, `${boards} boards`)
+  assert.ok(fellBack > 0, 'the season in progress should have at least one board with nobody settled yet')
+
+  // "Everyone" lists the thin samples too, marked.
+  const m = byKey.get('epadb')
+  const all2024 = page.data.data['2024'].players.filter((p) => p.pos === 'QB' && p.qualified && !page.miss(p.m.epadb))
+  const everyone = (await savant.leaderboard({ position: 'quarterback', stat: 'EPA / dropback', season: '2024', sample: 'everyone', limit: 25, order: 'bottom' })).structured
+  assert.equal(everyone.ranked, all2024.length)
+  assert.deepEqual(everyone.leaders.map((l) => l.low_sample), everyone.leaders.map((l) => !settledOn(all2024.find((p) => p.id === l.id), m)))
+  assert.equal(everyone.leaders[0].rank, Math.max(...everyone.leaders.map((l) => l.rank)), 'the bottom of the board is numbered from the top, worst first')
+  // One team, by name or by code. The link is the page's lbEncode() hash.
+  const kc = (await savant.leaderboard({ position: 'WR', stat: 'ypt', season: '2024', team: 'Chiefs' })).structured
+  assert.deepEqual(kc, (await savant.leaderboard({ position: 'wide receivers', stat: 'ypt', season: '2024', team: 'kc' })).structured)
+  assert.ok(kc.leaders.length && kc.leaders.every((l) => l.team === 'KC'))
+  // (With one team's receivers nobody may have a settled sample; then the link opens on Everyone.)
+  assert.equal(kc.url, `https://wcehoops.com/football-savant.html#lb?s=2024&p=WR&r=ypt&n=10&t=KC${kc.fell_back_to_everyone ? '&x=all' : ''}`)
+  assert.ok(html.includes("return '#lb?s='+LB.season+'&p='+LB.pos+'&r='+LB.rank+'&n='+LB.topN") && html.includes("(LB.team?'&t='+LB.team:'')") && html.includes("(LB.sample!=='settled'?'&x=all':'')"))
+  // A position is its code, its name, or how a fan says it; without one, the answer says why.
+  for (const [said, label] of [['rb', 'Running back'], ['running backs', 'Running back'], ['Edge', 'Edge'], ['corner', 'Cornerback'], ['safeties', 'Safety'], ['tight end', 'Tight end']]) {
+    assert.equal((await savant.leaderboard({ position: said, season: '2024', limit: 1 })).structured.position, label, said)
+  }
+  await assert.rejects(() => savant.leaderboard({ season: '2024' }), /Give a position: Football Savant ranks players only against their own position/)
+  await assert.rejects(() => savant.leaderboard({ position: 'goalkeeper' }), /is not a position Football Savant ranks/)
+  await assert.rejects(() => savant.leaderboard({ position: 'CB', stat: 'pocket time' }), /No cornerback stat matches "pocket time"/)
+})
+
+// The data holds rates, not totals. The page derives a career's counting totals as "a rate
+// times the volume that rate was built from" (its CTOT table and careerTotalOf()); a season's
+// totals are the same arithmetic on one season. Three things hold that honest: the recipes
+// are the page's own; the arithmetic is exact to the rounding; and the totals agree, place
+// for place, with the league ranks the pipeline worked out from the real totals.
+test('season totals are the page\'s recipes, and agree with the league ranks on the cards', async () => {
+  load()
+  // The recipes, read here straight off the page's text rather than by running it.
+  const src = html.slice(html.indexOf('var CTOT={'), html.indexOf('CTOT.TE=CTOT.WR'))
+  const read = {}
+  for (const row of src.matchAll(/\n\s{2}(\w+):function\(r\)\{return \[([\s\S]*?)\];\},?/g)) {
+    read[row[1]] = [...row[2].matchAll(/\['([^']+)',(careerTotalOf\(r,'(\w+)'(,1)?\)|careerDenomOf\(r,'(\w+)'\)|cflat\(r\.m\.(\w+)\))\]/g)].map((t) => (
+      t[3] ? { label: t[1], kind: 'rate', key: t[3], pct: !!t[4] } : t[5] ? { label: t[1], kind: 'count', den: t[5] } : { label: t[1], kind: 'value', key: t[6] }))
+  }
+  assert.ok(Object.keys(read).length >= 9, 'the page\'s CTOT table could not be read')
+  const known = new Set(page.cfg.metrics.map((m) => m.key))
+  for (const pos of Object.keys(read)) {
+    assert.deepEqual(meta.totals[pos], read[pos].filter((t) => (t.kind === 'count' ? page.cfg.denoms[t.den] : known.has(t.key))), `${pos}: recipes`)
+  }
+  assert.deepEqual([meta.totals.TE, meta.totals.DI, meta.totals.S, meta.totals.OT], [meta.totals.WR, meta.totals.ED, meta.totals.CB, meta.totals.OL])
+
+  // The arithmetic, on every player-season: rate x volume, and the rates carry enough
+  // decimals that the product lands on a whole (or half) number.
+  const byKey = new Map(meta.metrics.map((m) => [m.key, m]))
+  let derived = 0
+  let off = 0
+  for (const season of meta.seasons) {
+    for (const row of seasonFile(season).players) {
+      const totals = savant.totalsOf(meta, row)
+      for (const t of totals) {
+        const spec = meta.totals[row.pos].find((x) => x.label === t.label)
+        if (spec.kind === 'count') { assert.equal(t.value, row.d[spec.den]); assert.equal(t.derived, false); continue }
+        if (spec.kind === 'value') { assert.equal(t.value, row.m[spec.key][0]); continue }
+        const exact = (row.m[spec.key][0] * row.d[byKey.get(spec.key).den]) / (spec.pct ? 100 : 1)
+        assert.ok(Math.abs(exact - t.value) <= 0.25, `${season} ${row.name} ${t.label}: ${exact} vs ${t.value}`)
+        derived++
+        if (Math.abs(exact - t.value) > 0.06) off++
+      }
+    }
+  }
+  assert.ok(derived > 100000, `${derived} derived totals`)
+  assert.ok(off / derived < 0.02, `${off} of ${derived} derived totals sit more than 0.06 from a whole or half number`)
+
+  // The league ranks on the cards come from the pipeline's real totals. Every season, every
+  // counting stat with a total: a better place never has a smaller total, and a shared place
+  // is an equal total.
+  let boards = 0
+  let compared = 0
+  for (const season of meta.seasons) {
+    for (const stat of ['passing yards', 'passing TDs', 'pass attempts', 'rushing yards', 'carries', 'receiving yards', 'receptions', 'targets', 'receiving TDs', 'sacks', 'tackles for loss', 'QB hits', 'passes defended', 'interceptions']) {
+      let board
+      try { board = (await savant.leaderboard({ stat, season, limit: 25 })).structured } catch (e) { if (e instanceof savant.SavantError) continue; throw e }
+      assert.equal(board.mode, 'league_leaders', `${season} ${stat}`)
+      boards++
+      const src2 = page.data.data[season].players
+      for (const l of board.leaders) assert.ok(src2.find((p) => p.id === l.id).acc.some((a) => a.s === stat && a.r === l.rank), `${season} ${stat} ${l.name}: the place on his card`)
+      const withTotal = board.leaders.filter((l) => l.total != null)
+      for (let i = 1; i < withTotal.length; i++) {
+        const [a, b] = [withTotal[i - 1], withTotal[i]]
+        compared++
+        if (a.rank < b.rank) assert.ok(a.total > b.total, `${season} ${stat}: #${a.rank} ${a.name} ${a.total}, #${b.rank} ${b.name} ${b.total}`)
+        else assert.equal(a.total, b.total, `${season} ${stat}: tied at #${a.rank}, ${a.name} ${a.total} and ${b.name} ${b.total}`)
+      }
+    }
+  }
+  assert.ok(boards > 300 && compared > 2500, `${boards} boards, ${compared} pairs`)
+
+  // And four seasons anyone can look up.
+  const line = async (player, season) => Object.fromEntries((await savant.playerProfile({ player, season })).structured.totals.map((t) => [t.label, t.value]))
+  assert.deepEqual(await line('Joe Burrow', '2024'), { Games: 17, Att: 652, 'Pass yds': 4918, 'Pass TD': 43, Int: 9, 'Rush yds': 201 })
+  assert.deepEqual(await line('Patrick Mahomes', '2022'), { Games: 17, Att: 648, 'Pass yds': 5250, 'Pass TD': 41, Int: 12, 'Rush yds': 358 })
+  assert.deepEqual(await line('Tom Brady', '2007'), { Games: 16, Att: 578, 'Pass yds': 4806, 'Pass TD': 50, Int: 8, 'Rush yds': 98 })
+  const henry = await line('Derrick Henry', '2024')
+  assert.deepEqual([henry.Carries, henry['Rush yds']], [325, 1921])
+  const text = (await savant.playerProfile({ player: 'Joe Burrow', season: '2024' })).text
+  assert.ok(text.includes('In 2024: 17 Games, 652 Att, 4,918 Pass yds, 43 Pass TD, 9 Int, 201 Rush yds. Derived: see the note on totals.'))
+  assert.match(text, /can land a yard or two off the official book/)
+})
+
+test('a comparison and a career say what the cards say, and the glossary is the page\'s', async () => {
+  load()
+  const card = async (player, season, group = 'all') => (await savant.playerProfile({ player, season, group })).structured
+  const qbs = seasonFile('2024').players.filter((p) => p.pos === 'QB' && p.qualified).slice(0, 2)
+  const cmp = await savant.comparePlayers({ players: qbs.map((p) => p.id), seasons: ['2024'] })
+  assert.deepEqual(cmp.structured.stats.map((x) => x.key), meta.positions.QB.headline)
+  for (const [i, row] of qbs.entries()) {
+    const c = await card(row.id, '2024')
+    assert.deepEqual(cmp.structured.players[i].totals, c.totals)
+    assert.deepEqual(cmp.structured.players[i].league_ranks, c.league_ranks)
+    for (const st of cmp.structured.stats) {
+      const on = c.stats.find((x) => x.key === st.key)
+      const v = st.values[i]
+      assert.deepEqual([v.status, v.value, v.display, v.season_percentile, v.all_time_percentile, v.low_sample], ['ok', on.value, on.display, on.season_percentile, on.all_time_percentile, on.low_sample], `${row.name} ${st.key}`)
+      assert.equal(st.what, on.what)
+    }
+  }
+  // Different positions: a stat that is not on the other man's card is said to be, not blanked.
+  const rb = seasonFile('2024').players.find((p) => p.pos === 'RB' && p.qualified)
+  const mixed = (await savant.comparePlayers({ players: [qbs[0].id, rb.id], seasons: ['2024'], stats: ['epadb', 'ypc'] })).structured
+  assert.equal(mixed.stats[0].values[1].status, 'not a running back stat')
+  assert.ok(mixed.notes.some((n) => /different positions/.test(n)))
+  await assert.rejects(() => savant.comparePlayers({ players: [qbs[0].id, qbs[0].id], seasons: ['2024'] }), /is listed twice/)
+
+  // A career: every season he has, oldest first, each line the card's own.
+  const vet = index.players.map((r) => ({ id: r[0], name: r[1], pos: r[2], from: r[4], to: r[5], n: r[6] })).find((r) => r.pos === 'QB' && r.n >= 12 && r.to >= 2022)
+  const career = (await savant.playerCareer({ player: vet.id })).structured
+  assert.deepEqual(career.seasons.map((x) => x.season), [...page.seasonsOf(vet.id)])
+  assert.deepEqual(career.stats.map((x) => x.key), meta.positions[vet.pos].headline)
+  for (const sn of career.seasons.filter((_, i) => i % 4 === 0)) {
+    const c = await card(vet.id, sn.season)
+    assert.deepEqual([sn.team, sn.position, sn.qualified, sn.totals, sn.league_ranks], [c.player.team, c.player.position, c.player.qualified, c.totals, c.league_ranks], `${vet.name} ${sn.season}`)
+    assert.equal(sn.profile_score, c.profile_score ? c.profile_score.score : null)
+    for (const v of sn.stats) {
+      const on = c.stats.find((x) => x.key === v.key)
+      if (on) assert.deepEqual([v.status, v.value, v.display, v.season_percentile, v.all_time_percentile], ['ok', on.value, on.display, on.season_percentile, on.all_time_percentile])
+      else assert.notEqual(v.status, 'ok')
+    }
+  }
+  assert.equal(career.player.peak_season, String(index.players.find((r) => r[0] === vet.id)[7] || '') || null)
+  const part = (await savant.playerCareer({ player: vet.id, from: String(vet.from + 1), to: String(vet.from + 3), stats: ['cpoe', 'Sack rate'] })).structured
+  assert.ok(part.seasons.length <= 3 && part.seasons.every((x) => +x.season > vet.from && +x.season <= vet.from + 3))
+  assert.deepEqual(part.stats.map((x) => x.key), ['cpoe', 'sackpct'])
+
+  // The glossary: every stat on a position's card, with the data file's own explanation.
+  const src = new Map(page.cfg.metrics.map((m) => [m.key, m]))
+  for (const pos of ['QB', 'WR', 'CB', 'K']) {
+    const g = (await savant.listStats({ position: pos })).structured
+    assert.deepEqual(g.stats.map((x) => x.key), meta.positions[pos].panels.flatMap((grp) => meta.metrics.filter((m) => m.group === grp && m.positions.includes(pos)).map((m) => m.key)), pos)
+    for (const x of g.stats) {
+      const e = src.get(x.key).exp || {}
+      assert.deepEqual([x.label, x.what, x.formula, x.why], [src.get(x.key).label, e.w || null, e.f || null, e.y || null], `${pos} ${x.key}`)
+    }
+  }
+  const brief = (await savant.listStats({})).structured
+  assert.equal(brief.count, meta.metrics.length)
+  assert.ok(brief.stats.every((x) => x.what === null) && /names and keys only/.test(brief.notes[0]))
+  assert.match((await savant.listStats({ query: 'cpoe' })).text, /CPOE \(key "cpoe"\)/)
+})
+
 test('the tools register with the MCP SDK and answer a real client, errors included', async () => {
   load()
   const { McpServer } = await import('@modelcontextprotocol/sdk/server/mcp.js')
@@ -851,7 +1080,7 @@ test('the tools register with the MCP SDK and answer a real client, errors inclu
   await Promise.all([server.connect(a), client.connect(b)])
   try {
     const { tools } = await client.listTools()
-    assert.deepEqual(tools.map((t) => t.name).sort(), ['nfl_get_player_profile', 'nfl_search_players'])
+    assert.deepEqual(tools.map((t) => t.name).sort(), ['nfl_compare_players', 'nfl_get_leaderboard', 'nfl_get_player_career', 'nfl_get_player_profile', 'nfl_list_stats', 'nfl_search_players'])
     for (const t of tools) {
       assert.ok(t.name.length <= 64)
       assert.equal(t.annotations.readOnlyHint, true)
@@ -872,6 +1101,22 @@ test('the tools register with the MCP SDK and answer a real client, errors inclu
     assert.equal(twins.structuredContent, undefined)
     const bad = await client.callTool({ name: 'nfl_get_player_profile', arguments: { player: 'Lamar Jackson', group: 'defense' } })
     assert.ok(bad.isError, 'an unknown group is refused by the schema')
+    // The rest of the section, each result held to its declared shape by callTool.
+    for (const [name, args, expect] of [
+      ['nfl_get_leaderboard', { position: 'QB', season: '2019' }, /Quarterbacks by EPA \/ dropback, 2019/],
+      ['nfl_get_leaderboard', { position: 'RB' }, /Running backs by /],
+      ['nfl_get_leaderboard', { stat: 'rushing yards', season: '2019', limit: 5 }, /NFL leaders in rushing yards, 2019/],
+      ['nfl_compare_players', { players: ['00-0034796', 'Patrick Mahomes'], seasons: ['2019'] }, /side by side/],
+      ['nfl_get_player_career', { player: '00-0034796' }, /Best season in each/],
+      ['nfl_list_stats', { position: 'QB' }, /Football Savant stats? on a quarterback's card/],
+      ['nfl_list_stats', {}, /names and keys only/],
+    ]) {
+      const r = await client.callTool({ name, arguments: args })
+      assert.ok(!r.isError, `${name}: ${r.content[0].text.slice(0, 200)}`)
+      assert.match(r.content[0].text, expect, name)
+    }
+    const nowhere = await client.callTool({ name: 'nfl_get_leaderboard', arguments: { stat: 'epadb' } })
+    assert.ok(nowhere.isError && /Give a position/.test(nowhere.content[0].text))
   } finally {
     await client.close()
     await server.close()

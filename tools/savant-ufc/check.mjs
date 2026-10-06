@@ -44,7 +44,7 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { BASE, RECENT_FIGHTS, SHARDS, VIEWS, buildUfcApi, cleanNick, readPage, shardOf, writeUfcApi } from '../../scripts/lib/savant-api-ufc.mjs'
 import { SavantError, clearCache } from '../../api/_core.js'
-import { GROUPS, WINDOWS, clock, display, feetInches, fighterProfile, matchupUrl, searchFighters, span, tools, upcomingCards } from '../../api/_ufc.js'
+import { GROUPS, WINDOWS, cardDay, clock, compareFighters, display, feetInches, fighterProfile, leaderboard, listStats, matchupUrl, searchFighters, span, tools, upcomingCards } from '../../api/_ufc.js'
 
 const BUDGET = 4 * 1048576 // bytes on disk; Vercel keeps about forty deployments
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
@@ -622,9 +622,24 @@ test('the caveats a fan needs are in the answer', async () => {
   }
 })
 
-test('the upcoming cards are the ones in the data, and the first is the page\'s "Next card"', async () => {
-  const { structured: s, text } = await call('ufc_get_upcoming_cards', {})
+// The list of scheduled cards is only as fresh as the last data build, so its first entry can
+// be a card that has already been fought. Both the page and the tool judge each card against
+// today's date on the US west coast; the test sets that date, on both, and walks it past each
+// card in turn.
+const dayAfter = (iso, n = 1) => new Date(Date.parse(`${iso}T12:00:00Z`) + n * 86400000).toISOString().slice(0, 10)
+test('the cards are the ones in the data, and "next" is the first not yet fought, on the page and in the tool', async () => {
   const cards = data.upcoming.cards
+  assert.ok(cards.length && cards.every((c) => c.date), 'the data lists scheduled cards with dates')
+  // The page's clock and the tool's are the same clock.
+  assert.equal(meta.nextCardZone, 'America/Los_Angeles')
+  assert.equal(cardDay(Date.now(), meta.nextCardZone), vm.runInContext('todayPT()', ctx))
+  assert.equal(cardDay(Date.parse('2026-10-04T06:59:00Z')), '2026-10-03', 'a card stays current until midnight on the west coast')
+  assert.equal(cardDay(Date.parse('2026-10-04T07:01:00Z')), '2026-10-04')
+
+  // Everything in the list, whatever the date: the cards and bouts are the data's.
+  const before = dayAfter(cards[0].date, -1)
+  const { structured: s, text } = await upcomingCards({ which: 'all', today: before })
+  shape.ufc_get_upcoming_cards.output.parse(s)
   assert.equal(s.count, cards.length)
   assert.deepEqual(s.cards.map((c) => [c.event, c.date, c.location]), cards.map((c) => [c.name, c.date, c.location]))
   s.cards.forEach((c, i) => {
@@ -636,15 +651,56 @@ test('the upcoming cards are the ones in the data, and the first is the page\'s 
       assert.equal(b.matchup_url != null, src.every((x) => x.known))
     })
     assert.ok(text.includes(`${c.event}, ${c.date}, ${c.location}`))
+    // The main event is the bout the card is named for, and at most one bout is.
+    const main = c.bouts.filter((b) => b.main_event)
+    assert.ok(main.length <= 1)
+    if (main.length) for (const x of main[0].fighters) assert.ok(x.name.split(' ').some((w) => c.event.toLowerCase().includes(w.toLowerCase())), `${c.event}: ${x.name}`)
   })
-  assert.ok(text.includes(`listed as of ${s.data_built}`) && s.data_built === data.upcoming.generated.slice(0, 10))
+  assert.ok(s.cards.some((c) => c.bouts.some((b) => b.main_event)), 'no card had a main event that could be told from its name')
+  assert.ok(text.includes(`when the data was built on ${s.data_built}`) && s.data_built === data.upcoming.generated.slice(0, 10))
 
-  // The home screen draws the first card. Read it off the page.
+  // Walk the date: the day before the first card, each card's own day, the day after each,
+  // and the day after the last. The page's home screen and the tool have to agree every time.
+  const days = [before, ...cards.flatMap((c) => [c.date, dayAfter(c.date)])]
+  for (const today of days) {
+    const expected = cards.find((c) => c.date >= today) || null
+    const all = (await upcomingCards({ which: 'all', today })).structured
+    const upcoming = (await upcomingCards({ today })).structured
+    const next = (await upcomingCards({ which: 'next', today })).structured
+    assert.deepEqual(all.cards.map((c) => c.status), cards.map((c) => (c.date < today ? 'past' : c.date === today ? 'today' : 'upcoming')), today)
+    assert.deepEqual(all.cards.map((c) => c.next), cards.map((c) => c === expected), `${today}: which card is next`)
+    assert.deepEqual(upcoming.cards.map((c) => c.event), cards.filter((c) => c.date >= today).map((c) => c.name), `${today}: a card already fought is not listed as still to come`)
+    assert.deepEqual(next.cards.map((c) => c.event), expected ? [expected.name] : [])
+    for (const r of [all, upcoming, next]) {
+      assert.deepEqual(r.next_card, expected ? { event: expected.name, date: expected.date, location: expected.location } : null)
+      assert.equal(r.past_cards_listed, cards.filter((c) => c.date < today).length)
+      assert.equal(r.today, today)
+    }
+    // The page: its home screen names the same card, or hides the block when none is left.
+    ctx.todayPT = () => today
+    ctx.renderHome()
+    const head = page.els.homeCard.innerHTML.match(/<b>Next card · ([^<]*)<\/b><span>([^<]*)<\/span>/)
+    if (!expected) { assert.equal(page.els.homeCard.hidden, true, `${today}: no card left, so the page shows none`); continue }
+    assert.equal(page.els.homeCard.hidden, false)
+    assert.deepEqual([unesc(head[1]), unesc(head[2])], [expected.name, `${ctx.fmtDate(expected.date)} · ${expected.location}`], today)
+  }
+  // What the answer says when a listed card has gone by, and when they all have.
+  const stale = await upcomingCards({ today: dayAfter(cards[0].date) })
+  assert.ok(stale.text.includes(`already happened and is left out here: ${cards[0].name} (${cards[0].date})`))
+  assert.doesNotMatch(stale.text.split('\n').slice(0, 3).join('\n'), new RegExp(escapeRe(cards[0].name)), 'a card already fought is not the first thing a reader sees')
+  if (cards[0].date > meta.latest) assert.ok(stale.text.includes(`not in UFC Savant yet: the fight data runs through ${meta.latest}`))
+  const none = await upcomingCards({ today: dayAfter(cards[cards.length - 1].date) })
+  assert.equal(none.structured.count, 0)
+  assert.match(none.text, /^Every card UFC Savant lists has already happened/)
+  // Through the tool, on today's real date: it runs, and fits its declared shape.
+  const live = await call('ufc_get_upcoming_cards', {})
+  assert.equal(live.structured.today, cardDay(Date.now(), meta.nextCardZone))
+
+  // The home screen draws the next card. Read it off the page, on the day before the first.
+  ctx.todayPT = () => before
   ctx.renderHome()
   const home = page.els.homeCard.innerHTML
   const first = s.cards[0]
-  const head = home.match(/<b>Next card · ([^<]*)<\/b><span>([^<]*)<\/span>/)
-  assert.deepEqual([unesc(head[1]), unesc(head[2])], [first.event, `${ctx.fmtDate(first.date)} · ${first.location}`])
   const drawn = [...home.matchAll(/<div class="bout">(.*?)<\/div>/g)].map((m) => m[1])
   assert.equal(drawn.length, first.bouts.length)
   drawn.forEach((row, j) => {
@@ -668,6 +724,41 @@ test('the upcoming cards are the ones in the data, and the first is the page\'s 
   ctx.mu.b = null
   assert.equal(page.open(bout.matchup_url), true)
   assert.deepEqual([ctx.mu.a, ctx.mu.b, ctx.mu.win], [bout.fighters[0].id, bout.fighters[1].id, meta.matchupWindow])
+})
+
+// ufcstats marks a fight-night bonus on the fight, not on the fighter. Fight of the Night is
+// paid to both; Performance, KO and Submission of the Night are one fighter's, and the build
+// (pipeline/ufc/build.py, bonus_for) gives them to the winner. A loser shown with a
+// Performance of the Night bonus is the bug this guards against.
+test('an individual fight-night bonus is on the winner\'s log only, in the data and in an answer', async () => {
+  const names = meta.bonus
+  assert.deepEqual(Object.keys(names).sort(), ['fight', 'ko', 'perf', 'sub'])
+  const seen = { fight: {}, perf: {}, ko: {}, sub: {} }
+  const fights = new Map()
+  for (const id of ids) for (const f of data.fighters[id].log) {
+    if (!fights.has(f.id)) fights.set(f.id, [])
+    fights.get(f.id).push(f)
+    for (const b of f.bonus) seen[b][f.res] = (seen[b][f.res] || 0) + 1
+  }
+  for (const b of ['perf', 'ko', 'sub']) assert.deepEqual(Object.keys(seen[b]), ['W'], `${names[b]} is on a fighter who did not win: ${JSON.stringify(seen[b])}`)
+  assert.ok(seen.perf.W > 1000 && seen.fight.W > 500)
+  // Fight of the Night is the fight's: both logs carry it, or neither.
+  for (const [fid, rows] of fights) {
+    if (rows.length !== 2) continue
+    assert.equal(rows[0].bonus.includes('fight'), rows[1].bonus.includes('fight'), `fight ${fid}`)
+  }
+  // And in an answer: a fighter's recent losses never carry an individual bonus.
+  let losses = 0
+  for (const id of ids.filter((_, i) => i % 9 === 0)) {
+    const { structured: s, text } = await fighterProfile({ fighter: id })
+    for (const x of s.recent_fights || []) {
+      if (x.result === 'W') continue
+      losses++
+      assert.deepEqual(x.bonuses.filter((b) => b !== names.fight), [], `${s.fighter.name} ${x.date}`)
+    }
+    assert.doesNotMatch(text, /: (loss to|draw with|no contest with) [^\n]*Bonus: (?!Fight of the Night\.)/, s.fighter.name)
+  }
+  assert.ok(losses > 300)
 })
 
 // ---- 3. names, and questions that cannot be answered ---------------------------------------
@@ -784,6 +875,14 @@ test('files are fetched once and reused; when the data is down the answer is hon
   assert.equal(hits - before, 3, 'meta, the index and one fighter file: three fetches for three calls')
   await upcomingCards()
   assert.equal(hits - before, 4)
+  // A leaderboard reads every fighter file once; after that, boards cost nothing.
+  await leaderboard({ stat: 'tddef', division: 'LW' })
+  assert.equal(hits - before, 4 + SHARDS.length - 1, 'the fifteen fighter files not yet read')
+  await leaderboard({ stat: 'slpm', division: 'women', window: 'l5' })
+  await leaderboard({ division: 'HW' })
+  await compareFighters({ fighters: ['Islam Makhachev', 'Charles Oliveira'] })
+  await listStats({})
+  assert.equal(hits - before, 4 + SHARDS.length - 1)
 
   const origin = process.env.SAVANT_API_ORIGIN
   try {
@@ -807,8 +906,137 @@ test('files are fetched once and reused; when the data is down the answer is hon
   assert.equal((await call('ufc_search_fighters', { query: 'jon jones' })).structured.fighters[0].name, 'Jon Jones')
 })
 
+// ---- 3b. beyond one fighter --------------------------------------------------------------
+
+// The page's Leaderboard Builder, run in the sandbox: its own lbPool() says who is on the
+// board for a window, a division, a pool and a sample; lbRender() sorts them by the stat. The
+// tool's board has to be the same fighters in the same order.
+test('a leaderboard is the page\'s Leaderboard Builder: same fighters, same order', async () => {
+  const pagePool = (lb) => {
+    Object.assign(ctx.lb, { win: 'career', div: 'LW', rank: 'rank', top: 25, minMin: 0, ageMin: null, ageMax: null, stance: '', minN: 0, basis: 'active', sample: 'settled', dir: 'desc' }, lb)
+    return vm.runInContext('lbPool().map(function(e){ return e.id; })', ctx)
+  }
+  const byKey = new Map(data.cfg.metrics.map((m) => [m.key, m]))
+  let boards = 0
+  const cases = []
+  for (const key of ['tddef', 'slpm', 'sapm', 'diff', 'elo', 'kd15', 'ctrl15', 'finrate', 'koloss100', 'fade', 'beltdays', 'defenses', 'n']) {
+    cases.push({ key, div: 'LW' }, { key, div: 'M' }, { key, div: 'F', win: 'l5' }, { key, div: 'HW', basis: 'all' }, { key, div: 'WSW', sample: 'all', win: 'l3' }, { key, div: 'BW', basis: 'all', sample: 'all' })
+  }
+  for (const c of cases) {
+    const m = byKey.get(c.key)
+    const win = c.win || 'career'
+    const idsOnPage = [...pagePool({ win, div: c.div, rank: c.key, basis: c.basis || 'active', sample: c.sample || 'settled' })]
+    const valueOf = (id) => data.fighters[id].w[win].m[c.key]
+    const expected = idsOnPage.map((id) => [id, valueOf(id)]).sort((a, b) => (m.lower ? a[1] - b[1] : b[1] - a[1]))
+    const division = c.div === 'M' ? 'men' : c.div === 'F' ? 'women' : c.div
+    const { structured: st, text } = await call('ufc_get_leaderboard', { stat: c.key, division, window: win, pool: c.basis === 'all' ? 'all_time' : 'active', sample: c.sample === 'all' ? 'everyone' : 'settled', limit: 25 })
+    boards++
+    const tag = `${c.key} ${c.div} ${win} ${c.basis || 'active'} ${c.sample || 'settled'}`
+    assert.equal(st.ranked, expected.length, `${tag}: who is on the board`)
+    // Equal values can sit in either order; everything else is fixed.
+    assert.deepEqual(st.leaders.map((l) => l.value), expected.slice(0, 25).map((x) => x[1]), tag)
+    for (const l of st.leaders) {
+      assert.equal(valueOf(l.id), l.value, `${tag} ${l.name}`)
+      assert.ok(idsOnPage.includes(l.id), `${tag}: ${l.name} is not on the page's board`)
+      assert.equal(l.rank, 1 + expected.filter((x) => (m.lower ? x[1] < l.value : x[1] > l.value)).length)
+      assert.equal(l.display, ctx.fmt(m.unit, l.value))
+      // The percentiles beside a fighter are his card's, in his own division.
+      const cell = built(l.id).w[win].m[c.key]
+      if (cell) assert.deepEqual([l.active_percentile, l.all_time_percentile], [cell[1], cell[2]], `${tag} ${l.name}`)
+    }
+    if (expected.length) assert.ok(text.includes(`${m.label}, ${meta.windows[win]}: the top ${st.count} of ${expected.length} `), text.slice(0, 160))
+    // The link is the page's own, and the page opens it on the same board.
+    page.written.length = 0
+    assert.equal(page.open(st.url), true, `${tag}: the page opens the link`)
+    assert.deepEqual([ctx.lb.win, ctx.lb.div, ctx.lb.rank, ctx.lb.basis, ctx.lb.sample], [win, c.div, c.key, c.basis || 'active', c.sample || 'settled'], tag)
+  }
+  assert.ok(boards > 70)
+
+  // The official ranking: the UFC's own list as the data holds it, champion first.
+  for (const d of data.cfg.divisions.filter((x) => x.key !== 'OPEN')) {
+    const ranked = ids.filter((id) => (data.fighters[id].rks || {})[d.key] != null).sort((a, b) => data.fighters[a].rks[d.key] - data.fighters[b].rks[d.key])
+    const { structured: st, text } = await call('ufc_get_leaderboard', { division: d.label, limit: 25 })
+    assert.equal(st.mode, 'official_ranking')
+    assert.deepEqual(st.leaders.map((l) => [l.id, l.rank]), ranked.slice(0, 25).map((id) => [id, data.fighters[id].rks[d.key]]), d.label)
+    for (const l of st.leaders) assert.equal(l.rank_text, ctx.rankTxt(l.rank) === 'C' ? 'champion' : ctx.rankTxt(l.rank) === 'IC' ? 'interim champion' : ctx.rankTxt(l.rank))
+    if (ranked.length) assert.ok(text.includes(`as of ${data.cfg.rankingsAt}`))
+  }
+  const p4p = (await call('ufc_get_leaderboard', {})).structured
+  assert.deepEqual(p4p.leaders.map((l) => l.id), ids.filter((id) => data.fighters[id].p4p != null && (data.cfg.divisions.find((d) => d.key === data.fighters[id].w.career.div) || {}).sex !== 'F').sort((a, b) => data.fighters[a].p4p - data.fighters[b].p4p).slice(0, 10))
+
+  // A title reign the data never closed is marked, not passed off as thirty years as champion.
+  const reigns = (await call('ufc_get_leaderboard', { stat: 'days as champion', pool: 'all_time', limit: 25 })).structured
+  for (const l of reigns.leaders) {
+    const e = data.fighters[l.id]
+    const open = (e.belts || []).some((b) => b.how === 'current' && (e.rks || {})[b.div] !== (b.interim ? 0.5 : 0))
+    assert.equal(l.open_reign, open, l.name)
+  }
+  if (reigns.leaders.some((l) => l.open_reign)) assert.ok(reigns.notes.some((n) => /Marked "open reign"/.test(n)))
+  // Divisions and stats by the names people use.
+  for (const [said, label] of [['lightweights', 'Lightweight'], ['LW', 'Lightweight'], ['155', 'Lightweight'], ["women's strawweight", "Women's Strawweight"], ['heavyweight division', 'Heavyweight'], ['women', "all women's divisions"], ['pound for pound', "all men's divisions"]]) {
+    assert.equal((await call('ufc_get_leaderboard', { stat: 'elo', division: said, limit: 1 })).structured.division, label, said)
+  }
+  await fails('ufc_get_leaderboard', { stat: 'elo', division: 'cruiserweight' }, /is not a UFC division\. Use one of: /)
+  await fails('ufc_get_leaderboard', { stat: 'chin', division: 'LW' }, /No stat matches "chin"\. ufc_list_stats lists every stat/)
+  // A women's division quotes only the explanations that fit: the page writes them about a man.
+  const women = (await call('ufc_get_leaderboard', { stat: 'tddef', division: 'women' })).structured
+  assert.equal(women.stat.what, /\b(he|his|him)\b/i.test(byKey.get('tddef').exp.w) ? null : byKey.get('tddef').exp.w)
+})
+
+test('a comparison says what the profiles say, and lists the fights between them', async () => {
+  // Two fighters who met in one of their last five: found from the data, not named here.
+  let pair = null
+  for (const id of ids) {
+    const e = data.fighters[id]
+    const f = e.active && e.log.slice(0, RECENT_FIGHTS).find((x) => data.fighters[x.opp] && data.fighters[x.opp].log.slice(0, RECENT_FIGHTS).some((y) => y.id === x.id))
+    if (f && e.w.career.qualified && data.fighters[f.opp].w.career.qualified) { pair = [id, f.opp]; break }
+  }
+  assert.ok(pair, 'no two qualified fighters met in their recent fights')
+  for (const win of WINDOWS) {
+    const { structured: st, text } = await call('ufc_compare_fighters', { fighters: pair, window: win })
+    assert.deepEqual(st.fighters.map((f) => f.id), pair)
+    assert.deepEqual(st.stats.map((x) => x.key), meta.headline)
+    for (const [i, id] of pair.entries()) {
+      const p = (await fighterProfile({ fighter: id, window: win })).structured
+      assert.deepEqual([st.fighters[i].division, st.fighters[i].fights_in_window, st.fighters[i].qualified, st.fighters[i].pools.active, st.fighters[i].pools.all_time],
+        [p.fighter.division, p.window.fights, p.window.qualified, p.pools.active.size, p.pools.all_time.size])
+      for (const row of st.stats) {
+        const on = p.stats.find((x) => x.key === row.key)
+        const v = row.values[i]
+        if (!on) { assert.notEqual(v.status, 'ok'); continue }
+        assert.deepEqual([v.status, v.value, v.display, v.active_percentile, v.all_time_percentile, v.low_sample], ['ok', on.value, on.display, on.active_percentile, on.all_time_percentile, on.low_sample], `${win} ${p.fighter.name} ${row.key}`)
+      }
+    }
+    // Every fight between them in either man's last five, once each, as the data has it.
+    const met = data.fighters[pair[0]].log.slice(0, RECENT_FIGHTS).filter((x) => x.opp === pair[1])
+    assert.deepEqual(st.meetings.map((m) => [m.date, m.winner_id]), met.map((x) => [x.date, x.res === 'W' ? pair[0] : x.res === 'L' ? pair[1] : null]))
+    assert.ok(text.includes('Fights between them, newest first:'))
+    assert.equal(st.matchup_url, matchupUrl(meta, pair[0], pair[1]))
+  }
+  const chosen = (await call('ufc_compare_fighters', { fighters: pair, stats: ['takedown defense', 'slpm'] })).structured
+  assert.deepEqual(chosen.stats.map((x) => x.key), ['tddef', 'slpm'])
+  assert.deepEqual((await call('ufc_compare_fighters', { fighters: pair, group: 'grappling' })).structured.stats.map((x) => x.key), meta.metrics.filter((m) => m.group === 'grap').map((m) => m.key))
+  await fails('ufc_compare_fighters', { fighters: [pair[0], pair[0]] }, /is listed twice/)
+  await fails('ufc_compare_fighters', { fighters: [pair[0], 'Nobody Atall'] }, /No fighter matches "Nobody Atall"/)
+})
+
+test('the glossary gives every stat its key and the page\'s own explanation', async () => {
+  const all = (await call('ufc_list_stats', {})).structured
+  const every = [...meta.metrics, ...meta.boardMetrics]
+  assert.deepEqual(all.stats.map((x) => x.key), every.map((m) => m.key))
+  const src = new Map(data.cfg.metrics.map((m) => [m.key, m]))
+  for (const x of all.stats) {
+    const e = src.get(x.key).exp || {}
+    assert.deepEqual([x.label, x.what, x.formula, x.why, x.lower_is_better], [src.get(x.key).label, e.w || null, e.f || null, e.y || null, !!src.get(x.key).lower], x.key)
+  }
+  assert.deepEqual(all.stats.filter((x) => x.leaderboard_only).map((x) => x.key), data.cfg.metrics.filter((m) => !data.cfg.panels.includes(m.grp)).map((m) => m.key))
+  assert.deepEqual((await call('ufc_list_stats', { group: 'grappling' })).structured.stats.map((x) => x.key), meta.metrics.filter((m) => m.group === 'grap').map((m) => m.key))
+  assert.match((await call('ufc_list_stats', { query: 'rating' })).text, /Savant rating \(key "elo"\)/)
+  assert.match((await call('ufc_list_stats', { query: 'zzzz' })).text, /No UFC Savant stat matches "zzzz"/)
+})
+
 test('the tools are declared the way the connector expects, and work through a real MCP client', async () => {
-  assert.deepEqual(tools.map((t) => t.name), ['ufc_search_fighters', 'ufc_get_fighter_profile', 'ufc_get_upcoming_cards'])
+  assert.deepEqual(tools.map((t) => t.name), ['ufc_search_fighters', 'ufc_get_fighter_profile', 'ufc_get_upcoming_cards', 'ufc_get_leaderboard', 'ufc_compare_fighters', 'ufc_list_stats'])
   // Registered exactly as api/mcp.js registers a section.
   const server = new McpServer({ name: 'check', version: '0' })
   for (const t of tools) {
@@ -827,7 +1055,7 @@ test('the tools are declared the way the connector expects, and work through a r
   await Promise.all([server.connect(a), client.connect(b)])
   try {
     const listed = (await client.listTools()).tools
-    assert.equal(listed.length, 3)
+    assert.equal(listed.length, 6)
     for (const t of listed) {
       assert.ok(t.name.length <= 64 && /^ufc_[a-z_]+$/.test(t.name))
       assert.ok(t.title && t.annotations.title, `${t.name}: title`)
@@ -845,8 +1073,18 @@ test('the tools are declared the way the connector expects, and work through a r
     const prof = await client.callTool({ name: 'ufc_get_fighter_profile', arguments: { fighter: 'Islam Makhachev' } })
     assert.ok(!prof.isError)
     assert.match(text(prof), /Takedown defense: \d+% \(vs\. active lightweights \d+(st|nd|rd|th), vs\. all-time lightweights \d+(st|nd|rd|th)\)/)
-    const cards = await client.callTool({ name: 'ufc_get_upcoming_cards', arguments: {} })
+    const cards = await client.callTool({ name: 'ufc_get_upcoming_cards', arguments: { which: 'all' } })
     assert.equal(cards.structuredContent.count, data.upcoming.cards.length)
+    for (const [name, args, expect] of [
+      ['ufc_get_leaderboard', { division: 'lightweight' }, /official UFC Lightweight ranking/],
+      ['ufc_get_leaderboard', { stat: 'takedown defense', division: 'LW' }, /Takedown defense, UFC career: the top 10 of \d+ active fighters in Lightweight/],
+      ['ufc_compare_fighters', { fighters: ['Islam Makhachev', 'Charles Oliveira'] }, /side by side/],
+      ['ufc_list_stats', { group: 'titles' }, /Days as champion \(key "beltdays"\)/],
+    ]) {
+      const r = await client.callTool({ name, arguments: args })
+      assert.ok(!r.isError, `${name}: ${text(r).slice(0, 200)}`)
+      assert.match(text(r), expect, name)
+    }
     const shared = await client.callTool({ name: 'ufc_get_fighter_profile', arguments: { fighter: 'Bruno Silva' } })
     assert.ok(shared.isError)
     assert.match(text(shared), /2 fighters match/)
