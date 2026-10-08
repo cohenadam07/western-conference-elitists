@@ -181,7 +181,7 @@ _e('tgt', "How many passes are thrown his way per game.",
 _e('recg', "Catches per game.", "The simplest measure of how involved he is.", "receptions ÷ games")
 _e('tgtshr', "Out of every pass his team throws, the share that goes to him.",
      "This is how much the offense runs through him. A number above 25% means he's the main guy.",
-     "his targets ÷ team's targets")
+     "his targets ÷ team's targets, over every game his team has played. A game he missed counts against him here; the share rows further down this panel count only the games he played")
 _e('ayshr', "His share of all the yards his team throws into the air.",
      "Target share counts throws; this weights them by how far downfield they go. A deep threat can own the air yards without owning the targets.",
      "his air yards ÷ team's air yards")
@@ -409,8 +409,9 @@ _e('punts', "Punts per game.", "Says more about how bad his offence is than abou
 _e('epatot', "Total points he added across the whole season.",
      "Every other rate on this page says how good; this says how much of it there was. A great player who plays sixteen games beats a great player who plays six.",
      "sum of expected points added on all his plays")
-_e('fppg', "Fantasy points per game, PPR scoring.", "The number most people actually feel, week to week.",
-     "PPR fantasy points ÷ games")
+_e('fppg', "Fantasy points per game. PPR scoring for everybody but kickers.",
+     "The number most people actually feel, week to week.",
+     "PPR fantasy points ÷ games. A kicker scores 3 for a field goal under 40 yards, 4 from 40 to 49, 5 from 50 on, and 1 for an extra point")
 _e('toucheg', "Carries plus catches per game.", "How often the ball ends up in his hands.",
      "(carries + receptions) ÷ games")
 
@@ -491,3 +492,331 @@ _e('contestw', "How often he wins the ball when a defender is right there.",
 # Blitz rate and the two drop rates are charted by Pro-Football-Reference from 2018 and
 # by FTN from 2022. The two crews agree closely (r = .90 to .95, with matching league
 # averages), which is why one row carries both rather than splitting in two.
+
+
+# ================================================================ October 2026 additions
+# Rows that the open feeds could already support and the page did not yet show. Same rule
+# as everything above: a ten-year-old should follow it, and where a number is an estimate
+# or belongs to the unit rather than the man, the explanation says so in plain words.
+
+# ---------------------------------------------------------------- context
+_e('passshr', "Out of all the snaps he played, the share that were pass plays.",
+     "This is his job description in one number. A run-stuffing nose tackle comes off the field on third down and sits near 40%; a pass-rush specialist only plays those downs and sits near 70%. Read every pass-rush and coverage number on this page with it in mind.",
+     "pass plays he was on the field for ÷ all the plays he was on the field for. In a season still being played the on-field file does not exist yet, so this is an estimate from his snap counts, each opponent's pass rate, and how his own split ran last year")
+
+# ---------------------------------------------------------------- passing
+_e('p2s', "When he is pressured, how often it ends in a sack.",
+     "Pressure is mostly on the blockers. What happens next is mostly on him: some quarterbacks get the ball out or slide away, and some go down. This is the cleanest free number for telling the two apart.",
+     "sacks ÷ pressures charted against him")
+_e('hitpct', "How often he gets hit as he throws.",
+     "A hit is pressure that arrived. It is here as background on what his pocket was like, not as a grade on him.",
+     "times hit ÷ dropbacks")
+_e('hurrypct', "How often he is rushed into throwing early.",
+     "A hurry is pressure that got close enough to change the throw without touching him.",
+     "times hurried ÷ dropbacks")
+_e('ucrate', "How often he takes the snap from under center instead of the shotgun.",
+     "It describes the offense he is in. Under-center teams lean on the run and play-action; shotgun teams spread the field. Neither is better, but his other numbers read differently depending on which he plays in.",
+     "dropbacks from under center ÷ charted dropbacks")
+_e('yacshr', "The share of his passing yards that his receivers gained after the catch.",
+     "Two quarterbacks can both throw for 4,000 yards. One drove the ball downfield; the other threw short and watched his receivers run. A high number here means more of the yardage was their work.",
+     "passing yards gained after the catch ÷ passing yards")
+_e('airdist', "How far his average throw actually travels through the air, in a straight line.",
+     "Depth of target only counts yards downfield. This counts the whole flight, so a deep out to the far sideline shows up as the long throw it really is. It is the closest thing here to a measure of arm.",
+     "measured by tracking chips, release point to arrival")
+_e('maxair', "The longest throw he has made this season, measured through the air.",
+     "How far he can really push it. One throw, so it says what his arm can do, not what it usually does.")
+_e('ngscpoe', "Completion percentage over expected, worked out from player tracking.",
+     "The CPOE above grades a throw on how deep and where it went. This one also knows how open the receiver was and how close the rush was, because cameras tracked all 22 players. Two honest answers to the same question, which is why both are here.",
+     "his completion % − the completion % tracking says those throws should produce")
+_e('intluck', "Throws that should have been intercepted, minus the ones that were.",
+     "Defenders drop interceptions all the time. A positive number means he has been getting away with it and his interception total is flattering him; a negative one means the ball has bounced the wrong way.",
+     "interception-worthy throw rate − interception rate, in percentage points")
+_e('cmpsh', "The share of his short throws that are caught.",
+     "Short is 0 to 9 yards past the line. These are the easy ones, so the gaps between quarterbacks are small and a low number stands out.",
+     "completions ÷ attempts travelling 0–9 yards in the air")
+_e('cmpmd', "The share of his intermediate throws that are caught.",
+     "Ten to 19 yards downfield is where most quarterbacks are sorted. The windows are tight and the throws have to be on time.",
+     "completions ÷ attempts travelling 10–19 yards in the air")
+_e('cmpdp', "The share of his deep throws that are caught.",
+     "Twenty yards or more in the air. Nobody completes many of these, and a season is a small sample, so read it loosely.",
+     "completions ÷ attempts travelling 20+ yards in the air")
+_e('ypadp', "Yards gained per deep throw.",
+     "Deep balls are low-percentage and high-reward. This puts the two together: what a shot downfield has actually been worth.",
+     "yards on throws of 20+ air yards ÷ those attempts")
+_e('epang', "Points added per dropback while the game was still in doubt.",
+     "Late in a blowout the defense gives up short throws on purpose and everybody's numbers look better than they were. This throws those plays out.",
+     "expected points added ÷ dropbacks, counting only plays where either team's win probability was between 10% and 90%")
+_e('wpadb', "How much he moves his team's chance of winning, per 100 dropbacks.",
+     "EPA treats a third-quarter first down in a blowout the same as one on the final drive. This does not: every play is weighed by how much the game hung on it.",
+     "win probability added on his dropbacks ÷ dropbacks × 100, in wins")
+_e('ppd', "Points his offense scores on an average drive he leads.",
+     "The whole point of a drive is to end with points. This is the bottom line, though it belongs to the whole offense and not just to him.",
+     "(7 × touchdowns + 3 × field goals) ÷ drives. A drive is his if he took the most dropbacks on it")
+_e('scorepct', "How often a drive he leads ends in a touchdown or a field goal.",
+     "Points per drive can be carried by a few long touchdowns. This asks how often the offense comes away with anything at all.",
+     "scoring drives ÷ drives")
+_e('toopct', "How often a drive he leads goes three plays and a punt.",
+     "The worst thing an offense can do short of a turnover. It hands the ball back and leaves its own defense on the field.",
+     "drives that punted without a first down ÷ drives")
+
+# ---------------------------------------------------------------- rushing
+_e('carshr', "Out of every carry his team hands out, the share that goes to him.",
+     "Whether he is the back or one of the backs. A committee shows up here before it shows up anywhere else.",
+     "his carries ÷ his team's carries, in the games he played")
+_e('desg', "Runs called for him per game, not counting scrambles.",
+     "A designed run is the coach's decision; a scramble is his. Adding them together, as the box score does, hides how much each offense actually builds around his legs.",
+     "(carries − scrambles) ÷ games")
+_e('scrg', "How many times a game a pass play turns into him running.",
+     "Scrambles are improvisation. Some quarterbacks do it five times a game and some never do.",
+     "scrambles ÷ games")
+_e('roepct', "How often his run gains more than the blocking in front of him said it should.",
+     "Yards over expected per carry can be swung by one 60-yard run. This counts how often he beats the expectation instead of by how much, so it settles down faster.",
+     "carries that gained more than expected ÷ carries, from player tracking")
+_e('ngseff', "How far he actually runs for each yard he gains.",
+     "A back who hits the hole and goes scores near 3. One who dances sideways scores 4 or more. Lower is more north-and-south.",
+     "total distance covered on his carries ÷ rushing yards, from player tracking")
+_e('epades', "Points added on an average run that was called for him.",
+     "This is his value as a planned part of the run game, with the scrambles taken out.",
+     "expected points added on designed runs ÷ designed runs")
+_e('epascr', "Points added on an average scramble.",
+     "Scrambles are worth a lot because they come on plays that were already broken. This shows how much he makes of them.",
+     "expected points added on scrambles ÷ scrambles")
+_e('ypscr', "Yards gained per scramble.", "How far he gets when he takes off.", "scramble yards ÷ scrambles")
+_e('ypclight', "Yards per carry when the defense had six or fewer men near the line.",
+     "A light box is an invitation to run. A good back is supposed to cash it in, so this is the bar his other numbers should clear.",
+     "yards ÷ carries against six or fewer defenders in the box")
+_e('ypcstack', "Yards per carry when the defense had eight or more men near the line.",
+     "These are the hard yards. Everybody knows the run is coming and there are more defenders than blockers.",
+     "yards ÷ carries against eight or more defenders in the box")
+_e('insidepct', "The share of his carries that go between the tackles.",
+     "It describes the back and the scheme. A power runner lives inside; a speed back gets the ball on the edge.",
+     "carries through the guard gaps or up the middle ÷ carries with a charted gap")
+_e('ypcin', "Yards per carry on runs between the tackles.",
+     "Inside runs are crowded and rarely break long, so a good average here is hard-earned.",
+     "yards ÷ carries through the guard gaps or up the middle")
+_e('ypcout', "Yards per carry on runs to the outside.",
+     "Outside runs are boom or bust: more losses, more long gains. Speed shows up here.",
+     "yards ÷ carries off tackle or around the end")
+_e('i10shr', "His share of his team's carries inside the opponent's 10-yard line.",
+     "These are the carries that turn into touchdowns. A back can lead his team in yards and still be taken out near the goal line.",
+     "his carries inside the 10 ÷ his team's, in the games he played")
+_e('i5shr', "His share of his team's carries inside the opponent's 5-yard line.",
+     "The most valuable touches in football. Whoever gets these gets the touchdowns.",
+     "his carries inside the 5 ÷ his team's, in the games he played")
+_e('gltd', "How often a carry from inside the 5 ends in the end zone.",
+     "Getting the carry is one thing. Finishing it is the other.",
+     "touchdowns on carries inside the 5 ÷ carries inside the 5")
+_e('syconv', "How often he gets it when there are two yards or fewer to go.",
+     "Third-and-one is a different game from first-and-ten. The defense knows what is coming and the only question is whether he moves the pile.",
+     "third- and fourth-down carries with 2 or fewer yards to go that got the first down or scored ÷ those carries")
+_e('sneakconv', "How often his quarterback sneaks work.",
+     "The sneak is the highest-percentage short-yardage play there is, and a few teams have turned it into a weapon.",
+     "sneaks that got the first down or scored ÷ sneaks")
+
+# ---------------------------------------------------------------- receiving
+_e('tpps', "How often he is thrown to, per pass play he is on the field for.",
+     "This is as close as open data gets to targets per route run. The row above it counts every snap, including the ones where he was blocking for a run. This counts only pass plays.",
+     "targets ÷ pass plays he was on the field for. For a season still being played the count is an estimate from his snaps and his team's pass rate, shown for receivers only")
+_e('ypps', "Receiving yards per pass play he is on the field for.",
+     "The closest free stand-in for yards per route run, the best single receiver number there is. It judges him by his chances to get open, not by how often the quarterback looked his way.",
+     "receiving yards ÷ pass plays he was on the field for. A tight end or a back who stays in to block is still counted as on the field, so theirs run a little low")
+_e('frshr', "Out of every throw that went to his quarterback's first read, the share that went to him.",
+     "A first read is the man the play was drawn up for. This says how much of the passing game is designed to go to him, before any scrambling or checking down.",
+     "his first-read targets ÷ his team's first-read targets, in the games he played")
+_e('recyshr', "His share of all his team's receiving yards.",
+     "Yards per game depends on how much his team throws. This does not: it is how much of the passing game is him.",
+     "his receiving yards ÷ his team's, in the games he played")
+_e('rectdshr', "His share of his team's receiving touchdowns.",
+     "Who the offense looks for when it gets close.",
+     "his receiving touchdowns ÷ his team's, in the games he played")
+_e('recfdshr', "His share of his team's first downs through the air.",
+     "The receiver who moves the chains, whether or not he piles up the yards.",
+     "his receiving first downs ÷ his team's, in the games he played")
+_e('croe', "How much more often he catches the ball than the throws said he should.",
+     "A screen is easy to catch and a deep ball into coverage is not, so plain catch rate rewards short routes. This grades each target on its own difficulty first.",
+     "his catch rate − the completion probability of the throws to him, in percentage points")
+_e('frpct', "The share of his targets that came as the quarterback's first read.",
+     "Not all targets are the same. These are the ones the play was built to produce.",
+     "first-read targets ÷ charted targets")
+_e('despct', "The share of his targets that came on plays designed to get him the ball.",
+     "Screens, shovel passes and the like, where there is no progression at all. Manufactured touches.",
+     "designed targets ÷ charted targets")
+_e('chkpct', "The share of his targets that were checkdowns.",
+     "A checkdown goes to him because nobody else was open. A back with a high number here is catching what is left over; one with a low number is a real part of the passing plan.",
+     "checkdown targets ÷ charted targets")
+_e('scrnpct', "The share of his targets that were screens.",
+     "A screen is a run play that happens to be thrown. It pads the catch total and says little about getting open.",
+     "screen targets ÷ charted targets")
+_e('crsh', "The share of his short targets that he catches.", "Short is 0 to 9 yards past the line: slants, hitches, quick outs.",
+     "catches ÷ targets travelling 0–9 yards in the air")
+_e('crmd', "The share of his intermediate targets that he catches.", "Ten to 19 yards downfield, where most contested throws live.",
+     "catches ÷ targets travelling 10–19 yards in the air")
+_e('crdp', "The share of his deep targets that he catches.", "Twenty yards or more in the air. Small samples, big swings.",
+     "catches ÷ targets travelling 20+ yards in the air")
+_e('yptdp', "Yards gained per deep target.", "What throwing it deep to him has actually been worth.",
+     "yards on targets of 20+ air yards ÷ those targets")
+_e('yacoex', "Yards after the catch beyond what the situation said to expect, worked out from play-by-play.",
+     "The tracking version above only covers about a hundred receivers a year. This one covers everybody who catches a pass, backs included, using a model of how far a catch at that depth and spot usually goes. The two do not always agree, which is why they are separate rows.",
+     "(yards after catch − expected yards after catch) ÷ receptions")
+_e('eztgt', "Throws to him that travel into the end zone, per game.",
+     "A red-zone target can be a screen at the 18. This is the real thing: the ball was thrown to him in the end zone.",
+     "targets where the ball travelled at least as far as the goal line ÷ games")
+_e('ezshr', "His share of his team's throws into the end zone.",
+     "The best single hint at who catches the touchdowns from here.",
+     "his end-zone targets ÷ his team's, in the games he played")
+_e('c3conv', "How often a third- or fourth-down throw to him moves the chains.",
+     "The down everybody in the building knows is a pass.",
+     "third- and fourth-down targets that got the first down ÷ third- and fourth-down targets")
+_e('dpiyds', "Pass-interference yards he draws per game.",
+     "When a defender grabs him downfield the flag wipes the play off the stat sheet: no target, no catch, no yards. But the offense still moved, sometimes forty yards, and he is why.",
+     "yards on accepted defensive pass interference flags thrown on passes to him ÷ games")
+
+# ---------------------------------------------------------------- blocking
+_e('pensnap', "Flags thrown on him for every 100 snaps he plays.",
+     "Per game punishes the man who plays every down. This is the fair version.",
+     "penalties ÷ offensive snaps × 100")
+_e('penydsg', "Penalty yards he costs his team per game.", "A holding call is ten yards and a false start is five.",
+     "penalty yards ÷ games")
+_e('penepag', "How many expected points his flags cost his team per game.",
+     "Ten yards is not always ten yards. A hold that wipes out a touchdown costs far more than one on first down at midfield, and this counts the difference.",
+     "expected points lost on plays where he was flagged ÷ games")
+_e('hitallow', "How often the quarterback was hit or sacked while he was on the field.",
+     "Like the rows around it, this is the whole line's number on his snaps, not a count of the men he let through.",
+     "dropbacks where the quarterback was hit or sacked ÷ dropbacks, weighted by the share of each game he played")
+_e('prsqb', "How often his quarterback was charted as pressured while he was on the field.",
+     "This comes from a different set of charters than the pressure row above, and it is the one that exists during the season. They count pressure more strictly, so the number runs lower and should not be compared with the other one.",
+     "pressures charted against his quarterbacks ÷ their dropbacks, weighted by the share of each game he played")
+_e('gapsr', "How often a run aimed at his spot on the line stays on schedule.",
+     "Every run in the play-by-play is tagged with the gap it went through. These are the ones that went behind him. It is still a unit number, since the back and the man next to him matter too, but it is closer to his own work than the team's total.",
+     "successful designed runs through his gap ÷ designed runs through his gap, weighted by the share of each game he played. A tackle gets the tackle and end gaps on his side, a guard his guard gap, a center the middle")
+_e('gapypc', "Yards per carry on runs aimed at his spot on the line.",
+     "The same runs as the row above, measured in yards.",
+     "yards ÷ designed runs through his gap")
+_e('gapstf', "How often a run aimed at his spot is stopped for no gain or a loss.",
+     "A stuffed run usually means somebody on that side lost at the snap.",
+     "runs through his gap that gained zero or less ÷ runs through his gap")
+_e('wosack', "His team's sack rate in the games he played, minus the games he missed.",
+     "The on/off rows above compare snaps inside a game. This compares whole games, so it exists during the season. It is a rough cut: the opponent and the quarterback change from week to week too.",
+     "sack rate allowed in games he played − sack rate allowed in games he missed, in percentage points")
+_e('worun', "His team's rushing success in the games he played, minus the games he missed.",
+     "Rough for the same reason as the row above, but it is the only with-and-without number a season in progress can offer.",
+     "rush success rate in games he played − in games he missed, in percentage points")
+
+# ---------------------------------------------------------------- pass rush
+_e('prsspass', "How often he pressures the quarterback, per pass play he is on the field for.",
+     "The row above divides by every snap, which punishes a man who also plays the run. This divides by his chances to rush.",
+     "pressures ÷ pass plays he was on the field for. During a season the count of pass plays is an estimate")
+_e('prsshr', "His share of all the pressure his defense creates.",
+     "Is the pass rush him, or is he one of four?",
+     "his pressures ÷ his team's pressures, in the games he played")
+_e('blitzrate', "How often he is sent after the quarterback, per pass play he is on the field for.",
+     "This is the coaches' choice more than his. It tells you what he is asked to do before you judge how he does it.",
+     "blitzes ÷ pass plays he was on the field for")
+_e('skpass', "Sacks per pass play he is on the field for.",
+     "The fair denominator for a sack: he cannot get one on a run.",
+     "sacks ÷ pass plays he was on the field for")
+_e('skepa', "How many expected points an average sack of his takes off the board.",
+     "A sack on third-and-six ends a drive. A sack on first-and-ten after a holding call barely matters. This weighs each one by what it did.",
+     "expected points the offense lost on his sacks ÷ his sacks, with half-sacks counted as half")
+_e('skyds', "Yards the offense loses on an average sack of his.", "A sack that chases the quarterback back fifteen yards is worth more than one at the line.",
+     "sack yards ÷ sacks")
+_e('sk3pct', "The share of his sacks that came on third or fourth down.",
+     "Those are the ones that get the defense off the field.",
+     "sacks on third or fourth down ÷ sacks")
+_e('havoc', "How often he blows a play up.",
+     "A tackle for loss, a forced fumble, a batted pass or an interception. These are the plays that swing a drive, added together and set against his playing time.",
+     "(tackles for loss, which include sacks, + forced fumbles + passes defended + interceptions) ÷ defensive snaps")
+_e('jumpg', "Flags for lining up or moving early, per game.",
+     "Offside, neutral zone infraction and encroachment. Five free yards each, and usually the price of trying to time the snap.",
+     "pre-snap penalties ÷ games")
+_e('roughg', "Roughing-the-passer flags per game.", "Fifteen yards and a first down. The most expensive flag a pass rusher can draw.",
+     "roughing-the-passer penalties ÷ games")
+
+# ---------------------------------------------------------------- run defense
+_e('rstopg', "Tackles he makes on running plays that failed for the offense, per game.",
+     "A tackle eight yards downfield is still a tackle in the box score. A stop is a tackle that actually won the down.",
+     "tackles on designed runs that left the offense behind schedule ÷ games. Solo tackles and assists both count")
+_e('rstoprate', "How often he makes a run stop, per run play he is on the field for.",
+     "Stops per game favours whoever faces the most runs. This sets his stops against his chances.",
+     "run stops ÷ run plays he was on the field for. During a season the count of run plays is an estimate")
+_e('rstopshr', "The share of his run tackles that were stops.",
+     "Two linebackers can both make 60 tackles against the run. This says which one made them at the line and which one made them after the damage was done.",
+     "run stops ÷ tackles on designed runs")
+_e('tkldepth', "How far past the line of scrimmage his run tackles are made, on average.",
+     "Where he meets the runner. It depends on position first: a defensive tackle averages about two and a half yards, a linebacker three and a half, a safety nearly six. So it is ranked only against men who play his spot.",
+     "yards gained on the designed runs he tackled ÷ those tackles")
+_e('dpepaoo', "What opposing passers do with him on the field, minus what they do when he is off it.",
+     "Eleven men share every play, so this is his defense's number and not a grade on him. But it is the only place open data even tries to show what changes when he leaves. A negative number means the defense is better with him.",
+     "EPA per dropback allowed with him on the field − EPA per dropback allowed without him, same team, same season")
+_e('drsroo', "How often runs succeed with him on the field, minus when he is off it.",
+     "The same idea for the run game. A negative number means runs work less often when he is out there.",
+     "rush success rate allowed with him on the field − without him, in percentage points")
+
+# ---------------------------------------------------------------- coverage
+_e('ctgtpass', "How often he is thrown at, per pass play he is on the field for.",
+     "The row above divides by every snap, which flatters a corner who spends downs playing the run. This divides only by the plays where there was a pass to cover.",
+     "targets ÷ pass plays he was on the field for. During a season the count of pass plays is an estimate")
+_e('ycpass', "Receiving yards he gives up per pass play he is on the field for.",
+     "Yards per coverage snap is the standard way to grade coverage: it rewards the man who is never thrown at as well as the one who breaks passes up.",
+     "yards allowed in coverage ÷ pass plays he was on the field for")
+_e('tdallrate', "How often a throw at him ends in a touchdown.", "The most costly thing that can happen in coverage.",
+     "touchdowns allowed in coverage ÷ targets")
+_e('airall', "How far downfield the catches against him are made, on average.",
+     "Yards allowed are part air and part run-after-catch. This is the air half. A high number means he is being beaten deep; a low one means he is giving up the short stuff and rallying.",
+     "air yards on completions against him ÷ completions")
+_e('ptkgain', "How much the offense had gained by the time he tackled the man who caught it.",
+     "Low means he is closing on short throws. High means he is the last man making the tackle after a long gain, which is a safety's job more often than a fault.",
+     "yards gained on the completions he made the tackle on ÷ those tackles")
+_e('covpeng', "Coverage flags thrown on him per game.",
+     "Pass interference, defensive holding and illegal contact. None of them shows up as a completion allowed, and all of them move the offense.",
+     "coverage penalties ÷ games")
+_e('covpenyds', "Yards his coverage flags give away per game.",
+     "Pass interference is a spot foul, so one flag can be worth forty yards. A corner's numbers can look clean while this says otherwise.",
+     "yards on his coverage penalties ÷ games")
+
+# ---------------------------------------------------------------- kicking
+_e('fgoeout', "Field goals over expected, counting only kicks made outdoors.",
+     "No wind and perfect footing make every kick easier. A man who plays ten games a year under a roof is not doing the same job as one who kicks outside in December, and this takes the roof away.",
+     "the same sum as the row above, over kicks in open-air stadiums only")
+_e('kwpa', "How many wins his kicks have added or cost.",
+     "A chip shot in the second quarter barely moves a game. A 54-yarder at the gun decides it. This adds up how much each of his kicks, made or missed, changed his team's chance of winning.",
+     "win probability added on his field goals and extra points, summed")
+_e('kotb', "The share of his kickoffs that end in a touchback.",
+     "Read this one with the rulebook open. Before 2024 a touchback was a win for the kicker. Under the new kickoff it puts the ball at the 30 or 35, and teams often want it landed short on purpose.",
+     "touchbacks ÷ kickoffs")
+_e('kodist', "How far his average kickoff travels.", "Leg strength, though under the current rules where it lands matters more than how far it goes.",
+     "kickoff yards ÷ kickoffs")
+_e('kooob', "How often he kicks it out of bounds.", "A free 40-yard line for the other team.",
+     "kickoffs out of bounds ÷ kickoffs")
+_e('pnoe', "Net yards per punt compared with what the league nets from the same spot on the field.",
+     "A punt from your own 10 has room to fly 55 yards. A punt from midfield has to be dropped inside the 20. Raw averages reward the first job and punish the second. This compares each punt with the league's average net from the same yard line.",
+     "(his net yards − the league's average net from that field position) ÷ punts")
+_e('pin10', "How often he pins the other team inside its own 10.", "Inside the 20 is good. Inside the 10 changes how the other offense has to call plays.",
+     "punts that left the opponent inside its own 10 ÷ punts")
+
+# ---------------------------------------------------------------- value
+_e('xfpg', "The fantasy points an average player would have scored with exactly his chances.",
+     "Every target and carry is worth something before anyone knows how it turned out: a goal-line carry is worth more than one at midfield. This adds up what his chances were worth. It is the steadiest fantasy number there is, because chances carry over from week to week and results do not.",
+     "expected PPR points on his targets, carries and passes ÷ games, from the ffopportunity model")
+_e('fpoeg', "The fantasy points he has scored beyond what his chances were worth.",
+     "Some of this is skill and some of it is luck, mostly touchdown luck. A big positive number early in a season usually comes back down.",
+     "(his PPR points − his expected PPR points) ÷ games")
+_e('tdoeg', "Touchdowns he has scored beyond what his chances said to expect.",
+     "The noisiest part of fantasy scoring. Players well above zero tend to score less from here; players well below tend to score more.",
+     "(touchdowns − expected touchdowns) ÷ games")
+
+# ---------------------------------------------------------------- special teams
+_e('stshr', "The share of his team's special-teams plays he is on the field for.",
+     "Kick coverage, punt protection, the return units. For a backup this is often the whole reason he is on the roster.",
+     "his special-teams snaps ÷ his team's")
+_e('sttklg', "Tackles he makes covering kicks and punts, per game.", "The one stat a core special-teamer can call his own.",
+     "tackles on kickoffs and punts ÷ games")
+_e('kravg', "Yards per kickoff return.", "Only returns he actually ran back count; touchbacks do not.",
+     "kick return yards ÷ kick returns")
+_e('krepa', "Points added on an average kickoff return.",
+     "Yards are not the whole story: a return to the 20 is worse than a touchback. This scores each return by where it left the offense.",
+     "expected points added, from his team's side ÷ kick returns")
+_e('pravg', "Yards per punt return.", "Only punts he actually returned count; fair catches do not.",
+     "punt return yards ÷ punt returns")
+_e('prepa', "Points added on an average punt return.", "Field position, turned into points.",
+     "expected points added, from his team's side ÷ punt returns")
