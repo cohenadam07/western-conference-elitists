@@ -28,6 +28,14 @@ mkdir -p "$NFL_RAW" "$NFL_AGG"
 echo "== fetch ($Y)"
 NFL_REFRESH="$Y" ./fetch.sh
 
+# Last season's games, for the form windows: in October a man's last eight games are four
+# of this year's and four of last year's. Fetched once (nothing here is re-downloaded if
+# it is already on disk), and only the files a game line is built from. Losing them is
+# not an error - the windows simply stop at week 1.
+P=$((Y-1))
+echo "== fetch last season's game files ($P) for the form windows"
+NFL_SEASONS="$P" NFL_REFRESH="" ./fetch.sh | grep -v '^have ' || true
+
 if [ ! -s "$NFL_RAW/reg_$Y.csv" ] || [ ! -s "$NFL_RAW/pbp/pbp_$Y.parquet" ]; then
   echo "nothing to build: nflverse has no $Y season tables yet"
   exit 0
@@ -37,8 +45,14 @@ echo "== play-by-play aggregates"
 python3 pbp_agg.py "$Y"
 echo "== FTN charting aggregates (skips if the season isn't charted yet)"
 python3 ftn_agg.py "$Y"
-echo "== offensive line spots from the depth charts"
+echo "== line spots and depth-chart roles"
 python3 line_agg.py "$Y"
+if [ -s "$NFL_RAW/pbp/pbp_$P.parquet" ]; then
+  echo "== last season's aggregates ($P), for the form windows"
+  [ -s "$NFL_AGG/pbp_$P.json" ] || python3 pbp_agg.py "$P"
+  [ -s "$NFL_AGG/ftn_$P.json" ] || python3 ftn_agg.py "$P"
+  [ -s "$NFL_AGG/line_$P.json" ] || python3 line_agg.py "$P"
+fi
 echo "== on-field aggregates (skips if participation isn't published yet)"
 python3 onfield_agg.py "$Y"
 
@@ -51,8 +65,11 @@ NFL_MAPS="$PUB/football-maps" python3 maps.py
 echo "== build -> public/football-savant-current.json"
 NFL_OUT="$PUB/football-savant-current.json" python3 build.py
 
-echo "== week-by-week game lines -> public/football-weekly/$Y/"
-NFL_WEEKLY="$PUB/football-weekly" python3 weekly.py
+echo "== week-by-week game lines -> public/football-weekly/$Y/, form windows -> public/football-form/"
+NFL_WEEKLY="$PUB/football-weekly" NFL_FORM="$PUB/football-form" python3 weekly.py
+
+echo "== situational splits -> public/football-splits/$Y.json"
+NFL_SPLITS="$PUB/football-splits" python3 splits_agg.py "$Y"
 
 python3 - "$PUB/football-savant-current.json" "$NFL_RAW/schedules.csv" "$Y" <<'EOF'
 import csv, datetime, json, sys
