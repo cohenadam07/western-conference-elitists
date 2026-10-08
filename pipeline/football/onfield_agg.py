@@ -30,15 +30,24 @@ OUT = os.environ.get('NFL_AGG', 'agg')
 FIRST = 2016                      # participation data starts here
 
 PART_COLS = ['nflverse_game_id', 'play_id', 'offense_players', 'was_pressure',
-             'number_of_pass_rushers', 'defenders_in_box', 'possession_team']
+             'number_of_pass_rushers', 'defenders_in_box', 'possession_team',
+             'defense_players']
 PBP_COLS = ['game_id', 'play_id', 'season_type', 'play_type', 'posteam',
             'qb_dropback', 'qb_kneel', 'qb_spike', 'sack', 'epa', 'success',
-            'yards_gained', 'rush_attempt']
+            'yards_gained', 'rush_attempt', 'defteam']
 
 # every counter the aggregate carries, so player rows and team rows stay the same shape
 FIELDS = ['snaps', 'pblk', 'rblk', 'prs_n', 'prs', 'sk',
           'pepa', 'psucc', 'repa', 'rsucc', 'ryds', 'stuff',
           'rush_sum', 'rush_n', 'box_sum', 'box_n']
+
+# The other eleven. The same file names every defender on the field, and nothing in the
+# box score says how many of a defender's snaps were pass plays - which is the denominator
+# every pass-rush and coverage rate actually wants. A nose tackle who comes off on third
+# down and an edge who only plays them can have the same snap count and almost no snaps
+# in common. So: his pass-play snaps, his run-play snaps, and what the offense did on each
+# (expected points and success allowed), with his team's totals for the on/off split.
+DFIELDS = ['dsnaps', 'dpass', 'drun', 'dpepa', 'dpsucc', 'drepa', 'drsucc']
 
 
 def _num(s):
@@ -51,8 +60,10 @@ def run_season(year):
     if not (os.path.exists(ppath) and os.path.exists(bpath)):
         return None
 
-    pa = pd.read_csv(ppath, low_memory=False, usecols=PART_COLS)
-    pb = pd.read_parquet(bpath, columns=PBP_COLS)
+    pa = pd.read_csv(ppath, low_memory=False, usecols=lambda c: c in PART_COLS)
+    have = pd.read_parquet(bpath, columns=None)
+    pb = have[[c for c in PBP_COLS if c in have.columns]].copy()
+    del have
     pb = pb[(pb.season_type == 'REG') & (pb.play_type.isin(['pass', 'run']))
             & (pb.qb_kneel == 0) & (pb.qb_spike == 0) & pb.posteam.notna()]
     d = pb.merge(pa, left_on=['game_id', 'play_id'],
@@ -115,11 +126,45 @@ def run_season(year):
             for tm in teams.index
         },
     }
+
+    # ---- the defense, the same way
+    if 'defense_players' in d.columns and 'defteam' in d.columns:
+        dd = d[d.defense_players.notna() & (d.defense_players != '') & d.defteam.notna()]
+        ddb = (dd.qb_dropback == 1)
+        drn = (dd.rush_attempt == 1) & ~ddb
+        dplay = pd.DataFrame({
+            'tm': dd.defteam,
+            'game': dd.game_id,
+            'players': dd.defense_players.str.split(';'),
+            'dsnaps': 1.0,
+            'dpass': ddb.astype(float),
+            'drun': drn.astype(float),
+            'dpepa': _num(dd.epa).where(ddb, 0.0),
+            'dpsucc': _num(dd.success).where(ddb, 0.0),
+            'drepa': _num(dd.epa).where(drn, 0.0),
+            'drsucc': _num(dd.success).where(drn, 0.0),
+        })
+        dteams = dplay.groupby('tm')[DFIELDS].sum()
+        dx = dplay.explode('players').rename(columns={'players': 'pid'})
+        dx = dx[dx.pid.notna() & (dx.pid != '')]
+        dgrp = dx.groupby(['pid', 'tm'])
+        dper = dgrp[DFIELDS].sum()
+        dper['g'] = dgrp.game.nunique()
+        dper = dper.reset_index()
+        out['defs'] = [
+            dict(pid=r.pid, tm=r.tm, g=int(r.g),
+                 **{f: round(float(getattr(r, f)), 3) for f in DFIELDS})
+            for r in dper.itertuples(index=False)
+        ]
+        out['dteams'] = {
+            tm: {f: round(float(dteams.loc[tm, f]), 3) for f in DFIELDS}
+            for tm in dteams.index
+        }
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, 'onfield_%d.json' % year), 'w') as fh:
         json.dump(out, fh, separators=(',', ':'))
     return {'players': len(out['players']), 'teams': len(out['teams']),
-            'plays': int(len(d))}
+            'defenders': len(out.get('defs', [])), 'plays': int(len(d))}
 
 
 if __name__ == '__main__':

@@ -17,6 +17,7 @@
 # has no files for it yet, and the build simply won't include it.
 set -u
 BASE="https://github.com/nflverse/nflverse-data/releases/download"
+FFOPP="https://github.com/ffverse/ffopportunity/releases/download/latest-data"
 OUT="${NFL_RAW:-raw}"
 mkdir -p "$OUT" "$OUT/part" "$OUT/pbp"
 THIS_YEAR=$(date +%Y); THIS_MONTH=$(date +%m)
@@ -34,15 +35,16 @@ if [ -n "${NFL_REFRESH:-}" ]; then
   rm -f "$OUT/reg_$y.csv" "$OUT/wk_$y.csv" "$OUT/snaps_$y.csv" \
         "$OUT/part/part_$y.csv" "$OUT/pbp/pbp_$y.parquet" "$OUT/ftn_$y.csv" \
         "$OUT/depth_$y.csv" "$OUT/injuries_$y.csv" "$OUT"/advw_*_$y.csv \
+        "$OUT/rosterw_$y.csv" "$OUT/xfp_$y.csv" "$OUT/contracts.parquet" \
         "$OUT"/adv_*.csv "$OUT"/ngs_*.csv "$OUT"/ngs_*.csv.gz \
         "$OUT/players.csv" "$OUT/qbr.csv" "$OUT/qbr_week.csv" "$OUT/schedules.csv" "$OUT/combine.csv" \
         "$OUT/nfl4th.rds"
   echo "refreshing $y"
 fi
 
-get(){ # url_path outfile
+get(){ # url_path outfile [base]
   if [ -s "$OUT/$2" ]; then echo "have $2"; return; fi
-  code=$(curl -sSL -m 300 --retry 3 --retry-delay 5 -o "$OUT/$2.tmp" -w "%{http_code}" "$BASE/$1")
+  code=$(curl -sSL -m 300 --retry 3 --retry-delay 5 -o "$OUT/$2.tmp" -w "%{http_code}" "${3:-$BASE}/$1")
   if [ "$code" = "200" ]; then mv "$OUT/$2.tmp" "$OUT/$2"; echo "ok   $2 ($(wc -c <"$OUT/$2") bytes)";
   else rm -f "$OUT/$2.tmp"; echo "MISS $2 ($code)"; fi
 }
@@ -69,9 +71,17 @@ for y in $(seq "$FIRST" "$LAST"); do
   # PFR charting, week by week (2018 on). The all-seasons file above only gains a season
   # once it is over, so during the season this is where coverage, pressures, missed
   # tackles and yards after contact come from; pfr_week.py sums it back to season rows.
+  # The quarterback file (pressures, hits, hurries, bad throws) was the one this loop left
+  # out, which is why a quarterback's pressure rate was blank until spring.
   if [ "$y" -ge 2018 ]; then
-    for k in def rush rec; do get "pfr_advstats/advstats_week_${k}_$y.csv" "advw_${k}_$y.csv"; done
+    for k in def rush rec pass; do get "pfr_advstats/advstats_week_${k}_$y.csv" "advw_${k}_$y.csv"; done
   fi
+  # Expected fantasy points per opportunity (2006 on), from the ffopportunity model. It
+  # lives in the ffverse repository's releases and is republished during the season.
+  [ "$y" -ge 2006 ] && get "ep_weekly_$y.csv" "xfp_$y.csv" "$FFOPP"
+  # Weekly rosters (2002 on): who is active, on injured reserve, on the practice squad.
+  # Only read for a season in progress, so only pulled for the last season asked for.
+  [ "$y" -ge 2002 ] && [ "$y" = "$LAST" ] && get "weekly_rosters/roster_weekly_$y.csv" "rosterw_$y.csv"
   # Play-by-play, as parquet — a twentieth the size of the CSV and column-selectable
   get "pbp/play_by_play_$y.parquet" "pbp/pbp_$y.parquet"
 done
@@ -92,6 +102,9 @@ get "espn_data/qbr_season_level.csv" "qbr.csv"
 # Game-level QBR (2006 on) for the week-by-week charts; weekly.py reads it.
 get "espn_data/qbr_week_level.csv" "qbr_week.csv"
 get "schedules/games.csv" "schedules.csv"
+# Contracts (OverTheCap, via nflverse): every deal on record, one row each, with the year
+# it was signed, its length, its average per year and that as a share of the cap.
+get "contracts/historical_contracts.parquet" "contracts.parquet"
 # Fourth-down decisions (2014 on): Ben Baldwin's nfl4th model, precomputed for every fourth
 # down and republished during the season - win probability if the team goes for it, punts
 # or kicks. Lives in the nfl4th repository's releases, not nflverse-data's. coaches.py
