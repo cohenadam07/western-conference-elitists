@@ -35,3 +35,6 @@ pipeline/football/raw/
 pipeline/football/agg/
 pipeline/football/maps/
 pipeline/football/*.json
+# ...except the one file the build reads back: last season's pass-snap ratios, which the
+# daily refresh needs and cannot rebuild (the on-field file is too big to fetch daily).
+!pipeline/football/priors.json

@@ -24,6 +24,8 @@ from metrics import (METRICS, POS_PANELS, POS_LABEL, GROUP_LABEL, HEADLINE, WEAK
                      QUALIFY, QUALIFY_FALLBACK, TIER_SINCE, DENOMS)
 from teams import TEAMS
 from seasons import seasons as season_list_from_env
+from play_callers import fix_head_coaches
+import extra
 
 RAW = os.environ.get('NFL_RAW', 'raw')
 AGG = os.environ.get('NFL_AGG', 'agg')
@@ -189,27 +191,78 @@ def load_ngs():
 
 def load_pfr(by_pfr):
     out = defaultdict(dict)
+    have = defaultdict(set)                 # kind -> the seasons its all-seasons file carries
     for kind in ('pass', 'rush', 'rec', 'def'):
         p = os.path.join(RAW, 'adv_%s.csv' % kind)
         df = pd.read_csv(p, low_memory=False)
+        tcol = 'tm' if 'tm' in df.columns else 'team'
+        whole = set()                       # player-seasons already filled from a total row
         for r in df.to_dict('records'):
             pid = r.get('pfr_id')
             gid = by_pfr.get(pid) if isinstance(pid, str) else None
             if not gid:
                 continue
-            out[(gid, int(r['season']))].update({kind + '_' + k: v for k, v in r.items()})
-    # A season the all-seasons files don't have yet - the one being played - is summed up
-    # from PFR's weekly files instead, into rows of exactly the same shape (pfr_week.py).
-    have = {y for (_, y) in out}
+            key = (gid, int(r['season']))
+            have[kind].add(key[1])
+            # A man who changed teams has a row for each stint and one for the season
+            # ("2TM"). The season row is the one that is his season; taking whichever row
+            # came last read Joe Flacco's 2025 as his 256 attempts in Cincinnati and lost
+            # the 160 in Cleveland.
+            total = isinstance(r.get(tcol), str) and r[tcol].strip().upper().endswith('TM') \
+                and r[tcol].strip()[:1].isdigit()
+            if key in whole and not total:
+                continue
+            if total:
+                whole.add(key)
+            out[key].update({kind + '_' + k: v for k, v in r.items()})
+    # A season an all-seasons file does not have yet is summed up from PFR's weekly files
+    # instead, into rows of exactly the same shape (pfr_week.py). This is checked file by
+    # file: the rushing, receiving and defensive files gain the season in progress as it
+    # is played, and the quarterback file does not until it is over - so asking "does any
+    # file have this season" left every quarterback's pressure rate blank until spring.
+    #
+    # And a file that does have the season can be behind it. Through the first month of
+    # 2026 the all-seasons defensive file was a full week short of the weekly one: three
+    # games in it for men who had played four. So for a season still being played - and
+    # for one just finished, while the weekly files hold more games than the all-seasons
+    # file does - the weekly sums win, and the all-seasons row keeps only what the weekly
+    # files do not carry (batted balls).
     import pfr_week
     for y in SEASONS:
-        if y in have:
+        if y < TIER_SINCE[6]:
+            continue
+        counts = pfr_week.week_counts(y, by_pfr, RAW)
+        if not counts:
+            continue
+        games = defaultdict(lambda: defaultdict(int))        # kind -> gid -> games in weekly
+        for (gid, _), c in counts.items():
+            for kind, col in (('def', 'def_targets'), ('rush', 'carries'),
+                              ('rec', 'receiving_drop'), ('pass', '_db')):
+                if c.get(col) is not None and (kind != 'rush' or c.get(col)):
+                    games[kind][gid] += 1
+        wkp = weeks_played(y)
+        live = wkp is not None and wkp < (REG_WEEKS if y >= 2021 else 17)
+        use = []
+        for kind in ('pass', 'rush', 'rec', 'def'):
+            if y not in have[kind] or live:
+                use.append(kind)
+                continue
+            # a finished season whose all-seasons file has not caught up with its last week
+            most = max((num(out[(gid, y)].get(kind + '_g'), 0) or 0)
+                       for gid in games[kind]) if games[kind] else 0
+            if kind != 'pass' and games[kind] and max(games[kind].values()) > most:
+                use.append(kind)
+        if not use:
             continue
         rows = pfr_week.season_rows(y, by_pfr, RAW)
-        if rows:
-            print(y, 'PFR charting from the weekly files:', len(rows), 'players', flush=True)
+        n = 0
         for k, v in rows.items():
-            out[k].update(v)
+            keep = {a: b for a, b in v.items() if a.split('_', 1)[0] in use}
+            if keep:
+                out[k].update(keep)
+                n += 1
+        if n:
+            print(y, 'PFR charting from the weekly files (%s):' % ', '.join(use), n, 'players', flush=True)
     return out
 
 
@@ -265,8 +318,12 @@ def load_records():
     if not os.path.exists(p):
         return {}
     g = pd.read_csv(p, low_memory=False)
+    # The schedule spells one coach's name wrong and stopped following in-season firings
+    # in 2024. Coaching Savant already corrects both; a player card should name the same
+    # man the coach page does.
+    g = fix_head_coaches(g)
     g = g[g.home_score.notna() & g.away_score.notna()]
-    rec = defaultdict(lambda: dict(w=0, l=0, t=0, pf=0, po=None, coach=None))
+    rec = defaultdict(lambda: dict(w=0, l=0, t=0, pf=0, pa=0, po=None, coach=None))
     ROUND = {'WC': 'Lost wild card', 'DIV': 'Lost divisional',
              'CON': 'Lost conference championship', 'SB': 'Lost Super Bowl'}
     for r in g.itertuples(index=False):
@@ -285,6 +342,7 @@ def load_records():
                 else:
                     e['t'] += 1
                 e['pf'] += float(own)
+                e['pa'] += float(opp)
             else:
                 # the last postseason game a team played is how its season ended
                 e['po'] = 'Won Super Bowl' if (r.game_type == 'SB' and own > opp) else ROUND.get(r.game_type)
@@ -437,7 +495,7 @@ def load_pbp(y):
         for r in rows:
             pid = r['pid']
             for k, v in r.items():
-                if k in ('pid', 'week'):
+                if k in ('pid', 'week', 'tm', 'opp'):
                     continue
                 acc[pid][k] += float(v or 0)
         return acc
@@ -458,7 +516,7 @@ def load_ftn(y):
         for r in rows:
             pid = r['pid']
             for k, v in r.items():
-                if k in ('pid', 'week'):
+                if k in ('pid', 'week', 'tm', 'opp'):
                     continue
                 acc[pid][k] += float(v or 0)
         return acc
@@ -618,7 +676,13 @@ def fg_curve(reg_by_season):
 # ---------------------------------------------------------------- metric assembly
 def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
                  onf, onf_teams, starts, team_games, pmake, y, fqb=None, frush=None,
-                 frec=None):
+                 frec=None, xb=None, info=None, part_gaps=False):
+    """One player-season (or one game, or one window of games) as (metrics, denominators).
+
+    `xb` is the bundle of extra inputs from extra.Season.bundle(); `info`, if given, is
+    filled with what the caller needs to know about the result (which rows are
+    estimates). `part_gaps` says the on-field file for this season is missing games.
+    """
     m, d = {}, {}
     # `games` in the season table counts games in which he recorded a *stat*. For skill
     # players and defenders that is every game he played; for an offensive lineman it is
@@ -1030,9 +1094,13 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
         rblk = sum(x['rblk'] for x in onf)
         d['pblk'] = pblk
         d['rblk'] = rblk
-        if G:
-            m['pblkg'] = pblk / G
-            m['rblkg'] = rblk / G
+        # Per game he is in the on-field file for, when that file is missing games (2024
+        # is, by seven weeks). Dividing a part-season of snaps by a whole season of games
+        # read every 2024 lineman as playing two-fifths less than he did.
+        pg = float(sum(x_['g'] for x_ in onf)) if part_gaps else G
+        if pg:
+            m['pblkg'] = pblk / pg
+            m['rblkg'] = rblk / pg
         prs_n = sum(x['prs_n'] for x in onf)
         if prs_n >= 1:
             m['prsallow'] = sum(x['prs'] for x in onf) / prs_n * 100.0
@@ -1080,6 +1148,10 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
     if touches and G:
         m['toucheg'] = touches / G
 
+    # ------------------------------------------------------------------ October 2026
+    est = extra.apply(m, d, r, pos, y, G, off_s, def_s, ng, pf, qb, rush, rec, pens, onf,
+                      fqb, frush, frec, xb, pmake, TIER_SINCE)
+
     # ------------------------------------------------------------------ athletic
     for k, v in comb.get(bio_id(r), {}).items():
         m[k] = v
@@ -1094,7 +1166,10 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
     m = {k: rnd(v) for k, v in m.items()
          if v is not None and k in MBY and MBY[k]['grp'] in panels
          and pos in MBY[k]['pos'] and MBY[k]['since'] <= y}
-    return {k: v for k, v in m.items() if v is not None}, d
+    m = {k: v for k, v in m.items() if v is not None}
+    if info is not None:
+        info['est'] = sorted(set(k for k in est if k in m))
+    return m, d
 
 
 _CUR_ID = None
@@ -1147,7 +1222,7 @@ def add_comps(players, pos_pools):
         # An offensive lineman's headline stats are his unit's, so his four best matches
         # are otherwise always the four men beside him — true, and useless. Comps for the
         # line look outside his own team.
-        same_team_ok = pos != 'OL'
+        same_team_ok = pos not in ('OL', 'OT', 'OG', 'OC')
         for p in qual:
             a = vecs[p['id']]
             scored = []
@@ -1365,7 +1440,12 @@ def grade_returns(ret_rows, line_rows, players):
 # ---------------------------------------------------------------- main
 def main():
     bio, by_pfr, by_espn = load_players()
+    fixed = extra.patch_ids(by_pfr, bio, SEASONS)
+    if fixed:
+        print('matched', len(fixed), 'snap-count players to the player table by name', flush=True)
     records = load_records()
+    contracts = extra.load_contracts()
+    priors = extra.load_priors()
     comb = load_combine(by_pfr)
     ngs = load_ngs()
     pfr = load_pfr(by_pfr)
@@ -1405,10 +1485,40 @@ def main():
         partial = wk is not None
         # An injury report is a fact about this week. A finished season has no this week.
         injuries = load_injuries(y) if partial else {}
+        roster = extra.load_roster_status(y) if partial else {}
         if partial:
             print(y, 'in progress: through week', wk, '(%.0f%% of the season)' % (frac * 100), flush=True)
+        S = extra.Season(y, by_pfr, priors)
+        roles = S.roles
+        # The on-field file is missing games in some seasons (2024 lost seven weeks of
+        # it). Where it is, per-game blocking snaps are per game it actually covers.
+        part_gaps = any(int(t.get('g') or 0) < (tgames.get(tm) if partial else
+                        (records.get((tm, y)) or {}).get('w', 0) + (records.get((tm, y)) or {}).get('l', 0)
+                        + (records.get((tm, y)) or {}).get('t', 0)) for tm, t in onf_teams.items()) \
+            if onf_teams else False
+        if part_gaps:
+            print(y, 'the on-field file is missing games - blocking snaps are per game it covers', flush=True)
+
+        # Everyone who played, not everyone who touched a stat sheet. The season table
+        # only has a row for a man who recorded something, and a lineman who was never
+        # flagged recorded nothing: 240 men with snaps in 2025 had no card, and the pool
+        # every lineman's penalty rows were ranked in was made up of the men who had been
+        # flagged. Snap counts know who took the field, so they supply the rest.
+        rows = df.to_dict('records')
+        seen = {r.get('player_id') for r in rows}
+        added = 0
+        for gid, si in sorted(S.snapinfo.items()):
+            if gid in seen or not si.get('tot') or si.get('pos') in (None, 'LS'):
+                continue
+            rows.append(dict(player_id=gid, position=si['pos'], recent_team=si.get('team'),
+                             player_display_name=(bio.get(gid) or {}).get('name') or si.get('name'),
+                             games=0, _snaps_only=True))
+            added += 1
+        if added:
+            print(y, added, 'players added from snap counts alone', flush=True)
+
         players, pos_pools = [], defaultdict(list)
-        for r in df.to_dict('records'):
+        for r in rows:
             gid = r.get('player_id')
             if not isinstance(gid, str):
                 continue
@@ -1424,11 +1534,13 @@ def main():
             team_games = full_games
             if partial:
                 team_games = tgames.get(sstr(r.get('recent_team'))) or wk
+            info = {}
             m, d = build_player(r, pos, bio, ngs, pfr, snap, qbr, comb,
                                 qb_a.get(gid), rush_a.get(gid), rec_a.get(gid),
                                 pen_a.get(gid), onf_a.get(gid), onf_teams,
                                 starts_a.get(gid), team_games, pmake, y,
-                                fqb_a.get(gid), frush_a.get(gid), frec_a.get(gid))
+                                fqb_a.get(gid), frush_a.get(gid), frec_a.get(gid),
+                                xb=S.bundle(gid, pos), info=info, part_gaps=part_gaps)
             if not m:
                 continue
             qkey, qmin = QUALIFY.get(pos, ('g', 6))
@@ -1457,6 +1569,25 @@ def main():
                 rec_out['tms'] = wteams[gid]      # every team he appeared for, in order
             if gid in injuries:
                 rec_out['inj'] = injuries[gid]    # this week's report, in season only
+            if info.get('est'):
+                rec_out['est'] = info['est']      # rows that are estimates, not counts
+            # What the depth chart calls his job: [spot, rank, still listed there]
+            role = (roles.get('role') or {}).get(gid)
+            if role:
+                rec_out['role'] = role
+            for key in ('kr', 'pr'):
+                rk = (roles.get(key) or {}).get(gid)
+                if rk:
+                    rec_out[key] = rk
+            if pos in ('OL', 'OT', 'OG', 'OC') and (roles.get('spot') or {}).get(gid):
+                rec_out['spot'] = roles['spot'][gid]
+            # Where he stands on a roster this week, when that is anything but active
+            rs = roster.get(gid)
+            if rs and rs[0] != 'ACT':
+                rec_out['rs'] = [rs[0], rs[1]] if rs[1] else [rs[0]]
+            ct = extra.contract_for(contracts.get(gid), y, partial)
+            if ct:
+                rec_out['ct'] = ct
             if age:
                 rec_out['age'] = age
             tr = records.get((rec_out['team'], y))
@@ -1503,6 +1634,34 @@ def main():
 
         add_comps(players, pos_pools)
         block = dict(players=players)
+        pos_of = {p['id']: p['pos'] for p in players}
+        teams = extra.team_block(S, records, pos_of)
+        for tm, t in teams.items():
+            tr = records.get((tm, y))
+            if tr:
+                t['rec'] = [tr['w'], tr['l'], tr['t']]
+                if tr['coach']:
+                    t['coach'] = tr['coach']
+        if roster:
+            # Who is not available, team by team - including the men with no card this
+            # season because they have been on a reserve list since August.
+            for gid, (code, tm, name, rpos) in sorted(roster.items()):
+                if code in ('ACT', 'PS', 'CUT', 'RET') or tm not in teams:
+                    continue
+                e = [gid, (bio.get(gid) or {}).get('name') or name, pos_of.get(gid) or rpos, code]
+                if gid in injuries and injuries[gid].get('inj'):
+                    e.append(injuries[gid]['inj'])
+                teams[tm].setdefault('out', []).append(e)
+        if teams:
+            block['teams'] = teams
+        if roles.get('depth'):
+            block['depth'] = roles['depth']
+            if roles.get('asof'):
+                block['depthAsOf'] = roles['asof']
+        if not partial and S.don:
+            wrote = extra.write_priors(S, pos_of)
+            if wrote:
+                print(y, 'pass-snap priors saved for', wrote[0], 'defenders', wrote[1], flush=True)
         line_rows, ret_rows = load_units(y)
         lines = grade_lines(y, line_rows, by_pfr, bio)
         if lines:
@@ -1516,6 +1675,7 @@ def main():
             block['week'] = max(wk_done, 1)
             if wk > wk_done:
                 block['weekPlaying'] = wk
+            block['tg'] = tgames                  # games each team has played
         data[str(y)] = block
         season_list.append(str(y))
         print(y, len(players), 'players,', sum(1 for p in players if p['qualified']),
