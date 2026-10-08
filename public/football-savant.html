@@ -802,6 +802,16 @@ body{background-color:#1D6B3A;color:var(--ink);
 .rl:hover .name{color:var(--turf)}
 .rl .tag{font-size:8px;color:#9DB2A2;margin-top:4px}
 .row.un .tag{color:#B8541F}
+/* An estimated value says so, in the same small caps as the tag under a stat's name. On a
+   bar row the mark is the row's data-est attribute and the tag is printed here, under the
+   number, so the number's own cell stays plain text for anything that reads it. */
+.est,.row[data-est] .rv::after{font-family:var(--pix);font-size:8px;font-weight:400;letter-spacing:.09em;
+  text-transform:uppercase;color:#8A6B14;white-space:nowrap}
+.est{cursor:help}
+.row[data-est] .rv::after{content:"EST";display:block;margin-top:3px;line-height:1}
+/* A compare row has no percentile cell, so its values take that column as well as their
+   own: room for the tag, and the same right edge as every other row's numbers. */
+.cmprow .rv-cmp{grid-column:3 / span 2}
 /* The notch is a square of a known size, not a flex sliver that happens to be square.
    Letting it stretch to fill the column is what produced 3px slivers in a two-up panel
    and 46px slabs on a phablet; a fixed --nw per breakpoint lands every layout between
@@ -1089,6 +1099,10 @@ body{background-color:#1D6B3A;color:var(--ink);
 .lb-table tr.thin td{opacity:.5}
 .lb-foot{border-top:2px solid var(--line);color:#7A9384;font-size:8.5px}
 .lb-foot b{color:#8A6B14}
+/* A note under the table is a sentence, not a cell: it wraps, so it cannot push the
+   columns off the side of the screen. */
+.lb-table td.lb-foot{white-space:normal;text-align:left}
+.lb-table td .est{margin-left:2px}
 .loading{color:#FFF;font-family:var(--pix);font-size:10px}
 
 .col,.ctxrow .col,.panels .col{container-type:inline-size}
@@ -1160,6 +1174,8 @@ body{background-color:#1D6B3A;color:var(--ink);
   .col{padding:14px 12px 12px}
   .rl .name{font-size:12.5px} .pct{font-size:13px} .rv{font-size:12.5px}
   .id-name{font-size:22px}
+  /* a chip longer than the screen wraps inside its own box instead of running off the card */
+  .acco{white-space:normal}
 }
 </style>
 </head>
@@ -1372,7 +1388,17 @@ var SIDE={QB:'OFF',RB:'OFF',WR:'OFF',TE:'OFF',OL:'OFF',
           ED:'DEF',DI:'DEF',LB:'DEF',CB:'DEF',S:'DEF',K:'ST',P:'ST'};
 var SIDE_LABEL={OFF:'offensive skill & line',DEF:'defenders',ST:'specialists'};
 
-function _norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+/* One spelling for a name, so a search finds the man however it is typed: lower case, no
+   accents, no periods or apostrophes, and a hyphen is a space. "A.J. Brown" is "aj brown",
+   "Ja'Marr Chase" is "jamarr chase", "Amon-Ra St. Brown" is "amon ra st brown". The site's
+   API spells names the same way (norm() in api/_core.js); keep the two alike.
+   `bare` also drops a Jr., Sr. or numeral from the end: "Kenneth Walker III" is
+   "kenneth walker". */
+function _norm(s,bare){
+  var n=(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[.'\u2019`]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  return bare?n.replace(/( (jr|sr|ii|iii|iv|v))+$/,''):n;
+}
 function miss(v){return v==null||(typeof v==='number'&&!isFinite(v));}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
@@ -1400,7 +1426,11 @@ function prepData(){
     });
     SEASON_HAS[s]=has;
   });
-  NAMES.forEach(function(e){ e.n=_norm(e.name); e.last=_norm(e.name.split(' ').slice(-1)[0]); });
+  /* Each name as typed, without its suffix, and its last name. The last name is the last
+     word that is not a suffix, so "walker" finds Kenneth Walker III. */
+  NAMES.forEach(function(e){
+    e.n=_norm(e.name); e.nb=_norm(e.name,true); e.last=e.nb.split(' ').slice(-1)[0];
+  });
 }
 var SEASON_HAS={};
 function seasonPlayers(s){ return (DATA.data[s||curSeason]||{players:[]}).players; }
@@ -1579,12 +1609,65 @@ function shortName(nm){ var p=(nm||'').split(' '); return p.length>1?p[p.length-
 function ordinal(n){ var t=n%100; if(t>=11&&t<=13) return n+'th';
   return n+({1:'st',2:'nd',3:'rd'}[n%10]||'th'); }
 
-/* Why a bar is hatched: the metric's denominator, and how much of it he has. */
-function sampleOf(p,m){
-  if(!m.thr||!m.den) return {n:null,ok:true};
-  var n=(p.d||{})[m.den];
-  if(n==null) return {n:null,ok:true};
-  return {n:n, ok:n>=m.thr};
+/* Why a bar is hollow: the metric's denominator, how much of it he has, and the line it
+   has to reach. This is the one place the sample line is worked out. Bars, leaderboards,
+   the profile score and the explanations all ask here, so nothing on the page can
+   disagree about where the line is.
+
+   The pipeline ships one line per metric (m.thr), counted in m.den over a full season.
+   Two things move it:
+   - Position. No running back has ever seen 150 targets, so a metric can carry its own
+     line for a position in m.thrp, and that one is used instead.
+   - The calendar. A season still being played has not had time to reach a full-season
+     count, so the line is cut to the share of the season his team has played: four games
+     of seventeen through week 4, and never less than one game's share. His team's games
+     come from the season's own count (tg), failing that his team's record, failing that
+     the week. Seasons ran 16 games until 2021.
+   A finished season uses the full line, and so does a career.
+
+   `games` is for a caller that knows its own span, such as a four-game form window: pass
+   it and the line is cut to that many games, whatever state the season is in.
+
+   Returns n (what he has), line (what this card needs), full (the full-season line) and
+   ok. With no line, no denominator or no count there is nothing to mark, so ok is true. */
+function sampleOf(p,m,season,games){
+  var full=(m.thrp&&p&&m.thrp[p.pos]!=null)?m.thrp[p.pos]:(m.thr||0);
+  var line=full;
+  if(full){
+    var blk=(games==null&&season!=null&&!isCareer(season)&&DATA&&DATA.data)?DATA.data[season]:null;
+    if(blk&&blk.week){
+      games = (blk.tg&&p&&blk.tg[p.team]!=null) ? blk.tg[p.team]
+            : (p&&p.rec) ? (p.rec[0]||0)+(p.rec[1]||0)+(p.rec[2]||0)
+            : blk.week;
+    }
+    var len=yearOf(season)<2021?16:17;
+    /* A whole number, because it is printed beside a count ("22 of 35 targets") and the bar
+       has to agree with the words under it. */
+    if(games!=null&&games<len) line=Math.max(1,Math.round(full*Math.max(1,games)/len));
+  }
+  var n=(m.den&&p)?(p.d||{})[m.den]:null;
+  if(!line||n==null) return {n:null,ok:true,line:line,full:full};
+  return {n:n,ok:n>=line,line:line,full:full};
+}
+
+/* An estimate, and saying so. The file that records who was on the field for each play
+   comes out after the season, so during one a lineman's blocking rows and anyone's
+   pass-play snaps are worked out another way, and the pipeline lists those rows in
+   player.est. A finished season can still carry a few, for a man that file barely covers.
+   The value gets a small EST tag wherever it is printed, and the stat's explanation says
+   what it was worked out from. */
+function isEst(p,key){ return !!(p&&p.est&&p.est.indexOf(key)>=0); }
+function estTag(){ return ' <span class="est" title="An estimate, not a count.">EST</span>'; }
+function estWhy(p,m,season){
+  var from = (/^O[LTGC]$/.test(p.pos)||m.grp==='block')
+        ? 'the offense\'s numbers in each game, weighted by how much of that game he played'
+      : SIDE[p.pos]==='DEF' ? 'his snap counts and how often each opponent threw'
+      : 'his snap counts and how often his team threw';
+  return liveWeek(season)
+    ? 'This number is an estimate for now. The file that says who was on the field for each '
+      +'play is only published after the season, so until then it is worked out from '+from+'.'
+    : 'This number is an estimate. The file that says who was on the field for each play '
+      +'does not cover enough of his snaps this season, so it is worked out from '+from+'.';
 }
 
 /* ================= CAREER ===================================================
@@ -1817,7 +1900,7 @@ function barRow(m,p,season,pos){
   var pool=poolVals(m.key,pos,season);
   var pct=pctOf(v,pool,m.lower);
   var shown=pct==null?50:pct;
-  var smp=sampleOf(p,m);
+  var smp=sampleOf(p,m,season);
   var col=colorAt(shown);
   /* Career high, ranked against the SAME population as the bar under it — the only
      reading that shares a scale with it. Drawn only when it clears the bar; when this
@@ -1833,13 +1916,23 @@ function barRow(m,p,season,pos){
     }
   }
   var tag=m.layer.toUpperCase()+(smp.ok?'':' · low sample');
+  /* ...and how far short, against the line this card is held to: "22 of 35 targets".
+     Rounded down, so a count just under its line never prints as having reached it. */
+  if(!smp.ok) tag+=' · '+Math.floor(smp.n)+' of '+smp.line+' '+esc(CFG.denoms[m.den]||m.den);
   /* Snap counts start in 2012, pressure charting in 2016. When a career bar rests on only
      some of his seasons, the row says which — the same footnote the totals strip carries. */
   if(isCareer(season)&&p.cov&&p.cov[m.key]&&p.seasons&&p.cov[m.key][0]<p.seasons.length)
     tag+=" · "+yr2(p.cov[m.key][1])+'–'+yr2(p.cov[m.key][2]);
   var title=smp.ok?'':('Only '+Math.round(smp.n)+' '+(CFG.denoms[m.den]||m.den)+' — below the '
-    +m.thr+' this stat needs before it settles down.');
-  return '<div class="row '+(smp.ok?'':'un')+'" data-k="'+m.key+'" title="'+esc(title)+'">'
+    +(smp.line<smp.full
+        ? smp.line+' that is the line this far into the season. Over a full season this stat needs '
+          +smp.full+' before it settles down.'
+        : smp.line+' this stat needs before it settles down.'));
+  /* A value the pipeline had to estimate is marked on the row itself; the stylesheet prints
+     the small EST under the number, and the stat's explanation says what it came from. */
+  var est=!!(p.est&&p.est.indexOf(m.key)>=0);
+  if(est) title+=(title?' ':'')+'This value is an estimate, not a count. Click the stat name to see what it is worked out from.';
+  return '<div class="row '+(smp.ok?'':'un')+'" data-k="'+m.key+'"'+(est?' data-est="1"':'')+' title="'+esc(title)+'">'
     +'<div class="rl" title="'+esc(m.label+' — click for what it means')+'"><div class="name">'+esc(m.label)+'</div><div class="tag">'+tag+'</div></div>'
     +blockBar(pct,chMark,!smp.ok)
     +'<div class="pct">'+(pct==null?'·':pct)+'</div>'
@@ -1855,7 +1948,8 @@ function cmpRow(m,entries,pos,season){
     if(!eraOK(m,en.season)) return {pct:0,txt:'n/t',p:null,nm:en.p.name,season:en.season};
     if(miss(v)) return {pct:0,txt:'—',p:null,nm:en.p.name,season:en.season};
     var pct=pctOf(v,poolVals(m.key,pos,en.season),m.lower);
-    return {pct:(pct==null?0:pct),txt:fmt(m.unit,v),p:pct,nm:en.p.name,season:en.season};
+    return {pct:(pct==null?0:pct),txt:fmt(m.unit,v),p:pct,nm:en.p.name,season:en.season,
+            est:isEst(en.p,m.key)};
   });
   if(items.every(function(i){return i.p==null;})) return '';
   var bars=items.map(function(it,i){
@@ -1865,7 +1959,8 @@ function cmpRow(m,entries,pos,season){
     return '<div class="ctrack">'+blk+'</div>';
   }).join('');
   var vals=items.map(function(it,i){
-    return '<div class="cv"><span class="cdot" style="background:'+CMP_COLORS[i]+'"></span>'+it.txt+'</div>';
+    return '<div class="cv"><span class="cdot" style="background:'+CMP_COLORS[i]+'"></span>'+it.txt
+      +(it.est?estTag():'')+'</div>';
   }).join('');
   var tt=items.map(function(it){return it.nm+" '"+String(it.season).slice(2)+': '+(it.p==null?'n/a':it.p+' pct');}).join('   ·   ');
   return '<div class="row nochart cmprow" data-k="'+m.key+'" title="'+esc(tt)+'">'
@@ -1920,8 +2015,26 @@ function notYet(grp,pos,s){
 }
 function panelHTML(grp,pos,cap){
   var body=groupBlocks(grp,pos);
-  if(!body) return '';
   var ny=notYet(grp,pos,curSeason), live=liveWeek(curSeason);
+  if(!body){
+    /* No rows is usually no panel. The exception is a panel nobody in the league has a row
+       in yet: every row of "The defense with and without him" waits on the file that says
+       who was on the field, which is published after the season. Dropping the panel would
+       read as though it did not exist, so during a season it keeps its place and says when
+       it fills in. */
+    var rows=0;
+    for(var i=0;i<METRICS.length;i++){
+      var m=METRICS[i];
+      if(m.grp===grp&&m.pos.indexOf(pos)>=0&&eraOK(m,curSeason)) rows++;
+    }
+    if(!live||!rows||ny.length<rows) return '';
+    return '<div class="col"><h2 class="col-h">'+esc(CFG.groupLabel[grp]||grp)+'</h2>'
+      +'<div class="col-note">Not published yet in '+esc(curSeason)
+      +(grp==='donoff'
+          ? '. These rows compare the defense with him on the field and with him off it. That needs the file that says who was on the field for each play, which is published after the season ends, so they fill in then.'
+          : ': '+esc(ny.join(', '))+'. Nobody in the league has these yet. They fill in once they are published.')
+      +'</div></div>';
+  }
   var foot = ny.length
     ? ('<div class="col-note">Not charted yet in '+esc(curSeason)+': '+esc(ny.join(', '))
        +'. '+(live?'Some charting is published a season at a time, after it ends.'
@@ -1985,7 +2098,7 @@ function profileScore(id,s){
     var pct=pctOf(v,poolVals(keys[i],r.pos,s),m.lower);
     if(pct==null) continue;
     loose.push(pct);
-    if(sampleOf(r,m).ok) strict.push(pct);   // a settled rate is the one we'd rather use
+    if(sampleOf(r,m,s).ok) strict.push(pct); // a settled rate is the one we'd rather use
   }
   baseline=save;
   // Prefer stats that have settled. But in 1999 a receiver's whole headline set is two
@@ -2129,8 +2242,165 @@ function ordSuffix(n){ var t=n%100; if(t>=11&&t<=13) return n+'th';
    the only honest place to draw the line between "leads" and "led". Nothing on this page
    should say a man led the league in a thing while the league is still playing for it. */
 function liveWeek(s){ var b=DATA.data&&DATA.data[s]; return (b&&b.week)||0; }
+
+/* ---------------------------------------------------------------- the newer chips
+   More facts for the row under his name, each printed only where the data has it: where
+   the depth chart lists him, where he stands on the roster, what he is paid, how that pay
+   sits beside how he has played, and for a lineman how his line ranks. Old seasons carry
+   almost none of this, and a card with none of it looks exactly as it did before. */
+var ROLE_NAME={LT:'Left tackle',LG:'Left guard',C:'Center',RG:'Right guard',RT:'Right tackle',
+  LDE:'Left end',RDE:'Right end',LDT:'Left defensive tackle',RDT:'Right defensive tackle',
+  NT:'Nose tackle',WLB:'Weak-side linebacker',SLB:'Strong-side linebacker',
+  MLB:'Middle linebacker',LILB:'Left inside linebacker',RILB:'Right inside linebacker',
+  LCB:'Left corner',RCB:'Right corner',NB:'Slot corner',FS:'Free safety',SS:'Strong safety',
+  FB:'Fullback',PK:'Kicker',P:'Punter'};
+/* Spots a team plays several men at, where the number is the news. */
+var ROLE_COUNTED={WR:'receiver',TE:'tight end',RB:'back'};
+function roleLabel(spot,rank){
+  rank=rank||1;
+  if(spot==='QB') return rank===1?'Starting QB':(rank===2?'Backup QB':'No. '+rank+' QB');
+  if(spot==='RB'&&rank===1) return 'Lead back';
+  if(ROLE_COUNTED[spot]) return 'No. '+rank+' '+ROLE_COUNTED[spot];
+  var nm=ROLE_NAME[spot];
+  if(!nm) return '';
+  if(rank===1) return nm;
+  return (rank===2?'Backup ':'No. '+rank+' ')+nm.charAt(0).toLowerCase()+nm.slice(1);
+}
+var MONTHS=['January','February','March','April','May','June','July','August','September',
+  'October','November','December'];
+function dayWords(iso){                      // "2026-10-08" -> "October 8, 2026"
+  var d=/^(\d{4})-(\d\d)-(\d\d)/.exec(iso||'');
+  return (d&&MONTHS[+d[2]-1])?(MONTHS[+d[2]-1]+' '+(+d[3])+', '+d[1]):'';
+}
+function chip(cls,tip,text){
+  return '<span class="acco'+(cls?' '+cls:'')+'"'+(tip?' title="'+esc(tip)+'"':'')+'>'+esc(text)+'</span>';
+}
+/* Where he lines up. During a season a man who has dropped off the chart he was last on
+   gets no role at all, because the chart no longer says he has one. */
+function roleChips(p){
+  var out=[], live=liveWeek(curSeason), r=p.role, lab='', tip='';
+  var gone=!!(live&&r&&r[2]===0);
+  if(r&&r.length){
+    if(!gone){
+      var when=dayWords((DATA.data[curSeason]||{}).depthAsOf);
+      lab=roleLabel(r[0],r[1]);
+      tip = r[2]===0 ? 'Where his team\'s depth chart had him the last time it listed him that season.'
+          : ('Where his team\'s depth chart '+(live?'lists':'listed')+' him'+(when?', as of '+when:'')+'.');
+    }
+  } else if(p.spot&&ROLE_NAME[p.spot]){
+    lab=ROLE_NAME[p.spot];
+    tip='The spot on the offensive line he played most that season.';
+  }
+  if(lab) out.push(chip('',tip,lab));
+  if(!gone&&(p.kr===1||p.pr===1)){
+    var both=p.kr===1&&p.pr===1;
+    out.push(chip('','First in his team\'s order to return '
+      +(both?'kickoffs and punts':(p.kr===1?'kickoffs':'punts'))+'.',
+      'Returns '+(both?'kicks and punts':(p.kr===1?'kicks':'punts'))));
+  }
+  return out;
+}
+/* Where he stands on the roster. It exists only while the season is being played. A man
+   on an injury list gets one chip that names the list and the injury, and draftBadges then
+   leaves the weekly injury chip off, so the two do not repeat each other. */
+var ROSTER_WORD={IR:'Injured reserve',IRR:'IR, can return',PUP:'PUP list',
+  NFI:'Non-football injury list',SUS:'Suspended',RES:'Reserve list',INA:'Inactive last game',
+  PS:'Practice squad',CUT:'Released',RET:'Retired'};
+var ROSTER_WHY={
+  IR:'On injured reserve, so he is not playing.',
+  IRR:'On injured reserve, and named by his team as a player it can bring back this season.',
+  PUP:'On the physically unable to perform list. He was hurt before the season began and has not been cleared to play.',
+  NFI:'On the non-football injury list. He was hurt or taken ill away from football and has not been cleared to play.',
+  SUS:'Suspended, so he cannot play for now.',
+  RES:'On one of his team\'s reserve lists, so he is not on the active roster.',
+  INA:'On the roster, but not in uniform for his team\'s last game.',
+  PS:'On the practice squad. He practises with the team but is not on the active roster.',
+  CUT:'Released. He is not on a roster right now.',
+  RET:'Retired.'};
+function listedInjury(p,team){               // the roster list names the injury for a few men
+  var t=((DATA.data[curSeason]||{}).teams||{})[team], o=(t&&t.out)||[];
+  for(var i=0;i<o.length;i++){ if(o[i]&&o[i][0]===p.id) return o[i][4]||''; }
+  return '';
+}
+function statusChip(p){
+  var inj=p.inj, rs=liveWeek(curSeason)?p.rs:null;
+  var code=(rs&&rs[0])||'', word=ROSTER_WORD[code]||'';
+  /* "Released" and "Retired" say he is gone. The depth chart is a second witness, and
+     while it still lists him the two disagree, so the card does not print the claim. */
+  if((code==='CUT'||code==='RET')&&p.role&&p.role[2]===1) word='';
+  if(!word) return {html:'',hurt:false};
+  var hurt=/^(IR|IRR|PUP|NFI)$/.test(code);
+  var what=hurt?((inj&&inj.inj)||listedInjury(p,rs[1])):'';
+  var tip=ROSTER_WHY[code]+(hurt&&inj?' This week\'s injury report (week '+inj.wk+'): '+inj.st+'.':'');
+  return {hurt:hurt, html:chip(hurt?'hurt out':(code==='SUS'||code==='INA'?'hurt':''),tip,
+    word+((rs[1]&&rs[1]!==p.team)?', '+rs[1]:'')+(what?' \u00b7 '+what:''))};
+}
+/* What he is paid: the contract he was playing on that season. The cap share is the
+   average year against the salary cap of the year he signed, which is what lets a 2019
+   deal sit beside a 2026 one. */
+function moneyWords(v){ return v<1?('$'+Math.round(v*1000)+'K'):('$'+v.toFixed(1)+'M'); }
+function contractChip(p){
+  var ct=p.ct;
+  if(!ct||miss(ct[0])) return '';
+  var apy=moneyWords(ct[0]), share=miss(ct[1])?'':(ct[1].toFixed(1)+'%');
+  var deal=[];
+  if(!miss(ct[3])) deal.push(ct[3]+(ct[3]===1?' year':' years'));
+  if(!miss(ct[4])) deal.push('signed in '+ct[4]);
+  if(!miss(ct[2])) deal.push(ct[2]>0?(moneyWords(ct[2])+' guaranteed'):'nothing guaranteed');
+  var tip=(deal.length?'His contract: '+deal.join(', ')+'. ':'')
+    +apy+' is what it pays for an average year.'
+    +(share?' That was '+share+' of the salary cap'+(miss(ct[4])?'':' in '+ct[4]+', the year he signed')+'.':'');
+  return chip('',tip,apy+' a year'+(share?' \u00b7 '+share+' of the cap':''));
+}
+/* Pay beside play. Among the qualified men at his position that season who have a known
+   cap share: where his pay ranks, and where his profile score ranks. The pool is ranked
+   once per season and position and kept, not rebuilt on every render; bustPools drops it
+   with the percentile pools, since the score underneath moves when they do. */
+var VALUE_CACHE={};
+function valuePool(season,pos){
+  var ck=season+'|'+pos;
+  if(VALUE_CACHE[ck]) return VALUE_CACHE[ck];
+  var rows=[], by={};
+  seasonPlayers(season).forEach(function(q){
+    if(q.pos!==pos||!q.qualified||!q.ct||miss(q.ct[1])) return;
+    var sc=profileScore(q.id,season);
+    if(sc!=null) rows.push({id:q.id,pay:q.ct[1],score:sc});
+  });
+  rows.forEach(function(a){
+    var pay=1, play=1;
+    rows.forEach(function(b){ if(b.pay>a.pay) pay++; if(b.score>a.score) play++; });
+    by[a.id]=[pay,play];
+  });
+  return (VALUE_CACHE[ck]={n:rows.length,by:by});
+}
+function nthWord(n,word){ return n===1?('the '+word):('the '+ordinal(n)+' '+word); }
+function valueChip(p){
+  if(isCareer(curSeason)||!p.qualified||!p.ct||miss(p.ct[1])) return '';
+  var pool=valuePool(curSeason,p.pos), r=pool.by[p.id];
+  if(pool.n<12||!r) return '';
+  var who=COHORT_WORD[p.pos]||posWord(p.pos,true);
+  return chip('','Paid: his contract\'s share of the salary cap is '+nthWord(r[0],'biggest')+' of the '
+    +pool.n+' qualified '+who+' in '+curSeason+' with a known contract. Plays: his profile score, '
+    +'the average percentile of his headline stats, is '+nthWord(r[1],'best')+' of the same '+pool.n+'.'
+    +(liveWeek(curSeason)?' The season is still being played, so the second number will move.':''),
+    'Paid '+ordinal(r[0])+', plays '+ordinal(r[1])+' of '+pool.n);
+}
+/* A lineman's line, as a unit. The same ranking the All-Savant Team reads its line from. */
+function lineChip(p){
+  if(!/^O[LTGC]$/.test(p.pos)) return '';
+  var lines=(DATA.data[curSeason]||{}).lines||[], wk=liveWeek(curSeason);
+  for(var i=0;i<lines.length;i++){
+    if(!lines[i]||lines[i].tm!==p.team) continue;
+    var nick=teamName(p.team).split(' ').pop();
+    return chip('','This is the five men together, not a grade on him. The '+nick+' line ranks '
+      +ordinal(i+1)+' of '+lines.length+' by sack rate allowed, QB-hit rate allowed and rush success'
+      +(wk?', through week '+wk:'')+'.',
+      nick+' line: '+ordinal(i+1)+' of '+lines.length);
+  }
+  return '';
+}
 function draftBadges(p){
-  var out=[];
+  var out=roleChips(p);
   if(p.acc){
     p.acc.forEach(function(a){
       var lead=a.r===1, wk=liveWeek(curSeason);
@@ -2144,11 +2414,13 @@ function draftBadges(p){
   if(p.dr) out.push('<span class="acco'+(p.dr===1?' major':'')+'" title="'+esc('Drafted '+(p.dy||'')+' — round '+p.dr+', pick '+(p.dp||'?')+(p.dt?' by '+p.dt:''))+'">Rd '+p.dr+' · #'+(p.dp||'?')+'</span>');
   else if(p.udfa) out.push('<span class="acco" title="Went undrafted">Undrafted</span>');
   if(p.exp===0) out.push('<span class="acco major" title="Rookie season">Rookie</span>');
+  var status=statusChip(p);
+  if(status.html) out.push(status.html);
   /* The injury report, and only while the season is being played. A game-day designation
      is the real answer; most weeks there isn't one, and a man who missed practice with a
      named injury is reported as exactly that rather than dressed up as a designation.
      Players simply being rested are not here at all. */
-  if(p.inj){
+  if(p.inj&&!status.hurt){
     var sev=/^(Out|Doubtful)$/.test(p.inj.st)?' out':(p.inj.st==='Questionable'?' quest':'');
     out.push('<span class="acco hurt'+sev+'" title="'
       +esc("This week's injury report (week "+p.inj.wk+'): '+p.inj.st
@@ -2159,6 +2431,7 @@ function draftBadges(p){
   if(arc.peak&&arc.peak.season===curSeason&&arc.pts.length>2&&!liveWeek(curSeason))
     out.push('<span class="acco major" title="His best qualified season on this page\'s profile score">Career year</span>');
   if(!p.qualified) out.push('<span class="acco" title="Below the qualifying line for his position, so he is not in the percentile pool">Unqualified</span>');
+  [contractChip(p),valueChip(p),lineChip(p)].forEach(function(c){ if(c) out.push(c); });
   return out.length?'<div class="accos">'+out.join('')+'</div>':'';
 }
 /* Super Bowls are known by their number, not their year — "Super Bowl LII" is the name of
@@ -2498,7 +2771,7 @@ function render(){
     var html=panelHTML(g,pos,cap);
     if(!html) return;
     if(g==='ctx') ctxHTML+=html;
-    else if(g==='val') valHTML+=html;
+    else if(g==='val'||SHORT_PANEL[g]) valHTML+=html;
     else if(g==='ath') athHTML+=html;
     else gridHTML+=html;
   });
@@ -2519,6 +2792,10 @@ function render(){
   document.querySelectorAll('.chip').forEach(function(c){c.setAttribute('aria-pressed',c.dataset.id===p.id);});
 }
 var PANEL_FLOOR={rush:['car',12], rec:['tgt',10], cov:['ctgt',5], kick:null, prsh:null};
+/* Panels that are only ever a few rows long. In the two-up grid one of these is stretched
+   to the height of the long panel beside it and becomes a big empty frame, so they take a
+   full-width row under the grid instead, the way Value does. */
+var SHORT_PANEL={st:1, donoff:1};
 function panelWorthIt(g,p,pos){
   var f=PANEL_FLOOR[g];
   if(!f) return true;
@@ -3111,27 +3388,36 @@ function wireCompCards(el){
 
 /* What this page can't see. Naming the gap is more credible than papering over it. */
 var GAPS_BY_POS={
-  OL:'Two of these three sections are the unit\'s, not his. Nobody publishes who beat whom on a given '
+  OL:'The protection and run game sections are the unit\'s, not his. Nobody publishes who beat whom on a given '
     +'snap, so there is no individual pass-block win rate here; what there is, is what the offense did while he '
     +'was on the field. Five linemen share a huddle, so a teammate who never leaves the field posts an identical '
-    +'number — which is why the on/off rows matter more than the raw ones, and why they are blank for iron men '
-    +'who never gave you a sample without them. His snaps, his starts, his alignment and his flags are genuinely his.',
+    +'number. That is why the on/off and with/without rows matter more than the raw ones, and why they are blank '
+    +'for iron men who never gave you a sample without them. The rows that say "behind him" are closer to his own '
+    +'work: they count only the runs aimed at his spot. While a season is being played most of the unit rows are '
+    +'estimates, marked EST, because the file that says who was on the field comes out after it ends. '
+    +'His snaps, his starts, his alignment and his flags are genuinely his.',
   TE:'The blocking panel splits his snaps into pass protection and run blocking, so a blocking tight end is '
     +'no longer judged on receiving numbers alone. What is still missing is alignment: inline, slot and wide are '
     +'three different jobs and open data does not say which he lined up in. And as with the offensive line, the '
     +'protection and run-game rows are the unit\'s performance on his snaps, not a grade on him.',
-  WR:'Routes run are charted by PFF and are not public, so the two best receiver numbers there are — '
-    +'yards per route run and targets per route run — cannot be computed here. Yards per snap and targets per snap '
-    +'stand in for them: same idea, blunter denominator, because it counts the snaps he spent blocking.',
-  ED:'Pass-rush snaps are not public, so pressure rate here is per defensive snap. A rusher on a '
-    +'run-heavy defense is understated by it.',
+  WR:'Routes run are charted by PFF and are not public, so the two best receiver numbers there are, '
+    +'yards per route run and targets per route run, cannot be computed here. Yards and targets per pass-play snap '
+    +'stand in for them: the pass plays he was on the field for, which still counts the few he spent blocking. '
+    +'Before 2016 only the blunter version exists, per snap of any kind.',
+  ED:'Pass-rush snaps are not public. Pressures per pass-play snap is the closest thing here: every pass play '
+    +'he was on the field for, whether he rushed or dropped into coverage. The per-snap rate beside it counts run '
+    +'plays too, so it understates a rusher on a run-heavy defense.',
   DI:'Double-team rate is the context that explains a great nose tackle\'s ordinary counting stats, '
-    +'and it is not in open data. Neither are pass-rush snaps, so pressure rate here is per defensive snap.',
-  CB:'Coverage snaps and alignment (boundary, slot, deep) are charted data. Rates here use total '
-    +'defensive snaps, which flatters a corner who spends downs in run support.',
-  S:'Coverage snaps and alignment are charted data. Rates here use total defensive snaps, so a box '
-    +'safety and a deep safety are being measured on the same denominator.',
-  LB:'Coverage snaps and blitz snaps are charted data; rates here use total defensive snaps. '
+    +'and it is not in open data. Neither are pass-rush snaps. Pressures per pass-play snap is the closest thing '
+    +'here: every pass play he was on the field for.',
+  CB:'True coverage snaps, and where he lined up on each play (boundary, slot, deep), are charted data. The '
+    +'coverage-snap rows here count every pass play he was on the field for, which is close for a corner. The '
+    +'older per-snap rows count run plays too, which flatters a corner who spends downs in run support. Where the '
+    +'card names his spot, it comes from his team\'s depth chart, not from each play.',
+  S:'True coverage snaps and alignment are charted data. The coverage-snap rows here count every pass play he '
+    +'was on the field for, so a box safety and a deep safety are still being measured on the same denominator.',
+  LB:'True coverage snaps are charted data. The coverage-snap rows here count every pass play he was on the '
+    +'field for, including the ones he rushed the passer on. '
     +'Tackle volume is a role stat before it is a skill stat.',
   P:'Hang time and coverage quality are the two variables that decide whether a punt was good, '
     +'and neither is public. Net average and inside-20 rate are the best pair available.'
@@ -3155,7 +3441,15 @@ function toggleExpl(rowEl,key){
   var m=MBY[key]; if(!m) return;
   var x=m.exp||{};
   var meta=[m.layer.toUpperCase()];
-  if(m.thr&&m.den) meta.push('needs about '+m.thr+' '+(CFG.denoms[m.den]||m.den)+' to settle');
+  /* The line for the card on screen: his position's, and cut to the games played so far
+     while the season is live. */
+  var smp=(cur&&m.den)?sampleOf(cur,m,curSeason):{};
+  if(smp.line){
+    var have=(cur.d||{})[m.den];
+    meta.push('needs about '+smp.full+' '+(CFG.denoms[m.den]||m.den)+' to settle'+(smp.line<smp.full?' over a full season':''));
+    if(smp.line<smp.full) meta.push('the line at this point in the season is '+smp.line);
+    if(have!=null&&!cmp.length) meta.push('he has '+Math.floor(have));
+  }
   if(m.since>1999) meta.push('first tracked in '+m.since);
   if(m.lower) meta.push('lower is better, so the bar is flipped');
   var el=document.createElement('div');
@@ -3163,6 +3457,7 @@ function toggleExpl(rowEl,key){
   el.innerHTML=
      '<h4>What it is</h4><p>'+esc(x.w||m.label)+'</p>'
     +(x.f?'<h4>How it\'s worked out</h4><div class="formula">'+esc(x.f)+'</div>':'')
+    +(isEst(cur,key)?'<h4 class="why">An estimate</h4><p>'+esc(estWhy(cur,m,curSeason))+'</p>':'')
     +'<h4 class="why">Why it matters</h4><p>'+esc(x.y||'')+'</p>'
     +'<span class="src">'+esc(meta.join(' · '))+'</span>';
   rowEl.insertAdjacentElement('afterend',el);
@@ -3188,7 +3483,10 @@ function toggleExpl(rowEl,key){
    The SVG is drawn at the pixel width it is shown at and redrawn on resize, so nothing is
    ever stretched: squares stay square and type stays the size it was set at. */
 var chartMode='season';                 // remembered across charts for the session
-var SEASON_TOTAL_ONLY={g:1,avail:1,starts:1,posver:1,comp:1};
+var SEASON_TOTAL_ONLY={g:1,avail:1,starts:1,posver:1,comp:1,
+  /* a comparison between sets of games, or between his snaps on and off the field across
+     a season: there is nothing to draw for one game */
+  wosack:1,worun:1,dpepaoo:1,drsroo:1};
 var WK_ROOT=null, WK_IDX={}, WK_FILE={}, WK_PACK={};
 function wkTag(){ return '?v='+Math.floor(Date.now()/3600000); }   // same hour-cache as the current file
 function wkRoot(){
@@ -3607,15 +3905,22 @@ function wireHover(el){
 
 /* ================= SEARCH + NAVIGATION ===================================== */
 function searchHits(term){
-  term=_norm(term).trim();
+  term=_norm(term);
   if(!term) return [];
   var starts=[],lastStarts=[],contains=[];
-  for(var i=0;i<NAMES.length&&starts.length+lastStarts.length+contains.length<60;i++){
-    var e=NAMES[i];
-    if(e.n.indexOf(term)===0) starts.push(e);
-    else if(e.last.indexOf(term)===0) lastStarts.push(e);
-    else if(e.n.indexOf(term)>=0) contains.push(e);
+  function collect(t,field){
+    for(var i=0;i<NAMES.length&&starts.length+lastStarts.length+contains.length<60;i++){
+      var e=NAMES[i];
+      if(e[field].indexOf(t)===0) starts.push(e);
+      else if(e.last.indexOf(t)===0) lastStarts.push(e);
+      else if(e[field].indexOf(t)>=0) contains.push(e);
+    }
   }
+  collect(term,'n');
+  /* A Jr., Sr. or numeral typed on the end that no name carries that way ("Kenneth Walker
+     Jr." for Kenneth Walker III): look again with the suffix set aside on both sides. */
+  var bare=_norm(term,true);
+  if(!(starts.length+lastStarts.length+contains.length)&&bare!==term) collect(bare,'nb');
   /* Two men named Jefferson both played last year; the one people mean is the one who
      played more. Rank on recency first, then on the size of the career behind the name. */
   function score(e){
@@ -3922,7 +4227,33 @@ function allSavant(season){
           +ordinal(Math.round(L.pct.runsr))+'), vs all 32 lines. Team numbers, shared with the quarterback and backs.'});
     });
   }
-  var def=fill(AST.def), st=fill(AST.st);
+  /* The third corner is the slot corner. Where the season has depth charts he is picked as
+     one: the best Savant profile among the men their teams list there, whether the page
+     ranks him with the corners or the safeties. He is taken first, so the two outside
+     spots go to the best corners left. A season with no depth charts keeps the old rule,
+     the third-best corner. During a season a man who has dropped off that chart is not
+     counted as on it. */
+  var defSlots=AST.def, slot=null, live=liveWeek(season);
+  if(seasonPlayers(season).some(function(p){ return !!p.role; })){
+    var nb=rankedAt(season,'CB').concat(rankedAt(season,'S')).filter(function(it){
+      var r=it.p.role;
+      return r&&r[0]==='NB'&&!(live&&r[2]===0);
+    }).sort(function(a,b){ return b.raw-a.raw; })[0];
+    if(nb){
+      used[nb.p.id]=1;
+      slot={slot:'Slot',id:nb.p.id,name:nb.p.name,h:nb.p.h,team:nb.p.team,
+        why:'Slot corner pick: the best Savant profile among the men their teams list at slot corner. '
+          +'Score '+nb.score+', the average percentile of his headline stats vs qualified '
+          +(AST_PEERS[nb.p.pos]||posWord(nb.p.pos,true))+', '+season};
+      defSlots=AST.def.map(function(sl){ return sl[1]==='CB'?[sl[0],sl[1],sl[2]-1]:sl; });
+    }
+  }
+  var def=fill(defSlots), st=fill(AST.st);
+  if(slot){                                   // he stands after the outside corners
+    var at=0;
+    def.forEach(function(it,i){ if(it.slot==='CB') at=i+1; });
+    def.splice(at||def.length,0,slot);
+  }
   var RET={kr:['KR','kick returner'],pr:['PR','punt returner']};
   ['kr','pr'].forEach(function(k){
     var r=((blk.ret||{})[k]||[])[0]; if(!r) return;
@@ -3943,7 +4274,7 @@ function allSavant(season){
 var AST_SPOTS={
   // slot -> [[grid column, grid row], ...] in pick order (best first)
   S:[[5,1],[13,1]],
-  LB:[[7,2],[11,2]], CB:[[1,3],[17,3],[3,2]],
+  LB:[[7,2],[11,2]], CB:[[1,3],[17,3],[3,2]], Slot:[[3,2]],
   EDGE:[[6,3],[12,3]], IDL:[[8,3],[10,3]],
   WR:[[1,5],[17,5],[3,6]],
   LT:[[5,5]], LG:[[7,5]], C:[[9,5]], RG:[[11,5]], RT:[[13,5]], TE:[[15,5]],
@@ -4166,7 +4497,7 @@ function lbPool(){
   var ps=seasonPlayers(LB.season)||[];
   return ps.filter(function(p){
     if(p.pos!==LB.pos||!p.qualified) return false;
-    if(LB.team&&p.team!==LB.team) return false;
+    if(LB.team&&!onTeam(p,LB.team)) return false;
     if(LB.share&&(miss(p.m.snapshr)||p.m.snapshr<LB.share)) return false;
     if(LB.ageMin!=null&&(p.age==null||p.age<LB.ageMin)) return false;
     if(LB.ageMax!=null&&(p.age==null||p.age>LB.ageMax)) return false;
@@ -4193,8 +4524,22 @@ function lbRender(){
      tiny denominator produces extreme rates in both directions. "Settled" holds the list
      to players who have enough of the metric's own denominator to mean it; "Everyone"
      shows the rest, dimmed and starred rather than silently mixed in. */
-  var thin=all.filter(function(p){ return !sampleOf(p,m).ok; });
-  var rows = LB.sample==='settled' ? all.filter(function(p){ return sampleOf(p,m).ok; }) : all;
+  var thin=all.filter(function(p){ return !sampleOf(p,m,LB.season).ok; });
+  var rows = LB.sample==='settled' ? all.filter(function(p){ return sampleOf(p,m,LB.season).ok; }) : all;
+  /* The line as the notes under the table name it. Mid-season it follows each man's team,
+     so a club that has had its bye sits a game lower; when the men being described do not
+     all share one line the note gives both ends rather than picking one. */
+  function lineOf(ps){
+    var lo=null, hi=null, full=0;
+    (ps.length?ps:[{pos:LB.pos}]).forEach(function(p){
+      var smp=sampleOf(p,m,LB.season);
+      full=smp.full;
+      if(lo==null||smp.line<lo) lo=smp.line;
+      if(hi==null||smp.line>hi) hi=smp.line;
+    });
+    return {cut:hi<full, words:(lo===hi?lo:lo+' to '+hi)+' '+(CFG.denoms[m.den]||m.den)
+      +(hi<full?', the line at this point in the season ('+full+' over a full one)':'')};
+  }
   rows.sort(function(a,b){
     var x=a.m[LB.rank], y=b.m[LB.rank];
     return m.lower ? x-y : y-x;
@@ -4213,7 +4558,7 @@ function lbRender(){
           ? ('Nobody has a '+esc(m.label).toLowerCase()+' in '+esc(LB.season)+' yet'
              +(liveWeek(LB.season)?' — some charting is only published once the season ends.':'.'))
        :(LB.sample==='settled'&&thin.length)
-          ? ('Nothing qualifies. No one reached '+m.thr+' '+(CFG.denoms[m.den]||m.den)+' — switch Sample to Everyone, or loosen the filters.')
+          ? ('Nothing qualifies. No one reached '+lineOf(thin).words+' — switch Sample to Everyone, or loosen the filters.')
           : 'Nothing qualifies. Loosen the filters.')+'</td></tr></tbody>';
     return;
   }
@@ -4221,12 +4566,15 @@ function lbRender(){
   var head='<thead><tr><th>#</th><th>Player</th><th>Tm</th>'
     +cols.map(function(k){return '<th title="'+esc(((MBY[k].exp||{}).w)||'')+'">'+esc(MBY[k].label)+'</th>';}).join('')
     +'</tr></thead>';
-  var anyThin=false;
+  var anyThin=false, anyEst=false;
   var body='<tbody>'+rows.map(function(p,i){
-    var smp=sampleOf(p,m);
+    var smp=sampleOf(p,m,LB.season);
     if(!smp.ok) anyThin=true;
     var tip=smp.ok?'':('Only '+Math.round(smp.n)+' '+(CFG.denoms[m.den]||m.den)+' — below the '
-      +m.thr+' this stat needs before it settles down.');
+      +(smp.line<smp.full
+          ? smp.line+' that is the line this far into the season. Over a full season this stat needs '
+            +smp.full+' before it settles down.'
+          : smp.line+' this stat needs before it settles down.'));
     return '<tr class="'+(smp.ok?'':'thin')+'"'+(tip?' title="'+esc(tip)+'"':'')+'>'
       +'<td>'+(i+1)+'</td><td data-id="'+esc(p.id)+'">'+esc(p.name)+'</td>'
       +'<td style="color:'+teamInk(p.team)+'">'+esc(p.team||'')+'</td>'
@@ -4235,19 +4583,29 @@ function lbRender(){
         if(miss(v)) return '<td style="color:var(--faint)">—</td>';
         var pct=lbPct(v,k);
         var txt=LB.display==='pct'?(pct==null?'·':pct):fmt(MBY[k].unit,v);
-        return '<td style="color:'+lbTextColor(pct)+'">'+esc(txt)+'</td>';
+        var est=isEst(p,k);
+        if(est) anyEst=true;
+        return '<td style="color:'+lbTextColor(pct)+'">'+esc(txt)+(est?estTag():'')+'</td>';
       }).join('')+'</tr>';
   }).join('')+'</tbody>';
   var foot='';
   if(LB.sample==='settled'&&thin.length){
     foot='<tfoot><tr><td class="lb-foot" colspan="'+(3+cols.length)+'">'
-      +thin.length+' player'+(thin.length===1?'':'s')+' hidden: fewer than '+m.thr+' '
-      +(CFG.denoms[m.den]||m.den)+', the point where '+esc(m.label).toLowerCase()
-      +' stops wobbling. Switch Sample to <b>Everyone</b> to see them.</td></tr></tfoot>';
+      +thin.length+' player'+(thin.length===1?'':'s')+' hidden: fewer than '+lineOf(thin).words
+      +(lineOf(thin).cut?'.':', the point where '+esc(m.label).toLowerCase()+' stops wobbling.')
+      +' Switch Sample to <b>Everyone</b> to see them.</td></tr></tfoot>';
   } else if(anyThin){
     foot='<tfoot><tr><td class="lb-foot" colspan="'+(3+cols.length)+'">'
-      +'Dimmed rows marked <b>*</b> are below '+m.thr+' '+(CFG.denoms[m.den]||m.den)
+      +'Dimmed rows marked <b>*</b> are below '+lineOf(rows.filter(function(p){ return !sampleOf(p,m,LB.season).ok; })).words
       +' — the rate is real, the ranking is not yet earned.</td></tr></tfoot>';
+  }
+  if(anyEst){
+    var estNote='<tr><td class="lb-foot" colspan="'+(3+cols.length)+'">Numbers marked <b>EST</b> are estimates. '
+      +(liveWeek(LB.season)
+          ? 'The file that says who was on the field for each play is only published after the season, so until then they are worked out from snap counts and team numbers.'
+          : 'The file that says who was on the field for each play does not cover enough of that man\'s snaps, so they are worked out from snap counts and team numbers.')
+      +'</td></tr>';
+    foot = foot ? foot.replace('</tfoot>',estNote+'</tfoot>') : '<tfoot>'+estNote+'</tfoot>';
   }
   t.innerHTML=head+body+foot;
   t.querySelectorAll('td[data-id]').forEach(function(td){
@@ -4419,7 +4777,10 @@ function wireLB(){
 function fillTeams(){
   var sel=document.getElementById('teamSel');
   var have={};
-  seasonPlayers(curSeason).forEach(function(p){ if(p.team) have[p.team]=1; });
+  seasonPlayers(curSeason).forEach(function(p){
+    if(p.team) have[p.team]=1;
+    (p.tms||[]).forEach(function(t){ if(t) have[t]=1; });   // a club he left is still a club
+  });
   var ts=Object.keys(have).sort();
   sel.innerHTML='<option value="">Teams</option>'
     +ts.map(function(t){return '<option value="'+t+'">'+esc(teamName(t))+'</option>';}).join('');
@@ -4427,7 +4788,7 @@ function fillTeams(){
 function openTeam(t){
   var el=document.getElementById('teamPanel');
   if(!t){ el.hidden=true; el.innerHTML=''; return; }
-  var order=['QB','RB','WR','TE','OL','ED','DI','LB','CB','S','K','P'];
+  var order=['QB','RB','WR','TE','OT','OG','OC','OL','ED','DI','LB','CB','S','K','P'];
   var ps=seasonPlayers(curSeason).filter(function(p){return onTeam(p,t);});
   ps.sort(function(a,b){
     var d=order.indexOf(a.pos)-order.indexOf(b.pos);
@@ -4461,7 +4822,7 @@ function renderChips(){
 }
 
 /* ================= WIRING ================================================== */
-function bustPools(){ POOL_CACHE={}; ARC_CACHE={}; }
+function bustPools(){ POOL_CACHE={}; ARC_CACHE={}; VALUE_CACHE={}; }
 function setSeg(id,btn){
   document.querySelectorAll('#'+id+' button').forEach(function(x){
     x.setAttribute('aria-pressed',x===btn?'true':'false');

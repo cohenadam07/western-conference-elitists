@@ -139,7 +139,7 @@ function editDistance(a, b, max) {
 
 // "jaren jackson jr" -> "jaren jackson"; a name with no suffix is returned as it is.
 const SUFFIX = /\s(jr|sr|ii|iii|iv|v)$/
-const base = (n) => n.replace(SUFFIX, '')
+export const base = (n) => n.replace(SUFFIX, '')
 
 // How well a prepared name answers a query. 0 means not at all.
 //   100  the name, exactly

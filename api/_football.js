@@ -29,7 +29,7 @@
 // Not a function itself: Vercel skips api files that start with an underscore.
 
 import { z } from 'zod'
-import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, ordinal, prepare, rank, thousands, topTier } from './_core.js'
+import { READ_ONLY, SITE, SavantError, base, day, makeLoader, miss, norm, ordinal, prepare, rank, thousands, topTier } from './_core.js'
 
 // A season file is a couple of megabytes once parsed, so only a handful are held at a time.
 const files = makeLoader('savant-api/football/v1', { what: 'Football Savant', maxCached: 8 })
@@ -73,6 +73,16 @@ function rowsOf(file) {
 
 // Among equally good name matches: the more recent player, then the longer career.
 const recent = (a, b) => b.to - a.to || b.seasons - a.seasons
+
+// The players a name could mean, best first. Names are spelled the way the Football Savant
+// page's search spells them (norm() here, _norm() there), and one rule is the page's too: a
+// Jr., Sr. or numeral typed on the end that no name carries that way ("Kenneth Walker Jr."
+// for Kenneth Walker III) is set aside and the name is looked up again.
+function findByName(rows, query) {
+  const ranked = rank(rows, query, recent)
+  const typed = norm(query)
+  return ranked.length || base(typed) === typed ? ranked : findByName(rows, base(typed))
+}
 
 // ---- small formatting helpers ----------------------------------------------------------
 
@@ -173,7 +183,7 @@ async function resolvePlayer(input, season, meta) {
     throw new SavantError(`No player has the id "${raw}". Search by name with nfl_search_players.`)
   }
 
-  const ranked = rank(rows, raw, recent)
+  const ranked = findByName(rows, raw)
   if (!ranked.length) throw new SavantError(`No player matches "${raw}". Check the spelling, or search with nfl_search_players.`)
 
   const top = ranked[0].score
@@ -201,7 +211,7 @@ async function resolvePlayer(input, season, meta) {
 
 export async function searchPlayers({ query, limit = 10 }) {
   const [meta, rows] = await Promise.all([loadMeta(), loadPlayers()])
-  const ranked = rank(rows, query, recent)
+  const ranked = findByName(rows, query)
   const shown = ranked.slice(0, limit).map(({ row }) => ({
     id: row.id,
     name: row.name,
