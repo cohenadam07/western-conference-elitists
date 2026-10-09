@@ -19,6 +19,19 @@
 // deployments. They are matched by pattern rather than listed, because a season joins them
 // by itself when it ends; vercel.json carries the matching pattern rewrite. The season in
 // progress is small per-player files that change twice a day, and is left alone.
+//
+// And to the three kinds of file the October 2026 additions brought, each fetched whole and
+// only when a reader opens the view that needs it:
+//   football-weekly/<season>/form-<n>.json   everyone's last 4, 8 and 17 games
+//   football-splits/<season>.json            situational splits, one file a season
+//   football-pace/w<NN>.json                 same-point-in-the-season baselines
+// 17 MB as JSON, about 5 MB gzipped. Their index.json files are tiny and stay as they are.
+//
+// Those additions also made the season archive, the game lines and the connector's files
+// bigger: 27 MB more per deployment in all, which is over a gigabyte across the forty Vercel
+// keeps. Basketball Savant's shot charts pay for it. public/shots/<player id>.json is two
+// thousand files and 58 MB that were going out as plain JSON; gzipped they are 20 MB, so a
+// deployment is smaller after the additions than it was before them.
 
 import { existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -32,9 +45,12 @@ export const COMPRESSED = [
   'ufc-savant-fights.json',
 ]
 
-// football-weekly/<season>/pack-NN.json — keep in step with the rewrite in vercel.json.
+// football-weekly/<season>/pack-NN.json and form-N.json — keep in step with the rewrites
+// in vercel.json.
 const SEASON_DIR = /^\d{4}$/
-const PACK_FILE = /^pack-\d+\.json$/
+const PACK_FILE = /^(pack|form)-\d+\.json$/
+// football-splits/<season>.json, football-pace/wNN.json and shots/<player id>.json, likewise.
+const FLAT = [['football-splits', /^\d{4}\.json$/], ['football-pace', /^w\d{2}\.json$/], ['shots', /^\d+\.json$/]]
 
 export function weeklyPacks(dist) {
   const root = path.join(dist, 'football-weekly')
@@ -51,11 +67,21 @@ export function weeklyPacks(dist) {
   return out
 }
 
+export function flatFiles(dist) {
+  const out = []
+  for (const [dir, pattern] of FLAT) {
+    const root = path.join(dist, dir)
+    if (!existsSync(root)) continue
+    for (const f of readdirSync(root)) if (pattern.test(f)) out.push(`${dir}/${f}`)
+  }
+  return out
+}
+
 const mb = (n) => (n / 1048576).toFixed(1)
 
 export function compressData(dist) {
   const done = []
-  for (const name of [...COMPRESSED, ...weeklyPacks(dist)]) {
+  for (const name of [...COMPRESSED, ...weeklyPacks(dist), ...flatFiles(dist)]) {
     const file = path.join(dist, name)
     if (!existsSync(file)) continue
     const raw = statSync(file).size

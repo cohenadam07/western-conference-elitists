@@ -117,7 +117,28 @@ export function readPage(html) {
   // renderWeak(): at or under this best match, the page says nobody shares the profile.
   const low = html.match(/var\s+weak\s*=\s*best\s*<=\s*(\d+)\s*;/)
   if (!low) throw new Error(`the low-match line in renderWeak() changed in ${PAGE}`)
-  return { cohortWord, panelFloor, gaps, line, lowMatch: +low[1] }
+  // The depth-chart badge: which spots mean something at which position (ROLE_OK), their
+  // names, and how many of a position's list are starters (three receivers).
+  const roleWord = literal(html, 'ROLE_WORD')
+  const roleOk = literal(html, 'ROLE_OK')
+  const roleStarters = literal(html, 'ROLE_STARTERS')
+  // regressed(): the stats whose last season is not carried into this season's estimate
+  const noCarry = literal(html, 'NO_CARRY')
+  return { cohortWord, panelFloor, gaps, line, lowMatch: +low[1], roleWord, roleOk, roleStarters, noCarry }
+}
+
+// The page's roleSpot() and roleLabel(): what its depth-chart badge says about a man, or
+// null where it shows no badge. The depth-chart file draws every defense on one template,
+// so a spot is only named where it agrees with the position he is ranked at (a 4-3 end
+// filed as a "weak-side linebacker" is not called one), and a rank is only mentioned for
+// a man listed behind the starters.
+export function roleOf(p, page, posLabel) {
+  if (!p.role || !p.role[0]) return null
+  const [code, rank] = p.role
+  const spot = ` ${page.roleOk[p.pos] || ''} `.includes(` ${code} `) ? (page.roleWord[code] || code) : null
+  const behind = rank != null && rank > (page.roleStarters[code] || 1)
+  if (!spot && !behind) return null
+  return { spot, listed: behind ? rank : null, at: (spot || posLabel[p.pos] || p.pos).toLowerCase() }
 }
 
 // ---- the page's arithmetic -------------------------------------------------------------
@@ -174,12 +195,18 @@ export function percentile(v, sorted, lower) {
   return Math.max(1, Math.min(99, Math.round(lower ? 100 - pct : pct)))
 }
 
+// The page's thrFor(): a stat's sample line for one position. Most stats have one line; a
+// few carry a line per position (150 targets is a wide receiver's season and more than any
+// running back has ever had).
+export const thrFor = (metric, pos) => (metric.thrp && metric.thrp[pos] != null ? metric.thrp[pos] : metric.thr)
+
 // The page's sampleOf(): a stat is on too small a sample when its denominator is known and
-// under the stat's threshold.
+// under the stat's threshold for his position.
 export function lowSample(p, metric) {
-  if (!metric.thr || !metric.den) return false
+  const thr = thrFor(metric, p.pos)
+  if (!thr || !metric.den) return false
   const n = (p.d || {})[metric.den]
-  return n != null && n < metric.thr
+  return n != null && n < thr
 }
 
 // The page's panelWorthIt(): a panel whose whole denominator is a rounding error is dropped.
@@ -187,6 +214,8 @@ export function lowSample(p, metric) {
 export function panelWorthIt(group, p, pos, floors) {
   const f = floors[group]
   if (!f) return true
+  // returns are two counts, and either one makes him a returner
+  if (group === 'ret') { const dd = p.d || {}; return (dd.kr || 0) + (dd.pr || 0) >= f[1] }
   if (group === 'rush' && (pos === 'RB' || pos === 'QB')) return true
   if (group === 'rec' && (pos === 'WR' || pos === 'TE')) return true
   const d = p.d || {}
@@ -289,22 +318,119 @@ export function buildFootballApi({ data, current = null, html }) {
     card[pos] = (cfg.panels[pos] || ['ctx']).map((g) => [g, metrics.filter((m) => m.grp === g && m.pos.includes(pos))])
   }
 
+  // ---- where an unsettled number is likely to end up: the page's regressed() ----
+  // Only a season still being played has anything to estimate. The estimate is what he has
+  // done so far, weighted by how much of it there is, blended with a prior weighted by the
+  // sample the stat needs (its line, k). The prior is the position's average this season,
+  // moved toward his own last season by how much of last season there was.
+  const isLive = (season) => !!(merged.data[season] || {}).week
+  // The page's isEst(): rows worked out from snap counts stay estimates until the season's
+  // play-by-play lineups are published, a month after its last week is in.
+  const isEst = (season) => { const b = merged.data[season] || {}; return !!(b.est || b.week) }
+  const rowsById = {}
+  const rowFor = (id, season) => {
+    if (!merged.data[season]) return null
+    if (!rowsById[season]) rowsById[season] = new Map(playersOf(season).map((p) => [p.id, p]))
+    return rowsById[season].get(id) || null
+  }
+  // The page's posStat(): the position's average for a stat that season, with the lowest
+  // and highest any qualified player has posted. Nothing with fewer than five to average.
+  const means = new Map()
+  function posStat(key, pos, season) {
+    const ck = `${key}|${pos}|${season}`
+    if (means.has(ck)) return means.get(ck)
+    let sum = 0
+    let n = 0
+    let lo = Infinity
+    let hi = -Infinity
+    for (const p of merged.data[season] ? playersOf(season) : []) {
+      if (!p.qualified || p.pos !== pos) continue
+      const v = (p.m || {})[key]
+      if (!miss(v)) { sum += v; n++; if (v < lo) lo = v; if (v > hi) hi = v }
+    }
+    const out = n >= 5 ? { m: sum / n, lo, hi } : null
+    means.set(ck, out)
+    return out
+  }
+  function regressed(p, m, season) {
+    if (!isLive(season)) return null
+    const k = thrFor(m, p.pos)
+    if (!k || !m.den) return null
+    const x = (p.m || {})[m.key]
+    const n = (p.d || {})[m.den]
+    if (miss(x) || n == null) return null
+    const st = posStat(m.key, p.pos, season)
+    if (!st) return null
+    const mu = st.m
+    let prior = mu
+    let last = null
+    const prev = String(yearOf(season) - 1)
+    const q = rowFor(p.id, prev)
+    // Last season counts for as much as there was of it, held inside what qualified
+    // players posted that year; last year's schedule is not carried at all (NO_CARRY).
+    if (q && q.pos === p.pos && tracked(m, prev) && !page.noCarry[m.key]) {
+      const xl = (q.m || {})[m.key]
+      const nl = (q.d || {})[m.den]
+      const sp = posStat(m.key, p.pos, prev)
+      if (!miss(xl) && nl > 0 && sp) {
+        prior = mu + (nl / (nl + k)) * (Math.max(sp.lo, Math.min(sp.hi, xl)) - sp.m)
+        last = { v: xl, n: nl }
+      }
+    }
+    // the prior stays inside what qualified players have actually posted this season
+    prior = Math.max(st.lo, Math.min(st.hi, prior))
+    return { v: (n * x + k * prior) / (n + k), prior, last, n, k }
+  }
+  // The page's estValue() and estPool(): an estimate is ranked against everyone else's
+  // estimate (a settled number stands as it is), never against their raw numbers.
+  function estValue(p, m, season) {
+    const v = (p.m || {})[m.key]
+    if (miss(v)) return null
+    if (!lowSample(p, m)) return v
+    const e = regressed(p, m, season)
+    return e ? e.v : null
+  }
+  const estPools = new Map()
+  function estPool(key, pos, season) {
+    const ck = `${key}|${pos}|${season}`
+    if (estPools.has(ck)) return estPools.get(ck)
+    const m = byKey[key]
+    const out = []
+    for (const p of playersOf(season)) {
+      if (!p.qualified || p.pos !== pos) continue
+      const ev = estValue(p, m, season)
+      if (ev != null) out.push(ev)
+    }
+    const pool = sorted(out)
+    estPools.set(ck, pool)
+    return pool
+  }
+
   // ---- the profile score behind the page's career arc: profileScore() ----
   // The mean season percentile across the position's headline stats. Settled stats are
-  // preferred; with fewer than two of those it falls back to whatever exists.
+  // preferred; with fewer than two of those it falls back to whatever exists. While a
+  // season is being played almost nothing has settled, so each headline stat is scored
+  // where it is likely to settle instead, among everyone's estimates.
   function profileScore(p, season) {
     if (!p.qualified) return null
     const strict = []
     const loose = []
+    const live = isLive(season)
     for (const k of cfg.headline[p.pos] || []) {
       const m = byKey[k]
       if (!m || !tracked(m, season)) continue
       const v = (p.m || {})[k]
       if (miss(v)) continue
-      const pct = percentile(v, ((seasonPool[season] || {})[p.pos] || {})[k], m.lower)
+      let pct = percentile(v, ((seasonPool[season] || {})[p.pos] || {})[k], m.lower)
       if (pct == null) continue
+      let settled = !lowSample(p, m)
+      if (live) {
+        const ev = estValue(p, m, season)
+        const ep = ev == null ? null : percentile(ev, estPool(k, p.pos, season), m.lower)
+        if (ep != null) { pct = ep; settled = true }
+      }
       loose.push(pct)
-      if (!lowSample(p, m)) strict.push(pct)
+      if (settled) strict.push(pct)
     }
     const use = strict.length >= 2 ? strict : loose.length ? loose : null
     return use ? use.reduce((a, b) => a + b, 0) / use.length : null
@@ -350,26 +476,49 @@ export function buildFootballApi({ data, current = null, html }) {
       const m = {}
       const low = []
       const off = []
+      const est = []
+      const settle = {}
+      const estNow = isEst(season)
       for (const [group, list] of card[pos] || []) {
         if (!panelWorthIt(group, p, pos, page.panelFloor)) { off.push(group); continue }
         for (const mt of list) {
           const v = (p.m || {})[mt.key]
           if (!tracked(mt, season) || miss(v)) continue   // barRow(): absent, not zero
           m[mt.key] = [v, percentile(v, mine[mt.key], mt.lower), percentile(v, every[mt.key], mt.lower)]
-          if (lowSample(p, mt)) low.push(mt.key)
+          if (estNow && mt.est) est.push(mt.key)         // the page tags the row "est."
+          if (lowSample(p, mt)) {
+            low.push(mt.key)
+            // the second mark on a hollow bar: where the number is likely to settle
+            const e = regressed(p, mt, season)
+            // Kept whole. Rounded to any number of places it can land on the far side of a
+            // half and print a digit off from the page (.065 as "0.07" where the page,
+            // holding .06499999, prints "0.06").
+            if (e) settle[mt.key] = [e.v, percentile(e.v, estPool(mt.key, pos, season), mt.lower)]
+          }
         }
       }
 
       const row = { id: p.id, name: p.name, team: p.team || null, pos, qualified: !!p.qualified }
       if (p.tms && p.tms.length > 1) row.tms = p.tms
-      for (const k of ['age', 'exp', 'college', 'rec', 'po', 'coach', 'acc', 'inj']) if (p[k] != null) row[k] = p[k]
+      for (const k of ['age', 'exp', 'college', 'rec', 'po', 'coach', 'acc', 'inj', 'st']) if (p[k] != null) row[k] = p[k]
+      // the depth-chart badge as the page words it: null where the page shows none
+      const role = roleOf(p, page, cfg.posLabel)
+      if (role) row.role = role
       if (p.dr) row.draft = { round: p.dr, pick: p.dp ?? null, year: p.dy ?? null, team: p.dt ?? null }
       else if (p.udfa) row.udfa = true
-      // Only the denominators the page has a word for.
-      row.d = Object.fromEntries(Object.keys(cfg.denoms).filter((k) => d[k] != null).map((k) => [k, d[k]]))
+      // The counts a card is built on, plus the sample behind any row that is short of its
+      // line (a reader needs "40 of 60 play-action dropbacks" to quote that row honestly).
+      // The sample behind a settled split is left out: it would double every file.
+      const core = new Set(cfg.denomCore || Object.keys(cfg.denoms))
+      for (const k of low) core.add(byKey[k].den)
+      // a returner's two counts, for the men short of the returns panel's floor
+      if ((card[pos] || []).some(([g]) => g === 'ret')) { core.add('kr'); core.add('pr') }
+      row.d = Object.fromEntries(Object.keys(cfg.denoms).filter((k) => core.has(k) && d[k] != null).map((k) => [k, d[k]]))
       row.m = m
       if (low.length) row.low = low
       if (off.length) row.off = off
+      if (est.length) row.est = est
+      if (Object.keys(settle).length) row.settle = settle
       // The page prints the score on the career-arc button, which needs two seasons to exist.
       const sc = (scores.get(p.id) || {})[season]
       if (sc != null && index.get(p.id).all.length >= 2) row.score = Math.round(sc)
@@ -386,6 +535,8 @@ export function buildFootballApi({ data, current = null, html }) {
       generated: merged.from[season],
       week: block.week || null,
       weekPlaying: block.weekPlaying || null,
+      // true while the rows in each player's `est` are still estimates (see meta.rows.est)
+      est: isEst(season),
       pools: poolCount[season],
       // The page's notYet(): tracked by this era, but nobody in the season has one.
       notYet: metrics.filter((m) => tracked(m, season) && !seasonHas[season].has(m.key)).map((m) => m.key),
@@ -425,6 +576,13 @@ export function buildFootballApi({ data, current = null, html }) {
     }])),
     groups: cfg.groupLabel,
     denoms: cfg.denoms,
+    // The counts a card is built on. The rest of denoms are the samples behind single rows
+    // (a depth band, a kind of snap), which a "built on" line has no business listing.
+    denomCore: cfg.denomCore || Object.keys(cfg.denoms),
+    // What a franchise was called before it moved: code -> [last season under the old name,
+    // old code, old name]. The data keeps one code per franchise; answers say the old one
+    // for the seasons it applies to.
+    era: cfg.era || {},
     units: UNITS,
     panelFloor: page.panelFloor,
     pools: poolCount,
@@ -447,6 +605,10 @@ export function buildFootballApi({ data, current = null, html }) {
       since: m.since,
       den: m.den || null,
       lowSampleBelow: m.thr || null,
+      // where the line differs by position: { RB: 75, TE: 115 }
+      lowSampleBelowByPosition: m.thrp || null,
+      // true: an estimate from snap counts while a season is being played, exact after it
+      estimateInSeason: !!m.est,
       what: (m.exp && m.exp.w) || null,
       formula: (m.exp && m.exp.f) || null,
       why: (m.exp && m.exp.y) || null,
@@ -462,11 +624,15 @@ export function buildFootballApi({ data, current = null, html }) {
       pos: 'His position that season (positions has the labels). It can change from one season to the next.',
       team: 'The team he finished the season with. tms lists every team he appeared for that season, in order, when there was more than one.',
       qualified: 'Whether he is in the percentile pools that season.',
-      d: 'What his rates are built on, by denominator (denoms has the words): games, dropbacks, carries, targets, snaps and so on.',
+      d: 'What his rates are built on, by denominator (denoms has the words): games, dropbacks, carries, targets, snaps and so on (denomCore), plus the sample behind any stat listed in low.',
       m: 'The bars on his card, by stat key: [value, percentile among his position that season, percentile among his position all-time]. A stat that is absent was not tracked that season, has no value for him, or belongs to a panel the page drops for too small a sample. It is not zero.',
       off: 'Panels the page leaves off his card because their whole sample is under the floor in panelFloor (a receiver\'s three carries).',
-      low: 'Keys of stats whose denominator is under the stabilization threshold (metrics[].lowSampleBelow of metrics[].den). Quote them with that caveat.',
-      score: 'Profile score: the mean season percentile across his position\'s headline stats (positions[].headline), as on the page\'s career-arc button. Qualified seasons only, and only for players with two or more seasons.',
+      low: 'Keys of stats whose denominator is under the stabilization threshold (metrics[].lowSampleBelow of metrics[].den, or his position\'s line in lowSampleBelowByPosition). Quote them with that caveat.',
+      est: 'Keys of stats that are estimates for now: they are worked out from snap counts until the season\'s play-by-play lineups are published, which is after the Super Bowl (the season file\'s own `est` is true until then). The page tags these rows "est.".',
+      settle: 'Season in progress only, for the stats in low: [where the number is likely to settle, its percentile among the same estimate for every qualified player at his position]. The estimate is his number so far blended with what is normal at his position and with his own last season, weighted by how little there is so far. It is the diamond on a hollow bar.',
+      role: 'The page\'s depth-chart badge, 2025 on, or absent where the page shows none: {spot, listed, at}. spot is the named spot where it says more than his position does (a left tackle, a nickel back), else null; listed is his best place in the chart\'s order when that is behind the starters (2 = listed second), else null; at is the spot or position in words. It is the order a depth chart lists a position in, not where he lined up on each play or how much he played.',
+      st: 'Season in progress only: his roster status in the latest week on file when he is not on the active roster (injured reserve, practice squad and so on).',
+      score: 'Profile score: the mean season percentile across his position\'s headline stats (positions[].headline), as on the page\'s career-arc button. Qualified seasons only, and only for players with two or more seasons. While a season is being played each headline stat is scored where it is likely to settle (see settle), not on its raw value.',
       rec: 'His team\'s record: [wins, losses, ties]. po is how its season ended; coach is its head coach.',
       acc: 'Where he ranked in the whole NFL in a counting stat: r is the rank, s the stat.',
       inj: 'This week\'s injury report, season in progress only: st the status, inj the injury, wk the week.',

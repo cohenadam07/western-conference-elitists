@@ -153,11 +153,14 @@ function grabLine(start) {
 }
 
 const FUNCTIONS = [
-  '_norm', 'miss', 'esc', 'prepData', 'seasonPlayers', 'rowFor', 'seasonsOf', 'yearOf', 'eraOK',
-  'cohortKey', 'inCohort', 'bandOK', 'poolVals', 'pctRaw', 'pctOf', 'mix', 'rampAt', 'colorAt', 'blockBar',
-  'inFt', 'signed', 'fmt', 'ordinal', 'sampleOf', 'isCareer', 'careerHigh', 'statBtn', 'barRow',
+  '_norm', 'nameAlts', 'miss', 'esc', 'prepData', 'seasonPlayers', 'rowFor', 'seasonsOf', 'yearOf', 'eraOK',
+  'cohortKey', 'inCohort', 'bandOK', 'expBucket', 'isLive', 'isEst', 'estOn', 'baseMode', 'STATIC_ROW', 'poolVals',
+  'eraOf', 'teamName', 'teamAbbr', 'roleSpot', 'roleLabel',
+  'formKey', 'formData', 'formPool', 'paceData', 'pacePool', 'posStat', 'posMean', 'regressed', 'estValue', 'estPool',
+  'pctRaw', 'pctOf', 'mix', 'rampAt', 'colorAt', 'blockBar',
+  'inFt', 'signed', 'fmt', 'ordinal', 'thrFor', 'sampleOf', 'isCareer', 'careerHigh', 'statBtn', 'barRow',
   'rowFor_metric', 'groupBlocks', 'notYet', 'panelHTML', 'commas', 'poolCount', 'profileScore',
-  'careerArc', 'liveWeek', 'yr2', 'panelWorthIt', 'mergeData',
+  'careerArc', 'liveWeek', 'yr2', 'panelWorthIt', 'mergeData', 'posWord', 'searchHits',
 ]
 
 // The page's code and the globals it reads, wrapped so nothing leaks. Nothing here touches
@@ -166,6 +169,20 @@ const loadPage = (archiveData, currentData) => vm.runInNewContext(`(function (AR
   ${grabLine('var DATA=null')}
   ${grabLine('var cur=null')}
   ${grabLine('var baseline=')}
+  ${grabLine('var formWin=')}
+  ${grabLine('var expRef=')}
+  ${grabLine('var FORM=')}
+  ${grabLine('var PACE=')}
+  ${grabLine('var NO_CARRY=')}
+  ${grabLine('var MEAN_CACHE=')}
+  ${grabVar('ROLE_WORD')}
+  ${grabVar('ROLE_OK')}
+  ${grabLine('var ROLE_STARTERS=')}
+  ${grabLine('var KNOWN_AS=')}
+  ${grabLine('var ESTPOOL_CACHE=')}
+  ${grabVar('NICK_GROUPS')}
+  ${grabLine('var NICK=')}
+  ${html.slice(html.indexOf('NICK_GROUPS.forEach('), html.indexOf('function nameAlts('))}
   ${grabLine('var cohortMode=')}
   ${grabLine('var bandOn=')}
   ${grabLine('var cmp=')}
@@ -197,13 +214,26 @@ const loadPage = (archiveData, currentData) => vm.runInNewContext(`(function (AR
     panel: function (group, pos) { return panelHTML(group, pos, ''); },
     rankAgainst: function (v) { baseline = v; POOL_CACHE = {}; },
     pool: function (key, pos, season) { return poolVals(key, pos, season); },
+    thrFor: thrFor, search: function (q) { return searchHits(q).map(function (e) { return e.name; }); },
+    // The second mark on a hollow bar: [where the number is likely to settle, its percentile
+    // among everyone's estimates], or null when the page draws none.
+    settle: function (p, key, season) {
+      // barRow()'s own test for drawing it: a hollow bar, in the one view the mark means something
+      var m = MBY[key], e = (!sampleOf(p, m).ok && estOn(season)) ? regressed(p, m, season) : null;
+      return e ? [e.v, pctOf(e.v, estPool(key, p.pos, season), m.lower)] : null;
+    },
+    // what the page calls his team that season, and what its depth-chart badge says
+    teamAbbr: function (t, season) { return t ? teamAbbr(t, String(season)) : null; },
+    role: function (p, season) { curSeason = season; return roleLabel(p); },
+    roleSpot: roleSpot, nickGroups: NICK_GROUPS, roleStarters: ROLE_STARTERS,
     score: function (id, season) { return profileScore(id, season); },
     arc: function (id) { return careerArc(id); },
   };
 })`)(archiveData, currentData)
 
 // What the page's panel HTML says, row by row.
-const ROW = /<div class="row (un)?" data-k="([^"]+)"[^>]*>.*?<div class="tag">([^<]*)<\/div>.*?<div class="pct">([^<]*)<\/div><div class="rv">([^<]*)<\/div>/g
+// The tag is plain text, plus one <span> when the row is an in-season estimate ("est.").
+const ROW = /<div class="row (un)?" data-k="([^"]+)"[^>]*>.*?<div class="tag">((?:[^<]|<span[^>]*>[^<]*<\/span>)*)<\/div>.*?<div class="pct">([^<]*)<\/div><div class="rv">([^<]*)<\/div>/g
 const unesc = (s) => s.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
 function drawn(p, season) {
   page.show(p, season)
@@ -211,7 +241,8 @@ function drawn(p, season) {
   const rows = []
   for (const g of panels) {
     for (const r of page.panel(g, p.pos).matchAll(ROW)) {
-      rows.push({ key: r[2], low: r[1] === 'un', tag: r[3], pct: r[4] === '·' ? null : +r[4], shown: unesc(r[5]) })
+      rows.push({ key: r[2], low: r[1] === 'un', tag: r[3].replace(/<[^>]*>/g, ''), est: r[3].includes('class="esttag"'),
+        pct: r[4] === '·' ? null : +r[4], shown: unesc(r[5]) })
     }
   }
   return { panels, rows }
@@ -312,8 +343,15 @@ test('the two data files are merged the way the page merges them', () => {
     const fromCurrent = current.data[s] === block
     assert.equal(seasonFile(s).generated, fromCurrent ? current.generated : archive.generated, `${s}: which file it came from`)
   }
-  assert.ok(Object.keys(current.data).every((s) => page.data.data[s] === current.data[s]), 'the current file is expected to be the newer one in this checkout')
-  assert.equal(meta.generated, current.generated)
+  // Day to day the twice-daily file is the newer of the two and its season wins. For the
+  // few hours between a full rebuild of the archive and the refresh that follows it, the
+  // archive is the newer one and wins instead: that is the rule working, not a fault.
+  const currentIsNewer = !archive.generated || !current.generated || current.generated >= archive.generated
+  for (const s of Object.keys(current.data)) {
+    const want = currentIsNewer || !archive.data[s]
+    assert.equal(page.data.data[s] === current.data[s], want, `${s}: the ${want ? 'twice-daily file' : 'archive'} is the newer and should be the one on the page`)
+  }
+  assert.equal(meta.generated, currentIsNewer ? current.generated : archive.generated)
 
   // The same rule on small made-up files, including the cases the real ones do not reach.
   const cfgA = { ...archive.cfg, tag: 'A' }
@@ -346,9 +384,11 @@ test('every bar on every card matches the page: which stats, the value as printe
   let cards = 0
   let bars = 0
   let empty = 0
+  let settled = 0
   page.rankAgainst('season')
   for (const season of seasons) {
     const file = seasonFile(season)
+    const block = page.data.data[season]
     const rows = new Map(file.players.map((r) => [r.id, r]))
     for (const p of page.data.data[season].players) {
       const row = rows.get(p.id)
@@ -371,6 +411,22 @@ test('every bar on every card matches the page: which stats, the value as printe
         assert.equal((row.low || []).includes(r.key), r.low, `${who} ${r.key}: low-sample mark`)
         assert.equal(r.tag.includes('low sample'), r.low, `${who} ${r.key}: the page's own tag and hollow bar disagree`)
         assert.equal(display(m.unit, cell[0]), r.shown, `${who} ${r.key}: the value as printed`)
+        // The "est." tag, and the diamond on a hollow bar: where the number is likely to
+        // settle and where that ranks among everyone's estimates. Season in progress only.
+        assert.equal((row.est || []).includes(r.key), r.est, `${who} ${r.key}: the in-season estimate tag`)
+        const lean = r.low ? page.settle(p, r.key, season) : null
+        const mine = (row.settle || {})[r.key]
+        if (lean) {
+          assert.ok(mine, `${who} ${r.key}: the page marks where it is likely to settle and the file does not`)
+          assert.equal(mine[0], lean[0], `${who} ${r.key}: likely to settle near ${lean[0]}, file says ${mine[0]}`)
+          // and it prints as the page prints it, whatever the unit rounds to
+          assert.equal(savant.display(metricOf.get(r.key).unit, mine[0]), page.fmt(metricOf.get(r.key).unit, lean[0]), `${who} ${r.key}: the estimate prints differently`)
+          assert.equal(mine[1], lean[1], `${who} ${r.key}: where the estimate ranks`)
+          settled++
+        } else assert.equal(mine, undefined, `${who} ${r.key}: the file has an estimate the page does not draw`)
+        if (!r.low) assert.equal(mine, undefined, `${who} ${r.key}: an estimate on a settled bar`)
+        if (!block.week) assert.ok(!row.settle, `${who}: a finished season has nothing left to settle`)
+        if (!block.week && !block.est) assert.ok(!row.est, `${who}: a season with its lineups published has no estimates`)
         bars++
       }
     }
@@ -390,7 +446,8 @@ test('every bar on every card matches the page: which stats, the value as printe
     }
   }
   page.rankAgainst('season')
-  console.log(`      ${commas(cards)} cards rendered by the page's code; ${commas(bars)} bars compared (value, printed value, season percentile, low-sample mark) and ${commas(allTime)} all-time percentiles: ${commas(bars * 4 + allTime)} values`)
+  console.log(`      ${commas(cards)} cards rendered by the page's code; ${commas(bars)} bars compared (value, printed value, season percentile, low-sample mark) and ${commas(allTime)} all-time percentiles: ${commas(bars * 4 + allTime)} values; ${commas(settled)} "likely to settle" estimates`)
+  if (meta.live) assert.ok(settled > 1000, 'a season is in progress and almost nothing carries an estimate')
   assert.ok(bars > 1000000, 'suspiciously few bars were compared')
   assert.equal(allTime, bars)
   assert.ok(empty < cards / 100, 'suspiciously many cards have no bars')
@@ -453,6 +510,9 @@ test('the glossary, the positions and the index are consistent with the page and
     assert.equal(m.lowerIsBetter, !!src.lower)
     assert.equal(m.since, src.since)
     assert.equal(m.lowSampleBelow, src.thr || null)
+    assert.deepEqual(m.lowSampleBelowByPosition, src.thrp ? { ...src.thrp } : null, `${m.key}: the sample line by position`)
+    for (const pos of src.pos) assert.equal((m.lowSampleBelowByPosition || {})[pos] ?? m.lowSampleBelow, page.thrFor(src, pos) || null, `${m.key} ${pos}: the line the page uses`)
+    assert.equal(m.estimateInSeason, !!src.est, `${m.key}: the in-season estimate flag`)
     assert.deepEqual(m.positions, [...src.pos])
     assert.ok(meta.units[m.unit], `unit "${m.unit}" has no description`)
     assert.ok(meta.groups[m.group], `group "${m.group}" has no label`)
@@ -585,7 +645,11 @@ test('a profile says what the files say, for every player in every season, and f
         const isLow = (row.low || []).includes(x.key)
         assert.deepEqual([x.value, x.season_percentile, x.all_time_percentile, x.low_sample, x.lower_is_better],
           [cell[0], cell[1], cell[2], isLow, m.lowerIsBetter], `${who} ${x.key}`)
-        assert.deepEqual(x.sample, isLow ? { have: row.d[m.den], needed: m.lowSampleBelow, of: meta.denoms[m.den] } : null, `${who} ${x.key}: sample`)
+        const need = (m.lowSampleBelowByPosition || {})[row.pos] ?? m.lowSampleBelow
+        assert.deepEqual(x.sample, isLow ? { have: row.d[m.den], needed: need, of: meta.denoms[m.den] } : null, `${who} ${x.key}: sample`)
+        assert.equal(x.estimate, (row.est || []).includes(x.key), `${who} ${x.key}: the estimate mark`)
+        const lean = (row.settle || {})[x.key]
+        assert.deepEqual(x.likely_to_settle, lean ? { value: lean[0], display: savant.display(m.unit, lean[0]), percentile: lean[1] } : null, `${who} ${x.key}: likely to settle`)
         cells++
       }
       const untracked = pos.panels.flatMap((g) => meta.metrics.filter((m) => m.group === g && m.positions.includes(row.pos) && +season < m.since).map((m) => m.key))
@@ -595,20 +659,37 @@ test('a profile says what the files say, for every player in every season, and f
 
       // The facts in the first lines are the data's own, field for field.
       const p = source.get(row.id)
-      assert.deepEqual([s.player.team, s.player.age, s.player.experience, s.player.college], [p.team || null, p.age ?? null, p.exp ?? null, p.college || null], `${who}: team, age, experience, college`)
-      assert.deepEqual(s.player.teams, p.tms && p.tms.length > 1 ? p.tms : p.team ? [p.team] : [], `${who}: teams`)
+      // a team is called what the page calls it that season (OAK in 2003, LV in 2023)
+      const called = (t) => page.teamAbbr(t, season)
+      assert.deepEqual([s.player.team, s.player.age, s.player.experience, s.player.college], [called(p.team), p.age ?? null, p.exp ?? null, p.college || null], `${who}: team, age, experience, college`)
+      assert.deepEqual(s.player.teams, (p.tms && p.tms.length > 1 ? p.tms : p.team ? [p.team] : []).map(called), `${who}: teams`)
       assert.deepEqual(s.player.draft, p.dr ? { round: p.dr, pick: p.dp ?? null, year: p.dy ?? null, team: p.dt ?? null } : null, `${who}: draft`)
       assert.equal(s.player.undrafted, !p.dr && !!p.udfa, `${who}: undrafted`)
       assert.equal(s.player.height, row.m.ht ? page.fmt('ftin', p.m.ht) : null, `${who}: height`)
       assert.deepEqual(s.team_season, p.rec ? { wins: p.rec[0], losses: p.rec[1], ties: p.rec[2], result: p.po || null, coach: p.coach || null } : null, `${who}: team record`)
       assert.deepEqual(s.league_ranks, (p.acc || []).map((a) => ({ rank: a.r, stat: a.s })), `${who}: league ranks`)
       assert.deepEqual(s.injury, p.inj ? { status: p.inj.st, injury: p.inj.inj || null, week: p.inj.wk ?? null } : null, `${who}: injury report`)
+      // The depth-chart badge is the page's: a line in the answer exactly when the page
+      // shows a badge, naming the spot only where the page names it, and a place in line
+      // only for a man the page says is listed behind the starters.
+      const badge = page.role(p, season)
+      assert.equal(!!s.player.depth_chart, !!badge, `${who}: a depth-chart line where the page has ${badge ? 'a' : 'no'} badge`)
+      assert.equal(/^Depth chart: /m.test(text), !!badge, `${who}: the depth-chart line`)
+      if (badge) {
+        const spot = page.roleSpot(p)
+        const behind = p.role[1] != null && p.role[1] > (page.roleStarters[p.role[0]] || 1)
+        assert.deepEqual([s.player.depth_chart.spot, s.player.depth_chart.listed], [spot, behind ? p.role[1] : null], `${who}: depth-chart badge`)
+        assert.ok(badge[1].toLowerCase().includes(s.player.depth_chart.at), `${who}: the badge says "${badge[1]}", the answer "${s.player.depth_chart.at}"`)
+      }
+      assert.equal(s.player.roster_status, p.st || null, `${who}: roster status`)
+      assert.equal(/Roster status in the latest week/.test(text), !!p.st, `${who}: the roster status line`)
+      assert.ok(s.sample.every((d) => meta.denomCore.includes(d.key)), `${who}: "built on" lists a count that belongs to a single row`)
       for (const d of s.sample) assert.deepEqual([d.value, d.label], [p.d[d.key], page.cfg.denoms[d.key]], `${who}: sample ${d.key}`)
       assert.equal(s.sample[0].key, 'g', `${who}: games come first`)
 
       // Comps and flaws are the page's own, names and all.
-      assert.deepEqual((s.comps || []).map((c) => [c.id, c.name, c.team || '', c.match]), (p.comps || []).map((c) => [c.id, c.name, c.team, c.score]), `${who}: comps`)
-      assert.deepEqual((s.weakness_comps || []).map((c) => [c.id, c.name, c.team || '', c.match]), (p.wcomps || []).map((c) => [c.id, c.name, c.team, c.score]), `${who}: weakness comps`)
+      assert.deepEqual((s.comps || []).map((c) => [c.id, c.name, c.team || '', c.match]), (p.comps || []).map((c) => [c.id, c.name, called(c.team) || '', c.score]), `${who}: comps`)
+      assert.deepEqual((s.weakness_comps || []).map((c) => [c.id, c.name, c.team || '', c.match]), (p.wcomps || []).map((c) => [c.id, c.name, called(c.team) || '', c.score]), `${who}: weakness comps`)
       assert.deepEqual((s.weakest || []).map((f) => [f.key, f.percentile]), (p.wflaws || []).map((f) => [f.k, f.pct]), `${who}: where he ranks worst`)
 
       // The words carry the same thing: the pool by name, the link, and every caution.
@@ -624,14 +705,71 @@ test('a profile says what the files say, for every player in every season, and f
         assert.equal(s.in_progress.through_week, file.week)
       } else assert.equal(s.in_progress, null)
       assert.equal(/Caution for offensive linemen/.test(text), lineman.positions.includes(row.pos) && +season < lineman.before, `${who}: the lineman caution`)
-      assert.equal(/"low sample" marks/.test(text), s.stats.some((x) => x.low_sample), `${who}: the low-sample explanation`)
+      // Each mark is explained exactly when it is in the words: a tag on a full line, or
+      // the ~ on a line given in brief. A note about a tag nobody can see is noise.
+      assert.equal(/"low sample" marks/.test(text), /[[;] ?low sample: /.test(text), `${who}: the low-sample explanation`)
+      assert.equal(/"likely to settle" is an estimate/.test(text), /[[;] ?likely to settle near /.test(text), `${who}: the likely-to-settle explanation`)
+      const tagged = /[[;] ?estimate until the lineups are published/.test(text)
+      const tilde = /, in brief: [^\n]*~/.test(text)
+      assert.equal(/marks a stat worked out from snap counts/.test(text), tagged || tilde, `${who}: the estimate explanation`)
+      if (!s.stats.some((x) => x.estimate)) assert.ok(!tagged && !tilde, `${who}: an estimate mark with no estimate`)
+      // a returner's panel is "left off" only for a man with some returns and too few
+      const returns = (p.d.kr || 0) + (p.d.pr || 0)
+      assert.equal(/Left off his card[^\n]*Returns \(/.test(text), (row.off || []).includes('ret') && returns > 0, `${who}: the returns note (${returns} returns)`)
+      if (/Left off his card[^\n]*Returns \(/.test(text)) assert.ok(text.includes(`Returns (${returns} return${returns === 1 ? '' : 's'};`), `${who}: the returns count`)
       if ((file.pools[row.pos] || 0) < 2) assert.ok(s.stats.every((x) => x.season_percentile == null) && /shown as n\/a/.test(text), `${who}: an empty pool`)
       if (text.length > longest.length) longest = { length: text.length, who }
     }
   }
   console.log(`      ${commas(profiles)} profiles, ${commas(cells)} stats; the longest answer is ${commas(longest.length)} characters (${longest.who})`)
   assert.equal(profiles, index.players.reduce((n, r) => n + r[6], 0))
-  assert.ok(longest.length < 12000, `an answer runs to ${longest.length} characters`)
+  // A running back's card in a season being played is the longest there is: three panels,
+  // about a hundred rows, most of them carrying a sample and an estimate.
+  assert.ok(longest.length <= 12400, `an answer runs to ${longest.length} characters`)
+})
+
+test('a long card is shortened one section at a time, and never past the point of being useful', async (t) => {
+  load()
+  // The ceiling has to hold in week 1, when every row carries a sample and an estimate, and
+  // not only in the week these files were built. So the ladder is walked to its last rung
+  // for the busiest cards on file, as if the limit were zero.
+  const season = meta.seasons[0]
+  // A finished season's cards are short enough never to need it; there is nothing to walk.
+  if (!seasonFile(season).week) return t.skip('no season is in progress')
+  const busiest = [...seasonFile(season).players].sort((a, b) => Object.keys(b.m).length - Object.keys(a.m).length)
+  const seenPos = new Set()
+  let walked = 0
+  for (const row of busiest) {
+    if (seenPos.has(row.pos)) continue
+    seenPos.add(row.pos)
+    const pos = meta.positions[row.pos]
+    const full = await savant.playerProfile({ player: row.id, season }, { long: 1e9 })
+    const least = await savant.playerProfile({ player: row.id, season }, { long: 0, max: 0 })
+    const who = `${season} ${row.name}`
+    // nothing leaves the structured result, whatever happens to the words
+    assert.deepEqual(least.structured.stats, full.structured.stats, `${who}: the stats changed`)
+    // one section keeps its full lines, so the pool is still named and a row still shows its
+    // form (checked below, where the card was long enough to be shortened at all)
+    for (const note of least.structured.notes) assert.ok(least.text.includes(note), `${who}: a note is missing`)
+    // every stat is still in the words, by its label
+    for (const x of full.structured.stats) assert.ok(least.text.includes(x.label), `${who}: ${x.label} was dropped`)
+    assert.ok(least.text.length <= 10000, `${who}: the shortest form still runs to ${least.text.length}`)
+    assert.ok(least.text.length <= full.text.length)
+    if (least.text.length < full.text.length) {
+      assert.ok(least.text.includes(`vs. ${pos.peers}: `), `${who}: no section is left in full`)
+      assert.ok(/, in brief: /.test(least.text) && least.text.includes('Sections marked "in brief"'), `${who}: brief sections are not explained`)
+    }
+    // and each rung in between only ever gets shorter
+    let prev = full.text.length
+    for (const max of [14000, 12400, 11000, 9500]) {
+      const t = (await savant.playerProfile({ player: row.id, season }, { long: 0, max })).text.length
+      assert.ok(t <= prev, `${who}: asking for less gave more (${t} after ${prev})`)
+      assert.ok(t <= max || t === least.text.length, `${who}: ${t} characters with a ceiling of ${max}`)
+      prev = t
+    }
+    walked++
+  }
+  assert.ok(walked >= 10, `only ${walked} positions walked`)
 })
 
 test('a group is one panel of the card, and a panel the position lacks is said to be lacking', async () => {
@@ -709,6 +847,26 @@ test('search finds players the way people type their names', async () => {
   assert.equal(await first('Patrick Mahommes'), 'Patrick Mahomes')     // typo
   assert.equal(await first('Jalen Hurtz'), 'Jalen Hurts')              // typo
   assert.equal(await first('Kenneth Murray Jr'), 'Kenneth Murray, Jr.') // a comma in the data
+  // The first name people type, not the one the league files: the son is Pat Surtain II.
+  assert.equal(await first('Patrick Surtain II'), 'Pat Surtain II')
+  const surtain = (await find('Patrick Surtain')).structured.players.map((p) => p.name)
+  assert.ok(surtain.includes('Pat Surtain II') && surtain.includes('Patrick Surtain'), 'both Surtains answer to "Patrick Surtain"')
+  // The page's own search box agrees, with punctuation in or out.
+  assert.deepEqual([...page.search('AJ Brown')].slice(0, 1), ['A.J. Brown'])
+  assert.equal([...page.search('patrick surtain ii')][0], 'Pat Surtain II')
+  // the name as typed comes first; the man who answers to it under another first name follows
+  const both = [...page.search('Patrick Surtain')]
+  assert.deepEqual([both[0], both.includes('Pat Surtain II')], ['Patrick Surtain', true])
+  // a first name alone lists the men with that first name, not everyone it is short for
+  assert.ok([...page.search('Drew')].every((n) => /^drew/i.test(n)), `"Drew" found ${[...page.search('Drew')].join(', ')}`)
+  // spaces and hyphens are not part of a name
+  assert.equal([...page.search('ja marr chase')][0], "Ja'Marr Chase")
+  assert.equal([...page.search('amonra st brown')][0], 'Amon-Ra St. Brown')
+  assert.ok([...page.search('Josh Allen')].includes('Josh Hines-Allen'), 'the edge rusher is filed under his hyphenated name')
+  assert.equal(await first('A J Brown'), 'A.J. Brown')
+  // the two lists of first names (the page's search box, the connector) are one list
+  assert.deepEqual([...page.nickGroups].filter((g) => !/^[a-z]{2} [a-z] [a-z]$/.test(g)), [...savant.NICK_GROUPS])
+  assert.equal([...page.search('dandre swift')][0], "D'Andre Swift")
   // A shared name comes back as separate men, most recent first, each with his own link.
   const jones = await find('Chris Jones')
   const same = jones.structured.players.filter((p) => p.name === 'Chris Jones')
@@ -755,6 +913,25 @@ test('a shared name lists the candidates with their ids, and a season settles it
   assert.equal((await savant.playerProfile({ player: '00-0034796', group: 'context' })).structured.player.name, 'Lamar Jackson')
   assert.equal((await savant.playerProfile({ player: 'patrick mahomes', group: 'context' })).structured.player.name, 'Patrick Mahomes')
   assert.equal((await savant.playerProfile({ player: 'Odell Beckham', season: '2014', group: 'context' })).structured.player.name, 'Odell Beckham Jr.')
+  // "Patrick Surtain" is two men, father and son, and the son is filed as "Pat". The name
+  // as typed is the father's and opens his card. Asked for in a season the father never
+  // played, the answer says so and names the son with his id, rather than guessing. The
+  // son's whole name, suffix and all, is specific enough to open his card outright.
+  assert.equal((await savant.playerProfile({ player: 'Patrick Surtain', group: 'context' })).structured.player.name, 'Patrick Surtain')
+  assert.equal((await savant.playerProfile({ player: 'Patrick Surtain', season: '2003', group: 'context' })).structured.player.name, 'Patrick Surtain')
+  const wrongYear = (await failure({ player: 'Patrick Surtain', season: '2024' })).message
+  assert.match(wrongYear, /Patrick Surtain has no stats in 2024/)
+  assert.match(wrongYear, /If you meant Pat Surtain II \(id [0-9-]+\), call again with that id/)
+  assert.equal((await savant.playerProfile({ player: 'Patrick Surtain II', group: 'context' })).structured.player.name, 'Pat Surtain II')
+  // Another form of a first name is offered, never opened: a man who is not in the data
+  // must not come back as his namesake. (Tony Dorsett retired in 1988; Anthony is his son.)
+  const dorsett = (await failure({ player: 'Tony Dorsett' })).message
+  assert.match(dorsett, /"Tony Dorsett" is not an exact match/)
+  assert.match(dorsett, /Anthony Dorsett \(id /)
+  // and it never crowds out the man who was asked for by the name he is filed under
+  for (const [asked, got] of [['Tony Gonzalez', 'Tony Gonzalez'], ['Anthony Gonzalez', 'Anthony Gonzalez'], ['Zach Thomas', 'Zach Thomas'], ['Pat Surtain', 'Pat Surtain II']]) {
+    assert.equal((await savant.playerProfile({ player: asked, group: 'context' })).structured.player.name, got, asked)
+  }
   // A near spelling never opens a card on its own, even when only one man is close: he is
   // named with his id instead, because a name one letter off may belong to someone who is
   // not in the data. Search still finds him.

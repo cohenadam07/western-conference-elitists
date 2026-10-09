@@ -140,20 +140,60 @@ function editDistance(a, b, max) {
 // "jaren jackson jr" -> "jaren jackson"; a name with no suffix is returned as it is.
 const SUFFIX = /\s(jr|sr|ii|iii|iv|v)$/
 const base = (n) => n.replace(SUFFIX, '')
+const tight = (n) => n.replace(/ /g, '')
+// What another form of the first name is worth: see NICK_GROUPS. With the Jr./II/III typed
+// as well ("Patrick Surtain II" for Pat Surtain II) the name is specific enough to open:
+// a father and a son do not share a suffix.
+export const ALSO_KNOWN = 55
+const ALSO_KNOWN_EXACT = 90
+
+// First names people type against the first names a league files. Each line is one name
+// in its interchangeable forms, so "Patrick Surtain II" finds Pat Surtain II. Only the
+// first name is ever swapped. (The Football Savant page keeps the same list for its search
+// box; tools/savant-football/check.mjs holds the two together.)
+//
+// A name found this way is OFFERED, never opened. Tony Dorsett is not in the football data
+// and his son Anthony is; Tony Parker and Anthony Parker both played in the NBA for a
+// decade. So another form of the first name scores under the line a section resolves at:
+// the caller is told the name as typed is not an exact match and is handed the candidate
+// with its id, which costs one more call and can never put the wrong man's numbers under
+// the right man's name.
+export const NICK_GROUPS = ['pat patrick', 'mike michael', 'matt matthew', 'chris christopher', 'josh joshua',
+  'dan daniel danny', 'ken kenneth kenny', 'rob robert bob bobby robbie', 'will william bill billy',
+  'tom thomas tommy', 'joe joseph joey', 'ben benjamin', 'sam samuel', 'jon jonathan', 'nick nicholas',
+  'zach zachary zack', 'tim timothy', 'greg gregory', 'steve steven stephen', 'dave david',
+  'jim james jimmy', 'tony anthony', 'cam cameron', 'gabe gabriel', 'alex alexander', 'andy andrew drew',
+  'nate nathan nathaniel', 'jake jacob', 'ed edward eddie', 'ron ronald ronnie', 'don donald',
+  'phil philip phillip', 'rich richard rick ricky', 'chuck charles charlie', 'jeff jeffrey jeffery',
+  'mitch mitchell', 'vince vincent', 'fred frederick freddie', 'ray raymond', 'walt walter',
+  'trent trenton', 'kam kameron']
+const NICK = new Map()
+for (const g of NICK_GROUPS) { const a = g.split(' '); for (const x of a) NICK.set(x, a.filter((y) => y !== x)) }
+// The query with its first name swapped for each of its other forms.
+function variants(qTokens) {
+  const alts = NICK.get(qTokens[0])
+  return alts && qTokens.length > 1 ? alts.map((a) => [a, ...qTokens.slice(1)]) : []
+}
 
 // How well a prepared name answers a query. 0 means not at all.
 //   100  the name, exactly
-//    95  the name without its Jr./Sr./III (see below)
+//    95  the name without its Jr./Sr./III (see below), or with its spaces moved ("A J Brown")
 //    75  every word of the query is a word of the name
 //    60  every word of the query starts a word of the name
+//    90  the whole name, suffix and all, under another form of its first name (rank(), below)
+//    55  the same without a suffix to pin it down: offered, never opened
 //    50  the query appears somewhere in the name
 //    30  every word is within a letter or two of a word in the name (typos)
+// A section opens a result on its own only at 60 or above.
 function matchScore(q, qTokens, row) {
   if (row.n === q) return 100
   // "Jaren Jackson" is also a fair way to ask for Jaren Jackson Jr. Scored just under an
   // exact match so that both men come back and the caller chooses, rather than the father
   // winning on spelling alone.
   if (!SUFFIX.test(q) && base(row.n) === q) return 95
+  // "A J Brown" for A.J. Brown, "De Von Achane" for De'Von Achane: the same letters in the
+  // same order is the same name, however it was spaced
+  if (q.length >= 5 && tight(row.n) === tight(q)) return 95
   if (qTokens.every((t) => row.tokens.includes(t))) return 75
   if (qTokens.every((t) => row.tokens.some((n) => n.startsWith(t)))) return 60
   if (row.n.includes(q)) return 50
@@ -175,9 +215,21 @@ export function rank(rows, query, tiebreak = () => 0) {
   const q = norm(query)
   const qTokens = q.split(' ').filter(Boolean)
   if (!qTokens.length) return []
+  const alts = variants(qTokens).map((t) => [t.join(' '), t])
   const out = []
   for (const row of rows) {
-    const score = matchScore(q, qTokens, row)
+    let score = matchScore(q, qTokens, row)
+    // The same name under another form of its first name counts only when it is the whole
+    // name (with or without a Jr.), and then only as something to offer. A partial match
+    // through a swapped first name is nothing: "Alexander The Great" is one fighter's
+    // nickname, not Alex Morono's.
+    if (score < ALSO_KNOWN_EXACT) {
+      for (const [vq, vt] of alts) {
+        const v = matchScore(vq, vt, row)
+        if (v === 100 && SUFFIX.test(q)) { score = ALSO_KNOWN_EXACT; break }
+        if (v >= 95) score = Math.max(score, ALSO_KNOWN)
+      }
+    }
     if (score) out.push({ row, score })
   }
   out.sort((a, b) => b.score - a.score || tiebreak(a.row, b.row) || a.row.name.localeCompare(b.row.name))
