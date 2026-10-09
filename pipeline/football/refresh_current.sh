@@ -24,23 +24,39 @@ fi
 export NFL_RAW="${NFL_RAW:-raw}" NFL_AGG="${NFL_AGG:-agg}"
 export NFL_SEASONS="$Y"
 mkdir -p "$NFL_RAW" "$NFL_AGG"
+# Last season rides along, for one reason: a man's "last eight games" in week 4 are four
+# of this season's and four of last season's, and a stretch of games is built from the
+# games' own inputs (weekly.py), not from the finished card. About 100 MB more to
+# download and a minute more to run. Nothing of last season is rebuilt or written: its
+# card, its game lines and the archive stay exactly as the last full rebuild left them.
+P=$((Y-1))
 
-echo "== fetch ($Y)"
-NFL_REFRESH="$Y" ./fetch.sh
+echo "== fetch ($Y, and $P for the recent-form windows)"
+NFL_SEASONS="$P-$Y" NFL_REFRESH="$Y" ./fetch.sh
 
 if [ ! -s "$NFL_RAW/reg_$Y.csv" ] || [ ! -s "$NFL_RAW/pbp/pbp_$Y.parquet" ]; then
   echo "nothing to build: nflverse has no $Y season tables yet"
   exit 0
 fi
 
+# Each of these takes last season too where its files came down; a missing one only
+# means the windows stop at this season's games, as they did before.
+BOTH="$Y"; [ -s "$NFL_RAW/wk_$P.csv" ] && [ -s "$NFL_RAW/pbp/pbp_$P.parquet" ] && BOTH="$P $Y"
 echo "== play-by-play aggregates"
-python3 pbp_agg.py "$Y"
+python3 pbp_agg.py $BOTH
 echo "== FTN charting aggregates (skips if the season isn't charted yet)"
-python3 ftn_agg.py "$Y"
+python3 ftn_agg.py $BOTH
 echo "== offensive line spots from the depth charts"
-python3 line_agg.py "$Y"
+python3 line_agg.py $BOTH
 echo "== on-field aggregates (skips if participation isn't published yet)"
-python3 onfield_agg.py "$Y"
+python3 onfield_agg.py $BOTH
+echo "== depth-chart roles (slot corner, linebacker spots; 2025 on)"
+python3 roles_agg.py $BOTH
+
+# Last season's true pass-play snap counts correct this season's estimates, player by
+# player. They ride in the shipped archive, so the refresh never needs last season's raw
+# files to use them.
+export NFL_ARCHIVE="$PUB/football-savant-data.json"
 
 echo "== route trees -> public/football-routes/ (skips until participation is published)"
 NFL_ROUTES="$PUB/football-routes" python3 route_agg.py
@@ -51,8 +67,11 @@ NFL_MAPS="$PUB/football-maps" python3 maps.py
 echo "== build -> public/football-savant-current.json"
 NFL_OUT="$PUB/football-savant-current.json" python3 build.py
 
-echo "== week-by-week game lines -> public/football-weekly/$Y/"
+echo "== week-by-week game lines and recent-form windows -> public/football-weekly/$Y/"
 NFL_WEEKLY="$PUB/football-weekly" python3 weekly.py
+
+echo "== situational splits -> public/football-splits/$Y.json"
+NFL_SPLITS="$PUB/football-splits" python3 splits.py "$Y"
 
 python3 - "$PUB/football-savant-current.json" "$NFL_RAW/schedules.csv" "$Y" <<'EOF'
 import csv, datetime, json, sys

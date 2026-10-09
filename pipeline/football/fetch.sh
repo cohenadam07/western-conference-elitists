@@ -34,6 +34,7 @@ if [ -n "${NFL_REFRESH:-}" ]; then
   rm -f "$OUT/reg_$y.csv" "$OUT/wk_$y.csv" "$OUT/snaps_$y.csv" \
         "$OUT/part/part_$y.csv" "$OUT/pbp/pbp_$y.parquet" "$OUT/ftn_$y.csv" \
         "$OUT/depth_$y.csv" "$OUT/injuries_$y.csv" "$OUT"/advw_*_$y.csv \
+        "$OUT/roster_week_$y.csv" "$OUT/contracts.parquet" "$OUT/ep_week_$y.csv" \
         "$OUT"/adv_*.csv "$OUT"/ngs_*.csv "$OUT"/ngs_*.csv.gz \
         "$OUT/players.csv" "$OUT/qbr.csv" "$OUT/qbr_week.csv" "$OUT/schedules.csv" "$OUT/combine.csv" \
         "$OUT/nfl4th.rds"
@@ -69,8 +70,23 @@ for y in $(seq "$FIRST" "$LAST"); do
   # PFR charting, week by week (2018 on). The all-seasons file above only gains a season
   # once it is over, so during the season this is where coverage, pressures, missed
   # tackles and yards after contact come from; pfr_week.py sums it back to season rows.
+  # The passing file is the quarterback's side of the same charting: how often he was
+  # pressured, hurried and hit, and his bad throws. It also says how many pressures a
+  # team's line gave up in each game, which is the only in-season pressure count there is.
   if [ "$y" -ge 2018 ]; then
-    for k in def rush rec; do get "pfr_advstats/advstats_week_${k}_$y.csv" "advw_${k}_$y.csv"; done
+    for k in def rush rec pass; do get "pfr_advstats/advstats_week_${k}_$y.csv" "advw_${k}_$y.csv"; done
+  fi
+  # The weekly roster: who is active, on injured reserve, inactive or on the practice
+  # squad each week. Only the season being played needs it (it is a fact about this week).
+  [ "$y" -eq "$CUR" ] && get "weekly_rosters/roster_weekly_$y.csv" "roster_week_$y.csv"
+  # Expected fantasy points (ffverse's ffopportunity model, 2006 on): what an average player
+  # scores from the same targets and carries. A different repository's releases, posted
+  # weekly in season; without it the expected-points rows are simply absent.
+  if [ "$y" -ge 2006 ] && [ ! -s "$OUT/ep_week_$y.csv" ]; then
+    code=$(curl -sSL -m 300 --retry 3 --retry-delay 5 -o "$OUT/ep_week_$y.csv.tmp" -w "%{http_code}" \
+      "https://github.com/ffverse/ffopportunity/releases/download/latest-data/ep_weekly_$y.csv")
+    if [ "$code" = "200" ]; then mv "$OUT/ep_week_$y.csv.tmp" "$OUT/ep_week_$y.csv"; echo "ok   ep_week_$y.csv";
+    else rm -f "$OUT/ep_week_$y.csv.tmp"; echo "MISS ep_week_$y.csv ($code)"; fi
   fi
   # Play-by-play, as parquet — a twentieth the size of the CSV and column-selectable
   get "pbp/play_by_play_$y.parquet" "pbp/pbp_$y.parquet"
@@ -87,6 +103,9 @@ for k in passing rushing receiving; do
   else echo "have ngs_$k.csv"; fi
 done
 get "combine/combine.csv" "combine.csv"
+# Contracts (OverTheCap, via nflverse): every deal on record with its average pay per year
+# and its share of the salary cap when it was signed. One file, all seasons.
+get "contracts/historical_contracts.parquet" "contracts.parquet"
 get "players/players.csv" "players.csv"
 get "espn_data/qbr_season_level.csv" "qbr.csv"
 # Game-level QBR (2006 on) for the week-by-week charts; weekly.py reads it.

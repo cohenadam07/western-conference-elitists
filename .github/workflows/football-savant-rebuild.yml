@@ -93,6 +93,7 @@ jobs:
           python3 ftn_agg.py
           python3 line_agg.py
           python3 onfield_agg.py
+          python3 roles_agg.py
           NFL_ROUTES="$GITHUB_WORKSPACE/public/football-routes" python3 route_agg.py
 
       - name: Field maps
@@ -106,11 +107,27 @@ jobs:
       # The Weekly chart reads game lines for the season on screen, whichever it is, and
       # they are worked out by build.py's own build_player(). So when a metric changes, every
       # season's game lines have to be redone with it, or the archive's weekly charts would
-      # be missing the new row. About a minute for all of them; files are rewritten only
-      # when their contents change.
+      # be missing the new row. About ten minutes for all of them; files are rewritten only
+      # when their contents change. NFL_ARCHIVE is the archive the step above just wrote:
+      # the season in progress takes last season's pass-snap corrections from it, the same
+      # ones its card was built with, so a game line and the card it belongs to agree.
       - name: Week-by-week game lines
         working-directory: pipeline/football
-        run: NFL_WEEKLY="$GITHUB_WORKSPACE/public/football-weekly" python3 weekly.py
+        run: |
+          NFL_ARCHIVE="$GITHUB_WORKSPACE/public/football-savant-data.json" \
+          NFL_WEEKLY="$GITHUB_WORKSPACE/public/football-weekly" python3 weekly.py
+
+      # Splits are one file a season, straight from the play-by-play. The same-point
+      # baselines are every finished season rebuilt as it stood after each week, from the
+      # same inputs the step above used; they need all of those seasons' files on disk, so
+      # a rebuild of a few seasons leaves them as they are (pace.py says so and stops).
+      - name: Situational splits and same-point baselines
+        working-directory: pipeline/football
+        run: |
+          NFL_SPLITS="$GITHUB_WORKSPACE/public/football-splits" python3 splits.py
+          NFL_ARCHIVE="$GITHUB_WORKSPACE/public/football-savant-data.json" \
+          NFL_WEEKLY="$GITHUB_WORKSPACE/public/football-weekly" \
+          NFL_PACE="$GITHUB_WORKSPACE/public/football-pace" python3 pace.py
 
       # Coaching Savant's archive: records from the whole schedule, style from every season,
       # fourth downs from 2014 and play-caller units from 2018. With a season list the
@@ -126,7 +143,7 @@ jobs:
         run: |
           git config user.name "football-savant-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add public/football-savant-data.json public/football-maps/ public/football-routes/ public/football-weekly/ public/coaching-savant-data.json
+          git add public/football-savant-data.json public/football-maps/ public/football-routes/ public/football-weekly/ public/football-splits/ public/football-pace/ public/coaching-savant-data.json
           if git diff --cached --quiet; then
             echo "no change — nothing to commit"
             exit 0

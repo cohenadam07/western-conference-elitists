@@ -63,9 +63,12 @@ def season(y, pos):
         return None
     pb = pd.read_parquet(pbp_p, columns=['game_id', 'play_id', 'season_type', 'play_type', 'sack',
                                          'receiver_player_id', 'complete_pass', 'yards_gained',
-                                         'epa', 'air_yards', 'first_down'])
+                                         'epa', 'air_yards', 'first_down', 'two_point_attempt',
+                                         'receiving_yards'])
     pb = pb[(pb.season_type == 'REG') & (pb.play_type == 'pass') & (pb.sack != 1)
-            & pb.receiver_player_id.notna()]
+            & pb.receiver_player_id.notna() & (pb.two_point_attempt.fillna(0) == 0)]
+    # his own yards, not a lateral's
+    pb['yards_gained'] = pb.receiving_yards.where(pb.receiving_yards.notna(), pb.yards_gained)
     q = pd.read_csv(part_p, usecols=['nflverse_game_id', 'play_id', 'route'], low_memory=False)
     q = q.rename(columns={'nflverse_game_id': 'game_id'}).drop_duplicates(['game_id', 'play_id'])
     d = pb.merge(q, on=['game_id', 'play_id'], how='left')
