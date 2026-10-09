@@ -1,0 +1,5435 @@
+{
+ "consts": {
+  "TE": {
+   "e_tgt": 0.1715
+  },
+  "WR": {
+   "e_tgt": 0.2032
+  }
+ },
+ "from": 1999,
+ "points": {
+  "cov_flag_yard": 0.127,
+  "def_flag": 1.0,
+  "dropback": 0.04,
+  "false_start": 0.62,
+  "holding": 0.97,
+  "interception": 4.59,
+  "off_flag": 0.84,
+  "offside": 0.66,
+  "pass_defended": 1.0,
+  "pass_yard": 0.12,
+  "pressure": 0.26,
+  "roughing": 1.77,
+  "run_stop": 0.56,
+  "rush_yard": 0.11,
+  "sack": 1.77
+ },
+ "pos": {
+  "CB": {
+   "K": {
+    "ballrate": 304.81,
+    "cmpall": 120.15,
+    "covpen": 36.55,
+    "covpenyds": 36.55,
+    "ctgtcov": 715.66,
+    "dpepaoo": 1041.73,
+    "ff": 16.0,
+    "int": 24.19,
+    "mtklpct": 2543.37,
+    "pd": 8.85,
+    "pen": 24.37,
+    "ratall": 210.07,
+    "rstop": 7.33,
+    "rstoprate": 193.35,
+    "rtkdepth": 147.31,
+    "tdall": 57.25,
+    "tfl": 12.0,
+    "tflsnap": 1767.71,
+    "tkyac": 95.42,
+    "yacall": 263.98,
+    "ycovsnap": 1041.73,
+    "ycs": 165.66,
+    "yptall": 286.73
+   },
+   "facets": [
+    {
+     "R": {
+      "cmpall": {
+       "ctgtcov": -0.038,
+       "tdall": 0.042,
+       "yacall": 0.153,
+       "ycovsnap": 0.29,
+       "ycs": 0.317
+      },
+      "ctgtcov": {
+       "cmpall": -0.038,
+       "tdall": 0.246,
+       "yacall": -0.101,
+       "ycovsnap": 0.681,
+       "ycs": 0.656
+      },
+      "tdall": {
+       "cmpall": 0.042,
+       "ctgtcov": 0.246,
+       "yacall": -0.034,
+       "ycovsnap": 0.351,
+       "ycs": 0.314
+      },
+      "yacall": {
+       "cmpall": 0.153,
+       "ctgtcov": -0.101,
+       "tdall": -0.034,
+       "ycovsnap": 0.181,
+       "ycs": 0.214
+      },
+      "ycovsnap": {
+       "cmpall": 0.29,
+       "ctgtcov": 0.681,
+       "tdall": 0.351,
+       "yacall": 0.181,
+       "ycs": 0.947
+      },
+      "ycs": {
+       "cmpall": 0.317,
+       "ctgtcov": 0.656,
+       "tdall": 0.314,
+       "yacall": 0.214,
+       "ycovsnap": 0.947
+      }
+     },
+     "anchor": "D.cov",
+     "credit": 0.5432,
+     "key": "cov",
+     "label": "Coverage",
+     "n": 571,
+     "own": {
+      "cmpall": 0.15,
+      "ctgtcov": 0.152,
+      "dpepaoo": 0.0,
+      "ratall": 0.024,
+      "tdall": 0.108,
+      "tkyac": 0.063,
+      "yacall": 0.132,
+      "ycovsnap": 0.095,
+      "ycs": 0.071,
+      "yptall": 0.0
+     },
+     "pairs": [
+      335,
+      123
+     ],
+     "r_move": 0.1194,
+     "r_stay": 0.2284,
+     "stats": {
+      "cmpall": 0.0395,
+      "ctgtcov": 0.1023,
+      "dpepaoo": 0.0,
+      "ratall": 0.0,
+      "tdall": 0.0405,
+      "tkyac": 0.0,
+      "yacall": 0.0269,
+      "ycovsnap": 0.094,
+      "ycs": 0.0671,
+      "yptall": 0.0
+     },
+     "tells": {
+      "cmpall": 0.263,
+      "ctgtcov": 0.674,
+      "dpepaoo": 0.13,
+      "ratall": 0.485,
+      "tdall": 0.376,
+      "tkyac": 0.0,
+      "yacall": 0.204,
+      "ycovsnap": 0.991,
+      "ycs": 0.943,
+      "yptall": 0.723
+     },
+     "worth": 1.0627
+    },
+    {
+     "R": {
+      "ballrate": {
+       "int": 0.675,
+       "pd": 0.81
+      },
+      "int": {
+       "ballrate": 0.675,
+       "pd": 0.518
+      },
+      "pd": {
+       "ballrate": 0.81,
+       "int": 0.518
+      }
+     },
+     "anchor": "D.ball",
+     "credit": 0.9013,
+     "key": "ball",
+     "label": "Ball production",
+     "n": 970,
+     "own": {
+      "ballrate": 0.217,
+      "ff": null,
+      "int": 0.237,
+      "pd": 0.367
+     },
+     "pairs": [
+      1625,
+      482
+     ],
+     "r_move": 0.3873,
+     "r_stay": 0.4231,
+     "stats": {
+      "ballrate": 0.1827,
+      "ff": 0.0,
+      "int": 0.2171,
+      "pd": 0.2863
+     },
+     "tells": {
+      "ballrate": 0.843,
+      "ff": null,
+      "int": 0.917,
+      "pd": 0.78
+     },
+     "worth": 0.6567
+    },
+    {
+     "R": {
+      "covpen": {
+       "covpenyds": 0.802,
+       "pen": 0.877
+      },
+      "covpenyds": {
+       "covpen": 0.802,
+       "pen": 0.706
+      },
+      "pen": {
+       "covpen": 0.877,
+       "covpenyds": 0.706
+      }
+     },
+     "anchor": "D.covflags",
+     "credit": 1.0,
+     "key": "flags",
+     "label": "Staying clean",
+     "n": 970,
+     "own": {
+      "covpen": 0.325,
+      "covpenyds": 0.248,
+      "pen": 0.358
+     },
+     "pairs": [
+      1626,
+      483
+     ],
+     "r_move": 0.3285,
+     "r_stay": 0.3063,
+     "stats": {
+      "covpen": 0.2562,
+      "covpenyds": 0.2449,
+      "pen": 0.2491
+     },
+     "tells": {
+      "covpen": 0.788,
+      "covpenyds": 0.989,
+      "pen": 0.697
+     },
+     "worth": 0.2633
+    },
+    {
+     "R": {
+      "rstop": {
+       "rstoprate": 0.862,
+       "rtkdepth": 0.435
+      },
+      "rstoprate": {
+       "rstop": 0.862,
+       "rtkdepth": 0.507
+      },
+      "rtkdepth": {
+       "rstop": 0.435,
+       "rstoprate": 0.507
+      }
+     },
+     "anchor": "D.run",
+     "credit": 0.5859,
+     "key": "run",
+     "label": "Run support and tackling",
+     "n": 970,
+     "own": {
+      "mtklpct": 0.174,
+      "rstop": 0.281,
+      "rstoprate": 0.345,
+      "rtkdepth": 0.24,
+      "tfl": null,
+      "tflsnap": null
+     },
+     "pairs": [
+      1626,
+      483
+     ],
+     "r_move": 0.2824,
+     "r_stay": 0.4879,
+     "stats": {
+      "mtklpct": 0.0,
+      "rstop": 0.2771,
+      "rstoprate": 0.3033,
+      "rtkdepth": 0.1296,
+      "tfl": 0.0,
+      "tflsnap": 0.0
+     },
+     "tells": {
+      "mtklpct": 0.112,
+      "rstop": 0.985,
+      "rstoprate": 0.88,
+      "rtkdepth": 0.54,
+      "tfl": null,
+      "tflsnap": null
+     },
+     "worth": 0.1573
+    }
+   ]
+  },
+  "DI": {
+   "K": {
+    "bats": 16.0,
+    "drsoo": 199.45,
+    "ff": 83.79,
+    "havoc": 656.13,
+    "hits": 4.53,
+    "hrry": 11.23,
+    "mtklpct": 1941.86,
+    "offsideg": 27.63,
+    "pen": 18.42,
+    "prod": 587.94,
+    "prss": 3.5,
+    "prsshr": 3.36,
+    "prsspass": 208.04,
+    "prsssnap": 619.32,
+    "qbkd": 7.44,
+    "rstop": 5.63,
+    "rstoprate": 199.45,
+    "rtkdepth": 65.61,
+    "rtpg": 27.63,
+    "sk": 10.74,
+    "skpass": 522.05,
+    "sksnap": 797.91,
+    "stripsk": 16.0,
+    "tfl": 10.27,
+    "tflsnap": 1423.87,
+    "tklsnap": 353.13
+   },
+   "facets": [
+    {
+     "R": {
+      "ff": {
+       "hits": 0.37,
+       "hrry": 0.359,
+       "prod": 0.384,
+       "prss": 0.409,
+       "prsshr": 0.4,
+       "prsspass": 0.354,
+       "prsssnap": 0.375,
+       "qbkd": 0.28,
+       "sk": 0.416,
+       "skpass": 0.368,
+       "sksnap": 0.377,
+       "stripsk": 0.745
+      },
+      "hits": {
+       "ff": 0.37,
+       "hrry": 0.622,
+       "prod": 0.909,
+       "prss": 0.95,
+       "prsshr": 0.915,
+       "prsspass": 0.877,
+       "prsssnap": 0.907,
+       "qbkd": 0.912,
+       "sk": 0.838,
+       "skpass": 0.726,
+       "sksnap": 0.769,
+       "stripsk": 0.407
+      },
+      "hrry": {
+       "ff": 0.359,
+       "hits": 0.622,
+       "prod": 0.765,
+       "prss": 0.819,
+       "prsshr": 0.783,
+       "prsspass": 0.76,
+       "prsssnap": 0.775,
+       "qbkd": 0.516,
+       "sk": 0.593,
+       "skpass": 0.468,
+       "sksnap": 0.504,
+       "stripsk": 0.348
+      },
+      "prod": {
+       "ff": 0.384,
+       "hits": 0.909,
+       "hrry": 0.765,
+       "prss": 0.953,
+       "prsshr": 0.905,
+       "prsspass": 0.973,
+       "prsssnap": 0.996,
+       "qbkd": 0.812,
+       "sk": 0.827,
+       "skpass": 0.771,
+       "sksnap": 0.811,
+       "stripsk": 0.416
+      },
+      "prss": {
+       "ff": 0.409,
+       "hits": 0.95,
+       "hrry": 0.819,
+       "prod": 0.953,
+       "prsshr": 0.959,
+       "prsspass": 0.928,
+       "prsssnap": 0.955,
+       "qbkd": 0.855,
+       "sk": 0.835,
+       "skpass": 0.709,
+       "sksnap": 0.752,
+       "stripsk": 0.427
+      },
+      "prsshr": {
+       "ff": 0.4,
+       "hits": 0.915,
+       "hrry": 0.783,
+       "prod": 0.905,
+       "prss": 0.959,
+       "prsspass": 0.882,
+       "prsssnap": 0.904,
+       "qbkd": 0.822,
+       "sk": 0.811,
+       "skpass": 0.687,
+       "sksnap": 0.724,
+       "stripsk": 0.425
+      },
+      "prsspass": {
+       "ff": 0.354,
+       "hits": 0.877,
+       "hrry": 0.76,
+       "prod": 0.973,
+       "prss": 0.928,
+       "prsshr": 0.882,
+       "prsssnap": 0.979,
+       "qbkd": 0.806,
+       "sk": 0.761,
+       "skpass": 0.731,
+       "sksnap": 0.744,
+       "stripsk": 0.375
+      },
+      "prsssnap": {
+       "ff": 0.375,
+       "hits": 0.907,
+       "hrry": 0.775,
+       "prod": 0.996,
+       "prss": 0.955,
+       "prsshr": 0.904,
+       "prsspass": 0.979,
+       "qbkd": 0.827,
+       "sk": 0.793,
+       "skpass": 0.732,
+       "sksnap": 0.773,
+       "stripsk": 0.398
+      },
+      "qbkd": {
+       "ff": 0.28,
+       "hits": 0.912,
+       "hrry": 0.516,
+       "prod": 0.812,
+       "prss": 0.855,
+       "prsshr": 0.822,
+       "prsspass": 0.806,
+       "prsssnap": 0.827,
+       "sk": 0.573,
+       "skpass": 0.449,
+       "sksnap": 0.494,
+       "stripsk": 0.283
+      },
+      "sk": {
+       "ff": 0.416,
+       "hits": 0.838,
+       "hrry": 0.593,
+       "prod": 0.827,
+       "prss": 0.835,
+       "prsshr": 0.811,
+       "prsspass": 0.761,
+       "prsssnap": 0.793,
+       "qbkd": 0.573,
+       "skpass": 0.944,
+       "sksnap": 0.962,
+       "stripsk": 0.507
+      },
+      "skpass": {
+       "ff": 0.368,
+       "hits": 0.726,
+       "hrry": 0.468,
+       "prod": 0.771,
+       "prss": 0.709,
+       "prsshr": 0.687,
+       "prsspass": 0.731,
+       "prsssnap": 0.732,
+       "qbkd": 0.449,
+       "sk": 0.944,
+       "sksnap": 0.986,
+       "stripsk": 0.439
+      },
+      "sksnap": {
+       "ff": 0.377,
+       "hits": 0.769,
+       "hrry": 0.504,
+       "prod": 0.811,
+       "prss": 0.752,
+       "prsshr": 0.724,
+       "prsspass": 0.744,
+       "prsssnap": 0.773,
+       "qbkd": 0.494,
+       "sk": 0.962,
+       "skpass": 0.986,
+       "stripsk": 0.473
+      },
+      "stripsk": {
+       "ff": 0.745,
+       "hits": 0.407,
+       "hrry": 0.348,
+       "prod": 0.416,
+       "prss": 0.427,
+       "prsshr": 0.425,
+       "prsspass": 0.375,
+       "prsssnap": 0.398,
+       "qbkd": 0.283,
+       "sk": 0.507,
+       "skpass": 0.439,
+       "sksnap": 0.473
+      }
+     },
+     "anchor": "D.rush",
+     "credit": 0.9382,
+     "key": "rush",
+     "label": "Pass rush",
+     "n": 367,
+     "own": {
+      "bats": null,
+      "ff": 0.117,
+      "hits": 0.607,
+      "hrry": 0.446,
+      "prod": 0.457,
+      "prss": 0.619,
+      "prsshr": 0.6,
+      "prsspass": 0.379,
+      "prsssnap": 0.463,
+      "qbkd": 0.528,
+      "sk": 0.447,
+      "skpass": 0.236,
+      "sksnap": 0.296,
+      "stripsk": 0.101
+     },
+     "pairs": [
+      1433,
+      336
+     ],
+     "r_move": 0.6015,
+     "r_stay": 0.6335,
+     "stats": {
+      "bats": 0.0,
+      "ff": 0.0503,
+      "hits": 0.5277,
+      "hrry": 0.2894,
+      "prod": 0.4049,
+      "prss": 0.551,
+      "prsshr": 0.5133,
+      "prsspass": 0.3182,
+      "prsssnap": 0.4001,
+      "qbkd": 0.3369,
+      "sk": 0.427,
+      "skpass": 0.2149,
+      "sksnap": 0.2744,
+      "stripsk": 0.0486
+     },
+     "tells": {
+      "bats": null,
+      "ff": 0.429,
+      "hits": 0.869,
+      "hrry": 0.649,
+      "prod": 0.887,
+      "prss": 0.89,
+      "prsshr": 0.856,
+      "prsspass": 0.841,
+      "prsssnap": 0.863,
+      "qbkd": 0.638,
+      "sk": 0.955,
+      "skpass": 0.91,
+      "sksnap": 0.927,
+      "stripsk": 0.482
+     },
+     "worth": 0.5004
+    },
+    {
+     "R": {
+      "havoc": {
+       "mtklpct": -0.032,
+       "rstop": 0.122,
+       "rstoprate": 0.125,
+       "tfl": 0.866,
+       "tflsnap": 0.878,
+       "tklsnap": 0.058
+      },
+      "mtklpct": {
+       "havoc": -0.032,
+       "rstop": 0.176,
+       "rstoprate": 0.209,
+       "tfl": -0.048,
+       "tflsnap": -0.025,
+       "tklsnap": 0.259
+      },
+      "rstop": {
+       "havoc": 0.122,
+       "mtklpct": 0.176,
+       "rstoprate": 0.822,
+       "tfl": 0.286,
+       "tflsnap": 0.183,
+       "tklsnap": 0.756
+      },
+      "rstoprate": {
+       "havoc": 0.125,
+       "mtklpct": 0.209,
+       "rstop": 0.822,
+       "tfl": 0.166,
+       "tflsnap": 0.161,
+       "tklsnap": 0.763
+      },
+      "tfl": {
+       "havoc": 0.866,
+       "mtklpct": -0.048,
+       "rstop": 0.286,
+       "rstoprate": 0.166,
+       "tflsnap": 0.943,
+       "tklsnap": 0.082
+      },
+      "tflsnap": {
+       "havoc": 0.878,
+       "mtklpct": -0.025,
+       "rstop": 0.183,
+       "rstoprate": 0.161,
+       "tfl": 0.943,
+       "tklsnap": 0.111
+      },
+      "tklsnap": {
+       "havoc": 0.058,
+       "mtklpct": 0.259,
+       "rstop": 0.756,
+       "rstoprate": 0.763,
+       "tfl": 0.082,
+       "tflsnap": 0.111
+      }
+     },
+     "anchor": "D.run",
+     "credit": 0.834,
+     "key": "run",
+     "label": "Run defense",
+     "n": 645,
+     "own": {
+      "drsoo": 0.06,
+      "havoc": 0.351,
+      "mtklpct": 0.179,
+      "rstop": 0.449,
+      "rstoprate": 0.33,
+      "rtkdepth": 0.247,
+      "tfl": 0.379,
+      "tflsnap": 0.183,
+      "tklsnap": 0.424
+     },
+     "pairs": [
+      1433,
+      336
+     ],
+     "r_move": 0.4429,
+     "r_stay": 0.5262,
+     "stats": {
+      "drsoo": 0.0,
+      "havoc": 0.0289,
+      "mtklpct": 0.0472,
+      "rstop": 0.4444,
+      "rstoprate": 0.2819,
+      "rtkdepth": 0.0,
+      "tfl": 0.0785,
+      "tflsnap": 0.0251,
+      "tklsnap": 0.3346
+     },
+     "tells": {
+      "drsoo": 0.269,
+      "havoc": 0.082,
+      "mtklpct": 0.263,
+      "rstop": 0.991,
+      "rstoprate": 0.854,
+      "rtkdepth": 0.072,
+      "tfl": 0.207,
+      "tflsnap": 0.137,
+      "tklsnap": 0.789
+     },
+     "worth": 0.3504
+    },
+    {
+     "R": {
+      "offsideg": {
+       "pen": 0.744,
+       "rtpg": 0.14
+      },
+      "pen": {
+       "offsideg": 0.744,
+       "rtpg": 0.498
+      },
+      "rtpg": {
+       "offsideg": 0.14,
+       "pen": 0.498
+      }
+     },
+     "anchor": "D.flags",
+     "credit": 0.9176,
+     "key": "flags",
+     "label": "Staying clean",
+     "n": 645,
+     "own": {
+      "offsideg": 0.291,
+      "pen": 0.371,
+      "rtpg": 0.137
+     },
+     "pairs": [
+      1433,
+      336
+     ],
+     "r_move": 0.3979,
+     "r_stay": 0.4265,
+     "stats": {
+      "offsideg": 0.1629,
+      "pen": 0.3479,
+      "rtpg": 0.0988
+     },
+     "tells": {
+      "offsideg": 0.559,
+      "pen": 0.938,
+      "rtpg": 0.72
+     },
+     "worth": 0.1345
+    }
+   ]
+  },
+  "ED": {
+   "K": {
+    "bats": 16.0,
+    "drsoo": 327.64,
+    "ff": 25.19,
+    "havoc": 1073.72,
+    "hits": 5.79,
+    "hrry": 9.43,
+    "mtklpct": 7543.75,
+    "offsideg": 34.96,
+    "pen": 23.31,
+    "prod": 506.16,
+    "prss": 3.96,
+    "prsshr": 3.07,
+    "prsspass": 338.38,
+    "prsssnap": 472.03,
+    "qbkd": 9.47,
+    "rstop": 5.04,
+    "rstoprate": 327.64,
+    "rtkdepth": 107.37,
+    "rtpg": 34.96,
+    "sk": 9.32,
+    "skpass": 955.06,
+    "sksnap": 1235.77,
+    "stripsk": 16.0,
+    "tfl": 11.46,
+    "tflsnap": 1871.82,
+    "tklsnap": 333.65
+   },
+   "facets": [
+    {
+     "R": {
+      "ff": {
+       "hits": 0.339,
+       "hrry": 0.305,
+       "prod": 0.363,
+       "prss": 0.427,
+       "prsshr": 0.386,
+       "prsspass": 0.346,
+       "prsssnap": 0.339,
+       "qbkd": 0.236,
+       "sk": 0.499,
+       "skpass": 0.443,
+       "sksnap": 0.439,
+       "stripsk": 0.884
+      },
+      "hits": {
+       "ff": 0.339,
+       "hrry": 0.513,
+       "prod": 0.818,
+       "prss": 0.905,
+       "prsshr": 0.859,
+       "prsspass": 0.803,
+       "prsssnap": 0.814,
+       "qbkd": 0.869,
+       "sk": 0.773,
+       "skpass": 0.66,
+       "sksnap": 0.661,
+       "stripsk": 0.344
+      },
+      "hrry": {
+       "ff": 0.305,
+       "hits": 0.513,
+       "prod": 0.693,
+       "prss": 0.811,
+       "prsshr": 0.734,
+       "prsspass": 0.706,
+       "prsssnap": 0.706,
+       "qbkd": 0.386,
+       "sk": 0.524,
+       "skpass": 0.363,
+       "sksnap": 0.375,
+       "stripsk": 0.314
+      },
+      "prod": {
+       "ff": 0.363,
+       "hits": 0.818,
+       "hrry": 0.693,
+       "prss": 0.881,
+       "prsshr": 0.798,
+       "prsspass": 0.969,
+       "prsssnap": 0.995,
+       "qbkd": 0.703,
+       "sk": 0.71,
+       "skpass": 0.713,
+       "sksnap": 0.746,
+       "stripsk": 0.398
+      },
+      "prss": {
+       "ff": 0.427,
+       "hits": 0.905,
+       "hrry": 0.811,
+       "prod": 0.881,
+       "prsshr": 0.927,
+       "prsspass": 0.877,
+       "prsssnap": 0.883,
+       "qbkd": 0.766,
+       "sk": 0.796,
+       "skpass": 0.636,
+       "sksnap": 0.652,
+       "stripsk": 0.446
+      },
+      "prsshr": {
+       "ff": 0.386,
+       "hits": 0.859,
+       "hrry": 0.734,
+       "prod": 0.798,
+       "prss": 0.927,
+       "prsspass": 0.819,
+       "prsssnap": 0.798,
+       "qbkd": 0.718,
+       "sk": 0.753,
+       "skpass": 0.609,
+       "sksnap": 0.606,
+       "stripsk": 0.397
+      },
+      "prsspass": {
+       "ff": 0.346,
+       "hits": 0.803,
+       "hrry": 0.706,
+       "prod": 0.969,
+       "prss": 0.877,
+       "prsshr": 0.819,
+       "prsssnap": 0.975,
+       "qbkd": 0.703,
+       "sk": 0.667,
+       "skpass": 0.681,
+       "sksnap": 0.681,
+       "stripsk": 0.372
+      },
+      "prsssnap": {
+       "ff": 0.339,
+       "hits": 0.814,
+       "hrry": 0.706,
+       "prod": 0.995,
+       "prss": 0.883,
+       "prsshr": 0.798,
+       "prsspass": 0.975,
+       "qbkd": 0.72,
+       "sk": 0.668,
+       "skpass": 0.665,
+       "sksnap": 0.698,
+       "stripsk": 0.37
+      },
+      "qbkd": {
+       "ff": 0.236,
+       "hits": 0.869,
+       "hrry": 0.386,
+       "prod": 0.703,
+       "prss": 0.766,
+       "prsshr": 0.718,
+       "prsspass": 0.703,
+       "prsssnap": 0.72,
+       "sk": 0.438,
+       "skpass": 0.31,
+       "sksnap": 0.334,
+       "stripsk": 0.242
+      },
+      "sk": {
+       "ff": 0.499,
+       "hits": 0.773,
+       "hrry": 0.524,
+       "prod": 0.71,
+       "prss": 0.796,
+       "prsshr": 0.753,
+       "prsspass": 0.667,
+       "prsssnap": 0.668,
+       "qbkd": 0.438,
+       "skpass": 0.921,
+       "sksnap": 0.913,
+       "stripsk": 0.54
+      },
+      "skpass": {
+       "ff": 0.443,
+       "hits": 0.66,
+       "hrry": 0.363,
+       "prod": 0.713,
+       "prss": 0.636,
+       "prsshr": 0.609,
+       "prsspass": 0.681,
+       "prsssnap": 0.665,
+       "qbkd": 0.31,
+       "sk": 0.921,
+       "sksnap": 0.985,
+       "stripsk": 0.496
+      },
+      "sksnap": {
+       "ff": 0.439,
+       "hits": 0.661,
+       "hrry": 0.375,
+       "prod": 0.746,
+       "prss": 0.652,
+       "prsshr": 0.606,
+       "prsspass": 0.681,
+       "prsssnap": 0.698,
+       "qbkd": 0.334,
+       "sk": 0.913,
+       "skpass": 0.985,
+       "stripsk": 0.492
+      },
+      "stripsk": {
+       "ff": 0.884,
+       "hits": 0.344,
+       "hrry": 0.314,
+       "prod": 0.398,
+       "prss": 0.446,
+       "prsshr": 0.397,
+       "prsspass": 0.372,
+       "prsssnap": 0.37,
+       "qbkd": 0.242,
+       "sk": 0.54,
+       "skpass": 0.496,
+       "sksnap": 0.492
+      }
+     },
+     "anchor": "D.rush",
+     "credit": 0.8837,
+     "key": "rush",
+     "label": "Pass rush",
+     "n": 401,
+     "own": {
+      "bats": null,
+      "ff": 0.233,
+      "hits": 0.504,
+      "hrry": 0.3,
+      "prod": 0.335,
+      "prss": 0.514,
+      "prsshr": 0.549,
+      "prsspass": 0.353,
+      "prsssnap": 0.352,
+      "qbkd": 0.463,
+      "sk": 0.401,
+      "skpass": 0.126,
+      "sksnap": 0.169,
+      "stripsk": 0.273
+     },
+     "pairs": [
+      1403,
+      330
+     ],
+     "r_move": 0.5199,
+     "r_stay": 0.5821,
+     "stats": {
+      "bats": 0.0,
+      "ff": 0.1154,
+      "hits": 0.4233,
+      "hrry": 0.1697,
+      "prod": 0.2683,
+      "prss": 0.4491,
+      "prsshr": 0.4419,
+      "prsspass": 0.2721,
+      "prsssnap": 0.269,
+      "qbkd": 0.2374,
+      "sk": 0.3908,
+      "skpass": 0.1142,
+      "sksnap": 0.1533,
+      "stripsk": 0.144
+     },
+     "tells": {
+      "bats": null,
+      "ff": 0.495,
+      "hits": 0.839,
+      "hrry": 0.567,
+      "prod": 0.8,
+      "prss": 0.874,
+      "prsshr": 0.805,
+      "prsspass": 0.771,
+      "prsssnap": 0.764,
+      "qbkd": 0.512,
+      "sk": 0.974,
+      "skpass": 0.903,
+      "sksnap": 0.907,
+      "stripsk": 0.528
+     },
+     "worth": 0.565
+    },
+    {
+     "R": {
+      "havoc": {
+       "rstop": 0.152,
+       "rstoprate": 0.141,
+       "rtkdepth": 0.234,
+       "tfl": 0.789,
+       "tflsnap": 0.851,
+       "tklsnap": 0.16
+      },
+      "rstop": {
+       "havoc": 0.152,
+       "rstoprate": 0.714,
+       "rtkdepth": 0.205,
+       "tfl": 0.439,
+       "tflsnap": 0.245,
+       "tklsnap": 0.532
+      },
+      "rstoprate": {
+       "havoc": 0.141,
+       "rstop": 0.714,
+       "rtkdepth": 0.252,
+       "tfl": 0.194,
+       "tflsnap": 0.234,
+       "tklsnap": 0.592
+      },
+      "rtkdepth": {
+       "havoc": 0.234,
+       "rstop": 0.205,
+       "rstoprate": 0.252,
+       "tfl": 0.318,
+       "tflsnap": 0.341,
+       "tklsnap": -0.187
+      },
+      "tfl": {
+       "havoc": 0.789,
+       "rstop": 0.439,
+       "rstoprate": 0.194,
+       "rtkdepth": 0.318,
+       "tflsnap": 0.902,
+       "tklsnap": 0.16
+      },
+      "tflsnap": {
+       "havoc": 0.851,
+       "rstop": 0.245,
+       "rstoprate": 0.234,
+       "rtkdepth": 0.341,
+       "tfl": 0.902,
+       "tklsnap": 0.207
+      },
+      "tklsnap": {
+       "havoc": 0.16,
+       "rstop": 0.532,
+       "rstoprate": 0.592,
+       "rtkdepth": -0.187,
+       "tfl": 0.16,
+       "tflsnap": 0.207
+      }
+     },
+     "anchor": "D.run",
+     "credit": 0.6826,
+     "key": "run",
+     "label": "Run defense",
+     "n": 708,
+     "own": {
+      "drsoo": 0.0,
+      "havoc": 0.196,
+      "mtklpct": 0.098,
+      "rstop": 0.329,
+      "rstoprate": 0.29,
+      "rtkdepth": 0.308,
+      "tfl": 0.351,
+      "tflsnap": 0.134,
+      "tklsnap": 0.471
+     },
+     "pairs": [
+      1403,
+      330
+     ],
+     "r_move": 0.333,
+     "r_stay": 0.4886,
+     "stats": {
+      "drsoo": 0.0,
+      "havoc": 0.0226,
+      "mtklpct": 0.0,
+      "rstop": 0.3261,
+      "rstoprate": 0.219,
+      "rtkdepth": 0.0672,
+      "tfl": 0.1372,
+      "tflsnap": 0.0329,
+      "tklsnap": 0.2893
+     },
+     "tells": {
+      "drsoo": 0.104,
+      "havoc": 0.115,
+      "mtklpct": 0.173,
+      "rstop": 0.99,
+      "rstoprate": 0.755,
+      "rtkdepth": 0.218,
+      "tfl": 0.391,
+      "tflsnap": 0.247,
+      "tklsnap": 0.614
+     },
+     "worth": 0.2879
+    },
+    {
+     "R": {
+      "offsideg": {
+       "pen": 0.827,
+       "rtpg": 0.129
+      },
+      "pen": {
+       "offsideg": 0.827,
+       "rtpg": 0.439
+      },
+      "rtpg": {
+       "offsideg": 0.129,
+       "pen": 0.439
+      }
+     },
+     "anchor": "D.flags",
+     "credit": 0.973,
+     "key": "flags",
+     "label": "Staying clean",
+     "n": 708,
+     "own": {
+      "offsideg": 0.374,
+      "pen": 0.386,
+      "rtpg": 0.043
+     },
+     "pairs": [
+      1403,
+      330
+     ],
+     "r_move": 0.4119,
+     "r_stay": 0.4149,
+     "stats": {
+      "offsideg": 0.2413,
+      "pen": 0.36,
+      "rtpg": 0.029
+     },
+     "tells": {
+      "offsideg": 0.645,
+      "pen": 0.932,
+      "rtpg": 0.668
+     },
+     "worth": 0.1403
+    }
+   ]
+  },
+  "K": {
+   "K": {
+    "fgoe": 191.28,
+    "patpct": 294.84
+   },
+   "facets": [
+    {
+     "R": {
+      "fgoe": {
+       "patpct": 0.105
+      },
+      "patpct": {
+       "fgoe": 0.105
+      }
+     },
+     "anchor": "K.kick",
+     "credit": 1.0,
+     "key": "kick",
+     "label": "Kicking",
+     "n": 379,
+     "own": {},
+     "pairs": [
+      560,
+      111
+     ],
+     "r_move": 0.0691,
+     "r_stay": 0.0335,
+     "stats": {
+      "fgoe": 1.0,
+      "patpct": 0.2
+     },
+     "tells": {},
+     "worth": 0.3794
+    }
+   ]
+  },
+  "LB": {
+   "K": {
+    "ballrate": 668.2,
+    "cmpall": 218.53,
+    "covpen": 97.02,
+    "drsoo": 334.37,
+    "ff": 59.95,
+    "havoc": 2008.57,
+    "hits": 7.92,
+    "hrry": 15.55,
+    "int": 29.64,
+    "mtklpct": 5308.11,
+    "offsideg": 97.02,
+    "pd": 10.27,
+    "pen": 64.68,
+    "prss": 8.66,
+    "prsspass": 361.26,
+    "qbkd": 25.12,
+    "ratall": 513.55,
+    "rstop": 2.0,
+    "rstoprate": 334.37,
+    "rtkdepth": 155.91,
+    "rtpg": 97.02,
+    "sk": 10.46,
+    "skpass": 1739.95,
+    "tfl": 10.2,
+    "tflsnap": 1870.92,
+    "tklsnap": 425.82,
+    "tkyac": 112.45,
+    "yacall": 343.71,
+    "yptall": 147.57
+   },
+   "facets": [
+    {
+     "R": {
+      "drsoo": {
+       "mtklpct": -0.097,
+       "rstop": 0.25,
+       "rstoprate": 0.257,
+       "rtkdepth": 0.211,
+       "tfl": 0.088,
+       "tflsnap": 0.084,
+       "tklsnap": 0.063
+      },
+      "mtklpct": {
+       "drsoo": -0.097,
+       "rstop": 0.092,
+       "rstoprate": 0.067,
+       "rtkdepth": -0.178,
+       "tfl": -0.098,
+       "tflsnap": -0.131,
+       "tklsnap": 0.185
+      },
+      "rstop": {
+       "drsoo": 0.25,
+       "mtklpct": 0.092,
+       "rstoprate": 0.728,
+       "rtkdepth": 0.293,
+       "tfl": 0.332,
+       "tflsnap": 0.129,
+       "tklsnap": 0.446
+      },
+      "rstoprate": {
+       "drsoo": 0.257,
+       "mtklpct": 0.067,
+       "rstop": 0.728,
+       "rtkdepth": 0.421,
+       "tfl": 0.177,
+       "tflsnap": 0.191,
+       "tklsnap": 0.618
+      },
+      "rtkdepth": {
+       "drsoo": 0.211,
+       "mtklpct": -0.178,
+       "rstop": 0.293,
+       "rstoprate": 0.421,
+       "tfl": 0.286,
+       "tflsnap": 0.339,
+       "tklsnap": 0.048
+      },
+      "tfl": {
+       "drsoo": 0.088,
+       "mtklpct": -0.098,
+       "rstop": 0.332,
+       "rstoprate": 0.177,
+       "rtkdepth": 0.286,
+       "tflsnap": 0.898,
+       "tklsnap": 0.11
+      },
+      "tflsnap": {
+       "drsoo": 0.084,
+       "mtklpct": -0.131,
+       "rstop": 0.129,
+       "rstoprate": 0.191,
+       "rtkdepth": 0.339,
+       "tfl": 0.898,
+       "tklsnap": 0.175
+      },
+      "tklsnap": {
+       "drsoo": 0.063,
+       "mtklpct": 0.185,
+       "rstop": 0.446,
+       "rstoprate": 0.618,
+       "rtkdepth": 0.048,
+       "tfl": 0.11,
+       "tflsnap": 0.175
+      }
+     },
+     "anchor": "D.run",
+     "credit": 0.8961,
+     "key": "run",
+     "label": "Run defense",
+     "n": 721,
+     "own": {
+      "drsoo": 0.11,
+      "havoc": 0.181,
+      "mtklpct": 0.238,
+      "rstop": 0.534,
+      "rstoprate": 0.386,
+      "rtkdepth": 0.257,
+      "tfl": 0.383,
+      "tflsnap": 0.187,
+      "tklsnap": 0.389
+     },
+     "pairs": [
+      1815,
+      425
+     ],
+     "r_move": 0.5998,
+     "r_stay": 0.6628,
+     "stats": {
+      "drsoo": 0.0234,
+      "havoc": 0.0,
+      "mtklpct": 0.0325,
+      "rstop": 0.5309,
+      "rstoprate": 0.301,
+      "rtkdepth": 0.0844,
+      "tfl": 0.1044,
+      "tflsnap": 0.0249,
+      "tklsnap": 0.2096
+     },
+     "tells": {
+      "drsoo": 0.212,
+      "havoc": 0.097,
+      "mtklpct": 0.136,
+      "rstop": 0.995,
+      "rstoprate": 0.781,
+      "rtkdepth": 0.328,
+      "tfl": 0.272,
+      "tflsnap": 0.133,
+      "tklsnap": 0.538
+     },
+     "worth": 0.4057
+    },
+    {
+     "R": {
+      "cmpall": {
+       "ratall": 0.545,
+       "yptall": 0.482
+      },
+      "ratall": {
+       "cmpall": 0.545,
+       "yptall": 0.62
+      },
+      "yptall": {
+       "cmpall": 0.482,
+       "ratall": 0.62
+      }
+     },
+     "anchor": "D.covt",
+     "credit": 0.4506,
+     "key": "cov",
+     "label": "Coverage",
+     "n": 407,
+     "own": {
+      "cmpall": 0.097,
+      "ratall": 0.099,
+      "tkyac": 0.078,
+      "yacall": 0.0,
+      "yptall": 0.099
+     },
+     "pairs": [
+      244,
+      82
+     ],
+     "r_move": 0.0848,
+     "r_stay": 0.2047,
+     "stats": {
+      "cmpall": 0.0469,
+      "ratall": 0.0639,
+      "tkyac": 0.0,
+      "yacall": 0.0,
+      "yptall": 0.0973
+     },
+     "tells": {
+      "cmpall": 0.482,
+      "ratall": 0.648,
+      "tkyac": 0.243,
+      "yacall": 0.508,
+      "yptall": 0.988
+     },
+     "worth": 0.5485
+    },
+    {
+     "R": {
+      "ff": {
+       "int": 0.089,
+       "pd": 0.181
+      },
+      "int": {
+       "ff": 0.089,
+       "pd": 0.538
+      },
+      "pd": {
+       "ff": 0.181,
+       "int": 0.538
+      }
+     },
+     "anchor": "D.ball",
+     "credit": 0.8067,
+     "key": "ball",
+     "label": "Ball production",
+     "n": 721,
+     "own": {
+      "ballrate": 0.019,
+      "ff": 0.173,
+      "int": 0.117,
+      "pd": 0.332
+     },
+     "pairs": [
+      1815,
+      425
+     ],
+     "r_move": 0.343,
+     "r_stay": 0.4213,
+     "stats": {
+      "ballrate": 0.0,
+      "ff": 0.0244,
+      "int": 0.1068,
+      "pd": 0.2572
+     },
+     "tells": {
+      "ballrate": 0.801,
+      "ff": 0.141,
+      "int": 0.915,
+      "pd": 0.774
+     },
+     "worth": 0.4481
+    },
+    {
+     "R": {
+      "hits": {
+       "hrry": 0.319,
+       "prss": 0.88,
+       "prsspass": 0.746,
+       "qbkd": 0.801,
+       "sk": 0.754,
+       "skpass": 0.67
+      },
+      "hrry": {
+       "hits": 0.319,
+       "prss": 0.69,
+       "prsspass": 0.606,
+       "qbkd": 0.231,
+       "sk": 0.264,
+       "skpass": 0.194
+      },
+      "prss": {
+       "hits": 0.88,
+       "hrry": 0.69,
+       "prsspass": 0.856,
+       "qbkd": 0.709,
+       "sk": 0.726,
+       "skpass": 0.628
+      },
+      "prsspass": {
+       "hits": 0.746,
+       "hrry": 0.606,
+       "prss": 0.856,
+       "qbkd": 0.602,
+       "sk": 0.62,
+       "skpass": 0.685
+      },
+      "qbkd": {
+       "hits": 0.801,
+       "hrry": 0.231,
+       "prss": 0.709,
+       "prsspass": 0.602,
+       "sk": 0.317,
+       "skpass": 0.249
+      },
+      "sk": {
+       "hits": 0.754,
+       "hrry": 0.264,
+       "prss": 0.726,
+       "prsspass": 0.62,
+       "qbkd": 0.317,
+       "skpass": 0.929
+      },
+      "skpass": {
+       "hits": 0.67,
+       "hrry": 0.194,
+       "prss": 0.628,
+       "prsspass": 0.685,
+       "qbkd": 0.249,
+       "sk": 0.929
+      }
+     },
+     "anchor": "D.rush",
+     "credit": 0.8884,
+     "key": "rush",
+     "label": "Pass rush",
+     "n": 407,
+     "own": {
+      "hits": 0.394,
+      "hrry": 0.105,
+      "prss": 0.4,
+      "prsspass": 0.22,
+      "qbkd": 0.32,
+      "sk": 0.403,
+      "skpass": 0.22
+     },
+     "pairs": [
+      1815,
+      425
+     ],
+     "r_move": 0.4477,
+     "r_stay": 0.4976,
+     "stats": {
+      "hits": 0.3243,
+      "hrry": 0.0424,
+      "prss": 0.3315,
+      "prsspass": 0.167,
+      "qbkd": 0.1422,
+      "sk": 0.3842,
+      "skpass": 0.1989
+     },
+     "tells": {
+      "hits": 0.823,
+      "hrry": 0.402,
+      "prss": 0.829,
+      "prsspass": 0.758,
+      "qbkd": 0.445,
+      "sk": 0.952,
+      "skpass": 0.903
+     },
+     "worth": 0.249
+    },
+    {
+     "R": {
+      "covpen": {
+       "offsideg": 0.034,
+       "pen": 0.635
+      },
+      "offsideg": {
+       "covpen": 0.034,
+       "pen": 0.321
+      },
+      "pen": {
+       "covpen": 0.635,
+       "offsideg": 0.321
+      }
+     },
+     "anchor": "D.flags",
+     "credit": 0.379,
+     "key": "flags",
+     "label": "Staying clean",
+     "n": 721,
+     "own": {
+      "covpen": 0.045,
+      "offsideg": 0.173,
+      "pen": 0.045,
+      "rtpg": 0.0
+     },
+     "pairs": [
+      1815,
+      425
+     ],
+     "r_move": 0.0692,
+     "r_stay": 0.208,
+     "stats": {
+      "covpen": 0.0266,
+      "offsideg": 0.0437,
+      "pen": 0.0432,
+      "rtpg": 0.0
+     },
+     "tells": {
+      "covpen": 0.59,
+      "offsideg": 0.253,
+      "pen": 0.957,
+      "rtpg": 0.457
+     },
+     "worth": 0.1037
+    }
+   ]
+  },
+  "OL": {
+   "K": {
+    "epadbon": 324.85,
+    "epaoo": 324.85,
+    "fsg": 61.83,
+    "gapsr": 397.32,
+    "gapstuff": 505.12,
+    "gapypc": 487.39,
+    "hitallow": 225.8,
+    "holdg": 49.06,
+    "pen100": 1386.12,
+    "penstall": 55.45,
+    "penydg": 55.45,
+    "prsallow": 357.68,
+    "prsallowc": 357.68,
+    "prsoo": 357.68,
+    "sackallow": 362.69,
+    "srdbon": 307.89,
+    "sroo": 437.64,
+    "srrunon": 437.64,
+    "stuffon": 809.64,
+    "ypcon": 403.19
+   },
+   "facets": [
+    {
+     "R": {
+      "epadbon": {
+       "hitallow": 0.392,
+       "prsallow": 0.274,
+       "prsallowc": 0.439,
+       "sackallow": 0.507,
+       "srdbon": 0.889
+      },
+      "hitallow": {
+       "epadbon": 0.392,
+       "prsallow": 0.659,
+       "prsallowc": 0.796,
+       "sackallow": 0.686,
+       "srdbon": 0.359
+      },
+      "prsallow": {
+       "epadbon": 0.274,
+       "hitallow": 0.659,
+       "prsallowc": 0.671,
+       "sackallow": 0.378,
+       "srdbon": 0.262
+      },
+      "prsallowc": {
+       "epadbon": 0.439,
+       "hitallow": 0.796,
+       "prsallow": 0.671,
+       "sackallow": 0.619,
+       "srdbon": 0.428
+      },
+      "sackallow": {
+       "epadbon": 0.507,
+       "hitallow": 0.686,
+       "prsallow": 0.378,
+       "prsallowc": 0.619,
+       "srdbon": 0.489
+      },
+      "srdbon": {
+       "epadbon": 0.889,
+       "hitallow": 0.359,
+       "prsallow": 0.262,
+       "prsallowc": 0.428,
+       "sackallow": 0.489
+      }
+     },
+     "anchor": "OL.pp",
+     "credit": 0.2305,
+     "key": "pp",
+     "label": "Pass protection on his snaps",
+     "n": 1414,
+     "own": {
+      "epadbon": 0.072,
+      "epaoo": 0.084,
+      "hitallow": 0.068,
+      "prsallow": 0.084,
+      "prsallowc": 0.059,
+      "prsoo": 0.01,
+      "sackallow": 0.061,
+      "srdbon": 0.066
+     },
+     "pairs": [
+      894,
+      220
+     ],
+     "r_move": 0.0758,
+     "r_stay": 0.3897,
+     "required": true,
+     "stats": {
+      "epadbon": 0.0375,
+      "epaoo": 0.0,
+      "hitallow": 0.0528,
+      "prsallow": 0.0532,
+      "prsallowc": 0.0432,
+      "prsoo": 0.0,
+      "sackallow": 0.0581,
+      "srdbon": 0.0328
+     },
+     "tells": {
+      "epadbon": 0.518,
+      "epaoo": 0.187,
+      "hitallow": 0.778,
+      "prsallow": 0.632,
+      "prsallowc": 0.727,
+      "prsoo": 0.092,
+      "sackallow": 0.947,
+      "srdbon": 0.5
+     },
+     "worth": 1.3436
+    },
+    {
+     "R": {
+      "srrunon": {
+       "stuffon": 0.545
+      },
+      "stuffon": {
+       "srrunon": 0.545
+      }
+     },
+     "anchor": "OL.run",
+     "credit": 0.3135,
+     "key": "run",
+     "label": "Run game on his snaps",
+     "n": 1414,
+     "own": {
+      "sroo": 0.002,
+      "srrunon": 0.064,
+      "stuffon": 0.054,
+      "ypcon": 0.0
+     },
+     "pairs": [
+      894,
+      220
+     ],
+     "r_move": 0.1008,
+     "r_stay": 0.3586,
+     "stats": {
+      "sroo": 0.0,
+      "srrunon": 0.0443,
+      "stuffon": 0.0237,
+      "ypcon": 0.0
+     },
+     "tells": {
+      "sroo": 0.289,
+      "srrunon": 0.695,
+      "stuffon": 0.441,
+      "ypcon": 0.992
+     },
+     "worth": 1.1503
+    },
+    {
+     "R": {
+      "gapsr": {
+       "gapypc": 0.561
+      },
+      "gapypc": {
+       "gapsr": 0.561
+      }
+     },
+     "anchor": "OL.gap",
+     "credit": 0.1117,
+     "key": "gap",
+     "label": "Runs to his gap",
+     "n": 1872,
+     "own": {
+      "gapsr": 0.044,
+      "gapstuff": 0.0,
+      "gapypc": 0.021
+     },
+     "pairs": [
+      1193,
+      285
+     ],
+     "r_move": -0.0124,
+     "r_stay": 0.1581,
+     "stats": {
+      "gapsr": 0.0265,
+      "gapstuff": 0.0,
+      "gapypc": 0.0209
+     },
+     "tells": {
+      "gapsr": 0.601,
+      "gapstuff": 0.454,
+      "gapypc": 0.982
+     },
+     "worth": 0.4464
+    },
+    {
+     "R": {
+      "fsg": {
+       "holdg": 0.06,
+       "pen100": 0.64,
+       "penstall": 0.52,
+       "penydg": 0.436
+      },
+      "holdg": {
+       "fsg": 0.06,
+       "pen100": 0.64,
+       "penstall": 0.566,
+       "penydg": 0.803
+      },
+      "pen100": {
+       "fsg": 0.64,
+       "holdg": 0.64,
+       "penstall": 0.76,
+       "penydg": 0.884
+      },
+      "penstall": {
+       "fsg": 0.52,
+       "holdg": 0.566,
+       "pen100": 0.76,
+       "penydg": 0.764
+      },
+      "penydg": {
+       "fsg": 0.436,
+       "holdg": 0.803,
+       "pen100": 0.884,
+       "penstall": 0.764
+      }
+     },
+     "anchor": "OL.flags",
+     "credit": 0.7096,
+     "key": "flags",
+     "label": "Staying clean",
+     "n": 1888,
+     "own": {
+      "fsg": 0.151,
+      "holdg": 0.177,
+      "pen100": 0.181,
+      "penstall": 0.101,
+      "penydg": 0.172
+     },
+     "pairs": [
+      1250,
+      300
+     ],
+     "r_move": 0.1826,
+     "r_stay": 0.2569,
+     "stats": {
+      "fsg": 0.0783,
+      "holdg": 0.1379,
+      "pen100": 0.1677,
+      "penstall": 0.0795,
+      "penydg": 0.1645
+     },
+     "tells": {
+      "fsg": 0.519,
+      "holdg": 0.777,
+      "pen100": 0.927,
+      "penstall": 0.784,
+      "penydg": 0.958
+     },
+     "worth": 0.1366
+    }
+   ]
+  },
+  "P": {
+   "K": {
+    "pepa": 115.5,
+    "pin20": 169.7,
+    "pnet": 92.4,
+    "pretr": 131.76,
+    "pretyds": 119.27,
+    "ptb": 639.23
+   },
+   "facets": [
+    {
+     "R": {
+      "pepa": {
+       "pnet": 0.656,
+       "pretyds": 0.341
+      },
+      "pnet": {
+       "pepa": 0.656,
+       "pretyds": 0.361
+      },
+      "pretyds": {
+       "pepa": 0.341,
+       "pnet": 0.361
+      }
+     },
+     "anchor": "P.punt",
+     "credit": 0.7726,
+     "key": "punt",
+     "label": "Punting",
+     "n": 382,
+     "own": {
+      "pepa": 0.184,
+      "pin20": 0.0,
+      "pnet": 0.185,
+      "pretr": 0.163,
+      "pretyds": 0.206,
+      "ptb": 0.116
+     },
+     "pairs": [
+      553,
+      131
+     ],
+     "r_move": 0.2186,
+     "r_stay": 0.2801,
+     "stats": {
+      "pepa": 0.183,
+      "pin20": 0.0,
+      "pnet": 0.1194,
+      "pretr": 0.0,
+      "pretyds": 0.0671,
+      "ptb": 0.0
+     },
+     "tells": {
+      "pepa": 0.994,
+      "pin20": 0.308,
+      "pnet": 0.647,
+      "pretr": 0.002,
+      "pretyds": 0.326,
+      "ptb": 0.0
+     },
+     "worth": 0.6179
+    }
+   ]
+  },
+  "QB": {
+   "K": {
+    "anya": 285.14,
+    "badthrow": 516.74,
+    "catchable": 423.7,
+    "cmppct": 251.62,
+    "comp": 234.23,
+    "cpoe": 293.19,
+    "desepa": 23.58,
+    "epadb": 234.23,
+    "epadbadj": 234.23,
+    "epadbng": 250.02,
+    "faultsack": 1417.46,
+    "fddb": 196.15,
+    "intpct": 1656.12,
+    "iwrate": 3473.23,
+    "ngscpoe": 452.08,
+    "ontgt": 258.18,
+    "p2s": 194.0,
+    "ppd": 57.87,
+    "qbr": 276.61,
+    "rztd": 9625.8,
+    "sackpct": 253.84,
+    "snkconv": 29.47,
+    "srdb": 227.16,
+    "syconv": 58.95,
+    "td3conv": 546.63,
+    "tddrv": 69.31,
+    "to3": 185.61,
+    "twrate": 1317.98,
+    "ypa": 258.18
+   },
+   "facets": [
+    {
+     "R": {
+      "anya": {
+       "badthrow": 0.429,
+       "catchable": 0.421,
+       "cmppct": 0.621,
+       "comp": 0.871,
+       "cpoe": 0.729,
+       "epadb": 0.89,
+       "epadbadj": 0.875,
+       "epadbng": 0.843,
+       "fddb": 0.757,
+       "iwrate": 0.377,
+       "ngscpoe": 0.593,
+       "ontgt": 0.536,
+       "p2s": 0.218,
+       "ppd": 0.824,
+       "rztd": 0.466,
+       "sackpct": 0.255,
+       "srdb": 0.768,
+       "td3conv": 0.616,
+       "tddrv": 0.82,
+       "to3": 0.504,
+       "twrate": 0.541,
+       "ypa": 0.905
+      },
+      "badthrow": {
+       "anya": 0.429,
+       "catchable": 0.788,
+       "cmppct": 0.772,
+       "comp": 0.576,
+       "cpoe": 0.644,
+       "epadb": 0.423,
+       "epadbadj": 0.408,
+       "epadbng": 0.385,
+       "fddb": 0.505,
+       "iwrate": 0.3,
+       "ngscpoe": 0.667,
+       "ontgt": 0.813,
+       "p2s": 0.034,
+       "ppd": 0.369,
+       "rztd": 0.192,
+       "sackpct": 0.153,
+       "srdb": 0.531,
+       "td3conv": 0.396,
+       "tddrv": 0.34,
+       "to3": 0.289,
+       "twrate": 0.263,
+       "ypa": 0.399
+      },
+      "catchable": {
+       "anya": 0.421,
+       "badthrow": 0.788,
+       "cmppct": 0.857,
+       "comp": 0.666,
+       "cpoe": 0.673,
+       "epadb": 0.544,
+       "epadbadj": 0.532,
+       "epadbng": 0.514,
+       "fddb": 0.54,
+       "iwrate": 0.412,
+       "ngscpoe": 0.626,
+       "ontgt": 0.806,
+       "p2s": 0.096,
+       "ppd": 0.462,
+       "rztd": 0.03,
+       "sackpct": 0.263,
+       "srdb": 0.637,
+       "td3conv": 0.532,
+       "tddrv": 0.44,
+       "to3": 0.412,
+       "twrate": 0.322,
+       "ypa": 0.323
+      },
+      "cmppct": {
+       "anya": 0.621,
+       "badthrow": 0.772,
+       "catchable": 0.857,
+       "comp": 0.782,
+       "cpoe": 0.828,
+       "epadb": 0.631,
+       "epadbadj": 0.614,
+       "epadbng": 0.603,
+       "fddb": 0.634,
+       "iwrate": 0.433,
+       "ngscpoe": 0.775,
+       "ontgt": 0.834,
+       "p2s": 0.094,
+       "ppd": 0.59,
+       "rztd": 0.245,
+       "sackpct": 0.248,
+       "srdb": 0.73,
+       "td3conv": 0.533,
+       "tddrv": 0.568,
+       "to3": 0.442,
+       "twrate": 0.359,
+       "ypa": 0.567
+      },
+      "comp": {
+       "anya": 0.871,
+       "badthrow": 0.576,
+       "catchable": 0.666,
+       "cmppct": 0.782,
+       "cpoe": 0.928,
+       "epadb": 0.932,
+       "epadbadj": 0.913,
+       "epadbng": 0.884,
+       "fddb": 0.777,
+       "iwrate": 0.47,
+       "ngscpoe": 0.743,
+       "ontgt": 0.693,
+       "p2s": 0.264,
+       "ppd": 0.843,
+       "rztd": 0.419,
+       "sackpct": 0.35,
+       "srdb": 0.88,
+       "td3conv": 0.742,
+       "tddrv": 0.823,
+       "to3": 0.602,
+       "twrate": 0.456,
+       "ypa": 0.811
+      },
+      "cpoe": {
+       "anya": 0.729,
+       "badthrow": 0.644,
+       "catchable": 0.673,
+       "cmppct": 0.828,
+       "comp": 0.928,
+       "epadb": 0.731,
+       "epadbadj": 0.716,
+       "epadbng": 0.699,
+       "fddb": 0.643,
+       "iwrate": 0.425,
+       "ngscpoe": 0.841,
+       "ontgt": 0.738,
+       "p2s": 0.106,
+       "ppd": 0.659,
+       "rztd": 0.315,
+       "sackpct": 0.168,
+       "srdb": 0.76,
+       "td3conv": 0.581,
+       "tddrv": 0.645,
+       "to3": 0.488,
+       "twrate": 0.34,
+       "ypa": 0.702
+      },
+      "epadb": {
+       "anya": 0.89,
+       "badthrow": 0.423,
+       "catchable": 0.544,
+       "cmppct": 0.631,
+       "comp": 0.932,
+       "cpoe": 0.731,
+       "epadbadj": 0.979,
+       "epadbng": 0.943,
+       "fddb": 0.801,
+       "iwrate": 0.43,
+       "ngscpoe": 0.544,
+       "ontgt": 0.546,
+       "p2s": 0.372,
+       "ppd": 0.907,
+       "rztd": 0.464,
+       "sackpct": 0.479,
+       "srdb": 0.875,
+       "td3conv": 0.798,
+       "tddrv": 0.884,
+       "to3": 0.631,
+       "twrate": 0.508,
+       "ypa": 0.809
+      },
+      "epadbadj": {
+       "anya": 0.875,
+       "badthrow": 0.408,
+       "catchable": 0.532,
+       "cmppct": 0.614,
+       "comp": 0.913,
+       "cpoe": 0.716,
+       "epadb": 0.979,
+       "epadbng": 0.925,
+       "fddb": 0.772,
+       "iwrate": 0.419,
+       "ngscpoe": 0.516,
+       "ontgt": 0.52,
+       "p2s": 0.365,
+       "ppd": 0.89,
+       "rztd": 0.44,
+       "sackpct": 0.459,
+       "srdb": 0.85,
+       "td3conv": 0.782,
+       "tddrv": 0.867,
+       "to3": 0.605,
+       "twrate": 0.51,
+       "ypa": 0.793
+      },
+      "epadbng": {
+       "anya": 0.843,
+       "badthrow": 0.385,
+       "catchable": 0.514,
+       "cmppct": 0.603,
+       "comp": 0.884,
+       "cpoe": 0.699,
+       "epadb": 0.943,
+       "epadbadj": 0.925,
+       "fddb": 0.753,
+       "iwrate": 0.423,
+       "ngscpoe": 0.521,
+       "ontgt": 0.507,
+       "p2s": 0.362,
+       "ppd": 0.851,
+       "rztd": 0.408,
+       "sackpct": 0.444,
+       "srdb": 0.821,
+       "td3conv": 0.755,
+       "tddrv": 0.824,
+       "to3": 0.602,
+       "twrate": 0.489,
+       "ypa": 0.768
+      },
+      "fddb": {
+       "anya": 0.757,
+       "badthrow": 0.505,
+       "catchable": 0.54,
+       "cmppct": 0.634,
+       "comp": 0.777,
+       "cpoe": 0.643,
+       "epadb": 0.801,
+       "epadbadj": 0.772,
+       "epadbng": 0.753,
+       "iwrate": 0.294,
+       "ngscpoe": 0.578,
+       "ontgt": 0.547,
+       "p2s": 0.317,
+       "ppd": 0.762,
+       "rztd": 0.404,
+       "sackpct": 0.504,
+       "srdb": 0.855,
+       "td3conv": 0.706,
+       "tddrv": 0.751,
+       "to3": 0.625,
+       "twrate": 0.249,
+       "ypa": 0.763
+      },
+      "iwrate": {
+       "anya": 0.377,
+       "badthrow": 0.3,
+       "catchable": 0.412,
+       "cmppct": 0.433,
+       "comp": 0.47,
+       "cpoe": 0.425,
+       "epadb": 0.43,
+       "epadbadj": 0.419,
+       "epadbng": 0.423,
+       "fddb": 0.294,
+       "ngscpoe": 0.362,
+       "ontgt": 0.521,
+       "p2s": 0.143,
+       "ppd": 0.395,
+       "rztd": -0.094,
+       "sackpct": 0.28,
+       "srdb": 0.378,
+       "td3conv": 0.385,
+       "tddrv": 0.368,
+       "to3": 0.099,
+       "twrate": 0.621,
+       "ypa": 0.126
+      },
+      "ngscpoe": {
+       "anya": 0.593,
+       "badthrow": 0.667,
+       "catchable": 0.626,
+       "cmppct": 0.775,
+       "comp": 0.743,
+       "cpoe": 0.841,
+       "epadb": 0.544,
+       "epadbadj": 0.516,
+       "epadbng": 0.521,
+       "fddb": 0.578,
+       "iwrate": 0.362,
+       "ontgt": 0.689,
+       "p2s": 0.086,
+       "ppd": 0.485,
+       "rztd": 0.234,
+       "sackpct": 0.141,
+       "srdb": 0.636,
+       "td3conv": 0.453,
+       "tddrv": 0.471,
+       "to3": 0.358,
+       "twrate": 0.283,
+       "ypa": 0.562
+      },
+      "ontgt": {
+       "anya": 0.536,
+       "badthrow": 0.813,
+       "catchable": 0.806,
+       "cmppct": 0.834,
+       "comp": 0.693,
+       "cpoe": 0.738,
+       "epadb": 0.546,
+       "epadbadj": 0.52,
+       "epadbng": 0.507,
+       "fddb": 0.547,
+       "iwrate": 0.521,
+       "ngscpoe": 0.689,
+       "p2s": 0.072,
+       "ppd": 0.494,
+       "rztd": 0.227,
+       "sackpct": 0.212,
+       "srdb": 0.62,
+       "td3conv": 0.481,
+       "tddrv": 0.464,
+       "to3": 0.35,
+       "twrate": 0.362,
+       "ypa": 0.462
+      },
+      "p2s": {
+       "anya": 0.218,
+       "badthrow": 0.034,
+       "catchable": 0.096,
+       "cmppct": 0.094,
+       "comp": 0.264,
+       "cpoe": 0.106,
+       "epadb": 0.372,
+       "epadbadj": 0.365,
+       "epadbng": 0.362,
+       "fddb": 0.317,
+       "iwrate": 0.143,
+       "ngscpoe": 0.086,
+       "ontgt": 0.072,
+       "ppd": 0.318,
+       "rztd": 0.169,
+       "sackpct": 0.772,
+       "srdb": 0.295,
+       "td3conv": 0.311,
+       "tddrv": 0.311,
+       "to3": 0.244,
+       "twrate": 0.195,
+       "ypa": 0.117
+      },
+      "ppd": {
+       "anya": 0.824,
+       "badthrow": 0.369,
+       "catchable": 0.462,
+       "cmppct": 0.59,
+       "comp": 0.843,
+       "cpoe": 0.659,
+       "epadb": 0.907,
+       "epadbadj": 0.89,
+       "epadbng": 0.851,
+       "fddb": 0.762,
+       "iwrate": 0.395,
+       "ngscpoe": 0.485,
+       "ontgt": 0.494,
+       "p2s": 0.318,
+       "rztd": 0.451,
+       "sackpct": 0.445,
+       "srdb": 0.812,
+       "td3conv": 0.731,
+       "tddrv": 0.965,
+       "to3": 0.656,
+       "twrate": 0.456,
+       "ypa": 0.744
+      },
+      "rztd": {
+       "anya": 0.466,
+       "badthrow": 0.192,
+       "catchable": 0.03,
+       "cmppct": 0.245,
+       "comp": 0.419,
+       "cpoe": 0.315,
+       "epadb": 0.464,
+       "epadbadj": 0.44,
+       "epadbng": 0.408,
+       "fddb": 0.404,
+       "iwrate": -0.094,
+       "ngscpoe": 0.234,
+       "ontgt": 0.227,
+       "p2s": 0.169,
+       "ppd": 0.451,
+       "sackpct": 0.22,
+       "srdb": 0.426,
+       "td3conv": 0.338,
+       "tddrv": 0.546,
+       "to3": 0.157,
+       "twrate": 0.138,
+       "ypa": 0.362
+      },
+      "sackpct": {
+       "anya": 0.255,
+       "badthrow": 0.153,
+       "catchable": 0.263,
+       "cmppct": 0.248,
+       "comp": 0.35,
+       "cpoe": 0.168,
+       "epadb": 0.479,
+       "epadbadj": 0.459,
+       "epadbng": 0.444,
+       "fddb": 0.504,
+       "iwrate": 0.28,
+       "ngscpoe": 0.141,
+       "ontgt": 0.212,
+       "p2s": 0.772,
+       "ppd": 0.445,
+       "rztd": 0.22,
+       "srdb": 0.454,
+       "td3conv": 0.436,
+       "tddrv": 0.425,
+       "to3": 0.397,
+       "twrate": 0.151,
+       "ypa": 0.172
+      },
+      "srdb": {
+       "anya": 0.768,
+       "badthrow": 0.531,
+       "catchable": 0.637,
+       "cmppct": 0.73,
+       "comp": 0.88,
+       "cpoe": 0.76,
+       "epadb": 0.875,
+       "epadbadj": 0.85,
+       "epadbng": 0.821,
+       "fddb": 0.855,
+       "iwrate": 0.378,
+       "ngscpoe": 0.636,
+       "ontgt": 0.62,
+       "p2s": 0.295,
+       "ppd": 0.812,
+       "rztd": 0.426,
+       "sackpct": 0.454,
+       "td3conv": 0.763,
+       "tddrv": 0.792,
+       "to3": 0.639,
+       "twrate": 0.347,
+       "ypa": 0.74
+      },
+      "td3conv": {
+       "anya": 0.616,
+       "badthrow": 0.396,
+       "catchable": 0.532,
+       "cmppct": 0.533,
+       "comp": 0.742,
+       "cpoe": 0.581,
+       "epadb": 0.798,
+       "epadbadj": 0.782,
+       "epadbng": 0.755,
+       "fddb": 0.706,
+       "iwrate": 0.385,
+       "ngscpoe": 0.453,
+       "ontgt": 0.481,
+       "p2s": 0.311,
+       "ppd": 0.731,
+       "rztd": 0.338,
+       "sackpct": 0.436,
+       "srdb": 0.763,
+       "tddrv": 0.714,
+       "to3": 0.584,
+       "twrate": 0.259,
+       "ypa": 0.584
+      },
+      "tddrv": {
+       "anya": 0.82,
+       "badthrow": 0.34,
+       "catchable": 0.44,
+       "cmppct": 0.568,
+       "comp": 0.823,
+       "cpoe": 0.645,
+       "epadb": 0.884,
+       "epadbadj": 0.867,
+       "epadbng": 0.824,
+       "fddb": 0.751,
+       "iwrate": 0.368,
+       "ngscpoe": 0.471,
+       "ontgt": 0.464,
+       "p2s": 0.311,
+       "ppd": 0.965,
+       "rztd": 0.546,
+       "sackpct": 0.425,
+       "srdb": 0.792,
+       "td3conv": 0.714,
+       "to3": 0.591,
+       "twrate": 0.401,
+       "ypa": 0.738
+      },
+      "to3": {
+       "anya": 0.504,
+       "badthrow": 0.289,
+       "catchable": 0.412,
+       "cmppct": 0.442,
+       "comp": 0.602,
+       "cpoe": 0.488,
+       "epadb": 0.631,
+       "epadbadj": 0.605,
+       "epadbng": 0.602,
+       "fddb": 0.625,
+       "iwrate": 0.099,
+       "ngscpoe": 0.358,
+       "ontgt": 0.35,
+       "p2s": 0.244,
+       "ppd": 0.656,
+       "rztd": 0.157,
+       "sackpct": 0.397,
+       "srdb": 0.639,
+       "td3conv": 0.584,
+       "tddrv": 0.591,
+       "twrate": 0.164,
+       "ypa": 0.542
+      },
+      "twrate": {
+       "anya": 0.541,
+       "badthrow": 0.263,
+       "catchable": 0.322,
+       "cmppct": 0.359,
+       "comp": 0.456,
+       "cpoe": 0.34,
+       "epadb": 0.508,
+       "epadbadj": 0.51,
+       "epadbng": 0.489,
+       "fddb": 0.249,
+       "iwrate": 0.621,
+       "ngscpoe": 0.283,
+       "ontgt": 0.362,
+       "p2s": 0.195,
+       "ppd": 0.456,
+       "rztd": 0.138,
+       "sackpct": 0.151,
+       "srdb": 0.347,
+       "td3conv": 0.259,
+       "tddrv": 0.401,
+       "to3": 0.164,
+       "ypa": 0.248
+      },
+      "ypa": {
+       "anya": 0.905,
+       "badthrow": 0.399,
+       "catchable": 0.323,
+       "cmppct": 0.567,
+       "comp": 0.811,
+       "cpoe": 0.702,
+       "epadb": 0.809,
+       "epadbadj": 0.793,
+       "epadbng": 0.768,
+       "fddb": 0.763,
+       "iwrate": 0.126,
+       "ngscpoe": 0.562,
+       "ontgt": 0.462,
+       "p2s": 0.117,
+       "ppd": 0.744,
+       "rztd": 0.362,
+       "sackpct": 0.172,
+       "srdb": 0.74,
+       "td3conv": 0.584,
+       "tddrv": 0.738,
+       "to3": 0.542,
+       "twrate": 0.248
+      }
+     },
+     "anchor": "QB.pass",
+     "credit": 0.4577,
+     "key": "pass",
+     "label": "Passing",
+     "n": 358,
+     "own": {
+      "anya": 0.09,
+      "badthrow": 0.407,
+      "catchable": 0.244,
+      "cmppct": 0.265,
+      "comp": 0.252,
+      "cpoe": 0.251,
+      "epadb": 0.208,
+      "epadbadj": 0.164,
+      "epadbng": 0.101,
+      "faultsack": 0.0,
+      "fddb": 0.309,
+      "intpct": 0.0,
+      "iwrate": 0.091,
+      "ngscpoe": 0.249,
+      "ontgt": 0.272,
+      "p2s": 0.327,
+      "ppd": 0.165,
+      "qbr": 0.0,
+      "rztd": 0.132,
+      "sackpct": 0.312,
+      "srdb": 0.246,
+      "td3conv": 0.234,
+      "tddrv": 0.185,
+      "to3": 0.125,
+      "twrate": 0.089,
+      "ypa": 0.112
+     },
+     "pairs": [
+      578,
+      97
+     ],
+     "r_move": 0.2439,
+     "r_stay": 0.5489,
+     "stats": {
+      "anya": 0.0807,
+      "badthrow": 0.1614,
+      "catchable": 0.1243,
+      "cmppct": 0.1671,
+      "comp": 0.2333,
+      "cpoe": 0.1795,
+      "epadb": 0.2068,
+      "epadbadj": 0.1599,
+      "epadbng": 0.0947,
+      "faultsack": 0.0,
+      "fddb": 0.2444,
+      "intpct": 0.0,
+      "iwrate": 0.0325,
+      "ngscpoe": 0.1309,
+      "ontgt": 0.1458,
+      "p2s": 0.1173,
+      "ppd": 0.1499,
+      "qbr": 0.0,
+      "rztd": 0.0664,
+      "sackpct": 0.1427,
+      "srdb": 0.2142,
+      "td3conv": 0.1834,
+      "tddrv": 0.1645,
+      "to3": 0.0778,
+      "twrate": 0.0452,
+      "ypa": 0.0906
+     },
+     "tells": {
+      "anya": 0.891,
+      "badthrow": 0.397,
+      "catchable": 0.509,
+      "cmppct": 0.632,
+      "comp": 0.925,
+      "cpoe": 0.716,
+      "epadb": 0.996,
+      "epadbadj": 0.973,
+      "epadbng": 0.939,
+      "faultsack": 0.0,
+      "fddb": 0.791,
+      "intpct": 0.521,
+      "iwrate": 0.356,
+      "ngscpoe": 0.526,
+      "ontgt": 0.536,
+      "p2s": 0.359,
+      "ppd": 0.907,
+      "qbr": 0.893,
+      "rztd": 0.501,
+      "sackpct": 0.458,
+      "srdb": 0.87,
+      "td3conv": 0.785,
+      "tddrv": 0.888,
+      "to3": 0.624,
+      "twrate": 0.508,
+      "ypa": 0.811
+     },
+     "worth": 4.4193
+    },
+    {
+     "R": {},
+     "anchor": "QB.run",
+     "credit": 0.4645,
+     "credit_from": [
+      "RB",
+      "rush"
+     ],
+     "key": "run",
+     "label": "Designed runs",
+     "n": 358,
+     "own": {
+      "desepa": 0.218,
+      "snkconv": null,
+      "syconv": null
+     },
+     "pairs": [
+      578,
+      97
+     ],
+     "r_move": 0.0037,
+     "r_stay": 0.3652,
+     "stats": {
+      "desepa": 0.2096,
+      "snkconv": 0.0,
+      "syconv": 0.0
+     },
+     "tells": {
+      "desepa": 0.963,
+      "snkconv": null,
+      "syconv": null
+     },
+     "worth": 0.5032
+    }
+   ]
+  },
+  "RB": {
+   "K": {
+    "brkrate": 467.87,
+    "brkrec": 197.08,
+    "croe": 149.82,
+    "dropr": 209.02,
+    "epacar": 364.54,
+    "epacaradj": 364.54,
+    "epatgt": 181.9,
+    "ex10": 262.99,
+    "ex20": 489.57,
+    "fdcar": 208.54,
+    "fdtgt": 148.23,
+    "frshr": 13.55,
+    "fumrate": 3552.64,
+    "recy": 3.62,
+    "ropct": 281.71,
+    "rushy": 2.11,
+    "ryoe": 463.25,
+    "rztdcar": 686.89,
+    "srcar": 242.17,
+    "srtgt": 189.5,
+    "stuff": 341.78,
+    "syconv": 367.72,
+    "tgtshr": 2.38,
+    "tpps": 129.09,
+    "xyacoe": 871.73,
+    "yacoe": 871.73,
+    "yacr": 280.62,
+    "ypc": 294.43,
+    "ypps": 297.71,
+    "yprec": 765.53,
+    "ypt": 184.25
+   },
+   "facets": [
+    {
+     "R": {
+      "brkrate": {
+       "epacar": 0.179,
+       "epacaradj": 0.185,
+       "ex10": 0.292,
+       "ex20": 0.276,
+       "fdcar": 0.175,
+       "rushy": 0.257,
+       "ryoe": 0.295,
+       "rztdcar": 0.138,
+       "srcar": 0.132,
+       "stuff": -0.001,
+       "syconv": 0.028,
+       "yacr": 0.43,
+       "ypc": 0.248
+      },
+      "epacar": {
+       "brkrate": 0.179,
+       "epacaradj": 0.979,
+       "ex10": 0.571,
+       "ex20": 0.491,
+       "fdcar": 0.742,
+       "rushy": 0.483,
+       "ryoe": 0.633,
+       "rztdcar": 0.36,
+       "srcar": 0.739,
+       "stuff": 0.43,
+       "syconv": 0.313,
+       "yacr": 0.493,
+       "ypc": 0.781
+      },
+      "epacaradj": {
+       "brkrate": 0.185,
+       "epacar": 0.979,
+       "ex10": 0.547,
+       "ex20": 0.468,
+       "fdcar": 0.716,
+       "rushy": 0.471,
+       "ryoe": 0.627,
+       "rztdcar": 0.347,
+       "srcar": 0.726,
+       "stuff": 0.424,
+       "syconv": 0.301,
+       "yacr": 0.491,
+       "ypc": 0.757
+      },
+      "ex10": {
+       "brkrate": 0.292,
+       "epacar": 0.571,
+       "epacaradj": 0.547,
+       "ex20": 0.594,
+       "fdcar": 0.561,
+       "rushy": 0.408,
+       "ryoe": 0.593,
+       "rztdcar": 0.135,
+       "srcar": 0.408,
+       "stuff": 0.018,
+       "syconv": 0.037,
+       "yacr": 0.512,
+       "ypc": 0.796
+      },
+      "ex20": {
+       "brkrate": 0.276,
+       "epacar": 0.491,
+       "epacaradj": 0.468,
+       "ex10": 0.594,
+       "fdcar": 0.316,
+       "rushy": 0.441,
+       "ryoe": 0.655,
+       "rztdcar": 0.151,
+       "srcar": 0.218,
+       "stuff": -0.046,
+       "syconv": 0.039,
+       "yacr": 0.43,
+       "ypc": 0.719
+      },
+      "fdcar": {
+       "brkrate": 0.175,
+       "epacar": 0.742,
+       "epacaradj": 0.716,
+       "ex10": 0.561,
+       "ex20": 0.316,
+       "rushy": 0.324,
+       "ryoe": 0.466,
+       "rztdcar": 0.376,
+       "srcar": 0.719,
+       "stuff": 0.334,
+       "syconv": 0.317,
+       "yacr": 0.386,
+       "ypc": 0.605
+      },
+      "rushy": {
+       "brkrate": 0.257,
+       "epacar": 0.483,
+       "epacaradj": 0.471,
+       "ex10": 0.408,
+       "ex20": 0.441,
+       "fdcar": 0.324,
+       "ryoe": 0.639,
+       "rztdcar": 0.206,
+       "srcar": 0.347,
+       "stuff": 0.139,
+       "syconv": 0.139,
+       "yacr": 0.504,
+       "ypc": 0.529
+      },
+      "ryoe": {
+       "brkrate": 0.295,
+       "epacar": 0.633,
+       "epacaradj": 0.627,
+       "ex10": 0.593,
+       "ex20": 0.655,
+       "fdcar": 0.466,
+       "rushy": 0.639,
+       "rztdcar": 0.198,
+       "srcar": 0.41,
+       "stuff": 0.221,
+       "syconv": 0.164,
+       "yacr": 0.662,
+       "ypc": 0.809
+      },
+      "rztdcar": {
+       "brkrate": 0.138,
+       "epacar": 0.36,
+       "epacaradj": 0.347,
+       "ex10": 0.135,
+       "ex20": 0.151,
+       "fdcar": 0.376,
+       "rushy": 0.206,
+       "ryoe": 0.198,
+       "srcar": 0.285,
+       "stuff": 0.202,
+       "syconv": 0.104,
+       "yacr": 0.214,
+       "ypc": 0.183
+      },
+      "srcar": {
+       "brkrate": 0.132,
+       "epacar": 0.739,
+       "epacaradj": 0.726,
+       "ex10": 0.408,
+       "ex20": 0.218,
+       "fdcar": 0.719,
+       "rushy": 0.347,
+       "ryoe": 0.41,
+       "rztdcar": 0.285,
+       "stuff": 0.424,
+       "syconv": 0.254,
+       "yacr": 0.339,
+       "ypc": 0.595
+      },
+      "stuff": {
+       "brkrate": -0.001,
+       "epacar": 0.43,
+       "epacaradj": 0.424,
+       "ex10": 0.018,
+       "ex20": -0.046,
+       "fdcar": 0.334,
+       "rushy": 0.139,
+       "ryoe": 0.221,
+       "rztdcar": 0.202,
+       "srcar": 0.424,
+       "syconv": 0.239,
+       "yacr": 0.201,
+       "ypc": 0.292
+      },
+      "syconv": {
+       "brkrate": 0.028,
+       "epacar": 0.313,
+       "epacaradj": 0.301,
+       "ex10": 0.037,
+       "ex20": 0.039,
+       "fdcar": 0.317,
+       "rushy": 0.139,
+       "ryoe": 0.164,
+       "rztdcar": 0.104,
+       "srcar": 0.254,
+       "stuff": 0.239,
+       "yacr": 0.171,
+       "ypc": 0.125
+      },
+      "yacr": {
+       "brkrate": 0.43,
+       "epacar": 0.493,
+       "epacaradj": 0.491,
+       "ex10": 0.512,
+       "ex20": 0.43,
+       "fdcar": 0.386,
+       "rushy": 0.504,
+       "ryoe": 0.662,
+       "rztdcar": 0.214,
+       "srcar": 0.339,
+       "stuff": 0.201,
+       "syconv": 0.171,
+       "ypc": 0.62
+      },
+      "ypc": {
+       "brkrate": 0.248,
+       "epacar": 0.781,
+       "epacaradj": 0.757,
+       "ex10": 0.796,
+       "ex20": 0.719,
+       "fdcar": 0.605,
+       "rushy": 0.529,
+       "ryoe": 0.809,
+       "rztdcar": 0.183,
+       "srcar": 0.595,
+       "stuff": 0.292,
+       "syconv": 0.125,
+       "yacr": 0.62
+      }
+     },
+     "anchor": "RB.rush",
+     "credit": 0.4645,
+     "key": "rush",
+     "label": "Running",
+     "n": 230,
+     "own": {
+      "brkrate": 0.219,
+      "epacar": 0.127,
+      "epacaradj": 0.131,
+      "ex10": 0.093,
+      "ex20": 0.062,
+      "fdcar": 0.11,
+      "fumrate": 0.282,
+      "ropct": 0.042,
+      "rushy": 0.297,
+      "ryoe": 0.194,
+      "rztdcar": 0.077,
+      "srcar": 0.099,
+      "stuff": 0.157,
+      "syconv": 0.138,
+      "yacr": 0.234,
+      "ypc": 0.12
+     },
+     "pairs": [
+      598,
+      115
+     ],
+     "r_move": 0.1812,
+     "r_stay": 0.4053,
+     "stats": {
+      "brkrate": 0.0468,
+      "epacar": 0.1234,
+      "epacaradj": 0.1246,
+      "ex10": 0.0537,
+      "ex20": 0.0326,
+      "fdcar": 0.0802,
+      "fumrate": 0.0,
+      "ropct": 0.0,
+      "rushy": 0.1467,
+      "ryoe": 0.1185,
+      "rztdcar": 0.0293,
+      "srcar": 0.0741,
+      "stuff": 0.0634,
+      "syconv": 0.0528,
+      "yacr": 0.1149,
+      "ypc": 0.0938
+     },
+     "tells": {
+      "brkrate": 0.213,
+      "epacar": 0.972,
+      "epacaradj": 0.951,
+      "ex10": 0.574,
+      "ex20": 0.524,
+      "fdcar": 0.729,
+      "fumrate": 0.067,
+      "ropct": 0.404,
+      "rushy": 0.495,
+      "ryoe": 0.612,
+      "rztdcar": 0.379,
+      "srcar": 0.746,
+      "stuff": 0.403,
+      "syconv": 0.383,
+      "yacr": 0.491,
+      "ypc": 0.78
+     },
+     "worth": 1.1073
+    },
+    {
+     "R": {
+      "epatgt": {
+       "fdtgt": 0.737,
+       "frshr": 0.049,
+       "recy": 0.387,
+       "srtgt": 0.771,
+       "tgtshr": 0.105,
+       "tpps": 0.139,
+       "xyacoe": 0.677,
+       "ypps": 0.536,
+       "yprec": 0.679,
+       "ypt": 0.807
+      },
+      "fdtgt": {
+       "epatgt": 0.737,
+       "frshr": 0.132,
+       "recy": 0.48,
+       "srtgt": 0.732,
+       "tgtshr": 0.232,
+       "tpps": 0.226,
+       "xyacoe": 0.605,
+       "ypps": 0.559,
+       "yprec": 0.624,
+       "ypt": 0.733
+      },
+      "frshr": {
+       "epatgt": 0.049,
+       "fdtgt": 0.132,
+       "recy": 0.646,
+       "srtgt": 0.089,
+       "tgtshr": 0.738,
+       "tpps": 0.604,
+       "xyacoe": -0.035,
+       "ypps": 0.516,
+       "yprec": 0.066,
+       "ypt": 0.019
+      },
+      "recy": {
+       "epatgt": 0.387,
+       "fdtgt": 0.48,
+       "frshr": 0.646,
+       "srtgt": 0.401,
+       "tgtshr": 0.887,
+       "tpps": 0.749,
+       "xyacoe": 0.391,
+       "ypps": 0.85,
+       "yprec": 0.454,
+       "ypt": 0.498
+      },
+      "srtgt": {
+       "epatgt": 0.771,
+       "fdtgt": 0.732,
+       "frshr": 0.089,
+       "recy": 0.401,
+       "tgtshr": 0.14,
+       "tpps": 0.172,
+       "xyacoe": 0.567,
+       "ypps": 0.522,
+       "yprec": 0.542,
+       "ypt": 0.715
+      },
+      "tgtshr": {
+       "epatgt": 0.105,
+       "fdtgt": 0.232,
+       "frshr": 0.738,
+       "recy": 0.887,
+       "srtgt": 0.14,
+       "tpps": 0.802,
+       "xyacoe": 0.098,
+       "ypps": 0.673,
+       "yprec": 0.15,
+       "ypt": 0.161
+      },
+      "tpps": {
+       "epatgt": 0.139,
+       "fdtgt": 0.226,
+       "frshr": 0.604,
+       "recy": 0.749,
+       "srtgt": 0.172,
+       "tgtshr": 0.802,
+       "xyacoe": 0.105,
+       "ypps": 0.824,
+       "yprec": 0.15,
+       "ypt": 0.17
+      },
+      "xyacoe": {
+       "epatgt": 0.677,
+       "fdtgt": 0.605,
+       "frshr": -0.035,
+       "recy": 0.391,
+       "srtgt": 0.567,
+       "tgtshr": 0.098,
+       "tpps": 0.105,
+       "ypps": 0.548,
+       "yprec": 0.931,
+       "ypt": 0.86
+      },
+      "ypps": {
+       "epatgt": 0.536,
+       "fdtgt": 0.559,
+       "frshr": 0.516,
+       "recy": 0.85,
+       "srtgt": 0.522,
+       "tgtshr": 0.673,
+       "tpps": 0.824,
+       "xyacoe": 0.548,
+       "yprec": 0.617,
+       "ypt": 0.669
+      },
+      "yprec": {
+       "epatgt": 0.679,
+       "fdtgt": 0.624,
+       "frshr": 0.066,
+       "recy": 0.454,
+       "srtgt": 0.542,
+       "tgtshr": 0.15,
+       "tpps": 0.15,
+       "xyacoe": 0.931,
+       "ypps": 0.617,
+       "ypt": 0.903
+      },
+      "ypt": {
+       "epatgt": 0.807,
+       "fdtgt": 0.733,
+       "frshr": 0.019,
+       "recy": 0.498,
+       "srtgt": 0.715,
+       "tgtshr": 0.161,
+       "tpps": 0.17,
+       "xyacoe": 0.86,
+       "ypps": 0.669,
+       "yprec": 0.903
+      }
+     },
+     "anchor": "RB.rec",
+     "credit": 0.7572,
+     "key": "rec",
+     "label": "Receiving",
+     "n": 230,
+     "own": {
+      "brkrec": 0.0,
+      "croe": 0.042,
+      "dropr": 0.0,
+      "epatgt": 0.097,
+      "fdtgt": 0.252,
+      "frshr": 0.446,
+      "recy": 0.504,
+      "srtgt": 0.051,
+      "tgtshr": 0.532,
+      "tpps": 0.343,
+      "xyacoe": 0.218,
+      "yacoe": null,
+      "ypps": 0.267,
+      "yprec": 0.115,
+      "ypt": 0.089
+     },
+     "pairs": [
+      597,
+      114
+     ],
+     "r_move": 0.4853,
+     "r_stay": 0.6387,
+     "stats": {
+      "brkrec": 0.0,
+      "croe": 0.0,
+      "dropr": 0.0,
+      "epatgt": 0.085,
+      "fdtgt": 0.1655,
+      "frshr": 0.0413,
+      "recy": 0.276,
+      "srtgt": 0.034,
+      "tgtshr": 0.1478,
+      "tpps": 0.1046,
+      "xyacoe": 0.1245,
+      "yacoe": 0.0,
+      "ypps": 0.1606,
+      "yprec": 0.0668,
+      "ypt": 0.065
+     },
+     "tells": {
+      "brkrec": 0.093,
+      "croe": 0.418,
+      "dropr": 0.238,
+      "epatgt": 0.877,
+      "fdtgt": 0.656,
+      "frshr": 0.092,
+      "recy": 0.548,
+      "srtgt": 0.671,
+      "tgtshr": 0.278,
+      "tpps": 0.305,
+      "xyacoe": 0.572,
+      "yacoe": null,
+      "ypps": 0.602,
+      "yprec": 0.582,
+      "ypt": 0.73
+     },
+     "worth": 0.7173
+    }
+   ]
+  },
+  "S": {
+   "K": {
+    "ballrate": 95.53,
+    "cmpall": 1081.9,
+    "covpen": 53.85,
+    "covpenyds": 53.85,
+    "ff": 51.48,
+    "int": 21.41,
+    "mtklpct": 3882.19,
+    "pd": 12.38,
+    "pen": 35.9,
+    "ratall": 1081.9,
+    "rstop": 3.3,
+    "rstoprate": 119.09,
+    "rtkdepth": 77.19,
+    "tfl": 16.24,
+    "tflsnap": 1377.2,
+    "tklsnap": 396.04,
+    "tkyac": 371.95,
+    "yacall": 777.86,
+    "yptall": 121.81
+   },
+   "facets": [
+    {
+     "R": {
+      "ratall": {
+       "tkyac": 0.01,
+       "yptall": 0.576
+      },
+      "tkyac": {
+       "ratall": 0.01,
+       "yptall": 0.249
+      },
+      "yptall": {
+       "ratall": 0.576,
+       "tkyac": 0.249
+      }
+     },
+     "anchor": "D.covt",
+     "credit": 0.198,
+     "key": "cov",
+     "label": "Coverage",
+     "n": 477,
+     "own": {
+      "cmpall": 0.0,
+      "ratall": 0.091,
+      "tkyac": 0.089,
+      "yacall": 0.0,
+      "yptall": 0.035
+     },
+     "pairs": [
+      280,
+      91
+     ],
+     "r_move": 0.0379,
+     "r_stay": 0.2676,
+     "stats": {
+      "cmpall": 0.0,
+      "ratall": 0.0527,
+      "tkyac": 0.0201,
+      "yacall": 0.0,
+      "yptall": 0.0347
+     },
+     "tells": {
+      "cmpall": 0.342,
+      "ratall": 0.578,
+      "tkyac": 0.225,
+      "yacall": 0.334,
+      "yptall": 0.992
+     },
+     "worth": 0.7359
+    },
+    {
+     "R": {
+      "ballrate": {
+       "int": 0.767,
+       "pd": 0.688
+      },
+      "int": {
+       "ballrate": 0.767,
+       "pd": 0.6
+      },
+      "pd": {
+       "ballrate": 0.688,
+       "int": 0.6
+      }
+     },
+     "anchor": "D.ball",
+     "credit": 1.0,
+     "key": "ball",
+     "label": "Ball production",
+     "n": 807,
+     "own": {
+      "ballrate": 0.302,
+      "ff": 0.084,
+      "int": 0.28,
+      "pd": 0.314
+     },
+     "pairs": [
+      1360,
+      378
+     ],
+     "r_move": 0.3627,
+     "r_stay": 0.3356,
+     "stats": {
+      "ballrate": 0.2629,
+      "ff": 0.0,
+      "int": 0.2692,
+      "pd": 0.247
+     },
+     "tells": {
+      "ballrate": 0.871,
+      "ff": 0.045,
+      "int": 0.961,
+      "pd": 0.787
+     },
+     "worth": 0.6075
+    },
+    {
+     "R": {
+      "mtklpct": {
+       "rstop": 0.133,
+       "rstoprate": 0.129,
+       "rtkdepth": 0.022,
+       "tfl": 0.058,
+       "tflsnap": 0.054,
+       "tklsnap": 0.213
+      },
+      "rstop": {
+       "mtklpct": 0.133,
+       "rstoprate": 0.853,
+       "rtkdepth": 0.614,
+       "tfl": 0.53,
+       "tflsnap": 0.46,
+       "tklsnap": 0.575
+      },
+      "rstoprate": {
+       "mtklpct": 0.129,
+       "rstop": 0.853,
+       "rtkdepth": 0.727,
+       "tfl": 0.504,
+       "tflsnap": 0.535,
+       "tklsnap": 0.665
+      },
+      "rtkdepth": {
+       "mtklpct": 0.022,
+       "rstop": 0.614,
+       "rstoprate": 0.727,
+       "tfl": 0.442,
+       "tflsnap": 0.47,
+       "tklsnap": 0.402
+      },
+      "tfl": {
+       "mtklpct": 0.058,
+       "rstop": 0.53,
+       "rstoprate": 0.504,
+       "rtkdepth": 0.442,
+       "tflsnap": 0.963,
+       "tklsnap": 0.302
+      },
+      "tflsnap": {
+       "mtklpct": 0.054,
+       "rstop": 0.46,
+       "rstoprate": 0.535,
+       "rtkdepth": 0.47,
+       "tfl": 0.963,
+       "tklsnap": 0.341
+      },
+      "tklsnap": {
+       "mtklpct": 0.213,
+       "rstop": 0.575,
+       "rstoprate": 0.665,
+       "rtkdepth": 0.402,
+       "tfl": 0.302,
+       "tflsnap": 0.341
+      }
+     },
+     "anchor": "D.run",
+     "credit": 0.7391,
+     "key": "run",
+     "label": "Run support and tackling",
+     "n": 807,
+     "own": {
+      "mtklpct": 0.176,
+      "rstop": 0.4,
+      "rstoprate": 0.424,
+      "rtkdepth": 0.348,
+      "tfl": 0.274,
+      "tflsnap": 0.203,
+      "tklsnap": 0.437
+     },
+     "pairs": [
+      1360,
+      378
+     ],
+     "r_move": 0.4407,
+     "r_stay": 0.5948,
+     "stats": {
+      "mtklpct": 0.0258,
+      "rstop": 0.3983,
+      "rstoprate": 0.3766,
+      "rtkdepth": 0.2275,
+      "tfl": 0.1456,
+      "tflsnap": 0.0986,
+      "tklsnap": 0.2796
+     },
+     "tells": {
+      "mtklpct": 0.147,
+      "rstop": 0.996,
+      "rstoprate": 0.888,
+      "rtkdepth": 0.653,
+      "tfl": 0.532,
+      "tflsnap": 0.485,
+      "tklsnap": 0.64
+     },
+     "worth": 0.2924
+    },
+    {
+     "R": {
+      "covpen": {
+       "covpenyds": 0.756,
+       "pen": 0.673
+      },
+      "covpenyds": {
+       "covpen": 0.756,
+       "pen": 0.507
+      },
+      "pen": {
+       "covpen": 0.673,
+       "covpenyds": 0.507
+      }
+     },
+     "anchor": "D.covflags",
+     "credit": 0.8341,
+     "key": "flags",
+     "label": "Staying clean",
+     "n": 807,
+     "own": {
+      "covpen": 0.14,
+      "covpenyds": 0.064,
+      "pen": 0.161
+     },
+     "pairs": [
+      1360,
+      378
+     ],
+     "r_move": 0.1291,
+     "r_stay": 0.1499,
+     "stats": {
+      "covpen": 0.1044,
+      "covpenyds": 0.062,
+      "pen": 0.0805
+     },
+     "tells": {
+      "covpen": 0.746,
+      "covpenyds": 0.967,
+      "pen": 0.501
+     },
+     "worth": 0.1285
+    }
+   ]
+  },
+  "TE": {
+   "K": {
+    "ayshr": 2.14,
+    "brkrec": 50.77,
+    "catch": 176.59,
+    "contestw": 254.51,
+    "created": 1715.82,
+    "croe": 287.08,
+    "ctchhand": 1712.7,
+    "dpiyds": 27.77,
+    "dropr": 289.03,
+    "epatgt": 321.49,
+    "ex20rec": 160.86,
+    "fdshr": 3.45,
+    "fdtgt": 148.62,
+    "frshr": 1.59,
+    "rattgt": 306.48,
+    "recy": 2.57,
+    "sep": 44.59,
+    "srtgt": 204.57,
+    "td3cv": 102.69,
+    "tdshr": 13.79,
+    "tgtshr": 1.71,
+    "tpps": 117.97,
+    "tprs": 150.06,
+    "xyacoe": 85.23,
+    "yacoe": 66.89,
+    "ydshr": 2.93,
+    "yprec": 50.36,
+    "ypt": 158.56
+   },
+   "facets": [
+    {
+     "R": {
+      "ayshr": {
+       "frshr": 0.93,
+       "tgtshr": 0.904,
+       "tpps": 0.788,
+       "tprs": 0.802
+      },
+      "frshr": {
+       "ayshr": 0.93,
+       "tgtshr": 0.968,
+       "tpps": 0.849,
+       "tprs": 0.848
+      },
+      "tgtshr": {
+       "ayshr": 0.904,
+       "frshr": 0.968,
+       "tpps": 0.85,
+       "tprs": 0.835
+      },
+      "tpps": {
+       "ayshr": 0.788,
+       "frshr": 0.849,
+       "tgtshr": 0.85,
+       "tprs": 0.914
+      },
+      "tprs": {
+       "ayshr": 0.802,
+       "frshr": 0.848,
+       "tgtshr": 0.835,
+       "tpps": 0.914
+      }
+     },
+     "anchor": "REC.earn",
+     "credit": 0.8444,
+     "key": "earn",
+     "label": "Earning targets",
+     "n": 373,
+     "own": {
+      "ayshr": 0.572,
+      "frshr": 0.572,
+      "sep": 0.348,
+      "tgtshr": 0.498,
+      "tpps": 0.457,
+      "tprs": 0.519
+     },
+     "pairs": [
+      305,
+      73
+     ],
+     "r_move": 0.5996,
+     "r_stay": 0.705,
+     "stats": {
+      "ayshr": 0.496,
+      "frshr": 0.5281,
+      "sep": 0.0,
+      "tgtshr": 0.4738,
+      "tpps": 0.4028,
+      "tprs": 0.4674
+     },
+     "tells": {
+      "ayshr": 0.867,
+      "frshr": 0.923,
+      "sep": 0.0,
+      "tgtshr": 0.951,
+      "tpps": 0.881,
+      "tprs": 0.9
+     },
+     "worth": 0.3305
+    },
+    {
+     "R": {
+      "brkrec": {
+       "catch": 0.049,
+       "created": -0.011,
+       "croe": -0.044,
+       "epatgt": 0.102,
+       "ex20rec": 0.1,
+       "fdtgt": 0.041,
+       "srtgt": 0.039,
+       "td3cv": -0.035,
+       "xyacoe": 0.438,
+       "yacoe": 0.555,
+       "yprec": 0.14,
+       "ypt": 0.161
+      },
+      "catch": {
+       "brkrec": 0.049,
+       "created": -0.076,
+       "croe": 0.883,
+       "epatgt": 0.497,
+       "ex20rec": 0.115,
+       "fdtgt": 0.439,
+       "srtgt": 0.643,
+       "td3cv": 0.313,
+       "xyacoe": 0.062,
+       "yacoe": -0.039,
+       "yprec": -0.158,
+       "ypt": 0.426
+      },
+      "created": {
+       "brkrec": -0.011,
+       "catch": -0.076,
+       "croe": 0.091,
+       "epatgt": 0.243,
+       "ex20rec": 0.066,
+       "fdtgt": 0.254,
+       "srtgt": 0.17,
+       "td3cv": 0.102,
+       "xyacoe": -0.043,
+       "yacoe": 0.047,
+       "yprec": 0.322,
+       "ypt": 0.231
+      },
+      "croe": {
+       "brkrec": -0.044,
+       "catch": 0.883,
+       "created": 0.091,
+       "epatgt": 0.632,
+       "ex20rec": 0.284,
+       "fdtgt": 0.584,
+       "srtgt": 0.693,
+       "td3cv": 0.353,
+       "xyacoe": 0.042,
+       "yacoe": -0.062,
+       "yprec": 0.082,
+       "ypt": 0.58
+      },
+      "epatgt": {
+       "brkrec": 0.102,
+       "catch": 0.497,
+       "created": 0.243,
+       "croe": 0.632,
+       "ex20rec": 0.516,
+       "fdtgt": 0.784,
+       "srtgt": 0.758,
+       "td3cv": 0.56,
+       "xyacoe": 0.425,
+       "yacoe": 0.244,
+       "yprec": 0.513,
+       "ypt": 0.763
+      },
+      "ex20rec": {
+       "brkrec": 0.1,
+       "catch": 0.115,
+       "created": 0.066,
+       "croe": 0.284,
+       "epatgt": 0.516,
+       "fdtgt": 0.449,
+       "srtgt": 0.297,
+       "td3cv": 0.121,
+       "xyacoe": 0.551,
+       "yacoe": 0.437,
+       "yprec": 0.799,
+       "ypt": 0.802
+      },
+      "fdtgt": {
+       "brkrec": 0.041,
+       "catch": 0.439,
+       "created": 0.254,
+       "croe": 0.584,
+       "epatgt": 0.784,
+       "ex20rec": 0.449,
+       "srtgt": 0.751,
+       "td3cv": 0.557,
+       "xyacoe": 0.378,
+       "yacoe": 0.169,
+       "yprec": 0.509,
+       "ypt": 0.721
+      },
+      "srtgt": {
+       "brkrec": 0.039,
+       "catch": 0.643,
+       "created": 0.17,
+       "croe": 0.693,
+       "epatgt": 0.758,
+       "ex20rec": 0.297,
+       "fdtgt": 0.751,
+       "td3cv": 0.505,
+       "xyacoe": 0.264,
+       "yacoe": 0.017,
+       "yprec": 0.294,
+       "ypt": 0.644
+      },
+      "td3cv": {
+       "brkrec": -0.035,
+       "catch": 0.313,
+       "created": 0.102,
+       "croe": 0.353,
+       "epatgt": 0.56,
+       "ex20rec": 0.121,
+       "fdtgt": 0.557,
+       "srtgt": 0.505,
+       "xyacoe": 0.145,
+       "yacoe": 0.019,
+       "yprec": 0.137,
+       "ypt": 0.319
+      },
+      "xyacoe": {
+       "brkrec": 0.438,
+       "catch": 0.062,
+       "created": -0.043,
+       "croe": 0.042,
+       "epatgt": 0.425,
+       "ex20rec": 0.551,
+       "fdtgt": 0.378,
+       "srtgt": 0.264,
+       "td3cv": 0.145,
+       "yacoe": 0.757,
+       "yprec": 0.636,
+       "ypt": 0.616
+      },
+      "yacoe": {
+       "brkrec": 0.555,
+       "catch": -0.039,
+       "created": 0.047,
+       "croe": -0.062,
+       "epatgt": 0.244,
+       "ex20rec": 0.437,
+       "fdtgt": 0.169,
+       "srtgt": 0.017,
+       "td3cv": 0.019,
+       "xyacoe": 0.757,
+       "yprec": 0.512,
+       "ypt": 0.461
+      },
+      "yprec": {
+       "brkrec": 0.14,
+       "catch": -0.158,
+       "created": 0.322,
+       "croe": 0.082,
+       "epatgt": 0.513,
+       "ex20rec": 0.799,
+       "fdtgt": 0.509,
+       "srtgt": 0.294,
+       "td3cv": 0.137,
+       "xyacoe": 0.636,
+       "yacoe": 0.512,
+       "ypt": 0.813
+      },
+      "ypt": {
+       "brkrec": 0.161,
+       "catch": 0.426,
+       "created": 0.231,
+       "croe": 0.58,
+       "epatgt": 0.763,
+       "ex20rec": 0.802,
+       "fdtgt": 0.721,
+       "srtgt": 0.644,
+       "td3cv": 0.319,
+       "xyacoe": 0.616,
+       "yacoe": 0.461,
+       "yprec": 0.813
+      }
+     },
+     "anchor": "REC.eff",
+     "credit": 0.4216,
+     "key": "eff",
+     "label": "What he does with a target",
+     "n": 373,
+     "own": {
+      "brkrec": 0.378,
+      "catch": 0.326,
+      "contestw": null,
+      "created": 0.203,
+      "croe": 0.2,
+      "ctchhand": 0.065,
+      "dpiyds": 0.1,
+      "dropr": 0.05,
+      "epatgt": 0.115,
+      "ex20rec": 0.232,
+      "fdtgt": 0.18,
+      "rattgt": 0.023,
+      "srtgt": 0.183,
+      "td3cv": 0.234,
+      "xyacoe": 0.254,
+      "yacoe": 0.428,
+      "yprec": 0.159,
+      "ypt": 0.179
+     },
+     "pairs": [
+      305,
+      73
+     ],
+     "r_move": 0.1939,
+     "r_stay": 0.4798,
+     "stats": {
+      "brkrec": 0.0331,
+      "catch": 0.1494,
+      "contestw": 0.0,
+      "created": 0.0474,
+      "croe": 0.1258,
+      "ctchhand": 0.0,
+      "dpiyds": 0.0,
+      "dropr": 0.0,
+      "epatgt": 0.1132,
+      "ex20rec": 0.1283,
+      "fdtgt": 0.1464,
+      "rattgt": 0.0,
+      "srtgt": 0.1379,
+      "td3cv": 0.1543,
+      "xyacoe": 0.1173,
+      "yacoe": 0.1111,
+      "yprec": 0.0824,
+      "ypt": 0.1393
+     },
+     "tells": {
+      "brkrec": 0.088,
+      "catch": 0.459,
+      "contestw": null,
+      "created": 0.233,
+      "croe": 0.63,
+      "ctchhand": 0.156,
+      "dpiyds": 0.111,
+      "dropr": 0.243,
+      "epatgt": 0.986,
+      "ex20rec": 0.552,
+      "fdtgt": 0.814,
+      "rattgt": 0.849,
+      "srtgt": 0.754,
+      "td3cv": 0.66,
+      "xyacoe": 0.462,
+      "yacoe": 0.26,
+      "yprec": 0.519,
+      "ypt": 0.777
+     },
+     "worth": 1.0698
+    },
+    {
+     "R": {
+      "fdshr": {
+       "recy": 0.934,
+       "tdshr": 0.636,
+       "ydshr": 0.965
+      },
+      "recy": {
+       "fdshr": 0.934,
+       "tdshr": 0.579,
+       "ydshr": 0.956
+      },
+      "tdshr": {
+       "fdshr": 0.636,
+       "recy": 0.579,
+       "ydshr": 0.604
+      },
+      "ydshr": {
+       "fdshr": 0.965,
+       "recy": 0.956,
+       "tdshr": 0.604
+      }
+     },
+     "anchor": "REC.prod",
+     "credit": 1.0,
+     "key": "prod",
+     "label": "Receiving production",
+     "n": 655,
+     "own": {
+      "fdshr": 0.402,
+      "recy": 0.622,
+      "tdshr": 0.056,
+      "ydshr": 0.506
+     },
+     "pairs": [
+      620,
+      119
+     ],
+     "r_move": 0.5876,
+     "r_stay": 0.696,
+     "replaces": [
+      "earn",
+      "eff"
+     ],
+     "stats": {
+      "fdshr": 0.3708,
+      "recy": 0.618,
+      "tdshr": 0.0309,
+      "ydshr": 0.4774
+     },
+     "tells": {
+      "fdshr": 0.922,
+      "recy": 0.993,
+      "tdshr": 0.552,
+      "ydshr": 0.944
+     },
+     "worth": 0.3097
+    }
+   ]
+  },
+  "WR": {
+   "K": {
+    "ayshr": 2.01,
+    "brkrec": 96.37,
+    "catch": 84.34,
+    "contestw": 1316.57,
+    "created": 230.11,
+    "croe": 170.62,
+    "ctchhand": 1255.73,
+    "dpiyds": 19.27,
+    "dropr": 731.41,
+    "epatgt": 295.25,
+    "ex20rec": 189.44,
+    "fdshr": 3.31,
+    "fdtgt": 185.52,
+    "frshr": 1.49,
+    "rattgt": 197.08,
+    "recy": 3.09,
+    "sep": 40.96,
+    "srtgt": 169.45,
+    "td3cv": 218.99,
+    "tdshr": 9.86,
+    "tgtshr": 1.65,
+    "tpps": 103.66,
+    "tprs": 192.48,
+    "xyacoe": 89.83,
+    "yacoe": 74.02,
+    "ydshr": 3.09,
+    "yprec": 46.64,
+    "ypt": 149.65
+   },
+   "facets": [
+    {
+     "R": {
+      "ayshr": {
+       "frshr": 0.896,
+       "tgtshr": 0.815,
+       "tpps": 0.661,
+       "tprs": 0.603
+      },
+      "frshr": {
+       "ayshr": 0.896,
+       "tgtshr": 0.948,
+       "tpps": 0.836,
+       "tprs": 0.776
+      },
+      "tgtshr": {
+       "ayshr": 0.815,
+       "frshr": 0.948,
+       "tpps": 0.883,
+       "tprs": 0.819
+      },
+      "tpps": {
+       "ayshr": 0.661,
+       "frshr": 0.836,
+       "tgtshr": 0.883,
+       "tprs": 0.947
+      },
+      "tprs": {
+       "ayshr": 0.603,
+       "frshr": 0.776,
+       "tgtshr": 0.819,
+       "tpps": 0.947
+      }
+     },
+     "anchor": "REC.earn",
+     "credit": 0.8577,
+     "key": "earn",
+     "label": "Earning targets",
+     "n": 896,
+     "own": {
+      "ayshr": 0.579,
+      "frshr": 0.612,
+      "sep": 0.45,
+      "tgtshr": 0.565,
+      "tpps": 0.537,
+      "tprs": 0.487
+     },
+     "pairs": [
+      657,
+      172
+     ],
+     "r_move": 0.6133,
+     "r_stay": 0.7095,
+     "stats": {
+      "ayshr": 0.4268,
+      "frshr": 0.5384,
+      "sep": 0.0,
+      "tgtshr": 0.5307,
+      "tpps": 0.4785,
+      "tprs": 0.4334
+     },
+     "tells": {
+      "ayshr": 0.737,
+      "frshr": 0.88,
+      "sep": 0.0,
+      "tgtshr": 0.939,
+      "tpps": 0.892,
+      "tprs": 0.89
+     },
+     "worth": 0.4294
+    },
+    {
+     "R": {
+      "catch": {
+       "contestw": 0.24,
+       "created": -0.058,
+       "croe": 0.832,
+       "dpiyds": -0.09,
+       "epatgt": 0.552,
+       "ex20rec": 0.081,
+       "fdtgt": 0.494,
+       "rattgt": 0.658,
+       "srtgt": 0.73,
+       "td3cv": 0.496,
+       "xyacoe": 0.177,
+       "yacoe": 0.07,
+       "yprec": -0.31,
+       "ypt": 0.372
+      },
+      "contestw": {
+       "catch": 0.24,
+       "created": 0.198,
+       "croe": 0.281,
+       "dpiyds": 0.001,
+       "epatgt": 0.24,
+       "ex20rec": 0.089,
+       "fdtgt": 0.249,
+       "rattgt": 0.187,
+       "srtgt": 0.258,
+       "td3cv": 0.205,
+       "xyacoe": -0.051,
+       "yacoe": 0.068,
+       "yprec": 0.011,
+       "ypt": 0.168
+      },
+      "created": {
+       "catch": -0.058,
+       "contestw": 0.198,
+       "croe": 0.198,
+       "dpiyds": 0.09,
+       "epatgt": 0.214,
+       "ex20rec": 0.273,
+       "fdtgt": 0.227,
+       "rattgt": 0.126,
+       "srtgt": 0.14,
+       "td3cv": 0.052,
+       "xyacoe": -0.118,
+       "yacoe": 0.026,
+       "yprec": 0.328,
+       "ypt": 0.276
+      },
+      "croe": {
+       "catch": 0.832,
+       "contestw": 0.281,
+       "created": 0.198,
+       "dpiyds": 0.07,
+       "epatgt": 0.743,
+       "ex20rec": 0.37,
+       "fdtgt": 0.679,
+       "rattgt": 0.755,
+       "srtgt": 0.807,
+       "td3cv": 0.568,
+       "xyacoe": 0.102,
+       "yacoe": 0.072,
+       "yprec": 0.077,
+       "ypt": 0.641
+      },
+      "dpiyds": {
+       "catch": -0.09,
+       "contestw": 0.001,
+       "created": 0.09,
+       "croe": 0.07,
+       "epatgt": 0.129,
+       "ex20rec": 0.163,
+       "fdtgt": 0.101,
+       "rattgt": 0.099,
+       "srtgt": 0.049,
+       "td3cv": 0.072,
+       "xyacoe": -0.027,
+       "yacoe": 0.008,
+       "yprec": 0.216,
+       "ypt": 0.159
+      },
+      "epatgt": {
+       "catch": 0.552,
+       "contestw": 0.24,
+       "created": 0.214,
+       "croe": 0.743,
+       "dpiyds": 0.129,
+       "ex20rec": 0.565,
+       "fdtgt": 0.79,
+       "rattgt": 0.868,
+       "srtgt": 0.775,
+       "td3cv": 0.671,
+       "xyacoe": 0.376,
+       "yacoe": 0.297,
+       "yprec": 0.424,
+       "ypt": 0.8
+      },
+      "ex20rec": {
+       "catch": 0.081,
+       "contestw": 0.089,
+       "created": 0.273,
+       "croe": 0.37,
+       "dpiyds": 0.163,
+       "epatgt": 0.565,
+       "fdtgt": 0.485,
+       "rattgt": 0.466,
+       "srtgt": 0.304,
+       "td3cv": 0.252,
+       "xyacoe": 0.365,
+       "yacoe": 0.329,
+       "yprec": 0.76,
+       "ypt": 0.805
+      },
+      "fdtgt": {
+       "catch": 0.494,
+       "contestw": 0.249,
+       "created": 0.227,
+       "croe": 0.679,
+       "dpiyds": 0.101,
+       "epatgt": 0.79,
+       "ex20rec": 0.485,
+       "rattgt": 0.668,
+       "srtgt": 0.81,
+       "td3cv": 0.66,
+       "xyacoe": 0.293,
+       "yacoe": 0.216,
+       "yprec": 0.374,
+       "ypt": 0.714
+      },
+      "rattgt": {
+       "catch": 0.658,
+       "contestw": 0.187,
+       "created": 0.126,
+       "croe": 0.755,
+       "dpiyds": 0.099,
+       "epatgt": 0.868,
+       "ex20rec": 0.466,
+       "fdtgt": 0.668,
+       "srtgt": 0.702,
+       "td3cv": 0.517,
+       "xyacoe": 0.367,
+       "yacoe": 0.262,
+       "yprec": 0.239,
+       "ypt": 0.688
+      },
+      "srtgt": {
+       "catch": 0.73,
+       "contestw": 0.258,
+       "created": 0.14,
+       "croe": 0.807,
+       "dpiyds": 0.049,
+       "epatgt": 0.775,
+       "ex20rec": 0.304,
+       "fdtgt": 0.81,
+       "rattgt": 0.702,
+       "td3cv": 0.641,
+       "xyacoe": 0.243,
+       "yacoe": 0.141,
+       "yprec": 0.119,
+       "ypt": 0.62
+      },
+      "td3cv": {
+       "catch": 0.496,
+       "contestw": 0.205,
+       "created": 0.052,
+       "croe": 0.568,
+       "dpiyds": 0.072,
+       "epatgt": 0.671,
+       "ex20rec": 0.252,
+       "fdtgt": 0.66,
+       "rattgt": 0.517,
+       "srtgt": 0.641,
+       "xyacoe": 0.166,
+       "yacoe": 0.072,
+       "yprec": 0.097,
+       "ypt": 0.438
+      },
+      "xyacoe": {
+       "catch": 0.177,
+       "contestw": -0.051,
+       "created": -0.118,
+       "croe": 0.102,
+       "dpiyds": -0.027,
+       "epatgt": 0.376,
+       "ex20rec": 0.365,
+       "fdtgt": 0.293,
+       "rattgt": 0.367,
+       "srtgt": 0.243,
+       "td3cv": 0.166,
+       "yacoe": 0.746,
+       "yprec": 0.367,
+       "ypt": 0.479
+      },
+      "yacoe": {
+       "catch": 0.07,
+       "contestw": 0.068,
+       "created": 0.026,
+       "croe": 0.072,
+       "dpiyds": 0.008,
+       "epatgt": 0.297,
+       "ex20rec": 0.329,
+       "fdtgt": 0.216,
+       "rattgt": 0.262,
+       "srtgt": 0.141,
+       "td3cv": 0.072,
+       "xyacoe": 0.746,
+       "yprec": 0.398,
+       "ypt": 0.43
+      },
+      "yprec": {
+       "catch": -0.31,
+       "contestw": 0.011,
+       "created": 0.328,
+       "croe": 0.077,
+       "dpiyds": 0.216,
+       "epatgt": 0.424,
+       "ex20rec": 0.76,
+       "fdtgt": 0.374,
+       "rattgt": 0.239,
+       "srtgt": 0.119,
+       "td3cv": 0.097,
+       "xyacoe": 0.367,
+       "yacoe": 0.398,
+       "ypt": 0.753
+      },
+      "ypt": {
+       "catch": 0.372,
+       "contestw": 0.168,
+       "created": 0.276,
+       "croe": 0.641,
+       "dpiyds": 0.159,
+       "epatgt": 0.8,
+       "ex20rec": 0.805,
+       "fdtgt": 0.714,
+       "rattgt": 0.688,
+       "srtgt": 0.62,
+       "td3cv": 0.438,
+       "xyacoe": 0.479,
+       "yacoe": 0.43,
+       "yprec": 0.753
+      }
+     },
+     "anchor": "REC.eff",
+     "credit": 0.5876,
+     "key": "eff",
+     "label": "What he does with a target",
+     "n": 896,
+     "own": {
+      "brkrec": 0.202,
+      "catch": 0.246,
+      "contestw": 0.262,
+      "created": 0.348,
+      "croe": 0.169,
+      "ctchhand": 0.095,
+      "dpiyds": 0.223,
+      "dropr": 0.0,
+      "epatgt": 0.184,
+      "ex20rec": 0.233,
+      "fdtgt": 0.151,
+      "rattgt": 0.091,
+      "srtgt": 0.116,
+      "td3cv": 0.033,
+      "xyacoe": 0.236,
+      "yacoe": 0.289,
+      "yprec": 0.332,
+      "ypt": 0.236
+     },
+     "pairs": [
+      657,
+      172
+     ],
+     "r_move": 0.1574,
+     "r_stay": 0.2736,
+     "stats": {
+      "brkrec": 0.0,
+      "catch": 0.1317,
+      "contestw": 0.0515,
+      "created": 0.0529,
+      "croe": 0.1239,
+      "ctchhand": 0.0,
+      "dpiyds": 0.0255,
+      "dropr": 0.0,
+      "epatgt": 0.1833,
+      "ex20rec": 0.1338,
+      "fdtgt": 0.1183,
+      "rattgt": 0.0789,
+      "srtgt": 0.0885,
+      "td3cv": 0.0219,
+      "xyacoe": 0.0867,
+      "yacoe": 0.0847,
+      "yprec": 0.1495,
+      "ypt": 0.1843
+     },
+     "tells": {
+      "brkrec": 0.071,
+      "catch": 0.535,
+      "contestw": 0.197,
+      "created": 0.152,
+      "croe": 0.735,
+      "ctchhand": 0.192,
+      "dpiyds": 0.115,
+      "dropr": 0.073,
+      "epatgt": 0.995,
+      "ex20rec": 0.574,
+      "fdtgt": 0.784,
+      "rattgt": 0.865,
+      "srtgt": 0.761,
+      "td3cv": 0.66,
+      "xyacoe": 0.368,
+      "yacoe": 0.294,
+      "yprec": 0.45,
+      "ypt": 0.781
+     },
+     "worth": 1.3682
+    },
+    {
+     "R": {
+      "fdshr": {
+       "recy": 0.898,
+       "tdshr": 0.667,
+       "ydshr": 0.957
+      },
+      "recy": {
+       "fdshr": 0.898,
+       "tdshr": 0.623,
+       "ydshr": 0.945
+      },
+      "tdshr": {
+       "fdshr": 0.667,
+       "recy": 0.623,
+       "ydshr": 0.666
+      },
+      "ydshr": {
+       "fdshr": 0.957,
+       "recy": 0.945,
+       "tdshr": 0.666
+      }
+     },
+     "anchor": "REC.prod",
+     "credit": 1.0,
+     "key": "prod",
+     "label": "Receiving production",
+     "n": 1382,
+     "own": {
+      "fdshr": 0.473,
+      "recy": 0.514,
+      "tdshr": 0.282,
+      "ydshr": 0.481
+     },
+     "pairs": [
+      1400,
+      323
+     ],
+     "r_move": 0.5295,
+     "r_stay": 0.647,
+     "replaces": [
+      "earn",
+      "eff"
+     ],
+     "stats": {
+      "fdshr": 0.4182,
+      "recy": 0.5123,
+      "tdshr": 0.1704,
+      "ydshr": 0.4501
+     },
+     "tells": {
+      "fdshr": 0.883,
+      "recy": 0.996,
+      "tdshr": 0.605,
+      "ydshr": 0.936
+     },
+     "worth": 0.5197
+    }
+   ]
+  }
+ },
+ "share": {
+  "CB": 0.777,
+  "DI": 0.518,
+  "ED": 0.59,
+  "LB": 0.765,
+  "OC": 0.965,
+  "OG": 0.933,
+  "OL": 0.943,
+  "OT": 0.941,
+  "QB": 0.961,
+  "RB": 0.464,
+  "S": 0.882,
+  "TE": 0.644,
+  "WR": 0.736
+ },
+ "split_half": {
+  "CB": {
+   "ballrate": [
+    0.095,
+    32.1,
+    840
+   ],
+   "cmpall": [
+    0.211,
+    32.1,
+    840
+   ],
+   "ctgtcov": [
+    0.214,
+    194.3,
+    880
+   ],
+   "int": [
+    0.218,
+    6.7,
+    3317
+   ],
+   "mtklpct": [
+    0.112,
+    322.1,
+    878
+   ],
+   "pd": [
+    0.432,
+    6.7,
+    3317
+   ],
+   "pen": [
+    0.216,
+    6.7,
+    3319
+   ],
+   "ratall": [
+    0.132,
+    32.1,
+    840
+   ],
+   "rstop": [
+    0.479,
+    6.7,
+    3319
+   ],
+   "rstoprate": [
+    0.373,
+    115.2,
+    1110
+   ],
+   "yacall": [
+    0.107,
+    31.7,
+    825
+   ],
+   "ycovsnap": [
+    0.157,
+    194.3,
+    880
+   ],
+   "ycs": [
+    0.162,
+    32.1,
+    840
+   ],
+   "yptall": [
+    0.101,
+    32.1,
+    840
+   ]
+  },
+  "DI": {
+   "ff": [
+    0.077,
+    7.0,
+    3006
+   ],
+   "havoc": [
+    0.286,
+    262.9,
+    1493
+   ],
+   "hits": [
+    0.608,
+    7.0,
+    2694
+   ],
+   "hrry": [
+    0.402,
+    7.5,
+    871
+   ],
+   "mtklpct": [
+    0.088,
+    186.6,
+    639
+   ],
+   "pen": [
+    0.275,
+    7.0,
+    3006
+   ],
+   "prod": [
+    0.244,
+    190.1,
+    662
+   ],
+   "prss": [
+    0.683,
+    7.5,
+    871
+   ],
+   "prsshr": [
+    0.656,
+    6.4,
+    856
+   ],
+   "prsspass": [
+    0.405,
+    141.6,
+    874
+   ],
+   "prsssnap": [
+    0.235,
+    190.1,
+    662
+   ],
+   "qbkd": [
+    0.504,
+    7.5,
+    871
+   ],
+   "rstop": [
+    0.553,
+    7.0,
+    3006
+   ],
+   "rstoprate": [
+    0.341,
+    103.4,
+    1123
+   ],
+   "sk": [
+    0.394,
+    7.0,
+    3006
+   ],
+   "skpass": [
+    0.214,
+    142.2,
+    1105
+   ],
+   "sksnap": [
+    0.234,
+    244.3,
+    1409
+   ],
+   "tfl": [
+    0.413,
+    7.2,
+    1980
+   ],
+   "tflsnap": [
+    0.144,
+    239.6,
+    1458
+   ],
+   "tklsnap": [
+    0.402,
+    237.6,
+    1477
+   ]
+  },
+  "ED": {
+   "ff": [
+    0.217,
+    7.0,
+    2795
+   ],
+   "havoc": [
+    0.212,
+    288.9,
+    1352
+   ],
+   "hits": [
+    0.548,
+    7.0,
+    2498
+   ],
+   "hrry": [
+    0.441,
+    7.4,
+    800
+   ],
+   "mtklpct": [
+    0.031,
+    243.0,
+    757
+   ],
+   "pen": [
+    0.23,
+    7.0,
+    2795
+   ],
+   "prod": [
+    0.332,
+    251.8,
+    769
+   ],
+   "prss": [
+    0.652,
+    7.4,
+    800
+   ],
+   "prsshr": [
+    0.675,
+    6.4,
+    782
+   ],
+   "prsspass": [
+    0.332,
+    168.2,
+    800
+   ],
+   "prsssnap": [
+    0.348,
+    251.8,
+    769
+   ],
+   "qbkd": [
+    0.44,
+    7.4,
+    800
+   ],
+   "rstop": [
+    0.58,
+    7.0,
+    2795
+   ],
+   "rstoprate": [
+    0.232,
+    98.8,
+    1014
+   ],
+   "sk": [
+    0.428,
+    7.0,
+    2795
+   ],
+   "skpass": [
+    0.15,
+    168.8,
+    1020
+   ],
+   "sksnap": [
+    0.182,
+    274.2,
+    1301
+   ],
+   "tfl": [
+    0.385,
+    7.2,
+    1839
+   ],
+   "tflsnap": [
+    0.126,
+    270.3,
+    1331
+   ],
+   "tklsnap": [
+    0.446,
+    268.8,
+    1342
+   ]
+  },
+  "K": {
+   "fgoe": [
+    0.07,
+    14.5,
+    834
+   ],
+   "patpct": [
+    0.02,
+    6.0,
+    818
+   ]
+  },
+  "LB": {
+   "ballrate": [
+    0.036,
+    24.9,
+    500
+   ],
+   "cmpall": [
+    0.102,
+    24.9,
+    500
+   ],
+   "ff": [
+    0.102,
+    6.8,
+    3434
+   ],
+   "havoc": [
+    0.145,
+    341.0,
+    1121
+   ],
+   "hits": [
+    0.463,
+    6.8,
+    2905
+   ],
+   "hrry": [
+    0.32,
+    7.3,
+    637
+   ],
+   "int": [
+    0.186,
+    6.8,
+    3434
+   ],
+   "mtklpct": [
+    0.059,
+    333.9,
+    636
+   ],
+   "pd": [
+    0.398,
+    6.8,
+    3434
+   ],
+   "pen": [
+    0.095,
+    6.8,
+    3434
+   ],
+   "prss": [
+    0.458,
+    7.3,
+    637
+   ],
+   "prsspass": [
+    0.345,
+    190.4,
+    636
+   ],
+   "qbkd": [
+    0.226,
+    7.3,
+    637
+   ],
+   "ratall": [
+    0.046,
+    24.9,
+    500
+   ],
+   "rstop": [
+    0.772,
+    6.8,
+    3434
+   ],
+   "rstoprate": [
+    0.28,
+    130.2,
+    823
+   ],
+   "sk": [
+    0.393,
+    6.8,
+    3434
+   ],
+   "skpass": [
+    0.099,
+    191.7,
+    817
+   ],
+   "tfl": [
+    0.406,
+    7.0,
+    1955
+   ],
+   "tflsnap": [
+    0.153,
+    337.9,
+    1120
+   ],
+   "tklsnap": [
+    0.442,
+    337.7,
+    1121
+   ],
+   "yacall": [
+    0.067,
+    24.8,
+    484
+   ],
+   "yptall": [
+    0.145,
+    24.9,
+    500
+   ]
+  },
+  "OL": {
+   "epadbon": [
+    0.412,
+    227.8,
+    1866
+   ],
+   "fsg": [
+    0.1,
+    6.9,
+    2656
+   ],
+   "gapsr": [
+    0.081,
+    35.0,
+    1842
+   ],
+   "gapstuff": [
+    0.065,
+    35.0,
+    1842
+   ],
+   "gapypc": [
+    0.067,
+    35.0,
+    1842
+   ],
+   "hitallow": [
+    0.504,
+    229.0,
+    1851
+   ],
+   "holdg": [
+    0.123,
+    6.9,
+    2656
+   ],
+   "prsallowc": [
+    0.389,
+    228.0,
+    1458
+   ],
+   "sackallow": [
+    0.389,
+    230.7,
+    1830
+   ],
+   "srdbon": [
+    0.425,
+    227.8,
+    1866
+   ],
+   "srrunon": [
+    0.249,
+    145.0,
+    1845
+   ],
+   "stuffon": [
+    0.152,
+    145.0,
+    1845
+   ],
+   "ypcon": [
+    0.264,
+    145.0,
+    1845
+   ]
+  },
+  "P": {
+   "pepa": [
+    0.233,
+    35.0,
+    854
+   ],
+   "pin20": [
+    0.171,
+    35.0,
+    854
+   ],
+   "pnet": [
+    0.275,
+    35.0,
+    854
+   ],
+   "pretr": [
+    0.21,
+    35.0,
+    854
+   ],
+   "pretyds": [
+    0.227,
+    35.0,
+    854
+   ],
+   "ptb": [
+    0.052,
+    35.0,
+    854
+   ]
+  },
+  "QB": {
+   "anya": [
+    0.415,
+    202.3,
+    1014
+   ],
+   "badthrow": [
+    0.29,
+    211.6,
+    268
+   ],
+   "catchable": [
+    0.322,
+    200.8,
+    120
+   ],
+   "cmppct": [
+    0.446,
+    202.3,
+    1014
+   ],
+   "cpoe": [
+    0.415,
+    207.8,
+    734
+   ],
+   "desepa": [
+    0.214,
+    6.4,
+    1014
+   ],
+   "epadb": [
+    0.487,
+    221.9,
+    1014
+   ],
+   "epadbng": [
+    0.406,
+    170.9,
+    1011
+   ],
+   "faultsack": [
+    0.124,
+    201.3,
+    117
+   ],
+   "fddb": [
+    0.531,
+    221.9,
+    1014
+   ],
+   "intpct": [
+    0.114,
+    212.8,
+    932
+   ],
+   "iwrate": [
+    0.055,
+    200.8,
+    120
+   ],
+   "ngscpoe": [
+    0.32,
+    213.0,
+    339
+   ],
+   "p2s": [
+    0.216,
+    53.3,
+    260
+   ],
+   "ppd": [
+    0.526,
+    64.2,
+    1014
+   ],
+   "qbr": [
+    0.45,
+    226.6,
+    721
+   ],
+   "rztd": [
+    0.021,
+    210.8,
+    1013
+   ],
+   "sackpct": [
+    0.466,
+    221.9,
+    1014
+   ],
+   "srdb": [
+    0.494,
+    221.9,
+    1014
+   ],
+   "td3conv": [
+    0.289,
+    221.9,
+    1014
+   ],
+   "tddrv": [
+    0.481,
+    64.2,
+    1014
+   ],
+   "to3": [
+    0.257,
+    64.2,
+    1014
+   ],
+   "twrate": [
+    0.145,
+    222.6,
+    1009
+   ],
+   "ypa": [
+    0.439,
+    202.3,
+    1014
+   ]
+  },
+  "RB": {
+   "brkrate": [
+    0.143,
+    78.1,
+    441
+   ],
+   "brkrec": [
+    0.086,
+    18.5,
+    342
+   ],
+   "croe": [
+    0.143,
+    25.0,
+    554
+   ],
+   "dropr": [
+    0.114,
+    26.9,
+    272
+   ],
+   "epacar": [
+    0.189,
+    85.0,
+    1564
+   ],
+   "epatgt": [
+    0.127,
+    26.6,
+    492
+   ],
+   "ex10": [
+    0.242,
+    83.9,
+    1599
+   ],
+   "ex20": [
+    0.153,
+    88.8,
+    1456
+   ],
+   "fdcar": [
+    0.287,
+    83.9,
+    1599
+   ],
+   "fdtgt": [
+    0.152,
+    26.6,
+    492
+   ],
+   "frshr": [
+    0.321,
+    6.4,
+    170
+   ],
+   "fumrate": [
+    0.028,
+    104.0,
+    1083
+   ],
+   "recy": [
+    0.658,
+    7.0,
+    1602
+   ],
+   "ropct": [
+    0.22,
+    79.4,
+    321
+   ],
+   "rushy": [
+    0.767,
+    7.0,
+    1609
+   ],
+   "ryoe": [
+    0.146,
+    79.4,
+    321
+   ],
+   "rztdcar": [
+    0.093,
+    70.3,
+    1571
+   ],
+   "srcar": [
+    0.257,
+    83.9,
+    1599
+   ],
+   "srtgt": [
+    0.123,
+    26.6,
+    492
+   ],
+   "stuff": [
+    0.197,
+    83.9,
+    1599
+   ],
+   "syconv": [
+    0.02,
+    7.5,
+    664
+   ],
+   "tgtshr": [
+    0.718,
+    6.1,
+    740
+   ],
+   "tpps": [
+    0.488,
+    123.1,
+    568
+   ],
+   "xyacoe": [
+    0.02,
+    17.8,
+    761
+   ],
+   "yacr": [
+    0.218,
+    78.1,
+    441
+   ],
+   "ypc": [
+    0.224,
+    85.0,
+    1564
+   ],
+   "ypps": [
+    0.293,
+    123.1,
+    568
+   ],
+   "yprec": [
+    0.022,
+    17.0,
+    1291
+   ],
+   "ypt": [
+    0.135,
+    28.7,
+    410
+   ]
+  },
+  "S": {
+   "ballrate": [
+    0.188,
+    22.1,
+    509
+   ],
+   "cmpall": [
+    0.02,
+    22.1,
+    509
+   ],
+   "ff": [
+    0.118,
+    6.9,
+    2700
+   ],
+   "int": [
+    0.243,
+    6.9,
+    2700
+   ],
+   "mtklpct": [
+    0.084,
+    356.2,
+    670
+   ],
+   "pd": [
+    0.357,
+    6.9,
+    2700
+   ],
+   "pen": [
+    0.161,
+    6.9,
+    2700
+   ],
+   "ratall": [
+    0.02,
+    22.1,
+    509
+   ],
+   "rstop": [
+    0.676,
+    6.9,
+    2700
+   ],
+   "rstoprate": [
+    0.527,
+    132.7,
+    839
+   ],
+   "tfl": [
+    0.303,
+    7.1,
+    1676
+   ],
+   "tflsnap": [
+    0.21,
+    365.3,
+    1126
+   ],
+   "tklsnap": [
+    0.479,
+    364.6,
+    1129
+   ],
+   "yacall": [
+    0.027,
+    21.9,
+    462
+   ],
+   "yptall": [
+    0.153,
+    22.1,
+    509
+   ]
+  },
+  "TE": {
+   "ayshr": [
+    0.759,
+    6.8,
+    652
+   ],
+   "brkrec": [
+    0.309,
+    22.7,
+    305
+   ],
+   "catch": [
+    0.167,
+    35.3,
+    518
+   ],
+   "created": [
+    0.02,
+    35.0,
+    119
+   ],
+   "croe": [
+    0.11,
+    35.3,
+    518
+   ],
+   "ctchhand": [
+    0.02,
+    35.0,
+    117
+   ],
+   "dropr": [
+    0.113,
+    36.7,
+    240
+   ],
+   "epatgt": [
+    0.105,
+    37.8,
+    450
+   ],
+   "ex20rec": [
+    0.19,
+    37.8,
+    450
+   ],
+   "fdshr": [
+    0.663,
+    6.8,
+    946
+   ],
+   "fdtgt": [
+    0.203,
+    37.8,
+    450
+   ],
+   "frshr": [
+    0.814,
+    6.9,
+    148
+   ],
+   "rattgt": [
+    0.103,
+    35.3,
+    518
+   ],
+   "recy": [
+    0.733,
+    7.0,
+    1201
+   ],
+   "sep": [
+    0.436,
+    34.4,
+    220
+   ],
+   "srtgt": [
+    0.156,
+    37.8,
+    450
+   ],
+   "td3cv": [
+    0.095,
+    10.8,
+    464
+   ],
+   "tdshr": [
+    0.239,
+    4.3,
+    407
+   ],
+   "tgtshr": [
+    0.798,
+    6.8,
+    652
+   ],
+   "tpps": [
+    0.603,
+    179.1,
+    451
+   ],
+   "tprs": [
+    0.665,
+    297.4,
+    604
+   ],
+   "xyacoe": [
+    0.214,
+    23.2,
+    661
+   ],
+   "yacoe": [
+    0.268,
+    24.4,
+    205
+   ],
+   "ydshr": [
+    0.699,
+    6.8,
+    946
+   ],
+   "yprec": [
+    0.299,
+    21.5,
+    1044
+   ],
+   "ypt": [
+    0.206,
+    41.0,
+    372
+   ]
+  },
+  "WR": {
+   "ayshr": [
+    0.776,
+    6.9,
+    1374
+   ],
+   "brkrec": [
+    0.233,
+    29.3,
+    628
+   ],
+   "catch": [
+    0.354,
+    46.2,
+    1179
+   ],
+   "contestw": [
+    0.037,
+    50.9,
+    89
+   ],
+   "created": [
+    0.167,
+    46.2,
+    268
+   ],
+   "croe": [
+    0.213,
+    46.2,
+    1179
+   ],
+   "ctchhand": [
+    0.036,
+    46.5,
+    260
+   ],
+   "dropr": [
+    0.062,
+    48.3,
+    552
+   ],
+   "epatgt": [
+    0.143,
+    49.1,
+    1039
+   ],
+   "ex20rec": [
+    0.206,
+    49.1,
+    1039
+   ],
+   "fdshr": [
+    0.677,
+    7.0,
+    2083
+   ],
+   "fdtgt": [
+    0.209,
+    49.1,
+    1039
+   ],
+   "frshr": [
+    0.828,
+    7.2,
+    315
+   ],
+   "rattgt": [
+    0.19,
+    46.2,
+    1179
+   ],
+   "recy": [
+    0.698,
+    7.1,
+    2645
+   ],
+   "sep": [
+    0.522,
+    44.7,
+    649
+   ],
+   "srtgt": [
+    0.225,
+    49.1,
+    1039
+   ],
+   "td3cv": [
+    0.062,
+    14.4,
+    1162
+   ],
+   "tdshr": [
+    0.308,
+    4.4,
+    950
+   ],
+   "tgtshr": [
+    0.808,
+    6.9,
+    1374
+   ],
+   "tpps": [
+    0.67,
+    210.2,
+    958
+   ],
+   "tprs": [
+    0.635,
+    335.3,
+    1269
+   ],
+   "xyacoe": [
+    0.244,
+    29.0,
+    1388
+   ],
+   "yacoe": [
+    0.293,
+    30.6,
+    570
+   ],
+   "ydshr": [
+    0.693,
+    7.0,
+    2083
+   ],
+   "yprec": [
+    0.37,
+    27.4,
+    2386
+   ],
+   "ypt": [
+    0.264,
+    53.6,
+    840
+   ]
+  }
+ },
+ "to": 2024
+}

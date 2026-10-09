@@ -353,6 +353,135 @@ Known and left: the lineup file sometimes credits a new arrival with his predece
 snaps in the week before he joined (three cases found in 2025), which touches the season
 on/off rows only.
 
+## Savant value and the All-Savant Team (`award.py`)
+
+The All-Savant Team used to be the best plain average of five hand-picked percentiles at
+each spot. That gave a stat that is mostly the player's the same say as one that is mostly
+his teammates' or luck, had no place for games missed, and in a season in progress it
+leaned on last year through the "likely to settle" estimate. `award.py` replaces it with one
+number, `sav` (Savant value): expected points a player has been worth this season above a
+replacement at his position. `build.py` stamps it on every qualified row once a season's
+players are all built, so the archive and the twice-daily refresh both carry it, and the
+page's team is simply the highest value at each spot.
+
+How it is put together (the docstring in `award.py` has the detail):
+
+- **The job, by position** (`FACETS`). A quarterback: passing, designed runs. A receiver:
+  earning targets, what he does with one. A corner: coverage, ball production, flags, run
+  support. Under each, every stat that measures quality there. Usage and style rows are
+  left out. This list is the one judgement in the method.
+- **How much of a stat is luck** (`fit_k`). Every qualified player-season's games are dealt
+  alternately into two piles and the stat rebuilt on each. Where the piles agree, the stat
+  is telling the truth at that sample. That gives each stat a sample size K at which it is
+  half truth, and a stat is pulled toward the position's average by n / (n + K). Target
+  share settles in two games; EPA per target needs about 300 targets; a kicker's field
+  goals over expected about 190 attempts. A stat with no game-by-game history borrows its
+  twin's K (opponent-adjusted EPA from plain EPA), or its own site sample line scaled by
+  how the measured K's in its facet compare with theirs.
+- **How much of a stat is his** (`carry`). Year-to-year correlations since 1999, separately
+  for players who stayed and players who changed teams (corrected for movers being a
+  narrower group). A stat's weight inside its facet is its carry-over to a new team times
+  how closely it tracks the facet's points; a stat with no measured carry-over gets no
+  weight. The facet's credit is the share of its repeatable part that follows the player:
+  0.46 for a quarterback's passing, 0.86 for a receiver earning targets, about 0.9 for a
+  pass rush, 0.23 and 0.31 for the pass protection and run game on a lineman's snaps.
+- **What a facet is worth** (`ANCHOR`, `POINTS`). The spread, across full-time players, of
+  an anchor in expected points a game: EPA on his dropbacks, pressures and sacks at their
+  measured cost, yards allowed in coverage, flags by type. The conversions were measured on
+  2018-2024 play-by-play; worth is learned on 2013 on, where snap counts say who was
+  full-time.
+- **This season, on the field.** Points a game above the 25th-percentile player at the
+  position, times the games' worth of his unit's snaps he has played. Nothing from last
+  season enters it. Before 2013 there are no snap counts, and a man's share of snaps when
+  active is taken as the usual one at his position. A season that tracks only some of a
+  facet's stats moves a man less far from average on it, by how much of the whole those
+  stats see (sacks alone against sacks, pressures and hits). A facet he has no numbers for
+  at all counts as average.
+
+Everything learned is learned the way it is used: on where a man stood inside his own
+season and position. Measured on raw numbers across 26 seasons, the league's drift passes
+for skill (every punter's two halves of 2023 agree that punts go further than in 2003, and
+so do his 2023 and 2024), and so does the standing gap between a tackle and a centre. A
+facet's credit is read only on seasons that see most of the facet: before 2018 a safety's
+"coverage" is one stat about tackling after the catch.
+
+`award_weights.json` holds everything learned (1999-2024; 2025 was held out). It is
+committed (the `.gitignore` rule for this folder's JSON has an exception for it), and a
+refresh or a rebuild only applies it; `stamp()` stops the build if the file is missing.
+Relearn it on purpose, not by habit, and only after a full rebuild, because it reads the
+archive and the finished seasons' game lines:
+
+    python3 award.py fit                      # archive + game lines -> award_weights.json
+    python3 award.py apply ../../public/football-savant-data.json   # restamp without a rebuild
+    python3 award.py show ../../public/football-savant-data.json 2025
+
+Checked against the AP's own teams, which it never saw: of its picks, 36% were AP first
+team in 2018-2024 (the old method: 22%) and 54% first or second team (38%); on the held-out
+2025 season 36% and 50% (23% and 36%, on thirty spots). The AP is a sanity check, not the
+target, and nothing was tuned toward it: the last round of corrections to the fit took the
+2018-2024 figure down from 40%.
+
+Three judgements beyond the list of facets, each because the measurement could not be made:
+
+- **A quarterback's designed runs take a running back's credit** (0.46). No quarterback who
+  runs by design changed teams as a starter between two seasons in the years learned on;
+  the hundred or so who did move top out at one point a game, where the number is noise, so
+  "does it follow him" reads zero and means nothing. The facet is his designed-run EPA per game
+  (`desepa`, kneel-downs, fumbled snaps and scrambles out; a scramble is a dropback and is
+  already in his passing). Yards per designed run is not in it: a sneak gains a yard and is
+  worth a first down.
+- **A lineman has a value only where a season has blocking numbers for him** (2016 on, the
+  season in progress included). Penalties alone would rank linemen on the one thing known
+  about them.
+- **A kicker keeps all the credit for his kicks.**
+
+What it cannot do. A lineman's value is still mostly his line's play while he was on the
+field (nothing free says who lost a block), so linemates rise and fall together and the
+line picked "by player" is often most of one line: after four weeks of 2026 it was five
+49ers. A corner's coverage numbers barely repeat even for a man who stays put, so plays on
+the ball carry as much of his value as coverage does; a safety's follow him to a new team
+hardly at all, and his coverage part stays within a point of average over a season. Before 2018
+there are no coverage numbers at all (a safety from 2006 has one row, yards after the catch
+on his tackles, worth a fraction of a point): a defensive back in those seasons is picked
+on passes defended, interceptions, flags and tackling. A running back's receiving follows him to a new team
+far better than his rushing does, so backs who catch passes rate higher here than a
+rushing title would put them. Before 2016 the page still picks the line as a unit.
+
+**Corner or safety, by season** (`build.secondary_spot`). The player file holds one position
+per career, the latest, and it was being applied to every season: Jalen Ramsey's years at
+corner were ranked among safeties, and a nickel back the file calls a safety could not be
+the team's slot corner. A defensive back's position now comes from that season's own
+sources, in order: the depth chart (the ESPN-sourced one from 2025, `roles_agg.py`; the
+NFL's weekly one for 2001-2024, `roles_agg.secondary_spots`, the side of the secondary it
+listed him on most, starters double), then the snap counts (2012 on), then the depth chart
+of his nearest season within three years (`roles_agg.nearest_secondary_spot`), then the
+career value. The snap counts come after the depth chart because they lag a move: they
+still had Kareem Jackson at corner in 2019, his first year at safety. The nearest-season
+step is what sorts out 1999, 2000 and 2004 (whose depth-chart file is a third empty): the
+season table calls half the secondary plain "DB", and `POS_MAP` files a DB at corner, so
+Donovin Darius and Sammy Knight were ranked among cornerbacks. In all 1,375 player-seasons
+changed sides (844 of them qualified), 869 from corner to safety. The twice-daily refresh only
+downloads two seasons, so that step finds nothing there; it has not been needed in a
+season with snap counts.
+
+**Four fixes to the numbers underneath, found while checking this.**
+
+- *Counts nobody recorded* (`build.note_untracked`). The season stat table has a zero for
+  every player's tackles for loss from 2003 to 2011 and quarterback hits from 2003 to
+  2005. Those zeros were printed and ranked. The rows are now blank in those seasons, and
+  the one "1st in tackles for loss" badge they produced is gone. A count is called
+  unrecorded when the league has under a tenth as many as it has sacks.
+- *Two men, one name* (`build._shared_names`). The all-seasons charting file loses track of
+  namesakes: it leaves the id blank (from 2024: Byron Murphy, Byron Young, Jaylon Jones) or
+  prints each row under both ids (the David Longs 2019-22, the Michael Carters 2023). The
+  first lost a starting corner's whole coverage line; the second gave both men whichever
+  row came last. Sixty rows are now matched by team and position.
+- *A zero that was a blank.* A quarterback with no called run had no designed-run rows
+  (now 0), and before snap counts a defender with no run stop had no run-stop row (now 0).
+- *A blank that was a zero.* The all-seasons charting file leaves a few men out of a
+  finished season; their rows are now summed from the weekly files, as a live season's are
+  (`load_pfr`), where before their pressure rate was printed as zero.
+
 ## The offensive line, specifically
 
 A lineman has no box score, so his card is built from three different kinds of claim and the

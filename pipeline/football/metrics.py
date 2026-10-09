@@ -236,6 +236,7 @@ METRICS = [
     M('ropct',    'Runs over expected',  'rush', 'Efficiency', 'expected', 'pct1', ['RB'], tier=5, den='car', thr=100),
     M('rueff',    'Rushing efficiency (yards run per yard gained)', 'rush', 'Efficiency', 'ingredient', 'num2', ['RB'], tier=5, den='car', thr=100, lower=True),
     M('ypcdes',   'Yards / designed run', 'rush', 'Efficiency', 'output', 'num2', ['QB'], den='descar', thr=40),
+    M('desepa',   'Designed-run EPA / game', 'rush', 'Efficiency', 'output', 'num2', ['QB'], den='g', thr=8),
     M('ypcscr',   'Yards / scramble',    'rush', 'Efficiency', 'output', 'num2', ['QB'], den='scr', thr=25),
     M('epascr',   'EPA / scramble',      'rush', 'Efficiency', 'output', 'num3', ['QB'], den='scr', thr=25),
     M('ybc',      'Yards before contact / att', 'rush', 'Contact', 'context', 'num2', ['RB'], tier=6, den='car', thr=100),
@@ -451,6 +452,8 @@ METRICS = [
     M('punts',    'Punts / game',        'kick', 'Punting', 'context', 'num1', ['P']),
 
     # ---------------------------------------------------------------- value
+    # written by award.py once a season's players are all built: it needs the whole pool
+    M('sav',      'Savant value',        'val', '', 'output', 'sgn1', ALL),
     M('epatot',   'Total EPA',           'val', '', 'output', 'num1', SKILL),
     M('fppg',     'Fantasy points / game', 'val', '', 'output', 'num1', SKILL + ['K']),
     M('toucheg',  'Touches / game',      'val', '', 'context', 'num1', ['RB', 'WR', 'TE']),
