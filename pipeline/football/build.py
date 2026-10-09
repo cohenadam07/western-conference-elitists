@@ -25,6 +25,7 @@ from metrics import (METRICS, POS_PANELS, POS_LABEL, GROUP_LABEL, HEADLINE, WEAK
 from teams import TEAMS, ERA, CANON, canon
 from seasons import seasons as season_list_from_env
 import extras as E
+import roles_agg
 from play_callers import NAME_FIXES
 
 RAW = os.environ.get('NFL_RAW', 'raw')
@@ -231,6 +232,38 @@ EST_DENS = ('pblk', 'rblk', 'opsnap', 'dpsnap', 'drsnap', 'gaprun')
 SNAP_LINE = {'T': 'OT', 'OT': 'OT', 'G': 'OG', 'OG': 'OG', 'C': 'OC'}
 
 
+def secondary_spot(pos, S, gid):
+    """Corner or safety, this season.
+
+    The cohort lookup reads a defensive back's position off the player file, which holds one
+    value for a whole career: the latest. Jalen Ramsey finished up at safety, so every one
+    of his seasons at corner was ranked among safeties, 2017 included; a nickel back the
+    file calls a safety could not be the All-Savant slot corner. A season's own sources
+    say where he played that year: the club's depth chart (2001 on: the side of the
+    secondary it listed him on most), then the position the snap counts list him at (2012
+    on). The snap counts come second because they lag a move: they still had Kareem Jackson
+    at corner in 2019, his first year at safety in Denver. A man neither places goes by the
+    depth chart of his nearest season within three years, which is what sorts out 1999 and
+    2000: the season table calls half the secondary plain "DB", and POS_MAP files a DB at
+    corner. Only a man none of these place keeps the career value."""
+    if pos not in ('CB', 'S') or S is None:
+        return pos
+    role = (S.roles.get(gid) or [None])[0]
+    if role in ('LCB', 'RCB', 'NB'):
+        return 'CB'
+    if role in ('FS', 'SS'):
+        return 'S'
+    listed = S.db_spot.get(gid)
+    if listed:
+        return listed
+    sp = S.snap_pos.get(gid)
+    if sp == 'CB':
+        return 'CB'
+    if sp in ('S', 'FS', 'SS', 'SAF'):
+        return 'S'
+    return roles_agg.nearest_secondary_spot(S.y, gid, S.raw) or pos
+
+
 def line_spot(line_a, S, gid):
     """Tackle, guard or centre. The depth charts say, where they list him; a rookie they
     have not caught up with (Detroit's first-round tackle played every snap of September
@@ -283,6 +316,78 @@ def load_ngs():
     return out
 
 
+_WEEK_TEAMS = {}
+
+
+def _week_teams(y):
+    """{player: the teams he has a weekly stat line for} in one regular season."""
+    if y not in _WEEK_TEAMS:
+        out = defaultdict(set)
+        p = os.path.join(RAW, 'wk_%d.csv' % y)
+        if os.path.exists(p):
+            with open(p, newline='', encoding='utf-8', errors='replace') as f:
+                for r in csv.DictReader(f):
+                    if (r.get('season_type') or 'REG') == 'REG' and r.get('player_id') and r.get('team'):
+                        out[r['player_id'].strip()].add(canon(sstr(r.get('team'))))
+        _WEEK_TEAMS[y] = out
+    return _WEEK_TEAMS[y]
+
+
+def _pfr_family(pos):
+    """The position family of PFR's label: "LCB/RCB" and "DB" are both DB, "LOLB" is LB."""
+    for tok in re.split(r'[/-]', str(pos or '').upper()):
+        tok = tok.strip()
+        for t in (tok, tok[1:] if tok[:1] in 'LR' and len(tok) > 2 else None):
+            if t and _FAMILY.get(t):
+                return _FAMILY[t]
+    return None
+
+
+def _shared_names(df, tc, bio):
+    """{row number: player or None} for the charting rows whose id cannot be trusted.
+
+    Where two men share a name the all-seasons charting files lose track of which is
+    which. From 2024 they leave the id blank on both (Byron Murphy the Minnesota corner and
+    Byron Murphy the Seattle tackle; the two Byron Youngs; the two Jaylon Joneses), and
+    before that they print every row twice, once under each id (the two David Longs from
+    2019 to 2021, the two Michael Carters in 2023). A blank id was dropped, so the corner
+    had no coverage numbers at all in a season he was thrown at 119 times; a doubled row
+    gave both men whichever line came last in the file. Each such row goes to the one
+    namesake who played for that team that season, or failing that the one whose position
+    it could be. A row that still fits two men, or none, is left out."""
+    cols = [c for c in df.columns if c != 'pfr_id']
+    key = df.player.map(_name_key)
+    blank = df.pfr_id.isna()
+    twice = df.duplicated(cols, keep=False) & ~df.duplicated(cols + ['pfr_id'], keep=False)
+    # (only for the seasons this run builds: the refresh has two seasons of weekly tables)
+    doubt = {(y, k) for y, k in zip(df.season[blank | twice], key[blank | twice]) if int(y) in SEASONS}
+    if not doubt:
+        return {}
+    names = defaultdict(list)
+    for gid, b in bio.items():
+        if gid.startswith('00-'):
+            names[_name_key(b['name'])].append(gid)
+    out = {}
+    for i, (y, k, tm, pos) in enumerate(zip(df.season, key, df[tc].astype(str), df.get('pos', key))):
+        if (y, k) not in doubt:
+            continue
+        y = int(y)
+        cands = [g for g in names.get(k, []) if _covers(bio[g], y)]
+        teams = _week_teams(y)
+        if re.match(r'^\dTM$', tm):
+            pool = [g for g in cands if len(teams.get(g, ())) > 1] or cands
+        else:
+            pool = [g for g in cands if canon(tm) in teams.get(g, ())] or cands
+        if len(pool) > 1:
+            fam = _pfr_family(pos)
+            same = [g for g in pool if _FAMILY.get(bio[g].get('pos'), bio[g].get('pos')) == fam]
+            pool = same if len(same) == 1 else pool
+        out[i] = pool[0] if len(pool) == 1 else None
+        if out[i] is None:
+            print(y, 'charting row left out, fits %d men: %s (%s, %s)' % (len(pool), df.player.iloc[i], tm, pos), flush=True)
+    return out
+
+
 def load_pfr(by_pfr, bio):
     out = defaultdict(dict)
     for kind in ('pass', 'rush', 'rec', 'def'):
@@ -294,13 +399,20 @@ def load_pfr(by_pfr, bio):
         # 2025 came out as 17 targets allowed, not 45. The total is the only one kept.
         tc = 'tm' if 'tm' in df.columns else 'team'
         total = df[tc].astype(str).str.match(r'^\dTM$')
-        has_total = set(zip(df.pfr_id[total], df.season[total]))
-        for r, is_total in zip(df.to_dict('records'), total):
+        records = df.to_dict('records')
+        named = _shared_names(df, tc, bio)
+        gids = []
+        for i, r in enumerate(records):
             pid = r.get('pfr_id')
-            if not is_total and (pid, r['season']) in has_total:
-                continue
-            gid = pfr_for(int(r['season']), by_pfr, bio).get(pid) if isinstance(pid, str) else None
+            if i in named:
+                gids.append(named[i])
+            else:
+                gids.append(pfr_for(int(r['season']), by_pfr, bio).get(pid) if isinstance(pid, str) else None)
+        has_total = {(g, r['season']) for g, r, t in zip(gids, records, total) if t and g}
+        for r, is_total, gid in zip(records, total, gids):
             if not gid:
+                continue
+            if not is_total and (gid, r['season']) in has_total:
                 continue
             out[(gid, int(r['season']))].update({kind + '_' + k: v for k, v in r.items()})
     # A season still being played is summed up from PFR's weekly files instead, into rows
@@ -320,6 +432,16 @@ def load_pfr(by_pfr, bio):
         wk = weeks_played(y)
         live = wk is not None and wk < (REG_WEEKS if y >= 2021 else 17)
         if y in have and not live:
+            # The all-seasons files leave a few men out of a finished season (Justin Houston
+            # and Bruce Irvin in 2023, Xavier Rhodes in 2022). The weekly files have them,
+            # and without a row their pressure rate was printed as zero.
+            added = 0
+            for k, v in pfr_week.season_rows(y, pfr_for(y, by_pfr, bio), RAW).items():
+                if k not in out:
+                    out[k].update(v)
+                    added += 1
+            if added:
+                print(y, 'PFR charting from the weekly files for %d men the season file leaves out' % added, flush=True)
             continue
         rows = pfr_week.season_rows(y, pfr_for(y, by_pfr, bio), RAW)
         if rows:
@@ -439,8 +561,9 @@ def season_accolades(df):
     phrase means: leading the league in receptions is a fact about everybody.
     """
     out = defaultdict(list)
+    blank = _untracked_cols(df.to_dict('records'))
     for col, label in ACCOLADE_STATS:
-        if col not in df.columns:
+        if col not in df.columns or col in blank:
             continue
         vals = pd.to_numeric(df[col], errors='coerce').fillna(0)
         if vals.max() <= 0:
@@ -787,6 +910,33 @@ def fg_curve(reg_by_season):
 
 
 # ---------------------------------------------------------------- metric assembly
+# Counts a season's stat table never recorded. It carries a zero for every man in the
+# league (no tackle for loss from 2003 to 2011, no quarterback hit from 2003 to 2005),
+# and a zero that means "nobody wrote it down" was being printed, and ranked, as none.
+UNTRACKED = {}
+_GAPS = (('def_tackles_for_loss', 'tackles for loss', ('tfl', 'tflsnap')),
+         ('def_qb_hits', 'QB hits', ('hits',)))
+
+
+def _untracked_cols(rows):
+    """The columns of a season table that were never filled in. Sacks always were, and a
+    season has about as many quarterback hits as sacks and twice as many tackles for loss,
+    so a count under a tenth of the sacks is not a count. (Measured against sacks, not a
+    fixed number, so the Thursday opener of a new season does not read as a blank.)"""
+    sacks = sum(num(r.get('def_sacks'), 0) or 0 for r in rows)
+    return {col for col, _, _ in _GAPS
+            if sacks > 0 and sum(num(r.get(col), 0) or 0 for r in rows) < 0.1 * sacks}
+
+
+def note_untracked(y, rows):
+    """Work out which of those counts a season's table really has. `rows` is the season
+    table, one dict per player."""
+    cols = _untracked_cols(rows)
+    out = {k for col, _, keys in _GAPS if col in cols for k in keys}
+    UNTRACKED[y] = out
+    return out
+
+
 def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
                  onf, onf_teams, starts, team_games, pmake, y, fqb=None, frush=None,
                  frec=None, ex=None, lg=None, live=False):
@@ -1304,6 +1454,8 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
     m = {k: rnd(v) for k, v in m.items()
          if v is not None and k in MBY and MBY[k]['grp'] in panels
          and pos in MBY[k]['pos'] and MBY[k]['since'] <= y}
+    for k in UNTRACKED.get(y, ()):
+        m.pop(k, None)
     return {k: v for k, v in m.items() if v is not None}, d
 
 
@@ -1668,6 +1820,9 @@ def main():
         line_score = {r['tm']: r['score'] for r in lines}
         players, pos_pools = [], defaultdict(list)
         rows = df.to_dict('records')
+        gaps = note_untracked(y, rows)
+        if gaps:
+            print(y, 'not recorded this season, left blank:', ', '.join(sorted(gaps)), flush=True)
         # Everyone who took a snap gets a card. The stat table only lists men who recorded
         # a stat, which left out most of the offensive line: through four weeks of 2026,
         # 35 of the 167 linemen with 100 snaps had no card at all.
@@ -1692,6 +1847,7 @@ def main():
             # keeps the undifferentiated cohort rather than being guessed into one.
             if pos == 'OL':
                 pos = line_spot(line_a, S, gid)
+            pos = secondary_spot(pos, S, gid)
             team_games = full_games
             if partial:
                 team_games = tgames.get(sstr(r.get('recent_team'))) or wk
@@ -1834,6 +1990,11 @@ def main():
                generated=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                source='nflverse (nflfastR pbp, FTN charting, PFR advanced, Next Gen Stats, snap counts, combine, ESPN QBR)',
                cfg=cfg, data=data)
+
+    # Savant value: the one number the All-Savant Team is picked on. It needs every
+    # position's whole pool, so it is stamped on after the last player is built.
+    import award
+    print('Savant value on', award.stamp(out), 'player-seasons', flush=True)
 
     # Career awards, if awards.py has been run. They are career-level and keyed by player
     # id, so they ride along as one top-level map rather than on every player-season.

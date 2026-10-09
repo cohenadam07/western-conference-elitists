@@ -256,6 +256,9 @@ export function buildFootballApi({ data, current = null, html }) {
   const metrics = cfg.metrics
   const byKey = Object.fromEntries(metrics.map((m) => [m.key, m]))
   const positions = Object.keys(cfg.posLabel)
+  // Savant value: the parts of the job per position group (tackles, guards and centres share one)
+  const VALUE_GROUP = { OT: 'OL', OG: 'OL', OC: 'OL' }
+  const valueParts = (cfg.award && cfg.award.pos) || {}
   const latest = merged.seasons[0]
   const playersOf = (season) => merged.data[season].players
   for (const season of merged.seasons) {
@@ -526,6 +529,12 @@ export function buildFootballApi({ data, current = null, html }) {
       if (p.comps && p.comps.length) row.comps = p.comps.map((c) => [c.id, c.score])
       if (p.wflaws && p.wflaws.length) row.wflaws = p.wflaws.map((f) => [f.k, f.pct])
       if (p.wcomps && p.wcomps.length) row.wcomps = p.wcomps.map((c) => [c.id, c.score])
+      // Savant value by part of the job, in the order meta.value lists them for his position
+      if (p.savb && p.savb.length) {
+        const parts = valueParts[VALUE_GROUP[pos] || pos] || []
+        const by = Object.fromEntries(p.savb)
+        row.val = parts.map((f) => (by[f.key] == null ? null : by[f.key]))
+      }
       return row
     })
 
@@ -614,6 +623,19 @@ export function buildFootballApi({ data, current = null, html }) {
       why: (m.exp && m.exp.y) || null,
     })),
     weakness: { lowMatch: page.lowMatch },
+    // Savant value (the stat `sav`): what the All-Savant Team is picked on. For each
+    // position, the parts of the job it is built from, in the order a row's `val` lists them.
+    value: cfg.award ? {
+      what: 'Expected points a player has been worth in one season above a replacement-level player at his position (the ' + cfg.award.replacement + 'th percentile of qualified players). This season only, on the snaps he actually played. Each stat counts by how well it follows a player to a new team and by how much it says about points; a small sample is pulled toward average.',
+      learnedOn: cfg.award.fit,
+      linemen: VALUE_GROUP,
+      // shareThatIsHis: of the part that repeats from season to season, how much follows a
+      // player to a new team. A stand-in (used in the seasons that never tracked the parts
+      // it names) has none of its own: it is scaled to the parts it stands in for.
+      parts: Object.fromEntries(Object.entries(cfg.award.pos).map(([g, fs]) => [g, fs.map((f) => (
+        f.standin ? { key: f.key, label: f.label, shareThatIsHis: null, standsInFor: f.standin }
+          : { key: f.key, label: f.label, shareThatIsHis: f.credit }))])),
+    } : null,
     caveats: {
       // Not printed on the page; from pipeline/football/README.md. A lineman's games count
       // is only right where snap counts exist. Before them it is the games he was flagged in.
@@ -632,6 +654,7 @@ export function buildFootballApi({ data, current = null, html }) {
       settle: 'Season in progress only, for the stats in low: [where the number is likely to settle, its percentile among the same estimate for every qualified player at his position]. The estimate is his number so far blended with what is normal at his position and with his own last season, weighted by how little there is so far. It is the diamond on a hollow bar.',
       role: 'The page\'s depth-chart badge, 2025 on, or absent where the page shows none: {spot, listed, at}. spot is the named spot where it says more than his position does (a left tackle, a nickel back), else null; listed is his best place in the chart\'s order when that is behind the starters (2 = listed second), else null; at is the spot or position in words. It is the order a depth chart lists a position in, not where he lined up on each play or how much he played.',
       st: 'Season in progress only: his roster status in the latest week on file when he is not on the active roster (injured reserve, practice squad and so on).',
+      val: 'Savant value (m.sav) by part of the job, in expected points against an AVERAGE player at his position that season: one number per entry of value.parts for his position (linemen share OL), null where a season did not track that part. The parts are against average and the total is against a replacement player, so they do not add up to it.',
       score: 'Profile score: the mean season percentile across his position\'s headline stats (positions[].headline), as on the page\'s career-arc button. Qualified seasons only, and only for players with two or more seasons. While a season is being played each headline stat is scored where it is likely to settle (see settle), not on its raw value.',
       rec: 'His team\'s record: [wins, losses, ties]. po is how its season ended; coach is its head coach.',
       acc: 'Where he ranked in the whole NFL in a counting stat: r is the rank, s the stat.',

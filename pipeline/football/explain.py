@@ -627,6 +627,9 @@ _e('ropct', "How often he gains more than the blocking gave him.",
 _e('rueff', "How far he actually runs for each yard he gains.",
      "A back who goes straight ahead is near 3. A back who dances sideways is above 4. Lower is more north-and-south.",
      "total distance run ÷ yards gained, from player tracking")
+_e('desepa', "The points his called runs add per game: sneaks, read options, draws.",
+     "A quarterback's legs show up twice. Scrambles are dropbacks, so they are already inside EPA per dropback. This is the other half, the runs the play-caller drew up for him, with kneel-downs and fumbled snaps left out.",
+     "EPA on his designed runs ÷ games")
 _e('ypcdes', "Yards per carry on runs that were called for him.",
      "Scrambles make every quarterback's yards per carry look huge. This is the number without them.",
      "yards on designed runs ÷ designed runs")
@@ -919,6 +922,9 @@ _e('fpoe', "How many more fantasy points he scores per game than his workload sa
 _e('tdoe', "Touchdowns compared with what his carries and targets would normally produce.",
      "Touchdowns are the luckiest stat in the game. A big number here usually comes back down; a big negative usually comes back up.",
      "touchdowns − expected touchdowns, season total")
+_e('sav', "The points he has been worth this season above a replacement-level player at his position. It is what the All-Savant Team is picked on.",
+     "One number for the whole job. It counts only this season, it counts every game he missed against him, and it leans on the stats that are his own: each stat is weighted by how well it follows a player to a new team and by how much it says about points, and a small sample is pulled toward average. An offensive lineman has one from 2016 on, where blocking numbers exist, and most of it is his line's play while he was on the field.",
+     "for each part of his job: his standing in its stats, in expected points a game, times the share of it that is the player's; added up, less a replacement player (the 25th percentile at the position), times the games' worth of snaps he has played")
 _e('wpa', "How much his plays have moved his team's chance of winning, added up over the season.",
      "EPA treats every situation the same. This one cares about the scoreboard and the clock, so a late go-ahead drive counts for more.",
      "the change in win probability on each of his dropbacks, carries and targets, added up")

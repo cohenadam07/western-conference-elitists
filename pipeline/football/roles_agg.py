@@ -91,6 +91,59 @@ def run_season(y):
                 corners=count.get('LCB', 0) + count.get('RCB', 0))
 
 
+# Where the NFL's own weekly depth chart (2001-2024) lists a defensive back. It cannot tell
+# a slot corner from an outside one, but it does say corner or safety, and it says it for
+# that season: the player file keeps one position for a whole career.
+# (the odd ones are single clubs' own labels, and a couple of the league file's typos; "LS"
+# on the defensive chart is a left safety, the long snapper being on the special-teams one)
+_CORNER = {'CB', 'LCB', 'RCB', 'NCB', 'NB', 'NKL', 'NICK', 'NICKE', 'MCB', 'N', 'NDB', 'CS',
+           'RBC', 'LCR'}
+_SAFETY = {'S', 'FS', 'SS', 'RS', 'LS', 'DS'}
+
+
+def secondary_spots(y, raw=None):
+    """{gsis_id: 'CB' | 'S'} from the regular-season depth charts of one season: the side
+    of the secondary he was listed on most, starters counting double. Empty where the file
+    is missing or is the newer snapshot shape, which roles_<season>.json already covers."""
+    p = os.path.join(raw or RAW, 'depth_%d.csv' % y)
+    if not os.path.exists(p):
+        return {}
+    tally = defaultdict(lambda: [0.0, 0.0])
+    with open(p, newline='', encoding='utf-8', errors='replace') as f:
+        rd = csv.DictReader(f)
+        if 'depth_position' not in (rd.fieldnames or []):
+            return {}
+        for r in rd:
+            if r.get('game_type') != 'REG' or r.get('formation') != 'Defense':
+                continue
+            gid = (r.get('gsis_id') or '').strip()
+            spot = (r.get('depth_position') or '').strip().upper()
+            side = 0 if spot in _CORNER else 1 if spot in _SAFETY else None
+            if not gid or side is None:
+                continue
+            tally[gid][side] += 2.0 if (r.get('depth_team') or '').strip() == '1' else 1.0
+    return {gid: ('CB' if c > s else 'S') for gid, (c, s) in tally.items() if c != s}
+
+
+_SPOTS = {}
+
+
+def nearest_secondary_spot(y, gid, raw=None, span=3):
+    """Where the depth charts listed him in the closest season that has him, up to three
+    years either side, the earlier one first. For the seasons the charts do not reach (1999
+    and 2000) and the men a season's chart left off: the season table calls half of them
+    plain "DB", and the build used to file every one of those at corner."""
+    for k in range(1, span + 1):
+        for yy in (y - k, y + k):
+            key = (raw or RAW, yy)
+            if key not in _SPOTS:
+                _SPOTS[key] = secondary_spots(yy, raw)
+            spot = _SPOTS[key].get(gid)
+            if spot:
+                return spot
+    return None
+
+
 if __name__ == '__main__':
     years = [int(a) for a in sys.argv[1:]] or season_list_from_env()
     for y in years:

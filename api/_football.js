@@ -162,6 +162,21 @@ export function display(unit, value) {
 }
 
 const count = (n) => thousands(Math.round(n * 10) / 10)
+const signed1 = (v) => signed(v, 1, true, false)
+
+// Savant value and where it came from. The row carries one number per part of the job, in
+// the order meta.value.parts lists them for his position (linemen share one list).
+function savantValue(meta, row, posCode) {
+  const total = row.m && row.m.sav ? row.m.sav[0] : null
+  if (total == null || !meta.value) return null
+  const group = (meta.value.linemen || {})[posCode] || posCode
+  const defs = meta.value.parts[group] || []
+  const parts = (row.val || [])
+    .map((pts, i) => (pts == null || !defs[i] ? null : { part: defs[i].label, points: pts }))
+    .filter(Boolean)
+    .sort((a, b) => b.points - a.points)
+  return { points: total, parts }
+}
 const lowerFirst = (s) => (s ? s[0].toLowerCase() + s.slice(1) : s)
 const upperFirst = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s)
 // "1 targets" -> "1 target", "1 carries" -> "1 carry", "1 targets defended" -> "1 target defended"
@@ -410,6 +425,7 @@ async function profile({ player, season, group = 'all' }, brief) {
     sample: built.map((k) => ({ key: k, label: meta.denoms[k], value: row.d[k] })),
     pools: { position_label: peers, season: poolSeason, all_time: poolAll },
     profile_score: row.score != null ? { score: row.score, headline_stats: pos.headline.length, peak_season: who.peak ? String(who.peak) : null } : null,
+    savant_value: savantValue(meta, row, row.pos),
     stats,
     not_tracked: notTracked,
     not_charted_yet: notCharted,
@@ -453,6 +469,11 @@ async function profile({ player, season, group = 'all' }, brief) {
     L.push(`Depth chart: ${r.listed ? `listed ${ordinal(r.listed)} at ${r.at} at his best` : `a starter at ${r.at}`} (the order the depth chart lists the position in, not where he lined up on each play or how much he played).`)
   }
   if (structured.sample.length) L.push(`Built on: ${structured.sample.map((d) => `${EST_COUNTS.has(d.key) && file.est ? 'about ' : ''}${count(d.value)} ${d.value === 1 ? singular(d.label) : d.label}`).join(', ')}.`)
+  if (structured.savant_value) {
+    const sv = structured.savant_value
+    const parts = sv.parts.map((p) => `${lowerFirst(p.part)} ${signed1(p.points)}`).join(', ')
+    L.push(`Savant value ${signed1(sv.points)}: the expected points he ${live ? 'has been' : 'was'} worth in ${seasonId} above a replacement-level player at his position, on the stats that are a player's own and the snaps he played. It is what the All-Savant Team is picked on.${parts ? ` By part of the job, each against an average player at the position (so they do not add up to the total): ${parts}.` : ''}`)
+  }
   if (structured.profile_score) {
     const ps = structured.profile_score
     L.push(`Profile score ${ps.score}: his mean percentile across the ${ps.headline_stats} headline ${lowerFirst(pos.label)} stats, ${live ? `each scored where it is likely to settle among ${seasonId}'s ${peers} (so it is not the average of the "in ${seasonId}" percentiles below, which rank the raw numbers)` : `each ranked inside ${seasonId}`}, skipping any the season lacks.${ps.peak_season ? ` His peak season by that score is ${ps.peak_season}${live && ps.peak_season === seasonId ? ', so far' : ''}.` : ''}`)
@@ -688,6 +709,10 @@ export const tools = [
           season: z.number().describe('Qualified players at his position that season.'),
           all_time: z.number().describe('Qualified player-seasons at his position since 1999.'),
         }),
+        savant_value: z.object({
+          points: z.number().describe('Expected points he was worth that season above a replacement-level player at his position (the 25th percentile of qualified players), on the snaps he played. This season only. The All-Savant Team is the highest value at each spot.'),
+          parts: z.array(z.object({ part: z.string(), points: z.number() })).describe('The parts of the job it is built from, each against an AVERAGE player at the position. They do not add up to the total, which is against a replacement player.'),
+        }).nullable().optional(),
         profile_score: z.object({
           score: z.number().describe('Mean of his season percentiles across his position\'s headline stats.'),
           headline_stats: z.number().int(),

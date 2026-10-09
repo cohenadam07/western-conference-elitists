@@ -379,6 +379,7 @@ class Inputs(object):
         wk = wk[wk.season_type == 'REG']
         self.last = int(wk.week.max()) if len(wk) else 0
         reg = pd.read_csv(regp, low_memory=False)
+        B.note_untracked(y, reg.to_dict('records'))
         line_a = B.load_line(y)
         swaps = B.team_swaps(y)
         # the same counters the season build uses, one week at a time
@@ -397,6 +398,7 @@ class Inputs(object):
             pos = B.cohort(raw, b.get('pff_pos'), b.get('ngs_pos'))
             if pos == 'OL':
                 pos = B.line_spot(line_a, S, gid)
+            pos = B.secondary_spot(pos, S, gid)
             if pos:
                 cohort[gid] = pos
         self.pfr_w = pfr_week.week_rows(y, by_pfr, RAW) if y >= B.TIER_SINCE[6] else {}

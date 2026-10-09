@@ -37,6 +37,7 @@ from collections import defaultdict
 import pandas as pd
 
 import pfr_week
+import roles_agg
 from teams import canon
 
 OLINE = ('OL', 'OT', 'OG', 'OC')
@@ -99,6 +100,8 @@ class Season(object):
         self.tm = {}                         # (week, team) -> that team's offense that week
         self.spots = _json(os.path.join(agg, 'spot_%d.json' % y)) or {}
         self.roles = _json(os.path.join(agg, 'roles_%d.json' % y)) or {}
+        # corner or safety that season, from the NFL's weekly depth charts (2001-2024)
+        self.db_spot = roles_agg.secondary_spots(y, raw)
         self._only = {}
         self._load()
 
@@ -651,10 +654,18 @@ def add_metrics(m, d, r, pos, y, G, x, qb, rush, rec, pens, fqb, frush, frec, pf
                 m['epazone'] = mz['zone_epa'] / mz['zone']
 
     # ---------------------------------------------------------------- rushing
+    # A quarterback who has thrown and has no called run to his name has a zero there, not
+    # a blank: a blank reads as "not measured", and Savant value would call him average.
+    if pos == 'QB' and G and att >= 1 and not (car >= 1 and rush):
+        m['desrun'] = 0.0
+        m['desepa'] = 0.0
     if car >= 1 and rush:
         if pos == 'QB':
             if G:
                 m['desrun'] = rush.get('des', 0.0) / G
+                # What his called runs were worth. Kneel-downs and aborted snaps are not in
+                # it, and neither are scrambles, which are dropbacks and sit in EPA per dropback.
+                m['desepa'] = rush.get('des_epa', 0.0) / G
             if rush.get('des'):
                 d['descar'] = rush['des']
                 m['ypcdes'] = rush['des_yds'] / rush['des']
@@ -832,7 +843,7 @@ def add_metrics(m, d, r, pos, y, G, x, qb, rush, rec, pens, fqb, frush, frec, pf
         if drs and drs >= 1 and y >= T[5]:
             d['drsnap'] = drs
             m['rstoprate'] = min(100.0, x.get('rstop', 0.0) / drs * 100.0)
-        if G and (x.get('rtk') or def_s):
+        if G:
             m['rstop'] = x.get('rstop', 0.0) / G
         if x.get('rtk'):
             d['rtk'] = x['rtk']

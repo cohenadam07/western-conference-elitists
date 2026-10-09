@@ -161,6 +161,7 @@ const FUNCTIONS = [
   'inFt', 'signed', 'fmt', 'ordinal', 'thrFor', 'sampleOf', 'isCareer', 'careerHigh', 'statBtn', 'barRow',
   'rowFor_metric', 'groupBlocks', 'notYet', 'panelHTML', 'commas', 'poolCount', 'profileScore',
   'careerArc', 'liveWeek', 'yr2', 'panelWorthIt', 'mergeData', 'posWord', 'searchHits',
+  'teamGamesOf', 'heavyUse', 'hasValue', 'rankedAt', 'valueParts',
 ]
 
 // The page's code and the globals it reads, wrapped so nothing leaks. Nothing here touches
@@ -179,6 +180,7 @@ const loadPage = (archiveData, currentData) => vm.runInNewContext(`(function (AR
   ${grabVar('ROLE_OK')}
   ${grabLine('var ROLE_STARTERS=')}
   ${grabLine('var KNOWN_AS=')}
+  ${grabLine('var AWARD_GROUP=')}
   ${grabLine('var ESTPOOL_CACHE=')}
   ${grabVar('NICK_GROUPS')}
   ${grabLine('var NICK=')}
@@ -227,6 +229,9 @@ const loadPage = (archiveData, currentData) => vm.runInNewContext(`(function (AR
     role: function (p, season) { curSeason = season; return roleLabel(p); },
     roleSpot: roleSpot, nickGroups: NICK_GROUPS, roleStarters: ROLE_STARTERS,
     score: function (id, season) { return profileScore(id, season); },
+    // Savant value: the page's ranking at a position, and where one man's value came from
+    ranked: function (season, pos) { return rankedAt(String(season), pos); },
+    valueParts: function (p) { return valueParts(p); },
     arc: function (id) { return careerArc(id); },
   };
 })`)(archiveData, currentData)
@@ -478,6 +483,75 @@ test('profile scores and peak seasons are the page\'s', () => {
   }
   console.log(`      ${commas(scored)} profile scores and ${commas(peaks)} peak seasons compared`)
   assert.ok(scored > 20000)
+})
+
+test('a count nobody recorded is blank, not zero; a defensive back is ranked at the spot he played that season', () => {
+  load()
+  // The stat table has a zero for every man's tackles for loss in 2003-2011 and QB hits in
+  // 2003-2005. A season where a count is zero for the whole league never recorded it.
+  for (const season of seasons) {
+    const front = page.data.data[season].players.filter((p) => ['ED', 'DI', 'LB'].includes(p.pos) && p.qualified)
+    for (const key of ['tfl', 'hits', 'sk']) {
+      const have = front.filter((p) => p.m[key] != null)
+      if (!have.length) continue
+      assert.ok(have.some((p) => p.m[key] > 0), `${season}: ${key} is zero for all ${have.length} front-seven regulars, which is a blank`)
+    }
+  }
+  // The player file keeps one position per career, the latest. These are the seasons it got wrong.
+  const at = (season, name) => page.data.data[season].players.filter((p) => p.name === name).map((p) => p.pos).join()
+  for (const [season, name, pos] of [['2017', 'Jalen Ramsey', 'CB'], ['2019', 'Kareem Jackson', 'S'], ['2017', 'Kareem Jackson', 'CB'],
+    ['2011', 'Charles Woodson', 'CB'], ['2012', 'Charles Woodson', 'S'], ['2003', 'Ronde Barber', 'CB'],
+    ['2003', 'Donovin Darius', 'S'], ['2000', 'Sammy Knight', 'S'], ['2000', 'Ty Law', 'CB']]) {
+    assert.equal(at(season, name), pos, `${season} ${name}`)
+  }
+})
+
+test('Savant value: every qualified man from 2016 on has one, its parts are the page\'s, and the page ranks on it', () => {
+  load()
+  assert.ok(meta.value && meta.value.parts.QB.length >= 2, 'the glossary explains Savant value and its parts')
+  let have = 0, parts = 0
+  for (const season of seasons) {
+    const file = seasonFile(season)
+    const byId = new Map(page.data.data[season].players.map((p) => [p.id, p]))
+    let qualified = 0, valued = 0
+    for (const row of file.players) {
+      const p = byId.get(row.id)
+      if (row.qualified) qualified++
+      if (!row.m.sav) {
+        assert.equal(row.val, undefined, `${season} ${row.name}: parts with no value`)
+        continue
+      }
+      assert.ok(row.qualified, `${season} ${row.name}: a Savant value on a man outside the pools`)
+      valued++
+      have++
+      assert.equal(row.m.sav[0], p.m.sav, `${season} ${row.name}: Savant value`)
+      // the page names the parts and sorts them; the file keeps them in the glossary's order
+      const defs = meta.value.parts[meta.value.linemen[row.pos] || row.pos]
+      const mine = (row.val || []).map((pts, i) => (pts == null ? null : [defs[i].label, pts])).filter(Boolean)
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      const theirs = [...page.valueParts(p)].map((x) => [x.label, x.pts]).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      assert.deepEqual(mine, theirs, `${season} ${row.name}: where his Savant value came from`)
+      parts += mine.length
+    }
+    // a lineman is valued only where a season has blocking numbers for him (2016 on), so
+    // before that the page has no one to pick and falls back to the best line as a unit
+    if (+season >= 2016) assert.ok(valued >= 0.99 * qualified, `${season}: ${valued} of ${qualified} qualified players have a Savant value`)
+    else {
+      const line = file.players.filter((r) => ['OT', 'OG', 'OC', 'OL'].includes(r.pos) && r.m.sav)
+      assert.equal(line.length, 0, `${season}: ${line.length} linemen valued with no blocking numbers behind them`)
+    }
+    // the All-Savant Team and the home page read this ranking
+    for (const pos of ['QB', 'WR', 'ED', 'CB']) {
+      const ranked = [...page.ranked(season, pos)]
+      assert.ok(ranked.length >= 8, `${season} ${pos}: only ${ranked.length} ranked`)
+      for (let i = 0; i < ranked.length; i++) {
+        assert.equal(ranked[i].raw, ranked[i].p.m.sav, `${season} ${pos}: ranked on something other than Savant value`)
+        if (i) assert.ok(ranked[i - 1].raw >= ranked[i].raw, `${season} ${pos}: out of order`)
+      }
+    }
+  }
+  console.log(`      ${commas(have)} Savant values and ${commas(parts)} parts compared`)
+  assert.ok(have > 25000)
 })
 
 test('pool sizes and stats not charted yet are the page\'s', () => {

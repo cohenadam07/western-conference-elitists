@@ -35,3 +35,5 @@ pipeline/football/raw/
 pipeline/football/agg/
 pipeline/football/maps/
 pipeline/football/*.json
+# ...except what award.py learned: the refresh and the rebuild only apply it
+!pipeline/football/award_weights.json

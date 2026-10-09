@@ -1447,7 +1447,7 @@ body{background-color:#1D6B3A;color:var(--ink);
    ========================================================================= */
 var DATA=null, CFG=null, METRICS=[], MBY={}, PIDX={}, NAMES=[];
 var cur=null, curId=null, curSeason=null;
-var VERSION='2.0.0';           // bumped on big releases only, never per deploy
+var VERSION='2.1.0';           // bumped on big releases only, never per deploy
 var baseline='season';        // 'season' | 'all' | 'pace' | 'exp' — who the bars are ranked against
 var formWin=0;                // 0 = the season; 4, 8, 17 = his last that many games
 var cohortMode='pos';         // 'pos' | 'side'
@@ -1948,7 +1948,7 @@ function sampleOf(p,m){
    started in 2003 has a CPOE built from 2006 on, and the page says so rather than
    pretending the number covers his whole career. */
 var CAREER='career';
-var CAREER_SUM={g:1,starts:1,epatot:1,wpa:1,tdoe:1,fgwpa:1};
+var CAREER_SUM={g:1,starts:1,epatot:1,wpa:1,tdoe:1,fgwpa:1,sav:1};
 var CAREER_MAX={fglong:1,posver:1,maxair:1};
 var CAREER_CONST={ht:1,wt:1,forty:1,vert:1,broad:1,cone:1,shuttle:1,bench:1,spdscore:1,apy:1,capshr:1};
 /* How much volume a career needs before it joins the ranking pool: the season qualifying
@@ -2183,6 +2183,14 @@ function barRow(m,p,season,pos){
   if(m.est&&isEst(season)) tag+=' · <span class="esttag" title="An estimate from snap counts. The play-by-play lineups for this season are published after the Super Bowl, and the number becomes a count then.">est.</span>';
   var title=smp.ok?'':('Only '+Math.round(smp.n)+' '+(CFG.denoms[m.den]||m.den)+' — below the '
     +smp.thr+' this stat needs before it settles down.');
+  /* Savant value says where it came from: the parts of the job, against an average man. */
+  if(m.key==='sav'&&p.savb&&!isCareer(season)){
+    var vp=valueParts(p).map(function(x){ return x.label.toLowerCase()+' '+fmt('sgn1',x.pts); });
+    if(vp.length){
+      tag+=' · vs average: '+esc(vp.join(', '));
+      title='Expected points above a replacement '+posWord(pos,false)+' this season. The parts are each against an average one, so they do not add up to the total: '+vp.join(', ')+'.';
+    }
+  }
   /* The second mark: where a number that has not settled is likely to end up. */
   var est=(!smp.ok&&estOn(season))?regressed(p,m,season):null;
   if(est){
@@ -4515,17 +4523,48 @@ function heavyUse(p){
   if(!miss(p.m.snapshr)&&p.m.snapshr>0) return p.m.snapshr>=55;
   return tg?g>=0.75*tg:g>=12;                  // pre-2013 there are no snap counts to ask
 }
-/* Everyone at a position with a real workload, best profile score first. */
+/* Everyone at a position, best first, by Savant value: the expected points he has been
+   worth this season above a replacement at his position (pipeline/football/award.py). It
+   is built on the stats that are a player's own, it never reaches into last season, and it
+   is multiplied by the snaps he has actually played, so there is no separate workload test.
+   A data file from before the value existed falls back to the old profile-score ranking,
+   which is what the page shows for the few minutes between a release and the refresh. */
+function hasValue(season){
+  var ps=seasonPlayers(season);
+  for(var i=0;i<ps.length;i++) if(!miss(ps[i].m.sav)) return true;
+  return false;
+}
 function rankedAt(season,pos){
-  var out=[], ps=seasonPlayers(season);
+  var out=[], ps=seasonPlayers(season), val=hasValue(season);
   for(var i=0;i<ps.length;i++){
     var p=ps[i];
-    if(p.pos!==pos||!p.qualified||!heavyUse(p)) continue;
+    if(p.pos!==pos||!p.qualified) continue;
+    if(val){
+      if(!miss(p.m.sav)) out.push({p:p,score:p.m.sav,raw:p.m.sav,value:true});
+      continue;
+    }
+    if(!heavyUse(p)) continue;
     var sc=profileScore(p.id,season);
     if(sc!=null) out.push({p:p,score:Math.round(sc),raw:sc});
   }
   out.sort(function(a,b){ return b.raw-a.raw; });
   return out;
+}
+/* Why a man was picked, in words: the total, then the parts of the job it came from. */
+var AWARD_GROUP={OT:'OL',OG:'OL',OC:'OL'};
+function valueParts(p){
+  var spec=((CFG.award||{}).pos||{})[AWARD_GROUP[p.pos]||p.pos]||[], lab={};
+  spec.forEach(function(f){ lab[f.key]=f.label; });
+  return (p.savb||[]).map(function(x){ return {key:x[0],label:lab[x[0]]||x[0],pts:x[1]}; })
+    .sort(function(a,b){ return b.pts-a.pts; });
+}
+function valueWhy(it,season){
+  var p=it.p, peers=AST_PEERS[p.pos]||posWord(p.pos,true), one=posWord(p.pos,false);
+  if(!it.value) return 'Savant profile score '+it.score+' — the average percentile of his headline stats vs qualified '+peers+', '+season;
+  var parts=valueParts(p).map(function(x){ return x.label.toLowerCase()+' '+fmt('sgn1',x.pts); });
+  return 'Savant value '+fmt('sgn1',p.m.sav)+' — the expected points he has been worth in '+season
+    +' above a replacement '+one+', on the stats that are his own and the snaps he has played'
+    +(parts.length?'. By part of the job, each against an average '+one+': '+parts.join(', '):'');
 }
 function leagueBest(season,n){
   var out=[], order=['QB','WR','RB','ED','CB','TE','LB','S','DI','K'];
@@ -4537,17 +4576,18 @@ function leagueBest(season,n){
 }
 
 /* ================= THE ALL-SAVANT TEAM ======================================
-   Our All-Pro team, picked by the numbers alone: the best Savant profile score at every
-   spot the AP fills, shaped the way the AP shapes its first team. It is worked out here
-   from the data already in memory, so it moves every time the nightly refresh does.
+   Our All-Pro team, picked by the numbers alone: the highest Savant value at every spot
+   the AP fills, shaped the way the AP shapes its first team. The value is stamped on each
+   row by the pipeline (award.py), so the team moves every time the refresh does: after
+   every game night and every morning.
 
    Two spots can't be picked the way the rest are:
-   - The offensive line, during a season. Pressure and sack blame for one blocker comes from
-     the participation file, which nflverse publishes after the season. Until then the
-     line is picked as a unit - the best line by sack rate allowed, QB-hit rate allowed and
-     rush success, all from every snap - and its five starters go on the team. Once the
-     individual numbers land, the page switches to picking tackles, guards and a centre on
-     their own, with no change needed.
+   - The offensive line, before 2016. Nothing published then tells five men on a line apart,
+     so the line is picked as a unit - the best line by sack rate allowed, QB-hit rate
+     allowed and rush success - and its five starters go on the team. From 2016 on, the
+     season in progress included, tackles, guards and a centre are picked on their own.
+     Most of what a lineman's value is built from is still his line's play while he was on
+     the field, so linemates tend to rise and fall together.
    - Returners, who have no profile of their own. They are graded on yards and EPA per
      return against every returner with a starter's volume (build.py, grade_returns). */
 var AST={
@@ -4567,17 +4607,19 @@ function allSavant(season){
       for(var i=0;i<ranked.length&&k<sl[2];i++){
         var it=ranked[i]; if(used[it.p.id]) continue;
         used[it.p.id]=1; k++;
-        out.push({slot:sl[1],id:it.p.id,name:it.p.name,h:it.p.h,team:it.p.team,
-          why:'Savant profile score '+it.score+' — the average percentile of his headline stats vs qualified '
-            +(AST_PEERS[sl[0]]||posWord(sl[0],true))+', '+season});
+        out.push({slot:sl[1],id:it.p.id,name:it.p.name,h:it.p.h,team:it.p.team,why:valueWhy(it,season)});
       }
     });
     return out;
   }
   var off=fill(AST.off), line=null;
-  // Individual linemen once their blocking numbers exist; the best line as a unit until then.
+  // Linemen one by one wherever a season has blocking numbers for them, the one in progress
+  // included (2016 on). Before that there is nothing to tell five men on a line apart, and
+  // the best line goes on as a unit.
   var withPrs=seasonPlayers(season).filter(function(p){
-    return p.pos==='OT'&&p.qualified&&!miss(p.m.prsallow);
+    if(p.pos!=='OT'||!p.qualified) return false;
+    if(miss(p.m.sav)) return !miss(p.m.prsallow);
+    return (p.savb||[]).some(function(x){ return x[0]==='pp'; });
   }).length;
   if(withPrs>=16){
     off=off.concat(fill([['OT','T',2],['OG','G',2],['OC','C',1]]));
@@ -4606,8 +4648,7 @@ function allSavant(season){
     out2.concat(nb?[nb]:[]).forEach(function(it,i){
       used[it.p.id]=1;
       def.push({slot:(nb&&it===nb)?'NB':'CB',id:it.p.id,name:it.p.name,h:it.p.h,team:it.p.team,
-        why:'Savant profile score '+it.score+' — the average percentile of his headline stats vs qualified cornerbacks, '+season
-          +((nb&&it===nb)?'. Listed as his team\'s slot corner on the depth chart.':'')});
+        why:valueWhy(it,season)+((nb&&it===nb)?'. Listed as his team\'s slot corner on the depth chart.':'')});
     });
     def=def.concat(fill(AST.def.filter(function(sl){ return sl[0]==='S'; })));
   } else def=fill(AST.def);
@@ -4659,7 +4700,8 @@ function renderAllSavant(season){
   box.removeAttribute('aria-busy');
   var t=allSavant(season), blk=DATA.data[season]||{};
   if(sub) sub.textContent=season+(blk.week?' · through week '+blk.week:'')
-    +' · the best Savant profile at every All-Pro spot';
+    +(hasValue(season)?' · the most points added above a replacement at every All-Pro spot, this season only'
+                      :' · the best Savant profile at every All-Pro spot');
   // Individual linemen come back as T, T, G, G, C; they take the spots left to right.
   var IND={T:['LT','RT'],G:['LG','RG'],C:['C']}, seen={};
   var used={}, cards='';
@@ -4682,7 +4724,8 @@ function renderAllSavant(season){
   if(t.line){
     lineNote='<div class="ast-note">Line picked as a unit: <b>'+esc(teamName(t.line.tm))+'</b> · '
       +'sack rate '+t.line.sackr.toFixed(1)+'% · QB hit rate '+t.line.hitr.toFixed(1)+'% · rush success '
-      +t.line.runsr.toFixed(0)+'%. One-man blocking numbers arrive after the season.</div>';
+      +t.line.runsr.toFixed(0)+'%. '+(hasValue(season)?'Nothing published that season tells five linemen apart.'
+                                                       :'One-man blocking numbers arrive after the season.')+'</div>';
   }
   box.innerHTML='<div class="ast-swipe" aria-hidden="true">◀ swipe the field ▶</div>'
     +'<div class="ast-scroll"><div class="ast-field">'
@@ -4707,12 +4750,8 @@ function renderHomePos(){
   }).join('');
   box.querySelectorAll('.home-poschip').forEach(function(b){
     b.onclick=function(){
-      var ps=seasonPlayers(DATA.seasons[0]).filter(function(p){
-        return p.pos===b.dataset.pos&&p.qualified&&heavyUse(p);
-      });
-      var best=null,bs=-1;
-      ps.forEach(function(p){ var sc=profileScore(p.id,DATA.seasons[0]); if(sc!=null&&sc>bs){bs=sc;best=p;} });
-      if(best) selectPlayer(best.id);
+      var top=rankedAt(DATA.seasons[0],b.dataset.pos)[0];
+      if(top) selectPlayer(top.p.id);
     };
   });
 }
@@ -5496,7 +5535,7 @@ function renderChips(){
   var items=leagueBest(curSeason,8);
   box.innerHTML=items.map(function(it){
     return '<button class="chip" data-id="'+esc(it.p.id)+'" aria-pressed="false" title="'
-      +esc('Top-ranked '+(CFG.posLabel[it.p.pos]||it.p.pos).toLowerCase()+' in '+curSeason+' by profile score')+'">'
+      +esc('Top-ranked '+(CFG.posLabel[it.p.pos]||it.p.pos).toLowerCase()+' in '+curSeason+(it.value?' by Savant value':' by profile score'))+'">'
       +esc(it.p.name)+' <span style="opacity:.6">'+esc(it.p.pos)+'</span></button>';
   }).join('');
   box.querySelectorAll('.chip').forEach(function(b){
