@@ -36,7 +36,10 @@ FIRST_SEASON = 2022        # FTN charting starts here; before this the file does
 
 PBP_COLS = ['game_id', 'play_id', 'season_type', 'week', 'play_type', 'sack',
             'qb_dropback', 'qb_kneel', 'qb_spike', 'qb_scramble', 'complete_pass',
-            'passer_player_id', 'rusher_player_id', 'receiver_player_id']
+            'passer_player_id', 'rusher_player_id', 'receiver_player_id',
+            # for the splits: what the play was worth, and whose it was
+            'posteam', 'qb_epa', 'epa', 'success', 'yards_gained', 'first_down', 'touchdown',
+            'two_point_attempt']
 
 FLAGS = ['is_play_action', 'is_rpo', 'is_motion', 'is_no_huddle', 'is_screen_pass',
          'is_qb_out_of_pocket', 'is_interception_worthy', 'is_throw_away',
@@ -98,6 +101,19 @@ def agg_qb(d):
         'sack_n': _num(db.sack).fillna(0),
         'sack_fault': db.is_qb_fault_sack.astype(float).where(db.sack == 1, 0.0),
     })
+    # --- the same dropbacks, split the ways a defense or a play-caller can change them.
+    # Each split keeps its own count: a rate over forty play-action dropbacks is a rate
+    # over forty, and the page says so.
+    epa = _num(db.qb_epa).fillna(0)
+    pa = db.is_play_action
+    blz = (nrush >= 5) & counted
+    loc = db.qb_location.astype(str)
+    uc, sg = loc.eq('U'), loc.isin(['S', 'P'])
+    for key, mask in (('pa', pa), ('npa', ~pa), ('blz', blz), ('nblz', counted & ~blz),
+                      ('uc', uc), ('sg', sg)):
+        if key not in g.columns:
+            g[key] = mask.astype(float)
+        g[key + '_epa'] = epa.where(mask, 0.0)
     return g.groupby(['week', 'pid'], as_index=False).sum()
 
 
@@ -110,6 +126,9 @@ def agg_rush(d):
         return pd.DataFrame()
     box = _num(r.n_defense_box).fillna(0)
     counted = box > 0
+    yds = _num(r.yards_gained).fillna(0)
+    light, stack = counted & (box <= 6), counted & (box >= 8)
+    sneak = r.is_qb_sneak
     g = pd.DataFrame({
         'week': r.week, 'pid': r.rusher_player_id,
         'chart_car': 1.0,
@@ -118,8 +137,19 @@ def agg_rush(d):
         'box8': ((box >= 8) & counted).astype(float),
         'motion': r.is_motion.astype(float),
         'pa': r.is_play_action.astype(float),
+        # --- added: the same carries against a light box and a loaded one, and sneaks
+        'lt_n': light.astype(float), 'lt_yds': yds.where(light, 0.0),
+        'lt_succ': _num(r.success).fillna(0).where(light, 0.0),
+        'st_n': stack.astype(float), 'st_yds': yds.where(stack, 0.0),
+        'st_succ': _num(r.success).fillna(0).where(stack, 0.0),
+        'snk': sneak.astype(float),
+        'snk_conv': (sneak & ((r.first_down == 1) | (r.touchdown == 1))).astype(float),
     })
     return g.groupby(['week', 'pid'], as_index=False).sum()
+
+
+# team-week first-read throws; see the note on _TEAM_TOT in pbp_agg.py
+_TEAM_TOT = {}
 
 
 def agg_rec(d):
@@ -129,6 +159,10 @@ def agg_rec(d):
     if not len(t):
         return pd.DataFrame()
     comp = _num(t.complete_pass).fillna(0)
+    # Which read the throw went to. FTN marks the quarterback's first read, his second, a
+    # designed throw (a screen or a called shot), a checkdown, and a scramble drill.
+    read = t.read_thrown.astype(str)
+    has_read = read.isin(['1', '2', 'SD', 'CHK', 'DES'])
     g = pd.DataFrame({
         'week': t.week, 'pid': t.receiver_player_id,
         'chart_tgt': 1.0,
@@ -139,8 +173,40 @@ def agg_rec(d):
         'created': t.is_created_reception.astype(float),
         'screen': t.is_screen_pass.astype(float),
         'catchable_rec': (t.is_catchable_ball & (comp == 1)).astype(float),
+        # --- added
+        'rd_n': has_read.astype(float),
+        'rd_1': read.eq('1').astype(float),
+        'rd_des': read.eq('DES').astype(float),
+        'rd_chk': read.eq('CHK').astype(float),
     })
-    return g.groupby(['week', 'pid'], as_index=False).sum()
+    per = g.groupby(['week', 'pid'], as_index=False).sum()
+    # his team's first-read throws in the games he played: the denominator of his share
+    who = t.groupby(['week', 'receiver_player_id']).posteam.first().rename('_tm').reset_index() \
+           .rename(columns={'receiver_player_id': 'pid'})
+    tot = pd.DataFrame({'week': t.week, 'tm': t.posteam, 'tm_rd1': read.eq('1').astype(float)}
+                       ).groupby(['week', 'tm'], as_index=False).sum()
+    _TEAM_TOT['rec'] = tot
+    per = per.merge(who, on=['week', 'pid'], how='left').merge(
+        tot, left_on=['week', '_tm'], right_on=['week', 'tm'], how='left')
+    return per.drop(columns=['_tm', 'tm']).fillna(0)
+
+
+def agg_line(d):
+    """What every offensive line saw, per team-week: how many men rushed the passer and how
+    many stood in the box against the run. In a finished season the participation file says
+    this for each lineman's own snaps; this is the same thing for the unit, which is all a
+    season in progress can have."""
+    x = d[d.posteam.notna() & (d.qb_kneel == 0) & (d.qb_spike == 0)]
+    isdb = (x.qb_dropback == 1)
+    isrun = (x.play_type == 'run') & (x.qb_scramble != 1)
+    nr = _num(x.n_pass_rushers).fillna(0)
+    box = _num(x.n_defense_box).fillna(0)
+    g = pd.DataFrame({
+        'week': x.week, 'tm': x.posteam,
+        'rush_n': (isdb & (nr > 0)).astype(float), 'rush_sum': nr.where(isdb & (nr > 0), 0.0),
+        'box_n': (isrun & (box > 0)).astype(float), 'box_sum': box.where(isrun & (box > 0), 0.0),
+    })
+    return g.groupby(['week', 'tm'], as_index=False).sum()
 
 
 def run_season(year):
@@ -155,19 +221,28 @@ def run_season(year):
     pbp = have[[c for c in PBP_COLS if c in have.columns]].copy()
     del have
     pbp = pbp[pbp.season_type == 'REG']
+    if 'two_point_attempt' in pbp.columns:
+        # a two-point try is not a play from scrimmage (see pbp_agg.run_season)
+        pbp = pbp[pd.to_numeric(pbp.two_point_attempt, errors='coerce').fillna(0) == 0]
     d = pbp.merge(ftn, left_on=['game_id', 'play_id'],
                   right_on=['nflverse_game_id', 'nflverse_play_id'],
                   how='inner', suffixes=('', '_ftn'))
     if not len(d):
         return None
-    for c in ['sack', 'qb_dropback', 'qb_kneel', 'qb_spike', 'qb_scramble', 'complete_pass']:
+    for c in ['sack', 'qb_dropback', 'qb_kneel', 'qb_spike', 'qb_scramble', 'complete_pass',
+              'first_down', 'touchdown']:
         d[c] = pd.to_numeric(d.get(c), errors='coerce').fillna(0)
     for c in FLAGS:
         d[c] = _bool(d[c]) if c in d.columns else False
     out = {}
-    for name, fn in (('qb', agg_qb), ('rush', agg_rush), ('rec', agg_rec)):
+    _TEAM_TOT.clear()
+    for name, fn in (('qb', agg_qb), ('rush', agg_rush), ('rec', agg_rec), ('line', agg_line)):
         df = fn(d)
         out[name] = [] if df is None or not len(df) else df.to_dict(orient='records')
+    if 'rec' in _TEAM_TOT:
+        rd1 = {(r.week, r.tm): float(r.tm_rd1) for r in _TEAM_TOT['rec'].itertuples(index=False)}
+        for r in out['line']:
+            r['tm_rd1'] = rd1.get((r['week'], r['tm']), 0.0)
     out['charted'] = dict(plays=int(len(d)), pbp_plays=int(len(pbp)),
                           share=round(len(d) / float(len(pbp)), 4),
                           weeks=int(pd.to_numeric(d.week, errors='coerce').max()))

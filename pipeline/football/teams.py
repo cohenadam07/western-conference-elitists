@@ -43,3 +43,25 @@ TEAMS = {
  'OAK': ['Oakland Raiders', '#000000', '#A5ACAF'],
  'LAR': ['Los Angeles Rams', '#003594', '#FFA300'],
 }
+
+
+# One code per franchise. The sources disagree about the clubs that moved: the stat tables
+# and the play-by-play call the 2003 Raiders LV, while the schedule, the snap counts and
+# PFR's charting call them OAK. Matched as written, a pre-move Raider had no team record,
+# no coach and no team totals, and a 2015 Raider's season read LV -> OAK -> LV -> OAK.
+# Everything is joined on the play-by-play's code; the page prints the name the club had
+# in the season on screen (ERA below).
+CANON = {'OAK': 'LV', 'SD': 'LAC', 'STL': 'LA', 'LAR': 'LA', 'SL': 'LA', 'JAC': 'JAX',
+         'WSH': 'WAS', 'HST': 'HOU', 'BLT': 'BAL', 'CLV': 'CLE', 'ARZ': 'ARI'}
+
+
+def canon(t):
+    return CANON.get(t, t) if isinstance(t, str) else t
+
+
+# What a franchise was called before it moved: code -> (last season under the old name,
+# old code, old name). The page shows these for the seasons they apply to.
+ERA = {'LV': (2019, 'OAK', 'Oakland Raiders'),
+       'LAC': (2016, 'SD', 'San Diego Chargers'),
+       'LA': (2015, 'STL', 'St. Louis Rams')}
+

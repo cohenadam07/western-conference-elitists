@@ -13,7 +13,7 @@ Design notes worth keeping:
     stabilization thresholds are expressed in. Together they are what a bar needs.
   * Comps and weakness comps ARE precomputed, because they need the whole league at once.
 """
-import csv, json, math, os, sys, datetime
+import csv, json, math, os, re, sys, datetime
 from collections import defaultdict
 
 import numpy as np
@@ -21,9 +21,11 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from metrics import (METRICS, POS_PANELS, POS_LABEL, GROUP_LABEL, HEADLINE, WEAK_DIMS,
-                     QUALIFY, QUALIFY_FALLBACK, TIER_SINCE, DENOMS)
-from teams import TEAMS
+                     QUALIFY, QUALIFY_FALLBACK, TIER_SINCE, DENOMS, DENOM_CORE)
+from teams import TEAMS, ERA, CANON, canon
 from seasons import seasons as season_list_from_env
+import extras as E
+from play_callers import NAME_FIXES
 
 RAW = os.environ.get('NFL_RAW', 'raw')
 AGG = os.environ.get('NFL_AGG', 'agg')
@@ -129,10 +131,12 @@ def load_players():
             head=r.headshot if isinstance(r.headshot, str) else None,
             jersey=int(r.jersey_number) if num(r.jersey_number) else None,
             rookie=int(r.rookie_season) if num(r.rookie_season) else None,
+            last=int(r.last_season) if num(r.last_season) else None,
             dyear=int(r.draft_year) if num(r.draft_year) else None,
             dround=int(r.draft_round) if num(r.draft_round) else None,
             dpick=int(r.draft_pick) if num(r.draft_pick) else None,
             dteam=r.draft_team if isinstance(r.draft_team, str) else None,
+            pos=r.position if isinstance(r.position, str) else None,
             pff_pos=r.pff_position if isinstance(r.pff_position, str) else None,
             ngs_pos=r.ngs_position if isinstance(r.ngs_position, str) else None,
             ht=num(r.height), wt=num(r.weight),
@@ -142,6 +146,98 @@ def load_players():
         if bio[gid]['espn']:
             by_espn[bio[gid]['espn']] = gid
     return bio, by_pfr, by_espn
+
+
+# ---- the same lookup, season by season
+# Snap counts and PFR's charting name a player by his Pro Football Reference id, and the
+# rest of the site by his NFL one. players.csv is the bridge, and it has two kinds of hole:
+#
+#   - It lags. A man can be four games into a season before his PFR id is filled in, so
+#     his snaps and charting go nowhere. (Alec Anderson started at center for Buffalo.)
+#   - PFR ids look alike. "WoodPe00" in the 2026 snap counts is Peter Woods, a rookie
+#     defensive tackle in Kansas City; in players.csv it belongs to Pete Woods, a
+#     quarterback whose last season was 1980. While only players with a stat line had a
+#     card that sent the rookie's snaps into the void. Now that everyone with a snap has
+#     one, it would print a card for a quarterback who retired 46 years ago.
+#
+# So the lookup is made per season. A match is kept only if that man's career covers the
+# season; where it does not, or where there is no match at all, the snap file's own name
+# is tried against players active that season, and used only when it points at one man
+# who is not already somebody else in the same file.
+_FAMILY = {}
+for _fam, _codes in (('OL', 'T G C OT OG OL LT RT LG RG'), ('DL', 'DT DE DL NT'),
+                     ('LB', 'LB OLB ILB MLB'), ('DB', 'CB S DB FS SS SAF'), ('RB', 'RB FB HB')):
+    for _c in _codes.split():
+        _FAMILY[_c] = _fam
+_SUFFIX = re.compile(r'\s(jr|sr|ii|iii|iv|v)$')
+_PFR_SEASON = {}
+
+
+def _name_key(s):
+    s = re.sub(r"[.'’`]", '', str(s).lower())
+    return _SUFFIX.sub('', re.sub(r'[^a-z0-9]+', ' ', s).strip())
+
+
+def _covers(b, y):
+    """Could this man have played in season y? Loose on purpose: it is there to catch a
+    career that ended decades earlier, not to argue about a practice-squad year."""
+    return not ((b.get('rookie') and y < b['rookie'] - 1) or (b.get('last') and y > b['last'] + 2))
+
+
+def pfr_for(y, by_pfr, bio):
+    """The PFR-id -> NFL-id lookup as it holds in season y (see above)."""
+    if y in _PFR_SEASON:
+        return _PFR_SEASON[y]
+    out = by_pfr
+    p = os.path.join(RAW, 'snaps_%d.csv' % y)
+    if os.path.exists(p) and os.path.getsize(p) > 1000:
+        df = pd.read_csv(p, low_memory=False, usecols=['pfr_player_id', 'player', 'position'])
+        df = df[df.pfr_player_id.notna()].drop_duplicates('pfr_player_id')
+        good, doubt = set(), []
+        for r in df.itertuples(index=False):
+            gid = by_pfr.get(r.pfr_player_id)
+            if gid and _covers(bio[gid], y):
+                good.add(gid)
+            else:
+                doubt.append(r)
+        if doubt:
+            names = defaultdict(list)
+            for gid, b in bio.items():
+                if gid.startswith('00-') and gid not in good and _covers(b, y):
+                    names[_name_key(b['name'])].append(gid)
+            out = dict(by_pfr)
+            for r in doubt:
+                c = names.get(_name_key(r.player), [])
+                if len(c) > 1:
+                    fam = _FAMILY.get(r.position, r.position)
+                    same = [g for g in c if _FAMILY.get(bio[g].get('pos'), bio[g].get('pos')) == fam]
+                    c = same if len(same) == 1 else c
+                if len(c) == 1:
+                    out[r.pfr_player_id] = c[0]
+                    names[_name_key(r.player)] = []          # one file, one man
+                    print(y, 'id by name: %s %s (%s) -> %s' % (r.pfr_player_id, r.player, r.position, c[0]), flush=True)
+                elif by_pfr.get(r.pfr_player_id):
+                    print(y, 'id dropped: %s %s (%s) is not %s' % (r.pfr_player_id, r.player, r.position,
+                                                                 bio[by_pfr[r.pfr_player_id]]['name']), flush=True)
+                    del out[r.pfr_player_id]
+    _PFR_SEASON[y] = out
+    return out
+
+
+# Sample sizes that are estimates in a season the lineup file has not been published for.
+EST_DENS = ('pblk', 'rblk', 'opsnap', 'dpsnap', 'drsnap', 'gaprun')
+
+# What snap counts call a lineman, for the ones no depth chart has placed yet.
+SNAP_LINE = {'T': 'OT', 'OT': 'OT', 'G': 'OG', 'OG': 'OG', 'C': 'OC'}
+
+
+def line_spot(line_a, S, gid):
+    """Tackle, guard or centre. The depth charts say, where they list him; a rookie they
+    have not caught up with (Detroit's first-round tackle played every snap of September
+    2026 filed as plain "OL", ranked against nobody, every bar on his card blank) goes by
+    what the snap counts call him; only a man neither source places keeps the old
+    undivided cohort."""
+    return line_a.get(gid) or SNAP_LINE.get(S.snap_pos.get(gid) if S else None) or 'OL'
 
 
 def parse_ht(s):
@@ -187,33 +283,55 @@ def load_ngs():
     return out
 
 
-def load_pfr(by_pfr):
+def load_pfr(by_pfr, bio):
     out = defaultdict(dict)
     for kind in ('pass', 'rush', 'rec', 'def'):
         p = os.path.join(RAW, 'adv_%s.csv' % kind)
         df = pd.read_csv(p, low_memory=False)
-        for r in df.to_dict('records'):
+        # A man traded in season has three rows in the newer files: one per club and a
+        # "2TM" line that is the season. Read in file order the last club's partial line
+        # won, and was then divided by the whole season's games and snaps: Sauce Gardner's
+        # 2025 came out as 17 targets allowed, not 45. The total is the only one kept.
+        tc = 'tm' if 'tm' in df.columns else 'team'
+        total = df[tc].astype(str).str.match(r'^\dTM$')
+        has_total = set(zip(df.pfr_id[total], df.season[total]))
+        for r, is_total in zip(df.to_dict('records'), total):
             pid = r.get('pfr_id')
-            gid = by_pfr.get(pid) if isinstance(pid, str) else None
+            if not is_total and (pid, r['season']) in has_total:
+                continue
+            gid = pfr_for(int(r['season']), by_pfr, bio).get(pid) if isinstance(pid, str) else None
             if not gid:
                 continue
             out[(gid, int(r['season']))].update({kind + '_' + k: v for k, v in r.items()})
-    # A season the all-seasons files don't have yet - the one being played - is summed up
-    # from PFR's weekly files instead, into rows of exactly the same shape (pfr_week.py).
+    # A season still being played is summed up from PFR's weekly files instead, into rows
+    # of exactly the same shape (pfr_week.py).
+    #
+    # This used to be "a season the all-seasons files don't have yet". That stopped being
+    # the same thing in 2026: nflverse now writes the season in progress into three of the
+    # four all-seasons files (not the passing one), and refreshes them about a week behind
+    # the weekly files. On 8 October 2026 they held three games for a man who had played
+    # four, so every charted defensive rate on the site was three games of targets and
+    # pressures divided by four games played. The weekly files are the fresher source and
+    # the only one that has the quarterbacks, so while a season is live they are the
+    # source, whatever the all-seasons files happen to hold.
     have = {y for (_, y) in out}
     import pfr_week
     for y in SEASONS:
-        if y in have:
+        wk = weeks_played(y)
+        live = wk is not None and wk < (REG_WEEKS if y >= 2021 else 17)
+        if y in have and not live:
             continue
-        rows = pfr_week.season_rows(y, by_pfr, RAW)
+        rows = pfr_week.season_rows(y, pfr_for(y, by_pfr, bio), RAW)
         if rows:
             print(y, 'PFR charting from the weekly files:', len(rows), 'players', flush=True)
+            for k in [k for k in out if k[1] == y]:
+                del out[k]
         for k, v in rows.items():
             out[k].update(v)
     return out
 
 
-def load_snaps(by_pfr):
+def load_snaps(by_pfr, bio):
     """Season snap totals plus snap share, from weekly snap counts (2013+)."""
     out = {}
     for y in range(2013, max(SEASONS) + 1):
@@ -231,8 +349,9 @@ def load_snaps(by_pfr):
             off=('offense_snaps', 'sum'), dfn=('defense_snaps', 'sum'),
             st=('st_snaps', 'sum'), gp=('game_id', 'nunique'),
             offt=('off_team', 'sum'), deft=('def_team', 'sum')).reset_index()
+        ids = pfr_for(y, by_pfr, bio)
         for r in g.itertuples(index=False):
-            gid = by_pfr.get(r.pfr_player_id)
+            gid = ids.get(r.pfr_player_id)
             if not gid:
                 continue
             out[(gid, y)] = dict(off=float(r.off or 0), dfn=float(r.dfn or 0),
@@ -273,10 +392,14 @@ def load_records():
         yr = int(r.season)
         for team, own, opp, coach in ((r.home_team, r.home_score, r.away_score, r.home_coach),
                                       (r.away_team, r.away_score, r.home_score, r.away_coach)):
-            k = (team, yr)
+            # the schedule says OAK where the stat table says LV (teams.CANON): matched as
+            # written, no Raider, Charger or Ram before the moves had a record or a coach
+            k = (canon(team), yr)
             e = rec[k]
             if isinstance(coach, str):
-                e['coach'] = coach
+                # the schedule misspells two coaches; Coaching Savant already corrects them,
+                # and a card's link to his coach breaks if this side does not
+                e['coach'] = NAME_FIXES.get(coach, coach)
             if r.game_type == 'REG':
                 if own > opp:
                     e['w'] += 1
@@ -471,6 +594,51 @@ def load_line(y):
     return json.load(open(p)) if os.path.exists(p) else {}
 
 
+_SWAPS = {}
+
+
+def team_swaps(y):
+    """{(gid, week): team} for the rows where the weekly stat table has a man's team and
+    his opponent the wrong way round.
+
+    It happens in exactly one place: Jacksonville's home games of 2001 and 2002, where
+    every Jaguar is filed under the visiting club. (The old play-by-play wrote JAC, the
+    schedule JAX, and the join that sorts players into teams lost them.) Left alone,
+    Fred Taylor's 2002 reads IND -> JAX -> NYJ -> PHI -> JAX -> HOU, Mark Brunell finishes
+    the year a Titan with Jeff Fisher for a coach, and the Texans' 2002 page lists 28
+    Jaguars. A row is turned round only for a man whose every game has JAX on one side
+    of it and who is, somewhere that season, either listed as a Jaguar or listed under
+    two different "teams" on the days he faced them: an opponent who met them twice is
+    always the same club, a Jaguar never is.
+    """
+    if y in _SWAPS:
+        return _SWAPS[y]
+    out = {}
+    p = os.path.join(RAW, 'wk_%d.csv' % y)
+    if y in (2001, 2002) and os.path.exists(p):
+        rows = defaultdict(list)
+        with open(p, newline='', encoding='utf-8', errors='replace') as f:
+            for r in csv.DictReader(f):
+                if (r.get('season_type') or 'REG') != 'REG':
+                    continue
+                gid = (r.get('player_id') or '').strip()
+                if gid:
+                    rows[gid].append((int(num(r.get('week'), 0) or 0),
+                                      canon(sstr(r.get('team'))), canon(sstr(r.get('opponent_team')))))
+        T = 'JAX'
+        for gid, rs in rows.items():
+            if not all(t == T or o == T for _, t, o in rs):
+                continue
+            wrong = [(w, t) for w, t, o in rs if o == T and t != T]
+            if not wrong:
+                continue
+            if any(t == T for _, t, _ in rs) or len({t for _, t in wrong}) >= 2:
+                for w, _ in wrong:
+                    out[(gid, w)] = T
+    _SWAPS[y] = out
+    return out
+
+
 def load_weekteams(y, by_pfr):
     """Every team a player actually appeared for that season, in week order.
 
@@ -488,15 +656,18 @@ def load_weekteams(y, by_pfr):
     that a lineman is ranked against the others who play his spot.
     """
     weeks = defaultdict(list)
+    swaps = team_swaps(y)
     p = os.path.join(RAW, 'wk_%d.csv' % y)
     if os.path.exists(p):
         with open(p, newline='', encoding='utf-8', errors='replace') as f:
             for r in csv.DictReader(f):
                 if (r.get('season_type') or 'REG') != 'REG':
                     continue
-                gid, team = (r.get('player_id') or '').strip(), sstr(r.get('team'))
+                gid, team = (r.get('player_id') or '').strip(), canon(sstr(r.get('team')))
+                wk_n = num(r.get('week'), 0) or 0
+                team = swaps.get((gid, int(wk_n)), team)
                 if gid and team:
-                    weeks[gid].append((num(r.get('week'), 0) or 0, team))
+                    weeks[gid].append((wk_n, team))
     p = os.path.join(RAW, 'snaps_%d.csv' % y)
     if os.path.exists(p):
         with open(p, newline='', encoding='utf-8', errors='replace') as f:
@@ -504,7 +675,7 @@ def load_weekteams(y, by_pfr):
                 if (r.get('game_type') or 'REG') != 'REG':
                     continue
                 gid = by_pfr.get((r.get('pfr_player_id') or '').strip())
-                team = sstr(r.get('team'))
+                team = canon(sstr(r.get('team')))
                 if gid and team:
                     weeks[gid].append((num(r.get('week'), 0) or 0, team))
     out = {}
@@ -618,8 +789,17 @@ def fg_curve(reg_by_season):
 # ---------------------------------------------------------------- metric assembly
 def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
                  onf, onf_teams, starts, team_games, pmake, y, fqb=None, frush=None,
-                 frec=None):
+                 frec=None, ex=None, lg=None, live=False):
     m, d = {}, {}
+    ex = ex or {}
+    # A lineman in a season the participation file has not been published for - which is
+    # every season while it is being played - gets his on-field rows from his share of
+    # each game's snaps instead (extras.py). Marked, so the on/off rows stay blank: with no
+    # play-by-play lineup there is no "off the field" to difference against.
+    standin = False
+    if not onf and pos in E.OLINE and y >= TIER_SINCE[5]:
+        onf = E.standin_onfield(ex)
+        standin = bool(onf)
     # `games` in the season table counts games in which he recorded a *stat*. For skill
     # players and defenders that is every game he played; for an offensive lineman it is
     # only the games he was flagged in, which read Trent Williams as a five-game season.
@@ -655,6 +835,8 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
         if base and pos not in ('K', 'P'):
             m['snapshr'] = side / base * 100.0
     pen = num(r.get('penalties'))
+    if pen is None and r.get('_snap_only'):
+        pen = pens.get('pen', 0.0) if pens else 0.0
     if pen is not None and G:
         m['pen'] = pen / G
 
@@ -848,10 +1030,26 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
         if G:
             m['tgt'] = tgt / G
         rec_ay = num(r.get('receiving_air_yards'))
+        # His share of the throws in the games he played. The season table's own share
+        # columns divide by every game his team played, so a receiver who drew a third of
+        # the targets for seven games and then got hurt (Garrett Wilson, 2025) read as a
+        # 12% target share, the mark of a third option. The team totals for his own games
+        # ride on the week counters (extras.py), which is also what lets a window of games
+        # or a season through week N be worked out the same way.
+        share = {}
+        if ex.get('t_tgt'):
+            share['target_share'] = tgt / ex['t_tgt']
+            if rec_ay is not None and ex.get('t_ay') and ex['t_ay'] > 0:
+                share['air_yards_share'] = rec_ay / ex['t_ay']
+                share['wopr'] = 1.5 * share['target_share'] + 0.7 * share['air_yards_share']
+        if rec_ay:
+            share['racr'] = recy / rec_ay
         for src, key, sc in (('target_share', 'tgtshr', 100.0),
                              ('air_yards_share', 'ayshr', 100.0),
                              ('wopr', 'wopr', 1.0), ('racr', 'racr', 1.0)):
-            v = num(r.get(src))
+            v = share.get(src)
+            if v is None:
+                v = num(r.get(src))            # no team totals for these games: the table's own
             if v is None or (key != 'tgtshr' and y < TIER_SINCE[2]):
                 continue
             # RACR is yards / air yards: with a shallow target diet the denominator goes to
@@ -1021,6 +1219,10 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
     if pens and G:
         m['fsg'] = pens.get('pen_fs', 0.0) / G
         m['holdg'] = pens.get('pen_hold', 0.0) / G
+    elif G and (st or onf):
+        # Never flagged is a zero, not a blank. Leaving it blank ranked the flagged linemen
+        # against each other and left the cleanest ones out of the percentile altogether.
+        m['fsg'] = m['holdg'] = 0.0
     if st:
         m['starts'] = st['starts']
         if st['vers']:
@@ -1037,6 +1239,8 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
         if prs_n >= 1:
             m['prsallow'] = sum(x['prs'] for x in onf) / prs_n * 100.0
         if pblk:
+            if all('hit' in x for x in onf):
+                m['hitallow'] = sum(x['hit'] for x in onf) / pblk * 100.0
             m['sackallow'] = sum(x['sk'] for x in onf) / pblk * 100.0
             m['epadbon'] = sum(x['pepa'] for x in onf) / pblk
             m['srdbon'] = sum(x['psucc'] for x in onf) / pblk * 100.0
@@ -1055,7 +1259,7 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
         # exists for players who actually left the field — an iron-man lineman has
         # nothing to be compared against and gets no value at all rather than a zero.
         off = defaultdict(float)
-        for x in onf:
+        for x in ([] if standin else onf):
             t = onf_teams.get(x['tm'])
             if not t:
                 continue
@@ -1074,11 +1278,17 @@ def build_player(r, pos, bio, ngs, pfr, snap, qbr, comb, qb, rush, rec, pens,
     if epa_tot:
         m['epatot'] = epa_tot
     fp = num(r.get('fantasy_points_ppr'))
+    if pos == 'K':
+        fp = E.kicker_points(r)          # the season table scores every kicker at zero
     if fp is not None and G:
         m['fppg'] = fp / G
     touches = car + (num(r.get('receptions'), 0) or 0)
     if touches and G:
         m['toucheg'] = touches / G
+
+    # ------------------------------------------------------------------ October 2026 rows
+    E.add_metrics(m, d, r, pos, y, G, ex, qb, rush, rec, pens, fqb, frush, frec, pf, ng,
+                  off_s, def_s, lg, TIER_SINCE, num, live)
 
     # ------------------------------------------------------------------ athletic
     for k, v in comb.get(bio_id(r), {}).items():
@@ -1147,7 +1357,7 @@ def add_comps(players, pos_pools):
         # An offensive lineman's headline stats are his unit's, so his four best matches
         # are otherwise always the four men beside him — true, and useless. Comps for the
         # line look outside his own team.
-        same_team_ok = pos != 'OL'
+        same_team_ok = pos not in E.OLINE
         for p in qual:
             a = vecs[p['id']]
             scored = []
@@ -1247,7 +1457,7 @@ def line_starters(y, by_pfr):
             gid = (r.get('gsis_id') or '').strip()
             if spot not in LINE_SPOTS or not gid or not team:
                 continue
-            spot_ct[(team.strip(), gid)][spot] += 2.0 if (rank or '').strip() == '1' else 1.0
+            spot_ct[(canon(team.strip()), gid)][spot] += 2.0 if (rank or '').strip() == '1' else 1.0
     sn = pd.read_csv(sp, low_memory=False)
     if 'game_type' in sn.columns:
         sn = sn[sn.game_type == 'REG']
@@ -1256,7 +1466,7 @@ def line_starters(y, by_pfr):
     for r in sn.itertuples(index=False):
         gid = by_pfr.get(r.pfr_player_id)
         if gid:
-            snaps[(r.team, gid)] += float(num(r.offense_snaps, 0) or 0)
+            snaps[(canon(r.team), gid)] += float(num(r.offense_snaps, 0) or 0)
     out = {}
     for team in sorted({t for t, _ in snaps}):
         used, five = set(), []
@@ -1362,14 +1572,49 @@ def grade_returns(ret_rows, line_rows, players):
     return out
 
 
+TEAM_KEYS = ('plays', 'epa', 'succ', 'db', 'pepa', 'psucc', 'sk', 'hit', 'run', 'repa',
+             'rsucc', 'ryds', 'stuff', 'x20', 'd3', 'd3c', 'to')
+POS_KEYS = tuple('%s%s_%s' % (a, P, s) for a, Ps in (('t', ('WR', 'TE', 'RB')), ('r', ('RB', 'QB')))
+                 for P in Ps for s in ('n', 'y', 'e'))
+
+
+def team_block(S):
+    """{team: {g, o:{...}, d:{...}, sos:[...]}} - what each offense has done, what each
+    defense has allowed, and what both gave to and took from each position. Sums, so the
+    page takes the rates and the ranks. The team page is built from this."""
+    out = {}
+    for (week, team), r in S.tm.items():
+        e = out.setdefault(team, dict(g=0, o=defaultdict(float), d=defaultdict(float),
+                                      so=[], sd=[]))
+        e['g'] += 1
+        for k in TEAM_KEYS + POS_KEYS:
+            e['o'][k] += float(r.get(k) or 0)
+        if r.get('sos_d') is not None:
+            e['sd'].append(float(r['sos_d']))     # the defenses this offense has faced
+        if r.get('sos_o') is not None:
+            e['so'].append(float(r['sos_o']))     # the offenses this defense has faced
+        f = S.faced.get((week, team))
+        if f:
+            for k in TEAM_KEYS + POS_KEYS:
+                e['d'][k] += float(f.get(k) or 0)
+    for team, e in out.items():
+        e['o'] = {k: rnd(v, 2) for k, v in e['o'].items() if v}
+        e['d'] = {k: rnd(v, 2) for k, v in e['d'].items() if v}
+        for k in ('so', 'sd'):
+            v = e.pop(k)
+            if v:
+                e[k] = rnd(sum(v) / len(v), 4)
+    return out
+
+
 # ---------------------------------------------------------------- main
 def main():
     bio, by_pfr, by_espn = load_players()
     records = load_records()
     comb = load_combine(by_pfr)
     ngs = load_ngs()
-    pfr = load_pfr(by_pfr)
-    snap = load_snaps(by_pfr)
+    pfr = load_pfr(by_pfr, bio)
+    snap = load_snaps(by_pfr, bio)
     qbr = load_qbr(by_espn)
     print('sources loaded', flush=True)
 
@@ -1388,18 +1633,28 @@ def main():
                                         low_memory=False)
     pmake = fg_curve(curve_regs)
 
+    contracts = E.load_contracts(RAW)
+    archive = os.environ.get('NFL_ARCHIVE')
+    ratios = {}                       # season -> {gid: true pass snaps / the naive estimate}
     data, season_list = {}, []
     for y in SEASONS:
         if y not in regs:
             continue
         df = regs[y]
+        # Last season's correction for this season's pass-snap estimates: from this run if
+        # it built last season too, else from the shipped archive, else position averages.
+        prior = ratios.get(y - 1)
+        if prior is None and archive:
+            prior = E.load_prior_ratio(archive, y - 1)
+        ids_y = pfr_for(y, by_pfr, bio)        # the PFR-id lookup as it holds this season
+        S = E.Season(y, ids_y, RAW, AGG, pmake, prior, swaps=team_swaps(y))
         qb_a, rush_a, rec_a, pen_a = load_pbp(y)
         fqb_a, frush_a, frec_a = load_ftn(y)
         line_a = load_line(y)
-        wteams = load_weekteams(y, by_pfr)
+        wteams = load_weekteams(y, ids_y)
         accos = season_accolades(df.reset_index(drop=True))
         onf_a, onf_teams = load_onfield(y)
-        starts_a = load_starts(y, by_pfr)
+        starts_a = load_starts(y, ids_y)
         full_games = 17 if y >= 2021 else 16
         wk, tgames, frac, wk_done = season_progress(y, records)
         partial = wk is not None
@@ -1407,12 +1662,28 @@ def main():
         injuries = load_injuries(y) if partial else {}
         if partial:
             print(y, 'in progress: through week', wk, '(%.0f%% of the season)' % (frac * 100), flush=True)
+        status = E.load_status(y, RAW) if partial else {}
+        line_rows, ret_rows = load_units(y)
+        lines = grade_lines(y, line_rows, ids_y, bio)
+        line_score = {r['tm']: r['score'] for r in lines}
         players, pos_pools = [], defaultdict(list)
-        for r in df.to_dict('records'):
+        rows = df.to_dict('records')
+        # Everyone who took a snap gets a card. The stat table only lists men who recorded
+        # a stat, which left out most of the offensive line: through four weeks of 2026,
+        # 35 of the 167 linemen with 100 snaps had no card at all.
+        have = {r.get('player_id') for r in rows if isinstance(r.get('player_id'), str)}
+        rows += S.snap_only(have)
+        swapped = {g for (g, _) in team_swaps(y)}
+        for r in rows:
             gid = r.get('player_id')
             if not isinstance(gid, str):
                 continue
             b = bio.get(gid, {})
+            # one code per franchise, and the 2001-02 Jaguars back in Jacksonville
+            r['recent_team'] = 'JAX' if gid in swapped else canon(sstr(r.get('recent_team')))
+            if r.get('_snap_only') and b.get('pos'):
+                # snap counts say "DL" and "OL"; the player file knows which
+                r['position'] = b['pos']
             pos = cohort(r.get('position'), b.get('pff_pos'), b.get('ngs_pos'))
             if not pos:
                 continue
@@ -1420,15 +1691,23 @@ def main():
             # do not say - every season before 2001, and anybody who never made one - he
             # keeps the undifferentiated cohort rather than being guessed into one.
             if pos == 'OL':
-                pos = line_a.get(gid) or 'OL'
+                pos = line_spot(line_a, S, gid)
             team_games = full_games
             if partial:
                 team_games = tgames.get(sstr(r.get('recent_team'))) or wk
+            ex = S.roll(gid)
+            ex.update(S.only(gid))
+            deal = E.contract_for(contracts, gid, y)
+            if deal:
+                ex['apy'], ex['capshr'] = deal
+            if pos in E.OLINE:
+                ex['linescore'] = line_score.get(S.snap_team.get(gid) or sstr(r.get('recent_team')))
             m, d = build_player(r, pos, bio, ngs, pfr, snap, qbr, comb,
                                 qb_a.get(gid), rush_a.get(gid), rec_a.get(gid),
                                 pen_a.get(gid), onf_a.get(gid), onf_teams,
                                 starts_a.get(gid), team_games, pmake, y,
-                                fqb_a.get(gid), frush_a.get(gid), frec_a.get(gid))
+                                fqb_a.get(gid), frush_a.get(gid), frec_a.get(gid),
+                                ex=ex, lg=S.lg, live=partial)
             if not m:
                 continue
             qkey, qmin = QUALIFY.get(pos, ('g', 6))
@@ -1450,11 +1729,23 @@ def main():
             rec_out = dict(
                 id=gid, name=sstr(r.get('player_display_name')) or b.get('name') or gid,
                 team=sstr(r.get('recent_team')), pos=pos, rawpos=sstr(r.get('position')),
-                m=m, d={k: rnd(v, 1) for k, v in d.items() if v},
+                # a count worked out from snap share is a whole number of snaps, give or take
+                m=m, d={k: (float(max(1, round(v))) if (k in EST_DENS and not S.has_part) else rnd(v, 1))
+                        for k, v in d.items() if v},
                 qualified=qualified,
             )
             if gid in wteams:
                 rec_out['tms'] = wteams[gid]      # every team he appeared for, in order
+            role = S.roles.get(gid)
+            if role:
+                rec_out['role'] = role            # depth-chart spot and best rank (2025 on)
+            if gid in status:
+                rec_out['st'] = status[gid]       # off the active roster this week
+            if not partial:
+                psr = S.pass_ratio(gid)
+                if psr:
+                    rec_out['psr'] = psr          # corrects next season's pass-snap estimates
+                    ratios.setdefault(y, {})[gid] = psr
             if gid in injuries:
                 rec_out['inj'] = injuries[gid]    # this week's report, in season only
             if age:
@@ -1503,13 +1794,22 @@ def main():
 
         add_comps(players, pos_pools)
         block = dict(players=players)
-        line_rows, ret_rows = load_units(y)
-        lines = grade_lines(y, line_rows, by_pfr, bio)
+        teams = team_block(S)
+        if teams:
+            block['tm'] = teams
+        if S.lg:
+            block['lg'] = {k: rnd(v, 4) for k, v in S.lg.items()}
         if lines:
             block['lines'] = lines
         rets = grade_returns(ret_rows, line_rows, players)
         if rets:
             block['ret'] = rets
+        if y >= TIER_SINCE[5] and not S.has_part:
+            # The rows marked est='live' in metrics.py are worked out from snap counts
+            # until the lineup file for this season is published, which is after the
+            # Super Bowl - a month after `week` below has gone. This says so for as long
+            # as it is true, so the page does not present a January estimate as a count.
+            block['est'] = 1
         if partial:
             # The page says "through week N" while this is set, and everything that has
             # to wait for a finished season keys off its presence.
@@ -1525,7 +1825,10 @@ def main():
                groupLabel=GROUP_LABEL, headline=HEADLINE, weakDims=WEAK_DIMS,
                qualify={k: list(v) for k, v in QUALIFY.items()},
                qualifyFallback={k: list(v) for k, v in QUALIFY_FALLBACK.items()},
-               tierSince=TIER_SINCE, denoms=DENOMS, teams=TEAMS,
+               tierSince=TIER_SINCE, denoms=DENOMS, denomCore=DENOM_CORE, teams=TEAMS,
+               # one code per franchise in the data; `era` is what a club was called
+               # before it moved, `alias` the codes an old link might still carry
+               era={k: list(v) for k, v in ERA.items()}, alias=dict(CANON),
                season=season_list[-1] if season_list else None)
     out = dict(seasons=list(reversed(season_list)),
                generated=datetime.datetime.now(datetime.timezone.utc).isoformat(),

@@ -7,6 +7,9 @@ Builds the two data assets `public/football-savant.html` reads:
 | `public/football-savant-data.json` | the metric table (`cfg`) plus every player-season, 1999–2025 |
 | `public/football-maps/<season>.json` | throw maps, target maps and run-gap maps, loaded on demand |
 | `public/football-routes/<season>.json` | receiver route trees (route of the targeted receiver), 2016 on, loaded on demand |
+| `public/football-weekly/<season>/` | every player's game lines, and for the season in progress `form-4/8/17.json`: everyone's last 4, 8 and 17 games as one row |
+| `public/football-splits/<season>.json` | situational splits for passers, rushers and receivers, loaded on demand |
+| `public/football-pace/wNN.json` | history as it stood after each week, for the "Same point" baseline |
 | `public/coaching-savant-data.json` | every head coach since 1999, every play-caller since 2018, their units, fourth-down decisions since 2014, and the curated coaching tree |
 | `public/coaching-savant-current.json` | the in-season overlay for Coaching Savant (see below) |
 
@@ -19,22 +22,26 @@ behind the metric choices; `metrics.py` is that argument in code.
 ```bash
 cd pipeline/football          # or anywhere — the scripts take paths from env vars
 mkdir -p raw agg maps
-./fetch.sh                    # ~1 GB of source data into raw/
+./fetch.sh                    # ~750 MB of source data into raw/
 python3 pbp_agg.py            # play-by-play -> weekly per-player aggregates in agg/
 python3 ftn_agg.py            # FTN charting + pbp -> weekly charted rates (2022+)
 python3 line_agg.py           # depth charts -> which spot on the line each man played (2001+)
 python3 onfield_agg.py        # participation + pbp -> who was on the field, and what happened
+python3 roles_agg.py          # depth charts -> listed role: slot corner, linebacker spots (2025+)
 NFL_ROUTES=../../public/football-routes python3 route_agg.py   # participation + pbp -> route trees (2016+)
 python3 maps.py               # agg/ -> maps/<season>.json + maps/index.json
 python3 build.py              # everything -> football-savant-data.json
 python3 weekly.py             # the same metrics, one game at a time -> public/football-weekly/<season>/
+NFL_SPLITS=../../public/football-splits python3 splits.py     # situational splits, one file a season
+NFL_PACE=../../public/football-pace python3 pace.py           # every finished season as it stood after each week
 python3 coaches.py            # schedules + pbp -> coaching-savant-data.json
 cp football-savant-data.json ../../public/
 cp maps/*.json ../../public/football-maps/
 ```
 
 Needs Python 3.9+ with `pandas` and `pyarrow` (and `pyreadr` for Coaching Savant's fourth-down model). Paths are overridable:
-`NFL_RAW`, `NFL_AGG`, `NFL_MAPS`, `NFL_OUT`. Seasons too: `NFL_SEASONS=2026`,
+`NFL_RAW`, `NFL_AGG`, `NFL_MAPS`, `NFL_OUT`, `NFL_ROUTES`, `NFL_WEEKLY`, `NFL_SPLITS`, `NFL_PACE`, and `NFL_ARCHIVE`
+(the built archive, which the season in progress reads last season's pass-snap corrections from). Seasons too: `NFL_SEASONS=2026`,
 `2024,2025` or `1999-2026` (default: 1999 through the current season — see `seasons.py`).
 
 ## In-season refresh (automatic)
@@ -45,8 +52,10 @@ GitHub Action in `.github/workflows/football-savant-refresh.yml`:
 
 | Output | What it is |
 |---|---|
-| `public/football-savant-current.json` | the current season only (a few hundred KB, ~2 MB by January) |
+| `public/football-savant-current.json` | the current season only (about 3 MB in October, more by January) |
 | `public/football-maps/<season>.json` + `index.json` | that season's field maps; the index is merged, not overwritten |
+| `public/football-weekly/<season>/` | that season's game lines and its recent-form windows |
+| `public/football-splits/<season>.json` | that season's splits |
 
 The page fetches both files and merges them (`mergeData` in `football-savant.html`); where
 both carry the same season the more recently generated wins, so the archive takes over
@@ -95,9 +104,12 @@ Three things are different about a season in progress, all in `build.py`:
 - **"Missed the playoffs"** is not asserted until the season is over. The season block
   carries `week: N` while it is partial, and the page shows "through week N".
 
-What the automatic refresh cannot give you: the offensive-line on/off card, because FTN's
-participation data is published after the season; and Coaching Savant, which needs every
-season's play-by-play and stays a local run.
+What the automatic refresh cannot give you: on/off splits, man-and-zone and true pass-play
+snap counts, because the participation data is published after the season (the line's unit
+rows and the snap-based rates are estimated until then, and tagged: the season block carries
+`est: 1` for as long as that file is missing, which outlasts `week` by a month); the
+same-point baselines, which are history and only change with a full rebuild; and Coaching
+Savant's archive, which needs every season's play-by-play.
 
 ## The files
 
@@ -123,8 +135,18 @@ season's play-by-play and stays a local run.
   `build.py` sums the weekly rows back into season rows of exactly the same shape: coverage
   (targets, completions, yards, rating allowed), pressures, hurries, hits, blitzes, missed
   tackle %, yards before/after contact and broken tackles. Checked against 2025's season
-  file: counts agree exactly for the median player (`python3 pfr_week.py 2025`). Batted
-  balls and the quarterback-side PFR rows are not in the weekly files and stay blank in season.
+  file: counts agree exactly for the median player (`python3 pfr_week.py 2025`). It reads
+  the quarterback's file too (`advstats_week_pass`), which fills pressure rate faced and
+  bad throw % in season and adds pressure-to-sack, hurry and hit rates. Batted balls,
+  pocket time and on-target % are not in the weekly files and stay blank in season.
+
+  **The weekly files are the source for any season still being played**, whatever the
+  all-seasons files hold. That stopped being automatic in 2026: nflverse began writing the
+  season in progress into three of the four all-seasons files and refreshing them about a
+  week behind the weekly ones. On 8 October 2026 they held three games for men who had
+  played four, so every charted defensive rate on the site was three games of targets and
+  pressures over four games played. `load_pfr` in `build.py` now asks whether the season
+  is live, not whether the all-seasons file has it.
 - **The All-Savant Team blocks** (`pbp_agg.py` → `build.py`). `pbp_agg.py` also writes a
   team-week `line` table (dropbacks, sacks, hits-or-sacks, designed runs and their
   successes) and a returner-week `ret` table (kick and punt returns actually run back, with
@@ -143,9 +165,16 @@ season's play-by-play and stays a local run.
   is too thin a pool to rank anybody in honestly. Nothing before 2001, and a man who never
   made a depth chart keeps the plain `OL` cohort.
 
-  The five line spots are the only part of a depth chart that is named consistently. The
-  2024 file has 2,562 rows that simply say "CB" against 242 that say LCB, so slot corner
-  and outside corner are **not** derivable from it and are not attempted.
+  The five line spots are the only part of a depth chart that is named consistently
+  through 2024: that file has 2,562 rows that simply say "CB" against 242 that say LCB, so
+  slot and outside corner are not derivable from it.
+- **`roles_agg.py`** — the ESPN snapshot nflverse carries from 2025 does name them: a
+  nickel back, a left and a right corner, both safeties and every linebacker spot, for all
+  thirty-two teams. This keeps the spot each man was listed at most during the regular
+  season and his best rank there (`agg/roles_<y>.json`, on the player row as `role`). It
+  is a LISTED role, not where he lined up on each play. The file draws every defense on
+  one template, so a 4-3 end can be filed as a "weak-side linebacker"; the page only shows
+  a spot where it agrees with the cohort the rest of the card ranks him in.
 - **`maps.py`** — turns those aggregates into the field maps, one file per season.
 - **`build.py`** — joins the season tables, PFR charting, Next Gen Stats, snap counts, the
   combine and ESPN QBR; computes every metric; fits the season-by-season field-goal
@@ -153,9 +182,11 @@ season's play-by-play and stays a local run.
 - **`weekly.py`** — the week-by-week charts. For every game a man appeared in it runs
   `build.py`'s own `build_player()` over that one week's inputs (weekly stat line, snaps,
   play-by-play and FTN aggregates, the week's Next Gen Stats row, ESPN's game-level QBR), so
-  a game's number is worked out exactly the way the season's is. PFR's tables and
-  participation are season-only and are not used; season totals (games, availability,
-  starts, the combine) are dropped. Every season since 1999 is shipped, and the page's
+  a game's number is worked out exactly the way the season's is. PFR's charting comes from
+  its weekly files (2018 on) and the `extras.py` counters one week at a time; on/off
+  splits, man and zone, the schedule faced and a handful of rare-event rows (a game of
+  "strip sacks per game" is a row of zeros with a one in it) stay season numbers; season
+  totals (games, availability, starts, the combine) are dropped. Every season since 1999 is shipped, and the page's
   Weekly chart shows the games of whichever season is on screen. An old season carries what
   that season tracked and nothing more (snap counts from 2012, Next Gen Stats from 2016,
   FTN charting from 2022, game-level QBR from 2006).
@@ -164,7 +195,8 @@ season's play-by-play and stays a local run.
   one file per player, rewritten only when it changes, so a refresh touches only the men
   who played. A finished season is packed a hundred players to a file (`pack-57.json`,
   keyed by the last two digits of the player id; `"pack": 2` in the index) - about 100
-  files and 1 to 3 MB a season instead of 2,000 files, 58 MB for 1999-2025 in all. The
+  files and 2 to 6 MB a season instead of 2,000 files, about 100 MB for 1999-2025 in all
+  (30 MB gzipped, which is how it ships). The
   first run after the last regular-season week packs a season and removes its per-player
   files by itself. The refresh runs `weekly.py` for the season in progress; the full
   rebuild runs it for every season, which is what carries a new metric into the archive's
@@ -197,9 +229,129 @@ Three things that are facts about a week rather than a season:
   as one; "not injury related — resting player" is dropped entirely unless there is a real
   designation beside it.
 
-Week-level QBR now feeds the weekly charts (`weekly.py`, from `qbr_week_level.csv`). It
-still isn't in recent-form windows (L4 / L8), because those don't exist yet; the game lines
-in `public/football-weekly/` are what they would be built from.
+Week-level QBR feeds the weekly charts (`weekly.py`, from `qbr_week_level.csv`) and,
+through them, the recent-form windows.
+
+## The October 2026 additions
+
+About 135 new rows, four new views and three new stages (`roles_agg.py`, `splits.py`,
+`pace.py`). What ties them together:
+
+- **`extras.py`** — one idea: a player-week row of plain additive counters (snaps and
+  unit totals, his team's totals in the games he played, tackles by kind, kicks, drives,
+  expected fantasy points). A season is those rows added up, a game is one of them, a
+  window is a few. `build_player()` is handed whichever sum (`ex`) and takes the rates,
+  so the season card, the weekly chart and the form windows are one implementation.
+  Season-only facts that do not add (on/off, man and zone, a contract, with-and-without)
+  come from `Season.only()`.
+- **Everyone who took a snap has a card.** The stat table lists only men who recorded a
+  stat, which left out most of the offensive line: through four weeks of 2026, 35 of the
+  167 linemen with 100 snaps. Snap counts (2012 on) are now unioned in, and a man who was
+  never flagged gets a zero for false starts and holding rather than no row, so those
+  percentiles are no longer ranked among the flagged only.
+- **The line panel is alive in season.** The participation file (who was on the field for
+  each play) is published after the Super Bowl. Until then a lineman's unit rows are his
+  team's game totals weighted by his share of that game's offensive snaps: exact for a man
+  who played every snap, and against the 2025 participation file r = 0.99 for sack rate
+  and EPA per dropback, 0.97 for the run rows (223 linemen). Those rows carry
+  `est: 'live'` and the page tags them "est." until that file is published (the season
+  block's `est` flag, not its `week`, which goes a month earlier). On/off
+  rows stay blank: with no play-by-play lineup there is no "off the field". Not used for
+  tight ends, where the stand-in is too loose (r = 0.82 to 0.95).
+- **Charted pressure is its own row** (`prsallowc`): PFR's weekly count of pressures on
+  the quarterback, by snap share. It is a different crew from the participation file's
+  `was_pressure` (r = 0.73 between them), so the two are never spliced into one series.
+- **Pass-play and run-play snaps.** True counts from participation where it exists
+  (2016 on, finished seasons). In season: snaps x the share of that game's plays that
+  were dropbacks, corrected by each man's own true-to-estimate ratio from last season
+  (`psr` on his archive row, read through `NFL_ARCHIVE`), or his position's average where
+  he has none. That correction cuts the miss from 9.0% to 5.2% (interior line 17% to 9%).
+- **Sample lines by position** (`thrp`, `THR_SCALE` in `metrics.py`). No running back has
+  had 150 targets since targets were first charted, so a back's yards per target could
+  never be called settled. Lines are scaled so about the same share of each position's
+  regulars reaches them. Statistical lines are NOT pro-rated to the week: a hollow bar in
+  October is telling the truth.
+- **`splits.py`** — the same plays by down, distance, field position, quarter, score and
+  site (every season); play-action, blitz, motion, formation, RPO, box (FTN, 2022 on,
+  weekly); pressure, time to throw, coverage and personnel (participation, finished
+  seasons). Sums only, so cells add. Each file carries the league's line by position.
+- **A span of games is built the way a season is** (`weekly.py`, `Inputs` and `_Acc`).
+  The first version of the two views below averaged game lines, weighted by each stat's
+  sample. A game line leaves a stat out on a day there was nothing to count, so the
+  average forgot those days: the median interior lineman's pressure rate through four
+  weeks came out two thirds too high, and "last four games" in week 4 disagreed with the
+  season it was identical to. Now the games' inputs are added up (stat lines, play-by-play
+  and charting counters, snaps, `extras.py` counters) and `build_player()` runs once over
+  the sum. Checked by rebuilding every 2025 card from its games: 199 stats come back to
+  the digit; the rest are the ones a season gets ready-made from a source that cannot be
+  added back up (Next Gen Stats, QBR, the lineup file), and those are within a few
+  hundredths of a standard deviation except the four named in `PACE_SKIP`.
+- **`pace.py`** — every finished season rebuilt as it stood after week N, as 41
+  percentile points per position and stat. The page's "Same point" baseline ranks four
+  games against four games instead of four against seventeen. A stat with no such history
+  (games played, a contract, the combine, the four in `PACE_SKIP`) keeps its ranking
+  inside the season. It needs every finished season's raw files, so it is part of the
+  full rebuild only, and a rebuild of a few seasons leaves it alone.
+- **Recent form** (`weekly.py`, `form-4/8/17.json`). His last N games, reaching back into
+  last season where this one has fewer (the row's `from` says so). Where the window is his
+  whole season so far it is the card's own row, to the digit. Across the winter the two
+  halves are joined the way the page builds a career out of seasons: a rate weighted by
+  its own sample, a total added, a longest kept. Ranked against the same stretch for
+  everyone else.
+- **The estimate ("likely to settle") is the page's, not the pipeline's.** It needs the
+  position's mean and the man's last season, both already in the browser. See the comment
+  above `regressed()` in `football-savant.html`; `scripts/lib/savant-api-football.mjs`
+  mirrors it for the connector and `tools/savant-football/check.mjs` holds the two together.
+- **New sources fetched:** `advstats_week_pass`, `weekly_rosters` (current season:
+  injured reserve, practice squad), `contracts` (Over the Cap, by way of nflverse; thin
+  before about 2013) and ffopportunity's `ep_weekly` (expected fantasy points, 2006 on).
+
+What still cannot be done with free data, and is not faked: who beat whom on a snap,
+routes run (pass-play snaps stand in), snap-by-snap alignment, double teams, a kicker's
+wind on a given kick.
+
+### What the review of those additions turned up
+
+An independent pass recomputed about 130 of the new rows from the raw files for every
+player in 2025 and 2026. These were wrong and are fixed; several were wrong on the site
+before the additions and only became visible because of them.
+
+- **Two-point tries were plays.** They have no down, are not a carry, a throw or a target
+  in the book, and are worth about a point of EPA either way. Left in, they were carries
+  "inside the five", dropbacks inside the ten, and a tenth of a point per play on anything
+  rare. Dropped once, in `pbp_agg.run_season`, and in `ftn_agg`, `onfield_agg`, `splits`
+  and `route_agg`. Penalties and drive points still read the full play list.
+- **Traded players had a part-season's charting divided by a whole season's games**
+  (`load_pfr`: PFR's newer season files carry a row per club and a "2TM" total; the last
+  club's row won). Sauce Gardner's 2025 read 17 targets allowed, not 45.
+- **One code per franchise** (`teams.CANON`). The stat tables call the 2003 Raiders LV;
+  the schedule, snap counts and PFR call them OAK. Matched as written, no Raider, Charger
+  or Ram before the moves had a team record or a coach, their 2013-2019 seasons read
+  LV -> OAK -> LV -> OAK, and their team-share rows were blank. Everything is joined on
+  the play-by-play's code and the page prints the name the club had that season
+  (`teams.ERA`, exported as `cfg.era`).
+- **Jacksonville, 2001 and 2002.** The weekly stat table files every Jaguar under the
+  visiting club for Jacksonville's home games. `build.team_swaps()` turns those rows round.
+- **Target share, air-yards share and WOPR are now over the games he played.** The season
+  table divides by every game his team played, so a receiver who drew a third of the
+  targets for seven games and then got hurt read as a 12% target share.
+- **Look-alike PFR ids** (`build.pfr_for`): "WoodPe00" in the 2026 snap counts is a rookie
+  defensive tackle; in `players.csv` it belongs to a quarterback who retired in 1980. The
+  lookup is now made per season and falls back to the snap file's own name.
+- **Also:** playoff weeks in expected fantasy points before 2021; fumbled snaps counted as
+  designed runs; a lateral's yards credited to the first receiver in the depth bands; a
+  defensive touchdown counted in a team's receiving touchdowns; win probability added
+  dropping a receiver's catches if he ever threw a pass; "longest completion in the air"
+  reading the longest throw; blocked kicks scored as misses against a curve with no blocks
+  in it; a drive extended by a penalty counted as a three-and-out; points per drive at a
+  flat seven; an extension's years counted from the signing; a pass rusher's share of
+  team pressures taken against a different count; missed-tackle rate over a tackle count
+  that was 85% of the real one; the in-season run-snap estimate 15% high; offseason depth
+  charts deciding a lineman's spot in season.
+
+Known and left: the lineup file sometimes credits a new arrival with his predecessor's
+snaps in the week before he joined (three cases found in 2025), which touches the season
+on/off rows only.
 
 ## The offensive line, specifically
 
