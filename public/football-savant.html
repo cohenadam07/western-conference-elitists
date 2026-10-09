@@ -322,6 +322,7 @@ body.lb-open .wrap,body.lb-open .home{display:none}
   letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-top:4px}
 .leg{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;
   letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.leg[hidden]{display:none}
 .hatchswatch{width:16px;height:9px;border-radius:3px;background:var(--track);
   background-image:repeating-linear-gradient(135deg,var(--hatch) 0 2px,transparent 2px 5px)}
 
@@ -429,7 +430,7 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 .routetree{margin-top:14px}
 .rt-side{width:300px}
 .rt-svg{max-width:600px}
-.rt-row{display:grid;grid-template-columns:1.6fr .6fr 1fr .8fr .7fr .9fr;gap:6px;align-items:baseline;
+.rt-row{display:grid;grid-template-columns:1.5fr .5fr .95fr .7fr .6fr .65fr .6fr .8fr;gap:5px;align-items:baseline;
   font-family:var(--mono);font-size:10.5px;color:var(--ink);padding:4px 0;border-bottom:1px solid var(--line)}
 .rt-row span:not(:first-child){text-align:right}
 .rt-row i{font-style:normal;color:var(--faint);font-size:9px;margin-left:4px}
@@ -675,6 +676,7 @@ body.lb-open .lb{display:block}
    thin-sample players are the ones that float to the top. */
 .lb-table tr.thin td{opacity:.55}
 .lb-table tr.thin td:nth-child(2)::after{content:"*";color:var(--flag);margin-left:4px;font-weight:700}
+.lb-table td.lb-foot{white-space:normal;text-align:left}
 .lb-foot{padding:10px 14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:9.5px;
   letter-spacing:.05em;color:var(--faint);line-height:1.6}
 .lb-foot b{color:var(--flag)}
@@ -819,6 +821,22 @@ body{background-color:#1D6B3A;color:var(--ink);
 .rv{font-size:12.5px;color:var(--ink);font-weight:400}
 .chmark{width:3px;background:var(--flag);box-shadow:0 0 0 2px var(--turf-dk);z-index:3;top:-2px;bottom:-2px}
 /* hollow is the whole signal for an unsettled reading; no extra weight needed */
+/* Where an unsettled number is likely to end up: a diamond on the same scale as the bar.
+   Only drawn in a season still being played, and only on a bar that is still hollow. */
+.estmark{position:absolute;top:50%;width:11px;height:11px;margin:-7px 0 0 -7px;background:#FFF;
+  border:3px solid var(--turf-dk);transform:rotate(45deg);z-index:4;cursor:help;box-sizing:content-box}
+.estsw{display:inline-block;width:7px;height:7px;background:#FFF;border:2px solid var(--turf-dk);
+  transform:rotate(45deg);margin:0 3px}
+.tag .esttag{color:#5A7A66}
+.ctl-off{opacity:.45}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+.vchip{font-family:var(--pix);font-size:9px;color:#5A7A66;border:2px solid var(--line2);padding:3px 6px;
+  background:#FFF;cursor:help;white-space:nowrap}
+.formnote{font-family:var(--mono);font-size:10px;line-height:1.7;color:#20402C;background:#FFF8DC;
+  border:2px solid var(--turf-dk);padding:8px 11px;margin:0 2px 14px}
+.formnote b{font-family:var(--pix);font-weight:400;font-size:10px}
+.acco.off{background:#FBE9E7;color:#8E1B14;border-color:#8E1B14}
+.acco.role{background:#FFF;color:#20402C}
 .cstack{display:flex;flex-direction:column;gap:4px}
 .ctrack{display:flex;gap:3px;height:auto;align-items:flex-start;width:fit-content;max-width:100%}
 .ctrack i{flex:0 0 auto;width:var(--nw,23px);height:var(--nw,23px);background:var(--track);
@@ -827,6 +845,56 @@ body{background-color:#1D6B3A;color:var(--ink);
 .group-h{font-size:9px;color:#7A9384;border-bottom:2px solid var(--line);letter-spacing:.08em}
 .col-cap{font-size:9.5px;color:#7A9384;line-height:1.7}
 .col-note{font-size:9px;color:#7A9384;line-height:1.7;border-top-style:dotted}
+
+/* ---- team page */
+.tm-top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.tm-top h2{margin:0;border:0;padding:0}
+.tm-rec{font-family:var(--pix);font-size:13px;color:var(--ink)}
+.tm-x{margin-left:auto;font-family:var(--pix);font-size:10px;background:#FFF;border:2px solid var(--turf-dk);
+  padding:5px 9px;cursor:pointer;color:var(--ink)}
+.tm-x:hover{background:var(--turf);color:#FFF}
+.tm-units{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0 4px}
+@media(max-width:860px){.tm-units{grid-template-columns:1fr}}
+.tm-unit h3{font-family:var(--pix);font-weight:400;font-size:11px;margin:0 0 6px;color:var(--ink);
+  border-bottom:2px solid var(--line);padding-bottom:5px}
+.tm-stat{display:grid;grid-template-columns:1fr 64px 86px;gap:8px;align-items:center;
+  font-family:var(--mono);font-size:10.5px;padding:4px 0;border-bottom:1px dotted var(--line)}
+.tm-stat b{font-family:var(--pix);font-weight:400;font-size:11px;text-align:right;color:var(--ink)}
+.tm-rk{font-family:var(--pix);font-size:10px;text-align:center;padding:3px 0;color:#FFF}
+.tm-rk.dk{color:#0E2A17}
+.tm-sec{font-family:var(--pix);font-size:10px;color:#5A7A66;margin:16px 0 6px;letter-spacing:.04em}
+.tm-roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:6px}
+.tm-pl{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;background:#FFF;
+  border:2px solid var(--turf-dk);padding:5px 7px;cursor:pointer;text-align:left;color:var(--ink)}
+.tm-pl:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(14,42,23,.35)}
+.tm-pl img,.tm-pl .sk-a{width:28px;height:28px;object-fit:cover;background:var(--track);display:block}
+.tm-pl .tp-n{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tm-ps{font-family:var(--pix);font-size:10px;min-width:30px;text-align:center;padding:4px 3px;color:#FFF}
+.tm-ps.dk{color:#0E2A17}
+.tm-ps.na{background:var(--track);color:#7A9384}
+.tm-pl.bench{opacity:.72}
+.tm-off{color:#8E1B14}
+.tm-note{font-family:var(--mono);font-size:9.5px;color:#7A9384;line-height:1.7;margin-top:10px}
+
+/* ---- splits */
+.spl-tabs{display:inline-flex;border:2px solid var(--turf-dk)}
+.spl-wrap{overflow-x:auto;margin-top:10px}
+.spl{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:11px}
+.spl th{font-family:var(--pix);font-weight:400;font-size:8.5px;color:#5A7A66;text-align:right;padding:5px 7px;
+  border-bottom:2px solid var(--line);white-space:nowrap}
+.spl th:first-child,.spl td:first-child{text-align:left}
+.spl td{text-align:right;padding:4px 7px;border-bottom:1px dotted var(--line);white-space:nowrap}
+.spl tr.spl-dim td{font-family:var(--pix);font-size:9.5px;color:var(--ink);background:#F1F6EE;
+  border-top:2px solid var(--line);border-bottom:2px solid var(--line);padding:5px 7px}
+.spl tr.thin td{opacity:.45}
+.spl td.hot{font-family:var(--pix);font-size:10.5px;color:#FFF}
+.spl td.hot.dk{color:#0E2A17}
+.spl td.lg{color:#7A9384}
+
+/* ---- pay against production */
+.paynote{font-family:var(--mono);font-size:10.5px;line-height:1.8;color:#20402C;margin-top:10px;
+  border-top:2px dotted var(--line);padding-top:9px}
+.paynote b{font-family:var(--pix);font-weight:400;font-size:10.5px}
 
 /* ---- controls */
 .chip,.seg,.selx-btn,.selx-pop,.season-sel,.search input,.results,.home-inp,.home-results,
@@ -1161,6 +1229,10 @@ body{background-color:#1D6B3A;color:var(--ink);
   .rl .name{font-size:12.5px} .pct{font-size:13px} .rv{font-size:12.5px}
   .id-name{font-size:22px}
 }
+/* fingers, not a pointer: the small pixel-font controls get a target a thumb can hit */
+@media (hover:none){
+  .seg button,.lb-seg button,.fm-modes button,.tm-x,.lb-preset,.lb-colchip{min-height:36px}
+}
 </style>
 </head>
 <body class="home-open">
@@ -1219,7 +1291,7 @@ body{background-color:#1D6B3A;color:var(--ink);
     </div>
     <button class="home-lb" id="homeLbBtn" type="button">Build a Leaderboard <span aria-hidden="true">→</span></button>
   </div>
-  <div class="home-foot">wcehoops.com · Football Savant</div>
+  <div class="home-foot">wcehoops.com · Football Savant <span id="homeVer"></span></div>
 </div>
 
 <div class="wrap">
@@ -1228,8 +1300,9 @@ body{background-color:#1D6B3A;color:var(--ink);
       <a class="wce" href="/" title="Back to WCE home">WCE</a>
       <div>
         <div class="brand-word">Football <span>Savant</span></div>
-        <div style="display:flex;gap:9px;align-items:center;margin-top:7px">
+        <div style="display:flex;gap:9px;align-items:center;margin-top:7px;flex-wrap:wrap">
           <span class="eyebrow-pill" id="srcpill">nflverse data</span>
+          <span class="vchip" id="verchip"></span>
           <a class="backlink" href="/">&larr; wcehoops.com</a>
           <a class="backlink" href="/coaching-savant.html">Coaching Savant</a>
           <a class="backlink" href="/basketball-savant.html">Basketball Savant</a>
@@ -1271,6 +1344,16 @@ body{background-color:#1D6B3A;color:var(--ink);
       <div class="seg" id="baseseg" role="group" aria-label="Baseline population">
         <button data-v="season" aria-pressed="true">This season</button>
         <button data-v="all" aria-pressed="false">All-time</button>
+        <button data-v="pace" aria-pressed="false" title="Every past season as it stood after the same number of weeks. Only for a season still being played.">Same point</button>
+        <button data-v="exp" aria-pressed="false" title="Players at the same stage of their careers, across every season: rookies against rookies, veterans against veterans.">Same experience</button>
+      </div>
+    </div>
+    <div class="ctl" id="winctl"><span class="ctl-lab">Window</span>
+      <div class="seg" id="winseg" role="group" aria-label="Games included">
+        <button data-v="0" aria-pressed="true">Season</button>
+        <button data-v="4" aria-pressed="false">Last 4</button>
+        <button data-v="8" aria-pressed="false">Last 8</button>
+        <button data-v="17" aria-pressed="false" title="His last 17 games, reaching back into last season">Last 17</button>
       </div>
     </div>
     <div class="ctl"><span class="ctl-lab">Cohort</span>
@@ -1293,13 +1376,16 @@ body{background-color:#1D6B3A;color:var(--ink);
     <div class="legend">
       <div class="legbox"><div class="legbar"></div><div class="ends"><span>poor</span><span>elite</span></div></div>
       <div class="leg"><span class="hatchswatch"></span>stabilizing</div>
+      <div class="leg" id="estleg" hidden title="On a bar that has not settled yet: where the number is likely to end up, given how little there is so far, what is normal at his position and what he did last season."><span class="estsw"></span>likely to settle</div>
     </div>
   </div>
 
+  <div class="formnote" id="formnote" hidden></div>
   <div id="ctxrow"></div>
   <div class="panels" id="panels"></div>
   <div class="col fieldmap" id="fieldmap" hidden></div>
   <div class="col fieldmap routetree" id="routetree" hidden></div>
+  <div class="col fieldmap splits" id="splits" hidden></div>
   <div id="valrow"></div>
   <div class="comps" id="comps" hidden></div>
   <div class="wcomps" id="wcomps" hidden></div>
@@ -1320,7 +1406,7 @@ body{background-color:#1D6B3A;color:var(--ink);
       <span>Rank against</span>
       <span class="lb-seg" id="lbBasis"><button type="button" data-v="season" class="on">Season</button><button type="button" data-v="all">All-time</button></span>
       <span>Sample</span>
-      <span class="lb-seg" id="lbSample"><button type="button" data-v="settled" class="on">Settled</button><button type="button" data-v="all">Everyone</button></span>
+      <span class="lb-seg" id="lbSample"><button type="button" data-v="settled" class="on" title="Only players with enough of the stat's own sample for it to have settled">Settled</button><button type="button" data-v="est" title="Everyone who qualifies, ranked by where the number is likely to settle. For a season still being played.">Likely to settle</button><button type="button" data-v="all" title="Everyone who qualifies, ranked on the raw number">Everyone</button></span>
     </div>
   </div>
   <p class="lb-hint" id="lbHint"></p>
@@ -1332,6 +1418,7 @@ body{background-color:#1D6B3A;color:var(--ink);
     <div class="lb-field"><label>Show top</label><select id="lbTopN"><option>10</option><option selected>25</option><option>50</option><option value="999">All</option></select></div>
     <button type="button" class="lb-morefilters" id="lbMoreFilters">+ More filters</button>
     <div class="lb-field adv"><label>Team</label><select id="lbTeam"><option value="">All teams</option></select></div>
+    <div class="lb-field adv"><label>Games</label><select id="lbWin"><option value="0">Whole season</option><option value="4">Last 4 games</option><option value="8">Last 8 games</option><option value="17">Last 17 games</option></select></div>
     <div class="lb-field adv"><label>Min snap share %</label><input id="lbShare" type="number" min="0" max="100" step="5" value="0"></div>
     <div class="lb-field adv"><label>Age</label><div style="display:flex;gap:6px"><input id="lbAgeMin" type="number" placeholder="min"><input id="lbAgeMax" type="number" placeholder="max"></div></div>
     <div class="lb-field adv"><label>Experience (yrs)</label><div style="display:flex;gap:6px"><input id="lbExpMin" type="number" placeholder="min"><input id="lbExpMax" type="number" placeholder="max"></div></div>
@@ -1360,7 +1447,9 @@ body{background-color:#1D6B3A;color:var(--ink);
    ========================================================================= */
 var DATA=null, CFG=null, METRICS=[], MBY={}, PIDX={}, NAMES=[];
 var cur=null, curId=null, curSeason=null;
-var baseline='season';        // 'season' | 'all'  — rank against his year, or against history
+var VERSION='2.0.0';           // bumped on big releases only, never per deploy
+var baseline='season';        // 'season' | 'all' | 'pace' | 'exp' — who the bars are ranked against
+var formWin=0;                // 0 = the season; 4, 8, 17 = his last that many games
 var cohortMode='pos';         // 'pos' | 'side'
 var bandOn=false, band={min:40,max:100};
 var cmp=[];                   // up to two compared player-seasons
@@ -1372,7 +1461,39 @@ var SIDE={QB:'OFF',RB:'OFF',WR:'OFF',TE:'OFF',OL:'OFF',
           ED:'DEF',DI:'DEF',LB:'DEF',CB:'DEF',S:'DEF',K:'ST',P:'ST'};
 var SIDE_LABEL={OFF:'offensive skill & line',DEF:'defenders',ST:'specialists'};
 
-function _norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+/* Lower case, accents off, and punctuation out: "A.J. Brown", "AJ Brown" and "aj brown" are
+   one name, and so are "D'Andre" and "DAndre", "Amon-Ra" and "Amon Ra". */
+function _norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  .replace(/[.'\u2019]/g,'').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();}
+/* First names people type against the first names the league files. Each group is
+   interchangeable, so "Patrick Surtain" finds Pat Surtain II and "Mike Evans" would find a
+   Michael Evans. Built once into a lookup of name -> every other name in its group. */
+var NICK_GROUPS=['pat patrick','mike michael','matt matthew','chris christopher','josh joshua',
+  'dan daniel danny','ken kenneth kenny','rob robert bob bobby robbie','will william bill billy',
+  'tom thomas tommy','joe joseph joey','ben benjamin','sam samuel','jon jonathan','nick nicholas',
+  'zach zachary zack','tim timothy','greg gregory','steve steven stephen','dave david',
+  'jim james jimmy','tony anthony','cam cameron','gabe gabriel','alex alexander','andy andrew drew',
+  'nate nathan nathaniel','jake jacob','ed edward eddie','ron ronald ronnie','don donald',
+  'phil philip phillip','rich richard rick ricky','chuck charles charlie','jeff jeffrey jeffery',
+  'mitch mitchell','vince vincent','fred frederick freddie','ray raymond','walt walter',
+  'trent trenton','kam kameron','dj d j','aj a j','cj c j','tj t j','jj j j','kj k j','pj p j',
+  'bj b j','jk j k','dk d k','rj r j','jt j t','jc j c'];
+var NICK={};
+NICK_GROUPS.forEach(function(g){ var a=g.split(' ');
+  if(a.length===3&&a[1].length===1){ NICK[a[0]]=[a[1]+' '+a[2]]; NICK[a[1]+' '+a[2]]=[a[0]]; return; }
+  a.forEach(function(x){ NICK[x]=a.filter(function(y){return y!==x;}); }); });
+function nameAlts(n){
+  var out=[], sp=n.indexOf(' ');
+  if(sp<0) return out;
+  var first=n.slice(0,sp), rest=n.slice(sp+1);
+  (NICK[first]||[]).forEach(function(a){ out.push(a+' '+rest); });
+  // "a j brown" as filed and "aj brown" as typed
+  var two=n.match(/^([a-z]) ([a-z]) (.+)$/);
+  if(two) out.push(two[1]+two[2]+' '+two[3]);
+  // the handful of men better known by another name altogether
+  (KNOWN_AS[n]||[]).forEach(function(a){ out.push(a); });
+  return out;
+}
 function miss(v){return v==null||(typeof v==='number'&&!isFinite(v));}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
@@ -1400,7 +1521,14 @@ function prepData(){
     });
     SEASON_HAS[s]=has;
   });
-  NAMES.forEach(function(e){ e.n=_norm(e.name); e.last=_norm(e.name.split(' ').slice(-1)[0]); });
+  NAMES.forEach(function(e){
+    e.n=_norm(e.name);
+    // the surname, not a "Jr." or a "II" standing where the surname should be
+    var parts=e.n.split(' ');
+    while(parts.length>1&&/^(jr|sr|ii|iii|iv|v)$/.test(parts[parts.length-1])) parts.pop();
+    e.last=parts[parts.length-1];
+    e.alts=nameAlts(e.n);
+  });
 }
 var SEASON_HAS={};
 function seasonPlayers(s){ return (DATA.data[s||curSeason]||{players:[]}).players; }
@@ -1436,12 +1564,46 @@ function bandOK(p){
   if(miss(v)) return false;                  // no snap counts that era -> filtered out, honestly
   return v>=band.min && v<=band.max;
 }
+/* Career stage, for the "same experience" baseline. Year one is its own thing; after
+   year three the differences stop being about experience. */
+function expBucket(x){ return x==null?null:(x<=2?x:(x<=5?3:(x<=9?6:10))); }
+var EXP_WORD={0:'rookie',1:'second-year',2:'third-year',3:'year 4 to 6',6:'year 7 to 10',10:'year 11+'};
+var EXP_STAGE={0:'rookie seasons',1:'second seasons',2:'third seasons',3:'seasons four to six',6:'seasons seven to ten',10:'season eleven and later'};
+var expRef=null;              // the bucket of the player on screen
+function isLive(s){ return !isCareer(s)&&liveWeek(s)>0; }
+/* Rows worked out from snap counts stay estimates until the play-by-play lineups for the
+   season are published, which is after the Super Bowl: a month after the last week is in.
+   The build marks the season for as long as that is true. */
+function isEst(s){ var b=!isCareer(s)&&DATA.data&&DATA.data[s]; return !!(b&&(b.est||b.week)); }
+/* The second mark is drawn only where it means one thing: this season, this position,
+   everybody. Any other pool would rank an estimate against something it is not. */
+function estOn(season){
+  return isLive(season)&&!formWin&&cmp.length===0&&baseMode(season)==='season'&&cohortMode==='pos'&&!bandOn;
+}
+function baseMode(season){
+  if(baseline==='pace') return isLive(season)?'pace':'season';
+  if(baseline==='exp') return expRef==null?'all':'exp';
+  return baseline;
+}
+function STATIC_ROW(m){ return m.grp==='ath'||m.key==='apy'||m.key==='capshr'; }
 function poolVals(key,pos,season){
   var m=MBY[key]; if(!m) return [];
   if(isCareer(season)) return careerPool(key,pos);
-  var ck=key+'|'+cohortKey(pos)+'|'+(baseline==='all'?'ALL':season)+'|'+(bandOn?band.min+'-'+band.max:'');
+  var mode=baseMode(season);
+  if(formWin&&isLive(season)){
+    /* what a window cannot change (a 40 time, a contract) is ranked as it is on the season card */
+    if(!STATIC_ROW(m)) return formPool(key,pos,season);
+    mode='season';
+  } else if(mode==='pace'){
+    /* history through the same week, where there is such a history; a row with none
+       (games played, a contract, the combine) keeps this season's ranking rather than a blank */
+    var pp=pacePool(key,pos,season);
+    if(pp.length||!paceData(season)) return pp;
+    mode='season';
+  }
+  var ck=key+'|'+cohortKey(pos)+'|'+(mode==='all'?'ALL':mode==='exp'?('X'+expRef):season)+'|'+(bandOn?band.min+'-'+band.max:'');
   if(POOL_CACHE[ck]) return POOL_CACHE[ck];
-  var seasons = baseline==='all' ? DATA.seasons : [season];
+  var seasons = mode==='season' ? [season] : DATA.seasons;
   var out=[];
   for(var i=0;i<seasons.length;i++){
     var s=seasons[i];
@@ -1452,6 +1614,7 @@ function poolVals(key,pos,season){
       if(!p.qualified) continue;
       if(!inCohort(p,pos)) continue;
       if(!bandOK(p)) continue;
+      if(mode==='exp'&&expBucket(p.exp)!==expRef) continue;
       var v=p.m[key];
       if(!miss(v)) out.push(v);
     }
@@ -1459,6 +1622,165 @@ function poolVals(key,pos,season){
   out.sort(function(a,b){return a-b;});
   POOL_CACHE[ck]=out;
   return out;
+}
+
+/* ---- recent form: everyone's last N games, one file per window (weekly.py writes them) */
+var FORM={}, FORM_WAIT={};
+function formKey(s,n){ return s+'|'+n; }
+function formLoad(s,n,then){
+  var k=formKey(s,n), c=FORM[k];
+  if(c&&c!=='loading'){ then(c); return; }
+  (FORM_WAIT[k]=FORM_WAIT[k]||[]).push(then);
+  if(c==='loading') return;
+  FORM[k]='loading';
+  fetch('football-weekly/'+s+'/form-'+n+'.json'+wkTag()).then(function(r){return r.ok?r.json():null;})
+    .then(function(j){ done(j||{players:{}}); }).catch(function(){ done({players:{}}); });
+  function done(j){ FORM[k]=j; var ws=FORM_WAIT[k]||[]; FORM_WAIT[k]=[]; ws.forEach(function(w){ w(j); }); }
+}
+function formData(s){ var f=FORM[formKey(s,formWin)]; return (f&&f!=='loading')?f:null; }
+/* A window row wears the season row's identity (name, team, draft, face) and the window's
+   numbers. It carries no comps: those are worked out over whole seasons. */
+function formRow(id,s){
+  var f=formData(s), r=f&&f.players[id], base=(PIDX[id]||{rows:{}}).rows[s];
+  if(!r||!base) return null;
+  var m={}, k; for(k in r.m) m[k]=r.m[k];
+  // a window has no "games played" row: it is the window. What no stretch of games can
+  // change comes from the season card.
+  METRICS.forEach(function(mm){ if(STATIC_ROW(mm)&&base.m[mm.key]!=null) m[mm.key]=base.m[mm.key]; });
+  var out={}; for(k in base) out[k]=base[k];
+  out.m=m; out.d=r.d; out.qualified=!!r.q; out.form=formWin; out.formN=r.n; out.formFrom=r.from||null;
+  out.comps=null; out.wcomps=null; out.wflaws=null; out.acc=null;
+  return out;
+}
+function formPool(key,pos,season){
+  var ck='F'+formWin+'|'+key+'|'+cohortKey(pos)+'|'+season;
+  if(POOL_CACHE[ck]) return POOL_CACHE[ck];
+  var f=formData(season), out=[];
+  if(!f) return out;
+  for(var id in f.players){
+    var r=f.players[id];
+    if(!r.q||!inCohort(r,pos)) continue;
+    var v=r.m[key];
+    if(!miss(v)) out.push(v);
+  }
+  out.sort(function(a,b){return a-b;});
+  POOL_CACHE[ck]=out;
+  return out;
+}
+
+/* ---- same point in the season: history as it stood after this many weeks (pace.py).
+   The file holds 41 evenly spaced percentile points per stat; they are spread back out
+   into a sorted pool so the same midrank search that ranks every other bar ranks this. */
+var PACE={}, PACE_WAIT={};
+function paceLoad(week,then){
+  var c=PACE[week];
+  if(c&&c!=='loading'){ then(c); return; }
+  (PACE_WAIT[week]=PACE_WAIT[week]||[]).push(then);
+  if(c==='loading') return;
+  PACE[week]='loading';
+  var w=Math.max(1,Math.min(17,week));
+  fetch('football-pace/w'+(w<10?'0':'')+w+'.json').then(function(r){return r.ok?r.json():null;})
+    .then(function(j){ done(j||{pools:{}}); }).catch(function(){ done({pools:{}}); });
+  function done(j){ PACE[week]=j; var ws=PACE_WAIT[week]||[]; PACE_WAIT[week]=[]; ws.forEach(function(x){ x(j); }); }
+}
+function paceData(season){ var f=PACE[liveWeek(season)]; return (f&&f!=='loading')?f:null; }
+function pacePool(key,pos,season){
+  var ck='PACE|'+key+'|'+pos+'|'+season;
+  if(POOL_CACHE[ck]) return POOL_CACHE[ck];
+  var f=paceData(season), q=f&&f.pools[pos]&&f.pools[pos][key], out=[];
+  if(!q) return out;
+  var pts=q.slice(1), STEPS=5;
+  for(var i=0;i<pts.length-1;i++)
+    for(var j=0;j<STEPS;j++) out.push(pts[i]+(pts[i+1]-pts[i])*j/STEPS);
+  out.push(pts[pts.length-1]);
+  POOL_CACHE[ck]=out;
+  return out;
+}
+function paceCount(pos,season){
+  var f=paceData(season), row=f&&f.pools[pos]; if(!row) return 0;
+  var best=0; for(var k in row){ if(row[k][0]>best) best=row[k][0]; }
+  return best;
+}
+
+/* ---- where an unsettled number is likely to end up
+   A rate after four games is mostly noise. The honest estimate of where it finishes is a
+   blend: what he has done so far, weighted by how much of it there is, and a prior,
+   weighted by the sample the stat needs before it settles (its own line, k).
+
+       estimate = (n * his rate + k * prior) / (n + k)
+
+   The prior is what is normal at his position this season, moved toward his own last
+   season by how much of last season there was: mean + w * (his last year - last year's
+   mean), w = n_last / (n_last + k). A rookie's prior is simply the position's average.
+
+   Tested on ten seasons (2016-2025), weeks 1-4 against weeks 5-18, inside each position:
+   regressing to the mean cut the error by 28 to 45 percent on every stat tried, and adding
+   last season lifted the correlation with the rest of the year (yards per target for wide
+   receivers from .24 raw to .29; catch rate from .38 to .50; a back's yards per carry from
+   .28 to .36). It is drawn as a second mark on a hollow bar, never in place of the number. */
+var NO_CARRY={sosp:1,sosr:1,sospr:1,soso:1};
+var MEAN_CACHE={};
+/* The position's average for a stat that season, and the lowest and highest anyone who
+   qualified has posted: {m, lo, hi}, or null with fewer than five men to average. */
+function posStat(key,pos,season){
+  var ck=key+'|'+pos+'|'+season;
+  if(MEAN_CACHE[ck]!==undefined) return MEAN_CACHE[ck];
+  var ps=seasonPlayers(season), s=0, n=0, lo=Infinity, hi=-Infinity;
+  for(var i=0;i<ps.length;i++){
+    var p=ps[i]; if(!p.qualified||p.pos!==pos) continue;
+    var v=p.m[key]; if(!miss(v)){ s+=v; n++; if(v<lo) lo=v; if(v>hi) hi=v; }
+  }
+  return (MEAN_CACHE[ck]=n>=5?{m:s/n,lo:lo,hi:hi}:null);
+}
+function posMean(key,pos,season){ var st=posStat(key,pos,season); return st?st.m:null; }
+function regressed(p,m,season){
+  if(!isLive(season)||p.form||p.career) return null;
+  var k=thrFor(m,p.pos);
+  if(!k||!m.den) return null;
+  var x=p.m[m.key], n=(p.d||{})[m.den];
+  if(miss(x)||n==null) return null;
+  var st=posStat(m.key,p.pos,season);
+  if(!st) return null;
+  var mu=st.m, prior=mu, last=null, prev=String(yearOf(season)-1), q=rowFor(p.id,prev);
+  /* Last season counts for as much as there was of it, and no more than a real season
+     can say: his number is first held inside what qualified players posted that year, so
+     45% on eighty garbage-time snaps cannot drag this year's guess to a figure nobody has
+     ever sustained. Last year's schedule says nothing about this year's and is not carried. */
+  if(q&&q.pos===p.pos&&eraOK(m,prev)&&!NO_CARRY[m.key]){
+    var xl=q.m[m.key], nl=(q.d||{})[m.den], sp=posStat(m.key,p.pos,prev);
+    if(!miss(xl)&&nl>0&&sp){
+      prior=mu+nl/(nl+k)*(Math.max(sp.lo,Math.min(sp.hi,xl))-sp.m); last={v:xl,n:nl};
+    }
+  }
+  /* A prior is a guess at a real number, so it stays inside what real players have
+     posted this season: carrying last year's gap over can otherwise push a rate that
+     cannot go below zero to minus a tenth of a percent. */
+  prior=Math.max(st.lo,Math.min(st.hi,prior));
+  return {v:(n*x+k*prior)/(n+k), prior:prior, last:last, n:n, k:k};
+}
+/* An estimate is ranked against everyone else's estimate, never against their raw numbers.
+   Raw four-game rates are spread far wider than where they will finish, so an estimate
+   dropped into the raw pool lands near the middle whoever it belongs to. Like against
+   like: his settled-or-estimated number among everyone's settled-or-estimated numbers. */
+function estValue(p,m,season){
+  var v=p.m[m.key];
+  if(miss(v)) return null;
+  if(sampleOf(p,m).ok) return v;
+  var e=regressed(p,m,season);
+  return e?e.v:null;
+}
+var ESTPOOL_CACHE={};
+function estPool(key,pos,season){
+  var ck=key+'|'+pos+'|'+season;
+  if(ESTPOOL_CACHE[ck]) return ESTPOOL_CACHE[ck];
+  var m=MBY[key], ps=seasonPlayers(season), out=[];
+  for(var i=0;i<ps.length;i++){
+    var p=ps[i]; if(!p.qualified||p.pos!==pos) continue;
+    var ev=estValue(p,m,season);
+    if(ev!=null) out.push(ev);
+  }
+  out.sort(function(a,b){return a-b;});
+  return (ESTPOOL_CACHE[ck]=out);
 }
 /* Midrank percentile on a sorted pool, via binary search — the all-time baseline pools run
    to tens of thousands of values and a linear scan per bar is felt. */
@@ -1573,18 +1895,37 @@ function teamInk(t){
   _tcCache[t]=out;
   return out;
 }
-function teamName(t){ var e=CFG.teams[t]; return e?e[0]:(t||''); }
+/* The data keeps one code per franchise (LV for every Raiders season). What is printed is
+   what the club was called in the season on screen: Oakland in 2003, St. Louis in 2010.
+   `s` is a season; anything else (an index from a .map) means the one on screen. */
+function eraOf(t,s){
+  var e=CFG.era&&CFG.era[t], ss=(typeof s==='string')?s:curSeason;
+  return (e&&ss&&!isCareer(ss)&&yearOf(ss)<=e[0])?e:null;
+}
+function teamName(t,s){ var o=eraOf(t,s); if(o) return o[2]; var e=CFG.teams[t]; return e?e[0]:(t||''); }
+function teamAbbr(t,s){ var o=eraOf(t,s); return o?o[1]:(t||''); }
+/* An old link or an old habit: #t=OAK means the Raiders. */
+function teamCanon(t){ return (CFG.alias&&CFG.alias[t])||t; }
 function initials(nm){ return (nm||'').split(' ').map(function(s){return s[0]||'';}).slice(0,2).join('').toUpperCase(); }
 function shortName(nm){ var p=(nm||'').split(' '); return p.length>1?p[p.length-1]:nm; }
 function ordinal(n){ var t=n%100; if(t>=11&&t<=13) return n+'th';
   return n+({1:'st',2:'nd',3:'rd'}[n%10]||'th'); }
 
+/* A stat's sample line, for one position. Most stats have one line. A few have a line per
+   position, because the line was written for the position that does the thing most: 150
+   targets is a wide receiver's season and more than any running back has ever had. */
+function thrFor(m,pos){ var t=m.thrp&&m.thrp[pos]; return t!=null?t:m.thr; }
 /* Why a bar is hatched: the metric's denominator, and how much of it he has. */
 function sampleOf(p,m){
-  if(!m.thr||!m.den) return {n:null,ok:true};
+  var thr=thrFor(m,p.pos);
+  if(!thr||!m.den) return {n:null,ok:true,thr:thr};
   var n=(p.d||{})[m.den];
-  if(n==null) return {n:null,ok:true};
-  return {n:n, ok:n>=m.thr};
+  /* A career's snaps span seasons the stat did not exist in. What it is built on is the
+     snaps of the seasons that had it: 654 career snaps with one of them charted is a
+     sample of one. */
+  if(p.career&&p.dw&&p.dw[m.key]!=null) n=p.dw[m.key];
+  if(n==null) return {n:null,ok:true,thr:thr};
+  return {n:n, ok:n>=thr, thr:thr};
 }
 
 /* ================= CAREER ===================================================
@@ -1607,9 +1948,9 @@ function sampleOf(p,m){
    started in 2003 has a CPOE built from 2006 on, and the page says so rather than
    pretending the number covers his whole career. */
 var CAREER='career';
-var CAREER_SUM={g:1,starts:1,epatot:1};
-var CAREER_MAX={fglong:1,posver:1};
-var CAREER_CONST={ht:1,wt:1,forty:1,vert:1,broad:1,cone:1,shuttle:1,bench:1,spdscore:1};
+var CAREER_SUM={g:1,starts:1,epatot:1,wpa:1,tdoe:1,fgwpa:1};
+var CAREER_MAX={fglong:1,posver:1,maxair:1};
+var CAREER_CONST={ht:1,wt:1,forty:1,vert:1,broad:1,cone:1,shuttle:1,bench:1,spdscore:1,apy:1,capshr:1};
 /* How much volume a career needs before it joins the ranking pool: the season qualifying
    bar times this, so roughly three seasons of work. A man with one half-season of carries
    should not set the scale Emmitt Smith is measured on. His own bars still draw — they
@@ -1628,7 +1969,7 @@ function careerRow(id){
   var ss=Array.from(e.seasons).sort();
   if(!ss.length){ CROW_CACHE[id]=null; return null; }
 
-  var out={id:id, name:e.name, career:true, seasons:ss, m:{}, d:{}, cov:{},
+  var out={id:id, name:e.name, career:true, seasons:ss, m:{}, d:{}, cov:{}, dw:{},
            span:[ss[0],ss[ss.length-1]]};
   var last=e.rows[ss[ss.length-1]], first=e.rows[ss[0]];
 
@@ -1684,7 +2025,7 @@ function careerRow(id){
     var val;
     if(CAREER_SUM[key]) val=acc;
     else if(CAREER_MAX[key]) val=lo;
-    else if(wt>0) val=acc/wt;
+    else if(wt>0){ val=acc/wt; out.dw[key]=wt; }
     else continue;
     out.m[key]=val;
     out.cov[key]=[n, seen[0], seen[seen.length-1]];
@@ -1837,8 +2178,29 @@ function barRow(m,p,season,pos){
      some of his seasons, the row says which — the same footnote the totals strip carries. */
   if(isCareer(season)&&p.cov&&p.cov[m.key]&&p.seasons&&p.cov[m.key][0]<p.seasons.length)
     tag+=" · "+yr2(p.cov[m.key][1])+'–'+yr2(p.cov[m.key][2]);
+  /* A row worked out from snap shares while the season is being played, and from the
+     play-by-play lineups once they are published. It says so while it is the first kind. */
+  if(m.est&&isEst(season)) tag+=' · <span class="esttag" title="An estimate from snap counts. The play-by-play lineups for this season are published after the Super Bowl, and the number becomes a count then.">est.</span>';
   var title=smp.ok?'':('Only '+Math.round(smp.n)+' '+(CFG.denoms[m.den]||m.den)+' — below the '
-    +m.thr+' this stat needs before it settles down.');
+    +smp.thr+' this stat needs before it settles down.');
+  /* The second mark: where a number that has not settled is likely to end up. */
+  var est=(!smp.ok&&estOn(season))?regressed(p,m,season):null;
+  if(est){
+    var ep=pctOf(est.v,estPool(m.key,pos,season),m.lower);
+    if(ep!=null){
+      /* The bar ranks what he has done; the mark ranks where he is likely to end up, once
+         everybody's short samples have been evened out the same way. They are two
+         different questions, so the mark can sit to the right of a bar whose number it
+         expects to get worse: the men around him are expected to fall further. */
+      var estSay='Likely to settle near '+fmt(m.unit,est.v)+'. With every '+posWord(pos,false)
+        +'\'s short samples evened out the same way, that would be the '+ordinal(ep)+' percentile.';
+      chMark+='<div class="estmark" style="left:'+ep+'%" title="'+esc(estSay+' His '
+        +Math.round(est.n)+' '+(CFG.denoms[m.den]||m.den)+' so far are short of the '
+        +est.k+' this stat needs, so the estimate leans on what is normal at his position'
+        +(est.last?(' and on his '+fmt(m.unit,est.last.v)+' last season'):'')+'.')+'"></div>';
+      title+=' '+estSay;
+    }
+  }
   return '<div class="row '+(smp.ok?'':'un')+'" data-k="'+m.key+'" title="'+esc(title)+'">'
     +'<div class="rl" title="'+esc(m.label+' — click for what it means')+'"><div class="name">'+esc(m.label)+'</div><div class="tag">'+tag+'</div></div>'
     +blockBar(pct,chMark,!smp.ok)
@@ -1948,8 +2310,25 @@ function cohortNote(pos){
           ? ' Side-of-ball pools mix positions on purpose — useful for volume and availability, misleading for anything a position specialises in.'
           : '');
   }
-  var when = baseline==='all'
+  if(formWin&&isLive(curSeason)){
+    return 'His last '+(cur&&cur.formN||formWin)+' game'+((cur&&cur.formN)===1?'':'s')
+      +(cur&&cur.formFrom?(', reaching back into '+cur.formFrom):'')
+      +', ranked against the same stretch for every other qualified '+posWord(pos,false)
+      +((cur&&cur.formN||formWin)<=8?'. A number here rests on very little: read it as form, not as who he is.':'.');
+  }
+  var mode=baseMode(curSeason);
+  if(mode==='pace'){
+    var pk=paceData(curSeason), n=paceCount(pos,curSeason);
+    if(!pk) return 'Loading every past season as it stood after week '+liveWeek(curSeason)+'…';
+    if(!pk.seasons||!pk.seasons.length||!n) return 'The same-point history for week '+liveWeek(curSeason)+' could not be loaded, so these bars are ranked inside '+curSeason+'.';
+    return 'Ranked against '+commas(n)+' qualified '+posWord(pos,false)+' seasons from '
+      +pk.seasons[0]+' to '+pk.seasons[1]+', each as it stood after week '+liveWeek(curSeason)
+      +'. Like against like: the same number of weeks, not a few weeks against a whole season. A row with no such history (games played, a contract, the combine) is ranked inside this season.';
+  }
+  var when = mode==='all'
     ? 'across every season each stat has existed'
+    : mode==='exp'
+    ? ('at the same stage of a career ('+EXP_STAGE[expRef]+'), across every season each stat has existed')
     : ('in '+curSeason);
   return 'Ranked against '+commas(poolCount(pos))+' qualified '+who+' '+when
     + (bandOn ? (', filtered to '+band.min+'–'+band.max+'% snap share') : '')
@@ -1959,10 +2338,12 @@ function cohortNote(pos){
         : '');
 }
 function poolCount(pos){
-  var seasons=baseline==='all'?DATA.seasons:[curSeason], n=0;
+  var mode=baseMode(curSeason);
+  var seasons=mode==='season'?[curSeason]:DATA.seasons, n=0;
   for(var i=0;i<seasons.length;i++){
     var ps=seasonPlayers(seasons[i]);
-    for(var j=0;j<ps.length;j++){ var p=ps[j]; if(p.qualified&&inCohort(p,pos)&&bandOK(p)) n++; }
+    for(var j=0;j<ps.length;j++){ var p=ps[j];
+      if(p.qualified&&inCohort(p,pos)&&bandOK(p)&&(mode!=='exp'||expBucket(p.exp)===expRef)) n++; }
   }
   return n;
 }
@@ -1978,16 +2359,28 @@ function profileScore(id,s){
   var r=rowFor(id,s); if(!r||!r.qualified) return null;
   var keys=CFG.headline[r.pos]||[];
   var strict=[], loose=[];
-  var save=baseline; baseline='season';
+  var save=baseline, saveWin=formWin; baseline='season'; formWin=0;
+  /* While a season is being played almost nothing has settled, so a score built only on
+     settled stats would be built on nothing, and one built on raw four-game rates would
+     crown whoever had the luckiest September. A stat that has not settled is scored where
+     it is likely to settle instead (regressed, above). Finished seasons are untouched. */
+  var live=isLive(s);
   for(var i=0;i<keys.length;i++){
     var m=MBY[keys[i]]; if(!m||!eraOK(m,s)) continue;
     var v=r.m[keys[i]]; if(miss(v)) continue;
-    var pct=pctOf(v,poolVals(keys[i],r.pos,s),m.lower);
+    var pool=poolVals(keys[i],r.pos,s);
+    var pct=pctOf(v,pool,m.lower);
     if(pct==null) continue;
+    var settled=sampleOf(r,m).ok;
+    if(live){
+      /* every stat, settled or not, takes its place among everyone's estimates */
+      var ev=estValue(r,m,s), ep=ev==null?null:pctOf(ev,estPool(keys[i],r.pos,s),m.lower);
+      if(ep!=null){ pct=ep; settled=true; }
+    }
     loose.push(pct);
-    if(sampleOf(r,m).ok) strict.push(pct);   // a settled rate is the one we'd rather use
+    if(settled) strict.push(pct);            // a settled rate is the one we'd rather use
   }
-  baseline=save;
+  baseline=save; formWin=saveWin;
   // Prefer stats that have settled. But in 1999 a receiver's whole headline set is two
   // numbers, and refusing to score him on a thin one would blank out a decade of the arc —
   // so fall back to what exists rather than returning nothing.
@@ -2129,6 +2522,37 @@ function ordSuffix(n){ var t=n%100; if(t>=11&&t<=13) return n+'th';
    the only honest place to draw the line between "leads" and "led". Nothing on this page
    should say a man led the league in a thing while the league is still playing for it. */
 function liveWeek(s){ var b=DATA.data&&DATA.data[s]; return (b&&b.week)||0; }
+var ROLE_WORD={QB:'Quarterback',RB:'Running back',FB:'Fullback',WR:'Wide receiver',TE:'Tight end',
+  LT:'Left tackle',LG:'Left guard',C:'Center',RG:'Right guard',RT:'Right tackle',
+  LDE:'Left end',RDE:'Right end',NT:'Nose tackle',LDT:'Left defensive tackle',RDT:'Right defensive tackle',DT:'Defensive tackle',DE:'Defensive end',
+  WLB:'Weak-side linebacker',SLB:'Strong-side linebacker',MLB:'Middle linebacker',LILB:'Left inside linebacker',
+  RILB:'Right inside linebacker',LOLB:'Left outside linebacker',ROLB:'Right outside linebacker',LB:'Linebacker',
+  LCB:'Left corner',RCB:'Right corner',NB:'Nickel (slot)',CB:'Cornerback',FS:'Free safety',SS:'Strong safety',
+  PK:'Kicker',K:'Kicker',P:'Punter',LS:'Long snapper',H:'Holder',PR:'Punt returner',KR:'Kick returner'};
+/* The depth-chart file draws every defense on one template, so a 4-3 end can be filed as
+   a "weak-side linebacker". A spot is only shown where it agrees with the job the rest of
+   this page ranks him at; otherwise the card keeps his position and just says where he
+   stands in line. */
+var ROLE_OK={OT:'LT RT',OG:'LG RG',OC:'C',OL:'LT LG C RG RT',LB:'MLB WLB SLB LILB RILB',
+  CB:'LCB RCB NB',S:'FS SS NB',DI:'NT'};
+function roleSpot(p){
+  if(!p.role||!p.role[0]) return null;
+  return (' '+(ROLE_OK[p.pos]||'')+' ').indexOf(' '+p.role[0]+' ')>=0 ? (ROLE_WORD[p.role[0]]||p.role[0]) : null;
+}
+/* A depth chart lists a position in order, and how many of that list start depends on the
+   position: the chart is drawn with three receivers, so the third name at receiver is a
+   starter, not "third string". A badge is only worth showing for a man listed below the
+   starters, or one whose spot says something his position does not. */
+var ROLE_STARTERS={WR:3};
+function roleLabel(p){
+  if(!p.role||!p.role[0]) return null;
+  var spot=roleSpot(p), r=p.role[1], behind=r!=null&&r>(ROLE_STARTERS[p.role[0]]||1);
+  if(!spot&&!behind) return null;
+  var w=(spot||(CFG.posLabel[p.pos]||p.pos)).toLowerCase();
+  return [(spot?spot:'')+(spot&&behind?' · ':'')+(behind?(spot?'listed ':'Listed ')+ordinal(r):''),
+    'Depth chart, '+curSeason+': '+(behind?('listed '+ordinal(r)+' at '+w+' at his best'):('a starter at '+w))
+    +'. This is the order the depth chart lists the position in, not how much he plays.'];
+}
 function draftBadges(p){
   var out=[];
   if(p.acc){
@@ -2144,6 +2568,11 @@ function draftBadges(p){
   if(p.dr) out.push('<span class="acco'+(p.dr===1?' major':'')+'" title="'+esc('Drafted '+(p.dy||'')+' — round '+p.dr+', pick '+(p.dp||'?')+(p.dt?' by '+p.dt:''))+'">Rd '+p.dr+' · #'+(p.dp||'?')+'</span>');
   else if(p.udfa) out.push('<span class="acco" title="Went undrafted">Undrafted</span>');
   if(p.exp===0) out.push('<span class="acco major" title="Rookie season">Rookie</span>');
+  /* Where the depth chart lists him (2025 on). The first thing a public source has ever
+     said about who plays the slot. */
+  var rl=roleLabel(p);
+  if(rl) out.push('<span class="acco role" title="'+esc(rl[1])+'">'+esc(rl[0])+'</span>');
+  if(p.st) out.push('<span class="acco off" title="'+esc('Roster status in the latest week on file: '+p.st)+'">'+esc(p.st)+'</span>');
   /* The injury report, and only while the season is being played. A game-day designation
      is the real answer; most weeks there isn't one, and a man who missed practice with a
      named injury is reported as exactly that rather than dressed up as a designation.
@@ -2418,7 +2847,7 @@ function render(){
   if(!p){
     idbody.innerHTML='<div class="id-meta">No data for '+esc(curSeason)+'.</div>';
     ['ctxrow','panels','valrow','athrow'].forEach(function(i){document.getElementById(i).innerHTML='';});
-    ['fieldmap','routetree','comps','wcomps','gapnote'].forEach(function(i){var e=document.getElementById(i);e.hidden=true;e.innerHTML='';});
+    ['fieldmap','routetree','splits','comps','wcomps','gapnote'].forEach(function(i){var e=document.getElementById(i);e.hidden=true;e.innerHTML='';});
     document.getElementById('peakflag').hidden=true;
     document.getElementById('arcBtn').hidden=true;
     document.getElementById('arcrail').hidden=true;
@@ -2426,6 +2855,40 @@ function render(){
   }
   var pos=p.pos;
   var career=isCareer(curSeason);
+  var live=isLive(curSeason);
+  expRef=expBucket(p.exp);
+  if(baseline==='pace'&&live&&!paceData(curSeason)){
+    paceLoad(liveWeek(curSeason),function(){ bustPools(); if(cur===p) render(); });
+  }
+  // the window and the two extra baselines only mean something in some views; say which
+  document.getElementById('winctl').classList.toggle('ctl-off',!live);
+  document.querySelectorAll('#winseg button').forEach(function(b){
+    b.disabled=(!live||cmp.length>0)&&b.dataset.v!=='0';
+    b.setAttribute('aria-pressed',String(+b.dataset.v===(live?formWin:0)));
+  });
+  var pb=document.querySelector('#baseseg button[data-v="pace"]'), xb=document.querySelector('#baseseg button[data-v="exp"]');
+  if(pb) pb.disabled=!live||!!formWin;
+  if(xb) xb.disabled=p.exp==null||!!(formWin&&live);
+  /* The controls show what the bars are actually ranked against, not what was last asked
+     for: a window has one pool, a finished season has no "same point", and the same-point
+     history is kept by position only. */
+  var ab=document.querySelector('#baseseg button[data-v="all"]');
+  if(ab) ab.disabled=!!(formWin&&live);
+  var shown=(formWin&&live)?'season':baseMode(curSeason);
+  setSeg('baseseg',document.querySelector('#baseseg button[data-v="'+shown+'"]'));
+  var sideBtn=document.querySelector('#cohortseg button[data-v="side"]');
+  if(sideBtn){
+    sideBtn.disabled=shown==='pace';
+    sideBtn.title=sideBtn.disabled?'This view is ranked by position only':'';
+  }
+  document.getElementById('estleg').hidden=!estOn(curSeason);
+  var fn=document.getElementById('formnote');
+  if(p.form){
+    fn.hidden=false;
+    fn.innerHTML='<b>Last '+p.formN+' game'+(p.formN===1?'':'s')+'</b> · every bar below is built from only '
+      +'those games'+(p.formFrom?', which reach back into '+p.formFrom:'')+', and ranked against the same stretch for everyone else. '
+      +'Comps, field maps and the route tree are season views and are hidden here.';
+  } else { fn.hidden=true; fn.innerHTML=''; }
   var meta;
   if(career){
     /* A career belongs to no single team and no single year, so the meta line says the
@@ -2442,7 +2905,7 @@ function render(){
     var path=(p.tms&&p.tms.length>1)?p.tms:null;
     meta=['<span class="teamdot" style="background:'+teamColor(p.team)+'"></span>'
             +'<b'+(path?' title="'+esc(path.map(teamName).join(' \u2192 '))+'"':'')+'>'
-            +esc(path?path.join(' \u2192 '):teamName(p.team))+'</b>',
+            +esc(path?path.map(teamAbbr).join(' \u2192 '):teamName(p.team))+'</b>',
           CFG.posLabel[pos]||pos, curSeason];
     if(p.college) meta.push(esc(p.college));
     if(p.exp!=null) meta.push(p.exp===0?'rookie':'year '+(p.exp+1));
@@ -2505,6 +2968,8 @@ function render(){
   document.getElementById('ctxrow').innerHTML=ctxHTML;
   document.getElementById('panels').innerHTML=gridHTML;
   document.getElementById('valrow').innerHTML=valHTML;
+  var pn=career||p.form?'':payNote(p);
+  if(pn){ var vc=document.querySelector('#valrow .col'); if(vc) vc.insertAdjacentHTML('beforeend',pn); }
   document.getElementById('athrow').innerHTML=athHTML;
   // one panel alone shouldn't sit in a two-up grid
   document.getElementById('panels').style.gridTemplateColumns =
@@ -2512,16 +2977,37 @@ function render(){
 
   renderFieldMap();
   renderRouteTree();
+  renderSplits();
   renderComps();
   renderWeak();
   renderGapNote(pos);
   animateFills();
   document.querySelectorAll('.chip').forEach(function(c){c.setAttribute('aria-pressed',c.dataset.id===p.id);});
 }
-var PANEL_FLOOR={rush:['car',12], rec:['tgt',10], cov:['ctgt',5], kick:null, prsh:null};
+/* Pay against production, both as a place in line at his position. No verdict: a rookie
+   deal and a veteran's third contract are not the same decision. */
+function payNote(p){
+  if(miss(p.m.apy)||!p.qualified) return '';
+  var ps=seasonPlayers(curSeason).filter(function(q){ return q.pos===p.pos&&q.qualified; });
+  var paid=ps.filter(function(q){ return !miss(q.m.apy); });
+  if(paid.length<8) return '';
+  var payRank=1+paid.filter(function(q){ return q.m.apy>p.m.apy; }).length;
+  var sc=profileScore(p.id,curSeason);
+  var txt='<b>Pay</b> $'+p.m.apy.toFixed(1)+'M a year, '+ordinal(payRank)+' of '+paid.length+' qualified '
+    +(COHORT_WORD[p.pos]||p.pos)+' in '+esc(curSeason)+'.';
+  if(sc!=null){
+    var scored=ps.map(function(q){ return profileScore(q.id,curSeason); }).filter(function(v){ return v!=null; });
+    var prodRank=1+scored.filter(function(v){ return v>sc; }).length;
+    txt+=' <b>Production</b> profile score '+Math.round(sc)+', '+ordinal(prodRank)+' of '+scored.length+'.';
+  }
+  return '<div class="paynote" id="paynote">'+txt+' Contract figures are from Over the Cap.</div>';
+}
+var PANEL_FLOOR={rush:['car',12], rec:['tgt',10], cov:['ctgt',5], ret:['retn',4], kick:null, prsh:null};
 function panelWorthIt(g,p,pos){
   var f=PANEL_FLOOR[g];
   if(!f) return true;
+  // returns are two counts, and either one makes him a returner
+  if(g==='ret'){ var dd=p.d||{}; return ((dd.kr||0)+(dd.pr||0))>=f[1]; }
   if(g==='rush'&&(pos==='RB'||pos==='QB')) return true;      // it's their job, thin or not
   if(g==='rec'&&(pos==='WR'||pos==='TE')) return true;
   var have=(p.d||{})[f[0]];
@@ -2665,14 +3151,17 @@ function gapSvg(g,total){
 }
 function renderFieldMap(){
   var el=document.getElementById('fieldmap');
-  if(!cur||cmp.length){ el.hidden=true; el.innerHTML=''; return; }
+  if(!cur||cmp.length||cur.form){ el.hidden=true; el.innerHTML=''; return; }
   var kind=mapKindFor(cur.pos);
   var career=isCareer(curSeason);
   if(!kind){ el.hidden=true; el.innerHTML=''; return; }
   if(!career&&!mapAvail(cur.id,curSeason,kind)){ el.hidden=true; el.innerHTML=''; return; }
   if(career&&!careerMapSeasons(cur.id,kind).length){ el.hidden=true; el.innerHTML=''; return; }
+  var forId=cur.id, forSeason=curSeason;
   var draw=function(rec,years){
-    if(!cur||mapKindFor(cur.pos)!==kind) return;
+    // the file can arrive after the card has moved on: another player, a window, a comparison
+    if(!cur||cur.id!==forId||curSeason!==forSeason||mapKindFor(cur.pos)!==kind) return;
+    if(cmp.length||cur.form){ el.hidden=true; el.innerHTML=''; return; }
     if(!rec){ el.hidden=true; el.innerHTML=''; return; }
     var when=career
       ? (years.length+' charted '+(years.length===1?'season':'seasons')+' · '+years[0]+'–'+years[years.length-1])
@@ -2701,7 +3190,7 @@ function renderFieldMap(){
     });
   };
   if(career) loadCareerMap(cur.id,kind,draw);
-  else loadMapOnce(curSeason,function(pack){ draw((pack[kind]||{})[cur.id],[curSeason]); });
+  else loadMapOnce(curSeason,function(pack){ draw((pack[kind]||{})[forId],[forSeason]); });
 }
 function throwSide(rec,kind){
   var bands={b:[0,0,0],s:[0,0,0],m:[0,0,0],d:[0,0,0]};
@@ -2875,13 +3364,15 @@ function rtSide(sum,pos){
   me.forEach(function(c){ n+=c[0]; }); lg.forEach(function(c){ ln+=c[0]; });
   var rows=RT_SLOTS.map(function(s,i){return i;}).filter(function(i){return me[i][0]>0;})
     .sort(function(a,b){return me[b][0]-me[a][0];});
-  var head='<div class="rt-row rt-hd"><span>Route</span><span>Tgt</span><span>Share</span><span>Catch</span><span>Y/T</span><span>EPA/T</span></div>';
+  var head='<div class="rt-row rt-hd"><span>Route</span><span>Tgt</span><span>Share</span><span>Catch</span><span>Y/T</span>'
+    +'<span title="Average depth of target on this route, in air yards">aDOT</span><span title="First downs per target">1D%</span><span>EPA/T</span></div>';
   return head+rows.map(function(i){
     var s=rtStats(me[i]), L=rtStats(lg[i]);
     var lean=rtLean(me[i],lg[i],'epa');
     return '<div class="rt-row'+(s.tg<5?' rt-thin':'')+'"><span>'+esc(RT_LABEL[RT_SLOTS[i]])+'</span><span>'+s.tg+'</span>'
       +'<span>'+Math.round(s.tg/n*100)+'%<i>'+(ln?Math.round(L.tg/ln*100):0)+'%</i></span>'
       +'<span>'+Math.round(s.rec/s.tg*100)+'%</span><span>'+(s.yds/s.tg).toFixed(1)+'</span>'
+      +'<span>'+(miss(s.air)?'—':(s.air/s.tg).toFixed(1))+'</span><span>'+(miss(s.fd)?'—':Math.round(s.fd/s.tg*100)+'%')+'</span>'
       +'<span style="color:'+(lean&&s.tg>=3?colorAt(Math.max(3,Math.min(97,50+50*lean.d/lean.scale))):'inherit')+'">'
       +(s.epa/s.tg>=0?'+':'−')+Math.abs(s.epa/s.tg).toFixed(2)+'</span></div>';
   }).join('')+'<div class="rt-foot">Share: his / the average '+esc(pos)+'\'s. Faded rows are under five targets.</div>';
@@ -2890,7 +3381,7 @@ function renderRouteTree(){
   var el=document.getElementById('routetree');
   if(!el) return;
   var pos=cur?rtPos(cur.pos):null;
-  if(!cur||cmp.length||!pos||!RT_INDEX){ el.hidden=true; el.innerHTML=''; return; }
+  if(!cur||cmp.length||cur.form||!pos||!RT_INDEX){ el.hidden=true; el.innerHTML=''; return; }
   var all=rtYears(cur.id);
   if(!all.length){ el.hidden=true; el.innerHTML=''; return; }
   var career=isCareer(curSeason), ys, note='';
@@ -2925,6 +3416,133 @@ function renderRouteTree(){
     el.hidden=false;
     el.querySelectorAll('.fm-modes button').forEach(function(b){ b.onclick=function(){ rtMode=b.dataset.v; renderRouteTree(); }; });
   }
+}
+
+/* ================= SPLITS ===================================================
+   The same plays as the season line, taken apart: by down, distance, field position,
+   quarter, score and site in every season; by play-action, blitz, motion and formation
+   from 2022 (charted within days of a game); by pressure, coverage and personnel from
+   2016 once the season's lineups are published. One file a season, fetched when a card
+   that can use it is on screen (pipeline/football/splits.py).
+
+   Every cell is a handful of sums, so the rates are taken here. The headline rate in each
+   row is coloured by where it ranks among every player with a real sample in that same
+   split, and the league's own number for his position sits beside it, because the fair
+   question about third and long is not "worse than his first downs?" but "worse than
+   everyone else's third and long?". */
+var SPL_INDEX=null, SPL_CACHE={}, SPL_WAIT={}, splMode=null;
+fetch('football-splits/index.json').then(function(r){return r.ok?r.json():{seasons:[]};})
+  .then(function(j){ SPL_INDEX=(j.seasons||[]).map(String); if(cur) renderSplits(); })
+  .catch(function(){ SPL_INDEX=[]; });
+function splLoad(season,then){
+  var c=SPL_CACHE[season];
+  if(c&&c!=='loading'){ then(c); return; }
+  (SPL_WAIT[season]=SPL_WAIT[season]||[]).push(then);
+  if(c==='loading') return;
+  SPL_CACHE[season]='loading';
+  fetch('football-splits/'+season+'.json'+(isLive(season)?wkTag():'')).then(function(r){return r.ok?r.json():null;})
+    .then(function(j){ done(j||{}); }).catch(function(){ done({}); });
+  function done(j){ SPL_CACHE[season]=j; var ws=SPL_WAIT[season]||[]; SPL_WAIT[season]=[]; ws.forEach(function(w){ w(j); }); }
+}
+/* ledger -> what it counts, the smallest sample a row is ranked on, and its columns:
+   [heading, value(cell), format, is it the headline] */
+function spPct(a,b){ return b?a/b*100:null; }
+var SPL_LEDGER={
+  q:{name:'Passing',unit:'dropbacks',min:15,cols:[
+    ['Dropbacks',function(c){return c[0];},'n'],
+    ['EPA / dropback',function(c){return c[0]?c[1]/c[0]:null;},'num3',true],
+    ['Success',function(c){return spPct(c[2],c[0]);},'pct0'],
+    ['Cmp %',function(c){return spPct(c[4],c[3]);},'pct0'],
+    ['Yds / att',function(c){return c[3]?c[5]/c[3]:null;},'num1'],
+    ['TD',function(c){return c[6];},'n'],['INT',function(c){return c[7];},'n'],
+    ['Sack %',function(c){return spPct(c[8],c[0]);},'pct1']]},
+  r:{name:'Rushing',unit:'carries',min:10,cols:[
+    ['Carries',function(c){return c[0];},'n'],
+    ['EPA / carry',function(c){return c[0]?c[1]/c[0]:null;},'num3',true],
+    ['Yds / carry',function(c){return c[0]?c[3]/c[0]:null;},'num1'],
+    ['Success',function(c){return spPct(c[2],c[0]);},'pct0'],
+    ['TD',function(c){return c[4];},'n'],
+    ['1st down %',function(c){return spPct(c[5],c[0]);},'pct0']]},
+  t:{name:'Receiving',unit:'targets',min:8,cols:[
+    ['Targets',function(c){return c[0];},'n'],
+    ['EPA / target',function(c){return c[0]?c[1]/c[0]:null;},'num3',true],
+    ['Yds / target',function(c){return c[0]?c[4]/c[0]:null;},'num1'],
+    ['Catch %',function(c){return spPct(c[3],c[0]);},'pct0'],
+    ['Success',function(c){return spPct(c[2],c[0]);},'pct0'],
+    ['TD',function(c){return c[5];},'n'],
+    ['1st down %',function(c){return spPct(c[6],c[0]);},'pct0']]}
+};
+function splFmt(f,v){
+  if(v==null||!isFinite(v)) return '—';
+  if(f==='n') return String(Math.round(v));
+  if(f==='pct0') return Math.round(v)+'%';
+  if(f==='pct1') return v.toFixed(1)+'%';
+  if(f==='num1') return v.toFixed(1);
+  return signed(v,3,true,true);
+}
+/* Where his headline rate in one cell ranks among everyone with a real sample in it. */
+function splRank(pack,ledger,cell,v){
+  var L=SPL_LEDGER[ledger], pool=[], all=pack[ledger]||{};
+  for(var id in all){
+    var c=all[id][cell];
+    if(c&&c[0]>=L.min) pool.push(c[1]/c[0]);
+  }
+  if(pool.length<8) return null;
+  pool.sort(function(a,b){return a-b;});
+  return {pct:pctOf(v,pool,false), n:pool.length};
+}
+function splLedgers(pos){ return pos==='QB'?['q','r']:pos==='RB'?['r','t']:['t','r']; }
+function renderSplits(){
+  var el=document.getElementById('splits');
+  if(!el) return;
+  var ok=cur&&!cmp.length&&!cur.form&&!isCareer(curSeason)&&/^(QB|RB|WR|TE)$/.test(cur.pos)
+    &&SPL_INDEX&&SPL_INDEX.indexOf(String(yearOf(curSeason)))>=0;
+  if(!ok){ el.hidden=true; el.innerHTML=''; return; }
+  var want=cur, season=curSeason;
+  splLoad(season,function(pack){
+    if(cur!==want) return;
+    var have=splLedgers(want.pos).filter(function(k){ return pack[k]&&pack[k][want.id]; });
+    if(!have.length){ el.hidden=true; el.innerHTML=''; return; }
+    if(have.indexOf(splMode)<0) splMode=have[0];
+    var L=SPL_LEDGER[splMode], mine=pack[splMode][want.id];
+    var lgPos=want.pos, lg=((pack.lg||{})[splMode]||{})[lgPos]||{};
+    var head='<tr><th>Split</th>'+L.cols.map(function(c){return '<th>'+esc(c[0])+'</th>';}).join('')
+      +'<th title="The same number for every '+esc(posWord(lgPos,false))+' in the league, in this split">League</th></tr>';
+    function row(label,cell){
+      var c=mine[cell]; if(!c) return '';
+      var thin=c[0]<L.min;
+      var tds=L.cols.map(function(col){
+        var v=col[1](c);
+        if(col[3]&&!thin&&v!=null){
+          var rk=splRank(pack,splMode,cell,v);
+          if(rk&&rk.pct!=null) return '<td class="hot'+(onColorIsDark(rk.pct)?' dk':'')+'" style="background:'+colorAt(rk.pct)
+            +'" title="'+esc(ordinal(rk.pct)+' percentile among '+rk.n+' players with at least '+L.min+' '+L.unit+' in this split')+'">'
+            +esc(splFmt(col[2],v))+'</td>';
+        }
+        return '<td>'+esc(splFmt(col[2],v))+'</td>';
+      }).join('');
+      var lc=lg[cell], hot=L.cols.filter(function(col){return col[3];})[0];
+      return '<tr'+(thin?' class="thin" title="'+esc('Only '+c[0]+' '+L.unit+': too few to rank')+'"':'')+'><td>'+esc(label)+'</td>'+tds
+        +'<td class="lg">'+(lc?esc(splFmt(hot[2],hot[1](lc))):'—')+'</td></tr>';
+    }
+    var body=row('All plays','all');
+    (pack.dims||[]).forEach(function(d){
+      if(d[3].indexOf(splMode)<0) return;
+      var rows=d[2].map(function(b){ return row(b[1],d[0]+'.'+b[0]); }).join('');
+      if(rows) body+='<tr class="spl-dim"><td colspan="'+(L.cols.length+2)+'">'+esc(d[1])+'</td></tr>'+rows;
+    });
+    var live=isLive(season);
+    el.innerHTML='<div class="fm-head"><div><h2 class="col-h">Splits</h2>'
+      +'<div class="col-cap">His plays from scrimmage, taken apart. Kneel-downs, spikes and two-point tries are left out, so a total here can run a few plays under his season line. The coloured number in each row is ranked against every player with at least '
+      +L.min+' '+L.unit+' in that same split; faded rows have too few to rank. '
+      +'Play-action, blitz, motion and formation are charted from 2022. Pressure, coverage and personnel come from the lineups published after a season'
+      +(live?', so they are not here yet for '+esc(season):'')+'. · '+esc(season)+'</div></div>'
+      +(have.length>1?'<div class="fm-modes" role="group" aria-label="Which plays">'
+        +have.map(function(k){ return '<button data-v="'+k+'" aria-pressed="'+(k===splMode)+'">'+SPL_LEDGER[k].name+'</button>'; }).join('')+'</div>':'')
+      +'</div><div class="spl-wrap"><table class="spl"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>';
+    el.hidden=false;
+    el.querySelectorAll('.fm-modes button').forEach(function(b){ b.onclick=function(){ splMode=b.dataset.v; renderSplits(); }; });
+  });
 }
 
 /* ================= COMPS ===================================================
@@ -3054,7 +3672,7 @@ function renderComps(){
       return '<button class="comp-card" data-id="'+esc(c.id)+'" aria-label="'+esc(c.name+', '+c.team+', '+c.score+' percent statistical match — open his card')+'">'
         +'<div class="comp-top"><span class="comp-name">'+esc(c.name)+'</span><span class="comp-score">'+c.score+'%</span></div>'
         +'<div class="comp-meter"><i style="width:'+c.score+'%"></i></div>'
-        +'<span class="comp-team">'+esc(c.team)+' · match</span></button>';
+        +'<span class="comp-team">'+esc(teamAbbr(c.team))+' · match</span></button>';
     }).join('')+'</div>';
   el.hidden=false;
   wireCompCards(el);
@@ -3097,7 +3715,7 @@ function renderWeak(){
       return '<button class="comp-card" data-id="'+esc(c.id)+'" aria-label="'+esc(c.name+', '+c.team+', '+c.score+' percent comparable weaknesses — open his card')+'">'
         +'<div class="comp-top"><span class="comp-name">'+esc(c.name)+'</span><span class="comp-score">'+c.score+'%</span></div>'
         +'<div class="comp-meter"><i style="width:'+c.score+'%"></i></div>'
-        +'<span class="comp-team">'+esc(c.team)+' · comparable</span></button>';
+        +'<span class="comp-team">'+esc(teamAbbr(c.team))+' · comparable</span></button>';
     }).join('')+'</div>';
   }
   el.innerHTML=html; el.hidden=false;
@@ -3111,30 +3729,41 @@ function wireCompCards(el){
 
 /* What this page can't see. Naming the gap is more credible than papering over it. */
 var GAPS_BY_POS={
-  OL:'Two of these three sections are the unit\'s, not his. Nobody publishes who beat whom on a given '
-    +'snap, so there is no individual pass-block win rate here; what there is, is what the offense did while he '
-    +'was on the field. Five linemen share a huddle, so a teammate who never leaves the field posts an identical '
-    +'number — which is why the on/off rows matter more than the raw ones, and why they are blank for iron men '
-    +'who never gave you a sample without them. His snaps, his starts, his alignment and his flags are genuinely his.',
+  OL:'Most of this panel is the unit\'s, not his. Nobody publishes who beat whom on a given snap, so there is no '
+    +'individual pass-block win rate here; what there is, is what the offense did while he was on the field. Five '
+    +'linemen share a huddle, so a teammate who never leaves the field posts an identical number. While a season is '
+    +'being played those rows are worked out from his share of each game\'s snaps and tagged est.; the play-by-play '
+    +'lineups that make them exact, and the on/off rows, arrive after the Super Bowl. The runs-to-his-gap rows are '
+    +'the closest thing here to his own run blocking. His snaps, his starts, his spot and his flags are genuinely his.',
   TE:'The blocking panel splits his snaps into pass protection and run blocking, so a blocking tight end is '
-    +'no longer judged on receiving numbers alone. What is still missing is alignment: inline, slot and wide are '
-    +'three different jobs and open data does not say which he lined up in. And as with the offensive line, the '
-    +'protection and run-game rows are the unit\'s performance on his snaps, not a grade on him.',
-  WR:'Routes run are charted by PFF and are not public, so the two best receiver numbers there are — '
-    +'yards per route run and targets per route run — cannot be computed here. Yards per snap and targets per snap '
-    +'stand in for them: same idea, blunter denominator, because it counts the snaps he spent blocking.',
-  ED:'Pass-rush snaps are not public, so pressure rate here is per defensive snap. A rusher on a '
-    +'run-heavy defense is understated by it.',
+    +'no longer judged on receiving numbers alone, but those rows only exist once a season\'s lineups are published. '
+    +'What is still missing is alignment: inline, slot and wide are three different jobs and open data does not say '
+    +'which he lined up in. Pass-play snaps stand in for routes run, which counts the plays he stayed in to block.',
+  WR:'Routes run are charted privately and are not public. Yards and targets per pass-play snap are the closest '
+    +'free stand-in: every pass play he was on the field for, including the few he spent blocking. While a season '
+    +'is being played that count is an estimate from snap counts and is tagged est.; the true count arrives after '
+    +'the Super Bowl.',
+  RB:'A back\'s receiving numbers are mostly checkdowns and screens, which is why the target mix sits beside them. '
+    +'Pass-protection snaps and blitz pickups are not public at all, so nothing here grades him as a blocker.',
+  ED:'Pressure rate is given per pass-play snap, which is fairer than per snap but still counts the plays he '
+    +'dropped into coverage. While a season is being played that count is an estimate. Double teams and chips, '
+    +'which explain a lot of a great rusher\'s quiet games, are not in open data.',
   DI:'Double-team rate is the context that explains a great nose tackle\'s ordinary counting stats, '
-    +'and it is not in open data. Neither are pass-rush snaps, so pressure rate here is per defensive snap.',
-  CB:'Coverage snaps and alignment (boundary, slot, deep) are charted data. Rates here use total '
-    +'defensive snaps, which flatters a corner who spends downs in run support.',
-  S:'Coverage snaps and alignment are charted data. Rates here use total defensive snaps, so a box '
-    +'safety and a deep safety are being measured on the same denominator.',
-  LB:'Coverage snaps and blitz snaps are charted data; rates here use total defensive snaps. '
-    +'Tackle volume is a role stat before it is a skill stat.',
+    +'and it is not in open data. Pressure and run-stop rates use pass-play and run-play snaps, estimated while a '
+    +'season is being played and exact once the lineups are published.',
+  CB:'The depth chart now says who plays the slot and who plays outside, but not on every snap, and nobody '
+    +'publishes whether a completion was his man or a busted zone. Coverage rates use pass-play snaps, which '
+    +'include the downs he blitzed. Flags he drew in coverage are counted apart, because they never show up in '
+    +'yards allowed.',
+  S:'Deep or in the box is the difference between two different jobs, and open data only hints at it through '
+    +'tackle depth and blitz rate. Coverage rates use pass-play snaps, estimated while a season is being played.',
+  LB:'Coverage rates use pass-play snaps and run stops use run-play snaps, both estimated while a season is '
+    +'being played. Tackle volume is a role stat before it is a skill stat.',
+  K:'Field goals over expected knows the distance and, in the outdoor row, that there was weather, but not the '
+    +'wind on that kick or the hold. Kickoffs changed shape with the 2024 rules, so those rows describe his team\'s '
+    +'plan as much as his leg.',
   P:'Hang time and coverage quality are the two variables that decide whether a punt was good, '
-    +'and neither is public. Net average and inside-20 rate are the best pair available.'
+    +'and neither is public. EPA per punt, net average and inside-20 rate are the best three available.'
 };
 function renderGapNote(pos){
   var el=document.getElementById('gapnote');
@@ -3155,7 +3784,9 @@ function toggleExpl(rowEl,key){
   var m=MBY[key]; if(!m) return;
   var x=m.exp||{};
   var meta=[m.layer.toUpperCase()];
-  if(m.thr&&m.den) meta.push('needs about '+m.thr+' '+(CFG.denoms[m.den]||m.den)+' to settle');
+  var need=cur?thrFor(m,cur.pos):m.thr;
+  if(need&&m.den) meta.push('needs about '+need+' '+(CFG.denoms[m.den]||m.den)+' to settle');
+  if(m.est) meta.push('an estimate while a season is being played');
   if(m.since>1999) meta.push('first tracked in '+m.since);
   if(m.lower) meta.push('lower is better, so the bar is flipped');
   var el=document.createElement('div');
@@ -3188,7 +3819,13 @@ function toggleExpl(rowEl,key){
    The SVG is drawn at the pixel width it is shown at and redrawn on resize, so nothing is
    ever stretched: squares stay square and type stays the size it was set at. */
 var chartMode='season';                 // remembered across charts for the session
-var SEASON_TOTAL_ONLY={g:1,avail:1,starts:1,posver:1,comp:1};
+var SEASON_TOTAL_ONLY={g:1,avail:1,starts:1,posver:1,comp:1,
+  // one opponent is not a schedule, a contract is not a game, and on/off needs a season
+  sosp:1,sosr:1,sospr:1,soso:1,epadbadj:1,epacaradj:1,apy:1,capshr:1,linescore:1,linecont:1,gwo:1,
+  prsoo:1,epaoo:1,sroo:1,depaoo:1,drsoo:1,dpepaoo:1,passshr:1,manrate:1,epaman:1,epazone:1,yptman:1,yptzone:1,
+  // rare events: a game of these is a row of zeros with a one in it
+  offsideg:1,rtpg:1,stripsk:1,sk3rd:1,covpen:1,covpenyds:1,penstall:1,penydg:1,pen100:1,dpig:1,dpiyds:1,
+  tdall:1,koflag:1,sttk:1,stshr:1,skepa:1,skyd:1,skshr:1,rtkdepth:1,tkyac:1,maxair:1,fgwpa:1,krg:1,prg:1};
 var WK_ROOT=null, WK_IDX={}, WK_FILE={}, WK_PACK={};
 function wkTag(){ return '?v='+Math.floor(Date.now()/3600000); }   // same hour-cache as the current file
 function wkRoot(){
@@ -3524,6 +4161,12 @@ function drawWeekly(el,key,m){
          so a week that falls between two clubs is only called a bye if it was one for
          both; otherwise the chart says he was between teams, which is all it knows. */
       function slate(t,w){ return ((idx.teams||{})[t]||{})[String(w)]||''; }
+      /* an opponent as that season knew it: "@OAK" in 2003, not "@LV" */
+      function oshow(o){
+        if(!o||o==='BYE') return o||'';
+        var at=o.charAt(0)==='@';
+        return (at?'@':'')+teamAbbr(at?o.slice(1):o,String(s));
+      }
       function missed(w){
         var prev=null, next=null;
         for(var k=0;k<f.w.length;k++){
@@ -3533,7 +4176,7 @@ function drawWeekly(el,key,m){
         }
         if(prev&&next&&prev!==next){
           if(slate(prev,w)==='BYE'&&slate(next,w)==='BYE') return {sl:'BYE'};
-          return {between:prev+' → '+next};
+          return {between:teamAbbr(prev,String(s))+' → '+teamAbbr(next,String(s))};
         }
         return {sl:slate(prev||next||team,w)};
       }
@@ -3543,20 +4186,20 @@ function drawWeekly(el,key,m){
           var g=i>=0?{sl:f.t[i]?slate(f.t[i],w):''}:missed(w), sl=g.sl||'';
           var bye=sl==='BYE';
           pts.push({kind:'gap', lab:'W'+w, w:w,
-                    sub:bye?'bye':(i>=0?(f.o[i]||''):(sl||'')),
+                    sub:bye?'bye':oshow(i>=0?(f.o[i]||''):(sl||'')),
                     gapLab:bye?'BYE':(i>=0?'·':(g.between?'–':'DNP')),
                     why:bye?'Bye week':(i>=0?'Played, but no '+m.label.toLowerCase()+' reading'
                                            :(g.between?'Between teams ('+g.between+')':'Did not play')),
                     opp:i>=0?f.o[i]:sl});
           continue;
         }
-        var v=col[i], p={kind:'val', v:v, w:w, lab:'W'+w, sub:f.o[i]||'', opp:f.o[i], team:f.t[i],
+        var v=col[i], p={kind:'val', v:v, w:w, lab:'W'+w, sub:oshow(f.o[i]), opp:f.o[i], team:f.t[i],
                          pct:pctOf(v,pool,m.lower), n:den?den[i]:null};
         pts.push(p); nGames++; lastP=p;
         if(best==null||(m.lower?v<best.v:v>best.v)) best=p;
       }
       if(best) best.best=true;
-      function vs(o){ return !o?'':(o.charAt(0)==='@'?'at '+o.slice(1):'vs '+o); }
+      function vs(o){ o=oshow(o); return !o?'':(o.charAt(0)==='@'?'at '+o.slice(1):'vs '+o); }
       var medV=median(pool), allTime=baseline==='all';
       var kp=(!miss(seasonV)?kpi(s+' season',fmt(m.unit,seasonV),(liveWeek(s)?'thru wk '+liveWeek(s):'full season')+(seasonPct!=null?' · '+ordinal(seasonPct):''),seasonPct):'')
         +kpi('Best game',fmt(m.unit,best.v),'Wk '+best.w+' '+vs(best.opp),best.pct)
@@ -3606,15 +4249,35 @@ function wireHover(el){
 }
 
 /* ================= SEARCH + NAVIGATION ===================================== */
+/* What a search box owes a fan: the name as typed first, then the name he meant.
+
+   Five tiers, never mixed, each in "the one people mean now" order inside itself:
+     0  the name starts with what was typed            "josh al"   -> Josh Allen
+     1  the last name starts with it                    "mahomes"   -> Patrick Mahomes
+     2  every word typed starts a word of the name      "josh allen" also finds Josh Hines-Allen
+     3  it appears in the name, spaces or not           "ja marr chase", "amonra st brown"
+     4  the same man under another first name           "patrick surtain" -> Pat Surtain II
+   Tier 4 needs a first AND a last name. A first name alone is too little to go on:
+   "Drew" should list the Drews, not every Andrew in the league. */
+var KNOWN_AS={'marquise brown':['hollywood brown'],'sauce gardner':['ahmad gardner']};
 function searchHits(term){
   term=_norm(term).trim();
   if(!term) return [];
-  var starts=[],lastStarts=[],contains=[];
-  for(var i=0;i<NAMES.length&&starts.length+lastStarts.length+contains.length<60;i++){
-    var e=NAMES[i];
-    if(e.n.indexOf(term)===0) starts.push(e);
-    else if(e.last.indexOf(term)===0) lastStarts.push(e);
-    else if(e.n.indexOf(term)>=0) contains.push(e);
+  var words=term.split(' '), tight=term.replace(/ /g,''), full=words.length>1;
+  var tiers=[[],[],[],[],[]];
+  for(var i=0;i<NAMES.length;i++){
+    var e=NAMES[i], n=e.n, t=-1;
+    if(n.indexOf(term)===0) t=0;
+    else if(e.last.indexOf(term)===0) t=1;
+    else {
+      var nw=n.split(' ');
+      if(words.every(function(w){ return nw.some(function(x){ return x.indexOf(w)===0; }); })) t=2;
+      else if(n.indexOf(term)>=0||(tight.length>=4&&n.replace(/ /g,'').indexOf(tight)>=0)) t=3;
+      else if(full){
+        for(var a=0;a<e.alts.length;a++){ if(e.alts[a].indexOf(term)===0){ t=4; break; } }
+      }
+    }
+    if(t>=0) tiers[t].push(e);
   }
   /* Two men named Jefferson both played last year; the one people mean is the one who
      played more. Rank on recency first, then on the size of the career behind the name. */
@@ -3627,14 +4290,17 @@ function searchHits(term){
     var w=(r.m.snaps||0)*(r.m.g||0) || (r.m.g||0)*10;
     return {last:last, weight:w};
   }
-  var all=starts.concat(lastStarts,contains);
-  var sc={}; all.forEach(function(e){ sc[e.id]=score(e); });
-  all.sort(function(a,b){
-    var A=sc[a.id], B=sc[b.id];
-    if(B.last!==A.last) return B.last-A.last;
-    return B.weight-A.weight;
-  });
-  return all.slice(0,12);
+  var out=[];
+  for(var k=0;k<tiers.length&&out.length<12;k++){
+    var sc={}; tiers[k].forEach(function(e){ sc[e.id]=score(e); });
+    tiers[k].sort(function(x,y){
+      var A=sc[x.id], B=sc[y.id];
+      if(B.last!==A.last) return B.last-A.last;
+      return B.weight-A.weight;
+    });
+    out=out.concat(tiers[k]);
+  }
+  return out.slice(0,12);
 }
 function resRow(e){
   var ss=seasonsOf(e.id);
@@ -3642,7 +4308,7 @@ function resRow(e){
   var last=rowFor(e.id,ss[ss.length-1])||{};
   return '<div class="res" data-id="'+esc(e.id)+'" role="option">'
     +(faceURL(e.id,e.head)?'<img class="rimg" src="'+esc(faceURL(e.id,e.head))+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="rimg"></span>')
-    +'<div><div class="rn">'+esc(e.name)+'</div><div class="rs">'+esc(e.pos)+' · '+esc(last.team||'')+' · '+span+'</div></div></div>';
+    +'<div><div class="rn">'+esc(e.name)+'</div><div class="rs">'+esc(e.pos)+' · '+esc(teamAbbr(last.team,String(ss[ss.length-1])))+' · '+span+'</div></div></div>';
 }
 function wireSearch(inputId,boxId,after){
   var inp=document.getElementById(inputId), box=document.getElementById(boxId), sel=-1;
@@ -3715,6 +4381,8 @@ function resolveCur(){
   cur=curId?rowFor(curId,curSeason):null;
   if(!cur&&curId&&isCareer(curSeason)) curSeason=seasonsOf(curId).slice(-1)[0]||curSeason;
   cur=curId?rowFor(curId,curSeason):null;
+  // a recent-form window replaces the season's numbers with the window's, where he has one
+  if(cur&&formWin&&isLive(curSeason)){ var fr=formRow(curId,curSeason); if(fr) cur=fr; }
   if(!cur&&curId){
     // he wasn't in the league (or had no stats) that year — show the nearest season he did
     var ss=seasonsOf(curId);
@@ -3738,6 +4406,7 @@ function selectPlayer(id){
 function setSeason(s){
   curSeason=s; resolveCur();
   updateSeasonPicker(); render(); syncURL();
+  fillTeams(); if(curTeam) openTeam(curTeam);
   flarePeak();
 }
 function flarePeak(){
@@ -3922,7 +4591,27 @@ function allSavant(season){
           +ordinal(Math.round(L.pct.runsr))+'), vs all 32 lines. Team numbers, shared with the quarterback and backs.'});
     });
   }
-  var def=fill(AST.def), st=fill(AST.st);
+  /* From 2025 the depth charts name the slot corner. Where they do, the nickel spot on the
+     field goes to the best man listed there and the two outside spots to outside corners,
+     instead of to the three best corners wherever they line up. */
+  var hasSlot=seasonPlayers(season).some(function(p){ return p.pos==='CB'&&p.role&&p.role[0]==='NB'; });
+  var def;
+  if(hasSlot){
+    def=fill(AST.def.filter(function(sl){ return sl[0]!=='CB'&&sl[0]!=='S'; }));
+    var cbs=rankedAt(season,'CB'), out2=[], nb=null;
+    cbs.forEach(function(it){
+      var slot=it.p.role&&it.p.role[0]==='NB';
+      if(slot&&!nb) nb=it; else if(!slot&&out2.length<2) out2.push(it);
+    });
+    out2.concat(nb?[nb]:[]).forEach(function(it,i){
+      used[it.p.id]=1;
+      def.push({slot:(nb&&it===nb)?'NB':'CB',id:it.p.id,name:it.p.name,h:it.p.h,team:it.p.team,
+        why:'Savant profile score '+it.score+' — the average percentile of his headline stats vs qualified cornerbacks, '+season
+          +((nb&&it===nb)?'. Listed as his team\'s slot corner on the depth chart.':'')});
+    });
+    def=def.concat(fill(AST.def.filter(function(sl){ return sl[0]==='S'; })));
+  } else def=fill(AST.def);
+  var st=fill(AST.st);
   var RET={kr:['KR','kick returner'],pr:['PR','punt returner']};
   ['kr','pr'].forEach(function(k){
     var r=((blk.ret||{})[k]||[])[0]; if(!r) return;
@@ -3943,7 +4632,7 @@ function allSavant(season){
 var AST_SPOTS={
   // slot -> [[grid column, grid row], ...] in pick order (best first)
   S:[[5,1],[13,1]],
-  LB:[[7,2],[11,2]], CB:[[1,3],[17,3],[3,2]],
+  LB:[[7,2],[11,2]], CB:[[1,3],[17,3],[3,2]], NB:[[3,2]],
   EDGE:[[6,3],[12,3]], IDL:[[8,3],[10,3]],
   WR:[[1,5],[17,5],[3,6]],
   LT:[[5,5]], LG:[[7,5]], C:[[9,5]], RG:[[11,5]], RT:[[13,5]], TE:[[15,5]],
@@ -3961,7 +4650,7 @@ function astCard(it,col,row){
     +(it.line?' line':'')+'" title="'+esc(it.name+' — '+it.why)+'">'
     +'<span class="ast-face">'+(face?'<img src="'+esc(face)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'')+'</span>'
     +'<span class="ast-nm">'+esc(astShort(it.name))+'</span>'
-    +'<span class="ast-tm">'+esc(it.team||'')+'</span>'
+    +'<span class="ast-tm">'+esc(teamAbbr(it.team))+'</span>'
     +'</'+tag+'><span class="ast-pos">'+esc(it.label||it.slot)+'</span></div>';
 }
 function renderAllSavant(season){
@@ -4039,21 +4728,35 @@ function goHome(){ stopPlay(); showHome(); }
 function syncURL(){
   if(!curId) return;
   var q='#p='+encodeURIComponent(curId)+'&s='+curSeason
-    +(baseline!=='season'?'&b=all':'')+(cohortMode!=='pos'?'&c=side':'');
+    +(baseline!=='season'?'&b='+baseline:'')+(cohortMode!=='pos'?'&c=side':'')
+    +(formWin&&isLive(curSeason)?'&w='+formWin:'');
   try{ history.replaceState(null,'',q); }catch(e){}
 }
 function readURL(){
   var h=location.hash.replace(/^#/,'');
   if(!h) return false;
-  if(h.indexOf('lb')===0) return true;   // init parses the leaderboard hash itself, after this
+  if(h.indexOf('lb')===0) return false;  // init parses the leaderboard hash itself
   var o={};
   h.split('&').forEach(function(kv){ var i=kv.indexOf('='); if(i>0) o[kv.slice(0,i)]=decodeURIComponent(kv.slice(i+1)); });
+  if(o.t) o.t=teamCanon(o.t.toUpperCase());
+  if(o.t&&CFG.teams[o.t]){
+    // a team link: the app opens behind it on that team's busiest player, so there is a card to go back to
+    if(o.s&&DATA.seasons.indexOf(o.s)>=0) curSeason=o.s;
+    var best=null;
+    seasonPlayers(curSeason).forEach(function(p){
+      if(p.team===o.t&&p.pos==='QB'&&(!best||(p.d.db||0)>(best.d.db||0))) best=p; });
+    if(!best) best=seasonPlayers(curSeason).filter(function(p){ return p.team===o.t; })[0];
+    if(!best) return false;
+    curId=best.id; hideHome(); resolveCur(); pendingTeam=o.t;
+    return true;
+  }
   if(!o.p||!PIDX[o.p]) return false;
   curId=o.p;
   curSeason=(o.s&&(isCareer(o.s)||DATA.seasons.indexOf(o.s)>=0))?o.s:seasonsOf(o.p).slice(-1)[0];
-  if(o.b==='all') baseline='all';
+  if(o.b==='all'||o.b==='pace'||o.b==='exp') baseline=o.b;
   if(o.c==='side') cohortMode='side';
   hideHome(); resolveCur();
+  if((o.w==='4'||o.w==='8'||o.w==='17')&&isLive(curSeason)) setWindow(+o.w);
   return true;
 }
 
@@ -4137,8 +4840,9 @@ function exportCard(){
    columns are limited to the metrics that position actually has, which is what stops a
    leaderboard of cornerbacks from offering to sort by pocket time. */
 var LB={season:null,pos:'QB',rank:null,topN:25,team:'',share:0,
-        ageMin:null,ageMax:null,expMin:null,expMax:null,
-        display:'value',basis:'season',sample:'settled',cols:[]};
+        ageMin:null,ageMax:null,expMin:null,expMax:null,win:0,
+        display:'value',basis:'season',sample:'settled',sampleSet:false,cols:[]};
+var TEAMPOS='TEAM';
 var LB_PRESETS=[
   {n:'Best quarterbacks',pos:'QB',rank:'epadb',cols:['epadb','cpoe','anya','srdb','sackpct','qbr']},
   {n:'Most accurate passers',pos:'QB',rank:'cpoe',cols:['cpoe','ontgt','badthrow','cmppct','adot']},
@@ -4152,7 +4856,17 @@ var LB_PRESETS=[
   {n:'Safeties',pos:'S',rank:'ycs',cols:['ycs','cmpall','tklsnap','ballrate','mtklpct']},
   {n:'Linebackers',pos:'LB',rank:'tklsnap',cols:['tklsnap','tflsnap','mtklpct','ycs','prsssnap']},
   {n:'Kickers over expected',pos:'K',rank:'fgoe',cols:['fgoe','fgpct','fg50','fglong','fga']},
-  {n:'Punters',pos:'P',rank:'pnet',cols:['pnet','pgross','pin20','ptb','pretyds']}
+  {n:'Punters',pos:'P',rank:'pnet',cols:['pnet','pepa','pgross','pin20','ptb','pretyds']},
+  {n:'Yards per pass-play snap',pos:'WR',rank:'ypps',cols:['ypps','tpps','frshr','ypt','croe','xyacoe']},
+  {n:'Who the offense runs through',pos:'WR',rank:'frshr',cols:['frshr','tgtshr','ydshr','ezshr','td3tgt']},
+  {n:'Workhorse backs',pos:'RB',rank:'carshr',cols:['carshr','i5shr','xfp','tgtshr','syconv','fpoe']},
+  {n:'Quarterbacks under pressure',pos:'QB',rank:'p2s',cols:['p2s','prsspct','sackpct','epablz','ttt','scrrate']},
+  {n:'Pass rush per pass play',pos:'ED',rank:'prsspass',cols:['prsspass','skpass','prsshr','skepa','rstoprate']},
+  {n:'Run stoppers',pos:'DI',rank:'rstoprate',cols:['rstoprate','rstop','rtkdepth','tflsnap','prsspass']},
+  {n:'Coverage per pass play',pos:'CB',rank:'ycovsnap',cols:['ycovsnap','ctgtcov','cmpall','airall','covpen','ballrate']},
+  {n:'Tackles in season',pos:'OT',rank:'prsallowc',cols:['prsallowc','sackallow','hitallow','gapsr','pen100','linecont']},
+  {n:'Team offenses',pos:'TEAM',rank:'o_epa',cols:['o_epa','o_succ','o_pepa','o_repa','o_sk','o_d3']},
+  {n:'Team defenses',pos:'TEAM',rank:'d_epa',cols:['d_epa','d_succ','d_pepa','d_repa','d_sk','d_to']}
 ];
 function lbMetrics(pos){
   return METRICS.filter(function(m){
@@ -4162,11 +4876,26 @@ function lbMetrics(pos){
 function lbAllMetrics(pos){
   return METRICS.filter(function(m){ return m.pos.indexOf(pos)>=0; });
 }
-function lbPool(){
+/* The rows a board ranks: a season's players, their last N games, or whole careers. */
+function lbRows(){
+  if(isCareer(LB.season)){
+    buildCareers();
+    var out=[];
+    NAMES.forEach(function(e){ var r=CROW_CACHE[e.id]; if(r&&r.poolOK) out.push(r); });
+    return out;
+  }
   var ps=seasonPlayers(LB.season)||[];
-  return ps.filter(function(p){
-    if(p.pos!==LB.pos||!p.qualified) return false;
-    if(LB.team&&p.team!==LB.team) return false;
+  if(LB.win&&isLive(LB.season)&&formData(LB.season)){
+    return ps.map(function(p){ return formRow(p.id,LB.season); }).filter(function(r){ return r; });
+  }
+  return ps;
+}
+function lbPool(){
+  return lbRows().filter(function(p){
+    if(p.pos!==LB.pos||!(p.qualified||p.poolOK)) return false;
+    /* every team he played for that year, not just the last: a man traded in October
+       belongs on both clubs' boards */
+    if(LB.team&&!(isCareer(LB.season)?(p.teams||[]).indexOf(LB.team)>=0:onTeam(p,LB.team))) return false;
     if(LB.share&&(miss(p.m.snapshr)||p.m.snapshr<LB.share)) return false;
     if(LB.ageMin!=null&&(p.age==null||p.age<LB.ageMin)) return false;
     if(LB.ageMax!=null&&(p.age==null||p.age>LB.ageMax)) return false;
@@ -4184,22 +4913,42 @@ function lbPct(v,key){
 }
 function lbTextColor(pct){ return pct==null?'var(--muted)':colorAt(pct); }
 function lbRender(){
+  if(LB.pos===TEAMPOS){ lbRenderTeams(); return; }
+  /* the page-wide window is borrowed for the length of this render so the same pool and
+     row code serves the board, then handed back */
+  var keepWin=formWin; formWin=(LB.win&&isLive(LB.season))?LB.win:0;
+  try{ lbRenderPlayers(); } finally { formWin=keepWin; }
+}
+function lbRenderPlayers(){
   var t=document.getElementById('lbTable');
   var m=MBY[LB.rank];
   if(!m){ t.innerHTML='<tbody><tr><td class="lb-empty">Pick a stat to rank by.</td></tr></tbody>'; return; }
   var all=lbPool().filter(function(p){ return !miss(p.m[LB.rank])&&eraOK(m,LB.season); });
+  /* "Likely to settle": everyone who qualifies, in the order their numbers are expected to
+     finish in rather than the order a few games have left them. Only a season still being
+     played has anything to estimate; anywhere else it is the same as Settled. */
+  /* a stat with no sample line (pay, a line grade, anything counted per game from week 1)
+     has nothing to settle, so there is no estimate to rank on */
+  var useEst=LB.sample==='est'&&isLive(LB.season)&&!formWin&&!!thrFor(m,LB.pos)&&!!m.den;
+  var estOf=function(p){
+    if(sampleOf(p,m).ok) return p.m[LB.rank];
+    var e=regressed(p,m,LB.season);
+    return e?e.v:p.m[LB.rank];
+  };
   /* The stabilization threshold matters more here than anywhere else on the site. Sort a
      coverage rate and the top of the list fills with corners nobody threw at, because a
      tiny denominator produces extreme rates in both directions. "Settled" holds the list
      to players who have enough of the metric's own denominator to mean it; "Everyone"
      shows the rest, dimmed and starred rather than silently mixed in. */
   var thin=all.filter(function(p){ return !sampleOf(p,m).ok; });
-  var rows = LB.sample==='settled' ? all.filter(function(p){ return sampleOf(p,m).ok; }) : all;
+  var strictOnly=!formWin&&(LB.sample==='settled'||(LB.sample==='est'&&!useEst));
+  var rows = strictOnly ? all.filter(function(p){ return sampleOf(p,m).ok; }) : all;
   rows.sort(function(a,b){
-    var x=a.m[LB.rank], y=b.m[LB.rank];
+    var x=useEst?estOf(a):a.m[LB.rank], y=useEst?estOf(b):b.m[LB.rank];
     return m.lower ? x-y : y-x;
   });
   rows=rows.slice(0,LB.topN);
+  if(!rows.length) document.getElementById('lbHint').textContent='';
   if(!rows.length){
     /* Three different nothings, and telling a reader to loosen his filters when the
        stat simply has not been published yet sends him looking for a mistake he did not
@@ -4212,13 +4961,16 @@ function lbRender(){
        :uncharted
           ? ('Nobody has a '+esc(m.label).toLowerCase()+' in '+esc(LB.season)+' yet'
              +(liveWeek(LB.season)?' — some charting is only published once the season ends.':'.'))
-       :(LB.sample==='settled'&&thin.length)
-          ? ('Nothing qualifies. No one reached '+m.thr+' '+(CFG.denoms[m.den]||m.den)+' — switch Sample to Everyone, or loosen the filters.')
+       :(strictOnly&&thin.length)
+          ? ('Nothing qualifies. No one has reached '+thrFor(m,LB.pos)+' '+(CFG.denoms[m.den]||m.den)+' yet — switch Sample to '
+             +(isLive(LB.season)?'Likely to settle or ':'')+'Everyone, or loosen the filters.')
           : 'Nothing qualifies. Loosen the filters.')+'</td></tr></tbody>';
+    lbSyncURL();
     return;
   }
   var cols=LB.cols.filter(function(k){ return MBY[k]&&MBY[k].pos.indexOf(LB.pos)>=0&&eraOK(MBY[k],LB.season); });
   var head='<thead><tr><th>#</th><th>Player</th><th>Tm</th>'
+    +(useEst?'<th title="Where his '+esc(m.label).toLowerCase()+' is likely to settle: what he has done so far, pulled toward what is normal at his position and toward his own last season by how little there is so far. The board is ranked on this.">Likely to settle</th>':'')
     +cols.map(function(k){return '<th title="'+esc(((MBY[k].exp||{}).w)||'')+'">'+esc(MBY[k].label)+'</th>';}).join('')
     +'</tr></thead>';
   var anyThin=false;
@@ -4226,10 +4978,15 @@ function lbRender(){
     var smp=sampleOf(p,m);
     if(!smp.ok) anyThin=true;
     var tip=smp.ok?'':('Only '+Math.round(smp.n)+' '+(CFG.denoms[m.den]||m.den)+' — below the '
-      +m.thr+' this stat needs before it settles down.');
-    return '<tr class="'+(smp.ok?'':'thin')+'"'+(tip?' title="'+esc(tip)+'"':'')+'>'
+      +smp.thr+' this stat needs before it settles down.');
+    var ecell='';
+    if(useEst){
+      var ev=estOf(p), ep=pctOf(ev,estPool(LB.rank,LB.pos,LB.season),m.lower);
+      ecell='<td style="color:'+lbTextColor(ep)+'">'+esc(LB.display==='pct'?(ep==null?'·':ep):fmt(m.unit,ev))+'</td>';
+    }
+    return '<tr class="'+((smp.ok||useEst)?'':'thin')+'"'+(tip?' title="'+esc(tip)+'"':'')+'>'
       +'<td>'+(i+1)+'</td><td data-id="'+esc(p.id)+'">'+esc(p.name)+'</td>'
-      +'<td style="color:'+teamInk(p.team)+'">'+esc(p.team||'')+'</td>'
+      +'<td style="color:'+teamInk(p.team)+'">'+esc(teamAbbr(p.team,String(LB.season)))+'</td>'+ecell
       +cols.map(function(k){
         var v=p.m[k];
         if(miss(v)) return '<td style="color:var(--faint)">—</td>';
@@ -4239,24 +4996,41 @@ function lbRender(){
       }).join('')+'</tr>';
   }).join('')+'</tbody>';
   var foot='';
-  if(LB.sample==='settled'&&thin.length){
-    foot='<tfoot><tr><td class="lb-foot" colspan="'+(3+cols.length)+'">'
-      +thin.length+' player'+(thin.length===1?'':'s')+' hidden: fewer than '+m.thr+' '
+  var span=3+cols.length+(useEst?1:0), need=thrFor(m,LB.pos);
+  if(useEst){
+    foot='<tfoot><tr><td class="lb-foot" colspan="'+span+'">Ranked on where each number is likely to settle, not on the raw number. '
+      +'A man below '+need+' '+(CFG.denoms[m.den]||m.den)+' is pulled toward what is normal at his position, and toward his own last season, '
+      +'by how far short he is. Switch Sample to <b>Everyone</b> for the raw order.</td></tr></tfoot>';
+  } else if(strictOnly&&thin.length){
+    foot='<tfoot><tr><td class="lb-foot" colspan="'+span+'">'
+      +thin.length+' player'+(thin.length===1?'':'s')+' hidden: fewer than '+need+' '
       +(CFG.denoms[m.den]||m.den)+', the point where '+esc(m.label).toLowerCase()
       +' stops wobbling. Switch Sample to <b>Everyone</b> to see them.</td></tr></tfoot>';
   } else if(anyThin){
-    foot='<tfoot><tr><td class="lb-foot" colspan="'+(3+cols.length)+'">'
-      +'Dimmed rows marked <b>*</b> are below '+m.thr+' '+(CFG.denoms[m.den]||m.den)
+    foot='<tfoot><tr><td class="lb-foot" colspan="'+span+'">'
+      +'Dimmed rows marked <b>*</b> are below '+need+' '+(CFG.denoms[m.den]||m.den)
       +' — the rate is real, the ranking is not yet earned.</td></tr></tfoot>';
   }
   t.innerHTML=head+body+foot;
   t.querySelectorAll('td[data-id]').forEach(function(td){
-    td.onclick=function(){ hideLB(); selectPlayer(td.dataset.id); };
+    td.onclick=function(){
+      // open the card the board was ranking: that season, or the career
+      hideLB(); selectPlayer(td.dataset.id);
+      if(curSeason!==String(LB.season)&&(isCareer(LB.season)||seasonsOf(td.dataset.id).indexOf(String(LB.season))>=0)) setSeason(String(LB.season));
+    };
+  });
+  document.querySelectorAll('#lbSample button').forEach(function(b){
+    // a window is ranked on what happened in it; there is no "settled" inside four games
+    b.disabled=!!formWin;
+    b.title=formWin?'Sample filters apply to a season. A window of games shows everyone who qualifies.':'';
   });
   document.getElementById('lbHint').innerHTML=
-    'Ranking qualified '+esc((CFG.posLabel[LB.pos]||LB.pos).toLowerCase())+'s in '+esc(LB.season)
+    'Ranking qualified '+esc((CFG.posLabel[LB.pos]||LB.pos).toLowerCase())+'s '
+    +(isCareer(LB.season)?'over whole careers':(formWin?('over their last '+formWin+' games in '+esc(LB.season)):('in '+esc(LB.season))))
     +' by <b>'+esc(m.label)+'</b>'+(m.lower?' (lower is better)':'')+'. '
-    +'Number colour is the percentile, taken '+(LB.basis==='all'?'against every season on record':'inside this season')+'. '
+    +'Number colour is the percentile, taken '
+    +(isCareer(LB.season)?'against every career on record':formWin?'against the same stretch for everyone else'
+      :(LB.basis==='all'?'against every season on record':'inside this season'))+'. '
     +esc(((m.exp||{}).w)||'')+' '+esc(((m.exp||{}).y)||'');
   lbSyncURL();
 }
@@ -4268,21 +5042,56 @@ function lbOpt(id,items,valf,txtf,curv){
   }).join('');
 }
 function lbBuildControls(){
-  lbOpt('lbSeason',DATA.seasons,function(s){return s;},function(s){return s;},LB.season);
+  lbOpt('lbSeason',[CAREER].concat(DATA.seasons),function(s){return s;},function(s){return isCareer(s)?'Career':s;},LB.season);
+  var live=isLive(LB.season);
+  var win=document.getElementById('lbWin');
+  if(win){ if(!live) LB.win=0; win.value=String(LB.win); win.disabled=!live;
+    win.title=live?'':'Only for the season being played'; }
+  // a season still being played has almost nothing settled, so its boards open on the estimate
+  if(!LB.sampleSet) LB.sample=live?'est':'settled';
+  document.querySelectorAll('#lbSample button').forEach(function(x){
+    x.classList.toggle('on',x.dataset.v===LB.sample);
+    if(x.dataset.v==='est') x.disabled=!live;
+  });
   var tn=document.getElementById('lbTopN');
   if(tn) tn.value=String(LB.topN===999?'999':LB.topN);
   if(tn&&tn.selectedIndex<0){                      // a shared link can carry any N
     tn.insertAdjacentHTML('beforeend','<option value="'+LB.topN+'" selected>'+LB.topN+'</option>');
   }
-  lbOpt('lbPos',Object.keys(CFG.panels),function(p){return p;},function(p){return CFG.posLabel[p]||p;},LB.pos);
+  /* a team board is the whole league by one stat: the filters that pick players out of a
+     position have nothing to act on, and say so rather than sit there doing nothing */
+  var teamsOn=LB.pos===TEAMPOS;
+  ['lbTopN','lbTeam','lbShare','lbWin','lbAgeMin','lbAgeMax','lbExpMin','lbExpMax'].forEach(function(id){
+    var c=document.getElementById(id); if(!c) return;
+    if(teamsOn){ c.disabled=true; c.title='Team boards list every team'; }
+    else if(id!=='lbWin'){ c.disabled=false; c.title=''; }
+  });
+  document.querySelectorAll('#lbSample button, #lbBasis button').forEach(function(b){
+    if(teamsOn){ b.disabled=true; b.title='Team boards list every team'; }
+    else if(b.parentNode.id==='lbBasis'||b.dataset.v!=='est'){ b.disabled=false; b.title=''; }
+  });
+  if(teamsOn){ lbBuildTeamControls(); return; }
+  lbOpt('lbPos',Object.keys(CFG.panels).concat([TEAMPOS]),function(p){return p;},
+        function(p){return p===TEAMPOS?'Teams':(CFG.posLabel[p]||p);},LB.pos);
   var ms=lbMetrics(LB.pos);
-  if(!MBY[LB.rank]||MBY[LB.rank].pos.indexOf(LB.pos)<0) LB.rank=(CFG.headline[LB.pos]||[ms[0]&&ms[0].key])[0];
+  if(!MBY[LB.rank]||MBY[LB.rank].pos.indexOf(LB.pos)<0){ LB.rank=(CFG.headline[LB.pos]||[ms[0]&&ms[0].key])[0]; LB.rankSet=false; }
+  /* A board nobody chose a stat for should not open empty. A lineman's first headline stat
+     comes from the lineup file, which a season being played does not have yet: fall to
+     the first one that season does have. */
+  var hasK=!isCareer(LB.season)&&SEASON_HAS[LB.season];
+  if(!LB.rankSet&&hasK&&!hasK[LB.rank]){
+    var alt=(CFG.headline[LB.pos]||[]).concat(ms.map(function(x){return x.key;}))
+      .filter(function(k){ return hasK[k]&&MBY[k]&&MBY[k].pos.indexOf(LB.pos)>=0&&eraOK(MBY[k],LB.season); })[0];
+    if(alt) LB.rank=alt;
+  }
   lbOpt('lbRank',ms,function(m){return m.key;},function(m){return m.label;},LB.rank);
   var teams=Object.keys(CFG.teams).filter(function(t){
-    return seasonPlayers(LB.season).some(function(p){return onTeam(p,t);});
-  }).sort();
+    if(CFG.alias&&CFG.alias[t]) return false;      // one entry per franchise
+    return isCareer(LB.season)||seasonPlayers(LB.season).some(function(p){return onTeam(p,t);});
+  }).sort(function(a,b){ return teamName(a,String(LB.season))<teamName(b,String(LB.season))?-1:1; });
+  if(LB.team&&teams.indexOf(LB.team)<0) LB.team='';   // a link to a team this season does not have
   document.getElementById('lbTeam').innerHTML='<option value="">All teams</option>'
-    +teams.map(function(t){return '<option value="'+t+'"'+(t===LB.team?' selected':'')+'>'+esc(teamName(t))+'</option>';}).join('');
+    +teams.map(function(t){return '<option value="'+t+'"'+(t===LB.team?' selected':'')+'>'+esc(teamName(t,String(LB.season)))+'</option>';}).join('');
   var all=lbAllMetrics(LB.pos);
   LB.cols=LB.cols.filter(function(k){ return MBY[k]&&MBY[k].pos.indexOf(LB.pos)>=0; });
   if(!LB.cols.length) LB.cols=(CFG.headline[LB.pos]||[]).slice(0,5);
@@ -4306,7 +5115,8 @@ function lbBuildControls(){
   document.getElementById('lbPresets').querySelectorAll('.lb-preset').forEach(function(b){
     b.onclick=function(){
       var p=LB_PRESETS[+b.dataset.i];
-      LB.pos=p.pos; LB.rank=p.rank; LB.cols=p.cols.slice();
+      LB.pos=p.pos; LB.rank=p.rank; LB.rankSet=true; LB.cols=p.cols.slice();
+      if(isCareer(LB.season)&&p.pos===TEAMPOS) LB.season=DATA.seasons[0];
       lbBuildControls(); lbRender();
     };
   });
@@ -4315,23 +5125,24 @@ function lbEncode(){
   return '#lb?s='+LB.season+'&p='+LB.pos+'&r='+LB.rank+'&n='+LB.topN
     +'&c='+LB.cols.join('.')+(LB.team?'&t='+LB.team:'')+(LB.share?'&h='+LB.share:'')
     +(LB.display!=='value'?'&d=pct':'')+(LB.basis!=='season'?'&b=all':'')
-    +(LB.sample!=='settled'?'&x=all':'');
+    +(LB.sampleSet?'&x='+LB.sample:'')+(LB.win?'&w='+LB.win:'');
 }
 function lbSyncURL(){ try{ history.replaceState(null,'',lbEncode()); }catch(e){} }
 function lbParseHash(){
   var h=location.hash.replace(/^#lb\??/,'');
   if(!h) return;
   var o={}; h.split('&').forEach(function(kv){ var i=kv.indexOf('='); if(i>0) o[kv.slice(0,i)]=decodeURIComponent(kv.slice(i+1)); });
-  if(o.s&&DATA.seasons.indexOf(o.s)>=0) LB.season=o.s;
-  if(o.p&&CFG.panels[o.p]) LB.pos=o.p;
-  if(o.r&&MBY[o.r]) LB.rank=o.r;
+  if(o.s&&(isCareer(o.s)||DATA.seasons.indexOf(o.s)>=0)) LB.season=o.s;
+  if(o.p&&(CFG.panels[o.p]||o.p===TEAMPOS)) LB.pos=o.p;
+  if(o.r&&(MBY[o.r]||TEAM_MBY[o.r])){ LB.rank=o.r; LB.rankSet=true; }
   if(o.n) LB.topN=+o.n||25;
-  if(o.c) LB.cols=o.c.split('.').filter(function(k){return MBY[k];});
-  if(o.t) LB.team=o.t;
+  if(o.c) LB.cols=o.c.split('.').filter(function(k){return MBY[k]||TEAM_MBY[k];});
+  if(o.w==='4'||o.w==='8'||o.w==='17') LB.win=+o.w;
+  if(o.t) LB.team=teamCanon(o.t);
   if(o.h) LB.share=+o.h||0;
   if(o.d==='pct') LB.display='pct';
   if(o.b==='all') LB.basis='all';
-  if(o.x==='all') LB.sample='all';
+  if(o.x==='all'||o.x==='est'||o.x==='settled'){ LB.sample=o.x; LB.sampleSet=true; }
 }
 function showLB(){
   if(!LB.season) LB.season=DATA.seasons[0];
@@ -4344,7 +5155,10 @@ function showLB(){
       x.classList.toggle('on',x.dataset.v===LB[bits[1]]);
     });
   });
-  lbBuildControls(); lbRender();
+  lbBuildControls();
+  if(LB.win&&isLive(LB.season)&&!FORM[formKey(LB.season,LB.win)]){
+    var keep=formWin; formWin=LB.win; formLoad(LB.season,LB.win,function(){ lbRender(); }); formWin=keep;
+  } else lbRender();
   window.scrollTo(0,0);
 }
 function hideLB(){ document.body.classList.remove('lb-open'); }
@@ -4354,9 +5168,21 @@ function wireLB(){
     if(curId){ syncURL(); } else { showHome(); }
   };
   function bind(id,fn){ var e=document.getElementById(id); if(e) e.onchange=fn; }
-  bind('lbSeason',function(e){ LB.season=e.target.value; lbBuildControls(); lbRender(); });
-  bind('lbPos',function(e){ LB.pos=e.target.value; LB.rank=null; LB.cols=[]; lbBuildControls(); lbRender(); });
-  bind('lbRank',function(e){ LB.rank=e.target.value; lbRender(); });
+  bind('lbSeason',function(e){ LB.season=e.target.value;
+    if(isCareer(LB.season)&&LB.pos===TEAMPOS){ LB.pos='QB'; LB.rank=null; LB.cols=[]; }
+    lbBuildControls(); lbRender(); });
+  bind('lbPos',function(e){ LB.pos=e.target.value; LB.rank=null; LB.cols=[];
+    if(LB.pos===TEAMPOS&&isCareer(LB.season)) LB.season=DATA.seasons[0];
+    lbBuildControls(); lbRender(); });
+  bind('lbWin',function(e){
+    LB.win=+e.target.value||0;
+    if(LB.win&&isLive(LB.season)){
+      var k=formKey(LB.season,LB.win);
+      if(FORM[k]&&FORM[k]!=='loading') lbRender();
+      else { var keep=formWin; formWin=LB.win; formLoad(LB.season,LB.win,function(){ lbRender(); }); formWin=keep; }
+    } else lbRender();
+  });
+  bind('lbRank',function(e){ LB.rank=e.target.value; LB.rankSet=true; lbRender(); });
   bind('lbTopN',function(e){ LB.topN=+e.target.value||25; lbRender(); });
   bind('lbTeam',function(e){ LB.team=e.target.value; lbRender(); });
   bind('lbShare',function(e){ LB.share=+e.target.value||0; lbRender(); });
@@ -4387,7 +5213,7 @@ function wireLB(){
   });
   document.querySelectorAll('#lbSample button').forEach(function(b){
     b.onclick=function(){
-      LB.sample=b.dataset.v;
+      LB.sample=b.dataset.v; LB.sampleSet=true;
       document.querySelectorAll('#lbSample button').forEach(function(x){x.classList.toggle('on',x===b);});
       lbRender();
     };
@@ -4415,37 +5241,255 @@ function wireLB(){
   };
 }
 
-/* ================= TEAM BROWSER ============================================ */
+/* ================= TEAMS ====================================================
+   Every team's offense and defense, from the team block the build writes (sums, so the
+   rates and the ranks are taken here). One table of definitions serves the team page, the
+   team leaderboards and the "what this defense gives up" lines. */
+function tdiv(a,b,k){ return (miss(a)||!b)?null:a/b*(k||1); }
+var TEAM_METRICS=[
+  ['o_epa','Offense: EPA / play','num3',false,function(e){return tdiv(e.o.epa,e.o.plays);}],
+  ['o_succ','Offense: success rate','pct1',false,function(e){return tdiv(e.o.succ,e.o.plays,100);}],
+  ['o_pepa','Offense: EPA / dropback','num3',false,function(e){return tdiv(e.o.pepa,e.o.db);}],
+  ['o_repa','Offense: EPA / designed run','num3',false,function(e){return tdiv(e.o.repa,e.o.run);}],
+  ['o_ypc','Offense: yards / designed run','num2',false,function(e){return tdiv(e.o.ryds,e.o.run);}],
+  ['o_sk','Offense: sack rate allowed','pct1',true,function(e){return tdiv(e.o.sk||0,e.o.db,100);}],
+  ['o_hit','Offense: QB-hit rate allowed','pct1',true,function(e){return tdiv(e.o.hit||0,e.o.db,100);}],
+  ['o_d3','Offense: 3rd/4th-down conversion','pct1',false,function(e){return tdiv(e.o.d3c||0,e.o.d3,100);}],
+  ['o_x20','Offense: 20+ yard plays / game','num1',false,function(e){return tdiv(e.o.x20||0,e.g);}],
+  ['o_to','Offense: giveaways / game','num2',true,function(e){return tdiv(e.o.to||0,e.g);}],
+  ['d_epa','Defense: EPA / play allowed','num3',true,function(e){return tdiv(e.d.epa,e.d.plays);}],
+  ['d_succ','Defense: success rate allowed','pct1',true,function(e){return tdiv(e.d.succ,e.d.plays,100);}],
+  ['d_pepa','Defense: EPA / dropback allowed','num3',true,function(e){return tdiv(e.d.pepa,e.d.db);}],
+  ['d_repa','Defense: EPA / designed run allowed','num3',true,function(e){return tdiv(e.d.repa,e.d.run);}],
+  ['d_ypc','Defense: yards / designed run allowed','num2',true,function(e){return tdiv(e.d.ryds,e.d.run);}],
+  ['d_sk','Defense: sack rate','pct1',false,function(e){return tdiv(e.d.sk||0,e.d.db,100);}],
+  ['d_hit','Defense: QB-hit rate','pct1',false,function(e){return tdiv(e.d.hit||0,e.d.db,100);}],
+  ['d_d3','Defense: 3rd/4th-down conversion allowed','pct1',true,function(e){return tdiv(e.d.d3c||0,e.d.d3,100);}],
+  ['d_x20','Defense: 20+ yard plays allowed / game','num1',true,function(e){return tdiv(e.d.x20||0,e.g);}],
+  ['d_to','Defense: takeaways / game','num2',false,function(e){return tdiv(e.d.to||0,e.g);}],
+  ['d_wr','Defense: yards / target to wide receivers','num2',true,function(e){return tdiv(e.d.tWR_y,e.d.tWR_n);}],
+  ['d_te','Defense: yards / target to tight ends','num2',true,function(e){return tdiv(e.d.tTE_y,e.d.tTE_n);}],
+  ['d_rbt','Defense: yards / target to backs','num2',true,function(e){return tdiv(e.d.tRB_y,e.d.tRB_n);}],
+  ['d_rb','Defense: yards / carry to backs','num2',true,function(e){return tdiv(e.d.rRB_y,e.d.rRB_n);}],
+  ['d_qb','Defense: yards / carry to quarterbacks','num2',true,function(e){return tdiv(e.d.rQB_y,e.d.rQB_n);}],
+  ['net','Net EPA / play','num3',false,function(e){var a=tdiv(e.o.epa,e.o.plays),b=tdiv(e.d.epa,e.d.plays);return (a==null||b==null)?null:a-b;}],
+  ['sd','Defenses faced (EPA / play they allow elsewhere)','num3',true,function(e){return miss(e.sd)?null:e.sd;}],
+  ['so','Offenses faced (EPA / play they make elsewhere)','num3',false,function(e){return miss(e.so)?null:e.so;}]
+];
+var TEAM_MBY={};
+TEAM_METRICS.forEach(function(t){ TEAM_MBY[t[0]]={key:t[0],label:t[1],unit:t[2],lower:t[3],f:t[4]}; });
+var TSTAT_CACHE={};
+/* {team: {key: value}} plus, per key, the sorted league values the ranks are read from. */
+function teamStats(season){
+  if(TSTAT_CACHE[season]) return TSTAT_CACHE[season];
+  var blk=(DATA.data[season]||{}).tm, out={teams:{},pool:{}};
+  if(!blk) return (TSTAT_CACHE[season]=out);
+  Object.keys(blk).forEach(function(t){
+    var e=blk[t], row={};
+    if(!e.o||!e.d) return;
+    TEAM_METRICS.forEach(function(tm){ var v=tm[4](e); if(v!=null&&isFinite(v)) row[tm[0]]=v; });
+    row.g=e.g; out.teams[t]=row;
+  });
+  TEAM_METRICS.forEach(function(tm){
+    var a=[]; for(var t in out.teams){ var v=out.teams[t][tm[0]]; if(v!=null) a.push(v); }
+    a.sort(function(x,y){return x-y;}); out.pool[tm[0]]=a;
+  });
+  return (TSTAT_CACHE[season]=out);
+}
+/* 1 = best. Best is the high end, or the low end where lower is better. */
+function teamRank(season,team,key){
+  var ts=teamStats(season), v=(ts.teams[team]||{})[key], pool=ts.pool[key]||[];
+  if(v==null||!pool.length) return null;
+  var lower=TEAM_MBY[key].lower, better=0;
+  pool.forEach(function(x){ if(lower?x<v:x>v) better++; });
+  return {rank:better+1, n:pool.length, pct:pool.length>1?Math.round(100*(pool.length-1-better)/(pool.length-1)):50, v:v};
+}
+
+/* ---- team leaderboards */
+function lbBuildTeamControls(){
+  lbOpt('lbPos',Object.keys(CFG.panels).concat([TEAMPOS]),function(p){return p;},
+        function(p){return p===TEAMPOS?'Teams':(CFG.posLabel[p]||p);},LB.pos);
+  if(!TEAM_MBY[LB.rank]) LB.rank='o_epa';
+  lbOpt('lbRank',TEAM_METRICS,function(t){return t[0];},function(t){return t[1];},LB.rank);
+  LB.cols=LB.cols.filter(function(k){ return TEAM_MBY[k]; });
+  if(!LB.cols.length) LB.cols=['o_epa','d_epa','net','o_succ','d_succ'];
+  var box=document.getElementById('lbCols');
+  box.innerHTML=TEAM_METRICS.map(function(t){
+    return '<button type="button" class="lb-colchip'+(LB.cols.indexOf(t[0])>=0?' on':'')+'" data-k="'+t[0]+'">'+esc(t[1])+'</button>';
+  }).join('');
+  box.querySelectorAll('.lb-colchip').forEach(function(b){
+    b.onclick=function(){
+      var k=b.dataset.k, i=LB.cols.indexOf(k);
+      if(i>=0) LB.cols.splice(i,1); else { if(LB.cols.length>=6) LB.cols.shift(); LB.cols.push(k); }
+      box.querySelectorAll('.lb-colchip').forEach(function(x){ x.classList.toggle('on',LB.cols.indexOf(x.dataset.k)>=0); });
+      lbRender();
+    };
+  });
+  document.getElementById('lbPresets').innerHTML=LB_PRESETS.map(function(p,i){
+    return '<button type="button" class="lb-preset" data-i="'+i+'">'+esc(p.n)+'</button>';
+  }).join('');
+  document.getElementById('lbPresets').querySelectorAll('.lb-preset').forEach(function(b){
+    b.onclick=function(){
+      var p=LB_PRESETS[+b.dataset.i];
+      LB.pos=p.pos; LB.rank=p.rank; LB.cols=p.cols.slice();
+      lbBuildControls(); lbRender();
+    };
+  });
+}
+function lbRenderTeams(){
+  var t=document.getElementById('lbTable'), ts=teamStats(LB.season), tm=TEAM_MBY[LB.rank];
+  var teams=Object.keys(ts.teams).filter(function(k){ return ts.teams[k][LB.rank]!=null; });
+  if(!tm||!teams.length){
+    t.innerHTML='<tbody><tr><td class="lb-empty">No team totals on file for '+esc(LB.season)+' yet.</td></tr></tbody>';
+    document.getElementById('lbHint').textContent='';
+    lbSyncURL(); return;
+  }
+  teams.sort(function(a,b){ var x=ts.teams[a][LB.rank], y=ts.teams[b][LB.rank]; return tm.lower?x-y:y-x; });
+  var cols=LB.cols.filter(function(k){ return TEAM_MBY[k]; });
+  t.innerHTML='<thead><tr><th>#</th><th>Team</th><th>G</th>'
+    +cols.map(function(k){ return '<th>'+esc(TEAM_MBY[k].label)+'</th>'; }).join('')+'</tr></thead><tbody>'
+    +teams.map(function(k,i){
+      return '<tr><td>'+(i+1)+'</td><td data-team="'+esc(k)+'" style="cursor:pointer;color:'+teamInk(k)+'">'+esc(teamName(k,String(LB.season)))+'</td>'
+        +'<td>'+ts.teams[k].g+'</td>'
+        +cols.map(function(c){
+          var r=teamRank(LB.season,k,c);
+          if(!r) return '<td style="color:var(--faint)">—</td>';
+          return '<td style="color:'+colorAt(r.pct)+'" title="'+ordinal(r.rank)+' of '+r.n+'">'
+            +esc(LB.display==='pct'?ordinal(r.rank):fmt(TEAM_MBY[c].unit,r.v))+'</td>';
+        }).join('')+'</tr>';
+    }).join('')+'</tbody>';
+  t.querySelectorAll('td[data-team]').forEach(function(td){
+    td.onclick=function(){ hideLB(); hideHome(); if(LB.season!==curSeason) setSeason(LB.season); openTeam(td.dataset.team); };
+  });
+  document.getElementById('lbHint').innerHTML='Ranking all '+teams.length+' teams in '+esc(LB.season)
+    +(liveWeek(LB.season)?' through week '+liveWeek(LB.season):'')+' by <b>'+esc(tm.label)+'</b>'
+    +(tm.lower?' (lower is better)':'')+'. Colour is the rank among the league. Kneel-downs and spikes are left out; a scramble counts as a pass play.';
+  lbSyncURL();
+}
+
+/* ================= TEAM PAGE ===============================================
+   A team on one screen: how each unit ranks, what the defense gives up to each position,
+   the schedule it has faced, and the roster in depth-chart order with every man's snap
+   share and profile score. Shareable as #t=BUF&s=2026. */
+var curTeam=null;
+var TEAM_UNITS=[
+  ['Offense',['QB','RB','WR','TE','OT','OG','OC','OL']],
+  ['Defense',['ED','DI','LB','CB','S']],
+  ['Specialists',['K','P']]
+];
+var LINE_ORDER={LT:0,LG:1,C:2,RG:3,RT:4};
 function fillTeams(){
   var sel=document.getElementById('teamSel');
-  var have={};
-  seasonPlayers(curSeason).forEach(function(p){ if(p.team) have[p.team]=1; });
-  var ts=Object.keys(have).sort();
+  var have={}, season=isCareer(curSeason)?DATA.seasons[0]:curSeason;   // a career has no team list of its own: the latest season's
+  seasonPlayers(season).forEach(function(p){ if(p.team) have[p.team]=1; (p.tms||[]).forEach(function(t){ have[t]=1; }); });
+  var ts=Object.keys(have).filter(function(t){ return CFG.teams[t]&&!(CFG.alias&&CFG.alias[t]); })
+    .sort(function(a,b){ return teamName(a,season)<teamName(b,season)?-1:1; });
   sel.innerHTML='<option value="">Teams</option>'
-    +ts.map(function(t){return '<option value="'+t+'">'+esc(teamName(t))+'</option>';}).join('');
+    +ts.map(function(t){return '<option value="'+t+'"'+(t===curTeam?' selected':'')+'>'+esc(teamName(t,season))+'</option>';}).join('');
+}
+function teamStatRow(season,t,key,label){
+  var r=teamRank(season,t,key); if(!r) return '';
+  var dk=onColorIsDark(r.pct);
+  return '<div class="tm-stat"><span>'+esc(label)+'</span><b>'+esc(fmt(TEAM_MBY[key].unit,r.v))+'</b>'
+    +'<span class="tm-rk'+(dk?' dk':'')+'" style="background:'+colorAt(r.pct)+'">'+ordinal(r.rank)+' of '+r.n+'</span></div>';
 }
 function openTeam(t){
   var el=document.getElementById('teamPanel');
-  if(!t){ el.hidden=true; el.innerHTML=''; return; }
-  var order=['QB','RB','WR','TE','OL','ED','DI','LB','CB','S','K','P'];
-  var ps=seasonPlayers(curSeason).filter(function(p){return onTeam(p,t);});
-  ps.sort(function(a,b){
-    var d=order.indexOf(a.pos)-order.indexOf(b.pos);
-    if(d) return d;
-    return (b.m.snapshr||b.m.g||0)-(a.m.snapshr||a.m.g||0);
+  curTeam=t||null;
+  if(!t){ el.hidden=true; el.innerHTML=''; if(curId) syncURL(); return; }
+  var season=isCareer(curSeason)?DATA.seasons[0]:curSeason;
+  var ps=seasonPlayers(season).filter(function(p){return onTeam(p,t);});
+  var rec=null, coach=null;
+  ps.forEach(function(p){ if(p.team===t&&p.rec&&!rec){ rec=p.rec; coach=p.coach; } });
+  var wk=liveWeek(season);
+  var html='<div class="tm-top"><h2 class="col-h">'+esc(teamName(t,season))+'</h2>'
+    +(rec?'<span class="tm-rec">'+rec[0]+'–'+rec[1]+(rec[2]?'–'+rec[2]:'')+'</span>':'')
+    +'<span class="comps-cap">'+esc(season)+(wk?' · through week '+wk:'')
+    +(coach?' · <a class="tr-coach" href="/coaching-savant.html#c='+encodeURIComponent(coach)+'">'+esc(coach)+' ↗</a>':'')+'</span>'
+    +'<button type="button" class="tm-x" id="tmCopy">Copy link</button>'
+    +'<button type="button" class="tm-x" id="tmClose" style="margin-left:0">Close ×</button></div>';
+  var ts=teamStats(season);
+  if(ts.teams[t]){
+    html+='<div class="tm-units"><div class="tm-unit"><h3>Offense</h3>'
+      +teamStatRow(season,t,'o_epa','EPA / play')+teamStatRow(season,t,'o_succ','Success rate')
+      +teamStatRow(season,t,'o_pepa','EPA / dropback')+teamStatRow(season,t,'o_repa','EPA / designed run')
+      +teamStatRow(season,t,'o_sk','Sack rate allowed')+teamStatRow(season,t,'o_hit','QB-hit rate allowed')
+      +teamStatRow(season,t,'o_d3','3rd/4th-down conversion')+teamStatRow(season,t,'o_x20','20+ yard plays / game')
+      +teamStatRow(season,t,'o_to','Giveaways / game')+'</div>'
+      +'<div class="tm-unit"><h3>Defense</h3>'
+      +teamStatRow(season,t,'d_epa','EPA / play allowed')+teamStatRow(season,t,'d_succ','Success rate allowed')
+      +teamStatRow(season,t,'d_pepa','EPA / dropback allowed')+teamStatRow(season,t,'d_repa','EPA / designed run allowed')
+      +teamStatRow(season,t,'d_sk','Sack rate')+teamStatRow(season,t,'d_hit','QB-hit rate')
+      +teamStatRow(season,t,'d_d3','3rd/4th-down conversion allowed')+teamStatRow(season,t,'d_x20','20+ yard plays allowed / game')
+      +teamStatRow(season,t,'d_to','Takeaways / game')+'</div></div>'
+      +'<div class="tm-units"><div class="tm-unit"><h3>What this defense gives up</h3>'
+      +teamStatRow(season,t,'d_wr','Yards / target to wide receivers')+teamStatRow(season,t,'d_te','Yards / target to tight ends')
+      +teamStatRow(season,t,'d_rbt','Yards / target to backs')+teamStatRow(season,t,'d_rb','Yards / carry to backs')
+      +teamStatRow(season,t,'d_qb','Yards / carry to quarterbacks')+'</div>'
+      +'<div class="tm-unit"><h3>'+(wk?'Schedule so far':'Schedule')+'</h3>'
+      +teamStatRow(season,t,'sd','Defenses its offense has faced')+teamStatRow(season,t,'so','Offenses its defense has faced')
+      +teamStatRow(season,t,'net','Net EPA / play')
+      +'<div class="tm-note">Opponents are measured by what they do in their other games. For the schedule rows, 1st means the hardest slate.</div>'
+      +'</div></div>';
+  } else {
+    html+='<div class="tm-note">No team totals on file for '+esc(season)+' yet.</div>';
+  }
+  var line=((DATA.data[season]||{}).lines||[]).filter(function(L){ return L.tm===t; })[0];
+  TEAM_UNITS.forEach(function(u){
+    var list=ps.filter(function(p){ return u[1].indexOf(p.pos)>=0; });
+    if(!list.length) return;
+    list.sort(function(a,b){
+      var d=u[1].indexOf(a.pos)-u[1].indexOf(b.pos);
+      // the line reads left to right, tackle to tackle, not by position group
+      if(u[0]==='Offense'&&/^O[LTGC]$/.test(a.pos)&&/^O[LTGC]$/.test(b.pos)){
+        var ra=a.role?LINE_ORDER[a.role[0]]:null, rb=b.role?LINE_ORDER[b.role[0]]:null;
+        var sa=(a.m.snapshr||0)>=50, sb=(b.m.snapshr||0)>=50;
+        if(sa!==sb) return sa?-1:1;
+        if(sa&&ra!=null&&rb!=null&&ra!==rb) return ra-rb;
+        return (b.m.snapshr||0)-(a.m.snapshr||0);
+      }
+      if(d) return d;
+      return (b.m.snapshr||b.m.g||0)-(a.m.snapshr||a.m.g||0);
+    });
+    var allLines=(DATA.data[season]||{}).lines||[];
+    // equal grades share a place, as the unit rows above do
+    var lineRank=line?1+allLines.filter(function(L){ return L.score>line.score; }).length:0;
+    html+='<div class="tm-sec">'+u[0]+(u[0]==='Offense'&&line?' · line grade '+line.score+' ('+ordinal(lineRank)+' of '+allLines.length+')':'')+'</div>'
+      +'<div class="tm-roster">'+list.map(function(p){
+        var sc=p.qualified?profileScore(p.id,season):null, face=faceURL(p.id,p.h);
+        var rl=roleSpot(p)||(CFG.posLabel[p.pos]||p.pos);
+        var bench=!miss(p.m.snapshr)&&p.m.snapshr<25;
+        var left=p.team!==t;
+        return '<button type="button" class="tm-pl'+(bench?' bench':'')+'" data-id="'+esc(p.id)+'" title="'
+          +esc(p.name+' — '+(sc==null?'no profile score yet: below the qualifying line':'profile score '+Math.round(sc)+', the average percentile of his headline stats'))+'">'
+          +(face?'<img src="'+esc(face)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'<span class="sk-a"></span>')
+          +'<span><span class="tp-n">'+esc(p.name)+'</span><span class="tp-p">'+esc(rl)
+          +(miss(p.m.snapshr)?'':' · '+Math.round(p.m.snapshr)+'%')
+          +(p.st?' · <span class="tm-off">'+esc(p.st)+'</span>':'')
+          +(left?' · <span class="tm-off">'+(wk?'now ':'later ')+esc(teamAbbr(p.team,season))+'</span>':'')+'</span></span>'
+          +(sc==null?'<span class="tm-ps na">—</span>'
+                    :'<span class="tm-ps'+(onColorIsDark(sc)?' dk':'')+'" style="background:'+colorAt(sc)+'">'+Math.round(sc)+'</span>')
+          +'</button>';
+      }).join('')+'</div>';
   });
-  el.innerHTML='<div class="tp-h"><h2 class="col-h" style="border:0">'+esc(teamName(t))+'</h2>'
-    +'<span class="comps-cap">'+esc(curSeason)+' · '+ps.length+' players with recorded stats</span></div>'
-    +'<div class="tp-grid">'+ps.map(function(p){
-      return '<button class="tp-row" data-id="'+esc(p.id)+'">'
-        +(faceURL(p.id,p.h)?'<img src="'+esc(faceURL(p.id,p.h))+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="sk-a"></span>')
-        +'<span><span class="tp-n">'+esc(p.name)+'</span><br><span class="tp-p">'+esc(p.pos)
-        +(miss(p.m.snapshr)?'':' · '+Math.round(p.m.snapshr)+'% snaps')+'</span></span></button>';
-    }).join('')+'</div>';
+  html+='<div class="tm-note">'+ps.length+' players have taken a snap or recorded a stat for this team in '+esc(season)
+    +'. The number on the right is the profile score: the average percentile of a man\'s headline stats against his position'
+    +(wk?', with unsettled stats scored where they are likely to settle':'')+'. Faded cards are under a quarter of the snaps.</div>';
+  el.innerHTML=html;
   el.hidden=false;
-  el.querySelectorAll('.tp-row').forEach(function(b){
-    b.onclick=function(){ el.hidden=true; document.getElementById('teamSel').value=''; selectPlayer(b.dataset.id); };
+  el.querySelectorAll('.tm-pl').forEach(function(b){
+    b.onclick=function(){ el.hidden=true; curTeam=null; document.getElementById('teamSel').value=''; selectPlayer(b.dataset.id); };
   });
+  document.getElementById('tmClose').onclick=function(){ document.getElementById('teamSel').value=''; openTeam(''); };
+  document.getElementById('tmCopy').onclick=function(){
+    var url=location.origin+location.pathname+'#t='+t+'&s='+season, b=this;
+    (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(function(){
+      b.textContent='Copied'; setTimeout(function(){ b.textContent='Copy link'; },1600);
+    }).catch(function(){ prompt('Copy this link',url); });
+  };
+  document.getElementById('teamSel').value=t;
+  try{ history.replaceState(null,'','#t='+t+'&s='+season); }catch(e){}
+  el.scrollIntoView({block:'start',behavior:'smooth'});
 }
 function renderChips(){
   var box=document.getElementById('chips');
@@ -4461,7 +5505,13 @@ function renderChips(){
 }
 
 /* ================= WIRING ================================================== */
-function bustPools(){ POOL_CACHE={}; ARC_CACHE={}; }
+function bustPools(){ POOL_CACHE={}; ARC_CACHE={}; MEAN_CACHE={}; ESTPOOL_CACHE={}; }
+function setWindow(n){
+  formWin=n;
+  if(n) cmp=[];                 // and a window is one man's stretch: it ends a comparison
+  var go=function(){ bustPools(); resolveCur(); render(); syncURL(); };
+  if(n&&isLive(curSeason)&&!formData(curSeason)) formLoad(curSeason,n,go); else go();
+}
 function setSeg(id,btn){
   document.querySelectorAll('#'+id+' button').forEach(function(x){
     x.setAttribute('aria-pressed',x===btn?'true':'false');
@@ -4508,6 +5558,13 @@ function wire(){
   document.querySelectorAll('#baseseg button').forEach(function(b){
     b.onclick=function(){ baseline=b.dataset.v; setSeg('baseseg',b); bustPools(); render(); syncURL(); };
   });
+  document.querySelectorAll('#winseg button').forEach(function(b){
+    b.onclick=function(){ setWindow(+b.dataset.v); };
+  });
+  var vt='Football Savant version '+VERSION+'. The number moves on big releases, not on the daily data refresh.';
+  document.getElementById('verchip').textContent='v'+VERSION;
+  document.getElementById('verchip').title=vt;
+  document.getElementById('homeVer').textContent='· v'+VERSION;
   document.querySelectorAll('#cohortseg button').forEach(function(b){
     b.onclick=function(){ cohortMode=b.dataset.v; setSeg('cohortseg',b); bustPools(); render(); syncURL(); };
   });
@@ -4563,12 +5620,24 @@ function wire(){
     if(e.key==='Escape'){ closeChart(); closeExpl(); }
   });
   window.addEventListener('hashchange',function(){
-    if(location.hash.indexOf('#lb')===0){ showLB(); return; }
+    /* replaceState does not fire this, so it only runs for a link somebody pasted, typed
+       or went back to. Read it the way a fresh load would. */
+    if(location.hash.indexOf('#lb')===0){ lbParseHash(); showLB(); return; }
     hideLB();
+    var kb=baseline, kc=cohortMode;
+    baseline='season'; cohortMode='pos'; formWin=0;
+    if(readURL()){
+      cmp=[]; bustPools(); resolveCur();
+      updateSeasonPicker(); fillTeams(); renderChips(); render();
+      setSeg('baseseg',document.querySelector('#baseseg button[data-v="'+baseline+'"]'));
+      setSeg('cohortseg',document.querySelector('#cohortseg button[data-v="'+cohortMode+'"]'));
+      if(pendingTeam){ var pt=pendingTeam; pendingTeam=null; openTeam(pt); }
+      else if(curTeam){ curTeam=null; var tp=document.getElementById('teamPanel'); tp.hidden=true; tp.innerHTML=''; document.getElementById('teamSel').value=''; }
+    } else { baseline=kb; cohortMode=kc; }
   });
   wireLB();
 }
-var pendingCompare=false;
+var pendingCompare=false, pendingTeam=null;
 function addCompare(id){
   var q=document.getElementById('q');
   q.placeholder='Search a player…';
@@ -4583,6 +5652,8 @@ function addCompare(id){
       +' is a '+(CFG.posLabel[cur.pos]||cur.pos).toLowerCase()+'. They share almost no stats. Compare anyway?');
     if(!ok) return;
   }
+  // a comparison is between seasons: leave the window before making one
+  if(formWin){ formWin=0; bustPools(); resolveCur(); }
   cmp.push({id:id,season:s,p:row});
   render();
 }
@@ -4630,16 +5701,18 @@ function init(){
     renderHomePos();
     renderAllSavant(curSeason);
     wire();
+    var onBoard=location.hash.indexOf('#lb')===0;
     var restored=readURL();
     if(restored){
       updateSeasonPicker(); fillTeams(); renderChips(); render();
+      if(pendingTeam){ var pt=pendingTeam; pendingTeam=null; openTeam(pt); }
       setSeg('baseseg',document.querySelector('#baseseg button[data-v="'+baseline+'"]'));
       setSeg('cohortseg',document.querySelector('#cohortseg button[data-v="'+cohortMode+'"]'));
     } else {
       // seed the app view behind the splash so it's ready the moment someone picks a name
       var seed=leagueBest(curSeason,1)[0];
       if(seed){ curId=seed.p.id; resolveCur(); updateSeasonPicker(); fillTeams(); renderChips(); render(); }
-      document.body.classList.add('home-open');
+      if(!onBoard) document.body.classList.add('home-open');
     }
     setPlayIcon();
     lbParseHash();

@@ -48,6 +48,22 @@
       "destination": "/football-weekly/:season/:pack.gz"
     },
     {
+      "source": "/football-weekly/:season(\\d{4})/:form(form-\\d+\\.json)",
+      "destination": "/football-weekly/:season/:form.gz"
+    },
+    {
+      "source": "/football-splits/:season(\\d{4}\\.json)",
+      "destination": "/football-splits/:season.gz"
+    },
+    {
+      "source": "/football-pace/:week(w\\d{2}\\.json)",
+      "destination": "/football-pace/:week.gz"
+    },
+    {
+      "source": "/shots/:id(\\d+\\.json)",
+      "destination": "/shots/:id.gz"
+    },
+    {
       "source": "/savant-api/basketball/v1/seasons/:season(\\d{4}-\\d{2}\\.json)",
       "destination": "/savant-api/basketball/v1/seasons/:season.gz"
     },
@@ -200,6 +216,110 @@
     },
     {
       "source": "/football-weekly/:season(\\d{4})/:pack(pack-\\d+\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/football-weekly/:season(\\d{4})/:form(form-\\d+\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/football-weekly/:season(\\d{4})/:form(form-\\d+\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/football-splits/:season(\\d{4}\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/football-splits/:season(\\d{4}\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/football-pace/:week(w\\d{2}\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/football-pace/:week(w\\d{2}\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/shots/:id(\\d+\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/shots/:id(\\d+\\.json\\.gz)",
       "headers": [
         {
           "key": "Content-Encoding",
