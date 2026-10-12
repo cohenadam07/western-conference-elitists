@@ -1,5 +1,5 @@
 {
-"fetched": "2026-10-07",
+"fetched": "2026-10-12",
 "released": "2026-10-03",
 "lists": {
 "HW": {
@@ -19,8 +19,8 @@
 "Valter Walker",
 "Tyrell Fortune",
 "Derrick Lewis",
-"Mario Pinto",
-"Aleksandar Rakić"
+"Aleksandar Rakić",
+"Mario Pinto"
 ]
 },
 "LHW": {
@@ -33,14 +33,14 @@
 "Khalil Rountree Jr.",
 "Navajo Stirling",
 "Paulo Costa",
-"Jamahal Hill",
 "Azamat Murzakanov",
-"Jan Błachowicz",
 "Dominick Reyes",
+"Jan Błachowicz",
 "Bogdan Guskov",
 "Robert Whittaker",
-"Johnny Walker",
 "Alonzo Menifield",
+"Muhammad Saidov",
+"Reinier de Ridder",
 "Nikita Krylov"
 ]
 },
@@ -138,15 +138,15 @@
 "Umar Nurmagomedov",
 "Mario Bautista",
 "Cory Sandhagen",
+"Payton Talbott",
 "Aiemann Zahabi",
 "David Martínez",
-"Deiveson Figueiredo",
-"Marlon Vera",
 "Raul Rosas Jr.",
-"Payton Talbott",
+"Marlon Vera",
+"Deiveson Figueiredo",
 "Farid Basharat",
-"Raoni Barcelos",
-"Marcus McGhee"
+"Marcus McGhee",
+"Raoni Barcelos"
 ]
 },
 "FLW": {
@@ -176,17 +176,19 @@
 "ranked": [
 "Julianna Peña",
 "Joselyne Edwards",
+"Ailín Pérez",
+"Raquel Pennington",
 "Norma Dumont",
 "Yana Santos",
 "Luana Santos",
-"Macy Chiasson",
 "Jacqueline Cavalcanti",
+"Macy Chiasson",
 "Karol Rosa",
 "Beatriz Mesquita",
 "Michelle Montague",
 "Nora Cornolle",
-"Miesha Tate",
-"Melissa Croden"
+"Melissa Croden",
+"Darya Zheleznyakova"
 ]
 },
 "WFLW": {
@@ -198,8 +200,6 @@
 "Manon Fiorot",
 "Erin Blanchfield",
 "Rose Namajunas",
-"Maycee Barber",
-"Jasmine Jasudavicius",
 "Wang Cong",
 "Tracy Cortez",
 "Miranda Maverick",
