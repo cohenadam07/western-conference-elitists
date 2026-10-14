@@ -337,6 +337,58 @@ test('likely to settle: the connector carries the estimate the page shows, for e
   for (const s of built.meta.seasons) if (s !== season) assert.ok(built.seasons[s].players.every((r) => !r.settle), `${s} carries estimates`)
 })
 
+test('the Fantasy tab and the connector value players the same way', async () => {
+  const projPath = path.join(ROOT, 'public', 'savant-proj.json')
+  let raw
+  try { raw = readFileSync(projPath, 'utf8') } catch { return }        // no projections file yet: nothing to compare
+  const { makeModel } = await import('../../api/_fantasy.js')
+  const today = JSON.parse(raw).today
+  // the page script, run headless: a document that never finishes loading, so it never touches the DOM
+  const sandbox = { window: {}, document: { readyState: 'loading', addEventListener() {} }, Intl, Date, Math, JSON, console }
+  sandbox.window = sandbox
+  vm.createContext(sandbox)
+  vm.runInContext(readFileSync(path.join(ROOT, 'public', 'savant-fantasy.js'), 'utf8'), sandbox)
+  const F = sandbox.svFantasy
+  F.prep(JSON.parse(raw), today)
+  const M = makeModel(JSON.parse(raw), today)
+  for (const [scope, fmt] of [['ros', 'points'], ['next7', 'points'], ['dyn', 'points'], ['ros', 'cats'], ['pre', 'cats']]) {
+    const page = F.valueAll(scope, 'total', fmt), api = M.valueAll({ scope, fmt })
+    assert.equal(page.length, api.length, `${scope}/${fmt}: pool size`)
+    for (let i = 0; i < 60; i++) {
+      assert.equal(page[i].p.id, api[i].p.id, `${scope}/${fmt}: rank ${i + 1}`)
+      assert.ok(Math.abs(page[i].v - api[i].v) < 1e-6, `${scope}/${fmt}: ${page[i].p.name} value`)
+    }
+  }
+  const pid = M.list.find((p) => (p.log || []).length >= 20).id
+  const a = F.lockPlan(F.P.data.players[pid], -10, 50), b = M.lockPlan(M.byId.get(pid), { pts: 0.5, reb: 1, ast: 1, stl: 2, blk: 2, tov: -1, fg3m: 0.5, dd: 1, td: 2, b40: 2, b50: 2 }, -10, 50)
+  assert.ok(Math.abs(a.ev - b.ev) < 1e-6 && JSON.stringify(a.th) === JSON.stringify(b.th), 'Lock-In thresholds')
+})
+
+test('every label on the Fantasy, Teams and Lineups tabs opens a full explainer', () => {
+  // Keys are data-k attributes and xk()/th() calls in the tab scripts; each must be in EXPL with all four fields.
+  const page = readFileSync(path.join(ROOT, 'public', 'basketball-savant.html'), 'utf8')
+  const i = page.indexOf('const EXPL={'), j = page.indexOf('\n};', i)
+  const expl = {}
+  for (const line of page.slice(i + 12, j).split('\n')) {
+    const m = line.match(/^ ([a-z_0-9]+):(\{.*\}),?$/)
+    if (m) expl[m[1]] = JSON.parse(m[2])
+  }
+  const keys = new Set()
+  for (const f of ['savant-fantasy.js', 'savant-teams.js']) {
+    const src = readFileSync(path.join(ROOT, 'public', f), 'utf8')
+    for (const m of src.matchAll(/'((?:fx|pj|tm|lu)_[a-z0-9_]+)'/g)) keys.add(m[1])
+    for (const m of src.matchAll(/data-k="([a-z0-9_]+)"/g)) keys.add(m[1])
+  }
+  assert.ok(keys.size > 40, `only ${keys.size} keys found`)
+  const bad = []
+  for (const k of keys) {
+    const e = expl[k]
+    if (!e) { bad.push(`${k}: no explainer`); continue }
+    for (const f of ['what', 'formula', 'source', 'sample']) if (!e[f] || String(e[f]).trim().length < 4) bad.push(`${k}: no ${f}`)
+  }
+  assert.deepEqual(bad, [], bad.join('\n'))
+})
+
 test('every stat explains what it is, how it is calculated, its source and its sample', () => {
   // Adam's rule (Oct 2026): no stat ships without the click-through explainer.
   // Source of truth: tools/savant-explainers/explainers.py.

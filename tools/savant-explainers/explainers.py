@@ -164,6 +164,32 @@ E = {
  "gmsc": dict(what="Game Score per game: Hollinger's single-number game rating, averaged. About 10 is a solid night; 40+ is legendary.",
             formula="Game Score = PTS + 0.4·FGM − 0.7·FGA − 0.4·(FTA − FTM) + 0.7·OREB + 0.3·DREB + STL + 0.7·AST + 0.7·BLK − 0.4·PF − TOV, averaged per game",
             source=PRE, sample="None: an average of games."),
+ # ---- October 2026 additions
+ "ppaint": dict(what="Share of his points scored in the paint: how much of his scoring comes at or near the rim.",
+            formula="% points in the paint = 100 × points in the paint ÷ PTS (the NBA's PCT_PTS_PAINT)",
+            source=f"{NBA} scoring splits, tagged from the play-by-play, 1996-97 on.", sample="Hatched under 200 points."),
+ "xefg": dict(what="Shot quality: the eFG% an average NBA shooter would post on exactly the shots he takes. High means he gets good looks (rim attempts, open corner threes); low means a hard shot diet.",
+            formula="xeFG% = mean over his shots of P(make) × (1.5 for a three, 1 for a two). P(make) comes from our model of 2.7M shots, 2013-14 through 2025-26: shot location, distance, the NBA's action type (pull-up, step-back, driving layup...), 2 vs 3, period and time left. The shooter is not an input. Each season is re-centred so the league's expected eFG equals its actual eFG.",
+            source=f"{NBA} shot chart (every field-goal attempt), 2013-14 on. Model: ~/Basketball-Savant/xfg_model.py, validated on a season it never saw: trained through 2024-25, it scored 2025-26 better than a shot-zone table (log loss 0.638 vs 0.658) and was calibrated within 2 points in every decile (out/xfg_report.txt).",
+            sample="Hatched under 200 field-goal attempts."),
+ "shotmk": dict(what="Shot-making: how much better (or worse) he shoots than an average player would on the same shots. The part of his efficiency that is his touch, not his shot selection.",
+            formula="Shot-making = 100 × (his actual eFG% − his expected eFG%), in percentage points. +5 means he scores 5 eFG points above what those shots usually produce.",
+            source=f"{NBA} shot chart, 2013-14 on, through the shot-quality model above.", sample="Hatched under 200 field-goal attempts; shooting luck is large, so a full season says far more than a month."),
+ "uast": dict(what="Unassisted makes: the share of his made field goals that nobody assisted. High means he creates his own baskets; low means he finishes what others set up.",
+            formula="Unassisted makes % = 100 × unassisted FGM ÷ FGM (the NBA's PCT_UAST_FGM)",
+            source=f"{NBA} scoring splits, each make tagged assisted or not from the play-by-play, 1996-97 on.", sample="Hatched under 100 made field goals."),
+ "uast3": dict(what="Unassisted threes: the share of his made threes that nobody assisted. Separates pull-up shooters from catch-and-shoot shooters.",
+            formula="Unassisted 3s % = 100 × unassisted 3PM ÷ 3PM (the NBA's PCT_UAST_3PM)",
+            source=f"{NBA} scoring splits, 1996-97 on.", sample="Hatched under 50 made threes."),
+ "onoffadj": dict(what="On/off with the luck taken out: the same on-minus-off net rating, after replacing the opponents' three-point and free-throw shooting with league average. Opponents' 3P% and FT% while one player is on the floor are almost all noise, and they swing raw on/off by several points.",
+            formula="For his on and off minutes separately: net rating + 100 × (3 × (opp 3PM − opp 3PA × league 3P%) + (opp FTM − opp FTA × league FT%)) ÷ possessions. Luck-adjusted on/off = adjusted on − adjusted off; traded players are minutes-weighted. His own team's shooting is left alone: a shooter raising his team's 3P% is real.",
+            source=f"{NBA} team on/off details (opponent and advanced splits), 1996-97 on.", sample="Still noisy below ~1,000 minutes; steadier than raw on/off."),
+ "pt": dict(what="Play types: how his offense is built (pick-and-roll, isolation, spot-ups and the rest) and how well each part works.",
+            formula="For each play type: share = his possessions in it ÷ all his play-type possessions; points per possession = points ÷ possessions; percentile = the NBA's, among every player who ran that play type. Traded players are combined, possession-weighted.",
+            source=f"{NBA} Synergy play types, 2015-16 on.", sample="Percentiles on under ~25 possessions in a play type are mostly noise."),
+ "ww": dict(what="With / without: what happens to his game when a teammate sits. The three teammates whose absence changes his usage the most, ranked after allowing for how few games there are without them.",
+            formula="From game logs: his per-36 usage (FGA + 0.44·FTA + TOV), points, assists, rebounds and minutes in games the teammate played vs. games the team played without him (only games he himself played). Ranking: change in usage × n ÷ (n + 5), n = games without.",
+            source=f"{NBA} game logs.", sample="5+ games with and 3+ without; games without a teammate are usually few, so read the game counts."),
  # ---- Inferred Defensive Role (bigs)
  "perim": dict(what="Perimeter Assignment Rate: the share of his defensive matchups spent on guards. Role, not ability: scheme drives much of it, and assignment is least reliable during switches.",
             formula="Perimeter rate = possessions guarding guards ÷ all matchup possessions", source=f"{NBA} matchup tracking, 2017-18 on.",
@@ -175,6 +201,11 @@ E = {
             formula="Rim FG% vs. expected = opponents' FG% within 6 ft vs. him − their usual FG% within 6 ft", source=f"{NBA} player tracking (defense), 2013-14 on.",
             sample="Bigs with 15+ MPG and 200+ contested shots."),
 }
+
+# the Fantasy / Teams / Lineups tabs and the projection panel (public/savant-fantasy.js, savant-teams.js)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from explainers_tabs import T as _TABS  # noqa: E402
+E.update(_TABS)
 
 FIELDS = ("what", "formula", "source", "sample")
 

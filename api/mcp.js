@@ -18,6 +18,7 @@
 // the function that answers — and this file registers whatever they declare:
 //
 //   api/_basketball.js   Basketball Savant        nba_search_players, nba_get_player_profile
+//   api/_fantasy.js      Savant Fantasy/Teams     nba_fantasy_*, nba_injury_report, nba_schedule, nba_team_profile, nba_lineups
 //   api/_football.js     Football Savant          nfl_search_players, nfl_get_player_profile
 //   api/_coaching.js     Coaching Savant          nfl_search_coaches, nfl_get_coach_profile
 //   api/_ufc.js          UFC Savant               ufc_search_fighters, ufc_get_fighter_profile,
@@ -63,11 +64,12 @@ import { clientFamily, count } from './_usage.js'
 import { tools as basketball } from './_basketball.js'
 import { tools as coaching } from './_coaching.js'
 import { tools as draft } from './_draft.js'
+import { tools as fantasy } from './_fantasy.js'
 import { tools as football } from './_football.js'
 import { tools as site } from './_site.js'
 import { tools as ufc } from './_ufc.js'
 
-const SECTIONS = [basketball, football, coaching, ufc, draft, site]
+const SECTIONS = [basketball, fantasy, football, coaching, ufc, draft, site]
 
 const RATE_PER_MINUTE = 300
 const MAX_BODY_BYTES = 64 * 1024
@@ -87,11 +89,12 @@ const callerOf = (req) =>
   req.socket?.remoteAddress ||
   'unknown'
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '2.0.0' }
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '2.1.0' }
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
   'nba_ is Basketball Savant: NBA player stats as percentiles, 1979-80 to the latest season, ranked against the league and against the same position.',
+  'nba_fantasy_, nba_injury_report and nba_schedule are its fantasy side: projections (rest of season, next 7 days, dynasty), points and 9-cat rankings, trades, streamers and Sleeper Lock-In plans. nba_team_profile and nba_lineups are its team and lineup ratings, with luck and sample adjustments.',
   'nfl_ is Football Savant and Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; and NFL head coaches and play-callers.',
   'ufc_ is UFC Savant: fighters ranked inside their division, against active fighters and all-time.',
   'nba_draft_ is Draft Savant: college and pre-draft data on draft prospects, not NBA stats.',

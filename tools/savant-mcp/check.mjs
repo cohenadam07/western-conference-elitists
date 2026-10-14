@@ -70,6 +70,11 @@ const cdn = http.createServer((req, res) => {
     const body = p === 'meta.json' ? files.meta : p === 'players.json' ? files.players : season ? files.seasons[season[1]] : null
     return body ? json200(res, JSON.stringify(body)) : html200(res)
   }
+  // The Fantasy / Teams / Lineups files are served straight from public/, as Vercel serves them.
+  if (/^\/(savant-proj\.json|savant-teams(-current)?\.json|lineups\/[0-9-]+\.json)$/.test(url)) {
+    const f = path.join(ROOT, 'public', url)
+    return existsSync(f) ? json200(res, readFileSync(f)) : html200(res)
+  }
   const file = path.join(dist, url)
   if (!file.startsWith(dist)) return html200(res)
   if (existsSync(file) && statSync(file).isFile()) return json200(res, readFileSync(file))
@@ -236,7 +241,8 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   // The whole list, by name. Adding or dropping a tool should be a decision, not a side effect.
   assert.deepEqual(tools.map((t) => t.name).sort(), [
     'nba_draft_get_prospect_profile', 'nba_draft_search_prospects',
-    'nba_get_player_profile', 'nba_search_players',
+    'nba_fantasy_lock_in', 'nba_fantasy_player', 'nba_fantasy_rankings', 'nba_fantasy_streamers', 'nba_fantasy_trade',
+    'nba_get_player_profile', 'nba_injury_report', 'nba_lineups', 'nba_schedule', 'nba_search_players', 'nba_team_profile',
     'nfl_get_coach_profile', 'nfl_get_player_profile', 'nfl_search_coaches', 'nfl_search_players',
     'ufc_get_fighter_profile', 'ufc_get_upcoming_cards', 'ufc_search_fighters',
     'wce_get_article', 'wce_get_big_board', 'wce_get_dynasty_rankings', 'wce_get_news', 'wce_search_articles',
@@ -329,7 +335,7 @@ test('HTTP manners: stateless, POST only, CORS, clean errors', async () => {
   assert.equal(list.status, 200)
   assert.equal(list.headers.get('mcp-session-id'), null)
   assert.match(list.headers.get('content-type'), /application\/json/)
-  assert.equal((await list.json()).result.tools.length, 16)
+  assert.equal((await list.json()).result.tools.length, 25)
 
   const note = await post({ jsonrpc: '2.0', method: 'notifications/initialized' })
   assert.equal(note.status, 202)
@@ -641,6 +647,20 @@ test('every tool of every section answers through the endpoint', async () => {
   }
   await ok('nba_search_players', { query: 'jokic' }, /Nikola Jokic/)
   await ok('nba_get_player_profile', { player: 'Nikola Jokic' }, /vs\. bigs/)
+  // Basketball Savant's Fantasy, Teams and Lineups tabs (api/_fantasy.js)
+  const fr = await ok('nba_fantasy_rankings', { limit: 5 }, /Points \(Sleeper default\)/)
+  assert.equal(fr.players.length, 5)
+  await ok('nba_fantasy_rankings', { format: 'cats', window: 'dyn', limit: 3 }, /9-cat/)
+  await ok('nba_fantasy_player', { player: 'Nikola Jokic', scoring: 'espn' }, /ESPN default scoring/)
+  await ok('nba_fantasy_trade', { side_a: ['Nikola Jokic'], side_b: ['Anthony Edwards', 'Jalen Brunson'] }, /Rest of season: /)
+  await ok('nba_fantasy_lock_in', { player: 'Nikola Jokic', my_other_slots: 300, opponent_total: 320 }, /Lock-In plan/)
+  await ok('nba_fantasy_streamers', {}, /Streamers/)
+  await ok('nba_injury_report', { limit: 3 }, /Injury designations/)
+  await ok('nba_schedule', { limit: 5 }, /Games per team/)
+  await ok('nba_team_profile', { team: 'Thunder' }, /Oklahoma City Thunder/)
+  await ok('nba_lineups', { team: 'OKC', limit: 3 }, /5-man units/)
+  const nobody = await call('nba_fantasy_player', { player: 'Qqqq Nobody' })
+  assert.ok(nobody.isError && /No current NBA player/.test(textOf(nobody)))
 
   const qb = await ok('nfl_search_players', { query: 'patrick mahomes' }, /Patrick Mahomes/)
   await ok('nfl_get_player_profile', { player: qb.players[0].id }, /vs\. quarterbacks/)

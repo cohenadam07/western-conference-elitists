@@ -373,6 +373,26 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 @media (max-width:640px){ .wk-flaws{grid-template-columns:1fr} }
 /* Inferred Defensive Role module (bigs only) */
 .role{margin-top:14px}
+.ptype,.wwp{margin-top:14px}
+.panel-h{cursor:pointer}
+.pt-table,.ww-table{width:100%;border-collapse:collapse;font-size:13px}
+.pt-table th,.ww-table th{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;text-align:right;padding:4px 6px;border-bottom:1px solid var(--line,#D8D6CF)}
+.pt-table th:first-child,.ww-table th:first-child{text-align:left}
+.pt-table td,.ww-table td{padding:5px 6px;text-align:right;border-bottom:1px solid rgba(0,0,0,.05);font-variant-numeric:tabular-nums}
+.pt-table td:first-child,.ww-table td:first-child{text-align:left}
+.pt-bar{display:inline-block;height:9px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.ww-up{color:#BC3A2C}.ww-dn{color:#1C4E86}
+.ww-n{color:var(--muted);font-size:11.5px}
+.ptype,.wwp{margin-top:14px}
+.panel-h{cursor:pointer}
+.pt-table,.ww-table{width:100%;border-collapse:collapse;font-size:13px}
+.pt-table th,.ww-table th{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;text-align:right;padding:4px 6px;border-bottom:1px solid var(--line,#D8D6CF)}
+.pt-table th:first-child,.ww-table th:first-child{text-align:left}
+.pt-table td,.ww-table td{padding:5px 6px;text-align:right;border-bottom:1px solid rgba(0,0,0,.05);font-variant-numeric:tabular-nums}
+.pt-table td:first-child,.ww-table td:first-child{text-align:left}
+.pt-bar{display:inline-block;height:9px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.ww-up{color:#BC3A2C}.ww-dn{color:#1C4E86}
+.ww-n{color:var(--muted);font-size:11.5px}
 .role[hidden]{display:none}
 .role-cap{font-size:12.5px;color:var(--muted);background:var(--bg);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:9px 12px;margin:2px 0 12px;line-height:1.5}
 .role-cap b{color:var(--ink);font-weight:600}
@@ -658,6 +678,7 @@ body.lb-open .lb{display:block}
 .lb-seg{display:inline-flex;border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .lb-seg button{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:5px 11px;border:none;background:var(--surface);color:var(--faint);cursor:pointer}
 .lb-seg button.on{background:var(--navy);color:var(--gold)}
+.lb-est{font-size:9px;color:var(--gold);margin-left:3px;vertical-align:1px}
 .lb-presets{display:flex;gap:8px;flex-wrap:wrap;margin:0}
 .lb-preset{font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;padding:7px 12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--navy);cursor:pointer}
 .lb-preset:hover{border-color:var(--gold)}
@@ -839,6 +860,8 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
   <div class="col shotchart" id="shots" hidden></div>
   <div class="ctxrow"><div class="col" style="padding:12px 18px"><h2 class="col-h">Value</h2><div id="val"></div></div></div>
   <div class="col guard" id="guard" hidden></div>
+  <div class="col ptype" id="ptype" hidden></div>
+  <div class="col wwp" id="wwp" hidden></div>
   <div class="comps" id="comps" hidden></div>
   <div class="wcomps" id="wcomps" hidden></div>
   <div class="col role" id="role" hidden></div>
@@ -856,6 +879,7 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
       <span class="lb-seg" id="lbDisplay"><button type="button" data-v="value" class="on">Values</button><button type="button" data-v="pct">Percentiles</button></span>
       <span id="lbBasisLab">Compare vs</span>
       <span class="lb-seg" id="lbBasis"><button type="button" data-v="cohort" class="on">Cohort</button><button type="button" data-v="league">League</button></span>
+      <span id="lbEstWrap" hidden><span>Numbers</span> <span class="lb-seg" id="lbEst"><button type="button" data-v="settled" class="on">Settled</button><button type="button" data-v="raw">Raw</button></span></span>
     </div>
   </div>
   <p class="lb-hint" id="lbHint"></p>
@@ -1070,6 +1094,42 @@ const CFG  = {
       "since": "1979-80"
     },
     {
+      "key": "ppaint",
+      "label": "% points in the paint",
+      "group": "off",
+      "sub": "Shooting",
+      "layer": "ingredient",
+      "unit": "pct1",
+      "thr": 200,
+      "lower": false,
+      "tier": 2,
+      "since": "1996-97"
+    },
+    {
+      "key": "xefg",
+      "label": "Shot quality (expected eFG%)",
+      "group": "off",
+      "sub": "Shooting",
+      "layer": "expected",
+      "unit": "pct3",
+      "thr": 200,
+      "lower": false,
+      "tier": 3,
+      "since": "2013-14"
+    },
+    {
+      "key": "shotmk",
+      "label": "Shot-making over expected",
+      "group": "off",
+      "sub": "Shooting",
+      "layer": "output",
+      "unit": "sgn",
+      "thr": 200,
+      "lower": false,
+      "tier": 3,
+      "since": "2013-14"
+    },
+    {
       "key": "pts",
       "label": "Points / 75",
       "group": "off",
@@ -1214,6 +1274,30 @@ const CFG  = {
       "since": "2013-14"
     },
     {
+      "key": "uast",
+      "label": "Unassisted makes %",
+      "group": "off",
+      "sub": "Creation & playmaking",
+      "layer": "ingredient",
+      "unit": "pct1",
+      "thr": 100,
+      "lower": false,
+      "tier": 2,
+      "since": "1996-97"
+    },
+    {
+      "key": "uast3",
+      "label": "Unassisted 3s %",
+      "group": "off",
+      "sub": "Creation & playmaking",
+      "layer": "ingredient",
+      "unit": "pct1",
+      "thr": 50,
+      "lower": false,
+      "tier": 2,
+      "since": "1996-97"
+    },
+    {
       "key": "syn",
       "label": "Shot-making (PPP %ile)",
       "group": "off",
@@ -1240,6 +1324,18 @@ const CFG  = {
     {
       "key": "onoff",
       "label": "On/Off net",
+      "group": "off",
+      "sub": "Impact",
+      "layer": "context",
+      "unit": "num1",
+      "thr": 0,
+      "lower": false,
+      "tier": 2,
+      "since": "1996-97"
+    },
+    {
+      "key": "onoffadj",
+      "label": "On/Off net (luck-adjusted)",
       "group": "off",
       "sub": "Impact",
       "layer": "context",
@@ -1801,9 +1897,95 @@ const EXPL={
  dbpm:{"what": "The defensive half of BPM: the best pre-tracking defensive signal, but still a box-score estimate.", "formula": "DBPM = BPM − OBPM", "source": "Basketball Reference.", "sample": "Unreliable below ~500 minutes."},
  vorp:{"what": "Value Over Replacement Player: total value above a replacement-level player (BPM −2.0), scaled to a full season. A counting stat: rewards quality and durability.", "formula": "VORP = (BPM + 2.0) × (share of team minutes played) × (team games ÷ 82)", "source": "Basketball Reference.", "sample": "None: grows with minutes."},
  gmsc:{"what": "Game Score per game: Hollinger's single-number game rating, averaged. About 10 is a solid night; 40+ is legendary.", "formula": "Game Score = PTS + 0.4·FGM − 0.7·FGA − 0.4·(FTA − FTM) + 0.7·OREB + 0.3·DREB + STL + 0.7·AST + 0.7·BLK − 0.4·PF − TOV, averaged per game", "source": "NBA.com stats (stats.nba.com); Basketball Reference before 1996-97.", "sample": "None: an average of games."},
+ ppaint:{"what": "Share of his points scored in the paint: how much of his scoring comes at or near the rim.", "formula": "% points in the paint = 100 × points in the paint ÷ PTS (the NBA's PCT_PTS_PAINT)", "source": "NBA.com stats (stats.nba.com) scoring splits, tagged from the play-by-play, 1996-97 on.", "sample": "Hatched under 200 points."},
+ xefg:{"what": "Shot quality: the eFG% an average NBA shooter would post on exactly the shots he takes. High means he gets good looks (rim attempts, open corner threes); low means a hard shot diet.", "formula": "xeFG% = mean over his shots of P(make) × (1.5 for a three, 1 for a two). P(make) comes from our model of 2.7M shots, 2013-14 through 2025-26: shot location, distance, the NBA's action type (pull-up, step-back, driving layup...), 2 vs 3, period and time left. The shooter is not an input. Each season is re-centred so the league's expected eFG equals its actual eFG.", "source": "NBA.com stats (stats.nba.com) shot chart (every field-goal attempt), 2013-14 on. Model: ~/Basketball-Savant/xfg_model.py, validated on a season it never saw: trained through 2024-25, it scored 2025-26 better than a shot-zone table (log loss 0.638 vs 0.658) and was calibrated within 2 points in every decile (out/xfg_report.txt).", "sample": "Hatched under 200 field-goal attempts."},
+ shotmk:{"what": "Shot-making: how much better (or worse) he shoots than an average player would on the same shots. The part of his efficiency that is his touch, not his shot selection.", "formula": "Shot-making = 100 × (his actual eFG% − his expected eFG%), in percentage points. +5 means he scores 5 eFG points above what those shots usually produce.", "source": "NBA.com stats (stats.nba.com) shot chart, 2013-14 on, through the shot-quality model above.", "sample": "Hatched under 200 field-goal attempts; shooting luck is large, so a full season says far more than a month."},
+ uast:{"what": "Unassisted makes: the share of his made field goals that nobody assisted. High means he creates his own baskets; low means he finishes what others set up.", "formula": "Unassisted makes % = 100 × unassisted FGM ÷ FGM (the NBA's PCT_UAST_FGM)", "source": "NBA.com stats (stats.nba.com) scoring splits, each make tagged assisted or not from the play-by-play, 1996-97 on.", "sample": "Hatched under 100 made field goals."},
+ uast3:{"what": "Unassisted threes: the share of his made threes that nobody assisted. Separates pull-up shooters from catch-and-shoot shooters.", "formula": "Unassisted 3s % = 100 × unassisted 3PM ÷ 3PM (the NBA's PCT_UAST_3PM)", "source": "NBA.com stats (stats.nba.com) scoring splits, 1996-97 on.", "sample": "Hatched under 50 made threes."},
+ onoffadj:{"what": "On/off with the luck taken out: the same on-minus-off net rating, after replacing the opponents' three-point and free-throw shooting with league average. Opponents' 3P% and FT% while one player is on the floor are almost all noise, and they swing raw on/off by several points.", "formula": "For his on and off minutes separately: net rating + 100 × (3 × (opp 3PM − opp 3PA × league 3P%) + (opp FTM − opp FTA × league FT%)) ÷ possessions. Luck-adjusted on/off = adjusted on − adjusted off; traded players are minutes-weighted. His own team's shooting is left alone: a shooter raising his team's 3P% is real.", "source": "NBA.com stats (stats.nba.com) team on/off details (opponent and advanced splits), 1996-97 on.", "sample": "Still noisy below ~1,000 minutes; steadier than raw on/off."},
+ pt:{"what": "Play types: how his offense is built (pick-and-roll, isolation, spot-ups and the rest) and how well each part works.", "formula": "For each play type: share = his possessions in it ÷ all his play-type possessions; points per possession = points ÷ possessions; percentile = the NBA's, among every player who ran that play type. Traded players are combined, possession-weighted.", "source": "NBA.com stats (stats.nba.com) Synergy play types, 2015-16 on.", "sample": "Percentiles on under ~25 possessions in a play type are mostly noise."},
+ ww:{"what": "With / without: what happens to his game when a teammate sits. The three teammates whose absence changes his usage the most, ranked after allowing for how few games there are without them.", "formula": "From game logs: his per-36 usage (FGA + 0.44·FTA + TOV), points, assists, rebounds and minutes in games the teammate played vs. games the team played without him (only games he himself played). Ranking: change in usage × n ÷ (n + 5), n = games without.", "source": "NBA.com stats (stats.nba.com) game logs.", "sample": "5+ games with and 3+ without; games without a teammate are usually few, so read the game counts."},
  perim:{"what": "Perimeter Assignment Rate: the share of his defensive matchups spent on guards. Role, not ability: scheme drives much of it, and assignment is least reliable during switches.", "formula": "Perimeter rate = possessions guarding guards ÷ all matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup tracking, 2017-18 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
  contest:{"what": "Rim Contest Rate: of the shots he defended as the closest defender, the share taken within 6 feet. High marks a back-line, rim-anchoring role.", "formula": "Contest rate = shots defended within 6 ft ÷ all shots defended", "source": "NBA.com stats (stats.nba.com) player tracking (defense), 2013-14 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
- rimpm:{"what": "Rim FG% Allowed vs Expected: how shooters at the rim finished against him versus their normal rate. Inverted, so holding shooters down ranks higher. Ranked among bigs only.", "formula": "Rim FG% vs. expected = opponents' FG% within 6 ft vs. him − their usual FG% within 6 ft", "source": "NBA.com stats (stats.nba.com) player tracking (defense), 2013-14 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."}
+ rimpm:{"what": "Rim FG% Allowed vs Expected: how shooters at the rim finished against him versus their normal rate. Inverted, so holding shooters down ranks higher. Ranked among bigs only.", "formula": "Rim FG% vs. expected = opponents' FG% within 6 ft vs. him − their usual FG% within 6 ft", "source": "NBA.com stats (stats.nba.com) player tracking (defense), 2013-14 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
+ pj_method:{"what": "How the projections work: one model behind every Fantasy number, the projection panel on the card and the connector.", "formula": "Marcel-style: last three seasons weighted 5/4/3 by minutes, regressed to position average by each stat's measured settle point, aged with curves fitted on prior seasons only. In season: blended with this season at the same settle point; minutes from 60% last 10 games + 40% season. Rookies: recent rookies' rates by position and minutes by draft slot (1-5: 26, 6-14: 19, 15-30: 17, 31-60: 11, undrafted: 12).", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). NBA.com stats (stats.nba.com) game logs; injury designations from Sleeper's public API (api.sleeper.app), read in your browser; nothing about your league is sent to us.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ pj_min:{"what": "Projected minutes per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute minutes rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ pj_pts:{"what": "Projected points per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute points rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ pj_reb:{"what": "Projected rebounds per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute rebound rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ pj_ast:{"what": "Projected assists per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute assist rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ pj_stl:{"what": "Projected steals per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute steal rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ pj_blk:{"what": "Projected blocks per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute block rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ pj_fg3m:{"what": "Projected made threes per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute 3PM rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ pj_tov:{"what": "Projected turnovers per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute turnover rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ pj_fgpct:{"what": "Projected field-goal percentage: made shots over attempts in his projection.", "formula": "FG% = projected FGM / projected FGA, each projected per minute like the counting stats and then multiplied by projected minutes.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season).", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ pj_ftpct:{"what": "Projected free-throw percentage.", "formula": "FT% = projected FTM / projected FTA, each projected per minute and multiplied by projected minutes.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season).", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ pj_age:{"what": "His age on February 1 of the season, the date the age curves are measured at.", "formula": "Age = (Feb 1 of the season - birth date) / 365.25", "source": "NBA.com stats (stats.nba.com) player index.", "sample": "None: a fact."},
+ pj_y3:{"what": "Three-season outlook: this season, next season and the one after, per game. What dynasty value is built on.", "formula": "Start from this season's projection, then apply one year of the fitted age curve per season, to every per-minute rate and to minutes (kept between 4 and 38).", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season).", "sample": "Age curves are averages; individual careers vary widely, and the error grows each year out."},
+ pj_ros:{"what": "Rest of season: his per-game projection, and how many games we expect him to play from today on.", "formula": "Games = each remaining team game x his availability (games played / team games, last three seasons), with today's injury designation applied to the games right in front of him.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Schedule: NBA.com stats (stats.nba.com) ScheduleLeagueV2.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ pj_next7:{"what": "The next seven days: the same per-game projection, over his team's games in the next week.", "formula": "Games = team games in the next 7 days x availability; his next game uses his injury designation (Out 0%, Doubtful 15%, Questionable / day-to-day 55%, Probable 90%).", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Schedule: NBA.com stats (stats.nba.com); designations: Sleeper's public API (api.sleeper.app), read in your browser; nothing about your league is sent to us.", "sample": "A week is a handful of games; minutes and matchups move it a lot."},
+ fx_sleeper:{"what": "Connect your Sleeper league to rank with your league's exact scoring, see who owns whom, find free agents, and plan Lock-In against your real opponent.", "formula": "Username -> your leagues this season -> the league's scoring settings, rosters, owners and this week's matchup. Sleeper players are matched to NBA ids by name (and team when two share a name) every night.", "source": "Sleeper's public API (api.sleeper.app), read in your browser; nothing about your league is sent to us.", "sample": "Scoring keys our projections can't model (fouls, technicals...) are listed and left out."},
+ fx_format:{"what": "Points leagues add up a score from every stat. 9-cat head-to-head leagues win category by category: PTS, REB, AST, STL, BLK, 3PM, TO, FG% and FT%.", "formula": "Points: fantasy points from your scoring. 9-cat: the sum of his z-scores across the nine categories (see Value).", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season).", "sample": "Same projections either way; only the valuation changes."},
+ fx_scoring:{"what": "The points system. Presets are each site's default; Custom lets you set any weight; your connected Sleeper league uses its own settings.", "formula": "Sleeper: PTS 0.5, REB 1, AST 1, STL 2, BLK 2, TO -1, 3PM 0.5, double-double 1, triple-double 2, 40+ pts 2, 50+ pts 2 more. ESPN: PTS 1, 3PM 1, FGM 2, FGA -1, FTM 1, FTA -1, REB 1, AST 2, STL 4, BLK 4, TO -2. Yahoo: PTS 1, REB 1.2, AST 1.5, STL 3, BLK 3, TO -1.", "source": "Sleeper's weights were fitted to Sleeper's own standard points on 7,213 player-weeks of 2025-26 and reproduce every one exactly; ESPN from espn.com's default-scoring page; Yahoo from help.yahoo.com.", "sample": "Bonuses (double-doubles, 40-point games) use his rate over his last 60 games, rescaled to his projection, shrunk by n / (n + 5)."},
+ fx_window:{"what": "The stretch of games being valued: the rest of the season, the next 7 days, the rest of this fantasy week (Monday to Sunday), a full 82-game season, or three seasons for dynasty.", "formula": "Value = per-game projection x expected games in the window (team games x availability x injury designation). Dynasty = this season + next + the one after, weighted 1 / 0.8 / 0.6.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Schedule: NBA.com stats (stats.nba.com).", "sample": "Short windows swing with schedule: a four-game week is worth a third more than a three-game week."},
+ fx_basis:{"what": "Totals rank by what he adds over the whole window, games missed included. Per game ranks by what he gives on the nights he plays.", "formula": "Per game = window total / expected games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season).", "sample": "Per game flatters players who miss time."},
+ fx_repl:{"what": "League size sets replacement level: the best player nobody needs to roster. Value only counts above that line.", "formula": "Replacement = the value of player number (teams x roster spots + 1) in the current ranking.", "source": "Your settings (or your Sleeper league's).", "sample": "None: a setting."},
+ fx_rank:{"what": "His rank by value in the format, scoring and window you've chosen.", "formula": "Sorted by fantasy points (points) or z-score value (9-cat), highest first.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season).", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ fx_games:{"what": "Expected games he plays in the window.", "formula": "Sum over team games of P(he plays): availability (games played / team games, last three seasons) for a normal game; his designation for the next one; Out = 0 next game and half the usual rate for the rest of the week; IR / suspended = 0 for 14 days.", "source": "NBA.com stats (stats.nba.com) schedule; designations from Sleeper's public API (api.sleeper.app), read in your browser; nothing about your league is sent to us.", "sample": "We don't know return dates; check the news before trusting an injured player's number."},
+ fx_fpg:{"what": "Projected fantasy points per game in your scoring.", "formula": "Sum over stats of weight x projected per-game stat, plus bonus weight x bonus rate (double-doubles etc.).", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season).", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ fx_fp:{"what": "Projected fantasy points over the window: per game x expected games.", "formula": "FP = FP per game x expected games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season).", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
+ fx_z:{"what": "9-cat value: how much he helps across the nine categories, in standard deviations above the typical rosterable player.", "formula": "For each category, z = (his total - pool mean) / pool SD, over the pool of rosterable players (teams x roster). TO is flipped. FG% and FT% use impact: FGM - FGA x league FG%, so volume counts. Value = sum of the nine z's. The pool is re-picked from the ranking and recomputed three times.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season).", "sample": "Category leagues reward balance; a big value from one category (blocks, say) is still real in roto, less so in H2H."},
+ fx_vor:{"what": "Value over replacement: how much he adds over the best player you could pick up for free.", "formula": "Value - value of the replacement-level player (number teams x roster + 1). In trades, summing this charges a 2-for-1 for the roster spot it eats.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season).", "sample": "Depends on league size: deeper leagues push replacement down and everyone's surplus up."},
+ fx_owner:{"what": "Who has him in your connected Sleeper league; FREE AGENT if nobody does.", "formula": "Matched from the league's rosters.", "source": "Sleeper's public API (api.sleeper.app), read in your browser; nothing about your league is sent to us.", "sample": "None."},
+ fx_dyn_model:{"what": "Our dynasty value: three seasons of projected production, valued in your format, above replacement.", "formula": "Sum over the next three seasons of (projected per-game value x 82 x availability), weighted 1 / 0.8 / 0.6, minus replacement. The weights discount later seasons for the extra uncertainty; they are a choice, not fitted.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season).", "sample": "Three-year projections ride on average age curves; young players' ranges are wide."},
+ fx_dyn_crowd:{"what": "The crowd's price: each player's rank on the WCE Dynasty board, set by thousands of four-player head-to-head picks, and the trade value that rank implies.", "formula": "Elo ratings from every pick (each four-player ranking = six pairwise results). Value = 10,000 x e^(-rank / 40), calibrated so a star beats a pile of role players but two good players can beat one.", "source": "wcehoops.com/dynasty (api/dynasty.js, src/lib/dynastyValue.js).", "sample": "Players with few picks move a lot; the board shows how many times each was seen."},
+ fx_dyn_gap:{"what": "Where our model and the crowd disagree. Model + means we rank him higher than the crowd does (buy); Crowd + means the crowd is higher (sell, or the crowd knows something we don't).", "formula": "Gap = crowd rank - model rank. Flagged when it is at least 15 places and at least 35% of the better of the two ranks.", "source": "Our model vs the WCE Dynasty board.", "sample": "The model sees only box-score production and age; the crowd sees news, roles and hype. Both miss things."},
+ fx_trade:{"what": "The trade evaluator: what each side gets, valued four ways.", "formula": "Rest of season and dynasty: sum of value over replacement for each player received (so the side taking more players pays for the roster spots). Crowd: sum of Dynasty-board values. Next 7 days: sum of projected fantasy points. 'About even' = within 5%.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). and the WCE Dynasty board.", "sample": "Doesn't know your roster construction or category needs; read it as value, not fit."},
+ fx_stream:{"what": "Streaming: the best players to pick up for a short window, weighted toward teams that play a lot.", "formula": "Window value = per-game projection x expected games in the window. With a Sleeper league: free agents only. Without: players outside the top 75% of rosterable players for the rest of the season.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Schedule: NBA.com stats (stats.nba.com).", "sample": "A week is short: minutes and matchups matter more than the projection's decimals."},
+ fx_sched:{"what": "His team's games in the window: day, home (v) or away (@), and opponent. Red = the second night of a back-to-back, when stars sit most.", "formula": "From the league schedule; back-to-back = a game the day after another.", "source": "NBA.com stats (stats.nba.com) ScheduleLeagueV2.", "sample": "None: the schedule."},
+ fx_play:{"what": "The chance he plays that game.", "formula": "His next game: by injury designation (Out 0%, Doubtful 15%, Questionable / GTD / day-to-day 55%, Probable 90%). Later games: availability over the last three seasons.", "source": "Designations from Sleeper's public API (api.sleeper.app), read in your browser; nothing about your league is sent to us.", "sample": "Designations change up to tip-off."},
+ fx_lock:{"what": "Lock-In (Sleeper): each player's one game counts for the week. Lock a game if it beats what waiting is worth; if you never lock, his last game counts, even a zero. The threshold under each game is the score worth locking.", "formula": "Backward induction. X = one game's fantasy points, drawn from his last 60 games rescaled to his projection. q = chance he plays. Last game: V = q x E[X]. Earlier: V_i = q_i x E[max(X, V_(i+1))] + (1 - q_i) x V_(i+1). Lock game i if it scores at least V_(i+1). Expected, smart locking = V_1; never locking = his last game's expectation.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). game logs and schedule.", "sample": "Players with fewer than 8 recent NBA games use a normal curve at their projection (SD 38% of the mean)."},
+ fx_lock_matchup:{"what": "Matchup-aware Lock-In: the threshold that maximizes your chance of winning the week, not your expected points. Ahead, lock earlier; behind, chase a ceiling.", "formula": "Same recursion on win probability. P(win | this slot scores y) = Phi((your other slots - opponent + y) / SD). With a Sleeper league, other slots and the opponent are the sums of each starter's smart-locking expectation; SD from each slot's game-to-game spread (x 0.75 for locking). Type your live totals over them as the week goes.", "source": "Sleeper's public API (api.sleeper.app), read in your browser; nothing about your league is sent to us. for the matchup; Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). for the players.", "sample": "A normal approximation of the rest of the matchup; best in the second half of the week when most slots are settled."},
+ fx_inj:{"what": "Who benefits when a player sits: his teammates whose minutes and production changed most in the games he missed.", "formula": "From the with/without split: for each teammate, per-36 numbers and minutes in games the injured player played vs. missed. FP/G change = (minutes without / 36 x per-36 PTS/REB/AST in your scoring) - (the same with him); steals, blocks and the rest are left out.", "source": "NBA.com stats (stats.nba.com) game logs (the latest season with a with/without table); designations from Sleeper's public API (api.sleeper.app), read in your browser; nothing about your league is sent to us.", "sample": "Games without a player are few; the count is shown. Only teammates still on his team are listed."},
+ fx_power:{"what": "League power rankings: each team's best possible lineup by projected fantasy points per game.", "formula": "For each roster: the top N players by rest-of-season FP per game, N = the league's starting slots, summed.", "source": "Sleeper's public API (api.sleeper.app), read in your browser; nothing about your league is sent to us. rosters; Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season).", "sample": "Ignores position limits and injuries beyond today's designations."},
+ tm_wl:{"what": "Wins and losses.", "formula": "Games won - games lost.", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "None: a record."},
+ tm_net:{"what": "Net rating: points scored minus points allowed per 100 possessions. The best single number for how good a team has been.", "formula": "Net = ORtg - DRtg", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "Team net rating settles quickly; 20 games already says a lot."},
+ tm_adjnet:{"what": "Net rating with the luck taken out: opponents' 3P% and FT% against the team set to league average. Teams have little control over either, and both swing net rating by a point or more.", "formula": "Adjusted DRtg = DRtg - 100 x (3 x (opp 3PM - opp 3PA x league 3P%) + (opp FTM - opp FTA x league FT%)) / possessions. Luck-adjusted net = ORtg - adjusted DRtg.", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "Better than raw net for predicting the rest of the season, especially early."},
+ tm_ortg:{"what": "Offensive rating: points scored per 100 possessions.", "formula": "ORtg = 100 x points / possessions", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "Settles within ~20 games."},
+ tm_drtg:{"what": "Defensive rating: points allowed per 100 possessions. Lower is better.", "formula": "DRtg = 100 x opponent points / possessions", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "Noisier than ORtg: opponents' shooting luck lives here (see Luck-adj net)."},
+ tm_pace:{"what": "Possessions per 48 minutes. More possessions, more counting stats: fantasy players on fast teams get a boost.", "formula": "Pace = 48 x possessions / (team minutes / 5)", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "Stable within weeks."},
+ tm_pythw:{"what": "Pythagorean wins: the record their points scored and allowed would usually produce.", "formula": "W = games x ORtg^14 / (ORtg^14 + DRtg^14)", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "Teams beating it by a lot usually come back toward it."},
+ tm_xw:{"what": "Expected wins from luck-adjusted ratings: Pythagorean wins after setting opponents' 3P% and FT% to league average.", "formula": "W = games x ORtg^14 / (ORtg^14 + adjusted DRtg^14)", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "The record a team's process earned."},
+ tm_luck:{"what": "Opponent shooting luck in points per 100 possessions. Positive = opponents shot worse than average from three and the line against them (good luck, likely to fade).", "formula": "Luck = -100 x (3 x (opp 3PM - opp 3PA x lg 3P%) + (opp FTM - opp FTA x lg FT%)) / possessions", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "Mostly noise; it rarely persists."},
+ tm_ff:{"what": "The four factors: shooting, turnovers, offensive rebounding and free throws, on both ends. Together they explain nearly all of a team's rating.", "formula": "eFG% = (FGM + 0.5 x 3PM) / FGA; TOV% = TOV / possessions; ORB% = ORB / (ORB + opp DRB); FT rate = FTA / FGA. Ranks are among this season's 30 teams.", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "Shooting settles slowest; turnovers and rebounding within a few weeks."},
+ tm_efg:{"what": "Effective field-goal percentage: shooting with threes worth 1.5 makes.", "formula": "eFG% = (FGM + 0.5 x 3PM) / FGA", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "A few weeks."},
+ tm_tov:{"what": "Turnovers per 100 possessions. Lower is better.", "formula": "TOV% = TOV / possessions", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "A few weeks."},
+ tm_orb:{"what": "Offensive rebound rate: share of their own misses they get back.", "formula": "ORB% = ORB / (ORB + opp DRB)", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "A few weeks."},
+ tm_ftr:{"what": "Free-throw rate: trips to the line per shot.", "formula": "FT rate = FTA / FGA", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "A few weeks."},
+ tm_oefg:{"what": "Opponents' effective field-goal percentage. Lower is better.", "formula": "Opp eFG% = (opp FGM + 0.5 x opp 3PM) / opp FGA", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "Includes opponents' shooting luck."},
+ tm_otov:{"what": "Turnovers forced per 100 possessions.", "formula": "Opp TOV% = opp TOV / possessions", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "A few weeks."},
+ tm_drb:{"what": "Defensive rebound rate: share of opponents' misses they secure.", "formula": "DRB% = 1 - opp ORB%", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "A few weeks."},
+ tm_oftr:{"what": "Opponents' free-throw rate: how often they foul. Lower is better.", "formula": "Opp FT rate = opp FTA / opp FGA", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "A few weeks."},
+ tm_fg3r:{"what": "Three-point attempt rate: share of shots from three.", "formula": "3PA rate = 3PA / FGA", "source": "NBA.com stats (stats.nba.com) team stats, 1996-97 on.", "sample": "Stable within weeks."},
+ tm_diet:{"what": "Shot diet: where a team's shots come from, and where it lets opponents shoot, by zone, with the FG% in each.", "formula": "Share = FGA in the zone / FGA in the five zones (restricted area, paint, mid-range, corner 3, above-the-break 3).", "source": "NBA.com stats (stats.nba.com) team shot locations, 1996-97 on.", "sample": "Diet settles fast; zone FG% takes longer."},
+ tm_pt:{"what": "Team play types: how a team scores (pick-and-roll, transition, spot-ups...) and what it allows, with points per possession and the NBA's percentile among teams.", "formula": "Frequency = possessions of the type / all play-type possessions; PPP = points / possessions.", "source": "NBA.com stats (stats.nba.com) Synergy play types, 2015-16 on.", "sample": "Under ~100 possessions a type is mostly noise."},
+ tm_left:{"what": "Games left on the schedule (and how many at home).", "formula": "Remaining regular-season games from today.", "source": "NBA.com stats (stats.nba.com) ScheduleLeagueV2.", "sample": "None: the schedule."},
+ tm_next7:{"what": "Games in the next seven days: the streaming number.", "formula": "Team games from today through 6 days out.", "source": "NBA.com stats (stats.nba.com) ScheduleLeagueV2.", "sample": "None: the schedule."},
+ tm_b2b:{"what": "Back-to-backs left: second nights of consecutive days. Teams play worse and rest stars on them.", "formula": "Remaining games played the day after another game.", "source": "NBA.com stats (stats.nba.com) ScheduleLeagueV2.", "sample": "None: the schedule."},
+ tm_oppb2b:{"what": "Games left against an opponent on the second night of a back-to-back: a rest edge.", "formula": "Remaining games where the opponent played the day before.", "source": "NBA.com stats (stats.nba.com) ScheduleLeagueV2.", "sample": "None: the schedule."},
+ tm_sos:{"what": "Strength of remaining schedule: the average opponent's luck-adjusted net rating. Positive = a harder road.", "formula": "Mean over remaining games of the opponent's strength. Strength = (games x this season's luck-adjusted net + 20 x 0.6 x last season's) / (games + 20): last season, regressed 40% to average, until this season has enough games.", "source": "NBA.com stats (stats.nba.com) team stats and schedule.", "sample": "Early-season SOS leans on last season."},
+ lu_unit:{"what": "The players in the unit: five-man lineups or two-man pairs, with every minute they shared the floor.", "formula": "All minutes those players were on the floor together.", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Most five-man units play under 100 minutes all season."},
+ lu_gp:{"what": "Games the unit played together.", "formula": "Games with at least one shared possession.", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "None: a count."},
+ lu_min:{"what": "Minutes the unit played together; the filter hides units under the floor (50 for five-man, 200 for two-man by default).", "formula": "Shared minutes.", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Use the sample-adjusted net under a few hundred minutes."},
+ lu_poss:{"what": "Possessions played together: the sample size behind every rating in the row.", "formula": "Shared possessions (the NBA's estimate).", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "A unit's net rating swings about +/- 10 at 300 possessions on noise alone."},
+ lu_ortg:{"what": "Points the unit scored per 100 possessions.", "formula": "100 x points / possessions", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Noisy below ~500 possessions."},
+ lu_drtg:{"what": "Points the unit allowed per 100 possessions. Lower is better.", "formula": "100 x opponent points / possessions", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Noisier than ORtg: opponents' shooting luck."},
+ lu_net:{"what": "Raw net rating: points scored minus allowed per 100 possessions together.", "formula": "Net = ORtg - DRtg", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Very noisy in small samples."},
+ lu_adj:{"what": "Net rating with opponents' 3P% and FT% set to league average (the same luck adjustment as on/off and team ratings).", "formula": "Luck-adj = net + 100 x (3 x (opp 3PM - opp 3PA x lg 3P%) + (opp FTM - opp FTA x lg FT%)) / possessions", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Removes the biggest noise; small samples still swing."},
+ lu_est:{"what": "Sample-adjusted net: the luck-adjusted net pulled toward the team's own luck-adjusted rating, by an amount set by how much the unit has played. Our best estimate of how good the unit really is.", "formula": "Est = (possessions x luck-adj net + k x team luck-adj net) / (possessions + k). k = noise variance / true-spread variance, measured from how lineup ratings before Jan 15 line up with the same units' ratings after, over three seasons (covariance of the halves = true spread).", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on. k: ~/Basketball-Savant/teams_engine.py fit-k (out/lineup_k.json).", "sample": "Measured on 2022-23 to 2024-25: k = 843 possessions for five-man units (594 units; true spread SD 5.7 per 100) and 1,221 for two-man pairs (6,553 pairs; SD 4.9). At k possessions a unit's own record and its team's rating count equally; most five-man units never get there."},
+ lu_efg:{"what": "Effective field-goal percentage of the unit.", "formula": "(FGM + 0.5 x 3PM) / FGA", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Noisy in small samples."},
+ lu_tov:{"what": "Turnovers per 100 possessions for the unit.", "formula": "TOV / possessions", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Noisy in small samples."},
+ lu_orb:{"what": "Offensive rebound rate for the unit.", "formula": "ORB / (ORB + opp DRB)", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Noisy in small samples."},
+ lu_pace:{"what": "Possessions per 48 minutes with the unit on the floor.", "formula": "48 x possessions / (minutes together)", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Stable quickly."}
 };
 document.addEventListener('change',function(e){
   const s=e.target.closest('.cmp-season');
@@ -2016,7 +2198,7 @@ function render(){
   const hideEmpty=(id,sel)=>{const el=document.getElementById(id);if(!el)return;const anc=el.closest(sel);if(anc)anc.style.display=el.innerHTML.trim()?'':'none';};
   hideEmpty('ctx','.ctxrow'); hideEmpty('off','.col'); hideEmpty('def','.col'); hideEmpty('val','.ctxrow');
   const lgS=document.getElementById('legSettle'); if(lgS) lgS.hidden=!document.querySelector('.setmark');
-  renderGuard();
+  renderGuard(); renderPlayTypes(); renderWW(); if(window.svCardHook) window.svCardHook(cur);
   renderComps();
   renderWeak();
   renderRole();
@@ -2772,6 +2954,43 @@ function guardStrip(p){
       +'<span class="guard-lab">'+s[0]+'</span><span class="guard-pct">'+Math.round(s[1])+'%</span></div>';
   }).join('')+'</div>';
 }
+/* Play-type profile (Synergy): how his offense is built, and how well each part works.
+   Explainer under EXPL.pt. Season view only; Synergy starts in 2015-16. */
+const PT_NAMES={PRBallHandler:'Pick-and-roll ball handler',PRRollman:'Pick-and-roll roll man',Isolation:'Isolation',
+  Transition:'Transition',Spotup:'Spot-up',Postup:'Post-up',Handoff:'Handoff',Cut:'Cut',OffScreen:'Off screen',
+  OffRebound:'Putbacks',Misc:'Other'};
+function renderPlayTypes(){
+  const el=document.getElementById('ptype'); if(!el) return;
+  const pt=cur&&cur.pt;
+  if(!pt||cmpPlayers().length){ el.hidden=true; el.innerHTML=''; return; }
+  const rows=Object.keys(pt).map(function(k){return [k].concat(pt[k]);}).sort(function(a,b){return b[1]-a[1];});
+  el.innerHTML='<h2 class="col-h panel-h" data-k="pt" title="Click for what this is and how it’s calculated">Play types</h2>'
+    +'<div class="guard-cap">How his offense is built, from Synergy tracking &middot; '+curSeason+'. Percentile is the NBA&rsquo;s, against every player who ran that play type.</div>'
+    +'<table class="pt-table"><tr><th>Play type</th><th>Share</th><th>Pts / poss</th><th>Percentile</th><th>Poss</th></tr>'
+    +rows.map(function(r){
+      return '<tr><td>'+(PT_NAMES[r[0]]||r[0])+'</td><td>'+r[1].toFixed(1)+'%</td><td>'+r[2].toFixed(2)+'</td>'
+        +'<td><span class="pt-bar" style="width:'+Math.max(2,r[3]*0.6)+'px;background:'+colorAt(r[3])+'"></span>'+r[3]+'</td><td>'+r[4]+'</td></tr>';
+    }).join('')+'</table>';
+  el.hidden=false;
+}
+/* With / without: the teammates whose absence changes his game most. Explainer under EXPL.ww. */
+function renderWW(){
+  const el=document.getElementById('wwp'); if(!el) return;
+  const ww=cur&&cur.ww;
+  if(!ww||!ww.length||cmpPlayers().length){ el.hidden=true; el.innerHTML=''; return; }
+  const arrow=function(a,b){const d=b-a; if(Math.abs(d)<0.05) return b.toFixed(1);
+    return '<span class="'+(d>0?'ww-up':'ww-dn')+'">'+b.toFixed(1)+' '+(d>0?'▲':'▼')+'</span>';};
+  el.innerHTML='<h2 class="col-h panel-h" data-k="ww" title="Click for what this is and how it’s calculated">With / without</h2>'
+    +'<div class="guard-cap">His per-36 numbers when each teammate plays vs. sits &middot; '+curSeason+'. Games without a teammate are few; the game counts are shown.</div>'
+    +'<table class="ww-table"><tr><th>When this teammate sits</th><th>Usage /36</th><th>Pts /36</th><th>Ast /36</th><th>Reb /36</th><th>Min</th></tr>'
+    +ww.map(function(r){
+      return '<tr><td>'+r.name+' <span class="ww-n">'+r.gwo+' g without &middot; '+r.gw+' with</span></td>'
+        +'<td>'+r.w.usg.toFixed(1)+' → '+arrow(r.w.usg,r.wo.usg)+'</td><td>'+r.w.pts.toFixed(1)+' → '+arrow(r.w.pts,r.wo.pts)+'</td>'
+        +'<td>'+r.w.ast.toFixed(1)+' → '+arrow(r.w.ast,r.wo.ast)+'</td><td>'+r.w.reb.toFixed(1)+' → '+arrow(r.w.reb,r.wo.reb)+'</td>'
+        +'<td>'+r.w.min.toFixed(1)+' → '+arrow(r.w.min,r.wo.min)+'</td></tr>';
+    }).join('')+'</table>';
+  el.hidden=false;
+}
 function renderGuard(){
   const el=document.getElementById('guard'); if(!el) return;
   const cps=cmpPlayers();
@@ -3061,7 +3280,7 @@ async function exportCard(){
 /* Version: bumped on big releases only, never on the nightly data refresh (Adam's rule, Oct 2026).
    2.0.0 (Oct 2026): live through the season (refreshed after every slate), likely-to-settle
    marks, pro-rated qualifier with a one-game opening week. */
-var VERSION='2.0.0';
+var VERSION='2.1.0';
 function build(){
   const vc=document.getElementById('verchip');
   if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }
@@ -3231,7 +3450,7 @@ function loadTrending(){                             // real search-volume trend
 }
 function showHome(){                                 // switch to the home VIEW (app is removed via body.home-open)
   const h=document.getElementById('home'); if(!h) return;
-  document.body.classList.remove('lb-open');
+  document.body.classList.remove('lb-open'); if(window.svClear) window.svClear();
   document.body.classList.add('home-open');
   loadTrending();
   window.scrollTo(0,0);
@@ -3242,7 +3461,7 @@ function showHome(){                                 // switch to the home VIEW 
     if(window.matchMedia&&window.matchMedia('(hover:hover) and (pointer:fine)').matches){
       setTimeout(function(){try{q.focus();}catch(e){}},420); } }
 }
-function hideHome(){ document.body.classList.remove('home-open'); window.scrollTo(0,0); }
+function hideHome(){ document.body.classList.remove('home-open'); if(window.svClear) window.svClear(); window.scrollTo(0,0); }
 function goHome(){                                  // header wordmark -> home (keep history sane)
   try{ if(location.hash){ history.pushState(null,'',location.pathname+location.search); } }catch(e){}
   showHome();
@@ -3271,6 +3490,7 @@ function wireHome(){
     bw.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){e.preventDefault();goHome();} }; }
   // Back/forward: '#p' = a player is open; anything else = home.
   window.addEventListener('popstate',function(){
+    if(window.svRoute&&window.svRoute(location.hash)) return;   // Fantasy / Teams / Lineups tabs (savant-fantasy.js)
     if(location.hash.slice(0,3)==='#lb'){ showLB(true); }
     else if(location.hash==='#p'){ document.body.classList.remove('home-open'); document.body.classList.remove('lb-open'); }
     else { showHome(); }
@@ -3283,7 +3503,7 @@ function wireHome(){
 /* ===================== Leaderboards ===================== */
 var LB={season:null,window:'season',rankKey:'pts',cols:['ts','usg','ast','reb75','bpm'],
   pos:'All',team:'',ageMin:null,ageMax:null,expMin:null,expMax:null,minMpg:0,qualOnly:true,
-  topN:25,basis:'cohort',display:'value',showAllCols:false};
+  topN:25,basis:'cohort',display:'value',showAllCols:false,est:'settled'};
 var LB_MAXCOLS=6;
 var LB_COMMON=['pts','ts','tp3','ast','reb75','usg','stl','blk','bpm'];  // shown by default; rest behind "More"
 var LB_PRESETS=[
@@ -3293,6 +3513,10 @@ var LB_PRESETS=[
   {name:'3-and-D Wings',rankKey:'tp3',cols:['tp3','tp3a','stl','dreb','bpm'],pos:'Wing'}
 ];
 function lbSeasonPlayers(){ return (DATA.data[LB.season]||{players:[]}).players; }
+/* While a season is live, the leaderboard ranks on where each number is likely to settle (the
+   card's ◆), so a hot week on a small sample doesn't top the board. Raw is one click away. */
+function lbSettling(){ return LB.est!=='raw' && LB.window==='season' && settleLive(LB.season); }
+function lbVal(p,key){ return lbSettling()?settleVal(p,key,LB.season):val(p,key,LB.window); }
 function lbEligible(){
   var ps=lbSeasonPlayers(),out=[];
   for(var i=0;i<ps.length;i++){ var p=ps[i];
@@ -3311,9 +3535,9 @@ function lbEligible(){
   return out;
 }
 function lbLeaguePool(){ return lbSeasonPlayers().filter(function(p){return p.qualified;}); }
-function lbPoolVals(key,src){ var out=[]; for(var i=0;i<src.length;i++){ var v=val(src[i],key,LB.window); if(!miss(v)) out.push(v); } return out; }
+function lbPoolVals(key,src){ var out=[]; for(var i=0;i<src.length;i++){ var v=lbVal(src[i],key); if(!miss(v)) out.push(v); } return out; }
 function lbPct(p,key,cohort){
-  var m=byKey(key), v=val(p,key,LB.window); if(miss(v)) return null;
+  var m=byKey(key), v=lbVal(p,key); if(miss(v)) return null;
   var src=LB.basis==='league'?lbLeaguePool():cohort;
   return pctOf(v,lbPoolVals(key,src),m&&m.lower);
 }
@@ -3322,7 +3546,7 @@ function lbEncode(){                                   // full config -> shareab
   add('s',LB.season); add('w',LB.window==='season'?'':LB.window); add('r',LB.rankKey); add('c',LB.cols.join(','));
   add('pos',LB.pos==='All'?'':LB.pos); add('tm',LB.team);
   add('amin',LB.ageMin); add('amax',LB.ageMax); add('xmin',LB.expMin); add('xmax',LB.expMax);
-  add('mpg',LB.minMpg||''); add('n',LB.topN===25?'':LB.topN); add('b',LB.basis==='cohort'?'':LB.basis); add('d',LB.display==='value'?'':LB.display);
+  add('mpg',LB.minMpg||''); add('n',LB.topN===25?'':LB.topN); add('e',LB.est==='raw'?'raw':''); add('b',LB.basis==='cohort'?'':LB.basis); add('d',LB.display==='value'?'':LB.display);
   return '#lb'+(q.length?'?'+q.join('&'):'');
 }
 function lbSyncURL(){ try{ history.replaceState(null,'',lbEncode()); }catch(e){} }
@@ -3337,9 +3561,10 @@ function lbParseHash(){
   LB.ageMin=pr.amin?parseFloat(pr.amin):null; LB.ageMax=pr.amax?parseFloat(pr.amax):null;
   LB.expMin=pr.xmin?parseFloat(pr.xmin):null; LB.expMax=pr.xmax?parseFloat(pr.xmax):null;
   LB.minMpg=pr.mpg?parseFloat(pr.mpg):0; if(pr.n) LB.topN=parseInt(pr.n,10)||25;
-  LB.basis=pr.b==='league'?'league':'cohort'; LB.display=pr.d==='pct'?'pct':'value';
+  LB.basis=pr.b==='league'?'league':'cohort'; LB.display=pr.d==='pct'?'pct':'value'; LB.est=pr.e==='raw'?'raw':'settled';
   document.querySelectorAll('#lbBasis button').forEach(function(x){ x.classList.toggle('on',x.dataset.v===LB.basis); });
   document.querySelectorAll('#lbDisplay button').forEach(function(x){ x.classList.toggle('on',x.dataset.v===LB.display); });
+  document.querySelectorAll('#lbEst button').forEach(function(x){ x.classList.toggle('on',x.dataset.v===LB.est); });
 }
 function lbCaption(){
   var rm=byKey(LB.rankKey), bits=[LB.season];
@@ -3396,19 +3621,22 @@ function lbRender(){
     + (LB.basis==='league'
         ? 'Colors and percentiles rank each player against the whole league that season. '
         : 'Colors and percentiles rank each player against the filtered group above — your cohort. ')
-    + 'Deep red = strong, deep blue = weak. Click a column to rank by it; click a player for their card.'; }
+    + 'Deep red = strong, deep blue = weak. Click a column to rank by it; click a player for their card.'
+    + (lbSettling()?' Season in progress: ◆ marks a number still settling, shown where it is likely to land (switch to Raw to see it as is).':''); }
+  var estSeg=document.getElementById('lbEstWrap'); if(estSeg) estSeg.hidden=!(LB.window==='season'&&settleLive(LB.season));
   var cohort=lbEligible(), rm=byKey(LB.rankKey);
   var cols=LB.cols.map(byKey).filter(Boolean);
-  var rows=[]; for(var i=0;i<cohort.length;i++){ var rv=val(cohort[i],LB.rankKey,LB.window); if(!miss(rv)) rows.push({p:cohort[i],rv:rv}); }
+  var rows=[]; for(var i=0;i<cohort.length;i++){ var rv=lbVal(cohort[i],LB.rankKey); if(!miss(rv)) rows.push({p:cohort[i],rv:rv}); }
   rows.sort(function(a,b){ return (rm&&rm.lower)? a.rv-b.rv : b.rv-a.rv; });
   var top=rows.slice(0,LB.topN);
   var th='<tr><th class="lb-rank">#</th><th>Player</th><th class="num active" data-k="'+(rm?rm.key:'')+'" title="ranking by this">'+(rm?rm.label:'')+'</th>'+
     cols.map(function(m){return '<th class="num" data-k="'+m.key+'" title="click to rank by this">'+m.label+'</th>';}).join('')+'</tr>';
   if(!top.length){ host.innerHTML=th+'<tr><td class="lb-empty" colspan="'+(3+cols.length)+'">No players match these filters.</td></tr>'; return; }
   var cell=function(p,m,extra){
-    var v=val(p,m.key,LB.window), cp=lbPct(p,m.key,cohort);
+    var v=lbVal(p,m.key), cp=lbPct(p,m.key,cohort);
     if(showPct?cp==null:miss(v)) return '<td class="lb-cell'+extra+'"><span class="lb-na">—</span></td>';
-    var txt = showPct ? cp : fmt(m.unit,v,null);
+    var est=lbSettling()&&settleEst(p,m.key,LB.season);
+    var txt = (showPct ? cp : fmt(m.unit,v,null))+(est?'<span class="lb-est" title="Still settling: '+fmt(m.unit,val(p,m.key,'season'),null)+' so far on a small sample; shown where it is likely to land">◆</span>':'');
     return '<td class="lb-cell'+extra+'" style="color:'+lbTextColor(cp)+';font-weight:600">'+txt+'</td>';
   };
   var body=top.map(function(r,idx){
@@ -3471,12 +3699,14 @@ function wireLB(){
   numf('lbMpg','minMpg'); numf('lbAgeMin','ageMin'); numf('lbAgeMax','ageMax'); numf('lbExpMin','expMin'); numf('lbExpMax','expMax');
   document.querySelectorAll('#lbBasis button').forEach(function(b){ b.onclick=function(){ LB.basis=b.dataset.v;
     document.querySelectorAll('#lbBasis button').forEach(function(x){ x.classList.toggle('on',x===b); }); lbRender(); }; });
+  document.querySelectorAll('#lbEst button').forEach(function(b){ b.onclick=function(){ LB.est=b.dataset.v;
+    document.querySelectorAll('#lbEst button').forEach(function(x){ x.classList.toggle('on',x===b); }); lbRender(); }; });
   document.querySelectorAll('#lbDisplay button').forEach(function(b){ b.onclick=function(){ LB.display=b.dataset.v;
     document.querySelectorAll('#lbDisplay button').forEach(function(x){ x.classList.toggle('on',x===b); }); lbRender(); }; });
 }
 function showLB(noPush){
   if(LB.season==null) LB.season=defaultSeason();
-  document.body.classList.remove('home-open'); document.body.classList.add('lb-open');
+  document.body.classList.remove('home-open'); if(window.svClear) window.svClear(); document.body.classList.add('lb-open');
   if(noPush){ lbParseHash(); }                         // arriving via shared link / back button — adopt URL state
   else { try{ history.pushState({lb:1},'','#lb'); }catch(e){} }
   window.scrollTo(0,0); lbBuildControls(); lbRender();
@@ -3513,15 +3743,25 @@ function defaultSeason(){
   }
   return DATA.seasons[0];
 }
+function wirePanelExpl(){
+  document.addEventListener('click',function(ev){
+    const h=ev.target.closest&&ev.target.closest('.panel-h'); if(!h) return;
+    const nxt=h.nextElementSibling;
+    if(nxt&&nxt.classList.contains('expl')){ nxt.remove(); return; }
+    const html=explHtml(h.dataset.k); if(!html) return;
+    h.insertAdjacentHTML('afterend','<div class="expl">'+html+'</div>');
+  });
+}
+wirePanelExpl();
 (async function init(){
   const idb=document.getElementById('idbody');
   if(idb) idb.innerHTML='<div class="id-meta">Loading player data…</div>';
   try{
     /* Two files, the same split as Football Savant: the archive (every finished season) and
        the season in progress, rebuilt nightly. The current file is optional and revalidated
-       on every load; the archive is cached hard. mergeSavant mirrors scripts/lib/savant-merge.mjs. */
+       on every load; the archive revalidates (a cheap 304 when unchanged) so new stats reach returning visitors. mergeSavant mirrors scripts/lib/savant-merge.mjs. */
     const got = await Promise.all([
-      fetch('savant-data.json',{cache:'force-cache'}).then(function(r){return r.json();}),
+      fetch('savant-data.json',{cache:'default'}).then(function(r){return r.json();}),
       fetch('savant-current.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
     ]);
     DATA = mergeSavant(got[0], got[1]);
@@ -3538,8 +3778,10 @@ function defaultSeason(){
   // Deep link: /basketball-savant.html?p=<id> opens that player's card on load
   // (used by the News page player chips). No-op + guarded so it never blocks boot.
   try{ var _dp=new URLSearchParams(location.search).get('p'); if(_dp) pickHome(asId(_dp)); }catch(e){}
-  try{ if(location.hash.slice(0,3)==='#lb') showLB(true); }catch(e){}
+  try{ if(location.hash.slice(0,3)==='#lb') showLB(true); else if(window.svRoute) window.svRoute(location.hash); }catch(e){}
 })();
 </script>
+<script src="savant-fantasy.js?v=1"></script>
+<script src="savant-teams.js?v=1"></script>
 </body>
 </html>
