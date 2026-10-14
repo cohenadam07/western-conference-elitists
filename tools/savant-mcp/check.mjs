@@ -250,7 +250,8 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   // What an assistant is handed before anyone asks anything: names, descriptions and input
   // shapes. Kept in check, because every conversation with the connector on pays for it.
   const upfront = tools.reduce((n, t) => n + JSON.stringify({ name: t.name, description: t.description, inputSchema: t.inputSchema }).length, 0)
-  assert.ok(upfront < 30000, `tool names, descriptions and inputs came to ${upfront} characters`)
+  // 30,000 for the first 16 tools; 33,000 since the nine Fantasy / Teams / Lineups tools (Oct 2026).
+  assert.ok(upfront < 33000, `tool names, descriptions and inputs came to ${upfront} characters`)
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)

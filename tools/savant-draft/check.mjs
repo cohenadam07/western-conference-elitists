@@ -754,10 +754,10 @@ test('the answer reads the way a fan would need it to', async () => {
   const groups = await Promise.all(['context', 'offense', 'defense'].map((group) => run(profile, { prospect: top.id, group })))
   assert.equal(groups.reduce((n, g) => n + g.structured.stats.length, 0), s.stats.length)
 
-  // Heights: the page's 6'12" is written 7'0".
+  // Heights: 83.5 inches is 7'0" on the page and in the answer (the page printed 6'12" until Oct 2026).
   const tall = Object.values(out.classes).flatMap((c) => c.players).find((p) => p.meas.wing === 83.5)
   assert.ok(tall, 'the real data should include an 83.5-inch wingspan')
-  assert.equal(page.fmt('ftin', 83.5), '6\'12"')
+  assert.equal(page.fmt('ftin', 83.5), '7\'0"')
   assert.match((await run(profile, { prospect: tall.id })).text, /wingspan 7'0"/)
   assert.equal(draft.feetInches(83.4), '6\'11"')
   assert.equal(draft.feetInches(84), '7\'0"')

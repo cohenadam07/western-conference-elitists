@@ -496,20 +496,20 @@ export async function schedule({ window = 'next7', limit = 30 }) {
 
 // ---------------------------------------------------------------- tool registrations
 const scoringArg = z.union([z.enum(['sleeper', 'espn', 'yahoo']), z.record(z.string(), z.number())]).optional()
-  .describe('Points scoring: "sleeper" (default), "espn", "yahoo", or custom weights such as {"pts":1,"reb":1.2,"ast":1.5,"stl":3,"blk":3,"tov":-1}. Keys: pts reb oreb dreb ast stl blk tov fg3m fg3a fgm fga fgmi ftm fta ftmi tpmi dd td b40 b50 a15 r20 (bonuses: double-double, triple-double, 40+ and 50+ points, 15+ assists, 20+ rebounds).')
+  .describe('"sleeper" (default), "espn", "yahoo", or weights per stat, e.g. {"pts":1,"reb":1.2,"tov":-1,"dd":1}.')
 const league = {
-  teams: z.number().int().min(4).max(30).default(12).describe('Teams in the league (sets replacement level). Default 12.'),
-  roster: z.number().int().min(5).max(30).default(13).describe('Roster spots per team. Default 13.'),
+  teams: z.number().int().min(4).max(30).default(12).describe('Teams (default 12).'),
+  roster: z.number().int().min(5).max(30).default(13).describe('Roster spots (default 13).'),
 }
 const loose = z.record(z.string(), z.any())
-const pre = 'Basketball Savant Fantasy (Western Conference Elitists, wcehoops.com): '
+const pre = 'Basketball Savant Fantasy (wcehoops.com): '
 
 export const tools = [
   {
     name: 'nba_fantasy_rankings',
     config: {
       title: 'NBA fantasy rankings',
-      description: pre + 'Rank NBA players for fantasy basketball from our projections: points leagues (Sleeper, ESPN, Yahoo or custom scoring) or 9-category leagues (z-scores). Windows: rest of season, next 7 days, rest of this fantasy week, a full season, or dynasty (three seasons). Returns projected per-game lines, expected games, fantasy points, value over replacement, and (dynasty) the WCE crowd board rank. Filter by position, team or a list of players.',
+      description: pre + 'Rank NBA players from our projections for points leagues (any scoring) or 9-cat (z-scores, punts), over the rest of season, next 7 days, this week, a full season or dynasty (3 seasons). Per-game lines, expected games, fantasy points, value over replacement, crowd dynasty rank.',
       inputSchema: {
         format: z.enum(['points', 'cats']).default('points').describe('"points" or "cats" (9-cat H2H/roto: PTS REB AST STL BLK 3PM TO FG% FT%).'),
         scoring: scoringArg,
@@ -531,7 +531,7 @@ export const tools = [
     name: 'nba_fantasy_player',
     config: {
       title: 'NBA player fantasy projection',
-      description: pre + 'One player\'s projection: per-game line for the rest of the season, expected games, fantasy points per game in the chosen scoring, his next 7 days and this week\'s schedule, a three-season (dynasty) outlook, injury designation, and his WCE Dynasty crowd rank.',
+      description: pre + 'One player\'s projection: rest-of-season per-game line, expected games, fantasy points per game, next 7 days and this week, a three-season outlook, injury status and WCE Dynasty crowd rank.',
       inputSchema: { player: z.string().trim().min(1).max(80).describe('Player name or NBA id, e.g. "Victor Wembanyama".'), scoring: scoringArg },
       outputSchema: { id: z.string(), name: z.string(), team: z.string(), position: z.string(), age: z.number().nullable(), rookie: z.boolean(), status: z.string().nullable(), games_played: z.number(),
         rest_of_season: loose, next_7_days: loose, this_week: loose, three_seasons: z.array(loose), crowd_dynasty_rank: z.number().nullable(), crowd_dynasty_value: z.number().nullable(), scoring: z.string(), url: z.string(), data_as_of: z.string().nullable() },
@@ -543,7 +543,7 @@ export const tools = [
     name: 'nba_fantasy_trade',
     config: {
       title: 'Evaluate an NBA fantasy trade',
-      description: pre + 'Evaluate a fantasy basketball trade four ways: rest of season and dynasty (our three-season model), both as value over replacement so 2-for-1s pay for the roster spot; the WCE crowd Dynasty board; and the next 7 days. Flags when our model and the crowd disagree.',
+      description: pre + 'Value a fantasy trade four ways: rest of season and dynasty (our 3-season model), as value over replacement so 2-for-1s pay for the roster spot; the WCE crowd Dynasty board; and the next 7 days. Flags model-crowd disagreement.',
       inputSchema: {
         side_a: z.array(z.string().trim().min(1).max(80)).min(1).max(8).describe('Players side A receives (names or ids).'),
         side_b: z.array(z.string().trim().min(1).max(80)).min(1).max(8).describe('Players side B receives.'),
@@ -558,7 +558,7 @@ export const tools = [
     name: 'nba_fantasy_lock_in',
     config: {
       title: 'Sleeper Lock-In plan',
-      description: pre + 'For Sleeper NBA Lock-In leagues (one game per player counts each week; unlocked, his last game counts): the score worth locking in each of his remaining games this week, by backward induction on his game-to-game distribution. Optionally matchup-aware (maximize win chance given your other slots and your opponent), and can answer "he just scored X, lock or wait?".',
+      description: pre + 'Sleeper Lock-In (one game per player counts; unlocked, his last game counts): the score worth locking in each of his remaining games this week, by backward induction on his game log. Optionally matchup-aware, and answers "he just scored X: lock or wait?".',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player name or NBA id.'), scoring: scoringArg,
         scored_unlocked: z.number().optional().describe('Fantasy points he just scored in a game you have not locked.'),
@@ -576,7 +576,7 @@ export const tools = [
     name: 'nba_fantasy_streamers',
     config: {
       title: 'NBA fantasy streamers',
-      description: pre + 'Best short-term pickups for the next 7 days or the rest of this fantasy week: per-game projection x games on the schedule x availability, with back-to-backs marked. Pass your league\'s rostered players in exclude to see only free agents.',
+      description: pre + 'Best pickups for the next 7 days or the rest of this week: per-game projection x games x availability, back-to-backs marked. Pass rostered players in exclude to see only free agents.',
       inputSchema: {
         window: z.enum(['next7', 'week']).default('next7').describe('"next7" (default) or "week" for the rest of this Monday-Sunday fantasy week.'), format: z.enum(['points', 'cats']).default('points').describe('"points" or "cats" (9-category).'), scoring: scoringArg,
         exclude: z.array(z.string().trim().min(1).max(80)).max(400).default([]).describe('Rostered players to leave out (names or ids). Empty = players ranked outside the top 75% of rosterable players.'),
@@ -591,7 +591,7 @@ export const tools = [
     name: 'nba_injury_report',
     config: {
       title: 'NBA injury report with beneficiaries',
-      description: pre + 'Current injury designations (Sleeper\'s feed), best players first, each with the teammates whose minutes and per-36 production rose in the games he missed (with/without game logs).',
+      description: pre + 'Current injury designations (Sleeper), best players first, each with the teammates whose minutes and per-36 production rose in games he missed.',
       inputSchema: { team: z.string().trim().max(3).optional().describe('Team abbreviation, e.g. "LAL".'), limit: z.number().int().min(1).max(100).default(25).describe('Most injured players to return (default 25).') },
       outputSchema: { players: z.array(loose), data_as_of: z.string().nullable(), url: z.string() },
       annotations: { title: 'NBA injury report with beneficiaries', ...READ_ONLY },
@@ -602,7 +602,7 @@ export const tools = [
     name: 'nba_team_profile',
     config: {
       title: 'NBA team profile',
-      description: 'Basketball Savant Teams (wcehoops.com): one team\'s season — record, net / offensive / defensive rating and league ranks, luck-adjusted net rating and expected wins (opponents\' 3P% and FT% set to league average), four factors on both ends, shot diet by zone (own and allowed), play types, and for the season in progress the schedule ahead (games left, back-to-backs, strength of schedule). 1996-97 on.',
+      description: 'Basketball Savant Teams (wcehoops.com): a team\'s season: ratings and ranks, luck-adjusted net and expected wins, four factors, shot diet by zone (own and allowed), play types, and the schedule ahead (back-to-backs, strength of schedule). 1996-97 on.',
       inputSchema: { team: z.string().trim().min(2).max(40).describe('Abbreviation (BOS) or name (Celtics).'), season: z.string().trim().max(12).optional().describe('Season as two years, e.g. "2025-26". Omit for the latest with 10+ games.') },
       outputSchema: { season: z.string(), team: loose, ranks: loose, url: z.string() },
       annotations: { title: 'NBA team profile', ...READ_ONLY },
@@ -613,7 +613,7 @@ export const tools = [
     name: 'nba_lineups',
     config: {
       title: 'NBA lineup ratings',
-      description: 'Basketball Savant Lineups (wcehoops.com): five-man units or two-man pairs with minutes, possessions, offensive/defensive/net rating, luck-adjusted net, and a sample-adjusted net that pulls small samples toward the team\'s rating by a measured k. Filter by team or player. 2007-08 on.',
+      description: 'Basketball Savant Lineups (wcehoops.com): 5-man units or 2-man pairs with minutes, ratings, luck-adjusted net, and a sample-adjusted net pulled toward the team by a measured k. Filter by team or player. 2007-08 on.',
       inputSchema: {
         team: z.string().trim().max(40).optional().describe('Abbreviation or name; omit for every team.'), season: z.string().trim().max(12).optional().describe('e.g. "2025-26"; 2007-08 on.'), size: z.union([z.literal(5), z.literal(2)]).default(5).describe('5 for five-man lineups (default), 2 for two-man pairs.'),
         min_minutes: z.number().min(0).optional().describe('Minutes floor (default 50 for 5-man, 200 for 2-man).'), sort: z.enum(['sample_adjusted', 'luck_adjusted', 'raw', 'minutes']).default('sample_adjusted').describe('Sort by sample-adjusted net (default), luck-adjusted net, raw net, or minutes.'),
@@ -628,7 +628,7 @@ export const tools = [
     name: 'nba_schedule',
     config: {
       title: 'NBA schedule for fantasy',
-      description: 'Basketball Savant (wcehoops.com): games per team for the next 7 days or the rest of this fantasy week, with back-to-backs and home games, sorted by most games. The streaming calendar.',
+      description: 'Basketball Savant (wcehoops.com): games per team in the next 7 days or the rest of this fantasy week, with back-to-backs, most games first.',
       inputSchema: { window: z.enum(['next7', 'week']).default('next7').describe('"next7" (default) or "week" (rest of this Monday-Sunday week).'), limit: z.number().int().min(1).max(30).default(30).describe('Teams to return (default all 30).') },
       outputSchema: { window: z.string(), teams: z.array(loose), data_as_of: z.string().nullable() },
       annotations: { title: 'NBA schedule for fantasy', ...READ_ONLY },
