@@ -336,3 +336,15 @@ test('likely to settle: the connector carries the estimate the page shows, for e
   // A finished season never carries estimates.
   for (const s of built.meta.seasons) if (s !== season) assert.ok(built.seasons[s].players.every((r) => !r.settle), `${s} carries estimates`)
 })
+
+test('every stat explains what it is, how it is calculated, its source and its sample', () => {
+  // Adam's rule (Oct 2026): no stat ships without the click-through explainer.
+  // Source of truth: tools/savant-explainers/explainers.py.
+  const missing = []
+  for (const m of out.meta.metrics) {
+    const e = m.explain
+    if (!e || typeof e !== 'object') { missing.push(`${m.key}: no explainer`); continue }
+    for (const f of ['what', 'formula', 'source', 'sample']) if (!e[f] || String(e[f]).trim().length < 4) missing.push(`${m.key}: no ${f}`)
+  }
+  assert.deepEqual(missing, [], missing.join('\n'))
+})

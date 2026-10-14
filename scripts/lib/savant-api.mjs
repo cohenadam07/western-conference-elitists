@@ -116,9 +116,10 @@ function explanations(html) {
   if (end < 0) return {}
   const out = {}
   for (const line of html.slice(at, end).split('\n')) {
-    const m = line.match(/^\s*([a-z0-9_]+)\s*:\s*(".*")\s*,?\s*$/)
+    // One entry per line: key:{"what","formula","source","sample"} (or an old plain string).
+    const m = line.match(/^\s*([a-z0-9_]+)\s*:\s*((?:".*")|(?:\{.*\}))\s*,?\s*$/)
     if (!m) continue
-    try { out[m[1]] = JSON.parse(m[2]) } catch { /* not a plain string: skip it */ }
+    try { out[m[1]] = JSON.parse(m[2]) } catch { /* not JSON: skip it */ }
   }
   return out
 }
