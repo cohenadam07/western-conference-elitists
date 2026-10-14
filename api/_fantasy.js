@@ -165,7 +165,7 @@ export function makeModel(proj, today = todayET()) {
     if (basis === 'pg' && L.G > 0) { const g0 = L.G; for (const k of COUNT) L[k] /= g0; L.fp /= g0; L.pg = true }
     return L
   }
-  function valueAll({ scope = 'ros', basis = 'total', fmt = 'points', w = PRESETS.sleeper, teams = 12, roster = 13 } = {}) {
+  function valueAll({ scope = 'ros', basis = 'total', fmt = 'points', w = PRESETS.sleeper, teams = 12, roster = 13, punt = [] } = {}) {
     let rows = list.map((p) => ({ p, L: lineFor(p, scope, basis, w) })).filter((r) => r.L.G > 0 || scope === 'pre')
     const N = Math.max(1, teams * roster)
     let lg = null
@@ -180,7 +180,7 @@ export function makeModel(proj, today = todayET()) {
         rows.forEach((r) => { r.c = { pts: r.L.pts, reb: r.L.reb, ast: r.L.ast, stl: r.L.stl, blk: r.L.blk, fg3m: r.L.fg3m, tov: r.L.tov, fgi: r.L.fgm - r.L.fga * lgFG, fti: r.L.ftm - r.L.fta * lgFT } })
         const mu = {}, sd = {}
         for (const k of CATS) { let s = 0, s2 = 0; pool.forEach((r) => { s += r.c[k]; s2 += r.c[k] * r.c[k] }); mu[k] = s / pool.length; sd[k] = Math.sqrt(Math.max(1e-9, s2 / pool.length - mu[k] * mu[k])) }
-        rows.forEach((r) => { r.z = {}; let t = 0; for (const k of CATS) { let z = (r.c[k] - mu[k]) / sd[k]; if (k === 'tov') z = -z; r.z[k] = z; t += z } r.v = t })
+        rows.forEach((r) => { r.z = {}; let t = 0; for (const k of CATS) { let z = (r.c[k] - mu[k]) / sd[k]; if (k === 'tov') z = -z; r.z[k] = z; if (!punt.includes(k)) t += z } r.v = t })
         rows.sort((a, b) => b.v - a.v); pool = rows.slice(0, N)
         lg = { fg: lgFG, ft: lgFT }
       }
@@ -273,9 +273,10 @@ const WINDOWS = { ros: 'rest of season', next7: 'next 7 days', week: 'rest of th
 const asOf = (M) => `Projections generated ${String(M.proj.generated || '').slice(0, 16).replace('T', ' ')} UTC; today ${M.today} ET. ${SITE}/basketball-savant.html#fantasy`
 
 // ---------------------------------------------------------------- tool bodies
-export async function fantasyRankings({ format = 'points', scoring, window = 'ros', per_game = false, position, team, teams = 12, roster = 13, limit = 25, players }) {
+export async function fantasyRankings({ format = 'points', scoring, window = 'ros', per_game = false, position, team, teams = 12, roster = 13, limit = 25, players, punt = [] }) {
   const M = await model(), { w, label } = weightsOf(scoring)
-  const rows = M.valueAll({ scope: window, basis: per_game ? 'pg' : 'total', fmt: format === 'cats' ? 'cats' : 'points', w, teams, roster })
+  const P2 = { fg_pct: 'fgi', ft_pct: 'fti', fgi: 'fgi', fti: 'fti' }
+  const rows = M.valueAll({ scope: window, basis: per_game ? 'pg' : 'total', fmt: format === 'cats' ? 'cats' : 'points', w, teams, roster, punt: punt.map((k) => P2[k] || k) })
   const crowd = window === 'dyn' ? await crowdBoard() : null
   let pick = rows
   if (players && players.length) { const ids = new Set(players.map((q) => findPlayer(M, q).id)); pick = rows.filter((r) => ids.has(r.p.id)) }
@@ -295,7 +296,7 @@ export async function fantasyRankings({ format = 'points', scoring, window = 'ro
       crowd_rank: c ? c.rank : null, url: cardUrl(r.p.id),
     }
   })
-  const head = `${format === 'cats' ? '9-cat (sum of z-scores)' : `Points (${label})`}, ${WINDOWS[window]}${per_game ? ', per game' : ''}; ${teams} teams x ${roster}.`
+  const head = `${format === 'cats' ? `9-cat (sum of z-scores${punt.length ? `, punting ${punt.join(', ')}` : ''})` : `Points (${label})`}, ${WINDOWS[window]}${per_game ? ', per game' : ''}; ${teams} teams x ${roster}.`
   const text = [head, ...out.map((r) => `${r.rank}. ${r.name} (${r.team}, ${r.position}${r.status ? `, ${r.status}` : ''}): `
     + (format === 'cats' ? `value ${r.value} (+${r.value_over_replacement} over replacement)` : `${r.fantasy_points_per_game} FP/G${r.fantasy_points != null ? `, ${r.fantasy_points} FP over ${r.expected_games} games` : ''}`)
     + ` | ${r.per_game.pts} pts ${r.per_game.reb} reb ${r.per_game.ast} ast ${r.per_game.min} min`), asOf(M),
@@ -517,6 +518,7 @@ export const tools = [
         position: z.enum(['Guard', 'Wing', 'Big']).optional().describe('Only this position group.'),
         team: z.string().trim().max(3).optional().describe('Team abbreviation, e.g. "BOS".'),
         players: z.array(z.string().trim().min(1).max(80)).max(30).optional().describe('Only these players (names or ids).'),
+        punt: z.array(z.enum(['pts', 'reb', 'ast', 'stl', 'blk', 'fg3m', 'tov', 'fg_pct', 'ft_pct'])).max(4).default([]).describe('9-cat only: categories to punt (left out of the value), e.g. ["fg_pct", "tov"].'),
         limit: z.number().int().min(1).max(200).default(25).describe('Most players to return (default 25).'),
         ...league,
       },

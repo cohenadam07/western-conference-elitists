@@ -65,15 +65,15 @@ var CATS=[['pts','PTS'],['reb','REB'],['ast','AST'],['stl','STL'],['blk','BLK'],
 var DYN_W=[1,0.8,0.6];                                       // this season, next, the one after
 
 /* ------------------------------------------------------------------ state */
-var FX={view:'rank', fmt:'points', preset:'sleeper', scope:'ros', basis:'total', pos:'All', q:'', teams:12, roster:13,
+var FX={view:'rank', punt:[], fmt:'points', preset:'sleeper', scope:'ros', basis:'total', pos:'All', q:'', teams:12, roster:13,
   sort:'value', hideOwned:false, custom:null, league:null, trade:{a:[],b:[]}, lock:{ids:[],scores:{},mine:null,opp:null,sd:null},
   streamWin:'next7'};
 (function restore(){
   var s=lsGet('sv-fx'); if(!s) return;
-  ['fmt','preset','scope','basis','teams','roster','custom','streamWin'].forEach(function(k){ if(s[k]!=null) FX[k]=s[k]; });
+  ['fmt','preset','scope','basis','teams','roster','custom','streamWin','punt'].forEach(function(k){ if(s[k]!=null) FX[k]=s[k]; });
   if(s.lockIds) FX.lock.ids=s.lockIds;
 })();
-function save(){ lsSet('sv-fx',{fmt:FX.fmt,preset:FX.preset,scope:FX.scope,basis:FX.basis,teams:FX.teams,roster:FX.roster,
+function save(){ lsSet('sv-fx',{punt:FX.punt,fmt:FX.fmt,preset:FX.preset,scope:FX.scope,basis:FX.basis,teams:FX.teams,roster:FX.roster,
   custom:FX.custom,streamWin:FX.streamWin,lockIds:FX.lock.ids}); }
 
 var P={data:null, loading:null, crowd:null, crowdLoading:null};
@@ -228,7 +228,7 @@ function valueAll(scope,basis,fmt){
       var mu={}, sd={};
       CATS.forEach(function(c){ var k=c[0], s=0, s2=0; pool.forEach(function(r){ s+=r.c[k]; s2+=r.c[k]*r.c[k]; });
         mu[k]=s/pool.length; sd[k]=Math.sqrt(Math.max(1e-9,s2/pool.length-mu[k]*mu[k])); });
-      rows.forEach(function(r){ r.z={}; var t=0; CATS.forEach(function(c){ var k=c[0], z=(r.c[k]-mu[k])/sd[k]; if(k==='tov') z=-z; r.z[k]=z; t+=z; }); r.v=t; });
+      rows.forEach(function(r){ r.z={}; var t=0; CATS.forEach(function(c){ var k=c[0], z=(r.c[k]-mu[k])/sd[k]; if(k==='tov') z=-z; r.z[k]=z; if((FX.punt||[]).indexOf(k)<0) t+=z; }); r.v=t; });
       rows.sort(function(a,b){ return b.v-a.v; }); pool=rows.slice(0,N);
       P.lg={fg:lgFG,ft:lgFT};
     }
@@ -241,7 +241,7 @@ function valueAll(scope,basis,fmt){
 }
 var _cache={};
 function valued(scope,basis,fmt){
-  var key=[scope,basis,fmt,FX.preset,JSON.stringify(weights()),FX.teams,FX.roster].join('|');
+  var key=[scope,basis,fmt,FX.preset,JSON.stringify(weights()),FX.teams,FX.roster,(FX.punt||[]).join(',')].join('|');
   if(!_cache[key]){ _cache={}; _cache[key]=valueAll(scope,basis,fmt); }
   return _cache[key];
 }
@@ -524,6 +524,7 @@ function ownerCell(id){
 
 /* ---- Rankings */
 function viewRank(sec){
+  var cats=FX.fmt==='cats';
   var rows=valued(FX.scope,FX.basis,FX.fmt);
   var crowd=P.crowd||{};
   if(!P.crowd) loadCrowd().then(function(){ if(FX.view==='rank'&&D.body.classList.contains('tab-fx')) renderFx(); });
@@ -534,8 +535,9 @@ function viewRank(sec){
     if(FX.hideOwned&&FX.league&&ownerOf(r.p.id)) return false;
     return true;
   });
-  var limit=FX.limit||150, cats=FX.fmt==='cats', per=FX.basis==='pg'||FX.scope==='pre'&&false;
-  var extra='<div class="sv-f"><label>Position</label><select id="fxPos">'+['All','Guard','Wing','Big'].map(function(x){ return '<option'+(FX.pos===x?' selected':'')+'>'+x+'</option>'; }).join('')+'</select></div>'
+  var limit=FX.limit||150;
+  var extra=(cats?'<div class="sv-f"><label>'+xk('Punt','fx_punt')+'</label><span class="sv-seg" id="fxPunt">'+CATS.map(function(c){ return '<button type="button" data-v="'+c[0]+'"'+((FX.punt||[]).indexOf(c[0])>=0?' class="on"':'')+'>'+c[1]+'</button>'; }).join('')+'</span></div>':'')
+    +'<div class="sv-f"><label>Position</label><select id="fxPos">'+['All','Guard','Wing','Big'].map(function(x){ return '<option'+(FX.pos===x?' selected':'')+'>'+x+'</option>'; }).join('')+'</select></div>'
     +'<div class="sv-f"><label>Find</label><input id="fxQ" class="sv-in" placeholder="Player or team (LAL)" value="'+esc(FX.q)+'"></div>'
     +(FX.league?'<label class="sv-lab" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="fxHide"'+(FX.hideOwned?' checked':'')+'> free agents only</label>':'');
   var h=settingsHtml({extra:extra});
@@ -563,6 +565,8 @@ function viewRank(sec){
   sec.innerHTML=h;
   wireSettings(sec,renderFx); wirePlayers(sec);
   $('fxPos').onchange=function(e){ FX.pos=e.target.value; renderFx(); };
+  var pu=$('fxPunt'); if(pu) pu.onclick=function(e){ var b=e.target.closest('button'); if(!b) return; var k=b.dataset.v, i=FX.punt.indexOf(k);
+    if(i>=0) FX.punt.splice(i,1); else if(FX.punt.length<4) FX.punt.push(k); save(); renderFx(); };
   var qi=$('fxQ'); qi.oninput=function(){ FX.q=qi.value; var pos=qi.selectionStart; renderFx(); var n=$('fxQ'); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(e){} } };
   var hd=$('fxHide'); if(hd) hd.onchange=function(){ FX.hideOwned=hd.checked; renderFx(); };
   var m=$('fxMore'); if(m) m.onclick=function(){ FX.limit=(FX.limit||150)+150; renderFx(); };
@@ -803,6 +807,40 @@ function viewInj(sec){
   sec.innerHTML=h; wireSettings(sec,renderFx); wirePlayers(sec);
 }
 
+/* ---- 9-cat head-to-head: each category's chance this week (normal approximation).
+   Totals = per-game projection x expected games for each starter; spread from his game log
+   (rescaled to the projection), per game x games. FG% / FT% compare made shots above a shared
+   league rate, per attempt. */
+function catVar(p,line){
+  var L=p.log||[], ix=P.data.ix, n=L.length, out={};
+  var S=['pts','reb','ast','stl','blk','fg3m','tov','fgm','fga','ftm','fta'], sc={}, mean={};
+  S.forEach(function(k){ var s=0; for(var i=0;i<n;i++) s+=L[i][ix[k]]; mean[k]=n?s/n:0; sc[k]=mean[k]>0.05?Math.max(0.4,Math.min(2.5,(line[k]||0)/mean[k])):1; });
+  if(n<8){ S.forEach(function(k){ out[k]=Math.max(0.25,line[k]||0); }); out.fgd=(line.fga||0)*0.25; out.ftd=(line.fta||0)*0.18; return out; }
+  S.forEach(function(k){ var s2=0; for(var i=0;i<n;i++){ var d=L[i][ix[k]]*sc[k]-(line[k]||0); s2+=d*d; } out[k]=s2/n; });
+  var fgp=(line.fga?line.fgm/line.fga:0.47), ftp=(line.fta?line.ftm/line.fta:0.78), a=0, b=0;
+  for(var i=0;i<n;i++){ var g=L[i]; var dg=g[ix.fgm]*sc.fgm-fgp*g[ix.fga]*sc.fga, df=g[ix.ftm]*sc.ftm-ftp*g[ix.fta]*sc.fta; a+=dg*dg; b+=df*df; }
+  out.fgd=a/n; out.ftd=b/n; return out;
+}
+function catMatchup(myIds,oppIds){
+  var side=function(ids){ var t={G:0}, v={}; CATS.forEach(function(c){ t[c[0]]=0; v[c[0]]=0; }); t.fgm=t.fga=t.ftm=t.fta=0;
+    ids.forEach(function(id){ var p=P.data.players[id]; if(!p) return; var gs=teamGames(p,'week'), G=expGames(p,gs), ln=p.ros, cv=catVar(p,ln);
+      ['pts','reb','ast','stl','blk','fg3m','tov','fgm','fga','ftm','fta'].forEach(function(k){ t[k]=(t[k]||0)+(ln[k]||0)*G; });
+      ['pts','reb','ast','stl','blk','fg3m','tov'].forEach(function(k){ v[k]+=cv[k]*G; });
+      v.fgi+=cv.fgd*G; v.fti+=cv.ftd*G; t.G+=G; });
+    return {t:t,v:v}; };
+  var A=side(myIds), B=side(oppIds), out=[], exp=0;
+  CATS.forEach(function(c){
+    var k=c[0], ma, mb, sd;
+    if(k==='fgi'||k==='fti'){ var m=k==='fgi'?'fgm':'ftm', a=k==='fgi'?'fga':'fta';
+      ma=A.t[a]?A.t[m]/A.t[a]:null; mb=B.t[a]?B.t[m]/B.t[a]:null;
+      sd=Math.sqrt((A.t[a]?A.v[k]/(A.t[a]*A.t[a]):0)+(B.t[a]?B.v[k]/(B.t[a]*B.t[a]):0)); }
+    else { ma=A.t[k]; mb=B.t[k]; sd=Math.sqrt(A.v[k]+B.v[k]); }
+    var p=(ma==null||mb==null)?0.5:ncdf(((ma-mb)*(k==='tov'?-1:1))/Math.max(1e-6,sd));
+    exp+=p; out.push({k:k,lab:c[1],me:ma,op:mb,p:p});
+  });
+  return {cats:out, exp:exp, gMe:A.t.G, gOpp:B.t.G};
+}
+
 /* ---- My Sleeper league */
 function viewLeague(sec){
   var saved=lsGet('sv-sleeper')||{};
@@ -828,6 +866,14 @@ function viewLeague(sec){
         .sort(function(a,b){ return (b.r?b.r.v:0)-(a.r?a.r.v:0); });
       h+='<div class="sv-sec"><h3 style="margin:14px 0 6px">Your roster'+(L.opp?' · this week vs '+esc(L.opp.name):'')+'</h3><div class="sv-expl"></div><div class="sv-tw"><table class="sv-t"><tr><th class="l">Player</th><th class="xk" data-k="fx_rank">ROS rank</th><th class="xk" data-k="fx_fpg">FP/G</th><th class="xk" data-k="fx_games">G this week</th><th class="xk" data-k="fx_fp">FP this week</th><th class="l">Lineup</th></tr>'
         +mine.map(function(x){ return '<tr><td class="l">'+nameCell(x.p)+'</td><td>'+(x.r?x.r.rank:'—')+'</td><td>'+(x.r?f1(x.r.L.fp/Math.max(x.r.L.G,1e-9)):'—')+'</td><td>'+(x.w?f1(x.w.L.G):'0')+'</td><td class="big">'+(x.w?f1(x.w.L.fp):'0')+'</td><td class="l sv-games">'+(x.st?'starter':'bench')+'</td></tr>'; }).join('')+'</table></div></div>';
+      if(L.opp){
+        var cm=catMatchup(L.mine.starters,L.opp.starters);
+        h+='<div class="sv-sec"><h3 style="margin:14px 0 6px">'+xk('9-cat matchup, rest of this week','fx_catsim')+' · you vs '+esc(L.opp.name)+'</h3><div class="sv-expl"></div>'
+          +'<p class="sv-note">Starters only, from today to Sunday: you '+f1(cm.gMe)+' expected games, them '+f1(cm.gOpp)+'. Expected categories won: <b>'+cm.exp.toFixed(1)+' of 9</b>.</p>'
+          +'<div class="sv-tw"><table class="sv-t"><tr><th class="l">Category</th><th>You</th><th>Them</th><th class="xk" data-k="fx_catsim">Win chance</th></tr>'
+          +cm.cats.map(function(c){ var pct=c.k==='fgi'||c.k==='fti'; return '<tr><td class="l">'+c.lab+'</td><td>'+(pct?pc(c.me):f0(c.me))+'</td><td>'+(pct?pc(c.op):f0(c.op))+'</td><td class="big '+(c.p>=0.6?'sv-good':c.p<=0.4?'sv-bad':'')+'">'+Math.round(c.p*100)+'%</td></tr>'; }).join('')
+          +'</table></div></div>';
+      }
       h+='<p style="margin-top:10px"><button type="button" class="sv-btn ghost" data-go="lock">Lock-In planner for this lineup →</button> <button type="button" class="sv-btn ghost" data-go="stream">Best free agents →</button></p>';
     } else h+='<p class="sv-note">You don’t own a team in this league, so the roster views are off.</p>';
   }
@@ -878,7 +924,7 @@ function go2fx(){ go('fx'); }
 
 /* ------------------------------------------------------------------ boot */
 window.svRoute=route; window.svClear=svClear; window.svCardHook=cardHook; window.svGo=go;
-window.svFantasy={prep:function(d,today){ prepProj(d); P.data=d; if(today) todayET=function(){ return today; }; _cache={}; }, valueAll:valueAll, load:loadProj, valued:valued, weights:weights, lockPlan:lockPlan, fpPerGame:fpPerGame, state:FX, P:P};
+window.svFantasy={catMatchup:catMatchup, prep:function(d,today){ prepProj(d); P.data=d; if(today) todayET=function(){ return today; }; _cache={}; }, valueAll:valueAll, load:loadProj, valued:valued, weights:weights, lockPlan:lockPlan, fpPerGame:fpPerGame, state:FX, P:P};
 function boot(){
   shell(); syncTabs();
   // the main page switches views by body class (home-open, lb-open): keep the tab bar in step

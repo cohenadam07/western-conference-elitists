@@ -132,6 +132,13 @@ T = {
               "FP/G change = (minutes without / 36 x per-36 PTS/REB/AST in your scoring) - (the same with him); steals, blocks and the rest are left out."),
      source=f"{NBA} game logs (the latest season with a with/without table); designations from {SLEEPER}",
      sample="Games without a player are few; the count is shown. Only teammates still on his team are listed."),
+ "fx_punt": dict(what="Punting: giving up on up to four categories on purpose (FG% and turnovers, say) so your roster wins the rest. Punted categories are left out of value, which reshuffles who fits your build.",
+     formula="Value = sum of z-scores over the categories you keep. z-scores are still computed for all nine (and shown, shaded); the pool of rosterable players is re-picked by the punted value.",
+     source=PROJ, sample="A build, not a projection: only as good as the categories you really stop chasing."),
+ "fx_catsim": dict(what="Your 9-cat head-to-head this week, category by category: projected totals for your starters and your opponent's from today to Sunday, and the chance you win each.",
+     formula=("Totals = per-game projection x expected games, summed over starters. Spread: each player's game-to-game variance from his last 60 games (rescaled to his projection) x games. "
+              "P(win) = Phi((your total - theirs) / SD), TO flipped. FG% and FT%: makes above each player's own rate per game, divided by the side's attempts. Expected categories won = sum of the nine chances."),
+     source=f"{SLEEPER} starters; {PROJ}", sample="Doesn't know what's already happened this week or lineup changes you'll make; a normal approximation of each category."),
  "fx_power": dict(what="League power rankings: each team's best possible lineup by projected fantasy points per game.",
      formula="For each roster: the top N players by rest-of-season FP per game, N = the league's starting slots, summed.",
      source=f"{SLEEPER} rosters; {PROJ}", sample="Ignores position limits and injuries beyond today's designations."),
