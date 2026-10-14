@@ -44,6 +44,7 @@ import { writeFootballApi } from './savant-api-football.mjs'
 import { writeSiteApi } from './savant-api-site.mjs'
 import { writeUfcApi } from './savant-api-ufc.mjs'
 import { readSavantData } from './savant-merge.mjs'
+import { makeSettle, readSettleK } from './savant-settle.mjs'
 
 export const SITE = 'https://wcehoops.com'
 export const BASE = 'savant-api/basketball/v1'
@@ -232,6 +233,8 @@ export function buildSavantApi({ data, html }) {
   const rolling = cfg.windows.filter((w) => w !== 'season')
 
   const posOf = (p) => posFixId[p.id] || posFixName[norm(p.name)] || p.pos
+  // Likely to settle (season in progress only): the page's settleEst(), read off the same k table.
+  const settle = makeSettle(data, readSettleK(html), posOf)
 
   const seasons = {}
   const qualified = {}
@@ -264,6 +267,19 @@ export function buildSavantApi({ data, html }) {
         m: full.m,
       }
       if (full.low.length) row.low = full.low
+      if (season === settle.live) {
+        const est = {}
+        for (const mt of metrics) {
+          if (!tracked(mt, season) || !full.m[mt.key]) continue
+          const e = settle.estimate(p, mt.key, season)
+          if (!e) continue
+          const lp = percentile(e.v, settle.pool(mt.key, season, null), mt.lower)
+          if (lp == null) continue
+          const pp = percentile(e.v, settle.pool(mt.key, season, p.pos), mt.lower)
+          est[mt.key] = [+e.v.toPrecision(6), lp, pp]
+        }
+        if (Object.keys(est).length) row.settle = est
+      }
       if (isLatest) {
         const w = {}
         for (const k of rolling) {
@@ -350,6 +366,7 @@ export function buildSavantApi({ data, html }) {
       m: 'Full-season stats by key: [value, league percentile, position percentile]. A stat that is absent was not tracked that season or has no value for him. It is not zero.',
       low: 'Keys of stats whose sample is under the stabilization threshold (metrics[].lowSampleBelow). Quote them with that caveat.',
       w: 'Latest season only. The same m and low for each rolling window (l10, l25, l75), ranked against the same window for everyone else.',
+      settle: 'Season in progress only: for stats whose sample is still smaller than the stat needs, [where the number is likely to settle, league percentile, position percentile], each percentile among every qualified player\'s same estimate. The estimate blends his number with his position\'s average, moved toward his own last season. Quote the actual number as what he has done and this as where it is headed.',
     },
     extras: {
       note: 'Latest season only, and only for players over the minutes floor.',

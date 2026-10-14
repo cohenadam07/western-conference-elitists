@@ -90,10 +90,21 @@ const page = vm.runInNewContext(`(function (DATA, CFG) {
   ${grabFunction('pctRaw')}
   ${grabFunction('pctOf')}
   ${grabFunction('seasonTier')}
+  ${grabLine('const SETTLE_K=')}
+  ${grabLine('let SETTLE_CACHE=')}
+  ${grabFunction('settleLive')}
+  ${grabFunction('settlePrev')}
+  ${grabFunction('settlePos')}
+  ${grabFunction('settleRow')}
+  ${grabFunction('settleEst')}
+  ${grabFunction('settleVal')}
+  ${grabFunction('settlePoolVals')}
   prepData();
   return {
     data: DATA, cfg: CFG, val: val, smpl: smpl, miss: miss, pctOf: pctOf, seasonTier: seasonTier,
     pool: function (key, w, pos, season, mode) { pop = mode; return poolVals(key, w, { pos: pos }, season); },
+    settleEst: settleEst,
+    settlePct: function (v, key, pos, season, mode, lower) { pop = mode; return pctOf(v, settlePoolVals(key, { pos: pos }, season), lower); },
   };
 })`)(structuredClone(data), JSON.parse(grabCfg()))
 
@@ -260,4 +271,68 @@ test('the page lays the season in progress over the archive exactly as the build
   assert.deepEqual(fresh.current, { season: '2026-27', generated: '2026-10-22T09:00:00+00:00', through: '2026-10-21' })
   assert.equal(mergeSavantData(archive, cases['an older copy (folded into a later rebuild)']), archive, 'a newer archive wins')
   assert.equal(mergeSavantData(archive, cases['an empty season']), archive, 'an empty season is ignored')
+})
+
+test('likely to settle: the connector carries the estimate the page shows, for every player and stat', () => {
+  const live = page.data.current && page.data.current.season
+  if (!live) {
+    // No season in progress in public/ right now: build one from the newest season, the way
+    // the nightly file would carry it, so the rule is still exercised.
+    console.log('      (no season in progress in public/; checking against a synthetic one)')
+  }
+  const d = structuredClone(data)
+  let season = live
+  if (!season) {
+    season = d.seasons[0]
+    d.current = { season, generated: d.generated, through: null }
+    // early in a season: scale every sample down so most stats sit under their k
+    for (const p of d.data[season].players) for (const c of Object.values(p.m)) if (c.season && c.season.n) c.season.n = Math.max(1, Math.round(c.season.n / 12))
+  }
+  const built = buildSavantApi({ data: d, html })
+  const pg = vm.runInNewContext(`(function (DATA, CFG) {
+    let cur = null, pop = 'league', curSeason = null, mpgOn = false, band = { min: 20, max: 40 };
+    ${grabLine('const POS_FIX_ID')}
+    ${grabLine('const POS_FIX_NAME')}
+    ${grabFunction('_norm')}
+    ${grabFunction('prepData')}
+    ${grabLine('const val=')}
+    ${grabLine('const smpl=')}
+    ${grabFunction('miss')}
+    ${grabFunction('pctRaw')}
+    ${grabFunction('pctOf')}
+    ${grabLine('const SETTLE_K=')}
+    ${grabLine('let SETTLE_CACHE=')}
+    ${grabFunction('settleLive')}
+    ${grabFunction('settlePrev')}
+    ${grabFunction('settlePos')}
+    ${grabFunction('settleRow')}
+    ${grabFunction('settleEst')}
+    ${grabFunction('settleVal')}
+    ${grabFunction('settlePoolVals')}
+    prepData();
+    return { data: DATA, est: settleEst,
+      pct: function (v, key, pos, season, mode, lower) { pop = mode; return pctOf(v, settlePoolVals(key, { pos: pos }, season), lower); } };
+  })`)(structuredClone(d), JSON.parse(grabCfg()))
+  const file = built.seasons[season]
+  const rows = new Map(file.players.map((r) => [r.id, r]))
+  let shown = 0
+  for (const p of pg.data.data[season].players) {
+    const row = rows.get(p.id)
+    for (const m of page.cfg.metrics) {
+      if (!row.m[m.key]) { assert.equal((row.settle || {})[m.key], undefined); continue }
+      const e = pg.est(p, m.key, season)
+      const lp = e ? pg.pct(e.v, m.key, p.pos, season, 'league', m.lower) : null
+      const got = (row.settle || {})[m.key]
+      if (!e || lp == null) { assert.equal(got, undefined, `${p.name} ${m.key}: the connector has an estimate the page doesn't show`); continue }
+      assert.ok(got, `${p.name} ${m.key}: the page shows an estimate, the connector has none`)
+      assert.ok(Math.abs(got[0] - e.v) <= Math.abs(e.v) * 1e-5 + 1e-9, `${p.name} ${m.key}: estimate ${got[0]} vs ${e.v}`)
+      assert.equal(got[1], lp, `${p.name} ${m.key}: league percentile of the estimate`)
+      assert.equal(got[2], pg.pct(e.v, m.key, p.pos, season, 'position', m.lower), `${p.name} ${m.key}: position percentile of the estimate`)
+      shown++
+    }
+  }
+  console.log(`      ${shown.toLocaleString('en-US')} estimates match`)
+  assert.ok(shown > 1000, 'suspiciously few estimates')
+  // A finished season never carries estimates.
+  for (const s of built.meta.seasons) if (s !== season) assert.ok(built.seasons[s].players.every((r) => !r.settle), `${s} carries estimates`)
 })

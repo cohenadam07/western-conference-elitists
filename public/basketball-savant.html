@@ -25,6 +25,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .brand-word{font-family:var(--body);font-weight:700;font-size:18px;letter-spacing:.03em;text-transform:uppercase;line-height:1}
 .brand-word span{color:var(--navy)}
 .eyebrow-pill{display:inline-block;margin-top:6px;background:var(--navy);color:#fff;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
+.vchip{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--navy);border:1px solid rgba(34,57,90,.35);padding:2px 6px;border-radius:4px;cursor:help}
 .search input{font-family:var(--body);font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;width:230px;outline:none}
 .search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 26%,transparent)}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
@@ -95,6 +96,11 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
    the track clips, so it reads as a rule through the bar rather than a pin above it. */
 .chmark{position:absolute;top:0;bottom:0;width:2px;background:var(--gold);
   box-shadow:0 0 0 1px rgba(255,255,255,.55);cursor:help;z-index:1}
+/* Likely-to-settle diamond: where a small-sample number is headed (season in progress only). */
+.setmark{position:absolute;top:50%;width:9px;height:9px;margin-left:-4.5px;transform:translateY(-50%) rotate(45deg);
+  background:var(--cream,#ECEBE8);border:2px solid var(--navy,#22395A);cursor:help;z-index:2}
+.setswatch{display:inline-block;width:8px;height:8px;margin-right:6px;transform:rotate(45deg);
+  background:var(--cream,#ECEBE8);border:2px solid var(--navy,#22395A);vertical-align:middle}
 @media (prefers-reduced-motion:reduce){ .peakflag.flare{animation:none} }
 .playbtn{width:34px;height:34px;flex:none;border-radius:50%;background:var(--navy);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 .playbtn svg{width:13px;height:13px;fill:#fff}
@@ -763,7 +769,7 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
     <div class="brandwrap">
       <a class="wce" href="/" title="Back to WCE home" style="text-decoration:none">WCE</a>
       <div><div class="brand-word">Basketball <span>Savant</span></div>
-        <div style="display:flex;gap:8px;align-items:center;margin-top:6px"><span class="eyebrow-pill" id="srcpill" style="margin-top:0">live engine data</span><a class="backlink" href="/">&larr; wcehoops.com</a></div></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:6px"><span class="eyebrow-pill" id="srcpill" style="margin-top:0">live engine data</span><span class="vchip" id="verchip"></span><a class="backlink" href="/">&larr; wcehoops.com</a></div></div>
     </div>
     <div class="search" id="searchWrap" style="display:flex;gap:8px;align-items:center"><select id="teamSel" class="season-sel" aria-label="Browse by team"><option value="">Teams</option></select><input id="q" placeholder="Search a player…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Search a player"/><div class="results" id="results" hidden></div></div>
   </div>
@@ -817,6 +823,7 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
     <div class="legend">
       <div class="legbox"><div class="legbar"></div><div class="ends"><span>poor</span><span>elite</span></div></div>
       <div class="leg"><span class="hatchswatch"></span>stabilizing</div>
+      <div class="leg" id="legSettle" hidden title="While the season is being played: where a small-sample number is likely to end up, from his sample, last season and his position's average"><span class="setswatch"></span>likely to settle</div>
     </div>
   </div>
   <div class="ctxrow"><div class="col" style="padding:12px 18px"><div id="ctx"></div></div></div>
@@ -1645,6 +1652,72 @@ function pctOf(v,pool,lower){           // what the bars display: clamped to 1..
   const pct=pctRaw(v,pool,lower);
   return pct==null?null:Math.max(1,Math.min(99,Math.round(pct)));
 }
+/* ---- Likely to settle -------------------------------------------------------------------
+   While a season is being played, a rate on a small sample is mostly noise. The estimate of
+   where it will settle blends what he has done (weight n, his sample) with a prior (weight k,
+   the sample the stat needs):   (n·x + k·prior) / (n + k)
+   The prior is his position's qualified average this season, moved toward his own last
+   season by how much of last season there was. k was measured on 16 seasons of our own data
+   (~/Basketball-Savant/settle_points.py: each player's last 25 games against the rest of his
+   season): [k with no last season, k with one]. Units are the stat's own sample: attempts
+   for shooting, possessions for per-75 and the rate stats, contested shots for rim D.
+   Shown only on the season in progress, full-season view, and only while n < k (once his
+   own record outweighs the prior, the number stands as it is). The estimate is ranked
+   against everyone else's estimate, never against raw numbers.
+   Mirrored in scripts/lib/savant-settle.mjs for the connector; tools/savant-api/check.mjs
+   holds the two to the same answer. */
+const SETTLE_K={ts:[282,422],efg:[251,376],pps:[150,266],tp3:[94,133],tp2:[150,237],ft:[38,67],tp3r:[9,42],ftr:[60,150],p3pt:[22,79],pts:[188,631],ast75:[188,596],tov75:[398,1000],reb75:[224,668],stl:[750,1496],blk:[335,841],stk75:[447,1059],drv:[106,447],potast:[126,422],ast:[141,501],usg:[112,422],oreb:[266,708],dreb:[316,841],rim:[237,298]};
+let SETTLE_CACHE={};
+function settleLive(season){ return !!(DATA.current && DATA.current.season===season); }
+function settlePrev(season){ const y=parseInt(season,10)-1; return y+'-'+String((y+1)%100).padStart(2,'0'); }
+function settlePos(key,pos,season){                  // qualified mean / low / high at a position
+  const ck='p|'+key+'|'+pos+'|'+season;
+  if(ck in SETTLE_CACHE) return SETTLE_CACHE[ck];
+  let sum=0,n=0,lo=Infinity,hi=-Infinity;
+  for(const p of (DATA.data[season]||{players:[]}).players){
+    if(!p.qualified||p.pos!==pos) continue;
+    const v=val(p,key,'season'); if(miss(v)) continue;
+    sum+=v; n++; if(v<lo) lo=v; if(v>hi) hi=v;
+  }
+  return (SETTLE_CACHE[ck]= n>=5 ? {m:sum/n,lo:lo,hi:hi} : null);
+}
+function settleRow(id,season){
+  const ck='r|'+season;
+  let m=SETTLE_CACHE[ck];
+  if(!m){ m=new Map(); for(const p of (DATA.data[season]||{players:[]}).players) m.set(p.id,p); SETTLE_CACHE[ck]=m; }
+  return m.get(id);
+}
+function settleEst(p,key,season){
+  const K=SETTLE_K[key]; if(!K||!settleLive(season)) return null;
+  const x=val(p,key,'season'), n=smpl(p,key,'season');
+  if(miss(x)||n==null||!(n>0)) return null;
+  const st=settlePos(key,p.pos,season); if(!st) return null;
+  let prior=st.m, k=K[0], last=null;
+  const prev=settlePrev(season), q=settleRow(p.id,prev);
+  if(q && q.pos===p.pos){
+    const xl=val(q,key,'season'), nl=smpl(q,key,'season'), sp=settlePos(key,p.pos,prev);
+    if(!miss(xl) && nl>0 && sp){
+      k=K[1]; prior=st.m+(nl/(nl+k))*(Math.max(sp.lo,Math.min(sp.hi,xl))-sp.m); last={v:xl,n:nl};
+    }
+  }
+  prior=Math.max(st.lo,Math.min(st.hi,prior));
+  if(n>=k) return null;
+  return {v:(n*x+k*prior)/(n+k), n:n, k:k, prior:prior, last:last};
+}
+function settleVal(p,key,season){                    // the estimate where there is one, else the number
+  const e=settleEst(p,key,season); return e?e.v:val(p,key,'season');
+}
+function settlePoolVals(key,ref,season){             // poolVals(), but of everyone's estimates
+  const out=[];
+  for(const p of (DATA.data[season]||{players:[]}).players){
+    if(!p.qualified) continue;
+    if(pop==='position' && ref && p.pos!==ref.pos) continue;
+    if(mpgOn){ const mp=val(p,'mpg','season'); if(miss(mp)||mp<band.min||mp>band.max) continue; }
+    const v=settleVal(p,key,season); if(!miss(v)) out.push(v);
+  }
+  return out;
+}
+
 function mix(a,b,u){return [0,1,2].map(i=>Math.round(a[i]+(b[i]-a[i])*u));}
 function colorAt(p){const LO=[28,78,134],MID=[194,192,182],HI=[188,58,44];const t=Math.max(0,Math.min(100,p))/100;let c;if(t<.5)c=mix(LO,MID,t/.5);else c=mix(MID,HI,(t-.5)/.5);return 'rgb('+c[0]+','+c[1]+','+c[2]+')';}
 function inFt(n){if(miss(n))return '—';const t=Math.round(n),f=Math.floor(t/12);return f+"'"+(t-f*12)+'"';}
@@ -1806,8 +1879,21 @@ function barRow(m){
   }
   const n=smpl(cur,m.key,win);
   const stable=(n==null)||(m.thr?n>=m.thr:true);
+  /* Likely to settle: a diamond at where the number is headed, while the season is live. */
+  let setMark='', settling=false;
+  if(win==='season'){
+    const e=settleEst(cur,m.key,curSeason);
+    if(e){
+      const sp=pctOf(e.v,settlePoolVals(m.key,cur,curSeason),m.lower);
+      if(sp!=null){
+        settling=true;
+        const why='his '+Math.round(e.n)+' vs. the '+e.k+' this stat needs'+(e.last?', blended with last season':', blended with the position average');
+        setMark='<div class="setmark" style="left:'+sp+'%" title="Likely to settle near '+fmt(m.unit,e.v,sp)+' ('+sp+' pct) — '+why+'"></div>';
+      }
+    }
+  }
   const col=colorAt(shown);
-  const tagTxt=m.layer.toUpperCase()+(stable?'':' · low sample');
+  const tagTxt=m.layer.toUpperCase()+(stable?(settling?' · settling':''):' · low sample');
   const numLeft=shown>88?'calc('+shown+'% - 22px)':shown+'%';
   const numTf=shown>88?'transform:translateY(-50%)':'transform:translate(6px,-50%)';
   const title=stable?'':'Low sample (n='+n+') — below the stabilization threshold for this stat in this window.';
@@ -1815,7 +1901,7 @@ function barRow(m){
     +'<div class="rl" title="Click for what this stat means"><div class="name">'+m.label+'</div><div class="tag">'+tagTxt+'</div></div>'
     +'<div class="track"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div>'
       +'<div class="fill" data-w="'+shown+'" style="background:'+col+'"><div class="hatch"></div></div>'
-      +chMark
+      +chMark+setMark
       +'<div class="pnum" style="left:'+numLeft+';'+numTf+'">'+(pct==null?'·':pct)+'</div></div>'
     +'<div class="rv">'+fmt(m.unit,v,pct)+'</div>'
     +statBtn(m.key,m.label)+'</div>';
@@ -1913,6 +1999,7 @@ function render(){
   // Reformat around what exists: collapse a column/section whose bars were all hidden.
   const hideEmpty=(id,sel)=>{const el=document.getElementById(id);if(!el)return;const anc=el.closest(sel);if(anc)anc.style.display=el.innerHTML.trim()?'':'none';};
   hideEmpty('ctx','.ctxrow'); hideEmpty('off','.col'); hideEmpty('def','.col'); hideEmpty('val','.ctxrow');
+  const lgS=document.getElementById('legSettle'); if(lgS) lgS.hidden=!document.querySelector('.setmark');
   renderGuard();
   renderComps();
   renderWeak();
@@ -2955,7 +3042,13 @@ async function exportCard(){
   }catch(err){ console.error('export failed',err); }
   finally{ if(shell)shell.remove(); btn.disabled=false; lab.textContent=prev; }
 }
+/* Version: bumped on big releases only, never on the nightly data refresh (Adam's rule, Oct 2026).
+   2.0.0 (Oct 2026): live through the season (refreshed after every slate), likely-to-settle
+   marks, pro-rated qualifier with a one-game opening week. */
+var VERSION='2.0.0';
 function build(){
+  const vc=document.getElementById('verchip');
+  if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }
   document.getElementById('srcpill').textContent=(DATA.source==='fixture'?'demo data':'live data')+' · '+DATA.seasons.length+' season'+(DATA.seasons.length>1?'s':'')
     +(DATA.current&&DATA.current.through?' · '+DATA.current.season+' through '+new Date(DATA.current.through+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'');
   const sbtn=document.getElementById('seasonBtn'), spop=document.getElementById('seasonPop');

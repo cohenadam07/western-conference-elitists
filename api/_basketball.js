@@ -206,6 +206,8 @@ export async function playerProfile({ player, season, window = 'season', group =
   const groupKey = group === 'all' ? null : GROUPS[group]
   const peers = PEERS[row.pos] || 'his position'
   const low = new Set(src.low || [])
+  // Season in progress, full season only: where a small-sample number is likely to settle.
+  const settle = (window === 'season' && row.settle) || {}
   const stats = []
   const notTracked = []
   for (const m of meta.metrics) {
@@ -224,6 +226,7 @@ export async function playerProfile({ player, season, window = 'season', group =
       position_percentile: cell[2],
       lower_is_better: m.lowerIsBetter,
       low_sample: low.has(m.key),
+      ...(settle[m.key] ? { likely_to_settle: { value: settle[m.key][0], display: display(m.unit, settle[m.key][0], settle[m.key][1]), league_percentile: settle[m.key][1], position_percentile: settle[m.key][2] } } : {}),
     })
   }
 
@@ -291,12 +294,18 @@ export async function playerProfile({ player, season, window = 'season', group =
       if (h !== heading) { L.push('', h); heading = h }
       const pct = (p) => (p == null ? 'n/a' : ordinal(p))
       const tags = [s.lower_is_better ? 'lower is better' : null, s.low_sample ? 'low sample' : null].filter(Boolean)
-      L.push(`- ${s.label}: ${s.display} (league ${pct(s.league_percentile)}, vs. ${peers} ${pct(s.position_percentile)})${tags.length ? ` [${tags.join(', ')}]` : ''}`)
+      const st = s.likely_to_settle
+      const toward = st ? `; likely to settle near ${st.display} (league ${pct(st.league_percentile)}, vs. ${peers} ${pct(st.position_percentile)})` : ''
+      L.push(`- ${s.label}: ${s.display} (league ${pct(s.league_percentile)}, vs. ${peers} ${pct(s.position_percentile)})${toward}${tags.length ? ` [${tags.join(', ')}]` : ''}`)
     }
   }
   if (!stats.length) L.push('', 'No stats in this group for that season.')
   if (stats.some((s) => s.low_sample)) {
     notes.push('"low sample" means the stat sits below its stabilization threshold: too few attempts to trust yet.')
+    L.push('', notes[notes.length - 1])
+  }
+  if (stats.some((s) => s.likely_to_settle)) {
+    notes.push('"likely to settle near" is where a number on a small sample is headed: his number so far blended with his position\'s average, moved toward his own last season, weighted by how much sample the stat needs (measured on 16 seasons). Quote his actual number as what he has done, and this as the better guess at what it will be.')
     L.push('', notes[notes.length - 1])
   }
   if (notTracked.length) L.push('', `Not tracked in ${seasonId}: ${notTracked.map((m) => `${m.label} (since ${m.since})`).join(', ')}.`)
@@ -432,6 +441,12 @@ export const tools = [
           position_percentile: pct.describe('Against qualified players at his position. Higher is better.'),
           lower_is_better: z.boolean().describe('True when a lower raw value is better. The percentiles are already flipped.'),
           low_sample: z.boolean().describe('True when the stat is below its stabilization threshold.'),
+          likely_to_settle: z.object({
+            value: z.number(),
+            display: z.string(),
+            league_percentile: pct,
+            position_percentile: pct,
+          }).optional().describe('Season in progress only, while his sample is smaller than the stat needs: where the number is likely to settle, and its percentiles among everyone\'s same estimate.'),
         })),
         not_tracked: z.array(z.object({ key: z.string(), label: z.string(), since: z.string() })).describe('Stats that season did not track.'),
         notes: z.array(z.string()).describe('How to read the numbers: what the pools are, and any caution that applies to this player.'),
