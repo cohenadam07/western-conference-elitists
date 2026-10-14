@@ -106,6 +106,11 @@ function renderTeams(){
       +cols.map(function(c){ return '<td'+(c[0]===sk?' class="big"':'')+'>'+fmt(c[0],t)+'</td>'; }).join('')+'</tr>'; }).join('')+'</table></div></div>';
   h+='<div id="tmDetail"></div>';
   v.innerHTML=h;
+  var M=window.svMobile;
+  if(M){ var pri=[];
+    cols.forEach(function(c){ if(c[0]===sk) pri.push(c[2]); }); ['tm_wl','tm_adjnet','tm_net','tm_xw'].forEach(function(k){ if(pri.indexOf(k)<0) pri.push(k); });
+    if(hasSched&&pri.indexOf('tm_sos')<0) pri.push('tm_sos');
+    M.order(v.querySelector('.sv-tw > table.sv-t'),pri); }
   $('tmSeason').onchange=function(e){ T.season=e.target.value; T.team=null; renderTeams(); };
   $('tmSort').onchange=function(e){ T.sort=e.target.value; renderTeams(); };
   v.querySelectorAll('[data-team]').forEach(function(el){ el.onclick=function(){ T.team=el.dataset.team; renderTeamDetail(teams); var dd=$('tmDetail'); if(dd) dd.scrollIntoView({behavior:'smooth',block:'start'}); }; });
@@ -126,9 +131,9 @@ function renderTeamDetail(teams){
     +'<tr><td class="l">Defense (allowed)</td><td>'+pc(getv(t,'oefg'))+' '+rk('oefg')+'</td><td>'+pc(getv(t,'otov'))+' '+rk('otov')+'</td><td>'+pc(1-(getv(t,'drb')||0))+' '+rk('drb')+'</td><td>'+pc(getv(t,'oftr'))+' '+rk('oftr')+'</td></tr></table>';
   // shot diet
   if(t.diet){
-    h+='<h3 style="margin-top:14px">'+xk('Shot diet','tm_diet')+'</h3><table class="sv-t"><tr><th class="l">Zone</th><th>Their shots</th><th>FG%</th><th style="width:22%"></th><th>Allowed</th><th>Opp FG%</th><th style="width:22%"></th></tr>'
+    h+='<h3 style="margin-top:14px">'+xk('Shot diet','tm_diet')+'</h3><table class="sv-t"><tr><th class="l">Zone</th><th>Their shots</th><th>FG%</th><th class="sv-hide-m" style="width:22%"></th><th>Allowed</th><th>Opp FG%</th><th class="sv-hide-m" style="width:22%"></th></tr>'
       +ZN.map(function(z){ var a=t.diet[z[0]]||[], o=(t.odiet||{})[z[0]]||[];
-        return '<tr><td class="l">'+z[1]+'</td><td>'+f1(a[0])+'%</td><td>'+pc(a[1])+'</td><td>'+bar(a[0]||0,45,'var(--navy)')+'</td><td>'+f1(o[0])+'%</td><td>'+pc(o[1])+'</td><td>'+bar(o[0]||0,45,'var(--red)')+'</td></tr>'; }).join('')+'</table>';
+        return '<tr><td class="l">'+z[1]+'</td><td>'+f1(a[0])+'%</td><td>'+pc(a[1])+'</td><td class="sv-hide-m">'+bar(a[0]||0,45,'var(--navy)')+'</td><td>'+f1(o[0])+'%</td><td>'+pc(o[1])+'</td><td class="sv-hide-m">'+bar(o[0]||0,45,'var(--red)')+'</td></tr>'; }).join('')+'</table>';
   }
   // play types
   if(t.pt&&(Object.keys(t.pt.o||{}).length)){
@@ -152,6 +157,7 @@ function renderTeamDetail(teams){
   }
   h+='<p style="margin-top:12px"><button type="button" class="sv-btn ghost" id="tmLu">Best '+esc(t.abbr)+' lineups →</button></p></div>';
   el.innerHTML=h;
+  if(window.svMobile) window.svMobile.wrap(el);
   el.querySelectorAll('[data-pid]').forEach(function(x){ x.onclick=function(){ if(window.svClear) window.svClear(); if(typeof pickHome==='function') pickHome(+x.dataset.pid); }; });
   var b=$('tmLu'); if(b) b.onclick=function(){ T.luTeam=t.abbr; T.luSeason=T.season; if(window.svGo) window.svGo('lu'); };
 }
@@ -183,11 +189,12 @@ function renderLineups(){
   h+='<div class="sv-tw"><table class="sv-t"><tr><th>#</th>'+th('Unit','lu_unit','l')+'<th class="l">Team</th>'+th('GP','lu_gp')+th('MIN','lu_min')+th('Poss','lu_poss')+th('ORtg','lu_ortg')+th('DRtg','lu_drtg')
     +th('Net','lu_net')+th('Luck-adj','lu_adj')+th('Sample-adj','lu_est')+th('eFG%','lu_efg')+th('TOV%','lu_tov')+th('ORB%','lu_orb')+th('Pace','lu_pace')+'</tr>'
     +list.slice(0,200).map(function(u,i){
-      return '<tr><td>'+(i+1)+'</td><td class="l">'+u.names.map(function(nm,j){ return '<span class="pl" data-pid="'+u.ids[j]+'">'+esc(nm)+'</span>'; }).join(' · ')+'</td><td class="l">'+esc(u.t)+'</td>'
+      return '<tr><td>'+(i+1)+'</td><td class="l">'+u.names.map(function(nm,j){ return '<span class="lu-n"><span class="pl" data-pid="'+u.ids[j]+'">'+esc(nm)+'</span>'+(j<u.names.length-1?' ·':'')+'</span>'; }).join(' ')+'</td><td class="l">'+esc(u.t)+'</td>'
         +'<td>'+u.gp+'</td><td>'+f0(u.min)+'</td><td>'+f0(u.poss)+'</td><td>'+f1(u.ortg)+'</td><td>'+f1(u.drtg)+'</td><td>'+sg(u.net)+'</td><td>'+sg(u.adj)+'</td><td class="big">'+sg(u.est)+'</td>'
         +'<td>'+pc(u.efg)+'</td><td>'+pc(u.tov)+'</td><td>'+pc(u.orb)+'</td><td>'+f1(u.pace)+'</td></tr>'; }).join('')+'</table></div>'
     +(list.length>200?'<p class="sv-note">Showing 200 of '+list.length+'. Filter by team or player to see the rest.</p>':'')+'</div>';
   v.innerHTML=h;
+  if(window.svMobile) window.svMobile.order(v.querySelector('.sv-tw > table.sv-t'),[{est:'lu_est',adj:'lu_adj',net:'lu_net',min:'lu_min',ortg:'lu_ortg',drtg:'lu_drtg'}[sk]||'lu_est','lu_est','lu_min','lu_net']);
   $('luSeason').onchange=function(e){ T.luSeason=e.target.value; renderLineups(); };
   $('luN').onclick=function(e){ var b=e.target.closest('button'); if(!b) return; T.luN=b.dataset.v; T.luMin=null; renderLineups(); };
   $('luTeam').onchange=function(e){ T.luTeam=e.target.value; renderLineups(); };

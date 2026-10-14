@@ -294,6 +294,39 @@ function sleeperLoadLeague(user,state,leagueId){
   });
 }
 
+/* ------------------------------------------------------------------ phones
+   Under 640px: the # and player columns stay pinned while the stats scroll, the value columns
+   move up next to the player, settings fold into one summary line, and the tab rows scroll
+   sideways instead of wrapping. */
+var MQ=(window.matchMedia?window.matchMedia('(max-width:640px)'):null);
+function narrow(){ return !!(MQ&&MQ.matches); }
+function mobileOrder(table,keys,from){
+  if(!table||!narrow()) return;
+  var rows=table.rows; if(!rows.length) return;
+  from=from==null?2:from;
+  var head=rows[0].cells, idx=[];
+  keys.forEach(function(k){ for(var i=from;i<head.length;i++) if(head[i].getAttribute('data-k')===k&&idx.indexOf(i)<0) idx.push(i); });
+  if(!idx.length) return;
+  for(var r=0;r<rows.length;r++){
+    var cells=Array.prototype.slice.call(rows[r].cells);
+    if(cells.length!==head.length) continue;
+    var anchor=cells[from-1];
+    idx.forEach(function(i){ var c=cells[i]; anchor.parentNode.insertBefore(c,anchor.nextSibling); anchor=c; });
+  }
+}
+function wrapTables(root){                    // tables outside a scroller get one, so a card never overflows
+  if(!root) return;
+  root.querySelectorAll('table.sv-t').forEach(function(t){
+    if(t.closest('.sv-tw,.sv-tw2')) return;
+    var w=D.createElement('div'); w.className='sv-tw2'; t.parentNode.insertBefore(w,t); w.appendChild(t);
+  });
+}
+if(MQ){ var _mqf=function(){
+  if(D.body.classList.contains('tab-fx')) renderFx();
+  else if(window.svTeams&&D.body.classList.contains('tab-tm')) window.svTeams.open('tm');
+  else if(window.svTeams&&D.body.classList.contains('tab-lu')) window.svTeams.open('lu'); };
+  if(MQ.addEventListener) MQ.addEventListener('change',_mqf); else if(MQ.addListener) MQ.addListener(_mqf); }
+
 /* ------------------------------------------------------------------ shell: tab bar + views */
 var CSS=[
 '.sv-tabs{display:flex;gap:4px;flex-wrap:wrap;max-width:1180px;margin:0 auto;padding:12px 18px 0}',
@@ -321,6 +354,8 @@ var CSS=[
 '.sv-f>label,.sv-lab{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}',
 '.sv-f select,.sv-f input,.sv-in{font-family:var(--mono);font-size:12.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px}',
 '.sv-f input[type=number]{width:70px}',
+'.sv-f input.wide{width:160px}',
+'.sv-f input.mid{width:104px}',
 '.sv-btn{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:8px 13px;border-radius:8px;border:none;background:var(--navy);color:var(--gold);cursor:pointer}',
 '.sv-btn.ghost{background:var(--surface);color:var(--navy);border:1px solid var(--line)}',
 '.sv-note{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.55;margin:0 0 10px}',
@@ -347,6 +382,8 @@ var CSS=[
 '@media(max-width:760px){.sv-grid2{grid-template-columns:1fr}}',
 '.sv-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}',
 '.sv-card h3{margin:0 0 8px;font-size:15px;font-weight:800}',
+'.sv-card h3 .tm{margin-left:6px;font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--faint)}',
+'.sv-card h3 .sv-st{margin-left:6px}',
 '.sv-pick{position:relative}',
 '.sv-res{position:absolute;z-index:30;left:0;right:0;top:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.08);max-height:260px;overflow:auto}',
 '.sv-res div{padding:7px 10px;cursor:pointer;font-size:13px}',
@@ -370,7 +407,52 @@ var CSS=[
 '.projp th{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);text-align:right;padding:4px 6px;font-weight:500}',
 '.projp td{text-align:right;padding:4px 6px;border-top:1px solid var(--line)}',
 '.projp th:first-child,.projp td:first-child{text-align:left}',
-'@media(max-width:640px){.sv-title{font-size:24px}.svv{padding:14px 12px 80px}.sv-tabs{padding:10px 12px 0}}'
+'.sv-tw2{overflow-x:auto;-webkit-overflow-scrolling:touch}',
+'.sv-set>summary{display:none}',
+'.sv-filt{margin-top:-4px}',
+'@media(max-width:640px){',
+'  .sv-title{font-size:24px}.svv{padding:12px 12px 80px}',
+'  .sv-tabs{padding:10px 12px 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}',
+'  .sv-views{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin:0 -12px 12px;padding:0 12px}',
+'  .sv-tabs::-webkit-scrollbar,.sv-views::-webkit-scrollbar{display:none}',
+'  .sv-tab,.sv-vbtn{flex:none}',
+'  .sv-vbtn{padding:8px 12px}',
+'  .sv-head{margin-bottom:10px;padding-bottom:10px}',
+'  .sv-head>.sv-sub:last-child{display:none}',
+'  .sv-set{margin-bottom:10px}',
+'  .sv-set>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;list-style:none;cursor:pointer;background:#F4F3F0;border:1px solid var(--line);border-radius:12px;padding:10px 12px}',
+'  .sv-set>summary::-webkit-details-marker{display:none}',
+'  .sv-set[open]>summary{border-radius:12px 12px 0 0;border-bottom:none}',
+'  .sv-set[open]>.sv-ctl{border-radius:0 0 12px 12px;margin-bottom:0}',
+'  .sv-sum{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.4;min-width:0}',
+'  .sv-sumbtn{flex:none;font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--navy);border:1px solid var(--navy);border-radius:12px;padding:4px 9px}',
+'  .sv-set[open] .sv-sumbtn{background:var(--navy);color:var(--gold)}',
+'  .sv-filt{margin-top:0}',
+'  .sv-ctl{gap:10px 12px;padding:10px 12px}',
+'  .sv-f select,.sv-f input,.sv-in{font-size:16px;padding:8px 10px}',
+'  .sv-f input[type=number]{width:64px}',
+'  .sv-seg button{padding:8px 11px}',
+'  .sv-note{font-size:10.5px}',
+'  .sv-t{font-size:12px}',
+'  .sv-t th,.sv-t td{padding:8px 6px}',
+'  .sv-tw .sv-t:not(.one) tr>:first-child{position:sticky;left:0;z-index:2;background:var(--surface);width:30px;min-width:30px;max-width:30px;box-sizing:border-box;text-align:right}',
+'  .sv-tw .sv-t:not(.one) tr>:nth-child(2){position:sticky;left:30px;z-index:2;background:var(--surface);box-shadow:6px 0 6px -6px rgba(20,26,32,.22);min-width:118px;max-width:142px;white-space:normal}',
+'  .sv-tw .sv-t tr:first-child>*{background:#FAFAF8}',
+'  .sv-tw2 .sv-t tr>:first-child,.sv-tw .sv-t.one tr>:first-child{position:sticky;left:0;z-index:2;background:var(--surface);box-shadow:6px 0 6px -6px rgba(20,26,32,.22);white-space:normal;min-width:96px}',
+'  .sv-t td .pl[data-id]{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:136px}',
+'  .sv-t td .lu-n{white-space:nowrap}',
+'  .sv-f input.wide{width:150px}',
+'  .sv-f input.mid{width:92px}',
+'  .sv-t td .tm{display:inline-block;margin:1px 4px 0 0}',
+'  .sv-t td .sv-st{margin-left:0}',
+'  .sv-t .sv-games{white-space:normal;min-width:150px}',
+'  .sv-grid2{gap:10px}',
+'  .sv-card{padding:12px}',
+'  .sv-kpi{flex:1 1 calc(50% - 10px);min-width:0}',
+'  .sv-kpi .v{font-size:17px}',
+'  .sv-hide-m{display:none}',
+'  .projp .sv-tw2 table{min-width:560px}',
+'}'
 ].join('\n');
 
 function shell(){
@@ -467,6 +549,12 @@ function renderFx(){
     renderFx(); };
   var sec=$('fxSec');
   ({rank:viewRank,dyn:viewDyn,trade:viewTrade,stream:viewStream,lock:viewLock,inj:viewInj,league:viewLeague}[FX.view]||viewRank)(sec);
+  var PRI={rank:['fx_fpg','fx_fp','fx_z','fx_vor'], dyn:['fx_dyn_model','fx_dyn_gap','fx_dyn_crowd'], stream:['fx_fp','fx_z','fx_fpg','fx_games'],
+    league:['fx_fp','fx_games','fx_fpg']}[FX.view];
+  if(PRI) sec.querySelectorAll('.sv-tw > table.sv-t').forEach(function(t){ mobileOrder(t,PRI,t.classList.contains('one')?1:2); });
+  if(FX.view==='inj') sec.querySelectorAll('table.sv-t').forEach(function(t){ mobileOrder(t,['fx_inj'],1); });
+  wrapTables(sec);
+  var on=$('fxViews').querySelector('.on'); if(on&&narrow()) $('fxViews').scrollLeft=Math.max(0,on.offsetLeft-40);
 }
 /* Shared settings bar: format, scoring, league size. */
 function settingsHtml(opts){
@@ -482,16 +570,28 @@ function settingsHtml(opts){
   if(!opts.noScope) h+='<div class="sv-f"><label>'+xk('Window','fx_window')+'</label><select data-set="scope">'+SCOPES.filter(function(s){ return !opts.scopes||opts.scopes.indexOf(s[0])>=0; }).map(function(s){ return '<option value="'+s[0]+'"'+(FX.scope===s[0]?' selected':'')+'>'+s[1]+'</option>'; }).join('')+'</select></div>';
   if(!opts.noBasis) h+='<div class="sv-f"><label>'+xk('Count','fx_basis')+'</label><span class="sv-seg" data-set="basis"><button type="button" data-v="total"'+(FX.basis==='total'?' class="on"':'')+'>Totals</button><button type="button" data-v="pg"'+(FX.basis==='pg'?' class="on"':'')+'>Per game</button></span></div>';
   h+='<div class="sv-f"><label>'+xk('League','fx_repl')+'</label><span style="display:flex;gap:6px;align-items:center"><input type="number" min="4" max="30" data-set="teams" value="'+FX.teams+'"><span class="sv-lab">teams ×</span><input type="number" min="5" max="30" data-set="roster" value="'+FX.roster+'"><span class="sv-lab">players</span></span></div>';
-  h+=opts.extra||'';
+  if(opts.extra&&!narrow()) h+=opts.extra;          // desktop: filters share the settings box
   h+='</div>';
   if(FX.preset==='custom'&&(FX.fmt==='points'||opts.noFmt)){
     var w=FX.custom||PRESETS.sleeper.w;
     h+='<div class="sv-ctl" id="fxCustom">'+WKEYS.map(function(k){ return '<div class="sv-f"><label>'+k[1]+'</label><input type="number" step="0.1" data-w="'+k[0]+'" value="'+(w[k[0]]||0)+'"></div>'; }).join('')+'</div>';
   }
+  // one summary line on a phone; always open on a desktop
+  var sc=FX.preset==='league'&&FX.league?FX.league.name:FX.preset==='custom'?'Custom scoring':((PRESETS[FX.preset]||PRESETS.sleeper).label);
+  var bits=[];
+  if(!opts.noFmt) bits.push(FX.fmt==='cats'?'9-cat'+((FX.punt||[]).length?' (punt '+FX.punt.length+')':''):'Points');
+  if(FX.fmt==='points'||opts.noFmt) bits.push(esc(sc));
+  if(!opts.noScope) bits.push((SCOPES.filter(function(x){ return x[0]===FX.scope; })[0]||['','Rest of season'])[1]);
+  if(!opts.noBasis&&FX.basis==='pg') bits.push('per game');
+  bits.push(FX.teams+'×'+FX.roster);
+  h='<details class="sv-set"'+(!narrow()||FX.setOpen?' open':'')+'><summary><span class="sv-sum">'+bits.join(' · ')+'</span><span class="sv-sumbtn">Settings</span></summary>'+h+'</details>';
+  if(opts.extra&&narrow()) h+='<div class="sv-ctl sv-filt">'+opts.extra+'</div>';  // phone: filters stay out of the fold
   if(FX.preset==='league'&&FX.league&&FX.league.unknown.length) h+='<p class="sv-note">Your league also scores '+FX.league.unknown.map(esc).join(', ')+', which the projections don’t cover; those are left out.</p>';
   return h;
 }
 function wireSettings(root,rerender){
+  root.querySelectorAll('details.sv-set').forEach(function(d){
+    d.addEventListener('toggle',function(){ if(narrow()) FX.setOpen=d.open; else if(!d.open) d.open=true; }); });
   root.querySelectorAll('[data-set]').forEach(function(el){
     var k=el.dataset.set;
     if(el.classList.contains('sv-seg')){ el.onclick=function(e){ var b=e.target.closest('button'); if(!b) return; FX[k]=b.dataset.v; save(); rerender(); }; return; }
@@ -589,7 +689,7 @@ function viewDyn(sec){
     +[['all','Everyone'],['model','Model likes more'],['crowd','Crowd likes more']].map(function(m){ return '<button type="button" data-v="'+m[0]+'"'+(mode===m[0]?' class="on"':'')+'>'+m[1]+'</button>'; }).join('')+'</span></div>';
   var h=settingsHtml({noScope:true,noBasis:true,extra:extra})+'<div class="sv-expl"></div>';
   h+='<p class="sv-note">The model values the next three seasons of projected production (age curves included). The crowd is the WCE Dynasty board, priced by thousands of head-to-head picks. Where they disagree by a lot, one of them knows something: that is where trades are.</p>';
-  h+='<div class="sv-tw"><table class="sv-t"><tr><th class="xk" data-k="fx_dyn_model">Model</th><th class="l">Player</th><th class="xk" data-k="pj_age">Age</th>'
+  h+='<div class="sv-tw"><table class="sv-t"><tr><th class="xk" data-k="fx_dyn_model">#</th><th class="l">Player</th><th class="xk" data-k="pj_age">Age</th>'
     +'<th class="xk" data-k="pj_y3">'+esc((P.data.list[0]&&P.data.list[0].y3&&P.data.list[0].y3[0].season)||'Yr 1')+'</th><th class="xk" data-k="pj_y3">+1</th><th class="xk" data-k="pj_y3">+2</th>'
     +'<th class="xk" data-k="fx_dyn_model">Model value</th><th class="xk" data-k="fx_dyn_crowd">Crowd</th><th class="xk" data-k="fx_dyn_crowd">Crowd value</th><th class="xk" data-k="fx_dyn_gap">Gap</th>'+(FX.league?'<th class="l xk" data-k="fx_owner">Owner</th>':'')+'</tr>';
   var w=weights();
@@ -729,9 +829,9 @@ function viewLock(sec){
     var me=sum(FX.league.mine), op=sum(FX.league.opp); auto={me:me.m, op:op.m, sd:Math.sqrt(me.v+op.v)};
   }
   h+='<div class="sv-ctl"><div class="sv-f" style="min-width:240px;flex:1"><label>Add a player</label>'+picker('fxLk','Search…',function(id){ if(FX.lock.ids.indexOf(id)<0) FX.lock.ids.push(id); save(); renderFx(); })+'</div>'
-    +'<div class="sv-f"><label>'+xk('Your other slots','fx_lock_matchup')+'</label><input type="number" id="fxLkM" placeholder="'+(auto?f0(auto.me):'projected FP')+'" value="'+(M!=null?M:'')+'"></div>'
-    +'<div class="sv-f"><label>'+xk('Opponent total','fx_lock_matchup')+'</label><input type="number" id="fxLkO" placeholder="'+(auto?f0(auto.op):'projected FP')+'" value="'+(O!=null?O:'')+'"></div>'
-    +'<div class="sv-f"><label>'+xk('Uncertainty (SD)','fx_lock_matchup')+'</label><input type="number" id="fxLkS" placeholder="'+(auto?f0(auto.sd):'e.g. 60')+'" value="'+(S!=null?S:'')+'"></div></div>';
+    +'<div class="sv-f"><label>'+xk('Your other slots','fx_lock_matchup')+'</label><input type="number" class="mid" id="fxLkM" placeholder="'+(auto?f0(auto.me):'projected FP')+'" value="'+(M!=null?M:'')+'"></div>'
+    +'<div class="sv-f"><label>'+xk('Opponent total','fx_lock_matchup')+'</label><input type="number" class="mid" id="fxLkO" placeholder="'+(auto?f0(auto.op):'projected FP')+'" value="'+(O!=null?O:'')+'"></div>'
+    +'<div class="sv-f"><label>'+xk('Uncertainty (SD)','fx_lock_matchup')+'</label><input type="number" class="mid" id="fxLkS" placeholder="'+(auto?f0(auto.sd):'e.g. 60')+'" value="'+(S!=null?S:'')+'"></div></div>';
   if(auto) h+='<p class="sv-note">Matchup read from '+esc(FX.league.name)+': you vs '+esc(FX.league.opp.name)+' (projected '+f0(auto.me)+' vs '+f0(auto.op)+' across all starters). Type over the boxes with your live totals as the week goes.</p>';
   var cards=ids.map(function(id){
     var p=P.data.players[id]; if(!p) return '';
@@ -760,7 +860,7 @@ function viewLock(sec){
       +'<div class="sv-kpis"><div class="sv-kpi"><div class="k">'+xk('Expected, smart locking','fx_lock')+'</div><div class="v">'+f1(pl.ev)+'</div></div>'
       +'<div class="sv-kpi"><div class="k">'+xk('Expected, never locking','fx_lock')+'</div><div class="v">'+f1(pl.evLast)+'</div></div>'
       +(pl.win!=null?'<div class="sv-kpi"><div class="k">'+xk('Win chance','fx_lock_matchup')+'</div><div class="v">'+Math.round(pl.win*100)+'%</div></div>':'')+'</div>'
-      +'<div class="sv-f" style="max-width:260px"><label>He just scored (unlocked) →</label><input type="number" step="0.5" data-ls="'+id+'" value="'+(sc!=null?sc:'')+'" placeholder="fantasy points"></div>'+now+'</div>';
+      +'<div class="sv-f" style="max-width:260px"><label>He just scored (unlocked) →</label><input type="number" class="wide" step="0.5" data-ls="'+id+'" value="'+(sc!=null?sc:'')+'" placeholder="fantasy points"></div>'+now+'</div>';
   }).join('');
   h+=ids.length?'<div class="sv-grid2">'+cards+'</div>':'<p class="sv-note">Add the players in your starting lineup, or connect your Sleeper league to load them.</p>';
   sec.innerHTML=h; wireSettings(sec,renderFx); wirePlayers(sec);
@@ -864,13 +964,13 @@ function viewLeague(sec){
     if(L.mine){
       var mine=L.mine.ids.map(function(id){ return {p:P.data.players[id], r:ros[id], w:wk[id], st:L.mine.starters.indexOf(id)>=0}; }).filter(function(x){ return x.p; })
         .sort(function(a,b){ return (b.r?b.r.v:0)-(a.r?a.r.v:0); });
-      h+='<div class="sv-sec"><h3 style="margin:14px 0 6px">Your roster'+(L.opp?' · this week vs '+esc(L.opp.name):'')+'</h3><div class="sv-expl"></div><div class="sv-tw"><table class="sv-t"><tr><th class="l">Player</th><th class="xk" data-k="fx_rank">ROS rank</th><th class="xk" data-k="fx_fpg">FP/G</th><th class="xk" data-k="fx_games">G this week</th><th class="xk" data-k="fx_fp">FP this week</th><th class="l">Lineup</th></tr>'
+      h+='<div class="sv-sec"><h3 style="margin:14px 0 6px">Your roster'+(L.opp?' · this week vs '+esc(L.opp.name):'')+'</h3><div class="sv-expl"></div><div class="sv-tw"><table class="sv-t one"><tr><th class="l">Player</th><th class="xk" data-k="fx_rank">ROS rank</th><th class="xk" data-k="fx_fpg">FP/G</th><th class="xk" data-k="fx_games">G this week</th><th class="xk" data-k="fx_fp">FP this week</th><th class="l">Lineup</th></tr>'
         +mine.map(function(x){ return '<tr><td class="l">'+nameCell(x.p)+'</td><td>'+(x.r?x.r.rank:'—')+'</td><td>'+(x.r?f1(x.r.L.fp/Math.max(x.r.L.G,1e-9)):'—')+'</td><td>'+(x.w?f1(x.w.L.G):'0')+'</td><td class="big">'+(x.w?f1(x.w.L.fp):'0')+'</td><td class="l sv-games">'+(x.st?'starter':'bench')+'</td></tr>'; }).join('')+'</table></div></div>';
       if(L.opp){
         var cm=catMatchup(L.mine.starters,L.opp.starters);
         h+='<div class="sv-sec"><h3 style="margin:14px 0 6px">'+xk('9-cat matchup, rest of this week','fx_catsim')+' · you vs '+esc(L.opp.name)+'</h3><div class="sv-expl"></div>'
           +'<p class="sv-note">Starters only, from today to Sunday: you '+f1(cm.gMe)+' expected games, them '+f1(cm.gOpp)+'. Expected categories won: <b>'+cm.exp.toFixed(1)+' of 9</b>.</p>'
-          +'<div class="sv-tw"><table class="sv-t"><tr><th class="l">Category</th><th>You</th><th>Them</th><th class="xk" data-k="fx_catsim">Win chance</th></tr>'
+          +'<div class="sv-tw"><table class="sv-t one"><tr><th class="l">Category</th><th>You</th><th>Them</th><th class="xk" data-k="fx_catsim">Win chance</th></tr>'
           +cm.cats.map(function(c){ var pct=c.k==='fgi'||c.k==='fti'; return '<tr><td class="l">'+c.lab+'</td><td>'+(pct?pc(c.me):f0(c.me))+'</td><td>'+(pct?pc(c.op):f0(c.op))+'</td><td class="big '+(c.p>=0.6?'sv-good':c.p<=0.4?'sv-bad':'')+'">'+Math.round(c.p*100)+'%</td></tr>'; }).join('')
           +'</table></div></div>';
       }
@@ -909,11 +1009,11 @@ function cardHook(row){
     var h='<h2 class="col-h panel-h" data-k="pj_method" title="Click for what this is and how it’s calculated">'+esc(P.data.season)+' projection</h2>'
       +'<div class="guard-cap">Per game. Our model, not this season’s stats'+(p.gp?' (blended with his '+p.gp+' games so far)':'')+'. Fantasy points use '+esc(FX.preset==='league'&&FX.league?FX.league.name:(PRESETS[FX.preset]||{label:'custom'}).label)+' scoring.'
       +(rk?' Rest-of-season points rank: <b>#'+rk.rank+'</b>.':'')+(p.status?' <span class="sv-st">'+esc(p.status)+'</span>':'')+'</div>'
-      +'<div class="sv-expl"></div><table><tr><th></th><th class="xk" data-k="fx_games">G</th><th>MIN</th><th>PTS</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>3PM</th><th>TO</th><th>FG%</th><th>FT%</th><th class="xk" data-k="fx_fpg">FP</th></tr>'
+      +'<div class="sv-expl"></div><div class="sv-tw2"><table><tr><th></th><th class="xk" data-k="fx_games">G</th><th>MIN</th><th>PTS</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>3PM</th><th>TO</th><th>FG%</th><th>FT%</th><th class="xk" data-k="fx_fpg">FP</th></tr>'
       +tr('Rest of season',p.ros,expGames(p,teamGames(p,'ros')),'pj_ros')
       +tr('Next 7 days',p.ros,expGames(p,n7),'pj_next7')
       +(p.y3||[]).map(function(s,i){ return tr(s.season+(i===0?' (full)':''),s.pg,i===0?82*Math.min(1,p.gp_rate||0.8):82*Math.min(1,p.gp_rate||0.8),'pj_y3'); }).join('')
-      +'</table><div class="guard-cap" style="margin-top:6px">'+(n7.length?'Next 7: '+n7.map(function(g){ return DOW[dow(g[0])]+(g[2]?' v ':' @ ')+esc(g[1]); }).join(', ')+'. ':'')
+      +'</table></div><div class="guard-cap" style="margin-top:6px">'+(n7.length?'Next 7: '+n7.map(function(g){ return DOW[dow(g[0])]+(g[2]?' v ':' @ ')+esc(g[1]); }).join(', ')+'. ':'')
       +'<a href="#fantasy" class="xgo" data-go-fx="1">Open Fantasy →</a></div>';
     el.innerHTML=h; el.hidden=false;
     var a=el.querySelector('[data-go-fx]'); if(a) a.onclick=function(e){ e.preventDefault(); go2fx(); };
@@ -924,6 +1024,7 @@ function go2fx(){ go('fx'); }
 
 /* ------------------------------------------------------------------ boot */
 window.svRoute=route; window.svClear=svClear; window.svCardHook=cardHook; window.svGo=go;
+window.svMobile={narrow:narrow, order:mobileOrder, wrap:wrapTables};
 window.svFantasy={catMatchup:catMatchup, prep:function(d,today){ prepProj(d); P.data=d; if(today) todayET=function(){ return today; }; _cache={}; }, valueAll:valueAll, load:loadProj, valued:valued, weights:weights, lockPlan:lockPlan, fpPerGame:fpPerGame, state:FX, P:P};
 function boot(){
   shell(); syncTabs();
