@@ -29,6 +29,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { assignSlugs, createEngine, inFt, loadPageConfig, miss, ordinal, slugify, smpl, val } from './savant-core.mjs'
+import { readSavantData } from './savant-merge.mjs'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const TOOL = '/basketball-savant.html'
@@ -361,7 +362,7 @@ export function findSplits(eng) {
 /** Load the data and everything the pages share. Also used by the tests and the snapshot script. */
 export function loadSavant(root) {
   const cfg = loadPageConfig(path.join(root, 'public', 'basketball-savant.html'))
-  const DATA = JSON.parse(readFileSync(path.join(root, 'public', 'savant-data.json'), 'utf8'))
+  const DATA = readSavantData(path.join(root, 'public')) // archive + season in progress
   const eng = createEngine(DATA, cfg)
   return { eng, slugs: assignSlugs(eng) }
 }

@@ -1647,7 +1647,7 @@ function pctOf(v,pool,lower){           // what the bars display: clamped to 1..
 }
 function mix(a,b,u){return [0,1,2].map(i=>Math.round(a[i]+(b[i]-a[i])*u));}
 function colorAt(p){const LO=[28,78,134],MID=[194,192,182],HI=[188,58,44];const t=Math.max(0,Math.min(100,p))/100;let c;if(t<.5)c=mix(LO,MID,t/.5);else c=mix(MID,HI,(t-.5)/.5);return 'rgb('+c[0]+','+c[1]+','+c[2]+')';}
-function inFt(n){if(miss(n))return '—';const f=Math.floor(n/12);return f+"'"+Math.round(n-f*12)+'"';}
+function inFt(n){if(miss(n))return '—';const t=Math.round(n),f=Math.floor(t/12);return f+"'"+(t-f*12)+'"';}
 function word(p){return p>=82?'elite':p>=62?'high':p>=40?'avg':'low';}
 function fmt(unit,v,pct){
   if(miss(v)) return '—';
@@ -2956,7 +2956,8 @@ async function exportCard(){
   finally{ if(shell)shell.remove(); btn.disabled=false; lab.textContent=prev; }
 }
 function build(){
-  document.getElementById('srcpill').textContent=(DATA.source==='fixture'?'demo data':'live data')+' · '+DATA.seasons.length+' season'+(DATA.seasons.length>1?'s':'');
+  document.getElementById('srcpill').textContent=(DATA.source==='fixture'?'demo data':'live data')+' · '+DATA.seasons.length+' season'+(DATA.seasons.length>1?'s':'')
+    +(DATA.current&&DATA.current.through?' · '+DATA.current.season+' through '+new Date(DATA.current.through+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'');
   const sbtn=document.getElementById('seasonBtn'), spop=document.getElementById('seasonPop');
   updateSeasonOptions();
   sbtn.addEventListener('click',function(){ seasonPopOpen()?closeSeasonPop(true):openSeasonPop(); });
@@ -3341,7 +3342,7 @@ function lbBuildControls(){
   var mpg=document.getElementById('lbMpg'); if(mpg)mpg.value=String(LB.minMpg||0);
 }
 function wireLB(){
-  if(LB.season==null) LB.season=DATA.seasons[0];
+  if(LB.season==null) LB.season=defaultSeason();
   var btn=document.getElementById('homeLbBtn'); if(btn) btn.onclick=function(){ showLB(); };
   var back=document.getElementById('lbBack'); if(back) back.onclick=function(){ goHome(); };
   var mf=document.getElementById('lbMoreFilters');
@@ -3365,25 +3366,63 @@ function wireLB(){
     document.querySelectorAll('#lbDisplay button').forEach(function(x){ x.classList.toggle('on',x===b); }); lbRender(); }; });
 }
 function showLB(noPush){
-  if(LB.season==null) LB.season=DATA.seasons[0];
+  if(LB.season==null) LB.season=defaultSeason();
   document.body.classList.remove('home-open'); document.body.classList.add('lb-open');
   if(noPush){ lbParseHash(); }                         // arriving via shared link / back button — adopt URL state
   else { try{ history.pushState({lb:1},'','#lb'); }catch(e){} }
   window.scrollTo(0,0); lbBuildControls(); lbRender();
 }
 
+function mergeSavant(archive, current){
+  if(!archive||!Array.isArray(archive.seasons)||!archive.data) return archive;
+  if(!current||!Array.isArray(current.seasons)||!current.data) return archive;
+  var when=function(s){var t=Date.parse(s||'');return isFinite(t)?t:0;};
+  var data=Object.assign({},archive.data), qualify=Object.assign({},archive.qualify||{}), taken=[];
+  current.seasons.forEach(function(s){
+    var b=current.data[s];
+    if(!b||!Array.isArray(b.players)||!b.players.length) return;
+    if(archive.data[s]&&when(archive.generated)>=when(current.generated)) return;   // folded into a newer full rebuild
+    data[s]=b; if(current.qualify&&current.qualify[s]) qualify[s]=current.qualify[s]; taken.push(s);
+  });
+  if(!taken.length) return archive;
+  var seasons=taken.concat(archive.seasons.filter(function(s){return taken.indexOf(s)<0;}))
+    .sort(function(a,b){return parseInt(b,10)-parseInt(a,10);});
+  var newer=when(current.generated)>when(archive.generated);
+  return Object.assign({},archive,{seasons:seasons,data:data,qualify:qualify,
+    generated:newer?current.generated:archive.generated,
+    current:{season:taken[0],generated:current.generated||null,through:current.through||null}});
+}
+/* The season the page opens on: the newest one with a real qualified pool. Early in a new
+   season nobody has cleared the games floor yet, so the page stays on last season (the same
+   30-player rule the player pages and the weekly snapshot use); the new season is still in
+   the picker. */
+function defaultSeason(){
+  for(var i=0;i<DATA.seasons.length;i++){
+    var ps=(DATA.data[DATA.seasons[i]]||{}).players||[], q=0;
+    for(var j=0;j<ps.length;j++) if(ps[j].qualified) q++;
+    if(q>=30) return DATA.seasons[i];
+  }
+  return DATA.seasons[0];
+}
 (async function init(){
   const idb=document.getElementById('idbody');
   if(idb) idb.innerHTML='<div class="id-meta">Loading player data…</div>';
   try{
-    DATA = await (await fetch('savant-data.json',{cache:'force-cache'})).json();
+    /* Two files, the same split as Football Savant: the archive (every finished season) and
+       the season in progress, rebuilt nightly. The current file is optional and revalidated
+       on every load; the archive is cached hard. mergeSavant mirrors scripts/lib/savant-merge.mjs. */
+    const got = await Promise.all([
+      fetch('savant-data.json',{cache:'force-cache'}).then(function(r){return r.json();}),
+      fetch('savant-current.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+    ]);
+    DATA = mergeSavant(got[0], got[1]);
   }catch(err){
     if(idb) idb.innerHTML='<div class="id-name">Couldn’t load savant-data.json</div>'
       +'<div class="id-meta">Player data is fetched at runtime — open this page over http (or on the site), not directly from disk.</div>';
     return;
   }
   prepData();
-  curSeason = DATA.seasons[0];
+  curSeason = defaultSeason();
   document.querySelector('.wrap').classList.add('anim');
   buildIndex(); build(); updateBand(); setSeason(curSeason);
   wireHome(); wireLB(); showHome();

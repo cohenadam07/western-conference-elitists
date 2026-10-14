@@ -24,11 +24,12 @@ import vm from 'node:vm'
 import { gunzipSync } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
 import { BASE, POSITIONS, buildSavantApi, writeSavantApi } from '../../scripts/lib/savant-api.mjs'
+import { mergeSavantData, readSavantData } from '../../scripts/lib/savant-merge.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const PUBLIC = path.join(ROOT, 'public')
 const html = readFileSync(path.join(PUBLIC, 'basketball-savant.html'), 'utf8')
-const data = JSON.parse(readFileSync(path.join(PUBLIC, 'savant-data.json'), 'utf8'))
+const data = readSavantData(PUBLIC) // the archive with public/savant-current.json laid over it, as the build does
 const out = buildSavantApi({ data, html })
 
 // ---- lifting the page's code ---------------------------------------------------------
@@ -226,4 +227,37 @@ test('what is written to disk is what was built, and stays small', () => {
   } finally {
     rmSync(dist, { recursive: true, force: true })
   }
+})
+
+test('the page lays the season in progress over the archive exactly as the build does', () => {
+  // mergeSavant in the page and mergeSavantData in scripts/lib/savant-merge.mjs are twins:
+  // a reader and the connector must see the same seasons, the same rows and the same date.
+  const pageMerge = vm.runInNewContext(`(${grabFunction('mergeSavant').replace(/^function\s+mergeSavant/, 'function')})`)
+  const pl = (name, q) => ({ id: name.length, name, pos: 'Guard', qualified: q, m: {} })
+  const archive = {
+    seasons: ['2025-26', '2024-25'], generated: '2026-07-13T06:17:03+00:00', source: 'nba_api+br',
+    data: { '2025-26': { players: [pl('Old', true)] }, '2024-25': { players: [pl('Older', true)] } },
+  }
+  const cases = {
+    'a new season': { seasons: ['2026-27'], generated: '2026-10-22T09:00:00+00:00', through: '2026-10-21',
+      qualify: { '2026-27': { min_gp: 3, min_mpg: 15, team_games: 2 } }, data: { '2026-27': { players: [pl('New', false)] } } },
+    'a newer copy of an archived season': { seasons: ['2025-26'], generated: '2026-10-14T18:00:00+00:00',
+      data: { '2025-26': { players: [pl('Refreshed', true)] } } },
+    'an older copy (folded into a later rebuild)': { seasons: ['2025-26'], generated: '2026-04-20T00:00:00+00:00',
+      data: { '2025-26': { players: [pl('Stale', true)] } } },
+    'an empty season': { seasons: ['2026-27'], generated: '2026-10-22T09:00:00+00:00', data: { '2026-27': { players: [] } } },
+    'nothing': null,
+    'garbage': { hello: 1 },
+  }
+  for (const [what, current] of Object.entries(cases)) {
+    const a = JSON.parse(JSON.stringify(mergeSavantData(structuredClone(archive), structuredClone(current))))
+    const b = JSON.parse(JSON.stringify(pageMerge(structuredClone(archive), structuredClone(current))))
+    assert.deepEqual(b, a, `page and build disagree on ${what}`)
+  }
+  const fresh = mergeSavantData(archive, cases['a new season'])
+  assert.deepEqual(fresh.seasons, ['2026-27', '2025-26', '2024-25'])
+  assert.equal(fresh.generated, '2026-10-22T09:00:00+00:00')
+  assert.deepEqual(fresh.current, { season: '2026-27', generated: '2026-10-22T09:00:00+00:00', through: '2026-10-21' })
+  assert.equal(mergeSavantData(archive, cases['an older copy (folded into a later rebuild)']), archive, 'a newer archive wins')
+  assert.equal(mergeSavantData(archive, cases['an empty season']), archive, 'an empty season is ignored')
 })

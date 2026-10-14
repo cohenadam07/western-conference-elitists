@@ -52,7 +52,7 @@ const recent = (a, b) => startYear(b.to) - startYear(a.to) || b.seasons - a.seas
 export const cardUrl = (id) => `${SITE}/basketball-savant.html?p=${encodeURIComponent(id)}`
 
 const tier = (p) => (p >= 82 ? 'elite' : p >= 62 ? 'high' : p >= 40 ? 'avg' : 'low') // the page's word()
-const feetInches = (n) => { const f = Math.floor(n / 12); return `${f}'${Math.round(n - f * 12)}"` }
+const feetInches = (n) => { const t = Math.round(n), f = Math.floor(t / 12); return `${f}'${t - f * 12}"` }
 
 // A stat's value the way the page prints it (its fmt()), with the exceptions in the header:
 // signed stats carry no "%", and the composite stats print their number without a tier word
@@ -272,9 +272,15 @@ export async function playerProfile({ player, season, window = 'season', group =
   // client that only passes one of the two along still carries them.
   const notes = structured.notes
   notes.push(`Each stat shows two percentiles. "league" is against all ${pool.league ?? ''} qualified players in ${seasonId}; "vs. ${peers}" is against the ${pool[row.pos] ?? ''} qualified ${peers}.${window === 'season' ? '' : ` Both compare his ${WINDOW_TEXT[window]} with everyone else's.`} A higher percentile is always the better mark: stats tagged "lower is better" are already flipped.`)
+  if (file.in_progress) {
+    notes.push(`${seasonId} is still being played${file.through ? ` (data through ${file.through})` : ''}. Early-season rates rest on small samples and move a lot; the "low sample" tags mark the ones not to lean on yet.`)
+    if ((pool.league ?? 0) < 30) {
+      notes.push(`Only ${pool.league ?? 0} players have played enough to qualify so far, too few for percentiles to mean anything. For a percentile view, ask for the previous season.`)
+    }
+  }
   if (!row.qualified) {
-    const q = meta.qualify || {}
-    notes.push(`He did not qualify for those pools${q.min_mpg && q.min_gp ? ` (${q.min_mpg}+ minutes per game and ${q.min_gp}+ games)` : ''}, so his percentiles rank a small sample against qualified players. Treat them with caution.`)
+    const q = file.qualify || meta.qualify || {}
+    notes.push(`He did not qualify for those pools${q.min_mpg && q.min_gp ? ` (${q.min_mpg}+ minutes per game and ${q.min_gp}+ games${file.qualify ? ', pro-rated to the games played so far' : ''})` : ''}, so his percentiles rank a small sample against qualified players. Treat them with caution.`)
   }
   L.push(...notes)
 

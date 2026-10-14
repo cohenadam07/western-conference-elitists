@@ -43,6 +43,7 @@ import { writeDraftApi } from './savant-api-draft.mjs'
 import { writeFootballApi } from './savant-api-football.mjs'
 import { writeSiteApi } from './savant-api-site.mjs'
 import { writeUfcApi } from './savant-api-ufc.mjs'
+import { readSavantData } from './savant-merge.mjs'
 
 export const SITE = 'https://wcehoops.com'
 export const BASE = 'savant-api/basketball/v1'
@@ -291,6 +292,10 @@ export function buildSavantApi({ data, html }) {
       latest: isLatest,
       windows,
       qualified: counts,
+      // The season in progress (public/savant-current.json): its own pro-rated qualifier and
+      // the date of the last game in the data. Finished seasons carry neither.
+      ...(data.qualify && data.qualify[season] ? { qualify: data.qualify[season] } : {}),
+      ...(data.current && data.current.season === season ? { in_progress: true, through: data.current.through || null } : {}),
       players: rows,
     }
   }
@@ -376,7 +381,7 @@ export function writeSavantApi({ publicDir, dist }) {
   if (!existsSync(dataFile) || !existsSync(pageFile)) throw new Error('savant-data.json or basketball-savant.html is missing from public/')
 
   const out = buildSavantApi({
-    data: JSON.parse(readFileSync(dataFile, 'utf8')),
+    data: readSavantData(publicDir), // the archive, with the season in progress laid over it
     html: readFileSync(pageFile, 'utf8'),
   })
 

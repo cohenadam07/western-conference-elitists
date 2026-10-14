@@ -1841,7 +1841,7 @@ function blockBar(pct,extra,unsettled){
 function word(p){return p>=82?'elite':p>=62?'high':p>=40?'avg':'low';}
 
 /* ---------------------------------------------------------------- formatting */
-function inFt(n){ if(miss(n))return '—'; var f=Math.floor(n/12); return f+"'"+Math.round(n-f*12)+'"'; }
+function inFt(n){ if(miss(n))return '—'; var t=Math.round(n), f=Math.floor(t/12); return f+"'"+(t-f*12)+'"'; }
 /* Sign after rounding, never before: −0.0004 rounds to zero at three places, and printing
    it as "−.000" reads like a bug on an axis label. `plus` is for stats where the sign is
    the point (CPOE); `strip` drops the leading zero on numbers that are always fractional. */

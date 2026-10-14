@@ -34,12 +34,13 @@ import { gunzipSync } from 'node:zlib'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { buildSavantApi, writeAll } from '../../scripts/lib/savant-api.mjs'
+import { readSavantDataForChecks } from '../../scripts/lib/savant-merge.mjs'
 import { CONNECTOR_URL, EXAMPLE, PROMPTS } from '../../src/data/connector.js'
 import { startStore } from './redis.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const html = readFileSync(path.join(ROOT, 'public/basketball-savant.html'), 'utf8')
-const data = JSON.parse(readFileSync(path.join(ROOT, 'public/savant-data.json'), 'utf8'))
+const data = readSavantDataForChecks(path.join(ROOT, 'public')) // archive + season in progress once it has a pool
 // Through JSON once, because that is what gets published: the source has a few -0.0 values,
 // which are plain 0 by the time they are a file.
 const files = JSON.parse(JSON.stringify(buildSavantApi({ data, html })))

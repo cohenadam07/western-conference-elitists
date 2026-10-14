@@ -56,7 +56,7 @@ export const val = (p, k, w = 'season') => { const c = p.m && p.m[k] && p.m[k][w
 export const smpl = (p, k, w = 'season') => { const c = p.m && p.m[k] && p.m[k][w]; return c ? c.n : null }
 export const seasonTier = (s) => { const y = +String(s).slice(0, 4); return y >= 2016 ? 4 : y >= 2013 ? 3 : y >= 1996 ? 2 : 1 }
 export const word = (p) => (p >= 82 ? 'elite' : p >= 62 ? 'high' : p >= 40 ? 'avg' : 'low')
-export const inFt = (n) => { if (miss(n)) return '—'; const f = Math.floor(n / 12); return f + "'" + Math.round(n - f * 12) + '"' }
+export const inFt = (n) => { if (miss(n)) return '—'; const t = Math.round(n), f = Math.floor(t / 12); return f + "'" + (t - f * 12) + '"' }
 
 export function ordinal(n) {
   const t = n % 100

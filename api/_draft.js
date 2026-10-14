@@ -68,7 +68,8 @@ const recent = (a, b) => b.year - a.year || a.pick - b.pick
 
 // ---- small formatting helpers ----------------------------------------------------------
 
-// Feet and inches. The page prints 83.5 as 6'12"; this carries the twelve (see the header).
+// Feet and inches, carrying a rounded-up twelve so 83.5 reads 7'0" (every Savant page and
+// connector section now rounds the same way).
 export function feetInches(n) {
   let feet = Math.floor(n / 12)
   let inches = Math.round(n - feet * 12)

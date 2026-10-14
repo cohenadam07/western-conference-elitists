@@ -17,12 +17,15 @@ import { fileURLToPath } from 'node:url'
 import { assignSlugs, createEngine, loadPageConfig, slugify } from '../../scripts/lib/savant-core.mjs'
 import { CARD_STATS, MIN_POOL, buildPlayerPages, findSplits, makeContext, renderDirectory, renderPlayer, toolScript } from '../../scripts/lib/player-pages.mjs'
 import { computeMovers, moversDraft, takeSnapshot } from '../../scripts/lib/movers.mjs'
+import { readSavantDataForChecks } from '../../scripts/lib/savant-merge.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const SITE = 'https://wcehoops.com'
 const PAGE = path.join(ROOT, 'public', 'basketball-savant.html')
 const html = readFileSync(PAGE, 'utf8')
-const raw = readFileSync(path.join(ROOT, 'public', 'savant-data.json'), 'utf8')
+// The data as every build step sees it: the archive with the season in progress laid over it.
+// Kept as a string so each test can take its own fresh copy.
+const raw = JSON.stringify(readSavantDataForChecks(path.join(ROOT, 'public')))
 
 const cfg = loadPageConfig(PAGE)
 const eng = createEngine(JSON.parse(raw), cfg)

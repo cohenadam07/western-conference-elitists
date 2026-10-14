@@ -1,0 +1,50 @@
+name: Basketball Savant freshness
+
+# The Basketball Savant refresh can't run here: stats.nba.com blocks cloud IPs, so it runs on
+# Adam's Mac (~/Basketball-Savant/publish_current.sh under launchd, 4:30am and 10:30am ET) and
+# pushes public/savant-current.json plus a heartbeat, data/savant-refresh.json. This job is the
+# alarm: once a day it reads the heartbeat and fails (GitHub emails the failure) when the Mac
+# hasn't checked in for two days, so an asleep, offline or broken refresh doesn't go unnoticed.
+#
+# The heartbeat is written even on days with no games, so the All-Star break doesn't trip it.
+# Quiet outside the regular season, and in the first week before any refresh has landed.
+on:
+  schedule:
+    - cron: '7 16 * * *'      # 12:07 ET (11:07 in winter), after both Mac runs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: data/savant-refresh.json
+          sparse-checkout-cone-mode: false
+      - name: Check the Mac has checked in
+        run: |
+          python3 - <<'EOF'
+          import datetime as dt, json, os, sys
+          today = dt.date.today()
+          # Regular season: Oct 20 to mid April.
+          in_season = (today.month == 10 and today.day >= 20) or today.month in (11, 12, 1, 2, 3) or (today.month == 4 and today.day <= 15)
+          if not in_season:
+              print("offseason; nothing to check"); sys.exit(0)
+          path = "data/savant-refresh.json"
+          if not os.path.exists(path):
+              if today.month == 10 and today.day <= 27:
+                  print("no refresh yet; first week of the season"); sys.exit(0)
+              print(f"::error::{path} is missing: the nightly Basketball Savant refresh has not published this season. Check the Mac: ~/Basketball-Savant/logs/refresh.log")
+              sys.exit(1)
+          beat = json.load(open(path))
+          last = dt.datetime.fromisoformat(beat["last_ok"])
+          age = (dt.datetime.now(dt.timezone.utc) - last).total_seconds() / 3600
+          print(f"last check-in {last:%Y-%m-%d %H:%M} UTC ({age:.0f}h ago); {beat.get('season')} through {beat.get('through')}")
+          if age > 48:
+              print(f"::error::The Basketball Savant refresh last ran {age:.0f} hours ago. Check the Mac: ~/Basketball-Savant/logs/refresh.log")
+              sys.exit(1)
+          EOF

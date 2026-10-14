@@ -130,7 +130,7 @@ const recent = (a, b) => b.to - a.to || b.seasons - a.seasons
 // The page's own link (its syncURL()): the player and the season, in the hash.
 export const cardUrl = (id, season) => `${SITE}/football-savant.html#p=${encodeURIComponent(id)}&s=${season}`
 
-const feetInches = (n) => { const f = Math.floor(n / 12); return `${f}'${Math.round(n - f * 12)}"` }
+const feetInches = (n) => { const t = Math.round(n), f = Math.floor(t / 12); return `${f}'${t - f * 12}"` }
 
 // The page's signed(): the sign is decided after rounding, so a hair under zero prints as
 // zero and not as "−.000".

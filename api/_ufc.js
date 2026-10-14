@@ -97,7 +97,7 @@ function signedNumber(v, dp, plus) {
   if (!/[1-9]/.test(mag)) return mag
   return (v < 0 ? '−' : plus ? '+' : '') + mag
 }
-export const feetInches = (n) => { const f = Math.floor(n / 12); return `${f}'${Math.round(n - f * 12)}"` }
+export const feetInches = (n) => { const t = Math.round(n), f = Math.floor(t / 12); return `${f}'${t - f * 12}"` }
 
 // A stat's value the way the page prints it (its fmt()).
 export function display(unit, v) {

@@ -848,7 +848,7 @@ function pctOf(v,pool,lower){
 }
 function mix(a,b,u){return [0,1,2].map(i=>Math.round(a[i]+(b[i]-a[i])*u));}
 function colorAt(p){const LO=[28,78,134],MID=[194,192,182],HI=[188,58,44];const t=Math.max(0,Math.min(100,p))/100;let c;if(t<.5)c=mix(LO,MID,t/.5);else c=mix(MID,HI,(t-.5)/.5);return 'rgb('+c[0]+','+c[1]+','+c[2]+')';}
-function inFt(n){if(miss(n))return '—';const f=Math.floor(n/12);return f+"'"+Math.round(n-f*12)+'"';}
+function inFt(n){if(miss(n))return '—';const t=Math.round(n),f=Math.floor(t/12);return f+"'"+(t-f*12)+'"';}
 function fmt(unit,v){
   if(miss(v)) return '—';
   switch(unit){
