@@ -31,11 +31,9 @@ class PlayerIndex:
 
     @classmethod
     def load(cls, path=None, season=None, log=None):
-        path = path or config.SAVANT_PLAYERS_JSON
-        with open(path) as fh:
-            doc = json.load(fh)
-        # Current season = first in the seasons list (newest).
-        season = season or doc["seasons"][0]
+        doc = config.load_savant_doc(path)
+        # Current season = the newest one with a qualified pool.
+        season = season or config.pick_season(doc)
         roster = doc["data"][season]["players"]
 
         by_norm, players_by_id, name_counts = {}, {}, {}

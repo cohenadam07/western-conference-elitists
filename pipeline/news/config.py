@@ -11,12 +11,53 @@ OUTPUT_JSON = os.path.join(PUBLIC_DIR, "news.json")
 LOG_DIR = os.path.join(WEBSITE_DIR, "pipeline", "news", "logs")
 LOG_FILE = os.path.join(LOG_DIR, "news.log")
 
-# The full Basketball Savant player universe (per-season). Overridable via env
-# so the scheduled job can point at the model output wherever it lives.
-SAVANT_PLAYERS_JSON = os.environ.get(
-    "SAVANT_PLAYERS_JSON",
-    "/Users/adamcohen/Basketball-Savant/out/players.json",
-)
+# The Basketball Savant player universe (per-season). By default the site's own published
+# data: public/savant-data.json (the archive) with public/savant-current.json (the season in
+# progress, refreshed after every slate) laid over it, exactly as the page does. Set
+# SAVANT_PLAYERS_JSON to read one file instead (e.g. ~/Basketball-Savant/out/players.json).
+SAVANT_PLAYERS_JSON = os.environ.get("SAVANT_PLAYERS_JSON")
+SAVANT_ARCHIVE_JSON = os.path.join(PUBLIC_DIR, "savant-data.json")
+SAVANT_CURRENT_JSON = os.path.join(PUBLIC_DIR, "savant-current.json")
+
+
+def load_savant_doc(path=None):
+    """{seasons, data, ...} — one file if a path (or SAVANT_PLAYERS_JSON) is given, else the
+    archive with the current-season file over it (the newer copy of a season wins; mirrors
+    scripts/lib/savant-merge.mjs)."""
+    import json
+    from datetime import datetime
+    path = path or SAVANT_PLAYERS_JSON
+    if path:
+        with open(path) as fh:
+            return json.load(fh)
+    with open(SAVANT_ARCHIVE_JSON) as fh:
+        doc = json.load(fh)
+    try:
+        with open(SAVANT_CURRENT_JSON) as fh:
+            cur = json.load(fh)
+    except (OSError, ValueError):
+        return doc
+    when = lambda s: datetime.fromisoformat(s).timestamp() if s else 0
+    for s in cur.get("seasons", []):
+        block = (cur.get("data") or {}).get(s) or {}
+        if not block.get("players"):
+            continue
+        if s in doc["data"] and when(doc.get("generated")) >= when(cur.get("generated")):
+            continue
+        doc["data"][s] = block
+        if s not in doc["seasons"]:
+            doc["seasons"].append(s)
+    doc["seasons"].sort(key=lambda s: -int(s[:4]))
+    return doc
+
+
+def pick_season(doc, min_pool=30):
+    """The newest season with a real qualified pool (30+), the rule the page, the player
+    pages and the snapshot all use; early in a new season that is still last season."""
+    for s in doc["seasons"]:
+        if sum(1 for p in doc["data"][s]["players"] if p.get("qualified")) >= min_pool:
+            return s
+    return doc["seasons"][0]
 # Metric config (labels + lower-is-better flags) used for percentile context.
 SAVANT_CONFIG_DIR = os.environ.get(
     "SAVANT_CONFIG_DIR", "/Users/adamcohen/Basketball-Savant"

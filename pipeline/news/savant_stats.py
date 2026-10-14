@@ -52,9 +52,8 @@ class SavantStats:
 
     @classmethod
     def load(cls, path=None, season=None):
-        with open(path or config.SAVANT_PLAYERS_JSON) as fh:
-            doc = json.load(fh)
-        season = season or doc["seasons"][0]
+        doc = config.load_savant_doc(path)
+        season = season or config.pick_season(doc)
         return cls(doc["data"][season]["players"])
 
     def _percentile(self, key, value, lower):

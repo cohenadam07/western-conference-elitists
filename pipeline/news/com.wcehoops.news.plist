@@ -6,17 +6,23 @@
   <key>Label</key>
   <string>com.wcehoops.news</string>
 
+  <!-- Reset a dedicated worktree to origin/main, then run the runner from it. The reset happens
+       here, not inside run.sh, because a script must not be replaced while bash is reading it.
+       The worktree is created on first run. -->
   <key>ProgramArguments</key>
   <array>
     <string>/bin/bash</string>
-    <string>/Users/adamcohen/nba_prospect_model/website/pipeline/news/run.sh</string>
+    <string>-c</string>
+    <string>R="$HOME/western-conference-elitists"; W="$R/.worktrees/news-bot"; grep -qx '.worktrees/' "$R/.git/info/exclude" || echo '.worktrees/' &gt;&gt; "$R/.git/info/exclude"; git -C "$R" fetch -q origin main || exit 1; [ -d "$W" ] || git -C "$R" worktree add -q --detach "$W" origin/main || exit 1; git -C "$W" checkout -q -f --detach origin/main &amp;&amp; git -C "$W" clean -fdq public/news.json; exec /bin/bash "$W/pipeline/news/run.sh"</string>
   </array>
 
   <!-- launchd starts with a minimal PATH; give git and python what they need. -->
   <key>EnvironmentVariables</key>
   <dict>
     <key>PATH</key>
-    <string>/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin</string>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Frameworks/Python.framework/Versions/3.13/bin</string>
+    <key>HOME</key>
+    <string>/Users/adamcohen</string>
   </dict>
 
   <!-- Three runs a day: early morning, afternoon, and late evening after games. -->
@@ -28,8 +34,8 @@
   </array>
 
   <key>StandardOutPath</key>
-  <string>/Users/adamcohen/nba_prospect_model/website/pipeline/news/logs/launchd.out.log</string>
+  <string>/Users/adamcohen/Library/Logs/wce-news/launchd.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/adamcohen/nba_prospect_model/website/pipeline/news/logs/launchd.err.log</string>
+  <string>/Users/adamcohen/Library/Logs/wce-news/launchd.log</string>
 </dict>
 </plist>

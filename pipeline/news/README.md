@@ -16,13 +16,13 @@ the `/news` React page (`src/pages/News.jsx`) reads at runtime.
 | `savant_stats.py` | League percentiles for matched players (the only numbers the WCE line may cite). |
 | `wce_line.py` | The WCE line via a local LLM (Ollama). Provider-agnostic + a hard validation gate. Provider down → lines stay `null`. |
 | `build_news.py` | Orchestrator; writes `public/news.json`. |
-| `run.sh` | launchd runner: pull → build → commit → push. |
+| `run.sh` | launchd runner: build → commit → push, from the `news-bot` worktree the plist resets to origin/main first. |
 | `com.wcehoops.news.plist` | launchd job, runs 3×/day (08:00, 14:00, 23:30 local). |
 
 ## Run manually
 
 ```sh
-cd /Users/adamcohen/nba_prospect_model/website
+cd ~/western-conference-elitists
 python3 -m pipeline.news.build_news        # writes public/news.json
 python3 -m pipeline.news.console           # step-1 headlines diagnostic (no page)
 ```
@@ -82,3 +82,16 @@ items kept, items dropped by filter, API failures, and whether it pushed.
 Deploy is automatic — a changed `public/news.json` is committed and pushed to
 `main`, and Vercel redeploys wcehoops.com.
 ```
+
+## The scheduled job
+
+`com.wcehoops.news.plist` (copy to `~/Library/LaunchAgents/`, then
+`launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.wcehoops.news.plist`) resets
+`~/western-conference-elitists/.worktrees/news-bot` to origin/main and runs `run.sh` from it,
+so a hand-edited checkout can never block it. Logs: `~/Library/Logs/wce-news/`. Player names
+and percentiles come from the site's own `public/savant-data.json` with
+`public/savant-current.json` laid over it, on the newest season with 30+ qualified players.
+
+Until Oct 14 2026 the job ran in `~/nba_prospect_model/website`, an old copy that diverged
+from main on Aug 3; every run after that failed at `git pull --ff-only` and the page stayed
+on July 31's feed.
