@@ -53,6 +53,8 @@ export const ID_RE = /^[a-z0-9]{6,10}$/
 const INPUTS_RE = /^(\d{1,6}:(-1|0|1|R)(,\d{1,6}:(-1|0|1|R)){0,699})?$/
 const NONCE_RE = /^[a-z0-9]{4,10}$/
 const WORLD_RE = /^[a-z0-9-]{2,24}$/
+// what a player has on: "<ball>:<trail>", ids out of the game's shop catalog
+const LOOK_RE = /^[a-z0-9]{1,16}:[a-z0-9]{1,16}$/
 
 const matcher = new RegExpMatcher({ ...englishDataset.build(), ...englishRecommendedTransformers })
 export function cleanName(raw) {
@@ -103,6 +105,8 @@ export function cleanLive(me, now) {
   return { t: now, m: int(m.m, 0, 1e6), h: int(m.h, -1, 64), k: int(m.k, 0, 1e6), f: int(m.f, 0, 9999), in: inp,
     vw: typeof m.vw === 'string' && WORLD_RE.test(m.vw) ? m.vw : '', vm: MODES.includes(m.vm) ? m.vm : '',
     n: typeof m.n === 'string' && NONCE_RE.test(m.n) ? m.n : '',
+    // (lk: the ball and trail they have on, so everyone else's game draws their ball the way they see it)
+    lk: typeof m.lk === 'string' && LOOK_RE.test(m.lk) ? m.lk : '',
     // (d: how this game's links to the others are doing, in its own words: only ever read back by
     // someone asking after the party by its code, to find out why two games didn't connect)
     d: typeof m.d === 'string' ? m.d.replace(/[^\x20-\x7e]/g, '').slice(0, 600) : '' }
@@ -308,6 +312,7 @@ export function view(room, live, fins, you, now) {
     const l = live[p.id], cur = l && l.m === room.match
     const o = { id: p.id, name: p.name, color: p.color, here: isHere(room, live, p.id, now) }
     if (l && l.n) o.n = l.n
+    if (l && l.lk) o.lk = l.lk
     if (room.phase === 'vote' && cur) { o.vw = l.vw; o.vm = l.vm }
     if (racing && cur && l.h === room.hole) { o.k = l.k; o.f = l.f; if (p.id !== you) o.in = l.in }
     if (racing && fins[p.id]) o.fin = fins[p.id].dnf ? { dnf: 1 } : { k: fins[p.id].k, f: fins[p.id].f }

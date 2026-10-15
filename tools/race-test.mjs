@@ -77,6 +77,8 @@ if (process.argv[2] !== 'live') {
     ok(R.cleanNotes(Array.from({ length: 40 }, () => ({ to: id(1), v: '{}' })), id(0)).length === 16, 'no more than a handful of notes a poll')
     const lv = R.cleanLive({ m: 1, n: 'ab12cd' }, 5)
     ok(lv.n === 'ab12cd' && R.cleanLive({ n: 'NOPE!' }, 5).n === '', 'each load of the page names itself, so the others know to connect again after a reload')
+    ok(R.cleanLive({ lk: 'thunder:subway' }, 5).lk === 'thunder:subway' && R.cleanLive({ lk: '<b>:x' }, 5).lk === '' && R.cleanLive({ lk: 7 }, 5).lk === '',
+      'each game says which ball and trail it has on, as two catalog ids')
     const rep = R.cleanLive({ d: 'v29 iOS 18.1 Safari | Sam:open/relay t0 h1s1r1\u0000\n' + 'x'.repeat(900) }, 5).d
     ok(rep.startsWith('v29 iOS 18.1 Safari | Sam:open/relay t0 h1s1r1x') && rep.length === 600 && R.cleanLive({ d: 7 }, 5).d === '', 'a game’s report on its links is kept as a short plain line')
     {
@@ -88,6 +90,8 @@ if (process.argv[2] !== 'live') {
     const { room, live } = party(['A', 'B'], 1000)
     live[id(0)] = lv
     ok(R.view(room, live, {}, id(1), 2000).players[0].n === 'ab12cd', 'and the others are told that name')
+    live[id(0)] = R.cleanLive({ m: 1, lk: 'galaxy:fire' }, 1900)
+    ok(R.view(room, live, {}, id(1), 2000).players[0].lk === 'galaxy:fire' && !('lk' in R.view(room, live, {}, id(1), 2000).players[1]), 'and what they have on, in every phase')
     ok(R.iceServers()[0].urls.some((u) => u.startsWith('stun:')), 'the games are pointed at public STUN servers by default')
   }
   // ---- a hole, speed
