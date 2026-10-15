@@ -30,8 +30,12 @@ function App() {
   // and each owns the whole viewport (the front-office shell scrolls its own panes; Flappy Hoops
   // fills it with its frame).
   const standalone = pathname.startsWith('/gm') || pathname.startsWith('/hoops')
+  // (Flappy Hoops is pinned to the screen rather than 100vh tall: on an iPhone, as a home-screen app
+  // or in Safari, 100vh can be taller than what's showing, and then a tap in the game slid the whole
+  // page up)
+  const pinned = pathname.startsWith('/hoops')
   return (
-    <div className={standalone ? 'flex h-screen flex-col overflow-hidden' : 'flex min-h-screen flex-col bg-paper'}>
+    <div className={pinned ? 'fixed inset-0 flex flex-col overflow-hidden' : standalone ? 'flex h-screen flex-col overflow-hidden' : 'flex min-h-screen flex-col bg-paper'}>
       <a
         href="#main"
         className="sr-only z-50 rounded-sm bg-navy px-4 py-2 text-sm font-semibold text-white focus:not-sr-only focus:absolute focus:left-4 focus:top-4"

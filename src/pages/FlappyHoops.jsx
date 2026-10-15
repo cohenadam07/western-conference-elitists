@@ -18,7 +18,7 @@ const APP_HEAD = [
   // edge to edge: the game fills the whole screen, under the notch and a see-through status bar, and
   // keeps its own buttons clear of them (it reads this page's safe areas)
   ['meta[name="apple-mobile-web-app-status-bar-style"]', 'meta', { name: 'apple-mobile-web-app-status-bar-style' }, 'content', 'black-translucent'],
-  ['meta[name="viewport"]', 'meta', { name: 'viewport' }, 'content', 'width=device-width, initial-scale=1.0, viewport-fit=cover'],
+  ['meta[name="viewport"]', 'meta', { name: 'viewport' }, 'content', 'width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover'],
 ]
 
 // An invite to an online race is /hoops?party=CODE: the code goes on to the game (which also reads
@@ -51,9 +51,21 @@ export default function FlappyHoops() {
     // the game's own dark ground behind the frame (no flash of the site's paper while it loads)
     const grounds = [document.documentElement, document.body].map((el) => [el, el.style.backgroundColor])
     grounds.forEach(([el]) => { el.style.backgroundColor = '#1a2740' })
+    // the page itself never scrolls while the game is up: on an iPhone a tap or a flick in the game could
+    // otherwise slide the whole page up (and leave it there), and quick taps (flaps) never zoom the page
+    const LOCK = { overflow: 'hidden', overscrollBehavior: 'none', height: '100%', touchAction: 'manipulation' }
+    const locks = [document.documentElement, document.body].map((el) => [el, Object.fromEntries(Object.keys(LOCK).map((k) => [k, el.style[k]]))])
+    locks.forEach(([el]) => Object.assign(el.style, LOCK))
+    const unslide = () => { if (window.scrollY || window.scrollX) window.scrollTo(0, 0) }
+    window.addEventListener('scroll', unslide, { passive: true })
+    window.visualViewport?.addEventListener('scroll', unslide, { passive: true })
+    unslide()
     return () => {
       document.title = before
       grounds.forEach(([el, prev]) => { el.style.backgroundColor = prev })
+      window.removeEventListener('scroll', unslide)
+      window.visualViewport?.removeEventListener('scroll', unslide)
+      locks.forEach(([el, prev]) => Object.assign(el.style, prev))
       undo.reverse().forEach((f) => f())
     }
   }, [])
@@ -63,6 +75,7 @@ export default function FlappyHoops() {
       title="Flappy Hoops"
       src={src.current}
       className="block h-full w-full border-0"
+      style={{ touchAction: 'manipulation' }}
       allow="autoplay; fullscreen; clipboard-write"
       allowFullScreen
       onLoad={() => frame.current?.focus()}

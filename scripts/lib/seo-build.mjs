@@ -50,7 +50,7 @@ const OG_CARD = `${SITE}/og-card.png` // 1200×630, public/og-card.png
 // home-screen app): the game fills the whole screen and keeps its buttons clear of the notch itself.
 export const HOOPS_APP = {
   name: 'Flappy Hoops', icon: '/flappy-hoops/app/icon-180.png', manifest: '/flappy-hoops/app/manifest.webmanifest',
-  viewport: 'width=device-width, initial-scale=1.0, viewport-fit=cover', statusBar: 'black-translucent',
+  viewport: 'width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover', statusBar: 'black-translucent',
 }
 
 // Static pages worth sharing, with the same title/description their component sets via
