@@ -132,6 +132,14 @@ if (process.argv[2] !== 'live') {
     ok(room.results[0].map((r) => r.id).join() === [id(3), id(0), id(2), id(1)].join(), 'flaps: fewest flaps wins, and the quicker of two tied on flaps is ahead')
   }
   {
+    // speed, two in on the very same step: the one who took fewer flaps is ahead, whoever reported first
+    const { room, live, t0 } = play('speed')
+    const fins = { [id(0)]: { k: 1500, f: 9, at: t0 + 13000 }, [id(1)]: { k: 1500, f: 7, at: t0 + 13500 }, [id(2)]: { k: 1400, f: 11, at: t0 + 12000 }, [id(3)]: { k: 1500, f: 9, at: t0 + 13200 } }
+    for (let i = 0; i < 4; i++) live[id(i)].t = t0 + 30000
+    R.advance(room, live, fins, t0 + 30000)
+    ok(room.results[0].map((r) => r.id).join() === [id(2), id(1), id(0), id(3)].join(), 'speed: of those tied on time, fewest flaps is ahead (and dead level, the first to report)')
+  }
+  {
     const { room, live, t0 } = play('speed')
     // one sank it, one walked away (not heard from), two never finish: the cap ends it
     const fins = { [id(0)]: { k: 900, f: 6, at: t0 + 8000 } }
