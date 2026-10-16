@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import AiConnector from '../components/AiConnector.jsx'
 import Button from '../components/Button.jsx'
@@ -12,12 +12,18 @@ import Gateway from '../components/Gateway.jsx'
 import Reveal from '../components/Reveal.jsx'
 import { ARTICLES, FEATURED_ARTICLE, PROSPECTS, SPOTLIGHT_PROSPECT } from '../data/content.js'
 import usePageMeta from '../lib/usePageMeta.js'
+import { label, pickRecent, stamp } from '../lib/whatsNew.js'
+import WHATS_NEW from 'virtual:whats-new'
 
-// The moving banner. Every line is a standing fact about the site with somewhere to go, not a
-// headline: nothing here goes out of date on its own. `to` is a page of this app, `href` a
-// page the build writes (or a place on this one).
-const TICKER = [
-  { tag: 'New', text: 'Ask Claude about any player: add the WCE connector', href: '#ai' },
+// The moving banner: what's new first, then the standing lines.
+//
+// What's new is automatic. Articles, YouTube uploads, product updates (src/data/updates.json) and the
+// next UFC card are gathered at build time with their dates (scripts/lib/whats-new.mjs), and the page
+// keeps only what is still recent when it's opened (src/lib/whatsNew.js): "New" for three days, then
+// the date, then gone. The standing lines below are facts about the site that don't go out of date.
+// `to` is a page of this app, `href` a page the build writes (or a place on this one).
+const STANDING = [
+  { text: 'Ask Claude about any player: add the WCE connector', href: '#ai' },
   { text: 'Flappy Hoops: 16 cities, and races with up to 8 friends', to: '/hoops' },
   { text: 'Basketball Savant: a page for every player since 1979-80', href: '/player' },
   { text: 'Football Savant: refreshed every day of the NFL season', href: '/football-savant.html' },
@@ -27,10 +33,6 @@ const TICKER = [
   { text: 'Dynasty Exchange: a board priced by the crowd', to: '/dynasty' },
   { text: 'Comp Chain: a new puzzle every day', to: '/comp-chain' },
 ]
-
-// One pass takes as long as it takes to read: the banner keeps the pace it had with six
-// short lines (about 37px a second) however many lines it carries.
-const TICKER_SECONDS = Math.round(TICKER.reduce((n, t) => n + t.text.length + (t.tag ? 8 : 4), 0) * 0.235)
 
 const PILLARS = [
   {
@@ -66,13 +68,19 @@ const SAVANT_BARS = [
 ]
 
 function Ticker() {
+  const lines = useMemo(() => {
+    const recent = pickRecent(WHATS_NEW.items).map((it) => ({ text: label(it), tag: stamp(it), fresh: it.fresh, to: it.to, href: it.href }))
+    return [...recent, ...STANDING]
+  }, [])
+  // One pass takes as long as it takes to read: about 37px a second however many lines it carries.
+  const seconds = Math.round(lines.reduce((n, t) => n + t.text.length + (t.tag ? t.tag.length + 4 : 4), 0) * 0.235)
   const item =
     'font-mono-tight flex items-center gap-3 text-xs font-medium uppercase tracking-widest text-white/85 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:underline'
   return (
     <div className="group relative overflow-hidden bg-navy py-2.5">
       <div
         className="animate-marquee flex w-max gap-12 whitespace-nowrap group-hover:[animation-play-state:paused] group-focus-within:[animation-play-state:paused]"
-        style={{ animationDuration: `${TICKER_SECONDS}s` }}
+        style={{ animationDuration: `${seconds}s` }}
       >
         {[false, true].map((clone) => (
           <div
@@ -80,20 +88,31 @@ function Ticker() {
             aria-hidden={clone || undefined}
             className="flex gap-12"
           >
-            {TICKER.map((t) => {
+            {lines.map((t) => {
               const inner = (
                 <>
                   <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-gold" />
-                  {t.tag && <span className="rounded-[3px] bg-gold px-1.5 pb-px pt-0.5 text-[10px] text-navy-deep">{t.tag}</span>}{' '}
+                  {t.tag && (
+                    <span
+                      className={
+                        t.fresh
+                          ? 'rounded-[3px] bg-gold px-1.5 pb-px pt-0.5 text-[10px] text-navy-deep'
+                          : 'rounded-[3px] border border-white/35 px-1.5 pb-px pt-0.5 text-[10px] text-white/75'
+                      }
+                    >
+                      {t.tag}
+                    </span>
+                  )}{' '}
                   {t.text}
                 </>
               )
               // The second copy only exists to make the loop seamless: out of the tab order.
               const tab = clone ? -1 : undefined
+              const external = t.href && /^https?:/.test(t.href)
               return t.to ? (
                 <Link key={t.text} to={t.to} tabIndex={tab} className={item}>{inner}</Link>
               ) : (
-                <a key={t.text} href={t.href} tabIndex={tab} className={item}>{inner}</a>
+                <a key={t.text} href={t.href} tabIndex={tab} className={item} {...(external ? { target: '_blank', rel: 'noopener' } : {})}>{inner}</a>
               )
             })}
           </div>
