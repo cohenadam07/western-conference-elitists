@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ARTICLES, FOUNDER } from '../data/content.js'
 import ArticleCard from '../components/ArticleCard.jsx'
@@ -6,6 +6,10 @@ import ArticleBody from '../components/ArticleBody.jsx'
 import NewsletterCTA from '../components/NewsletterCTA.jsx'
 import CourtLines from '../components/CourtLines.jsx'
 import usePageMeta from '../lib/usePageMeta.js'
+
+// Rich articles (interactive charts, math, film clips) render from public/articles/<slug>/body.json.
+// Lazy, so the charts and KaTeX only load for a reader who opens one.
+const RichArticle = lazy(() => import('../components/rich/RichArticle.jsx'))
 import NotFound from './NotFound.jsx'
 
 // Placeholder long-form body paragraphs, reused across articles for the demo.
@@ -142,7 +146,11 @@ function ArticleView({ article }) {
           {article.excerpt}
         </p>
 
-        {hasBody ? (
+        {article.rich ? (
+          <Suspense fallback={<div className="mt-10 font-mono-tight text-sm text-faint">Loading the full piece…</div>}>
+            <RichArticle article={article} />
+          </Suspense>
+        ) : hasBody ? (
           <ArticleBody html={article.html} />
         ) : (
           <div className="mt-10 space-y-7">

@@ -601,9 +601,11 @@ const shelf = [
 
 test('an article with no body, a bad slug or a reused slug is not published; a long one is cut and says so', async () => {
   const made = publish(buildSiteApi({ ...sources, articles: shelf }))
-  const real = sources.articles.map((a) => a.slug)
-  assert.deepEqual(made.articles.articles.map((a) => a.slug), ['rim-protection-part-two', 'the-long-read', ...real], 'newest first, and only the real ones')
-  assert.deepEqual(Object.keys(made.texts).sort(), ['rim-protection-part-two', 'the-long-read', ...real].sort())
+  // The two published fixtures interleave with the real articles by date, newest first.
+  const fixtures = [{ slug: 'rim-protection-part-two', publishedAt: '2026-09-08T12:00:00.000Z' }, { slug: 'the-long-read', publishedAt: '2026-09-01T12:00:00.000Z' }]
+  const order = [...fixtures, ...sources.articles].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt)).map((a) => a.slug)
+  assert.deepEqual(made.articles.articles.map((a) => a.slug), order, 'newest first, and only the real ones')
+  assert.deepEqual(Object.keys(made.texts).sort(), [...order].sort())
   const why = Object.fromEntries(made.meta.not_published.map((n) => [n.what, n.why]))
   assert.match(why['article "demo-article"'], /no body/)
   assert.match(why['article "Bad Slug!"'], /slug/)
@@ -627,7 +629,7 @@ test('an article with no body, a bad slug or a reused slug is not published; a l
 
   // Search: every word must be found; categories are the site's; newest first with no query.
   const all = await run('wce_search_articles', {})
-  assert.deepEqual(all.structured.articles.map((a) => a.slug), ['rim-protection-part-two', 'the-long-read', ...real])
+  assert.deepEqual(all.structured.articles.map((a) => a.slug), order)
   const rim = await run('wce_search_articles', { query: 'rim protecton' }) // typo
   assert.deepEqual(rim.structured.articles.map((a) => a.slug), ['rim-protection-part-two', 'the-long-read'])
   assert.equal((await run('wce_search_articles', { query: 'Jane Doe' })).structured.articles[0].slug, 'rim-protection-part-two')

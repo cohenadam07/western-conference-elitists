@@ -1,0 +1,597 @@
+/* Rich articles: prose, argue boxes, math boxes, figures and the interactive charts.
+   Uses the site's tokens (index.css @theme). Charts follow the dataviz rules: hairline
+   gridlines, thin marks, text in ink tokens, never in a series color. */
+
+.rich-body {
+  margin-top: 2.5rem;
+  color: color-mix(in srgb, var(--color-ink) 90%, transparent);
+}
+.rich-body > * + * {
+  margin-top: 1.5rem;
+}
+.rich-p {
+  font-size: 17px;
+  line-height: 1.75;
+}
+.rich-p a,
+.rich-list a {
+  color: var(--color-navy);
+  text-decoration: underline;
+  text-decoration-color: var(--color-gold);
+  text-underline-offset: 2px;
+}
+.rich-p strong,
+.rich-list strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.rich-h2 {
+  margin-top: 4rem !important;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--color-line);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  scroll-margin-top: 90px;
+}
+.rich-h2-kicker {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-gold-deep);
+}
+.rich-h3 {
+  margin-top: 2.5rem !important;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.25;
+  color: var(--color-ink);
+}
+.rich-list {
+  padding-left: 1.3rem;
+  list-style: disc;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.rich-list li + li {
+  margin-top: 0.5rem;
+}
+.rich-list li::marker {
+  color: var(--color-gold-deep);
+}
+.rich-loading {
+  margin-top: 2.5rem;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-faint);
+}
+
+/* ---------- argue boxes ---------- */
+.rich-argue {
+  position: relative;
+  border: 1px solid var(--color-line);
+  border-left-width: 4px;
+  border-radius: 6px;
+  background: var(--color-surface);
+  padding: 1.1rem 1.25rem 1.2rem;
+}
+.rich-argue-case { border-left-color: var(--color-navy); }
+.rich-argue-counter { border-left-color: var(--color-red); }
+.rich-argue-answer { border-left-color: var(--color-gold); }
+.rich-argue-verdict { border-left-color: var(--color-green); background: #f6f8f6; }
+.rich-argue-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.rich-argue-case .rich-argue-label { color: var(--color-navy); }
+.rich-argue-counter .rich-argue-label { color: var(--color-red); }
+.rich-argue-answer .rich-argue-label { color: var(--color-gold-deep); }
+.rich-argue-verdict .rich-argue-label { color: var(--color-green); }
+.rich-argue-title {
+  margin-top: 0.35rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.3;
+  color: var(--color-ink);
+}
+.rich-argue-body > * + * { margin-top: 0.9rem; }
+.rich-argue-body { margin-top: 0.6rem; }
+.rich-argue .rich-p { font-size: 16px; line-height: 1.7; }
+
+/* ---------- math boxes ---------- */
+.rich-math {
+  border: 1px solid #e5dcc6;
+  border-radius: 6px;
+  background: #fbf8f0;
+}
+.rich-math-toggle {
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem;
+  text-align: left;
+  cursor: pointer;
+}
+.rich-math-icon {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--color-gold-deep);
+}
+.rich-math-label {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-gold-deep);
+}
+.rich-math-title {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+.rich-math-chev {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--color-gold-deep);
+}
+.rich-math-body {
+  padding: 0 1rem 1.1rem;
+}
+.rich-math-body > * + * { margin-top: 0.9rem; }
+.rich-math .rich-p { font-size: 15.5px; line-height: 1.7; }
+.rich-tex {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+  font-size: 15px;
+}
+.rich-tex-fallback {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  white-space: pre-wrap;
+}
+
+/* ---------- figures ---------- */
+.rich-figure {
+  margin-top: 2rem !important;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-surface);
+  padding: 1rem 1rem 0.9rem;
+}
+@media (min-width: 1100px) {
+  .rich-figure.rich-wide {
+    max-width: none;
+    margin-left: -6rem;
+    margin-right: -6rem;
+  }
+}
+.rich-figure-head { margin-bottom: 0.75rem; }
+.rich-fig-kicker {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-gold-deep);
+}
+.rich-figure-title {
+  margin-top: 0.2rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 19px;
+  line-height: 1.3;
+  color: var(--color-ink);
+}
+.rich-figcaption {
+  margin-top: 0.75rem;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+.rich-figcaption-row {
+  margin-top: 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.rich-source {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-faint);
+}
+.rich-linkbtn {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--color-navy);
+  text-decoration: underline;
+  text-decoration-color: var(--color-gold);
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.rich-more { margin-top: 0.6rem; }
+.rich-chart-loading { height: 240px; border-radius: 6px; background: var(--color-wash); }
+.rich-plot { position: relative; width: 100%; }
+/* Chart wrappers are measured and the SVG is drawn to that width, so the wrapper must never
+   take its width from the SVG (that loop pinned phones at the first-render width). */
+.rich-plot, .rich-usage, .rich-court-wrap { contain: inline-size; min-width: 0; }
+.rich-body, .rich-figure { min-width: 0; max-width: 100%; }
+.rich-plot svg { display: block; overflow: visible; }
+
+/* svg text */
+.rich-axis text,
+.rich-tick {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--color-faint);
+  font-variant-numeric: tabular-nums;
+}
+.rich-axis-label {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  fill: var(--color-muted);
+}
+.rich-ann {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--color-muted);
+}
+.rich-ann.strong { font-weight: 600; fill: var(--color-ink); }
+.rich-ann.muted { fill: var(--color-faint); }
+.rich-ann.red { fill: var(--color-red); font-weight: 600; }
+.rich-ann.halo, .rich-val.halo { paint-order: stroke; stroke: #fff; stroke-width: 4px; stroke-linejoin: round; }
+.rich-dot-label {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  fill: var(--color-ink);
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+.rich-dot-label.small { font-size: 11.5px; font-weight: 500; }
+.rich-row-label {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  fill: var(--color-ink);
+}
+.rich-row-label.strong { font-weight: 600; }
+.rich-val {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  fill: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+.rich-val.strong { font-weight: 600; font-size: 13px; }
+.rich-seg-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  fill: #fff;
+}
+.rich-cell {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* tooltip */
+.rich-tip {
+  position: absolute;
+  z-index: 5;
+  max-width: 260px;
+  pointer-events: none;
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 0.5rem 0.65rem;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--color-ink);
+  box-shadow: 0 10px 24px -14px rgba(25, 27, 31, 0.35);
+}
+.rich-tip .muted,
+.muted { color: var(--color-faint); }
+.tip-sw { display: inline-block; width: 10px; height: 2px; margin-right: 6px; vertical-align: middle; }
+
+/* controls */
+.rich-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  margin-bottom: 0.75rem;
+}
+.rich-controls-col { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+.rich-ctl-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+.rich-ctl-note { font-size: 12.5px; color: var(--color-faint); }
+.rich-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  padding: 2px;
+  background: var(--color-wash);
+}
+.rich-seg button {
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+.rich-seg button.on {
+  background: var(--color-navy);
+  color: #fff;
+}
+.rich-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+.rich-chips button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 12.5px;
+  color: var(--color-ink);
+  background: #fff;
+  cursor: pointer;
+}
+.rich-chips button.on { border-color: var(--color-navy); box-shadow: inset 0 0 0 1px var(--color-navy); }
+.rich-chips button:disabled { opacity: 0.4; cursor: not-allowed; }
+.rich-chips .sw { width: 8px; height: 8px; border-radius: 99px; }
+.rich-chips .v { font-family: var(--font-mono); font-size: 11px; color: var(--color-faint); }
+.rich-presets { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
+.rich-presets button {
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  font-size: 12.5px;
+  background: var(--color-wash);
+  cursor: pointer;
+}
+.rich-presets button.on { background: var(--color-navy); border-color: var(--color-navy); color: #fff; }
+.rich-slider {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 1.2fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.rich-slider input { width: 100%; accent-color: var(--color-navy); }
+.rich-slider-val { min-width: 4.5rem; text-align: right; font-family: var(--font-mono); font-size: 12px; color: var(--color-ink); }
+@media (max-width: 560px) {
+  .rich-slider { grid-template-columns: 1fr auto; }
+  .rich-slider input { grid-column: 1 / -1; }
+  .rich-slider-label { grid-row: 1; }
+  .rich-slider-val { grid-row: 1; grid-column: 2; }
+}
+.rich-select { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 12.5px; color: var(--color-faint); }
+.rich-select select {
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  font-size: 12.5px;
+  color: var(--color-ink);
+  background: #fff;
+}
+.rich-checks { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
+.rich-check-opt { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 13px; color: var(--color-ink); cursor: pointer; }
+.rich-check-opt input { accent-color: var(--color-navy); }
+.rich-pen { margin-bottom: 0.75rem; color: var(--color-muted); line-height: 1.4; }
+.rich-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin-bottom: 0.5rem; font-size: 12px; color: var(--color-muted); }
+.rich-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 2px; vertical-align: -1px; }
+.rich-legend i.line { height: 2px; width: 14px; vertical-align: 3px; }
+
+/* readouts */
+.rich-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  margin-top: 0.6rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-line-soft);
+}
+.rich-readout.col { flex-direction: column; gap: 0.6rem; border-top: 0; padding-top: 0; margin-top: 0; }
+.rich-readout > div { display: flex; flex-direction: column; }
+.rich-readout .k { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-faint); }
+.rich-readout .big { font-size: 22px; font-weight: 600; color: var(--color-ink); }
+.rich-readout .small { font-size: 13px; color: var(--color-muted); }
+.rich-observed { margin-top: 0.4rem; font-size: 13.5px; color: var(--color-muted); }
+.rich-unit-name { margin-bottom: 0.25rem; font-size: 13.5px; font-weight: 600; color: var(--color-ink); }
+.rich-empty { padding: 1rem 0; font-size: 14px; color: var(--color-faint); }
+
+/* court */
+/* Always stacked: the figure column is narrower than the viewport, so a viewport query
+   cannot tell whether a side panel fits. The panel splits in two on a container query. */
+.rich-court-wrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; justify-items: center; container-type: inline-size; }
+.rich-court-wrap > svg { max-width: 100%; }
+.rich-court-side { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.75rem 1.5rem; align-items: start; }
+.rich-court-side .rich-mini { margin-top: 0; }
+.rich-court-wrap + .rich-controls { margin-top: 1.25rem; }
+@container (min-width: 540px) {
+  .rich-court-side { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+.rich-court-initial { font-family: var(--font-sans); font-size: 12px; font-weight: 700; fill: #fff; }
+.rich-court-name { font-family: var(--font-sans); font-size: 12px; font-weight: 600; fill: var(--color-ink); paint-order: stroke; stroke: #f7f4ec; stroke-width: 3px; }
+.rich-court-pct { font-family: var(--font-mono); font-size: 10.5px; fill: var(--color-muted); paint-order: stroke; stroke: #f7f4ec; stroke-width: 3px; }
+.rich-court-pct.red { fill: var(--color-red); font-weight: 600; }
+.rich-mini { width: 100%; margin-top: 0.75rem; border-collapse: collapse; font-size: 12.5px; }
+.rich-mini th { font-family: var(--font-mono); font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; text-align: left; color: var(--color-faint); padding: 4px 6px; border-bottom: 1px solid var(--color-line); }
+.rich-mini td { padding: 5px 6px; border-bottom: 1px solid var(--color-line-soft); font-variant-numeric: tabular-nums; }
+.rich-mini .r { text-align: right; }
+.rich-mini tr.hl td { color: var(--color-red); font-weight: 600; }
+
+/* tables */
+.rich-table-wrap { overflow-x: auto; }
+.rich-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.rich-table th {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--color-line);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--color-faint);
+  vertical-align: bottom;
+  line-height: 1.35;
+}
+.rich-table td { white-space: nowrap; }
+.rich-table td:first-child { white-space: normal; min-width: 7rem; }
+.rich-table th button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; cursor: pointer; }
+.rich-sort { margin-left: 3px; font-size: 9px; }
+.rich-table td { padding: 7px 8px; border-bottom: 1px solid var(--color-line-soft); color: var(--color-ink); font-variant-numeric: tabular-nums; }
+.rich-table .r { text-align: right; }
+.rich-table tr.hl td { background: #fbf8f0; font-weight: 600; }
+.rich-table-wrap.compact .rich-table td { padding: 5px 8px; font-size: 12.5px; }
+.rich-figure-table { padding-bottom: 0.75rem; }
+
+/* stat tiles */
+.rich-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-line);
+}
+@media (min-width: 720px) { .rich-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.rich-stat { background: #fff; padding: 0.9rem 1rem; }
+.rich-stat-value { font-size: 28px; font-weight: 600; line-height: 1.1; color: var(--color-ink); }
+.rich-stat-label { margin-top: 0.35rem; font-size: 13px; color: var(--color-muted); }
+.rich-stat-sub { margin-top: 0.15rem; font-family: var(--font-mono); font-size: 11px; color: var(--color-faint); }
+
+/* quote */
+.rich-quote {
+  margin: 2.5rem 0 !important;
+  border-left: 3px solid var(--color-gold);
+  padding: 0.25rem 0 0.25rem 1.5rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 24px;
+  line-height: 1.45;
+  color: var(--color-navy);
+}
+
+/* clips */
+.rich-clip, .rich-video { margin-top: 1.75rem !important; }
+.rich-clip-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  background: var(--color-navy-deep);
+}
+.rich-clip-iframe, .rich-clip-video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.rich-clip-video { position: static; display: block; aspect-ratio: 16 / 9; border-radius: 8px; }
+.rich-clip-poster { position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; }
+.rich-clip-poster img { width: 100%; height: 100%; object-fit: cover; opacity: 0.88; transition: opacity 0.2s ease; }
+.rich-clip-poster:hover img { opacity: 1; }
+.rich-clip-blank { position: absolute; inset: 0; background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-navy-deep) 100%); }
+.rich-clip-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  height: 52px;
+  width: 52px;
+  transform: translate(-50%, -50%);
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--color-navy);
+  box-shadow: 0 8px 22px -10px rgba(0, 0, 0, 0.6);
+}
+.rich-clip-play.big { height: 68px; width: 68px; }
+.rich-clip-time {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  border-radius: 4px;
+  background: rgba(24, 43, 71, 0.86);
+  padding: 3px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #fff;
+}
+.rich-clip-cap { margin-top: 0.5rem; font-size: 13.5px; line-height: 1.5; color: var(--color-muted); }
+
+/* how-to + toc */
+.rich-howto {
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-wash);
+  padding: 1rem 1.15rem;
+  font-size: 14.5px;
+  color: var(--color-muted);
+}
+.rich-howto-head, .rich-toc-head {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+.rich-howto ul { margin-top: 0.5rem; display: grid; gap: 0.2rem; }
+.rich-howto .dot { display: inline-block; width: 9px; height: 9px; margin-right: 8px; border-radius: 2px; }
+.rich-howto .dot.case { background: var(--color-navy); }
+.rich-howto .dot.counter { background: var(--color-red); }
+.rich-howto .dot.answer { background: var(--color-gold); }
+.rich-howto .dot.verdict { background: var(--color-green); }
+.rich-howto-foot { margin-top: 0.6rem; }
+.rich-toc { border-top: 1px solid var(--color-line); padding-top: 1rem; }
+.rich-toc ol { margin-top: 0.6rem; display: grid; gap: 0.25rem; }
+@media (min-width: 640px) { .rich-toc ol { grid-template-columns: 1fr 1fr; column-gap: 1.5rem; } }
+.rich-toc a { display: flex; gap: 0.6rem; font-size: 14.5px; color: var(--color-ink); }
+.rich-toc a:hover { color: var(--color-navy); text-decoration: underline; text-decoration-color: var(--color-gold); }
+.rich-toc-k { flex: none; width: 3.6rem; font-family: var(--font-mono); font-size: 11px; color: var(--color-faint); padding-top: 3px; }
+
+/* checklist */
+.rich-check { border-top: 1px solid var(--color-line); }
+.rich-check-row { display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--color-line); }
+.rich-check-num { flex: none; font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--color-gold-deep); padding-top: 2px; }
+.rich-check-metric { font-size: 16px; font-weight: 600; color: var(--color-ink); }
+.rich-check-target { margin-top: 0.2rem; font-size: 13.5px; color: var(--color-ink); }
+.rich-check-target .k { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-faint); margin-right: 0.25rem; }
+.rich-check-target .sep { margin: 0 0.5rem; color: var(--color-faint); }
+.rich-check-why { margin-top: 0.35rem; font-size: 14px; line-height: 1.55; color: var(--color-muted); }
+.rich-matrix { overflow-x: auto; }
