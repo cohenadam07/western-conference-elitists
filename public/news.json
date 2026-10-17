@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-17T05:25:04.745439+00:00",
+  "generated_at": "2026-10-17T17:37:05.635478+00:00",
   "headlines": [
     {
       "id": "f41e20c49c751f9d",
@@ -29,7 +29,7 @@
         "ESPN College Basketball",
         "ESPN NBA"
       ],
-      "wce_line": "Cliff Hagan, who played a key role in the St. Louis Hawks' 1958 NBA championship and earned five consecutive All-Star selections, has passed away at the age of 94.",
+      "wce_line": "Cliff Hagan, who played a key role in the St. Louis Hawks' 1958 NBA championship and earned five consecutive All-Star nods, has passed away at the age of 94.",
       "players": []
     },
     {
@@ -41,7 +41,7 @@
       "also_covered_by": [
         "ESPN NBA"
       ],
-      "wce_line": "Strawther's injury could impact his league-average performance metrics, particularly in points and assists.",
+      "wce_line": "Strawther’s injury could impact his league-average performance metrics, particularly in points and true shooting percentage.",
       "players": [
         {
           "name": "Julian Strawther",
@@ -58,7 +58,7 @@
       "also_covered_by": [
         "Hoops Rumors"
       ],
-      "wce_line": "Connaughton's non-guaranteed contract expiration aligns with the Hornets' need to trim their roster to the NBA-mandated limit of 15 players.",
+      "wce_line": "The Hornets now have 15 players on their roster after waiving Pat Connaughton, who was a key reserve last season.",
       "players": [
         {
           "name": "Pat Connaughton",
@@ -75,7 +75,7 @@
       "also_covered_by": [
         "Hoops Rumors"
       ],
-      "wce_line": "Pritchard's contract extension is a rare instance of upward mobility in the NBA, offering him significant earnings despite his draft position and team circumstances.",
+      "wce_line": "Pritchard's contract extension places him in the 81st percentile for points per 75 possessions, showcasing his value despite being a late draft pick.",
       "players": [
         {
           "name": "Payton Pritchard",
@@ -92,19 +92,19 @@
       "also_covered_by": [
         "ESPN NBA"
       ],
-      "wce_line": "The three-guard starting lineup struggled with shooting efficiency in preseason, making only two out of nine three-pointers during their limited time together.",
+      "wce_line": "The three-guard starting lineup struggled with shooting efficiency in preseason play for the San Antonio Spurs.",
       "players": []
     },
     {
-      "id": "16398bf1b685eeef",
-      "title": "Spanish club contesting NBA eligibility of Thunder rookie Aday Mara over contract dispute",
-      "url": "https://sports.yahoo.com/nba/article/spanish-club-contesting-nba-eligibility-of-thunder-rookie-aday-mara-over-contract-dispute-174759365.html",
+      "id": "d846e94bd3236cc0",
+      "title": "Spanish club says it will oppose rookie Aday Mara's 'international transfer' to Thunder",
+      "url": "https://sports.yahoo.com/articles/spanish-club-says-oppose-rookie-221442046.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-16T17:47:59+00:00",
+      "published": "2026-10-16T22:14:42+00:00",
       "also_covered_by": [
         "ESPN NBA"
       ],
-      "wce_line": "The Thunder maintain Mara's NBA eligibility despite claims from his former Spanish club that they hold his rights until 2027 and plan to block his play.",
+      "wce_line": "The Thunder insist Aday Mara's college basketball experience negates any claims by his former Spanish club over his rights.",
       "players": []
     },
     {
@@ -116,7 +116,7 @@
       "also_covered_by": [
         "Yahoo Sports NBA"
       ],
-      "wce_line": "Zion Williamson and Jeremiah Fears led New Orleans' strong defensive effort against Dallas in their recent preseason game.",
+      "wce_line": "The New Orleans Pelicans aim to secure their preseason victory after defeating the Dallas Mavericks, while the Washington Wizards seek to recover from their loss against the Brooklyn Nets.",
       "players": []
     },
     {
@@ -128,43 +128,7 @@
       "also_covered_by": [
         "Yahoo Sports NBA"
       ],
-      "wce_line": "Both teams showcased strong performances in their recent preseason games, setting the stage for an exciting matchup at Chase Center.",
-      "players": []
-    },
-    {
-      "id": "db641f0640f95678",
-      "title": "Jimmy Butler's mission to return to the Warriors: 'I felt I let them down'",
-      "url": "https://www.espn.com/nba/story/_/id/50182801/jimmy-butler-acl-injury-return-warriors-title",
-      "outlet": "ESPN NBA",
-      "published": "2026-10-16T12:07:19+00:00",
-      "also_covered_by": [
-        "Yahoo Sports NBA"
-      ],
-      "wce_line": "Butler's return to the court would bring back a potent offensive presence for the Warriors, averaging 21 points, five rebounds, and five assists in his last stretch before injury.",
-      "players": []
-    },
-    {
-      "id": "b5274b5fed69b648",
-      "title": "Pistons vs Raptors preview: Preseason finale",
-      "url": "https://sports.yahoo.com/articles/pistons-vs-raptors-preview-preseason-150000364.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-16T15:00:00+00:00",
-      "also_covered_by": [
-        "RealGM"
-      ],
-      "wce_line": "Duren's dominance over the Timberwolves showcased the potential of Detroit's young core, hinting at a promising future for the team.",
-      "players": []
-    },
-    {
-      "id": "c70624fed5c88388",
-      "title": "How To Watch And Live Stream Philadelphia 76ers Vs Boston Celtics Preseason Game Tonight:  TV Channels, Team News, Start Time",
-      "url": "https://basketball.realgm.com/wiretap/287667/How-To-Watch-And-Live-Stream-Philadelphia-76ers-Vs-Boston-Celtics-Preseason-Game-Tonight-TV-Channels-Team-News-Start-Time",
-      "outlet": "RealGM",
-      "published": "2026-10-16T07:26:37+00:00",
-      "also_covered_by": [
-        "Yahoo Sports NBA"
-      ],
-      "wce_line": "Both teams will experiment with lineups, giving fans a glimpse of potential rotations for the upcoming season.",
+      "wce_line": "Both teams showcased strong defensive efforts in their recent games, with the Warriors overcoming a significant halftime deficit against the Lakers.",
       "players": []
     },
     {
@@ -176,20 +140,102 @@
       "also_covered_by": [
         "RealGM"
       ],
-      "wce_line": "Basket Zaragoza is seeking a financial settlement before allowing Aday Mara to play for the Oklahoma City Thunder in the NBA.",
+      "wce_line": "Zaragoza has warned it will block Mara's NBA debut until a financial settlement regarding his departure is reached.",
       "players": []
     },
     {
-      "id": "0452033cd136f827",
-      "title": "Sixers Sign Cris Carroll, Taye Fields To Camp Deals; Waive Duke Miles, Saint Thomas",
-      "url": "https://basketball.realgm.com/wiretap/287670/Sixers-Sign-Cris-Carroll-Taye-Fields-To-Camp-Deals;-Waive-Duke-Miles-Saint-Thomas",
-      "outlet": "RealGM",
-      "published": "2026-10-16T12:58:35+00:00",
-      "also_covered_by": [
-        "Yahoo Sports NBA"
-      ],
-      "wce_line": "Cris Carroll and Taye Fields signed to Exhibit 10 deals while Duke Miles and Saint Thomas were waived by the Sixers.",
-      "players": []
+      "id": "e1e96a1e0c40be23",
+      "title": "Hugo González puts cherry on top of growth-filled preseason",
+      "url": "https://sports.yahoo.com/articles/hugo-gonz-lez-puts-cherry-083138801.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-17T08:31:38+00:00",
+      "also_covered_by": [],
+      "wce_line": "González's 3-point shooting (54th percentile) and rebounding (78th percentile) showcased his well-rounded game in the Celtics' close win over Philadelphia.",
+      "players": [
+        {
+          "name": "Hugo Gonzalez",
+          "savant_url": "/basketball-savant.html?p=1642864"
+        }
+      ]
+    },
+    {
+      "id": "1adfb8dd74039279",
+      "title": "SB Nation Reacts: The Brandin Podziemski extension, after the fact",
+      "url": "https://sports.yahoo.com/articles/sb-nation-reacts-brandin-podziemski-044439314.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-17T04:44:39+00:00",
+      "also_covered_by": [],
+      "wce_line": "Podziemski's extension places him in the 67th percentile for points and assists, solidifying his role as a key contributor to the Warriors' rotation.",
+      "players": [
+        {
+          "name": "Brandin Podziemski",
+          "savant_url": "/basketball-savant.html?p=1641764"
+        }
+      ]
+    },
+    {
+      "id": "63e72436170f1613",
+      "title": "What should Lakers, fans expect from Bronny James as he enters third NBA season?",
+      "url": "https://sports.yahoo.com/articles/lakers-fans-expect-bronny-james-055531355.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-17T05:55:31+00:00",
+      "also_covered_by": [],
+      "wce_line": "Bronny James played 12 minutes in the preseason finale, scoring zero points and shooting 0-for-1 from beyond the arc.",
+      "players": [
+        {
+          "name": "Bronny James",
+          "savant_url": "/basketball-savant.html?p=1642355"
+        }
+      ]
+    },
+    {
+      "id": "9262bdbad45a8558",
+      "title": "Is a Dalton Knecht trade coming? First round pick's time with Lakers feels over",
+      "url": "https://sports.yahoo.com/articles/dalton-knecht-trade-coming-first-053723529.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-17T05:37:23+00:00",
+      "also_covered_by": [],
+      "wce_line": "Dalton Knecht's role with the Lakers has diminished, as the team added more wings and his shooting percentages are below league average this season.",
+      "players": [
+        {
+          "name": "Dalton Knecht",
+          "savant_url": "/basketball-savant.html?p=1642261"
+        }
+      ]
+    },
+    {
+      "id": "495c43b2f3676a1a",
+      "title": "JJ Redick still mulling over Quentin Grimes' role for the Lakers",
+      "url": "https://sports.yahoo.com/articles/jj-redick-still-mulling-over-052340086.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-17T05:23:40+00:00",
+      "also_covered_by": [],
+      "wce_line": "Redick remains uncertain about Quentin Grimes' starting role, opting to evaluate his performance in the preseason games.",
+      "players": [
+        {
+          "name": "Quentin Grimes",
+          "savant_url": "/basketball-savant.html?p=1629656"
+        }
+      ]
+    },
+    {
+      "id": "790114fef4bbfa53",
+      "title": "Magic Waive Malaki Branham, JD Davison, Kevin Knox",
+      "url": "https://www.hoopsrumors.com/2026/10/magic-waive-malaki-branham-jd-davison-kevin-knox.html",
+      "outlet": "Hoops Rumors",
+      "published": "2026-10-17T03:54:33+00:00",
+      "also_covered_by": [],
+      "wce_line": "Each waived player is eligible for a $91K bonus if they spend at least 60 days in the G League with the Osceola Magic.",
+      "players": [
+        {
+          "name": "Malaki Branham",
+          "savant_url": "/basketball-savant.html?p=1631103"
+        },
+        {
+          "name": "JD Davison",
+          "savant_url": "/basketball-savant.html?p=1631120"
+        }
+      ]
     },
     {
       "id": "9d399b8d463c3e2b",
@@ -198,7 +244,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-17T02:15:23+00:00",
       "also_covered_by": [],
-      "wce_line": "Julian Strawther's left knee sprain will keep him out until December, impacting Denver's bench depth and three-point shooting ahead of their season opener on October 22.",
+      "wce_line": "Julian Strawther's season debut with the Denver Nuggets is set for December after a left knee sprain suffered in October.",
       "players": [
         {
           "name": "Julian Strawther",
@@ -213,7 +259,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-17T01:29:03+00:00",
       "also_covered_by": [],
-      "wce_line": "James' all-around performance included 8 points, 8 rebounds, and 7 assists in 25 minutes before being substituted out.",
+      "wce_line": "James showcased his all-around game, finishing with 8 points, 8 rebounds, and 7 assists in 25 minutes before being substituted out.",
       "players": [
         {
           "name": "LeBron James",
@@ -232,11 +278,26 @@
       "outlet": "Hoops Rumors",
       "published": "2026-10-17T01:08:14+00:00",
       "also_covered_by": [],
-      "wce_line": "Terry's shooting efficiency (48% FG, 50% 3P, 67% FT) in preseason stands out despite limited minutes.",
+      "wce_line": "Terry's defensive impact, highlighted by his 91st percentile steals rate, may still factor into the Warriors' plans despite his potential waiver.",
       "players": [
         {
           "name": "Dalen Terry",
           "savant_url": "/basketball-savant.html?p=1631207"
+        }
+      ]
+    },
+    {
+      "id": "b87714d73964cb8e",
+      "title": "Jalen Brunson is afraid to open the bag with his Knicks NBA championship hat",
+      "url": "https://sports.yahoo.com/articles/jalen-brunson-afraid-open-bag-233102209.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-16T23:31:02+00:00",
+      "also_covered_by": [],
+      "wce_line": "Jalen Brunson, who ranked in the 97th percentile for points and assists during the season, hasn't opened his championship hat bag due to its strong odor.",
+      "players": [
+        {
+          "name": "Jalen Brunson",
+          "savant_url": "/basketball-savant.html?p=1628973"
         }
       ]
     },
@@ -247,7 +308,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-16T22:47:29+00:00",
       "also_covered_by": [],
-      "wce_line": null,
+      "wce_line": "The Celtics' starting lineup features four Exhibit-10 players, including Milos Uzan and Hayden Gray, against a strong 76ers team with key stars like Jaylen Brown and LeBron James.",
       "players": [
         {
           "name": "Jaylen Brown",
@@ -262,7 +323,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-16T21:57:55+00:00",
       "also_covered_by": [],
-      "wce_line": "The Knicks can exceed the second apron by signing both James Wiseman and Bruce Brown, staying under the hard cap with careful roster management.",
+      "wce_line": "The Knicks can exceed the second apron by signing both Wiseman and Brown, staying within owner James Dolan's roster guidelines.",
       "players": [
         {
           "name": "James Wiseman",
@@ -275,81 +336,13 @@
       ]
     },
     {
-      "id": "6ba679b0528e0d92",
-      "title": "Rockets Amen Thompson named best perimeter defender by NBA GMs",
-      "url": "https://sports.yahoo.com/articles/rockets-amen-thompson-named-best-185919436.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-16T18:59:19+00:00",
-      "also_covered_by": [],
-      "wce_line": "Amen Thompson received 30% of the vote for best perimeter defender, surpassing both his brother Ausar and Alex Caruso.",
-      "players": [
-        {
-          "name": "Amen Thompson",
-          "savant_url": "/basketball-savant.html?p=1641708"
-        }
-      ]
-    },
-    {
-      "id": "d3abb7c9ec72b335",
-      "title": "Knicks reportedly exploring Pacome Dadiet, Tyler Kolek trades so they can keep Bruce Brown",
-      "url": "https://sports.yahoo.com/articles/knicks-reportedly-exploring-pacome-dadiet-180339237.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-16T18:03:39+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Knicks aim to trade Pacome Dadiet or Tyler Kolek to keep Bruce Brown, with both players offering unique roles but limited impact based on their stats.",
-      "players": [
-        {
-          "name": "Pacome Dadiet",
-          "savant_url": "/basketball-savant.html?p=1642359"
-        },
-        {
-          "name": "Tyler Kolek",
-          "savant_url": "/basketball-savant.html?p=1642278"
-        },
-        {
-          "name": "Bruce Brown",
-          "savant_url": "/basketball-savant.html?p=1628971"
-        }
-      ]
-    },
-    {
-      "id": "ad5da6f9f347bcae",
-      "title": "Mike Gansey was reportedly key in the James Harden acquisition",
-      "url": "https://sports.yahoo.com/articles/mike-gansey-reportedly-key-james-173000709.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-16T17:30:00+00:00",
-      "also_covered_by": [],
-      "wce_line": "Mike Gansey's involvement in the Harden trade highlights his significant role in Cleveland's front office operations.",
-      "players": [
-        {
-          "name": "James Harden",
-          "savant_url": "/basketball-savant.html?p=201935"
-        }
-      ]
-    },
-    {
-      "id": "8b65c681edcd32d2",
-      "title": "Lakers have talked to Bucks about Jericho Sims trade, pessimism on trade being completed",
-      "url": "https://sports.yahoo.com/articles/lakers-talked-bucks-jericho-sims-152220899.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-16T15:22:20+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Lakers aim to reduce their roster and potentially acquire Jericho Sims, who despite limited offensive skills, excels in finishing dunks and rebounding.",
-      "players": [
-        {
-          "name": "Jericho Sims",
-          "savant_url": "/basketball-savant.html?p=1630579"
-        }
-      ]
-    },
-    {
       "id": "2988a092e5558b41",
       "title": "Caleb Houstan, Trail Blazers Sign Exhibit 10 Contract",
       "url": "https://basketball.realgm.com/wiretap/287676/Caleb-Houstan-Trail-Blazers-Sign-Exhibit-10-Contract",
       "outlet": "RealGM",
       "published": "2026-10-16T13:30:26+00:00",
       "also_covered_by": [],
-      "wce_line": "Caleb Houstan's addition to the Trail Blazers' G League affiliate improves their chances in the development and integration of talent from the NBA level.",
+      "wce_line": "Caleb Houstan's addition to the Trail Blazers' G League affiliate places him at a high Box Plus/Minus 69th percentile for the season.",
       "players": [
         {
           "name": "Caleb Houstan",
@@ -364,7 +357,7 @@
       "outlet": "RealGM",
       "published": "2026-10-16T13:08:55+00:00",
       "also_covered_by": [],
-      "wce_line": "Hunter Dickinson's recent contract suggests he remains a developmental player, continuing his journey between NBA and G League teams.",
+      "wce_line": "Hunter Dickinson's recent contract suggests he remains a project, with his current value at just the 2nd percentile in Box Plus/Minus.",
       "players": [
         {
           "name": "Hunter Dickinson",
@@ -379,7 +372,7 @@
       "outlet": "RealGM",
       "published": "2026-10-16T05:04:00+00:00",
       "also_covered_by": [],
-      "wce_line": "Eubanks's departure affects the Knicks' interior defense, given his high blocks per 75 percentile.",
+      "wce_line": null,
       "players": [
         {
           "name": "Drew Eubanks",
@@ -402,7 +395,7 @@
       "outlet": "RealGM",
       "published": "2026-10-16T04:49:36+00:00",
       "also_covered_by": [],
-      "wce_line": "Walter Clayton Jr.'s high assist percentage (91th percentile) makes him a valuable asset in potential trade discussions.",
+      "wce_line": "The Grizzlies are exploring trades for players valued by multiple teams, including the Warriors and Heat, for their potential in future drafts.",
       "players": [
         {
           "name": "GG Jackson",
@@ -421,7 +414,7 @@
       "outlet": "RealGM",
       "published": "2026-10-16T04:41:38+00:00",
       "also_covered_by": [],
-      "wce_line": null,
+      "wce_line": "The Lakers and Bucks discussions center on roster management, with the Lakers potentially waiving Dalton Knecht by Monday to reach the salary cap limit.",
       "players": [
         {
           "name": "Dalton Knecht",
@@ -440,7 +433,7 @@
       "outlet": "CBS Sports NBA",
       "published": "2026-10-15T20:00:43+00:00",
       "also_covered_by": [],
-      "wce_line": "The article highlights that while James Harden and Paul George rank highly in points and assists, their true shooting percentages lag behind the league average.",
+      "wce_line": "Both Harden and George rank higher in usage and assists than their rebounding and three-point shooting suggest, indicating significant overvaluation by some analysts.",
       "players": [
         {
           "name": "James Harden",
@@ -459,11 +452,30 @@
       "outlet": "CBS Sports NBA",
       "published": "2026-10-14T22:01:36+00:00",
       "also_covered_by": [],
-      "wce_line": "Porzingis, a key offseason signing for the Warriors, will miss the entire season due to an unspecified health issue.",
+      "wce_line": "Porzingis, at 31%, is below average from three this season, a key stat given his injury and absence for the Warriors.",
       "players": [
         {
           "name": "Kristaps Porzingis",
           "savant_url": "/basketball-savant.html?p=204001"
+        }
+      ]
+    },
+    {
+      "id": "d33ac9d116871f40",
+      "title": "NBA's most underrated players: An improving LaMelo Ball, a picked-on James Harden ... and a rookie?",
+      "url": "https://www.cbssports.com/nba/news/nba-most-underrated-players-lamelo-ball-james-harden-rookie/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-10-14T19:00:27+00:00",
+      "also_covered_by": [],
+      "wce_line": "Rookie Jalen Johnson, despite a strong season including an All-Star and All-NBA nod, was ranked only No. 30 by WCE voters.",
+      "players": [
+        {
+          "name": "LaMelo Ball",
+          "savant_url": "/basketball-savant.html?p=1630163"
+        },
+        {
+          "name": "James Harden",
+          "savant_url": "/basketball-savant.html?p=201935"
         }
       ]
     }
@@ -490,7 +502,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how Boston's defensive strategy impacts team performance.",
+      "wce_line": "The article analyzes how Boston's defensive strategy impacts their performance.",
       "source_type": "article"
     },
     {
@@ -502,7 +514,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Prediction markets have become increasingly influential, with platforms like Covers offering detailed insights and promotions such as the Fanatics Markets promo code.",
+      "wce_line": "Prediction markets have become a significant factor in shaping narratives around which teams are favored for the 2026-27 NBA title.",
       "source_type": "article"
     },
     {
@@ -514,7 +526,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Offensive rebounding rate will be crucial as Philadelphia aims to limit New York's second-chance opportunities.",
+      "wce_line": "Offensive rebounding rate will be crucial as Philadelphia aims to limit New York's second-chance possessions in their Opening Night matchup.",
       "source_type": "article"
     },
     {
@@ -526,7 +538,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The study found that when a star misses games, their teammates' usage rates typically increase, often at the cost of efficiency.",
+      "wce_line": "When a star misses games, teammates' counting stats often rise due to increased minutes and shots, but their efficiency usually declines as usage rates go up.",
       "source_type": "article"
     },
     {
@@ -538,7 +550,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The second apron restricts high-spending teams, aiming to ensure every team believes it can win each season.",
+      "wce_line": "The article discusses how new salary rules and competitive balance strategies aim to ensure every team has a chance to win, leading to more unpredictable champions each season.",
       "source_type": "article"
     },
     {
@@ -550,7 +562,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article highlights Pro Basketball Manager 2026 and NBA 2K27 as top PC games for basketball fans.",
+      "wce_line": "The article highlights Pro Basketball Manager 2026 and NBA 2K27 as top PC games for basketball fans, offering realistic coaching experiences and advanced gameplay features.",
       "source_type": "article"
     },
     {
@@ -562,7 +574,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Lineup data shows how players function together more effectively than individual stats can reveal.",
+      "wce_line": "Lineup data shows how players function together better than individual stats by measuring team performance during shared court time.",
       "source_type": "article"
     },
     {
@@ -574,7 +586,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Several teams have made significant offseason moves, raising expectations for their performance in the 2026–27 NBA season.",
+      "wce_line": "Teams like Miami and Philadelphia are raising expectations through major offseason moves, but their success depends on court performance.",
       "source_type": "article"
     },
     {
@@ -586,7 +598,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": null,
+      "wce_line": "The Sixers' new roster, including LeBron James and Jaylen Brown, significantly boosts their offensive and defensive profiles, shifting expectations from a mid-table finish to title contention.",
       "source_type": "article"
     },
     {
@@ -598,7 +610,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The analysis found that teams face 5 IN 7 game sequences, where they have no rest days, up to seven times a season.",
+      "wce_line": null,
       "source_type": "article"
     },
     {
@@ -622,7 +634,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how New York's defensive strategies have contributed to KAT's performance.",
+      "wce_line": "The article analyzes how New York's defensive strategies have improved KAT's performance.",
       "source_type": "article"
     },
     {
@@ -646,7 +658,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes Oklahoma City's strategy to counter Wemby's strengths.",
+      "wce_line": "The article analyzes Oklahoma City's strategic approach to defending against a specific player.",
       "source_type": "article"
     },
     {
@@ -658,7 +670,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how the Spurs adjusted their defensive strategies and Oklahoma City's focus on Wesley Matthews.",
+      "wce_line": "The article discusses how the Spurs adjusted their defensive strategy and Oklahoma City's focus on scoring against Dejounte Murray.",
       "source_type": "article"
     },
     {
@@ -670,7 +682,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how Oklahoma City adjusted their offense to create new play strategies.",
+      "wce_line": "The article discusses how Oklahoma City adjusted their offense to create new play options.",
       "source_type": "article"
     },
     {
