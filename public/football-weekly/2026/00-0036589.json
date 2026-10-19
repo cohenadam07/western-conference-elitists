@@ -1,1 +1,1 @@
-{"s":2026,"pos":"CB","w":[4,6],"t":["CHI","CHI"],"o":["NYJ","@ATL"],"m":{"pen":[0.0,0.0],"rstop":[0.0,0.0],"snaps":[1.0,null],"snapshr":[0.0,null]},"d":{}}
+{"s":2026,"pos":"CB","w":[4,6],"t":["CHI","CHI"],"o":["NYJ","@ATL"],"m":{"havoc":[null,0.0],"pen":[0.0,0.0],"rstop":[0.0,0.0],"rstoprate":[null,0.0],"snaps":[1.0,19.0],"snapshr":[0.0,19.57]},"d":{"dpsnap":[null,7.3],"drsnap":[null,1.8],"dsnap":[null,9.0]}}
