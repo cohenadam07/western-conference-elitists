@@ -1,1 +1,1 @@
-{"s":2026,"pos":"WR","w":[5],"t":["PIT"],"o":["IND"],"m":{"pen":[0.0],"snaps":[20.0],"snapshr":[26.67],"tpps":[0.0],"ypps":[0.0]},"d":{"opsnap":[10.2],"snap":[16.0]}}
+{"s":2026,"pos":"WR","w":[5,6],"t":["PIT","PIT"],"o":["IND","@TB"],"m":{"fppg":[null,0.0],"pen":[0.0,0.0],"snaps":[20.0,null],"snapshr":[26.67,null],"tpps":[0.0,null],"ypps":[0.0,null]},"d":{"opsnap":[10.2,null],"snap":[16.0,null]}}
