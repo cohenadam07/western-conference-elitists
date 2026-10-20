@@ -714,6 +714,8 @@ body.home-open .home{padding-bottom:64px}
 .ast-first{font-size:12.5px;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ast-last{font-family:var(--disp);font-weight:600;font-size:21px;line-height:1.08;letter-spacing:-.005em;color:var(--ink);
   margin-top:2px;overflow-wrap:anywhere}
+.ast-last.long{font-size:18px}
+.ast-last.xlong{font-size:16px}
 .ast-meta{font-size:12px;color:var(--faint);margin:5px 0 14px}
 /* margin-top:auto pins the rule and the value to the card's foot, so the five numbers line
    up whether a surname takes one line or two */
@@ -743,6 +745,8 @@ body.home-open .home{padding-bottom:64px}
   .ast-row{margin:0 -16px;padding:4px 16px 18px;scroll-padding:0 16px}
   .ast-card{flex-basis:164px}
   .ast-last{font-size:19.5px}
+  .ast-last.long{font-size:17px}
+  .ast-last.xlong{font-size:15px}
   .ast-num{font-size:31px}
 }
 @media (prefers-reduced-motion:reduce){ .ast-row.swap .ast-card{animation:none} .ast-card{transition:none} }
@@ -3614,6 +3618,12 @@ function astWhy(x,season){
     +' ('+astFmt1(v.rate)+' per 100 possessions vs. an average '+pw+', on '+(v.poss||0).toLocaleString('en-US')
     +' possessions). By part, per 100: '+parts.join(', ')+'.';
 }
+/* A surname's longest unbreakable run decides its size, so "Antetokounmpo" shrinks to fit
+   instead of breaking mid-word; hyphenated names still break at the hyphen. */
+function astLong(last){
+  var run=Math.max.apply(null,String(last).split(/[\s-]+/).map(function(w){return w.length;}));
+  return run>=15?' xlong':run>=12?' long':'';
+}
 function astCard(x,i,season){
   var p=x.p, nm=String(p.name||''), sp=nm.indexOf(' ');
   var first=sp>0?nm.slice(0,sp):'', last=sp>0?nm.slice(sp+1):nm;
@@ -3626,7 +3636,7 @@ function astCard(x,i,season){
     +'<span class="ast-init" aria-hidden="true">'+astEsc(astInitials(nm))+'</span></span>'
     +'<span class="ast-body">'
       +'<span class="ast-first">'+astEsc(first||' ')+'</span>'
-      +'<span class="ast-last">'+astEsc(last)+'</span>'
+      +'<span class="ast-last'+astLong(last)+'">'+astEsc(last)+'</span>'
       +'<span class="ast-meta">'+astEsc(p.team||'')+(gp?' · '+gp+' game'+(gp===1?'':'s'):'')+'</span>'
       +'<span class="ast-rule" aria-hidden="true"></span>'
       +'<span class="ast-num'+(x.v.value<0?' neg':'')+'">'+astFmt(x.v.value)+'</span>'
