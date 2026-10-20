@@ -1,18 +1,17 @@
 {
-  "generated_at": "2026-10-19T12:27:00.273388+00:00",
+  "generated_at": "2026-10-20T03:50:07.897961+00:00",
   "headlines": [
     {
-      "id": "6ded00eda9a0b737",
-      "title": "Thunder, Cason Wallace reportedly beat deadline, agree to 5-year, $139M contract extension",
-      "url": "https://sports.yahoo.com/nba/breaking-news/article/thunder-cason-wallace-reportedly-beat-deadline-agree-to-5-year-139m-contract-extension-030503662.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-19T02:35:30+00:00",
+      "id": "75a360aa09966379",
+      "title": "Cason Wallace, Thunder Agree To Five-Year, $139M Extension",
+      "url": "https://basketball.realgm.com/wiretap/287751/Cason-Wallace-Thunder-Agree-To-Five-Year-$139M-Extension",
+      "outlet": "RealGM",
+      "published": "2026-10-19T02:47:41+00:00",
       "also_covered_by": [
-        "RealGM",
-        "Hoops Rumors",
+        "CBS Sports NBA",
         "ESPN NBA"
       ],
-      "wce_line": null,
+      "wce_line": "Cason Wallace's new deal is nearly $28 million annually, the highest average value among his contract terms.",
       "players": [
         {
           "name": "Cason Wallace",
@@ -21,34 +20,91 @@
       ]
     },
     {
-      "id": "bc4b103ed1318125",
-      "title": "Suns, Oso Ighodaro Agree To Three-Year Extension",
-      "url": "https://www.hoopsrumors.com/2026/10/suns-ighodaro-agree-to-three-year-29mm-extension.html",
+      "id": "69ceddfd450cfc37",
+      "title": "Timberwolves, Jaden McDaniels Agree To One-Year Extension",
+      "url": "https://www.hoopsrumors.com/2026/10/timberwolves-jaden-mcdaniels-agree-to-one-year-extension.html",
       "outlet": "Hoops Rumors",
-      "published": "2026-10-18T23:27:29+00:00",
+      "published": "2026-10-20T01:44:56+00:00",
       "also_covered_by": [
         "Yahoo Sports NBA",
+        "ESPN NBA"
+      ],
+      "wce_line": "Jaden McDaniels' new extension will boost his true shooting percentage, already at the 77th percentile league-wide, to potentially even higher efficiency next season.",
+      "players": [
+        {
+          "name": "Jaden McDaniels",
+          "savant_url": "/basketball-savant.html?p=1630183"
+        }
+      ]
+    },
+    {
+      "id": "3f4a3c4e7adbfe24",
+      "title": "Hornets, Brandon Miller reportedly agree to $209M contract extension ahead of Monday's deadline",
+      "url": "https://sports.yahoo.com/nba/breaking-news/article/hornets-brandon-miller-reportedly-agree-to-209m-contract-extension-ahead-of-mondays-deadline-210214163.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-19T21:02:14+00:00",
+      "also_covered_by": [
         "RealGM",
         "ESPN NBA"
       ],
-      "wce_line": null,
+      "wce_line": "Brandon Miller's true shooting percentage ranks at the 48th percentile among wings, showing his efficiency in scoring despite not being a top-tier shooter according to this season's stats.",
       "players": [
         {
-          "name": "Oso Ighodaro",
-          "savant_url": "/basketball-savant.html?p=1642345"
+          "name": "Brandon Miller",
+          "savant_url": "/basketball-savant.html?p=1641706"
         }
       ]
     },
     {
-      "id": "66a01e2bf5b183c3",
-      "title": "Stephen Curry 'fine' after leaving practice early following ankle tweak ahead of season opener",
-      "url": "https://sports.yahoo.com/nba/breaking-news/article/stephen-curry-fine-after-leaving-practice-early-following-ankle-tweak-ahead-of-season-opener-000530483.html",
+      "id": "3c517e68e79ba254",
+      "title": "Grizzlies Waive Walter Clayton Jr., Micah Peavy",
+      "url": "https://www.hoopsrumors.com/2026/10/grizzlies-waiving-walter-clayton-jr-micah-peavy.html",
+      "outlet": "Hoops Rumors",
+      "published": "2026-10-19T20:58:28+00:00",
+      "also_covered_by": [
+        "Yahoo Sports NBA",
+        "RealGM"
+      ],
+      "wce_line": "Micah Peavy was sidelined during training camp and the preseason due to an ankle injury.",
+      "players": [
+        {
+          "name": "Walter Clayton Jr.",
+          "savant_url": "/basketball-savant.html?p=1642383"
+        },
+        {
+          "name": "Micah Peavy",
+          "savant_url": "/basketball-savant.html?p=1642877"
+        }
+      ]
+    },
+    {
+      "id": "ae9ae0eb0bb7535c",
+      "title": "Lakers waive Dalton Knecht, roster now at 15 players",
+      "url": "https://sports.yahoo.com/articles/lakers-waive-dalton-knecht-roster-205237575.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T23:38:12+00:00",
+      "published": "2026-10-19T20:52:37+00:00",
+      "also_covered_by": [
+        "Hoops Rumors",
+        "RealGM"
+      ],
+      "wce_line": "The Lakers' roster now stands at 15 players after waiving Dalton Knecht, who struggled with defensive shortcomings and limited impact in the preseason.",
+      "players": [
+        {
+          "name": "Dalton Knecht",
+          "savant_url": "/basketball-savant.html?p=1642261"
+        }
+      ]
+    },
+    {
+      "id": "db0cd9ae117a8f3c",
+      "title": "Stephen Curry Expected To Play In Warriors' Opener Despite Rolling Ankle Sunday",
+      "url": "https://basketball.realgm.com/wiretap/287767/Stephen-Curry-Expected-To-Play-In-Warriors-Opener-Despite-Rolling-Ankle-Sunday",
+      "outlet": "RealGM",
+      "published": "2026-10-19T20:25:50+00:00",
       "also_covered_by": [
         "ESPN NBA"
       ],
-      "wce_line": null,
+      "wce_line": "Stephen Curry, despite rolling his ankle Sunday, practiced fully Monday and is expected to play in the Warriors' season opener against the Lakers.",
       "players": [
         {
           "name": "Stephen Curry",
@@ -57,427 +113,395 @@
       ]
     },
     {
-      "id": "55554efef8d1a193",
-      "title": "Suns, Oso Ighodaro Discussing Contract Extension",
-      "url": "https://www.hoopsrumors.com/2026/10/suns-oso-ighodaro-discussing-contract-extension.html",
-      "outlet": "Hoops Rumors",
-      "published": "2026-10-18T14:22:03+00:00",
-      "also_covered_by": [
-        "Yahoo Sports NBA"
-      ],
-      "wce_line": null,
-      "players": [
-        {
-          "name": "Oso Ighodaro",
-          "savant_url": "/basketball-savant.html?p=1642345"
-        }
-      ]
-    },
-    {
-      "id": "71064fcd4bb9636a",
-      "title": "Christian Koloko Signs With Crvena Zvezda",
-      "url": "https://www.hoopsrumors.com/2026/10/christian-koloko-signs-with-crvena-zvezda.html",
-      "outlet": "Hoops Rumors",
-      "published": "2026-10-18T13:04:49+00:00",
-      "also_covered_by": [
-        "RealGM"
-      ],
-      "wce_line": "Koloko's rebounding skills are valued in his new team, with a EuroLeague percentile of 73rd for rebounds per 75 possessions.",
-      "players": [
-        {
-          "name": "Christian Koloko",
-          "savant_url": "/basketball-savant.html?p=1631132"
-        }
-      ]
-    },
-    {
-      "id": "11c1766edf2ecde2",
-      "title": "Wizards Convert Reece Beekman To Two-Way Contract; Waive Trevor Keels, Chris Livingston, Alondes Williams",
-      "url": "https://basketball.realgm.com/wiretap/287720/Wizards-Convert-Reece-Beekman-To-Two-Way-Contract;-Waive-Trevor-Keels-Chris-Livingston-Alondes-Williams",
-      "outlet": "RealGM",
-      "published": "2026-10-17T19:31:10+00:00",
-      "also_covered_by": [
-        "Yahoo Sports NBA"
-      ],
-      "wce_line": "The Wizards' waived players include a guard at the 76th percentile and one at the 30th in Box Plus/Minute this season.",
-      "players": [
-        {
-          "name": "Trevor Keels",
-          "savant_url": "/basketball-savant.html?p=1631211"
-        },
-        {
-          "name": "Chris Livingston",
-          "savant_url": "/basketball-savant.html?p=1641753"
-        },
-        {
-          "name": "Alondes Williams",
-          "savant_url": "/basketball-savant.html?p=1631214"
-        }
-      ]
-    },
-    {
-      "id": "5237e193ef279852",
-      "title": "The Spurs will start Dylan Harper on opening night, so where does that leave De'Aaron Fox?",
-      "url": "https://www.cbssports.com/nba/news/spurs-start-dylan-harper-opening-night-deaaron-fox/",
-      "outlet": "CBS Sports NBA",
-      "published": "2026-10-17T21:05:35+00:00",
-      "also_covered_by": [
-        "Yahoo Sports NBA"
-      ],
-      "wce_line": "De'Aaron Fox's high usage and assist percentages make him crucial, despite his injured ankle concerns, as the trio of guards risks defensive mismatches without his ball-handling.",
-      "players": [
-        {
-          "name": "Dylan Harper",
-          "savant_url": "/basketball-savant.html?p=1642844"
-        },
-        {
-          "name": "De'Aaron Fox",
-          "savant_url": "/basketball-savant.html?p=1628368"
-        }
-      ]
-    },
-    {
-      "id": "974ec33d892e03e0",
-      "title": "Kings' Ben Simmons reportedly is believed to have torn Achilles in practice",
-      "url": "https://sports.yahoo.com/articles/kings-ben-simmons-reportedly-believed-154651314.html",
+      "id": "2073ae81157854b2",
+      "title": "Bucks waive Kevin Porter Jr.",
+      "url": "https://sports.yahoo.com/articles/bucks-waive-kevin-porter-jr-224715487.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T15:46:51+00:00",
+      "published": "2026-10-19T22:47:15+00:00",
       "also_covered_by": [
         "ESPN NBA"
       ],
-      "wce_line": "Ben Simmons' first season with the Kings is now likely over due to a suspected torn Achilles tendon sustained in practice.",
-      "players": []
+      "wce_line": "Kevin Porter Jr.'s waiving by the Bucks sees him leaving after posting a 79th percentile points per 75 rating but struggling with a 40th percentile true shooting percentage.",
+      "players": [
+        {
+          "name": "Kevin Porter Jr.",
+          "savant_url": "/basketball-savant.html?p=1629645"
+        }
+      ]
     },
     {
-      "id": "4bc92034312db4bf",
-      "title": "Ben Simmons' comeback ends before it began: Kings guard suffers torn Achilles, likely to miss season",
-      "url": "https://www.cbssports.com/nba/news/ben-simmons-injury-achilles-kings-comeback-season/",
-      "outlet": "CBS Sports NBA",
-      "published": "2026-10-18T23:06:26+00:00",
+      "id": "0f1435bf538991a8",
+      "title": "Lakers waive former first-round pick Dalton Knecht before season opener",
+      "url": "https://sports.yahoo.com/articles/lakers-waive-former-first-round-213531755.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-19T21:35:31+00:00",
       "also_covered_by": [
-        "Yahoo Sports NBA"
+        "ESPN NBA"
       ],
-      "wce_line": "Ben Simmons, expected to start for the Sacramento Kings on opening night, suffered a season-ending torn Achilles tendon during practice.",
-      "players": []
+      "wce_line": "Dalton Knecht, who averaged 4.2 points and 10.2 minutes per game last season, was waived by the Lakers to meet NBA roster limits before the season opener.",
+      "players": [
+        {
+          "name": "Dalton Knecht",
+          "savant_url": "/basketball-savant.html?p=1642261"
+        }
+      ]
     },
     {
-      "id": "97960b211a01437e",
-      "title": "Ben Simmons Believed To Have Suffered Torn Achilles",
-      "url": "https://basketball.realgm.com/wiretap/287746/Ben-Simmons-Believed-To-Have-Suffered-Torn-Achilles",
+      "id": "c1ca3ebcec3d7c65",
+      "title": "Brandon Miller Likely To Sign Rookie Extension; Magic Not Expected To Extend Anthony Black",
+      "url": "https://basketball.realgm.com/wiretap/287754/Brandon-Miller-Likely-To-Sign-Rookie-Extension;-Magic-Not-Expected-To-Extend-Anthony-Black",
       "outlet": "RealGM",
-      "published": "2026-10-18T22:44:46+00:00",
+      "published": "2026-10-19T05:23:58+00:00",
       "also_covered_by": [
         "Hoops Rumors"
       ],
-      "wce_line": "Simmons' injury could impact Sacramento's starting lineup plans for the upcoming season.",
+      "wce_line": null,
+      "players": [
+        {
+          "name": "Brandon Miller",
+          "savant_url": "/basketball-savant.html?p=1641706"
+        },
+        {
+          "name": "Anthony Black",
+          "savant_url": "/basketball-savant.html?p=1641710"
+        }
+      ]
+    },
+    {
+      "id": "6bfd693a303238ea",
+      "title": "Dominick Barlow out with back injury to start regular season, will be reevaluated in two weeks",
+      "url": "https://sports.yahoo.com/articles/dominick-barlow-back-injury-start-214845185.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-19T21:48:45+00:00",
+      "also_covered_by": [
+        "Hoops Rumors"
+      ],
+      "wce_line": "Barlow's injury means the Sixers will start without one of their key rotation players, impacting their depth heading into the season opener.",
+      "players": [
+        {
+          "name": "Dominick Barlow",
+          "savant_url": "/basketball-savant.html?p=1631230"
+        }
+      ]
+    },
+    {
+      "id": "87e515455776602e",
+      "title": "Oso Ighodaro, Suns Agree To Three-Year, $29M Extension",
+      "url": "https://basketball.realgm.com/wiretap/287747/Oso-Ighodaro-Suns-Agree-To-Three-Year-$29M-Extension",
+      "outlet": "RealGM",
+      "published": "2026-10-18T23:33:42+00:00",
+      "also_covered_by": [
+        "Hoops Rumors"
+      ],
+      "wce_line": "Ighodaro's extension starts with the Suns' team option for $2.5 million in the 2027-28 season, covering his third year in Phoenix.",
+      "players": [
+        {
+          "name": "Oso Ighodaro",
+          "savant_url": "/basketball-savant.html?p=1642345"
+        }
+      ]
+    },
+    {
+      "id": "502c1144315d4979",
+      "title": "Suns Claim Drew Timme Off Waivers",
+      "url": "https://www.hoopsrumors.com/2026/10/suns-claim-drew-timme-off-waivers.html",
+      "outlet": "Hoops Rumors",
+      "published": "2026-10-19T21:45:56+00:00",
+      "also_covered_by": [
+        "Yahoo Sports NBA"
+      ],
+      "wce_line": "Drew Timme joins the Suns with a league-wide Points per 75 at the 44th percentile, providing depth to their frontcourt.",
+      "players": [
+        {
+          "name": "Drew Timme",
+          "savant_url": "/basketball-savant.html?p=1631166"
+        }
+      ]
+    },
+    {
+      "id": "94c50ef350960744",
+      "title": "Suns Convert Duop Reath To Two-Way Contract",
+      "url": "https://basketball.realgm.com/wiretap/287764/Suns-Convert-Duop-Reath-To-Two-Way-Contract",
+      "outlet": "RealGM",
+      "published": "2026-10-19T19:17:23+00:00",
+      "also_covered_by": [
+        "Hoops Rumors"
+      ],
+      "wce_line": "Reath's two-way contract with the Suns reflects his role as a versatile contributor, averaging higher points and rebounds in preseason compared to his regular season stats.",
+      "players": [
+        {
+          "name": "Duop Reath",
+          "savant_url": "/basketball-savant.html?p=1641871"
+        }
+      ]
+    },
+    {
+      "id": "3be0f046a95bc0c8",
+      "title": "Dwight Powell Waived By Mavericks",
+      "url": "https://basketball.realgm.com/wiretap/287759/Dwight-Powell-Waived-By-Mavericks",
+      "outlet": "RealGM",
+      "published": "2026-10-19T15:27:01+00:00",
+      "also_covered_by": [
+        "Yahoo Sports NBA"
+      ],
+      "wce_line": "Dwight Powell's waived by the Mavericks, who already had 15 standard contracts and saw him as a key community figure despite his low usage and points contributions.",
+      "players": [
+        {
+          "name": "Dwight Powell",
+          "savant_url": "/basketball-savant.html?p=203939"
+        }
+      ]
+    },
+    {
+      "id": "5d6af6be6f273ae1",
+      "title": "Sixers exercise Edgecombe's 3rd-year contract option for 2027-28 season",
+      "url": "https://sports.yahoo.com/articles/sixers-exercise-edgecombes-3rd-contract-183159021.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-19T18:31:59+00:00",
+      "also_covered_by": [
+        "Hoops Rumors"
+      ],
+      "wce_line": "Edgecombe is set to start alongside multiple All-Star players in the Sixers' regular-season opener.",
       "players": []
     },
     {
-      "id": "c4ff658ce8f1bbf0",
-      "title": "Stephen Curry limps off court at Warriors practice, Kerr says he's 'fine'",
-      "url": "https://sports.yahoo.com/articles/stephen-curry-limps-off-court-003622311.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-19T00:36:22+00:00",
-      "also_covered_by": [],
-      "wce_line": "Kerr warns fans to be mindful of the schedule due to managing multiple veteran players, including Curry.",
-      "players": [
-        {
-          "name": "Stephen Curry",
-          "savant_url": "/basketball-savant.html?p=201939"
-        }
-      ]
-    },
-    {
-      "id": "6fa5acdd8aea3215",
-      "title": "Steve Kerr Says Stephen Curry ‘Fine’ Following Injury Scare At Practice",
-      "url": "https://www.hoopsrumors.com/2026/10/steve-kerr-says-stephen-curry-is-fine-following-injury-scare-at-practice.html",
+      "id": "523fd9ae665f21d5",
+      "title": "Rockets Convert Tshiebwe, Phillips To Two-Ways, Waive Pedulla",
+      "url": "https://www.hoopsrumors.com/2026/10/rockets-convert-tshiebwe-phillips-to-two-ways-waive-pedulla.html",
       "outlet": "Hoops Rumors",
-      "published": "2026-10-19T00:06:27+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Warriors face significant depth issues, with key players like Jimmy Butler, Moses Moody, and Kristaps Porzingis also out due to injuries.",
-      "players": [
-        {
-          "name": "Stephen Curry",
-          "savant_url": "/basketball-savant.html?p=201939"
-        }
-      ]
+      "published": "2026-10-19T20:14:29+00:00",
+      "also_covered_by": [
+        "RealGM"
+      ],
+      "wce_line": "Tshiebwe and Phillips join the Rockets' two-way roster, while Pedulla is placed on waivers to make room for their new contracts.",
+      "players": []
     },
     {
-      "id": "67dc03f531bb1f78",
-      "title": "Stephen Curry Says He's 'Fine' After Leaving Scrimmage With Ankle Injury",
-      "url": "https://basketball.realgm.com/wiretap/287748/Stephen-Curry-Says-Hes-Fine-After-Leaving-Scrimmage-With-Ankle-Injury",
+      "id": "deebe8121f486288",
+      "title": "Trey Kaufman-Renn Signs With Kansas After Winning Eligibility Injunction",
+      "url": "https://basketball.realgm.com/wiretap/287761/Trey-Kaufman-Renn-Signs-With-Kansas-After-Winning-Eligibility-Injunction",
       "outlet": "RealGM",
-      "published": "2026-10-19T00:05:16+00:00",
-      "also_covered_by": [],
-      "wce_line": "Curry's right ankle injury occurred during Golden State's scrimmage, leaving his season opener status uncertain.",
-      "players": [
-        {
-          "name": "Stephen Curry",
-          "savant_url": "/basketball-savant.html?p=201939"
-        }
-      ]
+      "published": "2026-10-19T17:05:13+00:00",
+      "also_covered_by": [
+        "ESPN College Basketball"
+      ],
+      "wce_line": "Trey Kaufman-Renn, who played for Purdue and reached multiple NCAA tournament rounds, will join Kansas for his sixth year of eligibility following an injunction victory against the NCAA.",
+      "players": []
     },
     {
-      "id": "f75a93c64404d123",
-      "title": "Mike Brown fondly reflects on Bruce Brown following Knicks release",
-      "url": "https://sports.yahoo.com/articles/mike-brown-fondly-reflects-bruce-230632199.html",
+      "id": "f960cfb0edded641",
+      "title": "Men's AP preseason Top 25 poll reaction: What to know about every team",
+      "url": "https://www.espn.com/mens-college-basketball/story/_/id/50191393/ap-mens-preseason-top-25-poll-reaction-2026-27",
+      "outlet": "ESPN College Basketball",
+      "published": "2026-10-19T17:13:18+00:00",
+      "also_covered_by": [
+        "RealGM"
+      ],
+      "wce_line": "The 2026-27 season features several high-profile matchups, including Florida versus Duke and Michigan's return to the polls after coaching changes.",
+      "players": []
+    },
+    {
+      "id": "2eed66d438362297",
+      "title": "Drew Timme Waived, Immediately Picked up by Phoenix Suns",
+      "url": "https://sports.yahoo.com/articles/drew-timme-waived-immediately-picked-011858640.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T23:06:32+00:00",
-      "also_covered_by": [],
-      "wce_line": "Bruce Brown's 3-point shooting ranks in the 75th percentile of the league this season, showcasing his offensive versatility despite his overall usage remaining below average.",
-      "players": [
-        {
-          "name": "Bruce Brown",
-          "savant_url": "/basketball-savant.html?p=1628971"
-        }
-      ]
-    },
-    {
-      "id": "0618d5a53c5efbfd",
-      "title": "The Lakers appear to be really high on Adou Thiero",
-      "url": "https://sports.yahoo.com/articles/lakers-appear-really-high-adou-220700835.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T22:07:00+00:00",
-      "also_covered_by": [],
-      "wce_line": "Adou Thiero's impressive preseason play, particularly his athleticism, has the Lakers highly optimistic about his potential impact this season despite his limited time last year due to a knee injury.",
-      "players": [
-        {
-          "name": "Adou Thiero",
-          "savant_url": "/basketball-savant.html?p=1642876"
-        }
-      ]
-    },
-    {
-      "id": "00a78c12410205ee",
-      "title": "Spencer Jones On Track To Play In Season Opener",
-      "url": "https://basketball.realgm.com/wiretap/287745/Spencer-Jones-On-Track-To-Play-In-Season-Opener",
-      "outlet": "RealGM",
-      "published": "2026-10-18T21:42:35+00:00",
-      "also_covered_by": [],
-      "wce_line": "Jones, who started in 37 of 64 games last season and shot 40% from three, is set to play in the Nuggets' opener against Oklahoma City.",
-      "players": [
-        {
-          "name": "Spencer Jones",
-          "savant_url": "/basketball-savant.html?p=1642461"
-        }
-      ]
-    },
-    {
-      "id": "1cf0cc1fe62dc84f",
-      "title": "Devin Carter diagnosed with mono after signing two-way deal",
-      "url": "https://sports.yahoo.com/articles/devin-carter-diagnosed-mono-signing-202335912.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T20:23:35+00:00",
-      "also_covered_by": [],
-      "wce_line": "Devin Carter's two-way deal with the Celtics provides more control over his development, aligning with Boston's strategy to nurture young talent.",
-      "players": [
-        {
-          "name": "Devin Carter",
-          "savant_url": "/basketball-savant.html?p=1642269"
-        }
-      ]
-    },
-    {
-      "id": "9657e184141a449d",
-      "title": "Payton Pritchard doesn’t care about starting",
-      "url": "https://sports.yahoo.com/articles/payton-pritchard-doesn-t-care-202319634.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T20:23:19+00:00",
-      "also_covered_by": [],
-      "wce_line": "Payton Pritchard's new contract values his contributions across multiple facets of the game, from scoring and assisting to shooting三分球.",
-      "players": [
-        {
-          "name": "Payton Pritchard",
-          "savant_url": "/basketball-savant.html?p=1630202"
-        }
-      ]
-    },
-    {
-      "id": "591a8b1897c4c181",
-      "title": "Paul George Says He Found 'A Love Again For This Game' After Joining Celtics",
-      "url": "https://basketball.realgm.com/wiretap/287744/Paul-George-Says-He-Found-A-Love-Again-For-This-Game-After-Joining-Celtics",
-      "outlet": "RealGM",
-      "published": "2026-10-18T19:53:58+00:00",
-      "also_covered_by": [],
-      "wce_line": "Paul George, now with the Celtics, finds renewed passion in basketball after a trade that sent Jaylen Brown to the 76ers.",
-      "players": [
-        {
-          "name": "Paul George",
-          "savant_url": "/basketball-savant.html?p=202331"
-        }
-      ]
-    },
-    {
-      "id": "6aff38f413528d26",
-      "title": "Devin Carter Out Indefinitely With Mononucleosis",
-      "url": "https://basketball.realgm.com/wiretap/287743/Devin-Carter-Out-Indefinitely-With-Mononucleosis",
-      "outlet": "RealGM",
-      "published": "2026-10-18T19:20:06+00:00",
-      "also_covered_by": [],
-      "wce_line": "Carter's transition to a two-way contract comes after impressing in training camp and the preseason with the Boston Celtics.",
-      "players": [
-        {
-          "name": "Devin Carter",
-          "savant_url": "/basketball-savant.html?p=1642269"
-        }
-      ]
-    },
-    {
-      "id": "8752add6e9d2c0c4",
-      "title": "Kevin Durant has another social media beef, this time with Suns owner Mat Ishbia, Dillon Brooks",
-      "url": "https://sports.yahoo.com/nba/article/kevin-durant-has-another-social-media-beef-this-time-with-suns-owner-mat-ishbia-dillon-brooks-032735755.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T02:05:32+00:00",
-      "also_covered_by": [],
-      "wce_line": "Dillon Brooks, who was traded to the Suns alongside Kevin Durant in 2023, currently ranks higher in points per 75 possessions than Durant this season.",
-      "players": [
-        {
-          "name": "Kevin Durant",
-          "savant_url": "/basketball-savant.html?p=201142"
-        },
-        {
-          "name": "Dillon Brooks",
-          "savant_url": "/basketball-savant.html?p=1628415"
-        }
-      ]
-    },
-    {
-      "id": "1c959ef65e97185a",
-      "title": "Nuggets' Julian Strawther to miss opening weeks of NBA season with injury",
-      "url": "https://sports.yahoo.com/articles/nuggets-julian-strawther-miss-opening-170146690.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T17:01:46+00:00",
+      "published": "2026-10-20T01:18:58+00:00",
       "also_covered_by": [],
       "wce_line": null,
       "players": [
         {
-          "name": "Julian Strawther",
-          "savant_url": "/basketball-savant.html?p=1631124"
+          "name": "Drew Timme",
+          "savant_url": "/basketball-savant.html?p=1631166"
         }
       ]
     },
     {
-      "id": "565471063e12f4ba",
-      "title": "Why Kevin Durant completely missed Mat Ishbia's point about his Suns tenure, building a championship culture",
-      "url": "https://www.cbssports.com/nba/news/kevin-durant-mat-ishbia-phoenix-suns-championship-culture/",
+      "id": "4326f0b61dbafb0c",
+      "title": "How Bronny James became the last survivor of Lakers' 2024 draft class -- and why that's not a good thing",
+      "url": "https://www.cbssports.com/nba/news/bronny-james-last-survivor-lakers-2024-draft-class/",
       "outlet": "CBS Sports NBA",
-      "published": "2026-10-18T14:26:51+00:00",
+      "published": "2026-10-19T23:05:24+00:00",
       "also_covered_by": [],
-      "wce_line": "Ishbia acknowledged the Suns were a No. 8 or 9 seed when he bought the team in February 2023.",
+      "wce_line": "Neither Bronny James nor Dalton Knecht managed to reach even the 20th percentile in points per 75 possessions this season.",
       "players": [
         {
-          "name": "Kevin Durant",
-          "savant_url": "/basketball-savant.html?p=201142"
+          "name": "Bronny James",
+          "savant_url": "/basketball-savant.html?p=1642355"
         }
       ]
     },
     {
-      "id": "39d79a7e492609a3",
-      "title": "NBA awards picks, predictions: Luka Dončić for MVP, Joe Mazzulla for Coach of the Year among best value bets",
-      "url": "https://www.cbssports.com/nba/news/nba-awards-best-value-bets-picks-predictions/",
-      "outlet": "CBS Sports NBA",
-      "published": "2026-10-18T13:59:35+00:00",
-      "also_covered_by": [],
-      "wce_line": "Luka Dončić's high usage and assist percentages place him in the 99th percentile, making him a strong MVP candidate despite competition from younger players.",
-      "players": [
-        {
-          "name": "Luka Doncic",
-          "savant_url": "/basketball-savant.html?p=1629029"
-        }
-      ]
-    },
-    {
-      "id": "9e4a8b314b2adfaa",
-      "title": "Anthony Gill Makes Wizards Opening Night Roster",
-      "url": "https://basketball.realgm.com/wiretap/287741/Anthony-Gill-Makes-Wizards-Opening-Night-Roster",
-      "outlet": "RealGM",
-      "published": "2026-10-18T13:40:12+00:00",
-      "also_covered_by": [],
-      "wce_line": "Anthony Gill's non-guaranteed contract turned into a roster spot, his seventh consecutive with the Wizards.",
-      "players": [
-        {
-          "name": "Anthony Gill",
-          "savant_url": "/basketball-savant.html?p=1630264"
-        }
-      ]
-    },
-    {
-      "id": "ada0490e4b5c42f6",
-      "title": "Victor Wembanyama and the Spurs were shown lots of love in the new GM survey",
-      "url": "https://sports.yahoo.com/articles/victor-wembanyama-spurs-were-shown-130000900.html",
+      "id": "d1aafb15245d9af7",
+      "title": "Stephen Curry injury update: Will Warriors star be ready for NBA opener?",
+      "url": "https://sports.yahoo.com/articles/stephen-curry-injury-warriors-star-222355702.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T13:00:00+00:00",
+      "published": "2026-10-19T22:23:55+00:00",
       "also_covered_by": [],
-      "wce_line": "Victor Wembanyama's true shooting percentage ranks at the 84th percentile, showing his efficient scoring despite his young age and inexperience.",
+      "wce_line": "Stephen Curry, a 98th percentile points per 75 contributor, is expected to play in the season opener despite injuring his ankle during practice.",
+      "players": [
+        {
+          "name": "Stephen Curry",
+          "savant_url": "/basketball-savant.html?p=201939"
+        }
+      ]
+    },
+    {
+      "id": "0005f09fc1ed928b",
+      "title": "Mavericks pass on Dereck Lively II extension",
+      "url": "https://sports.yahoo.com/articles/mavericks-pass-dereck-lively-ii-221435363.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-19T22:14:35+00:00",
+      "also_covered_by": [],
+      "wce_line": "The Mavericks' decision reflects their cautious approach, valuing Lively's potential over immediate commitment with his injury history.",
+      "players": [
+        {
+          "name": "Dereck Lively II",
+          "savant_url": "/basketball-savant.html?p=1641726"
+        }
+      ]
+    },
+    {
+      "id": "073ee787d15b16ef",
+      "title": "Dalton Knecht waived by Lakers: Why the 2024 draft class was doomed from the start (and the No. 1 pick)",
+      "url": "https://www.cbssports.com/nba/news/nba-2024-draft-class-dalton-knecht-lakers-zaccharie-risacher/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-10-19T21:42:21+00:00",
+      "also_covered_by": [],
+      "wce_line": null,
+      "players": [
+        {
+          "name": "Dalton Knecht",
+          "savant_url": "/basketball-savant.html?p=1642261"
+        }
+      ]
+    },
+    {
+      "id": "6589a47e5640fbec",
+      "title": "Grading every NBA rookie extension: Evaluating new contracts for Victor Wembanyama, Keyonte George, more",
+      "url": "https://www.cbssports.com/nba/news/grading-nba-rookie-extensions-wembanyama-george-thompson-podziemski-wallace-miller/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-10-19T21:37:52+00:00",
+      "also_covered_by": [],
+      "wce_line": "Keyonte George's rookie extension values him more for his scoring ability than his overall impact on the team, with a 95th percentile points per 75 rating.",
       "players": [
         {
           "name": "Victor Wembanyama",
           "savant_url": "/basketball-savant.html?p=1641705"
+        },
+        {
+          "name": "Keyonte George",
+          "savant_url": "/basketball-savant.html?p=1641718"
         }
       ]
     },
     {
-      "id": "16316a71d7b2451f",
-      "title": "SB Nation Reacts results: Will the Rockets trade Kevin Durant at the deadline this year?",
-      "url": "https://sports.yahoo.com/articles/sb-nation-reacts-results-rockets-125252360.html",
+      "id": "acb5b893ed6bec33",
+      "title": "Small town stars Grant Nelson, Chaney Johnson make case for bigger roles as Nets two-ways",
+      "url": "https://sports.yahoo.com/articles/small-town-stars-grant-nelson-211736168.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T12:52:52+00:00",
+      "published": "2026-10-19T21:17:36+00:00",
       "also_covered_by": [],
-      "wce_line": "The vast majority of fans believe Kevin Durant will remain with the Rockets, despite his high individual performance metrics.",
+      "wce_line": "Grant Nelson's box plus-minus at 86th percentile stands out, showcasing his value despite limited minutes.",
       "players": [
         {
-          "name": "Kevin Durant",
-          "savant_url": "/basketball-savant.html?p=201142"
+          "name": "Grant Nelson",
+          "savant_url": "/basketball-savant.html?p=1641761"
+        },
+        {
+          "name": "Chaney Johnson",
+          "savant_url": "/basketball-savant.html?p=1643052"
         }
       ]
     },
     {
-      "id": "b3460fcdb3481ce8",
-      "title": "Inside the Suns: Bold Predictions, the biggest roster hole, Devin Booker",
-      "url": "https://sports.yahoo.com/articles/inside-suns-bold-predictions-biggest-120000383.html",
+      "id": "663c47427d0e58df",
+      "title": "There will never be another Dwight Powell",
+      "url": "https://sports.yahoo.com/articles/never-another-dwight-powell-210909498.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T12:00:00+00:00",
+      "published": "2026-10-19T21:09:09+00:00",
       "also_covered_by": [],
-      "wce_line": "Suns' Devin Booker, with his high usage and scoring efficiency, is projected to maintain top-tier performance despite facing tough competition in the Western Conference.",
+      "wce_line": "Dwight Powell's rebounding prowess, at 86th percentile, stands out despite his low usage and points contributions.",
       "players": [
         {
-          "name": "Devin Booker",
-          "savant_url": "/basketball-savant.html?p=1626164"
+          "name": "Dwight Powell",
+          "savant_url": "/basketball-savant.html?p=203939"
         }
       ]
     },
     {
-      "id": "13d0159301ad24b5",
-      "title": "Pistons season preview: Kevin Huerter’s 3-point shooting could make or break his spot in the rotation",
-      "url": "https://sports.yahoo.com/articles/pistons-season-preview-kevin-huerter-040000912.html",
+      "id": "04e792cd952ccef1",
+      "title": "Warriors coach gives crucial update on Stephen Curry injury sure to catch Lakers fans attention",
+      "url": "https://sports.yahoo.com/articles/warriors-coach-gives-crucial-stephen-210401228.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T04:00:00+00:00",
+      "published": "2026-10-19T21:04:01+00:00",
       "also_covered_by": [],
-      "wce_line": "Kevin Huerter's 3-point percentage is at a league 12th percentile this season, crucial for the Pistons' rotation in their quest to maintain Eastern Conference dominance.",
+      "wce_line": "Stephen Curry's expected return for the season opener means the Warriors will rely heavily on his league-leading 89th percentile true shooting percentage and 98th percentile points per 75.",
       "players": [
         {
-          "name": "Kevin Huerter",
-          "savant_url": "/basketball-savant.html?p=1628989"
+          "name": "Stephen Curry",
+          "savant_url": "/basketball-savant.html?p=201939"
         }
       ]
     },
     {
-      "id": "0dcbc3ce7e2c6154",
-      "title": "Miles McBride’s agent leaves door open for future talks with Knicks",
-      "url": "https://sports.yahoo.com/articles/miles-mcbride-agent-leaves-door-023553667.html",
+      "id": "7162a48270de7857",
+      "title": "Lakers waive Dalton Knecht ahead of season opener, roster deadline after failing to find trade partner",
+      "url": "https://sports.yahoo.com/nba/breaking-news/article/lakers-waive-dalton-knecht-ahead-of-season-opener-roster-deadline-after-failing-to-find-trade-partner-211639519.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-18T02:35:53+00:00",
+      "published": "2026-10-19T21:00:36+00:00",
       "also_covered_by": [],
-      "wce_line": "Miles McBride, with a 93rd percentile three-point percentage, remains a valuable asset despite the Knicks' reluctance to offer an extension.",
+      "wce_line": "Knecht's season statistics, including points and true shooting at below-average percentiles, contributed to his waiver by the Lakers.",
       "players": [
         {
-          "name": "Miles McBride",
-          "savant_url": "/basketball-savant.html?p=1630540"
+          "name": "Dalton Knecht",
+          "savant_url": "/basketball-savant.html?p=1642261"
+        }
+      ]
+    },
+    {
+      "id": "719065b9fa0e87a2",
+      "title": "Bucks Cut Kevin Porter Jr.",
+      "url": "https://www.hoopsrumors.com/2026/10/bucks-cut-kevin-porter-jr.html",
+      "outlet": "Hoops Rumors",
+      "published": "2026-10-19T20:59:45+00:00",
+      "also_covered_by": [],
+      "wce_line": "Kevin Porter Jr.'s 3-point percentage ranks at the 20th percentile league-wide.",
+      "players": [
+        {
+          "name": "Kevin Porter Jr.",
+          "savant_url": "/basketball-savant.html?p=1629645"
+        }
+      ]
+    },
+    {
+      "id": "e63de05fdd39f909",
+      "title": "Lakers cut Dalton Knecht, making roster compliant with league’s rules",
+      "url": "https://sports.yahoo.com/articles/lakers-cut-dalton-knecht-making-205140209.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-19T20:51:40+00:00",
+      "also_covered_by": [],
+      "wce_line": "Dalton Knecht's role with the Lakers diminished, as evidenced by his league percentiles in points (48th), true shooting (%42), and rebounds (36th).",
+      "players": [
+        {
+          "name": "Dalton Knecht",
+          "savant_url": "/basketball-savant.html?p=1642261"
         }
       ]
     }
   ],
   "analytics": [
+    {
+      "id": "9cfd9abce978214a",
+      "title": "Can the Spurs Build on Their Breakthrough Season?",
+      "url": "https://www.nbastuffer.com/can-the-spurs-build-on-their-breakthrough-season/",
+      "outlet": "NBAstuffer",
+      "published": "2026-10-19T12:21:30+00:00",
+      "authors": [
+        "nbastuffer.com"
+      ],
+      "wce_line": "The Spurs' 62-20 regular season included a plus-8.3 net rating, second-best in the league, highlighting their balanced offensive and defensive capabilities.",
+      "source_type": "article"
+    },
     {
       "id": "31587f7817cbd7a1",
       "title": "The LaMelo effect on the Wolves (and off-ball Ant)",
@@ -487,7 +511,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how LaMelo Ball's presence impacts both on and off the court for the Minnesota Timberwolves.",
+      "wce_line": "The article analyzes how LaMelo Ball's presence impacts the Minnesota Wolves' performance both on and off the ball.",
       "source_type": "article"
     },
     {
@@ -499,7 +523,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how Boston's defensive strategy impacts their performance.",
+      "wce_line": "The article analyzes how Boston's defensive strategy impacts team performance.",
       "source_type": "article"
     },
     {
@@ -511,7 +535,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": null,
+      "wce_line": "Prediction markets have become a significant factor in shaping narratives around which teams are favored to win the NBA Championship.",
       "source_type": "article"
     },
     {
@@ -535,7 +559,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "When a star misses games, teammates' counting stats often rise due to increased minutes and shots, but their efficiency usually decreases as usage rates go up.",
+      "wce_line": "The study found that when a star misses games, their teammates' usage rates often increase, typically at the cost of efficiency.",
       "source_type": "article"
     },
     {
@@ -547,7 +571,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The second apron payroll threshold is aimed at preventing a few teams from gaining an unfair competitive edge by limiting their ability to make certain trades and signings.",
+      "wce_line": "The article discusses how new salary rules and competitive balance strategies aim to ensure every team believes it can win, leading to increased fan engagement and unpredictability in the league.",
       "source_type": "article"
     },
     {
@@ -559,7 +583,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article recommends Pro Basketball Manager 2026 and NBA 2K27 as top PC games for basketball fans.",
+      "wce_line": "The article highlights Pro Basketball Manager 2026 and NBA 2K27 as top PC games for basketball fans.",
       "source_type": "article"
     },
     {
@@ -571,7 +595,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Lineup data shows how players function together better than individual stats by measuring team performance during shared court time.",
+      "wce_line": "Lineup data shows how players function together more effectively than individual stats can reveal.",
       "source_type": "article"
     },
     {
@@ -583,7 +607,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Teams like Miami and Philadelphia are raising expectations through major offseason moves, but their success depends on on-court performance and player chemistry.",
+      "wce_line": "Teams like Miami and Philadelphia are raising expectations through major offseason moves, but their success will depend on on-court performance and player fit.",
       "source_type": "article"
     },
     {
@@ -595,7 +619,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": null,
+      "wce_line": "The offensive efficiency dropped by -0.2 points compared to the previous season, indicating a need for improvement despite the roster overhaul.",
       "source_type": "article"
     },
     {
@@ -607,7 +631,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The analysis found that teams faced \"5IN7\" schedules more frequently, potentially impacting performance in the upcoming NBA season.",
+      "wce_line": "The analysis found that teams faced \"5IN7\" schedules five times, which could occur after the new games are scheduled post-NBA Cup.",
       "source_type": "article"
     },
     {
@@ -643,7 +667,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article explores how regular-season performance correlates with NBA Finals success.",
+      "wce_line": "This article explores how regular-season performance correlates with NBA Finals success.",
       "source_type": "article"
     },
     {
@@ -655,7 +679,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes Oklahoma City's strategic approach to defending against Wemby's offensive moves.",
+      "wce_line": "The article analyzes Oklahoma City's strategic approach to defend against a key player named Wemby.",
       "source_type": "article"
     },
     {
@@ -667,7 +691,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how the Spurs adjusted their defensive strategy and Oklahoma City's response.",
+      "wce_line": "The article discusses how the Spurs adjusted their defensive strategies and Oklahoma City's focus on Wesley Matthews.",
       "source_type": "article"
     },
     {
@@ -679,7 +703,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses OKC's new offensive strategies including the \"Wemby blocker.\"",
+      "wce_line": "The article discusses how Oklahoma City adjusted their offense to create new playing roles.",
       "source_type": "article"
     },
     {
@@ -703,7 +727,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article explores Dylan Harper's skill development and future prospects in basketball.",
+      "wce_line": "The article explores Dylan Harper's skills and future prospects in basketball.",
       "source_type": "article"
     }
   ]
