@@ -663,6 +663,89 @@ body.home-open .wrap{display:none}
   .home *{animation-duration:.001s!important}
   .home-title em::after{width:100%;animation:none}
 }
+/* ===== The All-Savant Team (home) =====
+   Our All-NBA team by the numbers: 2 guards, 2 wings, 1 big, picked on Savant value
+   (public/savant-value.js, learned by tools/savant-value/value.py). A starting-five row of
+   portrait cards; on phones the row swipes. The only motion is the swap when the 1st/2nd
+   team toggle is pressed. */
+body.home-open .home{padding-bottom:64px}
+.ast{position:relative;z-index:2;width:min(1040px,100%);margin:50px auto 4px;text-align:center;
+  opacity:0;animation:home-rise .85s .5s cubic-bezier(.2,.7,.2,1) forwards}
+.ast[hidden]{display:none}
+.ast-title{font-family:var(--disp);font-weight:600;font-size:clamp(26px,3.3vw,34px);line-height:1.1;
+  letter-spacing:-.01em;color:var(--ink);margin:0;display:inline-block;position:relative;padding-bottom:11px}
+.ast-title::after{content:"";position:absolute;left:50%;bottom:0;width:44px;margin-left:-22px;height:2px;
+  border-radius:2px;background:var(--gold)}
+.ast-sub{font-size:14px;line-height:1.55;color:var(--muted);margin:13px auto 18px;max-width:540px}
+.ast-sub b{color:var(--ink);font-weight:600}
+.ast-ctl{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.ast-seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.ast-seg button{font-family:var(--body);font-size:13px;font-weight:600;color:var(--muted);background:none;border:0;
+  border-radius:999px;padding:7px 17px;cursor:pointer;line-height:1.2;transition:color .16s ease,background .16s ease}
+.ast-seg button:hover{color:var(--ink)}
+.ast-seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.ast-season select{font-family:var(--body);font-size:13px;font-weight:600;color:var(--navy);
+  background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2322395A' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 13px center;
+  border:1px solid var(--line);border-radius:999px;padding:8px 32px 8px 15px;line-height:1.2;
+  -webkit-appearance:none;appearance:none;cursor:pointer;transition:border-color .16s ease}
+.ast-season select:hover{border-color:var(--gold)}
+.ast-seg button:focus-visible,.ast-season select:focus-visible,.ast-card:focus-visible,.ast-how:focus-visible{
+  outline:2px solid var(--gold);outline-offset:2px}
+.ast-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;text-align:left}
+.ast-card{display:flex;flex-direction:column;min-width:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;
+  box-shadow:0 1px 2px rgba(20,26,32,.04),0 18px 36px -26px rgba(34,57,90,.55);
+  transition:transform .22s cubic-bezier(.2,.7,.2,1),border-color .22s ease,box-shadow .22s ease}
+.ast-card:hover{transform:translateY(-3px);border-color:rgba(34,57,90,.4);
+  box-shadow:0 1px 2px rgba(20,26,32,.05),0 24px 40px -24px rgba(34,57,90,.62)}
+.ast-row.swap .ast-card{animation:ast-in .48s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*45ms)}
+@keyframes ast-in{from{opacity:0;transform:translateY(10px)}}
+/* the portrait: navy floor, a gold half-court traced behind the player */
+.ast-por{position:relative;display:block;aspect-ratio:1040/820;overflow:hidden;
+  background:radial-gradient(118% 92% at 50% 104%,#35577F 0%,#22395A 56%,#172A43 100%)}
+.ast-por::before{content:"";position:absolute;inset:0;opacity:.3;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 158' fill='none' stroke='%23C2A263' stroke-width='1.1'%3E%3Cpath d='M14 158 A86 86 0 0 1 186 158'/%3E%3Cpath d='M72 158 V96 H128 V158'/%3E%3Cpath d='M78 96 A22 22 0 0 1 122 96'/%3E%3C/svg%3E") no-repeat center bottom/100% auto}
+.ast-por img{position:absolute;left:0;bottom:0;width:100%;height:auto;display:block}
+.ast-pos{position:absolute;top:10px;left:12px;z-index:2;font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--gold)}
+.ast-init{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+  font-family:var(--disp);font-weight:600;font-size:42px;color:rgba(236,235,232,.88);letter-spacing:.01em}
+.ast-por.noimg .ast-init{display:flex}
+.ast-body{display:flex;flex-direction:column;flex:1;padding:13px 14px 15px}
+.ast-first{font-size:12.5px;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ast-last{font-family:var(--disp);font-weight:600;font-size:21px;line-height:1.08;letter-spacing:-.005em;color:var(--ink);
+  margin-top:2px;overflow-wrap:anywhere}
+.ast-meta{font-size:12px;color:var(--faint);margin:5px 0 14px}
+/* margin-top:auto pins the rule and the value to the card's foot, so the five numbers line
+   up whether a surname takes one line or two */
+.ast-rule{display:block;width:28px;height:2px;border-radius:2px;background:var(--gold);margin:auto 0 9px}
+.ast-num{font-family:var(--disp);font-weight:600;font-size:34px;line-height:1;letter-spacing:-.01em;color:var(--navy);
+  font-variant-numeric:lining-nums tabular-nums}
+.ast-num.neg{color:var(--muted)}
+.ast-unit{font-size:11.5px;line-height:1.3;color:var(--faint);margin-top:5px}
+.ast-note{font-size:13px;line-height:1.5;color:var(--muted);margin:16px auto 0;max-width:520px}
+.ast-how{margin-top:14px;background:none;border:0;padding:4px 2px;cursor:pointer;font-family:var(--body);font-size:13px;
+  font-weight:600;color:var(--navy);border-bottom:1px solid rgba(34,57,90,.28);transition:border-color .16s ease}
+.ast-how:hover{border-bottom-color:var(--gold)}
+.ast-expl{text-align:left;max-width:760px;margin:12px auto 0}
+.ast-expl[hidden]{display:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.ast-empty{grid-column:1/-1;padding:34px 0;font-size:13.5px;color:var(--faint);text-align:center}
+@media (max-width:860px){
+  .ast-row{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin:0 -24px;padding:4px 24px 20px;
+    scroll-padding:0 24px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .ast-row::-webkit-scrollbar{display:none}
+  .ast-card{flex:0 0 176px;scroll-snap-align:start}
+}
+@media (max-width:560px){
+  body.home-open .home{padding-bottom:56px}
+  .ast{margin-top:38px}
+  .ast-sub{font-size:13.5px;margin-bottom:16px}
+  .ast-row{margin:0 -16px;padding:4px 16px 18px;scroll-padding:0 16px}
+  .ast-card{flex-basis:164px}
+  .ast-last{font-size:19.5px}
+  .ast-num{font-size:31px}
+}
+@media (prefers-reduced-motion:reduce){ .ast-row.swap .ast-card{animation:none} .ast-card{transition:none} }
 /* ===================== Leaderboards ===================== */
 body.lb-open .home,body.lb-open .wrap{display:none}
 .lb{display:none;max-width:1180px;margin:0 auto;padding:22px 18px 90px}
@@ -787,6 +870,21 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
       </div>
     </div>
   </div>
+  <section class="ast" id="homeAST" aria-labelledby="astTitle" hidden>
+    <h2 class="ast-title" id="astTitle">The All-Savant Team</h2>
+    <p class="ast-sub" id="astSub"></p>
+    <div class="ast-ctl">
+      <div class="ast-seg" role="group" aria-label="Which team">
+        <button type="button" data-t="0" aria-pressed="true">1st team</button>
+        <button type="button" data-t="1" aria-pressed="false">2nd team</button>
+      </div>
+      <label class="ast-season"><span class="sr-only">Season</span><select id="astSeason" aria-label="Season"></select></label>
+    </div>
+    <div class="ast-row" id="astRow"></div>
+    <p class="ast-note" id="astNote" hidden></p>
+    <button type="button" class="ast-how" id="astHow" aria-expanded="false" aria-controls="astExpl">How the team is picked</button>
+    <div class="ast-expl expl" id="astExpl" hidden></div>
+  </section>
   <button class="home-lb" id="homeLbBtn" type="button">Build a Leaderboard <span aria-hidden="true">→</span></button>
   <div class="home-foot">wcehoops.com · Basketball Savant</div>
 </div>
@@ -900,6 +998,7 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
   <div class="lb-tablewrap"><table class="lb-table" id="lbTable"></table></div>
 </div>
 
+<script src="savant-value.js?v=1"></script>
 <script>
 /* ====== ENGINE CONFIG baked in; PLAYER DATA fetched at runtime (see init() at bottom) ======
    The metric config is small and stays inline; the ~68 MB player dataset loads from savant-data.json.
@@ -1908,6 +2007,7 @@ const EXPL={
  perim:{"what": "Perimeter Assignment Rate: the share of his defensive matchups spent on guards. Role, not ability: scheme drives much of it, and assignment is least reliable during switches.", "formula": "Perimeter rate = possessions guarding guards ÷ all matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup tracking, 2017-18 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
  contest:{"what": "Rim Contest Rate: of the shots he defended as the closest defender, the share taken within 6 feet. High marks a back-line, rim-anchoring role.", "formula": "Contest rate = shots defended within 6 ft ÷ all shots defended", "source": "NBA.com stats (stats.nba.com) player tracking (defense), 2013-14 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
  rimpm:{"what": "Rim FG% Allowed vs Expected: how shooters at the rim finished against him versus their normal rate. Inverted, so holding shooters down ranks higher. Ranked among bigs only.", "formula": "Rim FG% vs. expected = opponents' FG% within 6 ft vs. him − their usual FG% within 6 ft", "source": "NBA.com stats (stats.nba.com) player tracking (defense), 2013-14 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
+ allsavant:{"what": "The All-Savant Team is our All-NBA team, picked by the numbers alone: two guards, two wings and a big per team, each the highest Savant value at his position among qualified players. A player makes one team only. Savant value is the points he added to his team this season above a replacement-level player at his position, on the stats that are his own and the possessions he played.", "formula": "Value = (rate - replacement rate) x possessions / 100. Rate = points per 100 possessions vs. an average player at his position: efficiency on his own shots, usage, 3-point and free-throw rate, assist %, turnovers, rebound % at both ends, steals and blocks, each pulled toward the position average by its settle point, times what it is worth in luck-adjusted on/off, times the share of it that follows a player to a new team (0.79 for shooting efficiency to 0.97 for 3-point rate). From 2009-10 the rate then moves toward his own luck-adjusted on/off by minutes / (minutes + 6,400). Replacement = the 25th-percentile qualified player at his position that season.", "source": "NBA.com stats (stats.nba.com); Basketball Reference before 1996-97. Positions as on his card. Worth learned on 6,498 player-seasons (2009-10 to 2024-25, 2025-26 held out) by tools/savant-value/value.py; the numbers are in savant-value.json.", "sample": "Missed games cost him: he adds nothing on nights he doesn't play. Out of sample, this season's value predicts next season's on/off better than BPM (correlation .35 vs .29 on 2025-26, held out). Checked against the real All-NBA, never tuned to it: since 1988-89, 63% of our first and second teamers made the real first or second team, 75% made an All-NBA team. Before 2009-10 there is no on/off, so defense counts only through steals, blocks and rebounds. Early in a season the team moves a lot; it settles as possessions pile up."},
  pj_method:{"what": "How the projections work: one model behind every Fantasy number, the projection panel on the card and the connector.", "formula": "Marcel-style: last three seasons weighted 5/4/3 by minutes, regressed to position average by each stat's measured settle point, aged with curves fitted on prior seasons only. In season: blended with this season at the same settle point; minutes from 60% last 10 games + 40% season. Rookies: recent rookies' rates by position and minutes by draft slot (1-5: 26, 6-14: 19, 15-30: 17, 31-60: 11, undrafted: 12).", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). NBA.com stats (stats.nba.com) game logs; injury designations from Sleeper's public API (api.sleeper.app), read in your browser; nothing about your league is sent to us.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
  pj_min:{"what": "Projected minutes per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute minutes rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
  pj_pts:{"what": "Projected points per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute points rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
@@ -3281,8 +3381,10 @@ async function exportCard(){
 }
 /* Version: bumped on big releases only, never on the nightly data refresh (Adam's rule, Oct 2026).
    2.0.0 (Oct 2026): live through the season (refreshed after every slate), likely-to-settle
-   marks, pro-rated qualifier with a one-game opening week. */
-var VERSION='2.1.0';
+   marks, pro-rated qualifier with a one-game opening week.
+   2.1.0 (Oct 2026): Fantasy, Teams and Lineups tabs.
+   2.2.0 (Oct 2026): Savant value and the All-Savant Team (1st and 2nd team, every season). */
+var VERSION='2.2.0';
 function build(){
   const vc=document.getElementById('verchip');
   if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }
@@ -3450,11 +3552,149 @@ function loadTrending(){                             // real search-volume trend
     setTimeout(fb,2500);                              // never leave the skeleton hanging if the API is slow/absent
   }catch(e){ fb(); }
 }
+/* ================= THE ALL-SAVANT TEAM ======================================
+   Our All-NBA team, picked by the numbers alone: the highest Savant value at two guard,
+   two wing and one big spot, a 1st team and a 2nd. Savant value = points a player added
+   above a replacement at his position, on the stats that are his own and the possessions he
+   played (savant-value.js applies the numbers tools/savant-value/value.py learned; the
+   connector uses the same file). Recomputed from whatever data is loaded, so the team moves
+   with every refresh. Early in a season the landing keeps last season's team until teams
+   have played AST_MIN_GAMES; the new season is in the picker from night one. */
+var VALUE_MODEL=null, AST_MIN_GAMES=10, AST={team:0,season:null,cache:{},userSeason:false};
+function astEsc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+var AST_POS_WORD={Guard:'guard',Wing:'wing',Big:'big'};
+function astPosOf(p){ return p.pos; }                 // prepData() has already applied POS_FIX
+function astResults(season){
+  if(!VALUE_MODEL||!window.SavantValue) return null;
+  if(AST.cache[season]) return AST.cache[season];
+  var ps=(DATA.data[season]||{}).players||[];
+  var res=SavantValue.season(ps,VALUE_MODEL,astPosOf);
+  var teams=SavantValue.team(ps,res,VALUE_MODEL,astPosOf,2);
+  return (AST.cache[season]={res:res,teams:teams});
+}
+/* Games a season has run: the median over teams of the most games any of its players has. */
+function astSeasonGames(season){
+  var most={};
+  ((DATA.data[season]||{}).players||[]).forEach(function(p){
+    var c=p.m&&p.m.avail&&p.m.avail.season, g=(c&&c.n)||0;
+    if(p.team&&g>(most[p.team]||0)) most[p.team]=g;
+  });
+  var g=Object.keys(most).map(function(k){return most[k];}).sort(function(a,b){return a-b;});
+  return g.length?g[Math.floor(g.length/2)]:0;
+}
+function astFull(season){
+  var t=astResults(season);
+  return !!(t&&t.teams.length===2&&t.teams[0].length===5&&t.teams[1].length===5);
+}
+function astDefaultSeason(){
+  for(var i=0;i<DATA.seasons.length;i++){
+    var s=DATA.seasons[i];
+    if(DATA.current&&s===DATA.current.season&&astSeasonGames(s)<AST_MIN_GAMES) continue;
+    if(astFull(s)) return s;
+  }
+  return DATA.seasons[0];
+}
+function astFmt(v){ var r=Math.round(v); return (r>0?'+':r<0?'−':'')+Math.abs(r).toLocaleString('en-US'); }
+function astFmt1(v){ return (v>=0.05?'+':v<=-0.05?'−':'')+Math.abs(v).toFixed(1); }
+function astSeasonLabel(s){
+  var live=DATA.current&&DATA.current.season===s;
+  return s+(live?' (so far)':'');
+}
+function astInitials(n){
+  var w=String(n||'').replace(/[^A-Za-zÀ-ɏ' -]/g,'').trim().split(/\s+/);
+  return ((w[0]||'').charAt(0)+(w.length>1?w[w.length-1].charAt(0):'')).toUpperCase();
+}
+function astWhy(x,season){
+  var v=x.v, pw=AST_POS_WORD[x.pos]||'player', lab={};
+  (VALUE_MODEL.parts||[]).forEach(function(pt){ lab[pt.key]=pt.label.toLowerCase(); });
+  var parts=Object.keys(v.parts).map(function(k){return [k,v.parts[k]];})
+    .sort(function(a,b){return b[1]-a[1];})
+    .map(function(a){return (lab[a[0]]||a[0])+' '+astFmt1(a[1]);});
+  return x.p.name+', '+season+': '+astFmt(v.value)+' points over a replacement '+pw
+    +' ('+astFmt1(v.rate)+' per 100 possessions vs. an average '+pw+', on '+(v.poss||0).toLocaleString('en-US')
+    +' possessions). By part, per 100: '+parts.join(', ')+'.';
+}
+function astCard(x,i,season){
+  var p=x.p, nm=String(p.name||''), sp=nm.indexOf(' ');
+  var first=sp>0?nm.slice(0,sp):'', last=sp>0?nm.slice(sp+1):nm;
+  var gp=(p.m&&p.m.avail&&p.m.avail.season&&p.m.avail.season.n)||0;
+  var hasImg=typeof p.id==='number';
+  var why=astWhy(x,season);
+  return '<button type="button" class="ast-card" data-id="'+astEsc(String(p.id))+'" style="--i:'+i+'" title="'+astEsc(why)+'" aria-label="'+astEsc(why)+'">'
+    +'<span class="ast-por'+(hasImg?'':' noimg')+'"><span class="ast-pos">'+astEsc(x.pos)+'</span>'
+    +(hasImg?'<img src="'+headURL(p.id)+'" alt="" loading="lazy" decoding="async" onerror="this.parentNode.classList.add(\'noimg\');this.remove()">':'')
+    +'<span class="ast-init" aria-hidden="true">'+astEsc(astInitials(nm))+'</span></span>'
+    +'<span class="ast-body">'
+      +'<span class="ast-first">'+astEsc(first||' ')+'</span>'
+      +'<span class="ast-last">'+astEsc(last)+'</span>'
+      +'<span class="ast-meta">'+astEsc(p.team||'')+(gp?' · '+gp+' game'+(gp===1?'':'s'):'')+'</span>'
+      +'<span class="ast-rule" aria-hidden="true"></span>'
+      +'<span class="ast-num'+(x.v.value<0?' neg':'')+'">'+astFmt(x.v.value)+'</span>'
+      +'<span class="ast-unit">points over a replacement '+astEsc(AST_POS_WORD[x.pos]||'player')+'</span>'
+    +'</span></button>';
+}
+function astOpen(id,season){                          // leave home -> that player, in that season
+  try{ history.pushState({app:1},'',location.pathname+location.search+'#p'); }catch(e){}
+  hideHome();
+  if(curSeason!==season){ curSeason=season; fillRoster(); }
+  selectPlayer(asId(id));
+}
+function renderAST(swap){
+  var box=document.getElementById('homeAST'); if(!box) return;
+  if(!VALUE_MODEL||!window.SavantValue||!DATA){ box.hidden=true; return; }
+  var sel=document.getElementById('astSeason');
+  if(!AST.season||!DATA.data[AST.season]) AST.season=astDefaultSeason();
+  if(!sel.options.length||sel.dataset.n!==String(DATA.seasons.length)){
+    sel.innerHTML=DATA.seasons.map(function(s){
+      return '<option value="'+astEsc(s)+'">'+astEsc(astSeasonLabel(s))+'</option>'; }).join('');
+    sel.dataset.n=String(DATA.seasons.length);
+  }
+  sel.value=AST.season;
+  var season=AST.season, t=astResults(season), row=document.getElementById('astRow');
+  var live=DATA.current&&DATA.current.season===season&&DATA.current.through;
+  var when=live?' through '+new Date(DATA.current.through+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+  document.getElementById('astSub').innerHTML='<b>'+astEsc(season+when)+'.</b> Two guards, two wings and a big per team, '
+    +'picked on Savant value: the points each added over a replacement player at his position.';
+  document.querySelectorAll('#homeAST .ast-seg button').forEach(function(b){
+    b.setAttribute('aria-pressed',String(+b.dataset.t===AST.team)); });
+  var five=(t&&t.teams[AST.team])||[];
+  row.classList.remove('swap');
+  if(five.length<5){
+    row.innerHTML='<div class="ast-empty">Not enough qualified players in '+astEsc(season)+' to name a full team yet.</div>';
+  } else {
+    if(swap){ void row.offsetWidth; row.classList.add('swap'); }
+    row.innerHTML=five.map(function(x,i){ return astCard(x,i,season); }).join('');
+    row.scrollLeft=0;
+    row.querySelectorAll('.ast-card').forEach(function(b){ b.onclick=function(){ astOpen(b.dataset.id,season); }; });
+  }
+  var note=document.getElementById('astNote'), cs=DATA.current&&DATA.current.season;
+  if(cs&&cs!==season&&!AST.userSeason&&DATA.data[cs]){
+    note.textContent='The '+cs+' team takes over once teams have played '+AST_MIN_GAMES+' games. Pick '+cs+' above to see it so far.';
+    note.hidden=false;
+  } else note.hidden=true;
+  box.hidden=false;
+}
+function wireAST(){
+  var box=document.getElementById('homeAST'); if(!box||box.dataset.wired) return;
+  box.dataset.wired='1';
+  box.querySelectorAll('.ast-seg button').forEach(function(b){
+    b.onclick=function(){ var t=+b.dataset.t; if(t===AST.team) return; AST.team=t; renderAST(true); };
+  });
+  document.getElementById('astSeason').onchange=function(e){
+    AST.season=e.target.value; AST.userSeason=true; renderAST(true); };
+  var how=document.getElementById('astHow'), ex=document.getElementById('astExpl');
+  how.onclick=function(){
+    var open=ex.hidden;
+    if(open&&!ex.innerHTML) ex.innerHTML=explHtml('allsavant');
+    ex.hidden=!open; how.setAttribute('aria-expanded',String(open));
+  };
+}
 function showHome(){                                 // switch to the home VIEW (app is removed via body.home-open)
   const h=document.getElementById('home'); if(!h) return;
   document.body.classList.remove('lb-open'); if(window.svClear) window.svClear();
   document.body.classList.add('home-open');
   loadTrending();
+  try{ wireAST(); renderAST(false); }catch(e){ var a=document.getElementById('homeAST'); if(a) a.hidden=true; }
   window.scrollTo(0,0);
   const r=document.getElementById('homeResults'); if(r){ r.hidden=true; r.innerHTML=''; }
   const q=document.getElementById('homeq');
@@ -3764,9 +4004,11 @@ wirePanelExpl();
        on every load; the archive revalidates (a cheap 304 when unchanged) so new stats reach returning visitors. mergeSavant mirrors scripts/lib/savant-merge.mjs. */
     const got = await Promise.all([
       fetch('savant-data.json',{cache:'default'}).then(function(r){return r.json();}),
-      fetch('savant-current.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+      fetch('savant-current.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
+      fetch('savant-value.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
     ]);
     DATA = mergeSavant(got[0], got[1]);
+    VALUE_MODEL = got[2];
   }catch(err){
     if(idb) idb.innerHTML='<div class="id-name">Couldn’t load savant-data.json</div>'
       +'<div class="id-meta">Player data is fetched at runtime — open this page over http (or on the site), not directly from disk.</div>';

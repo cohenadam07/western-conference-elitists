@@ -1,0 +1,41 @@
+penalty (leave-one-season-out MSE): 1000: 23.885, 10000: 23.883, 30000: 23.880, 100000: 23.874, 300000: 23.895, 1e+06: 24.128, 3e+06: 25.058 -> 100000
+box fit on 6498 player-seasons (2009-10 to 2024-25, 250+ minutes)
+  sceff  +1.2772  (Points over average efficiency per 100)
+  usg    +0.1601  (Usage %)
+  tp3r   +0.0454  (3-point attempt rate)
+  ftr    +0.0158  (Free-throw rate)
+  ast    +0.1897  (Assist %)
+  tov    -1.2109  (Turnovers per 100)
+  oreb   +0.3004  (Offensive rebound %)
+  dreb   +0.0419  (Defensive rebound %)
+  stl    +2.1541  (Steals per 100)
+  blk    +0.6704  (Blocks per 100)
+  minutes-share control +0.0994 per point of share (left out of every rate)
+credit (share of each stat that follows a player to a new team, 1,500+ possessions both years):
+  sceff 0.79, usg 0.87, tp3r 0.97, ftr 0.94, ast 0.89, tov 0.89, oreb 0.95, dreb 0.93, stl 0.91, blk 0.95
+K (all, 5311 pairs): 2263  next-season MSE 23.376 vs box only 24.730
+K (changed, 1959 pairs): 6400  next-season MSE 24.515 vs box only 24.807
+K (stayed, 3352 pairs): 1600  next-season MSE 22.477 vs box only 24.689
+using the team-changers K (more cautious): 6400
+team check (210 team-seasons): slope 0.993, r 0.795 -> every rate x 0.993
+
+NEXT-SEASON CHECK (corr with next season on/off, minutes-weighted)
+  fit seasons                    all            n=5211  ours 0.390 | box part 0.351 | BPM 0.325 | raw on/off 0.345
+  fit seasons                    changed teams  n=1922  ours 0.252 | box part 0.232 | BPM 0.191 | raw on/off 0.186
+  2024-25 -> 2025-26 (holdout)   all            n= 352  ours 0.348 | box part 0.317 | BPM 0.290 | raw on/off 0.287
+  2024-25 -> 2025-26 (holdout)   changed teams  n= 116  ours 0.132 | box part 0.180 | BPM 0.114 | raw on/off -0.012
+
+ALL-NBA OVERLAP (sanity check, never a target) - our 1st+2nd teams vs real 1st/2nd/3rd
+  2015-16  1st on real 1st 3/5 · ours on real 1st/2nd  8/10 · on any All-NBA  8/10   1st: Stephen Curry, Chris Paul, LeBron James, Draymond Green, DeAndre Jordan
+  2016-17  1st on real 1st 2/5 · ours on real 1st/2nd  7/10 · on any All-NBA  8/10   1st: Stephen Curry, James Harden, LeBron James, Giannis Antetokounmpo, Nikola Jokić
+  2017-18  1st on real 1st 3/5 · ours on real 1st/2nd  5/10 · on any All-NBA  9/10   1st: James Harden, Stephen Curry, LeBron James, Giannis Antetokounmpo, Anthony Davis
+  2018-19  1st on real 1st 4/5 · ours on real 1st/2nd  9/10 · on any All-NBA  9/10   1st: James Harden, Stephen Curry, Giannis Antetokounmpo, Paul George, Anthony Davis
+  2019-20  1st on real 1st 3/5 · ours on real 1st/2nd  9/10 · on any All-NBA 10/10   1st: James Harden, Damian Lillard, Giannis Antetokounmpo, LeBron James, Nikola Jokić
+  2020-21  1st on real 1st 3/5 · ours on real 1st/2nd  8/10 · on any All-NBA  9/10   1st: Stephen Curry, Damian Lillard, Giannis Antetokounmpo, Jimmy Butler III, Nikola Jokić
+  2021-22  1st on real 1st 2/5 · ours on real 1st/2nd  6/10 · on any All-NBA  8/10   1st: Trae Young, Stephen Curry, Giannis Antetokounmpo, LeBron James, Nikola Jokic
+  2022-23  1st on real 1st 2/5 · ours on real 1st/2nd  7/10 · on any All-NBA  8/10   1st: Luka Doncic, Damian Lillard, Jimmy Butler III, Jayson Tatum, Nikola Jokic
+  2023-24  1st on real 1st 4/5 · ours on real 1st/2nd  6/10 · on any All-NBA  8/10   1st: Shai Gilgeous-Alexander, Luka Doncic, Giannis Antetokounmpo, LeBron James, Nikola Jokic
+  2024-25  1st on real 1st 3/5 · ours on real 1st/2nd  5/10 · on any All-NBA  6/10   1st: Shai Gilgeous-Alexander, Tyrese Haliburton, Giannis Antetokounmpo, Jimmy Butler III, Nikola Jokic
+  2025-26  1st on real 1st 3/5 · ours on real 1st/2nd  6/10 · on any All-NBA  7/10   1st: Shai Gilgeous-Alexander, Luka Doncic, Kawhi Leonard, Giannis Antetokounmpo, Nikola Jokic
+  fit seasons 37: 1st-on-1st 56%, ours on real 1st/2nd 63%, on any All-NBA 75%
+  hold seasons 1: 1st-on-1st 60%, ours on real 1st/2nd 60%, on any All-NBA 70%

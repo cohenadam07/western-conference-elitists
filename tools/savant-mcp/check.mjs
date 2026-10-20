@@ -35,6 +35,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { buildSavantApi, writeAll } from '../../scripts/lib/savant-api.mjs'
 import { readSavantDataForChecks } from '../../scripts/lib/savant-merge.mjs'
+import { readValueModel } from '../../scripts/lib/savant-value.mjs'
 import { CONNECTOR_URL, EXAMPLE, PROMPTS } from '../../src/data/connector.js'
 import { startStore } from './redis.mjs'
 
@@ -43,7 +44,7 @@ const html = readFileSync(path.join(ROOT, 'public/basketball-savant.html'), 'utf
 const data = readSavantDataForChecks(path.join(ROOT, 'public')) // archive + season in progress once it has a pool
 // Through JSON once, because that is what gets published: the source has a few -0.0 values,
 // which are plain 0 by the time they are a file.
-const files = JSON.parse(JSON.stringify(buildSavantApi({ data, html })))
+const files = JSON.parse(JSON.stringify(buildSavantApi({ data, html, valueModel: readValueModel(path.join(ROOT, 'public')) })))
 const latest = files.meta.latestSeason
 
 const listen = (server) => new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(server.address().port)))
@@ -240,7 +241,7 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   const { tools } = await client.listTools()
   // The whole list, by name. Adding or dropping a tool should be a decision, not a side effect.
   assert.deepEqual(tools.map((t) => t.name).sort(), [
-    'nba_draft_get_prospect_profile', 'nba_draft_search_prospects',
+    'nba_all_savant_team', 'nba_draft_get_prospect_profile', 'nba_draft_search_prospects',
     'nba_fantasy_lock_in', 'nba_fantasy_player', 'nba_fantasy_rankings', 'nba_fantasy_streamers', 'nba_fantasy_trade',
     'nba_get_player_profile', 'nba_injury_report', 'nba_lineups', 'nba_schedule', 'nba_search_players', 'nba_team_profile',
     'nfl_get_coach_profile', 'nfl_get_player_profile', 'nfl_search_coaches', 'nfl_search_players',
@@ -336,7 +337,7 @@ test('HTTP manners: stateless, POST only, CORS, clean errors', async () => {
   assert.equal(list.status, 200)
   assert.equal(list.headers.get('mcp-session-id'), null)
   assert.match(list.headers.get('content-type'), /application\/json/)
-  assert.equal((await list.json()).result.tools.length, 25)
+  assert.equal((await list.json()).result.tools.length, 26)
 
   const note = await post({ jsonrpc: '2.0', method: 'notifications/initialized' })
   assert.equal(note.status, 202)
@@ -648,6 +649,17 @@ test('every tool of every section answers through the endpoint', async () => {
   }
   await ok('nba_search_players', { query: 'jokic' }, /Nikola Jokic/)
   await ok('nba_get_player_profile', { player: 'Nikola Jokic' }, /vs\. bigs/)
+  // The All-Savant Team: the page's own savant-value.js, read off the season file
+  const ast = await ok('nba_all_savant_team', { season: '2025-26' }, /All-Savant Team, 2025-26/)
+  assert.equal(ast.teams.length, 2)
+  for (const t of ast.teams) assert.deepEqual(t.players.map((x) => x.position), ['Guard', 'Guard', 'Wing', 'Wing', 'Big'])
+  assert.deepEqual(ast.teams.map((t) => t.players.map((x) => x.id)), files.seasons['2025-26'].all_savant.map((t) => t.map(String)))
+  const one = await ok('nba_all_savant_team', { season: '1985-86', team: '1' }, /1st team/)
+  assert.equal(one.teams.length, 1)
+  const first = ast.teams[0].players[0]
+  const prof = await ok('nba_get_player_profile', { player: first.id, season: '2025-26' }, /Savant value: \+[\d,]+ points over a replacement guard in 2025-26.*All-Savant 1st Team/s)
+  assert.equal(prof.savant_value.all_savant_team, '1st')
+  assert.equal(prof.savant_value.points_over_replacement, first.points_over_replacement)
   // Basketball Savant's Fantasy, Teams and Lineups tabs (api/_fantasy.js)
   const fr = await ok('nba_fantasy_rankings', { limit: 5 }, /Points \(Sleeper default\)/)
   assert.equal(fr.players.length, 5)
