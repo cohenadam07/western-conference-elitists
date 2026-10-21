@@ -196,9 +196,28 @@ function armSummary(bets, settled) {
   return out
 }
 
+const PILL = { pending: 'waiting for Claude', decided: 'waiting on results', settled: 'settled' }
+
+function decidedWhen(g) {
+  if (g.status === 'pending') return g.preparedAt ? ` · prepared ${Math.max(0, Math.round((Date.parse(g.tip) - Date.parse(g.preparedAt)) / 60000))} min before tip` : ''
+  if (g.leadMin == null) return ''
+  return g.leadMin > 0 ? ` · decided ${g.leadMin} min before tip` : ' · decided at tip, on the prepared quotes'
+}
+
 function GameCard({ g, armFilter }) {
   const [open, setOpen] = useState(false)
   const [notes, setNotes] = useState(false)
+  if (g.status === 'pending') {
+    return (
+      <section className="el-game">
+        <header>
+          <div><b>{g.away} at {g.home}</b><span className="el-muted"> · {tipTime(g.tip)}{decidedWhen(g)} · {g.markets} markets</span></div>
+          <span className="el-pill el-pill-pending">{PILL.pending}</span>
+        </header>
+        <p className="el-muted el-small">Prepared and waiting for the scheduled task's answers. All three arms are priced at the same moment once both answers are in, or 15 minutes before tip with whatever has arrived.</p>
+      </section>
+    )
+  }
   const bets = g.bets.filter((b) => armFilter === 'all' || b.arm === armFilter)
   const errors = Object.entries(g.arms || {}).filter(([, a]) => a?.error)
   const summary = armSummary(bets, g.status === 'settled')
@@ -207,9 +226,9 @@ function GameCard({ g, armFilter }) {
       <header>
         <div>
           <b>{g.away} at {g.home}</b>
-          <span className="el-muted"> · {tipTime(g.tip)}{g.leadMin != null ? ` · decided ${g.leadMin} min before tip` : ''} · {g.markets} markets</span>
+          <span className="el-muted"> · {tipTime(g.tip)}{decidedWhen(g)} · {g.markets} markets</span>
         </div>
-        <span className={`el-pill el-pill-${g.status}`}>{g.status === 'settled' ? 'settled' : 'waiting on results'}</span>
+        <span className={`el-pill el-pill-${g.status}`}>{PILL[g.status] || g.status}</span>
       </header>
       {errors.map(([arm, a]) => <p key={arm} className="el-warn">{ARM_SHORT[arm]} failed: {a.error}</p>)}
       {summary.length ? (
@@ -302,7 +321,8 @@ export default function EdgeLab() {
   }
 
   const s = data?.status
-  const pending = useMemo(() => (data?.recent || []).filter((g) => g.status !== 'settled'), [data])
+  // Tonight in tip-off order; settled games newest first.
+  const pending = useMemo(() => (data?.recent || []).filter((g) => g.status !== 'settled').slice().reverse(), [data])
   const settled = useMemo(() => (data?.recent || []).filter((g) => g.status === 'settled'), [data])
 
   if (!key) {
@@ -342,13 +362,16 @@ export default function EdgeLab() {
         {s && (
           <p className="el-status">
             Last run {ago(s.lastRun)} ({s.lastJob?.replace('edge-', '') || '—'}, <b className={`el-st-${s.lastStatus}`}>{s.lastStatus || '—'}</b>)
-            {' · '}{s.gamesDecided} games decided, {s.gamesSettled} settled
-            {' · '}Claude {s.claude ? <b>on ({s.model})</b> : <b className="el-st-error">off</b>}
+            {' · '}{s.gamesDecided} games decided{s.gamesPending ? `, ${s.gamesPending} waiting for Claude` : ''}, {s.gamesSettled} settled
+            {' · '}Claude {s.mode === 'task' ? <b>via the scheduled task (last answer {ago(s.lastAnswer)})</b> : s.mode === 'api' ? <b>via the API ({s.model})</b> : <b className="el-st-error">off</b>}
             {' · '}bets need {cents(s.minEdge, false)} of edge after fees
           </p>
         )}
-        {s && !s.claude && (
-          <p className="el-warn">The two Claude arms are off until ANTHROPIC_API_KEY is set in Vercel. The WCE model arm runs either way.</p>
+        {s?.mode === 'off' && (
+          <p className="el-warn">The two Claude arms are switched off (EDGE_CLAUDE=off). The WCE model arm runs either way.</p>
+        )}
+        {s?.mode === 'task' && s.gamesDecided > 0 && !s.lastAnswer && (
+          <p className="el-warn">The scheduled task hasn't sent an answer yet. Games it doesn't answer before tip are decided with the WCE model alone and left out of the head-to-head table.</p>
         )}
         {s?.lastError && <p className="el-warn">Last run said: {s.lastError}</p>}
 
@@ -389,11 +412,11 @@ export default function EdgeLab() {
               </div>
             </div>
 
-            {pending.length > 0 && <h2>Waiting on results</h2>}
+            {pending.length > 0 && <h2>Tonight</h2>}
             {pending.map((g) => <GameCard key={g.key} g={g} armFilter={armFilter} />)}
             {settled.length > 0 && <h2>Settled, last ten nights</h2>}
             {settled.map((g) => <GameCard key={g.key} g={g} armFilter={armFilter} />)}
-            {!data.recent.length && <p className="el-muted">No games decided yet. The picks job runs every hour from late morning and decides each game 20 to 150 minutes before tip.</p>}
+            {!data.recent.length && <p className="el-muted">No games yet. Each game is prepared a few hours before tip, answered by the scheduled task on your Claude account, and priced the moment both answers are in.</p>}
 
             <h2>Runs</h2>
             <div className="el-scroll">
@@ -406,7 +429,8 @@ export default function EdgeLab() {
                       <td>{r.job.replace('edge-', '')}</td>
                       <td className={`el-st-${r.status}`}>{r.status}</td>
                       <td className="el-left">
-                        {[r.note, r.decided?.length ? `decided ${r.decided.join(', ')}` : '', r.bets ? `${r.bets} bets` : '',
+                        {[r.note, r.queued?.length ? `prepared ${r.queued.join(', ')}` : '', r.decided?.length ? `decided ${r.decided.join(', ')}` : '',
+                          r.closed?.length ? `closed ${r.closed.join(', ')}` : '', r.bets ? `${r.bets} bets` : '',
                           r.settled?.length ? `settled ${r.settled.join(', ')}` : '', r.waiting?.length ? `waiting: ${r.waiting.join(', ')}` : '',
                           r.skipped?.length ? `skipped ${r.skipped.join(', ')}` : '', r.error].filter(Boolean).join(' · ') || '—'}
                       </td>
@@ -501,6 +525,7 @@ const CSS = `
 .el-game > header { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; margin-bottom: 6px; font-size: 13px; }
 .el-pill { font-size: 11px; border-radius: 99px; padding: 2px 8px; background: var(--plane); color: var(--ink-2); white-space: nowrap; }
 .el-pill-settled { background: rgba(31,122,74,0.12); color: var(--win); }
+.el-pill-pending { background: rgba(154,122,46,0.14); color: var(--a-claude_wce); }
 .el-scroll { overflow-x: auto; }
 .el-table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
 .el-table th, .el-table td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }

@@ -7,10 +7,16 @@
 //   claude_box  Claude with what any box-score reader has: per-game averages, the last five
 //               lines, and who is listed out.
 //
-// Neither arm sees a price. Both answer through a forced tool call, one probability per
-// market, conditional on the player playing (Kalshi voids the market if he doesn't). The
-// API is called with plain fetch; ANTHROPIC_API_KEY switches the arms on, EDGE_CLAUDE_MODEL
-// picks the model.
+// Neither arm sees a price. Each gives one probability per market, conditional on the player
+// playing (Kalshi voids the market if he doesn't). Two ways to run them:
+//
+//   task  (the default) a scheduled task on Adam's Claude account fetches each game's two
+//         prompts from the site, has a fresh subagent answer each one, and posts the answers
+//         back (see EDGE_LAB.md). No API key; it runs on the account's plan.
+//   api   when ANTHROPIC_API_KEY is set, the picks job calls the Messages API itself, with a
+//         forced tool call. EDGE_CLAUDE_MODEL picks the model.
+//
+// EDGE_CLAUDE=off switches both arms off.
 //
 // Not a function itself: Vercel skips api files that start with an underscore.
 
@@ -21,7 +27,13 @@ const api = () => `${(process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.c
 export const DEFAULT_MODEL = 'claude-sonnet-5-5'
 
 export const claudeModel = () => process.env.EDGE_CLAUDE_MODEL || DEFAULT_MODEL
-export const claudeEnabled = () => Boolean(process.env.ANTHROPIC_API_KEY)
+export function claudeMode() {
+  const m = String(process.env.EDGE_CLAUDE || '').toLowerCase()
+  if (m === 'off' || m === 'task') return m
+  if (m === 'api') return process.env.ANTHROPIC_API_KEY ? 'api' : 'off'
+  return process.env.ANTHROPIC_API_KEY ? 'api' : 'task'
+}
+export const claudeEnabled = () => claudeMode() === 'api'
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
@@ -29,15 +41,34 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
  * Prompts
  * ------------------------------------------------------------------ */
 
-const SYSTEM = `You forecast NBA player prop markets for a private research log.
+const RULES = `You forecast NBA player prop markets for a private research log.
 
 Each market asks whether one player reaches a threshold tonight, for example "25+ points". If the player does not play, the market is voided, so every probability you give is conditional on him playing.
 
-Work only from the information in the message. It is what was known roughly two hours before tip-off. You are not shown market prices, and nothing you say is advice to anyone.
+Work only from the information given here. It is what was known a few hours before tip-off. You are not shown market prices, and nothing you say is advice to anyone.
 
-Be calibrated: of all the markets you put at 70%, about 70% should hit. Keep each player's lines coherent: a higher threshold of the same stat is never likelier than a lower one. Give a probability for every market listed, using its id.
+Be calibrated: of all the markets you put at 70%, about 70% should hit. Keep each player's lines coherent: a higher threshold of the same stat is never likelier than a lower one. Give a probability for every market listed, using its id.`
+
+const SYSTEM = `${RULES}
 
 Answer only by calling the record_forecasts tool. Put two to five sentences in "notes" first, on what (if anything) moved you away from a plain average-based read for this game.`
+
+// The whole job for one fresh subagent in the scheduled task: the rules, the answer format and
+// path, then the game. Everything it needs is in this one text, so it never has to look further.
+export function taskText(prompt, answerPath) {
+  return `${RULES}
+
+Use only this text. Do not search the web, open any URL, or read any other file: the test is what this information alone is worth, and looking anything up (market prices above all) would spoil it.
+
+When you have a probability for every market, write your answer with the Write tool to ${answerPath}, as JSON and nothing else, in this shape:
+{"notes": "Two to five sentences on what, if anything, moved you away from a plain average-based read for this game.", "forecasts": [{"id": "m1", "p": 0.62}, {"id": "m2", "p": 0.31}]}
+One entry per market id. p is a probability between 0 and 1, not a percent.
+
+==========
+
+${prompt}
+`
+}
 
 const TOOL = {
   name: 'record_forecasts',
@@ -210,9 +241,15 @@ export function parseAnswer(json, markets) {
   if (json.stop_reason === 'max_tokens') throw new Error('The answer ran out of room before every market was priced (max_tokens)')
   const call = (json.content || []).find((c) => c.type === 'tool_use' && c.name === TOOL.name)
   if (!call) throw new Error(`No ${TOOL.name} call in the answer (stop_reason ${json.stop_reason})`)
+  return parseForecasts(call.input, markets)
+}
+
+// { notes, forecasts: [{ id, p }] } -> { probs: Map(id -> p), notes, missing }. Shared by the
+// API's tool call and the scheduled task's JSON file.
+export function parseForecasts(input, markets) {
   const byId = new Map(markets.map((m) => [m.id, m]))
   const raw = new Map()
-  for (const f of call.input?.forecasts || []) {
+  for (const f of (Array.isArray(input?.forecasts) ? input.forecasts : [])) {
     const p = Number(f?.p)
     // Anything outside 0..1 (a percent, say) is not a probability: left out, not guessed at.
     if (byId.has(f?.id) && Number.isFinite(p) && p >= 0 && p <= 1) raw.set(f.id, Math.min(0.99, Math.max(0.01, p)))
@@ -226,5 +263,5 @@ export function parseAnswer(json, markets) {
   }
   const probs = new Map()
   for (const items of groups.values()) for (const it of monotone(items)) probs.set(it.id, it.p)
-  return { probs, notes: String(call.input?.notes || '').slice(0, 1200), missing: markets.length - probs.size }
+  return { probs, notes: String(input?.notes || '').slice(0, 1200), missing: markets.length - probs.size }
 }

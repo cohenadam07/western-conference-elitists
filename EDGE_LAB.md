@@ -6,8 +6,10 @@ ever places paper bets. Nothing in it can trade.
 
 ## The test
 
-Every game, about two hours before tip, three forecasters price the same Kalshi prop markets
+Every game, a few hours before tip, three forecasters price the same Kalshi prop markets
 (points, rebounds, assists, threes, and points + rebounds + assists). None of them sees a price.
+The two Claude arms run on Adam's Claude account through a scheduled task, not a paid API key
+(see below).
 
 | Arm | What it gets |
 |---|---|
@@ -41,24 +43,49 @@ than 10¢ or priced outside 5–95¢ are never bet. Every bet risks one unit, fe
 A player who never takes the court is a void: Kalshi pays out a fair price, and the bet is left
 out of P&L and CLV. A close needs a two-sided quote; the page shows how many bets had one.
 
+**One moment for all three.** When both Claude answers are in, the site reads Kalshi's quotes
+right then and prices every arm's bets at those same quotes, so no arm gets a better or worse
+moment than another.
+
 **Head to head.** The scoreboard defaults to games all three arms priced, so the Claude arms
-are never scored on a different set of nights (they miss games while the API key is unset). If a
-Claude call fails, the game is not recorded and the next run tries it again, as long as it is
-more than 40 minutes from tip; a second failure records the game without that arm.
+are never scored on a different set of nights. A game the scheduled task doesn't answer before
+tip is decided 15 minutes out with the WCE model alone and stays out of the head-to-head table.
 
 ## How it runs
 
-Both jobs run inside `api/analytics/snapshot.js`, so the lab costs **no serverless function
+Everything runs inside `api/analytics/snapshot.js`, so the lab costs **no serverless function
 slot** (the Hobby cap is 12 and the site uses 11). The page reads through
 `api/analytics/history.js?section=edge`. The code is in `api/analytics/_edge*.js`.
 
-| Job | When (UTC) | What it does |
-|---|---|---|
-| picks | 14:00 through 02:00, one cron per hour | Decides every game tipping 20–150 minutes out that hasn't been decided. Hobby crons fire anywhere in their hour; a 130-minute window covers the worst gap between two runs. A run with nothing due settles anything finished instead. |
-| settle | 11:00 (7am EDT) | Results from Kalshi, the closing quote from Kalshi's minute candles at the tip, P&L and CLV per bet, aggregates per game. |
+A game goes **prepared → pending → decided → settled**:
 
-Vercel tells the crons apart by the `x-vercel-cron-schedule` header. The 07:00 analytics snapshot
+| Step | Who, when | What happens |
+|---|---|---|
+| prepare | Vercel cron, hourly 14:00–02:00 UTC (games 20–150 min out), or the scheduled task's queue call (games 15 min to 3 h 45 min out), whichever comes first | The markets worth forecasting, the WCE model's number for each, and both Claude prompts. The game waits as **pending**. |
+| answer | The scheduled task on Adam's Claude account, 12:43, 4:43 and 7:43 pm ET | Fetches every pending prompt, has a fresh subagent answer each one (one per game per arm, so the box-score arm never sees a WCE number), and posts the answers back. The second answer for a game **decides** it at Kalshi's quotes of that moment. |
+| close | Every Vercel picks run | A game still pending 15 minutes before tip is decided with whatever answers it has. |
+| settle | Vercel cron, 11:00 UTC (7am EDT) | Results from Kalshi, the closing quote from Kalshi's minute candles at the tip, P&L and CLV per bet, aggregates per game. |
+
+Vercel tells its crons apart by the `x-vercel-cron-schedule` header. The 07:00 analytics snapshot
 is untouched.
+
+**The scheduled task.** It lives in Adam's Claude account (Scheduled tasks), runs in the cloud,
+and needs nothing on his computer. It talks to two calls on the site:
+
+```
+GET  /api/analytics/snapshot?job=edge-queue                      prompts waiting to be answered
+POST /api/analytics/snapshot?job=edge-answer&task=<game>.<arm>    one answer, as JSON
+```
+
+Both take the header `x-edge-token`, a token that can do nothing else (it can't read the page,
+run picks or settle). Only its SHA-256 is in the code (`TASK_TOKEN_SHA256` in `_edge.js`); the
+token itself is in the task's instructions. To replace it, set `EDGE_TASK_TOKEN_SHA256` in
+Vercel to the new token's SHA-256 and update the task. An answer must price at least 80% of a
+game's markets or it is refused (the task then asks a fresh subagent once more).
+
+Usage: each run is one session plus two short subagents per game. It counts against the plan's
+limits, not a bill. Games before about 1pm ET (holiday matinees) fall before the first run and
+are decided with the WCE model alone.
 
 `api/analytics/snapshot.js` now allows 300 seconds, which on Hobby requires Fluid compute (on
 by default for projects created since 2025; Settings → Functions shows it). Without it the
@@ -77,31 +104,33 @@ per game, so a full season is well inside the free tier.
 
 ## Setup
 
-Already in the project and reused: `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `CRON_SECRET`,
-`ANALYTICS_DASHBOARD_PASSWORD`.
+Nothing new is required. Already in the project and reused: `KV_REST_API_URL`,
+`KV_REST_API_TOKEN`, `CRON_SECRET`, `ANALYTICS_DASHBOARD_PASSWORD`.
 
-New:
+Optional:
 
 | Variable | |
 |---|---|
-| `ANTHROPIC_API_KEY` | Turns the two Claude arms on. Without it the WCE model arm still runs and the page says the Claude arms are off. Create one at console.anthropic.com. |
-| `EDGE_CLAUDE_MODEL` | Optional. Defaults to `claude-sonnet-5-5`. |
-| `EDGE_MIN_EDGE` | Optional. The bet threshold, default `0.03`. |
-
-**Cost.** A game's prompt is about 3,000 tokens for the WCE arm and 1,200 for the box arm, and
-each answer about 1,500–2,000 tokens. With Sonnet 5.5 ($2 / $10 per million) that is roughly
-5¢ a game for both arms, or $15–20 a month on a full schedule. Opus 5.5 is about double.
+| `EDGE_MIN_EDGE` | The bet threshold, default `0.03`. |
+| `EDGE_TASK_TOKEN_SHA256` | Replaces the scheduled task's token (see above). |
+| `EDGE_CLAUDE` | `off` switches the Claude arms off; `task` (the default) or `api`. |
+| `ANTHROPIC_API_KEY`, `EDGE_CLAUDE_MODEL` | The other way to run the Claude arms: with a key set, the picks job calls the API itself and the scheduled task has nothing to do. About 5¢ a game for both arms on Sonnet 5.5 (`claude-sonnet-5-5`, the default model). |
 
 ## Running it by hand
 
-From the page: **Run picks now** and **Settle now**. Or with the password as a header:
+From the page: **Run picks now** (prepares games in the window and closes any about to tip) and
+**Settle now**. Or with the password as a header:
 
 ```
 /api/analytics/snapshot?job=edge-picks                    the normal window
-/api/analytics/snapshot?job=edge-picks&lead=600           decide anything tipping in the next 10 h
-/api/analytics/snapshot?job=edge-picks&games=26OCT21MINMIA  decide that game now
+/api/analytics/snapshot?job=edge-picks&lead=600           prepare anything tipping in the next 10 h
+/api/analytics/snapshot?job=edge-picks&games=26OCT21MINMIA  prepare that game now
+/api/analytics/snapshot?job=edge-queue&ahead=600          what the task would be handed, 10 h out
 /api/analytics/snapshot?job=edge-settle
 ```
+
+To run the Claude arms early on a given day, run the scheduled task by hand from Claude's
+Scheduled tasks list.
 
 Game keys are Kalshi's: two-digit year, month, day, away, home.
 
@@ -109,9 +138,11 @@ Game keys are Kalshi's: two-digit year, month, day, away, home.
 
 - **Early season.** Until rosters settle, the market knows about new roles that a projection
   built on last season doesn't. Expect the WCE model arm to look worst in the first weeks.
-- **Injury news.** ESPN's feed is read at decision time, two hours before tip. Late scratches
-  after that aren't in any arm's information, which is the point: it is the information you
-  would really have had.
+- **Injury news.** ESPN's feed is read when a game is prepared, one to four hours before tip.
+  Late scratches after that aren't in any arm's information, which is the point: it is the
+  information you would really have had.
+- **Claude's model** is whatever the scheduled task runs on. Changing it mid-test changes the
+  arm; the page's notes and the run log show when answers came in.
 - **Wide closing quotes** make a noisy CLV on thin markets; bets only go on markets quoted within
   10¢, but the close can be wider. A quote that never moved in the day before tip leaves no
   minute candle; then the quote the bet was made at, still standing, is the close.
@@ -122,7 +153,8 @@ Game keys are Kalshi's: two-digit year, month, day, away, home.
 
 `npm run check:edge` covers the arithmetic offline: the negative binomial, the fee, the bet rule,
 settlement and CLV, the scoring, the Kalshi parsing, the player join, Claude's answer parsing and
-coherence, and that the box-score prompt never carries a WCE number.
+coherence, the scheduled task's texts and token, and that the box-score prompt never carries a
+WCE number.
 
 ## Next
 

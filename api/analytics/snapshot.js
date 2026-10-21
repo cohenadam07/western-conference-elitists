@@ -17,7 +17,7 @@ import {
   timingSafeEqual,
   toISODate,
 } from './_lib.js';
-import { jobForSchedule, runPicks, runSettle } from './_edge.js';
+import { jobForSchedule, runAnswer, runPicks, runQueue, runSettle, taskTokenOk } from './_edge.js';
 
 // 300 s is the Hobby ceiling; the Edge Lab's picks job (Claude calls) is the one that needs it.
 export const config = { maxDuration: 300 };
@@ -42,18 +42,52 @@ function authorize(req) {
   return false;
 }
 
+// A POST body: Vercel parses JSON into req.body; anything else is read off the stream.
+async function readBody(req) {
+  if (req.body != null) return req.body;
+  const chunks = [];
+  let size = 0;
+  for await (const c of req) {
+    size += c.length;
+    if (size > 1e6) throw new Error('body too large');
+    chunks.push(c);
+  }
+  return Buffer.concat(chunks).toString('utf8');
+}
+
 export default async function handler(req, res) {
+  const url = new URL(req.url, 'http://localhost');
+  const job = url.searchParams.get('job') || jobForSchedule(req.headers['x-vercel-cron-schedule']);
+
+  // The Edge Lab's scheduled task (on Adam's Claude account) can do exactly two things here,
+  // with its own token: fetch the prompts waiting to be answered, and post an answer.
+  if (job === 'edge-queue' || job === 'edge-answer') {
+    const token = req.headers['x-edge-token'];
+    if (!taskTokenOk(Array.isArray(token) ? token[0] : token) && !authorize(req)) {
+      return res.status(401).json({ ok: false, error: 'unauthorized' });
+    }
+    res.setHeader('Cache-Control', 'private, no-store');
+    try {
+      if (job === 'edge-queue') {
+        const out = await runQueue({ ahead: url.searchParams.get('ahead') });
+        return res.status(out.ok ? 200 : 500).json(out);
+      }
+      if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST the answer as JSON' });
+      const out = await runAnswer({ task: url.searchParams.get('task'), body: await readBody(req) });
+      return res.status(out.ok ? 200 : out.status || 500).json(out);
+    } catch (err) {
+      return res.status(500).json({ ok: false, job, error: String(err?.message || err) });
+    }
+  }
+
   if (!authorize(req)) {
     return res.status(401).json({ error: 'unauthorized' });
   }
-
-  const url = new URL(req.url, 'http://localhost');
 
   // The Edge Lab's jobs share this function so the lab costs no function slot (see
   // api/analytics/_edge.js and EDGE_LAB.md). Its crons are told apart by the schedule header
   // Vercel sends; a manual run passes ?job=edge-picks or ?job=edge-settle, optionally with
   // &games=<key,key> to act on those games now, or &lead=<minutes> to widen the picks window.
-  const job = url.searchParams.get('job') || jobForSchedule(req.headers['x-vercel-cron-schedule']);
   if (job === 'edge-picks' || job === 'edge-settle') {
     const games = (url.searchParams.get('games') || '').split(',').map((g) => g.trim()).filter(Boolean);
     const lead = Number(url.searchParams.get('lead')) || undefined;

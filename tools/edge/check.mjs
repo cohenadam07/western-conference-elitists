@@ -5,7 +5,9 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import * as M from '../../api/analytics/_edge-model.js'
 import { gameKey, parseGameKey, parseMarket, normName, joinPlayers } from '../../api/analytics/_edge-markets.js'
-import { buildPrompt, parseAnswer } from '../../api/analytics/_edge-claude.js'
+import { buildPrompt, claudeMode, parseAnswer, parseForecasts, taskText } from '../../api/analytics/_edge-claude.js'
+import { taskTokenOk } from '../../api/analytics/_edge.js'
+import { createHash } from 'node:crypto'
 
 const close = (a, b, eps = 1e-9) => assert.ok(Math.abs(a - b) <= eps, `${a} vs ${b}`)
 
@@ -166,4 +168,42 @@ test('the prompts: the box-score arm never sees WCE numbers', () => {
   assert.match(wce, /WCE 58%/); assert.match(wce, /usage % 31\.2 \(95th\)/); assert.match(wce, /7:30 PM ET/)
   assert.doesNotMatch(box, /WCE|projection|Savant|usage|pace|ankle|With X out/)
   assert.match(box, /m1 PTS 25\+/); assert.match(box, /Someone \(Out\)/)
+})
+
+test('the scheduled task: self-contained texts, JSON answers, its own token', () => {
+  const ix = { min: 0, pts: 1, reb: 2, ast: 3, fg3m: 4 }
+  const players = [{ name: 'Bam Adebayo', team: 'MIA', pos: 'Big', proj: { min: 33, pts: 19, reb: 9.8, ast: 3.6, fg3m: 0.9, fga: 15, fta: 5 }, log: [[34, 20, 10, 4, 1]],
+    savant: [{ label: 'usage %', value: '24.0', pct: 70 }], savantSeason: '2025-26', peers: 'bigs', beneficiary: [], markets: [{ id: 'm1', stat: 'reb', k: 10, pModel: 0.47 }] }]
+  const input = { game: { away: 'MIN', home: 'MIA', tip: Date.parse('2026-10-21T23:30:00Z') }, players, ix, teams: ['MIA (2025-26): pace 98'], outs: { MIN: [], MIA: [] } }
+  const box = taskText(buildPrompt('claude_box', input), '/tmp/edge/26OCT21MINMIA.claude_box.json')
+  const wce = taskText(buildPrompt('claude_wce', input), '/tmp/edge/26OCT21MINMIA.claude_wce.json')
+  assert.match(box, /Write tool to \/tmp\/edge\/26OCT21MINMIA\.claude_box\.json/)
+  assert.match(box, /Do not search the web/)
+  assert.doesNotMatch(box, /WCE \d|projection|Savant|usage|pace/)
+  assert.match(wce, /\[WCE 47%\]/)
+  // The answer file's JSON reads the same way as the API's tool call.
+  const markets = [{ id: 'm1', playerKey: 'g|1', stat: 'reb', k: 10 }, { id: 'm2', playerKey: 'g|1', stat: 'reb', k: 12 }]
+  const ans = parseForecasts({ notes: 'x', forecasts: [{ id: 'm1', p: 0.4 }, { id: 'm2', p: 0.45 }] }, markets)
+  close(ans.probs.get('m1'), 0.425); close(ans.probs.get('m2'), 0.425); assert.equal(ans.missing, 0)
+  assert.equal(parseForecasts({ forecasts: 'nope' }, markets).missing, 2)
+  // Only the token whose hash is configured gets in.
+  const tok = 'a-test-token'
+  process.env.EDGE_TASK_TOKEN_SHA256 = createHash('sha256').update(tok).digest('hex')
+  assert.equal(taskTokenOk(tok), true)
+  assert.equal(taskTokenOk('wrong'), false)
+  assert.equal(taskTokenOk(''), false)
+  delete process.env.EDGE_TASK_TOKEN_SHA256
+  assert.equal(taskTokenOk(tok), false)
+})
+
+test('the Claude mode: the scheduled task unless an API key is set', () => {
+  const keep = { k: process.env.ANTHROPIC_API_KEY, m: process.env.EDGE_CLAUDE }
+  delete process.env.ANTHROPIC_API_KEY; delete process.env.EDGE_CLAUDE
+  assert.equal(claudeMode(), 'task')
+  process.env.ANTHROPIC_API_KEY = 'k'; assert.equal(claudeMode(), 'api')
+  process.env.EDGE_CLAUDE = 'task'; assert.equal(claudeMode(), 'task')
+  process.env.EDGE_CLAUDE = 'off'; assert.equal(claudeMode(), 'off')
+  delete process.env.ANTHROPIC_API_KEY; process.env.EDGE_CLAUDE = 'api'; assert.equal(claudeMode(), 'off')
+  if (keep.k == null) delete process.env.ANTHROPIC_API_KEY; else process.env.ANTHROPIC_API_KEY = keep.k
+  if (keep.m == null) delete process.env.EDGE_CLAUDE; else process.env.EDGE_CLAUDE = keep.m
 })

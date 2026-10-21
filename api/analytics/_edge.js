@@ -12,15 +12,25 @@
 //   Every forecast (bet or not) is also scored against the market's own mid, so calibration
 //   and Brier skill show up long before the bets can say anything.
 //
-// THE JOBS (both run inside api/analytics/snapshot.js, so the lab costs no function slot)
-//   picks   hourly-ish, 10am to 10pm ET (Hobby crons are daily, so one entry per hour). Decides
-//           every game tipping 20 to 150 minutes out that has not been decided yet. Hobby
-//           fires anywhere in the hour; a 130-minute window covers the worst gap between runs.
+// THE JOBS (all run inside api/analytics/snapshot.js, so the lab costs no function slot)
+//   picks   hourly-ish, 10am to 10pm ET (Hobby crons are daily, so one entry per hour).
+//           Prepares every game tipping 20 to 150 minutes out: the markets, the WCE model's
+//           numbers and both Claude prompts. Hobby fires anywhere in the hour; a 130-minute
+//           window covers the worst gap between runs. Then, by the Claude mode
+//           (_edge-claude.js):
+//             task  the game waits as "pending" for the scheduled task on Adam's Claude account
+//             api   both Claude arms are asked right here, and the game is decided
+//           It also closes any pending game within 15 minutes of tip with what it has.
+//   queue   called by the scheduled task. Prepares games tipping 15 minutes to 3 h 45 min out
+//           and hands back every pending prompt as a self-contained text.
+//   answer  called by the scheduled task, once per game and arm. When both arms are in, the
+//           game is decided at Kalshi's quotes of that moment, for all three arms at once.
 //   settle  every morning. Results from Kalshi, closing quotes from Kalshi's minute candles
 //           at the tip, P&L and CLV per bet, aggregates per game.
 //
 // STORAGE (Upstash, beside the analytics archive)
-//   wce:edge:games         hash  game key -> record (status, tip, per-arm counts and aggregates)
+//   wce:edge:games         hash  game key -> record (preparing / pending / decided / settled)
+//   wce:edge:pending:<g>   hash  packet (markets, model numbers, prompts) + each Claude answer
 //   wce:edge:fc:<game>     JSON  every quoted market at decision time with each arm's number
 //   wce:edge:bets:<game>   JSON  the paper bets, Claude's notes, then the results
 //   wce:edge:meta          hash  last run, status, error
@@ -30,11 +40,12 @@
 //
 // Not a function itself: Vercel skips api files that start with an underscore.
 
-import { parseJSONSafe, redis, redisPipeline, toHash } from './_lib.js'
+import { createHash } from 'node:crypto'
+import { parseJSONSafe, redis, redisPipeline, timingSafeEqual, toHash } from './_lib.js'
 import { origin } from '../_core.js'
 import * as M from './_edge-model.js'
 import * as K from './_edge-markets.js'
-import { askClaude, buildPrompt, claudeEnabled, claudeModel } from './_edge-claude.js'
+import { askClaude, buildPrompt, claudeMode, claudeModel, parseForecasts, taskText } from './_edge-claude.js'
 
 export const NS = 'wce:edge'
 const KEY = {
@@ -46,6 +57,19 @@ const KEY = {
   tries: `${NS}:tries`,
   bets: (g) => `${NS}:bets:${g}`,
   fc: (g) => `${NS}:fc:${g}`,
+  pending: (g) => `${NS}:pending:${g}`,
+  fin: (g) => `${NS}:fin:${g}`,
+}
+const CLAUDE_ARMS = ['claude_wce', 'claude_box']
+
+// The scheduled task proves itself with a token (header x-edge-token) that can only queue and
+// answer. Only its SHA-256 lives here: the token itself is in the task's instructions on Adam's
+// account. EDGE_TASK_TOKEN_SHA256 replaces it without a code change.
+const TASK_TOKEN_SHA256 = '5075c6fc3da1fe42c2f7a5de244f1ec5419ad064e540aceebadf466da28cf9d0'
+export function taskTokenOk(presented) {
+  if (!presented) return false
+  const want = (process.env.EDGE_TASK_TOKEN_SHA256 || TASK_TOKEN_SHA256).toLowerCase()
+  return timingSafeEqual(createHash('sha256').update(String(presented)).digest('hex'), want)
 }
 
 // UTC. 14:00 to 02:00 is 10am to 10pm EDT (9am to 9pm EST); each fires somewhere in its hour.
@@ -63,6 +87,11 @@ const SETTLE_GIVE_UP = 48 * 60 * MIN // markets still open this long after the t
 const QUOTE_MAX_SPREAD = 0.15 // markets quoted tighter than this are forecast and scored
 const RETRY_LEAD = 40 * MIN // a game whose Claude call failed is retried if it tips later than this
 const MAX_TRIES = 2
+const CLOSE_LEAD = 15 * MIN // a pending game this close to tip is decided with what it has
+const QUEUE_LEAD_MIN = 15 * MIN // the scheduled task prepares games tipping between these
+const QUEUE_LEAD_MAX = 225 * MIN
+const STALE_CLAIM = 4 * MIN // a "preparing" claim older than this was abandoned
+const MIN_PRICED = 0.8 // an answer must price this share of the markets to count
 const EDGE_MIN = () => { const v = Number(process.env.EDGE_MIN_EDGE); return Number.isFinite(v) && v > 0 ? v : M.BET_RULES.minEdge }
 
 /* ------------------------------------------------------------------ *
@@ -92,7 +121,7 @@ async function logRun(entry) {
     ['LPUSH', KEY.runs, rec],
     ['LTRIM', KEY.runs, '0', '199'],
     ['HSET', KEY.meta, 'lastRun', at, 'lastJob', entry.job, 'lastStatus', entry.status, 'lastError', entry.error || '',
-      'claude', claudeEnabled() ? 'on' : 'off', 'model', claudeModel()],
+      'claude', claudeMode(), 'model', claudeModel()],
     ['HINCRBY', KEY.meta, 'runs', '1'],
   ])
 }
@@ -181,12 +210,51 @@ function savantFacts(ctx, id) {
 }
 
 /* ------------------------------------------------------------------ *
- * Deciding one game
+ * Preparing games
  * ------------------------------------------------------------------ */
 
-async function decideGame(game, all, env) {
-  const { proj, ix, injuries, injuriesOk, ctx, deadline } = env
-  const out = { key: game.key, notes: [] }
+// The slate around now (plus any dates asked for), from ESPN.
+async function loadSlate(now, extraDates = []) {
+  const dates = [...new Set([K.etDate(now), K.etDate(now + 4 * 60 * MIN), ...extraDates])]
+  const slates = await Promise.all(dates.map((d) => K.slate(d)))
+  return { games: slates.flatMap((s) => s.games), teamNames: Object.assign({}, ...slates.map((s) => s.teamNames)) }
+}
+
+// Everything preparing a batch of games needs, fetched once.
+async function loadInputs(games, teamNames, { deadline, warnings }) {
+  const [markets, proj, ids, inj, ctx] = await Promise.all([
+    K.openMarkets(games.map((g) => g.key), { deadline }),
+    siteJson('savant-proj.json'),
+    // Without Sleeper the join falls back to names, which matches nearly everyone.
+    kalshiIds(K.etDate(Date.now())).catch((err) => { warnings.push(`Sleeper ids unavailable (${err?.message || err}); matched players by name`); return {} }),
+    K.injuries(teamNames).then((v) => ({ ok: true, v })).catch((err) => ({ ok: false, err })),
+    claudeMode() !== 'off' ? wceContext() : Promise.resolve({}),
+  ])
+  if (!inj.ok) warnings.push(`ESPN injuries unavailable (${inj.err?.message || inj.err}); used the projection file's statuses`)
+  const unmatched = K.joinPlayers(markets, proj, ids)
+  if (unmatched.length) warnings.push(`no WCE projection for: ${unmatched.slice(0, 12).join(', ')}${unmatched.length > 12 ? '…' : ''}`)
+  const ix = {}
+  ;(proj.log_cols || []).forEach((c, i) => { ix[c] = i })
+  return { markets, proj, ix, injuries: inj.ok ? inj.v : {}, injuriesOk: inj.ok, ctx }
+}
+
+// Claims a game so two runs (a cron and the scheduled task, say) never prepare it twice.
+async function claim(key) {
+  const rec = JSON.stringify({ key, status: 'preparing', at: new Date().toISOString() })
+  if (await redis(['HSETNX', KEY.games, key, rec])) return true
+  const cur = parseJSONSafe(await redis(['HGET', KEY.games, key]), null)
+  if (cur?.status === 'preparing' && Date.now() - Date.parse(cur.at) > STALE_CLAIM) {
+    await redis(['HSET', KEY.games, key, rec])
+    return true
+  }
+  return false
+}
+const release = (key) => redis(['HDEL', KEY.games, key]).catch(() => {})
+
+// One game's packet: the markets worth forecasting, the WCE model's number for each, and both
+// Claude prompts. Nothing is priced yet.
+function prepareGame(game, inp) {
+  const { proj, ix, injuries, injuriesOk, ctx } = inp
 
   // Who sits: ESPN's feed when it answered, the projection file's status otherwise.
   const listed = {}
@@ -206,37 +274,39 @@ async function decideGame(game, all, env) {
   const injuryOf = (team, name) => (injuriesOk ? (injuries[team] || []).find((i) => K.normName(i.name) === K.normName(name)) : null)
 
   // The markets worth forecasting: matched to a projection, player not out, quoted tightly.
-  const markets = all.filter((m) => m.game === game.key && m.playerId && proj.players[m.playerId])
   const players = new Map()
-  for (const m of markets) {
+  for (const m of inp.markets) {
+    if (m.game !== game.key || !m.playerId || !proj.players[m.playerId]) continue
     const p = proj.players[m.playerId]
     if (outIds[p.team]?.has(m.playerId) || K.isOut(injuryOf(p.team, p.name)?.status)) continue
     if (!M.isQuoted(m) || !M.withinSpread(m, QUOTE_MAX_SPREAD)) continue
     if (!players.has(m.playerId)) players.set(m.playerId, { id: m.playerId, p, markets: [] })
     players.get(m.playerId).markets.push(m)
   }
-  if (!players.size) return { ...out, empty: true }
+  if (!players.size) return { empty: true }
 
   // Stable ids for the prompts: players in team order, stats in a fixed order, then lines.
   const order = [...players.values()].sort((a, b) => (a.p.team === b.p.team ? a.p.name.localeCompare(b.p.name) : a.p.team === game.away ? -1 : 1))
   const quoted = []
   for (const pl of order) {
     pl.markets.sort((a, b) => M.STATS.indexOf(a.stat) - M.STATS.indexOf(b.stat) || a.k - b.k)
-    for (const m of pl.markets) { m.id = `m${quoted.length + 1}`; quoted.push(m) }
+    for (const m of pl.markets) quoted.push({ ...m, id: `m${quoted.length + 1}`, pModel: M.modelProb(pl.p, ix, m.stat, m.k) })
+  }
+  const byTicker = new Map(quoted.map((m) => [m.ticker, m]))
+  for (const pl of order) pl.markets = pl.markets.map((m) => byTicker.get(m.ticker))
+
+  const packet = {
+    key: game.key,
+    game: { key: game.key, date: game.date, away: game.away, home: game.home, tip: game.tip },
+    preparedAt: new Date().toISOString(),
+    players: order.length,
+    markets: quoted.map((m) => ({ id: m.id, ticker: m.ticker, series: m.series, stat: m.stat, k: m.k, playerKey: m.playerKey, playerId: m.playerId,
+      player: proj.players[m.playerId].name, team: proj.players[m.playerId].team, bid: m.bid, ask: m.ask, noAsk: m.noAsk })),
+    model: Object.fromEntries(quoted.filter((m) => m.pModel != null).map((m) => [m.ticker, m.pModel])),
+    prompts: null,
   }
 
-  // Arm 1: the WCE model.
-  const probs = { model: new Map(), claude_wce: new Map(), claude_box: new Map() }
-  for (const m of quoted) {
-    const p = M.modelProb(proj.players[m.playerId], ix, m.stat, m.k)
-    m.pModel = p
-    if (p != null) probs.model.set(m.ticker, p)
-  }
-
-  // Arms 2 and 3: Claude, if switched on.
-  const arms = { model: { fc: probs.model.size } }
-  const notes = {}
-  if (claudeEnabled()) {
+  if (claudeMode() !== 'off') {
     const injuredOut = [...outIds[game.away], ...outIds[game.home]]
     const inv = proj.ww_inv?.by || {}
     const cards = order.map((pl) => {
@@ -258,88 +328,226 @@ async function decideGame(game, all, env) {
       }
     })
     const input = { game, players: cards, ix, teams: [teamLine(ctx, game.away), teamLine(ctx, game.home)], outs: listed }
-    const meta = quoted.map((m) => ({ id: m.id, playerKey: m.playerKey, stat: m.stat, k: m.k }))
-    const byId = new Map(quoted.map((m) => [m.id, m]))
-    await Promise.all(['claude_wce', 'claude_box'].map(async (arm) => {
-      const started = Date.now()
-      try {
-        const ans = await askClaude(buildPrompt(arm, input), meta, { deadline })
-        for (const [id, p] of ans.probs) probs[arm].set(byId.get(id).ticker, p)
-        notes[arm] = ans.notes
-        arms[arm] = { fc: probs[arm].size, missing: ans.missing, ms: ans.ms, inTok: ans.usage?.input_tokens || 0, outTok: ans.usage?.output_tokens || 0, cacheTok: ans.usage?.cache_read_input_tokens || 0 }
-      } catch (err) {
-        arms[arm] = { fc: 0, error: String(err?.message || err).slice(0, 300), ms: Date.now() - started }
-      }
-    }))
+    packet.prompts = { claude_wce: buildPrompt('claude_wce', input), claude_box: buildPrompt('claude_box', input) }
   }
+  return packet
+}
 
-  // A Claude arm that failed (overload, timeout) would leave this game out of that arm for
-  // good, and failures bunch on busy nights, which would skew the comparison. So while there
-  // is time before tip, nothing is recorded and the next run tries the whole game again.
-  const failed = ['claude_wce', 'claude_box'].filter((a) => arms[a]?.error)
-  if (failed.length && game.tip - Date.now() > RETRY_LEAD && (env.tries[game.key] || 0) + 1 < MAX_TRIES) {
-    await redis(['HINCRBY', KEY.tries, game.key, '1']).catch(() => {})
-    return { ...out, retry: failed.map((a) => `${a}: ${arms[a].error}`).join('; ') }
-  }
+/* ------------------------------------------------------------------ *
+ * Deciding a game
+ * ------------------------------------------------------------------ */
 
-  // The bets.
-  const rules = { ...M.BET_RULES, minEdge: EDGE_MIN() }
+// Prices every arm's bets at one set of quotes and writes the game down as decided.
+//   answers  { claude_wce: { probs: { id: p }, notes, ... } | { error }, claude_box: ... }
+//   quotes   Map(ticker -> market) of Kalshi's quotes now, or null for the packet's own
+async function finalizeGame(packet, answers, quotes) {
+  const mode = claudeMode()
   const at = new Date().toISOString()
+  const live = []
+  for (const m of packet.markets) {
+    let q = m
+    if (quotes) {
+      const f = quotes.get(m.ticker)
+      if (!f) continue
+      q = { ...m, bid: f.bid, ask: f.ask, noAsk: f.noAsk }
+    }
+    if (M.isQuoted(q) && M.withinSpread(q, QUOTE_MAX_SPREAD)) live.push(q)
+  }
+
+  const probs = { model: new Map(), claude_wce: new Map(), claude_box: new Map() }
+  for (const m of live) if (packet.model[m.ticker] != null) probs.model.set(m.ticker, packet.model[m.ticker])
+  const arms = { model: { fc: probs.model.size } }
+  const notes = {}
+  for (const arm of CLAUDE_ARMS) {
+    const a = answers?.[arm]
+    if (!a) {
+      if (mode !== 'off') arms[arm] = { fc: 0, error: mode === 'task' ? 'no answer from the scheduled task before tip' : 'not asked' }
+      continue
+    }
+    if (a.error) { arms[arm] = { fc: 0, error: a.error, ms: a.ms }; continue }
+    for (const m of live) { const p = a.probs?.[m.id]; if (p != null) probs[arm].set(m.ticker, p) }
+    notes[arm] = a.notes || ''
+    arms[arm] = { fc: probs[arm].size, missing: a.missing || 0, ms: a.ms, inTok: a.inTok, outTok: a.outTok, cacheTok: a.cacheTok, at: a.at }
+  }
+
+  const rules = { ...M.BET_RULES, minEdge: EDGE_MIN() }
   const bets = []
   for (const arm of M.ARMS) {
-    const picked = probs[arm].size ? M.pickBets(quoted, probs[arm], rules) : []
+    const picked = probs[arm].size ? M.pickBets(live, probs[arm], rules) : []
     if (arms[arm]) arms[arm].bets = picked.length
     for (const b of picked) {
       const m = b.market
-      bets.push({ arm, ticker: m.ticker, series: m.series, stat: m.stat, k: m.k, player: proj.players[m.playerId].name, team: proj.players[m.playerId].team,
+      bets.push({ arm, ticker: m.ticker, series: m.series, stat: m.stat, k: m.k, player: m.player, team: m.team,
         side: b.side, price: b.price, fee: b.fee, p: b.p, edge: b.edge, bid: m.bid, ask: m.ask, at })
     }
   }
 
-  const rows = quoted.map((m) => [m.ticker, proj.players[m.playerId].name, proj.players[m.playerId].team, m.stat, m.k, m.bid, m.ask,
+  const rows = live.map((m) => [m.ticker, m.player, m.team, m.stat, m.k, m.bid, m.ask,
     probs.model.get(m.ticker) ?? null, probs.claude_wce.get(m.ticker) ?? null, probs.claude_box.get(m.ticker) ?? null])
+  const g = packet.game
   const record = {
-    key: game.key, date: game.date, away: game.away, home: game.home, tip: new Date(game.tip).toISOString(),
-    status: 'decided', decidedAt: at, leadMin: Math.round((game.tip - Date.now()) / MIN),
-    markets: quoted.length, players: order.length, arms, claude: claudeEnabled() ? claudeModel() : null, minEdge: rules.minEdge,
+    key: g.key, date: g.date, away: g.away, home: g.home, tip: new Date(g.tip).toISOString(),
+    status: 'decided', preparedAt: packet.preparedAt, decidedAt: at, leadMin: Math.round((g.tip - Date.now()) / MIN),
+    quotes: quotes ? 'live' : 'prepared', markets: live.length, players: packet.players, arms,
+    claude: mode === 'api' ? claudeModel() : mode === 'task' ? 'scheduled task' : null, minEdge: rules.minEdge,
   }
   await redisPipeline([
-    ['SET', KEY.fc(game.key), JSON.stringify({ at, cols: ['ticker', 'player', 'team', 'stat', 'k', 'bid', 'ask', ...M.ARMS], rows })],
-    ['SET', KEY.bets(game.key), JSON.stringify({ at, bets, notes })],
-    ['HSET', KEY.games, game.key, JSON.stringify(record)],
+    ['SET', KEY.fc(g.key), JSON.stringify({ at, cols: ['ticker', 'player', 'team', 'stat', 'k', 'bid', 'ask', ...M.ARMS], rows })],
+    ['SET', KEY.bets(g.key), JSON.stringify({ at, bets, notes })],
+    ['HSET', KEY.games, g.key, JSON.stringify(record)],
+    ['DEL', KEY.pending(g.key)],
   ])
-  return { ...out, record, bets: bets.length }
+  return { record, bets: bets.length }
+}
+
+// API mode: both Claude arms asked here, then decided at the quotes just read.
+async function decideWithApi(packet, deadline, tries) {
+  const answers = {}
+  const meta = packet.markets.map((m) => ({ id: m.id, playerKey: m.playerKey, stat: m.stat, k: m.k }))
+  await Promise.all(CLAUDE_ARMS.map(async (arm) => {
+    const started = Date.now()
+    try {
+      const ans = await askClaude(packet.prompts[arm], meta, { deadline })
+      answers[arm] = { probs: Object.fromEntries(ans.probs), notes: ans.notes, missing: ans.missing, ms: ans.ms, at: new Date().toISOString(),
+        inTok: ans.usage?.input_tokens || 0, outTok: ans.usage?.output_tokens || 0, cacheTok: ans.usage?.cache_read_input_tokens || 0 }
+    } catch (err) {
+      answers[arm] = { error: String(err?.message || err).slice(0, 300), ms: Date.now() - started }
+    }
+  }))
+  // A Claude arm that failed (overload, timeout) would leave this game out of that arm for
+  // good, and failures bunch on busy nights, which would skew the comparison. So while there
+  // is time before tip, nothing is recorded and the next run tries the whole game again.
+  const failed = CLAUDE_ARMS.filter((a) => answers[a]?.error)
+  if (failed.length && packet.game.tip - Date.now() > RETRY_LEAD && (tries[packet.key] || 0) + 1 < MAX_TRIES) {
+    await redis(['HINCRBY', KEY.tries, packet.key, '1']).catch(() => {})
+    return { retry: failed.map((a) => `${a}: ${answers[a].error}`).join('; ') }
+  }
+  return finalizeGame(packet, answers, null)
+}
+
+// Task mode: the packet waits for the scheduled task's answers.
+async function storePending(packet) {
+  const g = packet.game
+  const rec = { key: g.key, date: g.date, away: g.away, home: g.home, tip: new Date(g.tip).toISOString(), status: 'pending',
+    preparedAt: packet.preparedAt, markets: packet.markets.length, players: packet.players, claude: 'scheduled task' }
+  await redisPipeline([
+    ['DEL', KEY.pending(g.key)],
+    ['HSET', KEY.pending(g.key), 'packet', JSON.stringify(packet)],
+    ['EXPIRE', KEY.pending(g.key), String(3 * 86400)],
+    ['HSET', KEY.games, g.key, JSON.stringify(rec)],
+  ])
+  return rec
+}
+
+// Prepares a batch of games and, by mode, decides them or leaves them pending. Reports into
+// `result` (decided, queued, skipped).
+async function prepareBatch(due, teamNames, { started, tries, result }) {
+  const inp = await loadInputs(due, teamNames, { deadline: started + 120e3, warnings: result.warnings })
+  const mode = claudeMode()
+  const queue = [...due]
+  const worker = async () => {
+    while (queue.length) {
+      if (Date.now() - started > DECIDE_BUDGET) { result.skipped.push(...queue.splice(0).map((g) => `${g.key} (out of time; next run)`)); return }
+      const g = queue.shift()
+      if (!(await claim(g.key))) { result.skipped.push(`${g.key} (already being prepared)`); continue }
+      try {
+        const packet = prepareGame(g, inp)
+        if (packet.empty) { await release(g.key); result.skipped.push(`${g.key} (no quoted markets yet)`); continue }
+        if (mode === 'task') {
+          await storePending(packet)
+          result.queued.push(g.key)
+          continue
+        }
+        const r = mode === 'api' ? await decideWithApi(packet, started + 270e3, tries) : await finalizeGame(packet, {}, null)
+        if (r.retry) { await release(g.key); result.skipped.push(`${g.key} (Claude failed, retrying next run: ${r.retry.slice(0, 200)})`); continue }
+        result.decided.push({ key: g.key, markets: r.record.markets, bets: r.bets, arms: r.record.arms })
+      } catch (err) {
+        await release(g.key)
+        result.skipped.push(`${g.key} (${String(err?.message || err).slice(0, 160)})`)
+      }
+    }
+  }
+  // Two games at a time: four Claude calls in flight at most in API mode.
+  await Promise.all([worker(), worker()])
 }
 
 /* ------------------------------------------------------------------ *
- * The picks job
+ * Closing pending games
  * ------------------------------------------------------------------ */
 
-// opts.lead (minutes) widens the window for a manual run; opts.keys decides those games now.
+// Decides one pending game with whatever answers it has: at Kalshi's quotes of this moment
+// if the game hasn't tipped, at the prepared quotes if it has. Null if it isn't pending (or
+// another run is deciding it right now).
+async function closeOne(key, deadline) {
+  const lock = await redis(['SET', KEY.fin(key), '1', 'NX', 'PX', '120000'])
+  if (!lock) return null
+  try {
+    const [hRaw, recRaw] = await redisPipeline([['HGETALL', KEY.pending(key)], ['HGET', KEY.games, key]])
+    const h = toHash(hRaw.result)
+    const packet = parseJSONSafe(h.packet, null)
+    const rec = parseJSONSafe(recRaw.result, null)
+    if (!packet || rec?.status !== 'pending') return null
+    const answers = {}
+    for (const arm of CLAUDE_ARMS) if (h[arm]) answers[arm] = parseJSONSafe(h[arm], null)
+    let quotes = null
+    if (packet.game.tip - Date.now() > 60e3) {
+      const live = await K.gameMarkets(key, { deadline })
+      quotes = new Map(live.filter((m) => m.status === 'active').map((m) => [m.ticker, m]))
+    }
+    return await finalizeGame(packet, answers, quotes)
+  } finally {
+    await redis(['DEL', KEY.fin(key)]).catch(() => {})
+  }
+}
+
+// Pending games within 15 minutes of tip (or past it) are decided with what they have.
+async function closeDue({ deadline }) {
+  const now = Date.now()
+  const known = toHash(await redis(['HGETALL', KEY.games]))
+  const due = Object.values(known).map((v) => parseJSONSafe(v, null))
+    .filter((r) => r?.status === 'pending' && Date.parse(r.tip) - now <= CLOSE_LEAD)
+    .sort((a, b) => Date.parse(a.tip) - Date.parse(b.tip))
+  const out = { closed: [], warnings: [] }
+  for (const rec of due) {
+    if (Date.now() > deadline - 15e3) { out.warnings.push('out of time closing pending games; next run'); break }
+    try {
+      const r = await closeOne(rec.key, deadline)
+      if (r?.record) out.closed.push(rec.key)
+    } catch (err) {
+      out.warnings.push(`${rec.key}: ${String(err?.message || err).slice(0, 160)}`)
+    }
+  }
+  return out
+}
+
+/* ------------------------------------------------------------------ *
+ * The picks job (Vercel cron)
+ * ------------------------------------------------------------------ */
+
+const STATUS_WORD = { preparing: 'being prepared', pending: 'waiting for the scheduled task', decided: 'already decided', settled: 'already settled' }
+
+// opts.lead (minutes) widens the window for a manual run; opts.keys prepares those games now.
 export async function runPicks(opts = {}) {
   const started = Date.now()
-  const result = { ok: true, job: 'edge-picks', decided: [], skipped: [], warnings: [] }
+  const result = { ok: true, job: 'edge-picks', mode: claudeMode(), decided: [], queued: [], closed: [], skipped: [], warnings: [] }
   let token = null
   try {
     token = await takeLock(295e3)
     if (!token) return { ...result, skipped: ['another Edge Lab run is in progress'] }
     const now = Date.now()
     const asked = (opts.keys || []).map((k) => K.parseGameKey(k)?.date).filter(Boolean)
-    const dates = [...new Set([K.etDate(now), K.etDate(now + 4 * 60 * MIN), ...asked])]
-    const slates = await Promise.all(dates.map((d) => K.slate(d)))
-    const games = slates.flatMap((s) => s.games)
-    const teamNames = Object.assign({}, ...slates.map((s) => s.teamNames))
+    const { games, teamNames } = await loadSlate(now, asked)
     const [knownRaw, triesRaw] = await redisPipeline([['HGETALL', KEY.games], ['HGETALL', KEY.tries]])
     const known = toHash(knownRaw.result)
     const tries = Object.fromEntries(Object.entries(toHash(triesRaw.result)).map(([k, v]) => [k, Number(v) || 0]))
     const maxLead = opts.lead ? opts.lead * MIN : LEAD_MAX
     const want = opts.keys ? new Set(opts.keys) : null
     if (want) {
-      // Say why a game asked for by hand was not decided.
+      // Say why a game asked for by hand was not prepared.
       for (const k of want) {
         const g = games.find((x) => x.key === k)
         if (!g) result.skipped.push(`${k} (not on ESPN's schedule for that date)`)
-        else if (known[k]) result.skipped.push(`${k} (already decided)`)
+        else if (known[k]) result.skipped.push(`${k} (${STATUS_WORD[parseJSONSafe(known[k], {}).status] || 'already known'})`)
         else if (g.state !== 'pre') result.skipped.push(`${k} (already started)`)
       }
     }
@@ -348,53 +556,29 @@ export async function runPicks(opts = {}) {
       .filter((g) => (want ? want.has(g.key) : g.tip - now > LEAD_MIN && g.tip - now <= maxLead))
       .sort((a, b) => a.tip - b.tip)
     result.slate = games.length
+
+    // Pending games about to tip go first: they can't wait for the next run.
+    const c = await closeDue({ deadline: started + 100e3 })
+    result.closed = c.closed
+    result.warnings.push(...c.warnings)
+
     if (!due.length) {
       result.note = 'no games due'
       // Quiet runs settle anything that finished earlier (matinees, last night's stragglers).
       const s = await settleGames({ budget: 100e3, started })
       result.settled = s.settled
-      if (s.warnings.length) result.warnings.push(...s.warnings)
-      await logRun({ job: 'edge-picks', status: 'ok', ms: Date.now() - started, note: result.note, settled: s.settled })
+      result.warnings.push(...s.warnings)
+      await logRun({ job: 'edge-picks', status: 'ok', ms: Date.now() - started, note: result.note, closed: result.closed, settled: s.settled,
+        error: result.warnings.join(' | ').slice(0, 600) })
       return result
     }
 
-    const [markets, proj, ids, inj, ctx] = await Promise.all([
-      K.openMarkets(due.map((g) => g.key), { deadline: started + 120e3 }),
-      siteJson('savant-proj.json'),
-      // Without Sleeper the join falls back to names, which matches nearly everyone.
-      kalshiIds(K.etDate(now)).catch((err) => { result.warnings.push(`Sleeper ids unavailable (${err?.message || err}); matched players by name`); return {} }),
-      K.injuries(teamNames).then((v) => ({ ok: true, v })).catch((err) => ({ ok: false, err })),
-      claudeEnabled() ? wceContext() : Promise.resolve({}),
-    ])
-    if (!inj.ok) result.warnings.push(`ESPN injuries unavailable (${inj.err?.message || inj.err}); used the projection file's statuses`)
-    const unmatched = K.joinPlayers(markets, proj, ids)
-    if (unmatched.length) result.warnings.push(`no WCE projection for: ${unmatched.slice(0, 12).join(', ')}${unmatched.length > 12 ? '…' : ''}`)
-    const ix = {}
-    ;(proj.log_cols || []).forEach((c, i) => { ix[c] = i })
-
-    const env = { proj, ix, injuries: inj.ok ? inj.v : {}, injuriesOk: inj.ok, ctx, tries, deadline: started + 270e3 }
-    // Two games at a time: four Claude calls in flight at most.
-    const queue = [...due]
-    const worker = async () => {
-      while (queue.length) {
-        if (Date.now() - started > DECIDE_BUDGET) { result.skipped.push(...queue.splice(0).map((g) => `${g.key} (out of time; next run)`)); return }
-        const g = queue.shift()
-        try {
-          const r = await decideGame(g, markets, env)
-          if (r.empty) result.skipped.push(`${g.key} (no quoted markets yet)`)
-          else if (r.retry) result.skipped.push(`${g.key} (Claude failed, retrying next run: ${r.retry.slice(0, 200)})`)
-          else result.decided.push({ key: g.key, markets: r.record.markets, bets: r.bets, arms: r.record.arms })
-        } catch (err) {
-          result.skipped.push(`${g.key} (${String(err?.message || err).slice(0, 160)})`)
-        }
-      }
-    }
-    await Promise.all([worker(), worker()])
+    await prepareBatch(due, teamNames, { started, tries, result })
     const armErrors = result.decided.flatMap((d) => Object.entries(d.arms).filter(([, a]) => a.error).map(([arm, a]) => `${d.key} ${arm}: ${a.error}`))
-    const status = armErrors.length || result.skipped.some((s) => !/no quoted markets|out of time|already decided|already started/.test(s)) ? 'partial' : 'ok'
+    const status = armErrors.length || result.skipped.some((s) => !/no quoted markets|out of time|already|being prepared|waiting for|not on ESPN/.test(s)) ? 'partial' : 'ok'
     result.status = status
-    await logRun({ job: 'edge-picks', status, ms: Date.now() - started, decided: result.decided.map((d) => d.key), skipped: result.skipped,
-      bets: result.decided.reduce((a, d) => a + d.bets, 0), error: armErrors.concat(result.warnings).join(' | ').slice(0, 600) })
+    await logRun({ job: 'edge-picks', status, ms: Date.now() - started, decided: result.decided.map((d) => d.key), queued: result.queued, closed: result.closed,
+      skipped: result.skipped, bets: result.decided.reduce((a, d) => a + d.bets, 0), error: armErrors.concat(result.warnings).join(' | ').slice(0, 600) })
     return result
   } catch (err) {
     const msg = String(err?.message || err)
@@ -403,6 +587,107 @@ export async function runPicks(opts = {}) {
   } finally {
     if (token) await dropLock(token)
   }
+}
+
+/* ------------------------------------------------------------------ *
+ * The scheduled task's two calls
+ * ------------------------------------------------------------------ */
+
+const tipText = (ms) => new Date(ms).toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET'
+const TASK_DIR = '/tmp/edge'
+
+// Prepares games tipping 15 minutes to 3 h 45 min out, then hands back every prompt still
+// unanswered for a game that hasn't tipped, each as a self-contained text with the file to
+// save it to and the file its answer goes in.
+export async function runQueue(opts = {}) {
+  const started = Date.now()
+  const out = { ok: true, job: 'edge-queue', mode: claudeMode(), queued: [], decided: [], skipped: [], warnings: [], tasks: [] }
+  try {
+    if (out.mode !== 'task') {
+      out.note = out.mode === 'api' ? 'The Claude arms run through the API on this site, so there is nothing for the task to do.' : 'The Claude arms are switched off (EDGE_CLAUDE=off).'
+      return out
+    }
+    const now = Date.now()
+    const ahead = Math.min(Math.max(Number(opts.ahead) || QUEUE_LEAD_MAX / MIN, 30), 12 * 60) * MIN
+    const { games, teamNames } = await loadSlate(now)
+    const known = toHash(await redis(['HGETALL', KEY.games]))
+    const due = games
+      .filter((g) => !known[g.key] && g.state === 'pre' && g.tip - now > QUEUE_LEAD_MIN && g.tip - now <= ahead)
+      .sort((a, b) => a.tip - b.tip)
+    if (due.length) await prepareBatch(due, teamNames, { started, tries: {}, result: out })
+
+    const after = toHash(await redis(['HGETALL', KEY.games]))
+    const pend = Object.values(after).map((v) => parseJSONSafe(v, null))
+      .filter((r) => r?.status === 'pending' && Date.parse(r.tip) - Date.now() > 5 * MIN)
+      .sort((a, b) => Date.parse(a.tip) - Date.parse(b.tip))
+    const blobs = pend.length ? await redisPipeline(pend.map((r) => ['HGETALL', KEY.pending(r.key)])) : []
+    pend.forEach((r, i) => {
+      const h = toHash(blobs[i]?.result)
+      const packet = parseJSONSafe(h.packet, null)
+      if (!packet?.prompts) return
+      for (const arm of CLAUDE_ARMS) {
+        if (h[arm]) continue
+        const id = `${r.key}.${arm}`
+        const answer = `${TASK_DIR}/${id}.json`
+        out.tasks.push({ id, key: r.key, arm, game: `${r.away} at ${r.home}, ${tipText(Date.parse(r.tip))}`, markets: packet.markets.length,
+          file: `${TASK_DIR}/${id}.txt`, answer, text: taskText(packet.prompts[arm], answer) })
+      }
+    })
+    out.note = `${out.tasks.length} prompt${out.tasks.length === 1 ? '' : 's'} to answer`
+    await logRun({ job: 'edge-queue', status: out.warnings.length ? 'partial' : 'ok', ms: Date.now() - started, note: out.note, queued: out.queued,
+      skipped: out.skipped, error: out.warnings.join(' | ').slice(0, 600) })
+    return out
+  } catch (err) {
+    const msg = String(err?.message || err)
+    await logRun({ job: 'edge-queue', status: 'error', ms: Date.now() - started, error: msg.slice(0, 600) }).catch(() => {})
+    return { ...out, ok: false, error: msg }
+  }
+}
+
+// One arm's answer for one game, posted by the scheduled task. When both arms are in, the
+// game is decided straight away at Kalshi's quotes of this moment.
+export async function runAnswer({ task, body }) {
+  const m = /^(\d{2}[A-Z]{3}\d{2}[A-Z]{6})\.(claude_wce|claude_box)$/.exec(String(task || ''))
+  if (!m) return { ok: false, status: 400, error: 'task must look like 26OCT21MINMIA.claude_wce' }
+  const [, key, arm] = m
+  let input = body
+  if (typeof input === 'string') {
+    try { input = JSON.parse(input) } catch { return { ok: false, status: 400, error: 'the answer is not valid JSON' } }
+  }
+  if (!input || !Array.isArray(input.forecasts)) return { ok: false, status: 400, error: 'the answer needs a "forecasts" list' }
+
+  const [hRaw, recRaw] = await redisPipeline([['HGETALL', KEY.pending(key)], ['HGET', KEY.games, key]])
+  const packet = parseJSONSafe(toHash(hRaw.result).packet, null)
+  const rec = parseJSONSafe(recRaw.result, null)
+  if (!packet || rec?.status !== 'pending') return { ok: false, status: 409, error: `${key} is not waiting for answers (${STATUS_WORD[rec?.status] || 'unknown game'})` }
+  if (packet.game.tip <= Date.now()) return { ok: false, status: 409, error: `${key} has already tipped off` }
+
+  const ans = parseForecasts(input, packet.markets)
+  const n = packet.markets.length
+  const priced = n - ans.missing
+  if (priced < Math.ceil(n * MIN_PRICED)) {
+    return { ok: false, status: 422, error: `priced ${priced} of ${n} markets; an answer needs at least ${Math.ceil(n * MIN_PRICED)}`, priced, of: n }
+  }
+  const at = new Date().toISOString()
+  await redisPipeline([
+    ['HSET', KEY.pending(key), arm, JSON.stringify({ probs: Object.fromEntries(ans.probs), notes: ans.notes, missing: ans.missing, at })],
+    ['HSET', KEY.meta, 'lastAnswer', at],
+  ])
+  const h = toHash(await redis(['HGETALL', KEY.pending(key)]))
+  const waitingFor = CLAUDE_ARMS.filter((a) => !h[a])
+  const out = { ok: true, key, arm, priced, of: n, decided: false, waitingFor }
+  if (waitingFor.length) return out
+  try {
+    const r = await closeOne(key, Date.now() + 200e3)
+    if (r?.record) {
+      out.decided = true
+      out.bets = r.bets
+      await logRun({ job: 'edge-answer', status: 'ok', decided: [key], bets: r.bets, note: `decided ${key} at the quotes of the moment` }).catch(() => {})
+    }
+  } catch (err) {
+    out.note = `answer saved; deciding the game failed (${String(err?.message || err).slice(0, 160)}), and the next picks run will retry`
+  }
+  return out
 }
 
 /* ------------------------------------------------------------------ *
@@ -489,10 +774,13 @@ export async function runSettle(opts = {}) {
   try {
     token = await takeLock(295e3)
     if (!token) return { ok: true, job: 'edge-settle', skipped: 'another Edge Lab run is in progress' }
+    // A game still pending after tip (the task never answered) is decided first, so it settles.
+    const c = await closeDue({ deadline: started + 60e3 })
     const s = await settleGames({ budget: SETTLE_BUDGET, started, keys: opts.keys })
+    s.warnings.unshift(...c.warnings)
     const status = s.warnings.length ? 'partial' : 'ok'
-    await logRun({ job: 'edge-settle', status, ms: Date.now() - started, settled: s.settled, waiting: s.waiting, error: s.warnings.join(' | ').slice(0, 600) })
-    return { ok: true, job: 'edge-settle', status, ...s }
+    await logRun({ job: 'edge-settle', status, ms: Date.now() - started, closed: c.closed, settled: s.settled, waiting: s.waiting, error: s.warnings.join(' | ').slice(0, 600) })
+    return { ok: true, job: 'edge-settle', status, closed: c.closed, ...s }
   } catch (err) {
     const msg = String(err?.message || err)
     await logRun({ job: 'edge-settle', status: 'error', ms: Date.now() - started, error: msg.slice(0, 600) }).catch(() => {})
@@ -508,14 +796,14 @@ export async function runSettle(opts = {}) {
 
 export async function readEdge({ from = null, recentDays = 10 } = {}) {
   const [gamesRaw, metaRaw, runsRaw] = await redisPipeline([['HGETALL', KEY.games], ['HGETALL', KEY.meta], ['LRANGE', KEY.runs, '0', '29']])
-  const games = Object.values(toHash(gamesRaw.result)).map((v) => parseJSONSafe(v, null)).filter(Boolean)
+  const games = Object.values(toHash(gamesRaw.result)).map((v) => parseJSONSafe(v, null)).filter((g) => g && g.tip && g.status !== 'preparing')
     .sort((a, b) => Date.parse(a.tip) - Date.parse(b.tip))
   const meta = toHash(metaRaw.result)
   const runs = (runsRaw.result || []).map((r) => parseJSONSafe(r, null)).filter(Boolean)
 
   const inRange = (g) => !from || g.date >= from
   // Head to head: only games every arm priced, so no arm is scored on an easier set of nights
-  // (the Claude arms miss games while ANTHROPIC_API_KEY is unset, or when a call fails twice).
+  // (the Claude arms miss a game when the scheduled task didn't answer it before tip).
   const allPriced = (g) => M.ARMS.every((a) => (g.arms?.[a]?.fc || 0) > 0)
   const empty = () => Object.fromEntries(M.ARMS.map((a) => [a, { bets: M.emptyBetAgg(), fc: M.emptyFcAgg() }]))
   const totals = empty(), common = empty()
@@ -561,8 +849,11 @@ export async function readEdge({ from = null, recentDays = 10 } = {}) {
   return {
     status: {
       lastRun: meta.lastRun || null, lastJob: meta.lastJob || null, lastStatus: meta.lastStatus || null, lastError: meta.lastError || '',
-      runs: Number(meta.runs) || 0, claude: claudeEnabled(), model: claudeModel(), minEdge: EDGE_MIN(), rules: M.BET_RULES,
-      gamesDecided: games.length, gamesSettled: games.filter((g) => g.status === 'settled').length, commonGames,
+      runs: Number(meta.runs) || 0, mode: claudeMode(), model: claudeMode() === 'api' ? claudeModel() : null, lastAnswer: meta.lastAnswer || null,
+      minEdge: EDGE_MIN(), rules: M.BET_RULES,
+      gamesDecided: games.filter((g) => g.status === 'decided' || g.status === 'settled').length,
+      gamesPending: games.filter((g) => g.status === 'pending').length,
+      gamesSettled: games.filter((g) => g.status === 'settled').length, commonGames,
     },
     arms,
     armsCommon,
