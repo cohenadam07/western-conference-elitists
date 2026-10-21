@@ -600,10 +600,18 @@ body:not(.home-open) .home{display:none}
 .ast-st .ast-cell{width:104px}
 .ast-note{max-width:640px;margin:0 auto;font-size:12px;line-height:1.5;color:var(--muted)}
 .ast-note b{color:var(--ink)}
-/* 1st / 2nd team: the page's own segmented control, centred over the field */
-.ast-seg{display:flex;width:max-content;margin:-4px auto 16px}
-.ast-seg[hidden]{display:none}
+/* 1st / 2nd team and the season: the page's own segmented control and season dropdown,
+   side by side and centred over the field */
+.ast-ctl{display:flex;justify-content:center;align-items:stretch;gap:10px;flex-wrap:wrap;margin:-4px auto 16px}
+.ast-ctl[hidden]{display:none}
+.ast-seg{display:flex;width:max-content}
 .ast-seg button{min-width:92px}
+.ast-selx .selx-btn{height:100%;min-width:96px}
+.ast-selx .selx-pop{left:auto;right:0;min-width:168px;text-align:left}
+/* Before 2013 nothing names a line's five starters: the line stands as one card */
+.ast-unit .ast-card{max-width:none}
+.ast-tmark{display:flex;align-items:center;justify-content:center;color:#FFF;font-family:var(--mono);
+  font-size:12px;font-weight:700;letter-spacing:.04em;text-shadow:1px 1px 0 rgba(0,0,0,.35)}
 .ast-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);
   white-space:nowrap;border:0}
 .ast-swap .ast-card{animation:astDeal .32s cubic-bezier(.2,.7,.3,1) backwards}
@@ -1150,6 +1158,17 @@ body{background-color:#1D6B3A;color:var(--ink);
 .ast-seg button{font-size:10px;padding:8px 14px}
 .ast-seg button[aria-pressed="true"]{background:var(--flag);color:var(--turf-dk)}
 .ast-seg button:focus-visible{outline:2px solid var(--flag);outline-offset:2px}
+.ast-selx .selx-btn{font-size:10px;padding:8px 12px;box-shadow:3px 3px 0 rgba(14,42,23,.45);gap:14px}
+.ast-selx .selx-btn:hover{border-color:var(--turf-dk);background:#FFFBEA}
+.ast-selx .selx-btn[aria-expanded="true"]{background:var(--flag)}
+.ast-selx .selx-btn:focus-visible{outline:2px solid var(--flag);outline-offset:2px;box-shadow:3px 3px 0 rgba(14,42,23,.45)}
+.ast-selx .selx-caret{color:var(--turf-dk)}
+.ast-selx .selx-opt{font-size:10px;padding:8px 10px;border-radius:0}
+.ast-selx .selx-caret{font-size:10px}
+.ast-selx .selx-opt:hover,.ast-selx .selx-opt:focus-visible{background:#FFF3C4;outline:none}
+.ast-selx .selx-opt[aria-selected="true"]{background:var(--flag);color:var(--turf-dk)}
+.ast-selx .selx-opt[aria-selected="true"] .selx-tag{color:var(--turf-dk)}
+.ast-tmark{font-family:var(--pix);font-weight:400;font-size:11px}
 .home-lb{background:var(--flag);color:var(--turf-dk);border:3px solid var(--turf-dk);
   box-shadow:5px 5px 0 rgba(14,42,23,.5);font-family:var(--pix);font-size:11px}
 .home-lb:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 rgba(14,42,23,.5);filter:none}
@@ -1296,9 +1315,15 @@ body{background-color:#1D6B3A;color:var(--ink);
     <div class="home-trend" id="homeTrend">
       <div class="home-trend-lab ast-title">The All-Savant Team</div>
       <div class="ast-sub" id="astSub"></div>
-      <div class="seg ast-seg" id="astSeg" role="group" aria-label="Which All-Savant team" hidden>
-        <button type="button" data-t="0" aria-pressed="true">1st team</button>
-        <button type="button" data-t="1" aria-pressed="false">2nd team</button>
+      <div class="ast-ctl" id="astCtl" hidden>
+        <div class="seg ast-seg" id="astSeg" role="group" aria-label="Which All-Savant team">
+          <button type="button" data-t="0" aria-pressed="true">1st team</button>
+          <button type="button" data-t="1" aria-pressed="false">2nd team</button>
+        </div>
+        <div class="selx ast-selx" id="astPick">
+          <button type="button" class="selx-btn" id="astSeasonBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="All-Savant season"><span id="astSeasonLab">—</span><span class="selx-caret" aria-hidden="true">▾</span></button>
+          <div class="selx-pop" id="astSeasonPop" role="listbox" aria-label="Season" hidden></div>
+        </div>
       </div>
       <p class="ast-live" id="astLive" aria-live="polite"></p>
       <div class="ast-team" id="homeChips" aria-busy="true"><div class="home-chips">
@@ -4662,7 +4687,7 @@ function astPick(season,nth,used){
     L.five.forEach(function(f){
       used[f.id]=1;
       off.push({slot:f.slot,id:f.id,name:f.name,h:f.h,team:L.tm,line:true,
-        why:'Line pick: '+teamName(L.tm)+' have the '+rank+' offensive line in '+season+' by sack rate allowed ('
+        why:'Line pick: '+teamName(L.tm,season)+' have the '+rank+' offensive line in '+season+' by sack rate allowed ('
           +ordinal(Math.round(L.pct.sackr))+' percentile), QB-hit rate allowed ('+ordinal(Math.round(L.pct.hitr))+') and rush success ('
           +ordinal(Math.round(L.pct.runsr))+'), vs all 32 lines. Team numbers, shared with the quarterback and backs.'});
     });
@@ -4728,10 +4753,96 @@ function astCard(it,col,row){
     +(it.line?' line':'')+'" title="'+esc(it.name+' — '+it.why)+'">'
     +'<span class="ast-face">'+(face?'<img src="'+esc(face)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'')+'</span>'
     +'<span class="ast-nm">'+esc(astShort(it.name))+'</span>'
-    +'<span class="ast-tm">'+esc(teamAbbr(it.team))+'</span>'
+    +'<span class="ast-tm">'+esc(teamAbbr(it.team,astSeason))+'</span>'
     +'</'+tag+'><span class="ast-pos">'+esc(it.label||it.slot)+'</span></div>';
 }
 var astTeam=0, astSeason=null;      // which team the toggle shows: 0 = 1st, 1 = 2nd
+var astBack=null;                    // the app's season before a card from an old season was opened
+/* The season dropdown is the app's own (.selx), so it looks and behaves like the one on a
+   player card: newest first, the season in progress tagged with its week. */
+function astSeasonList(){
+  document.getElementById('astSeasonLab').textContent=astSeason;
+  document.getElementById('astSeasonPop').innerHTML=DATA.seasons.map(function(s){
+    var wk=(DATA.data[s]||{}).week;
+    return '<button type="button" class="selx-opt" role="option" data-s="'+esc(s)+'" aria-selected="'+(s===astSeason)+'"'
+      +' tabindex="-1"><span>'+esc(s)+'</span><span class="selx-tag">'+(wk?'week '+wk:'')+'</span></button>';
+  }).join('');
+}
+function astPickOpen(){
+  var pop=document.getElementById('astSeasonPop');
+  document.getElementById('astSeasonBtn').setAttribute('aria-expanded','true');
+  pop.hidden=false;
+  var on=pop.querySelector('[aria-selected="true"]')||pop.querySelector('.selx-opt');
+  if(on){ on.scrollIntoView({block:'nearest'}); on.focus({preventScroll:true}); }
+}
+function astPickClose(back){
+  var pop=document.getElementById('astSeasonPop'); if(pop.hidden) return;
+  pop.hidden=true;
+  document.getElementById('astSeasonBtn').setAttribute('aria-expanded','false');
+  if(back) document.getElementById('astSeasonBtn').focus();
+}
+function wireAstCtl(){
+  var ctl=document.getElementById('astCtl'); if(ctl.dataset.wired) return;
+  ctl.dataset.wired='1';
+  document.querySelectorAll('#astSeg button').forEach(function(b){
+    b.onclick=function(){
+      var n=+b.dataset.t; if(n===astTeam||!astSeason) return;
+      astTeam=n; renderAllSavant(astSeason,true);
+    };
+  });
+  var btn=document.getElementById('astSeasonBtn'), pop=document.getElementById('astSeasonPop');
+  btn.onclick=function(){ pop.hidden?astPickOpen():astPickClose(false); };
+  btn.onkeydown=function(e){
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault(); astPickOpen(); }
+  };
+  pop.onclick=function(e){
+    var o=e.target.closest('.selx-opt'); if(!o) return;
+    astPickClose(true);
+    if(o.dataset.s!==astSeason) renderAllSavant(o.dataset.s,true);
+  };
+  pop.onkeydown=function(e){
+    var os=[].slice.call(pop.querySelectorAll('.selx-opt')), i=os.indexOf(document.activeElement);
+    var go=function(j){ j=Math.max(0,Math.min(os.length-1,j)); os[j].focus(); os[j].scrollIntoView({block:'nearest'}); };
+    if(e.key==='ArrowDown'){ e.preventDefault(); go(i+1); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); go(i-1); }
+    else if(e.key==='Home'){ e.preventDefault(); go(0); }
+    else if(e.key==='End'){ e.preventDefault(); go(os.length-1); }
+    else if(e.key==='Escape'){ e.preventDefault(); astPickClose(true); }
+    else if(e.key==='Tab'){ astPickClose(false); }
+  };
+  document.addEventListener('click',function(e){
+    if(!e.target.closest('#astPick')) astPickClose(false);
+  });
+}
+/* A card opens that player in the season on the field, not the season the app was on. */
+function astOpen(id,season){
+  astBack=curSeason;
+  if(curSeason!==season&&DATA.data[season]){ curSeason=season; fillTeams(); }
+  selectPlayer(id);
+}
+/* Back home from a card opened here: put the app's season back, so a search from home opens a
+   player's newest season, and put the reader back at the team they were looking at. */
+function astReturn(){
+  if(astBack==null) return;
+  var b=astBack; astBack=null;
+  if(curSeason!==b&&DATA.data[b]){ curSeason=b; fillTeams(); }
+  var el=document.getElementById('homeTrend');
+  if(el) setTimeout(function(){ try{ el.scrollIntoView({block:'start'}); }catch(e){} },30);
+}
+/* Before 2013 the play-by-play doesn't say which five started, so the line picked as a unit
+   stands across all five spots as one card in its team's colour. */
+function astLineCard(L,season,nth){
+  var col=(CFG.teams[L.tm]||[])[1]||'#0E2A17', nm=teamName(L.tm,season);
+  var why=nm+' have the '+AST_RANK[nth]+' offensive line in '+season+' by sack rate allowed ('
+    +ordinal(Math.round(L.pct.sackr))+' percentile), QB-hit rate allowed ('+ordinal(Math.round(L.pct.hitr))
+    +') and rush success ('+ordinal(Math.round(L.pct.runsr))+'), vs all 32 lines.';
+  return '<div class="ast-cell ast-unit" style="grid-column:5 / span 10;grid-row:5">'
+    +'<span class="ast-card nolink line" title="'+esc(why)+'">'
+    +'<span class="ast-face ast-tmark" style="background:'+esc(col)+'">'+esc(teamAbbr(L.tm,season))+'</span>'
+    +'<span class="ast-nm">'+esc(nm)+'</span>'
+    +'<span class="ast-tm">Line picked as a unit</span>'
+    +'</span><span class="ast-pos">OL</span></div>';
+}
 function renderAllSavant(season,swap){
   var box=document.getElementById('homeChips');
   var sub=document.getElementById('astSub');
@@ -4741,17 +4852,12 @@ function renderAllSavant(season,swap){
   if(sub) sub.textContent=season+(blk.week?' · through week '+blk.week:'')
     +(hasValue(season)?' · the '+nxt+'most points added above a replacement at every All-Pro spot, this season only'
                       :' · the '+(astTeam?'next-best':'best')+' Savant profile at every All-Pro spot');
-  var seg=document.getElementById('astSeg');
-  if(seg){
-    seg.hidden=false;
-    seg.querySelectorAll('button').forEach(function(b){
-      b.setAttribute('aria-pressed',String(+b.dataset.t===astTeam));
-      if(!b.onclick) b.onclick=function(){
-        var n=+b.dataset.t; if(n===astTeam||!astSeason) return;
-        astTeam=n; renderAllSavant(astSeason,true);
-      };
-    });
-  }
+  wireAstCtl();
+  document.getElementById('astCtl').hidden=false;
+  document.querySelectorAll('#astSeg button').forEach(function(b){
+    b.setAttribute('aria-pressed',String(+b.dataset.t===astTeam));
+  });
+  astSeasonList();
   // Individual linemen come back as T, T, G, G, C; they take the spots left to right.
   var IND={T:['LT','RT'],G:['LG','RG'],C:['C']}, seen={};
   var used={}, cards='';
@@ -4770,9 +4876,10 @@ function renderAllSavant(season,swap){
     var sp=spots[i]; if(!sp) return;
     cards+=astCard(it,sp[0],sp[1]);
   });
+  if(t.line&&!t.off.some(function(it){ return it.line; })) cards+=astLineCard(t.line,season,astTeam);
   var lineNote='';
   if(t.line){
-    lineNote='<div class="ast-note">Line picked as a unit: <b>'+esc(teamName(t.line.tm))+'</b> · '
+    lineNote='<div class="ast-note">Line picked as a unit: <b>'+esc(teamName(t.line.tm,season))+'</b> · '
       +'sack rate '+t.line.sackr.toFixed(1)+'% · QB hit rate '+t.line.hitr.toFixed(1)+'% · rush success '
       +t.line.runsr.toFixed(0)+'%. '+(hasValue(season)?'Nothing published that season tells five linemen apart.'
                                                        :'One-man blocking numbers arrive after the season.')+'</div>';
@@ -4784,7 +4891,7 @@ function renderAllSavant(season,swap){
     +(t.st.length?'<div class="ast-grp"><div class="ast-grp-h">Special teams</div><div class="ast-st">'
       +t.st.map(function(it){ return astCard(it); }).join('')+'</div></div>':'');
   box.querySelectorAll('button.ast-card').forEach(function(b){
-    b.onclick=function(){ selectPlayer(b.dataset.id); };
+    b.onclick=function(){ astOpen(b.dataset.id,season); };
   });
   // on a phone the field is wider than the screen: start it centred on the ball
   var sc=box.querySelector('.ast-scroll');
@@ -4819,7 +4926,7 @@ function showHome(){
   try{ history.replaceState(null,'','#'); }catch(e){}
 }
 function hideHome(){ document.body.classList.remove('home-open'); }
-function goHome(){ stopPlay(); showHome(); }
+function goHome(){ stopPlay(); showHome(); astReturn(); }
 
 /* ================= URL ===================================================== */
 function syncURL(){
