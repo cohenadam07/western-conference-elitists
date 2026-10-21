@@ -1186,6 +1186,35 @@ body{background-color:#1D6B3A;color:var(--ink);
 .res .rimg .fcrop::after,.tm-pl .tmface .fcrop::after{border-top-width:1px}
 .tm-pl .tmface{width:28px;height:28px;flex:none;display:block;overflow:hidden}
 .sc-ava .fbadge{font-size:20px}
+/* The share card, in Pixel Turf. It was drawn dark before the re-skin; the surface rule above
+   turned its panel cream but left its light text, so the name, labels and percentiles all but
+   vanished. Cream panel, ink text, Silkscreen headings, square bars, the page's turf green. */
+.export-shell{color:var(--ink);box-shadow:none}
+.export-shell .sc-brand{font-family:var(--pix);font-size:15px;font-weight:400;letter-spacing:.02em;color:var(--ink)}
+.export-shell .sc-brand span{color:var(--turf)}
+.export-shell .sc-mark{width:34px;height:34px;background:var(--turf);color:var(--flag);border:2px solid var(--turf-dk);
+  box-sizing:border-box;font-family:var(--pix);font-size:10px;display:flex;align-items:center;justify-content:center}
+.export-shell .sc-tag{font-family:var(--pix);font-size:10px;color:#5A7A66}
+.export-shell .sc-peak{background:var(--flag);color:var(--turf-dk);border:2px solid var(--turf-dk);border-radius:0;
+  font-family:var(--pix);font-weight:400}
+.export-shell .sc-id{border-top:3px solid var(--turf-dk);border-bottom:3px solid var(--turf-dk)}
+.export-shell .sc-ava{background:var(--turf);color:var(--flag);border:3px solid var(--turf-dk);border-radius:0;
+  box-sizing:border-box;font-family:var(--pix);font-weight:400}
+.export-shell .sc-name{font-family:var(--pix);font-weight:400;font-size:30px;letter-spacing:.01em;color:var(--ink)}
+.export-shell .sc-meta{color:var(--muted)}
+.export-shell .sc-meta b{color:var(--ink)}
+.export-shell .sc-statline{color:#5A7A66}
+.export-shell .sc-statline .st b{color:var(--ink);font-family:var(--pix);font-weight:400}
+.export-shell .sc-coltitle{font-family:var(--pix);font-weight:400;font-size:17px;color:var(--ink);border-bottom:4px solid var(--flag)}
+.export-shell .sc-sub{font-family:var(--pix);color:#5A7A66;border-bottom:2px solid var(--line2)}
+.export-shell .sc-row{grid-template-columns:218px 1fr 24px 56px}
+.export-shell .sc-lab{color:var(--ink);overflow:hidden;text-overflow:ellipsis}
+.export-shell .sc-track{background:var(--track);border:2px solid var(--turf-dk);border-radius:0;height:12px;box-sizing:border-box}
+.export-shell .sc-fill{border-radius:0}
+.export-shell .sc-pct{font-family:var(--pix);font-weight:400;color:var(--ink)}
+.export-shell .sc-val{color:var(--muted)}
+.export-shell .sc-foot{border-top:3px solid var(--turf-dk);color:#5A7A66;font-family:var(--pix);font-size:10px}
+.export-shell .sc-foot b{color:var(--turf);font-weight:400}
 @media(max-width:560px){.ast-face .fbadge{font-size:12px}}
 .home-lb{background:var(--flag);color:var(--turf-dk);border:3px solid var(--turf-dk);
   box-shadow:5px 5px 0 rgba(14,42,23,.5);font-family:var(--pix);font-size:11px}
@@ -1511,7 +1540,7 @@ body{background-color:#1D6B3A;color:var(--ink);
    ========================================================================= */
 var DATA=null, CFG=null, METRICS=[], MBY={}, PIDX={}, NAMES=[];
 var cur=null, curId=null, curSeason=null;
-var VERSION='2.2.0';           // bumped on big releases only, never per deploy
+var VERSION='2.2.1';           // bumped on big releases only, never per deploy
 var baseline='season';        // 'season' | 'all' | 'pace' | 'exp' — who the bars are ranked against
 var formWin=0;                // 0 = the season; 4, 8, 17 = his last that many games
 var cohortMode='pos';         // 'pos' | 'side'
@@ -5080,9 +5109,8 @@ function buildShareShell(){
   var isPeak=arc.peak&&arc.peak.season===curSeason;
   var d=document.createElement('div');
   d.className='export-shell'; d.id='exportShell';
-  d.innerHTML='<div class="sc-head"><div style="width:34px;height:34px;border-radius:9px;background:#3DA35D;'
-    +'color:#07130C;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center">WCE</div>'
-    +'<div style="font-weight:800;font-size:16px;letter-spacing:.05em;text-transform:uppercase">FOOTBALL <span style="color:#3DA35D">SAVANT</span></div>'
+  d.innerHTML='<div class="sc-head"><div class="sc-mark">WCE</div>'
+    +'<div class="sc-brand">Football <span>Savant</span></div>'
     +(isPeak?'<div class="sc-peak">CAREER YEAR</div>':'')
     +'<div class="sc-tag">'+esc(curSeason)+' · vs '+esc((CFG.posLabel[pos]||pos).toLowerCase())+'s</div></div>'
     +'<div class="sc-id"><div class="sc-ava">'+(faceSwap(p.id,faceURL(p.id,p.h),p.hx,p.team,p.name)
@@ -5103,7 +5131,7 @@ function exportCard(){
   btn.disabled=true; lab.textContent='Rendering…';
   var shell=buildShareShell();
   setTimeout(function(){
-    html2canvas(shell,{backgroundColor:'#191D24',scale:2,logging:false,useCORS:true}).then(function(cv){
+    html2canvas(shell,{backgroundColor:'#F2F7EE',scale:2,logging:false,useCORS:true}).then(function(cv){
       cv.toBlob(function(blob){
         if(!blob){ lab.textContent='Share'; btn.disabled=false; shell.remove(); return; }
         var a=document.createElement('a');
@@ -5512,7 +5540,7 @@ function wireLB(){
     if(typeof html2canvas==='undefined') return;
     var b=this, node=document.getElementById('lbTable');
     b.textContent='Rendering…';
-    html2canvas(node,{backgroundColor:'#191D24',scale:2,logging:false}).then(function(cv){
+    html2canvas(node,{backgroundColor:'#F2F7EE',scale:2,logging:false}).then(function(cv){
       cv.toBlob(function(blob){
         var a=document.createElement('a');
         a.href=URL.createObjectURL(blob);
