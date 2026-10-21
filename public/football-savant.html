@@ -702,43 +702,8 @@ body.lb-open .lb{display:block}
 .lb-foot b{color:var(--flag)}
 
 /* off-screen export shell — hex/rgb only, html2canvas 1.4.1 cannot read color-mix */
-.export-shell{position:fixed;left:-10000px;top:0;width:1040px;background:#191D24;padding:26px 30px 20px;
-  font-family:var(--body);color:#EDEDE8}
+.export-shell{position:fixed;left:-10000px;top:0;width:1080px;height:1350px;overflow:hidden;box-sizing:border-box}
 .export-shell *{animation:none!important;transition:none!important}
-.export-shell .sc-head{display:flex;align-items:center;gap:11px;margin-bottom:14px}
-.export-shell .sc-tag{margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.07em;
-  text-transform:uppercase;color:#69727E}
-.export-shell .sc-peak{margin-left:10px;background:#E8B23A;color:#2A1F03;font-family:var(--mono);
-  font-size:10px;font-weight:700;letter-spacing:.11em;padding:4px 9px;border-radius:4px}
-.export-shell .sc-id{display:flex;align-items:center;gap:16px;border-top:1px solid #2A313B;
-  border-bottom:1px solid #2A313B;padding:13px 0;margin-bottom:14px}
-.export-shell .sc-ava{width:62px;height:62px;flex:none;border-radius:12px;background:#212832;
-  display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;
-  font-size:23px;color:#69727E;overflow:hidden}
-.export-shell .sc-ava img{width:100%;height:100%;object-fit:cover;object-position:top center}
-.export-shell .sc-name{font-family:var(--disp);font-weight:800;font-size:34px;line-height:1.04;
-  letter-spacing:-.012em;text-transform:uppercase}
-.export-shell .sc-meta{color:#9AA3AF;font-size:13px;margin-top:3px}
-.export-shell .sc-meta b{color:#EDEDE8;font-weight:600}
-.export-shell .sc-statline{display:flex;flex-wrap:wrap;gap:15px;margin-top:7px;font-family:var(--mono);
-  font-size:12px;color:#9AA3AF}
-.export-shell .sc-statline .st b{font-size:14px;color:#EDEDE8;font-weight:500;margin-right:2px}
-.export-shell .sc-cols{display:grid;grid-template-columns:1fr 1fr;gap:26px}
-.export-shell .sc-coltitle{font-family:var(--disp);font-weight:800;font-size:20px;text-transform:uppercase;
-  border-bottom:3px solid #3DA35D;padding-bottom:3px;display:inline-block;line-height:1;margin-bottom:6px}
-.export-shell .sc-sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
-  color:#69727E;border-bottom:1px solid #2A313B;padding-bottom:4px;margin:11px 0 4px}
-.export-shell .sc-row{display:grid;grid-template-columns:174px 1fr 24px 56px;align-items:center;
-  column-gap:10px;height:25px}
-.export-shell .sc-lab{font-size:12px;color:#EDEDE8;white-space:nowrap}   /* 174px holds the longest name in full */
-.export-shell .sc-track{position:relative;height:9px;background:#212832;border-radius:5px;overflow:hidden}
-.export-shell .sc-fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
-.export-shell .sc-pct{font-family:var(--mono);font-size:11px;font-weight:700;color:#EDEDE8;text-align:right}
-.export-shell .sc-val{font-family:var(--mono);font-size:11.5px;color:#9AA3AF;text-align:right;white-space:nowrap}
-.export-shell .sc-foot{margin-top:15px;padding-top:11px;border-top:2px solid #3DA35D;display:flex;
-  justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;
-  letter-spacing:.05em;text-transform:uppercase;color:#9AA3AF}
-.export-shell .sc-foot b{color:#3DA35D}
 
 .skel{pointer-events:none;position:relative;overflow:hidden}
 .skel .sk-a{width:26px;height:26px;border-radius:50%;background:var(--track);flex:none}
@@ -1186,35 +1151,64 @@ body{background-color:#1D6B3A;color:var(--ink);
 .res .rimg .fcrop::after,.tm-pl .tmface .fcrop::after{border-top-width:1px}
 .tm-pl .tmface{width:28px;height:28px;flex:none;display:block;overflow:hidden}
 .sc-ava .fbadge{font-size:20px}
-/* The share card, in Pixel Turf. It was drawn dark before the re-skin; the surface rule above
-   turned its panel cream but left its light text, so the name, labels and percentiles all but
-   vanished. Cream panel, ink text, Silkscreen headings, square bars, the page's turf green. */
-.export-shell{color:var(--ink);box-shadow:none}
-.export-shell .sc-brand{font-family:var(--pix);font-size:15px;font-weight:400;letter-spacing:.02em;color:var(--ink)}
-.export-shell .sc-brand span{color:var(--turf)}
-.export-shell .sc-mark{width:34px;height:34px;background:var(--turf);color:var(--flag);border:2px solid var(--turf-dk);
-  box-sizing:border-box;font-family:var(--pix);font-size:10px;display:flex;align-items:center;justify-content:center}
-.export-shell .sc-tag{font-family:var(--pix);font-size:10px;color:#5A7A66}
-.export-shell .sc-peak{background:var(--flag);color:var(--turf-dk);border:2px solid var(--turf-dk);border-radius:0;
-  font-family:var(--pix);font-weight:400}
-.export-shell .sc-id{border-top:3px solid var(--turf-dk);border-bottom:3px solid var(--turf-dk)}
-.export-shell .sc-ava{background:var(--turf);color:var(--flag);border:3px solid var(--turf-dk);border-radius:0;
-  box-sizing:border-box;font-family:var(--pix);font-weight:400}
-.export-shell .sc-name{font-family:var(--pix);font-weight:400;font-size:30px;letter-spacing:.01em;color:var(--ink)}
-.export-shell .sc-meta{color:var(--muted)}
-.export-shell .sc-meta b{color:var(--ink)}
-.export-shell .sc-statline{color:#5A7A66}
-.export-shell .sc-statline .st b{color:var(--ink);font-family:var(--pix);font-weight:400}
-.export-shell .sc-coltitle{font-family:var(--pix);font-weight:400;font-size:17px;color:var(--ink);border-bottom:4px solid var(--flag)}
-.export-shell .sc-sub{font-family:var(--pix);color:#5A7A66;border-bottom:2px solid var(--line2)}
-.export-shell .sc-row{grid-template-columns:218px 1fr 24px 56px}
-.export-shell .sc-lab{color:var(--ink);overflow:hidden;text-overflow:ellipsis}
-.export-shell .sc-track{background:var(--track);border:2px solid var(--turf-dk);border-radius:0;height:12px;box-sizing:border-box}
-.export-shell .sc-fill{border-radius:0}
-.export-shell .sc-pct{font-family:var(--pix);font-weight:400;color:var(--ink)}
-.export-shell .sc-val{color:var(--muted)}
-.export-shell .sc-foot{border-top:3px solid var(--turf-dk);color:#5A7A66;font-family:var(--pix);font-size:10px}
-.export-shell .sc-foot b{color:var(--turf);font-weight:400}
+/* ---- the share image. 1080 x 1350, the 4:5 portrait Instagram and X show uncropped. The
+   page in miniature: mowed turf, a cream card with a hard shadow for the man, a stadium
+   scoreboard for the numbers he is known by, and the light board for his percentiles. */
+.export-shell{background:#1D6B3A;border:0;border-radius:0;box-shadow:none;padding:44px 48px 38px;
+  display:flex;flex-direction:column;gap:24px;color:#0E2A17;font-family:var(--body)}
+.sx-mow{position:absolute;top:0;bottom:0;width:120px;background:#196034}
+.sx-head,.sx-hero,.sx-score,.sx-board,.sx-foot{position:relative;z-index:1}
+.sx-head{display:flex;align-items:center;gap:16px}
+.sx-mark{width:58px;height:58px;flex:none;background:#F4C430;color:#0E2A17;border:4px solid #0E2A17;box-sizing:border-box;
+  box-shadow:4px 4px 0 #0E2A17;font-family:var(--pix);font-size:15px;display:flex;align-items:center;justify-content:center}
+.sx-brand{font-family:var(--pix);font-size:30px;color:#FFFFFF;text-shadow:3px 3px 0 #0E2A17;letter-spacing:.02em}
+.sx-brand span{color:#F4C430}
+.sx-when{margin-left:auto;text-align:right;font-family:var(--pix);font-size:30px;line-height:1;color:#F4C430;
+  text-shadow:3px 3px 0 #0E2A17}
+.sx-when small{display:block;margin-top:8px;font-size:13px;letter-spacing:.1em;color:#FFFFFF;text-shadow:2px 2px 0 #0E2A17}
+.sx-card{background:#F2F7EE;border:4px solid #0E2A17;box-shadow:8px 8px 0 #0E2A17}
+.sx-hero{display:flex;gap:28px;align-items:center;padding:34px 26px 24px;overflow:hidden}
+.sx-band{position:absolute;left:0;right:0;top:0;height:8px;background:var(--tc);border-bottom:4px solid var(--tc2)}
+.sx-ph{position:relative;width:216px;height:216px;flex:none;border:4px solid #0E2A17;box-sizing:border-box;
+  background:#47704C;overflow:hidden}
+.sx-ph img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+/* html2canvas paints an inset shadow over the whole box, so the hem is a border here */
+.sx-ph .fbadge{font-size:68px;box-shadow:none;border-bottom:16px solid var(--tc2)}
+.sx-ph .fcrop::after{border-top-width:5px}
+.sx-ph .sx-ini{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--pix);
+  font-size:68px;color:#F4C430;background:#1D6B3A}
+.sx-who{flex:1;min-width:0}
+.sx-name{font-family:var(--pix);font-size:64px;line-height:1.02;color:#0E2A17;white-space:nowrap;overflow:hidden}
+.sx-team{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:23px;font-weight:700;color:#0E2A17}
+.sx-chip{width:22px;height:22px;flex:none;background:var(--tc);border:4px solid var(--tc2);box-sizing:border-box}
+.sx-meta{margin-top:8px;font-size:19px;color:#3E6B4C}
+.sx-accs{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.sx-acc{font-family:var(--pix);font-size:13px;padding:7px 10px;border:3px solid #0E2A17;background:#FFFFFF;color:#0E2A17;
+  box-shadow:3px 3px 0 #0E2A17}
+.sx-acc.gold{background:#F4C430}
+.sx-score{display:flex;background:#0E2A17;border:4px solid #0E2A17;box-shadow:8px 8px 0 #0A1F11}
+.sx-tile{flex:1;min-width:0;padding:16px 18px;border-left:4px solid #1D6B3A;display:flex;flex-direction:column;justify-content:center}
+.sx-tile:first-child{border-left:0;flex:1.7;background:#123A21}
+.sx-tl{font-family:var(--pix);font-size:12px;letter-spacing:.1em;color:#9DC7A8}
+.sx-tv{font-family:var(--pix);font-size:40px;line-height:1;margin-top:10px;color:#FFFFFF}
+.sx-tile:first-child .sx-tv{font-size:62px;color:#F4C430}
+.sx-ts{font-family:var(--pix);font-size:12px;margin-top:9px;color:#9DC7A8}
+.sx-board{flex:1;min-height:0;padding:20px 24px 14px;display:flex;flex-direction:column}
+.sx-bh{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--pix);font-size:18px;
+  padding-bottom:10px;border-bottom:4px solid #0E2A17}
+.sx-bh small{font-size:11px;letter-spacing:.06em;color:#5A7A66}
+.sx-rows{flex:1;display:flex;flex-direction:column;justify-content:space-around;padding-top:4px}
+.sx-row{display:grid;grid-template-columns:292px 1fr 50px 92px;align-items:center;column-gap:16px;height:36px}
+.sx-lab{font-size:19px;color:#3E6B4C;white-space:nowrap;overflow:hidden}
+.sx-row.hl .sx-lab{color:#0E2A17;font-weight:700}
+.sx-bar{display:flex;gap:3px;height:22px}
+.sx-bar i{flex:1;background:#DFE3DC;box-sizing:border-box}
+.sx-pct{height:32px;display:flex;align-items:center;justify-content:center;font-family:var(--pix);font-size:16px;
+  border:3px solid #0E2A17;box-sizing:border-box}
+.sx-val{font-family:var(--mono);font-size:18px;color:#3E6B4C;text-align:right;white-space:nowrap}
+.sx-foot{display:flex;justify-content:space-between;align-items:center;font-family:var(--pix);font-size:17px;
+  color:#FFFFFF;text-shadow:2px 2px 0 #0E2A17}
+.sx-foot small{font-size:11px;letter-spacing:.06em;color:#D9EBDD}
 @media(max-width:560px){.ast-face .fbadge{font-size:12px}}
 .home-lb{background:var(--flag);color:var(--turf-dk);border:3px solid var(--turf-dk);
   box-shadow:5px 5px 0 rgba(14,42,23,.5);font-family:var(--pix);font-size:11px}
@@ -1540,7 +1534,7 @@ body{background-color:#1D6B3A;color:var(--ink);
    ========================================================================= */
 var DATA=null, CFG=null, METRICS=[], MBY={}, PIDX={}, NAMES=[];
 var cur=null, curId=null, curSeason=null;
-var VERSION='2.2.1';           // bumped on big releases only, never per deploy
+var VERSION='2.3.0';           // bumped on big releases only, never per deploy
 var baseline='season';        // 'season' | 'all' | 'pace' | 'exp' — who the bars are ranked against
 var formWin=0;                // 0 = the season; 4, 8, 17 = his last that many games
 var cohortMode='pos';         // 'pos' | 'side'
@@ -5072,57 +5066,118 @@ function readURL(){
 }
 
 /* ================= EXPORT CARD ============================================= */
-function scRow(m,pos){
-  var v=cur.m[m.key];
-  if(miss(v)||!eraOK(m,curSeason)) return '';
-  var pct=pctOf(v,poolVals(m.key,pos,curSeason),m.lower);
-  var shown=pct==null?50:pct;
-  return '<div class="sc-row"><div class="sc-lab">'+esc(m.label)+'</div>'
-    +'<div class="sc-track"><div class="sc-fill" style="width:'+shown+'%;background:'+colorAt(shown)+'"></div></div>'
-    +'<div class="sc-pct">'+(pct==null?'·':pct)+'</div>'
-    +'<div class="sc-val">'+esc(fmt(m.unit,v))+'</div></div>';
-}
-function scGroup(grp,pos){
-  var html='',sub=null,rows='';
-  function flush(){ if(rows) html+=(sub?'<div class="sc-sub">'+esc(sub)+'</div>':'')+rows; rows=''; }
-  METRICS.forEach(function(m){
-    if(m.grp!==grp||m.pos.indexOf(pos)<0) return;
-    if(m.sub!==sub){ flush(); sub=m.sub; }
-    rows+=scRow(m,pos);
+/* ================= SHARE IMAGE =============================================
+   One image a fan would post: who he is, the number he is worth, and a board of the stats
+   that define his position. Headline stats first (the ones his profile score is built on),
+   then the rest of his panels in order, twelve rows at most, so every position fits the
+   same 1080 x 1350 frame. Percentiles are the page's own, under whatever baseline is on. */
+var SX_ROWS=12;
+function sxRows(p,pos){
+  var season=curSeason, seen={}, out=[];
+  function add(m,hl){
+    if(!m||seen[m.key]||out.length>=SX_ROWS||m.pos.indexOf(pos)<0||!eraOK(m,season)) return;
+    var v=p.m[m.key]; if(miss(v)) return;
+    var pct=pctOf(v,poolVals(m.key,pos,season),m.lower); if(pct==null) return;
+    seen[m.key]=1;
+    out.push({m:m,v:v,pct:pct,hl:hl,uns:isLive(season)&&!sampleOf(p,m).ok});
+  }
+  (CFG.headline[pos]||[]).forEach(function(k){ add(MBY[k],true); });
+  (CFG.panels[pos]||[]).forEach(function(g){
+    if(g==='ath'||g==='ctx'||g==='val') return;
+    METRICS.forEach(function(m){ if(m.grp===g) add(m,false); });
   });
-  flush();
-  return html;
+  return out;
+}
+function sxBar(pct,uns){
+  var lit=pct<=0?0:Math.max(1,Math.round(pct/100*BLOCKS)), col=colorAt(pct), out='';
+  for(var i=0;i<BLOCKS;i++)
+    out+= i<lit ? '<i style="'+(uns?'border:3px solid '+col:'background:'+col)+'"></i>' : '<i></i>';
+  return '<div class="sx-bar">'+out+'</div>';
 }
 function buildShareShell(){
   var old=document.getElementById('exportShell'); if(old) old.remove();
-  var p=cur,pos=p.pos;
-  var panels=(CFG.panels[pos]||[]).filter(function(g){return g!=='ath';});
-  var main=panels.filter(function(g){return g!=='ctx';});
-  var colA=main.slice(0,Math.ceil(main.length/2)), colB=main.slice(Math.ceil(main.length/2));
-  function colHTML(list){
-    return list.map(function(g){
-      var body=scGroup(g,pos);
-      return body?('<div class="sc-coltitle">'+esc(CFG.groupLabel[g]||g)+'</div>'+body):'';
-    }).join('');
+  var p=cur, pos=p.pos, season=curSeason, career=isCareer(season), wk=liveWeek(season);
+  var posWord=(CFG.posLabel[pos]||pos), c=teamPair(p.team), tv='--tc:'+c[0]+';--tc2:'+c[1];
+  var ss=seasonsOf(p.id);
+
+  // the photo: this season's, his face in this season's colours, a badge, or his initials
+  var face=faceURL(p.id,p.h), sw=faceSwap(p.id,face,p.hx,p.team,p.name);
+  var photo=sw||(face?'<img src="'+esc(face)+'" crossorigin="anonymous" alt="">'
+                     :'<span class="sx-ini">'+esc(initials(p.name))+'</span>');
+
+  var meta=[esc(posWord)];
+  if(p.age&&!career) meta.push('age '+p.age);
+  if(career) meta.push(ss.length+' seasons · '+ss[0]+'–'+ss[ss.length-1]);
+  else if(p.exp!=null) meta.push(p.exp===0?'rookie':'year '+(p.exp+1));
+  if(!career&&p.rec) meta.push(p.rec[0]+'–'+p.rec[1]+(p.rec[2]?'–'+p.rec[2]:'')+' team record');
+
+  var accs=[];
+  // the All-Savant Team first: the honour this page gives out itself
+  if(!career){
+    var ast=allSavantTeams(season);
+    ast.forEach(function(t,n){
+      if(t.def.concat(t.off,t.st).some(function(it){ return it.id===p.id; }))
+        accs.push(['gold','All-Savant '+(n?'2nd':'1st')+' team'+(wk?' so far':'')]);
+    });
   }
+  // league ranks are a single season's; a career's accolades are kept another way
+  (career?[]:(p.acc||[]).filter(function(a){ return typeof a.r==='number'; })).slice(0,2).forEach(function(a){
+    accs.push(a.r===1?['gold',(wk?'★ Leads NFL · ':'★ Led NFL · ')+a.s]:['',ordSuffix(a.r)+' in NFL · '+a.s]);
+  });
   var arc=careerArc(p.id);
-  var isPeak=arc.peak&&arc.peak.season===curSeason;
+  if(!career&&arc.peak&&arc.peak.season===season&&arc.pts.length>2&&!wk) accs.push(['gold','Career year']);
+  if(!career&&p.exp===0) accs.push(['','Rookie']);
+  accs=accs.slice(0,3);
+
+  // the scoreboard: Savant value, then the stats the line under his name leads with
+  var tiles=[], sv=p.m.sav;
+  if(!miss(sv)){
+    var svp=pctOf(sv,poolVals('sav',pos,season),false);
+    tiles.push(['Savant value',fmt(MBY.sav?MBY.sav.unit:'sgn1',sv),(svp!=null?ordinal(svp)+' pct · ':'')+'pts over replacement']);
+  } else {
+    var ps=career?null:profileScore(p.id,season);
+    if(ps!=null) tiles.push(['Savant score',String(Math.round(ps)),'avg headline percentile']);
+  }
+  var sl=STATLINE[pos]||STATLINE.OL;
+  for(var i=0;i<sl.length&&tiles.length<4;i++){
+    var v=p.m[sl[i][1]]; if(miss(v)) continue;
+    tiles.push([sl[i][0],(+v).toFixed(sl[i][2]),'']);
+  }
+
+  var rows=sxRows(p,pos), anyUns=rows.some(function(r){ return r.uns; });
+  var who=career?'Career':season;
+  var mow=''; for(var k=0;k<9;k+=2) mow+='<div class="sx-mow" style="left:'+(k*120)+'px"></div>';
+
   var d=document.createElement('div');
   d.className='export-shell'; d.id='exportShell';
-  d.innerHTML='<div class="sc-head"><div class="sc-mark">WCE</div>'
-    +'<div class="sc-brand">Football <span>Savant</span></div>'
-    +(isPeak?'<div class="sc-peak">CAREER YEAR</div>':'')
-    +'<div class="sc-tag">'+esc(curSeason)+' · vs '+esc((CFG.posLabel[pos]||pos).toLowerCase())+'s</div></div>'
-    +'<div class="sc-id"><div class="sc-ava">'+(faceSwap(p.id,faceURL(p.id,p.h),p.hx,p.team,p.name)
-      ||(faceURL(p.id,p.h)?'<img src="'+esc(faceURL(p.id,p.h))+'" crossorigin="anonymous" alt="">':esc(initials(p.name))))+'</div>'
-    +'<div><div class="sc-name">'+esc(p.name)+'</div>'
-    +'<div class="sc-meta"><b>'+esc(teamName(p.team))+'</b> · '+esc(CFG.posLabel[pos]||pos)+' · '+esc(curSeason)
-    +(p.age?' · age '+p.age:'')+'</div>'
-    +statLine(p).replace(/class="statline"/,'class="sc-statline"')+'</div></div>'
-    +'<div class="sc-cols"><div>'+colHTML(colA)+'</div><div>'+colHTML(colB)+'</div></div>'
-    +'<div class="sc-foot"><span>wcehoops.com · <b>Football Savant</b></span>'
-    +'<span>percentile vs qualified '+esc((CFG.posLabel[pos]||pos).toLowerCase())+'s, '+esc(curSeason)+'</span></div>';
+  d.innerHTML=mow
+    +'<div class="sx-head"><div class="sx-mark">WCE</div><div class="sx-brand">Football <span>Savant</span></div>'
+      +'<div class="sx-when">'+esc(who)+'<small>'+esc(wk?'through week '+wk:posWord+'s')+'</small></div></div>'
+    +'<div class="sx-card sx-hero" style="'+esc(tv)+'"><div class="sx-band"></div>'
+      +'<div class="sx-ph">'+photo+'</div>'
+      +'<div class="sx-who"><div class="sx-name">'+esc(p.name)+'</div>'
+        +'<div class="sx-team"><span class="sx-chip"></span>'+esc(teamName(p.team,career?undefined:season))+'</div>'
+        +'<div class="sx-meta">'+meta.join(' · ')+'</div>'
+        +(accs.length?'<div class="sx-accs">'+accs.map(function(a){
+            return '<span class="sx-acc '+a[0]+'">'+esc(a[1])+'</span>'; }).join('')+'</div>':'')
+      +'</div></div>'
+    +(tiles.length?'<div class="sx-score">'+tiles.map(function(t){
+        return '<div class="sx-tile"><div class="sx-tl">'+esc(t[0])+'</div><div class="sx-tv">'+esc(t[1])+'</div>'
+          +(t[2]?'<div class="sx-ts">'+esc(t[2])+'</div>':'')+'</div>'; }).join('')+'</div>':'')
+    +'<div class="sx-card sx-board"><div class="sx-bh"><span>Percentiles</span><small>vs qualified '
+        +esc(posWord.toLowerCase())+'s · '+esc(career?'career':season)+'</small></div>'
+      +'<div class="sx-rows">'+rows.map(function(r){
+          var light=onColorIsDark(r.pct);        // true when the colour is light enough for ink
+          return '<div class="sx-row'+(r.hl?' hl':'')+'"><div class="sx-lab">'+esc(r.m.label)+'</div>'+sxBar(r.pct,r.uns)
+            +'<div class="sx-pct" style="background:'+colorAt(r.pct)+';color:'+(light?'#0E2A17':'#FFFFFF')+'">'+r.pct+'</div>'
+            +'<div class="sx-val">'+esc(fmt(r.m.unit,r.v))+'</div></div>';
+        }).join('')+'</div></div>'
+    +'<div class="sx-foot"><span>wcehoops.com/football-savant</span><small>'
+      +(anyUns?'hollow blocks: not settled yet · ':'')+'bold rows: his headline stats</small></div>';
   document.body.appendChild(d);
+  // a long name steps down until it fits beside the photo
+  var nm=d.querySelector('.sx-name'), fs=64;
+  while(nm&&nm.scrollWidth>nm.clientWidth&&fs>30){ fs-=2; nm.style.fontSize=fs+'px'; }
   return d;
 }
 function exportCard(){
@@ -5131,7 +5186,7 @@ function exportCard(){
   btn.disabled=true; lab.textContent='Rendering…';
   var shell=buildShareShell();
   setTimeout(function(){
-    html2canvas(shell,{backgroundColor:'#F2F7EE',scale:2,logging:false,useCORS:true}).then(function(cv){
+    html2canvas(shell,{backgroundColor:'#1D6B3A',scale:2,logging:false,useCORS:true,width:1080,height:1350}).then(function(cv){
       cv.toBlob(function(blob){
         if(!blob){ lab.textContent='Share'; btn.disabled=false; shell.remove(); return; }
         var a=document.createElement('a');
