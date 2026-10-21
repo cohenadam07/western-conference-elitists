@@ -1,6 +1,6 @@
 {
-"fetched": "2026-10-19",
-"released": "2026-10-10",
+"fetched": "2026-10-21",
+"released": "2026-10-17",
 "lists": {
 "HW": {
 "champion": "Ciryl Gane",
@@ -78,10 +78,8 @@
 "Belal Muhammad",
 "Leon Edwards",
 "Kamaru Usman",
-"Joaquin Buckley",
-"Yaroslav Amosov",
-"Uroš Medić",
 "Mike Malott",
+"Yaroslav Amosov",
 "Daniel Rodriguez",
 "Neil Magny"
 ]
@@ -139,14 +137,14 @@
 "Mario Bautista",
 "Cory Sandhagen",
 "Payton Talbott",
-"Aiemann Zahabi",
 "David Martínez",
+"Aiemann Zahabi",
 "Raul Rosas Jr.",
 "Marlon Vera",
 "Deiveson Figueiredo",
-"Farid Basharat",
 "Marcus McGhee",
-"Raoni Barcelos"
+"Raoni Barcelos",
+"Bryce Mitchell"
 ]
 },
 "FLW": {
@@ -177,8 +175,8 @@
 "Julianna Peña",
 "Joselyne Edwards",
 "Ailín Pérez",
-"Raquel Pennington",
 "Norma Dumont",
+"Raquel Pennington",
 "Yana Santos",
 "Luana Santos",
 "Jacqueline Cavalcanti",
@@ -187,8 +185,8 @@
 "Beatriz Mesquita",
 "Michelle Montague",
 "Nora Cornolle",
-"Melissa Croden",
-"Darya Zheleznyakova"
+"Chelsea Chandler",
+"Alice Pereira"
 ]
 },
 "WFLW": {
@@ -198,16 +196,18 @@
 "Valentina Shevchenko",
 "Alexa Grasso",
 "Manon Fiorot",
+"Jasmine Jasudavicius",
 "Erin Blanchfield",
 "Rose Namajunas",
+"Maycee Barber",
 "Wang Cong",
 "Tracy Cortez",
 "Miranda Maverick",
 "Karine Silva",
 "Casey O'Neill",
 "Eduarda Moura",
-"Regina Tarín",
-"Gabriella Fernandes"
+"Gabriella Fernandes",
+"Regina Tarín"
 ]
 },
 "WSW": {
@@ -241,8 +241,6 @@
 "Petr Yan",
 "Ilia Topuria",
 "Joshua Van",
-"Sean Strickland",
-"Tom Aspinall",
 "Merab Dvalishvili",
 "Alex Pereira",
 "Ciryl Gane",
@@ -263,14 +261,14 @@
 "Mackenzie Dern",
 "Alexa Grasso",
 "Manon Fiorot",
-"Erin Blanchfield",
 "Tatiana Suarez",
+"Erin Blanchfield",
 "Julianna Peña",
 "Virna Jandiroba",
+"Jasmine Jasudavicius",
 "Rose Namajunas",
 "Raquel Pennington",
-"Denise Gomes",
-"Maycee Barber"
+"Denise Gomes"
 ]
 }
 }
