@@ -25,12 +25,15 @@ import { gunzipSync } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
 import { BASE, POSITIONS, buildSavantApi, writeSavantApi } from '../../scripts/lib/savant-api.mjs'
 import { mergeSavantData, readSavantData } from '../../scripts/lib/savant-merge.mjs'
+import { readValueModel } from '../../scripts/lib/savant-value.mjs'
+import '../../public/savant-value.js'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const PUBLIC = path.join(ROOT, 'public')
 const html = readFileSync(path.join(PUBLIC, 'basketball-savant.html'), 'utf8')
 const data = readSavantData(PUBLIC) // the archive with public/savant-current.json laid over it, as the build does
-const out = buildSavantApi({ data, html })
+const valueModel = readValueModel(PUBLIC)
+const out = buildSavantApi({ data, html, valueModel })
 
 // ---- lifting the page's code ---------------------------------------------------------
 
@@ -332,7 +335,10 @@ test('likely to settle: the connector carries the estimate the page shows, for e
     }
   }
   console.log(`      ${shown.toLocaleString('en-US')} estimates match`)
-  assert.ok(shown > 1000, 'suspiciously few estimates')
+  // A real opening week has a few dozen players (one game on opening night), so the floor
+  // scales with the season's size: about five estimates a player, never more than 1,000.
+  const floor = Math.min(1000, 5 * pg.data.data[season].players.length)
+  assert.ok(shown > floor, `suspiciously few estimates: ${shown} for ${pg.data.data[season].players.length} players`)
   // A finished season never carries estimates.
   for (const s of built.meta.seasons) if (s !== season) assert.ok(built.seasons[s].players.every((r) => !r.settle), `${s} carries estimates`)
 })
@@ -399,4 +405,31 @@ test('every stat explains what it is, how it is calculated, its source and its s
     for (const f of ['what', 'formula', 'source', 'sample']) if (!e[f] || String(e[f]).trim().length < 4) missing.push(`${m.key}: no ${f}`)
   }
   assert.deepEqual(missing, [], missing.join('\n'))
+})
+
+// The All-Savant Team in the files is the page's: the page applies its position corrections
+// (prepData) and then savant-value.js; the build must hand the same rows to the same file.
+test('every season carries the page\'s All-Savant teams and a value for every ranked player', () => {
+  const grab = (name) => {
+    const m = html.match(new RegExp(`const ${name}\\s*=\\s*(\\{[^;]*\\});`))
+    assert.ok(m, name)
+    return vm.runInNewContext(`(${m[1]})`)
+  }
+  const fixId = grab('POS_FIX_ID'), fixName = grab('POS_FIX_NAME')
+  const norm = (t) => (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const SV = globalThis.SavantValue
+  assert.ok(out.meta.savant_value && out.meta.savant_value.parts.length === 5)
+  for (const season of data.seasons) {
+    const players = data.data[season].players.map((p) => ({ ...p, pos: fixId[p.id] || fixName[norm(p.name)] || p.pos }))
+    const res = SV.season(players, valueModel)
+    const teams = SV.team(players, res, valueModel, null, 2).map((t) => t.map((x) => x.p.id))
+    const file = out.seasons[season]
+    assert.deepEqual(file.all_savant, teams, season)
+    for (const row of file.players) {
+      const v = res.get(row.id)
+      if (!v) { assert.equal(row.sv, undefined, `${season} ${row.name}`); continue }
+      assert.equal(row.sv[0], Math.round(v.value), `${season} ${row.name} value, rounded as the page prints it`)
+      assert.equal(row.sv[2] == null, !v.q, `${season} ${row.name} rank only when qualified`)
+    }
+  }
 })

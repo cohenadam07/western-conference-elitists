@@ -1,0 +1,130 @@
+{
+ "version": 1,
+ "learned": {
+  "first": "2009-10",
+  "last": "2024-25",
+  "holdout": "2025-26",
+  "player_seasons": 6498,
+  "penalty": 100000.0
+ },
+ "feats": [
+  "sceff",
+  "usg",
+  "tp3r",
+  "ftr",
+  "ast",
+  "tov",
+  "oreb",
+  "dreb",
+  "stl",
+  "blk"
+ ],
+ "intercept": 0.8551780306607875,
+ "beta": {
+  "sceff": 1.2771775348035548,
+  "usg": 0.16007790253350626,
+  "tp3r": 0.045421271960542006,
+  "ftr": 0.015782409107789996,
+  "ast": 0.18968025828733256,
+  "tov": -1.2108502018030995,
+  "oreb": 0.3004040706154285,
+  "dreb": 0.04189457757416472,
+  "stl": 2.154126401443947,
+  "blk": 0.6704440434772915
+ },
+ "gamma": 0.09941611039503187,
+ "K": 6400.0,
+ "scale": 1.0190102540922874,
+ "credit": {
+  "sceff": 0.7912,
+  "usg": 0.8745,
+  "tp3r": 0.9649,
+  "ftr": 0.942,
+  "ast": 0.8819,
+  "tov": 0.8848,
+  "oreb": 0.9517,
+  "dreb": 0.9306,
+  "stl": 0.9135,
+  "blk": 0.9501
+ },
+ "repl_pct": 25,
+ "settle": {
+  "ts": 282,
+  "usg": 112,
+  "ast": 141,
+  "tov75": 398,
+  "oreb": 266,
+  "dreb": 316,
+  "stl": 750,
+  "blk": 335,
+  "tp3r": 9,
+  "ftr": 60
+ },
+ "parts": [
+  {
+   "key": "scoring",
+   "label": "Scoring",
+   "feats": [
+    "sceff",
+    "usg",
+    "tp3r",
+    "ftr"
+   ]
+  },
+  {
+   "key": "playmaking",
+   "label": "Playmaking",
+   "feats": [
+    "ast",
+    "tov"
+   ]
+  },
+  {
+   "key": "rebounding",
+   "label": "Rebounding",
+   "feats": [
+    "oreb",
+    "dreb"
+   ]
+  },
+  {
+   "key": "defense",
+   "label": "Defense",
+   "feats": [
+    "stl",
+    "blk"
+   ]
+  },
+  {
+   "key": "floor",
+   "label": "On-floor impact",
+   "feats": []
+  }
+ ],
+ "labels": {
+  "sceff": "Points over average efficiency per 100",
+  "usg": "Usage %",
+  "tp3r": "3-point attempt rate",
+  "ftr": "Free-throw rate",
+  "ast": "Assist %",
+  "tov": "Turnovers per 100",
+  "oreb": "Offensive rebound %",
+  "dreb": "Defensive rebound %",
+  "stl": "Steals per 100",
+  "blk": "Blocks per 100"
+ },
+ "shape": [
+  [
+   "Guard",
+   2
+  ],
+  [
+   "Wing",
+   2
+  ],
+  [
+   "Big",
+   1
+  ]
+ ]
+}

@@ -24,6 +24,26 @@ def proj_stat(name, unit):
 
 
 T = {
+ # ---- the All-Savant Team (landing page; public/savant-value.js, numbers from tools/savant-value/value.py)
+ "allsavant": dict(
+     what=("The All-Savant Team is our All-NBA team, picked by the numbers alone: two guards, two wings and a big per team, each the "
+           "highest Savant value at his position among qualified players. A player makes one team only. Savant value is the points he "
+           "added to his team this season above a replacement-level player at his position, on the stats that are his own and the "
+           "possessions he played."),
+     formula=("Value = (rate - replacement rate) x possessions / 100. Rate = points per 100 possessions vs. an average player at his "
+              "position: efficiency on his own shots, usage, 3-point and free-throw rate, assist %, turnovers, rebound % at both ends, "
+              "steals and blocks, each pulled toward the position average by its settle point, times what it is worth in luck-adjusted "
+              "on/off, times the share of it that follows a player to a new team (0.79 for shooting efficiency to 0.96 for 3-point rate). "
+              "From 2009-10 the rate also takes in part of what his luck-adjusted on/off says beyond the box score and his minutes: "
+              "weight w / (w + 6,400), w = 1 / (1/minutes on + 1/team minutes without him), about 13% for a full-time starter. "
+              "Replacement = the 25th-percentile qualified player at his position that season."),
+     source=(f"{NBA}; Basketball Reference before 1996-97. Positions as on his card. Worth learned on 6,498 player-seasons "
+             "(2009-10 to 2024-25, 2025-26 held out) by tools/savant-value/value.py; the numbers are in savant-value.json."),
+     sample=("Missed games cost him: he adds nothing on nights he doesn't play. On the held-out 2025-26 season, a player's 2024-25 rate "
+             "correlated .37 with his 2025-26 luck-adjusted on/off; BPM .35. Checked against the real All-NBA, never tuned to it: "
+             "since 1988-89, 63% of our first and second teamers made the real first or second team, 75% made an All-NBA team. "
+             "Before 2009-10 there is no on/off, so defense counts only through steals, blocks and rebounds. "
+             "Early in a season the team moves a lot; it settles as possessions pile up.")),
  # ---- projections
  "pj_method": dict(what="How the projections work: one model behind every Fantasy number, the projection panel on the card and the connector.",
      formula=("Marcel-style: last three seasons weighted 5/4/3 by minutes, regressed to position average by each stat's measured settle point, "
