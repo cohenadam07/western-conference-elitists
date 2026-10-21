@@ -235,8 +235,21 @@ async function loadInputs(games, teamNames, { deadline, warnings }) {
   if (unmatched.length) warnings.push(`no WCE projection for: ${unmatched.slice(0, 12).join(', ')}${unmatched.length > 12 ? '…' : ''}`)
   const ix = {}
   ;(proj.log_cols || []).forEach((c, i) => { ix[c] = i })
-  return { markets, proj, ix, injuries: inj.ok ? inj.v : {}, injuriesOk: inj.ok, ctx }
+
+  // Who played the night before each game, for back-to-backs.
+  const prev = [...new Set(games.map((g) => dayBefore(g.date)))]
+  const playedOn = new Set()
+  await Promise.all(prev.map(async (d) => {
+    try {
+      for (const g of (await K.slate(d)).games) { playedOn.add(`${g.away}|${d}`); playedOn.add(`${g.home}|${d}`) }
+    } catch (err) {
+      warnings.push(`couldn't read ${d}'s games for back-to-backs (${err?.message || err})`)
+    }
+  }))
+  return { markets, proj, ix, injuries: inj.ok ? inj.v : {}, injuriesOk: inj.ok, ctx, playedOn, prevKnown: new Set(prev) }
 }
+
+const dayBefore = (date) => { const d = new Date(`${date}T12:00:00Z`); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10) }
 
 // Claims a game so two runs (a cron and the scheduled task, say) never prepare it twice.
 async function claim(key) {
@@ -257,18 +270,16 @@ function prepareGame(game, inp) {
   const { proj, ix, injuries, injuriesOk, ctx } = inp
 
   // Who sits: ESPN's feed when it answered, the projection file's status otherwise.
-  const listed = {}
   const outIds = { [game.away]: new Set(), [game.home]: new Set() }
   for (const team of [game.away, game.home]) {
     const list = injuriesOk ? injuries[team] || [] : []
-    listed[team] = list.map((i) => `${i.name} (${i.status})`)
     for (const i of list) {
       if (!K.isOut(i.status) && !/doubtful/i.test(i.status)) continue
       const n = K.normName(i.name)
       for (const [id, p] of Object.entries(proj.players)) if (p.team === team && K.normName(p.name) === n) outIds[team].add(id)
     }
     if (!injuriesOk) {
-      for (const [id, p] of Object.entries(proj.players)) if (p.team === team && K.isOut(p.status)) { outIds[team].add(id); listed[team].push(`${p.name} (${p.status})`) }
+      for (const [id, p] of Object.entries(proj.players)) if (p.team === team && K.isOut(p.status)) outIds[team].add(id)
     }
   }
   const injuryOf = (team, name) => (injuriesOk ? (injuries[team] || []).find((i) => K.normName(i.name) === K.normName(name)) : null)
@@ -307,6 +318,42 @@ function prepareGame(game, inp) {
   }
 
   if (claudeMode() !== 'off') {
+    // The game facts both arms share: the injury report, every rotation player, the schedule.
+    const health = {}
+    for (const team of [game.away, game.home]) {
+      health[team] = injuriesOk
+        ? (injuries[team] || []).map((i) => ({ name: i.name, status: i.status, date: i.date, comment: i.comment }))
+        : Object.values(proj.players).filter((p) => p.team === team && p.status && p.status !== 'None').map((p) => ({ name: p.name, status: p.status }))
+    }
+    const rosters = {}
+    for (const team of [game.away, game.home]) {
+      const rows = []
+      for (const [id, p] of Object.entries(proj.players)) {
+        if (p.team !== team) continue
+        // Ordered by minutes over his whole recent sample (up to 60 games): early in the season
+        // a last-10 average is mostly last April, when tanking teams played their benches.
+        const log = (p.log || []).filter((r) => (r[ix.min] || 0) > 0)
+        const avgMin = log.length ? log.reduce((a, r) => a + r[ix.min], 0) / log.length : 0
+        const line = p.ros || p.pre
+        const inj = injuryOf(team, p.name)
+        const status = inj?.status || (!injuriesOk && p.status && p.status !== 'None' ? p.status : null)
+        if (!(avgMin >= 10 || (line?.min || 0) >= 12 || status || players.has(id))) continue
+        rows.push({ name: p.name, pos: p.pos, status, hasMarket: players.has(id), gp: Number(p.gp) || 0, rookie: p.rookie === true || p.rookie === 'True',
+          proj: line, usg: ctx.savant?.get(String(id))?.m?.usg?.[0] ?? null, log: p.log || [], avgMin })
+      }
+      rows.sort((a, b) => b.avgMin - a.avgMin || (b.proj?.min || 0) - (a.proj?.min || 0))
+      rosters[team] = rows.slice(0, 16)
+    }
+    const prevDay = dayBefore(game.date)
+    const schedule = []
+    for (const team of [game.away, game.home]) {
+      if (!inp.prevKnown?.has(prevDay)) continue
+      schedule.push(inp.playedOn.has(`${team}|${prevDay}`)
+        ? `${team} played last night, so tonight is the second night of a back-to-back.`
+        : `${team} did not play last night.`)
+    }
+    if (ctx.record?.[game.away] && ctx.record?.[game.home]) schedule.push(`Records this season: ${game.away} ${ctx.record[game.away]}, ${game.home} ${ctx.record[game.home]}.`)
+
     const injuredOut = [...outIds[game.away], ...outIds[game.home]]
     const inv = proj.ww_inv?.by || {}
     const cards = order.map((pl) => {
@@ -320,14 +367,14 @@ function prepareGame(game, inp) {
       }
       return {
         name: pl.p.name, team: pl.p.team, pos: pl.p.pos, age: Number(pl.p.age) || null, rookie: pl.p.rookie === true || pl.p.rookie === 'True',
-        status: inj?.status || null, statusNote: inj?.comment || null,
+        status: inj?.status || null,
         proj: pl.p.ros || pl.p.pre, log: pl.p.log || [],
         savant: sv?.facts || null, savantSeason: ctx.savantSeason, peers: sv?.peers,
         beneficiary,
         markets: pl.markets.map((m) => ({ id: m.id, stat: m.stat, k: m.k, pModel: m.pModel })),
       }
     })
-    const input = { game, players: cards, ix, teams: [teamLine(ctx, game.away), teamLine(ctx, game.home)], outs: listed }
+    const input = { game, players: cards, ix, teams: [teamLine(ctx, game.away), teamLine(ctx, game.home)], health, rosters, schedule }
     packet.prompts = { claude_wce: buildPrompt('claude_wce', input), claude_box: buildPrompt('claude_box', input) }
   }
   return packet

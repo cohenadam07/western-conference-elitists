@@ -14,8 +14,18 @@ The two Claude arms run on Adam's Claude account through a scheduled task, not a
 | Arm | What it gets |
 |---|---|
 | **WCE model** | The WCE projection (`savant-proj.json`, the Fantasy tab's rest-of-season line) turned into a probability with a negative binomial whose spread comes from the player's own last 60 games. No Claude. |
-| **Claude + WCE** | Claude, given the WCE projection and the WCE model's number for every market, Basketball Savant percentiles (vs. his position), team ratings with ranks, ESPN's injury list with the news blurb, and what each player's numbers did in past games his injured teammates missed (`ww_inv`). |
-| **Claude, box only** | Claude, given per-game averages over the last 60 games, the last five box lines, and ESPN's injury statuses. Nothing from WCE. |
+| **Claude + WCE** | The game facts below, plus WCE's analytics: the WCE projection and usage for every rotation player, the WCE model's number for every market, Basketball Savant percentiles (vs. his position), team ratings with ranks, and what each player's numbers did in past games his injured teammates missed (`ww_inv`). |
+| **Claude, box only** | The game facts below, plus box scores: every rotation player's averages over his last 60 games, and the last five box lines of each player with markets. Nothing from WCE. |
+
+Both Claude arms get the same **game facts**, so the only difference between them is WCE's
+analytics:
+- **The injury report:** ESPN's status, the date of the update, and the news note for every listed player on both teams.
+- **The rotations:** every player with a real role on both teams (out players included), most minutes first, with his minutes in his last five games and his games this season.
+- **The schedule:** whether either team played the night before (a back-to-back), and both records.
+
+Each prompt tells Claude to work out tonight's minutes for both teams before pricing anything:
+who is out or limited, who takes those minutes and shots, and whose role tonight differs from
+his averages.
 
 Comparing the arms answers three questions at once: is the WCE projection any good on its own
 (model vs. market), does Claude add anything on top of it (Claude + WCE vs. model), and is it the
@@ -141,8 +151,9 @@ Game keys are Kalshi's: two-digit year, month, day, away, home.
 - **Injury news.** ESPN's feed is read when a game is prepared, one to four hours before tip.
   Late scratches after that aren't in any arm's information, which is the point: it is the
   information you would really have had.
-- **Claude's model** is whatever the scheduled task runs on. Changing it mid-test changes the
-  arm; the page's notes and the run log show when answers came in.
+- **Claude's model** is whatever the scheduled task runs on: Claude Sonnet 5.5, chosen Oct 21.
+  Changing it mid-test changes the arm, and results from before and after can't be pooled. If
+  Sonnet shows no edge, Opus is the next thing to try, as a fresh run.
 - **Wide closing quotes** make a noisy CLV on thin markets; bets only go on markets quoted within
   10¢, but the close can be wider. A quote that never moved in the day before tip leaves no
   minute candle; then the quote the bet was made at, still standing, is the close.

@@ -47,6 +47,8 @@ Each market asks whether one player reaches a threshold tonight, for example "25
 
 Work only from the information given here. It is what was known a few hours before tip-off. You are not shown market prices, and nothing you say is advice to anyone.
 
+Before pricing anything, work out tonight's minutes for both teams from the rotations and the injury report: who is out or limited, who takes those minutes and shots, and whose role tonight differs from his averages. The second night of a back-to-back can mean rest or fewer minutes.
+
 Be calibrated: of all the markets you put at 70%, about 70% should hit. Keep each player's lines coherent: a higher threshold of the same stat is never likelier than a lower one. Give a probability for every market listed, using its id.`
 
 const SYSTEM = `${RULES}
@@ -115,18 +117,52 @@ function marketsText(markets, withModel) {
     .join(' · ')
 }
 
-// outs: { TEAM: ['Name (Out)', 'Name (Day-To-Day)', ...] }
-function outsText(outs) {
-  return Object.entries(outs)
-    .map(([team, list]) => `${team}: ${list.length ? list.join(', ') : 'nobody listed'}`)
-    .join('\n')
+const shortDate = (iso) => (iso ? new Date(iso).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }) : null)
+
+// health: { TEAM: [{ name, status, date, comment }] }. Both arms get the same report.
+function healthText(health) {
+  const out = []
+  for (const [team, list] of Object.entries(health)) {
+    if (!list.length) { out.push(`${team}: nobody listed`); continue }
+    out.push(`${team}:`)
+    for (const i of list) out.push(`  ${i.name}: ${i.status}${i.date ? ` (${shortDate(i.date)})` : ''}${i.comment ? ` — ${i.comment}` : ''}`)
+  }
+  return out.join('\n')
+}
+
+// One line per rotation player. The WCE arm sees WCE's projection and usage; the box arm sees
+// his recent box scores. Both see the same players in the same order, with the same statuses.
+function rosterText(rosters, ix, arm) {
+  const out = []
+  for (const [team, rows] of Object.entries(rosters)) {
+    out.push(team)
+    for (const r of rows) {
+      const tag = `${r.name}${r.pos ? ` (${r.pos[0]})` : ''}${r.status ? `, ${r.status.toUpperCase()}` : ''}${r.hasMarket ? ' *' : ''}`
+      const bits = []
+      if (arm === 'claude_wce' && r.proj) {
+        bits.push(`WCE projection ${r1(r.proj.min)} min, ${r1(r.proj.pts)} pts, ${r1(r.proj.reb)} reb, ${r1(r.proj.ast)} ast`)
+        if (r.usg != null) bits.push(`usage ${r1(r.usg)}%`)
+      }
+      const log = (r.log || []).filter((x) => (x[ix.min] || 0) > 0)
+      if (arm !== 'claude_wce') {
+        if (log.length) {
+          const a = averages(log, ix)
+          bits.push(`last ${a.n} games: ${r1(a.min)} min, ${r1(a.pts)} pts, ${r1(a.reb)} reb, ${r1(a.ast)} ast`)
+        } else bits.push(r.rookie ? 'rookie, no NBA games yet' : 'no NBA games on record')
+      }
+      if (log.length) bits.push(`minutes in his last 5 games: ${log.slice(-5).map((x) => x[ix.min]).join(', ')}`)
+      bits.push(`${r.gp} game${r.gp === 1 ? '' : 's'} this season`)
+      out.push(`  ${tag} · ${bits.join(' · ')}`)
+    }
+  }
+  return out.join('\n')
 }
 
 // One player's card for the WCE arm.
 function wceCard(p, ix) {
   const lines = []
   const head = [`${p.name} (${p.team}, ${p.pos || '?'}${p.age ? `, ${r1(p.age)}` : ''}${p.rookie ? ', rookie' : ''})`]
-  if (p.status) head.push(`status: ${p.status}${p.statusNote ? ` — "${p.statusNote}"` : ''}`)
+  if (p.status) head.push(`status: ${p.status}`)
   lines.push(head.join(' · '))
   if (p.proj) {
     const j = p.proj
@@ -157,9 +193,23 @@ function boxCard(p, ix) {
   return lines.join('\n')
 }
 
-// The user message for one arm and one game.
-export function buildPrompt(arm, { game, players, ix, teams, outs }) {
-  const head = `${game.away} at ${game.home}, tip ${tipText(game.tip)}.`
+// The user message for one arm and one game. Both arms get the same game facts: the
+// schedule, the injury report with ESPN's notes, and every rotation player on both teams. Only
+// the WCE arm gets WCE's analytics: projections, the model's numbers, Savant percentiles, team
+// ratings and the teammate-out splits.
+//   schedule  ['MIL played last night: ...', ...]
+//   health    { TEAM: [{ name, status, date, comment }] }
+//   rosters   { TEAM: [{ name, pos, status, hasMarket, gp, rookie, proj, usg, log }] }
+export function buildPrompt(arm, { game, players, ix, teams, health, rosters, schedule = [] }) {
+  const head = [`${game.away} at ${game.home}, tip ${tipText(game.tip)}.`, ...schedule].join('\n')
+  const common = [
+    '',
+    'INJURY REPORT (ESPN, with the date of each update)',
+    healthText(health || {}),
+    '',
+    'ROTATIONS (most minutes first; * has markets tonight and a full card below. Early in the season, a player\'s last games reach back into last season, and he may have changed teams or roles since.)',
+    rosterText(rosters || {}, ix, arm),
+  ]
   if (arm === 'claude_wce') {
     return [
       head,
@@ -168,21 +218,17 @@ export function buildPrompt(arm, { game, players, ix, teams, outs }) {
       '',
       'TEAMS (ranks out of 30: 1st is the fastest pace, and the best mark for everything else)',
       ...teams,
+      ...common,
       '',
-      'INJURY LIST (ESPN, current)',
-      outsText(outs),
-      '',
-      'PLAYERS',
+      'PLAYERS WITH MARKETS',
       ...players.map((p) => wceCard(p, ix)),
     ].join('\n')
   }
   return [
     head,
+    ...common,
     '',
-    'INJURY LIST (ESPN, current)',
-    outsText(outs),
-    '',
-    'PLAYERS',
+    'PLAYERS WITH MARKETS',
     ...players.map((p) => boxCard(p, ix)),
   ].join('\n')
 }

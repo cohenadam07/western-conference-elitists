@@ -156,25 +156,42 @@ test('Claude\'s answer is read by id, clamped and made coherent', () => {
 test('the prompts: the box-score arm never sees WCE numbers', () => {
   const ix = { min: 0, pts: 1, reb: 2, ast: 3, fg3m: 4 }
   const players = [{
-    name: 'Anthony Edwards', team: 'MIN', pos: 'Guard', age: 25.2, status: 'Questionable', statusNote: 'ankle',
+    name: 'Anthony Edwards', team: 'MIN', pos: 'Guard', age: 25.2, status: 'Questionable',
     proj: { min: 36, pts: 27.1, reb: 5.4, ast: 4.6, fg3m: 3.4, fga: 21, fta: 7 }, log: [[36, 30, 5, 4, 4], [35, 22, 6, 5, 2]],
     savant: [{ label: 'usage %', value: '31.2', pct: 95 }], savantSeason: '2025-26', peers: 'guards',
     beneficiary: ['With X out tonight — ...'],
     markets: [{ id: 'm1', stat: 'pts', k: 25, pModel: 0.58 }],
   }]
-  const input = { game: { away: 'MIN', home: 'MIA', tip: Date.parse('2026-10-21T23:30:00Z') }, players, ix, teams: ['MIN (2025-26): pace 99.0'], outs: { MIN: [], MIA: ['Someone (Out)'] } }
+  const health = { MIN: [{ name: 'Anthony Edwards', status: 'Questionable', date: '2026-10-21T15:00Z', comment: 'Edwards (ankle) is a game-time call.' }], MIA: [{ name: 'Someone', status: 'Out', date: null, comment: '' }] }
+  const rosters = {
+    MIN: [{ name: 'Anthony Edwards', pos: 'Guard', status: 'Questionable', hasMarket: true, gp: 1, proj: { min: 36, pts: 27.1, reb: 5.4, ast: 4.6 }, usg: 31.2, log: [[36, 30, 5, 4, 4], [35, 22, 6, 5, 2]] },
+      { name: 'Bench Guy', pos: 'Wing', status: null, hasMarket: false, gp: 0, rookie: true, proj: { min: 14, pts: 5, reb: 2, ast: 1 }, usg: null, log: [] }],
+    MIA: [{ name: 'Someone', pos: 'Big', status: 'Out', hasMarket: false, gp: 0, proj: { min: 30, pts: 18, reb: 9, ast: 2 }, usg: 22.0, log: [[30, 18, 9, 2, 0]] }],
+  }
+  const schedule = ['MIN played last night, so tonight is the second night of a back-to-back.', 'MIA did not play last night.']
+  const input = { game: { away: 'MIN', home: 'MIA', tip: Date.parse('2026-10-21T23:30:00Z') }, players, ix, teams: ['MIN (2025-26): pace 99.0'], health, rosters, schedule }
   const wce = buildPrompt('claude_wce', input)
   const box = buildPrompt('claude_box', input)
   assert.match(wce, /WCE 58%/); assert.match(wce, /usage % 31\.2 \(95th\)/); assert.match(wce, /7:30 PM ET/)
-  assert.doesNotMatch(box, /WCE|projection|Savant|usage|pace|ankle|With X out/)
-  assert.match(box, /m1 PTS 25\+/); assert.match(box, /Someone \(Out\)/)
+  assert.match(wce, /Someone \(B\), OUT · WCE projection 30\.0 min/)
+  // Both arms get the same game facts: schedule, injury notes, the whole rotation.
+  for (const t of [wce, box]) {
+    assert.match(t, /second night of a back-to-back/)
+    assert.match(t, /Edwards \(ankle\) is a game-time call/)
+    assert.match(t, /Bench Guy/); assert.match(t, /Someone/)
+  }
+  assert.match(box, /Someone \(B\), OUT · last 1 games: 30\.0 min, 18\.0 pts/)
+  assert.match(box, /Bench Guy \(W\) · rookie, no NBA games yet/)
+  // And only the WCE arm gets WCE's analytics.
+  assert.doesNotMatch(box, /WCE|projection|Savant|usage|pace|With X out/)
+  assert.match(box, /m1 PTS 25\+/)
 })
 
 test('the scheduled task: self-contained texts, JSON answers, its own token', () => {
   const ix = { min: 0, pts: 1, reb: 2, ast: 3, fg3m: 4 }
   const players = [{ name: 'Bam Adebayo', team: 'MIA', pos: 'Big', proj: { min: 33, pts: 19, reb: 9.8, ast: 3.6, fg3m: 0.9, fga: 15, fta: 5 }, log: [[34, 20, 10, 4, 1]],
     savant: [{ label: 'usage %', value: '24.0', pct: 70 }], savantSeason: '2025-26', peers: 'bigs', beneficiary: [], markets: [{ id: 'm1', stat: 'reb', k: 10, pModel: 0.47 }] }]
-  const input = { game: { away: 'MIN', home: 'MIA', tip: Date.parse('2026-10-21T23:30:00Z') }, players, ix, teams: ['MIA (2025-26): pace 98'], outs: { MIN: [], MIA: [] } }
+  const input = { game: { away: 'MIN', home: 'MIA', tip: Date.parse('2026-10-21T23:30:00Z') }, players, ix, teams: ['MIA (2025-26): pace 98'], health: { MIN: [], MIA: [] }, rosters: {} }
   const box = taskText(buildPrompt('claude_box', input), '/tmp/edge/26OCT21MINMIA.claude_box.json')
   const wce = taskText(buildPrompt('claude_wce', input), '/tmp/edge/26OCT21MINMIA.claude_wce.json')
   assert.match(box, /Write tool to \/tmp\/edge\/26OCT21MINMIA\.claude_box\.json/)
