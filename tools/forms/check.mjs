@@ -489,3 +489,141 @@ test('emails with URL-ish characters are rejected before they reach anything', a
   assert.equal(r.status, 400)
   assert.equal((await sub('reader@example.xn--p1ai')).body.status, 'confirm', 'punycode TLDs are fine')
 })
+
+// ── newsletter: sports (Savant Sunday sections) ────────────────────────────
+
+const { subId } = await import('./mocks.mjs')
+const { SPORTS: SERVER_SPORTS } = await import('../../api/_forms.js')
+const prefs = (id, { method = 'GET', body, ip } = {}) => call(newsletter, { method, query: { prefs: id }, body, ip })
+const patches = () => state.bd.calls.filter((c) => c.method === 'PATCH')
+const ALL_YES = { nba: 'yes', nfl: 'yes', ufc: 'yes', sports: 'NBA, NFL, UFC' }
+
+test('signup stores the picked sports as metadata', async () => {
+  const r = await sub('pick@example.com', { sports: ['ufc', 'NBA', 'nhl'] })
+  assert.equal(r.body.status, 'confirm')
+  assert.deepEqual(bdSubscribeCalls()[0].body.metadata, { nba: 'yes', nfl: 'no', ufc: 'yes', sports: 'NBA, UFC' })
+})
+
+test('signup with no sports field (player pages, contact form) gets every sport', async () => {
+  await sub('all@example.com')
+  assert.deepEqual(bdSubscribeCalls()[0].body.metadata, ALL_YES)
+  await send({ subscribe: true, email: 'box@example.com' })
+  assert.deepEqual(state.bd.subs.get('box@example.com').metadata, ALL_YES)
+})
+
+test('picking no sport is refused before anything is called', async () => {
+  for (const sports of [[], ['nhl'], 'mlb', 42]) {
+    const r = await sub('none@example.com', { sports })
+    assert.equal(r.status, 400, JSON.stringify(sports))
+    assert.equal(r.body.error, 'sports')
+  }
+  assert.equal(bdSubscribeCalls().length, 0)
+  assert.equal(pending().length, 0)
+})
+
+test('a held signup keeps its sports through the queue', async () => {
+  env({ BUTTONDOWN_API_KEY: undefined })
+  await sub('held-nfl@example.com', { sports: ['nfl'] })
+  env()
+  await call(newsletter, { method: 'POST', query: { admin: 'flush' }, headers: admin })
+  assert.equal(state.bd.subs.get('held-nfl@example.com').metadata.sports, 'NFL')
+})
+
+test('re-signing up before confirming replaces the pick and keeps other metadata', async () => {
+  await sub('again@example.com', { sports: ['nba'] })
+  state.bd.subs.get('again@example.com').metadata.first_name = 'Sam'
+  const r = await sub('again@example.com', { sports: ['nfl', 'ufc'] })
+  assert.equal(r.body.status, 'resent')
+  assert.deepEqual(state.bd.subs.get('again@example.com').metadata, { first_name: 'Sam', nba: 'no', nfl: 'yes', ufc: 'yes', sports: 'NFL, UFC' })
+})
+
+test('a confirmed subscriber’s sports never change from the signup form', async () => {
+  state.bd.subs.set('fan2@example.com', { id: subId(900), email_address: 'fan2@example.com', type: 'regular', metadata: { nba: 'yes', nfl: 'no', ufc: 'no' } })
+  const r = await sub('fan2@example.com', { sports: ['ufc'] })
+  assert.equal(r.body.status, 'existing')
+  assert.equal(patches().length, 0)
+  assert.equal(state.bd.subs.get('fan2@example.com').metadata.nba, 'yes')
+})
+
+test('prefs: the email link shows the reader their sports, with the address masked', async () => {
+  const id = subId(901)
+  state.bd.subs.set('reader@example.com', { id, email_address: 'reader@example.com', type: 'regular', metadata: { nba: 'yes', nfl: 'no', ufc: 'yes' } })
+  const r = await prefs(id)
+  assert.equal(r.status, 200)
+  assert.deepEqual(r.body, { ok: true, email: 'r•••@example.com', confirmed: true, sports: ['nba', 'ufc'] })
+  assert.equal(r.headers['cache-control'], 'no-store')
+})
+
+test('prefs: someone who signed up before the picker existed has every sport', async () => {
+  const id = subId(902)
+  state.bd.subs.set('old@example.com', { id, email_address: 'old@example.com', type: 'regular' })
+  assert.deepEqual((await prefs(id)).body.sports, ['nba', 'nfl', 'ufc'])
+  state.bd.subs.get('old@example.com').metadata = { nba: 'NO', first_name: 'x' }
+  assert.deepEqual((await prefs(id)).body.sports, ['nfl', 'ufc'])
+})
+
+test('prefs: saving merges into existing metadata, even though PATCH replaces it', async () => {
+  const id = subId(903)
+  state.bd.subs.set('keep@example.com', { id, email_address: 'keep@example.com', type: 'unactivated', metadata: { first_name: 'Ana', nba: 'yes', nfl: 'yes', ufc: 'yes' } })
+  const r = await prefs(id, { method: 'POST', body: { sports: ['nfl'] } })
+  assert.equal(r.status, 200)
+  assert.deepEqual(r.body, { ok: true, email: 'k•••@example.com', confirmed: false, sports: ['nfl'], saved: true })
+  assert.deepEqual(state.bd.subs.get('keep@example.com').metadata, { first_name: 'Ana', nba: 'no', nfl: 'yes', ufc: 'no', sports: 'NFL' })
+  assert.equal(patches()[0].path, `/v1/subscribers/${id}`)
+})
+
+test('prefs: an email address is never accepted as the key', async () => {
+  state.bd.subs.set('victim@example.com', { id: subId(904), email_address: 'victim@example.com', type: 'regular' })
+  for (const id of ['victim@example.com', 'victim%40example.com', '', 'sub_', '../subscribers', 'sub_abc', subId(904) + '/x']) {
+    const r = await prefs(id, { method: 'POST', body: { sports: ['nba'] } })
+    assert.equal(r.status, 404, id)
+    assert.equal(r.body.error, 'notfound')
+  }
+  assert.equal(state.bd.calls.length, 0, 'nothing even reached Buttondown')
+})
+
+test('prefs: unknown IDs are a 404, unsubscribed readers a 410 with the way back', async () => {
+  assert.equal((await prefs(subId(999))).status, 404)
+  const id = subId(905)
+  state.bd.subs.set('left@example.com', { id, email_address: 'left@example.com', type: 'unsubscribed' })
+  const r = await prefs(id, { method: 'POST', body: { sports: ['nba'] } })
+  assert.equal(r.status, 410)
+  assert.deepEqual(r.body, { ok: false, error: 'unsubscribed', resubscribeUrl: 'https://buttondown.com/wcehoops' })
+  assert.equal(patches().length, 0)
+})
+
+test('prefs: saving no sport is refused; Buttondown trouble is a 503, never a fake save', async () => {
+  const id = subId(906)
+  state.bd.subs.set('t@example.com', { id, email_address: 't@example.com', type: 'regular' })
+  assert.equal((await prefs(id, { method: 'POST', body: { sports: [] } })).body.error, 'sports')
+  assert.equal((await prefs(id, { method: 'POST', body: {} })).body.error, 'sports')
+  state.bd.mode = 'patchfail'
+  const r = await prefs(id, { method: 'POST', body: { sports: ['nba'] } })
+  assert.equal(r.status, 503)
+  state.bd.mode = 'down'
+  assert.equal((await prefs(id)).status, 503)
+  state.bd.mode = 'unreachable'
+  assert.equal((await prefs(id)).status, 503)
+  env({ BUTTONDOWN_API_KEY: undefined })
+  assert.equal((await prefs(id)).status, 503)
+  assert.equal((await prefs(id, { method: 'DELETE' })).status, 405)
+})
+
+test('prefs: rate limited per IP, so IDs cannot be guessed at speed', async () => {
+  const ip = '198.51.100.99'
+  for (let i = 0; i < 30; i++) assert.equal((await prefs(subId(1000 + i), { ip })).status, 404)
+  assert.equal((await prefs(subId(2000), { ip })).status, 429)
+})
+
+test('the site’s sport list matches the server’s', async () => {
+  const { SPORTS: CLIENT_SPORTS } = await import('../../src/lib/forms.js')
+  assert.deepEqual(CLIENT_SPORTS.map((s) => [s.id, s.label]), SERVER_SPORTS.map((s) => [s.id, s.label]))
+})
+
+test('email helpers: sections by sport and the change-your-sports footer', async () => {
+  const { onlyFor, sportsFooter } = await import('../../scripts/lib/newsletter.mjs')
+  assert.equal(onlyFor('nfl', '<h2>Football</h2>'), '{% if subscriber.metadata.nfl != "no" %}\n<h2>Football</h2>\n{% endif %}')
+  assert.throws(() => onlyFor('nhl', 'x'), /unknown sport/)
+  assert.match(sportsFooter(), /href="https:\/\/wcehoops\.com\/newsletter\/sports\?id=\{\{ subscriber\.id \}\}"/)
+  for (const d of [buildDraft([art()]), buildDraft([art(), art({ slug: 'b' })])]) assert.match(d.body, /Change your sports/)
+})

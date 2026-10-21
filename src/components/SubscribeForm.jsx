@@ -1,17 +1,20 @@
 import { useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { SUBSCRIBE_ERROR, SUBSCRIBE_SUCCESS, subscribe } from '../lib/forms.js'
+import { ALL_SPORTS, SUBSCRIBE_ERROR, SUBSCRIBE_SUCCESS, subscribe } from '../lib/forms.js'
+import SportPicker from './SportPicker.jsx'
 
 /**
  * The one email field that actually subscribes people. Used by the NewsletterCTA band
  * and the /newsletter page.
  *
  * `source` tags where the signup happened ("home", "article", …) so Buttondown can tell
- * you which placements work.
+ * you which placements work. Readers pick their sports (all three to start); Savant Sunday
+ * then shows them only those sections.
  */
 export default function SubscribeForm({ source = 'site', className = '' }) {
   const id = useId()
   const [email, setEmail] = useState('')
+  const [sports, setSports] = useState(ALL_SPORTS)
   const [website, setWebsite] = useState('') // honeypot — see the hidden field below
   const [phase, setPhase] = useState('idle') // idle | sending | done
   const [result, setResult] = useState(null)
@@ -22,6 +25,10 @@ export default function SubscribeForm({ source = 'site', className = '' }) {
     e.preventDefault()
     if (phase === 'sending') return
     const value = email.trim()
+    if (!sports.length) {
+      setError({ code: 'sports' })
+      return
+    }
     if (!/^\S+@\S+\.\S+$/.test(value)) {
       setError({ code: value ? 'invalid' : 'empty' })
       inputRef.current?.focus()
@@ -29,7 +36,7 @@ export default function SubscribeForm({ source = 'site', className = '' }) {
     }
     setPhase('sending')
     setError(null)
-    const r = await subscribe(value, source, website)
+    const r = await subscribe(value, source, website, sports)
     if (r.ok) {
       setResult({ status: SUBSCRIBE_SUCCESS[r.status] ? r.status : 'confirm', email: value })
       setPhase('done')
@@ -69,6 +76,13 @@ export default function SubscribeForm({ source = 'site', className = '' }) {
   const errId = `${id}-error`
   return (
     <form onSubmit={submit} noValidate className={`relative w-full max-w-md ${className}`} aria-busy={sending}>
+      <div className="mb-3">
+        <SportPicker
+          value={sports}
+          disabled={sending}
+          onChange={(next) => { setSports(next); if (error?.code === 'sports') setError(null) }}
+        />
+      </div>
       <div className="flex flex-col gap-3 sm:flex-row">
         <label htmlFor={`${id}-email`} className="sr-only">
           Email address
@@ -84,10 +98,10 @@ export default function SubscribeForm({ source = 'site', className = '' }) {
           value={email}
           onChange={(e) => { setEmail(e.target.value); if (error) setError(null) }}
           placeholder="you@email.com"
-          aria-invalid={error ? 'true' : undefined}
+          aria-invalid={error && error.code !== 'sports' ? 'true' : undefined}
           aria-describedby={error ? errId : undefined}
           className={`w-full rounded-sm border bg-paper px-4 py-3 text-sm text-ink placeholder:text-faint focus:outline-none focus:ring-2 ${
-            error ? 'border-red/60 focus:border-red focus:ring-red/15' : 'border-line focus:border-navy focus:ring-navy/15'
+            error && error.code !== 'sports' ? 'border-red/60 focus:border-red focus:ring-red/15' : 'border-line focus:border-navy focus:ring-navy/15'
           }`}
         />
         <button
@@ -126,7 +140,7 @@ export default function SubscribeForm({ source = 'site', className = '' }) {
         </p>
       ) : (
         <p className="mt-3 text-[12.5px] leading-relaxed text-faint">
-          Free. Unsubscribe anytime.{' '}
+          Free. Change your sports or unsubscribe anytime.{' '}
           <Link to="/privacy" className="underline underline-offset-2 hover:text-navy">
             Privacy
           </Link>

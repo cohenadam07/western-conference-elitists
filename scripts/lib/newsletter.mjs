@@ -10,6 +10,25 @@ import path from 'node:path'
 export const SITE = 'https://wcehoops.com'
 const UTM = 'utm_source=newsletter&utm_medium=email&utm_campaign=weekly-board'
 
+// ── Sports ──────────────────────────────────────────────────────────────────
+// Readers pick their sports on the site; the choice is stored on their Buttondown subscriber
+// as metadata nba / nfl / ufc = 'yes' | 'no' (missing means yes; see api/_forms.js). One
+// email goes to everyone, and Buttondown's template tags (Django syntax) drop the sections a
+// reader didn't pick. Wrap each sport's section in onlyFor(); end every issue with
+// sportsFooter() so readers can change their pick.
+const SPORT_IDS = ['nba', 'nfl', 'ufc']
+
+export function onlyFor(sport, html) {
+  if (!SPORT_IDS.includes(sport)) throw new Error(`onlyFor: unknown sport "${sport}" (use ${SPORT_IDS.join(', ')})`)
+  return `{% if subscriber.metadata.${sport} != "no" %}\n${html}\n{% endif %}`
+}
+
+// The reader's own link to /newsletter/sports. {{ subscriber.id }} is filled in per reader.
+export const sportsLink = (site = SITE) => `${site}/newsletter/sports?id={{ subscriber.id }}`
+
+export const sportsFooter = (site = SITE) =>
+  `<p>You get {{ subscriber.metadata.sports|default:"NBA, NFL, UFC" }}. <a href="${sportsLink(site)}">Change your sports</a>.</p>`
+
 export function loadArticles(root) {
   const dir = path.join(root, 'src', 'data', 'articles')
   if (!existsSync(dir)) return []
@@ -70,6 +89,7 @@ export function buildDraft(articles, { subject } = {}) {
         `<p><em>${byline(a)}</em></p>`,
         lede(a.html || `<p>${esc(a.excerpt)}</p>`),
         `<p><strong><a href="${articleUrl(a)}">Keep reading on WCE →</a></strong></p>`,
+        `<hr />\n${sportsFooter()}`,
       ].join('\n\n'),
     }
   }
@@ -89,6 +109,7 @@ export function buildDraft(articles, { subject } = {}) {
         ].join('\n')
       ),
       `<hr />\n<p>More at <a href="${SITE}/?${UTM}">wcehoops.com</a>. Forwarded this? <a href="${SITE}/newsletter?${UTM}">Subscribe here</a>.</p>`,
+      sportsFooter(),
     ].join('\n\n'),
   }
 }

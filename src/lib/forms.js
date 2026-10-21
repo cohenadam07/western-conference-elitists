@@ -1,16 +1,13 @@
 // Browser side of the two real forms. Talks to api/newsletter.js and api/contact.js.
 // Every call resolves (never throws) to the server's JSON, or { ok: false, error: 'network' }.
 
-async function postJSON(url, body) {
+async function request(url, body) {
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), 25000) // longer than the server's worst case
   try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: ctrl.signal,
-    })
+    const res = await fetch(url, body === undefined
+      ? { cache: 'no-store', signal: ctrl.signal }
+      : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: ctrl.signal })
     const json = await res.json().catch(() => null)
     if (json && typeof json === 'object') return json
     return { ok: false, error: res.ok ? 'server' : res.status === 429 ? 'rate' : 'server' }
@@ -21,8 +18,23 @@ async function postJSON(url, body) {
   }
 }
 
-export const subscribe = (email, source, website = '') =>
-  postJSON('/api/newsletter', { email, source, website })
+const postJSON = (url, body) => request(url, body)
+
+// The sports a reader can pick. Same ids, same order as SPORTS in api/_forms.js
+// (`npm run check:forms` fails if the two drift apart).
+export const SPORTS = [
+  { id: 'nba', label: 'NBA', product: 'Basketball Savant' },
+  { id: 'nfl', label: 'NFL', product: 'Football Savant' },
+  { id: 'ufc', label: 'UFC', product: 'UFC Savant' },
+]
+export const ALL_SPORTS = SPORTS.map((s) => s.id)
+
+export const subscribe = (email, source, website = '', sports = ALL_SPORTS) =>
+  postJSON('/api/newsletter', { email, source, website, sports })
+
+// The change-your-sports page. `id` is the Buttondown subscriber ID from the email's link.
+export const getSports = (id) => request(`/api/newsletter?prefs=${encodeURIComponent(id)}`)
+export const saveSports = (id, sports) => postJSON(`/api/newsletter?prefs=${encodeURIComponent(id)}`, { sports })
 
 export const sendContact = (form) => postJSON('/api/contact', form)
 
@@ -34,7 +46,7 @@ export const SUBSCRIBE_SUCCESS = {
   },
   subscribed: {
     title: "You're in.",
-    body: (email) => `The next Weekly Board goes to ${email}.`,
+    body: (email) => `The next Savant Sunday goes to ${email}.`,
   },
   resent: {
     title: 'Check your inbox again.',
@@ -42,7 +54,7 @@ export const SUBSCRIBE_SUCCESS = {
   },
   existing: {
     title: "You're already on the list.",
-    body: (email) => `${email} is subscribed. Nothing else to do.`,
+    body: (email) => `${email} is subscribed. To change your sports, use the link at the bottom of any issue.`,
   },
   unconfirmed: {
     title: 'Almost there.',
@@ -57,6 +69,7 @@ export const SUBSCRIBE_SUCCESS = {
 // Error copy, keyed by the server's `error`.
 export const SUBSCRIBE_ERROR = {
   empty: 'Enter your email first.',
+  sports: 'Pick at least one sport.',
   invalid: "That email doesn't look right. Check it and try again.",
   rejected: "We couldn't add that address. Try a different email.",
   unsubscribed: 'That address unsubscribed earlier, so it can’t be re-added from here.',

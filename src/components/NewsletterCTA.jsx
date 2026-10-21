@@ -13,7 +13,7 @@ export default function NewsletterCTA({ compact = false, source = 'site' }) {
       <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-lg">
           <Link to="/newsletter" className="kicker text-navy hover:text-gold-deep">
-            The Weekly Board
+            Savant Sunday
           </Link>
           <h3 className="text-display mt-3 text-2xl text-ink sm:text-3xl">
             {NEWSLETTER_COPY.heading}

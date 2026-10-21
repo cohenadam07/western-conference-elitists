@@ -68,6 +68,15 @@ function upstash(url, init) {
 }
 
 const SUBSCRIBED = new Set(['regular', 'premium', 'gifted'])
+
+// Buttondown-shaped IDs: sub_ plus a long random-looking tail.
+export const subId = (n) => 'sub_' + String(n).padStart(4, '0') + 'k28edc3fw896bp4mrhc'
+
+// Buttondown's /subscribers/{id_or_email} takes either, so the fake does too.
+function findSub(raw) {
+  const key = decodeURIComponent(raw).toLowerCase()
+  return state.bd.subs.get(key) || [...state.bd.subs.values()].find((s) => String(s.id).toLowerCase() === key)
+}
 function buttondownApi(url, init) {
   const bd = state.bd
   const method = init?.method || 'GET'
@@ -86,13 +95,22 @@ function buttondownApi(url, init) {
     if (e.endsWith('@weird.test')) return json(400, { code: 'ip_address_already_used', detail: 'An error we have never seen.' })
     if (e.endsWith('@404.test')) return new Response('<html>Not Found</html>', { status: 404 })
     if (bd.subs.has(e)) return json(400, { code: 'email_already_exists', detail: 'That email address is already subscribed.' })
-    const s = { id: 'sub_' + bd.nextId++, email_address: e, type: body.type || 'unactivated', creation_date: new Date().toISOString(), ...body }
+    const s = { id: subId(bd.nextId++), email_address: e, type: body.type || 'unactivated', creation_date: new Date().toISOString(), ...body }
     bd.subs.set(e, s)
     return json(201, s)
   }
   if (method === 'GET' && (m = p.match(/^\/subscribers\/([^/]+)$/))) {
-    const s = bd.subs.get(decodeURIComponent(m[1]).toLowerCase())
+    const s = findSub(m[1])
     return s ? json(200, s) : json(404, { detail: 'Not found.' })
+  }
+  // PATCH replaces each field it is given, metadata included (the worst case for us:
+  // Buttondown doesn't document whether metadata merges), so the tests prove we merge first.
+  if (method === 'PATCH' && (m = p.match(/^\/subscribers\/([^/]+)$/))) {
+    const s = findSub(m[1])
+    if (!s) return json(404, { detail: 'Not found.' })
+    if (bd.mode === 'patchfail') return json(500, { detail: 'mock patch failure' })
+    Object.assign(s, body)
+    return json(200, s)
   }
   if (method === 'POST' && (m = p.match(/^\/subscribers\/([^/]+)\/send-reminder$/))) {
     const s = bd.subs.get(decodeURIComponent(m[1]).toLowerCase())

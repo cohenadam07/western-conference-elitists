@@ -47,7 +47,7 @@
       confirm: 'Check your inbox. We sent a confirmation link; click it and you’re on the list.',
       subscribed: 'You’re in.',
       resent: 'Check your inbox again. You’d signed up before, so we re-sent the confirmation link.',
-      existing: 'You’re already on the list.',
+      existing: 'You’re already on the list. To change your sports, use the link at the bottom of any issue.',
       unconfirmed: 'Almost there. Find the confirmation email (check spam too) and click the link.',
       queued: 'Got it. Your spot is saved, and a confirmation email will follow.'
     };
@@ -60,7 +60,7 @@
     };
     slot.className = 'nl';
     slot.innerHTML =
-      '<div><h2>The Weekly Board</h2><p>WCE’s free weekly email. During the season: the biggest percentile movers from Basketball Savant.</p></div>' +
+      '<div><h2>Savant Sunday</h2><p>WCE’s free Sunday email: the week’s most surprising NBA, NFL and UFC numbers, and one fantasy edge.</p></div>' +
       '<form novalidate><label class="hp" for="nle">Email address</label>' +
       '<input id="nle" type="email" placeholder="you@example.com" autocomplete="email" required>' +
       '<input class="hp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">' +

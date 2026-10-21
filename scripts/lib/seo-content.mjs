@@ -34,7 +34,7 @@ export const PRODUCTS = [
   { name: 'Flappy Hoops', href: '/hoops', blurb: 'Flap the ball through the rim in as few taps as you can. Sixteen NBA cities, nine holes in each, and online races with up to eight friends.' },
   { name: 'Analysis', href: '/articles', blurb: 'Scouting breakdowns, team-building theory, and NBA analytics that hold up under pressure.' },
   { name: 'News', href: '/news', blurb: 'The biggest NBA and college basketball stories, plus basketball research and analytics.' },
-  { name: 'The Weekly Board', href: '/newsletter', blurb: 'The newsletter: one board move, one prospect, and one stat. Free.' },
+  { name: 'Savant Sunday', href: '/newsletter', blurb: 'The newsletter: the week’s best NBA, NFL and UFC numbers and one fantasy edge, every Sunday. Free.' },
   { name: 'About', href: '/about', blurb: 'Who we are and how we work.' },
 ]
 

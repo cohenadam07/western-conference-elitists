@@ -9,18 +9,18 @@ import usePageMeta from '../lib/usePageMeta.js'
 const BEATS = [
   {
     n: '01',
-    title: 'The board move',
-    body: 'One change to the big board, and the film and numbers behind it.',
+    title: 'The numbers',
+    body: "The week's most surprising stats from the sports you pick, each with the one line that explains it.",
   },
   {
     n: '02',
-    title: 'Buying or fading',
-    body: "One prospect we're higher or lower on than consensus, and why.",
+    title: 'The fantasy edge',
+    body: 'One add, start or sit call for the week ahead, straight from the Savant numbers.',
   },
   {
     n: '03',
-    title: 'The stat',
-    body: 'One number that should change how you watch the draft.',
+    title: 'New on the site',
+    body: 'New tools, pages and articles on wcehoops.com, so you never miss one.',
   },
 ]
 
@@ -45,12 +45,12 @@ function useArchive() {
 }
 
 export default function Newsletter() {
-  usePageMeta('The Weekly Board', 'The Weekly Board: one board move, one prospect we’re buying or fading, and one stat, in your inbox. Free.')
+  usePageMeta('Savant Sunday', 'Savant Sunday: the week’s most surprising NBA, NFL and UFC numbers, plus one fantasy edge, every Sunday morning. Pick your sports. Free.')
   const { loading, issues, archiveUrl } = useArchive()
 
   return (
     <div>
-      <PageHeader eyebrow="The Weekly Board" title={NEWSLETTER_COPY.heading} lede={NEWSLETTER_COPY.body}>
+      <PageHeader eyebrow="Savant Sunday" title={NEWSLETTER_COPY.heading} lede={NEWSLETTER_COPY.body}>
         <div className="w-full max-w-md lg:pb-1">
           <SubscribeForm source="newsletter-page" />
         </div>
