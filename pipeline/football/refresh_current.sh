@@ -67,6 +67,11 @@ NFL_MAPS="$PUB/football-maps" python3 maps.py
 echo "== build -> public/football-savant-current.json"
 NFL_OUT="$PUB/football-savant-current.json" python3 build.py
 
+# This season's photos. Every other season's are kept from the last full run; a failure
+# here keeps yesterday's file rather than stopping the refresh.
+echo "== season photos -> public/football-savant-heads.json"
+python3 heads.py --season "$Y" || echo "heads: failed; the last photo file stays"
+
 echo "== week-by-week game lines and recent-form windows -> public/football-weekly/$Y/"
 NFL_WEEKLY="$PUB/football-weekly" python3 weekly.py
 
