@@ -72,3 +72,33 @@ time (`scripts/lib/seo-build.mjs`), so links posted to iMessage, X, Slack or Dis
 show the article instead of the homepage. To use a custom image instead of the
 default card (`public/og-card.png`, 1200×630), add `"ogImage": "/articles/<slug>/img-1.png"`
 to the article's JSON. New articles are added to `sitemap.xml` automatically.
+
+## The homepage banner ("what's new")
+
+The banner at the top of the homepage starts with what's new, then runs the standing lines. Nobody has to edit it by hand:
+
+- **Articles** appear on their own from `src/data/articles/`, dated by `publishedAt`. An article dated ahead waits for its date.
+- **Videos and Shorts** come from the channel's public YouTube feed, read at every build. The site rebuilds several times a day, so a new upload is on the banner within hours. If the feed can't be reached, the build goes ahead without it.
+- **The next UFC card** comes from `public/ufc-savant-data.json`. It shows from a week before until fight night.
+- **Product updates** come from `src/data/updates.json`. This is the one thing to remember: when an update ships that people would want to know about, add a line.
+
+  ```json
+  { "date": "2026-10-14", "product": "Basketball Savant", "version": "2.1.0", "text": "Fantasy, Teams and Lineups tabs", "href": "/basketball-savant.html" }
+  ```
+
+  - `version` is optional. Use it when the product's version number moved.
+  - Use `to` for a page of the React app (`/hoops`) and `href` for a built page (`/football-savant.html`).
+  - Keep the text short, with no em dashes.
+
+The page decides what is still recent when someone opens it (`src/lib/whatsNew.js`), so lines age out on time even between builds.
+
+| Kind | Stays up | At most |
+|---|---|---|
+| Articles | 30 days | 2 |
+| Videos | 10 days | 2 |
+| Shorts | 3 days | 1 |
+| Updates | 21 days | 4 |
+
+- At most 8 recent lines in all.
+- Each line is tagged "New" for three days, then shows its date.
+- `npm run check:whats-new` tests the rules.
