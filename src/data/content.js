@@ -1054,10 +1054,12 @@ export const FOUNDER = {
 // a dead link in the footer of every page tells a search engine nothing and a reader less.
 // To add one, give it its real address.
 export const SOCIALS = [
-  { label: 'X / Twitter', href: '#' },
-  { label: 'Instagram', href: '#' },
   { label: 'YouTube', href: 'https://www.youtube.com/@WesternConferenceElitists' },
-  { label: 'TikTok', href: '#' },
+  { label: 'Instagram', href: 'https://www.instagram.com/wcehoops/' },
+  { label: 'TikTok', href: 'https://www.tiktok.com/@wcehoops' },
+  { label: 'X / Twitter', href: 'https://x.com/WCEHoops' },
+  { label: 'Threads', href: 'https://www.threads.com/@wcehoops' },
+  { label: 'Bluesky', href: 'https://bsky.app/profile/wcehoops.com' },
 ]
 export const LIVE_SOCIALS = SOCIALS.filter((s) => s.href && s.href !== '#')
 
