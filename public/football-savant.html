@@ -1169,6 +1169,24 @@ body{background-color:#1D6B3A;color:var(--ink);
 .ast-selx .selx-opt[aria-selected="true"]{background:var(--flag);color:var(--turf-dk)}
 .ast-selx .selx-opt[aria-selected="true"] .selx-tag{color:var(--turf-dk)}
 .ast-tmark{font-family:var(--pix);font-weight:400;font-size:11px}
+/* Season photos (heads.py). A face from another season: cropped above the jersey, over a
+   collar in this season's team colours. No photo at all: a badge in them, initials on a
+   jersey hem. Both fill whatever square frame the spot already draws. */
+.fcrop,.fbadge{display:block;width:100%;height:100%;position:relative;overflow:hidden;box-sizing:border-box}
+.fcrop{background-color:#47704C;background-repeat:no-repeat;background-size:190% auto;background-position:50% 0}
+.fcrop::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16%;background:var(--tc);
+  border-top:2px solid var(--tc2)}
+.fbadge{display:flex;align-items:center;justify-content:center;background:var(--tc);color:var(--tc3);
+  font-family:var(--pix);font-size:15px;line-height:1;letter-spacing:.04em;box-shadow:inset 0 -4px 0 var(--tc2)}
+.fbadge b{font-weight:400}
+.headwrap .fcrop,.headwrap .fbadge{position:absolute;inset:0}
+.headwrap .fbadge{font-size:28px;box-shadow:inset 0 -8px 0 var(--tc2)}
+.res span.rimg{display:block;overflow:hidden}
+.res .rimg .fbadge,.tm-pl .tmface .fbadge{font-size:9px;box-shadow:inset 0 -3px 0 var(--tc2)}
+.res .rimg .fcrop::after,.tm-pl .tmface .fcrop::after{border-top-width:1px}
+.tm-pl .tmface{width:28px;height:28px;flex:none;display:block;overflow:hidden}
+.sc-ava .fbadge{font-size:20px}
+@media(max-width:560px){.ast-face .fbadge{font-size:12px}}
 .home-lb{background:var(--flag);color:var(--turf-dk);border:3px solid var(--turf-dk);
   box-shadow:5px 5px 0 rgba(14,42,23,.5);font-family:var(--pix);font-size:11px}
 .home-lb:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 rgba(14,42,23,.5);filter:none}
@@ -1493,7 +1511,7 @@ body{background-color:#1D6B3A;color:var(--ink);
    ========================================================================= */
 var DATA=null, CFG=null, METRICS=[], MBY={}, PIDX={}, NAMES=[];
 var cur=null, curId=null, curSeason=null;
-var VERSION='2.1.1';           // bumped on big releases only, never per deploy
+var VERSION='2.2.0';           // bumped on big releases only, never per deploy
 var baseline='season';        // 'season' | 'all' | 'pace' | 'exp' — who the bars are ranked against
 var formWin=0;                // 0 = the season; 4, 8, 17 = his last that many games
 var cohortMode='pos';         // 'pos' | 'side'
@@ -1557,11 +1575,13 @@ function prepData(){
     var has={};
     (DATA.data[s]||{players:[]}).players.forEach(function(p){
       var e=PIDX[p.id];
-      if(!e){ e=PIDX[p.id]={id:p.id,name:p.name,seasons:new Set(),rows:{},pos:p.pos,head:p.h||null};
+      if(!e){ e=PIDX[p.id]={id:p.id,name:p.name,seasons:new Set(),rows:{},pos:p.pos,head:p.h||null,
+                            hx:p.hx,hteam:p.team};
               NAMES.push(e); }
       e.seasons.add(s); e.rows[s]=p;
       e.name=p.name; e.pos=p.pos;             // latest season wins for the search row
-      if(p.h) e.head=p.h;
+      // the photo: his newest season's (seasons run newest first), unless that one has none
+      if(!e.head&&e.hx!==2&&(p.h||p.hx===2)){ e.head=p.h||null; e.hx=p.hx; e.hteam=p.team; }
       var mm=p.m||{};
       for(var k in mm){ if(mm[k]!=null) has[k]=1; }
     });
@@ -2122,7 +2142,7 @@ function careerRow(id){
 
   /* identity carries from the seasons that hold it */
   var src=last||first;
-  out.team=src.team; out.college=src.college; out.h=src.h; out.jersey=src.jersey;
+  out.team=src.team; out.college=src.college; out.h=src.h; out.hx=src.hx; out.jersey=src.jersey;
   out.birth=src.birth; out.dr=src.dr; out.dp=src.dp; out.dy=src.dy; out.dt=src.dt;
   out.udfa=src.udfa; out.rawpos=src.rawpos;
   out.exp=ss.length;
@@ -2528,6 +2548,63 @@ var GOAT_ID='00-0019596';
 var GOAT_SRC='/goat.png';
 function faceURL(id,url){ return id===GOAT_ID?GOAT_SRC:(url||null); }
 function headURL(p){ return faceURL(p.id,p.h); }
+
+/* ================= SEASON PHOTOS ===========================================
+   Each player-season's photo comes from football-savant-heads.json (pipeline/football/
+   heads.py), with one of three marks:
+   0  that season's own photo. nflverse has saved each season's roster as it was played
+      since 2019, so from 2019 on the photo is the one the NFL shot that year: 2020 Brady
+      a Buccaneer, 2019 Brady a Patriot. Drawn as it is.
+   1  the nearest photo of him there is. Before 2019 the photos on record were filled in
+      later, so the jersey is often another team's (no Steelers photo of Antonio Brown
+      exists in them). The face is cropped above the jersey, over a collar in that
+      season's team colours, so a wrong uniform never shows.
+   2  no photo of him at all, only the NFL's blank helmet: a badge in that season's team
+      colours with his initials.
+   A row the file doesn't know (a player new this week) keeps the photo it shipped with. */
+var HEAD_CDN='https://static.www.nfl.com/image/';
+function headSrc(k){
+  if(!k) return null;
+  if(k.indexOf('http')===0) return k;
+  var up=k.indexOf('u/')===0;
+  return HEAD_CDN+(up?'upload':'private')+'/f_auto,q_auto,w_420/league/'+(up?k.slice(2):k);
+}
+function applyHeads(D,H){
+  if(!H||!H.p) return;
+  Object.keys(D.data).forEach(function(s){
+    var y=+s, blk=D.data[s];
+    function put(o){
+      var L=H.p[o.id]; if(!L) return;
+      var e=null;
+      for(var i=0;i<L.length&&L[i][0]<=y;i++) e=L[i];
+      if(e){ o.h=headSrc(e[1]); o.hx=e[2]; }
+    }
+    (blk.players||[]).forEach(put);
+    (blk.lines||[]).forEach(function(L){ (L.five||[]).forEach(put); });
+  });
+}
+function _lum(hex){
+  var h=String(hex||'').replace('#',''); if(h.length===3) h=h.replace(/./g,'$&$&');
+  var c=[0,2,4].map(function(i){ var v=parseInt(h.substr(i,2),16)/255;
+    return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4); });
+  return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2];
+}
+/* A team's two colours, and an ink for initials on the first: the second colour where it
+   reads (Steelers gold on black), white or near-black where it doesn't (Giants red on blue). */
+function teamPair(t){
+  var e=CFG.teams[(CFG.alias&&CFG.alias[t])||t];
+  var a=e?e[1]:'#3E6B4C', b=e?(e[2]||'#FFFFFF'):'#F4C430';
+  var la=_lum(a), lb=_lum(b), cr=(Math.max(la,lb)+0.05)/(Math.min(la,lb)+0.05);
+  return [a,b,cr>=3?b:(la>0.35?'#0E2A17':'#FFFFFF')];
+}
+/* The picture for a photo from another season, or for no photo: the inside of whatever
+   frame the spot draws. null means the spot draws its plain <img> as before. */
+function faceSwap(id,url,hx,team,name){
+  if(id===GOAT_ID||(hx!==1&&hx!==2)) return null;
+  var c=teamPair(team), st='--tc:'+c[0]+';--tc2:'+c[1]+';--tc3:'+c[2];
+  if(hx===2||!url) return '<span class="fbadge" style="'+esc(st)+'" aria-hidden="true"><b>'+esc(initials(name))+'</b></span>';
+  return '<span class="fcrop" style="'+esc(st+';background-image:url('+url+')')+'" aria-hidden="true"></span>';
+}
 function stat(l,v,dp){ return '<span class="st"><b>'+(miss(v)?'—':(+v).toFixed(dp==null?1:dp))+'</b> '+l+'</span>'; }
 /* The headline numbers under a player's name. Ordered by what a scout would ask first,
    and filtered to what the season actually recorded — a 2003 receiver has no target data,
@@ -2965,7 +3042,7 @@ function render(){
     if(p.exp!=null) meta.push(p.exp===0?'rookie':'year '+(p.exp+1));
     if(p.age) meta.push('age '+p.age);
   }
-  var head=headURL(p);
+  var head=headURL(p), headSw=faceSwap(p.id,head,p.hx,p.team,p.name);
   var ch='<div class="cmpbar">';
   if(cmp.length){
     ch+='<span class="cmp-pill"><span class="cdot" style="background:'+CMP_COLORS[0]+'"></span>'+esc(p.name)
@@ -2983,7 +3060,7 @@ function render(){
 
   idbody.innerHTML=
     '<div class="id-head"><div class="headwrap"><div class="initials">'+esc(initials(p.name))+'</div>'
-      +(head?'<img class="headshot" src="'+esc(head)+'" alt="" onerror="this.style.display=\'none\'">':'')+'</div>'
+      +(headSw||(head?'<img class="headshot" src="'+esc(head)+'" alt="" onerror="this.style.display=\'none\'">':''))+'</div>'
     +'<div class="id-headtext"><div class="id-nameline"><div class="id-name">'+esc(p.name)+'</div>'
       +'<span class="posbadge">'+esc(pos)+'</span></div>'
       +'<div class="id-meta">'+meta.join(' · ')+'</div>'
@@ -4361,7 +4438,8 @@ function resRow(e){
   var span=ss.length?(ss[0]===ss[ss.length-1]?ss[0]:ss[0]+'–'+String(ss[ss.length-1]).slice(2)):'';
   var last=rowFor(e.id,ss[ss.length-1])||{};
   return '<div class="res" data-id="'+esc(e.id)+'" role="option">'
-    +(faceURL(e.id,e.head)?'<img class="rimg" src="'+esc(faceURL(e.id,e.head))+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="rimg"></span>')
+    +(faceSwap(e.id,faceURL(e.id,e.head),e.hx,e.hteam,e.name)?'<span class="rimg">'+faceSwap(e.id,faceURL(e.id,e.head),e.hx,e.hteam,e.name)+'</span>'
+      :faceURL(e.id,e.head)?'<img class="rimg" src="'+esc(faceURL(e.id,e.head))+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="rimg"></span>')
     +'<div><div class="rn">'+esc(e.name)+'</div><div class="rs">'+esc(e.pos)+' · '+esc(teamAbbr(last.team,String(ss[ss.length-1])))+' · '+span+'</div></div></div>';
 }
 function wireSearch(inputId,boxId,after){
@@ -4665,7 +4743,7 @@ function astPick(season,nth,used){
       for(var i=0;i<ranked.length&&k<sl[2];i++){
         var it=ranked[i]; if(used[it.p.id]) continue;
         used[it.p.id]=1; k++;
-        out.push({slot:sl[1],id:it.p.id,name:it.p.name,h:it.p.h,team:it.p.team,why:valueWhy(it,season)});
+        out.push({slot:sl[1],id:it.p.id,name:it.p.name,h:it.p.h,hx:it.p.hx,team:it.p.team,why:valueWhy(it,season)});
       }
     });
     return out;
@@ -4686,7 +4764,7 @@ function astPick(season,nth,used){
     line={tm:L.tm,score:L.score,pct:L.pct,g:L.g,sackr:L.sackr,hitr:L.hitr,runsr:L.runsr};
     L.five.forEach(function(f){
       used[f.id]=1;
-      off.push({slot:f.slot,id:f.id,name:f.name,h:f.h,team:L.tm,line:true,
+      off.push({slot:f.slot,id:f.id,name:f.name,h:f.h,hx:f.hx,team:L.tm,line:true,
         why:'Line pick: '+teamName(L.tm,season)+' have the '+rank+' offensive line in '+season+' by sack rate allowed ('
           +ordinal(Math.round(L.pct.sackr))+' percentile), QB-hit rate allowed ('+ordinal(Math.round(L.pct.hitr))+') and rush success ('
           +ordinal(Math.round(L.pct.runsr))+'), vs all 32 lines. Team numbers, shared with the quarterback and backs.'});
@@ -4707,7 +4785,7 @@ function astPick(season,nth,used){
     });
     out2.concat(nb?[nb]:[]).forEach(function(it,i){
       used[it.p.id]=1;
-      def.push({slot:(nb&&it===nb)?'NB':'CB',id:it.p.id,name:it.p.name,h:it.p.h,team:it.p.team,
+      def.push({slot:(nb&&it===nb)?'NB':'CB',id:it.p.id,name:it.p.name,h:it.p.h,hx:it.p.hx,team:it.p.team,
         why:valueWhy(it,season)+((nb&&it===nb)?'. Listed as his team\'s slot corner on the depth chart.':'')});
     });
     def=def.concat(fill(AST.def.filter(function(sl){ return sl[0]==='S'; })));
@@ -4719,7 +4797,7 @@ function astPick(season,nth,used){
   ['kr','pr'].forEach(function(k){
     var r=((blk.ret||{})[k]||[])[nth]; if(!r) return;
     var p=rowFor(r.id,season)||{};
-    st.push({slot:RET[k][0],id:r.id,name:p.name||r.id,h:p.h,team:r.tm,
+    st.push({slot:RET[k][0],id:r.id,name:p.name||r.id,h:p.h,hx:p.hx,team:r.tm,
       why:rank.charAt(0).toUpperCase()+rank.slice(1)+' '+RET[k][1]+' in '+season+': '+r.ypr.toFixed(1)+' yards and '+(r.epa>=0?'+':'')+r.epa.toFixed(2)
         +' EPA per return on '+r.n+' returns ('+ordinal(Math.round(r.pct.ypr))+' and '+ordinal(Math.round(r.pct.epa))
         +' percentile vs returners with a starter\'s volume)'});
@@ -4746,12 +4824,12 @@ function astShort(n){
   return w.length>1?w[0].charAt(0)+'. '+w.slice(1).join(' '):String(n||'');
 }
 function astCard(it,col,row){
-  var can=!!PIDX[it.id], face=faceURL(it.id,it.h), tag=can?'button':'span';
+  var can=!!PIDX[it.id], face=faceURL(it.id,it.h), tag=can?'button':'span', sw=faceSwap(it.id,face,it.hx,it.team,it.name);
   var pos=(col!=null)?' style="grid-column:'+col+' / span 2;grid-row:'+row+'"':'';
   return '<div class="ast-cell"'+pos+'>'
     +'<'+tag+(can?' type="button" data-id="'+esc(it.id)+'"':'')+' class="ast-card'+(can?'':' nolink')
     +(it.line?' line':'')+'" title="'+esc(it.name+' — '+it.why)+'">'
-    +'<span class="ast-face">'+(face?'<img src="'+esc(face)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'')+'</span>'
+    +'<span class="ast-face">'+(sw||(face?'<img src="'+esc(face)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':''))+'</span>'
     +'<span class="ast-nm">'+esc(astShort(it.name))+'</span>'
     +'<span class="ast-tm">'+esc(teamAbbr(it.team,astSeason))+'</span>'
     +'</'+tag+'><span class="ast-pos">'+esc(it.label||it.slot)+'</span></div>';
@@ -5007,7 +5085,8 @@ function buildShareShell(){
     +'<div style="font-weight:800;font-size:16px;letter-spacing:.05em;text-transform:uppercase">FOOTBALL <span style="color:#3DA35D">SAVANT</span></div>'
     +(isPeak?'<div class="sc-peak">CAREER YEAR</div>':'')
     +'<div class="sc-tag">'+esc(curSeason)+' · vs '+esc((CFG.posLabel[pos]||pos).toLowerCase())+'s</div></div>'
-    +'<div class="sc-id"><div class="sc-ava">'+(faceURL(p.id,p.h)?'<img src="'+esc(faceURL(p.id,p.h))+'" crossorigin="anonymous" alt="">':esc(initials(p.name)))+'</div>'
+    +'<div class="sc-id"><div class="sc-ava">'+(faceSwap(p.id,faceURL(p.id,p.h),p.hx,p.team,p.name)
+      ||(faceURL(p.id,p.h)?'<img src="'+esc(faceURL(p.id,p.h))+'" crossorigin="anonymous" alt="">':esc(initials(p.name))))+'</div>'
     +'<div><div class="sc-name">'+esc(p.name)+'</div>'
     +'<div class="sc-meta"><b>'+esc(teamName(p.team))+'</b> · '+esc(CFG.posLabel[pos]||pos)+' · '+esc(curSeason)
     +(p.age?' · age '+p.age:'')+'</div>'
@@ -5660,13 +5739,13 @@ function openTeam(t){
     var lineRank=line?1+allLines.filter(function(L){ return L.score>line.score; }).length:0;
     html+='<div class="tm-sec">'+u[0]+(u[0]==='Offense'&&line?' · line grade '+line.score+' ('+ordinal(lineRank)+' of '+allLines.length+')':'')+'</div>'
       +'<div class="tm-roster">'+list.map(function(p){
-        var sc=p.qualified?profileScore(p.id,season):null, face=faceURL(p.id,p.h);
+        var sc=p.qualified?profileScore(p.id,season):null, face=faceURL(p.id,p.h), sw=faceSwap(p.id,face,p.hx,t,p.name);
         var rl=roleSpot(p)||(CFG.posLabel[p.pos]||p.pos);
         var bench=!miss(p.m.snapshr)&&p.m.snapshr<25;
         var left=p.team!==t;
         return '<button type="button" class="tm-pl'+(bench?' bench':'')+'" data-id="'+esc(p.id)+'" title="'
           +esc(p.name+' — '+(sc==null?'no profile score yet: below the qualifying line':'profile score '+Math.round(sc)+', the average percentile of his headline stats'))+'">'
-          +(face?'<img src="'+esc(face)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'<span class="sk-a"></span>')
+          +(sw?'<span class="tmface">'+sw+'</span>':face?'<img src="'+esc(face)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'<span class="sk-a"></span>')
           +'<span><span class="tp-n">'+esc(p.name)+'</span><span class="tp-p">'+esc(rl)
           +(miss(p.m.snapshr)?'':' · '+Math.round(p.m.snapshr)+'%')
           +(p.st?' · <span class="tm-off">'+esc(p.st)+'</span>':'')
@@ -5894,9 +5973,11 @@ function init(){
       return r.json();
     }),
     fetch('football-savant-current.json'+cache).then(function(r){return r.ok?r.json():null;})
+      .catch(function(){return null;}),
+    fetch('football-savant-heads.json'+cache).then(function(r){return r.ok?r.json():null;})
       .catch(function(){return null;})
   ]).then(function(res){
-    DATA=mergeData(res[0],res[1]); prepData();
+    DATA=mergeData(res[0],res[1]); applyHeads(DATA,res[2]); prepData();
     document.getElementById('boot').remove();
     var top=DATA.data[DATA.seasons[0]]||{}, wk=top.week, wp=top.weekPlaying;
     document.getElementById('srcpill').textContent='nflverse · '+DATA.seasons[DATA.seasons.length-1]+'–'+DATA.seasons[0]

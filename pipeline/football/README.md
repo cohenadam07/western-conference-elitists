@@ -10,6 +10,7 @@ Builds the two data assets `public/football-savant.html` reads:
 | `public/football-weekly/<season>/` | every player's game lines, and for the season in progress `form-4/8/17.json`: everyone's last 4, 8 and 17 games as one row |
 | `public/football-splits/<season>.json` | situational splits for passers, rushers and receivers, loaded on demand |
 | `public/football-pace/wNN.json` | history as it stood after each week, for the "Same point" baseline |
+| `public/football-savant-heads.json` | every player-season's photo: that season's own from 2019 on, otherwise his nearest one, cropped to the face on the page (`heads.py`) |
 | `public/coaching-savant-data.json` | every head coach since 1999, every play-caller since 2018, their units, fourth-down decisions since 2014, and the curated coaching tree |
 | `public/coaching-savant-current.json` | the in-season overlay for Coaching Savant (see below) |
 
@@ -352,6 +353,28 @@ before the additions and only became visible because of them.
 Known and left: the lineup file sometimes credits a new arrival with his predecessor's
 snaps in the week before he joined (three cases found in 2025), which touches the season
 on/off rows only.
+
+## Season photos (`heads.py`)
+
+The data files carry one photo per player, his newest, so 2016 Antonio Brown wore a
+Buccaneers jersey. `heads.py` gives every player-season its own, from nflverse's season
+rosters (`rosters/roster_<y>.csv`), and writes `public/football-savant-heads.json`, which
+the page lays over the data when it loads. Each player-season gets one of three marks:
+
+- **0, that season's photo.** nflverse has saved each season's roster as it was played since
+  2019, so from 2019 on the photo is the one the NFL shot that year. Shown as it is.
+- **1, his nearest photo.** 1999–2018 were filled in later with whatever photo the NFL had
+  then. There is no Steelers photo of Antonio Brown anywhere in them, and the files can't
+  say which team a back-filled photo was taken with (a test pick put 4 of 25 in the wrong
+  jersey). The page crops the face above the jersey and puts a collar in that season's
+  team colours under it, so a wrong uniform never shows.
+- **2, no photo.** Only the NFL's blank black helmet, which most players before about 2010
+  have. The page draws a badge in that season's team colours with his initials.
+
+Blank helmets are found with a HEAD request per photo (the CDN's ETag is the image's
+fingerprint, and every blank helmet is the same picture under its own id). Fingerprints
+are cached in `heads_etag.json`, so a run only asks about photos it hasn't seen. The
+refresh runs `heads.py --season <current>`; the full rebuild runs it for every season.
 
 ## Savant value and the All-Savant Team (`award.py`)
 

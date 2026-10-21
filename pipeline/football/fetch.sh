@@ -34,7 +34,7 @@ if [ -n "${NFL_REFRESH:-}" ]; then
   rm -f "$OUT/reg_$y.csv" "$OUT/wk_$y.csv" "$OUT/snaps_$y.csv" \
         "$OUT/part/part_$y.csv" "$OUT/pbp/pbp_$y.parquet" "$OUT/ftn_$y.csv" \
         "$OUT/depth_$y.csv" "$OUT/injuries_$y.csv" "$OUT"/advw_*_$y.csv \
-        "$OUT/roster_week_$y.csv" "$OUT/contracts.parquet" "$OUT/ep_week_$y.csv" \
+        "$OUT/roster_week_$y.csv" "$OUT/roster_$y.csv" "$OUT/contracts.parquet" "$OUT/ep_week_$y.csv" \
         "$OUT"/adv_*.csv "$OUT"/ngs_*.csv "$OUT"/ngs_*.csv.gz \
         "$OUT/players.csv" "$OUT/qbr.csv" "$OUT/qbr_week.csv" "$OUT/schedules.csv" "$OUT/combine.csv" \
         "$OUT/nfl4th.rds"
@@ -79,6 +79,8 @@ for y in $(seq "$FIRST" "$LAST"); do
   # The weekly roster: who is active, on injured reserve, inactive or on the practice
   # squad each week. Only the season being played needs it (it is a fact about this week).
   [ "$y" -eq "$CUR" ] && get "weekly_rosters/roster_weekly_$y.csv" "roster_week_$y.csv"
+  # The season roster: one row a player, with the photo he had that season (heads.py).
+  get "rosters/roster_$y.csv" "roster_$y.csv"
   # Expected fantasy points (ffverse's ffopportunity model, 2006 on): what an average player
   # scores from the same targets and carries. A different repository's releases, posted
   # weekly in season; without it the expected-points rows are simply absent.
