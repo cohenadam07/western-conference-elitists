@@ -600,6 +600,18 @@ body:not(.home-open) .home{display:none}
 .ast-st .ast-cell{width:104px}
 .ast-note{max-width:640px;margin:0 auto;font-size:12px;line-height:1.5;color:var(--muted)}
 .ast-note b{color:var(--ink)}
+/* 1st / 2nd team: the page's own segmented control, centred over the field */
+.ast-seg{display:flex;width:max-content;margin:-4px auto 16px}
+.ast-seg[hidden]{display:none}
+.ast-seg button{min-width:92px}
+.ast-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap;border:0}
+.ast-swap .ast-card{animation:astDeal .32s cubic-bezier(.2,.7,.3,1) backwards}
+.ast-swap .ast-cell:nth-child(3n+1) .ast-card{animation-delay:.02s}
+.ast-swap .ast-cell:nth-child(3n+2) .ast-card{animation-delay:.06s}
+.ast-swap .ast-cell:nth-child(3n) .ast-card{animation-delay:.1s}
+@keyframes astDeal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.ast-swap .ast-card{animation:none}}
 .ast-swipe{display:none;font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--faint);margin-bottom:-6px}
 .ast-wide .ast-swipe{display:block}
@@ -1134,6 +1146,10 @@ body{background-color:#1D6B3A;color:var(--ink);
 .ast-los{font-family:var(--pix);font-size:8px;color:rgba(255,255,255,.85);border-top-color:rgba(255,255,255,.7)}
 .ast-note{color:rgba(255,255,255,.82)}
 .ast-note b{color:var(--flag);font-weight:600}
+.ast-seg{box-shadow:3px 3px 0 rgba(14,42,23,.45)}
+.ast-seg button{font-size:10px;padding:8px 14px}
+.ast-seg button[aria-pressed="true"]{background:var(--flag);color:var(--turf-dk)}
+.ast-seg button:focus-visible{outline:2px solid var(--flag);outline-offset:2px}
 .home-lb{background:var(--flag);color:var(--turf-dk);border:3px solid var(--turf-dk);
   box-shadow:5px 5px 0 rgba(14,42,23,.5);font-family:var(--pix);font-size:11px}
 .home-lb:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 rgba(14,42,23,.5);filter:none}
@@ -1280,6 +1296,11 @@ body{background-color:#1D6B3A;color:var(--ink);
     <div class="home-trend" id="homeTrend">
       <div class="home-trend-lab ast-title">The All-Savant Team</div>
       <div class="ast-sub" id="astSub"></div>
+      <div class="seg ast-seg" id="astSeg" role="group" aria-label="Which All-Savant team" hidden>
+        <button type="button" data-t="0" aria-pressed="true">1st team</button>
+        <button type="button" data-t="1" aria-pressed="false">2nd team</button>
+      </div>
+      <p class="ast-live" id="astLive" aria-live="polite"></p>
       <div class="ast-team" id="homeChips" aria-busy="true"><div class="home-chips">
         <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:108px"></span></div>
         <div class="home-chip skel"><span class="sk-a"></span><span class="sk-b" style="width:142px"></span></div>
@@ -1447,7 +1468,7 @@ body{background-color:#1D6B3A;color:var(--ink);
    ========================================================================= */
 var DATA=null, CFG=null, METRICS=[], MBY={}, PIDX={}, NAMES=[];
 var cur=null, curId=null, curSeason=null;
-var VERSION='2.1.0';           // bumped on big releases only, never per deploy
+var VERSION='2.1.1';           // bumped on big releases only, never per deploy
 var baseline='season';        // 'season' | 'all' | 'pace' | 'exp' — who the bars are ranked against
 var formWin=0;                // 0 = the season; 4, 8, 17 = his last that many games
 var cohortMode='pos';         // 'pos' | 'side'
@@ -4581,6 +4602,10 @@ function leagueBest(season,n){
    row by the pipeline (award.py), so the team moves every time the refresh does: after
    every game night and every morning.
 
+   There is a 1st team and a 2nd, the way the AP names both. The 2nd team is the next man
+   at every spot once the 1st team is taken, so nobody is on both. The two exceptions below
+   follow the same rule: the second-best line, the second-best returners.
+
    Two spots can't be picked the way the rest are:
    - The offensive line, before 2016. Nothing published then tells five men on a line apart,
      so the line is picked as a unit - the best line by sack rate allowed, QB-hit rate
@@ -4598,8 +4623,16 @@ var AST={
 var AST_PEERS={QB:'quarterbacks',RB:'running backs',WR:'wide receivers',TE:'tight ends',
   OT:'tackles',OG:'guards',OC:'centers',ED:'edge rushers',DI:'interior linemen',LB:'linebackers',
   CB:'cornerbacks',S:'safeties',K:'kickers',P:'punters'};
-function allSavant(season){
-  var blk=DATA.data[season]||{}, used={};
+var AST_RANK=['best','second-best'];
+/* Both teams in one pass, sharing one list of men already picked: the 1st team takes the
+   best at every spot, the 2nd team the best of who is left. */
+function allSavantTeams(season){
+  var used={};
+  return [astPick(season,0,used),astPick(season,1,used)];
+}
+function allSavant(season,team){ return allSavantTeams(season)[team||0]; }
+function astPick(season,nth,used){
+  var blk=DATA.data[season]||{}, rank=AST_RANK[nth];
   function fill(list){
     var out=[];
     list.forEach(function(sl){
@@ -4615,7 +4648,7 @@ function allSavant(season){
   var off=fill(AST.off), line=null;
   // Linemen one by one wherever a season has blocking numbers for them, the one in progress
   // included (2016 on). Before that there is nothing to tell five men on a line apart, and
-  // the best line goes on as a unit.
+  // the best line goes on as a unit (the second-best on the 2nd team).
   var withPrs=seasonPlayers(season).filter(function(p){
     if(p.pos!=='OT'||!p.qualified) return false;
     if(miss(p.m.sav)) return !miss(p.m.prsallow);
@@ -4623,12 +4656,13 @@ function allSavant(season){
   }).length;
   if(withPrs>=16){
     off=off.concat(fill([['OT','T',2],['OG','G',2],['OC','C',1]]));
-  } else if(blk.lines&&blk.lines.length){
-    var L=blk.lines[0];
+  } else if(blk.lines&&blk.lines[nth]){
+    var L=blk.lines[nth];
     line={tm:L.tm,score:L.score,pct:L.pct,g:L.g,sackr:L.sackr,hitr:L.hitr,runsr:L.runsr};
     L.five.forEach(function(f){
+      used[f.id]=1;
       off.push({slot:f.slot,id:f.id,name:f.name,h:f.h,team:L.tm,line:true,
-        why:'Line pick: '+teamName(L.tm)+' have the best offensive line in '+season+' by sack rate allowed ('
+        why:'Line pick: '+teamName(L.tm)+' have the '+rank+' offensive line in '+season+' by sack rate allowed ('
           +ordinal(Math.round(L.pct.sackr))+' percentile), QB-hit rate allowed ('+ordinal(Math.round(L.pct.hitr))+') and rush success ('
           +ordinal(Math.round(L.pct.runsr))+'), vs all 32 lines. Team numbers, shared with the quarterback and backs.'});
     });
@@ -4642,6 +4676,7 @@ function allSavant(season){
     def=fill(AST.def.filter(function(sl){ return sl[0]!=='CB'&&sl[0]!=='S'; }));
     var cbs=rankedAt(season,'CB'), out2=[], nb=null;
     cbs.forEach(function(it){
+      if(used[it.p.id]) return;
       var slot=it.p.role&&it.p.role[0]==='NB';
       if(slot&&!nb) nb=it; else if(!slot&&out2.length<2) out2.push(it);
     });
@@ -4653,12 +4688,14 @@ function allSavant(season){
     def=def.concat(fill(AST.def.filter(function(sl){ return sl[0]==='S'; })));
   } else def=fill(AST.def);
   var st=fill(AST.st);
+  // Returners are graded apart from everyone else, so a receiver on either team can still
+  // be its returner, as on the AP's. The 2nd team takes the next man on each list.
   var RET={kr:['KR','kick returner'],pr:['PR','punt returner']};
   ['kr','pr'].forEach(function(k){
-    var r=((blk.ret||{})[k]||[])[0]; if(!r) return;
+    var r=((blk.ret||{})[k]||[])[nth]; if(!r) return;
     var p=rowFor(r.id,season)||{};
     st.push({slot:RET[k][0],id:r.id,name:p.name||r.id,h:p.h,team:r.tm,
-      why:'Best '+RET[k][1]+' in '+season+': '+r.ypr.toFixed(1)+' yards and '+(r.epa>=0?'+':'')+r.epa.toFixed(2)
+      why:rank.charAt(0).toUpperCase()+rank.slice(1)+' '+RET[k][1]+' in '+season+': '+r.ypr.toFixed(1)+' yards and '+(r.epa>=0?'+':'')+r.epa.toFixed(2)
         +' EPA per return on '+r.n+' returns ('+ordinal(Math.round(r.pct.ypr))+' and '+ordinal(Math.round(r.pct.epa))
         +' percentile vs returners with a starter\'s volume)'});
   });
@@ -4694,14 +4731,27 @@ function astCard(it,col,row){
     +'<span class="ast-tm">'+esc(teamAbbr(it.team))+'</span>'
     +'</'+tag+'><span class="ast-pos">'+esc(it.label||it.slot)+'</span></div>';
 }
-function renderAllSavant(season){
+var astTeam=0, astSeason=null;      // which team the toggle shows: 0 = 1st, 1 = 2nd
+function renderAllSavant(season,swap){
   var box=document.getElementById('homeChips');
   var sub=document.getElementById('astSub');
   box.removeAttribute('aria-busy');
-  var t=allSavant(season), blk=DATA.data[season]||{};
+  astSeason=season;
+  var t=allSavant(season,astTeam), blk=DATA.data[season]||{}, nxt=astTeam?'next-':'';
   if(sub) sub.textContent=season+(blk.week?' · through week '+blk.week:'')
-    +(hasValue(season)?' · the most points added above a replacement at every All-Pro spot, this season only'
-                      :' · the best Savant profile at every All-Pro spot');
+    +(hasValue(season)?' · the '+nxt+'most points added above a replacement at every All-Pro spot, this season only'
+                      :' · the '+(astTeam?'next-best':'best')+' Savant profile at every All-Pro spot');
+  var seg=document.getElementById('astSeg');
+  if(seg){
+    seg.hidden=false;
+    seg.querySelectorAll('button').forEach(function(b){
+      b.setAttribute('aria-pressed',String(+b.dataset.t===astTeam));
+      if(!b.onclick) b.onclick=function(){
+        var n=+b.dataset.t; if(n===astTeam||!astSeason) return;
+        astTeam=n; renderAllSavant(astSeason,true);
+      };
+    });
+  }
   // Individual linemen come back as T, T, G, G, C; they take the spots left to right.
   var IND={T:['LT','RT'],G:['LG','RG'],C:['C']}, seen={};
   var used={}, cards='';
@@ -4742,6 +4792,14 @@ function renderAllSavant(season){
     sc.scrollLeft=(sc.scrollWidth-sc.clientWidth)/2;
     box.classList.add('ast-wide');
   } else box.classList.remove('ast-wide');
+  // a switch between teams deals the new cards in; first paint doesn't animate
+  box.classList.remove('ast-swap');
+  if(swap){
+    void box.offsetWidth; box.classList.add('ast-swap');
+    var lv=document.getElementById('astLive');
+    if(lv) lv.textContent='All-Savant '+(astTeam?'2nd':'1st')+' team, '+season+': '
+      +t.def.concat(t.off,t.st).map(function(it){ return (it.label||it.slot)+' '+it.name; }).join(', ')+'.';
+  }
 }
 function renderHomePos(){
   var box=document.getElementById('homePos');
