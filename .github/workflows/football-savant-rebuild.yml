@@ -150,7 +150,9 @@ jobs:
         run: |
           git config user.name "football-savant-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add public/football-savant-data.json public/football-savant-heads.json pipeline/football/heads_etag.json public/football-maps/ public/football-routes/ public/football-weekly/ public/football-splits/ public/football-pace/ public/coaching-savant-data.json
+          git add public/football-savant-data.json public/football-savant-heads.json public/football-maps/ public/football-routes/ public/football-weekly/ public/football-splits/ public/football-pace/ public/coaching-savant-data.json
+          # the photo fingerprint cache lives beside the pipeline, where *.json is ignored
+          git add -f pipeline/football/heads_etag.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "no change — nothing to commit"
             exit 0

@@ -1173,10 +1173,10 @@ body{background-color:#1D6B3A;color:var(--ink);
    collar in this season's team colours. No photo at all: a badge in them, initials on a
    jersey hem. Both fill whatever square frame the spot already draws. */
 .fcrop,.fbadge{display:block;width:100%;height:100%;position:relative;overflow:hidden;box-sizing:border-box}
-.fcrop{background-color:#47704C;background-repeat:no-repeat;background-size:212% auto;background-position:50% 0}
-.fcrop::after{content:"";position:absolute;left:0;right:0;bottom:0;height:18%;background:var(--tc);
+.fcrop{background-color:#47704C;background-repeat:no-repeat;background-size:190% auto;background-position:50% 0}
+.fcrop::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16%;background:var(--tc);
   border-top:2px solid var(--tc2)}
-.fbadge{display:flex;align-items:center;justify-content:center;background:var(--tc);color:var(--tc2);
+.fbadge{display:flex;align-items:center;justify-content:center;background:var(--tc);color:var(--tc3);
   font-family:var(--pix);font-size:15px;line-height:1;letter-spacing:.04em;box-shadow:inset 0 -4px 0 var(--tc2)}
 .fbadge b{font-weight:400}
 .headwrap .fcrop,.headwrap .fbadge{position:absolute;inset:0}
@@ -1511,7 +1511,7 @@ body{background-color:#1D6B3A;color:var(--ink);
    ========================================================================= */
 var DATA=null, CFG=null, METRICS=[], MBY={}, PIDX={}, NAMES=[];
 var cur=null, curId=null, curSeason=null;
-var VERSION='2.1.1';           // bumped on big releases only, never per deploy
+var VERSION='2.2.0';           // bumped on big releases only, never per deploy
 var baseline='season';        // 'season' | 'all' | 'pace' | 'exp' — who the bars are ranked against
 var formWin=0;                // 0 = the season; 4, 8, 17 = his last that many games
 var cohortMode='pos';         // 'pos' | 'side'
@@ -2583,15 +2583,25 @@ function applyHeads(D,H){
     (blk.lines||[]).forEach(function(L){ (L.five||[]).forEach(put); });
   });
 }
+function _lum(hex){
+  var h=String(hex||'').replace('#',''); if(h.length===3) h=h.replace(/./g,'$&$&');
+  var c=[0,2,4].map(function(i){ var v=parseInt(h.substr(i,2),16)/255;
+    return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4); });
+  return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2];
+}
+/* A team's two colours, and an ink for initials on the first: the second colour where it
+   reads (Steelers gold on black), white or near-black where it doesn't (Giants red on blue). */
 function teamPair(t){
   var e=CFG.teams[(CFG.alias&&CFG.alias[t])||t];
-  return e?[e[1],e[2]||'#FFFFFF']:['#3E6B4C','#F4C430'];
+  var a=e?e[1]:'#3E6B4C', b=e?(e[2]||'#FFFFFF'):'#F4C430';
+  var la=_lum(a), lb=_lum(b), cr=(Math.max(la,lb)+0.05)/(Math.min(la,lb)+0.05);
+  return [a,b,cr>=3?b:(la>0.35?'#0E2A17':'#FFFFFF')];
 }
 /* The picture for a photo from another season, or for no photo: the inside of whatever
    frame the spot draws. null means the spot draws its plain <img> as before. */
 function faceSwap(id,url,hx,team,name){
   if(id===GOAT_ID||(hx!==1&&hx!==2)) return null;
-  var c=teamPair(team), st='--tc:'+c[0]+';--tc2:'+c[1];
+  var c=teamPair(team), st='--tc:'+c[0]+';--tc2:'+c[1]+';--tc3:'+c[2];
   if(hx===2||!url) return '<span class="fbadge" style="'+esc(st)+'" aria-hidden="true"><b>'+esc(initials(name))+'</b></span>';
   return '<span class="fcrop" style="'+esc(st+';background-image:url('+url+')')+'" aria-hidden="true"></span>';
 }
