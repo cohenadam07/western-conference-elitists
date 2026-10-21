@@ -25,13 +25,15 @@ cd "$WT" || { echo "worktree not found: $WT"; exit 1; }
 
 "$PY" -m pipeline.news.build_news || { echo "pipeline failed"; exit 1; }
 
-if git diff --quiet -- public/news.json; then
-  echo "news.json unchanged — nothing to deploy"
+# public/youtube-feed.json (the channel's latest uploads, for the homepage banner) rides along.
+if git diff --quiet -- public/news.json public/youtube-feed.json; then
+  echo "news.json and youtube-feed.json unchanged — nothing to deploy"
   echo "===== run end ====="
   exit 0
 fi
 
 git add public/news.json
+[ -f public/youtube-feed.json ] && git add public/youtube-feed.json
 git -c user.name="wce-news-bot" -c user.email="bot@wcehoops.com" \
   commit -q -m "news: refresh feed $(date '+%Y-%m-%d %H:%M')" -m "Automated run of the WCE news pipeline." \
   || { echo "commit failed"; exit 1; }

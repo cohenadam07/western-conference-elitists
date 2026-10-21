@@ -78,7 +78,7 @@ to the article's JSON. New articles are added to `sitemap.xml` automatically.
 The banner at the top of the homepage starts with what's new, then runs the standing lines. Nobody has to edit it by hand:
 
 - **Articles** appear on their own from `src/data/articles/`, dated by `publishedAt`. An article dated ahead waits for its date.
-- **Videos and Shorts** come from the channel's public YouTube feed, read at every build. The site rebuilds several times a day, so a new upload is on the banner within hours. If the feed can't be reached, the build goes ahead without it.
+- **Videos and Shorts** come from the channel's public YouTube feed. YouTube's feed doesn't reliably answer build servers (on launch night it returned 404 for hours), so the news run on the Mac also saves it to `public/youtube-feed.json` three times a day (`pipeline/news/youtube.py`) and commits it with `news.json` when there's a new upload. The build merges the live feed, when it answers, with that file. The homepage banner's `data-youtube` attribute shows which one this build got.
 - **The next UFC card** comes from `public/ufc-savant-data.json`. It shows from a week before until fight night.
 - **Product updates** come from `src/data/updates.json`. This is the one thing to remember: when an update ships that people would want to know about, add a line.
 

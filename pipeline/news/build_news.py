@@ -3,7 +3,7 @@ import json
 import os
 import tempfile
 
-from . import config, wce_line, article_fetch
+from . import config, wce_line, article_fetch, youtube
 from .feeds import pull_headlines
 from .dedupe import group_stories, rank_clusters
 from .analytics import collect_analytics
@@ -105,6 +105,12 @@ def main():
     write_json(payload)
     log.info("wrote %s (%d headlines, %d analytics)",
              config.OUTPUT_JSON, len(payload["headlines"]), len(payload["analytics"]))
+
+    # The channel's latest uploads for the homepage banner. Never lets the news run fail.
+    try:
+        youtube.build(log)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("youtube feed step failed (%s); news.json is unaffected", exc)
 
 
 if __name__ == "__main__":

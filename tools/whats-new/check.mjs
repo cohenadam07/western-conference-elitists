@@ -81,3 +81,16 @@ test('every logged update has a date, a product, words and a link', async () => 
     assert.ok(!/—/.test(u.text), 'no em dashes in banner copy')
   }
 })
+
+test('the saved YouTube feed (written by the news run) is well formed', async () => {
+  const fs = await import('node:fs')
+  const file = new URL('../../public/youtube-feed.json', import.meta.url)
+  if (!fs.existsSync(file)) return
+  const { items } = JSON.parse(fs.readFileSync(file, 'utf8'))
+  assert.ok(Array.isArray(items) && items.length > 0)
+  for (const v of items) {
+    assert.match(v.url, /^https:\/\/www\.youtube\.com\/(shorts\/|watch\?v=)/, JSON.stringify(v))
+    assert.ok(v.title && !/#shorts/i.test(v.title), JSON.stringify(v))
+    assert.ok(!Number.isNaN(Date.parse(v.published)), JSON.stringify(v))
+  }
+})
