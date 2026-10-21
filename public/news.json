@@ -1,18 +1,22 @@
 {
-  "generated_at": "2026-10-21T03:35:06.129143+00:00",
+  "generated_at": "2026-10-21T12:05:43.756286+00:00",
   "headlines": [
     {
-      "id": "b6577386587015cd",
-      "title": "AJ Dybantsa Out For Regular Season Opener With Ankle Injury",
-      "url": "https://basketball.realgm.com/wiretap/287787/AJ-Dybantsa-Out-For-Regular-Season-Opener-With-Ankle-Injury",
-      "outlet": "RealGM",
-      "published": "2026-10-20T16:50:25+00:00",
+      "id": "3daf51d696f4681e",
+      "title": "LeBron James' 76ers beat Knicks on NBA opening night",
+      "url": "https://sports.yahoo.com/articles/lebron-james-76ers-beat-knicks-063419082.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-21T06:34:19+00:00",
       "also_covered_by": [
-        "CBS Sports NBA",
-        "Yahoo Sports NBA"
+        "RealGM"
       ],
-      "wce_line": "AJ Dybantsa, the No. 1 overall pick in the 2026 NBA draft, will miss the regular season opener due to an ankle injury suffered during a preseason game.",
-      "players": []
+      "wce_line": "LeBron James' debut with the 76ers featured strong defensive play and a close win over the Knicks, despite his own admission of needing more game time to find his rhythm.",
+      "players": [
+        {
+          "name": "LeBron James",
+          "savant_url": "/basketball-savant.html?p=2544"
+        }
+      ]
     },
     {
       "id": "2608b70163298ec5",
@@ -23,7 +27,7 @@
       "also_covered_by": [
         "RealGM"
       ],
-      "wce_line": null,
+      "wce_line": "The use of the Fanatics helicopter by LeBron James is seen as acceptable by NBA commissioner Adam Silver, provided it's part of his personal deal and not team-related.",
       "players": [
         {
           "name": "LeBron James",
@@ -32,15 +36,39 @@
       ]
     },
     {
-      "id": "f3cfecf332706042",
-      "title": "Bold predictions for the 2026-27 season",
-      "url": "https://www.espn.com/fantasy/basketball/story/_/id/50224864/fantasy-basketball-bold-predictions-nba-2026-2027",
-      "outlet": "ESPN NBA",
-      "published": "2026-10-20T13:37:30+00:00",
+      "id": "ccb336420e8e77e7",
+      "title": "Pistons Pull Off Largest Opening Day Comeback In Modern Era Versus Celtics",
+      "url": "https://basketball.realgm.com/wiretap/287800/Pistons-Pull-Off-Largest-Opening-Day-Comeback-In-Modern-Era-Versus-Celtics",
+      "outlet": "RealGM",
+      "published": "2026-10-21T05:33:38+00:00",
       "also_covered_by": [
-        "RealGM"
+        "ESPN NBA"
       ],
-      "wce_line": "Julius Randle returns to being a top-25 player in points leagues due to his role as the primary offensive option on his team.",
+      "wce_line": "The Pistons' comeback showcased their resilience, outscoring the Celtics 23-0 in the fourth quarter to secure an improbable victory.",
+      "players": []
+    },
+    {
+      "id": "ad3465739a83a074",
+      "title": "Dunc'd On: Season Predictions 2026-27",
+      "url": "https://basketball.realgm.com/wiretap/287790/Duncd-On-Season-Predictions-2026-27",
+      "outlet": "RealGM",
+      "published": "2026-10-20T17:40:28+00:00",
+      "also_covered_by": [
+        "ESPN NBA"
+      ],
+      "wce_line": "The Western Conference is predicted to have depth concerns, with Oklahoma City and San Antonio considered in the next tier.",
+      "players": []
+    },
+    {
+      "id": "e078e7439f613ec5",
+      "title": "How To Watch And Live Stream Los Angeles Lakers vs Golden State Warriors NBA Game Tonight: TV Channels, Team News, Start Time",
+      "url": "https://basketball.realgm.com/wiretap/287775/How-To-Watch-And-Live-Stream-Los-Angeles-Lakers-vs-Golden-State-Warriors-NBA-Game-Tonight-TV-Channels-Team-News-Start-Time",
+      "outlet": "RealGM",
+      "published": "2026-10-20T06:38:59+00:00",
+      "also_covered_by": [
+        "Yahoo Sports NBA"
+      ],
+      "wce_line": "The Golden State Warriors defeated the Los Angeles Lakers in both preseason matches leading into their regular season opener.",
       "players": []
     },
     {
@@ -52,7 +80,7 @@
       "also_covered_by": [
         "Hoops Rumors"
       ],
-      "wce_line": "Coward and Edey's rookie-year success, including All-Rookie First Team honors and individual accolades, influenced the Grizzlies' decision to exercise their options.",
+      "wce_line": "Coward and Edey's performances have been solid, earning them spots on All-Rookie teams and individual accolades.",
       "players": []
     },
     {
@@ -64,7 +92,19 @@
       "also_covered_by": [
         "Hoops Rumors"
       ],
-      "wce_line": "Both Collin Murray-Boyles and Ja'Kobe Walter will be under contract through the 2027-28 season, securing their roles with the Toronto Raptors.",
+      "wce_line": "Both Collin Murray-Boyles and Ja'Kobe Walter will be under contract through the 2027-28 season, securing their futures with the Toronto Raptors.",
+      "players": []
+    },
+    {
+      "id": "b6577386587015cd",
+      "title": "AJ Dybantsa Out For Regular Season Opener With Ankle Injury",
+      "url": "https://basketball.realgm.com/wiretap/287787/AJ-Dybantsa-Out-For-Regular-Season-Opener-With-Ankle-Injury",
+      "outlet": "RealGM",
+      "published": "2026-10-20T16:50:25+00:00",
+      "also_covered_by": [
+        "CBS Sports NBA"
+      ],
+      "wce_line": "AJ Dybantsa, the No. 1 overall pick in the 2026 NBA draft, will miss the regular season opener due to an ankle injury suffered during preseason play.",
       "players": []
     },
     {
@@ -76,8 +116,121 @@
       "also_covered_by": [
         "RealGM"
       ],
-      "wce_line": "The 2024 draft class, despite some promising players, saw multiple top picks traded within two seasons, raising questions about its overall quality and potential.",
+      "wce_line": "The 2024 draft class included promising players like Stephon Castle and Ajay Mitchell but ultimately saw many early picks traded or struggle to find consistent roles in the league.",
       "players": []
+    },
+    {
+      "id": "7c0907abf188aadb",
+      "title": "Chet Holmgren Rebounds From Game 7 Struggles, Shakes Off Flagrant In Win Over Spurs",
+      "url": "https://basketball.realgm.com/wiretap/287803/Chet-Holmgren-Rebounds-From-Game-7-Struggles-Shakes-Off-Flagrant-In-Win-Over-Spurs",
+      "outlet": "RealGM",
+      "published": "2026-10-21T11:08:33+00:00",
+      "also_covered_by": [],
+      "wce_line": "Chet Holmgren faced criticism and controversy after a confrontation with De'Aaron Fox resulted in multiple technical fouls for Thunder players.",
+      "players": [
+        {
+          "name": "Chet Holmgren",
+          "savant_url": "/basketball-savant.html?p=1631096"
+        }
+      ]
+    },
+    {
+      "id": "04f67c16e7c00898",
+      "title": "Victor Wembanyama leads USA TODAY's top 25 NBA players under 25",
+      "url": "https://sports.yahoo.com/articles/victor-wembanyama-leads-usa-todays-095629900.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-21T09:56:29+00:00",
+      "also_covered_by": [],
+      "wce_line": null,
+      "players": [
+        {
+          "name": "Victor Wembanyama",
+          "savant_url": "/basketball-savant.html?p=1641705"
+        }
+      ]
+    },
+    {
+      "id": "cfba2bcbaa81aa2a",
+      "title": "Way Too Early 2026-27 NBA Opening Day overreactions: Shai Gilgeous-Alexander for MVP. Again.",
+      "url": "https://sports.yahoo.com/articles/way-too-early-2026-27-094258671.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-21T09:42:58+00:00",
+      "also_covered_by": [],
+      "wce_line": "Shai Gilgeous-Alexander's dominant performance on opening night suggests he could be in line for another MVP campaign.",
+      "players": [
+        {
+          "name": "Shai Gilgeous-Alexander",
+          "savant_url": "/basketball-savant.html?p=1628983"
+        }
+      ]
+    },
+    {
+      "id": "388b46b822a7885f",
+      "title": "Jalen Brunson believes some positives can come from Knicks' ugly opening night loss",
+      "url": "https://sports.yahoo.com/articles/jalen-brunson-believes-positives-come-053117325.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-21T05:31:17+00:00",
+      "also_covered_by": [],
+      "wce_line": "Jalen Brunson sees value in the Knicks' difficult opening night loss as an opportunity for growth and humility.",
+      "players": [
+        {
+          "name": "Jalen Brunson",
+          "savant_url": "/basketball-savant.html?p=1628973"
+        }
+      ]
+    },
+    {
+      "id": "65bfcbce009748a7",
+      "title": "NBA opening night overreactions: Jayson Tatum already misses Jaylen Brown, 76ers have it all figured out",
+      "url": "https://www.cbssports.com/nba/news/nba-opening-night-overreactions-jayson-tatum-jaylen-brown-paul-george-celtics-76ers-spurs/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-10-21T05:26:51+00:00",
+      "also_covered_by": [],
+      "wce_line": "The 76ers displayed a well-oiled offense, with multiple scoring threats contributing to their victory over the Knicks.",
+      "players": [
+        {
+          "name": "Jayson Tatum",
+          "savant_url": "/basketball-savant.html?p=1628369"
+        },
+        {
+          "name": "Jaylen Brown",
+          "savant_url": "/basketball-savant.html?p=1627759"
+        }
+      ]
+    },
+    {
+      "id": "2e2fe03aeaa30013",
+      "title": "Shai Gilgeous-Alexander bests fellow MVP candidate Victor Wembanyama in NBA opener",
+      "url": "https://sports.yahoo.com/articles/edge-mvp-candidates-victor-wembanyama-032852752.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-21T03:28:52+00:00",
+      "also_covered_by": [],
+      "wce_line": "Shai Gilgeous-Alexander dominated offensively while showcasing his defense, besting Victor Wembanyama in the NBA season opener.",
+      "players": [
+        {
+          "name": "Shai Gilgeous-Alexander",
+          "savant_url": "/basketball-savant.html?p=1628983"
+        },
+        {
+          "name": "Victor Wembanyama",
+          "savant_url": "/basketball-savant.html?p=1641705"
+        }
+      ]
+    },
+    {
+      "id": "a73545b5920c7c83",
+      "title": "LeBron James says it was ‘pretty special’ for 76ers to spoil the Knicks’ ring night",
+      "url": "https://sports.yahoo.com/articles/lebron-james-says-pretty-special-031759234.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-21T03:17:59+00:00",
+      "also_covered_by": [],
+      "wce_line": "LeBron James' post-game comments highlighted his enjoyment of disrupting the Knicks' championship celebration at Madison Square Garden.",
+      "players": [
+        {
+          "name": "LeBron James",
+          "savant_url": "/basketball-savant.html?p=2544"
+        }
+      ]
     },
     {
       "id": "ba1956e950d6d68b",
@@ -95,32 +248,17 @@
       ]
     },
     {
-      "id": "8cc8ee496fa11fa1",
-      "title": "What's next for Karl-Anthony Towns and the Knicks?",
-      "url": "https://www.espn.com/nba/story/_/id/50112265/karl-anthony-towns-new-york-knicks-extension-talks-next",
-      "outlet": "ESPN NBA",
-      "published": "2026-10-21T03:12:36+00:00",
+      "id": "6009ed2ef28eeb60",
+      "title": "Grading LeBron James' 76ers debut: The King gets sterling marks as Philly spoils Knicks' title celebration",
+      "url": "https://www.cbssports.com/nba/news/lebron-james-76ers-debut-grades-knicks-banner-rings-nba-opening-night/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-10-21T03:10:08+00:00",
       "also_covered_by": [],
-      "wce_line": "Towns aims to secure a contract that balances his value with team stability, despite the Knicks offering a significantly lower deal.",
+      "wce_line": "LeBron James provided an all-around performance in his debut with the Sixers, contributing nine rebounds, seven assists, and strong defense despite a slow scoring start.",
       "players": [
         {
-          "name": "Karl-Anthony Towns",
-          "savant_url": "/basketball-savant.html?p=1626157"
-        }
-      ]
-    },
-    {
-      "id": "866ca0d63c5227b1",
-      "title": "The Pistons need Jalen Duren, and Duren needs the Pistons. Now? The pressure is on",
-      "url": "https://www.espn.com/nba/story/_/id/50118254/detroit-pistons-jalen-duren-new-contract",
-      "outlet": "ESPN NBA",
-      "published": "2026-10-21T03:12:36+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Pistons' pursuit of high-profile free agents like Kawhi Leonard and Kevin Durant fell through, leaving Jalen Duren as the team's primary focus for improvement this season.",
-      "players": [
-        {
-          "name": "Jalen Duren",
-          "savant_url": "/basketball-savant.html?p=1631105"
+          "name": "LeBron James",
+          "savant_url": "/basketball-savant.html?p=2544"
         }
       ]
     },
@@ -131,7 +269,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-21T03:09:45+00:00",
       "also_covered_by": [],
-      "wce_line": "Andre Drummond delivered an impressive first half with a double-double, but struggled in the second half during his Knicks debut.",
+      "wce_line": "Andre Drummond provided an impressive first-half performance with a double-double, but struggled in the second half during his Knicks debut.",
       "players": [
         {
           "name": "Andre Drummond",
@@ -140,17 +278,40 @@
       ]
     },
     {
-      "id": "475fa7707386edfd",
-      "title": "LeBron James, 76ers spoil Knicks' banner night with 106-100 win",
-      "url": "https://sports.yahoo.com/articles/lebron-james-76ers-spoil-knicks-222430563.html",
+      "id": "8c21fd7c814eba97",
+      "title": "Spurs and Thunder scuffle after De'Aaron Fox's hard foul on Chet Holmgren",
+      "url": "https://sports.yahoo.com/articles/spurs-thunder-scuffle-deaaron-foxs-025948036.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-20T22:24:30+00:00",
+      "published": "2026-10-21T02:59:48+00:00",
       "also_covered_by": [],
-      "wce_line": "The Philadelphia 76ers demonstrated their potential as title contenders by defeating the New York Knicks in a hard-fought battle, despite a strong effort from Jalen Brunson.",
+      "wce_line": "The incident involved multiple players from both teams, escalating into a full-scale melee under the basket.",
       "players": [
         {
-          "name": "LeBron James",
-          "savant_url": "/basketball-savant.html?p=2544"
+          "name": "De'Aaron Fox",
+          "savant_url": "/basketball-savant.html?p=1628368"
+        },
+        {
+          "name": "Chet Holmgren",
+          "savant_url": "/basketball-savant.html?p=1631096"
+        }
+      ]
+    },
+    {
+      "id": "44661f6a0af73037",
+      "title": "Shai Gilgeous-Alexander, Thunder shut down Victor Wembanyama to roll past Spurs on opening night",
+      "url": "https://sports.yahoo.com/nba/live/spurs-thunder-score-live-updates-lineups-news-highlights-where-to-watch-004103290.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-21T00:41:03+00:00",
+      "also_covered_by": [],
+      "wce_line": "The Thunder dominated early, pushing their lead to 26 points after a scuffle in the second quarter.",
+      "players": [
+        {
+          "name": "Shai Gilgeous-Alexander",
+          "savant_url": "/basketball-savant.html?p=1628983"
+        },
+        {
+          "name": "Victor Wembanyama",
+          "savant_url": "/basketball-savant.html?p=1641705"
         }
       ]
     },
@@ -161,26 +322,11 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-21T00:32:30+00:00",
       "also_covered_by": [],
-      "wce_line": "The Celtics' collapse mirrored past failures, failing to secure a 20-point lead despite strong starts in both games and last season's playoff series.",
+      "wce_line": "The Celtics' inability to close out leads, evident in their recent playoff losses and this Opening Day defeat, highlights persistent issues in clutch performance.",
       "players": [
         {
           "name": "Jaylen Brown",
           "savant_url": "/basketball-savant.html?p=1627759"
-        }
-      ]
-    },
-    {
-      "id": "c285e291ab9a173b",
-      "title": "Jayson Tatum’s season debut was far from pristine, but there’s no reason to panic",
-      "url": "https://sports.yahoo.com/articles/jayson-tatum-season-debut-far-224137796.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-20T22:41:37+00:00",
-      "also_covered_by": [],
-      "wce_line": "Even when shooting struggles, Jayson Tatum still impacts the game through his playmaking and ability to draw defenders.",
-      "players": [
-        {
-          "name": "Jayson Tatum",
-          "savant_url": "/basketball-savant.html?p=1628369"
         }
       ]
     },
@@ -191,45 +337,11 @@
       "outlet": "CBS Sports NBA",
       "published": "2026-10-20T22:30:02+00:00",
       "also_covered_by": [],
-      "wce_line": "Towns confirmed he is willing to take less money than his max salary to keep the Knicks' core together for next season.",
+      "wce_line": "Karl-Anthony Towns is willing to take less money than the max offer from the Knicks to keep the team together.",
       "players": [
         {
           "name": "Karl-Anthony Towns",
           "savant_url": "/basketball-savant.html?p=1626157"
-        }
-      ]
-    },
-    {
-      "id": "f0ff4278267b7a08",
-      "title": "Karl-Anthony Towns reveals why he’d take a pay cut to stay with Knicks as contract drama lingers",
-      "url": "https://sports.yahoo.com/articles/karl-anthony-towns-reveals-why-222819351.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-20T22:28:19+00:00",
-      "also_covered_by": [],
-      "wce_line": "Karl-Anthony Towns expressed his commitment to staying with the Knicks, even considering a pay cut, to keep the championship team intact.",
-      "players": [
-        {
-          "name": "Karl-Anthony Towns",
-          "savant_url": "/basketball-savant.html?p=1626157"
-        }
-      ]
-    },
-    {
-      "id": "e3f9a263ada184be",
-      "title": "76ers spoil Knicks' ring night in LeBron James' and Jaylen Brown's Philadelphia debut",
-      "url": "https://sports.yahoo.com/nba/breaking-news/live/76ers-knicks-score-live-updates-lineups-highlights-where-to-watch-lebron-james-jaylen-brown-debut-banner-raising-214900339.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-20T21:49:00+00:00",
-      "also_covered_by": [],
-      "wce_line": "The 76ers' balanced team effort overshadowed the Knicks' ring ceremony, securing an unexpected victory on opening night.",
-      "players": [
-        {
-          "name": "LeBron James",
-          "savant_url": "/basketball-savant.html?p=2544"
-        },
-        {
-          "name": "Jaylen Brown",
-          "savant_url": "/basketball-savant.html?p=1627759"
         }
       ]
     },
@@ -249,73 +361,13 @@
       ]
     },
     {
-      "id": "780ccdc1d4d43ca5",
-      "title": "This is the best chance Joel Embiid will ever have",
-      "url": "https://sports.yahoo.com/articles/best-chance-joel-embiid-ever-210733234.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-20T21:07:33+00:00",
-      "also_covered_by": [],
-      "wce_line": null,
-      "players": [
-        {
-          "name": "Joel Embiid",
-          "savant_url": "/basketball-savant.html?p=203954"
-        }
-      ]
-    },
-    {
-      "id": "db0930132c539824",
-      "title": "Austin Reaves plans to text LeBron James before his 76ers debut",
-      "url": "https://sports.yahoo.com/articles/austin-reaves-plans-text-lebron-210124444.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-20T21:01:24+00:00",
-      "also_covered_by": [],
-      "wce_line": "Reaves considers James his guy and plans to send him a text before their season-opener.",
-      "players": [
-        {
-          "name": "LeBron James",
-          "savant_url": "/basketball-savant.html?p=2544"
-        }
-      ]
-    },
-    {
-      "id": "77ec25b4c9dce9e9",
-      "title": "Tyrese Maxey lifts 76ers over Knicks to spoil championship party at MSG",
-      "url": "https://sports.yahoo.com/articles/knicks-celebrate-championship-ahead-nba-205720701.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-20T20:57:20+00:00",
-      "also_covered_by": [],
-      "wce_line": "Tyrese Maxey's dominant performance overshadowed the Knicks' early lead and dampened their championship celebration at Madison Square Garden.",
-      "players": [
-        {
-          "name": "Tyrese Maxey",
-          "savant_url": "/basketball-savant.html?p=1630178"
-        }
-      ]
-    },
-    {
-      "id": "b698b7f0fdfc175f",
-      "title": "Paul George points today: New star has record debut for Celtics vs. Pistons",
-      "url": "https://sports.yahoo.com/articles/paul-george-points-today-star-205419118.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-20T20:54:19+00:00",
-      "also_covered_by": [],
-      "wce_line": "Paul George's impressive performance set a new franchise record, but the Celtics ultimately lost to the Detroit Pistons despite his efforts.",
-      "players": [
-        {
-          "name": "Paul George",
-          "savant_url": "/basketball-savant.html?p=202331"
-        }
-      ]
-    },
-    {
       "id": "c8ae7be5a533061b",
       "title": "LeBron James returns to MSG after flirting with Knicks, but now, it may be James wondering what could've been",
       "url": "https://www.cbssports.com/nba/news/lebron-james-knicks-msg-free-agency-76ers/",
       "outlet": "CBS Sports NBA",
       "published": "2026-10-20T16:21:36+00:00",
       "also_covered_by": [],
-      "wce_line": "LeBron James' summer of free agency saw him ultimately choose Philadelphia over New York, despite his long-standing connection to both teams and public expressions of affection for Madison Square Garden.",
+      "wce_line": "LeBron James' decision to join the Philadelphia 76ers instead of the New York Knicks ended months of speculation about his potential return to Madison Square Garden.",
       "players": [
         {
           "name": "LeBron James",
@@ -339,87 +391,131 @@
       ]
     },
     {
-      "id": "991f44ebfe578a39",
-      "title": "Joel Embiid explains why he's 'against the concept of sacrificing' for the star-studded 76ers",
-      "url": "https://www.cbssports.com/nba/news/joel-embiid-against-the-concept-of-sacrificing-76ers/",
+      "id": "6589a47e5640fbec",
+      "title": "Grading every NBA rookie extension: Evaluating new contracts for Victor Wembanyama, Keyonte George, more",
+      "url": "https://www.cbssports.com/nba/news/grading-nba-rookie-extensions-wembanyama-george-thompson-podziemski-wallace-miller/",
       "outlet": "CBS Sports NBA",
-      "published": "2026-10-17T16:40:47+00:00",
+      "published": "2026-10-19T21:37:52+00:00",
       "also_covered_by": [],
-      "wce_line": "The 76ers aim to balance star roles without traditional sacrifices, relying on individual strengths and support rather than back seats.",
+      "wce_line": "Victor Wembanyama's deal with the Spurs includes a player option on the final year, giving him control over his future compensation.",
       "players": [
         {
-          "name": "Joel Embiid",
-          "savant_url": "/basketball-savant.html?p=203954"
+          "name": "Victor Wembanyama",
+          "savant_url": "/basketball-savant.html?p=1641705"
         }
       ]
     },
     {
-      "id": "997f551641467471",
-      "title": "How LeBron James, in his 24th season and first with the 76ers, can pass Michael Jordan in NBA GOAT debate",
-      "url": "https://www.cbssports.com/nba/news/lebron-james-24th-season-michael-jordan-nba-goat-debate/",
+      "id": "d07bb6cd44329bca",
+      "title": "Bold predictions for 2026-27 NBA season: Victor Wembanyama double dips, a Knicks letdown, huge trades, more",
+      "url": "https://www.cbssports.com/nba/news/2026-27-nba-season-bold-predictions-victor-wembanyama-knicks-celtics-kyrie-irving-anthony-edwards/",
       "outlet": "CBS Sports NBA",
-      "published": "2026-10-17T15:27:26+00:00",
+      "published": "2026-10-19T17:37:47+00:00",
       "also_covered_by": [],
-      "wce_line": null,
+      "wce_line": "Victor Wembanyama is poised to become the fourth player in NBA history to win MVP and DPOY in the same season, joining Hakeem Olajuwon, Michael Jordan, and Giannis Antetokounmpo.",
       "players": [
         {
-          "name": "LeBron James",
-          "savant_url": "/basketball-savant.html?p=2544"
+          "name": "Victor Wembanyama",
+          "savant_url": "/basketball-savant.html?p=1641705"
         }
       ]
     },
     {
-      "id": "7ec072979eb30bad",
-      "title": "Follow live: Thunder raining from deep, in control over Spurs",
-      "url": "https://www.espn.com/nba/story/_/id/50220591/nba-opening-day-live-updates-highlights",
-      "outlet": "ESPN NBA",
-      "published": "2026-10-21T04:10:23+00:00",
+      "id": "587d345261bf8825",
+      "title": "Thunder extend Cason Wallace on five-year, $139M deal, setting up another summer of second apron questions",
+      "url": "https://www.cbssports.com/nba/news/thunder-cason-wallace-contract-extension-second-apron-payroll/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-10-19T13:21:37+00:00",
       "also_covered_by": [],
-      "wce_line": "The rematch of last year's Western Conference finals pits familiar faces against each other in a highly anticipated matchup.",
-      "players": []
+      "wce_line": "The re-signing of Cason Wallace ensures the Thunder maintain their starting lineup stability despite financial constraints looming for next season.",
+      "players": [
+        {
+          "name": "Cason Wallace",
+          "savant_url": "/basketball-savant.html?p=1641717"
+        }
+      ]
     },
     {
-      "id": "0e3d432f44c88afb",
-      "title": "Sixers rally in LeBron's debut, spoiling Knicks' championship celebration",
-      "url": "https://www.espn.com/nba/story/_/id/50234172/76ers-knicks-lebron-james-debut-championship-night",
-      "outlet": "ESPN NBA",
-      "published": "2026-10-21T03:26:39+00:00",
+      "id": "5237e193ef279852",
+      "title": "The Spurs will start Dylan Harper on opening night, so where does that leave De'Aaron Fox?",
+      "url": "https://www.cbssports.com/nba/news/spurs-start-dylan-harper-opening-night-deaaron-fox/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-10-17T21:05:35+00:00",
       "also_covered_by": [],
-      "wce_line": "The new additions to the Philadelphia 76ers, including LeBron James and Jaylen Brown, showed promise in their debut against the New York Knicks, despite a slow start.",
-      "players": []
-    },
-    {
-      "id": "594c00cce2e9906d",
-      "title": "Knicks celebrate NBA title before facing 76ers, add surprise Cup banner",
-      "url": "https://www.espn.com/nba/story/_/id/50232540/knicks-nba-cup-banner-championship-night",
-      "outlet": "ESPN NBA",
-      "published": "2026-10-21T03:26:39+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Knicks honored both their recent championship and last season’s NBA Cup victory during their banner night celebration.",
-      "players": []
-    },
-    {
-      "id": "e77e6f36a1238202",
-      "title": "Pistons pull off 22-point comeback vs. Celtics, NBA's largest on first day of season",
-      "url": "https://www.espn.com/nba/story/_/id/50233539/pistons-open-season-22-point-comeback-vs-celtics",
-      "outlet": "ESPN NBA",
-      "published": "2026-10-21T03:26:39+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Detroit Pistons overcame a 22-point deficit to defeat the Boston Celtics, showcasing resilience and unity in their new identity.",
-      "players": []
-    },
-    {
-      "id": "13f6cd4d8e4eb783",
-      "title": "George's 38 most by Celtic in debut, but comes in loss: 'I'm not a moral victory guy'",
-      "url": "https://www.espn.com/nba/story/_/id/50232192/paul-george-38-not-enough-pistons-rally-defeat-celtics",
-      "outlet": "ESPN NBA",
-      "published": "2026-10-21T03:26:39+00:00",
-      "also_covered_by": [],
-      "wce_line": "Paul George scored impressively but Boston lost to Detroit despite his efforts in their season opener.",
-      "players": []
+      "wce_line": "The trio of Harper, Fox, and Castle struggles with shooting consistency, raising questions about their long-term viability in the starting lineup.",
+      "players": [
+        {
+          "name": "Dylan Harper",
+          "savant_url": "/basketball-savant.html?p=1642844"
+        },
+        {
+          "name": "De'Aaron Fox",
+          "savant_url": "/basketball-savant.html?p=1628368"
+        }
+      ]
     }
   ],
   "analytics": [
+    {
+      "id": "ce92cb01bcc5ee51",
+      "title": "2026-2027 NBA Rest Days Stats",
+      "url": "https://www.nbastuffer.com/2026-2027-nba-rest-days-stats/",
+      "outlet": "NBAstuffer",
+      "published": "2026-10-21T06:25:24+00:00",
+      "authors": [
+        "nbastuffer.com"
+      ],
+      "wce_line": "The study found that teams with at least one day of rest between games tend to perform better statistically.",
+      "source_type": "article"
+    },
+    {
+      "id": "4e0e4b809b6eb6de",
+      "title": "2026-2027 NBA Power Rankings Chart",
+      "url": "https://www.nbastuffer.com/2026-2027-nba-power-rankings-chart/",
+      "outlet": "NBAstuffer",
+      "published": "2026-10-21T06:23:57+00:00",
+      "authors": [
+        "nbastuffer.com"
+      ],
+      "wce_line": "The article provides an Excel spreadsheet for accessing current season NBA datasets, updating within 2 to 4 hours post-game.",
+      "source_type": "article"
+    },
+    {
+      "id": "e78748b863da835d",
+      "title": "2026-2027 NBA Referee Stats",
+      "url": "https://www.nbastuffer.com/2026-2027-nba-referee-stats/",
+      "outlet": "NBAstuffer",
+      "published": "2026-10-21T06:21:21+00:00",
+      "authors": [
+        "nbastuffer.com"
+      ],
+      "wce_line": "The site offers game-by-game NBA referee stats in Excel format for the 2026-2027 season, updating them within 2 to 4 hours post-game.",
+      "source_type": "article"
+    },
+    {
+      "id": "8c11efc0fabb5324",
+      "title": "2026-2027 NBA Player Stats",
+      "url": "https://www.nbastuffer.com/2026-2027-nba-player-stats/",
+      "outlet": "NBAstuffer",
+      "published": "2026-10-21T06:16:58+00:00",
+      "authors": [
+        "nbastuffer.com"
+      ],
+      "wce_line": "Users can find NBA players who meet multiple criteria using the Custom Search Builder tool.",
+      "source_type": "article"
+    },
+    {
+      "id": "9628dc63d3b56b7d",
+      "title": "2026-2027 NBA Advanced Team Stats",
+      "url": "https://www.nbastuffer.com/2026-2027-nba-team-stats/",
+      "outlet": "NBAstuffer",
+      "published": "2026-10-21T06:15:15+00:00",
+      "authors": [
+        "nbastuffer.com"
+      ],
+      "wce_line": "The article provides detailed team datasets with various splits and stats for the 2026-2027 NBA season.",
+      "source_type": "article"
+    },
     {
       "id": "ac0f304242d00e79",
       "title": "Philly’s experiment begins",
@@ -429,7 +525,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "This article discusses the Philadelphia team's new strategy but requires membership to read further details.",
+      "wce_line": "The article discusses a new analytical approach Philadelphians are exploring for their basketball strategy.",
       "source_type": "article"
     },
     {
@@ -441,7 +537,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The Spurs' 62-20 record and net rating of plus-8.3 highlight their balanced offensive and defensive capabilities.",
+      "wce_line": "The Spurs' 62-win season featured a net rating of plus-8.3, ranking second in the league, highlighting their balanced offensive and defensive capabilities.",
       "source_type": "article"
     },
     {
@@ -453,7 +549,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how LaMelo Ball's presence impacts the Minnesota Timberwolves both on and off the court.",
+      "wce_line": "The article analyzes how LaMelo Ball's presence impacts both on and off the court for the Minnesota Wolves.",
       "source_type": "article"
     },
     {
@@ -465,7 +561,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how Boston's defensive strategy impacts team performance.",
+      "wce_line": "The article analyzes how Boston's defensive strategy impacts their performance.",
       "source_type": "article"
     },
     {
@@ -477,7 +573,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Prediction markets have shifted dramatically, with San Antonio Spurs and Oklahoma City maintaining equal odds as top favorites despite roster changes in other teams.",
+      "wce_line": "Prediction markets have shifted dramatically, with San Antonio Spurs and Oklahoma City both favored at +260 odds, suggesting value or overvaluation depending on early season performance.",
       "source_type": "article"
     },
     {
@@ -489,7 +585,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Offensive rebounding rate will be crucial as Philadelphia aims to limit New York's second-chance opportunities.",
+      "wce_line": "Offensive rebounding rate will be crucial for the Philadelphia 76ers against the New York Knicks, as securing defensive rebounds limits extra possessions for the Knicks.",
       "source_type": "article"
     },
     {
@@ -513,67 +609,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article discusses how new salary rules and competitive balance strategies aim to ensure every team has a chance to win, with data showing payroll disparity decreasing among NBA teams.",
-      "source_type": "article"
-    },
-    {
-      "id": "417a6200824a90f9",
-      "title": "Top PC games for NBA fanatics to play",
-      "url": "https://www.nbastuffer.com/top-pc-games-for-nba-fanatics-to-play/",
-      "outlet": "NBAstuffer",
-      "published": "2026-09-10T08:06:40+00:00",
-      "authors": [
-        "nbastuffer.com"
-      ],
-      "wce_line": "The article recommends Pro Basketball Manager 2026 and NBA 2K27 as top PC games for basketball fans.",
-      "source_type": "article"
-    },
-    {
-      "id": "210efbe5614d1072",
-      "title": "Why NBA Lineup Data Often Reveals More Than Individual Player Stats",
-      "url": "https://www.nbastuffer.com/why-nba-lineup-data-often-reveals-more-than-individual-player-stats/",
-      "outlet": "NBAstuffer",
-      "published": "2026-09-08T10:51:35+00:00",
-      "authors": [
-        "nbastuffer.com"
-      ],
-      "wce_line": "Lineup data shows how players function together more effectively than individual stats can reveal.",
-      "source_type": "article"
-    },
-    {
-      "id": "1ff3f0ca882a7240",
-      "title": "The Offseason Moves Already Changing Expectations Across the NBA",
-      "url": "https://www.nbastuffer.com/the-offseason-moves-already-changing-expectations-across-the-nba/",
-      "outlet": "NBAstuffer",
-      "published": "2026-09-04T20:41:11+00:00",
-      "authors": [
-        "nbastuffer.com"
-      ],
-      "wce_line": "Teams like Miami and Philadelphia are raising expectations through major offseason moves, but their success will depend on court performance.",
-      "source_type": "article"
-    },
-    {
-      "id": "8af3a42d079ee5f2",
-      "title": "Are the New-Look 76ers Really NBA Title Contenders?",
-      "url": "https://www.nbastuffer.com/are-the-new-look-76ers-really-nba-title-contenders/",
-      "outlet": "NBAstuffer",
-      "published": "2026-09-04T20:09:33+00:00",
-      "authors": [
-        "nbastuffer.com"
-      ],
-      "wce_line": null,
-      "source_type": "article"
-    },
-    {
-      "id": "5f10d9ef509c709d",
-      "title": "2026-2027 NBA Schedule Rest Days Analysis",
-      "url": "https://www.nbastuffer.com/2026-2027-nba-schedule-rest-days-analysis/",
-      "outlet": "NBAstuffer",
-      "published": "2026-08-13T18:43:10+00:00",
-      "authors": [
-        "nbastuffer.com"
-      ],
-      "wce_line": "The analysis found that teams faced \"5IN7\" schedules more frequently than \"4IN5-B2B,\" with 5-game-in-7-days patterns occurring after the NBA Cup's first round scheduling updates.",
+      "wce_line": "The second apron payroll threshold is aimed at preventing a few teams from dominating by limiting their ability to sign free agents, promoting a more competitive balance across the NBA.",
       "source_type": "article"
     },
     {
@@ -597,7 +633,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how New York's defensive strategies have improved Karl-Anthony Towns' performance.",
+      "wce_line": "The article analyzes how New York's defensive strategies have improved KAT's performance.",
       "source_type": "article"
     },
     {
@@ -609,7 +645,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "This article explores how regular-season performance correlates with NBA Finals success.",
+      "wce_line": "The article explores how regular-season performance correlates with NBA Finals success.",
       "source_type": "article"
     },
     {
@@ -621,7 +657,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes Oklahoma City's strategy to counter Wemby's strengths.",
+      "wce_line": "The article analyzes Oklahoma City's strategic approach to defend against a key player named Wemby.",
       "source_type": "article"
     },
     {
@@ -633,7 +669,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how the Spurs adjusted their defensive strategy and Oklahoma City’s focus on scoring against Dejounte Murray.",
+      "wce_line": "The article discusses how the Spurs adjusted their defensive strategy and Oklahoma City's response.",
       "source_type": "article"
     },
     {
@@ -645,7 +681,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how Oklahoma City adjusted their offense to create new plays and roles for their players.",
+      "wce_line": "The article discusses how Oklahoma City adjusted their offense to create new play strategies.",
       "source_type": "article"
     },
     {
