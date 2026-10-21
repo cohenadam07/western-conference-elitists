@@ -335,7 +335,10 @@ test('likely to settle: the connector carries the estimate the page shows, for e
     }
   }
   console.log(`      ${shown.toLocaleString('en-US')} estimates match`)
-  assert.ok(shown > 1000, 'suspiciously few estimates')
+  // A real opening week has a few dozen players (one game on opening night), so the floor
+  // scales with the season's size: about five estimates a player, never more than 1,000.
+  const floor = Math.min(1000, 5 * pg.data.data[season].players.length)
+  assert.ok(shown > floor, `suspiciously few estimates: ${shown} for ${pg.data.data[season].players.length} players`)
   // A finished season never carries estimates.
   for (const s of built.meta.seasons) if (s !== season) assert.ok(built.seasons[s].players.every((r) => !r.settle), `${s} carries estimates`)
 })

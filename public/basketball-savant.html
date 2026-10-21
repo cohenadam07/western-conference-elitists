@@ -2886,17 +2886,33 @@ function goldAt(p){
    Deliberately NOT gold: gold means "career best" everywhere else on this card, and an
    All-Star nod in a middling year would quietly borrow that meaning. */
 const ACC_ORDER=['mvp','fmvp','chip','dpoy','roy','smoy','mip','cpoy',
-  'allnba1','allnba2','allnba3','alldef1','alldef2','as','asmvp','allrook1','allrook2','sport'];
+  'allnba1','allnba2','allnba3','alldef1','alldef2','ast1','ast2','as','asmvp','allrook1','allrook2','sport'];
 const ACC_MAJOR={mvp:1,fmvp:1,chip:1,dpoy:1,roy:1,smoy:1,mip:1,cpoy:1};
 const ACC_SHORT={mvp:'MVP',fmvp:'Finals MVP',chip:'Champion',dpoy:'DPOY',roy:'ROY',
   smoy:'6th Man',mip:'MIP',cpoy:'Clutch POY',allnba1:'All-NBA 1st',allnba2:'All-NBA 2nd',
   allnba3:'All-NBA 3rd',alldef1:'All-Def 1st',alldef2:'All-Def 2nd',as:'All-Star',
-  asmvp:'ASG MVP',allrook1:'All-Rookie 1st',allrook2:'All-Rookie 2nd',sport:'Sportsmanship'};
+  asmvp:'ASG MVP',allrook1:'All-Rookie 1st',allrook2:'All-Rookie 2nd',sport:'Sportsmanship',
+  ast1:'All-Savant 1st',ast2:'All-Savant 2nd'};
 
+/* Our own honour beside the league's: the All-Savant 1st or 2nd Team (Savant value, see the
+   All-Savant block below), for seasons that are over. A season in progress gets it once its
+   teams have played a full schedule, so a mid-season standing is never shown as an honour.
+   scripts/lib/savant-core.mjs gives the player pages the same codes. */
+const ACC_FULL={ast1:'All-Savant 1st Team',ast2:'All-Savant 2nd Team'};
+const AST_FINAL_GAMES=82;
+function astHonour(id,season){
+  if(id==null||!VALUE_MODEL||!window.SavantValue||!DATA||!DATA.data[season]) return null;
+  if(DATA.current&&DATA.current.season===season&&astSeasonGames(season)<AST_FINAL_GAMES) return null;
+  const t=astResults(season); if(!t) return null;
+  for(let k=0;k<2;k++) if((t.teams[k]||[]).some(function(x){return x.p.id===id;})) return k?'ast2':'ast1';
+  return null;
+}
 function accolades(id,season){
-  if(id==null||!AWARDS||!AWARDS.players) return [];
-  const by=AWARDS.players[String(id)]; if(!by) return [];
-  const got=by[season]; if(!got||!got.length) return [];
+  if(id==null) return [];
+  const by=AWARDS&&AWARDS.players&&AWARDS.players[String(id)];
+  const got=((by&&by[season])||[]).slice();
+  const ast=astHonour(id,season); if(ast) got.push(ast);
+  if(!got.length) return [];
   return ACC_ORDER.filter(function(c){return got.indexOf(c)>-1;})
     .concat(got.filter(function(c){return ACC_ORDER.indexOf(c)<0;}));   // unknown code -> still shown
 }
@@ -2904,7 +2920,7 @@ function accoRow(id,season){
   const got=accolades(id,season); if(!got.length) return '';
   return '<div class="accos">'+got.map(function(c){
     const lab=ACC_SHORT[c]||c;
-    const full=(AWARDS.labels&&AWARDS.labels[c])||lab;
+    const full=ACC_FULL[c]||(AWARDS.labels&&AWARDS.labels[c])||lab;
     return '<span class="acco'+(ACC_MAJOR[c]?' major':'')+'" title="'+season+' '+full.replace(/"/g,'&quot;')+'">'+lab+'</span>';
   }).join('')+'</div>';
 }

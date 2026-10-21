@@ -15,8 +15,10 @@
 // `npm run check:players` runs the page's own functions against this file and fails on any
 // difference — run it after touching the percentile code on either side.
 
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
+import path from 'node:path'
 import vm from 'node:vm'
+import '../../public/savant-value.js' // sets globalThis.SavantValue: the page's own All-Savant math
 
 export const BASES = ['league', 'position']
 
@@ -45,6 +47,9 @@ export function loadPageConfig(htmlPath) {
   ].join('\n')
   const cfg = vm.runInNewContext(src, {}, { timeout: 5000 })
   if (!cfg.CFG || !Array.isArray(cfg.CFG.metrics) || !cfg.CFG.metrics.length) throw new Error('savant-core: CFG.metrics is empty')
+  // The All-Savant Team's learned numbers sit next to the page (tools/savant-value/value.py).
+  const vf = path.join(path.dirname(htmlPath), 'savant-value.json')
+  cfg.VALUE_MODEL = existsSync(vf) ? JSON.parse(readFileSync(vf, 'utf8')) : null
   return cfg
 }
 
@@ -205,13 +210,38 @@ export function createEngine(DATA, cfg) {
     return peak ? peak.season : null
   }
 
+  // The All-Savant 1st / 2nd Team, the page's astHonour(): finished seasons only (a season in
+  // progress counts once its teams have played a full 82), from the page's savant-value.js.
+  const VALUE_MODEL = cfg.VALUE_MODEL || null
+  const AST_FULL = { ast1: 'All-Savant 1st Team', ast2: 'All-Savant 2nd Team' }
+  const astCache = new Map()
+  function seasonGames(season) {
+    const most = {}
+    for (const p of playersOf(season)) { const g = smpl(p, 'avail') || 0; if (p.team && g > (most[p.team] || 0)) most[p.team] = g }
+    const g = Object.values(most).sort((a, b) => a - b)
+    return g.length ? g[Math.floor(g.length / 2)] : 0
+  }
+  function astHonour(id, season) {
+    if (!VALUE_MODEL || !globalThis.SavantValue || !DATA.data[season]) return null
+    if (DATA.current && DATA.current.season === season && seasonGames(season) < 82) return null
+    if (!astCache.has(season)) {
+      const ps = playersOf(season) // positions already corrected above
+      const res = globalThis.SavantValue.season(ps, VALUE_MODEL)
+      astCache.set(season, globalThis.SavantValue.team(ps, res, VALUE_MODEL, null, 2).map((t) => new Set(t.map((x) => String(x.p.id)))))
+    }
+    const t = astCache.get(season)
+    return t[0].has(String(id)) ? 'ast1' : t[1].has(String(id)) ? 'ast2' : null
+  }
+
   /** Season honours in prestige order, as [{ code, short, full, major }]. */
   function accolades(id, season) {
     const by = AWARDS && AWARDS.players && AWARDS.players[String(id)]
-    const got = by && by[season]
-    if (!got || !got.length) return []
+    const got = ((by && by[season]) || []).slice()
+    const ast = astHonour(id, season)
+    if (ast) got.push(ast)
+    if (!got.length) return []
     const codes = ACC_ORDER.filter((c) => got.includes(c)).concat(got.filter((c) => !ACC_ORDER.includes(c)))
-    return codes.map((c) => ({ code: c, short: ACC_SHORT[c] || c, full: (AWARDS.labels && AWARDS.labels[c]) || ACC_SHORT[c] || c, major: !!ACC_MAJOR[c] }))
+    return codes.map((c) => ({ code: c, short: ACC_SHORT[c] || c, full: AST_FULL[c] || (AWARDS.labels && AWARDS.labels[c]) || ACC_SHORT[c] || c, major: !!ACC_MAJOR[c] }))
   }
 
   return {

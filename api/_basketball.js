@@ -380,6 +380,8 @@ function savantValueOf(row, file, meta) {
     qualified_at_position: (file.value_count || {})[row.pos] ?? null,
     parts_per_100: Object.fromEntries(keys.map((k, i) => [k.key, parts[i]])),
     all_savant_team: onTeam >= 0 ? TEAM_WORD[onTeam] : null,
+    // An honour once the season is over (the page's rule: a full 82 played); a standing before.
+    all_savant_final: !(file.in_progress && seasonGames(file) < 82),
   }
 }
 
@@ -390,7 +392,9 @@ function savantValueText(row, sv, season, peers) {
   return `Savant value: ${sgnInt(sv.points_over_replacement)} points over a replacement ${one} in ${season} `
     + `(${sgn1(sv.per_100_vs_average)} per 100 possessions vs. an average ${one})`
     + (sv.position_rank ? `, ${ordinal(sv.position_rank)} of ${sv.qualified_at_position} qualified ${peers}` : ', not qualified')
-    + (sv.all_savant_team ? `. All-Savant ${sv.all_savant_team} Team.` : '.')
+    + (sv.all_savant_team
+      ? (sv.all_savant_final ? `. All-Savant ${sv.all_savant_team} Team.` : `. On the All-Savant ${sv.all_savant_team} Team so far; it becomes an honour when the season ends.`)
+      : '.')
     + ` By part, per 100: ${parts.join(', ')}. It counts only the possessions he played, so missed games cost him.`
 }
 const PART_LABEL = { scoring: 'scoring', playmaking: 'playmaking', rebounding: 'rebounding', defense: 'defense', floor: 'on-floor impact' }
@@ -575,7 +579,8 @@ export const tools = [
           position_rank: z.number().int().nullable().describe('Rank by value among qualified players at his position; null if not qualified.'),
           qualified_at_position: z.number().int().nullable(),
           parts_per_100: z.record(z.string(), z.number()).describe('Scoring, playmaking, rebounding, defense, on-floor impact, per 100 vs. an average player at his position.'),
-          all_savant_team: z.string().nullable().describe('"1st" or "2nd" when he made the All-Savant Team that season.'),
+          all_savant_team: z.string().nullable().describe('"1st" or "2nd" when he is on the All-Savant Team that season.'),
+          all_savant_final: z.boolean().describe('True once the season is over, when the All-Savant Team is an honour; false while it is a standing.'),
         }).optional().describe('Full season only: Savant value, the number the All-Savant Team is picked on.'),
         url: z.string().describe('His Basketball Savant card.'),
         data_as_of: z.string(),
