@@ -26,6 +26,17 @@ const html = readFileSync(PAGE, 'utf8')
 // The data as every build step sees it: the archive with the season in progress laid over it.
 // Kept as a string so each test can take its own fresh copy.
 const raw = JSON.stringify(readSavantDataForChecks(path.join(ROOT, 'public')))
+// The same without a season in progress: tests that need a full season's rows (comps, 400+
+// true-shooting attempts) use this, since the first weeks of a new season have neither.
+function archiveOnly() {
+  const d = JSON.parse(raw)
+  const live = d.current && d.current.season
+  if (!live) return d
+  d.seasons = d.seasons.filter((s) => s !== live)
+  delete d.data[live]
+  delete d.current
+  return d
+}
 
 const cfg = loadPageConfig(PAGE)
 const eng = createEngine(JSON.parse(raw), cfg)
@@ -196,7 +207,7 @@ test('the build writes all of the pages or none of them; one bad row costs one p
     writeFileSync(path.join(tmp, 'public', 'savant-data.json'), JSON.stringify(data))
   }
   const small = () => {
-    const d = JSON.parse(raw)
+    const d = archiveOnly()
     d.seasons = d.seasons.slice(0, 2)
     d.data = Object.fromEntries(d.seasons.map((s) => [s, d.data[s]]))
     return d
@@ -314,12 +325,15 @@ test('preview image: a PNG for a real player, the generic card for anything else
 })
 
 test('movers: finds who moved, once each, and ignores noise', () => {
+  // On the archive alone: a new season's first week has nobody with 400 true-shooting attempts.
+  const eng = createEngine(archiveOnly(), loadPageConfig(PAGE))
+  const slugs = assignSlugs(eng)
   const cur = eng.seasons[0]
   const before = takeSnapshot(eng, slugs)
   assert.ok(Object.keys(before.players).length === eng.qualifiedCount(cur), 'snapshot holds the qualified players')
 
   // A week later: one player shoots much better, one much worse; everyone else unchanged.
-  const data = JSON.parse(raw)
+  const data = archiveOnly()
   const qual = data.data[cur].players.filter((p) => p.qualified && p.m.ts && p.m.ts.season && p.m.ts.season.n >= 400)
   const byTs = [...qual].sort((a, b) => a.m.ts.season.v - b.m.ts.season.v)
   const riser = byTs[Math.floor(byTs.length * 0.3)], faller = byTs[Math.floor(byTs.length * 0.7)]

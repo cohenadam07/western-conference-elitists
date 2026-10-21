@@ -2083,7 +2083,7 @@ const EXPL={
  tm_sos:{"what": "Strength of remaining schedule: the average opponent's luck-adjusted net rating. Positive = a harder road.", "formula": "Mean over remaining games of the opponent's strength. Strength = (games x this season's luck-adjusted net + 20 x 0.6 x last season's) / (games + 20): last season, regressed 40% to average, until this season has enough games.", "source": "NBA.com stats (stats.nba.com) team stats and schedule.", "sample": "Early-season SOS leans on last season."},
  lu_unit:{"what": "The players in the unit: five-man lineups or two-man pairs, with every minute they shared the floor.", "formula": "All minutes those players were on the floor together.", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Most five-man units play under 100 minutes all season."},
  lu_gp:{"what": "Games the unit played together.", "formula": "Games with at least one shared possession.", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "None: a count."},
- lu_min:{"what": "Minutes the unit played together; the filter hides units under the floor (50 for five-man, 200 for two-man by default).", "formula": "Shared minutes.", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Use the sample-adjusted net under a few hundred minutes."},
+ lu_min:{"what": "Minutes the unit played together; the filter hides units under the floor (50 for five-man, 200 for two-man by default). Early in a season the floor is pro-rated to the games played (never under 5 and 15), so units show from opening week.", "formula": "Shared minutes. Season in progress: default floor = max(5, 50 x games played / 82) for five-man, max(15, 200 x games / 82) for two-man, median team; units are kept from max(5, 25 x games / 82) and max(15, 100 x games / 82) minutes.", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Use the sample-adjusted net under a few hundred minutes; in the first weeks every unit is a small sample."},
  lu_poss:{"what": "Possessions played together: the sample size behind every rating in the row.", "formula": "Shared possessions (the NBA's estimate).", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "A unit's net rating swings about +/- 10 at 300 possessions on noise alone."},
  lu_ortg:{"what": "Points the unit scored per 100 possessions.", "formula": "100 x points / possessions", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Noisy below ~500 possessions."},
  lu_drtg:{"what": "Points the unit allowed per 100 possessions. Lower is better.", "formula": "100 x opponent points / possessions", "source": "NBA.com stats (stats.nba.com) lineup stats (LeagueDashLineups, per team), 2007-08 on.", "sample": "Noisier than ORtg: opponents' shooting luck."},
@@ -4066,6 +4066,6 @@ wirePanelExpl();
 })();
 </script>
 <script src="savant-fantasy.js?v=2"></script>
-<script src="savant-teams.js?v=2"></script>
+<script src="savant-teams.js?v=3"></script>
 </body>
 </html>

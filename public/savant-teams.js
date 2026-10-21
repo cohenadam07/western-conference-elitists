@@ -171,7 +171,9 @@ function renderLineups(){
   var s=T.luSeason, L=T.lu[s];
   if(!L){ v.innerHTML='<div class="sv-head"><div><h1 class="sv-title">Lineups</h1><div class="sv-sub">Loading '+esc(s)+'…</div></div></div>';
     loadLineups(s).then(function(x){ if(x) renderLineups(); else v.innerHTML='<div class="sv-head"><div><h1 class="sv-title">Lineups</h1><div class="sv-sub sv-warn">No lineup file for '+esc(s)+'.</div></div></div>'; }); return; }
-  var n=T.luN, units=(L.units||{})[n]||[], floor=T.luMin!=null?T.luMin:(n==='5'?50:200);
+  // The season in progress carries its own default floors (view_min), pro-rated to the games
+  // played so units show from opening week; finished seasons use 50 / 200 (teams_engine.py).
+  var n=T.luN, units=(L.units||{})[n]||[], floor=T.luMin!=null?T.luMin:((L.view_min&&L.view_min[n]!=null)?L.view_min[n]:(n==='5'?50:200));
   var q=T.luQ.trim().toLowerCase();
   var teams=Array.from(new Set(units.map(function(u){ return u.t; }))).sort();
   var list=units.filter(function(u){ return u.min>=floor&&(!T.luTeam||u.t===T.luTeam)&&(!q||u.names.join(' ').toLowerCase().indexOf(q)>=0); });

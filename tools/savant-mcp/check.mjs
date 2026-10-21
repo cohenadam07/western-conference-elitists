@@ -46,6 +46,9 @@ const data = readSavantDataForChecks(path.join(ROOT, 'public')) // archive + sea
 // which are plain 0 by the time they are a file.
 const files = JSON.parse(JSON.stringify(buildSavantApi({ data, html, valueModel: readValueModel(path.join(ROOT, 'public')) })))
 const latest = files.meta.latestSeason
+// The newest finished-sized season: early in a season in progress, `latest` holds a few games,
+// no comps yet, and players who haven't played. Checks that need a full season use this one.
+const fullSeason = files.meta.seasons.find((s) => ((files.seasons[s].qualified || {}).league || 0) >= 200)
 
 const listen = (server) => new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(server.address().port)))
 
@@ -199,7 +202,7 @@ test('values print the way the page prints them, apart from the documented excep
   const units = new Map(files.meta.metrics.map((m) => [m.key, m.unit]))
   const seen = new Set()
   let compared = 0
-  for (const season of [latest, '2015-16', '1999-00', '1985-86']) {
+  for (const season of [...new Set([latest, fullSeason, '2015-16', '1999-00', '1985-86'])]) {
     for (const row of files.seasons[season].players) {
       for (const [key, [v, league]] of Object.entries(row.m)) {
         const unit = units.get(key)
@@ -219,8 +222,10 @@ test('values print the way the page prints them, apart from the documented excep
   assert.ok(compared > 50000)
 })
 
-test('the latest season carries comps, flaws and matchups, with their own pool named', async () => {
+test('the latest season carries comps, flaws and matchups, with their own pool named', async (t) => {
   const row = files.seasons[latest].players.find((p) => p.comps && p.wflaws && p.wcomps && p.guard)
+  // Comps need 500+ minutes; the first week or two of a new season has nobody there yet.
+  if (!row && files.seasons[latest].in_progress) return t.skip(`nobody in ${latest} has the minutes for comps yet`)
   const { structured: s, text } = await savant.playerProfile({ player: String(row.id) })
   assert.deepEqual(s.comps.map((c) => [c.id, c.match]), row.comps.map((c) => [String(c.id), c.score]))
   assert.deepEqual(s.weakest.map((f) => [f.key, f.percentile]), row.wflaws.map((f) => [f.k, f.pct]))
@@ -276,7 +281,8 @@ test('search and profile work through a real client, and results fit their decla
 
   const p = await call('nba_get_player_profile', { player: 'Nikola Jokic' })
   assert.ok(!p.isError)
-  assert.equal(p.structuredContent.season, latest)
+  // his most recent season: the newest he has played in (a new season may not have reached him yet)
+  assert.equal(p.structuredContent.season, files.players.players.find((x) => String(x.id) === '203999').to)
   assert.equal(p.structuredContent.player.id, '203999')
   assert.match(textOf(p), /True shooting %: \.\d{3} \(league \d+(st|nd|rd|th), vs\. bigs \d+(st|nd|rd|th)\)/)
 
@@ -288,7 +294,8 @@ test('search and profile work through a real client, and results fit their decla
     { player: String(old.id), season: '1985-86' },
     { player: String(bench.id) },
     { player: String(br.id) },
-    { player: 'Nikola Jokic', window: 'l10', group: 'offense' },
+    // a player with games in the latest season (a new season may not have reached Jokic yet)
+    { player: String(files.seasons[latest].players.find((x) => x.w && x.w.l10).id), window: 'l10', group: 'offense' },
   ]) {
     const r = await call('nba_get_player_profile', args)
     assert.ok(!r.isError, `${JSON.stringify(args)}: ${textOf(r)}`)

@@ -469,7 +469,10 @@ export async function lineups({ team, season, size = 5, min_minutes, sort = 'sam
   const L = await getJson(`lineups/${s}.json`, (b) => b && b.units)
   if (!L) throw new SavantError(`No lineup file for ${s}.`)
   let units = L.units[String(size)] || []
-  const floor = min_minutes != null ? min_minutes : (size === 5 ? 50 : 200)
+  // A season in progress carries its own default floors, pro-rated to the games played
+  // (teams_engine.py view_min); finished seasons use 50 / 200.
+  const vm = L.view_min && L.view_min[String(size)]
+  const floor = min_minutes != null ? min_minutes : (vm != null ? vm : (size === 5 ? 50 : 200))
   if (team) { const t = findTeam(T.data[s].teams, team); units = units.filter((u) => u.t === t.abbr) }
   if (player) { const n = norm(player).split(' ').pop(); units = units.filter((u) => u.names.some((x) => norm(x).includes(n))) }
   units = units.filter((u) => u.min >= floor)
@@ -616,7 +619,7 @@ export const tools = [
       description: 'Basketball Savant Lineups (wcehoops.com): 5-man units or 2-man pairs with minutes, ratings, luck-adjusted net, and a sample-adjusted net pulled toward the team by a measured k. Filter by team or player. 2007-08 on.',
       inputSchema: {
         team: z.string().trim().max(40).optional().describe('Abbreviation or name; omit for every team.'), season: z.string().trim().max(12).optional().describe('e.g. "2025-26"; 2007-08 on.'), size: z.union([z.literal(5), z.literal(2)]).default(5).describe('5 for five-man lineups (default), 2 for two-man pairs.'),
-        min_minutes: z.number().min(0).optional().describe('Minutes floor (default 50 for 5-man, 200 for 2-man).'), sort: z.enum(['sample_adjusted', 'luck_adjusted', 'raw', 'minutes']).default('sample_adjusted').describe('Sort by sample-adjusted net (default), luck-adjusted net, raw net, or minutes.'),
+        min_minutes: z.number().min(0).optional().describe('Minutes floor (default 50 for 5-man, 200 for 2-man; lower early in a season in progress, pro-rated to the games played).'), sort: z.enum(['sample_adjusted', 'luck_adjusted', 'raw', 'minutes']).default('sample_adjusted').describe('Sort by sample-adjusted net (default), luck-adjusted net, raw net, or minutes.'),
         player: z.string().trim().max(80).optional().describe('Only units including this player (last name is enough).'), limit: z.number().int().min(1).max(100).default(15).describe('Most units to return (default 15).'),
       },
       outputSchema: { season: z.string(), size: z.number(), k: z.number().nullable().optional(), units: z.array(loose), url: z.string() },
