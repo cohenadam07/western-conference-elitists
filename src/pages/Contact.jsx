@@ -31,18 +31,18 @@ const SUBMIT_ERRORS = {
   network: "Couldn't reach the server. Check your connection and try again. Your message is still here.",
 }
 
-// What happened to the "Also send me The Weekly Board" box, keyed by the server's answer.
+// What happened to the "Also send me Savant Sunday" box, keyed by the server's answer.
 const NEWSLETTER_NOTE = {
-  confirm: 'You also asked for The Weekly Board. Watch for a confirmation email and click the link inside.',
-  resent: 'You also asked for The Weekly Board. We re-sent your confirmation email; click the link inside.',
-  unconfirmed: "You're signed up for The Weekly Board but haven't confirmed. Find the confirmation email and click the link.",
-  queued: 'You also asked for The Weekly Board. A confirmation email will follow; click the link inside.',
-  subscribed: "You're subscribed to The Weekly Board.",
-  existing: "You're already subscribed to The Weekly Board.",
-  unsubscribed: "That address unsubscribed from The Weekly Board earlier, so we couldn't re-add it from here.",
-  invalid: "We couldn't add that address to The Weekly Board. Try the signup form below with another email.",
-  rejected: "We couldn't add that address to The Weekly Board. Try the signup form below with another email.",
-  failed: "We couldn't add you to The Weekly Board just now. Try the signup form below.",
+  confirm: 'You also asked for Savant Sunday. Watch for a confirmation email and click the link inside.',
+  resent: 'You also asked for Savant Sunday. We re-sent your confirmation email; click the link inside.',
+  unconfirmed: "You're signed up for Savant Sunday but haven't confirmed. Find the confirmation email and click the link.",
+  queued: 'You also asked for Savant Sunday. A confirmation email will follow; click the link inside.',
+  subscribed: "You're subscribed to Savant Sunday.",
+  existing: "You're already subscribed to Savant Sunday.",
+  unsubscribed: "That address unsubscribed from Savant Sunday earlier, so we couldn't re-add it from here.",
+  invalid: "We couldn't add that address to Savant Sunday. Try the signup form below with another email.",
+  rejected: "We couldn't add that address to Savant Sunday. Try the signup form below with another email.",
+  failed: "We couldn't add you to Savant Sunday just now. Try the signup form below.",
 }
 
 const inputClass = (bad) =>
@@ -227,7 +227,7 @@ export default function Contact() {
                   onChange={handleChange}
                   className="h-4 w-4 rounded-sm border-line accent-navy"
                 />
-                Also send me The Weekly Board
+                Also send me Savant Sunday
               </label>
 
               {/* Honeypot — invisible to people, irresistible to bots. */}

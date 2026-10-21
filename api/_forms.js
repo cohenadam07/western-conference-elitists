@@ -126,6 +126,48 @@ export async function overLimit(bucket, ip, limit, windowSec) {
 }
 
 /* ------------------------------------------------------------------ *
+ * Sports — which sections of Savant Sunday a reader gets.
+ *
+ * Stored on the Buttondown subscriber as metadata:
+ *   { nba: 'yes'|'no', nfl: 'yes'|'no', ufc: 'yes'|'no', sports: 'NBA, UFC' }
+ * A missing key means yes, so everyone who signed up before the picker existed keeps
+ * every section. The email template tests `!= "no"` for the same reason:
+ *   {% if subscriber.metadata.nfl != "no" %} …football section… {% endif %}
+ * `sports` is the same choice in words, for the email's footer and Buttondown's list view.
+ * Keep the list in step with SPORTS in src/lib/forms.js (check:forms compares them).
+ * ------------------------------------------------------------------ */
+
+export const SPORTS = [
+  { id: 'nba', label: 'NBA' },
+  { id: 'nfl', label: 'NFL' },
+  { id: 'ufc', label: 'UFC' },
+]
+const SPORT_IDS = SPORTS.map((s) => s.id)
+
+// The picked sports in the canonical order. `null` when the field is absent (forms that
+// predate the picker: the player pages, the contact form), which means every sport. A
+// present but empty or unrecognised list comes back empty, so the caller can refuse it.
+export function cleanSports(raw) {
+  if (raw === undefined || raw === null) return null
+  const list = Array.isArray(raw) ? raw : typeof raw === 'string' ? raw.split(',') : []
+  const picked = new Set(list.slice(0, 10).map((s) => String(s).trim().toLowerCase()))
+  return SPORT_IDS.filter((id) => picked.has(id))
+}
+
+export function sportsMetadata(sports) {
+  const on = sports && sports.length ? sports : SPORT_IDS
+  const meta = {}
+  for (const id of SPORT_IDS) meta[id] = on.includes(id) ? 'yes' : 'no'
+  meta.sports = SPORTS.filter((s) => on.includes(s.id)).map((s) => s.label).join(', ')
+  return meta
+}
+
+export function sportsFromMetadata(meta) {
+  const m = meta && typeof meta === 'object' ? meta : {}
+  return SPORT_IDS.filter((id) => String(m[id] ?? '').trim().toLowerCase() !== 'no')
+}
+
+/* ------------------------------------------------------------------ *
  * Buttondown
  * ------------------------------------------------------------------ */
 
@@ -156,7 +198,7 @@ export const PUBLIC_ARCHIVE_URL = () =>
 const DUPLICATE_CODES = new Set(['email_already_exists', 'subscriber_already_exists'])
 const REJECTED_CODES = new Set(['email_blocked', 'ip_address_spammy', 'subscriber_blocked', 'subscriber_suppressed', 'email_domain_blocked'])
 const SUBSCRIBED_TYPES = new Set(['regular', 'premium', 'gifted', 'trialed', 'churning', 'past_due', 'unpaid', 'paused'])
-const DEAD_TYPES = new Set(['spammy', 'removed', 'undeliverable', 'complained', 'blocked', 'disabled'])
+export const DEAD_TYPES = new Set(['spammy', 'removed', 'undeliverable', 'complained', 'blocked', 'disabled'])
 
 /**
  * Put one address on the list. Never throws.
@@ -171,8 +213,14 @@ const DEAD_TYPES = new Set(['spammy', 'removed', 'undeliverable', 'complained', 
  *   invalid       Buttondown says the address is bad
  *   rejected      Buttondown refused it (firewall, blocked address, …)
  *   transient     anything else — outage, rate limit, bad key, unknown error. Retry later.
+ *
+ * `sports` is the reader's pick (see cleanSports); null means every sport. It goes on a
+ * new subscriber as metadata. For someone who signed up before but never confirmed, a new
+ * pick replaces the old one, since the person re-submitting is almost always the same
+ * reader changing their mind. A confirmed subscriber's choice is never changed from the
+ * signup form: that needs the link in their own email (api/newsletter.js, ?prefs=).
  */
-export async function subscribeToButtondown({ email, source, ip, referrer }) {
+export async function subscribeToButtondown({ email, source, ip, referrer, sports = null }) {
   try {
     const created = await buttondown('POST', '/subscribers', {
       email_address: email,
@@ -181,6 +229,7 @@ export async function subscribeToButtondown({ email, source, ip, referrer }) {
       utm_medium: 'site-form',
       utm_campaign: source,
       ip_address: ip || undefined,
+      metadata: sportsMetadata(sports),
     })
     const code = created.json?.code
 
@@ -192,7 +241,10 @@ export async function subscribeToButtondown({ email, source, ip, referrer }) {
       const found = await buttondown('GET', `/subscribers/${encodeURIComponent(email)}`)
       if (!found.ok) return { outcome: 'existing' } // Buttondown already told us it exists
       const type = found.json?.type
-      if (type === 'unactivated') return await remind(email)
+      if (type === 'unactivated') {
+        if (sports) await setSports(found.json, sports) // best effort: the reminder matters more
+        return await remind(email)
+      }
       if (SUBSCRIBED_TYPES.has(type)) return { outcome: 'existing' }
       if (type === 'unsubscribed') return { outcome: 'unsubscribed' }
       if (DEAD_TYPES.has(type)) return { outcome: 'rejected', detail: `subscriber type ${type}` }
@@ -221,6 +273,23 @@ async function remind(email) {
   return { outcome: r.ok ? 'resent' : 'unconfirmed' }
 }
 
+/**
+ * Save a reader's sports on a subscriber object already fetched from Buttondown. Merges
+ * into the existing metadata rather than sending only the sport keys, because Buttondown
+ * doesn't promise whether PATCH merges or replaces, and other fields may live there.
+ * Returns { ok, sports } and never throws.
+ */
+export async function setSports(subscriber, sports) {
+  try {
+    const metadata = { ...(subscriber?.metadata && typeof subscriber.metadata === 'object' ? subscriber.metadata : {}), ...sportsMetadata(sports) }
+    const r = await buttondown('PATCH', `/subscribers/${encodeURIComponent(subscriber.id)}`, { metadata })
+    if (!r.ok) return { ok: false, detail: `buttondown ${r.status}: ${r.json?.detail || r.text.slice(0, 160)}` }
+    return { ok: true, sports: sportsFromMetadata(r.json?.metadata || metadata) }
+  } catch (e) {
+    return { ok: false, detail: `buttondown unreachable: ${e.message || e}` }
+  }
+}
+
 /* ------------------------------------------------------------------ *
  * Pending-signup queue — a safety net, not a list.
  *
@@ -233,10 +302,10 @@ export const K_PENDING = 'wce:nl:pending'
 
 // Deliberately does not keep the IP address: the queue has no expiry, so it holds only
 // what's needed to finish the signup later.
-export async function queueSignup({ email, source, referrer, reason }) {
+export async function queueSignup({ email, source, referrer, reason, sports = null }) {
   if (!kvConfigured()) return false
   try {
-    await kv(['HSET', K_PENDING, email.toLowerCase(), JSON.stringify({ email, source, referrer, reason, ts: Date.now() })])
+    await kv(['HSET', K_PENDING, email.toLowerCase(), JSON.stringify({ email, source, referrer, sports, reason, ts: Date.now() })])
     return true
   } catch {
     return false

@@ -1,4 +1,4 @@
-# The Weekly Board — newsletter + contact form
+# Savant Sunday: newsletter + contact form
 
 Both forms on the site now do real work.
 
@@ -13,7 +13,7 @@ Both forms on the site now do real work.
 ### 1. Buttondown
 1. Create an account at buttondown.com and pick your newsletter username
    (the public archive lives at `buttondown.com/<username>`).
-2. **Settings → Basics:** set the newsletter name to *The Weekly Board* and the
+2. **Settings → Basics:** set the newsletter name to *Savant Sunday* and the
    sender name to *Western Conference Elitists*.
 3. Leave **double opt-in on** (it's the default). New signups get a confirmation
    email and nothing else until they click it. That keeps the list clean and
@@ -96,6 +96,39 @@ npm run movers-draft -- --from 2026-12-03 --to 2026-12-10
 
 Signups from the player pages carry `utm_campaign` `player-page` or `player-directory`.
 
+## Sports: everyone gets one email, with only their sports
+
+Readers pick NBA, NFL and/or UFC when they sign up (all three are on to start). Savant
+Sunday is still one email to the whole list; each sport's section shows only to readers
+who picked it.
+
+- **Where it's stored:** on the Buttondown subscriber, as metadata: `nba`, `nfl` and `ufc`
+  set to `yes` or `no`, plus `sports` in words (`NBA, UFC`). A missing key counts as yes,
+  so anyone who signed up before the picker, or through the contact-form checkbox or a
+  player page (neither asks), gets every sport. No paid Buttondown add-on needed.
+- **Changing it:** every issue ends with a link to `wcehoops.com/newsletter/sports?id={{ subscriber.id }}`.
+  That page shows the reader's choice (with their address masked) and saves a new one.
+  The subscriber ID in the link is the key: the page never looks anyone up by email, so
+  nobody can see or change a stranger's sports by typing their address. 30 lookups per IP
+  per 10 minutes. Signing up again before confirming replaces the pick; a confirmed
+  subscriber's pick only changes from that page.
+- **Writing an issue:** wrap each sport's section in Buttondown's template tags. The draft
+  helpers in `scripts/lib/newsletter.mjs` do it for you: `onlyFor('nfl', html)` and
+  `sportsFooter()` (the drafts already end with it). By hand, in Buttondown's editor:
+
+  ```
+  {% if subscriber.metadata.nba != "no" %}
+  ## Basketball Savant
+  …
+  {% endif %}
+
+  You get {{ subscriber.metadata.sports|default:"NBA, NFL, UFC" }}.
+  [Change your sports](https://wcehoops.com/newsletter/sports?id={{ subscriber.id }})
+  ```
+
+  Use **Send a test** to yourself before sending: Buttondown fills the tags in for the test
+  address, so you see exactly what a reader gets.
+
 ## Where signups came from
 
 Each subscriber carries `utm_campaign` set to where they signed up: `home`,
@@ -114,15 +147,17 @@ placement works.
 - **Guard rails:** each IP gets 6 signups and 4 contact messages per 10 minutes.
   A "please confirm" reminder goes to the same address at most once a day. After
   10 wrong passwords on `/inbox`, that IP is locked out for 10 minutes.
-- **Tests:** `npm run check:forms` runs 49 checks against fake versions of
+- **Tests:** `npm run check:forms` runs 64 checks against fake versions of
   Buttondown, Upstash and Resend. No keys or network needed.
 
 ## Files
 
-- `api/newsletter.js`: subscribe, public archive, admin health, and the push for held signups
+- `api/newsletter.js`: subscribe, public archive, a reader's sports (`?prefs=`), admin health, and the push for held signups
 - `api/contact.js`: store messages, notify you, and the inbox list/read/delete
 - `api/_forms.js`: shared helpers (Buttondown client, rate limit, held-signup queue, Resend)
 - `src/components/SubscribeForm.jsx`: the one real signup form, used everywhere
+- `src/components/SportPicker.jsx`: the NBA / NFL / UFC toggles (form chips, and the cards on the sports page)
+- `src/pages/NewsletterSports.jsx`: `/newsletter/sports`, the change-your-sports page (unlisted, noindex; the ID never reaches analytics)
 - `src/pages/Newsletter.jsx`, `Privacy.jsx`, `Inbox.jsx`, `Contact.jsx`
 - `scripts/newsletter-draft.mjs`, `scripts/lib/newsletter.mjs`
 - `tools/forms/`: the regression checks and their fakes

@@ -44,8 +44,8 @@ export default function Privacy() {
         <div className="mt-12 space-y-12">
           <Section id="newsletter" title="The newsletter">
             <p>
-              When you subscribe to The Weekly Board we collect your <strong>email address</strong>, the page you
-              signed up from, and your <strong>IP address</strong>. The IP address goes to our newsletter provider
+              When you subscribe to Savant Sunday we collect your <strong>email address</strong>, the sports you
+              pick, the page you signed up from, and your <strong>IP address</strong>. The IP address goes to our newsletter provider
               so it can screen out spam signups, and it's kept with your subscription there.
             </p>
             <p>
@@ -54,11 +54,12 @@ export default function Privacy() {
               an issue was opened or a link was clicked, which tells us what's worth writing more of.
             </p>
             <p>
-              If Buttondown can't take a signup right away (during an outage, say), we hold your email address and
-              the page you signed up from in our own database until it can, then remove it from there.
+              If Buttondown can't take a signup right away (during an outage, say), we hold your email address, your
+              sports and the page you signed up from in our own database until it can, then remove it from there.
             </p>
             <p>
-              Every issue has an unsubscribe link. One click and you're off the list.
+              Every issue has a link to change your sports, which opens a page on this site that only you get
+              the link to, and an unsubscribe link. One click and you're off the list.
             </p>
           </Section>
 
@@ -70,8 +71,8 @@ export default function Privacy() {
               email. We keep messages until we delete them, and we don't use them for anything except answering you.
             </p>
             <p>
-              If you tick "Also send me The Weekly Board," your email is added to the newsletter list as described
-              above, confirmation email included.
+              If you tick "Also send me Savant Sunday," your email is added to the newsletter list as described
+              above, with every sport and a confirmation email included.
             </p>
           </Section>
 

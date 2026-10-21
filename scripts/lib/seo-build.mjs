@@ -60,7 +60,7 @@ export const HOOPS_APP = {
 export const PAGES = [
   { path: '/', title: null, priority: '1.0' }, // sitemap only: dist/index.html is also the SPA fallback
   { path: '/articles', title: 'Analysis', description: 'Scouting breakdowns, team-building theory, and NBA analytics that hold up under pressure.', priority: '0.9' },
-  { path: '/newsletter', title: 'The Weekly Board', description: 'The Weekly Board: one board move, one prospect we’re buying or fading, and one stat, in your inbox. Free.', priority: '0.8' },
+  { path: '/newsletter', title: 'Savant Sunday', description: 'Savant Sunday: the week’s most surprising NBA, NFL and UFC numbers, plus one fantasy edge, every Sunday morning. Pick your sports. Free.', priority: '0.8' },
   { path: '/rankings', title: 'Big Board', description: 'The WCE Big Board — every prospect ranked and tiered, analytics first, scouting always.', priority: '0.8' },
   { path: '/draft', title: 'Draft Hub', description: 'Full scouting profiles, measurements, and role projections for the NBA Draft class.', priority: '0.8' },
   { path: '/news', title: 'News', description: 'The biggest NBA and college basketball stories, plus basketball research and analytics — aggregated and annotated by Western Conference Elitists.', priority: '0.7' },

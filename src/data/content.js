@@ -1038,9 +1038,9 @@ export const ARTICLES = PUBLISHED_ARTICLES
 export const FEATURED_ARTICLE = ARTICLES[0]
 
 export const NEWSLETTER_COPY = {
-  heading: 'The Board, in your inbox.',
+  heading: 'Savant Sunday, in your inbox.',
   body:
-    "Every Thursday: one big board move explained, one prospect we're buying or fading, and one stat that should be changing how you watch the draft. No fluff, no filler, no fifteen-team mock drafts.",
+    "Every Sunday morning: the week's most surprising numbers from Basketball, Football and UFC Savant, one fantasy edge for the week ahead, and anything new on the site. Five minutes, no filler.",
 }
 
 export const FOUNDER = {

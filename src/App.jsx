@@ -23,6 +23,13 @@ import NotFound from './pages/NotFound.jsx'
 
 // Private admin page: lazy, so no visitor downloads it unless they open /inbox.
 const Inbox = lazy(() => import('./pages/Inbox.jsx'))
+// Reached only from the link in a newsletter issue: lazy for the same reason.
+const NewsletterSports = lazy(() => import('./pages/NewsletterSports.jsx'))
+
+// The change-your-sports link carries the reader's subscriber ID. Analytics gets the page,
+// never the ID.
+const analyticsBeforeSend = (event) =>
+  event.url.includes('/newsletter/sports') ? { ...event, url: event.url.split(/[?#]/)[0] } : event
 
 function App() {
   const { pathname } = useLocation()
@@ -59,6 +66,7 @@ function App() {
           <Route path="/articles/:slug" element={<ArticleDetail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/newsletter" element={<Newsletter />} />
+          <Route path="/newsletter/sports" element={<Suspense fallback={null}><NewsletterSports /></Suspense>} /> {/* unlisted: linked from every issue */}
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/comp-chain" element={<CompChain />} />
           <Route path="/dynasty" element={<Dynasty />} />
@@ -69,7 +77,7 @@ function App() {
         </div>
       </main>
       {!standalone && <Footer />}
-      <Analytics />
+      <Analytics beforeSend={analyticsBeforeSend} />
     </div>
   )
 }

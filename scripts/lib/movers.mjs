@@ -18,6 +18,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import path from 'node:path'
 import { ordinal } from './savant-core.mjs'
 import { MIN_POOL } from './player-pages.mjs'
+import { sportsFooter } from './newsletter.mjs'
 
 export const SNAP_DIR = path.join('data', 'savant-snapshots')
 const UTM = 'utm_source=newsletter&utm_medium=email&utm_campaign=weekly-board'
@@ -124,6 +125,7 @@ export function moversDraft(r, { site }) {
       section('Risers', r.risers),
       section('Fallers', r.fallers),
       `<hr />\n<p>Every player’s full profile is at <a href="${site}/player?${UTM}">wcehoops.com/player</a>. Forwarded this? <a href="${site}/newsletter?${UTM}">Subscribe here</a>.</p>`,
+      sportsFooter(site),
     ].filter(Boolean).join('\n\n'),
   }
 }
