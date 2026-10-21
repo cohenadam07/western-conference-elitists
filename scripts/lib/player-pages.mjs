@@ -28,7 +28,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { assignSlugs, createEngine, inFt, loadPageConfig, miss, ordinal, slugify, smpl, val } from './savant-core.mjs'
+import { assignSlugs, createEngine, headSeasonURL, inFt, loadPageConfig, miss, ordinal, slugify, smpl, val } from './savant-core.mjs'
 import { readSavantData } from './savant-merge.mjs'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
@@ -218,7 +218,12 @@ function renderPlayer(ctx, e) {
   const more = e.seasons.length > 1
     ? `Compare players, chart any stat over time, and flip through all ${e.seasons.length} of his seasons.`
     : 'Compare players and chart any stat over time.'
-  const headshot = isNbaId(e.id) ? `<img src=https://cdn.nba.com/headshots/nba/latest/260x190/${e.id}.png alt="" width=88 height=88 onerror=this.remove()>` : ''
+  // That season's photo (Cavs LeBron on a 2016 page), else his latest; 2015-16 on, see headSeasonURL.
+  const latestShot = `https://cdn.nba.com/headshots/nba/latest/260x190/${e.id}.png`
+  const seasonShot = headSeasonURL(eng.cfg, e.id, season, row.team, '260x190')
+  const headshot = !isNbaId(e.id) ? ''
+    : seasonShot ? `<img src=${seasonShot} data-l=${latestShot} alt="" width=88 height=88 onerror="if(this.dataset.l&&this.src!=this.dataset.l)this.src=this.dataset.l;else this.remove()">`
+    : `<img src=${latestShot} alt="" width=88 height=88 onerror=this.remove()>`
 
   let body = `<div class=w>${TOP}<p class=bc><a href=${TOOL}>Basketball Savant</a> / <a href=/player>Players</a> / ${esc(e.name)}`
   body +=

@@ -43,7 +43,9 @@ export function loadPageConfig(htmlPath) {
     grab(html, /const ACC_SHORT=\{[\s\S]*?\};/, 'ACC_SHORT'),
     grab(html, /const PEAK_MIN_GP=\d+;/, 'PEAK_MIN_GP'),
     grab(html, /const PEAK_MIN_SHARE=\d+;/, 'PEAK_MIN_SHARE'),
-    ';({CFG,AWARDS,POS_FIX_ID,POS_FIX_NAME,ACC_ORDER,ACC_MAJOR,ACC_SHORT,PEAK_MIN_GP,PEAK_MIN_SHARE})',
+    grab(html, /const NBA_TEAM_ID=\{[\s\S]*?\};/, 'NBA_TEAM_ID'),
+    grab(html, /const HEAD_SEASON_FROM=\d+;/, 'HEAD_SEASON_FROM'),
+    ';({CFG,AWARDS,POS_FIX_ID,POS_FIX_NAME,ACC_ORDER,ACC_MAJOR,ACC_SHORT,PEAK_MIN_GP,PEAK_MIN_SHARE,NBA_TEAM_ID,HEAD_SEASON_FROM})',
   ].join('\n')
   const cfg = vm.runInNewContext(src, {}, { timeout: 5000 })
   if (!cfg.CFG || !Array.isArray(cfg.CFG.metrics) || !cfg.CFG.metrics.length) throw new Error('savant-core: CFG.metrics is empty')
@@ -54,6 +56,16 @@ export function loadPageConfig(htmlPath) {
 }
 
 // ---------------------------------------------------------------- small helpers (same as the page)
+
+/**
+ * The photo from that season, the page's headSeasonURL(): the NBA's per-team, per-season
+ * headshot (2015-16 on, keyed by the season's start year), or null when there isn't one to try.
+ */
+export function headSeasonURL(cfg, id, season, team, size = '1040x760') {
+  const y = parseInt(season, 10), t = team && cfg.NBA_TEAM_ID && cfg.NBA_TEAM_ID[team]
+  if (typeof id !== 'number' || !t || !(y >= cfg.HEAD_SEASON_FROM)) return null
+  return `https://cdn.nba.com/headshots/nba/${t}/${y}/${size}/${id}.png`
+}
 
 export const norm = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
 export const miss = (v) => v == null || (typeof v === 'number' && !isFinite(v))
@@ -245,7 +257,7 @@ export function createEngine(DATA, cfg) {
   }
 
   return {
-    DATA, CFG, seasons, metrics, metricBy, index, playersOf,
+    DATA, CFG, cfg, seasons, metrics, metricBy, index, playersOf,
     pool, qualifiedCount, shown, pct, profile, peakSeason, accolades,
     generated: DATA.generated || null,
   }

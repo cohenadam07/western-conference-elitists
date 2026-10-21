@@ -2239,6 +2239,33 @@ const meas=(l,v)=>'<div class="m"><div class="ml">'+l+'</div><div class="mv">'+v
 function byKey(k){return METRICS.find(m=>m.key===k);}
 
 function headURL(id){return 'https://cdn.nba.com/headshots/nba/latest/1040x760/'+id+'.png';}
+/* The photo from that season: the NBA keeps a headshot per team and season, from 2015-16 on,
+   under the season's start year (2016 = 2016-17). 2016 LeBron is Cavs LeBron. A traded player
+   is shown with the team he finished with, which is the team on his row. Before 2015-16, or
+   when that photo doesn't exist (a 403), the image falls back to his latest photo. */
+const NBA_TEAM_ID={ATL:1610612737,BOS:1610612738,BKN:1610612751,NJN:1610612751,CHA:1610612766,CHH:1610612766,
+  CHI:1610612741,CLE:1610612739,DAL:1610612742,DEN:1610612743,DET:1610612765,GSW:1610612744,HOU:1610612745,
+  IND:1610612754,LAC:1610612746,SDC:1610612746,LAL:1610612747,MEM:1610612763,VAN:1610612763,MIA:1610612748,
+  MIL:1610612749,MIN:1610612750,NOP:1610612740,NOH:1610612740,NOK:1610612740,NYK:1610612752,OKC:1610612760,
+  SEA:1610612760,ORL:1610612753,PHI:1610612755,PHX:1610612756,PHO:1610612756,POR:1610612757,SAC:1610612758,
+  KCK:1610612758,SAS:1610612759,TOR:1610612761,UTA:1610612762,WAS:1610612764,WSB:1610612764};
+const HEAD_SEASON_FROM=2015;
+function headSeasonURL(id,season,team){
+  const y=parseInt(season,10), t=team&&NBA_TEAM_ID[team];
+  if(typeof id!=='number'||!t||!(y>=HEAD_SEASON_FROM)) return null;
+  return 'https://cdn.nba.com/headshots/nba/'+t+'/'+y+'/1040x760/'+id+'.png';
+}
+/* src + the latest photo to fall back to, for an <img> that shows a player in one season.
+   Pair it with onerror="if(!headRetry(this)) ...whatever the spot does when there's no photo". */
+function headSrc(id,season,team){
+  const s=headSeasonURL(id,season,team), l=headURL(id);
+  return s?'src="'+s+'" data-l="'+l+'"':'src="'+l+'"';
+}
+function headRetry(img){
+  const l=img.getAttribute('data-l');
+  if(l&&img.getAttribute('src')!==l){ img.removeAttribute('data-l'); img.setAttribute('src',l); return true; }
+  return false;
+}
 function initials(nm){return (nm||'').split(' ').map(s=>s[0]||'').slice(0,2).join('').toUpperCase();}
 function fmtBirth(b){if(!b)return null;const d=String(b).split('T')[0].split('-');if(d.length<3)return null;const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][(+d[1])-1];if(!mo)return null;return mo+' '+(+d[2])+', '+d[0];}
 function stat(l,v){return '<span class="st"><b>'+(miss(v)?'—':(+v).toFixed(1))+'</b> '+l+'</span>';}
@@ -2286,7 +2313,7 @@ function render(){
   if(cps.length) ch+='<div class="cmp-note">Each player is set to his own season — change the era on any chip above.</div>';
   document.getElementById('idbody').innerHTML=
     '<div class="id-head"><div class="headwrap"><div class="initials">'+initials(p.name)+'</div>'
-     +'<img class="headshot" src="'+headURL(p.id)+'" alt="" onerror="this.style.display=\'none\'"></div>'
+     +'<img class="headshot" '+headSrc(p.id,curSeason,p.team)+' alt="" onerror="if(!headRetry(this))this.style.display=\'none\'"></div>'
      +'<div class="id-headtext"><div class="id-nameline"><div class="id-name">'+p.name+'</div>'+trendBadge()+'</div>'
        +'<div class="id-meta">'+metaHTML+'</div>'+injHTML+sl+accoRow(curId,curSeason)+ch+'</div></div>'
     +'<div class="measur">'
@@ -3186,7 +3213,7 @@ function openTeam(t){
     html+='<div class="group-h">'+(g==='Other'?'Other':g+'s')+'</div>';
     list.forEach(function(p){
       const l=p.line||{};
-      html+='<div class="trow" data-id="'+p.id+'"><img class="rimg" src="'+headURL(p.id)+'" alt="" onerror="this.style.visibility=\'hidden\'">'
+      html+='<div class="trow" data-id="'+p.id+'"><img class="rimg" '+headSrc(p.id,curSeason,p.team)+' alt="" onerror="if(!headRetry(this))this.style.visibility=\'hidden\'">'
         +'<div style="flex:1;min-width:0"><div class="rn">'+p.name+'</div></div>'
         +'<div class="rs">'+mp(p).toFixed(1)+' MPG &middot; '+(l.ppg!=null&&!miss(l.ppg)?(+l.ppg).toFixed(1):'—')+' PPG</div></div>';
     });
@@ -3650,7 +3677,7 @@ function astCard(x,i,season){
   var why=astWhy(x,season);
   return '<button type="button" class="ast-card" data-id="'+astEsc(String(p.id))+'" style="--i:'+i+'" title="'+astEsc(why)+'" aria-label="'+astEsc(why)+'">'
     +'<span class="ast-por'+(hasImg?'':' noimg')+'"><span class="ast-pos">'+astEsc(x.pos)+'</span>'
-    +(hasImg?'<img src="'+headURL(p.id)+'" alt="" loading="lazy" decoding="async" onerror="this.parentNode.classList.add(\'noimg\');this.remove()">':'')
+    +(hasImg?'<img '+headSrc(p.id,season,p.team)+' alt="" loading="lazy" decoding="async" onerror="if(!headRetry(this)){this.parentNode.classList.add(\'noimg\');this.remove()}">':'')
     +'<span class="ast-init" aria-hidden="true">'+astEsc(astInitials(nm))+'</span></span>'
     +'<span class="ast-body">'
       +'<span class="ast-first">'+astEsc(first||' ')+'</span>'
