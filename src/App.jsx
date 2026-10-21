@@ -23,6 +23,8 @@ import NotFound from './pages/NotFound.jsx'
 
 // Private admin page: lazy, so no visitor downloads it unless they open /inbox.
 const Inbox = lazy(() => import('./pages/Inbox.jsx'))
+// Private: the Edge Lab's paper-betting test (EDGE_LAB.md). Lazy for the same reason.
+const EdgeLab = lazy(() => import('./pages/EdgeLab.jsx'))
 
 function App() {
   const { pathname } = useLocation()
@@ -64,6 +66,7 @@ function App() {
           <Route path="/dynasty" element={<Dynasty />} />
           <Route path="/analytics" element={<AnalyticsArchive />} />
           <Route path="/inbox" element={<Suspense fallback={null}><Inbox /></Suspense>} /> {/* private: contact messages + list health */}
+          <Route path="/edge" element={<Suspense fallback={null}><EdgeLab /></Suspense>} /> {/* private: Edge Lab */}
           <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
