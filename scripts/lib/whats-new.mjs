@@ -2,7 +2,7 @@
 //
 // Four sources, all automatic once they exist:
 //   - articles: every file in src/data/articles/ (its publishedAt)
-//   - videos and Shorts: the channel's public YouTube feed (no key; skipped if it can't be reached)
+//   - videos and Shorts: the channel's public YouTube feed, read live and from public/youtube-feed.json
 //   - product updates: src/data/updates.json, one line per shipped update (see PUBLISHING.md)
 //   - the next UFC card: public/ufc-savant-data.json (upcoming.cards)
 //
@@ -36,15 +36,35 @@ export function parseFeed(xml) {
     .filter(Boolean)
 }
 
-async function videos(warn) {
-  try {
-    const res = await fetch(FEED, { signal: AbortSignal.timeout(8000) })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    return parseFeed(await res.text())
-  } catch (err) {
-    warn(`whats-new: the YouTube feed was skipped (${err.message}); the banner shows everything else`)
-    return []
+// YouTube's feed is not reliable from build servers (and sometimes answers 404 for hours), so the
+// news run on the Mac also saves it to public/youtube-feed.json three times a day
+// (pipeline/news/youtube.py). Uploads come from both, live first; the file covers when the feed won't.
+async function videos(root, warn, status) {
+  const byUrl = new Map()
+  const file = path.join(root, 'public/youtube-feed.json')
+  if (fs.existsSync(file)) {
+    try {
+      const saved = JSON.parse(fs.readFileSync(file, 'utf8')).items || []
+      for (const v of saved) {
+        if (!v.url || !v.title || !v.published) continue
+        byUrl.set(v.url, { kind: v.url.includes('/shorts/') ? 'short' : 'video', date: v.published, text: v.title.replace(/\s*#shorts?\b/gi, '').trim(), href: v.url })
+      }
+      status.file = saved.length
+    } catch (err) {
+      status.file = `unreadable (${err.message})`
+    }
   }
+  try {
+    const res = await fetch(FEED, { signal: AbortSignal.timeout(8000), headers: { 'user-agent': 'Mozilla/5.0 (compatible; wcehoops-build)' } })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const live = parseFeed(await res.text())
+    for (const v of live) byUrl.set(v.href, v)
+    status.live = live.length
+  } catch (err) {
+    status.live = `skipped (${err.message})`
+    warn(`whats-new: the live YouTube feed was skipped (${err.message}); using public/youtube-feed.json`)
+  }
+  return [...byUrl.values()]
 }
 
 function articles(root) {
@@ -80,8 +100,8 @@ function nextCard(root) {
   }
 }
 
-export async function gather(root, warn = console.warn, now = Date.now()) {
-  const all = [...articles(root), ...updates(root), ...nextCard(root), ...(await videos(warn))]
+export async function gather(root, warn = console.warn, now = Date.now(), status = {}) {
+  const all = [...articles(root), ...updates(root), ...nextCard(root), ...(await videos(root, warn, status))]
   const cutoff = now - KEEP_DAYS * 864e5
   return all.filter((it) => Date.parse(it.date) >= cutoff).sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
 }
@@ -98,8 +118,9 @@ export default function whatsNew() {
     },
     async load(id) {
       if (id !== RESOLVED) return
-      const items = await gather(root, (msg) => this.warn(msg))
-      return `export default ${JSON.stringify({ generated: new Date().toISOString(), items })}`
+      const youtube = {}
+      const items = await gather(root, (msg) => this.warn(msg), Date.now(), youtube)
+      return `export default ${JSON.stringify({ generated: new Date().toISOString(), youtube, items })}`
     },
   }
 }

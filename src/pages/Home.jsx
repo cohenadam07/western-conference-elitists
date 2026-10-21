@@ -77,7 +77,7 @@ function Ticker() {
   const item =
     'font-mono-tight flex items-center gap-3 text-xs font-medium uppercase tracking-widest text-white/85 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:underline'
   return (
-    <div className="group relative overflow-hidden bg-navy py-2.5">
+    <div className="group relative overflow-hidden bg-navy py-2.5" data-youtube={`live:${WHATS_NEW.youtube?.live ?? 'n/a'} file:${WHATS_NEW.youtube?.file ?? 'n/a'}`}>
       <div
         className="animate-marquee flex w-max gap-12 whitespace-nowrap group-hover:[animation-play-state:paused] group-focus-within:[animation-play-state:paused]"
         style={{ animationDuration: `${seconds}s` }}
