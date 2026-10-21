@@ -17,8 +17,10 @@ import {
   timingSafeEqual,
   toISODate,
 } from './_lib.js';
+import { jobForSchedule, runPicks, runSettle } from './_edge.js';
 
-export const config = { maxDuration: 60 };
+// 300 s is the Hobby ceiling; the Edge Lab's picks job (Claude calls) is the one that needs it.
+export const config = { maxDuration: 300 };
 
 // Keep this many rows per dimension per day. Vercel caps `limit` at 100 and
 // buckets the tail into "Others", so 100 is the ceiling anyway.
@@ -46,6 +48,25 @@ export default async function handler(req, res) {
   }
 
   const url = new URL(req.url, 'http://localhost');
+
+  // The Edge Lab's jobs share this function so the lab costs no function slot (see
+  // api/analytics/_edge.js and EDGE_LAB.md). Its crons are told apart by the schedule header
+  // Vercel sends; a manual run passes ?job=edge-picks or ?job=edge-settle, optionally with
+  // &games=<key,key> to act on those games now, or &lead=<minutes> to widen the picks window.
+  const job = url.searchParams.get('job') || jobForSchedule(req.headers['x-vercel-cron-schedule']);
+  if (job === 'edge-picks' || job === 'edge-settle') {
+    const games = (url.searchParams.get('games') || '').split(',').map((g) => g.trim()).filter(Boolean);
+    const lead = Number(url.searchParams.get('lead')) || undefined;
+    const keys = games.length ? games : undefined;
+    res.setHeader('Cache-Control', 'private, no-store');
+    try {
+      const out = job === 'edge-picks' ? await runPicks({ lead, keys }) : await runSettle({ keys });
+      return res.status(out.ok ? 200 : 500).json(out);
+    } catch (err) {
+      return res.status(500).json({ ok: false, job, error: String(err?.message || err) });
+    }
+  }
+
   const requested = parseInt(url.searchParams.get('days') || '', 10);
   const lookback = Math.min(
     Math.max(Number.isFinite(requested) ? requested : DEFAULT_LOOKBACK, 1),

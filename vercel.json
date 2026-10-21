@@ -536,6 +536,62 @@
     {
       "path": "/api/analytics/snapshot",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 15 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 16 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 17 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 18 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 19 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 21 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 22 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 23 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 11 * * *"
     }
   ]
 }

@@ -19,6 +19,7 @@ import {
   toHash,
 } from './_lib.js';
 import { readUsage } from '../_usage.js';
+import { readEdge } from './_edge.js';
 
 export const config = { maxDuration: 30 };
 
@@ -36,6 +37,18 @@ export default async function handler(req, res) {
   }
 
   const url = new URL(req.url, 'http://localhost');
+
+  // The Edge Lab page (/edge) reads through here, behind the same password.
+  if (url.searchParams.get('section') === 'edge') {
+    try {
+      const from = isDate(url.searchParams.get('from')) ? url.searchParams.get('from') : null;
+      res.setHeader('Cache-Control', 'private, no-store');
+      return res.status(200).json(await readEdge({ from }));
+    } catch (err) {
+      return res.status(500).json({ error: String(err?.message || err) });
+    }
+  }
+
   const from = isDate(url.searchParams.get('from')) ? url.searchParams.get('from') : null;
   const to = isDate(url.searchParams.get('to')) ? url.searchParams.get('to') : null;
   const wantDims = (url.searchParams.get('dims') || '')
