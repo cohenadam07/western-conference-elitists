@@ -411,14 +411,21 @@ export async function allSavantTeam({ season, team = 'both' }) {
   let seasonId = parseSeason(season, meta)
   let file
   const notes = []
+  const full = (f) => Array.isArray(f.all_savant) && f.all_savant.length === 2 && f.all_savant.every((t) => t.length === 5)
   if (!seasonId) {
-    seasonId = meta.latestSeason
-    file = await loadSeason(seasonId)
-    if (file.in_progress && seasonGames(file) < AST_MIN_GAMES && meta.seasons[1]) {
-      notes.push(`${seasonId} has only just started (teams have played about ${seasonGames(file)} games), so this is ${meta.seasons[1]}, the last full season. Ask for ${seasonId} by name to see the team so far.`)
-      seasonId = meta.seasons[1]
-      file = await loadSeason(seasonId)
+    // The page's rule: the newest season with two full teams, skipping one in its first games.
+    for (const s of meta.seasons) {
+      const f = await loadSeason(s)
+      if (f.in_progress && seasonGames(f) < AST_MIN_GAMES) {
+        notes.push(`${s} has only just started (teams have played about ${seasonGames(f)} games), so this is the last full season. Ask for ${s} by name to see the team so far.`)
+        continue
+      }
+      if (!full(f)) continue
+      seasonId = s
+      file = f
+      break
     }
+    if (!seasonId) throw new SavantError('No season has a full All-Savant Team yet.')
   } else file = await loadSeason(seasonId)
   if (!file.all_savant) throw new SavantError(`No All-Savant Team for ${seasonId}.`)
   const byId = new Map(file.players.map((p) => [String(p.id), p]))

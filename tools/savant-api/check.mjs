@@ -425,7 +425,7 @@ test('every season carries the page\'s All-Savant teams and a value for every ra
     for (const row of file.players) {
       const v = res.get(row.id)
       if (!v) { assert.equal(row.sv, undefined, `${season} ${row.name}`); continue }
-      assert.ok(Math.abs(row.sv[0] - v.value) <= 0.05 + 1e-9, `${season} ${row.name} value`)
+      assert.equal(row.sv[0], Math.round(v.value), `${season} ${row.name} value, rounded as the page prints it`)
       assert.equal(row.sv[2] == null, !v.q, `${season} ${row.name} rank only when qualified`)
     }
   }

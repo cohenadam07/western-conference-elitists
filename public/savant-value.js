@@ -119,7 +119,7 @@
       var floor = 0;
       if (r.ooDm != null && K != null) {
         var w = onoffW(r);
-        floor = w / (w + K) * (r.ooDm - (full + g * r.msDm));
+        floor = w / (w + K) * (r.ooDm - (model.intercept + full + g * r.msDm));
       }
       Object.keys(parts).forEach(function (k) { parts[k] *= sc; });
       parts.floor = sc * floor;

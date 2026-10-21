@@ -12,22 +12,26 @@ box fit on 6498 player-seasons (2009-10 to 2024-25, 250+ minutes)
   blk    +0.6704  (Blocks per 100)
   minutes-share control +0.0994 per point of share (left out of every rate)
 credit (share of each stat that follows a player to a new team, 1,500+ possessions both years):
-  sceff 0.79, usg 0.87, tp3r 0.97, ftr 0.94, ast 0.89, tov 0.89, oreb 0.95, dreb 0.93, stl 0.91, blk 0.95
-K (all, 5311 pairs): 2263  next-season MSE 23.376 vs box only 24.730
-K (changed, 1959 pairs): 6400  next-season MSE 24.515 vs box only 24.807
-K (stayed, 3352 pairs): 1600  next-season MSE 22.477 vs box only 24.689
+  sceff 0.79, usg 0.87, tp3r 0.96, ftr 0.94, ast 0.88, tov 0.88, oreb 0.95, dreb 0.93, stl 0.91, blk 0.95
+K (all, 4954 pairs): 3200  next-season MSE 23.771 vs box only 24.850
+K (changed, 1831 pairs): 6400  next-season MSE 24.687 vs box only 25.017
+K (stayed, 3123 pairs): 2263  next-season MSE 23.091 vs box only 24.761
 using the team-changers K (more cautious): 6400
-team check (210 team-seasons): slope 0.993, r 0.795 -> every rate x 0.993
+team check (210 team-seasons): slope 1.019, r 0.792 -> every rate x 1.019
 
 NEXT-SEASON CHECK (corr with next season on/off, minutes-weighted)
-  fit seasons                    all            n=5211  ours 0.390 | box part 0.351 | BPM 0.325 | raw on/off 0.345
-  fit seasons                    changed teams  n=1922  ours 0.252 | box part 0.232 | BPM 0.191 | raw on/off 0.186
-  2024-25 -> 2025-26 (holdout)   all            n= 352  ours 0.348 | box part 0.317 | BPM 0.290 | raw on/off 0.287
-  2024-25 -> 2025-26 (holdout)   changed teams  n= 116  ours 0.132 | box part 0.180 | BPM 0.114 | raw on/off -0.012
+  fit seasons                    all            raw next on/off   n=4859  rate 0.440 | value 0.456 | box part 0.405 | BPM 0.412 | raw on/off 0.406
+  fit seasons                    all            adj. next on/off  n=4859  rate 0.393 | value 0.391 | box part 0.353 | BPM 0.327 | raw on/off 0.349
+  fit seasons                    changed teams  raw next on/off   n=1794  rate 0.306 | value 0.319 | box part 0.287 | BPM 0.285 | raw on/off 0.256
+  fit seasons                    changed teams  adj. next on/off  n=1794  rate 0.261 | value 0.256 | box part 0.237 | BPM 0.198 | raw on/off 0.199
+  2024-25 -> 2025-26 (holdout)   all            raw next on/off   n= 352  rate 0.370 | value 0.385 | box part 0.343 | BPM 0.351 | raw on/off 0.331
+  2024-25 -> 2025-26 (holdout)   all            adj. next on/off  n= 352  rate 0.348 | value 0.336 | box part 0.317 | BPM 0.290 | raw on/off 0.287
+  2024-25 -> 2025-26 (holdout)   changed teams  raw next on/off   n= 116  rate 0.158 | value 0.162 | box part 0.204 | BPM 0.178 | raw on/off 0.037
+  2024-25 -> 2025-26 (holdout)   changed teams  adj. next on/off  n= 116  rate 0.132 | value 0.114 | box part 0.180 | BPM 0.114 | raw on/off -0.012
 
 ALL-NBA OVERLAP (sanity check, never a target) - our 1st+2nd teams vs real 1st/2nd/3rd
   2015-16  1st on real 1st 3/5 · ours on real 1st/2nd  8/10 · on any All-NBA  8/10   1st: Stephen Curry, Chris Paul, LeBron James, Draymond Green, DeAndre Jordan
-  2016-17  1st on real 1st 2/5 · ours on real 1st/2nd  7/10 · on any All-NBA  8/10   1st: Stephen Curry, James Harden, LeBron James, Giannis Antetokounmpo, Nikola Jokić
+  2016-17  1st on real 1st 2/5 · ours on real 1st/2nd  6/10 · on any All-NBA  7/10   1st: Stephen Curry, James Harden, LeBron James, Giannis Antetokounmpo, Nikola Jokić
   2017-18  1st on real 1st 3/5 · ours on real 1st/2nd  5/10 · on any All-NBA  9/10   1st: James Harden, Stephen Curry, LeBron James, Giannis Antetokounmpo, Anthony Davis
   2018-19  1st on real 1st 4/5 · ours on real 1st/2nd  9/10 · on any All-NBA  9/10   1st: James Harden, Stephen Curry, Giannis Antetokounmpo, Paul George, Anthony Davis
   2019-20  1st on real 1st 3/5 · ours on real 1st/2nd  9/10 · on any All-NBA 10/10   1st: James Harden, Damian Lillard, Giannis Antetokounmpo, LeBron James, Nikola Jokić

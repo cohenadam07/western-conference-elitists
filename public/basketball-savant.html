@@ -669,7 +669,8 @@ body.home-open .wrap{display:none}
    portrait cards; on phones the row swipes. The only motion is the swap when the 1st/2nd
    team toggle is pressed. */
 body.home-open .home{padding-bottom:64px}
-.ast{position:relative;z-index:2;width:min(1040px,100%);margin:50px auto 4px;text-align:center;
+/* z-index 1, under .home-inner (2): the search results drop down over this section */
+.ast{position:relative;z-index:1;width:min(1040px,100%);margin:50px auto 4px;text-align:center;
   opacity:0;animation:home-rise .85s .5s cubic-bezier(.2,.7,.2,1) forwards}
 .ast[hidden]{display:none}
 .ast-title{font-family:var(--disp);font-weight:600;font-size:clamp(26px,3.3vw,34px);line-height:1.1;
@@ -884,6 +885,7 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
       </div>
       <label class="ast-season"><span class="sr-only">Season</span><select id="astSeason" aria-label="Season"></select></label>
     </div>
+    <p class="sr-only" id="astLive" aria-live="polite"></p>
     <div class="ast-row" id="astRow"></div>
     <p class="ast-note" id="astNote" hidden></p>
     <button type="button" class="ast-how" id="astHow" aria-expanded="false" aria-controls="astExpl">How the team is picked</button>
@@ -2011,7 +2013,7 @@ const EXPL={
  perim:{"what": "Perimeter Assignment Rate: the share of his defensive matchups spent on guards. Role, not ability: scheme drives much of it, and assignment is least reliable during switches.", "formula": "Perimeter rate = possessions guarding guards ÷ all matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup tracking, 2017-18 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
  contest:{"what": "Rim Contest Rate: of the shots he defended as the closest defender, the share taken within 6 feet. High marks a back-line, rim-anchoring role.", "formula": "Contest rate = shots defended within 6 ft ÷ all shots defended", "source": "NBA.com stats (stats.nba.com) player tracking (defense), 2013-14 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
  rimpm:{"what": "Rim FG% Allowed vs Expected: how shooters at the rim finished against him versus their normal rate. Inverted, so holding shooters down ranks higher. Ranked among bigs only.", "formula": "Rim FG% vs. expected = opponents' FG% within 6 ft vs. him − their usual FG% within 6 ft", "source": "NBA.com stats (stats.nba.com) player tracking (defense), 2013-14 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
- allsavant:{"what": "The All-Savant Team is our All-NBA team, picked by the numbers alone: two guards, two wings and a big per team, each the highest Savant value at his position among qualified players. A player makes one team only. Savant value is the points he added to his team this season above a replacement-level player at his position, on the stats that are his own and the possessions he played.", "formula": "Value = (rate - replacement rate) x possessions / 100. Rate = points per 100 possessions vs. an average player at his position: efficiency on his own shots, usage, 3-point and free-throw rate, assist %, turnovers, rebound % at both ends, steals and blocks, each pulled toward the position average by its settle point, times what it is worth in luck-adjusted on/off, times the share of it that follows a player to a new team (0.79 for shooting efficiency to 0.97 for 3-point rate). From 2009-10 the rate then moves toward his own luck-adjusted on/off by minutes / (minutes + 6,400). Replacement = the 25th-percentile qualified player at his position that season.", "source": "NBA.com stats (stats.nba.com); Basketball Reference before 1996-97. Positions as on his card. Worth learned on 6,498 player-seasons (2009-10 to 2024-25, 2025-26 held out) by tools/savant-value/value.py; the numbers are in savant-value.json.", "sample": "Missed games cost him: he adds nothing on nights he doesn't play. Out of sample, this season's value predicts next season's on/off better than BPM (correlation .35 vs .29 on 2025-26, held out). Checked against the real All-NBA, never tuned to it: since 1988-89, 63% of our first and second teamers made the real first or second team, 75% made an All-NBA team. Before 2009-10 there is no on/off, so defense counts only through steals, blocks and rebounds. Early in a season the team moves a lot; it settles as possessions pile up."},
+ allsavant:{"what": "The All-Savant Team is our All-NBA team, picked by the numbers alone: two guards, two wings and a big per team, each the highest Savant value at his position among qualified players. A player makes one team only. Savant value is the points he added to his team this season above a replacement-level player at his position, on the stats that are his own and the possessions he played.", "formula": "Value = (rate - replacement rate) x possessions / 100. Rate = points per 100 possessions vs. an average player at his position: efficiency on his own shots, usage, 3-point and free-throw rate, assist %, turnovers, rebound % at both ends, steals and blocks, each pulled toward the position average by its settle point, times what it is worth in luck-adjusted on/off, times the share of it that follows a player to a new team (0.79 for shooting efficiency to 0.96 for 3-point rate). From 2009-10 the rate also takes in part of what his luck-adjusted on/off says beyond the box score and his minutes: weight w / (w + 6,400), w = 1 / (1/minutes on + 1/team minutes without him), about 13% for a full-time starter. Replacement = the 25th-percentile qualified player at his position that season.", "source": "NBA.com stats (stats.nba.com); Basketball Reference before 1996-97. Positions as on his card. Worth learned on 6,498 player-seasons (2009-10 to 2024-25, 2025-26 held out) by tools/savant-value/value.py; the numbers are in savant-value.json.", "sample": "Missed games cost him: he adds nothing on nights he doesn't play. On the held-out 2025-26 season, a player's 2024-25 rate correlated .37 with his 2025-26 luck-adjusted on/off; BPM .35. Checked against the real All-NBA, never tuned to it: since 1988-89, 63% of our first and second teamers made the real first or second team, 75% made an All-NBA team. Before 2009-10 there is no on/off, so defense counts only through steals, blocks and rebounds. Early in a season the team moves a lot; it settles as possessions pile up."},
  pj_method:{"what": "How the projections work: one model behind every Fantasy number, the projection panel on the card and the connector.", "formula": "Marcel-style: last three seasons weighted 5/4/3 by minutes, regressed to position average by each stat's measured settle point, aged with curves fitted on prior seasons only. In season: blended with this season at the same settle point; minutes from 60% last 10 games + 40% season. Rookies: recent rookies' rates by position and minutes by draft slot (1-5: 26, 6-14: 19, 15-30: 17, 31-60: 11, undrafted: 12).", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). NBA.com stats (stats.nba.com) game logs; injury designations from Sleeper's public API (api.sleeper.app), read in your browser; nothing about your league is sent to us.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
  pj_min:{"what": "Projected minutes per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute minutes rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
  pj_pts:{"what": "Projected points per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute points rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
@@ -3645,9 +3647,19 @@ function astCard(x,i,season){
 }
 function astOpen(id,season){                          // leave home -> that player, in that season
   try{ history.pushState({app:1},'',location.pathname+location.search+'#p'); }catch(e){}
+  AST.back={season:curSeason};                        // Back returns to the team, in the season the app was on
   hideHome();
   if(curSeason!==season){ curSeason=season; fillRoster(); }
   selectPlayer(asId(id));
+}
+/* Coming home from a card opened here: put the app's season back (so a search from home
+   opens his newest season, not the old one this card was in) and the reader back at the team. */
+function astReturn(){
+  var b=AST.back; if(!b) return;
+  AST.back=null;
+  if(b.season&&curSeason!==b.season&&DATA.data[b.season]){ curSeason=b.season; fillRoster(); }
+  var box=document.getElementById('homeAST');
+  if(box&&!box.hidden) setTimeout(function(){ try{ box.scrollIntoView({block:'start'}); }catch(e){} },30);
 }
 function renderAST(swap){
   var box=document.getElementById('homeAST'); if(!box) return;
@@ -3677,8 +3689,10 @@ function renderAST(swap){
     row.scrollLeft=0;
     row.querySelectorAll('.ast-card').forEach(function(b){ b.onclick=function(){ astOpen(b.dataset.id,season); }; });
   }
+  if(swap){ var lv=document.getElementById('astLive'); if(lv) lv.textContent=(AST.team?'2nd':'1st')+' team, '+season+': '
+    +five.map(function(x){return x.p.name;}).join(', ')+'.'; }
   var note=document.getElementById('astNote'), cs=DATA.current&&DATA.current.season;
-  if(cs&&cs!==season&&!AST.userSeason&&DATA.data[cs]){
+  if(cs&&cs!==season&&!AST.userSeason&&DATA.data[cs]&&astSeasonGames(cs)<AST_MIN_GAMES){
     note.textContent='The '+cs+' team takes over once teams have played '+AST_MIN_GAMES+' games. Pick '+cs+' above to see it so far.';
     note.hidden=false;
   } else note.hidden=true;
@@ -3704,14 +3718,14 @@ function showHome(){                                 // switch to the home VIEW 
   document.body.classList.remove('lb-open'); if(window.svClear) window.svClear();
   document.body.classList.add('home-open');
   loadTrending();
-  try{ wireAST(); renderAST(false); }catch(e){ var a=document.getElementById('homeAST'); if(a) a.hidden=true; }
+  try{ wireAST(); renderAST(false); astReturn(); }catch(e){ var a=document.getElementById('homeAST'); if(a) a.hidden=true; }
   window.scrollTo(0,0);
   const r=document.getElementById('homeResults'); if(r){ r.hidden=true; r.innerHTML=''; }
   const q=document.getElementById('homeq');
   if(q){ q.value='';
     // don't auto-focus on touch devices — it pops the keyboard over the trending chips
     if(window.matchMedia&&window.matchMedia('(hover:hover) and (pointer:fine)').matches){
-      setTimeout(function(){try{q.focus();}catch(e){}},420); } }
+      setTimeout(function(){try{q.focus({preventScroll:true});}catch(e){}},420); } }
 }
 function hideHome(){ document.body.classList.remove('home-open'); if(window.svClear) window.svClear(); window.scrollTo(0,0); }
 function goHome(){                                  // header wordmark -> home (keep history sane)

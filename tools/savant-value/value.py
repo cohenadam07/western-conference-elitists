@@ -78,6 +78,14 @@ FEAT_LABEL = {
 }
 FEATS = [f for _, _, fs in PARTS for f in fs]
 
+# A franchise that moved is not a player who changed teams.
+FRANCHISE = {'KCK': 'SAC', 'SEA': 'OKC', 'NJN': 'BKN', 'NOH': 'NOP', 'NOK': 'NOP', 'CHH': 'NOP',
+             'VAN': 'MEM', 'SDC': 'LAC', 'WSB': 'WAS', 'PHO': 'PHX'}
+
+
+def moved(a, b):
+    return FRANCHISE.get(a, a) != FRANCHISE.get(b, b)
+
 
 # --------------------------------------------------------------------------- loading
 def sv(p, k):
@@ -95,7 +103,11 @@ def pos_fix():
     for name in ('POS_FIX_ID', 'POS_FIX_NAME'):
         m = re.search(r'const %s\s*=\s*(\{[^;]*\});' % name, html)
         body = m.group(1) if m else '{}'
-        pairs = re.findall(r"""['"]?([^'":,{}\s]+(?:\s[^'":,{}]+)*)['"]?\s*:\s*['"](\w+)['"]""", body)
+        # a small object literal: tokenise it (quoted strings keep any apostrophes inside), then
+        # read key : value pairs. Bare numeric ids (1629029) and quoted names both work.
+        toks = re.findall(r"""'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|[^\s{}:,'"]+|[{}:,]""", body)
+        unq = lambda t: t[1:-1].replace("\\'", "'").replace('\\"', '"') if t[:1] in "'\"" else t
+        pairs = [(unq(toks[i - 1]), unq(toks[i + 1])) for i, t in enumerate(toks) if t == ':' and 0 < i < len(toks) - 1]
         out[name] = {k.strip(): v for k, v in pairs}
     def norm(s):
         return ''.join(c for c in unicodedata.normalize('NFD', (s or '').lower()) if unicodedata.category(c) != 'Mn')
@@ -294,12 +306,13 @@ def rate_of(r, beta, feats, K, gamma, credit=None):
     if r['oo_dm'] is None or K is None:
         return p, 0.0
     w = onoff_w(r)
-    expect = prior_of(r, beta, feats) + gamma * r['ms_dm']
+    expect = beta[0] + prior_of(r, beta, feats) + gamma * r['ms_dm']
     sh = w / (w + K)
     return p + sh * (r['oo_dm'] - expect), sh * (r['oo_dm'] - expect)
 
 
 def measure_credit(S, seasons, min_poss=1500):
+    moved_ = moved
     """Year-to-year carry-over of each stat for players who changed teams, over players who
     stayed (same position both years, possession-weighted). A stat that doesn't follow a
     player to a new team is partly his team's; capped at 1. Measured on every season the
@@ -307,7 +320,7 @@ def measure_credit(S, seasons, min_poss=1500):
     out = {}
     for f in FEATS:
         res = {}
-        for moved in (False, True):
+        for changed in (False, True):
             a, b, w = [], [], []
             for s in S:
                 n = next_season(s)
@@ -318,12 +331,12 @@ def measure_credit(S, seasons, min_poss=1500):
                     if not r.get('x') or r['poss'] < min_poss or r['id'] not in nx:
                         continue
                     m = nx[r['id']]
-                    if m['pos'] != r['pos'] or (r['team'] != m['team']) != moved:
+                    if m['pos'] != r['pos'] or moved_(r['team'], m['team']) != changed:
                         continue
                     a.append(r['x'][f]); b.append(m['x'][f]); w.append(min(r['poss'], m['poss']))
             a, b, w = map(np.array, (a, b, w))
             ma, mb = (a * w).sum() / w.sum(), (b * w).sum() / w.sum()
-            res[moved] = (w * (a - ma) * (b - mb)).sum() / math.sqrt((w * (a - ma) ** 2).sum() * (w * (b - mb) ** 2).sum())
+            res[changed] = (w * (a - ma) * (b - mb)).sum() / math.sqrt((w * (a - ma) ** 2).sum() * (w * (b - mb) ** 2).sum())
         out[f] = min(1.0, max(0.0, res[True] / res[False]))
     return out
 
@@ -341,7 +354,7 @@ def fit_K(S, beta, feats, seasons, credit=None):
     pairs = []
     for s in seasons:
         n = next_season(s)
-        if n not in S:
+        if n not in S or n > FIT_LAST:      # the held-out season is never a target
             continue
         nxt = {r['id']: r for r in S[n] if r.get('x') and r['oo_dm'] is not None and r['min'] >= MIN_FIT_MIN}
         for r in S[s]:
@@ -352,12 +365,12 @@ def fit_K(S, beta, feats, seasons, credit=None):
                 continue
             # next season's on/off, with its own minutes-share flattery taken out
             target = m['oo_dm'] - gamma * m['ms_dm']
-            pairs.append((r, target, onoff_w(m), r['team'] != m['team']))
+            pairs.append((r, target, onoff_w(m), moved(r['team'], m['team']), m['oo_dm']))
     grid = [None] + [100 * 2 ** (i / 2) for i in range(0, 22)]
 
     def err(K, sub):
         num = den = 0.0
-        for r, t, w, _ in sub:
+        for r, t, w, _, _ in sub:
             rt, _ = rate_of(r, beta, feats, K, gamma, credit)
             num += w * (t - rt) ** 2
             den += w
@@ -558,28 +571,29 @@ def validate(S, model, pairs):
         cov = (w * (a - ma) * (b - mb)).sum()
         return cov / math.sqrt((w * (a - ma) ** 2).sum() * (w * (b - mb) ** 2).sum())
 
-    for label, keep in [('fit seasons', lambda s: s < HOLDOUT), ('2024-25 -> 2025-26 (holdout)', lambda s: s == '2024-25')]:
-        sub = [p for p in pairs if keep(p[0]['season'])]
-        if label.startswith('2024'):
-            # pairs only covers fit seasons -> build the holdout pair set
-            sub = []
-            nxt = {r['id']: r for r in S.get(HOLDOUT, []) if r.get('x') and r['oo_dm'] is not None and r['min'] >= MIN_FIT_MIN}
-            for r in S.get('2024-25', []):
-                if r.get('x') and r['oo_dm'] is not None and r['min'] >= MIN_FIT_MIN and r['id'] in nxt and nxt[r['id']]['pos'] == r['pos']:
-                    m = nxt[r['id']]
-                    sub.append((r, m['oo_dm'] - model['gamma'] * m['ms_dm'], onoff_w(m), r['team'] != m['team']))
+    # Two targets: next season's raw luck-adjusted on/off (no model in it), and the same with
+    # next season's minutes-share flattery taken out (the target K was fitted on).
+    hold = []
+    nxt = {r['id']: r for r in S.get(HOLDOUT, []) if r.get('x') and r['oo_dm'] is not None and r['min'] >= MIN_FIT_MIN}
+    for r in S.get('2024-25', []):
+        if r.get('x') and r['oo_dm'] is not None and r['min'] >= MIN_FIT_MIN and r['id'] in nxt and nxt[r['id']]['pos'] == r['pos']:
+            m = nxt[r['id']]
+            hold.append((r, m['oo_dm'] - model['gamma'] * m['ms_dm'], onoff_w(m), moved(r['team'], m['team']), m['oo_dm']))
+    for label, sub in [('fit seasons', pairs), ('2024-25 -> 2025-26 (holdout)', hold)]:
         for nm, cond in [('all', lambda p: True), ('changed teams', lambda p: p[3])]:
             ss = [p for p in sub if cond(p) and p[0]['bpm'] is not None]
             if len(ss) < 20:
                 continue
-            t = [p[1] for p in ss]
             w = [p[2] for p in ss]
-            ours = [p[0]['rate'] for p in ss]
-            box = [model['scale'] * prior_of(p[0], beta, feats, model['credit']) for p in ss]
-            bpm = [p[0]['bpm'] for p in ss]
-            raw = [p[0]['oo_dm'] for p in ss]
-            rep.append('  %-30s %-14s n=%4d  ours %.3f | box part %.3f | BPM %.3f | raw on/off %.3f'
-                       % (label, nm, len(ss), wcorr(ours, t, w), wcorr(box, t, w), wcorr(bpm, t, w), wcorr(raw, t, w)))
+            cols = [('rate', [p[0]['rate'] for p in ss]),
+                    ('value', [p[0]['value'] for p in ss]),
+                    ('box part', [model['scale'] * prior_of(p[0], beta, feats, model['credit']) for p in ss]),
+                    ('BPM', [p[0]['bpm'] for p in ss]),
+                    ('raw on/off', [p[0]['oo_dm'] for p in ss])]
+            for tname, ti in [('raw next on/off', 4), ('adj. next on/off', 1)]:
+                t = [p[ti] for p in ss]
+                rep.append('  %-30s %-14s %-17s n=%4d  ' % (label, nm, tname, len(ss))
+                           + ' | '.join('%s %.3f' % (cn, wcorr(cv, t, w)) for cn, cv in cols))
 
     # sanity check only - never a target
     html = open(os.path.join(PUB, 'basketball-savant.html')).read()

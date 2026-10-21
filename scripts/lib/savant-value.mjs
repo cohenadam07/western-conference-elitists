@@ -17,8 +17,10 @@ export function readValueModel(publicDir) {
   return existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : null
 }
 
-const r1 = (v) => Math.round(v * 10) / 10
-const r2 = (v) => Math.round(v * 100) / 100
+// Stored the way the page prints them, so the connector and the cards never differ by a
+// rounding: value as the page's Math.round, per-100 numbers as its sign + abs().toFixed(1).
+const asPageInt = (v) => Math.round(v)
+const asPage1 = (v) => (v < 0 ? -1 : 1) * Number(Math.abs(v).toFixed(1)) || 0
 
 /**
  * Value for every player of one season, and the two teams.
@@ -38,7 +40,7 @@ export function seasonValue(players, model) {
   const byId = new Map()
   for (const [id, v] of res) {
     const rk = rankOf.get(id)
-    byId.set(id, [r1(v.value), r2(v.rate), rk ? rk[0] : null, keys.map((k) => r2(v.parts[k] || 0))])
+    byId.set(id, [asPageInt(v.value), asPage1(v.rate), rk ? rk[0] : null, keys.map((k) => asPage1(v.parts[k] || 0))])
   }
   const count = {}
   for (const pos of SV.POSITIONS) count[pos] = [...res.values()].filter((v) => v.q && v.pos === pos).length
@@ -49,9 +51,9 @@ export function seasonValue(players, model) {
 export function valueMeta(model) {
   return {
     what: 'Savant value: the points a player added to his team that season above a replacement-level player at his position (Guard, Wing, Big), on the stats that are his own and the possessions he played. Missed games cost him. The All-Savant Team is the highest value at two guard, two wing and one big spot, a 1st team and a 2nd, qualified players only, one team per player.',
-    how: 'Rate = points per 100 possessions vs. an average player at his position, from box stats (shooting efficiency, usage, 3-point and free-throw rate, assist %, turnovers, rebound % at both ends, steals, blocks), each pulled toward the position average by its settle point and weighted by what it is worth in luck-adjusted on/off (learned on 2009-10 to 2024-25) and by the share of it that follows a player to a new team. From 2009-10 the rate moves toward his own luck-adjusted on/off by minutes / (minutes + K). Value = (rate - the 25th-percentile qualified rate at his position) x possessions / 100.',
-    checks: 'Out of sample it predicts next-season on/off better than BPM. Checked against the real All-NBA, never tuned to it: since 1988-89, 63% of our 1st and 2nd teamers made the real 1st or 2nd team.',
-    row: 'sv: [points over replacement, points per 100 vs. an average player at his position, rank among qualified players at his position (null if not qualified), parts per 100 in the order of parts].',
+    how: 'Rate = points per 100 possessions vs. an average player at his position, from box stats (shooting efficiency, usage, 3-point and free-throw rate, assist %, turnovers, rebound % at both ends, steals, blocks), each pulled toward the position average by its settle point and weighted by what it is worth in luck-adjusted on/off (learned on 2009-10 to 2024-25) and by the share of it that follows a player to a new team. From 2009-10 the rate also takes in part of what his luck-adjusted on/off says beyond the box score: weight w / (w + K), w = 1 / (1/minutes on + 1/team minutes without him), about 13% for a full-time starter. Value = (rate - the 25th-percentile qualified rate at his position) x possessions / 100.',
+    checks: 'On the held-out 2025-26 season, a player\'s 2024-25 rate correlated .37 with his 2025-26 luck-adjusted on/off; BPM .35. Checked against the real All-NBA, never tuned to it: since 1988-89, 63% of our 1st and 2nd teamers made the real 1st or 2nd team.',
+    row: 'sv: [points over replacement (whole points), points per 100 vs. an average player at his position (one decimal), rank among qualified players at his position (null if not qualified), parts per 100 in the order of parts (one decimal)]. Rounded exactly as the page prints them.',
     season: 'all_savant: [1st team ids, 2nd team ids], each guard, guard, wing, wing, big. value_count: qualified players at each position.',
     parts: model.parts.map((p) => ({ key: p.key, label: p.label })),
     K: model.K,
