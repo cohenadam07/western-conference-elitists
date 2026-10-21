@@ -1,6 +1,8 @@
 # Basketball Savant — The All-Savant Team (built Oct 20, 2026)
 
-Our All-NBA team picked by analytics only, on the Basketball Savant landing page, modeled on Football Savant's All-Savant Team. Built as **Basketball Savant v2.2.0** on branch `all-savant-basketball` (main merged in). Status: **pushed, Vercel preview built, not merged** — waiting on Adam's OK. Merging also turns on the connector tool (a preview's connector reads production files).
+Our All-NBA team picked by analytics only, on the Basketball Savant landing page, modeled on Football Savant's All-Savant Team. Built as **Basketball Savant v2.2.0** on branch `all-savant-basketball`. Status: **merged to main Oct 20, 2026 (`7066ce1`), live.** The full method is in `claude/savant-value-how-its-calculated.md`.
+
+**Honours (Oct 20, Adam's ask, `224d40c`):** players who finish a season on the 1st or 2nd team carry "All-Savant 1st/2nd" with that season's honours: on the card, career-arc tips, share image, and the static player pages (header, season table, link-preview card). A season in progress shows none until its teams have played 82; the connector calls it a standing ("so far", `all_savant_final: false`). Codes `ast1`/`ast2` in ACC_ORDER/ACC_SHORT; `astHonour()` on the page, the same in `scripts/lib/savant-core.mjs`.
 
 ## Adam's decisions (Oct 20)
 1. Picked on our own **Savant value** (not BPM/VORP, not a profile score).
