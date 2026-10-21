@@ -45,6 +45,7 @@ import { writeSiteApi } from './savant-api-site.mjs'
 import { writeUfcApi } from './savant-api-ufc.mjs'
 import { readSavantData } from './savant-merge.mjs'
 import { makeSettle, readSettleK } from './savant-settle.mjs'
+import { readValueModel, seasonValue, valueMeta } from './savant-value.mjs'
 
 export const SITE = 'https://wcehoops.com'
 export const BASE = 'savant-api/basketball/v1'
@@ -226,7 +227,7 @@ function stats(p, season, metrics, pool, w) {
 
 const sampleOf = (p, key) => { const c = cell(p, key, 'season'); return c && c.n != null ? c.n : null }
 
-export function buildSavantApi({ data, html }) {
+export function buildSavantApi({ data, html, valueModel = null }) {
   const { cfg, posFixId, posFixName, explain } = readPageConfig(html)
   if (!Array.isArray(data.seasons) || !data.data) throw new Error('savant-data.json: expected { seasons, data }')
   const metrics = cfg.metrics
@@ -245,6 +246,8 @@ export function buildSavantApi({ data, html }) {
     const src = (data.data[season] || {}).players || []
     // Position corrections first: they move players between pools.
     const players = src.map((p) => ({ ...p, pos: posOf(p) }))
+    // Savant value and the All-Savant Team: the page's own savant-value.js, on the same rows.
+    const sv = valueModel ? seasonValue(players, valueModel) : null
     const isLatest = season === latest
     const windows = isLatest ? cfg.windows : ['season']
     const pool = {}
@@ -268,6 +271,7 @@ export function buildSavantApi({ data, html }) {
         m: full.m,
       }
       if (full.low.length) row.low = full.low
+      if (sv && sv.byId.has(p.id)) row.sv = sv.byId.get(p.id)
       if (season === settle.live) {
         const est = {}
         for (const mt of metrics) {
@@ -313,6 +317,7 @@ export function buildSavantApi({ data, html }) {
       // the date of the last game in the data. Finished seasons carry neither.
       ...(data.qualify && data.qualify[season] ? { qualify: data.qualify[season] } : {}),
       ...(data.current && data.current.season === season ? { in_progress: true, through: data.current.through || null } : {}),
+      ...(sv ? { all_savant: sv.teams, value_count: sv.count } : {}),
       players: rows,
     }
   }
@@ -378,6 +383,7 @@ export function buildSavantApi({ data, html }) {
       role: 'Inferred Defensive Role, bigs only. perim is Perimeter Assignment Rate, contest is Rim Contest Rate, rimpm is Rim FG% Allowed vs Expected (lower is better). poss is matchup possessions, dfga shots defended. It reflects role, not ability: team scheme drives much of it, and matchup data is least reliable during switches.',
     },
     weakness: cfg.weakness || null,
+    ...(valueModel ? { savant_value: valueMeta(valueModel) } : {}),
   }
 
   const players = {
@@ -401,6 +407,7 @@ export function writeSavantApi({ publicDir, dist }) {
   const out = buildSavantApi({
     data: readSavantData(publicDir), // the archive, with the season in progress laid over it
     html: readFileSync(pageFile, 'utf8'),
+    valueModel: readValueModel(publicDir),
   })
 
   // Build everything before touching dist, so a failure leaves nothing half-written.

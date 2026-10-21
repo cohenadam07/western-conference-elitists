@@ -257,6 +257,10 @@ export async function playerProfile({ player, season, window = 'season', group =
     source: 'Basketball Savant, Western Conference Elitists (wcehoops.com)',
   }
 
+  // Savant value and the All-Savant Team (full season only; savant-value.js on the page).
+  const sv = window === 'season' && row.sv && meta.savant_value ? savantValueOf(row, file, meta) : null
+  if (sv) structured.savant_value = sv
+
   // ---- the same thing in words ----
   const L = []
   L.push(`${row.name} (${row.team}, ${row.pos}), ${seasonId}, ${WINDOW_TEXT[window]}`)
@@ -309,6 +313,7 @@ export async function playerProfile({ player, season, window = 'season', group =
     L.push('', notes[notes.length - 1])
   }
   if (notTracked.length) L.push('', `Not tracked in ${seasonId}: ${notTracked.map((m) => `${m.label} (since ${m.since})`).join(', ')}.`)
+  if (sv) L.push('', savantValueText(row, sv, seasonId, peers))
 
   // Season facts the card shows under the bars. Latest season, players over the minutes floor.
   if (window === 'season' && group === 'all') {
@@ -353,6 +358,109 @@ export async function playerProfile({ player, season, window = 'season', group =
   }
 
   L.push('', `Card: ${structured.url}`, `Source: ${structured.source}. Data as of ${structured.data_as_of}.`)
+  return { structured, text: L.join('\n') }
+}
+
+// ---- Savant value and the All-Savant Team -----------------------------------------------
+
+const ONE = { Guard: 'guard', Wing: 'wing', Big: 'big' }
+const TEAM_WORD = ['1st', '2nd']
+const sgn = (v) => (v > 0 ? '+' : v < 0 ? '\u2212' : '') + Math.abs(v)
+const sgnInt = (v) => sgn(Math.round(v)).replace(/\d+/, (d) => (+d).toLocaleString('en-US'))
+const sgn1 = (v) => (v >= 0.05 ? '+' : v <= -0.05 ? '\u2212' : '') + Math.abs(v).toFixed(1)
+
+function savantValueOf(row, file, meta) {
+  const [value, rate, rank, parts] = row.sv
+  const keys = meta.savant_value.parts
+  const onTeam = (file.all_savant || []).findIndex((t) => t.some((id) => String(id) === String(row.id)))
+  return {
+    points_over_replacement: value,
+    per_100_vs_average: rate,
+    position_rank: rank,
+    qualified_at_position: (file.value_count || {})[row.pos] ?? null,
+    parts_per_100: Object.fromEntries(keys.map((k, i) => [k.key, parts[i]])),
+    all_savant_team: onTeam >= 0 ? TEAM_WORD[onTeam] : null,
+  }
+}
+
+function savantValueText(row, sv, season, peers) {
+  const one = ONE[row.pos] || 'player'
+  const parts = Object.entries(sv.parts_per_100).sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `${PART_LABEL[k] || k} ${sgn1(v)}`)
+  return `Savant value: ${sgnInt(sv.points_over_replacement)} points over a replacement ${one} in ${season} `
+    + `(${sgn1(sv.per_100_vs_average)} per 100 possessions vs. an average ${one})`
+    + (sv.position_rank ? `, ${ordinal(sv.position_rank)} of ${sv.qualified_at_position} qualified ${peers}` : ', not qualified')
+    + (sv.all_savant_team ? `. All-Savant ${sv.all_savant_team} Team.` : '.')
+    + ` By part, per 100: ${parts.join(', ')}. It counts only the possessions he played, so missed games cost him.`
+}
+const PART_LABEL = { scoring: 'scoring', playmaking: 'playmaking', rebounding: 'rebounding', defense: 'defense', floor: 'on-floor impact' }
+
+// The season the team is shown for when none is asked: the newest, unless it is in progress
+// and its teams have played fewer than 10 games (the page's rule), then the one before.
+const AST_MIN_GAMES = 10
+function seasonGames(file) {
+  const most = {}
+  for (const p of file.players) if (p.team && (p.gp || 0) > (most[p.team] || 0)) most[p.team] = p.gp
+  const g = Object.values(most).sort((a, b) => a - b)
+  return g.length ? g[Math.floor(g.length / 2)] : 0
+}
+
+export async function allSavantTeam({ season, team = 'both' }) {
+  const meta = await loadMeta()
+  if (!meta.savant_value) throw new SavantError('The All-Savant Team is not in this build of Basketball Savant yet.')
+  let seasonId = parseSeason(season, meta)
+  let file
+  const notes = []
+  const full = (f) => Array.isArray(f.all_savant) && f.all_savant.length === 2 && f.all_savant.every((t) => t.length === 5)
+  if (!seasonId) {
+    // The page's rule: the newest season with two full teams, skipping one in its first games.
+    for (const s of meta.seasons) {
+      const f = await loadSeason(s)
+      if (f.in_progress && seasonGames(f) < AST_MIN_GAMES) {
+        notes.push(`${s} has only just started (teams have played about ${seasonGames(f)} games), so this is the last full season. Ask for ${s} by name to see the team so far.`)
+        continue
+      }
+      if (!full(f)) continue
+      seasonId = s
+      file = f
+      break
+    }
+    if (!seasonId) throw new SavantError('No season has a full All-Savant Team yet.')
+  } else file = await loadSeason(seasonId)
+  if (!file.all_savant) throw new SavantError(`No All-Savant Team for ${seasonId}.`)
+  const byId = new Map(file.players.map((p) => [String(p.id), p]))
+  const want = team === '1' ? [0] : team === '2' ? [1] : [0, 1]
+  const teams = want.map((t) => ({
+    team: TEAM_WORD[t],
+    players: (file.all_savant[t] || []).map((id) => {
+      const p = byId.get(String(id))
+      return {
+        id: String(id), name: p.name, team: p.team, position: p.pos, games: p.gp ?? null,
+        points_over_replacement: p.sv[0], per_100_vs_average: p.sv[1],
+        url: cardUrl(id),
+      }
+    }),
+  }))
+  if (file.in_progress) notes.push(`${seasonId} is still being played${file.through ? ` (data through ${file.through})` : ''}. The value is a season total, so the team moves as games pile up.`)
+  notes.push('Two guards, two wings and a big per team: the highest Savant value at each spot among qualified players; a player makes one team only. Positions are Basketball Savant\'s (Guard, Wing, Big), so this is not the league\'s positionless All-NBA ballot.')
+  const structured = {
+    season: seasonId,
+    in_progress: !!file.in_progress,
+    teams,
+    method: meta.savant_value.what,
+    notes,
+    url: `${SITE}/basketball-savant.html`,
+    data_as_of: day(meta.generated),
+    source: 'Basketball Savant, Western Conference Elitists (wcehoops.com)',
+  }
+  const L = [`The All-Savant Team, ${seasonId}${file.in_progress && file.through ? ` (through ${file.through})` : ''}`]
+  for (const t of teams) {
+    L.push('', `${t.team} team:`)
+    for (const x of t.players) {
+      L.push(`- ${x.position}: ${x.name} (${x.team}${x.games ? `, ${x.games} games` : ''}), ${sgnInt(x.points_over_replacement)} points over a replacement ${ONE[x.position]} (${sgn1(x.per_100_vs_average)} per 100 vs. an average ${ONE[x.position]}). ${x.url}`)
+    }
+  }
+  L.push('', meta.savant_value.what, ...notes, '', `Page: ${structured.url}`, `Source: ${structured.source}. Data as of ${structured.data_as_of}.`)
   return { structured, text: L.join('\n') }
 }
 
@@ -461,6 +569,14 @@ export const tools = [
           possessions: z.number().nullable(),
           shots_defended: z.number().nullable(),
         }).optional().describe('Bigs only. Reflects role, not ability.'),
+        savant_value: z.object({
+          points_over_replacement: z.number().describe('Points he added that season above a replacement-level player at his position.'),
+          per_100_vs_average: z.number().describe('Points per 100 possessions vs. an average player at his position.'),
+          position_rank: z.number().int().nullable().describe('Rank by value among qualified players at his position; null if not qualified.'),
+          qualified_at_position: z.number().int().nullable(),
+          parts_per_100: z.record(z.string(), z.number()).describe('Scoring, playmaking, rebounding, defense, on-floor impact, per 100 vs. an average player at his position.'),
+          all_savant_team: z.string().nullable().describe('"1st" or "2nd" when he made the All-Savant Team that season.'),
+        }).optional().describe('Full season only: Savant value, the number the All-Savant Team is picked on.'),
         url: z.string().describe('His Basketball Savant card.'),
         data_as_of: z.string(),
         source: z.string(),
@@ -468,5 +584,41 @@ export const tools = [
       annotations: { title: 'Get an NBA player\'s Savant profile', ...READ_ONLY },
     },
     run: ({ player, season, window, group }) => playerProfile({ player, season, window, group }),
+  },
+  {
+    name: 'nba_all_savant_team',
+    config: {
+      title: 'Get the All-Savant Team',
+      description:
+        'Get Basketball Savant\'s All-Savant Team (Western Conference Elitists, wcehoops.com) for one season: an All-NBA 1st and 2nd team picked by the numbers alone, two guards, two wings and a big each. Every pick is the highest Savant value at his spot among qualified players: the points he added that season above a replacement-level player at his position, built from his own box stats and luck-adjusted on/off, counting only the possessions he played. Returns each player with his value, team, games and card link. Seasons from 1979-80 on; defaults to the newest season, or the last full one while a new season is in its first 10 games.',
+      inputSchema: {
+        season: z.string().trim().max(12).optional().describe('Season written as two years, e.g. "2025-26". Omit for the current team.'),
+        team: z.enum(['1', '2', 'both']).default('both').describe('"1" for the 1st team, "2" for the 2nd, "both" (default).'),
+      },
+      outputSchema: {
+        season: z.string(),
+        in_progress: z.boolean().describe('True while that season is still being played.'),
+        teams: z.array(z.object({
+          team: z.string().describe('"1st" or "2nd".'),
+          players: z.array(z.object({
+            id: z.string(),
+            name: z.string(),
+            team: z.string(),
+            position: z.string().describe('Guard, Wing or Big.'),
+            games: z.number().nullable(),
+            points_over_replacement: z.number(),
+            per_100_vs_average: z.number(),
+            url: z.string(),
+          })),
+        })),
+        method: z.string(),
+        notes: z.array(z.string()),
+        url: z.string(),
+        data_as_of: z.string(),
+        source: z.string(),
+      },
+      annotations: { title: 'Get the All-Savant Team', ...READ_ONLY },
+    },
+    run: ({ season, team }) => allSavantTeam({ season, team }),
   },
 ]
