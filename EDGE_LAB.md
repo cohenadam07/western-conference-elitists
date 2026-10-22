@@ -91,7 +91,7 @@ A game goes **prepared → pending → decided → settled**:
 | Step | Who, when | What happens |
 |---|---|---|
 | prepare | Vercel cron, hourly 14:00–02:00 UTC (games 20–150 min out), or the scheduled task's queue call (games 15 min to 3 h 45 min out), whichever comes first | The markets worth forecasting, the WCE model's number for each, and both Claude prompts. The game waits as **pending**. |
-| answer | The scheduled task on Adam's Claude account, 12:43, 4:43 and 7:43 pm ET | Fetches every pending prompt, has a fresh subagent answer each one (one per game per arm, so the box-score arm never sees a WCE number), and posts the answers back. The second answer for a game **decides** it at Kalshi's quotes of that moment. |
+| answer | The scheduled task on Adam's Claude account, 12:43, 4:43, 5:43, 6:43 and 7:43 pm ET | Fetches every pending prompt, has a fresh subagent answer each one (one per game per arm, so the box-score arm never sees a WCE number), and posts the answers back. The second answer for a game **decides** it at Kalshi's quotes of that moment. |
 | close | Every Vercel picks run | A game still pending 15 minutes before tip is decided with whatever answers it has. |
 | settle | Vercel cron, 11:00 UTC (7am EDT) | Results from Kalshi, the closing quote from Kalshi's minute candles at the tip, P&L and CLV per bet, aggregates per game. |
 | mark | The page every 30 s while bets are open; crons at 03:00, 04:00, 05:00 UTC; after each picks run and settle | Values every open bet at Kalshi's prices of the moment (shared for 20 s), and adds a point to the night's portfolio line (at most one a minute). |
@@ -106,6 +106,22 @@ and needs nothing on his computer. It talks to two calls on the site:
 GET  /api/analytics/snapshot?job=edge-queue                      prompts waiting to be answered
 POST /api/analytics/snapshot?job=edge-answer&task=<game>.<arm>    one answer, as JSON
 ```
+
+The task asks for the queue with `&format=data`: each game comes back as data only (the game
+facts and the markets), with no instructions in it. The forecasting job itself, the rules,
+the answer format and the rule against looking anything up, is written into the task's own
+instructions (`tools/edge/task-prompt.md`, the passcode left out), and each subagent is told
+the file is data. That keeps a downloaded file from ever steering what an agent does, and it
+makes plain to the run's own permission check what the run is: Adam's own site, a passcode
+he made for this one job, forecasts only. (On Oct 21 that check blocked the 4:43 pm run's
+first fetch under the older format, where subagents were told to "do exactly what the file
+says"; the 6:52 run of the same task went through.) Without `format=data` the queue still
+returns the older self-contained texts.
+
+The task runs at 12:43, 4:43, 5:43, 6:43 and 7:43 pm ET; the extra evening runs are backups,
+so one blocked run can't cost a slate, and a run with nothing to price ends in seconds. It
+sends a push notification with its one-line-per-game summary, or the exact error if a step
+was blocked. It never places an order: it only sends forecasts.
 
 Both take the header `x-edge-token`, a token that can do nothing else (it can't read the page,
 run picks or settle). Only its SHA-256 is in the code (`TASK_TOKEN_SHA256` in `_edge.js`); the

@@ -48,7 +48,7 @@ import { parseJSONSafe, redis, redisPipeline, timingSafeEqual, toHash } from './
 import { origin } from '../_core.js'
 import * as M from './_edge-model.js'
 import * as K from './_edge-markets.js'
-import { askClaude, buildPrompt, claudeMode, claudeModel, parseForecasts, taskText } from './_edge-claude.js'
+import { askClaude, buildPrompt, claudeMode, claudeModel, dataText, parseForecasts, taskText } from './_edge-claude.js'
 
 export const NS = 'wce:edge'
 const KEY = {
@@ -689,8 +689,10 @@ export async function runQueue(opts = {}) {
         if (h[arm]) continue
         const id = `${r.key}.${arm}`
         const answer = `${TASK_DIR}/${id}.json`
+        // format=data: the game alone, for a task whose own instructions carry the job.
+        const text = opts.format === 'data' ? dataText(packet.prompts[arm]) : taskText(packet.prompts[arm], answer)
         out.tasks.push({ id, key: r.key, arm, game: `${r.away} at ${r.home}, ${tipText(Date.parse(r.tip))}`, markets: packet.markets.length,
-          file: `${TASK_DIR}/${id}.txt`, answer, text: taskText(packet.prompts[arm], answer) })
+          file: `${TASK_DIR}/${id}.txt`, answer, text })
       }
     })
     out.note = `${out.tasks.length} prompt${out.tasks.length === 1 ? '' : 's'} to answer`

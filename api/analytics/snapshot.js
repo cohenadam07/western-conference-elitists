@@ -69,7 +69,7 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'private, no-store');
     try {
       if (job === 'edge-queue') {
-        const out = await runQueue({ ahead: url.searchParams.get('ahead') });
+        const out = await runQueue({ ahead: url.searchParams.get('ahead'), format: url.searchParams.get('format') });
         return res.status(out.ok ? 200 : 500).json(out);
       }
       if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST the answer as JSON' });

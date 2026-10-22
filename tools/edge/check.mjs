@@ -5,7 +5,8 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import * as M from '../../api/analytics/_edge-model.js'
 import { gameKey, parseGameKey, parseMarket, normName, joinPlayers } from '../../api/analytics/_edge-markets.js'
-import { buildPrompt, claudeMode, parseAnswer, parseForecasts, taskText } from '../../api/analytics/_edge-claude.js'
+import { buildPrompt, claudeMode, dataText, parseAnswer, parseForecasts, taskText, TASK_JOB } from '../../api/analytics/_edge-claude.js'
+import { readFileSync } from 'node:fs'
 import { taskTokenOk } from '../../api/analytics/_edge.js'
 import { createHash } from 'node:crypto'
 
@@ -294,4 +295,24 @@ test('portfolios: marks and ledger rows', () => {
   assert.deepEqual(M.ledgerRow({ arm: 'model', ticker: 'X', side: 'no', edge: 0.051234, price: 0.4, fee: 0.0168 }), ['model', 'X', 'no', 0.05123, 0.4168, null])
   assert.equal(M.ledgerRow({ arm: 'model', ticker: 'X', side: 'no', edge: 0.05, price: 0.4, fee: 0.0168, result: { outcome: 'void', pnl: 0 } })[5], 'v')
   close(M.ledgerRow({ arm: 'model', ticker: 'X', side: 'no', edge: 0.05, price: 0.4, fee: 0.0168, result: { outcome: 'loss', pnl: -1 } })[5], -1)
+})
+
+test('the scheduled task: game files are data only, and the job lives in the task', () => {
+  const ix = { min: 0, pts: 1, reb: 2, ast: 3, fg3m: 4 }
+  const players = [{ name: 'Bam Adebayo', team: 'MIA', pos: 'Big', log: [[34, 20, 10, 4, 1]], markets: [{ id: 'm1', stat: 'reb', k: 10, pModel: 0.47 }] }]
+  const input = { game: { away: 'MIN', home: 'MIA', tip: Date.parse('2026-10-21T23:30:00Z') }, players, ix, teams: [], health: { MIN: [], MIA: [] }, rosters: {} }
+  const data = dataText(buildPrompt('claude_box', input))
+  assert.match(data, /^GAME DATA/)
+  assert.match(data, /m1 REB 10\+/)
+  // No job in the file: no rules, no answer path, no tool to use.
+  assert.doesNotMatch(data, /You forecast|Write tool|\/tmp\/edge|forecasts"/)
+  // The task's own instructions carry the job, the same answer format, and the data format.
+  const task = readFileSync(new URL('./task-prompt.md', import.meta.url), 'utf8')
+  assert.ok(task.includes(TASK_JOB))
+  assert.match(task, /job=edge-queue&format=data/)
+  assert.match(task, /never places a bet or an order/)
+  assert.match(task, /\{"notes": .*"forecasts": \[\{"id": "m1", "p": 0\.62\}/)
+  // The template never holds the real passcode.
+  assert.match(task, /\{\{TOKEN\}\}/)
+  assert.doesNotMatch(task, /[0-9a-f]{40,}/)
 })
