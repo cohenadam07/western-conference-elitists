@@ -707,6 +707,19 @@ body {
 .aic-copy button:focus-visible { outline: 2px solid var(--color-gold-deep); outline-offset: -3px; }
 .aic-link { margin-top: 14px; align-self: flex-start; font-family: var(--font-mono); font-size: 11.5px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-navy); text-decoration: underline; text-decoration-color: var(--color-gold); text-underline-offset: 4px; }
 .aic-link:hover { color: var(--color-ink); }
+.aic-key { position: relative; }
+.aic-copy button:disabled { cursor: wait; opacity: 0.75; }
+.aic-tick { margin-top: 10px; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-muted); cursor: pointer; }
+.aic-tick input { width: 15px; height: 15px; accent-color: var(--color-navy); }
+.aic-err { margin: 10px 0 0; font-size: 13px; line-height: 1.5; color: var(--color-red); }
+.aic-done { margin-top: 16px; border: 1px solid var(--color-line); border-left: 3px solid var(--color-green, var(--color-navy)); border-radius: 6px; background: var(--color-wash); padding: 12px 14px; }
+.aic-done p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--color-muted); }
+.aic-done .aic-done-title { margin-bottom: 4px; font-weight: 600; color: var(--color-ink); }
+.aic-steps > li > p.aic-founding { margin: 14px 0 0; border-left: 3px solid var(--color-gold); padding: 2px 0 2px 12px; font-size: 13px; line-height: 1.5; color: var(--color-ink); }
+.aic-public { margin-top: 14px; }
+.aic-public summary { cursor: pointer; font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-faint); }
+.aic-public summary:hover { color: var(--color-navy); }
+.aic-public .aic-copy { margin-top: 10px; }
 .aic-asks { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .aic-asks li { font-family: var(--font-display); font-style: italic; font-size: 16px; line-height: 1.35; color: var(--color-navy); }
 

@@ -1,10 +1,15 @@
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Reveal from './Reveal.jsx'
-import { CLAUDE_GUIDE, CONNECTOR_URL, EXAMPLE, PROMPTS } from '../data/connector.js'
+import { CLAUDE_GUIDE, CONNECTOR_URL, EXAMPLE, FOUNDING, PROMPTS } from '../data/connector.js'
+import { KEY_SUCCESS, SUBSCRIBE_ERROR, getConnectorKey } from '../lib/forms.js'
 
 // The homepage's section about the AI connector (api/mcp.js): what it is, a real answer it
-// gives, and the three steps to add it. Styles are in index.css under the `.aic` scope.
-// The section's id is "ai", so /#ai links straight to it (Home.jsx does the scrolling).
+// gives, and the three steps to add it. Step one is a free key by email (api/_keys.js),
+// which gives a fan their own address and makes them a founding member; the public address
+// is still there for anyone who would rather not give an email. Styles are in index.css
+// under the `.aic` scope. The section's id is "ai", so /#ai links straight to it (Home.jsx
+// does the scrolling).
 
 const COVERS = [
   'Basketball Savant',
@@ -67,6 +72,89 @@ function CopyAddress() {
         {state === 'copied' ? 'Address copied.' : state === 'select' ? 'Address selected. Press copy on your keyboard.' : ''}
       </span>
     </div>
+  )
+}
+
+// Email in, key out. The key itself is only ever emailed, never shown here: the email is
+// how a fan gets it back, and how WCE can reach the people who use the connector.
+function KeyForm() {
+  const id = useId()
+  const [email, setEmail] = useState('')
+  const [newsletter, setNewsletter] = useState(false)
+  const [website, setWebsite] = useState('') // honeypot, as in SubscribeForm
+  const [phase, setPhase] = useState('idle') // idle | sending | done
+  const [done, setDone] = useState(null)
+  const [error, setError] = useState(null)
+  const inputRef = useRef(null)
+
+  const submit = async (e) => {
+    e.preventDefault()
+    if (phase === 'sending') return
+    const value = email.trim()
+    if (!/^\S+@\S+\.\S+$/.test(value)) {
+      setError(value ? 'invalid' : 'empty')
+      inputRef.current?.focus()
+      return
+    }
+    setPhase('sending')
+    setError(null)
+    const r = await getConnectorKey(value, newsletter, website)
+    if (r.ok) {
+      setDone({ status: KEY_SUCCESS[r.status] ? r.status : 'sent', email: value })
+      setPhase('done')
+      return
+    }
+    setError(r.error || 'server')
+    setPhase('idle')
+    requestAnimationFrame(() => inputRef.current?.focus())
+  }
+
+  if (phase === 'done') {
+    const copy = KEY_SUCCESS[done.status]
+    return (
+      <div className="aic-done" role="status">
+        <p className="aic-done-title">{copy.title}</p>
+        <p>{copy.body(done.email)}</p>
+      </div>
+    )
+  }
+
+  const errId = `${id}-error`
+  return (
+    <form onSubmit={submit} noValidate className="aic-key" aria-busy={phase === 'sending'}>
+      <div className="aic-copy">
+        <label htmlFor={`${id}-email`} className="sr-only">Email address</label>
+        <input
+          ref={inputRef}
+          id={`${id}-email`}
+          type="email"
+          name="email"
+          autoComplete="email"
+          inputMode="email"
+          value={email}
+          onChange={(e) => { setEmail(e.target.value); if (error) setError(null) }}
+          placeholder="you@email.com"
+          aria-invalid={error ? 'true' : undefined}
+          aria-describedby={error ? errId : undefined}
+        />
+        <button type="submit" disabled={phase === 'sending'}>
+          {phase === 'sending' ? 'Sending…' : 'Get key'}
+        </button>
+      </div>
+      <label className="aic-tick">
+        <input type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} />
+        <span>Also send me The Weekly Board on Sundays</span>
+      </label>
+      <div aria-hidden="true" className="absolute -left-[10000px] top-0 h-px w-px overflow-hidden">
+        <label htmlFor={`${id}-hp`}>Leave this field empty</label>
+        <input id={`${id}-hp`} name="wce_hp_key" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+      </div>
+      {error && (
+        <p id={errId} role="alert" className="aic-err">
+          {SUBSCRIBE_ERROR[error] || SUBSCRIBE_ERROR.server}
+        </p>
+      )}
+    </form>
   )
 }
 
@@ -167,16 +255,24 @@ export default function AiConnector() {
           <ol className="aic-steps mt-14 grid grid-cols-1 gap-x-10 gap-y-10 md:grid-cols-3 lg:mt-20">
             <li>
               <span className="text-display text-3xl text-gold-deep">01</span>
-              <h3 className="text-display mt-3 text-xl text-ink">Copy the address</h3>
-              <p>This is the whole connector. There is nothing to install and no account to make.</p>
-              <CopyAddress />
+              <h3 className="text-display mt-3 text-xl text-ink">Get your own address</h3>
+              <p>
+                Enter your email and we’ll send you a connector address that’s yours. Free, with
+                nothing to install and no account to make.
+              </p>
+              <KeyForm />
+              <p className="aic-founding">{FOUNDING}</p>
+              <details className="aic-public">
+                <summary>Rather not give an email? Use the public address</summary>
+                <CopyAddress />
+              </details>
             </li>
             <li>
               <span className="text-display text-3xl text-gold-deep">02</span>
               <h3 className="text-display mt-3 text-xl text-ink">Add it in Claude</h3>
               <p>
                 Open <b>Customize</b>, then <b>Connectors</b>. Add a <b>custom</b> connector, name it
-                WCE, and paste the address. It asks for no sign-in.
+                WCE, and paste your address. It asks for no sign-in.
               </p>
               <a className="aic-link" href={CLAUDE_GUIDE} target="_blank" rel="noreferrer">
                 Claude’s step-by-step guide <span aria-hidden="true">↗</span>
@@ -201,7 +297,8 @@ export default function AiConnector() {
         <p className="mt-12 border-t border-line-soft pt-5 font-mono-tight text-[11.5px] leading-relaxed text-faint">
           Free. It only looks things up: it cannot vote, post or change anything. Built on MCP, the
           open standard for AI connectors, so other AI apps that take a connector by address can
-          use it too.
+          use it too. What a key records is on the{' '}
+          <Link to="/privacy#connector-keys" className="underline underline-offset-2 hover:text-navy">privacy page</Link>.
         </p>
       </div>
     </section>

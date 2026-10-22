@@ -279,3 +279,69 @@ export async function notifyByEmail({ subject, text, replyTo }) {
     return { sent: false, reason: `resend unreachable: ${e.message || e}` }
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Resend — connector keys (api/newsletter.js?action=key).
+ * Unlike the contact copy above, this mails strangers, which Resend only allows from a
+ * domain verified in the Resend account. KEYS_MAIL_FROM is set once wcehoops.com is
+ * verified there (e.g. "Western Conference Elitists <keys@wcehoops.com>"); until then keys
+ * are held and sent from /inbox once it is (see api/_keys.js).
+ * ------------------------------------------------------------------ */
+
+export const keyMailConfigured = () => Boolean(process.env.RESEND_API_KEY && process.env.KEYS_MAIL_FROM)
+
+export function keyMail({ key, address, founding }) {
+  const subject = 'Your WCE connector address'
+  const text = [
+    'Here is your own address for the Western Conference Elitists AI connector:',
+    '',
+    address,
+    '',
+    'To add it in Claude: open Customize, then Connectors. Add a custom connector, name it WCE, paste the address above, choose No sign in, and add it. If you already added the public address (wcehoops.com/api/mcp), remove that one and use this one instead.',
+    '',
+    'Then in a chat, press +, open Connectors and switch WCE on. Ask about any NBA or NFL player, UFC fighter, head coach or draft prospect.',
+    '',
+    `You're a founding member. ${founding}`,
+    '',
+    'This address is yours: keep it to yourself. Lost it? Ask for a new one at wcehoops.com/#ai with this email, and both will keep working.',
+    '',
+    'Western Conference Elitists',
+    'wcehoops.com',
+  ].join('\n')
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+  const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#ECEBE8;font-family:Georgia,serif;color:#1a1a1a">
+<div style="max-width:560px;margin:0 auto;background:#fff;border-top:4px solid #22395A;padding:28px 28px 24px">
+<p style="margin:0 0 6px;font:600 11px/1.4 Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#22395A">The AI connector</p>
+<h1 style="margin:0 0 16px;font-size:24px;font-weight:normal">Your own WCE address</h1>
+<p style="margin:0 0 10px;font-size:15px;line-height:1.55">Paste this into Claude as a custom connector:</p>
+<p style="margin:0 0 18px;padding:12px 14px;background:#F6F5F2;border:1px solid #DDDAD3;font:13px/1.4 Menlo,monospace;word-break:break-all">${esc(address)}</p>
+<p style="margin:0 0 10px;font-size:15px;line-height:1.55">In Claude, open <b>Customize</b>, then <b>Connectors</b>. Add a <b>custom</b> connector, name it WCE, paste the address, choose <b>No sign in</b>, and add it. Already using the public address? Remove that one and use this one instead.</p>
+<p style="margin:0 0 18px;font-size:15px;line-height:1.55">Then in a chat, press <b>+</b>, open <b>Connectors</b> and switch WCE on.</p>
+<p style="margin:0 0 18px;padding:12px 14px;border-left:3px solid #C2A263;font-size:15px;line-height:1.55"><b>You're a founding member.</b> ${esc(founding)}</p>
+<p style="margin:0;font-size:13px;line-height:1.55;color:#666">This address is yours, so keep it to yourself. Lost it? Ask for a new one at <a href="https://wcehoops.com/#ai" style="color:#22395A">wcehoops.com/#ai</a> with this email, and both will keep working.</p>
+</div></body></html>`
+  return { subject, text, html, key }
+}
+
+export async function sendKeyMail({ email, key, address, founding }) {
+  if (!keyMailConfigured()) return { sent: false, reason: 'not configured' }
+  const mail = keyMail({ key, address, founding })
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: process.env.KEYS_MAIL_FROM,
+        to: [email],
+        reply_to: process.env.KEYS_MAIL_REPLY_TO || undefined,
+        subject: mail.subject,
+        text: mail.text,
+        html: mail.html,
+      }),
+      signal: AbortSignal.timeout(6000),
+    })
+    return res.ok ? { sent: true } : { sent: false, reason: `resend ${res.status}: ${(await res.text()).slice(0, 160)}` }
+  } catch (e) {
+    return { sent: false, reason: `resend unreachable: ${e.message || e}` }
+  }
+}
