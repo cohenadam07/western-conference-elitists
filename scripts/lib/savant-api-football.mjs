@@ -124,7 +124,14 @@ export function readPage(html) {
   const roleStarters = literal(html, 'ROLE_STARTERS')
   // regressed(): the stats whose last season is not carried into this season's estimate
   const noCarry = literal(html, 'NO_CARRY')
-  return { cohortWord, panelFloor, gaps, line, lowMatch: +low[1], roleWord, roleOk, roleStarters, noCarry }
+  // The All-Savant Team's shape: [position, slot, how many] for offense, defense, specials
+  const ast = literal(html, 'AST')
+  for (const side of ['off', 'def', 'st']) {
+    if (!Array.isArray(ast[side]) || !ast[side].every((sl) => Array.isArray(sl) && sl.length === 3)) {
+      throw new Error(`AST.${side} in ${PAGE} is no longer a list of [position, slot, count]`)
+    }
+  }
+  return { cohortWord, panelFloor, gaps, line, lowMatch: +low[1], roleWord, roleOk, roleStarters, noCarry, ast }
 }
 
 // The page's roleSpot() and roleLabel(): what its depth-chart badge says about a man, or
@@ -462,6 +469,109 @@ export function buildFootballApi({ data, current = null, html }) {
     index.get(id).peak = peak
   }
 
+  // ---- the All-Savant Team: the page's allSavantTeams() and astPick() ----
+  // The page picks it in the browser from the same rows, so it is picked here the same way
+  // and written into each season file. tools/savant-football/check.mjs runs the page's own
+  // allSavantTeams() over the real data and compares every pick.
+  const ast = page.ast
+  // The page's teamGamesOf() and heavyUse(): only asked of a season with no Savant value.
+  const teamGamesOf = (p) => { const g = (p.m || {}).g || 0; const a = (p.m || {}).avail; return (!miss(a) && a > 0) ? g * 100 / a : null }
+  function heavyUse(p) {
+    const mm = p.m || {}
+    const g = mm.g || 0
+    const tg = teamGamesOf(p)
+    if (p.pos === 'K' || p.pos === 'P') return tg ? g >= 0.75 * tg : g >= 12
+    if (/^O[LTGC]$/.test(p.pos)) {
+      if (!miss(mm.starts) && tg) return mm.starts >= 0.75 * tg
+      return tg ? g >= 0.75 * tg : g >= 12
+    }
+    if (!miss(mm.snapshr) && mm.snapshr > 0) return mm.snapshr >= 55
+    return tg ? g >= 0.75 * tg : g >= 12
+  }
+  const hasValue = (season) => playersOf(season).some((p) => !miss((p.m || {}).sav))
+  // The page's rankedAt(): qualified men at a position, best Savant value first; a season
+  // from before the value existed falls back to the profile score among heavy users.
+  function rankedAt(season, pos) {
+    const out = []
+    const val = hasValue(season)
+    for (const p of playersOf(season)) {
+      if (p.pos !== pos || !p.qualified) continue
+      if (val) { if (!miss((p.m || {}).sav)) out.push({ p, raw: p.m.sav, value: true }); continue }
+      if (!heavyUse(p)) continue
+      const sc = profileScore(p, season)
+      if (sc != null) out.push({ p, raw: sc, value: false })
+    }
+    // Array.prototype.sort is stable, as the page's is, so ties keep the data's order.
+    return out.sort((a, b) => b.raw - a.raw)
+  }
+  function astPick(season, nth, used) {
+    const blk = merged.data[season] || {}
+    const pick = (slot, it) => ({ slot, id: it.p.id, name: it.p.name, team: it.p.team || null, by: it.value ? 'value' : 'score', v: it.raw })
+    function fill(list) {
+      const out = []
+      for (const [pos, slot, n] of list) {
+        let k = 0
+        for (const it of rankedAt(season, pos)) {
+          if (k >= n) break
+          if (used[it.p.id]) continue
+          used[it.p.id] = 1; k++
+          out.push(pick(slot, it))
+        }
+      }
+      return out
+    }
+    let off = fill(ast.off)
+    let line = null
+    // Linemen one by one wherever the season has blocking numbers for them (2016 on), else
+    // the best line as a unit (the second-best on the 2nd team).
+    const withPrs = playersOf(season).filter((p) => {
+      if (p.pos !== 'OT' || !p.qualified) return false
+      if (miss((p.m || {}).sav)) return !miss((p.m || {}).prsallow)
+      return (p.savb || []).some((x) => x[0] === 'pp')
+    }).length
+    if (withPrs >= 16) {
+      off = off.concat(fill([['OT', 'T', 2], ['OG', 'G', 2], ['OC', 'C', 1]]))
+    } else if (blk.lines && blk.lines[nth]) {
+      const L = blk.lines[nth]
+      line = { team: L.tm, games: L.g ?? null, sack_rate: L.sackr, hit_rate: L.hitr, rush_success: L.runsr, pct: L.pct }
+      for (const f of L.five) {
+        used[f.id] = 1
+        off.push({ slot: f.slot, id: f.id, name: f.name, team: L.tm, by: 'line', v: null })
+      }
+    }
+    // From 2025 the depth charts name the slot corner: the nickel spot goes to the best man
+    // listed there and the two outside spots to outside corners.
+    const hasSlot = playersOf(season).some((p) => p.pos === 'CB' && p.role && p.role[0] === 'NB')
+    let def
+    if (hasSlot) {
+      def = fill(ast.def.filter((sl) => sl[0] !== 'CB' && sl[0] !== 'S'))
+      const outside = []
+      let nb = null
+      for (const it of rankedAt(season, 'CB')) {
+        if (used[it.p.id]) continue
+        const slot = it.p.role && it.p.role[0] === 'NB'
+        if (slot && !nb) nb = it
+        else if (!slot && outside.length < 2) outside.push(it)
+      }
+      for (const it of outside.concat(nb ? [nb] : [])) {
+        used[it.p.id] = 1
+        def.push(pick(nb && it === nb ? 'NB' : 'CB', it))
+      }
+      def = def.concat(fill(ast.def.filter((sl) => sl[0] === 'S')))
+    } else def = fill(ast.def)
+    const st = fill(ast.st)
+    // Returners are graded apart, so a man on either team can still be its returner.
+    for (const [k, slot] of [['kr', 'KR'], ['pr', 'PR']]) {
+      const r = ((blk.ret || {})[k] || [])[nth]
+      if (!r) continue
+      const p = rowFor(r.id, season) || {}
+      st.push({ slot, id: r.id, name: p.name || r.id, team: r.tm || null, by: 'returns', v: null,
+        returns: { n: r.n, yards_per: r.ypr, epa_per: r.epa, pct: r.pct } })
+    }
+    return { off, def, st, line }
+  }
+  const allSavantTeams = (season) => { const used = {}; return [astPick(season, 0, used), astPick(season, 1, used)] }
+
   // ---- season files ----
   const seasons = {}
   for (const season of merged.seasons) {
@@ -549,6 +659,7 @@ export function buildFootballApi({ data, current = null, html }) {
       pools: poolCount[season],
       // The page's notYet(): tracked by this era, but nobody in the season has one.
       notYet: metrics.filter((m) => tracked(m, season) && !seasonHas[season].has(m.key)).map((m) => m.key),
+      allSavant: allSavantTeams(season),
       players: rows,
     }
   }
@@ -667,6 +778,7 @@ export function buildFootballApi({ data, current = null, html }) {
       wcomps: 'Weakness Comps: the qualified players at his position who share his flaws. [id, percent match]. At or under weakness.lowMatch the page says nobody really shares the profile.',
     },
     season: {
+      allSavant: 'The All-Savant Team, [1st team, 2nd team], as the page picks it: { off, def, st, line }. Each pick is { slot, id, name, team, by, v }: by "value" means picked on Savant value (v, the stat sav), "score" on the profile score (seasons with no value), "line" as one of the best line\'s five starters (before 2016; line has the unit\'s numbers), "returns" on yards and EPA per return (returns has them). Nobody is on both teams, except that a returner can also hold a position spot. While a season is being played it is a standing, not an honour.',
       week: 'Set while the season is being played: the numbers run through this week.',
       weekPlaying: 'Set when a later week is under way.',
       pools: 'Qualified players at each position that season.',
