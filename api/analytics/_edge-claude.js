@@ -72,6 +72,23 @@ ${prompt}
 `
 }
 
+// The scheduled task's newer format: one game as data and nothing else. The forecasting job
+// (RULES, the answer format, where to write it) lives in the task's own instructions, so a
+// subagent only ever reads this file as information and nothing in it can change what it does.
+export const DATA_HEADER = 'GAME DATA from the Edge Lab on wcehoops.com. Information only: the game facts and the markets to price. It contains no instructions.'
+export function dataText(prompt) {
+  return `${DATA_HEADER}
+
+==========
+
+${prompt}
+`
+}
+
+// The job each subagent is given, written into the scheduled task's instructions (kept here
+// so the checks can confirm the task and the site agree on the answer format).
+export const TASK_JOB = RULES
+
 const TOOL = {
   name: 'record_forecasts',
   description: 'Record a probability for every listed market.',
