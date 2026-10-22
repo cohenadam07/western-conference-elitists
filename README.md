@@ -250,8 +250,9 @@ is at 11 of the Hobby plan's 12 functions), with an optional newsletter tick-box
 through Buttondown's double opt-in. The key is emailed with Resend; only its SHA-256 is
 stored. To turn the email on: verify `wcehoops.com` under **Domains** in Resend (it gives
 a few DNS records to add), then set `KEYS_MAIL_FROM` on Vercel, e.g.
-`Western Conference Elitists <keys@wcehoops.com>` (`RESEND_API_KEY` is the contact form's
-key; `KEYS_MAIL_REPLY_TO` is optional). Until then keys are made and held, and
+`Western Conference Elitists <keys@wcehoops.com>`, plus `RESEND_API_KEY` from Resend >
+**API Keys** (the same key the contact form's email copies use; `KEYS_MAIL_REPLY_TO` is
+optional). The domain's DNS is at Porkbun, so the records go there. Until then keys are made and held, and
 `/inbox` > Newsletter > **Email the keys** sends them once mail works. `/analytics` shows
 key holders as people (one email, however many keys), with "active in the last 30 days"
 measured against the monetization plan's Phase 2 trigger of 200.
