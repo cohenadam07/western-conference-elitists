@@ -185,7 +185,7 @@ def espn_entries():
                 'pos': ((ath.get('position') or {}).get('abbreviation')),
                 'status': status,
                 'body': body,
-                'side': det.get('side') or None,
+                'side': det.get('side') if det.get('side') in ('Left', 'Right') else None,
                 'note': (i.get('shortComment') or '').strip() or None,
                 'return_est': det.get('returnDate') or None,
                 'updated_at': parse_time(i.get('date')),
