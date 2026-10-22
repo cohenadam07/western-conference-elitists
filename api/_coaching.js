@@ -28,7 +28,16 @@
 //
 // A unit's numbers are given under the man who called it, as the page credits them. A head
 // coach's answer names who called his offence and defence each season; it does not hand him
-// their numbers.
+// their numbers. An offence also carries the two charting panels its page draws: the route
+// mix (the targeted receiver's route, against the season's league) and the tell grid.
+//
+// TWO MORE VIEWS OF THE PAGE
+//   nfl_coaching_leaders   the front screen's Leaders boards, from leaders.json, which the
+//                          build draws with the page's own renderLeaders(). Nothing is sorted
+//                          here: a board is read from its first row down.
+//   nfl_coaching_tree      the #tree view, from tree.json, which the build grows with the
+//                          page's own layoutForest(). It covers the men the tree names who have
+//                          no page (Bill Walsh), which a profile cannot.
 //
 // Not a function itself: Vercel skips api files that start with an underscore.
 
@@ -45,6 +54,11 @@ const SOURCE = 'Coaching Savant, Western Conference Elitists (wcehoops.com)'
 const loadMeta = () => files.load('meta.json')
 const loadProfiles = () => files.load('profiles/all.json')
 const loadUnits = (season) => files.load(`units/${season}.json`)
+const loadLeaders = () => files.load('leaders.json')
+const loadTree = () => files.load('tree.json')
+
+// The Leaders boards, by the ids leaders.json gives them (the slicer's BOARDS).
+export const BOARD_IDS = ['most_wins', 'wins_above_expectation', 'playoff_rate', 'fourth_down_aggression', 'pass_rate_over_expected', 'tempo', 'fourth_down_decisions', 'motion', 'blitz', 'hardest_to_read']
 
 // The index of everyone with a page, with each name prepared for matching once per load.
 const prepared = new WeakMap()
@@ -558,6 +572,33 @@ function unitDetail(meta, file, u, notes, explained) {
     stats,
     no_value: missing,
   }
+  // The two charting panels an offence's page draws below its bars.
+  if (u.routes) {
+    structured.route_mix = u.routes.map((r) => ({ route: r[0].toLowerCase(), share_pct: r[1], league_pct: r[2] }))
+    if (explained) {
+      L.push(`Where the ball went, by the targeted receiver's route (his share, then the ${u.season} league average): ${structured.route_mix.map((r) => `${r.route} ${r.share_pct.toFixed(1)}%${r.league_pct == null ? '' : ` (lg ${r.league_pct.toFixed(1)}%)`}`).join(', ')}.`)
+      say(notes, L, 'Route mix: only the targeted receiver\'s route is charted publicly, so this is the route tree of his completions and incompletions, not his play designs.')
+    }
+  }
+  if (u.looks) {
+    const k = u.looks
+    const lean = (c) => (c[3] == null ? null : c[2] - c[3])
+    structured.tell_grid = {
+      looks: k.cells.map((c) => ({ look: c[0], snaps: c[1], pass_pct: c[2], league_pass_pct: c[3], lean: lean(c), play_action_pct: c[4], epa_per_snap: c[5] })),
+      shown_snaps: k.shown,
+      total_snaps: k.total,
+      predictability: k.pred ? { from_situation: k.pred[0], from_league_by_look: k.pred[1], from_his_tendencies: k.pred[2] } : null,
+      what_a_look_is: meta.notes.looks[u.era] || null,
+    }
+    if (explained) {
+      const pc = (v) => (v == null ? '—' : `${v.toFixed(0)}%`)
+      const signedLean = (v) => (v == null ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(0)}`)
+      L.push(`The tell grid, first and second down with the game in the balance: his ${k.cells.length} most-used looks (${thousands(k.shown)} of ${thousands(k.total)} snaps). ${meta.notes.looks[u.era] || ''}`.trim())
+      if (k.pred) L.push(`A defence calling run or pass would be right ${k.pred[0].toFixed(0)}% of the time from the situation alone, ${k.pred[1].toFixed(0)}% knowing the league's tendencies by look, ${k.pred[2].toFixed(0)}% knowing his.`)
+      for (const c of k.cells) L.push(`- ${c[0]}: ${c[1]} snaps, pass ${pc(c[2])} against ${pc(c[3])} for the league from the same spots (lean ${signedLean(lean(c))}), play-action ${pc(c[4])}, EPA/snap ${display('sgn3', c[5])}`)
+      say(notes, L, 'Tell grid: a positive lean means he passes more than the league does from the same look in the same down, distance, score and clock; a negative lean, that he runs more.')
+    }
+  }
   if (u.comps) {
     structured.most_similar_units = u.comps.map((c) => ({ caller: c[0], season: c[1], team: c[2], closer_than_pct_of_pairs: c[3] }))
     L.push(`${u.side === 'O' ? 'Offences' : 'Defences'} that looked most like this one, matched on style only: ${u.comps.map((c) => `${c[0]}'s ${c[1]} ${c[2]} (closer than ${pairShare(c[3])}% of pairs)`).join(', ')}.`)
@@ -681,6 +722,153 @@ export async function coachProfile({ coach, group = 'all', season }) {
   return { structured, text: L.join('\n') }
 }
 
+// ---- the Leaders boards ----------------------------------------------------------------
+
+// The boards on the page's front screen, as leaders.json holds them: every row, in the
+// page's order. The page shows ten.
+export async function coachingLeaders({ board = 'all', limit = 10 } = {}) {
+  const [meta, file] = await Promise.all([loadMeta(), loadLeaders()])
+  const boards = board === 'all' ? file.boards : file.boards.filter((b) => b.id === board)
+  if (!boards.length) throw new SavantError(`Coaching Savant has no "${board}" board right now. It has: ${file.boards.map((b) => b.id).join(', ')}.`)
+
+  const notes = []
+  const L = []
+  const out = boards.map((b) => {
+    const rows = b.rows.slice(0, limit).map((r, i) => ({
+      rank: i + 1,
+      name: r.name,
+      team: r.team || null,
+      season: b.season,
+      value: r.value,
+      display: r.display,
+      confirmed: b.kind === 'unit' ? r.sure : null,
+    }))
+    L.push('', `${b.title}${b.season ? ` — ${b.season}` : ''} (${b.kind === 'unit' ? 'play-callers' : 'head coaches'}; pool: ${b.pool}, ${b.rows.length} in all${b.rows.length > rows.length ? `, top ${rows.length} shown` : ''})`)
+    for (const r of rows) L.push(`${r.rank}. ${r.name}${r.team ? ` (${r.team})` : ''}${r.confirmed === false ? ' (unconfirmed)' : ''}: ${r.display}`)
+    if (b.note) L.push(b.note)
+    return { id: b.id, title: b.title, kind: b.kind === 'unit' ? 'unit' : 'coach', season: b.season, pool: b.pool, pool_size: b.rows.length, note: b.note, rows }
+  })
+  const head = boards.length === 1 ? `Coaching Savant's "${boards[0].title}" board` : `Coaching Savant's ${boards.length} Leaders boards`
+  const lines = [`${head}, as the page's front screen orders them (the page shows the top ${file.shown}).`]
+  if (boards.some((b) => b.kind !== 'unit') && file.current && file.current.week != null) {
+    notes.push(`Career figures include the ${file.current.season} season, counted through week ${file.current.week}.`)
+  }
+  if (boards.some((b) => b.kind === 'unit')) {
+    notes.push('The play-caller boards rank one season\'s units (one man calling one side for one team), credited to the man the page names as calling them.')
+    if (meta.notes.callers) notes.push(`About the play-callers: ${meta.notes.callers}`)
+    if (out.some((b) => b.rows.some((r) => r.confirmed === false))) notes.push(`Unconfirmed: ${meta.notes.unconfirmed}`)
+  }
+  const structured = { board, limit, boards: out, notes, url: file.page, data_as_of: day(meta.generated), source: SOURCE }
+  const text = [...lines, ...notes, ...L, '', `Page: ${file.page}`, `Source: ${SOURCE}. Data as of ${structured.data_as_of}.`]
+  return { structured, text: text.join('\n').replace(/\n{3,}/g, '\n\n') }
+}
+
+// ---- the tree --------------------------------------------------------------------------
+
+const preparedTree = new WeakMap()
+async function loadTreeIndex() {
+  const file = await loadTree()
+  let rows = preparedTree.get(file)
+  if (!rows) { rows = prepare(Object.keys(file.nodes).map((name) => ({ name }))); preparedTree.set(file, rows) }
+  return { file, rows }
+}
+
+// The coaching tree on the #tree page: with no coach, the trees and how big each is; with a
+// coach, his line back to the root of his tree and everyone beneath him, to a depth.
+export async function coachingTree({ coach, depth = 3 } = {}) {
+  const [meta, { file, rows }, people] = await Promise.all([loadMeta(), loadTreeIndex(), loadPeople()])
+  const N = file.nodes
+  const byName = new Map(people.map((r) => [r.name, r]))
+  const recordOf = (name) => { const r = byName.get(name); return r && r.hc ? `${record(r.w, r.l, r.t)}, ${plural(r.seasons, 'season')}` : null }
+  const caveat = `About the lineage: ${file.note}`
+  const notes = [caveat]
+
+  if (!coach) {
+    const trees = file.roots.filter((r) => r[1] > 1)
+    const sprouts = file.roots.filter((r) => r[1] === 1).map((r) => r[0])
+    const structured = {
+      coach: null,
+      trees: trees.map(([name, size]) => ({ root: name, size, has_page: N[name].p, branches: N[name].k.map((k) => ({ name: k, size: N[k].s })) })),
+      no_lineage: sprouts,
+      notes,
+      url: file.page,
+      data_as_of: day(meta.generated),
+      source: SOURCE,
+    }
+    const L = [`Coaching Savant's coaching tree: ${trees.reduce((n, t) => n + t[1], 0)} coaches in ${trees.length} trees, biggest first, and ${sprouts.length} head coaches with no recorded lineage.`, caveat, '']
+    for (const t of structured.trees) L.push(`- ${t.root} tree: ${t.size} coaches. Under him: ${t.branches.map((b) => `${b.name} (${b.size})`).join(', ')}.`)
+    L.push('', `No recorded lineage: ${sprouts.join(', ')}.`, '', 'A number in brackets is the size of that coach\'s branch, himself included.', `Page: ${file.page}`, `Source: ${SOURCE}. Data as of ${structured.data_as_of}.`)
+    return { structured, text: L.join('\n') }
+  }
+
+  // The name has to be one person in the tree.
+  const raw = String(coach).trim()
+  let name = N[raw] ? raw : null
+  if (!name) {
+    const ranked = rank(rows, raw)
+    const best = topTier(ranked)
+    if (best.length === 1 && ranked[0].score >= 60) name = best[0].name
+    else if (ranked.length) {
+      const list = (best.length > 1 ? best : ranked.slice(0, 6).map((r) => r.row)).slice(0, 8)
+      throw new SavantError(`${best.length > 1 ? `${best.length} coaches in the tree match "${raw}"` : `"${raw}" is not an exact match`}. Call again with one of these names:\n${list.map((r) => `- ${r.name}${recordOf(r.name) ? `: head coach, ${recordOf(r.name)}` : ''}`).join('\n')}`)
+    }
+  }
+  if (!name) {
+    const caller = rank(people, raw).find((r) => r.score >= 60)
+    if (caller) throw new SavantError(`${caller.row.name} is not in Coaching Savant's coaching tree: the tree holds head coaches and the men they learned under, and no lineage is recorded for him. His page: ${coachUrl(caller.row.name)}`)
+    throw new SavantError(`Nobody in Coaching Savant's coaching tree matches "${raw}". Call with no coach for the list of trees, or search with nfl_search_coaches.`)
+  }
+
+  const me = N[name]
+  const line = []
+  for (let at = me.m, seen = new Set([name]); at && !seen.has(at); at = N[at] ? N[at].m : null) { seen.add(at); line.push(at) }
+  const root = line.length ? line[line.length - 1] : name
+  const branch = []
+  let deeper = 0
+  const walk = (n, d) => {
+    for (const k of N[n].k) {
+      if (d > depth) { deeper += N[k].s; continue }
+      branch.push({ name: k, depth: d, under: n, role: N[k].r, branch_size: N[k].s, has_page: N[k].p, record: recordOf(k) })
+      walk(k, d + 1)
+    }
+  }
+  walk(name, 1)
+
+  const structured = {
+    coach: {
+      name,
+      has_page: me.p,
+      url: me.p ? coachUrl(name) : null,
+      record: recordOf(name),
+      mentor: me.m,
+      role_under_mentor: me.r,
+      also_shaped_by: me.a.map((a) => ({ name: a[0], role: a[1] })),
+      line: line.map((n) => ({ name: n, has_page: N[n].p })),
+      root,
+      branch_size: me.s - 1,
+    },
+    depth,
+    branch,
+    not_shown: deeper,
+    notes,
+    url: file.page,
+    data_as_of: day(meta.generated),
+    source: SOURCE,
+  }
+  const L = [`${name} in Coaching Savant's coaching tree${structured.coach.record ? ` (head coach, ${structured.coach.record})` : me.p ? '' : ' (no head-coaching record since 1999, so no page of his own)'}.`, caveat, '']
+  if (me.m) L.push(`Learned under ${me.m}: ${me.r}.${me.a.map((a) => ` Also shaped by ${a[0]}: ${a[1]}.`).join('')}`)
+  L.push(line.length ? `Line back to the root: ${[name, ...line].join(' ← ')}. Traces back to the ${root} tree.` : `He is the root of his own tree: no mentor is recorded for him, which means the lineage is missing, not that he learned it alone.`)
+  if (!branch.length) L.push('', 'Nobody in the tree learned under him.')
+  else {
+    L.push('', `Beneath him: ${plural(me.s - 1, 'coach', 'coaches')}${deeper ? `, ${branch.length} shown to depth ${depth} (${deeper} deeper)` : ''}, the biggest branch first as the page draws them:`)
+    for (const b of branch) {
+      L.push(`${'  '.repeat(b.depth - 1)}- ${b.name}${b.record ? ` (${b.record})` : b.has_page ? '' : ' (no page)'}${b.branch_size > 1 ? `, ${b.branch_size - 1} beneath him` : ''}${b.depth === 1 && b.role ? `. Under ${name}: ${b.role}` : ''}`)
+    }
+  }
+  L.push('', `Tree: ${file.page}${me.p ? `\nHis page: ${coachUrl(name)}` : ''}`, `Source: ${SOURCE}. Data as of ${structured.data_as_of}.`)
+  return { structured, text: L.join('\n') }
+}
+
 // ---- the tools -----------------------------------------------------------------------
 
 const pct = z.number().int().min(1).max(99).nullable()
@@ -730,6 +918,18 @@ const unitShape = z.object({
     what: z.string().nullable().describe('The site\'s one-line explanation of the stat.'),
   })),
   no_value: z.array(z.object({ key: z.string(), label: z.string() })).describe('Stats the page has no value for on this unit. Not zero.'),
+  route_mix: z.array(z.object({ route: z.string(), share_pct: z.number(), league_pct: z.number().nullable() })).optional().describe('Offences: the targeted receiver\'s route, his share and the season\'s league average, biggest first.'),
+  tell_grid: z.object({
+    looks: z.array(z.object({
+      look: z.string(), snaps: z.number().int(), pass_pct: z.number(), league_pass_pct: z.number().nullable(),
+      lean: z.number().nullable().describe('pass_pct minus league_pass_pct: positive leans pass.'),
+      play_action_pct: z.number().nullable(), epa_per_snap: z.number().nullable(),
+    })),
+    shown_snaps: z.number().int(),
+    total_snaps: z.number().int(),
+    predictability: z.object({ from_situation: z.number(), from_league_by_look: z.number(), from_his_tendencies: z.number() }).nullable().describe('How often run or pass would be called right, in %.'),
+    what_a_look_is: z.string().nullable(),
+  }).optional().describe('Offences: his most-used looks on early downs with the game in the balance.'),
   most_similar_units: z.array(z.object({ caller: z.string(), season: z.number().int(), team: z.string(), closer_than_pct_of_pairs: z.number() })).optional(),
   changed_on_arrival: z.object({
     previous_caller: z.string(),
@@ -879,5 +1079,86 @@ export const tools = [
       annotations: { title: 'Get an NFL coach\'s Savant profile', ...READ_ONLY },
     },
     run: ({ coach, group, season }) => coachProfile({ coach, group, season }),
+  },
+  {
+    name: 'nfl_coaching_leaders',
+    config: {
+      title: 'Get Coaching Savant\'s Leaders boards',
+      description:
+        'The Leaders boards on Coaching Savant\'s front screen (Western Conference Elitists, wcehoops.com), in the page\'s order. Head coaches since 1999 with three or more seasons: most wins, wins above what the closing spreads expected, playoff rate, fourth-down aggression, pass rate over expected, fastest tempo; with 48+ games of fourth-down data: best fourth-down decisions. Play-callers, latest season: most pre-snap motion, most blitzing defence, hardest offence to read. Each board names its pool and its size. The page shows ten a board; more can be asked for.',
+      inputSchema: {
+        board: z.enum(['all', ...BOARD_IDS]).default('all').describe(`One board, or "all" (default): ${BOARD_IDS.join(', ')}.`),
+        limit: z.number().int().min(1).max(50).default(10).describe('Rows per board (1-50, default 10, as on the page).'),
+      },
+      outputSchema: {
+        board: z.string(),
+        limit: z.number().int(),
+        boards: z.array(z.object({
+          id: z.string(),
+          title: z.string().describe('As the page prints it.'),
+          kind: z.string().describe('"coach" for a career board, "unit" for one season\'s play-calling units.'),
+          season: z.number().int().nullable().describe('Unit boards: the season ranked.'),
+          pool: z.string().describe('Who is ranked.'),
+          pool_size: z.number().int(),
+          note: z.string().nullable().describe('The page\'s caption under the board.'),
+          rows: z.array(z.object({
+            rank: z.number().int(),
+            name: z.string().describe('Coach or play-caller; the id for nfl_get_coach_profile.'),
+            team: z.string().nullable(),
+            season: z.number().int().nullable(),
+            value: z.number(),
+            display: z.string().describe('As the page prints it.'),
+            confirmed: z.boolean().nullable().describe('Unit boards: false when no report names the play-caller.'),
+          })),
+        })),
+        notes: z.array(z.string()),
+        url: z.string(),
+        data_as_of: z.string(),
+        source: z.string(),
+      },
+      annotations: { title: 'Get Coaching Savant\'s Leaders boards', ...READ_ONLY },
+    },
+    run: ({ board, limit }) => coachingLeaders({ board, limit }),
+  },
+  {
+    name: 'nfl_coaching_tree',
+    config: {
+      title: 'Get the NFL coaching tree',
+      description:
+        'Coaching Savant\'s coaching tree (Western Conference Elitists, wcehoops.com): who learned under whom among NFL head coaches since 1999 and the men they learned from, back to roots such as Paul Brown. With a coach: his mentor and role under him, his line back to the root of his tree, and everyone beneath him to a depth, biggest branch first as the page draws it, with head-coaching records. Without one: every tree and its size. Covers men with no page of their own, such as Bill Walsh. The lineage is hand-curated, not from a dataset, and comes with the page\'s caveat.',
+      inputSchema: {
+        coach: z.string().trim().min(1).max(80).optional().describe('A name in the tree, e.g. "Bill Walsh" or "Andy Reid". Omit for every tree. If a name fits more than one coach, the error lists them.'),
+        depth: z.number().int().min(1).max(10).default(3).describe('How many generations beneath him to list (1-10, default 3).'),
+      },
+      outputSchema: {
+        coach: z.object({
+          name: z.string(),
+          has_page: z.boolean(),
+          url: z.string().nullable(),
+          record: z.string().nullable().describe('Regular-season head-coaching record since 1999 and seasons.'),
+          mentor: z.string().nullable(),
+          role_under_mentor: z.string().nullable(),
+          also_shaped_by: z.array(z.object({ name: z.string(), role: z.string() })),
+          line: z.array(z.object({ name: z.string(), has_page: z.boolean() })).describe('His mentor, that man\'s mentor, and so on to the root.'),
+          root: z.string(),
+          branch_size: z.number().int().describe('Everyone beneath him, at any depth.'),
+        }).nullable(),
+        depth: z.number().int().optional(),
+        branch: z.array(z.object({
+          name: z.string(), depth: z.number().int().describe('1 learned under him directly.'), under: z.string(),
+          role: z.string().nullable().describe('His role under the coach above him.'), branch_size: z.number().int().describe('Himself and everyone beneath him.'),
+          has_page: z.boolean(), record: z.string().nullable(),
+        })).optional().describe('Depth first, biggest branch first.'),
+        not_shown: z.number().int().optional().describe('Coaches beneath him deeper than depth.'),
+        trees: z.array(z.object({ root: z.string(), size: z.number().int(), has_page: z.boolean(), branches: z.array(z.object({ name: z.string(), size: z.number().int() })) })).optional().describe('Without a coach: every tree, biggest first.'),
+        no_lineage: z.array(z.string()).optional().describe('Without a coach: head coaches with no recorded mentor and nobody under them.'),
+        notes: z.array(z.string()),
+        url: z.string(),
+        data_as_of: z.string(),
+        source: z.string(),
+      },
+      annotations: { title: 'Get the NFL coaching tree', ...READ_ONLY },
+    },
+    run: ({ coach, depth }) => coachingTree({ coach, depth }),
   },
 ]

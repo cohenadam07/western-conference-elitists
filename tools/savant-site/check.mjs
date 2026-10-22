@@ -39,7 +39,12 @@ import { z } from 'zod'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
+import vm from 'node:vm'
 import { BASE, SITE, SLUG, buildSiteApi, htmlToText, readContent, writeSiteApi } from '../../scripts/lib/savant-api-site.mjs'
+import { buildDraftApi } from '../../scripts/lib/savant-api-draft.mjs'
+// The homepage banner's own gatherers and its own picking rules, run as they are.
+import { KEEP_DAYS, articles as bannerArticles, nextCard as bannerCard, updates as bannerUpdates } from '../../scripts/lib/whats-new.mjs'
+import { label as bannerLabel, pickRecent, stamp as bannerStamp } from '../../src/lib/whatsNew.js'
 // The Dynasty page's own value curve. Plain JavaScript, so it loads as it is.
 import { VALUE_LAMBDA, VALUE_TOP, buildScale, displayValue } from '../../src/lib/dynastyValue.js'
 
@@ -56,10 +61,24 @@ const sources = {
   dynastyPlayers: json('public/dynasty/players.json'),
   dynastyValueJs: read('src/lib/dynastyValue.js'),
   dynastyApiJs: read('api/dynasty.js'),
+  // What the banner's build step gathers, uploads aside (scripts/lib/whats-new.mjs).
+  whatsNewItems: [...bannerArticles(ROOT), ...bannerUpdates(ROOT), ...bannerCard(ROOT)],
+  whatsNewJs: read('src/lib/whatsNew.js'),
+  keepDays: KEEP_DAYS,
+  now: Date.now(),
 }
 // Through JSON once, because that is what gets published.
 const publish = (out) => JSON.parse(JSON.stringify(out))
 const built = publish(buildSiteApi(sources))
+// Draft Savant's files, for the names of trending prospects. Basketball Savant's index is
+// built from a 70 MB file this check does not load; its stand-in is made from the Dynasty
+// list, whose players carry their NBA ids, in the same shape.
+const draftBuilt = publish(buildDraftApi({ data: json('public/data.json'), html: read('public/draft-savant.html') }))
+const bsIndex = {
+  schema: 1,
+  count: 0,
+  players: json('public/dynasty/players.json').players.map((p) => ({ id: p.id, name: p.name, pos: p.pos, team: p.team, from: '2025-26', to: '2025-26', seasons: 1 })),
+}
 
 const pages = {
   app: read('src/App.jsx'),
@@ -70,6 +89,9 @@ const pages = {
   published: read('src/data/publishedArticles.js'),
   dynasty: read('src/pages/Dynasty.jsx'),
   siteJs: read('api/_site.js'),
+  home: read('src/pages/Home.jsx'),
+  basketball: read('public/basketball-savant.html'),
+  draft: read('public/draft-savant.html'),
 }
 
 let compared = 0
@@ -99,13 +121,32 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // Upstash Redis over REST, as far as api/dynasty.js uses it to answer action=board. Every
 // command is recorded, so a write that is not the handler's own seeding would be seen.
-const store = { down: false, commands: [], rating: new Map(), prev: new Map(), seen: new Map(), streak: new Map(), n: 0 }
+const store = { down: false, commands: [], rating: new Map(), prev: new Map(), seen: new Map(), streak: new Map(), n: 0, z: new Map() }
 const flat = (map) => [...map.entries()].flatMap(([k, v]) => [k, String(v)])
 // Highest score first; equal scores in reverse order of member, as ZREVRANGE gives them.
-const boardOrder = () => [...store.rating.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0))
+const byScore = (map) => [...map.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0))
+const boardOrder = () => byScore(store.rating)
+// The search counter's sorted sets (api/trending.js): one per namespace per day, and the
+// scratch unions its read builds.
+function trendRedis(op, key, args) {
+  if (op === 'ZUNIONSTORE') {
+    const n = Number(args[0])
+    const keys = args.slice(1, 1 + n)
+    const w = args[1 + n] === 'WEIGHTS' ? args.slice(2 + n, 2 + 2 * n).map(Number) : keys.map(() => 1)
+    const out = new Map()
+    keys.forEach((k, i) => { for (const [m, s] of store.z.get(k) || []) out.set(m, (out.get(m) || 0) + s * w[i]) })
+    store.z.set(key, out)
+    return out.size
+  }
+  if (op === 'EXPIRE') return 1
+  if (op === 'ZREVRANGE') return byScore(store.z.get(key) || new Map()).slice(args[0], args[1] + 1).flatMap(([m, s]) => [m, String(s)])
+  if (op === 'ZMSCORE') return args.map((m) => { const s = (store.z.get(key) || new Map()).get(m); return s == null ? null : String(s) })
+  throw new Error(`the stand-in store has no ${op} for the search counter`)
+}
 function redis(cmd) {
   store.commands.push(cmd[0])
   const [op, key, ...args] = cmd
+  if (/^(bs|dr):trend:/.test(String(key))) return trendRedis(op, key, args)
   if (op === 'ZCARD') return store.rating.size
   if (op === 'HGETALL') return flat({ 'dyn:prev': store.prev, 'dyn:seen': store.seen, 'dyn:streak': store.streak }[key] || new Map())
   if (op === 'GET') return key === 'dyn:n' ? String(store.n) : null
@@ -129,10 +170,29 @@ const upstash = http.createServer(async (req, res) => {
 
 // The site: the built files, the homepage for anything else (what the live catch-all does,
 // with a 200), the seed list api/dynasty.js fetches, and /api/dynasty itself.
-const site = { files: built, hits: 0, api: [], feed: 'live', seedList: true, delay: 0, canned: null }
+const site = { files: built, hits: 0, api: [], feed: 'live', seedList: true, delay: 0, canned: null, trend: 'live', league: 'live' }
 let handlers = null // api/dynasty.js three times: with a store, with one it has never seeded, and with none
+let trending = null // api/trending.js with the stand-in store, and with none
+let league = null   // api/league.js, which reaches the platforms through the stand-ins below
+// A function as Vercel calls it.
+function vercel(req, res, url) {
+  req.query = Object.fromEntries(url.searchParams)
+  req.headers['x-forwarded-proto'] = 'http'
+  res.status = (code) => { res.statusCode = code; return res }
+  res.json = (body) => { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(body)) }
+}
 const www = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://site')
+  if (url.pathname === '/api/trending' || url.pathname === '/api/league') {
+    let bytes = 0
+    for await (const c of req) bytes += c.length
+    site.api.push({ method: req.method, path: url.pathname, query: url.search, bytes })
+    const mode = url.pathname === '/api/trending' ? site.trend : site.league
+    if (mode === 'html') { res.writeHead(200, { 'content-type': 'text/html' }); return res.end('<!doctype html><title>Sign in</title>') }
+    if (mode === 'http500') { res.writeHead(500, { 'content-type': 'text/plain' }); return res.end('FUNCTION_INVOCATION_FAILED') }
+    vercel(req, res, url)
+    return url.pathname === '/api/trending' ? trending[mode](req, res) : league(req, res)
+  }
   if (url.pathname.startsWith('/api/')) {
     let bytes = 0
     for await (const c of req) bytes += c.length
@@ -153,15 +213,115 @@ const www = http.createServer(async (req, res) => {
     res.writeHead(200, { 'content-type': 'application/json' })
     return res.end(JSON.stringify(sources.dynastyPlayers))
   }
+  // The two Savant sections' files the trending list puts names to.
+  const other = { '/savant-api/basketball/v1/players.json': bsIndex, '/savant-api/draft/v1/meta.json': draftBuilt.meta, '/savant-api/draft/v1/prospects.json': draftBuilt.prospects }[url.pathname]
+  if (other) { res.writeHead(200, { 'content-type': 'application/json' }); return res.end(JSON.stringify(other)) }
   site.hits++
   const p = decodeURIComponent(url.pathname).replace(`/${BASE}/`, '')
   const article = p.match(/^articles\/(.+)\.json$/)
   const f = site.files
-  const body = { 'meta.json': f.meta, 'news.json': f.news, 'articles.json': f.articles, 'big-board.json': f.bigBoard, 'dynasty.json': f.dynasty }[p] || (article && f.texts[article[1]])
+  const body = { 'meta.json': f.meta, 'news.json': f.news, 'articles.json': f.articles, 'big-board.json': f.bigBoard, 'dynasty.json': f.dynasty, 'whats-new.json': f.whatsNew }[p] || (article && f.texts[article[1]])
   if (!body) { res.writeHead(200, { 'content-type': 'text/html' }); return res.end('<!doctype html><title>WCE</title>') }
   res.writeHead(200, { 'content-type': 'application/json' })
   res.end(JSON.stringify(body))
 })
+
+// ---- the fantasy platforms, stood in for ---------------------------------------------
+
+// api/league.js reaches Sleeper, ESPN and Fantrax itself. In this check those three hosts
+// answer from here, with leagues made of the Dynasty list's own players spelled the way a
+// platform might spell them. The connector never reaches them (pinned below): it asks the
+// site's /api/league, which is the real handler.
+const PLATFORM_HOSTS = new Set(['api.sleeper.app', 'lm-api-reads.fantasy.espn.com', 'www.fantrax.com'])
+const platformCalls = []
+
+// A name as a platform might write it: with accents, with a Jr. added or dropped, in
+// capitals, as the surname alone, or as it is.
+function respell(name, k) {
+  switch (k % 9) {
+    case 1: return name.replace(/e/, 'é').replace(/c(?=[^c]*$)/, 'ć')
+    case 2: return / (Jr\.|Sr\.|II|III|IV)$/.test(name) ? name.replace(/ (Jr\.|Sr\.|II|III|IV)$/, '') : `${name} Jr.`
+    case 3: return name.toUpperCase()
+    case 4: return name.split(' ').slice(-1)[0]
+    case 5: return name.replace(/\./g, '')
+    default: return name
+  }
+}
+const SLEEPER_POS = (pos, k) => (k % 5 === 0 ? [] : k % 5 === 1 && pos === 'PG' ? ['PG', 'SG'] : k % 5 === 2 && pos === 'SF' ? ['SF', 'PF'] : [pos])
+function makeLeagues() {
+  const rnd = mulberry(4242)
+  const dyn = json('public/dynasty/players.json').players
+  const shuffled = (list) => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] } return a }
+  // Sleeper's player list: every Dynasty player under a Sleeper id, some respelled, and ten
+  // players the Dynasty list does not have.
+  const dict = {}
+  dyn.forEach((p, k) => { dict[`S${p.id}`] = { full_name: respell(p.name, k), fantasy_positions: SLEEPER_POS(p.pos, k) } })
+  for (let k = 0; k < 10; k++) dict[`X${k}`] = { full_name: `Unlisted Player ${k}`, fantasy_positions: ['C'] }
+  const sleeperLeague = (teams, perTeam, positions) => {
+    const pool = shuffled(dyn.map((p) => `S${p.id}`))
+    const rosters = Array.from({ length: teams }, (_, t) => ({
+      roster_id: t + 1,
+      owner_id: `owner${t + 1}`,
+      players: [...pool.slice(t * perTeam, (t + 1) * perTeam), ...(t % 3 === 0 ? [`X${t % 10}`] : []), ...(t === 1 ? [pool[t * perTeam]] : [])],
+    }))
+    return { rosters, users: rosters.map((r, t) => ({ user_id: r.owner_id, display_name: `Team ${String.fromCharCode(65 + t)}` })), league: { name: `WCE Check League ${teams}`, roster_positions: positions } }
+  }
+  const leagues = {
+    '1111111111111': sleeperLeague(12, 14, ['PG', 'SG', 'G', 'SF', 'PF', 'F', 'C', 'UTIL', 'UTIL', 'UTIL', 'BN', 'BN', 'BN', 'IR']),
+    '2222222222222': sleeperLeague(10, 16, ['PG', 'SG', 'SF', 'PF', 'C', 'SUPER_FLEX', 'UTIL', 'BN', 'BN', 'TAXI']),
+    '3333333333333': sleeperLeague(8, 30, ['C', 'C', 'G', 'F', 'UTIL', 'BN']),
+    '4444444444444': { rosters: [], users: [], league: { name: 'No rosters yet' } },
+  }
+  const users = { wcefan: { user_id: 'fan1' }, twoleagues: { user_id: 'fan2' }, lonely: { user_id: 'fan3' } }
+  const userLeagues = { fan1: [{ league_id: '1111111111111', name: 'WCE Check League 12' }], fan2: [{ league_id: '1111111111111', name: 'WCE Check League 12' }, { league_id: '2222222222222', name: 'WCE Check League 10' }], fan3: [] }
+  // ESPN: positions by lineup-slot number, as league.js reads them.
+  const ESPN = { PG: [0, 5], SG: [1, 5], SF: [2, 6], PF: [3, 6], C: [4] }
+  const pool = shuffled(dyn)
+  const espn = {
+    teams: Array.from({ length: 10 }, (_, t) => ({
+      id: t + 1,
+      location: `City ${t + 1}`,
+      nickname: 'Fives',
+      roster: { entries: pool.slice(t * 13, (t + 1) * 13).map((p, k) => ({ playerPoolEntry: { player: { fullName: respell(p.name, k + t), eligibleSlots: [...(ESPN[p.pos] || []), 11, 12] } } })) },
+    })),
+  }
+  // Fantrax: "Last, First" names and comma-separated positions.
+  const fantraxIds = {}
+  dyn.forEach((p, k) => { const parts = p.name.split(' '); fantraxIds[`F${p.id}`] = { name: parts.length > 1 ? `${parts.slice(1).join(' ')}, ${parts[0]}` : p.name, position: k % 4 === 0 ? `${p.pos},UT` : p.pos } })
+  const fpool = shuffled(dyn)
+  const fantrax = { rosters: Object.fromEntries(Array.from({ length: 8 }, (_, t) => [`t${t}`, { teamName: `Fantrax Team ${t + 1}`, rosterItems: fpool.slice(t * 12, (t + 1) * 12).map((p) => ({ id: `F${p.id}` })) }])) }
+  return { dict, leagues, users, userLeagues, espn, fantraxIds, fantrax }
+}
+const fx = makeLeagues()
+
+function platformAnswer(url) {
+  platformCalls.push(url.host)
+  const reply = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
+  const p = url.pathname
+  let m
+  if (url.host === 'api.sleeper.app') {
+    if (p === '/v1/players/nba') return reply(fx.dict)
+    if ((m = p.match(/^\/v1\/user\/([^/]+)$/))) return reply(fx.users[m[1]] || null)
+    if ((m = p.match(/^\/v1\/user\/([^/]+)\/leagues\/nba\/\d{4}$/))) return reply(fx.userLeagues[m[1]] || [])
+    if ((m = p.match(/^\/v1\/league\/(\d+)(\/rosters|\/users)?$/))) {
+      const lg = fx.leagues[m[1]]
+      if (!lg) return reply(null, 404)
+      return reply(m[2] === '/rosters' ? lg.rosters : m[2] === '/users' ? lg.users : lg.league)
+    }
+  }
+  if (url.host === 'lm-api-reads.fantasy.espn.com') {
+    // League 777 is a private one: ESPN answers outsiders with a 401.
+    if (p.endsWith('/leagues/777')) return reply({ messages: ['Not authorized'] }, 401)
+    if (p.endsWith('/leagues/4040')) return reply(fx.espn)
+  }
+  if (url.host === 'www.fantrax.com') {
+    if (p === '/fxea/general/getPlayerIds') return reply(fx.fantraxIds)
+    if (p === '/fxea/general/getTeamRosters' && url.searchParams.get('leagueId') === 'fxleague1') return reply(fx.fantrax)
+    if (p === '/fxea/general/getTeamRosters') return reply({ error: 'no such league' })
+  }
+  return reply(null, 404)
+}
+const realFetch = globalThis.fetch
 
 let core
 let section
@@ -170,13 +330,20 @@ let tool
 const savedFeed = {}
 
 before(async () => {
+  globalThis.fetch = (input, init) => {
+    const url = new URL(typeof input === 'string' ? input : input.url)
+    return PLATFORM_HOSTS.has(url.host) ? Promise.resolve(platformAnswer(url)) : realFetch(input, init)
+  }
   process.env.KV_REST_API_URL = `http://127.0.0.1:${await listen(upstash)}`
   process.env.KV_REST_API_TOKEN = 'check-token'
   const on = (await import('../../api/dynasty.js?store=on')).default
   const fresh = (await import('../../api/dynasty.js?store=fresh')).default // has never seeded a board
+  const trendOn = (await import('../../api/trending.js?store=on')).default
   for (const k of ['KV_REST_API_URL', 'KV_REST_API_TOKEN', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN']) delete process.env[k]
   const off = (await import('../../api/dynasty.js?store=off')).default
   handlers = { on, off, fresh }
+  trending = { live: trendOn, off: (await import('../../api/trending.js?store=off')).default }
+  league = (await import('../../api/league.js')).default
 
   process.env.SAVANT_API_ORIGIN = `http://127.0.0.1:${await listen(www)}`
   core = await import('../../api/_core.js')
@@ -187,17 +354,19 @@ before(async () => {
 })
 
 after(() => {
+  globalThis.fetch = realFetch
   for (const server of [www, upstash]) { server.close(); server.closeAllConnections() }
   rmSync(sandbox, { recursive: true, force: true })
 })
 
 // Forget everything held in memory and put the site back to normal.
 function reset({ files = built } = {}) {
-  Object.assign(site, { files, feed: 'live', seedList: true, delay: 0, canned: null })
+  Object.assign(site, { files, feed: 'live', seedList: true, delay: 0, canned: null, trend: 'live', league: 'live' })
   Object.assign(section.dynastyFeed, savedFeed)
   store.down = false
   core.clearCache()
   section.dynastyFeed.clear()
+  section.trendingFeed.clear()
 }
 
 // A tool's run(), with the answer checked against the tool's own declared shape.
@@ -296,6 +465,35 @@ test('the rules that live inline in the pages are still there', () => {
   // fails, someone added the daily roll, and the change can be reported after all.
   assert.equal(sources.dynastyApiJs.split("'dyn:prev'").length - 1, 3, "api/dynasty.js touches 'dyn:prev' somewhere new")
   assert.equal((sources.dynastyApiJs.match(/\['HSET', 'dyn:prev'\]/g) || []).length, 1, 'dyn:prev is now written in more than one place')
+
+  // What the banner shows, and how it is gathered: the tool's list is this one minus uploads.
+  pin(pages.home, 'const recent = pickRecent(WHATS_NEW.items).map((it) => ({ text: label(it), tag: stamp(it), fresh: it.fresh, to: it.to, href: it.href }))', 'how the banner picks its lines')
+  pin(read('scripts/lib/whats-new.mjs'), 'const all = [...articles(root), ...updates(root), ...nextCard(root), ...(await videos(root, warn, status))]', 'what the banner gathers')
+  pin(read('scripts/lib/whats-new.mjs'), 'return all.filter((it) => Date.parse(it.date) >= cutoff).sort((a, b) => Date.parse(b.date) - Date.parse(a.date))', 'the banner\'s 45-day cut and order')
+
+  // The trending chips: what each page asks for, which ids it keeps, and how many it draws.
+  pin(pages.basketball, "fetch(TREND_API,{cache:'no-store'})", 'what Basketball Savant asks /api/trending for')
+  pin(pages.basketball, "items=j.top.map(function(t){var e=PIDX[asId(t.id)];return e?{p:e.ref,trend:t.trend||'flat'}:null;}).filter(Boolean);", 'the ids Basketball Savant keeps')
+  pin(pages.draft, "fetch(TREND_API+'?ns=dr',{cache:'no-store'})", 'what Draft Savant asks /api/trending for')
+  pin(pages.draft, "items=j.top.map(function(t){var p=byId(t.id);return p?{p:p,trend:t.trend||'flat'}:null;}).filter(Boolean); }", 'the ids Draft Savant keeps')
+  for (const page of [pages.basketball, pages.draft]) pin(page, 'items.slice(0,6).forEach(function(it,i){', 'how many chips a page draws')
+  const trendJs = read('api/trending.js')
+  pin(trendJs, 'const DAYS = 7', 'the trending window')
+  pin(trendJs, 'const weights = keys.map((_, i) => DAYS - i)            // today heaviest -> ranking', 'the trending weights')
+  pin(trendJs, "const rKeys = keys.slice(0, 3), pKeys = keys.slice(3, 7)", 'the trend windows')
+  pin(trendJs, 'if (rawR + rawP >= 2) {', 'the fewest picks that can make a trend')
+  pin(trendJs, "trend = ratio >= 1.3 ? 'up' : ratio <= 0.7 ? 'down' : 'flat'", 'what rising and cooling off mean')
+
+  // A connected league: how the Dynasty page asks for one, what it says when it cannot, and
+  // what its two orders mean.
+  pin(pages.dynasty, "const qs = new URLSearchParams({ platform, code: code.trim() })", 'what the Dynasty page asks /api/league for')
+  pin(pages.dynasty, "if (leagueId) qs.set('league', leagueId)", 'how the Dynasty page picks a league')
+  pin(pages.dynasty, 'fetch(`/api/league?${qs}`)', 'the league reader')
+  for (const said of ["'no-user': 'No Sleeper user with that username.'", "'no-leagues': 'That account has no NBA leagues we can see.'", "'no-league': 'Could not read that league. If it is private, paste your roster instead.'", "'empty': 'That league came back with no rosters yet.'", "'bad-code': 'That does not look like a valid code.'", "}[j.error] || 'Could not reach that league. Paste your roster instead.')"]) pin(pages.dynasty, said, 'what the Dynasty page says when a league cannot be read')
+  pin(pages.dynasty, '? `Best possible lineup for each team at ${leagueRanks.slots.join(\' / \')} — every roster is optimised, not taken as currently set, so this compares ceilings rather than who remembered to set their lineup.`', 'what the lineup order means')
+  pin(pages.dynasty, ": 'Every rostered player, summed. Measures accumulated equity, which rewards depth a starting lineup never plays.'}", 'what the roster order means')
+  pin(pages.dynasty, '{[...leagueRanks.teams].sort((a, b) => b[rankMode] - a[rankMode]).map((t, i, arr) => {', 'the two orders')
+  assert.doesNotMatch(pages.siteJs, /sleeper\.app|fantasy\.espn|fantrax\.com/, 'api/_site.js names a fantasy platform: it should only ever ask /api/league')
 
   // The tool's own promises, in its source: one fetch, a GET, and only ever action=board.
   assert.equal((pages.siteJs.match(/\bfetch\(/g) || []).length, 1, 'api/_site.js should make exactly one kind of request itself')
@@ -830,9 +1028,11 @@ test('no template copy reaches a file or an answer', async () => {
   assert.deepEqual(content.SOCIALS.filter((s) => s.href !== '#').map((s) => s.label), ['YouTube', 'Instagram', 'TikTok', 'X / Twitter', 'Threads', 'Bluesky'], 'SOCIALS changed: decide whether it belongs in an answer')
 
   const haystacks = [['the built files', JSON.stringify(built)]]
+  // Every page of both News lists (a second page only when the list runs past 25).
+  const newsPages = ['headlines', 'analytics'].flatMap((section) => Array.from({ length: Math.ceil(sources.news[section].length / 25) }, (_, i) => ['wce_get_news', { section, start: 1 + 25 * i, limit: 25 }]))
   const answers = [
-    ['wce_get_news', { limit: 25 }], ['wce_get_news', { start: 26, limit: 25 }], ['wce_get_news', { section: 'analytics', limit: 25 }], ['wce_get_news', { section: 'analytics', start: 26, limit: 25 }],
-    ['wce_search_articles', {}], ['wce_get_big_board', {}], ['wce_get_big_board', { year: 2025 }],
+    ...newsPages,
+    ['wce_search_articles', {}], ['wce_get_big_board', {}], ['wce_get_big_board', { year: 2025 }], ['wce_whats_new', {}],
     ...built.articles.articles.map((a) => ['wce_get_article', { article: a.slug }]),
   ]
   for (const [name, args] of answers) {
@@ -1137,6 +1337,255 @@ test('a board read a moment ago stands in when a re-read fails, says so, and doe
   reset()
 })
 
+// ---- 5b. trending ------------------------------------------------------------------------
+
+// The search counter's days, as api/trending.js names them, newest first.
+function trendDays(ns) {
+  const now = Date.now()
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(now - i * 86400000)
+    return `${ns}:trend:${d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate()}`
+  })
+}
+// Fill a week of searches: picks[day][id] = count.
+function searches(ns, picks) {
+  for (const k of [...store.z.keys()]) if (k.startsWith(`${ns}:`)) store.z.delete(k)
+  trendDays(ns).forEach((key, day) => store.z.set(key, new Map(Object.entries(picks[day] || {}))))
+}
+
+test('the trending lists are the chips each page draws, with the page\'s names, in the counter\'s order', async () => {
+  reset()
+  const rnd = mulberry(99)
+  const bsIds = bsIndex.players.map((p) => String(p.id))
+  const draftPlayers = json('public/data.json').players
+  const drIds = draftPlayers.map((p) => p.id)
+  let lists = 0
+  for (let round = 0; round < 12; round++) {
+    // A week of picks with some ids the pages cannot name, ties, and every kind of trend.
+    const week = (ids) => Array.from({ length: 7 }, (_, day) => Object.fromEntries(Array.from({ length: 6 + Math.floor(rnd() * 10) }, () => [
+      rnd() < 0.08 ? `ghost-${Math.floor(rnd() * 5)}` : ids[Math.floor(rnd() * Math.min(ids.length, 30))],
+      1 + Math.floor(rnd() * (day < 3 ? 6 : 3)),
+    ])))
+    searches('bs', week(bsIds))
+    searches('dr', week(drIds))
+    section.trendingFeed.clear()
+    const { structured: s, text } = await run('wce_get_trending', {})
+    // What /api/trending answers, from the real handler, read the way the pages read it.
+    for (const [list, ns, nameOf] of [[s.lists[0], 'bs', (id) => bsIndex.players.find((p) => String(p.id) === id)], [s.lists[1], 'dr', (id) => draftPlayers.find((p) => p.id === id)]]) {
+      const res = await realFetch(`${process.env.SAVANT_API_ORIGIN}/api/trending${ns === 'dr' ? '?ns=dr' : ''}`)
+      const j = await res.json()
+      const kept = j.top.map((t) => { const p = nameOf(t.id); return p ? { p, trend: t.trend || 'flat', score: t.score, id: t.id } : null }).filter(Boolean)
+      same(list.items.map((x) => [x.id, x.name, x.trend, x.weighted_searches]), kept.map((k) => [String(k.id), k.p.name, k.trend, k.score]), `round ${round} ${ns}: the counter's order, as the page keeps it`)
+      same(list.items.filter((x) => x.on_home_screen).map((x) => x.id), kept.slice(0, 6).map((k) => String(k.id)), `round ${round} ${ns}: the chips the page draws`)
+      same(list.unknown_ids, j.top.length - kept.length, `round ${round} ${ns}: ids the page cannot name`)
+      for (const x of list.items) {
+        assert.equal(x.url, ns === 'bs' ? `${SITE}/basketball-savant.html?p=${x.id}` : `${SITE}/draft-savant.html`)
+        assert.ok(text.includes(`${x.rank}. ${x.name}`), `${x.name} is in the text`)
+      }
+      lists++
+    }
+  }
+  // The card link is the Basketball Savant section's own.
+  const bs = await import('../../api/_basketball.js')
+  assert.equal((await run('wce_get_trending', { section: 'players' })).structured.lists[0].items[0].url, bs.cardUrl((await run('wce_get_trending', { section: 'players' })).structured.lists[0].items[0].id))
+  // Trends, worked through: up, down, flat, and too few picks to call.
+  searches('bs', { 0: { 1641705: 5 }, 1: { 1641705: 5, 1628983: 1 }, 4: { 1628983: 4, 1629029: 1 }, 5: { 1628983: 4 }, 6: { 1630162: 1 } })
+  section.trendingFeed.clear()
+  const t = (await run('wce_get_trending', { section: 'players' })).structured.lists[0].items
+  assert.deepEqual(t.map((x) => [x.name, x.trend]), [['Victor Wembanyama', 'up'], ['Shai Gilgeous-Alexander', 'down'], ['Luka Doncic', 'flat'], ['Anthony Edwards', 'flat']])
+  assert.deepEqual(t.map((x) => x.weighted_searches), [5 * 7 + 5 * 6, 6 + 4 * 3 + 4 * 2, 3, 1])
+  // An empty week, and the counter off: said, and nothing put in its place.
+  searches('dr', {})
+  section.trendingFeed.clear()
+  const quiet = await run('wce_get_trending', { section: 'prospects' })
+  assert.equal(quiet.structured.lists[0].items.length, 0)
+  assert.match(quiet.text, /Nobody has been searched for there in the last 7 days\./)
+  for (const [mode, re] of [['off', /search counter is offline\. The pages show their own picks meanwhile, which are not search counts\./], ['html', /could not be read right now/], ['http500', /could not be read right now/]]) {
+    reset()
+    site.trend = mode
+    await refuses(run('wce_get_trending', {}), re, `trending ${mode}`)
+  }
+  // Read once a minute, not once a question.
+  reset()
+  const before = site.api.length
+  await run('wce_get_trending', {})
+  await run('wce_get_trending', { section: 'players' })
+  await run('wce_get_trending', { section: 'prospects' })
+  assert.equal(site.api.length - before, 2, 'one read per list')
+  console.log(`      ${lists} trending lists compared with the counter as the pages read it`)
+})
+
+// ---- 5c. what's new ----------------------------------------------------------------------
+
+test('what\'s new is the banner\'s list, uploads aside, picked by the banner\'s own rules at every moment', async () => {
+  reset()
+  // The file holds what the banner's build step gathers, with its cut, in its order.
+  const now = sources.now
+  const gathered = sources.whatsNewItems.filter((it) => Date.parse(it.date) >= now - KEEP_DAYS * 864e5).sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+  assert.deepEqual(built.whatsNew.items.map((it) => [it.kind, it.date, it.text]), gathered.map((it) => [it.kind, it.date, it.text]))
+  assert.ok(built.whatsNew.items.every((it) => it.kind !== 'video' && it.kind !== 'short'), 'no uploads')
+  for (const it of built.whatsNew.items) {
+    const src = gathered.find((g) => g.text === it.text && g.date === it.date)
+    assert.equal(it.url, SITE + (src.to || src.href), `${it.text}: the banner's link, made absolute`)
+  }
+  // The real pickRecent, label and stamp, against the tool, every 5 hours over 60 days.
+  let moments = 0
+  let lines = 0
+  const check = async (items) => {
+    for (let t = now - 50 * 864e5; t <= now + 10 * 864e5; t += 5 * 3600e3) {
+      const { structured: s } = await section.getWhatsNew({}, t)
+      const page = pickRecent(items, t)
+      same(s.items.map((x) => [x.line, x.tag, x.new, x.date]), page.map((it) => [bannerLabel(it), bannerStamp(it), it.fresh, it.date]), `at ${new Date(t).toISOString()}`)
+      moments++
+      lines += page.length
+    }
+  }
+  await check(gathered)
+  // And over a made-up list where every rule fires: each kind's age and cap, a card's lead
+  // and tail, an article dated ahead, ties on a date, the banner's eight lines.
+  const day = (d, h = 0) => new Date(now + d * 864e5 + h * 3600e3).toISOString()
+  const fake = [
+    ...Array.from({ length: 7 }, (_, i) => ({ kind: 'update', date: day(-i * 4).slice(0, 10), product: `Product ${i}`, version: i % 2 ? `1.${i}.0` : undefined, text: `update ${i}`, to: '/hoops' })),
+    ...Array.from({ length: 5 }, (_, i) => ({ kind: 'article', date: day(-i * 9, 3), text: `article ${i}`, to: `/articles/a-${i}` })),
+    { kind: 'article', date: day(2), text: 'dated ahead', to: '/articles/later' },
+    { kind: 'article', date: day(-4).slice(0, 10), text: 'tied with an update', to: '/articles/tie' },
+    { kind: 'event', date: day(3).slice(0, 10), text: 'UFC Savant: every fighter on the next card', href: '/ufc-savant.html' },
+    { kind: 'event', date: day(20).slice(0, 10), text: 'a card too far off', href: '/ufc-savant.html' },
+  ]
+  reset({ files: { ...built, whatsNew: publish(buildSiteApi({ ...sources, whatsNewItems: fake })).whatsNew } })
+  await check(fake.filter((it) => Date.parse(it.date) >= now - KEEP_DAYS * 864e5).sort((a, b) => Date.parse(b.date) - Date.parse(a.date)))
+  reset()
+  // The answer as a fan reads it.
+  const r = await run('wce_whats_new', {})
+  assert.match(r.text, /^What's new on wcehoops\.com, as the homepage banner shows it:/)
+  for (const x of r.structured.items) assert.ok(r.text.includes(`- ${x.tag} · ${x.line}`))
+  assert.ok(r.structured.notes.some((n) => n.includes('YouTube uploads')), 'says the uploads are left out')
+  assert.match(r.text, /product updates 21 days, .*"New" for the first 3 days, at most 8 lines\./)
+  // Rules the slicer cannot read stop it.
+  assert.throws(() => buildSiteApi({ ...sources, whatsNewJs: sources.whatsNewJs.replace('const FRESH = 3 * DAY', 'const FRESH = THREE_DAYS') }), /FRESH not found/)
+  assert.throws(() => buildSiteApi({ ...sources, whatsNewJs: sources.whatsNewJs.replace('update: { days: 21, max: 4 }', 'update: { max: 4 }') }), /the rule for "update" not found/)
+  console.log(`      ${moments} moments, ${lines} banner lines compared with the banner's own pickRecent, label and stamp`)
+})
+
+// ---- 5d. a fan's fantasy league ----------------------------------------------------------
+
+// Dynasty.jsx's own code for a connected league, lifted out of the page and run as it is:
+// SLOT_OK, DEFAULT_SLOTS, bestLineup(), the priceList() closure and the leagueRanks memo.
+function closingBrace(src, open) {
+  let depth = 0
+  for (let i = open; i < src.length; i++) {
+    const ch = src[i]
+    if (ch === '"' || ch === "'" || ch === '`') { for (i++; i < src.length && src[i] !== ch; i++) if (src[i] === '\\') i++ }
+    else if (ch === '/' && src[i + 1] === '/') i = src.indexOf('\n', i)
+    else if (ch === '{') depth++
+    else if (ch === '}' && --depth === 0) return i
+  }
+  return -1
+}
+function pageLeague(lg, rows) {
+  const src = pages.dynasty
+  const from = (start) => { const at = src.indexOf(start); assert.ok(at >= 0, `Dynasty.jsx no longer has ${start}`); return src.slice(at, closingBrace(src, src.indexOf('{', at)) + 1) }
+  const memo = from('const leagueRanks = useMemo(() => {')
+  const body = memo.slice(memo.indexOf('{') + 1, memo.lastIndexOf('}'))
+  const code = [
+    from('const SLOT_OK = {'),
+    src.slice(src.indexOf('const DEFAULT_SLOTS = ['), src.indexOf('\n', src.indexOf('const DEFAULT_SLOTS = ['))),
+    from('function bestLineup(players, slots) {'),
+    from('const priceList = (entries) => {'),
+    `(function () {${body}})()`,
+  ].join('\n')
+  const scale = buildScale(rows.map((r) => r.rating))
+  const out = vm.runInNewContext(code, { lg, rows, seed: json('public/dynasty/players.json'), val: (rating) => displayValue(scale, rating), String, Math, Set, Array, Object })
+  return JSON.parse(JSON.stringify(out))
+}
+
+test('a connected league is valued the way the Dynasty page values it, every team and every player', async () => {
+  reset()
+  stock(seedPlayers.map((p, i) => [String(p.id), p.rating + ((i * 37) % 23) - 11]), { total: 500 })
+  const boardRes = await realFetch(`${process.env.SAVANT_API_ORIGIN}/api/dynasty?action=board&limit=600`)
+  const board = (await boardRes.json()).board
+  const cases = [
+    { platform: 'sleeper', code: '1111111111111' },
+    { platform: 'sleeper', code: 'wcefan' },
+    { platform: 'sleeper', code: 'twoleagues', league: '2222222222222' },
+    { platform: 'sleeper', code: '3333333333333' },
+    { platform: 'espn', code: '4040', season: 2027 },
+    { platform: 'fantrax', code: 'fxleague1' },
+  ]
+  let teams = 0
+  let players = 0
+  for (const args of cases) {
+    const lg = await (await realFetch(`${process.env.SAVANT_API_ORIGIN}/api/league?${new URLSearchParams(Object.entries(args).map(([k, v]) => [k, String(v)]))}`)).json()
+    assert.ok(lg.ok && lg.teams, `${args.code}: the stand-in league reads`)
+    const page = pageLeague(lg, board)
+    const where = `${args.platform} ${args.code}`
+    const all = await run('nba_fantasy_league', args)
+    const s = all.structured
+    same(s.league.slots, page.slots, `${where}: the slots`)
+    same(s.league.slots_from_league, Array.isArray(lg.slots) && lg.slots.length > 0)
+    for (const mode of ['start', 'full']) {
+      const order = [...page.teams].sort((a, b) => b[mode] - a[mode]).map((t) => t.id)
+      same([...s.teams].sort((a, b) => (mode === 'start' ? a.rank_by_lineup - b.rank_by_lineup : a.rank_by_roster - b.rank_by_roster)).map((t) => t.id), order, `${where}: the ${mode === 'start' ? 'lineup' : 'roster'} order`)
+    }
+    for (const t of page.teams) {
+      const mine = s.teams.find((x) => x.id === t.id)
+      same([mine.name, mine.lineup_value, mine.roster_value, mine.players_priced, mine.unmatched], [t.name, t.start, t.full, t.count, t.misses], `${where} ${t.name}: the page's figures`)
+      assert.ok(all.text.includes(`${t.name}: ${t.start.toLocaleString('en-US')}`), `${where} ${t.name}: in the text`)
+      // Player by player and the lineup, for every team.
+      const one = (await run('nba_fantasy_league', { ...args, team: t.id })).structured.team
+      same(one.players.map((p) => [p.name, p.value, p.positions]), t.hits.map((h) => [h.name, h.value, h.pos]), `${where} ${t.name}: the roster priced`)
+      same(one.lineup.map((l) => [l.slot, l.player, l.value]), t.lineup.map((l) => [l.slot, l.player ? l.player.name : null, l.player ? l.player.value : 0]), `${where} ${t.name}: the best lineup`)
+      teams++
+      players += t.hits.length
+    }
+    for (const n of s.notes) assert.ok(all.text.includes(n))
+  }
+  // The leagues the stand-ins hold exercise what they were made to: names respelled and still
+  // found, names not on the list reported, a duplicate counted once, odd slots read as UTIL.
+  const sleeper = pageLeague(await (await realFetch(`${process.env.SAVANT_API_ORIGIN}/api/league?platform=sleeper&code=1111111111111`)).json(), board)
+  assert.ok(sleeper.teams.some((t) => t.misses.some((m) => /^Unlisted Player/.test(m))), 'a name not on the list')
+  assert.ok(sleeper.teams.some((t) => t.misses.some((m) => !/^Unlisted Player/.test(m))), 'a respelling the page cannot place')
+  const second = (await run('nba_fantasy_league', { platform: 'sleeper', code: '2222222222222' })).structured
+  assert.ok(second.league.slots.filter((x) => x === 'UTIL').length === 2, 'SUPER_FLEX is read as UTIL, as on the page')
+  // By name, and a name that is not there.
+  const byName = await run('nba_fantasy_league', { platform: 'sleeper', code: 'wcefan', team: 'team c' })
+  assert.equal(byName.structured.team.name, 'Team C')
+  await refuses(run('nba_fantasy_league', { platform: 'sleeper', code: 'wcefan', team: 'Team Zed' }), /No team in this league is called "Team Zed"\. Its teams: Team A \(id 1\), /, 'an unknown team')
+  // A username with two leagues: the choice, not a guess.
+  const pick = await run('nba_fantasy_league', { platform: 'sleeper', code: 'twoleagues' })
+  assert.deepEqual(pick.structured.leagues.map((l) => l.id), ['1111111111111', '2222222222222'])
+  assert.equal(pick.structured.teams.length, 0)
+  assert.match(pick.text, /Call again with one of these league ids as "league"\./)
+  // The page's own words when a league cannot be read.
+  for (const [args, said] of [
+    [{ platform: 'sleeper', code: 'nobody' }, 'No Sleeper user with that username.'],
+    [{ platform: 'sleeper', code: 'lonely' }, 'That account has no NBA leagues we can see.'],
+    [{ platform: 'sleeper', code: '4444444444444' }, 'Could not read that league. If it is private, paste your roster instead.'],
+    [{ platform: 'espn', code: '777' }, 'Could not read that league. If it is private, paste your roster instead.'],
+    [{ platform: 'fantrax', code: 'nosuchleague' }, 'Could not read that league. If it is private, paste your roster instead.'],
+  ]) {
+    await refuses(run('nba_fantasy_league', args), new RegExp(`^${said.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\(.*\\) The Dynasty page also values a roster typed or pasted in: https://wcehoops\\.com/dynasty$`), `${args.code}: ${said}`)
+  }
+  // The reader down, or answering nonsense; and the board down, which values nothing.
+  for (const mode of ['html', 'http500']) {
+    reset(); stock(seedPlayers.map((p) => [String(p.id), p.rating]))
+    site.league = mode
+    await refuses(run('nba_fantasy_league', { platform: 'sleeper', code: 'wcefan' }), /league reader could not be reached right now/, `league reader ${mode}`)
+  }
+  reset(); stock([])
+  site.feed = 'unconfigured'
+  await refuses(run('nba_fantasy_league', { platform: 'sleeper', code: 'wcefan' }), /pricing feed is offline/, 'the board offline')
+  // Codes the site's reader would refuse are refused by the shape first.
+  const input = z.object(tool.nba_fantasy_league.config.inputSchema)
+  for (const bad of [{ platform: 'yahoo', code: 'x' }, { platform: 'sleeper', code: 'a b' }, { platform: 'sleeper', code: 'x'.repeat(65) }, { platform: 'sleeper' }, { platform: 'espn', code: '1', season: 99 }, { platform: 'sleeper', code: 'wcefan', league: 'a/b' }]) {
+    assert.equal(input.safeParse(bad).success, false, JSON.stringify(bad))
+  }
+  // The platforms were reached by api/league.js, through the site; never by the tool.
+  assert.ok(platformCalls.length > 0)
+  reset()
+  console.log(`      ${cases.length} leagues, ${teams} teams and ${players.toLocaleString('en-US')} players valued the same way as the page's own code`)
+})
+
 // ---- 6. the files, the protocol, and the origin being down ---------------------------
 
 test('files are fetched once and reused; when the site is down every tool says so plainly', async () => {
@@ -1162,9 +1611,10 @@ test('files are fetched once and reused; when the site is down every tool says s
 
     reset()
     process.env.SAVANT_API_ORIGIN = 'http://127.0.0.1:9'
-    for (const [name, args] of [['wce_get_news', {}], ['wce_search_articles', {}], ['wce_get_article', { article: slug }], ['wce_get_big_board', {}], ['wce_get_dynasty_rankings', {}]]) {
+    for (const [name, args] of [['wce_get_news', {}], ['wce_search_articles', {}], ['wce_get_article', { article: slug }], ['wce_get_big_board', {}], ['wce_get_dynasty_rankings', {}], ['wce_get_trending', {}], ['wce_whats_new', {}]]) {
       await refuses(run(name, args), /could not be (loaded|read) right now/, `${name} with the site down`)
     }
+    await refuses(run('nba_fantasy_league', { platform: 'sleeper', code: 'wcefan' }), /league reader could not be reached right now/, 'nba_fantasy_league with the site down')
   } finally {
     process.env.SAVANT_API_ORIGIN = origin
     reset()
@@ -1175,7 +1625,7 @@ test('files are fetched once and reused; when the site is down every tool says s
 test('the tools are well-formed, and a real MCP client gets on with them', async () => {
   reset()
   stock(seedPlayers.map((p) => [String(p.id), p.rating]), { total: 12 })
-  assert.deepEqual(section.tools.map((t) => t.name), ['wce_get_news', 'wce_search_articles', 'wce_get_article', 'wce_get_big_board', 'wce_get_dynasty_rankings'])
+  assert.deepEqual(section.tools.map((t) => t.name), ['wce_get_news', 'wce_search_articles', 'wce_get_article', 'wce_get_big_board', 'wce_get_dynasty_rankings', 'wce_get_trending', 'wce_whats_new', 'nba_fantasy_league'])
 
   // Registered the way api/mcp.js registers a section.
   const server = new McpServer({ name: 'check', version: '0' })
@@ -1195,18 +1645,23 @@ test('the tools are well-formed, and a real MCP client gets on with them', async
   await Promise.all([server.connect(a), client.connect(b)])
   try {
     const { tools } = await client.listTools()
-    assert.equal(tools.length, 5)
+    assert.equal(tools.length, 8)
+    const NEW = ['wce_get_trending', 'wce_whats_new', 'nba_fantasy_league']
     for (const t of tools) {
-      assert.match(t.name, /^wce_[a-z_]+$/)
+      assert.match(t.name, t.name === 'nba_fantasy_league' ? /^nba_fantasy_[a-z_]+$/ : /^wce_[a-z_]+$/)
       assert.ok(t.name.length <= 64)
       assert.ok(t.title && t.annotations.title, `${t.name}: title`)
       assert.equal(t.annotations.readOnlyHint, true, `${t.name}: read-only`)
       assert.equal(t.annotations.destructiveHint, false)
+      // Only the league reader reaches past the site (to Sleeper, ESPN or Fantrax, by way of
+      // the site's own reader), and it says so.
+      assert.equal(t.annotations.openWorldHint, t.name === 'nba_fantasy_league', `${t.name}: openWorldHint`)
       assert.ok(t.description.length > 80, `${t.name}: description`)
+      if (NEW.includes(t.name)) assert.ok(t.description.length <= 700, `${t.name}: a new tool's description is at most 700 characters (${t.description.length})`)
       assert.doesNotMatch(t.description, /\b(you should|always use|must call|prefer this|best|please)\b/i, `${t.name}: a description describes`)
       assert.equal(t.inputSchema.type, 'object')
       assert.ok(t.outputSchema, `${t.name}: output schema`)
-      for (const [k, prop] of Object.entries(t.inputSchema.properties)) assert.ok(prop.description, `${t.name}.${k}: described`)
+      for (const [k, prop] of Object.entries(t.inputSchema.properties || {})) assert.ok(prop.description, `${t.name}.${k}: described`)
     }
     // callTool checks structuredContent against the declared output schema and throws if not.
     const slug = built.articles.articles[0].slug
@@ -1216,6 +1671,8 @@ test('the tools are well-formed, and a real MCP client gets on with them', async
       ['wce_get_article', { article: slug }],
       ['wce_get_big_board', {}], ['wce_get_big_board', { year: 2025 }], ['wce_get_big_board', { prospect: 'Keaton Wagler' }],
       ['wce_get_dynasty_rankings', {}], ['wce_get_dynasty_rankings', { player: 'Flagg', limit: 5 }],
+      ['wce_get_trending', {}], ['wce_whats_new', {}],
+      ['nba_fantasy_league', { platform: 'sleeper', code: 'wcefan', team: 'Team A' }], ['nba_fantasy_league', { platform: 'sleeper', code: 'twoleagues' }],
     ]) {
       const r = await client.callTool({ name, arguments: args })
       assert.ok(!r.isError, `${name} ${JSON.stringify(args)}: ${r.content[0].text}`)
@@ -1228,6 +1685,7 @@ test('the tools are well-formed, and a real MCP client gets on with them', async
       ['wce_get_article', {}], ['wce_get_article', { article: 'z'.repeat(201) }],
       ['wce_get_big_board', { year: '2026' }], ['wce_get_big_board', { prospect: '' }],
       ['wce_get_dynasty_rankings', { limit: 0 }], ['wce_get_dynasty_rankings', { limit: 121 }], ['wce_get_dynasty_rankings', { player: 'q' }],
+      ['wce_get_trending', { section: 'teams' }], ['nba_fantasy_league', { platform: 'yahoo', code: 'abc' }], ['nba_fantasy_league', { code: 'abc' }],
     ]) {
       const r = await client.callTool({ name, arguments: args })
       assert.ok(r.isError, `${name} ${JSON.stringify(args)} should be refused`)
@@ -1242,16 +1700,26 @@ test('the tools are well-formed, and a real MCP client gets on with them', async
   }
 })
 
-test('through everything above, the store saw reads and its own seeding, and the site saw one request', () => {
-  assert.ok(site.api.length >= 40, 'the Dynasty endpoint was barely exercised')
-  for (const r of site.api) {
-    assert.deepEqual([r.method, r.path, r.query, r.bytes], ['GET', '/api/dynasty', '?action=board&limit=600', 0], 'the tool sent something other than its one read')
+test('through everything above, the store saw reads and its own seeding, and the site saw GETs and nothing else', () => {
+  const dynasty = site.api.filter((r) => r.path === '/api/dynasty')
+  assert.ok(dynasty.length >= 40, 'the Dynasty endpoint was barely exercised')
+  for (const r of dynasty) {
+    assert.deepEqual([r.method, r.path, r.query, r.bytes], ['GET', '/api/dynasty', '?action=board&limit=600', 0], 'the tool sent something other than its one read of the board')
   }
-  // api/dynasty.js itself seeds an empty board on a read (ZADD NX, and the first snapshot).
-  // Nothing else may ever be written: no vote (ZINCRBY, HINCRBY, INCR, LPUSH), no room.
+  // The check's own reads of the endpoints, to have the page's view of them, are made with
+  // realFetch and never with a body; every request the tools made is a bare GET too.
+  for (const r of site.api.filter((x) => x.path !== '/api/dynasty')) {
+    assert.ok(['/api/trending', '/api/league'].includes(r.path), `a request to ${r.path}`)
+    assert.deepEqual([r.method, r.bytes], ['GET', 0], `${r.path}: a GET with no body`)
+    if (r.path === '/api/trending') assert.match(r.query, /^(\?ns=(bs|dr))?$/)
+    else assert.match(r.query, /^\?platform=(sleeper|espn|fantrax)&code=[A-Za-z0-9_.-]+(&league=\d+)?(&season=\d{4})?$/)
+  }
+  // api/dynasty.js itself seeds an empty board on a read (ZADD NX, and the first snapshot);
+  // api/trending.js builds its unions in scratch keys that expire. Nothing else may ever be
+  // written: no vote (ZINCRBY, HINCRBY, INCR, LPUSH), no room, no search recorded.
   const seen = new Set(store.commands)
-  assert.deepEqual([...seen].sort(), ['GET', 'HGETALL', 'HSET', 'LRANGE', 'ZADD', 'ZCARD', 'ZREVRANGE'])
-  console.log(`      ${site.api.length} requests to /api/dynasty, ${store.commands.length.toLocaleString('en-US')} store commands, all reads or seeding`)
+  assert.deepEqual([...seen].sort(), ['EXPIRE', 'GET', 'HGETALL', 'HSET', 'LRANGE', 'ZADD', 'ZCARD', 'ZMSCORE', 'ZREVRANGE', 'ZUNIONSTORE'])
+  console.log(`      ${site.api.length} requests to the site's endpoints, ${store.commands.length.toLocaleString('en-US')} store commands, all reads or seeding`)
   console.log(`      ${compared.toLocaleString('en-US')} values compared in all`)
 })
 
@@ -1264,7 +1732,7 @@ test('what is written to disk is what was built, every file carries the schema, 
     const root = path.join(dist, BASE)
     const walk = (dir) => readdirSync(dir).flatMap((f) => (statSync(path.join(dir, f)).isDirectory() ? walk(path.join(dir, f)) : [path.relative(root, path.join(dir, f))]))
     const onDisk = walk(root).sort()
-    assert.deepEqual(onDisk, [...Object.keys(built.texts).map((s) => `articles/${s}.json.gz`), 'articles.json', 'big-board.json', 'dynasty.json', 'meta.json', 'news.json'].sort())
+    assert.deepEqual(onDisk, [...Object.keys(built.texts).map((s) => `articles/${s}.json.gz`), 'articles.json', 'big-board.json', 'dynasty.json', 'meta.json', 'news.json', 'whats-new.json'].sort())
     assert.equal(r.files, onDisk.length)
     assert.equal(r.bytes, onDisk.reduce((n, f) => n + statSync(path.join(root, f)).size, 0))
     assert.ok(r.raw >= r.bytes)
@@ -1272,9 +1740,11 @@ test('what is written to disk is what was built, every file carries the schema, 
     assert.deepEqual(r.summary.match(/\d[\d,]*/g).map((n) => +n.replace(/,/g, '')), [c.headlines, c.analytics, c.articles, c.boards, c.prospects, c.dynasty_names])
     assert.match(r.summary, /^[\d,]+ headlines?, [\d,]+ analytics items?, [\d,]+ articles?, [\d,]+ draft boards? \([\d,]+ prospects?\), [\d,]+ dynasty names?$/)
 
-    const plain = { 'meta.json': built.meta, 'news.json': built.news, 'articles.json': built.articles, 'big-board.json': built.bigBoard, 'dynasty.json': built.dynasty }
+    const plain = { 'meta.json': built.meta, 'news.json': built.news, 'articles.json': built.articles, 'big-board.json': built.bigBoard, 'dynasty.json': built.dynasty, 'whats-new.json': built.whatsNew }
     for (const [name, body] of Object.entries(plain)) {
       const back = JSON.parse(readFileSync(path.join(root, name), 'utf8'))
+      // The banner's list is gathered against the clock, so its build time is its own.
+      if (name === 'whats-new.json') { assert.deepEqual(back.items, body.items, name); assert.deepEqual(back.rules, body.rules, name); assert.equal(back.schema, 1); continue }
       assert.deepEqual(back, body, name)
       assert.equal(back.schema, 1, `${name}: schema`)
     }

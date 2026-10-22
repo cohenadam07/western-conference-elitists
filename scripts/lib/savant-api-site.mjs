@@ -13,8 +13,11 @@
 //   dist/savant-api/site/v1/articles.json            every published article's card
 //   dist/savant-api/site/v1/articles/<slug>.json.gz  one article's words
 //   dist/savant-api/site/v1/big-board.json           the Big Board, every year the page offers
-//   dist/savant-api/site/v1/dynasty.json             the names on the Dynasty Exchange, and the
-//                                                    two rules its page prices by
+//   dist/savant-api/site/v1/dynasty.json             the names on the Dynasty Exchange, the
+//                                                    list a connected league is matched against,
+//                                                    and the two rules its page prices by
+//   dist/savant-api/site/v1/whats-new.json           the homepage banner's "what's new" lines
+//                                                    (uploads aside) and the rules it ages them by
 //
 // WHERE EACH ONE COMES FROM
 // Each file is read from the same place the page reads, the same way:
@@ -30,6 +33,10 @@
 //   - Dynasty: the names in public/dynasty/players.json, the curve constants in
 //     src/lib/dynastyValue.js and the "settled" count in api/dynasty.js. Prices are live and
 //     are never written here; api/_site.js reads them when asked.
+//   - What's new: the banner's own gatherers in scripts/lib/whats-new.mjs (articles, product
+//     updates from src/data/updates.json, the next UFC card) with its 45-day cut, and the
+//     ageing rules read out of src/lib/whatsNew.js. The YouTube uploads the banner also
+//     carries are not gathered (WCE decided the connector does not carry them).
 //
 // WHAT IS LEFT OUT, ON PURPOSE
 // content.js began life as a template, and some of it still is one. An article counts as
@@ -51,6 +58,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync
 import path from 'node:path'
 import vm from 'node:vm'
 import { gzipSync } from 'node:zlib'
+import { KEEP_DAYS, articles as gatherArticles, nextCard, updates as gatherUpdates } from './whats-new.mjs'
 
 export const SITE = 'https://wcehoops.com'
 export const BASE = 'savant-api/site/v1'
@@ -406,9 +414,16 @@ export function sliceDynasty({ players, valueJs, apiJs }) {
     if (p && p.id != null && str(p.name)) names[String(p.id)] = p.name
   }
   if (!Object.keys(names).length) throw new Error('dynasty/players.json: no player has an id and a name')
+  // The whole list as the page loads it, in its order: a connected league's names are matched
+  // against it (Dynasty.jsx's priceList), its position stands in when a league gives none, and
+  // its opening rating prices a player the live board does not carry.
+  const seed = players.players
+    .filter((p) => p && p.id != null && str(p.name))
+    .map((p) => [String(p.id), p.name, str(p.pos), Number.isFinite(+p.rating) ? +p.rating : null])
   return {
     schema: SCHEMA,
     page: `${SITE}/dynasty`,
+    seed,
     // The page's value curve: VALUE_TOP * exp(-rank / VALUE_LAMBDA).
     value: {
       top: constant(valueJs, 'VALUE_TOP', 'src/lib/dynastyValue.js'),
@@ -418,6 +433,62 @@ export function sliceDynasty({ players, valueJs, apiJs }) {
     provisional_below: constant(apiJs, 'PROVISIONAL_N', 'api/dynasty.js'),
     count: Object.keys(names).length,
     names,
+  }
+}
+
+// ---- what's new ----------------------------------------------------------------------
+
+// The homepage banner's "what's new" lines, gathered by the banner's own build step
+// (scripts/lib/whats-new.mjs: articles, product updates, the next UFC card) with its own
+// 45-day cut, and the rules src/lib/whatsNew.js applies when someone opens the page, read
+// out of that file. The banner also carries YouTube uploads; those are not gathered here.
+function rule(source, re, what) {
+  const m = String(source || '').match(re)
+  if (!m) throw new Error(`src/lib/whatsNew.js: ${what} not found`)
+  return m
+}
+
+export function sliceWhatsNew({ items, whatsNewJs, keepDays, now }) {
+  if (!Array.isArray(items)) throw new Error('whats-new: expected a list of items')
+  const kinds = {}
+  for (const k of ['article', 'update', 'video', 'short']) {
+    const m = rule(whatsNewJs, new RegExp(`\\b${k}:\\s*\\{\\s*days:\\s*([\\d.]+),\\s*max:\\s*(\\d+)\\s*\\}`), `the rule for "${k}"`)
+    kinds[k] = { days: +m[1], max: +m[2] }
+  }
+  const days = (name) => +rule(whatsNewJs, new RegExp(`const\\s+${name}\\s*=\\s*([\\d.]+)\\s*\\*\\s*DAY\\b`), name)[1]
+  const rules = {
+    kinds,
+    event_lead_days: days('EVENT_LEAD'),
+    event_tail_days: days('EVENT_TAIL'),
+    fresh_days: days('FRESH'),
+    // "Dated ahead (an article set to go out later): not yet."
+    ahead_ms: +rule(whatsNewJs, /if \(t > now \+ ([\d.e]+)\) continue/, 'the rule for an item dated ahead')[1],
+    max: +rule(whatsNewJs, /export function pickRecent\(items, now = Date\.now\(\), max = (\d+)\)/, 'the banner\'s length')[1],
+  }
+  const cutoff = now - keepDays * 864e5
+  const kept = items
+    .filter((it) => it && ['article', 'update', 'event'].includes(it.kind) && str(it.text) && !Number.isNaN(Date.parse(it.date)))
+    .filter((it) => Date.parse(it.date) >= cutoff)
+    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+    .map((it) => {
+      const link = str(it.to) || str(it.href)
+      return {
+        kind: it.kind,
+        date: it.date,
+        text: it.text,
+        product: str(it.product),
+        version: str(it.version),
+        url: link ? (link.startsWith('/') ? SITE + link : link.startsWith('#') ? `${SITE}/${link}` : webUrl(link)) : null,
+      }
+    })
+  return {
+    schema: SCHEMA,
+    page: SITE,
+    generated: new Date(now).toISOString(),
+    keep_days: keepDays,
+    rules,
+    left_out: 'The banner also shows YouTube uploads, which this list leaves out, so on the page they can take some of its lines.',
+    items: kept,
   }
 }
 
@@ -436,12 +507,13 @@ const TEMPLATE_ONLY = {
   SOCIALS: 'footer links to the WCE accounts (YouTube, Instagram, TikTok, X, Threads, Bluesky); no tool returns them',
 }
 
-export function buildSiteApi({ news, articles, contentJs, dynastyPlayers, dynastyValueJs, dynastyApiJs }) {
+export function buildSiteApi({ news, articles, contentJs, dynastyPlayers, dynastyValueJs, dynastyApiJs, whatsNewItems, whatsNewJs, keepDays, now = Date.now() }) {
   const content = readContent(contentJs)
   const wire = sliceNews(news)
   const written = sliceArticles(articles, content)
   const bigBoard = sliceBoard(content)
   const dynasty = sliceDynasty({ players: dynastyPlayers, valueJs: dynastyValueJs, apiJs: dynastyApiJs })
+  const whatsNew = sliceWhatsNew({ items: whatsNewItems, whatsNewJs, keepDays, now })
 
   const meta = {
     schema: SCHEMA,
@@ -453,6 +525,7 @@ export function buildSiteApi({ news, articles, contentJs, dynastyPlayers, dynast
       article: `${SITE}/${BASE}/articles/{slug}.json`,
       big_board: `${SITE}/${BASE}/big-board.json`,
       dynasty: `${SITE}/${BASE}/dynasty.json`,
+      whats_new: `${SITE}/${BASE}/whats-new.json`,
     },
     pages: {
       news: `${SITE}/news`,
@@ -471,16 +544,17 @@ export function buildSiteApi({ news, articles, contentJs, dynastyPlayers, dynast
       boards: bigBoard.years.length,
       prospects: bigBoard.years.reduce((n, y) => n + y.prospects.length, 0),
       dynasty_names: dynasty.count,
+      whats_new: whatsNew.items.length,
     },
     not_published: [
       ...HELD_BACK,
       ...Object.entries(TEMPLATE_ONLY).filter(([name]) => name in content).map(([name, why]) => ({ what: `${name} in src/data/content.js`, why })),
       ...written.skipped.map((s) => ({ what: `article "${s.article}"`, why: s.why })),
     ],
-    live: 'Dynasty Exchange prices are not in these files. They are read from /api/dynasty when asked for.',
+    live: 'Dynasty Exchange prices, the most-searched players and prospects, and a fan\'s fantasy league are not in these files. They are read from /api/dynasty, /api/trending and /api/league when asked for.',
   }
 
-  return { meta, news: wire, articles: written.index, texts: written.texts, bigBoard, dynasty }
+  return { meta, news: wire, articles: written.index, texts: written.texts, bigBoard, dynasty, whatsNew }
 }
 
 // ---- writing -------------------------------------------------------------------------
@@ -496,6 +570,7 @@ export function writeSiteApi({ publicDir, dist, root = path.resolve(publicDir, '
     contentJs: path.join(root, 'src', 'data', 'content.js'),
     dynastyValueJs: path.join(root, 'src', 'lib', 'dynastyValue.js'),
     dynastyApiJs: path.join(root, 'api', 'dynasty.js'),
+    whatsNewJs: path.join(root, 'src', 'lib', 'whatsNew.js'),
   }
   for (const file of Object.values(inputs)) {
     if (!existsSync(file)) throw new Error(`${path.relative(root, file)} is missing`)
@@ -513,12 +588,17 @@ export function writeSiteApi({ publicDir, dist, root = path.resolve(publicDir, '
     dynastyPlayers: JSON.parse(text(inputs.dynastyPlayers)),
     dynastyValueJs: text(inputs.dynastyValueJs),
     dynastyApiJs: text(inputs.dynastyApiJs),
+    // The banner's own gatherers, so the list is the banner's list, uploads aside.
+    whatsNewItems: [...gatherArticles(root), ...gatherUpdates(root), ...nextCard(root)],
+    whatsNewJs: text(inputs.whatsNewJs),
+    keepDays: KEEP_DAYS,
+    now: Date.now(),
   })
 
   // Build everything before touching dist, so a failure leaves nothing half-written.
   const files = []
   let raw = 0
-  for (const [name, body] of [['meta.json', out.meta], ['news.json', out.news], ['articles.json', out.articles], ['big-board.json', out.bigBoard], ['dynasty.json', out.dynasty]]) {
+  for (const [name, body] of [['meta.json', out.meta], ['news.json', out.news], ['articles.json', out.articles], ['big-board.json', out.bigBoard], ['dynasty.json', out.dynasty], ['whats-new.json', out.whatsNew]]) {
     const json = Buffer.from(JSON.stringify(body))
     raw += json.length
     files.push([name, json])

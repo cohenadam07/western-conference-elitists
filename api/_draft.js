@@ -23,9 +23,15 @@
 //   - that the page's "Draft-day age" is really his age on February 1 of the draft year,
 //     when the build has confirmed that against the data
 //
+// THE DRAFT BOARD: nba_draft_search_prospects given a year and no name lists that class the
+// way the page's "Draft board" does, in pick order under the page's round headings.
+//
 // WHAT IT LEAVES OUT: birth dates, the page's written scouting takes and its "Predictive
 // signals" panel. It reports what the page measures and adds no opinion about anyone's
-// draft prospects.
+// draft prospects. The signals panel is six percentiles the profile already returns (age,
+// steal %, length, BPM, standing reach, block %), each under a claim of WCE's about what
+// predicts NBA success ("age is the single biggest predictor"). The numbers are here; the
+// claims are an editorial reading and stay on the page.
 //
 // ONE DELIBERATE DIFFERENCE FROM THE PAGE: heights. The page rounds the inches after taking
 // the feet, so 83.5 inches prints as 6'12". Here that is 7'0", the same height written
@@ -174,10 +180,45 @@ async function resolveProspect(input, meta) {
 // it may be the prospect who was meant, or a different person altogether.
 const CLOSE = 50
 
-export async function searchProspects({ query, limit = 10 }) {
+// The page's draft board: one class in pick order, under its two round headings. The index
+// is already in pick order within a class. A pick outside both rounds is not on the board.
+function draftBoard(meta, rows, year, limit) {
+  const cls = meta.classes.find((c) => c.year === year)
+  const projected = cls.projected
+  const [lo2, hi2] = meta.secondRound
+  const roundOf = (pick) => (pick >= 1 && pick <= meta.firstRound ? (projected ? 'Round 1' : 'First round') : pick >= lo2 && pick <= hi2 ? 'Round 2' : null)
+  const board = rows.filter((r) => r.year === year && roundOf(r.pick))
+  const shown = board.slice(0, limit ?? board.length).map((r) => ({
+    id: r.id, name: r.name, position: r.pos, college: r.college, draft_year: r.year, pick: r.pick, team: r.team,
+    projected, close_match: false, round: roundOf(r.pick), url: meta.page,
+  }))
+  const notes = ['Draft Savant holds college and other pre-draft data, not NBA stats.']
+  if (projected) notes.push(projectedNote(year))
+  else if (meta.past.firstRoundOnly) notes.push(`For past drafts the page holds first-round picks only, so the ${year} board ends at pick ${cls.picks[1]}.`)
+  notes.push(provenance(meta))
+  const structured = { query: null, year, total: board.length, count: shown.length, prospects: shown, notes, url: meta.page, source: SOURCE }
+
+  const more = board.length > shown.length ? `, showing the first ${shown.length}` : ''
+  const L = [`Draft Savant's draft board, ${projected ? `the ${year} class, the page's current class` : `the ${year} draft`}: ${plural(board.length, 'prospect')} in pick order${more}.`]
+  let heading = null
+  for (const p of shown) {
+    if (p.round !== heading) { L.push('', p.round); heading = p.round }
+    L.push(`${p.pick}. ${p.name} (id ${p.id}): ${p.position}, ${where(p)}${p.team ? `. ${p.team}` : ''}.`)
+  }
+  return { structured, text: [...L, '', ...notes, `Page: ${meta.page} (open its "Draft board" and choose ${year}).`].join('\n') }
+}
+
+export async function searchProspects({ query, year, limit }) {
   const meta = await loadMeta()
   const rows = await loadProspects()
-  const ranked = rank(rows, query, recent)
+  if (!query && year == null) throw new SavantError('Give a prospect name, a draft year, or both.')
+  if (year != null && !meta.classes.some((c) => c.year === year)) {
+    throw new SavantError(`Draft Savant has no ${year} class. It covers ${coverage(meta)}: ${meta.classes.map((c) => c.year).join(', ')}.`)
+  }
+  if (!query) return draftBoard(meta, rows, year, limit)
+  limit = limit ?? 10
+
+  const ranked = rank(rows, query, recent).filter((r) => year == null || r.row.year === year)
   const shown = ranked.slice(0, limit).map(({ row, score }) => ({
     id: row.id,
     name: row.name,
@@ -196,16 +237,17 @@ export async function searchProspects({ query, limit = 10 }) {
   if (close) notes.push(`A close spelling can be a different person. Draft Savant covers ${coverage(meta)}, so a player picked outside it is not here.`)
   if (shown.some((p) => p.projected)) notes.push(projectedNote(meta.currentClass))
   notes.push(provenance(meta))
-  const structured = { query, total: ranked.length, count: shown.length, prospects: shown, notes, url: meta.page, source: SOURCE }
+  const structured = { query, year: year ?? null, total: ranked.length, count: shown.length, prospects: shown, notes, url: meta.page, source: SOURCE }
 
+  const inYear = year == null ? '' : ` in the ${year} class`
   if (!shown.length) {
-    const text = `No prospect in Draft Savant matches "${query}". It covers ${coverage(meta)}. Check the spelling or try the last name alone.\n${notes[notes.length - 1]}`
+    const text = `No prospect${inYear} in Draft Savant matches "${query}". It covers ${coverage(meta)}. Check the spelling or try the last name alone.\n${notes[notes.length - 1]}`
     return { structured, text }
   }
   const more = ranked.length > shown.length ? `, showing the first ${shown.length}` : ''
   let head
-  if (close === shown.length) head = `No prospect's name matches "${query}" as typed. The closest ${ranked.length === 1 ? 'spelling is' : `spellings are${more}`}:`
-  else head = ranked.length === 1 ? `1 prospect matches "${query}":` : `${ranked.length} prospects match "${query}"${more}:`
+  if (close === shown.length) head = `No prospect's name${inYear} matches "${query}" as typed. The closest ${ranked.length === 1 ? 'spelling is' : `spellings are${more}`}:`
+  else head = ranked.length === 1 ? `1 prospect${inYear} matches "${query}":` : `${ranked.length} prospects${inYear} match "${query}"${more}:`
   const lines = shown.map((p, i) => `${i + 1}. ${p.name} (id ${p.id}): ${p.position}, ${where(p)}. ${drafted({ year: p.draft_year, pick: p.pick, team: p.team }, p.projected)}.${p.close_match && close !== shown.length ? ' [close spelling only]' : ''}`)
   return { structured, text: [head, ...lines, '', ...notes, linkNote(meta)].join('\n') }
 }
@@ -427,13 +469,15 @@ export const tools = [
     config: {
       title: 'Search NBA draft prospects',
       description:
-        'Find NBA draft prospects and past draftees in Draft Savant (Western Conference Elitists, wcehoops.com) by name. Covers the 2026 class as the page lists it, which the page shows as projected, and the first-round picks of each draft from 2010 through 2025. Returns each match with its id, position, college or other pre-draft team, draft year, and the pick and team the page shows. This is college and pre-draft data, not NBA stats. Matching ignores accents and punctuation; a name that matches only as a near spelling is returned marked as a close match. The data is a file compiled by WCE, partly by hand, not an official feed, and every result carries its provenance note. The page has no link that opens one prospect, so results link to the page itself.',
+        'Find NBA draft prospects in Draft Savant (Western Conference Elitists, wcehoops.com) by name, or list one draft class in pick order as the page\'s draft board does. Covers the 2026 class as the page lists it (shown as projected) and the first-round picks of the 2010 through 2025 drafts. Each row has the id, position, college or other pre-draft team, draft year, pick and team. College and pre-draft data, not NBA stats. Matching ignores accents and punctuation; a near spelling is marked as a close match. The data is a file compiled by WCE, partly by hand, not an official feed. The page has no per-prospect link.',
       inputSchema: {
-        query: z.string().trim().min(2).max(80).describe('Prospect name or part of one, e.g. "Dybantsa", "Cooper Flagg", "Wembanyama".'),
-        limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return (1-25, default 10).'),
+        query: z.string().trim().min(2).max(80).optional().describe('Prospect name or part of one, e.g. "Dybantsa", "Cooper Flagg". Omit, and give a year, to list that class.'),
+        year: z.number().int().min(2000).max(2100).optional().describe('Draft year, e.g. 2026. Alone: that class\'s draft board in pick order, by round. With a query: only that class is searched.'),
+        limit: z.number().int().min(1).max(60).optional().describe('Most rows to return (1-60). Default 10 for a name search, the whole class for a year alone.'),
       },
       outputSchema: {
-        query: z.string(),
+        query: z.string().nullable(),
+        year: z.number().int().nullable().describe('The class searched or listed, when one was given.'),
         total: z.number().int().describe('How many prospects matched in all.'),
         count: z.number().int().describe('How many are returned here.'),
         prospects: z.array(z.object({
@@ -446,6 +490,7 @@ export const tools = [
           team: z.string().nullable().describe('Team as the page shows it.'),
           projected: z.boolean().describe('True when the page shows this class as projected: the pick is not a draft result.'),
           close_match: z.boolean().describe('True when the name matched only as a near spelling. It may be a different person.'),
+          round: z.string().optional().describe('Draft board only: the page\'s heading the pick sits under.'),
           url: z.string().describe('The Draft Savant page. It has no per-prospect link.'),
         })),
         notes: z.array(z.string()).describe('What the data is and where it comes from.'),
@@ -454,7 +499,7 @@ export const tools = [
       },
       annotations: { title: 'Search NBA draft prospects', ...READ_ONLY },
     },
-    run: ({ query, limit }) => searchProspects({ query, limit }),
+    run: ({ query, year, limit }) => searchProspects({ query, year, limit }),
   },
   {
     name: 'nba_draft_get_prospect_profile',
