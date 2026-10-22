@@ -221,6 +221,14 @@ function loadPage(archive, current) {
       return { table: document.getElementById('lbTable').innerHTML, hint: document.getElementById('lbHint').innerHTML };
     },
     form: function (season, n, json) { FORM[formKey(season, n)] = json; },
+    pace: function (week, json) { PACE[week] = json; },
+    pacePct: function (id, key, season) {
+      var p = rowFor(id, season), m = MBY[key], keep = baseline;
+      baseline = 'pace'; POOL_CACHE = {};
+      var r = miss(p.m[key]) ? null : pctOf(p.m[key], poolVals(key, p.pos, season), m.lower);
+      baseline = keep; POOL_CACHE = {};
+      return r;
+    },
     team: function (season, t) { curSeason = season; openTeam(t); return document.getElementById('teamPanel').innerHTML; },
     career: function (id) { return careerRow(id); },
     careerPct: function (v, key, pos, lower) { return pctOf(v, careerPool(key, pos), lower); },
@@ -370,6 +378,28 @@ test('a last-4, -8 and -17 games board is the page\'s, ranked against everyone\'
   }
   console.log(`      ${boards} window boards compared`)
   assert.ok(boards > 100)
+})
+
+test('"same point" ranks every stat against past seasons through the same week, as the page does', async () => {
+  load()
+  const season = latest
+  const week = (page.data.data[season] || {}).week
+  if (!week) return
+  const w = Math.max(1, Math.min(17, week))
+  page.pace(week, readJson(`football-pace/w${String(w).padStart(2, '0')}.json`))
+  const { playerProfile } = await import('../../api/_football.js')
+  const file = builtJson(`savant-api/football/v1/seasons/${season}.json`)
+  let cells = 0
+  for (const r of file.players.filter((x) => x.qualified).filter((_, i) => i % 11 === 0).slice(0, 80)) {
+    const got = await playerProfile({ player: r.id, season, rank_against: 'same_point' })
+    for (const st of got.structured.stats) {
+      assert.equal(st.same_point_percentile, page.pacePct(r.id, st.key, season), `${r.name} ${st.key}: same point`)
+      cells++
+    }
+    assert.match(got.text, /at the same point of past seasons/)
+  }
+  console.log(`      ${commas(cells)} same-point percentiles compared`)
+  assert.ok(cells > 2000)
 })
 
 test('team boards and team pages are the page\'s: every stat, every rank, the line grade and the roster in order', async () => {

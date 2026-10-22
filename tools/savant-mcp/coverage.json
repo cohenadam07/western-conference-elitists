@@ -1,0 +1,574 @@
+{
+  "about": "Every feature of wcehoops.com that tools/savant-mcp/coverage.mjs finds, and the connector tool that answers it, or why it is left out. When the check fails because the site grew, build the tool (see README, The AI connector) and add the item here. Left out on purpose needs a reason a reader can check: private pages, games, Adam's own decisions, and views that are pictures rather than numbers.",
+  "items": {
+    "page:basketball-savant.html": {
+      "tools": [
+        "nba_search_players",
+        "nba_get_player_profile"
+      ]
+    },
+    "page:basketball-savant.html#renderPeak": {
+      "tools": [
+        "nba_player_career"
+      ]
+    },
+    "page:basketball-savant.html#renderShots": {
+      "tools": [
+        "nba_player_splits"
+      ],
+      "note": "The shot chart is a heatmap; the tool says whether one exists and its attempts, and points to the card."
+    },
+    "page:basketball-savant.html#renderComps": {
+      "tools": [
+        "nba_get_player_profile"
+      ]
+    },
+    "page:basketball-savant.html#renderWeak": {
+      "tools": [
+        "nba_get_player_profile"
+      ]
+    },
+    "page:basketball-savant.html#renderRole": {
+      "tools": [
+        "nba_get_player_profile"
+      ]
+    },
+    "page:basketball-savant.html#renderTrendChart": {
+      "tools": [
+        "nba_player_career",
+        "nba_player_splits"
+      ],
+      "note": "By season: nba_player_career with stats; by month: nba_player_splits view months."
+    },
+    "page:basketball-savant.html#renderPlayTypes": {
+      "tools": [
+        "nba_player_splits"
+      ]
+    },
+    "page:basketball-savant.html#renderWW": {
+      "tools": [
+        "nba_player_splits"
+      ]
+    },
+    "page:basketball-savant.html#renderGuard": {
+      "tools": [
+        "nba_get_player_profile"
+      ]
+    },
+    "page:basketball-savant.html#openTeam": {
+      "tools": [
+        "nba_team_rankings"
+      ]
+    },
+    "page:basketball-savant.html#openSeasonPop": {
+      "excluded": "The season picker on a card: every tool takes a season."
+    },
+    "page:basketball-savant.html#renderTrendChips": {
+      "tools": [
+        "wce_get_trending"
+      ]
+    },
+    "page:basketball-savant.html#renderAST": {
+      "tools": [
+        "nba_all_savant_team"
+      ]
+    },
+    "page:basketball-savant.html#showHome": {
+      "excluded": "The landing view: its All-Savant Team, trending chips and leaderboard link are each covered by their own item."
+    },
+    "page:basketball-savant.html#showLB": {
+      "tools": [
+        "nba_leaderboard"
+      ]
+    },
+    "page:savant-fantasy.js#openFantasy": {
+      "tools": [
+        "nba_fantasy_rankings",
+        "nba_fantasy_player",
+        "nba_fantasy_trade",
+        "nba_fantasy_streamers",
+        "nba_fantasy_lock_in",
+        "nba_injury_report",
+        "nba_schedule"
+      ]
+    },
+    "page:savant-fantasy.js#renderFx": {
+      "tools": [
+        "nba_fantasy_rankings",
+        "nba_fantasy_league"
+      ]
+    },
+    "page:savant-teams.js#renderTeams": {
+      "tools": [
+        "nba_team_rankings"
+      ]
+    },
+    "page:savant-teams.js#renderTeamDetail": {
+      "tools": [
+        "nba_team_profile"
+      ]
+    },
+    "page:savant-teams.js#renderLineups": {
+      "tools": [
+        "nba_lineups"
+      ]
+    },
+    "page:football-savant.html": {
+      "tools": [
+        "nfl_search_players",
+        "nfl_get_player_profile"
+      ]
+    },
+    "page:football-savant.html#renderPeak": {
+      "tools": [
+        "nfl_get_player_profile",
+        "nfl_player_career"
+      ]
+    },
+    "page:football-savant.html#renderArcRail": {
+      "tools": [
+        "nfl_player_career"
+      ]
+    },
+    "page:football-savant.html#renderFieldMap": {
+      "tools": [
+        "nfl_player_splits"
+      ]
+    },
+    "page:football-savant.html#renderRouteTree": {
+      "tools": [
+        "nfl_player_splits"
+      ]
+    },
+    "page:football-savant.html#renderSplits": {
+      "tools": [
+        "nfl_player_splits"
+      ]
+    },
+    "page:football-savant.html#renderComps": {
+      "tools": [
+        "nfl_get_player_profile"
+      ]
+    },
+    "page:football-savant.html#renderWeak": {
+      "tools": [
+        "nfl_get_player_profile"
+      ]
+    },
+    "page:football-savant.html#renderGapNote": {
+      "tools": [
+        "nfl_get_player_profile"
+      ]
+    },
+    "page:football-savant.html#openSeasonPop": {
+      "excluded": "The season picker on a card: every tool takes a season."
+    },
+    "page:football-savant.html#renderAllSavant": {
+      "tools": [
+        "nfl_all_savant_team"
+      ]
+    },
+    "page:football-savant.html#renderHomePos": {
+      "tools": [
+        "nfl_leaderboard"
+      ],
+      "note": "Browse by position is the board on Savant value."
+    },
+    "page:football-savant.html#showHome": {
+      "excluded": "The landing view: its All-Savant Team, position browser and chips are each covered by their own item."
+    },
+    "page:football-savant.html#showLB": {
+      "tools": [
+        "nfl_leaderboard"
+      ]
+    },
+    "page:football-savant.html#openTeam": {
+      "tools": [
+        "nfl_team_profile"
+      ]
+    },
+    "page:football-savant.html#renderChips": {
+      "tools": [
+        "nfl_leaderboard"
+      ],
+      "note": "The chips are the top man at each position by Savant value."
+    },
+    "page:game.html": {
+      "tools": [
+        "nfl_game"
+      ]
+    },
+    "page:coaching-savant.html": {
+      "tools": [
+        "nfl_search_coaches",
+        "nfl_get_coach_profile"
+      ]
+    },
+    "page:coaching-savant.html#renderCoach": {
+      "tools": [
+        "nfl_get_coach_profile"
+      ]
+    },
+    "page:coaching-savant.html#renderTree": {
+      "tools": [
+        "nfl_coaching_tree"
+      ]
+    },
+    "page:coaching-savant.html#openUnit": {
+      "tools": [
+        "nfl_get_coach_profile"
+      ]
+    },
+    "page:coaching-savant.html#renderCaller": {
+      "tools": [
+        "nfl_get_coach_profile"
+      ]
+    },
+    "page:coaching-savant.html#renderLeaders": {
+      "tools": [
+        "nfl_coaching_leaders"
+      ]
+    },
+    "page:ufc-savant.html": {
+      "tools": [
+        "ufc_search_fighters",
+        "ufc_get_fighter_profile"
+      ]
+    },
+    "page:ufc-savant.html#renderMaps": {
+      "tools": [
+        "ufc_get_fighter_profile"
+      ]
+    },
+    "page:ufc-savant.html#renderComps": {
+      "tools": [
+        "ufc_get_fighter_profile"
+      ]
+    },
+    "page:ufc-savant.html#renderWeak": {
+      "tools": [
+        "ufc_get_fighter_profile"
+      ]
+    },
+    "page:ufc-savant.html#renderGapNote": {
+      "tools": [
+        "ufc_get_fighter_profile"
+      ]
+    },
+    "page:ufc-savant.html#renderLog": {
+      "tools": [
+        "ufc_get_fighter_profile"
+      ]
+    },
+    "page:ufc-savant.html#showHome": {
+      "excluded": "The landing view: its division leaders and upcoming card are covered by ufc_leaderboard and ufc_get_upcoming_cards."
+    },
+    "page:ufc-savant.html#renderHome": {
+      "tools": [
+        "ufc_leaderboard",
+        "ufc_get_upcoming_cards"
+      ]
+    },
+    "page:ufc-savant.html#openMatchup": {
+      "tools": [
+        "ufc_matchup"
+      ]
+    },
+    "page:ufc-savant.html#renderMatchup": {
+      "tools": [
+        "ufc_matchup"
+      ]
+    },
+    "page:ufc-savant.html#openLB": {
+      "tools": [
+        "ufc_leaderboard"
+      ]
+    },
+    "page:ufc-savant.html#openLBFor": {
+      "tools": [
+        "ufc_leaderboard"
+      ]
+    },
+    "page:draft-savant.html": {
+      "tools": [
+        "nba_draft_search_prospects",
+        "nba_draft_get_prospect_profile"
+      ]
+    },
+    "page:draft-savant.html#renderSignals": {
+      "excluded": "PLACEHOLDER: decided with the draft work."
+    },
+    "page:draft-savant.html#renderBoard": {
+      "tools": [
+        "nba_draft_class"
+      ]
+    },
+    "page:draft-savant.html#renderHomeChips": {
+      "tools": [
+        "wce_get_trending"
+      ]
+    },
+    "page:draft-savant.html#showHome": {
+      "excluded": "The landing view: its board and chips are covered by their own items."
+    },
+    "page:draft-savant.html#openBoardFromHome": {
+      "tools": [
+        "nba_draft_class"
+      ]
+    },
+    "page:googleebfe50e0e1134140.html": {
+      "excluded": "Google Search Console's ownership file, not a page."
+    },
+    "data:savant-data.json": {
+      "tools": [
+        "nba_get_player_profile"
+      ]
+    },
+    "data:savant-current.json": {
+      "tools": [
+        "nba_get_player_profile"
+      ]
+    },
+    "data:savant-value.json": {
+      "tools": [
+        "nba_all_savant_team",
+        "nba_get_player_profile"
+      ]
+    },
+    "data:savant-proj.json": {
+      "tools": [
+        "nba_fantasy_rankings"
+      ]
+    },
+    "data:savant-teams.json": {
+      "tools": [
+        "nba_team_rankings",
+        "nba_team_profile"
+      ]
+    },
+    "data:savant-teams-current.json": {
+      "tools": [
+        "nba_team_rankings",
+        "nba_team_profile"
+      ]
+    },
+    "data:lineups": {
+      "tools": [
+        "nba_lineups"
+      ]
+    },
+    "data:months": {
+      "tools": [
+        "nba_player_splits"
+      ]
+    },
+    "data:shots": {
+      "tools": [
+        "nba_player_splits"
+      ]
+    },
+    "data:football-savant-data.json": {
+      "tools": [
+        "nfl_get_player_profile"
+      ]
+    },
+    "data:football-savant-current.json": {
+      "tools": [
+        "nfl_get_player_profile"
+      ]
+    },
+    "data:football-savant-heads.json": {
+      "excluded": "Player photos for the cards: pictures, not numbers."
+    },
+    "data:football-weekly": {
+      "tools": [
+        "nfl_player_games",
+        "nfl_leaderboard"
+      ]
+    },
+    "data:football-splits": {
+      "tools": [
+        "nfl_player_splits"
+      ]
+    },
+    "data:football-maps": {
+      "tools": [
+        "nfl_player_splits"
+      ]
+    },
+    "data:football-routes": {
+      "tools": [
+        "nfl_player_splits"
+      ]
+    },
+    "data:football-games": {
+      "tools": [
+        "nfl_game"
+      ]
+    },
+    "data:football-pace": {
+      "tools": [
+        "nfl_get_player_profile"
+      ],
+      "note": "rank_against same_point."
+    },
+    "data:coaching-savant-data.json": {
+      "tools": [
+        "nfl_get_coach_profile"
+      ]
+    },
+    "data:coaching-savant-current.json": {
+      "tools": [
+        "nfl_get_coach_profile"
+      ]
+    },
+    "data:ufc-savant-data.json": {
+      "tools": [
+        "ufc_get_fighter_profile"
+      ]
+    },
+    "data:ufc-savant-fights.json": {
+      "tools": [
+        "ufc_get_fighter_profile"
+      ]
+    },
+    "data:data.json": {
+      "tools": [
+        "nba_draft_get_prospect_profile"
+      ]
+    },
+    "data:news.json": {
+      "tools": [
+        "wce_get_news"
+      ]
+    },
+    "data:articles": {
+      "tools": [
+        "wce_get_article"
+      ]
+    },
+    "data:dynasty": {
+      "tools": [
+        "wce_get_dynasty_rankings"
+      ]
+    },
+    "data:youtube-feed.json": {
+      "excluded": "The YouTube channel's videos: Adam chose to leave them out of the connector (Oct 2026)."
+    },
+    "data:flappy-hoops": {
+      "excluded": "Flappy Hoops is a game; Adam chose to leave game leaderboards out (Oct 2026)."
+    },
+    "route:/": {
+      "tools": [
+        "wce_whats_new"
+      ],
+      "note": "The homepage: its banner of what's new; its other sections are each covered elsewhere."
+    },
+    "route:/news": {
+      "tools": [
+        "wce_get_news"
+      ]
+    },
+    "route:/articles": {
+      "tools": [
+        "wce_search_articles"
+      ]
+    },
+    "route:/articles/:slug": {
+      "tools": [
+        "wce_get_article"
+      ]
+    },
+    "route:/draft": {
+      "tools": [
+        "wce_get_big_board"
+      ]
+    },
+    "route:/rankings": {
+      "tools": [
+        "wce_get_big_board"
+      ]
+    },
+    "route:/dynasty": {
+      "tools": [
+        "wce_get_dynasty_rankings",
+        "nba_fantasy_league"
+      ]
+    },
+    "route:/hoops": {
+      "excluded": "Flappy Hoops is a game; Adam chose to leave game leaderboards out (Oct 2026)."
+    },
+    "route:/comp-chain": {
+      "excluded": "Comp Chain is a daily game; Adam chose to leave game leaderboards out (Oct 2026)."
+    },
+    "route:/newsletter": {
+      "excluded": "The newsletter and its weekly movers: Adam chose to leave them out (Oct 2026)."
+    },
+    "route:/podcasts": {
+      "excluded": "Hidden: the route sends visitors to the homepage."
+    },
+    "route:/about": {
+      "excluded": "The founder's page: no data, nothing to look up."
+    },
+    "route:/contact": {
+      "excluded": "A contact form: the connector is read-only."
+    },
+    "route:/privacy": {
+      "excluded": "The privacy policy: no data, nothing to look up."
+    },
+    "route:/analytics": {
+      "excluded": "Private: Adam's site analytics, behind a password."
+    },
+    "route:/inbox": {
+      "excluded": "Private: contact messages and list health, behind a password."
+    },
+    "route:/edge": {
+      "excluded": "Private: the Edge Lab, behind a password."
+    },
+    "api:mcp.js": {
+      "excluded": "The connector itself."
+    },
+    "api:dynasty.js": {
+      "tools": [
+        "wce_get_dynasty_rankings"
+      ]
+    },
+    "api:trending.js": {
+      "tools": [
+        "wce_get_trending"
+      ]
+    },
+    "api:league.js": {
+      "tools": [
+        "nba_fantasy_league"
+      ]
+    },
+    "api:leaderboard.js": {
+      "excluded": "Comp Chain's daily scores: Adam chose to leave game leaderboards out (Oct 2026)."
+    },
+    "api:race.js": {
+      "excluded": "A game's party state, not site data."
+    },
+    "api:newsletter.js": {
+      "excluded": "The newsletter: Adam chose to leave it out (Oct 2026); its writes are not for an AI."
+    },
+    "api:contact.js": {
+      "excluded": "The contact form: write-only, and the connector is read-only."
+    },
+    "api:og.js": {
+      "excluded": "Share-card images: pictures, not numbers."
+    },
+    "api:analytics/": {
+      "excluded": "Private: Adam's site analytics, behind a password."
+    }
+  },
+  "switches": {
+    "about": "Ranking switches on the cards that change which pool a number is ranked in. The check does not find these on its own; they are listed so the choice is on the record.",
+    "football: rank against all-time": "Covered: every football profile stat carries its all-time percentile.",
+    "football: rank against the same point of past seasons": "Covered: nfl_get_player_profile rank_against same_point.",
+    "football: last 4, 8 or 17 games on the card": "Covered as recent form in nfl_player_games and as window boards in nfl_leaderboard; a whole card in a window is not.",
+    "football: rank against the same experience, side of the ball, or a snap-share band": "Left out: each needs a pool of every season (experience) or the card re-ranked per request; the size of the files it would take is not worth it until fans ask.",
+    "basketball: rank against a minutes-per-game band": "Left out for now: a re-ranking of the same numbers; the leaderboard's min_mpg filter answers most of what it is for.",
+    "ufc: the Everyone cohort and the cage-time filter": "See the UFC section's notes."
+  }
+}

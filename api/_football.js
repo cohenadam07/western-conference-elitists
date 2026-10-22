@@ -88,6 +88,17 @@ function shorteningOrder(stats) {
 }
 
 const loadMeta = () => files.load('meta.json')
+// The page's own pace files, read as published
+const paceFiles = makeLoader('', { what: 'Football Savant', maxCached: 3, shape: (b) => !!b.pools })
+// The page's pctRaw() then pctOf(): a midrank over an unsorted pool, rounded and held to 1..99
+function linearPct(v, pool, lower) {
+  const n = pool.length
+  if (v == null || n < 2) return null
+  let less = 0, eq = 0
+  for (const x of pool) { if (x < v) less++; else if (x === v) eq++ }
+  const pct = 100 * (less + 0.5 * eq) / n
+  return Math.max(1, Math.min(99, Math.round(lower ? 100 - pct : pct)))
+}
 
 // The data keeps one code per franchise (LV for every Raiders season). What is said is what
 // the club was called that season: OAK in 2003. meta.era has the last season of each old name.
@@ -334,7 +345,7 @@ export async function playerProfile(args, { long = LONG, max = MAX } = {}) {
 }
 
 // `brief` is the set of section headings to give on one line each, or null for none.
-async function profile({ player, season, group = 'all' }, brief) {
+async function profile({ player, season, group = 'all', rank_against = 'season' }, brief) {
   const meta = await loadMeta()
   const wanted = parseSeason(season, meta)
   const who = await resolvePlayer(player, wanted, meta)
@@ -404,6 +415,27 @@ async function profile({ player, season, group = 'all' }, brief) {
         estimate: est.has(m.key),
         likely_to_settle: lean ? { value: lean[0], display: display(m.unit, lean[0]), percentile: lean[1] } : null,
       })
+    }
+  }
+
+  // "Same point": the page's pace baseline. While a season is being played, each stat is also
+  // ranked against every season since 1999 as it stood through the same week (football-pace/,
+  // built by pace.py), the pool spread back out from its 41 points the way pacePool() does.
+  // A stat with no such history keeps this season's ranking, as on the page.
+  const samePoint = rank_against === 'same_point'
+  if (samePoint) {
+    if (!live) throw new SavantError(`Ranking against the same point in past seasons is only for the season being played; ${seasonId} is over. Leave out rank_against.`)
+    const w = Math.max(1, Math.min(17, live.through_week))
+    const pace = await paceFiles.load(`football-pace/w${String(w).padStart(2, '0')}.json`).catch(() => null)
+    const pools = (pace && pace.pools && pace.pools[row.pos]) || {}
+    for (const st of stats) {
+      const q = pools[st.key]
+      if (!q) { st.same_point_percentile = st.season_percentile; continue }
+      const pts = q.slice(1)
+      const pool = []
+      for (let i = 0; i < pts.length - 1; i++) for (let j = 0; j < 5; j++) pool.push(pts[i] + (pts[i + 1] - pts[i]) * j / 5)
+      pool.push(pts[pts.length - 1])
+      st.same_point_percentile = linearPct(st.value, pool, st.lower_is_better)
     }
   }
 
@@ -532,6 +564,7 @@ async function profile({ player, season, group = 'all' }, brief) {
   if (poolSeason >= 2 && poolSeason < SMALL_POOL) {
     notes.push(`Only ${poolSeason} ${peers} qualified in ${seasonId}. A pool that small makes the "in ${seasonId}" percentiles coarse.`)
   }
+  if (samePoint) notes.push(`"at the same point of past seasons" ranks each number against every ${lowerFirst(pos.label)} season since 1999 as it stood through week ${Math.max(1, Math.min(17, live.through_week))}, so a few weeks are set against a few weeks rather than against full seasons. A stat with no such history keeps its ${seasonId} ranking.`)
   if (live) {
     notes.push(`The ${seasonId} season is still being played. These numbers run through week ${live.through_week}, on small samples, and the qualifying line is pro-rated to the games his team has played. The all-time percentiles set these few weeks against other players' full seasons, which says little for counting stats such as games played.`)
   }
@@ -575,7 +608,7 @@ async function profile({ player, season, group = 'all' }, brief) {
     if (s.estimate) marks.est = true
     if (s.low_sample) marks.low = true
     if (s.likely_to_settle) marks.settle = true
-    L.push(`- ${s.label}: ${s.display} (vs. ${peers}: ${nth(s.season_percentile)} in ${seasonId}, ${nth(s.all_time_percentile)} all-time)${tags.length ? ` [${tags.join('; ')}]` : ''}`)
+    L.push(`- ${s.label}: ${s.display} (vs. ${peers}: ${nth(s.season_percentile)} in ${seasonId}, ${samePoint ? `${nth(s.same_point_percentile)} at the same point of past seasons` : `${nth(s.all_time_percentile)} all-time`})${tags.length ? ` [${tags.join('; ')}]` : ''}`)
   }
   if (!stats.length) {
     L.push('', groupKey && !pos.panels.includes(groupKey)
@@ -824,6 +857,7 @@ export const tools = [
         player: z.string().trim().min(1).max(80).describe('Player id from nfl_search_players (e.g. "00-0033873") or a full name (e.g. "Patrick Mahomes"). If a name fits more than one player, the error lists their ids.'),
         season: z.string().trim().max(12).optional().describe('The year the season began, e.g. "2024". Omit for his most recent season.'),
         group: z.enum(['all', ...Object.keys(GROUPS)]).default('all').describe('Which panel of stats to return: "all" (default), "context" (games, snaps, penalties), "passing", "rushing", "receiving", "returns" (kick and punt returns), "blocking", "pass_rush", "run_defense", "coverage", "kicking" (kicking and punting), "value" (total EPA, fantasy points, win probability added, contract) or "athletic" (size and combine).'),
+        rank_against: z.enum(['season', 'same_point']).optional().describe('Season in progress only: "same_point" also ranks each stat against past seasons as they stood through the same week.'),
       },
       outputSchema: {
         player: z.object({
@@ -896,6 +930,7 @@ export const tools = [
           low_sample: z.boolean().describe('True when the stat is below its stabilization threshold.'),
           sample: z.object({ have: z.number(), needed: z.number(), of: z.string() }).nullable().describe('For a low-sample stat: how much of its denominator he has and how much it needs.'),
           estimate: z.boolean().optional().describe('True when the stat is an estimate from snap counts while the season is being played. It becomes exact after the season.'),
+          same_point_percentile: pct.optional().describe('With rank_against "same_point": against every season since 1999 as it stood through the same week.'),
           likely_to_settle: z.object({ value: z.number(), display: z.string(), percentile: pct }).nullable().optional().describe('Season in progress, low-sample stats only: where the number is likely to finish, and where that would rank among the same estimate for every qualified player at his position.'),
         })),
         not_tracked: z.array(z.object({ key: z.string(), label: z.string(), group: z.string(), since: z.number() })).describe('Stats for his position that the season did not track.'),
@@ -910,7 +945,7 @@ export const tools = [
       },
       annotations: { title: 'Get an NFL player\'s Savant profile', ...READ_ONLY },
     },
-    run: ({ player, season, group }) => playerProfile({ player, season, group }),
+    run: ({ player, season, group, rank_against }) => playerProfile({ player, season, group, rank_against }),
   },
   {
     name: 'nfl_all_savant_team',
