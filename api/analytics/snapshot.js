@@ -17,7 +17,7 @@ import {
   timingSafeEqual,
   toISODate,
 } from './_lib.js';
-import { jobForSchedule, runAnswer, runPicks, runQueue, runSettle, taskTokenOk } from './_edge.js';
+import { jobForSchedule, readPortfolios, runAnswer, runPicks, runQueue, runSettle, taskTokenOk } from './_edge.js';
 
 // 300 s is the Hobby ceiling; the Edge Lab's picks job (Claude calls) is the one that needs it.
 export const config = { maxDuration: 300 };
@@ -88,6 +88,18 @@ export default async function handler(req, res) {
   // api/analytics/_edge.js and EDGE_LAB.md). Its crons are told apart by the schedule header
   // Vercel sends; a manual run passes ?job=edge-picks or ?job=edge-settle, optionally with
   // &games=<key,key> to act on those games now, or &lead=<minutes> to widen the picks window.
+  // A point on the portfolios' line during late games (cron), or by hand.
+  if (job === 'edge-tick') {
+    res.setHeader('Cache-Control', 'private, no-store');
+    try {
+      const out = await readPortfolios({ record: true });
+      return res.status(200).json({ ok: true, job, night: out.night, live: out.live, openBets: out.openBets, marksError: out.marksError,
+        equity: Object.fromEntries(Object.entries(out.arms).map(([a, v]) => [a, v.equity])) });
+    } catch (err) {
+      return res.status(500).json({ ok: false, job, error: String(err?.message || err) });
+    }
+  }
+
   if (job === 'edge-picks' || job === 'edge-settle') {
     const games = (url.searchParams.get('games') || '').split(',').map((g) => g.trim()).filter(Boolean);
     const lead = Number(url.searchParams.get('lead')) || undefined;

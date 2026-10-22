@@ -591,6 +591,18 @@
     },
     {
       "path": "/api/analytics/snapshot",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
+      "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/analytics/snapshot",
       "schedule": "0 11 * * *"
     }
   ]
