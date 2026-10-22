@@ -50,6 +50,25 @@ than 10¢ or priced outside 5–95¢ are never bet. Every bet risks one unit, fe
   week, so this is the earliest signal of whether an arm's probabilities are better than the
   market's.
 
+**Portfolios (dollars).** Next to the unit scoreboard, each arm runs its own paper portfolio
+from **$1,000**, sizing the same bets by edge instead of one unit apiece:
+
+- Each bet starts at **quarter Kelly**: full Kelly for a contract bought at cost *c* (price plus
+  fee) with edge *e* is *e* / (1 − *c*) of the bankroll; the portfolio stakes a quarter of that.
+- The bankroll is the arm's **settled balance going into the night**, so a stake is fixed the
+  moment it is bet and never changes with later results.
+- When one arm's bets on one game add up past **5%** of that bankroll, they all shrink by the
+  same factor (bigger edges stay bigger); then no single bet is more than **1.5%**.
+- Open bets are **marked live** at Kalshi's mid (or its settlement once a market resolves, or the
+  last trade if there is no two-sided quote). The night locks in when it settles.
+
+The page's "Tonight" chart is each arm's change since the night's bets went in, one point a
+minute while the page is open (plus a cron point at 11pm, 12am and 1am ET, and the settle's
+final point); "All" is one point per settled night. The unit P&L in the scoreboard stays,
+because it compares the arms on picks alone; the portfolios add sizing on top. The sizing
+(`PORTFOLIO` in `_edge-model.js`) is replayed over every bet on every read, so changing it
+re-sizes history too: change it between tests, not during one.
+
 A player who never takes the court is a void: Kalshi pays out a fair price, and the bet is left
 out of P&L and CLV. A close needs a two-sided quote; the page shows how many bets had one.
 
@@ -65,7 +84,7 @@ tip is decided 15 minutes out with the WCE model alone and stays out of the head
 
 Everything runs inside `api/analytics/snapshot.js`, so the lab costs **no serverless function
 slot** (the Hobby cap is 12 and the site uses 11). The page reads through
-`api/analytics/history.js?section=edge`. The code is in `api/analytics/_edge*.js`.
+`api/analytics/history.js?section=edge`, and the live portfolios through `?section=edge-live`. The code is in `api/analytics/_edge*.js`.
 
 A game goes **prepared → pending → decided → settled**:
 
@@ -75,6 +94,7 @@ A game goes **prepared → pending → decided → settled**:
 | answer | The scheduled task on Adam's Claude account, 12:43, 4:43 and 7:43 pm ET | Fetches every pending prompt, has a fresh subagent answer each one (one per game per arm, so the box-score arm never sees a WCE number), and posts the answers back. The second answer for a game **decides** it at Kalshi's quotes of that moment. |
 | close | Every Vercel picks run | A game still pending 15 minutes before tip is decided with whatever answers it has. |
 | settle | Vercel cron, 11:00 UTC (7am EDT) | Results from Kalshi, the closing quote from Kalshi's minute candles at the tip, P&L and CLV per bet, aggregates per game. |
+| mark | The page every 30 s while bets are open; crons at 03:00, 04:00, 05:00 UTC; after each picks run and settle | Values every open bet at Kalshi's prices of the moment (shared for 20 s), and adds a point to the night's portfolio line (at most one a minute). |
 
 Vercel tells its crons apart by the `x-vercel-cron-schedule` header. The 07:00 analytics snapshot
 is untouched.
@@ -109,7 +129,9 @@ projection file, once a day), and the site's own files (`savant-proj.json`,
 `savant-teams*.json`, `savant-api/basketball/v1/`).
 
 **Storage**, in the Upstash Redis the site already uses, under `wce:edge:*`: one small record per
-game, the forecasts and bets as one JSON value per game, and the last 200 runs. Roughly 20–40 KB
+game, the forecasts and bets as one JSON value per game, the last 200 runs, a short ledger row
+per bet for the portfolios (`wce:edge:ledger`, filled in from the bets for games decided before
+it existed), and each night's portfolio line (`wce:edge:ticks:<date>`, kept 60 days). Roughly 20–40 KB
 per game, so a full season is well inside the free tier.
 
 ## Setup
@@ -137,6 +159,7 @@ From the page: **Run picks now** (prepares games in the window and closes any ab
 /api/analytics/snapshot?job=edge-picks&games=26OCT21MINMIA  prepare that game now
 /api/analytics/snapshot?job=edge-queue&ahead=600          what the task would be handed, 10 h out
 /api/analytics/snapshot?job=edge-settle
+/api/analytics/snapshot?job=edge-tick                     mark open bets now and add a point to the line
 ```
 
 To run the Claude arms early on a given day, run the scheduled task by hand from Claude's
@@ -163,7 +186,7 @@ Game keys are Kalshi's: two-digit year, month, day, away, home.
 ## Checks
 
 `npm run check:edge` covers the arithmetic offline: the negative binomial, the fee, the bet rule,
-settlement and CLV, the scoring, the Kalshi parsing, the player join, Claude's answer parsing and
+settlement and CLV, the scoring, the portfolio sizing and marks, the Kalshi parsing, the player join, Claude's answer parsing and
 coherence, the scheduled task's texts and token, and that the box-score prompt never carries a
 WCE number.
 

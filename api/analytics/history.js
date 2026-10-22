@@ -19,7 +19,7 @@ import {
   toHash,
 } from './_lib.js';
 import { readUsage } from '../_usage.js';
-import { readEdge } from './_edge.js';
+import { readEdge, readPortfolios } from './_edge.js';
 
 export const config = { maxDuration: 30 };
 
@@ -44,6 +44,18 @@ export default async function handler(req, res) {
       const from = isDate(url.searchParams.get('from')) ? url.searchParams.get('from') : null;
       res.setHeader('Cache-Control', 'private, no-store');
       return res.status(200).json(await readEdge({ from }));
+    } catch (err) {
+      return res.status(500).json({ error: String(err?.message || err) });
+    }
+  }
+
+  // The Edge Lab's portfolios, marked at Kalshi's prices of the moment. The page asks every
+  // 30 seconds while bets are open, and each ask adds a point to the night's line (at most
+  // one a minute, however many pages are open).
+  if (url.searchParams.get('section') === 'edge-live') {
+    try {
+      res.setHeader('Cache-Control', 'private, no-store');
+      return res.status(200).json(await readPortfolios({ record: true }));
     } catch (err) {
       return res.status(500).json({ error: String(err?.message || err) });
     }

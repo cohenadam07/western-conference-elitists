@@ -109,6 +109,7 @@ export function parseMarket(raw) {
     bid: num(raw.yes_bid_dollars) ?? 0,
     ask: num(raw.yes_ask_dollars) ?? 1,
     noAsk: num(raw.no_ask_dollars),
+    last: num(raw.last_price_dollars),
     bidSize: num(raw.yes_bid_size_fp) ?? 0,
     askSize: num(raw.yes_ask_size_fp) ?? 0,
     volume: num(raw.volume_fp) ?? 0,
@@ -154,6 +155,28 @@ export async function gameMarkets(key, opts = {}) {
   const all = []
   for (const series of Object.keys(SERIES)) all.push(...(await listMarkets({ event_ticker: `${series}-${key}` }, opts)))
   return all
+}
+
+// Specific markets by ticker, in whatever state they are in, for marking open bets during a
+// game. Kalshi's ticker filter answers live markets by default and finished ones only when
+// asked by status, so whatever the first pass misses is asked for as closed, then settled.
+export async function marketsByTicker(tickers, opts = {}) {
+  const out = new Map()
+  const want = [...new Set(tickers)]
+  for (const status of [null, 'closed', 'settled']) {
+    const missing = want.filter((t) => !out.has(t))
+    for (let i = 0; i < missing.length; i += 80) {
+      const q = new URLSearchParams({ tickers: missing.slice(i, i + 80).join(','), limit: '1000' })
+      if (status) q.set('status', status)
+      const body = await kalshi(`/markets?${q}`, opts)
+      for (const raw of body.markets || []) {
+        const p = parseMarket(raw)
+        if (p) out.set(p.ticker, p)
+      }
+    }
+    if (out.size === want.length) break
+  }
+  return out
 }
 
 // The quote standing at tip-off: the last minute candle that ended at or before the tip.

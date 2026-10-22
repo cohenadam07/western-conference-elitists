@@ -294,3 +294,118 @@ export function describeForecasts(a) {
     calibration: a.bins.map(([n, sp, sy], i) => ({ bin: i, n, predicted: n ? sp / n : null, actual: n ? sy / n : null })),
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Portfolios: each arm's bets as dollars
+ * ------------------------------------------------------------------ */
+
+// Each arm runs its own paper portfolio from the same start. A bet's size comes from its edge
+// (fractional Kelly), from the bankroll the arm had going into that night, so a stake is fixed
+// the moment it is bet and never moves with later results. Two caps keep one bet or one game
+// from swinging the whole thing: when one game's bets add up past maxGame they are all scaled
+// down together (which keeps the bigger edges bigger), and then no bet is more than maxBet. The whole history is replayed from the ledger every read, so the numbers are
+// always the same arithmetic on the same bets.
+export const PORTFOLIO = {
+  start: 1000, // dollars, per arm
+  kellyFraction: 0.25, // quarter Kelly: full Kelly on noisy probabilities is far too aggressive
+  maxBet: 0.015, // of the night's bankroll, per bet
+  maxGame: 0.05, // of the night's bankroll, all of one arm's bets on one game together
+}
+
+// Full Kelly for a binary contract bought at `cost` (price plus fee, per $1 of payout) by
+// someone whose edge is `edge` (win probability minus cost): the share of bankroll to stake.
+export function kellyShare(edge, cost) {
+  if (!(edge > 0) || !(cost > 0 && cost < 1)) return 0
+  return edge / (1 - cost)
+}
+
+// What a YES contract is worth right now: its settlement once Kalshi has one, the mid of a
+// two-sided quote, else the last trade. Null when there is nothing to go on.
+export function markValue(m) {
+  if (!m) return null
+  const s = settledValue(m)
+  if (s != null) return s
+  if (m.bid > 0 && m.ask < 1 && m.ask >= m.bid) return (m.bid + m.ask) / 2
+  if (m.last > 0 && m.last < 1) return m.last
+  return null
+}
+
+const cents2 = (x) => Math.round(x * 100) / 100
+
+// The ledger row for one bet: [arm, ticker, side, edge, cost, u] where u is the bet's P&L per
+// unit staked once settled, 'v' for a void, null while open.
+export function ledgerRow(b) {
+  const r = b.result
+  const u = !r ? null : r.outcome === 'void' ? 'v' : Math.round(r.pnl * 1e6) / 1e6
+  return [b.arm, b.ticker, b.side, Math.round(b.edge * 1e5) / 1e5, Math.round((b.price + b.fee) * 1e5) / 1e5, u]
+}
+
+// Replays every bet in order and returns where each arm stands.
+//   games  [{ key, date, tip, bets: [ledger rows] }]
+//   marks  Map(ticker -> YES value now) for open bets; an open bet without a mark is held at
+//          what it cost
+export function buildPortfolios(games, marks = null, cfg = PORTFOLIO) {
+  const realized = Object.fromEntries(ARMS.map((a) => [a, cfg.start]))
+  const unreal = Object.fromEntries(ARMS.map((a) => [a, 0]))
+  const counts = Object.fromEntries(ARMS.map((a) => [a, { open: 0, openStake: 0, settled: 0, staked: 0 }]))
+  const stakes = {}
+  const opens = {}
+  const closes = []
+  const byDate = new Map()
+  for (const g of games) {
+    if (!byDate.has(g.date)) byDate.set(g.date, [])
+    byDate.get(g.date).push(g)
+  }
+  for (const date of [...byDate.keys()].sort()) {
+    const day = byDate.get(date).slice().sort((a, b) => Date.parse(a.tip) - Date.parse(b.tip) || (a.key < b.key ? -1 : 1))
+    const bank = { ...realized } // sized from what each arm had going into the night
+    opens[date] = Object.fromEntries(ARMS.map((a) => [a, cents2(bank[a])]))
+    const dayPnl = Object.fromEntries(ARMS.map((a) => [a, 0]))
+    let allSettled = true
+    for (const g of day) {
+      for (const arm of ARMS) {
+        const rows = (g.bets || []).filter((r) => r[0] === arm)
+        if (!rows.length) continue
+        const B = bank[arm]
+        // Game cap first (it keeps sizes in proportion to edge), then the per-bet cap: capping
+        // each bet first would flatten every decent edge to the same size.
+        const raw = rows.map((r) => Math.max(0, B * cfg.kellyFraction * kellyShare(r[3], r[4])))
+        const sum = raw.reduce((t, x) => t + x, 0)
+        const scale = sum > cfg.maxGame * B ? (cfg.maxGame * B) / sum : 1
+        rows.forEach((r, i) => {
+          const [, ticker, side, , cost, u] = r
+          const stake = cents2(Math.min(raw[i] * scale, cfg.maxBet * B))
+          const id = `${g.key}|${arm}|${ticker}`
+          if (u === null || u === undefined) {
+            allSettled = false
+            const yes = marks?.get(ticker)
+            const mark = yes == null ? null : side === 'yes' ? yes : 1 - yes
+            const value = mark == null || !(cost > 0) ? stake : (stake / cost) * mark
+            unreal[arm] += value - stake
+            counts[arm].open += 1
+            counts[arm].openStake += stake
+            stakes[id] = { stake, open: true, mark, value: cents2(value), pnl: cents2(value - stake) }
+          } else {
+            const pnl = u === 'v' ? 0 : stake * u
+            dayPnl[arm] += pnl
+            counts[arm].settled += 1
+            if (u !== 'v') counts[arm].staked += stake
+            stakes[id] = { stake, open: false, pnl: cents2(pnl), void: u === 'v' }
+          }
+        })
+      }
+    }
+    for (const a of ARMS) realized[a] += dayPnl[a]
+    if (allSettled) closes.push({ date, ...Object.fromEntries(ARMS.map((a) => [a, cents2(realized[a])])) })
+  }
+  const arms = Object.fromEntries(ARMS.map((a) => [a, {
+    start: cfg.start,
+    realized: cents2(realized[a]),
+    unrealized: cents2(unreal[a]),
+    equity: cents2(realized[a] + unreal[a]),
+    ...counts[a],
+    openStake: cents2(counts[a].openStake),
+    staked: cents2(counts[a].staked),
+  }]))
+  return { config: cfg, arms, closes, opens, stakes }
+}

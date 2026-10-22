@@ -37,6 +37,9 @@
 //   wce:edge:runs          list  the last 200 runs
 //   wce:edge:ids           JSON  Kalshi -> Sleeper player ids, refreshed daily
 //   wce:edge:tries         hash  game key -> failed Claude attempts (a game is retried once)
+//   wce:edge:ledger        hash  game key -> each bet in one short row, for the portfolios
+//   wce:edge:marks         JSON  Kalshi's live values for open bets, kept 20 seconds
+//   wce:edge:ticks:<date>  list  the portfolios' value through a night, about once a minute
 //
 // Not a function itself: Vercel skips api files that start with an underscore.
 
@@ -59,6 +62,10 @@ const KEY = {
   fc: (g) => `${NS}:fc:${g}`,
   pending: (g) => `${NS}:pending:${g}`,
   fin: (g) => `${NS}:fin:${g}`,
+  ledger: `${NS}:ledger`,
+  marks: `${NS}:marks`,
+  tickGate: `${NS}:tickgate`,
+  ticks: (d) => `${NS}:ticks:${d}`,
 }
 const CLAUDE_ARMS = ['claude_wce', 'claude_box']
 
@@ -75,7 +82,10 @@ export function taskTokenOk(presented) {
 // UTC. 14:00 to 02:00 is 10am to 10pm EDT (9am to 9pm EST); each fires somewhere in its hour.
 export const PICK_SCHEDULES = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0, 1, 2].map((h) => `0 ${h} * * *`)
 export const SETTLE_SCHEDULE = '0 11 * * *' // 7am EDT / 6am EST, after every game is final
-export const jobForSchedule = (s) => (s === SETTLE_SCHEDULE ? 'edge-settle' : PICK_SCHEDULES.includes(s) ? 'edge-picks' : null)
+// 11pm to 1am EDT (10pm to midnight EST): a point on the portfolios' line while late games
+// play, for nights nobody has the page open. The page adds a point a minute while it is open.
+export const TICK_SCHEDULES = [3, 4, 5].map((h) => `0 ${h} * * *`)
+export const jobForSchedule = (s) => (s === SETTLE_SCHEDULE ? 'edge-settle' : PICK_SCHEDULES.includes(s) ? 'edge-picks' : TICK_SCHEDULES.includes(s) ? 'edge-tick' : null)
 
 const MIN = 60e3
 const LEAD_MIN = 20 * MIN
@@ -441,6 +451,7 @@ async function finalizeGame(packet, answers, quotes) {
   await redisPipeline([
     ['SET', KEY.fc(g.key), JSON.stringify({ at, cols: ['ticker', 'player', 'team', 'stat', 'k', 'bid', 'ask', ...M.ARMS], rows })],
     ['SET', KEY.bets(g.key), JSON.stringify({ at, bets, notes })],
+    ['HSET', KEY.ledger, g.key, JSON.stringify(bets.map(M.ledgerRow))],
     ['HSET', KEY.games, g.key, JSON.stringify(record)],
     ['DEL', KEY.pending(g.key)],
   ])
@@ -617,6 +628,7 @@ export async function runPicks(opts = {}) {
       result.warnings.push(...s.warnings)
       await logRun({ job: 'edge-picks', status: 'ok', ms: Date.now() - started, note: result.note, closed: result.closed, settled: s.settled,
         error: result.warnings.join(' | ').slice(0, 600) })
+      await tickIfTime(started)
       return result
     }
 
@@ -626,6 +638,7 @@ export async function runPicks(opts = {}) {
     result.status = status
     await logRun({ job: 'edge-picks', status, ms: Date.now() - started, decided: result.decided.map((d) => d.key), queued: result.queued, closed: result.closed,
       skipped: result.skipped, bets: result.decided.reduce((a, d) => a + d.bets, 0), error: armErrors.concat(result.warnings).join(' | ').slice(0, 600) })
+    await tickIfTime(started)
     return result
   } catch (err) {
     const msg = String(err?.message || err)
@@ -787,6 +800,7 @@ async function settleOne(rec, now, deadline) {
   await redisPipeline([
     ['SET', KEY.bets(rec.key), JSON.stringify(bb)],
     ['SET', KEY.fc(rec.key), JSON.stringify(fc)],
+    ['HSET', KEY.ledger, rec.key, JSON.stringify(bb.bets.map(M.ledgerRow))],
     ['HSET', KEY.games, rec.key, JSON.stringify(next)],
   ])
   return { settled: true }
@@ -827,6 +841,8 @@ export async function runSettle(opts = {}) {
     s.warnings.unshift(...c.warnings)
     const status = s.warnings.length ? 'partial' : 'ok'
     await logRun({ job: 'edge-settle', status, ms: Date.now() - started, closed: c.closed, settled: s.settled, waiting: s.waiting, error: s.warnings.join(' | ').slice(0, 600) })
+    // The night's last point: everything it bet, now settled.
+    if (s.settled.length) await tickIfTime(started, { force: true })
     return { ok: true, job: 'edge-settle', status, closed: c.closed, ...s }
   } catch (err) {
     const msg = String(err?.message || err)
@@ -835,6 +851,113 @@ export async function runSettle(opts = {}) {
   } finally {
     if (token) await dropLock(token)
   }
+}
+
+/* ------------------------------------------------------------------ *
+ * Portfolios (each arm's bets in dollars, live during games)
+ * ------------------------------------------------------------------ */
+
+const MARKS_FRESH = 20e3 // Kalshi's values are reused this long, however many pages are open
+const TICK_EVERY = 55 // seconds between points on a night's line
+const STAKE_DAYS = 10 // dollar stakes are sent for this many recent nights (the game cards)
+
+// Every decided or settled game's bets as ledger rows. Games decided before the ledger existed
+// are filled in from their bets the first time they are read.
+async function loadLedger(games) {
+  const h = toHash(await redis(['HGETALL', KEY.ledger]))
+  const missing = games.filter((g) => !h[g.key])
+  if (missing.length) {
+    const blobs = await redisPipeline(missing.map((g) => ['GET', KEY.bets(g.key)]))
+    const writes = []
+    missing.forEach((g, i) => {
+      const bb = parseJSONSafe(blobs[i]?.result, null)
+      if (!bb) return
+      h[g.key] = JSON.stringify((bb.bets || []).map(M.ledgerRow))
+      writes.push(['HSET', KEY.ledger, g.key, h[g.key]])
+    })
+    if (writes.length) await redisPipeline(writes).catch(() => {})
+  }
+  return games.map((g) => ({ key: g.key, date: g.date, tip: g.tip, bets: parseJSONSafe(h[g.key], []) }))
+}
+
+// What each open bet's contract is worth right now, from Kalshi, shared for MARKS_FRESH.
+async function liveMarks(tickers, deadline) {
+  const cached = parseJSONSafe(await redis(['GET', KEY.marks]).catch(() => null), null)
+  const covers = cached?.v && tickers.every((t) => t in cached.v)
+  if (covers && Date.now() - Date.parse(cached.at) < MARKS_FRESH) return { marks: new Map(Object.entries(cached.v)), at: cached.at }
+  try {
+    const ms = await K.marketsByTicker(tickers, { deadline })
+    const v = Object.fromEntries(tickers.map((t) => [t, M.markValue(ms.get(t))]))
+    const at = new Date().toISOString()
+    await redis(['SET', KEY.marks, JSON.stringify({ at, v }), 'EX', '600']).catch(() => {})
+    return { marks: new Map(Object.entries(v)), at }
+  } catch (err) {
+    const error = String(err?.message || err).slice(0, 200)
+    // Older values beat none: the line holds still instead of dropping open bets to cost.
+    if (cached?.v) return { marks: new Map(Object.entries(cached.v)), at: cached.at, error }
+    return { marks: new Map(), at: null, error }
+  }
+}
+
+// Where the three portfolios stand now. With `record`, also adds a point to the night's line
+// (at most one every TICK_EVERY seconds, unless `force`).
+export async function readPortfolios({ record = false, force = false, deadline = Date.now() + 20e3 } = {}) {
+  const games = Object.values(toHash(await redis(['HGETALL', KEY.games]))).map((v) => parseJSONSafe(v, null))
+    .filter((g) => g && (g.status === 'decided' || g.status === 'settled'))
+  const ledger = await loadLedger(games)
+  const openTickers = [...new Set(ledger.flatMap((g) => g.bets.filter((r) => r[5] == null).map((r) => r[1])))]
+  const live = openTickers.length ? await liveMarks(openTickers, deadline) : { marks: new Map(), at: null }
+  const pf = M.buildPortfolios(ledger, live.marks)
+
+  // The night on show: the latest one with bets still open, else the latest one with bets.
+  const withBets = ledger.filter((g) => g.bets.length)
+  const openDates = withBets.filter((g) => g.bets.some((r) => r[5] == null)).map((g) => g.date).sort()
+  const night = openDates.at(-1) || withBets.map((g) => g.date).sort().at(-1) || null
+  const equity = Object.fromEntries(M.ARMS.map((a) => [a, pf.arms[a].equity]))
+  let ticks = []
+  if (night) {
+    if (record && (openDates.length || force)) {
+      const go = force || (await redis(['SET', KEY.tickGate, '1', 'NX', 'EX', String(TICK_EVERY)]).catch(() => null))
+      if (go) {
+        await redisPipeline([
+          ['RPUSH', KEY.ticks(night), JSON.stringify({ t: new Date().toISOString(), e: equity })],
+          ['LTRIM', KEY.ticks(night), '-1500', '-1'],
+          ['EXPIRE', KEY.ticks(night), String(60 * 86400)],
+        ]).catch(() => {})
+      }
+    }
+    ticks = ((await redis(['LRANGE', KEY.ticks(night), '0', '-1']).catch(() => null)) || []).map((r) => parseJSONSafe(r, null)).filter(Boolean)
+  }
+
+  // Dollar stakes for the game cards of the last few nights.
+  const recentDates = new Set([...new Set(ledger.map((g) => g.date))].sort().slice(-STAKE_DAYS))
+  const keep = new Set(ledger.filter((g) => recentDates.has(g.date)).map((g) => g.key))
+  const stakes = Object.fromEntries(Object.entries(pf.stakes).filter(([id]) => keep.has(id.split('|')[0])))
+  const nightGames = games.filter((g) => g.date === night)
+
+  return {
+    at: new Date().toISOString(),
+    config: pf.config,
+    arms: pf.arms,
+    closes: pf.closes,
+    night,
+    nightOpen: night ? pf.opens[night] : null,
+    nightStart: nightGames.map((g) => g.decidedAt).filter(Boolean).sort()[0] || null,
+    nightEnd: nightGames.every((g) => g.status === 'settled') ? nightGames.map((g) => g.settledAt).filter(Boolean).sort().at(-1) || null : null,
+    live: openTickers.length > 0,
+    openBets: openTickers.length,
+    marksAt: live.at,
+    marksError: live.error || null,
+    ticks,
+    stakes,
+  }
+}
+
+// A point on the night's line from a cron run, if the run has time to spare.
+async function tickIfTime(started, { force = false } = {}) {
+  const left = started + 280e3 - Date.now()
+  if (left < 30e3) return
+  await readPortfolios({ record: true, force, deadline: Date.now() + Math.min(25e3, left - 5e3) }).catch(() => {})
 }
 
 /* ------------------------------------------------------------------ *

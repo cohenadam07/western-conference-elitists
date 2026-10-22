@@ -224,3 +224,74 @@ test('the Claude mode: the scheduled task unless an API key is set', () => {
   if (keep.k == null) delete process.env.ANTHROPIC_API_KEY; else process.env.ANTHROPIC_API_KEY = keep.k
   if (keep.m == null) delete process.env.EDGE_CLAUDE; else process.env.EDGE_CLAUDE = keep.m
 })
+
+test('portfolios: quarter Kelly with caps, sized from the night\'s opening bankroll', () => {
+  // Kelly for a binary bought at cost c with win probability q: (q - c) / (1 - c).
+  close(M.kellyShare(0.10, 0.50), 0.2)
+  close(M.kellyShare(0.05, 0.75), 0.2)
+  assert.equal(M.kellyShare(-0.01, 0.5), 0)
+  assert.equal(M.kellyShare(0.05, 1), 0)
+
+  const cfg = { start: 1000, kellyFraction: 0.25, maxBet: 0.015, maxGame: 0.05 }
+  // Night 1, one game. claude_wce: edge 0.04 at cost 0.5 -> quarter Kelly 2% -> capped at 1.5% = $15;
+  // edge 0.02 at cost 0.5 -> 1% = $10. Total $25, under the $50 game cap. It wins the first
+  // (u = +1: bought at 50c, paid $1) and loses the second.
+  const night1 = { key: 'G1', date: '2026-10-21', tip: '2026-10-21T23:00:00Z', bets: [
+    ['claude_wce', 'T1', 'yes', 0.04, 0.5, 1],
+    ['claude_wce', 'T2', 'no', 0.02, 0.5, -1],
+    ['model', 'T3', 'yes', 0.03, 0.4, 'v'],
+  ] }
+  let pf = M.buildPortfolios([night1], null, cfg)
+  close(pf.stakes['G1|claude_wce|T1'].stake, 15)
+  close(pf.stakes['G1|claude_wce|T2'].stake, 10)
+  close(pf.arms.claude_wce.realized, 1000 + 15 - 10)
+  close(pf.arms.model.realized, 1000) // a void returns the stake
+  assert.equal(pf.arms.claude_box.equity, 1000)
+  assert.deepEqual(pf.closes.map((c) => c.date), ['2026-10-21'])
+
+  // Night 2 sizes from $1,005. Eight bets that each want the 1.5% cap ($15.075) add up to
+  // $120.60, past the 5% game cap ($50.25), so all eight shrink by the same factor to ~$6.28.
+  const night2 = { key: 'G2', date: '2026-10-22', tip: '2026-10-22T23:00:00Z',
+    bets: Array.from({ length: 8 }, (_, i) => ['claude_wce', `U${i}`, 'yes', 0.2, 0.5, null]) }
+  pf = M.buildPortfolios([night1, night2], null, cfg)
+  close(pf.opens['2026-10-22'].claude_wce, 1005)
+  const each = pf.stakes['G2|claude_wce|U0'].stake
+  close(each, Math.round(1005 * 0.05 / 8 * 100) / 100)
+  // Open and unmarked: held at cost, so equity is the realized balance.
+  close(pf.arms.claude_wce.equity, 1005)
+  assert.equal(pf.arms.claude_wce.open, 8)
+  assert.deepEqual(pf.closes.map((c) => c.date), ['2026-10-21']) // night 2 isn't over
+
+  // Marked live: U0 bought YES at 50c now trades at 80c -> worth 1.6x the stake.
+  pf = M.buildPortfolios([night1, night2], new Map([['U0', 0.8]]), cfg)
+  close(pf.stakes['G2|claude_wce|U0'].value, Math.round(each / 0.5 * 0.8 * 100) / 100)
+  close(pf.arms.claude_wce.unrealized, Math.round((each / 0.5 * 0.8 - each) * 100) / 100, 0.011)
+  // A NO bet marks at one minus the YES value.
+  const night3 = { key: 'G3', date: '2026-10-22', tip: '2026-10-23T01:00:00Z', bets: [['claude_box', 'W1', 'no', 0.04, 0.6, null]] }
+  pf = M.buildPortfolios([night1, night2, night3], new Map([['W1', 0.1]]), cfg)
+  close(pf.stakes['G3|claude_box|W1'].mark, 0.9)
+
+  // In a game past its cap, a bigger edge still gets a bigger stake.
+  const night4 = { key: 'G4', date: '2026-10-23', tip: '2026-10-23T23:00:00Z', bets: [
+    ...Array.from({ length: 10 }, (_, i) => ['model', `S${i}`, 'no', 0.03, 0.5, null]),
+    ['model', 'BIG', 'no', 0.09, 0.5, null],
+  ] }
+  const pf4 = M.buildPortfolios([night4], null, cfg)
+  close(pf4.stakes['G4|model|BIG'].stake / pf4.stakes['G4|model|S0'].stake, 3, 0.01)
+  assert.ok(Object.values(pf4.stakes).reduce((t, x) => t + x.stake, 0) <= 50.1) // to the cent per bet
+
+  // A stake never moves once bet: replaying with later nights added changes nothing before.
+  const again = M.buildPortfolios([night1], null, cfg)
+  close(again.stakes['G1|claude_wce|T1'].stake, pf.stakes['G1|claude_wce|T1'].stake)
+})
+
+test('portfolios: marks and ledger rows', () => {
+  assert.equal(M.markValue({ result: 'yes' }), 1)
+  assert.equal(M.markValue({ result: 'no' }), 0)
+  close(M.markValue({ bid: 0.4, ask: 0.5 }), 0.45)
+  close(M.markValue({ bid: 0, ask: 1, last: 0.3 }), 0.3)
+  assert.equal(M.markValue({ bid: 0, ask: 1 }), null)
+  assert.deepEqual(M.ledgerRow({ arm: 'model', ticker: 'X', side: 'no', edge: 0.051234, price: 0.4, fee: 0.0168 }), ['model', 'X', 'no', 0.05123, 0.4168, null])
+  assert.equal(M.ledgerRow({ arm: 'model', ticker: 'X', side: 'no', edge: 0.05, price: 0.4, fee: 0.0168, result: { outcome: 'void', pnl: 0 } })[5], 'v')
+  close(M.ledgerRow({ arm: 'model', ticker: 'X', side: 'no', edge: 0.05, price: 0.4, fee: 0.0168, result: { outcome: 'loss', pnl: -1 } })[5], -1)
+})
