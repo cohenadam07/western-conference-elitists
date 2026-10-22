@@ -259,6 +259,9 @@ async function loadInputs(games, teamNames, { deadline, warnings }) {
   return { markets, proj, ix, injuries: inj.ok ? inj.v : {}, injuriesOk: inj.ok, ctx, playedOn, prevKnown: new Set(prev) }
 }
 
+// How many games each date has on ESPN's schedule, for the portfolios' per-game cap.
+const slateSizes = (games) => games.reduce((m, g) => { m[g.date] = (m[g.date] || 0) + 1; return m }, {})
+
 const dayBefore = (date) => { const d = new Date(`${date}T12:00:00Z`); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10) }
 
 // Claims a game so two runs (a cron and the scheduled task, say) never prepare it twice.
@@ -447,6 +450,7 @@ async function finalizeGame(packet, answers, quotes) {
     status: 'decided', preparedAt: packet.preparedAt, decidedAt: at, leadMin: Math.round((g.tip - Date.now()) / MIN),
     quotes: quotes ? 'live' : 'prepared', markets: live.length, players: packet.players, arms,
     claude: mode === 'api' ? claudeModel() : mode === 'task' ? 'scheduled task' : null, minEdge: rules.minEdge,
+    slate: packet.slate || null,
   }
   await redisPipeline([
     ['SET', KEY.fc(g.key), JSON.stringify({ at, cols: ['ticker', 'player', 'team', 'stat', 'k', 'bid', 'ask', ...M.ARMS], rows })],
@@ -487,7 +491,7 @@ async function decideWithApi(packet, deadline, tries) {
 async function storePending(packet) {
   const g = packet.game
   const rec = { key: g.key, date: g.date, away: g.away, home: g.home, tip: new Date(g.tip).toISOString(), status: 'pending',
-    preparedAt: packet.preparedAt, markets: packet.markets.length, players: packet.players, claude: 'scheduled task' }
+    preparedAt: packet.preparedAt, markets: packet.markets.length, players: packet.players, claude: 'scheduled task', slate: packet.slate || null }
   await redisPipeline([
     ['DEL', KEY.pending(g.key)],
     ['HSET', KEY.pending(g.key), 'packet', JSON.stringify(packet)],
@@ -499,7 +503,7 @@ async function storePending(packet) {
 
 // Prepares a batch of games and, by mode, decides them or leaves them pending. Reports into
 // `result` (decided, queued, skipped).
-async function prepareBatch(due, teamNames, { started, tries, result }) {
+async function prepareBatch(due, teamNames, { started, tries, result, slate = {} }) {
   const inp = await loadInputs(due, teamNames, { deadline: started + 120e3, warnings: result.warnings })
   const mode = claudeMode()
   const queue = [...due]
@@ -511,6 +515,7 @@ async function prepareBatch(due, teamNames, { started, tries, result }) {
       try {
         const packet = prepareGame(g, inp)
         if (packet.empty) { await release(g.key); result.skipped.push(`${g.key} (no quoted markets yet)`); continue }
+        if (slate[g.date]) packet.slate = slate[g.date]
         if (mode === 'task') {
           await storePending(packet)
           result.queued.push(g.key)
@@ -632,7 +637,7 @@ export async function runPicks(opts = {}) {
       return result
     }
 
-    await prepareBatch(due, teamNames, { started, tries, result })
+    await prepareBatch(due, teamNames, { started, tries, result, slate: slateSizes(games) })
     const armErrors = result.decided.flatMap((d) => Object.entries(d.arms).filter(([, a]) => a.error).map(([arm, a]) => `${d.key} ${arm}: ${a.error}`))
     const status = armErrors.length || result.skipped.some((s) => !/no quoted markets|out of time|already|being prepared|waiting for|not on ESPN/.test(s)) ? 'partial' : 'ok'
     result.status = status
@@ -674,7 +679,7 @@ export async function runQueue(opts = {}) {
     const due = games
       .filter((g) => !known[g.key] && g.state === 'pre' && g.tip - now > QUEUE_LEAD_MIN && g.tip - now <= ahead)
       .sort((a, b) => a.tip - b.tip)
-    if (due.length) await prepareBatch(due, teamNames, { started, tries: {}, result: out })
+    if (due.length) await prepareBatch(due, teamNames, { started, tries: {}, result: out, slate: slateSizes(games) })
 
     const after = toHash(await redis(['HGETALL', KEY.games]))
     const pend = Object.values(after).map((v) => parseJSONSafe(v, null))
@@ -782,23 +787,14 @@ async function settleOne(rec, now, deadline) {
     closes.set(t, q || (Date.parse(b.at) > tip - 24 * 60 * MIN ? { bid: b.bid, ask: b.ask, at: b.at, from: 'decision' } : null))
   }
 
-  const agg = Object.fromEntries(M.ARMS.map((a) => [a, { bets: M.emptyBetAgg(), fc: M.emptyFcAgg() }]))
   for (const b of bb.bets) {
     const s = M.settleBet(b, value(b.ticker), closes.get(b.ticker))
-    if (!s) { b.result = { outcome: 'void', pnl: 0, note: 'never settled' }; continue }
-    b.result = { ...s, actual: byTicker.get(b.ticker)?.actual ?? null }
-    M.addBet(agg[b.arm].bets, s)
-  }
-  const armCol = Object.fromEntries(M.ARMS.map((a) => [a, (fc.cols || []).indexOf(a)]))
-  for (const r of fc.rows) {
-    const y = value(r[0])
-    if (y !== 0 && y !== 1) continue
-    const mkt = (r[5] + r[6]) / 2
-    for (const a of M.ARMS) M.addForecast(agg[a].fc, r[armCol[a]], mkt, y)
+    b.result = s ? { ...s, actual: byTicker.get(b.ticker)?.actual ?? null } : { outcome: 'void', pnl: 0, note: 'never settled' }
   }
   fc.results = Object.fromEntries(fc.rows.map((r) => [r[0], value(r[0])]))
+  const agg = aggregate(fc, bb)
 
-  const next = { ...rec, status: 'settled', settledAt: new Date().toISOString(), agg, unresolved }
+  const next = { ...rec, status: 'settled', settledAt: new Date().toISOString(), agg, aggV: M.AGG_VERSION, unresolved }
   await redisPipeline([
     ['SET', KEY.bets(rec.key), JSON.stringify(bb)],
     ['SET', KEY.fc(rec.key), JSON.stringify(fc)],
@@ -806,6 +802,48 @@ async function settleOne(rec, now, deadline) {
     ['HSET', KEY.games, rec.key, JSON.stringify(next)],
   ])
   return { settled: true }
+}
+
+// A settled game's per-arm aggregates, from its stored forecasts (with results) and its bets
+// (with results). Recomputing a bet re-runs settleBet on the value and close it was settled on,
+// so a game settled before a field existed gains it without asking Kalshi again.
+function aggregate(fc, bb) {
+  const agg = Object.fromEntries(M.ARMS.map((a) => [a, { bets: M.emptyBetAgg(), fc: M.emptyFcAgg() }]))
+  for (const b of bb.bets || []) {
+    const r = b.result
+    if (!r || r.value == null) continue // never settled: a void that counts for nothing
+    const s = M.settleBet(b, r.value, r.close)
+    if (!s) continue
+    b.result = { ...r, ...s }
+    if (agg[b.arm]) M.addBet(agg[b.arm].bets, s)
+  }
+  const armCol = Object.fromEntries(M.ARMS.map((a) => [a, (fc.cols || []).indexOf(a)]))
+  for (const r of fc.rows || []) {
+    const y = fc.results?.[r[0]]
+    if (y !== 0 && y !== 1) continue
+    const mkt = (r[5] + r[6]) / 2
+    for (const a of M.ARMS) M.addForecast(agg[a].fc, r[armCol[a]], mkt, y)
+  }
+  return agg
+}
+
+// Settled games whose aggregates predate a new field, recomputed from what is stored and
+// written back. A few dozen at a time, so a page read never waits long.
+async function refreshAggregates(games, limit = 40) {
+  const old = games.filter((g) => g.status === 'settled' && g.aggV !== M.AGG_VERSION).slice(0, limit)
+  if (!old.length) return 0
+  const blobs = await redisPipeline(old.flatMap((g) => [['GET', KEY.fc(g.key)], ['GET', KEY.bets(g.key)]]))
+  const writes = []
+  old.forEach((g, i) => {
+    const fc = parseJSONSafe(blobs[2 * i]?.result, null)
+    const bb = parseJSONSafe(blobs[2 * i + 1]?.result, null)
+    if (!fc || !bb) return
+    g.agg = aggregate(fc, bb)
+    g.aggV = M.AGG_VERSION
+    writes.push(['SET', KEY.bets(g.key), JSON.stringify(bb)], ['HSET', KEY.games, g.key, JSON.stringify(g)])
+  })
+  if (writes.length) await redisPipeline(writes).catch(() => {})
+  return writes.length / 2
 }
 
 async function settleGames({ budget, started = Date.now(), keys } = {}) {
@@ -879,7 +917,7 @@ async function loadLedger(games) {
     })
     if (writes.length) await redisPipeline(writes).catch(() => {})
   }
-  return games.map((g) => ({ key: g.key, date: g.date, tip: g.tip, bets: parseJSONSafe(h[g.key], []) }))
+  return games.map((g) => ({ key: g.key, date: g.date, tip: g.tip, slate: g.slate || null, bets: parseJSONSafe(h[g.key], []) }))
 }
 
 // What each open bet's contract is worth right now, from Kalshi, shared for MARKS_FRESH.
@@ -922,13 +960,15 @@ export async function readPortfolios({ record = false, force = false, deadline =
       const go = force || (await redis(['SET', KEY.tickGate, '1', 'NX', 'EX', String(TICK_EVERY)]).catch(() => null))
       if (go) {
         await redisPipeline([
-          ['RPUSH', KEY.ticks(night), JSON.stringify({ t: new Date().toISOString(), e: equity })],
+          ['RPUSH', KEY.ticks(night), JSON.stringify({ t: new Date().toISOString(), e: equity, v: M.PORTFOLIO.version })],
           ['LTRIM', KEY.ticks(night), '-1500', '-1'],
           ['EXPIRE', KEY.ticks(night), String(60 * 86400)],
         ]).catch(() => {})
       }
     }
-    ticks = ((await redis(['LRANGE', KEY.ticks(night), '0', '-1']).catch(() => null)) || []).map((r) => parseJSONSafe(r, null)).filter(Boolean)
+    // Points recorded under another sizing would jump to different numbers, so they are left out.
+    ticks = ((await redis(['LRANGE', KEY.ticks(night), '0', '-1']).catch(() => null)) || []).map((r) => parseJSONSafe(r, null))
+      .filter((t) => t && (t.v || 1) === M.PORTFOLIO.version)
   }
 
   // Dollar stakes for the game cards of the last few nights.
@@ -972,6 +1012,7 @@ export async function readEdge({ from = null, recentDays = 10 } = {}) {
     .sort((a, b) => Date.parse(a.tip) - Date.parse(b.tip))
   const meta = toHash(metaRaw.result)
   const runs = (runsRaw.result || []).map((r) => parseJSONSafe(r, null)).filter(Boolean)
+  await refreshAggregates(games).catch(() => 0)
 
   const inRange = (g) => !from || g.date >= from
   // Head to head: only games every arm priced, so no arm is scored on an easier set of nights

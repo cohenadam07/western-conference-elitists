@@ -50,6 +50,8 @@ const ago = (iso) => {
   return h < 36 ? `${h} h ago` : `${Math.round(h / 24)} days ago`
 }
 
+const tStat = (t) => (t == null || !Number.isFinite(t) ? '—' : `${t < 0 ? '−' : ''}${Math.abs(t).toFixed(1)}`)
+
 function verdict(a) {
   if (!a.clvBets) return 'No settled bets yet.'
   if (a.clvBets < FIRST_READ) return `Too early to say: ${a.clvBets} of the ~${FIRST_READ} bets a first read needs.`
@@ -148,6 +150,7 @@ function portfolioSeries(pf, view) {
     if (pf.nightOpen) pts.push({ x: Date.parse(pf.nightStart || pf.ticks[0]?.t || pf.at), e: pf.nightOpen, label: 'Bets placed' })
     for (const t of pf.ticks) pts.push({ x: Date.parse(t.t), e: t.e })
     if (pf.live) pts.push({ x: now, e: eq, label: 'Now' })
+    else pts.push({ x: Math.max(pf.nightEnd ? Date.parse(pf.nightEnd) : now, ...pts.map((p) => p.x + 1)), e: eq, label: 'Settled' })
     return pts.filter((p, i, arr) => i === 0 || p.x > arr[i - 1].x)
   }
   const start = Object.fromEntries(ARMS.map((a) => [a, pf.config.start]))
@@ -276,7 +279,7 @@ function Portfolios({ pf, error, now }) {
       {pf.marksError && <p className="el-warn">Kalshi didn't answer just now ({pf.marksError}); open bets are held at the last prices it gave.</p>}
       <p className="el-muted el-small el-pf-note">
         Each arm started with {usd0(cfg.start)}. Bets are sized by edge: {cfg.kellyFraction === 0.25 ? 'quarter' : `${cfg.kellyFraction}×`} Kelly from the bankroll going into the night,
-        at most {pct(cfg.maxBet, 1)} on one bet and {pct(cfg.maxGame, 0)} on one game (a game's bets shrink together past that). Open bets are valued at Kalshi's mid right now;
+        at most {pct(cfg.maxBet, 1)} on one bet, {pct(cfg.maxGame, 0)} on one game and {pct(cfg.maxNight ?? 1, 0)} on one night (a big slate gives each game less; a game's bets shrink together past its share). Open bets are valued at Kalshi's mid right now;
         the night locks in when it settles.
       </p>
     </section>
@@ -288,15 +291,20 @@ function Portfolios({ pf, error, now }) {
 // The three arms side by side: easier to compare than three cards, and it fits a phone.
 function Scoreboard({ arms, scope, setScope, commonGames, settledGames }) {
   const rows = [
-    ['Avg CLV', (a) => <b className="el-big">{cents(a.clvMean)}</b>, 'Closing mid at tip-off minus the price paid, per bet. The verdict.'],
+    ['Avg CLV', (a) => <b className="el-big">{cents(a.clvMean)}</b>, 'Closing mid at tip-off minus the price paid, per bet. It is the market move below minus the spread paid.'],
     ['Std. error', (a) => (a.clvSe != null ? `±${cents(a.clvSe, false)}` : '—'), 'How far the average could be off by chance alone.'],
-    ['t', (a) => (a.clvT != null ? `${a.clvT < 0 ? '−' : ''}${Math.abs(a.clvT).toFixed(1)}` : '—'), 'The average divided by its standard error. Beyond ±2 is more than noise.'],
+    ['t', (a) => tStat(a.clvT), 'The average divided by its standard error. Beyond ±2 is more than noise.'],
+    ['Market move', (a) => <b>{cents(a.moveMean)}</b>, 'How far Kalshi\'s mid moved toward the bet between the moment it was made and tip-off. The part of CLV that is about the forecast, with the spread taken out.'],
+    ['Move t', (a) => tStat(a.moveT), 'The market move divided by its standard error. Beyond +2 means the market keeps moving the arm\'s way: an edge.'],
+    ['Spread paid', (a) => (a.spreadPaid == null ? '—' : cents(-a.spreadPaid)), 'Half the bid-ask spread: what buying at the ask costs against the mid. A taker always pays it; CLV = market move − spread paid.'],
     ['Beat the close', (a) => pct(a.beatRate)],
     ['Bets', (a) => `${a.bets}${a.voids ? ` (${a.voids} void)` : ''}`],
     ['With a close', (a) => a.clvBets, 'Bets with a two-sided quote at tip-off, the ones CLV is measured on.'],
     ['Record', (a) => `${a.wins}–${a.losses}`],
     ['ROI', (a) => (a.roi == null ? '—' : pct(a.roi, 1))],
     ['P&L (units)', (a) => units(a.pnl), 'Every bet counted as one unit, fee included, so the arms compare on picks alone. The portfolios above size by edge.'],
+    ['Knows more than market', (a) => (a.info ? `${a.info.weight < 0 ? '−' : ''}${Math.abs(a.info.weight * 100).toFixed(0)}% (t ${tStat(a.info.t)})` : '—'), 'How much of the arm\'s disagreement with Kalshi\'s price to keep in a blend of the two, fitted on every scored forecast. 0% means the arm knows nothing the price doesn\'t; above 0 with t past 2 means it does, even if its own numbers score worse than the market. Forecasts in one game move together, so read this t generously.'],
+    ['Blend vs market', (a) => (a.info?.blendSkill == null || !(a.info.weight > 0) ? '—' : `+${(a.info.blendSkill * 100).toFixed(1)}%`), 'How much better the blend (market + that share of the arm\'s disagreement) scores than the market alone. It only means something once the t above is past 2.'],
     ['Brier vs market', (a) => (a.skill == null ? '—' : Math.abs(a.skill) < 0.0005 ? '0.0%' : `${a.skill > 0 ? '+' : '−'}${Math.abs(a.skill * 100).toFixed(1)}%`), 'Positive means its probabilities scored better than Kalshi\'s mid on every quoted market it priced.'],
     ['Forecasts scored', (a) => a.forecasts.toLocaleString('en-US')],
   ]

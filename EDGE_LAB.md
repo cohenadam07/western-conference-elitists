@@ -43,6 +43,22 @@ than 10¢ or priced outside 5–95¢ are never bet. Every bet risks one unit, fe
   The page shows the average, its standard error and t; |t| above 2 is more than noise. Bets are
   paid at the ask and measured against the mid, so each one starts half a spread behind: a
   positive average has had to overcome that.
+- **Market move and spread paid.** CLV splits into two parts: the **spread paid** (the ask
+  minus the mid when the bet was made, which every taker pays) and the **market move** (the
+  mid at tip-off minus the mid when the bet was made, for the side taken). CLV = market move −
+  spread paid. The market move is the part that is about the forecast: a positive move with t
+  past 2 means the market keeps coming to the arm. Whether that beats the spread is what decides
+  if the edge pays as a taker.
+- **Knows more than market (the information test).** Over every scored forecast, the result's
+  surprise against Kalshi's mid (result − mid) is fitted on the arm's disagreement with it
+  (arm − mid), with no intercept. The slope is the share of the arm's disagreement a blend of
+  the two should keep: 0% means the arm knows nothing the price doesn't, 100% means take its
+  number as is. An arm can score worse than the market on its own (negative Brier skill) and
+  still know something the market doesn't (a positive weight): it is then right in direction
+  but overconfident, and a blend beats the price. "Blend vs market" is how much. Forecasts in
+  one game move together (a player's ladder), so the t is generous. If a weight holds up past
+  t ≈ 3 over a few weeks, the natural next betting rule is to bet the blend, as a fresh,
+  pre-registered run.
 - **Record, ROI, P&L.** Shown, but at -110-style prices you need ~1,500 bets before a hit rate
   separates from luck.
 - **Brier vs. market and calibration.** Every quoted market each arm priced (bet or not) is scored
@@ -57,8 +73,13 @@ from **$1,000**, sizing the same bets by edge instead of one unit apiece:
   fee) with edge *e* is *e* / (1 − *c*) of the bankroll; the portfolio stakes a quarter of that.
 - The bankroll is the arm's **settled balance going into the night**, so a stake is fixed the
   moment it is bet and never changes with later results.
-- When one arm's bets on one game add up past **5%** of that bankroll, they all shrink by the
-  same factor (bigger edges stay bigger); then no single bet is more than **1.5%**.
+- Each game's share is **5%** of that bankroll, or **25% / games on the slate** when that is
+  smaller (11 games get 2.27% each), so a full slate never puts more than a quarter of the
+  bankroll in play. The slate's size is stored on each game when it is decided, so a stake
+  never changes after it is bet. When one arm's bets on a game add up past its share, they all
+  shrink by the same factor (bigger edges stay bigger); then no single bet is more than **1.5%**.
+  (The night cap came in on Oct 22, after the first night put 45–55% in play; history was
+  re-sized, and the first night's in-game line, recorded under the old sizing, was dropped.)
 - Open bets are **marked live** at Kalshi's mid (or its settlement once a market resolves, or the
   last trade if there is no two-sided quote). The night locks in when it settles.
 
@@ -144,6 +165,10 @@ scoreboard (tip times) and injury feed, Sleeper (only to map Kalshi's player ids
 projection file, once a day), and the site's own files (`savant-proj.json`,
 `savant-teams*.json`, `savant-api/basketball/v1/`).
 
+Settled games carry an aggregate version (`aggV`); when a new field is added, older games are
+recomputed from their stored bets and forecasts on the next page read, without asking Kalshi
+again.
+
 **Storage**, in the Upstash Redis the site already uses, under `wce:edge:*`: one small record per
 game, the forecasts and bets as one JSON value per game, the last 200 runs, a short ledger row
 per bet for the portfolios (`wce:edge:ledger`, filled in from the bets for games decided before
@@ -202,7 +227,8 @@ Game keys are Kalshi's: two-digit year, month, day, away, home.
 ## Checks
 
 `npm run check:edge` covers the arithmetic offline: the negative binomial, the fee, the bet rule,
-settlement and CLV, the scoring, the portfolio sizing and marks, the Kalshi parsing, the player join, Claude's answer parsing and
+settlement and CLV (and its split into market move and spread paid), the scoring, the
+information test, the portfolio sizing, caps and marks, the Kalshi parsing, the player join, Claude's answer parsing and
 coherence, the scheduled task's texts and token, and that the box-score prompt never carries a
 WCE number.
 

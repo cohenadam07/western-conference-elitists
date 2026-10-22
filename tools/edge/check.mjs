@@ -316,3 +316,55 @@ test('the scheduled task: game files are data only, and the job lives in the tas
   assert.match(task, /\{\{TOKEN\}\}/)
   assert.doesNotMatch(task, /[0-9a-f]{40,}/)
 })
+
+test('CLV splits into the market move and the spread paid', () => {
+  // YES bought at the 52c ask, quoted 48/52 (mid 50); the close is 58/60 (mid 59).
+  const yes = { side: 'yes', price: 0.52, fee: M.takerFee(0.52), bid: 0.48, ask: 0.52 }
+  const s = M.settleBet(yes, 1, { bid: 0.58, ask: 0.60 })
+  close(s.cost, 0.02); close(s.move, 0.09); close(s.clv, 0.07); close(s.clv, s.move - s.cost)
+  // NO bought at 1 - bid = 52c on the same quote; the close moving up is against it.
+  const no = { side: 'no', price: 0.52, fee: M.takerFee(0.52), bid: 0.48, ask: 0.52 }
+  const n = M.settleBet(no, 1, { bid: 0.58, ask: 0.60 })
+  close(n.cost, 0.02); close(n.move, -0.09); close(n.clv, -0.11)
+  // No close: CLV and move unknown, the spread paid still known.
+  const o = M.settleBet(yes, 0, null)
+  assert.equal(o.move, null); close(o.cost, 0.02)
+  const agg = M.addBet(M.addBet(M.emptyBetAgg(), s), n)
+  const d = M.describeBets(agg)
+  close(d.moveMean, 0); close(d.spreadPaid, 0.02); assert.equal(d.moveBets, 2); close(d.moveUpRate, 0.5)
+})
+
+test('the information test: how much the arm knows that the market does not', () => {
+  // An arm that is the market plus real signal: the result leans toward it, so its weight is positive.
+  let seed = 3; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647
+  const sharp = M.emptyFcAgg(), noise = M.emptyFcAgg()
+  for (let i = 0; i < 4000; i++) {
+    const mkt = 0.2 + 0.6 * rnd()
+    const truth = Math.min(0.97, Math.max(0.03, mkt + (rnd() - 0.5) * 0.3))
+    const y = rnd() < truth ? 1 : 0
+    M.addForecast(sharp, Math.min(0.99, Math.max(0.01, mkt + 0.8 * (truth - mkt))), mkt, y)
+    M.addForecast(noise, Math.min(0.99, Math.max(0.01, mkt + (rnd() - 0.5) * 0.3)), mkt, y)
+  }
+  const a = M.describeForecasts(sharp).info, b = M.describeForecasts(noise).info
+  assert.ok(a.weight > 0.7 && a.weight < 1.6 && a.t > 4, JSON.stringify(a))
+  assert.ok(Math.abs(b.t) < 3, JSON.stringify(b))
+  assert.ok(a.blendSkill > b.blendSkill)
+  // The sums add across games like every other field.
+  const half = M.emptyFcAgg(); M.mergeFcAgg(half, sharp); M.mergeFcAgg(half, noise)
+  close(half.dd, sharp.dd + noise.dd, 1e-9)
+})
+
+test('portfolios: a big slate gives each game a smaller share of the night', () => {
+  const cfg = { start: 1000, kellyFraction: 0.25, maxBet: 0.015, maxGame: 0.05, maxNight: 0.25 }
+  // 10 games, each with ten bets that want the 1.5% cap: 5% per game would put 50% out.
+  const games = Array.from({ length: 10 }, (_, g) => ({ key: `G${g}`, date: '2026-10-21', tip: `2026-10-21T2${g % 4}:00:00Z`,
+    bets: Array.from({ length: 10 }, (_, i) => ['model', `T${g}-${i}`, 'no', 0.2, 0.5, null]) }))
+  let pf = M.buildPortfolios(games, null, cfg)
+  close(pf.arms.model.openStake, 250, 0.2) // 25% of $1,000
+  // The slate's size, when stored, decides the share: 2 games decided so far of a 10-game slate.
+  pf = M.buildPortfolios(games.slice(0, 2).map((g) => ({ ...g, slate: 10 })), null, cfg)
+  close(pf.arms.model.openStake, 50, 0.2) // 2.5% each, the same as once all ten are in
+  // A small slate keeps the 5% game cap.
+  pf = M.buildPortfolios(games.slice(0, 3), null, cfg)
+  close(pf.arms.model.openStake, 150, 0.2)
+})

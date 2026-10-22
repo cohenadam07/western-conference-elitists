@@ -189,6 +189,11 @@ export function settledValue(m) {
 //            court) is a void: it says nothing about the forecast, so it stays out of P&L.
 //   pnl      in units
 //   clv      closing fair probability for the side taken, minus the price paid (pre-fee)
+//   cost     the price paid minus the mid when the bet was made: half the spread, what a
+//            taker pays to cross it
+//   move     the mid at the close minus the mid when the bet was made, for the side taken:
+//            how far the market moved toward the bet. clv = move - cost, so move is the part
+//            of CLV that says something about the forecast
 export function settleBet(bet, value, close) {
   if (value == null) return null
   const contracts = 1 / (bet.price + bet.fee)
@@ -196,22 +201,33 @@ export function settleBet(bet, value, close) {
   const decided = value === 0 || value === 1
   const outcome = !decided ? 'void' : payout === 1 ? 'win' : 'loss'
   const pnl = outcome === 'void' ? 0 : contracts * payout - 1
-  let clv = null, closeMid = null
+  let clv = null, closeMid = null, move = null, cost = null
+  const sideFair = (m) => (bet.side === 'yes' ? m : 1 - m)
+  const openMid = bet.bid > 0 && bet.ask < 1 && bet.ask >= bet.bid ? (bet.bid + bet.ask) / 2 : null
+  if (openMid != null) cost = bet.price - sideFair(openMid)
   if (close && close.bid > 0 && close.ask < 1 && close.ask >= close.bid) {
     closeMid = (close.bid + close.ask) / 2
-    const fair = bet.side === 'yes' ? closeMid : 1 - closeMid
-    clv = fair - bet.price
+    clv = sideFair(closeMid) - bet.price
+    if (openMid != null) move = sideFair(closeMid) - sideFair(openMid)
   }
-  return { outcome, pnl, value, closeMid, close: close || null, clv }
+  return { outcome, pnl, value, closeMid, close: close || null, clv, move, cost }
 }
 
 /* ------------------------------------------------------------------ *
  * Aggregates (summed per game at settlement, then across games by the page)
  * ------------------------------------------------------------------ */
 
-export const emptyBetAgg = () => ({ n: 0, w: 0, l: 0, v: 0, staked: 0, pnl: 0, clvN: 0, clvSum: 0, clvSq: 0, beat: 0 })
+export const emptyBetAgg = () => ({ n: 0, w: 0, l: 0, v: 0, staked: 0, pnl: 0, clvN: 0, clvSum: 0, clvSq: 0, beat: 0,
+  mvN: 0, mvSum: 0, mvSq: 0, mvUp: 0, costSum: 0 })
+// Bumped whenever a settled game's aggregates gain a field; older games are recomputed from
+// their stored bets and forecasts the next time the page reads them.
+export const AGG_VERSION = 2
 export const BINS = 10
-export const emptyFcAgg = () => ({ n: 0, brier: 0, brierMkt: 0, ll: 0, llMkt: 0, bins: Array.from({ length: BINS }, () => [0, 0, 0]) })
+// dd, dr, rr: sums for one regression, of the result's surprise against the market
+// (r = y - market) on the arm's disagreement with the market (d = p - market). Its slope is
+// the weight a blend should give the arm next to the market's own price: 0 means the arm knows
+// nothing the price doesn't, 1 means take the arm's number as it is.
+export const emptyFcAgg = () => ({ n: 0, brier: 0, brierMkt: 0, ll: 0, llMkt: 0, dd: 0, dr: 0, rr: 0, bins: Array.from({ length: BINS }, () => [0, 0, 0]) })
 
 export function addBet(agg, settled) {
   if (!settled) return agg
@@ -229,6 +245,13 @@ export function addBet(agg, settled) {
     agg.clvSq += settled.clv * settled.clv
     if (settled.clv > 0) agg.beat += 1
   }
+  if (settled.move != null && settled.cost != null && settled.outcome !== 'void') {
+    agg.mvN += 1
+    agg.mvSum += settled.move
+    agg.mvSq += settled.move * settled.move
+    agg.costSum += settled.cost
+    if (settled.move > 0) agg.mvUp += 1
+  }
   return agg
 }
 
@@ -244,6 +267,10 @@ export function addForecast(agg, p, marketP, y) {
   agg.brierMkt += (marketP - y) ** 2
   agg.ll += logLoss(p, y)
   agg.llMkt += logLoss(marketP, y)
+  const d = p - marketP, r = y - marketP
+  agg.dd += d * d
+  agg.dr += d * r
+  agg.rr += r * r
   const b = Math.min(BINS - 1, Math.floor(p * BINS))
   agg.bins[b][0] += 1
   agg.bins[b][1] += p
@@ -259,9 +286,23 @@ export function mergeBetAgg(into, a) {
 
 export function mergeFcAgg(into, a) {
   if (!a) return into
-  for (const k of ['n', 'brier', 'brierMkt', 'll', 'llMkt']) into[k] += a[k] || 0
+  for (const k of ['n', 'brier', 'brierMkt', 'll', 'llMkt', 'dd', 'dr', 'rr']) into[k] += a[k] || 0
   ;(a.bins || []).forEach((b, i) => { if (into.bins[i]) for (let j = 0; j < 3; j++) into.bins[i][j] += b[j] || 0 })
   return into
+}
+
+// The information test. Fits r = w * d with no intercept over every scored forecast:
+//   weight     w, the share of the arm's disagreement with the market a blend should keep
+//   t          w over its standard error. Forecasts in one game move together (a player's
+//              ladder, a blowout), so treat this t as generous
+//   blendSkill how much the blend market + w * (arm - market) beats the market's Brier score
+//              (always >= 0 in sample; it means something once t is past 2)
+export function infoOverMarket(a) {
+  if (!a || !(a.dd > 0) || !(a.rr > 0) || a.n < 3) return null
+  const w = a.dr / a.dd
+  const rss = Math.max(0, a.rr - (a.dr * a.dr) / a.dd)
+  const se = Math.sqrt(rss / (a.n - 1) / a.dd)
+  return { weight: w, se, t: se > 0 ? w / se : null, blendSkill: a.rr > 0 ? 1 - rss / a.rr : null, n: a.n }
 }
 
 // What the page prints for one arm.
@@ -274,7 +315,15 @@ export function describeBets(a) {
     clvSe = Math.sqrt(varr / a.clvN)
     clvT = clvSe > 0 ? clvMean / clvSe : null
   }
+  let moveMean = null, moveSe = null, moveT = null
+  if (a.mvN) moveMean = a.mvSum / a.mvN
+  if (a.mvN > 1) {
+    const varr = Math.max(0, (a.mvSq - a.mvN * moveMean * moveMean) / (a.mvN - 1))
+    moveSe = Math.sqrt(varr / a.mvN)
+    moveT = moveSe > 0 ? moveMean / moveSe : null
+  }
   return {
+    moveBets: a.mvN || 0, moveMean, moveSe, moveT, moveUpRate: a.mvN ? a.mvUp / a.mvN : null, spreadPaid: a.mvN ? a.costSum / a.mvN : null,
     bets: a.n, wins: a.w, losses: a.l, voids: a.v,
     hitRate: decided ? a.w / decided : null,
     staked: a.staked, pnl: a.pnl, roi: a.staked ? a.pnl / a.staked : null,
@@ -283,9 +332,10 @@ export function describeBets(a) {
 }
 
 export function describeForecasts(a) {
-  if (!a.n) return { forecasts: 0, brier: null, brierMarket: null, skill: null, logLoss: null, logLossMarket: null, calibration: [] }
+  if (!a.n) return { forecasts: 0, brier: null, brierMarket: null, skill: null, logLoss: null, logLossMarket: null, calibration: [], info: null }
   return {
     forecasts: a.n,
+    info: infoOverMarket(a),
     brier: a.brier / a.n,
     brierMarket: a.brierMkt / a.n,
     skill: a.brierMkt > 0 ? 1 - a.brier / a.brierMkt : null, // > 0 means better than the market
@@ -301,15 +351,21 @@ export function describeForecasts(a) {
 
 // Each arm runs its own paper portfolio from the same start. A bet's size comes from its edge
 // (fractional Kelly), from the bankroll the arm had going into that night, so a stake is fixed
-// the moment it is bet and never moves with later results. Two caps keep one bet or one game
-// from swinging the whole thing: when one game's bets add up past maxGame they are all scaled
-// down together (which keeps the bigger edges bigger), and then no bet is more than maxBet. The whole history is replayed from the ledger every read, so the numbers are
+// the moment it is bet and never moves with later results. Three caps keep one bet, one game
+// or one night from swinging the whole thing: a game's cap is maxGame, or less on a big slate
+// (maxNight / games on the slate, with the slate's size stored on each game when it is decided,
+// so a stake never changes after it is bet); when one game's bets add up past it they are all
+// scaled down together (which keeps the bigger edges bigger), and then no bet is more than
+// maxBet. The whole history is replayed from the ledger every read, so the numbers are
 // always the same arithmetic on the same bets.
 export const PORTFOLIO = {
+  version: 2, // bumped when the sizing changes; the night lines recorded under another one are dropped
   start: 1000, // dollars, per arm
   kellyFraction: 0.25, // quarter Kelly: full Kelly on noisy probabilities is far too aggressive
   maxBet: 0.015, // of the night's bankroll, per bet
   maxGame: 0.05, // of the night's bankroll, all of one arm's bets on one game together
+  maxNight: 0.25, // of the night's bankroll, all of one arm's bets that night: each game gets at
+  //                 most maxNight / games on the slate (so 11 games get 2.27% each, 4 get 5%)
 }
 
 // Full Kelly for a binary contract bought at `cost` (price plus fee, per $1 of payout) by
@@ -341,7 +397,8 @@ export function ledgerRow(b) {
 }
 
 // Replays every bet in order and returns where each arm stands.
-//   games  [{ key, date, tip, bets: [ledger rows] }]
+//   games  [{ key, date, tip, slate?, bets: [ledger rows] }]; slate is how many games that date
+//          had (games decided before it was stored fall back to the night's decided games)
 //   marks  Map(ticker -> YES value now) for open bets; an open bet without a mark is held at
 //          what it cost
 export function buildPortfolios(games, marks = null, cfg = PORTFOLIO) {
@@ -359,6 +416,8 @@ export function buildPortfolios(games, marks = null, cfg = PORTFOLIO) {
   for (const date of [...byDate.keys()].sort()) {
     const day = byDate.get(date).slice().sort((a, b) => Date.parse(a.tip) - Date.parse(b.tip) || (a.key < b.key ? -1 : 1))
     const bank = { ...realized } // sized from what each arm had going into the night
+    const slate = Math.max(day.length, ...day.map((g) => Number(g.slate) || 0))
+    const gameCap = Math.min(cfg.maxGame, cfg.maxNight ? cfg.maxNight / slate : cfg.maxGame)
     opens[date] = Object.fromEntries(ARMS.map((a) => [a, cents2(bank[a])]))
     const dayPnl = Object.fromEntries(ARMS.map((a) => [a, 0]))
     let allSettled = true
@@ -371,7 +430,7 @@ export function buildPortfolios(games, marks = null, cfg = PORTFOLIO) {
         // each bet first would flatten every decent edge to the same size.
         const raw = rows.map((r) => Math.max(0, B * cfg.kellyFraction * kellyShare(r[3], r[4])))
         const sum = raw.reduce((t, x) => t + x, 0)
-        const scale = sum > cfg.maxGame * B ? (cfg.maxGame * B) / sum : 1
+        const scale = sum > gameCap * B ? (gameCap * B) / sum : 1
         rows.forEach((r, i) => {
           const [, ticker, side, , cost, u] = r
           const stake = cents2(Math.min(raw[i] * scale, cfg.maxBet * B))
