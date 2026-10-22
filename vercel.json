@@ -28,6 +28,10 @@
   ],
   "rewrites": [
     {
+      "source": "/mcp/:key",
+      "destination": "/api/mcp?key=:key"
+    },
+    {
       "source": "/savant-data.json",
       "destination": "/savant-data.json.gz"
     },

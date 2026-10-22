@@ -26,6 +26,21 @@ export const subscribe = (email, source, website = '') =>
 
 export const sendContact = (form) => postJSON('/api/contact', form)
 
+// A free key for the AI connector, emailed (api/newsletter.js?action=key).
+export const getConnectorKey = (email, newsletter, website = '') =>
+  postJSON('/api/newsletter?action=key', { email, newsletter: Boolean(newsletter), source: 'connector', website })
+
+export const KEY_SUCCESS = {
+  sent: {
+    title: 'Check your inbox.',
+    body: (email) => `Your own connector address is on its way to ${email}, with the steps to add it. Check spam if it isn't there in a minute.`,
+  },
+  queued: {
+    title: "You're a founding member.",
+    body: (email) => `Your key is made and saved. Its email to ${email} is queued, and you'll get it soon.`,
+  },
+}
+
 // What the reader sees after a successful signup, keyed by the server's `status`.
 export const SUBSCRIBE_SUCCESS = {
   confirm: {

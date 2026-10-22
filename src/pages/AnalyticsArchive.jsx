@@ -291,8 +291,62 @@ function CountBars({ title, note, rows, unit }) {
   );
 }
 
-// What wcehoops.com/api/mcp was asked for in the selected range. Counts only: the log holds
-// no questions and nothing about who asked. Days are UTC, like the rest of this page.
+// People who took a free connector key (api/_keys.js), and how much they use it. Always over
+// all time, whatever range the page shows, so "active" means the same thing every visit.
+// PHASE_TWO is the monetization plan's trigger: 200 key holders active in the last 30 days
+// (or 500 newsletter subscribers) is when sponsors and affiliate links go live.
+const PHASE_TWO = 200;
+
+function KeyHolders({ keys }) {
+  if (!keys) return null;
+  if (keys.error) return <p className="wa-error">The connector keys could not be read: {keys.error}</p>;
+  return (
+    <div className="wa-keys">
+      <div className="wa-section">
+        <h2>Key holders</h2>
+        <p className="wa-sub">
+          Fans who took a free key from the homepage: founding members. Every number here is all-time, and
+          one person is one email however many keys they asked for.
+        </p>
+      </div>
+      <div className="wa-tiles">
+        <StatTile label="Founding members" value={fmtInt(keys.people)} sub={`${fmtInt(keys.keys)} keys sent`} />
+        <StatTile
+          label="Active, last 30 days"
+          value={fmtInt(keys.active30)}
+          sub={`${Math.min(100, Math.round((keys.active30 / PHASE_TWO) * 100))}% of the ${PHASE_TWO} that start Phase 2`}
+        />
+        <StatTile label="Keyed lookups" value={fmtInt(keys.keyedCalls)} sub="lookups made with a key" />
+      </div>
+      {keys.top?.length > 0 ? (
+        <div className="wa-table-scroll">
+          <table className="wa-table">
+            <thead>
+              <tr><th>Email</th><th>Lookups</th><th>Days used</th><th>Last used</th><th>Member since</th><th>Newsletter</th></tr>
+            </thead>
+            <tbody>
+              {keys.top.map((p) => (
+                <tr key={p.email}>
+                  <td>{p.email}</td>
+                  <td>{fmtInt(p.calls)}</td>
+                  <td>{fmtInt(p.days)}</td>
+                  <td>{p.last || '—'}</td>
+                  <td>{p.since}</td>
+                  <td>{p.newsletter ? 'Ticked' : ''}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="wa-empty">{keys.people ? 'Nobody has used a key yet.' : 'No keys yet.'}</p>
+      )}
+    </div>
+  );
+}
+
+// What wcehoops.com/api/mcp was asked for in the selected range. Counts only, except for
+// callers who chose a key (KeyHolders above). Days are UTC, like the rest of this page.
 function ConnectorUsage({ log }) {
   const [showDays, setShowDays] = useState(false);
   if (!log) return null;
@@ -310,8 +364,8 @@ function ConnectorUsage({ log }) {
       <div className="wa-section">
         <h2>The AI connector</h2>
         <p className="wa-sub">
-          What AI apps looked up through wcehoops.com/api/mcp in this range. Counts only: no questions, and
-          nothing about who asked.
+          What AI apps looked up through the connector in this range. No questions are kept, and nothing about
+          who asked unless they use a key.
         </p>
       </div>
       {log.error ? (
@@ -368,6 +422,7 @@ function ConnectorUsage({ log }) {
               )}
             </>
           )}
+          <KeyHolders keys={log.keys} />
         </>
       )}
     </div>
@@ -706,6 +761,7 @@ const CSS = `
 .wa-connector .wa-table-scroll { background: var(--surface); border: 1px solid var(--hair);
   border-radius: 12px; padding: 4px 6px; }
 .wa-connector .wa-table td:first-child { white-space: nowrap; }
+.wa-keys { margin-top: 36px; }
 
 .wa-head { display: flex; justify-content: space-between; align-items: flex-start;
   gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }

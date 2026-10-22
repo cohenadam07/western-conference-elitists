@@ -9,10 +9,14 @@
 //   e:<tool>     calls that came back as "could not answer" (no such player, a name several
 //                people share, the data being down)
 //   c:<app>      connections, by the family of AI app that made them (see clientFamily)
+//   k:<id>       tool calls made with a connector key, by the key's id (api/_keys.js). The
+//                id is the first 12 characters of the key's SHA-256, never the key itself;
+//                only /analytics, behind its password, puts an email next to it
 //   limited      callers stopped by the rate limit, counted once per caller per minute
 //   writes       how many times this log was written that day (the cap below)
 //
-// What was asked is never kept, nor who asked: no question, no player name, no address.
+// What was asked is never kept: no question, no player name, no address. Who asked is kept
+// only for callers who chose to get a key, and only as how many calls they made each day.
 //
 // WHAT IT COSTS, AND THE CAP
 // The site's data store has a monthly allowance that the Dynasty board, Flappy Hoops races,
@@ -82,7 +86,7 @@ export function clientFamily(name) {
   return 'other'
 }
 
-const EVENT = /^(?:[tec]:[a-z0-9_]{1,48}|limited)$/
+const EVENT = /^(?:[tec]:[a-z0-9_]{1,48}|k:[a-f0-9]{12}|limited)$/
 
 let cappedDay = null // the day this copy of the function learned the cap had been reached
 let pausedUntil = 0 // after a failed write, leave the store alone until then
@@ -147,6 +151,7 @@ export function summarise(months, { from = null, to = null, cap = dailyCap() } =
   const days = new Map()
   const tools = new Map()
   const clients = new Map()
+  const perKey = {} // <key id> -> { calls, days, last }: tool calls made with that key
   const totals = { calls: 0, errors: 0, connections: 0, limited: 0, days: 0 }
   for (const [month, hash] of Object.entries(months)) {
     for (const [field, raw] of Object.entries(hash || {})) {
@@ -170,6 +175,11 @@ export function summarise(months, { from = null, to = null, cap = dailyCap() } =
         clients.set(what, (clients.get(what) || 0) + n)
         d.connections += n
         totals.connections += n
+      } else if (kind === 'k:') {
+        const k = perKey[what] || (perKey[what] = { calls: 0, days: [], last: null })
+        k.calls += n
+        if (!k.days.includes(date)) k.days.push(date)
+        if (!k.last || date > k.last) k.last = date
       }
     }
   }
@@ -182,6 +192,7 @@ export function summarise(months, { from = null, to = null, cap = dailyCap() } =
     clients: [...clients.entries()].map(([key, count]) => ({ key, count })).sort((a, b) => b.count - a.count || a.key.localeCompare(b.key)),
     totals,
     cappedDays: daily.filter((d) => d.capped).map((d) => d.date),
+    perKey,
   }
 }
 

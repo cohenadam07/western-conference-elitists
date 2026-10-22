@@ -103,9 +103,10 @@ function Status({ ok, label, hint }) {
   )
 }
 
-function NewsletterPanel({ data, onFlush, flushing, flushNote }) {
+function NewsletterPanel({ data, onFlush, flushing, flushNote, onFlushKeys, flushingKeys, keysNote }) {
   if (!data) return null
   const { config, subscribers, pending } = data
+  const heldKeys = data.pendingKeys || []
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.3fr_1fr]">
       <div className="flex flex-col gap-6">
@@ -150,6 +151,35 @@ function NewsletterPanel({ data, onFlush, flushing, flushNote }) {
             </ul>
           )}
         </div>
+
+        <div className="rounded-md border border-line bg-surface p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-display text-xl text-ink">Held connector keys</h2>
+              <p className="mt-1 text-sm text-muted">
+                {heldKeys.length
+                  ? `${heldKeys.length} key${heldKeys.length === 1 ? '' : 's'} made but not emailed yet.`
+                  : 'Nothing waiting. Every connector key has been emailed.'}
+              </p>
+            </div>
+            {heldKeys.length > 0 && (
+              <button type="button" onClick={onFlushKeys} disabled={flushingKeys || !config.keyMail} className={btnPrimary}>
+                {flushingKeys ? 'Sending…' : 'Email the keys'}
+              </button>
+            )}
+          </div>
+          {keysNote && <p className="mt-3 text-[13px] text-muted" role="status">{keysNote}</p>}
+          {heldKeys.length > 0 && (
+            <ul className="mt-4 divide-y divide-line-soft border-t border-line-soft">
+              {heldKeys.map((k) => (
+                <li key={`${k.email}-${k.ts}`} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-2.5 text-sm">
+                  <span className="text-ink">{k.email}</span>
+                  <span className="font-mono text-[11px] text-faint">{ago(k.ts)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col gap-6">
@@ -159,6 +189,7 @@ function NewsletterPanel({ data, onFlush, flushing, flushNote }) {
             <Status ok={config.buttondown} label="Buttondown" hint="Set BUTTONDOWN_API_KEY in Vercel. Until then, signups are held here." />
             <Status ok={config.kv} label="Upstash" hint="No database: messages can't be stored and signups can't be held." />
             <Status ok={config.notifications} label="Email copies of messages" hint="Optional. Set RESEND_API_KEY and CONTACT_NOTIFY_TO." />
+            <Status ok={config.keyMail} label="Connector key emails" hint="Verify wcehoops.com in Resend, then set KEYS_MAIL_FROM. Until then, keys are held here." />
           </ul>
         </div>
         <div className="rounded-md border border-line bg-surface p-6">
@@ -189,6 +220,8 @@ export default function Inbox() {
   const [filter, setFilter] = useState('all')
   const [flushing, setFlushing] = useState(false)
   const [flushNote, setFlushNote] = useState('')
+  const [flushingKeys, setFlushingKeys] = useState(false)
+  const [keysNote, setKeysNote] = useState('')
 
   useEffect(() => {
     document.title = 'Inbox — WCE'
@@ -271,6 +304,29 @@ export default function Inbox() {
     }
   }
 
+  const flushKeys = async () => {
+    setFlushingKeys(true)
+    setKeysNote('')
+    let sent = 0
+    let waiting = 0
+    let error = ''
+    try {
+      for (let round = 0; round < 25; round++) {
+        const r = await api('/api/newsletter?admin=flush-keys', { method: 'POST', body: '{}' })
+        sent += r.sent
+        waiting = r.remaining
+        error = r.error || ''
+        if (!r.remaining || r.sent === 0) break
+      }
+      setKeysNote([`${sent} emailed`, waiting ? `${waiting} still held${error ? ` (${error})` : ''}` : ''].filter(Boolean).join(' · '))
+    } catch (e) {
+      if (e.message !== 'unauthorized') setKeysNote(`Send failed: ${e.message}`)
+    } finally {
+      setFlushingKeys(false)
+      load()
+    }
+  }
+
   const shown = useMemo(
     () => (messages?.messages || []).filter((m) => filter === 'all' || !m.read),
     [messages, filter]
@@ -279,7 +335,7 @@ export default function Inbox() {
   if (!key) return <Gate error={gateError} onUnlock={(v) => { saveKey(v); setGateError(''); setKey(v) }} />
 
   const unread = messages?.unread || 0
-  const pendingCount = nl?.pending?.length || 0
+  const pendingCount = (nl?.pending?.length || 0) + (nl?.pendingKeys?.length || 0)
   const tabBtn = (id, label, count) => (
     <button
       type="button"
@@ -351,7 +407,7 @@ export default function Inbox() {
             </ul>
           </>
         )}
-        {tab === 'newsletter' && <NewsletterPanel data={nl} onFlush={flush} flushing={flushing} flushNote={flushNote} />}
+        {tab === 'newsletter' && <NewsletterPanel data={nl} onFlush={flush} flushing={flushing} flushNote={flushNote} onFlushKeys={flushKeys} flushingKeys={flushingKeys} keysNote={keysNote} />}
       </div>
     </div>
   )

@@ -651,6 +651,133 @@ test('the usage log: counts only, one command a write, capped, and never in the 
   }
 })
 
+// ---- connector keys ---------------------------------------------------------------------
+// A free key gives a fan their own address (api/_keys.js). Four things have to be true: the
+// public address is untouched, a key gets its own bucket and its own count without costing
+// the store an extra write, a key that is wrong or cannot be checked is simply no key, and
+// the key itself is never what the store holds.
+
+test('connector keys: own address, own bucket, counted in the same write, never in the way', { skip: store ? false : 'redis-server is not installed here' }, async () => {
+  const usage = await import('../../api/_usage.js')
+  const keys = await import('../../api/_keys.js')
+  const { FOUNDING } = await import('../../src/data/connector.js')
+  const today = usage.dayOf(Date.now())
+  const month = `wce:mcp:usage:${today.slice(0, 7)}`
+  const todays = async () => {
+    const flat = await store.send(['HGETALL', month])
+    const out = {}
+    for (let i = 0; i < flat.length; i += 2) if (flat[i].startsWith(`${today.slice(8)}|`)) out[flat[i].slice(3)] = Number(flat[i + 1])
+    return out
+  }
+  const init = { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'check', version: '1' } } }
+  const ping = { jsonrpc: '2.0', id: 7, method: 'ping' }
+  const to = (url, body, headers = {}) => fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream', ...headers },
+    body: JSON.stringify(body),
+  })
+  const told = async (url) => (await (await to(url, init)).json()).result.instructions
+
+  process.env.KV_REST_API_URL = store.url
+  process.env.KV_REST_API_TOKEN = store.token
+  await store.send(['FLUSHALL'])
+  usage.resetUsage()
+  keys.resetKeys()
+  let keyed
+  try {
+    const { key, id } = await keys.createKey({ email: 'Fan@Example.com', newsletter: true, source: 'connector' })
+    assert.match(key, /^wce_[a-f0-9]{32}$/)
+    const own = `${endpoint}?key=${key}`
+    const viaPath = endpoint.replace(/\/api\/mcp$/, `/mcp/${key}`)
+    const fake = `${endpoint}?key=wce_${'0'.repeat(32)}`
+
+    // What each address tells the AI.
+    const pub = await told(endpoint)
+    assert.ok(pub.includes('Keys are free at https://wcehoops.com/#ai') && pub.includes(FOUNDING), 'the public address mentions free keys')
+    for (const url of [own, viaPath]) {
+      const said = await told(url)
+      assert.ok(said.includes("the person's own WCE key") && said.includes(FOUNDING), url)
+      assert.ok(!said.includes('Keys are free'), 'a key holder is not told to get a key')
+    }
+    assert.ok((await told(fake)).includes('is not one wcehoops.com knows'))
+    assert.ok((await told(`${endpoint}?key=hello`)).includes('is not one wcehoops.com knows'))
+
+    // A key is looked up once, then trusted for ten minutes by this copy of the function.
+    keys.resetKeys()
+    let before = store.commands
+    await to(own, ping)
+    assert.equal(store.commands - before, 1, 'first sight of a key: one lookup')
+    before = store.commands
+    await to(own, ping)
+    await to(viaPath, ping)
+    assert.equal(store.commands - before, 0, 'after that, none')
+    before = store.commands
+    await to(`${endpoint}?key=hello`, ping)
+    assert.equal(store.commands - before, 0, 'something that is not shaped like a key is never looked up')
+
+    // A keyed tool call is counted for its key in the same single write.
+    keyed = new Client({ name: 'check', version: '0' })
+    await keyed.connect(new StreamableHTTPClientTransport(new URL(own)))
+    await store.send(['DEL', month])
+    usage.resetUsage()
+    before = store.commands
+    assert.ok(!(await keyed.callTool({ name: 'wce_get_big_board', arguments: {} })).isError)
+    assert.equal(store.commands - before, 1, 'a keyed call still costs one command')
+    assert.deepEqual(await todays(), { writes: 1, 't:wce_get_big_board': 1, [`k:${id}`]: 1 })
+    // ...and a call on the public address, or with a key that is not real, is not.
+    assert.ok(!(await call('wce_get_big_board', {})).isError)
+    const fakeClient = new Client({ name: 'check', version: '0' })
+    await fakeClient.connect(new StreamableHTTPClientTransport(new URL(fake)))
+    assert.ok(!(await fakeClient.callTool({ name: 'wce_get_big_board', arguments: {} })).isError, 'a wrong key is still answered')
+    await fakeClient.close()
+    const counts = await todays()
+    assert.equal(counts['t:wce_get_big_board'], 3)
+    assert.equal(counts[`k:${id}`], 1)
+    assert.deepEqual(Object.keys(counts).filter((k) => k.startsWith('k:')), [`k:${id}`])
+
+    // The private page puts the count next to an email, as a person.
+    let summary = await keys.readKeySummary()
+    assert.equal(summary.people, 1)
+    assert.equal(summary.active30, 1)
+    assert.deepEqual(summary.top.map((p) => [p.email, p.calls, p.newsletter]), [['fan@example.com', 1, true]])
+
+    // Buckets: a real key is its own; a made-up key is the caller's address. (A second key,
+    // so the minute starts clean: the first one has been busy above.)
+    const second = `${endpoint}?key=${(await keys.createKey({ email: 'two@example.com' })).key}`
+    process.env.MCP_RATE_PER_MINUTE = '2'
+    const ip = { 'x-real-ip': '203.0.113.150' }
+    assert.deepEqual([await to(second, ping, ip), await to(second, ping, ip), await to(second, ping, ip)].map((r) => r.status), [200, 200, 429])
+    assert.equal((await to(endpoint, ping, ip)).status, 200, 'the address\'s own bucket is untouched by the key\'s')
+    assert.equal((await to(fake, ping, ip)).status, 200)
+    assert.equal((await to(fake, ping, ip)).status, 429, 'a made-up key does not buy a fresh bucket')
+    delete process.env.MCP_RATE_PER_MINUTE
+
+    // The store is down: the key cannot be checked, so it is served like the public address,
+    // and its holder is not told to go and get a key.
+    keys.resetKeys()
+    usage.resetUsage()
+    store.down = true
+    const r = await to(own, init)
+    assert.equal(r.status, 200)
+    const said = (await r.json()).result.instructions
+    assert.ok(!said.includes('Keys are free') && !said.includes('own WCE key') && !said.includes('not one wcehoops.com knows'))
+    store.down = false
+
+    // The store holds a fingerprint of the key, never the key.
+    const everything = JSON.stringify(await Promise.all((await store.send(['KEYS', '*'])).map(async (k) => [k, await store.send(['TYPE', k]) === 'hash' ? await store.send(['HGETALL', k]) : await store.send(['GET', k])])))
+    assert.ok(!everything.includes(key.slice(4)), 'the key itself is in the store')
+    assert.ok(everything.includes(keys.hashOf(key)))
+  } finally {
+    if (keyed) await keyed.close()
+    store.down = false
+    delete process.env.KV_REST_API_URL
+    delete process.env.KV_REST_API_TOKEN
+    delete process.env.MCP_RATE_PER_MINUTE
+    usage.resetUsage()
+    keys.resetKeys()
+  }
+})
+
 test('every tool of every section answers through the endpoint', async () => {
   assert.equal(built.failed, 0, 'a section failed to write its files')
   // callTool validates each result against its tool's declared output shape.

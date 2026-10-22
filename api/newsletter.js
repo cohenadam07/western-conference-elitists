@@ -4,12 +4,20 @@
 //   GET  /api/newsletter                                                  → public archive of sent issues
 //   GET  /api/newsletter?admin=1            (x-analytics-key)             → list health for /inbox
 //   POST /api/newsletter?admin=flush        (x-analytics-key)             → push queued signups to Buttondown
+//   POST /api/newsletter?action=key         { email, newsletter, source, website } → email a connector key
+//   POST /api/newsletter?admin=flush-keys   (x-analytics-key)             → email keys that were held
+//
+// Connector keys (api/_keys.js) live here, not in a function of their own: the site is at
+// 11 of the 12 functions the Hobby plan allows, and a key sign-up is the same kind of door,
+// an email address and a honeypot, with the newsletter as an optional tick-box.
 //
 // Env: BUTTONDOWN_API_KEY (required for real signups), BUTTONDOWN_USERNAME (optional —
 // only used to link people to the hosted archive), plus the Upstash vars already on the
 // project. Degrades rather than breaks: with no Buttondown key, or during a Buttondown
 // outage, addresses are held in Upstash (see _forms.js) and nobody's signup is lost.
 
+import { createHash } from 'node:crypto'
+import { FOUNDING, KEY_ADDRESS, createKey, holdKey, pendingKeys, releaseKey } from './_keys.js'
 import {
   PUBLIC_ARCHIVE_URL,
   K_PENDING,
@@ -21,12 +29,14 @@ import {
   cleanSource,
   ipOf,
   kv,
+  keyMailConfigured,
   kvConfigured,
   listPending,
   overLimit,
   queueSignup,
   referrerOf,
   resendConfigured,
+  sendKeyMail,
   subscribeToButtondown,
 } from './_forms.js'
 
@@ -88,6 +98,75 @@ async function subscribe(req, res) {
   return res.status(503).json({ ok: false, error: 'unavailable' })
 }
 
+// A connector key, by email. The key is created first, then mailed; if mail is not set up
+// yet, or Resend is down, the key is held and goes out from /inbox later, so a sign-up is
+// never lost. The newsletter tick-box goes through the same door as a normal signup,
+// Buttondown's confirmation email included, and never decides whether the key works.
+async function getKey(req, res) {
+  const b = bodyOf(req)
+  if (b.website) {
+    console.warn('[keys] honeypot tripped:', JSON.stringify({ source: b.source, len: String(b.website).length }))
+    return res.status(200).json({ ok: true, status: 'sent' })
+  }
+  const email = cleanEmail(b.email)
+  if (!email) return res.status(400).json({ ok: false, error: 'invalid' })
+
+  const ip = ipOf(req)
+  if (await overLimit('key', ip, 5, 3600)) return res.status(429).json({ ok: false, error: 'rate' })
+  // At most three keys a day to one inbox, so nobody can use the form to flood someone
+  // else's. Counted under a hash of the address, not the address.
+  const inbox = createHash('sha256').update(email.toLowerCase()).digest('hex').slice(0, 16)
+  if (await overLimit('keymail', inbox, 3, 86400)) return res.status(429).json({ ok: false, error: 'rate' })
+
+  if (!kvConfigured()) return res.status(503).json({ ok: false, error: 'unavailable' })
+  const source = cleanSource(b.source || 'connector')
+  const newsletter = b.newsletter === true || b.newsletter === 'true' || b.newsletter === 'on'
+  let made
+  try {
+    made = await createKey({ email, newsletter, source })
+  } catch (e) {
+    console.error('[keys] could not make a key:', e.message || e)
+    return res.status(503).json({ ok: false, error: 'unavailable' })
+  }
+
+  const jobs = [sendKeyMail({ email, key: made.key, address: KEY_ADDRESS(made.key), founding: FOUNDING })]
+  if (newsletter && buttondownConfigured()) {
+    const signup = { email, source: 'connector-key', ip, referrer: referrerOf(req) }
+    jobs.push(
+      subscribeToButtondown(signup)
+        .then((r) => (r.outcome === 'transient' ? queueSignup({ ...signup, reason: r.detail }) : null))
+        .catch((e) => console.error('[keys] newsletter tick-box failed:', e.message || e))
+    )
+  } else if (newsletter) {
+    jobs.push(queueSignup({ email, source: 'connector-key', referrer: referrerOf(req), reason: 'BUTTONDOWN_API_KEY not set' }).catch(() => {}))
+  }
+  const [mail] = await Promise.all(jobs)
+  if (mail.sent) return res.status(200).json({ ok: true, status: 'sent' })
+  if (mail.reason !== 'not configured') console.error('[keys] holding a key after a failed send:', mail.reason)
+  if (await holdKey({ id: made.id, email, key: made.key })) return res.status(200).json({ ok: true, status: 'queued' })
+  return res.status(503).json({ ok: false, error: 'unavailable' })
+}
+
+// Email every held key. Same shape as flush() above: a time budget, and it stops after three
+// failures in a row.
+async function flushKeys(req, res) {
+  if (!keyMailConfigured()) return res.status(400).json({ error: 'Key emails are not set up yet: RESEND_API_KEY and KEYS_MAIL_FROM are both needed, with wcehoops.com verified in Resend.' })
+  if (!kvConfigured()) return res.status(400).json({ error: 'Upstash is not configured.' })
+  const deadline = Date.now() + 18000
+  const held = await pendingKeys()
+  const tally = { sent: 0, stillWaiting: 0 }
+  let streak = 0
+  for (const k of held) {
+    if (Date.now() > deadline || streak >= 3) break
+    const r = await sendKeyMail({ email: k.email, key: k.key, address: KEY_ADDRESS(k.key), founding: FOUNDING })
+    if (!r.sent) { tally.stillWaiting++; tally.error = r.reason; streak++; continue }
+    streak = 0
+    await releaseKey(k.id)
+    tally.sent++
+  }
+  return res.status(200).json({ ok: true, ...tally, remaining: held.length - tally.sent })
+}
+
 // Sent, public issues, newest first. Cached at the edge — the archive changes weekly.
 async function archive(req, res) {
   if (!buttondownConfigured()) return res.status(200).json({ configured: false, issues: [], archiveUrl: null })
@@ -126,10 +205,13 @@ async function health(req, res) {
       buttondown: buttondownConfigured(),
       kv: kvConfigured(),
       notifications: resendConfigured(),
+      keyMail: keyMailConfigured(),
       archiveUrl: PUBLIC_ARCHIVE_URL(),
     },
     subscribers: null,
     pending: [],
+    // Connector keys waiting to be emailed: addresses and when, never the keys themselves.
+    pendingKeys: [],
   }
   const jobs = []
   if (out.config.buttondown) {
@@ -140,6 +222,7 @@ async function health(req, res) {
     )
   }
   if (out.config.kv) jobs.push(listPending().then((p) => { out.pending = p }).catch(() => {}))
+  if (out.config.kv) jobs.push(pendingKeys().then((p) => { out.pendingKeys = p.map(({ email, ts }) => ({ email, ts })) }).catch(() => {}))
   await Promise.all(jobs)
   return res.status(200).json(out)
 }
@@ -183,8 +266,10 @@ export default async function handler(req, res) {
       if (!(await adminGate(req, res))) return
       if (req.method === 'GET') return await health(req, res)
       if (req.method === 'POST' && admin === 'flush') return await flush(req, res)
+      if (req.method === 'POST' && admin === 'flush-keys') return await flushKeys(req, res)
       return res.status(405).json({ error: 'method not allowed' })
     }
+    if (req.method === 'POST' && String(req.query?.action || '') === 'key') return await getKey(req, res)
     if (req.method === 'POST') return await subscribe(req, res)
     if (req.method === 'GET') return await archive(req, res)
     res.setHeader('Allow', 'GET, POST')

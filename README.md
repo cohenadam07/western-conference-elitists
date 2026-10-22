@@ -224,8 +224,9 @@ on vercel.com > **Firewall** > **Configure** > **+ New Rule**; If *Request Path*
 
 **Usage log.** The connector keeps a tally of its own use (`api/_usage.js`): lookups per
 tool per day, how many could not be answered, which family of AI app connected (Claude,
-ChatGPT, and so on), and how often the limit came on. Counts only: never what was asked,
-and never who asked. The private `/analytics` page shows it under "The AI connector".
+ChatGPT, and so on), how often the limit came on, and calls per key per day for callers
+with a key (below). Never what was asked, and never who asked unless they chose a key. The
+private `/analytics` page shows it under "The AI connector".
 
 It lives in the site's data store, one hash a month, kept 400 days. Each write is one
 command, and after 5,000 writes in a day the log stops counting until the next day (UTC),
@@ -235,9 +236,31 @@ answer goes out anyway: a write waits 700 ms at most. The tests run against a re
 throwaway `redis-server` (`tools/savant-mcp/redis.mjs`) and are skipped where one is not
 installed.
 
+**Keys.** Fans can get a free key on the homepage (`api/_keys.js`). A key is an address of
+their own, `https://wcehoops.com/mcp/<key>`, which `vercel.json` rewrites to
+`/api/mcp?key=<key>`: same connector, same answers. A key gets its own rate-limit bucket,
+has its calls counted per day (as `k:<id>` in the same usage-log write, so it costs nothing
+extra), and makes its holder a founding member: the promise is `FOUNDING` in
+`src/data/connector.js`, said in those words on the homepage, in the key email and in the
+connector's instructions. The public address works for everyone, forever, and a key that
+is wrong, or cannot be checked because the store is down, is served exactly like it.
+
+The sign-up is `POST /api/newsletter?action=key` (inside the newsletter function: the site
+is at 11 of the Hobby plan's 12 functions), with an optional newsletter tick-box that goes
+through Buttondown's double opt-in. The key is emailed with Resend; only its SHA-256 is
+stored. To turn the email on: verify `wcehoops.com` under **Domains** in Resend (it gives
+a few DNS records to add), then set `KEYS_MAIL_FROM` on Vercel, e.g.
+`Western Conference Elitists <keys@wcehoops.com>`, plus `RESEND_API_KEY` from Resend >
+**API Keys** (the same key the contact form's email copies use; `KEYS_MAIL_REPLY_TO` is
+optional). The domain's DNS is at Porkbun, so the records go there. Until then keys are made and held, and
+`/inbox` > Newsletter > **Email the keys** sends them once mail works. `/analytics` shows
+key holders as people (one email, however many keys), with "active in the last 30 days"
+measured against the monetization plan's Phase 2 trigger of 200.
+
 The homepage introduces the connector in its own section (`src/components/AiConnector.jsx`,
 linked as `/#ai`, from the hero and the footer). What that section claims lives in one file,
-`src/data/connector.js`: the address, the worked example and the three questions to try.
+`src/data/connector.js`: the address, the founding-member promise, the worked example and
+the three questions to try.
 The worked example is a real answer for a finished season, and the check above calls the
 connector and fails if any number in it, or any of the three questions, stops being true.
 The steps for adding it follow Claude's own help page, which the section links to; if
