@@ -106,14 +106,14 @@ under `/savant-api/<section>/v1/`, with every percentile already worked out:
 |---|---|---|---|
 | `basketball` | `savant-api.mjs` | glossary, player index, one file per season (with each player's honours, play types and with/without split) | `savant-api/` |
 | `football` | `savant-api-football.mjs` | glossary, player index, one file per season (with its All-Savant Team and 32 team pages), careers by position | `savant-football/` |
-| `ufc` | `savant-api-ufc.mjs` | glossary, fighter index, upcoming cards, fighters in 16 files | `savant-ufc/` |
-| `coaching` | `savant-api-coaching.mjs` | glossary, coach index, profiles, play-calling units per season | `savant-coaching/` |
+| `ufc` | `savant-api-ufc.mjs` | glossary, fighter index, upcoming cards, fighters in 16 files (four pools per stat, full fight logs) | `savant-ufc/` |
+| `coaching` | `savant-api-coaching.mjs` | glossary, coach index, profiles, play-calling units per season, the Leaders boards, the coaching tree | `savant-coaching/` |
 | `draft` | `savant-api-draft.mjs` | glossary, prospect index, one file per draft class | `savant-draft/` |
-| `site` | `savant-api-site.mjs` | the News list, published articles, the Big Board, Dynasty names | `savant-site/` |
+| `site` | `savant-api-site.mjs` | the News list, published articles, the Big Board, Dynasty names, the What's new lines | `savant-site/` |
 
 They are built by one Vite plugin (`scripts/lib/savant-api.mjs`, like the SEO and gzip steps)
 from the data files in `public/` and the rules inside each page, so they refresh with every
-data push and nothing is committed. They add about 19 MB to a deployment. The bulk files are
+data push and nothing is committed. They add about 26 MB to a deployment. The bulk files are
 written gzipped; `vercel.json` rewrites `<name>.json` to `<name>.json.gz` for each pattern.
 
 **The numbers must match the page.** Each slicer reads its page's rules rather than copying
@@ -149,10 +149,10 @@ read-only: nothing in it can vote, write or change anything.
 | `nfl_all_savant_team` | Football Savant | The All-Savant 1st and 2nd teams for any season since 1999 |
 | `nfl_player_career`, `nfl_player_games`, `nfl_player_splits` | Football Savant | Careers ranked among careers, game logs, situational splits, throw / target / rush maps and route trees |
 | `nfl_team_profile`, `nfl_game` | Football Savant | Team pages (unit ranks, line grade, roster in depth-chart order); every postseason game page since 1999 |
-| `nfl_search_coaches`, `nfl_get_coach_profile` | Coaching Savant | Records, wins against the spread, career ranks, fourth downs, play-calling units, lineage |
-| `ufc_search_fighters`, `ufc_get_fighter_profile`, `ufc_get_upcoming_cards` | UFC Savant | Records, every stat ranked inside the division (active and all-time), recent fights, title reigns |
-| `nba_draft_search_prospects`, `nba_draft_get_prospect_profile` | Draft Savant | Pre-draft production and measurements, ranked against a named pool |
-| `wce_get_news`, `wce_search_articles`, `wce_get_article`, `wce_get_big_board`, `wce_get_dynasty_rankings` | The site | The News list, WCE's articles, the Big Board, the live Dynasty board |
+| `nfl_search_coaches`, `nfl_get_coach_profile`, `nfl_coaching_leaders`, `nfl_coaching_tree` | Coaching Savant | Records, wins against the spread, career ranks, fourth downs, play-calling units with route mix and tells, lineage; the Leaders boards; the coaching tree |
+| `ufc_search_fighters`, `ufc_get_fighter_profile`, `ufc_leaderboard`, `ufc_matchup`, `ufc_get_upcoming_cards` | UFC Savant | Records, every stat ranked inside the division or against every division of that sex (active and all-time), comps, strike map, round curve, the whole fight log, title reigns; the leaderboard; the head-to-head with its rating-implied win probability |
+| `nba_draft_search_prospects`, `nba_draft_get_prospect_profile` | Draft Savant | Pre-draft production and measurements, ranked against a named pool; a draft class as the page's board lists it |
+| `wce_get_news`, `wce_search_articles`, `wce_get_article`, `wce_get_big_board`, `wce_get_dynasty_rankings`, `wce_get_trending`, `wce_whats_new`, `nba_fantasy_league` | The site | The News list, WCE's articles, the Big Board, the live Dynasty board, the most-searched players and prospects, the homepage's What's new lines, a fan's league valued on the Dynasty board |
 
 `api/mcp.js` speaks the protocol (the official SDK, stateless, one function) and knows no
 sport. Each section is a module that declares its own tools: `api/_basketball.js` and
@@ -163,8 +163,10 @@ and some of the pages' own public files (game logs, splits, maps, months, shots)
 live site, so a data push reaches the connector with no redeploy. Percentiles come worked
 out in those files; a tool works one out itself only where the page does it in the browser
 (a leaderboard's filtered group, a game's level against the season), and then only with a
-check that runs the page's own code and finds the same number. The one live read is the
-Dynasty board, which calls the site's own `/api/dynasty?action=board` and nothing else.
+check that runs the page's own code and finds the same number. Three tools read live,
+from the site's own read-only endpoints and with a GET only: the Dynasty board
+(`/api/dynasty?action=board`), the trending lists (`/api/trending`) and a fan's league
+(`/api/league`, the site's proxy to Sleeper, ESPN and Fantrax).
 
 An answer always names the pool a percentile is from ("vs. guards", "vs. quarterbacks"),
 flags low samples, lists a stat its season did not track rather than showing a zero, and

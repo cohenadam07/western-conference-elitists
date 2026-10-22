@@ -95,7 +95,11 @@
     "page:savant-fantasy.js#renderFx": {
       "tools": [
         "nba_fantasy_rankings",
-        "nba_fantasy_league"
+        "nba_fantasy_player",
+        "nba_fantasy_trade",
+        "nba_fantasy_streamers",
+        "nba_fantasy_lock_in",
+        "nba_injury_report"
       ]
     },
     "page:savant-teams.js#renderTeams": {
@@ -296,11 +300,14 @@
       ]
     },
     "page:draft-savant.html#renderSignals": {
-      "excluded": "PLACEHOLDER: decided with the draft work."
+      "tools": [
+        "nba_draft_get_prospect_profile"
+      ],
+      "note": "Every number on the predictive-signals panel is one of the six pool percentiles the profile already returns (shown for 15,874 cards in tools/savant-draft/check.mjs); the rest is editorial copy."
     },
     "page:draft-savant.html#renderBoard": {
       "tools": [
-        "nba_draft_class"
+        "nba_draft_search_prospects"
       ]
     },
     "page:draft-savant.html#renderHomeChips": {
@@ -313,7 +320,7 @@
     },
     "page:draft-savant.html#openBoardFromHome": {
       "tools": [
-        "nba_draft_class"
+        "nba_draft_search_prospects"
       ]
     },
     "page:googleebfe50e0e1134140.html": {
@@ -569,6 +576,9 @@
     "football: last 4, 8 or 17 games on the card": "Covered as recent form in nfl_player_games and as window boards in nfl_leaderboard; a whole card in a window is not.",
     "football: rank against the same experience, side of the ball, or a snap-share band": "Left out: each needs a pool of every season (experience) or the card re-ranked per request; the size of the files it would take is not worth it until fans ask.",
     "basketball: rank against a minutes-per-game band": "Left out for now: a re-ranking of the same numbers; the leaderboard's min_mpg filter answers most of what it is for.",
-    "ufc: the Everyone cohort and the cage-time filter": "See the UFC section's notes."
+    "ufc: the Everyone cohort and the cage-time filter": "See the UFC section's notes.",
+    "basketball fantasy: My Sleeper league view": "Left out: it reads a league's scoring and starters straight from Sleeper in the browser, not through the site's /api/league. A fan's league is valued on the Dynasty board by nba_fantasy_league instead.",
+    "ufc: cage-time band slider": "Left out: a continuous two-handled slider, so every setting is a different pool and none can be worked out ahead.",
+    "ufc: round-by-round fight detail": "Left out: ufc-savant-fights.json is about 1 MB gzipped even cut to the rounds, past the UFC files' 4 MB budget. Fight logs (results, method, round, time) are in ufc_get_fighter_profile group \"fights\"."
   }
 }
