@@ -45,11 +45,15 @@ let clock = 0 // a counter, not a time: orders reads for eviction
 // `maxCached` bounds memory: past it, the file that has gone longest without being read is
 // dropped. By last read, not by age, so a section's glossary and index (read on every call)
 // outlive the bulk files around them.
-export function makeLoader(base, { what = 'Savant', maxCached = 16 } = {}) {
+//
+// `shape(body)` replaces the schema test for the page's own public data files (the weekly
+// game lines, the splits, the field maps), which the connector reads as they are published
+// and which carry no schema field. A file that fails it is treated as missing.
+export function makeLoader(base, { what = 'Savant', maxCached = 16, shape = null } = {}) {
   const cache = new Map() // path -> { at, used, value } | { at, used, value, pending }
 
   async function fetchJson(path) {
-    const res = await fetch(`${origin()}/${base}/${path}`, {
+    const res = await fetch(`${origin()}/${base ? `${base}/` : ''}${path}`, {
       headers: { accept: 'application/json' },
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     })
@@ -57,7 +61,7 @@ export function makeLoader(base, { what = 'Savant', maxCached = 16 } = {}) {
     // A missing file falls through to the site's catch-all and comes back as HTML with a 200,
     // so "it parsed as JSON and carries our schema" is the only real success signal.
     const body = JSON.parse(await res.text())
-    if (!body || body.schema !== SCHEMA) throw new Error(`${path}: unexpected schema`)
+    if (shape ? !(body && typeof body === 'object' && shape(body)) : (!body || body.schema !== SCHEMA)) throw new Error(`${path}: unexpected schema`)
     return body
   }
 

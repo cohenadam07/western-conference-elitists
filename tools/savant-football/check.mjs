@@ -39,7 +39,10 @@ import { BASE, buildFootballApi, mergeData, writeFootballApi } from '../../scrip
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const PUBLIC = path.join(ROOT, 'public')
-const BUDGET = 15 * 1048576 // bytes on disk; Vercel keeps ~40 deployments, so every MB costs 40
+// bytes on disk; Vercel keeps ~40 deployments, so every MB costs 40. Raised from 15 MB in
+// Oct 2026 for what the Leaderboard Builder, the team page and career mode need: off-card
+// stats, team tables and rosters (about 1.5 MB) and the career files (about 4.5 MB).
+const BUDGET = 23 * 1048576
 
 const html = readFileSync(path.join(PUBLIC, 'football-savant.html'), 'utf8')
 const commas = (n) => Number(n).toLocaleString('en-US')
@@ -268,9 +271,12 @@ test('the files are written to disk, gzipped where they should be, under the siz
   try {
     const r = writeFootballApi({ publicDir: PUBLIC, dist })
     const root = path.join(dist, BASE)
-    assert.deepEqual(readdirSync(root).sort(), ['meta.json', 'players.json', 'seasons'])
+    assert.deepEqual(readdirSync(root).sort(), ['careers', 'meta.json', 'players.json', 'seasons'])
     const written = readdirSync(path.join(root, 'seasons')).sort()
     for (const f of written) assert.match(f, /^\d{4}\.json\.gz$/, 'season file names must fit the rewrite pattern')
+    const careers = readdirSync(path.join(root, 'careers')).sort()
+    for (const f of careers) assert.match(f, /^([A-Z]{1,3}\.json\.gz|where\.json)$/, 'career file names must fit the rewrite pattern')
+    assert.ok(careers.includes('where.json') && careers.includes('QB.json.gz'))
     disk = {
       meta: sha(readFileSync(path.join(root, 'meta.json'), 'utf8')),
       players: sha(readFileSync(path.join(root, 'players.json'), 'utf8')),
@@ -278,7 +284,7 @@ test('the files are written to disk, gzipped where they should be, under the siz
     }
     assert.equal(JSON.parse(readFileSync(path.join(root, 'meta.json'), 'utf8')).schema, 1)
     assert.equal(JSON.parse(readFileSync(path.join(root, 'players.json'), 'utf8')).schema, 1)
-    assert.equal(r.files, written.length + 2)
+    assert.equal(r.files, written.length + careers.length + 2)
     assert.match(r.summary, /^[\d,]+ players, [\d,]+ player-seasons, \d+ seasons/)
     console.log(`      ${r.files} files, ${(r.raw / 1048576).toFixed(1)} MB of season data, ${(r.bytes / 1048576).toFixed(2)} MB on disk (budget ${BUDGET / 1048576} MB): ${r.summary}`)
     assert.ok(r.bytes < BUDGET, `the files grew to ${(r.bytes / 1048576).toFixed(1)} MB`)
@@ -1199,7 +1205,7 @@ test('the tools register with the MCP SDK and answer a real client, errors inclu
   await Promise.all([server.connect(a), client.connect(b)])
   try {
     const { tools } = await client.listTools()
-    assert.deepEqual(tools.map((t) => t.name).sort(), ['nfl_get_player_profile', 'nfl_search_players'])
+    assert.deepEqual(tools.map((t) => t.name).sort(), ['nfl_all_savant_team', 'nfl_get_player_profile', 'nfl_search_players'])
     for (const t of tools) {
       assert.ok(t.name.length <= 64)
       assert.equal(t.annotations.readOnlyHint, true)
@@ -1215,6 +1221,10 @@ test('the tools register with the MCP SDK and answer a real client, errors inclu
     assert.ok(!got.isError, got.content[0].text)
     assert.equal(got.structuredContent.player.position, 'Quarterback')
     assert.match(got.content[0].text, /EPA \/ dropback: [−.\d]+ \(vs\. quarterbacks: \d+(st|nd|rd|th) in 2019, \d+(st|nd|rd|th) all-time\)/)
+    const team = await client.callTool({ name: 'nfl_all_savant_team', arguments: { season: '2010' } })
+    assert.ok(!team.isError, team.content[0].text)
+    assert.equal(team.structuredContent.teams.length, 2)
+    assert.ok(team.structuredContent.teams[0].line_unit, 'before 2016 the line is a unit')
     const twins = await client.callTool({ name: 'nfl_get_player_profile', arguments: { player: 'Lamar Jackson' } })
     assert.ok(twins.isError)
     assert.equal(twins.structuredContent, undefined)

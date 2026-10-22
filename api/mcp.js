@@ -17,9 +17,14 @@
 // one module that declares its own tools — name, description, input and output shape, and
 // the function that answers — and this file registers whatever they declare:
 //
-//   api/_basketball.js   Basketball Savant        nba_search_players, nba_get_player_profile
+//   api/_basketball.js   Basketball Savant        nba_search_players, nba_get_player_profile,
+//                                                 nba_all_savant_team
 //   api/_fantasy.js      Savant Fantasy/Teams     nba_fantasy_*, nba_injury_report, nba_schedule, nba_team_profile, nba_lineups
-//   api/_football.js     Football Savant          nfl_search_players, nfl_get_player_profile
+//   api/_football.js     Football Savant          nfl_search_players, nfl_get_player_profile,
+//                                                 nfl_all_savant_team
+//   api/_football-lists.js  its lists            nfl_leaderboard, nfl_team_profile,
+//                                                 nfl_player_career
+//   api/_football-games.js  below the season     nfl_player_games, nfl_player_splits, nfl_game
 //   api/_coaching.js     Coaching Savant          nfl_search_coaches, nfl_get_coach_profile
 //   api/_ufc.js          UFC Savant               ufc_search_fighters, ufc_get_fighter_profile,
 //                                                 ufc_get_upcoming_cards
@@ -66,10 +71,12 @@ import { tools as coaching } from './_coaching.js'
 import { tools as draft } from './_draft.js'
 import { tools as fantasy } from './_fantasy.js'
 import { tools as football } from './_football.js'
+import { tools as footballGames } from './_football-games.js'
+import { tools as footballLists } from './_football-lists.js'
 import { tools as site } from './_site.js'
 import { tools as ufc } from './_ufc.js'
 
-const SECTIONS = [basketball, fantasy, football, coaching, ufc, draft, site]
+const SECTIONS = [basketball, fantasy, football, footballLists, footballGames, coaching, ufc, draft, site]
 
 const RATE_PER_MINUTE = 300
 const MAX_BODY_BYTES = 64 * 1024
@@ -95,7 +102,7 @@ const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
   'nba_ is Basketball Savant: NBA player stats as percentiles, 1979-80 to the latest season, ranked against the league and against the same position.',
   'nba_fantasy_, nba_injury_report and nba_schedule are its fantasy side: projections (rest of season, next 7 days, dynasty), points and 9-cat rankings, trades, streamers and Sleeper Lock-In plans. nba_team_profile and nba_lineups are its team and lineup ratings, with luck and sample adjustments.',
-  'nfl_ is Football Savant and Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; and NFL head coaches and play-callers.',
+  'nfl_ is Football Savant and Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; its All-Savant Team, leaderboards, team pages, careers, game logs and recent form, splits, maps and route trees, and postseason games; and NFL head coaches and play-callers.',
   'ufc_ is UFC Savant: fighters ranked inside their division, against active fighters and all-time.',
   'nba_draft_ is Draft Savant: college and pre-draft data on draft prospects, not NBA stats.',
   'wce_ is the site itself: its news page, its articles, its draft Big Board and its crowd-priced Dynasty board.',

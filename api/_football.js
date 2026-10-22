@@ -453,6 +453,9 @@ async function profile({ player, season, group = 'all' }, brief) {
       const hs = honoursOf(file, row.id)
       return hs.length ? { spots: hs, final: !live } : null
     })(),
+    // the page's "Career year" chip: his best qualified season by profile score, once he has
+    // more than two seasons and the season is over
+    career_year: !live && who.peak != null && String(who.peak) === seasonId && who.seasons > 2,
     stats,
     not_tracked: notTracked,
     not_charted_yet: notCharted,
@@ -507,6 +510,7 @@ async function profile({ player, season, group = 'all' }, brief) {
       ? `All-Savant Team, ${seasonId}: ${words}.`
       : `On the All-Savant Team so far, through week ${live.through_week}: ${words}. It is a standing until the season ends, not yet an honour.`)
   }
+  if (structured.career_year) L.push(`Career year: ${seasonId} is his best qualified season by profile score.`)
   if (structured.profile_score) {
     const ps = structured.profile_score
     L.push(`Profile score ${ps.score}: his mean percentile across the ${ps.headline_stats} headline ${lowerFirst(pos.label)} stats, ${live ? `each scored where it is likely to settle among ${seasonId}'s ${peers} (so it is not the average of the "in ${seasonId}" percentiles below, which rank the raw numbers)` : `each ranked inside ${seasonId}`}, skipping any the season lacks.${ps.peak_season ? ` His peak season by that score is ${ps.peak_season}${live && ps.peak_season === seasonId ? ', so far' : ''}.` : ''}`)
@@ -872,6 +876,7 @@ export const tools = [
           })),
           final: z.boolean().describe('True once the season is over, when it is an honour; false while the season is being played and it is a standing.'),
         }).nullable().optional().describe('His place on that season\'s All-Savant Team, if he has one. Nobody is on both teams, but a returner can also hold a position spot.'),
+        career_year: z.boolean().optional().describe('True when this is his best qualified season by profile score (the page\'s "Career year"), once a career has three seasons and the season is over.'),
         profile_score: z.object({
           score: z.number().describe('Mean of his season percentiles across his position\'s headline stats.'),
           headline_stats: z.number().int(),
@@ -945,3 +950,7 @@ export const tools = [
     run: ({ season, team }) => allSavantTeam({ season, team }),
   },
 ]
+
+// For the other football sections (api/_football-lists.js, api/_football-games.js): the
+// same files, the same loader and cache, the same way of finding a player and a season.
+export { files, SOURCE, loadMeta, loadSeason, loadPlayers, rowsOf, resolvePlayer, parseSeason, teamIn, played, seasonsOf, savantValue, honoursOf, signed, signed1, lowerFirst, upperFirst, list, recent, TEAM_WORD }
