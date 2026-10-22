@@ -27,6 +27,8 @@
 //   api/_football-lists.js  its lists            nfl_leaderboard, nfl_team_profile,
 //                                                 nfl_player_career
 //   api/_football-games.js  below the season     nfl_player_games, nfl_player_splits, nfl_game
+//   api/_football-injuries.js  live status       nfl_injury_report (and the injury line on
+//                                                 nfl_get_player_profile)
 //   api/_coaching.js     Coaching Savant          nfl_search_coaches, nfl_get_coach_profile,
 //                                                 nfl_coaching_leaders, nfl_coaching_tree
 //   api/_ufc.js          UFC Savant               ufc_search_fighters, ufc_get_fighter_profile,
@@ -88,11 +90,12 @@ import { tools as draft } from './_draft.js'
 import { tools as fantasy } from './_fantasy.js'
 import { tools as football } from './_football.js'
 import { tools as footballGames } from './_football-games.js'
+import { tools as footballInjuries } from './_football-injuries.js'
 import { tools as footballLists } from './_football-lists.js'
 import { tools as site } from './_site.js'
 import { tools as ufc } from './_ufc.js'
 
-const SECTIONS = [basketball, basketballLists, fantasy, football, footballLists, footballGames, coaching, ufc, draft, site]
+const SECTIONS = [basketball, basketballLists, fantasy, football, footballLists, footballGames, footballInjuries, coaching, ufc, draft, site]
 
 const RATE_PER_MINUTE = 300
 const MAX_BODY_BYTES = 64 * 1024
@@ -112,13 +115,13 @@ const callerOf = (req) =>
   req.socket?.remoteAddress ||
   'unknown'
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.0.0' }
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.1.0' }
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
   'nba_ is Basketball Savant: NBA player stats as percentiles, 1979-80 to the latest season, ranked against the league and against the same position; its leaderboards, All-Savant Team, careers and honours, play types, with/without and monthly splits, and the all-30 teams table.',
   'nba_fantasy_, nba_injury_report and nba_schedule are its fantasy side: projections (rest of season, next 7 days, dynasty), points and 9-cat rankings, trades, streamers and Sleeper Lock-In plans. nba_team_profile and nba_lineups are its team and lineup ratings, with luck and sample adjustments.',
-  'nfl_ is Football Savant and Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; its All-Savant Team, leaderboards, team pages, careers, game logs and recent form, splits, maps and route trees, and postseason games; and NFL head coaches and play-callers, with Coaching Savant\'s Leaders boards and coaching tree.',
+  'nfl_ is Football Savant and Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; its All-Savant Team, leaderboards, team pages, careers, game logs and recent form, splits, maps and route trees, and postseason games; nfl_injury_report, its live injury status and this week\'s byes, refreshed through the day; and NFL head coaches and play-callers, with Coaching Savant\'s Leaders boards and coaching tree.',
   'ufc_ is UFC Savant: fighters ranked inside their division (or, on request, against every division of their sex), against active fighters and all-time, plus its leaderboard and head-to-head views.',
   'nba_draft_ is Draft Savant: college and pre-draft data on draft prospects, not NBA stats.',
   'wce_ is the site itself: its news page, its articles, its draft Big Board, its crowd-priced Dynasty board, its most-searched players and prospects, and what is new on its homepage. nba_fantasy_league values a fan\'s Sleeper, ESPN or Fantrax league on that Dynasty board.',
