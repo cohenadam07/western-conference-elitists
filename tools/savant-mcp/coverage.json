@@ -393,6 +393,12 @@
         "nfl_leaderboard"
       ]
     },
+    "data:football-injuries": {
+      "tools": [
+        "nfl_injury_report",
+        "nfl_get_player_profile"
+      ]
+    },
     "data:football-splits": {
       "tools": [
         "nfl_player_splits"
