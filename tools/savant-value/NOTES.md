@@ -11,7 +11,7 @@ Our All-NBA team picked by analytics only, on the Basketball Savant landing page
 4. Look: **starting-five row** of portrait cards, 1st / 2nd team toggle.
 
 ## Calls Claude made (flip any of them on request)
-- Landing shows last season's team until the season in progress reaches **10 games per team** (median team), with a note; the new season is in the picker from night one. `AST_MIN_GAMES` in the page and in `api/_basketball.js`.
+- Landing (and the connector's default) shows the **season in progress** as soon as it can name full 1st and 2nd teams, which is night one in practice (changed Oct 22, 2026; it used to hold last season's team until 10 games). Before that it falls back to the newest full season, with a note.
 - Placed under Trending now, above Build a Leaderboard. Season picker covers every season back to 1979-80.
 - Tracking stats (rim protection, deflections, drives, potential assists) tested and left out: under 0.01 added to next-season correlation, and leaving them out keeps one method for all 47 seasons.
 - A heavier ridge penalty predicts next season a little better but flips turnovers to a positive weight, so the penalty is chosen on same-season leave-one-season-out fit (1e5).

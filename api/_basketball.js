@@ -405,9 +405,8 @@ function savantValueText(row, sv, season, peers) {
 }
 const PART_LABEL = { scoring: 'scoring', playmaking: 'playmaking', rebounding: 'rebounding', defense: 'defense', floor: 'on-floor impact' }
 
-// The season the team is shown for when none is asked: the newest, unless it is in progress
-// and its teams have played fewer than 10 games (the page's rule), then the one before.
-const AST_MIN_GAMES = 10
+// The season the team is shown for when none is asked: the newest with two full teams, the
+// season in progress included from the night it can name them (the page's rule).
 function seasonGames(file) {
   const most = {}
   for (const p of file.players) if (p.team && (p.gp || 0) > (most[p.team] || 0)) most[p.team] = p.gp
@@ -423,13 +422,9 @@ export async function allSavantTeam({ season, team = 'both' }) {
   const notes = []
   const full = (f) => Array.isArray(f.all_savant) && f.all_savant.length === 2 && f.all_savant.every((t) => t.length === 5)
   if (!seasonId) {
-    // The page's rule: the newest season with two full teams, skipping one in its first games.
+    // The page's rule: the newest season with two full teams, the one in progress included.
     for (const s of meta.seasons) {
       const f = await loadSeason(s)
-      if (f.in_progress && seasonGames(f) < AST_MIN_GAMES) {
-        notes.push(`${s} has only just started (teams have played about ${seasonGames(f)} games), so this is the last full season. Ask for ${s} by name to see the team so far.`)
-        continue
-      }
       if (!full(f)) continue
       seasonId = s
       file = f

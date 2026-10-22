@@ -3607,9 +3607,10 @@ function loadTrending(){                             // real search-volume trend
    above a replacement at his position, on the stats that are his own and the possessions he
    played (savant-value.js applies the numbers tools/savant-value/value.py learned; the
    connector uses the same file). Recomputed from whatever data is loaded, so the team moves
-   with every refresh. Early in a season the landing keeps last season's team until teams
-   have played AST_MIN_GAMES; the new season is in the picker from night one. */
-var VALUE_MODEL=null, AST_MIN_GAMES=10, AST={team:0,season:null,cache:{},userSeason:false};
+   with every refresh. The landing opens on the current season as soon as it can name a full
+   1st and 2nd team (from night one in practice); only before that does it fall back to the
+   newest season that can. */
+var VALUE_MODEL=null, AST={team:0,season:null,cache:{},userSeason:false};
 function astEsc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 var AST_POS_WORD={Guard:'guard',Wing:'wing',Big:'big'};
 function astPosOf(p){ return p.pos; }                 // prepData() has already applied POS_FIX
@@ -3636,10 +3637,10 @@ function astFull(season){
   return !!(t&&t.teams.length===2&&t.teams[0].length===5&&t.teams[1].length===5);
 }
 function astDefaultSeason(){
+  var cs=DATA.current&&DATA.current.season;
+  if(cs&&DATA.data[cs]&&astFull(cs)) return cs;       // the season in progress, whenever it has two full teams
   for(var i=0;i<DATA.seasons.length;i++){
-    var s=DATA.seasons[i];
-    if(DATA.current&&s===DATA.current.season&&astSeasonGames(s)<AST_MIN_GAMES) continue;
-    if(astFull(s)) return s;
+    if(astFull(DATA.seasons[i])) return DATA.seasons[i];
   }
   return DATA.seasons[0];
 }
@@ -3735,8 +3736,8 @@ function renderAST(swap){
   if(swap){ var lv=document.getElementById('astLive'); if(lv) lv.textContent=(AST.team?'2nd':'1st')+' team, '+season+': '
     +five.map(function(x){return x.p.name;}).join(', ')+'.'; }
   var note=document.getElementById('astNote'), cs=DATA.current&&DATA.current.season;
-  if(cs&&cs!==season&&!AST.userSeason&&DATA.data[cs]&&astSeasonGames(cs)<AST_MIN_GAMES){
-    note.textContent='The '+cs+' team takes over once teams have played '+AST_MIN_GAMES+' games. Pick '+cs+' above to see it so far.';
+  if(cs&&cs!==season&&!AST.userSeason&&DATA.data[cs]&&!astFull(cs)){
+    note.textContent='The '+cs+' team appears here once enough players qualify to name it. Pick '+cs+' above to see it so far.';
     note.hidden=false;
   } else note.hidden=true;
   box.hidden=false;
