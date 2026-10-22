@@ -1,0 +1,80 @@
+# Football Savant — injury status, refreshed through the day.
+#
+# Runs pipeline/football/injuries.py (ESPN every run, Sleeper at most once a day) and
+# commits public/football-injuries/current.json to main when a player's status actually
+# changed. A run where only the timestamp moved commits nothing, so most runs are no-ops.
+# The Sleeper cache (data/football-sleeper-injuries.json) is committed with it.
+#
+# Schedule, in UTC. Offsets assume EDT (UTC-4); after the November clock change every slot
+# lands an hour earlier in ET, which is fine for this.
+#   :17 every 2 hours, 8am–midnight ET, every day
+#   :47 hourly, 1pm–7pm ET, Wednesday–Friday   (practice reports and game-status news)
+#   :47 hourly, 11am–midnight ET, Sunday        (inactives and in-game injuries)
+# Odd minutes on purpose: :00 and :30 are where everyone's crons queue (see the note in
+# football-savant-refresh.yml).
+#
+# A failed fetch keeps the last good file and turns the run red, which sends mail.
+name: Football Savant injuries
+
+on:
+  schedule:
+    - cron: '17 0-4/2,12-22/2 * * *'
+    - cron: '47 17-23 * * 3-5'
+    - cron: '47 15-23 * * 0'
+    - cron: '47 0-4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: football-injuries
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  injuries:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Standard library only: nothing to install.
+      - name: Pull injury status
+        run: python3 pipeline/football/injuries.py
+
+      - name: Commit if a status changed
+        run: |
+          F=public/football-injuries/current.json
+          S=data/football-sleeper-injuries.json
+          # Compare everything but generated_at with what main already has.
+          CHANGED=$(python3 - "$F" <<'EOF'
+          import json, subprocess, sys
+          f = sys.argv[1]
+          new = json.load(open(f)); new.pop('generated_at', None)
+          try:
+              old = json.loads(subprocess.check_output(['git', 'show', 'HEAD:' + f]))
+              old.pop('generated_at', None)
+          except Exception:
+              old = None
+          print('yes' if new != old else 'no')
+          EOF
+          )
+          git config user.name "football-savant-bot"
+          git config user.email "actions@users.noreply.github.com"
+          [ "$CHANGED" = yes ] && git add "$F"
+          git add "$S" 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "no status change — nothing to commit"
+            exit 0
+          fi
+          N=$(python3 -c "import json;print(len(json.load(open('$F'))['players']))")
+          git commit -m "Football Savant: injury status ($N players flagged)"
+          git pull --rebase origin main
+          git push origin HEAD:main
