@@ -102,7 +102,7 @@ function openPage(page, players) {
   }
 
   const dom = new Map()
-  const element = () => ({ innerHTML: '', textContent: '', hidden: false, style: {}, closest: () => ({ style: {} }) })
+  const element = () => ({ innerHTML: '', textContent: '', hidden: false, style: {}, closest: () => ({ style: {} }), querySelectorAll: () => [] })
   const document = {
     getElementById: (id) => { if (!dom.has(id)) dom.set(id, element()); return dom.get(id) },
     querySelector: () => ({ style: {} }),
@@ -138,8 +138,14 @@ function openPage(page, players) {
     function animateFills() {}
     ${grabLine('  YEARS=')}
     ${grabLine('  PAST_YEARS=')}
+    ${grabLine('let boardYear=')}
+    ${grabFunction('renderBoard')}
+    ${page.slice(page.indexOf('const SIGNALS=['), page.indexOf('];', page.indexOf('const SIGNALS=[')) + 2)}
+    ${grabFunction('renderSignals').replace('function renderSignals(', 'function realSignals(')}
     return {
       metrics: METRICS, val: val, miss: miss, fmt: fmt, byId: byId,
+      board: function (year) { curId = null; boardYear = year; renderBoard(); return document.getElementById('boardPanel').innerHTML; },
+      signals: function (id, cohort, field) { pop = cohort; poolPop = field; var el = document.getElementById('sigwrap'); el.innerHTML = ''; realSignals(byId(id)); return el.hidden ? '' : el.innerHTML; },
       draw: function (id, cohort, field) { curId = id; pop = cohort; poolPop = field; render(); },
       size: function (id, cohort, field) { pop = cohort; poolPop = field; return poolFor(byId(id)).length; },
       count: function (key, id, cohort, field) { pop = cohort; poolPop = field; return poolVals(key, byId(id)).length; },
@@ -293,6 +299,9 @@ test('the rules that live inline in the page are still written the way the slice
     // The header.
     ['const thin=(p.gp!=null && p.gp<30);', 'the reduced-sample rule'],
     ['const r1=rows(1,30), r2=rows(31,60);', 'which picks the draft board calls the first round'],
+    ["+'<div class=\"group-h\">'+(boardYear===2026?'Round 1':'First round')+'</div>'+r1", 'the draft board\'s first heading'],
+    ["+(r2?'<div class=\"group-h\">Round 2</div>'+r2:'');", 'the draft board\'s second heading'],
+    ['.sort((a,b)=>a.draft_pick-b.draft_pick)', 'the draft board\'s order'],
     ['const hasLine=p.line.ppg!=null||p.line.rpg!=null||p.line.apg!=null;', 'when the per-game line is shown'],
     ["'<div class=\"m\"><div class=\"ml\">Max vert</div><div class=\"mv\">'+(miss(vt)?'—':vt.toFixed(1)+'\"')+'</div></div>'", 'max vertical in the header'],
     // Words the tools quote or lean on.
@@ -308,6 +317,8 @@ test('the rules that live inline in the page are still written the way the slice
   assert.equal(cfg.ageBand, 1)
   assert.equal(cfg.thinBelow, 30)
   assert.equal(cfg.firstRound, 30)
+  assert.deepEqual(cfg.secondRound, [31, 60])
+  assert.deepEqual(out.meta.secondRound, cfg.secondRound)
   assert.deepEqual(cfg.cohortLabels, { all: 'All', pos: 'Same position', age: 'Similar age' })
   assert.deepEqual(cfg.fieldLabels, { class: 'This class', past5: 'Past drafts' })
   assert.deepEqual(cfg.groups, { ctx: 'Context', off: 'Offense', def: 'Defense & tools' })
@@ -343,6 +354,29 @@ test('every value, percentile and pool size matches the page, for every prospect
   assert.equal(r.prospects, data.players.length)
   assert.ok(r.values > 180000, 'suspiciously few values were compared')
   assert.ok(r.noPercentile > 0, 'the real data should include bars with no percentile')
+})
+
+// The tools leave the "Predictive signals" panel out because what it adds is WCE's claim
+// about what predicts NBA success, not a number: each of its cards is a percentile the
+// profile already returns. This holds the second half of that to the page's own panel.
+test('every number on the "Predictive signals" panel is a percentile the files already carry', () => {
+  let cards = 0
+  for (const cls of Object.values(out.classes)) {
+    for (const row of cls.players) {
+      for (const { field, cohort } of POOLS) {
+        const drawn = page.signals(row.id, cohort, field)
+        for (const m of drawn.matchAll(/<span class="ssn"><span class="diamond">&#9670;<\/span>([^<]*)<\/span><span class="ssp">(\d+)<\/span>/g)) {
+          const key = { 'Draft-day age': 'age', 'Steal %': 'stl', Length: 'wing', 'Box Plus/Minus': 'bpm', 'Standing reach': 'reach', 'Block %': 'blk' }[m[1]]
+          assert.ok(key, `a signal the check does not know: ${m[1]}`)
+          assert.ok(row.m[key], `${row.name}: the panel shows ${m[1]}, which the files do not carry`)
+          assert.equal(row.m[key][1 + poolIndex(field, cohort)], +m[2], `${row.name} ${field}/${cohort} ${m[1]}: the panel's percentile`)
+          cards++
+        }
+      }
+    }
+  }
+  console.log(`      ${count(cards)} signal cards, each a percentile already in the files`)
+  assert.ok(cards > 10000)
 })
 
 test('classes, the index and the provenance are what the data says', () => {
@@ -413,7 +447,8 @@ test('a page or data file that has changed shape is refused, by name', () => {
   bad(html.replace('y=>y!==2026', 'y=>y<2026'), /"past drafts" rule not found/)
   bad(html.replace("p.draft_year===2026?'Projected '", "p.draft_year===2027?'Projected '"), /disagrees with itself/)
   bad(html.replace('p.gp<30', 'p.gp<=30'), /reduced-sample rule not found/)
-  bad(html.replace('const r1=rows(1,30)', 'const r1=rows(first)'), /draft board's first round not found/)
+  bad(html.replace('const r1=rows(1,30)', 'const r1=rows(first)'), /draft board's (first|second) round not found/)
+  bad(html.replace('r2=rows(31,60)', 'r2=rows(31)'), /draft board's second round not found/)
   bad(html.replace('<button data-v="age"', '<button data-v="archetype"'), /#popseg control/)
   bad(html.replace('"unit": "pct3"', '"unit": "furlongs"'), /unit this file cannot describe/)
   assert.throws(() => buildDraftApi({ data: { players: [] }, html }), /expected \{ players/)
@@ -832,6 +867,62 @@ test('search finds prospects the way people type them', async () => {
   }
 })
 
+// The page's draft board, as drawn: [heading] or { id, pick, name, meta, team } in order.
+const BROW = /<div class="group-h">([^<]*)<\/div>|<div class="brow(?: active)?" data-id="([^"]*)"><span class="bpick">(\d+)<\/span><span class="bname">([^<]*)<\/span><span class="bmeta">([^<]*)<\/span><span class="bteam">([^<]*)<\/span><\/div>/g
+
+test('a year alone lists the class as the page\'s draft board does, for every class', async () => {
+  let rows = 0
+  for (const { year } of out.meta.classes) {
+    const drawn = page.board(year)
+    let heading = null
+    const board = []
+    for (const m of drawn.matchAll(BROW)) {
+      if (m[1] != null) { heading = shown(m[1]); continue }
+      board.push({ id: m[2], pick: +m[3], name: shown(m[4]), meta: shown(m[5]), team: shown(m[6]), heading })
+    }
+    assert.equal(board.length, (drawn.match(/class="brow/g) || []).length, `${year}: could not read every row the board drew`)
+    assert.ok(board.length >= 30, `${year}: the board drew ${board.length} rows`)
+
+    const { structured: s, text } = await run(search, { year })
+    assert.equal(s.year, year)
+    assert.equal(s.query, null)
+    assert.deepEqual([s.total, s.count], [board.length, board.length], `${year}: the whole board by default`)
+    assert.deepEqual(s.prospects.map((p) => p.id), board.map((b) => b.id), `${year}: the board's prospects, in its order`)
+    s.prospects.forEach((p, i) => {
+      const b = board[i]
+      const where = `${year} pick ${b.pick}`
+      assert.deepEqual([p.pick, p.name, p.team, p.round], [b.pick, b.name, b.team, b.heading], `${where}: pick, name, team, heading`)
+      // The page prints the school as it is held, so an empty one is an empty string.
+      assert.equal(`${p.position} · ${p.college ?? ''}`, b.meta, `${where}: position and school`)
+      assert.equal(p.projected, year === cfg.currentClass)
+      assert.ok(text.includes(`\n${p.pick}. ${p.name} (id ${p.id}): `), `${where}: a line in the text`)
+      rows++
+    })
+    for (const h of new Set(board.map((b) => b.heading))) assert.ok(text.includes(`\n\n${h}\n`), `${year}: the heading "${h}" is in the text`)
+    assert.equal(year === cfg.currentClass, /"Projected"/.test(text), `${year}: only the current class is called projected`)
+    assert.ok(text.includes(provenanceOf(out.meta)) && /not NBA stats/.test(text), `${year}: provenance and what the data is`)
+    // A limit cuts the board and says so.
+    const cut = await run(search, { year, limit: 5 })
+    assert.deepEqual(cut.structured.prospects.map((p) => p.id), board.slice(0, 5).map((b) => b.id))
+    assert.match(cut.text, new RegExp(`${board.length} prospects in pick order, showing the first 5\\.`))
+  }
+  console.log(`      ${count(rows)} draft-board rows compared with the page's drawing, ${out.meta.classes.length} classes`)
+
+  // A name and a year: the search, narrowed to that class, in the same order.
+  const all = (await run(search, { query: 'williams', limit: 60 })).structured.prospects
+  const in24 = await run(search, { query: 'williams', year: 2024, limit: 60 })
+  assert.deepEqual(in24.structured.prospects.map((p) => p.id), all.filter((p) => p.draft_year === 2024).map((p) => p.id))
+  assert.ok(in24.structured.count > 0 && in24.structured.count < all.length)
+  assert.match(in24.text, /prospects? in the 2024 class match(es)? "williams"/)
+  const none = await run(search, { query: 'Wembanyama', year: 2024 })
+  assert.equal(none.structured.total, 0)
+  assert.match(none.text, /^No prospect in the 2024 class in Draft Savant matches "Wembanyama"\./)
+  // Nothing to look for, or a class the page does not have.
+  await fails(search, {}, /^Give a prospect name, a draft year, or both\.$/)
+  await fails(search, { year: 2009 }, /^Draft Savant has no 2009 class\. It covers the 2026 class and first-round picks of the 2010 to 2025 drafts: 2026, 2025, /)
+  await fails(search, { query: 'flagg', year: 2031 }, /has no 2031 class/)
+})
+
 test('a name that fits several prospects lists them; an id that is also a surname says so', async () => {
   await fails(profile, { prospect: 'Williams' }, /^10 prospects match "Williams"\. Call again with one of these ids:\n- Cody Williams \(id cody_williams\): Wing, Colorado, drafted No\. 10 in 2024 by Utah Jazz\n/)
   await fails(profile, { prospect: 'Barnes' }, /2 prospects match "Barnes".*\(id barnes\).*\(id harrison-barnes-2012\)/s)
@@ -882,11 +973,14 @@ test('questions that cannot be answered say what to try', async () => {
   for (const args of [{ prospect: 'dybantsa', compare: 'archetype' }, { prospect: 'dybantsa', pool: '2015' }, { prospect: 'dybantsa', pool: 'past5' }, { prospect: 'dybantsa', group: 'value' }, { prospect: '' }, { prospect: 'x'.repeat(81) }, {}]) {
     assert.ok(!z.object(profile.config.inputSchema).safeParse(args).success, JSON.stringify(args))
   }
-  for (const args of [{ query: 'x' }, { query: 'x'.repeat(81) }, { query: 'flagg', limit: 0 }, { query: 'flagg', limit: 26 }, { query: 'flagg', limit: 2.5 }, {}]) {
+  // An empty search is valid as a shape (a year alone is a question) and refused by the tool,
+  // tested with the draft board above.
+  for (const args of [{ query: 'x' }, { query: 'x'.repeat(81) }, { query: 'flagg', limit: 0 }, { query: 'flagg', limit: 61 }, { query: 'flagg', limit: 2.5 }, { year: 2026.5 }, { year: '2026' }, { year: 1999 }]) {
     assert.ok(!z.object(search.config.inputSchema).safeParse(args).success, JSON.stringify(args))
   }
   assert.deepEqual(input(profile, { prospect: '  dybantsa ' }), { prospect: 'dybantsa', compare: 'all', pool: 'class', group: 'all' })
-  assert.deepEqual(input(search, { query: ' flagg ' }), { query: 'flagg', limit: 10 })
+  assert.deepEqual(input(search, { query: ' flagg ' }), { query: 'flagg' })
+  assert.equal((await run(search, { query: 'williams' })).structured.count, 10, 'a name search returns 10 by default')
 })
 
 test('files are fetched once and reused; when the data is down the answer is honest', async () => {

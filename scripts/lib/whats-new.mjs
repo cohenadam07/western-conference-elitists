@@ -16,7 +16,7 @@ const ID = 'virtual:whats-new'
 const RESOLVED = '\0' + ID
 const CHANNEL = 'UCFhQ4Kx16jPaychtaykpk0A' // youtube.com/@WesternConferenceElitists
 export const FEED = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL}`
-const KEEP_DAYS = 45
+export const KEEP_DAYS = 45
 
 const unescape = (s) =>
   s.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
@@ -67,7 +67,9 @@ async function videos(root, warn, status) {
   return [...byUrl.values()]
 }
 
-function articles(root) {
+// Exported, with updates() and nextCard(), for the AI connector's copy of this list
+// (scripts/lib/savant-api-site.mjs), which gathers everything here but the uploads.
+export function articles(root) {
   const dir = path.join(root, 'src/data/articles')
   if (!fs.existsSync(dir)) return []
   return fs
@@ -78,13 +80,13 @@ function articles(root) {
     .map((a) => ({ kind: 'article', date: a.publishedAt || new Date(a.date).toISOString(), text: a.title, to: `/articles/${a.slug}` }))
 }
 
-function updates(root) {
+export function updates(root) {
   const file = path.join(root, 'src/data/updates.json')
   if (!fs.existsSync(file)) return []
   return JSON.parse(fs.readFileSync(file, 'utf8')).map((u) => ({ kind: 'update', ...u }))
 }
 
-function nextCard(root) {
+export function nextCard(root) {
   const file = path.join(root, 'public/ufc-savant-data.json')
   if (!fs.existsSync(file)) return []
   try {

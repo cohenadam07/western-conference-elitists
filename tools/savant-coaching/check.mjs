@@ -156,6 +156,15 @@ test('the page still says and decides what this section leans on', () => {
   has('Matched on style only', 'the unit-comps caption')
   has("return {key:key,label:label,grp:grp,unit:unit,lower:flags.indexOf('L')>=0,", 'how a unit stat is flagged')
   has("'+(m.style?'HOW MUCH':'HOW GOOD')+'", 'the how-much / how-good tag')
+  // The Leaders boards and the tree are drawn by the page's own code in the slicer; what
+  // they rest on, pinned so a change is noticed by name.
+  has("var qual=Object.keys(COACHES).filter(function(n){return COACHES[n].career.seasons>=MIN_SEASONS;});", 'who the career boards rank')
+  has('return c.d4_g>=48&&!miss(c.d4_lost_g); })', 'who the fourth-down board ranks')
+  has('&&!(settled&&CURINFO&&UNITS[id].season===CURINFO.season)) seasons[UNITS[id].season]=1;', 'which season a unit board ranks')
+  has("(u.side==='O'?tellGrid(u)+routeMix(u):covMix(u))", 'which units draw the tell grid and the route mix')
+  has("return {k:k.toLowerCase(), v:u.m.routes[k], lg:n?(tot[k]||0)/n:null}; })", 'the route mix')
+  has('var lean=(c.x==null)?null:c.p-c.x;', 'the lean in the tell grid')
+  has('for(var n in COACHES) all[n]=1;', 'who is in the forest')
   assert.equal(meta.firstSeason, 1999, 'the data no longer starts in 1999; the tool descriptions say it does')
   assert.equal(meta.rules.d4From, 2014, 'the fourth-down model no longer starts in 2014; the page says it does')
   assert.equal(meta.rules.callersFrom, 2018, 'unit data no longer starts in 2018; the page says it does')
@@ -534,6 +543,91 @@ test('every unit: every bar the page draws, with its percentile, is in the files
   assert.ok(cells > 15000, 'suspiciously few unit bars')
 })
 
+// ---- 6b. the Leaders boards and the tree -----------------------------------------------
+
+// The boards as the page's renderLeaders() draws them, read here without the slicer's help.
+function drawnLeaders() {
+  const el = { innerHTML: '' }
+  const saved = page.ctx.document
+  page.ctx.document = { getElementById: () => el, querySelectorAll: () => [], querySelector: () => null }
+  try { page.ctx.renderLeaders() } finally { page.ctx.document = saved }
+  return el.innerHTML.split('<div><div class="lead-h">').slice(1).map((part) => {
+    const [title, season] = unescape(part.slice(0, part.indexOf('</div>'))).split(' — ')
+    const cap = part.match(/<div class="panel-cap">([^<]*)<\/div><\/div>$/)
+    const rows = all(part, /<div class="lrow" data-n="([^"]*)"(?: data-unit="([^"]*)")?><span class="lrk">(\d+)<\/span><span class="ln">([^<]*)(?: <span class="dim">([^<]*)<\/span>)?<\/span><span class="lv">([^<]*)<\/span><\/div>/g)
+      .map((m) => ({ name: unescape(m[1]), unit: m[2] || null, team: m[5] || null, display: unescape(m[6]) }))
+    assert.equal(rows.length, (part.match(/class="lrow"/g) || []).length, `${title}: could not read every row`)
+    return { title, season: season ? +season : null, note: cap && cap[1] ? unescape(cap[1]) : null, rows }
+  })
+}
+
+test('every Leaders board is the page\'s: its ten as drawn, and the rest in the page\'s own order', () => {
+  const ctx = page.ctx
+  const coaches = plain(ctx.COACHES)
+  const units = plain(ctx.UNITS)
+  const drawn = drawnLeaders()
+  assert.equal(drawn.length, 10, 'the page draws ten boards')
+  assert.deepEqual(out.leaders.boards.map((b) => b.title), drawn.map((b) => b.title), 'the boards, in the page\'s order')
+  let rows = 0
+  for (const [i, d] of drawn.entries()) {
+    const b = out.leaders.boards[i]
+    const where = b.title
+    same(b.season, d.season, `${where}: season`)
+    same(b.note, d.note, `${where}: caption`)
+    same(Math.min(10, b.rows.length), d.rows.length, `${where}: the page draws ten, or the whole pool when it is smaller`)
+    sameDeep(b.rows.slice(0, 10).map((r) => [r.name, r.team || null, r.unit || null, r.display]), d.rows.map((r) => [r.name, r.team, r.unit, r.display]), `${where}: the page's ten`)
+    // Past the ten: the same pool and order worked out here, independently of the page's code.
+    const lower = { sec_play: true, d4_lost_g: true, pred_own: true }[b.key] || false
+    const by = (val) => (x, y) => (lower ? val(x) - val(y) : val(y) - val(x))
+    let expect
+    if (b.kind === 'career') {
+      const pool = Object.keys(coaches).filter((n) => coaches[n].career.seasons >= meta.rules.minSeasons && coaches[n].career[b.key] != null)
+      expect = pool.sort(by((n) => coaches[n].career[b.key])).map((n) => [n, null])
+    } else if (b.kind === 'd4') {
+      const pool = Object.keys(coaches).filter((n) => coaches[n].career.d4_g >= meta.rules.d4MinGames && coaches[n].career.d4_lost_g != null)
+      expect = pool.sort(by((n) => coaches[n].career.d4_lost_g)).map((n) => [n, null])
+    } else {
+      const ok = (u) => u.side === b.side && !u.small && u.m[b.key] != null
+      const seasons = [...new Set(Object.values(units).filter((u) => ok(u) && !(b.id === 'hardest_to_read' && u.season === meta.current.season)).map((u) => u.season))]
+      same(b.season, Math.max(...seasons), `${where}: the latest season with a value`)
+      const pool = Object.keys(units).filter((id) => units[id].season === b.season && ok(units[id]))
+      expect = pool.sort(by((id) => units[id].m[b.key])).map((id) => [units[id].caller, id])
+    }
+    sameDeep(b.rows.map((r) => [r.name, r.unit || null]), expect, `${where}: every row of the pool, in order`)
+    // Each row's value is the data's, printed the way the board prints it.
+    for (const r of b.rows) {
+      const v = b.kind === 'unit' ? units[r.unit].m[b.key] : coaches[r.name].career[b.key]
+      same(r.value, v, `${where} ${r.name}: value`)
+      const c = b.kind === 'unit' ? null : coaches[r.name].career
+      const printed = { w: () => `${c.w}–${c.l}`, porate: () => `${c.porate.toFixed(0)}% (${c.po}/${c.seasons})`, sec_play: () => `${c.sec_play.toFixed(1)}s`, d4_lost_g: () => `${c.d4_lost_g.toFixed(2)} WP/g` }[b.key]
+      same(r.display, printed ? printed() : fmt(b.kind === 'unit' ? 'pct1' : 'sgn1', v), `${where} ${r.name}: as printed`)
+      if (b.kind === 'unit') same(r.sure, units[r.unit].sure !== false, `${where} ${r.name}: confirmed`)
+      rows++
+    }
+  }
+  console.log(`      10 boards, ${rows.toLocaleString('en-US')} rows (the page's ten of each compared as drawn)`)
+})
+
+test('the coaching tree is the forest the page grows, every branch in its order', () => {
+  const ctx = page.ctx
+  const grown = plain(ctx.layoutForest())
+  const tree = out.tree
+  sameDeep(tree.roots, grown.trees.map((t) => [t.root, t.size]), 'the trees, in planting order, with their sizes')
+  const names = grown.trees.flatMap((t) => t.nodes.map((n) => n.name))
+  sameDeep(Object.keys(tree.nodes).sort(), [...names].sort(), 'everyone in the forest')
+  for (const t of grown.trees) {
+    for (const nd of t.nodes) {
+      const n = tree.nodes[nd.name]
+      same(n.s, nd.size, `${nd.name}: branch size`)
+      sameDeep(n.k, t.branches.filter((b) => b.from === nd.name).map((b) => b.to), `${nd.name}: protégés in drawing order`)
+      const e = data.tree[nd.name]
+      sameDeep([n.m, n.r, n.a], [e ? e.mentor : null, e ? e.role : null, e && e.also ? e.also.map((x) => [x.mentor, x.role]) : []], `${nd.name}: mentor, role, influences`)
+      same(n.p, ctx.isPerson(nd.name), `${nd.name}: has a page`)
+    }
+  }
+  same(tree.note, data.treeNote)
+})
+
 // ---- 7. the index, and what is on disk -------------------------------------------------
 
 test('the index lists everyone the page can open, once', () => {
@@ -569,6 +663,9 @@ test('what is written to disk is what was built, and stays inside the budget', (
     assert.ok(identical(raw('meta.json'), out.meta), 'meta.json on disk is not what was built')
     assert.ok(identical(raw('coaches.json'), out.coaches), 'coaches.json on disk is not what was built')
     assert.ok(identical(gz('profiles/all.json.gz'), out.profiles), 'profiles/all.json.gz on disk is not what was built')
+    assert.ok(identical(raw('leaders.json'), out.leaders), 'leaders.json on disk is not what was built')
+    assert.ok(identical(raw('tree.json'), out.tree), 'tree.json on disk is not what was built')
+    assert.deepEqual(readdirSync(root).sort(), ['coaches.json', 'leaders.json', 'meta.json', 'profiles', 'tree.json', 'units'])
     assert.deepEqual(readdirSync(path.join(root, 'profiles')), ['all.json.gz'])
     assert.deepEqual(readdirSync(path.join(root, 'units')).sort(), Object.keys(out.units).map((s) => `${s}.json.gz`).sort())
     for (const s of Object.keys(out.units)) {
@@ -576,12 +673,12 @@ test('what is written to disk is what was built, and stays inside the budget', (
       assert.ok(identical(gz(`units/${s}.json.gz`), out.units[s]), `units/${s}.json.gz on disk is not what was built`)
     }
     // Every file carries the schema the shared loader insists on.
-    for (const body of [out.meta, out.coaches, out.profiles, ...Object.values(out.units)]) assert.equal(body.schema, 1)
+    for (const body of [out.meta, out.coaches, out.profiles, out.leaders, out.tree, ...Object.values(out.units)]) assert.equal(body.schema, 1)
     let bytes = 0
     const walk = (d) => { for (const e of readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else bytes += statSync(f).size } }
     walk(root)
     assert.equal(r.bytes, bytes, 'bytes reported is not bytes on disk')
-    assert.equal(r.files, 3 + Object.keys(out.units).length)
+    assert.equal(r.files, 5 + Object.keys(out.units).length)
     assert.ok(r.raw > r.bytes)
     assert.match(r.summary, /head coaches/)
     console.log(`      ${r.files} files, ${(r.raw / 1024).toFixed(0)} KB of JSON, ${(bytes / 1024).toFixed(0)} KB on disk (budget ${(BUDGET / 1024).toFixed(0)} KB)`)
@@ -609,12 +706,13 @@ const listen = (server) => new Promise((resolve) => server.listen(0, '127.0.0.1'
 // that the server drops just as the next fetch reuses it fails that fetch, which on a busy
 // machine made this check fail once for no reason of its own.
 let hits = 0
-const served = { meta: out.meta, coaches: out.coaches, profiles: out.profiles, units: { ...out.units } }
+const served = { meta: out.meta, coaches: out.coaches, profiles: out.profiles, leaders: out.leaders, tree: out.tree, units: { ...out.units } }
 const cdn = http.createServer((req, res) => {
   hits++
   const p = decodeURIComponent(req.url).replace(`/${BASE}/`, '')
   const season = p.match(/^units\/(\d{4})\.json$/)
-  const body = p === 'meta.json' ? served.meta : p === 'coaches.json' ? served.coaches : p === 'profiles/all.json' ? served.profiles : season ? served.units[season[1]] : null
+  const body = p === 'meta.json' ? served.meta : p === 'coaches.json' ? served.coaches : p === 'profiles/all.json' ? served.profiles
+    : p === 'leaders.json' ? served.leaders : p === 'tree.json' ? served.tree : season ? served.units[season[1]] : null
   if (!body) { res.writeHead(200, { 'content-type': 'text/html', connection: 'close' }); return res.end('<!doctype html><title>WCE</title>') }
   res.writeHead(200, { 'content-type': 'application/json', connection: 'close' })
   res.end(JSON.stringify(body))
@@ -677,10 +775,12 @@ const fails = async (tool, args, re) => {
   })
 }
 
-test('the two tools are declared the way the connector expects', async () => {
-  assert.deepEqual(api.tools.map((t) => t.name), ['nfl_search_coaches', 'nfl_get_coach_profile'])
+test('the four tools are declared the way the connector expects', async () => {
+  assert.deepEqual(api.tools.map((t) => t.name), ['nfl_search_coaches', 'nfl_get_coach_profile', 'nfl_coaching_leaders', 'nfl_coaching_tree'])
   const { tools } = await client.listTools()
-  assert.deepEqual(tools.map((t) => t.name).sort(), ['nfl_get_coach_profile', 'nfl_search_coaches'])
+  assert.deepEqual(tools.map((t) => t.name).sort(), ['nfl_coaching_leaders', 'nfl_coaching_tree', 'nfl_get_coach_profile', 'nfl_search_coaches'])
+  // The boards a caller can ask for are the boards the page draws.
+  assert.deepEqual(api.BOARD_IDS, out.leaders.boards.map((b) => b.id))
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)
@@ -688,6 +788,7 @@ test('the two tools are declared the way the connector expects', async () => {
     assert.equal(t.annotations.destructiveHint, false)
     assert.equal(t.annotations.openWorldHint, false)
     assert.ok(t.description.length > 80, `${t.name}: description`)
+    if (!['nfl_search_coaches', 'nfl_get_coach_profile'].includes(t.name)) assert.ok(t.description.length <= 700, `${t.name}: a new tool's description is at most 700 characters (${t.description.length})`)
     assert.equal(t.inputSchema.type, 'object')
     assert.ok(t.outputSchema, `${t.name}: output schema`)
     for (const [k, prop] of Object.entries(t.inputSchema.properties)) assert.ok(prop.description, `${t.name}.${k}: described`)
@@ -807,6 +908,7 @@ test('a unit in full says what the files hold and what the page draws, for every
   let units = 0
   let cells = 0
   let longest = 0
+  let grids = 0
   for (const [name, p] of Object.entries(people)) {
     if (!p.calls) continue
     for (const season of new Set(p.calls.units.map((u) => u.season))) {
@@ -849,12 +951,38 @@ test('a unit in full says what the files hold and what the page draws, for every
         else assert.ok(text.includes(`ranked against the ${file.ranked[u.side]} ${sideWord[u.side]}s of ${season} with enough snaps to rank`), `${where}: the pool is named`)
         if (meta.notes.era[u.era]) assert.ok(text.includes(`Not in this season: ${meta.notes.era[u.era]}`), `${where}: the missing-source note`)
         assert.equal(x.through_week, season === meta.current.season ? meta.current.week : null)
+        // An offence's two charting panels, against what the page draws for it.
+        const src = page.ctx.UNITS[row.id]
+        const mix = u.side === 'O' ? page.ctx.routeMix(src) : ''
+        const drawnMix = all(mix, /<div class="mixrow"><span class="ml">([^<]*)<\/span><span class="mt">.*?<\/span><span class="mv">([^<]*)<\/span><span class="mg">([^<]*)<\/span><\/div>/g).map((m) => [unescape(m[1]), m[2], m[3]])
+        assert.equal(drawnMix.length, (mix.match(/class="mixrow"/g) || []).length, `${where}: could not read the route mix`)
+        assert.deepEqual((x.route_mix || []).map((r) => [r.route, `${r.share_pct.toFixed(1)}%`, r.league_pct == null ? '' : `lg ${r.league_pct.toFixed(1)}%`]), drawnMix, `${where}: the route mix as the page draws it`)
+        if (x.route_mix) {
+          for (const r of x.route_mix) assert.ok(text.includes(`${r.route} ${r.share_pct.toFixed(1)}%`), `${where}: route ${r.route} in the text`)
+          assert.ok(text.includes('only the targeted receiver\'s route is charted publicly'), `${where}: the route mix's caveat`)
+        }
+        const grid = u.side === 'O' ? page.ctx.tellGrid(src) : ''
+        const drawnGrid = all(grid, /<tr><td class="lk">([^<]*)<\/td><td>(\d+)<\/td><td>([^<]*)<\/td><td>([^<]*)<\/td><td><span class="lean" style="[^"]*">([^<]*)<\/span><\/td><td>([^<]*)<\/td><td>([^<]*)<\/td><\/tr>/g).map((m) => m.slice(1).map(unescape))
+        assert.equal(drawnGrid.length, (grid.match(/<td class="lk">/g) || []).length, `${where}: could not read the tell grid`)
+        const pc = (v) => (v == null ? '—' : `${v.toFixed(0)}%`)
+        const lean = (v) => (v == null ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(0)}`)
+        assert.deepEqual((x.tell_grid ? x.tell_grid.looks : []).map((c) => [c.look, String(c.snaps), pc(c.pass_pct), pc(c.league_pass_pct), lean(c.lean), pc(c.play_action_pct), fmt('sgn3', c.epa_per_snap)]), drawnGrid, `${where}: the tell grid as the page draws it`)
+        if (x.tell_grid) {
+          const cap = textOf(between(grid, '<div class="panel-cap">', '</div>'))
+          assert.ok(cap.startsWith(`${x.tell_grid.what_a_look_is} Showing his ${x.tell_grid.looks.length} most-used looks (${x.tell_grid.shown_snaps} of ${x.tell_grid.total_snaps} snaps).`), `${where}: the grid's caption`)
+          const pred = all(grid, /<span><b>(\d+)%<\/b>/g).map((m) => +m[1])
+          const p = x.tell_grid.predictability
+          assert.deepEqual(p ? [p.from_situation, p.from_league_by_look, p.from_his_tendencies].map((v) => +v.toFixed(0)) : [], pred, `${where}: the predictability line`)
+          for (const c of x.tell_grid.looks) assert.ok(text.includes(`- ${c.look}: ${c.snaps} snaps, pass ${pc(c.pass_pct)} against ${pc(c.league_pass_pct)} for the league from the same spots (lean ${lean(c.lean)})`), `${where}: look ${c.look} in the text`)
+          grids++
+        }
         if (season === meta.current.season) assert.match(text, new RegExp(`The ${season} units are counted through week ${meta.current.week} of the regular season`), `${where}: the partial season is not flagged`)
         units++
       })
     }
   }
-  console.log(`      ${units} units in full, ${cells.toLocaleString('en-US')} stats, longest answer ${longest.toLocaleString('en-US')} characters`)
+  console.log(`      ${units} units in full, ${cells.toLocaleString('en-US')} stats, ${grids} tell grids and route mixes, longest answer ${longest.toLocaleString('en-US')} characters`)
+  assert.ok(grids > 300, 'suspiciously few tell grids')
   assert.equal(units, meta.counts.units)
   assert.ok(longest < 12000)
 })
@@ -942,6 +1070,97 @@ test('the cautions that apply to one coach reach the answer', async () => {
     const r = await run(profile, { coach: active[0], group: 'career' })
     assert.match(r.text, /It still counts as one of his seasons: in the season count, in the playoff rate, and toward the 3-season line for ranking\./)
   }
+})
+
+test('the Leaders tool reads every board from its first row down, as the page orders it', async () => {
+  const leaders = api.tools.find((t) => t.name === 'nfl_coaching_leaders')
+  const every = await run(leaders, {})
+  assert.deepEqual(every.structured.boards.map((b) => b.id), out.leaders.boards.map((b) => b.id))
+  const drawn = drawnLeaders()
+  let rows = 0
+  for (const [i, b] of out.leaders.boards.entries()) {
+    for (const [r, limit] of [[every, 10], [await run(leaders, { board: b.id, limit: 50 }), 50]]) {
+      const s = r.structured.boards.find((x) => x.id === b.id)
+      const want = b.rows.slice(0, limit)
+      assert.deepEqual(s.rows.map((x) => [x.rank, x.name, x.team, x.season, x.value, x.display, x.confirmed]),
+        want.map((x, k) => [k + 1, x.name, x.team || null, b.season, x.value, x.display, b.kind === 'unit' ? x.sure : null]), `${b.id} top ${limit}`)
+      assert.deepEqual([s.title, s.season, s.pool, s.pool_size, s.note, s.kind], [b.title, b.season, b.pool, b.rows.length, b.note, b.kind === 'unit' ? 'unit' : 'coach'], `${b.id}: the board`)
+      for (const x of s.rows) assert.ok(r.text.includes(`\n${x.rank}. ${x.name}${x.team ? ` (${x.team})` : ''}${x.confirmed === false ? ' (unconfirmed)' : ''}: ${x.display}`), `${b.id}: row ${x.rank} in the text`)
+      assert.ok(r.text.includes(`pool: ${b.pool}, ${b.rows.length} in all`), `${b.id}: the pool is named in the text`)
+      if (b.note) assert.ok(r.text.includes(b.note), `${b.id}: the page's caption`)
+      for (const n of s.notes || r.structured.notes) assert.ok(r.text.includes(n))
+      rows += s.rows.length
+    }
+    // The default is the page's ten, as drawn.
+    const s = every.structured.boards[i]
+    assert.deepEqual(s.rows.map((x) => [x.name, x.display]), drawn[i].rows.map((x) => [x.name, x.display]), `${b.id}: the default is what the page shows`)
+  }
+  assert.ok(every.structured.notes.includes(`About the play-callers: ${data.callerNote}`), 'the play-caller boards carry the caveat')
+  assert.ok(every.structured.notes.some((n) => n === `Career figures include the ${meta.current.season} season, counted through week ${meta.current.week}.`))
+  const careerOnly = await run(leaders, { board: 'most_wins' })
+  assert.ok(!careerOnly.structured.notes.some((n) => /play-callers/.test(n)), 'a career board does not carry the play-caller caveat')
+  const input = z.object(leaders.config.inputSchema)
+  for (const bad of [{ board: 'most_losses' }, { limit: 0 }, { limit: 51 }, { board: 'all', limit: 2.5 }]) assert.equal(input.safeParse(bad).success, false, JSON.stringify(bad))
+  assert.deepEqual(input.parse({}), { board: 'all', limit: 10 })
+  console.log(`      ${rows.toLocaleString('en-US')} board rows through the tool`)
+})
+
+test('the tree tool gives every coach in the forest his line and his whole branch, as the page grows them', async () => {
+  const treeTool = api.tools.find((t) => t.name === 'nfl_coaching_tree')
+  const ctx = page.ctx
+  const grown = plain(ctx.layoutForest())
+  const index = new Map(out.coaches.people.map((r) => [r.name, r]))
+  let coaches = 0
+  let branchRows = 0
+  for (const t of grown.trees) {
+    for (const [i, nd] of t.nodes.entries()) {
+      // His branch, as the page grew it: the nodes after him that sit deeper, up to the next
+      // node that does not.
+      const below = []
+      for (const x of t.nodes.slice(i + 1)) { if (x.depth <= nd.depth) break; below.push([x.name, x.depth - nd.depth]) }
+      const { structured: s, text } = await run(treeTool, { coach: nd.name, depth: 10 })
+      const chain = plain(ctx.chainOf(nd.name))
+      const where = nd.name
+      assert.equal(s.coach.name, nd.name)
+      assert.deepEqual(s.coach.line.map((x) => [x.name, x.has_page]), chain.steps.map((st) => [st.to, ctx.isPerson(st.to)]), `${where}: his line back to the root`)
+      assert.equal(s.coach.root, chain.root, `${where}: root`)
+      assert.equal(s.coach.root, t.root, `${where}: the tree he grows on`)
+      assert.equal(s.coach.mentor, data.tree[nd.name] ? data.tree[nd.name].mentor : null)
+      assert.equal(s.coach.has_page, ctx.isPerson(nd.name))
+      const r = index.get(nd.name)
+      assert.equal(s.coach.record, r && r.hc ? `${r.w}–${r.l}${r.t ? `–${r.t}` : ''}, ${r.seasons} season${r.seasons === 1 ? '' : 's'}` : null, `${where}: record`)
+      assert.deepEqual(s.branch.map((b) => [b.name, b.depth]), below, `${where}: his branch, in the page's order`)
+      assert.equal(s.coach.branch_size, nd.size - 1)
+      assert.equal(s.not_shown, 0)
+      for (const b of s.branch) assert.equal(b.under, data.tree[b.name].mentor, `${where}: ${b.name} sits under his mentor`)
+      assert.ok(s.notes.includes(`About the lineage: ${data.treeNote}`) && text.includes(data.treeNote), `${where}: the hand-curated caveat`)
+      if (chain.steps.length) assert.ok(text.includes(`Line back to the root: ${[nd.name, ...chain.steps.map((st) => st.to)].join(' ← ')}.`), `${where}: the line in words`)
+      for (const b of s.branch) assert.ok(text.includes(`${'  '.repeat(b.depth - 1)}- ${b.name}`), `${where}: ${b.name} in the text`)
+      assert.ok(text.length < 12000, `${where}: ${text.length} characters`)
+      coaches++
+      branchRows += s.branch.length
+    }
+  }
+  // A shallower depth cuts the branch and counts what it left out.
+  const brown = await run(treeTool, { coach: 'Paul Brown', depth: 1 })
+  assert.deepEqual(brown.structured.branch.map((b) => b.name), out.tree.nodes['Paul Brown'].k)
+  assert.equal(brown.structured.not_shown, out.tree.nodes['Paul Brown'].s - 1 - out.tree.nodes['Paul Brown'].k.length)
+  assert.match(brown.text, /He is the root of his own tree: no mentor is recorded for him/)
+  // Without a coach: every tree, biggest first, and the coaches with no lineage, by name.
+  const forest = await run(treeTool, {})
+  assert.deepEqual(forest.structured.trees.map((x) => [x.root, x.size]), grown.trees.filter((x) => !x.sprout).map((x) => [x.root, x.size]))
+  assert.deepEqual(forest.structured.no_lineage, grown.trees.filter((x) => x.sprout).map((x) => x.root))
+  for (const x of forest.structured.trees) assert.deepEqual(x.branches.map((b) => b.name), out.tree.nodes[x.root].k)
+  // A man with no page is still in the tree; a play-caller the tree does not hold says so.
+  const walsh = await run(treeTool, { coach: 'bill walsh' })
+  assert.deepEqual([walsh.structured.coach.name, walsh.structured.coach.has_page, walsh.structured.coach.url], ['Bill Walsh', false, null])
+  await fails(treeTool, { coach: 'Greg Roman' }, /^Greg Roman is not in Coaching Savant's coaching tree: .*no lineage is recorded for him/)
+  await fails(treeTool, { coach: 'Qwertyuiop Asdfgh' }, /^Nobody in Coaching Savant's coaching tree matches "Qwertyuiop Asdfgh"/)
+  await fails(treeTool, { coach: 'Phillips' }, /^2 coaches in the tree match "Phillips"\. Call again with one of these names:\n- Bum Phillips/)
+  await fails(treeTool, { coach: 'Bill Walch' }, /"Bill Walch" is not an exact match\. Call again with one of these names:\n- Bill Walsh/)
+  const input = z.object(treeTool.config.inputSchema)
+  for (const bad of [{ depth: 0 }, { depth: 11 }, { coach: '' }, { coach: 'x'.repeat(81) }]) assert.equal(input.safeParse(bad).success, false, JSON.stringify(bad))
+  console.log(`      ${coaches} coaches in the tree, ${branchRows.toLocaleString('en-US')} branch rows through the tool`)
 })
 
 test('values print the way the page prints them', () => {
