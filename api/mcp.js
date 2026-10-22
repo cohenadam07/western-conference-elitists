@@ -17,24 +17,44 @@
 // one module that declares its own tools — name, description, input and output shape, and
 // the function that answers — and this file registers whatever they declare:
 //
-//   api/_basketball.js   Basketball Savant        nba_search_players, nba_get_player_profile
+//   api/_basketball.js   Basketball Savant        nba_search_players, nba_get_player_profile,
+//                                                 nba_all_savant_team
+//   api/_basketball-lists.js  its lists         nba_leaderboard, nba_team_rankings,
+//                                                 nba_player_career, nba_player_splits
 //   api/_fantasy.js      Savant Fantasy/Teams     nba_fantasy_*, nba_injury_report, nba_schedule, nba_team_profile, nba_lineups
-//   api/_football.js     Football Savant          nfl_search_players, nfl_get_player_profile
-//   api/_coaching.js     Coaching Savant          nfl_search_coaches, nfl_get_coach_profile
+//   api/_football.js     Football Savant          nfl_search_players, nfl_get_player_profile,
+//                                                 nfl_all_savant_team
+//   api/_football-lists.js  its lists            nfl_leaderboard, nfl_team_profile,
+//                                                 nfl_player_career
+//   api/_football-games.js  below the season     nfl_player_games, nfl_player_splits, nfl_game
+//   api/_coaching.js     Coaching Savant          nfl_search_coaches, nfl_get_coach_profile,
+//                                                 nfl_coaching_leaders, nfl_coaching_tree
 //   api/_ufc.js          UFC Savant               ufc_search_fighters, ufc_get_fighter_profile,
+//                                                 ufc_leaderboard, ufc_matchup,
 //                                                 ufc_get_upcoming_cards
 //   api/_draft.js        Draft Savant             nba_draft_search_prospects,
 //                                                 nba_draft_get_prospect_profile
 //   api/_site.js         News, articles, boards   wce_get_news, wce_search_articles,
 //                                                 wce_get_article, wce_get_big_board,
-//                                                 wce_get_dynasty_rankings
+//                                                 wce_get_dynasty_rankings, wce_get_trending,
+//                                                 wce_whats_new, nba_fantasy_league
 //
 // A section's run() returns { text, structured }: the answer in words, and the same answer
 // as data. To add a section, write its module and add it to SECTIONS below.
 //
 // Every section answers from small files the build writes under /savant-api/ (see
-// scripts/lib/savant-api.mjs), with one exception: the Dynasty board is live, so that tool
-// reads the site's own /api/dynasty, and only ever its read-only board.
+// scripts/lib/savant-api.mjs) or from the pages' own public data files, with three
+// exceptions in api/_site.js that change by the minute and are read live from the site's own
+// read-only endpoints, with a GET and nothing else: the Dynasty board
+// (/api/dynasty?action=board), the most-searched lists (/api/trending?ns=bs and ?ns=dr) and a
+// fan's fantasy league (/api/league, the site's proxy to Sleeper, ESPN and Fantrax; the
+// connector never calls those platforms itself, which is why nba_fantasy_league is the one
+// tool marked openWorldHint).
+//
+// THE COVERAGE CHECK
+// tools/savant-mcp/coverage.mjs finds every feature of the site from source and holds it to
+// tools/savant-mcp/coverage.json: the tools that answer it, or why it is left out. A weekly
+// scheduled run builds what is missing and opens a pull request for approval.
 //
 // LIMITS
 // It is public and announced on the homepage, so it has a brake (api/_limit.js): each caller
@@ -62,14 +82,17 @@ import { SavantError } from './_core.js'
 import { makeLimiter } from './_limit.js'
 import { clientFamily, count } from './_usage.js'
 import { tools as basketball } from './_basketball.js'
+import { tools as basketballLists } from './_basketball-lists.js'
 import { tools as coaching } from './_coaching.js'
 import { tools as draft } from './_draft.js'
 import { tools as fantasy } from './_fantasy.js'
 import { tools as football } from './_football.js'
+import { tools as footballGames } from './_football-games.js'
+import { tools as footballLists } from './_football-lists.js'
 import { tools as site } from './_site.js'
 import { tools as ufc } from './_ufc.js'
 
-const SECTIONS = [basketball, fantasy, football, coaching, ufc, draft, site]
+const SECTIONS = [basketball, basketballLists, fantasy, football, footballLists, footballGames, coaching, ufc, draft, site]
 
 const RATE_PER_MINUTE = 300
 const MAX_BODY_BYTES = 64 * 1024
@@ -89,16 +112,16 @@ const callerOf = (req) =>
   req.socket?.remoteAddress ||
   'unknown'
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '2.1.0' }
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.0.0' }
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
-  'nba_ is Basketball Savant: NBA player stats as percentiles, 1979-80 to the latest season, ranked against the league and against the same position.',
+  'nba_ is Basketball Savant: NBA player stats as percentiles, 1979-80 to the latest season, ranked against the league and against the same position; its leaderboards, All-Savant Team, careers and honours, play types, with/without and monthly splits, and the all-30 teams table.',
   'nba_fantasy_, nba_injury_report and nba_schedule are its fantasy side: projections (rest of season, next 7 days, dynasty), points and 9-cat rankings, trades, streamers and Sleeper Lock-In plans. nba_team_profile and nba_lineups are its team and lineup ratings, with luck and sample adjustments.',
-  'nfl_ is Football Savant and Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; and NFL head coaches and play-callers.',
-  'ufc_ is UFC Savant: fighters ranked inside their division, against active fighters and all-time.',
+  'nfl_ is Football Savant and Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; its All-Savant Team, leaderboards, team pages, careers, game logs and recent form, splits, maps and route trees, and postseason games; and NFL head coaches and play-callers, with Coaching Savant\'s Leaders boards and coaching tree.',
+  'ufc_ is UFC Savant: fighters ranked inside their division (or, on request, against every division of their sex), against active fighters and all-time, plus its leaderboard and head-to-head views.',
   'nba_draft_ is Draft Savant: college and pre-draft data on draft prospects, not NBA stats.',
-  'wce_ is the site itself: its news page, its articles, its draft Big Board and its crowd-priced Dynasty board.',
+  'wce_ is the site itself: its news page, its articles, its draft Big Board, its crowd-priced Dynasty board, its most-searched players and prospects, and what is new on its homepage. nba_fantasy_league values a fan\'s Sleeper, ESPN or Fantrax league on that Dynasty board.',
   'Every percentile belongs to a pool, and each result names it. A percentile is only meaningful with its pool.',
   'A stat marked low sample is below its stabilization threshold. A stat a season did not track is listed as not tracked rather than shown as zero. Results state the date of their data and link to the matching page on wcehoops.com.',
 ].join(' ')

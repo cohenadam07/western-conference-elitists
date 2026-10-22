@@ -39,7 +39,10 @@ import { BASE, buildFootballApi, mergeData, writeFootballApi } from '../../scrip
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const PUBLIC = path.join(ROOT, 'public')
-const BUDGET = 15 * 1048576 // bytes on disk; Vercel keeps ~40 deployments, so every MB costs 40
+// bytes on disk; Vercel keeps ~40 deployments, so every MB costs 40. Raised from 15 MB in
+// Oct 2026 for what the Leaderboard Builder, the team page and career mode need: off-card
+// stats, team tables and rosters (about 1.5 MB) and the career files (about 4.5 MB).
+const BUDGET = 23 * 1048576
 
 const html = readFileSync(path.join(PUBLIC, 'football-savant.html'), 'utf8')
 const commas = (n) => Number(n).toLocaleString('en-US')
@@ -161,7 +164,7 @@ const FUNCTIONS = [
   'inFt', 'signed', 'fmt', 'ordinal', 'thrFor', 'sampleOf', 'isCareer', 'careerHigh', 'statBtn', 'barRow',
   'rowFor_metric', 'groupBlocks', 'notYet', 'panelHTML', 'commas', 'poolCount', 'profileScore',
   'careerArc', 'liveWeek', 'yr2', 'panelWorthIt', 'mergeData', 'posWord', 'searchHits',
-  'teamGamesOf', 'heavyUse', 'hasValue', 'rankedAt', 'valueParts',
+  'teamGamesOf', 'heavyUse', 'hasValue', 'rankedAt', 'valueParts', 'valueWhy', 'allSavantTeams', 'astPick',
 ]
 
 // The page's code and the globals it reads, wrapped so nothing leaks. Nothing here touches
@@ -200,6 +203,9 @@ const loadPage = (archiveData, currentData) => vm.runInNewContext(`(function (AR
   ${grabVar('CTOT')}
   ${grabVar('GAPS_BY_POS')}
   ${grabVar('COHORT_WORD')}
+  ${grabVar('AST')}
+  ${grabVar('AST_PEERS')}
+  ${grabLine('var AST_RANK=')}
   ${FUNCTIONS.map(grabFunction).join('\n  ')}
   // Career mode is out of scope; these are only ever reached through it.
   function careerRow() { throw new Error('career row asked for'); }
@@ -232,6 +238,8 @@ const loadPage = (archiveData, currentData) => vm.runInNewContext(`(function (AR
     // Savant value: the page's ranking at a position, and where one man's value came from
     ranked: function (season, pos) { return rankedAt(String(season), pos); },
     valueParts: function (p) { return valueParts(p); },
+    // the landing page's All-Savant Team: [1st team, 2nd team], each { off, def, st, line }
+    allSavant: function (season) { return allSavantTeams(String(season)); },
     arc: function (id) { return careerArc(id); },
   };
 })`)(archiveData, currentData)
@@ -263,9 +271,12 @@ test('the files are written to disk, gzipped where they should be, under the siz
   try {
     const r = writeFootballApi({ publicDir: PUBLIC, dist })
     const root = path.join(dist, BASE)
-    assert.deepEqual(readdirSync(root).sort(), ['meta.json', 'players.json', 'seasons'])
+    assert.deepEqual(readdirSync(root).sort(), ['careers', 'meta.json', 'players.json', 'seasons'])
     const written = readdirSync(path.join(root, 'seasons')).sort()
     for (const f of written) assert.match(f, /^\d{4}\.json\.gz$/, 'season file names must fit the rewrite pattern')
+    const careers = readdirSync(path.join(root, 'careers')).sort()
+    for (const f of careers) assert.match(f, /^([A-Z]{1,3}\.json\.gz|where\.json)$/, 'career file names must fit the rewrite pattern')
+    assert.ok(careers.includes('where.json') && careers.includes('QB.json.gz'))
     disk = {
       meta: sha(readFileSync(path.join(root, 'meta.json'), 'utf8')),
       players: sha(readFileSync(path.join(root, 'players.json'), 'utf8')),
@@ -273,7 +284,7 @@ test('the files are written to disk, gzipped where they should be, under the siz
     }
     assert.equal(JSON.parse(readFileSync(path.join(root, 'meta.json'), 'utf8')).schema, 1)
     assert.equal(JSON.parse(readFileSync(path.join(root, 'players.json'), 'utf8')).schema, 1)
-    assert.equal(r.files, written.length + 2)
+    assert.equal(r.files, written.length + careers.length + 2)
     assert.match(r.summary, /^[\d,]+ players, [\d,]+ player-seasons, \d+ seasons/)
     console.log(`      ${r.files} files, ${(r.raw / 1048576).toFixed(1)} MB of season data, ${(r.bytes / 1048576).toFixed(2)} MB on disk (budget ${BUDGET / 1048576} MB): ${r.summary}`)
     assert.ok(r.bytes < BUDGET, `the files grew to ${(r.bytes / 1048576).toFixed(1)} MB`)
@@ -554,6 +565,45 @@ test('Savant value: every qualified man from 2016 on has one, its parts are the 
   assert.ok(have > 25000)
 })
 
+test('the All-Savant Team, both teams, every season, is the one the page picks', () => {
+  load()
+  let picks = 0, lines = 0, returners = 0
+  for (const season of seasons) {
+    const mine = seasonFile(season).allSavant
+    const theirs = page.allSavant(season)
+    assert.equal(mine.length, 2, `${season}: two teams`)
+    const seen = new Map()
+    for (let t = 0; t < 2; t++) {
+      for (const side of ['off', 'def', 'st']) {
+        const a = mine[t][side]
+        const b = [...theirs[t][side]]
+        assert.deepEqual(a.map((x) => [x.slot, x.id, x.name, x.team]), b.map((x) => [x.slot, x.id, x.name, x.team]),
+          `${season} ${t ? '2nd' : '1st'} team ${side}: the picks differ from the page's`)
+        for (const x of a) {
+          picks++
+          if (x.by === 'value') {
+            const row = seasonFile(season).players.find((r) => r.id === x.id)
+            assert.ok(row && row.m.sav && row.m.sav[0] === x.v, `${season} ${x.name}: picked on a value his card does not show`)
+          }
+          if (x.by === 'returns') { returners++; assert.ok(x.returns && x.returns.n > 0, `${season} ${x.name}: returner with no returns`) }
+          if (x.slot !== 'KR' && x.slot !== 'PR') {
+            assert.ok(!seen.has(x.id), `${season} ${x.name}: on both teams`)
+            seen.set(x.id, t)
+          }
+        }
+      }
+      const L = theirs[t].line
+      if (L) {
+        lines++
+        assert.deepEqual([mine[t].line.team, mine[t].line.sack_rate, mine[t].line.hit_rate, mine[t].line.rush_success],
+          [L.tm, L.sackr, L.hitr, L.runsr], `${season}: the line unit`)
+      } else assert.equal(mine[t].line, null, `${season}: a line unit the page does not pick`)
+    }
+  }
+  console.log(`      ${commas(picks)} All-Savant picks, ${lines} line units and ${returners} returners compared`)
+  assert.ok(picks > 1250)
+})
+
 test('pool sizes and stats not charted yet are the page\'s', () => {
   load()
   const positions = Object.keys(page.cfg.posLabel)
@@ -659,9 +709,9 @@ const clean = (e, args) => {
 }
 const cardLink = (id, season) => `https://wcehoops.com/football-savant.html#p=${id}&s=${season}`
 
-test('the section declares its two tools the way the connector expects', () => {
+test('the section declares its three tools the way the connector expects', () => {
   load()
-  assert.deepEqual(savant.tools.map((t) => t.name), ['nfl_search_players', 'nfl_get_player_profile'])
+  assert.deepEqual(savant.tools.map((t) => t.name), ['nfl_search_players', 'nfl_get_player_profile', 'nfl_all_savant_team'])
   for (const t of savant.tools) {
     assert.equal(typeof t.run, 'function')
     assert.ok(t.config.title && t.config.annotations.title, `${t.name}: title`)
@@ -800,6 +850,59 @@ test('a profile says what the files say, for every player in every season, and f
   // A running back's card in a season being played is the longest there is: three panels,
   // about a hundred rows, most of them carrying a sample and an estimate.
   assert.ok(longest.length <= 12400, `an answer runs to ${longest.length} characters`)
+})
+
+test('the All-Savant Team tool returns the page\'s team for every season, and a profile carries the honour', async () => {
+  load()
+  const shape = z.object(tool('nfl_all_savant_team').config.outputSchema).strict()
+  const input = z.object(tool('nfl_all_savant_team').config.inputSchema)
+  assert.deepEqual(input.parse({}), { team: 'both' })
+  for (const bad of [{ team: '3' }, { season: 'a'.repeat(13) }]) assert.ok(!input.safeParse(bad).success, JSON.stringify(bad))
+  const SIDE = { off: 'offense', def: 'defense', st: 'special_teams' }
+  let honours = 0
+  for (const season of seasons) {
+    const file = seasonFile(season)
+    const theirs = page.allSavant(season)
+    const { structured, text } = await savant.allSavantTeam({ season })
+    shape.parse(structured)
+    assert.equal(structured.season, season)
+    assert.equal(!!structured.in_progress, !!file.week, `${season}: in progress`)
+    for (let t = 0; t < 2; t++) {
+      for (const [side, key] of Object.entries(SIDE)) {
+        const got = structured.teams[t][key]
+        const want = [...theirs[t][side]]
+        assert.deepEqual(got.map((x) => [x.slot, x.id, x.name]), want.map((x) => [x.slot, x.id, x.name]), `${season} ${t ? '2nd' : '1st'} ${key}`)
+        for (const x of got) {
+          assert.ok(text.includes(`${x.slot} ${x.name} (`), `${season}: ${x.name} is in the words`)
+          if (x.picked_on === 'savant_value') assert.ok(text.includes(`Savant value ${x.savant_value >= 0 ? '+' : '−'}`), `${season}: value in the words`)
+        }
+      }
+    }
+    // one team only
+    const one = await savant.allSavantTeam({ season, team: '2' })
+    assert.deepEqual(one.structured.teams.map((t) => t.team), ['2nd'])
+    // a sample of profiles: everyone on the 1st team's offense and the returners carries the honour
+    if (+season % 5 === 1 || season === seasons[0]) {
+      for (const [t, team] of [[0, '1st'], [1, '2nd']]) {
+        for (const x of [...theirs[t].off.slice(0, 3), ...theirs[t].st]) {
+          if (!index.players.some((r) => r[0] === x.id)) continue
+          const prof = await savant.playerProfile({ player: x.id, season, group: 'context' })
+          assert.ok(prof.structured.all_savant, `${season} ${x.name}: no honour on his profile`)
+          assert.ok(prof.structured.all_savant.spots.some((h) => h.team === team && h.slot === x.slot), `${season} ${x.name}: wrong honour`)
+          assert.equal(prof.structured.all_savant.final, !file.week)
+          assert.match(prof.text, file.week ? /On the All-Savant Team so far/ : /All-Savant Team, \d{4}: /)
+          honours++
+        }
+      }
+    }
+  }
+  // a man who is not on it has no honour
+  const nobody = seasonFile('2024').players.find((r) => r.qualified && r.pos === 'QB' && !page.allSavant('2024').some((t) => [...t.off, ...t.def, ...t.st].some((x) => x.id === r.id)))
+  assert.equal((await savant.playerProfile({ player: nobody.id, season: '2024', group: 'context' })).structured.all_savant, null)
+  // the default is the latest season; an unknown one says what is covered
+  assert.equal((await savant.allSavantTeam({})).structured.season, seasons[0])
+  await assert.rejects(savant.allSavantTeam({ season: '1990' }), /covers 1999/)
+  console.log(`      ${seasons.length} seasons of teams and ${honours} profile honours checked`)
 })
 
 test('a long card is shortened one section at a time, and never past the point of being useful', async (t) => {
@@ -1102,7 +1205,7 @@ test('the tools register with the MCP SDK and answer a real client, errors inclu
   await Promise.all([server.connect(a), client.connect(b)])
   try {
     const { tools } = await client.listTools()
-    assert.deepEqual(tools.map((t) => t.name).sort(), ['nfl_get_player_profile', 'nfl_search_players'])
+    assert.deepEqual(tools.map((t) => t.name).sort(), ['nfl_all_savant_team', 'nfl_get_player_profile', 'nfl_search_players'])
     for (const t of tools) {
       assert.ok(t.name.length <= 64)
       assert.equal(t.annotations.readOnlyHint, true)
@@ -1118,6 +1221,10 @@ test('the tools register with the MCP SDK and answer a real client, errors inclu
     assert.ok(!got.isError, got.content[0].text)
     assert.equal(got.structuredContent.player.position, 'Quarterback')
     assert.match(got.content[0].text, /EPA \/ dropback: [−.\d]+ \(vs\. quarterbacks: \d+(st|nd|rd|th) in 2019, \d+(st|nd|rd|th) all-time\)/)
+    const team = await client.callTool({ name: 'nfl_all_savant_team', arguments: { season: '2010' } })
+    assert.ok(!team.isError, team.content[0].text)
+    assert.equal(team.structuredContent.teams.length, 2)
+    assert.ok(team.structuredContent.teams[0].line_unit, 'before 2016 the line is a unit')
     const twins = await client.callTool({ name: 'nfl_get_player_profile', arguments: { player: 'Lamar Jackson' } })
     assert.ok(twins.isError)
     assert.equal(twins.structuredContent, undefined)

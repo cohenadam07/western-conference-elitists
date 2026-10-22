@@ -72,6 +72,10 @@
       "destination": "/savant-api/football/v1/seasons/:season.gz"
     },
     {
+      "source": "/savant-api/football/v1/careers/:pos([A-Z]{1,3}\\.json)",
+      "destination": "/savant-api/football/v1/careers/:pos.gz"
+    },
+    {
       "source": "/savant-api/ufc/v1/fighters/:shard([0-9a-f]\\.json)",
       "destination": "/savant-api/ufc/v1/fighters/:shard.gz"
     },
@@ -346,6 +350,32 @@
     },
     {
       "source": "/savant-api/basketball/v1/seasons/:season(\\d{4}-\\d{2}\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/football/v1/careers/:pos([A-Z]{1,3}\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-api/football/v1/careers/:pos([A-Z]{1,3}\\.json\\.gz)",
       "headers": [
         {
           "key": "Content-Encoding",

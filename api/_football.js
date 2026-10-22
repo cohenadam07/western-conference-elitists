@@ -88,6 +88,17 @@ function shorteningOrder(stats) {
 }
 
 const loadMeta = () => files.load('meta.json')
+// The page's own pace files, read as published
+const paceFiles = makeLoader('', { what: 'Football Savant', maxCached: 3, shape: (b) => !!b.pools })
+// The page's pctRaw() then pctOf(): a midrank over an unsorted pool, rounded and held to 1..99
+function linearPct(v, pool, lower) {
+  const n = pool.length
+  if (v == null || n < 2) return null
+  let less = 0, eq = 0
+  for (const x of pool) { if (x < v) less++; else if (x === v) eq++ }
+  const pct = 100 * (less + 0.5 * eq) / n
+  return Math.max(1, Math.min(99, Math.round(lower ? 100 - pct : pct)))
+}
 
 // The data keeps one code per franchise (LV for every Raiders season). What is said is what
 // the club was called that season: OAK in 2003. meta.era has the last season of each old name.
@@ -177,6 +188,29 @@ function savantValue(meta, row, posCode) {
     .sort((a, b) => b.points - a.points)
   return { points: total, parts }
 }
+// ---- the All-Savant Team ---------------------------------------------------------------
+
+// The spots on the page's lineup screen, in words.
+export const SLOT_WORD = {
+  QB: 'quarterback', RB: 'running back', WR: 'wide receiver', TE: 'tight end',
+  T: 'tackle', G: 'guard', C: 'center', LT: 'left tackle', LG: 'left guard', RG: 'right guard', RT: 'right tackle',
+  EDGE: 'edge rusher', IDL: 'interior defensive lineman', LB: 'linebacker', CB: 'cornerback', NB: 'slot corner', S: 'safety',
+  K: 'kicker', P: 'punter', KR: 'kick returner', PR: 'punt returner',
+}
+const TEAM_WORD = ['1st', '2nd']
+const SIDES = [['off', 'offense'], ['def', 'defense'], ['st', 'special_teams']]
+
+// Every spot a man holds on the season's All-Savant Team: [{ team: '1st', slot: 'WR' }].
+// Nobody is on both teams, but a returner can also hold a position spot.
+function honoursOf(file, id) {
+  const out = []
+  ;(file.allSavant || []).forEach((t, i) => {
+    for (const [side] of SIDES) for (const x of t[side] || []) if (x.id === id) out.push({ team: TEAM_WORD[i], slot: x.slot })
+  })
+  return out
+}
+const honourWords = (hs) => hs.map((h) => `${h.team} Team ${SLOT_WORD[h.slot] || h.slot}`)
+
 const lowerFirst = (s) => (s ? s[0].toLowerCase() + s.slice(1) : s)
 const upperFirst = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s)
 // "1 targets" -> "1 target", "1 carries" -> "1 carry", "1 targets defended" -> "1 target defended"
@@ -311,7 +345,7 @@ export async function playerProfile(args, { long = LONG, max = MAX } = {}) {
 }
 
 // `brief` is the set of section headings to give on one line each, or null for none.
-async function profile({ player, season, group = 'all' }, brief) {
+async function profile({ player, season, group = 'all', rank_against = 'season' }, brief) {
   const meta = await loadMeta()
   const wanted = parseSeason(season, meta)
   const who = await resolvePlayer(player, wanted, meta)
@@ -384,6 +418,27 @@ async function profile({ player, season, group = 'all' }, brief) {
     }
   }
 
+  // "Same point": the page's pace baseline. While a season is being played, each stat is also
+  // ranked against every season since 1999 as it stood through the same week (football-pace/,
+  // built by pace.py), the pool spread back out from its 41 points the way pacePool() does.
+  // A stat with no such history keeps this season's ranking, as on the page.
+  const samePoint = rank_against === 'same_point'
+  if (samePoint) {
+    if (!live) throw new SavantError(`Ranking against the same point in past seasons is only for the season being played; ${seasonId} is over. Leave out rank_against.`)
+    const w = Math.max(1, Math.min(17, live.through_week))
+    const pace = await paceFiles.load(`football-pace/w${String(w).padStart(2, '0')}.json`).catch(() => null)
+    const pools = (pace && pace.pools && pace.pools[row.pos]) || {}
+    for (const st of stats) {
+      const q = pools[st.key]
+      if (!q) { st.same_point_percentile = st.season_percentile; continue }
+      const pts = q.slice(1)
+      const pool = []
+      for (let i = 0; i < pts.length - 1; i++) for (let j = 0; j < 5; j++) pool.push(pts[i] + (pts[i + 1] - pts[i]) * j / 5)
+      pool.push(pts[pts.length - 1])
+      st.same_point_percentile = linearPct(st.value, pool, st.lower_is_better)
+    }
+  }
+
   // What his card's rates are built on: games first, then each denominator one of his stats
   // divides by. (The data carries others, such as a quarterback's snaps split by play type.)
   const dens = new Set(['g', pos.qualify && pos.qualify.den])
@@ -426,6 +481,13 @@ async function profile({ player, season, group = 'all' }, brief) {
     pools: { position_label: peers, season: poolSeason, all_time: poolAll },
     profile_score: row.score != null ? { score: row.score, headline_stats: pos.headline.length, peak_season: who.peak ? String(who.peak) : null } : null,
     savant_value: savantValue(meta, row, row.pos),
+    all_savant: (() => {
+      const hs = honoursOf(file, row.id)
+      return hs.length ? { spots: hs, final: !live } : null
+    })(),
+    // the page's "Career year" chip: his best qualified season by profile score, once he has
+    // more than two seasons and the season is over
+    career_year: !live && who.peak != null && String(who.peak) === seasonId && who.seasons > 2,
     stats,
     not_tracked: notTracked,
     not_charted_yet: notCharted,
@@ -474,6 +536,13 @@ async function profile({ player, season, group = 'all' }, brief) {
     const parts = sv.parts.map((p) => `${lowerFirst(p.part)} ${signed1(p.points)}`).join(', ')
     L.push(`Savant value ${signed1(sv.points)}: the expected points he ${live ? 'has been' : 'was'} worth in ${seasonId} above a replacement-level player at his position, on the stats that are a player's own and the snaps he played. It is what the All-Savant Team is picked on.${parts ? ` By part of the job, each against an average player at the position (so they do not add up to the total): ${parts}.` : ''}`)
   }
+  if (structured.all_savant) {
+    const words = list(honourWords(structured.all_savant.spots))
+    L.push(structured.all_savant.final
+      ? `All-Savant Team, ${seasonId}: ${words}.`
+      : `On the All-Savant Team so far, through week ${live.through_week}: ${words}. It is a standing until the season ends, not yet an honour.`)
+  }
+  if (structured.career_year) L.push(`Career year: ${seasonId} is his best qualified season by profile score.`)
   if (structured.profile_score) {
     const ps = structured.profile_score
     L.push(`Profile score ${ps.score}: his mean percentile across the ${ps.headline_stats} headline ${lowerFirst(pos.label)} stats, ${live ? `each scored where it is likely to settle among ${seasonId}'s ${peers} (so it is not the average of the "in ${seasonId}" percentiles below, which rank the raw numbers)` : `each ranked inside ${seasonId}`}, skipping any the season lacks.${ps.peak_season ? ` His peak season by that score is ${ps.peak_season}${live && ps.peak_season === seasonId ? ', so far' : ''}.` : ''}`)
@@ -495,6 +564,7 @@ async function profile({ player, season, group = 'all' }, brief) {
   if (poolSeason >= 2 && poolSeason < SMALL_POOL) {
     notes.push(`Only ${poolSeason} ${peers} qualified in ${seasonId}. A pool that small makes the "in ${seasonId}" percentiles coarse.`)
   }
+  if (samePoint) notes.push(`"at the same point of past seasons" ranks each number against every ${lowerFirst(pos.label)} season since 1999 as it stood through week ${Math.max(1, Math.min(17, live.through_week))}, so a few weeks are set against a few weeks rather than against full seasons. A stat with no such history keeps its ${seasonId} ranking.`)
   if (live) {
     notes.push(`The ${seasonId} season is still being played. These numbers run through week ${live.through_week}, on small samples, and the qualifying line is pro-rated to the games his team has played. The all-time percentiles set these few weeks against other players' full seasons, which says little for counting stats such as games played.`)
   }
@@ -538,7 +608,7 @@ async function profile({ player, season, group = 'all' }, brief) {
     if (s.estimate) marks.est = true
     if (s.low_sample) marks.low = true
     if (s.likely_to_settle) marks.settle = true
-    L.push(`- ${s.label}: ${s.display} (vs. ${peers}: ${nth(s.season_percentile)} in ${seasonId}, ${nth(s.all_time_percentile)} all-time)${tags.length ? ` [${tags.join('; ')}]` : ''}`)
+    L.push(`- ${s.label}: ${s.display} (vs. ${peers}: ${nth(s.season_percentile)} in ${seasonId}, ${samePoint ? `${nth(s.same_point_percentile)} at the same point of past seasons` : `${nth(s.all_time_percentile)} all-time`})${tags.length ? ` [${tags.join('; ')}]` : ''}`)
   }
   if (!stats.length) {
     L.push('', groupKey && !pos.panels.includes(groupKey)
@@ -622,10 +692,129 @@ async function profile({ player, season, group = 'all' }, brief) {
   return { structured, text: L.join('\n') }
 }
 
+// ---- the All-Savant Team tool ------------------------------------------------------------
+
+const fixed = (v, dp) => (v == null ? null : Number(v.toFixed(dp)))
+
+export async function allSavantTeam({ season, team = 'both' }) {
+  const meta = await loadMeta()
+  const seasonId = parseSeason(season, meta) || meta.latestSeason
+  const file = await loadSeason(seasonId)
+  if (!Array.isArray(file.allSavant) || file.allSavant.length !== 2) {
+    throw new SavantError(`No All-Savant Team is on file for ${seasonId} yet. Try again after the next data refresh.`)
+  }
+  const rows = rowsOf(file)
+  const tm = teamIn(meta, seasonId)
+  const live = file.week ? { through_week: file.week, week_under_way: file.weekPlaying || null } : null
+  const which = team === '1' ? [0] : team === '2' ? [1] : [0, 1]
+
+  const teams = which.map((i) => {
+    const t = file.allSavant[i]
+    const out = { team: TEAM_WORD[i] }
+    for (const [side, key] of SIDES) {
+      out[key] = (t[side] || []).map((x) => {
+        const row = rows.get(x.id)
+        const pick = {
+          slot: x.slot,
+          spot: SLOT_WORD[x.slot] || x.slot,
+          id: x.id,
+          name: x.name,
+          team: tm(x.team),
+          picked_on: x.by === 'value' ? 'savant_value' : x.by === 'score' ? 'profile_score' : x.by === 'line' ? 'line_unit' : 'returns',
+          savant_value: x.by === 'value' ? x.v : null,
+          value_parts: x.by === 'value' && row ? (savantValue(meta, row, row.pos) || { parts: [] }).parts : null,
+          profile_score: x.by === 'score' ? Math.round(x.v) : null,
+          returns: x.returns ? {
+            returns: x.returns.n,
+            yards_per_return: fixed(x.returns.yards_per, 1),
+            epa_per_return: fixed(x.returns.epa_per, 2),
+            yards_percentile: Math.round(x.returns.pct.ypr),
+            epa_percentile: Math.round(x.returns.pct.epa),
+          } : null,
+          url: row ? cardUrl(x.id, seasonId) : null,
+        }
+        return pick
+      })
+    }
+    out.line_unit = t.line ? {
+      team: tm(t.line.team),
+      games: t.line.games,
+      sack_rate_allowed: t.line.sack_rate,
+      qb_hit_rate_allowed: t.line.hit_rate,
+      rush_success_rate: t.line.rush_success,
+      percentiles: { sack_rate_allowed: Math.round(t.line.pct.sackr), qb_hit_rate_allowed: Math.round(t.line.pct.hitr), rush_success_rate: Math.round(t.line.pct.runsr) },
+    } : null
+    return out
+  })
+
+  const method = 'Our All-Pro team, picked by the numbers alone: at every spot the AP fills (QB, RB, three WR, TE, two tackles, two guards, a center; two edge rushers, two interior linemen, two linebackers, three corners with a slot corner where depth charts name one (2025 on), two safeties; kicker, punter, kick and punt returner), the qualified player with the highest Savant value: the expected points he has been worth that season above a replacement-level player at his position, on the stats that are his own and the snaps he played. The 2nd team is the next man at every spot once the 1st team is taken, so nobody is on both.'
+  const notes = []
+  if (live) notes.push(`The ${seasonId} season is still being played: this runs through week ${live.through_week} and moves after every game night. It is a standing, not an honour, until the season ends.`)
+  if (teams.some((t) => t.line_unit)) notes.push(`Before 2016 nothing published tells five men on a line apart, so the offensive line is picked as a unit: the best line by sack rate allowed, QB-hit rate allowed and rush success, against all 32 lines (the second-best on the 2nd team).${+seasonId < 2013 ? ' Before 2013 its starters are not named, so the line is given as a team.' : ''} Those are team numbers, shared with the quarterback and the backs.`)
+  else notes.push('Linemen are picked one by one, but most of a lineman\'s value is his line\'s play while he was on the field, so linemates tend to rise and fall together.')
+  if (+seasonId < 2018) notes.push(`There are no coverage numbers before 2018, so defensive backs in ${seasonId} are picked on plays on the ball, flags and tackling.`)
+  notes.push('Returners have no profile of their own: they are graded on yards and EPA per return against every returner with a starter\'s volume, so a player on either team can also be its returner.')
+  if (teams.some((t) => [...t.offense, ...t.defense, ...t.special_teams].some((x) => x.picked_on === 'profile_score'))) {
+    notes.push(`The ${seasonId} data has no Savant value, so the page ranks on the profile score (the mean percentile of a position's headline stats) among players with a real workload.`)
+  }
+
+  const structured = {
+    season: seasonId,
+    in_progress: live,
+    teams,
+    method,
+    notes,
+    url: `${SITE}/football-savant.html`,
+    data_as_of: day(file.generated || meta.generated),
+    source: SOURCE,
+  }
+
+  const L = [`The All-Savant Team, ${seasonId}${live ? ` (through week ${live.through_week}; a standing until the season ends)` : ''}`]
+  const why = (x) => {
+    if (x.picked_on === 'savant_value') return `Savant value ${signed1(x.savant_value)}`
+    if (x.picked_on === 'profile_score') return `profile score ${x.profile_score}`
+    if (x.picked_on === 'line_unit') return 'one of the line unit\'s five starters'
+    const r = x.returns
+    return `${r.yards_per_return.toFixed(1)} yards and ${r.epa_per_return >= 0 ? '+' : '−'}${Math.abs(r.epa_per_return).toFixed(2)} EPA per return on ${r.returns} returns (${ordinal(r.yards_percentile)} and ${ordinal(r.epa_percentile)} percentile)`
+  }
+  for (const t of teams) {
+    L.push('', `${t.team} team:`)
+    for (const [, key] of SIDES) {
+      const label = key === 'special_teams' ? 'Special teams' : upperFirst(key)
+      const items = t[key].map((x) => `${x.slot} ${x.name} (${x.team || '?'}), ${why(x)}`)
+      if (key === 'offense' && t.line_unit) {
+        const u = t.line_unit
+        items.push(`Offensive line: ${u.team} as a unit, sack rate allowed ${u.sack_rate_allowed}% (${ordinal(u.percentiles.sack_rate_allowed)} percentile), QB-hit rate allowed ${u.qb_hit_rate_allowed}% (${ordinal(u.percentiles.qb_hit_rate_allowed)}), rush success ${u.rush_success_rate}% (${ordinal(u.percentiles.rush_success_rate)}), vs. all 32 lines`)
+      }
+      L.push(`${label}:`, ...items.map((i) => `- ${i}`))
+    }
+  }
+  L.push('', `How it is picked: ${method}`, ...notes.map((n) => `- ${n}`))
+  L.push('', 'Savant value is in expected points; a player\'s card has where it came from (nfl_get_player_profile, group "value").')
+  L.push('', `Page: ${structured.url}`, `Source: ${SOURCE}. Data as of ${structured.data_as_of}.`)
+  return { structured, text: L.join('\n') }
+}
+
 // ---- the tools -----------------------------------------------------------------------
 
 const pct = z.number().int().min(1).max(99).nullable()
 const comp = z.object({ id: z.string(), name: z.string(), team: z.string().nullable(), match: z.number() })
+const PICK = z.object({
+  slot: z.string().describe('QB, RB, WR, TE, T, G, C (LT, LG, RG, RT for a line picked as a unit), EDGE, IDL, LB, CB, NB (slot corner), S, K, P, KR, PR.'),
+  spot: z.string().describe('The slot in words.'),
+  id: z.string(),
+  name: z.string(),
+  team: z.string().nullable(),
+  picked_on: z.enum(['savant_value', 'profile_score', 'line_unit', 'returns']).describe('What put him there.'),
+  savant_value: z.number().nullable().describe('Expected points above a replacement-level player at his position, that season.'),
+  value_parts: z.array(z.object({ part: z.string(), points: z.number() })).nullable().describe('Where the value came from, each part against an average player at the position.'),
+  profile_score: z.number().nullable().describe('Seasons with no Savant value only.'),
+  returns: z.object({
+    returns: z.number(), yards_per_return: z.number(), epa_per_return: z.number(),
+    yards_percentile: z.number(), epa_percentile: z.number(),
+  }).nullable().describe('Returners: percentiles against every returner with a starter\'s volume.'),
+  url: z.string().nullable().describe('His card for that season.'),
+})
 
 // What api/mcp.js registers: { name, config, run }. run returns { text, structured }.
 export const tools = [
@@ -668,6 +857,7 @@ export const tools = [
         player: z.string().trim().min(1).max(80).describe('Player id from nfl_search_players (e.g. "00-0033873") or a full name (e.g. "Patrick Mahomes"). If a name fits more than one player, the error lists their ids.'),
         season: z.string().trim().max(12).optional().describe('The year the season began, e.g. "2024". Omit for his most recent season.'),
         group: z.enum(['all', ...Object.keys(GROUPS)]).default('all').describe('Which panel of stats to return: "all" (default), "context" (games, snaps, penalties), "passing", "rushing", "receiving", "returns" (kick and punt returns), "blocking", "pass_rush", "run_defense", "coverage", "kicking" (kicking and punting), "value" (total EPA, fantasy points, win probability added, contract) or "athletic" (size and combine).'),
+        rank_against: z.enum(['season', 'same_point']).optional().describe('Season in progress only: "same_point" also ranks each stat against past seasons as they stood through the same week.'),
       },
       outputSchema: {
         player: z.object({
@@ -713,6 +903,14 @@ export const tools = [
           points: z.number().describe('Expected points he was worth that season above a replacement-level player at his position (the 25th percentile of qualified players), on the snaps he played. This season only. The All-Savant Team is the highest value at each spot.'),
           parts: z.array(z.object({ part: z.string(), points: z.number() })).describe('The parts of the job it is built from, each against an AVERAGE player at the position. They do not add up to the total, which is against a replacement player.'),
         }).nullable().optional(),
+        all_savant: z.object({
+          spots: z.array(z.object({
+            team: z.string().describe('"1st" or "2nd".'),
+            slot: z.string().describe('His spot on that team: QB, RB, WR, TE, T, G, C (LT, LG, RG, RT when a line is picked as a unit), EDGE, IDL, LB, CB, NB (slot corner), S, K, P, KR, PR.'),
+          })),
+          final: z.boolean().describe('True once the season is over, when it is an honour; false while the season is being played and it is a standing.'),
+        }).nullable().optional().describe('His place on that season\'s All-Savant Team, if he has one. Nobody is on both teams, but a returner can also hold a position spot.'),
+        career_year: z.boolean().optional().describe('True when this is his best qualified season by profile score (the page\'s "Career year"), once a career has three seasons and the season is over.'),
         profile_score: z.object({
           score: z.number().describe('Mean of his season percentiles across his position\'s headline stats.'),
           headline_stats: z.number().int(),
@@ -732,6 +930,7 @@ export const tools = [
           low_sample: z.boolean().describe('True when the stat is below its stabilization threshold.'),
           sample: z.object({ have: z.number(), needed: z.number(), of: z.string() }).nullable().describe('For a low-sample stat: how much of its denominator he has and how much it needs.'),
           estimate: z.boolean().optional().describe('True when the stat is an estimate from snap counts while the season is being played. It becomes exact after the season.'),
+          same_point_percentile: pct.optional().describe('With rank_against "same_point": against every season since 1999 as it stood through the same week.'),
           likely_to_settle: z.object({ value: z.number(), display: z.string(), percentile: pct }).nullable().optional().describe('Season in progress, low-sample stats only: where the number is likely to finish, and where that would rank among the same estimate for every qualified player at his position.'),
         })),
         not_tracked: z.array(z.object({ key: z.string(), label: z.string(), group: z.string(), since: z.number() })).describe('Stats for his position that the season did not track.'),
@@ -746,6 +945,47 @@ export const tools = [
       },
       annotations: { title: 'Get an NFL player\'s Savant profile', ...READ_ONLY },
     },
-    run: ({ player, season, group }) => playerProfile({ player, season, group }),
+    run: ({ player, season, group, rank_against }) => playerProfile({ player, season, group, rank_against }),
+  },
+  {
+    name: 'nfl_all_savant_team',
+    config: {
+      title: 'Get the NFL All-Savant Team',
+      description:
+        'Get Football Savant\'s All-Savant Team (Western Conference Elitists, wcehoops.com) for one NFL season: an All-Pro 1st and 2nd team picked by the numbers alone, shaped like the AP\'s (QB, RB, 3 WR, TE, 2 T, 2 G, C; 2 EDGE, 2 IDL, 2 LB, 3 CB with a slot corner from 2025, 2 S; K, P, KR, PR). Each spot goes to the qualified player with the highest Savant value: expected points above a replacement-level player at his position that season, on the snaps he played. Before 2016 the offensive line is picked as a unit; returners are graded on yards and EPA per return. Returns every pick with his team, value and card link. Seasons from 1999 on; defaults to the latest, which may still be in progress (then it is a standing).',
+      inputSchema: {
+        season: z.string().trim().max(12).optional().describe('The year the season began, e.g. "2024". Omit for the latest season.'),
+        team: z.enum(['1', '2', 'both']).default('both').describe('"1" for the 1st team, "2" for the 2nd, "both" (default).'),
+      },
+      outputSchema: {
+        season: z.string(),
+        in_progress: z.object({ through_week: z.number(), week_under_way: z.number().nullable() }).nullable().describe('Set while the season is being played.'),
+        teams: z.array(z.object({
+          team: z.string().describe('"1st" or "2nd".'),
+          offense: z.array(PICK),
+          defense: z.array(PICK),
+          special_teams: z.array(PICK),
+          line_unit: z.object({
+            team: z.string().nullable(),
+            games: z.number().nullable(),
+            sack_rate_allowed: z.number(),
+            qb_hit_rate_allowed: z.number(),
+            rush_success_rate: z.number(),
+            percentiles: z.object({ sack_rate_allowed: z.number(), qb_hit_rate_allowed: z.number(), rush_success_rate: z.number() }),
+          }).nullable().describe('Before 2016 only: the line picked as a unit, with its numbers against all 32 lines.'),
+        })),
+        method: z.string(),
+        notes: z.array(z.string()),
+        url: z.string(),
+        data_as_of: z.string(),
+        source: z.string(),
+      },
+      annotations: { title: 'Get the NFL All-Savant Team', ...READ_ONLY },
+    },
+    run: ({ season, team }) => allSavantTeam({ season, team }),
   },
 ]
+
+// For the other football sections (api/_football-lists.js, api/_football-games.js): the
+// same files, the same loader and cache, the same way of finding a player and a season.
+export { files, SOURCE, loadMeta, loadSeason, loadPlayers, rowsOf, resolvePlayer, parseSeason, teamIn, played, seasonsOf, savantValue, honoursOf, signed, signed1, lowerFirst, upperFirst, list, recent, TEAM_WORD }

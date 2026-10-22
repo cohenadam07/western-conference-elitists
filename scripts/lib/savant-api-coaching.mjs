@@ -19,7 +19,17 @@
 //                                                      lineage, and the units he called
 //   dist/savant-api/coaching/v1/units/<year>.json.gz   one season's offences and defences, each
 //                                                      credited to its play-caller, every stat
-//                                                      with its percentile
+//                                                      with its percentile, and an offence's
+//                                                      route mix and tell grid
+//   dist/savant-api/coaching/v1/leaders.json           the front screen's Leaders boards, every
+//                                                      row of each in the page's order
+//   dist/savant-api/coaching/v1/tree.json              the #tree view: who sits under whom, in
+//                                                      the order the page draws them
+//
+// The Leaders boards and the tree are not worked out here at all: the page's own
+// renderLeaders() and layoutForest() are run in the sandbox over the same data and read back.
+// renderLeaders() keeps the top ten of each board; that one cut is lifted, so a board runs the
+// length of its pool and the page's ten are its first ten rows.
 //
 // THE NUMBERS MUST MATCH THE PAGE. Everything the page decides is decided the same way here,
 // and what can be read from the page is read from it rather than copied, so the two cannot
@@ -143,7 +153,13 @@ export function readPage(html) {
   const unsure = String(ctx.unsureTag({ sure: false })).match(/title="([^"]*)"/)
   if (!unsure) throw new Error('coaching-savant.html: the "unconfirmed" tag lost its explanation')
 
+  const lookNote = plain(ctx.LOOK_NOTE || null)
+  if (!lookNote || typeof lookNote !== 'object') throw new Error('coaching-savant.html: LOOK_NOTE is missing')
+
   return {
+    ctx,
+    src,
+    lookNote,
     groups,
     metrics,
     unitGroups,
@@ -238,6 +254,73 @@ export function yearsLabel(years) {
   return out.join(', ')
 }
 
+// ---- the Leaders boards and the tree, drawn by the page --------------------------------
+
+// The page's front-screen boards (renderLeaders), and what each one ranks, by the title the
+// page prints. A board the page adds or renames stops the build until this list follows.
+export const BOARDS = {
+  'Most wins': { id: 'most_wins', kind: 'career', key: 'w' },
+  'Wins above expectation': { id: 'wins_above_expectation', kind: 'career', key: 'waa' },
+  'Playoff rate': { id: 'playoff_rate', kind: 'career', key: 'porate' },
+  'Most aggressive on fourth down': { id: 'fourth_down_aggression', kind: 'career', key: 'go_oe' },
+  'Most pass-happy': { id: 'pass_rate_over_expected', kind: 'career', key: 'proe' },
+  'Fastest tempo': { id: 'tempo', kind: 'career', key: 'sec_play' },
+  'Best fourth-down decisions': { id: 'fourth_down_decisions', kind: 'd4', key: 'd4_lost_g' },
+  'Most pre-snap motion': { id: 'motion', kind: 'unit', side: 'O', key: 'motion' },
+  'Blitz-happiest defence': { id: 'blitz', kind: 'unit', side: 'D', key: 'blitz' },
+  'Hardest offence to read': { id: 'hardest_to_read', kind: 'unit', side: 'O', key: 'pred_own', settled: true },
+}
+
+// Index of the brace that closes the one at `open`, skipping strings and comments.
+function closing(src, open) {
+  let depth = 0
+  for (let i = open; i < src.length; i++) {
+    const ch = src[i]
+    if (ch === '"' || ch === "'" || ch === '`') {
+      for (i++; i < src.length && src[i] !== ch; i++) if (src[i] === '\\') i++
+    } else if (ch === '/' && src[i + 1] === '/') {
+      i = src.indexOf('\n', i)
+      if (i < 0) break
+    } else if (ch === '/' && src[i + 1] === '*') {
+      i = src.indexOf('*/', i) + 1
+      if (i < 1) break
+    } else if (ch === '{') depth++
+    else if (ch === '}' && --depth === 0) return i
+  }
+  return -1
+}
+
+// The page's own renderLeaders(), run in the sandbox over the overlaid data with its one cut
+// (the top ten of each board) lifted, so every board runs the length of its pool in the
+// page's order. The page's ten are a board's first ten rows.
+function drawLeaders(page, globals) {
+  const at = page.src.search(/\bfunction\s+renderLeaders\s*\(/)
+  if (at < 0) throw new Error('coaching-savant.html: renderLeaders() not found')
+  const fn = page.src.slice(at, closing(page.src, page.src.indexOf('{', at)) + 1)
+  const cuts = fn.split('.slice(0,10)').length - 1
+  if (cuts !== 3) throw new Error(`coaching-savant.html: renderLeaders() now cuts its boards in ${cuts} places, not 3`)
+  const el = { innerHTML: '' }
+  Object.assign(page.ctx, globals, { document: { getElementById: () => el, querySelectorAll: () => [] } })
+  vm.runInContext(fn.replace(/\.slice\(0,10\)/g, '.slice(0)').replace(/function\s+renderLeaders\s*\(/, 'function __allLeaders('), page.ctx)
+  page.ctx.__allLeaders()
+  return el.innerHTML
+}
+
+const LEADER_ROW = /<div class="lrow" data-n="([^"]*)"(?: data-unit="([^"]*)")?><span class="lrk">(\d+)<\/span><span class="ln">([^<]*)(?: <span class="dim">([^<]*)<\/span>)?<\/span><span class="lv">([^<]*)<\/span><\/div>/g
+
+// The boards as drawn: [{ title, season, note, rows: [{ name, unit, team, display }] }].
+export function readLeaders(drawn) {
+  return drawn.split('<div><div class="lead-h">').slice(1).map((part) => {
+    const head = unescapeHtml(part.slice(0, part.indexOf('</div>')))
+    const [title, season] = head.split(' — ')
+    const cap = part.match(/<div class="panel-cap">([^<]*)<\/div><\/div>$/)
+    const rows = [...part.matchAll(LEADER_ROW)].map((m) => ({ name: unescapeHtml(m[1]), unit: m[2] ? unescapeHtml(m[2]) : null, team: m[5] ? unescapeHtml(m[5]) : null, display: unescapeHtml(m[6]), rank: +m[3] }))
+    if (rows.length !== (part.match(/class="lrow"/g) || []).length) throw new Error(`coaching-savant.html: a row of the "${head}" board could not be read`)
+    rows.forEach((r, i) => { if (r.rank !== i + 1) throw new Error(`coaching-savant.html: the "${head}" board is not numbered 1, 2, 3...`) })
+    return { title, season: season ? +season : null, note: cap && cap[1].trim() ? unescapeHtml(cap[1]) : null, rows }
+  })
+}
+
 // ---- building ------------------------------------------------------------------------
 
 const isD4 = (key) => key.indexOf('d4_') === 0
@@ -318,6 +401,17 @@ export function buildCoachingApi({ data, current = null, html }) {
     return y.season - x.season || (x.side < y.side ? 1 : x.side > y.side ? -1 : 0) || y.wk[0] - x.wk[0]
   })
 
+  // The page's routeMix(): each season's league average share of a route, across the
+  // offences of that season with enough snaps to rank that have a route tree. A unit lacking a
+  // route counts as zero for it, as on the page.
+  const routeLeague = {}
+  for (const u of Object.values(UNITS)) {
+    if (u.side !== 'O' || u.small || !u.m.routes) continue
+    const l = (routeLeague[u.season] = routeLeague[u.season] || { n: 0, tot: {} })
+    l.n++
+    for (const [k, v] of Object.entries(u.m.routes)) l.tot[k] = (l.tot[k] || 0) + v
+  }
+
   // ---- units ----
   const unitFiles = {}
   for (const season of unitYears) {
@@ -363,6 +457,26 @@ export function buildCoachingApi({ data, current = null, html }) {
       m,
     }
     if (Object.keys(pair).length) row.pair = pair
+    // An offence's page also draws two panels from charting rather than from the stat table.
+    if (u.side === 'O') {
+      // "Where the ball went": the targeted receiver's route, [route, share, league share], the
+      // biggest first. The league share is null when the season has no ranked route trees.
+      if (u.m.routes) {
+        const l = routeLeague[u.season]
+        row.routes = Object.keys(u.m.routes).map((k) => [k, u.m.routes[k], l && l.n ? (l.tot[k] || 0) / l.n : null]).sort((a, b) => b[1] - a[1])
+      }
+      // "The tell grid": his most-used looks on early downs with the game in the balance, each
+      // [look, snaps, pass %, league pass % from the same spots, play-action %, EPA per snap],
+      // and the three predictability figures above it.
+      if (u.looks && Array.isArray(u.looks.cells) && u.looks.cells.length) {
+        row.looks = {
+          cells: u.looks.cells.map((c) => [c.k, c.n, c.p, c.x ?? null, c.pa ?? null, c.epa ?? null]),
+          shown: u.looks.shown,
+          total: u.looks.total,
+          pred: miss(u.m.pred_own) ? null : [u.m.pred_sit, u.m.pred_look, u.m.pred_own],
+        }
+      }
+    }
     // Units that looked most like this one: [caller, season, team, share of pairs further apart].
     const comps = (u.comps || []).filter((c) => UNITS[c[0]]).map((c) => [UNITS[c[0]].caller, UNITS[c[0]].season, UNITS[c[0]].team, c[2]])
     if (comps.length) row.comps = comps
@@ -533,6 +647,55 @@ export function buildCoachingApi({ data, current = null, html }) {
     index.push(row)
   }
 
+  // ---- the Leaders boards: every row of each, as the page's own renderLeaders() orders it ----
+  const globals = { DATA: { generated: data.generated, seasons: data.seasons, tree: TREE, treeNote: data.treeNote }, COACHES, CALLERS, UNITS, LEAGUE, CURINFO: cur }
+  const boards = readLeaders(drawLeaders(page, globals)).map((b) => {
+    const spec = BOARDS[b.title]
+    if (!spec) throw new Error(`coaching-savant.html: the Leaders board "${b.title}" is new; add it to BOARDS in savant-api-coaching.mjs`)
+    if ((spec.kind === 'unit') !== (b.season != null)) throw new Error(`coaching-savant.html: the Leaders board "${b.title}" changed kind`)
+    const rows = b.rows.map((r) => {
+      if (spec.kind === 'unit') {
+        const u = UNITS[r.unit]
+        if (!u || u.caller !== r.name || u.team !== r.team || u.season !== b.season) throw new Error(`coaching-savant.html: the "${b.title}" board names a unit the data does not hold (${r.unit})`)
+        return { name: r.name, team: u.team, unit: r.unit, sure: u.sure !== false, value: u.m[spec.key], display: r.display }
+      }
+      if (!COACHES[r.name]) throw new Error(`coaching-savant.html: the "${b.title}" board names a coach the data does not hold (${r.name})`)
+      return { name: r.name, value: COACHES[r.name].career[spec.key], display: r.display }
+    })
+    const side = spec.side === 'O' ? 'offences' : 'defences'
+    const pool = spec.kind === 'career'
+      ? `head coaches with at least ${page.minSeasons} seasons since ${firstSeason}`
+      : spec.kind === 'd4'
+        ? `head coaches with at least ${page.d4MinGames} games in the fourth-down data, which starts in ${d4Years.length ? Math.min(...d4Years) : 'n/a'}`
+        : `the ${b.season} ${side} with enough snaps to rank${spec.settled && cur ? `; the season in progress is left out` : cur && b.season === cur.season ? `, as they stand through week ${cur.week}` : ''}`
+    return { id: spec.id, title: b.title, kind: spec.kind, key: spec.key, side: spec.side || null, season: b.season, note: b.note, pool, rows }
+  })
+  const leaders = { schema: SCHEMA, generated, current: cur, page: `${SITE}/coaching-savant.html`, shown: 10, boards }
+
+  // ---- the tree: the forest the page's #tree view grows (its own layoutForest()) ----
+  // Every name the hand-curated tree holds and every head coach, each under the mentor the tree
+  // gives him, his protégés in the order the page draws them (the biggest branch first), and
+  // the trees in the order the page plants them (biggest first, then the lone sprouts by name).
+  Object.assign(page.ctx, globals)
+  const grown = page.ctx.layoutForest()
+  if (!grown || !Array.isArray(grown.trees) || !grown.trees.length) throw new Error('coaching-savant.html: layoutForest() grew no trees')
+  const nodes = {}
+  for (const t of grown.trees) {
+    for (const nd of t.nodes) {
+      const e = TREE[nd.name]
+      nodes[nd.name] = { m: e ? e.mentor : null, r: e ? e.role || null : null, a: e && e.also ? e.also.map((x) => [x.mentor, x.role]) : [], k: [], s: nd.size, p: isPerson(nd.name) }
+    }
+    for (const br of t.branches) nodes[br.from].k.push(br.to)
+  }
+  const tree = {
+    schema: SCHEMA,
+    generated,
+    page: `${SITE}/coaching-savant.html#tree`,
+    note: data.treeNote || null,
+    roots: grown.trees.map((t) => [t.root, t.size]),
+    nodes,
+  }
+
   const meta = {
     schema: SCHEMA,
     name: 'Coaching Savant',
@@ -553,6 +716,8 @@ export function buildCoachingApi({ data, current = null, html }) {
       coaches: `${SITE}/${BASE}/coaches.json`,
       profiles: `${SITE}/${BASE}/profiles/all.json`,
       units: `${SITE}/${BASE}/units/{season}.json`,
+      leaders: `${SITE}/${BASE}/leaders.json`,
+      tree: `${SITE}/${BASE}/tree.json`,
     },
     counts: { headCoaches: Object.keys(COACHES).length, playCallers: Object.keys(CALLERS).length, people: names.length, units: Object.keys(UNITS).length },
     rules: {
@@ -568,6 +733,8 @@ export function buildCoachingApi({ data, current = null, html }) {
       callers: data.callerNote || null,
       unconfirmed: page.unconfirmed,
       era: Object.fromEntries([...new Set(Object.values(UNITS).map((u) => u.era).filter(Boolean))].map((era) => [era, page.eraNote(era) || null])),
+      // What a "look" in the tell grid is made of, by a unit's era (the page's LOOK_NOTE).
+      looks: page.lookNote,
     },
     percentiles: {
       method: 'Midrank percentile, rounded to a whole number and held to 1-99. For a lower-is-better stat it is flipped, so a higher percentile always means the longer bar on the page.',
@@ -598,6 +765,10 @@ export function buildCoachingApi({ data, current = null, html }) {
       'unit.m': 'Unit stats by key: [value, percentile]. The percentile is null for a unit with too few snaps to rank.',
       'unit.pair': 'For a few stats, EPA per snap with and without it: [with, without].',
       'unit.sure': 'false when no report names the play-caller (notes.unconfirmed).',
+      'unit.routes': 'An offence\'s targeted-receiver routes, the biggest first: [route, share %, league share %]. The league share is the mean over that season\'s ranked offences with a route tree, a missing route counting as zero.',
+      'unit.looks': 'An offence\'s tell grid: cells [look, snaps, pass %, league pass % from the same spots, play-action %, EPA per snap], shown and total snaps, and pred [guess from the situation, from league tendencies by look, from his own] in %. notes.looks says what a look is, by era.',
+      leaders: 'leaders.json: every Leaders board on the page\'s front screen, every row in the page\'s order. The page shows the first ten.',
+      tree: 'tree.json: the #tree view. nodes[name]: m mentor, r role under him, a other influences [mentor, role], k protégés in drawing order, s size of his branch counting himself, p whether he has a page. roots in planting order: [name, size].',
     },
   }
 
@@ -611,7 +782,7 @@ export function buildCoachingApi({ data, current = null, html }) {
 
   const profiles = { schema: SCHEMA, generated, people }
 
-  return { meta, coaches, profiles, units: unitFiles }
+  return { meta, coaches, profiles, units: unitFiles, leaders, tree }
 }
 
 // ---- writing -------------------------------------------------------------------------
@@ -639,6 +810,8 @@ export function writeCoachingApi({ publicDir, dist }) {
   }
   add('meta.json', out.meta, false)
   add('coaches.json', out.coaches, false)
+  add('leaders.json', out.leaders, false)
+  add('tree.json', out.tree, false)
   add('profiles/all.json', out.profiles, true)
   for (const [season, body] of Object.entries(out.units)) add(`units/${season}.json`, body, true)
 

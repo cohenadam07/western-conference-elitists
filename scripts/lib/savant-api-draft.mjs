@@ -25,8 +25,8 @@
 //   - the stat list, each stat's lower-is-better flag and the draft years it applies to
 //     (CFG.metrics, valid_from / valid_to)
 //   - which class is the "current" one, shown as projected and left out of "Past drafts"
-//   - how wide "Similar age" is (AGE_BAND), how few games make a reduced sample, and how
-//     many picks the page's board counts as the first round
+//   - how wide "Similar age" is (AGE_BAND), how few games make a reduced sample, and which
+//     picks the page's draft board files under its first and second round
 //   - the names on the two controls and the two columns
 //   - a percentile is the page's pctOf(): midrank against the pool, flipped for lower-is-
 //     better stats, rounded, held to 1..99, and none at all when the pool has under two values
@@ -151,6 +151,11 @@ export function readPageConfig(html) {
   for (const m of html.matchAll(/<h2 class="col-h">([^<]+)<\/h2><div id="(\w+)">/g)) groups[m[2]] = plain(m[1])
   for (const m of cfg.metrics) if (!groups[m.group]) throw new Error(`${PAGE} has no heading for the "${m.group}" group`)
 
+  // The page's draft board (renderBoard): picks 1 to N under the first round, and the picks
+  // after it, to M, under "Round 2". A pick past M is not on the board at all.
+  const rounds = html.match(/const\s+r1\s*=\s*rows\(1,\s*(\d+)\)\s*,\s*r2\s*=\s*rows\((\d+),\s*(\d+)\)/)
+  if (!rounds) throw new Error(`the draft board's second round not found in ${PAGE}`)
+
   return {
     cfg,
     currentClass,
@@ -158,6 +163,7 @@ export function readPageConfig(html) {
     thinBelow: pageNumber(html, /const\s+thin\s*=\s*\(p\.gp!=null\s*&&\s*p\.gp<(\d+)\)/, 'the reduced-sample rule'),
     // The page's draft board files picks 1 to this number under the first round.
     firstRound: pageNumber(html, /const\s+r1\s*=\s*rows\(1,\s*(\d+)\)/, 'the draft board\'s first round'),
+    secondRound: [+rounds[2], +rounds[3]],
     cohortLabels: control(html, 'popseg', COHORTS),
     fieldLabels: control(html, 'poolseg', FIELDS),
     groups,
@@ -342,6 +348,9 @@ export function buildDraftApi({ data, html }) {
       firstRoundOnly: pastPlayers.length > 0 && pastPlayers.every((c) => c.picks[1] <= page.firstRound),
     },
     firstRound: page.firstRound,
+    // The draft board's two groups: picks 1..firstRound, then these picks. Any other pick is
+    // not on the board.
+    secondRound: page.secondRound,
     fields: page.fieldLabels,
     cohorts: page.cohortLabels,
     pools: POOLS,

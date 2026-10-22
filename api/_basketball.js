@@ -314,6 +314,12 @@ export async function playerProfile({ player, season, window = 'season', group =
   }
   if (notTracked.length) L.push('', `Not tracked in ${seasonId}: ${notTracked.map((m) => `${m.label} (since ${m.since})`).join(', ')}.`)
   if (sv) L.push('', savantValueText(row, sv, seasonId, peers))
+  // The league's honours that season, as the card's chips show them (accolades())
+  if (row.aw && row.aw.length && meta.awards) {
+    const word = (c) => (meta.awards.labels || {})[c] || (meta.awards.short || {})[c] || c
+    structured.league_honours = row.aw.map((c) => ({ code: c, award: word(c) }))
+    L.push('', `League honours, ${seasonId}: ${structured.league_honours.map((h) => h.award).join(', ')}.`)
+  }
 
   // Season facts the card shows under the bars. Latest season, players over the minutes floor.
   if (window === 'season' && group === 'all') {
@@ -573,6 +579,7 @@ export const tools = [
           possessions: z.number().nullable(),
           shots_defended: z.number().nullable(),
         }).optional().describe('Bigs only. Reflects role, not ability.'),
+        league_honours: z.array(z.object({ code: z.string(), award: z.string() })).optional().describe('The league\'s honours that season: MVP, All-NBA, All-Defensive, All-Star, All-Rookie, Champion and the rest.'),
         savant_value: z.object({
           points_over_replacement: z.number().describe('Points he added that season above a replacement-level player at his position.'),
           per_100_vs_average: z.number().describe('Points per 100 possessions vs. an average player at his position.'),
@@ -627,3 +634,7 @@ export const tools = [
     run: ({ season, team }) => allSavantTeam({ season, team }),
   },
 ]
+
+// For the other basketball sections (api/_basketball-lists.js): the same files, loader,
+// cache and way of finding a player and a season.
+export { files, loadMeta, loadSeason, loadPlayers, resolvePlayer, parseSeason, PEERS, WINDOW_TEXT, startYear, inSpan, recent }

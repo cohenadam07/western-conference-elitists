@@ -55,6 +55,10 @@ const listen = (server) => new Promise((resolve) => server.listen(0, '127.0.0.1'
 // Every section's files, written to a scratch folder exactly as the build writes them.
 const dist = mkdtempSync(path.join(os.tmpdir(), 'savant-mcp-'))
 const built = writeAll({ publicDir: path.join(ROOT, 'public'), dist, log: () => {} })
+const footballMeta = (() => {
+  const f = path.join(dist, 'savant-api/football/v1/meta.json')
+  return existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : {}
+})()
 
 // The site's CDN. Basketball comes from the in-memory build above, so a test can take a file
 // away. Every other section comes off the scratch folder the way Vercel serves it: x.json is
@@ -74,8 +78,10 @@ const cdn = http.createServer((req, res) => {
     const body = p === 'meta.json' ? files.meta : p === 'players.json' ? files.players : season ? files.seasons[season[1]] : null
     return body ? json200(res, JSON.stringify(body)) : html200(res)
   }
-  // The Fantasy / Teams / Lineups files are served straight from public/, as Vercel serves them.
-  if (/^\/(savant-proj\.json|savant-teams(-current)?\.json|lineups\/[0-9-]+\.json)$/.test(url)) {
+  // The Fantasy / Teams / Lineups files, and the pages' own game logs, splits, maps, route
+  // trees, pace tables, postseason games, months and shots, are served straight from public/,
+  // as Vercel serves them.
+  if (/^\/(savant-proj\.json|savant-teams(-current)?\.json|lineups\/[0-9-]+\.json|(football-(weekly|splits|maps|routes|pace|games)|months|shots)\/[\w/.-]+\.json)$/.test(url)) {
     const f = path.join(ROOT, 'public', url)
     return existsSync(f) ? json200(res, readFileSync(f)) : html200(res)
   }
@@ -246,18 +252,21 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   const { tools } = await client.listTools()
   // The whole list, by name. Adding or dropping a tool should be a decision, not a side effect.
   assert.deepEqual(tools.map((t) => t.name).sort(), [
-    'nba_all_savant_team', 'nba_draft_get_prospect_profile', 'nba_draft_search_prospects',
+    'nba_all_savant_team', 'nba_draft_get_prospect_profile', 'nba_draft_search_prospects', 'nba_fantasy_league',
     'nba_fantasy_lock_in', 'nba_fantasy_player', 'nba_fantasy_rankings', 'nba_fantasy_streamers', 'nba_fantasy_trade',
-    'nba_get_player_profile', 'nba_injury_report', 'nba_lineups', 'nba_schedule', 'nba_search_players', 'nba_team_profile',
-    'nfl_get_coach_profile', 'nfl_get_player_profile', 'nfl_search_coaches', 'nfl_search_players',
-    'ufc_get_fighter_profile', 'ufc_get_upcoming_cards', 'ufc_search_fighters',
-    'wce_get_article', 'wce_get_big_board', 'wce_get_dynasty_rankings', 'wce_get_news', 'wce_search_articles',
+    'nba_get_player_profile', 'nba_injury_report', 'nba_leaderboard', 'nba_lineups', 'nba_player_career', 'nba_player_splits',
+    'nba_schedule', 'nba_search_players', 'nba_team_profile', 'nba_team_rankings',
+    'nfl_all_savant_team', 'nfl_coaching_leaders', 'nfl_coaching_tree', 'nfl_game', 'nfl_get_coach_profile', 'nfl_get_player_profile', 'nfl_leaderboard', 'nfl_player_career',
+    'nfl_player_games', 'nfl_player_splits', 'nfl_search_coaches', 'nfl_search_players', 'nfl_team_profile',
+    'ufc_get_fighter_profile', 'ufc_get_upcoming_cards', 'ufc_leaderboard', 'ufc_matchup', 'ufc_search_fighters',
+    'wce_get_article', 'wce_get_big_board', 'wce_get_dynasty_rankings', 'wce_get_news', 'wce_get_trending', 'wce_search_articles', 'wce_whats_new',
   ])
   // What an assistant is handed before anyone asks anything: names, descriptions and input
   // shapes. Kept in check, because every conversation with the connector on pays for it.
   const upfront = tools.reduce((n, t) => n + JSON.stringify({ name: t.name, description: t.description, inputSchema: t.inputSchema }).length, 0)
-  // 30,000 for the first 16 tools; 33,000 since the nine Fantasy / Teams / Lineups tools (Oct 2026).
-  assert.ok(upfront < 33000, `tool names, descriptions and inputs came to ${upfront} characters`)
+  // 30,000 for the first 16 tools; 33,000 since the nine Fantasy / Teams / Lineups tools; 60,000
+  // since the connector was made to reach everything on the site (Oct 2026, about 15,000 tokens).
+  assert.ok(upfront < 60000, `tool names, descriptions and inputs came to ${upfront} characters`)
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)
@@ -344,7 +353,7 @@ test('HTTP manners: stateless, POST only, CORS, clean errors', async () => {
   assert.equal(list.status, 200)
   assert.equal(list.headers.get('mcp-session-id'), null)
   assert.match(list.headers.get('content-type'), /application\/json/)
-  assert.equal((await list.json()).result.tools.length, 26)
+  assert.equal((await list.json()).result.tools.length, (await client.listTools()).tools.length)
 
   const note = await post({ jsonrpc: '2.0', method: 'notifications/initialized' })
   assert.equal(note.status, 202)
@@ -681,10 +690,36 @@ test('every tool of every section answers through the endpoint', async () => {
   await ok('nba_lineups', { team: 'OKC', limit: 3 }, /5-man units/)
   const nobody = await call('nba_fantasy_player', { player: 'Qqqq Nobody' })
   assert.ok(nobody.isError && /No current NBA player/.test(textOf(nobody)))
+  // The Leaderboard Builder, Teams table, career arc and the views below a card
+  // (api/_basketball-lists.js; their numbers are held to the page in tools/savant-api/more.mjs)
+  const nlb = await ok('nba_leaderboard', { stat: 'ts', season: '2024-25', top: 5 }, /^1\. /m)
+  assert.equal(nlb.players.length, 5)
+  const tr = await ok('nba_team_rankings', { season: '2024-25', top: 5 }, /^1\. /m)
+  assert.equal(tr.teams.length, 5)
+  await ok('nba_team_rankings', { season: '2024-25', team: 'OKC' }, /Guards: /)
+  await ok('nba_player_career', { player: 'Nikola Jokic', stats: ['ts'] }, /Box Plus\/Minus by season/)
+  await ok('nba_player_splits', { player: 'Nikola Jokic', season: '2024-25' }, /play types \(Synergy\)/)
 
   const qb = await ok('nfl_search_players', { query: 'patrick mahomes' }, /Patrick Mahomes/)
   await ok('nfl_get_player_profile', { player: qb.players[0].id }, /vs\. quarterbacks/)
   await ok('nfl_get_player_profile', { player: 'Patrick Mahomes', season: '2022', group: 'passing' }, /2022 regular season/)
+  await ok('nfl_get_player_profile', { player: 'Patrick Mahomes', season: footballMeta.latestSeason, group: 'passing', rank_against: 'same_point' }, /Patrick Mahomes/)
+  // The All-Savant Team, Leaderboard Builder, team pages, careers, game logs, splits and the
+  // postseason game pages (api/_football*.js; numbers held to the page in tools/savant-football/)
+  const fast = await ok('nfl_all_savant_team', { season: '2024' }, /The All-Savant Team, 2024/)
+  assert.equal(fast.teams.length, 2)
+  const flb = await ok('nfl_leaderboard', { position: 'QB', stat: 'epadb', season: '2024', top: 5 }, /^1\. /m)
+  assert.equal(flb.players.length, 5)
+  await ok('nfl_leaderboard', { position: 'team', season: '2024', top: 5 }, /all 32 teams in 2024/)
+  await ok('nfl_leaderboard', { position: 'WR', season: 'career', top: 5 }, /^1\. /m)
+  await ok('nfl_team_profile', { team: 'Bills', season: '2024' }, /Buffalo Bills, 2024/)
+  await ok('nfl_player_career', { player: 'Patrick Mahomes', stat: 'epadb' }, /Patrick Mahomes, career/)
+  await ok('nfl_player_games', { player: 'Patrick Mahomes', season: '2024' }, /game by game/)
+  await ok('nfl_player_splits', { player: 'Patrick Mahomes', season: '2024' }, /Patrick Mahomes/)
+  await ok('nfl_player_splits', { player: 'Patrick Mahomes', view: 'throw_map', season: 'career' }, /Patrick Mahomes/)
+  await ok('nfl_player_splits', { player: "Ja'Marr Chase", view: 'route_tree', season: '2024' }, /Chase/)
+  const pg = await ok('nfl_game', { season: '2024', team: 'KC' }, /Chiefs|KC/)
+  if (pg.games && pg.games.length) await ok('nfl_game', { game: pg.games[0].id }, / won\./)
 
   await ok('nfl_search_coaches', { query: 'shanahan' }, /Kyle Shanahan/)
   await ok('nfl_get_coach_profile', { coach: 'Andy Reid' }, /hand-curated/)
@@ -701,6 +736,25 @@ test('every tool of every section answers through the endpoint', async () => {
   const articles = await ok('wce_search_articles', {}, /WCE article/)
   if (articles.articles.length) await ok('wce_get_article', { article: articles.articles[0].slug }, /wcehoops\.com\/articles\//)
   await ok('wce_get_big_board', {}, /Big Board/)
+
+  // Coaching Savant's Leaders and tree, UFC Savant's leaderboard and head-to-head, a draft
+  // class as the board lists it, the homepage's What's new (numbers held to the pages in
+  // tools/savant-coaching, -ufc, -draft and -site)
+  await ok('nfl_coaching_leaders', { limit: 3 }, /Andy Reid|\d\. /)
+  await ok('nfl_coaching_tree', { coach: 'Andy Reid', depth: 2 }, /Andy Reid/)
+  await ok('ufc_leaderboard', { division: 'Lightweight', limit: 5 }, /Lightweight/)
+  await ok('ufc_matchup', { fighter_a: 'Islam Makhachev', fighter_b: 'Charles Oliveira', window: 'career' }, /Makhachev/)
+  await ok('ufc_get_fighter_profile', { fighter: 'Islam Makhachev', cohort: 'everyone', group: 'fights' }, /Makhachev/)
+  await ok('nba_draft_search_prospects', { year: 2025 }, /Cooper Flagg/)
+  await ok('wce_whats_new', {}, /./)
+
+  // Trending and a fan's league are read live from the site's own endpoints. With those not
+  // answering here, each must say so plainly rather than guess.
+  for (const [name, args] of [['wce_get_trending', {}], ['nba_fantasy_league', { platform: 'sleeper', code: 'nobody_here_123' }]]) {
+    const r = await call(name, args)
+    assert.ok(r.isError, `${name} answered from nothing`)
+    assert.doesNotMatch(textOf(r), /127\.0\.0\.1|ECONNREFUSED|\.js:\d+/, name)
+  }
 
   // The Dynasty board is live. With its store not set up it must say so plainly, not guess.
   const board = await call('wce_get_dynasty_rankings', {})

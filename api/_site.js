@@ -18,13 +18,25 @@
 //   - Dynasty: that a value is a crowd price, how many rankings sit behind it, and when the
 //     board was read.
 //
-// THE ONE LIVE CALL
-// Dynasty prices change with every visitor's ranking, so they cannot be a build-time file.
-// That tool asks the site's own /api/dynasty for the board: always the same GET, with
-// action=board and nothing else. It never votes and never opens a room. The board is kept
-// for a minute and a half so a talkative assistant does not hammer the store behind it. If
-// the store is down the answer says so; it does not fall back to the opening prices the page
-// shows in that case, because those are another site's ranking and not the crowd's.
+// THE LIVE READS
+// Three things change by the minute, so they cannot be build-time files, and each is read
+// from the site's own read-only endpoint with a GET and nothing else (readLive, the one place
+// this file makes a request):
+//   - the Dynasty board: /api/dynasty with action=board and nothing else. It never votes and
+//     never opens a room. The board is kept for a minute and a half so a talkative assistant
+//     does not hammer the store behind it. If the store is down the answer says so; it does
+//     not fall back to the opening prices the page shows in that case, because those are
+//     another site's ranking and not the crowd's.
+//   - the most-searched players and prospects: /api/trending?ns=bs and ?ns=dr, kept for a
+//     minute. It never records a search. When the counter is off the pages fall back to their
+//     own picks; this says the list is unavailable instead.
+//   - a fan's fantasy league: /api/league, the site's proxy to Sleeper, ESPN and Fantrax, which
+//     asks for no credentials and stores nothing. The connector never calls those platforms
+//     itself. The league is then valued on the Dynasty board exactly as the Dynasty page does.
+//
+// WHAT'S NEW
+// The homepage banner's lines, minus the YouTube uploads (WCE does not carry those here),
+// picked by the banner's own rules at the moment of asking, from whats-new.json.
 //
 // TWO THINGS THE DYNASTY PAGE SHOWS THAT THIS DOES NOT
 //   - Its "24h" change. The snapshot it compares against is only ever written when a player
@@ -433,18 +445,25 @@ const FEED_DOWN = `The Dynasty Exchange board could not be read right now. Try a
 const FEED_OFFLINE = `The Dynasty Exchange's live prices cannot be read right now: the site's pricing feed is offline. Try again in a few minutes. The board is at ${DYNASTY_PAGE}.`
 const FEED_EMPTY = `The Dynasty Exchange board has no players on it right now, so there is nothing to rank. The board is at ${DYNASTY_PAGE}.`
 
+// Every live read in this file goes through here: one GET, with no body and no cookies, to
+// one of the site's own read-only endpoints (/api/dynasty for the board, /api/trending,
+// /api/league). Anything but a 2xx with JSON in it is a failure for the caller to word.
+async function readLive(pathAndQuery, timeoutMs) {
+  const res = await fetch(`${origin()}${pathAndQuery}`, {
+    method: 'GET',
+    headers: { accept: 'application/json' },
+    signal: AbortSignal.timeout(timeoutMs),
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return JSON.parse(await res.text())
+}
+
 // One GET of the board. Every way it can go wrong becomes a sentence for the caller; the
 // detail goes to the log.
 async function readBoard() {
   let body
   try {
-    const res = await fetch(`${origin()}${BOARD_PATH}`, {
-      method: 'GET',
-      headers: { accept: 'application/json' },
-      signal: AbortSignal.timeout(dynastyFeed.timeoutMs),
-    })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    body = JSON.parse(await res.text())
+    body = await readLive(BOARD_PATH, dynastyFeed.timeoutMs)
   } catch (err) {
     console.error('[site] dynasty board failed:', err.message)
     throw new SavantError(FEED_DOWN)
@@ -492,13 +511,28 @@ async function liveBoard() {
 
 // The page's value for a rating on this board (src/lib/dynastyValue.js): the rating's place
 // in the board, high to low and counted from zero, tied ratings sharing the middle of their
-// block; then top * exp(-place / lambda), rounded, never below 1.
+// block, and a rating the board does not hold placed between its neighbours; then
+// top * exp(-place / lambda), rounded, never below 1.
 function pricer(rows, curve) {
-  const sorted = rows.map((r) => r.rating).sort((a, b) => b - a)
-  const first = new Map()
-  const last = new Map()
-  sorted.forEach((r, i) => { if (!first.has(r)) first.set(r, i); last.set(r, i) })
-  return (rating) => Math.max(1, Math.round(curve.top * Math.exp(-((first.get(rating) + last.get(rating)) / 2) / curve.lambda)))
+  const a = rows.map((r) => r.rating).filter((r) => Number.isFinite(r)).sort((x, y) => y - x)
+  const n = a.length
+  const place = (rating) => {
+    if (!n || !Number.isFinite(rating)) return 0
+    let lo = 0
+    let hi = n
+    while (lo < hi) { const m = (lo + hi) >> 1; if (a[m] > rating) lo = m + 1; else hi = m }
+    const first = lo
+    lo = 0
+    hi = n
+    while (lo < hi) { const m = (lo + hi) >> 1; if (a[m] >= rating) lo = m + 1; else hi = m }
+    const last = lo - 1
+    if (last >= first) return (first + last) / 2
+    if (first - 1 < 0) return 0
+    if (first >= n) return n - 1
+    const span = a[first - 1] - a[first]
+    return first - 1 + (span > 0 ? (a[first - 1] - rating) / span : 0.5)
+  }
+  return (rating) => Math.max(1, Math.round(curve.top * Math.exp(-place(rating) / curve.lambda)))
 }
 
 const namedBoards = new WeakMap()
@@ -571,6 +605,369 @@ export async function getDynastyRankings({ limit = 25, player } = {}) {
     L.push(`${String(r.rank).padStart(3, ' ')}. ${r.name}: value ${thousands(r.value)}, in ${count(r.rankings, 'ranking')}${run}${tagEach && r.provisional ? ' [provisional]' : ''}`)
   }
   L.push('', `Board: ${DYNASTY_PAGE}`, `Source: ${SOURCE}.`)
+  return { structured, text: L.join('\n') }
+}
+
+// ---- trending ------------------------------------------------------------------------
+
+// The "Trending now" chips on the Basketball Savant and Draft Savant home screens: the ids
+// most picked from each page's home-screen search over the last seven days, read live from
+// the site's /api/trending, the same GET the pages make. The names come from those sections'
+// own files. When the counter is off the pages show their own picks instead; those are not
+// search counts, so this says the list is unavailable rather than pass them off as one.
+const bsFiles = makeLoader('savant-api/basketball/v1', { what: 'Basketball Savant', maxCached: 4 })
+const draftFiles = makeLoader('savant-api/draft/v1', { what: 'Draft Savant', maxCached: 4 })
+const TREND = {
+  players: { ns: 'bs', page: `${SITE}/basketball-savant.html`, what: 'Basketball Savant', who: 'players' },
+  prospects: { ns: 'dr', page: `${SITE}/draft-savant.html`, what: 'Draft Savant', who: 'prospects' },
+}
+// The pages draw six chips; /api/trending returns up to twelve.
+const TREND_CHIPS = 6
+const TREND_DOWN = 'The most-searched list could not be read right now. Try again in a minute.'
+const TREND_OFF = 'The most-searched list cannot be read right now: the site\'s search counter is offline. The pages show their own picks meanwhile, which are not search counts.'
+const TREND_WORD = { up: 'rising', down: 'cooling off', flat: 'steady' }
+
+export const trendingFeed = { ttlMs: 60 * 1000, timeoutMs: 6000, clear() { trendHeld.clear() } }
+const trendHeld = new Map() // ns -> { at, top } | { pending }
+
+async function liveTrending(ns) {
+  const hit = trendHeld.get(ns)
+  if (hit && hit.pending) return hit.pending
+  if (hit && Date.now() - hit.at < trendingFeed.ttlMs) return hit
+  const pending = (async () => {
+    let body
+    try {
+      body = await readLive(`/api/trending?ns=${ns}`, trendingFeed.timeoutMs)
+    } catch (err) {
+      console.error('[site] trending failed:', err.message)
+      throw new SavantError(TREND_DOWN)
+    }
+    if (!body || typeof body !== 'object') throw new SavantError(TREND_DOWN)
+    // What api/trending.js answers with no store, and when the store fails.
+    if (body.configured === false) throw new SavantError(TREND_OFF)
+    if (!Array.isArray(body.top)) throw new SavantError(TREND_DOWN)
+    const top = body.top
+      .filter((t) => t && /^[A-Za-z0-9_.-]{1,48}$/.test(String(t.id)))
+      .map((t) => ({ id: String(t.id), score: Math.max(0, Number(t.score) || 0), trend: ['up', 'down'].includes(t.trend) ? t.trend : 'flat' }))
+    return { at: Date.now(), top }
+  })().then(
+    (v) => { trendHeld.set(ns, v); return v },
+    (err) => { trendHeld.delete(ns); throw err },
+  )
+  trendHeld.set(ns, { pending })
+  return pending
+}
+
+export async function getTrending({ section = 'both' } = {}) {
+  const wanted = section === 'both' ? ['players', 'prospects'] : [section]
+  const lists = []
+  for (const key of wanted) {
+    const t = TREND[key]
+    const [{ at, top }, file, draftMeta] = await Promise.all([
+      liveTrending(t.ns),
+      (key === 'players' ? bsFiles : draftFiles).load(key === 'players' ? 'players.json' : 'prospects.json'),
+      key === 'players' ? null : draftFiles.load('meta.json'),
+    ])
+    const byId = new Map((key === 'players' ? file.players : file.prospects).map((r) => [String(r.id), r]))
+    const pick = (r) => (r.year === draftMeta.currentClass ? `${r.year} class, projected No. ${r.pick}` : `drafted No. ${r.pick} in ${r.year}`) + (r.team ? `, ${r.team}` : '')
+    // The page shows only the ids it can put a name to, in the counter's order.
+    const known = top.filter((x) => byId.has(x.id))
+    const items = known.map((x, i) => {
+      const r = byId.get(x.id)
+      return {
+        rank: i + 1,
+        id: x.id,
+        name: r.name,
+        detail: key === 'players' ? [r.pos, r.team].filter(Boolean).join(', ') || null : pick(r),
+        trend: x.trend,
+        weighted_searches: x.score,
+        on_home_screen: i < TREND_CHIPS,
+        url: key === 'players' ? `${SITE}/basketball-savant.html?p=${encodeURIComponent(x.id)}` : t.page,
+      }
+    })
+    lists.push({ section: key, page: t.page, read_at: new Date(at).toISOString(), unknown_ids: top.length - known.length, items })
+  }
+
+  const notes = [
+    'Ranked by picks from each page\'s home-screen search over the last 7 days (UTC days), recent days counting more: today\'s picks 7 times, six days ago once. It counts searches on wcehoops.com, not anyone\'s performance.',
+    'Trend compares the last 3 days with the 4 before, per day: rising at 30% more, cooling off at 30% less, steady otherwise or with fewer than 2 picks in the week.',
+    `The home screens show the first ${TREND_CHIPS} of each list.`,
+  ]
+  if (lists.some((l) => l.section === 'prospects' && l.items.length)) notes.push('Draft Savant has no link that opens one prospect, so a prospect links to the page.')
+  const structured = { section, lists, notes, source: SOURCE }
+  const L = []
+  for (const l of lists) {
+    const t = TREND[l.section]
+    L.push(`Most-searched ${t.who} on ${t.what}, read live at ${stamp(l.read_at)}:`)
+    if (!l.items.length) L.push('Nobody has been searched for there in the last 7 days.')
+    for (const x of l.items) L.push(`${x.rank}. ${x.name}${x.detail ? ` (${x.detail})` : ''}: ${TREND_WORD[x.trend]}${x.on_home_screen ? '' : ' [not on the home screen]'}. ${x.url}`)
+    L.push('')
+  }
+  L.push(...notes, `Source: ${SOURCE}.`)
+  return { structured, text: L.join('\n') }
+}
+
+// ---- what's new ----------------------------------------------------------------------
+
+// The homepage banner's "what's new" lines, picked the way src/lib/whatsNew.js picks them
+// when someone opens the page: each kind stays up for its own number of days, up to its own
+// number of lines, a UFC card from a week before until the night it happens, "New" for the
+// first three days. The rules are read out of that file at build time (whats-new.json);
+// tools/savant-site/check.mjs runs the real module against this one.
+const NEW_YORK = { month: 'short', day: 'numeric', timeZone: 'America/New_York' }
+function pickRecent(items, R, now) {
+  const out = []
+  const count = {}
+  const sorted = [...items].sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+  for (const it of sorted) {
+    const t = Date.parse(it.date)
+    if (Number.isNaN(t)) continue
+    if (it.kind === 'event') {
+      if (now > t + R.event_tail_days * DAY_MS || t - now > R.event_lead_days * DAY_MS) continue
+      if (count.event) continue
+    } else {
+      const rule = R.kinds[it.kind]
+      if (!rule) continue
+      if (t > now + R.ahead_ms) continue
+      if (now - t > rule.days * DAY_MS) continue
+      if ((count[it.kind] || 0) >= rule.max) continue
+    }
+    count[it.kind] = (count[it.kind] || 0) + 1
+    out.push({ ...it, fresh: it.kind !== 'event' && now - t < R.fresh_days * DAY_MS })
+    if (out.length >= R.max) break
+  }
+  return out
+}
+const bannerLabel = (it) => (it.kind === 'article' ? `Article: ${it.text}` : it.kind === 'update' ? `${it.product}${it.version ? ` ${it.version}` : ''}: ${it.text}` : it.text)
+function bannerTag(it) {
+  if (it.fresh) return 'New'
+  const d = /^\d{4}-\d{2}-\d{2}$/.test(it.date) ? new Date(`${it.date}T12:00:00Z`) : new Date(it.date)
+  return d.toLocaleDateString('en-US', it.kind === 'event' ? { ...NEW_YORK, weekday: 'short' } : NEW_YORK)
+}
+const KIND = { article: 'article', update: 'product update', event: 'UFC card' }
+
+export async function getWhatsNew(_ = {}, now = Date.now()) {
+  const file = await files.load('whats-new.json')
+  const R = file.rules
+  const shown = pickRecent(file.items, R, now).map((it) => ({
+    kind: KIND[it.kind] || it.kind,
+    date: it.date,
+    line: bannerLabel(it),
+    tag: bannerTag(it),
+    new: it.fresh,
+    url: it.url,
+  }))
+  const days = (k) => `${KIND[k]}s ${R.kinds[k].days} days`
+  const notes = [
+    `What the homepage banner shows at ${stamp(now)}, newest first: ${days('article')}, ${days('update')}, a UFC card from ${R.event_lead_days} days before until the night it happens, "New" for the first ${R.fresh_days} days, at most ${R.max} lines.`,
+    `${file.left_out} The list was gathered when the site was last built, ${stamp(file.generated)}.`,
+  ]
+  const structured = { as_of: new Date(now).toISOString(), count: shown.length, items: shown, notes, url: file.page, source: SOURCE }
+  const L = [`What's new on wcehoops.com, as the homepage banner shows it:`]
+  if (!shown.length) L.push('Nothing right now: no article, product update or UFC card is recent enough to be on the banner.')
+  for (const x of shown) L.push(`- ${x.tag} · ${x.line}${x.url ? ` (${x.url})` : ''}`)
+  L.push('', ...notes, `Source: ${SOURCE}.`)
+  return { structured, text: L.join('\n') }
+}
+
+// ---- a fan's fantasy league ----------------------------------------------------------
+
+// A public Sleeper, ESPN or Fantrax league, read through the site's own /api/league (the same
+// GET the Dynasty page makes; it holds no credentials and stores nothing), and valued the way
+// that page values one: every name matched to the Dynasty Exchange list, priced on the live
+// board, each roster summed, and each roster's best possible lineup for the league's slots.
+// The matching, the slots and the lineup below are Dynasty.jsx's (priceList, SLOT_OK,
+// DEFAULT_SLOTS, bestLineup); tools/savant-site/check.mjs runs the page's own code beside them.
+const SLOT_OK = {
+  PG: (p) => p.includes('PG'), SG: (p) => p.includes('SG'),
+  SF: (p) => p.includes('SF'), PF: (p) => p.includes('PF'),
+  C: (p) => p.includes('C'),
+  G: (p) => p.includes('PG') || p.includes('SG') || p.includes('G'),
+  F: (p) => p.includes('SF') || p.includes('PF') || p.includes('F'),
+  UTIL: () => true,
+}
+const DEFAULT_SLOTS = ['PG', 'SG', 'G', 'SF', 'PF', 'F', 'C', 'UTIL', 'UTIL', 'UTIL']
+
+// The best lineup, exactly: the most valuable player who can still be placed, with players
+// already placed allowed to shuffle to make room (an augmenting path).
+function bestLineup(players, slots) {
+  const slotOf = slots.map((s) => SLOT_OK[s] || SLOT_OK.UTIL)
+  const filled = new Array(slots.length).fill(-1)
+  const ranked = players.map((p, i) => i).sort((a, b) => players[b].value - players[a].value)
+  const tryPlace = (pi, seen) => {
+    for (let s = 0; s < slots.length; s++) {
+      if (seen[s] || !slotOf[s](players[pi].pos)) continue
+      seen[s] = true
+      if (filled[s] === -1 || tryPlace(filled[s], seen)) { filled[s] = pi; return true }
+    }
+    return false
+  }
+  const starters = []
+  for (const pi of ranked) {
+    if (starters.length >= slots.length) break
+    if (tryPlace(pi, new Array(slots.length).fill(false))) starters.push(pi)
+  }
+  const lineup = slots.map((name, s) => ({ slot: name, player: filled[s] === -1 ? null : players[filled[s]] }))
+  return { lineup, total: lineup.reduce((a, l) => a + (l.player ? l.player.value : 0), 0) }
+}
+
+// A roster's names against the Dynasty Exchange list: case, punctuation, accents and a Jr.
+// ignored, the surname alone when only one listed player has it. A name it cannot place is
+// reported, not dropped. A listed player the board does not carry is priced at his opening
+// rating.
+function priceList(entries, seed, rows, value) {
+  const key = (t) => String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim()
+    .replace(/ (jr|sr|ii|iii|iv|v)$/, '')
+  const idx = {}
+  const bySurname = {}
+  for (const pl of seed) {
+    const k = key(pl.name)
+    idx[k] = pl
+    const sn = k.split(' ').slice(-1)[0]
+    ;(bySurname[sn] = bySurname[sn] || []).push(pl)
+  }
+  const priced = {}
+  for (const r of rows) priced[String(r.id)] = r
+  const hits = []
+  const misses = []
+  const seenIds = new Set()
+  for (const entry of entries) {
+    const raw = typeof entry === 'string' ? entry : entry.name
+    const platformPos = typeof entry === 'string' ? [] : (entry.pos || [])
+    const k = key(String(raw).replace(/^\s*\d+[.)]?\s*/, ''))
+    if (!k) continue
+    let pl = idx[k]
+    if (!pl) {
+      const cands = bySurname[k.split(' ').slice(-1)[0]] || []
+      if (cands.length === 1) pl = cands[0]
+    }
+    if (!pl) { misses.push(raw); continue }
+    if (seenIds.has(String(pl.id))) continue
+    seenIds.add(String(pl.id))
+    const r = priced[String(pl.id)] || { id: pl.id, rating: Math.round(pl.rating), rank: null }
+    const pos = platformPos.length ? platformPos : (pl.pos ? [pl.pos] : [])
+    hits.push({ id: String(pl.id), name: pl.name, rank: r.rank, pos, value: value(r.rating) })
+  }
+  hits.sort((a, b) => b.value - a.value)
+  return { hits, misses, total: hits.reduce((a, h) => a + h.value, 0) }
+}
+
+// The Dynasty page's words when a league cannot be read (its connectLeague()).
+const LEAGUE_ERROR = {
+  'no-user': 'No Sleeper user with that username.',
+  'no-leagues': 'That account has no NBA leagues we can see.',
+  'no-league': 'Could not read that league. If it is private, paste your roster instead.',
+  empty: 'That league came back with no rosters yet.',
+  'bad-code': 'That does not look like a valid code.',
+}
+const PLATFORM = { sleeper: 'Sleeper', espn: 'ESPN', fantrax: 'Fantrax' }
+export const leagueFeed = { timeoutMs: 20000 }
+
+export async function getFantasyLeague({ platform, code, league, season, team } = {}) {
+  const qs = new URLSearchParams({ platform, code })
+  if (league) qs.set('league', league)
+  if (season) qs.set('season', String(season))
+  let body
+  try {
+    body = await readLive(`/api/league?${qs}`, leagueFeed.timeoutMs)
+  } catch (err) {
+    console.error('[site] league read failed:', err.message)
+    throw new SavantError(`The site's league reader could not be reached right now. Try again in a minute. The Dynasty page can value a pasted roster instead: ${DYNASTY_PAGE}`)
+  }
+  if (!body || typeof body !== 'object') throw new SavantError(`Could not reach that league. The Dynasty page can value a pasted roster instead: ${DYNASTY_PAGE}`)
+  if (!body.ok) {
+    const said = LEAGUE_ERROR[body.error] || 'Could not reach that league. Paste your roster instead.'
+    throw new SavantError(`${said} (${PLATFORM[platform]}, in the Dynasty page's words.) The Dynasty page also values a roster typed or pasted in: ${DYNASTY_PAGE}`)
+  }
+  // A Sleeper username with several NBA leagues: the page asks which one.
+  if (Array.isArray(body.leagues) && !body.teams) {
+    const leagues = body.leagues.map((l) => ({ id: String(l.id), name: String(l.name) }))
+    const notes = ['Call again with one of these league ids as "league".']
+    return {
+      structured: { platform, league: null, leagues, teams: [], team: null, board_as_of: null, notes, url: DYNASTY_PAGE, source: SOURCE },
+      text: `That Sleeper account has ${leagues.length} NBA leagues:\n${leagues.map((l) => `- ${l.name} (league ${l.id})`).join('\n')}\n${notes[0]}`,
+    }
+  }
+  if (!Array.isArray(body.teams) || !body.teams.length) throw new SavantError(`That league came back with no rosters yet. The Dynasty page: ${DYNASTY_PAGE}`)
+
+  const [file, live] = await Promise.all([files.load('dynasty.json'), liveBoard()])
+  const { at, board, late } = live
+  const seed = file.seed.map(([id, name, pos, rating]) => ({ id, name, pos, rating }))
+  const value = pricer(board.rows, file.value)
+  const fromLeague = Array.isArray(body.slots) && body.slots.length > 0
+  const slots = (fromLeague ? body.slots : DEFAULT_SLOTS).map((x) => (SLOT_OK[x] ? x : 'UTIL'))
+  const teams = body.teams.map((t) => {
+    const p = priceList(t.players || [], seed, board.rows, value)
+    const best = bestLineup(p.hits, slots)
+    return { id: String(t.id), name: String(t.name), hits: p.hits, misses: p.misses, roster_value: p.total, lineup_value: best.total, lineup: best.lineup }
+  })
+  // The page's two orders, best first (a stable sort, so a tie keeps the league's order).
+  const byLineup = [...teams].sort((a, b) => b.lineup_value - a.lineup_value)
+  const byRoster = [...teams].sort((a, b) => b.roster_value - a.roster_value)
+
+  let mine = null
+  if (team) {
+    mine = teams.find((t) => t.id === team) || null
+    if (!mine) {
+      const found = settle(prepare(teams), team)
+      if (found.one) mine = found.one
+      else throw new SavantError(`${found.many ? `${found.many.length} teams in this league could be "${team}"` : `No team in this league is called "${team}"`}. Its teams: ${teams.map((t) => `${t.name} (id ${t.id})`).join(', ')}.`)
+      mine = teams.find((t) => t.id === mine.id)
+    }
+  }
+
+  const minutes = Math.max(1, Math.round((Date.now() - at) / 60000))
+  const notes = [
+    `Valued on the Dynasty Exchange board read at ${stamp(at)}.${late ? ` The board could not be re-read just now, so this is the copy from about ${count(minutes, 'minute')} ago.` : ''} A value is a crowd price, not a WCE projection and not advice; the top of the board is ${thousands(file.value.top)}.`,
+    `Best lineup: each roster's best possible ${slots.join(' / ')}${fromLeague ? ', the league\'s own starting slots' : ', the common 10-man shape, since this platform does not say its slots'}. Every roster is optimised, not taken as currently set, so this compares ceilings rather than who remembered to set a lineup.`,
+    'Whole roster: every rostered player, summed. It measures accumulated equity, which rewards depth a starting lineup never plays.',
+  ]
+  const unmatched = teams.reduce((n, t) => n + t.misses.length, 0)
+  if (unmatched) notes.push(`${count(unmatched, 'rostered name')} could not be matched to a player on the Dynasty Exchange list and ${unmatched === 1 ? 'is' : 'are'} left out of the totals, named per team.`)
+
+  const row = (t) => ({
+    id: t.id,
+    name: t.name,
+    lineup_value: t.lineup_value,
+    roster_value: t.roster_value,
+    rank_by_lineup: byLineup.indexOf(t) + 1,
+    rank_by_roster: byRoster.indexOf(t) + 1,
+    players_priced: t.hits.length,
+    unmatched: t.misses.map(String),
+  })
+  const structured = {
+    platform,
+    league: { name: body.leagueName || null, teams: teams.length, slots, slots_from_league: fromLeague },
+    leagues: null,
+    teams: byLineup.map(row),
+    team: mine ? {
+      ...row(mine),
+      players: mine.hits.map((h) => ({ name: h.name, id: h.id, value: h.value, positions: h.pos, board_rank: h.rank ?? null })),
+      lineup: mine.lineup.map((l) => ({ slot: l.slot, player: l.player ? l.player.name : null, value: l.player ? l.player.value : 0 })),
+    } : null,
+    board_as_of: new Date(at).toISOString(),
+    notes,
+    url: DYNASTY_PAGE,
+    source: SOURCE,
+  }
+
+  const name = body.leagueName ? `${body.leagueName} (${PLATFORM[platform]})` : `This ${PLATFORM[platform]} league`
+  const L = [`${name}, ${teams.length} teams, valued on the Dynasty Exchange the way wcehoops.com's Dynasty page values a league.`, ...notes, '']
+  L.push(`Power rankings by best lineup (${slots.join(' / ')}):`)
+  byLineup.forEach((t, i) => L.push(`${i + 1}. ${t.name}: ${thousands(t.lineup_value)}${t.misses.length ? ` (${t.misses.length} unmatched)` : ''}`))
+  L.push('', 'By whole roster:')
+  byRoster.forEach((t, i) => L.push(`${i + 1}. ${t.name}: ${thousands(t.roster_value)} (${count(t.hits.length, 'player')})`))
+  if (mine) {
+    L.push('', `${mine.name}, player by player:`)
+    for (const h of mine.hits) L.push(`- ${h.name} (${h.pos.join('/') || 'no position'}): ${thousands(h.value)}`)
+    if (mine.misses.length) L.push(`Not on the Dynasty Exchange list, so not priced: ${mine.misses.join(', ')}.`)
+    L.push('', `${mine.name}'s best lineup:`)
+    for (const l of mine.lineup) L.push(`- ${l.slot}: ${l.player ? `${l.player.name}, ${thousands(l.player.value)}` : 'nobody eligible'}`)
+  } else {
+    L.push('', 'Give "team" (a name or id from this list) for one roster player by player and its best lineup.')
+  }
+  L.push('', `Dynasty page: ${DYNASTY_PAGE}`, `Source: ${SOURCE}.`)
   return { structured, text: L.join('\n') }
 }
 
@@ -766,5 +1163,107 @@ export const tools = [
       annotations: { title: 'Get the WCE Dynasty Exchange board', ...READ_ONLY },
     },
     run: ({ limit, player }) => getDynastyRankings({ limit, player }),
+  },
+  {
+    name: 'wce_get_trending',
+    config: {
+      title: 'Get the most-searched players and prospects on WCE',
+      description:
+        'The most-searched players and prospects on Western Conference Elitists (wcehoops.com), read live: the ones picked most from the home-screen search of Basketball Savant (NBA players) and of Draft Savant (draft prospects) over the last seven days, recent days counting more, each with its name, link and whether it is rising, steady or cooling off. The home screens show the first six of each. It counts searches on the site, not anyone\'s play. When the site\'s counter is offline the result says so; no substitute list is given.',
+      inputSchema: {
+        section: z.enum(['both', 'players', 'prospects']).default('both').describe('"players" (Basketball Savant), "prospects" (Draft Savant) or "both" (default).'),
+      },
+      outputSchema: {
+        section: z.string(),
+        lists: z.array(z.object({
+          section: z.string().describe('players or prospects.'),
+          page: z.string(),
+          read_at: z.string().describe('When the live count was read.'),
+          unknown_ids: z.number().int().describe('Searched ids the section\'s files have no name for; the page skips them too.'),
+          items: z.array(z.object({
+            rank: z.number().int(),
+            id: z.string().describe('Player id for nba_get_player_profile, or prospect id for nba_draft_get_prospect_profile.'),
+            name: z.string(),
+            detail: z.string().nullable(),
+            trend: z.string().describe('up, down or flat: the page\'s fire and ice.'),
+            weighted_searches: z.number().describe('Picks over 7 days, today counting 7 times and six days ago once.'),
+            on_home_screen: z.boolean(),
+            url: z.string(),
+          })),
+        })),
+        notes: notesShape,
+        source: z.string(),
+      },
+      annotations: { title: 'Get the most-searched players and prospects on WCE', ...READ_ONLY },
+    },
+    run: ({ section }) => getTrending({ section }),
+  },
+  {
+    name: 'wce_whats_new',
+    config: {
+      title: 'Get what\'s new on WCE',
+      description:
+        'What is new on Western Conference Elitists (wcehoops.com), as the homepage banner shows it at the moment of asking: product updates (Basketball Savant, Football Savant, Flappy Hoops and the rest, with version numbers), new articles and the next UFC card, each with its date tag ("New" for the first three days) and link. Each kind stays up for its own number of days, as on the banner. The banner\'s YouTube uploads are not included.',
+      inputSchema: {},
+      outputSchema: {
+        as_of: z.string(),
+        count: z.number().int(),
+        items: z.array(z.object({
+          kind: z.string().describe('product update, article or UFC card.'),
+          date: z.string(),
+          line: z.string().describe('The line as the banner reads.'),
+          tag: z.string().describe('"New", or the date as the banner prints it.'),
+          new: z.boolean(),
+          url: z.string().nullable(),
+        })),
+        notes: notesShape,
+        url: z.string(),
+        source: z.string(),
+      },
+      annotations: { title: 'Get what\'s new on WCE', ...READ_ONLY },
+    },
+    run: () => getWhatsNew({}),
+  },
+  {
+    name: 'nba_fantasy_league',
+    config: {
+      title: 'Value a fantasy basketball league on the WCE Dynasty Exchange',
+      description:
+        'Values a fan\'s own fantasy basketball league on the Dynasty Exchange of Western Conference Elitists (wcehoops.com), the way its Dynasty page does: every team\'s optimal starting lineup for the league\'s slots and its whole roster, each priced on the live crowd board and ranked, with any name the board does not list reported. Reads a public Sleeper (username or league id), ESPN (league id) or Fantrax (league id) league through the site\'s own league reader; nothing is stored and no sign-in is asked for. With a team, that roster player by player. Values are crowd prices, not projections.',
+      inputSchema: {
+        platform: z.enum(['sleeper', 'espn', 'fantrax']).describe('Where the league is.'),
+        code: z.string().trim().regex(/^[A-Za-z0-9_.-]{1,64}$/).describe('Sleeper username or league id; the ESPN or Fantrax league id from the league\'s address.'),
+        league: z.string().trim().regex(/^[A-Za-z0-9_.-]{1,64}$/).optional().describe('Sleeper: which league, when a username has several (the result lists them).'),
+        season: z.number().int().min(2000).max(2100).optional().describe('ESPN: the season by the year it ends, e.g. 2027. Omit for the current one.'),
+        team: z.string().trim().min(1).max(80).optional().describe('A team\'s name or id in the league, for its roster player by player and its best lineup.'),
+      },
+      outputSchema: {
+        platform: z.string(),
+        league: z.object({ name: z.string().nullable(), teams: z.number().int(), slots: z.array(z.string()), slots_from_league: z.boolean() }).nullable(),
+        leagues: z.array(z.object({ id: z.string(), name: z.string() })).nullable().describe('When a Sleeper username has several leagues: the ones to choose from.'),
+        teams: z.array(z.object({
+          id: z.string(),
+          name: z.string(),
+          lineup_value: z.number().int().describe('Best possible starting lineup, summed.'),
+          roster_value: z.number().int().describe('Every rostered player, summed.'),
+          rank_by_lineup: z.number().int(),
+          rank_by_roster: z.number().int(),
+          players_priced: z.number().int(),
+          unmatched: z.array(z.string()).describe('Rostered names not on the Dynasty Exchange list; not priced.'),
+        })).describe('Best lineup first.'),
+        team: z.object({
+          id: z.string(), name: z.string(), lineup_value: z.number().int(), roster_value: z.number().int(),
+          rank_by_lineup: z.number().int(), rank_by_roster: z.number().int(), players_priced: z.number().int(), unmatched: z.array(z.string()),
+          players: z.array(z.object({ name: z.string(), id: z.string(), value: z.number().int(), positions: z.array(z.string()), board_rank: z.number().int().nullable() })),
+          lineup: z.array(z.object({ slot: z.string(), player: z.string().nullable(), value: z.number().int() })),
+        }).nullable(),
+        board_as_of: z.string().nullable(),
+        notes: notesShape,
+        url: z.string().describe('The Dynasty page.'),
+        source: z.string(),
+      },
+      annotations: { title: 'Value a fantasy basketball league on the WCE Dynasty Exchange', ...READ_ONLY, openWorldHint: true },
+    },
+    run: ({ platform, code, league, season, team }) => getFantasyLeague({ platform, code, league, season, team }),
   },
 ]

@@ -104,16 +104,16 @@ under `/savant-api/<section>/v1/`, with every percentile already worked out:
 
 | Section | Slicer (`scripts/lib/`) | What it writes | Check (`tools/`) |
 |---|---|---|---|
-| `basketball` | `savant-api.mjs` | glossary, player index, one file per season | `savant-api/` |
-| `football` | `savant-api-football.mjs` | glossary, player index, one file per season | `savant-football/` |
-| `ufc` | `savant-api-ufc.mjs` | glossary, fighter index, upcoming cards, fighters in 16 files | `savant-ufc/` |
-| `coaching` | `savant-api-coaching.mjs` | glossary, coach index, profiles, play-calling units per season | `savant-coaching/` |
+| `basketball` | `savant-api.mjs` | glossary, player index, one file per season (with each player's honours, play types and with/without split) | `savant-api/` |
+| `football` | `savant-api-football.mjs` | glossary, player index, one file per season (with its All-Savant Team and 32 team pages), careers by position | `savant-football/` |
+| `ufc` | `savant-api-ufc.mjs` | glossary, fighter index, upcoming cards, fighters in 16 files (four pools per stat, full fight logs) | `savant-ufc/` |
+| `coaching` | `savant-api-coaching.mjs` | glossary, coach index, profiles, play-calling units per season, the Leaders boards, the coaching tree | `savant-coaching/` |
 | `draft` | `savant-api-draft.mjs` | glossary, prospect index, one file per draft class | `savant-draft/` |
-| `site` | `savant-api-site.mjs` | the News list, published articles, the Big Board, Dynasty names | `savant-site/` |
+| `site` | `savant-api-site.mjs` | the News list, published articles, the Big Board, Dynasty names, the What's new lines | `savant-site/` |
 
 They are built by one Vite plugin (`scripts/lib/savant-api.mjs`, like the SEO and gzip steps)
 from the data files in `public/` and the rules inside each page, so they refresh with every
-data push and nothing is committed. They add about 19 MB to a deployment. The bulk files are
+data push and nothing is committed. They add about 32 MB to a deployment. The bulk files are
 written gzipped; `vercel.json` rewrites `<name>.json` to `<name>.json.gz` for each pattern.
 
 **The numbers must match the page.** Each slicer reads its page's rules rather than copying
@@ -138,20 +138,35 @@ read-only: nothing in it can vote, write or change anything.
 
 | Tools | Section | What they return |
 |---|---|---|
-| `nba_search_players`, `nba_get_player_profile` | Basketball Savant | Every stat with its league and position percentile, 1979-80 on; last 10 / 25 / 75 games for the latest season |
-| `nfl_search_players`, `nfl_get_player_profile` | Football Savant | Every stat on a player's card, ranked against his position, in-season and all-time, 1999 on |
-| `nfl_search_coaches`, `nfl_get_coach_profile` | Coaching Savant | Records, wins against the spread, career ranks, fourth downs, play-calling units, lineage |
-| `ufc_search_fighters`, `ufc_get_fighter_profile`, `ufc_get_upcoming_cards` | UFC Savant | Records, every stat ranked inside the division (active and all-time), recent fights, title reigns |
-| `nba_draft_search_prospects`, `nba_draft_get_prospect_profile` | Draft Savant | Pre-draft production and measurements, ranked against a named pool |
-| `wce_get_news`, `wce_search_articles`, `wce_get_article`, `wce_get_big_board`, `wce_get_dynasty_rankings` | The site | The News list, WCE's articles, the Big Board, the live Dynasty board |
+| `nba_search_players`, `nba_get_player_profile` | Basketball Savant | Every stat with its league and position percentile, 1979-80 on; last 10 / 25 / 75 games for the latest season; league honours |
+| `nba_leaderboard` | Basketball Savant | The Leaderboard Builder: the top players by any stat, with its filters, ranked against the filtered group or the league |
+| `nba_all_savant_team` | Basketball Savant | The All-Savant 1st and 2nd teams for any season |
+| `nba_player_career`, `nba_player_splits` | Basketball Savant | A career arc (Box Plus/Minus against his position, peak, honours, any stat season by season); play types, with and without teammates, month by month, shot chart attempts |
+| `nba_team_rankings`, `nba_team_profile`, `nba_lineups` | Basketball Savant | The Teams table and depth charts; a team's ratings with luck and sample adjustments; 5-man units |
+| `nba_fantasy_rankings`, `nba_fantasy_player`, `nba_fantasy_trade`, `nba_fantasy_streamers`, `nba_fantasy_lock_in`, `nba_injury_report`, `nba_schedule` | Basketball Savant Fantasy | Projections (rest of season, next 7 days, dynasty), points and 9-cat rankings, trades, streamers, Sleeper Lock-In plans, injuries, games per team |
+| `nfl_search_players`, `nfl_get_player_profile` | Football Savant | Every stat on a player's card, ranked against his position, in-season and all-time, or against the same point of past seasons; All-Savant honours |
+| `nfl_leaderboard` | Football Savant | The Leaderboard Builder: a position or all 32 teams, for a season, whole careers, or the last 4, 8 or 17 games |
+| `nfl_all_savant_team` | Football Savant | The All-Savant 1st and 2nd teams for any season since 1999 |
+| `nfl_player_career`, `nfl_player_games`, `nfl_player_splits` | Football Savant | Careers ranked among careers, game logs, situational splits, throw / target / rush maps and route trees |
+| `nfl_team_profile`, `nfl_game` | Football Savant | Team pages (unit ranks, line grade, roster in depth-chart order); every postseason game page since 1999 |
+| `nfl_search_coaches`, `nfl_get_coach_profile`, `nfl_coaching_leaders`, `nfl_coaching_tree` | Coaching Savant | Records, wins against the spread, career ranks, fourth downs, play-calling units with route mix and tells, lineage; the Leaders boards; the coaching tree |
+| `ufc_search_fighters`, `ufc_get_fighter_profile`, `ufc_leaderboard`, `ufc_matchup`, `ufc_get_upcoming_cards` | UFC Savant | Records, every stat ranked inside the division or against every division of that sex (active and all-time), comps, strike map, round curve, the whole fight log, title reigns; the leaderboard; the head-to-head with its rating-implied win probability |
+| `nba_draft_search_prospects`, `nba_draft_get_prospect_profile` | Draft Savant | Pre-draft production and measurements, ranked against a named pool; a draft class as the page's board lists it |
+| `wce_get_news`, `wce_search_articles`, `wce_get_article`, `wce_get_big_board`, `wce_get_dynasty_rankings`, `wce_get_trending`, `wce_whats_new`, `nba_fantasy_league` | The site | The News list, WCE's articles, the Big Board, the live Dynasty board, the most-searched players and prospects, the homepage's What's new lines, a fan's league valued on the Dynasty board |
 
 `api/mcp.js` speaks the protocol (the official SDK, stateless, one function) and knows no
-sport. Each section is one module (`api/_basketball.js`, `_football.js`, `_coaching.js`,
-`_ufc.js`, `_draft.js`, `_site.js`) that declares its own tools; shared loading, caching and
-name matching live in `api/_core.js`. Sections read the Savant API files above off the live
-site, so a data push reaches the connector with no redeploy, and they never recompute a
-percentile. The one live read is the Dynasty board, which calls the site's own
-`/api/dynasty?action=board` and nothing else.
+sport. Each section is a module that declares its own tools: `api/_basketball.js` and
+`_basketball-lists.js`, `_fantasy.js`, `_football.js`, `_football-lists.js` and
+`_football-games.js`, `_coaching.js`, `_ufc.js`, `_draft.js`, `_site.js`. Shared loading,
+caching and name matching live in `api/_core.js`. Sections read the Savant API files above,
+and some of the pages' own public files (game logs, splits, maps, months, shots), off the
+live site, so a data push reaches the connector with no redeploy. Percentiles come worked
+out in those files; a tool works one out itself only where the page does it in the browser
+(a leaderboard's filtered group, a game's level against the season), and then only with a
+check that runs the page's own code and finds the same number. Three tools read live,
+from the site's own read-only endpoints and with a GET only: the Dynasty board
+(`/api/dynasty?action=board`), the trending lists (`/api/trending`) and a fan's league
+(`/api/league`, the site's proxy to Sleeper, ESPN and Fantrax).
 
 An answer always names the pool a percentile is from ("vs. guards", "vs. quarterbacks"),
 flags low samples, lists a stat its season did not track rather than showing a zero, and
@@ -163,7 +178,35 @@ npm run check:savant-mcp
 ```
 
 That talks to the endpoint with a real MCP client and calls every tool of every section.
-To point a local run at other data, set `SAVANT_API_ORIGIN`.
+To point a local run at other data, set `SAVANT_API_ORIGIN`. Each section's numbers are held
+to its page by that section's own checks (`tools/savant-*/check.mjs`, and `more.mjs` beside
+basketball's and football's for the leaderboards, careers, team pages, game logs and splits).
+The football ones need a big heap: `NODE_OPTIONS=--max-old-space-size=5500`.
+
+**Keeping it complete.** The connector is meant to reach everything a fan can open on the
+site. `npm run check:connector-coverage` (`tools/savant-mcp/coverage.mjs`) finds the site's
+features from source on every run (each `render…` / `open…` / `show…` function in a static
+page or its scripts, every data file and folder in `public/`, every route in `src/App.jsx`,
+every endpoint in `api/`) and holds each one to `tools/savant-mcp/coverage.json`, which names
+the tools that answer it or says, in a sentence, why it is left out (private pages, the
+games, YouTube, the newsletter and weekly movers, images). It fails when the site has
+something the manifest does not mention, when the manifest names something the site no
+longer has, or when it names a tool the connector does not declare. A page's ranking
+switches that no tool offers are listed under `switches`, each with its reason.
+
+The workflow `.github/workflows/connector-coverage.yml` runs it on every push to main that
+touches the pages, data, routes or endpoints, and on Sundays, and keeps an issue labelled
+`connector-coverage` open while something is missing. A scheduled Claude task ("WCE
+connector weekly update", Mondays) runs the same check, builds the missing tools with
+checks that hold their numbers to the page, and opens a pull request on a
+`connector-coverage/<date>` branch. It never merges: Adam approves each one.
+
+To add a tool by hand: declare it in the section's module (a zod `inputSchema` and
+`outputSchema`, the `READ_ONLY` annotations, a text answer plus structured content, the pool
+of every percentile named, low samples flagged, the date of the data, a link to the page),
+register a new module in `SECTIONS` in `api/mcp.js`, call it in the "every tool" test of
+`tools/savant-mcp/check.mjs`, hold its numbers to the page in the section's check (break the
+check once on purpose to see it fail), and point its feature at it in `coverage.json`.
 
 **Limits.** Each caller gets 300 requests a minute, counted by network address
 (`api/_limit.js`); past that a request is answered at once with HTTP 429 and "wait N

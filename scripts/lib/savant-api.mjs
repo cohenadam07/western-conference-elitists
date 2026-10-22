@@ -142,7 +142,23 @@ export function readPageConfig(html) {
     posFixId: posFix(html, 'POS_FIX_ID'),
     posFixName: posFix(html, 'POS_FIX_NAME'),
     explain: explanations(html),
+    awards: readAwards(html),
   }
+}
+
+// The league's season honours, baked into the page as AWARDS ({players:{pid:{season:[code]}},
+// labels:{code:"Most Valuable Player"}}), with the page's order and short names. Optional:
+// the page tolerates an empty block, and so does this.
+function readAwards(html) {
+  const at = html.search(/const\s+AWARDS\s*=\s*\{/)
+  if (at < 0) return { players: {}, labels: {}, order: [], short: {} }
+  const start = html.indexOf('{', at)
+  const awards = JSON.parse(html.slice(start, jsonEnd(html, start) + 1))
+  const list = (name) => { const m = html.match(new RegExp(`const\\s+${name}\\s*=\\s*\\[([^\\]]*)\\]`)); return m ? [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1]) : [] }
+  const short = {}
+  const sm = html.match(/const\s+ACC_SHORT\s*=\s*\{([^}]*)\}/)
+  if (sm) for (const x of sm[1].matchAll(/([a-z0-9]+)\s*:\s*'([^']*)'/g)) short[x[1]] = x[2]
+  return { players: awards.players || {}, labels: awards.labels || {}, order: list('ACC_ORDER'), short }
 }
 
 // ---- the page's arithmetic -------------------------------------------------------------
@@ -228,7 +244,7 @@ function stats(p, season, metrics, pool, w) {
 const sampleOf = (p, key) => { const c = cell(p, key, 'season'); return c && c.n != null ? c.n : null }
 
 export function buildSavantApi({ data, html, valueModel = null }) {
-  const { cfg, posFixId, posFixName, explain } = readPageConfig(html)
+  const { cfg, posFixId, posFixName, explain, awards } = readPageConfig(html)
   if (!Array.isArray(data.seasons) || !data.data) throw new Error('savant-data.json: expected { seasons, data }')
   const metrics = cfg.metrics
   const latest = data.seasons[0]
@@ -295,9 +311,12 @@ export function buildSavantApi({ data, html, valueModel = null }) {
         if (Object.keys(w).length) row.w = w
       }
       // Carried over untouched; meta.extras says what each one is.
-      for (const k of ['comps', 'wcomps', 'wflaws', 'guard', 'role']) {
+      for (const k of ['comps', 'wcomps', 'wflaws', 'guard', 'role', 'pt', 'ww']) {
         if (p[k] != null && !(Array.isArray(p[k]) && !p[k].length)) row[k] = p[k]
       }
+      // the league's honours that season, in the page's order (accolades())
+      const won = ((awards.players[String(p.id)] || {})[season] || [])
+      if (won.length) row.aw = [...awards.order.filter((c) => won.includes(c)), ...won.filter((c) => !awards.order.includes(c))]
 
       const seen = index.get(p.id)
       if (seen) { seen.from = season; seen.seasons++ }
@@ -372,6 +391,9 @@ export function buildSavantApi({ data, html, valueModel = null }) {
       m: 'Full-season stats by key: [value, league percentile, position percentile]. A stat that is absent was not tracked that season or has no value for him. It is not zero.',
       low: 'Keys of stats whose sample is under the stabilization threshold (metrics[].lowSampleBelow). Quote them with that caveat.',
       w: 'Latest season only. The same m and low for each rolling window (l10, l25, l75), ranked against the same window for everyone else.',
+      aw: 'The league\'s honours that season (MVP, All-NBA, All-Star, Champion and so on), as codes in prestige order; meta.awards has the words. Absent when he won none.',
+      pt: 'Play types (Synergy), recent seasons: by type, [share of his possessions %, points per possession, percentile of his points per possession among players with enough of that type, possessions].',
+      ww: 'With and without: for teammates he shared a season with, his per-game line in the games they played together (w) and apart (wo), with games each way (gw, gwo).',
       settle: 'Season in progress only: for stats whose sample is still smaller than the stat needs, [where the number is likely to settle, league percentile, position percentile], each percentile among every qualified player\'s same estimate. The estimate blends his number with his position\'s average, moved toward his own last season. Quote the actual number as what he has done and this as where it is headed.',
     },
     extras: {
@@ -383,6 +405,8 @@ export function buildSavantApi({ data, html, valueModel = null }) {
       role: 'Inferred Defensive Role, bigs only. perim is Perimeter Assignment Rate, contest is Rim Contest Rate, rimpm is Rim FG% Allowed vs Expected (lower is better). poss is matchup possessions, dfga shots defended. It reflects role, not ability: team scheme drives much of it, and matchup data is least reliable during switches.',
     },
     weakness: cfg.weakness || null,
+    // The league's season honours (row.aw): code -> words, in the page's prestige order
+    awards: awards.order.length ? { order: awards.order, short: awards.short, labels: awards.labels } : null,
     ...(valueModel ? { savant_value: valueMeta(valueModel) } : {}),
   }
 
