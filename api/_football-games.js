@@ -450,7 +450,7 @@ export async function nflGame({ game, season, team, opponent }) {
       const list = hits.slice(0, 25).map(([gid, g]) => ({ id: gid, season: g.s, round: g.n, date: g.d, away: g.a, away_score: g.as, home: g.h, home_score: g.hs, url: `${GAMES_URL}#${gid}` }))
       const structured = { games: list, total: hits.length, game: null, source: SOURCE }
       if (!list.length) return { structured, text: 'No postseason game in Football Savant matches that. It has every playoff game from the 1999 season on.' }
-      return { structured, text: `${hits.length} postseason game${hits.length === 1 ? '' : 's'} match${hits.length > 25 ? ', newest 25' : ''}. Ask again with one id:\n${list.map((g) => `- ${g.id}: ${g.season} ${g.round}, ${g.away} ${g.away_score} at ${g.home} ${g.home_score} (${g.date})`).join('\n')}` }
+      return { structured, text: `${hits.length} postseason game${hits.length === 1 ? '' : 's'} match${hits.length > 25 ? ', newest 25' : ''}. Ask again with one id:\n${list.map((g) => `- ${g.id}: ${g.season} ${g.round}, ${g.away} ${g.away_score} at ${g.home} ${g.home_score} (${g.date})`).join('\n')}\n\nPostseason game pages: ${GAMES_URL}` }
     }
     id = hits[0][0]
   }
@@ -531,7 +531,15 @@ export const tools = [
         season: z.string().trim().max(12).optional().describe('Year the season began, or "career" for a map or route tree. Omit for his latest.'),
         ledger: z.enum(['q', 'r', 't']).optional().describe('Splits only: passing (q), rushing (r) or receiving (t). Omit for his main one.'),
       },
-      outputSchema: { player: row, season: z.string(), view: z.string(), url: z.string(), source: z.string() },
+      outputSchema: {
+        player: row, season: z.string(), view: z.string(), url: z.string(), source: z.string(), notes: z.array(z.string()).optional(),
+        // splits
+        ledger: z.string().optional(), ledgers: z.array(z.string()).optional(), groups: z.array(row).optional(),
+        // maps and the route tree
+        when: z.string().optional(), attempts: z.number().optional(), targets: z.number().optional(), carries: z.number().optional(),
+        cells: z.array(row).optional(), bands: z.array(row).optional(), directions: row.optional(),
+        gaps: z.array(row).optional(), sides: row.optional(), best_gap: row.nullable().optional(), routes: z.array(row).optional(),
+      },
       annotations: { title: 'NFL player splits, maps and route tree', ...READ_ONLY },
     },
     run: (args) => playerSplits(args),

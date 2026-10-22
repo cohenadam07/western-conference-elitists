@@ -440,7 +440,10 @@ export const tools = [
         view: z.enum(['play_types', 'with_without', 'months', 'shots']).default('play_types').describe('Which view.'),
         season: z.string().trim().max(12).optional().describe('e.g. "2025-26". Omit for his latest.'),
       },
-      outputSchema: { player: row, season: z.string(), view: z.string(), url: z.string(), source: z.string() },
+      outputSchema: {
+        player: row, season: z.string(), view: z.string(), url: z.string(), source: z.string(),
+        play_types: z.array(row).optional(), with_without: z.array(row).optional(), months: z.array(row).optional(), shots: row.optional(),
+      },
       annotations: { title: 'NBA player play types and splits', ...READ_ONLY },
     },
     run: (args) => playerSplits(args),
