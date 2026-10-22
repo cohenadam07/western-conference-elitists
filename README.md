@@ -113,7 +113,7 @@ under `/savant-api/<section>/v1/`, with every percentile already worked out:
 
 They are built by one Vite plugin (`scripts/lib/savant-api.mjs`, like the SEO and gzip steps)
 from the data files in `public/` and the rules inside each page, so they refresh with every
-data push and nothing is committed. They add about 26 MB to a deployment. The bulk files are
+data push and nothing is committed. They add about 32 MB to a deployment. The bulk files are
 written gzipped; `vercel.json` rewrites `<name>.json` to `<name>.json.gz` for each pattern.
 
 **The numbers must match the page.** Each slicer reads its page's rules rather than copying
