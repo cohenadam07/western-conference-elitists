@@ -131,6 +131,14 @@ The three arms above stay the head-to-head scoreboard. Everything tried since is
   and no retirement before 21 days and 200 bets with a close. It never adds a Claude arm (those
   cost plan usage); it writes those up as proposals. Its log is `claude/edge-lab-research.md`
   in the project; its instructions are `tools/edge/research-prompt.md` (passcode left out).
+- **The morning email.** A third scheduled task ("Edge Lab: morning email", 7:47 am ET Sunday
+  to Friday; Sunday's covers Friday and Saturday nights) reads `job=edge-review&nights=N`
+  with its own read-only passcode (header `x-edge-digest`, hash only in code,
+  `EDGE_DIGEST_TOKEN_SHA256` replaces it) and writes Adam a summary: portfolios, the scoreboard
+  with what it means, experiments, last night game by game with Claude's notes, anything that
+  went wrong, and a read. Its final message is emailed to him. With `nights`, the review adds
+  each night's games in full, the portfolios and the run log. Instructions:
+  `tools/edge/digest-prompt.md` (passcode left out).
 - The registry is `wce:edge:arms`. The five rule arms registered when experiments began (r1 to
   r5: two blends, the two Claudes averaged, big disagreements only, NO side only) are written
   in `SEED_RULES` in `_edge.js` with their reasons.
