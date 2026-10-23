@@ -87,6 +87,15 @@ export function taskTokenOk(presented) {
 // The weekly researcher (a second scheduled task) has its own token, header x-edge-research,
 // which can only read the review and add or retire rule arms: paper betting rules over
 // forecasts the lab already makes. It can't fetch prompts, post forecasts or read the page.
+// The morning email (a third scheduled task) can only read the review: header x-edge-digest.
+// Only its SHA-256 lives here; EDGE_DIGEST_TOKEN_SHA256 replaces it without a code change.
+const DIGEST_TOKEN_SHA256 = 'bc3d385cf5a89a1f1785c00ba6466b902c4f5093ee548b9c7ed2de0a98a4c7cf'
+export function digestTokenOk(presented) {
+  const want = String(process.env.EDGE_DIGEST_TOKEN_SHA256 || DIGEST_TOKEN_SHA256).toLowerCase()
+  if (!presented || !/^[0-9a-f]{64}$/.test(want)) return false
+  return timingSafeEqual(createHash('sha256').update(String(presented)).digest('hex'), want)
+}
+
 // Only its SHA-256 lives here; EDGE_RESEARCH_TOKEN_SHA256 replaces it without a code change.
 const RESEARCH_TOKEN_SHA256 = '632f6c1121e09430c4428e1239b61643e680b58403ae194493d6e952ccdaabd4'
 export function researchTokenOk(presented) {
@@ -1177,7 +1186,54 @@ const daysSince = (iso) => (Date.now() - Date.parse(iso)) / 86400e3
 
 // Everything the researcher reads: the scoreboard, the experiments, the market's lean, and the
 // last four weeks of bets broken down by arm, side, stat, price and how early they were made.
-export async function runReview() {
+// The last `nights` slates in full, for the morning email: each game with every arm's result
+// (units and dollars), Claude's notes, misses, and each base arm's best and worst bets.
+async function readNights(games, nights, stakes) {
+  const dates = [...new Set(games.filter((g) => g.status === 'decided' || g.status === 'settled').map((g) => g.date))].sort().slice(-nights)
+  const night = games.filter((g) => dates.includes(g.date)).sort((a, b) => Date.parse(a.tip) - Date.parse(b.tip))
+  const blobs = night.length ? await redisPipeline(night.map((g) => ['GET', KEY.bets(g.key)])) : []
+  const r2 = (x) => Math.round(x * 100) / 100
+  return dates.map((date) => ({
+    date,
+    games: night.map((g, i) => ({ g, bb: parseJSONSafe(blobs[i]?.result, { bets: [], notes: {} }) })).filter(({ g }) => g.date === date).map(({ g, bb }) => {
+      const byArm = {}
+      for (const b of bb.bets || []) {
+        const a = (byArm[b.arm] = byArm[b.arm] || { bets: 0, wins: 0, losses: 0, voids: 0, units: 0, dollars: 0, staked: 0, clv: [], move: [] })
+        const st = stakes[`${g.key}|${b.arm}|${b.ticker}`]
+        a.bets += 1
+        if (st) { a.dollars += st.pnl; a.staked += st.stake }
+        const r = b.result
+        if (!r) continue
+        if (r.outcome === 'win') a.wins += 1; else if (r.outcome === 'loss') a.losses += 1; else a.voids += 1
+        if (r.outcome !== 'void') a.units += r.pnl || 0
+        if (r.clv != null) a.clv.push(r.clv)
+        if (r.move != null) a.move.push(r.move)
+      }
+      const mean = (xs) => (xs.length ? xs.reduce((t, x) => t + x, 0) / xs.length : null)
+      const arms = Object.fromEntries(Object.entries(byArm).map(([k, a]) => [k, { bets: a.bets, wins: a.wins, losses: a.losses, voids: a.voids, units: r2(a.units),
+        dollars: r2(a.dollars), staked: r2(a.staked), avgClv: mean(a.clv), avgMove: mean(a.move) }]))
+      const line = (b) => {
+        const st = stakes[`${g.key}|${b.arm}|${b.ticker}`]
+        return { player: b.player, bet: `${b.side === 'no' ? 'NO ' : ''}${b.stat} ${b.k}+`, price: b.price, thought: b.side === 'yes' ? b.p : 1 - b.p,
+          actual: b.result?.actual ?? null, outcome: b.result?.outcome || 'open', dollars: st ? r2(st.pnl) : null, clv: b.result?.clv ?? null }
+      }
+      const extremes = {}
+      for (const arm of M.ARMS) {
+        const xs = (bb.bets || []).filter((b) => b.arm === arm && stakes[`${g.key}|${arm}|${b.ticker}`])
+          .sort((x, y) => stakes[`${g.key}|${arm}|${y.ticker}`].pnl - stakes[`${g.key}|${arm}|${x.ticker}`].pnl)
+        if (xs.length) extremes[arm] = { best: xs.slice(0, 2).map(line), worst: xs.slice(-2).reverse().map(line) }
+      }
+      return {
+        key: g.key, matchup: `${g.away} at ${g.home}`, tip: g.tip, status: g.status, leadMin: g.leadMin ?? null, markets: g.markets ?? null,
+        missing: Object.entries(g.arms || {}).filter(([, a]) => a?.error).map(([arm, a]) => `${arm}: ${a.error}`),
+        arms, extremes,
+        notes: Object.fromEntries(Object.entries(bb.notes || {}).filter(([, v]) => v).map(([k, v]) => [k, String(v).slice(0, 700)])),
+      }
+    }),
+  }))
+}
+
+export async function runReview({ nights = 0 } = {}) {
   const games = Object.values(toHash(await redis(['HGETALL', KEY.games]))).map((v) => parseJSONSafe(v, null))
     .filter((g) => g && g.tip && g.status !== 'preparing')
   await refreshAggregates(games).catch(() => 0)
@@ -1206,8 +1262,21 @@ export async function runReview() {
   const breakdown = Object.fromEntries(Object.entries(cut).map(([arm, dims]) => [arm, Object.fromEntries(Object.entries(dims).map(([dim, ks]) =>
     [dim, Object.fromEntries(Object.entries(ks).map(([k, a]) => [k, M.describeBets(a)]))]))]))
 
+  // For the morning email: the last nights in full, the portfolios, and the run log.
+  let extra = {}
+  if (nights > 0) {
+    const pf = await readPortfolios({}).catch(() => null)
+    const runs = ((await redis(['LRANGE', KEY.runs, '0', '39']).catch(() => null)) || []).map((r) => parseJSONSafe(r, null)).filter(Boolean)
+    extra = {
+      nights: await readNights(games, Math.min(nights, 7), pf?.stakes || {}),
+      portfolios: pf ? { config: pf.config, arms: pf.arms, closes: pf.closes.slice(-14), night: pf.night, nightOpen: pf.nightOpen, live: pf.live } : null,
+      runs: runs.map((r) => ({ at: r.at, job: r.job, status: r.status, note: r.note || null, error: r.error || null, decided: r.decided, closed: r.closed, settled: r.settled, waiting: r.waiting })),
+    }
+  }
+
   return {
     ok: true, job: 'edge-review', asOf: new Date().toISOString(),
+    ...extra,
     base: { arms: edge.arms, headToHead: edge.armsCommon, status: edge.status, daily: edge.daily },
     experiments: exp,
     breakdownSince: since, breakdown,

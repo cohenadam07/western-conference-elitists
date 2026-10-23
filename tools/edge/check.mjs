@@ -444,3 +444,12 @@ test('the researcher: its template never holds a passcode, and its calls match t
   assert.match(t, /Never add a Claude arm/)
   for (const f of ['source', 'side', 'stats', 'minEdge']) assert.match(t, new RegExp(`"${f}"`))
 })
+
+test('the morning email: its template never holds a passcode, and it can only read', () => {
+  const t = readFileSync(new URL('./digest-prompt.md', import.meta.url), 'utf8')
+  assert.match(t, /\{\{TOKEN\}\}/)
+  assert.doesNotMatch(t, /[0-9a-f]{40,}/)
+  assert.match(t, /job=edge-review&nights=N/)
+  assert.doesNotMatch(t, /edge-arm|edge-answer|edge-queue/)
+  assert.match(t, /x-edge-digest/)
+})
