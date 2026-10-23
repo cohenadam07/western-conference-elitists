@@ -40,6 +40,7 @@ import path from 'node:path'
 import { gzipSync } from 'node:zlib'
 import { writeCoachingApi } from './savant-api-coaching.mjs'
 import { writeDraftApi } from './savant-api-draft.mjs'
+import { writeDynastyCards } from './dynasty-cards.mjs'
 import { writeFootballApi } from './savant-api-football.mjs'
 import { writeSiteApi } from './savant-api-site.mjs'
 import { writeUfcApi } from './savant-api-ufc.mjs'
@@ -505,6 +506,15 @@ export function writeAll({ publicDir, dist, log = console.log, warn = console.wa
     }
   }
   log(`  savant-api: ${mb(bytes)} MB on disk in all${failed ? `, ${failed} section${failed === 1 ? '' : 's'} skipped` : ''}`)
+  // Dynasty Exchange's swipe cards read the basketball and draft files written above, so they
+  // go last. Same rule as the sections: a failure is logged, never fatal. Without the file the
+  // swipe mode falls back to the board's own name, team and points line.
+  try {
+    const r = writeDynastyCards({ publicDir, dist })
+    log(`  dynasty/cards: ${r.summary}, ${mb(r.bytes)} MB`)
+  } catch (e) {
+    warn(`  dynasty/cards: SKIPPED, not written — ${e.message}`)
+  }
   return { bytes, failed }
 }
 
