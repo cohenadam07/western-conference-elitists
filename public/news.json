@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-23T03:35:12.466843+00:00",
+  "generated_at": "2026-10-23T12:06:35.931779+00:00",
   "headlines": [
     {
       "id": "d06cf502c5f3c56e",
@@ -11,7 +11,7 @@
         "RealGM",
         "ESPN NBA"
       ],
-      "wce_line": "Lendeborg's NBA debut against Dončić was marked by intense trash-talking and physical play, with the rookie openly expressing his lack of respect for the MVP candidate after the game.",
+      "wce_line": "Lendeborg's NBA debut against Dončić was marked by intense trash-talking and physical play, with the rookie expressing he had lost all respect for the MVP candidate after the game.",
       "players": [
         {
           "name": "Yaxel Lendeborg",
@@ -22,6 +22,72 @@
           "savant_url": "/basketball-savant.html?p=1629029"
         }
       ]
+    },
+    {
+      "id": "a124c8831cb1ef83",
+      "title": "Clippers coach Ty Lue dedicates opening night win to suspended Steve Ballmer: 'We're still fighting for him'",
+      "url": "https://www.cbssports.com/nba/news/clippers-ty-lue-dedicates-win-steve-ballmer/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-10-22T15:06:49+00:00",
+      "also_covered_by": [
+        "RealGM",
+        "Yahoo Sports NBA"
+      ],
+      "wce_line": "The Clippers' win over the Kings was dedicated to suspended owner Steve Ballmer by coach Ty Lue, who called him \"one of the best men I know.\"",
+      "players": []
+    },
+    {
+      "id": "35e270436ebbfdfd",
+      "title": "LeBron James Calls 76ers' Home Debut 'Everything I Dreamed Of' After Comeback Win",
+      "url": "https://basketball.realgm.com/wiretap/287841/LeBron-James-Calls-76ers-Home-Debut-Everything-I-Dreamed-Of-After-Comeback-Win",
+      "outlet": "RealGM",
+      "published": "2026-10-23T05:29:52+00:00",
+      "also_covered_by": [
+        "Yahoo Sports NBA"
+      ],
+      "wce_line": "LeBron James' home debut with the Philadelphia 76ers included a historic comeback victory after trailing by 29 points at halftime.",
+      "players": [
+        {
+          "name": "LeBron James",
+          "savant_url": "/basketball-savant.html?p=2544"
+        }
+      ]
+    },
+    {
+      "id": "252cb94a225d8978",
+      "title": "Knicks Reportedly Interested In Dalton Knecht",
+      "url": "https://www.hoopsrumors.com/2026/10/knicks-reportedly-interested-in-dalton-knecht.html",
+      "outlet": "Hoops Rumors",
+      "published": "2026-10-22T22:45:01+00:00",
+      "also_covered_by": [
+        "RealGM"
+      ],
+      "wce_line": "The Knicks' interest in Dalton Knecht for a two-way contract contrasts with their current roster, which already includes Kevin McCullar Jr., Tyler Nickel, and Jaden Akins on similar deals.",
+      "players": []
+    },
+    {
+      "id": "8f82ccc0a143482b",
+      "title": "Michigan's Gayle Jr. cleared for 5th season of college hoops",
+      "url": "https://www.espn.com/mens-college-basketball/story/_/id/50251232/michigan-roddy-gayle-jr-cleared-5th-season-college-hoops",
+      "outlet": "ESPN College Basketball",
+      "published": "2026-10-22T20:03:28+00:00",
+      "also_covered_by": [
+        "RealGM"
+      ],
+      "wce_line": "Gayle Jr., who began his career at Ohio State, will return for his fifth year with Michigan's defending championship team.",
+      "players": []
+    },
+    {
+      "id": "0fbd0e2f5b55f227",
+      "title": "How To Watch And Live Stream Utah Jazz vs New Orleans Pelicans NBA Game Tonight: TV Channels, Team News, Start Time",
+      "url": "https://basketball.realgm.com/wiretap/287815/How-To-Watch-And-Live-Stream-Utah-Jazz-vs-New-Orleans-Pelicans-NBA-Game-Tonight-TV-Channels-Team-News-Start-Time",
+      "outlet": "RealGM",
+      "published": "2026-10-21T18:50:13+00:00",
+      "also_covered_by": [
+        "Yahoo Sports NBA"
+      ],
+      "wce_line": "The Utah Jazz struggled in their opener, while the New Orleans Pelicans narrowly missed victory against the Indiana Pacers.",
+      "players": []
     },
     {
       "id": "c4f49592fbfbd2a5",
@@ -36,18 +102,6 @@
       "players": []
     },
     {
-      "id": "252cb94a225d8978",
-      "title": "Knicks Reportedly Interested In Dalton Knecht",
-      "url": "https://www.hoopsrumors.com/2026/10/knicks-reportedly-interested-in-dalton-knecht.html",
-      "outlet": "Hoops Rumors",
-      "published": "2026-10-22T22:45:01+00:00",
-      "also_covered_by": [
-        "Yahoo Sports NBA"
-      ],
-      "wce_line": "Dalton Knecht, waived by the Lakers due to roster constraints, could join the Knicks on a two-way contract, potentially displacing Tyler Nickel.",
-      "players": []
-    },
-    {
       "id": "c6cb7bfc111d9b98",
       "title": "Olympiacos Pursuing John Konchar",
       "url": "https://basketball.realgm.com/wiretap/287827/Olympiacos-Pursuing-John-Konchar",
@@ -56,32 +110,53 @@
       "also_covered_by": [
         "Hoops Rumors"
       ],
-      "wce_line": "Olympiacos is exploring options after multiple key players left or faced setbacks, including Evan Fournier's injury and Tyler Dorsey's suspension.",
+      "wce_line": "Olympiacos is exploring options after losing multiple key players including Shaquielle McKissic and Evan Fournier, and suspending Tyler Dorsey.",
       "players": []
     },
     {
-      "id": "a124c8831cb1ef83",
-      "title": "Clippers coach Ty Lue dedicates opening night win to suspended Steve Ballmer: 'We're still fighting for him'",
-      "url": "https://www.cbssports.com/nba/news/clippers-ty-lue-dedicates-win-steve-ballmer/",
-      "outlet": "CBS Sports NBA",
-      "published": "2026-10-22T15:06:49+00:00",
-      "also_covered_by": [
-        "RealGM"
-      ],
-      "wce_line": "The Clippers' victory over the Kings was dedicated to owner Steve Ballmer, who is suspended for the season due to salary cap violations involving Kawhi Leonard.",
-      "players": []
-    },
-    {
-      "id": "f2d451bce8d191f6",
-      "title": "The 76ers immediately looked like a contender, and they still have another level to reach",
-      "url": "https://sports.yahoo.com/articles/76ers-immediately-looked-contender-still-150912434.html",
+      "id": "9c62e3243bc5fb7c",
+      "title": "How the Lakers' Luka Doncic went from 'Wonder Boy' to 'The Man'",
+      "url": "https://sports.yahoo.com/articles/lakers-luka-doncic-went-wonder-110000798.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-22T15:09:12+00:00",
-      "also_covered_by": [
-        "SB Nation NBA"
-      ],
-      "wce_line": "The 76ers' star-laden lineup suggests they could dominate offensively but will need to address defensive vulnerabilities to compete for a championship.",
-      "players": []
+      "published": "2026-10-23T11:00:00+00:00",
+      "also_covered_by": [],
+      "wce_line": "Doncic's leadership style is evolving, becoming more refined as he steps into a larger role with the Lakers after LeBron James' departure.",
+      "players": [
+        {
+          "name": "Luka Doncic",
+          "savant_url": "/basketball-savant.html?p=1629029"
+        }
+      ]
+    },
+    {
+      "id": "abf1eb75777d22c1",
+      "title": "Shai Gilgeous-Alexander's historic streak of 20-point games is over",
+      "url": "https://sports.yahoo.com/articles/shai-gilgeous-alexanders-historic-streak-042119560.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-23T04:21:19+00:00",
+      "also_covered_by": [],
+      "wce_line": "Shai Gilgeous-Alexander ended his streak of 141 consecutive games scoring at least 20 points when he scored only 17 in the Thunder's recent victory against the Denver Nuggets.",
+      "players": [
+        {
+          "name": "Shai Gilgeous-Alexander",
+          "savant_url": "/basketball-savant.html?p=1628983"
+        }
+      ]
+    },
+    {
+      "id": "5188d71af5a31301",
+      "title": "LeBron James laughs off President Trump's criticism about national anthem, Sixers coach calls it 'outside noise'",
+      "url": "https://sports.yahoo.com/nba/article/lebron-james-laughs-off-president-trumps-criticism-about-national-anthem-sixers-coach-calls-it-outside-noise-040724437.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-23T04:07:24+00:00",
+      "also_covered_by": [],
+      "wce_line": "LeBron James dismissed President Trump's criticism as irrelevant, focusing instead on the Sixers' recent comeback victory against the Cavaliers.",
+      "players": [
+        {
+          "name": "LeBron James",
+          "savant_url": "/basketball-savant.html?p=2544"
+        }
+      ]
     },
     {
       "id": "21b91e6e439a9923",
@@ -90,7 +165,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-23T02:21:27+00:00",
       "also_covered_by": [],
-      "wce_line": "Peyton Watson struggled offensively, failing to find his rhythm and making little impact on the game.",
+      "wce_line": "Peyton Watson struggled offensively, failing to find his rhythm and contributing few points despite showing promise on defense.",
       "players": [
         {
           "name": "Peyton Watson",
@@ -105,7 +180,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-23T02:02:38+00:00",
       "also_covered_by": [],
-      "wce_line": "The comeback was the largest of LeBron James' 24 NBA seasons and the biggest for the 76ers or the worst blowout loss for the Cavaliers in the play-by-play era.",
+      "wce_line": "The comeback was the largest of LeBron James' 24-year NBA career and marked a historic turnaround for the Philadelphia 76ers.",
       "players": [
         {
           "name": "LeBron James",
@@ -114,13 +189,13 @@
       ]
     },
     {
-      "id": "9a81371a961c4f7f",
-      "title": "76ers stun Cavaliers for largest comeback win in LeBron James' career",
-      "url": "https://sports.yahoo.com/articles/76ers-stun-cavaliers-largest-comeback-185646804.html",
+      "id": "7e459014b884f519",
+      "title": "76ers rally from 29-point deficit for biggest comeback of LeBron James' career to win home opener over Cavs, 114-106",
+      "url": "https://sports.yahoo.com/nba/article/76ers-rally-from-29-point-deficit-for-biggest-comeback-of-lebron-james-career-to-win-home-opener-over-cavs-114-106-024439314.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-22T18:56:46+00:00",
+      "published": "2026-10-23T01:58:24+00:00",
       "also_covered_by": [],
-      "wce_line": "The Sixers' home opener was marred by turnovers and missed shots, struggling to find their rhythm against the Cavaliers despite their star power.",
+      "wce_line": "The 76ers' comeback erased a 29-point deficit in their home opener, marking the biggest reversal in LeBron James' 24-year NBA career.",
       "players": [
         {
           "name": "LeBron James",
@@ -135,7 +210,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-23T01:32:21+00:00",
       "also_covered_by": [],
-      "wce_line": "VJ Edgecombe stood patiently after being treated for a bloody nose from an accidental elbow by LeBron James during the Philadelphia 76ers' game against the Cleveland Cavaliers.",
+      "wce_line": "Edgecombe stood for several moments after the incident, showing patience as a trainer treated his injured nose.",
       "players": [
         {
           "name": "LeBron James",
@@ -154,11 +229,26 @@
       "outlet": "RealGM",
       "published": "2026-10-23T01:28:47+00:00",
       "also_covered_by": [],
-      "wce_line": "Anthony Davis' return brought excitement and scoring, but Washington may hesitate to offer him a max contract due to his age and injury history.",
+      "wce_line": "Anthony Davis expressed his desire for a packed arena during his Wizards debut, despite the crowd of 18,805 making the game enjoyable.",
       "players": [
         {
           "name": "Anthony Davis",
           "savant_url": "/basketball-savant.html?p=203076"
+        }
+      ]
+    },
+    {
+      "id": "4ffd2c3c76e02469",
+      "title": "Knicks looking forward to seeing Mitchell Robinson — even in a Celtics  jersey",
+      "url": "https://sports.yahoo.com/articles/knicks-looking-forward-seeing-mitchell-012629492.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-23T01:26:29+00:00",
+      "also_covered_by": [],
+      "wce_line": "Karl-Anthony Towns describes the upcoming matchup as \"bittersweet,\" acknowledging both the competitive aspect and the emotional farewell to a teammate and friend.",
+      "players": [
+        {
+          "name": "Mitchell Robinson",
+          "savant_url": "/basketball-savant.html?p=1629011"
         }
       ]
     },
@@ -169,11 +259,41 @@
       "outlet": "RealGM",
       "published": "2026-10-23T01:25:12+00:00",
       "also_covered_by": [],
-      "wce_line": "Walker Kessler's debut performance was so impressive it hasn't been matched by a Laker since Wilt Chamberlain in 1969.",
+      "wce_line": "Walker Kessler's debut performance was highly impressive, setting records and earning praise from Luka Doncic.",
       "players": [
         {
           "name": "Luka Doncic",
           "savant_url": "/basketball-savant.html?p=1629029"
+        }
+      ]
+    },
+    {
+      "id": "20eafd569a2fb16b",
+      "title": "How LeBron James acted this time after national anthem — and Trump’s evisceration",
+      "url": "https://sports.yahoo.com/articles/lebron-james-acted-time-national-004451607.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-23T00:44:51+00:00",
+      "also_covered_by": [],
+      "wce_line": "LeBron James maintained his composed demeanor during the national anthem, standing still and silent, in contrast to his animated gestures seen previously.",
+      "players": [
+        {
+          "name": "LeBron James",
+          "savant_url": "/basketball-savant.html?p=2544"
+        }
+      ]
+    },
+    {
+      "id": "93062c0424e3300b",
+      "title": "Karl-Anthony Towns’ continued foul trouble no laughing matter for Knicks",
+      "url": "https://sports.yahoo.com/articles/karl-anthony-towns-continued-foul-001137459.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-23T00:11:37+00:00",
+      "also_covered_by": [],
+      "wce_line": "Towns' offensive fouls continue to limit his playing time and impact the Knicks' strategy.",
+      "players": [
+        {
+          "name": "Karl-Anthony Towns",
+          "savant_url": "/basketball-savant.html?p=1626157"
         }
       ]
     },
@@ -184,7 +304,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-22T23:43:24+00:00",
       "also_covered_by": [],
-      "wce_line": "James Harden faced intense fan disapproval, being loudly booed multiple times during his first game back with the 76ers against the Cavaliers.",
+      "wce_line": "James Harden faced intense fan backlash, including multiple rounds of boos, during his first game back with the 76ers against the Cavaliers.",
       "players": [
         {
           "name": "James Harden",
@@ -199,7 +319,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-22T22:40:58+00:00",
       "also_covered_by": [],
-      "wce_line": null,
+      "wce_line": "The Wizards' home opener saw a noticeable increase in crowd support, with Anthony Davis noting it helped power their victory over the Bucks.",
       "players": [
         {
           "name": "Anthony Davis",
@@ -208,13 +328,13 @@
       ]
     },
     {
-      "id": "c7de721c30a65280",
-      "title": "Luka Dončić’s interview with ESPN’s Malika Andrews goes viral after Lakers win",
-      "url": "https://sports.yahoo.com/articles/luka-don-interview-espn-malika-155546125.html",
+      "id": "21679535a249b1aa",
+      "title": "Malika Andrews makes playful Luka Dončić post after viral Lakers interview",
+      "url": "https://sports.yahoo.com/articles/malika-andrews-makes-playful-luka-220936697.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-22T15:55:46+00:00",
+      "published": "2026-10-22T22:09:36+00:00",
       "also_covered_by": [],
-      "wce_line": "The viral clip features Luka Dončić and ESPN's Malika Andrews smiling together, sparking fan imagination despite their personal statuses.",
+      "wce_line": "Malika Andrews shared a playful moment with Luka Dončić after his viral interview, highlighting their growing rapport.",
       "players": [
         {
           "name": "Luka Doncic",
@@ -229,7 +349,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-22T22:07:22+00:00",
       "also_covered_by": [],
-      "wce_line": "Stephen A. Smith praised Yaxel Lendeborg for standing up to Luka Dončić, calling out the NBA for quick fouls against the rookie.",
+      "wce_line": "Stephen A. Smith praised Yaxel Lendeborg for standing up to Luka Dončić, calling out the superstar's tendency to complain to referees.",
       "players": [
         {
           "name": "Yaxel Lendeborg",
@@ -248,7 +368,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-22T21:33:20+00:00",
       "also_covered_by": [],
-      "wce_line": "Porzingis' absence has forced Draymond Green to shift to center more frequently, increasing his defensive responsibilities.",
+      "wce_line": "Porzingis' indefinite absence has forced Draymond Green to take on more center duties, impacting his defensive responsibilities for the Warriors.",
       "players": [
         {
           "name": "Stephen Curry",
@@ -263,7 +383,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-22T21:28:21+00:00",
       "also_covered_by": [],
-      "wce_line": "Williams enjoyed watching Dončić engage in trash talk with Lendeborg, preferring to be on Dončić's side rather than facing his verbal jabs.",
+      "wce_line": "Williams enjoyed watching Dončić engage in trash talk with Lendeborg, preferring to be on the same team as the Slovenian superstar.",
       "players": [
         {
           "name": "Ziaire Williams",
@@ -312,7 +432,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-22T20:36:00+00:00",
       "also_covered_by": [],
-      "wce_line": "The National Basketball Referees Association emphasized that LaMelo Ball's four-step move after gathering the ball should have been called a traveling violation.",
+      "wce_line": "The National Basketball Referees Association highlighted that LaMelo Ball's controversial play should have been called a traveling violation according to official rules.",
       "players": [
         {
           "name": "LaMelo Ball",
@@ -327,131 +447,7 @@
       "outlet": "CBS Sports NBA",
       "published": "2026-10-22T20:33:59+00:00",
       "also_covered_by": [],
-      "wce_line": "The NBA's official referee account confirmed that LaMelo Ball's four-step double stepback should have been called a travel violation.",
-      "players": [
-        {
-          "name": "LaMelo Ball",
-          "savant_url": "/basketball-savant.html?p=1630163"
-        }
-      ]
-    },
-    {
-      "id": "dd6c1d5c2254e145",
-      "title": "Paul George draws NBA season's first fine for flopping after league reviews Celtics-Pistons game",
-      "url": "https://sports.yahoo.com/nba/article/paul-george-draws-nba-seasons-first-fine-for-flopping-after-league-reviews-celtics-pistons-game-200222934.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-22T20:02:22+00:00",
-      "also_covered_by": [],
-      "wce_line": "Paul George received the NBA's first fine of the season for flopping after a review of a play against the Detroit Pistons.",
-      "players": [
-        {
-          "name": "Paul George",
-          "savant_url": "/basketball-savant.html?p=202331"
-        }
-      ]
-    },
-    {
-      "id": "b7c8e548864718d5",
-      "title": "The Marcus Sasser opening game experience leaves Mavericks fans wanting more",
-      "url": "https://sports.yahoo.com/articles/marcus-sasser-opening-game-experience-200000564.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-22T20:00:00+00:00",
-      "also_covered_by": [],
-      "wce_line": "Marcus Sasser demonstrated poise and made key plays despite limited statistical output in his debut with the Dallas Mavericks.",
-      "players": [
-        {
-          "name": "Marcus Sasser",
-          "savant_url": "/basketball-savant.html?p=1631204"
-        }
-      ]
-    },
-    {
-      "id": "b7c133df8ce70781",
-      "title": "After igniting Anthony Edwards with trash talk, Heat reserve Myron Gardner advised by coach to 'be better'",
-      "url": "https://www.cbssports.com/nba/news/myron-gardner-anthony-edwards-trash-talk-heat-timberwolves/",
-      "outlet": "CBS Sports NBA",
-      "published": "2026-10-22T19:58:32+00:00",
-      "also_covered_by": [],
-      "wce_line": "Gardner has faced consequences for his trash talk, including an ejection and fine in a previous altercation.",
-      "players": [
-        {
-          "name": "Anthony Edwards",
-          "savant_url": "/basketball-savant.html?p=1630162"
-        },
-        {
-          "name": "Myron Gardner",
-          "savant_url": "/basketball-savant.html?p=1642066"
-        }
-      ]
-    },
-    {
-      "id": "8ab4b4797c38fe8d",
-      "title": "Devin Booker attempts zero threes in Suns’ season-opening 41-point loss",
-      "url": "https://sports.yahoo.com/articles/devin-booker-attempts-zero-threes-190000260.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-22T19:00:00+00:00",
-      "also_covered_by": [],
-      "wce_line": "Devin Booker did not attempt a single three-pointer in the Suns' season-opening loss, despite his team's desperate need for points.",
-      "players": [
-        {
-          "name": "Devin Booker",
-          "savant_url": "/basketball-savant.html?p=1626164"
-        }
-      ]
-    },
-    {
-      "id": "66b502e0baa32bcc",
-      "title": "Walker Kessler had a historic debut against the Warriors",
-      "url": "https://sports.yahoo.com/articles/walker-kessler-had-historic-debut-180023571.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-22T18:00:23+00:00",
-      "also_covered_by": [],
-      "wce_line": "Walker Kessler's historic 12-for-12 shooting performance in his Lakers debut included five dunks from Luka Dončić, showcasing their dynamic chemistry on the court.",
-      "players": [
-        {
-          "name": "Walker Kessler",
-          "savant_url": "/basketball-savant.html?p=1631117"
-        }
-      ]
-    },
-    {
-      "id": "c7402544c0fb5850",
-      "title": "Ant erupts, Lakers roll, Ty Jerome shines + more NBA season opener thoughts with Amin Elhassan",
-      "url": "https://sports.yahoo.com/nba/article/ant-erupts-lakers-roll-ty-jerome-shines--more-nba-season-opener-thoughts-with-amin-elhassan-172603191.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-22T17:26:03+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Warriors explore trades for Kristaps Porzingis to bolster their uncertain future.",
-      "players": [
-        {
-          "name": "Ty Jerome",
-          "savant_url": "/basketball-savant.html?p=1629660"
-        }
-      ]
-    },
-    {
-      "id": "3b6af96ed99a05c2",
-      "title": "Draymond Green wants to retire a Warrior, but plans to play in 2027-28 season",
-      "url": "https://sports.yahoo.com/articles/draymond-green-wants-retire-warrior-165359129.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-22T16:53:59+00:00",
-      "also_covered_by": [],
-      "wce_line": "Green sees at least one more season in his professional career but acknowledges the possibility it could be his final year with the Warriors.",
-      "players": [
-        {
-          "name": "Draymond Green",
-          "savant_url": "/basketball-savant.html?p=203110"
-        }
-      ]
-    },
-    {
-      "id": "990e4b8f9ecc2bec",
-      "title": "LaMelo Ball got away with the most blatant travel you will ever see",
-      "url": "https://sports.yahoo.com/articles/lamelo-ball-got-away-most-164317235.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-22T16:43:17+00:00",
-      "also_covered_by": [],
-      "wce_line": "The official NBA referees account acknowledged the call was missed, despite clear rules violations by LaMelo Ball.",
+      "wce_line": "The NBA's official referee account confirmed that LaMelo Ball's four-step double stepback should have been called a travel during his game against the Miami Heat.",
       "players": [
         {
           "name": "LaMelo Ball",
@@ -462,6 +458,18 @@
   ],
   "analytics": [
     {
+      "id": "8409c13c131a4c29",
+      "title": "Why NBA Lines Are Softest in the First Three Weeks",
+      "url": "https://www.nbastuffer.com/early-season-nba-line-mispricing/",
+      "outlet": "NBAstuffer",
+      "published": "2026-10-23T11:35:17+00:00",
+      "authors": [
+        "nbastuffer.com"
+      ],
+      "wce_line": "The first three weeks feature unstable numbers due to small sample sizes and shifting rules affecting team ratings.",
+      "source_type": "article"
+    },
+    {
       "id": "967bc41a85ff80d1",
       "title": "NBA 2K’s MyTEAM, From the Belgian Shutdown to NBA 2K27: A Beginner’s Guide",
       "url": "https://www.nbastuffer.com/how-online-slot-games-work-a-beginners-guide/",
@@ -470,7 +478,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article explains how in 2018, 2K stopped selling MyTEAM packs for premium currency in Belgium due to gambling concerns from regulators.",
+      "wce_line": "In 2018, 2K stopped selling MyTEAM packs for premium currency in Belgium due to gambling law concerns from the Belgium Gaming Commission.",
       "source_type": "article"
     },
     {
@@ -494,7 +502,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article provides an in-season Excel spreadsheet for accessing current NBA datasets, updating every 2 to 4 hours post-game.",
+      "wce_line": "The article provides an Excel spreadsheet for accessing live NBA datasets throughout the season, with updates every 2 to 4 hours after games end.",
       "source_type": "article"
     },
     {
@@ -506,7 +514,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The study analyzed referee performance metrics across various games, including foul calls and percentages for each official.",
+      "wce_line": "The article provides detailed game-by-game NBA referee stats in Excel, updating them within 2 to 4 hours post-game.",
       "source_type": "article"
     },
     {
@@ -518,7 +526,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The site offers customizable tools to analyze NBA player stats, allowing users to sort data and build custom searches for specific criteria.",
+      "wce_line": "The site offers customizable tools to analyze detailed NBA player statistics, allowing users to compare and filter data based on specific criteria for the 2026-2027 season.",
       "source_type": "article"
     },
     {
@@ -530,7 +538,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article provides regularly updated Excel datasets for NBA teams, allowing users to analyze game-by-game logs and perform custom searches.",
+      "wce_line": "The article provides daily updated Excel datasets of NBA team stats for the 2026-2027 season, including regular and road splits.",
       "source_type": "article"
     },
     {
@@ -542,7 +550,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses Philadelphia's new strategy but requires membership to read full details.",
+      "wce_line": "The article discusses Philadelphia's new strategy but requires membership to read further details.",
       "source_type": "article"
     },
     {
@@ -554,7 +562,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The Spurs' 62-20 regular season included a plus-8.3 net rating, ranking second in the league, showcasing both strong offense and defense.",
+      "wce_line": "The Spurs' 2025-26 season featured a net rating of plus-8.3, second-best in the league, highlighting their balanced offensive and defensive prowess.",
       "source_type": "article"
     },
     {
@@ -566,7 +574,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how LaMelo Ball's presence impacts both on and off the court for the Minnesota Wolves.",
+      "wce_line": "The article analyzes how LaMelo Ball impacts both on and off the court for the Minnesota Wolves.",
       "source_type": "article"
     },
     {
@@ -578,7 +586,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how Boston's defensive strategy impacts team performance.",
+      "wce_line": "The article analyzes how Boston's defensive strategy impacts their performance.",
       "source_type": "article"
     },
     {
@@ -590,7 +598,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Prediction markets have become a significant factor in shaping narratives around NBA teams' chances for the 2026-27 season.",
+      "wce_line": "Prediction markets have become a significant factor in shaping narratives around team values and championship odds for the 2026-27 NBA season.",
       "source_type": "article"
     },
     {
@@ -602,19 +610,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Offensive rebounding rate will be crucial for Philadelphia, as limiting New York's second chances could prevent extra defensive workload accumulation.",
-      "source_type": "article"
-    },
-    {
-      "id": "a9ea10dac7845146",
-      "title": "What Changes in a Player’s Numbers When a Star Teammate Misses Games?",
-      "url": "https://www.nbastuffer.com/what-changes-in-a-players-numbers-when-a-star-teammate-misses-games/",
-      "outlet": "NBAstuffer",
-      "published": "2026-09-29T05:09:54+00:00",
-      "authors": [
-        "nbastuffer.com"
-      ],
-      "wce_line": "When a star misses games, teammates' counting stats often rise due to increased minutes and shots, but their efficiency usually declines as usage rates go up.",
+      "wce_line": "Offensive rebounding rate will be crucial for the Philadelphia 76ers against the New York Knicks, as securing defensive rebounds could significantly impact the game's flow.",
       "source_type": "article"
     },
     {
@@ -627,7 +623,7 @@
         "Abhijit Brahme",
         "Alexander Franks"
       ],
-      "wce_line": "The study found that athleticism-related skills like blocks and rebounds peak earlier than shooting skills, around a player's early twenties versus their mid-twenties or later.",
+      "wce_line": "The study found that athleticism-related skills like blocks and rebounds peak earlier than shooting accuracy, which peaks later in NBA players' careers.",
       "source_type": "paper"
     },
     {
@@ -640,7 +636,7 @@
         "Yang Zhou",
         "Tianyu Guan"
       ],
-      "wce_line": "The review identifies gaps in NBA analytics, particularly at interfaces combining individual component predictions into actionable decisions across different contexts.",
+      "wce_line": "The review identifies gaps in NBA analytics where individual component predictions fail to bridge to complex, real-world decisions.",
       "source_type": "paper"
     },
     {
@@ -669,7 +665,7 @@
         "Carmen Armero",
         "Virgilio Gómez-Rubio"
       ],
-      "wce_line": "The study uses Bayesian networks to analyze the Philadelphia 76ers' performance across multiple seasons, considering factors like player stats and shot outcomes.",
+      "wce_line": "The study uses Bayesian networks to analyze the performance of the Philadelphia 76ers over time based on various player statistics.",
       "source_type": "paper"
     },
     {
@@ -682,7 +678,7 @@
         "Nirek Duma",
         "Leo Benaharon"
       ],
-      "wce_line": "The study found that increasing rim attempts while decreasing midrange and perimeter shots could improve overall team performance according to an optimized model.",
+      "wce_line": "The study found that increasing rim attempts while decreasing midrange and perimeter shots could improve team performance by accounting for continuation effects and shot variance.",
       "source_type": "paper"
     },
     {
@@ -694,7 +690,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "This article analyzes how the San Antonio Spurs exploited weaknesses in the New York Knicks' defensive strategy.",
+      "wce_line": "The article analyzes how the San Antonio Spurs exploited New York Knicks defensive weaknesses.",
       "source_type": "article"
     },
     {
@@ -706,7 +702,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how New York's defensive strategies have improved KAT's performance.",
+      "wce_line": "The article analyzes how New York's defensive strategy has improved Karl-Anthony Towns' performance.",
       "source_type": "article"
     },
     {
@@ -718,7 +714,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "This article explores how regular-season performance correlates with NBA Finals success.",
+      "wce_line": "The article explores how regular-season performance correlates with NBA Finals success.",
       "source_type": "article"
     },
     {
@@ -730,7 +726,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes Oklahoma City's strategic approach to defend against a key player named Wemby.",
+      "wce_line": "The article analyzes Oklahoma City's strategic approach to contain Wemby's performance.",
       "source_type": "article"
     },
     {
@@ -742,7 +738,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how the Spurs adjusted their defensive strategies and Oklahoma City's focus on scoring against Dejounte Murray.",
+      "wce_line": "The article discusses how the Spurs adjusted their defensive strategies and Oklahoma City's focus on scoring against DeMar DeRozan.",
       "source_type": "article"
     },
     {
@@ -754,7 +750,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how the Oklahoma City Thunder adjusted their offensive strategies, including creating a new role for a player nicknamed \"Wemby.\"",
+      "wce_line": "The article discusses how Oklahoma City adjusted their offense, introducing new plays like the \"Wemby blocker.\"",
       "source_type": "article"
     },
     {
@@ -766,7 +762,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzed how the Spurs used defensive tactics to limit Sacramento's scoring opportunities in Game 1.",
+      "wce_line": "The article analyzes how the Spurs used defensive tactics to limit Sacramento's scoring opportunities in Game 1.",
       "source_type": "article"
     },
     {
