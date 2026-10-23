@@ -96,13 +96,18 @@ let poolCache = null
 let poolAt = 0
 
 // id -> [Guard|Wing|Big, rookie, age], written at build time by scripts/lib/dynasty-cards.mjs.
-// When it is missing (local dev, a build that skipped it) the board's own positions stand in.
+// Fetched from this deployment, because it is a build output and not in the function bundle.
+// A protected preview answers that fetch with its login page, so the fallback is the board's
+// own player file (bundled with the function through vercel.json includeFiles), with the
+// board's PG..C folded into guards, wings and bigs.
 export async function loadPool(req, fallbackPlayers) {
   if (poolCache && Date.now() - poolAt < 3600e3) return poolCache
   try {
     const proto = (req.headers['x-forwarded-proto'] || 'https').split(',')[0]
     const host = req.headers['x-forwarded-host'] || req.headers.host
-    const r = await fetch(`${proto}://${host}/dynasty/swipe-pool.json`)
+    const headers = process.env.VERCEL_AUTOMATION_BYPASS_SECRET
+      ? { 'x-vercel-protection-bypass': process.env.VERCEL_AUTOMATION_BYPASS_SECRET } : {}
+    const r = await fetch(`${proto}://${host}/dynasty/swipe-pool.json`, { headers })
     if (r.ok && (r.headers.get('content-type') || '').includes('json')) {
       const doc = await r.json()
       if (doc && doc.players && Object.keys(doc.players).length) {
@@ -110,9 +115,17 @@ export async function loadPool(req, fallbackPlayers) {
       }
     }
   } catch { /* fall through */ }
+  let players = fallbackPlayers || []
+  if (!players.length) {
+    try {
+      const { readFileSync } = await import('node:fs')
+      const path = await import('node:path')
+      players = JSON.parse(readFileSync(path.join(process.cwd(), 'public', 'dynasty', 'players.json'), 'utf8')).players || []
+    } catch { players = [] }
+  }
   const map = { PG: 'Guard', SG: 'Guard', SF: 'Wing', PF: 'Big', C: 'Big' }
   const out = {}
-  for (const p of fallbackPlayers || []) out[p.id] = [map[p.pos] || null, p.rookie ? 1 : 0, p.age ?? null]
+  for (const p of players) out[p.id] = [map[p.pos] || null, p.rookie ? 1 : 0, p.age ?? null]
   return out
 }
 
