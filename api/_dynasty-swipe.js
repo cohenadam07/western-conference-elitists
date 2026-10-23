@@ -41,11 +41,17 @@
 // for a run of fifteen, where fifteen four-player ballots would cost well over three hundred.
 //
 // YOUR HISTORY
-// Every batch is kept against the browser's id, newest first, the last LOG_KEEP of them:
-// which matchup, who you took, how long you looked. `swipe-me` reads it back. Nothing else is
-// tied to it: no name, no address, no account. How that history gets used is undecided, so it
-// is stored raw and complete enough to answer questions nobody has asked yet.
+// Everything a browser does is kept against its id, raw, because how it gets used is still
+// undecided: every batch (each matchup, who you took, how long you looked, the market's odds
+// at that moment, how many times you hit undo, which #1 of the session the run was for), a
+// personal board priced by your swipes alone, your record for and against every player, and
+// how often each player has been your #1 in each pool. `swipe-me` reads all of it back. No
+// name, no address, no account.
 //
+// RUNS ARE SHAREABLE
+// A run is also kept under its own id, so /dynasty?run=<id> can show anyone every pick in it:
+// who was taken over whom, in order. That record holds the picks, never the browser id.
+
 // PREVIEWS DO NOT TRADE
 // A preview deployment shares the production store. On anything but production, a batch is
 // checked and priced exactly as it would be, the answer shows what WOULD have moved, and
@@ -57,7 +63,11 @@
 //   dyn:sw:b:<day>:ip:<ip>    STR   weight spent today from that address
 //   dyn:sw:n                  STR   all-time swipes
 //   dyn:u:<uid>:sw            LIST  that browser's batches, newest first
-//   dyn:u:<uid>               HASH  swipes, batches, runs, first, last
+//   dyn:u:<uid>               HASH  swipes, batches, runs, first, last, top:<mode>:<id> (#1 counts)
+//   dyn:u:<uid>:elo           ZSET  your personal board (personalSteps), every player you swiped on
+//   dyn:u:<uid>:wl            HASH  <id>:w / <id>:l, your record for and against each player
+//   dyn:run:<run>             HASH  a run: owner, mode, place (#1, #2...), champion, swipes, times
+//   dyn:run:<run>:b           LIST  its batches of matchups, in order — what a shared link shows
 //   market (production only): dyn:rating, dyn:seen, dyn:recent — the same keys ballots write
 
 export const MODES = {
@@ -83,12 +93,13 @@ export const PLAYER_CAP_UID = 6      // per browser, per player, per day
 export const PLAYER_CAP_IP = 18      // per address, per player, per day
 export const LOG_KEEP = 200          // batches of history kept per browser
 const DECK_TTL = 1800
+const RUN_TTL = 400 * 86400          // a shared run link works for a bit over a year
 const DAY_TTL = 2 * 86400
 const MS_MAX = 120000
 
 const NONCE_RE = /^[a-z0-9]{8,40}$/i
 export const UID_RE = /^[a-z0-9]{6,64}$/i
-const RUN_RE = /^[a-z0-9]{4,24}$/i
+export const RUN_RE = /^[a-z0-9]{8,24}$/i
 
 // ---------------------------------------------------------------- the pool
 
@@ -230,29 +241,52 @@ export function priceSteps(steps, ratings, streaks, seen, eloUpdates,
   return { delta, spent, odds, after: r, perPlayer }
 }
 
+// ---------------------------------------------------------------- your own board
+
+// Your personal board: every player you have swiped on, priced by YOUR results alone, plain
+// Elo at K=32. A player enters at his market price the first time you see him, so the
+// people you have not compared keep the market's order and only your own calls move them.
+export const PERSONAL_K = 32
+export function personalSteps(steps, start) {
+  const r = { ...start }
+  const wins = [], losses = []
+  for (const [c, x, took] of steps) {
+    const w = took ? x : c, l = took ? c : x
+    const e = 1 / (1 + Math.pow(10, (r[l] - r[w]) / 400))
+    r[w] += PERSONAL_K * (1 - e)
+    r[l] -= PERSONAL_K * (1 - e)
+    wins.push(w); losses.push(l)
+  }
+  return { ratings: r, wins, losses }
+}
+
 // ---------------------------------------------------------------- the one write
 
 // KEYS: 1 deck  2 rating  3 seen  4 recent  5 log  6 meta  7 budget uid  8 budget ip  9 count
-//       10 per-player uid  11 per-player ip
-// ARGV: 1 market(0|1)  2 nDelta  [id, delta]...  nSeen  [id]...  log  recent  spent  dayTTL
-//       logKeep  nSwipes  ts  runDone(0|1)  nPlayer  [id, weight]...
+//       10 per-player uid  11 per-player ip  12 personal board  13 personal W-L  14 run
+//       15 run batches
+// ARGV, read in order by nxt(): market(0|1); nDelta [id delta]...; nSeen [id]...; log; recent;
+//       spent; dayTTL; logKeep; nSwipes; ts; done(0|1); nPlayer [id weight]...;
+//       nPersonal [id rating]...; nWins [id]...; nLosses [id]...;
+//       run('' for none); uid; mode; place; champ (when done); runBatch; runTTL
 // Returns -1 when the deck was already spent (a resubmit, or a race with another tab).
+// A run belongs to the browser that started it: a batch naming somebody else's run is still
+// priced and logged, but cannot write into the run people open from a shared link.
 export const APPLY = `
 if redis.call('DEL', KEYS[1]) == 0 then return -1 end
-local i = 2
-local market = ARGV[1] == '1'
-local nd = tonumber(ARGV[i]); i = i + 1
-for j = 1, nd do
-  if market then redis.call('ZINCRBY', KEYS[2], ARGV[i + 1], ARGV[i]) end
-  i = i + 2
+local i = 0
+local function nxt() i = i + 1; return ARGV[i] end
+local market = nxt() == '1'
+for j = 1, tonumber(nxt()) do
+  local id, d = nxt(), nxt()
+  if market then redis.call('ZINCRBY', KEYS[2], d, id) end
 end
-local ns = tonumber(ARGV[i]); i = i + 1
-for j = 1, ns do
-  if market then redis.call('HINCRBY', KEYS[3], ARGV[i], 1) end
-  i = i + 1
+for j = 1, tonumber(nxt()) do
+  local id = nxt()
+  if market then redis.call('HINCRBY', KEYS[3], id, 1) end
 end
-local log, recent, spent, ttl, keep = ARGV[i], ARGV[i + 1], ARGV[i + 2], ARGV[i + 3], tonumber(ARGV[i + 4])
-local n, ts, done = tonumber(ARGV[i + 5]), ARGV[i + 6], ARGV[i + 7]
+local log, recent, spent, ttl, keep = nxt(), nxt(), nxt(), nxt(), tonumber(nxt())
+local n, ts, done = tonumber(nxt()), nxt(), nxt()
 if market and recent ~= '' then
   redis.call('LPUSH', KEYS[4], recent)
   redis.call('LTRIM', KEYS[4], 0, 49)
@@ -262,12 +296,11 @@ redis.call('INCRBYFLOAT', KEYS[7], spent)
 redis.call('EXPIRE', KEYS[7], ttl)
 redis.call('INCRBYFLOAT', KEYS[8], spent)
 redis.call('EXPIRE', KEYS[8], ttl)
-local np = tonumber(ARGV[i + 8])
-local k = i + 9
+local np = tonumber(nxt())
 for j = 1, np do
-  redis.call('HINCRBYFLOAT', KEYS[10], ARGV[k], ARGV[k + 1])
-  redis.call('HINCRBYFLOAT', KEYS[11], ARGV[k], ARGV[k + 1])
-  k = k + 2
+  local id, w = nxt(), nxt()
+  redis.call('HINCRBYFLOAT', KEYS[10], id, w)
+  redis.call('HINCRBYFLOAT', KEYS[11], id, w)
 end
 if np > 0 then
   redis.call('EXPIRE', KEYS[10], ttl)
@@ -280,6 +313,29 @@ redis.call('HINCRBY', KEYS[6], 'batches', 1)
 if done == '1' then redis.call('HINCRBY', KEYS[6], 'runs', 1) end
 redis.call('HSETNX', KEYS[6], 'first', ts)
 redis.call('HSET', KEYS[6], 'last', ts)
+for j = 1, tonumber(nxt()) do
+  local id, r = nxt(), nxt()
+  redis.call('ZADD', KEYS[12], r, id)
+end
+for j = 1, tonumber(nxt()) do redis.call('HINCRBY', KEYS[13], nxt() .. ':w', 1) end
+for j = 1, tonumber(nxt()) do redis.call('HINCRBY', KEYS[13], nxt() .. ':l', 1) end
+local run, uid, mode, place, champ, batch, rttl = nxt(), nxt(), nxt(), nxt(), nxt(), nxt(), nxt()
+if run ~= '' then
+  local owner = redis.call('HGET', KEYS[14], 'u')
+  if not owner or owner == uid then
+    redis.call('HSETNX', KEYS[14], 'u', uid)
+    redis.call('HSETNX', KEYS[14], 't', ts)
+    redis.call('HSET', KEYS[14], 'm', mode, 'p', place, 'last', ts)
+    redis.call('HINCRBY', KEYS[14], 'n', n)
+    if done == '1' then
+      redis.call('HSET', KEYS[14], 'f', champ)
+      redis.call('HINCRBY', KEYS[6], 'top:' .. mode .. ':' .. champ, 1)
+    end
+    redis.call('RPUSH', KEYS[15], batch)
+    redis.call('EXPIRE', KEYS[14], rttl)
+    redis.call('EXPIRE', KEYS[15], rttl)
+  end
+end
 return 1
 `
 
@@ -318,17 +374,49 @@ export async function swipeAction(action, req, res, ctx) {
   if (action === 'swipe-me') {
     const uid = String((req.query || {}).uid || '')
     if (!UID_RE.test(uid)) { res.status(400).json({ error: 'bad uid' }); return }
-    const [log, meta] = await ctx.pipe([
+    const [log, meta, board, wl] = await ctx.pipe([
       ['LRANGE', P + 'u:' + uid + ':sw', 0, Math.min(LOG_KEEP, Number((req.query || {}).n) || 50) - 1],
       ['HGETALL', P + 'u:' + uid],
+      ['ZREVRANGE', P + 'u:' + uid + ':elo', 0, -1, 'WITHSCORES'],
+      ['HGETALL', P + 'u:' + uid + ':wl'],
     ])
-    const m = {}
+    const m = {}, W = {}
     for (let i = 0; i + 1 < (meta || []).length; i += 2) m[meta[i]] = meta[i + 1]
+    for (let i = 0; i + 1 < (wl || []).length; i += 2) W[wl[i]] = Number(wl[i + 1])
+    const mine = []
+    for (let i = 0; i + 1 < (board || []).length; i += 2) {
+      const id = board[i]
+      mine.push({ id, rating: Math.round(Number(board[i + 1])), w: W[id + ':w'] || 0, l: W[id + ':l'] || 0 })
+    }
+    // how often each player has been your #1, by pool
+    const tops = Object.entries(m).filter(([k]) => k.startsWith('top:'))
+      .map(([k, v]) => { const [, mode, id] = k.split(':'); return { mode, id, n: Number(v) } })
+      .sort((a, b) => b.n - a.n)
     res.status(200).json({
       ok: true,
       swipes: Number(m.swipes || 0), batches: Number(m.batches || 0), runs: Number(m.runs || 0),
       first: m.first ? Number(m.first) : null, last: m.last ? Number(m.last) : null,
+      board: mine, tops,
       log: (log || []).map((s) => { try { return JSON.parse(s) } catch { return null } }).filter(Boolean),
+    })
+    return
+  }
+
+  // ---- one run, for a shared link -----------------------------------------
+  // Public by design: the link is the share. It carries the picks and nothing about the person.
+  if (action === 'swipe-run') {
+    const id = String((req.query || {}).id || '')
+    if (!RUN_RE.test(id)) { res.status(400).json({ error: 'bad run' }); return }
+    const [h, batches] = await ctx.pipe([['HGETALL', P + 'run:' + id], ['LRANGE', P + 'run:' + id + ':b', 0, -1]])
+    const m = {}
+    for (let i = 0; i + 1 < (h || []).length; i += 2) m[h[i]] = h[i + 1]
+    if (!m.u) { res.status(404).json({ error: 'no such run' }); return }
+    const steps = []
+    for (const b of batches || []) { try { steps.push(...JSON.parse(b)) } catch { /* skip */ } }
+    res.status(200).json({
+      ok: true, id, mode: m.m || 'all', place: Number(m.p || 1), champ: m.f || null,
+      swipes: steps.length, started: Number(m.t || 0), finished: m.f ? Number(m.last || 0) : null,
+      steps,
     })
     return
   }
@@ -341,6 +429,8 @@ export async function swipeAction(action, req, res, ctx) {
     const uid = String(b.uid || '')
     const run = RUN_RE.test(String(b.run || '')) ? String(b.run) : ''
     const done = b.done ? 1 : 0
+    const place = Math.max(1, Math.min(99, Math.round(Number(b.place) || 1)))
+    const undos = Math.max(0, Math.min(999, Math.round(Number(b.undos) || 0)))
     if (!NONCE_RE.test(nonce) || !UID_RE.test(uid)) { res.status(400).json({ error: 'bad payload' }); return }
 
     const ip = ctx.ipOf(req)
@@ -360,26 +450,31 @@ export async function swipeAction(action, req, res, ctx) {
     const ids = [...new Set(steps.flatMap(([c, x]) => [c, x]))]
     const kPU = P + 'sw:p:' + day + ':u:' + uid
     const kPIp = P + 'sw:p:' + day + ':ip:' + ip
-    const [scores, st, sn, pu, pip] = await ctx.pipe([
+    const kElo = P + 'u:' + uid + ':elo'
+    const [scores, st, sn, pu, pip, pe] = await ctx.pipe([
       ['ZMSCORE', 'dyn:rating', ...ids],
       ['HMGET', 'dyn:streak', ...ids],
       ['HMGET', 'dyn:seen', ...ids],
       ['HMGET', kPU, ...ids],
       ['HMGET', kPIp, ...ids],
+      ['ZMSCORE', kElo, ...ids],
     ])
-    const ratings = {}, streaks = {}, seen = {}, playerUid = {}, playerIp = {}
+    const ratings = {}, streaks = {}, seen = {}, playerUid = {}, playerIp = {}, personal0 = {}
     ids.forEach((id, i) => {
       ratings[id] = scores && scores[i] != null ? Number(scores[i]) : 1500
       streaks[id] = st && st[i] != null ? Number(st[i]) : 0
       seen[id] = sn && sn[i] != null ? Number(sn[i]) : 0
       playerUid[id] = pu && pu[i] != null ? Number(pu[i]) : 0
       playerIp[id] = pip && pip[i] != null ? Number(pip[i]) : 0
+      personal0[id] = pe && pe[i] != null ? Number(pe[i]) : ratings[id]
     })
+    const personal = personalSteps(steps, personal0)
     const priced = priceSteps(steps, ratings, streaks, seen, ctx.eloUpdates,
       { spentUid: Number(spentU || 0), spentIp: Number(spentIp || 0), playerUid, playerIp })
 
     const ts = Date.now()
-    const log = JSON.stringify({ t: ts, r: run, m: dealt.m, s: steps.map(([c, x, k, ms], i) => [+c, +x, k, ms, priced.odds[i]]), ...(done ? { f: +chk.champ } : {}) })
+    const rows = steps.map(([c, x, k, ms], i) => [+c, +x, k, ms, priced.odds[i]])
+    const log = JSON.stringify({ t: ts, r: run, m: dealt.m, p: place, u: undos, s: rows, ...(done ? { f: +chk.champ } : {}) })
     const recent = done ? JSON.stringify({ order: [chk.champ], ts, swipe: true, n: steps.length, mode: dealt.m }) : ''
     const dIds = Object.keys(priced.delta)
     const args = [
@@ -388,14 +483,19 @@ export async function swipeAction(action, req, res, ctx) {
       String(ids.length), ...ids,
       log, recent, priced.spent.toFixed(4), String(DAY_TTL), String(LOG_KEEP), String(steps.length), String(ts), String(done),
       String(Object.keys(priced.perPlayer).length), ...Object.entries(priced.perPlayer).flatMap(([id, w]) => [id, w.toFixed(4)]),
+      String(ids.length), ...ids.flatMap((id) => [id, personal.ratings[id].toFixed(2)]),
+      String(personal.wins.length), ...personal.wins,
+      String(personal.losses.length), ...personal.losses,
+      run, uid, dealt.m, String(place), done ? chk.champ : '', JSON.stringify(rows), String(RUN_TTL),
     ]
-    const keys = [P + 'sw:g:' + nonce, 'dyn:rating', 'dyn:seen', 'dyn:recent', P + 'u:' + uid + ':sw', P + 'u:' + uid, kU, kIp, 'dyn:sw:n', kPU, kPIp]
+    const keys = [P + 'sw:g:' + nonce, 'dyn:rating', 'dyn:seen', 'dyn:recent', P + 'u:' + uid + ':sw', P + 'u:' + uid, kU, kIp, 'dyn:sw:n', kPU, kPIp,
+      kElo, P + 'u:' + uid + ':wl', P + 'run:' + (run || '_'), P + 'run:' + (run || '_') + ':b']
     const ok = Number(await ctx.redis(['EVAL', APPLY, String(keys.length), ...keys, ...args]))
     if (ok === -1) { res.status(409).json({ error: 'already submitted' }); return }
 
     res.status(200).json({
       ok: true, preview: !ctx.production, champ: chk.champ, swipes: steps.length,
-      spent: Number(priced.spent.toFixed(3)),
+      spent: Number(priced.spent.toFixed(3)), run: run || null,
       budget: { uid: BUDGET_UID, used: Number((Number(spentU || 0) + priced.spent).toFixed(2)) },
       moved: dIds.map((id) => ({ id, delta: Math.round(priced.delta[id] * 10) / 10, rating: Math.round(priced.after[id]) })),
       odds: priced.odds,

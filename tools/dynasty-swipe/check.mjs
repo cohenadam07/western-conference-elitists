@@ -162,6 +162,17 @@ test('a batch prices exactly as its swipes would one at a time', () => {
   assert.equal(batch.odds.length, steps.length)
 })
 
+test('your personal board moves only on your own calls, and adds up', () => {
+  const r0 = ratingsOf()
+  const steps = [[board[50], board[60], 1, 1], [board[60], board[40], 0, 1], [board[60], board[45], 1, 1]]
+  const p = S.personalSteps(steps, r0)
+  const touched = [board[50], board[60], board[40], board[45]]
+  const sum0 = touched.reduce((a, id) => a + r0[id], 0), sum1 = touched.reduce((a, id) => a + p.ratings[id], 0)
+  assert.ok(Math.abs(sum0 - sum1) < 1e-9, 'not zero-sum')
+  assert.ok(p.ratings[board[45]] > r0[board[45]] && p.ratings[board[50]] < r0[board[50]])
+  assert.deepEqual(p.wins, [board[60], board[60], board[45]])
+})
+
 test('a champion defending again is worth less each time, and the budget holds', () => {
   const champ = board[100]
   const steps = board.slice(110, 120).map((x) => [champ, x, 0, 300])   // stays under his player cap
@@ -235,12 +246,12 @@ test('end to end: deal, swipe, the market moves by exactly what was priced', asy
   assert.equal(dealt.preview, false)
   const steps = play(dealt, (c, x) => !better(c, x))       // a contrarian, so prices move
   R.reset()
-  const sub = await call('POST', { action: 'swipe-submit' }, { nonce: dealt.nonce, uid: 'tester01', run: 'run1', done: true, steps })
+  const sub = await call('POST', { action: 'swipe-submit' }, { nonce: dealt.nonce, uid: 'tester01', run: 'runabc123', done: true, place: 1, undos: 2, steps })
   const cost = R.commands()
   assert.equal(sub.ok, true, sub.error)
   assert.equal(sub.swipes, steps.length)
   console.log(`  a batch of ${steps.length} swipes cost ${cost} store commands`)
-  assert.ok(cost <= 12, `a batch cost ${cost} commands`)
+  assert.ok(cost <= 13, `a batch cost ${cost} commands`)
 
   const zset = R.S.get('dyn:rating')
   for (const m of sub.moved) {
@@ -259,9 +270,34 @@ test('end to end: deal, swipe, the market moves by exactly what was priced', asy
   assert.equal(me.log[0].s.length, steps.length)
   assert.deepEqual(me.log[0].s[0].slice(0, 3), [Number(steps[0][0]), Number(steps[0][1]), steps[0][2]])
 
+  assert.equal(me.log[0].u, 2, 'undos not kept')
+  // the personal board: everyone swiped on, and a record that adds up
+  const ids = new Set(steps.flatMap(([c, x]) => [String(c), String(x)]))
+  assert.equal(me.board.length, ids.size)
+  assert.equal(me.board.reduce((a, r) => a + r.w, 0), steps.length)
+  assert.equal(me.board.reduce((a, r) => a + r.l, 0), steps.length)
+  assert.equal(me.tops[0].id, sub.champ)
+
+  // the shared link: every pick, in order, and nothing about who made them
+  const run = await call('GET', { action: 'swipe-run', id: 'runabc123' })
+  assert.equal(run.ok, true)
+  assert.equal(run.champ, sub.champ)
+  assert.equal(run.swipes, steps.length)
+  assert.deepEqual(run.steps.map((r) => r.slice(0, 3)), steps.map(([c, x, k]) => [Number(c), Number(x), k]))
+  assert.ok(!JSON.stringify(run).includes('tester01'), 'a shared run leaks the browser id')
+
+  // somebody else naming the same run cannot write into it
+  const d2 = await call('GET', { action: 'swipe-deal', mode: 'all' })
+  const hijack = await call('POST', { action: 'swipe-submit' }, { nonce: d2.nonce, uid: 'intruder1', run: 'runabc123', done: true, steps: play(d2, () => true, 3) })
+  assert.equal(hijack.ok, true)
+  const after = await call('GET', { action: 'swipe-run', id: 'runabc123' })
+  assert.equal(after.swipes, steps.length, 'another browser wrote into a run')
+  assert.equal(after.champ, sub.champ)
+  assert.equal((await call('GET', { action: 'swipe-run', id: 'nosuchrun9' })).code, 404)
+
   const tape = await call('GET', { action: 'board', limit: 5 })
-  assert.equal(tape.recent[0].swipe, true)
-  assert.equal(String(tape.recent[0].order[0]), sub.champ)
+  assert.equal(tape.recent[1].swipe, true)
+  assert.equal(String(tape.recent[1].order[0]), sub.champ)
 })
 
 test('end to end: a preview prices a batch but never trades it', async () => {

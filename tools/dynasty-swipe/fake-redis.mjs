@@ -60,6 +60,7 @@ export function fakeRedis() {
       case 'HINCRBYFLOAT': { const h = get(a[0], 'hash', () => new Map()); const v = Number(h.get(a[1]) || 0) + Number(a[2]); h.set(a[1], fmt(v)); return fmt(v) }
       case 'HINCRBY': { const h = get(a[0], 'hash', () => new Map()); const v = Number(h.get(a[1]) || 0) + Number(a[2]); h.set(a[1], String(v)); return v }
       case 'LPUSH': { const l = get(a[0], 'list', () => []); for (const v of a.slice(1)) l.unshift(v); return l.length }
+      case 'RPUSH': { const l = get(a[0], 'list', () => []); for (const v of a.slice(1)) l.push(v); return l.length }
       case 'LTRIM': { const l = get(a[0], 'list'); if (!l) return 'OK'; const stop = Number(a[2]) < 0 ? l.length + Number(a[2]) : Number(a[2]); S.set(a[0], l.slice(Number(a[1]), stop + 1)); return 'OK' }
       case 'LRANGE': { const l = get(a[0], 'list'); if (!l) return []; const stop = Number(a[2]) < 0 ? l.length + Number(a[2]) : Number(a[2]); return l.slice(Number(a[1]), stop + 1) }
       case 'SADD': { const s = get(a[0], 'set', () => new Set()); let n = 0; for (const v of a.slice(1)) if (!s.has(v)) { s.add(v); n++ } return n }

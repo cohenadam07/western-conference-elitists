@@ -58,6 +58,9 @@ function fmt(unit, v) {
 const one = (v) => (v == null ? '—' : (+v).toFixed(1))
 const ts3 = (v) => (v == null ? '—' : '.' + String(Math.round(v * 1000)).padStart(3, '0'))
 const rid = () => Math.random().toString(36).slice(2, 10)
+// A run id is the share link, so it is long enough that nobody stumbles onto someone else's.
+const runId = () => (Math.random().toString(36).slice(2, 8) + Math.random().toString(36).slice(2, 8)).padEnd(12, '0')
+export const runUrl = (id) => `${SITE}/dynasty?run=${id}`
 // "Tarris Reed Jr." -> "Reed", for the buttons and the toast
 const lastName = (n) => { const w = String(n || '').split(' ').filter((x) => !/^(jr|sr|ii|iii|iv)\.?$/i.test(x)); return w[w.length - 1] || n }
 
@@ -223,7 +226,7 @@ export function SwipeCard({ id, cards, seed, base, setBase, compact = false, vs 
 
 // ---------------------------------------------------------------- the game
 
-export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initialMode = null }) {
+export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initialMode = null, initialRun = null }) {
   const [cards, setCards] = useState(null)
   const [phase, setPhase] = useState('setup')   // setup | loading | play | done | error
   const [mode, setMode] = useState(initialMode || 'all')
@@ -240,11 +243,13 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
   const [err, setErr] = useState(null)
   const [peek, setPeek] = useState(false)
   const [me, setMe] = useState(null)
+  const [viewRun, setViewRun] = useState(initialRun)   // a run being looked at, from a link or the end screen
+  const [runId0, setRunId0] = useState(null)           // the run that just finished
 
   // Everything the batch needs lives in a ref, so a swipe never waits on a render.
   // `used` is this deck's shown cards (what the server will accept once); `seen` is the whole
   // run's, so a fresh deck never re-shows someone you already passed on.
-  const g = useRef({ deal: null, used: new Set(), seen: new Set(), steps: [], shownAt: 0, run: '', busy: false })
+  const g = useRef({ deal: null, used: new Set(), seen: new Set(), steps: [], shownAt: 0, run: '', place: 1, undos: 0, busy: false })
 
   useEffect(() => {
     fetch(CARDS_URL).then((r) => (r.ok ? r.json() : null)).then(setCards).catch(() => setCards(null))
@@ -294,7 +299,8 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
   const submit = useCallback(async ({ done = false, beacon = false } = {}) => {
     const d = g.current.deal
     if (!d || !g.current.steps.length) return null
-    const body = JSON.stringify({ nonce: d.nonce, uid, run: g.current.run, done, steps: g.current.steps })
+    const body = JSON.stringify({ nonce: d.nonce, uid, run: g.current.run, done, place: g.current.place, undos: g.current.undos, steps: g.current.steps })
+    g.current.undos = 0
     g.current.steps = []
     g.current.deal = { ...d, spent: true }
     if (beacon && navigator.sendBeacon) {
@@ -311,7 +317,9 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
 
   const start = useCallback(async (m = mode) => {
     setErr(null); setResult(null); setCount(0); setPhase('loading')
-    g.current.run = rid()
+    g.current.run = runId()
+    g.current.place = crowned.length + 1
+    g.current.undos = 0
     g.current.seen = new Set()
     try {
       const d = await deal(m, null)
@@ -358,6 +366,7 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
 
   const finish = useCallback(async (winner) => {
     setPhase('done')
+    setRunId0(g.current.run)
     setCrowned((c) => [winner, ...c.filter((x) => x !== winner)])
     const j = await submit({ done: true })
     setResult(j)
@@ -398,6 +407,7 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
   const undo = useCallback(() => {
     const s = g.current.steps.pop()
     if (!s) return
+    g.current.undos++
     const [c, x] = s
     g.current.used.delete(chal)
     g.current.seen.delete(chal)
@@ -463,6 +473,15 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
 
   // ---------------------------------------------------------------- screens
   const nameOf = (id) => cards?.players?.[id]?.n || byId[id]?.name || '—'
+
+  if (viewRun) {
+    return (
+      <RunReceipt id={viewRun} cards={cards} byId={byId} board={board} base={base} setBase={setBase}
+        mine={viewRun === runId0}
+        onBack={() => { setViewRun(null); if (initialRun && phase === 'setup') onExit() }}
+        onPlay={(m) => { setViewRun(null); setMode(m); start(m) }} />
+    )
+  }
 
   if (phase === 'setup' || phase === 'error') {
     return (
@@ -533,8 +552,13 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
         </p>
         <div className="mt-5 grid grid-cols-2 gap-2">
           <button type="button" className="dyn-btn rounded-xl py-4" onClick={() => start(mode)}>Go again for #{crowned.length + 1}</button>
-          <ShareButton id={top} name={nameOf(top)} mode={mode} cards={cards} />
+          <ShareButton id={top} name={nameOf(top)} mode={mode} cards={cards} n={count} run={result?.run || null} place={crowned.length} />
         </div>
+        {result?.run && (
+          <button type="button" className="dyn-btn-ghost mt-2 w-full rounded-xl" onClick={() => setViewRun(result.run)}>
+            See every pick in this run →
+          </button>
+        )}
         <div className="mt-2 grid grid-cols-2 gap-2">
           <button type="button" className="dyn-btn-ghost rounded-xl" onClick={() => { setCrowned([]); setPhase('setup') }}>New pool</button>
           <button type="button" className="dyn-btn-ghost rounded-xl" onClick={onExit}>The board</button>
@@ -552,17 +576,21 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
             </ol>
           </div>
         )}
+        {me?.board?.length > 0 && <MyBoard me={me} nameOf={nameOf} board={board} />}
         {history.length > 0 && (
           <div className="mt-7">
             <div className="flex items-baseline justify-between">
-              <span className="dyn-label">Your takes, on record</span>
+              <span className="dyn-label">Your runs, on record</span>
               <span className="dyn-mono text-[10px] text-[var(--dyn-faint)]">{me.swipes} swipes · {me.runs} runs</span>
             </div>
             <ul className="mt-2 divide-y divide-[var(--dyn-line-soft)] rounded-xl border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
               {history.map((l, i) => (
-                <li key={i} className="flex items-center justify-between gap-3 px-3 py-2 text-[12px]">
-                  <span className="truncate text-[var(--dyn-text)]">{nameOf(String(l.f))}</span>
-                  <span className="dyn-mono shrink-0 text-[10px] text-[var(--dyn-faint)]">{modeLabel(l.m)} · {new Date(l.t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                <li key={i}>
+                  <button type="button" disabled={!l.r} onClick={() => setViewRun(l.r)}
+                    className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-[12px]">
+                    <span className="truncate text-[var(--dyn-text)]">{l.p > 1 ? `#${l.p} · ` : ''}{nameOf(String(l.f))}</span>
+                    <span className="dyn-mono shrink-0 text-[10px] text-[var(--dyn-faint)]">{modeLabel(l.m)} · {new Date(l.t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}{l.r ? ' →' : ''}</span>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -644,13 +672,16 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
 
 // ---------------------------------------------------------------- share
 
-function ShareButton({ id, name, mode, cards }) {
+const poolNoun = (mode) => (mode === 'all' ? 'player' : mode === 'u25' ? 'under-25 player' : modeLabel(mode).toLowerCase().replace(/s$/, ''))
+
+function ShareButton({ id, name, mode, cards, n, run, place = 1 }) {
   const [said, setSaid] = useState(null)
   const go = async () => {
-    const url = `${SITE}/dynasty?swipe=${mode}`
-    const text = `My #1 dynasty ${mode === 'all' ? 'player' : modeLabel(mode).toLowerCase().replace(/s$/, '')}: ${name}. Find yours on Dynasty Exchange.`
+    // the link opens this exact run, every pick in it; without one (it did not save) the pool
+    const url = run ? runUrl(run) : `${SITE}/dynasty?swipe=${mode}`
+    const text = `${n} swipes later, ${name} is my ${place > 1 ? `#${place}` : '#1'} dynasty ${poolNoun(mode)}.${run ? ' Every pick is here:' : ' Find yours on Dynasty Exchange.'}`
     let file = null
-    try { file = await shareImage(id, name, mode, cards) } catch { file = null }
+    try { file = await shareImage(id, name, mode, cards, n, place) } catch { file = null }
     try {
       if (file && navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], text, url }); return }
       if (navigator.share) { await navigator.share({ text, url }); return }
@@ -667,7 +698,7 @@ function ShareButton({ id, name, mode, cards }) {
 }
 
 // A 1080×1350 card for a story or a group chat: the name, his line, six Savant bars.
-async function shareImage(id, name, mode, cards) {
+async function shareImage(id, name, mode, cards, n, place = 1) {
   const W = 1080, H = 1350
   const cv = document.createElement('canvas'); cv.width = W; cv.height = H
   const x = cv.getContext('2d')
@@ -685,7 +716,7 @@ async function shareImage(id, name, mode, cards) {
   if (img) { try { x.drawImage(img, W - 640, 120, 600, 438) } catch { /* tainted: skip the photo */ } }
 
   x.fillStyle = '#c2a263'; x.font = '500 30px "IBM Plex Mono", monospace'
-  x.fillText(`MY #1 · ${modeLabel(mode).toUpperCase()}`, 72, 150)
+  x.fillText(`MY #${place} · ${modeLabel(mode).toUpperCase()} · OUT OF ${n} SWIPES`, 72, 150)
   x.fillStyle = '#e9edf3'; x.font = '600 104px Newsreader, Georgia, serif'
   const parts = name.split(' ')
   const first = parts.slice(0, -1).join(' ') || name, last = parts.length > 1 ? parts.slice(-1)[0] : ''
@@ -712,4 +743,150 @@ async function shareImage(id, name, mode, cards) {
   x.fillStyle = '#8d97a6'; x.font = '500 28px "IBM Plex Mono", monospace'; x.fillText('wcehoops.com/dynasty', 72, H - 48)
   const blob = await new Promise((res) => cv.toBlob(res, 'image/png'))
   return blob ? new File([blob], `my-1-${mode}.png`, { type: 'image/png' }) : null
+}
+
+// ---------------------------------------------------------------- your board
+
+/* Your personal board: everyone you have swiped on, ordered by your calls alone
+ * (api/_dynasty-swipe.js personalSteps), next to where the market has him. */
+function MyBoard({ me, nameOf, board }) {
+  const [all, setAll] = useState(false)
+  const market = {}
+  board.forEach((r, i) => { market[String(r.id)] = i + 1 })
+  const rows = (me.board || []).filter((r) => r.w + r.l > 0)
+  const shown = all ? rows : rows.slice(0, 10)
+  return (
+    <div className="mt-7">
+      <div className="flex items-baseline justify-between">
+        <span className="dyn-label">Your board</span>
+        <span className="dyn-mono text-[10px] text-[var(--dyn-faint)]">your calls only · W-L · market rank</span>
+      </div>
+      <ol className="mt-2 divide-y divide-[var(--dyn-line-soft)] rounded-xl border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+        {shown.map((r, i) => {
+          const m = market[String(r.id)]
+          const diff = m ? m - (i + 1) : 0
+          return (
+            <li key={r.id} className="flex items-center gap-3 px-3 py-2 text-[12.5px]">
+              <span className="dyn-mono w-6 shrink-0 text-[var(--dyn-gold)]">{i + 1}</span>
+              <span className="min-w-0 flex-1 truncate text-[var(--dyn-text)]">{nameOf(String(r.id))}</span>
+              <span className="dyn-mono shrink-0 text-[10.5px] text-[var(--dyn-dim)]">{r.w}-{r.l}</span>
+              <span className="dyn-mono w-16 shrink-0 text-right text-[10.5px] text-[var(--dyn-faint)]">
+                {m ? `#${m}` : '—'}
+                {diff !== 0 && m ? <span className={diff > 0 ? 'dyn-up' : 'dyn-down'}> {diff > 0 ? '▲' : '▼'}{Math.abs(diff)}</span> : null}
+              </span>
+            </li>
+          )
+        })}
+      </ol>
+      {rows.length > 10 && (
+        <button type="button" className="dyn-mono mt-2 text-[10px] tracking-wider text-[var(--dyn-gold)]" onClick={() => setAll(!all)}>
+          {all ? 'SHOW TOP 10' : `SHOW ALL ${rows.length}`}
+        </button>
+      )}
+      <p className="mt-2 text-[10.5px] leading-snug text-[var(--dyn-faint)]">
+        ▲ you rate him higher than the market does. Everyone enters at his market price; only your swipes move him here.
+      </p>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- one run, from a link
+
+/* What a shared link opens: the #1, the pool, how many swipes it took, and every matchup in
+ * order, who was taken over whom and what the board thought of that call at the time. */
+function RunReceipt({ id, cards, byId, board, base, setBase, mine, onBack, onPlay }) {
+  const [run, setRun] = useState(null)
+  const [err, setErr] = useState(null)
+  useEffect(() => {
+    setRun(null); setErr(null)
+    fetch(`${API}?action=swipe-run&id=${encodeURIComponent(id)}`)
+      .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
+      .then(({ ok, j }) => (ok && j?.ok ? setRun(j) : setErr(j?.error === 'no such run' ? 'That run is not on record.' : 'Could not load that run.')))
+      .catch(() => setErr('Could not load that run.'))
+  }, [id])
+  const nameOf = (pid) => cards?.players?.[pid]?.n || byId[pid]?.name || `#${pid}`
+  const market = {}
+  board.forEach((r, i) => { market[String(r.id)] = i + 1 })
+
+  if (err) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-16 text-center">
+        <p className="text-[14px] text-[var(--dyn-dim)]">{err}</p>
+        <button type="button" className="dyn-btn mt-6 rounded-xl" onClick={() => onPlay('all')}>Find your own #1 →</button>
+      </div>
+    )
+  }
+  if (!run) return <div className="dyn-mono px-5 py-24 text-center text-[11px] tracking-widest text-[var(--dyn-faint)]">LOADING THE RUN…</div>
+
+  const steps = run.steps || []
+  const took = steps.filter((s) => s[2] === 1).length
+  const bold = steps.filter((s) => s[4] != null && (s[2] ? s[4] : 100 - s[4]) < 40).length
+  const secs = steps.length ? steps.reduce((a, s) => a + (s[3] || 0), 0) / steps.length / 1000 : 0
+  const champ = run.champ ? String(run.champ) : steps.length ? String(steps[steps.length - 1][2] ? steps[steps.length - 1][1] : steps[steps.length - 1][0]) : null
+  const when = run.finished || run.started
+
+  return (
+    <div className="mx-auto max-w-xl px-4 pb-16 pt-5">
+      <button type="button" onClick={onBack} className="dyn-mono text-[10px] tracking-widest text-[var(--dyn-faint)]">← BACK</button>
+      <div className="mt-3 text-center">
+        <div className="dyn-label text-[var(--dyn-gold)]">
+          {mine ? 'Your' : 'Their'} {run.place > 1 ? `#${run.place}` : '#1'} · {modeLabel(run.mode)}
+        </div>
+        <div className="mt-1 text-[22px] leading-tight text-[var(--dyn-text)]">
+          Out of <span className="text-[var(--dyn-gold)]">{run.swipes}</span> swipes, {champ ? lastName(nameOf(champ)) : '—'} came out on top
+        </div>
+        {when ? <div className="dyn-mono mt-1 text-[10px] text-[var(--dyn-faint)]">{new Date(when).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}{run.finished ? '' : ' · unfinished'}</div> : null}
+      </div>
+
+      {champ && (
+        <div className="sw-card mt-4" style={{ borderColor: 'rgba(194,162,99,.6)' }}>
+          <SwipeCard id={champ} cards={cards} seed={byId[champ]} base={base} setBase={setBase} />
+        </div>
+      )}
+
+      <div className="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-[var(--dyn-line)] bg-[var(--dyn-line)] text-center">
+        {[[`${steps.length - took}`, 'kept'], [`${took}`, 'took'], [`${bold}`, 'against the board']].map(([v, l]) => (
+          <div key={l} className="bg-[var(--dyn-panel)] px-2 py-2.5">
+            <div className="dyn-mono text-[16px] text-[var(--dyn-text)]">{v}</div>
+            <div className="dyn-label mt-0.5">{l}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 flex items-baseline justify-between">
+        <span className="dyn-label">Every pick, in order</span>
+        {secs ? <span className="dyn-mono text-[10px] text-[var(--dyn-faint)]">{secs.toFixed(1)}s a card</span> : null}
+      </div>
+      <ol className="mt-2 divide-y divide-[var(--dyn-line-soft)] rounded-xl border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+        {steps.map(([c, x, k, ms, odds], i) => {
+          const w = String(k ? x : c), l = String(k ? c : x)
+          const backed = odds == null ? null : (k ? odds : 100 - odds)
+          return (
+            <li key={i} className="flex items-center gap-2.5 px-3 py-2">
+              <span className="dyn-mono w-5 shrink-0 text-[10px] text-[var(--dyn-faint)]">{i + 1}</span>
+              <span className={`dyn-mono w-10 shrink-0 text-[9px] tracking-wider ${k ? 'dyn-up' : 'text-[var(--dyn-gold)]'}`}>{k ? 'TAKE' : 'KEEP'}</span>
+              <span className="min-w-0 flex-1 text-[12.5px] leading-tight">
+                <span className="text-[var(--dyn-text)]">{nameOf(w)}</span>
+                <span className="text-[var(--dyn-faint)]"> over </span>
+                <span className="text-[var(--dyn-dim)]">{nameOf(l)}</span>
+              </span>
+              {backed != null && (
+                <span className={`dyn-mono shrink-0 text-[10px] ${backed < 40 ? 'text-[var(--dyn-gold)]' : 'text-[var(--dyn-faint)]'}`} title="The board's odds for this pick when it was made">
+                  {backed}%
+                </span>
+              )}
+            </li>
+          )
+        })}
+      </ol>
+      <p className="mt-2 text-[10.5px] leading-snug text-[var(--dyn-faint)]">
+        % is the chance the board gave the pick when it was made. Gold marks a call against the board.
+        {champ && market[champ] ? ` Market rank today: ${lastName(nameOf(champ))} #${market[champ]}.` : ''}
+      </p>
+
+      <button type="button" className="dyn-btn mt-6 w-full rounded-xl py-4" onClick={() => onPlay(run.mode)}>
+        Find your own #1 · {modeLabel(run.mode)} →
+      </button>
+    </div>
+  )
 }

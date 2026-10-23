@@ -20,13 +20,16 @@ const SEED_URL = '/dynasty/players.json'
 // 2.0.0 is swipe mode and per-browser history.
 const VERSION = '2.0.0'
 
-// /dynasty?swipe opens swipe mode; /dynasty?swipe=guard starts a guards run straight away.
+// /dynasty?swipe opens swipe mode; /dynasty?swipe=guard starts a guards run straight away;
+// /dynasty?run=<id> opens a shared run, every pick in it.
 function swipeLink() {
   try {
     const q = new URLSearchParams(window.location.search)
+    const run = q.get('run')
+    if (run && /^[a-z0-9]{8,24}$/i.test(run)) return { mode: null, run }
     if (!q.has('swipe')) return null
     const m = q.get('swipe')
-    return { mode: SWIPE_MODES.some(([k]) => k === m) ? m : null }
+    return { mode: SWIPE_MODES.some(([k]) => k === m) ? m : null, run: null }
   } catch { return null }
 }
 const UID_KEY = 'wce_dyn_uid'
@@ -638,7 +641,7 @@ export default function Dynasty() {
     return (
       <Shell title="FIND YOUR #1" kicker="Swipe" total={total} onHome={() => { setSwipeAt(null); setView('hub') }}>
         <DynastySwipe uid={me.current} board={live && board.length ? board : []} byId={byId}
-          initialMode={swipeAt?.mode || null} onExit={() => { setSwipeAt(null); setView('hub') }} onTraded={loadBoard} />
+          initialMode={swipeAt?.mode || null} initialRun={swipeAt?.run || null} onExit={() => { setSwipeAt(null); setView('hub') }} onTraded={loadBoard} />
       </Shell>
     )
   }
