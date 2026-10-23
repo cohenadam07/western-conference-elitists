@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import usePageMeta from '../lib/usePageMeta.js'
 import { buildScale, displayValue } from '../lib/dynastyValue.js'
+import DynastySwipe, { SWIPE_MODES } from './DynastySwipe.jsx'
 
 /* Dynasty Exchange — a crowd-priced trade-value board, dressed as the thing it actually is.
  *
@@ -15,6 +16,19 @@ import { buildScale, displayValue } from '../lib/dynastyValue.js'
 
 const API = '/api/dynasty'
 const SEED_URL = '/dynasty/players.json'
+// Shown on the front door. Bumped only for real releases, the way an app numbers them:
+// 2.0.0 is swipe mode and per-browser history.
+const VERSION = '2.0.0'
+
+// /dynasty?swipe opens swipe mode; /dynasty?swipe=guard starts a guards run straight away.
+function swipeLink() {
+  try {
+    const q = new URLSearchParams(window.location.search)
+    if (!q.has('swipe')) return null
+    const m = q.get('swipe')
+    return { mode: SWIPE_MODES.some(([k]) => k === m) ? m : null }
+  } catch { return null }
+}
 const UID_KEY = 'wce_dyn_uid'
 const NAME_KEY = 'wce_dyn_name'
 const HEAD = (id) => `https://cdn.nba.com/headshots/nba/latest/1040x760/${id}.png`
@@ -264,7 +278,8 @@ export default function Dynasty() {
   // and a deliberate step onto the floor. Being handed four strangers to rank with no
   // framing is a bad first ten seconds.
   // 'hub' is the front door; the rest are the rooms behind it.
-  const [view, setView] = useState('hub')       // hub | rank | board | trending | team | lobby
+  const [swipeAt, setSwipeAt] = useState(swipeLink)
+  const [view, setView] = useState(swipeAt ? 'swipe' : 'hub')   // hub | swipe | rank | board | trending | team | lobby
   // ---- lobby (a room of people ranking the same four) ----
   // `code`/`setCode` below belong to the fantasy-league connect, hence lob* here.
   const [lobCode, setLobCode] = useState('')    // what the user typed on the join form
@@ -618,11 +633,24 @@ export default function Dynasty() {
   }
 
   // ---- the hub -------------------------------------------------------------
+  // ---- swipe ---------------------------------------------------------------
+  if (view === 'swipe') {
+    return (
+      <Shell title="FIND YOUR #1" kicker="Swipe" total={total} onHome={() => { setSwipeAt(null); setView('hub') }}>
+        <DynastySwipe uid={me.current} board={live && board.length ? board : []} byId={byId}
+          initialMode={swipeAt?.mode || null} onExit={() => { setSwipeAt(null); setView('hub') }} onTraded={loadBoard} />
+      </Shell>
+    )
+  }
+
   if (view === 'hub') {
     const doors = [
+      { id: 'swipe', k: 'New · Swipe mode', t: 'Find your #1',
+        d: 'One card at a time: keep your guy or take the new one, with each player’s Savant card in hand. Every swipe is a head-to-head result that moves the board.',
+        cta: 'Start swiping →', accent: true },
       { id: 'rank', k: group?.daily ? 'Daily session ready' : 'Set the price',
         t: 'Rank players', d: 'Four at a time, best dynasty value first. Every answer is six head-to-head results and moves the board.',
-        cta: group?.daily ? 'Take today’s session →' : 'Start ranking →', accent: true },
+        cta: group?.daily ? 'Take today’s session →' : 'Start ranking →' },
       { id: 'board', k: 'The board', t: 'View rankings',
         d: `All ${seed?.count ?? rows.length} assets, priced by the crowd, with 24h movement and how thin each price is.`, cta: 'Open the board →' },
       { id: 'trending', k: 'Activity', t: 'Trending',
@@ -644,6 +672,7 @@ export default function Dynasty() {
             <h1 className="mt-4 text-5xl leading-none tracking-tight text-[var(--dyn-text)] sm:text-7xl">
               DYNASTY <span className="text-[var(--dyn-gold)]">EXCHANGE</span>
             </h1>
+            <div className="dyn-mono mt-2 text-[10px] tracking-widest text-[var(--dyn-faint)]">v{VERSION}</div>
             <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-[var(--dyn-dim)]">
               A dynasty board priced by the people who argue about it. No panel of experts —
               every number here is what the crowd’s picks imply.
@@ -1540,7 +1569,7 @@ export default function Dynasty() {
               {recent.slice(0, 5).map((r, i) => (
                 <li key={i} className="px-4 py-3">
                   <div className="dyn-mono mb-1.5 flex justify-between text-[9.5px] tracking-widest text-[var(--dyn-faint)]">
-                    <span>{r.daily ? 'DAILY' : 'OPEN'}</span><span>{timeAgo(r.ts)}</span>
+                    <span>{r.swipe ? `SWIPE · #1 OF ${r.n}` : r.daily ? 'DAILY' : 'OPEN'}</span><span>{timeAgo(r.ts)}</span>
                   </div>
                   <ol>
                     {(r.order || []).map((id, j) => (
