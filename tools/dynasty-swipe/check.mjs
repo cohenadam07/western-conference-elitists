@@ -295,9 +295,28 @@ test('end to end: deal, swipe, the market moves by exactly what was priced', asy
   assert.equal(after.champ, sub.champ)
   assert.equal((await call('GET', { action: 'swipe-run', id: 'nosuchrun9' })).code, 404)
 
+  // rank your #1s: only players you crowned, an order your picks actually produce, no market
+  const d3 = await call('GET', { action: 'swipe-deal', mode: 'guard', ex: sub.champ })
+  const sub3 = await call('POST', { action: 'swipe-submit' }, { nonce: d3.nonce, uid: 'tester01', run: 'runabc456', done: true, place: 2, steps: play(d3, (c, x) => better(x, c)) })
+  const [one, two] = [sub.champ, sub3.champ]
+  const marketBefore = new Map(R.S.get('dyn:rating'))
+  const fin = (body) => call('POST', { action: 'swipe-final' }, { uid: 'tester01', id: 'finabc123', mode: 'guard', ...body })
+  assert.equal((await fin({ order: [one, two], pairs: [[one, two, 1, 900]] })).code, 400, 'an order the picks contradict was accepted')
+  assert.equal((await fin({ order: [one, board[0]], pairs: [[one, board[0], 0, 1]] })).code, 403, 'ranked someone never crowned')
+  const ok = await fin({ order: [two, one], pairs: [[one, two, 1, 900]] })
+  assert.equal(ok.ok, true, ok.error)
+  assert.deepEqual(new Map(R.S.get('dyn:rating')), marketBefore, 'a final moved the market')
+  const got = await call('GET', { action: 'swipe-final-get', id: 'finabc123' })
+  assert.deepEqual(got.order.map(String), [two, one])
+  assert.ok(!JSON.stringify(got).includes('tester01'), 'a shared final leaks the browser id')
+  const intr = await call('POST', { action: 'swipe-final' }, { uid: 'intruder1', id: 'finabc123', order: [two, one], pairs: [[one, two, 1, 1]] })
+  assert.ok(intr.code === 403 || intr.code === 409, 'someone else overwrote a final')
+  const me2 = await call('GET', { action: 'swipe-me', uid: 'tester01' })
+  assert.equal(me2.finals, 1)
+  assert.deepEqual(me2.finalRankings[0].order.map(String), [two, one])
+
   const tape = await call('GET', { action: 'board', limit: 5 })
-  assert.equal(tape.recent[1].swipe, true)
-  assert.equal(String(tape.recent[1].order[0]), sub.champ)
+  assert.ok(tape.recent.some((r) => r.swipe && String(r.order[0]) === sub.champ), 'the #1 is not on the tape')
 })
 
 test('end to end: a preview prices a batch but never trades it', async () => {

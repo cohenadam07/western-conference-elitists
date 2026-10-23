@@ -68,6 +68,8 @@
 //   dyn:u:<uid>:wl            HASH  <id>:w / <id>:l, your record for and against each player
 //   dyn:run:<run>             HASH  a run: owner, mode, place (#1, #2...), champion, swipes, times
 //   dyn:run:<run>:b           LIST  its batches of matchups, in order — what a shared link shows
+//   dyn:fin:<id>              HASH  a session's #1s ranked head to head (owner, record) — shareable
+//   dyn:u:<uid>:fin           LIST  that browser's final rankings, newest first
 //   market (production only): dyn:rating, dyn:seen, dyn:recent — the same keys ballots write
 
 export const MODES = {
@@ -374,11 +376,12 @@ export async function swipeAction(action, req, res, ctx) {
   if (action === 'swipe-me') {
     const uid = String((req.query || {}).uid || '')
     if (!UID_RE.test(uid)) { res.status(400).json({ error: 'bad uid' }); return }
-    const [log, meta, board, wl] = await ctx.pipe([
+    const [log, meta, board, wl, fin] = await ctx.pipe([
       ['LRANGE', P + 'u:' + uid + ':sw', 0, Math.min(LOG_KEEP, Number((req.query || {}).n) || 50) - 1],
       ['HGETALL', P + 'u:' + uid],
       ['ZREVRANGE', P + 'u:' + uid + ':elo', 0, -1, 'WITHSCORES'],
       ['HGETALL', P + 'u:' + uid + ':wl'],
+      ['LRANGE', P + 'u:' + uid + ':fin', 0, 19],
     ])
     const m = {}, W = {}
     for (let i = 0; i + 1 < (meta || []).length; i += 2) m[meta[i]] = meta[i + 1]
@@ -396,9 +399,86 @@ export async function swipeAction(action, req, res, ctx) {
       ok: true,
       swipes: Number(m.swipes || 0), batches: Number(m.batches || 0), runs: Number(m.runs || 0),
       first: m.first ? Number(m.first) : null, last: m.last ? Number(m.last) : null,
-      board: mine, tops,
+      board: mine, tops, finals: Number(m.finals || 0),
+      finalRankings: (fin || []).map((x) => { try { return JSON.parse(x) } catch { return null } }).filter(Boolean),
       log: (log || []).map((s) => { try { return JSON.parse(s) } catch { return null } }).filter(Boolean),
     })
+    return
+  }
+
+  // ---- rank your #1s --------------------------------------------------------
+  // The end of a session: the players you crowned, ranked head to head. The browser chose
+  // these matchups, so they are kept as YOURS (history, personal board, record, a shareable
+  // link) and never touch the market: the runs that crowned them already counted there, and
+  // a matchup you picked yourself is exactly what the dealer exists to keep off the board.
+  if (action === 'swipe-final' && req.method === 'POST') {
+    let b
+    try { b = parse(req) } catch { res.status(400).json({ error: 'bad json' }); return }
+    const uid = String(b.uid || '')
+    const id = String(b.id || '')
+    if (!UID_RE.test(uid) || !RUN_RE.test(id)) { res.status(400).json({ error: 'bad payload' }); return }
+    const order = Array.isArray(b.order) ? b.order.map(String) : []
+    const pairs = Array.isArray(b.pairs) ? b.pairs : []
+    if (order.length < 2 || order.length > 25 || new Set(order).size !== order.length || !order.every((x) => /^[0-9]{1,12}$/.test(x))) {
+      res.status(400).json({ error: 'bad order' }); return
+    }
+    const inOrder = new Set(order)
+    const clean = []
+    for (const q of pairs.slice(0, 200)) {
+      if (!Array.isArray(q) || q.length < 3) { res.status(400).json({ error: 'bad pair' }); return }
+      const a = String(q[0]), x = String(q[1]), took = Number(q[2])
+      if (!inOrder.has(a) || !inOrder.has(x) || a === x || (took !== 0 && took !== 1)) { res.status(400).json({ error: 'bad pair' }); return }
+      clean.push([a, x, took, Math.max(0, Math.min(MS_MAX, Math.round(Number(q[3]) || 0)))])
+    }
+    // the order has to be the one the answers produce: no ranking you did not actually make
+    for (const [a, x, took] of clean) {
+      const w = took ? x : a, l = took ? a : x
+      if (order.indexOf(w) > order.indexOf(l)) { res.status(400).json({ error: 'order does not match the picks' }); return }
+    }
+    if (await ctx.rateLimited(ctx.ipOf(req))) { res.status(429).json({ error: 'slow down' }); return }
+    // only players this browser actually crowned
+    const kElo = P + 'u:' + uid + ':elo'
+    const [log, pe, market] = await ctx.pipe([
+      ['LRANGE', P + 'u:' + uid + ':sw', 0, LOG_KEEP - 1],
+      ['ZMSCORE', kElo, ...order],
+      ['ZMSCORE', 'dyn:rating', ...order],
+    ])
+    const crowned = new Set()
+    for (const s of log || []) { try { const j = JSON.parse(s); if (j.f != null) crowned.add(String(j.f)) } catch { /* skip */ } }
+    if (!order.every((x) => crowned.has(x))) { res.status(403).json({ error: 'not your #1s' }); return }
+    const start = {}
+    order.forEach((x, i) => { start[x] = pe && pe[i] != null ? Number(pe[i]) : market && market[i] != null ? Number(market[i]) : 1500 })
+    const personal = personalSteps(clean, start)
+    const ts = Date.now()
+    const mode = MODES[b.mode] ? String(b.mode) : 'all'
+    const rec = JSON.stringify({ t: ts, m: mode, order: order.map(Number), pairs: clean.map(([a, x, k, ms]) => [+a, +x, k, ms]) })
+    const cmds = [
+      ['HSETNX', P + 'fin:' + id, 'u', uid],
+      ['HSET', P + 'fin:' + id, 'r', rec],
+      ['EXPIRE', P + 'fin:' + id, RUN_TTL],
+      ['LPUSH', P + 'u:' + uid + ':fin', rec],
+      ['LTRIM', P + 'u:' + uid + ':fin', 0, LOG_KEEP - 1],
+      ['ZADD', kElo, ...order.flatMap((x) => [personal.ratings[x].toFixed(2), x])],
+      ['HINCRBY', P + 'u:' + uid, 'finals', 1],
+      ...personal.wins.map((x) => ['HINCRBY', P + 'u:' + uid + ':wl', x + ':w', 1]),
+      ...personal.losses.map((x) => ['HINCRBY', P + 'u:' + uid + ':wl', x + ':l', 1]),
+    ]
+    // a final id is the share link; someone else's id is not yours to overwrite
+    const [owner] = await ctx.pipe([['HGET', P + 'fin:' + id, 'u']])
+    if (owner && owner !== uid) { res.status(409).json({ error: 'taken' }); return }
+    await ctx.pipe(cmds)
+    res.status(200).json({ ok: true, id, preview: !ctx.production })
+    return
+  }
+
+  if (action === 'swipe-final-get') {
+    const id = String((req.query || {}).id || '')
+    if (!RUN_RE.test(id)) { res.status(400).json({ error: 'bad id' }); return }
+    const [r] = await ctx.pipe([['HGET', P + 'fin:' + id, 'r']])
+    if (!r) { res.status(404).json({ error: 'no such ranking' }); return }
+    let j
+    try { j = JSON.parse(r) } catch { res.status(404).json({ error: 'no such ranking' }); return }
+    res.status(200).json({ ok: true, id, mode: j.m, order: j.order, pairs: j.pairs, t: j.t })
     return
   }
 

@@ -21,12 +21,14 @@ const SEED_URL = '/dynasty/players.json'
 const VERSION = '2.0.0'
 
 // /dynasty?swipe opens swipe mode; /dynasty?swipe=guard starts a guards run straight away;
-// /dynasty?run=<id> opens a shared run, every pick in it.
+// /dynasty?run=<id> opens a shared run, every pick in it; /dynasty?final=<id> a ranked set of #1s.
 function swipeLink() {
   try {
     const q = new URLSearchParams(window.location.search)
     const run = q.get('run')
     if (run && /^[a-z0-9]{8,24}$/i.test(run)) return { mode: null, run }
+    const fin = q.get('final')
+    if (fin && /^[a-z0-9]{8,24}$/i.test(fin)) return { mode: null, run: null, final: fin }
     if (!q.has('swipe')) return null
     const m = q.get('swipe')
     return { mode: SWIPE_MODES.some(([k]) => k === m) ? m : null, run: null }
@@ -641,7 +643,7 @@ export default function Dynasty() {
     return (
       <Shell title="FIND YOUR #1" kicker="Swipe" total={total} onHome={() => { setSwipeAt(null); setView('hub') }}>
         <DynastySwipe uid={me.current} board={live && board.length ? board : []} byId={byId}
-          initialMode={swipeAt?.mode || null} initialRun={swipeAt?.run || null} onExit={() => { setSwipeAt(null); setView('hub') }} onTraded={loadBoard} />
+          initialMode={swipeAt?.mode || null} initialRun={swipeAt?.run || null} initialFinal={swipeAt?.final || null} onExit={() => { setSwipeAt(null); setView('hub') }} onTraded={loadBoard} />
       </Shell>
     )
   }

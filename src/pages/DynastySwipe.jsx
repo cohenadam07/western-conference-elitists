@@ -67,6 +67,34 @@ const lastName = (n) => { const w = String(n || '').split(' ').filter((x) => !/^
 function readPref(key, fallback) { try { return localStorage.getItem(key) || fallback } catch { return fallback } }
 function writePref(key, v) { try { localStorage.setItem(key, v) } catch { /* private mode */ } }
 
+// ---------------------------------------------------------------- ranking your #1s
+
+/* Binary insertion, replayed from the answers so far. items: the session's #1s in the order
+ * they were crowned. Each answer settles one head-to-head; returns the next question (the
+ * player already placed, then the one being placed) or the finished order. Replaying makes
+ * undo a pop. The order it finishes on is consistent with every answer given, which is what
+ * the server checks. */
+export function insertionStep(items, answers) {
+  const sorted = items.length ? [items[0]] : []
+  const pairs = []
+  let ai = 0
+  for (let i = 1; i < items.length; i++) {
+    const x = items[i]
+    let lo = 0, hi = sorted.length
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1
+      if (ai >= answers.length) return { done: false, ask: [sorted[mid], x], pairs, asked: ai }
+      const { took, ms } = answers[ai++]
+      pairs.push([sorted[mid], x, took ? 1 : 0, ms || 0])
+      if (took) hi = mid; else lo = mid + 1
+    }
+    sorted.splice(lo, 0, x)
+  }
+  return { done: true, order: sorted, pairs, asked: ai }
+}
+// the most questions a set of n can need (the bar's denominator)
+const maxQuestions = (n) => { let t = 0; for (let k = 1; k < n; k++) t += Math.ceil(Math.log2(k + 1)); return t }
+
 // ---------------------------------------------------------------- the card
 
 // True when this card's number beats the other player's. Lower-is-better stats (turnovers)
@@ -226,7 +254,7 @@ export function SwipeCard({ id, cards, seed, base, setBase, compact = false, vs 
 
 // ---------------------------------------------------------------- the game
 
-export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initialMode = null, initialRun = null }) {
+export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initialMode = null, initialRun = null, initialFinal = null }) {
   const [cards, setCards] = useState(null)
   const [phase, setPhase] = useState('setup')   // setup | loading | play | done | error
   const [mode, setMode] = useState(initialMode || 'all')
@@ -245,6 +273,9 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
   const [me, setMe] = useState(null)
   const [viewRun, setViewRun] = useState(initialRun)   // a run being looked at, from a link or the end screen
   const [runId0, setRunId0] = useState(null)           // the run that just finished
+  const [viewFinal, setViewFinal] = useState(initialFinal)   // a ranked set of #1s, from a link
+  const [fin, setFin] = useState(null)                 // { items, answers, id, saved }
+  const finShown = useRef(0)
 
   // Everything the batch needs lives in a ref, so a swipe never waits on a render.
   // `used` is this deck's shown cards (what the server will accept once); `seen` is the whole
@@ -430,14 +461,38 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
   // keys: ← keep, → take, Backspace/Z undo
   useEffect(() => {
     const k = (e) => {
-      if (phase !== 'play' || e.target?.tagName === 'INPUT') return
+      if ((phase !== 'play' && phase !== 'final') || e.target?.tagName === 'INPUT') return
       if (e.key === 'ArrowRight') { e.preventDefault(); fling(1) }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); fling(-1) }
-      else if (e.key === 'Backspace' || e.key.toLowerCase() === 'z') { e.preventDefault(); undo() }
+      else if (e.key === 'Backspace' || e.key.toLowerCase() === 'z') { e.preventDefault(); phase === 'final' ? undoFinal() : undo() }
     }
     window.addEventListener('keydown', k)
     return () => window.removeEventListener('keydown', k)
   })
+
+  // ---- rank your #1s
+  const startFinal = () => {
+    setFin({ items: crowned.slice().reverse(), answers: [], id: runId(), saved: null })
+    finShown.current = performance.now()
+    setPhase('final')
+  }
+  const answerFinal = (took) => {
+    setFin((f) => {
+      if (!f) return f
+      const answers = [...f.answers, { took, ms: Math.round(performance.now() - finShown.current) }]
+      finShown.current = performance.now()
+      const st = insertionStep(f.items, answers)
+      if (st.done) {
+        setPhase('finalDone')
+        fetch(`${API}?action=swipe-final`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid, id: f.id, mode, order: st.order, pairs: st.pairs }),
+        }).then((r) => r.json()).then((j) => setFin((g2) => (g2 ? { ...g2, saved: !!j?.ok } : g2))).catch(() => {})
+      }
+      return { ...f, answers }
+    })
+  }
+  const undoFinal = () => setFin((f) => (f && f.answers.length ? { ...f, answers: f.answers.slice(0, -1) } : f))
 
   // ---- drag
   const cardRef = useRef(null)
@@ -452,12 +507,12 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
     if (k) k.style.opacity = String(Math.max(0, Math.min(1, -x / 90)))
   }
   const fling = (dir) => {
-    if (phase !== 'play' || g.current.busy) return
+    if ((phase !== 'play' && phase !== 'final') || g.current.busy) return
     setX(dir * (window.innerWidth + 120), 'sw-fly')
-    setTimeout(() => { setX(0, 'sw-in'); swipe(dir > 0) }, 200)
+    setTimeout(() => { setX(0, 'sw-in'); phase === 'final' ? answerFinal(dir > 0) : swipe(dir > 0) }, 200)
   }
   const onDown = (e) => {
-    if (phase !== 'play' || e.button > 0) return
+    if ((phase !== 'play' && phase !== 'final') || e.button > 0) return
     drag.current = { x0: e.clientX, y0: e.clientY, t0: performance.now(), dx: 0, live: false, id: e.pointerId }
   }
   const onMove = (e) => {
@@ -484,6 +539,14 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
 
   // ---------------------------------------------------------------- screens
   const nameOf = (id) => cards?.players?.[id]?.n || byId[id]?.name || '—'
+
+  if (viewFinal) {
+    return (
+      <FinalReceipt id={viewFinal} cards={cards} byId={byId} board={board} base={base} setBase={setBase}
+        onBack={() => { setViewFinal(null); if (initialFinal && phase === 'setup') onExit() }}
+        onPlay={(m) => { setViewFinal(null); setMode(m); start(m) }} />
+    )
+  }
 
   if (viewRun) {
     return (
@@ -569,6 +632,11 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
           <button type="button" className="dyn-btn rounded-xl py-4" onClick={() => start(mode)}>Go again for #{crowned.length + 1}</button>
           <ShareButton id={top} name={nameOf(top)} mode={mode} cards={cards} n={count} run={result?.run || null} place={crowned.length} />
         </div>
+        {crowned.length >= 2 && (
+          <button type="button" className="sw-finish mt-2 w-full" onClick={startFinal}>
+            Rank your {crowned.length} #1s head to head →
+          </button>
+        )}
         {result?.run && (
           <button type="button" className="dyn-btn-ghost mt-2 w-full rounded-xl" onClick={() => setViewRun(result.run)}>
             See every pick in this run →
@@ -615,25 +683,40 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
     )
   }
 
-  // ---- play
-  const champCard = cards?.players?.[champ]
+  if (phase === 'finalDone' && fin) {
+    const st = insertionStep(fin.items, fin.answers)
+    return (
+      <FinalView order={st.order || []} pairs={st.pairs} mode={mode} cards={cards} byId={byId} board={board}
+        base={base} setBase={setBase} mine id={fin.saved ? fin.id : null}
+        onBack={() => setPhase('done')} onPlay={() => { setCrowned([]); setPhase('setup') }} />
+    )
+  }
+
+  // ---- play (and the #1s rank-off, which borrows the same card and swipe)
+  const final = phase === 'final' && fin ? insertionStep(fin.items, fin.answers) : null
+  const [A, B] = final && !final.done ? final.ask : [champ, chal]   // left (kept) and right (taken)
+  const fCount = final ? fin.answers.length : 0, fMax = final ? maxQuestions(fin.items.length) : 0
+  const champCard = cards?.players?.[A]
   const lastFull = champCard?.s?.find((l) => !(l[0] === cards.latest && cards.inProgress)) || champCard?.s?.[0]
   return (
     <div className="mx-auto max-w-xl px-3 pb-6 pt-3 sm:px-4">
       <div className="mb-2 flex items-center gap-3">
-        <button type="button" onClick={() => { submit(); setPhase('setup') }} className="dyn-mono text-[11px] text-[var(--dyn-faint)]">✕</button>
-        <div className="sw-progress flex-1"><i style={{ width: endless ? '100%' : `${(count / RUN_LEN) * 100}%`, opacity: endless ? 0.35 : 1 }} /></div>
-        <span className="dyn-mono text-[10px] text-[var(--dyn-dim)]">{endless ? `${count}` : `${count}/${RUN_LEN}`}</span>
+        <button type="button" onClick={() => { if (final) { setPhase('done'); return } submit(); setPhase('setup') }} className="dyn-mono text-[11px] text-[var(--dyn-faint)]">✕</button>
+        {final
+          ? <><div className="sw-progress flex-1"><i style={{ width: `${(fCount / Math.max(1, fMax)) * 100}%` }} /></div>
+            <span className="dyn-mono text-[10px] text-[var(--dyn-dim)]">{fCount}/{fMax} max</span></>
+          : <><div className="sw-progress flex-1"><i style={{ width: endless ? '100%' : `${(count / RUN_LEN) * 100}%`, opacity: endless ? 0.35 : 1 }} /></div>
+            <span className="dyn-mono text-[10px] text-[var(--dyn-dim)]">{endless ? `${count}` : `${count}/${RUN_LEN}`}</span></>}
       </div>
 
       {/* the champion: hold to see his full card */}
       <button type="button" className="sw-champ mb-2.5 w-full text-left"
         onPointerDown={() => setPeek(true)} onPointerUp={() => setPeek(false)} onPointerLeave={() => setPeek(false)}
         onContextMenu={(e) => e.preventDefault()}>
-        <img src={HEAD(champ)} alt="" draggable="false" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+        <img src={HEAD(A)} alt="" draggable="false" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
         <div className="min-w-0 flex-1">
-          <div className="dyn-label text-[var(--dyn-gold)]">Your guy · {modeLabel(mode)}</div>
-          <div className="truncate text-[15px] text-[var(--dyn-text)]">{nameOf(champ)}</div>
+          <div className="dyn-label text-[var(--dyn-gold)]">{final ? 'Your #1s · head to head' : `Your guy · ${modeLabel(mode)}`}</div>
+          <div className="truncate text-[15px] text-[var(--dyn-text)]">{nameOf(A)}</div>
         </div>
         {lastFull && (
           <div className="dyn-mono shrink-0 text-right text-[10px] leading-tight text-[var(--dyn-dim)]">
@@ -648,32 +731,32 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
           <span className="sw-stamp sw-stamp-take">TAKE</span>
           <span className="sw-stamp sw-stamp-keep">KEEP</span>
           {peek
-            ? <><div className="dyn-label px-4 pt-3 text-[var(--dyn-gold)]">Your guy</div><SwipeCard id={champ} cards={cards} seed={byId[champ]} base={base} setBase={setBase} vs={chal} /></>
-            : <SwipeCard id={chal} cards={cards} seed={byId[chal]} base={base} setBase={setBase} vs={champ} />}
+            ? <><div className="dyn-label px-4 pt-3 text-[var(--dyn-gold)]">Your guy</div><SwipeCard id={A} cards={cards} seed={byId[A]} base={base} setBase={setBase} vs={B} /></>
+            : <SwipeCard id={B} cards={cards} seed={byId[B]} base={base} setBase={setBase} vs={A} />}
         </div>
       </div>
 
       <div className="sticky bottom-0 -mx-3 mt-3 bg-gradient-to-t from-[var(--dyn-bg)] via-[var(--dyn-bg)] to-transparent px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-4 sm:-mx-4 sm:px-4">
         <div className="sw-act">
           <button type="button" className="sw-keep" onClick={() => fling(-1)}>
-            <span className="block">← Keep</span>
-            <span className="block truncate px-2 text-[9px] tracking-wider opacity-70">{lastName(nameOf(champ))}</span>
+            <span className="block">{final ? '← Higher' : '← Keep'}</span>
+            <span className="block truncate px-2 text-[9px] tracking-wider opacity-70">{lastName(nameOf(A))}</span>
           </button>
-          <button type="button" className="sw-undo" onClick={undo} disabled={!g.current.steps.length} aria-label="Undo">↶</button>
+          <button type="button" className="sw-undo" onClick={final ? undoFinal : undo} disabled={final ? !fCount : !g.current.steps.length} aria-label="Undo">↶</button>
           <button type="button" className="sw-take" onClick={() => fling(1)}>
-            <span className="block">Take →</span>
-            <span className="block truncate px-2 text-[9px] tracking-wider opacity-70">{lastName(nameOf(chal))}</span>
+            <span className="block">{final ? 'Higher →' : 'Take →'}</span>
+            <span className="block truncate px-2 text-[9px] tracking-wider opacity-70">{lastName(nameOf(B))}</span>
           </button>
         </div>
-        {endless && (
-          <button type="button" className="sw-finish mt-2 w-full" disabled={!count} onClick={() => finish(champ)}>
-            Finish · crown {lastName(nameOf(champ))} your #1
+        {endless && !final && (
+          <button type="button" className="sw-finish mt-2 w-full" disabled={!count} onClick={() => finish(A)}>
+            Finish · crown {lastName(nameOf(A))} your #1
           </button>
         )}
         <p className="dyn-mono mt-2 hidden text-center text-[10px] text-[var(--dyn-faint)] sm:block">← keep · → take · Z undo · hold your guy to compare</p>
       </div>
 
-      {toast && (
+      {toast && !final && (
         <div key={toast.k} className="sw-toast">
           <span className={toast.agree >= 50 ? 'dyn-up' : 'text-[var(--dyn-gold)]'}>
             {toast.agree >= 50 ? 'With the market' : 'Against the market'}
@@ -937,5 +1020,112 @@ function RunReceipt({ id, cards, byId, board, base, setBase, mine, onBack, onPla
         Find your own #1 · {modeLabel(run.mode)} →
       </button>
     </div>
+  )
+}
+
+// ---------------------------------------------------------------- your #1s, ranked
+
+/* The end of a session: the players you crowned, in the order your head-to-heads put them.
+ * Shared at /dynasty?final=<id>. */
+function FinalView({ order, pairs, mode, cards, byId, board, base, setBase, mine, id, onBack, onPlay }) {
+  const [said, setSaid] = useState(null)
+  const nameOf = (pid) => cards?.players?.[String(pid)]?.n || byId[String(pid)]?.name || `#${pid}`
+  const market = {}
+  board.forEach((r, i) => { market[String(r.id)] = i + 1 })
+  const top = order.length ? String(order[0]) : null
+  const share = async () => {
+    const url = id ? `${SITE}/dynasty?final=${id}` : `${SITE}/dynasty?swipe=${mode}`
+    const text = `My ${order.length} #1 dynasty ${poolNoun(mode)}s, ranked head to head: ${order.map((x, i) => `${i + 1}. ${nameOf(x)}`).join(', ')}.`
+    try { if (navigator.share) { await navigator.share({ text, url }); return } } catch { return }
+    try { await navigator.clipboard.writeText(`${text} ${url}`); setSaid('Copied') } catch { setSaid('Could not copy') }
+    setTimeout(() => setSaid(null), 1800)
+  }
+  return (
+    <div className="mx-auto max-w-xl px-4 pb-16 pt-5">
+      <button type="button" onClick={onBack} className="dyn-mono text-[10px] tracking-widest text-[var(--dyn-faint)]">← BACK</button>
+      <div className="mt-3 text-center">
+        <div className="dyn-label text-[var(--dyn-gold)]">{mine ? 'Your' : 'Their'} #1s, ranked · {modeLabel(mode)}</div>
+        <div className="mt-1 text-[22px] leading-tight text-[var(--dyn-text)]">
+          {order.length} #1s, {pairs.length} head-to-head{pairs.length === 1 ? '' : 's'}, one order
+        </div>
+      </div>
+      {top && (
+        <div className="sw-card sw-crowned mt-4" style={{ borderColor: 'rgba(194,162,99,.6)' }}>
+          <div className="dyn-label px-4 pt-3 text-[var(--dyn-gold)]">#1 of the #1s</div>
+          <SwipeCard id={top} cards={cards} seed={byId[top]} base={base} setBase={setBase} />
+        </div>
+      )}
+      <ol className="mt-4 divide-y divide-[var(--dyn-line-soft)] rounded-xl border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+        {order.map((pid, i) => {
+          const c = cards?.players?.[String(pid)]
+          return (
+            <li key={pid} className="flex items-center gap-3 px-3 py-2.5">
+              <span className={`dyn-mono w-6 shrink-0 text-[15px] ${i === 0 ? 'text-[var(--dyn-gold)]' : 'text-[var(--dyn-dim)]'}`}>{i + 1}</span>
+              <img src={HEAD(pid)} alt="" className="h-[30px] w-[41px] shrink-0 object-contain" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[14px] text-[var(--dyn-text)]">{nameOf(pid)}</span>
+                <span className="dyn-mono block text-[9.5px] tracking-wider text-[var(--dyn-faint)]">{[c?.t, c?.p].filter(Boolean).join(' · ').toUpperCase()}</span>
+              </span>
+              <span className="dyn-mono shrink-0 text-[10px] text-[var(--dyn-faint)]">{market[String(pid)] ? `market #${market[String(pid)]}` : ''}</span>
+            </li>
+          )
+        })}
+      </ol>
+      {mine && (
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <button type="button" className="dyn-btn rounded-xl py-4" onClick={share}>{said || 'Share the ranking'}</button>
+          <button type="button" className="dyn-btn-ghost rounded-xl" onClick={() => onPlay(mode)}>New session</button>
+        </div>
+      )}
+      {pairs.length > 0 && (
+        <>
+          <div className="dyn-label mt-6">Every head-to-head</div>
+          <ol className="mt-2 divide-y divide-[var(--dyn-line-soft)] rounded-xl border border-[var(--dyn-line)] bg-[var(--dyn-panel)]">
+            {pairs.map(([a, x, k], i) => (
+              <li key={i} className="flex items-center gap-2.5 px-3 py-2 text-[12.5px]">
+                <span className="dyn-mono w-5 shrink-0 text-[10px] text-[var(--dyn-faint)]">{i + 1}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="text-[var(--dyn-text)]">{nameOf(k ? x : a)}</span>
+                  <span className="text-[var(--dyn-faint)]"> over </span>
+                  <span className="text-[var(--dyn-dim)]">{nameOf(k ? a : x)}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-2 text-[10.5px] leading-snug text-[var(--dyn-faint)]">
+            Ranked by binary insertion: each #1 is placed with as few head-to-heads as it takes. These picks are kept as yours and do not move the market.
+          </p>
+        </>
+      )}
+      {!mine && (
+        <button type="button" className="dyn-btn mt-6 w-full rounded-xl py-4" onClick={() => onPlay(mode)}>
+          Find your own #1s · {modeLabel(mode)} →
+        </button>
+      )}
+    </div>
+  )
+}
+
+function FinalReceipt({ id, cards, byId, board, base, setBase, onBack, onPlay }) {
+  const [f, setF] = useState(null)
+  const [err, setErr] = useState(null)
+  useEffect(() => {
+    fetch(`${API}?action=swipe-final-get&id=${encodeURIComponent(id)}`)
+      .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
+      .then(({ ok, j }) => (ok && j?.ok ? setF(j) : setErr('That ranking is not on record.')))
+      .catch(() => setErr('Could not load that ranking.'))
+  }, [id])
+  if (err) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-16 text-center">
+        <p className="text-[14px] text-[var(--dyn-dim)]">{err}</p>
+        <button type="button" className="dyn-btn mt-6 rounded-xl" onClick={() => onPlay('all')}>Find your own #1 →</button>
+      </div>
+    )
+  }
+  if (!f) return <div className="dyn-mono px-5 py-24 text-center text-[11px] tracking-widest text-[var(--dyn-faint)]">LOADING…</div>
+  return (
+    <FinalView order={f.order.map(String)} pairs={f.pairs} mode={f.mode} cards={cards} byId={byId} board={board}
+      base={base} setBase={setBase} mine={false} id={id} onBack={onBack} onPlay={onPlay} />
   )
 }
