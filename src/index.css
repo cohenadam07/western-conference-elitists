@@ -1243,3 +1243,15 @@ body {
 @keyframes sw-in { from { transform: scale(.965); opacity: .35; } to { transform: none; opacity: 1; } }
 .sw-card.sw-in { animation: sw-in .18s ease-out; }
 @media (prefers-reduced-motion: reduce) { .sw-card.sw-in { animation: none; } }
+
+/* green where the card on screen beats the player it is weighed against */
+.sw-lines td.sw-better { color: var(--dyn-up) !important; background: rgba(22,199,132,.10); }
+.sw-better .sw-bar-l, .sw-better .sw-bar-l b { color: var(--dyn-up); }
+
+/* endless mode's way out */
+.sw-finish {
+  min-height: 44px; border-radius: 12px; border: 1px solid rgba(194,162,99,.6); background: rgba(194,162,99,.12);
+  color: var(--dyn-gold); font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+}
+.sw-finish:disabled { opacity: .35; }
+.sw-finish:active:not(:disabled) { transform: scale(.98); }

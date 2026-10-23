@@ -66,10 +66,15 @@ function writePref(key, v) { try { localStorage.setItem(key, v) } catch { /* pri
 
 // ---------------------------------------------------------------- the card
 
-function Bar({ label, unit, v, pct, low }) {
+// True when this card's number beats the other player's. Lower-is-better stats (turnovers)
+// flip; percentiles are already flipped by Savant, so they always compare higher-is-better.
+const beats = (a, b, lower = false) => a != null && b != null && Number.isFinite(+a) && Number.isFinite(+b)
+  && (lower ? +a < +b : +a > +b)
+
+function Bar({ label, unit, v, pct, low, better }) {
   const has = pct != null
   return (
-    <div className={low ? 'sw-low' : ''}>
+    <div className={[low ? 'sw-low' : '', better ? 'sw-better' : ''].join(' ')}>
       <div className="sw-bar-l"><span className="truncate">{label}</span><b>{fmt(unit, v)}</b></div>
       <div className="sw-track">
         {has && <span className="sw-fill" style={{ width: `${pct}%`, background: colorAt(pct) }} />}
@@ -81,15 +86,18 @@ function Bar({ label, unit, v, pct, low }) {
 
 const GROUPS = { off: 'Offense', def: 'Defense', val: 'Overall value' }
 
-function Summary({ metrics, m, low, base, posIdx }) {
+function Summary({ metrics, m, low, base, posIdx, vs }) {
   let last = null
   const out = []
   for (const [key, label, group, unit] of metrics) {
     if (group !== last) { out.push(<div key={'g' + group} className="sw-grp">{GROUPS[group]}</div>); last = group }
     const cell = m[key]
+    const idx = base === 'pos' ? posIdx : 1
+    const other = vs && vs[key]
     out.push(
       <Bar key={key} label={label} unit={unit} v={cell ? cell[0] : null}
-        pct={cell ? cell[base === 'pos' ? posIdx : 1] : null} low={low && low.includes(key)} />,
+        pct={cell ? cell[idx] : null} low={low && low.includes(key)}
+        better={!!(cell && other && beats(cell[idx], other[idx]))} />,
     )
   }
   return <div className="sw-bars">{out}</div>
@@ -97,8 +105,12 @@ function Summary({ metrics, m, low, base, posIdx }) {
 
 /* The card. `cards` is the whole cards.json; `id` the player; `seed` the board's own entry
  * (the fallback when the build could not write cards.json). */
-export function SwipeCard({ id, cards, seed, base, setBase, compact = false }) {
+/* `vs`: the player this card is being weighed against. Every number where this card's player
+ * is better lights up green: the season lines season by season, the Savant bars on the same
+ * season and the same pool. Nothing lights when the two have nothing comparable. */
+export function SwipeCard({ id, cards, seed, base, setBase, compact = false, vs = null }) {
   const c = cards?.players?.[id]
+  const o = vs ? cards?.players?.[vs] : null
   const name = c?.n || seed?.name || '—'
   const pos = c?.p || null
   const posWord = POS_WORD[pos] || 'position'
@@ -118,6 +130,10 @@ export function SwipeCard({ id, cards, seed, base, setBase, compact = false }) {
   const q = view && view !== 'draft' ? c?.q?.[view] : null
 
   const lines = c?.s || []
+  // pre-draft line against pre-draft line only (college numbers next to NBA ones mean nothing)
+  const dhi = (i, lower = false) => (o?.d && beats(c.d.line[i], o.d.line[i], lower) ? 'sw-better' : '')
+  // the other player's bars for the season (or pre-draft card) this card is showing
+  const vsM = !o ? null : view === 'draft' ? o.d?.m || null : o.q?.[view]?.m || null
   const sub = [c?.t || seed?.team, pos || seed?.pos, (c?.a ?? seed?.age) ? `${Math.round((c?.a ?? seed?.age) * 10) / 10}y` : null,
     c?.r ? (c?.pk ? `Rookie · #${c.pk} pick` : 'Rookie') : null].filter(Boolean).join(' · ')
 
@@ -140,20 +156,22 @@ export function SwipeCard({ id, cards, seed, base, setBase, compact = false }) {
           <tbody>
             {lines.map((l) => {
               const now = l[0] === cards.latest && cards.inProgress
+              const ol = o?.s?.find((x) => x[0] === l[0])
+              const hi = (i) => (ol && beats(l[i], ol[i], i === 6) ? 'sw-better' : '')
               return (
                 <tr key={l[0]} className={now ? 'sw-now' : ''}>
                   <td>{cards.seasonsShort?.[l[0]] || l[0]}</td>
-                  <td className={now && l[1] < (cards.currentMinGp || 10) ? 'sw-thin' : ''}>{l[1] ?? '—'}</td>
-                  <td>{one(l[2])}</td><td>{one(l[3])}</td><td>{one(l[4])}</td><td>{one(l[5])}</td>
-                  <td>{one(l[6])}</td><td>{one(l[7])}</td><td>{l[8] == null ? '—' : (+l[8]).toFixed(1)}</td><td>{ts3(l[9])}</td>
+                  <td className={[now && l[1] < (cards.currentMinGp || 10) ? 'sw-thin' : '', hi(1)].join(' ')}>{l[1] ?? '—'}</td>
+                  <td className={hi(2)}>{one(l[2])}</td><td className={hi(3)}>{one(l[3])}</td><td className={hi(4)}>{one(l[4])}</td><td className={hi(5)}>{one(l[5])}</td>
+                  <td className={hi(6)}>{one(l[6])}</td><td className={hi(7)}>{one(l[7])}</td><td className={hi(8)}>{l[8] == null ? '—' : (+l[8]).toFixed(1)}</td><td className={hi(9)}>{ts3(l[9])}</td>
                 </tr>
               )
             })}
             {c?.d && (lines.length < 3) && (
               <tr>
                 <td title={c.d.c || 'Pre-draft season'}>{/not NCAA|NBL|G League|Ignite|Euro|ACB|Liga|ABA/i.test(c.d.c || '') ? 'PRO' : 'COLL'}</td>
-                <td>{c.d.gp ?? '—'}</td><td>—</td><td>{one(c.d.line[0])}</td><td>{one(c.d.line[1])}</td><td>{one(c.d.line[2])}</td>
-                <td>{one(c.d.line[3])}</td><td>—</td><td>{c.d.line[4] == null ? '—' : (+c.d.line[4]).toFixed(1)}</td><td>{ts3(c.d.line[5])}</td>
+                <td>{c.d.gp ?? '—'}</td><td>—</td><td className={dhi(0)}>{one(c.d.line[0])}</td><td className={dhi(1)}>{one(c.d.line[1])}</td><td className={dhi(2)}>{one(c.d.line[2])}</td>
+                <td className={dhi(3, true)}>{one(c.d.line[3])}</td><td>—</td><td className={dhi(4)}>{c.d.line[4] == null ? '—' : (+c.d.line[4]).toFixed(1)}</td><td className={dhi(5)}>{ts3(c.d.line[5])}</td>
               </tr>
             )}
           </tbody>
@@ -186,12 +204,13 @@ export function SwipeCard({ id, cards, seed, base, setBase, compact = false }) {
             </div>
           </div>
           {view === 'draft'
-            ? <Summary metrics={cards.draft?.metrics || []} m={c.d.m} low={null} base={base} posIdx={2} />
-            : <Summary metrics={cards.nba} m={q.m} low={q.low} base={base} posIdx={2} />}
+            ? <Summary metrics={cards.draft?.metrics || []} m={c.d.m} low={null} base={base} posIdx={2} vs={vsM} />
+            : <Summary metrics={cards.nba} m={q.m} low={q.low} base={base} posIdx={2} vs={vsM} />}
           <p className="mt-2 text-[10px] leading-snug text-[var(--dyn-faint)]">
             {view === 'draft'
               ? `Pre-draft season, percentile vs. the ${cards.draft?.year} draft class${base === 'pos' ? ` (${POS_WORD[c?.d?.p || pos] || 'same position'})` : ''}.`
               : `Per-75, percentile vs. ${base === 'pos' ? posWord : 'the league'}, ${cards.seasonsShort?.[view] || view}${q?.low?.length ? '. Hatched bars are under their stable sample' : ''}${q?.uq ? '. Below the minutes floor: ranked against qualifiers' : ''}.`}
+            {o && (vsM || o.s) && <> <span className="text-[var(--dyn-up)]">Green</span>: better than {lastName(o.n)}{vsM ? '' : ' (no comparable Savant season)'}.</>}
           </p>
         </div>
       )}
@@ -562,9 +581,6 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
         <button type="button" onClick={() => { submit(); setPhase('setup') }} className="dyn-mono text-[11px] text-[var(--dyn-faint)]">✕</button>
         <div className="sw-progress flex-1"><i style={{ width: endless ? '100%' : `${(count / RUN_LEN) * 100}%`, opacity: endless ? 0.35 : 1 }} /></div>
         <span className="dyn-mono text-[10px] text-[var(--dyn-dim)]">{endless ? `${count}` : `${count}/${RUN_LEN}`}</span>
-        {endless && count > 0 && (
-          <button type="button" className="dyn-mono text-[10px] tracking-wider text-[var(--dyn-gold)]" onClick={() => finish(champ)}>DONE</button>
-        )}
       </div>
 
       {/* the champion: hold to see his full card */}
@@ -589,8 +605,8 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
           <span className="sw-stamp sw-stamp-take">TAKE</span>
           <span className="sw-stamp sw-stamp-keep">KEEP</span>
           {peek
-            ? <><div className="dyn-label px-4 pt-3 text-[var(--dyn-gold)]">Your guy</div><SwipeCard id={champ} cards={cards} seed={byId[champ]} base={base} setBase={setBase} /></>
-            : <SwipeCard id={chal} cards={cards} seed={byId[chal]} base={base} setBase={setBase} />}
+            ? <><div className="dyn-label px-4 pt-3 text-[var(--dyn-gold)]">Your guy</div><SwipeCard id={champ} cards={cards} seed={byId[champ]} base={base} setBase={setBase} vs={chal} /></>
+            : <SwipeCard id={chal} cards={cards} seed={byId[chal]} base={base} setBase={setBase} vs={champ} />}
         </div>
       </div>
 
@@ -606,6 +622,11 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
             <span className="block truncate px-2 text-[9px] tracking-wider opacity-70">{lastName(nameOf(chal))}</span>
           </button>
         </div>
+        {endless && (
+          <button type="button" className="sw-finish mt-2 w-full" disabled={!count} onClick={() => finish(champ)}>
+            Finish · crown {lastName(nameOf(champ))} your #1
+          </button>
+        )}
         <p className="dyn-mono mt-2 hidden text-center text-[10px] text-[var(--dyn-faint)] sm:block">← keep · → take · Z undo · hold your guy to compare</p>
       </div>
 
