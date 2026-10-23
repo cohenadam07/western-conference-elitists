@@ -331,11 +331,32 @@ export async function playerSplits({ player, season, view = 'play_types' }) {
   if (!r) throw new SavantError(`${who.name} has no ${s} season in Basketball Savant (${who.from} to ${who.to}).`)
   const base = { player: { id: String(who.id), name: who.name, team: r.team, position: r.pos }, season: s, view, url: cardUrl(who.id), source: SOURCE }
   if (view === 'play_types') {
-    if (!r.pt) throw new SavantError(`No play-type numbers for ${who.name} in ${s}. Synergy play types are kept for recent seasons, for players with enough possessions.`)
-    const types = Object.entries(r.pt).map(([k, v]) => ({ type: PT_NAME[k] || k, share: v[0], points_per_possession: v[1], percentile: v[2], possessions: v[3] })).sort((a, b) => b.share - a.share)
-    const text = [`${who.name}, ${s} play types (Synergy):`, ...types.map((t) => `- ${t.type}: ${t.share.toFixed(1)}% of his possessions (${thousands(t.possessions)}), ${t.points_per_possession.toFixed(3)} points per possession (${ordinal(t.percentile)} percentile)`),
-      '', 'The percentile ranks his points per possession on that play type against other players with enough of it. Synergy credits the finisher of a possession, not the man who set it up.', '', `Card: ${base.url}`, `Source: ${SOURCE}.`]
-    return { structured: { ...base, play_types: types }, text: text.join('\n') }
+    // The cutoffs travel with the data: seasons/<season>.json carries play_types for the
+    // season in progress (~/Basketball-Savant/extras_engine.playtype_meta). A finished season
+    // has none — its percentile is the NBA's and is always there.
+    const ptm = file.play_types || null
+    const floor = (ptm && ptm.nba_min_poss) || 10
+    if (!r.pt) {
+      throw new SavantError(`No play-type numbers for ${who.name} in ${s}. The NBA publishes a player's play type only once he has ${floor} possessions of it, so nothing he has run less than that appears${ptm ? ' — and the season is only a few games old' : ''}. Synergy play types start in 2015-16.`)
+    }
+    const types = Object.entries(r.pt).map(([k, v]) => {
+      const small = ptm != null && v[3] < ptm.sample_flag
+      const t = { type: PT_NAME[k] || k, share: v[0], points_per_possession: v[1], percentile: v[2] ?? null, possessions: v[3] }
+      if (ptm) t.small_sample = small
+      if (t.percentile == null && ptm) {
+        t.percentile_note = small
+          ? `No percentile: ${v[3]} possessions, under the ${ptm.sample_flag} a percentile needs.`
+          : `No percentile: only ${(ptm.pools && ptm.pools[k]) || 0} players have ${ptm.sample_flag}+ possessions of this play type, under the ${ptm.pool_min} a ranking needs.`
+      }
+      return t
+    }).sort((a, b) => b.share - a.share)
+    const pctTxt = (t) => (t.percentile == null ? (t.small_sample ? 'small sample, no percentile' : 'no percentile') : `${ordinal(t.percentile)} percentile`)
+    const notes = ptm
+      ? [`The season is in progress. The percentile ranks his points per possession on that play type against the players with ${ptm.sample_flag}+ possessions of it, league-wide, and is null under that — a play type marked small_sample is a real number on too little sample, not a ranking. The NBA publishes a player's play type only once he has ${floor} possessions of it, so a type he has run less than that is missing rather than zero. Synergy credits the finisher of a possession, not the man who set it up.`]
+      : ['The percentile ranks his points per possession on that play type against other players with enough of it. Synergy credits the finisher of a possession, not the man who set it up.']
+    const text = [`${who.name}, ${s} play types (Synergy):`, ...types.map((t) => `- ${t.type}: ${t.share.toFixed(1)}% of his possessions (${thousands(t.possessions)}), ${t.points_per_possession.toFixed(3)} points per possession (${pctTxt(t)})`),
+      '', ...notes, '', `Card: ${base.url}`, `Source: ${SOURCE}.`]
+    return { structured: { ...base, ...(ptm ? { cutoffs: ptm } : {}), play_types: types }, text: text.join('\n') }
   }
   if (view === 'with_without') {
     if (!r.ww || !r.ww.length) throw new SavantError(`No with/without split for ${who.name} in ${s}: it needs teammates who missed enough games.`)
@@ -434,7 +455,7 @@ export const tools = [
     config: {
       title: 'NBA player play types and splits',
       description:
-        'Below an NBA player\'s season card on Basketball Savant (wcehoops.com). view "play_types": his Synergy play types, share of possessions, points per possession and its percentile. "with_without": his line with and without each teammate who missed games. "months": the season month by month. "shots": whether his shot chart exists and how many attempts it holds (the chart itself is a picture on the card).',
+        'Below an NBA player\'s season card on Basketball Savant (wcehoops.com). view "play_types": his Synergy play types, share of possessions, points per possession, possessions, and its percentile — on the season in progress a play type under the cutoff carries small_sample: true and a null percentile with a percentile_note saying why. "with_without": his line with and without each teammate who missed games. "months": the season month by month. "shots": whether his shot chart exists and how many attempts it holds (the chart itself is a picture on the card).',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nba_search_players or a full name.'),
         view: z.enum(['play_types', 'with_without', 'months', 'shots']).default('play_types').describe('Which view.'),

@@ -393,6 +393,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .pt-bar{display:inline-block;height:9px;border-radius:2px;vertical-align:middle;margin-right:6px}
 .ww-up{color:#BC3A2C}.ww-dn{color:#1C4E86}
 .ww-n{color:var(--muted);font-size:11.5px}
+/* Play types, season in progress: a small-sample row and a percentile we won't show. */
+.pt-tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line,#D8D6CF);border-radius:3px;padding:1px 4px;white-space:nowrap;vertical-align:1px}
+.pt-none{color:var(--muted)}
+.pt-note{font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.45}
 .role[hidden]{display:none}
 .role-cap{font-size:12.5px;color:var(--muted);background:var(--bg);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:9px 12px;margin:2px 0 12px;line-height:1.5}
 .role-cap b{color:var(--ink);font-weight:600}
@@ -2008,7 +2012,7 @@ const EXPL={
  uast:{"what": "Unassisted makes: the share of his made field goals that nobody assisted. High means he creates his own baskets; low means he finishes what others set up.", "formula": "Unassisted makes % = 100 × unassisted FGM ÷ FGM (the NBA's PCT_UAST_FGM)", "source": "NBA.com stats (stats.nba.com) scoring splits, each make tagged assisted or not from the play-by-play, 1996-97 on.", "sample": "Hatched under 100 made field goals."},
  uast3:{"what": "Unassisted threes: the share of his made threes that nobody assisted. Separates pull-up shooters from catch-and-shoot shooters.", "formula": "Unassisted 3s % = 100 × unassisted 3PM ÷ 3PM (the NBA's PCT_UAST_3PM)", "source": "NBA.com stats (stats.nba.com) scoring splits, 1996-97 on.", "sample": "Hatched under 50 made threes."},
  onoffadj:{"what": "On/off with the luck taken out: the same on-minus-off net rating, after replacing the opponents' three-point and free-throw shooting with league average. Opponents' 3P% and FT% while one player is on the floor are almost all noise, and they swing raw on/off by several points.", "formula": "For his on and off minutes separately: net rating + 100 × (3 × (opp 3PM − opp 3PA × league 3P%) + (opp FTM − opp FTA × league FT%)) ÷ possessions. Luck-adjusted on/off = adjusted on − adjusted off; traded players are minutes-weighted. His own team's shooting is left alone: a shooter raising his team's 3P% is real.", "source": "NBA.com stats (stats.nba.com) team on/off details (opponent and advanced splits), 1996-97 on.", "sample": "Still noisy below ~1,000 minutes; steadier than raw on/off."},
- pt:{"what": "Play types: how his offense is built (pick-and-roll, isolation, spot-ups and the rest) and how well each part works.", "formula": "For each play type: share = his possessions in it ÷ all his play-type possessions; points per possession = points ÷ possessions; percentile = the NBA's, among every player who ran that play type. Traded players are combined, possession-weighted.", "source": "NBA.com stats (stats.nba.com) Synergy play types, 2015-16 on.", "sample": "Percentiles on under ~25 possessions in a play type are mostly noise."},
+ pt:{"what": "Play types: how his offense is built (pick-and-roll, isolation, spot-ups and the rest) and how well each part works.", "formula": "For each play type: share = his possessions in it ÷ all his play-type possessions; points per possession = points ÷ possessions. Traded players are combined, possession-weighted. The percentile on a finished season is the NBA's, among every player who ran that play type. On the season in progress it is ours: his points per possession against the players with 25+ possessions of that play type, league-wide and not position-adjusted, and left blank until he has 25 of them himself and 20 players clear the same bar — the NBA's own percentile is ranked inside its 10-possession pool, which in the first week of a season is three or four players.", "source": "NBA.com stats (stats.nba.com) Synergy play types, 2015-16 on. The NBA publishes a player's play type only once he has 10 possessions of it, so early in a season a type he has run less than that is missing rather than zero. Synergy credits the finisher of a possession, not the man who set it up.", "sample": "Under 25 possessions in a play type a percentile is mostly noise, so in season it is withheld and the row is tagged small sample."},
  ww:{"what": "With / without: what happens to his game when a teammate sits. The three teammates whose absence changes his usage the most, ranked after allowing for how few games there are without them.", "formula": "From game logs: his per-36 usage (FGA + 0.44·FTA + TOV), points, assists, rebounds and minutes in games the teammate played vs. games the team played without him (only games he himself played). Ranking: change in usage × n ÷ (n + 5), n = games without.", "source": "NBA.com stats (stats.nba.com) game logs.", "sample": "5+ games with and 3+ without; games without a teammate are usually few, so read the game counts."},
  perim:{"what": "Perimeter Assignment Rate: the share of his defensive matchups spent on guards. Role, not ability: scheme drives much of it, and assignment is least reliable during switches.", "formula": "Perimeter rate = possessions guarding guards ÷ all matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup tracking, 2017-18 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
  contest:{"what": "Rim Contest Rate: of the shots he defended as the closest defender, the share taken within 6 feet. High marks a back-line, rim-anchoring role.", "formula": "Contest rate = shots defended within 6 ft ÷ all shots defended", "source": "NBA.com stats (stats.nba.com) player tracking (defense), 2013-14 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
@@ -3114,14 +3118,40 @@ function renderPlayTypes(){
   const el=document.getElementById('ptype'); if(!el) return;
   const pt=cur&&cur.pt;
   if(!pt||cmpPlayers().length){ el.hidden=true; el.innerHTML=''; return; }
+  /* On the season in progress the percentile is ours and can be absent: a play type under
+     sample_flag possessions, or a pool too thin to rank against, shows the points per
+     possession with a small-sample tag and no percentile, so three possessions never read as
+     the 99th. The cutoffs travel with the data (extras_engine.playtype_meta via
+     DATA.current.playtypes), so this file keeps no copy of them. A finished season is
+     untouched: the NBA's percentile, which is always there, and the caption it always had. */
+  const live=!!(DATA.current&&DATA.current.season===curSeason&&DATA.current.playtypes);
+  const meta=live?DATA.current.playtypes:null;
   const rows=Object.keys(pt).map(function(k){return [k].concat(pt[k]);}).sort(function(a,b){return b[1]-a[1];});
+  const cap=meta
+    ?'How his offense is built, from Synergy tracking &middot; '+curSeason+'. Percentile is ours, against the players with '+meta.sample_flag+'+ possessions of that play type &mdash; league-wide, not by position. Under '+meta.sample_flag+' possessions the number stands on its own, with no percentile.'
+    :'How his offense is built, from Synergy tracking &middot; '+curSeason+'. Percentile is the NBA&rsquo;s, against every player who ran that play type.';
   el.innerHTML='<h2 class="col-h panel-h" data-k="pt" title="Click for what this is and how it’s calculated">Play types</h2>'
-    +'<div class="guard-cap">How his offense is built, from Synergy tracking &middot; '+curSeason+'. Percentile is the NBA&rsquo;s, against every player who ran that play type.</div>'
+    +'<div class="guard-cap">'+cap+'</div>'
     +'<table class="pt-table"><tr><th>Play type</th><th>Share</th><th>Pts / poss</th><th>Percentile</th><th>Poss</th></tr>'
     +rows.map(function(r){
-      return '<tr><td>'+(PT_NAMES[r[0]]||r[0])+'</td><td>'+r[1].toFixed(1)+'%</td><td>'+r[2].toFixed(2)+'</td>'
-        +'<td><span class="pt-bar" style="width:'+Math.max(2,r[3]*0.6)+'px;background:'+colorAt(r[3])+'"></span>'+r[3]+'</td><td>'+r[4]+'</td></tr>';
-    }).join('')+'</table>';
+      const poss=r[4], pct=r[3], small=!!meta&&poss<meta.sample_flag;
+      let cell;
+      if(pct==null){
+        const pool=(meta&&meta.pools&&meta.pools[r[0]])||0;
+        const why=small?poss+' possessions, under the '+meta.sample_flag+' a percentile needs'
+          :meta?'only '+pool+' players have '+meta.sample_flag+'+ possessions of it, under the '+meta.pool_min+' a ranking needs'
+          :'not published for this season';
+        cell='<span class="pt-none" title="No percentile: '+why+'.">&mdash;</span>';
+      }else{
+        cell='<span class="pt-bar" style="width:'+Math.max(2,pct*0.6)+'px;background:'+colorAt(pct)+'"></span>'+pct;
+      }
+      return '<tr><td>'+(PT_NAMES[r[0]]||r[0])
+        +(small?' <span class="pt-tag" title="Small sample: under '+meta.sample_flag+' possessions of this play type.">small sample</span>':'')
+        +'</td><td>'+r[1].toFixed(1)+'%</td><td>'+r[2].toFixed(2)+'</td>'
+        +'<td>'+cell+'</td><td>'+poss+'</td></tr>';
+    }).join('')+'</table>'
+    +(meta?'<div class="pt-note">The NBA publishes a player&rsquo;s play type only once he has '+meta.nba_min_poss
+      +' possessions of it, so a type he has run less than that is not here yet &mdash; missing, not zero.</div>':'');
   el.hidden=false;
 }
 /* With / without: the teammates whose absence changes his game most. Explainer under EXPL.ww. */
@@ -3432,8 +3462,11 @@ async function exportCard(){
    2.0.0 (Oct 2026): live through the season (refreshed after every slate), likely-to-settle
    marks, pro-rated qualifier with a one-game opening week.
    2.1.0 (Oct 2026): Fantasy, Teams and Lineups tabs.
-   2.2.0 (Oct 2026): Savant value and the All-Savant Team (1st and 2nd team, every season). */
-var VERSION='2.2.0';
+   2.2.0 (Oct 2026): Savant value and the All-Savant Team (1st and 2nd team, every season).
+   2.2.1 (Oct 2026): play types through the season in progress — our own percentile against
+   the players with 25+ possessions of that play type, a small-sample tag under it, and the
+   NBA's own 10-possession floor said out loud instead of guessed at. */
+var VERSION='2.2.1';
 function build(){
   const vc=document.getElementById('verchip');
   if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }
@@ -4039,7 +4072,8 @@ function mergeSavant(archive, current){
   var newer=when(current.generated)>when(archive.generated);
   return Object.assign({},archive,{seasons:seasons,data:data,qualify:qualify,
     generated:newer?current.generated:archive.generated,
-    current:{season:taken[0],generated:current.generated||null,through:current.through||null}});
+    current:{season:taken[0],generated:current.generated||null,through:current.through||null,
+      playtypes:current.playtypes||null}});
 }
 /* The season the page opens on: the newest one with a real qualified pool. Early in a new
    season nobody has cleared the games floor yet, so the page stays on last season (the same

@@ -260,6 +260,11 @@ test('the page lays the season in progress over the archive exactly as the build
     'an older copy (folded into a later rebuild)': { seasons: ['2025-26'], generated: '2026-04-20T00:00:00+00:00',
       data: { '2025-26': { players: [pl('Stale', true)] } } },
     'an empty season': { seasons: ['2026-27'], generated: '2026-10-22T09:00:00+00:00', data: { '2026-27': { players: [] } } },
+    // The play-type cutoffs ride on the current file and must reach DATA.current in both
+    // merges: the page reads them to decide what to tag and what percentile to withhold.
+    'a new season carrying the play-type cutoffs': { seasons: ['2026-27'], generated: '2026-10-22T09:00:00+00:00', through: '2026-10-21',
+      playtypes: { sample_flag: 25, pool_min: 20, nba_min_poss: 10, basis: 'league', pools: { Isolation: 3 } },
+      data: { '2026-27': { players: [pl('New', false)] } } },
     'nothing': null,
     'garbage': { hello: 1 },
   }
@@ -271,7 +276,10 @@ test('the page lays the season in progress over the archive exactly as the build
   const fresh = mergeSavantData(archive, cases['a new season'])
   assert.deepEqual(fresh.seasons, ['2026-27', '2025-26', '2024-25'])
   assert.equal(fresh.generated, '2026-10-22T09:00:00+00:00')
-  assert.deepEqual(fresh.current, { season: '2026-27', generated: '2026-10-22T09:00:00+00:00', through: '2026-10-21' })
+  assert.deepEqual(fresh.current, { season: '2026-27', generated: '2026-10-22T09:00:00+00:00', through: '2026-10-21', playtypes: null })
+  const withCuts = mergeSavantData(archive, cases['a new season carrying the play-type cutoffs'])
+  assert.deepEqual(withCuts.current.playtypes, { sample_flag: 25, pool_min: 20, nba_min_poss: 10, basis: 'league', pools: { Isolation: 3 } },
+    'the play-type cutoffs must survive the merge')
   assert.equal(mergeSavantData(archive, cases['an older copy (folded into a later rebuild)']), archive, 'a newer archive wins')
   assert.equal(mergeSavantData(archive, cases['an empty season']), archive, 'an empty season is ignored')
 })

@@ -336,6 +336,11 @@ export function buildSavantApi({ data, html, valueModel = null }) {
       // the date of the last game in the data. Finished seasons carry neither.
       ...(data.qualify && data.qualify[season] ? { qualify: data.qualify[season] } : {}),
       ...(data.current && data.current.season === season ? { in_progress: true, through: data.current.through || null } : {}),
+      // Play-type cutoffs for the season in progress: sample_flag (possessions a percentile
+      // needs), pool_min (players a ranking needs), nba_min_poss (the NBA's own floor on its
+      // player-level Synergy table) and pools (how many players clear sample_flag in each
+      // type). A finished season has none: its percentile is the NBA's.
+      ...(data.current && data.current.season === season && data.current.playtypes ? { play_types: data.current.playtypes } : {}),
       ...(sv ? { all_savant: sv.teams, value_count: sv.count } : {}),
       players: rows,
     }
@@ -392,7 +397,7 @@ export function buildSavantApi({ data, html, valueModel = null }) {
       low: 'Keys of stats whose sample is under the stabilization threshold (metrics[].lowSampleBelow). Quote them with that caveat.',
       w: 'Latest season only. The same m and low for each rolling window (l10, l25, l75), ranked against the same window for everyone else.',
       aw: 'The league\'s honours that season (MVP, All-NBA, All-Star, Champion and so on), as codes in prestige order; meta.awards has the words. Absent when he won none.',
-      pt: 'Play types (Synergy), recent seasons: by type, [share of his possessions %, points per possession, percentile of his points per possession among players with enough of that type, possessions].',
+      pt: 'Play types (Synergy), recent seasons: by type, [share of his possessions %, points per possession, percentile, possessions]. On a finished season the percentile is the NBA\'s, among every player who ran that type. On the season in progress it is ours, among the players with play_types.sample_flag+ possessions of that type (league-wide, not by position), and is null when his own sample or that pool is too thin. The NBA publishes a player\'s play type only once he has play_types.nba_min_poss possessions of it, so a type under that is missing, not zero.',
       ww: 'With and without: for teammates he shared a season with, his per-game line in the games they played together (w) and apart (wo), with games each way (gw, gwo).',
       settle: 'Season in progress only: for stats whose sample is still smaller than the stat needs, [where the number is likely to settle, league percentile, position percentile], each percentile among every qualified player\'s same estimate. The estimate blends his number with his position\'s average, moved toward his own last season. Quote the actual number as what he has done and this as where it is headed.',
     },
