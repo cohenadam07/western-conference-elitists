@@ -368,3 +368,79 @@ test('portfolios: a big slate gives each game a smaller share of the night', () 
   pf = M.buildPortfolios(games.slice(0, 3), null, cfg)
   close(pf.arms.model.openStake, 150, 0.2)
 })
+
+test('experiments: the bar rises with every arm tried', () => {
+  close(M.graduationBar(1), 1.6449, 1e-3)
+  close(M.graduationBar(9), 2.539, 2e-3)
+  close(M.graduationBar(20), 2.807, 2e-3)
+  assert.ok(M.graduationBar(50) > M.graduationBar(20))
+  assert.equal(M.armStanding({ clvBets: 120, clvT: 4 }, 2.5), 'collecting')
+  assert.equal(M.armStanding({ clvBets: 320, clvT: 2.6 }, 2.5), 'graduated')
+  assert.equal(M.armStanding({ clvBets: 320, clvT: 2.4 }, 2.5), 'no edge yet')
+  assert.equal(M.armStanding({ clvBets: 999, clvT: 9 }, 2.5, true), 'retired')
+})
+
+test('experiments: rule arms are checked before they are added', () => {
+  const ok = { name: 'NO only', hypothesis: 'Kalshi prices the YES side rich, so NO bets beat the close.', success: 'CLV t past the bar over 300 bets.', source: 'claude_box', side: 'no' }
+  assert.deepEqual(M.validateRule(ok), [])
+  assert.ok(M.validateRule({ ...ok, source: 'gpt' }).length)
+  assert.ok(M.validateRule({ ...ok, side: 'over' }).length)
+  assert.ok(M.validateRule({ ...ok, stats: ['blk'] }).length)
+  assert.ok(M.validateRule({ ...ok, minEdge: 0.08, maxEdge: 0.05 }).length)
+  assert.ok(M.validateRule({ ...ok, blend: 'fit', source: 'claude_avg' }).length)
+  assert.ok(M.validateRule({ ...ok, hypothesis: 'why not' }).length)
+})
+
+test('experiments: rule arms bet on the forecasts already made', () => {
+  const mk = (ticker, playerKey, stat, bid, ask) => ({ ticker, playerKey, stat, bid, ask, noAsk: 1 - bid })
+  const markets = [mk('A20', 'p1', 'pts', 0.48, 0.52), mk('A25', 'p1', 'pts', 0.28, 0.31), mk('B8', 'p2', 'reb', 0.58, 0.61)]
+  const probs = { claude_wce: new Map([['A20', 0.62], ['A25', 0.2], ['B8', 0.45]]), claude_box: new Map([['A20', 0.40], ['A25', 0.22], ['B8', 0.47]]) }
+  // Plain source: the best side per player, as for every arm.
+  const plain = M.pickRuleBets({ source: 'claude_wce' }, markets, probs)
+  assert.equal(plain.length, 2)
+  // NO only: never a YES bet.
+  assert.ok(M.pickRuleBets({ source: 'claude_wce', side: 'no' }, markets, probs).every((b) => b.side === 'no'))
+  // A ceiling on the edge drops the biggest disagreements.
+  const capped = M.pickRuleBets({ source: 'claude_wce', maxEdge: 0.06 }, markets, probs)
+  assert.ok(capped.every((b) => b.edge <= 0.06))
+  // Averaged Claudes: A20 averages to 0.51, no edge at a 52c ask.
+  assert.ok(!M.pickRuleBets({ source: 'claude_avg', stats: ['pts'] }, markets, probs).some((b) => b.market.ticker === 'A20' && b.side === 'yes'))
+  // A blend with no weight yet takes no bets; with a weight it shrinks toward the market.
+  assert.equal(M.pickRuleBets({ source: 'claude_wce', blend: 'fit' }, markets, probs, null).length, 0)
+  const half = M.pickRuleBets({ source: 'claude_wce', blend: 'fit' }, markets, probs, 0.5)
+  const full = M.pickRuleBets({ source: 'claude_wce' }, markets, probs)
+  const e = (xs, t) => xs.find((b) => b.market.ticker === t)?.edge ?? 0
+  assert.ok(e(half, 'A20') < e(full, 'A20'))
+  // The blend weight: none before 1,000 forecasts, then clamped to 0..1.
+  const agg = M.emptyFcAgg()
+  for (let i = 0; i < 999; i++) M.addForecast(agg, 0.6, 0.5, i % 3 ? 1 : 0)
+  assert.equal(M.blendWeight(agg), null)
+  M.addForecast(agg, 0.6, 0.5, 1)
+  const w = M.blendWeight(agg)
+  assert.ok(w >= 0 && w <= 1)
+})
+
+test('experiments: the report-card arm gets Claude + WCE plus its own record, and no prices', () => {
+  const ix = { min: 0, pts: 1, reb: 2, ast: 3, fg3m: 4 }
+  const players = [{ name: 'Bam Adebayo', team: 'MIA', pos: 'Big', proj: { min: 33, pts: 19, reb: 9.8, ast: 3.6, fg3m: 0.9, fga: 15, fta: 5 }, log: [[34, 20, 10, 4, 1]], markets: [{ id: 'm1', stat: 'reb', k: 10, pModel: 0.47 }] }]
+  const reportCard = { own: false, n: 2044, through: 'Oct 22', skill: -0.047, lean: 0.031, calibration: [{ n: 320, predicted: 0.06, actual: 0.04 }], stats: { pts: { n: 600, skill: -0.05, lean: 0.04 } } }
+  const input = { game: { away: 'MIN', home: 'MIA', tip: Date.parse('2026-10-21T23:30:00Z') }, players, ix, teams: ['MIA (2025-26): pace 98'], health: { MIN: [], MIA: [] }, rosters: {}, reportCard }
+  const rc = buildPrompt('claude_rc', input), wce = buildPrompt('claude_wce', input), box = buildPrompt('claude_box', input)
+  assert.ok(rc.startsWith('YOUR TRACK RECORD'))
+  assert.ok(rc.endsWith(wce))
+  assert.match(rc, /4\.7% worse than the market's price/)
+  assert.doesNotMatch(wce + box, /TRACK RECORD/)
+  // Nothing in the card is a price from tonight, and nothing in it is an instruction to use a tool.
+  assert.doesNotMatch(rc.split('\n\n')[0], /¢|ask|bid|Write|Read|tool|http/i)
+})
+
+test('the researcher: its template never holds a passcode, and its calls match the site', () => {
+  const t = readFileSync(new URL('./research-prompt.md', import.meta.url), 'utf8')
+  assert.match(t, /\{\{TOKEN\}\}/)
+  assert.doesNotMatch(t, /[0-9a-f]{40,}/)
+  assert.match(t, /job=edge-review/)
+  assert.match(t, /job=edge-arm/)
+  assert.match(t, /x-edge-research/)
+  assert.match(t, /Never add a Claude arm/)
+  for (const f of ['source', 'side', 'stats', 'minEdge']) assert.match(t, new RegExp(`"${f}"`))
+})
