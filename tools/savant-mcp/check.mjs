@@ -224,7 +224,13 @@ test('values print the way the page prints them, apart from the documented excep
       }
     }
   }
-  for (const unit of new Set(units.values())) assert.ok(seen.has(unit), `no value seen for unit ${unit}`)
+  // A unit is only exercised if some player has a value in it. Tier-4 stats that are built
+  // per refresh (Defender difficulty, Shot-making) have none in the first weeks of a season,
+  // so while the newest season is in progress an unseen unit is reported, not failed.
+  const live = !!files.seasons[latest].in_progress
+  const unseen = [...new Set(units.values())].filter((u) => !seen.has(u))
+  if (live && unseen.length) console.log(`      (season in progress: no value yet for unit ${unseen.join(', ')})`)
+  else for (const unit of new Set(units.values())) assert.ok(seen.has(unit), `no value seen for unit ${unit}`)
   assert.ok(compared > 50000)
 })
 

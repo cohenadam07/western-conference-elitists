@@ -98,7 +98,7 @@ E = {
             formula="Self-creation = 100 × (share of his FGA with the closest defender 0–2 ft + share at 2–4 ft). Shown as a word from its league percentile: low, avg, high, elite.",
             source=f"{NBA} player tracking (closest-defender shooting), 2013-14 on.", sample="Hatched under 100 tightly guarded attempts."),
  "syn": dict(what="Shot-making by play type: how efficiently he scores across the plays he actually runs (pick-and-roll, isolation, post-ups, spot-ups and the rest), weighted by how often he runs each.",
-            formula="Σ over offensive play types of (his points-per-possession percentile in that type × his possessions in it) ÷ his total play-type possessions",
+            formula="Σ over offensive play types of (his points-per-possession percentile in that type × his possessions in it) ÷ his total play-type possessions. The percentile is the same one the play-type panel shows: the NBA's on a finished season, and on the season in progress ours, over the play types that clear 25 possessions in a pool of 20+ players. Early in a season, before any play type clears those, the bar is absent rather than ranked against a handful of players.",
             source=f"{NBA} Synergy play types, 2015-16 on.", sample="Hatched under 100 play-type possessions."),
  "ddiff": dict(what="Defender difficulty: the average defensive quality of the players who guarded him. Context for his offense: strong numbers against strong defenders count for more.",
             formula="Σ (each defender's DBPM × possessions he guarded him) ÷ Σ possessions",
