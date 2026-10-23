@@ -327,10 +327,21 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
       g.current.seen.add(d.start)
       const next = chooseNext(d.start)
       if (!next) throw new Error('Not enough players in this mode.')
-      show(next)
-      setPhase('play')
+      // Meet your starting player first: his card on its own for a few seconds, then the game.
+      // The first challenger is held back until then so his clock does not start early.
+      g.current.pending = next
+      new Image().src = HEAD(next)
+      setPhase('intro')
     } catch (e) { setErr(e.message); setPhase('error') }
-  }, [mode, deal, chooseNext, show])
+  }, [mode, deal, chooseNext])
+
+  const begin = useCallback(() => {
+    const next = g.current.pending
+    if (!next) return
+    g.current.pending = null
+    show(next)
+    setPhase('play')
+  }, [show])
 
   // /dynasty?swipe=<mode> drops straight into a run once the board is in.
   const autoStarted = useRef(false)
@@ -530,6 +541,10 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
     )
   }
 
+  if (phase === 'intro') {
+    return <Intro id={champ} mode={mode} cards={cards} seed={byId[champ]} base={base} setBase={setBase} onGo={begin} place={crowned.length + 1} />
+  }
+
   if (phase === 'loading') {
     return <div className="dyn-mono px-5 py-24 text-center text-[11px] tracking-widest text-[var(--dyn-faint)]">DEALING…</div>
   }
@@ -666,6 +681,40 @@ export default function DynastySwipe({ uid, board, byId, onExit, onTraded, initi
           <span className="text-[var(--dyn-dim)]"> · board had {toast.name} at {toast.agree}%</span>
         </div>
       )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- the intro
+
+export const INTRO_MS = 5000
+
+/* "Here is your first player": the starting champion's full card, on its own, for five
+ * seconds. A bar runs down the time; a tap starts early. */
+function Intro({ id, mode, cards, seed, base, setBase, onGo, place }) {
+  useEffect(() => {
+    const t = setTimeout(onGo, INTRO_MS)
+    const k = (e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); onGo() } }
+    window.addEventListener('keydown', k)
+    return () => { clearTimeout(t); window.removeEventListener('keydown', k) }
+  }, [onGo])
+  const name = cards?.players?.[id]?.n || seed?.name || ''
+  return (
+    <div className="mx-auto max-w-xl px-3 pb-6 pt-4 sm:px-4">
+      <div className="text-center">
+        <div className="dyn-label text-[var(--dyn-gold)]">{place > 1 ? `Run for your #${place}` : 'Here is your first player'} · {modeLabel(mode)}</div>
+        <div className="mt-1.5 text-[20px] leading-tight text-[var(--dyn-text)]">
+          {lastName(name)} is your guy. <span className="text-[var(--dyn-dim)]">For now.</span>
+        </div>
+      </div>
+      <div className="sw-card sw-crowned mt-3" style={{ borderColor: 'rgba(194,162,99,.6)' }}>
+        <SwipeCard id={id} cards={cards} seed={seed} base={base} setBase={setBase} />
+      </div>
+      <div className="sw-intro-bar mt-4"><i style={{ animationDuration: `${INTRO_MS}ms` }} /></div>
+      <p className="dyn-mono mt-2.5 text-center text-[10.5px] leading-relaxed text-[var(--dyn-dim)]">
+        Swipe <span className="dyn-up">right</span> to take the new player · <span className="text-[var(--dyn-gold)]">left</span> to keep {lastName(name)}
+      </p>
+      <button type="button" className="dyn-btn mt-4 w-full rounded-xl py-4" onClick={onGo}>Start now →</button>
     </div>
   )
 }

@@ -1255,3 +1255,8 @@ body {
 }
 .sw-finish:disabled { opacity: .35; }
 .sw-finish:active:not(:disabled) { transform: scale(.98); }
+
+/* the intro card's countdown: drains over INTRO_MS (set inline) */
+.sw-intro-bar { height: 3px; background: var(--dyn-line); border-radius: 2px; overflow: hidden; }
+.sw-intro-bar i { display: block; height: 100%; background: var(--dyn-gold); transform-origin: left; animation: sw-drain linear forwards; }
+@keyframes sw-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
