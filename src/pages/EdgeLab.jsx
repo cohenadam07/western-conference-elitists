@@ -18,7 +18,8 @@ const POLL_MS = 30000 // while bets are open
 const JOB = '/api/analytics/snapshot'
 
 const ARMS = ['model', 'claude_wce', 'claude_box']
-const ARM_SHORT = { model: 'WCE model', claude_wce: 'Claude + WCE', claude_box: 'Claude, box only' }
+const ARM_SHORT = { model: 'WCE model', claude_wce: 'Claude + WCE', claude_box: 'Claude, box only', claude_rc: 'Claude + report card' }
+const isBase = (arm) => ARMS.includes(arm)
 const TICK_NAME = { model: 'WCE model', claude_wce: 'Claude + WCE', claude_box: 'Claude, box' }
 const STAT = { pts: 'PTS', reb: 'REB', ast: 'AST', fg3m: '3PM', pra: 'PRA' }
 const FIRST_READ = 300 // bets per arm before CLV says much
@@ -286,6 +287,96 @@ function Portfolios({ pf, error, now }) {
   )
 }
 
+
+/* ---------------------------------------------------------------- experiments */
+
+const SOURCE_WORD = { model: 'WCE model', claude_wce: 'Claude + WCE', claude_box: 'Claude box-only', claude_rc: 'Claude + report card', claude_avg: 'both Claudes averaged' }
+const STANDING = { collecting: 'collecting', graduated: 'graduated', 'no edge yet': 'no edge yet', retired: 'retired', 'not started': 'starts with the next slate' }
+
+function ruleText(a) {
+  if (a.kind !== 'rule') return 'A new forecaster: Claude + WCE, shown its own track record before each game.'
+  const bits = [SOURCE_WORD[a.source] || a.source]
+  if (a.blend === 'fit') bits.push(`blended with the market${a.weight != null ? ` (weight ${Math.round(a.weight * 100)}%)` : ' (weight fits after 1,000 forecasts)'}`)
+  if (a.side) bits.push(`${a.side.toUpperCase()} only`)
+  if (a.stats) bits.push(a.stats.map((x) => STAT[x]).join(', '))
+  bits.push(`${Math.round((a.minEdge ?? 0.03) * 100)}¢+ edge${a.maxEdge != null ? `, under ${Math.round(a.maxEdge * 100)}¢` : ''}`)
+  if (a.minPrice != null || a.maxPrice != null) bits.push(`price ${Math.round((a.minPrice ?? 0.05) * 100)}–${Math.round((a.maxPrice ?? 0.95) * 100)}¢`)
+  return bits.join(' · ')
+}
+
+function ExperimentRow({ a, equity }) {
+  const [open, setOpen] = useState(false)
+  const started = a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' }) : '—'
+  return (
+    <>
+      <tr className="el-exp-row" onClick={() => setOpen((v) => !v)}>
+        <td className="el-left"><b>{a.id === 'claude_rc' ? 'C1' : a.id.toUpperCase()}</b> {a.name}<span className="el-muted el-small"> · {started}</span></td>
+        <td>{a.clvBets ?? 0}</td>
+        <td>{cents(a.moveMean)} <span className="el-muted">({tStat(a.moveT)})</span></td>
+        <td><b>{cents(a.clvMean)}</b> <span className="el-muted">({tStat(a.clvT)})</span></td>
+        <td>{a.roi == null ? '—' : pct(a.roi, 1)}</td>
+        <td>{equity != null ? usd(equity) : '—'}</td>
+        <td><span className={`el-pill el-st-${(a.standing || '').replace(/ /g, '-')}`}>{STANDING[a.standing] || a.standing}</span></td>
+      </tr>
+      {open && (
+        <tr className="el-exp-more"><td colSpan={7} className="el-left"><div className="el-exp-text">
+          <p><b>Rule:</b> {ruleText(a)}</p>
+          <p><b>Why:</b> {a.hypothesis}</p>
+          <p><b>Success:</b> {a.success}</p>
+          {a.control && a.forecasts > 0 && <p><b>Against its control (Claude + WCE, same games):</b> Brier vs market {skillPct(a.skill)} vs {skillPct(a.control.skill)}; knows more than market {infoText(a.info)} vs {infoText(a.control.info)}.</p>}
+          {a.status === 'retired' && <p><b>Retired {a.retiredAt ? new Date(a.retiredAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}:</b> {a.reason}</p>}
+          <p className="el-muted">Added by {a.createdBy === 'researcher' ? 'the weekly researcher' : 'Claude, when experiments began'}. Scored only on games after it started.</p>
+        </div></td></tr>
+      )}
+    </>
+  )
+}
+
+const skillPct = (x) => (x == null ? '—' : `${x > 0 ? '+' : x < 0 ? '−' : ''}${Math.abs(x * 100).toFixed(1)}%`)
+const infoText = (i) => (i ? `${Math.round(i.weight * 100)}% (t ${tStat(i.t)})` : '—')
+
+function Experiments({ exp, pf }) {
+  const [graveyard, setGraveyard] = useState(false)
+  if (!exp || exp.error) return exp?.error ? <p className="el-warn">Experiments couldn't load: {exp.error}</p> : null
+  const live = exp.list.filter((a) => a.status !== 'retired')
+  const retired = exp.list.filter((a) => a.status === 'retired')
+  const m = exp.market
+  return (
+    <section className="el-panel el-exp">
+      <header className="el-panel-head">
+        <h3>Experiments</h3>
+        <span className="el-muted el-small">{exp.armsTried} arms tried · to graduate: CLV t ≥ {exp.bar.toFixed(2)} over {exp.minBets}+ bets</span>
+      </header>
+      <p className="el-small el-muted">
+        Each experiment is scored only on games after it started, with its own $1,000 portfolio. The bar rises with every arm tried, so a lucky arm can't graduate
+        just because many were tried. A weekly researcher adds rule arms (betting rules on forecasts the lab already makes) and retires ones that have had a fair run;
+        new Claude arms need your OK.
+      </p>
+      {m?.n > 0 && (
+        <p className="el-small el-mkt">
+          <b>Kalshi's own lean:</b> the YES side has been priced {cents(Math.abs(m.bias), false)} {m.bias >= 0 ? 'above' : 'below'} how often it hit, over {m.n.toLocaleString('en-US')} markets (t {tStat(m.t)}).
+          {m.t != null && Math.abs(m.t) >= 2 ? (m.bias > 0 ? ' Overs are priced rich.' : ' Unders are priced rich.') : ' Not beyond noise yet.'}
+        </p>
+      )}
+      <div className="el-scroll">
+        <table className="el-table el-exp-table">
+          <thead><tr><th className="el-left">Arm</th><th>Bets</th><th>Mkt move (t)</th><th>CLV (t)</th><th>ROI</th><th>Portfolio</th><th>Standing</th></tr></thead>
+          <tbody>{live.map((a) => <ExperimentRow key={a.id} a={a} equity={pf?.arms?.[a.id]?.equity} />)}</tbody>
+        </table>
+      </div>
+      <p className="el-muted el-small">Tap an arm for its rule, its reason and what would count as success.</p>
+      {retired.length > 0 && (
+        <>
+          <button className="el-link" onClick={() => setGraveyard((v) => !v)}>{graveyard ? 'Hide' : 'Show'} retired arms ({retired.length})</button>
+          {graveyard && (
+            <div className="el-scroll"><table className="el-table el-exp-table"><tbody>{retired.map((a) => <ExperimentRow key={a.id} a={a} equity={pf?.arms?.[a.id]?.equity} />)}</tbody></table></div>
+          )}
+        </>
+      )}
+    </section>
+  )
+}
+
 /* ---------------------------------------------------------------- pieces */
 
 // The three arms side by side: easier to compare than three cards, and it fits a phone.
@@ -341,7 +432,7 @@ function BetRow({ b, st }) {
   const live = !r && st?.open
   return (
     <tr className={`el-${outcome}`}>
-      <td className="el-left"><i className={`el-sw el-${b.arm}`} title={ARM_SHORT[b.arm]} />{b.player}</td>
+      <td className="el-left">{isBase(b.arm) ? <i className={`el-sw el-${b.arm}`} title={ARM_SHORT[b.arm]} /> : <span className="el-tag">{b.arm === 'claude_rc' ? 'C1' : b.arm.toUpperCase()}</span>}{b.player}</td>
       <td>{b.side === 'yes' ? '' : 'NO '}{STAT[b.stat]} {b.k}+</td>
       <td>{price(b.price)}</td>
       <td>{pct(b.side === 'yes' ? b.p : 1 - b.p)}</td>
@@ -357,7 +448,7 @@ function BetRow({ b, st }) {
 
 function armSummary(bets, settled, stOf) {
   const out = []
-  for (const arm of ARMS) {
+  for (const arm of [...ARMS, ...[...new Set(bets.map((b) => b.arm))].filter((a) => !isBase(a))]) {
     const bs = bets.filter((b) => b.arm === arm)
     if (!bs.length) continue
     const sts = bs.map(stOf).filter(Boolean)
@@ -399,7 +490,7 @@ function GameCard({ g, armFilter, stakes }) {
       </section>
     )
   }
-  const bets = g.bets.filter((b) => armFilter === 'all' || b.arm === armFilter)
+  const bets = g.bets.filter((b) => (armFilter === 'all' ? isBase(b.arm) : armFilter === 'exp' ? !isBase(b.arm) : b.arm === armFilter))
   const errors = Object.entries(g.arms || {}).filter(([, a]) => a?.error)
   const stOf = (b) => stakes?.[`${g.key}|${b.arm}|${b.ticker}`]
   const summary = armSummary(bets, g.status === 'settled', stOf)
@@ -414,11 +505,11 @@ function GameCard({ g, armFilter, stakes }) {
       </header>
       {errors.map(([arm, a]) => <p key={arm} className="el-warn">{ARM_SHORT[arm]} failed: {a.error}</p>)}
       {summary.length ? (
-        <div className="el-sum">{summary.map(([arm, text]) => <span key={arm}><i className={`el-sw el-${arm}`} />{ARM_SHORT[arm]}: {text}</span>)}</div>
+        <div className="el-sum">{summary.map(([arm, text]) => <span key={arm}>{isBase(arm) ? <i className={`el-sw el-${arm}`} /> : <span className="el-tag">{arm === 'claude_rc' ? 'C1' : arm.toUpperCase()}</span>}{ARM_SHORT[arm] || ''}{ARM_SHORT[arm] ? ': ' : ''}{text}</span>)}</div>
       ) : <p className="el-muted el-small">No bets cleared the threshold{armFilter !== 'all' ? ' for this arm' : ''}.</p>}
       <div className="el-toggles">
         {bets.length > 0 && <button className="el-link" onClick={() => setOpen((v) => !v)}>{open ? 'Hide bets' : `Show ${bets.length} bets`}</button>}
-        {(g.notes?.claude_wce || g.notes?.claude_box) && <button className="el-link" onClick={() => setNotes((v) => !v)}>{notes ? 'Hide' : 'Show'} Claude's notes</button>}
+        {Object.values(g.notes || {}).some(Boolean) && <button className="el-link" onClick={() => setNotes((v) => !v)}>{notes ? 'Hide' : 'Show'} Claude's notes</button>}
       </div>
       {open && (
         <div className="el-scroll">
@@ -428,7 +519,7 @@ function GameCard({ g, armFilter, stakes }) {
           </table>
         </div>
       )}
-      {notes && ['claude_wce', 'claude_box'].filter((a) => g.notes[a]).map((a) => (
+      {notes && ['claude_wce', 'claude_box', 'claude_rc'].filter((a) => g.notes[a]).map((a) => (
         <p key={a} className="el-note"><b>{ARM_SHORT[a]}:</b> {g.notes[a]}</p>
       ))}
     </section>
@@ -608,6 +699,8 @@ export default function EdgeLab() {
               settledGames={s.gamesSettled}
             />
 
+            <Experiments exp={data.experiments} pf={pf} />
+
             <section className="el-panel">
               <header className="el-panel-head">
                 <h3>{metric === 'clv' ? 'Running closing line value' : 'Running profit and loss'}</h3>
@@ -631,7 +724,7 @@ export default function EdgeLab() {
             <div className="el-filter">
               <span className="el-muted">Show bets from</span>
               <div className="el-seg">
-                {['all', ...ARMS].map((a) => <button key={a} className={armFilter === a ? 'on' : ''} onClick={() => setArmFilter(a)}>{a === 'all' ? 'All arms' : ARM_SHORT[a]}</button>)}
+                {['all', ...ARMS, 'exp'].map((a) => <button key={a} className={armFilter === a ? 'on' : ''} onClick={() => setArmFilter(a)}>{a === 'all' ? 'All three' : a === 'exp' ? 'Experiments' : ARM_SHORT[a]}</button>)}
               </div>
             </div>
 
@@ -789,6 +882,17 @@ tr.el-void td { color: var(--muted); }
 @keyframes el-ping { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(3.2); opacity: 0; } }
 .el-scrub { stroke: var(--muted); stroke-width: 1; }
 @media (prefers-reduced-motion: reduce) { .el-pulse, .el-live i { animation: none; } }
+
+.el-exp-row { cursor: pointer; } .el-exp-row:hover td { background: var(--plane); }
+.el-exp-table td.el-left { white-space: normal; min-width: 190px; }
+.el-exp-more td { background: var(--plane); font-size: 13px; }
+.el-exp-text { position: sticky; left: 8px; width: min(80ch, calc(100vw - 72px)); white-space: normal; }
+.el-exp-text p { margin: 4px 0; }
+.el-mkt { margin: 6px 0 10px; }
+.el-tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .03em; padding: 1px 5px; border-radius: 4px; margin-right: 6px; background: var(--plane); color: var(--ink-2); border: 1px solid var(--hair); }
+.el-pill.el-st-graduated { background: rgba(31,122,74,0.14); color: var(--win); }
+.el-pill.el-st-no-edge-yet { background: rgba(178,58,44,0.10); color: var(--loss); }
+.el-pill.el-st-retired { opacity: .7; }
 @media (max-width: 520px) {
   .el-root { padding: 18px 12px 48px; }
   .el-root .el-tickers { gap: 6px; }

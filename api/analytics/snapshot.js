@@ -17,7 +17,7 @@ import {
   timingSafeEqual,
   toISODate,
 } from './_lib.js';
-import { jobForSchedule, readPortfolios, runAnswer, runPicks, runQueue, runSettle, taskTokenOk } from './_edge.js';
+import { jobForSchedule, readPortfolios, researchTokenOk, runAnswer, runArm, runPicks, runQueue, runReview, runSettle, taskTokenOk } from './_edge.js';
 
 // 300 s is the Hobby ceiling; the Edge Lab's picks job (Claude calls) is the one that needs it.
 export const config = { maxDuration: 300 };
@@ -74,6 +74,24 @@ export default async function handler(req, res) {
       }
       if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST the answer as JSON' });
       const out = await runAnswer({ task: url.searchParams.get('task'), body: await readBody(req) });
+      return res.status(out.ok ? 200 : out.status || 500).json(out);
+    } catch (err) {
+      return res.status(500).json({ ok: false, job, error: String(err?.message || err) });
+    }
+  }
+
+  // The weekly researcher (a second scheduled task), with its own token: read the review, add
+  // or retire a rule arm. Nothing else.
+  if (job === 'edge-review' || job === 'edge-arm') {
+    const token = req.headers['x-edge-research'];
+    if (!researchTokenOk(Array.isArray(token) ? token[0] : token) && !authorize(req)) {
+      return res.status(401).json({ ok: false, error: 'unauthorized' });
+    }
+    res.setHeader('Cache-Control', 'private, no-store');
+    try {
+      if (job === 'edge-review') return res.status(200).json(await runReview());
+      if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST the change as JSON' });
+      const out = await runArm({ body: await readBody(req) });
       return res.status(out.ok ? 200 : out.status || 500).json(out);
     } catch (err) {
       return res.status(500).json({ ok: false, job, error: String(err?.message || err) });
