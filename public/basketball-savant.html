@@ -3467,8 +3467,13 @@ async function exportCard(){
    the players with 25+ possessions of that play type, a small-sample tag under it, and the
    NBA's own 10-possession floor said out loud instead of guessed at.
    2.2.2 (Oct 2026): Shot-making (PPP %ile) rebuilt from those same percentiles in season,
-   so the bar and the panel under it rest on one pool. */
-var VERSION='2.2.2';
+   so the bar and the panel under it rest on one pool.
+   2.3.0 (Oct 2026): the season in progress refreshes in the cloud after every slate, from
+   ESPN's box scores and play-by-play, with no dependence on Adam's Mac. The NBA's tracking,
+   Synergy and hustle stats (drives, potential assists, self-created, rim protection,
+   deflections, gravity, matchups, play types) have no cloud source, so they read "—" for the
+   season in progress; earlier seasons keep them. */
+var VERSION='2.3.0';
 function build(){
   const vc=document.getElementById('verchip');
   if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }
