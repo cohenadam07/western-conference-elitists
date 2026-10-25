@@ -1,0 +1,113 @@
+# Basketball Savant — the season in progress, refreshed in the cloud after every slate.
+#
+# Replaces the Mac's launchd jobs (com.wcehoops.basketball-savant and -watch). stats.nba.com
+# refuses cloud servers, so this rebuilds the NBA's box-score and play-by-play tables from
+# ESPN's public feed and runs the same engine on them (pipeline/basketball/cloud_refresh.py;
+# how it was checked against the NBA's own numbers: claude/basketball-savant-cloud-refresh.md
+# in the project). The NBA's tracking, Synergy and hustle stats have no cloud source and are
+# left empty for the season in progress.
+#
+# Every 15 minutes a quick check (a few seconds) compares ESPN's finals with the games the site
+# already has (data/savant-refresh.json); once a new final has settled for 20 minutes, the
+# season is rebuilt and published. Twice a day it rebuilds regardless, for stat corrections:
+#   9:41 UTC  (5:41am EDT / 4:41am EST)     15:13 UTC (11:13am EDT / 10:13am EST)
+# Odd minutes on purpose: GitHub delays scheduled runs badly at :00 and :30.
+name: Basketball Savant cloud refresh
+
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+    - cron: '41 9 * * *'
+    - cron: '13 15 * * *'
+  # A change to the pipeline rebuilds the season as soon as it lands (the job's own commits
+  # touch public/, data/ and the id map only, so it cannot set itself off).
+  push:
+    branches: [main]
+    paths:
+      - 'pipeline/basketball/**'
+      - '!pipeline/basketball/seed/espn_ids.json'
+      - '.github/workflows/basketball-savant-cloud.yml'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Rebuild even if no new game is final'
+        type: boolean
+        default: true
+
+concurrency:
+  group: basketball-savant-cloud
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ESPN_CACHE_ROOT: ${{ github.workspace }}/.espn-cache
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: pipeline/basketball/requirements-cloud.txt
+
+      # Finished games never change on ESPN's side once settled, so they are cached between
+      # runs; only the day's new finals (and the last three days, for corrections) are fetched.
+      - uses: actions/cache@v4
+        with:
+          path: .espn-cache
+          key: espn-${{ github.run_id }}
+          restore-keys: espn-
+
+      - name: Install
+        run: pip install --quiet -r pipeline/basketball/requirements-cloud.txt
+
+      - name: Is a refresh due?
+        id: due
+        run: |
+          FORCE=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force }}" = "true" ]; then FORCE=--force; fi
+          if [ "${{ github.event.schedule }}" = "41 9 * * *" ] || [ "${{ github.event.schedule }}" = "13 15 * * *" ]; then FORCE=--force; fi
+          if [ "${{ github.event_name }}" = "push" ]; then FORCE=--force; fi
+          set +e
+          python3 pipeline/basketball/cloud_publish.py check . $FORCE
+          rc=$?
+          set -e
+          if [ $rc -eq 10 ]; then echo "due=1" >> "$GITHUB_OUTPUT"; elif [ $rc -ne 0 ]; then exit $rc; fi
+
+      - name: Rebuild the season in progress
+        if: steps.due.outputs.due == '1'
+        run: |
+          RUN="$RUNNER_TEMP/savant-run"
+          mkdir -p "$RUN/out"
+          cp pipeline/basketball/seed/out/* "$RUN/out/"
+          cd "$RUN"
+          python3 -W ignore "$GITHUB_WORKSPACE/pipeline/basketball/cloud_refresh.py" \
+            --cache "$GITHUB_WORKSPACE/.espn-cache" --public "$GITHUB_WORKSPACE/public" 2>&1 | tee "$RUNNER_TEMP/run.log"
+          test ${PIPESTATUS[0]} -eq 0
+          echo "RUN=$RUN" >> "$GITHUB_ENV"
+
+      - name: Publish
+        if: steps.due.outputs.due == '1'
+        run: |
+          python3 pipeline/basketball/cloud_publish.py stage . "$RUN"
+          git config user.name "basketball-savant-bot"
+          git config user.email "bot@wcehoops.com"
+          git add public/savant-current.json public/savant-proj.json public/savant-teams-current.json public/lineups data/savant-refresh.json pipeline/basketball/seed/espn_ids.json
+          if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
+          read SEASON THROUGH < <(python3 -c "import json;d=json.load(open('public/savant-current.json'));print(d['seasons'][0], d.get('through') or 'latest')")
+          if git diff --cached --quiet -- public/savant-current.json; then MSG="Basketball Savant: heartbeat ($SEASON through $THROUGH)"; else MSG="Basketball Savant: refresh $SEASON (through $THROUGH)"; fi
+          git commit -q -m "$MSG"
+          for i in 1 2 3 4; do
+            if git push -q origin HEAD:main; then echo "pushed: $MSG"; exit 0; fi
+            git pull -q --rebase origin main || { git rebase --abort; exit 1; }
+          done
+          exit 1

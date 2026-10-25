@@ -1,0 +1,16 @@
+{
+ "k": {
+  "5": 843,
+  "2": 1221
+ },
+ "seasons": [
+  "2022-23",
+  "2023-24",
+  "2024-25"
+ ],
+ "method": "split-season covariance (before / after Jan 15)",
+ "report": [
+  "5-man units: 594 with 25+ possessions in both halves of 2022-23, 2023-24, 2024-25; true spread SD 5.73 per 100, noise 166 per 100 at one possession -> k = 843 possessions (half signal, half team average)",
+  "2-man units: 6553 with 25+ possessions in both halves of 2022-23, 2023-24, 2024-25; true spread SD 4.86 per 100, noise 170 per 100 at one possession -> k = 1221 possessions (half signal, half team average)"
+ ]
+}
