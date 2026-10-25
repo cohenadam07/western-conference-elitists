@@ -64,10 +64,11 @@ def _measure(params):
 
 
 class Shim:
-    def __init__(self, season, tables, seed_dir, seed_index=None):
+    def __init__(self, season, tables, seed_dir, seed_index=None, tracking_dir=None):
         self.season = season
         self.t = tables
         self.seed_dir = seed_dir
+        self.tracking_dir = tracking_dir   # the Mac's latest copy of the UNAVAILABLE tables
         self.memo = {}
 
     # ---------------- dispatch ----------------
@@ -78,8 +79,18 @@ class Shim:
         season = _season_of(params)
         fresh = season == self.season
         if fresh and name in UNAVAILABLE:
-            LOG.append(f"unavailable {name}")
-            raise NotInCloud(f"{name} needs stats.nba.com (not reachable from the cloud)")
+            # The Mac uploads these tables when it's awake (export_tracking.py, branch
+            # tracking-data); use its latest copy, or leave the stats out.
+            out = {}
+            for fr in frames:
+                df = read_seed_key(self.tracking_dir, E._key(name, params, fr)) if self.tracking_dir else None
+                if df is None:
+                    LOG.append(f"unavailable {name}")
+                    raise NotInCloud(f"{name} needs stats.nba.com (not reachable from the cloud)")
+                out[fr] = df
+            LOG.append(f"from the Mac {name}")
+            self.memo[key] = out
+            return out
         builder = getattr(self, "b_" + name, None)
         if fresh and builder is not None:
             out = builder(params, frames)
@@ -633,8 +644,8 @@ def _nba_action(espn_type):
     return fix.get(s, s)
 
 
-def install(season, tables, seed_dir):
-    shim = Shim(season, tables, seed_dir)
+def install(season, tables, seed_dir, tracking_dir=None):
+    shim = Shim(season, tables, seed_dir, tracking_dir=tracking_dir)
 
     def call(EndpointClass, params, frame=0, use_cache=True):
         return shim.frames(EndpointClass.__name__, params, [frame])[frame]

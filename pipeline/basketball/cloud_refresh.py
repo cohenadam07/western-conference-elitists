@@ -9,9 +9,12 @@ Same outputs as the Mac's publish_current.sh, from data a cloud server can reach
   * things that don't change in season from seed/ (the Mac's cache for exactly those tables);
   * value bars from basketball-reference.com and injuries from Sleeper, as before.
 
-The NBA's tracking, Synergy and hustle tables can't be reached from the cloud. Those stats
-(drives, potential assists, self-created, rim protection, deflections, gravity, matchups,
-play types) are left null for the season in progress.
+The NBA's tracking, Synergy and hustle tables can't be reached from the cloud. The Mac uploads
+them when it's awake (export_tracking.py / publish_tracking.sh, branch tracking-data) and
+--tracking points here at its latest upload; the engine reads them as if it had fetched them,
+so drives, potential assists, self-created, rim protection, deflections, gravity, matchups and
+play types come out exactly as on the Mac, as of that upload ("tracking" in the season file).
+Without an upload those stats are left null.
 
 ESPN identifies players by its own ids. seed/espn_ids.json maps them to NBA person ids; new
 players are matched by name and team against the NBA's player index in the seed and the last
@@ -285,6 +288,7 @@ def main():
     ap.add_argument("--cache", default=os.path.join(HERE, ".espn-cache"))
     ap.add_argument("--public", default=os.path.join(HERE, "..", "..", "public"))
     ap.add_argument("--skip", default="", help="comma list: projections,teams")
+    ap.add_argument("--tracking", default=None, help="the Mac's tracking-table upload (branch tracking-data)")
     a = ap.parse_args()
     season = a.season
     through = dt.date.fromisoformat(a.through) if a.through else None
@@ -296,7 +300,18 @@ def main():
         tables.schedule = schedule_table(season)
     except Exception as e:  # noqa
         print(f"  schedule: failed ({repr(e)[:80]})")
-    shim = SH.install(season, tables, SEED)
+    tracking = None
+    if a.tracking and os.path.exists(os.path.join(a.tracking, "manifest.json")):
+        man = json.load(open(os.path.join(a.tracking, "manifest.json")))
+        if man.get("season") == season:
+            tracking = a.tracking
+            print(f"  tracking tables from the Mac: through {man.get('through')} (uploaded {man.get('generated')})")
+        else:
+            print(f"  the Mac's tracking upload is for {man.get('season')}, not {season}: not used")
+    else:
+        man = {}
+        print("  no tracking upload from the Mac yet")
+    shim = SH.install(season, tables, SEED, tracking_dir=tracking)
     install_player_info(shim, rosters, idmap, season)
 
     import refresh_current as R
@@ -305,11 +320,19 @@ def main():
         # Say where the numbers came from (the Mac's runs wrote "nba_api+br").
         d = json.load(open(R.OUT))
         d["source"] = "espn+br"
+        # Tracking, Synergy, hustle and matchup stats come from the Mac's last upload: say
+        # which games they cover, so a stale panel can be told apart from a fresh one.
+        if tracking:
+            d["tracking"] = {"through": man.get("through"), "uploaded": man.get("generated")}
         import safe_io
         safe_io.write_text(R.OUT, R.strict_json(d))
     if SH.LOG:
         un = sorted({x for x in SH.LOG if x.startswith("unavailable")})
-        print(f"  not reachable from the cloud (left null): {', '.join(u.split(' ', 1)[1] for u in un)}")
+        if un:
+            print(f"  not reachable from the cloud, no Mac copy (left null): {', '.join(u.split(' ', 1)[1] for u in un)}")
+        mac = sorted({x for x in SH.LOG if x.startswith("from the Mac")})
+        if mac:
+            print(f"  from the Mac's upload: {', '.join(u.split(' ', 3)[3] for u in mac)}")
         ns = [x for x in SH.LOG if x.startswith("no seed")]
         if ns:
             print(f"  {len(ns)} request(s) not in the seed, e.g. {ns[0][:140]}")

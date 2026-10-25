@@ -19,9 +19,13 @@ cdn.nba.com refuse cloud servers, so:
 | `cloud_publish.py` | the slate check and the publish step (season file, projections, teams, lineups, heartbeat) |
 | `seed/` | the NBA tables that don't change in season (earlier seasons, combines, player info, the shot model), from the Mac's cache via `record_tables.py` |
 
-Not available in the cloud, so empty for the season in progress: drives, potential assists,
-self-created, rim protection, deflections, gravity, matchups (+ defender difficulty, role,
-Guardometer) and play types.
+Not reachable from the cloud: the NBA's tracking, Synergy and hustle tables (drives, potential
+assists, self-created, rim protection, deflections, gravity, matchups, play types, and what is
+built on them). The Mac fetches those when it's awake: `publish_tracking.sh` (launchd
+`com.wcehoops.basketball-savant-tracking`, 4:30 and 10:30am ET and on wake) runs
+`export_tracking.py` and force-pushes just those tables to the `tracking-data` branch, which
+starts a cloud run that uses them. The Mac never writes the site's files, so the two can't
+overwrite each other; the season file's `tracking.through` says how current they are.
 
 Checked against the NBA's own numbers (details: `claude/basketball-savant-cloud-refresh.md`
 in the Claude project): 2025-26 rebuilt from ESPN matches the published archive at

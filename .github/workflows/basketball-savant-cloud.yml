@@ -4,8 +4,9 @@
 # refuses cloud servers, so this rebuilds the NBA's box-score and play-by-play tables from
 # ESPN's public feed and runs the same engine on them (pipeline/basketball/cloud_refresh.py;
 # how it was checked against the NBA's own numbers: claude/basketball-savant-cloud-refresh.md
-# in the project). The NBA's tracking, Synergy and hustle stats have no cloud source and are
-# left empty for the season in progress.
+# in the project). The NBA's tracking, Synergy and hustle stats have no cloud source: the Mac
+# uploads those tables when it's awake (publish_tracking.sh, branch tracking-data) and every
+# run here uses its latest upload.
 #
 # Every 15 minutes a quick check (a few seconds) compares ESPN's finals with the games the site
 # already has (data/savant-refresh.json); once a new final has settled for 20 minutes, the
@@ -21,12 +22,15 @@ on:
     - cron: '13 15 * * *'
   # A change to the pipeline rebuilds the season as soon as it lands (the job's own commits
   # touch public/, data/ and the id map only, so it cannot set itself off).
+  # The Mac's upload of the tables the cloud can't reach (branch tracking-data, see
+  # pipeline/basketball/publish_tracking.sh) is folded in as soon as it lands.
   push:
-    branches: [main]
+    branches: [main, tracking-data]
     paths:
       - 'pipeline/basketball/**'
       - '!pipeline/basketball/seed/espn_ids.json'
       - '.github/workflows/basketball-savant-cloud.yml'
+      - 'manifest.json'
   workflow_dispatch:
     inputs:
       force:
@@ -83,6 +87,20 @@ jobs:
           set -e
           if [ $rc -eq 10 ]; then echo "due=1" >> "$GITHUB_OUTPUT"; elif [ $rc -ne 0 ]; then exit $rc; fi
 
+      # Tracking, Synergy, hustle and matchup tables: only the Mac can fetch them (stats.nba.com
+      # refuses cloud servers). It uploads them to the tracking-data branch when it's awake;
+      # the latest upload is used here, and the stats it feeds are left empty without one.
+      - name: The Mac's latest tracking tables
+        if: steps.due.outputs.due == '1'
+        run: |
+          mkdir -p "$RUNNER_TEMP/tracking"
+          if git fetch -q --depth 1 origin tracking-data 2>/dev/null; then
+            git archive FETCH_HEAD | tar -x -C "$RUNNER_TEMP/tracking"
+            echo "$(ls "$RUNNER_TEMP/tracking" | wc -l) files from the Mac"
+          else
+            echo "no tracking upload yet"
+          fi
+
       - name: Rebuild the season in progress
         if: steps.due.outputs.due == '1'
         run: |
@@ -91,7 +109,8 @@ jobs:
           cp pipeline/basketball/seed/out/* "$RUN/out/"
           cd "$RUN"
           python3 -W ignore "$GITHUB_WORKSPACE/pipeline/basketball/cloud_refresh.py" \
-            --cache "$GITHUB_WORKSPACE/.espn-cache" --public "$GITHUB_WORKSPACE/public" 2>&1 | tee "$RUNNER_TEMP/run.log"
+            --cache "$GITHUB_WORKSPACE/.espn-cache" --public "$GITHUB_WORKSPACE/public" \
+            --tracking "$RUNNER_TEMP/tracking" 2>&1 | tee "$RUNNER_TEMP/run.log"
           test ${PIPESTATUS[0]} -eq 0
           echo "RUN=$RUN" >> "$GITHUB_ENV"
 

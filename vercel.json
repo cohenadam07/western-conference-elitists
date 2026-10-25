@@ -638,5 +638,10 @@
       "path": "/api/analytics/snapshot",
       "schedule": "0 11 * * *"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "tracking-data": false
+    }
+  }
 }

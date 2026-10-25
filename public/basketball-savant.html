@@ -3471,8 +3471,8 @@ async function exportCard(){
    2.3.0 (Oct 2026): the season in progress refreshes in the cloud after every slate, from
    ESPN's box scores and play-by-play, with no dependence on Adam's Mac. The NBA's tracking,
    Synergy and hustle stats (drives, potential assists, self-created, rim protection,
-   deflections, gravity, matchups, play types) have no cloud source, so they read "—" for the
-   season in progress; earlier seasons keep them. */
+   deflections, gravity, matchups, play types) have no cloud source: the Mac uploads those
+   tables when it's awake and the cloud folds in the latest upload (DATA.tracking.through). */
 var VERSION='2.3.0';
 function build(){
   const vc=document.getElementById('verchip');
