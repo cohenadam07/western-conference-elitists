@@ -22,15 +22,14 @@ on:
     - cron: '13 15 * * *'
   # A change to the pipeline rebuilds the season as soon as it lands (the job's own commits
   # touch public/, data/ and the id map only, so it cannot set itself off).
-  # The Mac's upload of the tables the cloud can't reach (branch tracking-data, see
-  # pipeline/basketball/publish_tracking.sh) is folded in as soon as it lands.
+  # A new upload from the Mac (branch tracking-data) is picked up by the 15-minute check, and
+  # the Mac also starts a run right after uploading (gh workflow run).
   push:
-    branches: [main, tracking-data]
+    branches: [main]
     paths:
       - 'pipeline/basketball/**'
       - '!pipeline/basketball/seed/espn_ids.json'
       - '.github/workflows/basketball-savant-cloud.yml'
-      - 'manifest.json'
   workflow_dispatch:
     inputs:
       force:
@@ -77,6 +76,8 @@ jobs:
       - name: Is a refresh due?
         id: due
         run: |
+          echo "TRACKING_SHA=$(git ls-remote origin refs/heads/tracking-data | cut -f1)" >> "$GITHUB_ENV"
+          export TRACKING_SHA=$(git ls-remote origin refs/heads/tracking-data | cut -f1)
           FORCE=""
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force }}" = "true" ]; then FORCE=--force; fi
           if [ "${{ github.event.schedule }}" = "41 9 * * *" ] || [ "${{ github.event.schedule }}" = "13 15 * * *" ]; then FORCE=--force; fi

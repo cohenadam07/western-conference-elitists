@@ -45,6 +45,11 @@ def check(site, season, cache, force=False):
     if force:
         print("scheduled run: refreshing regardless")
         return 10
+    # A new upload from the Mac (tracking-data branch) is folded in right away.
+    sha = os.environ.get("TRACKING_SHA") or ""
+    if sha and sha != _beat(site).get("tracking_sha"):
+        print(f"new tracking upload from the Mac ({sha[:8]})")
+        return 10
     have = set(map(str, _beat(site).get("games", [])))
     fin = finals(season, cache)
     new = [g for g, _ in fin if str(g) not in have]
@@ -113,11 +118,14 @@ def stage(site, run, season, cache):
     except Exception:  # noqa
         last = None
     games = sorted(str(g) for g, _ in finals(season, cache))
-    if changed or last is None or (now - last).total_seconds() > 20 * 3600 or games != beat.get("games"):
+    sha = os.environ.get("TRACKING_SHA") or beat.get("tracking_sha")
+    if changed or last is None or (now - last).total_seconds() > 20 * 3600 or games != beat.get("games") \
+            or sha != beat.get("tracking_sha"):
         os.makedirs(os.path.join(site, "data"), exist_ok=True)
         json.dump({"last_ok": now.isoformat(timespec="seconds"), "season": season,
                    "through": through or beat.get("through"), "source": "cloud (ESPN)",
-                   "games": games}, open(os.path.join(site, "data", "savant-refresh.json"), "w"), indent=1)
+                   "tracking_sha": sha, "games": games},
+                  open(os.path.join(site, "data", "savant-refresh.json"), "w"), indent=1)
     print("changed: " + (", ".join(changed) if changed else "nothing"))
     print(f"through: {through}")
 
