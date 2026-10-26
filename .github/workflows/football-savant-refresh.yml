@@ -29,7 +29,8 @@ on:
         default: ''
   # A change to the pipeline is a change to what the current-season file should hold, so
   # it rebuilds that file as soon as it lands rather than at the next scheduled slot.
-  # (The job's own commits only touch public/, so this cannot set itself off.)
+  # (The job's own commits are pushed with GITHUB_TOKEN, which never starts a workflow, so
+  # committing heads_etag.json below cannot set this off.)
   push:
     branches: [main]
     paths:
@@ -84,6 +85,10 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add public/football-savant-current.json public/football-savant-heads.json public/football-maps/ public/football-weekly/ public/football-routes/ public/football-splits/
           [ -f public/coaching-savant-current.json ] && git add public/coaching-savant-current.json
+          # heads.py keeps its photo cache in the repo. It only changes when new players show
+          # up, and a modified-but-unstaged file makes `git pull --rebase` refuse (exit 128),
+          # which is what froze the page at week 6 on Oct 26. Commit it with the data.
+          git add pipeline/football/heads_etag.json
           if git diff --cached --quiet; then
             echo "no data change — nothing to commit"
             exit 0
@@ -93,5 +98,6 @@ jobs:
           git commit -m "Football Savant: refresh $SEASON (week $WEEK)"
           # someone may have pushed while this ran; the data files are ours alone, so a
           # rebase never conflicts on them
-          git pull --rebase origin main
+          # --autostash: any other stray file the build touches can never block the push again
+          git pull --rebase --autostash origin main
           git push origin HEAD:main
