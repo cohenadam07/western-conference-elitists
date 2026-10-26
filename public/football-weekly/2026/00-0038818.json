@@ -1,1 +1,1 @@
-{"s":2026,"pos":"OG","w":[1],"t":["TB"],"o":["@CIN"],"m":{"fsg":[0.0],"holdg":[0.0],"pen":[0.0],"snaps":[5.0],"snapshr":[0.0]},"d":{}}
+{"s":2026,"pos":"OG","w":[1,7],"t":["TB","TB"],"o":["@CIN","@CAR"],"m":{"epadbon":[null,0.481],"fsg":[0.0,0.0],"hitallow":[null,9.091],"holdg":[0.0,0.0],"pblkg":[null,1.048],"pen":[0.0,0.0],"rblkg":[null,4.476],"sackallow":[null,0.0],"snaps":[5.0,13.0],"snapshr":[0.0,9.524],"srdbon":[null,45.45],"srrunon":[null,55.32],"stuffon":[null,17.02],"ypcon":[null,5.553]},"d":{"pblk":[null,1.0],"rblk":[null,4.5],"snap":[null,6.0]}}

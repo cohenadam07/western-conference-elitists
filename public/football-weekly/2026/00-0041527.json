@@ -1,1 +1,1 @@
-{"s":2026,"pos":"S","w":[1],"t":["MIA"],"o":["@LV"],"m":{"blitz":[1.0],"blitzrate":[71.68],"havoc":[0.0],"pen":[0.0],"rstop":[0.0],"rstoprate":[0.0],"snaps":[17.0],"snapshr":[4.412]},"d":{"dpsnap":[1.4],"drsnap":[1.4],"dsnap":[3.0]}}
+{"s":2026,"pos":"S","w":[1,7],"t":["MIA","MIA"],"o":["@LV","@NYJ"],"m":{"blitz":[1.0,null],"blitzrate":[71.68,null],"havoc":[0.0,null],"pen":[0.0,1.0],"rstop":[0.0,0.0],"rstoprate":[0.0,null],"snaps":[17.0,15.0],"snapshr":[4.412,0.0]},"d":{"dpsnap":[1.4,null],"drsnap":[1.4,null],"dsnap":[3.0,null]}}
