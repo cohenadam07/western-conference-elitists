@@ -11,6 +11,7 @@ the same initial ("Isaac"/"Ike Austin"). Basketball
 Reference, ESPN and the NBA spell a few hundred names differently across 30 seasons; these rules
 match all but a handful, and a name that stays ambiguous is left out rather than guessed.
 """
+import html
 import re
 import unicodedata
 from collections import defaultdict
@@ -20,7 +21,8 @@ _SUFFIX = re.compile(r"[ ,]+(jr|sr|ii|iii|iv|v)\.?$")
 
 
 def words(name):
-    s = unicodedata.normalize("NFKD", (name or "").translate(_EXTRA))
+    s = html.unescape(name or "").replace("&apos;", "'").replace("apos;", "'")   # ESPN's older names: "N&apos;Dong"
+    s = unicodedata.normalize("NFKD", s.translate(_EXTRA))
     s = "".join(ch for ch in s if not unicodedata.combining(ch)).lower().strip()
     s = _SUFFIX.sub("", s)                         # suffixes only at the end ("J.R. Smith" stays)
     return [w for w in (re.sub(r"[^a-z]", "", t) for t in re.split(r"[\s\-]+", s)) if w]
