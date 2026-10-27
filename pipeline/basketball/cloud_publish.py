@@ -83,12 +83,14 @@ def check(site, season, cache, force=False):
 
 
 def pending(site, season, cache):
-    """Is tonight's slate still in play? Today's games (US Eastern; before 6am also
-    yesterday's, for late West Coast games) that aren't final yet, or are final but not
-    published. Postponed and canceled games don't count."""
+    """Is tonight's slate still in play? The game day's games that aren't final yet, or are
+    final but not published. A game day runs 6am to 6am US Eastern, so after midnight it is
+    still last night's slate (late West Coast games) and not yet tomorrow's: on Oct 27, 2026
+    a watcher counted that evening's scheduled games after midnight and stayed up for them.
+    Postponed and canceled games don't count."""
     from zoneinfo import ZoneInfo
     now = dt.datetime.now(ZoneInfo("America/New_York"))
-    days = [now.date()] + ([now.date() - dt.timedelta(days=1)] if now.hour < 6 else [])
+    days = [(now - dt.timedelta(hours=6)).date()]
     have = set(map(str, _beat(site).get("games", [])))
     left = []
     for day in days:
