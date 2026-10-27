@@ -99,13 +99,9 @@ class ZoneDefenseTeamLeaders(_Raw):
 
 
 class DunkScoreLeadersRaw(_Raw):
-    """One row per dunk with the Dunk Score, its subscores and the tracked measurements."""
+    """One row per dunk with the Dunk Score, its subscores and the tracked measurements (all of
+    a season's dunks; empty PlayerID/TeamID/GameID parameters make the endpoint answer 400)."""
     resource, list_key = "dunkscoreleaders", "dunks"
-
-    def __init__(self, timeout=30, season=None, season_type_all_star="Regular Season",
-                 league_id="00", **extra):
-        super().__init__(timeout=timeout, season=season, season_type_all_star=season_type_all_star,
-                         league_id=league_id, PlayerID="", TeamID="", GameID="", **extra)
 
 
 ALL = [GravityLeadersRaw, ShotQualityLeaders, LeverageLeaders, HandleScore,
