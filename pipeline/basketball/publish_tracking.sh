@@ -48,6 +48,7 @@ unset GIT_WORK_TREE GIT_INDEX_FILE
 rm -f "$IDX"
 git push -q -f origin "$COMMIT:refs/heads/tracking-data" && echo "pushed tracking tables through $THROUGH" || { echo "push failed"; exit 1; }
 date '+%Y-%m-%dT%H:%M:%S%z' > "$SAVANT/logs/tracking-last-ok"
-# Start the cloud refresh now rather than at its next 15-minute check (which would also find it).
+# Start the cloud refresh now; without gh, the day's watcher (from 12:17pm ET) or the 11:13am
+# rebuild finds the new upload anyway.
 cd "$SITE" && gh workflow run basketball-savant-cloud.yml --ref main -f mode=once -f force=false >/dev/null 2>&1 \
-  && echo "started the cloud refresh" || echo "couldn't start the cloud refresh (its 15-minute check will pick this up)"
+  && echo "started the cloud refresh" || echo "couldn't start the cloud refresh (the next watcher or daily rebuild picks this up)"

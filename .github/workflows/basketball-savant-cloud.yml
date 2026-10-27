@@ -97,7 +97,10 @@ jobs:
             exec bash pipeline/basketball/cloud_run.sh once --force
           elif [ "$EV" = "schedule" ] || [ "${{ github.event.inputs.mode }}" = "watch" ]; then
             exec bash pipeline/basketball/cloud_run.sh watch 5
-          elif [ "$EV" = "push" ] || [ "${{ github.event.inputs.force }}" = "true" ]; then
+          elif [ "$EV" = "push" ]; then
+            # rebuild now; if games are still in play, stay up for them
+            exec bash pipeline/basketball/cloud_run.sh watch 5 --force
+          elif [ "${{ github.event.inputs.force }}" = "true" ]; then
             exec bash pipeline/basketball/cloud_run.sh once --force
           else
             exec bash pipeline/basketball/cloud_run.sh once

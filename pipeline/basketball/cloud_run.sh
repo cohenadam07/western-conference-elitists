@@ -4,8 +4,10 @@
 #
 #   cloud_run.sh once [--force]   refresh and publish if a new final has settled (or always,
 #                                 with --force)
-#   cloud_run.sh watch HOURS      stay up and check every 5 minutes until every one of today's
-#                                 games is published; after HOURS, hand over to a fresh watcher
+#   cloud_run.sh watch HOURS [--force]
+#                                 stay up and check every 5 minutes until every one of today's
+#                                 games is published; after HOURS, hand over to a fresh watcher.
+#                                 --force rebuilds on the first pass regardless
 #
 # Why a watcher: GitHub runs frequent scheduled workflows only when it has spare capacity. On
 # Oct 26, 2026 it ran 7 of the ~98 "every 15 minutes" slots, none between 8:52pm ET and the
@@ -63,8 +65,9 @@ case "${1:-once}" in
   watch)
     end=$(( $(date +%s) + ${2:-5} * 3600 ))
     last=0
+    first="${3:-}"
     while :; do
-      run_once ""; last=$?
+      run_once "$first"; last=$?; first=""
       [ $last -eq 1 ] && echo "::warning::this check failed; trying again in 5 minutes"
       python3 $BB/cloud_publish.py pending .
       [ $? -eq 10 ] || { echo "slate done"; exit $(( last == 1 )); }
