@@ -49,5 +49,5 @@ rm -f "$IDX"
 git push -q -f origin "$COMMIT:refs/heads/tracking-data" && echo "pushed tracking tables through $THROUGH" || { echo "push failed"; exit 1; }
 date '+%Y-%m-%dT%H:%M:%S%z' > "$SAVANT/logs/tracking-last-ok"
 # Start the cloud refresh now rather than at its next 15-minute check (which would also find it).
-cd "$SITE" && gh workflow run basketball-savant-cloud.yml --ref main -f force=false >/dev/null 2>&1 \
+cd "$SITE" && gh workflow run basketball-savant-cloud.yml --ref main -f mode=once -f force=false >/dev/null 2>&1 \
   && echo "started the cloud refresh" || echo "couldn't start the cloud refresh (its 15-minute check will pick this up)"
