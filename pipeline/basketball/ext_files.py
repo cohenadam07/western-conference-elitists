@@ -17,7 +17,8 @@ and the panels ship beside it in public/savant-ext/, fetched only for what a rea
   savant-ext/p/<pid>.json          one player's finished seasons, for his career chart and
                                    career highs: {"schema", "id", "keys", "seasons": {season:
                                    [[value, league pct, position pct]|null, ...]}}
-  savant-ext/index.json            which seasons exist, when each was built, what it carries
+  savant-ext/index.json            the finished seasons built, when, from which seed (build_ext.py)
+  savant-ext/live.json             the season in progress: through when, built when (cloud_publish.py)
 
 Percentiles in p/ are the page's: midrank among that season's qualified players with a value,
 flipped for lower-is-better stats, rounded and held to 1..99; position pools use the page's

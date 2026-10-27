@@ -4,6 +4,8 @@ cloud_publish.py — the cloud refresh's front and back ends (GitHub Actions).
     python3 cloud_publish.py check  <site_root>   exit 10 if a refresh is due, 0 if not
     python3 cloud_publish.py stage  <site_root>   copy a finished run's outputs into public/,
                                                   write the heartbeat; prints what changed
+    python3 cloud_publish.py pending <site_root>  exit 10 while any of today's games (US
+                                                  Eastern) is unfinished or unpublished
 
 `check` replaces the Mac's slate_watch.py: every ESPN final of the season so far is compared
 with the games the last publish contained (data/savant-refresh.json "games"). A final that
@@ -80,6 +82,31 @@ def check(site, season, cache, force=False):
     return 10
 
 
+def pending(site, season, cache):
+    """Is tonight's slate still in play? Today's games (US Eastern; before 6am also
+    yesterday's, for late West Coast games) that aren't final yet, or are final but not
+    published. Postponed and canceled games don't count."""
+    from zoneinfo import ZoneInfo
+    now = dt.datetime.now(ZoneInfo("America/New_York"))
+    days = [now.date()] + ([now.date() - dt.timedelta(days=1)] if now.hour < 6 else [])
+    have = set(map(str, _beat(site).get("games", [])))
+    left = []
+    for day in days:
+        for e in S.scoreboard(day).get("events", []):
+            if (e.get("season") or {}).get("type") not in (2, None):
+                continue
+            st = e["status"]["type"]["name"]
+            if st in ("STATUS_POSTPONED", "STATUS_CANCELED", "STATUS_SUSPENDED"):
+                continue
+            teams = {S.nba_abbr(c["team"]["abbreviation"]) for c in e["competitions"][0]["competitors"]}
+            if not teams <= S.NBA_TEAMS:
+                continue
+            if st != "STATUS_FINAL" or str(e["id"]) not in have:
+                left.append(f'{e["shortName"]} ({"unpublished" if st == "STATUS_FINAL" else st.replace("STATUS_", "").lower()})')
+    print(f"{now:%H:%M} ET: " + (", ".join(left) if left else "every game today is published"))
+    return 10 if left else 0
+
+
 def _same(a, b):
     try:
         x, y = json.load(open(a)), json.load(open(b))
@@ -115,15 +142,12 @@ def stage(site, run, season, cache):
                 shutil.copy(src, dst)
                 ext_new = True
     if ext_new:
-        idx_path = XFL.index_path(pub)
-        try:
-            idx = json.load(open(idx_path))
-        except (OSError, ValueError):
-            idx = {"schema": XFL.SCHEMA, "seasons": {}}
+        # savant-ext/live.json, not index.json: the history build (basketball-savant-ext.yml)
+        # owns index.json, and two jobs committing one file would trip over each other's rebases.
         d = json.load(open(ext_s))
-        idx["live"] = {"season": season, "through": d.get("through"), "generated": d.get("generated"),
-                       "players": len(d.get("players", {}))}
-        XFL.write(idx_path, idx)
+        XFL.write(os.path.join(pub, "savant-ext", "live.json"),
+                  {"schema": XFL.SCHEMA, "season": season, "through": d.get("through"),
+                   "generated": d.get("generated"), "players": len(d.get("players", {}))})
         changed.append("savant-ext")
     lu = os.path.join(run, "out", "site", "lineups")
     if os.path.isdir(lu):
@@ -160,6 +184,8 @@ if __name__ == "__main__":
     cache = os.path.join(os.environ.get("ESPN_CACHE_ROOT") or os.path.join(HERE, ".espn-cache"), season)
     if cmd == "check":
         sys.exit(check(site, season, cache, force="--force" in sys.argv))
+    elif cmd == "pending":
+        sys.exit(pending(site, season, cache))
     elif cmd == "stage":
         run = sys.argv[3] if len(sys.argv) > 3 else os.path.join(HERE, "run")
         stage(site, run, season, cache)

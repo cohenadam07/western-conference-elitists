@@ -8,32 +8,46 @@
 # uploads those tables when it's awake (publish_tracking.sh, branch tracking-data) and every
 # run here uses its latest upload.
 #
-# Every 15 minutes a quick check (a few seconds) compares ESPN's finals with the games the site
-# already has (data/savant-refresh.json); once a new final has settled for 20 minutes, the
-# season is rebuilt and published. Twice a day it rebuilds regardless, for stat corrections:
+# Game days: a slate watcher (pipeline/basketball/cloud_run.sh watch) starts at 16:17 UTC
+# (12:17pm EDT / 11:17am EST) and stays up, checking every 5 minutes, until every one of that
+# day's games is final, settled for 20 minutes and published; after 5 hours it hands over to a
+# fresh watcher. Days with no games, it exits at once. GitHub runs frequent schedules only when
+# it has spare capacity (on Oct 26, 2026, 7 of ~98 "every 15 minutes" slots ran, none after
+# 8:52pm ET), so the watcher needs one start a day; three backups cover a dropped or late one.
+# A backup that fires while a watcher is up waits its turn, finds nothing left, and exits.
+#
+# Twice a day it rebuilds regardless, for stat corrections:
 #   9:41 UTC  (5:41am EDT / 4:41am EST)     15:13 UTC (11:13am EDT / 10:13am EST)
 # Odd minutes on purpose: GitHub delays scheduled runs badly at :00 and :30.
 name: Basketball Savant cloud refresh
 
 on:
   schedule:
-    - cron: '7,22,37,52 * * * *'
-    - cron: '41 9 * * *'
-    - cron: '13 15 * * *'
+    - cron: '17 16 * * *'     # watcher
+    - cron: '41 22 * * *'     # watcher, backup
+    - cron: '41 1 * * *'      # watcher, backup
+    - cron: '11 3 * * *'      # watcher, backup
+    - cron: '41 9 * * *'      # rebuild regardless
+    - cron: '13 15 * * *'     # rebuild regardless
   # A change to the pipeline rebuilds the season as soon as it lands (the job's own commits
   # touch public/, data/ and the id map only, so it cannot set itself off).
-  # A new upload from the Mac (branch tracking-data) is picked up by the 15-minute check, and
-  # the Mac also starts a run right after uploading (gh workflow run).
   push:
     branches: [main]
     paths:
       - 'pipeline/basketball/**'
       - '!pipeline/basketball/seed/espn_ids.json'
       - '.github/workflows/basketball-savant-cloud.yml'
+  # The Mac starts a run right after it uploads tracking tables (mode once, force false);
+  # a watcher at the end of its 5 hours starts the next one (mode watch).
   workflow_dispatch:
     inputs:
+      mode:
+        description: 'once = one refresh; watch = stay up until today''s games are all published'
+        type: choice
+        options: [once, watch]
+        default: once
       force:
-        description: 'Rebuild even if no new game is final'
+        description: 'Rebuild even if no new game is final (mode once)'
         type: boolean
         default: true
 
@@ -43,11 +57,12 @@ concurrency:
 
 permissions:
   contents: write
+  actions: write     # a watcher starts its successor
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 340
     env:
       ESPN_CACHE_ROOT: ${{ github.workspace }}/.espn-cache
       # The public mirror of NBA tracking (gabriel1200/site_Data, pipeline/basketball/mirror.py)
@@ -77,61 +92,20 @@ jobs:
       - name: Install
         run: pip install --quiet -r pipeline/basketball/requirements-cloud.txt
 
-      - name: Is a refresh due?
-        id: due
+      - name: Refresh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          echo "TRACKING_SHA=$(git ls-remote origin refs/heads/tracking-data | cut -f1)" >> "$GITHUB_ENV"
-          export TRACKING_SHA=$(git ls-remote origin refs/heads/tracking-data | cut -f1)
-          FORCE=""
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force }}" = "true" ]; then FORCE=--force; fi
-          if [ "${{ github.event.schedule }}" = "41 9 * * *" ] || [ "${{ github.event.schedule }}" = "13 15 * * *" ]; then FORCE=--force; fi
-          if [ "${{ github.event_name }}" = "push" ]; then FORCE=--force; fi
-          set +e
-          python3 pipeline/basketball/cloud_publish.py check . $FORCE
-          rc=$?
-          set -e
-          if [ $rc -eq 10 ]; then echo "due=1" >> "$GITHUB_OUTPUT"; elif [ $rc -ne 0 ]; then exit $rc; fi
-
-      # Tracking, Synergy, hustle and matchup tables: only the Mac can fetch them (stats.nba.com
-      # refuses cloud servers). It uploads them to the tracking-data branch when it's awake;
-      # the latest upload is used here, and the stats it feeds are left empty without one.
-      - name: The Mac's latest tracking tables
-        if: steps.due.outputs.due == '1'
-        run: |
-          mkdir -p "$RUNNER_TEMP/tracking"
-          if git fetch -q --depth 1 origin tracking-data 2>/dev/null; then
-            git archive FETCH_HEAD | tar -x -C "$RUNNER_TEMP/tracking"
-            echo "$(ls "$RUNNER_TEMP/tracking" | wc -l) files from the Mac"
+          EV="${{ github.event_name }}"; CRON="${{ github.event.schedule }}"
+          if [ "$EV" = "schedule" ] && { [ "$CRON" = "41 9 * * *" ] || [ "$CRON" = "13 15 * * *" ]; }; then
+            exec bash pipeline/basketball/cloud_run.sh once --force
+          elif [ "$EV" = "schedule" ] || [ "${{ github.event.inputs.mode }}" = "watch" ]; then
+            exec bash pipeline/basketball/cloud_run.sh watch 5
+          elif [ "$EV" = "push" ]; then
+            # rebuild now; if games are still in play, stay up for them
+            exec bash pipeline/basketball/cloud_run.sh watch 5 --force
+          elif [ "${{ github.event.inputs.force }}" = "true" ]; then
+            exec bash pipeline/basketball/cloud_run.sh once --force
           else
-            echo "no tracking upload yet"
+            exec bash pipeline/basketball/cloud_run.sh once
           fi
-
-      - name: Rebuild the season in progress
-        if: steps.due.outputs.due == '1'
-        run: |
-          RUN="$RUNNER_TEMP/savant-run"
-          mkdir -p "$RUN/out"
-          cp pipeline/basketball/seed/out/* "$RUN/out/"
-          cd "$RUN"
-          python3 -W ignore "$GITHUB_WORKSPACE/pipeline/basketball/cloud_refresh.py" \
-            --cache "$GITHUB_WORKSPACE/.espn-cache" --public "$GITHUB_WORKSPACE/public" \
-            --tracking "$RUNNER_TEMP/tracking" 2>&1 | tee "$RUNNER_TEMP/run.log"
-          test ${PIPESTATUS[0]} -eq 0
-          echo "RUN=$RUN" >> "$GITHUB_ENV"
-
-      - name: Publish
-        if: steps.due.outputs.due == '1'
-        run: |
-          python3 pipeline/basketball/cloud_publish.py stage . "$RUN"
-          git config user.name "basketball-savant-bot"
-          git config user.email "bot@wcehoops.com"
-          git add public/savant-current.json public/savant-proj.json public/savant-teams-current.json public/lineups public/savant-ext data/savant-refresh.json pipeline/basketball/seed/espn_ids.json
-          if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
-          read SEASON THROUGH < <(python3 -c "import json;d=json.load(open('public/savant-current.json'));print(d['seasons'][0], d.get('through') or 'latest')")
-          if git diff --cached --quiet -- public/savant-current.json public/savant-ext; then MSG="Basketball Savant: heartbeat ($SEASON through $THROUGH)"; else MSG="Basketball Savant: refresh $SEASON (through $THROUGH)"; fi
-          git commit -q -m "$MSG"
-          for i in 1 2 3 4; do
-            if git push -q origin HEAD:main; then echo "pushed: $MSG"; exit 0; fi
-            git pull -q --rebase origin main || { git rebase --abort; exit 1; }
-          done
-          exit 1

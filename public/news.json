@@ -1,36 +1,39 @@
 {
-  "generated_at": "2026-10-26T20:51:58.407144+00:00",
+  "generated_at": "2026-10-27T03:41:55.429708+00:00",
   "headlines": [
     {
-      "id": "de4bd558ec56e334",
-      "title": "Jalen Williams Suffers Serious Leg Injury",
-      "url": "https://basketball.realgm.com/wiretap/287883/Jalen-Williams-Suffers-Serious-Leg-Injury",
-      "outlet": "RealGM",
-      "published": "2026-10-26T01:35:08+00:00",
+      "id": "3a3f8de67970239a",
+      "title": "Ty Jerome, Tyrese Maxey Named NBA’s Players Of The Week",
+      "url": "https://www.hoopsrumors.com/2026/10/ty-jerome-tyrese-maxey-named-nbas-players-of-the-week.html",
+      "outlet": "Hoops Rumors",
+      "published": "2026-10-26T19:38:43+00:00",
       "also_covered_by": [
-        "Yahoo Sports NBA",
-        "Hoops Rumors",
-        "CBS Sports NBA",
-        "ESPN NBA"
+        "RealGM",
+        "Yahoo Sports NBA"
       ],
-      "wce_line": "Williams' injury could significantly impact the Thunder's lineup, given his below-average defensive contribution.",
+      "wce_line": "Ty Jerome ranks in the 97th percentile for Box Plus/Minute, outshining even his fellow nominees in the Western Conference.",
       "players": [
         {
-          "name": "Jalen Williams",
-          "savant_url": "/basketball-savant.html?p=1631114"
+          "name": "Ty Jerome",
+          "savant_url": "/basketball-savant.html?p=1629660"
+        },
+        {
+          "name": "Tyrese Maxey",
+          "savant_url": "/basketball-savant.html?p=1630178"
         }
       ]
     },
     {
-      "id": "b0b69bbcb74151f6",
-      "title": "Magic guard Jalen Suggs helped off floor after leg injury in win over Knicks",
-      "url": "https://sports.yahoo.com/nba/breaking-news/article/magic-guard-jalen-suggs-helped-off-floor-after-leg-injury-in-win-over-knicks-022811303.html",
+      "id": "67ab31fc3b0e1bb0",
+      "title": "Magic's Jalen Suggs diagnosed with bone bruise in right knee, will be re-evaluated in 2 weeks",
+      "url": "https://sports.yahoo.com/nba/breaking-news/article/magics-jalen-suggs-diagnosed-with-bone-bruise-in-right-knee-will-be-re-evaluated-in-2-weeks-184734151.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T01:39:51+00:00",
+      "published": "2026-10-26T18:44:14+00:00",
       "also_covered_by": [
-        "ESPN NBA"
+        "RealGM",
+        "Hoops Rumors"
       ],
-      "wce_line": "The non-contact nature of Jalen Suggs' knee injury is concerning for the Magic, who already face significant depth issues at guard.",
+      "wce_line": "Jalen Suggs avoided a major injury, suffering only a mild bone bruise in his right knee after going down during a game against the Knicks.",
       "players": [
         {
           "name": "Jalen Suggs",
@@ -39,53 +42,57 @@
       ]
     },
     {
-      "id": "7f43edf370069ec5",
-      "title": "Jaylen Brown and Jayson Tatum’s NBA drama is more entertaining than it should be",
-      "url": "https://sports.yahoo.com/articles/jaylen-brown-jayson-tatum-nba-131100947.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T13:11:00+00:00",
+      "id": "66f287cc76b4e6ef",
+      "title": "Thunder’s Jalen Williams, Cason Wallace Out Indefinitely",
+      "url": "https://www.hoopsrumors.com/2026/10/thunders-jalen-williams-cason-wallace-out-indefinitely.html",
+      "outlet": "Hoops Rumors",
+      "published": "2026-10-26T22:21:15+00:00",
       "also_covered_by": [
-        "SB Nation NBA"
+        "Yahoo Sports NBA"
       ],
-      "wce_line": "Jaylen Brown's \"lamb chops and gravy\" comment might be a lowlight in his 99th percentile rebounding season.",
+      "wce_line": "Both Jalen Williams and Cason Wallace are expected to miss several months due to injuries requiring surgery.",
       "players": [
         {
-          "name": "Jaylen Brown",
-          "savant_url": "/basketball-savant.html?p=1627759"
+          "name": "Jalen Williams",
+          "savant_url": "/basketball-savant.html?p=1631114"
         },
         {
-          "name": "Jayson Tatum",
-          "savant_url": "/basketball-savant.html?p=1628369"
+          "name": "Cason Wallace",
+          "savant_url": "/basketball-savant.html?p=1641717"
         }
       ]
     },
     {
-      "id": "9aab0d39d2055d8b",
-      "title": "Jalen Brunson fails late again as Knicks blow 10-point lead to shorthanded Magic for ugly 0-3 start",
-      "url": "https://sports.yahoo.com/articles/jalen-brunson-fails-again-knicks-020104052.html",
+      "id": "db58e4119dd70ecb",
+      "title": "Thunder lose starters Jalen Williams, Cason Wallace to injuries requiring surgery",
+      "url": "https://sports.yahoo.com/articles/thunder-star-jalen-williams-fractured-220319966.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T02:01:04+00:00",
+      "published": "2026-10-26T22:03:19+00:00",
       "also_covered_by": [
-        "RealGM"
+        "CBS Sports NBA"
       ],
-      "wce_line": "Jalen Brunson struggled again, posting below-average Box Plus/Minus for the game.",
+      "wce_line": "Both Jalen Williams and Cason Wallace will miss significant time due to injuries requiring surgery, with recovery times ranging from several months to a year.",
       "players": [
         {
-          "name": "Jalen Brunson",
-          "savant_url": "/basketball-savant.html?p=1628973"
+          "name": "Jalen Williams",
+          "savant_url": "/basketball-savant.html?p=1631114"
+        },
+        {
+          "name": "Cason Wallace",
+          "savant_url": "/basketball-savant.html?p=1641717"
         }
       ]
     },
     {
-      "id": "1de9e2f32fac821c",
-      "title": "Jalen Williams injury: Thunder star stretchered off with ankle injury that brought SGA to tears",
-      "url": "https://sports.yahoo.com/articles/jalen-williams-injury-thunder-star-021124599.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T02:11:24+00:00",
+      "id": "ef3ffc666d094ab6",
+      "title": "Jalen Williams Suffers Dislocated Left Ankle, Fractured Fibula",
+      "url": "https://basketball.realgm.com/wiretap/287905/Jalen-Williams-Suffers-Dislocated-Left-Ankle-Fractured-Fibula",
+      "outlet": "RealGM",
+      "published": "2026-10-26T22:04:06+00:00",
       "also_covered_by": [
-        "SB Nation NBA"
+        "Yahoo Sports NBA"
       ],
-      "wce_line": "SGA's emotional reaction highlights the significance of Williams' injury to the Thunder's prospects this season.",
+      "wce_line": "Recovery from Jalen Williams' injury typically requires months, casting doubt on his availability for the remainder of the season.",
       "players": [
         {
           "name": "Jalen Williams",
@@ -94,33 +101,213 @@
       ]
     },
     {
-      "id": "8d95f5882d8a8d67",
-      "title": "Paolo Banchero Could Miss 4-6 Weeks Due To High Ankle Sprain",
-      "url": "https://basketball.realgm.com/wiretap/287872/Paolo-Banchero-Could-Miss-4-6-Weeks-Due-To-High-Ankle-Sprain",
+      "id": "1b4f2e703dbc0bc1",
+      "title": "Cooper Flagg Out Indefinitely With Left Shoulder Sprain",
+      "url": "https://basketball.realgm.com/wiretap/287875/Cooper-Flagg-Out-Indefinitely-With-Left-Shoulder-Sprain",
       "outlet": "RealGM",
-      "published": "2026-10-24T20:55:31+00:00",
+      "published": "2026-10-24T21:34:48+00:00",
       "also_covered_by": [
-        "Hoops Rumors"
+        "Yahoo Sports NBA"
       ],
-      "wce_line": "Banchero's injury could keep him out longer than his box plus-minus percentile suggests.",
+      "wce_line": "Flagg's injury has left the Mavericks without their 97th percentile Box Plus/Minute player.",
       "players": [
         {
-          "name": "Paolo Banchero",
-          "savant_url": "/basketball-savant.html?p=1631094"
+          "name": "Cooper Flagg",
+          "savant_url": "/basketball-savant.html?p=1642843"
         }
       ]
     },
     {
-      "id": "dd42696e779eb45f",
-      "title": "How To Watch And Live Stream Sacramento Kings vs Memphis Grizzlies NBA Game Tonight: TV Channels, Team News, Start Time",
-      "url": "https://basketball.realgm.com/wiretap/287867/How-To-Watch-And-Live-Stream-Sacramento-Kings-vs-Memphis-Grizzlies-NBA-Game-Tonight-TV-Channels-Team-News-Start-Time",
+      "id": "3162f18f3359ca03",
+      "title": "How To Watch And Live Stream Denver Nuggets vs Golden State Warriors NBA Game Tonight: TV Channels, Team News, Start Time",
+      "url": "https://basketball.realgm.com/wiretap/287892/How-To-Watch-And-Live-Stream-Denver-Nuggets-vs-Golden-State-Warriors-NBA-Game-Tonight-TV-Channels-Team-News-Start-Time",
       "outlet": "RealGM",
-      "published": "2026-10-24T18:36:14+00:00",
+      "published": "2026-10-26T10:58:25+00:00",
       "also_covered_by": [
         "Yahoo Sports NBA"
       ],
-      "wce_line": null,
+      "wce_line": "Both teams are navigating new seasons, with the Nuggets starting 1-1 while the Warriors have struggled to begin their campaign.",
       "players": []
+    },
+    {
+      "id": "c36a219cb8660bbc",
+      "title": "Alex Caruso exits Thunder win over Suns early with sprained right ankle as OKC's injury woes continue",
+      "url": "https://sports.yahoo.com/nba/article/alex-caruso-exits-thunder-win-over-suns-early-with-sprained-right-ankle-as-okcs-injury-woes-continue-024237139.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-27T02:23:49+00:00",
+      "also_covered_by": [],
+      "wce_line": "Oklahoma City's already-thin perimeter depth lost another piece as Alex Caruso's ankle sprain drops him from games.",
+      "players": [
+        {
+          "name": "Alex Caruso",
+          "savant_url": "/basketball-savant.html?p=1627936"
+        }
+      ]
+    },
+    {
+      "id": "73de48a721672c9f",
+      "title": "Donovan Mitchell comes up clutch in Cavs 127-125 win over Wolves",
+      "url": "https://sports.yahoo.com/articles/donovan-mitchell-comes-clutch-cavs-020411776.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-27T02:04:11+00:00",
+      "also_covered_by": [],
+      "wce_line": "Donovan Mitchell's performance in the 65th percentile Box Plus/Minute helped carry the Cavs to victory despite a tough test from the Wolves.",
+      "players": [
+        {
+          "name": "Donovan Mitchell",
+          "savant_url": "/basketball-savant.html?p=1628378"
+        }
+      ]
+    },
+    {
+      "id": "0a174ebb2e5a3cb7",
+      "title": "Cason Wallace to have surgery, could miss rest of the 2026-27 NBA season",
+      "url": "https://sports.yahoo.com/articles/cason-wallace-surgery-could-miss-001507137.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-27T00:15:07+00:00",
+      "also_covered_by": [],
+      "wce_line": null,
+      "players": [
+        {
+          "name": "Cason Wallace",
+          "savant_url": "/basketball-savant.html?p=1641717"
+        }
+      ]
+    },
+    {
+      "id": "103124c76807a978",
+      "title": "Luka Doncic and another Lakers star nominated for NBA Player of the Week",
+      "url": "https://sports.yahoo.com/articles/luka-doncic-another-lakers-star-230048408.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-26T23:00:48+00:00",
+      "also_covered_by": [],
+      "wce_line": "Doncic's box plus-minus ranks in the 75th percentile among NBA players this season.",
+      "players": [
+        {
+          "name": "Luka Doncic",
+          "savant_url": "/basketball-savant.html?p=1629029"
+        }
+      ]
+    },
+    {
+      "id": "8cc540599c048340",
+      "title": "Thunder star Jalen Williams could miss remainder of season after breaking leg, dislocating ankle",
+      "url": "https://www.cbssports.com/nba/news/jalen-williams-leg-injury-thunder-star/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-10-26T22:18:03+00:00",
+      "also_covered_by": [],
+      "wce_line": "Williams' season could be over after he fractured his fibula and dislocated his ankle in a game against the Clippers.",
+      "players": [
+        {
+          "name": "Jalen Williams",
+          "savant_url": "/basketball-savant.html?p=1631114"
+        }
+      ]
+    },
+    {
+      "id": "f0be3e471e37ff37",
+      "title": "Cason Wallace Could Miss Remainder Of Season With Torn Labrum In Left Shoulder",
+      "url": "https://basketball.realgm.com/wiretap/287906/Cason-Wallace-Could-Miss-Remainder-Of-Season-With-Torn-Labrum-In-Left-Shoulder",
+      "outlet": "RealGM",
+      "published": "2026-10-26T22:06:19+00:00",
+      "also_covered_by": [],
+      "wce_line": "Wallace's injury could cost him about six months, impacting the Thunder's defensive capabilities.",
+      "players": [
+        {
+          "name": "Cason Wallace",
+          "savant_url": "/basketball-savant.html?p=1641717"
+        }
+      ]
+    },
+    {
+      "id": "9d603308dda4ecdb",
+      "title": "Thunder's Jalen Williams out indefinitely with fractured fibula, dislocated ankle after gruesome injury in win over Clippers",
+      "url": "https://sports.yahoo.com/nba/breaking-news/article/thunders-jalen-williams-out-indefinitely-with-fractured-fibula-dislocated-ankle-after-gruesome-injury-in-win-over-clippers-220320179.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-26T22:03:20+00:00",
+      "also_covered_by": [],
+      "wce_line": "Both Jalen Williams and Cason Wallace are expected to miss most or the entire 2026-27 season after suffering significant injuries in a game against the Clippers.",
+      "players": [
+        {
+          "name": "Jalen Williams",
+          "savant_url": "/basketball-savant.html?p=1631114"
+        }
+      ]
+    },
+    {
+      "id": "4979078a0185f27f",
+      "title": "No NBA GM voted for Luka Doncic for projected MVP? You’ve got to be joking",
+      "url": "https://sports.yahoo.com/articles/no-nba-gm-voted-luka-213423072.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-26T21:34:23+00:00",
+      "also_covered_by": [],
+      "wce_line": "Despite leading the league in scoring and finishing third in assists, Luka Dončić received zero votes for projected MVP from NBA general managers.",
+      "players": [
+        {
+          "name": "Luka Doncic",
+          "savant_url": "/basketball-savant.html?p=1629029"
+        }
+      ]
+    },
+    {
+      "id": "f50e0870fd257d5c",
+      "title": "Kings Exercise Third-Year Option On Nique Clifford",
+      "url": "https://www.hoopsrumors.com/2026/10/kings-exercise-third-year-option-on-nique-clifford.html",
+      "outlet": "Hoops Rumors",
+      "published": "2026-10-26T20:42:14+00:00",
+      "also_covered_by": [],
+      "wce_line": "Nique Clifford's box plus-minus ranks at the 17th percentile this season, indicating below-average performance compared to league standards.",
+      "players": [
+        {
+          "name": "Nique Clifford",
+          "savant_url": "/basketball-savant.html?p=1642363"
+        }
+      ]
+    },
+    {
+      "id": "603a9b8e98922908",
+      "title": "Did Jaylen Brown ‘demand' trade from C's? Scal clarifies comments",
+      "url": "https://sports.yahoo.com/articles/did-jaylen-brown-demand-trade-202747694.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-26T20:27:47+00:00",
+      "also_covered_by": [],
+      "wce_line": "Scalabrine clarified that Brown went to the Celtics organization with specific demands, though he did not explicitly demand a trade.",
+      "players": [
+        {
+          "name": "Jaylen Brown",
+          "savant_url": "/basketball-savant.html?p=1627759"
+        }
+      ]
+    },
+    {
+      "id": "de1e14d92b2ebb0f",
+      "title": "Jalen Williams injury impact: What the Thunder star's absence means for OKC's future",
+      "url": "https://sports.yahoo.com/nba/article/jalen-williams-injury-impact-what-the-thunder-stars-absence-means-for-okcs-future-221349327.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-26T18:31:38+00:00",
+      "also_covered_by": [],
+      "wce_line": "Cason Wallace, the team's most common substitute for Williams' absence last season, offers a similar Savant percentile context in box plus/minus at 51st.",
+      "players": [
+        {
+          "name": "Jalen Williams",
+          "savant_url": "/basketball-savant.html?p=1631114"
+        }
+      ]
+    },
+    {
+      "id": "01a02de2d8e45141",
+      "title": "JJ Redick had fun watching ‘showman’ Luka Dončić against Jazz",
+      "url": "https://sports.yahoo.com/articles/jj-redick-had-fun-watching-181500349.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-10-26T18:15:00+00:00",
+      "also_covered_by": [],
+      "wce_line": "In the final seven minutes, Luka Dončić contributed to 19 of the Lakers' last 24 points with his performance.",
+      "players": [
+        {
+          "name": "Luka Doncic",
+          "savant_url": "/basketball-savant.html?p=1629029"
+        }
+      ]
     },
     {
       "id": "4e35bd996ddf3461",
@@ -129,7 +316,7 @@
       "outlet": "ESPN NBA",
       "published": "2026-10-26T17:43:01+00:00",
       "also_covered_by": [],
-      "wce_line": "Pritchard's effective field goal percentage on isolation plays last season was the highest in the league among players with at least 100 possessions.",
+      "wce_line": "Pritchard's 58.6% effective field goal percentage on isolation plays last season was the best in the league among players with at least 100 possessions.",
       "players": [
         {
           "name": "Payton Pritchard",
@@ -144,7 +331,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-10-26T17:37:23+00:00",
       "also_covered_by": [],
-      "wce_line": "The loss of Jalen Williams reduces Oklahoma City's box plus/minus by about 5 percentage points.",
+      "wce_line": "Williams' injury drops him to the 51st percentile in Box Plus/Minute, significantly impacting the Thunder's offense and defense.",
       "players": [
         {
           "name": "Jalen Williams",
@@ -159,7 +346,7 @@
       "outlet": "RealGM",
       "published": "2026-10-26T16:42:56+00:00",
       "also_covered_by": [],
-      "wce_line": "Devin Booker's PER ranks third but trails Flagg and Jerome by nearly 4 points.",
+      "wce_line": "Devin Booker's PER ranks third but his box plus/minus is in the 90th percentile, lower than the top two.",
       "players": [
         {
           "name": "Cooper Flagg",
@@ -176,43 +363,13 @@
       ]
     },
     {
-      "id": "1c043340ec8e2300",
-      "title": "LeBron James explains why he doesn't want to play a 'sustainable role' at center for the 76ers",
-      "url": "https://www.cbssports.com/nba/news/lebron-james-sustainable-role-center-76ers/",
-      "outlet": "CBS Sports NBA",
-      "published": "2026-10-26T14:47:31+00:00",
-      "also_covered_by": [],
-      "wce_line": "LeBron James prefers not to play center long-term due to Joel Embiid's availability and his own physical condition at age 42.",
-      "players": [
-        {
-          "name": "LeBron James",
-          "savant_url": "/basketball-savant.html?p=2544"
-        }
-      ]
-    },
-    {
-      "id": "ef9563bfa241a2d0",
-      "title": "Can Rockets rely on Steven Adams?",
-      "url": "https://sports.yahoo.com/articles/rockets-rely-steven-adams-142410431.html",
+      "id": "10dda2121c427729",
+      "title": "Walker Kessler felt he let emotions get the best of him in return to Utah",
+      "url": "https://sports.yahoo.com/articles/walker-kessler-felt-let-emotions-155947487.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T14:24:10+00:00",
+      "published": "2026-10-26T15:59:47+00:00",
       "also_covered_by": [],
-      "wce_line": "Rockets must explore long-term backup big man options, given Steven Adams' durability issues and limited availability early in the season.",
-      "players": [
-        {
-          "name": "Steven Adams",
-          "savant_url": "/basketball-savant.html?p=203500"
-        }
-      ]
-    },
-    {
-      "id": "df49a90997415a96",
-      "title": "Walker Kessler’s emotional Jazz homecoming goes awry in Lakers’ comeback win",
-      "url": "https://sports.yahoo.com/articles/walker-kessler-emotional-jazz-homecoming-133000990.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T13:30:00+00:00",
-      "also_covered_by": [],
-      "wce_line": "Kessler struggled with emotions and fouls, shooting just 1-of-2 from the field in his first game against his former team, despite averaging high efficiency this season.",
+      "wce_line": "Despite struggling with emotions and committing fouls, Walker Kessler still ranked in the 82nd percentile for Box Plus/Minute.",
       "players": [
         {
           "name": "Walker Kessler",
@@ -221,96 +378,66 @@
       ]
     },
     {
-      "id": "4116f0d041a27d77",
-      "title": "2026-27 NBA News, Injury Updates Oct 26: Jalen Williams out, Banchero out, Porzingis on trade block",
-      "url": "https://sports.yahoo.com/articles/2026-27-nba-news-injury-130000152.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T13:00:00+00:00",
+      "id": "1c043340ec8e2300",
+      "title": "LeBron James explains why he doesn't want to play a 'sustainable role' at center for the 76ers",
+      "url": "https://www.cbssports.com/nba/news/lebron-james-sustainable-role-center-76ers/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-10-26T14:47:31+00:00",
       "also_covered_by": [],
-      "wce_line": "Jalen Williams' injury could end his season after a severe leg bending incident in a game against the Clippers.",
+      "wce_line": "LeBron James prefers not to have a sustainable center role, citing Joel Embiid's presence and his own physical condition at age 42.",
       "players": [
         {
-          "name": "Jalen Williams",
-          "savant_url": "/basketball-savant.html?p=1631114"
+          "name": "LeBron James",
+          "savant_url": "/basketball-savant.html?p=2544"
         }
       ]
     },
     {
-      "id": "006f4cfc9558d02c",
-      "title": "Why Egor Dëmin, Mikel Brown Jr. have barely seen the floor together for Nets",
-      "url": "https://sports.yahoo.com/articles/why-egor-d-min-mikel-124352131.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T12:43:52+00:00",
+      "id": "116486943dab4719",
+      "title": "Jaylen Brown and Jayson Tatum&#8217;s NBA drama is more entertaining than it should be",
+      "url": "https://www.sbnation.com/nba/1133639/jaylen-brown-and-jayson-tatum-beef-drama-recap-quotes-video",
+      "outlet": "SB Nation NBA",
+      "published": "2026-10-26T13:11:00+00:00",
       "also_covered_by": [],
-      "wce_line": "Brown's return is limited but could see him play alongside Dëmin in Boston, per coach Fernández.",
-      "players": [
-        {
-          "name": "Egor Demin",
-          "savant_url": "/basketball-savant.html?p=1642856"
-        },
-        {
-          "name": "Mikel Brown Jr.",
-          "savant_url": "/basketball-savant.html?p=1643414"
-        }
-      ]
-    },
-    {
-      "id": "d1e7692202c70e2d",
-      "title": "Is Cooper Flagg playing tonight? Latest injury update for Mavericks star",
-      "url": "https://sports.yahoo.com/articles/cooper-flagg-playing-tonight-latest-114146750.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T11:41:46+00:00",
-      "also_covered_by": [],
-      "wce_line": "Cooper Flagg is listed as questionable to play due to a left shoulder sprain.",
-      "players": [
-        {
-          "name": "Cooper Flagg",
-          "savant_url": "/basketball-savant.html?p=1642843"
-        }
-      ]
-    },
-    {
-      "id": "2e3234dd7ea70ea8",
-      "title": "Cameron Boozer Update: Rolling Right Along",
-      "url": "https://sports.yahoo.com/articles/cameron-boozer-rolling-along-104500709.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T10:45:00+00:00",
-      "also_covered_by": [],
-      "wce_line": "Cameron Boozer is currently in the 36th percentile for Box Plus/Minute, according to NBA Savant stats.",
-      "players": [
-        {
-          "name": "Cameron Boozer",
-          "savant_url": "/basketball-savant.html?p=1643409"
-        }
-      ]
-    },
-    {
-      "id": "fd3e9abdc42c20fb",
-      "title": "Hate it or love it, this has always been Jaylen Brown",
-      "url": "https://sports.yahoo.com/articles/hate-love-always-jaylen-brown-100000808.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T10:00:00+00:00",
-      "also_covered_by": [],
-      "wce_line": "Jaylen Brown's tendency to be cryptic, often leading to speculation and criticism, remains a consistent part of his playing career.",
+      "wce_line": "Both players' responses highlight the ongoing tension despite acknowledging no true beef between them.",
       "players": [
         {
           "name": "Jaylen Brown",
           "savant_url": "/basketball-savant.html?p=1627759"
+        },
+        {
+          "name": "Jayson Tatum",
+          "savant_url": "/basketball-savant.html?p=1628369"
         }
       ]
     },
     {
-      "id": "ffb9ed7c612d14f5",
-      "title": "One Possession: Mitchell Robinson's “Welcome to Boston” moment",
-      "url": "https://sports.yahoo.com/articles/one-possession-mitchell-robinsons-welcome-094031996.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T09:40:31+00:00",
+      "id": "ba5a08837630a529",
+      "title": "Jalen Brunson On Knicks Poor Start: Everything Falls On My Shoulders",
+      "url": "https://basketball.realgm.com/wiretap/287893/Jalen-Brunson-On-Knicks-Poor-Start-Everything-Falls-On-My-Shoulders",
+      "outlet": "RealGM",
+      "published": "2026-10-26T12:38:43+00:00",
       "also_covered_by": [],
-      "wce_line": "Robinson's key defensive sequence helped the Celtics build a lead, despite his below-average Box Plus/Minus for the season.",
+      "wce_line": "Jalen Brunson acknowledges the New York Knicks' poor start and aims to improve with a 41st percentile Box Plus/Minute rating.",
       "players": [
         {
-          "name": "Mitchell Robinson",
-          "savant_url": "/basketball-savant.html?p=1629011"
+          "name": "Jalen Brunson",
+          "savant_url": "/basketball-savant.html?p=1628973"
+        }
+      ]
+    },
+    {
+      "id": "de4bd558ec56e334",
+      "title": "Jalen Williams Suffers Serious Leg Injury",
+      "url": "https://basketball.realgm.com/wiretap/287883/Jalen-Williams-Suffers-Serious-Leg-Injury",
+      "outlet": "RealGM",
+      "published": "2026-10-26T01:35:08+00:00",
+      "also_covered_by": [],
+      "wce_line": "Williams' injury occurred during a play where he landed awkwardly after being fouled while going for a layup.",
+      "players": [
+        {
+          "name": "Jalen Williams",
+          "savant_url": "/basketball-savant.html?p=1631114"
         }
       ]
     },
@@ -330,43 +457,13 @@
       ]
     },
     {
-      "id": "66998fecbd36d1dd",
-      "title": "Knicks’ Andre Drummond bristles after being benched for lack of effort",
-      "url": "https://sports.yahoo.com/articles/knicks-andre-drummond-bristles-being-042956503.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T04:29:56+00:00",
-      "also_covered_by": [],
-      "wce_line": "Andre Drummond, playing at 85th percentile in Box Plus/Minute, struggled with benching despite strong individual performance.",
-      "players": [
-        {
-          "name": "Andre Drummond",
-          "savant_url": "/basketball-savant.html?p=203083"
-        }
-      ]
-    },
-    {
-      "id": "01f2d414fe03c58f",
-      "title": "3 things as the plucky little Mavericks square off with Giannis Antetokounmpo and the Miami Heat",
-      "url": "https://sports.yahoo.com/articles/3-things-plucky-little-mavericks-033619465.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T03:36:19+00:00",
-      "also_covered_by": [],
-      "wce_line": "Both Irving and Flagg are expected to play against Miami after recovering from injuries, though Flagg's return is questionable.",
-      "players": [
-        {
-          "name": "Giannis Antetokounmpo",
-          "savant_url": "/basketball-savant.html?p=203507"
-        }
-      ]
-    },
-    {
       "id": "22a84b3e4298a0e6",
       "title": "Jalen Suggs goes down with scary-looking injury as Magic continue to feel cursed",
       "url": "https://www.cbssports.com/nba/news/jalen-suggs-orlando-magic-injury-update-timeline/",
       "outlet": "CBS Sports NBA",
       "published": "2026-10-26T03:03:52+00:00",
       "also_covered_by": [],
-      "wce_line": "This season, Jalen Suggs is performing below the league average in box plus/minus at the 37th percentile.",
+      "wce_line": "The Orlando Magic face another significant setback with Jalen Suggs' injury, now missing his third game of the season due to a non-contact issue.",
       "players": [
         {
           "name": "Jalen Suggs",
@@ -388,100 +485,6 @@
           "savant_url": "/basketball-savant.html?p=1629029"
         }
       ]
-    },
-    {
-      "id": "0ec1dc4044082efd",
-      "title": "Luka Doncic is climbing the Lakers’ record books — and just passed LeBron James",
-      "url": "https://sports.yahoo.com/articles/luka-doncic-climbing-lakers-record-023833508.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T02:38:33+00:00",
-      "also_covered_by": [],
-      "wce_line": "Doncic's box plus-minus ranks higher than both his own and LeBron James's current season averages.",
-      "players": [
-        {
-          "name": "Luka Doncic",
-          "savant_url": "/basketball-savant.html?p=1629029"
-        },
-        {
-          "name": "LeBron James",
-          "savant_url": "/basketball-savant.html?p=2544"
-        }
-      ]
-    },
-    {
-      "id": "ef040d5c42d784ca",
-      "title": "Walker Kessler makes Utah return in LA Lakers' win over Jazz",
-      "url": "https://sports.yahoo.com/articles/walker-kessler-makes-utah-return-022755362.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-26T02:27:55+00:00",
-      "also_covered_by": [],
-      "wce_line": "Kessler's return game saw him at just 82nd percentile efficiency despite a strong start to his Lakers tenure.",
-      "players": [
-        {
-          "name": "Walker Kessler",
-          "savant_url": "/basketball-savant.html?p=1631117"
-        }
-      ]
-    },
-    {
-      "id": "0f00b10dc6de15eb",
-      "title": "Jalen Suggs Leaves Sunday’s Game With Knee Injury",
-      "url": "https://www.hoopsrumors.com/2026/10/jalen-suggs-leaves-knicks-game-with-knee-injury.html",
-      "outlet": "Hoops Rumors",
-      "published": "2026-10-26T02:27:44+00:00",
-      "also_covered_by": [],
-      "wce_line": "Jalen Suggs will undergo further evaluation after suffering a knee injury in Sunday’s game, with an MRI scheduled soon.",
-      "players": [
-        {
-          "name": "Jalen Suggs",
-          "savant_url": "/basketball-savant.html?p=1630591"
-        }
-      ]
-    },
-    {
-      "id": "53d50a8ca8440569",
-      "title": "Jalen Suggs Injured Right Knee In Magic Victory Over Knicks",
-      "url": "https://basketball.realgm.com/wiretap/287884/Jalen-Suggs-Injured-Right-Knee-In-Magic-Victory-Over-Knicks",
-      "outlet": "RealGM",
-      "published": "2026-10-26T01:43:55+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Magic will need backup guards, as Jalen Suggs' box plus/minus ranks below average this season.",
-      "players": [
-        {
-          "name": "Jalen Suggs",
-          "savant_url": "/basketball-savant.html?p=1630591"
-        }
-      ]
-    },
-    {
-      "id": "a214db640545285b",
-      "title": "Nikola Jokić says Nuggets fans who booed during comeback win over Pelicans are 'not welcome anymore'",
-      "url": "https://www.cbssports.com/nba/news/nikola-jokic-nuggets-fans-boos-pelicans/",
-      "outlet": "CBS Sports NBA",
-      "published": "2026-10-25T16:54:56+00:00",
-      "also_covered_by": [],
-      "wce_line": "Nikola Jokić's box plus-minus ranks in the 84th percentile, yet he still feels disrespected by fans who booed during a comeback win.",
-      "players": [
-        {
-          "name": "Nikola Jokic",
-          "savant_url": "/basketball-savant.html?p=203999"
-        }
-      ]
-    },
-    {
-      "id": "7505cea892105398",
-      "title": "Jalen Duren Out Two Weeks Due To Right Hamstring Strain",
-      "url": "https://basketball.realgm.com/wiretap/287881/Jalen-Duren-Out-Two-Weeks-Due-To-Right-Hamstring-Strain",
-      "outlet": "RealGM",
-      "published": "2026-10-25T15:12:56+00:00",
-      "also_covered_by": [],
-      "wce_line": "Duren's injury puts the Pistons' lineup flexibility and depth, especially with Paul Reed at center, under scrutiny.",
-      "players": [
-        {
-          "name": "Jalen Duren",
-          "savant_url": "/basketball-savant.html?p=1631105"
-        }
-      ]
     }
   ],
   "analytics": [
@@ -494,7 +497,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article tests how analysts can convert subjective team evaluations into quantifiable probabilities using pace-adjusted efficiency metrics and market pricing from prediction exchanges.",
+      "wce_line": null,
       "source_type": "article"
     },
     {
@@ -518,7 +521,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "In 2018, 2K stopped selling MyTEAM packs for premium currency in Belgium due to concerns over loot box gambling regulations.",
+      "wce_line": null,
       "source_type": "article"
     },
     {
@@ -530,7 +533,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The study found that teams with at least one day of rest between games tend to perform better statistically.",
+      "wce_line": null,
       "source_type": "article"
     },
     {
@@ -542,7 +545,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article provides an Excel spreadsheet for accessing up-to-date NBA datasets throughout the season, with updates every 2 to 4 hours after the last game.",
+      "wce_line": null,
       "source_type": "article"
     },
     {
@@ -554,7 +557,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article provides detailed game-by-game NBA referee stats in Excel format for the 2026-2027 season, including foul calls and percentages.",
+      "wce_line": null,
       "source_type": "article"
     },
     {
@@ -566,7 +569,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article provides detailed player statistics for the 2026-2027 NBA season, allowing users to sort and filter data based on various criteria.",
+      "wce_line": "The article provides detailed NBA player stats for the 2026-2027 season, allowing users to sort and filter data easily.",
       "source_type": "article"
     },
     {
@@ -578,7 +581,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article analyzes advanced team stats for the 2026-2027 season, including offensive and defensive efficiencies across divisions.",
+      "wce_line": null,
       "source_type": "article"
     },
     {
@@ -590,7 +593,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses Philadelphia's new strategy but requires membership to read full details.",
+      "wce_line": "The article discusses Philadelphia's new strategy but requires membership to read further details.",
       "source_type": "article"
     },
     {
@@ -602,7 +605,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The Spurs' 62-20 regular season included a plus-8.3 net rating, ranking second in the league, showcasing both strong offense and defense.",
+      "wce_line": "The Spurs' 62-20 regular season included a plus-8.3 net rating, ranking second in the league, highlighting their balanced offensive and defensive capabilities.",
       "source_type": "article"
     },
     {
@@ -614,7 +617,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how LaMelo Ball impacts both on and off the court for the Minnesota Timberwolves.",
+      "wce_line": "The article analyzes how LaMelo Ball's presence impacts both on and off the court for the Minnesota Wolves.",
       "source_type": "article"
     },
     {
@@ -626,7 +629,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how Boston's defensive strategy impacts team performance.",
+      "wce_line": "The article analyzes how Boston's defensive strategy impacts game outcomes.",
       "source_type": "article"
     },
     {
@@ -638,76 +641,8 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Prediction markets have become a significant factor in shaping narratives around which teams are favored for the 2026-27 NBA title.",
+      "wce_line": "Prediction markets have become a significant factor in shaping narratives around the 2026-27 NBA title race, with platforms like Covers offering deep insights and promo codes for fans.",
       "source_type": "article"
-    },
-    {
-      "id": "8c2de0ad79ef639a",
-      "title": "Concave Processes for Multi-Task Career Trajectories: Evaluating Aging Across Multiple Measures of NBA Performance",
-      "url": "https://arxiv.org/abs/2609.33752v2",
-      "outlet": "arXiv",
-      "published": "2026-09-27T16:51:59+00:00",
-      "authors": [
-        "Abhijit Brahme",
-        "Alexander Franks"
-      ],
-      "wce_line": "The study found that athleticism-related metrics like blocks and rebounds peak earlier than skill-based shooting metrics, which peak later in a player's career.",
-      "source_type": "paper"
-    },
-    {
-      "id": "758e3c268eff904c",
-      "title": "From Metrics to Decisions in NBA Analytics: A Critical Integrative Review and Decision-Readiness Framework",
-      "url": "https://arxiv.org/abs/2609.27245v1",
-      "outlet": "arXiv",
-      "published": "2026-09-23T02:30:07+00:00",
-      "authors": [
-        "Yang Zhou",
-        "Tianyu Guan"
-      ],
-      "wce_line": "The review identified gaps in NBA analytics at interfaces combining individual component predictions into actionable decisions across different contexts.",
-      "source_type": "paper"
-    },
-    {
-      "id": "646031f65baf40a5",
-      "title": "Dummy RAPM: Representing Low-Minute Players in Regularized Adjusted Plus-Minus",
-      "url": "https://arxiv.org/abs/2608.19454v2",
-      "outlet": "arXiv",
-      "published": "2026-08-19T21:14:45+00:00",
-      "authors": [
-        "Kenny Watts",
-        "Jonathan Pipping-Gamón",
-        "Abraham J. Wyner"
-      ],
-      "wce_line": "Dummy RAPM improves game-margin RMSE by an average of 0.042 points across 16 NBA seasons.",
-      "source_type": "paper"
-    },
-    {
-      "id": "7da56bb094dce610",
-      "title": "Longitudinal Bayesian networks for assessing team performance in the National Basketball Association",
-      "url": "https://arxiv.org/abs/2608.09824v1",
-      "outlet": "arXiv",
-      "published": "2026-08-10T16:40:39+00:00",
-      "authors": [
-        "Gabriel Calvo",
-        "Francisco Palmí-Perales",
-        "Carmen Armero",
-        "Virgilio Gómez-Rubio"
-      ],
-      "wce_line": "The study uses Bayesian networks to analyze the performance of the Philadelphia 76ers over the 2005-06 NBA season by considering player participation and various types of shots.",
-      "source_type": "paper"
-    },
-    {
-      "id": "222cd8340a00db72",
-      "title": "Efficient Frontier Optimization of NBA Shot Selection Using Markov Reward Processes",
-      "url": "https://arxiv.org/abs/2607.02933v1",
-      "outlet": "arXiv",
-      "published": "2026-07-03T04:00:33+00:00",
-      "authors": [
-        "Nirek Duma",
-        "Leo Benaharon"
-      ],
-      "wce_line": "The study finds that increasing rim attempts while decreasing midrange and perimeter shots could optimize NBA shot selection closer to the efficient frontier.",
-      "source_type": "paper"
     },
     {
       "id": "4a2ffd2d37f2f897",
@@ -718,7 +653,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how the San Antonio Spurs exploited New York Knicks defensive weaknesses.",
+      "wce_line": "The article analyzes how the San Antonio Spurs exploited weaknesses in the New York Knicks' defensive strategy.",
       "source_type": "article"
     },
     {
@@ -742,7 +677,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "This article explores how regular-season performance correlates with NBA Finals success.",
+      "wce_line": "The article explores how regular-season performance correlates with NBA Finals success.",
       "source_type": "article"
     },
     {
@@ -754,7 +689,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes Oklahoma City's strategic approach to defending against a key player.",
+      "wce_line": "The article analyzes Oklahoma City's strategic approach to defend against a key player named Wemby.",
       "source_type": "article"
     },
     {
@@ -766,7 +701,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how the Spurs adjusted their defensive strategy and Oklahoma City's response.",
+      "wce_line": "The article discusses how the Spurs adjusted their defensive strategies and Oklahoma City's focus on scoring against Dejounte Murray.",
       "source_type": "article"
     },
     {
@@ -778,7 +713,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how Oklahoma City adjusted their offense to create new play options.",
+      "wce_line": "The article discusses how Oklahoma City adjusted their offense to create new play designs.",
       "source_type": "article"
     },
     {
@@ -792,31 +727,6 @@
       ],
       "wce_line": "The article analyzes how the Spurs used defensive tactics to limit Sacramento's scoring opportunities in Game 1.",
       "source_type": "article"
-    },
-    {
-      "id": "d39f89b6d7110f43",
-      "title": "Possession-Level Player Impact in the Pre-Play-by-Play NBA Era: A Video-Reconstructed RAPM Database, 1984--1996",
-      "url": "https://arxiv.org/abs/2605.24056v1",
-      "outlet": "arXiv",
-      "published": "2026-05-22T01:08:28+00:00",
-      "authors": [
-        "Justin Jacobs"
-      ],
-      "wce_line": "The study reconstructs 2,179 games from 1984-1996 using video footage to create a RAPM database for pre-play-by-play NBA seasons.",
-      "source_type": "paper"
-    },
-    {
-      "id": "6c5e73591df6d3f2",
-      "title": "Quantifying Officiating Impact in the NBA: A Referee Impact Metric Analysis Using ESPN Win-Probability Data",
-      "url": "https://arxiv.org/abs/2605.17845v1",
-      "outlet": "arXiv",
-      "published": "2026-05-18T04:36:56+00:00",
-      "authors": [
-        "Nirek Duma",
-        "Leo Benaharon"
-      ],
-      "wce_line": "The study introduces RIM, a metric that quantifies officiating impact by aggregating win-probability changes from foul events in NBA games.",
-      "source_type": "paper"
     }
   ]
 }
