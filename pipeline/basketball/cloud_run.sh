@@ -17,6 +17,8 @@ set -uo pipefail
 cd "${GITHUB_WORKSPACE:?}"
 BB=pipeline/basketball
 : "${RUNNER_TEMP:=/tmp}"
+git config user.name "basketball-savant-bot"      # commits and rebases both need it
+git config user.email "bot@wcehoops.com"
 
 run_once() {
   export TRACKING_SHA
@@ -50,11 +52,15 @@ run_once() {
   read SEASON THROUGH < <(python3 -c "import json;d=json.load(open('public/savant-current.json'));print(d['seasons'][0], d.get('through') or 'latest')")
   if git diff --cached --quiet -- public/savant-current.json; then MSG="Basketball Savant: heartbeat ($SEASON through $THROUGH)"
   else MSG="Basketball Savant: refresh $SEASON (through $THROUGH)"; fi
-  git -c user.name="basketball-savant-bot" -c user.email="bot@wcehoops.com" commit -q -m "$MSG"
+  git commit -q -m "$MSG"
   for i in 1 2 3 4; do
     if git push -q origin HEAD:main; then echo "pushed: $MSG"; return 0; fi
-    git pull -q --rebase origin main || { git rebase --abort; return 1; }
+    git pull -q --rebase origin main || { git rebase --abort; break; }
   done
+  # Didn't land: go back to what main really has, so the next pass sees the games as
+  # unpublished and tries again (rather than trusting this run's own heartbeat).
+  echo "::warning::push failed; starting the next pass from origin/main"
+  git fetch -q origin main && git reset -q --hard FETCH_HEAD
   return 1
 }
 
