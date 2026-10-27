@@ -3,13 +3,18 @@
 # stats.nba.com season by season (newest first) and pushes each finished season to the
 # ext-seed branch, where the build that writes public/savant-ext/ picks it up.
 #
-#   bash ext_backfill.sh <code_dir> [first_season] [last_season]
+#   bash ext_backfill.sh <code_dir> [first_season] [last_season] [phases]
+#
+# phases (ext_fetch.fetch_season): "league,teams,extra,shots" by default: every league- and
+# team-level table, about 170 requests a season. "players" (a passing network per player,
+# ~400 a season, 2013-14 on) and "games" (a defensive box score per game, ~1,230 a season,
+# 2017-18 on) are slow on stats.nba.com and run as their own passes afterwards (ext_backfill_all.sh).
 #
 # <code_dir> holds this script and the ext_*.py modules; the rest of the engine comes from the
 # savant-bot worktree (origin/main), the cache from ~/Basketball-Savant, as for the nightly job.
 # Safe to re-run: every request is cached, every season export skips files already there.
 set -uo pipefail
-CODE="$1"; FIRST="${2:-2025-26}"; LAST="${3:-1996-97}"
+CODE="$1"; FIRST="${2:-2025-26}"; LAST="${3:-1996-97}"; PHASES="${4:-league,teams,extra,shots}"
 SAVANT="$HOME/Basketball-Savant"
 SITE="$HOME/western-conference-elitists"
 WT="$SITE/.worktrees/savant-bot"
@@ -35,7 +40,7 @@ y1=${FIRST:0:4}; y2=${LAST:0:4}
 cd "$SAVANT" || exit 1
 for (( y=y1; y>=y2; y-- )); do
   s="$y-$(printf '%02d' $(( (y + 1) % 100 )))"
-  PYTHONPATH="$CODE:$WT/pipeline/basketball" caffeinate -i "$PY" -u "$CODE/ext_backfill.py" "$OUT" "$s" "$s" >> "$LOG" 2>&1
-  push_seed "ext seed $s"
+  PYTHONPATH="$CODE:$WT/pipeline/basketball" caffeinate -i "$PY" -u "$CODE/ext_backfill.py" "$OUT" "$s" "$s" "$PHASES" >> "$LOG" 2>&1
+  push_seed "ext seed $s ($PHASES)"
 done
-echo "=== backfill finished $(date) ===" >> "$LOG"
+echo "=== backfill $FIRST..$LAST ($PHASES) finished $(date) ===" >> "$LOG"

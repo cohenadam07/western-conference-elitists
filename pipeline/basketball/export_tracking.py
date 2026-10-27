@@ -27,7 +27,7 @@ sys.path.insert(0, HERE)
 
 import savant_config as C  # noqa: E402
 import savant_engine as E  # noqa: E402
-from espn_shim import UNAVAILABLE  # noqa: E402
+from espn_shim import UNAVAILABLE, is_mac_table  # noqa: E402
 
 out_dir = os.path.abspath(sys.argv[1])
 season = sys.argv[2] if len(sys.argv) > 2 else C.SEASON
@@ -37,7 +37,8 @@ _call, _call_frames = E.call, E.call_frames
 
 
 def _note(name, params, frames):
-    if name in UNAVAILABLE and any("season" in k and v == season for k, v in params.items()):
+    if is_mac_table(name, params) and (any("season" in k and v == season for k, v in params.items())
+                                       or name == "BoxScoreDefensiveV2"):
         for fr in frames:
             seen[E._key(name, params, fr)] = {"name": name, "params": params, "frame": fr}
 
@@ -85,6 +86,8 @@ for key, rec in seen.items():
 json.dump({"season": season, "through": through,
            "generated": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
            "stale": sorted(stale & UNAVAILABLE),
+           # the NBA game ids behind this season's defensive box scores (the cloud can't list them)
+           "defbox_games": sorted({str(r["params"].get("game_id")) for r in seen.values() if r["name"] == "BoxScoreDefensiveV2"}),
            "tables": sorted(seen.values(), key=lambda r: (r["name"], json.dumps(r["params"], sort_keys=True), r["frame"]))},
           open(os.path.join(out_dir, "manifest.json"), "w"), indent=0)
 print(f"exported {n} tables (through {through}) to {out_dir}")

@@ -41,6 +41,12 @@
       "note": "By season: nba_player_career with stats; by month: nba_player_splits view months."
     },
     "page:basketball-savant.html#renderPlayTypes": {
+      "page:basketball-savant.html#renderXPanels": {
+        "tools": [
+          "nba_player_splits"
+        ],
+        "note": "The Breakdowns panel: one nba_player_splits view per tab (shot_menu, shot_splits, touches, passing, defensive_play_types, clutch, game_splits, on_off_four_factors, turnover_mix, handle_score, dunk_score, position_estimate)."
+      },
       "tools": [
         "nba_player_splits"
       ]
@@ -332,6 +338,15 @@
       ]
     },
     "data:savant-current.json": {
+      "data:savant-ext": {
+        "tools": [
+          "nba_get_player_profile",
+          "nba_leaderboard",
+          "nba_player_career",
+          "nba_player_splits"
+        ],
+        "note": "The October 2026 additions: values (profile, leaderboard), each player's career file (career) and the breakdown panels (splits)."
+      },
       "tools": [
         "nba_get_player_profile"
       ]

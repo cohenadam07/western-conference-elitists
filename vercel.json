@@ -64,6 +64,18 @@
       "destination": "/shots/:id.gz"
     },
     {
+      "source": "/savant-ext/s/:season(\\d{4}-\\d{2}\\.json)",
+      "destination": "/savant-ext/s/:season.gz"
+    },
+    {
+      "source": "/savant-ext/panels/:season(\\d{4}-\\d{2}\\.json)",
+      "destination": "/savant-ext/panels/:season.gz"
+    },
+    {
+      "source": "/savant-ext/p/:id(\\d+\\.json)",
+      "destination": "/savant-ext/p/:id.gz"
+    },
+    {
       "source": "/savant-api/basketball/v1/seasons/:season(\\d{4}-\\d{2}\\.json)",
       "destination": "/savant-api/basketball/v1/seasons/:season.gz"
     },
@@ -324,6 +336,84 @@
     },
     {
       "source": "/shots/:id(\\d+\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/s/:season(\\d{4}-\\d{2}\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/s/:season(\\d{4}-\\d{2}\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/panels/:season(\\d{4}-\\d{2}\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/panels/:season(\\d{4}-\\d{2}\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/p/:id(\\d+\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/p/:id(\\d+\\.json\\.gz)",
       "headers": [
         {
           "key": "Content-Encoding",

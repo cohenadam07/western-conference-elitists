@@ -40,6 +40,8 @@ TOUCH = ["Touch < 2 Seconds", "Touch 2-6 Seconds", "Touch 6+ Seconds"]
 CLOCK = ["24-22", "22-18 Very Early", "18-15 Early", "15-7 Average", "7-4 Late", "4-0 Very Late"]
 DEF_CATS = ["Overall", "3 Pointers", "2 Pointers", "Less Than 10Ft", "Greater Than 15Ft"]
 SYN_DEF = ["Isolation", "PRBallHandler", "PRRollman", "Postup", "Spotup", "Handoff", "OffScreen"]
+SYN_OFF = ["Transition", "Isolation", "PRBallHandler", "PRRollman", "Postup", "Spotup",
+           "Handoff", "Cut", "OffScreen", "OffRebound", "Misc"]
 MEASURES = ["Misc", "Usage"]
 
 
@@ -58,14 +60,17 @@ def _empty():
     return pd.DataFrame()
 
 
+MISSES = []          # requests that came back empty or failed (printed by the callers)
+
+
 def _safe(fn, *a, **k):
+    """Run a loader; a failure (not tracked, not reachable from the cloud, a timeout) is an
+    empty frame, so it costs that one family and never the whole pass."""
     try:
         df = fn(*a, **k)
         return df if df is not None else _empty()
     except Exception as e:  # noqa
-        msg = repr(e)
-        if "not reachable" in msg or "NotInCloud" in type(e).__name__:
-            raise
+        MISSES.append(f"{getattr(fn, '__name__', fn)} {repr(e)[:80]}")
         return _empty()
 
 
@@ -186,8 +191,7 @@ def onoff_details(team_id, season, mt="Four Factors"):
             measure_type_detailed_defense=mt, per_mode_detailed="Totals"), frames=(1, 2))
         return fr[1], fr[2]
     except Exception as e:  # noqa
-        if "not reachable" in repr(e):
-            raise
+        MISSES.append(f"on/off {team_id} {repr(e)[:60]}")
         return _empty(), _empty()
 
 
@@ -202,8 +206,7 @@ def onoff_summary(team_id, season):
             measure_type_detailed_defense="Advanced", per_mode_detailed="Totals"), frames=(1, 2))
         return fr[1], fr[2]
     except Exception as e:  # noqa
-        if "not reachable" in repr(e):
-            raise
+        MISSES.append(f"on/off {team_id} {repr(e)[:60]}")
         return _empty(), _empty()
 
 
@@ -214,6 +217,14 @@ def aws(cls, season):
 
     def go():
         return E.call(cls, dict(season=season, season_type_all_star=ST))
+    return _safe(go)
+
+
+def combine(draft_season):
+    from nba_api.stats.endpoints import draftcombinestats as S
+
+    def go():
+        return E.call(S.DraftCombineStats, dict(season_all_time=draft_season, league_id="00"))
     return _safe(go)
 
 
@@ -240,6 +251,17 @@ def game_ids(season):
     return sorted({str(g).zfill(10) for g in df["GAME_ID"]})
 
 
+# The cloud can't list the NBA's game ids (its game log is rebuilt from ESPN, with ESPN's ids),
+# so cloud_refresh points this at the game ids in the Mac's upload instead.
+DEFBOX_GAME_IDS = None
+
+
+def defbox_game_ids(season):
+    if DEFBOX_GAME_IDS is not None:
+        return list(DEFBOX_GAME_IDS(season))
+    return game_ids(season)
+
+
 def defbox(game_id):
     from nba_api.stats.endpoints import boxscoredefensivev2 as L
 
@@ -258,8 +280,7 @@ def pass_network(pid, season):
             per_mode_simple="Totals"), frames=(0, 1))
         return fr[0], fr[1]
     except Exception as e:  # noqa
-        if "not reachable" in repr(e):
-            raise
+        MISSES.append(f"PlayerDashPtPass {pid} {repr(e)[:60]}")
         return _empty(), _empty()
 
 
@@ -284,7 +305,11 @@ def team_ids():
 def network_players(season):
     """Who gets a passing network: 300+ minutes (or, in the season in progress, 15+ MPG over
     3+ games). Keeps the per-player calls bounded."""
-    box = E.load_box(None, season)
+    try:
+        box = E.load_box(None, season)
+    except Exception as e:  # noqa
+        MISSES.append(f"network players {repr(e)[:60]}")
+        return []
     out = []
     for pid, r in box.iterrows():
         gp = float(r.get("gp", 0) or 0)
@@ -294,9 +319,12 @@ def network_players(season):
     return sorted(out)
 
 
-def fetch_season(season, phases=("league", "teams", "players", "games"), log=print):
-    """Make every request for one season (the history backfill). Returns call counts."""
+def fetch_season(season, phases=("league", "teams", "players", "games"), log=print, windows=None):
+    """Make every request for one season (the history backfill). Returns call counts.
+    `windows`: which of C.WINDOWS to pull the windowed tables for (default all; a finished
+    season's history needs only the full season, None)."""
     n = {"ok": 0, "empty": 0}
+    wins = {w: ln for w, ln in C.WINDOWS.items() if windows is None or w in windows}
 
     def note(df):
         if isinstance(df, tuple):
@@ -304,7 +332,7 @@ def fetch_season(season, phases=("league", "teams", "players", "games"), log=pri
         n["ok" if len(df) else "empty"] += 1
 
     if "league" in phases:
-        for win, ln in C.WINDOWS.items():
+        for win, ln in wins.items():
             for m in TRACK_NEW + TRACK_OLD:
                 note(track(m, ln, season))
             for band in DEF_BANDS.values():
@@ -337,12 +365,22 @@ def fetch_season(season, phases=("league", "teams", "players", "games"), log=pri
             note(onoff_details(tid, season))
             note(onoff_summary(tid, season))
         log(f"  {season} team tables: {n}")
+    if "extra" in phases:
+        # tables the October 2026 card stats already pulled (offense play types, scoring splits),
+        # re-requested so the history export carries them, plus every combine class
+        for pt in SYN_OFF:
+            note(synergy(pt, "offensive", season))
+        for win, ln in wins.items():
+            note(measure("Scoring", ln, season))
+        for yr in range(2000, y(season) + 1):
+            note(combine(f"{yr}-{str(yr + 1)[2:]}"))
+        log(f"  {season} extra tables: {n}")
     if "players" in phases and has("track", season):
         for pid in network_players(season):
             note(pass_network(pid, season))
         log(f"  {season} passing networks: {n}")
     if "games" in phases and has("match", season):
-        for gid in game_ids(season):
+        for gid in defbox_game_ids(season):
             note(defbox(gid))
         log(f"  {season} defensive box scores: {n}")
     return n

@@ -174,7 +174,8 @@ def normalize(summary, gid, date):
             x = y = None
         tid = (p.get("team") or {}).get("id")
         plays.append({
-            "seq": int(p.get("sequenceNumber") or 0), "type": (p.get("type") or {}).get("text"),
+            "seq": int(p.get("sequenceNumber") or 0), "pid": p.get("id"),
+            "type": (p.get("type") or {}).get("text"),
             "tid": (p.get("type") or {}).get("id"), "text": p.get("text") or "",
             "period": (p.get("period") or {}).get("number"),
             "clock": _clock_seconds((p.get("clock") or {}).get("displayValue")),
@@ -186,8 +187,13 @@ def normalize(summary, gid, date):
         })
     plays.sort(key=lambda r: r["seq"])
     note = summary["header"].get("gameNote") or ""
+    # ESPN's in-game win probability (recent seasons only): [play id, home win probability].
+    wp = [[w.get("playId"), w.get("homeWinPercentage")] for w in (summary.get("winprobability") or [])
+          if w.get("playId") is not None and w.get("homeWinPercentage") is not None]
+    officials = [o.get("displayName") for o in ((summary.get("gameInfo") or {}).get("officials") or [])
+                 if o.get("displayName")]
     return {"gid": gid, "date": date, "home": home, "away": away, "note": note,
-            "players": players, "plays": plays}
+            "players": players, "plays": plays, "wp": wp, "officials": officials}
 
 
 NBA_TEAMS = {"ATL", "BOS", "BKN", "CHA", "CHI", "CLE", "DAL", "DEN", "DET", "GSW", "HOU", "IND",
@@ -208,7 +214,7 @@ def counts_in_season(g):
 def fetch_season(season, cache_dir, through=None, workers=8, log=print):
     """Every final regular-season game so far, normalized. Cached per game in cache_dir."""
     os.makedirs(os.path.join(cache_dir, "games"), exist_ok=True)
-    CACHE_VERSION = "2"   # bump when normalize() changes, so cached games are rebuilt
+    CACHE_VERSION = "3"   # bump when normalize() changes, so cached games are rebuilt (3: play ids, win probability, officials)
     vfile = os.path.join(cache_dir, "games", "VERSION")
     if not os.path.exists(vfile) or open(vfile).read().strip() != CACHE_VERSION:
         for f in os.listdir(os.path.join(cache_dir, "games")):

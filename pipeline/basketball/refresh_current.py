@@ -198,6 +198,18 @@ def main(season=None):
         print(f"  shot quality on {xfg_model.apply(season, players)}/{len(players)} players")
     except Exception as e:
         print(f"  shot quality: failed ({repr(e)[:80]})")
+    # October 2026 additions (ext_engine.py): ~145 card stats and 12 panels. On the Mac only the
+    # NBA's tables are requested (that run exists to upload them); the cloud builds everything.
+    try:
+        import ext_engine as XE
+        XE.apply_live(season, players)
+    except Exception as e:
+        print(f"  ext stats: failed ({repr(e)[:120]})")
+    # They ship beside savant-current.json, not in it (public/savant-ext/, see ext_files.py):
+    # the page fetches them only for a season a reader opens, so the file every visit loads
+    # stays the size it was.
+    import ext_files as XFL
+    ext_vals, ext_panels = XFL.split(players)
 
     payload = dict(
         seasons=[season],
@@ -233,6 +245,11 @@ def main(season=None):
 
     # Re-read and re-validate whatever the comps pass wrote, so a bad token never ships.
     safe_io.write_text(OUT, strict_json(json.load(open(OUT))))
+    if ext_vals:
+        XFL.write(XFL.season_path("out", season),
+                  XFL.season_doc(season, ext_vals, C.WINDOWS.keys(), generated=payload["generated"], through=through))
+        XFL.write(XFL.panels_path("out", season), XFL.panels_doc(season, ext_panels, generated=payload["generated"]))
+        print(f"  ext stats written for {len(ext_vals)} players, panels for {len(ext_panels)}")
     q = sum(1 for p in players if p.get("qualified"))
     print(f"wrote {OUT}: {len(players)} players, {q} qualified, through {payload['through']}")
     return 0

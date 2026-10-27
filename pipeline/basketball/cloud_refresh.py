@@ -311,8 +311,39 @@ def main():
     else:
         man = {}
         print("  no tracking upload from the Mac yet")
-    shim = SH.install(season, tables, SEED, tracking_dir=tracking)
+    # The public mirror of NBA tracking (gabriel1200/site_Data) answers the NBA-only tables it
+    # covers when the Mac's copy is missing or older (Adam, Oct 26 2026: Mac first, mirror second).
+    mir = None
+    if os.environ.get("SAVANT_NO_MIRROR") != "1":
+        try:
+            import mirror as MI
+            mir = MI.Mirror(season)
+            print(f"  public mirror: last updated {mir.updated or 'unknown'}")
+        except Exception as e:  # noqa
+            print(f"  public mirror: unavailable ({repr(e)[:80]})")
+    shim = SH.install(season, tables, SEED, tracking_dir=tracking, mirror=mir,
+                      mac_through=(man or {}).get("through") if tracking else None)
     install_player_info(shim, rosters, idmap, season)
+    # October 2026 additions: the cloud builds every family; the play-by-play one counts
+    # straight from the ESPN games already parsed for the tables above.
+    import ext_engine as XE
+    import ext_fetch as XF
+    import ext_pbp as XP
+    XE.LANE = "cloud"
+    XF.DEFBOX_GAME_IDS = lambda s: (man or {}).get("defbox_games", []) if tracking else []
+
+    def _pbp(s):
+        out = {}
+        for x in tables.parsed:
+            for eid, cnt in XP.game_counts(x["g"], x).items():
+                nid = tables.idmap.get(str(eid))
+                if nid is None:
+                    continue
+                t = out.setdefault(nid, {})
+                for k, v in cnt.items():
+                    t[k] = t.get(k, 0.0) + v
+        return out
+    XE.PBP_SOURCE = _pbp
 
     import refresh_current as R
     rc = R.main(season)
@@ -333,6 +364,9 @@ def main():
         mac = sorted({x for x in SH.LOG if x.startswith("from the Mac")})
         if mac:
             print(f"  from the Mac's upload: {', '.join(u.split(' ', 3)[3] for u in mac)}")
+        mi = sorted({x for x in SH.LOG if x.startswith("from the mirror")})
+        if mi:
+            print(f"  from the public mirror: {', '.join(u.split(' ', 3)[3] for u in mi)}")
         ns = [x for x in SH.LOG if x.startswith("no seed")]
         if ns:
             print(f"  {len(ns)} request(s) not in the seed, e.g. {ns[0][:140]}")

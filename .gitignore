@@ -42,3 +42,4 @@ pipeline/football/*.json
 .espn-cache/
 pipeline/basketball/.espn-cache/
 pipeline/basketball/run/
+pipeline/basketball/cache_br/

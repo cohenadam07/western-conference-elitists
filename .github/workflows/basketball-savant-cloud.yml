@@ -50,6 +50,10 @@ jobs:
     timeout-minutes: 30
     env:
       ESPN_CACHE_ROOT: ${{ github.workspace }}/.espn-cache
+      # The public mirror of NBA tracking (gabriel1200/site_Data, pipeline/basketball/mirror.py)
+      # stands in for the Mac's upload when the Mac is off; the token only lets mirror.py ask
+      # GitHub when the mirror last changed without hitting the anonymous rate limit.
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -121,10 +125,10 @@ jobs:
           python3 pipeline/basketball/cloud_publish.py stage . "$RUN"
           git config user.name "basketball-savant-bot"
           git config user.email "bot@wcehoops.com"
-          git add public/savant-current.json public/savant-proj.json public/savant-teams-current.json public/lineups data/savant-refresh.json pipeline/basketball/seed/espn_ids.json
+          git add public/savant-current.json public/savant-proj.json public/savant-teams-current.json public/lineups public/savant-ext data/savant-refresh.json pipeline/basketball/seed/espn_ids.json
           if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
           read SEASON THROUGH < <(python3 -c "import json;d=json.load(open('public/savant-current.json'));print(d['seasons'][0], d.get('through') or 'latest')")
-          if git diff --cached --quiet -- public/savant-current.json; then MSG="Basketball Savant: heartbeat ($SEASON through $THROUGH)"; else MSG="Basketball Savant: refresh $SEASON (through $THROUGH)"; fi
+          if git diff --cached --quiet -- public/savant-current.json public/savant-ext; then MSG="Basketball Savant: heartbeat ($SEASON through $THROUGH)"; else MSG="Basketball Savant: refresh $SEASON (through $THROUGH)"; fi
           git commit -q -m "$MSG"
           for i in 1 2 3 4; do
             if git push -q origin HEAD:main; then echo "pushed: $MSG"; exit 0; fi

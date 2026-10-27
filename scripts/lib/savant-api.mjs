@@ -67,6 +67,7 @@ const UNITS = {
   num2: 'a number, shown to two decimals',
   num3: 'a number, shown to three decimals (.142)',
   sgn: 'a signed number, shown with its sign to one decimal (+2.1)',
+  snum: 'a signed number, shown with its sign to one decimal (+2.1)',
   ftin: 'inches (the page shows feet and inches)',
   lb: 'pounds',
   sec: 'seconds',
@@ -248,6 +249,9 @@ export function buildSavantApi({ data, html, valueModel = null }) {
   const { cfg, posFixId, posFixName, explain, awards } = readPageConfig(html)
   if (!Array.isArray(data.seasons) || !data.data) throw new Error('savant-data.json: expected { seasons, data }')
   const metrics = cfg.metrics
+  // what the season files carry: the card's stats. The additions (m.ext) are not in
+  // savant-data.json; the connector reads them from savant-ext/ (api/_basketball-ext.js).
+  const card = metrics.filter((m) => !m.ext)
   const latest = data.seasons[0]
   const rolling = cfg.windows.filter((w) => w !== 'season')
 
@@ -268,12 +272,12 @@ export function buildSavantApi({ data, html, valueModel = null }) {
     const isLatest = season === latest
     const windows = isLatest ? cfg.windows : ['season']
     const pool = {}
-    for (const w of windows) pool[w] = pools(players, metrics, w)
+    for (const w of windows) pool[w] = pools(players, card, w)
 
     const counts = { league: 0, Guard: 0, Wing: 0, Big: 0 }
     const rows = players.map((p) => {
       if (p.qualified) { counts.league++; if (p.pos in counts) counts[p.pos]++ }
-      const full = stats(p, season, metrics, pool.season, 'season')
+      const full = stats(p, season, card, pool.season, 'season')
       const row = {
         id: p.id,
         name: p.name,
@@ -291,7 +295,7 @@ export function buildSavantApi({ data, html, valueModel = null }) {
       if (sv && sv.byId.has(p.id)) row.sv = sv.byId.get(p.id)
       if (season === settle.live) {
         const est = {}
-        for (const mt of metrics) {
+        for (const mt of card) {
           if (!tracked(mt, season) || !full.m[mt.key]) continue
           const e = settle.estimate(p, mt.key, season)
           if (!e) continue
@@ -305,7 +309,7 @@ export function buildSavantApi({ data, html, valueModel = null }) {
       if (isLatest) {
         const w = {}
         for (const k of rolling) {
-          const s = stats(p, season, metrics, pool[k], k)
+          const s = stats(p, season, card, pool[k], k)
           if (!Object.keys(s.m).length) continue
           w[k] = s.low.length ? { m: s.m, low: s.low } : { m: s.m }
         }
@@ -361,6 +365,10 @@ export function buildSavantApi({ data, html, valueModel = null }) {
     files: {
       players: `${SITE}/${BASE}/players.json`,
       season: `${SITE}/${BASE}/seasons/{season}.json`,
+      // the October 2026 additions (metrics[].ext): values, breakdown panels, career files
+      ext_season: `${SITE}/savant-ext/s/{season}.json`,
+      ext_panels: `${SITE}/savant-ext/panels/{season}.json`,
+      ext_player: `${SITE}/savant-ext/p/{id}.json`,
     },
     positions: POSITIONS,
     qualify: cfg.qualify || null,
@@ -386,6 +394,10 @@ export function buildSavantApi({ data, html, valueModel = null }) {
       since: m.since,
       lowSampleBelow: m.thr || null,
       explain: explain[m.key] || null,
+      // The October 2026 additions: values in savant-ext/ (files.ext_season), ranked by the
+      // connector with the page's midrank; `first` is the first season the data exists,
+      // `season_only` marks a stat the NBA publishes for the full season only.
+      ...(m.ext ? { ext: true, first: m.first || m.since, season_only: !m.win } : {}),
     })),
     row: {
       id: 'Player id. Use it in playerUrl. Players from before 1996-97 without an NBA id carry a "br:" id.',
@@ -411,6 +423,8 @@ export function buildSavantApi({ data, html, valueModel = null }) {
       role: 'Inferred Defensive Role, bigs only. perim is Perimeter Assignment Rate, contest is Rim Contest Rate, rimpm is Rim FG% Allowed vs Expected (lower is better). poss is matchup possessions, dfga shots defended. It reflects role, not ability: team scheme drives much of it, and matchup data is least reliable during switches.',
     },
     weakness: cfg.weakness || null,
+    // the breakdown panels under the card (savant-ext/panels/<season>.json), keyed as there
+    panels: Object.fromEntries(Object.entries(explain).filter(([k]) => k.startsWith('x_')).map(([k, v]) => [k.slice(2), v])),
     // The league's season honours (row.aw): code -> words, in the page's prestige order
     awards: awards.order.length ? { order: awards.order, short: awards.short, labels: awards.labels } : null,
     ...(valueModel ? { savant_value: valueMeta(valueModel) } : {}),

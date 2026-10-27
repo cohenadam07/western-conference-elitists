@@ -31,7 +31,7 @@ import ext_shots as XS  # noqa: E402
 
 out_dir = os.path.abspath(sys.argv[1])
 first, last = sys.argv[2], sys.argv[3]
-phases = tuple((sys.argv[4] if len(sys.argv) > 4 else "league,teams,players,games,shots").split(","))
+phases = tuple((sys.argv[4] if len(sys.argv) > 4 else "league,teams,extra,shots").split(","))
 LOCK = os.path.join("logs", ".publish.lock")
 
 seen = {}
@@ -121,11 +121,12 @@ print(f"=== ext backfill {first}..{last} phases={phases} ({dt.datetime.now():%Y-
 for s in seasons(first, last):
     t0 = time.time()
     try:
-        for win, ln in C.WINDOWS.items():          # box/adv: the possessions behind every per-75
-            E.load_box(ln, s)
-            E.load_adv(ln, s)
+        # A finished season is built for the full season only (build_ext.py), so only the
+        # full-season versions of the windowed tables are pulled.
+        E.load_box(None, s)                          # box/adv: the possessions behind every per-75
+        E.load_adv(None, s)
         F.fetch_season(s, phases=tuple(p for p in phases if p != "shots"),
-                       log=lambda m: print(m, flush=True))
+                       log=lambda m: print(m, flush=True), windows=("season",))
         if "shots" in phases:
             print(f"  {s} shots: {shots(s)} players", flush=True)
         print(f"  {s} exported {export(s)} tables ({time.time() - t0:.0f}s)", flush=True)

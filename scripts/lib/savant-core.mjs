@@ -142,7 +142,9 @@ export function createEngine(DATA, cfg) {
     DATA = { seasons: [s], source: DATA.source, generated: DATA.generated, data: { [s]: { players: DATA.players || [] } } }
   }
   const seasons = DATA.seasons // newest first
-  const metrics = CFG.metrics
+  // The card's own stats. The October 2026 additions (m.ext) live in public/savant-ext/, not
+  // in DATA, and the player pages stay on the card's set.
+  const metrics = CFG.metrics.filter((m) => !m.ext)
   const metricBy = Object.fromEntries(metrics.map((m) => [m.key, m]))
   const playersOf = (s) => (DATA.data[s] || { players: [] }).players || []
 

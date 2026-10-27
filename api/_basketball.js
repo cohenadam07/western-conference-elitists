@@ -22,6 +22,7 @@
 
 import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, ordinal, prepare, rank, signed, thousands, tidy, topTier } from './_core.js'
+import { extFor } from './_basketball-ext.js'
 
 const files = makeLoader('savant-api/basketball/v1', { what: 'Basketball Savant' })
 
@@ -68,6 +69,7 @@ export function display(unit, v, leaguePct) {
     case 'num3': return (v < 0 ? '−' : '') + Math.abs(+v).toFixed(3).replace(/^0/, '')
     case 'num0': return String(Math.round(v))
     case 'sgn': return signed(v)
+    case 'snum': return signed(v)
     case 'word': return leaguePct == null ? '—' : tier(leaguePct)
     case 'wnum': return (+v).toFixed(1)
     case 'wsgn': return signed(+v)
@@ -210,10 +212,14 @@ export async function playerProfile({ player, season, window = 'season', group =
   const settle = (window === 'season' && row.settle) || {}
   const stats = []
   const notTracked = []
+  // The October 2026 additions (meta.metrics[].ext): from savant-ext/, ranked as the page ranks them.
+  const wantExt = meta.metrics.some((m) => m.ext && (!groupKey || m.group === groupKey))
+  const ext = wantExt ? await extFor(file, row.id, window, meta.metrics.filter((m) => m.ext)) : null
   for (const m of meta.metrics) {
     if (groupKey && m.group !== groupKey) continue
     if (startYear(seasonId) < startYear(m.since)) { notTracked.push({ key: m.key, label: m.label, since: m.since }); continue }
-    const cell = src.m[m.key]
+    const xc = m.ext ? (ext && ext.cells[m.key]) : null
+    const cell = m.ext ? xc : src.m[m.key]
     if (!cell) continue
     stats.push({
       key: m.key,
@@ -225,7 +231,8 @@ export async function playerProfile({ player, season, window = 'season', group =
       league_percentile: cell[1],
       position_percentile: cell[2],
       lower_is_better: m.lowerIsBetter,
-      low_sample: low.has(m.key),
+      low_sample: m.ext ? (xc[3] != null && !!m.lowSampleBelow && xc[3] < m.lowSampleBelow) : low.has(m.key),
+      ...(m.ext ? { added: true } : {}),
       ...(settle[m.key] ? { likely_to_settle: { value: settle[m.key][0], display: display(m.unit, settle[m.key][0], settle[m.key][1]), league_percentile: settle[m.key][1], position_percentile: settle[m.key][2] } } : {}),
     })
   }
@@ -304,6 +311,15 @@ export async function playerProfile({ player, season, window = 'season', group =
     }
   }
   if (!stats.length) L.push('', 'No stats in this group for that season.')
+  if (ext && !ext.available) {
+    notes.push(`The ${seasonId} additions (tracking, hustle, matchup, foul, clutch and consistency stats beyond the card's core) could not be loaded right now, or do not reach this season; the card's core stats above are complete.`)
+    L.push('', notes[notes.length - 1])
+  } else if (ext && ext.window_missing) {
+    notes.push(`The additions are full-season numbers for ${seasonId}; ask for the full season to see them.`)
+    L.push('', notes[notes.length - 1])
+  } else if (stats.some((x) => x.added)) {
+    notes.push('Stats marked added: true are the October 2026 additions. They are ranked the same way: against that season\'s qualified players with a value, league-wide and at his position.')
+  }
   if (stats.some((s) => s.low_sample)) {
     notes.push('"low sample" means the stat sits below its stabilization threshold: too few attempts to trust yet.')
     L.push('', notes[notes.length - 1])
@@ -510,7 +526,7 @@ export const tools = [
     config: {
       title: 'Get an NBA player\'s Savant profile',
       description:
-        'Get one NBA player\'s Basketball Savant profile (Western Conference Elitists, wcehoops.com) for one season: his per-game line and every tracked stat with its value and two percentiles, one against all qualified players that season ("league") and one against qualified players at his position ("vs. guards", "vs. wings" or "vs. bigs"). Covers shooting, creation and playmaking, rebounding, defense, physical measurements and overall-value stats such as BPM. Defaults to his most recent season. For the latest season it can instead return his last 10, 25 or 75 games, and it adds his statistical comps, weakness comps and who he guards. Seasons from 1979-80 on; stats a season did not track are listed as not tracked. Includes the link to his card.',
+        'Get one NBA player\'s Basketball Savant profile (Western Conference Elitists, wcehoops.com) for one season: his per-game line and every tracked stat with its value and two percentiles, one against all qualified players that season ("league") and one against qualified players at his position ("vs. guards", "vs. wings" or "vs. bigs"). Covers ~200 stats: shooting and shot profile, creation, tracking (drives, touches, passing), hustle, matchups, fouls, rebounding, defense, measurements, consistency and value (BPM, win probability added). Defaults to his latest season; for that season it can also give his last 10, 25 or 75 games, his comps and who he guards. Seasons from 1979-80; stats a season did not track are listed as not tracked. Links his card.',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nba_search_players (e.g. "203999") or a full name (e.g. "Nikola Jokic"). If a name fits more than one player, the error lists their ids.'),
         season: z.string().trim().max(12).optional().describe('Season written as two years, e.g. "2025-26". Omit for his most recent season.'),
@@ -560,6 +576,7 @@ export const tools = [
             league_percentile: pct,
             position_percentile: pct,
           }).optional().describe('Season in progress only, while his sample is smaller than the stat needs: where the number is likely to settle, and its percentiles among everyone\'s same estimate.'),
+          added: z.boolean().optional().describe('True for the October 2026 additions (tracking, hustle, matchups, fouls, clutch, consistency, win probability), ranked the same way.'),
         })),
         not_tracked: z.array(z.object({ key: z.string(), label: z.string(), since: z.string() })).describe('Stats that season did not track.'),
         notes: z.array(z.string()).describe('How to read the numbers: what the pools are, and any caution that applies to this player.'),
