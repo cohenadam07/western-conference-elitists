@@ -1,5 +1,5 @@
 {
-"generated": "2026-10-27T05:44:22+00:00",
+"generated": "2026-10-27T05:47:30+00:00",
 "seasons": [
 "2025-26",
 "2024-25",
@@ -23,7 +23,8 @@
 "2006-07",
 "2005-06",
 "2004-05",
-"2003-04"
+"2003-04",
+"2002-03"
 ],
 "tables": {
 "0005784360b51014cb492c898e706782": {
@@ -589,6 +590,17 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612745
+}
+},
+"03fa2dd7a8c2a5f0fb48ed27072b038a": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612739
 }
 },
 "041af8e376a623c05f2d44fe10600ecb": {
@@ -1254,6 +1266,17 @@
 "team_id": 1610612738
 }
 },
+"07ec6d36e22a2a8a21b7051369762edf": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612737
+}
+},
 "07f8bd1074710f19a28be77140ab1621": {
 "frame": 0,
 "name": "LeagueDashPtStats",
@@ -1384,6 +1407,17 @@
 "season": "2004-05",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612743
+}
+},
+"09418efb4d3db1d7d15bf4a724f9b163": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612765
 }
 },
 "0961a8a7a7fcd73d66daa62f90ba0e2e": {
@@ -1748,6 +1782,17 @@
 "team_id": 1610612752
 }
 },
+"0b0488ef819648e417633222594b7269": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612759
+}
+},
 "0b07c88984e07b44b55b7812086e4eea": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -2020,6 +2065,17 @@
 "season": "2017-18",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612763
+}
+},
+"0cbf0a894b2541a31569cf7f1843259f": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612741
 }
 },
 "0ce913c52d1b4c6773567375b02cef31": {
@@ -2364,6 +2420,17 @@
 "team_id": 1610612740
 }
 },
+"0f048b076bc1470b42ddd671b304c7f9": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612756
+}
+},
 "0f088f7c00a54fa100fe08a66bdef3c1": {
 "frame": 0,
 "name": "LeagueDashPtStats",
@@ -2594,6 +2661,17 @@
 "pt_measure_type": "ElbowTouch",
 "season": "2015-16",
 "season_type_all_star": "Regular Season"
+}
+},
+"101b04db0bd7d9517191ae16ed8e1b39": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612750
 }
 },
 "1070c2eea9a34710a0aa3282d1fb931b": {
@@ -3287,6 +3365,17 @@
 "type_grouping_nullable": "offensive"
 }
 },
+"1510b56986a3ba219325157f4b3eb67a": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612765
+}
+},
 "154f4773f6e52b7a5b54932943dd5032": {
 "frame": 0,
 "name": "SynergyPlayTypes",
@@ -3307,6 +3396,17 @@
 "per_mode_detailed": "Totals",
 "season": "2017-18",
 "season_type_all_star": "Regular Season"
+}
+},
+"155b946fa4d35d9adc1aaf23f2f1d412": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612765
 }
 },
 "158faa9a2823fef667c94b5fe7f42d91": {
@@ -3369,6 +3469,17 @@
 "season": "2012-13",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612759
+}
+},
+"15bfd285e0ac7e30af81b4586ecb160d": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612751
 }
 },
 "15c8823a2e6ac5045703130d4f7cece1": {
@@ -3943,6 +4054,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"194f96e4f2ea42add1cd0ff67d294bd1": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612738
+}
+},
 "19653f04935bec57d6f6324013cb863a": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -3996,6 +4118,17 @@
 "season": "2010-11",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612749
+}
+},
+"19ae47fb5809833dc89c79bbf0db5abd": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612759
 }
 },
 "19b556d9de0482397e688787d8bee788": {
@@ -4135,6 +4268,17 @@
 "season": "2022-23",
 "season_type_all_star": "Regular Season",
 "touch_time_range_nullable": "Touch < 2 Seconds"
+}
+},
+"1ac89429cb326fe448b33dfe8c376a69": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612762
 }
 },
 "1aca1325fd3359296e12ab98684610e3": {
@@ -4842,6 +4986,17 @@
 "season": "2022-23",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612739
+}
+},
+"20b2cb47ec5bc522aa30c81f777648e1": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612760
 }
 },
 "20e6a9fea7e4fffc36fbf4f6d6dd4513": {
@@ -5597,6 +5752,17 @@
 "team_id": 1610612762
 }
 },
+"2699e988f089fc1fe86d75e58fb13a5b": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612762
+}
+},
 "269d036f9efc4d434c1437bf966d818d": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -5853,6 +6019,17 @@
 "season": "2017-18",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612757
+}
+},
+"27f42391f6af9f722ea68b9f0dcc0b71": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612749
 }
 },
 "27fbd33a9ca0a770991b38546e6f95e6": {
@@ -6389,6 +6566,17 @@
 "per_mode_detailed": "Totals",
 "season": "2006-07",
 "season_type_all_star": "Regular Season"
+}
+},
+"2b57424522c92489432ab6286db2e4b2": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612751
 }
 },
 "2b6206e888acfe4e93a72014e5d9983c": {
@@ -6984,6 +7172,17 @@
 "team_id": 1610612742
 }
 },
+"2f372b71f34f5c7f6360090822b32508": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612738
+}
+},
 "2f414ff186e3e1516b137b19c041f3cd": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -7132,6 +7331,17 @@
 "season": "2021-22",
 "season_type_all_star": "Regular Season",
 "shot_clock_range_nullable": "4-0 Very Late"
+}
+},
+"3089ecfc7bf8654b7ef9ba02250d3845": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612740
 }
 },
 "308de0b251e1f248844a980478882186": {
@@ -7342,6 +7552,17 @@
 "measure_type_detailed_defense": "Four Factors",
 "per_mode_detailed": "Totals",
 "season": "2004-05",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612764
+}
+},
+"319ec16a4fa7987494f8aa1d75d3c81b": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612764
 }
@@ -7701,6 +7922,17 @@
 "season": "2016-17",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612742
+}
+},
+"340d190120f750dc72283ab02556e697": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612741
 }
 },
 "3417145604ce3d821b537bbbaac87e07": {
@@ -8082,6 +8314,17 @@
 "season": "2016-17",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612762
+}
+},
+"36984a992af62053cba58f1dcc3be21b": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612744
 }
 },
 "36a3e490ea34dda963cfb8bb6e2f80ec": {
@@ -8543,6 +8786,17 @@
 "season": "2011-12",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612745
+}
+},
+"39d554b1735147078b61305c2326f175": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612762
 }
 },
 "39d72054ccb5801e9339b1d6aa467882": {
@@ -9074,6 +9328,17 @@
 "team_id": 1610612758
 }
 },
+"3d28cf50f2aa0546d1d47cb3341efdb3": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612753
+}
+},
 "3d2dbe6b264e1eba85c46eab2084c1e0": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -9477,6 +9742,17 @@
 "per_mode_detailed": "Totals",
 "season": "2020-21",
 "season_type_all_star": "Regular Season"
+}
+},
+"3f2dd178962e1de095f1ae5e8b70a4bb": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Base",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"starter_bench_nullable": "Starters"
 }
 },
 "3f4670183cafa6e9770c819e92ec420e": {
@@ -10021,6 +10297,17 @@
 "season": "2022-23",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612763
+}
+},
+"4309d20961612ba070edfb031982f8d6": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612739
 }
 },
 "4333b57279dc9b3c87bece62a731ad92": {
@@ -11106,6 +11393,17 @@
 "team_id": 1610612761
 }
 },
+"49d917f982e5f137762e504129ecfa15": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612745
+}
+},
 "4a122c31e4484894229aaa9067e79de9": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -11168,6 +11466,17 @@
 "season": "2016-17",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612749
+}
+},
+"4a93306088bf0cd0aea5270fb3c88a6f": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612759
 }
 },
 "4ab438e93ff3029b5fba6e1bccc18ac9": {
@@ -11276,6 +11585,28 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612738
+}
+},
+"4b97f328b596bdf14b26ac5c7d50b02f": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612747
+}
+},
+"4b9c40dddb0956e9ba7d201a58cc0253": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612752
 }
 },
 "4bb528e02185e915c8f6fe41f05b79aa": {
@@ -11592,6 +11923,16 @@
 "team_id": 1610612757
 }
 },
+"4e2afa42e0aa0717f7030fff4d462827": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Misc",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season"
+}
+},
 "4e62a26856e0309084b3018d74960012": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -11656,6 +11997,17 @@
 "pt_measure_type": "SpeedDistance",
 "season": "2017-18",
 "season_type_all_star": "Regular Season"
+}
+},
+"4edfe9d1d5c60e2a428f15bae7eb57e4": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612761
 }
 },
 "4ef29eed88d96c187a7015e4c317d5ad": {
@@ -12128,6 +12480,17 @@
 "team_id": 1610612752
 }
 },
+"518402d92dad282bacfe47b77a36f31b": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612754
+}
+},
 "519fc767f74251d22ce48e00676a0d23": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -12449,6 +12812,17 @@
 "team_id": 1610612762
 }
 },
+"5374f254247b11f3982e4ce3b127aded": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612761
+}
+},
 "5383eafd1227f2f8d1ccec831ac13069": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -12676,6 +13050,17 @@
 "season": "2006-07",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612737
+}
+},
+"54a73d8c26d8dc5f514af0db3d08ccf9": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612748
 }
 },
 "54af73ee0a7451d287f3fa9654c77f20": {
@@ -12957,6 +13342,17 @@
 "team_id": 1610612750
 }
 },
+"56e347816ff79607ea5d9cb8542e1f6f": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612747
+}
+},
 "56e7e23f50e101017b3ab4d720fd3037": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -12977,6 +13373,17 @@
 "season": "2003-04",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612740
+}
+},
+"56f3f46976e5ac24c06a5c4dc8eb007f": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612754
 }
 },
 "570455e9b175c448586b6c892a0ca736": {
@@ -13166,6 +13573,17 @@
 "team_id": 1610612749
 }
 },
+"582dcd31232fdbafa66509aba654751d": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612750
+}
+},
 "584611da459abc5d4b56ba5b43f60116": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -13344,6 +13762,17 @@
 "type_grouping_nullable": "offensive"
 }
 },
+"59471eb4c7c3a6dd229763e891b39d3c": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612748
+}
+},
 "594e8fd256e09eff279a1e755d630eb6": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -13421,6 +13850,17 @@
 "team_id": 1610612743
 }
 },
+"59c54f1fe8b3fe66c3d6d3124bf92a3a": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612751
+}
+},
 "59d1f0eb41ff872167dae2c63a9f1317": {
 "frame": 0,
 "name": "SynergyPlayTypes",
@@ -13473,6 +13913,17 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612739
+}
+},
+"5a36e9dce0dc38788cff75ba488d3aec": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612758
 }
 },
 "5a430b7080df54b6d4c8c317a12402d0": {
@@ -13841,6 +14292,17 @@
 "team_id": 1610612747
 }
 },
+"5c7eeef4bbda23b83a48c902a94042d8": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612742
+}
+},
 "5c82bf77bed62e67c9ae1ab860d46a79": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -13861,6 +14323,17 @@
 "season": "2005-06",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612765
+}
+},
+"5c891ceb0920fed1d30546c2fa582467": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612744
 }
 },
 "5c9677d8e7e2b89433207da5fc025aac": {
@@ -13928,6 +14401,17 @@
 "season": "2004-05",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612744
+}
+},
+"5d077145050c4dda5d15628e6102bb31": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612741
 }
 },
 "5d0ae49ae9f98300c476f4dcb411d870": {
@@ -14175,6 +14659,17 @@
 "shot_clock_range_nullable": "22-18 Very Early"
 }
 },
+"5e625207405e7faa955cb144aaa9cedb": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612766
+}
+},
 "5e66da1ebe7ae67048bb4d0e270c88da": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -14304,6 +14799,17 @@
 "season": "2008-09",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612749
+}
+},
+"5ee08fdd6f3e6a7cc359cbcfd880f8d1": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612739
 }
 },
 "5ee173cee1f13c1056b304baff2dd893": {
@@ -14973,6 +15479,17 @@
 "type_grouping_nullable": "defensive"
 }
 },
+"62d8f44a943b96eee35acc0686821090": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612747
+}
+},
 "62e620576486a118cfd6fcf1421a438b": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -15058,6 +15575,17 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612756
+}
+},
+"631647296db36a64624e01d72ef81a43": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Base",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"starter_bench_nullable": "Bench"
 }
 },
 "631ca4cd2580d154c6bd29af62c736e7": {
@@ -15313,6 +15841,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"64c8ace0ff997af144b9e5833c98419f": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612750
+}
+},
 "64cebc88b929e3729fb67f12039a2ccb": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -15502,6 +16041,17 @@
 "season": "2013-14",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612754
+}
+},
+"65c5343dcd0b026c1b80525ebd59af34": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612761
 }
 },
 "65dfb3e6be6dcb360f70a21ea9c32807": {
@@ -16065,6 +16615,17 @@
 "team_id": 1610612747
 }
 },
+"690b303585cdca787d1f7dc089196850": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612756
+}
+},
 "691f934337bcf17e29f7b478bf856c7c": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -16223,6 +16784,17 @@
 "defense_category": "Greater Than 15Ft",
 "season": "2025-26",
 "season_type_all_star": "Regular Season"
+}
+},
+"6a5f90c0c92b45a823522009b3dee507": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612753
 }
 },
 "6a66d8f5bf819f9dd56567a6a78ea1de": {
@@ -16752,6 +17324,17 @@
 "team_id": 1610612752
 }
 },
+"6cf6668ddce184e6d1a72ee7f33dc755": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612760
+}
+},
 "6d2a62912ed1abf96ff42eb67e9a7f95": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -16761,6 +17344,17 @@
 "season": "2013-14",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612749
+}
+},
+"6d547546ca813ac9953a28106235838e": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612745
 }
 },
 "6d5f722feede76cb0276db98ea1fcbb9": {
@@ -16985,6 +17579,17 @@
 "type_grouping_nullable": "offensive"
 }
 },
+"6e9f71c33ece698a6bc10c361453684d": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612737
+}
+},
 "6eaaaa6018a4a29389b079243476cef3": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -17123,6 +17728,17 @@
 "season": "2019-20",
 "season_type_all_star": "Regular Season",
 "type_grouping_nullable": "offensive"
+}
+},
+"6f84893bfc1b1fc681d0005d61663186": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612749
 }
 },
 "6f862759e43d2b4c2d5bdf851f337058": {
@@ -17318,6 +17934,17 @@
 "season": "2014-15",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612742
+}
+},
+"703d2ce9afb657e7d8a8626ab6f2d515": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612743
 }
 },
 "703da3febf0c0131994e8effda59fd3b": {
@@ -18692,6 +19319,17 @@
 "team_id": 1610612759
 }
 },
+"7a633d6d4a90421c4d69aa712eb0b82f": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612764
+}
+},
 "7a7406170fa6067dabca7b5b350c101e": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -18955,6 +19593,16 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"7bddf83ad7e0541e0a77140c097a08e4": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Usage",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season"
+}
+},
 "7be4bea56a6014ff1ba922b8b9658cda": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -19112,6 +19760,17 @@
 "season": "2006-07",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612752
+}
+},
+"7cf5a232af88e1303bf6755cc107fc97": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612744
 }
 },
 "7cfa0cf8e111eff225bae00e69673d3d": {
@@ -19415,6 +20074,17 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612753
+}
+},
+"7f07d846e9812e4a9a797484caeb723a": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612764
 }
 },
 "7f10e90decca2f66d319d11651ce831c": {
@@ -19822,6 +20492,17 @@
 "season": "2013-14",
 "season_type_all_star": "Regular Season",
 "touch_time_range_nullable": "Touch 6+ Seconds"
+}
+},
+"81cb9e509417f2067a3c1197fa1c397d": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612759
 }
 },
 "81db4f17603b618113952e13266838b7": {
@@ -20250,6 +20931,17 @@
 "season": "2012-13",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612753
+}
+},
+"844891a014f31a77d324b05a5552a99e": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612748
 }
 },
 "84494c3b7c500fbf183fcde51a3fa3cd": {
@@ -20750,6 +21442,17 @@
 "team_id": 1610612749
 }
 },
+"875f95c29e41b252a72a42fd74443645": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612752
+}
+},
 "878ba2e11314cc69a590b5c6bdcf871c": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -21188,6 +21891,16 @@
 "team_id": 1610612751
 }
 },
+"8a4f1ff9ccefe9c7dc3a76fff5747f62": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Base",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season"
+}
+},
 "8a547d1cfe75314f3e7fe78d32120b77": {
 "frame": 0,
 "name": "LeagueDashPtStats",
@@ -21350,6 +22063,17 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "type_grouping_nullable": "offensive"
+}
+},
+"8b84acfa3e343062a4aff3e11cc07b45": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612746
 }
 },
 "8b84ea629c3cec20f86994146903e30e": {
@@ -21520,6 +22244,17 @@
 "team_id": 1610612748
 }
 },
+"8cf9b18699e84aa0b6625bbcd27e0fc1": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612748
+}
+},
 "8d298e1b5ce9a648b57d0663f967760f": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -21571,6 +22306,16 @@
 "measure_type_detailed_defense": "Advanced",
 "per_mode_detailed": "Totals",
 "season": "2010-11",
+"season_type_all_star": "Regular Season"
+}
+},
+"8d6a48eaaf54e70e56a775c1ff6126c0": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
 "season_type_all_star": "Regular Season"
 }
 },
@@ -21796,6 +22541,17 @@
 "season": "2022-23",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612747
+}
+},
+"8f15d954664f707eeaae1b489c3999f8": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612740
 }
 },
 "8f19cf503c91c3e19e8d36e749406c58": {
@@ -22222,6 +22978,17 @@
 "season": "2018-19",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612755
+}
+},
+"925d4cf8ec405a3ef08a4393e6f15f1f": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612763
 }
 },
 "926bcec17aaf38840128bb9e5f8c31eb": {
@@ -22817,6 +23584,16 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"960186f91f052a93622cb71ff9b6e820": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Scoring",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season"
+}
+},
 "96038b05b04e6ed87f178545e4b895b6": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -22977,6 +23754,17 @@
 "team_id": 1610612745
 }
 },
+"97585f04cabbbea49014c7c83bf45b0c": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612756
+}
+},
 "975fdc6798352c207c2a3d475dcd9557": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -22986,6 +23774,17 @@
 "season": "2007-08",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612762
+}
+},
+"976663724456a2aa89ad49a148a5db3b": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612755
 }
 },
 "9777fc282422163b36230c915906d14b": {
@@ -23739,6 +24538,17 @@
 "team_id": 1610612746
 }
 },
+"9c780c3f02eb438d01e1b3e4d81f6a27": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612760
+}
+},
 "9c798552964e8e82cc2256334f50a8c7": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -24283,6 +25093,17 @@
 "type_grouping_nullable": "offensive"
 }
 },
+"9f0339510e53affd6365ae212992e52f": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612765
+}
+},
 "9f332c9170dbd00ecc51aa15b71a4db1": {
 "frame": 0,
 "name": "SynergyPlayTypes",
@@ -24413,6 +25234,17 @@
 "season": "2006-07",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612762
+}
+},
+"a04770bf003c17d9bb47af93f73888c0": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612746
 }
 },
 "a04d1d4442118747ecc80ae7b3753c1e": {
@@ -24792,6 +25624,28 @@
 "team_id": 1610612749
 }
 },
+"a2f6a142ec16e240e1737f34165244b6": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612745
+}
+},
+"a30402188e30515644de80c0ae1f430a": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612758
+}
+},
 "a31359f9a7b25290100d7aa15393ec45": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -25153,6 +26007,17 @@
 "team_id": 1610612756
 }
 },
+"a61308c9d7e077437cef3f9c56aba195": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612750
+}
+},
 "a627a30796b446d1531c0870708af1b6": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -25256,6 +26121,17 @@
 "params": {
 "league_id": "00",
 "season_all_time": "2016-17"
+}
+},
+"a6d7eba5d8ad7520b9d0736283bd41a1": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612742
 }
 },
 "a6eeb9f5f74e6919eb48f07ab1d02bd0": {
@@ -25700,6 +26576,17 @@
 "team_id": 1610612744
 }
 },
+"a92ec58965fd49fa5448e94799012d1d": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612758
+}
+},
 "a935edbf9336eb811ddb2c8af04c5c2c": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -25883,6 +26770,17 @@
 "team_id": 1610612737
 }
 },
+"aa6a5cc3bf47644f6b3d40ecc7816b1a": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612745
+}
+},
 "aa74e4b55e00c06834a78aba06ba58dd": {
 "frame": 0,
 "name": "LeagueDashPtDefend",
@@ -25923,6 +26821,17 @@
 "season": "2014-15",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612737
+}
+},
+"aafc7a6604dfbd7de8040cd5d63980b0": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612757
 }
 },
 "ab15738e6eacc981492c832cb3667fd3": {
@@ -26987,6 +27896,17 @@
 "team_id": 1610612760
 }
 },
+"b03dfd8a6bbdc1742448030c88b45280": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612757
+}
+},
 "b05302fa013e4d06f670826c2dab5197": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -27084,6 +28004,17 @@
 "season": "2009-10",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612750
+}
+},
+"b0cde921c07056609d8c5706c64fb384": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612764
 }
 },
 "b0cf3605afbf97f01047f5d248fa9a3c": {
@@ -27384,6 +28315,17 @@
 "defense_category": "Greater Than 15Ft",
 "season": "2020-21",
 "season_type_all_star": "Regular Season"
+}
+},
+"b2bc77f15e74dc0db0be9ea466c93fc1": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612737
 }
 },
 "b2bfc1d2ae9f70357da7314e7d7445be": {
@@ -27966,6 +28908,17 @@
 "team_id": 1610612753
 }
 },
+"b5ea21cdc79a543d3f514208858c2949": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612755
+}
+},
 "b5f2ecace9cf6d23808c019ec578f608": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -28215,6 +29168,17 @@
 "team_id": 1610612743
 }
 },
+"b7484be1b00376434dc1c9e29b9c3b5b": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612762
+}
+},
 "b76d2ce384b380c33c3432fce52b0d45": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -28421,6 +29385,17 @@
 "season": "2018-19",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612751
+}
+},
+"b8d1d068a0f7ff39d7245d65c0546c38": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612766
 }
 },
 "b8e80815f66474577356629e7dc7d843": {
@@ -29060,6 +30035,17 @@
 "team_id": 1610612746
 }
 },
+"bd3ed081cf0242f2a1b25067ff5a274e": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612763
+}
+},
 "bd41839457477ab02a5caf654e85ed91": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -29351,6 +30337,17 @@
 "team_id": 1610612749
 }
 },
+"becf3cde05c23178ebd57f5619c5d221": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612742
+}
+},
 "bf0f1db8a1dc22a11588b47b66a40594": {
 "frame": 0,
 "name": "SynergyPlayTypes",
@@ -29510,6 +30507,17 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "type_grouping_nullable": "offensive"
+}
+},
+"c01ec7c98b57cc8c29b83668a21908bf": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612763
 }
 },
 "c0235f54e816bab79c44e2e214c9afdd": {
@@ -30221,6 +31229,28 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"c4b0c8262092123fb0400cbcc6d8181a": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612744
+}
+},
+"c4b99ecd20c7d01e19c9974bc9ce82da": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612753
+}
+},
 "c4dc8cdf9e6c8232a105c8edf09f3a9a": {
 "frame": 0,
 "name": "LeagueDashPtStats",
@@ -30842,6 +31872,17 @@
 "team_id": 1610612751
 }
 },
+"c7c9d2bc749f70e66f1a21536d9266e7": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612755
+}
+},
 "c7cf9338b304611759ebb6e90123296c": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -31022,6 +32063,17 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612753
+}
+},
+"c8c9261d0717d3d8591b976011f9f3d0": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612738
 }
 },
 "c8d4c9d1b699d71bdb90c8c639fd9839": {
@@ -31284,6 +32336,17 @@
 "team_id": 1610612752
 }
 },
+"caa86afb160840c67e17bdd54a7a3b73": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612755
+}
+},
 "cad82e4adb83952e01402a3e2d22fb3c": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -31445,6 +32508,17 @@
 "season": "2019-20",
 "season_type_all_star": "Regular Season",
 "type_grouping_nullable": "offensive"
+}
+},
+"cbe3c57c2333eaacd0e79f6602d1aae9": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612740
 }
 },
 "cbf0d9339558efa4be052008e198efed": {
@@ -31704,6 +32778,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"cdc6b00705bd2f19fa8475d66c87b2f7": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612749
+}
+},
 "cdd7c0454cc16b3c0b639f9f8cfed8cf": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -31924,6 +33009,17 @@
 "season": "2018-19",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612748
+}
+},
+"cf3e680c403371fc931cc6f385675795": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612757
 }
 },
 "cf462f0134011a2887df6c4488cc9bd6": {
@@ -32267,6 +33363,14 @@
 "team_id": 1610612748
 }
 },
+"d17ccfb6c51f8ffa4436eab6cba086bf": {
+"frame": 0,
+"name": "PlayerGameLogs",
+"params": {
+"season_nullable": "2002-03",
+"season_type_nullable": "Regular Season"
+}
+},
 "d17db6e284a587b034be127d3b257222": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -32510,6 +33614,17 @@
 "team_id": 1610612755
 }
 },
+"d2d61416a10e0578628e4c277e5ecc3c": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612761
+}
+},
 "d2efe5d474dee444b0b3c1f9d90cf70c": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -32658,6 +33773,17 @@
 "dribble_range_nullable": "0 Dribbles",
 "season": "2025-26",
 "season_type_all_star": "Regular Season"
+}
+},
+"d3ec254a3a7a6f2ae3d6963c78af887a": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612752
 }
 },
 "d3f37f4925bdb7010ddd84d95a3a37ef": {
@@ -32997,6 +34123,39 @@
 "season": "2013-14",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612756
+}
+},
+"d5f2dc5f28d86bd3045cf0bf0ae5f42c": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612754
+}
+},
+"d60b220d35f3e707c175c4d00dce027a": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612754
+}
+},
+"d624c2a996e990f7081cc08bdd8d5bf7": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612753
 }
 },
 "d6345550ca5a7009ac71e3b7f0860e1e": {
@@ -33580,6 +34739,17 @@
 "team_id": 1610612758
 }
 },
+"db1282e7a4dff1c6a22013744fe3ae97": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612749
+}
+},
 "db326c4fff6fbdb04940704c5d7a2c7a": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -33664,6 +34834,17 @@
 "pt_measure_type": "PaintTouch",
 "season": "2025-26",
 "season_type_all_star": "Regular Season"
+}
+},
+"dbb8ea951d9c63944d2f21582beb1dcc": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612766
 }
 },
 "dbd5eea9324e24dc4eb241d99d1b0d54": {
@@ -34038,6 +35219,17 @@
 "team_id": 1610612757
 }
 },
+"de3c7ed876b24586a98af71a085e314a": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612743
+}
+},
 "de41a2bf85567ba1f57dbc21fce8c051": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -34288,6 +35480,17 @@
 "team_id": 1610612754
 }
 },
+"df2e30a1d3f06df3ba98f90099c3ef64": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612756
+}
+},
 "df32edab9ce29ba1a712e841597492f7": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -34399,6 +35602,17 @@
 "type_grouping_nullable": "offensive"
 }
 },
+"df736e2a3852c0de4960578daeb9a46a": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612743
+}
+},
 "df78ae9b4fdb11a5b7154dbb9136f5de": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -34429,6 +35643,17 @@
 "season": "2004-05",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612744
+}
+},
+"df8d5bab581b2e4d345b0e657cbdf585": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612740
 }
 },
 "df9e18bcd0d94cdf0632c26e19d8df7c": {
@@ -34587,6 +35812,17 @@
 "type_grouping_nullable": "offensive"
 }
 },
+"e02afe60ac4c6a7e9403e8ff9157e25b": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612747
+}
+},
 "e03aaeff6da3fe7c2117fe495b4d4b72": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -34596,6 +35832,16 @@
 "season": "2006-07",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612760
+}
+},
+"e04d602ec3c21085fcd22a9cb42ca112": {
+"frame": 0,
+"name": "LeagueDashPlayerClutch",
+"params": {
+"measure_type_detailed_defense": "Base",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season"
 }
 },
 "e0554b5f533decc224f2b4caf0e39b20": {
@@ -34759,6 +36005,17 @@
 "shot_clock_range_nullable": "24-22"
 }
 },
+"e1dad47edcd6390b5a7d7ab0d51c3bb9": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612743
+}
+},
 "e202e3deca6693232e3a80183536db56": {
 "frame": 0,
 "name": "LeagueDashPlayerStats",
@@ -34863,6 +36120,17 @@
 "team_id": 1610612758
 }
 },
+"e266456fc1f56bda19d83f4af2450d75": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612752
+}
+},
 "e27e7a4573135b4d71e54a7064db747b": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -34936,6 +36204,17 @@
 "season": "2022-23",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612741
+}
+},
+"e3394682be2fca7596ab061d4c6fbe93": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612760
 }
 },
 "e357b4e26cb6fade46576e69194d7642": {
@@ -36131,6 +37410,17 @@
 "team_id": 1610612759
 }
 },
+"eb24766997c484f3c01a7ac3459ca54b": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612741
+}
+},
 "eb2a5d140eeb6d8fa59b072358c791dc": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -36193,6 +37483,17 @@
 "per_mode_detailed": "Totals",
 "season": "2003-04",
 "season_type_all_star": "Regular Season"
+}
+},
+"ebdd211c299bf4a13240eb365baf97bc": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612757
 }
 },
 "ebfa5c7b240d1c1f144bcb99272fe821": {
@@ -36836,6 +38137,17 @@
 "team_id": 1610612738
 }
 },
+"ee99f7570c4f375c156401a11fd7eb54": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612742
+}
+},
 "eea46506f89f4e591c226d2ab0825ff5": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -36865,6 +38177,17 @@
 "dribble_range_nullable": "7+ Dribbles",
 "season": "2023-24",
 "season_type_all_star": "Regular Season"
+}
+},
+"eed0002a95fc36562fb1143fa4ad7a20": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612737
 }
 },
 "eee0cc2083bc6ae0f84afcf09b796349": {
@@ -36973,6 +38296,28 @@
 "measure_type_detailed_defense": "Four Factors",
 "per_mode_detailed": "Totals",
 "season": "2009-10",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612746
+}
+},
+"ef3062051d0629f6cf0c9a6feade353e": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612766
+}
+},
+"ef3f8a0a2bf45f7534d1f1faa5c97487": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612746
 }
@@ -37410,6 +38755,16 @@
 "team_id": 1610612749
 }
 },
+"f1a54a4c5e6c76eae64c516fd3e54133": {
+"frame": 0,
+"name": "LeagueDashPlayerClutch",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season"
+}
+},
 "f1c483998301df2bdf21d65c21bc0aa1": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -37714,6 +39069,17 @@
 "team_id": 1610612748
 }
 },
+"f3e0ba15155300f915b0d61ece7bcf9a": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612739
+}
+},
 "f40acf0763cdd187a611a60e2774e1ca": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -37944,6 +39310,17 @@
 "season": "2017-18",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612741
+}
+},
+"f56bb81fa966edde893982bcff3ca708": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612758
 }
 },
 "f56d58b4a1ec6b44e7b383fadafe3553": {
@@ -38548,6 +39925,17 @@
 "team_id": 1610612751
 }
 },
+"f90a367aae54e544888ba212d0a35bdf": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612751
+}
+},
 "f91816a6749dac2de2a08f9b98b6eb73": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -39033,6 +40421,17 @@
 "team_id": 1610612741
 }
 },
+"fc32a31c81502a72cbe8edbc3662c6e8": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612746
+}
+},
 "fc3e0582b0d56bd4bec609e38a6f533a": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -39278,6 +40677,17 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "touch_time_range_nullable": "Touch 2-6 Seconds"
+}
+},
+"fd529f912407d5c24d73c5acf70c9a5d": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612763
 }
 },
 "fd5bebcccfaa43a1c9944051b88e8907": {
@@ -39669,6 +41079,17 @@
 "season": "2014-15",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612754
+}
+},
+"ff496cfa4525afcd4124d0a20418453f": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2002-03",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612738
 }
 },
 "ff5d6aadd8859dbb3e94d684e46abc1d": {
