@@ -46,11 +46,11 @@ run_once() {
 
   python3 $BB/cloud_publish.py stage . "$RUN" || return 1
   git add public/savant-current.json public/savant-proj.json public/savant-teams-current.json \
-          public/lineups data/savant-refresh.json $BB/seed/espn_ids.json
+          public/lineups public/savant-ext data/savant-refresh.json $BB/seed/espn_ids.json
   if git diff --cached --quiet; then echo "nothing changed"; return 0; fi
   local SEASON THROUGH MSG
   read SEASON THROUGH < <(python3 -c "import json;d=json.load(open('public/savant-current.json'));print(d['seasons'][0], d.get('through') or 'latest')")
-  if git diff --cached --quiet -- public/savant-current.json; then MSG="Basketball Savant: heartbeat ($SEASON through $THROUGH)"
+  if git diff --cached --quiet -- public/savant-current.json public/savant-ext; then MSG="Basketball Savant: heartbeat ($SEASON through $THROUGH)"
   else MSG="Basketball Savant: refresh $SEASON (through $THROUGH)"; fi
   git commit -q -m "$MSG"
   for i in 1 2 3 4; do

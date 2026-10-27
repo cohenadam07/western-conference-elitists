@@ -189,7 +189,7 @@ E = {
  "pt": dict(what="Play types: how his offense is built (pick-and-roll, isolation, spot-ups and the rest) and how well each part works.",
             formula="For each play type: share = his possessions in it ÷ all his play-type possessions; points per possession = points ÷ possessions. Traded players are combined, possession-weighted. The percentile on a finished season is the NBA's, among every player who ran that play type. On the season in progress it is ours: his points per possession against the players with 25+ possessions of that play type, league-wide and not position-adjusted, and left blank until he has 25 of them himself and 20 players clear the same bar — the NBA's own percentile is ranked inside its 10-possession pool, which in the first week of a season is three or four players.",
             source=f"{NBA} Synergy play types, 2015-16 on. The NBA publishes a player's play type only once he has 10 possessions of it, so early in a season a type he has run less than that is missing rather than zero. Synergy credits the finisher of a possession, not the man who set it up.",
-            sample="Under 25 possessions in a play type a percentile is mostly noise, so in season it is withheld and the row is tagged small sample."),
+            sample="Under 25 possessions in a play type a percentile is mostly noise, so in season it is withheld and the row is tagged small sample. The More columns view adds, per play type: eFG%, the share of possessions that scored, ended in a turnover, drew free throws, drew a shooting foul and ended in an and-one."),
  "ww": dict(what="With / without: what happens to his game when a teammate sits. The three teammates whose absence changes his usage the most, ranked after allowing for how few games there are without them.",
             formula="From game logs: his per-36 usage (FGA + 0.44·FTA + TOV), points, assists, rebounds and minutes in games the teammate played vs. games the team played without him (only games he himself played). Ranking: change in usage × n ÷ (n + 5), n = games without.",
             source=f"{NBA} game logs.", sample="5+ games with and 3+ without; games without a teammate are usually few, so read the game counts."),
@@ -211,6 +211,18 @@ from explainers_tabs import T as _TABS  # noqa: E402
 E.update(_TABS)
 
 FIELDS = ("what", "formula", "source", "sample")
+
+# The October 2026 additions: each stat and each breakdown panel carries its explainer in its
+# own definition (pipeline/basketball/ext_config.py), so a stat cannot ship without one.
+# Panels are keyed x_<panel> (the Breakdowns header's data-k).
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "pipeline", "basketball"))
+import ext_config as _XC  # noqa: E402
+for _m in _XC.EXT_METRICS:
+    if _m["key"] in E:
+        sys.exit(f"{_m['key']}: already has an explainer")
+    E[_m["key"]] = {f: _m[f] for f in FIELDS}
+for _k, _v in _XC.EXT_PANELS.items():
+    E["x_" + _k] = {f: _v[f] for f in FIELDS}
 
 
 def render():

@@ -30,7 +30,23 @@ USG_SCALE = 0.988
 UNAVAILABLE = {
     "LeagueDashPtStats", "LeagueDashPlayerPtShot", "LeagueDashPtDefend",
     "LeagueHustleStatsPlayer", "GravityLeaders", "SynergyPlayTypes", "LeagueSeasonMatchups",
+    # October 2026 additions (ext_fetch.py): matchup rollup, defensive box scores, passing
+    # networks, and the NBA's Inside the Game tables (nba_extra_endpoints.py)
+    "MatchupsRollup", "BoxScoreDefensiveV2", "PlayerDashPtPass",
+    "GravityLeadersRaw", "ShotQualityLeaders", "LeverageLeaders", "HandleScore",
+    "ZoneDefenseTeamLeaders", "DunkScoreLeadersRaw",
 }
+# LeagueDashPlayerStats is rebuilt from ESPN for Base / Advanced / Scoring / Usage, but its Misc
+# table (fast-break, second-chance and off-turnover points, fouls drawn) is the NBA scorers'
+# charting: it comes from the Mac like the tracking tables.
+MAC_MEASURES = {"LeagueDashPlayerStats": {"Misc"}}
+
+
+def is_mac_table(name, params):
+    """Is this request one only stats.nba.com can answer (the Mac's upload / the mirror)?"""
+    if name in UNAVAILABLE:
+        return True
+    return _measure(params) in MAC_MEASURES.get(name, ())
 
 LOG = []
 
@@ -64,11 +80,13 @@ def _measure(params):
 
 
 class Shim:
-    def __init__(self, season, tables, seed_dir, seed_index=None, tracking_dir=None):
+    def __init__(self, season, tables, seed_dir, seed_index=None, tracking_dir=None, mirror=None, mac_through=None):
         self.season = season
         self.t = tables
         self.seed_dir = seed_dir
         self.tracking_dir = tracking_dir   # the Mac's latest copy of the UNAVAILABLE tables
+        self.mirror = mirror               # mirror.Mirror: the public mirror, the fallback when the Mac is off
+        self.mac_through = mac_through     # "YYYY-MM-DD": the last game day the Mac's copy covers
         self.memo = {}
 
     # ---------------- dispatch ----------------
@@ -78,17 +96,30 @@ class Shim:
             return self.memo[key]
         season = _season_of(params)
         fresh = season == self.season
-        if fresh and name in UNAVAILABLE:
+        if fresh and is_mac_table(name, params):
             # The Mac uploads these tables when it's awake (export_tracking.py, branch
-            # tracking-data); use its latest copy, or leave the stats out.
+            # tracking-data). When its copy is missing, or older than the public mirror's, the
+            # mirror answers what it covers (season totals of the main tracking, hustle and
+            # offensive play-type tables); otherwise the stats are left out.
             out = {}
             for fr in frames:
                 df = read_seed_key(self.tracking_dir, E._key(name, params, fr)) if self.tracking_dir else None
+                mirror_newer = bool(self.mirror and self.mirror.updated and
+                                    (not self.mac_through or self.mirror.updated > self.mac_through))
+                if (df is None or mirror_newer) and self.mirror is not None and fr == 0:
+                    try:
+                        md = self.mirror.answer(name, params)
+                    except Exception:  # noqa
+                        md = None
+                    if md is not None:
+                        LOG.append(f"from the mirror {name}")
+                        out[fr] = md
+                        continue
                 if df is None:
                     LOG.append(f"unavailable {name}")
                     raise NotInCloud(f"{name} needs stats.nba.com (not reachable from the cloud)")
+                LOG.append(f"from the Mac {name}")
                 out[fr] = df
-            LOG.append(f"from the Mac {name}")
             self.memo[key] = out
             return out
         builder = getattr(self, "b_" + name, None)
@@ -130,6 +161,8 @@ class Shim:
             df = self.player_advanced(ln)
         elif m == "Scoring":
             df = self.player_scoring(ln)
+        elif m == "Usage":
+            df = self.player_usage(ln)
         else:
             raise NotInCloud(f"LeagueDashPlayerStats {m}")
         return {fr: df for fr in frames}
@@ -237,6 +270,28 @@ class Shim:
                 PACE=round(48 * T.safe_div((poss + opp_poss) / 2, mins), 2),
                 PIE=0.0,
             ))
+        return pd.DataFrame(rows)
+
+    def player_usage(self, ln):
+        """The NBA's Usage table, the part the card uses: his share of his team's points,
+        assists, rebounds and blocks while he was on the floor (October 2026 additions)."""
+        base = self.player_base(ln)
+        if not len(base):
+            return pd.DataFrame()
+        oc = self._oncourt(ln)
+        rows = []
+        for r in base.itertuples(index=False):
+            c = oc.get(r.PLAYER_ID)
+            if c is None:
+                continue
+            tm = c["team"]
+            rows.append(dict(PLAYER_ID=r.PLAYER_ID, PLAYER_NAME=r.PLAYER_NAME, TEAM_ID=r.TEAM_ID,
+                             TEAM_ABBREVIATION=r.TEAM_ABBREVIATION, GP=r.GP, MIN=r.MIN,
+                             PCT_PTS=round(T.safe_div(r.PTS, tm["pts"]), 3),
+                             PCT_AST=round(T.safe_div(r.AST, tm["ast"]), 3),
+                             PCT_REB=round(T.safe_div(r.REB, tm["oreb"] + tm["dreb"]), 3),
+                             PCT_BLK=round(T.safe_div(r.BLK, tm["blk"]), 3),
+                             PCT_FGA=round(T.safe_div(r.FGA, tm["fga"]), 3)))
         return pd.DataFrame(rows)
 
     def player_scoring(self, ln):
@@ -431,6 +486,17 @@ class Shim:
                            OPP_FTM=op["ftm"], OPP_FTA=op["fta"], OPP_PTS=op["pts"])
             elif measure == "Base":
                 row.update(PTS=tm["pts"], PLUS_MINUS=tm["pts"] - op["pts"])
+            elif measure == "Four Factors":
+                def ff(a, b):
+                    return dict(EFG=T.safe_div(a["fgm"] + 0.5 * a["fg3m"], a["fga"]),
+                                FTR=T.safe_div(a["fta"], a["fga"]),
+                                TOV=T.safe_div(a["tov"], a["fga"] + 0.44 * a["fta"] + a["tov"]),
+                                OREB=T.safe_div(a["oreb"], a["oreb"] + b["dreb"]))
+                mine, theirs = ff(tm, op), ff(op, tm)
+                row.update(EFG_PCT=round(mine["EFG"], 3), FTA_RATE=round(mine["FTR"], 3),
+                           TM_TOV_PCT=round(mine["TOV"], 3), OREB_PCT=round(mine["OREB"], 3),
+                           OPP_EFG_PCT=round(theirs["EFG"], 3), OPP_FTA_RATE=round(theirs["FTR"], 3),
+                           OPP_TOV_PCT=round(theirs["TOV"], 3), OPP_OREB_PCT=round(theirs["OREB"], 3))
             rows.append(row)
         return pd.DataFrame(rows)
 
@@ -644,8 +710,8 @@ def _nba_action(espn_type):
     return fix.get(s, s)
 
 
-def install(season, tables, seed_dir, tracking_dir=None):
-    shim = Shim(season, tables, seed_dir, tracking_dir=tracking_dir)
+def install(season, tables, seed_dir, tracking_dir=None, mirror=None, mac_through=None):
+    shim = Shim(season, tables, seed_dir, tracking_dir=tracking_dir, mirror=mirror, mac_through=mac_through)
 
     def call(EndpointClass, params, frame=0, use_cache=True):
         return shim.frames(EndpointClass.__name__, params, [frame])[frame]

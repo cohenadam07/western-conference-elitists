@@ -1,0 +1,89 @@
+# Basketball Savant — the October 2026 additions for finished seasons (public/savant-ext/).
+#
+# The history of the NBA's tracking, hustle, Synergy and matchup tables can only be pulled from
+# stats.nba.com, which refuses cloud servers, so the Mac pulled it once (ext_backfill.py) and
+# commits it, season by season, to the ext-seed branch. This job turns each season the Mac adds
+# into the site's files (pipeline/basketball/build_ext.py --seasons changed): it checks every
+# two hours, does nothing if the seed has not changed, and commits what it built otherwise.
+# ESPN's play-by-play and Basketball Reference's tables for the same seasons live in the repo
+# (pipeline/basketball/seed/ext-pbp, ext-br). The season in progress is not built here: the
+# cloud refresh (basketball-savant-cloud.yml) writes it after every slate.
+name: Basketball Savant history additions
+
+on:
+  schedule:
+    - cron: '23 */2 * * *'
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: "'changed', 'all', or a comma list (2024-25,2023-24)"
+        default: changed
+
+concurrency:
+  group: basketball-savant-ext
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Has the seed changed?
+        id: seed
+        run: |
+          SHA=$(git ls-remote origin refs/heads/ext-seed | cut -f1)
+          LAST=$(python3 -c "import json;print(json.load(open('public/savant-ext/index.json')).get('seed_sha',''))" 2>/dev/null || true)
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          if [ -z "$SHA" ]; then echo "no ext-seed branch yet"; exit 0; fi
+          if [ "$SHA" = "$LAST" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then echo "seed unchanged ($SHA)"; exit 0; fi
+          echo "build=1" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v5
+        if: steps.seed.outputs.build == '1'
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: pipeline/basketball/requirements-cloud.txt
+
+      - name: Install
+        if: steps.seed.outputs.build == '1'
+        run: pip install --quiet -r pipeline/basketball/requirements-cloud.txt
+
+      - name: Build
+        if: steps.seed.outputs.build == '1'
+        run: |
+          mkdir -p "$RUNNER_TEMP/ext-seed"
+          git fetch -q --depth 1 origin ext-seed
+          git archive FETCH_HEAD | tar -x -C "$RUNNER_TEMP/ext-seed"
+          cd pipeline/basketball
+          python3 -W ignore build_ext.py --public ../../public --seed "$RUNNER_TEMP/ext-seed" \
+            --seasons "${{ github.event.inputs.seasons || 'changed' }}"
+          python3 - <<'PY'
+          import json
+          p = "../../public/savant-ext/index.json"
+          d = json.load(open(p))
+          d["seed_sha"] = "${{ steps.seed.outputs.sha }}"
+          json.dump(d, open(p, "w"), separators=(",", ":"))
+          PY
+
+      - name: Publish
+        if: steps.seed.outputs.build == '1'
+        run: |
+          git config user.name "basketball-savant-bot"
+          git config user.email "bot@wcehoops.com"
+          git add public/savant-ext
+          if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
+          git commit -q -m "Basketball Savant: history additions from the Mac's seed (${{ steps.seed.outputs.sha }})"
+          for i in 1 2 3 4; do
+            if git push -q origin HEAD:main; then echo "pushed"; exit 0; fi
+            git pull -q --rebase origin main || { git rebase --abort; exit 1; }
+          done
+          exit 1

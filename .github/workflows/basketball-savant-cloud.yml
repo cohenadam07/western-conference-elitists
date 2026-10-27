@@ -65,6 +65,10 @@ jobs:
     timeout-minutes: 340
     env:
       ESPN_CACHE_ROOT: ${{ github.workspace }}/.espn-cache
+      # The public mirror of NBA tracking (gabriel1200/site_Data, pipeline/basketball/mirror.py)
+      # stands in for the Mac's upload when the Mac is off; the token only lets mirror.py ask
+      # GitHub when the mirror last changed without hitting the anonymous rate limit.
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:

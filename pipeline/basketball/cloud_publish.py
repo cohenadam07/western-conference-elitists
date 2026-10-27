@@ -129,6 +129,26 @@ def stage(site, run, season, cache):
     teams = os.path.join(run, "out", "site", "savant-teams-current.json")
     if os.path.exists(teams):
         shutil.copy(teams, os.path.join(pub, "savant-teams-current.json"))
+    # The October 2026 additions for the season in progress (ext_files.py): values and panels.
+    # Copied only when the run built them, so a failed pass keeps the last good copy online.
+    import ext_files as XFL
+    ext_s = XFL.season_path(os.path.join(run, "out"), season)
+    ext_new = False
+    if os.path.exists(ext_s):
+        for src, dst in ((ext_s, XFL.season_path(pub, season)),
+                         (XFL.panels_path(os.path.join(run, "out"), season), XFL.panels_path(pub, season))):
+            if os.path.exists(src) and not _same(src, dst):
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                shutil.copy(src, dst)
+                ext_new = True
+    if ext_new:
+        # savant-ext/live.json, not index.json: the history build (basketball-savant-ext.yml)
+        # owns index.json, and two jobs committing one file would trip over each other's rebases.
+        d = json.load(open(ext_s))
+        XFL.write(os.path.join(pub, "savant-ext", "live.json"),
+                  {"schema": XFL.SCHEMA, "season": season, "through": d.get("through"),
+                   "generated": d.get("generated"), "players": len(d.get("players", {}))})
+        changed.append("savant-ext")
     lu = os.path.join(run, "out", "site", "lineups")
     if os.path.isdir(lu):
         os.makedirs(os.path.join(pub, "lineups"), exist_ok=True)
