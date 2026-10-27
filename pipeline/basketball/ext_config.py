@@ -434,7 +434,7 @@ EXT_METRICS = [
       "Versatility = 100 × entropy of his share of matchup time vs guards / forwards / centers ÷ log(3)", f"{MAT} (matchup rollup), 2017-18 on. {NBA_NOTE} {SEASON_ONLY}",
       "Hatched under 300 matchup possessions."),
     # Help blocks and help FG% were planned here (the HELP_* columns of LeagueSeasonMatchups); the
-    # NBA leaves those columns empty in every season checked (2020-21 through 2026-27), so they
+    # NBA leaves those columns empty in every season checked (2018-19 through 2026-27), so they
     # are not offered. They return as two entries if a season ever carries the data.
     M("mtov", "Matchup turnovers forced", "def", "Matchups & help", "num2", 300, False, "match", False, "2017-18",
       "Turnovers by the players he guarded, per 100 matchup possessions. On-ball disruption.",

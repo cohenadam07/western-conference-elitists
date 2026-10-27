@@ -120,7 +120,11 @@ def season_events(season, through=None, cache_dir=None, refetch_days=3):
             sb = scoreboard(day)
             evs = []
             for e in sb.get("events", []):
-                st = e["status"]["type"]["name"]
+                if not e.get("id"):
+                    continue                        # older scoreboards carry the odd empty event
+                # older seasons' scoreboards sometimes carry the status on the competition only
+                status = e.get("status") or ((e.get("competitions") or [{}])[0].get("status")) or {}
+                st = (status.get("type") or {}).get("name")
                 stype = (e.get("season") or {}).get("type")
                 evs.append([e["id"], key, st, stype])
             if all(st == "STATUS_FINAL" for _, _, st, _ in evs):
