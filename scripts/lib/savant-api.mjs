@@ -302,7 +302,7 @@ export function buildSavantApi({ data, html, valueModel = null }) {
           const lp = percentile(e.v, settle.pool(mt.key, season, null), mt.lower)
           if (lp == null) continue
           const pp = percentile(e.v, settle.pool(mt.key, season, p.pos), mt.lower)
-          est[mt.key] = [+e.v.toPrecision(6), lp, pp]
+          est[mt.key] = [+e.v.toPrecision(10), lp, pp]   // 10 digits: a value on a rounding edge (84.55) prints as the page prints it
         }
         if (Object.keys(est).length) row.settle = est
       }

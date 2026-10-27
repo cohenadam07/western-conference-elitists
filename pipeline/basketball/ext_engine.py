@@ -120,6 +120,36 @@ def _box_map(ln, season):
 
 
 # ===================================================================== NBA tables
+# Columns the NBA has published broken for whole seasons, caught by a league-wide ratio far
+# outside anything a real season produces. Its 2024-25 tracking tables are the known case:
+# drive free throws total 520 on 158,000 drives (a real season is ~20,000), free-throw assists
+# are zero, and time of possession runs ~40% long (Jokic at 4.8 seconds a touch). A column that
+# fails is left out for that season (the stats built on it show no value) rather than shown wrong.
+SANITY = {
+    "Drives": [("DRIVE_FTA", "DRIVES", 0.05, None)],                 # ~0.13 FTA a drive
+    "Passing": [("FT_AST", "AST", 0.02, None)],                       # ~0.09 FT assists an assist
+    "Possessions": [("TIME_OF_POSS", "TOUCHES", None, 4.2 / 60)],     # ~3 seconds a touch, league-wide
+}
+
+
+def _broken_columns(df, measure, season, log=print):
+    out = set()
+    if df is None or not len(df):
+        return out
+    for col, base, lo, hi in SANITY.get(measure, ()):
+        try:
+            a, b = float(df[col].sum()), float(df[base].sum())
+        except Exception:  # noqa
+            continue
+        if not b:
+            continue
+        r = a / b
+        if (lo is not None and r < lo) or (hi is not None and r > hi):
+            out.add(col)
+            log(f"  ext: the NBA's {measure} {col} for {season} fails its sanity check ({r:.4f} per {base}); left out")
+    return out
+
+
 def nba_pass(season, players, live=False, log=print):
     by_id = {p["id"]: p for p in players}
     done = defaultdict(int)
@@ -138,14 +168,17 @@ def nba_pass(season, players, live=False, log=print):
 
         # ---- possessions / touches
         t = F.track("Possessions", ln, season)
+        broken = _broken_columns(t, "Possessions", season, log)
         for pid, r in t.iterrows():
             ps = poss.get(int(pid))
             tch = _g(r, "TOUCHES")
             put(pid, "tch75", _per75(tch, ps), ps)
             put(pid, "fct75", _per75(_g(r, "FRONT_CT_TOUCHES"), ps), ps)
-            put(pid, "top75", _per75(_g(r, "TIME_OF_POSS"), ps), ps, 2)
-            if tch:
+            if "TIME_OF_POSS" not in broken:
+                put(pid, "top75", _per75(_g(r, "TIME_OF_POSS"), ps), ps, 2)
+            if tch and "TIME_OF_POSS" not in broken:
                 put(pid, "spt", _g(r, "AVG_SEC_PER_TOUCH"), tch, 2)
+            if tch:
                 put(pid, "dpt", _g(r, "AVG_DRIB_PER_TOUCH"), tch, 2)
                 put(pid, "ppt", _g(r, "PTS_PER_TOUCH"), tch, 2)
             put(pid, "elb75", _per75(_g(r, "ELBOW_TOUCHES"), ps), ps)
@@ -185,21 +218,25 @@ def nba_pass(season, players, live=False, log=print):
 
         # ---- drives
         d = F.track("Drives", ln, season)
+        broken = _broken_columns(d, "Drives", season, log)
         for pid, r in d.iterrows():
             dv = _g(r, "DRIVES")
             if not dv:
                 continue
-            put(pid, "drvpts", (_g(r, "DRIVE_PTS") or 0) / dv, dv, 2)
+            if "DRIVE_FTA" not in broken:        # without its free throws, drive points are short too
+                put(pid, "drvpts", (_g(r, "DRIVE_PTS") or 0) / dv, dv, 2)
             fga = _g(r, "DRIVE_FGA")
             if fga:
                 put(pid, "drvfg", 100 * (_g(r, "DRIVE_FGM") or 0) / fga, fga)
-            put(pid, "drvft", _pct(_g(r, "DRIVE_FTA"), dv), dv)
+            if "DRIVE_FTA" not in broken:
+                put(pid, "drvft", _pct(_g(r, "DRIVE_FTA"), dv), dv)
             put(pid, "drvpass", _pct(_g(r, "DRIVE_PASSES"), dv), dv)
             put(pid, "drvast", _pct(_g(r, "DRIVE_AST"), dv), dv)
             put(pid, "drvtov", _pct(_g(r, "DRIVE_TOV"), dv), dv)
 
         # ---- passing
         pa = F.track("Passing", ln, season)
+        broken = _broken_columns(pa, "Passing", season, log)
         for pid, r in pa.iterrows():
             ps = poss.get(int(pid))
             passes = _g(r, "PASSES_MADE")
@@ -208,7 +245,8 @@ def nba_pass(season, players, live=False, log=print):
             bad = (passes and pot and pot > passes) or (ast and ast >= 5 and pot and pot > 5 * ast)
             put(pid, "pass75", _per75(passes, ps), ps)
             put(pid, "secast75", _per75(_g(r, "SECONDARY_AST"), ps), ps, 2)
-            put(pid, "ftast75", _per75(_g(r, "FT_AST"), ps), ps, 2)
+            if "FT_AST" not in broken:
+                put(pid, "ftast75", _per75(_g(r, "FT_AST"), ps), ps, 2)
             apc = _g(r, "AST_PTS_CREATED")
             put(pid, "astpts75", _per75(apc, ps), ps)
             if passes:

@@ -300,7 +300,7 @@ export async function playerProfile({ player, season, window = 'season', group =
 
   let heading = null
   for (const key of GROUP_ORDER) {
-    for (const s of stats.filter((x) => x.group === (meta.groups[key] || key))) {
+    for (const s of stats.filter((x) => x.group === (meta.groups[key] || key) && !x.added)) {
       const h = s.subgroup && s.subgroup !== s.group ? `${s.group}: ${s.subgroup}` : s.group
       if (h !== heading) { L.push('', h); heading = h }
       const pct = (p) => (p == null ? 'n/a' : ordinal(p))
@@ -308,6 +308,21 @@ export async function playerProfile({ player, season, window = 'season', group =
       const st = s.likely_to_settle
       const toward = st ? `; likely to settle near ${st.display} (league ${pct(st.league_percentile)}, vs. ${peers} ${pct(st.position_percentile)})` : ''
       L.push(`- ${s.label}: ${s.display} (league ${pct(s.league_percentile)}, vs. ${peers} ${pct(s.position_percentile)})${toward}${tags.length ? ` [${tags.join(', ')}]` : ''}`)
+    }
+  }
+  // The additions, one line per section so a full profile stays readable:
+  // "Label value (league pct/position pct)", * for a low sample.
+  const added = stats.filter((x) => x.added)
+  if (added.length) {
+    const pp = (p) => (p == null ? '–' : String(p))
+    L.push('', `More stats (value, then league / vs. ${peers} percentile; * = low sample):`)
+    for (const key of GROUP_ORDER) {
+      const g = meta.groups[key] || key
+      const subs = [...new Set(added.filter((x) => x.group === g).map((x) => x.subgroup))]
+      for (const sub of subs) {
+        const xs = added.filter((x) => x.group === g && x.subgroup === sub)
+        L.push(`- ${g}, ${String(sub).toLowerCase()}: ${xs.map((x) => `${x.label} ${x.display} (${pp(x.league_percentile)}/${pp(x.position_percentile)})${x.low_sample ? '*' : ''}`).join('; ')}`)
+      }
     }
   }
   if (!stats.length) L.push('', 'No stats in this group for that season.')

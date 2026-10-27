@@ -593,6 +593,14 @@ EXT_PANELS = {
                source=f"{BRF} play-by-play table, 1996-97 on.", sample="None: an estimate from lineups."),
 }
 
+# Seasons the NBA published a column broken (ext_engine.SANITY catches them; the stat is left
+# blank there). Said in the explainer so a gap reads as a decision, not a bug.
+BROKEN_SEASONS = {"drvft": "2024-25", "drvpts": "2024-25", "top75": "2024-25", "spt": "2024-25", "ftast75": "2024-25"}
+for _m in EXT_METRICS:
+    if _m["key"] in BROKEN_SEASONS:
+        _m["source"] += (f" The NBA's {BROKEN_SEASONS[_m['key']]} table carries this column broken (it fails a"
+                         " league-wide sanity check), so that season is left blank.")
+
 KEYS = [m["key"] for m in EXT_METRICS]
 BY_KEY = {m["key"]: m for m in EXT_METRICS}
 assert len(KEYS) == len(set(KEYS)), "duplicate ext metric key"
