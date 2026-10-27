@@ -1,5 +1,5 @@
-// Serve dist/ the way Vercel will: vercel.json's redirects, rewrites and headers applied in that
-// order, so the gzip rewrites (/bcs/t/x.json -> x.json.gz with Content-Encoding: gzip, the
+// Serve dist/ the way Vercel will: vercel.json's redirects, then the files on disk, then the
+// rewrites, with the header rules, so the gzip rewrites (/bcs/t/x.json -> x.json.gz with Content-Encoding: gzip, the
 // savant-ext and savant-api ones) behave as they do in production. For looking at a branch
 // locally before it is pushed.
 //
@@ -67,14 +67,23 @@ createServer((req, res) => {
   const extra = {}
   const applyHeaders = (p) => { for (const h of headers) { if (h.re.test(p)) for (const kv of h.headers) extra[kv.key] = kv.value } }
   applyHeaders(url)
+  // Vercel's order: redirects, then the filesystem, then rewrites. A file that exists at the
+  // path is served as is; only a path with no file behind it reaches the rewrites (the gzip
+  // ones and the SPA catch-all).
+  const find = (p) => {
+    for (const c of [p, p.endsWith('/') ? p + 'index.html' : null, `${p}.html`].filter(Boolean)) {
+      const file = path.join(DIST, c)
+      if (file.startsWith(DIST) && existsSync(file) && statSync(file).isFile()) return file
+    }
+    return null
+  }
+  const direct = find(url)
+  if (direct) return serveFile(res, direct, extra)
   let target = url
   for (const r of rewrites) { const m = r.re.exec(url); if (m) { target = fill(r.destination, m); break } }
   if (target !== url) applyHeaders(target)
-  const candidates = [target, target.endsWith('/') ? target + 'index.html' : null, `${target}.html`].filter(Boolean)
-  for (const c of candidates) {
-    const file = path.join(DIST, c)
-    if (file.startsWith(DIST) && existsSync(file) && statSync(file).isFile()) return serveFile(res, file, extra)
-  }
+  const file = find(target)
+  if (file) return serveFile(res, file, extra)
   if (url.startsWith('/api/')) { res.statusCode = 404; return res.end('no API functions in the local server') }
   res.statusCode = 404; res.end(`not found: ${url}`)
 }).listen(PORT, '127.0.0.1', () => console.log(`serving ${DIST} like Vercel at http://localhost:${PORT}/  (${redirects.length} redirects, ${rewrites.length} rewrites, ${headers.length} header rules)`))
