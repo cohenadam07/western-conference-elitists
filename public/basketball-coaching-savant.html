@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Basketball Coaching Savant — WCE</title>
+<meta name="description" content="Every NBA head coach: the Rotation Map, lineups judged from their parts, timeouts and challenges, two expectation baselines, situation-by-situation splits and the coaching tree, 1946-47 to today."/>
+<meta name="theme-color" content="#22395A"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   BASKETBALL COACHING SAVANT — the WCE language: cream on navy, gold for what a coach
+   does, blue-to-red only for how good it was. Every percentile names its pool, every
+   section is labelled with the year its data begins, and the rotation verdicts are the
+   model's view, not a verdict. Data: /bcs/index.json, /bcs/c/<coach>.json,
+   /bcs/t/<team>-<season>.json (pipeline/basketball/coaching/build.py).
+   ========================================================================= */
+:root{--navy:#22395A;--gold:#C2A263;--red:#BC3A2C;--cream:#ECEBE8;--ink:#1A2332;--muted:#5B6878;--faint:#8A95A3;
+  --line:#D9D6CF;--line2:#C4C0B6;--paper:#F7F6F2;--white:#FFFFFF;--blue:#1C4E86;--track:#E4E1D9;
+  --disp:'Newsreader',Georgia,serif;--body:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;
+  --shadow:0 1px 2px rgba(26,35,50,.08),0 6px 18px rgba(26,35,50,.08)}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--navy);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit}button{font-family:inherit;cursor:pointer}
+.wrap,.frame{max-width:1180px;margin:0 auto;padding:16px 16px 70px}
+.frame{padding-bottom:0}
+.plate{background:var(--paper);border-radius:6px;box-shadow:var(--shadow);padding:18px 20px;margin-bottom:14px;min-width:0}
+h2.sec{font-family:var(--disp);font-weight:500;font-size:24px;margin:0 0 4px;letter-spacing:-.01em}
+.since{font-family:var(--mono);font-size:11px;color:var(--faint);margin:0 0 12px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:6px 0 14px;color:var(--cream)}
+.brand{font-family:var(--disp);font-size:22px;color:var(--cream);text-decoration:none}
+.brand em{font-style:normal;color:var(--gold)}
+.navl{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.navl a{color:rgba(236,235,232,.75);text-decoration:none}.navl a:hover{color:#fff}
+.search{position:relative}
+.search input{font-family:var(--body);font-size:15px;color:var(--ink);background:var(--white);border:1px solid var(--line2);border-radius:4px;padding:9px 12px;width:280px;max-width:100%;outline:none}
+.results{position:absolute;top:calc(100% + 6px);right:0;width:340px;max-height:320px;overflow:auto;background:var(--white);border:1px solid var(--line2);border-radius:6px;box-shadow:var(--shadow);padding:4px;z-index:40;color:var(--ink)}
+.results[hidden]{display:none}
+.res{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;cursor:pointer;border-radius:4px}
+.res:hover,.res.on{background:var(--cream)}
+.res .rn{font-weight:500}.res .rs{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.hero{padding:26px 0 18px;color:var(--cream)}
+.hero h1{font-family:var(--disp);font-weight:500;font-size:clamp(32px,6vw,56px);margin:0 0 10px;line-height:1.1;letter-spacing:-.01em}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{max-width:640px;margin:0 0 16px;font-size:15.5px;color:rgba(236,235,232,.85)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.lead-h{font-family:var(--disp);font-size:18px;margin:0 0 2px}
+.lead-p{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin:0 0 8px}
+.lrow{display:flex;align-items:baseline;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);font-size:13.5px;cursor:pointer}
+.lrow:last-child{border-bottom:none}.lrow:hover .ln{color:var(--red)}
+.lrk{font-family:var(--mono);font-size:10px;color:var(--faint);width:18px;flex:none}.ln{flex:1;font-weight:500}.lv{font-family:var(--mono);font-size:12px}
+.chead{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.cid{flex:1;min-width:260px}
+.cname{font-family:var(--disp);font-weight:500;font-size:clamp(28px,4vw,40px);margin:0;line-height:1.1}
+.cmeta{font-size:13.5px;color:var(--muted);margin-top:6px}
+.crec{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px}
+.crec .st{font-family:var(--mono);font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+.crec .st b{display:block;font-family:var(--disp);font-size:24px;color:var(--ink);font-weight:500;letter-spacing:0}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.badge{font-family:var(--mono);font-size:10.5px;border:1px solid var(--line2);background:var(--white);padding:3px 8px;border-radius:3px}
+.badge.gold{background:var(--gold);border-color:var(--gold);color:#fff}
+.ribbon{width:100%;height:auto;display:block;margin-top:12px}
+.note{font-size:12.5px;color:var(--muted);border-left:3px solid var(--gold);padding:6px 10px;background:var(--white);margin:10px 0}
+.card{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:4px 26px}
+.cgroup{margin:8px 0 6px;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);grid-column:1/-1;border-top:1px solid var(--line);padding-top:8px}
+.srow{display:grid;grid-template-columns:150px 1fr 56px 34px;align-items:center;gap:8px;padding:3px 0;font-size:13px;cursor:pointer}
+.srow .sl{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow .sv{font-family:var(--mono);font-size:12px;text-align:right}
+.srow .sp{font-family:var(--mono);font-size:11px;text-align:right;color:var(--muted)}
+.bar{height:10px;background:var(--track);border-radius:2px;position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px}
+.bar.hatch i{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 3px,transparent 3px 6px)}
+.bar b{position:absolute;top:-2px;width:2px;height:14px;background:var(--ink);opacity:.55}
+.expl{grid-column:1/-1;background:var(--white);border:1px solid var(--line);border-radius:4px;padding:10px 12px;font-size:13px;margin:4px 0 8px}
+.expl b{font-weight:600}
+.expl .k{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+.tab{font-family:var(--mono);font-size:11px;border:1px solid var(--line2);background:var(--white);border-radius:3px;padding:4px 9px}
+.tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.t{border-collapse:collapse;width:100%;font-size:13px}
+table.t th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);text-align:right;padding:6px 8px;border-bottom:1px solid var(--line2);white-space:nowrap;font-weight:500}
+table.t td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--mono);font-size:12px;white-space:nowrap}
+table.t th:first-child,table.t td:first-child{text-align:left;font-family:var(--body);font-size:13px;position:sticky;left:0;background:var(--paper)}
+table.t tr.link{cursor:pointer}table.t tr.link:hover td{color:var(--red)}
+.rotwrap{position:relative}
+.rot{display:grid;grid-template-columns:150px 1fr;gap:0}
+.rotnames{display:flex;flex-direction:column}
+.rotname{height:22px;line-height:22px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px;border-bottom:1px solid var(--line)}
+.rotname small{font-family:var(--mono);color:var(--faint);font-size:10px}
+canvas.map{display:block;width:100%;height:auto;image-rendering:pixelated}
+.legend{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:6px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.sw{display:inline-block;width:12px;height:12px;vertical-align:-2px;margin-right:4px;border-radius:2px}
+.gbars{display:flex;align-items:flex-end;gap:1px;height:70px;margin-top:10px;border-bottom:1px solid var(--line2);overflow:hidden}
+.gbar{flex:1;min-width:2px;display:flex;flex-direction:column-reverse;cursor:pointer;height:100%}
+.gbar i{display:block;width:100%}
+.gbar:hover{outline:2px solid var(--navy)}
+.gbar.sel{outline:2px solid var(--red)}
+.ginfo{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:6px;min-height:16px}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+.month h4{margin:0 0 4px;font-family:var(--mono);font-size:10.5px;color:var(--faint);font-weight:500}
+.matrix{font-family:var(--mono);font-size:10.5px;border-collapse:collapse}
+.matrix td,.matrix th{width:34px;height:34px;text-align:center;border:1px solid var(--paper);padding:0}
+.matrix th{font-weight:500;color:var(--muted);font-size:10px;width:auto;padding:0 6px;text-align:right;white-space:nowrap}
+.matrix td.c{cursor:pointer;color:#fff}
+.matrix td.d{background:var(--line)}
+.matrix thead th{writing-mode:vertical-rl;transform:rotate(180deg);text-align:left;height:90px;padding:4px 0}
+.pairinfo{font-size:13px;margin-top:10px;background:var(--white);border:1px solid var(--line);border-radius:4px;padding:10px 12px}
+svg.chart{width:100%;height:auto;display:block}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{background:var(--white);border:1px solid var(--line);border-radius:4px;padding:10px 12px}
+.tile .tl{font-family:var(--mono);font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+.tile .tv{font-family:var(--disp);font-size:24px;line-height:1.2;margin:2px 0}
+.tile .ts{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.splits{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.split h4{margin:0 0 6px;font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+.srl{display:grid;grid-template-columns:96px 1fr 44px;gap:6px;align-items:center;font-size:12px;padding:2px 0}
+.srl .sb{height:8px;position:relative;background:var(--track);border-radius:2px}
+.srl .sb i{position:absolute;top:0;bottom:0}
+.srl .sb b{position:absolute;top:-3px;width:1px;height:14px;background:var(--ink);opacity:.5}
+.srl .sn{font-family:var(--mono);font-size:11px;text-align:right;color:var(--muted)}
+.fp{display:grid;grid-template-columns:150px 1fr;gap:4px 10px;align-items:center;font-size:12.5px}
+.fp .track{height:12px;background:var(--track);border-radius:2px;position:relative}
+.fp .track i{position:absolute;top:2px;width:8px;height:8px;border-radius:50%;margin-left:-4px}
+.lines li{margin:4px 0;font-size:13.5px}
+.staff{font-size:13px}
+.staff b{font-weight:500}
+.tree ul{list-style:none;padding-left:18px;margin:2px 0;border-left:1px solid var(--line)}
+.tree li{margin:2px 0;font-size:13.5px}
+.tree .tn{cursor:pointer;padding:1px 4px;border-radius:3px}
+.tree .tn:hover{background:var(--cream)}
+.tree .tc{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.tree details>summary{cursor:pointer;list-style:none}
+.tree details>summary::before{content:"▸ ";font-size:11px;color:var(--faint)}
+.tree details[open]>summary::before{content:"▾ "}
+.pill{font-family:var(--mono);font-size:10px;background:var(--navy);color:var(--gold);padding:2px 6px;border-radius:3px}
+.small{font-size:12.5px;color:var(--muted)}
+.empty{font-size:13px;color:var(--faint);font-style:italic}
+@media (max-width:640px){.wrap,.frame{padding:12px 12px 60px}.frame{padding-bottom:0}.plate{padding:14px}.srow{grid-template-columns:120px 1fr 50px 30px}.rot{grid-template-columns:110px 1fr}.rotname{font-size:11px}.fp{grid-template-columns:110px 1fr}}
+body.view-home .coach,body.view-home .treeview{display:none}
+body.view-coach .home,body.view-coach .treeview{display:none}
+body.view-tree .home,body.view-tree .coach{display:none}
+</style>
+</head>
+<body class="view-home">
+<div class="frame">
+  <div class="top">
+    <a class="brand" href="#" data-home>Basketball <em>Coaching</em> Savant</a>
+    <div class="navl"><a href="/">WCE</a><a href="/basketball-savant.html">Basketball Savant</a><a href="/coaching-savant.html">Coaching Savant (NFL)</a><a href="#tree">The tree</a><a href="#" data-home>Leaders</a></div>
+    <div class="search"><input id="q" type="search" placeholder="Search a head coach or assistant" autocomplete="off"/><div id="results" class="results" hidden></div></div>
+  </div>
+
+  <section class="home" id="home">
+    <div class="hero">
+      <h1>Every NBA head coach, <em>judged from the floor up.</em></h1>
+      <p>When each player plays and how often the coach goes off-script. Lineups judged from their parts. Timeouts that stop runs, or don't. Wins against what the roster and the market expected. Records and the coaching tree to 1946-47; everything else from the year its data begins.</p>
+      <div class="navl" id="homecount"></div>
+    </div>
+    <div class="plate"><h2 class="sec">Leaders</h2><p class="since" id="lead-since"></p><div class="grid3" id="leaders"></div></div>
+    <div class="plate"><h2 class="sec">The league, season by season</h2><p class="since">1996-97 on; rotation and challenges from the seasons they exist</p><div class="grid3" id="trends"></div></div>
+    <div class="plate"><h2 class="sec">The staffs that produced head coaches</h2><p class="since">from Basketball-Reference's assistant stints and the NBA's staff tables</p><div id="produced" class="small"></div></div>
+    <div class="plate"><h2 class="sec">How to read this</h2><div id="howto" class="small"></div></div>
+  </section>
+</div>
+<div class="wrap">
+  <section class="coach" id="coach"></section>
+  <section class="treeview" id="treeview"></section>
+</div>
+<script>
+'use strict';
+const BASE = '/bcs';
+const Z = ['ra','paint','mid','c3','ab3'], ZL = {ra:'Rim', paint:'Short mid', mid:'Mid-range', c3:'Corner 3', ab3:'Above-break 3'};
+const CAUSES = ['absence','blowout','foul','choice'], CAUSE_C = {absence:'#8A95A3', blowout:'#C4C0B6', foul:'#C2A263', choice:'#BC3A2C'};
+const PT = {Isolation:'Isolation', Transition:'Transition', PRBallHandler:'P&R handler', PRRollman:'P&R roll man', Postup:'Post-up', Spotup:'Spot-up', Handoff:'Hand-off', Cut:'Cut', OffScreen:'Off screen', OffRebound:'Putback', Misc:'Misc'};
+let IDX = null, COACH = null, TFILE = null, TCACHE = {}, STATS = {}, state = {base:'played', kind:'RS', game:null, season:null, overlay:null};
+
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const miss = v => v === null || v === undefined || Number.isNaN(v);
+function fmt(unit, v){
+  if (miss(v)) return '—';
+  v = +v;
+  switch (unit){
+    case 'pct1': return v.toFixed(1) + '%';
+    case 'num0': return String(Math.round(v));
+    case 'num1': return v.toFixed(1);
+    case 'num2': return v.toFixed(2);
+    case 'sgn1': return (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
+    case 'sgn2': return (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2);
+    default: return String(v);
+  }
+}
+const signed = (v, d=1) => miss(v) ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(d);
+function mix(a, b, t){ const p = x => parseInt(x,16); const c = (i) => Math.round(p(a.slice(i,i+2)) + (p(b.slice(i,i+2)) - p(a.slice(i,i+2))) * t); return `rgb(${c(1)},${c(3)},${c(5)})`; }
+function gradeColor(p){ if (miss(p)) return '#C4C0B6'; const t = (p - 1) / 98; return t < .5 ? mix('#1C4E86', '#B9B5AA', t * 2) : mix('#B9B5AA', '#BC3A2C', (t - .5) * 2); }
+const muchColor = () => '#C2A263';
+const ord = n => { const s = ['th','st','nd','rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+const teamName = (k) => IDX.teams[k]?.name || k;
+const teamColor = k => IDX.teams[k]?.color || '#22395A';
+const fetchJSON = async (p) => { const r = await fetch(p, {cache:'no-cache'}); if (!r.ok) throw new Error(p + ' ' + r.status); return r.json(); };
+
+// ---------------------------------------------------------------- routing
+function route(){
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (h.startsWith('c=')) return openCoach(h.slice(2).split('&')[0], h);
+  if (h === 'tree' || h.startsWith('tree=')) return openTree(h.startsWith('tree=') ? h.slice(5) : null);
+  document.body.className = 'view-home';
+  document.title = 'Basketball Coaching Savant — WCE';
+  window.scrollTo(0, 0);
+}
+async function init(){
+  IDX = await fetchJSON(`${BASE}/index.json`);
+  for (const s of IDX.stats) STATS[s.key] = s;
+  renderHome();
+  wireSearch();
+  window.addEventListener('hashchange', route);
+  document.querySelectorAll('[data-home]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); location.hash = ''; }));
+  route();
+}
+
+// ---------------------------------------------------------------- home
+function renderHome(){
+  const m = IDX.meta;
+  document.getElementById('homecount').innerHTML = `<span>${IDX.coaches.filter(c => c.hc).length} head coaches since 1946-47</span><span>${IDX.coaches.filter(c => c.g).length} with games since 1996-97</span><span>pool of ${m.rules.career_pool} ranked careers</span><span>built ${m.generated.slice(0,10)}, v${m.version}</span>`;
+  document.getElementById('lead-since').textContent = `career boards: head coaches with ${m.rules.min_career_seasons}+ seasons and ${m.rules.min_career_games}+ games in the stat's window; this season: ${m.current}`;
+  renderLeaders();
+  renderTrends();
+  const pr = IDX.produced.slice(0, 16).map(([n, id, kids]) => `<div class="lrow" data-coach="${id}"><span class="ln">${esc(n)}</span><span class="lv">${kids.length}</span></div>`).join('');
+  document.getElementById('produced').innerHTML = `<div class="grid3"><div>${pr}</div><div class="small" style="grid-column:span 2">Head coaches who served on a man's staff, counted by Basketball-Reference's assistant stints and the NBA's staff tables (which begin in the 2000s). ${esc(IDX.tree.note)}</div></div>`;
+  const t = m.fits.talent || {}, p = m.fits.parts || {};
+  document.getElementById('howto').innerHTML = `
+    <p><b>Two kinds of rows.</b> A graded row (blue to red) is "how good": higher percentile, better, with lower-is-better rows already flipped. A gold row is "how much": a tendency, where a high percentile means more of it, not better. Every percentile names its pool. A hatched bar is under its settle point and should be read as what happened, not who he is.</p>
+    <p><b>Two expectations.</b> <i>Talent</i> is ours: each player's impact the season before, weighted by his role the season before, so the coach's own minutes cannot move it (out-of-sample R² ${t.oos_r2 ?? '—'} on team net rating, ${t.rmse ?? '—'} points of error, ${t.n ?? '—'} team-seasons). <i>The market</i> is the preseason win total, with the source page, and from 2015-16 the closing spread game by game.</p>
+    <p><b>The Rotation Map</b> shows, for every man with 100 minutes under a coach, the share of games he was on the floor in each of the 48 minutes, measured on minutes still in the balance. His usual windows are where that share is 60% or better. Each game's off-script share is the minutes where someone's actual status differed from his usual one, and each off-script minute gets the first cause that fits: absence, blowout, foul trouble, then choice. ${esc(m.model_note)}</p>
+    <p><b>Lineups are judged from their parts</b> (Σ impact of the five; out-of-sample R² ${p.oos_r2_talent ?? '—'} on luck-adjusted unit net over ${p.n ?? '—'} units), never from raw lineup net ratings, which inside a team are mostly noise. ${pairText(m.fits.pairings)}</p>`;
+  document.getElementById('homecount').querySelectorAll('span').forEach(s => s.style.marginRight = '14px');
+  document.querySelectorAll('#produced [data-coach]').forEach(el => el.addEventListener('click', () => location.hash = 'c=' + el.dataset.coach));
+}
+function pairText(pr){
+  if (!pr) return 'The lineup pairings were not tested in this build.';
+  const names = {hub_stretch:'hub big + stretch big', rimprot_stretch:'rim protector + stretch big', spacer_stopper:'spacer + stopper', two_noshoot_bigs:'two bigs where neither shoots'};
+  const used = Object.entries(pr.replicated).filter(([k, v]) => v.replicates).map(([k]) => names[k]);
+  const rows = Object.keys(names).map(k => { const d = pr.results.discovery_even[k], r = pr.results.replication_odd[k]; return `${names[k]} ${signed(d.coef)} then ${signed(r.coef)}`; }).join('; ');
+  return `The four pairings the lineup fit study found were retested on ${pr.n_units.toLocaleString()} units, ${pr.seasons[0]} to ${pr.seasons[1]}, with team-season fixed effects and errors clustered by team-season, discovered on even seasons and replicated on odd (${rows}). ${used.length ? `Used in the projection, at the pooled coefficient, because it keeps its sign in both halves and the pooled estimate clears p < .05: ${used.map(k => `${k} (${signed(pr.replicated[Object.keys(names).find(n => names[n] === k)].coef)} per 100)`).join(', ')}. The other three flip sign or do not clear, and are left out.` : 'None replicated across the two halves, so the projection stays talent only; spacer + stopper kept its sign in both and is the one worth watching.'}`;
+}
+function renderLeaders(){
+  const el = document.getElementById('leaders');
+  el.innerHTML = IDX.leaders.map(b => `<div><h3 class="lead-h">${esc(b.title)}</h3><p class="lead-p">${esc(b.pool)}${b.rows.length ? ` · ${b.rows.length}` : ''}</p>${b.rows.slice(0, 10).map((r, i) => `<div class="lrow" data-coach="${r.id}"><span class="lrk">${i + 1}</span><span class="ln">${esc(r.name)}${r.team ? ` <small style="color:var(--faint)">${r.team}</small>` : ''}</span><span class="lv">${esc(r.display)}</span></div>`).join('') || '<div class="empty">nothing to rank yet</div>'}</div>`).join('');
+  el.querySelectorAll('[data-coach]').forEach(x => x.addEventListener('click', () => location.hash = 'c=' + x.dataset.coach));
+}
+function renderTrends(){
+  const el = document.getElementById('trends');
+  const keys = [['pace','Pace'],['fg3r','3-point rate'],['depth10','Rotation depth (10+ min)'],['stability','Rotation stability'],['ch_success','Challenge success'],['to_g','Timeouts per game']];
+  el.innerHTML = keys.map(([k, label]) => {
+    const pts = IDX.trends.filter(t => !miss(t[k])).map(t => [t.season, t[k]]);
+    if (pts.length < 2) return `<div><h3 class="lead-h">${label}</h3><div class="empty">no seasons yet</div></div>`;
+    const vals = pts.map(p => p[1]); const lo = Math.min(...vals), hi = Math.max(...vals), pad = (hi - lo) * .15 || 1;
+    const W = 300, H = 90, x = i => 30 + i * (W - 40) / (pts.length - 1), y = v => 10 + (H - 30) * (1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)));
+    const d = pts.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ');
+    return `<div><h3 class="lead-h">${label}</h3><p class="lead-p">${pts[0][0]} → ${pts[pts.length-1][0]}: ${fmt(STATS[k]?.unit || 'num1', pts[0][1])} → ${fmt(STATS[k]?.unit || 'num1', pts[pts.length-1][1])}</p>
+      <svg class="chart" viewBox="0 0 ${W} ${H}"><path d="${d}" fill="none" stroke="#22395A" stroke-width="2"/>${pts.map((p, i) => `<circle cx="${x(i)}" cy="${y(p[1])}" r="2.2" fill="#C2A263"><title>${p[0]}: ${fmt(STATS[k]?.unit || 'num1', p[1])}</title></circle>`).join('')}
+      <text x="30" y="${H-4}" font-size="9" fill="#8A95A3" font-family="IBM Plex Mono">${pts[0][0]}</text><text x="${W-10}" y="${H-4}" font-size="9" fill="#8A95A3" text-anchor="end" font-family="IBM Plex Mono">${pts[pts.length-1][0]}</text></svg></div>`;
+  }).join('');
+}
+
+// ---------------------------------------------------------------- search
+function wireSearch(){
+  const q = document.getElementById('q'), box = document.getElementById('results');
+  const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]+/g, ' ').trim();
+  let sel = -1, hits = [];
+  function show(){
+    const v = norm(q.value);
+    if (!v) { box.hidden = true; return; }
+    hits = IDX.coaches.filter(c => norm(c.name).includes(v)).sort((a, b) => (norm(b.name).startsWith(v) - norm(a.name).startsWith(v)) || (b.all_g - a.all_g)).slice(0, 12);
+    box.innerHTML = hits.map((c, i) => `<div class="res${i === sel ? ' on' : ''}" data-i="${i}"><span class="rn">${esc(c.name)}</span><span class="rs">${c.hc ? `${c.all_w}–${c.all_l}, ${c.all_seasons} seasons` : 'assistant'}${c.first ? ` · ${c.first.slice(0,4)}–${(c.last||'').slice(0,4)}` : ''}</span></div>`).join('') || '<div class="res"><span class="rs">no coach by that name</span></div>';
+    box.hidden = false;
+    box.querySelectorAll('.res[data-i]').forEach(r => r.addEventListener('mousedown', () => go(+r.dataset.i)));
+  }
+  function go(i){ const c = hits[i]; if (!c) return; box.hidden = true; q.value = ''; location.hash = 'c=' + c.id; }
+  q.addEventListener('input', () => { sel = -1; show(); });
+  q.addEventListener('keydown', e => { if (e.key === 'ArrowDown') { sel = Math.min(hits.length - 1, sel + 1); show(); } else if (e.key === 'ArrowUp') { sel = Math.max(0, sel - 1); show(); } else if (e.key === 'Enter') go(Math.max(0, sel)); else if (e.key === 'Escape') box.hidden = true; });
+  q.addEventListener('blur', () => setTimeout(() => box.hidden = true, 150));
+}
+
+// ---------------------------------------------------------------- coach page
+async function openCoach(id, hash){
+  document.body.className = 'view-coach';
+  const el = document.getElementById('coach');
+  el.innerHTML = '<div class="plate"><div class="empty">loading…</div></div>';
+  try { COACH = await fetchJSON(`${BASE}/c/${encodeURIComponent(id)}.json`); }
+  catch (e) { el.innerHTML = `<div class="plate"><h2 class="sec">No page for “${esc(id)}”</h2><p class="small">Search above for a head coach or assistant.</p></div>`; return; }
+  const m = /season=([0-9-]+)/.exec(hash || '');
+  const seasons = COACH.seasons.filter(s => s.rotation);
+  state.season = (m && seasons.find(s => s.season === m[1])) ? m[1] : (seasons.length ? seasons[seasons.length - 1].season : null);
+  state.game = null; state.overlay = null; state.kind = 'RS';
+  renderCoach();
+  window.scrollTo(0, 0);
+  document.title = `${COACH.name} — Basketball Coaching Savant`;
+}
+function renderCoach(){
+  const el = document.getElementById('coach');
+  const parts = [];
+  parts.push(renderHeader());
+  parts.push(renderVerdict());
+  parts.push(renderCard());
+  parts.push(`<div class="plate" id="rotation"><h2 class="sec">The Rotation Map</h2><p class="since">2002-03 on · the model's view, not a verdict</p><div id="rotbody"></div></div>`);
+  parts.push(`<div class="plate" id="pairs"><h2 class="sec">Who he plays together</h2><p class="since">2002-03 on · above the diagonal: share of the row's minutes with the column; below: sample-adjusted net together (luck-adjusted, pulled toward the team by k possessions)</p><div id="pairbody"></div></div>`);
+  parts.push(`<div class="plate" id="quad"><h2 class="sec">Is he playing his best groups?</h2><p class="since">2002-03 on · every five-man unit with 25 minutes: minutes against its projection from parts</p><div id="quadbody"></div></div>`);
+  parts.push(`<div class="plate" id="mvi"><h2 class="sec">Who he trusts, and is he right</h2><p class="since">2002-03 on · minutes per game against impact, with the league's fair-minutes line for that season</p><div id="mvibody"></div></div>`);
+  parts.push(renderManagement());
+  parts.push(renderSplits());
+  parts.push(renderDiet());
+  parts.push(renderPlayTypes());
+  parts.push(renderFingerprint());
+  parts.push(renderArrival());
+  parts.push(renderDevelopment());
+  parts.push(renderStaff());
+  parts.push(renderComps());
+  parts.push(renderSeasons());
+  parts.push(renderScouting());
+  el.innerHTML = parts.join('');
+  wireCoach();
+  loadSeason(state.season);
+  const fb = document.querySelector('#fpplate .tab');
+  document.querySelectorAll('#fpplate [data-fp]').forEach(x => x.addEventListener('click', () => drawFingerprint(x.dataset.fp)));
+  if (fb) drawFingerprint(fb.dataset.fp); else drawFingerprint(null);
+}
+function renderHeader(){
+  const c = COACH, b = c.bio, at = c.career.all_time;
+  const since = c.career.g ? `${c.career.w}–${c.career.l} in the games here (1996-97 on)` : 'no games since 1996-97';
+  const bits = [];
+  if (b.born) bits.push(`born ${b.born}${b.birthplace ? ', ' + esc(b.birthplace) : ''}`);
+  if (b.college) bits.push(esc(b.college));
+  if (b.played) bits.push(`played ${b.player_games ? b.player_games + ' NBA games' : 'in the NBA'}`);
+  if (b.age_first_hc) bits.push(`first head job at ${b.age_first_hc}`);
+  if (b.assistant_seasons_before) bits.push(`${b.assistant_seasons_before} season${b.assistant_seasons_before === 1 ? '' : 's'} as an assistant before it`);
+  const badges = [];
+  if (at.titles) badges.push(`<span class="badge gold">${at.titles} title${at.titles > 1 ? 's' : ''}</span>`);
+  for (const y of at.coy) badges.push(`<span class="badge">Coach of the Year ${y}</span>`);
+  if (b.hof) badges.push('<span class="badge">Hall of Fame</span>');
+  if (b.stub) badges.push('<span class="badge">no Basketball-Reference page</span>');
+  return `<div class="plate"><div class="chead"><div class="cid"><h1 class="cname">${esc(c.name)}</h1><div class="cmeta">${bits.join(' · ')}${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}</div>
+    <div class="crec"><div class="st"><b>${at.w}–${at.l}</b>all-time regular season</div><div class="st"><b>${at.seasons}</b>seasons as head coach</div><div class="st"><b>${c.career.pw}–${c.career.pl}</b>playoffs, 1996-97 on</div><div class="st"><b>${at.po_seasons}</b>playoff seasons</div>${c.career.eligible ? `<div class="st"><b>${signed(c.career.w_talent_sum_raw)}</b>wins above talent</div><div class="st"><b>${signed(c.career.w_market_sum_raw)}</b>wins above the market</div>` : ''}</div>
+    <div class="badges">${badges.join('')}</div><div class="small" style="margin-top:8px">${since}.</div></div></div>${renderRibbon()}</div>`;
+}
+function renderRibbon(){
+  const c = COACH, rows = c.records.filter(r => r.lg === 'NBA' || r.lg === 'BAA' || r.lg === 'ABA');
+  if (!rows.length) return '';
+  const y0 = Math.min(...rows.map(r => +r.season.slice(0,4))), y1 = Math.max(...rows.map(r => +r.season.slice(0,4)));
+  const span = Math.max(1, y1 - y0 + 1), W = 1000, H = 60, x = y => 10 + (y - y0) * (W - 20) / span, w = (W - 20) / span;
+  let svg = `<svg class="ribbon" viewBox="0 0 ${W} ${H}" role="img" aria-label="career timeline">`;
+  for (const r of rows) {
+    const y = +r.season.slice(0,4); const t = r.team; const col = teamColor(t);
+    const pct = r.g ? r.w / r.g : 0;
+    svg += `<rect x="${x(y)}" y="12" width="${w - 1}" height="26" fill="${col}" opacity="${0.35 + 0.65 * pct}"><title>${r.season} ${esc(t)}: ${r.w}–${r.l}${r.pg ? `, playoffs ${r.pw}–${r.pl}` : ''}${r.remarks ? ' · ' + esc(r.remarks) : ''}</title></rect>`;
+    if (r.remarks && /Champions/.test(r.remarks) && /NBA|BAA/.test(r.remarks)) svg += `<circle cx="${x(y) + w/2}" cy="8" r="3" fill="#C2A263"/>`;
+  }
+  const labels = []; let last = null;
+  for (const r of rows) { if (r.team !== last) { labels.push([+r.season.slice(0,4), r.team]); last = r.team; } }
+  for (const [y, t] of labels) svg += `<text x="${x(y) + 2}" y="52" font-size="11" font-family="IBM Plex Mono" fill="#5B6878">${esc(t)} ${y}</text>`;
+  return svg + '</svg>';
+}
+function renderVerdict(){
+  const c = COACH, rows = c.seasons;
+  if (!rows.length) return '';
+  const W = 1000, H = 150, n = rows.length, bw = Math.min(60, (W - 60) / n), x0 = 40;
+  const y = v => 20 + (H - 50) * (1 - v / 82);
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  for (const g of [20, 41, 60]) svg += `<line x1="${x0}" x2="${W - 10}" y1="${y(g)}" y2="${y(g)}" stroke="#D9D6CF"/><text x="${x0 - 6}" y="${y(g) + 3}" font-size="9" text-anchor="end" fill="#8A95A3" font-family="IBM Plex Mono">${g}</text>`;
+  rows.forEach((s, i) => {
+    const x = x0 + 10 + i * bw; const w82 = s.g ? 82 * s.w / s.g : 0;
+    svg += `<rect x="${x}" y="${y(w82)}" width="${bw * .6}" height="${y(0) - y(w82)}" fill="${teamColor(s.team)}" opacity=".85"><title>${s.season} ${s.team}: ${s.w}–${s.l}${s.g < 82 ? ` (${w82.toFixed(1)} per 82)` : ''}</title></rect>`;
+    if (!miss(s.exp?.exp_w82)) svg += `<line x1="${x - 3}" x2="${x + bw * .6 + 3}" y1="${y(s.exp.exp_w82)}" y2="${y(s.exp.exp_w82)}" stroke="#22395A" stroke-width="2"><title>talent expected ${s.exp.exp_w82.toFixed(1)} wins per 82</title></line>`;
+    if (!miss(s.exp?.market_total)) svg += `<line x1="${x - 3}" x2="${x + bw * .6 + 3}" y1="${y(s.exp.market_total)}" y2="${y(s.exp.market_total)}" stroke="#BC3A2C" stroke-width="2" stroke-dasharray="3 2"><title>preseason win total ${s.exp.market_total}</title></line>`;
+    if (n <= 24 || i % 2 === 0) svg += `<text x="${x + bw * .3}" y="${H - 14}" font-size="9" text-anchor="middle" fill="#5B6878" font-family="IBM Plex Mono">${s.season.slice(2,4)}-${s.season.slice(5)}</text>`;
+    if (s.title) svg += `<text x="${x + bw * .3}" y="${y(w82) - 4}" font-size="10" text-anchor="middle" fill="#C2A263">★</text>`;
+  });
+  svg += '</svg>';
+  return `<div class="plate"><h2 class="sec">Does he beat what he's given?</h2><p class="since">wins per 82 (bars); the talent expectation (navy tick, 2003-04 on) and the preseason win total (red tick, 1996-97 on)</p>${svg}
+    <div class="legend"><span><span class="sw" style="background:#22395A"></span>talent: his roster's prior-season impact, before he touched it</span><span><span class="sw" style="background:#BC3A2C"></span>market: the sportsbooks' preseason over/under</span><span>★ title</span></div></div>`;
+}
+function renderCard(){
+  const c = COACH, cs = c.career.stats;
+  if (!c.career.eligible) return `<div class="plate"><h2 class="sec">Savant card</h2><p class="since">career stats are ranked only for head coaches with ${IDX.meta.rules.min_career_seasons}+ seasons and ${IDX.meta.rules.min_career_games}+ games since 1996-97</p><p class="small">${esc(c.name)} is below that line. His seasons carry the numbers below.</p></div>`;
+  let html = '';
+  for (const g of IDX.groups) {
+    const rows = IDX.stats.filter(s => s.group === g && cs[s.key]);
+    if (!rows.length) continue;
+    html += `<div class="cgroup">${esc(IDX.group_labels[g])}</div>`;
+    for (const s of rows) {
+      const v = cs[s.key]; const p = v.pct; const hatch = v.n < s.thr;
+      const col = s.kind === 'good' ? gradeColor(p) : muchColor();
+      html += `<div class="srow" data-stat="${s.key}" title="${esc(s.what)}"><span class="sl">${esc(s.label)}</span><span class="bar${hatch ? ' hatch' : ''}"><i style="width:${miss(p) ? 0 : p}%;background:${col}"></i><b style="left:50%"></b></span><span class="sv">${fmt(s.unit, v.v)}</span><span class="sp">${miss(p) ? '—' : p}</span></div>`;
+    }
+  }
+  const pools = [...new Set(Object.values(cs).map(v => v.pool).filter(Boolean))];
+  return `<div class="plate" id="card"><h2 class="sec">Savant card</h2><p class="since">career, games-weighted · percentile among head coaches with ${IDX.meta.rules.min_career_seasons}+ seasons and ${IDX.meta.rules.min_career_games}+ games in each stat's window (pools of ${pools.length ? Math.min(...pools) : '—'}–${pools.length ? Math.max(...pools) : '—'}) · click a row for what it is</p><div class="card">${html}</div>
+    <div class="legend"><span><span class="sw" style="background:#1C4E86"></span>poor</span><span><span class="sw" style="background:#BC3A2C"></span>elite (how good)</span><span><span class="sw" style="background:#C2A263"></span>a tendency (how much)</span><span><span class="sw" style="background:repeating-linear-gradient(135deg,#fff 0 3px,#C4C0B6 3px 6px)"></span>under its settle point</span></div></div>`;
+}
+function explain(key, after){
+  const s = STATS[key]; if (!s) return;
+  document.querySelectorAll('.expl').forEach(e => e.remove());
+  const v = COACH.career.stats[key];
+  const div = document.createElement('div'); div.className = 'expl';
+  div.innerHTML = `<b>${esc(s.label)}</b> <span class="k">${s.kind === 'good' ? 'how good' : 'how much'}${s.lower ? ' · lower is better' : ''} · from ${s.first}</span><br>${esc(s.what)}<br><span class="k">${esc(s.formula)}</span><br><span class="k">Source: ${esc(s.source)} · ${esc(s.sample)}${v ? ` · his sample ${v.n}, ${v.seasons} season${v.seasons === 1 ? '' : 's'}, pool ${v.pool}` : ''}</span>`;
+  after.insertAdjacentElement('afterend', div);
+}
+function wireCoach(){
+  document.querySelectorAll('.srow[data-stat]').forEach(r => r.addEventListener('click', () => explain(r.dataset.stat, r)));
+  document.querySelectorAll('#coach [data-coach]').forEach(x => x.addEventListener('click', () => location.hash = 'c=' + x.dataset.coach));
+  document.querySelectorAll('#coach table [data-season]').forEach(x => x.addEventListener('click', () => { state.season = x.dataset.season; state.game = null; loadSeason(state.season); document.getElementById('rotation').scrollIntoView({behavior:'smooth'}); }));
+}
+
+// ---------------------------------------------------------------- the team-season file: rotation, pairs, quadrant, minutes vs impact
+async function loadSeason(season){
+  const rb = document.getElementById('rotbody'), pb = document.getElementById('pairbody'), qb = document.getElementById('quadbody'), mb = document.getElementById('mvibody');
+  const srow = COACH.seasons.find(s => s.season === season && s.rotation);
+  if (!srow) { for (const el of [rb, pb, qb, mb]) el.innerHTML = '<div class="empty">no play-by-play seasons for him (the rotation data begins in 2002-03)</div>'; return; }
+  const key = `${srow.team}-${season}`;
+  rb.innerHTML = '<div class="empty">loading the season…</div>';
+  try {
+    const file = TCACHE[key] || (TCACHE[key] = await fetchJSON(`${BASE}/t/${key}.json`));
+    const entry = (file.coaches || []).find(e => e.coach === COACH.id);
+    if (!entry) throw new Error('no entry');
+    TFILE = {...entry, names: file.names, fair: file.fair, parts: file.parts, season: file.season, team: file.team};
+  }
+  catch (e) { rb.innerHTML = `<div class="empty">could not load ${key}</div>`; return; }
+  renderRotation(srow); renderPairs(srow); renderQuadrant(srow); renderMVI(srow);
+}
+function seasonTabs(extra){
+  const seasons = COACH.seasons.filter(s => s.rotation);
+  return `<div class="tabs">${seasons.map(s => `<button class="tab${s.season === state.season ? ' on' : ''}" data-season="${s.season}">${s.season} ${s.team}</button>`).join('')}${extra || ''}</div>`;
+}
+function wireSeasonTabs(root, srow){
+  root.querySelectorAll('[data-season]').forEach(x => x.addEventListener('click', () => { state.season = x.dataset.season; state.game = null; loadSeason(state.season); }));
+}
+function renderRotation(srow){
+  const t = TFILE, rb = document.getElementById('rotbody');
+  const view = state.kind === 'PO' && t.playoffs ? t.playoffs : t.rotation;
+  const rows = view.rows;
+  const rot = srow.rotation;
+  const bc = rot.by_cause || {};
+  rb.innerHTML = seasonTabs(`<span style="flex:1"></span><button class="tab${state.base === 'played' ? ' on' : ''}" data-base="played">games he played</button><button class="tab${state.base === 'all' ? ' on' : ''}" data-base="all">all games</button>${t.playoffs ? `<button class="tab${state.kind === 'PO' ? ' on' : ''}" data-kind="${state.kind === 'PO' ? 'RS' : 'PO'}">${state.kind === 'PO' ? 'back to the regular season' : 'playoffs'}</button>` : ''}`) +
+    `<div class="tiles" style="margin-bottom:12px">
+      <div class="tile"><div class="tl">On script</div><div class="tv">${miss(rot.off_script) ? '—' : (100 * (1 - rot.off_script)).toFixed(1) + '%'}</div><div class="ts">${srow.pct.stability ? ord(srow.pct.stability) + ' pct of ' + srow.season : 'not ranked'}</div></div>
+      <div class="tile"><div class="tl">Chosen deviation</div><div class="tv">${miss(bc.choice) ? '—' : (100 * bc.choice).toFixed(1) + '%'}</div><div class="ts">off-script with no absence, blowout or foul trouble</div></div>
+      <div class="tile"><div class="tl">After a loss vs a win</div><div class="tv">${miss(rot.after_loss) || miss(rot.after_win) ? '—' : signed(100 * (rot.after_loss - rot.after_win))}</div><div class="ts">points more off-script after a loss</div></div>
+      <div class="tile"><div class="tl">Rides the hot hand</div><div class="tv">${miss(rot.hot?.extra_q4) ? '—' : signed(rot.hot.extra_q4)}</div><div class="ts">extra Q4 minutes on ${rot.hot?.n ?? 0} hot nights · a tendency</div></div>
+      <div class="tile"><div class="tl">Depth</div><div class="tv">${rot.shape?.depth10 ?? '—'}</div><div class="ts">men at 10+ minutes a game</div></div>
+      <div class="tile"><div class="tl">First substitution</div><div class="tv">${miss(rot.shape?.first_sub) ? '—' : (rot.shape.first_sub / 60).toFixed(1)}</div><div class="ts">minutes into the game</div></div>
+      <div class="tile"><div class="tl">Closing five gap</div><div class="tv">${miss(view.closing?.gap) ? '—' : view.closing.gap.toFixed(1)}</div><div class="ts">Σ BPM below the best five available, ${view.closing?.gap_n ?? 0} close games</div></div>
+    </div>
+    <div class="rot"><div class="rotnames">${rows.map(r => `<div class="rotname" title="${esc(r.text)}">${esc(r.name)} <small>${r.mpg}</small></div>`).join('')}</div><div class="rotwrap"><canvas class="map" id="rotmap"></canvas></div></div>
+    <div class="legend"><span><span class="sw" style="background:#22395A"></span>never on</span><span><span class="sw" style="background:#C2A263"></span>always on</span><span>outline: his usual windows (60%+ of the games he played, minutes still in the balance)</span><span>${rows.length} men with 100+ minutes · ${view.games} games</span></div>
+    <div class="small" style="margin-top:8px">${rows.slice(0, 8).map(r => `<b>${esc(r.name.split(' ').slice(-1)[0])}</b>: ${esc(r.text)}`).join(' · ')}</div>
+    <h3 class="lead-h" style="margin-top:16px">Game by game: how much went off-script, and why</h3>
+    <div class="gbars" id="gbars">${view.game_rows.map((g, i) => `<div class="gbar${state.game === i ? ' sel' : ''}" data-i="${i}" title="${g.date} ${g.home ? 'vs' : '@'} ${g.opp} ${g.margin > 0 ? 'W' : 'L'} ${Math.abs(g.margin)} · ${(100 * g.share).toFixed(0)}% off-script">${CAUSES.map((c, k) => `<i style="height:${g.scripted ? Math.min(100, 100 * g.causes[k] / g.scripted / 0.6) : 0}%;background:${CAUSE_C[c]}"></i>`).join('')}</div>`).join('')}</div>
+    <div class="legend">${CAUSES.map(c => `<span><span class="sw" style="background:${CAUSE_C[c]}"></span>${c === 'foul' ? 'foul trouble' : c}: ${miss(bc[c]) ? '—' : (100 * bc[c]).toFixed(1) + '%'}</span>`).join('')}<span>bar height: share of the game's scripted minutes off script (60% = full height) · click a game to lay its stints over the map</span></div>
+    <div class="ginfo" id="ginfo">no game selected</div>
+    ${state.kind === 'RS' && t.rotation.months && Object.keys(t.rotation.months).length ? `<h3 class="lead-h" style="margin-top:16px">How it evolved</h3><div class="months">${Object.keys(t.rotation.months).map(mo => `<div class="month"><h4>${mo}</h4><canvas class="map" data-month="${mo}"></canvas></div>`).join('')}</div>` : ''}`;
+  drawMap(document.getElementById('rotmap'), rows, state.base, true, state.game !== null ? view.game_rows[state.game] : null);
+  rb.querySelectorAll('canvas[data-month]').forEach(cv => {
+    const map = t.rotation.months[cv.dataset.month];
+    const mrows = rows.filter(r => map[r.id]).map(r => ({...r, played: map[r.id], all: map[r.id], windows: []}));
+    drawMap(cv, mrows, 'played', false, null, 6);
+  });
+  rb.querySelectorAll('[data-base]').forEach(b => b.addEventListener('click', () => { state.base = b.dataset.base; renderRotation(srow); }));
+  rb.querySelectorAll('[data-kind]').forEach(b => b.addEventListener('click', () => { state.kind = b.dataset.kind; state.game = null; renderRotation(srow); }));
+  wireSeasonTabs(rb, srow);
+  rb.querySelectorAll('.gbar').forEach(b => b.addEventListener('click', () => {
+    const i = +b.dataset.i; state.game = state.game === i ? null : i; renderRotation(srow);
+    const g = view.game_rows[i];
+    document.getElementById('ginfo').textContent = state.game === null ? 'no game selected' : `${g.date} ${g.home ? 'vs' : '@'} ${g.opp}, ${g.margin > 0 ? 'won' : 'lost'} by ${Math.abs(g.margin)}${g.ot ? ' in OT' : ''}: ${(100 * g.share).toFixed(0)}% of scripted minutes off script (${CAUSES.map((c, k) => `${c === 'foul' ? 'foul trouble' : c} ${g.causes[k]}`).join(', ')} of ${g.scripted} player-minutes)${g.garbage ? ' · garbage time' : ''}. Red marks: who was actually on the floor.`;
+  }));
+}
+function drawMap(cv, rows, base, outline, game, cell){
+  const n = rows.length; if (!n) { cv.width = 1; cv.height = 1; return; }
+  const CW = cell || 20, CH = cell || 22, W = 48 * CW, H = n * CH;
+  cv.width = W; cv.height = H; cv.style.height = cell ? (n * CH) + 'px' : '';
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#22395A'; ctx.fillRect(0, 0, W, H);
+  rows.forEach((r, i) => {
+    const arr = base === 'all' ? r.all : r.played;
+    for (let m = 0; m < 48; m++) {
+      const v = (arr[m] || 0) / 100;
+      ctx.fillStyle = mix('#22395A', '#C2A263', Math.pow(v, 0.9)); ctx.fillRect(m * CW, i * CH, CW, CH);
+    }
+    if (outline) for (const [a, b] of r.windows || []) { ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 1.5; ctx.strokeRect(a * CW + .75, i * CH + 1.5, (b - a + 1) * CW - 1.5, CH - 3); }
+  });
+  ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1;
+  for (let q = 1; q < 4; q++) { ctx.beginPath(); ctx.moveTo(q * 12 * CW + .5, 0); ctx.lineTo(q * 12 * CW + .5, H); ctx.stroke(); }
+  if (game && game.iv) {
+    rows.forEach((r, i) => {
+      const iv = game.iv[r.id] || game.iv[String(r.id)]; if (!iv) return;
+      ctx.fillStyle = 'rgba(188,58,44,.9)';
+      for (const [a, b] of iv) { const x0 = Math.min(W, a / 60 * CW), x1 = Math.min(W, b / 60 * CW); ctx.fillRect(x0, i * CH + CH - 5, Math.max(1, x1 - x0), 4); }
+    });
+  }
+}
+function renderPairs(srow){
+  const t = TFILE, pb = document.getElementById('pairbody');
+  const men = t.men.slice(0, 12); if (men.length < 2) { pb.innerHTML = seasonTabs() + '<div class="empty">not enough men with 100 minutes</div>'; wireSeasonTabs(pb, srow); return; }
+  const on = Object.fromEntries(men.map(p => [p, (t.onoff || {})[p] || (t.onoff || {})[String(p)]]));
+  const pair = {}; for (const [a, b, min, est, adj, poss] of t.matrix) { pair[a + '|' + b] = pair[b + '|' + a] = {min, est, adj, poss}; }
+  const name = p => (t.names[p] || t.names[String(p)] || p + '').split(' ').slice(-1)[0];
+  const minOf = p => on[p]?.on?.min || 1;
+  const vals = t.matrix.map(x => x[3]).filter(v => !miss(v)); const lo = Math.min(...vals, -5), hi = Math.max(...vals, 5);
+  let html = '<div class="scroll"><table class="matrix"><thead><tr><th></th>' + men.map(p => `<th>${esc(name(p))}</th>`).join('') + '</tr></thead><tbody>';
+  men.forEach((a, i) => {
+    html += `<tr><th>${esc(name(a))}</th>`;
+    men.forEach((b, j) => {
+      if (i === j) { html += '<td class="d"></td>'; return; }
+      const x = pair[a + '|' + b];
+      if (!x) { html += '<td class="d" style="background:#F7F6F2"></td>'; return; }
+      if (j > i) { const sh = Math.min(1, x.min / minOf(a)); html += `<td class="c" data-a="${a}" data-b="${b}" style="background:${mix('#ECEBE8', '#22395A', sh)};color:${sh > .5 ? '#fff' : '#1A2332'}" title="${name(a)} with ${name(b)}: ${x.min} min, ${(100 * sh).toFixed(0)}% of ${name(a)}'s minutes">${(100 * sh).toFixed(0)}</td>`; }
+      else { const v = x.est; const tt = miss(v) ? .5 : (v - lo) / (hi - lo); html += `<td class="c" data-a="${a}" data-b="${b}" style="background:${miss(v) ? '#E4E1D9' : (tt < .5 ? mix('#1C4E86', '#E4E1D9', tt * 2) : mix('#E4E1D9', '#BC3A2C', (tt - .5) * 2))};color:${Math.abs(tt - .5) > .3 ? '#fff' : '#1A2332'}" title="${name(a)} + ${name(b)}: net ${signed(x.adj)} luck-adjusted, ${signed(x.est)} sample-adjusted over ${x.poss} possessions">${miss(v) ? '' : signed(v, 0)}</td>`; }
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  const st = t.stagger || {};
+  const stag = st['2'] ? `<div class="small" style="margin-top:8px">Stagger: his top two (${st['2'].ids.map(name).join(' and ')}) share the floor ${(100 * st['2'].together).toFixed(0)}% of the time, exactly one of them is on ${(100 * st['2'].apart).toFixed(0)}%, neither ${(100 * st['2'].none).toFixed(0)}%.${st['3'] ? ` Top three together ${(100 * st['3'].together).toFixed(0)}%.` : ''}</div>` : '';
+  pb.innerHTML = seasonTabs() + html + stag + '<div class="pairinfo" id="pairinfo">Click a cell for the full With / Without.</div>';
+  pb.querySelectorAll('td.c').forEach(td => td.addEventListener('click', () => {
+    const a = td.dataset.a, b = td.dataset.b; const x = pair[a + '|' + b]; const oa = on[a] || on[+a], ob = on[b] || on[+b];
+    const line = (o, nm) => o ? `<b>${esc(nm)}</b>: on ${o.on.min} min, net ${signed(o.on.adj)} (ORtg ${o.on.ortg}, DRtg ${o.on.drtg}); off ${signed(o.off?.adj)} → with/without ${signed(o.diff)}` : `<b>${esc(nm)}</b>: —`;
+    document.getElementById('pairinfo').innerHTML = `${line(oa, t.names[a] || a)}<br>${line(ob, t.names[b] || b)}<br><b>Together</b>: ${x.min} min, ${x.poss} possessions, net ${signed(x.adj)} luck-adjusted, ${signed(x.est)} once pulled toward the team's ${signed(t.team_rates?.adj)} by k = 1,221 possessions.<br><span class="small">Luck: opponents' 3P% and FT% set to league average. Sample: the Lineups tab's k, measured from split-season reliability.</span>`;
+  }));
+  wireSeasonTabs(pb, srow);
+}
+function renderQuadrant(srow){
+  const t = TFILE, qb = document.getElementById('quadbody');
+  const units = t.units5.filter(u => !miss(u.proj));
+  if (!units.length) { qb.innerHTML = seasonTabs() + '<div class="empty">no projections for this season (a man without a card has no impact number)</div>'; wireSeasonTabs(qb, srow); return; }
+  const name = p => (t.names[p] || t.names[String(p)] || p + '').split(' ').slice(-1)[0];
+  const W = 760, H = 380, mins = units.map(u => u.min), projs = units.map(u => u.proj);
+  const xmax = Math.max(...mins) * 1.05, ylo = Math.min(...projs) - 2, yhi = Math.max(...projs) + 2;
+  const x = v => 50 + (W - 70) * v / xmax, y = v => 20 + (H - 60) * (1 - (v - ylo) / (yhi - ylo));
+  const midm = Math.max(60, (Math.max(...mins) + 25) / 3), midp = units.reduce((s, u) => s + u.proj * u.min, 0) / units.reduce((s, u) => s + u.min, 0);
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  svg += `<line x1="${x(midm)}" x2="${x(midm)}" y1="20" y2="${H-40}" stroke="#D9D6CF" stroke-dasharray="4 3"/><line x1="50" x2="${W-20}" y1="${y(midp)}" y2="${y(midp)}" stroke="#D9D6CF" stroke-dasharray="4 3"/>`;
+  const lab = (tx, ty, s, anchor) => `<text x="${tx}" y="${ty}" font-size="10" fill="#8A95A3" font-family="IBM Plex Mono" text-anchor="${anchor}">${s}</text>`;
+  svg += lab(W - 22, 32, 'rode it, it should work', 'end') + lab(W - 22, H - 46, 'rode it, the parts say no', 'end') + lab(54, 32, 'left on the table', 'start') + lab(54, H - 46, 'rightly benched', 'start');
+  for (const u of units) {
+    const r = 3 + Math.sqrt(u.poss) / 6;
+    svg += `<circle cx="${x(u.min)}" cy="${y(u.proj)}" r="${r}" fill="${u.adj > u.proj ? '#BC3A2C' : '#22395A'}" opacity=".7"><title>${u.ids.map(name).join(' · ')}\n${u.min} min, ${u.poss} poss · projected ${signed(u.proj)} · played ${signed(u.adj)} luck-adjusted, ${signed(u.est)} sample-adjusted · Σ BPM ${u.sum_bpm}${u.oppq != null ? ` · opposing fives Σ BPM ${u.oppq}` : ''}</title></circle>`;
+  }
+  svg += lab(W / 2, H - 8, 'minutes together', 'middle') + `<text transform="translate(14 ${H/2}) rotate(-90)" font-size="10" fill="#8A95A3" font-family="IBM Plex Mono" text-anchor="middle">projected net, from the parts</text>`;
+  svg += '</svg>';
+  const left = units.filter(u => u.min < midm && u.proj > midp).sort((a, b) => b.proj - a.proj).slice(0, 5);
+  const rode = units.filter(u => u.min >= midm && u.proj < midp).sort((a, b) => b.min - a.min).slice(0, 5);
+  const list = (arr, title) => `<div><h4 style="margin:0 0 4px;font-family:var(--mono);font-size:10.5px;color:var(--faint);text-transform:uppercase">${title}</h4>${arr.map(u => `<div class="small">${u.ids.map(name).join(', ')} — ${u.min} min, projected ${signed(u.proj)}, played ${signed(u.adj)}</div>`).join('') || '<div class="empty">none</div>'}</div>`;
+  const lt = srow.rotation?.left_table;
+  qb.innerHTML = seasonTabs() + `<div class="grid2"><div>${svg}</div><div>${list(left, 'Projected strong, barely played')}<br>${list(rode, 'Kept riding, the parts say no')}<div class="small" style="margin-top:10px">Minutes-weighted gap to his best used arrangement: <b>${miss(lt) ? '—' : lt.toFixed(1)}</b> points per 100${srow.pct.left_table ? ` (${ord(srow.pct.left_table)} pct of ${srow.season}, lower is better)` : ''}. Red: played better than projected; navy: worse. ${esc(IDX.meta.model_note)}</div></div></div>`;
+  wireSeasonTabs(qb, srow);
+}
+function renderMVI(srow){
+  const t = TFILE, mb = document.getElementById('mvibody');
+  const pl = (t.mvi?.players || []).filter(p => !miss(p.bpm));
+  if (!pl.length) { mb.innerHTML = seasonTabs() + '<div class="empty">no impact numbers for this season</div>'; wireSeasonTabs(mb, srow); return; }
+  const W = 760, H = 340, xs = pl.map(p => p.bpm), xlo = Math.min(-8, ...xs) - 1, xhi = Math.max(8, ...xs) + 1;
+  const x = v => 50 + (W - 70) * (v - xlo) / (xhi - xlo), y = v => 20 + (H - 60) * (1 - v / 42);
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  if (t.fair) { const pts = t.fair.filter(([b]) => b >= xlo && b <= xhi); if (pts.length) { const d = pts.map(([b, m], i) => `${i ? 'L' : 'M'}${x(b)},${y(m)}`).join(' '); svg += `<path d="${d}" fill="none" stroke="#C2A263" stroke-width="2" stroke-dasharray="5 3"/><text x="${x(xhi) - 4}" y="${y(pts[pts.length-1][1]) - 6}" font-size="10" fill="#C2A263" text-anchor="end" font-family="IBM Plex Mono">fair minutes, league ${srow.season}</text>`; } }
+  for (const g of [10, 20, 30]) svg += `<line x1="50" x2="${W-20}" y1="${y(g)}" y2="${y(g)}" stroke="#ECEBE8"/><text x="44" y="${y(g)+3}" font-size="9" text-anchor="end" fill="#8A95A3" font-family="IBM Plex Mono">${g}</text>`;
+  svg += `<line x1="${x(0)}" x2="${x(0)}" y1="20" y2="${H-40}" stroke="#ECEBE8"/>`;
+  for (const p of pl) {
+    const young = p.age != null && p.age <= 23.5; const r = 3 + Math.sqrt(p.gp) / 2;
+    svg += `<circle cx="${x(p.bpm)}" cy="${y(p.mpg)}" r="${r}" fill="${young ? '#BC3A2C' : '#22395A'}" opacity=".75"><title>${esc(p.name)}: ${p.mpg} mpg over ${p.gp} games, BPM ${p.bpm}${p.age ? `, age ${p.age.toFixed(1)}` : ''}${p.arch ? `, ${p.arch}` : ''}</title></circle>`;
+    if (p.mpg >= 20 || young) svg += `<text x="${x(p.bpm) + r + 2}" y="${y(p.mpg) + 3}" font-size="9.5" fill="#5B6878" font-family="IBM Plex Sans">${esc(p.name.split(' ').slice(-1)[0])}</text>`;
+  }
+  svg += `<text x="${W/2}" y="${H-8}" font-size="10" fill="#8A95A3" font-family="IBM Plex Mono" text-anchor="middle">impact (BPM, as on his card)</text><text transform="translate(14 ${H/2}) rotate(-90)" font-size="10" fill="#8A95A3" font-family="IBM Plex Mono" text-anchor="middle">minutes per game</text></svg>`;
+  const mv = srow.mvi || {}, ro = srow.rotation || {};
+  mb.innerHTML = seasonTabs() + svg + `<div class="legend"><span><span class="sw" style="background:#BC3A2C;border-radius:50%"></span>23 and under</span><span>minutes to 23-and-under: ${miss(mv.young_min_share) ? '—' : (100 * mv.young_min_share).toFixed(1) + '%'} (their BPM ${miss(mv.young_bpm) ? '—' : mv.young_bpm})</span><span>rookies: ${miss(mv.rookie_min_share) ? '—' : (100 * mv.rookie_min_share).toFixed(1) + '%'}</span><span>overplayed minutes above the fair line: ${miss(ro.overplay) ? '—' : ro.overplay.toFixed(1)} per game${srow.pct.overplay ? ` (${ord(srow.pct.overplay)} pct, lower is better)` : ''}</span></div>`;
+  wireSeasonTabs(mb, srow);
+}
+
+// ---------------------------------------------------------------- game management
+function ci(n){ if (!n) return ''; const se = 1.1 / Math.sqrt(n); return ` ±${(1.96 * se).toFixed(2)}`; }
+function renderManagement(){
+  const c = COACH, cs = c.career.stats, S = COACH.seasons.filter(s => s.management);
+  if (!S.length) return `<div class="plate"><h2 class="sec">Game management</h2><p class="since">2002-03 on</p><div class="empty">no play-by-play seasons for him</div></div>`;
+  const tile = (key, extra) => { const s = STATS[key], v = cs[key]; if (!s) return ''; return `<div class="tile" title="${esc(s.what)}"><div class="tl">${esc(s.label)}</div><div class="tv">${v ? fmt(s.unit, v.v) : '—'}<span style="font-size:12px;color:var(--faint)">${extra || ''}</span></div><div class="ts">${v && !miss(v.pct) ? `${ord(v.pct)} pct of ${v.pool}` : v ? 'not ranked' : 'no value'}${v && v.n < s.thr ? ' · small sample' : ''}</div></div>`; };
+  const ch = S.reduce((a, s) => { const x = s.management.challenges || {}; for (const k in x) a[k] = (a[k] || 0) + x[k]; return a; }, {});
+  const runs = S.reduce((a, s) => { for (const [k, r] of Object.entries(s.management.runs || {})) { a[k] = a[k] || {to:[0,0], no:[0,0], lg:[0,0]}; if (r.to_ppp != null) { a[k].to[0] += r.to_ppp * r.to_n; a[k].to[1] += r.to_n; } if (r.no_ppp != null) { a[k].no[0] += r.no_ppp * r.no_n; a[k].no[1] += r.no_n; } const lg = IDX.league[s.season]?.runs?.[k]; if (lg != null && r.to_n) { a[k].lg[0] += lg * r.to_n; a[k].lg[1] += r.to_n; } } return a; }, {});
+  const runRows = Object.entries(runs).map(([k, r]) => `<tr><td>Opponent run of ${k.replace('-', '–').replace(/–$/, '+')}</td><td>${r.to[1] ? (r.to[0] / r.to[1]).toFixed(2) + ci(r.to[1]) : '—'}</td><td>${r.to[1]}</td><td>${r.no[1] ? (r.no[0] / r.no[1]).toFixed(2) : '—'}</td><td>${r.no[1]}</td><td>${r.lg[1] ? (r.lg[0] / r.lg[1]).toFixed(2) : '—'}</td></tr>`).join('');
+  return `<div class="plate"><h2 class="sec">How he manages games</h2><p class="since">2002-03 on · challenges 2019-20 on · percentiles are career, in the Savant card's pool</p>
+    <div class="tiles">${tile('to_g')}${tile('to_run')}${tile('unused')}${tile('run_stop')}${tile('ato', cs.ato ? ci(cs.ato.n) : '')}${tile('ato_vs')}${tile('ato_late', cs.ato_late ? ci(cs.ato_late.n) : '')}${tile('ato_d')}${tile('halftime')}${tile('ch_g')}${tile('ch_success')}${tile('ch_q4')}${tile('foul_up3')}${tile('two41')}${tile('eoq')}${tile('chase')}${tile('adv_to')}${tile('clutch_net')}</div>
+    <div class="grid2" style="margin-top:14px"><div><h3 class="lead-h">Do his timeouts stop runs?</h3><p class="lead-p">opponent points per possession over the next five possessions</p><div class="scroll"><table class="t"><thead><tr><th></th><th>after his timeout</th><th>n</th><th>no timeout, his games</th><th>n</th><th>league, no timeout</th></tr></thead><tbody>${runRows || '<tr><td colspan="6" class="empty">no runs</td></tr>'}</tbody></table></div><div class="small">Runs cool off on their own; the comparison is the league's figure for runs of the same size with no timeout called, weighted by his timeouts. Intervals are ±1.96 standard errors at 1.1 points of spread per possession.</div></div>
+    <div><h3 class="lead-h">Challenges</h3><p class="lead-p">2019-20 on</p>${ch.n ? `<div class="small">${ch.n} challenges: ${ch.overturned || 0} overturned, ${ch.supported || 0} upheld, ${ch.stands || 0} stood${ch.unknown ? `, ${ch.unknown} without a logged result` : ''}; ${ch.q4 || 0} in the fourth or overtime; ${ch.to_lost || 0} cost a timeout.</div>` : '<div class="empty">none in his seasons</div>'}
+    <h3 class="lead-h" style="margin-top:12px">Halftime</h3><p class="lead-p">third-quarter net minus first-half net, per season; the tick is the league's typical change</p>${S.map(s => { const v = s.management.halftime || 0, lg = IDX.league[s.season]?.halftime || 0; return `<div class="srl"><span>${s.season} ${s.team}</span><span class="sb"><i style="left:${v >= 0 ? 50 : 50 - Math.min(50, Math.abs(v) * 3)}%;width:${Math.min(50, Math.abs(v) * 3)}%;background:${v >= 0 ? '#BC3A2C' : '#1C4E86'}"></i><b style="left:${50 + Math.max(-50, Math.min(50, 3 * lg))}%"></b></span><span class="sn">${signed(s.management.halftime)}</span></div>`; }).join('')}</div></div></div>`;
+}
+
+// ---------------------------------------------------------------- context splits
+const SPLIT_LABELS = {opp_tier:'opponent as of that night', opp_final:'opponent by season end', opp_playoff:'playoff teams', home:'home and away', rest:'rest', three_in_four:'3 in 4 nights', trip:'road trip game', travel:'miles travelled', tz:'time zones crossed', altitude:'altitude', missing:'regulars missing (impact)', starters:'starting five', half:'at the half', market:'the market', phase:'season phase', ot:'overtime'};
+const ORDER = {opp_tier:['top10','middle','bottom10'], rest:['b2b','1 day','2 days','3+ days'], trip:['1','2','3+'], travel:['0','<500','500-1500','1500+'], tz:['0','1','2+'], missing:['none','<5','5+'], phase:['first10','pre_asb','post_asb','last10'], half:['leading','tied','trailing'], market:['favoured','pick','underdog']};
+function renderSplits(){
+  const S = COACH.seasons.filter(s => s.splits && s.g >= 20);
+  if (!S.length) return '';
+  const agg = {};
+  for (const s of S) for (const [split, buckets] of Object.entries(s.splits)) {
+    if (!buckets || typeof buckets !== 'object' || ['tempo','market_n','wp','officials','fouls'].includes(split)) continue;
+    for (const [b, v] of Object.entries(buckets)) {
+      if (!v || v.net == null || s.net == null) continue;
+      const a = (agg[split] = agg[split] || {}); const x = (a[b] = a[b] || {g:0, w:0, gap:0, lg:0});
+      x.g += v.g; x.w += v.w; x.gap += (v.net - s.net) * v.g; const lg = IDX.league[s.season]?.split_gaps?.[split]?.[b]; if (lg != null) x.lg += lg * v.g;
+    }
+  }
+  const panels = Object.entries(agg).map(([split, buckets]) => {
+    const order = ORDER[split] || Object.keys(buckets).sort();
+    const rows = order.filter(b => buckets[b]).map(b => { const x = buckets[b]; const gap = x.gap / x.g, lg = x.lg / x.g; return `<div class="srl" title="${x.w}–${x.g - x.w}, net ${signed(gap)} vs his season's net; the league's typical gap ${signed(lg)}"><span>${esc(b)} <small style="color:var(--faint)">${x.g}</small></span><span class="sb"><i style="left:${gap >= 0 ? 50 : 50 - Math.min(50, Math.abs(gap) * 2.5)}%;width:${Math.min(50, Math.abs(gap) * 2.5)}%;background:${gap >= 0 ? '#BC3A2C' : '#1C4E86'}"></i><b style="left:${50 + Math.max(-50, Math.min(50, lg * 2.5))}%"></b></span><span class="sn">${signed(gap)}</span></div>`; }).join('');
+    return `<div class="split"><h4>${SPLIT_LABELS[split] || split}</h4>${rows}</div>`;
+  }).join('');
+  const tc = S.filter(s => s.splits.tempo?.toward_own != null);
+  const tempo = tc.length ? tc.reduce((a, s) => a + s.splits.tempo.toward_own * s.splits.tempo.n, 0) / tc.reduce((a, s) => a + s.splits.tempo.n, 0) : null;
+  const wp = S.reduce((a, s) => { const w = s.splits.wp || {}; a.g += w.games || 0; a.cb += w.comebacks || 0; a.bl += w.blown || 0; a.cb10 += w.comeback10 || 0; a.bl10 += w.blown10 || 0; return a; }, {g:0,cb:0,bl:0,cb10:0,bl10:0});
+  const offs = {}; for (const s of S) for (const [o, g, w, f] of s.splits.officials || []) { const x = offs[o] = offs[o] || [0,0,0]; x[0] += g; x[1] += w; x[2] += f * g; }
+  const topo = Object.entries(offs).sort((a, b) => b[1][0] - a[1][0]).slice(0, 8).map(([o, [g, w, f]]) => `<tr><td>${esc(o)}</td><td>${g}</td><td>${w}–${g - w}</td><td>${(f / g).toFixed(1)}</td></tr>`).join('');
+  return `<div class="plate"><h2 class="sec">Situation by situation</h2><p class="since">1996-97 on; play-by-play splits 2002-03 on; the market 2015-16 on · each bar is his net rating in that bucket minus his net that season, games-weighted over his career; the tick is the league's typical gap</p>
+    <div class="splits">${panels}</div>
+    <div class="grid3" style="margin-top:14px"><div class="tile"><div class="tl">Tempo control</div><div class="tv">${miss(tempo) ? '—' : (100 * tempo).toFixed(0) + '%'}</div><div class="ts">where the game's pace sat between his usual pace (100) and the opponent's (0)</div></div>
+    <div class="tile"><div class="tl">Comebacks and blown leads</div><div class="tv">${wp.cb10} / ${wp.bl10}</div><div class="ts">won from 10 down / lost from 10 up${wp.g ? `; by win probability (${wp.g} games): ${wp.cb} from under 10%, ${wp.bl} from over 90%` : ''}</div></div>
+    <div><h4 style="margin:0 0 4px;font-family:var(--mono);font-size:10.5px;color:var(--faint);text-transform:uppercase">officials he has seen most</h4><div class="scroll"><table class="t"><thead><tr><th>crew member</th><th>g</th><th>record</th><th>fouls called</th></tr></thead><tbody>${topo || '<tr><td class="empty">—</td></tr>'}</tbody></table></div></div></div></div>`;
+}
+
+// ---------------------------------------------------------------- shot diet and play types
+function court(diet, lgDiet, title){
+  const W = 300, H = 290, sx = W / 50, hoop = {x: W / 2, y: 40};
+  const shade = (k) => { const v = diet?.[k]?.[0], l = lgDiet?.[k]; if (v == null) return '#ECEBE8'; const d = l != null ? (v - l) / Math.max(0.02, l) : 0; return d >= 0 ? mix('#F7F6F2', '#C2A263', Math.min(1, d)) : mix('#F7F6F2', '#1C4E86', Math.min(1, -d)); };
+  const txt = (k, x, y) => { const v = diet?.[k]?.[0], l = lgDiet?.[k], fg = diet?.[k]?.[1]; return `<text x="${x}" y="${y}" font-size="10" text-anchor="middle" font-family="IBM Plex Mono" fill="#1A2332">${v == null ? '—' : (100 * v).toFixed(0) + '%'}</text><text x="${x}" y="${y + 11}" font-size="8.5" text-anchor="middle" font-family="IBM Plex Mono" fill="#8A95A3">${l == null ? '' : 'lg ' + (100 * l).toFixed(0) + '%'}${fg == null ? '' : ' · ' + (100 * fg).toFixed(0) + ' FG%'}</text>`; };
+  const r3 = 23.75 * sx, ra = 4 * sx;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" style="max-width:320px">
+    <rect x="0" y="0" width="${W}" height="${H}" fill="${shade('ab3')}"/>
+    <rect x="0" y="0" width="${3 * sx}" height="${14 * sx}" fill="${shade('c3')}"/><rect x="${W - 3 * sx}" y="0" width="${3 * sx}" height="${14 * sx}" fill="${shade('c3')}"/>
+    <path d="M${3 * sx},${14 * sx} A${r3},${r3} 0 0 0 ${W - 3 * sx},${14 * sx} L${W - 3 * sx},0 L${3 * sx},0 Z" fill="${shade('mid')}"/>
+    <rect x="${W/2 - 8 * sx}" y="0" width="${16 * sx}" height="${19 * sx}" fill="${shade('paint')}"/>
+    <circle cx="${hoop.x}" cy="${hoop.y}" r="${ra}" fill="${shade('ra')}"/>
+    <path d="M${3 * sx},${14 * sx} A${r3},${r3} 0 0 0 ${W - 3 * sx},${14 * sx}" fill="none" stroke="#22395A" stroke-width="1.5"/><line x1="${3 * sx}" y1="0" x2="${3 * sx}" y2="${14 * sx}" stroke="#22395A" stroke-width="1.5"/><line x1="${W - 3 * sx}" y1="0" x2="${W - 3 * sx}" y2="${14 * sx}" stroke="#22395A" stroke-width="1.5"/>
+    <rect x="${W/2 - 8 * sx}" y="0" width="${16 * sx}" height="${19 * sx}" fill="none" stroke="#22395A" stroke-width="1.5"/><circle cx="${hoop.x}" cy="${hoop.y}" r="${ra}" fill="none" stroke="#22395A"/><circle cx="${hoop.x}" cy="${hoop.y}" r="4" fill="none" stroke="#BC3A2C"/>
+    ${txt('ra', hoop.x, hoop.y + 32)}${txt('paint', hoop.x, 19 * sx - 18)}${txt('mid', hoop.x, 19 * sx + 42)}${txt('c3', 1.5 * sx + 14, 14 * sx + 28)}${txt('ab3', hoop.x, H - 26)}
+    <text x="${W/2}" y="${H - 6}" font-size="10" text-anchor="middle" font-family="IBM Plex Mono" fill="#5B6878">${title}</text></svg>`;
+}
+function renderDiet(){
+  const S = COACH.seasons.filter(s => s.identity?.diet);
+  if (!S.length) return '';
+  const wavg = (pick) => { const acc = {}; for (const s of S) for (const z of Z) { const v = pick(s)?.[z]; if (!v || v[0] == null) continue; const a = acc[z] = acc[z] || [0,0,0,0]; a[0] += v[0] * s.g; a[1] += s.g; if (v[1] != null) { a[2] += v[1] * v[0] * s.g; a[3] += v[0] * s.g; } } return Object.fromEntries(Object.entries(acc).map(([z, a]) => [z, [a[0] / a[1], a[3] ? a[2] / a[3] : null]])); };
+  const lgavg = (key) => { const acc = {}; for (const s of S) for (const z of Z) { const v = IDX.league[s.season]?.[key]?.[z]; if (v == null) continue; const a = acc[z] = acc[z] || [0,0]; a[0] += v * s.g; a[1] += s.g; } return Object.fromEntries(Object.entries(acc).map(([z, a]) => [z, a[0] / a[1]])); };
+  return `<div class="plate"><h2 class="sec">What he hunts, and what he takes away</h2><p class="since">2002-03 on · share of field-goal attempts by zone, his career (games-weighted) against the league of the same seasons; gold more than the league, blue less</p>
+    <div class="grid2"><div>${court(wavg(s => s.identity.diet), lgavg('diet'), 'his teams\' shots')}</div><div>${court(wavg(s => s.identity.o_diet), lgavg('o_diet'), 'what opponents got')}</div></div></div>`;
+}
+function renderPlayTypes(){
+  const S = COACH.seasons.filter(s => s.nba?.synergy);
+  if (!S.length) return '';
+  const side = (k, title) => {
+    const acc = {};
+    for (const s of S) for (const [pt, v] of Object.entries(s.nba.synergy[k] || {})) { const a = acc[pt] = acc[pt] || [0,0,0,0,0]; a[0] += v[0] * s.g; a[1] += s.g; a[2] += v[1] * v[2]; a[3] += v[2]; const lg = IDX.league[s.season]?.synergy?.[k]?.[pt]; if (lg) { a[4] += lg[0] * s.g; } }
+    const rows = Object.entries(acc).map(([pt, a]) => ({pt, freq: a[0] / a[1], ppp: a[3] ? a[2] / a[3] : null, lg: a[4] / a[1]})).sort((x, y) => y.freq - x.freq);
+    return `<div><h3 class="lead-h">${title}</h3><p class="lead-p">frequency vs the league (bar), points per possession (number)</p>${rows.map(r => { const d = r.freq - r.lg; return `<div class="srl" title="${PT[r.pt]}: ${r.freq.toFixed(1)}% of possessions, league ${r.lg.toFixed(1)}%, ${r.ppp?.toFixed(2)} points per possession"><span>${PT[r.pt] || r.pt}</span><span class="sb"><i style="left:${d >= 0 ? 50 : 50 - Math.min(50, Math.abs(d) * 6)}%;width:${Math.min(50, Math.abs(d) * 6)}%;background:${d >= 0 ? '#C2A263' : '#8A95A3'}"></i><b style="left:50%"></b></span><span class="sn">${r.ppp == null ? '—' : r.ppp.toFixed(2)}</span></div>`; }).join('')}</div>`;
+  };
+  return `<div class="plate"><h2 class="sec">How his teams score and defend, by play type</h2><p class="since">2015-16 on · Synergy, team tables; a season with two coaches shares the team's table</p><div class="grid2">${side('o', 'Offense')}${side('d', 'Defense (allowed)')}</div></div>`;
+}
+
+// ---------------------------------------------------------------- fingerprint, comps, arrival, development
+function renderFingerprint(){
+  const fp = COACH.fingerprint; if (!fp || Object.keys(fp).length < 6) return '';
+  const mentor = COACH.lineage?.mentor;
+  return `<div class="plate" id="fpplate"><h2 class="sec">What his teams look like</h2><p class="since">tendencies only, as season percentiles averaged over his career · overlay: <span id="fpwho"></span></p>
+    <div class="tabs">${mentor ? `<button class="tab" data-fp="${mentor}">mentor: ${esc(COACH.lineage.mentor_name)}</button>` : ''}${(COACH.comps || []).slice(0, 3).map((c) => `<button class="tab" data-fp="${c[0]}">${esc(c[3])}</button>`).join('')}</div>
+    <div class="fp" id="fpbody"></div><div class="legend"><span><span class="sw" style="background:#22395A;border-radius:50%"></span>${esc(COACH.name)}</span><span><span class="sw" style="background:#BC3A2C;border-radius:50%"></span>overlay</span></div></div>`;
+}
+async function drawFingerprint(otherId){
+  const body = document.getElementById('fpbody'); if (!body) return;
+  let other = null;
+  if (otherId) { try { other = await fetchJSON(`${BASE}/c/${otherId}.json`); } catch (e) {} }
+  const who = document.getElementById('fpwho'); if (who) who.textContent = other ? other.name : 'none';
+  const fp = COACH.fingerprint, ofp = other?.fingerprint || {};
+  body.innerHTML = IDX.fingerprint.filter(k => fp[k] != null).map(k => `<span title="${esc(STATS[k]?.what || '')}">${esc(STATS[k]?.label || k)}</span><span class="track"><i style="left:${fp[k]}%;background:#22395A"></i>${ofp[k] != null ? `<i style="left:${ofp[k]}%;background:#BC3A2C;opacity:.85"></i>` : ''}</span>`).join('');
+  document.querySelectorAll('[data-fp]').forEach(b => b.classList.toggle('on', b.dataset.fp === otherId));
+}
+function renderComps(){
+  const cs = COACH.comps || [];
+  return `<div class="plate"><h2 class="sec">Who coaches like him</h2><p class="since">nearest on the fingerprint, among the career pool · "closer than X% of pairs"</p>${cs.length ? cs.map(([id, d, cl, name]) => `<div class="lrow" data-coach="${id}"><span class="ln">${esc(name)}</span><span class="lv">closer than ${cl}% of pairs</span></div>`).join('') : '<div class="empty">not enough seasons to place him</div>'}</div>`;
+}
+function renderArrival(){
+  const ar = COACH.arrivals || [];
+  if (!ar.length) return '';
+  const keys = ['net','winpct','pace','fg3r','rim','mid','ast_pct','depth10','stability','o_fg3r','o_tov'];
+  return `<div class="plate"><h2 class="sec">What changed when he arrived</h2><p class="since">the team the season before him → his first season → the season after he left (team-season figures, whoever coached)</p>
+    ${ar.map(a => { const W = 760, ks = keys.filter(k => a.rows[k]); const H = 30 + 22 * ks.length; const rows = ks.map((k, i) => { const [b, f, af] = a.rows[k]; const s = STATS[k]; const vals = [b, f, af].filter(v => v != null); const lo = Math.min(...vals), hi = Math.max(...vals), sp = (hi - lo) || 1; const x = v => 180 + 500 * (v - lo) / sp; const y = 24 + 22 * i; return `<text x="170" y="${y + 4}" font-size="11" text-anchor="end" font-family="IBM Plex Sans" fill="#1A2332">${esc(s?.label || k)}</text>${b != null && f != null ? `<line x1="${x(b)}" y1="${y}" x2="${x(f)}" y2="${y}" stroke="#C4C0B6" stroke-width="2"/>` : ''}${f != null && af != null ? `<line x1="${x(f)}" y1="${y}" x2="${x(af)}" y2="${y}" stroke="#C4C0B6" stroke-width="2" stroke-dasharray="3 3"/>` : ''}${b != null ? `<circle cx="${x(b)}" cy="${y}" r="4" fill="#8A95A3"><title>before: ${fmt(s?.unit || 'num1', b)}</title></circle>` : ''}${f != null ? `<circle cx="${x(f)}" cy="${y}" r="5" fill="#22395A"><title>his first season: ${fmt(s?.unit || 'num1', f)}</title></circle>` : ''}${af != null ? `<circle cx="${x(af)}" cy="${y}" r="4" fill="#BC3A2C"><title>after he left: ${fmt(s?.unit || 'num1', af)}</title></circle>` : ''}<text x="${x(f) + 8}" y="${y - 6}" font-size="9" font-family="IBM Plex Mono" fill="#5B6878">${b != null ? fmt(s?.unit || 'num1', b) + ' → ' : ''}${fmt(s?.unit || 'num1', f)}${af != null ? ' → ' + fmt(s?.unit || 'num1', af) : ''}</text>`; }).join(''); return `<h3 class="lead-h">${esc(teamName(a.team))}: ${a.before_season || '—'} → ${a.first_season} → ${a.after_season || 'still there'}</h3><svg class="chart" viewBox="0 0 ${W} ${H}">${rows}</svg>`; }).join('')}
+    <div class="legend"><span><span class="sw" style="background:#8A95A3;border-radius:50%"></span>the season before</span><span><span class="sw" style="background:#22395A;border-radius:50%"></span>his first season</span><span><span class="sw" style="background:#BC3A2C;border-radius:50%"></span>the season after he left</span><span>a new roster moves numbers too; the returning-minutes share is in each season's row</span></div></div>`;
+}
+function renderDevelopment(){
+  const S = COACH.seasons.filter(s => s.development?.players?.length);
+  if (!S.length) return '';
+  const cs = COACH.career.stats;
+  const rows = S.flatMap(s => s.development.players.map(p => [s.season, ...p])).sort((a, b) => (b[4] - b[3] - b[5]) - (a[4] - a[3] - a[5]));
+  const top = rows.slice(0, 10), bottom = rows.length > 16 ? rows.slice(-6) : [];
+  const all = [...top, ...bottom]; const W = 760, H = 24 + 20 * (all.length + 1);
+  const lo = Math.min(...all.map(r => Math.min(r[5], r[4] - r[3]))) - .5, hi = Math.max(...all.map(r => Math.max(r[5], r[4] - r[3]))) + .5;
+  const x = v => 200 + 540 * (v - lo) / (hi - lo);
+  const nameOf = pid => COACH.player_names?.[String(pid)] || (() => { for (const k in TCACHE) { const n = TCACHE[k].names?.[String(pid)]; if (n) return n; } return pid; })();
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}"><line x1="${x(0)}" x2="${x(0)}" y1="10" y2="${H - 10}" stroke="#D9D6CF"/>`;
+  let i = 0;
+  for (const r of all) { if (i === top.length) i++; const y = 18 + 20 * i++; const act = r[4] - r[3]; svg += `<text x="190" y="${y + 4}" font-size="11" text-anchor="end" font-family="IBM Plex Sans" fill="#1A2332">${esc(String(nameOf(r[1])))} <tspan fill="#8A95A3" font-size="9">${r[0].slice(2)} · ${r[2] ?? ''}</tspan></text><line x1="${x(r[5])}" x2="${x(act)}" y1="${y}" y2="${y}" stroke="#C4C0B6" stroke-width="2"/><circle cx="${x(r[5])}" cy="${y}" r="4" fill="#C2A263"><title>expected at his age: ${signed(r[5], 2)}</title></circle><circle cx="${x(act)}" cy="${y}" r="5" fill="${act >= r[5] ? '#BC3A2C' : '#1C4E86'}"><title>actual: BPM percentile ${r[3]} → ${r[4]} (${signed(act)}), over ${r[6]} minutes</title></circle>`; }
+  svg += '</svg>';
+  return `<div class="plate"><h2 class="sec">Do players get better under him?</h2><p class="since">1997-98 on · change in position-adjusted BPM percentile from the season before against what the aging curve expects at his age (the curve's own currency); the ten who beat it most${bottom.length ? ' and the six who fell shortest' : ''}</p>
+    <div class="tiles" style="margin-bottom:12px"><div class="tile"><div class="tl">Beats the aging curve</div><div class="tv">${cs.aging ? signed(cs.aging.v, 1) : '—'}</div><div class="ts">${cs.aging ? `${miss(cs.aging.pct) ? 'not ranked' : ord(cs.aging.pct) + ' pct of ' + cs.aging.pool} · ${Math.round(cs.aging.n).toLocaleString()} weighted minutes` : 'no value'}</div></div><div class="tile"><div class="tl">Players 24 and under</div><div class="tv">${cs.aging_young ? signed(cs.aging_young.v, 1) : '—'}</div><div class="ts">${cs.aging_young ? (miss(cs.aging_young.pct) ? 'not ranked' : `${ord(cs.aging_young.pct)} pct of ${cs.aging_young.pool}`) : 'no value'}</div></div></div>${svg}
+    <div class="legend"><span><span class="sw" style="background:#C2A263;border-radius:50%"></span>expected at his age</span><span><span class="sw" style="background:#BC3A2C;border-radius:50%"></span>beat it</span><span><span class="sw" style="background:#1C4E86;border-radius:50%"></span>fell short</span><span>Selection, the team's development staff and regression to the mean all live in this number.</span></div></div>`;
+}
+function renderStaff(){
+  const L = COACH.lineage || {};
+  const chain = []; let at = L.mentor, guard = 0; const nodes = IDX.tree.nodes;
+  while (at && nodes[at] && guard++ < 12) { chain.push([at, nodes[at].name]); at = nodes[at].mentor; }
+  const seasons = COACH.seasons.filter(s => s.staff && s.staff.length);
+  const assist = COACH.assistant || [];
+  return `<div class="plate"><h2 class="sec">Where he comes from, who he produced</h2><p class="since">assistant stints from Basketball-Reference (men who later became head coaches) and the NBA's staff tables (2000s on, as pulled)</p>
+    <div class="grid2"><div><h3 class="lead-h">Lineage</h3>${L.mentor ? `<div class="small">Suggested mentor: <b data-coach="${L.mentor}" style="cursor:pointer">${esc(L.mentor_name)}</b> (${esc(L.role || '')})${L.override ? ' · set by hand' : ' · from the record'}${L.tie ? ' · a tie in the record' : ''}${L.unconfirmed ? ' · <span class="pill">unconfirmed</span>' : ''}${L.mentor_closer_than != null ? ` · on style, closer than ${L.mentor_closer_than}% of pairs` : ''}</div>` : '<div class="small">No NBA assistant stint on record, so no mentor is suggested. That means the lineage is missing, not that he learned it alone.</div>'}
+      ${chain.length > 1 ? `<div class="small" style="margin-top:4px">Line: ${[COACH.name, ...chain.map(c => c[1])].map(esc).join(' ← ')}</div>` : ''}
+      ${L.also?.length ? `<div class="small" style="margin-top:4px">Also served under: ${L.also.map(a => `<span data-coach="${a[0]}" style="cursor:pointer;text-decoration:underline dotted">${esc(a[1])}</span> (${esc(a[2])})`).join(', ')}</div>` : ''}
+      ${L.suggested?.length ? `<div class="small" style="margin-top:4px">Every head coach he served under: ${L.suggested.map(u => `${esc(nodes[u[0]]?.name || u[0])} (${u[1]})`).join(', ')}</div>` : ''}
+      ${L.kids?.length ? `<div class="small" style="margin-top:8px"><b>Head coaches off his staff:</b> ${L.kids.map(k => `<span data-coach="${k[0]}" style="cursor:pointer;text-decoration:underline dotted">${esc(k[1])}</span>`).join(', ')}</div>` : ''}
+      <div class="small" style="margin-top:8px"><a href="#tree=${COACH.id}">See him in the tree ↗</a></div>
+      ${assist.length ? `<h3 class="lead-h" style="margin-top:14px">His own stints as an assistant</h3><div class="scroll"><table class="t"><thead><tr><th>season</th><th>team</th><th>role</th><th>head coach</th></tr></thead><tbody>${assist.map(a => `<tr><td>${a.season}</td><td>${esc(a.team)}</td><td style="text-align:left;font-family:var(--body)">${esc(a.role)}</td><td style="text-align:left;font-family:var(--body)">${(a.heads || []).map(h => esc(nodes[h]?.name || h)).join(', ') || '—'}</td></tr>`).join('')}</tbody></table></div>` : ''}</div>
+    <div><h3 class="lead-h">Staff room</h3>${seasons.length ? seasons.slice().reverse().map(s => `<div class="staff" style="margin:4px 0"><b>${s.season} ${s.team}</b>: ${s.staff.map(a => a.id ? `<span data-coach="${a.id}" style="cursor:pointer;text-decoration:underline dotted">${esc(a.name)}</span>` : esc(a.name)).join(', ')}<span class="small"> (${[...new Set(s.staff.flatMap(a => a.src))].map(x => x === 'br' ? 'Basketball-Reference' : 'NBA staff table').join(' and ')})</span></div>`).join('') : '<div class="empty">no staff recorded for his seasons (team results while on staff are context, not credit)</div>'}</div></div></div>`;
+}
+function renderSeasons(){
+  const S = COACH.seasons;
+  const recTable = (rows) => `<div class="scroll"><table class="t"><thead><tr><th>season</th><th>team</th><th>lg</th><th>W</th><th>L</th><th>finish</th><th>playoffs</th><th></th></tr></thead><tbody>${rows.map(r => `<tr><td>${r.season}</td><td>${esc(r.team)}</td><td>${r.lg}</td><td>${r.w}</td><td>${r.l}</td><td>${r.finish || ''}</td><td>${r.pg ? `${r.pw}–${r.pl}` : ''}</td><td style="text-align:left">${esc(r.remarks || '')}</td></tr>`).join('')}</tbody></table></div>`;
+  if (!S.length) return COACH.records.length ? `<div class="plate"><h2 class="sec">Every season</h2><p class="since">Basketball-Reference records; the game-level data begins in 1996-97</p>${recTable(COACH.records)}</div>` : '';
+  const row = s => { const e = s.exp || {}, m = s.management || {}, r = s.rotation || {}, p = s.pct || {}; const pc = k => p[k] != null ? ` <small style="color:var(--faint)">${p[k]}</small>` : ''; return `<tr class="link" data-season="${s.season}"><td>${s.season}${s.in_progress ? ' <span class="pill">live</span>' : ''}</td><td>${s.team}</td><td>${s.w}–${s.l}</td><td>${s.pg ? `${s.pw}–${s.pl}${s.title ? ' ★' : ''}` : ''}</td><td>${signed(s.net)}${pc('net')}</td><td>${e.exp_w82 != null ? e.exp_w82.toFixed(1) : '—'}</td><td>${e.w_talent != null ? signed(e.w_talent) : '—'}${pc('w_talent')}</td><td>${e.market_total ?? '—'}</td><td>${e.w_market != null ? signed(e.w_market) : '—'}</td><td>${r.off_script != null ? (100 * (1 - r.off_script)).toFixed(0) + '%' : '—'}${pc('stability')}</td><td>${r.shape ? r.shape.depth10 : '—'}</td><td>${m.to_g ?? '—'}</td><td>${m.ato_own != null ? m.ato_own.toFixed(2) : '—'}</td><td>${m.ch_success != null ? (100 * m.ch_success).toFixed(0) + '%' : '—'}</td><td>${s.identity ? s.identity.pace : (s.nba?.stats?.pace ?? '—')}</td><td>${s.splits?.market_n?.cover != null ? (100 * s.splits.market_n.cover).toFixed(0) + '%' : '—'}</td><td style="text-align:left;font-family:var(--body);font-size:12px;max-width:260px;white-space:normal">${(s.staff || []).map(a => esc(a.name.split(' ').slice(-1)[0])).join(', ')}</td></tr>`; };
+  const older = COACH.records.filter(r => +r.season.slice(0,4) < 1996);
+  return `<div class="plate"><h2 class="sec">Every season</h2><p class="since">small grey numbers are percentiles among that season's coaches with ${IDX.meta.rules.min_season_games}+ games · click a season to load its Rotation Map</p>
+    <div class="scroll"><table class="t"><thead><tr><th>season</th><th>team</th><th>record</th><th>playoffs</th><th>net</th><th>talent exp W/82</th><th>vs talent</th><th>win total</th><th>vs market</th><th>on script</th><th>depth</th><th>TO/g</th><th>ATO ppp</th><th>challenges</th><th>pace</th><th>ATS</th><th>staff</th></tr></thead><tbody>${S.slice().reverse().map(row).join('')}</tbody></table></div>
+    ${older.length ? `<h3 class="lead-h" style="margin-top:14px">Before 1996-97</h3>${recTable(older)}` : ''}</div>`;
+}
+function renderScouting(){
+  const L = COACH.scouting || [];
+  return `<div class="plate"><h2 class="sec">Scouting report</h2><p class="since">written by rule from the Savant card: the two most extreme rows in each group, with their sample</p>${L.length ? `<ul class="lines">${L.map(l => `<li>${esc(l.text)}</li>`).join('')}</ul>` : '<div class="empty">not enough seasons in the pool to write one</div>'}<div class="small">${esc(IDX.meta.model_note)} Who coached under whom: ${esc(IDX.tree.note)}</div></div>`;
+}
+
+// ---------------------------------------------------------------- the tree
+function openTree(focus){
+  document.body.className = 'view-tree';
+  document.title = 'The coaching tree — Basketball Coaching Savant';
+  const el = document.getElementById('treeview'), N = IDX.tree.nodes;
+  const node = (id, depth) => { const n = N[id]; const kids = n.kids || []; const rec = IDX.coaches.find(c => c.id === id); const label = `<span class="tn" data-coach="${id}">${esc(n.name)}</span> <span class="tc">${rec?.hc ? `${rec.all_w}–${rec.all_l}` : 'assistant'}${n.role && depth ? ' · ' + esc(n.role) : ''}${n.size > 1 ? ` · ${n.size - 1} beneath` : ''}${n.override ? ' · by hand' : ''}</span>`; if (!kids.length) return `<li>${label}</li>`; return `<li><details${depth < 1 || id === focus ? ' open' : ''}><summary>${label}</summary><ul>${kids.map(k => node(k, depth + 1)).join('')}</ul></details></li>`; };
+  const roots = IDX.tree.roots;
+  el.innerHTML = `<div class="plate"><h2 class="sec">The coaching tree</h2><p class="since">${roots.length} trees with more than one coach · ${Object.values(N).filter(n => !n.mentor && n.size === 1).length} head coaches with no recorded NBA assistant stint</p><div class="small" style="margin-bottom:10px">${esc(IDX.tree.note)}</div><div class="tree"><ul style="border:none;padding-left:0">${roots.map(r => node(r, 0)).join('')}</ul></div></div>`;
+  el.querySelectorAll('[data-coach]').forEach(x => x.addEventListener('click', () => location.hash = 'c=' + x.dataset.coach));
+  if (focus && N[focus]) { const target = el.querySelector(`[data-coach="${focus}"]`); if (target) { let d = target.closest('details'); while (d) { d.open = true; d = d.parentElement.closest('details'); } target.scrollIntoView({block:'center'}); target.style.background = '#C2A263'; } }
+  window.scrollTo(0, 0);
+}
+
+init();
+</script>
+</body>
+</html>

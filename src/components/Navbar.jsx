@@ -8,7 +8,10 @@ import Button from './Button.jsx'
 // and rankings, then the games under one word, then About. An item with `children`
 // is a hover dropdown on desktop and an indented run of links on mobile.
 const LINKS = [
-  { href: '/basketball-savant.html', label: 'Basketball Savant', external: true },
+  {
+    href: '/basketball-savant.html', label: 'Basketball Savant', external: true,
+    children: [{ href: '/basketball-coaching-savant.html', label: 'Coaching Savant', external: true }],
+  },
   {
     href: '/draft-savant.html', label: 'Draft Savant', external: true,
     children: [{ to: '/rankings', label: 'Big Board' }],

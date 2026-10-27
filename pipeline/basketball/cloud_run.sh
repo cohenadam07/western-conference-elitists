@@ -45,8 +45,25 @@ run_once() {
     || { echo "::error::the rebuild failed"; return 1; }
 
   python3 $BB/cloud_publish.py stage . "$RUN" || return 1
+  # Basketball Coaching Savant, the season in progress: ESPN games -> game files -> a merge-mode
+  # build. continue-on-error: a failure here cannot block the Basketball Savant publish. The
+  # saved bundles it merges into live in the bcs-bundles branch (the Mac's full build pushes them).
+  local BCSOUT="$RUNNER_TEMP/bcs-out"
+  if [ ! -d "$BCSOUT/bundles" ] && git fetch -q --depth 1 origin bcs-bundles 2>/dev/null; then
+    mkdir -p "$BCSOUT" && git archive FETCH_HEAD | tar -x -C "$BCSOUT"
+  fi
+  if [ -d "$BCSOUT/bundles" ]; then
+    BCS_ESPN_CACHE="$GITHUB_WORKSPACE/.espn-cache/bcs" BCS_OUT="$BCSOUT" \
+      python3 -W ignore $BB/coaching/refresh_live.py --public "$GITHUB_WORKSPACE/public" --out "$BCSOUT" --tracking "$TR" \
+      || echo "::warning::the coaching refresh failed; Basketball Savant publishes without it"
+  else
+    echo "coaching refresh skipped: no bcs-bundles branch yet (run the full build on the Mac and push it)"
+  fi
   git add public/savant-current.json public/savant-proj.json public/savant-teams-current.json \
           public/lineups public/savant-ext data/savant-refresh.json $BB/seed/espn_ids.json
+  # the coaching files: everything daily except the two big Data Room tables, which go weekly
+  git add public/bcs/index.json public/bcs/c public/bcs/t "public/bcs/data/games" "public/bcs/data/decisions" "public/bcs/data/units" public/bcs/data/coaches.json public/bcs/data/dictionary.json 2>/dev/null
+  if [ "$(date -u +%u)" = "1" ]; then git add public/bcs/data/stints public/bcs/data/rotation 2>/dev/null; fi
   if git diff --cached --quiet; then echo "nothing changed"; return 0; fi
   local SEASON THROUGH MSG
   read SEASON THROUGH < <(python3 -c "import json;d=json.load(open('public/savant-current.json'));print(d['seasons'][0], d.get('through') or 'latest')")

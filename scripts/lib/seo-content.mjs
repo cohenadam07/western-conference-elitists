@@ -26,6 +26,7 @@ export const PRODUCTS = [
   { name: 'Basketball Savant', href: '/basketball-savant.html', blurb: 'Every NBA player, every season back to 1979-80: percentile sliders, shot charts, and comps.' },
   { name: 'Football Savant', href: '/football-savant.html', blurb: 'Every NFL player back to 1999, ranked against the men who play his position, with throw maps, run-gap maps and comps.' },
   { name: 'UFC Savant', href: '/ufc-savant.html', blurb: 'Every UFC fighter, ranked against the weight class: strike maps, round curves, head-to-heads and comps.' },
+  { name: 'Basketball Coaching Savant', href: '/basketball-coaching-savant.html', blurb: 'Every NBA head coach: the Rotation Map, lineups judged from their parts, timeouts and challenges, wins against two expectations, and a coaching tree suggested from the record, 1946-47 to today.' },
   { name: 'Coaching Savant', href: '/coaching-savant.html', blurb: 'Every NFL head coach since 1999: records, playoff history, what they called, and a coaching tree drawn back to Paul Brown.' },
   { name: 'Draft Savant', href: '/draft-savant.html', blurb: 'NBA Draft prospect models and the full board, every class back to 2010.' },
   { name: 'Dynasty Exchange', href: '/dynasty', blurb: 'A dynasty basketball board priced by the people who argue about it. Rank four players and move the market, or paste your roster and see what it is worth.' },
@@ -101,6 +102,19 @@ export const TOOLS = {
       'Coaching Savant is a free profiler of NFL coaches from Western Conference Elitists: every head coach since 1999, and every play-caller since 2018.',
       'For each coach it shows what he won, whether his teams beat what the betting market expected of them, how he handles fourth down, and what his units actually look like on each side of the ball. Its centerpiece is a coaching tree drawn back to Paul Brown, with each coach colored by career win rate.',
       'Records and play-by-play come from open nflverse data. Who coached under whom, and who called the plays, is in no open dataset: both are curated by hand from the public record, and the page says so wherever they appear.',
+    ],
+  },
+  'basketball-coaching-savant.html': {
+    name: 'Basketball Coaching Savant',
+    title: 'Basketball Coaching Savant: NBA Head Coach Rotations, Records & Coaching Tree | WCE',
+    description:
+      'Every NBA head coach: the Rotation Map, lineups judged from their parts, timeouts and challenges, wins against talent and the market, and the coaching tree.',
+    look: 'dark',
+    heading: 'What is Basketball Coaching Savant?',
+    about: [
+      'Basketball Coaching Savant is a free profiler of NBA head coaches from Western Conference Elitists: records and the coaching tree back to 1946-47, and everything a coach decides on the floor from the season its data begins.',
+      'Its centerpiece is the Rotation Map: for every man with 100 minutes under a coach, when he is usually on the floor, and how often and why the coach goes off-script. Lineups are judged from their parts rather than raw lineup ratings. Timeouts are tested against the runs they were called to stop. Wins are measured against two expectations: the roster\'s prior-season talent and the sportsbooks\' preseason win total.',
+      'Play-by-play comes from ESPN, team tables from NBA.com, records and staffs from Basketball-Reference. Every percentile names its pool, every section is labelled with the year its data begins, and the rotation verdicts are the model\'s view, not a verdict. The rows behind every chart are open to the AI connector as a Data Room.',
     ],
   },
   'draft-savant.html': {

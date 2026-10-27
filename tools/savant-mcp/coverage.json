@@ -588,6 +588,160 @@
         "nfl_get_player_profile"
       ],
       "note": "This week's injury status, on the profile (injury) for the season in progress."
+    },
+    "page:basketball-coaching-savant.html": {
+      "tools": [
+        "nba_search_coaches",
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#openCoach": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#openTree": {
+      "tools": [
+        "nba_coaching_tree"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderArrival": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderCard": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderCoach": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderComps": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderDevelopment": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderDiet": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderFingerprint": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderHeader": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderHome": {
+      "tools": [
+        "nba_coaching_leaders",
+        "nba_coaching_tree"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderLeaders": {
+      "tools": [
+        "nba_coaching_leaders"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderMVI": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderManagement": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_data"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderPairs": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_data"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderPlayTypes": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderQuadrant": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_data"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderRibbon": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderRotation": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_data"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderScouting": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderSeasons": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderSplits": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_data"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderStaff": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_tree"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderTrends": {
+      "tools": [
+        "nba_coaching_dictionary"
+      ],
+      "note": "The league trends are the season means of the stats in the dictionary; nba_coaching_data gives the rows behind them."
+    },
+    "page:basketball-coaching-savant.html#renderVerdict": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "data:bcs": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_leaders",
+        "nba_coaching_tree",
+        "nba_coaching_data",
+        "nba_coaching_dictionary"
+      ]
+    },
+    "page:basketball-savant.html#renderRotStrip": {
+      "tools": [
+        "nba_player_splits"
+      ],
+      "note": "The rotation strip: nba_player_splits with view \"rotation\"."
     }
   },
   "switches": {

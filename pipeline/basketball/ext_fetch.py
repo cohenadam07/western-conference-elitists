@@ -380,7 +380,10 @@ def fetch_season(season, phases=("league", "teams", "players", "games"), log=pri
             note(pass_network(pid, season))
         log(f"  {season} passing networks: {n}")
     if "games" in phases and has("match", season):
-        for gid in defbox_game_ids(season):
+        gids = defbox_game_ids(season)
+        for i, gid in enumerate(gids, 1):
             note(defbox(gid))
+            if i % 100 == 0:
+                log(f"  {season} defensive box scores: {i}/{len(gids)} ({n['ok']} ok)")
         log(f"  {season} defensive box scores: {n}")
     return n

@@ -79,6 +79,7 @@ const STANDALONE = {
   'draft-savant.html': { description: 'Draft prospect profiles, percentiles and comps from Western Conference Elitists.', sitemap: '0.8' },
   'football-savant.html': { sitemap: '0.8' },
   'coaching-savant.html': { sitemap: '0.6' },
+  'basketball-coaching-savant.html': { sitemap: '0.7' },
   'ufc-savant.html': { sitemap: '0.7' },
   'game.html': { share: false }, // one template for many games (query string); no canonical, no sitemap
 }

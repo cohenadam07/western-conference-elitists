@@ -323,10 +323,11 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   const { tools } = await client.listTools()
   // The whole list, by name. Adding or dropping a tool should be a decision, not a side effect.
   assert.deepEqual(tools.map((t) => t.name).sort(), [
-    'nba_all_savant_team', 'nba_draft_get_prospect_profile', 'nba_draft_search_prospects', 'nba_fantasy_league',
+    'nba_all_savant_team', 'nba_coaching_data', 'nba_coaching_dictionary', 'nba_coaching_leaders', 'nba_coaching_tree',
+    'nba_draft_get_prospect_profile', 'nba_draft_search_prospects', 'nba_fantasy_league',
     'nba_fantasy_lock_in', 'nba_fantasy_player', 'nba_fantasy_rankings', 'nba_fantasy_streamers', 'nba_fantasy_trade',
-    'nba_get_player_profile', 'nba_injury_report', 'nba_leaderboard', 'nba_lineups', 'nba_player_career', 'nba_player_splits',
-    'nba_schedule', 'nba_search_players', 'nba_team_profile', 'nba_team_rankings',
+    'nba_get_coach_profile', 'nba_get_player_profile', 'nba_injury_report', 'nba_leaderboard', 'nba_lineups', 'nba_player_career', 'nba_player_splits',
+    'nba_schedule', 'nba_search_coaches', 'nba_search_players', 'nba_team_profile', 'nba_team_rankings',
     'nfl_all_savant_team', 'nfl_coaching_leaders', 'nfl_coaching_tree', 'nfl_game', 'nfl_get_coach_profile', 'nfl_get_player_profile', 'nfl_leaderboard', 'nfl_player_career',
     'nfl_player_games', 'nfl_player_splits', 'nfl_search_coaches', 'nfl_search_players', 'nfl_team_profile',
     'ufc_get_fighter_profile', 'ufc_get_upcoming_cards', 'ufc_leaderboard', 'ufc_matchup', 'ufc_search_fighters',
@@ -336,8 +337,9 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   // shapes. Kept in check, because every conversation with the connector on pays for it.
   const upfront = tools.reduce((n, t) => n + JSON.stringify({ name: t.name, description: t.description, inputSchema: t.inputSchema }).length, 0)
   // 30,000 for the first 16 tools; 33,000 since the nine Fantasy / Teams / Lineups tools; 60,000
-  // since the connector was made to reach everything on the site (Oct 2026, about 15,000 tokens).
-  assert.ok(upfront < 60000, `tool names, descriptions and inputs came to ${upfront} characters`)
+  // since the connector was made to reach everything on the site (Oct 2026, about 15,000 tokens);
+  // 63,000 since the six Basketball Coaching Savant tools (Oct 27, 2026).
+  assert.ok(upfront < 63000, `tool names, descriptions and inputs came to ${upfront} characters`)
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)

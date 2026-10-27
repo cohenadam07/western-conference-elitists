@@ -33,6 +33,8 @@ UNAVAILABLE = {
     # October 2026 additions (ext_fetch.py): matchup rollup, defensive box scores, passing
     # networks, and the NBA's Inside the Game tables (nba_extra_endpoints.py)
     "MatchupsRollup", "BoxScoreDefensiveV2", "PlayerDashPtPass",
+    # Basketball Coaching Savant's team tables (pipeline/basketball/coaching/nba_pulls.py)
+    "LeagueHustleStatsTeam", "ZoneDefenseTeamLeaders",
     "GravityLeadersRaw", "ShotQualityLeaders", "LeverageLeaders", "HandleScore",
     "ZoneDefenseTeamLeaders", "DunkScoreLeadersRaw",
 }

@@ -1023,6 +1023,7 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
   <div class="comps" id="comps" hidden></div>
   <div class="wcomps" id="wcomps" hidden></div>
   <div class="col role" id="role" hidden></div>
+  <div class="col role" id="rotstrip" hidden></div>
 </div>
 
 <div class="lb" id="lb">
@@ -4692,6 +4693,7 @@ function render(){
   renderComps();
   renderWeak();
   renderRole();
+  renderRotStrip();
   renderShots();
   document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.id==p.id));
   animateFills();
@@ -4945,6 +4947,39 @@ function roleBar(b){
       +'<div class="fill" data-w="'+shown+'" style="background:'+col+'"></div>'
       +'<div class="pnum" style="left:'+numLeft+';'+numTf+'">'+(pct==null?'·':pct)+'</div></div>'
     +'<div class="rv">'+fmt(b.unit,v,pct)+'</div></div>';
+}
+/* ================= Rotation strip (Basketball Coaching Savant) ===================
+   One row of the coach's Rotation Map for this player: the share of the games he played
+   that he was on the floor in each of the 48 minutes (measured on minutes still in the
+   balance), his usual windows outlined, and how often his own minutes went off the
+   coach's script. Read from /bcs/t/<franchise>-<season>.json, the file the coaching page
+   draws the whole map from (pipeline/basketball/coaching/rotation.py), so the two agree. */
+const ROT_ALIAS={NJN:'BKN',BRK:'BKN',SEA:'OKC',VAN:'MEM',CHH:'CHA',CHO:'CHA',NOH:'NOP',NOK:'NOP',NO:'NOP',PHO:'PHX',GS:'GSW',NY:'NYK',SA:'SAS',UTAH:'UTA',WSH:'WAS',WSB:'WAS'};
+const ROT_CACHE={};
+function renderRotStrip(){
+  const el=document.getElementById('rotstrip'); if(!el) return;
+  el.hidden=true; el.innerHTML='';
+  if(!cur||!cur.team||!curSeason||curSeason<'2002-03') return;
+  const key=(ROT_ALIAS[cur.team]||cur.team)+'-'+curSeason, pid=cur.id;
+  const draw=function(file){
+    if(!file||!file.coaches) return;
+    let t=null,row=null;
+    file.coaches.forEach(function(e){ const r=e.rotation.rows.find(function(x){return String(x.id)===String(pid);}); if(r&&(!row||r.gp>row.gp)){ row=r; t=e; } });
+    if(!row){ return; }
+    const cells=row.played.map(function(v,m){
+      const on=row.windows.some(function(w){return m>=w[0]&&m<=w[1];});
+      const a=Math.pow(v/100,0.9);
+      return '<i title="'+(12-(m%12))+':00 Q'+(Math.floor(m/12)+1)+': on the floor in '+v+'% of the games he played" style="background:rgba(194,162,99,'+a.toFixed(2)+');'+(on?'outline:1px solid #fff;outline-offset:-1px;':'')+(m%12===0&&m?'margin-left:3px;':'')+'"></i>';
+    }).join('');
+    const off=row.off==null?'':' &middot; '+(100*(1-row.off)).toFixed(0)+'% of his scripted minutes went to script'+(row.off_choice!=null?' ('+(100*row.off_choice).toFixed(1)+'% off by choice)':'');
+    el.innerHTML='<h2 class="col-h">Rotation</h2>'
+      +'<div class="role-cap">Under '+t.coach_name+', '+curSeason+': when he is usually on the floor. Share of the games he played, by minute; the outline is his usual window (60%+). <a href="/basketball-coaching-savant.html#c='+encodeURIComponent(t.coach)+'&season='+curSeason+'">Full Rotation Map &rarr;</a></div>'
+      +'<div style="display:flex;height:22px;background:#22395A;border-radius:3px;overflow:hidden;gap:1px;padding:2px">'+cells.replace(/<i /g,'<i style="flex:1" ').replace(/style="flex:1" style="/g,'style="flex:1;')+'</div>'
+      +'<div class="role-foot">'+row.text+off+' &middot; '+row.mpg+' mpg over '+row.gp+' games</div>';
+    el.hidden=false;
+  };
+  if(ROT_CACHE[key]){ draw(ROT_CACHE[key]); return; }
+  fetch('/bcs/t/'+key+'.json',{cache:'force-cache'}).then(function(r){return r.ok?r.json():null;}).then(function(t){ ROT_CACHE[key]=t; if(cur&&cur.id===pid) draw(t); }).catch(function(){});
 }
 function renderRole(){
   const el=document.getElementById('role'); if(!el) return;

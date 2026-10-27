@@ -16,6 +16,11 @@
       "permanent": true
     },
     {
+      "source": "/basketball-coaching-savant",
+      "destination": "/basketball-coaching-savant.html",
+      "permanent": true
+    },
+    {
       "source": "/coaching-savant",
       "destination": "/coaching-savant.html",
       "permanent": true
@@ -106,6 +111,22 @@
     {
       "source": "/savant-api/site/v1/articles/:slug([a-z0-9-]+\\.json)",
       "destination": "/savant-api/site/v1/articles/:slug.gz"
+    },
+    {
+      "source": "/bcs/t/:f(.*\\.json)",
+      "destination": "/bcs/t/:f.gz"
+    },
+    {
+      "source": "/bcs/data/:table/:f(.*\\.json)",
+      "destination": "/bcs/data/:table/:f.gz"
+    },
+    {
+      "source": "/bcs/index.json",
+      "destination": "/bcs/index.json.gz"
+    },
+    {
+      "source": "/bcs/c/:f([a-z0-9]+\\.json)",
+      "destination": "/bcs/c/:f.gz"
     },
     {
       "source": "/((?!api/).*)",
@@ -643,6 +664,142 @@
         {
           "key": "Access-Control-Allow-Origin",
           "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/t/:f(.*\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/data/:table/:f(.*\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/t/:f(.*\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/data/:table/:f(.*\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/index.json",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/index.json.gz",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/c/:f([a-z0-9]+\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/c/:f([a-z0-9]+\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
         }
       ]
     }

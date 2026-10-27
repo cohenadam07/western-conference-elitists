@@ -71,6 +71,16 @@ try:
 except Exception as e:  # noqa
     print(f"  teams (team play types): failed ({repr(e)[:100]})")
 
+try:
+    # Basketball Coaching Savant's team tables for the season (tracking, hustle, Synergy, zone, staffs):
+    # the same E.call, so they are recorded above and ride this upload to the cloud
+    sys.path.insert(0, os.path.join(HERE, "coaching"))
+    import nba_pulls as NP  # noqa: E402
+    for fn in (NP.tracking, NP.hustle, NP.synergy, NP.zone, NP.rosters):
+        fn([season])
+except Exception as e:  # noqa
+    print(f"  coaching tables: failed ({repr(e)[:100]})")
+
 _, through = R.game_dates(season)
 shutil.rmtree(out_dir, ignore_errors=True)
 os.makedirs(out_dir)
