@@ -35,6 +35,7 @@
 
 import { z } from 'zod'
 import { ALSO_KNOWN, READ_ONLY, SITE, SavantError, day, makeLoader, miss, ordinal, prepare, rank, thousands, topTier } from './_core.js'
+import { liveInjury, injuryLine } from './_football-injuries.js'
 
 // A season file is a couple of megabytes once parsed, so only a handful are held at a time.
 const files = makeLoader('savant-api/football/v1', { what: 'Football Savant', maxCached: 8 })
@@ -450,6 +451,11 @@ async function profile({ player, season, group = 'all', rank_against = 'season' 
 
   const height = (row.m.ht || [])[0]
   const weight = (row.m.wt || [])[0]
+  // Live injury status (api/_football-injuries.js), season in progress only. It speaks for
+  // the player when it has him; the NFL's weekly report is the fallback, and a team on bye
+  // files none, which is when the live feed matters most.
+  const li = live ? await liveInjury(row.id, seasonId) : null
+  const byeWeek = li && li.week && row.team && li.bye_teams.includes(row.team) ? li.week : null
   const structured = {
     player: {
       id: row.id,
@@ -476,7 +482,12 @@ async function profile({ player, season, group = 'all', rank_against = 'season' 
       ? { wins: row.rec[0], losses: row.rec[1], ties: row.rec[2], result: row.po || null, coach: row.coach || null }
       : null,
     league_ranks: (row.acc || []).map((a) => ({ rank: a.r, stat: a.s })),
-    injury: row.inj ? { status: row.inj.st, injury: row.inj.inj || null, week: row.inj.wk ?? null } : null,
+    injury: li && li.entry
+      ? { status: li.entry.status, injury: [li.entry.side, li.entry.body_part].filter(Boolean).join(' ') || null, week: li.week,
+          wont_play: li.entry.wont_play, note: li.entry.note, estimated_return: li.entry.estimated_return,
+          updated_at: li.entry.updated_at, source: li.entry.source }
+      : row.inj ? { status: row.inj.st, injury: row.inj.inj || null, week: row.inj.wk ?? null, source: 'NFL weekly injury report' } : null,
+    on_bye: byeWeek,
     sample: built.map((k) => ({ key: k, label: meta.denoms[k], value: row.d[k] })),
     pools: { position_label: peers, season: poolSeason, all_time: poolAll },
     profile_score: row.score != null ? { score: row.score, headline_stats: pos.headline.length, peak_season: who.peak ? String(who.peak) : null } : null,
@@ -522,7 +533,10 @@ async function profile({ player, season, group = 'all', rank_against = 'season' 
   if (row.acc && row.acc.length) {
     L.push(`NFL ranks${live ? ` through week ${live.through_week}` : ` in ${seasonId}`}: ${row.acc.map((a) => `${ordinal(a.r)} in ${a.s}`).join(', ')}.`)
   }
-  if (row.inj) L.push(`Injury report, week ${row.inj.wk}: ${row.inj.st}${row.inj.inj ? ` (${row.inj.inj})` : ''}.`)
+  if (li && li.entry) L.push(`Injury status: ${injuryLine(li.entry)}`)
+  else if (row.inj) L.push(`Injury report, week ${row.inj.wk}: ${row.inj.st}${row.inj.inj ? ` (${row.inj.inj})` : ''}.`)
+  else if (live && li) L.push('Injury status: no current designation.')
+  if (byeWeek) L.push(`${tm(row.team)} are on bye in week ${byeWeek}, so he does not play this week.`)
   if (row.st) L.push(`Roster status in the latest week on file: ${row.st}.`)
   if (row.role) {
     // the page's badge: a spot where it says more than his position, a place in line only
@@ -892,7 +906,17 @@ export const tools = [
           coach: z.string().nullable(),
         }).nullable().describe('Regular-season record of the team he finished with.'),
         league_ranks: z.array(z.object({ rank: z.number().int(), stat: z.string() })).describe('Where he ranked in the whole NFL in counting stats.'),
-        injury: z.object({ status: z.string(), injury: z.string().nullable(), week: z.number().nullable() }).nullable().describe('This week\'s injury report. Season in progress only.'),
+        injury: z.object({
+          status: z.string().describe('IR, PUP, Out, Suspended, Doubtful or Questionable from the live feed; or the NFL weekly report\'s wording (including practice participation) when the live feed has nothing.'),
+          injury: z.string().nullable().describe('Body part, with side where known.'),
+          week: z.number().nullable(),
+          wont_play: z.boolean().optional().describe('True for IR, PUP, Out and Suspended.'),
+          note: z.string().nullable().optional(),
+          estimated_return: z.string().nullable().optional(),
+          updated_at: z.string().nullable().optional(),
+          source: z.string().nullable().optional().describe('ESPN, Sleeper, or the NFL weekly injury report.'),
+        }).nullable().describe('His injury status right now, refreshed through the day. Season in progress only.'),
+        on_bye: z.number().nullable().optional().describe('Set to the week number when his team is on bye this week.'),
         sample: z.array(z.object({ key: z.string(), label: z.string(), value: z.number() })).describe('What his rates are built on: games, dropbacks, carries, targets, snaps and so on.'),
         pools: z.object({
           position_label: z.string().describe('The pool every percentile is against, e.g. quarterbacks.'),

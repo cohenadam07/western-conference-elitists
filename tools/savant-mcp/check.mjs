@@ -81,7 +81,7 @@ const cdn = http.createServer((req, res) => {
   // The Fantasy / Teams / Lineups files, and the pages' own game logs, splits, maps, route
   // trees, pace tables, postseason games, months and shots, are served straight from public/,
   // as Vercel serves them.
-  if (/^\/(savant-proj\.json|savant-teams(-current)?\.json|lineups\/[0-9-]+\.json|(football-(weekly|splits|maps|routes|pace|games)|months|shots)\/[\w/.-]+\.json)$/.test(url)) {
+  if (/^\/(savant-proj\.json|savant-teams(-current)?\.json|lineups\/[0-9-]+\.json|(football-(weekly|splits|maps|routes|pace|games|injuries)|months|shots)\/[\w/.-]+\.json)$/.test(url)) {
     const f = path.join(ROOT, 'public', url)
     return existsSync(f) ? json200(res, readFileSync(f)) : html200(res)
   }
@@ -262,7 +262,7 @@ test('the handshake and tool list are what a directory reviewer expects', async 
     'nba_fantasy_lock_in', 'nba_fantasy_player', 'nba_fantasy_rankings', 'nba_fantasy_streamers', 'nba_fantasy_trade',
     'nba_get_player_profile', 'nba_injury_report', 'nba_leaderboard', 'nba_lineups', 'nba_player_career', 'nba_player_splits',
     'nba_schedule', 'nba_search_players', 'nba_team_profile', 'nba_team_rankings',
-    'nfl_all_savant_team', 'nfl_coaching_leaders', 'nfl_coaching_tree', 'nfl_game', 'nfl_get_coach_profile', 'nfl_get_player_profile', 'nfl_leaderboard', 'nfl_player_career',
+    'nfl_all_savant_team', 'nfl_coaching_leaders', 'nfl_coaching_tree', 'nfl_game', 'nfl_get_coach_profile', 'nfl_get_player_profile', 'nfl_injury_report', 'nfl_leaderboard', 'nfl_player_career',
     'nfl_player_games', 'nfl_player_splits', 'nfl_search_coaches', 'nfl_search_players', 'nfl_team_profile',
     'ufc_get_fighter_profile', 'ufc_get_upcoming_cards', 'ufc_leaderboard', 'ufc_matchup', 'ufc_search_fighters',
     'wce_get_article', 'wce_get_big_board', 'wce_get_dynasty_rankings', 'wce_get_news', 'wce_get_trending', 'wce_search_articles', 'wce_whats_new',
@@ -709,6 +709,7 @@ test('every tool of every section answers through the endpoint', async () => {
   const qb = await ok('nfl_search_players', { query: 'patrick mahomes' }, /Patrick Mahomes/)
   await ok('nfl_get_player_profile', { player: qb.players[0].id }, /vs\. quarterbacks/)
   await ok('nfl_get_player_profile', { player: 'Patrick Mahomes', season: '2022', group: 'passing' }, /2022 regular season/)
+  await ok('nfl_injury_report', { limit: 5 }, /NFL injury status/)
   await ok('nfl_get_player_profile', { player: 'Patrick Mahomes', season: footballMeta.latestSeason, group: 'passing', rank_against: 'same_point' }, /Patrick Mahomes/)
   // The All-Savant Team, Leaderboard Builder, team pages, careers, game logs, splits and the
   // postseason game pages (api/_football*.js; numbers held to the page in tools/savant-football/)

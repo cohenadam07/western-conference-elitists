@@ -792,7 +792,11 @@ test('a profile says what the files say, for every player in every season, and f
       assert.equal(s.player.height, row.m.ht ? page.fmt('ftin', p.m.ht) : null, `${who}: height`)
       assert.deepEqual(s.team_season, p.rec ? { wins: p.rec[0], losses: p.rec[1], ties: p.rec[2], result: p.po || null, coach: p.coach || null } : null, `${who}: team record`)
       assert.deepEqual(s.league_ranks, (p.acc || []).map((a) => ({ rank: a.r, stat: a.s })), `${who}: league ranks`)
-      assert.deepEqual(s.injury, p.inj ? { status: p.inj.st, injury: p.inj.inj || null, week: p.inj.wk ?? null } : null, `${who}: injury report`)
+      // The live feed (api/_football-injuries.js) speaks for him when it has him; otherwise the
+      // profile carries the NFL weekly report exactly as the file has it.
+      if (!(s.injury && (s.injury.source === 'ESPN' || s.injury.source === 'Sleeper'))) {
+        assert.deepEqual(s.injury, p.inj ? { status: p.inj.st, injury: p.inj.inj || null, week: p.inj.wk ?? null, source: 'NFL weekly injury report' } : null, `${who}: injury report`)
+      }
       // The depth-chart badge is the page's: a line in the answer exactly when the page
       // shows a badge, naming the spot only where the page names it, and a place in line
       // only for a man the page says is listed behind the starters.
