@@ -1,7 +1,7 @@
 """
 ext_files.py — where the October 2026 additions live on the site, and how they are written.
 
-The archive (public/savant-data.json) is near GitHub's 100 MB limit, so the ~145 new card stats
+The archive (public/savant-data.json) is near GitHub's 100 MB limit, so the ~140 new card stats
 and the panels ship beside it in public/savant-ext/, fetched only for what a reader opens:
 
   savant-ext/s/<season>.json       every player's values for the new stats, that season

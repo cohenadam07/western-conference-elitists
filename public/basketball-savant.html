@@ -3503,36 +3503,6 @@ const CFG  = {
       "ext": true
     },
     {
-      "key": "helpblk75",
-      "label": "Help blocks / 75",
-      "group": "def",
-      "sub": "Matchups & help",
-      "layer": "ingredient",
-      "unit": "num2",
-      "thr": 300,
-      "lower": false,
-      "tier": 4,
-      "since": "2016-17",
-      "first": "2017-18",
-      "win": false,
-      "ext": true
-    },
-    {
-      "key": "helpfg",
-      "label": "Help FG% allowed vs league",
-      "group": "def",
-      "sub": "Matchups & help",
-      "layer": "ingredient",
-      "unit": "sgn",
-      "thr": 40,
-      "lower": true,
-      "tier": 4,
-      "since": "2016-17",
-      "first": "2017-18",
-      "win": false,
-      "ext": true
-    },
-    {
       "key": "mtov",
       "label": "Matchup turnovers forced",
       "group": "def",
@@ -4435,8 +4405,6 @@ const EXPL={
  cont75:{"what": "Shots he contested (a hand up close) per 75: effort and closeouts.", "formula": "Contested shots ÷ POSS × 75. POSS = possessions he was on the floor for.", "source": "NBA.com stats (stats.nba.com) hustle stats, 2016-17 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Hatched under 300 possessions."},
  cont3_75:{"what": "Three-point attempts he contested per 75: closeouts on shooters.", "formula": "Contested threes ÷ POSS × 75. POSS = possessions he was on the floor for.", "source": "NBA.com stats (stats.nba.com) hustle stats, 2016-17 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Hatched under 300 possessions."},
  vers:{"what": "How evenly his matchup time is spread across guards, forwards and centers, 0 to 100. 100 means he guarded all three equally; near 0, one position only.", "formula": "Versatility = 100 × entropy of his share of matchup time vs guards / forwards / centers ÷ log(3)", "source": "NBA.com stats (stats.nba.com) matchup data (matchup rollup), 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Hatched under 300 matchup possessions."},
- helpblk75:{"what": "Blocks on shots by players he wasn't guarding, per 75: rotating over from his own man to protect the rim.", "formula": "Help blocks ÷ POSS × 75. POSS = possessions he was on the floor for.", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Hatched under 300 possessions."},
- helpfg:{"what": "When he rotates to help, how the shooter does against him versus the league's help FG%. Lower is better.", "formula": "Help FG% diff = help FGM ÷ help FGA − league help FG%", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Hatched under 40 help shots."},
  mtov:{"what": "Turnovers by the players he guarded, per 100 matchup possessions. On-ball disruption.", "formula": "Matchup TOV forced = 100 × matchup turnovers ÷ matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Hatched under 300 matchup possessions."},
  msfl:{"what": "Shooting fouls he committed on the players he guarded, per 100 matchup possessions. Lower is better: discipline.", "formula": "Matchup shooting fouls = 100 × SFL ÷ matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Hatched under 300 matchup possessions."},
  swr:{"what": "How often he switches onto a new man, per 100 matchup possessions. Scheme identity: switch-everything defenders versus stay-home ones.", "formula": "Switch rate = 100 × switches ÷ matchup possessions (summed over his defensive box scores)", "source": "NBA.com stats (stats.nba.com) defensive box scores, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Hatched under 300 matchup possessions."},
@@ -5582,7 +5550,7 @@ function renderWW(){
   el.hidden=false;
 }
 /* ================= More stats: the October 2026 additions (savant-ext/) =====================
-   ~145 more bars and a dozen breakdown panels. They ship beside the archive rather than in it
+   ~140 more bars and a dozen breakdown panels. They ship beside the archive rather than in it
    (savant-data.json is near GitHub's 100 MB limit), one file per season, fetched the first time
    a reader opens that season; the season in progress is rewritten after every slate, like
    savant-current.json. pipeline/basketball/ext_files.py writes them, ext_config.py defines every
@@ -6177,7 +6145,7 @@ async function exportCard(){
    Synergy and hustle stats (drives, potential assists, self-created, rim protection,
    deflections, gravity, matchups, play types) have no cloud source: the Mac uploads those
    tables when it's awake and the cloud folds in the latest upload (DATA.tracking.through).
-   2.4.0 (Oct 2026): everything else the public data can give. ~145 more stats behind a
+   2.4.0 (Oct 2026): everything else the public data can give. 143 more stats behind a
    "More" section under each column (shot profile and shot types, pull-up and catch-and-shoot,
    drives, touches, passing, screening, hustle, rebound chances, defended shots, matchup help,
    fouls by kind, turnover kinds, transition, rotation, consistency, combine, win probability,

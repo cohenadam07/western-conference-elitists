@@ -433,12 +433,9 @@ EXT_METRICS = [
       "How evenly his matchup time is spread across guards, forwards and centers, 0 to 100. 100 means he guarded all three equally; near 0, one position only.",
       "Versatility = 100 × entropy of his share of matchup time vs guards / forwards / centers ÷ log(3)", f"{MAT} (matchup rollup), 2017-18 on. {NBA_NOTE} {SEASON_ONLY}",
       "Hatched under 300 matchup possessions."),
-    M("helpblk75", "Help blocks / 75", "def", "Matchups & help", "num2", 300, False, "match", False, "2017-18",
-      "Blocks on shots by players he wasn't guarding, per 75: rotating over from his own man to protect the rim.",
-      P75("Help blocks"), f"{MAT}, 2017-18 on. {NBA_NOTE} {SEASON_ONLY}", "Hatched under 300 possessions."),
-    M("helpfg", "Help FG% allowed vs league", "def", "Matchups & help", "sgn", 40, True, "match", False, "2017-18",
-      "When he rotates to help, how the shooter does against him versus the league's help FG%. Lower is better.",
-      "Help FG% diff = help FGM ÷ help FGA − league help FG%", f"{MAT}, 2017-18 on. {NBA_NOTE} {SEASON_ONLY}", "Hatched under 40 help shots."),
+    # Help blocks and help FG% were planned here (the HELP_* columns of LeagueSeasonMatchups); the
+    # NBA leaves those columns empty in every season checked (2020-21 through 2026-27), so they
+    # are not offered. They return as two entries if a season ever carries the data.
     M("mtov", "Matchup turnovers forced", "def", "Matchups & help", "num2", 300, False, "match", False, "2017-18",
       "Turnovers by the players he guarded, per 100 matchup possessions. On-ball disruption.",
       "Matchup TOV forced = 100 × matchup turnovers ÷ matchup possessions", f"{MAT}, 2017-18 on. {NBA_NOTE} {SEASON_ONLY}",

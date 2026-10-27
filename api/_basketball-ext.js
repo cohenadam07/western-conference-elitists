@@ -1,5 +1,5 @@
 // api/_basketball-ext.js — the October 2026 additions to Basketball Savant, for the connector:
-// ~145 more stats (shot profile, tracking, hustle, matchups, fouls, clutch, consistency, win
+// ~140 more stats (shot profile, tracking, hustle, matchups, fouls, clutch, consistency, win
 // probability...) and the breakdown panels under the card (shot menu, shot splits, touches,
 // passing network, defensive play types, clutch, splits, on/off four factors, turnover mix,
 // Handle Score, Dunk Score, position estimate).

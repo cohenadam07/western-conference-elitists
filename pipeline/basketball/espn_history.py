@@ -68,6 +68,9 @@ def _dates(season):
 
 
 S.season_dates = _dates
+# Franchises under their old names: ESPN files the New Jersey Nets as "NJ" and the SuperSonics as
+# "SEA", which the season-in-progress filter (modern abbreviations only) would drop.
+S.NBA_TEAMS = set(S.NBA_TEAMS) | {"NJ", "NJN", "SEA", "NO", "NOH", "NOK", "CHH", "VAN"}
 
 
 def main():
