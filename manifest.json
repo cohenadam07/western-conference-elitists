@@ -1,5 +1,5 @@
 {
-"generated": "2026-10-27T04:52:29+00:00",
+"generated": "2026-10-27T04:56:42+00:00",
 "seasons": [
 "2025-26",
 "2024-25",
@@ -7,7 +7,8 @@
 "2022-23",
 "2021-22",
 "2020-21",
-"2019-20"
+"2019-20",
+"2018-19"
 ],
 "tables": {
 "00097884783fa2dcec1dbf907f253cff": {
@@ -125,6 +126,18 @@
 "team_id": 1610612762
 }
 },
+"023a85272b1c22fccd2bde22621fcd50": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "Handoff",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "defensive"
+}
+},
 "02486113caf99c3b4984790311ee5481": {
 "frame": 0,
 "name": "SynergyPlayTypes",
@@ -135,6 +148,17 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "type_grouping_nullable": "offensive"
+}
+},
+"025d17deb06d8b3a92b5e825013bf47b": {
+"frame": 0,
+"name": "LeagueDashPtStats",
+"params": {
+"per_mode_simple": "Totals",
+"player_or_team": "Player",
+"pt_measure_type": "CatchShoot",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "02a11c29ec7bae873a9e35bf5226b9d6": {
@@ -221,6 +245,17 @@
 "type_grouping_nullable": "defensive"
 }
 },
+"03d29a016d559990182caac286f7a477": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612752
+}
+},
 "03e74559d46ac9fb911a3b21c7a90bc7": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -250,6 +285,18 @@
 "season": "2021-22",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612747
+}
+},
+"04af2d13fc1572461f888df097f47b6e": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "Handoff",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "offensive"
 }
 },
 "04d85c93aae296d3a37f65f61556a264": {
@@ -455,6 +502,16 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"075b966da339eccc51bce048ab425255": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Base",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "07b5c3040f59418c7593ee3d4b3c18dd": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -488,6 +545,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"087fa22e7d8af92eb7f370d640dc26f8": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612755
+}
+},
 "091651eed10c47652db69510c4d7e586": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -499,6 +567,17 @@
 "team_id": 1610612763
 }
 },
+"0939708b14311fc203ee2c2b70ebd0b0": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612744
+}
+},
 "09c08743852be9b61d513af3a55d3e90": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -508,6 +587,17 @@
 "season": "2022-23",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612755
+}
+},
+"09c5ab6e46079dbd087d44ea92e459fb": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612760
 }
 },
 "0a383c0b42ba5dd9f03a7598e438efd5": {
@@ -529,6 +619,17 @@
 "per_mode_detailed": "Totals",
 "season": "2023-24",
 "season_type_all_star": "Regular Season"
+}
+},
+"0a53b9553ffa71eaa772ab0e829fbd1f": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612747
 }
 },
 "0a62387bab3d1112616cc5c64438be9a": {
@@ -649,6 +750,17 @@
 "shot_clock_range_nullable": "18-15 Early"
 }
 },
+"0caec813a8086ebee67350aabee7a00e": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612766
+}
+},
 "0d1bcfda3a1687c1da91a9995fb77ae4": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -656,6 +768,15 @@
 "season": "2020-21",
 "season_type_all_star": "Regular Season",
 "shot_clock_range_nullable": "15-7 Average"
+}
+},
+"0d9ec69a4f818027e6eba09bb69e5662": {
+"frame": 0,
+"name": "LeagueDashPtDefend",
+"params": {
+"defense_category": "Overall",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "0dd112800828b14398832afed39bb47b": {
@@ -667,6 +788,29 @@
 "season": "2021-22",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612738
+}
+},
+"0dedcdf3d5a49ee0225dd61bce077816": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "Isolation",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "offensive"
+}
+},
+"0df79cf9f658b9b453fbf1ce36ea1cd7": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612758
 }
 },
 "0e438cb598a804184cb0adec54230ad0": {
@@ -700,6 +844,17 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612747
+}
+},
+"0e7a41c5ab5a366b714b715ec76b239c": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612743
 }
 },
 "0e8427236a9580a5d286aa308479fcbd": {
@@ -779,6 +934,17 @@
 "params": {
 "league_id": "00",
 "season_all_time": "2010-11"
+}
+},
+"0fab63c1d0a7d405fb2b966028405afd": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612756
 }
 },
 "0fb8eac6548683dcfae17b41bfcf4923": {
@@ -883,6 +1049,28 @@
 "season": "2022-23",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612752
+}
+},
+"112e013d19ca7279d27c7f6afaa994bb": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612738
+}
+},
+"115ab5fb0e047f5acebac6f3f8fb5087": {
+"frame": 0,
+"name": "LeagueDashPtStats",
+"params": {
+"per_mode_simple": "Totals",
+"player_or_team": "Player",
+"pt_measure_type": "PullUpShot",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "11901df6a08f52a6f005d5c4e438992c": {
@@ -1098,6 +1286,17 @@
 "type_grouping_nullable": "defensive"
 }
 },
+"1599d5d6079d29a99ca54ca69fd4e5cf": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612757
+}
+},
 "1672e9ede872cf30f4b5ade254974f68": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -1183,6 +1382,17 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612742
+}
+},
+"1742c1e1f8afe5efdfde5625525c6b97": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612741
 }
 },
 "17576689cd49254c7f50a576676e2bfd": {
@@ -1300,6 +1510,15 @@
 "team_id": 1610612752
 }
 },
+"19bb3089c5c875e37d267214ab6a0d08": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"touch_time_range_nullable": "Touch 2-6 Seconds"
+}
+},
 "1a41089df31058a6c9daaa6e4c384121": {
 "frame": 0,
 "name": "LeagueDashPtStats",
@@ -1331,6 +1550,17 @@
 "touch_time_range_nullable": "Touch < 2 Seconds"
 }
 },
+"1aca1325fd3359296e12ab98684610e3": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612744
+}
+},
 "1b00784f120431bccd2076feb0383247": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -1340,6 +1570,17 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612763
+}
+},
+"1b928d7e9a7af254d51c793e3a914b24": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612750
 }
 },
 "1bb1490d80e74aeb234bef771caab3e2": {
@@ -1362,6 +1603,17 @@
 "season": "2019-20",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612752
+}
+},
+"1bfc450acfab14b34df35f5ac7413458": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612753
 }
 },
 "1c0341fbb16c3d59adc68e87676d5217": {
@@ -1636,6 +1888,15 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"223cdd3bba3ec52d9c28cfd36b06a92f": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"close_def_dist_range_nullable": "6+ Feet - Wide Open",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "223f19aea1e39c8eff586b767cbc361a": {
 "frame": 0,
 "name": "SynergyPlayTypes",
@@ -1771,6 +2032,16 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"2513c6123121c86adad06cecce84c928": {
+"frame": 0,
+"name": "LeagueDashPlayerClutch",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "255570d43ff3d98d9625ced3abecc1b9": {
 "frame": 0,
 "name": "LeagueDashPtDefend",
@@ -1843,6 +2114,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"26b6cc5ea4f5efba372705e140dd6c69": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612749
+}
+},
 "26b86dd0d0ccc8fe29f93b611858f6c6": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -1861,6 +2143,17 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612745
+}
+},
+"2725034728753108d5ab6fdd775af3f8": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612739
 }
 },
 "2725e01363be873404a28007772e93d4": {
@@ -1936,6 +2229,17 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612744
+}
+},
+"27b28b892a6d00cce2745b154e843249": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612766
 }
 },
 "27e24aa2bad01d5f5f99f6d5bdcfb6fd": {
@@ -2567,6 +2871,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"315671ea76d630b0c6dd6595ebc14d02": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612737
+}
+},
 "3164efdbad8fa22b139976aaea62c6a6": {
 "frame": 0,
 "name": "LeagueDashPlayerStats",
@@ -2575,6 +2890,17 @@
 "per_mode_detailed": "Totals",
 "season": "2023-24",
 "season_type_all_star": "Regular Season"
+}
+},
+"3175414b05463ff51fa5a818018db3a0": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612751
 }
 },
 "319f6c65146ec9791ac40d901a402279": {
@@ -2638,6 +2964,15 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612750
+}
+},
+"33d830524bcede35b5d40ab55fa8c08b": {
+"frame": 0,
+"name": "LeagueDashPtDefend",
+"params": {
+"defense_category": "3 Pointers",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "33e310f4dc7963f444b833d18879365c": {
@@ -2706,6 +3041,17 @@
 "team_id": 1610612764
 }
 },
+"34fe1ca951b667298ebb1415ea798cc1": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612748
+}
+},
 "351c798ce3781f43f3d484075b1e092e": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -2737,6 +3083,17 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612739
+}
+},
+"356e742cd192ee911f82c8a77c264fd1": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612762
 }
 },
 "35a5e4411d1c2e3bd921a18c8b779b9d": {
@@ -2932,6 +3289,17 @@
 "type_grouping_nullable": "defensive"
 }
 },
+"38f7b4242a263e790b670dab91fd52c0": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612759
+}
+},
 "3914aacfe31ba62753792b62bed65e34": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -3037,6 +3405,17 @@
 "dribble_range_nullable": "1 Dribble",
 "season": "2022-23",
 "season_type_all_star": "Regular Season"
+}
+},
+"3bd07f0311110c06af47949911abe83c": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612745
 }
 },
 "3bf306f19a4d5fb8aa97390672be8be2": {
@@ -3264,6 +3643,15 @@
 "team_id": 1610612743
 }
 },
+"3edcd028075c7254197c4746747cfb8d": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"close_def_dist_range_nullable": "0-2 Feet - Very Tight",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "3ee831ba052892614c1e8e58a078354b": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -3273,6 +3661,17 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612745
+}
+},
+"3eecc363fe5caa2fbb7ddeb7b6f13147": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612761
 }
 },
 "3f1413c085b52d5d16c6179a987d976d": {
@@ -3304,6 +3703,17 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "type_grouping_nullable": "offensive"
+}
+},
+"4027cd535e9e9fcac00213d437b25118": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612740
 }
 },
 "402f3232e9d5e7a1a99ddb9432c74d9d": {
@@ -3361,6 +3771,16 @@
 "season": "2020-21",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612749
+}
+},
+"40b79f74d81373a346f04b7fc3076daa": {
+"frame": 0,
+"name": "LeagueDashPlayerClutch",
+"params": {
+"measure_type_detailed_defense": "Base",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "4101624ba6209f1a60db55e6a5944e0b": {
@@ -3655,6 +4075,17 @@
 "team_id": 1610612742
 }
 },
+"451c2ca5ee52249d3c01d53379943648": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612763
+}
+},
 "4531a39a459ca5bb6d51e9eea713dc8f": {
 "frame": 0,
 "name": "PlayerGameLogs",
@@ -3672,6 +4103,15 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612739
+}
+},
+"458cc3c99f6f84a39a18334780d20105": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"close_def_dist_range_nullable": "4-6 Feet - Open",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "45921dac0bd565f553d612df5bca35e6": {
@@ -3725,6 +4165,18 @@
 "season": "2020-21",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612766
+}
+},
+"463d17d09af4f17c7772bbc123b3976e": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "Spotup",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "defensive"
 }
 },
 "46dba09bbbbd9ab0bf3a079ab47fbd7b": {
@@ -3930,6 +4382,17 @@
 "team_id": 1610612754
 }
 },
+"4a7d67dd1db1c9133cf4998896ab4789": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612755
+}
+},
 "4a8f0e2be6a12e0dac073a50ea769a11": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -4022,6 +4485,14 @@
 "season_all_time": "2023-24"
 }
 },
+"4ce6fe37fd12342c9109a17891fbeb54": {
+"frame": 0,
+"name": "PlayerGameLogs",
+"params": {
+"season_nullable": "2018-19",
+"season_type_nullable": "Regular Season"
+}
+},
 "4d798a62e0129ff13aade2c2b71f8edd": {
 "frame": 0,
 "name": "PlayerGameLogs",
@@ -4102,6 +4573,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"4f3e660040027703c55a3493b337794d": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612757
+}
+},
 "4f46c9ed73a11ec3a3bc6ae88e48cf08": {
 "frame": 0,
 "name": "LeagueHustleStatsPlayer",
@@ -4141,6 +4623,17 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "type_grouping_nullable": "offensive"
+}
+},
+"4f8d9de281c02cce618a773ba2bd8f4f": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612746
 }
 },
 "4fbca8516f428b900ffd33409b135a9d": {
@@ -4220,6 +4713,17 @@
 "team_id": 1610612757
 }
 },
+"50cd4f43a12f66ff75b7c8f6cb848e88": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612741
+}
+},
 "50ef259252ebff630e8ed7fc495cc469": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -4250,6 +4754,17 @@
 "season": "2021-22",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612748
+}
+},
+"5165e038831eb45f0fdcb2d916d6a0b2": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612752
 }
 },
 "51cde04efadecc79ee7f0ff2a9315491": {
@@ -4335,6 +4850,17 @@
 "dribble_range_nullable": "7+ Dribbles",
 "season": "2024-25",
 "season_type_all_star": "Regular Season"
+}
+},
+"528f861e25eab996fcdc9f14da52887a": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612749
 }
 },
 "5295907034f931911787ea419316a811": {
@@ -4423,6 +4949,15 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612758
+}
+},
+"5405b539070590756784a44e70866a33": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"dribble_range_nullable": "7+ Dribbles",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "5430ccd84b947dceba1c22ca132eb6f4": {
@@ -4542,6 +5077,15 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"55df495634d2f8dcdfab3c15669e92bf": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"dribble_range_nullable": "2 Dribbles",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "55ea273363a167a2a121ccfb406b697d": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -4594,6 +5138,17 @@
 "season": "2022-23",
 "season_type_all_star": "Regular Season",
 "type_grouping_nullable": "offensive"
+}
+},
+"5747e9feab7b50f7943cdc124c96e56c": {
+"frame": 0,
+"name": "LeagueDashPtStats",
+"params": {
+"per_mode_simple": "Totals",
+"player_or_team": "Player",
+"pt_measure_type": "Drives",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "5766485fcbc0e762436418df2b99e5f4": {
@@ -4723,6 +5278,17 @@
 "season": "2020-21",
 "season_type_all_star": "Regular Season",
 "type_grouping_nullable": "offensive"
+}
+},
+"597289abea7bf1de42e4e7b1e3541a8e": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612763
 }
 },
 "598c603c61a5ab4ad329d5dc06083003": {
@@ -5259,6 +5825,17 @@
 "team_id": 1610612759
 }
 },
+"61b97a07efe5d5de81b8b81126d13fe8": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612753
+}
+},
 "61bf7a9e50bb525e8da00e37f01406b3": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -5304,6 +5881,17 @@
 "type_grouping_nullable": "offensive"
 }
 },
+"62a5d51ad18ca12ba49eedb1b45d4afa": {
+"frame": 0,
+"name": "LeagueDashPtStats",
+"params": {
+"per_mode_simple": "Totals",
+"player_or_team": "Player",
+"pt_measure_type": "Passing",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "62d805f8fbf87c2108e9a290ab205836": {
 "frame": 0,
 "name": "SynergyPlayTypes",
@@ -5347,6 +5935,18 @@
 "shot_clock_range_nullable": "4-0 Very Late"
 }
 },
+"62ffbbbea970ba6de9535f4afa95d0a1": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "PRBallHandler",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "defensive"
+}
+},
 "63141055536ad6fae9dd55bf2ef82524": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -5379,6 +5979,16 @@
 "season": "2019-20",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612746
+}
+},
+"638bdae326fa87a236fd6c52db9f805d": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Misc",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "63a6859db4eda2dd0204e8249867f8f4": {
@@ -5519,6 +6129,26 @@
 "team_id": 1610612744
 }
 },
+"65fdfd0f9c615172880e30e309f4b4d4": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612757
+}
+},
+"6634eaa4939c2df5e69c06dc39509d00": {
+"frame": 0,
+"name": "LeagueDashPtDefend",
+"params": {
+"defense_category": "Greater Than 15Ft",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "66354b571a30c9ebcb310ea74b057221": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -5562,6 +6192,28 @@
 "pt_measure_type": "Rebounding",
 "season": "2024-25",
 "season_type_all_star": "Regular Season"
+}
+},
+"66ae50ca8e252985f219aa8662a34806": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612743
+}
+},
+"67110c99f7c3c469125f3598d81b20ea": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612754
 }
 },
 "671b56984216e5bbc77d8354296c9724": {
@@ -5630,6 +6282,17 @@
 "team_id": 1610612763
 }
 },
+"6878a0e8d413deaf8e8920957be41e9c": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612739
+}
+},
 "68d5eb9b5eb02ba03a54dcfbca1b39a7": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -5659,6 +6322,17 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612752
+}
+},
+"699a4cb381f18abb9097a553cf18d765": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612749
 }
 },
 "6a0760a3b82003b27b90178dd03b44af": {
@@ -5746,6 +6420,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"6b2d156d5f1b6bfb252a633778179e55": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612754
+}
+},
 "6b3de0e3b61d18e9b9ba141cd3fa08d0": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -5755,6 +6440,17 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612739
+}
+},
+"6b4b1cd902045607f6a5da1d0b62bcf9": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612761
 }
 },
 "6b511bd3c826ac43673aa123b0e6984b": {
@@ -5819,6 +6515,17 @@
 "team_id": 1610612744
 }
 },
+"6c789a65a8b3bdc66a5e356c0d74566f": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612753
+}
+},
 "6c87f6714b7735d8f4928db4231f0039": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -5828,6 +6535,17 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612751
+}
+},
+"6c9df288dfcc7bb086eefae89686066a": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612760
 }
 },
 "6ca747fff21518def21ab69000254c0e": {
@@ -5895,6 +6613,17 @@
 "starter_bench_nullable": "Starters"
 }
 },
+"6db6d1ee5d6f6083a843902b480927b6": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612763
+}
+},
 "6ddb74eb3eefc79b989133ce945b1bfe": {
 "frame": 0,
 "name": "SynergyPlayTypes",
@@ -5940,6 +6669,17 @@
 "team_id": 1610612743
 }
 },
+"6e5479424613eee70525b7f265b97e7b": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612758
+}
+},
 "6e8b78e337172bf0f94f0aed37fea4ad": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -5949,6 +6689,49 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612738
+}
+},
+"6e9753cd858acc1ad144ad3d20af417d": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "Misc",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "offensive"
+}
+},
+"6eaaaa6018a4a29389b079243476cef3": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"shot_clock_range_nullable": "22-18 Very Early"
+}
+},
+"6ece388f30f1256944ed9422c11b1543": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612765
+}
+},
+"6edcabc3e1e80ca55283b5c2a3832307": {
+"frame": 0,
+"name": "LeagueDashPtStats",
+"params": {
+"per_mode_simple": "Totals",
+"player_or_team": "Player",
+"pt_measure_type": "ElbowTouch",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "6ef83bcaf309612f17f0ca093f212c2a": {
@@ -6070,6 +6853,16 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612750
+}
+},
+"7088fec51a705b11e7604022a6d0169d": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "70a749d223fb39d7b8fe77520e49dc0d": {
@@ -6243,6 +7036,15 @@
 "team_id": 1610612761
 }
 },
+"741a0bfdb9e31e99b5cc0c99fab306cb": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"shot_clock_range_nullable": "7-4 Late"
+}
+},
 "7456952fd164a148aaa9faa1f49b2c72": {
 "frame": 0,
 "name": "LeagueDashPtStats",
@@ -6251,6 +7053,15 @@
 "player_or_team": "Player",
 "pt_measure_type": "CatchShoot",
 "season": "2024-25",
+"season_type_all_star": "Regular Season"
+}
+},
+"7461dfbed0df790248970fe34fd1796d": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"dribble_range_nullable": "3-6 Dribbles",
+"season": "2018-19",
 "season_type_all_star": "Regular Season"
 }
 },
@@ -6295,6 +7106,29 @@
 "season": "2021-22",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612759
+}
+},
+"751e7e495dcfc6b5ed9a4e710e004d99": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "Isolation",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "defensive"
+}
+},
+"7536de03d6a4c3b26a97743fad0d4d4b": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612766
 }
 },
 "75b471883ecfccc4a005129df337e6b0": {
@@ -6368,6 +7202,18 @@
 "play_type_nullable": "OffScreen",
 "player_or_team_abbreviation": "P",
 "season": "2025-26",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "offensive"
+}
+},
+"77c3b2969deb787d2615a60e055e2ee8": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "Postup",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
 "season_type_all_star": "Regular Season",
 "type_grouping_nullable": "offensive"
 }
@@ -6514,6 +7360,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"7a4cb59ecebe14270ea3704cfc068bdc": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612743
+}
+},
 "7a55fc50910f3ccdcc525829d1b69b89": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -6534,6 +7391,39 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612759
+}
+},
+"7a7406170fa6067dabca7b5b350c101e": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612754
+}
+},
+"7ade190a8861c14b1b67387875af7325": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612742
+}
+},
+"7ae2acee7f8b1a85a1ff07e575861f20": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612749
 }
 },
 "7ae77e29d1969af2b8fc8835b08a7de3": {
@@ -6599,6 +7489,18 @@
 "season": "2022-23",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612743
+}
+},
+"7c3ac251f96b4bc0bf2fc09b64bad2cc": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "Transition",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "offensive"
 }
 },
 "7cfa0cf8e111eff225bae00e69673d3d": {
@@ -6696,6 +7598,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"7d9402d991143c07f573592221ac6ff8": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612759
+}
+},
 "7de6a312ca98f33e220bf5a492265d8f": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -6716,6 +7629,17 @@
 "season": "2021-22",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612744
+}
+},
+"7e056f025148eb2dbdd53984bc0f4d51": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612757
 }
 },
 "7e3252d2bdee1f07f83e5a8f68689ee5": {
@@ -6845,6 +7769,17 @@
 "team_id": 1610612758
 }
 },
+"802424e2d663676df6a37a72226712f6": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612740
+}
+},
 "803786d03cfbd0be824206542eb049ba": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -6921,6 +7856,17 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "type_grouping_nullable": "defensive"
+}
+},
+"8131d3f948ef120755d5e8e24830aa65": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612742
 }
 },
 "817601f145008ba2ba929ebeddab3113": {
@@ -7048,6 +7994,17 @@
 "team_id": 1610612743
 }
 },
+"838281890cb7ecf46547dd147732db17": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612753
+}
+},
 "83ad0a4cd42d338e1ad9396a361d8fda": {
 "frame": 0,
 "name": "LeagueDashPtStats",
@@ -7057,6 +8014,15 @@
 "pt_measure_type": "PaintTouch",
 "season": "2022-23",
 "season_type_all_star": "Regular Season"
+}
+},
+"83b0f5599acf2a4ebe823d7cae3b8ba3": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"shot_clock_range_nullable": "4-0 Very Late"
 }
 },
 "83d6233cb6b65c690f4a06b2859d8418": {
@@ -7090,6 +8056,17 @@
 "season": "2020-21",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612748
+}
+},
+"8565b8f010b71764bcc46b8dc5d0b9fd": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612738
 }
 },
 "859249fca8c8b6da11f82b0e5f3129ab": {
@@ -7165,6 +8142,17 @@
 "team_id": 1610612753
 }
 },
+"86a1bed38e30827fcfe3ca4501c87d5f": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612748
+}
+},
 "86e28fb64d39af73108fe699387d5bad": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -7183,6 +8171,28 @@
 "per_mode_simple": "Totals",
 "season": "2020-21",
 "season_type_playoffs": "Regular Season"
+}
+},
+"871eb129f01536e5eced6011f7e548d0": {
+"frame": 0,
+"name": "LeagueDashPtStats",
+"params": {
+"per_mode_simple": "Totals",
+"player_or_team": "Player",
+"pt_measure_type": "SpeedDistance",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
+"874828b91bb84a20c9b81e4e4dc7760b": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612741
 }
 },
 "87540b140595c6ba403decc1dee5acdd": {
@@ -7260,6 +8270,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"88f2987f5b1028ae6929b454388352be": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612747
+}
+},
 "89157ccbcf069b95c26e8ef71e061f1d": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -7313,6 +8334,17 @@
 "team_id": 1610612764
 }
 },
+"89a688a642c8f15e7a1b8bec3c1dadb8": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612751
+}
+},
 "89ed77235c095a7114b03791f2654dbd": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -7342,6 +8374,17 @@
 "defense_category": "3 Pointers",
 "season": "2024-25",
 "season_type_all_star": "Regular Season"
+}
+},
+"8a47b1fbcc2fda8d376076f183dbf16f": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612751
 }
 },
 "8aeb02d2212ea93fc01cd1b155f06a85": {
@@ -7375,6 +8418,17 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612738
+}
+},
+"8b5c93c15962f56b52008d103fc37152": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612741
 }
 },
 "8b812daf70f00c61a04c26474c74d1ec": {
@@ -7447,6 +8501,15 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612741
+}
+},
+"8da997295fa423fbf1ebac082424672e": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"shot_clock_range_nullable": "18-15 Early"
 }
 },
 "8dae6601a40124e166b6dfa46edacd74": {
@@ -7633,6 +8696,15 @@
 "team_id": 1610612757
 }
 },
+"90587c9a506e2771bffa7afee8baaab3": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"touch_time_range_nullable": "Touch 6+ Seconds"
+}
+},
 "916749ab425bcb9c7c141cc346c0008d": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -7678,6 +8750,17 @@
 "team_id": 1610612755
 }
 },
+"9255a2a92b2b4464a7b10312ca449b72": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612755
+}
+},
 "927f3c6e531ba60fabfbfc7714ea7799": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -7719,6 +8802,17 @@
 "season": "2019-20",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612750
+}
+},
+"93738cfc3675ce86588be2c0fd5ebf0d": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612746
 }
 },
 "93b59294724a3aa46aa22e4f4861fc6b": {
@@ -7923,6 +9017,17 @@
 "team_id": 1610612754
 }
 },
+"95ae96768b4e6f1b3d0d2e4b844c904c": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612745
+}
+},
 "960631c68dbe2038ccb2dc400f61474b": {
 "frame": 0,
 "name": "LeagueDashPtStats",
@@ -7975,6 +9080,28 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"9726bde778305de847dca16fdeb8f2ad": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612752
+}
+},
+"97369db974e2d8dc9a223980b67fee16": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612743
+}
+},
 "97fdadb29f5bf679f0644334337d87c0": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -7984,6 +9111,17 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612763
+}
+},
+"9816df1d728a4ce47d355d6e848f495a": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612764
 }
 },
 "984ad2388a8bbdd8fda2baec81098a82": {
@@ -8124,6 +9262,18 @@
 "defense_category": "3 Pointers",
 "season": "2020-21",
 "season_type_all_star": "Regular Season"
+}
+},
+"9ae5c1a85bf32e6b4b09c1d7cf8d3f18": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "PRRollman",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "offensive"
 }
 },
 "9afbc1464a17a76d3444436dea13f145": {
@@ -8406,6 +9556,17 @@
 "type_grouping_nullable": "offensive"
 }
 },
+"9e883756b1a0ef18ec64dd9d36d50d4f": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612761
+}
+},
 "9e9a9a14867319bfdf639b66628704b8": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -8497,6 +9658,17 @@
 "type_grouping_nullable": "offensive"
 }
 },
+"9f762c0588e92d105302d0290a05f7cc": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612756
+}
+},
 "a00b752d88445dd513619fa72d1069a5": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -8581,6 +9753,17 @@
 "team_id": 1610612764
 }
 },
+"a0f3519beedae211dd32bb07a1aded6b": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612737
+}
+},
 "a0f3de7399568997c79048665484c132": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -8632,6 +9815,17 @@
 "season": "2020-21",
 "season_type_all_star": "Regular Season",
 "type_grouping_nullable": "offensive"
+}
+},
+"a1a3b35fe733736597de8708c2f1f027": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612750
 }
 },
 "a28f2bb486ea3e5d1bc5ad78fb2bd087": {
@@ -8768,6 +9962,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"a53eb2fa64a0783b78cd951d6a1c32b1": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612760
+}
+},
 "a57e8437e3c1f43d58c27dc7c432aed7": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -8834,6 +10039,17 @@
 "team_id": 1610612750
 }
 },
+"a6d094b3084fd19ba85019e73a9b3f7d": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612764
+}
+},
 "a6d1fa429ff0db4a6d97862e74e86e32": {
 "frame": 0,
 "name": "DraftCombineStats",
@@ -8892,6 +10108,17 @@
 "season": "2021-22",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612763
+}
+},
+"a8925ea82172bc891fedb79a9b2a337a": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612738
 }
 },
 "a8d12ec31685796bc4c054d40c212909": {
@@ -8991,6 +10218,17 @@
 "team_id": 1610612762
 }
 },
+"a9cb21d735d1164ab57abe1c3eb83903": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612747
+}
+},
 "aa076efa8a5b71f65ed6ef5e93ce6b6e": {
 "frame": 0,
 "name": "LeagueDashPtDefend",
@@ -9043,6 +10281,26 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612737
+}
+},
+"aa74e4b55e00c06834a78aba06ba58dd": {
+"frame": 0,
+"name": "LeagueDashPtDefend",
+"params": {
+"defense_category": "Less Than 10Ft",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
+"aa7540bf38827ab33462961227ec4f67": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612760
 }
 },
 "aa76c08f355d9cca1f96e671a79a1918": {
@@ -9118,6 +10376,17 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612742
+}
+},
+"ab823050fb9f805dba8072fdd89a0d78": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612745
 }
 },
 "ab8d7c0ebf10d241bf644b575e706917": {
@@ -9235,6 +10504,28 @@
 "params": {
 "league_id": "00",
 "season_all_time": "2014-15"
+}
+},
+"ad4aff0eb831f775269ecfe00777fd76": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612765
+}
+},
+"ad4bcbdacd5eba8ece7bad0b804ca891": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612744
 }
 },
 "ad4f1f3ef010958d314daf2a6ecc3188": {
@@ -9386,6 +10677,18 @@
 "team_id": 1610612762
 }
 },
+"af745538476ec0104f8405fb16861b95": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "PRRollman",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "defensive"
+}
+},
 "af7733637e45ec3c4a4e70f209f52162": {
 "frame": 0,
 "name": "SynergyPlayTypes",
@@ -9430,6 +10733,16 @@
 "team_id": 1610612764
 }
 },
+"afbb5519b6c81589ee128c7d1d28590d": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Scoring",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "afd28d6101349bb81920339b18c42197": {
 "frame": 0,
 "name": "SynergyPlayTypes",
@@ -9462,6 +10775,17 @@
 "season": "2022-23",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612737
+}
+},
+"b0da424c7078208d69efca0d2d859de4": {
+"frame": 0,
+"name": "LeagueDashPtStats",
+"params": {
+"per_mode_simple": "Totals",
+"player_or_team": "Player",
+"pt_measure_type": "Possessions",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "b198afcff8bad0077d1f772456285847": {
@@ -9507,6 +10831,17 @@
 "team_id": 1610612757
 }
 },
+"b235d1859651c0e19d24600dde987bfc": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612765
+}
+},
 "b2b708bece96dda880e42364da0cd17b": {
 "frame": 0,
 "name": "LeagueDashPtDefend",
@@ -9534,6 +10869,29 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612761
+}
+},
+"b2e10ad157d62b00a26f1cde91126b93": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612755
+}
+},
+"b3101390ba19c8f64bd984c0370521df": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "OffScreen",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "defensive"
 }
 },
 "b311bfae97213f61b1e0863b7a5cc07b": {
@@ -10003,6 +11361,17 @@
 "team_id": 1610612746
 }
 },
+"b8c6a4c6987c148a71fca5431abbec06": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612751
+}
+},
 "b8f26e9ce77b0ddd46451c3f9fa935c4": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -10119,6 +11488,15 @@
 "starter_bench_nullable": "Starters"
 }
 },
+"bad0c46facbb637bcaffd2fa79e8b812": {
+"frame": 0,
+"name": "LeagueHustleStatsPlayer",
+"params": {
+"per_mode_time": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "bb491c2b60c87a990692384bc8946b77": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -10126,6 +11504,15 @@
 "close_def_dist_range_nullable": "4-6 Feet - Open",
 "season": "2024-25",
 "season_type_all_star": "Regular Season"
+}
+},
+"bb6aa298ab372a7af57149aa1c5777c7": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"touch_time_range_nullable": "Touch < 2 Seconds"
 }
 },
 "bb8228e87a854d5220ff01c2497bf50e": {
@@ -10182,6 +11569,17 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612745
+}
+},
+"bc9977f76d292e84c2a6edb74281957e": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612752
 }
 },
 "bca0935cad5e134771de25ccb2aa5c2a": {
@@ -10311,6 +11709,18 @@
 "team_id": 1610612761
 }
 },
+"bdcce534958061f9d8de3034bb5fa1f7": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "Cut",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "offensive"
+}
+},
 "bdd0ab57a87b8f929e0aba800ebe4959": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -10320,6 +11730,17 @@
 "season": "2020-21",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612740
+}
+},
+"bdd21ef570fa4eb258d3b956984d415c": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612737
 }
 },
 "bdd615cafb4560abcdb32cf8dad544e1": {
@@ -10620,6 +12041,17 @@
 "team_id": 1610612757
 }
 },
+"c250b995c39bd6e1d4ca696a24036381": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612748
+}
+},
 "c284fab0643134ca7d99333260f065d9": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -10734,6 +12166,18 @@
 "team_id": 1610612743
 }
 },
+"c36a24092c9c8ff33909feb632451f97": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "Postup",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "defensive"
+}
+},
 "c4045dbab01ebf107b3eae156c685e6c": {
 "frame": 0,
 "name": "LeagueDashPtStats",
@@ -10801,6 +12245,17 @@
 "type_grouping_nullable": "offensive"
 }
 },
+"c50dcef5bc520ecc7d21bf0d6fc59d3c": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612744
+}
+},
 "c52ff150d524149599dc64a70dd3eaf7": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -10832,6 +12287,17 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612750
+}
+},
+"c57963234410b5cffff62f9af11c366d": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612746
 }
 },
 "c580e146db40828d2ef4ea7fcd45f499": {
@@ -10919,6 +12385,15 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"c648b0a778c32c6aeac6024fdf176e35": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"close_def_dist_range_nullable": "2-4 Feet - Tight",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "c652d4f1d0e86dbf22228c67958b099a": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -10948,6 +12423,27 @@
 "per_mode_time": "Totals",
 "season": "2021-22",
 "season_type_all_star": "Regular Season"
+}
+},
+"c6b4ee2ae11c009f54f1022ba6675f42": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Usage",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
+"c6b717cafa7b1ccec28593e499bd1c0e": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612750
 }
 },
 "c6b8c6d680d33db2a36872ea42e542c7": {
@@ -11045,6 +12541,17 @@
 "team_id": 1610612749
 }
 },
+"c7ffc910b6d0791fd949d7f419caaf9b": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612750
+}
+},
 "c8488a6d0fe41e0e757c6349a5149ee3": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -11118,6 +12625,39 @@
 "season": "2020-21",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612740
+}
+},
+"c9229e8a17a5d08ac6dea69cbdd95c66": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612762
+}
+},
+"c9405d4381512f3001e4c129ea1614fd": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Base",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"starter_bench_nullable": "Bench"
+}
+},
+"c96fe00fe2ac0ff1ae1e13d5539a578d": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612739
 }
 },
 "c99bf557fb33abb54ea0e033668e8927": {
@@ -11212,6 +12752,17 @@
 "close_def_dist_range_nullable": "4-6 Feet - Open",
 "season": "2025-26",
 "season_type_all_star": "Regular Season"
+}
+},
+"cb8abd7c83b52c8285acdefd6945b412": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612764
 }
 },
 "cbbafd49e39ee2d08944d7177069577c": {
@@ -11332,6 +12883,15 @@
 "touch_time_range_nullable": "Touch 6+ Seconds"
 }
 },
+"cd694c5b03b677fc45de28a3a70f2286": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"dribble_range_nullable": "1 Dribble",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "cdb11890a0faab14060e1ba113f7a533": {
 "frame": 0,
 "name": "LeagueDashPlayerStats",
@@ -11414,6 +12974,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"cf398c169f85ab8ff65b004f965a0c48": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612748
+}
+},
 "cf73e5dcd23ef5b000421726211dc138": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -11423,6 +12994,28 @@
 "season": "2024-25",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612740
+}
+},
+"cfacc0e69471a956648af1ea9c76cab6": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612759
+}
+},
+"cffd32d1304d95eda26d07d651ed8ff9": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612739
 }
 },
 "d02b64d95039e18f7ca99d56cfe3eb94": {
@@ -11668,6 +13261,17 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612752
+}
+},
+"d2b18ad649aaf7b5a8508fbcd750a617": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612737
 }
 },
 "d2b49e3ddf68c6fa275697f36c7280c5": {
@@ -11932,6 +13536,15 @@
 "team_id": 1610612754
 }
 },
+"d7df098fe4228920311306227a3a0ea9": {
+"frame": 0,
+"name": "MatchupsRollup",
+"params": {
+"per_mode_simple": "Totals",
+"season": "2018-19",
+"season_type_playoffs": "Regular Season"
+}
+},
 "d7fb788ef7199668d666128052106a52": {
 "frame": 0,
 "name": "LeagueDashPtStats",
@@ -12072,6 +13685,17 @@
 "season": "2022-23",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612738
+}
+},
+"db68b5b4c65df34c2bad8dcd8bfd07f2": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612759
 }
 },
 "dba0fac9a418fbc26ea4ecbfc837b31c": {
@@ -12244,6 +13868,29 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"deb191fa4d20fb95576c8a0e107fc353": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612762
+}
+},
+"deb9eb6e4969b8c71eee13d28c902973": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "Spotup",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "offensive"
+}
+},
 "df17c8f111aff8415ce91cd75473f6fb": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -12344,6 +13991,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"dfdac2f0bbfb5e1944e981f47ae9f5a1": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612763
+}
+},
 "dfe479c16c6f8f90c2c98fa183935415": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -12430,6 +14088,17 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"e1927004612780e9b3ea01ae1244775c": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612766
+}
+},
 "e198a1e4cb8e452b211c64511adf704f": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -12459,6 +14128,15 @@
 "season": "2020-21",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612749
+}
+},
+"e260b8f58d765f69408144c1337e42f6": {
+"frame": 0,
+"name": "LeagueSeasonMatchups",
+"params": {
+"per_mode_simple": "Totals",
+"season": "2018-19",
+"season_type_playoffs": "Regular Season"
 }
 },
 "e261289b73d2565be80e7353580f2844": {
@@ -12503,6 +14181,28 @@
 "pt_measure_type": "Passing",
 "season": "2021-22",
 "season_type_all_star": "Regular Season"
+}
+},
+"e35fe1085f8c9dc7b390ad990cdd0f12": {
+"frame": 0,
+"name": "LeagueDashPtStats",
+"params": {
+"per_mode_simple": "Totals",
+"player_or_team": "Player",
+"pt_measure_type": "Defense",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
+"e3640278d182eb6ad3abcf82c2eb55c8": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612762
 }
 },
 "e38902d6ebaacbfe80d19bb275baf246": {
@@ -12558,6 +14258,17 @@
 "season": "2020-21",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612742
+}
+},
+"e46a39a7fd15fa784c2cf4f9bdc62853": {
+"frame": 0,
+"name": "LeagueDashPtStats",
+"params": {
+"per_mode_simple": "Totals",
+"player_or_team": "Player",
+"pt_measure_type": "PaintTouch",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "e46ac696232e7af9e62bbead4dc4ea27": {
@@ -12651,6 +14362,17 @@
 "team_id": 1610612740
 }
 },
+"e6240b62432608b90db430c3d5be429a": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612742
+}
+},
 "e6b7f45f56cef1b3fd66186cbb4a0134": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -12682,6 +14404,17 @@
 "season_type_playoffs": "Regular Season"
 }
 },
+"e70581fc27a60cdb4db465fc6dc703ad": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612746
+}
+},
 "e708944f020771e4d203505186c6d30e": {
 "frame": 0,
 "name": "LeagueDashPlayerStats",
@@ -12690,6 +14423,17 @@
 "per_mode_detailed": "Totals",
 "season": "2021-22",
 "season_type_all_star": "Regular Season"
+}
+},
+"e7112678076d1b40c632cbfa14a84f17": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612761
 }
 },
 "e77aaef6e60b607b5baf0f0b3c181724": {
@@ -12886,6 +14630,18 @@
 "team_id": 1610612747
 }
 },
+"ea6ca3d4798534c23ee26225e9e49e6a": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "OffScreen",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "offensive"
+}
+},
 "eab2a48352f1d02ef1e5974c96c0ed31": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -12928,6 +14684,17 @@
 "season": "2019-20",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612739
+}
+},
+"eb0c71f7d21dcf8b8385cad2c70e6958": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612740
 }
 },
 "eb31ddadba76d0517fc2000f851c8e3d": {
@@ -13111,6 +14878,17 @@
 "type_grouping_nullable": "offensive"
 }
 },
+"ee16c12f83bdfccc0474a74db2cbbe45": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612764
+}
+},
 "ee1fcb513d8a4a50817480be5d43da6e": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -13120,6 +14898,17 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612759
+}
+},
+"ee301119753f2943e34cae84d1836384": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612747
 }
 },
 "ee49bd3f60bdec54003cea0b6b223951": {
@@ -13261,6 +15050,17 @@
 "team_id": 1610612765
 }
 },
+"efdda5a1e368c19f86ade13eb268f767": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612740
+}
+},
 "efdf78273af17fbf365073cadb0c3990": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -13390,6 +15190,15 @@
 "team_id": 1610612757
 }
 },
+"f20682ee6114db98c822bce728b0ad9a": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"shot_clock_range_nullable": "15-7 Average"
+}
+},
 "f21cb3d47ca5fff6303fd6e2f149cd23": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -13399,6 +15208,17 @@
 "season": "2020-21",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612751
+}
+},
+"f2b5aa635838c15c4341a5f92e9828a6": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612758
 }
 },
 "f2ba7449300e50da574c60c62ee4771f": {
@@ -13432,6 +15252,18 @@
 "season": "2019-20",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612762
+}
+},
+"f33b1359d115e19e0032f01e279b160a": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "OffRebound",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "offensive"
 }
 },
 "f3cc700446f3758a42620bbd89b73df3": {
@@ -13595,6 +15427,28 @@
 "season_type_all_star": "Regular Season"
 }
 },
+"f5defd591845390f57f1caa2ceb08cbd": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612738
+}
+},
+"f5ec47ae1a19c4a9499756713e71ef09": {
+"frame": 0,
+"name": "LeagueDashPtStats",
+"params": {
+"per_mode_simple": "Totals",
+"player_or_team": "Player",
+"pt_measure_type": "PostTouch",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "f60cb0979fdf76fae8eb4533daa969b7": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -13638,6 +15492,15 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612744
+}
+},
+"f6e9f33f2260e3697d91a403d05dce14": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"dribble_range_nullable": "0 Dribbles",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
 }
 },
 "f6f7efb09754f93161abb3e9f58eb62c": {
@@ -13734,6 +15597,18 @@
 "type_grouping_nullable": "defensive"
 }
 },
+"f86e74ad00bedc2f3e365f99257d04c7": {
+"frame": 0,
+"name": "SynergyPlayTypes",
+"params": {
+"per_mode_simple": "Totals",
+"play_type_nullable": "PRBallHandler",
+"player_or_team_abbreviation": "P",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"type_grouping_nullable": "offensive"
+}
+},
 "f878c777df56ce3fae64589286228611": {
 "frame": 0,
 "name": "LeagueDashPtStats",
@@ -13767,6 +15642,17 @@
 "team_id": 1610612754
 }
 },
+"f9cd1764ccf956a771fa22bbbec93316": {
+"frame": 2,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612756
+}
+},
 "f9d221754504720ba0446939edcfce33": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -13787,6 +15673,17 @@
 "touch_time_range_nullable": "Touch 2-6 Seconds"
 }
 },
+"fa255b843976dfb00c330f1bc42657aa": {
+"frame": 0,
+"name": "LeagueDashPlayerStats",
+"params": {
+"measure_type_detailed_defense": "Base",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"starter_bench_nullable": "Starters"
+}
+},
 "fa4f1ea16cf1a35b354db2f1aeccb6b6": {
 "frame": 1,
 "name": "TeamPlayerOnOffDetails",
@@ -13796,6 +15693,17 @@
 "season": "2021-22",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612755
+}
+},
+"fa4fe4aacb17a2085445a0d0d937ed60": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612765
 }
 },
 "fa7e6140d25a54dbb55d6216265fcd2e": {
@@ -13842,6 +15750,17 @@
 "team_id": 1610612755
 }
 },
+"faea47dc9554ada995bd6f7b98b2fd84": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612754
+}
+},
 "faf363f495bc46242a956a0926d61885": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -13867,6 +15786,15 @@
 "name": "LeverageLeaders",
 "params": {
 "season": "2025-26",
+"season_type_all_star": "Regular Season"
+}
+},
+"fb4b7402e2a916e6702e80468acea3e3": {
+"frame": 0,
+"name": "LeagueDashPtDefend",
+"params": {
+"defense_category": "2 Pointers",
+"season": "2018-19",
 "season_type_all_star": "Regular Season"
 }
 },
@@ -14025,6 +15953,28 @@
 "team_id": 1610612741
 }
 },
+"fd93123cc06b280dd0467dfda7c7d50a": {
+"frame": 1,
+"name": "TeamPlayerOnOffSummary",
+"params": {
+"measure_type_detailed_defense": "Advanced",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612742
+}
+},
+"fdc24f790c417a394d153e4598f9c6ac": {
+"frame": 0,
+"name": "LeagueDashPtStats",
+"params": {
+"per_mode_simple": "Totals",
+"player_or_team": "Player",
+"pt_measure_type": "Rebounding",
+"season": "2018-19",
+"season_type_all_star": "Regular Season"
+}
+},
 "fddc0f54aabfe4de705e400cd0091c8a": {
 "frame": 0,
 "name": "SynergyPlayTypes",
@@ -14071,6 +16021,17 @@
 "type_grouping_nullable": "defensive"
 }
 },
+"fe5290a03eb5811a395c15dd41faa65f": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612758
+}
+},
 "fe573fa10decafd2ee044c32af4c814a": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -14082,6 +16043,17 @@
 "team_id": 1610612759
 }
 },
+"fe64a2de8c9e717077b486f6f338d3c2": {
+"frame": 1,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612745
+}
+},
 "fe88dbf4a5ee28053f9a8b04b7f454ad": {
 "frame": 2,
 "name": "TeamPlayerOnOffSummary",
@@ -14091,6 +16063,15 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612766
+}
+},
+"ff01b59203721d4cbafc873aa4bfc3ae": {
+"frame": 0,
+"name": "LeagueDashPlayerPtShot",
+"params": {
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"shot_clock_range_nullable": "24-22"
 }
 },
 "ff1cffbf949f097966cda1942eec87d9": {
@@ -14113,6 +16094,17 @@
 "season": "2021-22",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612740
+}
+},
+"ff332969a28ed9c5a1b95ddd2ab5f9d1": {
+"frame": 2,
+"name": "TeamPlayerOnOffDetails",
+"params": {
+"measure_type_detailed_defense": "Four Factors",
+"per_mode_detailed": "Totals",
+"season": "2018-19",
+"season_type_all_star": "Regular Season",
+"team_id": 1610612756
 }
 },
 "ff35fa02a6e81a6b6e97e65539c7eb65": {
