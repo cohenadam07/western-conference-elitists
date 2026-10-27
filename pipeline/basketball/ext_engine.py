@@ -349,6 +349,14 @@ def nba_pass(season, players, live=False, log=print):
                     v = _g(r, col)
                     if v is not None:
                         put(pid, key, 100 * v, pts)
+        # The cloud's ESPN-built Scoring table has no fast-break split; take it from the Misc table
+        # (the Mac's upload or the mirror) as fast-break points over points, the NBA's own formula.
+        if box is not None and len(mi) and not (len(sc) and "PCT_PTS_FB" in sc.columns):
+            for pid, r in mi.iterrows():
+                pts = _g(_row(box, int(pid)), "pts")
+                fb = _g(r, "PTS_FB")
+                if pts and fb is not None:
+                    put(pid, "pfb", 100 * fb / pts, pts)
 
     # ================= season-only NBA tables (spread over every window like grav / syn)
     def put_s(pid, key, v, n, nd=1):

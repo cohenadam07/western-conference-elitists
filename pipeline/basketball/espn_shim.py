@@ -317,6 +317,8 @@ class Shim:
                         a["uast3"] += sh["assisted"] is None
                     if sh["paint"]:
                         a["paint_pts"] += 2
+                    elif not sh["three"]:
+                        a["mr_pts"] += 2
         base = self.player_base(ln).set_index("PLAYER_ID")
         rows = []
         for pid, a in acc.items():
@@ -324,7 +326,9 @@ class Shim:
             rows.append(dict(PLAYER_ID=pid, PCT_UAST_FGM=round(T.safe_div(a["uast"], a["fgm"]), 3),
                              PCT_AST_FGM=round(1 - T.safe_div(a["uast"], a["fgm"]), 3) if a["fgm"] else 0,
                              PCT_UAST_3PM=round(T.safe_div(a["uast3"], a["fg3m"]), 3),
-                             PCT_PTS_PAINT=round(T.safe_div(a["paint_pts"], pts), 3)))
+                             PCT_PTS_PAINT=round(T.safe_div(a["paint_pts"], pts), 3),
+                             PCT_PTS_2PT_MR=round(T.safe_div(a["mr_pts"], pts), 3),
+                             PCT_PTS_FT=round(T.safe_div(base.FTM.get(pid, 0), pts), 3)))
         df = pd.DataFrame(rows)
         if len(df):
             df = base[["PLAYER_NAME", "TEAM_ID", "TEAM_ABBREVIATION", "GP", "MIN"]].reset_index().merge(df, on="PLAYER_ID", how="left").fillna(0)
