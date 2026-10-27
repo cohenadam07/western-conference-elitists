@@ -5628,8 +5628,10 @@ function extNeed(){
   const seasons=[curSeason].concat(cmpPlayers().map(function(c){return c.season;}));
   const todo=[];
   seasons.forEach(function(s){ if(!extKnown(s)) todo.push(extLoad(s)); });
-  if(cur&&!cmpPlayers().length&&!EXT.pan[curSeason]) todo.push(extPanels(curSeason));
-  if(curId!=null&&!EXT.p[curId]) todo.push(extPlayer(curId));
+  // a file still loading counts as needed too, so a redraw follows it whoever asked first
+  const pan=EXT.pan[curSeason], pf=curId!=null?EXT.p[curId]:null;
+  if(cur&&!cmpPlayers().length&&(!pan||pan.then)) todo.push(extPanels(curSeason));
+  if(curId!=null&&(!pf||pf.then)) todo.push(extPlayer(curId));
   if(!todo.length) return;
   const want=curId+'|'+curSeason;
   Promise.all(todo).then(function(){
