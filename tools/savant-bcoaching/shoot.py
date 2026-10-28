@@ -29,10 +29,10 @@ def run(pw, width, tag):
 
     def shoot_sections(prefix):
         names = []
-        for i, pl in enumerate(p.query_selector_all('.plate, .treestage')):
+        for i, pl in enumerate(p.query_selector_all('.id, .controls, .ctxrow, .panels, .wrap > .col, #coach > .col, #home > .col, .treestage')):
             if not pl.is_visible():
                 continue
-            h = pl.query_selector('h2.sec')
+            h = pl.query_selector('h2.col-h, .id-name')
             name = (h.inner_text() if h else f'plate{i}').strip().lower()
             name = ''.join(c if c.isalnum() else '-' for c in name)[:40].strip('-') or f'plate{i}'
             pl.scroll_into_view_if_needed(); p.wait_for_timeout(200)
@@ -76,12 +76,12 @@ def run(pw, width, tag):
     report['home_sections'] = shoot_sections(f'{tag}-home')
 
     # coach, career view
-    p.goto(f'{BASE}#c={COACH}', wait_until='networkidle'); p.wait_for_selector('#card .row', timeout=20000); p.wait_for_selector('#rotmap', timeout=20000); p.wait_for_timeout(1200)
+    p.goto(f'{BASE}#c={COACH}', wait_until='networkidle'); p.wait_for_selector('.ctxrow .row', timeout=20000); p.wait_for_selector('#rotmap', timeout=20000); p.wait_for_timeout(1200)
     report['coach_overflow'] = overflow()
     report['coach_height'] = p.evaluate('document.body.scrollHeight')
     p.screenshot(path=f'{OUT}/{tag}-coach-full.png', full_page=True)
     report['coach_sections'] = shoot_sections(f'{tag}-coach')
-    hover_check('#card .row', 'card-row')
+    hover_check('.ctxrow .row', 'card-row')
     hover_check('#coach svg g.hit[data-pick]', 'career-column')
     hover_check('#rotmap', 'rotation-cell', {'x': 60, 'y': 30})
     hover_check('#gchart g.hit', 'offscript-game')
@@ -89,30 +89,47 @@ def run(pw, width, tag):
     hover_check('.tile', 'tile')
     hover_check('#coach .srl', 'split-bar')
     report['hovers'] = hov
-    p.click('#card .row'); p.wait_for_timeout(200)
-    report['explainer_pinned'] = bool(p.query_selector('#card .expl'))
+    p.click('.ctxrow .row .rl'); p.wait_for_timeout(200)
+    report['explainer_pinned'] = bool(p.query_selector('.ctxrow .expl'))
+    p.click('.ctxrow .row .statbtn'); p.wait_for_timeout(400)
+    report['statchart_open'] = bool(p.query_selector('.statchart svg'))
+    if p.query_selector('.statchart'): p.screenshot(path=f'{OUT}/{tag}-statchart.png', clip={'x': 0, 'y': max(0, p.query_selector('.statchart').bounding_box()['y'] - 60), 'width': width, 'height': 320})
+    p.click('.panels .xmore-btn'); p.wait_for_timeout(300)
+    report['more_rows'] = len(p.query_selector_all('.panels .xmore.open .xmore-body .row'))
+    # compare: add a second coach through the search box
+    p.click('#cmpAdd'); p.fill('#q', 'popovich'); p.wait_for_timeout(400); p.keyboard.press('Enter'); p.wait_for_timeout(1500)
+    report['compare_rows'] = len(p.query_selector_all('.row.nochart .cbar'))
+    p.screenshot(path=f'{OUT}/{tag}-compare.png', full_page=False)
+    cx = p.query_selector('.cmp-x')
+    if cx: cx.click(); p.wait_for_timeout(600)
     report['player_links'] = len(p.query_selector_all('a.pl')); report['coach_links'] = len(p.query_selector_all('a.cl'))
 
     # season view
     p.goto(f'{BASE}#c={COACH}&season={SEASON}', wait_until='networkidle'); p.wait_for_timeout(1500)
     report['season_overflow'] = overflow()
-    report['season_card_rows'] = len(p.query_selector_all('#card .row'))
-    report['season_title'] = (p.query_selector('#card h2.sec').inner_text() if p.query_selector('#card h2.sec') else '')
+    report['season_card_rows'] = len(p.query_selector_all('.ctxrow .row, .panels .row'))
+    report['season_title'] = (p.query_selector('#selxBtn').inner_text() if p.query_selector('#selxBtn') else '')
     p.screenshot(path=f'{OUT}/{tag}-season-full.png', full_page=True)
     report['season_sections'] = shoot_sections(f'{tag}-season')
-    p.click('#picker .pk[data-pick="career"]'); p.wait_for_timeout(800)
-    report['back_to_career'] = (p.query_selector('#card h2.sec').inner_text() if p.query_selector('#card h2.sec') else '')
+    p.click('#selxBtn'); p.wait_for_timeout(200); p.click('.selx-opt[data-s="career"]'); p.wait_for_timeout(800)
+    report['back_to_career'] = (p.query_selector('#selxBtn').inner_text() if p.query_selector('#selxBtn') else '')
 
     # tree
     p.goto(f'{BASE}#tree', wait_until='networkidle'); p.wait_for_timeout(2500)
     report['tree_overflow'] = overflow()
-    report['tree_nodes'] = len(p.query_selector_all('#treesvg .leaf'))
+    report['tree_nodes'] = len(p.query_selector_all('#treestage .leaf'))
     p.screenshot(path=f'{OUT}/{tag}-tree.png')
-    p.fill('#tfind', 'popovich'); p.wait_for_timeout(600)
+    p.fill('#treestage .tfind', 'popovich'); p.wait_for_timeout(600)
     p.screenshot(path=f'{OUT}/{tag}-tree-popovich.png')
-    hover_check('#treesvg .leaf', 'tree-node')
-    p.click('#zast'); p.wait_for_timeout(2500)
-    report['tree_nodes_with_assistants'] = len(p.query_selector_all('#treesvg .leaf'))
+    hover_check('#treestage .leaf', 'tree-node')
+    p.click('#treestage .zast'); p.wait_for_timeout(2500)
+    report['tree_nodes_with_assistants'] = len(p.query_selector_all('#treestage .leaf'))
+    # the matching Basketball Savant player page, for the side-by-side
+    sav = BASE.replace('basketball-coaching-savant.html', 'basketball-savant.html') + '?p=203999'
+    p.goto(sav, wait_until='networkidle'); p.wait_for_timeout(2500)
+    p.screenshot(path=f'{OUT}/{tag}-savant-player.png', clip={'x': 0, 'y': 0, 'width': width, 'height': 1600})
+    p.goto(f'{BASE}#c={COACH}', wait_until='networkidle'); p.wait_for_timeout(2000)
+    p.screenshot(path=f'{OUT}/{tag}-coach-top.png', clip={'x': 0, 'y': 0, 'width': width, 'height': 1600})
     report['errors'] = errs[:20]
     b.close()
     return report
@@ -125,6 +142,6 @@ for r in reps:
     print('====', r['tag'], 'overflow home/coach/season/tree:', r['home_overflow'], r['coach_overflow'], r['season_overflow'], r['tree_overflow'], '| coach height', r['coach_height'])
     print('  errors:', r['errors'] or 'none')
     print('  hovers:', {k: v for k, v in r['hovers'].items() if not k.endswith('_box')})
-    print('  explainer pinned:', r['explainer_pinned'], '| links player/coach:', r['player_links'], r['coach_links'], '| season rows:', r['season_card_rows'], r['season_title'], '| back:', r['back_to_career'])
+    print('  explainer pinned:', r['explainer_pinned'], '| statchart:', r.get('statchart_open'), '| more rows:', r.get('more_rows'), '| compare bars:', r.get('compare_rows'), '| links player/coach:', r['player_links'], r['coach_links'], '| season rows:', r['season_card_rows'], r['season_title'], '| back:', r['back_to_career'])
     print('  tree nodes:', r['tree_nodes'], '-> with assistants', r['tree_nodes_with_assistants'])
     print('  sections:', r['coach_sections'])

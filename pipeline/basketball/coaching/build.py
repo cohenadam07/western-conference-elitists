@@ -691,7 +691,15 @@ def pass_two(bundles, reg, odds, public, out, seasons):
             buckets = {bk for c in cl for bk in ((c.get("splits") or {}).get(split) or {})}
             for bk in buckets:
                 gaps[split][bk] = gw(lambda c, split=split, bk=bk: ((((c.get("splits") or {}).get(split) or {}).get(bk) or {}).get("net") - c["results"]["net"]) if (((c.get("splits") or {}).get(split) or {}).get(bk) or {}).get("net") is not None and c["results"].get("net") is not None and (((c.get("splits") or {}).get(split) or {}).get(bk) or {}).get("g", 0) >= 5 else None)
-        league[season] = dict(diet=diet, o_diet=odiet, synergy=syn, split_gaps=gaps, halftime=round(b["lgc"].get("halftime", 0.0), 2), runs=b["lgc"].get("runs"), pools=season_pools.get(season, {}))
+        # the league median of every stat that season, over the ranked coach-seasons: the per-row charts
+        # draw a coach's seasons against it
+        med = {}
+        ranked_vals = [values[k] for k in values if k[0] == season and games_of[k] >= CF.MIN_SEASON_GAMES]
+        for key in season_pools.get(season, {}):
+            xs = sorted(v[key][0] for v in ranked_vals if v.get(key) and v[key][0] is not None and v[key][1] >= CF.BY_KEY[key]["thr"])
+            if xs:
+                med[key] = round(xs[len(xs) // 2] if len(xs) % 2 else (xs[len(xs) // 2 - 1] + xs[len(xs) // 2]) / 2, 3)
+        league[season] = dict(diet=diet, o_diet=odiet, synergy=syn, split_gaps=gaps, halftime=round(b["lgc"].get("halftime", 0.0), 2), runs=b["lgc"].get("runs"), pools=season_pools.get(season, {}), median=med)
     # ---- league trends
     trends = []
     for season, b in sorted(bundles.items()):

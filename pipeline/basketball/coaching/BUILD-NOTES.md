@@ -175,3 +175,34 @@ Two data fixes and a new page, after Adam's visual pass.
   390 wide, console errors, horizontal overflow, the hovers, the picker and the tree. Last run: no
   errors, no overflow at either width, every hover fires, 78 player links and 275 coach links on
   Spoelstra's page.
+
+## Basketball Savant's look (Oct 28, 2026, second pass)
+
+The page now mirrors Basketball Savant's player page rather than approximating it. Its shell
+(cream page, white cards, the WCE badge and wordmark, the live-data strip, pill tabs, Trending
+chips), its identity card (initials, name, meta, a stat line of W–L · win % · titles · wins above
+talent · above the market, honours as chips, "+ Compare", the career-arc dropdown with ★ on the
+peak), its controls bar (the season dropdown, "ranked against", the poor→elite legend), its card
+rows with the chart glyph, its two-column panels with "MORE … (n stats)" toggles, and its compare
+bars are copied rule for rule from `public/basketball-savant.html`, so the two pages read as one
+tool. The page is assembled from `tools/savant-bcoaching/page-src/` (concatenate the files in
+order); the Playwright pass (`tools/savant-bcoaching/shoot.py`) now also captures the matching
+player page for a side-by-side at 1280 and 390 wide.
+
+- **Panels**: Results and expectation across the top; then Rotation and lineups | Game management;
+  Offensive identity | Defensive identity; Players under him | Situation by situation. Headline
+  rows per panel are `HEADLINE` in the page (they include wins above talent and the market, playoff
+  rate, rotation stability, chosen deviation, lineups left on the table, after-timeout offense,
+  challenge success, pace, 3-point rate, rim rate, opponent eFG% and opponent rim rate); the rest,
+  and the detail (timeouts vs runs, challenges, halftime, the shot-zone courts, play types, the
+  situational buckets) sit behind the toggle.
+- **Compare**: "+ Compare" borrows the search box; up to two more coaches draw as thin stacked bars
+  in every row (career vs career, or the same season where each coached it). Chips with × remove.
+- **The chart glyph** on every row draws his seasons (dot colour: that season's percentile) against
+  the league median of the stat (`league[season].median`, new in the build: the median over ranked
+  coach-seasons of every stat with a pool).
+- **Order below the panels**: scouting report, career chart, Rotation Map, pair matrix, lineup
+  quadrant, minutes vs impact, arrival, development, staff, his place in the tree (the zoomable
+  forest, flown to him), comps with the fingerprint overlay, every season.
+- Opponent "shot quality allowed" has no single stat in the registry; opponent eFG% and opponent
+  rim rate headline the defensive panel in its place.
