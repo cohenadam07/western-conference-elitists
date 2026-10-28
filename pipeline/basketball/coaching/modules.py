@@ -172,19 +172,24 @@ def league_context(all_cts):
     return out
 
 
-def season_percentiles(cts_values, games):
-    """{(team, coach): {key: pct}} among coach-team-seasons with enough games."""
+def season_percentiles(cts_values, games, pools=None, min_games=None, live=False):
+    """{(team, coach): {key: pct}} among coach-team-seasons with enough games. If `pools` is a dict,
+    it receives {key: pool size} for the season. live=True is the season in progress ranked
+    provisionally: a man needs a quarter of the stat's settle sample, not all of it."""
     by_key = defaultdict(list)
+    need = CF.MIN_SEASON_GAMES if min_games is None else min_games
     for k, vals in cts_values.items():
-        if games.get(k, 0) < CF.MIN_SEASON_GAMES:
+        if games.get(k, 0) < need:
             continue
         for key, (val, n) in vals.items():
             s = CF.BY_KEY.get(key)
-            if not s or n < s["thr"]:
+            if not s or val is None or n < (max(1, s["thr"] // 4) if live else s["thr"]):
                 continue
             by_key[key].append((k, -val if s["lower"] else val))
     out = defaultdict(dict)
     for key, pairs in by_key.items():
+        if pools is not None:
+            pools[key] = len(pairs)
         for k, p in pct_rank(pairs).items():
             out[k][key] = p
     return out
@@ -423,8 +428,11 @@ def project(model, u):
 
 # ---------------------------------------------------------------- tree
 def suggest_mentors(coaches, tenures, staff):
-    """For every coach: the head coaches he served under, by seasons; the suggestion is the most seasons,
-    ties broken by the last one before his first head job."""
+    """For every coach: the head coaches he served under BEFORE his first NBA head-coaching job, by
+    seasons; the suggestion is the most seasons, ties broken by the last one. A stint after he had
+    already been a head coach (Mike Brown and Kenny Atkinson under Kerr, Nate McMillan under Redick)
+    is a job, not an apprenticeship, and is listed under `later`, never as a mentor. A man who was
+    never a head coach counts every stint."""
     head_by_ts = defaultdict(set)
     for t in tenures:
         head_by_ts[(t["season"], t["team"])].add(t["coach"])
@@ -432,6 +440,7 @@ def suggest_mentors(coaches, tenures, staff):
     for slug, c in coaches.items():
         first_hc = min((r["season"] for r in c["hc"]), default=None)
         served = defaultdict(lambda: [0, None, set()])
+        later = defaultdict(lambda: [0, set()])
         stints = [(r["season"], r["franchise"], r["role"]) for r in c["ast"] if r.get("franchise")]
         for season, teams_ in staff.items():
             for fr, rows in teams_.items():
@@ -442,18 +451,20 @@ def suggest_mentors(coaches, tenures, staff):
             for h in head_by_ts.get((season, fr), ()):
                 if h == slug:
                     continue
-                # before his first head job counts double for the tie-break
+                if first_hc is not None and season >= first_hc:
+                    later[h][0] += 1; later[h][1].add(season)
+                    continue
                 served[h][0] += 1; served[h][2].add(season)
-                if first_hc is None or season < first_hc:
-                    served[h][1] = max(served[h][1] or "", season)
+                served[h][1] = max(served[h][1] or "", season)
+        later_rows = [[h, v[0], sorted(v[1])] for h, v in sorted(later.items(), key=lambda kv: (-kv[1][0], kv[0]))]
         if not served:
-            out[slug] = dict(mentor=None, also=[], under=[])
+            out[slug] = dict(mentor=None, also=[], under=[], later=later_rows)
             continue
         ranked = sorted(served.items(), key=lambda kv: (-kv[1][0], kv[1][1] or "", kv[0]))
         mentor = ranked[0][0]
         tie = len(ranked) > 1 and ranked[1][1][0] == ranked[0][1][0]
         out[slug] = dict(mentor=mentor, seasons=ranked[0][1][0], tie=tie, also=[[h, v[0]] for h, v in ranked[1:4] if v[0] >= 2],
-                         under=[[h, v[0], sorted(v[2])] for h, v in ranked])
+                         under=[[h, v[0], sorted(v[2])] for h, v in ranked], later=later_rows)
     return out
 
 
@@ -473,4 +484,35 @@ def scouting(career_vals, career_pct, pools, name):
         for _, s, p, val, n, ns in cands[:2]:
             how = ("among the most" if p >= 85 else "among the least") if s["kind"] == "much" else ("among the best" if p >= 85 else "among the worst")
             lines.append(dict(group=group, key=s["key"], text=f"{s['label']}: {how} in the pool ({p}th percentile of {pools.get(s['key'], 0)} coaches), over {ns} season{'s' if ns != 1 else ''}.", pct=p))
+    return lines
+
+
+def scouting_season(values, pct, pools, season, g):
+    """The season in progress, written by rule: in each group the two rows furthest from the middle
+    among the season's ranked coaches (85th or above, 15th or below), each line carrying its value,
+    its percentile and pool, its sample and whether the sample has reached the stat's settle point.
+    Regenerated with every refresh, so it moves with the season."""
+    lines = []
+    for group in CF.GROUPS:
+        cands = []
+        for s in CF.STATS:
+            key = s["key"]
+            if s["group"] != group or key not in pct or key not in values:
+                continue
+            p = pct[key]
+            val, n = values[key]
+            if val is None or p is None or n < max(1, s["thr"] // 4):
+                continue
+            if p >= 85 or p <= 15:
+                cands.append((abs(p - 50), s, p, val, n))
+        cands.sort(key=lambda x: -x[0])
+        for _, s, p, val, n in cands[:2]:
+            how = ("among the most" if p >= 85 else "among the least") if s["kind"] == "much" else ("among the best" if p >= 85 else "among the worst")
+            unit = {"pct1": "%"}.get(s["unit"], "")
+            shown = f"{val:+.1f}" if s["unit"].startswith("sgn") else (f"{val:.1f}{unit}" if isinstance(val, float) else f"{val}{unit}")
+            settled = n >= s["thr"]
+            sample = f"{n:,} {'games' if s['thr'] in (41, 82) else 'in the sample'}" if isinstance(n, int) or float(n).is_integer() else f"{n:,.0f} in the sample"
+            lines.append(dict(group=group, key=key, pct=p, value=val, n=n, settled=settled,
+                              text=f"{s['label']}: {shown}, {how} of {pools.get(key, 0)} coaches in {season} ({p}th percentile), over {sample}"
+                                   + ("." if settled else f"; it settles at {s['thr']:,}, so this can still move.")))
     return lines

@@ -3,7 +3,7 @@
 // savant-ext and savant-api ones) behave as they do in production. For looking at a branch
 // locally before it is pushed.
 //
-//   npm run build && node tools/serve-vercel.mjs [port]      ->  http://localhost:4173/
+//   npm run build && node tools/serve-vercel.mjs [port] [folder]   ->  http://localhost:4173/  (folder: dist, or public to skip the build)
 //
 // Path-to-regexp patterns are reduced to what vercel.json uses: literal paths, :name and
 // :name(regex) segments, and the catch-all. No API functions: /api/* answers 404.
@@ -13,8 +13,10 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const DIST = path.join(ROOT, 'dist')
 const PORT = Number(process.argv[2] || 4173)
+// a second argument serves another folder with the same rules: `public` to look at a page before
+// the Vite build (its data folders are already gzipped the way dist/ will be)
+const DIST = path.join(ROOT, process.argv[3] || 'dist')
 const cfg = JSON.parse(readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'))
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.txt': 'text/plain; charset=utf-8', '.xml': 'application/xml', '.woff2': 'font/woff2', '.gz': 'application/json; charset=utf-8', '.mp3': 'audio/mpeg', '.webmanifest': 'application/manifest+json' }
 
@@ -56,6 +58,8 @@ const headers = (cfg.headers || []).map((h) => ({ ...h, ...compile(h.source) }))
 function serveFile(res, file, extra) {
   const ext = path.extname(file).toLowerCase()
   res.setHeader('Content-Type', TYPES[ext] || 'application/octet-stream')
+  // serving public/ before the build: a header rule may promise gzip for a file that is still plain
+  if (ext !== '.gz' && /gzip/i.test(extra['Content-Encoding'] || '')) delete extra['Content-Encoding']
   for (const [k, v] of Object.entries(extra)) res.setHeader(k, v)
   res.statusCode = 200
   res.end(readFileSync(file))

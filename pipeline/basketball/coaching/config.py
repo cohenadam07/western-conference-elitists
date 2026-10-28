@@ -141,3 +141,4 @@ FINGERPRINT = ["pace", "early", "trans", "fg3r", "rim", "mid", "c3", "ftr", "ast
 MIN_CAREER_SEASONS = 3        # seasons as a head coach (any length) before career stats are ranked
 MIN_CAREER_GAMES = 150
 MIN_SEASON_GAMES = 41         # a coach-team-season with fewer games is shown but not ranked against the season
+MIN_LIVE_GAMES = 10           # the season in progress is ranked provisionally among coaches with this many, until it reaches the line above

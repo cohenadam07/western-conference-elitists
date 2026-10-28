@@ -15,11 +15,12 @@ review list. An override replaces the suggestion; `also` is added to the "also s
 
 TREE_NOTE = (
     "Each coach's mentor is suggested from the record: the head coach he served under for the most "
-    "seasons on an NBA staff (Basketball-Reference's assistant stints and the NBA's staff tables), "
-    "with ties going to the last one before his first head job. A tree allows one parent and a career "
-    "has several, so the others he served under are listed on his page. Hand corrections, each with its "
-    "source, are in pipeline/basketball/coaching/coach_tree_nba.py. A coach shown as a root is one with "
-    "no recorded NBA assistant stint, not one who learned nothing from anyone."
+    "seasons on an NBA staff before his own first head-coaching job (Basketball-Reference's assistant "
+    "stints and the NBA's staff tables), with ties going to the last of them. A stint taken after he had "
+    "already been a head coach is a job, not an apprenticeship, and is listed separately. A tree allows one "
+    "parent and a career has several, so the others he served under are listed on his page. Hand corrections, "
+    "each with its source, are in pipeline/basketball/coaching/coach_tree_nba.py. A coach shown as a root is "
+    "one with no recorded NBA assistant stint before his first head job, not one who learned nothing from anyone."
 )
 
 # slug -> dict(mentor=slug or None, role=text, also=[(slug, role)], source=url, unconfirmed=bool)

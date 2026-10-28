@@ -404,17 +404,22 @@ def pass_two(bundles, reg, odds, public, out, seasons):
             games_of[(season, team, coach)] = g
             cts_index[(season, team, coach)] = c
     # ---- season percentiles
-    season_pct = {}
-    for season, b in bundles.items():
-        sv = {k: v for k, v in values.items() if k[0] == season}
-        season_pct.update({k: v for k, v in MD.season_percentiles({(k[1], k[2]): v for k, v in sv.items()}, {(k[1], k[2]): games_of[k] for k in sv}).items()})
-    season_pct = {(s, k[0], k[1]): v for (s, kk) in [(k[0], k) for k in values] for k, v in [] }  # placeholder, replaced below
-    season_pct = {}
+    season_pct, season_pools = {}, {}
     for season, b in bundles.items():
         sv = {(k[1], k[2]): v for k, v in values.items() if k[0] == season}
         gg = {(k[1], k[2]): games_of[k] for k in values if k[0] == season}
-        for (team, coach), p in MD.season_percentiles(sv, gg).items():
+        season_pools[season] = {}
+        for (team, coach), p in MD.season_percentiles(sv, gg, season_pools[season]).items():
             season_pct[(season, team, coach)] = p
+    # the season in progress, provisionally: among coaches with MIN_LIVE_GAMES, each stat at a quarter
+    # of its settle sample, until the 41-game line makes it a season like the others
+    live_pct, live_pools = {}, {}
+    if cur in bundles and not season_pools.get(cur):
+        sv = {(k[1], k[2]): v for k, v in values.items() if k[0] == cur}
+        gg = {(k[1], k[2]): games_of[k] for k in values if k[0] == cur}
+        for (team, coach), p in MD.season_percentiles(sv, gg, live_pools, min_games=CF.MIN_LIVE_GAMES, live=True).items():
+            live_pct[(cur, team, coach)] = p
+        log(f"{cur} ranked provisionally: {len(live_pct)} coaches with {CF.MIN_LIVE_GAMES}+ games")
     # ---- careers
     by_coach = defaultdict(list)
     for k in values:
@@ -474,6 +479,18 @@ def pass_two(bundles, reg, odds, public, out, seasons):
             team_vals[(season, team)][key][0] += val * g; team_vals[(season, team)][key][1] += g
     team_vals = {k: {key: round(v[0] / v[1], 3) for key, v in d.items() if v[1]} for k, d in team_vals.items()}
     ARRIVAL_KEYS = ["net", "winpct", "pace", "fg3r", "rim", "mid", "ast_pct", "orb_pct", "o_fg3r", "o_rim", "depth10", "stability", "to_g", "ftr", "tov_pct", "o_tov"]
+    # every team-season metric as a percentile among that season's teams (lower-is-better flipped),
+    # so an arrival's before / first / after sit on one scale and the distance means something
+    team_pct = defaultdict(dict)
+    by_season_key = defaultdict(lambda: defaultdict(list))
+    for (season, team), d in team_vals.items():
+        for key in ARRIVAL_KEYS:
+            if d.get(key) is not None:
+                by_season_key[season][key].append(((season, team), -d[key] if CF.BY_KEY[key]["lower"] else d[key]))
+    for season, d in by_season_key.items():
+        for key, pairs in d.items():
+            for k, p in MD.pct_rank(pairs).items():
+                team_pct[k][key] = p
     # ---- coach pages
     tenures = reg["tenures"]
     ten_by_coach = defaultdict(list)
@@ -486,6 +503,15 @@ def pass_two(bundles, reg, odds, public, out, seasons):
             heads = [t["coach"] for t in tenures if t["season"] == season and t["team"] == team]
             for r in rows:
                 staff_index[(r.get("id") or "name:" + r["name"])].append(dict(season=season, team=team, role=r["role"], heads=heads, src=r["src"]))
+    # who was the head coach of each team-season, for the assistant-stint tables: the game-level tenures
+    # from 1996-97, Basketball-Reference's head-coach rows before that
+    heads_by_ts = defaultdict(set)
+    for t in tenures:
+        heads_by_ts[(t["season"], t["team"])].add(t["coach"])
+    for slug_, c_ in coaches.items():
+        for r in c_["hc"]:
+            if r.get("franchise") and (r["season"], r["franchise"]) not in heads_by_ts:
+                heads_by_ts[(r["season"], r["franchise"])].add(slug_)
     pages = 0
     for slug, c in coaches.items():
         keys = sorted(by_coach.get(slug, []))
@@ -508,6 +534,7 @@ def pass_two(bundles, reg, odds, public, out, seasons):
             R, E = cc["results"], cc.get("expect") or {}
             season_rows.append(dict(season=season, team=team, g=R["g"], w=R["w"], l=R["l"], pg=R["pg"], pw=R["pw"], pl=R["pl"], rounds=R["rounds"], title=bool(R["won_last"] and R["rounds"] >= 4),
                                     net=R["net"], adj_net=R["adj_net"], exp=E, values=values[k], pct=season_pct.get(k, {}), ranked=games_of[k] >= CF.MIN_SEASON_GAMES,
+                                    live_pct=live_pct.get(k) or None, live_pools=(live_pools if live_pct.get(k) else None),
                                     rotation=cc.get("rotation"), management=cc.get("management"), splits=cc.get("splits"), identity=cc.get("identity"), mvi=cc.get("mvi"),
                                     units=cc.get("units"), playoffs=cc.get("playoffs"), development=cc.get("development"), staff=cc.get("staff"), nba=cc.get("nba"),
                                     in_progress=season == cur))
@@ -531,8 +558,11 @@ def pass_two(bundles, reg, odds, public, out, seasons):
             y1 = int(s_["last_season"][:4])
             after = team_vals.get((season_label(y1 + 1), s_["team"]))
             if first and (before or after):
-                arrivals.append(dict(team=s_["team"], before_season=season_label(y0 - 1) if before else None, first_season=s_["first_season"], after_season=season_label(y1 + 1) if after else None,
-                                     rows={key: [before.get(key) if before else None, first.get(key), after.get(key) if after else None] for key in ARRIVAL_KEYS if first.get(key) is not None}))
+                kb, kf, ka = (season_label(y0 - 1), s_["team"]), (s_["first_season"], s_["team"]), (season_label(y1 + 1), s_["team"])
+                arrivals.append(dict(team=s_["team"], before_season=season_label(y0 - 1) if before else None, first_season=s_["first_season"], last_season=s_["last_season"], after_season=season_label(y1 + 1) if after else None,
+                                     rows={key: dict(v=[before.get(key) if before else None, first.get(key), after.get(key) if after else None],
+                                                     p=[team_pct.get(kb, {}).get(key) if before else None, team_pct.get(kf, {}).get(key), team_pct.get(ka, {}).get(key) if after else None])
+                                           for key in ARRIVAL_KEYS if first.get(key) is not None}))
         cv = careers.get(slug, {})
         cp = career_pct.get(slug, {})
         node = tree_nodes.get(slug, {})
@@ -542,7 +572,7 @@ def pass_two(bundles, reg, odds, public, out, seasons):
                      player_games=c.get("player_games"), hof=c.get("hof"), age_first_hc=age_first, assistant_seasons_before=ast_before, first_hc=first_hc, stub=c.get("stub"), note=c.get("note")),
             awards=c["awards"], voting=c["voting"], transactions=c["transactions"],
             records=[dict(season=r["season"], team=r["franchise"] or r["team"], lg=r["lg"], g=r["g"], w=r["w"], l=r["l"], pg=r["pg"], pw=r["pw"], pl=r["pl"], finish=r["finish"], remarks=r["remarks"]) for r in hc_rows],
-            assistant=[dict(season=r["season"], team=r["franchise"] or r["team"], lg=r["lg"], role=r["role"]) for r in c["ast"]] + [dict(season=x["season"], team=x["team"], lg="NBA", role=x["role"], heads=x["heads"], src=x["src"]) for x in staff_index.get(slug, []) if not any(r["season"] == x["season"] and (r["franchise"] or r["team"]) == x["team"] for r in c["ast"])],
+            assistant=[dict(season=r["season"], team=r["franchise"] or r["team"], lg=r["lg"], role=r["role"], heads=sorted(h for h in heads_by_ts.get((r["season"], r["franchise"]), ()) if h != slug) if r.get("franchise") else []) for r in c["ast"]] + [dict(season=x["season"], team=x["team"], lg="NBA", role=x["role"], heads=x["heads"], src=x["src"]) for x in staff_index.get(slug, []) if not any(r["season"] == x["season"] and (r["franchise"] or r["team"]) == x["team"] for r in c["ast"])],
             stints=stints, seasons=season_rows,
             career=dict(eligible=slug in eligible, stats={k: dict(v=v[0], n=v[1], seasons=v[2], pct=cp.get(k), pool=pools.get(k)) for k, v in cv.items()},
                         g=sum(games_of[k] for k in keys), w=sum(cts_index[k]["results"]["w"] for k in keys), l=sum(cts_index[k]["results"]["l"] for k in keys),
@@ -558,10 +588,13 @@ def pass_two(bundles, reg, odds, public, out, seasons):
             player_names={str(r[0]): bundles[k[0]]["names"].get(r[0]) for k in keys for r in (cts_index[k].get("development") or {}).get("players", [])},
             fingerprint=fp.get(slug), comps=[[b, d, cl, coaches[b]["name"]] for b, d, cl in comps.get(slug, [])],
             lineage=dict(mentor=node.get("mentor"), mentor_name=coaches[node["mentor"]]["name"] if node.get("mentor") else None, role=node.get("role"), also=[[a, coaches[a]["name"] if a in coaches else a, r] for a, r in node.get("also", [])],
-                         kids=[[k, coaches[k]["name"]] for k in node.get("kids", [])], suggested=sugg.get(slug, {}).get("under", []), tie=node.get("tie"), override=node.get("override"),
+                         kids=[[k, coaches[k]["name"]] for k in node.get("kids", [])], suggested=sugg.get(slug, {}).get("under", []), later=sugg.get(slug, {}).get("later", []), tie=node.get("tie"), override=node.get("override"),
                          unconfirmed=node.get("unconfirmed"), mentor_closer_than=node.get("mentor_closer_than"), produced=sorted(produced.get(slug, set()))),
             arrivals=arrivals,
             scouting=MD.scouting(cv, cp, pools, c["name"]) if slug in eligible else [],
+            scouting_season=next((dict(season=sr["season"], team=sr["team"], g=sr["g"], provisional=not sr["pct"],
+                                       lines=MD.scouting_season(sr["values"], sr["pct"] or sr.get("live_pct") or {}, season_pools.get(sr["season"]) or live_pools, sr["season"], sr["g"]))
+                                  for sr in season_rows if sr["in_progress"] and (sr["pct"] or sr.get("live_pct"))), None),
         )
         dump(os.path.join(public, "bcs", "c", f"{slug}.json"), clean(page))
         pages += 1
@@ -658,7 +691,7 @@ def pass_two(bundles, reg, odds, public, out, seasons):
             buckets = {bk for c in cl for bk in ((c.get("splits") or {}).get(split) or {})}
             for bk in buckets:
                 gaps[split][bk] = gw(lambda c, split=split, bk=bk: ((((c.get("splits") or {}).get(split) or {}).get(bk) or {}).get("net") - c["results"]["net"]) if (((c.get("splits") or {}).get(split) or {}).get(bk) or {}).get("net") is not None and c["results"].get("net") is not None and (((c.get("splits") or {}).get(split) or {}).get(bk) or {}).get("g", 0) >= 5 else None)
-        league[season] = dict(diet=diet, o_diet=odiet, synergy=syn, split_gaps=gaps, halftime=round(b["lgc"].get("halftime", 0.0), 2), runs=b["lgc"].get("runs"))
+        league[season] = dict(diet=diet, o_diet=odiet, synergy=syn, split_gaps=gaps, halftime=round(b["lgc"].get("halftime", 0.0), 2), runs=b["lgc"].get("runs"), pools=season_pools.get(season, {}))
     # ---- league trends
     trends = []
     for season, b in sorted(bundles.items()):

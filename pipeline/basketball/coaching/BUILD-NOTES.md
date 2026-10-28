@@ -131,3 +131,47 @@ measured in this build; the numbers are also in `public/bcs/index.json` under `m
    but nobody has looked at it.
 8. **Publishing.** Nothing is committed or pushed. The full build's bundles must be pushed to the
    `bcs-bundles` branch (`publish_bundles.sh`) before the cloud's merge-mode refresh can run.
+
+## The redesign (Oct 28, 2026)
+
+Two data fixes and a new page, after Adam's visual pass.
+
+- **Mentors count only stints before the first head job** (`modules.suggest_mentors`). A stint taken
+  after a man had already been a head coach is a job, not an apprenticeship; it is kept on his page
+  under "on a staff after he had been a head coach" and in `lineage.later`, never as the mentor.
+  99 mentors changed. The ones the pass named: Mike Brown, Kerr → Popovich; Kenny Atkinson, Kerr →
+  D'Antoni; John Calipari, Larry Brown → none (his Philadelphia stint came after New Jersey); Nate
+  McMillan, Redick → Paul Westphal. Others worth knowing: Luke Walton, J.B. Bickerstaff → Kerr;
+  Jacque Vaughn, Atkinson → Popovich; James Borrego, Popovich → Monty Williams; Larry Drew, Lue →
+  Mike Woodson; Maurice Cheeks, Donovan → Larry Brown; Randy Ayers, Monty Williams → Larry Brown;
+  Mike Woodson, Rivers → Larry Brown; Kurt Rambis, Phil Jackson → Del Harris; Lionel Hollins, Hubie
+  Brown → Brian Hill; Dave Joerger, Rivers → Hollins; Jeff Hornacek, Silas → Corbin; Jay Triano,
+  Borrego → Sam Mitchell; Scott Brooks, Billups → Bzdelik; Ryan Saunders, Malone → Flip Saunders;
+  Mike D'Antoni, Atkinson → Bill Hanzlik; Lloyd Pierce, Carlisle → Brett Brown. 61 coaches whose only
+  recorded stints came after their first head job (Alvin Gentry under D'Antoni, Jason Kidd under
+  Vogel, Doc Rivers, Jeff Van Gundy, Billy Donovan, Frank Hamblen, Tex Winter, P.J. Carlesimo among
+  them) now have no suggested mentor and sit in the nursery as "no recorded lineage before their
+  first head job". The tree note says so.
+- **The arrival effect is on one scale**: every metric is the team-season's percentile among that
+  season's teams (lower-is-better flipped), so the distance between the dots is the size of the
+  change; the season after he left is included where there is one. The values stay in the hover.
+- **The page** (`public/basketball-coaching-savant.html`, rewritten): Basketball Savant's card rows
+  (one stat per row, the percentile riding the bar, grouped under section heads); one tooltip engine
+  (`data-tip`) so every bar, chart mark, cell, tile and label opens a box with the value, the
+  percentile and its pool, the sample and the definition from `config.STATS`, and a click pins the
+  explainer; every player name links to his Basketball Savant card (`/basketball-savant.html?p=<id>`)
+  and every coach name to his page; the career chart at the top (columns in team colours, playoff
+  strip, net / talent / market rows, the peak season outlined, hover for the season line, click to
+  open it); a sticky season picker that switches every section (bars ranked against that season's
+  coaches, the Rotation Map, lineups, game management, situations, identity, staff); the in-season
+  scouting report (`modules.scouting_season`, rewritten with every refresh; provisional percentiles
+  among coaches with 10+ games until the 41-game line, `config.MIN_LIVE_GAMES`); the off-script chart
+  shows the coach's choice by default with a toggle for the other causes, a percent axis, a hover
+  naming who was missing and who moved, and a click that lays the game over the map; the Rotation
+  Map has Q1–Q4 labels, a minute axis and a cell hover placed clear of the names; the tree is
+  football Coaching Savant's zoomable forest with branches coloured by root, records on the nodes,
+  search, hover to light the line, click to open, and an assistants toggle.
+- **The visual pass** is `tools/savant-bcoaching/shoot.py` (Playwright): every section at 1280 and
+  390 wide, console errors, horizontal overflow, the hovers, the picker and the tree. Last run: no
+  errors, no overflow at either width, every hover fires, 78 player links and 275 coach links on
+  Spoelstra's page.
