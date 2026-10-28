@@ -203,8 +203,12 @@ function identityBlock(idx, p) {
   const fp = p.fingerprint ? Object.entries(p.fingerprint).map(([k, v]) => ({ key: k, label: idx.stats.find((s) => s.key === k)?.label || k, percentile: v })) : []
   const comps = (p.comps || []).map(([id, d, closer, name]) => ({ id, name, closer_than_pct_of_pairs: closer }))
   if (comps.length) L.push(`Coaches most like him on the fingerprint (tendencies only): ${comps.map((c) => `${c.name} (closer than ${c.closer_than_pct_of_pairs}% of pairs)`).join(', ')}.`)
-  const arrivals = (p.arrivals || []).map((a) => ({ team: a.team, before: a.before_season, first: a.first_season, after: a.after_season, changes: a.rows }))
-  for (const a of arrivals) L.push(`Arrival at ${a.team}: ${a.before || '—'} → ${a.first} → ${a.after || 'still there'}: net ${(a.changes.net || []).map((v) => display('sgn1', v)).join(' → ')}, pace ${(a.changes.pace || []).map((v) => display('num1', v)).join(' → ')}, 3PA rate ${(a.changes.fg3r || []).map((v) => display('pct1', v)).join(' → ')} (team-season figures, whoever coached).`)
+  // each change: the values [before, his first season, after he left] and the same three as percentiles
+  // among that season's teams (lower-is-better flipped), so the distance is the size of the change
+  const arrivals = (p.arrivals || []).map((a) => ({ team: a.team, before: a.before_season, first: a.first_season, last: a.last_season, after: a.after_season,
+    changes: Object.fromEntries(Object.entries(a.rows || {}).map(([k, r]) => [k, Array.isArray(r) ? { values: r, percentiles: [] } : { values: r.v, percentiles: r.p }])) }))
+  const chg = (a, k, unit) => { const c = a.changes[k]; return c ? c.values.map((v, i) => `${display(unit, v)}${c.percentiles[i] != null ? ` (${c.percentiles[i]}th pct)` : ''}`).join(' → ') : '—' }
+  for (const a of arrivals) L.push(`Arrival at ${a.team}: ${a.before || '—'} → ${a.first} → ${a.after || 'still there'}: net ${chg(a, 'net', 'sgn1')}, pace ${chg(a, 'pace', 'num1')}, 3PA rate ${chg(a, 'fg3r', 'pct1')} (team-season figures, whoever coached; percentiles among that season's teams).`)
   return { structured: { stats, fingerprint: fp, comps, arrivals }, lines: L }
 }
 
