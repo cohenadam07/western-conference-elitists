@@ -67,8 +67,9 @@ Basketball-Reference face, 1995-96) and Carlisle. Each of the six connector tool
 once on `wcehoops.com/api/mcp` and answered in full (the profile at 19,800 characters, the
 dictionary at 20,300). The Chrome extension was not connected in that session, so the live
 page has still not been used by a person in a real browser.
-The push to `main` queued a cloud refresh (run 40820579563) behind the watcher already running;
-its merge-mode coaching step against the republished bundles is the next thing to confirm.
+The push to `main` queued a cloud refresh (run 40820579563) behind the watcher already running; it
+ran at 05:26 UTC, its merge-mode coaching step read the republished bundles, finished with rc=0 and
+no warning, and its commit `a2c8b48c` carried 903 coaching files to `main`.
 
 ## The review list
 
