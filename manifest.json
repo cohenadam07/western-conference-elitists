@@ -1,5 +1,5 @@
 {
-"generated": "2026-10-29T01:51:45+00:00",
+"generated": "2026-10-29T01:54:54+00:00",
 "seasons": [
 "2025-26",
 "2024-25",
@@ -1682,6 +1682,13 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "team_id": 0
+}
+},
+"01e37adf4fd3509c5cf64cef423d9a35": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700740"
 }
 },
 "01ec56033d095e050392cddf1c127b7a": {
@@ -11306,6 +11313,13 @@
 "game_id": "0022000374"
 }
 },
+"0bbc5e6a11b5f0270c7c953e178f2f37": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700727"
+}
+},
 "0bbdd8f89e12b3ff3b71a941f839f9af": {
 "frame": 1,
 "name": "PlayerDashPtPass",
@@ -13453,6 +13467,13 @@
 "season": "2017-18",
 "season_type_all_star": "Regular Season",
 "team_id": 0
+}
+},
+"0df919436b02ddc3d7e9ded92c0ff45a": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700601"
 }
 },
 "0dfa027414d9f8f45fa4ec525449ca2f": {
@@ -17459,6 +17480,13 @@
 "season": "1997-98",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612738
+}
+},
+"124fd168658dbaad885444b194959ab1": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700741"
 }
 },
 "125176bac9556c171b26e39f5ab8bab2": {
@@ -32850,6 +32878,13 @@
 "team_id": 0
 }
 },
+"234413d5e577cf023860da24d07ffe19": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700589"
+}
+},
 "234b6867fc450236a26d95e00eb798d8": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -38179,6 +38214,13 @@
 "team_id": 0
 }
 },
+"28f32e26bfff34670f9de86733744aa0": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700582"
+}
+},
 "28f6acf0b2265a34d88ad4cec8149c80": {
 "frame": 1,
 "name": "PlayerDashPtPass",
@@ -39665,6 +39707,13 @@
 "game_id": "0022500213"
 }
 },
+"2a8b69ce6cb9797e5120e07e59105444": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700719"
+}
+},
 "2a8da5f9456d3ae55972a90fe5f1771f": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -40309,6 +40358,13 @@
 "name": "BoxScoreDefensiveV2",
 "params": {
 "game_id": "0022500730"
+}
+},
+"2b492954890bb2f01b2fb25acee682bb": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700583"
 }
 },
 "2b49e8617390468da0857ac6bc0b6b09": {
@@ -43572,6 +43628,13 @@
 "season": "2015-16",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612737
+}
+},
+"2eaa0e5f3b708b7d57263038badf3c26": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700734"
 }
 },
 "2eae5e5685ca731c77a6424c0671f31c": {
@@ -48956,6 +49019,13 @@
 "team_id": 1610612761
 }
 },
+"347a1be8ebdf363012ee7dacfb70ab5a": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700588"
+}
+},
 "347aa67ede2041b562d388864ccc5ec8": {
 "frame": 1,
 "name": "TeamPlayerOnOffSummary",
@@ -49531,6 +49601,13 @@
 "season": "2014-15",
 "season_type_all_star": "Regular Season",
 "team_id": 0
+}
+},
+"352d573b00c8e5533113d7aebe328a32": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700592"
 }
 },
 "353200ab3d7603b6c360c975202efbd0": {
@@ -51418,6 +51495,13 @@
 "season": "2025-26",
 "season_type_all_star": "Regular Season",
 "team_id": 0
+}
+},
+"372fefa82c48797b90b0fd8e328661b6": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700591"
 }
 },
 "372ffc6b6a92af856603518f4f61b5ae": {
@@ -62529,6 +62613,13 @@
 "team_id": 0
 }
 },
+"42d238dbc9dd709a20a8eb980880c58d": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700738"
+}
+},
 "42d3c51a3468d6364d5c55586d96a8ef": {
 "frame": 0,
 "name": "BoxScoreDefensiveV2",
@@ -71940,6 +72031,13 @@
 "game_id": "0022100792"
 }
 },
+"4cfbc1504c29ee815773aafde75772e3": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700597"
+}
+},
 "4cfd259457f46d68243471b0a43a37b0": {
 "frame": 0,
 "name": "PlayerDashPtPass",
@@ -76128,6 +76226,13 @@
 "game_id": "0021800261"
 }
 },
+"516b119d007e3f6ab80ef13dbc9f8355": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700584"
+}
+},
 "516ceab978649495c77caf87540d84d3": {
 "frame": 2,
 "name": "TeamPlayerOnOffDetails",
@@ -76627,6 +76732,13 @@
 "game_id": "0021900724"
 }
 },
+"520c6b74516d33c09d0c5c27e6ba21e1": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700593"
+}
+},
 "520ecb457294bc837fa9382ec647d46b": {
 "frame": 0,
 "name": "BoxScoreDefensiveV2",
@@ -76852,6 +76964,13 @@
 "name": "BoxScoreDefensiveV2",
 "params": {
 "game_id": "0022000677"
+}
+},
+"5250e9bb391d463c53dae6af1bea2c7f": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700723"
 }
 },
 "52554afed0c83db40cde5b895026985c": {
@@ -81678,6 +81797,13 @@
 "name": "BoxScoreDefensiveV2",
 "params": {
 "game_id": "0022100660"
+}
+},
+"575c6aae5b2d625972341f8b705b2c90": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700586"
 }
 },
 "575e25e68622aeee489c62ccc93e8f05": {
@@ -92134,6 +92260,13 @@
 "team_id": 0
 }
 },
+"62710e7662b277ede765a5de8575e088": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700731"
+}
+},
 "62749baf2820ddfc35b6a7a108aeb12c": {
 "frame": 0,
 "name": "BoxScoreDefensiveV2",
@@ -92612,6 +92745,13 @@
 "name": "BoxScoreDefensiveV2",
 "params": {
 "game_id": "0021900716"
+}
+},
+"62f6aded73b32436de1f0dc647b62244": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700725"
 }
 },
 "62f7847ecf0c6cab6c96f0289334f0b9": {
@@ -93435,6 +93575,13 @@
 "name": "BoxScoreDefensiveV2",
 "params": {
 "game_id": "0022300160"
+}
+},
+"63cacebe6b22bfad2f8b494d2c6e2a60": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700736"
 }
 },
 "63cf6151da278108c76c19e5d6c3e87a": {
@@ -100296,6 +100443,13 @@
 "name": "BoxScoreDefensiveV2",
 "params": {
 "game_id": "0022300985"
+}
+},
+"6af3b6d5d4ee7aab67a4249c3a083e65": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700743"
 }
 },
 "6af4c602cfb45929731902f2fc96537c": {
@@ -108955,6 +109109,13 @@
 "game_id": "0022501003"
 }
 },
+"73af075a9c46514916504723389f971b": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700720"
+}
+},
 "73af5836b84ad70ccfff7329fbaa67d3": {
 "frame": 0,
 "name": "BoxScoreDefensiveV2",
@@ -111104,6 +111265,13 @@
 "team_id": 0
 }
 },
+"76334befe4e2bac0d2a66560d00c5782": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700598"
+}
+},
 "763406985fe3053a4f117a061915915b": {
 "frame": 0,
 "name": "BoxScoreDefensiveV2",
@@ -111796,6 +111964,13 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "team_id": 0
+}
+},
+"76d2e3aa58e793c6dce8c97d956d3a25": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700590"
 }
 },
 "76d50ab418a0e6ca38fa9f178c25dae7": {
@@ -114067,6 +114242,13 @@
 "season": "2013-14",
 "season_type_all_star": "Regular Season",
 "team_id": 0
+}
+},
+"793a6fd49f9cfcdb6ca9f56b4660e75a": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700728"
 }
 },
 "793e922e6806c32da545da3d1439cef6": {
@@ -123748,6 +123930,13 @@
 "game_id": "0022300782"
 }
 },
+"838cede8d1dfae8c4e75d2ca0a05674a": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700732"
+}
+},
 "839257676becffb81fd9cb3a04025930": {
 "frame": 0,
 "name": "PlayerDashPtPass",
@@ -128754,6 +128943,13 @@
 "game_id": "0022500976"
 }
 },
+"88b19ebe07c995c8a165ae1604468fc9": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700721"
+}
+},
 "88b3450cecd9a161a5bd58a548f1f95f": {
 "frame": 0,
 "name": "BoxScoreDefensiveV2",
@@ -129498,6 +129694,13 @@
 "season": "2018-19",
 "season_type_all_star": "Regular Season",
 "team_id": 0
+}
+},
+"8994dcd57df5c34ba23c70a42ca3d129": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700735"
 }
 },
 "8996b1a25283b7418835b6ba44ba5ae7": {
@@ -131224,6 +131427,13 @@
 "name": "BoxScoreDefensiveV2",
 "params": {
 "game_id": "0022300393"
+}
+},
+"8b59c1d8a1449d7e5ab512c966d62591": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700729"
 }
 },
 "8b5a6ec369f33ea7cc5608f510645ecd": {
@@ -140705,6 +140915,13 @@
 "game_id": "0021700928"
 }
 },
+"952b6304abf28bc3e388872b8dfc7a45": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700737"
+}
+},
 "9530737b65a6e88deb1d6111493f39b4": {
 "frame": 0,
 "name": "PlayerDashPtPass",
@@ -141628,6 +141845,13 @@
 "game_id": "0021900784"
 }
 },
+"9640bff2e3cee06ea99392e5d7d2400c": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700596"
+}
+},
 "964391199f1108662de6abf8b65afdd1": {
 "frame": 0,
 "name": "BoxScoreDefensiveV2",
@@ -141882,6 +142106,13 @@
 "game_id": "0021900288"
 }
 },
+"96884ea707a5b090528cbf5b816b7e41": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700730"
+}
+},
 "9689838f0af2ba7884667d5dd697a0af": {
 "frame": 0,
 "name": "BoxScoreDefensiveV2",
@@ -142045,6 +142276,13 @@
 "name": "BoxScoreDefensiveV2",
 "params": {
 "game_id": "0021900243"
+}
+},
+"96e67bf6fee9abf2ccd35d0548612d67": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700733"
 }
 },
 "96e8eae058e781436477ecd1881f4480": {
@@ -161010,6 +161248,13 @@
 "team_id": 0
 }
 },
+"aa3b1ff2f1e5b539405eaad62676bc6a": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700742"
+}
+},
 "aa3ca94d6da9f80aced0f98094032f2e": {
 "frame": 1,
 "name": "PlayerDashPtPass",
@@ -167691,6 +167936,13 @@
 "season": "2017-18",
 "season_type_all_star": "Regular Season",
 "team_id": 0
+}
+},
+"b0f6e85fc582826a7aa55be7ab2d4505": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700599"
 }
 },
 "b0f73de33292191fb59da3c6bd51cb79": {
@@ -176591,6 +176843,13 @@
 "name": "BoxScoreDefensiveV2",
 "params": {
 "game_id": "0022500702"
+}
+},
+"ba502122b386ee2f8bc51bdf2a2c84b1": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700600"
 }
 },
 "ba5257f5b32b27ad4d8c541e1847d35d": {
@@ -187561,6 +187820,13 @@
 "team_id": 0
 }
 },
+"c646e061dc84ec60cd30fa5c0d750391": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700722"
+}
+},
 "c648b0a778c32c6aeac6024fdf176e35": {
 "frame": 0,
 "name": "LeagueDashPlayerPtShot",
@@ -188445,6 +188711,13 @@
 "season": "2023-24",
 "season_type_all_star": "Regular Season",
 "team_id": 1610612753
+}
+},
+"c752b0b287385ef8e1688a1161bbba0d": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700595"
 }
 },
 "c752c03debae41c46e7f98bc1dc1a26c": {
@@ -200347,6 +200620,13 @@
 "game_id": "0021700254"
 }
 },
+"d46420e5981f148ba84bd1f330b2dfe6": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700739"
+}
+},
 "d464e191728620cf0ba9a7495ab58388": {
 "frame": 0,
 "name": "PlayerDashPtPass",
@@ -202111,6 +202391,13 @@
 "name": "BoxScoreDefensiveV2",
 "params": {
 "game_id": "0022400008"
+}
+},
+"d63ff9141f86112831e3ade0ddc8f583": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700594"
 }
 },
 "d642a9922e332f06a5e0333862bc6b22": {
@@ -204530,6 +204817,13 @@
 "season": "2013-14",
 "season_type_all_star": "Regular Season",
 "team_id": 0
+}
+},
+"d8fff6b50b219b8b7f682e85ea933ab5": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700585"
 }
 },
 "d9038733d01988a4b1bd97763bc7b32d": {
@@ -221333,6 +221627,13 @@
 "team_id": 1610612740
 }
 },
+"ea04e28e30586104656b64ef4af14f7a": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700726"
+}
+},
 "ea0792976cd93eded6830dd0006d8d2f": {
 "frame": 0,
 "name": "PlayerDashPtPass",
@@ -225438,6 +225739,13 @@
 "name": "BoxScoreDefensiveV2",
 "params": {
 "game_id": "0022100990"
+}
+},
+"ee7cc0579d84b5e72555a1d4eb311706": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700724"
 }
 },
 "ee7ce77facad074b8119b086524e0bf4": {
@@ -241568,6 +241876,13 @@
 "season": "2019-20",
 "season_type_all_star": "Regular Season",
 "team_id": 0
+}
+},
+"fef9bb070d1f236a503063ae8091de4a": {
+"frame": 0,
+"name": "BoxScoreDefensiveV2",
+"params": {
+"game_id": "0021700587"
 }
 },
 "ff01499f228007bafda20a8ad4b90d77": {
