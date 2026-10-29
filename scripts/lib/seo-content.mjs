@@ -32,7 +32,7 @@ export const PRODUCTS = [
   { name: 'Dynasty Exchange', href: '/dynasty', blurb: 'A dynasty basketball board priced by the people who argue about it. Rank four players and move the market, or paste your roster and see what it is worth.' },
   { name: 'Big Board', href: '/rankings', blurb: 'Every draft prospect ranked and tiered. A personal board, not a consensus mock.' },
   { name: 'Comp Chain', href: '/comp-chain', blurb: 'Hop player to player through their statistical comps in as few moves as you can. A new puzzle every day.' },
-  { name: 'Flappy Hoops', href: '/hoops', blurb: 'Flap the ball through the rim in as few taps as you can. Eighteen NBA cities, nine holes in each, and online races with up to eight friends.' },
+  { name: 'Flappy Hoops', href: '/hoops', blurb: 'Flap the ball through the rim in as few taps as you can. Twenty NBA cities, nine holes in each, and online races with up to eight friends.' },
   { name: 'Analysis', href: '/articles', blurb: 'Scouting breakdowns, team-building theory, and NBA analytics that hold up under pressure.' },
   { name: 'News', href: '/news', blurb: 'The biggest NBA and college basketball stories, plus basketball research and analytics.' },
   { name: 'The Weekly Board', href: '/newsletter', blurb: 'The newsletter: one board move, one prospect, and one stat. Free.' },

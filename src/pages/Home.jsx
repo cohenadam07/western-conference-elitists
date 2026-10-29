@@ -24,7 +24,7 @@ import WHATS_NEW from 'virtual:whats-new'
 // `to` is a page of this app, `href` a page the build writes (or a place on this one).
 const STANDING = [
   { text: 'Ask Claude about any player: add the WCE connector', href: '#ai' },
-  { text: 'Flappy Hoops: 18 cities, and races with up to 8 friends', to: '/hoops' },
+  { text: 'Flappy Hoops: 20 cities, and races with up to 8 friends', to: '/hoops' },
   { text: 'Basketball Savant: a page for every player since 1979-80', href: '/player' },
   { text: 'Football Savant: refreshed every day of the NFL season', href: '/football-savant.html' },
   { text: 'UFC Savant: every fighter since 1993, updated after each card', href: '/ufc-savant.html' },

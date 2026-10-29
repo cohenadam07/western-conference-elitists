@@ -66,7 +66,7 @@ export const PAGES = [
   { path: '/news', title: 'News', description: 'The biggest NBA and college basketball stories, plus basketball research and analytics — aggregated and annotated by Western Conference Elitists.', priority: '0.7' },
   { path: '/comp-chain', title: 'Comp Chain', description: 'Hop from one NBA player to another through their statistical comps — a daily game built on Basketball Savant data.', priority: '0.6' },
   { path: '/dynasty', title: 'Dynasty Exchange: Crowd-Priced NBA Dynasty Rankings', name: 'Dynasty Exchange', description: 'Dynasty Exchange is a dynasty basketball trade-value board priced by the crowd. Rank four NBA players at a time and move the market, or paste your roster and see what it is worth.', priority: '0.6' },
-  { path: '/hoops', title: 'Flappy Hoops', description: 'Flap it through the rim in as few taps as you can: eighteen cities, nine holes each, a hidden ghost hole in every one. Race up to eight friends online.', priority: '0.5', app: HOOPS_APP },
+  { path: '/hoops', title: 'Flappy Hoops', description: 'Flap it through the rim in as few taps as you can: twenty cities, nine holes each, a hidden ghost hole in every one. Race up to eight friends online.', priority: '0.5', app: HOOPS_APP },
   { path: '/about', title: 'About', description: 'Who we are and how we work: film-first, data-honest NBA and draft coverage.', priority: '0.5' },
   { path: '/contact', title: 'Contact', description: 'Pitches, scouting disagreements, partnerships — get in touch with Western Conference Elitists.', priority: '0.4' },
   { path: '/privacy', title: 'Privacy Policy', description: 'What wcehoops.com collects, why, who else touches it, and how to get it removed.', priority: '0.2' },

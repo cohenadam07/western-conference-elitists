@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-10-29",
+    "product": "Flappy Hoops",
+    "version": "2.2.0",
+    "text": "Washington and Utah, the 19th and 20th cities",
+    "to": "/hoops"
+  },
+  {
     "date": "2026-10-27",
     "product": "Basketball Coaching Savant",
     "version": "1.0.0",
