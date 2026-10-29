@@ -393,6 +393,10 @@ export function buildSavantApi({ data, html, valueModel = null }) {
       lowerIsBetter: !!m.lower,
       since: m.since,
       lowSampleBelow: m.thr || null,
+      // Measured settle point (tools/savant-settle): last = sample at which his own record and a
+      // prior with his last season count equally; mean = the same with only his position's average
+      // (the hatching threshold, lowSampleBelow); how = within seasons or season to season.
+      settle: m.settle || null,
       explain: explain[m.key] || null,
       // The October 2026 additions: values in savant-ext/ (files.ext_season), ranked by the
       // connector with the page's midrank; `first` is the first season the data exists,

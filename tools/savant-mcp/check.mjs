@@ -389,6 +389,33 @@ test('search and profile work through a real client, and results fit their decla
   assert.ok(worse.isError)
 })
 
+test('settle points: a low-sample stat says how much sample it needs, the same numbers the page carries', async () => {
+  // tools/savant-settle: each measured stat carries CFG settle {last, mean, unit, how}, and its
+  // hatching threshold (thr, lowSampleBelow) is the measured mean.
+  const cfg = JSON.parse(html.slice(html.indexOf('const CFG  = ') + 13, html.indexOf('\n};', html.indexOf('const CFG  = ')) + 2))
+  const settled = cfg.metrics.filter((m) => m.settle)
+  assert.ok(settled.length >= 150, `only ${settled.length} stats carry a settle point`)
+  for (const m of settled) assert.equal(m.thr, m.settle.mean, `${m.key}: thr is not the measured settle point`)
+  const meta = files.meta.metrics.filter((m) => m.settle)
+  assert.equal(meta.length, settled.length)
+  // someone in the season in progress is under a settle point; his profile names it
+  const p = await call('nba_get_player_profile', { player: String(files.seasons[latest].players.find((x) => x.qualified && (x.low || []).includes('ts')).id) })
+  assert.ok(!p.isError, textOf(p))
+  const ts = p.structuredContent.stats.find((x) => x.key === 'ts')
+  assert.ok(ts.low_sample)
+  const want = cfg.metrics.find((m) => m.key === 'ts').settle
+  assert.deepEqual(ts.settles_around, { sample: want.last, unit: want.unit, hatched_under: want.mean, measured: want.how })
+  assert.match(textOf(p), /True shooting %: .*\[low sample: settles around [\d,]+ shooting attempts/)
+  // and a stat that has settled carries no settles_around
+  assert.ok(p.structuredContent.stats.filter((x) => !x.low_sample).every((x) => !x.settles_around))
+  // the leaderboard says it for its stat
+  const lb = await call('nba_leaderboard', { stat: 'cs_3pa', season: fullSeason, top: 3 })
+  assert.ok(!lb.isError, textOf(lb))
+  const cs = cfg.metrics.find((m) => m.key === 'cs_3pa').settle
+  assert.equal(lb.structuredContent.stat.settles_around.sample, cs.last)
+  assert.match(textOf(lb), /It settles around [\d,]+ possessions \(hatched under [\d,]+; measured season to season\)/)
+})
+
 test('names are matched the way people type them', async () => {
   const first = async (query) => (await savant.searchPlayers({ query })).structured.players[0]?.name
   assert.equal(await first('PJ Washington'), 'P.J. Washington')
