@@ -121,7 +121,8 @@ function renderTree(st){
       const hc = isHC(nd.name), rec = recOf(nd.name), rr = hc ? NODE_R : NODE_R - 1.5;
       const pct = rec?.hc && rec.all_g ? rec.all_w / rec.all_g : null;
       const fill = pct == null ? '#E9E8E4' : mix('#1C4E86', '#BC3A2C', Math.max(0, Math.min(1, (pct - .3) / .4)));
-      leaves += `<g class="leaf${hc ? '' : ' ast'}" data-n="${esc(nd.name)}" transform="translate(${nd.gx.toFixed(1)},${nd.gy.toFixed(1)})"${tipAttr(nodeTip(nd.name))}><circle r="${rr}" fill="${fill}"/></g>`;
+      const he = headEntry(nd.name), ir = rr - 1.2, img = he && he[2] !== 2 && he[1] ? `<image data-src="${headSrc(he[1])}" x="${-ir}" y="${-ir}" width="${2 * ir}" height="${2 * ir}" preserveAspectRatio="xMidYMin slice"/>` : '';
+      leaves += `<g class="leaf${hc ? '' : ' ast'}" data-n="${esc(nd.name)}" transform="translate(${nd.gx.toFixed(1)},${nd.gy.toFixed(1)})"${tipAttr(nodeTip(nd.name))}><circle r="${rr}" fill="${fill}"/>${img}</g>`;
       const up = !t.sprout && Math.sin(nd.ang * Math.PI / 180) <= 0;
       labels += `<text class="lbl ${nd.leaf && !t.sprout ? 'minor' : 'major'}" data-n="${esc(nd.name)}" x="${nd.gx.toFixed(1)}" y="${(nd.gy + (up ? -11 : 20)).toFixed(1)}">${esc(N[nd.name]?.name || nd.name)} <tspan class="rec">${nodeLabel(nd.name)}</tspan></text>`;
     }
@@ -151,6 +152,18 @@ function applyTransform(st){
   const S = stageState(st), g = st.querySelector('.tg'); if (g) g.setAttribute('transform', `translate(${S.x},${S.y}) scale(${S.scale})`);
   const tier = S.scale >= 1.0 ? 2 : (S.scale >= 0.45 ? 1 : 0);
   if (tier !== S.labels) { S.labels = tier; const l = st.querySelector('.labels'); if (l) { l.style.display = tier === 0 ? 'none' : ''; l.classList.toggle('leaves-too', tier === 2); } }
+  clearTimeout(S.imgTimer); S.imgTimer = setTimeout(() => syncLeafImages(st), 120);
+}
+// the faces are fetched only for nodes on screen once the tree is zoomed enough for a face to read (about 400 of
+// them at 15 KB each would otherwise land on every coach page); once loaded a node keeps its picture
+function syncLeafImages(st){
+  const S = stageState(st), svg = st.querySelector('svg'); if (!svg || S.scale < 0.45) return;
+  const W = st.clientWidth, H = st.clientHeight;
+  svg.querySelectorAll('.leaf image[data-src]').forEach(im => {
+    const m = /translate\(([-\d.]+),([-\d.]+)\)/.exec(im.parentNode.getAttribute('transform') || ''); if (!m) return;
+    const sx = S.x + m[1] * S.scale, sy = S.y + m[2] * S.scale;
+    if (sx > -40 && sx < W + 40 && sy > -40 && sy < H + 40) { im.setAttribute('href', im.dataset.src); im.removeAttribute('data-src'); }
+  });
 }
 function fitTree(st){
   const S = stageState(st), F = S.forest; if (!F) return;

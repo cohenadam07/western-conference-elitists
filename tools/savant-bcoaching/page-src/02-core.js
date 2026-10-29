@@ -15,7 +15,7 @@ const HEADLINE = {
   development: ['aging', 'aging_young'],
   context: ['gap_top10', 'gap_road', 'gap_missing', 'gap_trail', 'tempo_ctl', 'gap_b2b', 'gap_fav'],
 };
-let IDX = null, COACH = null, TFILE = null, TCACHE = {}, STATS = {}, CMPC = {}, cmp = [], addMode = false;
+let IDX = null, HEADS = null, COACH = null, TFILE = null, TCACHE = {}, STATS = {}, CMPC = {}, cmp = [], addMode = false;
 let state = {mode:'career', base:'played', kind:'RS', game:null, season:null, allCauses:false, arcOpen:false};
 
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -46,6 +46,48 @@ const fetchJSON = async (p) => { const r = await fetch(p, {cache:'no-cache'}); i
 const nameOf = id => (IDX.tree.nodes[id]?.name) || (IDX.coaches.find(c => c.id === id)?.name) || id;
 const last = n => String(n || '').split(' ').slice(-1)[0];
 const initials = nm => String(nm || '').split(' ').map(s => s[0] || '').slice(0, 2).join('').toUpperCase();
+
+// ---------------------------------------------------------------- season photos
+// bcs/heads.json (pipeline/basketball/coaching/heads.py) gives each coach-season one of three marks:
+//   0  a photo the NBA shot that season, for that team: drawn as it is
+//   1  the nearest photo of him there is (another season's, his newest, his playing days, Basketball-Reference's):
+//      cropped to his face over a collar in that season's team colours, so no other shirt shows
+//   2  no photo of him anywhere: a badge in those colours with his initials
+// headEntry(id, year) is the entry in force for a season's start year; with no year, his latest.
+const HEAD_CDN = 'https://cdn.nba.com/headshots/nba/', HEAD_BR = 'https://www.basketball-reference.com/req/202106291/images/headshots/';
+const startYear = season => { const y = parseInt(String(season || ''), 10); return isNaN(y) ? null : y; };
+function headEntry(id, year){ const L = HEADS?.p?.[id]; if (!L) return null; const y = year == null ? 9999 : year; let e = null; for (const x of L) { if (x[0] <= y) e = x; else break; } return e || L[0]; }
+function headSrc(k, big){
+  if (!k) return null;
+  if (k.startsWith('br/')) return HEAD_BR + k.slice(3) + '.jpg';
+  const sz = big ? '1040x760' : '260x190', m = k.match(/^(\d+)\/(\d+)\/(\d+)$/);
+  return m ? `${HEAD_CDN}${m[1]}/${m[2]}/${sz}/${m[3]}.png` : `${HEAD_CDN}latest/${sz}/${k}.png`;
+}
+const _lum = hex => { const h = String(hex || '').replace('#', ''); const c = [0, 2, 4].map(i => { const v = parseInt(h.substr(i, 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+// a team's two colours, and an ink for initials on the first: the second where it reads, white or near-black where it doesn't
+function teamPair(t){
+  const k = HEADS?.alias?.[t] || t, e = HEADS?.teams?.[k];
+  const a = e ? e[0] : (IDX?.teams?.[k]?.color || '#22395A'), b = e ? e[1] : '#C2A263';
+  const la = _lum(a), lb = _lum(b), cr = (Math.max(la, lb) + .05) / (Math.min(la, lb) + .05);
+  return [a, b, cr >= 3 ? b : (la > .35 ? '#1A1A1A' : '#FFFFFF')];
+}
+// the picture for a coach in a season (or his latest), filling whatever frame the spot draws
+function faceHTML(id, year, name, big){
+  const e = headEntry(id, year), c = e && e[3] ? teamPair(e[3]) : null;
+  const st = c ? `--tc:${c[0]};--tc2:${c[1]};--tc3:${c[2]}` : '', ini = `<b>${esc(initials(name))}</b>`;
+  if (!e || e[2] === 2 || !e[1]) return `<span class="face badge" style="${st}" aria-hidden="true">${ini}</span>`;
+  const url = headSrc(e[1], big);
+  if (e[2] === 1) return `<span class="face crop${e[1].startsWith('br/') ? ' br' : ''}" style="${st};background-image:url(${url})" aria-hidden="true"></span>`;
+  return `<span class="face badge" style="${st}" aria-hidden="true">${ini}<img src="${url}" alt="" loading="lazy" onerror="this.remove()"></span>`;
+}
+// where a coach's picture came from, for the card's hover
+function headNote(id, year, season){
+  const e = headEntry(id, year), team = e && e[3] ? esc(teamName(e[3])) : 'his team';
+  const src = k => k.startsWith('br/') ? "Basketball-Reference's photo of him" : /\//.test(k) ? `the NBA's photo of him from ${k.split('/')[1]}-${String(+k.split('/')[1] + 1).slice(2)}` : "the NBA's newest photo of him";
+  if (!e || e[2] === 2 || !e[1]) return `<b>No photo of him we can reach</b><br><span class="k">a badge in ${team}'s colours instead</span>`;
+  if (e[2] === 0) return `<b>${season ? `The NBA's photo of him for ${season}` : "The NBA's newest photo of him"}</b><br><span class="k">shot for ${team}</span>`;
+  return `<b>${src(e[1])}</b><br><span class="k">cropped to his face and framed in ${team}'s colours${season ? `, because there is no photo of him from ${season}` : ''}</span>`;
+}
 const CW = (max) => Math.max(340, Math.min(max || 1000, (document.getElementById('coach')?.clientWidth || 1000) - 40));
 // links: a coach to his page here, a player to his Basketball Savant card. An ESPN-only id ("e123")
 // has no card, so it stays plain text.
@@ -125,7 +167,7 @@ function route(){
   else window.scrollTo(0, 0);
 }
 async function init(){
-  IDX = await fetchJSON(`${BASE}/index.json`);
+  [IDX, HEADS] = await Promise.all([fetchJSON(`${BASE}/index.json`), fetchJSON(`${BASE}/heads.json`).catch(() => null)]);
   for (const s of IDX.stats) STATS[s.key] = s;
   const m = IDX.meta, cur = IDX.coaches.filter(c => c.active).length;
   document.getElementById('srcpill').textContent = `live data · ${IDX.meta.seasons.length} seasons · ${m.current} through ${m.generated.slice(5, 10).replace('-', '/')}`;
@@ -140,7 +182,7 @@ async function init(){
 function renderChips(){
   const el = document.getElementById('chips');
   const act = IDX.coaches.filter(c => c.active && c.hc).sort((a, b) => b.all_g - a.all_g).slice(0, 7);
-  el.innerHTML = '<span class="chips-label">Trending</span>' + act.map(c => `<a class="chip" href="#c=${c.id}" data-id="${c.id}">${esc(c.name)}</a>`).join('');
+  el.innerHTML = '<span class="chips-label">Trending</span>' + act.map(c => `<a class="chip" href="#c=${c.id}" data-id="${c.id}"><span class="hf">${faceHTML(c.id, null, c.name)}</span>${esc(c.name)}</a>`).join('');
 }
 
 // ---------------------------------------------------------------- home
@@ -151,7 +193,7 @@ function renderHome(){
   document.getElementById('lead-since').textContent = `career boards: head coaches with ${m.rules.min_career_seasons}+ seasons and ${m.rules.min_career_games}+ games in the stat's window; this season: ${m.current}`;
   renderLeaders();
   renderTrends();
-  const pr = IDX.produced.slice(0, 16).map(([n, id, kids]) => `<div class="lrow"${tipAttr(`<b>${esc(n)}</b><br>${kids.slice(0, 12).map(esc).join(', ')}${kids.length > 12 ? ` and ${kids.length - 12} more` : ''}`)}><span class="ln">${coachLink(id, n)}</span><span class="lv">${kids.length}</span></div>`).join('');
+  const pr = IDX.produced.slice(0, 16).map(([n, id, kids]) => `<div class="lrow"${tipAttr(`<b>${esc(n)}</b><br>${kids.slice(0, 12).map(esc).join(', ')}${kids.length > 12 ? ` and ${kids.length - 12} more` : ''}`)}><span class="hf">${faceHTML(id, null, n)}</span><span class="ln">${coachLink(id, n)}</span><span class="lv">${kids.length}</span></div>`).join('');
   document.getElementById('produced').innerHTML = `<div class="grid3"><div>${pr}</div><div class="small" style="grid-column:span 2">Head coaches who served on a man's staff before their own first head job, counted by Basketball-Reference's assistant stints and the NBA's staff tables (which begin in the 2000s). ${esc(IDX.tree.note)} <a href="#tree">Open the tree ↗</a></div></div>`;
   const t = m.fits.talent || {}, p = m.fits.parts || {};
   document.getElementById('howto').innerHTML = `
@@ -169,7 +211,7 @@ function pairText(pr){
 }
 function renderLeaders(){
   const el = document.getElementById('leaders');
-  el.innerHTML = IDX.leaders.map(b => `<div><h3 class="lead-h"${tipAttr(`<b>${esc(b.title)}</b><br>${esc(b.note || '')}<br><span class="k">${esc(b.pool)}</span>`)}>${esc(b.title)}</h3><p class="lead-p">${esc(b.pool)}${b.rows.length ? ` · ${b.rows.length}` : ''}</p>${b.rows.slice(0, 10).map((r, i) => `<div class="lrow"><span class="lrk">${i + 1}</span><span class="ln">${coachLink(r.id, r.name)}${r.team ? ` <small style="color:var(--faint)">${r.team}${r.season ? ' ' + r.season : ''}</small>` : ''}</span><span class="lv">${esc(r.display)}</span></div>`).join('') || '<div class="empty">nothing to rank yet</div>'}</div>`).join('');
+  el.innerHTML = IDX.leaders.map(b => `<div><h3 class="lead-h"${tipAttr(`<b>${esc(b.title)}</b><br>${esc(b.note || '')}<br><span class="k">${esc(b.pool)}</span>`)}>${esc(b.title)}</h3><p class="lead-p">${esc(b.pool)}${b.rows.length ? ` · ${b.rows.length}` : ''}</p>${b.rows.slice(0, 10).map((r, i) => `<div class="lrow"><span class="lrk">${i + 1}</span><span class="hf">${faceHTML(r.id, r.season ? startYear(r.season) : null, r.name)}</span><span class="ln">${coachLink(r.id, r.name)}${r.team ? ` <small style="color:var(--faint)">${r.team}${r.season ? ' ' + r.season : ''}</small>` : ''}</span><span class="lv">${esc(r.display)}</span></div>`).join('') || '<div class="empty">nothing to rank yet</div>'}</div>`).join('');
 }
 function renderTrends(){
   const el = document.getElementById('trends');
@@ -196,7 +238,7 @@ function wireSearch(){
     const v = norm(q.value);
     if (!v) { box.hidden = true; return; }
     hits = IDX.coaches.filter(c => norm(c.name).includes(v) && !(addMode && COACH && c.id === COACH.id)).sort((a, b) => (norm(b.name).startsWith(v) - norm(a.name).startsWith(v)) || (b.all_g - a.all_g)).slice(0, 12);
-    box.innerHTML = (addMode ? '<div class="res"><span class="rs">adding a coach to compare — Esc to cancel</span></div>' : '') + hits.map((c, i) => `<div class="res${i === sel ? ' on' : ''}" data-i="${i}"><span class="rn">${esc(c.name)}</span><span class="rs">${c.hc ? `${c.all_w}–${c.all_l}, ${c.all_seasons} seasons` : 'assistant'}${c.first ? ` · ${c.first.slice(0,4)}–${(c.last||'').slice(0,4)}` : ''}</span></div>`).join('') || '<div class="res"><span class="rs">no coach by that name</span></div>';
+    box.innerHTML = (addMode ? '<div class="res"><span class="rs">adding a coach to compare — Esc to cancel</span></div>' : '') + hits.map((c, i) => `<div class="res${i === sel ? ' on' : ''}" data-i="${i}"><span class="hf">${faceHTML(c.id, null, c.name)}</span><span class="rn">${esc(c.name)}</span><span class="rs">${c.hc ? `${c.all_w}–${c.all_l}, ${c.all_seasons} seasons` : 'assistant'}${c.first ? ` · ${c.first.slice(0,4)}–${(c.last||'').slice(0,4)}` : ''}</span></div>`).join('') || '<div class="res"><span class="rs">no coach by that name</span></div>';
     box.hidden = false;
     box.querySelectorAll('.res[data-i]').forEach(r => r.addEventListener('mousedown', () => go(+r.dataset.i)));
   }

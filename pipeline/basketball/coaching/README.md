@@ -13,6 +13,7 @@ decisions made)*, Oct 27, 2026, in the Claude project. Build notes and the revie
 | `br_odds.py` | preseason win totals, with the source page per season | Basketball-Reference preseason odds pages | 1996-97 on (none for the 1999 lockout) |
 | `espn_games.py` | every game's play-by-play, box score, officials, venue, closing line | ESPN's site API, cached per game under `~/Basketball-Savant/espn-cache/<season>/` (the Basketball Savant cloud refresh's normalizer, plus an `extra` block) | 2002-03 on, playoffs and play-in included |
 | `nba_pulls.py` | team game logs, the player index (draft slots), staff tables, team tracking, hustle, Synergy, zone | stats.nba.com through the engine's cache (`~/Basketball-Savant/cache`) | each table from its own first season |
+| `heads.py` | a photo for every coach-season: the NBA's per-team-season coach photos (2015-16 on, patchy before 2019-20), his newest NBA photo under his coach or player id, Basketball-Reference's one photo per coach; blank silhouettes told apart by the CDN's ETag from a HEAD request, kept in `heads_etag.json` so a re-run asks only about photos it has not seen | cdn.nba.com, Basketball-Reference (one request every 2.5 s) | 1996-97 on for the NBA's, any season for Basketball-Reference's |
 | `teams.py` | franchise ids across sources, abbreviations by season, the arena table (coordinates, time zone, altitude) and neutral-site cities | hand-made, sourced in the file | 1996-97 on |
 
 ## The engines
@@ -47,6 +48,7 @@ cd ~/Basketball-Savant && PYTHONPATH=<repo>/pipeline/basketball python3 <repo>/p
 python3 process.py 2002-03 2026-27               # ~10 minutes the first time; skips seasons already read
 python3 registry.py
 python3 build.py                                 # ~2 minutes; writes public/bcs and out/bcs/bundles
+python3 heads.py                                 # photos -> public/bcs/heads.json; first run ~30 minutes (Basketball-Reference), then seconds; --refresh re-asks about the season in progress
 bash publish_bundles.sh                          # the saved bundles -> branch bcs-bundles, for the cloud's merge mode
 
 # the season in progress (what the cloud runs after every slate)

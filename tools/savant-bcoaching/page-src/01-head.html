@@ -63,6 +63,25 @@ a{color:inherit}button{font-family:inherit;cursor:pointer}
 .id-head{display:flex;gap:18px;align-items:flex-start}
 .headwrap{position:relative;width:88px;height:88px;flex:none;border-radius:12px;overflow:hidden;background:var(--track)}
 .initials{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;font-size:28px;color:var(--muted)}
+/* ---- season photos (bcs/heads.json, pipeline/basketball/coaching/heads.py). A photo shot that season is drawn
+   as it is; a face from another season is cropped above the shirt over a collar in that season's team colours,
+   so no other team's polo shows; no photo at all is a badge in those colours with his initials. Each fills
+   whatever frame the spot draws (--fs the initials' size, --hem the badge's stripe, --collar the crop's line). */
+.face{position:relative;display:block;width:100%;height:100%;overflow:hidden;box-sizing:border-box;background:var(--tc,var(--track));color:var(--tc3,var(--muted));font-family:var(--disp);font-weight:600;letter-spacing:.02em}
+.face b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:var(--fs,28px);line-height:1}
+.face.badge{box-shadow:inset 0 calc(-1 * var(--hem,6px)) 0 var(--tc2,transparent)}
+.face.badge:has(img){box-shadow:none}.face.badge:has(img) b{display:none}  /* the NBA's photos are cut out, so the badge beneath would show through */
+.face img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block}
+.face.crop{background-color:#D8D3C6;background-repeat:no-repeat;background-size:178% auto;background-position:50% 2%}
+.face.crop.br{background-size:112% auto;background-position:50% 14%}  /* Basketball-Reference's 120x180 portraits are already tight on the face */
+.face.crop::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16%;background:var(--tc);border-top:var(--collar,2px) solid var(--tc2)}
+.hf{display:inline-block;width:22px;height:22px;border-radius:50%;overflow:hidden;flex:none;vertical-align:middle;--fs:9px;--hem:3px;--collar:1px}
+.lrow .hf{align-self:center}
+.res .hf{width:26px;height:26px;--fs:10px}.res .rn{flex:1;white-space:nowrap}.res .rs{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.chip{display:inline-flex;align-items:center;gap:7px}.chip .hf{width:20px;height:20px;margin:-4px 0 -4px -6px;--fs:8px;--hem:2px}
+.cmp-pill .hf{width:20px;height:20px;margin-left:-4px;box-sizing:border-box;border:2px solid var(--cc,transparent)}
+.tipface{float:left;width:46px;height:46px;margin:1px 9px 4px 0;border-radius:8px;overflow:hidden;--fs:14px;--hem:4px}
+.leaf image{clip-path:circle(50% at 50% 50%);pointer-events:none}
 .id-headtext{min-width:0;flex:1}
 .id-name{font-family:var(--disp);font-weight:600;font-size:42px;line-height:1.0;letter-spacing:-.01em}
 .id-meta{color:var(--muted);font-size:13.5px;margin-top:6px}

@@ -34,7 +34,7 @@ function peakOf(rows){
 function seasonTipHTML(r){
   const e = r.exp || {}, p = r.pct || {};
   const po = r.tier === 5 ? 'won the title' : r.unknownRound ? `playoffs ${r.pw}–${r.pl}` : (r.tier > 0 ? `${ROUND_L[r.tier]}${r.pw != null ? ` (${r.pw}–${r.pl})` : ''}` : 'missed the playoffs');
-  const lines = [`<b>${r.season} ${esc(teamName(r.team))}</b> <span class="k">${r.lg !== 'NBA' ? r.lg : ''}</span>`, `${r.w}–${r.l}${r.g && r.g !== 82 ? ` <span class="k">(${(82 * r.w / r.g).toFixed(1)} per 82)</span>` : ''} · ${po}`];
+  const lines = [`<span class="tipface">${faceHTML(COACH.id, startYear(r.season), COACH.name)}</span><b>${r.season} ${esc(teamName(r.team))}</b> <span class="k">${r.lg !== 'NBA' ? r.lg : ''}</span>`, `${r.w}–${r.l}${r.g && r.g !== 82 ? ` <span class="k">(${(82 * r.w / r.g).toFixed(1)} per 82)</span>` : ''} · ${po}`];
   if (!miss(r.net)) lines.push(`net ${signed(r.net)} ${miss(p.net) ? '' : pbox(p.net) + '<span class="k">percentile of that season\'s coaches</span>'}`);
   if (!miss(e.exp_w82)) lines.push(`talent expected ${e.exp_w82.toFixed(1)} wins per 82 → <b>${signed(e.w_talent)}</b> above talent${miss(p.w_talent) ? '' : ' ' + pbox(p.w_talent)}`);
   if (!miss(e.market_total)) lines.push(`preseason total ${e.market_total} → <b>${signed(e.w_market)}</b> above the market${miss(p.w_market) ? '' : ' ' + pbox(p.w_market)}`);

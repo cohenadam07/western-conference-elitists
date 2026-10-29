@@ -5,8 +5,32 @@ Python package with Chromium.
 
     python3 tools/savant-bcoaching/shoot.py <out_dir> [coach slug] [season] [base url]
 """
-import sys, os, json
+import sys, os, json, re, ssl, urllib.request
 from playwright.sync_api import sync_playwright
+
+# The coach photos come from cdn.nba.com, which refuses headless Chromium's HTTP/2 (ERR_HTTP2_PROTOCOL_ERROR;
+# a real Chrome is fine). The pass fetches them here and hands them to the page, so the screenshots show them.
+try:
+    import certifi
+    CTX = ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    CTX = ssl.create_default_context()
+UA = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36'}
+MEM = {}
+
+
+def relay(route, request):
+    u = request.url
+    if u not in MEM:
+        try:
+            r = urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=20, context=CTX)
+            MEM[u] = (r.status, r.headers.get('Content-Type', 'image/png'), r.read())
+        except urllib.error.HTTPError as e:
+            MEM[u] = (e.code, 'text/plain', b'')
+        except Exception:
+            MEM[u] = (599, 'text/plain', b'')
+    st, ct, body = MEM[u]
+    route.fulfill(status=st, content_type=ct, body=body)
 
 OUT = sys.argv[1]
 COACH = sys.argv[2] if len(sys.argv) > 2 else 'spoeler99c'
@@ -20,8 +44,12 @@ def run(pw, width, tag):
     ctx = b.new_context(viewport={'width': width, 'height': 900}, device_scale_factor=1)
     p = ctx.new_page()
     errs = []
+    p.route(re.compile(r'https://(cdn\.nba\.com|www\.basketball-reference\.com)/.*'), relay)
     p.on('pageerror', lambda e: errs.append('pageerror ' + str(e)))
-    p.on('console', lambda m: errs.append('console ' + m.text) if m.type == 'error' else None)
+    # a failed resource is reported by its URL (the console line never says which); the local server has no
+    # API functions, so the Basketball Savant player page's /api/ calls are expected to fail here
+    p.on('console', lambda m: errs.append('console ' + m.text) if m.type == 'error' and not m.text.startswith('Failed to load resource') else None)
+    p.on('response', lambda r: errs.append(f'{r.status} {r.url}') if r.status >= 400 and '/api/' not in r.url else None)
     report = {'tag': tag, 'width': width}
 
     def overflow():
@@ -70,17 +98,20 @@ def run(pw, width, tag):
         p.mouse.move(2, 2); p.wait_for_timeout(300)
 
     # home
-    p.goto(BASE, wait_until='networkidle'); p.wait_for_selector('#leaders .lrow', timeout=20000); p.wait_for_timeout(600)
+    p.goto(BASE, wait_until='load'); p.wait_for_selector('#leaders .lrow', timeout=20000); p.wait_for_timeout(600)
     report['home_overflow'] = overflow()
+    report['home_faces'] = p.evaluate("[document.querySelectorAll('.face').length, document.querySelectorAll('.face img').length, [...document.querySelectorAll('.face img')].filter(i => i.complete && i.naturalWidth > 0).length, document.querySelectorAll('.face.crop').length]")
     p.screenshot(path=f'{OUT}/{tag}-home.png', full_page=True)
     report['home_sections'] = shoot_sections(f'{tag}-home')
 
     # coach, career view
-    p.goto(f'{BASE}#c={COACH}', wait_until='networkidle'); p.wait_for_selector('.ctxrow .row', timeout=20000); p.wait_for_selector('#rotmap', timeout=20000); p.wait_for_timeout(1200)
+    p.goto(f'{BASE}#c={COACH}', wait_until='load'); p.wait_for_selector('.ctxrow .row', timeout=20000); p.wait_for_selector('#rotmap', timeout=20000); p.wait_for_timeout(1200)
     report['coach_overflow'] = overflow()
     report['coach_height'] = p.evaluate('document.body.scrollHeight')
     p.screenshot(path=f'{OUT}/{tag}-coach-full.png', full_page=True)
     report['coach_sections'] = shoot_sections(f'{tag}-coach')
+    hover_check('.headwrap', 'photo')
+    report['card_face'] = p.evaluate("document.querySelector('.headwrap .face')?.className")
     hover_check('.ctxrow .row', 'card-row')
     hover_check('#coach svg g.hit[data-pick]', 'career-column')
     hover_check('#rotmap', 'rotation-cell', {'x': 60, 'y': 30})
@@ -105,17 +136,18 @@ def run(pw, width, tag):
     report['player_links'] = len(p.query_selector_all('a.pl')); report['coach_links'] = len(p.query_selector_all('a.cl'))
 
     # season view
-    p.goto(f'{BASE}#c={COACH}&season={SEASON}', wait_until='networkidle'); p.wait_for_timeout(1500)
+    p.goto(f'{BASE}#c={COACH}&season={SEASON}', wait_until='load'); p.wait_for_timeout(1500)
     report['season_overflow'] = overflow()
     report['season_card_rows'] = len(p.query_selector_all('.ctxrow .row, .panels .row'))
     report['season_title'] = (p.query_selector('#selxBtn').inner_text() if p.query_selector('#selxBtn') else '')
+    report['season_face'] = p.evaluate("[document.querySelector('.headwrap .face')?.className, document.querySelector('.headwrap img')?.src || document.querySelector('.headwrap .face')?.style.backgroundImage]")
     p.screenshot(path=f'{OUT}/{tag}-season-full.png', full_page=True)
     report['season_sections'] = shoot_sections(f'{tag}-season')
     p.click('#selxBtn'); p.wait_for_timeout(200); p.click('.selx-opt[data-s="career"]'); p.wait_for_timeout(800)
     report['back_to_career'] = (p.query_selector('#selxBtn').inner_text() if p.query_selector('#selxBtn') else '')
 
     # tree
-    p.goto(f'{BASE}#tree', wait_until='networkidle'); p.wait_for_timeout(2500)
+    p.goto(f'{BASE}#tree', wait_until='load'); p.wait_for_timeout(2500)
     report['tree_overflow'] = overflow()
     report['tree_nodes'] = len(p.query_selector_all('#treestage .leaf'))
     p.screenshot(path=f'{OUT}/{tag}-tree.png')
@@ -124,11 +156,12 @@ def run(pw, width, tag):
     hover_check('#treestage .leaf', 'tree-node')
     p.click('#treestage .zast'); p.wait_for_timeout(2500)
     report['tree_nodes_with_assistants'] = len(p.query_selector_all('#treestage .leaf'))
+    report['tree_faces'] = p.evaluate("[document.querySelectorAll('#treestage .leaf image[href]').length, document.querySelectorAll('#treestage .leaf image[data-src]').length]")
     # the matching Basketball Savant player page, for the side-by-side
     sav = BASE.replace('basketball-coaching-savant.html', 'basketball-savant.html') + '?p=203999'
-    p.goto(sav, wait_until='networkidle'); p.wait_for_timeout(2500)
+    p.goto(sav, wait_until='load'); p.wait_for_timeout(2500)
     p.screenshot(path=f'{OUT}/{tag}-savant-player.png', clip={'x': 0, 'y': 0, 'width': width, 'height': 1600})
-    p.goto(f'{BASE}#c={COACH}', wait_until='networkidle'); p.wait_for_timeout(2000)
+    p.goto(f'{BASE}#c={COACH}', wait_until='load'); p.wait_for_timeout(2000)
     p.screenshot(path=f'{OUT}/{tag}-coach-top.png', clip={'x': 0, 'y': 0, 'width': width, 'height': 1600})
     report['errors'] = errs[:20]
     b.close()
@@ -143,5 +176,6 @@ for r in reps:
     print('  errors:', r['errors'] or 'none')
     print('  hovers:', {k: v for k, v in r['hovers'].items() if not k.endswith('_box')})
     print('  explainer pinned:', r['explainer_pinned'], '| statchart:', r.get('statchart_open'), '| more rows:', r.get('more_rows'), '| compare bars:', r.get('compare_rows'), '| links player/coach:', r['player_links'], r['coach_links'], '| season rows:', r['season_card_rows'], r['season_title'], '| back:', r['back_to_career'])
-    print('  tree nodes:', r['tree_nodes'], '-> with assistants', r['tree_nodes_with_assistants'])
+    print('  tree nodes:', r['tree_nodes'], '-> with assistants', r['tree_nodes_with_assistants'], '| tree faces loaded/pending:', r.get('tree_faces'))
+    print('  faces home [all, photos, loaded, crops]:', r.get('home_faces'), '| card:', r.get('card_face'), '| season card:', r.get('season_face'))
     print('  sections:', r['coach_sections'])

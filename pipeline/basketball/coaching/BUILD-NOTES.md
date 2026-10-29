@@ -206,3 +206,65 @@ player page for a side-by-side at 1280 and 390 wide.
   forest, flown to him), comps with the fingerprint overlay, every season.
 - Opponent "shot quality allowed" has no single stat in the registry; opponent eFG% and opponent
   rim rate headline the defensive panel in its place.
+
+## Faces (Oct 28, 2026, third pass)
+
+Every spot that names a coach now shows him: the identity card, the Trending chips, the search
+results, the compare pills, the leader boards, the career chart's season hover, and the tree once
+it is zoomed in. The rules are Football Savant's (`pipeline/football/heads.py`), and the data is
+`public/bcs/heads.json` from `pipeline/basketball/coaching/heads.py`.
+
+- **What the NBA keeps** (found by probing the CDN, Oct 28): `cdn.nba.com/headshots/nba/<team
+  id>/<start year>/<size>/<COACH_ID>.png` is a photo shot for that team and that season, the same
+  store Basketball Savant draws players from; it begins in 2015-16 and a coach-season has one only
+  when media day shot him (none at all exist for 2015-16, 2017-18 or 2018-19). `latest/<size>/
+  <COACH_ID>.png` is his newest photo, and for most coach ids it is the NBA's blank silhouette; a
+  former player's photo lives under his player id (Kidd is 203456 as a coach, 429 as a player),
+  so that is tried too. Basketball-Reference has one photo per coach, under the coach slug for
+  career coaches and the player slug for men who played (`popovgr99c.jpg` and `kiddja01.jpg`
+  exist, `spoeler99c.jpg` does not). COACH_IDs come from the cached CommonTeamRoster coaches
+  tables, matched by name within the team-season.
+- **Three marks per coach-season**, run-length by season: 0, a photo shot that season for that
+  team, drawn as it is; 1, the nearest photo of him there is (another season's, his newest, his
+  playing days, Basketball-Reference's), which the page crops to his face over a collar in that
+  season's team colours so no other team's polo shows; 2, no photo anywhere, a badge in those
+  colours with his initials. The badge's ink is the second team colour where it reads against the
+  first (contrast 3:1 or better) and white or near-black where it does not.
+- **Blanks by fingerprint, not by download**: a HEAD request's ETag is the same under every id
+  that serves the silhouette, so the two known blanks plus any ETag shared by five or more ids are
+  treated as no photo. Fingerprints and misses are kept in `heads_etag.json`; only the season in
+  progress is asked again (`--refresh`), because media-day photos land through October.
+- **Coverage** of head-coach seasons after the full run:
+
+  | era       | seasons | own photo | face | badge |
+  |---|---|---|---|---|
+  | 1946-1995 | 966 | 0% | 49% | 51% |
+  | 1996-2014 | 652 | 0% | 82% | 18% |
+  | 2015-2019 | 168 | 36% | 61% | 4% |
+  | 2020- | 251 | 72% | 26% | 2% |
+  | all | 2,037 | 12% | 58% | 31% |
+
+  The 609 Basketball-Reference URLs asked about (coach slug, and player slug for the 205 who
+  played) hold 140 photos; the NBA's CDN holds a real picture under 547 team-season keys and 138
+  latest keys out of 3,905 fingerprinted. Every pre-1996 face is Basketball-Reference's, so the
+  31% badges are almost all men who coached before 1996 and never played in the NBA.
+
+- **Faces in the tree load on demand**: about 400 of them at 15 KB each would otherwise land on
+  every coach page, so a node fetches its picture only when it is on screen and the tree is zoomed
+  past 0.45, and keeps it afterwards.
+- **Headless Chromium cannot fetch the CDN**: cdn.nba.com refuses its HTTP/2 connection
+  (`ERR_HTTP2_PROTOCOL_ERROR` on every image; a real Chrome and curl are fine), and launching with
+  `--disable-http2` left the page waiting for network idle forever. So `shoot.py` routes the CDN and
+  Basketball-Reference through Python (`urllib` with certifi's roots) and hands the bytes to the
+  page, and waits for `load` rather than `networkidle`. Worth knowing before trusting any headless
+  screenshot of a Basketball Savant page that shows photos.
+- **The NBA's photos are cut-outs** with a transparent background, so a season photo sits on a
+  plain badge-coloured ground; the initials beneath it are hidden once the image is there and come
+  back if it fails to load (`onerror` removes the image).
+- **The visual pass** (`shoot.py`) now also reports how many faces the home page drew and loaded,
+  the card's photo class on the career and the season view, and how many tree nodes have a picture
+  loaded or pending. Last run: no errors, no overflow at either width, every hover fires including the card's photo note; the
+  home page draws 243 faces (140 photos, 135 loaded at 1280 wide, 88 crops); Spoelstra's card is
+  the NBA's newest photo on the career view and the 2016-17 photo cropped on the 2010-11 view; the
+  tree has 48 faces loaded and 143 pending at 1280 wide after flying to Popovich.
+

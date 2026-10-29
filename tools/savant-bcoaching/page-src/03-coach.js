@@ -104,13 +104,14 @@ function renderIdentity(sr){
   const meta = `${teams.map(t => `<b>${esc(t)}</b>`).join(', ')}${at.first ? ` · ${at.first}–${(at.last || '').slice(0, 7)}` : ''} · ${at.seasons} season${at.seasons === 1 ? '' : 's'} as head coach${at.po_seasons ? ` · ${at.po_seasons} playoff seasons (${c.career.pw}–${c.career.pl} since 1996-97)` : ''}${bits.length ? '<br>' + bits.join(' · ') : ''}`;
   let ch = '<div class="cmpbar">';
   if (cmp.length) {
-    ch += `<span class="cmp-pill"><span class="cdot" style="background:${CMP_COLORS[0]}"></span>${esc(c.name)}</span>`;
-    cmp.forEach((id, i) => { ch += `<span class="cmp-pill"><span class="cdot" style="background:${CMP_COLORS[i + 1]}"></span>${coachLink(id, CMPC[id]?.name || nameOf(id))}<button class="cmp-x" data-idx="${i}" aria-label="Remove">&times;</button></span>`; });
+    const yr = sr ? startYear(sr.season) : null;
+    ch += `<span class="cmp-pill"><span class="hf" style="--cc:${CMP_COLORS[0]}">${faceHTML(c.id, yr, c.name)}</span>${esc(c.name)}</span>`;
+    cmp.forEach((id, i) => { const nm = CMPC[id]?.name || nameOf(id); ch += `<span class="cmp-pill"><span class="hf" style="--cc:${CMP_COLORS[i + 1]}">${faceHTML(id, yr, nm)}</span>${coachLink(id, nm)}<button class="cmp-x" data-idx="${i}" aria-label="Remove">&times;</button></span>`; });
   }
   if (1 + cmp.length < 3) ch += '<button class="cmp-add" id="cmpAdd">+ Compare</button>';
   ch += '</div>';
   if (cmp.length) ch += `<div class="cmp-note">${sr ? `Each coach's ${sr.season}, where he coached it; a coach without that season shows no bar.` : 'Careers, each ranked in the career pool.'}</div>`;
-  return `<div class="id" id="id"><div class="id-head"><div class="headwrap"><div class="initials">${initials(c.name)}</div></div>
+  return `<div class="id" id="id"><div class="id-head"><div class="headwrap"${tipAttr(headNote(c.id, sr ? startYear(sr.season) : null, sr ? sr.season : null))}>${faceHTML(c.id, sr ? startYear(sr.season) : null, c.name, true)}</div>
     <div class="id-headtext"><div class="id-name">${esc(c.name)}</div><div class="id-meta">${meta}</div>${sl}${acc.length ? `<div class="accos">${acc.join('')}</div>` : ''}${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}${ch}
     ${renderArcButton()}</div></div>${renderArcRail()}</div>`;
 }

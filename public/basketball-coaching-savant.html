@@ -63,6 +63,25 @@ a{color:inherit}button{font-family:inherit;cursor:pointer}
 .id-head{display:flex;gap:18px;align-items:flex-start}
 .headwrap{position:relative;width:88px;height:88px;flex:none;border-radius:12px;overflow:hidden;background:var(--track)}
 .initials{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;font-size:28px;color:var(--muted)}
+/* ---- season photos (bcs/heads.json, pipeline/basketball/coaching/heads.py). A photo shot that season is drawn
+   as it is; a face from another season is cropped above the shirt over a collar in that season's team colours,
+   so no other team's polo shows; no photo at all is a badge in those colours with his initials. Each fills
+   whatever frame the spot draws (--fs the initials' size, --hem the badge's stripe, --collar the crop's line). */
+.face{position:relative;display:block;width:100%;height:100%;overflow:hidden;box-sizing:border-box;background:var(--tc,var(--track));color:var(--tc3,var(--muted));font-family:var(--disp);font-weight:600;letter-spacing:.02em}
+.face b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:var(--fs,28px);line-height:1}
+.face.badge{box-shadow:inset 0 calc(-1 * var(--hem,6px)) 0 var(--tc2,transparent)}
+.face.badge:has(img){box-shadow:none}.face.badge:has(img) b{display:none}  /* the NBA's photos are cut out, so the badge beneath would show through */
+.face img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block}
+.face.crop{background-color:#D8D3C6;background-repeat:no-repeat;background-size:178% auto;background-position:50% 2%}
+.face.crop.br{background-size:112% auto;background-position:50% 14%}  /* Basketball-Reference's 120x180 portraits are already tight on the face */
+.face.crop::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16%;background:var(--tc);border-top:var(--collar,2px) solid var(--tc2)}
+.hf{display:inline-block;width:22px;height:22px;border-radius:50%;overflow:hidden;flex:none;vertical-align:middle;--fs:9px;--hem:3px;--collar:1px}
+.lrow .hf{align-self:center}
+.res .hf{width:26px;height:26px;--fs:10px}.res .rn{flex:1;white-space:nowrap}.res .rs{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.chip{display:inline-flex;align-items:center;gap:7px}.chip .hf{width:20px;height:20px;margin:-4px 0 -4px -6px;--fs:8px;--hem:2px}
+.cmp-pill .hf{width:20px;height:20px;margin-left:-4px;box-sizing:border-box;border:2px solid var(--cc,transparent)}
+.tipface{float:left;width:46px;height:46px;margin:1px 9px 4px 0;border-radius:8px;overflow:hidden;--fs:14px;--hem:4px}
+.leaf image{clip-path:circle(50% at 50% 50%);pointer-events:none}
 .id-headtext{min-width:0;flex:1}
 .id-name{font-family:var(--disp);font-weight:600;font-size:42px;line-height:1.0;letter-spacing:-.01em}
 .id-meta{color:var(--muted);font-size:13.5px;margin-top:6px}
@@ -375,7 +394,7 @@ const HEADLINE = {
   development: ['aging', 'aging_young'],
   context: ['gap_top10', 'gap_road', 'gap_missing', 'gap_trail', 'tempo_ctl', 'gap_b2b', 'gap_fav'],
 };
-let IDX = null, COACH = null, TFILE = null, TCACHE = {}, STATS = {}, CMPC = {}, cmp = [], addMode = false;
+let IDX = null, HEADS = null, COACH = null, TFILE = null, TCACHE = {}, STATS = {}, CMPC = {}, cmp = [], addMode = false;
 let state = {mode:'career', base:'played', kind:'RS', game:null, season:null, allCauses:false, arcOpen:false};
 
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -406,6 +425,48 @@ const fetchJSON = async (p) => { const r = await fetch(p, {cache:'no-cache'}); i
 const nameOf = id => (IDX.tree.nodes[id]?.name) || (IDX.coaches.find(c => c.id === id)?.name) || id;
 const last = n => String(n || '').split(' ').slice(-1)[0];
 const initials = nm => String(nm || '').split(' ').map(s => s[0] || '').slice(0, 2).join('').toUpperCase();
+
+// ---------------------------------------------------------------- season photos
+// bcs/heads.json (pipeline/basketball/coaching/heads.py) gives each coach-season one of three marks:
+//   0  a photo the NBA shot that season, for that team: drawn as it is
+//   1  the nearest photo of him there is (another season's, his newest, his playing days, Basketball-Reference's):
+//      cropped to his face over a collar in that season's team colours, so no other shirt shows
+//   2  no photo of him anywhere: a badge in those colours with his initials
+// headEntry(id, year) is the entry in force for a season's start year; with no year, his latest.
+const HEAD_CDN = 'https://cdn.nba.com/headshots/nba/', HEAD_BR = 'https://www.basketball-reference.com/req/202106291/images/headshots/';
+const startYear = season => { const y = parseInt(String(season || ''), 10); return isNaN(y) ? null : y; };
+function headEntry(id, year){ const L = HEADS?.p?.[id]; if (!L) return null; const y = year == null ? 9999 : year; let e = null; for (const x of L) { if (x[0] <= y) e = x; else break; } return e || L[0]; }
+function headSrc(k, big){
+  if (!k) return null;
+  if (k.startsWith('br/')) return HEAD_BR + k.slice(3) + '.jpg';
+  const sz = big ? '1040x760' : '260x190', m = k.match(/^(\d+)\/(\d+)\/(\d+)$/);
+  return m ? `${HEAD_CDN}${m[1]}/${m[2]}/${sz}/${m[3]}.png` : `${HEAD_CDN}latest/${sz}/${k}.png`;
+}
+const _lum = hex => { const h = String(hex || '').replace('#', ''); const c = [0, 2, 4].map(i => { const v = parseInt(h.substr(i, 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+// a team's two colours, and an ink for initials on the first: the second where it reads, white or near-black where it doesn't
+function teamPair(t){
+  const k = HEADS?.alias?.[t] || t, e = HEADS?.teams?.[k];
+  const a = e ? e[0] : (IDX?.teams?.[k]?.color || '#22395A'), b = e ? e[1] : '#C2A263';
+  const la = _lum(a), lb = _lum(b), cr = (Math.max(la, lb) + .05) / (Math.min(la, lb) + .05);
+  return [a, b, cr >= 3 ? b : (la > .35 ? '#1A1A1A' : '#FFFFFF')];
+}
+// the picture for a coach in a season (or his latest), filling whatever frame the spot draws
+function faceHTML(id, year, name, big){
+  const e = headEntry(id, year), c = e && e[3] ? teamPair(e[3]) : null;
+  const st = c ? `--tc:${c[0]};--tc2:${c[1]};--tc3:${c[2]}` : '', ini = `<b>${esc(initials(name))}</b>`;
+  if (!e || e[2] === 2 || !e[1]) return `<span class="face badge" style="${st}" aria-hidden="true">${ini}</span>`;
+  const url = headSrc(e[1], big);
+  if (e[2] === 1) return `<span class="face crop${e[1].startsWith('br/') ? ' br' : ''}" style="${st};background-image:url(${url})" aria-hidden="true"></span>`;
+  return `<span class="face badge" style="${st}" aria-hidden="true">${ini}<img src="${url}" alt="" loading="lazy" onerror="this.remove()"></span>`;
+}
+// where a coach's picture came from, for the card's hover
+function headNote(id, year, season){
+  const e = headEntry(id, year), team = e && e[3] ? esc(teamName(e[3])) : 'his team';
+  const src = k => k.startsWith('br/') ? "Basketball-Reference's photo of him" : /\//.test(k) ? `the NBA's photo of him from ${k.split('/')[1]}-${String(+k.split('/')[1] + 1).slice(2)}` : "the NBA's newest photo of him";
+  if (!e || e[2] === 2 || !e[1]) return `<b>No photo of him we can reach</b><br><span class="k">a badge in ${team}'s colours instead</span>`;
+  if (e[2] === 0) return `<b>${season ? `The NBA's photo of him for ${season}` : "The NBA's newest photo of him"}</b><br><span class="k">shot for ${team}</span>`;
+  return `<b>${src(e[1])}</b><br><span class="k">cropped to his face and framed in ${team}'s colours${season ? `, because there is no photo of him from ${season}` : ''}</span>`;
+}
 const CW = (max) => Math.max(340, Math.min(max || 1000, (document.getElementById('coach')?.clientWidth || 1000) - 40));
 // links: a coach to his page here, a player to his Basketball Savant card. An ESPN-only id ("e123")
 // has no card, so it stays plain text.
@@ -485,7 +546,7 @@ function route(){
   else window.scrollTo(0, 0);
 }
 async function init(){
-  IDX = await fetchJSON(`${BASE}/index.json`);
+  [IDX, HEADS] = await Promise.all([fetchJSON(`${BASE}/index.json`), fetchJSON(`${BASE}/heads.json`).catch(() => null)]);
   for (const s of IDX.stats) STATS[s.key] = s;
   const m = IDX.meta, cur = IDX.coaches.filter(c => c.active).length;
   document.getElementById('srcpill').textContent = `live data · ${IDX.meta.seasons.length} seasons · ${m.current} through ${m.generated.slice(5, 10).replace('-', '/')}`;
@@ -500,7 +561,7 @@ async function init(){
 function renderChips(){
   const el = document.getElementById('chips');
   const act = IDX.coaches.filter(c => c.active && c.hc).sort((a, b) => b.all_g - a.all_g).slice(0, 7);
-  el.innerHTML = '<span class="chips-label">Trending</span>' + act.map(c => `<a class="chip" href="#c=${c.id}" data-id="${c.id}">${esc(c.name)}</a>`).join('');
+  el.innerHTML = '<span class="chips-label">Trending</span>' + act.map(c => `<a class="chip" href="#c=${c.id}" data-id="${c.id}"><span class="hf">${faceHTML(c.id, null, c.name)}</span>${esc(c.name)}</a>`).join('');
 }
 
 // ---------------------------------------------------------------- home
@@ -511,7 +572,7 @@ function renderHome(){
   document.getElementById('lead-since').textContent = `career boards: head coaches with ${m.rules.min_career_seasons}+ seasons and ${m.rules.min_career_games}+ games in the stat's window; this season: ${m.current}`;
   renderLeaders();
   renderTrends();
-  const pr = IDX.produced.slice(0, 16).map(([n, id, kids]) => `<div class="lrow"${tipAttr(`<b>${esc(n)}</b><br>${kids.slice(0, 12).map(esc).join(', ')}${kids.length > 12 ? ` and ${kids.length - 12} more` : ''}`)}><span class="ln">${coachLink(id, n)}</span><span class="lv">${kids.length}</span></div>`).join('');
+  const pr = IDX.produced.slice(0, 16).map(([n, id, kids]) => `<div class="lrow"${tipAttr(`<b>${esc(n)}</b><br>${kids.slice(0, 12).map(esc).join(', ')}${kids.length > 12 ? ` and ${kids.length - 12} more` : ''}`)}><span class="hf">${faceHTML(id, null, n)}</span><span class="ln">${coachLink(id, n)}</span><span class="lv">${kids.length}</span></div>`).join('');
   document.getElementById('produced').innerHTML = `<div class="grid3"><div>${pr}</div><div class="small" style="grid-column:span 2">Head coaches who served on a man's staff before their own first head job, counted by Basketball-Reference's assistant stints and the NBA's staff tables (which begin in the 2000s). ${esc(IDX.tree.note)} <a href="#tree">Open the tree ↗</a></div></div>`;
   const t = m.fits.talent || {}, p = m.fits.parts || {};
   document.getElementById('howto').innerHTML = `
@@ -529,7 +590,7 @@ function pairText(pr){
 }
 function renderLeaders(){
   const el = document.getElementById('leaders');
-  el.innerHTML = IDX.leaders.map(b => `<div><h3 class="lead-h"${tipAttr(`<b>${esc(b.title)}</b><br>${esc(b.note || '')}<br><span class="k">${esc(b.pool)}</span>`)}>${esc(b.title)}</h3><p class="lead-p">${esc(b.pool)}${b.rows.length ? ` · ${b.rows.length}` : ''}</p>${b.rows.slice(0, 10).map((r, i) => `<div class="lrow"><span class="lrk">${i + 1}</span><span class="ln">${coachLink(r.id, r.name)}${r.team ? ` <small style="color:var(--faint)">${r.team}${r.season ? ' ' + r.season : ''}</small>` : ''}</span><span class="lv">${esc(r.display)}</span></div>`).join('') || '<div class="empty">nothing to rank yet</div>'}</div>`).join('');
+  el.innerHTML = IDX.leaders.map(b => `<div><h3 class="lead-h"${tipAttr(`<b>${esc(b.title)}</b><br>${esc(b.note || '')}<br><span class="k">${esc(b.pool)}</span>`)}>${esc(b.title)}</h3><p class="lead-p">${esc(b.pool)}${b.rows.length ? ` · ${b.rows.length}` : ''}</p>${b.rows.slice(0, 10).map((r, i) => `<div class="lrow"><span class="lrk">${i + 1}</span><span class="hf">${faceHTML(r.id, r.season ? startYear(r.season) : null, r.name)}</span><span class="ln">${coachLink(r.id, r.name)}${r.team ? ` <small style="color:var(--faint)">${r.team}${r.season ? ' ' + r.season : ''}</small>` : ''}</span><span class="lv">${esc(r.display)}</span></div>`).join('') || '<div class="empty">nothing to rank yet</div>'}</div>`).join('');
 }
 function renderTrends(){
   const el = document.getElementById('trends');
@@ -556,7 +617,7 @@ function wireSearch(){
     const v = norm(q.value);
     if (!v) { box.hidden = true; return; }
     hits = IDX.coaches.filter(c => norm(c.name).includes(v) && !(addMode && COACH && c.id === COACH.id)).sort((a, b) => (norm(b.name).startsWith(v) - norm(a.name).startsWith(v)) || (b.all_g - a.all_g)).slice(0, 12);
-    box.innerHTML = (addMode ? '<div class="res"><span class="rs">adding a coach to compare — Esc to cancel</span></div>' : '') + hits.map((c, i) => `<div class="res${i === sel ? ' on' : ''}" data-i="${i}"><span class="rn">${esc(c.name)}</span><span class="rs">${c.hc ? `${c.all_w}–${c.all_l}, ${c.all_seasons} seasons` : 'assistant'}${c.first ? ` · ${c.first.slice(0,4)}–${(c.last||'').slice(0,4)}` : ''}</span></div>`).join('') || '<div class="res"><span class="rs">no coach by that name</span></div>';
+    box.innerHTML = (addMode ? '<div class="res"><span class="rs">adding a coach to compare — Esc to cancel</span></div>' : '') + hits.map((c, i) => `<div class="res${i === sel ? ' on' : ''}" data-i="${i}"><span class="hf">${faceHTML(c.id, null, c.name)}</span><span class="rn">${esc(c.name)}</span><span class="rs">${c.hc ? `${c.all_w}–${c.all_l}, ${c.all_seasons} seasons` : 'assistant'}${c.first ? ` · ${c.first.slice(0,4)}–${(c.last||'').slice(0,4)}` : ''}</span></div>`).join('') || '<div class="res"><span class="rs">no coach by that name</span></div>';
     box.hidden = false;
     box.querySelectorAll('.res[data-i]').forEach(r => r.addEventListener('mousedown', () => go(+r.dataset.i)));
   }
@@ -677,13 +738,14 @@ function renderIdentity(sr){
   const meta = `${teams.map(t => `<b>${esc(t)}</b>`).join(', ')}${at.first ? ` · ${at.first}–${(at.last || '').slice(0, 7)}` : ''} · ${at.seasons} season${at.seasons === 1 ? '' : 's'} as head coach${at.po_seasons ? ` · ${at.po_seasons} playoff seasons (${c.career.pw}–${c.career.pl} since 1996-97)` : ''}${bits.length ? '<br>' + bits.join(' · ') : ''}`;
   let ch = '<div class="cmpbar">';
   if (cmp.length) {
-    ch += `<span class="cmp-pill"><span class="cdot" style="background:${CMP_COLORS[0]}"></span>${esc(c.name)}</span>`;
-    cmp.forEach((id, i) => { ch += `<span class="cmp-pill"><span class="cdot" style="background:${CMP_COLORS[i + 1]}"></span>${coachLink(id, CMPC[id]?.name || nameOf(id))}<button class="cmp-x" data-idx="${i}" aria-label="Remove">&times;</button></span>`; });
+    const yr = sr ? startYear(sr.season) : null;
+    ch += `<span class="cmp-pill"><span class="hf" style="--cc:${CMP_COLORS[0]}">${faceHTML(c.id, yr, c.name)}</span>${esc(c.name)}</span>`;
+    cmp.forEach((id, i) => { const nm = CMPC[id]?.name || nameOf(id); ch += `<span class="cmp-pill"><span class="hf" style="--cc:${CMP_COLORS[i + 1]}">${faceHTML(id, yr, nm)}</span>${coachLink(id, nm)}<button class="cmp-x" data-idx="${i}" aria-label="Remove">&times;</button></span>`; });
   }
   if (1 + cmp.length < 3) ch += '<button class="cmp-add" id="cmpAdd">+ Compare</button>';
   ch += '</div>';
   if (cmp.length) ch += `<div class="cmp-note">${sr ? `Each coach's ${sr.season}, where he coached it; a coach without that season shows no bar.` : 'Careers, each ranked in the career pool.'}</div>`;
-  return `<div class="id" id="id"><div class="id-head"><div class="headwrap"><div class="initials">${initials(c.name)}</div></div>
+  return `<div class="id" id="id"><div class="id-head"><div class="headwrap"${tipAttr(headNote(c.id, sr ? startYear(sr.season) : null, sr ? sr.season : null))}>${faceHTML(c.id, sr ? startYear(sr.season) : null, c.name, true)}</div>
     <div class="id-headtext"><div class="id-name">${esc(c.name)}</div><div class="id-meta">${meta}</div>${sl}${acc.length ? `<div class="accos">${acc.join('')}</div>` : ''}${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}${ch}
     ${renderArcButton()}</div></div>${renderArcRail()}</div>`;
 }
@@ -910,7 +972,7 @@ function peakOf(rows){
 function seasonTipHTML(r){
   const e = r.exp || {}, p = r.pct || {};
   const po = r.tier === 5 ? 'won the title' : r.unknownRound ? `playoffs ${r.pw}–${r.pl}` : (r.tier > 0 ? `${ROUND_L[r.tier]}${r.pw != null ? ` (${r.pw}–${r.pl})` : ''}` : 'missed the playoffs');
-  const lines = [`<b>${r.season} ${esc(teamName(r.team))}</b> <span class="k">${r.lg !== 'NBA' ? r.lg : ''}</span>`, `${r.w}–${r.l}${r.g && r.g !== 82 ? ` <span class="k">(${(82 * r.w / r.g).toFixed(1)} per 82)</span>` : ''} · ${po}`];
+  const lines = [`<span class="tipface">${faceHTML(COACH.id, startYear(r.season), COACH.name)}</span><b>${r.season} ${esc(teamName(r.team))}</b> <span class="k">${r.lg !== 'NBA' ? r.lg : ''}</span>`, `${r.w}–${r.l}${r.g && r.g !== 82 ? ` <span class="k">(${(82 * r.w / r.g).toFixed(1)} per 82)</span>` : ''} · ${po}`];
   if (!miss(r.net)) lines.push(`net ${signed(r.net)} ${miss(p.net) ? '' : pbox(p.net) + '<span class="k">percentile of that season\'s coaches</span>'}`);
   if (!miss(e.exp_w82)) lines.push(`talent expected ${e.exp_w82.toFixed(1)} wins per 82 → <b>${signed(e.w_talent)}</b> above talent${miss(p.w_talent) ? '' : ' ' + pbox(p.w_talent)}`);
   if (!miss(e.market_total)) lines.push(`preseason total ${e.market_total} → <b>${signed(e.w_market)}</b> above the market${miss(p.w_market) ? '' : ' ' + pbox(p.w_market)}`);
@@ -1512,7 +1574,8 @@ function renderTree(st){
       const hc = isHC(nd.name), rec = recOf(nd.name), rr = hc ? NODE_R : NODE_R - 1.5;
       const pct = rec?.hc && rec.all_g ? rec.all_w / rec.all_g : null;
       const fill = pct == null ? '#E9E8E4' : mix('#1C4E86', '#BC3A2C', Math.max(0, Math.min(1, (pct - .3) / .4)));
-      leaves += `<g class="leaf${hc ? '' : ' ast'}" data-n="${esc(nd.name)}" transform="translate(${nd.gx.toFixed(1)},${nd.gy.toFixed(1)})"${tipAttr(nodeTip(nd.name))}><circle r="${rr}" fill="${fill}"/></g>`;
+      const he = headEntry(nd.name), ir = rr - 1.2, img = he && he[2] !== 2 && he[1] ? `<image data-src="${headSrc(he[1])}" x="${-ir}" y="${-ir}" width="${2 * ir}" height="${2 * ir}" preserveAspectRatio="xMidYMin slice"/>` : '';
+      leaves += `<g class="leaf${hc ? '' : ' ast'}" data-n="${esc(nd.name)}" transform="translate(${nd.gx.toFixed(1)},${nd.gy.toFixed(1)})"${tipAttr(nodeTip(nd.name))}><circle r="${rr}" fill="${fill}"/>${img}</g>`;
       const up = !t.sprout && Math.sin(nd.ang * Math.PI / 180) <= 0;
       labels += `<text class="lbl ${nd.leaf && !t.sprout ? 'minor' : 'major'}" data-n="${esc(nd.name)}" x="${nd.gx.toFixed(1)}" y="${(nd.gy + (up ? -11 : 20)).toFixed(1)}">${esc(N[nd.name]?.name || nd.name)} <tspan class="rec">${nodeLabel(nd.name)}</tspan></text>`;
     }
@@ -1542,6 +1605,18 @@ function applyTransform(st){
   const S = stageState(st), g = st.querySelector('.tg'); if (g) g.setAttribute('transform', `translate(${S.x},${S.y}) scale(${S.scale})`);
   const tier = S.scale >= 1.0 ? 2 : (S.scale >= 0.45 ? 1 : 0);
   if (tier !== S.labels) { S.labels = tier; const l = st.querySelector('.labels'); if (l) { l.style.display = tier === 0 ? 'none' : ''; l.classList.toggle('leaves-too', tier === 2); } }
+  clearTimeout(S.imgTimer); S.imgTimer = setTimeout(() => syncLeafImages(st), 120);
+}
+// the faces are fetched only for nodes on screen once the tree is zoomed enough for a face to read (about 400 of
+// them at 15 KB each would otherwise land on every coach page); once loaded a node keeps its picture
+function syncLeafImages(st){
+  const S = stageState(st), svg = st.querySelector('svg'); if (!svg || S.scale < 0.45) return;
+  const W = st.clientWidth, H = st.clientHeight;
+  svg.querySelectorAll('.leaf image[data-src]').forEach(im => {
+    const m = /translate\(([-\d.]+),([-\d.]+)\)/.exec(im.parentNode.getAttribute('transform') || ''); if (!m) return;
+    const sx = S.x + m[1] * S.scale, sy = S.y + m[2] * S.scale;
+    if (sx > -40 && sx < W + 40 && sy > -40 && sy < H + 40) { im.setAttribute('href', im.dataset.src); im.removeAttribute('data-src'); }
+  });
 }
 function fitTree(st){
   const S = stageState(st), F = S.forest; if (!F) return;
