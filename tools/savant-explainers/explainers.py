@@ -225,6 +225,14 @@ for _k, _v in _XC.EXT_PANELS.items():
     E["x_" + _k] = {f: _v[f] for f in FIELDS}
 
 
+# Every stat with a measured settle point (tools/savant-settle) says so, in the same words.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "savant-settle"))
+import settle_text as _ST  # noqa: E402
+for _k in _ST.STATS:
+    if _k in E:
+        E[_k]["sample"] = _ST.sentence(_k)
+
+
 def render():
     for k, v in E.items():
         missing = [f for f in FIELDS if not v.get(f)]

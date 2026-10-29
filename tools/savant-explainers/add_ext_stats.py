@@ -12,6 +12,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PAGE = os.path.join(HERE, "..", "..", "public", "basketball-savant.html")
 sys.path.insert(0, os.path.join(HERE, "..", "..", "pipeline", "basketball"))
 import ext_config as XC  # noqa: E402
+sys.path.insert(0, os.path.join(HERE, "..", "savant-settle"))
+import settle_text as ST  # noqa: E402  measured hatching thresholds (tools/savant-settle)
 
 # the order the More sections list them in, column by column
 GROUPS = ("ctx", "off", "def", "val")
@@ -44,7 +46,7 @@ def main():
         sys.exit(f"ext keys already used by card stats: {sorted(clash)}")
     seq = {k: n for n, k in enumerate(XC.KEYS)}
     ext = sorted(XC.EXT_METRICS, key=lambda m: (GROUPS.index(m["group"]), SUBS[m["group"]].index(m["sub"]), seq[m["key"]]))
-    cfg["metrics"] = core + [dict({f: m[f] for f in FIELDS}, ext=True) for m in ext]
+    cfg["metrics"] = core + [dict({f: (ST.thr(m["key"]) or m[f]) if f == "thr" else m[f] for f in FIELDS}, ext=True) for m in ext]
     s = s[:i] + json.dumps(cfg, indent=2, ensure_ascii=False) + s[j + 1:]
     open(PAGE, "w", encoding="utf-8").write(s)
     print(f"CFG: {len(core)} card stats + {len(ext)} additions")

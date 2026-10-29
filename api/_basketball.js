@@ -233,6 +233,8 @@ export async function playerProfile({ player, season, window = 'season', group =
       lower_is_better: m.lowerIsBetter,
       low_sample: m.ext ? (xc[3] != null && !!m.lowSampleBelow && xc[3] < m.lowSampleBelow) : low.has(m.key),
       ...(m.ext ? { added: true } : {}),
+      ...(m.settle && (m.ext ? (xc[3] != null && !!m.lowSampleBelow && xc[3] < m.lowSampleBelow) : low.has(m.key))
+        ? { settles_around: { sample: m.settle.last, unit: m.settle.unit, hatched_under: m.settle.mean, measured: m.settle.how } } : {}),
       ...(settle[m.key] ? { likely_to_settle: { value: settle[m.key][0], display: display(m.unit, settle[m.key][0], settle[m.key][1]), league_percentile: settle[m.key][1], position_percentile: settle[m.key][2] } } : {}),
     })
   }
@@ -304,7 +306,7 @@ export async function playerProfile({ player, season, window = 'season', group =
       const h = s.subgroup && s.subgroup !== s.group ? `${s.group}: ${s.subgroup}` : s.group
       if (h !== heading) { L.push('', h); heading = h }
       const pct = (p) => (p == null ? 'n/a' : ordinal(p))
-      const tags = [s.lower_is_better ? 'lower is better' : null, s.low_sample ? 'low sample' : null].filter(Boolean)
+      const tags = [s.lower_is_better ? 'lower is better' : null, s.low_sample ? (s.settles_around ? `low sample: settles around ${s.settles_around.sample.toLocaleString('en-US')} ${s.settles_around.unit}` : 'low sample') : null].filter(Boolean)
       const st = s.likely_to_settle
       const toward = st ? `; likely to settle near ${st.display} (league ${pct(st.league_percentile)}, vs. ${peers} ${pct(st.position_percentile)})` : ''
       L.push(`- ${s.label}: ${s.display} (league ${pct(s.league_percentile)}, vs. ${peers} ${pct(s.position_percentile)})${toward}${tags.length ? ` [${tags.join(', ')}]` : ''}`)
@@ -336,7 +338,7 @@ export async function playerProfile({ player, season, window = 'season', group =
     notes.push('Stats marked added: true are the October 2026 additions. They are ranked the same way: against that season\'s qualified players with a value, league-wide and at his position.')
   }
   if (stats.some((s) => s.low_sample)) {
-    notes.push('"low sample" means the stat sits below its stabilization threshold: too few attempts to trust yet.')
+    notes.push('"low sample" means the stat sits below its settle point: with this little sample, more of the number is noise than him. settles_around gives the sample each stat needs, measured on our own seasons (within seasons where the history allows it, otherwise season to season, calibrated against the within-season method).')
     L.push('', notes[notes.length - 1])
   }
   if (stats.some((s) => s.likely_to_settle)) {
@@ -591,6 +593,12 @@ export const tools = [
             league_percentile: pct,
             position_percentile: pct,
           }).optional().describe('Season in progress only, while his sample is smaller than the stat needs: where the number is likely to settle, and its percentiles among everyone\'s same estimate.'),
+          settles_around: z.object({
+            sample: z.number().describe('The sample at which his own record and a prior with his last season count equally.'),
+            unit: z.string().describe('What the sample counts: possessions, field-goal attempts, games...'),
+            hatched_under: z.number().describe('Below this (the low_sample line), more of the number is noise than him.'),
+            measured: z.string().describe('"within seasons" or "season to season" (calibrated against the within-season method).'),
+          }).optional().describe('Only on low-sample stats: how much sample the stat needs before it settles.'),
           added: z.boolean().optional().describe('True for the October 2026 additions (tracking, hustle, matchups, fouls, clutch, consistency, win probability), ranked the same way.'),
         })),
         not_tracked: z.array(z.object({ key: z.string(), label: z.string(), since: z.string() })).describe('Stats that season did not track.'),

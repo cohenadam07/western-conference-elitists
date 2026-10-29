@@ -145,7 +145,7 @@ export async function leaderboard(args) {
   if (m.lowerIsBetter) notes.push('Lower is better for this stat, so the board runs low to high.')
   const what = m.explain && (typeof m.explain === 'string' ? m.explain : m.explain.what)
   const structured = {
-    season, window: windowKey, position: pos, stat: { key: m.key, label: m.label, lower_is_better: m.lowerIsBetter, what: what || null },
+    season, window: windowKey, position: pos, stat: { key: m.key, label: m.label, lower_is_better: m.lowerIsBetter, what: what || null, settles_around: m.settle ? { sample: m.settle.last, unit: m.settle.unit, hatched_under: m.settle.mean, measured: m.settle.how } : null },
     basis, total: rows.length, players, notes, url: `${SITE}/basketball-savant.html#lb`, data_as_of: day(file.through || file.generated || meta.generated), source: SOURCE,
   }
   if (!players.length) return { structured, text: `No players to rank by ${m.label} with these filters in ${season}.` }
@@ -156,6 +156,7 @@ export async function leaderboard(args) {
   }
   L.push('', ...notes)
   if (what) L.push(`${m.label}: ${what}`)
+  if (m.settle) L.push(`It settles around ${m.settle.last.toLocaleString('en-US')} ${m.settle.unit} (hatched under ${m.settle.mean.toLocaleString('en-US')}; measured ${m.settle.how}).`)
   L.push('', `Page: ${structured.url}`, `Source: ${SOURCE}. Data as of ${structured.data_as_of}.`)
   return { structured, text: L.join('\n') }
 }
