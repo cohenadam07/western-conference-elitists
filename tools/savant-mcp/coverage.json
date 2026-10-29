@@ -610,11 +610,6 @@
         "nba_get_coach_profile"
       ]
     },
-    "page:basketball-coaching-savant.html#renderCard": {
-      "tools": [
-        "nba_get_coach_profile"
-      ]
-    },
     "page:basketball-coaching-savant.html#renderCoach": {
       "tools": [
         "nba_get_coach_profile"
@@ -631,16 +626,6 @@
       ]
     },
     "page:basketball-coaching-savant.html#renderDiet": {
-      "tools": [
-        "nba_get_coach_profile"
-      ]
-    },
-    "page:basketball-coaching-savant.html#renderFingerprint": {
-      "tools": [
-        "nba_get_coach_profile"
-      ]
-    },
-    "page:basketball-coaching-savant.html#renderHeader": {
       "tools": [
         "nba_get_coach_profile"
       ]
@@ -684,11 +669,6 @@
         "nba_coaching_data"
       ]
     },
-    "page:basketball-coaching-savant.html#renderRibbon": {
-      "tools": [
-        "nba_get_coach_profile"
-      ]
-    },
     "page:basketball-coaching-savant.html#renderRotation": {
       "tools": [
         "nba_get_coach_profile",
@@ -723,10 +703,37 @@
       ],
       "note": "The league trends are the season means of the stats in the dictionary; nba_coaching_data gives the rows behind them."
     },
-    "page:basketball-coaching-savant.html#renderVerdict": {
+    "page:basketball-coaching-savant.html#renderIdentity": {
       "tools": [
         "nba_get_coach_profile"
       ]
+    },
+    "page:basketball-coaching-savant.html#renderCareerChart": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderTree": {
+      "tools": [
+        "nba_coaching_tree"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderChips": {
+      "tools": [
+        "nba_search_coaches"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderControls": {
+      "excluded": "The season picker, the pool label and the colour legend on a card: every tool takes a season and names its pool."
+    },
+    "page:basketball-coaching-savant.html#renderArcButton": {
+      "excluded": "The career-arc dropdown that picks a season on the card: nba_get_coach_profile takes a season."
+    },
+    "page:basketball-coaching-savant.html#renderArcRail": {
+      "excluded": "The list inside the career-arc dropdown: nba_get_coach_profile takes a season."
+    },
+    "page:basketball-coaching-savant.html#showTip": {
+      "excluded": "The hover box: it shows the explainer and the percentile already in every tool's answer and in nba_coaching_dictionary."
     },
     "data:bcs": {
       "tools": [
