@@ -39,6 +39,22 @@ TIMEOUT = 30
 CACHE_DIR = "cache"
 OUT_DIR = "out"
 
+# Season age is the Basketball-Reference convention: on February 1 of the season. The decimal is
+# days / 365.25 (savant_engine._age_from_birthdate); the whole number comes from the calendar,
+# never from flooring that decimal, which rounds Scoot Henderson (born Feb 3, 2004) up to 22.0 on
+# Feb 1, 2026 when he is 21. Same-age pools and the aging curve use this one.
+def whole_age(birthdate, season):
+    y, m, d = (int(x) for x in str(birthdate).split("T")[0].split("-"))
+    return int(season[:4]) + 1 - y - ((m, d) > (2, 1))
+
+# Birth dates the NBA's CommonPlayerInfo has wrong. Checked Oct 2026 against Basketball-Reference's
+# ages on all 14,486 player-seasons it could be joined to: seven players differ by a year or more
+# (players born on Feb 1 also differ, because Basketball-Reference hasn't counted that birthday yet;
+# on the convention above they are right here). These two lost to Wikipedia, ESPN and
+# Basketball-Reference. Huff, Baston, Mooney and Thomas held; Dreiling is split, and stays.
+BIRTHDATE_FIX = {2223: "1981-05-10",     # Samuel Dalembert (NBA: 1980)
+                 101195: "1982-12-31"}   # Luke Schenscher (NBA: 1981)
+
 # 3-way position bucket from PlayerIndex POSITION (G/F/C and combos).
 def position_bucket(pos: str) -> str:
     # Older seasons' PlayerIndex can carry a NaN (float) POSITION; NaN is truthy so `pos or ""`
@@ -88,16 +104,16 @@ def season_tier(season: str) -> int:
 # n_by_age is the player-pair count behind each single age, for honest sourcing.
 # ----------------------------------------------------------------------------
 AGING = {
-  "generated": "2026-07-26",   # python aging_curve.py --emit-constants
-  "seasons": ["2011-12", "2025-26"], "pairs": 3713,
+  "generated": "2026-10-30",   # python aging_curve.py --emit-constants
+  "seasons": ["2011-12", "2025-26"], "pairs": 3578,
   "min_minutes": 500, "min_pairs": 25,
   "fit": [20, 37], "degree": 3,
   # polynomial coefficients, ascending powers of age; value = expected delta at that age
-  "impact": {"coef": [290.503897295319, -26.470849921028343, 0.8010411707418036, -0.008177100664153687],
-              "cross": 26.032},
-  "minutes": {"coef": [34.04462196825755, -2.9681165103808467, 0.08849758380205178, -0.0009472336695280155],
-              "cross": 26.173},
-  "n_by_age": {20: 67, 21: 165, 22: 236, 23: 295, 24: 343, 25: 359, 26: 350, 27: 331, 28: 313, 29: 262, 30: 227, 31: 194, 32: 166, 33: 130, 34: 97, 35: 64, 36: 49, 37: 28},
+  "impact": {"coef": [274.2272045482201, -24.67986754370957, 0.7370969810002783, -0.007437724235679822],
+              "cross": 26.072},
+  "minutes": {"coef": [32.15999657698434, -2.771632920841309, 0.0819339498640485, -0.0008773337671792572],
+              "cross": 26.226},
+  "n_by_age": {20: 66, 21: 156, 22: 223, 23: 282, 24: 336, 25: 346, 26: 344, 27: 322, 28: 303, 29: 244, 30: 217, 31: 190, 32: 162, 33: 125, 34: 94, 35: 63, 36: 46, 37: 26},
 }
 
 # ----------------------------------------------------------------------------

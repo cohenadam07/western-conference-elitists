@@ -1270,7 +1270,7 @@ function renderMVI(srow){
   for (const g of [10, 20, 30]) svg += `<line x1="50" x2="${W-20}" y1="${y(g)}" y2="${y(g)}" stroke="#ECEBE8"/><text x="44" y="${y(g)+3}" font-size="9" text-anchor="end" fill="#8A95A3">${g}</text>`;
   svg += `<line x1="${x(0)}" x2="${x(0)}" y1="20" y2="${H-40}" stroke="#ECEBE8"/>`;
   for (const p of pl) {
-    const young = p.age != null && p.age <= 23.5; const r = 3 + Math.sqrt(p.gp) / 2;
+    const young = p.wa != null && p.wa <= 23; const r = 3 + Math.sqrt(p.gp) / 2;
     const tip = `<b>${playerLink(p.id, p.name)}</b><br>${p.mpg} minutes a game over ${p.gp} games · BPM ${p.bpm}${p.age ? ` · age ${p.age.toFixed(1)}` : ''}${p.exp != null ? ` · year ${p.exp + 1}` : ''}${p.arch ? `<br><span class="k">${esc(p.arch)}</span>` : ''}`;
     svg += `<circle class="hit" cx="${x(p.bpm)}" cy="${y(p.mpg)}" r="${r}" fill="${young ? '#BC3A2C' : '#22395A'}" opacity=".75"${tipAttr(tip)}></circle>`;
     if (p.mpg >= 20 || young) svg += svgPlayer(p.id, x(p.bpm) + r + 2, y(p.mpg) + 3, last(p.name), 'font-size="9.5" fill="#5B6878" font-family="IBM Plex Sans"');

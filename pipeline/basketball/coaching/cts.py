@@ -244,8 +244,8 @@ def minutes_vs_impact(rot, impact, archive):
     rows = []
     for r in rot["rows"]:
         a = archive.get(r["id"], {})
-        rows.append(dict(id=r["id"], name=r["name"], mpg=r["mpg"], gp=r["gp"], min=r["min"], bpm=impact.get(r["id"]), age=a.get("age"), exp=a.get("exp"), arch=a.get("arch")))
-    young = [x for x in rows if x["age"] is not None and x["age"] <= 23.5]
+        rows.append(dict(id=r["id"], name=r["name"], mpg=r["mpg"], gp=r["gp"], min=r["min"], bpm=impact.get(r["id"]), age=a.get("age"), wa=a.get("whole_age"), exp=a.get("exp"), arch=a.get("arch")))
+    young = [x for x in rows if x["wa"] is not None and x["wa"] <= 23]
     tot = sum(x["min"] for x in rows) or 1.0
     return dict(players=rows, young_min_share=round(sum(x["min"] for x in young) / tot, 3), young_bpm=_mean([x["bpm"] for x in young]),
                 rookie_min_share=round(sum(x["min"] for x in rows if x["exp"] == 1) / tot, 3))

@@ -378,14 +378,18 @@ export async function playerSplits({ player, season, view = 'play_types' }) {
     const [key, title] = PANEL_VIEWS[view]
     const pf = await loadExtPanels(s)
     const d = pf && pf.players && (pf.players[who.id] || pf.players[String(who.id)])
-    const pd = d && d[key]
+    // a young season's label is read from a pool (position_labels.py); show what it was read from
+    const pooled = key === 'pe' && r.posx
+    const pd = pooled ? r.posx.pe : d && d[key]
     if (!pd || (Array.isArray(pd) ? !pd.some(Boolean) : !Object.keys(pd).length)) {
       throw new SavantError(`No ${title.toLowerCase()} for ${who.name} in ${s}.${pf ? ` ${EXT_REACH[key] || ''}` : ' The breakdowns could not be loaded right now; try again in a minute.'}`.trim())
     }
     const { data, lines } = describePanel(key, pd)
     const what = ((meta.panels || {})[key] || {}).what
+    const basis = pooled ? `A young season, so this pools ${r.posx.from} through ${s} (${r.posx.mp} minutes).` : null
+    if (key === 'pe') lines.push(`${basis ? `${basis} ` : ''}His ${r.pos} label is read from this.`)
     const text = [`${who.name}, ${s}: ${title}`, ...lines, ...(what ? ['', what] : []), '', `Card: ${base.url}`, `Source: ${SOURCE}.`]
-    return { structured: { ...base, breakdown: { title, data } }, text: text.join('\n') }
+    return { structured: { ...base, breakdown: { title, data, ...(pooled ? { pooled_from: r.posx.from, minutes: r.posx.mp } : {}) } }, text: text.join('\n') }
   }
   if (view === 'play_types') {
     // The cutoffs travel with the data: seasons/<season>.json carries play_types for the

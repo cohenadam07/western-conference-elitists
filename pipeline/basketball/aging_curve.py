@@ -168,9 +168,8 @@ def load_birthdates(payload, seasons, offline=False):
     return cache
 
 def age_in_season(birthdate, season):
-    """Integer age as of Feb 1 of the season's ending calendar year (BBRef convention).
-    Both halves reuse the engine's own age helpers so this matches the site's ages."""
-    return int(math.floor(_age_from_birthdate(birthdate, _season_ref_date(season))))
+    """Integer age as of Feb 1 of the season's ending calendar year (BBRef convention)."""
+    return C.whole_age(birthdate, season)
 
 # --------------------------------------------------------------------------
 # pair extraction

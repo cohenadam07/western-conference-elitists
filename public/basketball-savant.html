@@ -4880,8 +4880,8 @@ let   DATA = null;
 
 /* Position overrides (bucket a player against a different group).
    Matched by NBA player id first, then by accent-insensitive name. Add more as needed. */
-const POS_FIX_ID = { 1629029:'Guard' };                 // Luka Doncic
-const POS_FIX_NAME = { 'luka doncic':'Guard' };
+const POS_FIX_ID = {};      // empty since labels follow the position estimate (position_labels.py)
+const POS_FIX_NAME = {};
 function _norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
 // Player ids are NBA person-ids (numbers) for matched players but "br:xxxx" strings for
 // pre-1996 BR-only players. DOM data-* attrs stringify everything, so recover the original
@@ -5536,6 +5536,9 @@ function headRetry(img){
 }
 function initials(nm){return (nm||'').split(' ').map(s=>s[0]||'').slice(0,2).join('').toUpperCase();}
 function fmtBirth(b){if(!b)return null;const d=String(b).split('T')[0].split('-');if(d.length<3)return null;const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][(+d[1])-1];if(!mo)return null;return mo+' '+(+d[2])+', '+d[0];}
+/* Age, one standard: exact years (days / 365.25), season age on Feb 1 of the season. */
+function ageStr(p){return p.age==null?null:(typeof p.age==='number'&&p.birthdate?p.age.toFixed(1):String(p.age));}
+function ageToday(p){if(!p.birthdate)return null;const d=String(p.birthdate).split('-');return (Date.now()-Date.UTC(+d[0],+d[1]-1,+d[2]))/864e5/365.25;}
 function stat(l,v){return '<span class="st"><b>'+(miss(v)?'—':(+v).toFixed(1))+'</b> '+l+'</span>';}
 
 function cmpSeasonSelect(id,season,idx,isMain){
@@ -5555,11 +5558,11 @@ function render(){
           document.getElementById('comps').hidden=true; document.getElementById('wcomps').hidden=true; document.getElementById('role').hidden=true; document.getElementById('guard').hidden=true; return; }
   const wt=val(p,'strength',S), vt=val(p,'vert',S), la=val(p,'lateral',S);
   const bd=fmtBirth(p.birthdate);
-  const ax=(p.age==null)?null:(typeof p.age==='number'?p.age.toFixed(2):p.age);
+  const ax=ageStr(p), now=extLive(curSeason)?ageToday(p):null;
   const meta=['<b>'+p.team+'</b>',p.pos,curSeason];
   if(p.college) meta.push(p.college);
   if(p.exp!=null) meta.push('Year '+p.exp);
-  if(ax!=null) meta.push('age '+ax);
+  if(ax!=null) meta.push(now!=null?'age '+now.toFixed(1)+' today, '+ax+' on Feb 1':'age '+ax);
   if(bd) meta.push('born '+bd);
   if(!p.qualified) meta.push('unqualified');
   let sl=p.line?('<div class="statline">'+stat('PPG',p.line.ppg)+stat('RPG',p.line.rpg)+stat('APG',p.line.apg)+stat('TPG',p.line.tpg)+stat('MPG',p.line.mpg)+'</div>'):'';
@@ -6768,12 +6771,15 @@ const XRENDER={
     const lab=['PG','SG','SF','PF','C'], cols=['#22395A','#4F6D93','#C2A263','#C9774F','#BC3A2C'];
     const tot=d.reduce(function(a,b){return a+b;},0)||1;
     return '<div class="xp-stack">'+d.map(function(v,i){return v?'<span style="flex:'+v+';background:'+cols[i]+'" title="'+lab[i]+' '+v+'%">'+(v>=8?lab[i]+' '+v+'%':'')+'</span>':'';}).join('')+'</div>'
-      +'<div class="pt-note">'+lab.map(function(l,i){return l+' '+Math.round(100*d[i]/tot)+'%';}).join(' · ')+' of his minutes, estimated from the lineups he played in.</div>';
+      +'<div class="pt-note">'+lab.map(function(l,i){return l+' '+Math.round(100*d[i]/tot)+'%';}).join(' · ')+' of his minutes, estimated from the lineups he played in.'
+      +(cur&&cur.posx?' A young season, so this pools '+cur.posx.from+' through '+curSeason+' ('+cur.posx.mp.toLocaleString()+' minutes).':'')
+      +' His '+(cur?cur.pos:'position')+' label is read from this.</div>';
   }
 };
 function renderXPanels(){
   const el=document.getElementById('xpan'); if(!el) return;
-  const pan=cur?extPanelsOf(cur.id,curSeason):null;
+  let pan=cur?extPanelsOf(cur.id,curSeason):null;
+  if(cur&&cur.posx) pan=Object.assign({},pan,{pe:cur.posx.pe});   // the label's own numbers
   if(!pan||cmpPlayers().length){ el.hidden=true; el.innerHTML=''; return; }
   const have=XPANELS.filter(function(t){const d=pan[t[0]]; return d&&(Array.isArray(d)?d.some(Boolean):Object.keys(d).length);});
   if(!have.length){ el.hidden=true; el.innerHTML=''; return; }
@@ -7021,7 +7027,7 @@ function scGroup(group){
 }
 function buildShareShell(){
   const p=cur;
-  const ax=(p.age==null)?null:(typeof p.age==='number'?p.age.toFixed(1):p.age);
+  const ax=ageStr(p);
   const meta=['<b>'+p.team+'</b>',p.pos,curSeason];
   if(p.college) meta.push(p.college);
   if(p.exp!=null) meta.push('Year '+p.exp);

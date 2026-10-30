@@ -316,7 +316,7 @@ export function buildSavantApi({ data, html, valueModel = null }) {
         if (Object.keys(w).length) row.w = w
       }
       // Carried over untouched; meta.extras says what each one is.
-      for (const k of ['comps', 'wcomps', 'wflaws', 'guard', 'role', 'pt', 'ww']) {
+      for (const k of ['comps', 'wcomps', 'wflaws', 'guard', 'role', 'pt', 'ww', 'posx', 'birthdate']) {
         if (p[k] != null && !(Array.isArray(p[k]) && !p[k].length)) row[k] = p[k]
       }
       // the league's honours that season, in the page's order (accolades())

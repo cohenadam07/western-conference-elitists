@@ -13,8 +13,11 @@ from public/savant-current.json.
 """
 import json
 import os
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, ".."))
+import savant_config as SC  # noqa: E402
 PUBLIC = os.path.join(HERE, "..", "..", "..", "public")
 SAVANT = os.environ.get("BCS_SAVANT") or os.path.expanduser("~/Basketball-Savant")
 _data = {}
@@ -57,6 +60,7 @@ def players(season):
         a = arch.get(str(pid)) or {}
         out[int(pid) if str(pid).isdigit() else pid] = {
             "name": p.get("name"), "team": p.get("team"), "pos": p.get("pos"), "age": p.get("age"), "exp": p.get("exp"),
+            "whole_age": SC.whole_age(p["birthdate"], season) if p.get("birthdate") else None,
             "bpm": bpm.get("v"), "obpm": _cell(p, "obpm").get("v"), "dbpm": _cell(p, "dbpm").get("v"), "vorp": _cell(p, "vorp").get("v"),
             "mpg": mpg.get("v"), "gp": av.get("n"), "min": ms.get("n"), "qualified": bool(p.get("qualified")),
             "arch": a.get("a"), "arch_pure": a.get("pure"), "birthdate": p.get("birthdate"),
@@ -78,6 +82,19 @@ def players(season):
             vals = pool if q else sorted(pool + [b])
             lo, hi = bisect.bisect_left(vals, b), bisect.bisect_right(vals, b)
             out[pid]["bpm_pct"] = round(100.0 * (lo + 0.5 * (hi - lo)) / len(vals), 2)
+    # Labels follow the position estimate now, so a man can change pools between seasons. A delta
+    # needs one pool, so each man also carries his rank in the other two (modules.development).
+    pools = {pos: sorted(b for _, b, q in rows if q) for pos, rows in by_pos.items()}
+    for pid, v in out.items():
+        if v["bpm"] is None:
+            continue
+        v["bpm_pct_in"] = {}
+        for pos, pool in pools.items():
+            if len(pool) < 2:
+                continue
+            vals = pool if v["qualified"] and pos == v["pos"] else sorted(pool + [v["bpm"]])
+            lo, hi = bisect.bisect_left(vals, v["bpm"]), bisect.bisect_right(vals, v["bpm"])
+            v["bpm_pct_in"][pos] = round(100.0 * (lo + 0.5 * (hi - lo)) / len(vals), 2)
     _cache[season] = out
     return out
 

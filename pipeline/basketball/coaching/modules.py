@@ -297,18 +297,21 @@ def development(season, roster_minutes, archive_now, archive_prev):
             continue
         if (a.get("min") or 0) < 500 or (b.get("min") or 0) < 500 or mins < 300:
             continue
-        if a.get("pos") != b.get("pos"):
-            continue                                    # the pool changed under him: the delta is meaningless
+        # a delta needs one pool: a man who changed labels is ranked last season in this season's
+        prev = a["bpm_pct"] if a.get("pos") == b.get("pos") else (a.get("bpm_pct_in") or {}).get(b.get("pos"))
+        if prev is None:
+            continue
         age = b.get("age")
-        exp = aging_expected(age)
+        whole = b.get("whole_age")                      # the curve was fitted on whole ages
+        exp = aging_expected(whole)
         if exp is None:
             continue
-        d = b["bpm_pct"] - a["bpm_pct"]
+        d = b["bpm_pct"] - prev
         w = min(a["min"], b["min"], mins * 1.0)
         num += w * (d - exp); den += w
-        if age is not None and age <= 24.5:
+        if whole <= 24:
             ny += w * (d - exp); dy += w
-        rows.append([pid, round(age, 1) if age else None, round(a["bpm_pct"], 1), round(b["bpm_pct"], 1), round(exp, 2), int(w)])
+        rows.append([pid, round(age, 1) if age else None, round(prev, 1), round(b["bpm_pct"], 1), round(exp, 2), int(w)])
     rows.sort(key=lambda r: -(r[3] - r[2] - r[4]))
     return dict(aging=round(num / den, 3) if den else None, aging_w=den, aging_young=round(ny / dy, 3) if dy else None, aging_young_w=dy, players=rows[:12] + (rows[-4:] if len(rows) > 16 else []))
 

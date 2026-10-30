@@ -24,6 +24,9 @@ import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, ordinal, prepare, rank, signed, thousands, tidy, topTier } from './_core.js'
 import { extFor } from './_basketball-ext.js'
 
+// the card's ageToday(): exact years, days / 365.25
+const ageToday = (b) => tidy((Date.now() - Date.parse(`${b}T00:00:00Z`)) / 864e5 / 365.25)
+
 const files = makeLoader('savant-api/basketball/v1', { what: 'Basketball Savant' })
 
 export const GROUPS = { context: 'ctx', offense: 'off', defense: 'def', value: 'val' }
@@ -247,6 +250,8 @@ export async function playerProfile({ player, season, window = 'season', group =
       team: row.team,
       position: row.pos,
       age: tidy(row.age),
+      age_as_of: row.birthdate ? `February 1, ${+seasonId.slice(0, 4) + 1}` : null,
+      ...(file.in_progress && row.birthdate ? { age_today: ageToday(row.birthdate) } : {}),
       experience: row.exp ?? null,
       qualified: row.qualified,
       games: row.gp,
@@ -274,7 +279,7 @@ export async function playerProfile({ player, season, window = 'season', group =
   const L = []
   L.push(`${row.name} (${row.team}, ${row.pos}), ${seasonId}, ${WINDOW_TEXT[window]}`)
   const facts = []
-  if (row.age != null) facts.push(`age ${tidy(row.age)}`)
+  if (row.age != null) facts.push(file.in_progress && row.birthdate ? `age ${ageToday(row.birthdate)} today, ${tidy(row.age)} on February 1` : `age ${tidy(row.age)}`)
   if (row.gp != null) facts.push(`${row.gp} games`)
   if (row.min != null) facts.push(`${thousands(row.min)} minutes`)
   if (facts.length) L.push(`${facts.join(', ').replace(/^a/, 'A')} in ${seasonId}.`)
@@ -557,6 +562,8 @@ export const tools = [
           team: z.string(),
           position: z.string().describe('Guard, Wing or Big that season.'),
           age: z.number().nullable(),
+          age_as_of: z.string().nullable().describe('The date age is measured on: February 1 of the season, the Basketball-Reference convention. Null where only a whole age is on record (before 1996-97).'),
+          age_today: z.number().optional().describe('His exact age today. Only while the season is in progress.'),
           experience: z.number().nullable().describe('Years of NBA experience.'),
           qualified: z.boolean().describe('Whether he is in the percentile pools that season.'),
           games: z.number().nullable(),

@@ -637,6 +637,10 @@ def build_one_season(season, current=None, qualify=None):
             m={}, qualified=False,
         )
 
+    if is_current:
+        import position_labels
+        position_labels.relabel_prior(season, universe)
+
     unavailable = set()
 
     # static (season-only) physical layer + age (PlayerIndex no longer carries AGE)
@@ -659,7 +663,7 @@ def build_one_season(season, current=None, qualify=None):
         try:
             info = load_player_info(pid)
             row = info.iloc[0]
-            bd_raw = row.get(fpi["birthdate"])
+            bd_raw = C.BIRTHDATE_FIX.get(pid) or row.get(fpi["birthdate"])
             if bd_raw:
                 p["birthdate"] = str(bd_raw).split("T")[0]
                 p["age"] = _age_from_birthdate(bd_raw, ref_date)

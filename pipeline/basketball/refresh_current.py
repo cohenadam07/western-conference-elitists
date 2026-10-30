@@ -205,6 +205,9 @@ def main(season=None):
         XE.apply_live(season, players)
     except Exception as e:
         print(f"  ext stats: failed ({repr(e)[:120]})")
+    # Guard / Wing / Big from the position estimate, this season's where the ext pass got one.
+    import position_labels as PL
+    print(f"  position labels: {PL.apply_season(season, players)} moved off the career string")
     # They ship beside savant-current.json, not in it (public/savant-ext/, see ext_files.py):
     # the page fetches them only for a season a reader opens, so the file every visit loads
     # stays the size it was.

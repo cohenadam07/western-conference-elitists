@@ -37,7 +37,7 @@ SCHEMA = 1
 KEYS = XC.KEYS
 PANELS = list(XC.EXT_PANELS) + ["ptx"]
 LOWER = {m["key"]: bool(m["lower"]) for m in XC.EXT_METRICS}
-POS_FIX_ID = {1629029: "Guard"}     # = POS_FIX_ID in basketball-savant.html (Luka Doncic)
+POS_FIX_ID = {}     # = POS_FIX_ID in basketball-savant.html
 
 
 def _clean(v):
