@@ -94,12 +94,14 @@ class Tally(dict):
 
 
 class Stint:
-    __slots__ = ("period", "start", "end", "on", "t")
+    __slots__ = ("period", "start", "end", "on", "t", "box", "shots")
 
     def __init__(self, period, start, on):
         self.period, self.start, self.end = period, start, start
         self.on = {t: frozenset(s) for t, s in on.items()}   # team -> five espn ids
         self.t = {t: Tally() for t in on}                     # team -> tally (that team's offense/stats)
+        self.box = {}                                         # espn id -> his own counts in this stint
+        self.shots = []                                       # indexes into parse_game's shots
 
     @property
     def seconds(self):
@@ -155,6 +157,11 @@ def parse_game(g):
     home, away = g["home"], g["away"]
     teams = (home, away)
     opp = {home: away, away: home}
+    # ESPN's 2021-22 feed has pointsAttempted = 0 on every shot, which reads every three as a two.
+    # The text still says what it was.
+    for p in g["plays"]:
+        if not p["pts_att"] and is_fg(p):
+            p["pts_att"] = 3 if "three point" in (p["text"] or "").lower() else 2
     team_of = {p["eid"]: p["team"] for p in g["players"]}
     box_starters = defaultdict(list)
     for p in g["players"]:
@@ -168,6 +175,13 @@ def parse_game(g):
     periods = sorted({p["period"] for p in plays})
 
     stints, shots = [], []
+
+    def bump(eid, key, n=1):
+        """His own count in the stint in progress: With/Without splits a player's box by stint."""
+        if eid is not None:
+            box = stints[-1].box.setdefault(eid, {})
+            box[key] = box.get(key, 0) + n
+
     pcred = defaultdict(lambda: [0.0, 0.0])      # espn id -> [offensive poss, defensive poss]
     ptal = defaultdict(lambda: {"team": Tally(), "opp": Tally()})   # by possession (see _flush)
     pall = defaultdict(lambda: [0.0, 0.0])       # possessions he was on the floor for throughout
@@ -289,6 +303,14 @@ def parse_game(g):
             if is_heave(p):
                 if team in teams:
                     cur.t[team]["heave"] += 1
+                    # out of the team's shooting tallies, but it is on his box line
+                    shooter, three = (p["ath"] or [None])[0], (p["pts_att"] or 0) == 3
+                    bump(shooter, "fga")
+                    bump(shooter, "fg3a", int(three))
+                    if p["scoring"]:
+                        bump(shooter, "fgm")
+                        bump(shooter, "fg3m", int(three))
+                        bump(shooter, "pts", p["value"] or (3 if three else 2))
                 continue
             if tid in END_PERIOD_IDS:
                 off = st["offense"]
@@ -308,14 +330,21 @@ def parse_game(g):
                 t["fg3a"] += three
                 t["fga_paint"] += paint
                 assisted = None
+                shooter = ath[0] if ath else None
+                bump(shooter, "fga")
+                bump(shooter, "fg3a", int(three))
                 if made:
                     t["fgm"] += 1
                     t["fg3m"] += three
                     t["pts"] += p["value"] or (3 if three else 2)
                     t["fgm_paint"] += paint
+                    bump(shooter, "fgm")
+                    bump(shooter, "fg3m", int(three))
+                    bump(shooter, "pts", p["value"] or (3 if three else 2))
                     if len(ath) > 1 and team_of.get(ath[1]) == team:
                         t["ast"] += 1
                         assisted = ath[1]
+                        bump(assisted, "ast")
                     st["offense"] = team
                     end_possession(team, clock)
                     pending_and1 = (team, clock)
@@ -323,10 +352,12 @@ def parse_game(g):
                     blocker = next((a for a in ath[1:] if team_of.get(a) == other), None)
                     if blocker:
                         cur.t[other]["blk"] += 1
+                        bump(blocker, "blk")
                     st["offense"] = team
                     st["open"] = True
                     pending_and1 = None
                 ft_nonfinal_miss = False
+                cur.shots.append(len(shots))
                 shots.append({"eid": ath[0] if ath else None, "team": team, "period": period, "clock": clock,
                               "made": bool(made), "three": three, "dist": shot_distance(p["text"]),
                               "x": p["x"], "y": p["y"], "action": p["type"], "seq": p["seq"],
@@ -334,9 +365,12 @@ def parse_game(g):
             elif is_ft(p):
                 made = p["scoring"]
                 t["fta"] += 1
+                bump(ath[0] if ath else None, "fta")
                 if made:
                     t["ftm"] += 1
                     t["pts"] += 1
+                    bump(ath[0] if ath else None, "ftm")
+                    bump(ath[0] if ath else None, "pts")
                 if tid in FT_TECH_IDS:
                     continue
                 if tid == 97 and pending_and1 and pending_and1[0] == team and abs(pending_and1[1] - clock) < 0.01:
@@ -360,21 +394,26 @@ def parse_game(g):
                     ft_nonfinal_miss = False
                     continue
                 t["oreb"] += 1
+                bump(ath[0] if ath else None, "oreb")
                 st["offense"], st["open"] = team, True
             elif tid == DREB_ID:
                 if ft_nonfinal_miss:
                     ft_nonfinal_miss = False
                     continue
                 t["dreb"] += 1
+                bump(ath[0] if ath else None, "dreb")
                 pending_and1 = None
                 if st["offense"] == other:
                     end_possession(other, clock)
                 st["offense"] = team
             elif is_turnover(tid):
                 t["tov"] += 1
+                if ath and team_of.get(ath[0]) == team:
+                    bump(ath[0], "tov")
                 stealer = next((a for a in ath[1:] if team_of.get(a) == other), None)
                 if stealer:
                     cur.t[other]["stl"] += 1
+                    bump(stealer, "stl")
                 pending_and1 = None
                 st["offense"] = team
                 end_possession(team, clock)
@@ -383,6 +422,8 @@ def parse_game(g):
             else:
                 if "foul" in (p["type"] or "").lower() and ath and team_of.get(ath[0]) == team:
                     t["pf"] += 1
+                    if "technical" not in p["type"].lower():
+                        bump(ath[0], "pf")
                 if tid in OFFENSIVE_FOUL_IDS:
                     t["ofoul"] += 1
         cur.end = 0.0

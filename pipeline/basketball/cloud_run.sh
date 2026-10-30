@@ -62,7 +62,7 @@ run_once() {
   git add public/savant-current.json public/savant-proj.json public/savant-teams-current.json \
           public/lineups public/savant-ext data/savant-refresh.json $BB/seed/espn_ids.json
   # the coaching files: everything daily except the two big Data Room tables, which go weekly
-  git add public/bcs/index.json public/bcs/c public/bcs/t "public/bcs/data/games" "public/bcs/data/decisions" "public/bcs/data/units" public/bcs/data/coaches.json public/bcs/data/dictionary.json 2>/dev/null
+  git add public/bcs/index.json public/bcs/c public/bcs/t public/bcs/ww "public/bcs/data/games" "public/bcs/data/decisions" "public/bcs/data/units" public/bcs/data/coaches.json public/bcs/data/dictionary.json 2>/dev/null
   if [ "$(date -u +%u)" = "1" ]; then git add public/bcs/data/stints public/bcs/data/rotation 2>/dev/null; fi
   if git diff --cached --quiet; then echo "nothing changed"; return 0; fi
   local SEASON THROUGH MSG

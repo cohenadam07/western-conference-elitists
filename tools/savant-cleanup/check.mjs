@@ -2,9 +2,11 @@
 //   npm run check:savant-cleanup
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
+import { gunzipSync } from 'node:zlib'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import '../../public/savant-ww.js'
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const pub = (f) => JSON.parse(readFileSync(path.join(ROOT, 'public', f), 'utf8'))
@@ -129,4 +131,59 @@ test('same age: a known extreme lands at the top of his age', () => {
   const blk = w.m.blk.season.v
   const vals = agePool(21).v.blk.flat().sort((a, b) => a - b)
   assert.ok(vals.filter((x) => x < blk).length / vals.length > 0.97)
+})
+
+// ---- With / Without ------------------------------------------------------------------------
+const WW = globalThis.SavantWW
+const wwFile = (f) => JSON.parse(gunzipSync(readFileSync(path.join(ROOT, 'public/bcs/ww', f))))
+const SGA = 1628983, JDUB = 1631114
+
+test('with/without: SGA and Jalen Williams, 2025-26, add up to his season in both modes', () => {
+  const doc = wwFile('OKC-2025-26.json.gz')
+  const card = archive.data['2025-26'].players.find((p) => p.id === SGA)
+  for (const mode of ['floor', 'games']) {
+    const r = WW.split(doc, SGA, [JDUB], mode)
+    assert.ok(Math.abs(r.with.minutes + r.without.minutes - card.m.minshare.season.n) < 1, `${mode} minutes`)
+    const pts = r.with.totals.pts + r.without.totals.pts, ast = r.with.totals.ast + r.without.totals.ast
+    const gp = card.m.avail.season.n
+    assert.equal(Math.round((10 * pts) / gp) / 10, card.line.ppg, `${mode} points`)
+    assert.equal(Math.round((10 * ast) / gp) / 10, card.line.apg, `${mode} assists`)
+    assert.equal(WW.split(doc, SGA, [JDUB], mode).rows.length, r.rows.length)
+  }
+  // the bug this view exists to fix: he is a pick now, and he missed real time
+  assert.ok(WW.teammates(doc, SGA).some((m) => m.id === JDUB))
+  assert.ok(WW.split(doc, SGA, [JDUB], 'games').without.games >= 35)
+})
+
+test('with/without: several teammates at once, and Without means none of them', () => {
+  const doc = wwFile('OKC-2025-26.json.gz')
+  const CHET = doc.players.find((p) => p[1] === 'Chet Holmgren')[0]
+  const one = WW.split(doc, SGA, [JDUB], 'floor'), two = WW.split(doc, SGA, [JDUB, CHET], 'floor')
+  assert.ok(two.without.sec < one.without.sec, 'without both is a subset of without one')
+  assert.equal(two.with.sec + two.without.sec, one.with.sec + one.without.sec)
+})
+
+test('with/without: every player-season from 2007-08 adds up to his card', () => {
+  for (const [s, b] of Object.entries(archive.data)) {
+    if (s < '2007-08') continue
+    const sec = {}
+    for (const f of readdirSync(path.join(ROOT, 'public/bcs/ww')).filter((x) => x.endsWith(`-${s}.json.gz`) && !x.startsWith('index-'))) {
+      const d = wwFile(f)
+      for (const u of d.units) for (const i of u[0]) sec[d.players[i][0]] = (sec[d.players[i][0]] || 0) + u[1]
+    }
+    const miss = []
+    for (const p of b.players) {
+      const mn = p.m.minshare && p.m.minshare.season && p.m.minshare.season.n
+      if (mn >= 500 && sec[p.id] != null && Math.abs(sec[p.id] / 60 - mn) > 0.05 * mn) miss.push(`${p.name} ${Math.round(sec[p.id] / 60)}/${mn}`)
+    }
+    assert.ok(miss.length <= 2, `${s}: ${miss.join(', ')}`)
+  }
+})
+
+test('with/without: every stat has a settle point, and tracking is never shown as a number', () => {
+  const doc = wwFile('OKC-2025-26.json.gz')
+  const r = WW.split(doc, SGA, [JDUB], 'floor')
+  for (const x of r.rows) assert.ok(x.settles_at > 0, `${x.key} has no settle point`)
+  assert.deepEqual(r.not_splittable.map((n) => n[0]), ['Tracking', 'Synergy', 'Hustle'])
+  for (const k of ['drv', 'potast', 'defl', 'syn']) assert.ok(!r.rows.some((x) => x.key === k))
 })

@@ -1,0 +1,71 @@
+{
+ "about": "measure_ww.py: settle points for the With/Without on-court stats, which the card never ranked.",
+ "player_seasons": 4829,
+ "mean_half_poss": 1484,
+ "seasons": [
+  "2013-14",
+  "2025-26"
+ ],
+ "stats": {
+  "net": {
+   "r": 0.558,
+   "k": 1175,
+   "show": 1200
+  },
+  "ortg": {
+   "r": 0.693,
+   "k": 658,
+   "show": 660
+  },
+  "drtg": {
+   "r": 0.658,
+   "k": 773,
+   "show": 770
+  },
+  "pace": {
+   "r": 0.894,
+   "k": 176,
+   "show": 180
+  },
+  "t_efg": {
+   "r": 0.661,
+   "k": 761,
+   "show": 760
+  },
+  "t_tov": {
+   "r": 0.514,
+   "k": 1404,
+   "show": 1400
+  },
+  "t_oreb": {
+   "r": 0.679,
+   "k": 702,
+   "show": 700
+  },
+  "t_ftr": {
+   "r": 0.623,
+   "k": 899,
+   "show": 900
+  },
+  "o_efg": {
+   "r": 0.624,
+   "k": 896,
+   "show": 900
+  },
+  "o_tov": {
+   "r": 0.619,
+   "k": 914,
+   "show": 910
+  },
+  "o_oreb": {
+   "r": 0.509,
+   "k": 1434,
+   "show": 1400
+  },
+  "o_ftr": {
+   "r": 0.624,
+   "k": 893,
+   "show": 890
+  }
+ }
+}

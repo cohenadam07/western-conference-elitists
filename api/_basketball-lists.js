@@ -27,6 +27,9 @@ import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, norm, ordinal, tho
 import { PEERS, WINDOW_TEXT, cardUrl, display, inSpan, loadMeta, loadSeason, parseSeason, resolvePlayer, startYear } from './_basketball.js'
 import { AGE_POOLS, PANEL_VIEWS, agePercentile, agePoolInfo, describePanel, extCells, loadAgeIndex, loadAgePool, loadExtPanels, loadExtPlayer, loadExtSeason, wholeAge } from './_basketball-ext.js'
 
+import '../public/savant-ww.js'
+
+const { SavantWW } = globalThis
 const page = makeLoader('', { what: 'Basketball Savant', maxCached: 8, shape: () => true })
 const SOURCE = 'Basketball Savant, Western Conference Elitists (wcehoops.com)'
 
@@ -378,9 +381,10 @@ const PT_NAME = { Isolation: 'Isolation', Transition: 'Transition', PRBallHandle
 // Basketball Coaching Savant's team-season files (pipeline/basketball/coaching/build.py): the
 // Rotation Map row for one player, for the card's rotation strip and the "rotation" view.
 const bcsFiles = makeLoader('bcs', { what: 'Basketball Coaching Savant', shape: (b) => b && typeof b === 'object' && Array.isArray(b.coaches) })
+const wwFiles = makeLoader('bcs/ww', { what: 'Basketball Savant', maxCached: 16, shape: (b) => b && typeof b === 'object' && (Array.isArray(b.units) || !!b.players) })
 const ROT_ALIAS = { NJN: 'BKN', BRK: 'BKN', SEA: 'OKC', VAN: 'MEM', CHH: 'CHA', CHO: 'CHA', NOH: 'NOP', NOK: 'NOP', NO: 'NOP', PHO: 'PHX', GS: 'GSW', NY: 'NYK', SA: 'SAS', UTAH: 'UTA', WSH: 'WAS', WSB: 'WAS' }
 
-export async function playerSplits({ player, season, view = 'play_types' }) {
+export async function playerSplits({ player, season, view = 'play_types', teammates, mode: wwMode }) {
   const meta = await loadMeta()
   const wanted = parseSeason(season, meta)
   const who = await resolvePlayer(player, wanted)
@@ -442,12 +446,51 @@ export async function playerSplits({ player, season, view = 'play_types' }) {
     return { structured: { ...base, ...(ptm ? { cutoffs: ptm } : {}), play_types: types }, text: text.join('\n') }
   }
   if (view === 'with_without') {
-    if (!r.ww || !r.ww.length) throw new SavantError(`No with/without split for ${who.name} in ${s}: it needs teammates who missed enough games.`)
-    const ww = r.ww.map((x) => ({ teammate: x.name, teammate_id: String(x.id), games_with: x.gw, games_without: x.gwo, with: x.w, without: x.wo, change: x.d ?? null }))
-    const line = (o) => ['min', 'pts', 'reb', 'ast', 'usg'].filter((k) => o[k] != null).map((k) => `${o[k]} ${k}`).join(', ')
-    const text = [`${who.name}, ${s}: with and without teammates`, ...ww.map((x) => `- With ${x.teammate} (${x.games_with} games): ${line(x.with)}. Without (${x.games_without} games): ${line(x.without)}.`),
-      '', 'Per-game lines in the games each teammate played and missed. Games apart are few and the schedule differs, so read them as hints, not effects.', '', `Card: ${base.url}`, `Source: ${SOURCE}.`]
-    return { structured: { ...base, with_without: ww }, text: text.join('\n') }
+    if (s < '2002-03') throw new SavantError(`With/Without is built from who was on the floor, which begins in 2002-03; ${who.name}'s ${s} is before it.`)
+    const idx = await wwFiles.load(`index-${s}.json`).catch(() => null)
+    const teams = idx && idx.players[String(who.id)]
+    if (!teams) throw new SavantError(`No With/Without for ${who.name} in ${s}: he has no minutes in that season's play-by-play.`)
+    const team = teams[0][0]
+    const doc = await wwFiles.load(`${team}-${s}.json`)
+    const mates = SavantWW.teammates(doc, who.id)
+    if (!mates.length) throw new SavantError(`No teammates on record for ${who.name} on ${team} in ${s}.`)
+    const available = mates.map((m) => ({ id: String(m.id), name: m.name, minutes_together: Math.round(m.with_sec / 60) }))
+    const pick = (q) => {
+      const t = norm(q).trim()
+      const hit = mates.filter((m) => String(m.id) === t || norm(m.name) === t)
+      const found = hit.length ? hit : mates.filter((m) => norm(m.name).includes(t))
+      if (found.length === 1) return found[0]
+      throw new SavantError(found.length
+        ? `"${q}" fits ${found.map((m) => m.name).join(', ')}. Say which.`
+        : `No teammate "${q}" on ${team} in ${s}. His teammates: ${mates.slice(0, 15).map((m) => m.name).join(', ')}.`)
+    }
+    const chosen = teammates && teammates.length ? teammates.map(pick) : [mates[0]]
+    const mode = wwMode || 'floor'
+    const sp = SavantWW.split(doc, who.id, chosen.map((m) => m.id), mode)
+    const names = chosen.map((m) => m.name).join(' and ')
+    const unit = (x) => ({ stat: x.key, label: x.label, group: x.group, lower_is_better: x.lower, with: x.with, without: x.without, difference: x.diff,
+      with_display: SavantWW.fmt(x.with, x.fmt), without_display: SavantWW.fmt(x.without, x.fmt), sample_unit: x.unit, with_sample: x.with_n, without_sample: x.without_n,
+      settles_at: x.settles_at, with_low_sample: x.with_low, without_low_sample: x.without_low })
+    const side = (a) => ({ minutes: a.minutes, possessions: a.possessions, ...(mode === 'games' ? { games: a.games } : {}) })
+    const notes = [
+      mode === 'floor' ? `Split by the minutes he played with and without ${names} on the floor.` : `Split by the games ${names} played and missed; a game counts as with if any of them played. All of his minutes in those games count.`,
+      'With and Without add up to his season with the team. Without means none of the teammates named; With means at least one.',
+      'A side marked low sample is under that stat\'s settle point, so more of it is noise than him.',
+    ]
+    if (teams.length > 1) notes.push(`He played for ${teams.map((t) => t[0]).join(' and ')} in ${s}. This is ${team}, his longest stay; teammates are that team's.`)
+    const have = sp.with.minutes + sp.without.minutes
+    if (teams.length === 1 && r.min && have < 0.98 * r.min) notes.push(`ESPN's record of this season has ${Math.round(have)} of his ${r.min} minutes, so these numbers are from the part it kept.`)
+    const old = (r.ww || []).map((x) => ({ teammate: x.name, teammate_id: String(x.id), games_with: x.gw, games_without: x.gwo, with: x.w, without: x.wo, change: x.d ?? null }))
+    const rows = sp.rows.map(unit)
+    const text = [`${who.name}, ${s}, with and without ${names} (${mode === 'floor' ? 'minutes on the floor' : 'games they missed'})`,
+      `With: ${have ? sp.with.minutes : 0} minutes, ${sp.with.possessions} possessions. Without: ${sp.without.minutes} minutes, ${sp.without.possessions} possessions.`,
+      ...rows.map((x) => `- ${x.label}: ${x.with_display}${x.with_low_sample ? ' (low sample)' : ''} with, ${x.without_display}${x.without_low_sample ? ' (low sample)' : ''} without`),
+      '', ...notes, `Not splittable: ${sp.not_splittable.map((n) => `${n[0]} (${n[1]})`).join('; ')}.`, '', `Card: ${base.url}`, `Source: ${SOURCE}.`]
+    return {
+      structured: { ...base, ...(old.length ? { with_without: old } : {}), split: { team, mode, teammates: chosen.map((m) => ({ id: String(m.id), name: m.name })), with: side(sp.with), without: side(sp.without), stats: rows,
+        not_splittable: sp.not_splittable.map((n) => ({ source: n[0], stats: n[1] })), notes }, teammates_available: available },
+      text: text.join('\n'),
+    }
   }
   if (view === 'rotation') {
     if (s < '2002-03') throw new SavantError(`The rotation data begins in 2002-03; ${who.name}'s ${s} is before it.`)
@@ -567,14 +610,17 @@ export const tools = [
     config: {
       title: 'NBA player play types and splits',
       description:
-        'Below an NBA player\'s season card on Basketball Savant (wcehoops.com). "play_types": Synergy play types (share, points per possession, percentile, how each ends; thin samples are marked). "with_without": his line with and without teammates. "months": month by month. "shots": whether his shot chart exists. "rotation": his row of his coach\'s Rotation Map (Basketball Coaching Savant): when he usually plays and how often his minutes go off script. Breakdowns: shot_menu, shot_splits (dribbles, touch time, shot clock, defender), touches, passing, defensive_play_types, clutch, game_splits (home/away, wins, rest), on_off_four_factors, turnover_mix, handle_score, dunk_score, position_estimate.',
+        'Below a player\'s card on Basketball Savant (wcehoops.com). "play_types": Synergy play types (share, points per possession, percentile, how each ends). "with_without": every splittable stat with and without any teammates, on the floor or by games. "months": month by month. "shots": whether his shot chart exists. "rotation": his row of his coach\'s Rotation Map (Basketball Coaching Savant): when he usually plays and how often his minutes go off script. Breakdowns: shot_menu, shot_splits (dribbles, touch time, shot clock, defender), touches, passing, defensive_play_types, clutch, game_splits (home/away, wins, rest), on_off_four_factors, turnover_mix, handle_score, dunk_score, position_estimate.',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nba_search_players or a full name.'),
         view: z.enum(['play_types', 'with_without', 'months', 'shots', 'rotation', ...Object.keys(PANEL_VIEWS)]).default('play_types').describe('Which view: play_types, with_without, months, shots, rotation (his row of the coach\'s Rotation Map: usual windows, on-floor share by minute, on-script rate; 2002-03 on), or a breakdown: shot_menu, shot_splits, touches, passing, defensive_play_types, clutch, game_splits, on_off_four_factors, turnover_mix, handle_score, dunk_score, position_estimate.'),
         season: z.string().trim().max(12).optional().describe('e.g. "2025-26". Omit for his latest.'),
+        teammates: z.array(z.string().trim().min(1).max(80)).max(4).optional().describe('with_without only: teammates by name or id, 2002-03 on. Several means without all of them. Omit for the one he played most with.'),
+        mode: z.enum(['floor', 'games']).optional().describe('with_without only: "floor" (default) splits the minutes they shared the floor; "games" the games they missed.'),
       },
       outputSchema: {
         player: row, season: z.string(), view: z.string(), url: z.string(), source: z.string(),
+        split: row.optional(), teammates_available: z.array(row).optional(),
         play_types: z.array(row).optional(), with_without: z.array(row).optional(), months: z.array(row).optional(), shots: row.optional(), rotation: row.optional(), breakdown: row.optional(), cutoffs: row.optional(),
       },
       annotations: { title: 'NBA player play types and splits', ...READ_ONLY },

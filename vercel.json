@@ -125,6 +125,10 @@
       "destination": "/bcs/t/:f.gz"
     },
     {
+      "source": "/bcs/ww/:f(.*\\.json)",
+      "destination": "/bcs/ww/:f.gz"
+    },
+    {
       "source": "/bcs/data/:table/:f(.*\\.json)",
       "destination": "/bcs/data/:table/:f.gz"
     },
@@ -698,6 +702,40 @@
         {
           "key": "Access-Control-Allow-Origin",
           "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/ww/:f(.*\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/ww/:f(.*\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
         }
       ]
     },

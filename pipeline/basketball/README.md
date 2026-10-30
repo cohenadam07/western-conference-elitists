@@ -33,3 +33,13 @@ correlation 1.000 on every box-score, shooting and rate stat, 0.998 on shot qual
 0.966 on on/off; usage is scaled by 0.988 (`espn_shim.USG_SCALE`).
 
 Run it locally: `cd somewhere && mkdir -p out && cp <repo>/pipeline/basketball/seed/out/* out/ && python3 <repo>/pipeline/basketball/cloud_refresh.py`.
+
+## Position labels, same-age pools, With/Without (2.6.0)
+
+`position_labels.py` derives Guard / Wing / Big from the position estimate; `refresh_current.py` applies it to the season in progress, `python3 position_labels.py archive` to the archive (safe to rerun: rows keep today's label in `pos0`). A label change means rerunning `build_ext.py --players-only`, `tools/savant-value/value.py fit`, `gen_weakness_comps.build` and `coaching/build.py`.
+
+`age_pools.py` writes `public/savant-ext/age/`, finished seasons only; `build_ext.py` rebuilds it.
+
+`coaching/withwithout.py` writes `public/bcs/ww/` from the ESPN cache. `refresh_live.py` runs it for the season in progress; finished seasons are committed. `espn_tables.parse_game` keeps each player's counts per stint for it. The sums are `public/savant-ww.js`, one file for the card and the connector, and `tools/savant-settle/measure_ww.py` measures its on-court settle points.
+
+A full `coaching/build.py` run changes history, so push its bundles with `publish_bundles.sh`: the cloud's merge mode reads them, and old bundles would put the old numbers back.

@@ -58,6 +58,12 @@ def main():
     print(f"=== coaching refresh {a.season} ({dt.datetime.now():%Y-%m-%d %H:%M})", flush=True)
     G.fetch(a.season)
     P.process(a.season, force=True)
+    # With/Without for the season in progress: failing costs that panel a night, never the refresh.
+    try:
+        import withwithout as WW
+        WW.build_season(a.season, public=a.public)
+    except Exception as e:  # noqa
+        print(f"with/without: failed ({repr(e)[:120]})")
     # the head coach of the day's games: the registry's schedule comes from the NBA game logs, which
     # the cloud cannot pull; registry.py is a Mac step. Games the registry has not seen yet fall to
     # the tenure that covers the date (the coach of record for the team), see build.pass_one.
