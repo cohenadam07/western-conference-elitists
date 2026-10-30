@@ -39,7 +39,7 @@ function call(handler, { method = 'GET', query = {}, body, headers = {}, ip } = 
 }
 const admin = { 'x-analytics-key': TEST_ENV.ANALYTICS_DASHBOARD_PASSWORD }
 const env = (over = {}) => {
-  for (const k of Object.keys(TEST_ENV)) delete process.env[k]
+  for (const k of [...Object.keys(TEST_ENV), 'KEYS_MAIL_FROM', 'KEYS_MAIL_REPLY_TO']) delete process.env[k]
   Object.assign(process.env, TEST_ENV)
   for (const [k, v] of Object.entries(over)) {
     if (v === undefined) delete process.env[k]
@@ -186,7 +186,7 @@ test('health reports config, subscriber counts and the queue', async () => {
   state.bd.mode = 'down'; await sub('q@example.com'); state.bd.mode = 'ok'
   const r = await call(newsletter, { query: { admin: '1' }, headers: admin })
   assert.equal(r.status, 200)
-  assert.deepEqual(r.body.config, { buttondown: true, kv: true, notifications: true, archiveUrl: 'https://buttondown.com/wcehoops' })
+  assert.deepEqual(r.body.config, { buttondown: true, kv: true, notifications: true, keyMail: false, archiveUrl: 'https://buttondown.com/wcehoops' })
   assert.deepEqual(r.body.subscribers, { confirmed: 2, unconfirmed: 1 })
   assert.deepEqual(r.body.pending.map((p) => p.email), ['q@example.com'])
 })
@@ -488,4 +488,141 @@ test('emails with URL-ish characters are rejected before they reach anything', a
   const r = await sub('a?bcc=x%40y.com&subject=hi@z.io')
   assert.equal(r.status, 400)
   assert.equal((await sub('reader@example.xn--p1ai')).body.status, 'confirm', 'punycode TLDs are fine')
+})
+
+// ── connector keys (api/newsletter.js?action=key, api/_keys.js) ──────────────
+
+const { createHash } = await import('node:crypto')
+const keys = await import('../../api/_keys.js')
+const { FOUNDING } = await import('../../src/data/connector.js')
+const MAIL = { KEYS_MAIL_FROM: 'Western Conference Elitists <keys@wcehoops.com>' }
+const askKey = (email, extra = {}, ip) => call(newsletter, { method: 'POST', query: { action: 'key' }, body: { email, source: 'connector', ...extra }, ip })
+const keyRecords = () => [...(state.kv.get(keys.K_KEYS) || new Map()).entries()].map(([id, raw]) => ({ id, ...JSON.parse(raw) }))
+const heldKeys = () => [...(state.kv.get(keys.K_PENDING_KEYS) || new Map()).values()].map((raw) => JSON.parse(raw))
+const keyOfMail = (m) => (m.text.match(/https:\/\/wcehoops\.com\/mcp\/(wce_[a-f0-9]{32})/) || [])[1]
+// Everything in the store, as one string, to search for things that must not be in it.
+const wholeStore = () => JSON.stringify([...state.kv.entries()].map(([k, v]) => [k, v instanceof Map ? [...v] : v]))
+
+test('a key is emailed, works, and only its fingerprint is kept', async () => {
+  env(MAIL)
+  const r = await askKey('Fan@Example.com')
+  assert.equal(r.status, 200)
+  assert.deepEqual(r.body, { ok: true, status: 'sent' })
+  const [mail] = state.resend.sent
+  assert.deepEqual(mail.to, ['Fan@Example.com'])
+  assert.equal(mail.from, MAIL.KEYS_MAIL_FROM)
+  const key = keyOfMail(mail)
+  assert.ok(key, 'the email carries the personal address')
+  assert.ok(mail.text.includes(FOUNDING) && mail.html.includes(FOUNDING), 'the email makes the founding-member promise in the homepage\'s words')
+  assert.doesNotMatch(mail.text + mail.html, /—/, 'no em dashes')
+  const [rec] = keyRecords()
+  assert.equal(rec.id, createHash('sha256').update(key).digest('hex').slice(0, 12))
+  assert.equal(rec.h, createHash('sha256').update(key).digest('hex'))
+  assert.equal(rec.email, 'fan@example.com')
+  assert.equal(rec.newsletter, false)
+  assert.ok(!wholeStore().includes(key), 'the key itself is not stored once it is emailed')
+  keys.resetKeys()
+  assert.deepEqual(await keys.checkKey(key), { state: 'valid', id: rec.id })
+  assert.deepEqual(await keys.checkKey(key.toUpperCase().replace('WCE_', 'wce_')), { state: 'valid', id: rec.id }, 'case does not matter')
+  const wrong = key.slice(0, -1) + (key.endsWith('0') ? '1' : '0')
+  assert.deepEqual(await keys.checkKey(wrong), { state: 'unknown' })
+  assert.deepEqual(await keys.checkKey('not-a-key'), { state: 'unknown' })
+  assert.deepEqual(await keys.checkKey(''), { state: 'none' })
+  assert.equal(bdSubscribeCalls().length, 0, 'no tick, no newsletter')
+})
+
+test('the newsletter tick-box subscribes through Buttondown, double opt-in included', async () => {
+  env(MAIL)
+  const r = await askKey('both@example.com', { newsletter: true })
+  assert.deepEqual(r.body, { ok: true, status: 'sent' })
+  const [c] = bdSubscribeCalls()
+  assert.equal(c.body.email_address, 'both@example.com')
+  assert.equal(c.body.utm_campaign, 'connector-key')
+  assert.equal(c.body.type, undefined, 'must not bypass double opt-in')
+  assert.equal(keyRecords()[0].newsletter, true)
+  // Buttondown being down never costs the fan their key.
+  state.bd.mode = 'down'
+  assert.deepEqual((await askKey('later@example.com', { newsletter: true })).body, { ok: true, status: 'sent' })
+  assert.deepEqual(pending(), ['later@example.com'])
+})
+
+test('with mail not set up, a key is held, shown on /inbox without the key, and sent later', async () => {
+  const r = await askKey('early@example.com')
+  assert.deepEqual(r.body, { ok: true, status: 'queued' })
+  assert.equal(state.resend.sent.length, 0)
+  assert.equal(heldKeys().length, 1)
+  const health = await call(newsletter, { query: { admin: '1' }, headers: admin })
+  assert.equal(health.body.config.keyMail, false)
+  assert.deepEqual(health.body.pendingKeys.map((k) => k.email), ['early@example.com'])
+  assert.doesNotMatch(JSON.stringify(health.body), /wce_[a-f0-9]{32}/, '/inbox never sees a key')
+  // Sending refuses until mail is set up, and needs the password.
+  assert.equal((await call(newsletter, { method: 'POST', query: { admin: 'flush-keys' }, headers: admin })).status, 400)
+  env(MAIL)
+  assert.equal((await call(newsletter, { method: 'POST', query: { admin: 'flush-keys' } })).status, 401)
+  const f = await call(newsletter, { method: 'POST', query: { admin: 'flush-keys' }, headers: admin })
+  assert.deepEqual(f.body, { ok: true, sent: 1, stillWaiting: 0, remaining: 0 })
+  const key = keyOfMail(state.resend.sent[0])
+  assert.ok(key)
+  assert.equal(heldKeys().length, 0)
+  assert.ok(!wholeStore().includes(key), 'sent, so no longer stored')
+  keys.resetKeys()
+  assert.equal((await keys.checkKey(key)).state, 'valid')
+})
+
+test('Resend down: the key is held, and a failed flush keeps it', async () => {
+  env(MAIL)
+  state.resend.mode = 'down'
+  assert.deepEqual((await askKey('wait@example.com')).body, { ok: true, status: 'queued' })
+  const f = await call(newsletter, { method: 'POST', query: { admin: 'flush-keys' }, headers: admin })
+  assert.equal(f.body.sent, 0)
+  assert.equal(f.body.remaining, 1)
+  assert.match(f.body.error, /resend 500/)
+  assert.equal(heldKeys().length, 1)
+})
+
+test('key sign-up: honeypot, bad email, no store, and limits', async () => {
+  env(MAIL)
+  assert.deepEqual((await askKey('bot@example.com', { website: 'x' })).body, { ok: true, status: 'sent' })
+  assert.equal((await askKey('nope')).status, 400)
+  assert.equal(keyRecords().length + state.resend.sent.length, 0, 'nothing made, nothing sent')
+  // Three keys a day to one inbox, from wherever the requests come.
+  for (let i = 0; i < 3; i++) assert.equal((await askKey('Victim@example.com')).body.status, 'sent')
+  const fourth = await askKey('victim@example.com')
+  assert.equal(fourth.status, 429)
+  assert.equal(fourth.body.error, 'rate')
+  assert.ok(!wholeStore().includes('victim@example.com:'), 'the inbox limit is counted under a hash, not the address')
+  // Five tries an hour from one address.
+  for (let i = 0; i < 5; i++) assert.equal((await askKey(`p${i}@example.com`, {}, '198.51.100.7')).status, 200)
+  assert.equal((await askKey('p9@example.com', {}, '198.51.100.7')).status, 429)
+  // Asking twice is two keys for one person, and both work.
+  assert.equal(new Set(keyRecords().filter((k) => k.email === 'victim@example.com').map((k) => k.id)).size, 3)
+  // No store: no key.
+  env({ ...MAIL, KV_REST_API_URL: undefined })
+  assert.equal((await askKey('nostore@example.com')).status, 503)
+})
+
+test('who holds keys, put next to the usage log, as people', () => {
+  const now = Date.parse('2026-11-20T12:00:00Z')
+  const list = [
+    { id: 'aaaaaaaaaaaa', email: 'a@x.com', created: '2026-10-25T00:00:00.000Z', newsletter: true },
+    { id: 'aaaaaaaaaaab', email: 'a@x.com', created: '2026-10-30T00:00:00.000Z', newsletter: false },
+    { id: 'bbbbbbbbbbbb', email: 'b@x.com', created: '2026-10-26T00:00:00.000Z', newsletter: false },
+    { id: 'cccccccccccc', email: 'c@x.com', created: '2026-11-01T00:00:00.000Z', newsletter: false },
+  ]
+  const perKey = {
+    aaaaaaaaaaaa: { calls: 5, days: ['2026-10-25', '2026-10-26'], last: '2026-10-26' },
+    aaaaaaaaaaab: { calls: 2, days: ['2026-11-19'], last: '2026-11-19' },
+    bbbbbbbbbbbb: { calls: 9, days: ['2026-10-01'], last: '2026-10-01' },
+    ffffffffffff: { calls: 50, days: ['2026-11-19'], last: '2026-11-19' }, // a key that is not on the list
+  }
+  const s = keys.summariseKeys(list, perKey, { now })
+  assert.equal(s.people, 3)
+  assert.equal(s.keys, 4)
+  assert.equal(s.active30, 1, 'only a@x.com used a key in the last 30 days')
+  assert.equal(s.keyedCalls, 16)
+  assert.deepEqual(s.top, [
+    { email: 'b@x.com', calls: 9, days: 1, last: '2026-10-01', since: '2026-10-26', keys: 1, newsletter: false },
+    { email: 'a@x.com', calls: 7, days: 3, last: '2026-11-19', since: '2026-10-25', keys: 2, newsletter: true },
+  ])
+  assert.deepEqual(s.newest.map((p) => p.email), ['c@x.com', 'b@x.com', 'a@x.com'])
 })

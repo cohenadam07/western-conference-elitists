@@ -40,6 +40,7 @@ function cmd([c, ...a]) {
     case 'EXPIRE': if (!kv.has(k)) return 0; state.ttl.set(k, Date.now() + a[1] * 1000); return 1
     case 'HSET': { const h = alive(k) || new Map(); let n = 0; for (let i = 1; i < a.length; i += 2) { if (!h.has(a[i])) n++; h.set(a[i], String(a[i + 1])) } kv.set(k, h); return n }
     case 'HGET': return alive(k)?.get(a[1]) ?? null
+    case 'HSETNX': { const h = alive(k) || new Map(); if (h.has(a[1])) return 0; h.set(a[1], String(a[2])); kv.set(k, h); return 1 }
     case 'HDEL': { const h = alive(k); if (!h) return 0; let n = 0; for (const f of a.slice(1)) if (h.delete(f)) n++; return n }
     case 'HGETALL': { const h = alive(k); return h ? [...h].flat() : [] }
     case 'ZADD': { const z = alive(k) || new Map(); let n = 0; for (let i = 1; i < a.length; i += 2) { if (!z.has(a[i + 1])) n++; z.set(a[i + 1], +a[i]) } kv.set(k, z); return n }

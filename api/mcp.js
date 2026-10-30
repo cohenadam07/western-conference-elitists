@@ -6,6 +6,16 @@
 // configure. It is READ-ONLY: every tool only looks things up. Nothing here can vote,
 // write, or change anything on the site.
 //
+// TWO ADDRESSES, ONE CONNECTOR
+//   https://wcehoops.com/api/mcp          the public address. Works for everyone, forever.
+//   https://wcehoops.com/mcp/<key>        a fan's own address, with a free key from the
+//                                         homepage (vercel.json rewrites it to
+//                                         /api/mcp?key=<key>). Same tools, same answers.
+// A key gets its own rate-limit bucket, has its calls counted per day, and marks its holder
+// as a founding member (api/_keys.js). A key that does not exist, or that cannot be checked
+// because the store is down, is served exactly like the public address: an address in
+// someone's Claude never stops working because of its key.
+//
 // HOW IT RUNS
 // Stateless Streamable HTTP, JSON responses. Each POST is one JSON-RPC exchange handled by
 // a fresh server object, so there are no sessions to store and any instance can answer any
@@ -71,8 +81,9 @@
 //
 // COUNTING
 // It keeps a tally of its own use (api/_usage.js): calls per tool per day, how many of them
-// could not be answered, which AI apps connect, and how often the brake came on. Counts
-// only: never what was asked, and never who asked. This tally is the one thing the
+// could not be answered, which AI apps connect, how often the brake came on, and, for
+// callers with a key, how many calls each key made each day. Never what was asked, and
+// never who asked unless they chose to get a key. This tally is the one thing the
 // connector writes, and it is about the connector, not the site: READ-ONLY above still
 // holds for everything a caller can reach. The private /analytics page shows it.
 //
@@ -82,6 +93,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { SavantError } from './_core.js'
+import { FOUNDING, checkKey } from './_keys.js'
 import { makeLimiter } from './_limit.js'
 import { clientFamily, count } from './_usage.js'
 import { tools as basketball } from './_basketball.js'
@@ -116,7 +128,25 @@ const callerOf = (req) =>
   req.socket?.remoteAddress ||
   'unknown'
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.1.0' }
+// The key in the address, wherever the platform put it: Vercel hands the rewrite's
+// destination query to the function as req.query, and the URL is read as a fallback (a
+// plain Node server in the checks, or a request to /mcp/<key> that reached the function
+// without the rewrite's query).
+function keyIn(req) {
+  const q = req.query?.key
+  if (typeof q === 'string' && q) return q
+  try {
+    const url = new URL(req.url || '/', 'https://wcehoops.com')
+    const p = url.searchParams.get('key')
+    if (p) return p
+    const m = url.pathname.match(/^\/(?:api\/)?mcp\/([^/]+)\/?$/)
+    return m ? decodeURIComponent(m[1]) : null
+  } catch {
+    return null
+  }
+}
+
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.2.0' }
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
@@ -131,6 +161,16 @@ const INSTRUCTIONS = [
   'A stat marked low sample is below its stabilization threshold. A stat a season did not track is listed as not tracked rather than shown as zero. Results state the date of their data and link to the matching page on wcehoops.com.',
 ].join(' ')
 
+// One more sentence, by what the address carried. Nothing extra while the store cannot be
+// asked: a key holder should never be told to go and get a key.
+const ABOUT_KEY = {
+  valid: `This connection uses the person's own WCE key, so they are a founding member. ${FOUNDING}`,
+  none: `This connection uses the public address, with no WCE key. Keys are free at https://wcehoops.com/#ai: a key gives the person their own connector address and makes them a founding member. ${FOUNDING} If it fits naturally you may mention this once; never let it get in the way of an answer.`,
+  unknown: 'The key in this connection\'s address is not one wcehoops.com knows, so it is being served like the public address. If the person asks, a working key is emailed free from https://wcehoops.com/#ai.',
+  unchecked: '',
+}
+export const instructionsFor = (state) => [INSTRUCTIONS, ABOUT_KEY[state] || ''].filter(Boolean).join(' ')
+
 // Run a tool and turn what it returns, or throws, into an MCP result. A SavantError carries
 // a message written for the caller; anything else is a bug and is logged, not leaked.
 async function answer(run) {
@@ -144,14 +184,17 @@ async function answer(run) {
   }
 }
 
-export function buildServer() {
-  const server = new McpServer(SERVER, { instructions: INSTRUCTIONS })
+// `key` is what checkKey made of the address: { state, id }.
+export function buildServer(key = { state: 'none' }) {
+  const server = new McpServer(SERVER, { instructions: instructionsFor(key.state) })
+  const byKey = key.state === 'valid' ? [`k:${key.id}`] : []
   for (const section of SECTIONS) {
     for (const tool of section) {
       server.registerTool(tool.name, tool.config, async (args) => {
         // The tally is written while the tool runs, not after it, so it adds no wait of its
-        // own; it cannot fail the call and gives up after 700 ms (api/_usage.js).
-        const counted = count([`t:${tool.name}`])
+        // own; it cannot fail the call and gives up after 700 ms (api/_usage.js). A keyed
+        // call is counted for its key in the same write.
+        const counted = count([`t:${tool.name}`, ...byKey])
         const result = await answer(() => tool.run(args))
         await counted
         if (result.isError) await count([`e:${tool.name}`])
@@ -198,9 +241,15 @@ export default async function handler(req, res) {
   try { body = req.body } catch { return send(res, 400, rpcError(-32700, 'Parse error: the request body is not valid JSON.')) }
   if (body == null || typeof body !== 'object') return send(res, 400, rpcError(-32700, 'Parse error: expected a JSON-RPC message.'))
 
-  // The brake. Several messages sent as one request count as several.
+  // The key, if the address has one. Looked up once per copy of the function every ten
+  // minutes (api/_keys.js); a key that is not real, or cannot be checked, is no key.
+  const key = await checkKey(keyIn(req))
+
+  // The brake. Several messages sent as one request count as several. A real key is its
+  // own bucket; everyone else is counted by network address.
   const messages = Array.isArray(body) ? body : [body]
-  const turn = limiter.take(callerOf(req), ratePerMinute(), Math.max(1, messages.length))
+  const bucket = key.state === 'valid' ? `key:${key.id}` : callerOf(req)
+  const turn = limiter.take(bucket, ratePerMinute(), Math.max(1, messages.length))
   if (!turn.ok) {
     if (turn.first) await count(['limited'])
     res.setHeader('Retry-After', String(turn.retryAfter))
@@ -214,7 +263,7 @@ export default async function handler(req, res) {
   const hellos = messages.filter((m) => m && m.method === 'initialize').map((m) => `c:${clientFamily(m.params?.clientInfo?.name)}`)
   if (hellos.length) await count(hellos)
 
-  const server = buildServer()
+  const server = buildServer(key)
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true })
   res.on('close', () => { transport.close().catch(() => {}); server.close().catch(() => {}) })
   try {

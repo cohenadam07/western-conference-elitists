@@ -5,7 +5,9 @@
 //
 // The answer also carries `connector`: the AI connector's usage log for the same range
 // (api/_usage.js). It is read alongside the archive and can fail on its own without taking
-// the page down: on a failure `connector` is { error }.
+// the page down: on a failure `connector` is { error }. `connector.keys` is who holds a
+// connector key and how much they use it (api/_keys.js), always over all time, so its
+// "active in the last 30 days" does not depend on the range asked for.
 
 import {
   DIMENSIONS,
@@ -19,6 +21,7 @@ import {
   toHash,
 } from './_lib.js';
 import { readUsage } from '../_usage.js';
+import { readKeySummary } from '../_keys.js';
 import { readEdge, readPortfolios } from './_edge.js';
 
 export const config = { maxDuration: 30 };
@@ -72,14 +75,20 @@ export default async function handler(req, res) {
     : DIMENSIONS;
 
   try {
-    const [results, connector] = await Promise.all([
+    const [results, connector, keys] = await Promise.all([
       redisPipeline([
         ['HGETALL', K_DAILY],
         ['HGETALL', K_META],
         ...dims.map((d) => ['HGETALL', kDim(d.id)]),
       ]),
       readUsage({ from, to }).catch((err) => ({ error: String(err?.message || err) })),
+      readKeySummary().catch((err) => ({ error: String(err?.message || err) })),
     ]);
+    // Per-key counts reach the page as people (keys.top), not as raw key ids.
+    if (connector && !connector.error) {
+      delete connector.perKey;
+      connector.keys = keys;
+    }
 
     const dailyHash = toHash(results[0]?.result);
     const meta = toHash(results[1]?.result);

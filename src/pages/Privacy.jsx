@@ -3,7 +3,7 @@ import PageHeader from '../components/PageHeader.jsx'
 import usePageMeta from '../lib/usePageMeta.js'
 
 // Update this date whenever the substance below changes.
-const UPDATED = 'October 23, 2026'
+const UPDATED = 'October 30, 2026'
 
 function Section({ id, title, children }) {
   return (
@@ -36,6 +36,7 @@ export default function Privacy() {
             <li>No ads, no ad trackers, no selling or renting your information. Ever.</li>
             <li>If you subscribe, we hold your email address so we can send you the newsletter.</li>
             <li>If you message us, we keep what you wrote so we can read it and reply.</li>
+            <li>If you get a key for the AI connector, we keep your email and count how much you use it.</li>
             <li>Site analytics are counts only. No cookies, no profile of you.</li>
             <li>Want something deleted? Ask and it's gone.</li>
           </ul>
@@ -72,6 +73,25 @@ export default function Privacy() {
             <p>
               If you tick "Also send me The Weekly Board," your email is added to the newsletter list as described
               above, confirmation email included.
+            </p>
+          </Section>
+
+          <Section id="connector-keys" title="AI connector keys">
+            <p>
+              The AI connector works without a key. If you ask for a free key on the homepage, we collect your{' '}
+              <strong>email address</strong>, when you asked, and whether you ticked the newsletter box. We email
+              you your key with <strong>Resend</strong>, and we keep a scrambled fingerprint of the key, not the key
+              itself. If email isn't working when you ask, we hold the key in our database until it can be sent,
+              then remove it from there.
+            </p>
+            <p>
+              With a key, we count <strong>how many lookups your key makes each day</strong>. We still don't
+              record what you asked. We use your email to know who uses the connector, to tell you about changes
+              to it, and to honor the founding-member offer when WCE Pro launches.
+            </p>
+            <p>
+              If you tick "Also send me The Weekly Board," your email is added to the newsletter list as described
+              above, confirmation email included. Want your key and its counts deleted? Ask and they're gone.
             </p>
           </Section>
 
@@ -121,8 +141,9 @@ export default function Privacy() {
               </li>
               <li>
                 The AI connector (the address you can add to an AI app such as Claude) counts how often each kind
-                of lookup is used and which kind of AI app connected. It doesn't record what was asked or who
-                asked.
+                of lookup is used and which kind of AI app connected. It doesn't record what was asked. On the
+                public address it doesn't record who asked either; with a key, see{' '}
+                <a href="#connector-keys">AI connector keys</a>.
               </li>
             </ul>
           </Section>
@@ -134,7 +155,8 @@ export default function Privacy() {
             </p>
             <p>
               The AI connector does the same to stop one caller from flooding it. There, the caller's IP address is
-              only held in the running program's short-term memory. It is never saved.
+              only held in the running program's short-term memory. It is never saved. Callers with a key are
+              limited by their key instead.
             </p>
           </Section>
 
@@ -142,9 +164,9 @@ export default function Privacy() {
             <p>These services run parts of the site and handle data on our behalf:</p>
             <ul>
               <li><strong>Vercel</strong> hosts the site and provides the analytics above.</li>
-              <li><strong>Upstash</strong> is the database behind contact messages, held newsletter signups, leaderboards, the games and the AI connector's counts.</li>
+              <li><strong>Upstash</strong> is the database behind contact messages, held newsletter signups, leaderboards, the games, AI connector keys and the AI connector's counts.</li>
               <li><strong>Buttondown</strong> stores the newsletter list and sends the newsletter.</li>
-              <li><strong>Resend</strong> emails us a copy of contact-form messages.</li>
+              <li><strong>Resend</strong> emails us a copy of contact-form messages, and emails AI connector keys.</li>
               <li>
                 <strong>Google Fonts</strong> serves the site's typefaces, which means Google sees your IP address
                 when your browser loads them.

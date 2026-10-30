@@ -8,6 +8,11 @@
 
 export const CONNECTOR_URL = 'https://wcehoops.com/api/mcp'
 
+// The promise made to everyone who gets a free connector key before WCE Pro exists. The
+// homepage, the key email and the connector's own instructions all say it in these words
+// (api/_keys.js reads it from here). It is a promise: change it only to make it better.
+export const FOUNDING = 'Founding members get 50% off WCE Pro for life when it launches.'
+
 // Claude's own guide to adding a connector by address. The menu names in the steps on the
 // homepage come from here; if Claude renames a menu, this page is the one that stays right.
 export const CLAUDE_GUIDE = 'https://support.claude.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp'
