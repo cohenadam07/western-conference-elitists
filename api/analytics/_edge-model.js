@@ -11,11 +11,26 @@
 //
 // Not a function itself: Vercel skips api files that start with an underscore.
 
+// The three arms the test started with. They are the head-to-head scoreboard; everything added
+// since is an experiment (below), scored only from the day it started.
 export const ARMS = ['model', 'claude_wce', 'claude_box']
+// Every forecaster: the three above plus Claude arms added as experiments. Each prices every
+// market, so each has forecasts to score.
+export const CLAUDE_FORECASTERS = ['claude_wce', 'claude_box', 'claude_rc']
+export const FORECASTERS = ['model', ...CLAUDE_FORECASTERS]
 export const ARM_LABEL = {
   model: 'WCE model (no Claude)',
   claude_wce: 'Claude + WCE analytics',
   claude_box: 'Claude, box scores only',
+  claude_rc: 'Claude + WCE + its own report card',
+}
+// The experiments that are forecasters rather than rules, with the day each started.
+export const FORECASTER_EXPERIMENTS = {
+  claude_rc: {
+    name: 'Claude + WCE + report card',
+    hypothesis: 'Claude + WCE, shown its own track record (calibration, its lean against the market, its record by stat) before each game, corrects its own mistakes and forecasts better than Claude + WCE without it. Its control is Claude + WCE on the same games.',
+    success: 'CLV t past the bar over 300+ bets; and a better Brier score than Claude + WCE on the same games.',
+  },
 }
 
 export const STATS = ['pts', 'reb', 'ast', 'fg3m', 'pra']
@@ -221,13 +236,39 @@ export const emptyBetAgg = () => ({ n: 0, w: 0, l: 0, v: 0, staked: 0, pnl: 0, c
   mvN: 0, mvSum: 0, mvSq: 0, mvUp: 0, costSum: 0 })
 // Bumped whenever a settled game's aggregates gain a field; older games are recomputed from
 // their stored bets and forecasts the next time the page reads them.
-export const AGG_VERSION = 2
+export const AGG_VERSION = 3
 export const BINS = 10
 // dd, dr, rr: sums for one regression, of the result's surprise against the market
 // (r = y - market) on the arm's disagreement with the market (d = p - market). Its slope is
 // the weight a blend should give the arm next to the market's own price: 0 means the arm knows
 // nothing the price doesn't, 1 means take the arm's number as it is.
-export const emptyFcAgg = () => ({ n: 0, brier: 0, brierMkt: 0, ll: 0, llMkt: 0, dd: 0, dr: 0, rr: 0, bins: Array.from({ length: BINS }, () => [0, 0, 0]) })
+// dsum is the arm's total lean against the market (sum of arm - market), for the report card.
+export const emptyFcAgg = () => ({ n: 0, brier: 0, brierMkt: 0, ll: 0, llMkt: 0, dd: 0, dr: 0, rr: 0, dsum: 0, bins: Array.from({ length: BINS }, () => [0, 0, 0]) })
+// Per stat, for the report card: count, both Brier sums and the lean.
+export const emptyStatAgg = () => ({ n: 0, brier: 0, brierMkt: 0, dsum: 0 })
+export function addStatForecast(agg, p, marketP, y) {
+  if (p == null || marketP == null || (y !== 0 && y !== 1)) return agg
+  agg.n += 1
+  agg.brier += (p - y) ** 2
+  agg.brierMkt += (marketP - y) ** 2
+  agg.dsum += p - marketP
+  return agg
+}
+// The market's own lean: how far Kalshi's mid sat above how often the YES side hit (positive
+// means YES was priced rich, the retail lean toward overs).
+export const emptyMktAgg = () => ({ n: 0, sum: 0, sq: 0 })
+export function addMarket(agg, marketP, y) {
+  if (marketP == null || (y !== 0 && y !== 1)) return agg
+  const e = marketP - y
+  agg.n += 1; agg.sum += e; agg.sq += e * e
+  return agg
+}
+export function describeMarket(a) {
+  if (!a?.n) return { n: 0, bias: null, se: null, t: null }
+  const mean = a.sum / a.n
+  const se = a.n > 1 ? Math.sqrt(Math.max(0, (a.sq - a.n * mean * mean) / (a.n - 1)) / a.n) : null
+  return { n: a.n, bias: mean, se, t: se ? mean / se : null }
+}
 
 export function addBet(agg, settled) {
   if (!settled) return agg
@@ -268,6 +309,7 @@ export function addForecast(agg, p, marketP, y) {
   agg.ll += logLoss(p, y)
   agg.llMkt += logLoss(marketP, y)
   const d = p - marketP, r = y - marketP
+  agg.dsum += d
   agg.dd += d * d
   agg.dr += d * r
   agg.rr += r * r
@@ -286,7 +328,7 @@ export function mergeBetAgg(into, a) {
 
 export function mergeFcAgg(into, a) {
   if (!a) return into
-  for (const k of ['n', 'brier', 'brierMkt', 'll', 'llMkt', 'dd', 'dr', 'rr']) into[k] += a[k] || 0
+  for (const k of ['n', 'brier', 'brierMkt', 'll', 'llMkt', 'dd', 'dr', 'rr', 'dsum']) into[k] += a[k] || 0
   ;(a.bins || []).forEach((b, i) => { if (into.bins[i]) for (let j = 0; j < 3; j++) into.bins[i][j] += b[j] || 0 })
   return into
 }
@@ -401,7 +443,8 @@ export function ledgerRow(b) {
 //          had (games decided before it was stored fall back to the night's decided games)
 //   marks  Map(ticker -> YES value now) for open bets; an open bet without a mark is held at
 //          what it cost
-export function buildPortfolios(games, marks = null, cfg = PORTFOLIO) {
+export function buildPortfolios(games, marks = null, cfg = PORTFOLIO, armIds = ARMS) {
+  const ARMS = armIds // the base three unless experiments are asked for too; each starts at cfg.start
   const realized = Object.fromEntries(ARMS.map((a) => [a, cfg.start]))
   const unreal = Object.fromEntries(ARMS.map((a) => [a, 0]))
   const counts = Object.fromEntries(ARMS.map((a) => [a, { open: 0, openStake: 0, settled: 0, staked: 0 }]))
@@ -467,4 +510,125 @@ export function buildPortfolios(games, marks = null, cfg = PORTFOLIO) {
     staked: cents2(counts[a].staked),
   }]))
   return { config: cfg, arms, closes, opens, stakes }
+}
+
+/* ------------------------------------------------------------------ *
+ * Experiments: rule arms and the bar they have to clear
+ * ------------------------------------------------------------------ */
+
+// A rule arm is a betting rule over forecasts the lab already makes, so it costs nothing to run.
+//   source    a forecaster ('model', 'claude_wce', 'claude_box', 'claude_rc') or 'claude_avg'
+//             (the two original Claude arms averaged, where both priced the market)
+//   blend     null, or 'fit': bet on market + w * (source - market), with w the source's
+//             information weight fitted only on games settled before this one (0 to 1; no bets
+//             until 1,000 forecasts are scored)
+//   side      'yes' | 'no' | null (either)
+//   stats     a list of stats, or null for all
+//   minEdge   the edge after the fee a bet needs (default 3 points); maxEdge an optional ceiling
+//   minPrice, maxPrice   the price of the side taken (default 5 to 95 cents)
+// One bet per player per game, the market and side with the largest edge, as for every arm.
+export const RULE_SOURCES = ['model', 'claude_wce', 'claude_box', 'claude_rc', 'claude_avg']
+export const BLEND_MIN_FORECASTS = 1000
+
+export function validateRule(r) {
+  const errs = []
+  if (!r || typeof r !== 'object') return ['the arm must be an object']
+  if (!RULE_SOURCES.includes(r.source)) errs.push(`source must be one of ${RULE_SOURCES.join(', ')}`)
+  if (r.blend != null && r.blend !== 'fit') errs.push('blend must be null or "fit"')
+  if (r.side != null && r.side !== 'yes' && r.side !== 'no') errs.push('side must be "yes", "no" or null')
+  if (r.stats != null && (!Array.isArray(r.stats) || !r.stats.length || r.stats.some((x) => !STATS.includes(x)))) errs.push(`stats must be null or a list from ${STATS.join(', ')}`)
+  for (const k of ['minEdge', 'maxEdge']) if (r[k] != null && !(Number(r[k]) >= 0.01 && Number(r[k]) <= 0.5)) errs.push(`${k} must be between 0.01 and 0.5`)
+  for (const k of ['minPrice', 'maxPrice']) if (r[k] != null && !(Number(r[k]) >= 0.02 && Number(r[k]) <= 0.98)) errs.push(`${k} must be between 0.02 and 0.98`)
+  if (r.blend === 'fit' && r.source === 'claude_avg') errs.push('a blend needs a single forecaster as its source')
+  if (r.minEdge != null && r.maxEdge != null && Number(r.maxEdge) <= Number(r.minEdge)) errs.push('maxEdge must be above minEdge')
+  if (r.minPrice != null && r.maxPrice != null && Number(r.maxPrice) <= Number(r.minPrice)) errs.push('maxPrice must be above minPrice')
+  for (const k of ['name', 'hypothesis', 'success']) if (typeof r[k] !== 'string' || r[k].trim().length < (k === 'name' ? 3 : 20)) errs.push(`${k} must be written out`)
+  return errs
+}
+
+// The source's probability for one market (ticker), or null.
+export function sourceProb(source, probs, ticker) {
+  if (source === 'claude_avg') {
+    const a = probs.claude_wce?.get(ticker), b = probs.claude_box?.get(ticker)
+    return a != null && b != null ? (a + b) / 2 : null
+  }
+  return probs[source]?.get(ticker) ?? null
+}
+
+// The bets one rule arm takes on one game.
+//   markets  the live quoted markets ({ ticker, playerKey, stat, bid, ask, noAsk, ... })
+//   probs    { forecaster: Map(ticker -> p) }
+//   weight   the blend weight for a blend arm (null when there isn't one yet)
+export function pickRuleBets(rule, markets, probs, weight = null, base = BET_RULES) {
+  if (rule.blend === 'fit' && !(weight > 0)) return []
+  const rules = {
+    ...base,
+    minEdge: rule.minEdge != null ? Number(rule.minEdge) : base.minEdge,
+    minPrice: rule.minPrice != null ? Number(rule.minPrice) : base.minPrice,
+    maxPrice: rule.maxPrice != null ? Number(rule.maxPrice) : base.maxPrice,
+  }
+  const byPlayer = new Map()
+  for (const m of markets) {
+    if (rule.stats && !rule.stats.includes(m.stat)) continue
+    let p = sourceProb(rule.source, probs, m.ticker)
+    if (p == null) continue
+    if (rule.blend === 'fit') {
+      const mk = mid(m)
+      p = Math.min(0.99, Math.max(0.01, mk + weight * (p - mk)))
+    }
+    const s = rule.side ? sideOnly(m, p, rule.side, rules) : bestSide(m, p, rules)
+    if (!s || s.edge < rules.minEdge) continue
+    if (rule.maxEdge != null && s.edge > Number(rule.maxEdge)) continue
+    const cur = byPlayer.get(m.playerKey)
+    if (!cur || s.edge > cur.edge) byPlayer.set(m.playerKey, { ...s, market: m })
+  }
+  return [...byPlayer.values()]
+}
+
+function sideOnly(m, p, side, rules) {
+  if (p == null || !isQuoted(m) || !withinSpread(m, rules.maxSpread)) return null
+  const price = side === 'yes' ? m.ask : (m.noAsk != null ? m.noAsk : 1 - m.bid)
+  if (price < rules.minPrice || price > rules.maxPrice) return null
+  const win = side === 'yes' ? p : 1 - p
+  const fee = takerFee(price)
+  return { side, price, fee, edge: win - price - fee, p }
+}
+
+// The blend weight for a source from the information sums of games settled before a date,
+// clamped to 0..1. Null until enough forecasts are scored.
+export function blendWeight(fcAgg) {
+  const info = infoOverMarket(fcAgg)
+  if (!info || fcAgg.n < BLEND_MIN_FORECASTS) return null
+  return Math.min(1, Math.max(0, info.weight))
+}
+
+// The bar an arm has to clear to graduate: CLV t past the one-sided 5% point, split across
+// every arm ever tried (a Bonferroni correction). Trying more arms raises it, which is what
+// keeps "we found an edge" from meaning "we tried enough times".
+export const GRADUATE_MIN_BETS = 300
+export function graduationBar(armsTried) {
+  const k = Math.max(1, armsTried)
+  return normalQuantile(1 - 0.05 / k)
+}
+
+// Where an arm stands, from its bet summary (describeBets) and the bar.
+export function armStanding(d, bar, retired = false) {
+  if (retired) return 'retired'
+  if ((d.clvBets || 0) < GRADUATE_MIN_BETS) return 'collecting'
+  if (d.clvT != null && d.clvT >= bar) return 'graduated'
+  return 'no edge yet'
+}
+
+// Inverse of the standard normal CDF (Acklam's approximation, ~1e-9 relative error).
+export function normalQuantile(p) {
+  if (!(p > 0 && p < 1)) return p <= 0 ? -Infinity : Infinity
+  const a = [-3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2, 1.38357751867269e2, -3.066479806614716e1, 2.506628277459239]
+  const b = [-5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2, 6.680131188771972e1, -1.328068155288572e1]
+  const c = [-7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783]
+  const d = [7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996, 3.754408661907416]
+  const lo = 0.02425
+  if (p < lo) { const q = Math.sqrt(-2 * Math.log(p)); return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1) }
+  if (p > 1 - lo) { const q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1) }
+  const q = p - 0.5, r = q * q
+  return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1)
 }

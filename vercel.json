@@ -16,6 +16,11 @@
       "permanent": true
     },
     {
+      "source": "/basketball-coaching-savant",
+      "destination": "/basketball-coaching-savant.html",
+      "permanent": true
+    },
+    {
       "source": "/coaching-savant",
       "destination": "/coaching-savant.html",
       "permanent": true
@@ -68,6 +73,18 @@
       "destination": "/shots/:id.gz"
     },
     {
+      "source": "/savant-ext/s/:season(\\d{4}-\\d{2}\\.json)",
+      "destination": "/savant-ext/s/:season.gz"
+    },
+    {
+      "source": "/savant-ext/panels/:season(\\d{4}-\\d{2}\\.json)",
+      "destination": "/savant-ext/panels/:season.gz"
+    },
+    {
+      "source": "/savant-ext/p/:id(\\d+\\.json)",
+      "destination": "/savant-ext/p/:id.gz"
+    },
+    {
       "source": "/savant-api/basketball/v1/seasons/:season(\\d{4}-\\d{2}\\.json)",
       "destination": "/savant-api/basketball/v1/seasons/:season.gz"
     },
@@ -98,6 +115,22 @@
     {
       "source": "/savant-api/site/v1/articles/:slug([a-z0-9-]+\\.json)",
       "destination": "/savant-api/site/v1/articles/:slug.gz"
+    },
+    {
+      "source": "/bcs/t/:f(.*\\.json)",
+      "destination": "/bcs/t/:f.gz"
+    },
+    {
+      "source": "/bcs/data/:table/:f(.*\\.json)",
+      "destination": "/bcs/data/:table/:f.gz"
+    },
+    {
+      "source": "/bcs/index.json",
+      "destination": "/bcs/index.json.gz"
+    },
+    {
+      "source": "/bcs/c/:f([a-z0-9]+\\.json)",
+      "destination": "/bcs/c/:f.gz"
     },
     {
       "source": "/((?!api/).*)",
@@ -340,6 +373,84 @@
       ]
     },
     {
+      "source": "/savant-ext/s/:season(\\d{4}-\\d{2}\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/s/:season(\\d{4}-\\d{2}\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/panels/:season(\\d{4}-\\d{2}\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/panels/:season(\\d{4}-\\d{2}\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/p/:id(\\d+\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/p/:id(\\d+\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
       "source": "/savant-api/basketball/v1/seasons/:season(\\d{4}-\\d{2}\\.json)",
       "headers": [
         {
@@ -559,11 +670,150 @@
           "value": "*"
         }
       ]
+    },
+    {
+      "source": "/bcs/t/:f(.*\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/data/:table/:f(.*\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/t/:f(.*\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/data/:table/:f(.*\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/index.json",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/index.json.gz",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/c/:f([a-z0-9]+\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/bcs/c/:f([a-z0-9]+\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
     }
   ],
   "functions": {
     "api/mcp.js": {
       "maxDuration": 30
+    },
+    "api/dynasty.js": {
+      "includeFiles": "public/dynasty/players.json"
     }
   },
   "crons": [
@@ -639,5 +889,10 @@
       "path": "/api/analytics/snapshot",
       "schedule": "0 11 * * *"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "tracking-data": false
+    }
+  }
 }

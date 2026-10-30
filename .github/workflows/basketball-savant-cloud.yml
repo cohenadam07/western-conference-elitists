@@ -1,0 +1,111 @@
+# Basketball Savant — the season in progress, refreshed in the cloud after every slate.
+#
+# Replaces the Mac's launchd jobs (com.wcehoops.basketball-savant and -watch). stats.nba.com
+# refuses cloud servers, so this rebuilds the NBA's box-score and play-by-play tables from
+# ESPN's public feed and runs the same engine on them (pipeline/basketball/cloud_refresh.py;
+# how it was checked against the NBA's own numbers: claude/basketball-savant-cloud-refresh.md
+# in the project). The NBA's tracking, Synergy and hustle stats have no cloud source: the Mac
+# uploads those tables when it's awake (publish_tracking.sh, branch tracking-data) and every
+# run here uses its latest upload.
+#
+# Game days: a slate watcher (pipeline/basketball/cloud_run.sh watch) starts at 16:17 UTC
+# (12:17pm EDT / 11:17am EST) and stays up, checking every 5 minutes, until every one of that
+# day's games is final, settled for 20 minutes and published; after 5 hours it hands over to a
+# fresh watcher. Days with no games, it exits at once. GitHub runs frequent schedules only when
+# it has spare capacity (on Oct 26, 2026, 7 of ~98 "every 15 minutes" slots ran, none after
+# 8:52pm ET), so the watcher needs one start a day; three backups cover a dropped or late one.
+# A backup that fires while a watcher is up waits its turn, finds nothing left, and exits.
+#
+# Twice a day it rebuilds regardless, for stat corrections:
+#   9:41 UTC  (5:41am EDT / 4:41am EST)     15:13 UTC (11:13am EDT / 10:13am EST)
+# Odd minutes on purpose: GitHub delays scheduled runs badly at :00 and :30.
+name: Basketball Savant cloud refresh
+
+on:
+  schedule:
+    - cron: '17 16 * * *'     # watcher
+    - cron: '41 22 * * *'     # watcher, backup
+    - cron: '41 1 * * *'      # watcher, backup
+    - cron: '11 3 * * *'      # watcher, backup
+    - cron: '41 9 * * *'      # rebuild regardless
+    - cron: '13 15 * * *'     # rebuild regardless
+  # A change to the pipeline rebuilds the season as soon as it lands (the job's own commits
+  # touch public/, data/ and the id map only, so it cannot set itself off).
+  push:
+    branches: [main]
+    paths:
+      - 'pipeline/basketball/**'
+      - '!pipeline/basketball/seed/espn_ids.json'
+      - '.github/workflows/basketball-savant-cloud.yml'
+  # The Mac starts a run right after it uploads tracking tables (mode once, force false);
+  # a watcher at the end of its 5 hours starts the next one (mode watch).
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'once = one refresh; watch = stay up until today''s games are all published'
+        type: choice
+        options: [once, watch]
+        default: once
+      force:
+        description: 'Rebuild even if no new game is final (mode once)'
+        type: boolean
+        default: true
+
+concurrency:
+  group: basketball-savant-cloud
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write     # a watcher starts its successor
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    env:
+      ESPN_CACHE_ROOT: ${{ github.workspace }}/.espn-cache
+      # The public mirror of NBA tracking (gabriel1200/site_Data, pipeline/basketball/mirror.py)
+      # stands in for the Mac's upload when the Mac is off; the token only lets mirror.py ask
+      # GitHub when the mirror last changed without hitting the anonymous rate limit.
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: pipeline/basketball/requirements-cloud.txt
+
+      # Finished games never change on ESPN's side once settled, so they are cached between
+      # runs; only the day's new finals (and the last three days, for corrections) are fetched.
+      - uses: actions/cache@v4
+        with:
+          path: .espn-cache
+          key: espn-${{ github.run_id }}
+          restore-keys: espn-
+
+      - name: Install
+        run: pip install --quiet -r pipeline/basketball/requirements-cloud.txt
+
+      - name: Refresh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          EV="${{ github.event_name }}"; CRON="${{ github.event.schedule }}"
+          if [ "$EV" = "schedule" ] && { [ "$CRON" = "41 9 * * *" ] || [ "$CRON" = "13 15 * * *" ]; }; then
+            exec bash pipeline/basketball/cloud_run.sh once --force
+          elif [ "$EV" = "schedule" ] || [ "${{ github.event.inputs.mode }}" = "watch" ]; then
+            exec bash pipeline/basketball/cloud_run.sh watch 5
+          elif [ "$EV" = "push" ]; then
+            # rebuild now; if games are still in play, stay up for them
+            exec bash pipeline/basketball/cloud_run.sh watch 5 --force
+          elif [ "${{ github.event.inputs.force }}" = "true" ]; then
+            exec bash pipeline/basketball/cloud_run.sh once --force
+          else
+            exec bash pipeline/basketball/cloud_run.sh once
+          fi

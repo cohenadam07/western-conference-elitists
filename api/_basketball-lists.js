@@ -25,6 +25,7 @@
 import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, norm, ordinal, thousands } from './_core.js'
 import { PEERS, WINDOW_TEXT, cardUrl, display, inSpan, loadMeta, loadSeason, parseSeason, resolvePlayer, startYear } from './_basketball.js'
+import { PANEL_VIEWS, describePanel, extCells, loadExtPanels, loadExtPlayer, loadExtSeason } from './_basketball-ext.js'
 
 const page = makeLoader('', { what: 'Basketball Savant', maxCached: 8, shape: () => true })
 const SOURCE = 'Basketball Savant, Western Conference Elitists (wcehoops.com)'
@@ -69,7 +70,8 @@ export async function leaderboard(args) {
   const m = args.stat ? parseStat(args.stat, meta.metrics) : meta.metrics.find((x) => x.key === 'pts')
   const windowKey = args.window || 'season'
   if (windowKey !== 'season' && !file.latest) throw new SavantError(`Rolling windows (last 10, 25, 75 games) are only kept for the latest season, ${meta.latestSeason}.`)
-  if (startYear(season) < startYear(m.since)) throw new SavantError(`${m.label} was not tracked in ${season}; it starts in ${m.since}.`)
+  const since = m.ext ? (m.first || m.since) : m.since
+  if (startYear(season) < startYear(since)) throw new SavantError(`${m.label} was not tracked in ${season}; it starts in ${since}.`)
   const pos = args.position ? POS[norm(args.position)] : 'All'
   if (!pos) throw new SavantError('position is Guard, Wing, Big or All.')
   const settling = (args.estimate || 'settled') !== 'raw' && windowKey === 'season' && !!file.in_progress
@@ -82,6 +84,21 @@ export async function leaderboard(args) {
     return w && w.m[key] ? w.m[key][0] : null
   }
   const mpgOf = (r) => (r.m.mpg ? r.m.mpg[0] : null)
+  // The October 2026 additions (m.ext) come from savant-ext/s/<season>.json, never "settled"
+  const extra0 = (args.columns || []).map((c) => parseStat(c, meta.metrics))
+  let xcells = null
+  if (m.ext || extra0.some((c) => c.ext)) {
+    const xf = await loadExtSeason(season)
+    if (!xf) throw new SavantError(`The added stats for ${season} could not be loaded right now, or do not reach that season. Try again in a minute, or pick a stat from the card's core.`)
+    if (!(xf.windows || ['season']).includes(windowKey)) throw new SavantError(`${m.label} is a full-season number for ${season}; ask for the full season.`)
+    xcells = extCells(xf, file, windowKey, meta.metrics.filter((x) => x.ext))
+  }
+  const baseVal = valOf
+  const valOfAll = (r, key) => {
+    const mt = meta.metrics.find((x) => x.key === key)
+    if (mt && mt.ext) { const c = xcells && xcells.get(String(r.id)); return c && c[key] ? c[key][0] : null }
+    return baseVal(r, key)
+  }
   // lbEligible()
   const qualOnly = args.qualified_only !== false
   const cohort = file.players.filter((r) => {
@@ -97,7 +114,7 @@ export async function leaderboard(args) {
     if (args.min_mpg > 0) { const mp = mpgOf(r); if (miss(mp) || mp < args.min_mpg) return false }
     return true
   })
-  const rows = cohort.map((r) => ({ r, v: valOf(r, m.key) })).filter((x) => !miss(x.v))
+  const rows = cohort.map((r) => ({ r, v: valOfAll(r, m.key) })).filter((x) => !miss(x.v))
   rows.sort((a, b) => (m.lowerIsBetter ? a.v - b.v : b.v - a.v))
   const top = rows.slice(0, args.top || 25)
   // lbPct(): against the filtered cohort (the page's default) or every qualified player
@@ -105,20 +122,20 @@ export async function leaderboard(args) {
   const src = basis === 'league' ? file.players.filter((r) => r.qualified) : cohort
   const pools = new Map()
   const poolOf = (key) => {
-    if (!pools.has(key)) pools.set(key, Float64Array.from(src.map((r) => valOf(r, key)).filter((v) => !miss(v))).sort())
+    if (!pools.has(key)) pools.set(key, Float64Array.from(src.map((r) => valOfAll(r, key)).filter((v) => !miss(v))).sort())
     return pools.get(key)
   }
-  const extra = (args.columns || []).map((c) => parseStat(c, meta.metrics)).filter((x) => x.key !== m.key).slice(0, 5)
+  const extra = extra0.filter((x) => x.key !== m.key).slice(0, 5)
   const players = top.map((x, i) => {
     const r = x.r
-    const est = settling && r.settle && r.settle[m.key]
+    const est = !m.ext && settling && r.settle && r.settle[m.key]
     const out = {
       rank: i + 1, id: String(r.id), name: r.name, team: r.team, position: r.pos,
       value: x.v, display: display(m.unit, x.v, null), percentile: percentile(x.v, poolOf(m.key), m.lowerIsBetter),
       still_settling: est ? { actual: r.m[m.key][0], display: display(m.unit, r.m[m.key][0], null) } : null,
       url: cardUrl(r.id),
     }
-    if (extra.length) out.columns = extra.map((c) => { const v = valOf(r, c.key); return { key: c.key, label: c.label, value: miss(v) ? null : v, display: display(c.unit, v, null), percentile: miss(v) ? null : percentile(v, poolOf(c.key), c.lowerIsBetter) } })
+    if (extra.length) out.columns = extra.map((c) => { const v = valOfAll(r, c.key); return { key: c.key, label: c.label, value: miss(v) ? null : v, display: display(c.unit, v, null), percentile: miss(v) ? null : percentile(v, poolOf(c.key), c.lowerIsBetter) } })
     return out
   })
   const notes = [
@@ -128,7 +145,7 @@ export async function leaderboard(args) {
   if (m.lowerIsBetter) notes.push('Lower is better for this stat, so the board runs low to high.')
   const what = m.explain && (typeof m.explain === 'string' ? m.explain : m.explain.what)
   const structured = {
-    season, window: windowKey, position: pos, stat: { key: m.key, label: m.label, lower_is_better: m.lowerIsBetter, what: what || null },
+    season, window: windowKey, position: pos, stat: { key: m.key, label: m.label, lower_is_better: m.lowerIsBetter, what: what || null, settles_around: m.settle ? { sample: m.settle.last, unit: m.settle.unit, hatched_under: m.settle.mean, measured: m.settle.how } : null },
     basis, total: rows.length, players, notes, url: `${SITE}/basketball-savant.html#lb`, data_as_of: day(file.through || file.generated || meta.generated), source: SOURCE,
   }
   if (!players.length) return { structured, text: `No players to rank by ${m.label} with these filters in ${season}.` }
@@ -139,6 +156,7 @@ export async function leaderboard(args) {
   }
   L.push('', ...notes)
   if (what) L.push(`${m.label}: ${what}`)
+  if (m.settle) L.push(`It settles around ${m.settle.last.toLocaleString('en-US')} ${m.settle.unit} (hatched under ${m.settle.mean.toLocaleString('en-US')}; measured ${m.settle.how}).`)
   L.push('', `Page: ${structured.url}`, `Source: ${SOURCE}. Data as of ${structured.data_as_of}.`)
   return { structured, text: L.join('\n') }
 }
@@ -292,8 +310,28 @@ export async function playerCareer({ player, stats }) {
   }
   // any stats asked for, season by season, with his career high over seasons that count
   const asked = (stats || []).slice(0, 6).map((x) => parseStat(x, meta.metrics))
+  // The additions (m.ext): finished seasons from his own file (savant-ext/p/<id>.json, both
+  // percentiles ranked at build time), the season in progress from that season's file.
+  let xp = null
+  const xlive = {}
+  if (asked.some((m) => m.ext)) {
+    xp = await loadExtPlayer(who.id)
+    const live = rows.find(({ file }) => file.in_progress)
+    if (live) {
+      const xf = await loadExtSeason(live.s)
+      const cells = xf ? extCells(xf, live.file, 'season', meta.metrics.filter((m) => m.ext)) : null
+      if (cells && cells.get(String(who.id))) xlive[live.s] = cells.get(String(who.id))
+    }
+  }
+  const extCell = (m, s) => {
+    if (xlive[s]) return xlive[s][m.key] || null
+    if (!xp || !xp.seasons || !xp.seasons[s]) return null
+    const i = xp.keys.indexOf(m.key)
+    return i >= 0 ? xp.seasons[s][i] : null
+  }
   const series = asked.map((m) => {
-    const by = rows.filter(({ s }) => startYear(s) >= startYear(m.since)).map(({ s, r }) => (r.m[m.key] ? { season: s, value: r.m[m.key][0], display: display(m.unit, r.m[m.key][0], r.m[m.key][1]), league_percentile: r.m[m.key][1], position_percentile: r.m[m.key][2], counts: eligible(r) } : null)).filter(Boolean)
+    const cellOf = (s, r) => (m.ext ? extCell(m, s) : r.m[m.key])
+    const by = rows.filter(({ s }) => startYear(s) >= startYear(m.since)).map(({ s, r }) => { const c = cellOf(s, r); return c ? { season: s, value: c[0], display: display(m.unit, c[0], c[1]), league_percentile: c[1], position_percentile: c[2], counts: eligible(r) } : null }).filter(Boolean)
     let high = null
     for (const x of by) if (x.counts && (high == null || (m.lowerIsBetter ? x.value < high.value : x.value > high.value))) high = x
     return { key: m.key, label: m.label, lower_is_better: m.lowerIsBetter, seasons: by, career_high: high ? { season: high.season, value: high.value, display: high.display } : null }
@@ -321,6 +359,11 @@ export async function playerCareer({ player, stats }) {
 // ---- play types, with/without, by month, shots ---------------------------------------------
 const PT_NAME = { Isolation: 'Isolation', Transition: 'Transition', PRBallHandler: 'Pick-and-roll ball handler', PRRollman: 'Pick-and-roll roll man', Postup: 'Post-up', Spotup: 'Spot-up', Handoff: 'Handoff', Cut: 'Cut', OffScreen: 'Off screen', OffRebound: 'Putbacks', Misc: 'Misc' }
 
+// Basketball Coaching Savant's team-season files (pipeline/basketball/coaching/build.py): the
+// Rotation Map row for one player, for the card's rotation strip and the "rotation" view.
+const bcsFiles = makeLoader('bcs', { what: 'Basketball Coaching Savant', shape: (b) => b && typeof b === 'object' && Array.isArray(b.coaches) })
+const ROT_ALIAS = { NJN: 'BKN', BRK: 'BKN', SEA: 'OKC', VAN: 'MEM', CHH: 'CHA', CHO: 'CHA', NOH: 'NOP', NOK: 'NOP', NO: 'NOP', PHO: 'PHX', GS: 'GSW', NY: 'NYK', SA: 'SAS', UTAH: 'UTA', WSH: 'WAS', WSB: 'WAS' }
+
 export async function playerSplits({ player, season, view = 'play_types' }) {
   const meta = await loadMeta()
   const wanted = parseSeason(season, meta)
@@ -330,12 +373,53 @@ export async function playerSplits({ player, season, view = 'play_types' }) {
   const r = file.players.find((p) => String(p.id) === String(who.id))
   if (!r) throw new SavantError(`${who.name} has no ${s} season in Basketball Savant (${who.from} to ${who.to}).`)
   const base = { player: { id: String(who.id), name: who.name, team: r.team, position: r.pos }, season: s, view, url: cardUrl(who.id), source: SOURCE }
+  // The breakdown panels (the October 2026 additions): savant-ext/panels/<season>.json
+  if (PANEL_VIEWS[view]) {
+    const [key, title] = PANEL_VIEWS[view]
+    const pf = await loadExtPanels(s)
+    const d = pf && pf.players && (pf.players[who.id] || pf.players[String(who.id)])
+    const pd = d && d[key]
+    if (!pd || (Array.isArray(pd) ? !pd.some(Boolean) : !Object.keys(pd).length)) {
+      throw new SavantError(`No ${title.toLowerCase()} for ${who.name} in ${s}.${pf ? ` ${EXT_REACH[key] || ''}` : ' The breakdowns could not be loaded right now; try again in a minute.'}`.trim())
+    }
+    const { data, lines } = describePanel(key, pd)
+    const what = ((meta.panels || {})[key] || {}).what
+    const text = [`${who.name}, ${s}: ${title}`, ...lines, ...(what ? ['', what] : []), '', `Card: ${base.url}`, `Source: ${SOURCE}.`]
+    return { structured: { ...base, breakdown: { title, data } }, text: text.join('\n') }
+  }
   if (view === 'play_types') {
-    if (!r.pt) throw new SavantError(`No play-type numbers for ${who.name} in ${s}. Synergy play types are kept for recent seasons, for players with enough possessions.`)
-    const types = Object.entries(r.pt).map(([k, v]) => ({ type: PT_NAME[k] || k, share: v[0], points_per_possession: v[1], percentile: v[2], possessions: v[3] })).sort((a, b) => b.share - a.share)
-    const text = [`${who.name}, ${s} play types (Synergy):`, ...types.map((t) => `- ${t.type}: ${t.share.toFixed(1)}% of his possessions (${thousands(t.possessions)}), ${t.points_per_possession.toFixed(3)} points per possession (${ordinal(t.percentile)} percentile)`),
-      '', 'The percentile ranks his points per possession on that play type against other players with enough of it. Synergy credits the finisher of a possession, not the man who set it up.', '', `Card: ${base.url}`, `Source: ${SOURCE}.`]
-    return { structured: { ...base, play_types: types }, text: text.join('\n') }
+    // The cutoffs travel with the data: seasons/<season>.json carries play_types for the
+    // season in progress (~/Basketball-Savant/extras_engine.playtype_meta). A finished season
+    // has none — its percentile is the NBA's and is always there.
+    const ptm = file.play_types || null
+    const floor = (ptm && ptm.nba_min_poss) || 10
+    if (!r.pt) {
+      throw new SavantError(`No play-type numbers for ${who.name} in ${s}. The NBA publishes a player's play type only once he has ${floor} possessions of it, so nothing he has run less than that appears${ptm ? ' — and the season is only a few games old' : ''}. Synergy play types start in 2015-16.`)
+    }
+    // how each play type ends (the card's More columns), from savant-ext/panels when it is there
+    const pf = await loadExtPanels(s)
+    const ptx = (pf && pf.players && ((pf.players[who.id] || pf.players[String(who.id)] || {}).ptx)) || {}
+    const types = Object.entries(r.pt).map(([k, v]) => {
+      const small = ptm != null && v[3] < ptm.sample_flag
+      const t = { type: PT_NAME[k] || k, share: v[0], points_per_possession: v[1], percentile: v[2] ?? null, possessions: v[3] }
+      const x = ptx[k]
+      if (x) t.endings = { efg_pct: x[5], scored_pct: x[4], turnover_pct: x[0], free_throw_pct: x[1], shooting_foul_pct: x[2], and_one_pct: x[3] }
+      if (ptm) t.small_sample = small
+      if (t.percentile == null && ptm) {
+        t.percentile_note = small
+          ? `No percentile: ${v[3]} possessions, under the ${ptm.sample_flag} a percentile needs.`
+          : `No percentile: only ${(ptm.pools && ptm.pools[k]) || 0} players have ${ptm.sample_flag}+ possessions of this play type, under the ${ptm.pool_min} a ranking needs.`
+      }
+      return t
+    }).sort((a, b) => b.share - a.share)
+    const pctTxt = (t) => (t.percentile == null ? (t.small_sample ? 'small sample, no percentile' : 'no percentile') : `${ordinal(t.percentile)} percentile`)
+    const notes = ptm
+      ? [`The season is in progress. The percentile ranks his points per possession on that play type against the players with ${ptm.sample_flag}+ possessions of it, league-wide, and is null under that — a play type marked small_sample is a real number on too little sample, not a ranking. The NBA publishes a player's play type only once he has ${floor} possessions of it, so a type he has run less than that is missing rather than zero. Synergy credits the finisher of a possession, not the man who set it up.`]
+      : ['The percentile ranks his points per possession on that play type against other players with enough of it. Synergy credits the finisher of a possession, not the man who set it up.']
+    const ends = (t) => (t.endings ? `; eFG ${t.endings.efg_pct.toFixed(1)}%, scored on ${t.endings.scored_pct.toFixed(1)}%, turnover on ${t.endings.turnover_pct.toFixed(1)}%, free throws on ${t.endings.free_throw_pct.toFixed(1)}%` : '')
+    const text = [`${who.name}, ${s} play types (Synergy):`, ...types.map((t) => `- ${t.type}: ${t.share.toFixed(1)}% of his possessions (${thousands(t.possessions)}), ${t.points_per_possession.toFixed(3)} points per possession (${pctTxt(t)})${ends(t)}`),
+      '', ...notes, '', `Card: ${base.url}`, `Source: ${SOURCE}.`]
+    return { structured: { ...base, ...(ptm ? { cutoffs: ptm } : {}), play_types: types }, text: text.join('\n') }
   }
   if (view === 'with_without') {
     if (!r.ww || !r.ww.length) throw new SavantError(`No with/without split for ${who.name} in ${s}: it needs teammates who missed enough games.`)
@@ -344,6 +428,19 @@ export async function playerSplits({ player, season, view = 'play_types' }) {
     const text = [`${who.name}, ${s}: with and without teammates`, ...ww.map((x) => `- With ${x.teammate} (${x.games_with} games): ${line(x.with)}. Without (${x.games_without} games): ${line(x.without)}.`),
       '', 'Per-game lines in the games each teammate played and missed. Games apart are few and the schedule differs, so read them as hints, not effects.', '', `Card: ${base.url}`, `Source: ${SOURCE}.`]
     return { structured: { ...base, with_without: ww }, text: text.join('\n') }
+  }
+  if (view === 'rotation') {
+    if (s < '2002-03') throw new SavantError(`The rotation data begins in 2002-03; ${who.name}'s ${s} is before it.`)
+    const key = `${ROT_ALIAS[r.team] || r.team}-${s}`
+    let file
+    try { file = await bcsFiles.load(`t/${key}.json`) } catch (e) { throw new SavantError(`No Rotation Map for ${r.team} in ${s} yet.`) }
+    // the coach he played the most games for that season
+    let t = null, row = null
+    for (const e of file.coaches || []) { const x = e.rotation.rows.find((y) => String(y.id) === String(who.id)); if (x && (!row || x.gp > row.gp)) { row = x; t = e } }
+    if (!row) throw new SavantError(`${who.name} is not on a ${r.team} Rotation Map for ${s}: under 100 minutes with the team, or his minutes came with another team that season.`)
+    const rotation = { coach: t.coach_name, coach_id: t.coach, team: file.team, games_played: row.gp, starts: row.starts, minutes: row.min, mpg: row.mpg, usual_windows: row.text, windows_minutes: row.windows, on_share_by_minute: row.played, on_script_pct: row.off != null ? +(100 * (1 - row.off)).toFixed(1) : null, off_by_choice_pct: row.off_choice != null ? +(100 * row.off_choice).toFixed(1) : null, page: `${SITE}/basketball-coaching-savant.html#c=${encodeURIComponent(t.coach)}&season=${s}` }
+    const text = [`${who.name}, ${s}, under ${t.coach_name} (${t.team}): ${row.text}.`, `${row.mpg} minutes a game over ${row.gp} games (${row.starts} starts).${rotation.on_script_pct != null ? ` ${rotation.on_script_pct}% of his scripted minutes went to the coach's script${rotation.off_by_choice_pct != null ? `, ${rotation.off_by_choice_pct}% off it by choice (no absence, blowout or foul trouble to explain it)` : ''}.` : ''}`, `Share of the games he played that he was on the floor, by minute (Q1 to Q4, measured on minutes still in the balance): ${row.played.map((v, i) => (i % 12 === 0 ? `| Q${i / 12 + 1}: ` : '') + v).join(' ')}`, 'His usual windows are the minutes where that share is 60% or better. The model\'s view, not a verdict: it cannot see fatigue, minor injuries, match-ups or development plans.', '', `Rotation Map: ${rotation.page}`, `Card: ${base.url}`, `Source: ${SOURCE}; Basketball Coaching Savant.`]
+    return { structured: { ...base, rotation }, text: text.join('\n') }
   }
   if (view === 'months') {
     const idx = await page.load('months/index.json').catch(() => ({}))
@@ -366,6 +463,22 @@ export async function playerSplits({ player, season, view = 'play_types' }) {
   return { structured: { ...base, shots: { attempts: +sd.n } }, text: text.join('\n') }
 }
 
+// what a missing breakdown means, by panel
+const EXT_REACH = {
+  sm: 'Shot types come from every attempt\'s play-by-play tag, 1996-97 on.',
+  ss: 'Shot splits are NBA tracking, 2013-14 on.',
+  tp: 'Touches are NBA tracking, 2013-14 on.',
+  pn: 'Passing networks are NBA tracking, 2013-14 on, for players with 300+ minutes; teammates under 50 passes are left out.',
+  dpt: 'Defensive play types are Synergy, 2015-16 on.',
+  cl: 'Clutch needs minutes in the last five minutes of a game within five points.',
+  sp: 'Splits come from his game logs.',
+  off4: 'On/off four factors need minutes both on and off the floor.',
+  tm: 'The turnover mix comes from ESPN play-by-play, 2002-03 on.',
+  hs: 'Handle Score is the NBA\'s, 2025-26 on.',
+  dk: 'Dunk Score is the NBA\'s, 2024-25 on.',
+  pe: 'The position estimate is Basketball Reference\'s, 1996-97 on.',
+}
+
 // ---- the tools ---------------------------------------------------------------------------------
 const row = z.record(z.string(), z.any())
 export const tools = [
@@ -374,7 +487,7 @@ export const tools = [
     config: {
       title: 'NBA leaderboard',
       description:
-        'Basketball Savant\'s Leaderboard Builder (wcehoops.com): the top NBA players by any stat on the card, for a season from 1979-80 or the latest season\'s last 10, 25 or 75 games. Filters: position, team, age, years in the league, minutes per game, qualified only. While a season is young it ranks where numbers are likely to settle. The percentile is against the filtered group (the page\'s default) or the whole league.',
+        'Basketball Savant\'s Leaderboard Builder (wcehoops.com): the top NBA players by any of its ~200 stats, for a season from 1979-80 or the latest season\'s last 10, 25 or 75 games. Filters: position, team, age, years in the league, minutes per game, qualified only. While a season is young it ranks where numbers are likely to settle. The percentile is against the filtered group (the page\'s default) or the whole league.',
       inputSchema: {
         stat: z.string().trim().max(80).optional().describe('Stat key or label, e.g. "ts" or "True shooting %". Omit for points.'),
         season: z.string().trim().max(12).optional().describe('e.g. "2025-26". Omit for the page\'s default season.'),
@@ -434,15 +547,15 @@ export const tools = [
     config: {
       title: 'NBA player play types and splits',
       description:
-        'Below an NBA player\'s season card on Basketball Savant (wcehoops.com). view "play_types": his Synergy play types, share of possessions, points per possession and its percentile. "with_without": his line with and without each teammate who missed games. "months": the season month by month. "shots": whether his shot chart exists and how many attempts it holds (the chart itself is a picture on the card).',
+        'Below an NBA player\'s season card on Basketball Savant (wcehoops.com). "play_types": Synergy play types (share, points per possession, percentile, how each ends; thin samples are marked). "with_without": his line with and without teammates. "months": month by month. "shots": whether his shot chart exists. "rotation": his row of his coach\'s Rotation Map (Basketball Coaching Savant): when he usually plays and how often his minutes go off script. Breakdowns: shot_menu, shot_splits (dribbles, touch time, shot clock, defender), touches, passing, defensive_play_types, clutch, game_splits (home/away, wins, rest), on_off_four_factors, turnover_mix, handle_score, dunk_score, position_estimate.',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nba_search_players or a full name.'),
-        view: z.enum(['play_types', 'with_without', 'months', 'shots']).default('play_types').describe('Which view.'),
+        view: z.enum(['play_types', 'with_without', 'months', 'shots', 'rotation', ...Object.keys(PANEL_VIEWS)]).default('play_types').describe('Which view: play_types, with_without, months, shots, rotation (his row of the coach\'s Rotation Map: usual windows, on-floor share by minute, on-script rate; 2002-03 on), or a breakdown: shot_menu, shot_splits, touches, passing, defensive_play_types, clutch, game_splits, on_off_four_factors, turnover_mix, handle_score, dunk_score, position_estimate.'),
         season: z.string().trim().max(12).optional().describe('e.g. "2025-26". Omit for his latest.'),
       },
       outputSchema: {
         player: row, season: z.string(), view: z.string(), url: z.string(), source: z.string(),
-        play_types: z.array(row).optional(), with_without: z.array(row).optional(), months: z.array(row).optional(), shots: row.optional(),
+        play_types: z.array(row).optional(), with_without: z.array(row).optional(), months: z.array(row).optional(), shots: row.optional(), rotation: row.optional(), breakdown: row.optional(), cutoffs: row.optional(),
       },
       annotations: { title: 'NBA player play types and splits', ...READ_ONLY },
     },

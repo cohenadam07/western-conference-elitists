@@ -215,6 +215,7 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 .acco.hurt{background:rgba(224,122,95,.10);border-color:rgba(224,122,95,.40);color:#C9765C}
 .acco.hurt.quest{background:rgba(224,122,95,.16);border-color:rgba(224,122,95,.6)}
 .acco.hurt.out{background:#C9765C;border-color:#C9765C;color:#2A1410;font-weight:700}
+.acco.bye{background:rgba(160,170,190,.12);border-color:rgba(160,170,190,.45);color:var(--muted)}
 .measur{display:flex;flex-wrap:wrap;margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
 .measur .m{padding-right:28px;padding-bottom:4px}
 .measur .ml{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
@@ -926,6 +927,7 @@ body{background-color:#1D6B3A;color:var(--ink);
 .acco.lead{background:var(--flag);color:#2A2208;border-color:var(--turf-dk)}
 .acco.hurt{background:#FBE4DC;color:#8A3B22;border-color:var(--turf-dk)}
 .acco.hurt.out{background:#C9765C;color:#2A1410;border-color:var(--turf-dk)}
+.acco.bye{background:#EEF0F3;color:#3A4250;border-color:var(--turf-dk)}
 .tr-rec{font-size:14px} .tr-po{color:var(--turf)} .teamrec.champ .tr-po{color:#8A6B14}
 .careerbtn{font-family:var(--pix);font-size:9px;border:2px solid var(--turf-dk);border-radius:0;
   background:#FFF;color:var(--ink);box-shadow:2px 2px 0 rgba(14,42,23,.35)}
@@ -2676,6 +2678,28 @@ function ordSuffix(n){ var t=n%100; if(t>=11&&t<=13) return n+'th';
    the only honest place to draw the line between "leads" and "led". Nothing on this page
    should say a man led the league in a thing while the league is still playing for it. */
 function liveWeek(s){ var b=DATA.data&&DATA.data[s]; return (b&&b.week)||0; }
+/* Live injury status (football-injuries/current.json). Loaded after the page is up and
+   never in the way of it: no file, no badges. It speaks only for the season in progress,
+   and only on that season's card. */
+var INJ=null;
+function injLive(){ return !!(INJ&&String(INJ.season)===String(curSeason)&&!isCareer(curSeason)&&liveWeek(curSeason)); }
+function liveInj(p){ return injLive()&&p&&INJ.players?INJ.players[p.id]||null:null; }
+function onBye(p){ return injLive()&&p&&INJ.week&&(INJ.bye_teams||[]).indexOf(p.team)>=0; }
+var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function shortDay(t){ var d=new Date(t); return isNaN(d)?'':MON[d.getMonth()]+' '+d.getDate(); }
+function longDay(t){ var d=new Date(String(t).length===10?t+'T12:00:00':t); return isNaN(d)?String(t):MON[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear(); }
+function agoText(t){
+  var m=Math.round((Date.now()-new Date(t))/60000);
+  if(!isFinite(m)) return '';
+  if(m<60) return m<=1?'just now':m+' minutes ago';
+  var h=Math.round(m/60); return h<48?h+(h===1?' hour':' hours')+' ago':shortDay(t);
+}
+function loadInjuries(){
+  fetch('football-injuries/current.json?v='+Math.floor(Date.now()/600000))   // ten-minute cache
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(j){ if(j&&j.players){ INJ=j; if(cur&&!document.body.classList.contains('home-open')) render(); } })
+    .catch(function(){});
+}
 var ROLE_WORD={QB:'Quarterback',RB:'Running back',FB:'Fullback',WR:'Wide receiver',TE:'Tight end',
   LT:'Left tackle',LG:'Left guard',C:'Center',RG:'Right guard',RT:'Right tackle',
   LDE:'Left end',RDE:'Right end',NT:'Nose tackle',LDT:'Left defensive tackle',RDT:'Right defensive tackle',DT:'Defensive tackle',DE:'Defensive end',
@@ -2726,18 +2750,35 @@ function draftBadges(p){
      said about who plays the slot. */
   var rl=roleLabel(p);
   if(rl) out.push('<span class="acco role" title="'+esc(rl[1])+'">'+esc(rl[0])+'</span>');
-  if(p.st) out.push('<span class="acco off" title="'+esc('Roster status in the latest week on file: '+p.st)+'">'+esc(p.st)+'</span>');
-  /* The injury report, and only while the season is being played. A game-day designation
-     is the real answer; most weeks there isn't one, and a man who missed practice with a
-     named injury is reported as exactly that rather than dressed up as a designation.
-     Players simply being rested are not here at all. */
-  if(p.inj){
+  if(p.st&&!(liveInj(p)&&/reserve|injur|pup|suspend/i.test(p.st))) out.push('<span class="acco off" title="'+esc('Roster status in the latest week on file: '+p.st)+'">'+esc(p.st)+'</span>');
+  /* Injury status, only while the season is being played. The live feed
+     (football-injuries/current.json, refreshed through the day from ESPN and Sleeper) is the
+     answer when it has the player; the NFL's own weekly report from nflverse is the fallback,
+     and it alone carries practice participation. A team on bye files no report at all,
+     which is why the live feed is needed: a man hurt on Monday before a bye would otherwise
+     show nothing for ten days. */
+  var li=liveInj(p);
+  if(li){
+    var lsev=li.out||li.status==='Doubtful'?' out':(li.status==='Questionable'?' quest':'');
+    var where=[/^(Left|Right)$/.test(li.side||'')?li.side:'',li.body].filter(Boolean).join(' ');
+    var when=li.updated_at?shortDay(li.updated_at):'';
+    var tip=li.status+(where?' \u2014 '+where:'')+'.'
+      +(li.note?' '+li.note:'')
+      +(li.return_est?' Estimated return: '+longDay(li.return_est)+'.':'')
+      +(li.updated_at?' Updated '+when+' ('+(li.source||'feed')+').':'')
+      +(INJ&&INJ.generated_at?' Checked '+agoText(INJ.generated_at)+'.':'');
+    out.push('<span class="acco hurt'+lsev+'" title="'+esc(tip)+'">'
+      +esc(li.status)
+      +(where?' \u00b7 '+esc(where):'')+(when?' \u00b7 '+esc(when):'')+'</span>');
+  } else if(p.inj){
     var sev=/^(Out|Doubtful)$/.test(p.inj.st)?' out':(p.inj.st==='Questionable'?' quest':'');
     out.push('<span class="acco hurt'+sev+'" title="'
       +esc("This week's injury report (week "+p.inj.wk+'): '+p.inj.st
            +(p.inj.inj?' \u2014 '+p.inj.inj:''))+'">'
       +esc(p.inj.st)+(p.inj.inj?' \u00b7 '+esc(p.inj.inj):'')+'</span>');
   }
+  /* A bye is its own tag, so a quiet week never reads as an injury, or an injury as a bye. */
+  if(onBye(p)) out.push('<span class="acco bye" title="'+esc(teamName(p.team)+' are on bye in week '+INJ.week)+'">Bye \u00b7 week '+INJ.week+'</span>');
   var arc=careerArc(p.id);
   if(arc.peak&&arc.peak.season===curSeason&&arc.pts.length>2&&!liveWeek(curSeason))
     out.push('<span class="acco major" title="His best qualified season on this page\'s profile score">Career year</span>');
@@ -6083,6 +6124,7 @@ function init(){
       if(!onBoard) document.body.classList.add('home-open');
     }
     setPlayIcon();
+    loadInjuries();
     lbParseHash();
     if(location.hash.indexOf('#lb')===0) showLB();
   }).catch(function(err){

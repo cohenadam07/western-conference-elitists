@@ -12,6 +12,7 @@
     "publish-rich-article": "node scripts/publish-rich-article.mjs",
     "newsletter-draft": "node scripts/newsletter-draft.mjs",
     "check:forms": "node --test tools/forms/check.mjs",
+    "check:dynasty-swipe": "node --test tools/dynasty-swipe/check.mjs",
     "check:savant-api": "node --test tools/savant-api/check.mjs && node --test tools/savant-api/more.mjs",
     "check:savant-mcp": "node --test tools/savant-mcp/check.mjs",
     "check:connector-coverage": "node --test tools/savant-mcp/coverage.mjs",
@@ -21,13 +22,14 @@
     "check:savant-draft": "node --test tools/savant-draft/check.mjs",
     "check:savant-site": "node --test tools/savant-site/check.mjs",
     "check:savant-value": "node --test tools/savant-value/check.mjs",
-    "check:savant": "node --test tools/savant-api/check.mjs && node --test tools/savant-api/more.mjs && node --test tools/savant-mcp/check.mjs && node --test tools/savant-mcp/coverage.mjs && node --test tools/savant-football/check.mjs && node --test tools/savant-football/more.mjs && node --test tools/savant-ufc/check.mjs && node --test tools/savant-coaching/check.mjs && node --test tools/savant-draft/check.mjs && node --test tools/savant-site/check.mjs && node --test tools/savant-value/check.mjs",
+    "check:savant": "node --test tools/savant-api/check.mjs && node --test tools/savant-api/more.mjs && node --test tools/savant-mcp/check.mjs && node --test tools/savant-mcp/coverage.mjs && node --test tools/savant-football/check.mjs && node --test tools/savant-football/more.mjs && node --test tools/savant-ufc/check.mjs && node --test tools/savant-coaching/check.mjs && node --test tools/savant-bcoaching/check.mjs && node --test tools/savant-draft/check.mjs && node --test tools/savant-site/check.mjs && node --test tools/savant-value/check.mjs",
     "check:players": "node --test tools/players/check.mjs",
     "check:seo": "node --test tools/seo/check.mjs",
     "check:whats-new": "node --test tools/whats-new/check.mjs",
     "check:edge": "node --test tools/edge/check.mjs",
     "savant-snapshot": "node scripts/savant-snapshot.mjs",
-    "movers-draft": "node scripts/movers-draft.mjs"
+    "movers-draft": "node scripts/movers-draft.mjs",
+    "check:savant-bcoaching": "node --test tools/savant-bcoaching/check.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.31.0",
@@ -46,6 +48,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
     "autoprefixer": "^10.5.2",
+    "fengari": "^0.1.4",
     "mammoth": "^1.12.0",
     "oxlint": "^1.69.0",
     "postcss": "^8.5.15",

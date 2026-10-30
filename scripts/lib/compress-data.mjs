@@ -39,6 +39,7 @@ import { gzipSync } from 'node:zlib'
 
 // Only files big enough to be worth it, and only ones fetched as whole documents.
 export const COMPRESSED = [
+  'bcs/index.json',
   'savant-data.json',
   'football-savant-data.json',
   'ufc-savant-data.json',
@@ -50,7 +51,14 @@ export const COMPRESSED = [
 const SEASON_DIR = /^\d{4}$/
 const PACK_FILE = /^(pack|form)-\d+\.json$/
 // football-splits/<season>.json, football-pace/wNN.json and shots/<player id>.json, likewise.
-const FLAT = [['football-splits', /^\d{4}\.json$/], ['football-pace', /^w\d{2}\.json$/], ['shots', /^\d+\.json$/]]
+// savant-ext/{s,panels}/<season>.json and savant-ext/p/<player id>.json: Basketball Savant's
+// October 2026 additions (pipeline/basketball/ext_files.py), fetched whole when a reader opens a
+// season or a player.
+// bcs/c/<coach>.json: Basketball Coaching Savant's coach pages (pipeline/basketball/coaching/build.py);
+// its team-season and Data Room files are committed already gzipped and served by the same rewrites.
+const FLAT = [['football-splits', /^\d{4}\.json$/], ['football-pace', /^w\d{2}\.json$/], ['shots', /^\d+\.json$/],
+  ['savant-ext/s', /^\d{4}-\d{2}\.json$/], ['savant-ext/panels', /^\d{4}-\d{2}\.json$/], ['savant-ext/p', /^\d+\.json$/],
+  ['bcs/c', /^[a-z0-9]+\.json$/]]
 
 export function weeklyPacks(dist) {
   const root = path.join(dist, 'football-weekly')

@@ -45,6 +45,12 @@
         "nba_player_splits"
       ]
     },
+    "page:basketball-savant.html#renderXPanels": {
+      "tools": [
+        "nba_player_splits"
+      ],
+      "note": "The Breakdowns panel: one nba_player_splits view per tab (shot_menu, shot_splits, touches, passing, defensive_play_types, clutch, game_splits, on_off_four_factors, turnover_mix, handle_score, dunk_score, position_estimate)."
+    },
     "page:basketball-savant.html#renderWW": {
       "tools": [
         "nba_player_splits"
@@ -336,6 +342,15 @@
         "nba_get_player_profile"
       ]
     },
+    "data:savant-ext": {
+      "tools": [
+        "nba_get_player_profile",
+        "nba_leaderboard",
+        "nba_player_career",
+        "nba_player_splits"
+      ],
+      "note": "The October 2026 additions: values (profile, leaderboard), each player's career file (career) and the breakdown panels (splits)."
+    },
     "data:savant-value.json": {
       "tools": [
         "nba_all_savant_team",
@@ -567,6 +582,173 @@
     },
     "api:analytics/": {
       "excluded": "Private: Adam's site analytics, behind a password."
+    },
+    "data:football-injuries": {
+      "tools": [
+        "nfl_get_player_profile"
+      ],
+      "note": "This week's injury status, on the profile (injury) for the season in progress."
+    },
+    "page:basketball-coaching-savant.html": {
+      "tools": [
+        "nba_search_coaches",
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#openCoach": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#openTree": {
+      "tools": [
+        "nba_coaching_tree"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderArrival": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderCoach": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderComps": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderDevelopment": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderDiet": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderHome": {
+      "tools": [
+        "nba_coaching_leaders",
+        "nba_coaching_tree"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderLeaders": {
+      "tools": [
+        "nba_coaching_leaders"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderMVI": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderManagement": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_data"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderPairs": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_data"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderPlayTypes": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderQuadrant": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_data"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderRotation": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_data"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderScouting": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderSeasons": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderSplits": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_data"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderStaff": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_tree"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderTrends": {
+      "tools": [
+        "nba_coaching_dictionary"
+      ],
+      "note": "The league trends are the season means of the stats in the dictionary; nba_coaching_data gives the rows behind them."
+    },
+    "page:basketball-coaching-savant.html#renderIdentity": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderCareerChart": {
+      "tools": [
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderTree": {
+      "tools": [
+        "nba_coaching_tree"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderChips": {
+      "tools": [
+        "nba_search_coaches"
+      ]
+    },
+    "page:basketball-coaching-savant.html#renderControls": {
+      "excluded": "The season picker, the pool label and the colour legend on a card: every tool takes a season and names its pool."
+    },
+    "page:basketball-coaching-savant.html#renderArcButton": {
+      "excluded": "The career-arc dropdown that picks a season on the card: nba_get_coach_profile takes a season."
+    },
+    "page:basketball-coaching-savant.html#renderArcRail": {
+      "excluded": "The list inside the career-arc dropdown: nba_get_coach_profile takes a season."
+    },
+    "page:basketball-coaching-savant.html#showTip": {
+      "excluded": "The hover box: it shows the explainer and the percentile already in every tool's answer and in nba_coaching_dictionary."
+    },
+    "data:bcs": {
+      "tools": [
+        "nba_get_coach_profile",
+        "nba_coaching_leaders",
+        "nba_coaching_tree",
+        "nba_coaching_data",
+        "nba_coaching_dictionary"
+      ]
+    },
+    "page:basketball-savant.html#renderRotStrip": {
+      "tools": [
+        "nba_player_splits"
+      ],
+      "note": "The rotation strip: nba_player_splits with view \"rotation\"."
     }
   },
   "switches": {

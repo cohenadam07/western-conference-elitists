@@ -3,7 +3,7 @@ import PageHeader from '../components/PageHeader.jsx'
 import usePageMeta from '../lib/usePageMeta.js'
 
 // Update this date whenever the substance below changes.
-const UPDATED = 'October 22, 2026'
+const UPDATED = 'October 30, 2026'
 
 function Section({ id, title, children }) {
   return (
@@ -112,6 +112,20 @@ export default function Privacy() {
               <li>
                 Dynasty and Hoops races also keep data on our server, tied to a random ID your browser makes up
                 rather than to you. It's how your rankings, lobby votes and race results get counted.
+              </li>
+              <li>
+                Dynasty's swipe mode keeps a history against that same random ID: each matchup you were shown, who
+                you picked, how long you took, how often you hit undo, and the ranking and records your picks add up
+                to. It's kept so your past takes can be shown back to you and used to improve the board, and it isn't
+                linked to your name or email.
+              </li>
+              <li>
+                Swipe runs and rankings get a link you can share. Anyone with the link can see that run's picks. The
+                link never includes your browser's ID. Shared runs are kept for about a year.
+              </li>
+              <li>
+                To stop one person from moving the Dynasty board too far, swipe mode also counts how much each IP
+                address has swiped that day. Those counts are deleted after two days.
               </li>
               <li>
                 Names you enter for a leaderboard, lobby or race are stored on our server and shown to other players.

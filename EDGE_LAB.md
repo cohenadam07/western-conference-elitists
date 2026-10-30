@@ -101,6 +101,48 @@ moment than another.
 are never scored on a different set of nights. A game the scheduled task doesn't answer before
 tip is decided 15 minutes out with the WCE model alone and stays out of the head-to-head table.
 
+## Experiments (since Oct 23, 2026)
+
+The three arms above stay the head-to-head scoreboard. Everything tried since is an
+**experiment**, scored only on games after it started, each with its own $1,000 portfolio.
+
+- **Rule arms** are betting rules over forecasts the lab already makes, so they cost nothing:
+  a source (`model`, `claude_wce`, `claude_box`, `claude_rc`, or `claude_avg`, the two original
+  Claude arms averaged), optionally a **blend** with the market (bet on mid + w × (source − mid),
+  with w the source's information weight fitted only on games settled before that night, 0 to 1,
+  and no bets until 1,000 forecasts are scored), a side, a list of stats, an edge floor and
+  ceiling, and a price range. They bet at the same moment and quotes as the arms they read from.
+- **The report-card arm (`claude_rc`)** is a fourth Claude forecaster: Claude + WCE, shown its
+  own track record before each game (calibration, its lean against the market, its record by
+  stat; Claude + WCE's record until it has 1,000 scored forecasts of its own). Its control is
+  Claude + WCE on the same games. It adds one answer per game to the scheduled task;
+  `EDGE_RC=off` switches it off. A game waits only for the Claude arms it was prepared for.
+- **The bar.** An arm graduates when its CLV t clears the one-sided 5% point divided across
+  every arm ever tried (Bonferroni), over at least 300 bets with a close: 2.13 with 3 arms
+  tried, 2.54 with 9, 2.81 with 20. Each new arm raises it for all of them, so "we found an
+  edge" can't just mean "we tried enough times". A graduated arm still has to hold its edge on
+  its next fresh bets before anything goes near real money.
+- **Kalshi's own lean** is shown beside them: how far the YES price sat above how often YES
+  hit, over every scored market. It tests the retail-overs idea without any forecaster.
+- **The researcher.** A second scheduled task ("Edge Lab: weekly researcher", Mondays) reads
+  `job=edge-review` and may add or retire rule arms with `job=edge-arm`, with its own passcode
+  (header `x-edge-research`; only its SHA-256 is in the code, `EDGE_RESEARCH_TOKEN_SHA256`
+  replaces it). The site enforces at most 2 new arms a week and 12 live, no duplicate rules,
+  and no retirement before 21 days and 200 bets with a close. It never adds a Claude arm (those
+  cost plan usage); it writes those up as proposals. Its log is `claude/edge-lab-research.md`
+  in the project; its instructions are `tools/edge/research-prompt.md` (passcode left out).
+- **The morning email.** A third scheduled task ("Edge Lab: morning email", 7:47 am ET Sunday
+  to Friday; Sunday's covers Friday and Saturday nights) reads `job=edge-review&nights=N`
+  with its own read-only passcode (header `x-edge-digest`, hash only in code,
+  `EDGE_DIGEST_TOKEN_SHA256` replaces it) and writes Adam a summary: portfolios, the scoreboard
+  with what it means, experiments, last night game by game with Claude's notes, anything that
+  went wrong, and a read. Its final message is emailed to him. With `nights`, the review adds
+  each night's games in full, the portfolios and the run log. Instructions:
+  `tools/edge/digest-prompt.md` (passcode left out).
+- The registry is `wce:edge:arms`. The five rule arms registered when experiments began (r1 to
+  r5: two blends, the two Claudes averaged, big disagreements only, NO side only) are written
+  in `SEED_RULES` in `_edge.js` with their reasons.
+
 ## How it runs
 
 Everything runs inside `api/analytics/snapshot.js`, so the lab costs **no serverless function

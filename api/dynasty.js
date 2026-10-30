@@ -33,8 +33,10 @@
 //   dyn:lob:<code>       HASH  a lobby: group, host, status, createdAt, result
 //   dyn:lob:<code>:m     HASH  uid -> display name (members)
 //   dyn:lob:<code>:s     HASH  uid -> submitted order
+//   dyn:sw:*, dyn:u:*    swipe mode's decks, budgets and per-browser history (see _dynasty-swipe.js)
 
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity'
+import { swipeAction } from './_dynasty-swipe.js'
 
 const URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
@@ -456,6 +458,17 @@ export default async function handler(req, res) {
 
   try {
     const action = String((req.query && req.query.action) || 'board')
+
+    // ---- swipe mode (api/_dynasty-swipe.js) -------------------------------
+    if (action.startsWith('swipe-')) {
+      await swipeAction(action, req, res, {
+        redis, pipe, orderedIds, ensureSeeded, eloUpdates, rateLimited, ipOf,
+        seedPlayers: async () => poolCache || [],
+        // A preview shares production's store: it prices a batch but never trades it.
+        production: process.env.VERCEL_ENV ? process.env.VERCEL_ENV === 'production' : true,
+      })
+      return
+    }
 
     // ---- lobbies ----------------------------------------------------------
     // dyn:lob:<code>    HASH  group, host, status, createdAt, result (JSON, once settled)

@@ -47,7 +47,11 @@ export function mergeSavantData(archive, current) {
     data,
     qualify,
     generated: newer ? current.generated : archive.generated,
-    current: { season: taken[0], generated: current.generated || null, through: current.through || null },
+    // `playtypes` is the play-type cutoffs for the season in progress
+    // (~/Basketball-Savant/extras_engine.playtype_meta): the possessions a percentile needs,
+    // the pool it is ranked against, the NBA's own floor, and the pool sizes. The page and
+    // the connector read them from here rather than carrying their own copies.
+    current: { season: taken[0], generated: current.generated || null, through: current.through || null, playtypes: current.playtypes || null },
   }
 }
 

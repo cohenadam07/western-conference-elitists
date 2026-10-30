@@ -148,6 +148,9 @@ function load() {
     const AWARDS = ${grabAwards()};
     function astHonour() { return null; }
     function headSrc() { return ''; } function headRetry() { return false; } function selectPlayer() {} function asId(x) { return x; } function pickHome() {}
+    // The boards here rank the card's stats; a board on an addition waits for its season file
+    // (savant-ext/), and those numbers are held to the page in tools/savant-mcp/check.mjs.
+    function extKnown() { return true; } function extLoad() { return Promise.resolve(); }
     ${fns.map((f) => grab(html, f)).join('\n    ')}
     prepData();
     buildIndex();
@@ -159,7 +162,23 @@ function load() {
       team: function (s, t) { curSeason = s; openTeam(t); return document.getElementById('teamPanel').innerHTML; },
     };
   })`
-  page = vm.runInContext(code, sandbox)(clone(readSavantData(PUBLIC)), JSON.parse(grabCfg()))
+  page = vm.runInContext(code, sandbox)(withExt(clone(readSavantData(PUBLIC))), JSON.parse(grabCfg()))
+}
+
+// The October 2026 additions, laid into the rows the way the page's extLoad() does when a
+// reader opens a season: every savant-ext/s/<season>.json in public/, every window it carries.
+function withExt(data) {
+  for (const season of data.seasons) {
+    const f = path.join(PUBLIC, 'savant-ext', 's', `${season}.json`)
+    if (!existsSync(f)) continue
+    const x = JSON.parse(readFileSync(f, 'utf8'))
+    for (const p of data.data[season].players) {
+      const w = x.players[p.id]
+      if (!w) continue
+      for (const [win, r] of Object.entries(w)) r.forEach((c, i) => { if (c) (p.m[x.keys[i]] ||= {})[win] = { v: c[0], n: c[1] } })
+    }
+  }
+  return data
 }
 
 // lbRender(): one <tr> a player: rank, name (data-id), the ranked stat, the columns
@@ -178,6 +197,8 @@ test('every basketball leaderboard is the page\'s: the same players, the same or
   for (const season of [latest, meta.seasons[1], '2015-16', '2002-03', '1988-89']) {
     for (const m of meta.metrics) {
       if (+season.slice(0, 4) < +String(m.since).slice(0, 4)) continue
+      // an addition is ranked from its season's savant-ext file: only where one is built
+      if (m.ext && !existsSync(path.join(PUBLIC, 'savant-ext', 's', `${season}.json`))) continue
       for (const pos of ['All', 'Guard', 'Big']) {
         if (pos !== 'All' && cases.length % 3) continue
         cases.push({ season, rankKey: m.key, pos, window: 'season', est: 'settled' })

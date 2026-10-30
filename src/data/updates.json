@@ -1,12 +1,109 @@
 [
-  {"date": "2026-10-21", "product": "Flappy Hoops", "version": "2.1.0", "text": "Miami and Dallas, the 17th and 18th cities", "to": "/hoops"},
-  {"date": "2026-10-20", "product": "Basketball Savant", "version": "2.2.0", "text": "Savant value and the All-Savant Team", "href": "/basketball-savant.html"},
-  {"date": "2026-10-20", "product": "Basketball Savant", "text": "the 2026-27 season is live", "href": "/basketball-savant.html"},
-  {"date": "2026-10-15", "product": "Flappy Hoops", "text": "The Drop, ten legendary trails and eight more legendary balls", "to": "/hoops"},
-  {"date": "2026-10-14", "product": "Flappy Hoops races", "text": "finish first and watch a friend still playing", "to": "/hoops"},
-  {"date": "2026-10-14", "product": "Basketball Savant", "version": "2.1.0", "text": "Fantasy, Teams and Lineups tabs", "href": "/basketball-savant.html"},
-  {"date": "2026-10-14", "product": "Basketball Savant Fantasy", "text": "9-cat punt builds and your Sleeper matchup, category by category", "href": "/basketball-savant.html"},
-  {"date": "2026-10-09", "product": "Football Savant", "version": "2.1.0", "text": "the All-Savant Team, picked on Savant value", "href": "/football-savant.html"},
-  {"date": "2026-10-09", "product": "Football Savant", "version": "2.0.0", "text": "splits, recent form and route trees", "href": "/football-savant.html"},
-  {"date": "2026-10-02", "product": "Flappy Hoops", "text": "Boston, the 16th city, and online races", "to": "/hoops"}
+  {
+    "date": "2026-10-29",
+    "product": "Flappy Hoops",
+    "version": "2.2.0",
+    "text": "Washington and Utah, the 19th and 20th cities",
+    "to": "/hoops"
+  },
+  {
+    "date": "2026-10-27",
+    "product": "Basketball Coaching Savant",
+    "version": "1.0.0",
+    "text": "every NBA head coach, with the Rotation Map, lineups from their parts and a Data Room",
+    "href": "/basketball-coaching-savant.html"
+  },
+  {
+    "date": "2026-10-27",
+    "product": "Basketball Savant",
+    "version": "2.5.0",
+    "text": "a rotation strip on every card: when he usually plays, and his off-script rate",
+    "href": "/basketball-savant.html"
+  },
+  {
+    "date": "2026-10-27",
+    "product": "Basketball Savant",
+    "version": "2.4.0",
+    "text": "143 more stats and a Breakdowns panel on every card",
+    "href": "/basketball-savant.html"
+  },
+  {
+    "date": "2026-10-24",
+    "product": "Basketball Savant",
+    "version": "2.3.0",
+    "text": "updates itself after every slate, around the clock",
+    "href": "/basketball-savant.html"
+  },
+  {
+    "date": "2026-10-22",
+    "product": "Football Savant",
+    "version": "2.2.0",
+    "text": "live injury status and bye weeks on every card, updated through the day",
+    "href": "/football-savant.html"
+  },
+  {
+    "date": "2026-10-21",
+    "product": "Flappy Hoops",
+    "version": "2.1.0",
+    "text": "Miami and Dallas, the 17th and 18th cities",
+    "to": "/hoops"
+  },
+  {
+    "date": "2026-10-20",
+    "product": "Basketball Savant",
+    "version": "2.2.0",
+    "text": "Savant value and the All-Savant Team",
+    "href": "/basketball-savant.html"
+  },
+  {
+    "date": "2026-10-20",
+    "product": "Basketball Savant",
+    "text": "the 2026-27 season is live",
+    "href": "/basketball-savant.html"
+  },
+  {
+    "date": "2026-10-15",
+    "product": "Flappy Hoops",
+    "text": "The Drop, ten legendary trails and eight more legendary balls",
+    "to": "/hoops"
+  },
+  {
+    "date": "2026-10-14",
+    "product": "Flappy Hoops races",
+    "text": "finish first and watch a friend still playing",
+    "to": "/hoops"
+  },
+  {
+    "date": "2026-10-14",
+    "product": "Basketball Savant",
+    "version": "2.1.0",
+    "text": "Fantasy, Teams and Lineups tabs",
+    "href": "/basketball-savant.html"
+  },
+  {
+    "date": "2026-10-14",
+    "product": "Basketball Savant Fantasy",
+    "text": "9-cat punt builds and your Sleeper matchup, category by category",
+    "href": "/basketball-savant.html"
+  },
+  {
+    "date": "2026-10-09",
+    "product": "Football Savant",
+    "version": "2.1.0",
+    "text": "the All-Savant Team, picked on Savant value",
+    "href": "/football-savant.html"
+  },
+  {
+    "date": "2026-10-09",
+    "product": "Football Savant",
+    "version": "2.0.0",
+    "text": "splits, recent form and route trees",
+    "href": "/football-savant.html"
+  },
+  {
+    "date": "2026-10-02",
+    "product": "Flappy Hoops",
+    "text": "Boston, the 16th city, and online races",
+    "to": "/hoops"
+  }
 ]

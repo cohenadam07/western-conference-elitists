@@ -240,6 +240,35 @@ export default function Gateway() {
               </div>
             </a>
 
+            {/* Basketball Coaching Savant — the Rotation Map is the thing worth showing on the card */}
+            <a className="card c-coach span2" href="/basketball-coaching-savant.html">
+              <Skeleton />
+              <div className="viz">
+                <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <rect width="600" height="150" fill="#22395A" />
+                  {[0, 1, 2, 3, 4, 5].map((row) => (
+                    <g key={row}>
+                      {Array.from({ length: 48 }, (_, m) => {
+                        const q = Math.floor(m / 12), inQ = m % 12
+                        const on = row < 2 ? (inQ < 7 || (q % 2 === 1 && inQ > 4)) : row < 4 ? (inQ >= 5 || (q === 3 && inQ > 8)) : (q % 2 === 0 ? inQ >= 7 : inQ < 4)
+                        const a = on ? 0.9 : 0.12 + 0.08 * ((m * 7 + row * 3) % 5)
+                        return <rect key={m} x={24 + m * 11.5} y={14 + row * 21} width="10.5" height="19" fill="#C2A263" opacity={a} />
+                      })}
+                    </g>
+                  ))}
+                  {[1, 2, 3].map((q) => <line key={q} x1={24 + q * 12 * 11.5} y1="10" x2={24 + q * 12 * 11.5} y2="142" stroke="rgba(255,255,255,.35)" />)}
+                  <rect x="24" y="14" width={7 * 11.5} height="19" fill="none" stroke="#fff" strokeWidth="1.5" />
+                  <rect x={24 + 17 * 11.5} y="35" width={7 * 11.5} height="19" fill="none" stroke="#fff" strokeWidth="1.5" />
+                </svg>
+              </div>
+              <div className="meta">
+                <span className="ck">Tool · NBA coaching</span>
+                <h3>Basketball Coaching Savant</h3>
+                <p>Every NBA head coach: when each player plays and how often the coach goes off-script, lineups judged from their parts, timeouts that stop runs, and wins against two expectations.</p>
+                <span className="go">Open ↗</span>
+              </div>
+            </a>
+
             {/* Coaching Savant — the tree is the thing worth showing on the card */}
             <a className="card c-coach span2" href="/coaching-savant.html">
               <Skeleton />
@@ -411,7 +440,7 @@ export default function Gateway() {
               <div className="meta">
                 <span className="ck">Play · Arcade</span>
                 <h3>Flappy Hoops</h3>
-                <p>Flap the ball through the rim in as few taps as you can. Eighteen NBA cities, nine holes in each, and online races with up to eight friends.</p>
+                <p>Flap the ball through the rim in as few taps as you can. Twenty NBA cities, nine holes in each, and online races with up to eight friends.</p>
                 <span className="go">Play ↗</span>
               </div>
             </a>

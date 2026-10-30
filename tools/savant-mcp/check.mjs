@@ -81,7 +81,7 @@ const cdn = http.createServer((req, res) => {
   // The Fantasy / Teams / Lineups files, and the pages' own game logs, splits, maps, route
   // trees, pace tables, postseason games, months and shots, are served straight from public/,
   // as Vercel serves them.
-  if (/^\/(savant-proj\.json|savant-teams(-current)?\.json|lineups\/[0-9-]+\.json|(football-(weekly|splits|maps|routes|pace|games)|months|shots)\/[\w/.-]+\.json)$/.test(url)) {
+  if (/^\/(savant-proj\.json|savant-teams(-current)?\.json|lineups\/[0-9-]+\.json|(football-(weekly|splits|maps|routes|pace|games)|months|shots|savant-ext)\/[\w/.-]+\.json)$/.test(url)) {
     const f = path.join(ROOT, 'public', url)
     return existsSync(f) ? json200(res, readFileSync(f)) : html200(res)
   }
@@ -142,7 +142,9 @@ test('a profile says what the Savant API files say, for every player in every se
   let cells = 0
   for (const season of files.meta.seasons) {
     const file = files.seasons[season]
-    const tracked = files.meta.metrics.filter((m) => +season.slice(0, 4) >= +m.since.slice(0, 4))
+    // the card's stats here; the October 2026 additions (m.ext, from savant-ext/) have their own test below
+    const tracked = files.meta.metrics.filter((m) => !m.ext && +season.slice(0, 4) >= +m.since.slice(0, 4))
+    const untracked = files.meta.metrics.filter((m) => +season.slice(0, 4) < +m.since.slice(0, 4))
     for (const row of file.players) {
       const { structured: s, text } = await savant.playerProfile({ player: String(row.id), season })
       profiles++
@@ -152,8 +154,8 @@ test('a profile says what the Savant API files say, for every player in every se
       assert.equal(s.season, season)
       assert.deepEqual(s.pools, { league: file.qualified.league, position: file.qualified[row.pos], position_label: { Guard: 'guards', Wing: 'wings', Big: 'bigs' }[row.pos] })
       // Every stat in the file is in the profile, and nothing else is.
-      assert.deepEqual(s.stats.map((x) => x.key), tracked.map((m) => m.key).filter((k) => row.m[k]), `${season} ${row.name}: stat list`)
-      for (const x of s.stats) {
+      assert.deepEqual(s.stats.filter((x) => !x.added).map((x) => x.key), tracked.map((m) => m.key).filter((k) => row.m[k]), `${season} ${row.name}: stat list`)
+      for (const x of s.stats.filter((y) => !y.added)) {
         const cell = row.m[x.key]
         const where = `${season} ${row.name} ${x.key}`
         assert.equal(x.value, cell[0], `${where}: value`)
@@ -162,7 +164,7 @@ test('a profile says what the Savant API files say, for every player in every se
         assert.equal(x.low_sample, (row.low || []).includes(x.key), `${where}: low sample`)
         cells++
       }
-      assert.deepEqual(s.not_tracked.map((m) => m.key), files.meta.metrics.filter((m) => !tracked.includes(m)).map((m) => m.key))
+      assert.deepEqual(s.not_tracked.map((m) => m.key), untracked.map((m) => m.key))
       assert.ok(text.includes(`vs. ${s.pools.position_label}`), `${season} ${row.name}: the text names the position pool`)
       assert.ok(text.includes(s.url), `${season} ${row.name}: the text links the card`)
       if (!row.qualified) assert.ok(/did not qualify/.test(text), `${season} ${row.name}: unqualified players carry the caution`)
@@ -179,17 +181,80 @@ test('rolling windows read the window, not the season', async () => {
     for (const w of Object.keys(row.w)) {
       const { structured: s, text } = await savant.playerProfile({ player: String(row.id), window: w })
       assert.equal(s.window, w)
-      for (const x of s.stats) {
+      for (const x of s.stats.filter((y) => !y.added)) {
         assert.deepEqual([x.value, x.league_percentile, x.position_percentile], row.w[w].m[x.key], `${row.name} ${w} ${x.key}`)
         assert.equal(x.low_sample, (row.w[w].low || []).includes(x.key))
         checked++
       }
-      assert.equal(s.stats.length, Object.keys(row.w[w].m).length)
+      assert.equal(s.stats.filter((y) => !y.added).length, Object.keys(row.w[w].m).length)
       assert.ok(text.includes({ l10: 'last 10 games', l25: 'last 25 games', l75: 'last 75 games' }[w]))
       assert.equal(s.comps, undefined, 'comps are a season fact and stay out of window views')
     }
   }
   assert.ok(checked > 5000)
+})
+
+test('the additions are what the page shows: every value and both percentiles, from the same savant-ext files', async (t) => {
+  // The page merges savant-ext/s/<season>.json into its rows and ranks with poolVals() and
+  // pctOf(); the connector ranks the same file itself (api/_basketball-ext.js). Lift the page's
+  // own functions, give them the merged rows, and hold every added stat in every profile to them.
+  const dir = path.join(ROOT, 'public/savant-ext/s')
+  const have = existsSync(dir) ? files.meta.seasons.filter((s) => existsSync(path.join(dir, `${s}.json`))) : []
+  if (!have.length) return t.skip('no savant-ext season files in public/ yet')
+  const grab = (name) => {
+    const at = html.search(new RegExp(`\\bfunction\\s+${name}\\s*\\(`))
+    let depth = 0
+    for (let i = html.indexOf('{', at); i < html.length; i++) {
+      if (html[i] === '{') depth++
+      else if (html[i] === '}' && --depth === 0) return html.slice(at, i + 1)
+    }
+    assert.fail(`could not read ${name}() out of the page`)
+  }
+  const line = (start) => { const at = html.indexOf(`\n${start}`); return html.slice(at + 1, html.indexOf('\n', at + 1)) }
+  const ext = files.meta.metrics.filter((m) => m.ext)
+  let checked = 0
+  for (const season of [...new Set([have[0], have[have.length - 1], have[Math.floor(have.length / 2)]])]) {
+    const xf = JSON.parse(readFileSync(path.join(dir, `${season}.json`), 'utf8'))
+    const rows = structuredClone(data.data[season].players)
+    const fix = (p) => { const f = files.seasons[season].players.find((r) => r.id === p.id); return f ? f.pos : p.pos }
+    for (const p of rows) {
+      p.pos = fix(p)
+      const w = xf.players[p.id]
+      if (!w) continue
+      for (const [win, r] of Object.entries(w)) r.forEach((c, i) => { if (c) (p.m[xf.keys[i]] ||= {})[win] = { v: c[0], n: c[1] } })
+    }
+    const page = vm.runInNewContext(`(function (DATA, curSeason) {
+      let cur = null, pop = 'league', mpgOn = false, band = { min: 20, max: 40 };
+      ${line('const val=')}
+      ${grab('miss')} ${grab('poolVals')} ${grab('pctRaw')} ${grab('pctOf')} ${grab('inFt')} ${grab('word')} ${grab('fmt')}
+      return { val: val, pctOf: pctOf, fmt: fmt, pool: function (key, w, pos, mode) { pop = mode; return poolVals(key, w, { pos: pos }, curSeason); } };
+    })`)({ data: { [season]: { players: rows } } }, season)
+    const pools = new Map()
+    const poolOf = (key, w, pos) => { const k = `${key}|${w}|${pos}`; if (!pools.has(k)) pools.set(k, page.pool(key, w, pos, pos ? 'position' : 'league')); return pools.get(k) }
+    for (const w of xf.windows) {
+      if (w !== 'season' && season !== latest) continue
+      for (const p of rows.filter((r) => xf.players[r.id]).slice(0, 120)) {
+        const { structured: s } = await savant.playerProfile({ player: String(p.id), season, window: w })
+        const got = new Map(s.stats.filter((x) => x.added).map((x) => [x.key, x]))
+        for (const m of ext) {
+          if (+season.slice(0, 4) < +m.since.slice(0, 4)) continue
+          const v = page.val(p, m.key, w)
+          const where = `${season} ${w} ${p.name} ${m.key}`
+          if (v == null) { assert.ok(!got.has(m.key), `${where}: the page has no value, the profile does`); continue }
+          const x = got.get(m.key)
+          assert.ok(x, `${where}: the page has a value, the profile does not`)
+          assert.equal(x.value, v, `${where}: value`)
+          assert.equal(x.league_percentile, page.pctOf(v, poolOf(m.key, w, null), m.lowerIsBetter), `${where}: league percentile`)
+          assert.equal(x.position_percentile, page.pctOf(v, poolOf(m.key, w, p.pos), m.lowerIsBetter), `${where}: position percentile`)
+          const theirs = page.fmt(m.unit, v, x.league_percentile)
+          assert.equal(x.display, m.unit === 'sgn' ? theirs.replace(/%$/, '') : theirs, `${where}: display`)
+          checked++
+        }
+      }
+    }
+  }
+  console.log(`      ${checked.toLocaleString('en-US')} added stats checked against the page`)
+  assert.ok(checked > 1000, 'suspiciously few added stats')
 })
 
 test('values print the way the page prints them, apart from the documented exceptions', () => {
@@ -205,7 +270,7 @@ test('values print the way the page prints them, apart from the documented excep
     assert.fail(`could not read ${name}() out of the page`)
   }
   const page = vm.runInNewContext(`(function () { ${grab('miss')} ${grab('inFt')} ${grab('word')} ${grab('fmt')} return fmt })()`)
-  const units = new Map(files.meta.metrics.map((m) => [m.key, m.unit]))
+  const units = new Map(files.meta.metrics.filter((m) => !m.ext).map((m) => [m.key, m.unit]))
   const seen = new Set()
   let compared = 0
   for (const season of [...new Set([latest, fullSeason, '2015-16', '1999-00', '1985-86'])]) {
@@ -224,7 +289,13 @@ test('values print the way the page prints them, apart from the documented excep
       }
     }
   }
-  for (const unit of new Set(units.values())) assert.ok(seen.has(unit), `no value seen for unit ${unit}`)
+  // A unit is only exercised if some player has a value in it. Tier-4 stats that are built
+  // per refresh (Defender difficulty, Shot-making) have none in the first weeks of a season,
+  // so while the newest season is in progress an unseen unit is reported, not failed.
+  const live = !!files.seasons[latest].in_progress
+  const unseen = [...new Set(units.values())].filter((u) => !seen.has(u))
+  if (live && unseen.length) console.log(`      (season in progress: no value yet for unit ${unseen.join(', ')})`)
+  else for (const unit of new Set(units.values())) assert.ok(seen.has(unit), `no value seen for unit ${unit}`)
   assert.ok(compared > 50000)
 })
 
@@ -252,10 +323,11 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   const { tools } = await client.listTools()
   // The whole list, by name. Adding or dropping a tool should be a decision, not a side effect.
   assert.deepEqual(tools.map((t) => t.name).sort(), [
-    'nba_all_savant_team', 'nba_draft_get_prospect_profile', 'nba_draft_search_prospects', 'nba_fantasy_league',
+    'nba_all_savant_team', 'nba_coaching_data', 'nba_coaching_dictionary', 'nba_coaching_leaders', 'nba_coaching_tree',
+    'nba_draft_get_prospect_profile', 'nba_draft_search_prospects', 'nba_fantasy_league',
     'nba_fantasy_lock_in', 'nba_fantasy_player', 'nba_fantasy_rankings', 'nba_fantasy_streamers', 'nba_fantasy_trade',
-    'nba_get_player_profile', 'nba_injury_report', 'nba_leaderboard', 'nba_lineups', 'nba_player_career', 'nba_player_splits',
-    'nba_schedule', 'nba_search_players', 'nba_team_profile', 'nba_team_rankings',
+    'nba_get_coach_profile', 'nba_get_player_profile', 'nba_injury_report', 'nba_leaderboard', 'nba_lineups', 'nba_player_career', 'nba_player_splits',
+    'nba_schedule', 'nba_search_coaches', 'nba_search_players', 'nba_team_profile', 'nba_team_rankings',
     'nfl_all_savant_team', 'nfl_coaching_leaders', 'nfl_coaching_tree', 'nfl_game', 'nfl_get_coach_profile', 'nfl_get_player_profile', 'nfl_leaderboard', 'nfl_player_career',
     'nfl_player_games', 'nfl_player_splits', 'nfl_search_coaches', 'nfl_search_players', 'nfl_team_profile',
     'ufc_get_fighter_profile', 'ufc_get_upcoming_cards', 'ufc_leaderboard', 'ufc_matchup', 'ufc_search_fighters',
@@ -265,8 +337,9 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   // shapes. Kept in check, because every conversation with the connector on pays for it.
   const upfront = tools.reduce((n, t) => n + JSON.stringify({ name: t.name, description: t.description, inputSchema: t.inputSchema }).length, 0)
   // 30,000 for the first 16 tools; 33,000 since the nine Fantasy / Teams / Lineups tools; 60,000
-  // since the connector was made to reach everything on the site (Oct 2026, about 15,000 tokens).
-  assert.ok(upfront < 60000, `tool names, descriptions and inputs came to ${upfront} characters`)
+  // since the connector was made to reach everything on the site (Oct 2026, about 15,000 tokens);
+  // 63,000 since the six Basketball Coaching Savant tools (Oct 27, 2026).
+  assert.ok(upfront < 63000, `tool names, descriptions and inputs came to ${upfront} characters`)
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)
@@ -314,6 +387,33 @@ test('search and profile work through a real client, and results fit their decla
   assert.ok(bad.isError)
   const worse = await call('nba_get_player_profile', { player: 'Nikola Jokic', window: 'l5' })
   assert.ok(worse.isError)
+})
+
+test('settle points: a low-sample stat says how much sample it needs, the same numbers the page carries', async () => {
+  // tools/savant-settle: each measured stat carries CFG settle {last, mean, unit, how}, and its
+  // hatching threshold (thr, lowSampleBelow) is the measured mean.
+  const cfg = JSON.parse(html.slice(html.indexOf('const CFG  = ') + 13, html.indexOf('\n};', html.indexOf('const CFG  = ')) + 2))
+  const settled = cfg.metrics.filter((m) => m.settle)
+  assert.ok(settled.length >= 150, `only ${settled.length} stats carry a settle point`)
+  for (const m of settled) assert.equal(m.thr, m.settle.mean, `${m.key}: thr is not the measured settle point`)
+  const meta = files.meta.metrics.filter((m) => m.settle)
+  assert.equal(meta.length, settled.length)
+  // someone in the season in progress is under a settle point; his profile names it
+  const p = await call('nba_get_player_profile', { player: String(files.seasons[latest].players.find((x) => x.qualified && (x.low || []).includes('ts')).id) })
+  assert.ok(!p.isError, textOf(p))
+  const ts = p.structuredContent.stats.find((x) => x.key === 'ts')
+  assert.ok(ts.low_sample)
+  const want = cfg.metrics.find((m) => m.key === 'ts').settle
+  assert.deepEqual(ts.settles_around, { sample: want.last, unit: want.unit, hatched_under: want.mean, measured: want.how })
+  assert.match(textOf(p), /True shooting %: .*\[low sample: settles around [\d,]+ shooting attempts/)
+  // and a stat that has settled carries no settles_around
+  assert.ok(p.structuredContent.stats.filter((x) => !x.low_sample).every((x) => !x.settles_around))
+  // the leaderboard says it for its stat
+  const lb = await call('nba_leaderboard', { stat: 'cs_3pa', season: fullSeason, top: 3 })
+  assert.ok(!lb.isError, textOf(lb))
+  const cs = cfg.metrics.find((m) => m.key === 'cs_3pa').settle
+  assert.equal(lb.structuredContent.stat.settles_around.sample, cs.last)
+  assert.match(textOf(lb), /It settles around [\d,]+ possessions \(hatched under [\d,]+; measured season to season\)/)
 })
 
 test('names are matched the way people type them', async () => {
@@ -980,7 +1080,7 @@ test('files are fetched once and reused; when the data is down the answer is hon
   await savant.playerProfile({ player: '203999' })
   await savant.playerProfile({ player: '203999', group: 'offense' })
   await savant.searchPlayers({ query: 'jokic' })
-  assert.equal(hits - before, 3, 'meta, players and one season: three fetches for three calls')
+  assert.equal(hits - before, 4, 'meta, players, one season and its additions: four fetches for three calls')
 
   const origin = process.env.SAVANT_API_ORIGIN
   try {

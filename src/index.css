@@ -1150,3 +1150,126 @@ body {
   .hh-medals { gap: 9px; }
   .hh-mn { font-size: 12px; }
 }
+
+/* ============================================================================
+   Dynasty Exchange — Swipe. One card at a time, built for a thumb.
+   The card is a Basketball Savant summary in miniature, so its percentile bars
+   keep Savant's own blue-to-red ramp (colours come from the component); only
+   the market feedback around the card speaks green/red.
+   ========================================================================== */
+.sw-stage {
+  position: relative; touch-action: pan-y; user-select: none; -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.sw-card {
+  background: var(--dyn-panel); border: 1px solid var(--dyn-line);
+  border-radius: 14px; overflow: hidden; position: relative;
+  box-shadow: 0 18px 40px -18px rgba(0,0,0,.7);
+  will-change: transform;
+}
+.sw-card.sw-fly { transition: transform .26s cubic-bezier(.2,.7,.3,1), opacity .26s; }
+.sw-card.sw-back { transition: transform .22s cubic-bezier(.2,.9,.3,1.2); }
+.sw-under { position: absolute; inset: 0; transform: scale(.955) translateY(10px); opacity: .55; pointer-events: none; }
+
+/* the KEEP / TAKE stamps that fade in as you drag */
+.sw-stamp {
+  position: absolute; top: 18px; z-index: 3; pointer-events: none;
+  font-family: var(--font-mono); font-size: 15px; font-weight: 600; letter-spacing: .22em;
+  padding: 6px 10px; border: 2px solid currentColor; border-radius: 6px; opacity: 0;
+}
+.sw-stamp-take { right: 16px; color: var(--dyn-up); transform: rotate(8deg); }
+.sw-stamp-keep { left: 16px; color: var(--dyn-gold); transform: rotate(-8deg); }
+
+.sw-head { display: flex; gap: 12px; align-items: flex-end; padding: 10px 14px 6px; background:
+  radial-gradient(120% 90% at 0% 0%, rgba(194,162,99,.14), transparent 60%); }
+.sw-shot { width: 96px; height: 70px; object-fit: contain; flex: none; }
+.sw-name { font-family: var(--font-display); font-size: 24px; line-height: 1.02; letter-spacing: -.01em; }
+.sw-sub { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--dyn-dim); margin-top: 5px; }
+
+/* three seasons, ten columns, legible at 360px */
+.sw-lines { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.sw-lines th { font-size: 8.5px; letter-spacing: .08em; font-weight: 500; color: var(--dyn-faint); padding: 6px 0 4px; text-align: right; }
+.sw-lines td { font-size: 11px; color: var(--dyn-text); padding: 3px 0; text-align: right; border-top: 1px solid var(--dyn-line-soft); }
+.sw-lines th:first-child, .sw-lines td:first-child { text-align: left; padding-left: 14px; color: var(--dyn-dim); }
+.sw-lines th:last-child, .sw-lines td:last-child { padding-right: 14px; }
+.sw-lines tr.sw-now td { color: var(--dyn-gold); }
+.sw-lines td.sw-thin { color: var(--dyn-faint); }
+
+.sw-sum { padding: 8px 14px 12px; border-top: 1px solid var(--dyn-line); }
+.sw-bars { display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; row-gap: 5px; }
+.sw-grp { grid-column: 1 / -1; font-family: var(--font-mono); font-size: 8.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--dyn-faint); margin-top: 3px; }
+.sw-bar-l { display: flex; justify-content: space-between; gap: 6px; font-size: 10.5px; color: var(--dyn-dim); line-height: 1.15; }
+.sw-bar-l b { font-family: var(--font-mono); font-weight: 500; color: var(--dyn-text); font-size: 10px; white-space: nowrap; }
+.sw-track { position: relative; height: 5px; border-radius: 3px; background: #1a212c; margin: 9px 9px 3px; }
+.sw-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.sw-dot {
+  position: absolute; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+  font-family: var(--font-mono); font-size: 8.5px; font-weight: 600; line-height: 18px; text-align: center; color: #fff;
+  box-shadow: 0 0 0 2px var(--dyn-panel);
+}
+.sw-low .sw-fill { background-image: repeating-linear-gradient(135deg, rgba(0,0,0,.35) 0 3px, transparent 3px 6px) !important; opacity: .75; }
+.sw-low .sw-dot { opacity: .8; }
+
+.sw-chip {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: .06em; text-transform: uppercase;
+  padding: 4px 7px; border: 1px solid var(--dyn-line); color: var(--dyn-dim); background: transparent; border-radius: 999px;
+}
+.sw-chip[aria-pressed="true"] { color: #0a0d12; background: var(--dyn-gold); border-color: var(--dyn-gold); }
+.sw-seg { display: inline-flex; border: 1px solid var(--dyn-line); border-radius: 999px; overflow: hidden; }
+.sw-seg button { font-family: var(--font-mono); font-size: 9px; letter-spacing: .06em; text-transform: uppercase; padding: 4px 7px; color: var(--dyn-dim); }
+.sw-seg button[aria-pressed="true"] { background: var(--dyn-panel-2); color: var(--dyn-text); }
+
+/* the champion you are defending, pinned above the card */
+.sw-champ {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px;
+  background: var(--dyn-panel); border: 1px solid rgba(194,162,99,.45);
+}
+.sw-champ img { width: 44px; height: 32px; object-fit: contain; flex: none; }
+
+.sw-act { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: stretch; }
+.sw-act button { border-radius: 12px; min-height: 56px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.sw-keep { border: 1px solid rgba(194,162,99,.6); color: var(--dyn-gold); background: rgba(194,162,99,.06); }
+.sw-take { background: var(--dyn-up); color: #06210f; border: 0; }
+.sw-undo { width: 52px; border: 1px solid var(--dyn-line); color: var(--dyn-dim); }
+.sw-undo:disabled { opacity: .35; }
+.sw-act button:active:not(:disabled) { transform: scale(.97); }
+
+.sw-toast {
+  position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  z-index: 40; pointer-events: none; white-space: nowrap;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em;
+  padding: 8px 12px; border-radius: 999px; background: rgba(17,22,31,.96); border: 1px solid var(--dyn-line);
+  animation: sw-toast 1.6s ease-out forwards;
+}
+@keyframes sw-toast { 0% { opacity: 0; transform: translate(-50%, 8px); } 12% { opacity: 1; transform: translate(-50%, 0); } 75% { opacity: 1; } 100% { opacity: 0; } }
+
+.sw-progress { height: 3px; background: var(--dyn-line); border-radius: 2px; overflow: hidden; }
+.sw-progress i { display: block; height: 100%; background: var(--dyn-gold); transition: width .25s; }
+
+@keyframes sw-crown { 0% { transform: scale(.92); opacity: 0; } 60% { transform: scale(1.02); opacity: 1; } 100% { transform: scale(1); } }
+.sw-crowned { animation: sw-crown .5s cubic-bezier(.2,.8,.3,1.1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sw-card.sw-fly, .sw-card.sw-back { transition: none; }
+  .sw-toast, .sw-crowned { animation: none; }
+}
+@keyframes sw-in { from { transform: scale(.965); opacity: .35; } to { transform: none; opacity: 1; } }
+.sw-card.sw-in { animation: sw-in .18s ease-out; }
+@media (prefers-reduced-motion: reduce) { .sw-card.sw-in { animation: none; } }
+
+/* green where the card on screen beats the player it is weighed against */
+.sw-lines td.sw-better { color: var(--dyn-up) !important; background: rgba(22,199,132,.10); }
+.sw-better .sw-bar-l, .sw-better .sw-bar-l b { color: var(--dyn-up); }
+
+/* endless mode's way out */
+.sw-finish {
+  min-height: 44px; border-radius: 12px; border: 1px solid rgba(194,162,99,.6); background: rgba(194,162,99,.12);
+  color: var(--dyn-gold); font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+}
+.sw-finish:disabled { opacity: .35; }
+.sw-finish:active:not(:disabled) { transform: scale(.98); }
+
+/* the intro card's countdown: drains over INTRO_MS (set inline) */
+.sw-intro-bar { height: 3px; background: var(--dyn-line); border-radius: 2px; overflow: hidden; }
+.sw-intro-bar i { display: block; height: 100%; background: var(--dyn-gold); transform-origin: left; animation: sw-drain linear forwards; }
+@keyframes sw-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }

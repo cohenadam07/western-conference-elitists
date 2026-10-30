@@ -645,3 +645,20 @@ The second is what the daily refresh Action runs, after Football Savant's own re
 rebuilds only the current season, carries every other season over from the archive
 (byte-identical to a full build — checked), and writes the overlay the page lays over the
 archive. The full-rebuild Action rebuilds the archive itself.
+
+## Injury status (automatic, several times a day)
+
+`injuries.py` writes `public/football-injuries/current.json`: every flagged player (IR, PUP,
+Out, Suspended, Doubtful, Questionable) keyed by GSIS id, with body part, a one-line note,
+an estimated return date where ESPN gives one, the source and when it was updated, plus the
+current week and the teams on bye. ESPN's public injuries feed is read every run; Sleeper's
+player feed at most once a day (as Sleeper asks), cached in `data/football-sleeper-injuries.json`.
+The newer entry wins when the two disagree; Sleeper-only tags must be recent to count, since
+Sleeper never clears a tag it set. No manual overrides. Standard library only.
+
+`.github/workflows/football-injuries.yml` runs it every two hours from 8am to midnight ET,
+hourly on Wednesday–Friday afternoons and Sunday game days, and commits only when a status
+actually changed. A failed fetch keeps the last good file and turns the run red.
+
+Injury status is display and fantasy only: it never touches Savant value or the All-Savant
+Team, where missed games already count.

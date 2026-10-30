@@ -37,3 +37,9 @@ pipeline/football/maps/
 pipeline/football/*.json
 # ...except what award.py learned: the refresh and the rebuild only apply it
 !pipeline/football/award_weights.json
+
+# Basketball Savant cloud refresh: ESPN's game cache and the run directory (rebuilt every run)
+.espn-cache/
+pipeline/basketball/.espn-cache/
+pipeline/basketball/run/
+pipeline/basketball/cache_br/

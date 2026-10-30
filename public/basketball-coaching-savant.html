@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Basketball Coaching Savant — WCE Hoops</title>
+<meta name="description" content="Every NBA head coach: the Rotation Map, lineups judged from their parts, timeouts and challenges, two expectation baselines, situation-by-situation splits and the coaching tree, 1946-47 to today."/>
+<meta name="theme-color" content="#22395A"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   BASKETBALL COACHING SAVANT — Basketball Savant's page, for head coaches. The shell, the
+   identity card, the controls bar, the card rows (one stat per row, the percentile riding the
+   bar), the per-row chart, the compare bars and the "more" toggles are Basketball Savant's own
+   rules, copied so the two pages read as one tool. Every percentile names its pool; every
+   section says what it answers and the year its data begins; the rotation verdicts are the
+   model's view, not a verdict. Data: /bcs/index.json, /bcs/c/<coach>.json,
+   /bcs/t/<team>-<season>.json (pipeline/basketball/coaching/build.py).
+   ========================================================================= */
+:root{
+  --bg:#ECEBE8; --surface:#FFFFFF; --sunk:#F6F5F2; --ink:#191B1F; --muted:#4E535B; --faint:#8B9099;
+  --line:#E1E0DC; --track:#E9E8E4;
+  --navy:#22395A; --gold:#C2A263; --red:#BC3A2C; --accent:#22395A; --cream:#ECEBE8;
+  --c-lo:#1C4E86; --c-mid:#C2C0B6; --c-hi:#BC3A2C; --hatch:rgba(20,26,32,.22);
+  --disp:'Newsreader',Georgia,serif; --body:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}button{font-family:inherit;cursor:pointer}
+/* the tab bar and the shell, as savant-fantasy.js draws them */
+.sv-tabs{display:flex;gap:4px;flex-wrap:wrap;max-width:1180px;margin:0 auto;padding:12px 18px 0}
+.sv-tab{white-space:nowrap;font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;padding:7px 13px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--navy);cursor:pointer;text-decoration:none}
+.sv-tab:hover{border-color:var(--gold)}
+.sv-tab.on{background:var(--navy);color:var(--gold);border-color:var(--navy)}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 20px 64px;min-width:0}
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;position:relative;z-index:60}
+.brandwrap{display:flex;align-items:center;gap:11px}
+.wce{width:38px;height:38px;border-radius:9px;background:var(--navy);color:#fff;font-family:var(--body);font-weight:700;font-size:13px;letter-spacing:.01em;display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none}
+.brand-word{font-family:var(--body);font-weight:700;font-size:18px;letter-spacing:.03em;text-transform:uppercase;line-height:1}
+.brand-word span{color:var(--navy)}
+.eyebrow-pill{display:inline-block;background:var(--navy);color:#fff;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
+.vchip{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--navy);border:1px solid rgba(34,57,90,.35);padding:2px 6px;border-radius:4px;cursor:help}
+.backlink{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);text-decoration:none}
+.backlink:hover{color:var(--navy)}
+.search{position:relative}
+.search input{font-family:var(--body);font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;width:260px;outline:none}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,57,90,.26)}
+.search input.adding{border-color:var(--gold);box-shadow:0 0 0 3px rgba(194,162,99,.3)}
+.results{position:absolute;top:calc(100% + 6px);right:0;width:320px;max-width:calc(100vw - 32px);max-height:344px;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 28px rgba(20,26,32,.12);padding:6px;z-index:70}
+.results[hidden]{display:none}
+.res{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:9px;cursor:pointer}
+.res:hover,.res.on{background:var(--track)}
+.res .rn{font-weight:500}.res .rs{font-family:var(--mono);font-size:11px;color:var(--faint);white-space:nowrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.chips-label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-right:4px}
+.chip{font-family:var(--body);font-size:12.5px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:5px 11px;cursor:pointer;text-decoration:none}
+.chip:hover{border-color:var(--navy);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+/* the identity card */
+.id{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden}
+.id-head{display:flex;gap:18px;align-items:flex-start}
+.headwrap{position:relative;width:88px;height:88px;flex:none;border-radius:12px;overflow:hidden;background:var(--track)}
+.initials{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;font-size:28px;color:var(--muted)}
+/* ---- season photos (bcs/heads.json, pipeline/basketball/coaching/heads.py). A photo shot that season is drawn
+   as it is; a face from another season is cropped above the shirt over a collar in that season's team colours,
+   so no other team's polo shows; no photo at all is a badge in those colours with his initials. Each fills
+   whatever frame the spot draws (--fs the initials' size, --hem the badge's stripe, --collar the crop's line). */
+.face{position:relative;display:block;width:100%;height:100%;overflow:hidden;box-sizing:border-box;background:var(--tc,var(--track));color:var(--tc3,var(--muted));font-family:var(--disp);font-weight:600;letter-spacing:.02em}
+.face b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:var(--fs,28px);line-height:1}
+.face.badge{box-shadow:inset 0 calc(-1 * var(--hem,6px)) 0 var(--tc2,transparent)}
+.face.badge:has(img){box-shadow:none}.face.badge:has(img) b{display:none}  /* the NBA's photos are cut out, so the badge beneath would show through */
+.face img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block}
+.face.crop{background-color:#D8D3C6;background-repeat:no-repeat;background-size:178% auto;background-position:50% 2%}
+.face.crop.br{background-size:112% auto;background-position:50% 14%}  /* Basketball-Reference's 120x180 portraits are already tight on the face */
+.face.crop::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16%;background:var(--tc);border-top:var(--collar,2px) solid var(--tc2)}
+.hf{display:inline-block;width:22px;height:22px;border-radius:50%;overflow:hidden;flex:none;vertical-align:middle;--fs:9px;--hem:3px;--collar:1px}
+.lrow .hf{align-self:center}
+.res .hf{width:26px;height:26px;--fs:10px}.res .rn{flex:1;white-space:nowrap}.res .rs{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.chip{display:inline-flex;align-items:center;gap:7px}.chip .hf{width:20px;height:20px;margin:-4px 0 -4px -6px;--fs:8px;--hem:2px}
+.cmp-pill .hf{width:20px;height:20px;margin-left:-4px;box-sizing:border-box;border:2px solid var(--cc,transparent)}
+.tipface{float:left;width:46px;height:46px;margin:1px 9px 4px 0;border-radius:8px;overflow:hidden;--fs:14px;--hem:4px}
+.leaf image{clip-path:circle(50% at 50% 50%);pointer-events:none}
+.id-headtext{min-width:0;flex:1}
+.id-name{font-family:var(--disp);font-weight:600;font-size:42px;line-height:1.0;letter-spacing:-.01em}
+.id-meta{color:var(--muted);font-size:13.5px;margin-top:6px}
+.id-meta b{color:var(--ink);font-weight:600}
+.statline{display:flex;flex-wrap:wrap;gap:14px;margin-top:9px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.statline .st b{font-size:14px;color:var(--ink);font-weight:500;margin-right:2px}
+.accos{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.acco{font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--navy);color:var(--navy);background:var(--surface);border-radius:4px;padding:2.5px 7px;white-space:nowrap;cursor:help}
+.acco.major{background:var(--navy);color:#fff}
+.acco.gold{background:var(--gold);border-color:var(--gold);color:#2A2208}
+.note{font-size:12.5px;color:var(--muted);background:var(--bg);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:9px 12px;margin:10px 0 0;line-height:1.5}
+/* compare */
+.cmpbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+.cmp-pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:3px 9px}
+.cmp-x{border:none;background:none;color:var(--faint);font-size:13px;cursor:pointer;padding:0 0 0 2px;line-height:1}
+.cmp-x:hover{color:var(--red)}
+.cmp-add{font-family:var(--body);font-size:12px;color:var(--muted);background:var(--surface);border:1px dashed var(--faint);border-radius:14px;padding:3px 10px;cursor:pointer}
+.cmp-add:hover{color:var(--navy);border-color:var(--navy)}
+.cmp-note{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.02em;margin-top:6px}
+.cdot{display:inline-block;width:7px;height:7px;border-radius:50%;flex:none}
+.cbar{position:absolute;left:0;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}
+.cbar-lab{position:absolute;font-family:var(--mono);font-size:9px;font-weight:600;color:#fff;top:50%;transform:translateY(-50%);left:6px;text-shadow:0 1px 1px rgba(0,0,0,.35);pointer-events:none;letter-spacing:.02em}
+.cv{font-family:var(--mono);font-size:11px;line-height:1.3;white-space:nowrap;display:flex;align-items:center;justify-content:flex-end;gap:5px;color:var(--ink)}
+/* the career arc */
+.arcbtn{display:inline-flex;align-items:center;gap:6px;margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:5px 12px;cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.arcbtn:hover{border-color:var(--navy);color:var(--ink)}
+.arcbtn .caret{font-size:8px;transition:transform .18s ease}
+.arcbtn[aria-expanded="true"]{border-color:var(--navy);color:var(--ink)}
+.arcbtn[aria-expanded="true"] .caret{transform:rotate(180deg)}
+.arcbtn .cur{color:var(--ink)}
+.arcbtn .pk{color:var(--gold)}
+.arcrail{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.arcrail[hidden]{display:none}
+.arc-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:7px}
+.arc-h span{text-transform:none;letter-spacing:.02em;color:var(--faint);opacity:.85}
+.arc-ticks{display:flex;align-items:flex-end;gap:2px;height:46px}
+.arc-col{flex:1;min-width:3px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;background:none;border:0;padding:0;cursor:pointer;position:relative}
+.arc-bar{display:block;width:100%;border-radius:2px 2px 0 0;transition:filter .15s ease}
+.arc-col:hover .arc-bar{filter:brightness(.92)}
+.arc-col.on .arc-bar{box-shadow:0 0 0 2px var(--navy)}
+.arc-star{position:absolute;top:1px;left:0;right:0;text-align:center;font-size:9px;line-height:1;color:#2A2208;pointer-events:none}
+.arc-foot{display:flex;justify-content:space-between;gap:8px;margin-top:5px;font-family:var(--mono);font-size:9px;letter-spacing:.04em;color:var(--faint)}
+.arc-pklab{color:var(--gold)}
+/* the controls bar */
+.controls{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin:0 2px 14px;position:relative;z-index:50}
+.ctl{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.ctl-lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:2px;gap:2px}
+.seg button{font-family:var(--body);font-size:13px;color:var(--muted);background:none;border:none;border-radius:6px;padding:6px 11px;cursor:pointer;line-height:1}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.selx{position:relative}
+.selx-btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 11px;cursor:pointer;min-width:132px;justify-content:space-between}
+.selx-btn:hover{border-color:var(--navy)}
+.selx-caret{font-size:8px;color:var(--navy);transition:transform .18s ease}
+.selx-btn[aria-expanded="true"]{border-color:var(--navy)}
+.selx-btn[aria-expanded="true"] .selx-caret{transform:rotate(180deg)}
+.selx-star{color:var(--gold)}
+.selx-pop{position:absolute;z-index:70;top:calc(100% + 6px);left:0;min-width:100%;max-height:284px;overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:5px;box-shadow:0 10px 28px rgba(20,26,32,.16)}
+.selx-pop[hidden]{display:none}
+.selx-opt{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;font-family:var(--mono);font-size:12.5px;color:var(--ink);background:none;border:0;border-radius:6px;padding:6px 9px;cursor:pointer;text-align:left;white-space:nowrap}
+.selx-opt:hover{background:var(--track)}
+.selx-opt[aria-selected="true"]{background:var(--navy);color:#fff}
+.selx-opt[aria-selected="true"] .selx-star{color:var(--gold)}
+.selx-tag{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.selx-opt[aria-selected="true"] .selx-tag{color:rgba(255,255,255,.72)}
+.legend{margin-left:auto;display:flex;align-items:flex-end;gap:16px;font-size:11.5px;color:var(--muted)}
+.legbar{width:120px;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--c-lo),var(--c-mid),var(--c-hi))}
+.legbox .ends{display:flex;justify-content:space-between;width:120px;font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+.leg{display:flex;align-items:center;gap:7px;padding-bottom:2px;font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase}
+.hatchswatch{width:18px;height:11px;border-radius:3px;background:var(--track);position:relative;overflow:hidden}
+.hatchswatch::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--hatch) 3px 5px)}
+.goldswatch{width:18px;height:11px;border-radius:3px;background:var(--gold)}
+/* panels and cards */
+.ctxrow{margin:0 0 14px}
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.col{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px 18px;min-width:0;overflow:hidden}
+.col.wide{margin-bottom:14px}
+.col-h{font-family:var(--disp);font-weight:600;font-size:25px;letter-spacing:0;margin:2px 0 10px;display:inline-block;border-bottom:3px solid var(--gold);padding-bottom:3px;line-height:1}
+.col-h .q{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:500;margin-left:8px;border:0}
+.since{font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;color:var(--faint);margin:-4px 0 12px}
+.cap{font-size:12.5px;color:var(--muted);background:var(--bg);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:9px 12px;margin:2px 0 12px;line-height:1.5}
+.cap b{color:var(--ink);font-weight:600}
+h3.sub{font-family:var(--disp);font-weight:600;font-size:18px;margin:16px 0 2px}
+.group-h{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.group-h:first-of-type{margin-top:8px}
+.row{display:grid;grid-template-columns:140px 1fr 58px 22px;grid-template-areas:"lab bar val btn";align-items:center;column-gap:12px;padding:7px 0}
+.row.nochart{grid-template-columns:140px 1fr 58px;grid-template-areas:"lab bar val"}
+.rl{min-width:0;grid-area:lab;cursor:pointer}
+.rl .name{font-size:13.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rl .tag{font-family:var(--mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin-top:2px}
+.track{position:relative;height:20px;background:var(--track);border-radius:6px;overflow:hidden;grid-area:bar}
+.tick{position:absolute;top:0;bottom:0;width:1px;background:rgba(25,27,31,.12)}
+.tick.mid{background:rgba(25,27,31,.22)}
+.fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;width:0;box-shadow:inset 0 0 0 1px rgba(20,26,32,.12)}
+.anim .fill{transition:width .55s cubic-bezier(.22,.61,.36,1)}
+.fill .hatch{display:none;position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 4px,var(--hatch) 4px 6px)}
+.row.un .fill{filter:grayscale(.55) opacity(.5)}
+.row.un .fill .hatch{display:block}
+.row.na .track{opacity:.5}
+.pnum{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:11.5px;font-weight:500;color:var(--ink);pointer-events:none}
+.row.un .pnum{color:var(--muted)}
+.rv{font-family:var(--mono);font-size:13px;text-align:right;color:var(--ink);grid-area:val}
+.row.un .rv{color:var(--faint)}
+.row.un .rv::after{content:" \25F7";font-family:var(--body);font-size:10px}
+.statbtn{grid-area:btn;width:22px;height:22px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent;border-radius:6px;background:none;color:var(--faint);cursor:pointer;transition:color .12s,background .12s,border-color .12s}
+.statbtn:hover{color:var(--navy);border-color:var(--line);background:var(--surface)}
+.statbtn[aria-expanded="true"]{color:var(--surface);background:var(--navy);border-color:var(--navy)}
+.statbtn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.statchart{background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:12px 14px 10px;margin:1px 0 9px}
+.rc-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.rc-name{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.2}
+.rc-name em{font-style:normal;color:var(--faint);font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;margin-left:7px}
+.rc-x{font-family:var(--mono);font-size:14px;line-height:1;color:var(--faint);background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:5px}
+.rc-x:hover{color:var(--ink)}
+.rc-plot{display:block;width:100%;height:auto;overflow:visible}
+.rc-gl{stroke:var(--line);stroke-width:1}
+.rc-ln{fill:none;stroke:var(--navy);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.rc-med{fill:none;stroke:var(--gold);stroke-width:1.6;stroke-dasharray:4 3}
+.rc-ar{fill:var(--navy);opacity:.07}
+.rc-pt{stroke:var(--sunk);stroke-width:1.5}
+.rc-ax{font-family:var(--mono);font-size:9px;fill:var(--faint);letter-spacing:.02em}
+.rc-note{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin-top:7px}
+.rc-empty{font-size:12.5px;color:var(--muted);padding:6px 0 2px}
+.expl{background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;margin:2px 0 8px;line-height:1.5}
+.expl b{font-weight:600}
+.expl .k{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.xmore{margin-top:14px;border-top:1px solid var(--line)}
+.xmore-btn{width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;padding:11px 2px 9px;cursor:pointer;color:var(--navy);text-align:left}
+.xmore-lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.xmore-n{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--faint);border:1px solid var(--line);border-radius:10px;padding:1px 7px;background:var(--surface)}
+.xmore-btn svg{width:12px;height:12px;margin-left:auto;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s ease}
+.xmore.open .xmore-btn svg{transform:rotate(180deg)}
+.xmore-btn:hover .xmore-lab{text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:3px}
+.xmore-body{display:none}.xmore.open .xmore-body{display:block}
+.xmore-body .group-h:first-of-type{margin-top:4px}
+.xmore-body .col{border:0;padding:0;margin:8px 0 0;background:none;box-shadow:none;overflow:visible}
+.xmore-body .col:hover{box-shadow:none}
+.xmore-body .col .since{margin-top:0}
+/* links: a coach to his page, a player to his Basketball Savant card */
+a.cl,a.pl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--faint)}
+a.cl:hover,a.pl:hover{color:var(--red);border-bottom-color:var(--red)}
+svg a text{cursor:pointer}svg a:hover text{fill:var(--red)}
+/* the tooltip: one box for the whole page */
+#tip{position:fixed;z-index:100;max-width:320px;background:var(--ink);color:var(--cream);font-size:12.5px;line-height:1.45;padding:9px 11px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:auto;display:none}
+#tip b{color:#fff;font-weight:600}
+#tip .k{font-family:var(--mono);font-size:10.5px;color:rgba(236,235,232,.7)}
+#tip .def{margin-top:6px;padding-top:6px;border-top:1px solid rgba(236,235,232,.2);color:rgba(236,235,232,.85)}
+#tip a{color:var(--gold);border-bottom:1px dotted var(--gold);text-decoration:none}
+#tip .pbox{display:inline-block;min-width:26px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink);border-radius:3px;padding:0 5px;margin-right:4px}
+/* lists, tables, small things */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;min-width:0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;min-width:0}
+.lead-h{font-family:var(--disp);font-weight:600;font-size:18px;margin:0 0 2px}
+.lead-p{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin:0 0 8px}
+.lrow{display:flex;align-items:baseline;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.lrow:last-child{border-bottom:none}
+.lrk{font-family:var(--mono);font-size:10px;color:var(--faint);width:18px;flex:none}.ln{flex:1;font-weight:500;min-width:0}.lv{font-family:var(--mono);font-size:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px;align-items:center}
+.tab{font-family:var(--mono);font-size:11px;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:4px 10px;color:var(--muted)}
+.tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.pill{font-family:var(--mono);font-size:10px;background:var(--navy);color:var(--gold);padding:2px 7px;border-radius:10px;letter-spacing:.04em}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+table.t{border-collapse:collapse;width:100%;font-size:13px}
+table.t th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;font-weight:500}
+table.t td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--mono);font-size:12px;white-space:nowrap}
+table.t th:first-child,table.t td:first-child{text-align:left;font-family:var(--body);font-size:13px;position:sticky;left:0;background:var(--surface)}
+table.t tr.link{cursor:pointer}table.t tr.link:hover td{color:var(--red)}
+table.t tr.on td{background:var(--sunk)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:10px}
+.tile{background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:default}
+.tile .tl{font-family:var(--mono);font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
+.tile .tv{font-family:var(--disp);font-size:24px;line-height:1.2;margin:2px 0;font-weight:600}
+.tile .ts{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.tile .pb{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:500;padding:0 5px;border-radius:3px;color:var(--ink);margin-left:4px;vertical-align:middle}
+.small{font-size:12.5px;color:var(--muted)}
+.empty{font-size:13px;color:var(--faint);font-style:italic}
+.lines{margin:0;padding-left:18px}.lines li{margin:5px 0;font-size:13.5px}
+.splits{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.split h4{margin:0 0 6px;font-family:var(--mono);font-size:10px;font-weight:500;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
+.srl{display:grid;grid-template-columns:96px 1fr 44px;gap:6px;align-items:center;font-size:12px;padding:2px 0}
+.srl .sb{height:8px;position:relative;background:var(--track);border-radius:4px}
+.srl .sb i{position:absolute;top:0;bottom:0}
+.srl .sb b{position:absolute;top:-3px;width:1px;height:14px;background:var(--ink);opacity:.5}
+.srl .sn{font-family:var(--mono);font-size:11px;text-align:right;color:var(--muted)}
+.fp{display:grid;grid-template-columns:170px 1fr;gap:4px 10px;align-items:center;font-size:12.5px}
+.fp .track{height:12px;border-radius:6px;overflow:visible}
+.fp .track i{position:absolute;top:2px;width:8px;height:8px;border-radius:50%;margin-left:-4px}
+.legend2{font-family:var(--mono);font-size:10px;letter-spacing:.02em;color:var(--faint);margin-top:8px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.sw{display:inline-block;width:12px;height:12px;vertical-align:-2px;margin-right:4px;border-radius:3px}
+svg.chart{width:100%;height:auto;display:block;max-width:100%}
+svg.chart text{font-family:'IBM Plex Mono',monospace}
+svg .hit{cursor:pointer}
+/* the Rotation Map */
+.rot{display:grid;grid-template-columns:160px 1fr;gap:0;min-width:0}
+.rotnames{display:flex;flex-direction:column;padding-top:18px}
+.rotname{height:22px;line-height:22px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px;border-bottom:1px solid var(--line)}
+.rotname small{font-family:var(--mono);color:var(--faint);font-size:10px}
+.rotaxis{display:grid;grid-template-columns:repeat(4,1fr);height:18px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.rotaxis span{border-left:1px solid var(--line);padding-left:4px;line-height:18px}
+.rotmin{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:3px}
+canvas.map{display:block;width:100%;height:auto;image-rendering:pixelated;cursor:crosshair;border-radius:4px}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:12px}
+.month h4{margin:0 0 3px;font-family:var(--mono);font-size:10px;color:var(--faint);font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.month .rotaxis{height:14px}.month .rotaxis span{line-height:14px;font-size:9px}
+.matrix{font-family:var(--mono);font-size:10.5px;border-collapse:collapse}
+.matrix td,.matrix th{width:34px;height:34px;text-align:center;border:1px solid var(--surface);padding:0}
+.matrix th{font-weight:500;color:var(--muted);font-size:10px;width:auto;padding:0 6px;text-align:right;white-space:nowrap}
+.matrix td.c{cursor:pointer;color:#fff}
+.matrix td.d{background:var(--track)}
+.matrix thead th{writing-mode:vertical-rl;transform:rotate(180deg);text-align:left;height:90px;padding:4px 0}
+.pairinfo{font-size:13px;margin-top:10px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+/* the tree, football Coaching Savant's zoomable forest */
+.treestage{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative;height:min(74vh,760px);cursor:grab;touch-action:none}
+.treestage.embed{height:min(60vh,560px);border-radius:10px;background:var(--sunk)}
+.treestage.drag{cursor:grabbing}
+.treestage svg{display:block;user-select:none}
+.branch{fill:none;stroke-linecap:round;opacity:.9}
+.leaf circle{cursor:pointer;stroke:#fff;stroke-width:1.4}
+.leaf.ast circle{stroke-dasharray:2 2;opacity:.8}
+.leaf:hover circle{stroke:var(--ink);stroke-width:2.2}
+.lbl{font-family:var(--body);font-size:10px;fill:var(--ink);text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:rgba(255,255,255,.92);stroke-width:3px;stroke-linejoin:round}
+.lbl .rec{font-family:var(--mono);font-size:8.5px;fill:var(--muted)}
+.lbl.minor{display:none}
+.labels.leaves-too .lbl.minor{display:inline}
+.lbl.major{font-size:11px;font-weight:500}
+.rootlbl{font-family:var(--mono);font-size:10px;fill:var(--muted);text-anchor:middle;pointer-events:none;letter-spacing:.06em}
+.leaf.dim,.branch.dim,.lbl.dim{opacity:.1}
+.leaf.hl circle{stroke:var(--ink);stroke-width:2.4}
+.branch.hl{stroke:var(--gold)!important;opacity:1}
+.lbl.hl{font-weight:700}
+.tctl{position:absolute;right:12px;bottom:12px;display:flex;gap:6px;z-index:5}
+.tctl button{min-width:34px;height:34px;padding:0 8px;background:#fff;border:1px solid var(--line);border-radius:8px;font-family:var(--mono);font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(20,26,32,.08)}
+.tctl button:hover{border-color:var(--navy)}
+.tctl button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tfind{position:absolute;left:12px;top:12px;z-index:5;font-family:var(--body);font-size:13px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 12px rgba(20,26,32,.08);padding:8px 11px;width:220px;max-width:calc(100% - 24px);outline:none}
+.treestage.pseudo{position:fixed;left:0;top:0;right:0;bottom:0;z-index:1000;margin:0;width:100vw;height:100dvh;max-width:none;border-radius:0}
+html.fslock,html.fslock body{overflow:hidden}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.anim .id{animation:rise .55s .08s cubic-bezier(.22,.61,.36,1) both}
+.anim .controls{animation:rise .5s .16s cubic-bezier(.22,.61,.36,1) both}
+.anim .ctxrow{animation:rise .5s .22s cubic-bezier(.22,.61,.36,1) both}
+.id,.col{transition:box-shadow .3s ease}
+.id:hover,.col:hover{box-shadow:0 8px 26px rgba(20,26,32,.07)}
+@media (prefers-reduced-motion:reduce){ .anim .id,.anim .controls,.anim .ctxrow{animation:none} .anim .fill{transition:none} }
+@media (max-width:840px){ .panels{grid-template-columns:1fr} .id-name{font-size:34px} .legend{margin-left:0;width:100%} }
+@media (max-width:640px){
+  .wrap{padding:16px 12px 48px}
+  .sv-tabs{padding:10px 12px 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .col{padding:14px 12px 16px}
+  .id{padding:16px 14px}
+  .row{grid-template-columns:1fr auto auto;grid-template-areas:"lab val btn" "bar bar bar";row-gap:5px;padding:9px 0}
+  .row.nochart{grid-template-columns:1fr auto;grid-template-areas:"lab val" "bar bar"}
+  .rl .name{white-space:normal}
+  .track{height:22px}
+  .search{flex-wrap:wrap}
+  .search input{width:100%;flex:1;min-width:150px}
+  .id-name{font-size:28px}
+  .headwrap{width:72px;height:72px}
+  .rot{grid-template-columns:104px 1fr}.rotname{font-size:11px;padding-right:4px}
+  .fp{grid-template-columns:110px 1fr}
+  .treestage{height:64vh}
+  .col-h .q{display:block;margin:6px 0 0}
+}
+body.view-home .coach,body.view-home .treeview{display:none}
+body.view-coach .home,body.view-coach .treeview{display:none}
+body.view-tree .home,body.view-tree .coach{display:none}
+</style>
+</head>
+<body class="view-home anim">
+<nav class="sv-tabs" aria-label="Basketball Coaching Savant sections"><a class="sv-tab on" href="#" data-tab="coaches">Coaches</a><a class="sv-tab" href="#leaders" data-tab="leaders">Leaders</a><a class="sv-tab" href="#tree" data-tab="tree">The tree</a><a class="sv-tab" href="/basketball-savant.html">Basketball Savant</a><a class="sv-tab" href="/coaching-savant.html">Coaching Savant (NFL)</a></nav>
+<div class="wrap">
+  <div class="top">
+    <div class="brandwrap">
+      <a class="wce" href="/" title="Back to WCE home">WCE</a>
+      <div><div class="brand-word">Basketball Coaching <span>Savant</span></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap"><span class="eyebrow-pill" id="srcpill">live data</span><span class="vchip" id="verchip" title="Built by pipeline/basketball/coaching/build.py"></span><a class="backlink" href="/">&larr; wcehoops.com</a></div></div>
+    </div>
+    <div class="search"><input id="q" type="search" placeholder="Search a head coach or assistant…" autocomplete="off" aria-label="Search a coach"/><div id="results" class="results" hidden></div></div>
+  </div>
+  <div class="chips" id="chips" role="group" aria-label="Trending coaches"></div>
+
+  <section class="home" id="home">
+    <div class="col wide" id="homeintro"></div>
+    <div class="col wide" id="leadersplate"><h2 class="col-h">Leaders</h2><p class="since" id="lead-since"></p><div class="grid3" id="leaders"></div></div>
+    <div class="col wide"><h2 class="col-h">The league, season by season</h2><p class="since">1996-97 on; rotation and challenges from the seasons they exist · hover a point for the season</p><div class="grid3" id="trends"></div></div>
+    <div class="col wide"><h2 class="col-h">The staffs that produced head coaches</h2><p class="since">from Basketball-Reference's assistant stints and the NBA's staff tables</p><div id="produced" class="small"></div></div>
+    <div class="col wide"><h2 class="col-h">How to read this</h2><div id="howto" class="small"></div></div>
+  </section>
+  <section class="coach" id="coach"></section>
+  <section class="treeview" id="treeview"></section>
+</div>
+<div id="tip" role="tooltip"></div>
+<script>
+'use strict';
+const BASE = '/bcs';
+const SAVANT = '/basketball-savant.html?p=';
+const Z = ['ra','paint','mid','c3','ab3'], ZL = {ra:'Rim', paint:'Short mid', mid:'Mid-range', c3:'Corner 3', ab3:'Above-break 3'};
+const CAUSES = ['absence','blowout','foul','choice'], CAUSE_C = {absence:'#8B9099', blowout:'#C2C0B6', foul:'#C2A263', choice:'#BC3A2C'}, CAUSE_L = {absence:'absence', blowout:'blowout', foul:'foul trouble', choice:"the coach's choice"};
+const PT = {Isolation:'Isolation', Transition:'Transition', PRBallHandler:'P&R handler', PRRollman:'P&R roll man', Postup:'Post-up', Spotup:'Spot-up', Handoff:'Hand-off', Cut:'Cut', OffScreen:'Off screen', OffRebound:'Putback', Misc:'Misc'};
+const ROUND_L = {0:'missed the playoffs', 1:'lost in the first round', 2:'lost in the second round', 3:'lost in the conference finals', 4:'lost in the Finals', 5:'won the title'};
+const CMP_COLORS = ['#22395A', '#C2A263', '#BC3A2C'];
+// the headline rows of each panel; the rest sit behind "more"
+const HEADLINE = {
+  record: ['winpct', 'net', 'w_talent', 'w_market', 'po_rate', 'adj_net'],
+  rotation: ['stability', 'chosen_dev', 'left_table', 'depth10', 'closes_best', 'overplay'],
+  management: ['ato', 'ch_success', 'to_g', 'run_stop', 'ato_vs', 'clutch_net'],
+  offense: ['pace', 'fg3r', 'rim', 'ortg', 'mid', 'ast_pct'],
+  defense: ['o_efg', 'o_rim', 'drtg', 'o_fg3r', 'o_tov', 'pf100'],
+  development: ['aging', 'aging_young'],
+  context: ['gap_top10', 'gap_road', 'gap_missing', 'gap_trail', 'tempo_ctl', 'gap_b2b', 'gap_fav'],
+};
+let IDX = null, HEADS = null, COACH = null, TFILE = null, TCACHE = {}, STATS = {}, CMPC = {}, cmp = [], addMode = false;
+let state = {mode:'career', base:'played', kind:'RS', game:null, season:null, allCauses:false, arcOpen:false};
+
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const miss = v => v === null || v === undefined || Number.isNaN(v);
+function fmt(unit, v){
+  if (miss(v)) return '—';
+  v = +v;
+  switch (unit){
+    case 'pct1': return v.toFixed(1) + '%';
+    case 'num0': return String(Math.round(v));
+    case 'num1': return v.toFixed(1);
+    case 'num2': return v.toFixed(2);
+    case 'sgn1': return (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
+    case 'sgn2': return (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2);
+    default: return String(v);
+  }
+}
+const signed = (v, d=1) => miss(v) ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(d);
+const pc1 = v => miss(v) ? '—' : (100 * v).toFixed(1) + '%';
+function mix(a, b, t){ const p = x => parseInt(x,16); const c = (i) => Math.round(p(a.slice(i,i+2)) + (p(b.slice(i,i+2)) - p(a.slice(i,i+2))) * t); return `rgb(${c(1)},${c(3)},${c(5)})`; }
+function gradeColor(p){ if (miss(p)) return '#C2C0B6'; const t = (p - 1) / 98; return t < .5 ? mix('#1C4E86', '#C2C0B6', t * 2) : mix('#C2C0B6', '#BC3A2C', (t - .5) * 2); }
+const muchColor = () => '#C2A263';
+const ord = n => { const s = ['th','st','nd','rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+const QN = ['1st','2nd','3rd','4th'];
+const teamName = (k) => IDX.teams[k]?.name || k;
+const teamColor = k => IDX.teams[k]?.color || '#22395A';
+const fetchJSON = async (p) => { const r = await fetch(p, {cache:'no-cache'}); if (!r.ok) throw new Error(p + ' ' + r.status); return r.json(); };
+const nameOf = id => (IDX.tree.nodes[id]?.name) || (IDX.coaches.find(c => c.id === id)?.name) || id;
+const last = n => String(n || '').split(' ').slice(-1)[0];
+const initials = nm => String(nm || '').split(' ').map(s => s[0] || '').slice(0, 2).join('').toUpperCase();
+
+// ---------------------------------------------------------------- season photos
+// bcs/heads.json (pipeline/basketball/coaching/heads.py) gives each coach-season one of three marks:
+//   0  a photo the NBA shot that season, for that team: drawn as it is
+//   1  the nearest photo of him there is (another season's, his newest, his playing days, Basketball-Reference's):
+//      cropped to his face over a collar in that season's team colours, so no other shirt shows
+//   2  no photo of him anywhere: a badge in those colours with his initials
+// headEntry(id, year) is the entry in force for a season's start year; with no year, his latest.
+const HEAD_CDN = 'https://cdn.nba.com/headshots/nba/', HEAD_BR = 'https://www.basketball-reference.com/req/202106291/images/headshots/';
+const startYear = season => { const y = parseInt(String(season || ''), 10); return isNaN(y) ? null : y; };
+function headEntry(id, year){ const L = HEADS?.p?.[id]; if (!L) return null; const y = year == null ? 9999 : year; let e = null; for (const x of L) { if (x[0] <= y) e = x; else break; } return e || L[0]; }
+function headSrc(k, big){
+  if (!k) return null;
+  if (k.startsWith('br/')) return HEAD_BR + k.slice(3) + '.jpg';
+  const sz = big ? '1040x760' : '260x190', m = k.match(/^(\d+)\/(\d+)\/(\d+)$/);
+  return m ? `${HEAD_CDN}${m[1]}/${m[2]}/${sz}/${m[3]}.png` : `${HEAD_CDN}latest/${sz}/${k}.png`;
+}
+const _lum = hex => { const h = String(hex || '').replace('#', ''); const c = [0, 2, 4].map(i => { const v = parseInt(h.substr(i, 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+// a team's two colours, and an ink for initials on the first: the second where it reads, white or near-black where it doesn't
+function teamPair(t){
+  const k = HEADS?.alias?.[t] || t, e = HEADS?.teams?.[k];
+  const a = e ? e[0] : (IDX?.teams?.[k]?.color || '#22395A'), b = e ? e[1] : '#C2A263';
+  const la = _lum(a), lb = _lum(b), cr = (Math.max(la, lb) + .05) / (Math.min(la, lb) + .05);
+  return [a, b, cr >= 3 ? b : (la > .35 ? '#1A1A1A' : '#FFFFFF')];
+}
+// the picture for a coach in a season (or his latest), filling whatever frame the spot draws
+function faceHTML(id, year, name, big){
+  const e = headEntry(id, year), c = e && e[3] ? teamPair(e[3]) : null;
+  const st = c ? `--tc:${c[0]};--tc2:${c[1]};--tc3:${c[2]}` : '', ini = `<b>${esc(initials(name))}</b>`;
+  if (!e || e[2] === 2 || !e[1]) return `<span class="face badge" style="${st}" aria-hidden="true">${ini}</span>`;
+  const url = headSrc(e[1], big);
+  if (e[2] === 1) return `<span class="face crop${e[1].startsWith('br/') ? ' br' : ''}" style="${st};background-image:url(${url})" aria-hidden="true"></span>`;
+  return `<span class="face badge" style="${st}" aria-hidden="true">${ini}<img src="${url}" alt="" loading="lazy" onerror="this.remove()"></span>`;
+}
+// where a coach's picture came from, for the card's hover
+function headNote(id, year, season){
+  const e = headEntry(id, year), team = e && e[3] ? esc(teamName(e[3])) : 'his team';
+  const src = k => k.startsWith('br/') ? "Basketball-Reference's photo of him" : /\//.test(k) ? `the NBA's photo of him from ${k.split('/')[1]}-${String(+k.split('/')[1] + 1).slice(2)}` : "the NBA's newest photo of him";
+  if (!e || e[2] === 2 || !e[1]) return `<b>No photo of him we can reach</b><br><span class="k">a badge in ${team}'s colours instead</span>`;
+  if (e[2] === 0) return `<b>${season ? `The NBA's photo of him for ${season}` : "The NBA's newest photo of him"}</b><br><span class="k">shot for ${team}</span>`;
+  return `<b>${src(e[1])}</b><br><span class="k">cropped to his face and framed in ${team}'s colours${season ? `, because there is no photo of him from ${season}` : ''}</span>`;
+}
+const CW = (max) => Math.max(340, Math.min(max || 1000, (document.getElementById('coach')?.clientWidth || 1000) - 40));
+// links: a coach to his page here, a player to his Basketball Savant card. An ESPN-only id ("e123")
+// has no card, so it stays plain text.
+const coachLink = (id, name) => id ? `<a class="cl" href="#c=${encodeURIComponent(id)}">${esc(name ?? nameOf(id))}</a>` : esc(name);
+const playerLink = (pid, name) => (pid != null && /^\d+$/.test(String(pid))) ? `<a class="pl" href="${SAVANT}${pid}" title="his Basketball Savant card">${esc(name)}</a>` : esc(name);
+const svgCoach = (id, x, y, text, attrs='') => `<a href="#c=${encodeURIComponent(id)}"><text x="${x}" y="${y}" ${attrs}>${esc(text)}</text></a>`;
+const svgPlayer = (pid, x, y, text, attrs='') => /^\d+$/.test(String(pid)) ? `<a href="${SAVANT}${pid}"><text x="${x}" y="${y}" ${attrs}>${esc(text)}</text></a>` : `<text x="${x}" y="${y}" ${attrs}>${esc(text)}</text>`;
+const tipAttr = html => ` data-tip="${String(html).replace(/"/g, '&quot;')}"`;
+const pbox = p => miss(p) ? '<span class="pbox" style="background:#C2C0B6">—</span>' : `<span class="pbox" style="background:${gradeColor(p)};color:${p > 30 && p < 70 ? '#191B1F' : '#fff'}">${p}</span>`;
+const goldbox = p => miss(p) ? '<span class="pbox" style="background:#C2C0B6">—</span>' : `<span class="pbox" style="background:#C2A263;color:#191B1F">${p}</span>`;
+
+// ---------------------------------------------------------------- the tooltip
+// One box for everything on the page. An element says what to show with data-tip (HTML); a
+// canvas feeds it by hand. It opens where the pointer entered and stays put, so a link inside
+// it can be reached; it closes a beat after the pointer has left both the anchor and the box.
+const TIP = document.getElementById('tip');
+let tipAnchor = null, tipTimer = null, tipKey = null;
+function placeTip(x, y, opts){
+  opts = opts || {};
+  TIP.style.left = '0px'; TIP.style.top = '0px';
+  const r = TIP.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+  let left = x + 14, top = y + 16;
+  if (left + r.width > vw - 8) left = x - r.width - 14;
+  if (opts.minLeft != null && left < opts.minLeft) left = Math.min(opts.minLeft, vw - r.width - 8);
+  if (left < 8) left = 8;
+  if (top + r.height > vh - 8) top = y - r.height - 12;
+  if (top < 8) top = 8;
+  TIP.style.left = left + 'px'; TIP.style.top = top + 'px';
+}
+function showTip(html, x, y, opts){ clearTimeout(tipTimer); TIP.innerHTML = html; TIP.style.display = 'block'; placeTip(x, y, opts); }
+function hideTip(){ TIP.style.display = 'none'; tipAnchor = null; tipKey = null; }
+function armHide(ms){ clearTimeout(tipTimer); tipTimer = setTimeout(hideTip, ms || 180); }
+document.addEventListener('pointerover', e => {
+  const el = e.target.closest ? e.target.closest('[data-tip]') : null;
+  if (!el) return;
+  if (el === tipAnchor) { clearTimeout(tipTimer); return; }
+  tipAnchor = el; tipKey = null;
+  showTip(el.dataset.tip, e.clientX, e.clientY);
+});
+document.addEventListener('pointerout', e => {
+  if (!tipAnchor) return;
+  const to = e.relatedTarget;
+  if (to && (TIP.contains(to) || (to.closest && to.closest('[data-tip]') === tipAnchor))) return;
+  armHide(180);
+});
+TIP.addEventListener('pointerenter', () => clearTimeout(tipTimer));
+TIP.addEventListener('pointerleave', () => armHide(150));
+window.addEventListener('scroll', () => { if (TIP.style.display === 'block' && !TIP.matches(':hover')) hideTip(); }, {passive:true});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTip(); });
+
+// A stat's explainer, from config.STATS: value, percentile and pool, sample, definition.
+function statTip(key, d){
+  const s = STATS[key]; if (!s) return '';
+  d = d || {};
+  const how = s.kind === 'good' ? 'how good' : 'how much';
+  const where = d.pool ? (d.season ? `percentile among ${d.pool} coaches of ${d.season}` : `percentile among ${d.pool} coaches, career`) : (d.season ? `not ranked in ${d.season}` : 'not ranked');
+  const settled = (d.n == null) ? '' : (d.n >= s.thr ? ' · past its settle point' : ` · under its settle point of ${s.thr.toLocaleString()}`);
+  return `<b>${esc(s.label)}</b> <span class="k">${how}${s.lower ? ' · lower is better' : ''} · from ${s.first}</span><br>` +
+    `${d.v === undefined ? '' : `<b>${fmt(s.unit, d.v)}</b> `}${miss(d.pct) ? '' : (s.kind === 'good' ? pbox(d.pct) : goldbox(d.pct))}<span class="k">${miss(d.pct) ? (d.pool ? 'not ranked, ' + where.replace('percentile ', '') : where) : where}</span>` +
+    `${d.n != null ? `<br><span class="k">sample ${Number(d.n).toLocaleString()}${d.seasons ? `, ${d.seasons} season${d.seasons === 1 ? '' : 's'}` : ''}${settled}</span>` : ''}` +
+    `<div class="def">${esc(s.what)}<br><span class="k">${esc(s.formula)} · ${esc(s.source)}</span></div>`;
+}
+
+// ---------------------------------------------------------------- routing and the shell
+function syncTabs(view){
+  document.querySelectorAll('.sv-tab[data-tab]').forEach(t => t.classList.toggle('on', t.dataset.tab === view));
+}
+function route(){
+  const h = decodeURIComponent(location.hash.slice(1));
+  hideTip();
+  if (h.startsWith('c=')) return openCoach(h.slice(2).split('&')[0], h);
+  if (h === 'tree' || h.startsWith('tree=')) return openTree(h.startsWith('tree=') ? h.slice(5) : null);
+  document.body.className = 'view-home anim';
+  document.title = 'Basketball Coaching Savant — WCE Hoops';
+  syncTabs(h === 'leaders' ? 'leaders' : 'coaches');
+  if (h === 'leaders') { const el = document.getElementById('leadersplate'); if (el) setTimeout(() => el.scrollIntoView({behavior:'smooth', block:'start'}), 30); }
+  else window.scrollTo(0, 0);
+}
+async function init(){
+  [IDX, HEADS] = await Promise.all([fetchJSON(`${BASE}/index.json`), fetchJSON(`${BASE}/heads.json`).catch(() => null)]);
+  for (const s of IDX.stats) STATS[s.key] = s;
+  const m = IDX.meta, cur = IDX.coaches.filter(c => c.active).length;
+  document.getElementById('srcpill').textContent = `live data · ${IDX.meta.seasons.length} seasons · ${m.current} through ${m.generated.slice(5, 10).replace('-', '/')}`;
+  document.getElementById('verchip').textContent = 'v' + m.version;
+  renderChips();
+  renderHome();
+  wireSearch();
+  window.addEventListener('hashchange', route);
+  route();
+}
+// trending: the head coaches of the season in progress, the busiest careers first
+function renderChips(){
+  const el = document.getElementById('chips');
+  const act = IDX.coaches.filter(c => c.active && c.hc).sort((a, b) => b.all_g - a.all_g).slice(0, 7);
+  el.innerHTML = '<span class="chips-label">Trending</span>' + act.map(c => `<a class="chip" href="#c=${c.id}" data-id="${c.id}"><span class="hf">${faceHTML(c.id, null, c.name)}</span>${esc(c.name)}</a>`).join('');
+}
+
+// ---------------------------------------------------------------- home
+function renderHome(){
+  const m = IDX.meta;
+  document.getElementById('homeintro').innerHTML = `<h2 class="col-h">Every NBA head coach, judged from the floor up</h2><p class="since">${IDX.coaches.filter(c => c.hc).length} head coaches since 1946-47 · ${IDX.coaches.filter(c => c.g).length} with games since 1996-97 · a pool of ${m.rules.career_pool} ranked careers · built ${m.generated.slice(0,10)}</p>
+    <p class="small" style="max-width:720px">When each player plays and how often the coach goes off-script. Lineups judged from their parts. Timeouts that stop runs, or don't. Wins against what the roster and the market expected. Records and the coaching tree to 1946-47; everything else from the year its data begins. Start with a name above, or a trending coach.</p>`;
+  document.getElementById('lead-since').textContent = `career boards: head coaches with ${m.rules.min_career_seasons}+ seasons and ${m.rules.min_career_games}+ games in the stat's window; this season: ${m.current}`;
+  renderLeaders();
+  renderTrends();
+  const pr = IDX.produced.slice(0, 16).map(([n, id, kids]) => `<div class="lrow"${tipAttr(`<b>${esc(n)}</b><br>${kids.slice(0, 12).map(esc).join(', ')}${kids.length > 12 ? ` and ${kids.length - 12} more` : ''}`)}><span class="hf">${faceHTML(id, null, n)}</span><span class="ln">${coachLink(id, n)}</span><span class="lv">${kids.length}</span></div>`).join('');
+  document.getElementById('produced').innerHTML = `<div class="grid3"><div>${pr}</div><div class="small" style="grid-column:span 2">Head coaches who served on a man's staff before their own first head job, counted by Basketball-Reference's assistant stints and the NBA's staff tables (which begin in the 2000s). ${esc(IDX.tree.note)} <a href="#tree">Open the tree ↗</a></div></div>`;
+  const t = m.fits.talent || {}, p = m.fits.parts || {};
+  document.getElementById('howto').innerHTML = `
+    <p><b>Two kinds of rows.</b> A graded row (blue to red) is "how good": higher percentile, better, with lower-is-better rows already flipped. A gold row is "how much": a tendency, where a high percentile means more of it, not better. The number riding the bar is the percentile; every percentile names its pool. A hatched bar is under its settle point and should be read as what happened, not who he is. Hover anything for its value, its pool, its sample and its definition; click a row's name to pin the explainer; the small chart glyph draws his seasons against the league median.</p>
+    <p><b>Two expectations.</b> <i>Talent</i> is ours: each player's impact the season before, weighted by his role the season before, so the coach's own minutes cannot move it (out-of-sample R² ${t.oos_r2 ?? '—'} on team net rating, ${t.rmse ?? '—'} points of error, ${t.n ?? '—'} team-seasons). <i>The market</i> is the preseason win total, with the source page, and from 2015-16 the closing spread game by game.</p>
+    <p><b>The Rotation Map</b> shows, for every man with 100 minutes under a coach, the share of games he was on the floor in each of the 48 minutes, measured on minutes still in the balance. His usual windows are where that share is 60% or better. Each game's off-script share is the minutes where someone's actual status differed from his usual one, and each off-script minute gets the first cause that fits: absence, blowout, foul trouble, then choice. ${esc(m.model_note)}</p>
+    <p><b>Lineups are judged from their parts</b> (Σ impact of the five; out-of-sample R² ${p.oos_r2_talent ?? '—'} on luck-adjusted unit net over ${p.n ?? '—'} units), never from raw lineup net ratings, which inside a team are mostly noise. ${pairText(m.fits.pairings)}</p>`;
+}
+function pairText(pr){
+  if (!pr) return 'The lineup pairings were not tested in this build.';
+  const names = {hub_stretch:'hub big + stretch big', rimprot_stretch:'rim protector + stretch big', spacer_stopper:'spacer + stopper', two_noshoot_bigs:'two bigs where neither shoots'};
+  const used = Object.entries(pr.replicated).filter(([k, v]) => v.replicates).map(([k]) => k);
+  const rows = Object.keys(names).map(k => { const d = pr.results.discovery_even[k], r = pr.results.replication_odd[k]; return `${names[k]} ${signed(d.coef)} then ${signed(r.coef)}`; }).join('; ');
+  return `The four pairings the lineup fit study found were retested on ${pr.n_units.toLocaleString()} units, ${pr.seasons[0]} to ${pr.seasons[1]}, with team-season fixed effects and errors clustered by team-season, discovered on even seasons and replicated on odd (${rows}). ${used.length ? `Used in the projection, at the pooled coefficient, because it keeps its sign in both halves and the pooled estimate clears p < .05: ${used.map(k => `${names[k]} (${signed(pr.replicated[k].coef)} per 100)`).join(', ')}. The other three flip sign or do not clear, and are left out.` : 'None replicated across the two halves, so the projection stays talent only; spacer + stopper kept its sign in both and is the one worth watching.'}`;
+}
+function renderLeaders(){
+  const el = document.getElementById('leaders');
+  el.innerHTML = IDX.leaders.map(b => `<div><h3 class="lead-h"${tipAttr(`<b>${esc(b.title)}</b><br>${esc(b.note || '')}<br><span class="k">${esc(b.pool)}</span>`)}>${esc(b.title)}</h3><p class="lead-p">${esc(b.pool)}${b.rows.length ? ` · ${b.rows.length}` : ''}</p>${b.rows.slice(0, 10).map((r, i) => `<div class="lrow"><span class="lrk">${i + 1}</span><span class="hf">${faceHTML(r.id, r.season ? startYear(r.season) : null, r.name)}</span><span class="ln">${coachLink(r.id, r.name)}${r.team ? ` <small style="color:var(--faint)">${r.team}${r.season ? ' ' + r.season : ''}</small>` : ''}</span><span class="lv">${esc(r.display)}</span></div>`).join('') || '<div class="empty">nothing to rank yet</div>'}</div>`).join('');
+}
+function renderTrends(){
+  const el = document.getElementById('trends');
+  const keys = [['pace','Pace'],['fg3r','3-point rate'],['depth10','Rotation depth (10+ min)'],['stability','Rotation stability'],['ch_success','Challenge success'],['to_g','Timeouts per game']];
+  el.innerHTML = keys.map(([k, label]) => {
+    const pts = IDX.trends.filter(t => !miss(t[k])).map(t => [t.season, t[k]]);
+    if (pts.length < 2) return `<div><h3 class="lead-h">${label}</h3><div class="empty">no seasons yet</div></div>`;
+    const vals = pts.map(p => p[1]); const lo = Math.min(...vals), hi = Math.max(...vals), pad = (hi - lo) * .15 || 1;
+    const W = 300, H = 90, x = i => 30 + i * (W - 40) / (pts.length - 1), y = v => 10 + (H - 30) * (1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)));
+    const d = pts.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ');
+    const u = STATS[k]?.unit || 'num1';
+    return `<div><h3 class="lead-h"${tipAttr(statTip(k))}>${label}</h3><p class="lead-p">${pts[0][0]} → ${pts[pts.length-1][0]}: ${fmt(u, pts[0][1])} → ${fmt(u, pts[pts.length-1][1])}</p>
+      <svg class="chart" viewBox="0 0 ${W} ${H}"><path d="${d}" fill="none" stroke="#22395A" stroke-width="2"/>${pts.map((p, i) => `<circle class="hit" cx="${x(i)}" cy="${y(p[1])}" r="3.5" fill="#C2A263"${tipAttr(`<b>${p[0]}</b><br>${esc(label)}: ${fmt(u, p[1])}<br><span class="k">league, games-weighted over every coach-season</span>`)}></circle>`).join('')}
+      <text x="30" y="${H-4}" font-size="9" fill="#8B9099">${pts[0][0]}</text><text x="${W-10}" y="${H-4}" font-size="9" fill="#8B9099" text-anchor="end">${pts[pts.length-1][0]}</text></svg></div>`;
+  }).join('');
+}
+
+// ---------------------------------------------------------------- search (and "+ Compare", which borrows it)
+function wireSearch(){
+  const q = document.getElementById('q'), box = document.getElementById('results');
+  const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]+/g, ' ').trim();
+  let sel = -1, hits = [];
+  function show(){
+    const v = norm(q.value);
+    if (!v) { box.hidden = true; return; }
+    hits = IDX.coaches.filter(c => norm(c.name).includes(v) && !(addMode && COACH && c.id === COACH.id)).sort((a, b) => (norm(b.name).startsWith(v) - norm(a.name).startsWith(v)) || (b.all_g - a.all_g)).slice(0, 12);
+    box.innerHTML = (addMode ? '<div class="res"><span class="rs">adding a coach to compare — Esc to cancel</span></div>' : '') + hits.map((c, i) => `<div class="res${i === sel ? ' on' : ''}" data-i="${i}"><span class="hf">${faceHTML(c.id, null, c.name)}</span><span class="rn">${esc(c.name)}</span><span class="rs">${c.hc ? `${c.all_w}–${c.all_l}, ${c.all_seasons} seasons` : 'assistant'}${c.first ? ` · ${c.first.slice(0,4)}–${(c.last||'').slice(0,4)}` : ''}</span></div>`).join('') || '<div class="res"><span class="rs">no coach by that name</span></div>';
+    box.hidden = false;
+    box.querySelectorAll('.res[data-i]').forEach(r => r.addEventListener('mousedown', () => go(+r.dataset.i)));
+  }
+  function go(i){
+    const c = hits[i]; if (!c) return; box.hidden = true; q.value = '';
+    if (addMode) { leaveAdd(); addCompare(c.id); return; }
+    location.hash = 'c=' + c.id;
+  }
+  q.addEventListener('input', () => { sel = -1; show(); });
+  q.addEventListener('keydown', e => { if (e.key === 'ArrowDown') { sel = Math.min(hits.length - 1, sel + 1); show(); } else if (e.key === 'ArrowUp') { sel = Math.max(0, sel - 1); show(); } else if (e.key === 'Enter') go(Math.max(0, sel)); else if (e.key === 'Escape') { box.hidden = true; leaveAdd(); } });
+  q.addEventListener('blur', () => setTimeout(() => { box.hidden = true; }, 150));
+}
+function enterAdd(){ addMode = true; const q = document.getElementById('q'); q.placeholder = 'Add a coach to compare…'; q.classList.add('adding'); q.focus(); }
+function leaveAdd(){ addMode = false; const q = document.getElementById('q'); q.placeholder = 'Search a head coach or assistant…'; q.classList.remove('adding'); }
+
+// ---------------------------------------------------------------- coach page
+async function openCoach(id, hash){
+  document.body.className = 'view-coach anim';
+  syncTabs('coaches');
+  const el = document.getElementById('coach');
+  if (!COACH || COACH.id !== id) {
+    el.innerHTML = '<div class="col wide"><div class="empty">loading…</div></div>';
+    try { COACH = await fetchJSON(`${BASE}/c/${encodeURIComponent(id)}.json`); }
+    catch (e) { el.innerHTML = `<div class="col wide"><h2 class="col-h">No page for “${esc(id)}”</h2><p class="small">Search above for a head coach or assistant.</p></div>`; return; }
+    cmp = cmp.filter(c => c !== id);
+  }
+  const m = /season=([0-9-]+)/.exec(hash || '');
+  const rotSeasons = COACH.seasons.filter(s => s.rotation);
+  state.mode = (m && COACH.seasons.find(s => s.season === m[1])) ? m[1] : 'career';
+  const want = state.mode === 'career' ? null : state.mode;
+  const full = rotSeasons.filter(s => s.g >= 20);
+  state.season = (want && rotSeasons.find(s => s.season === want)) ? want : (full.length ? full[full.length - 1].season : (rotSeasons.length ? rotSeasons[rotSeasons.length - 1].season : null));
+  state.game = null; state.kind = 'RS';
+  renderCoach();
+  if (!m) window.scrollTo(0, 0);
+  document.title = `${COACH.name} — Basketball Coaching Savant`;
+  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.id === id));
+}
+function pickSeason(season){
+  const h = `c=${COACH.id}${season === 'career' ? '' : `&season=${season}`}`;
+  if (decodeURIComponent(location.hash.slice(1)) === h) return;
+  const y = window.scrollY;
+  history.replaceState(null, '', '#' + h);
+  state.mode = season;
+  const rotSeasons = COACH.seasons.filter(s => s.rotation);
+  state.season = season !== 'career' && rotSeasons.find(s => s.season === season) ? season : state.season;
+  state.game = null;
+  renderCoach();
+  window.scrollTo(0, y);
+}
+const modeRow = () => state.mode === 'career' ? null : COACH.seasons.find(s => s.season === state.mode);
+const modeLabel = () => state.mode === 'career' ? 'career' : `${state.mode} ${modeRow()?.team || ''}`;
+// a season under the 41-game line but in progress is ranked provisionally among coaches with 10+ games
+const liveMode = sr => !!(sr && !sr.ranked && sr.live_pct);
+const seasonPct = sr => liveMode(sr) ? sr.live_pct : (sr.ranked ? sr.pct || {} : {});
+const seasonPools = sr => liveMode(sr) ? (sr.live_pools || {}) : (IDX.league[sr.season]?.pools || {});
+function cardRows(sr, page){
+  // {key: {v, n, pct, pool, seasons}} for the career or for one season, for this coach or a compared one
+  page = page || COACH;
+  if (!sr) return page.career.stats;
+  const row = page === COACH ? sr : page.seasons.find(s => s.season === sr.season);
+  if (!row) return {};
+  const pools = seasonPools(row), P = seasonPct(row), out = {};
+  for (const [k, v] of Object.entries(row.values || {})) if (v && !miss(v[0])) out[k] = {v: v[0], n: v[1], pct: P[k], pool: pools[k], seasons: 1};
+  return out;
+}
+
+function renderCoach(){
+  const el = document.getElementById('coach');
+  const sr = modeRow();
+  const parts = [];
+  parts.push(renderIdentity(sr));
+  parts.push(renderControls(sr));
+  parts.push(`<div class="ctxrow">${panelHTML('record', 'Results and expectation', sr, true)}</div>`);
+  parts.push(`<div class="panels">${panelHTML('rotation', 'Rotation and lineups', sr)}${panelHTML('management', 'Game management', sr, false, renderManagement(sr))}</div>`);
+  parts.push(`<div class="panels">${panelHTML('offense', 'Offensive identity', sr, false, renderDiet(sr, 'o') + renderPlayTypes(sr, 'o'))}${panelHTML('defense', 'Defensive identity', sr, false, renderDiet(sr, 'd') + renderPlayTypes(sr, 'd'))}</div>`);
+  parts.push(`<div class="panels">${panelHTML('development', 'Players under him', sr)}${panelHTML('context', 'Situation by situation', sr, false, renderSplits(sr))}</div>`);
+  parts.push(renderScouting(sr));
+  parts.push(renderCareerChart());
+  parts.push(`<div class="col wide" id="rotation"><h2 class="col-h">The Rotation Map<span class="q">when each man plays</span></h2><p class="since">2002-03 on · the model's view, not a verdict · hover a cell for the man, the minute and the share</p><div id="rotbody"></div></div>`);
+  parts.push(`<div class="col wide" id="pairs"><h2 class="col-h">Who he plays together<span class="q">and does it work</span></h2><p class="since">2002-03 on · above the diagonal: share of the row's minutes with the column; below: sample-adjusted net together (luck-adjusted, pulled toward the team by k possessions) · hover a cell</p><div id="pairbody"></div></div>`);
+  parts.push(`<div class="col wide" id="quad"><h2 class="col-h">Is he playing his best groups?</h2><p class="since">2002-03 on · every five-man unit with 25 minutes: minutes against its projection from parts · hover a dot</p><div id="quadbody"></div></div>`);
+  parts.push(`<div class="col wide" id="mvi"><h2 class="col-h">Who he trusts<span class="q">and is he right</span></h2><p class="since">2002-03 on · minutes per game against impact, with the league's fair-minutes line for that season · hover a dot</p><div id="mvibody"></div></div>`);
+  parts.push(renderArrival());
+  parts.push(renderDevelopment(sr));
+  parts.push(renderStaff(sr));
+  parts.push(`<div class="col wide" id="treecard"><h2 class="col-h">His place in the tree</h2><p class="since">drag to pan, scroll or pinch to zoom, hover a coach to light his line, click to open his page · <a href="#tree=${COACH.id}">the whole forest ↗</a></p><div class="treestage embed" id="treeEmbed"></div></div>`);
+  parts.push(renderComps(sr));
+  parts.push(renderSeasons());
+  el.innerHTML = parts.join('');
+  wireCoach();
+  loadSeason(state.season);
+  const fb = document.querySelector('#fpplate .tab');
+  document.querySelectorAll('#fpplate [data-fp]').forEach(x => x.addEventListener('click', () => drawFingerprint(x.dataset.fp, sr)));
+  if (fb) drawFingerprint(fb.dataset.fp, sr); else drawFingerprint(null, sr);
+  mountTree(document.getElementById('treeEmbed'), COACH.id);
+  requestAnimationFrame(() => document.querySelectorAll('.fill[data-w]').forEach(f => { f.style.width = f.dataset.w + '%'; }));
+}
+
+// ---------------------------------------------------------------- identity card
+function renderIdentity(sr){
+  const c = COACH, b = c.bio, at = c.career.all_time, cs = c.career.stats;
+  const bits = [];
+  if (b.born) bits.push(`born ${b.born}${b.birthplace ? ', ' + esc(b.birthplace) : ''}`);
+  if (b.college) bits.push(esc(b.college));
+  if (b.played) bits.push(`played ${b.player_games ? b.player_games + ' NBA games' : 'in the NBA'}`);
+  if (b.age_first_hc) bits.push(`first head job at <b>${b.age_first_hc}</b>`);
+  if (b.assistant_seasons_before) bits.push(`${b.assistant_seasons_before} season${b.assistant_seasons_before === 1 ? '' : 's'} as an assistant before it`);
+  const teams = [...new Set(c.stints.map(s => s.team))];
+  const stat = (v, l, tip) => `<span class="st"${tip ? tipAttr(tip) : ''}><b>${v}</b> ${l}</span>`;
+  const sl = `<div class="statline">${stat(`${at.w}–${at.l}`, 'W–L', 'Basketball-Reference, every regular season as a head coach')}${stat(at.g ? (100 * at.w / at.g).toFixed(1) + '%' : '—', 'WIN %')}${stat(at.titles, at.titles === 1 ? 'TITLE' : 'TITLES')}${stat(c.career.eligible ? signed(c.career.w_talent_sum_raw) : '—', 'ABOVE TALENT', statTip('w_talent', cs.w_talent ? {v: cs.w_talent.v, pct: cs.w_talent.pct, pool: cs.w_talent.pool, n: cs.w_talent.n, seasons: cs.w_talent.seasons} : {}) + '<div class="def">Added up over his career: actual wins minus the wins his rosters\' prior-season impact predicted.</div>')}${stat(c.career.eligible ? signed(c.career.w_market_sum_raw) : '—', 'ABOVE THE MARKET', statTip('w_market', cs.w_market ? {v: cs.w_market.v, pct: cs.w_market.pct, pool: cs.w_market.pool, n: cs.w_market.n, seasons: cs.w_market.seasons} : {}) + '<div class="def">Added up over his career: actual wins minus the preseason win total.</div>')}</div>`;
+  const acc = [];
+  for (const y of at.coy) acc.push(`<span class="acco major" title="Coach of the Year, ${y}">Coach of the Year ${y}</span>`);
+  if (at.titles) acc.push(`<span class="acco gold">${at.titles} title${at.titles > 1 ? 's' : ''}</span>`);
+  if (b.hof) acc.push('<span class="acco">Hall of Fame</span>');
+  if (c.career.eligible) acc.push(`<span class="acco" title="ranked against ${IDX.meta.rules.career_pool} careers with ${IDX.meta.rules.min_career_seasons}+ seasons and ${IDX.meta.rules.min_career_games}+ games">ranked career</span>`);
+  if (b.stub) acc.push('<span class="acco">no Basketball-Reference page</span>');
+  const meta = `${teams.map(t => `<b>${esc(t)}</b>`).join(', ')}${at.first ? ` · ${at.first}–${(at.last || '').slice(0, 7)}` : ''} · ${at.seasons} season${at.seasons === 1 ? '' : 's'} as head coach${at.po_seasons ? ` · ${at.po_seasons} playoff seasons (${c.career.pw}–${c.career.pl} since 1996-97)` : ''}${bits.length ? '<br>' + bits.join(' · ') : ''}`;
+  let ch = '<div class="cmpbar">';
+  if (cmp.length) {
+    const yr = sr ? startYear(sr.season) : null;
+    ch += `<span class="cmp-pill"><span class="hf" style="--cc:${CMP_COLORS[0]}">${faceHTML(c.id, yr, c.name)}</span>${esc(c.name)}</span>`;
+    cmp.forEach((id, i) => { const nm = CMPC[id]?.name || nameOf(id); ch += `<span class="cmp-pill"><span class="hf" style="--cc:${CMP_COLORS[i + 1]}">${faceHTML(id, yr, nm)}</span>${coachLink(id, nm)}<button class="cmp-x" data-idx="${i}" aria-label="Remove">&times;</button></span>`; });
+  }
+  if (1 + cmp.length < 3) ch += '<button class="cmp-add" id="cmpAdd">+ Compare</button>';
+  ch += '</div>';
+  if (cmp.length) ch += `<div class="cmp-note">${sr ? `Each coach's ${sr.season}, where he coached it; a coach without that season shows no bar.` : 'Careers, each ranked in the career pool.'}</div>`;
+  return `<div class="id" id="id"><div class="id-head"><div class="headwrap"${tipAttr(headNote(c.id, sr ? startYear(sr.season) : null, sr ? sr.season : null))}>${faceHTML(c.id, sr ? startYear(sr.season) : null, c.name, true)}</div>
+    <div class="id-headtext"><div class="id-name">${esc(c.name)}</div><div class="id-meta">${meta}</div>${sl}${acc.length ? `<div class="accos">${acc.join('')}</div>` : ''}${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}${ch}
+    ${renderArcButton()}</div></div>${renderArcRail()}</div>`;
+}
+// the career arc: one tick per season, height his wins per 82 against his own range, the star on his
+// peak (playoff success first, then the regular season); a tick picks that season
+function arcPoints(){
+  const rows = careerRows(), peak = peakOf(rows);
+  const w82 = r => r.g ? 82 * r.w / r.g : 0;
+  const vals = rows.filter(r => r.g).map(w82), lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo;
+  return {pts: rows.map(r => ({s: r.season, team: r.team, w: r.w, l: r.l, h: span > 0 ? (w82(r) - lo) / span : 1, has: r.has, tier: r.tier, title: r.title, w82: w82(r), unknownRound: r.unknownRound})), peak: peak ? peak.season : null};
+}
+function renderArcButton(){
+  if (!COACH.records.length && !COACH.seasons.length) return '';
+  const {peak} = arcPoints();
+  const cur = state.mode === 'career' ? null : state.mode;
+  return `<button type="button" class="arcbtn" id="arcBtn" aria-expanded="${state.arcOpen}">Career arc${cur && cur !== peak ? ` <span class="cur">${cur}</span>` : ''}${peak ? ` <span class="pk">★ ${peak}</span>` : ''}<span class="caret" aria-hidden="true">▾</span></button>`;
+}
+function renderArcRail(){
+  if (!state.arcOpen) return '<div class="arcrail" id="arcrail" hidden></div>';
+  const {pts, peak} = arcPoints();
+  if (!pts.length) return '';
+  const cur = state.mode;
+  const bars = pts.map(p => {
+    const on = p.s === cur, isPk = p.s === peak;
+    const h = 14 + 86 * p.h, bg = isPk ? 'var(--gold)' : (p.has ? teamColor(p.team) : 'var(--track)');
+    const t = `${p.s} ${teamName(p.team)} · ${p.w}–${p.l}${p.title ? ' · won the title' : p.unknownRound ? ' · playoffs' : p.tier > 0 ? ' · ' + ROUND_L[p.tier] : ''}${isPk ? ' · peak' : ''}${p.has ? '' : ' · before the game-level data'}`;
+    return `<button type="button" class="arc-col${on ? ' on' : ''}" data-s="${p.s}" data-has="${p.has ? 1 : 0}"${tipAttr(esc(t) + (p.has ? '<br><span class="k">click to view this season</span>' : ''))} aria-label="${esc(t)}">${isPk ? '<span class="arc-star" aria-hidden="true">★</span>' : ''}<span class="arc-bar" style="height:${h.toFixed(1)}%;background:${bg};opacity:${p.has ? 1 : .55}"></span></button>`;
+  }).join('');
+  return `<div class="arcrail" id="arcrail" style="max-width:${pts.length * 48 + 96}px"><div class="arc-h">Career arc<span>wins per 82, against his own range · team colours · grey: before 1996-97</span></div><div class="arc-ticks">${bars}</div><div class="arc-foot"><span>${pts[0].s}</span>${peak ? `<span class="arc-pklab">★ peak ${peak}</span>` : ''}<span>${pts[pts.length - 1].s}</span></div></div>`;
+}
+
+// ---------------------------------------------------------------- the controls bar
+function renderControls(sr){
+  const S = COACH.seasons;
+  if (!S.length && !COACH.records.length) return '';
+  const {peak} = arcPoints();
+  const cur = IDX.meta.current;
+  const label = state.mode === 'career' ? 'Career' : `${state.mode}${state.mode === peak ? ' <span class="selx-star">★</span>' : ''}`;
+  const opts = [`<button type="button" class="selx-opt" role="option" data-s="career" aria-selected="${state.mode === 'career'}"><span>Career</span><span class="selx-tag">${COACH.career.eligible ? 'ranked pool' : 'not ranked'}</span></button>`]
+    .concat(S.slice().reverse().map(s => `<button type="button" class="selx-opt" role="option" data-s="${s.season}" aria-selected="${state.mode === s.season}"><span>${s.season}${s.season === peak ? ' <span class="selx-star">★</span>' : ''}</span><span class="selx-tag">${s.team}${s.season === cur ? ' · live' : ''}${s.g < IDX.meta.rules.min_season_games && s.season !== cur ? ' · ' + s.g + ' g' : ''}</span></button>`));
+  const rank = state.mode === 'career' ? `the career pool, ${IDX.meta.rules.career_pool} coaches` : (sr && liveMode(sr) ? `this season's coaches with 10+ games, provisional` : `${state.mode}'s coaches with ${IDX.meta.rules.min_season_games}+ games`);
+  return `<div class="controls"><div class="ctl"><span class="ctl-lab">Season</span><div class="selx" id="selx"><button type="button" class="selx-btn" id="selxBtn" aria-haspopup="listbox" aria-expanded="false"><span>${label}</span><span class="selx-caret" aria-hidden="true">▾</span></button><div class="selx-pop" id="selxPop" role="listbox" hidden>${opts.join('')}</div></div></div>
+    <div class="ctl"><span class="ctl-lab">Ranked against</span><span style="font-family:var(--mono);font-size:12px">${rank}</span></div>
+    <div class="legend"><div class="legbox"><div class="legbar"></div><div class="ends"><span>poor</span><span>elite</span></div></div><div class="leg"><span class="goldswatch"></span>a tendency</div><div class="leg"><span class="hatchswatch"></span>under its settle point</div></div></div>`;
+}
+
+// ---------------------------------------------------------------- the panels: Savant's card rows
+function statBtn(key, label){
+  return `<button type="button" class="statbtn" data-stat="${key}" aria-expanded="false" title="Chart ${esc(label)} season by season" aria-label="Chart ${esc(label)} season by season"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 11.5L6 7l3 2.5L14 4"/><circle cx="2" cy="11.5" r="1.1"/><circle cx="6" cy="7" r="1.1"/><circle cx="9" cy="9.5" r="1.1"/><circle cx="14" cy="4" r="1.1"/></svg></button>`;
+}
+function rowHTML(s, v, sr){
+  const p = v.pct, un = v.n < s.thr, col = s.kind === 'good' ? gradeColor(p) : muchColor();
+  const shown = miss(p) ? 0 : p;
+  const numLeft = shown > 88 ? `calc(${shown}% - 24px)` : `calc(${shown}% + 6px)`;
+  return `<div class="row${un ? ' un' : ''}${miss(p) ? ' na' : ''}" data-k="${s.key}"${tipAttr(statTip(s.key, {v: v.v, pct: p, pool: v.pool, n: v.n, seasons: v.seasons, season: sr?.season}))}><div class="rl"><div class="name">${esc(s.label)}</div><div class="tag">${s.kind === 'good' ? 'how good' : 'how much'}${s.lower ? ' · lower is better' : ''}${un ? ' · low sample' : ''}${s.sub ? ' · ' + esc(s.sub) : ''}</div></div>
+    <div class="track"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div><div class="fill" data-w="${miss(p) ? 0 : Math.max(p, 1.5)}" style="background:${col}"><div class="hatch"></div></div><div class="pnum" style="left:${numLeft}">${miss(p) ? '·' : p}</div></div>
+    <div class="rv">${fmt(s.unit, v.v)}</div>${statBtn(s.key, s.label)}</div>`;
+}
+// compare: the way player compare draws it, one thin bar per coach inside the track
+function cmpRowHTML(s, entries, sr){
+  const bh = entries.length > 2 ? 12 : 14, gap = 4, pad = 5, trH = entries.length * bh + (entries.length - 1) * gap + 10;
+  const items = entries.map(e => { const v = e.rows[s.key]; return v ? {pct: miss(v.pct) ? 0 : v.pct, p: v.pct, txt: fmt(s.unit, v.v), v: v.v, n: v.n, pool: v.pool, nm: e.name} : {pct: 0, p: null, txt: '—', nm: e.name}; });
+  const bars = items.map((it, i) => `<div class="cbar" style="top:${pad + i * (bh + gap)}px;height:${bh}px;width:${Math.max(it.pct, 1.5)}%;background:${CMP_COLORS[i]}">${it.pct >= 22 ? `<span class="cbar-lab">${esc(last(it.nm))}${it.p != null ? ' ' + it.p : ''}</span>` : ''}</div>`).join('');
+  const vals = items.map((it, i) => `<div class="cv"><span class="cdot" style="background:${CMP_COLORS[i]}"></span>${it.txt}</div>`).join('');
+  const tip = `<b>${esc(s.label)}</b><br>` + items.map((it, i) => `<span class="cdot" style="background:${CMP_COLORS[i]};margin-right:5px"></span>${esc(it.nm)}: <b>${it.txt}</b>${it.p != null ? ` ${s.kind === 'good' ? pbox(it.p) : goldbox(it.p)}<span class="k">of ${it.pool ?? '—'}</span>` : ' <span class="k">not ranked</span>'}`).join('<br>') + `<div class="def">${esc(s.what)}</div>`;
+  return `<div class="row nochart" data-k="${s.key}"${tipAttr(tip)}><div class="rl"><div class="name">${esc(s.label)}</div><div class="tag">${s.kind === 'good' ? 'how good' : 'how much'}${s.lower ? ' · lower is better' : ''}</div></div><div class="track" style="height:${trH}px"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div>${bars}</div><div class="rv" style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">${vals}</div></div>`;
+}
+function cmpEntries(sr){
+  const e = [{id: COACH.id, name: COACH.name, rows: cardRows(sr)}];
+  for (const id of cmp) if (CMPC[id]) e.push({id, name: CMPC[id].name, rows: cardRows(sr, CMPC[id])});
+  return e;
+}
+function panelHTML(group, title, sr, wide, extra){
+  const cs = cardRows(sr), entries = cmp.length ? cmpEntries(sr) : null;
+  const all = IDX.stats.filter(s => s.group === group && (cs[s.key] || (entries && entries.some(e => e.rows[s.key]))));
+  const head = HEADLINE[group] || [], top = all.filter(s => head.includes(s.key)).sort((a, b) => head.indexOf(a.key) - head.indexOf(b.key)), more = all.filter(s => !head.includes(s.key));
+  const row = s => entries ? cmpRowHTML(s, entries, sr) : rowHTML(s, cs[s.key], sr);
+  const none = !all.length;
+  const q = {record: 'does he beat what he is given?', rotation: 'who plays, and does he stick to it?', management: 'timeouts, challenges, the clock', offense: 'what his teams hunt', defense: 'what they take away', development: 'against the aging curve', context: 'where the margin moves'}[group];
+  const since = Math.min(...all.map(s => +s.first.slice(0, 4)).filter(Boolean));
+  return `<div class="col${wide ? ' wide' : ''}" data-group="${group}"><h2 class="col-h">${title}<span class="q">${q}</span></h2>${none ? `<div class="empty">${sr ? `nothing for ${sr.season}` : (COACH.career.eligible ? 'nothing in this group' : `career stats are ranked only for head coaches with ${IDX.meta.rules.min_career_seasons}+ seasons and ${IDX.meta.rules.min_career_games}+ games since 1996-97; pick a season above`)}</div>` : `<p class="since">${isFinite(since) ? `from ${since}-${String(since + 1).slice(2)}` : ''}${sr ? ` · ${sr.season} ${sr.team}, ${sr.g} games` : ' · career, games-weighted'}${sr && !sr.ranked && !liveMode(sr) ? ' · under the line, shown without percentiles' : ''}</p>${top.map(row).join('')}`}
+    ${(more.length || extra) ? `<div class="xmore"><button type="button" class="xmore-btn" aria-expanded="false"><span class="xmore-lab">More ${esc(title.toLowerCase())}</span>${more.length ? `<span class="xmore-n">${more.length} stat${more.length === 1 ? '' : 's'}</span>` : ''}${extra ? '<span class="xmore-n">detail</span>' : ''}<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5"/></svg></button><div class="xmore-body">${more.map(row).join('')}${extra || ''}</div></div>` : ''}</div>`;
+}
+function explain(key, after, sr){
+  const s = STATS[key]; if (!s) return;
+  const nxt = after.nextElementSibling;
+  if (nxt && nxt.classList.contains('expl')) { nxt.remove(); return; }
+  document.querySelectorAll('.expl').forEach(e => e.remove());
+  const v = cardRows(sr)[key];
+  const div = document.createElement('div'); div.className = 'expl';
+  div.innerHTML = `<b>${esc(s.label)}</b> <span class="k">${s.kind === 'good' ? 'how good' : 'how much'}${s.lower ? ' · lower is better' : ''} · from ${s.first}</span><br>${esc(s.what)}<br><span class="k">${esc(s.formula)}</span><br><span class="k">Source: ${esc(s.source)} · ${esc(s.sample)}${v ? ` · his sample ${Number(v.n).toLocaleString()}${v.seasons ? `, ${v.seasons} season${v.seasons === 1 ? '' : 's'}` : ''}, pool ${v.pool ?? '—'}` : ''}</span>`;
+  after.insertAdjacentElement('afterend', div);
+}
+// the per-row chart: his seasons, dots coloured by that season's percentile, the league median dashed
+function rcOpen(btn, key){
+  const row = btn.closest('.row'); if (!row) return;
+  rcClose();
+  const host = document.createElement('div'); host.className = 'statchart'; host.dataset.stat = key;
+  row.parentNode.insertBefore(host, row.nextSibling);
+  btn.setAttribute('aria-expanded', 'true');
+  const s = STATS[key];
+  const pts = COACH.seasons.filter(x => x.values?.[key] && !miss(x.values[key][0])).map(x => ({s: x.season, team: x.team, v: x.values[key][0], n: x.values[key][1], pct: (x.ranked ? x.pct?.[key] : x.live_pct?.[key]) ?? null, med: IDX.league[x.season]?.median?.[key]}));
+  const head = `<div class="rc-top"><div class="rc-name">${esc(s.label)}<em>season by season</em></div><button type="button" class="rc-x" aria-label="Close">×</button></div>`;
+  if (pts.length < 2) { host.innerHTML = head + '<div class="rc-empty">Only one season of this stat — nothing to plot yet.</div>'; return; }
+  const W = Math.max(260, Math.min(680, (host.clientWidth || 520) - 28)), H = W < 360 ? 132 : 158, L = W < 360 ? 38 : 48, R = 10, T = 10, B = 22;
+  const vals = pts.map(p => p.v).concat(pts.map(p => p.med).filter(v => !miss(v)));
+  let lo = Math.min(...vals), hi = Math.max(...vals); if (hi - lo < 1e-9) { lo -= 1; hi += 1; } const pad = (hi - lo) * .12; lo -= pad; hi += pad;
+  if (s.unit === 'pct1' && lo < 0 && Math.min(...vals) >= 0) lo = 0;
+  const X = i => L + (W - L - R) * i / (pts.length - 1), Y = v => T + (H - T - B) * (1 - (v - lo) / (hi - lo));
+  let g = '';
+  for (let t = 0; t <= 2; t++) { const v = lo + (hi - lo) * t / 2, y = Y(v); g += `<line class="rc-gl" x1="${L}" x2="${W - R}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/><text class="rc-ax" x="${L - 7}" y="${(y + 3).toFixed(1)}" text-anchor="end">${fmt(s.unit, v)}</text>`; }
+  const step = Math.max(1, Math.ceil(pts.length / (W < 360 ? 4 : 8)));
+  for (let i = pts.length - 1; i >= 0; i -= step) g += `<text class="rc-ax" x="${X(i).toFixed(1)}" y="${H - B + 14}" text-anchor="middle">${pts[i].s.slice(2, 4)}-${pts[i].s.slice(5)}</text>`;
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(p.v).toFixed(1)}`).join(' ');
+  g += `<path class="rc-ar" d="${line} L${X(pts.length - 1).toFixed(1)} ${H - B} L${X(0).toFixed(1)} ${H - B} Z"/>`;
+  const medPts = pts.map((p, i) => miss(p.med) ? null : `${X(i).toFixed(1)} ${Y(p.med).toFixed(1)}`);
+  if (medPts.some(Boolean)) { let d = '', pen = false; medPts.forEach(m => { if (!m) { pen = false; return; } d += (pen ? 'L' : 'M') + m + ' '; pen = true; }); g += `<path class="rc-med" d="${d}"/>`; }
+  g += `<path class="rc-ln" d="${line}"/>`;
+  pts.forEach((p, i) => { g += `<circle class="rc-pt hit" cx="${X(i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="3.6" fill="${p.pct == null ? '#22395A' : (s.kind === 'good' ? gradeColor(p.pct) : '#C2A263')}"${tipAttr(`<b>${p.s} ${esc(teamName(p.team))}</b><br>${esc(s.label)}: <b>${fmt(s.unit, p.v)}</b>${p.pct != null ? ` ${s.kind === 'good' ? pbox(p.pct) : goldbox(p.pct)}<span class="k">that season</span>` : ''}${miss(p.med) ? '' : `<br><span class="k">league median ${fmt(s.unit, p.med)}</span>`}<br><span class="k">sample ${Number(p.n).toLocaleString()}</span>`)}></circle>`; });
+  const first = pts[0], lastp = pts[pts.length - 1];
+  host.innerHTML = head + `<svg class="rc-plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(s.label)} for ${esc(COACH.name)}, ${first.s} to ${lastp.s}">${g}</svg><div class="rc-note">${pts.length} seasons · ${first.s} → ${lastp.s} · dot colour = percentile that season · <span style="color:var(--gold)">- - -</span> league median</div>`;
+}
+function rcClose(){ document.querySelectorAll('.statchart').forEach(n => n.remove()); document.querySelectorAll('.statbtn[aria-expanded="true"]').forEach(b => b.setAttribute('aria-expanded', 'false')); }
+
+// ---------------------------------------------------------------- compare
+async function addCompare(id){
+  if (!id || id === COACH.id || cmp.includes(id) || cmp.length >= 2) return;
+  if (!CMPC[id]) { try { CMPC[id] = await fetchJSON(`${BASE}/c/${encodeURIComponent(id)}.json`); } catch (e) { return; } }
+  cmp.push(id); const y = window.scrollY; renderCoach(); window.scrollTo(0, y);
+}
+
+// ---------------------------------------------------------------- events (delegated: the page is rebuilt on every change)
+function wireCoach(){
+  const sr = modeRow();
+  document.querySelectorAll('#coach [data-pick]').forEach(x => x.addEventListener('click', e => { if (e.target.closest('a')) return; pickSeason(x.dataset.pick); }));
+  const btn = document.getElementById('selxBtn'), pop = document.getElementById('selxPop');
+  if (btn) {
+    btn.addEventListener('click', () => { const open = pop.hidden; pop.hidden = !open; btn.setAttribute('aria-expanded', String(open)); if (open) { const on = pop.querySelector('[aria-selected="true"]'); if (on) on.scrollIntoView({block:'nearest'}); } });
+    pop.querySelectorAll('.selx-opt').forEach(o => o.addEventListener('click', () => { pop.hidden = true; pickSeason(o.dataset.s); }));
+    document.addEventListener('click', e => { if (!e.target.closest('#selx')) { pop.hidden = true; btn.setAttribute('aria-expanded', 'false'); } }, {once: true, capture: true});
+  }
+  const arc = document.getElementById('arcBtn');
+  if (arc) arc.addEventListener('click', () => { state.arcOpen = !state.arcOpen; const y = window.scrollY; renderCoach(); window.scrollTo(0, y); });
+  document.querySelectorAll('.arc-col').forEach(a => a.addEventListener('click', () => { if (a.dataset.has === '1') pickSeason(a.dataset.s); }));
+}
+document.addEventListener('click', e => {
+  const t = e.target;
+  const b = t.closest ? t.closest('.statbtn') : null;
+  if (b) { if (b.getAttribute('aria-expanded') === 'true') rcClose(); else rcOpen(b, b.dataset.stat); return; }
+  if (t.closest && t.closest('.rc-x')) { rcClose(); return; }
+  const xm = t.closest ? t.closest('.xmore-btn') : null;
+  if (xm) { const box = xm.closest('.xmore'); const open = !box.classList.contains('open'); box.classList.toggle('open', open); xm.setAttribute('aria-expanded', String(open)); if (open) requestAnimationFrame(() => box.querySelectorAll('.fill[data-w]').forEach(f => { f.style.width = f.dataset.w + '%'; })); return; }
+  const x = t.closest ? t.closest('.cmp-x') : null;
+  if (x) { cmp.splice(+x.dataset.idx, 1); const y = window.scrollY; renderCoach(); window.scrollTo(0, y); return; }
+  if (t.closest && t.closest('#cmpAdd')) { enterAdd(); return; }
+  const rl = t.closest ? t.closest('.rl') : null;
+  if (rl) { const row = rl.closest('.row'); if (row && row.dataset.k && COACH) explain(row.dataset.k, row, modeRow()); }
+});
+
+// ---------------------------------------------------------------- scouting report
+function seasonScout(sr){
+  const pools = seasonPools(sr), P = seasonPct(sr);
+  if (COACH.scouting_season && COACH.scouting_season.season === sr.season) return COACH.scouting_season.lines;
+  const out = [];
+  for (const g of IDX.groups) {
+    const cands = [];
+    for (const s of IDX.stats) {
+      if (s.group !== g) continue;
+      const p = P[s.key], v = sr.values?.[s.key];
+      if (miss(p) || !v || miss(v[0]) || v[1] < Math.max(1, Math.floor(s.thr / 4))) continue;
+      if (p >= 85 || p <= 15) cands.push({d: Math.abs(p - 50), s, p, v: v[0], n: v[1]});
+    }
+    cands.sort((a, b) => b.d - a.d);
+    for (const c of cands.slice(0, 2)) {
+      const how = c.s.kind === 'much' ? (c.p >= 85 ? 'among the most' : 'among the least') : (c.p >= 85 ? 'among the best' : 'among the worst');
+      const settled = c.n >= c.s.thr;
+      out.push({group: g, key: c.s.key, pct: c.p, value: c.v, n: c.n, settled, text: `${c.s.label}: ${fmt(c.s.unit, c.v)}, ${how} of ${pools[c.s.key] ?? '—'} coaches in ${sr.season} (${ord(c.p)} percentile), over ${Number(c.n).toLocaleString()} ${c.s.thr === 41 || c.s.thr === 82 ? 'games' : 'in the sample'}${settled ? '.' : `; it settles at ${c.s.thr.toLocaleString()}, so this can still move.`}`});
+    }
+  }
+  return out;
+}
+function renderScouting(sr){
+  const live = sr && sr.in_progress;
+  const L = sr ? seasonScout(sr) : (COACH.scouting || []);
+  if (!L.length) return '';
+  const title = sr ? `Scouting report, ${sr.season}${live ? ' so far' : ''}` : 'Scouting report';
+  const since = sr ? (live ? `written by rule from this season's numbers, ranked against ${sr.season}'s coaches; rewritten with every refresh` : `written by rule from his ${sr.season} numbers, ranked against that season's coaches`) : 'written by rule from the card: the two rows furthest from the middle in each group, with their sample';
+  const line = l => `<li${tipAttr(statTip(l.key, {v: l.value, pct: l.pct, n: l.n, pool: sr ? seasonPools(sr)[l.key] : COACH.career.stats[l.key]?.pool, season: sr?.season, seasons: sr ? null : COACH.career.stats[l.key]?.seasons}))}>${esc(l.text)}${l.settled === false ? ' <span class="k">small sample</span>' : ''}</li>`;
+  return `<div class="col wide" id="scout"><h2 class="col-h">${title}${sr && liveMode(sr) ? ' <span class="pill">provisional</span>' : ''}</h2><p class="since">${since}</p><ul class="lines">${L.map(line).join('')}</ul><div class="small">${esc(IDX.meta.model_note)}</div></div>`;
+}
+
+// ---------------------------------------------------------------- the career chart
+// One column per season, in the team's colour. Height is wins per 82; the strip above says how the
+// playoffs ended; the rows below are net rating, wins above talent and wins above the market. Peak
+// season: playoff success first (title, Finals, conference finals, second round, first round,
+// missed), then regular-season results.
+function careerRows(){
+  const rows = [];
+  const recs = COACH.records.filter(r => r.lg === 'NBA' || r.lg === 'BAA' || r.lg === 'ABA');
+  const seen = new Set();
+  for (const r of recs) {
+    const s = COACH.seasons.find(x => x.season === r.season && x.team === r.team);
+    const title = !!(s?.title) || /^(NBA|BAA|ABA) Champions/.test(r.remarks || '');
+    const rounds = s ? s.rounds : null;
+    const po = (s ? s.pg : r.pg) > 0;
+    const tier = title ? 5 : rounds != null ? rounds : (po ? 1 : 0);      // 5 title, 4 lost Finals … 1 first round, 0 missed
+    const unknownRound = !s && po && !title;
+    rows.push({season: r.season, team: r.team, lg: r.lg, g: s ? s.g : r.g, w: s ? s.w : r.w, l: s ? s.l : r.l, pw: s ? s.pw : r.pw, pl: s ? s.pl : r.pl, net: s?.net, pct: s?.pct || {}, exp: s?.exp || {}, tier, title, unknownRound, has: !!s, remarks: r.remarks, finish: r.finish});
+    seen.add(r.season + r.team);
+  }
+  for (const s of COACH.seasons) if (!seen.has(s.season + s.team)) rows.push({season: s.season, team: s.team, lg: 'NBA', g: s.g, w: s.w, l: s.l, pw: s.pw, pl: s.pl, net: s.net, pct: s.pct || {}, exp: s.exp || {}, tier: s.title ? 5 : s.rounds, title: s.title, has: true});
+  rows.sort((a, b) => a.season.localeCompare(b.season) || a.team.localeCompare(b.team));
+  return rows;
+}
+function peakOf(rows){
+  let best = null;
+  for (const r of rows) {
+    if (!r.g) continue;
+    const key = [r.tier || 0, r.g ? r.w / r.g : 0, r.net ?? -99];
+    if (!best || key[0] > best.key[0] || (key[0] === best.key[0] && (key[1] > best.key[1] || (key[1] === best.key[1] && key[2] > best.key[2])))) best = {r, key};
+  }
+  return best?.r || null;
+}
+function seasonTipHTML(r){
+  const e = r.exp || {}, p = r.pct || {};
+  const po = r.tier === 5 ? 'won the title' : r.unknownRound ? `playoffs ${r.pw}–${r.pl}` : (r.tier > 0 ? `${ROUND_L[r.tier]}${r.pw != null ? ` (${r.pw}–${r.pl})` : ''}` : 'missed the playoffs');
+  const lines = [`<span class="tipface">${faceHTML(COACH.id, startYear(r.season), COACH.name)}</span><b>${r.season} ${esc(teamName(r.team))}</b> <span class="k">${r.lg !== 'NBA' ? r.lg : ''}</span>`, `${r.w}–${r.l}${r.g && r.g !== 82 ? ` <span class="k">(${(82 * r.w / r.g).toFixed(1)} per 82)</span>` : ''} · ${po}`];
+  if (!miss(r.net)) lines.push(`net ${signed(r.net)} ${miss(p.net) ? '' : pbox(p.net) + '<span class="k">percentile of that season\'s coaches</span>'}`);
+  if (!miss(e.exp_w82)) lines.push(`talent expected ${e.exp_w82.toFixed(1)} wins per 82 → <b>${signed(e.w_talent)}</b> above talent${miss(p.w_talent) ? '' : ' ' + pbox(p.w_talent)}`);
+  if (!miss(e.market_total)) lines.push(`preseason total ${e.market_total} → <b>${signed(e.w_market)}</b> above the market${miss(p.w_market) ? '' : ' ' + pbox(p.w_market)}`);
+  if (r.remarks && !/Champions/.test(r.remarks)) lines.push(`<span class="k">${esc(r.remarks)}</span>`);
+  if (!r.has) lines.push('<span class="k">before the game-level data (1996-97 on)</span>');
+  else lines.push('<span class="k">click to open the season</span>');
+  return lines.join('<br>');
+}
+function renderCareerChart(){
+  const rows = careerRows();
+  if (!rows.length) return '';
+  const peak = peakOf(rows);
+  const n = rows.length, W = CW(), narrow = W < 600, left = narrow ? 34 : 44, right = 12, bw = (W - left - right) / n, barw = Math.max(2, Math.min(34, bw * .72));
+  const TOP = 34, HW = 150, GAP = 10, SUB = 34;              // playoff strip, wins panel, gaps, three sub rows
+  const hasNet = rows.some(r => !miss(r.net)), hasT = rows.some(r => !miss(r.exp?.w_talent)), hasM = rows.some(r => !miss(r.exp?.w_market));
+  const subs = [hasNet && ['net', 'net rating', r => r.net, 'sgn1'], hasT && ['w_talent', 'wins above talent', r => r.exp?.w_talent, 'sgn1'], hasM && ['w_market', 'wins above the market', r => r.exp?.w_market, 'sgn1']].filter(Boolean);
+  const H = TOP + HW + subs.length * (SUB + GAP) + 26;
+  const x = i => left + i * bw + (bw - barw) / 2;
+  const yw = v => TOP + HW * (1 - Math.max(0, Math.min(82, v)) / 82);
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="career, season by season">`;
+  for (const g of [20, 41, 60, 82]) svg += `<line x1="${left}" x2="${W - right}" y1="${yw(g)}" y2="${yw(g)}" stroke="${g === 41 ? '#C4C0B6' : '#E4E1D9'}"/><text x="${left - 6}" y="${yw(g) + 3}" font-size="9" text-anchor="end" fill="#8A95A3">${g}</text>`;
+  svg += `<text x="2" y="${TOP - 14}" font-size="9" text-anchor="start" fill="#8A95A3">${narrow ? 'PO' : 'playoffs'}</text><text transform="translate(10 ${TOP + HW / 2}) rotate(-90)" font-size="9" text-anchor="middle" fill="#8A95A3">wins per 82</text>`;
+  rows.forEach((r, i) => {
+    const w82 = r.g ? 82 * r.w / r.g : 0, col = teamColor(r.team), X = x(i), isPeak = r === peak, on = state.mode === r.season;
+    const tip = tipAttr(seasonTipHTML(r));
+    const open = r.has ? ` data-pick="${r.season}" class="hit"` : '';
+    svg += `<g${open}${tip}>`;
+    svg += `<rect x="${X - (bw - barw) / 2}" y="${TOP - 18}" width="${bw}" height="${H - TOP + 18}" fill="${on ? '#F1EBDD' : 'transparent'}"/>`;
+    svg += `<rect x="${X}" y="${yw(w82)}" width="${barw}" height="${yw(0) - yw(w82)}" fill="${col}" opacity="${r.has ? .92 : .55}" rx="1.5"${isPeak ? ' stroke="#C2A263" stroke-width="2.5"' : ''}/>`;
+    if (!miss(r.exp?.exp_w82)) svg += `<line x1="${X - 2}" x2="${X + barw + 2}" y1="${yw(r.exp.exp_w82)}" y2="${yw(r.exp.exp_w82)}" stroke="#1A2332" stroke-width="1.8"/>`;
+    if (!miss(r.exp?.market_total)) svg += `<line x1="${X - 2}" x2="${X + barw + 2}" y1="${yw(r.exp.market_total)}" y2="${yw(r.exp.market_total)}" stroke="#BC3A2C" stroke-width="1.8" stroke-dasharray="3 2"/>`;
+    // the playoff strip: one notch per round won, a star for the title, a hollow box for an old season whose round is not on record
+    const cx = X + barw / 2;
+    if (r.tier === 5) svg += `<text x="${cx}" y="${TOP - 6}" font-size="14" text-anchor="middle" fill="#C2A263">★</text>`;
+    else if (r.unknownRound) svg += `<rect x="${cx - 4}" y="${TOP - 14}" width="8" height="8" fill="none" stroke="#8A95A3"/>`;
+    else if (r.tier > 0) for (let k = 0; k < r.tier; k++) svg += `<rect x="${cx - 4}" y="${TOP - 7 - k * 4}" width="8" height="3" fill="${k === r.tier - 1 ? '#8A95A3' : '#22395A'}"/>`;
+    if (isPeak) svg += `<text x="${cx}" y="${TOP - 26}" font-size="8.5" text-anchor="middle" fill="#C2A263" letter-spacing=".06em">PEAK</text>`;
+    // the sub rows
+    subs.forEach(([key, label, get, unit], j) => {
+      const v = get(r), y0 = TOP + HW + GAP + j * (SUB + GAP), mid = y0 + SUB / 2, sc = key === 'net' ? SUB / 2 / 14 : SUB / 2 / 20;
+      if (miss(v)) return;
+      const h = Math.min(SUB / 2, Math.abs(v) * sc);
+      svg += `<rect x="${X}" y="${v >= 0 ? mid - h : mid}" width="${barw}" height="${Math.max(h, .8)}" fill="${v >= 0 ? '#BC3A2C' : '#1C4E86'}" opacity=".85"/>`;
+    });
+    svg += '</g>';
+    if (n <= (narrow ? 12 : 26) || i % (narrow ? 3 : 2) === 0 || isPeak) svg += `<text x="${cx}" y="${H - 8}" font-size="9" text-anchor="middle" fill="${isPeak ? '#C2A263' : '#5B6878'}">${r.season.slice(2, 4)}-${r.season.slice(5)}</text>`;
+  });
+  subs.forEach(([key, label], j) => { const y0 = TOP + HW + GAP + j * (SUB + GAP), mid = y0 + SUB / 2; svg += `<line x1="${left}" x2="${W - right}" y1="${mid}" y2="${mid}" stroke="#C4C0B6"/><text x="${left - 6}" y="${mid + 3}" font-size="9" text-anchor="end" fill="#8A95A3">${label.replace('wins above the market', 'vs market').replace('wins above talent', 'vs talent').replace('net rating', 'net')}</text>`; });
+  svg += '</svg>';
+  const pk = peak ? `${peak.season} ${teamName(peak.team)}: ${peak.w}–${peak.l}, ${peak.tier === 5 ? 'won the title' : peak.unknownRound ? 'reached the playoffs' : ROUND_L[peak.tier || 0]}` : '—';
+  return `<div class="col wide"><h2 class="col-h">His career, season by season</h2><p class="since">every season as a head coach · columns are wins per 82 in the team's colour · peak season outlined in gold (playoff success first, then the regular season) · hover a season for its line, click it to open that season</p>${svg}
+    <div class="legend2"><span><span class="sw" style="background:#1A2332;height:3px;vertical-align:2px"></span>talent expected wins (2003-04 on)</span><span><span class="sw" style="background:#BC3A2C;height:3px;vertical-align:2px"></span>preseason win total</span><span>★ title · notches: rounds won · ▢ playoffs, round not on record</span><span><span class="sw" style="background:#BC3A2C"></span>above / <span class="sw" style="background:#1C4E86"></span>below, in the three rows beneath</span><span>peak: ${esc(pk)}</span></div></div>`;
+}
+
+// ---------------------------------------------------------------- the team-season file: rotation, pairs, quadrant, minutes vs impact
+async function loadSeason(season){
+  const rb = document.getElementById('rotbody'), pb = document.getElementById('pairbody'), qb = document.getElementById('quadbody'), mb = document.getElementById('mvibody');
+  if (!rb) return;
+  const srow = COACH.seasons.find(s => s.season === season && s.rotation);
+  const why = state.mode !== 'career' && !COACH.seasons.find(s => s.season === state.mode && s.rotation) ? `no play-by-play for ${state.mode} (the rotation data begins in 2002-03)${srow ? `; showing ${srow.season} instead` : ''}` : null;
+  if (!srow) { for (const el of [rb, pb, qb, mb]) el.innerHTML = `<div class="empty">${why || 'no play-by-play seasons for him (the rotation data begins in 2002-03)'}</div>`; return; }
+  const key = `${srow.team}-${season}`;
+  rb.innerHTML = '<div class="empty">loading the season…</div>';
+  try {
+    const file = TCACHE[key] || (TCACHE[key] = await fetchJSON(`${BASE}/t/${key}.json`));
+    const entry = (file.coaches || []).find(e => e.coach === COACH.id);
+    if (!entry) throw new Error('no entry');
+    TFILE = {...entry, names: file.names, fair: file.fair, parts: file.parts, season: file.season, team: file.team, why};
+  }
+  catch (e) { rb.innerHTML = `<div class="empty">could not load ${key}</div>`; return; }
+  renderRotation(srow); renderPairs(srow); renderQuadrant(srow); renderMVI(srow);
+}
+const pname = p => TFILE.names[p] || TFILE.names[String(p)] || COACH.player_names?.[String(p)] || String(p);
+function seasonTabs(extra){
+  // the sticky picker drives every section; here only which season is on the map, and the view buttons
+  const srow = COACH.seasons.find(s => s.season === state.season);
+  const note = TFILE?.why ? `<div class="small" style="margin-bottom:6px">${esc(TFILE.why)}</div>` : '';
+  return note + `<div class="tabs"><span class="pill" style="align-self:center">${state.season} ${srow?.team || ''}${state.kind === 'PO' ? ' playoffs' : ''}</span>${extra || ''}</div>`;
+}
+function wireSeasonTabs(root){
+  root.querySelectorAll('[data-season]').forEach(x => x.addEventListener('click', () => { state.season = x.dataset.season; state.game = null; loadSeason(state.season); }));
+}
+const clockAt = m => `${12 - (m % 12)}:00 of the ${QN[Math.floor(m / 12)]}`;
+const axisHTML = () => `<div class="rotaxis"><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span></div>`;
+
+// what a game's intervals say about each regular: missing (no minutes at all), or off his usual windows
+function gameDeviations(g, rows){
+  const missing = [], off = [];
+  for (const r of rows) {
+    if (!r.windows || !r.windows.length) continue;
+    const iv = g.iv?.[r.id] || g.iv?.[String(r.id)];
+    if (!iv) { missing.push(r); continue; }
+    // minutes on the floor outside his windows + window minutes he sat
+    const on = new Array(48).fill(0);
+    for (const [a, b] of iv) for (let s = a; s < Math.min(b, 2880); s += 60) on[Math.floor(s / 60)] = 1;
+    const win = new Array(48).fill(0);
+    for (const [a, b] of r.windows) for (let m = a; m <= b; m++) win[m] = 1;
+    let dev = 0; for (let m = 0; m < 48; m++) if (on[m] !== win[m]) dev++;
+    if (dev >= 8) off.push([r, dev]);
+  }
+  return {missing, off: off.sort((a, b) => b[1] - a[1])};
+}
+function gameTip(g, rows){
+  const d = gameDeviations(g, rows);
+  const res = `${g.margin > 0 ? 'won' : 'lost'} by ${Math.abs(g.margin)}${g.ot ? ' in OT' : ''}`;
+  const causes = CAUSES.map((c, k) => `${CAUSE_L[c]} ${g.scripted ? (100 * g.causes[k] / g.scripted).toFixed(0) : 0}%`).join(' · ');
+  return `<b>${g.date} ${g.home ? 'vs' : '@'} ${esc(teamName(g.opp))}</b>, ${res}${g.garbage ? ' <span class="k">· garbage time</span>' : ''}<br>` +
+    `<b>${(100 * g.share).toFixed(0)}%</b> of ${g.scripted} scripted player-minutes went off script<br><span class="k">${causes}</span>` +
+    (d.missing.length ? `<br>missing: ${d.missing.map(r => playerLink(r.id, r.name)).join(', ')}` : '') +
+    (d.off.length ? `<br>off his usual windows: ${d.off.slice(0, 6).map(([r, dv]) => `${playerLink(r.id, r.name)} <span class="k">${dv} min</span>`).join(', ')}` : '') +
+    `<br><span class="k">click to lay this game over the Rotation Map</span>`;
+}
+function renderRotation(srow){
+  const t = TFILE, rb = document.getElementById('rotbody');
+  const view = state.kind === 'PO' && t.playoffs ? t.playoffs : t.rotation;
+  const rows = view.rows;
+  const rot = srow.rotation;
+  const bc = rot.by_cause || {};
+  const P = seasonPct(srow), pools = seasonPools(srow);
+  const tile = (key, label, value, sub, extraTip) => `<div class="tile"${tipAttr((key && STATS[key] ? statTip(key, {v: srow.values?.[key]?.[0], pct: P[key], pool: pools[key], n: srow.values?.[key]?.[1], season: srow.season}) : `<b>${esc(label)}</b><br>${esc(sub)}`) + (extraTip || ''))}><div class="tl">${label}</div><div class="tv">${value}${key && !miss(P[key]) ? `<span class="pb" style="background:${STATS[key]?.kind === 'good' ? gradeColor(P[key]) : '#C2A263'}">${P[key]}</span>` : ''}</div><div class="ts">${sub}</div></div>`;
+  rb.innerHTML = seasonTabs(`<span style="flex:1"></span><button class="tab${state.base === 'played' ? ' on' : ''}" data-base="played">games he played</button><button class="tab${state.base === 'all' ? ' on' : ''}" data-base="all">all games</button>${t.playoffs ? `<button class="tab${state.kind === 'PO' ? ' on' : ''}" data-kind="${state.kind === 'PO' ? 'RS' : 'PO'}">${state.kind === 'PO' ? 'back to the regular season' : 'playoffs'}</button>` : ''}`) +
+    `<div class="tiles" style="margin-bottom:12px">
+      ${tile('stability', 'On script', miss(rot.off_script) ? '—' : (100 * (1 - rot.off_script)).toFixed(1) + '%', 'share of scripted minutes that went as usual')}
+      ${tile('chosen_dev', 'Chosen deviation', pc1(bc.choice), 'off-script with no absence, blowout or foul trouble')}
+      ${tile(null, 'After a loss vs a win', miss(rot.after_loss) || miss(rot.after_win) ? '—' : signed(100 * (rot.after_loss - rot.after_win)), 'points more off-script after a loss than after a win')}
+      ${tile('hot_hand', 'Rides the hot hand', miss(rot.hot?.extra_q4) ? '—' : signed(rot.hot.extra_q4), `extra Q4 minutes on ${rot.hot?.n ?? 0} hot nights · a tendency`)}
+      ${tile('depth10', 'Depth', rot.shape?.depth10 ?? '—', 'men at 10+ minutes a game')}
+      ${tile('first_sub', 'First substitution', miss(rot.shape?.first_sub) ? '—' : (rot.shape.first_sub / 60).toFixed(1), 'minutes into the game')}
+      ${tile('close_gap', 'Closing five gap', miss(view.closing?.gap) ? '—' : view.closing.gap.toFixed(1), `Σ BPM below the best five available, ${view.closing?.gap_n ?? 0} close games`)}
+    </div>
+    <div class="rot"><div class="rotnames">${rows.map(r => `<div class="rotname"${tipAttr(`<b>${playerLink(r.id, r.name)}</b> <span class="k">${r.mpg} mpg, ${r.gp} games${r.starts ? `, ${r.starts} starts` : ''}${r.bpm != null ? `, BPM ${r.bpm}` : ''}</span><br>${esc(r.text)}<br><span class="k">off his script ${pc1(r.off)} of his minutes, ${pc1(r.off_choice)} by choice</span>`)}>${playerLink(r.id, r.name)} <small>${r.mpg}</small></div>`).join('')}</div>
+      <div class="rotwrap">${axisHTML()}<canvas class="map" id="rotmap"></canvas><div class="rotmin"><span>tip-off</span><span>12</span><span>24</span><span>36</span><span>48 min</span></div></div></div>
+    <div class="legend2"><span><span class="sw" style="background:#22395A"></span>never on</span><span><span class="sw" style="background:#C2A263"></span>always on</span><span>white outline: his usual windows (60%+ of the games he played, minutes still in the balance)</span><span>red marks: the selected game's actual minutes</span><span>${rows.length} men with 100+ minutes · ${view.games} games</span></div>
+    <h3 class="sub">Game by game: how far he went off script, and why</h3>
+    <p class="since">each bar is one game; height is the share of that game's scripted player-minutes that went off script · hover a game for who was missing and who moved; click it to lay the game over the map</p>
+    <div class="tabs"><button class="tab${!state.allCauses ? ' on' : ''}" data-causes="choice">the coach's choice only</button><button class="tab${state.allCauses ? ' on' : ''}" data-causes="all">add absence, blowout and foul trouble</button></div>
+    <div id="gchart">${offScriptChart(view, rows)}</div>
+    <div class="legend2">${(state.allCauses ? CAUSES : ['choice']).map(c => `<span><span class="sw" style="background:${CAUSE_C[c]}"></span>${CAUSE_L[c]}: ${pc1(bc[c])} of the season's scripted minutes</span>`).join('')}</div>
+    <div class="ginfo small" id="ginfo" style="margin-top:6px">${state.game !== null && view.game_rows[state.game] ? gameLine(view.game_rows[state.game], rows) : 'no game selected'}</div>
+    ${state.kind === 'RS' && t.rotation.months && Object.keys(t.rotation.months).length ? `<h3 class="sub">How it evolved, month by month</h3><p class="since">the same map, games he played in each month · hover a cell</p><div class="months">${Object.keys(t.rotation.months).map(mo => `<div class="month"><h4>${mo}</h4>${axisHTML()}<canvas class="map" data-month="${mo}"></canvas></div>`).join('')}</div>` : ''}`;
+  const main = document.getElementById('rotmap');
+  drawMap(main, rows, state.base, true, state.game !== null ? view.game_rows[state.game] : null);
+  wireMapHover(main, rows, state.base, null);
+  rb.querySelectorAll('canvas[data-month]').forEach(cv => {
+    const map = t.rotation.months[cv.dataset.month];
+    const mrows = rows.filter(r => map[r.id] || map[String(r.id)]).map(r => ({...r, played: map[r.id] || map[String(r.id)], all: map[r.id] || map[String(r.id)], windows: []}));
+    drawMap(cv, mrows, 'played', false, null, 10);
+    wireMapHover(cv, mrows, 'played', cv.dataset.month);
+  });
+  rb.querySelectorAll('[data-base]').forEach(b => b.addEventListener('click', () => { state.base = b.dataset.base; renderRotation(srow); }));
+  rb.querySelectorAll('[data-kind]').forEach(b => b.addEventListener('click', () => { state.kind = b.dataset.kind; state.game = null; renderRotation(srow); }));
+  rb.querySelectorAll('[data-causes]').forEach(b => b.addEventListener('click', () => { state.allCauses = b.dataset.causes === 'all'; renderRotation(srow); }));
+  wireSeasonTabs(rb);
+  rb.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', () => {
+    const i = +b.dataset.g; state.game = state.game === i ? null : i; hideTip(); renderRotation(srow);
+  }));
+}
+function gameLine(g, rows){
+  const d = gameDeviations(g, rows);
+  return `<b>${g.date} ${g.home ? 'vs' : '@'} ${esc(teamName(g.opp))}</b>, ${g.margin > 0 ? 'won' : 'lost'} by ${Math.abs(g.margin)}${g.ot ? ' in OT' : ''}: ${(100 * g.share).toFixed(0)}% of scripted minutes off script (${CAUSES.map((c, k) => `${CAUSE_L[c]} ${g.causes[k]}`).join(', ')} of ${g.scripted} player-minutes)${g.garbage ? ' · garbage time' : ''}.${d.missing.length ? ` Missing: ${d.missing.map(r => playerLink(r.id, r.name)).join(', ')}.` : ''}${d.off.length ? ` Off their usual windows: ${d.off.slice(0, 6).map(([r]) => playerLink(r.id, r.name)).join(', ')}.` : ''} Red marks on the map: who was actually on the floor.`;
+}
+function offScriptChart(view, rows){
+  const G = view.game_rows; if (!G.length) return '<div class="empty">no games</div>';
+  const W = CW(), H = W < 600 ? 150 : 190, left = 36, bottom = 22, top = 8, n = G.length, bw = (W - left - 8) / n;
+  const val = (g, k) => g.scripted ? 100 * g.causes[k] / g.scripted : 0;
+  const tot = g => state.allCauses ? CAUSES.reduce((s, c, k) => s + val(g, k), 0) : val(g, 3);
+  const ymax = Math.max(10, Math.ceil(Math.max(...G.map(tot)) / 10) * 10);
+  const y = v => top + (H - top - bottom) * (1 - v / ymax);
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  for (let g = 0; g <= ymax; g += ymax > 40 ? 20 : 10) svg += `<line x1="${left}" x2="${W - 8}" y1="${y(g)}" y2="${y(g)}" stroke="#E4E1D9"/><text x="${left - 5}" y="${y(g) + 3}" font-size="9" text-anchor="end" fill="#8A95A3">${g}%</text>`;
+  let lastMo = null;
+  G.forEach((g, i) => {
+    const x = left + i * bw;
+    let acc = 0;
+    const order = state.allCauses ? [3, 0, 1, 2] : [3];
+    svg += `<g class="hit" data-g="${i}"${tipAttr(gameTip(g, rows))}><rect x="${x}" y="${top}" width="${bw}" height="${H - top - bottom}" fill="transparent"/>`;
+    for (const k of order) { const v = val(g, k); if (v <= 0) continue; svg += `<rect x="${x + bw * .12}" y="${y(acc + v)}" width="${Math.max(1, bw * .76)}" height="${y(acc) - y(acc + v)}" fill="${CAUSE_C[CAUSES[k]]}"/>`; acc += v; }
+    if (state.game === i) svg += `<rect x="${x + bw * .06}" y="${top}" width="${bw * .88}" height="${H - top - bottom}" fill="none" stroke="#BC3A2C" stroke-width="1.5"/>`;
+    svg += '</g>';
+    const mo = g.date.slice(0, 7);
+    if (mo !== lastMo) { if (lastMo) svg += `<line x1="${x}" x2="${x}" y1="${top}" y2="${H - bottom}" stroke="#D9D6CF"/>`; svg += `<text x="${x + 2}" y="${H - 7}" font-size="9" fill="#8A95A3">${new Date(g.date + 'T12:00:00').toLocaleString('en-US', {month:'short'})}</text>`; lastMo = mo; }
+  });
+  svg += `<line x1="${left}" x2="${W - 8}" y1="${y(0)}" y2="${y(0)}" stroke="#C4C0B6"/></svg>`;
+  return svg;
+}
+function drawMap(cv, rows, base, outline, game, cell){
+  const n = rows.length; if (!n) { cv.width = 1; cv.height = 1; return; }
+  const CW = cell || 20, CH = cell || 22, W = 48 * CW, H = n * CH;
+  cv.width = W; cv.height = H; cv.style.height = (n * CH) + 'px';
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#22395A'; ctx.fillRect(0, 0, W, H);
+  rows.forEach((r, i) => {
+    const arr = base === 'all' ? r.all : r.played;
+    for (let m = 0; m < 48; m++) {
+      const v = (arr[m] || 0) / 100;
+      ctx.fillStyle = mix('#22395A', '#C2A263', Math.pow(v, 0.9)); ctx.fillRect(m * CW, i * CH, CW, CH);
+    }
+    if (outline) for (const [a, b] of r.windows || []) { ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 1.5; ctx.strokeRect(a * CW + .75, i * CH + 1.5, (b - a + 1) * CW - 1.5, CH - 3); }
+  });
+  ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1;
+  for (let q = 1; q < 4; q++) { ctx.beginPath(); ctx.moveTo(q * 12 * CW + .5, 0); ctx.lineTo(q * 12 * CW + .5, H); ctx.stroke(); }
+  if (cell) { ctx.strokeStyle = 'rgba(255,255,255,.15)'; for (let q = 1; q < 8; q += 2) { ctx.beginPath(); ctx.moveTo(q * 6 * CW + .5, 0); ctx.lineTo(q * 6 * CW + .5, H); ctx.stroke(); } }
+  if (game && game.iv) {
+    rows.forEach((r, i) => {
+      const iv = game.iv[r.id] || game.iv[String(r.id)]; if (!iv) return;
+      ctx.fillStyle = 'rgba(188,58,44,.9)';
+      for (const [a, b] of iv) { const x0 = Math.min(W, a / 60 * CW), x1 = Math.min(W, b / 60 * CW); ctx.fillRect(x0, i * CH + CH - 5, Math.max(1, x1 - x0), 4); }
+    });
+  }
+}
+// hover on the map: the man, the minute and the share. The box opens to the right of the pointer
+// so it never sits on the names column.
+function wireMapHover(cv, rows, base, month){
+  const n = rows.length; if (!n) return;
+  const move = e => {
+    const r = cv.getBoundingClientRect();
+    const m = Math.min(47, Math.max(0, Math.floor((e.clientX - r.left) / r.width * 48))), i = Math.min(n - 1, Math.max(0, Math.floor((e.clientY - r.top) / r.height * n)));
+    const key = `${cv.id || cv.dataset.month}:${i}:${m}`;
+    if (tipKey === key) return;
+    tipKey = key; tipAnchor = cv;
+    const row = rows[i], arr = base === 'all' ? row.all : row.played, v = arr[m] || 0;
+    const inWin = (row.windows || []).some(([a, b]) => m >= a && m <= b);
+    showTip(`<b>${playerLink(row.id, row.name)}</b>: on the floor in <b>${Math.round(v)}%</b> of ${base === 'all' ? 'all games' : 'the games he played'} at ${clockAt(m)}${month ? ` <span class="k">(${month})</span>` : ''}${inWin ? '<br><span class="k">inside his usual window</span>' : ''}`, e.clientX, e.clientY, {minLeft: r.left + 4});
+  };
+  cv.addEventListener('pointermove', move);
+  cv.addEventListener('pointerdown', move);
+  cv.addEventListener('pointerleave', () => armHide(200));
+}
+function renderPairs(srow){
+  const t = TFILE, pb = document.getElementById('pairbody');
+  const men = t.men.slice(0, 12); if (men.length < 2) { pb.innerHTML = seasonTabs() + '<div class="empty">not enough men with 100 minutes</div>'; wireSeasonTabs(pb); return; }
+  const on = Object.fromEntries(men.map(p => [p, (t.onoff || {})[p] || (t.onoff || {})[String(p)]]));
+  const pair = {}; for (const [a, b, min, est, adj, poss] of t.matrix) { pair[a + '|' + b] = pair[b + '|' + a] = {min, est, adj, poss}; }
+  const name = p => last(pname(p));
+  const minOf = p => on[p]?.on?.min || 1;
+  const vals = t.matrix.map(x => x[3]).filter(v => !miss(v)); const lo = Math.min(...vals, -5), hi = Math.max(...vals, 5);
+  let html = '<div class="scroll"><table class="matrix"><thead><tr><th></th>' + men.map(p => `<th>${esc(name(p))}</th>`).join('') + '</tr></thead><tbody>';
+  men.forEach((a, i) => {
+    html += `<tr><th>${playerLink(a, name(a))}</th>`;
+    men.forEach((b, j) => {
+      if (i === j) { html += '<td class="d"></td>'; return; }
+      const x = pair[a + '|' + b];
+      if (!x) { html += '<td class="d" style="background:#F7F6F2"></td>'; return; }
+      if (j > i) { const sh = Math.min(1, x.min / minOf(a)); html += `<td class="c" data-a="${a}" data-b="${b}" style="background:${mix('#ECEBE8', '#22395A', sh)};color:${sh > .5 ? '#fff' : '#1A2332'}"${tipAttr(`<b>${esc(pname(a))}</b> with <b>${esc(pname(b))}</b><br>${Math.round(x.min)} minutes together, <b>${(100 * sh).toFixed(0)}%</b> of ${esc(name(a))}'s minutes<br><span class="k">click for the full with / without</span>`)}>${(100 * sh).toFixed(0)}</td>`; }
+      else { const v = x.est; const tt = miss(v) ? .5 : (v - lo) / (hi - lo); html += `<td class="c" data-a="${a}" data-b="${b}" style="background:${miss(v) ? '#E4E1D9' : (tt < .5 ? mix('#1C4E86', '#E4E1D9', tt * 2) : mix('#E4E1D9', '#BC3A2C', (tt - .5) * 2))};color:${Math.abs(tt - .5) > .3 ? '#fff' : '#1A2332'}"${tipAttr(`<b>${esc(pname(a))}</b> + <b>${esc(pname(b))}</b><br>net <b>${signed(x.est)}</b> sample-adjusted, ${signed(x.adj)} luck-adjusted<br><span class="k">${x.poss.toLocaleString()} possessions, ${Math.round(x.min)} minutes · click for the full with / without</span>`)}>${miss(v) ? '' : signed(v, 0)}</td>`; }
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  const st = t.stagger || {};
+  const stag = st['2'] ? `<div class="small" style="margin-top:8px">Stagger: his top two (${st['2'].ids.map(p => playerLink(p, name(p))).join(' and ')}) share the floor ${(100 * st['2'].together).toFixed(0)}% of the time, exactly one of them is on ${(100 * st['2'].apart).toFixed(0)}%, neither ${(100 * st['2'].none).toFixed(0)}%.${st['3'] ? ` Top three together ${(100 * st['3'].together).toFixed(0)}%.` : ''}</div>` : '';
+  pb.innerHTML = seasonTabs() + html + stag + '<div class="pairinfo" id="pairinfo">Click a cell for the full With / Without.</div>';
+  pb.querySelectorAll('td.c').forEach(td => td.addEventListener('click', () => {
+    const a = td.dataset.a, b = td.dataset.b; const x = pair[a + '|' + b]; const oa = on[a] || on[+a], ob = on[b] || on[+b];
+    const line = (o, pid) => o ? `<b>${playerLink(pid, pname(pid))}</b>: on ${Math.round(o.on.min)} min, net ${signed(o.on.adj)} (ORtg ${o.on.ortg}, DRtg ${o.on.drtg}); off ${signed(o.off?.adj)} → with/without ${signed(o.diff)}` : `<b>${playerLink(pid, pname(pid))}</b>: —`;
+    document.getElementById('pairinfo').innerHTML = `${line(oa, a)}<br>${line(ob, b)}<br><b>Together</b>: ${Math.round(x.min)} min, ${x.poss.toLocaleString()} possessions, net ${signed(x.adj)} luck-adjusted, ${signed(x.est)} once pulled toward the team's ${signed(t.team_rates?.adj)} by k = 1,221 possessions.<br><span class="small">Luck: opponents' 3P% and FT% set to league average. Sample: the Lineups tab's k, measured from split-season reliability.</span>`;
+  }));
+  wireSeasonTabs(pb);
+}
+function renderQuadrant(srow){
+  const t = TFILE, qb = document.getElementById('quadbody');
+  const units = t.units5.filter(u => !miss(u.proj));
+  if (!units.length) { qb.innerHTML = seasonTabs() + '<div class="empty">no projections for this season (a man without a card has no impact number)</div>'; wireSeasonTabs(qb); return; }
+  const name = p => last(pname(p));
+  const W = CW(760) > 660 ? 560 : CW(760), H = W < 600 ? 320 : 380, mins = units.map(u => u.min), projs = units.map(u => u.proj);
+  const xmax = Math.max(...mins) * 1.05, ylo = Math.min(...projs) - 2, yhi = Math.max(...projs) + 2;
+  const x = v => 50 + (W - 70) * v / xmax, y = v => 20 + (H - 60) * (1 - (v - ylo) / (yhi - ylo));
+  const midm = Math.max(60, (Math.max(...mins) + 25) / 3), midp = units.reduce((s, u) => s + u.proj * u.min, 0) / units.reduce((s, u) => s + u.min, 0);
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  svg += `<line x1="${x(midm)}" x2="${x(midm)}" y1="20" y2="${H-40}" stroke="#D9D6CF" stroke-dasharray="4 3"/><line x1="50" x2="${W-20}" y1="${y(midp)}" y2="${y(midp)}" stroke="#D9D6CF" stroke-dasharray="4 3"/>`;
+  const lab = (tx, ty, s, anchor) => `<text x="${tx}" y="${ty}" font-size="10" fill="#8A95A3" text-anchor="${anchor}">${s}</text>`;
+  svg += lab(W - 22, 32, 'rode it, it should work', 'end') + lab(W - 22, H - 46, 'rode it, the parts say no', 'end') + lab(54, 32, 'left on the table', 'start') + lab(54, H - 46, 'rightly benched', 'start');
+  for (const u of units) {
+    const r = 3 + Math.sqrt(u.poss) / 6;
+    const tip = `<b>${u.ids.map(p => playerLink(p, name(p))).join(' · ')}</b><br>${Math.round(u.min)} minutes, ${u.poss.toLocaleString()} possessions over ${u.gp} games<br>projected <b>${signed(u.proj)}</b> from the parts (Σ BPM ${u.sum_bpm}${u.pair_adj ? `, pairing ${signed(u.pair_adj)}` : ''})<br>played <b>${signed(u.adj)}</b> luck-adjusted, ${signed(u.est)} sample-adjusted${u.oppq != null ? `<br><span class="k">opposing fives Σ BPM ${u.oppq}</span>` : ''}`;
+    svg += `<circle class="hit" cx="${x(u.min)}" cy="${y(u.proj)}" r="${r}" fill="${u.adj > u.proj ? '#BC3A2C' : '#22395A'}" opacity=".7"${tipAttr(tip)}></circle>`;
+  }
+  svg += lab(W / 2, H - 8, 'minutes together', 'middle') + `<text transform="translate(14 ${H/2}) rotate(-90)" font-size="10" fill="#8A95A3" text-anchor="middle">projected net, from the parts</text>`;
+  svg += '</svg>';
+  const left = units.filter(u => u.min < midm && u.proj > midp).sort((a, b) => b.proj - a.proj).slice(0, 5);
+  const rode = units.filter(u => u.min >= midm && u.proj < midp).sort((a, b) => b.min - a.min).slice(0, 5);
+  const list = (arr, title) => `<div><h4 style="margin:0 0 4px;font-family:var(--mono);font-size:10.5px;color:var(--faint);text-transform:uppercase">${title}</h4>${arr.map(u => `<div class="small">${u.ids.map(p => playerLink(p, name(p))).join(', ')} — ${Math.round(u.min)} min, projected ${signed(u.proj)}, played ${signed(u.adj)}</div>`).join('') || '<div class="empty">none</div>'}</div>`;
+  const lt = srow.rotation?.left_table;
+  qb.innerHTML = seasonTabs() + `<div class="grid2"><div>${svg}</div><div>${list(left, 'Projected strong, barely played')}<br>${list(rode, 'Kept riding, the parts say no')}<div class="small" style="margin-top:10px"${tipAttr(statTip('left_table', {v: lt, pct: seasonPct(srow).left_table, pool: seasonPools(srow).left_table, season: srow.season}))}>Minutes-weighted gap to his best used arrangement: <b>${miss(lt) ? '—' : lt.toFixed(1)}</b> points per 100${seasonPct(srow).left_table ? ` (${ord(seasonPct(srow).left_table)} percentile of ${srow.season}, lower is better)` : ''}. Red: played better than projected; navy: worse. ${esc(IDX.meta.model_note)}</div></div></div>`;
+  wireSeasonTabs(qb);
+}
+function renderMVI(srow){
+  const t = TFILE, mb = document.getElementById('mvibody');
+  const pl = (t.mvi?.players || []).filter(p => !miss(p.bpm));
+  if (!pl.length) { mb.innerHTML = seasonTabs() + '<div class="empty">no impact numbers for this season</div>'; wireSeasonTabs(mb); return; }
+  const W = CW(760), H = W < 600 ? 300 : 340, xs = pl.map(p => p.bpm), xlo = Math.min(-8, ...xs) - 1, xhi = Math.max(8, ...xs) + 1;
+  const x = v => 50 + (W - 70) * (v - xlo) / (xhi - xlo), y = v => 20 + (H - 60) * (1 - v / 42);
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  if (t.fair) { const pts = t.fair.filter(([b]) => b >= xlo && b <= xhi); if (pts.length) { const d = pts.map(([b, m], i) => `${i ? 'L' : 'M'}${x(b)},${y(m)}`).join(' '); svg += `<path d="${d}" fill="none" stroke="#C2A263" stroke-width="2" stroke-dasharray="5 3"${tipAttr(`<b>Fair minutes, league ${srow.season}</b><br>mean minutes per game at each whole-BPM level over players with 200+ minutes, monotone-smoothed`)}/><text x="${x(xhi) - 4}" y="${y(pts[pts.length-1][1]) - 6}" font-size="10" fill="#C2A263" text-anchor="end">fair minutes, league ${srow.season}</text>`; } }
+  for (const g of [10, 20, 30]) svg += `<line x1="50" x2="${W-20}" y1="${y(g)}" y2="${y(g)}" stroke="#ECEBE8"/><text x="44" y="${y(g)+3}" font-size="9" text-anchor="end" fill="#8A95A3">${g}</text>`;
+  svg += `<line x1="${x(0)}" x2="${x(0)}" y1="20" y2="${H-40}" stroke="#ECEBE8"/>`;
+  for (const p of pl) {
+    const young = p.age != null && p.age <= 23.5; const r = 3 + Math.sqrt(p.gp) / 2;
+    const tip = `<b>${playerLink(p.id, p.name)}</b><br>${p.mpg} minutes a game over ${p.gp} games · BPM ${p.bpm}${p.age ? ` · age ${p.age.toFixed(1)}` : ''}${p.exp != null ? ` · year ${p.exp + 1}` : ''}${p.arch ? `<br><span class="k">${esc(p.arch)}</span>` : ''}`;
+    svg += `<circle class="hit" cx="${x(p.bpm)}" cy="${y(p.mpg)}" r="${r}" fill="${young ? '#BC3A2C' : '#22395A'}" opacity=".75"${tipAttr(tip)}></circle>`;
+    if (p.mpg >= 20 || young) svg += svgPlayer(p.id, x(p.bpm) + r + 2, y(p.mpg) + 3, last(p.name), 'font-size="9.5" fill="#5B6878" font-family="IBM Plex Sans"');
+  }
+  svg += `<text x="${W/2}" y="${H-8}" font-size="10" fill="#8A95A3" text-anchor="middle">impact (BPM, as on his card)</text><text transform="translate(14 ${H/2}) rotate(-90)" font-size="10" fill="#8A95A3" text-anchor="middle">minutes per game</text></svg>`;
+  const mv = srow.mvi || {}, ro = srow.rotation || {};
+  mb.innerHTML = seasonTabs() + svg + `<div class="legend2"><span><span class="sw" style="background:#BC3A2C;border-radius:50%"></span>23 and under</span><span><span class="sw" style="background:#22395A;border-radius:50%"></span>24 and over · dot size: games</span><span${tipAttr(statTip('young_min', {v: srow.values?.young_min?.[0], pct: seasonPct(srow).young_min, pool: seasonPools(srow).young_min, season: srow.season}))}>minutes to 23-and-under: ${pc1(mv.young_min_share)} (their BPM ${miss(mv.young_bpm) ? '—' : mv.young_bpm})</span><span>rookies: ${pc1(mv.rookie_min_share)}</span><span${tipAttr(statTip('overplay', {v: ro.overplay, pct: seasonPct(srow).overplay, pool: seasonPools(srow).overplay, season: srow.season}))}>overplayed minutes above the fair line: ${miss(ro.overplay) ? '—' : ro.overplay.toFixed(1)} per game${seasonPct(srow).overplay ? ` (${ord(seasonPct(srow).overplay)} percentile, lower is better)` : ''}</span></div>`;
+  wireSeasonTabs(mb);
+}
+
+
+// ---------------------------------------------------------------- game management
+function ci(n){ if (!n) return ''; const se = 1.1 / Math.sqrt(n); return ` ±${(1.96 * se).toFixed(2)}`; }
+function renderManagement(sr){
+  const c = COACH, S = sr ? [sr].filter(s => s.management) : c.seasons.filter(s => s.management);
+  if (!S.length) return `<div class="col wide"><div class="empty">${sr ? `no play-by-play for ${sr.season}` : 'no play-by-play seasons for him'}</div></div>`;
+  const cs = cardRows(sr);
+  const tile = (key, extra) => { const s = STATS[key], v = cs[key]; if (!s) return ''; return `<div class="tile"${tipAttr(statTip(key, v ? {v: v.v, pct: v.pct, pool: v.pool, n: v.n, seasons: v.seasons, season: sr?.season} : {}))}><div class="tl">${esc(s.label)}</div><div class="tv">${v ? fmt(s.unit, v.v) : '—'}<span style="font-size:12px;color:var(--faint)">${extra || ''}</span>${v && !miss(v.pct) ? `<span class="pb" style="background:${s.kind === 'good' ? gradeColor(v.pct) : '#C2A263'}">${v.pct}</span>` : ''}</div><div class="ts">${v && !miss(v.pct) ? `${ord(v.pct)} pct of ${v.pool}` : v ? 'not ranked' : 'no value'}${v && v.n < s.thr ? ' · small sample' : ''}</div></div>`; };
+  const ch = S.reduce((a, s) => { const x = s.management.challenges || {}; for (const k in x) a[k] = (a[k] || 0) + x[k]; return a; }, {});
+  const runs = S.reduce((a, s) => { for (const [k, r] of Object.entries(s.management.runs || {})) { a[k] = a[k] || {to:[0,0], no:[0,0], lg:[0,0]}; if (r.to_ppp != null) { a[k].to[0] += r.to_ppp * r.to_n; a[k].to[1] += r.to_n; } if (r.no_ppp != null) { a[k].no[0] += r.no_ppp * r.no_n; a[k].no[1] += r.no_n; } const lg = IDX.league[s.season]?.runs?.[k]; if (lg != null && r.to_n) { a[k].lg[0] += lg * r.to_n; a[k].lg[1] += r.to_n; } } return a; }, {});
+  const runRows = Object.entries(runs).map(([k, r]) => `<tr${tipAttr(`<b>Opponent run of ${k.replace('-', '–').replace(/–$/, '+')}</b><br>after his timeout: ${r.to[1] ? (r.to[0] / r.to[1]).toFixed(2) + ' points per possession over the next five, ' + r.to[1] + ' runs' : '—'}<br>when he let it ride: ${r.no[1] ? (r.no[0] / r.no[1]).toFixed(2) + ', ' + r.no[1] + ' runs' : '—'}<br>league, no timeout: ${r.lg[1] ? (r.lg[0] / r.lg[1]).toFixed(2) : '—'}`)}><td>Opponent run of ${k.replace('-', '–').replace(/–$/, '+')}</td><td>${r.to[1] ? (r.to[0] / r.to[1]).toFixed(2) + ci(r.to[1]) : '—'}</td><td>${r.to[1]}</td><td>${r.no[1] ? (r.no[0] / r.no[1]).toFixed(2) : '—'}</td><td>${r.no[1]}</td><td>${r.lg[1] ? (r.lg[0] / r.lg[1]).toFixed(2) : '—'}</td></tr>`).join('');
+  return `<div class="col wide"><h3 class="sub">Timeouts, challenges and halftime</h3><p class="since">2002-03 on · challenges 2019-20 on · ${sr ? sr.season : 'career'}</p>
+    <div class="grid2" style="margin-top:14px"><div><h3 class="lead-h">Do his timeouts stop runs?</h3><p class="lead-p">opponent points per possession over the next five possessions</p><div class="scroll"><table class="t"><thead><tr><th></th><th>after his timeout</th><th>n</th><th>no timeout, his games</th><th>n</th><th>league, no timeout</th></tr></thead><tbody>${runRows || '<tr><td colspan="6" class="empty">no runs</td></tr>'}</tbody></table></div><div class="small">Runs cool off on their own; the comparison is the league's figure for runs of the same size with no timeout called, weighted by his timeouts. Intervals are ±1.96 standard errors at 1.1 points of spread per possession.</div></div>
+    <div><h3 class="lead-h">Challenges</h3><p class="lead-p">2019-20 on</p>${ch.n ? `<div class="small">${ch.n} challenges: ${ch.overturned || 0} overturned, ${ch.supported || 0} upheld, ${ch.stands || 0} stood${ch.unknown ? `, ${ch.unknown} without a logged result` : ''}; ${ch.q4 || 0} in the fourth or overtime; ${ch.to_lost || 0} cost a timeout.</div>` : '<div class="empty">none in his seasons</div>'}
+    <h3 class="lead-h" style="margin-top:12px">Halftime: does his team come out better?</h3><p class="lead-p">third-quarter net minus first-half net, per season; the tick is the league's typical change</p>${S.map(s => { const v = s.management.halftime || 0, lg = IDX.league[s.season]?.halftime || 0; return `<div class="srl"${tipAttr(`<b>${s.season} ${s.team}</b><br>third quarter net minus first-half net: <b>${signed(v)}</b><br><span class="k">league that season: ${signed(lg)}</span>`)}><span>${s.season} ${s.team}</span><span class="sb"><i style="left:${v >= 0 ? 50 : 50 - Math.min(50, Math.abs(v) * 3)}%;width:${Math.min(50, Math.abs(v) * 3)}%;background:${v >= 0 ? '#BC3A2C' : '#1C4E86'}"></i><b style="left:${50 + Math.max(-50, Math.min(50, 3 * lg))}%"></b></span><span class="sn">${signed(s.management.halftime)}</span></div>`; }).join('')}</div></div></div>`;
+}
+
+// ---------------------------------------------------------------- context splits
+const SPLIT_LABELS = {opp_tier:'opponent as of that night', opp_final:'opponent by season end', opp_playoff:'playoff teams', home:'home and away', rest:'rest', rest_adv:'rest advantage', three_in_four:'3 in 4 nights', trip:'road trip game', travel:'miles travelled', tz:'time zones crossed', altitude:'altitude', missing:'regulars missing (impact)', starters:'starting five', half:'at the half', market:'the market', phase:'season phase', ot:'overtime'};
+const ORDER = {opp_tier:['top10','middle','bottom10'], rest:['b2b','1 day','2 days','3+ days'], trip:['1','2','3+'], travel:['0','<500','500-1500','1500+'], tz:['0','1','2+'], missing:['none','<5','5+'], phase:['first10','pre_asb','post_asb','last10'], half:['leading','tied','trailing'], market:['favoured','pick','underdog']};
+function renderSplits(sr){
+  const S = (sr ? [sr] : COACH.seasons).filter(s => s.splits && s.g >= 20);
+  if (!S.length) return sr ? `<div class="col wide"><div class="empty">${sr.season}: under 20 games, so no splits yet</div></div>` : '';
+  const agg = {};
+  for (const s of S) for (const [split, buckets] of Object.entries(s.splits)) {
+    if (!buckets || typeof buckets !== 'object' || ['tempo','market_n','wp','officials','fouls'].includes(split)) continue;
+    for (const [b, v] of Object.entries(buckets)) {
+      if (!v || v.net == null || s.net == null) continue;
+      const a = (agg[split] = agg[split] || {}); const x = (a[b] = a[b] || {g:0, w:0, gap:0, lg:0});
+      x.g += v.g; x.w += v.w; x.gap += (v.net - s.net) * v.g; const lg = IDX.league[s.season]?.split_gaps?.[split]?.[b]; if (lg != null) x.lg += lg * v.g;
+    }
+  }
+  const panels = Object.entries(agg).map(([split, buckets]) => {
+    const order = ORDER[split] || Object.keys(buckets).sort();
+    const rows = order.filter(b => buckets[b]).map(b => { const x = buckets[b]; const gap = x.gap / x.g, lg = x.lg / x.g; return `<div class="srl"${tipAttr(`<b>${esc(SPLIT_LABELS[split] || split)}: ${esc(b)}</b><br>${x.w}–${x.g - x.w} in ${x.g} games<br>net <b>${signed(gap)}</b> against his own season's net<br><span class="k">the league's typical gap in this bucket: ${signed(lg)}</span>`)}><span>${esc(b)} <small style="color:var(--faint)">${x.g}</small></span><span class="sb"><i style="left:${gap >= 0 ? 50 : 50 - Math.min(50, Math.abs(gap) * 2.5)}%;width:${Math.min(50, Math.abs(gap) * 2.5)}%;background:${gap >= 0 ? '#BC3A2C' : '#1C4E86'}"></i><b style="left:${50 + Math.max(-50, Math.min(50, lg * 2.5))}%"></b></span><span class="sn">${signed(gap)}</span></div>`; }).join('');
+    return `<div class="split"><h4>${SPLIT_LABELS[split] || split}</h4>${rows}</div>`;
+  }).join('');
+  const tc = S.filter(s => s.splits.tempo?.toward_own != null);
+  const tempo = tc.length ? tc.reduce((a, s) => a + s.splits.tempo.toward_own * s.splits.tempo.n, 0) / tc.reduce((a, s) => a + s.splits.tempo.n, 0) : null;
+  const wp = S.reduce((a, s) => { const w = s.splits.wp || {}; a.g += w.games || 0; a.cb += w.comebacks || 0; a.bl += w.blown || 0; a.cb10 += w.comeback10 || 0; a.bl10 += w.blown10 || 0; return a; }, {g:0,cb:0,bl:0,cb10:0,bl10:0});
+  const offs = {}; for (const s of S) for (const [o, g, w, f] of s.splits.officials || []) { const x = offs[o] = offs[o] || [0,0,0]; x[0] += g; x[1] += w; x[2] += f * g; }
+  const topo = Object.entries(offs).sort((a, b) => b[1][0] - a[1][0]).slice(0, 8).map(([o, [g, w, f]]) => `<tr><td>${esc(o)}</td><td>${g}</td><td>${w}–${g - w}</td><td>${(f / g).toFixed(1)}</td></tr>`).join('');
+  return `<div class="col wide"><h3 class="sub">Every situation, bucket by bucket</h3><p class="since">1996-97 on; play-by-play splits 2002-03 on; the market 2015-16 on · each bar is his net rating in that bucket minus his net that season${sr ? '' : ', games-weighted over his career'}; the tick is the league's typical gap · hover a bar</p>
+    <div class="splits">${panels}</div>
+    <div class="grid3" style="margin-top:14px"><div class="tile"${tipAttr('<b>Tempo control</b><br>where each game\'s pace sat between his usual pace (100) and the opponent\'s (0), averaged; above 50 means games were played at his speed')}><div class="tl">Tempo control</div><div class="tv">${miss(tempo) ? '—' : (100 * tempo).toFixed(0) + '%'}</div><div class="ts">where the game's pace sat between his usual pace (100) and the opponent's (0)</div></div>
+    <div class="tile"${tipAttr(`<b>Comebacks and blown leads</b><br>won from 10 down: ${wp.cb10} · lost from 10 up: ${wp.bl10}${wp.g ? `<br>by ESPN win probability (${wp.g} games): ${wp.cb} wins from under 10%, ${wp.bl} losses from over 90%` : ''}`)}><div class="tl">Comebacks and blown leads</div><div class="tv">${wp.cb10} / ${wp.bl10}</div><div class="ts">won from 10 down / lost from 10 up${wp.g ? `; by win probability (${wp.g} games): ${wp.cb} from under 10%, ${wp.bl} from over 90%` : ''}</div></div>
+    <div><h4 style="margin:0 0 4px;font-family:var(--mono);font-size:10.5px;color:var(--faint);text-transform:uppercase">officials he has seen most</h4><div class="scroll"><table class="t"><thead><tr><th>crew member</th><th>g</th><th>record</th><th>fouls called</th></tr></thead><tbody>${topo || '<tr><td class="empty">—</td></tr>'}</tbody></table></div></div></div></div>`;
+}
+
+// ---------------------------------------------------------------- shot diet and play types
+function court(diet, lgDiet, title){
+  const W = 300, H = 290, sx = W / 50, hoop = {x: W / 2, y: 40};
+  const shade = (k) => { const v = diet?.[k]?.[0], l = lgDiet?.[k]; if (v == null) return '#ECEBE8'; const d = l != null ? (v - l) / Math.max(0.02, l) : 0; return d >= 0 ? mix('#F7F6F2', '#C2A263', Math.min(1, d)) : mix('#F7F6F2', '#1C4E86', Math.min(1, -d)); };
+  const tipOf = k => { const v = diet?.[k]?.[0], l = lgDiet?.[k], fg = diet?.[k]?.[1]; return tipAttr(`<b>${ZL[k]}</b><br>${v == null ? 'no shots' : `<b>${(100 * v).toFixed(1)}%</b> of attempts${l == null ? '' : `, league ${(100 * l).toFixed(1)}%`}${fg == null ? '' : `<br>${(100 * fg).toFixed(1)}% made`}`}`); };
+  const txt = (k, x, y) => { const v = diet?.[k]?.[0], l = lgDiet?.[k], fg = diet?.[k]?.[1]; return `<text x="${x}" y="${y}" font-size="10" text-anchor="middle" fill="#1A2332">${v == null ? '—' : (100 * v).toFixed(0) + '%'}</text><text x="${x}" y="${y + 11}" font-size="8.5" text-anchor="middle" fill="#8A95A3">${l == null ? '' : 'lg ' + (100 * l).toFixed(0) + '%'}${fg == null ? '' : ' · ' + (100 * fg).toFixed(0) + ' FG%'}</text>`; };
+  const r3 = 23.75 * sx, ra = 4 * sx;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" style="max-width:320px">
+    <rect x="0" y="0" width="${W}" height="${H}" fill="${shade('ab3')}"${tipOf('ab3')}/>
+    <rect x="0" y="0" width="${3 * sx}" height="${14 * sx}" fill="${shade('c3')}"${tipOf('c3')}/><rect x="${W - 3 * sx}" y="0" width="${3 * sx}" height="${14 * sx}" fill="${shade('c3')}"${tipOf('c3')}/>
+    <path d="M${3 * sx},${14 * sx} A${r3},${r3} 0 0 0 ${W - 3 * sx},${14 * sx} L${W - 3 * sx},0 L${3 * sx},0 Z" fill="${shade('mid')}"${tipOf('mid')}/>
+    <rect x="${W/2 - 8 * sx}" y="0" width="${16 * sx}" height="${19 * sx}" fill="${shade('paint')}"${tipOf('paint')}/>
+    <circle cx="${hoop.x}" cy="${hoop.y}" r="${ra}" fill="${shade('ra')}"${tipOf('ra')}/>
+    <path d="M${3 * sx},${14 * sx} A${r3},${r3} 0 0 0 ${W - 3 * sx},${14 * sx}" fill="none" stroke="#22395A" stroke-width="1.5" pointer-events="none"/><line x1="${3 * sx}" y1="0" x2="${3 * sx}" y2="${14 * sx}" stroke="#22395A" stroke-width="1.5"/><line x1="${W - 3 * sx}" y1="0" x2="${W - 3 * sx}" y2="${14 * sx}" stroke="#22395A" stroke-width="1.5"/>
+    <rect x="${W/2 - 8 * sx}" y="0" width="${16 * sx}" height="${19 * sx}" fill="none" stroke="#22395A" stroke-width="1.5" pointer-events="none"/><circle cx="${hoop.x}" cy="${hoop.y}" r="${ra}" fill="none" stroke="#22395A" pointer-events="none"/><circle cx="${hoop.x}" cy="${hoop.y}" r="4" fill="none" stroke="#BC3A2C" pointer-events="none"/>
+    <g pointer-events="none">${txt('ra', hoop.x, hoop.y + 32)}${txt('paint', hoop.x, 19 * sx - 18)}${txt('mid', hoop.x, 19 * sx + 42)}${txt('c3', 1.5 * sx + 14, 14 * sx + 28)}${txt('ab3', hoop.x, H - 26)}</g>
+    <text x="${W/2}" y="${H - 6}" font-size="10" text-anchor="middle" fill="#5B6878">${title}</text></svg>`;
+}
+function renderDiet(sr, only){
+  const S = (sr ? [sr] : COACH.seasons).filter(s => s.identity?.diet);
+  if (!S.length) return '';
+  const wavg = (pick) => { const acc = {}; for (const s of S) for (const z of Z) { const v = pick(s)?.[z]; if (!v || v[0] == null) continue; const a = acc[z] = acc[z] || [0,0,0,0]; a[0] += v[0] * s.g; a[1] += s.g; if (v[1] != null) { a[2] += v[1] * v[0] * s.g; a[3] += v[0] * s.g; } } return Object.fromEntries(Object.entries(acc).map(([z, a]) => [z, [a[0] / a[1], a[3] ? a[2] / a[3] : null]])); };
+  const lgavg = (key) => { const acc = {}; for (const s of S) for (const z of Z) { const v = IDX.league[s.season]?.[key]?.[z]; if (v == null) continue; const a = acc[z] = acc[z] || [0,0]; a[0] += v * s.g; a[1] += s.g; } return Object.fromEntries(Object.entries(acc).map(([z, a]) => [z, a[0] / a[1]])); };
+  const mine = `<div>${court(wavg(s => s.identity.diet), lgavg('diet'), 'his teams\' shots')}</div>`, theirs = `<div>${court(wavg(s => s.identity.o_diet), lgavg('o_diet'), 'what opponents got')}</div>`;
+  return `<div class="col wide"><h3 class="sub">${only === 'd' ? 'What he takes away' : only === 'o' ? 'What he hunts' : 'What he hunts, and what he takes away'}</h3><p class="since">shot zones 2002-03 on · share of field-goal attempts by zone, ${sr ? sr.season : 'his career (games-weighted)'} against the league of the same season${sr ? '' : 's'}; gold more than the league, blue less · hover a zone</p>
+    <div class="grid2">${only === 'd' ? theirs : only === 'o' ? mine : mine + theirs}</div></div>`;
+}
+function renderPlayTypes(sr, only){
+  const S = (sr ? [sr] : COACH.seasons).filter(s => s.nba?.synergy);
+  if (!S.length) return '';
+  const side = (k, title) => {
+    const acc = {};
+    for (const s of S) for (const [pt, v] of Object.entries(s.nba.synergy[k] || {})) { const a = acc[pt] = acc[pt] || [0,0,0,0,0]; a[0] += v[0] * s.g; a[1] += s.g; a[2] += v[1] * v[2]; a[3] += v[2]; const lg = IDX.league[s.season]?.synergy?.[k]?.[pt]; if (lg) { a[4] += lg[0] * s.g; } }
+    const rows = Object.entries(acc).map(([pt, a]) => ({pt, freq: a[0] / a[1], ppp: a[3] ? a[2] / a[3] : null, lg: a[4] / a[1]})).sort((x, y) => y.freq - x.freq);
+    return `<div><h3 class="lead-h">${title}</h3><p class="lead-p">frequency vs the league (bar), points per possession (number)</p>${rows.map(r => { const d = r.freq - r.lg; return `<div class="srl"${tipAttr(`<b>${PT[r.pt] || r.pt}</b> (${k === 'o' ? 'offense' : 'defense, allowed'})<br><b>${r.freq.toFixed(1)}%</b> of possessions, league ${r.lg.toFixed(1)}%<br>${r.ppp == null ? '' : `${r.ppp.toFixed(2)} points per possession`}`)}><span>${PT[r.pt] || r.pt}</span><span class="sb"><i style="left:${d >= 0 ? 50 : 50 - Math.min(50, Math.abs(d) * 6)}%;width:${Math.min(50, Math.abs(d) * 6)}%;background:${d >= 0 ? '#C2A263' : '#8A95A3'}"></i><b style="left:50%"></b></span><span class="sn">${r.ppp == null ? '—' : r.ppp.toFixed(2)}</span></div>`; }).join('')}</div>`;
+  };
+  const body = only === 'o' ? side('o', 'By play type') : only === 'd' ? side('d', 'By play type, allowed') : `<div class="grid2">${side('o', 'Offense')}${side('d', 'Defense (allowed)')}</div>`;
+  return `<div class="col wide"><p class="since">play types 2015-16 on · Synergy, team tables; a season with two coaches shares the team's table · hover a row</p>${body}</div>`;
+}
+
+// ---------------------------------------------------------------- fingerprint, comps, arrival, development
+// Every metric on one scale: its percentile among that season's 30 teams (lower-is-better flipped),
+// so the distance between the dots is how big the change was.
+function renderArrival(){
+  const ar = COACH.arrivals || [];
+  if (!ar.length) return '';
+  const keys = ['net','winpct','pace','fg3r','rim','mid','ast_pct','orb_pct','depth10','stability','to_g','o_fg3r','o_tov'];
+  const blocks = ar.map(a => {
+    const ks = keys.filter(k => a.rows[k] && a.rows[k].p && a.rows[k].p[1] != null);
+    const W = CW(760), L = W < 600 ? 128 : 190, R = 16, H = 44 + 22 * ks.length;
+    const x = p => L + (W - L - R) * p / 100;
+    let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+    for (const g of [0, 25, 50, 75, 100]) svg += `<line x1="${x(g)}" x2="${x(g)}" y1="14" y2="${H - 24}" stroke="${g === 50 ? '#C4C0B6' : '#E4E1D9'}"/><text x="${x(g)}" y="${H - 10}" font-size="9" text-anchor="${g === 0 ? 'start' : g === 100 ? 'end' : 'middle'}" fill="#8A95A3">${g === 0 ? (W < 600 ? 'worst' : 'worst in the league') : g === 100 ? 'best' : g + 'th'}</text>`;
+    ks.forEach((k, i) => {
+      const {v, p} = a.rows[k], s = STATS[k], y = 26 + 22 * i, u = s?.unit || 'num1';
+      const lab = `${esc(s?.label || k)}${s?.lower ? ' ↓' : ''}`;
+      svg += `<text x="${L - 10}" y="${y + 4}" font-size="${W < 600 ? 10 : 11}" text-anchor="end" fill="#1A2332" font-family="IBM Plex Sans"${tipAttr(statTip(k))}>${lab}</text>`;
+      if (p[0] != null) svg += `<line x1="${x(p[0])}" y1="${y}" x2="${x(p[1])}" y2="${y}" stroke="#C4C0B6" stroke-width="2"/>`;
+      if (p[2] != null) svg += `<line x1="${x(p[1])}" y1="${y}" x2="${x(p[2])}" y2="${y}" stroke="#C4C0B6" stroke-width="2" stroke-dasharray="3 3"/>`;
+      const dot = (j, col, r, label, season) => p[j] == null ? '' : `<circle class="hit" cx="${x(p[j])}" cy="${y}" r="${r}" fill="${col}"${tipAttr(`<b>${esc(s?.label || k)}, ${label}</b> (${season} ${esc(teamName(a.team))})<br><b>${fmt(u, v[j])}</b> · ${ord(p[j])} percentile of that season's teams${s?.lower ? ' (lower is better, so flipped)' : ''}`)}></circle>`;
+      svg += dot(0, '#8A95A3', 4.5, 'the season before him', a.before_season) + dot(2, '#BC3A2C', 4.5, 'the season after he left', a.after_season) + dot(1, '#22395A', 5.5, 'his first season', a.first_season);
+    });
+    svg += '</svg>';
+    return `<h3 class="sub">${esc(teamName(a.team))}, ${a.first_season}${a.last_season && a.last_season !== a.first_season ? ` to ${a.last_season}` : ''}</h3><p class="since">${a.before_season ? `${a.before_season} before him → ` : 'no season before him in the data → '}${a.first_season} his first → ${a.after_season ? `${a.after_season} after he left` : 'still there, or no season after yet'}</p>${svg}`;
+  }).join('');
+  return `<div class="col wide"><h2 class="col-h">What changed when he arrived, and after he left</h2><p class="since">team-season figures, whoever coached, each as a percentile among that season's teams · the gap between dots is the size of the change · hover a dot for the value</p>${blocks}
+    <div class="legend2"><span><span class="sw" style="background:#8A95A3;border-radius:50%"></span>the season before him</span><span><span class="sw" style="background:#22395A;border-radius:50%"></span>his first season</span><span><span class="sw" style="background:#BC3A2C;border-radius:50%"></span>the season after he left</span><span>↓ lower is better, already flipped</span><span>a new roster moves numbers too; the returning-minutes share is in each season's row</span></div></div>`;
+}
+function renderDevelopment(sr){
+  const S = (sr ? [sr] : COACH.seasons).filter(s => s.development?.players?.length);
+  if (!S.length) return sr ? '' : '';
+  const cs = COACH.career.stats;
+  const rows = S.flatMap(s => s.development.players.map(p => [s.season, ...p])).sort((a, b) => (b[4] - b[3] - b[5]) - (a[4] - a[3] - a[5]));
+  const top = rows.slice(0, 10), bottom = rows.length > 16 ? rows.slice(-6) : [];
+  const all = [...top, ...bottom]; const W = CW(760), L = W < 600 ? 130 : 200, H = 24 + 20 * (all.length + 1);
+  const lo = Math.min(...all.map(r => Math.min(r[5], r[4] - r[3]))) - .5, hi = Math.max(...all.map(r => Math.max(r[5], r[4] - r[3]))) + .5;
+  const x = v => L + (W - L - 20) * (v - lo) / (hi - lo);
+  const nm = pid => COACH.player_names?.[String(pid)] || (() => { for (const k in TCACHE) { const n = TCACHE[k].names?.[String(pid)]; if (n) return n; } return String(pid); })();
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}"><line x1="${x(0)}" x2="${x(0)}" y1="10" y2="${H - 10}" stroke="#D9D6CF"/>`;
+  let i = 0;
+  for (const r of all) { if (i === top.length) i++; const y = 18 + 20 * i++; const act = r[4] - r[3]; const name = nm(r[1]);
+    const tip = `<b>${playerLink(r[1], name)}</b>, ${r[0]}, age ${r[2] ?? '—'}<br>BPM percentile ${r[3]} → ${r[4]} (<b>${signed(act)}</b>) over ${Math.round(r[6]).toLocaleString()} minutes<br>the aging curve expected ${signed(r[5], 2)} at his age<br><span class="k">${act >= r[5] ? 'beat the curve by' : 'fell short by'} ${Math.abs(act - r[5]).toFixed(1)} points</span>`;
+    svg += svgPlayer(r[1], L - 10, y + 4, W < 600 ? last(name) : name, 'font-size="11" text-anchor="end" fill="#1A2332" font-family="IBM Plex Sans"') + `<text x="${L - 10}" y="${y + 4}" font-size="9" fill="#8A95A3" text-anchor="end" dx="${-(String(W < 600 ? last(name) : name).length * 6.4)}">${r[0].slice(2)}</text><g class="hit"${tipAttr(tip)}><line x1="${x(r[5])}" x2="${x(act)}" y1="${y}" y2="${y}" stroke="#C4C0B6" stroke-width="2"/><circle cx="${x(r[5])}" cy="${y}" r="4" fill="#C2A263"></circle><circle cx="${x(act)}" cy="${y}" r="5" fill="${act >= r[5] ? '#BC3A2C' : '#1C4E86'}"></circle></g>`; }
+  svg += `<text x="${x(0)}" y="${H - 2}" font-size="9" text-anchor="middle" fill="#8A95A3">no change</text></svg>`;
+  const ag = sr ? sr.development : null;
+  const tiles = sr ? `<div class="tile"${tipAttr(statTip('aging', {v: ag.aging, pct: seasonPct(sr).aging, pool: seasonPools(sr).aging, n: ag.aging_w, season: sr.season}))}><div class="tl">Beats the aging curve</div><div class="tv">${miss(ag.aging) ? '—' : signed(ag.aging, 1)}</div><div class="ts">${miss(seasonPct(sr).aging) ? 'not ranked' : ord(seasonPct(sr).aging) + ' pct of ' + sr.season} · ${Math.round(ag.aging_w || 0).toLocaleString()} weighted minutes</div></div><div class="tile"${tipAttr(statTip('aging_young', {v: ag.aging_young, pct: seasonPct(sr).aging_young, pool: seasonPools(sr).aging_young, n: ag.aging_young_w, season: sr.season}))}><div class="tl">Players 24 and under</div><div class="tv">${miss(ag.aging_young) ? '—' : signed(ag.aging_young, 1)}</div><div class="ts">${miss(seasonPct(sr).aging_young) ? 'not ranked' : ord(seasonPct(sr).aging_young) + ' pct of ' + sr.season}</div></div>`
+    : `<div class="tile"${tipAttr(statTip('aging', cs.aging ? {v: cs.aging.v, pct: cs.aging.pct, pool: cs.aging.pool, n: cs.aging.n, seasons: cs.aging.seasons} : {}))}><div class="tl">Beats the aging curve</div><div class="tv">${cs.aging ? signed(cs.aging.v, 1) : '—'}</div><div class="ts">${cs.aging ? `${miss(cs.aging.pct) ? 'not ranked' : ord(cs.aging.pct) + ' pct of ' + cs.aging.pool} · ${Math.round(cs.aging.n).toLocaleString()} weighted minutes` : 'no value'}</div></div><div class="tile"${tipAttr(statTip('aging_young', cs.aging_young ? {v: cs.aging_young.v, pct: cs.aging_young.pct, pool: cs.aging_young.pool, n: cs.aging_young.n, seasons: cs.aging_young.seasons} : {}))}><div class="tl">Players 24 and under</div><div class="tv">${cs.aging_young ? signed(cs.aging_young.v, 1) : '—'}</div><div class="ts">${cs.aging_young ? (miss(cs.aging_young.pct) ? 'not ranked' : `${ord(cs.aging_young.pct)} pct of ${cs.aging_young.pool}`) : 'no value'}</div></div>`;
+  return `<div class="col wide"><h2 class="col-h">Do players get better under him?</h2><p class="since">1997-98 on · change in position-adjusted BPM percentile from the season before against what the aging curve expects at his age (the curve's own currency) · ${sr ? sr.season : 'his career'}: the ten who beat it most${bottom.length ? ' and the six who fell shortest' : ''} · hover a row; a name opens his card</p>
+    <div class="tiles" style="margin-bottom:12px">${tiles}</div>${svg}
+    <div class="legend2"><span><span class="sw" style="background:#C2A263;border-radius:50%"></span>expected at his age</span><span><span class="sw" style="background:#BC3A2C;border-radius:50%"></span>beat it</span><span><span class="sw" style="background:#1C4E86;border-radius:50%"></span>fell short</span><span>Selection, the team's development staff and regression to the mean all live in this number.</span></div></div>`;
+}
+function renderStaff(sr){
+  const L = COACH.lineage || {};
+  const chain = []; let at = L.mentor, guard = 0; const nodes = IDX.tree.nodes;
+  while (at && nodes[at] && guard++ < 12) { chain.push([at, nodes[at].name]); at = nodes[at].mentor; }
+  const seasons = (sr ? [sr] : COACH.seasons).filter(s => s.staff && s.staff.length);
+  const assist = COACH.assistant || [];
+  const first = COACH.bio?.first_hc;
+  return `<div class="col wide"><h2 class="col-h">Where he comes from, who he produced</h2><p class="since">assistant stints from Basketball-Reference (men who later became head coaches) and the NBA's staff tables (2000s on, as pulled) · a mentor is counted only from stints before his first head job</p>
+    <div class="grid2"><div><h3 class="lead-h">Lineage</h3>${L.mentor ? `<div class="small">Suggested mentor: <b>${coachLink(L.mentor, L.mentor_name)}</b> (${esc(L.role || '')})${L.override ? ' · set by hand' : ' · from the record'}${L.tie ? ' · a tie in the record' : ''}${L.unconfirmed ? ' · <span class="pill">unconfirmed</span>' : ''}${L.mentor_closer_than != null ? ` · on style, closer than ${L.mentor_closer_than}% of pairs` : ''}</div>` : `<div class="small">No NBA assistant stint on record before his first head job${first ? ` (${first})` : ''}, so no mentor is suggested. That means the lineage is missing, not that he learned it alone.</div>`}
+      ${chain.length > 1 ? `<div class="small" style="margin-top:4px">Line: ${[`<b>${esc(COACH.name)}</b>`, ...chain.map(c => coachLink(c[0], c[1]))].join(' ← ')}</div>` : ''}
+      ${L.also?.length ? `<div class="small" style="margin-top:4px">Also served under: ${L.also.map(a => `${coachLink(a[0], a[1])} (${esc(a[2])})`).join(', ')}</div>` : ''}
+      ${L.suggested?.length ? `<div class="small" style="margin-top:4px">Every head coach he served under before his first head job: ${L.suggested.map(u => `${coachLink(u[0], nodes[u[0]]?.name || u[0])} (${u[1]}${u[2]?.length ? `: ${u[2][0]}${u[2].length > 1 ? '–' + u[2][u[2].length - 1] : ''}` : ''})`).join(', ')}</div>` : ''}
+      ${L.later?.length ? `<div class="small" style="margin-top:4px">On a staff after he had been a head coach (a job, not an apprenticeship): ${L.later.map(u => `${coachLink(u[0], nodes[u[0]]?.name || u[0])} (${u[1]}${u[2]?.length ? `: ${u[2][0]}${u[2].length > 1 ? '–' + u[2][u[2].length - 1] : ''}` : ''})`).join(', ')}</div>` : ''}
+      ${L.kids?.length ? `<div class="small" style="margin-top:8px"><b>Head coaches off his staff:</b> ${L.kids.map(k => coachLink(k[0], k[1])).join(', ')}</div>` : ''}
+      <div class="small" style="margin-top:8px"><a href="#tree=${COACH.id}">See him in the tree ↗</a></div>
+      ${assist.length ? `<h3 class="lead-h" style="margin-top:14px">His own stints as an assistant</h3><div class="scroll"><table class="t"><thead><tr><th>season</th><th>team</th><th>role</th><th>head coach</th></tr></thead><tbody>${assist.map(a => `<tr${first && a.season >= first ? ' style="color:var(--faint)"' : ''}><td>${a.season}${first && a.season >= first ? ' <span class="small">after his first head job</span>' : ''}</td><td>${esc(a.team)}</td><td style="text-align:left;font-family:var(--body)">${esc(a.role)}</td><td style="text-align:left;font-family:var(--body)">${(a.heads || []).map(h => coachLink(h, nodes[h]?.name || h)).join(', ') || '—'}</td></tr>`).join('')}</tbody></table></div>` : ''}</div>
+    <div><h3 class="lead-h">Staff room</h3>${seasons.length ? seasons.slice().reverse().map(s => `<div class="staff" style="margin:4px 0"><b>${s.season} ${s.team}</b>: ${s.staff.map(a => a.id ? coachLink(a.id, a.name) : esc(a.name)).join(', ')}<span class="small"> (${[...new Set(s.staff.flatMap(a => a.src))].map(x => x === 'br' ? 'Basketball-Reference' : 'NBA staff table').join(' and ')})</span></div>`).join('') : '<div class="empty">no staff recorded for ' + (sr ? sr.season : 'his seasons') + ' (team results while on staff are context, not credit)</div>'}</div></div></div>`;
+}
+function renderSeasons(){
+  const S = COACH.seasons;
+  const recTable = (rows) => `<div class="scroll"><table class="t"><thead><tr><th>season</th><th>team</th><th>lg</th><th>W</th><th>L</th><th>finish</th><th>playoffs</th><th></th></tr></thead><tbody>${rows.map(r => `<tr><td>${r.season}</td><td>${esc(r.team)}</td><td>${r.lg}</td><td>${r.w}</td><td>${r.l}</td><td>${r.finish || ''}</td><td>${r.pg ? `${r.pw}–${r.pl}` : ''}</td><td style="text-align:left">${esc(r.remarks || '')}</td></tr>`).join('')}</tbody></table></div>`;
+  if (!S.length) return COACH.records.length ? `<div class="col wide"><h2 class="col-h">Every season</h2><p class="since">Basketball-Reference records; the game-level data begins in 1996-97</p>${recTable(COACH.records)}</div>` : '';
+  const pcell = (k, p) => p[k] != null ? ` <span class="pb" style="background:${STATS[k]?.kind === 'good' ? gradeColor(p[k]) : '#C2A263'};font-size:9.5px">${p[k]}</span>` : '';
+  const row = s => { const e = s.exp || {}, m = s.management || {}, r = s.rotation || {}, p = s.pct || {}; return `<tr class="link${state.mode === s.season ? ' on' : ''}" data-pick="${s.season}"><td>${s.season}${s.in_progress ? ' <span class="pill">live</span>' : ''}</td><td>${s.team}</td><td>${s.w}–${s.l}</td><td>${s.pg ? `${s.pw}–${s.pl}${s.title ? ' ★' : ''}` : ''}</td><td>${signed(s.net)}${pcell('net', p)}</td><td>${e.exp_w82 != null ? e.exp_w82.toFixed(1) : '—'}</td><td>${e.w_talent != null ? signed(e.w_talent) : '—'}${pcell('w_talent', p)}</td><td>${e.market_total ?? '—'}</td><td>${e.w_market != null ? signed(e.w_market) : '—'}${pcell('w_market', p)}</td><td>${r.off_script != null ? (100 * (1 - r.off_script)).toFixed(0) + '%' : '—'}${pcell('stability', p)}</td><td>${r.shape ? r.shape.depth10 : '—'}</td><td>${m.to_g ?? '—'}</td><td>${m.ato_own != null ? m.ato_own.toFixed(2) : '—'}</td><td>${m.challenges?.n ? `${m.challenges.overturned || 0}/${m.challenges.n}` : '—'}</td><td>${s.identity?.pace ?? '—'}</td><td>${e.w_spread != null ? signed(e.w_spread) : '—'}</td><td>${s.staff?.length || '—'}</td></tr>`; };
+  const older = COACH.records.filter(r => +r.season.slice(0,4) < 1996);
+  return `<div class="col wide"><h2 class="col-h">Every season</h2><p class="since">the coloured numbers are percentiles among that season's coaches with ${IDX.meta.rules.min_season_games}+ games · click a season to view it everywhere above</p>
+    <div class="scroll"><table class="t"><thead><tr><th>season</th><th>team</th><th>record</th><th>playoffs</th><th>net</th><th>talent exp W/82</th><th>vs talent</th><th>win total</th><th>vs market</th><th>on script</th><th>depth</th><th>TO/g</th><th>ATO ppp</th><th>challenges</th><th>pace</th><th>ATS</th><th>staff</th></tr></thead><tbody>${S.slice().reverse().map(row).join('')}</tbody></table></div>
+    ${older.length ? `<h3 class="lead-h" style="margin-top:14px">Before 1996-97</h3>${recTable(older)}` : ''}</div>`;
+}
+
+
+// ---------------------------------------------------------------- comps, with the fingerprint overlay
+function renderComps(sr){
+  const cs = COACH.comps || [];
+  const fp = sr ? Object.fromEntries(IDX.fingerprint.filter(k => seasonPct(sr)[k] != null).map(k => [k, seasonPct(sr)[k]])) : COACH.fingerprint;
+  const mentor = COACH.lineage?.mentor;
+  const list = cs.length ? cs.map(([id, d, cl, name]) => `<div class="lrow"${tipAttr(`<b>${esc(name)}</b><br>distance ${d} on the tendency fingerprint; closer than ${cl}% of all pairs in the pool`)}><span class="ln">${coachLink(id, name)}</span><span class="lv">closer than ${cl}% of pairs</span></div>`).join('') : '<div class="empty">not enough seasons to place him</div>';
+  const fpBlock = fp && Object.keys(fp).length >= 6 ? `<div id="fpplate"><h3 class="sub">What his teams look like</h3><p class="since">tendencies only, as season percentiles${sr ? ` in ${sr.season}` : ' averaged over his career'} · overlay: <span id="fpwho"></span> · hover a row</p>
+    <div class="tabs">${mentor ? `<button class="tab" data-fp="${mentor}">mentor: ${esc(COACH.lineage.mentor_name)}</button>` : ''}${cs.slice(0, 3).map((c) => `<button class="tab" data-fp="${c[0]}">${esc(c[3])}</button>`).join('')}</div>
+    <div class="fp" id="fpbody"></div><div class="legend2"><span><span class="sw" style="background:#22395A;border-radius:50%"></span>${esc(COACH.name)}</span><span><span class="sw" style="background:#BC3A2C;border-radius:50%"></span>overlay (career)</span><span>left: less of it · right: more of it</span></div></div>` : '';
+  return `<div class="col wide"><h2 class="col-h">Who coaches like him</h2><p class="since">nearest on the fingerprint, among the career pool · "closer than X% of pairs"</p><div class="grid2"><div>${list}</div><div>${fpBlock}</div></div></div>`;
+}
+async function drawFingerprint(otherId, sr){
+  const body = document.getElementById('fpbody'); if (!body) return;
+  let other = null;
+  if (otherId) { try { other = CMPC[otherId] || (CMPC[otherId] = await fetchJSON(`${BASE}/c/${otherId}.json`)); } catch (e) {} }
+  const who = document.getElementById('fpwho'); if (who) who.innerHTML = other ? coachLink(other.id, other.name) : 'none';
+  const fp = sr ? Object.fromEntries(IDX.fingerprint.filter(k => seasonPct(sr)[k] != null).map(k => [k, seasonPct(sr)[k]])) : COACH.fingerprint, ofp = other?.fingerprint || {};
+  body.innerHTML = IDX.fingerprint.filter(k => fp[k] != null).map(k => `<span${tipAttr(statTip(k, {v: sr ? sr.values?.[k]?.[0] : undefined, pct: fp[k], pool: sr ? seasonPools(sr)[k] : COACH.career.stats[k]?.pool, season: sr?.season}) + (ofp[k] != null ? `<div class="def">${esc(other.name)}: ${ord(ofp[k])} percentile</div>` : ''))}>${esc(STATS[k]?.label || k)}</span><span class="track"><i style="left:${fp[k]}%;background:#22395A"></i>${ofp[k] != null ? `<i style="left:${ofp[k]}%;background:#BC3A2C;opacity:.85"></i>` : ''}</span>`).join('');
+  document.querySelectorAll('[data-fp]').forEach(b => b.classList.toggle('on', b.dataset.fp === otherId));
+}
+
+// ---------------------------------------------------------------- the tree
+// Football Coaching Savant's forest, grown from IDX.tree: every root is a tree, branches thin as the
+// line thins, children fan upward. Branches take their root's colour; a node is a dot with the man's
+// record beside his name once you are close enough to read it. Search flies to a coach, hover lights
+// his line to the trunk, click opens his page. The assistants toggle adds men who were never a head
+// coach of record. A stage is any element: the tree view's, or the small one on a coach's page.
+const TRUNK_LEN = 150, DECAY = 0.85, SPREAD_MAX = 150, NODE_R = 6;
+const ROOT_COLORS = ['#22395A', '#BC3A2C', '#C2A263', '#1C4E86', '#4E535B', '#7A4E8C', '#2E7D5B', '#B5651D', '#8A1C3A', '#3C6E71'];
+let FOREST = {with: null, without: null};
+function hash01(s){ let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return ((h >>> 0) % 100000) / 100000; }
+const recOf = id => IDX.coaches.find(c => c.id === id);
+const isHC = id => !!(recOf(id)?.hc);
+function buildForest(assistants){
+  const N = IDX.tree.nodes, kids = {}, all = {};
+  const memoKeep = {};
+  const keep = id => { if (memoKeep[id] != null) return memoKeep[id]; memoKeep[id] = false; const k = assistants || isHC(id) || (N[id]?.kids || []).some(x => keep(x)); memoKeep[id] = k; return k; };
+  for (const id in N) {
+    if (!keep(id)) continue;
+    all[id] = 1;
+    const m = N[id].mentor;
+    if (m && N[m]) { all[m] = 1; (kids[m] = kids[m] || []).push(id); }
+  }
+  const roots = Object.keys(all).filter(id => !(N[id].mentor && N[N[id].mentor]));
+  const memo = {};
+  const size = n => { if (memo[n] != null) return memo[n]; let s = 1; for (const k of kids[n] || []) s += size(k); return (memo[n] = s); };
+  roots.forEach(size);
+  return {kids, roots, size};
+}
+function growTree(root, f, color){
+  const nodes = [], branches = [], rootSize = f.size(root);
+  const maxW = Math.max(5, Math.min(14, 4 + Math.sqrt(rootSize) * 1.7));
+  function grow(name, x, y, ang, depth, len){
+    const s = f.size(name), w = Math.max(1.6, maxW * Math.pow(s / rootSize, 0.34));
+    const ks = (f.kids[name] || []).slice().sort((a, b) => f.size(b) - f.size(a) || a.localeCompare(b));
+    nodes.push({name, x, y, depth, size: s, ang, leaf: !ks.length, w});
+    if (!ks.length) return;
+    const spread = Math.min(SPREAD_MAX, 34 + 16 * ks.length), n = ks.length;
+    let lo = ang - spread / 2, hi = ang + spread / 2;
+    const UP_MIN = -172, UP_MAX = -8;
+    if (lo < UP_MIN) { hi += UP_MIN - lo; lo = UP_MIN; }
+    if (hi > UP_MAX) { lo -= hi - UP_MAX; hi = UP_MAX; }
+    lo = Math.max(lo, UP_MIN); hi = Math.min(hi, UP_MAX);
+    ks.forEach((k, i) => {
+      const t = n === 1 ? 0.5 : (i + 0.5) / n, jitter = (hash01(k) - 0.5) * (n === 1 ? 26 : 14);
+      let a = lo + (hi - lo) * t + jitter; a = Math.max(UP_MIN, Math.min(UP_MAX, a));
+      const kl = len * DECAY * (0.82 + 0.36 * hash01(k + 'l')), rad = a * Math.PI / 180;
+      const nx = x + Math.cos(rad) * kl, ny = y + Math.sin(rad) * kl, bow = (hash01(k + 'b') - 0.5) * kl * 0.30;
+      const mx = (x + nx) / 2 + Math.cos(rad + Math.PI / 2) * bow, my = (y + ny) / 2 + Math.sin(rad + Math.PI / 2) * bow;
+      branches.push({from: name, to: k, x1: x, y1: y, cx: mx, cy: my, x2: nx, y2: ny, w: Math.max(1.4, maxW * Math.pow(f.size(k) / rootSize, 0.34)), color});
+      grow(k, nx, ny, a, depth + 1, kl);
+    });
+  }
+  const trunk = TRUNK_LEN * (0.75 + 0.4 * Math.min(1, Math.log(rootSize + 1) / Math.log(40)));
+  grow(root, 0, -trunk * 0.85, -90, 0, trunk);
+  let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+  for (const nd of nodes) { minX = Math.min(minX, nd.x); maxX = Math.max(maxX, nd.x); minY = Math.min(minY, nd.y); maxY = Math.max(maxY, nd.y); }
+  return {root, color, nodes, branches, size: rootSize, minX: minX - 60, maxX: maxX + 60, minY: minY - 24, maxY: maxY + 10};
+}
+function layoutForest(assistants){
+  const key = assistants ? 'with' : 'without';
+  if (FOREST[key]) return FOREST[key];
+  const f = buildForest(assistants);
+  const sorted = f.roots.slice().sort((a, b) => f.size(b) - f.size(a) || a.localeCompare(b));
+  const grown = sorted.map((r, i) => growTree(r, f, ROOT_COLORS[i % ROOT_COLORS.length]));
+  const trees = grown.filter(t => t.nodes.length > 1), sprouts = grown.filter(t => t.nodes.length === 1).sort((a, b) => nameOf(a.root).localeCompare(nameOf(b.root)));
+  const GAP = 70; let x = 0; const ground = 0, all = [];
+  for (const t of trees) { t.ox = x - t.minX; t.oy = ground; x += (t.maxX - t.minX) + GAP; all.push(t); }
+  const perRow = Math.max(20, Math.round(Math.max(x, 2200) / 110));
+  let row = 0, col = 0;
+  for (const t of sprouts) { t.ox = col * 110 + 50; t.oy = ground + 76 + row * 40; t.sprout = true; t.nodes[0].y = 0; col++; if (col >= perRow) { col = 0; row++; } all.push(t); }
+  let minY = 0, maxY = 0;
+  for (const t of all) { for (const nd of t.nodes) { nd.gx = nd.x + t.ox; nd.gy = nd.y + t.oy; maxY = Math.max(maxY, nd.gy + 30); } for (const br of t.branches) { br.gx1 = br.x1 + t.ox; br.gy1 = br.y1 + t.oy; br.gcx = br.cx + t.ox; br.gcy = br.cy + t.oy; br.gx2 = br.x2 + t.ox; br.gy2 = br.y2 + t.oy; } minY = Math.min(minY, t.minY + t.oy); }
+  const pad = 70;
+  return (FOREST[key] = {trees: all, sproutN: sprouts.length, w: Math.max(x, Math.min(sprouts.length, perRow) * 110 + 50) + pad, h: (maxY - minY) + pad * 2, groundY: ground, top: minY - pad, kids: f.kids});
+}
+function nodeLabel(id){ const r = recOf(id); return r?.hc ? `${r.all_w}–${r.all_l}` : 'assistant'; }
+function nodeTip(id){
+  const N = IDX.tree.nodes, n = N[id], r = recOf(id);
+  const line = [];
+  if (r?.hc) line.push(`${r.all_w}–${r.all_l}, ${r.all_seasons} season${r.all_seasons === 1 ? '' : 's'} as a head coach${r.titles ? `, ${r.titles} title${r.titles > 1 ? 's' : ''}` : ''}${r.first ? ` (${r.first.slice(0, 4)}–${(r.last || '').slice(0, 4)})` : ''}`);
+  else line.push('never a head coach of record');
+  if (n.mentor && N[n.mentor]) line.push(`<span class="k">mentor: ${esc(N[n.mentor].name)}${n.role ? ', ' + esc(n.role) : ''}${n.override ? ' · set by hand' : ''}${n.tie ? ' · a tie' : ''}</span>`);
+  if (n.size > 1) line.push(`<span class="k">${n.size - 1} head coach${n.size === 2 ? '' : 'es'} beneath him</span>`);
+  line.push('<span class="k">click to open his page</span>');
+  return `<b>${esc(n.name)}</b><br>${line.join('<br>')}`;
+}
+// a stage holds its own state on the element
+function stageState(st){ return st._tr || (st._tr = {scale: 1, x: 0, y: 0, labels: -1, moved: 0, assistants: false, wired: false, focus: null}); }
+function renderTree(st){
+  const S = stageState(st), F = layoutForest(S.assistants), svg = st.querySelector('svg'), N = IDX.tree.nodes;
+  S.forest = F;
+  let wood = '', leaves = '', labels = '', roots = '';
+  const ground = `<line x1="-60" y1="${F.groundY + 10}" x2="${F.w + 60}" y2="${F.groundY + 10}" stroke="#E1E0DC" stroke-width="2"/>` + (F.sproutN ? `<text class="rootlbl" x="50" y="${F.groundY + 52}" text-anchor="start">${F.sproutN} HEAD COACHES WITH NO RECORDED LINEAGE BEFORE THEIR FIRST HEAD JOB</text>` : '');
+  for (const t of F.trees) {
+    for (const br of t.branches) wood += `<path class="branch" data-from="${esc(br.from)}" data-to="${esc(br.to)}" stroke="${t.color}" stroke-width="${br.w.toFixed(1)}" d="M${br.gx1.toFixed(1)} ${br.gy1.toFixed(1)} Q${br.gcx.toFixed(1)} ${br.gcy.toFixed(1)} ${br.gx2.toFixed(1)} ${br.gy2.toFixed(1)}"/>`;
+    const r = t.nodes[0];
+    if (!t.sprout) wood += `<path class="branch trunk" data-to="${esc(r.name)}" stroke="${t.color}" stroke-width="${(r.w + 2).toFixed(1)}" d="M${r.gx.toFixed(1)} ${F.groundY + 8} L${r.gx.toFixed(1)} ${r.gy.toFixed(1)}"/>`;
+    for (const nd of t.nodes) {
+      const hc = isHC(nd.name), rec = recOf(nd.name), rr = hc ? NODE_R : NODE_R - 1.5;
+      const pct = rec?.hc && rec.all_g ? rec.all_w / rec.all_g : null;
+      const fill = pct == null ? '#E9E8E4' : mix('#1C4E86', '#BC3A2C', Math.max(0, Math.min(1, (pct - .3) / .4)));
+      const he = headEntry(nd.name), ir = rr - 1.2, img = he && he[2] !== 2 && he[1] ? `<image data-src="${headSrc(he[1])}" x="${-ir}" y="${-ir}" width="${2 * ir}" height="${2 * ir}" preserveAspectRatio="xMidYMin slice"/>` : '';
+      leaves += `<g class="leaf${hc ? '' : ' ast'}" data-n="${esc(nd.name)}" transform="translate(${nd.gx.toFixed(1)},${nd.gy.toFixed(1)})"${tipAttr(nodeTip(nd.name))}><circle r="${rr}" fill="${fill}"/>${img}</g>`;
+      const up = !t.sprout && Math.sin(nd.ang * Math.PI / 180) <= 0;
+      labels += `<text class="lbl ${nd.leaf && !t.sprout ? 'minor' : 'major'}" data-n="${esc(nd.name)}" x="${nd.gx.toFixed(1)}" y="${(nd.gy + (up ? -11 : 20)).toFixed(1)}">${esc(N[nd.name]?.name || nd.name)} <tspan class="rec">${nodeLabel(nd.name)}</tspan></text>`;
+    }
+    if (!t.sprout) roots += `<text class="rootlbl" x="${t.nodes[0].gx.toFixed(1)}" y="${F.groundY + 32}">${esc((N[t.root]?.name || t.root).toUpperCase())}</text>`;
+  }
+  svg.innerHTML = `<g class="tg">${ground}${wood}${roots}<g class="leaves">${leaves}</g><g class="labels">${labels}</g></g>`;
+  S.labels = -1;
+  fitTree(st);
+  svg.querySelectorAll('.leaf').forEach(g => {
+    g.addEventListener('click', () => { if (S.moved > 8) return; location.hash = 'c=' + g.dataset.n; });
+    g.addEventListener('pointerenter', () => highlight(st, g.dataset.n));
+    g.addEventListener('pointerleave', () => highlight(st, S.focus));
+  });
+  if (S.focus) setTimeout(() => flyTo(st, S.focus, 1.1), 30);
+}
+function highlight(st, name){
+  const svg = st.querySelector('svg'), N = IDX.tree.nodes, S = stageState(st);
+  if (!name) { svg.querySelectorAll('.leaf,.branch,.lbl').forEach(e => e.classList.remove('dim', 'hl')); return; }
+  const path = {}, edges = {}; let cur = name; path[cur] = 1; let guard = 0;
+  while (N[cur]?.mentor && N[N[cur].mentor] && guard++ < 20) { const m = N[cur].mentor; edges[m + '>' + cur] = 1; path[m] = 1; cur = m; }
+  edges['>' + cur] = 1;
+  for (const k of (S.forest?.kids || {})[name] || []) { edges[name + '>' + k] = 1; path[k] = 1; }
+  svg.querySelectorAll('.leaf,.lbl').forEach(e => { const on = path[e.dataset.n]; e.classList.toggle('hl', !!on); e.classList.toggle('dim', !on); });
+  svg.querySelectorAll('.branch').forEach(e => { const on = edges[(e.dataset.from || '') + '>' + e.dataset.to]; e.classList.toggle('hl', !!on); e.classList.toggle('dim', !on); });
+}
+function applyTransform(st){
+  const S = stageState(st), g = st.querySelector('.tg'); if (g) g.setAttribute('transform', `translate(${S.x},${S.y}) scale(${S.scale})`);
+  const tier = S.scale >= 1.0 ? 2 : (S.scale >= 0.45 ? 1 : 0);
+  if (tier !== S.labels) { S.labels = tier; const l = st.querySelector('.labels'); if (l) { l.style.display = tier === 0 ? 'none' : ''; l.classList.toggle('leaves-too', tier === 2); } }
+  clearTimeout(S.imgTimer); S.imgTimer = setTimeout(() => syncLeafImages(st), 120);
+}
+// the faces are fetched only for nodes on screen once the tree is zoomed enough for a face to read (about 400 of
+// them at 15 KB each would otherwise land on every coach page); once loaded a node keeps its picture
+function syncLeafImages(st){
+  const S = stageState(st), svg = st.querySelector('svg'); if (!svg || S.scale < 0.45) return;
+  const W = st.clientWidth, H = st.clientHeight;
+  svg.querySelectorAll('.leaf image[data-src]').forEach(im => {
+    const m = /translate\(([-\d.]+),([-\d.]+)\)/.exec(im.parentNode.getAttribute('transform') || ''); if (!m) return;
+    const sx = S.x + m[1] * S.scale, sy = S.y + m[2] * S.scale;
+    if (sx > -40 && sx < W + 40 && sy > -40 && sy < H + 40) { im.setAttribute('href', im.dataset.src); im.removeAttribute('data-src'); }
+  });
+}
+function fitTree(st){
+  const S = stageState(st), F = S.forest; if (!F) return;
+  S.scale = Math.max(0.12, Math.min(1.1, (st.clientHeight - 24) / F.h));
+  const cw = F.w * S.scale;
+  S.x = (cw < st.clientWidth - 28) ? (st.clientWidth - cw) / 2 : 14;
+  S.y = -F.top * S.scale + 12;
+  const svg = st.querySelector('svg'); svg.setAttribute('width', st.clientWidth); svg.setAttribute('height', st.clientHeight);
+  applyTransform(st);
+}
+function zoomTo(st, ns, cx, cy){ const S = stageState(st); ns = Math.max(0.08, Math.min(4, ns)); S.x = cx - (cx - S.x) * (ns / S.scale); S.y = cy - (cy - S.y) * (ns / S.scale); S.scale = ns; applyTransform(st); }
+function zoomBy(st, f){ const r = st.getBoundingClientRect(); zoomTo(st, stageState(st).scale * f, r.width / 2, r.height / 2); }
+function flyTo(st, name, scale){
+  const S = stageState(st), F = S.forest; if (!F) return;
+  let hit = null; for (const t of F.trees) for (const nd of t.nodes) if (nd.name === name) hit = nd;
+  if (!hit) return;
+  S.scale = scale || Math.max(S.scale, 1.0);
+  S.x = st.clientWidth / 2 - hit.gx * S.scale; S.y = st.clientHeight / 2 - hit.gy * S.scale;
+  applyTransform(st); highlight(st, name);
+}
+function wireTree(st){
+  const S = stageState(st); if (S.wired) return; S.wired = true;
+  const pts = {}; let drag = false, lx = 0, ly = 0, pinch = null, cap = 0;
+  const at = e => { const r = st.getBoundingClientRect(); return {x: e.clientX - r.left, y: e.clientY - r.top}; };
+  const pair = () => { const k = Object.keys(pts); return k.length >= 2 ? [pts[k[0]], pts[k[1]]] : null; };
+  const gap = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const grab = id => { if (cap) return; try { st.setPointerCapture(id); cap = id || 1; } catch (err) {} };
+  st.addEventListener('pointerdown', e => {
+    if (e.target.closest('.tctl') || e.target.closest('.tfind')) return;
+    pts[e.pointerId] = at(e);
+    const t = pair();
+    if (t) { drag = false; st.classList.remove('drag'); grab(e.pointerId); pinch = {d: gap(t[0], t[1]), mid: {x: (t[0].x + t[1].x) / 2, y: (t[0].y + t[1].y) / 2}}; }
+    else { drag = true; S.moved = 0; lx = e.clientX; ly = e.clientY; st.classList.add('drag'); }
+  });
+  st.addEventListener('pointermove', e => {
+    if (!(e.pointerId in pts)) return;
+    pts[e.pointerId] = at(e);
+    const t = pair();
+    if (t && pinch) { const d = gap(t[0], t[1]); if (d < 12) return; const mid = {x: (t[0].x + t[1].x) / 2, y: (t[0].y + t[1].y) / 2}; S.moved += Math.abs(d - pinch.d) + Math.abs(mid.x - pinch.mid.x); S.x += mid.x - pinch.mid.x; S.y += mid.y - pinch.mid.y; zoomTo(st, S.scale * (d / pinch.d), mid.x, mid.y); pinch.d = d; pinch.mid = mid; return; }
+    if (!drag) return;
+    S.moved += Math.abs(e.clientX - lx) + Math.abs(e.clientY - ly);
+    if (S.moved > 4) grab(e.pointerId);
+    S.x += e.clientX - lx; S.y += e.clientY - ly; lx = e.clientX; ly = e.clientY; applyTransform(st);
+  });
+  for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) st.addEventListener(ev, e => {
+    delete pts[e.pointerId];
+    const k = Object.keys(pts);
+    if (k.length < 2) pinch = null;
+    if (k.length === 1) { const r = st.getBoundingClientRect(); lx = pts[k[0]].x + r.left; ly = pts[k[0]].y + r.top; drag = true; st.classList.add('drag'); }
+    else if (!k.length) { drag = false; st.classList.remove('drag'); if (cap) { try { st.releasePointerCapture(e.pointerId); } catch (err) {} cap = 0; } }
+  });
+  st.addEventListener('wheel', e => { e.preventDefault(); const p = at(e); const dy = e.deltaY * (e.deltaMode === 1 ? 16 : (e.deltaMode === 2 ? st.clientHeight : 1)); const f = Math.exp(-dy * (e.ctrlKey ? 0.012 : 0.0032)); zoomTo(st, S.scale * Math.max(0.2, Math.min(5, f)), p.x, p.y); }, {passive: false});
+  st.querySelector('.zin').onclick = () => zoomBy(st, 1.3);
+  st.querySelector('.zout').onclick = () => zoomBy(st, 1 / 1.3);
+  st.querySelector('.zfit').onclick = () => fitTree(st);
+  const fsBtn = st.querySelector('.zfull');
+  const paint = () => { const on = st.classList.contains('pseudo'); document.documentElement.classList.toggle('fslock', on); fsBtn.textContent = on ? '⤡' : '⛶'; setTimeout(() => fitTree(st), 60); };
+  fsBtn.onclick = () => { st.classList.toggle('pseudo'); paint(); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && st.classList.contains('pseudo')) { st.classList.remove('pseudo'); paint(); } });
+  window.addEventListener('hashchange', () => { if (st.classList.contains('pseudo')) { st.classList.remove('pseudo'); paint(); } });
+  const ast = st.querySelector('.zast');
+  ast.onclick = () => { S.assistants = !S.assistants; ast.classList.toggle('on', S.assistants); renderTree(st); };
+  const find = st.querySelector('.tfind');
+  const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  find.addEventListener('input', () => {
+    const q = norm(find.value).trim(); if (!q) { highlight(st, S.focus); return; }
+    const names = []; for (const t of S.forest.trees) for (const n of t.nodes) names.push(n.name);
+    const hit = names.filter(n => norm(IDX.tree.nodes[n]?.name || n).includes(q)).sort((a, b) => (norm(IDX.tree.nodes[a]?.name).startsWith(q) ? 0 : 1) - (norm(IDX.tree.nodes[b]?.name).startsWith(q) ? 0 : 1))[0];
+    if (hit) flyTo(st, hit);
+  });
+  window.addEventListener('resize', () => { if (st.isConnected && st.offsetParent) fitTree(st); });
+}
+function mountTree(st, focus){
+  if (!st) return;
+  const S = stageState(st); S.focus = focus || null;
+  st.innerHTML = `<svg></svg><input class="tfind" placeholder="Find a coach…" aria-label="Find a coach in the tree"/><div class="tctl"><button class="zast${S.assistants ? ' on' : ''}" title="Add assistants who never became head coaches">+asst</button><button class="zin" title="Zoom in">+</button><button class="zout" title="Zoom out">−</button><button class="zfit" title="Fit the whole forest">⤢</button><button class="zfull" title="Full screen">⛶</button></div>`;
+  S.wired = false;
+  wireTree(st);
+  renderTree(st);
+}
+function openTree(focus){
+  document.body.className = 'view-tree';
+  syncTabs('tree');
+  document.title = 'The coaching tree — Basketball Coaching Savant';
+  const el = document.getElementById('treeview'), N = IDX.tree.nodes, roots = IDX.tree.roots;
+  if (!document.getElementById('treestage')) {
+    const sprouts = Object.keys(N).filter(k => !N[k].mentor && N[k].size === 1 && isHC(k)).length;
+    el.innerHTML = `<div class="col wide" style="padding-bottom:12px"><h2 class="col-h">The coaching tree</h2><p class="since">${roots.length} trees with more than one coach · ${sprouts} head coaches with no recorded lineage · drag to pan, scroll or pinch to zoom, hover a coach to light his line, click to open his page</p><div class="small">${esc(IDX.tree.note)}</div></div>
+      <div class="treestage" id="treestage"></div>
+      <div class="legend2" style="margin-top:10px"><span>branch colour: the root of the tree</span><span><span class="sw" style="background:#1C4E86;border-radius:50%"></span> to <span class="sw" style="background:#BC3A2C;border-radius:50%"></span> node colour: career win %, .300 to .700</span><span><span class="sw" style="background:#E9E8E4;border-radius:50%"></span>no head-coaching record</span><span>dotted node: an assistant who never became a head coach (toggle +asst)</span><span>names show as you zoom in; a coach who forked the tree is named at any zoom</span></div>`;
+    mountTree(document.getElementById('treestage'), focus);
+  } else {
+    const st = document.getElementById('treestage'); stageState(st).focus = focus || null; fitTree(st); if (focus && N[focus]) setTimeout(() => flyTo(st, focus, 1.1), 50);
+  }
+  window.scrollTo(0, 0);
+}
+
+init();
+</script>
+</body>
+</html>

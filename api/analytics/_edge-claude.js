@@ -217,7 +217,12 @@ function boxCard(p, ix) {
 //   schedule  ['MIL played last night: ...', ...]
 //   health    { TEAM: [{ name, status, date, comment }] }
 //   rosters   { TEAM: [{ name, pos, status, hasMarket, gp, rookie, proj, usg, log }] }
-export function buildPrompt(arm, { game, players, ix, teams, health, rosters, schedule = [] }) {
+export function buildPrompt(arm, { game, players, ix, teams, health, rosters, schedule = [], reportCard = null }) {
+  // The report-card arm is Claude + WCE with its own track record on top.
+  if (arm === 'claude_rc') {
+    const base = buildPrompt('claude_wce', { game, players, ix, teams, health, rosters, schedule })
+    return reportCard ? `${reportCardText(reportCard)}\n\n${base}` : base
+  }
   const head = [`${game.away} at ${game.home}, tip ${tipText(game.tip)}.`, ...schedule].join('\n')
   const common = [
     '',
@@ -327,4 +332,30 @@ export function parseForecasts(input, markets) {
   const probs = new Map()
   for (const items of groups.values()) for (const it of monotone(items)) probs.set(it.id, it.p)
   return { probs, notes: String(input?.notes || '').slice(0, 1200), missing: markets.length - probs.size }
+}
+
+/* ------------------------------------------------------------------ *
+ * The report card (the claude_rc arm)
+ * ------------------------------------------------------------------ */
+
+const STAT_WORD = { pts: 'points', reb: 'rebounds', ast: 'assists', fg3m: 'threes', pra: 'pts+reb+ast' }
+const signedPts = (x) => `${x >= 0 ? '+' : '−'}${(Math.abs(x) * 100).toFixed(1)} points`
+const skillWords = (s) => (s >= 0 ? `scored ${(s * 100).toFixed(1)}% better than the market's price` : `scored ${(Math.abs(s) * 100).toFixed(1)}% worse than the market's price`)
+
+// rc: { own: bool, n, through, skill, lean, calibration: [{ lo, hi, n, predicted, actual }], stats: { pts: { n, skill, lean } } }
+// Plain facts about past forecasts against what happened: no prices from tonight, nothing to do
+// but read. Built by the site from settled games only.
+export function reportCardText(rc) {
+  const lines = []
+  lines.push(`YOUR TRACK RECORD (${rc.n.toLocaleString('en-US')} forecasts scored, games through ${rc.through})`)
+  lines.push(rc.own
+    ? 'These are your own past forecasts in this log, scored against what happened. Use them to correct your habits. They say nothing about tonight\'s game itself.'
+    : 'These are past forecasts in this log made with exactly the information you have tonight, scored against what happened. Use them to correct your habits. They say nothing about tonight\'s game itself.')
+  if (rc.skill != null) lines.push(`- Overall: the forecasts ${skillWords(rc.skill)} (Brier score; the market's price at the time was not shown to the forecaster).`)
+  if (rc.lean != null) lines.push(`- Lean: on average the forecasts sat ${signedPts(rc.lean)} against the market's price${rc.lean > 0.01 ? ', so they leaned toward players reaching their lines' : rc.lean < -0.01 ? ', so they leaned against players reaching their lines' : ''}.`)
+  const cal = (rc.calibration || []).filter((b) => b.n >= 40)
+  if (cal.length) lines.push(`- Calibration (said → hit): ${cal.map((b) => `${Math.round(b.predicted * 100)}% → ${Math.round(b.actual * 100)}% (${b.n})`).join(', ')}.`)
+  const st = Object.entries(rc.stats || {}).filter(([, v]) => v.n >= 60)
+  if (st.length) lines.push(`- By stat: ${st.map(([k, v]) => `${STAT_WORD[k] || k} ${skillWords(v.skill)}, lean ${signedPts(v.lean)} (${v.n})`).join('; ')}.`)
+  return lines.join('\n')
 }

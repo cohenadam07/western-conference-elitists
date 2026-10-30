@@ -98,7 +98,7 @@ E = {
             formula="Self-creation = 100 × (share of his FGA with the closest defender 0–2 ft + share at 2–4 ft). Shown as a word from its league percentile: low, avg, high, elite.",
             source=f"{NBA} player tracking (closest-defender shooting), 2013-14 on.", sample="Hatched under 100 tightly guarded attempts."),
  "syn": dict(what="Shot-making by play type: how efficiently he scores across the plays he actually runs (pick-and-roll, isolation, post-ups, spot-ups and the rest), weighted by how often he runs each.",
-            formula="Σ over offensive play types of (his points-per-possession percentile in that type × his possessions in it) ÷ his total play-type possessions",
+            formula="Σ over offensive play types of (his points-per-possession percentile in that type × his possessions in it) ÷ his total play-type possessions. The percentile is the same one the play-type panel shows: the NBA's on a finished season, and on the season in progress ours, over the play types that clear 25 possessions in a pool of 20+ players. Early in a season, before any play type clears those, the bar is absent rather than ranked against a handful of players.",
             source=f"{NBA} Synergy play types, 2015-16 on.", sample="Hatched under 100 play-type possessions."),
  "ddiff": dict(what="Defender difficulty: the average defensive quality of the players who guarded him. Context for his offense: strong numbers against strong defenders count for more.",
             formula="Σ (each defender's DBPM × possessions he guarded him) ÷ Σ possessions",
@@ -184,9 +184,12 @@ E = {
  "onoffadj": dict(what="On/off with the luck taken out: the same on-minus-off net rating, after replacing the opponents' three-point and free-throw shooting with league average. Opponents' 3P% and FT% while one player is on the floor are almost all noise, and they swing raw on/off by several points.",
             formula="For his on and off minutes separately: net rating + 100 × (3 × (opp 3PM − opp 3PA × league 3P%) + (opp FTM − opp FTA × league FT%)) ÷ possessions. Luck-adjusted on/off = adjusted on − adjusted off; traded players are minutes-weighted. His own team's shooting is left alone: a shooter raising his team's 3P% is real.",
             source=f"{NBA} team on/off details (opponent and advanced splits), 1996-97 on.", sample="Still noisy below ~1,000 minutes; steadier than raw on/off."),
+ # The three numbers in this entry are extras_engine.SAMPLE_FLAG, POOL_MIN and
+ # PT_NBA_MIN_POSS in ~/Basketball-Savant. Retuning them means editing this prose too.
  "pt": dict(what="Play types: how his offense is built (pick-and-roll, isolation, spot-ups and the rest) and how well each part works.",
-            formula="For each play type: share = his possessions in it ÷ all his play-type possessions; points per possession = points ÷ possessions; percentile = the NBA's, among every player who ran that play type. Traded players are combined, possession-weighted.",
-            source=f"{NBA} Synergy play types, 2015-16 on.", sample="Percentiles on under ~25 possessions in a play type are mostly noise."),
+            formula="For each play type: share = his possessions in it ÷ all his play-type possessions; points per possession = points ÷ possessions. Traded players are combined, possession-weighted. The percentile on a finished season is the NBA's, among every player who ran that play type. On the season in progress it is ours: his points per possession against the players with 25+ possessions of that play type, league-wide and not position-adjusted, and left blank until he has 25 of them himself and 20 players clear the same bar — the NBA's own percentile is ranked inside its 10-possession pool, which in the first week of a season is three or four players.",
+            source=f"{NBA} Synergy play types, 2015-16 on. The NBA publishes a player's play type only once he has 10 possessions of it, so early in a season a type he has run less than that is missing rather than zero. Synergy credits the finisher of a possession, not the man who set it up.",
+            sample="Under 25 possessions in a play type a percentile is mostly noise, so in season it is withheld and the row is tagged small sample. The More columns view adds, per play type: eFG%, the share of possessions that scored, ended in a turnover, drew free throws, drew a shooting foul and ended in an and-one."),
  "ww": dict(what="With / without: what happens to his game when a teammate sits. The three teammates whose absence changes his usage the most, ranked after allowing for how few games there are without them.",
             formula="From game logs: his per-36 usage (FGA + 0.44·FTA + TOV), points, assists, rebounds and minutes in games the teammate played vs. games the team played without him (only games he himself played). Ranking: change in usage × n ÷ (n + 5), n = games without.",
             source=f"{NBA} game logs.", sample="5+ games with and 3+ without; games without a teammate are usually few, so read the game counts."),
@@ -208,6 +211,26 @@ from explainers_tabs import T as _TABS  # noqa: E402
 E.update(_TABS)
 
 FIELDS = ("what", "formula", "source", "sample")
+
+# The October 2026 additions: each stat and each breakdown panel carries its explainer in its
+# own definition (pipeline/basketball/ext_config.py), so a stat cannot ship without one.
+# Panels are keyed x_<panel> (the Breakdowns header's data-k).
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "pipeline", "basketball"))
+import ext_config as _XC  # noqa: E402
+for _m in _XC.EXT_METRICS:
+    if _m["key"] in E:
+        sys.exit(f"{_m['key']}: already has an explainer")
+    E[_m["key"]] = {f: _m[f] for f in FIELDS}
+for _k, _v in _XC.EXT_PANELS.items():
+    E["x_" + _k] = {f: _v[f] for f in FIELDS}
+
+
+# Every stat with a measured settle point (tools/savant-settle) says so, in the same words.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "savant-settle"))
+import settle_text as _ST  # noqa: E402
+for _k in _ST.STATS:
+    if _k in E:
+        E[_k]["sample"] = _ST.sentence(_k)
 
 
 def render():
