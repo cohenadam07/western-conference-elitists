@@ -6579,7 +6579,7 @@ function renderWW(){
   const sel=WWS.sel[sk], names=mates.filter(function(m){return sel.indexOf(m.id)>=0;}).map(function(m){return m.name;});
   const r=SavantWW.split(doc,cur.id,sel,WWS.mode);
   const games=WWS.mode==='games';
-  const sample=function(s){return (games||s===r.with?s.games+' g · ':'')+Math.round(s.minutes).toLocaleString()+' min · '+s.possessions.toLocaleString()+' poss';};
+  const sample=function(s){return (games?s.games+' g · ':'')+Math.round(s.minutes).toLocaleString()+' min · '+s.possessions.toLocaleString()+' poss';};
   const many=names.length>1;
   const wl=many?'With any of them':'With '+(names[0]||''), ol=many?'Without '+(names.length===2?'both':'all '+names.length):'Without '+(names[0]||'');
   const seg=function(v,l){return '<button type="button" data-ww="mode" data-v="'+v+'" aria-pressed="'+(WWS.mode===v)+'">'+l+'</button>';};
@@ -6593,9 +6593,9 @@ function renderWW(){
     if(x.group!==grp){ grp=x.group; body+='<tr class="ww-g"><td colspan="4">'+grp+'</td></tr>'; }
     let d='—', cls='';
     if(x.diff!=null){
-      const lim=x.fmt==='p'?0.05:0.05, good=x.lower?x.diff<0:x.diff>0;
+      const good=x.lower?x.diff<0:x.diff>0;
       d=(x.diff>=0?'+':'−')+Math.abs(x.diff).toFixed(1);
-      if(Math.abs(x.diff)>=lim) cls=good?'ww-up':'ww-dn';
+      if(Math.abs(x.diff)>=0.05) cls=good?'ww-up':'ww-dn';
     }
     const tip=function(n,low){return n.toLocaleString()+' '+x.unit+(low?', under the '+x.settles_at.toLocaleString()+' this stat needs to settle':'');};
     body+='<tr><td>'+x.label+'</td><td class="'+(x.with_low?'ww-low':'')+'" title="'+tip(x.with_n,x.with_low)+'">'+SavantWW.fmt(x.with,x.fmt)+'</td>'
@@ -6610,7 +6610,7 @@ function renderWW(){
     +'<div class="ww-sides"><div><b>'+wl+'</b>'+sample(r.with)+'</div><div><b>'+ol+'</b>'+sample(r.without)+'</div></div>'
     +'<div class="ww-scroll"><table class="ww-table"><tr><th>'+curSeason+'</th><th>With</th><th>Without</th><th>Diff</th></tr>'+body+'</table></div>'
     +short
-    +'<div class="pt-note">Hatched: under that stat’s settle point. Not splittable, because the data has no record of who was on the floor: '
+    +'<div class="pt-note">Diff is without minus with; red is better for him. Hatched: under that stat’s settle point. Not splittable, because the data has no record of who was on the floor: '
     +r.not_splittable.map(function(n){return n[0]+' ('+n[1]+')';}).join('; ')+'.</div>';
   el.hidden=false;
   el.onclick=function(e){
@@ -7236,11 +7236,12 @@ async function exportCard(){
    passing network, defensive play types, clutch, splits, on/off four factors, turnover mix,
    Handle Score, Dunk Score, position estimate). They ship in savant-ext/ beside the archive and
    load per season (see the More stats block above renderGuard).
+   2.6.0 (Oct 2026): labels follow the position estimate, one age standard, same-age pools, With/Without from the stints.
    2.5.0 (Oct 2026): every stat's settle point measured (tools/savant-settle). 152 stats now say
    how much sample they need, from our own seasons: 29 within seasons (the last-25 split, 6 more
    than before), 123 season to season, calibrated against the within-season method. Each bar is
    hatched until half of what it shows is the player, and 6 more card stats get the ◆. */
-var VERSION='2.5.0';
+var VERSION='2.6.0';
 function build(){
   const vc=document.getElementById('verchip');
   if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }
