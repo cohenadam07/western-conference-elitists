@@ -22,7 +22,7 @@
 
 import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, ordinal, prepare, rank, signed, thousands, tidy, topTier } from './_core.js'
-import { extFor } from './_basketball-ext.js'
+import { AGE_POOLS, agePercentile, agePoolInfo, extFor, loadAgeIndex, loadAgePool, wholeAge } from './_basketball-ext.js'
 
 // the card's ageToday(): exact years, days / 365.25
 const ageToday = (b) => tidy((Date.now() - Date.parse(`${b}T00:00:00Z`)) / 864e5 / 365.25)
@@ -185,7 +185,7 @@ export async function searchPlayers({ query, limit = 10 }) {
 
 // ---- profile -------------------------------------------------------------------------
 
-export async function playerProfile({ player, season, window = 'season', group = 'all' }) {
+export async function playerProfile({ player, season, window = 'season', group = 'all', pool: poolArg = 'standard' }) {
   const meta = await loadMeta()
   const wanted = parseSeason(season, meta)
   const who = await resolvePlayer(player, wanted)
@@ -211,6 +211,12 @@ export async function playerProfile({ player, season, window = 'season', group =
   const groupKey = group === 'all' ? null : GROUPS[group]
   const peers = PEERS[row.pos] || 'his position'
   const low = new Set(src.low || [])
+  // The same-age pools (savant-ext/age/): named, and ranked, only when asked for.
+  const ageMode = AGE_POOLS[poolArg] || null
+  const age = ageMode ? wholeAge(row, seasonId) : null
+  const ageIndex = ageMode ? await loadAgeIndex() : null
+  const ageInfo = ageMode ? agePoolInfo(ageIndex, age, row.pos, ageMode) : null
+  const ageDoc = ageInfo ? await loadAgePool(age) : null
   // Season in progress, full season only: where a small-sample number is likely to settle.
   const settle = (window === 'season' && row.settle) || {}
   const stats = []
@@ -224,6 +230,7 @@ export async function playerProfile({ player, season, window = 'season', group =
     const xc = m.ext ? (ext && ext.cells[m.key]) : null
     const cell = m.ext ? xc : src.m[m.key]
     if (!cell) continue
+    const inPool = ageDoc ? agePercentile(ageDoc, ageIndex, m.key, row.pos, ageMode, cell[0], m.lowerIsBetter) : null
     stats.push({
       key: m.key,
       label: m.label,
@@ -233,6 +240,7 @@ export async function playerProfile({ player, season, window = 'season', group =
       display: display(m.unit, cell[0], cell[1]),
       league_percentile: cell[1],
       position_percentile: cell[2],
+      ...(inPool ? { pool_percentile: inPool[0], pool_size: inPool[1] } : {}),
       lower_is_better: m.lowerIsBetter,
       low_sample: m.ext ? (xc[3] != null && !!m.lowSampleBelow && xc[3] < m.lowSampleBelow) : low.has(m.key),
       ...(m.ext ? { added: true } : {}),
@@ -262,7 +270,10 @@ export async function playerProfile({ player, season, window = 'season', group =
     per_game: row.line
       ? { points: row.line.ppg ?? null, rebounds: row.line.rpg ?? null, assists: row.line.apg ?? null, turnovers: row.line.tpg ?? null, minutes: row.line.mpg ?? null }
       : null,
-    pools: { league: pool.league ?? null, position: pool[row.pos] ?? null, position_label: peers },
+    pools: {
+      league: pool.league ?? null, position: pool[row.pos] ?? null, position_label: peers,
+      ...(ageMode ? { selected: ageInfo ? { pool: poolArg, age, size: ageInfo.n, label: ageInfo.label } : null } : {}),
+    },
     stats,
     not_tracked: notTracked,
     notes: [],
@@ -293,6 +304,11 @@ export async function playerProfile({ player, season, window = 'season', group =
   // client that only passes one of the two along still carries them.
   const notes = structured.notes
   notes.push(`Each stat shows two percentiles. "league" is against all ${pool.league ?? ''} qualified players in ${seasonId}; "vs. ${peers}" is against the ${pool[row.pos] ?? ''} qualified ${peers}.${window === 'season' ? '' : ` Both compare his ${WINDOW_TEXT[window]} with everyone else's.`} A higher percentile is always the better mark: stats tagged "lower is better" are already flipped.`)
+  if (ageMode) {
+    notes.push(ageInfo
+      ? `pool_percentile is ${ageInfo.label}: qualified player-seasons at his whole-year age on February 1, finished seasons only. A stat with under ${ageIndex.min_stat} values in that pool has no percentile.`
+      : `No same-age percentile: too few qualified player-seasons at his age${age == null ? '' : ` (${age})`} to rank him. The minimums are ${ageIndex ? ageIndex.min_age : 30} for same age and ${ageIndex ? ageIndex.min_age_pos : 50} for same age and position.`)
+  }
   if (file.in_progress) {
     notes.push(`${seasonId} is still being played${file.through ? ` (data through ${file.through})` : ''}. Early-season rates rest on small samples and move a lot; the "low sample" tags mark the ones not to lean on yet.`)
     if ((pool.league ?? 0) < 30) {
@@ -314,7 +330,8 @@ export async function playerProfile({ player, season, window = 'season', group =
       const tags = [s.lower_is_better ? 'lower is better' : null, s.low_sample ? (s.settles_around ? `low sample: settles around ${s.settles_around.sample.toLocaleString('en-US')} ${s.settles_around.unit}` : 'low sample') : null].filter(Boolean)
       const st = s.likely_to_settle
       const toward = st ? `; likely to settle near ${st.display} (league ${pct(st.league_percentile)}, vs. ${peers} ${pct(st.position_percentile)})` : ''
-      L.push(`- ${s.label}: ${s.display} (league ${pct(s.league_percentile)}, vs. ${peers} ${pct(s.position_percentile)})${toward}${tags.length ? ` [${tags.join(', ')}]` : ''}`)
+      const aged = ageInfo ? `, same age ${pct(s.pool_percentile)}` : ''
+      L.push(`- ${s.label}: ${s.display} (league ${pct(s.league_percentile)}, vs. ${peers} ${pct(s.position_percentile)}${aged})${toward}${tags.length ? ` [${tags.join(', ')}]` : ''}`)
     }
   }
   // The additions, one line per section so a full profile stays readable:
@@ -554,6 +571,7 @@ export const tools = [
         season: z.string().trim().max(12).optional().describe('Season written as two years, e.g. "2025-26". Omit for his most recent season.'),
         window: z.enum(['season', 'l10', 'l25', 'l75']).default('season').describe('"season" for the full season (default). "l10", "l25" or "l75" for his last 10, 25 or 75 games, latest season only.'),
         group: z.enum(['all', ...Object.keys(GROUPS)]).default('all').describe('Which stats to return: "all" (default), "context" (minutes, availability), "offense", "defense" or "value" (BPM, win shares, VORP and similar).'),
+        pool: z.enum(['standard', 'same_age', 'same_age_position']).default('standard').describe('"same_age" adds a third percentile: against every qualified player-season at his whole-year age on February 1, 1996-97 on, finished seasons only. "same_age_position": the same at his position. The result names the pool.'),
       },
       outputSchema: {
         player: z.object({
@@ -582,6 +600,12 @@ export const tools = [
           league: z.number().nullable().describe('Qualified players that season.'),
           position: z.number().nullable().describe('Qualified players at his position that season.'),
           position_label: z.string().describe('guards, wings or bigs.'),
+          selected: z.object({
+            pool: z.string(),
+            age: z.number().describe('His whole-year age on February 1 of the season.'),
+            size: z.number().describe('Qualified player-seasons in the pool.'),
+            label: z.string().describe('The pool in words. Say it with any number from it.'),
+          }).nullable().optional().describe('The same-age pool, when one was asked for. Null: too few player-seasons at his age to rank him.'),
         }),
         stats: z.array(z.object({
           key: z.string(),
@@ -592,6 +616,8 @@ export const tools = [
           display: z.string().describe('The value as the site prints it.'),
           league_percentile: pct.describe('Against all qualified players that season. Higher is better.'),
           position_percentile: pct.describe('Against qualified players at his position. Higher is better.'),
+          pool_percentile: pct.optional().describe('Against the same-age pool in pools.selected. Null where this stat has under 20 values in it.'),
+          pool_size: z.number().optional().describe('How many values of this stat the same-age pool holds. Stats tracked for part of the history have fewer.'),
           lower_is_better: z.boolean().describe('True when a lower raw value is better. The percentiles are already flipped.'),
           low_sample: z.boolean().describe('True when the stat is below its stabilization threshold.'),
           likely_to_settle: z.object({

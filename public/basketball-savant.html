@@ -374,6 +374,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 /* Inferred Defensive Role module (bigs only) */
 .role{margin-top:14px}
 .ptype,.wwp{margin-top:14px}
+.seg button[hidden]{display:none}
+.pool-name{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:5px}
 .panel-h{cursor:pointer}
 .pt-table,.ww-table{width:100%;border-collapse:collapse;font-size:13px}
 .pt-table th,.ww-table th{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;text-align:right;padding:4px 6px;border-bottom:1px solid var(--line,#D8D6CF)}
@@ -982,7 +984,10 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
       <div class="seg" id="popseg" role="group" aria-label="Comparison population">
         <button data-v="league" aria-pressed="true">League</button>
         <button data-v="position" aria-pressed="false">Position</button>
+        <button data-v="age" aria-pressed="false" title="Every qualified player-season at his whole-year age on February 1, 1996-97 on">Same age</button>
+        <button data-v="agepos" aria-pressed="false" title="The same, at his position. Hidden where the pool is under 50.">Same age + position</button>
       </div>
+      <div class="pool-name" id="poolName" hidden></div>
     </div>
     <div class="ctl"><span class="ctl-lab">MPG filter</span>
       <div class="seg"><button id="mpgToggle" aria-pressed="false">Off</button></div>
@@ -1037,7 +1042,7 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
       <span>Display</span>
       <span class="lb-seg" id="lbDisplay"><button type="button" data-v="value" class="on">Values</button><button type="button" data-v="pct">Percentiles</button></span>
       <span id="lbBasisLab">Compare vs</span>
-      <span class="lb-seg" id="lbBasis"><button type="button" data-v="cohort" class="on">Cohort</button><button type="button" data-v="league">League</button></span>
+      <span class="lb-seg" id="lbBasis"><button type="button" data-v="cohort" class="on">Cohort</button><button type="button" data-v="league">League</button><button type="button" data-v="age">Same age</button><button type="button" data-v="agepos">Same age + pos</button></span>
       <span id="lbEstWrap" hidden><span>Numbers</span> <span class="lb-seg" id="lbEst"><button type="button" data-v="settled" class="on">Settled</button><button type="button" data-v="raw">Raw</button></span></span>
     </div>
   </div>
@@ -4948,7 +4953,57 @@ const val=(p,k,w)=>{const c=p.m[k]&&p.m[k][w];return c?c.v:null;};
 const smpl=(p,k,w)=>{const c=p.m[k]&&p.m[k][w];return c?c.n:null;};
 function miss(v){return v==null || (typeof v==='number' && !isFinite(v));}  // null / NaN / Infinity = no data
 
+/* ---- Same age ----------------------------------------------------------------------------
+   Every qualified player-season at his whole-year age on Feb 1, 1996-97 on. The sorted values
+   sit in savant-ext/age/<age>.json (pipeline/basketball/age_pools.py), which the connector reads
+   too. A stat tracked for only part of that history can run under index.min_stat inside a good
+   pool, and then it has no percentile here rather than a noisy one. */
+let AGEIDX=null; const AGEDOC={}, AGE_POS=['Guard','Wing','Big'], AGE_WORD={Guard:'guards',Wing:'wings',Big:'bigs'};
+function agePop(){return pop==='age'||pop==='agepos';}
+function rowAge(p,season){
+  if(p&&p.birthdate){const d=String(p.birthdate).split('-').map(Number);return parseInt(season,10)+1-d[0]-((d[1]>2||(d[1]===2&&d[2]>1))?1:0);}
+  return p&&typeof p.age==='number'&&p.age?Math.floor(p.age):null;
+}
+function ageRedraw(){ if(typeof render==='function'&&cur) render(); if(typeof lbRender==='function'&&LB.basis&&LB.basis.indexOf('age')===0) lbRender(); }
+function loadAgeIndex(){
+  if(AGEIDX) return;
+  AGEIDX={ages:{}};
+  fetch('savant-ext/age/index.json').then(function(r){return r.ok?r.json():null;})
+    .then(function(j){ if(j){AGEIDX=j; ageRedraw();} }).catch(function(){});
+}
+function ageDoc(age){
+  const d=AGEDOC[age];
+  if(d&&d!=='loading') return d;
+  if(!d){
+    AGEDOC[age]='loading';
+    fetch('savant-ext/age/'+age+'.json').then(function(r){return r.ok?r.json():null;})
+      .then(function(j){AGEDOC[age]=j||{v:{}}; ageRedraw();}).catch(function(){AGEDOC[age]={v:{}};});
+  }
+  return null;
+}
+function ageInfo(p,season,mode){
+  const age=rowAge(p,season), a=AGEIDX&&AGEIDX.ages[age]; if(!a) return null;
+  const n=mode==='agepos'?a[p.pos]:a.n;
+  if(!n||n<(mode==='agepos'?AGEIDX.min_age_pos:AGEIDX.min_age)) return null;
+  return {age:age,n:n,label:'vs. '+(mode==='agepos'?age+'-year-old '+(AGE_WORD[p.pos]||'players'):age+'-year-olds')+', '+AGEIDX.first+' on, n = '+n};
+}
+function ageVals(key,p,season,mode){
+  const age=rowAge(p,season), d=age==null?null:ageDoc(age), L=d&&d.v[key];
+  if(!L) return [];
+  const vals=mode==='agepos'?(L[AGE_POS.indexOf(p.pos)]||[]):(L.all||(L.all=L[0].concat(L[1],L[2]).sort(function(a,b){return a-b;})));
+  return vals.length<(AGEIDX.min_stat||20)?[]:vals;
+}
+function syncPopSeg(){                                   // hide what this player's age can't support
+  const age=document.querySelector('#popseg [data-v="age"]'), ap=document.querySelector('#popseg [data-v="agepos"]');
+  if(!age||!cur) return;
+  const a=ageInfo(cur,curSeason,'age'), b=ageInfo(cur,curSeason,'agepos');
+  age.hidden=!a; ap.hidden=!b;
+  if((pop==='age'&&!a&&AGEIDX&&AGEIDX.first)||(pop==='agepos'&&!b&&AGEIDX&&AGEIDX.first)){ pop='league'; setSeg('popseg',document.querySelector('#popseg [data-v="league"]')); }
+  const nm=document.getElementById('poolName'), inf=agePop()?(pop==='age'?a:b):null;
+  nm.hidden=!inf; nm.textContent=inf?inf.label+(mpgOn?' (the MPG filter does not apply)':''):'';
+}
 function poolVals(key,w,ref,season){
+  if(pop==='age'||pop==='agepos') return ageVals(key,ref||cur,season||curSeason,pop);
   ref=ref||cur;
   const pool=(DATA.data[season||curSeason]||{players:[]}).players;
   const out=[];
@@ -5026,6 +5081,7 @@ function settleVal(p,key,season){                    // the estimate where there
   const e=settleEst(p,key,season); return e?e.v:val(p,key,'season');
 }
 function settlePoolVals(key,ref,season){             // poolVals(), but of everyone's estimates
+  if(pop==='age'||pop==='agepos') return poolVals(key,'season',ref,season);
   const out=[];
   for(const p of (DATA.data[season]||{players:[]}).players){
     if(!p.qualified) continue;
@@ -5433,6 +5489,7 @@ function barRow(m){
   // rather than shown as a greyed row. Compare mode keeps every bar so eras line up.
   if((m.tier && seasonTier(curSeason) < m.tier) || miss(v)) return '';
   const pool=poolVals(m.key,win);
+  if(agePop()&&!pool.length) return '';                 // the stat is too thin at this age
   const pct=pctOf(v,pool,m.lower);
   const shown=pct==null?50:pct;
   /* Career-high tick. His best eligible mark for this stat, ranked against THIS season's
@@ -5550,6 +5607,7 @@ function cmpSeasonSelect(id,season,idx,isMain){
 }
 function render(){
   const p=cur, S='season';
+  loadAgeIndex(); syncPopSeg();
   if(!p){ document.getElementById('idbody').innerHTML='<div class="id-meta">No player data for '+curSeason+'.</div>';
           document.getElementById('ctx').innerHTML=document.getElementById('off').innerHTML=document.getElementById('def').innerHTML=document.getElementById('val').innerHTML='';
           document.getElementById('peakflag').hidden=true;
@@ -5934,7 +5992,8 @@ function rcYearSeries(key){
     const row=rowFor(cur.id,s); if(!row) return;
     if(m&&m.ext&&!extReady(s)){                              // a season not open: his own file
       const c=extCareerCell(cur.id,row,key,s); if(!c) return;
-      out.push({v:c[0], lab:"'"+s.slice(2,4), full:s, pct:pop==='position'?c[2]:c[1]});
+      out.push({v:c[0], lab:"'"+s.slice(2,4), full:s,
+                pct:agePop()?pctOf(c[0],poolVals(key,'season',row,s),m&&m.lower):pop==='position'?c[2]:c[1]});
       return;
     }
     const v=val(row,key,'season'); if(miss(v)) return;
@@ -7034,7 +7093,8 @@ function buildShareShell(){
   if(ax!=null) meta.push('age '+ax);
   const sl=p.line?('<div class="sc-statline">'+stat('PPG',p.line.ppg)+stat('RPG',p.line.rpg)
     +stat('APG',p.line.apg)+stat('TPG',p.line.tpg)+stat('MPG',p.line.mpg)+'</div>'):'';
-  const basis=(pop==='position'?p.pos+'s':'league');
+  const ainf=agePop()?ageInfo(p,curSeason,pop):null;
+  const basis=ainf?ainf.label.replace(/^vs\. /,''):(pop==='position'?p.pos+'s':'league');
   const shell=document.createElement('div');
   shell.className='export-shell';
   shell.innerHTML=
@@ -7527,6 +7587,10 @@ function lbLeaguePool(){ return lbSeasonPlayers().filter(function(p){return p.qu
 function lbPoolVals(key,src){ var out=[]; for(var i=0;i<src.length;i++){ var v=lbVal(src[i],key); if(!miss(v)) out.push(v); } return out; }
 function lbPct(p,key,cohort){
   var m=byKey(key), v=lbVal(p,key); if(miss(v)) return null;
+  if(LB.basis==='age'||LB.basis==='agepos'){               // each row against his own age
+    loadAgeIndex();
+    return ageInfo(p,LB.season,LB.basis)?pctOf(v,ageVals(key,p,LB.season,LB.basis),m&&m.lower):null;
+  }
   var src=LB.basis==='league'?lbLeaguePool():cohort;
   return pctOf(v,lbPoolVals(key,src),m&&m.lower);
 }
@@ -7550,7 +7614,7 @@ function lbParseHash(){
   LB.ageMin=pr.amin?parseFloat(pr.amin):null; LB.ageMax=pr.amax?parseFloat(pr.amax):null;
   LB.expMin=pr.xmin?parseFloat(pr.xmin):null; LB.expMax=pr.xmax?parseFloat(pr.xmax):null;
   LB.minMpg=pr.mpg?parseFloat(pr.mpg):0; if(pr.n) LB.topN=parseInt(pr.n,10)||25;
-  LB.basis=pr.b==='league'?'league':'cohort'; LB.display=pr.d==='pct'?'pct':'value'; LB.est=pr.e==='raw'?'raw':'settled';
+  LB.basis=['league','age','agepos'].indexOf(pr.b)>=0?pr.b:'cohort'; LB.display=pr.d==='pct'?'pct':'value'; LB.est=pr.e==='raw'?'raw':'settled';
   document.querySelectorAll('#lbBasis button').forEach(function(x){ x.classList.toggle('on',x.dataset.v===LB.basis); });
   document.querySelectorAll('#lbDisplay button').forEach(function(x){ x.classList.toggle('on',x.dataset.v===LB.display); });
   document.querySelectorAll('#lbEst button').forEach(function(x){ x.classList.toggle('on',x.dataset.v===LB.est); });
@@ -7572,7 +7636,7 @@ async function lbExportPNG(){                          // same flow as the card'
     if(document.fonts && document.fonts.ready) await document.fonts.ready;
     shell=document.createElement('div'); shell.className='lb-export-shell';
     shell.innerHTML='<div class="lbx-head"><div class="lbx-title">'+lbCaption()+'</div>'+
-      '<div class="lbx-mode">'+(LB.display==='pct'?'Percentiles':'Values')+' · vs '+(LB.basis==='league'?'League':'Cohort')+'</div></div>';
+      '<div class="lbx-mode">'+(LB.display==='pct'?'Percentiles':'Values')+' · vs '+({league:'League',age:'Same age',agepos:'Same age + position'}[LB.basis]||'Cohort')+'</div></div>';
     var wrap=document.createElement('div'); wrap.appendChild(document.getElementById('lbTable').cloneNode(true)); shell.appendChild(wrap);
     var foot=document.createElement('div'); foot.className='lbx-foot'; foot.textContent='wcehoops.com · Basketball Savant'; shell.appendChild(foot);
     document.body.appendChild(shell);
@@ -7607,7 +7671,9 @@ function lbRender(){
   var showPct=LB.display==='pct';
   var hint=document.getElementById('lbHint');
   if(hint){ hint.textContent=(showPct?'Showing percentiles. ':'Showing raw values, color-coded by percentile. ')
-    + (LB.basis==='league'
+    + (LB.basis==='age'||LB.basis==='agepos'
+        ? 'Colors and percentiles rank each player against his own age'+(LB.basis==='agepos'?' and position':'')+': every qualified player-season at that age on Feb 1, 1996-97 on. '
+        : LB.basis==='league'
         ? 'Colors and percentiles rank each player against the whole league that season. '
         : 'Colors and percentiles rank each player against the filtered group above — your cohort. ')
     + 'Deep red = strong, deep blue = weak. Click a column to rank by it; click a player for their card.'

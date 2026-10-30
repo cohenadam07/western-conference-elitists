@@ -58,6 +58,7 @@ const PACK_FILE = /^(pack|form)-\d+\.json$/
 // its team-season and Data Room files are committed already gzipped and served by the same rewrites.
 const FLAT = [['football-splits', /^\d{4}\.json$/], ['football-pace', /^w\d{2}\.json$/], ['shots', /^\d+\.json$/],
   ['savant-ext/s', /^\d{4}-\d{2}\.json$/], ['savant-ext/panels', /^\d{4}-\d{2}\.json$/], ['savant-ext/p', /^\d+\.json$/],
+  ['savant-ext/age', /^\d+\.json$/],
   ['bcs/c', /^[a-z0-9]+\.json$/]]
 
 export function weeklyPacks(dist) {

@@ -85,6 +85,10 @@
       "destination": "/savant-ext/p/:id.gz"
     },
     {
+      "source": "/savant-ext/age/:age(\\d+\\.json)",
+      "destination": "/savant-ext/age/:age.gz"
+    },
+    {
       "source": "/savant-api/basketball/v1/seasons/:season(\\d{4}-\\d{2}\\.json)",
       "destination": "/savant-api/basketball/v1/seasons/:season.gz"
     },
@@ -361,6 +365,32 @@
     },
     {
       "source": "/shots/:id(\\d+\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/age/:age(\\d+\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/savant-ext/age/:age(\\d+\\.json\\.gz)",
       "headers": [
         {
           "key": "Content-Encoding",

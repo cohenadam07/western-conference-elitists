@@ -25,7 +25,7 @@
 import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, norm, ordinal, thousands } from './_core.js'
 import { PEERS, WINDOW_TEXT, cardUrl, display, inSpan, loadMeta, loadSeason, parseSeason, resolvePlayer, startYear } from './_basketball.js'
-import { PANEL_VIEWS, describePanel, extCells, loadExtPanels, loadExtPlayer, loadExtSeason } from './_basketball-ext.js'
+import { AGE_POOLS, PANEL_VIEWS, agePercentile, agePoolInfo, describePanel, extCells, loadAgeIndex, loadAgePool, loadExtPanels, loadExtPlayer, loadExtSeason, wholeAge } from './_basketball-ext.js'
 
 const page = makeLoader('', { what: 'Basketball Savant', maxCached: 8, shape: () => true })
 const SOURCE = 'Basketball Savant, Western Conference Elitists (wcehoops.com)'
@@ -118,7 +118,17 @@ export async function leaderboard(args) {
   rows.sort((a, b) => (m.lowerIsBetter ? a.v - b.v : b.v - a.v))
   const top = rows.slice(0, args.top || 25)
   // lbPct(): against the filtered cohort (the page's default) or every qualified player
-  const basis = args.basis === 'league' ? 'league' : 'cohort'
+  const ageMode = AGE_POOLS[args.basis] || null
+  const basis = ageMode ? args.basis : args.basis === 'league' ? 'league' : 'cohort'
+  // same age: each man against his own age, so each row names its pool
+  const ageIndex = ageMode ? await loadAgeIndex() : null
+  const ageDocs = new Map()
+  if (ageMode) {
+    for (const x of rows.slice(0, args.top || 25)) {
+      const a = wholeAge(x.r, season)
+      if (agePoolInfo(ageIndex, a, x.r.pos, ageMode) && !ageDocs.has(a)) ageDocs.set(a, await loadAgePool(a))
+    }
+  }
   const src = basis === 'league' ? file.players.filter((r) => r.qualified) : cohort
   const pools = new Map()
   const poolOf = (key) => {
@@ -129,9 +139,14 @@ export async function leaderboard(args) {
   const players = top.map((x, i) => {
     const r = x.r
     const est = !m.ext && settling && r.settle && r.settle[m.key]
+    const a = ageMode ? wholeAge(r, season) : null
+    const ai = ageMode ? agePoolInfo(ageIndex, a, r.pos, ageMode) : null
     const out = {
       rank: i + 1, id: String(r.id), name: r.name, team: r.team, position: r.pos,
-      value: x.v, display: display(m.unit, x.v, null), percentile: percentile(x.v, poolOf(m.key), m.lowerIsBetter),
+      value: x.v, display: display(m.unit, x.v, null),
+      percentile: !ageMode ? percentile(x.v, poolOf(m.key), m.lowerIsBetter)
+        : ai ? agePercentile(ageDocs.get(a), ageIndex, m.key, r.pos, ageMode, x.v, m.lowerIsBetter)[0] : null,
+      ...(ageMode ? { pool: ai ? ai.label : null } : {}),
       still_settling: est ? { actual: r.m[m.key][0], display: display(m.unit, r.m[m.key][0], null) } : null,
       url: cardUrl(r.id),
     }
@@ -142,6 +157,7 @@ export async function leaderboard(args) {
     `${qualOnly ? 'Qualified players' : 'Every player'}${pos !== 'All' ? ` at ${pos.toLowerCase()}` : ''}${args.team ? ` on ${String(args.team).toUpperCase()}` : ''}, ${windowKey === 'season' ? `${season}` : `${WINDOW_TEXT[windowKey]} of ${season}`}. The percentile is ${basis === 'league' ? 'against every qualified player that season' : 'against everyone these filters let through (the page\'s "vs. cohort")'}.`,
   ]
   if (settling) notes.push('Season in progress: a number still on a small sample is ranked where it is likely to settle (his number so far blended with his position\'s average, moved toward his own last season); still_settling gives what he has actually done. estimate "raw" ranks the raw numbers.')
+  if (ageMode) notes.push(`Each percentile is against that player's own age, ${ageIndex ? ageIndex.first : '1996-97'} on, finished seasons only; each row names its pool. A null percentile means the pool is too small.`)
   if (m.lowerIsBetter) notes.push('Lower is better for this stat, so the board runs low to high.')
   const what = m.explain && (typeof m.explain === 'string' ? m.explain : m.explain.what)
   const structured = {
@@ -504,7 +520,7 @@ export const tools = [
         exp_max: z.number().int().optional().describe('Maximum years in the league.'),
         min_mpg: z.number().min(0).max(48).optional().describe('Minimum minutes per game.'),
         qualified_only: z.boolean().optional().describe('Default true.'),
-        basis: z.enum(['cohort', 'league']).optional().describe('Percentile against the filtered group (default) or every qualified player.'),
+        basis: z.enum(['cohort', 'league', 'same_age', 'same_age_position']).optional().describe('Percentile against the filtered group (default), every qualified player, or each player\'s own age: every qualified player-season at his whole-year age on February 1, 1996-97 on ("same_age"), at his position too ("same_age_position"). Each row then names its pool.'),
         estimate: z.enum(['settled', 'raw']).optional().describe('Season in progress: rank where numbers are likely to settle (default) or the raw numbers.'),
         columns: z.array(z.string().max(80)).max(5).optional().describe('Up to 5 more stats to show.'),
         top: z.number().int().min(1).max(100).default(25).describe('How many (default 25).'),

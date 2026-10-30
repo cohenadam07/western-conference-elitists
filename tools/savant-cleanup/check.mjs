@@ -91,3 +91,42 @@ test('ages: the spot checks, against birth dates checked by hand', () => {
     assert.ok(Math.abs(p.age - age) < 0.0101, `${name} ${s}: ${p.age} vs ${age}`)
   }
 })
+
+const ageIndex = pub('savant-ext/age/index.json')
+const agePool = (age) => pub(`savant-ext/age/${age}.json`)
+
+test('same age: the pools hold every qualified player-season once, finished seasons, from 1996-97', () => {
+  const count = {}
+  for (const [s, b] of Object.entries(archive.data)) {
+    if (s < '1996-97' || current.data[s]) continue
+    for (const p of b.players) {
+      if (!p.qualified) continue
+      const [y, m, d] = p.birthdate.split('-').map(Number)
+      const a = +s.slice(0, 4) + 1 - y - (m > 2 || (m === 2 && d > 1) ? 1 : 0)
+      count[a] = (count[a] || 0) + 1
+    }
+  }
+  assert.deepEqual(Object.fromEntries(Object.entries(ageIndex.ages).map(([k, v]) => [k, v.n])), count)
+  for (const v of Object.values(ageIndex.ages)) assert.equal(v.n, v.Guard + v.Wing + v.Big)
+  assert.equal(ageIndex.first, '1996-97')
+  assert.ok(!Object.keys(current.data).some((s) => ageIndex.last >= s), 'the season in progress stays out')
+})
+
+test('same age: sorted, and the thin ends sit under the minimums', () => {
+  const ages = Object.keys(ageIndex.ages).map(Number)
+  for (const a of ages) {
+    for (const lists of Object.values(agePool(a).v)) for (const l of lists) for (let i = 1; i < l.length; i++) assert.ok(l[i - 1] <= l[i])
+  }
+  assert.ok(ageIndex.ages[18].n < ageIndex.min_age)
+  assert.ok(ageIndex.ages[39].n < ageIndex.min_age)
+  assert.ok(ageIndex.ages[19].n >= ageIndex.min_age && ageIndex.ages[38].n >= ageIndex.min_age)
+  assert.ok(ageIndex.ages[19].Big < ageIndex.min_age_pos)
+})
+
+test('same age: a known extreme lands at the top of his age', () => {
+  // Wembanyama's 2024-25 blocks at 21, against every 21-year-old since 1996-97
+  const w = archive.data['2024-25'].players.find((p) => p.name === 'Victor Wembanyama')
+  const blk = w.m.blk.season.v
+  const vals = agePool(21).v.blk.flat().sort((a, b) => a - b)
+  assert.ok(vals.filter((x) => x < blk).length / vals.length > 0.97)
+})

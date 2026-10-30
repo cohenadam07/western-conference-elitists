@@ -34,7 +34,44 @@ const soft = (p) => files.load(p).catch(() => null)
 export const loadExtSeason = (season) => soft(`s/${season}.json`)
 export const loadExtPanels = (season) => soft(`panels/${season}.json`)
 export const loadExtPlayer = (id) => soft(`p/${id}.json`)
+export const loadAgeIndex = () => soft('age/index.json')
+export const loadAgePool = (age) => soft(`age/${age}.json`)
 export const clearExt = () => files.clear()
+
+// ---- same-age pools (pipeline/basketball/age_pools.py): the page's rowAge() and ageVals() ----
+export const AGE_POOLS = { same_age: 'age', same_age_position: 'agepos' }
+
+// His whole-year age on February 1 of the season, from the calendar (savant_config.whole_age).
+export function wholeAge(row, season) {
+  if (row.birthdate) {
+    const [y, m, d] = String(row.birthdate).split('-').map(Number)
+    return parseInt(season, 10) + 1 - y - (m > 2 || (m === 2 && d > 1) ? 1 : 0)
+  }
+  return typeof row.age === 'number' && row.age ? Math.floor(row.age) : null
+}
+
+const POS_INDEX = { Guard: 0, Wing: 1, Big: 2 }
+const WORD = { Guard: 'guards', Wing: 'wings', Big: 'bigs' }
+
+// { n, label } of a pool, or null where it is under its minimum (index.json carries both).
+export function agePoolInfo(index, age, pos, mode) {
+  const a = index && index.ages && index.ages[age]
+  if (!a) return null
+  const n = mode === 'agepos' ? a[pos] : a.n
+  if (!n || n < (mode === 'agepos' ? index.min_age_pos : index.min_age)) return null
+  const who = mode === 'agepos' ? `${age}-year-old ${WORD[pos] || 'players'}` : `${age}-year-olds`
+  return { n, label: `vs. ${who}, ${index.first} on, n = ${n}` }
+}
+
+// [percentile, values in the pool] of one number; null where the stat's pool is under index.min_stat.
+export function agePercentile(doc, index, key, pos, mode, v, lower) {
+  const L = doc && doc.v && doc.v[key]
+  if (!L || miss(v)) return [null, 0]
+  let vals
+  if (mode === 'agepos') vals = L[POS_INDEX[pos]] || []
+  else vals = L.all || (L.all = Float64Array.from([...L[0], ...L[1], ...L[2]]).sort())
+  return vals.length < (index.min_stat || 20) ? [null, vals.length] : [pctOf(v, vals, lower), vals.length]
+}
 
 function lowerBound(a, v) { let lo = 0, hi = a.length; while (lo < hi) { const mid = (lo + hi) >> 1; if (a[mid] < v) lo = mid + 1; else hi = mid } return lo }
 function upperBound(a, v) { let lo = 0, hi = a.length; while (lo < hi) { const mid = (lo + hi) >> 1; if (a[mid] <= v) lo = mid + 1; else hi = mid } return lo }

@@ -192,6 +192,8 @@ def main():
     index["keys"] = len(XFL.KEYS)
     index["seasons"] = dict(sorted(index["seasons"].items(), reverse=True))
     XFL.write(idx_path, index)
+    import age_pools
+    age_pools.build(public)
     print(f"  player files: {n}; done in {time.time() - t0:.0f}s")
 
 
