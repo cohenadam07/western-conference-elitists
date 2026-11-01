@@ -8,6 +8,7 @@ import { gunzipSync } from 'node:zlib'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import '../../public/savant-ww.js'
+import '../../public/savant-pos.js'
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const pub = (f) => JSON.parse(readFileSync(path.join(ROOT, 'public', f), 'utf8'))
@@ -236,23 +237,51 @@ test('connector: same-age pools through the tool itself', async () => {
 // ---- the position rule ----------------------------------------------------------------------
 const seasonsOf = (name) => seasons().flatMap(([s, b]) => b.players.filter((p) => p.name === name).map((p) => ({ s, ...p })))
 
-// Adam's labels, Nov 1, 2026: what the two signals are tuned on. position_labels.py has the rest.
-const BIGS = ['Giannis Antetokounmpo', 'Carlos Boozer', 'Cameron Boozer', 'Adem Bona', 'Moussa Diabate', 'Zion Williamson', 'Julius Randle']
+// Who Adam expects where, Nov 1, 2026, and the seasons from 2023-24 the estimate says otherwise.
+// Those are reported, not forced: the rule reads the estimate and nothing else, so a new name here
+// means a label moved.
+const BIGS = ['Giannis Antetokounmpo', 'Carlos Boozer', 'Cameron Boozer', 'Adem Bona', 'Moussa Diabate', 'Zion Williamson', 'Julius Randle', 'Pascal Siakam']
 const WINGS = ['Kevin Durant', 'Jayson Tatum', 'LeBron James', 'OG Anunoby', 'Jaylen Brown', 'DeMar DeRozan', 'Mikal Bridges', 'Paolo Banchero']
+const OTHERWISE = ['Julius Randle 2024-25', 'Julius Randle 2025-26', 'Julius Randle 2026-27', 'Kevin Durant 2024-25', 'LeBron James 2023-24', 'Paolo Banchero 2024-25', 'Pascal Siakam 2023-24', 'Pascal Siakam 2024-25', 'Zion Williamson 2024-25']
 
-test('positions: the 15 labels, every season from 2023-24', () => {
+test('positions: the 16 players from 2023-24 are as expected, or one of the reported exceptions', () => {
   const wrong = []
-  for (const name of BIGS.filter((n) => n !== 'Carlos Boozer')) {     // retired, and tested below
-    const rows = seasonsOf(name).filter((r) => r.s >= '2023-24' && !(name.startsWith('Giannis') && r.team !== 'MIL'))
-    assert.ok(rows.length, name)
-    for (const r of rows) if (r.pos !== 'Big') wrong.push(`${name} ${r.s} ${r.pos}`)
+  for (const [names, want] of [[BIGS, 'Big'], [WINGS, 'Wing']]) {
+    for (const name of names) for (const r of seasonsOf(name)) if (r.s >= '2023-24' && r.pos !== want) wrong.push(`${name} ${r.s}`)
   }
-  for (const name of WINGS) {
-    const rows = seasonsOf(name).filter((r) => r.s >= '2023-24')
-    assert.ok(rows.length, name)
-    for (const r of rows) if (r.pos === 'Big') wrong.push(`${name} ${r.s} ${r.pos}`)
+  assert.deepEqual(wrong.sort(), [...OTHERWISE].sort())
+})
+
+test('positions: the rule, read straight from the estimate', () => {
+  const pure = (q) => q[3] === Math.max(...q) && q[4] < 10 && q[1] + q[2] < 10
+  let n = 0
+  for (const [s, b] of seasons()) {
+    if (s < '1996-97') continue
+    const panels = pub(`savant-ext/panels/${s}.json`).players
+    for (const p of b.players) {
+      const pe = (p.posx && p.posx.pe) || (panels[p.id] && panels[p.id].pe)
+      if (!pe || !pe.some(Boolean) || p.posx) continue         // a pool is rounded; the rule reads it unrounded
+      const first = pe.indexOf(Math.max(...pe))
+      n++
+      if (first <= 1) assert.equal(p.pos, 'Guard', `${p.name} ${s} ${pe}`)
+      else if (first === 2) assert.equal(p.pos, 'Wing', `${p.name} ${s} ${pe}`)
+      else if (first === 4) assert.equal(p.pos, 'Big', `${p.name} ${s} ${pe}`)
+      else if (!pure(pe)) assert.equal(p.pos, pe[4] >= pe[1] + pe[2] ? 'Big' : 'Wing', `${p.name} ${s} ${pe}`)
+    }
   }
-  assert.deepEqual(wrong, [])
+  assert.ok(n > 10000, `only ${n} rows`)
+})
+
+test('positions: the card says why, in plain words', () => {
+  const why = globalThis.SavantPos.why
+  assert.equal(why([0, 0, 0, 86, 12], 'Big'), 'Plays the 4 first and the 5 second, so he is compared with bigs.')
+  assert.equal(why([0, 0, 20, 79, 2], 'Wing'), 'Plays the 4 first and the 3 second, so he is compared with wings.')
+  assert.equal(why([0, 12, 64, 24, 0], 'Wing'), 'Plays the 3 first and the 4 second, so he is compared with wings.')
+  assert.equal(why([87, 13, 0, 0, 0], 'Guard'), 'Plays the 1 first and the 2 second, so he is compared with guards.')
+  assert.equal(why([0, 0, 0, 0, 100], 'Big'), 'Plays almost only the 5, so he is compared with bigs.')
+  assert.match(why([0, 0, 0, 95, 5], 'Wing'), /^Plays almost only the 4, and creates and shoots like a wing/)
+  assert.match(why([0, 0, 0, 96, 4], 'Big'), /^Plays almost only the 4, and rebounds, protects the rim/)
+  assert.equal(why(null, 'Big'), null)
 })
 
 test('positions: Carlos Boozer is a Big in the seasons he has, so search says so too', () => {

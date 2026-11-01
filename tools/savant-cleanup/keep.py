@@ -45,33 +45,39 @@ assert (kept, stats, missing) == (1, 0, False) and fresh["pe"] == [0, 0, 0, 50, 
 # another season's file is not a last good run
 assert K.last_good("2027-28", tmp)["current"] == {}
 
-# the rule's edges: where the minutes are, and how he plays
-assert PL.classify([0, 0, 0, 86, 12], "Wing", 0.93) == "Big"     # Giannis, 2020-21
-assert PL.classify([0, 0, 0, 96, 4], "Big", 0.34) == "Wing"      # a Randle: PF + C 100, plays like a wing
-assert PL.classify([0, 0, 11, 81, 8], "Guard", 0.09) == "Wing"   # DeRozan, 2021-22
-assert PL.classify([0, 0, 0, 60, 40], "Wing", 0.10) == "Big"     # a third at center stands alone
-assert PL.classify([0, 12, 64, 24, 0], "Guard", 0.9) == "Wing"   # not at the 4-5, whatever the score
-assert PL.classify([60, 30, 0, 5, 5], "Big", 0.9) == "Guard"
-assert PL.classify([0, 0, 10, 80, 10], "Big") == "Big" and PL.classify([0, 0, 10, 80, 10], "Wing") == "Wing"   # no score
+# Adam's rule, read straight from the estimate
+assert PL.classify([5, 80, 15, 0, 0]) == "Guard" and PL.classify([70, 30, 0, 0, 0]) == "Guard"
+assert PL.classify([0, 12, 64, 24, 0]) == "Wing"                  # Jaylen Brown
+assert PL.classify([0, 0, 0, 4, 96]) == "Big" and PL.classify([0, 0, 0, 40, 60]) == "Big"
+assert PL.classify([0, 0, 0, 86, 12], "Wing") == "Big"            # Giannis, 2020-21: C second, 12
+assert PL.classify([0, 0, 0, 90, 10], "Wing") == "Big"            # exactly 10 counts
+assert PL.classify([0, 0, 8, 83, 10], "Wing", 0.1) == "Big"       # Jabari Smith Jr., 2025-26: rounded, sums to 101
+assert PL.classify([0, 0, 11, 81, 8], "Big") == "Wing"            # DeRozan, 2021-22: SF second, 11
+assert PL.classify([0, 5, 6, 85, 4], "Big") == "Wing"             # SF + SG combined reach 10
+assert PL.is_pure_4([0, 0, 0, 95, 5]) and PL.is_pure_4([0, 0, 9, 89, 2]) and not PL.is_pure_4([0, 0, 0, 90, 10])
+assert PL.classify([0, 0, 0, 95, 5], "Wing", 0.7) == "Big"        # a pure 4 goes by the role scale
+assert PL.classify([0, 0, 0, 95, 5], "Big", 0.2) == "Wing"
+assert PL.classify([0, 0, 0, 95, 5], "Big") == "Big" and PL.classify([0, 0, 0, 95, 5], "Guard") == "Wing"   # no scale
 
-# the score: 0 is the average wing, 1 the average big, and a missing stat is left out
+# the scale: 0 is the average wing, 1 the average big, and a missing stat is left out
 refs = dict(reb75=[6.0, 10.0], tp3r=[40.0, 10.0])
 assert abs(PL.raw_score(dict(reb75=10.0, tp3r=10.0), refs) - 1) < 1e-9
 assert abs(PL.raw_score(dict(reb75=6.0, tp3r=40.0), refs)) < 1e-9
 assert abs(PL.raw_score(dict(reb75=8.0), refs) - 0.5) < 1e-9
 assert PL.raw_score({}, refs) is None
 
+# creator stats run from guards to bigs, the rest from wings to bigs
+guards = [([50, 50, 0, 0, 0], dict(usg=30.0, reb75=3.0))] * 15
+wings = [([0, 0, 90, 10, 0], dict(usg=20.0, reb75=6.0))] * 15
+bigs = [([0, 0, 0, 10, 90], dict(usg=16.0, reb75=10.0))] * 15
+r = PL.season_refs(guards + wings + bigs)
+assert r["usg"] == [30.0, 16.0] and r["reb75"] == [6.0, 10.0]
+
 # pooling to 400 minutes, with the draft position for what a rookie doesn't have yet
 assert abs(PL.pooled_score({"2026-27": [0.41, 187.0]}, "2026-27", "Big") - (0.41 * 187 + 213) / 400) < 1e-9
 assert abs(PL.pooled_score({"2026-27": [0.41, 187.0]}, "2026-27", None) - 0.41) < 1e-9
 assert abs(PL.pooled_score({"2026-27": [0.2, 100.0], "2025-26": [0.8, 900.0]}, "2026-27") - (0.2 * 100 + 0.8 * 300) / 400) < 1e-9
 assert PL.pooled_score({"2026-27": [None, 100.0]}, "2026-27") is None
-
-# career to date: no later season counts, and it carries 80% of the score
-seasons = {"2024-25": [1.0, 2000.0], "2025-26": [0.2, 2000.0], "2026-27": [0.9, 2000.0]}
-assert abs(PL.career_score(seasons, "2025-26") - 0.6) < 1e-9
-assert abs(PL.big_score(seasons, "2025-26") - (0.8 * 0.6 + 0.2 * 0.2)) < 1e-9
-assert PL.big_score({"2026-27": [None, 100.0]}, "2026-27") is None
 
 # one man's shares from what four known men leave open: a center beside four others
 mates = {2: [100, 0, 0, 0, 0], 3: [0, 100, 0, 0, 0], 4: [0, 0, 100, 0, 0], 5: [0, 0, 0, 100, 0]}

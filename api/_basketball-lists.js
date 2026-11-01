@@ -28,6 +28,7 @@ import { PEERS, WINDOW_TEXT, cardUrl, display, inSpan, loadMeta, loadSeason, par
 import { AGE_POOLS, PANEL_VIEWS, agePercentile, agePoolInfo, describePanel, extCells, loadAgeIndex, loadAgePool, loadExtPanels, loadExtPlayer, loadExtSeason, wholeAge } from './_basketball-ext.js'
 
 import '../public/savant-ww.js'
+import '../public/savant-pos.js'
 
 const { SavantWW } = globalThis
 const page = makeLoader('', { what: 'Basketball Savant', maxCached: 8, shape: () => true })
@@ -413,9 +414,10 @@ export async function playerSplits({ player, season, view = 'play_types', teamma
     const basis = !pooled ? null : fromStints
       ? `Basketball Reference has no estimate yet, so this comes from the teammates on the floor beside this player (${r.posx.mp} minutes).`
       : `A young season, so this pools ${r.posx.from} through ${s} (${r.posx.mp} minutes).${ownText}`
-    if (key === 'pe') lines.push(`${basis ? `${basis} ` : ''}His ${r.pos} label is read from this.`)
+    const why = key === 'pe' ? globalThis.SavantPos.why(pd, r.pos) : null
+    if (key === 'pe') lines.push([basis, why].filter(Boolean).join(' '))
     const text = [`${who.name}, ${s}: ${title}`, ...lines, ...(what ? ['', what] : []), '', `Card: ${base.url}`, `Source: ${SOURCE}.`]
-    return { structured: { ...base, breakdown: { title, data, ...(pooled ? { pooled_from: r.posx.from, minutes: r.posx.mp, ...(fromStints ? { source: 'stints' } : {}), ...(own ? { this_season: Object.fromEntries(SLOTS.map((l, i) => [l, own[i]])) } : {}) } : {}) } }, text: text.join('\n') }
+    return { structured: { ...base, breakdown: { title, data, ...(why ? { why } : {}), ...(pooled ? { pooled_from: r.posx.from, minutes: r.posx.mp, ...(fromStints ? { source: 'stints' } : {}), ...(own ? { this_season: Object.fromEntries(SLOTS.map((l, i) => [l, own[i]])) } : {}) } : {}) } }, text: text.join('\n') }
   }
   if (view === 'play_types') {
     // The cutoffs travel with the data: seasons/<season>.json carries play_types for the

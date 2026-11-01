@@ -36,7 +36,7 @@ Run it locally: `cd somewhere && mkdir -p out && cp <repo>/pipeline/basketball/s
 
 ## Position labels, same-age pools, With/Without (2.6.0)
 
-`position_labels.py` derives Guard / Wing / Big from the position estimate (Big: C at least a third, or PF + C at least 60 and playing like a big on the score in that file); `refresh_current.py` applies it to the season in progress, `python3 position_labels.py archive` to the archive (safe to rerun: rows keep today's label in `pos0`; it also writes `seed/big_scale.json`, which the refresh reads). A label change means rerunning `build_ext.py --players-only`, `tools/savant-value/value.py fit`, `gen_weakness_comps.build` and `coaching/build.py`.
+`position_labels.py` derives Guard / Wing / Big from the position estimate (Adam's rule, in that file: the first position decides, and PF goes by the second, with a role scale for pure 4s); `refresh_current.py` applies it to the season in progress, `python3 position_labels.py archive` to the archive (safe to rerun: rows keep today's label in `pos0`; it also writes `seed/big_scale.json`, which the refresh reads). A label change means rerunning `build_ext.py --players-only`, `tools/savant-value/value.py fit`, `gen_weakness_comps.build` and `coaching/build.py`.
 
 A run Basketball Reference doesn't answer keeps the last published value bars, estimates and counts (`br_keep.py`; `stale` in the season file says so). A player with no estimate at all goes to `position_labels.apply_fallbacks`: the stints, Draft Savant, the listed position.
 

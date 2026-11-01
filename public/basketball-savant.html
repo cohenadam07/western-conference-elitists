@@ -1077,6 +1077,7 @@ table.lb-table{border-collapse:collapse;width:100%;min-width:660px}
 
 <script src="savant-value.js?v=1"></script>
 <script src="savant-ww.js?v=1"></script>
+<script src="savant-pos.js?v=1"></script>
 <script>
 /* ====== ENGINE CONFIG baked in; PLAYER DATA fetched at runtime (see init() at bottom) ======
    The metric config is small and stays inline; the ~68 MB player dataset loads from savant-data.json.
@@ -6902,7 +6903,7 @@ const XRENDER={
       +(cur&&cur.posx?(cur.posx.src==='stints'
         ?' Basketball Reference has no estimate yet, so this comes from the teammates on the floor beside this player ('+cur.posx.mp.toLocaleString()+' minutes).'
         :' A young season, so this pools '+cur.posx.from+' through '+curSeason+' ('+cur.posx.mp.toLocaleString()+' minutes).'+peOwnNote(lab)):'')
-      +' His '+(cur?cur.pos:'position')+' label is read from this.</div>';
+      +(cur&&window.SavantPos&&SavantPos.why(d,cur.pos)?' '+SavantPos.why(d,cur.pos):'')+'</div>';
   }
 };
 // a pooled label's panel shows the pool; what this season alone says goes beside it
