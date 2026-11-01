@@ -45,13 +45,27 @@ assert (kept, stats, missing) == (1, 0, False) and fresh["pe"] == [0, 0, 0, 50, 
 # another season's file is not a last good run
 assert K.last_good("2027-28", tmp)["current"] == {}
 
-# the rule's edges
-assert PL.classify([0, 0, 0, 86, 12], "Wing") == "Big"        # Giannis, 2020-21
-assert PL.classify([0, 0, 11, 81, 8], "Guard") == "Wing"      # DeRozan, 2021-22: PF + C 89
-assert PL.classify([0, 0, 40, 60, 0], "Wing") == "Wing"
-assert PL.classify([0, 0, 15, 62, 24], "Wing") == "Big"       # Carlos Boozer, 2014-15: PF + C 86, C 24
-assert PL.classify([0, 0, 0, 60, 40], "Wing") == "Big"
-assert PL.classify([0, 12, 64, 24, 0], "Guard") == "Wing"     # Jaylen Brown
+# the rule's edges: where the minutes are, and how he plays
+assert PL.classify([0, 0, 0, 86, 12], "Wing", 0.93) == "Big"     # Giannis, 2020-21
+assert PL.classify([0, 0, 0, 96, 4], "Big", 0.34) == "Wing"      # a Randle: PF + C 100, plays like a wing
+assert PL.classify([0, 0, 11, 81, 8], "Guard", 0.09) == "Wing"   # DeRozan, 2021-22
+assert PL.classify([0, 0, 0, 60, 40], "Wing", 0.10) == "Big"     # a third at center stands alone
+assert PL.classify([0, 12, 64, 24, 0], "Guard", 0.9) == "Wing"   # not at the 4-5, whatever the score
+assert PL.classify([60, 30, 0, 5, 5], "Big", 0.9) == "Guard"
+assert PL.classify([0, 0, 10, 80, 10], "Big") == "Big" and PL.classify([0, 0, 10, 80, 10], "Wing") == "Wing"   # no score
+
+# the score: 0 is the average wing, 1 the average big, and a missing stat is left out
+refs = dict(reb75=[6.0, 10.0], tp3r=[40.0, 10.0])
+assert abs(PL.raw_score(dict(reb75=10.0, tp3r=10.0), refs) - 1) < 1e-9
+assert abs(PL.raw_score(dict(reb75=6.0, tp3r=40.0), refs)) < 1e-9
+assert abs(PL.raw_score(dict(reb75=8.0), refs) - 0.5) < 1e-9
+assert PL.raw_score({}, refs) is None
+
+# pooling to 400 minutes, with the draft position for what a rookie doesn't have yet
+assert abs(PL.pooled_score({"2026-27": [0.41, 187.0]}, "2026-27", "Big") - (0.41 * 187 + 213) / 400) < 1e-9
+assert abs(PL.pooled_score({"2026-27": [0.41, 187.0]}, "2026-27", None) - 0.41) < 1e-9
+assert abs(PL.pooled_score({"2026-27": [0.2, 100.0], "2025-26": [0.8, 900.0]}, "2026-27") - (0.2 * 100 + 0.8 * 300) / 400) < 1e-9
+assert PL.pooled_score({"2026-27": [None, 100.0]}, "2026-27") is None
 
 # one man's shares from what four known men leave open: a center beside four others
 mates = {2: [100, 0, 0, 0, 0], 3: [0, 100, 0, 0, 0], 4: [0, 0, 100, 0, 0], 5: [0, 0, 0, 100, 0]}

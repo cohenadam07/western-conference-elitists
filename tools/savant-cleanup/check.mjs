@@ -236,19 +236,27 @@ test('connector: same-age pools through the tool itself', async () => {
 // ---- the position rule ----------------------------------------------------------------------
 const seasonsOf = (name) => seasons().flatMap(([s, b]) => b.players.filter((p) => p.name === name).map((p) => ({ s, ...p })))
 
-test('positions: a player who lives at the 4 and the 5 is a Big', () => {
-  for (const [name, season] of [['Giannis Antetokounmpo', '2020-21'], ['Giannis Antetokounmpo', '2025-26'], ['Carlos Boozer', '2013-14'], ['Tim Duncan', '1997-98']]) {
-    assert.equal(seasonsOf(name).find((r) => r.s === season).pos, 'Big', `${name} ${season}`)
+// Adam's labels, Nov 1, 2026: what the two signals are tuned on. position_labels.py has the rest.
+const BIGS = ['Giannis Antetokounmpo', 'Carlos Boozer', 'Cameron Boozer', 'Adem Bona', 'Moussa Diabate', 'Zion Williamson']
+const WINGS = ['Kevin Durant', 'Jayson Tatum', 'LeBron James', 'OG Anunoby', 'Jaylen Brown', 'DeMar DeRozan', 'Mikal Bridges', 'Pascal Siakam', 'Paolo Banchero', 'Julius Randle']
+
+test('positions: the 16 labels, every season from 2023-24', () => {
+  const wrong = []
+  for (const name of BIGS.filter((n) => n !== 'Carlos Boozer')) {     // retired, and tested below
+    const rows = seasonsOf(name).filter((r) => r.s >= '2023-24' && !(name.startsWith('Giannis') && r.team !== 'MIL'))
+    assert.ok(rows.length, name)
+    for (const r of rows) if (r.pos !== 'Big') wrong.push(`${name} ${r.s} ${r.pos}`)
   }
-  assert.equal(seasonsOf('Cameron Boozer').find((r) => r.s === '2026-27').pos, 'Big')
+  for (const name of WINGS) {
+    const rows = seasonsOf(name).filter((r) => r.s >= '2023-24')
+    assert.ok(rows.length, name)
+    for (const r of rows) if (r.pos === 'Big') wrong.push(`${name} ${r.s} ${r.pos}`)
+  }
+  assert.deepEqual(wrong, [])
 })
 
-test('positions: stretch-4 wings stay off Big', () => {
-  for (const name of ['Jaylen Brown', 'DeMar DeRozan', 'Mikal Bridges']) {
-    const rows = seasonsOf(name)
-    assert.ok(rows.length > 5, name)
-    assert.deepEqual(rows.filter((r) => r.pos === 'Big').map((r) => r.s), [], name)
-  }
+test('positions: Carlos Boozer is a Big in the seasons he has, so search says so too', () => {
+  assert.deepEqual(seasonsOf('Carlos Boozer').filter((r) => r.pos !== 'Big').map((r) => r.s), [])
 })
 
 test('positions: the season in progress has its estimates and value bars', () => {
