@@ -1,0 +1,6462 @@
+{
+"1996-97": {
+"rows": [
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+100",
+"win_total": 64.5,
+"result": "69-13 (over)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+500",
+"win_total": 57.0,
+"result": "56-26 (under)"
+},
+{
+"team": "OKC",
+"name": "Seattle SuperSonics",
+"title_odds": "+600",
+"win_total": 58.0,
+"result": "57-25 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+800",
+"win_total": 51.0,
+"result": "57-25 (over)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+800",
+"win_total": 53.5,
+"result": "57-25 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+1200",
+"win_total": 54.0,
+"result": "39-43 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+1500",
+"win_total": 48.0,
+"result": "45-37 (under)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+1500",
+"win_total": 47.5,
+"result": "61-21 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+1500",
+"win_total": 50.5,
+"result": "20-62 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+1800",
+"win_total": 51.5,
+"result": "64-18 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+2000",
+"win_total": 49.0,
+"result": "56-26 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+3000",
+"win_total": 47.0,
+"result": "49-33 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+3500",
+"win_total": 43.0,
+"result": "40-42 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Bullets",
+"title_odds": "+4000",
+"win_total": 46.5,
+"result": "44-38 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+5000",
+"win_total": 44.5,
+"result": "54-28 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+5000",
+"win_total": 38.0,
+"result": "54-28 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+6000",
+"win_total": 36.5,
+"result": "24-58 (under)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+6000",
+"win_total": 38.5,
+"result": "34-48 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+6000",
+"win_total": 42.0,
+"result": "42-40 (over)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+7000",
+"win_total": 28.5,
+"result": "33-49 (over)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+7000",
+"win_total": 34.0,
+"result": "26-56 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+7000",
+"win_total": 35.5,
+"result": "30-52 (under)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+7000",
+"win_total": 34.0,
+"result": "21-61 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+10000",
+"win_total": 25.0,
+"result": "36-46 (over)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+10000",
+"win_total": 28.5,
+"result": "15-67 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+15000",
+"win_total": 26.5,
+"result": "40-42 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+20000",
+"win_total": 23.5,
+"result": "22-60 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+30000",
+"win_total": 24.0,
+"result": "30-52 (over)"
+},
+{
+"team": "MEM",
+"name": "Vancouver Grizzlies",
+"title_odds": "+50000",
+"win_total": 18.5,
+"result": "14-68 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_1997_preseason_odds.html",
+"with_total": 29,
+"unmatched": []
+},
+"1997-98": {
+"rows": [
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+140",
+"win_total": 57.5,
+"result": "62-20 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+600",
+"win_total": 50.5,
+"result": "62-20 (over)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+700",
+"win_total": 57.5,
+"result": "61-21 (over)"
+},
+{
+"team": "OKC",
+"name": "Seattle SuperSonics",
+"title_odds": "+800",
+"win_total": 54.5,
+"result": "61-21 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+800",
+"win_total": 53.5,
+"result": "56-26 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+1000",
+"win_total": 53.5,
+"result": "43-39 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+1200",
+"win_total": 50.5,
+"result": "41-41 (under)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+1200",
+"win_total": 47.5,
+"result": "55-27 (over)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+1500",
+"win_total": 52.5,
+"result": "37-45 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+1500",
+"win_total": 50.5,
+"result": "50-32 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+1800",
+"win_total": 50.5,
+"result": "51-31 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+1800",
+"win_total": 46.5,
+"result": "56-26 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+2000",
+"win_total": 46.5,
+"result": "41-41 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+2500",
+"win_total": 48.5,
+"result": "46-36 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+2500",
+"win_total": 45.5,
+"result": "58-24 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+2500",
+"win_total": 46.5,
+"result": "42-40 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+6000",
+"win_total": 38.5,
+"result": "45-37 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+6000",
+"win_total": 37.5,
+"result": "47-35 (over)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+7500",
+"win_total": 36.5,
+"result": "36-46 (under)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+10000",
+"win_total": 33.5,
+"result": "31-51 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+10000",
+"win_total": 31.5,
+"result": "17-65 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+10000",
+"win_total": 34.5,
+"result": "16-66 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+10000",
+"win_total": 23.5,
+"result": "20-62 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+10000",
+"win_total": 30.5,
+"result": "36-46 (over)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+15000",
+"win_total": 22.5,
+"result": "43-39 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+15000",
+"win_total": 24.5,
+"result": "27-55 (over)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+15000",
+"win_total": 25.5,
+"result": "19-63 (under)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+20000",
+"win_total": 21.5,
+"result": "11-71 (under)"
+},
+{
+"team": "MEM",
+"name": "Vancouver Grizzlies",
+"title_odds": "+30000",
+"win_total": 20.5,
+"result": "19-63 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_1998_preseason_odds.html",
+"with_total": 29,
+"unmatched": []
+},
+"1998-99": {
+"rows": [
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+300",
+"win_total": null,
+"result": null
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+350",
+"win_total": null,
+"result": null
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+450",
+"win_total": null,
+"result": null
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+450",
+"win_total": null,
+"result": null
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+500",
+"win_total": null,
+"result": null
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+500",
+"win_total": null,
+"result": null
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+500",
+"win_total": null,
+"result": null
+},
+{
+"team": "OKC",
+"name": "Seattle SuperSonics",
+"title_odds": "+1200",
+"win_total": null,
+"result": null
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+1500",
+"win_total": null,
+"result": null
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+2500",
+"win_total": null,
+"result": null
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+3000",
+"win_total": null,
+"result": null
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+3000",
+"win_total": null,
+"result": null
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+3000",
+"win_total": null,
+"result": null
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+3500",
+"win_total": null,
+"result": null
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+4000",
+"win_total": null,
+"result": null
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+4000",
+"win_total": null,
+"result": null
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+5000",
+"win_total": null,
+"result": null
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+6000",
+"win_total": null,
+"result": null
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+6000",
+"win_total": null,
+"result": null
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+7500",
+"win_total": null,
+"result": null
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+10000",
+"win_total": null,
+"result": null
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+10000",
+"win_total": null,
+"result": null
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+20000",
+"win_total": null,
+"result": null
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+20000",
+"win_total": null,
+"result": null
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+20000",
+"win_total": null,
+"result": null
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+30000",
+"win_total": null,
+"result": null
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+30000",
+"win_total": null,
+"result": null
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+30000",
+"win_total": null,
+"result": null
+},
+{
+"team": "MEM",
+"name": "Vancouver Grizzlies",
+"title_odds": "+30000",
+"win_total": null,
+"result": null
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_1999_preseason_odds.html",
+"with_total": 0,
+"unmatched": []
+},
+"1999-00": {
+"rows": [
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+350",
+"win_total": 57.5,
+"result": "59-23 (over)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+400",
+"win_total": 53.5,
+"result": "67-15 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+500",
+"win_total": 54.5,
+"result": "53-29 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+800",
+"win_total": 49.5,
+"result": "50-32 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+800",
+"win_total": 49.5,
+"result": "55-27 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+800",
+"win_total": 51.5,
+"result": "52-30 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+1000",
+"win_total": 47.5,
+"result": "56-26 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+1500",
+"win_total": 49.5,
+"result": "53-29 (over)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+1500",
+"win_total": 44.5,
+"result": "34-48 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+1500",
+"win_total": 49.5,
+"result": "49-33 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+1500",
+"win_total": 46.5,
+"result": "28-54 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+3000",
+"win_total": 43.5,
+"result": "42-40 (under)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+3000",
+"win_total": 46.5,
+"result": "44-38 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+3500",
+"win_total": 42.5,
+"result": "42-40 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+4000",
+"win_total": 40.5,
+"result": "32-50 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+4000",
+"win_total": 43.5,
+"result": "50-32 (over)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+4000",
+"win_total": 40.5,
+"result": "31-51 (under)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+4000",
+"win_total": 42.5,
+"result": "49-33 (over)"
+},
+{
+"team": "OKC",
+"name": "Seattle SuperSonics",
+"title_odds": "+5000",
+"win_total": 34.5,
+"result": "45-37 (over)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+6000",
+"win_total": 37.5,
+"result": "45-37 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+7500",
+"win_total": 35.5,
+"result": "29-53 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+10000",
+"win_total": 29.5,
+"result": "41-41 (over)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+10000",
+"win_total": 36.5,
+"result": "19-63 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+10000",
+"win_total": 36.5,
+"result": "35-47 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+15000",
+"win_total": 30.5,
+"result": "40-42 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+20000",
+"win_total": 31.5,
+"result": "35-47 (over)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+20000",
+"win_total": 27.5,
+"result": "17-65 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+25000",
+"win_total": 25.5,
+"result": "15-67 (under)"
+},
+{
+"team": "MEM",
+"name": "Vancouver Grizzlies",
+"title_odds": "+25000",
+"win_total": 25.5,
+"result": "22-60 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2000_preseason_odds.html",
+"with_total": 29,
+"unmatched": []
+},
+"2000-01": {
+"rows": [
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+180",
+"win_total": 61.5,
+"result": "56-26 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+600",
+"win_total": 56.5,
+"result": "50-32 (under)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+600",
+"win_total": 54.5,
+"result": "58-24 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+700",
+"win_total": 46.5,
+"result": "48-34 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+800",
+"win_total": 52.5,
+"result": "43-39 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+1000",
+"win_total": 46.5,
+"result": "41-41 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+1500",
+"win_total": 47.5,
+"result": "53-29 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+1500",
+"win_total": 52.5,
+"result": "51-31 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+1500",
+"win_total": 48.5,
+"result": "47-35 (under)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+1800",
+"win_total": 44.5,
+"result": "50-32 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+1800",
+"win_total": 48.5,
+"result": "56-26 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+1800",
+"win_total": 44.5,
+"result": "46-36 (over)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+2200",
+"win_total": 46.5,
+"result": "52-30 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+3500",
+"win_total": 43.5,
+"result": "55-27 (over)"
+},
+{
+"team": "OKC",
+"name": "Seattle SuperSonics",
+"title_odds": "+3500",
+"win_total": 45.5,
+"result": "44-38 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+3500",
+"win_total": 43.5,
+"result": "47-35 (over)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+6000",
+"win_total": 34.5,
+"result": "32-50 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+7500",
+"win_total": 38.5,
+"result": "45-37 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+7500",
+"win_total": 42.5,
+"result": "53-29 (over)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+7500",
+"win_total": 37.5,
+"result": "26-56 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+7500",
+"win_total": 28.5,
+"result": "15-67 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+10000",
+"win_total": 34.5,
+"result": "36-46 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+10000",
+"win_total": 34.5,
+"result": "40-42 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+10000",
+"win_total": 34.5,
+"result": "30-52 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+15000",
+"win_total": 28.5,
+"result": "25-57 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+20000",
+"win_total": 29.5,
+"result": "19-63 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+35000",
+"win_total": 19.5,
+"result": "31-51 (over)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+35000",
+"win_total": 24.5,
+"result": "17-65 (under)"
+},
+{
+"team": "MEM",
+"name": "Vancouver Grizzlies",
+"title_odds": "+35000",
+"win_total": 24.5,
+"result": "23-59 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2001_preseason_odds.html",
+"with_total": 29,
+"unmatched": []
+},
+"2001-02": {
+"rows": [
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+200",
+"win_total": 58.5,
+"result": "58-24 (under)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+500",
+"win_total": 53.5,
+"result": "58-24 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+1000",
+"win_total": 52.5,
+"result": "61-21 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+1000",
+"win_total": 50.5,
+"result": "43-39 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+1000",
+"win_total": 51.5,
+"result": "44-38 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+1000",
+"win_total": 50.5,
+"result": "41-41 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+1200",
+"win_total": 44.5,
+"result": "30-52 (under)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+1200",
+"win_total": 47.5,
+"result": "36-46 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+1500",
+"win_total": 48.5,
+"result": "42-40 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+1500",
+"win_total": 52.5,
+"result": "57-25 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+1500",
+"win_total": 48.5,
+"result": "49-33 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+2000",
+"win_total": 48.5,
+"result": "44-38 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+2200",
+"win_total": 45.5,
+"result": "44-38 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+2500",
+"win_total": 37.5,
+"result": "37-45 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+2500",
+"win_total": 46.5,
+"result": "50-32 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+2500",
+"win_total": 38.5,
+"result": "39-43 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+3000",
+"win_total": 40.5,
+"result": "42-40 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+3000",
+"win_total": 44.5,
+"result": "36-46 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+4500",
+"win_total": 41.5,
+"result": "28-54 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+5000",
+"win_total": 30.5,
+"result": "50-32 (over)"
+},
+{
+"team": "OKC",
+"name": "Seattle SuperSonics",
+"title_odds": "+5000",
+"win_total": 53.5,
+"result": "45-37 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+5000",
+"win_total": 35.5,
+"result": "49-33 (over)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+6000",
+"win_total": 35.5,
+"result": "52-30 (over)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+8000",
+"win_total": 19.5,
+"result": "23-59 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+8000",
+"win_total": 27.5,
+"result": "27-55 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+10000",
+"win_total": 36.5,
+"result": "33-49 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+12000",
+"win_total": 26.5,
+"result": "29-53 (over)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+15000",
+"win_total": 18.5,
+"result": "21-61 (over)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+25000",
+"win_total": 23.5,
+"result": "21-61 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2002_preseason_odds.html",
+"with_total": 29,
+"unmatched": []
+},
+"2002-03": {
+"rows": [
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+180",
+"win_total": 58.5,
+"result": "50-32 (under)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+300",
+"win_total": 57.5,
+"result": "59-23 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+800",
+"win_total": 57.5,
+"result": "60-22 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+1100",
+"win_total": 55.5,
+"result": "60-22 (over)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+1100",
+"win_total": 50.5,
+"result": "49-33 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+1300",
+"win_total": 48.0,
+"result": "42-40 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+1400",
+"win_total": 48.0,
+"result": "44-38 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Hornets",
+"title_odds": "+1600",
+"win_total": 48.0,
+"result": "47-35 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+2000",
+"win_total": 45.0,
+"result": "24-58 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+2000",
+"win_total": 42.0,
+"result": "50-32 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+2000",
+"win_total": 49.0,
+"result": "50-32 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+2000",
+"win_total": 46.0,
+"result": "48-34 (over)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+2000",
+"win_total": 46.0,
+"result": "51-31 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+2500",
+"win_total": 41.5,
+"result": "37-45 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+2500",
+"win_total": 43.0,
+"result": "48-34 (over)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+3000",
+"win_total": 43.0,
+"result": "42-40 (under)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+3500",
+"win_total": 35.0,
+"result": "25-57 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+4500",
+"win_total": 42.0,
+"result": "27-55 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+4500",
+"win_total": 29.5,
+"result": "37-45 (over)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+4500",
+"win_total": 40.5,
+"result": "43-39 (over)"
+},
+{
+"team": "OKC",
+"name": "Seattle SuperSonics",
+"title_odds": "+5000",
+"win_total": 41.0,
+"result": "40-42 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+5000",
+"win_total": 39.0,
+"result": "47-35 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+6000",
+"win_total": 35.5,
+"result": "44-38 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+7000",
+"win_total": 42.0,
+"result": "35-47 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+20000",
+"win_total": 30.0,
+"result": "30-52 (over)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+25000",
+"win_total": 30.0,
+"result": "28-54 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+25000",
+"win_total": 23.5,
+"result": "17-65 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+30000",
+"win_total": 25.0,
+"result": "38-44 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+30000",
+"win_total": 19.5,
+"result": "17-65 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2003_preseason_odds.html",
+"with_total": 29,
+"unmatched": []
+},
+"2003-04": {
+"rows": [
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+140",
+"win_total": 58.5,
+"result": "56-26 (under)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+400",
+"win_total": 57.5,
+"result": "57-25 (under)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+500",
+"win_total": 55.5,
+"result": "55-27 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+700",
+"win_total": 57.5,
+"result": "52-30 (under)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+800",
+"win_total": 51.5,
+"result": "47-35 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+1200",
+"win_total": 54.5,
+"result": "58-24 (over)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+1500",
+"win_total": 49.5,
+"result": "54-28 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+1500",
+"win_total": 47.5,
+"result": "61-21 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+1800",
+"win_total": 46.5,
+"result": "33-49 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Hornets",
+"title_odds": "+1800",
+"win_total": 46.5,
+"result": "41-41 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+2000",
+"win_total": 44.5,
+"result": "21-61 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+2500",
+"win_total": 44.5,
+"result": "41-41 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+2500",
+"win_total": 45.5,
+"result": "29-53 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+3500",
+"win_total": 47.5,
+"result": "45-37 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+3500",
+"win_total": 38.5,
+"result": "33-49 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+3500",
+"win_total": 43.5,
+"result": "36-46 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+5000",
+"win_total": 33.5,
+"result": "39-43 (over)"
+},
+{
+"team": "OKC",
+"name": "Seattle SuperSonics",
+"title_odds": "+6000",
+"win_total": 36.5,
+"result": "37-45 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+6000",
+"win_total": 35.0,
+"result": "42-40 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+6000",
+"win_total": 33.0,
+"result": "28-54 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+7500",
+"win_total": 29.5,
+"result": "25-57 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+7500",
+"win_total": 31.5,
+"result": "41-41 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+7500",
+"win_total": 29.5,
+"result": "35-47 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+8000",
+"win_total": 25.5,
+"result": "42-40 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+10000",
+"win_total": 27.5,
+"result": "43-39 (over)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+15000",
+"win_total": 31.5,
+"result": "37-45 (over)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+15000",
+"win_total": 36.5,
+"result": "23-59 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+20000",
+"win_total": 31.5,
+"result": "50-32 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+25000",
+"win_total": 30.5,
+"result": "28-54 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2004_preseason_odds.html",
+"with_total": 29,
+"unmatched": []
+},
+"2004-05": {
+"rows": [
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+400",
+"win_total": 56.5,
+"result": "59-23 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+500",
+"win_total": 52.5,
+"result": "50-32 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+500",
+"win_total": 55.5,
+"result": "44-38 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+500",
+"win_total": 45.5,
+"result": "34-48 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+900",
+"win_total": 47.5,
+"result": "45-37 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+900",
+"win_total": 56.5,
+"result": "54-28 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+1200",
+"win_total": 51.5,
+"result": "44-38 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+1600",
+"win_total": 50.5,
+"result": "58-24 (over)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+1800",
+"win_total": 50.5,
+"result": "51-31 (over)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+1800",
+"win_total": 37.5,
+"result": "42-40 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+2200",
+"win_total": 52.5,
+"result": "59-23 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+2500",
+"win_total": 49.5,
+"result": "49-33 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Hornets",
+"title_odds": "+3500",
+"win_total": 30.5,
+"result": "18-64 (under)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+3500",
+"win_total": 38.5,
+"result": "43-39 (over)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+4000",
+"win_total": 38.5,
+"result": "30-52 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+4000",
+"win_total": 43.5,
+"result": "42-40 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+5000",
+"win_total": 40.5,
+"result": "45-37 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+5000",
+"win_total": 45.5,
+"result": "26-56 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+5000",
+"win_total": 35.5,
+"result": "34-48 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+5500",
+"win_total": 40.5,
+"result": "27-55 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+5500",
+"win_total": 34.5,
+"result": "33-49 (under)"
+},
+{
+"team": "OKC",
+"name": "Seattle SuperSonics",
+"title_odds": "+7000",
+"win_total": 34.5,
+"result": "52-30 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+7500",
+"win_total": 34.5,
+"result": "36-46 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+10000",
+"win_total": 41.5,
+"result": "33-49 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+10000",
+"win_total": 44.5,
+"result": "62-20 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+12500",
+"win_total": 33.5,
+"result": "45-37 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+17500",
+"win_total": 32.5,
+"result": "37-45 (over)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+17500",
+"win_total": 32.5,
+"result": "47-35 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+17500",
+"win_total": 27.5,
+"result": "13-69 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Bobcats",
+"title_odds": "+40000",
+"win_total": 16.5,
+"result": "18-64 (over)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2005_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2005-06": {
+"rows": [
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+250",
+"win_total": 58.5,
+"result": "63-19 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+350",
+"win_total": 58.0,
+"result": "52-30 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+800",
+"win_total": 43.5,
+"result": "54-28 (over)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+1000",
+"win_total": 51.5,
+"result": "64-18 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+1200",
+"win_total": 50.5,
+"result": "44-38 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+1300",
+"win_total": 52.5,
+"result": "60-22 (over)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+1500",
+"win_total": 53.0,
+"result": "34-48 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+1600",
+"win_total": 52.5,
+"result": "41-41 (under)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+1800",
+"win_total": 49.5,
+"result": "44-38 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+1800",
+"win_total": 44.0,
+"result": "33-49 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+1800",
+"win_total": 49.5,
+"result": "50-32 (over)"
+},
+{
+"team": "OKC",
+"name": "Seattle SuperSonics",
+"title_odds": "+1800",
+"win_total": 43.0,
+"result": "35-47 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+2500",
+"win_total": 41.5,
+"result": "45-37 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+2500",
+"win_total": 42.5,
+"result": "38-44 (under)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+2500",
+"win_total": 47.0,
+"result": "49-33 (over)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+3000",
+"win_total": 40.5,
+"result": "33-49 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+3000",
+"win_total": 40.0,
+"result": "42-40 (over)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+3000",
+"win_total": 43.0,
+"result": "41-41 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+3500",
+"win_total": 42.5,
+"result": "49-33 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+5000",
+"win_total": 41.5,
+"result": "23-59 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+6000",
+"win_total": 41.5,
+"result": "34-48 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+7000",
+"win_total": 34.5,
+"result": "36-46 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+7000",
+"win_total": 38.5,
+"result": "47-35 (over)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+8000",
+"win_total": 35.5,
+"result": "40-42 (over)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+8000",
+"win_total": 28.5,
+"result": "27-55 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+10000",
+"win_total": 28.5,
+"result": "21-61 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+10000",
+"win_total": 34.0,
+"result": "41-41 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Bobcats",
+"title_odds": "+25000",
+"win_total": 21.0,
+"result": "26-56 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+30000",
+"win_total": 21.5,
+"result": "26-56 (over)"
+},
+{
+"team": "NOP",
+"name": "New Orleans/Oklahoma City Hornets",
+"title_odds": "+40000",
+"win_total": 21.5,
+"result": "38-44 (over)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2006_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2006-07": {
+"rows": [
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+400",
+"win_total": 56.0,
+"result": "67-15 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+450",
+"win_total": 56.0,
+"result": "58-24 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+600",
+"win_total": 55.0,
+"result": "61-21 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+600",
+"win_total": 51.5,
+"result": "44-38 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+800",
+"win_total": 51.5,
+"result": "53-29 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+900",
+"win_total": 48.0,
+"result": "50-32 (over)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+1500",
+"win_total": 46.5,
+"result": "41-41 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+1800",
+"win_total": 48.0,
+"result": "49-33 (over)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+2000",
+"win_total": 45.5,
+"result": "52-30 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+2500",
+"win_total": 47.0,
+"result": "40-42 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+3500",
+"win_total": 42.5,
+"result": "42-40 (under)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+3500",
+"win_total": 44.0,
+"result": "33-49 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+4500",
+"win_total": 40.0,
+"result": "22-60 (under)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+4500",
+"win_total": 41.5,
+"result": "45-37 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+5000",
+"win_total": 44.5,
+"result": "35-47 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+6500",
+"win_total": 39.0,
+"result": "41-41 (over)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+8000",
+"win_total": 42.0,
+"result": "28-54 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+8000",
+"win_total": 39.0,
+"result": "51-31 (over)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+8000",
+"win_total": 35.0,
+"result": "24-58 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans/Oklahoma City Hornets",
+"title_odds": "+10000",
+"win_total": 40.5,
+"result": "39-43 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+10000",
+"win_total": 36.0,
+"result": "32-50 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+10000",
+"win_total": 35.0,
+"result": "42-40 (over)"
+},
+{
+"team": "OKC",
+"name": "Seattle SuperSonics",
+"title_odds": "+10000",
+"win_total": 35.5,
+"result": "31-51 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+10000",
+"win_total": 32.5,
+"result": "47-35 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+12000",
+"win_total": 35.5,
+"result": "35-47 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+15000",
+"win_total": 37.0,
+"result": "40-42 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+20000",
+"win_total": 30.5,
+"result": "33-49 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+20000",
+"win_total": 28.0,
+"result": "30-52 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+50000",
+"win_total": 24.0,
+"result": "32-50 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Bobcats",
+"title_odds": "+50000",
+"win_total": 32.0,
+"result": "33-49 (over)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2007_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2007-08": {
+"rows": [
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+450",
+"win_total": 56.5,
+"result": "51-31 (under)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+450",
+"win_total": 54.5,
+"result": "56-26 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+500",
+"win_total": 55.5,
+"result": "55-27 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+600",
+"win_total": 49.5,
+"result": "45-37 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+1000",
+"win_total": 49.5,
+"result": "66-16 (over)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+1000",
+"win_total": 50.5,
+"result": "33-49 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+1000",
+"win_total": 53.5,
+"result": "55-27 (over)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+1200",
+"win_total": 50.5,
+"result": "59-23 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+1200",
+"win_total": 46.5,
+"result": "15-67 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+1500",
+"win_total": 47.5,
+"result": "54-28 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+1500",
+"win_total": 48.5,
+"result": "50-32 (over)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+2000",
+"win_total": 42.5,
+"result": "48-34 (over)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+2000",
+"win_total": 41.5,
+"result": "41-41 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+2500",
+"win_total": 39.5,
+"result": "43-39 (over)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+2500",
+"win_total": 43.5,
+"result": "34-48 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+3000",
+"win_total": 43.5,
+"result": "57-25 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+4000",
+"win_total": 47.5,
+"result": "52-30 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+4000",
+"win_total": 30.5,
+"result": "36-46 (over)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Hornets",
+"title_odds": "+5000",
+"win_total": 37.5,
+"result": "56-26 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+5000",
+"win_total": 34.5,
+"result": "38-44 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+5000",
+"win_total": 30.5,
+"result": "23-59 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+6000",
+"win_total": 37.5,
+"result": "23-59 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+7500",
+"win_total": 35.5,
+"result": "26-56 (under)"
+},
+{
+"team": "OKC",
+"name": "Seattle SuperSonics",
+"title_odds": "+7500",
+"win_total": 27.5,
+"result": "20-62 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+8000",
+"win_total": 30.5,
+"result": "41-41 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Bobcats",
+"title_odds": "+12500",
+"win_total": 35.5,
+"result": "32-50 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+12500",
+"win_total": 38.5,
+"result": "37-45 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+15000",
+"win_total": 19.5,
+"result": "22-60 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+15000",
+"win_total": 32.5,
+"result": "40-42 (over)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+20000",
+"win_total": 32.5,
+"result": "22-60 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2008_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2008-09": {
+"rows": [
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+350",
+"win_total": 53.5,
+"result": "62-20 (over)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+350",
+"win_total": 54.5,
+"result": "65-17 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+800",
+"win_total": 48.5,
+"result": "54-28 (over)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Hornets",
+"title_odds": "+1000",
+"win_total": 51.5,
+"result": "49-33 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+1000",
+"win_total": 50.5,
+"result": "39-43 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+1000",
+"win_total": 47.5,
+"result": "66-16 (over)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+1200",
+"win_total": 53.5,
+"result": "53-29 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+1200",
+"win_total": 51.5,
+"result": "48-34 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+1500",
+"win_total": 46.5,
+"result": "46-36 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+2000",
+"win_total": 46.5,
+"result": "50-32 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+2000",
+"win_total": 47.5,
+"result": "59-23 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+2500",
+"win_total": 48.5,
+"result": "41-41 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+3000",
+"win_total": 40.5,
+"result": "41-41 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+3000",
+"win_total": 44.5,
+"result": "54-28 (over)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+3500",
+"win_total": 47.5,
+"result": "33-49 (under)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+3500",
+"win_total": 37.5,
+"result": "43-39 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+5000",
+"win_total": 40.5,
+"result": "54-28 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+6000",
+"win_total": 38.5,
+"result": "19-63 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+8000",
+"win_total": 34.5,
+"result": "19-63 (under)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+10000",
+"win_total": 27.5,
+"result": "34-48 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+10000",
+"win_total": 32.5,
+"result": "32-50 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+10000",
+"win_total": 35.5,
+"result": "36-46 (over)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+10000",
+"win_total": 37.5,
+"result": "29-53 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+10000",
+"win_total": 36.5,
+"result": "47-35 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Bobcats",
+"title_odds": "+12500",
+"win_total": 36.5,
+"result": "35-47 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+15000",
+"win_total": 30.5,
+"result": "24-58 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+15000",
+"win_total": 30.5,
+"result": "34-48 (over)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+20000",
+"win_total": 25.5,
+"result": "23-59 (under)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+20000",
+"win_total": 28.5,
+"result": "17-65 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+25000",
+"win_total": 22.5,
+"result": "24-58 (over)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2009_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2009-10": {
+"rows": [
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+225",
+"win_total": 62.0,
+"result": "57-25 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+300",
+"win_total": 61.5,
+"result": "61-21 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+450",
+"win_total": 56.5,
+"result": "50-32 (under)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+1000",
+"win_total": 54.5,
+"result": "50-32 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+1000",
+"win_total": 57.5,
+"result": "59-23 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+1500",
+"win_total": 52.5,
+"result": "53-29 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+2000",
+"win_total": 52.5,
+"result": "50-32 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+2500",
+"win_total": 48.5,
+"result": "55-27 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+2500",
+"win_total": 49.5,
+"result": "53-29 (over)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+3300",
+"win_total": 41.5,
+"result": "27-55 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+4000",
+"win_total": 35.5,
+"result": "42-40 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+4000",
+"win_total": 40.0,
+"result": "47-35 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+5000",
+"win_total": 44.5,
+"result": "53-29 (over)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+5000",
+"win_total": 40.5,
+"result": "41-41 (over)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Hornets",
+"title_odds": "+5000",
+"win_total": 46.5,
+"result": "37-45 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+6600",
+"win_total": 31.5,
+"result": "29-53 (under)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+6600",
+"win_total": 40.5,
+"result": "27-55 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+6600",
+"win_total": 40.5,
+"result": "54-28 (over)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+6600",
+"win_total": 40.5,
+"result": "40-42 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+8000",
+"win_total": 41.5,
+"result": "26-56 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+10000",
+"win_total": 34.5,
+"result": "32-50 (under)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+12500",
+"win_total": 33.5,
+"result": "50-32 (over)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+12500",
+"win_total": 27.5,
+"result": "12-70 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+12500",
+"win_total": 34.5,
+"result": "26-56 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Bobcats",
+"title_odds": "+12500",
+"win_total": 36.5,
+"result": "44-38 (over)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+15000",
+"win_total": 27.5,
+"result": "40-42 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+15000",
+"win_total": 34.5,
+"result": "29-53 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+20000",
+"win_total": 26.5,
+"result": "15-67 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+20000",
+"win_total": 26.5,
+"result": "46-36 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+25000",
+"win_total": 24.5,
+"result": "25-57 (over)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2010_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2010-11": {
+"rows": [
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+175",
+"win_total": 64.5,
+"result": "58-24 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+250",
+"win_total": 56.5,
+"result": "57-25 (over)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+1000",
+"win_total": 52.5,
+"result": "56-26 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+1000",
+"win_total": 54.5,
+"result": "52-30 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+1400",
+"win_total": 46.5,
+"result": "62-20 (over)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+1600",
+"win_total": 51.5,
+"result": "55-27 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+2000",
+"win_total": 49.5,
+"result": "57-25 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+2500",
+"win_total": 49.5,
+"result": "61-21 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+2500",
+"win_total": 43.5,
+"result": "50-32 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+2800",
+"win_total": 51.5,
+"result": "48-34 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+4000",
+"win_total": 45.5,
+"result": "35-47 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+4000",
+"win_total": 49.5,
+"result": "39-43 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+4000",
+"win_total": 35.5,
+"result": "42-40 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+4000",
+"win_total": 46.5,
+"result": "44-38 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+4000",
+"win_total": 48.5,
+"result": "43-39 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+5000",
+"win_total": 41.5,
+"result": "40-42 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+5000",
+"win_total": 32.5,
+"result": "23-59 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Hornets",
+"title_odds": "+6600",
+"win_total": 41.5,
+"result": "46-36 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Bobcats",
+"title_odds": "+6600",
+"win_total": 39.5,
+"result": "34-48 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+10000",
+"win_total": 38.5,
+"result": "46-36 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+10000",
+"win_total": 36.5,
+"result": "32-50 (under)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+10000",
+"win_total": 24.5,
+"result": "24-58 (under)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+10000",
+"win_total": 34.5,
+"result": "41-41 (over)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+10000",
+"win_total": 30.5,
+"result": "30-52 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+10000",
+"win_total": 30.5,
+"result": "19-63 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+15000",
+"win_total": 33.5,
+"result": "37-45 (over)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+15000",
+"win_total": 30.5,
+"result": "36-46 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+15000",
+"win_total": 27.5,
+"result": "24-58 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+20000",
+"win_total": 23.5,
+"result": "17-65 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+20000",
+"win_total": 26.5,
+"result": "22-60 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2011_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2011-12": {
+"rows": [
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+225",
+"win_total": 47.5,
+"result": "46-20 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+450",
+"win_total": 42.5,
+"result": "41-25 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+550",
+"win_total": 47.5,
+"result": "50-16 (over)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+700",
+"win_total": 46.5,
+"result": "47-19 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+850",
+"win_total": 44.5,
+"result": "36-30 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+1600",
+"win_total": 40.5,
+"result": "39-27 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+1600",
+"win_total": 41.5,
+"result": "36-30 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+2000",
+"win_total": 42.5,
+"result": "40-26 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+2500",
+"win_total": 37.5,
+"result": "41-25 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+2500",
+"win_total": 37.5,
+"result": "37-29 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+3300",
+"win_total": 37.5,
+"result": "28-38 (under)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+3300",
+"win_total": 40.5,
+"result": "50-16 (over)"
+},
+{
+"team": "BKN",
+"name": "New Jersey Nets",
+"title_odds": "+4000",
+"win_total": 27.5,
+"result": "22-44 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+5000",
+"win_total": 34.5,
+"result": "40-26 (over)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+6600",
+"win_total": 33.5,
+"result": "34-32 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+6600",
+"win_total": 36.5,
+"result": "42-24 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+6600",
+"win_total": 36.5,
+"result": "38-28 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+10000",
+"win_total": 29.5,
+"result": "33-33 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+10000",
+"win_total": 25.5,
+"result": "36-30 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+12500",
+"win_total": 36.5,
+"result": "35-31 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+12500",
+"win_total": 31.5,
+"result": "31-35 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+12500",
+"win_total": 29.5,
+"result": "23-43 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Hornets",
+"title_odds": "+15000",
+"win_total": 25.5,
+"result": "21-45 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+15000",
+"win_total": 20.5,
+"result": "20-46 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+20000",
+"win_total": 23.5,
+"result": "26-40 (over)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+20000",
+"win_total": 21.5,
+"result": "25-41 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+20000",
+"win_total": 20.5,
+"result": "22-44 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+20000",
+"win_total": 17.5,
+"result": "21-45 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Bobcats",
+"title_odds": "+20000",
+"win_total": 19.5,
+"result": "7-59 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+25000",
+"win_total": 16.5,
+"result": "23-43 (over)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2012_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2012-13": {
+"rows": [
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+225",
+"win_total": 60.5,
+"result": "66-16 (over)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+275",
+"win_total": 58.5,
+"result": "45-37 (under)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+450",
+"win_total": 60.5,
+"result": "60-22 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+1200",
+"win_total": 47.5,
+"result": "45-37 (under)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+1600",
+"win_total": 54.5,
+"result": "58-24 (over)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+2000",
+"win_total": 51.5,
+"result": "41-40 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+2200",
+"win_total": 49.5,
+"result": "56-26 (over)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+2800",
+"win_total": 44.5,
+"result": "49-33 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+3300",
+"win_total": 51.5,
+"result": "49-32 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+3300",
+"win_total": 48.5,
+"result": "56-26 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+3300",
+"win_total": 44.5,
+"result": "41-41 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+3300",
+"win_total": 46.5,
+"result": "54-28 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+5000",
+"win_total": 49.5,
+"result": "57-25 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+5000",
+"win_total": 47.5,
+"result": "34-48 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+6600",
+"win_total": 31.5,
+"result": "45-37 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+8000",
+"win_total": 42.5,
+"result": "44-38 (over)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+8000",
+"win_total": 39.5,
+"result": "31-51 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+10000",
+"win_total": 42.5,
+"result": "43-39 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+10000",
+"win_total": 34.5,
+"result": "33-49 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+10000",
+"win_total": 36.5,
+"result": "38-44 (over)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Hornets",
+"title_odds": "+15000",
+"win_total": 26.5,
+"result": "27-55 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+15000",
+"win_total": 33.5,
+"result": "25-57 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+15000",
+"win_total": 23.5,
+"result": "20-62 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+15000",
+"win_total": 35.5,
+"result": "47-35 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+20000",
+"win_total": 31.5,
+"result": "24-58 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+20000",
+"win_total": 32.5,
+"result": "29-53 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+20000",
+"win_total": 27.5,
+"result": "29-53 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+25000",
+"win_total": 29.5,
+"result": "28-54 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+25000",
+"win_total": 32.5,
+"result": "34-48 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Bobcats",
+"title_odds": "+50000",
+"win_total": 19.5,
+"result": "21-61 (over)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2013_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2013-14": {
+"rows": [
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+200",
+"win_total": 61.5,
+"result": "54-28 (under)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+550",
+"win_total": 51.5,
+"result": "59-23 (over)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+1000",
+"win_total": 56.5,
+"result": "48-34 (under)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+1200",
+"win_total": 52.5,
+"result": "44-38 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+1200",
+"win_total": 54.5,
+"result": "54-28 (under)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+1200",
+"win_total": 55.5,
+"result": "62-20 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+1400",
+"win_total": 57.5,
+"result": "57-25 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+1400",
+"win_total": 54.5,
+"result": "56-26 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+2200",
+"win_total": 50.0,
+"result": "37-45 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+2500",
+"win_total": 51.0,
+"result": "51-31 (over)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+2500",
+"win_total": 36.5,
+"result": "27-55 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+2800",
+"win_total": 50.5,
+"result": "50-32 (under)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+3300",
+"win_total": 46.5,
+"result": "36-46 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+4000",
+"win_total": 43.5,
+"result": "49-33 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+6600",
+"win_total": 40.5,
+"result": "33-49 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+6600",
+"win_total": 39.5,
+"result": "38-44 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+8000",
+"win_total": 26.5,
+"result": "25-57 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+8000",
+"win_total": 38.5,
+"result": "54-28 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+10000",
+"win_total": 16.5,
+"result": "19-63 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+10000",
+"win_total": 39.5,
+"result": "44-38 (over)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+10000",
+"win_total": 39.0,
+"result": "34-48 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+10000",
+"win_total": 40.5,
+"result": "40-42 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+10000",
+"win_total": 28.5,
+"result": "25-57 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+12500",
+"win_total": 40.5,
+"result": "29-53 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+15000",
+"win_total": 28.5,
+"result": "15-67 (under)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+15000",
+"win_total": 31.5,
+"result": "28-54 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+15000",
+"win_total": 35.5,
+"result": "48-34 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+20000",
+"win_total": 20.5,
+"result": "48-34 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+30000",
+"win_total": 23.5,
+"result": "23-59 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Bobcats",
+"title_odds": "+30000",
+"win_total": 26.0,
+"result": "43-39 (over)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2014_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2014-15": {
+"rows": [
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+275",
+"win_total": 58.5,
+"result": "53-29 (under)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+350",
+"win_total": 57.0,
+"result": "55-27 (under)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+600",
+"win_total": 53.0,
+"result": "45-37 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+700",
+"win_total": 55.5,
+"result": "50-32 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+900",
+"win_total": 56.5,
+"result": "56-26 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+2200",
+"win_total": 49.0,
+"result": "56-26 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+2500",
+"win_total": 49.5,
+"result": "50-32 (over)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+2800",
+"win_total": 52.5,
+"result": "67-15 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+3000",
+"win_total": 48.5,
+"result": "46-36 (under)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+4500",
+"win_total": 44.0,
+"result": "37-45 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+5000",
+"win_total": 48.5,
+"result": "49-33 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+5000",
+"win_total": 49.0,
+"result": "51-31 (over)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+5500",
+"win_total": 48.5,
+"result": "55-27 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+5500",
+"win_total": 40.0,
+"result": "17-65 (under)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+6000",
+"win_total": 41.5,
+"result": "38-44 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+7500",
+"win_total": 43.0,
+"result": "45-37 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+8000",
+"win_total": 33.5,
+"result": "38-44 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+8500",
+"win_total": 45.0,
+"result": "33-49 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+8500",
+"win_total": 44.0,
+"result": "39-43 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+10000",
+"win_total": 29.0,
+"result": "21-61 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+12500",
+"win_total": 42.5,
+"result": "60-22 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+12500",
+"win_total": 42.0,
+"result": "30-52 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+15000",
+"win_total": 27.0,
+"result": "40-42 (over)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+25000",
+"win_total": 29.0,
+"result": "16-66 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+25000",
+"win_total": 36.0,
+"result": "32-50 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+25000",
+"win_total": 26.5,
+"result": "25-57 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+25000",
+"win_total": 24.5,
+"result": "41-41 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+25000",
+"win_total": 29.5,
+"result": "29-53 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+25000",
+"win_total": 27.0,
+"result": "38-44 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+50000",
+"win_total": 16.0,
+"result": "18-64 (over)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2015_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2015-16": {
+"rows": [
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+280",
+"win_total": 56.5,
+"result": "57-25 (over)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+480",
+"win_total": 59.5,
+"result": "73-9 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+500",
+"win_total": 56.5,
+"result": "67-15 (over)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+750",
+"win_total": 57.5,
+"result": "55-27 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+1200",
+"win_total": 56.5,
+"result": "53-29 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+1500",
+"win_total": 56.5,
+"result": "41-41 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+1600",
+"win_total": 50.5,
+"result": "42-40 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+3300",
+"win_total": 45.0,
+"result": "30-52 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+3300",
+"win_total": 50.5,
+"result": "42-40 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+3600",
+"win_total": 49.5,
+"result": "48-34 (under)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+4000",
+"win_total": 46.5,
+"result": "48-34 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+5500",
+"win_total": 45.5,
+"result": "41-41 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+6600",
+"win_total": 46.5,
+"result": "56-26 (over)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+6800",
+"win_total": 42.5,
+"result": "33-49 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+9000",
+"win_total": 41.5,
+"result": "45-37 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+12000",
+"win_total": 36.5,
+"result": "42-40 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+15000",
+"win_total": 42.5,
+"result": "40-42 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+15500",
+"win_total": 45.5,
+"result": "48-34 (over)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+20000",
+"win_total": 28.5,
+"result": "17-65 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+24000",
+"win_total": 29.5,
+"result": "32-50 (over)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+25000",
+"win_total": 36.5,
+"result": "44-38 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+30000",
+"win_total": 36.5,
+"result": "23-59 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+30000",
+"win_total": 28.5,
+"result": "44-38 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+30000",
+"win_total": 36.0,
+"result": "33-49 (under)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+30000",
+"win_total": 27.5,
+"result": "21-61 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+30000",
+"win_total": 27.5,
+"result": "29-53 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+30000",
+"win_total": 27.5,
+"result": "33-49 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+35000",
+"win_total": 34.0,
+"result": "48-34 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+50000",
+"win_total": 34.5,
+"result": "35-47 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+100000",
+"win_total": 20.5,
+"result": "10-72 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2016_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2016-17": {
+"rows": [
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "-128",
+"win_total": 66.5,
+"result": "67-15 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+385",
+"win_total": 56.5,
+"result": "51-31 (under)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+925",
+"win_total": 57.5,
+"result": "61-21 (over)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+2900",
+"win_total": 52.5,
+"result": "53-29 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+3500",
+"win_total": 53.5,
+"result": "51-31 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+5500",
+"win_total": 50.5,
+"result": "51-31 (over)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+6000",
+"win_total": 45.0,
+"result": "47-35 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+7500",
+"win_total": 38.5,
+"result": "31-51 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+8000",
+"win_total": 44.5,
+"result": "42-40 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+8800",
+"win_total": 42.5,
+"result": "43-39 (over)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+9000",
+"win_total": 39.0,
+"result": "41-41 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+10000",
+"win_total": 47.5,
+"result": "51-31 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+10000",
+"win_total": 43.5,
+"result": "43-39 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+10000",
+"win_total": 41.5,
+"result": "31-51 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+13000",
+"win_total": 45.5,
+"result": "41-41 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+14000",
+"win_total": 44.5,
+"result": "37-45 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+14500",
+"win_total": 36.5,
+"result": "34-48 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+16000",
+"win_total": 42.5,
+"result": "49-33 (over)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+16000",
+"win_total": 44.0,
+"result": "55-27 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+17500",
+"win_total": 34.5,
+"result": "41-41 (over)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+18000",
+"win_total": 34.5,
+"result": "42-40 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+22500",
+"win_total": 37.5,
+"result": "29-53 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+39000",
+"win_total": 24.5,
+"result": "26-56 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+39000",
+"win_total": 39.5,
+"result": "33-49 (under)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+50000",
+"win_total": 23.5,
+"result": "28-54 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+50000",
+"win_total": 33.5,
+"result": "32-50 (under)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+50000",
+"win_total": 37.0,
+"result": "40-42 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+55000",
+"win_total": 42.5,
+"result": "36-46 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+85000",
+"win_total": 29.5,
+"result": "24-58 (under)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+135000",
+"win_total": 21.5,
+"result": "20-62 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2017_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2017-18": {
+"rows": [
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "-187",
+"win_total": 67.5,
+"result": "58-24 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+515",
+"win_total": 53.5,
+"result": "50-32 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+1200",
+"win_total": 53.5,
+"result": "55-27 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+1800",
+"win_total": 55.0,
+"result": "47-35 (under)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+2150",
+"win_total": 53.5,
+"result": "48-34 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+2150",
+"win_total": 55.5,
+"result": "65-17 (over)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+5000",
+"win_total": 48.5,
+"result": "47-35 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+8000",
+"win_total": 47.5,
+"result": "44-38 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+9000",
+"win_total": 48.5,
+"result": "43-39 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+15000",
+"win_total": 48.5,
+"result": "59-23 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+19000",
+"win_total": 43.5,
+"result": "42-40 (under)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+19000",
+"win_total": 39.5,
+"result": "52-30 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+20000",
+"win_total": 45.5,
+"result": "46-36 (over)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+22000",
+"win_total": 39.5,
+"result": "48-34 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+24000",
+"win_total": 43.5,
+"result": "44-38 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+25000",
+"win_total": 40.5,
+"result": "48-34 (over)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+30000",
+"win_total": 33.5,
+"result": "35-47 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+31500",
+"win_total": 42.5,
+"result": "49-33 (over)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+37000",
+"win_total": 37.5,
+"result": "22-60 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+50000",
+"win_total": 35.5,
+"result": "24-58 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+50000",
+"win_total": 42.5,
+"result": "36-46 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+63000",
+"win_total": 38.5,
+"result": "39-43 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+100000",
+"win_total": 30.5,
+"result": "29-53 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+125000",
+"win_total": 28.5,
+"result": "21-61 (under)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+125000",
+"win_total": 27.5,
+"result": "27-55 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+125000",
+"win_total": 31.5,
+"result": "48-34 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+200000",
+"win_total": 25.5,
+"result": "24-58 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+250000",
+"win_total": 33.5,
+"result": "25-57 (under)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+250000",
+"win_total": 27.5,
+"result": "28-54 (over)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+250000",
+"win_total": 22.0,
+"result": "27-55 (over)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2018_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2018-19": {
+"rows": [
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "-168",
+"win_total": 62.5,
+"result": "57-25 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+620",
+"win_total": 59.0,
+"result": "49-33 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+1000",
+"win_total": 56.5,
+"result": "53-29 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+1800",
+"win_total": 48.5,
+"result": "37-45 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+1850",
+"win_total": 55.5,
+"result": "58-24 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+2000",
+"win_total": 53.5,
+"result": "51-31 (under)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+3800",
+"win_total": 48.5,
+"result": "49-33 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+10000",
+"win_total": 49.5,
+"result": "50-32 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+10000",
+"win_total": 43.5,
+"result": "48-34 (over)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+10000",
+"win_total": 45.5,
+"result": "33-49 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+10000",
+"win_total": 48.0,
+"result": "60-22 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+11000",
+"win_total": 45.5,
+"result": "32-50 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+12500",
+"win_total": 47.5,
+"result": "48-34 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+20000",
+"win_total": 47.5,
+"result": "54-28 (over)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+25000",
+"win_total": 41.5,
+"result": "36-46 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+30000",
+"win_total": 42.0,
+"result": "53-29 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+35000",
+"win_total": 43.0,
+"result": "39-43 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+35000",
+"win_total": 38.5,
+"result": "41-41 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+35000",
+"win_total": 28.5,
+"result": "17-65 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+35000",
+"win_total": 35.5,
+"result": "33-49 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+40000",
+"win_total": 37.0,
+"result": "48-34 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+50000",
+"win_total": 30.5,
+"result": "19-63 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+50000",
+"win_total": 30.0,
+"result": "22-60 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+50000",
+"win_total": 35.5,
+"result": "39-43 (over)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+65000",
+"win_total": 34.5,
+"result": "33-49 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+75000",
+"win_total": 31.0,
+"result": "42-40 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+75000",
+"win_total": 29.0,
+"result": "19-63 (under)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+125000",
+"win_total": 32.0,
+"result": "42-40 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+150000",
+"win_total": 23.5,
+"result": "29-53 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+200000",
+"win_total": 26.0,
+"result": "39-43 (over)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2019_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2019-20": {
+"rows": [
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+425",
+"win_total": 53.5,
+"result": "49-23 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+450",
+"win_total": 50.5,
+"result": "52-19 (over)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+550",
+"win_total": 57.5,
+"result": "56-17 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+700",
+"win_total": 54.0,
+"result": "44-28 (under)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+775",
+"win_total": 54.5,
+"result": "43-30 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+950",
+"win_total": 47.5,
+"result": "15-50 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+1300",
+"win_total": 53.5,
+"result": "44-28 (under)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+2000",
+"win_total": 53.0,
+"result": "46-27 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+2900",
+"win_total": 48.5,
+"result": "48-24 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+3500",
+"win_total": 46.5,
+"result": "35-39 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+5000",
+"win_total": 46.5,
+"result": "45-28 (under)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+5500",
+"win_total": 43.5,
+"result": "35-37 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+5500",
+"win_total": 46.5,
+"result": "53-19 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+6000",
+"win_total": 43.5,
+"result": "44-29 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+6000",
+"win_total": 46.5,
+"result": "32-39 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+10500",
+"win_total": 40.5,
+"result": "43-32 (over)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+12500",
+"win_total": 37.5,
+"result": "30-42 (under)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+15000",
+"win_total": 37.5,
+"result": "31-41 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+20000",
+"win_total": 41.5,
+"result": "33-40 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+25000",
+"win_total": 33.5,
+"result": "20-47 (under)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+25000",
+"win_total": 32.5,
+"result": "44-28 (over)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+25000",
+"win_total": 37.5,
+"result": "20-46 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+42500",
+"win_total": 33.5,
+"result": "22-43 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+50000",
+"win_total": 35.5,
+"result": "19-45 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+50000",
+"win_total": 29.5,
+"result": "34-39 (over)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+100000",
+"win_total": 27.5,
+"result": "34-39 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+100000",
+"win_total": 26.5,
+"result": "21-45 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+125000",
+"win_total": 27.0,
+"result": "25-47 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+150000",
+"win_total": 24.5,
+"result": "19-46 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+200000",
+"win_total": 23.5,
+"result": "23-42 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2020_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2020-21": {
+"rows": [
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+275",
+"win_total": 47.5,
+"result": "42-30 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+550",
+"win_total": 49.5,
+"result": "46-26 (under)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+600",
+"win_total": 45.5,
+"result": "48-24 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+650",
+"win_total": 46.5,
+"result": "47-25 (over)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+1400",
+"win_total": 44.5,
+"result": "36-36 (under)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+1800",
+"win_total": 43.5,
+"result": "40-32 (under)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+1800",
+"win_total": 44.5,
+"result": "47-25 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+2000",
+"win_total": 43.5,
+"result": "49-23 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+2500",
+"win_total": 42.5,
+"result": "42-30 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+2500",
+"win_total": 37.5,
+"result": "39-33 (over)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+3000",
+"win_total": 42.5,
+"result": "27-45 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+4000",
+"win_total": 41.5,
+"result": "52-20 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+4000",
+"win_total": 40.5,
+"result": "42-30 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+4000",
+"win_total": 38.5,
+"result": "51-21 (over)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+5000",
+"win_total": 34.5,
+"result": "17-55 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+6500",
+"win_total": 36.5,
+"result": "31-41 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+10000",
+"win_total": 32.5,
+"result": "34-38 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+10000",
+"win_total": 34.5,
+"result": "41-31 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+10000",
+"win_total": 38.5,
+"result": "34-38 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+15000",
+"win_total": 31.5,
+"result": "38-34 (over)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+20000",
+"win_total": 29.5,
+"result": "23-49 (under)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+20000",
+"win_total": 22.5,
+"result": "22-50 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+20000",
+"win_total": 31.5,
+"result": "21-51 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+25000",
+"win_total": 29.5,
+"result": "31-41 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+25000",
+"win_total": 26.5,
+"result": "33-39 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+25000",
+"win_total": 28.5,
+"result": "31-41 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+25000",
+"win_total": 28.5,
+"result": "33-39 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+50000",
+"win_total": 21.5,
+"result": "41-31 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+50000",
+"win_total": 22.5,
+"result": "22-50 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+50000",
+"win_total": 23.5,
+"result": "20-52 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2021_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2021-22": {
+"rows": [
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+240",
+"win_total": 56.5,
+"result": "44-38 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+400",
+"win_total": 52.5,
+"result": "33-49 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+900",
+"win_total": 54.5,
+"result": "51-31 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+900",
+"win_total": 48.5,
+"result": "53-29 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+1500",
+"win_total": 51.5,
+"result": "64-18 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+1600",
+"win_total": 52.5,
+"result": "49-33 (under)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+1600",
+"win_total": 50.5,
+"result": "51-31 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+1600",
+"win_total": 45.5,
+"result": "42-40 (under)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+2200",
+"win_total": 47.5,
+"result": "48-34 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+2500",
+"win_total": 48.5,
+"result": "53-29 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+3000",
+"win_total": 48.5,
+"result": "52-30 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+3500",
+"win_total": 47.5,
+"result": "43-39 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+4000",
+"win_total": 45.5,
+"result": "51-31 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+5000",
+"win_total": 44.5,
+"result": "27-55 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+6600",
+"win_total": 42.5,
+"result": "46-36 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+8000",
+"win_total": 41.5,
+"result": "37-45 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+10000",
+"win_total": 41.5,
+"result": "56-26 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+10000",
+"win_total": 42.5,
+"result": "25-57 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+10000",
+"win_total": 39.5,
+"result": "36-46 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+10000",
+"win_total": 38.5,
+"result": "43-39 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+15000",
+"win_total": 33.5,
+"result": "35-47 (over)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+15000",
+"win_total": 35.5,
+"result": "48-34 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+25000",
+"win_total": 36.5,
+"result": "30-52 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+25000",
+"win_total": 35.5,
+"result": "46-36 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+30000",
+"win_total": 28.5,
+"result": "34-48 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+50000",
+"win_total": 26.5,
+"result": "44-38 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+50000",
+"win_total": 22.5,
+"result": "22-60 (under)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+50000",
+"win_total": 23.5,
+"result": "24-58 (over)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+50000",
+"win_total": 24.5,
+"result": "23-59 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+50000",
+"win_total": 27.5,
+"result": "20-62 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2022_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2022-23": {
+"rows": [
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+500",
+"win_total": 54.5,
+"result": "57-25 (over)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+600",
+"win_total": 52.5,
+"result": "44-38 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+650",
+"win_total": 53.5,
+"result": "58-24 (over)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+700",
+"win_total": 50.5,
+"result": "45-37 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+700",
+"win_total": 52.5,
+"result": "44-38 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+1000",
+"win_total": 52.5,
+"result": "45-37 (under)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+1400",
+"win_total": 50.5,
+"result": "54-28 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+1600",
+"win_total": 49.5,
+"result": "44-38 (under)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+1800",
+"win_total": 51.5,
+"result": "53-29 (over)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+1800",
+"win_total": 44.5,
+"result": "43-39 (under)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+2000",
+"win_total": 49.5,
+"result": "51-31 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+2500",
+"win_total": 48.5,
+"result": "38-44 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+2800",
+"win_total": 49.5,
+"result": "42-40 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+3000",
+"win_total": 46.5,
+"result": "51-31 (over)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+4000",
+"win_total": 46.5,
+"result": "41-41 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+4000",
+"win_total": 41.5,
+"result": "40-42 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+4000",
+"win_total": 45.5,
+"result": "42-40 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+5000",
+"win_total": 46.5,
+"result": "41-41 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+6600",
+"win_total": 38.5,
+"result": "47-35 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+8000",
+"win_total": 39.5,
+"result": "33-49 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+15000",
+"win_total": 34.5,
+"result": "27-55 (under)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+25000",
+"win_total": 35.5,
+"result": "35-47 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+50000",
+"win_total": 29.5,
+"result": "17-65 (under)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+50000",
+"win_total": 23.5,
+"result": "40-42 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+50000",
+"win_total": 26.5,
+"result": "34-48 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+50000",
+"win_total": 24.5,
+"result": "35-47 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+50000",
+"win_total": 34.5,
+"result": "48-34 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+50000",
+"win_total": 22.5,
+"result": "22-60 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+50000",
+"win_total": 23.5,
+"result": "22-60 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+50000",
+"win_total": 23.5,
+"result": "37-45 (over)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2023_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2023-24": {
+"rows": [
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+450",
+"win_total": 54.5,
+"result": "64-18 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+450",
+"win_total": 52.5,
+"result": "57-25 (over)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+600",
+"win_total": 51.5,
+"result": "49-33 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+600",
+"win_total": 54.5,
+"result": "49-33 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+1200",
+"win_total": 48.5,
+"result": "46-36 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+1500",
+"win_total": 47.5,
+"result": "47-35 (under)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+1600",
+"win_total": 45.5,
+"result": "46-36 (over)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+1800",
+"win_total": 48.5,
+"result": "47-35 (under)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+2200",
+"win_total": 46.5,
+"result": "51-31 (over)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+2200",
+"win_total": 45.5,
+"result": "27-55 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+2500",
+"win_total": 45.5,
+"result": "50-32 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+2500",
+"win_total": 50.5,
+"result": "48-34 (under)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+3500",
+"win_total": 44.5,
+"result": "46-36 (over)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+4000",
+"win_total": 44.5,
+"result": "49-33 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+5000",
+"win_total": 45.5,
+"result": "50-32 (over)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+6600",
+"win_total": 44.5,
+"result": "56-26 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+8000",
+"win_total": 42.5,
+"result": "36-46 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+8000",
+"win_total": 36.5,
+"result": "25-57 (under)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+10000",
+"win_total": 44.5,
+"result": "57-25 (over)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+12500",
+"win_total": 37.5,
+"result": "39-43 (over)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+12500",
+"win_total": 37.5,
+"result": "32-50 (under)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+12500",
+"win_total": 28.5,
+"result": "21-61 (under)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+15000",
+"win_total": 28.5,
+"result": "22-60 (under)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+25000",
+"win_total": 35.5,
+"result": "31-51 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+25000",
+"win_total": 37.5,
+"result": "47-35 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+25000",
+"win_total": 38.5,
+"result": "47-35 (over)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+25000",
+"win_total": 31.5,
+"result": "41-41 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+50000",
+"win_total": 24.5,
+"result": "15-67 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+50000",
+"win_total": 31.5,
+"result": "21-61 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+50000",
+"win_total": 28.5,
+"result": "14-68 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2024_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2024-25": {
+"rows": [
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+325",
+"win_total": 58.5,
+"result": "61-21 (over)"
+},
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+675",
+"win_total": 57.5,
+"result": "68-14 (over)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+700",
+"win_total": 53.5,
+"result": "51-31 (under)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+1000",
+"win_total": 50.5,
+"result": "24-58 (under)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+1100",
+"win_total": 49.5,
+"result": "39-43 (under)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+1100",
+"win_total": 51.5,
+"result": "50-32 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+1100",
+"win_total": 51.5,
+"result": "49-33 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+1400",
+"win_total": 49.5,
+"result": "48-34 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+1500",
+"win_total": 48.5,
+"result": "36-46 (under)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+3500",
+"win_total": 48.5,
+"result": "64-18 (over)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+3500",
+"win_total": 47.5,
+"result": "48-34 (over)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+4000",
+"win_total": 47.5,
+"result": "41-41 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+4000",
+"win_total": 43.5,
+"result": "48-34 (over)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+4000",
+"win_total": 43.5,
+"result": "50-32 (over)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+5000",
+"win_total": 44.5,
+"result": "37-45 (under)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+5000",
+"win_total": 46.5,
+"result": "21-61 (under)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+6600",
+"win_total": 46.5,
+"result": "50-32 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+6600",
+"win_total": 46.5,
+"result": "40-42 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+8000",
+"win_total": 43.5,
+"result": "52-30 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+12500",
+"win_total": 35.5,
+"result": "50-32 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+15000",
+"win_total": 35.5,
+"result": "34-48 (under)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+50000",
+"win_total": 36.5,
+"result": "40-42 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+50000",
+"win_total": 28.5,
+"result": "17-65 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+100000",
+"win_total": 25.5,
+"result": "44-38 (over)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+100000",
+"win_total": 30.5,
+"result": "19-63 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+100000",
+"win_total": 28.5,
+"result": "39-43 (over)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+100000",
+"win_total": 19.5,
+"result": "26-56 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+100000",
+"win_total": 21.5,
+"result": "36-46 (over)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+100000",
+"win_total": 29.5,
+"result": "30-52 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+100000",
+"win_total": 20.5,
+"result": "18-64 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2025_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2025-26": {
+"rows": [
+{
+"team": "OKC",
+"name": "Oklahoma City Thunder",
+"title_odds": "+240",
+"win_total": 62.5,
+"result": "64-18 (over)"
+},
+{
+"team": "DEN",
+"name": "Denver Nuggets",
+"title_odds": "+550",
+"win_total": 53.5,
+"result": "54-28 (over)"
+},
+{
+"team": "CLE",
+"name": "Cleveland Cavaliers",
+"title_odds": "+750",
+"win_total": 56.5,
+"result": "52-30 (under)"
+},
+{
+"team": "NYK",
+"name": "New York Knicks",
+"title_odds": "+900",
+"win_total": 53.5,
+"result": "53-29 (under)"
+},
+{
+"team": "MIN",
+"name": "Minnesota Timberwolves",
+"title_odds": "+1300",
+"win_total": 49.5,
+"result": "49-33 (under)"
+},
+{
+"team": "HOU",
+"name": "Houston Rockets",
+"title_odds": "+1400",
+"win_total": 52.5,
+"result": "52-30 (under)"
+},
+{
+"team": "LAL",
+"name": "Los Angeles Lakers",
+"title_odds": "+1600",
+"win_total": 46.5,
+"result": "53-29 (over)"
+},
+{
+"team": "LAC",
+"name": "Los Angeles Clippers",
+"title_odds": "+1800",
+"win_total": 49.5,
+"result": "42-40 (under)"
+},
+{
+"team": "ORL",
+"name": "Orlando Magic",
+"title_odds": "+1800",
+"win_total": 51.5,
+"result": "45-37 (under)"
+},
+{
+"team": "GSW",
+"name": "Golden State Warriors",
+"title_odds": "+2500",
+"win_total": 47.5,
+"result": "37-45 (under)"
+},
+{
+"team": "DET",
+"name": "Detroit Pistons",
+"title_odds": "+3300",
+"win_total": 46.5,
+"result": "60-22 (over)"
+},
+{
+"team": "DAL",
+"name": "Dallas Mavericks",
+"title_odds": "+3500",
+"win_total": 41.5,
+"result": "26-56 (under)"
+},
+{
+"team": "PHI",
+"name": "Philadelphia 76ers",
+"title_odds": "+4000",
+"win_total": 43.5,
+"result": "45-37 (over)"
+},
+{
+"team": "ATL",
+"name": "Atlanta Hawks",
+"title_odds": "+4000",
+"win_total": 46.5,
+"result": "46-36 (under)"
+},
+{
+"team": "MIL",
+"name": "Milwaukee Bucks",
+"title_odds": "+5500",
+"win_total": 43.5,
+"result": "32-50 (under)"
+},
+{
+"team": "BOS",
+"name": "Boston Celtics",
+"title_odds": "+6000",
+"win_total": 41.5,
+"result": "56-26 (over)"
+},
+{
+"team": "SAS",
+"name": "San Antonio Spurs",
+"title_odds": "+6600",
+"win_total": 44.5,
+"result": "62-20 (over)"
+},
+{
+"team": "IND",
+"name": "Indiana Pacers",
+"title_odds": "+10000",
+"win_total": 37.5,
+"result": "19-63 (under)"
+},
+{
+"team": "TOR",
+"name": "Toronto Raptors",
+"title_odds": "+10000",
+"win_total": 39.5,
+"result": "46-36 (over)"
+},
+{
+"team": "MEM",
+"name": "Memphis Grizzlies",
+"title_odds": "+12500",
+"win_total": 39.5,
+"result": "25-57 (under)"
+},
+{
+"team": "MIA",
+"name": "Miami Heat",
+"title_odds": "+20000",
+"win_total": 37.5,
+"result": "43-39 (over)"
+},
+{
+"team": "NOP",
+"name": "New Orleans Pelicans",
+"title_odds": "+30000",
+"win_total": 30.5,
+"result": "26-56 (under)"
+},
+{
+"team": "PHX",
+"name": "Phoenix Suns",
+"title_odds": "+50000",
+"win_total": 30.5,
+"result": "45-37 (over)"
+},
+{
+"team": "POR",
+"name": "Portland Trail Blazers",
+"title_odds": "+50000",
+"win_total": 35.5,
+"result": "42-40 (over)"
+},
+{
+"team": "SAC",
+"name": "Sacramento Kings",
+"title_odds": "+50000",
+"win_total": 35.5,
+"result": "22-60 (under)"
+},
+{
+"team": "CHI",
+"name": "Chicago Bulls",
+"title_odds": "+50000",
+"win_total": 33.5,
+"result": "31-51 (under)"
+},
+{
+"team": "CHA",
+"name": "Charlotte Hornets",
+"title_odds": "+100000",
+"win_total": 27.5,
+"result": "44-38 (over)"
+},
+{
+"team": "BKN",
+"name": "Brooklyn Nets",
+"title_odds": "+100000",
+"win_total": 19.5,
+"result": "20-62 (over)"
+},
+{
+"team": "UTA",
+"name": "Utah Jazz",
+"title_odds": "+100000",
+"win_total": 18.5,
+"result": "22-60 (over)"
+},
+{
+"team": "WAS",
+"name": "Washington Wizards",
+"title_odds": "+100000",
+"win_total": 20.5,
+"result": "17-65 (under)"
+}
+],
+"source": "https://www.basketball-reference.com/leagues/NBA_2026_preseason_odds.html",
+"with_total": 30,
+"unmatched": []
+},
+"2026-27": {
+"rows": [],
+"source": "https://www.basketball-reference.com/leagues/NBA_2027_preseason_odds.html",
+"with_total": 0,
+"unmatched": []
+}
+}
