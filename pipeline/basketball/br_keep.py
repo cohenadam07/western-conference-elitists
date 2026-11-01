@@ -149,6 +149,7 @@ def restore(source, public):
                 if w in wins and wins[w][i] is None:
                     wins[w][i] = [c["v"], c["n"]]
                     cells += 1
+    d["stale"] = sorted(set(d.get("stale") or []) | {f"BasketballReference: restored from the run of {last['generated']}"})
     json.dump(d, open(cur_path, "w"), separators=(",", ":"))
     json.dump(s, open(s_path, "w"), separators=(",", ":"))
     json.dump(pan, open(pan_path, "w"), separators=(",", ":"))
