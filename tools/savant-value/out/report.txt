@@ -1,45 +1,45 @@
-penalty (leave-one-season-out MSE): 1000: 23.908, 10000: 23.906, 30000: 23.903, 100000: 23.897, 300000: 23.914, 1e+06: 24.135, 3e+06: 25.050 -> 100000
+penalty (leave-one-season-out MSE): 1000: 23.940, 10000: 23.938, 30000: 23.934, 100000: 23.928, 300000: 23.942, 1e+06: 24.156, 3e+06: 25.071 -> 100000
 box fit on 6498 player-seasons (2009-10 to 2024-25, 250+ minutes)
-  sceff  +1.2897  (Points over average efficiency per 100)
-  usg    +0.1608  (Usage %)
-  tp3r   +0.0449  (3-point attempt rate)
-  ftr    +0.0156  (Free-throw rate)
-  ast    +0.1852  (Assist %)
-  tov    -1.2092  (Turnovers per 100)
-  oreb   +0.3220  (Offensive rebound %)
-  dreb   +0.0606  (Defensive rebound %)
-  stl    +2.0929  (Steals per 100)
-  blk    +0.7140  (Blocks per 100)
-  minutes-share control +0.0988 per point of share (left out of every rate)
+  sceff  +1.2668  (Points over average efficiency per 100)
+  usg    +0.1566  (Usage %)
+  tp3r   +0.0461  (3-point attempt rate)
+  ftr    +0.0177  (Free-throw rate)
+  ast    +0.1827  (Assist %)
+  tov    -1.1942  (Turnovers per 100)
+  oreb   +0.2671  (Offensive rebound %)
+  dreb   +0.0395  (Defensive rebound %)
+  stl    +2.2136  (Steals per 100)
+  blk    +0.6198  (Blocks per 100)
+  minutes-share control +0.1004 per point of share (left out of every rate)
 credit (share of each stat that follows a player to a new team, 1,500+ possessions both years):
-  sceff 0.80, usg 0.87, tp3r 0.96, ftr 0.94, ast 0.87, tov 0.89, oreb 0.94, dreb 0.92, stl 0.92, blk 0.95
-K (all, 4511 pairs): 3200  next-season MSE 24.050 vs box only 25.170
-K (changed, 1655 pairs): 6400  next-season MSE 24.952 vs box only 25.272
-K (stayed, 2856 pairs): 2263  next-season MSE 23.369 vs box only 25.116
+  sceff 0.80, usg 0.88, tp3r 0.96, ftr 0.94, ast 0.87, tov 0.89, oreb 0.94, dreb 0.93, stl 0.91, blk 0.96
+K (all, 4422 pairs): 3200  next-season MSE 23.963 vs box only 25.089
+K (changed, 1616 pairs): 6400  next-season MSE 24.679 vs box only 24.965
+K (stayed, 2806 pairs): 2263  next-season MSE 23.358 vs box only 25.154
 using the team-changers K (more cautious): 6400
-team check (210 team-seasons): slope 1.053, r 0.817 -> every rate x 1.053
+team check (210 team-seasons): slope 1.084, r 0.811 -> every rate x 1.084
 
 NEXT-SEASON CHECK (corr with next season on/off, minutes-weighted)
-  fit seasons                    all            raw next on/off   n=4436  rate 0.441 | value 0.457 | box part 0.405 | BPM 0.415 | raw on/off 0.406
-  fit seasons                    all            adj. next on/off  n=4436  rate 0.390 | value 0.390 | box part 0.351 | BPM 0.328 | raw on/off 0.350
-  fit seasons                    changed teams  raw next on/off   n=1625  rate 0.301 | value 0.314 | box part 0.283 | BPM 0.279 | raw on/off 0.251
-  fit seasons                    changed teams  adj. next on/off  n=1625  rate 0.253 | value 0.250 | box part 0.230 | BPM 0.190 | raw on/off 0.193
-  2024-25 -> 2025-26 (holdout)   all            raw next on/off   n= 319  rate 0.377 | value 0.397 | box part 0.347 | BPM 0.378 | raw on/off 0.343
-  2024-25 -> 2025-26 (holdout)   all            adj. next on/off  n= 319  rate 0.350 | value 0.350 | box part 0.315 | BPM 0.314 | raw on/off 0.304
-  2024-25 -> 2025-26 (holdout)   changed teams  raw next on/off   n= 104  rate 0.204 | value 0.208 | box part 0.243 | BPM 0.248 | raw on/off 0.056
-  2024-25 -> 2025-26 (holdout)   changed teams  adj. next on/off  n= 104  rate 0.166 | value 0.150 | box part 0.201 | BPM 0.169 | raw on/off 0.014
+  fit seasons                    all            raw next on/off   n=4350  rate 0.437 | value 0.455 | box part 0.400 | BPM 0.411 | raw on/off 0.407
+  fit seasons                    all            adj. next on/off  n=4350  rate 0.386 | value 0.387 | box part 0.345 | BPM 0.322 | raw on/off 0.349
+  fit seasons                    changed teams  raw next on/off   n=1587  rate 0.298 | value 0.311 | box part 0.281 | BPM 0.276 | raw on/off 0.248
+  fit seasons                    changed teams  adj. next on/off  n=1587  rate 0.247 | value 0.241 | box part 0.226 | BPM 0.184 | raw on/off 0.187
+  2024-25 -> 2025-26 (holdout)   all            raw next on/off   n= 310  rate 0.360 | value 0.373 | box part 0.332 | BPM 0.361 | raw on/off 0.322
+  2024-25 -> 2025-26 (holdout)   all            adj. next on/off  n= 310  rate 0.335 | value 0.327 | box part 0.302 | BPM 0.303 | raw on/off 0.285
+  2024-25 -> 2025-26 (holdout)   changed teams  raw next on/off   n= 102  rate 0.183 | value 0.170 | box part 0.218 | BPM 0.217 | raw on/off 0.063
+  2024-25 -> 2025-26 (holdout)   changed teams  adj. next on/off  n= 102  rate 0.157 | value 0.127 | box part 0.187 | BPM 0.161 | raw on/off 0.039
 
 ALL-NBA OVERLAP (sanity check, never a target) - our 1st+2nd teams vs real 1st/2nd/3rd
-  2015-16  1st on real 1st 3/5 · ours on real 1st/2nd  8/10 · on any All-NBA  8/10   1st: Stephen Curry, Chris Paul, LeBron James, Draymond Green, DeAndre Jordan
-  2016-17  1st on real 1st 2/5 · ours on real 1st/2nd  7/10 · on any All-NBA  8/10   1st: Stephen Curry, James Harden, LeBron James, Giannis Antetokounmpo, Nikola Jokić
-  2017-18  1st on real 1st 3/5 · ours on real 1st/2nd  5/10 · on any All-NBA  8/10   1st: James Harden, Stephen Curry, LeBron James, Giannis Antetokounmpo, Anthony Davis
-  2018-19  1st on real 1st 4/5 · ours on real 1st/2nd  8/10 · on any All-NBA  9/10   1st: James Harden, Stephen Curry, Giannis Antetokounmpo, Paul George, Anthony Davis
-  2019-20  1st on real 1st 2/5 · ours on real 1st/2nd  8/10 · on any All-NBA  9/10   1st: James Harden, Damian Lillard, Giannis Antetokounmpo, Kawhi Leonard, Nikola Jokić
-  2020-21  1st on real 1st 3/5 · ours on real 1st/2nd  7/10 · on any All-NBA  9/10   1st: Stephen Curry, Damian Lillard, Giannis Antetokounmpo, Jimmy Butler III, Nikola Jokić
-  2021-22  1st on real 1st 2/5 · ours on real 1st/2nd  5/10 · on any All-NBA  6/10   1st: Trae Young, Stephen Curry, Kevin Durant, Jayson Tatum, Nikola Jokic
+  2015-16  1st on real 1st 2/5 · ours on real 1st/2nd  8/10 · on any All-NBA  9/10   1st: Stephen Curry, Chris Paul, LeBron James, Kevin Durant, Draymond Green
+  2016-17  1st on real 1st 3/5 · ours on real 1st/2nd  7/10 · on any All-NBA  8/10   1st: Stephen Curry, James Harden, LeBron James, Kawhi Leonard, Kevin Durant
+  2017-18  1st on real 1st 3/5 · ours on real 1st/2nd  4/10 · on any All-NBA  7/10   1st: James Harden, Stephen Curry, Kevin Durant, Otto Porter Jr., LeBron James
+  2018-19  1st on real 1st 4/5 · ours on real 1st/2nd  8/10 · on any All-NBA  9/10   1st: James Harden, Stephen Curry, Paul George, Kevin Durant, Giannis Antetokounmpo
+  2019-20  1st on real 1st 2/5 · ours on real 1st/2nd  7/10 · on any All-NBA  8/10   1st: James Harden, Damian Lillard, Kawhi Leonard, Jimmy Butler III, Giannis Antetokounmpo
+  2020-21  1st on real 1st 3/5 · ours on real 1st/2nd  6/10 · on any All-NBA  8/10   1st: Stephen Curry, Damian Lillard, Jimmy Butler III, Kawhi Leonard, Nikola Jokić
+  2021-22  1st on real 1st 2/5 · ours on real 1st/2nd  4/10 · on any All-NBA  5/10   1st: Trae Young, Stephen Curry, Jayson Tatum, Jimmy Butler III, Nikola Jokic
   2022-23  1st on real 1st 2/5 · ours on real 1st/2nd  6/10 · on any All-NBA  7/10   1st: Luka Doncic, Damian Lillard, Jimmy Butler III, Jayson Tatum, Nikola Jokic
-  2023-24  1st on real 1st 3/5 · ours on real 1st/2nd  5/10 · on any All-NBA  7/10   1st: Shai Gilgeous-Alexander, Luka Doncic, LeBron James, Kawhi Leonard, Nikola Jokic
-  2024-25  1st on real 1st 3/5 · ours on real 1st/2nd  5/10 · on any All-NBA  6/10   1st: Shai Gilgeous-Alexander, Tyrese Haliburton, Giannis Antetokounmpo, Jimmy Butler III, Nikola Jokic
-  2025-26  1st on real 1st 3/5 · ours on real 1st/2nd  6/10 · on any All-NBA  7/10   1st: Shai Gilgeous-Alexander, Luka Doncic, Kawhi Leonard, Giannis Antetokounmpo, Nikola Jokic
-  fit seasons 37: 1st-on-1st 55%, ours on real 1st/2nd 60%, on any All-NBA 72%
+  2023-24  1st on real 1st 3/5 · ours on real 1st/2nd  6/10 · on any All-NBA  7/10   1st: Shai Gilgeous-Alexander, Luka Doncic, Kawhi Leonard, Jimmy Butler III, Nikola Jokic
+  2024-25  1st on real 1st 2/5 · ours on real 1st/2nd  5/10 · on any All-NBA  6/10   1st: Shai Gilgeous-Alexander, Tyrese Haliburton, Jimmy Butler III, Pascal Siakam, Nikola Jokic
+  2025-26  1st on real 1st 3/5 · ours on real 1st/2nd  6/10 · on any All-NBA  7/10   1st: Shai Gilgeous-Alexander, Luka Doncic, Kawhi Leonard, Trey Murphy III, Nikola Jokic
+  fit seasons 37: 1st-on-1st 51%, ours on real 1st/2nd 55%, on any All-NBA 68%
   hold seasons 1: 1st-on-1st 60%, ours on real 1st/2nd 60%, on any All-NBA 70%
