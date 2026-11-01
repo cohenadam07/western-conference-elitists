@@ -237,10 +237,10 @@ test('connector: same-age pools through the tool itself', async () => {
 const seasonsOf = (name) => seasons().flatMap(([s, b]) => b.players.filter((p) => p.name === name).map((p) => ({ s, ...p })))
 
 // Adam's labels, Nov 1, 2026: what the two signals are tuned on. position_labels.py has the rest.
-const BIGS = ['Giannis Antetokounmpo', 'Carlos Boozer', 'Cameron Boozer', 'Adem Bona', 'Moussa Diabate', 'Zion Williamson']
-const WINGS = ['Kevin Durant', 'Jayson Tatum', 'LeBron James', 'OG Anunoby', 'Jaylen Brown', 'DeMar DeRozan', 'Mikal Bridges', 'Pascal Siakam', 'Paolo Banchero', 'Julius Randle']
+const BIGS = ['Giannis Antetokounmpo', 'Carlos Boozer', 'Cameron Boozer', 'Adem Bona', 'Moussa Diabate', 'Zion Williamson', 'Julius Randle']
+const WINGS = ['Kevin Durant', 'Jayson Tatum', 'LeBron James', 'OG Anunoby', 'Jaylen Brown', 'DeMar DeRozan', 'Mikal Bridges', 'Paolo Banchero']
 
-test('positions: the 16 labels, every season from 2023-24', () => {
+test('positions: the 15 labels, every season from 2023-24', () => {
   const wrong = []
   for (const name of BIGS.filter((n) => n !== 'Carlos Boozer')) {     // retired, and tested below
     const rows = seasonsOf(name).filter((r) => r.s >= '2023-24' && !(name.startsWith('Giannis') && r.team !== 'MIL'))

@@ -67,6 +67,12 @@ assert abs(PL.pooled_score({"2026-27": [0.41, 187.0]}, "2026-27", None) - 0.41) 
 assert abs(PL.pooled_score({"2026-27": [0.2, 100.0], "2025-26": [0.8, 900.0]}, "2026-27") - (0.2 * 100 + 0.8 * 300) / 400) < 1e-9
 assert PL.pooled_score({"2026-27": [None, 100.0]}, "2026-27") is None
 
+# career to date: no later season counts, and it carries 80% of the score
+seasons = {"2024-25": [1.0, 2000.0], "2025-26": [0.2, 2000.0], "2026-27": [0.9, 2000.0]}
+assert abs(PL.career_score(seasons, "2025-26") - 0.6) < 1e-9
+assert abs(PL.big_score(seasons, "2025-26") - (0.8 * 0.6 + 0.2 * 0.2)) < 1e-9
+assert PL.big_score({"2026-27": [None, 100.0]}, "2026-27") is None
+
 # one man's shares from what four known men leave open: a center beside four others
 mates = {2: [100, 0, 0, 0, 0], 3: [0, 100, 0, 0, 0], 4: [0, 0, 100, 0, 0], 5: [0, 0, 0, 100, 0]}
 doc = dict(players=[[1, "A"], [2, "B"], [3, "C"], [4, "D"], [5, "E"]], units=[[[0, 1, 2, 3, 4], 3600, [], [], []]], games=[])

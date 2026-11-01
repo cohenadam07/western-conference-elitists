@@ -15,14 +15,14 @@ The rule has two signals, where his minutes are and how he plays:
 
     Guard    PG + SG >= 60
     Big      C >= a third
-    Big      PF + C >= 60 and the big score >= 0.52
+    Big      PF + C >= 60 and the big score >= 0.43
     Wing     PF + C >= 60 under that score, or SF + PF >= 60
     else     a true combo: he keeps today's label and goes on the review list
 
 Slots alone cannot draw this line. Julius Randle and Paolo Banchero are at PF + C 100, the same as
 Giannis Antetokounmpo and Zion Williamson, and the difference is what they do there. A first version
 of this rule stopped at the slots (C a third, or PF + C 90, or 80 with C 20) and made bigs of
-Banchero, Randle, Siakam, Anunoby and Durant.
+Banchero, Siakam, Anunoby and Durant.
 
 The big score says how he plays, on a scale where 0 is a season's average wing and 1 its average
 big (SCORE_WEIGHTS): rebounds, blocks, rim defense, shots at the rim, points in the paint, dunks, a
@@ -31,16 +31,23 @@ the share of his matchups that are on bigs (seed/matchup_bigs.json, `matchups` b
 without a stat is scored on the ones it has. The averages are that season's, so a 1999 power forward
 is held to 1999.
 
-Adam set the labels it is tuned on (bigs: Giannis in his Milwaukee seasons at the 4-5, Carlos and
-Cameron Boozer, Adem Bona, Moussa Diabate, Zion Williamson; wings: Durant, Tatum, LeBron James,
-Anunoby, Jaylen Brown, DeRozan, Bridges, Siakam, Banchero, Randle). From 2023-24 on every threshold
-from 0.48 to 0.58 gets all 16 right, Banchero's 0.47 under it and Williamson's 0.60 over. 0.52 misses
-least when the weights are shaken by 40%. C >= a third stays a rule of its own, so a wing's season
-really spent at center is a Big: Durant's 2020-21 (C 45) and LeBron's 2021-22 (C 50).
+The score is 80% his career to date and 20% his recent play, because what a player is moves more
+slowly than one season's box score, and no later season counts. One season at a time, Adam's labels
+can't be met: Randle and Banchero are nearly the same player (9,000 random weightings, 2 separated
+them, by 0.002), and what differs is that Randle's career runs through years of playing inside.
 
-A young season's score is pooled like his estimate: with his prior seasons, up to 400 minutes, and
-for a rookie with his Draft Savant position (a big 1, anyone else 0) for the minutes he doesn't have
-yet. 187 minutes of Cameron Boozer score 0.41; pooled, 0.72.
+Adam set the labels it is tuned on (bigs: Giannis in his Milwaukee seasons at the 4-5, Carlos and
+Cameron Boozer, Adem Bona, Moussa Diabate, Zion Williamson, Randle; wings: Durant, Tatum, LeBron
+James, Anunoby, Jaylen Brown, DeRozan, Bridges, Banchero). From 2023-24 on 80% has the widest gap
+between them, Banchero's 0.40 under Randle's 0.47, and 0.43 sits in it; with the weights shaken by
+40% it holds in 290 of 300 draws. Holding each player out and tuning on the rest calls 19 of 24
+seasons right, and the five misses are Randle's four and Cameron Boozer's: Randle's label is not one
+the others imply. C >= a third stays a rule of its own, so a wing's season really spent at center is
+a Big: Durant's 2020-21 (C 45) and LeBron's 2021-22 (C 50).
+
+The recent part of a young season is pooled like his estimate: with his prior seasons, up to 400
+minutes, and for a rookie with his Draft Savant position (a big 1, anyone else 0) for the minutes he
+doesn't have yet.
 
 The archive pass writes seed/big_scale.json (each season's averages and every player-season's score)
 for the nightly refresh, which scores the season in progress against the last finished season.
@@ -83,7 +90,8 @@ SLOTS = ["PG", "SG", "SF", "PF", "C"]
 GROUP_MIN = 60.0
 BIG_MIN_C = 100 / 3
 BIG_MIN_45 = 60.0          # PF + C: mostly at the 4-5
-BIG_SCORE = 0.52           # tuned on Adam's labels, see the docstring
+BIG_SCORE = 0.43           # tuned on Adam's labels, see the docstring
+SCORE_CAREER = 0.8         # the score's share that is his career to date
 SCORE_WEIGHTS = dict(reb75=2.0, blk=1.5, rim=1.0, ppaint=1.0, rimfreq=1.0, dunk75=0.5, tp3r=2.0,
                      height=0.5, match=2.0)
 SCORE_EXT = ("rimfreq", "dunk75")   # these live in savant-ext/s, the rest on the card
@@ -185,6 +193,25 @@ def pooled_score(seasons, season, draft_pos=None):
         total += (1.0 if draft_pos == "Big" else 0.0) * (MIN_MINUTES - used)
         used = MIN_MINUTES
     return total / used
+
+
+def career_score(seasons, season):
+    """His career to date, by minutes. No later season counts."""
+    total = used = 0.0
+    for s, (score, minutes) in seasons.items():
+        if s <= season and score is not None and minutes:
+            total += score * minutes
+            used += minutes
+    return total / used if used else None
+
+
+def big_score(seasons, season, draft_pos=None):
+    """The score the rule reads: his career to date, blended with his recent play."""
+    recent = pooled_score(seasons, season, draft_pos)
+    career = career_score(seasons, season)
+    if recent is None or career is None:
+        return recent
+    return SCORE_CAREER * career + (1 - SCORE_CAREER) * recent
 
 
 def draft_pos_of(draft, name, season):
@@ -382,7 +409,7 @@ def apply_season(season, players, seed=SEED, hist=None, public=None, ext=None):
         mp = (((p.get("m") or {}).get("minshare") or {}).get("season") or {}).get("n")
         seasons = dict(scale["scores"].get(str(p["id"])) or {})
         seasons[season] = [raw_score(features(p, (ext or {}).get(p["id"])), refs), float(mp or 0)]
-        return pooled_score(seasons, season, draft_pos_of(draft, p["name"], season))
+        return big_score(seasons, season, draft_pos_of(draft, p["name"], season))
 
     changed = 0
     known, none = {}, []
@@ -509,7 +536,7 @@ def cmd_archive(public, report):
             own = hist.get(p["id"]) if isinstance(p.get("id"), int) else None
             sc = None
             if isinstance(p.get("id"), int) and season >= "1996-97":
-                sc = pooled_score(scores.get(str(p["id"])) or {}, season, draft_pos_of(draft, p["name"], season))
+                sc = big_score(scores.get(str(p["id"])) or {}, season, draft_pos_of(draft, p["name"], season))
             res = label_row(p, own, season, score=sc)
             for tally, q, lab in ((before, q_before, res["today"]), (after, q_after, res["pos"])):
                 tally[lab] = tally.get(lab, 0) + 1
