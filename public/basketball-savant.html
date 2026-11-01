@@ -6899,10 +6899,16 @@ const XRENDER={
     const tot=d.reduce(function(a,b){return a+b;},0)||1;
     return '<div class="xp-stack">'+d.map(function(v,i){return v?'<span style="flex:'+v+';background:'+cols[i]+'" title="'+lab[i]+' '+v+'%">'+(v>=8?lab[i]+' '+v+'%':'')+'</span>':'';}).join('')+'</div>'
       +'<div class="pt-note">'+lab.map(function(l,i){return l+' '+Math.round(100*d[i]/tot)+'%';}).join(' · ')+' of his minutes, estimated from the lineups he played in.'
-      +(cur&&cur.posx?' A young season, so this pools '+cur.posx.from+' through '+curSeason+' ('+cur.posx.mp.toLocaleString()+' minutes).':'')
+      +(cur&&cur.posx?' A young season, so this pools '+cur.posx.from+' through '+curSeason+' ('+cur.posx.mp.toLocaleString()+' minutes).'+peOwnNote(lab):'')
       +' His '+(cur?cur.pos:'position')+' label is read from this.</div>';
   }
 };
+// a pooled label's panel shows the pool; what this season alone says goes beside it
+function peOwnNote(lab){
+  const own=cur?(extPanelsOf(cur.id,curSeason)||{}).pe:null;
+  if(!own||!own.some(Boolean)) return '';
+  return ' This season alone: '+lab.map(function(l,i){return own[i]?l+' '+own[i]+'%':'';}).filter(Boolean).join(', ')+'.';
+}
 function renderXPanels(){
   const el=document.getElementById('xpan'); if(!el) return;
   let pan=cur?extPanelsOf(cur.id,curSeason):null;

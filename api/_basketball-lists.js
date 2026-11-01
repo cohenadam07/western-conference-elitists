@@ -406,10 +406,13 @@ export async function playerSplits({ player, season, view = 'play_types', teamma
     }
     const { data, lines } = describePanel(key, pd)
     const what = ((meta.panels || {})[key] || {}).what
-    const basis = pooled ? `A young season, so this pools ${r.posx.from} through ${s} (${r.posx.mp} minutes).` : null
+    const SLOTS = ['PG', 'SG', 'SF', 'PF', 'C']
+    const own = pooled && d && d.pe && d.pe.some(Boolean) ? d.pe : null
+    const ownText = own ? ` This season alone: ${SLOTS.map((l, i) => (own[i] ? `${l} ${own[i]}%` : '')).filter(Boolean).join(', ')}.` : ''
+    const basis = pooled ? `A young season, so this pools ${r.posx.from} through ${s} (${r.posx.mp} minutes).${ownText}` : null
     if (key === 'pe') lines.push(`${basis ? `${basis} ` : ''}His ${r.pos} label is read from this.`)
     const text = [`${who.name}, ${s}: ${title}`, ...lines, ...(what ? ['', what] : []), '', `Card: ${base.url}`, `Source: ${SOURCE}.`]
-    return { structured: { ...base, breakdown: { title, data, ...(pooled ? { pooled_from: r.posx.from, minutes: r.posx.mp } : {}) } }, text: text.join('\n') }
+    return { structured: { ...base, breakdown: { title, data, ...(pooled ? { pooled_from: r.posx.from, minutes: r.posx.mp, ...(own ? { this_season: Object.fromEntries(SLOTS.map((l, i) => [l, own[i]])) } : {}) } : {}) } }, text: text.join('\n') }
   }
   if (view === 'play_types') {
     // The cutoffs travel with the data: seasons/<season>.json carries play_types for the

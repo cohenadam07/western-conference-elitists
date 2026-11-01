@@ -162,6 +162,15 @@ def main(season=None):
     # written (they need minutes share for their pool).
     n = attach_value_bars(season, players)
     print(f"  value bars on {n}/{len(players)} players")
+    # A run without Basketball Reference keeps what the last good run had (br_keep.py). Before the
+    # passes below, because defender difficulty is built on DBPM.
+    import br_keep
+    last_good = br_keep.last_good(season)
+    if n == 0:
+        kept = br_keep.keep_value_bars(players, last_good)
+        print(f"  value bars: none from Basketball Reference, {kept} players keep the last good run's")
+        if kept:
+            E.STALE_USED.append(f"BasketballReference advanced: value bars on {kept} players from the run of {last_good['generated']}")
     import patch_context_bars, inject_ddiff
     n = patch_context_bars.apply_season(season, players)
     print(f"  context bars on {n}/{len(players)} players")
@@ -205,6 +214,12 @@ def main(season=None):
         XE.apply_live(season, players)
     except Exception as e:
         print(f"  ext stats: failed ({repr(e)[:120]})")
+    kept, stats, table_missing = br_keep.keep_br_stats(players, last_good)
+    if kept or stats:
+        print(f"  Basketball Reference play-by-play{' missing' if table_missing else ''}: "
+              f"{kept} estimates and {stats} players' counts kept from the last good run")
+    if table_missing and (kept or stats):
+        E.STALE_USED.append(f"BasketballReference play-by-play: {kept} estimates from the run of {last_good['generated']}")
     # Guard / Wing / Big from the position estimate, this season's where the ext pass got one.
     import position_labels as PL
     print(f"  position labels: {PL.apply_season(season, players)} moved off the career string")

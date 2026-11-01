@@ -663,7 +663,7 @@ export const tools = [
       },
       annotations: { title: 'Get an NBA player\'s Savant profile', ...READ_ONLY },
     },
-    run: ({ player, season, window, group }) => playerProfile({ player, season, window, group }),
+    run: ({ player, season, window, group, pool }) => playerProfile({ player, season, window, group, pool }),
   },
   {
     name: 'nba_all_savant_team',

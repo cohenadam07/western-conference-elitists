@@ -2,7 +2,8 @@
 //   npm run check:savant-cleanup
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, readdirSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { gunzipSync } from 'node:zlib'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -186,4 +187,56 @@ test('with/without: every stat has a settle point, and tracking is never shown a
   for (const x of r.rows) assert.ok(x.settles_at > 0, `${x.key} has no settle point`)
   assert.deepEqual(r.not_splittable.map((n) => n[0]), ['Tracking', 'Synergy', 'Hustle'])
   for (const k of ['drv', 'potast', 'defl', 'syn']) assert.ok(!r.rows.some((x) => x.key === k))
+})
+
+// ---- the connector's wrappers ---------------------------------------------------------------
+// A tool's `run` is what the connector calls. Calling playerProfile directly skips it, which is how
+// `pool` went missing from nba_get_player_profile with every check green.
+const MODULES = ['_basketball.js', '_basketball-lists.js', '_football.js', '_football-lists.js', '_football-games.js', '_ufc.js', '_coaching.js', '_bcoaching.js', '_draft.js', '_site.js', '_fantasy.js']
+
+test('connector: every input a tool declares reaches its handler', async () => {
+  const lost = []
+  let n = 0
+  for (const m of MODULES) {
+    const file = path.join(ROOT, 'api', m)
+    if (!existsSync(file)) continue
+    const { tools } = await import(file)
+    for (const tool of tools || []) {
+      const keys = Object.keys((tool.config && tool.config.inputSchema) || tool.inputSchema || {})
+      const src = tool.run.toString()
+      const named = src.match(/^(?:async\s*)?\(\{([^}]*)\}/)
+      n++
+      if (!named) continue                       // (args) => ...: everything goes through
+      const has = named[1].split(',').map((s) => s.split(/[:=]/)[0].trim()).filter(Boolean)
+      for (const k of keys) if (!has.includes(k)) lost.push(`${tool.name}: ${k}`)
+    }
+  }
+  assert.ok(n > 40, `only ${n} tools found`)
+  assert.deepEqual(lost, [])
+})
+
+test('connector: same-age pools through the tool itself', async () => {
+  const { tools } = await import(path.join(ROOT, 'api', '_basketball.js'))
+  const tool = tools.find((t) => t.name === 'nba_get_player_profile')
+  const std = await tool.run({ player: 'Victor Wembanyama', season: '2024-25', group: 'defense' })
+  assert.equal(std.structured.pools.selected, undefined)
+  for (const pool of ['same_age', 'same_age_position']) {
+    const { structured: s } = await tool.run({ player: 'Victor Wembanyama', season: '2024-25', group: 'defense', pool })
+    assert.equal(s.pools.selected.pool, pool)
+    assert.equal(s.pools.selected.age, 21)
+    assert.ok(s.stats.some((x) => x.pool_percentile != null))
+  }
+})
+
+test('the season in progress has its Basketball Reference data', () => {
+  const s = Object.keys(current.data)[0]
+  const panels = pub(`savant-ext/panels/${s}.json`).players
+  const rows = current.data[s].players
+  assert.ok(Object.values(panels).filter((p) => p.pe && p.pe.some(Boolean)).length / rows.length > 0.9, 'position estimates are missing')
+  for (const k of ['bpm', 'per', 'vorp']) assert.ok(rows.filter((p) => p.m[k] && p.m[k].season && p.m[k].season.v != null).length / rows.length > 0.8, `${k} is missing`)
+})
+
+test('pipeline: a run without Basketball Reference keeps the last good run', () => {
+  const out = execFileSync('python3', ['-W', 'ignore', path.join(ROOT, 'tools/savant-cleanup/keep.py')], { encoding: 'utf8' })
+  assert.match(out, /ok/)
 })
