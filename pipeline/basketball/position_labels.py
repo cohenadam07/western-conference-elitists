@@ -13,27 +13,42 @@ estimate panel), so the label now comes from that, per season, and the two canno
 The rule, on the shares of his minutes:
 
     Guard    PG + SG >= 60
-    Big      PF + C  >= 60, and C >= a third
-    forward  PF + C  >= 60, C under a third: today's label stands if it is Wing or Big, a Guard
-             becomes a Wing. The estimate can't tell a stretch four from a power forward.
+    Big      C >= a third, or PF + C >= 90, or PF + C >= 80 with C >= 20
+    forward  PF + C >= 60, under both of those: today's label stands if it is Wing or Big, a Guard
+             becomes a Wing
     Wing     SF + PF >= 60
     else     a true combo: he keeps today's label and goes on the review list
 
-The obvious version is PF + C >= 60 -> Big and SF alone -> Wing. Measured on 14,556 player-seasons
-(1996-97 to 2025-26) it moves 3,342 of them and takes the labels from 43/33/24 (Guard/Wing/Big) to
-37/15/41, with Banchero, Anunoby, Siakam and Dillon Brooks as bigs. The reason is what the site's
-Wing has always meant: today's Wings play 39% SF and 41% PF, today's Bigs 74% C, and the All-Savant
-Team is 2 guards, 2 wings and 1 big. So PF minutes alone do not make a big. A third of his minutes
-at center is the floor where Big's share of minutes lands on today's (21.6% against 22.8%; 15%
-gives 26.6, 50% gives 18.9), and it is near the 20% of all minutes that center is by construction.
+A player who lives at the 4 and the 5 is a Big. The first version asked for a third of his minutes
+at center, which left Giannis Antetokounmpo a Wing (PF 86, C 12) and would have done the same to
+every power forward like him. PF + C >= 60 alone goes the other way: it moves 3,342 player-seasons
+and takes the labels from 43/33/24 (Guard/Wing/Big) to 37/15/41, with Dillon Brooks a big.
 
-The forward zone is there because the floor alone turned 547 bigs into wings, Tim Duncan's 1997-98
-(PF 80, C 12) among them. Nothing in the estimate says that label was wrong, so it stays; the rule
-only moves a player when the estimate rules his label out. Setting BIG_MIN_C = 0 and
-WING_SLOTS = (2,) gives the obvious version back.
+90 is measured. On qualified players since 2009-10 with C under a third, against the same players'
+height, rebounds, blocks, three-point rate and rim defense on a scale of 0 for a wing and 1 for a
+big, the bands read: 40-80 PF + C about 0.05 to 0.24, 80-95 about 0.25 to 0.35, 95 and up 0.50. So
+the line is somewhere from 80 to 90, and DeMar DeRozan's 2021-22 (PF + C 89) puts it at the top of
+that: 89 keeps him a Wing, as a wing who spent one year at the 4. Stretch fours who stay there,
+like OG Anunoby's 95 and 92, are Bigs by this rule. PF + C alone can't finish the job, because Carlos
+Boozer's last season is 86 with C 24 and DeRozan's is 89 with C 8: a big has center minutes and a
+wing filling in at the 4 has none. So between 80 and 90 he needs a fifth of his minutes at center,
+which is center's share of all minutes by construction.
+
+The forward zone keeps what the estimate cannot settle, so the rule only moves a player when the
+estimate rules his label out. Setting BIG_MIN_45 to any number over 100 gives the first version
+back; BIG_MIN_C = 0 and WING_SLOTS = (2,) give the obvious one.
 
 60 is the example in the brief, and it holds up: 3.9% of player-seasons are left over as combos,
 against 1.0 at 50 and 16.5 at 70 on the group shares.
+
+A player with no estimate at all (a rookie on a night Basketball Reference has none for him) goes
+down a chain: his own estimate from the stints, then his Draft Savant position, then the listed
+one. A five has one of each position, so what the four men beside him leave unfilled is what he
+plays: stint_estimate() sums that over the units he played in, by seconds, which also credits him
+with the spot of whoever he came in for. Tested on 1,195 player-seasons (2023-24 to 2025-26, 400+
+minutes) by hiding his own estimate, the stints name Basketball Reference's label 81.7% of the time
+against 75.1% for the listed position, and they lean toward calling bigs wings. On the 145 rookies
+and second-year players: stints 85.5%, Draft Savant 84.8%, listed 75.9%.
 
 A season's own estimate needs 400 minutes. Under that it names the same group as his next full
 season about 77% of the time, over it 81-85%; below 400 there is no further decay (73-81% at any
@@ -60,9 +75,12 @@ SEED = os.path.join(HERE, "seed", "ext-br")
 SLOTS = ["PG", "SG", "SF", "PF", "C"]
 GROUP_MIN = 60.0
 BIG_MIN_C = 100 / 3
+BIG_MIN_45 = 90.0          # PF + C: measured, see the docstring
+BIG_MIN_45_C = (80.0, 20.0)  # or PF + C and C together
 WING_SLOTS = (2, 3)        # SF, PF
 MIN_MINUTES = 400          # a season's own estimate stands from here (see the docstring)
 COMBO_KEEP = 30.0          # a combo keeps today's label only if that group holds this much of him
+STINT_MIN_SECONDS = 1800   # lineup time a stint estimate needs: under this the listed position is as good
 
 
 def groups(pe):
@@ -78,7 +96,9 @@ def classify(pe, today=None):
     if g["Guard"] >= GROUP_MIN:
         return "Guard"
     if g["Big"] >= GROUP_MIN:
-        return "Big" if g["C"] >= BIG_MIN_C or today == "Big" else "Wing"
+        big = (g["C"] >= BIG_MIN_C or g["Big"] >= BIG_MIN_45
+               or (g["Big"] >= BIG_MIN_45_C[0] and g["C"] >= BIG_MIN_45_C[1]))
+        return "Big" if big or today == "Big" else "Wing"
     if g["Wing"] >= GROUP_MIN:
         return "Wing"
     return None
@@ -158,17 +178,116 @@ def label_row(p, hist_rows, season, own=None):
     return dict(today=today, pos=lab, src="pooled" if n > 1 else "season", combo=combo, pe=pe, mp=mp)
 
 
-def apply_season(season, players, seed=SEED, hist=None):
+def stint_estimate(doc, pid, known):
+    """His five shares from what the men beside him leave unfilled, or None. `doc` is a With/Without
+    team file (units of five with their seconds), `known` {id: five shares} for his teammates. A unit
+    with a man we know nothing about tells us nothing and is skipped."""
+    ids = [p[0] for p in doc["players"]]
+    totals, sec = [0.0] * 5, 0.0
+    for unit in doc["units"]:
+        five, seconds = [ids[i] for i in unit[0]], unit[1]
+        if pid not in five or seconds <= 0:
+            continue
+        mates = [known.get(x) for x in five if x != pid]
+        if any(m is None for m in mates):
+            continue
+        filled = [sum(100.0 * m[i] / (sum(m) or 1.0) for m in mates) for i in range(5)]
+        left = [max(0.0, 100.0 - x) for x in filled]
+        t = sum(left)
+        if t <= 0:
+            continue
+        for i in range(5):
+            totals[i] += seconds * 100.0 * left[i] / t
+        sec += seconds
+    if sec < STINT_MIN_SECONDS:
+        return None
+    return [x / sec for x in totals], sec
+
+
+def _ww_doc(public, team, season):
+    import gzip
+    try:
+        with gzip.open(os.path.join(public, "bcs", "ww", f"{team}-{season}.json.gz"), "rt") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return None
+
+
+def draft_positions(public):
+    """{normalized name: (draft year, Guard / Wing / Big)} from Draft Savant's prospects."""
+    from namematch import norm
+    try:
+        with open(os.path.join(public, "data.json")) as fh:
+            rows = json.load(fh).get("players") or []
+    except (OSError, ValueError):
+        return {}
+    out = {}
+    for r in rows:
+        if r.get("pos") in ("Guard", "Wing", "Big") and r.get("name"):
+            year = int(r.get("draft_year") or 0)
+            k = norm(r["name"])
+            if year >= out.get(k, (0, None))[0]:
+                out[k] = (year, r["pos"])
+    return out
+
+
+def public_dir():
+    return os.environ.get("SAVANT_PUBLIC") or os.path.join(HERE, "..", "..", "public")
+
+
+def apply_fallbacks(season, rows, known, public=None):
+    """`rows` have no estimate of any kind. Stints, then Draft Savant, then the listed label."""
+    from namematch import norm
+    public = public or public_dir()
+    draft = draft_positions(public)
+    first_year = int(season[:4]) - 1
+    docs, tally = {}, dict(stints=0, draft=0, listed=0)
+    for p in rows:
+        today = p.get("pos0") or p.get("pos")
+        team = p.get("team")
+        if team not in docs:
+            docs[team] = _ww_doc(public, team, season)
+        est = stint_estimate(docs[team], p["id"], known) if docs[team] else None
+        if est:
+            pe, sec = est
+            lab = classify(pe, today) or combo_label(pe, today)
+            p["pos"] = lab
+            p["posx"] = dict(pe=[round(x) for x in pe], mp=round(sec / 60), **{"from": season}, src="stints")
+            src = "stints"
+        else:
+            year, pos = draft.get(norm(p["name"]), (0, None))
+            lab = pos if pos and year >= first_year else today
+            p["pos"] = lab
+            src = "draft" if pos and year >= first_year else "listed"
+            if src == "draft":
+                p["pos_src"] = "draft"
+        if lab != today:
+            p["pos0"] = today
+        tally[src] += 1
+    return tally
+
+
+def apply_season(season, players, seed=SEED, hist=None, public=None):
     """The season in progress (refresh_current.py). `pe` is what ext_engine.br_pass left on the
-    rows; a night Basketball Reference doesn't answer falls back to prior seasons."""
+    rows, or br_keep.py carried over; a player with no estimate for this season falls back to his
+    prior seasons, and one with neither goes down apply_fallbacks()."""
     hist = hist if hist is not None else history(seed)
     changed = 0
+    known, none = {}, []
     for p in players:
         pe = p.get("pe")
         mp = (((p.get("m") or {}).get("minshare") or {}).get("season") or {}).get("n")
         own = (pe, float(mp or 0)) if pe and sum(pe) > 0 else None
-        if label_row(p, hist.get(p["id"]), season, own)["pos"] != p.get("pos0", p["pos"]):
+        res = label_row(p, hist.get(p["id"]), season, own)
+        if res["pe"] is None:
+            none.append(p)
+        else:
+            known[p["id"]] = res["pe"]
+        if res["pos"] != p.get("pos0", p["pos"]):
             changed += 1
+    if none:
+        tally = apply_fallbacks(season, none, known, public)
+        print(f"  position labels: {len(none)} with no estimate: {tally}")
     return changed
 
 
