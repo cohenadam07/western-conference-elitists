@@ -119,7 +119,7 @@ before(async () => {
   const { tools } = await import('../../api/_cbb.js')
   S = tools
   const mcp = new McpServer({ name: 't', version: '0' })
-  for (const t of tools) mcp.registerTool(t.name, t.config, async (a) => { const r = await t.run(a); return { content: [{ type: 'text', text: r.text }], structuredContent: r.structured } })
+  for (const t of tools) mcp.registerTool(t.name, t.config, async (a) => { try { const r = await t.run(a); return { content: [{ type: 'text', text: r.text }], structuredContent: r.structured } } catch (e) { return { isError: true, content: [{ type: "text", text: e.message }] } } })
   const [a, b] = InMemoryTransport.createLinkedPair()
   client = new Client({ name: 'c', version: '0' })
   await Promise.all([mcp.connect(a), client.connect(b)])
@@ -172,6 +172,27 @@ test('the raw archive stays off GitHub, and rung 2 travels encrypted', () => {
   assert.ok(!/archive\.py|gh release/.test(yml), 'the workflow must not upload the archive')
   assert.ok(!/gh", "release/.test(readFileSync(path.join(ROOT, 'pipeline/college/archive.py'), 'utf8')), 'archive.py must not upload')
   assert.match(readFileSync(path.join(ROOT, 'pipeline/college/mac_pull.sh'), 'utf8'), /openssl enc -aes-256-cbc/)
+})
+
+test('names work wherever a tool takes one, the way a person asks', async () => {
+  const s = idx.default_season
+  const d = read(`s/${s}.json`)
+  const t = read(`teams/${s}.json`).teams[0]
+  const p = d.players.find((x) => x[M.COL.qual])
+  const name = p[M.COL.name]
+  assert.equal((await call('cbb_get_player_profile', { player: name, season: s })).player.name, name)
+  assert.ok((await call('cbb_get_player_profile', { player: name.toLowerCase() })).player.id)
+  assert.equal((await call('cbb_player_career', { player: name })).player.name, name)
+  assert.equal((await call('cbb_player_splits', { player: name, season: s })).player.name, name)
+  assert.equal((await call('cbb_team_profile', { team: t.name, season: s })).team.id, t.id)
+  const lu = await call('cbb_lineups', { team: t.name, season: s, size: 5 })
+  assert.equal(lu.team, t.name)
+  assert.ok(lu.units.length >= 1)
+  const man = lu.units[0].players[0]
+  assert.ok((await call('cbb_lineups', { team: t.name, season: s, size: 5, with: [man] })).with_without.possessions > 0)
+  assert.equal((await call('cbb_data', { table: 'units', season: s, team: t.name, limit: 2 })).count, 2)
+  const miss = await client.callTool({ name: 'cbb_get_player_profile', arguments: { player: 'Zzzz Qqqq' } })
+  assert.ok(miss.isError || /No men/.test(miss.content[0].text), 'an unknown name says so')
 })
 
 test('every tool answers', async () => {

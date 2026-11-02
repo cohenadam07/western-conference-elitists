@@ -47,7 +47,7 @@ async function findPlayer(q) {
   const rows = prepare(d.players.map((p) => ({ p, name: p[1] })))
   const hits = topTier(rank(rows, q, (a, b) => String(b.p[3]).localeCompare(a.p[3]) || b.p[5] - a.p[5]))
   if (!hits.length) throw new SavantError(`No men's D1 player found for "${q}". Try cbb_search_players.`)
-  return hits[0].row.p
+  return hits[0].p
 }
 async function findTeam(q) {
   const d = await search()
@@ -55,7 +55,7 @@ async function findTeam(q) {
   if (hit) return hit
   const hits = topTier(rank(prepare(d.teams.map((t) => ({ t, name: t[1] }))), q))
   if (!hits.length) throw new SavantError(`No D1 team found for "${q}".`)
-  return hits[0].row.t
+  return hits[0].t
 }
 const tname = async (id) => { const d = await search(); return (d.teams.find((t) => t[0] === id) || [])[1] || 'Non-D1' }
 
