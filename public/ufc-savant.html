@@ -375,13 +375,7 @@ body.champ-t3 .log-table .res.W{box-shadow:0 0 8px rgba(212,175,55,.6)}
 /* ---------------------------------------------------------------- home */
 .home{display:none}
 body.home-open .home{display:flex}
-.home{position:relative;min-height:100vh;flex-direction:column;overflow:hidden}
-.home-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px 28px;position:relative;z-index:3}
-.home-nav-home{font-family:var(--disp);font-weight:800;font-size:22px;letter-spacing:.05em;text-transform:uppercase;text-decoration:none}
-.home-nav-home span{color:var(--red)}
-.home-nav-links{display:flex;flex-wrap:wrap;gap:4px 16px}
-.home-nav-links a{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none}
-.home-nav-links a:hover{color:var(--gold)}
+.home{position:relative;min-height:calc(100vh - var(--wce-nav-h,60px));min-height:calc(100dvh - var(--wce-nav-h,60px));flex-direction:column;overflow:hidden}
 .home-glow{position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 30%,rgba(210,10,17,.22),transparent 65%);pointer-events:none}
 .home-cage{position:absolute;inset:0;pointer-events:none;opacity:.5;
   background-image:linear-gradient(60deg,rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(-60deg,rgba(255,255,255,.035) 1px,transparent 1px);
@@ -528,23 +522,11 @@ body.home-open .home{display:flex}
 .gapnote[hidden]{display:none}
 .src{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-top:6px}
 </style>
+<script src="/wce-nav.js" defer></script>
 </head>
 <body class="home-open">
+<wce-nav style="display:block;min-height:60px"></wce-nav>
 <div class="home" id="home">
-  <nav class="home-nav" aria-label="WCE Hoops navigation">
-    <a class="home-nav-home" href="/">WCE <span>Hoops</span></a>
-    <div class="home-nav-links">
-        <a href="/basketball-savant.html">Basketball Savant</a>
-        <a href="/draft-savant.html">Draft Savant</a>
-        <a href="/football-savant.html">Football Savant</a>
-        <a href="/coaching-savant.html">Coaching Savant</a>
-        <a href="/dynasty">Dynasty</a>
-        <a href="/rankings">Big Board</a>
-        <a href="/articles">Analysis</a>
-        <a href="/news">News</a>
-        <a href="/about">About</a>
-    </div>
-  </nav>
   <div class="home-glow" aria-hidden="true"></div>
   <div class="home-cage" aria-hidden="true"></div>
   <div class="home-inner">

@@ -49,3 +49,8 @@ body{margin:0;padding-top:env(safe-area-inset-top)}
   .meta a,a.meta{display:inline-block;padding:8px 0}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* The site ribbon (<wce-nav>, public/wce-nav.js) sits above the app: the app fills the window
+   under it, and the sidebar sticks just below it instead of under it. */
+.app{min-height:calc(100vh - var(--wce-nav-h,60px))}
+@media (min-width:761px){html .nav{top:var(--wce-nav-h,0px)}}

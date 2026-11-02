@@ -7,7 +7,7 @@
 <meta name="description" content="Baseball Savant-style profiles for every men's Division I player: opponent-adjusted percentiles, shot zones, RAPM, lineups and team ratings, refreshed after every night of games.">
 <link rel="canonical" href="https://wcehoops.com/college-basketball-savant.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600&display=swap">
 <style>
 /* Layout: one app, three directions from Taste Skill's app-screen library (Framed sheet, Achromatic ledger, Data terminal).
    Same data and screens in each; the shell, palette, type and density change. Colour goes on data, not chrome. */
@@ -294,9 +294,16 @@ body{margin:0;padding-top:env(safe-area-inset-top)}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
+/* The site ribbon (<wce-nav>, public/wce-nav.js) sits above the app: the app fills the window
+   under it, and the sidebar sticks just below it instead of under it. */
+.app{min-height:calc(100vh - var(--wce-nav-h,60px))}
+@media (min-width:761px){html .nav{top:var(--wce-nav-h,0px)}}
+
 </style>
+<script src="/wce-nav.js" defer></script>
 </head>
 <body>
+<wce-nav style="display:block;min-height:60px"></wce-nav>
 <div class="app">
   <a class="brand" href="#home" aria-label="College Basketball Savant, home">
     <svg class="mark" viewBox="0 0 28 28" aria-hidden="true"><rect class="mk-bg" x="0" y="0" width="28" height="28" rx="7"/><line class="mk-tr" x1="6" y1="10" x2="22" y2="10"/><line class="mk-tr" x1="6" y1="18" x2="22" y2="18"/><circle class="mk-b" cx="10" cy="10" r="2.6"/><circle class="mk-a" cx="18.5" cy="18" r="3.2"/></svg>

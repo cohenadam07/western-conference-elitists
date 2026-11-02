@@ -218,28 +218,11 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .export-shell .sc-foot b{color:var(--navy)}
 
 /* ===== Home screen (branded landing) — Draft Savant ===== */
-.home{position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;padding:66px 24px 30px;
+.home{position:relative;min-height:calc(100vh - var(--wce-nav-h,60px));min-height:calc(100dvh - var(--wce-nav-h,60px));overflow:hidden;padding:30px 24px 30px;
   flex-direction:column;align-items:center;justify-content:center;display:none;
   background:radial-gradient(125% 95% at 50% -12%, #F6F5F2 0%, var(--bg) 52%, #E5E3DF 100%)}
 body.home-open .home{display:flex}
 body.home-open .wrap{display:none}
-.home-nav{position:absolute;top:0;left:0;right:0;z-index:7;display:flex;align-items:center;
-  justify-content:space-between;gap:18px;padding:15px 26px;
-  opacity:0;animation:home-rise .7s .02s cubic-bezier(.2,.7,.2,1) forwards}
-.home-nav-home{font-family:var(--body);font-weight:800;font-size:13px;letter-spacing:.07em;
-  text-transform:uppercase;color:var(--ink);text-decoration:none;flex:none;white-space:nowrap}
-.home-nav-home span{color:var(--navy)}
-.home-nav-home:hover{opacity:.7}
-.home-nav-links{display:flex;align-items:center;gap:24px;overflow-x:auto;scrollbar-width:none;
-  -webkit-overflow-scrolling:touch}
-.home-nav-links::-webkit-scrollbar{display:none}
-.home-nav-links a{position:relative;font-family:var(--mono);font-size:11.5px;font-weight:500;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none;
-  white-space:nowrap;padding:4px 0;transition:color .18s}
-.home-nav-links a::after{content:"";position:absolute;left:0;bottom:0;height:1.5px;width:0;
-  background:var(--navy);transition:width .22s ease}
-.home-nav-links a:hover{color:var(--ink)}
-.home-nav-links a:hover::after{width:100%}
 .home-court{position:absolute;left:50%;top:54%;width:min(155vh,1500px);height:min(155vh,1500px);
   transform:translate(-50%,-50%);pointer-events:none;opacity:.06;color:var(--navy)}
 .home-court svg{width:100%;height:100%;transform-origin:center;animation:home-breathe 16s ease-in-out infinite}
@@ -339,11 +322,7 @@ body.home-open .wrap{display:none}
 .brand-word{cursor:pointer}
 @keyframes home-rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @media (max-width:560px){
-  .home{padding:52px 16px 22px}
-  .home-nav{padding:11px 15px;gap:12px}
-  .home-nav-home{font-size:12px}
-  .home-nav-links{gap:16px}
-  .home-nav-links a{font-size:11px;letter-spacing:.1em}
+  .home{padding:22px 16px 22px}
   .home-eyebrow{flex-wrap:wrap;justify-content:center;font-size:10.5px;letter-spacing:.16em;
     margin-bottom:18px;gap:8px;line-height:1.5}
   .home-title{font-size:clamp(38px,12.5vw,66px)}
@@ -364,23 +343,11 @@ body.home-open .wrap{display:none}
   .home-chip.skel::after{animation:none}
 }
 </style>
+<script src="/wce-nav.js" defer></script>
 </head>
 <body class="home-open">
+<wce-nav style="display:block;min-height:60px"></wce-nav>
 <div class="home" id="home">
-  <nav class="home-nav" aria-label="WCE Hoops navigation">
-    <a class="home-nav-home" href="/">WCE <span>Hoops</span></a>
-    <div class="home-nav-links">
-        <a href="/basketball-savant.html">Basketball Savant</a>
-        <a href="/football-savant.html">Football Savant</a>
-        <a href="/coaching-savant.html">Coaching Savant</a>
-        <a href="/dynasty">Dynasty</a>
-        <a href="/rankings">Big Board</a>
-        <a href="/comp-chain">Comp Chain</a>
-        <a href="/articles">Analysis</a>
-        <a href="/news">News</a>
-        <a href="/about">About</a>
-    </div>
-  </nav>
   <div class="home-court" aria-hidden="true">
     <svg viewBox="0 0 400 460" fill="none" stroke="currentColor" stroke-width="1.4">
       <rect x="8" y="8" width="384" height="444" rx="6"/>
