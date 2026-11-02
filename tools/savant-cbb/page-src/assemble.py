@@ -47,12 +47,14 @@ html = f"""<!doctype html>
 <meta name="description" content="Baseball Savant-style profiles for every men's Division I player: opponent-adjusted percentiles, shot zones, RAPM, lineups and team ratings, refreshed after every night of games.">
 <link rel="canonical" href="https://wcehoops.com/college-basketball-savant.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600&display=swap">
 <style>
 {css}
 </style>
+<script src="/wce-nav.js" defer></script>
 </head>
 <body>
+<wce-nav style="display:block;min-height:60px"></wce-nav>
 <div class="app">
   <a class="brand" href="#home" aria-label="College Basketball Savant, home">
     {mark}
