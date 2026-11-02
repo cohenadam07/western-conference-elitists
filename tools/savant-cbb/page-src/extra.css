@@ -1,5 +1,7 @@
+body{margin:0;padding-top:env(safe-area-inset-top)}
 .roll{fill:none;stroke:var(--hi);stroke-width:2}
 .lgl{display:inline-block;width:14px;height:0;border-top:2px solid var(--hi);margin-right:6px;vertical-align:3px}
+.foot{max-width:82ch}
 .empty{color:var(--muted);padding:24px 0;margin:0}
 .who-h{display:flex;align-items:center;gap:14px;min-width:0}
 .hs{width:64px;height:64px;border-radius:50%;object-fit:cover;background:var(--raised);flex:none}

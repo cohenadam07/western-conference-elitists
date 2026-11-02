@@ -20,9 +20,18 @@ for line in css.split("\n"):
         continue
     out.append(line)
 css = "\n".join(out)
-css = re.sub(r"^(\s*)html\.dir-(ledger|terminal)[^,{]*,\s*", r"\1", css, flags=re.M)
-css = re.sub(r",\s*html\.dir-(ledger|terminal)[^,{]*", "", css)
-css = re.sub(r"^\s*html\.dir-(ledger|terminal)[^{]*\{[^}]*\}\s*$", "", css, flags=re.M)
+kept = []
+for line in css.split("\n"):
+    m = re.match(r"^(\s*)([^{}@]+)\{(.*)$", line)
+    if m and "dir-" in m.group(2):
+        sels = [x.strip() for x in m.group(2).split(",") if "dir-ledger" not in x and "dir-terminal" not in x]
+        if not sels:
+            continue
+        line = m.group(1) + ",".join(sels) + "{" + m.group(3)
+    if ".dirbar" in line:
+        continue
+    kept.append(line)
+css = "\n".join(kept)
 css = css.replace("html.dir-framed", "html")
 css = re.sub(r"--meta-bg[^;]*;--meta-fg[^;]*;--meta-on[^;]*;--meta-on-bg[^;]*;", "", css)
 css = css.replace("min-height:calc(100vh - 44px)", "min-height:100vh")

@@ -223,15 +223,10 @@ svg text{font-family:var(--font)}
 }
 @media (max-width:760px){
   .app{grid-template-columns:auto minmax(0,1fr);grid-template-rows:56px 1fr;grid-template-areas:"brand top" "main main"}
-
-
-
-
-
-
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:30;flex-direction:row;justify-content:space-around;align-items:stretch;gap:0;background:var(--surface);border-top:1px solid var(--border);border-right:0;border-bottom:0;padding:4px max(8px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+  .nav a{flex-direction:column;justify-content:center;gap:2px;height:auto;min-height:48px;width:auto;padding:4px 10px;font-size:11px;border-radius:8px;box-shadow:none}
   .wm small,.scope,.pname{display:none}
   .wm{font-size:15px}
-
   .brand{padding-right:6px}
   .top{padding-left:4px}
   .main{margin:0;border-radius:0;border-left:0;border-right:0;border-bottom:0}
@@ -245,11 +240,12 @@ svg text{font-family:var(--font)}
   .kpi:nth-child(4){border-left:1px solid var(--border)}
   .kpi:nth-child(n+3){border-top:1px solid var(--border)}
   .hide-s{display:none}
-  .dirbar .note{margin-left:0}
 }
 
+body{margin:0;padding-top:env(safe-area-inset-top)}
 .roll{fill:none;stroke:var(--hi);stroke-width:2}
 .lgl{display:inline-block;width:14px;height:0;border-top:2px solid var(--hi);margin-right:6px;vertical-align:3px}
+.foot{max-width:82ch}
 .empty{color:var(--muted);padding:24px 0;margin:0}
 .who-h{display:flex;align-items:center;gap:14px;min-width:0}
 .hs{width:64px;height:64px;border-radius:50%;object-fit:cover;background:var(--raised);flex:none}

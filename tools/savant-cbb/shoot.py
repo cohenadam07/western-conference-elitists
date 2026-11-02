@@ -20,8 +20,11 @@ def run(p, name, w, h, mobile):
     for label, h_ in views:
         pg.evaluate(f"location.hash='{h_}'")
         pg.wait_for_timeout(1400)
-        o = pg.evaluate("""()=>({scroll:document.documentElement.scrollWidth-document.documentElement.clientWidth,h1:(document.querySelector('h1')||{}).textContent,small:[...document.querySelectorAll('button,a,select,input')].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&r.height<24}).length})""")
+        o = pg.evaluate("""()=>({scroll:document.documentElement.scrollWidth-document.documentElement.clientWidth,h1:(document.querySelector('h1')||{}).textContent,sheet:Math.round(document.querySelector('.main').getBoundingClientRect().width),win:window.innerWidth,navpos:getComputedStyle(document.querySelector('.nav')).position,small:[...document.querySelectorAll('button,a,select,input')].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&r.height<24}).length})""")
         res[label] = o
+        if mobile:
+            assert o["sheet"] >= o["win"] - 2, f"{label}: the sheet is {o['sheet']} wide on a {o['win']} screen"
+            assert o["navpos"] == "fixed", "the phone nav is not the bottom bar"
         pg.screenshot(path=os.path.join(OUT, f"{name}-{label}.png"), full_page=label in ("player", "team"))
     print(name, json.dumps(res)[:900]); print(" errors:", errs[:6])
     b.close()
