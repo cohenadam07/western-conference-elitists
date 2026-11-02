@@ -1,33 +1,49 @@
 {
- "cut_guard_wing": 2.913,
- "cut_wing_big": 3.411,
- "shares": {
+ "box_mean": 2.624903555985023,
+ "box_sd": 0.5418549972737812,
+ "ht_mean": 77.46215052193591,
+ "ht_sd": 3.3356006857835285,
+ "trb_center": 15.244975739672142,
+ "weights": {
+  "box": 0.5,
+  "height": 0.3,
+  "listed": 0.2
+ },
+ "big_min_ht": 80,
+ "cut_guard_wing": -0.4108647500507773,
+ "cut_wing_big": 0.6883086738280035,
+ "shares_target": {
   "Wing": 0.3409090909090909,
   "Guard": 0.4068181818181818,
   "Big": 0.25227272727272726
  },
- "height_icpt": -7.359,
- "height_slope": 0.1285,
+ "shares": {
+  "Guard": 0.4068,
+  "Wing": 0.3409,
+  "Big": 0.2523
+ },
+ "agree": 0.8081,
+ "by_rule": 1401,
  "listed_vs_bucket": {
   "C": {
-   "Big": 0.857,
-   "Guard": 0.01,
-   "Wing": 0.134
+   "Big": 0.979,
+   "Guard": 0.0,
+   "Wing": 0.021
   },
   "F": {
-   "Big": 0.532,
-   "Guard": 0.028,
-   "Wing": 0.44
+   "Big": 0.564,
+   "Guard": 0.002,
+   "Wing": 0.434
   },
   "G": {
-   "Big": 0.022,
-   "Guard": 0.658,
-   "Wing": 0.32
+   "Big": 0.001,
+   "Guard": 0.688,
+   "Wing": 0.311
   },
   "NA": {
-   "Big": 0.262,
-   "Guard": 0.333,
-   "Wing": 0.405
+   "Big": 0.095,
+   "Guard": 0.143,
+   "Wing": 0.762
   },
   "PF": {
    "Big": 0.8,
@@ -36,8 +52,8 @@
   },
   "PG": {
    "Big": 0.0,
-   "Guard": 0.793,
-   "Wing": 0.207
+   "Guard": 0.931,
+   "Wing": 0.069
   },
   "SF": {
    "Big": 0.0,
@@ -45,252 +61,192 @@
    "Wing": 1.0
   },
   "SG": {
-   "Big": 0.111,
-   "Guard": 0.444,
-   "Wing": 0.444
+   "Big": 0.0,
+   "Guard": 0.333,
+   "Wing": 0.667
   }
  },
- "agree": 0.7748,
+ "agree_before": 0.7748,
  "borderline": [
   [
-   "Jalen Wilson",
-   "2022-23",
+   "Cam Morris III",
+   "2193",
+   80.0,
+   "F",
+   "Wing",
+   0.0,
+   "Wing/Big"
+  ],
+  [
+   "Josiah Sanders",
+   "38",
+   77.0,
+   "G",
+   "Guard",
+   0.0,
+   "Guard/Wing"
+  ],
+  [
+   "Adrian Wooley",
+   "97",
+   76.0,
+   "G",
+   "Guard",
+   0.001,
+   "Guard/Wing"
+  ],
+  [
+   "Jackson Hicke",
+   "163",
+   77.0,
+   "G",
+   "Wing",
+   0.001,
+   "Guard/Wing"
+  ],
+  [
+   "Ernest Shelton",
+   "2771",
+   77.0,
+   "G",
+   "Wing",
+   0.001,
+   "Guard/Wing"
+  ],
+  [
+   "Kaidon Rayfield",
+   "2636",
+   80.0,
+   "F",
+   "Wing",
+   0.001,
+   "Wing/Big"
+  ],
+  [
+   "Maguire Mitchell",
+   "85",
+   77.0,
+   "G",
+   "Wing",
+   0.001,
+   "Guard/Wing"
+  ],
+  [
+   "Nic Codie",
+   "251",
+   80.0,
+   "F",
+   "Wing",
+   0.002,
+   "Wing/Big"
+  ],
+  [
+   "John Squire",
+   "160",
+   80.0,
+   "F",
+   "Wing",
+   0.002,
+   "Wing/Big"
+  ],
+  [
+   "Nelson Lamizana",
+   "2154",
+   81.0,
+   "F",
    "Big",
-   3.42
+   0.003,
+   "Wing/Big"
   ],
   [
-   "Harrison Ingram",
-   "2023-24",
+   "Jalen Kampen",
+   "2117",
+   76.0,
+   "G",
    "Wing",
-   3.38
+   0.003,
+   "Guard/Wing"
   ],
   [
-   "Tevian Jones",
-   "2022-23",
-   "Guard",
-   2.89
-  ],
-  [
-   "Javan Johnson",
-   "2022-23",
-   "Guard",
-   2.9
-  ],
-  [
-   "Jaime Jaquez Jr.",
-   "2022-23",
-   "Wing",
-   3.39
-  ],
-  [
-   "Andrew Funk",
-   "2022-23",
-   "Wing",
-   2.93
-  ],
-  [
-   "Saint Thomas",
-   "2024-25",
-   "Wing",
-   2.92
-  ],
-  [
-   "Dylan Addae-Wusu",
-   "2023-24",
-   "Wing",
-   2.92
-  ],
-  [
-   "Joshua O'Garro",
-   "2025-26",
+   "Abdou Yadd",
+   "2529",
+   81.0,
+   "F",
    "Big",
-   3.42
+   0.003,
+   "Wing/Big"
   ],
   [
-   "Dejour Reaves",
-   "2024-25",
+   "Zion Obanla",
+   "2379",
+   80.0,
+   "G",
    "Wing",
-   2.92
+   0.003,
+   "Wing/Big"
   ],
   [
-   "Bryce Hopkins",
-   "2022-23",
+   "Kur Teng",
+   "127",
+   77.0,
+   "G",
    "Wing",
-   3.41
+   0.003,
+   "Guard/Wing"
   ],
   [
-   "John Blackwell",
-   "2025-26",
-   "Wing",
-   2.92
-  ],
-  [
-   "KJ Adams Jr.",
-   "2023-24",
+   "Lukas Walls",
+   "2515",
+   77.0,
+   "G",
    "Guard",
-   2.89
+   0.003,
+   "Guard/Wing"
   ],
   [
-   "John Blackwell",
-   "2024-25",
-   "Wing",
-   2.93
-  ],
-  [
-   "Gabe McGlothan",
-   "2023-24",
-   "Big",
-   3.42
-  ],
-  [
-   "Mason Falslev",
-   "2025-26",
-   "Wing",
-   2.93
-  ],
-  [
-   "Tylik Weeks",
-   "2025-26",
+   "Keishon Porter",
+   "339",
+   77.0,
+   "G",
    "Guard",
-   2.89
+   0.003,
+   "Guard/Wing"
   ],
   [
-   "Tim Finke",
-   "2022-23",
+   "Dasear Haskins",
+   "2603",
+   80.0,
+   "F",
    "Wing",
-   2.91
+   0.004,
+   "Wing/Big"
   ],
   [
-   "Jakobi Heady",
-   "2025-26",
+   "Amar Augillard",
+   "270",
+   77.0,
+   "G",
    "Wing",
-   2.93
+   0.004,
+   "Guard/Wing"
   ],
   [
-   "Antonio Reeves",
-   "2023-24",
+   "Jaden Daughtry",
+   "2368",
+   79.0,
+   "F",
    "Wing",
-   2.92
+   0.004,
+   "Wing/Big"
   ],
   [
-   "Tyler Thomas",
-   "2022-23",
-   "Wing",
-   2.94
-  ],
-  [
-   "Jayden Taylor",
-   "2023-24",
-   "Wing",
-   2.93
-  ],
-  [
-   "Brandin Podziemski",
-   "2022-23",
-   "Wing",
-   2.94
-  ],
-  [
-   "Quinten Post",
-   "2023-24",
-   "Big",
-   3.44
-  ],
-  [
-   "Joey Hauser",
-   "2022-23",
-   "Big",
-   3.42
-  ],
-  [
-   "Amar'e Marshall",
-   "2023-24",
-   "Wing",
-   2.94
-  ],
-  [
-   "Devin Tillis",
-   "2024-25",
-   "Wing",
-   3.4
-  ],
-  [
-   "LeJuan Watts",
-   "2024-25",
+   "J.R. Leonard",
+   "56",
+   76.0,
+   "G",
    "Guard",
-   2.91
-  ],
-  [
-   "Jomo Goings",
-   "2025-26",
-   "Wing",
-   2.93
-  ],
-  [
-   "Miles Barnstable",
-   "2025-26",
-   "Guard",
-   2.9
-  ],
-  [
-   "KJ Buffen",
-   "2022-23",
-   "Wing",
-   3.4
-  ],
-  [
-   "Devontae Blanton",
-   "2022-23",
-   "Guard",
-   2.91
-  ],
-  [
-   "Kam Jones",
-   "2022-23",
-   "Guard",
-   2.91
-  ],
-  [
-   "Johnell Davis",
-   "2023-24",
-   "Guard",
-   2.91
-  ],
-  [
-   "Rob Perry",
-   "2022-23",
-   "Wing",
-   2.93
-  ],
-  [
-   "RJ Felton",
-   "2022-23",
-   "Guard",
-   2.91
-  ],
-  [
-   "Isaac Jones",
-   "2023-24",
-   "Wing",
-   3.39
-  ],
-  [
-   "Bryce Harris",
-   "2023-24",
-   "Big",
-   3.44
-  ],
-  [
-   "Kevin Cross, Jr.",
-   "2023-24",
-   "Guard",
-   2.9
-  ],
-  [
-   "Mason Falslev",
-   "2024-25",
-   "Guard",
-   2.88
+   0.004,
+   "Guard/Wing"
   ]
  ]
 }
