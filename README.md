@@ -278,10 +278,12 @@ Create a new file in `src/pages/`, add a `<Route>` for it in `App.jsx`, and add 
 
 The newsletter and contact forms are currently client-side only (they just flip to a "submitted" state). Wire them to a real provider by replacing the `handleSubmit` functions in `NewsletterCTA.jsx` and `Contact.jsx` with calls to your email/CRM API of choice (Mailchimp, ConvertKit, Resend, a serverless function, etc).
 
-### The Control Room (/api/status)
+### The Control Room (/control, /api/status)
 
-Adam's live dashboard for everything behind the site is a Claude mod, opened with `/wce`. It
-reads one private feed, `/api/status` (`api/_status.js`; `vercel.json` rewrites it into the
+Adam's live dashboard for everything behind the site is the private page `/control`
+(`public/control.html`, scripts built from `tools/control-room/` by its `build.sh`; it asks for the
+feed key once per browser), and also a Claude mod opened with `/wce` in Claude Code. Both read
+one private feed, `/api/status` (`api/_status.js`; `vercel.json` rewrites it into the
 analytics function, so it costs no function slot): every job's last run, the last day of runs,
 when each is due next, the Vercel deploys, and the site's reach (visits, connector calls,
 founding members, newsletter, Dynasty ballots).

@@ -2,6 +2,11 @@
   "ignoreCommand": "bash scripts/vercel-ignore.sh",
   "redirects": [
     {
+      "source": "/control",
+      "destination": "/control.html",
+      "permanent": false
+    },
+    {
       "source": "/basketball-savant",
       "destination": "/basketball-savant.html",
       "permanent": true
