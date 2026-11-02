@@ -76,7 +76,8 @@ html = f"""<!doctype html>
   </div>
   <main class="main">
     <div class="view" id="view"><p class="empty">Loading…</p></div>
-    <p class="foot"><span id="ver"></span> · New: College Basketball Savant, every men's D1 player since 2022-23. Data: ESPN, CollegeBasketballData and NCAA.com; team ratings follow T-Rank's published method and are computed by WCE. Some birthdates come from T-Rank's public player file. Model outputs are the model's view, not a verdict. <a href="/#ai">Ask it in Claude with the WCE connector</a>. <a href="/">Western Conference Elitists</a></p>
+    <div id="home"></div>
+    <div class="wrap"><p class="foot"><span id="ver"></span> · New: College Basketball Savant, every men's D1 player since 2022-23. Data: ESPN, CollegeBasketballData and NCAA.com; team ratings follow T-Rank's published method and are computed by WCE. Some birthdates come from T-Rank's public player file. Model outputs are the model's view, not a verdict. <a href="/#ai">Ask it in Claude with the WCE connector</a>. <a href="/">Western Conference Elitists</a></p></div>
   </main>
 </div>
 <script src="/savant-cbb.js"></script>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Rung 2. Copy to ~/Library/LaunchAgents and `launchctl load` it after the merge: it runs the copy
+     of mac_pull.sh in the savant-bot worktree, which follows main. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.wcehoops.cbb-mac-pull</string>
+  <key>ProgramArguments</key>
+  <array><string>/bin/bash</string><string>/Users/adamcohen/western-conference-elitists/.worktrees/savant-bot/pipeline/college/mac_pull.sh</string></array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>5</integer><key>Minute</key><integer>7</integer></dict>
+  <key>RunAtLoad</key><false/>
+</dict>
+</plist>

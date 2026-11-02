@@ -1,0 +1,54 @@
+# College Basketball Savant: the pipeline
+
+Men's Division I. `public/college-basketball-savant.html`, data in `public/cbb/`, connector in
+`api/_cbb.js`, check in `tools/savant-cbb/check.mjs`. Shipping notes and the review list are in
+`COLLEGE-BASKETBALL-SAVANT.md` at the repo root.
+
+## The map
+
+| File | What it does |
+|---|---|
+| `espn_cbb.py` | Scoreboard sweep and the raw archive (rungs 0 and 1) |
+| `cbbd_client.py` | The one door to CBBD: counted, capped at 600 calls a month |
+| `cbbd_source.py` | CBBD plays per game: lineups and locations for old seasons, and rung 3 |
+| `torvik.py` | Birthdates only, one URL, weekly |
+| `normalize.py` | A summary to the normalized game |
+| `join.py` | Adds CBBD's fives and locations to an ESPN game |
+| `rebuild.py` | One game: lineups, stints, possessions, garbage time, zones |
+| `season.py` | Every game of a season, the game-level gates, the season gates |
+| `identity.py` | Who everyone is: one source per field |
+| `aggregate.py` | One formula per stat. `rates()` serves seasons, splits and games alike |
+| `ratings.py` | Our team ratings, the market's, and the walk-forward test |
+| `adjust.py` | Opponent adjustment and the transfer test that picks the method |
+| `positions.py` | Guard, wing, big from BPM 2.0's estimate |
+| `settle.py` | Settle points |
+| `xfg.py`, `rapm.py` | Shot quality; box impact and RAPM |
+| `config.py` | The stat registry. A stat missing here does not exist |
+| `build.py` | Everything to `public/cbb/`. `--merge <season>` rebuilds one |
+| `fallback.py` | Rungs 3 and 4, and their diff reports |
+| `archive.py`, `mac_pull.sh` | Rung 0, rung 2 |
+| `cloud_cbb.py`, `cloud_run.sh` | The nightly refresh |
+| `full_build.sh`, `backfill.sh` | The Mac's full build; the seasons before 2022-23 |
+
+## Things that are not obvious
+
+- **ESPN logged no substitutions before mid-February 2025**, and coordinates on only 10-20% of
+  games. CBBD has on-floor data from 2023-24 and locations from 2022-23, on ESPN's play ids.
+  `ESPN_COMPLETE_FROM` in `cbbd_source.py` is the seam.
+- **CBBD's `/plays/date` needs a full timestamp.** `2024-12-07` returns 502;
+  `2024-12-07T00:00:00Z` works.
+- **CBBD's participant order is random on assisted shots.** Use `shotInfo.shooter`.
+- **ESPN's college JSON has raw control characters.** Parse with `strict=False`.
+- **The repo is public.** Nothing from CBBD and no birthdate may reach `public/`, `cbb-bundles`,
+  `cbb-data` or a release. `tools/savant-cbb/check.mjs` holds `public/cbb` to that.
+- **Never run `pgrep -f` on a string in the same shell line.** It matches itself (Nov 2).
+
+## Full rebuild on the Mac
+
+    python3 espn_cbb.py pull 2026-27 2025-26 2024-25 2023-24 2022-23
+    python3 cbbd_source.py history 2024-25 2023-24 2022-23      # about 400 calls
+    python3 torvik.py 2022-23 2023-24 2024-25 2025-26 2026-27
+    ./full_build.sh
+    python3 cloud_cbb.py bundle <dir>                           # then push it to cbb-bundles
+
+Caches live in `~/Basketball-Savant/espn-cache/cbb` and `~/Basketball-Savant/out/cbb`.

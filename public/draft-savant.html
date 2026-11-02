@@ -1099,7 +1099,7 @@ function render(){
   let sl=hasLine?('<div class="statline">'+stat('PPG',p.line.ppg)+stat('RPG',p.line.rpg)+stat('APG',p.line.apg)+(p.line.tpg!=null?stat('TPG',p.line.tpg):'')+'</div>'):'';
   const thin=(p.gp!=null && p.gp<30);
   if(thin) sl+='<div class="samplenote">'+p.gp+'-game season — a reduced sample (injury or a late arrival), so read the rates below with a little caution.</div>';
-  const cl=cbbLink(p); if(cl) sl+='<div class="samplenote">'+cl+'</div>';
+  const cl=typeof cbbLink==='function'?cbbLink(p):''; if(cl) sl+='<div class="samplenote">'+cl+'</div>';
   document.getElementById('idbody').innerHTML=
     '<div class="pickbadge">'+(p.draft_year===2026?'Projected ':p.draft_year+' · ')+'<b>No. '+p.draft_pick+'</b> · '+p.draft_team+'</div>'
     +'<div class="id-top">'

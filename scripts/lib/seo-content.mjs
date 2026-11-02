@@ -122,7 +122,7 @@ export const TOOLS = {
     name: 'College Basketball Savant',
     title: 'College Basketball Savant: D1 Player Percentiles by Position | WCE',
     description:
-      'College Basketball Savant profiles every men\'s Division I player on percentile bars: adjusted for opponents, ranked at their position, with RAPM, shot zones, lineups and team ratings.',
+      'Every men\'s Division I player on percentile bars: adjusted for opponents, ranked by position, with RAPM, shot zones, lineups and team ratings.',
     look: 'soft',
     heading: 'What is College Basketball Savant?',
     about: [

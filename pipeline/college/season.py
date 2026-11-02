@@ -10,7 +10,9 @@ Game-level gates, the spec's rule (§5): a game that fails is excluded from what
 and kept for the rest. Box lines always count.
 
   pbp_ok      the play-by-play agrees with the record: it adds up to the final score, and at least
-              80% of the box's players have the same shooting line. Before 2025-26 ESPN's two
+              85% of the box's players have the same shooting line (the line that takes 2023-24 on
+              over the 99% gate at a cost of about 2% of games; 2022-23 would need 95% and a third
+              of its games, so that season fails the gate and keeps its card stats, §3). Before 2025-26 ESPN's two
               records of a low-major game are sometimes written up separately: in about 5% of
               2022-23 games each adds to the final and they disagree man by man, and no parser can
               reconcile that. Fails -> out of everything built from the play-by-play.
@@ -45,7 +47,7 @@ BOX = ("pts", "fgm", "fga", "fg3m", "fg3a", "ftm", "fta", "oreb", "dreb", "ast",
 
 def flags(gate, final_pbp):
     ok_score = gate["score_ok"] or final_pbp
-    ok_box = gate["box_players"] > 0 and gate["box_match"] >= 0.8 * gate["box_players"]
+    ok_box = gate["box_players"] > 0 and gate["box_match"] >= 0.85 * gate["box_players"]
     pbp_ok = bool(ok_score and ok_box and gate["plays"] >= 150)
     firm = gate.get("clean")
     five_ok = all(v >= 0.9 for v in gate["five"].values()) if gate["five"] else False
