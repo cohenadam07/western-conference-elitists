@@ -33,8 +33,9 @@
       {
         label: 'Basketball',
         items: [
-          { label: 'Basketball Savant', href: '/basketball-savant.html' },
-          { label: 'Players', href: '/player/', match: ['/player'] },
+          // the /player/<slug> pages are search landing pages, kept out of the menu on purpose;
+          // they count as Basketball Savant so the Basketball tab still lights up on them
+          { label: 'Basketball Savant', href: '/basketball-savant.html', match: ['/player'] },
           { label: 'NBA Coaching Savant', href: '/basketball-coaching-savant.html' },
           { label: 'College Basketball Savant', href: '/college-basketball-savant.html' },
         ],
