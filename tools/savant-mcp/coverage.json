@@ -749,6 +749,32 @@
         "nba_player_splits"
       ],
       "note": "The rotation strip: nba_player_splits with view \"rotation\"."
+    },
+    "data:cbb": {
+      "tools": [
+        "cbb_get_player_profile",
+        "cbb_player_career",
+        "cbb_player_splits",
+        "cbb_leaderboard",
+        "cbb_team_profile",
+        "cbb_team_rankings",
+        "cbb_lineups",
+        "cbb_game",
+        "cbb_data",
+        "cbb_data_dictionary"
+      ]
+    },
+    "page:college-basketball-savant.html": {
+      "tools": [
+        "cbb_search_players",
+        "cbb_get_player_profile",
+        "cbb_player_career",
+        "cbb_player_splits",
+        "cbb_leaderboard",
+        "cbb_team_profile",
+        "cbb_team_rankings",
+        "cbb_lineups"
+      ]
     }
   },
   "switches": {

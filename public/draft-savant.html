@@ -1086,6 +1086,10 @@ async function exportCard(){
   finally{ if(shell)shell.remove(); btn.disabled=false; lab.textContent=prev; }
 }
 
+/* the player's College Basketball Savant card, where one exists (public/cbb/links.json) */
+let cbbLinks=null;
+if(typeof fetch==='function') fetch('/cbb/links.json').then(r=>r.ok?r.json():null).then(j=>{cbbLinks=j&&j.by_draft;}).catch(()=>{});
+function cbbLink(p){const e=cbbLinks&&cbbLinks[p.id];return e?'<a href="/college-basketball-savant.html#player-'+e+'">College Basketball Savant card</a>':'';}
 function render(){
   const p=byId(curId);
   const wt=val(p,'weight'), vt=val(p,'vert');
@@ -1095,6 +1099,7 @@ function render(){
   let sl=hasLine?('<div class="statline">'+stat('PPG',p.line.ppg)+stat('RPG',p.line.rpg)+stat('APG',p.line.apg)+(p.line.tpg!=null?stat('TPG',p.line.tpg):'')+'</div>'):'';
   const thin=(p.gp!=null && p.gp<30);
   if(thin) sl+='<div class="samplenote">'+p.gp+'-game season — a reduced sample (injury or a late arrival), so read the rates below with a little caution.</div>';
+  const cl=cbbLink(p); if(cl) sl+='<div class="samplenote">'+cl+'</div>';
   document.getElementById('idbody').innerHTML=
     '<div class="pickbadge">'+(p.draft_year===2026?'Projected ':p.draft_year+' · ')+'<b>No. '+p.draft_pick+'</b> · '+p.draft_team+'</div>'
     +'<div class="id-top">'

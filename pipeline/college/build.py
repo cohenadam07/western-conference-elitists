@@ -286,9 +286,10 @@ RAW = [s.key for s in C.STATS if s.key in ("pts", "ts", "efg", "fg2", "fg3", "ft
 SAMPLES = {"poss": 0, "dposs": 0, "n_fga": 0, "n_fg3a": 0, "n_fta": 0, "n_u": 0, "n_rim": 0, "n_pnt": 0, "n_mid": 0, "n_c3": 0, "n_ab3": 0, "n_fg": 0}
 
 
-def adjusted_tables(d, keys, gt):
+def adjusted_tables(d, keys, gt, method="mult"):
+    """The winner of adjust.py's transfer test: mult, or reg (the regression's player terms)."""
     c = AJ.columns(d, gt)
-    vals, _ = AJ.mult_values(d, c, keys)
+    vals, _ = (AJ.reg_values if method == "reg" else AJ.mult_values)(d, c, keys)
     return vals
 
 
@@ -314,7 +315,8 @@ def player_season(season, gen, public, teams_cache, log):
     tm_cap = tm_total.groupby("team").cap.sum()
     idx = sorted(tb_nog.index, key=lambda e: (-float(tot_nog.mins.get(e, 0)), e))
     tb_nog, tb_all = tb_nog.reindex(idx), tb_all.reindex(idx)
-    aj_n, aj_g = adjusted_tables(d, adj_keys, False), adjusted_tables(d, adj_keys, True)
+    method = adj_test.get("winner", "mult")
+    aj_n, aj_g = adjusted_tables(d, adj_keys, False, method), adjusted_tables(d, adj_keys, True, method)
     oo, lg3, lgft = onoff_table(season, pg)
     imp = (load_json(os.path.join(HOME, "impact", f"{season}.json")) or {}).get("players", {})
     xf = pd.DataFrame()
@@ -580,59 +582,91 @@ def registry(public, gen):
                                                                      min_pool=C.MIN_POOL, qual_min_share=C.QUAL_MIN_SHARE, per=[70, 100], high_major=sorted(AJ.HIGH_MAJOR), rapm_min=500))
 
 
+def lite(public, season):
+    """A finished season as the files already published have it."""
+    d = gzip.decompress(open(os.path.join(public, "cbb", "s", f"{season}.json.gz"), "rb").read())
+    return json.loads(d)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--public", default=PUBLIC)
     ap.add_argument("--generated", default=None)
+    ap.add_argument("--merge", default=None, help="rebuild only this season; the rest come from public/cbb")
     ap.add_argument("seasons", nargs="+")
     a = ap.parse_args()
     log = lambda m: print(time.strftime("%H:%M:%S"), m, flush=True)  # noqa: E731
     gen = a.generated or dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     public = os.path.abspath(a.public)
     registry(public, gen)
-    contexts, tr, team_all = {}, {}, {}
+    tr = {}
     os.makedirs(os.path.join(HOME, "tmp-teams"), exist_ok=True)
     for s in a.seasons:
+        tr[s] = tracked(s)
+        if a.merge and s != a.merge:
+            continue
         G = pd.read_pickle(os.path.join(SZ.OUT, s, "games.pkl"))
         T = pd.read_pickle(os.path.join(SZ.OUT, s, "tg.pkl"))
         ids = load_json(os.path.join(SZ.OUT, s, "ids.json"))
         rat = team_ratings(s)
         mk = load_json(os.path.join(HOME, "ratings", f"market-{s}.json"))
         bpi = load_json(os.path.join(HOME, "bpi", f"table-{s}.json")) or {}
-        tr[s] = tracked(s)
         if not rat.get("teams"):
             log(f"{s}: no ratings yet; skipped")
             continue
         rows = team_rows(s, G, T, ids, rat, mk, bpi, net_table(s))
         json.dump({r["id"]: r for r in rows}, open(os.path.join(HOME, "tmp-teams", f"{s}.json"), "w"))
         jdump(os.path.join(public, "cbb", "teams", f"{s}.json"), dict(season=s, generated=gen, teams=rows, lg=rat.get("lg"), tempo=rat.get("lt"), market_home=(mk or {}).get("home")))
-        team_all[s] = rows
         ctx = player_season(s, gen, public, None, log)
         team_files(s, gen, ctx, public, log)
         games = []
         for r in G.itertuples():
             games.append([r.gid, r.date, r.home, r.away, r.hs, r.as_, int(r.neutral), int(r.confgame), int(r.stype == 3), int(r.non_d1 > 0), int(r.ot), rnd(r.spread, 1), rnd(r.total, 1), int(r.pbp_ok), int(r.lineup_ok)])
         jdump(os.path.join(public, "cbb", "games", f"{s}.json"), dict(season=s, cols=["gid", "date", "home", "away", "home_pts", "away_pts", "neutral", "conf_game", "postseason", "non_d1", "ot", "home_spread", "total", "pbp_ok", "lineup_ok"], rows=games))
-        contexts[s] = ctx
-    careers(contexts, public, log)
-    # search and the front page
-    seen, players = {}, []
+    docs = {}
     for s in a.seasons:
-        ctx = contexts.get(s)
-        if not ctx:
-            continue
-        for p in ctx["P"]:
+        p = os.path.join(public, "cbb", "s", f"{s}.json.gz")
+        if os.path.exists(p):
+            d = lite(public, s)
+            docs[s] = {"P": d["players"], "V": d["values"], "through": d["through"]}
+    careers(docs, public, log)
+    seen, tn = {}, {}
+    for s, c in docs.items():
+        for p in c["P"]:
             seen[p[0]] = [p[0], p[1], p[2], s, p[3], int(p[11])]
-    tn = {}
-    for s in a.seasons:
-        for r in team_all.get(s, ()):
+        tp = os.path.join(public, "cbb", "teams", f"{s}.json.gz")
+        for r in json.loads(gzip.decompress(open(tp, "rb").read()))["teams"]:
             tn[r["id"]] = [r["id"], r["name"], r["abbr"], r["conf"], s, r["color"]]
-    jdump(os.path.join(public, "cbb", "search.json"), dict(players=sorted(seen.values(), key=lambda x: x[1] or ""), teams=sorted(tn.values(), key=lambda x: x[1] or "")))
-    newest = [s for s in a.seasons if s in contexts]
-    cur = newest[-1]
-    idx = dict(version=C.VERSION, generated=gen, current=cur, seasons=[dict(season=s, through=str(contexts[s]["d"].date.max()), players=len(contexts[s]["P"]), qualified=sum(1 for p in contexts[s]["P"] if p[11]), **tr[s]) for s in newest], default_season=latest_with_data(newest, contexts))
+    jdump(os.path.join(public, "cbb", "search.json"), dict(players=sorted(seen.values(), key=lambda x: (x[1] or "", x[0])), teams=sorted(tn.values(), key=lambda x: (x[1] or "", x[0]))))
+    jdump(os.path.join(public, "cbb", "links.json"), links(seen, tn, public))
+    newest = list(docs)
+    idx = dict(version=C.VERSION, generated=gen, current=newest[-1], seasons=[dict(season=s, through=docs[s]["through"], players=len(docs[s]["P"]), qualified=sum(1 for p in docs[s]["P"] if p[11]), **tr[s]) for s in newest], default_season=latest_with_data(newest, docs))
     jdump(os.path.join(public, "cbb", "index.json"), idx)
     log("index written")
+
+
+def links(seen, tn, public):
+    """Cards link to Draft Savant and Basketball Savant where the player exists there. Name and
+    school must both agree, so a namesake never gets the link."""
+    norm = lambda x: "".join(c for c in (x or "").lower() if c.isalpha())  # noqa: E731
+    out = {"draft": {}, "nba": {}, "by_draft": {}}
+    p = os.path.join(public, "data.json")
+    d = load_json(p) or {"players": []}
+    by = defaultdict(list)
+    for e, r in seen.items():
+        by[norm(r[1])].append(r)
+    for x in d["players"]:
+        for r in by.get(norm(x.get("name")), ()):
+            sc = norm(tn.get(r[2], [None, ""])[1])
+            co = norm(x.get("college"))
+            if sc and (sc in co or co in sc):
+                out["draft"][r[0]] = x["id"]
+                out["by_draft"][x["id"]] = r[0]
+    ids = load_json(os.path.join(HERE, "..", "basketball", "seed", "espn_ids.json")) or {}
+    for e in seen:
+        if e in ids:
+            out["nba"][e] = ids[e]
+    return out
 
 
 def latest_with_data(newest, contexts):

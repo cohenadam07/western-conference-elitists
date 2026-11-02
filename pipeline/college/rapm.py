@@ -46,6 +46,7 @@ import cbbd_client as CC  # noqa: E402
 import season as SZ  # noqa: E402
 
 OUT = os.path.join(CC.HOME, "impact")
+SITE = os.environ.get("CBB_PUBLIC") or os.path.join(HERE, "..", "..", "public")
 BOXF = os.path.join(HERE, "seed", "box_impact.json")
 FIRST = "2023-24"
 LAM = 1500.0            # possessions of ridge; `check` scans this
@@ -68,8 +69,15 @@ def load_stints(season, weight=1.0):
     p = os.path.join(SZ.OUT, season, "stints.json.gz")
     if not os.path.exists(p):
         return []
-    G = pd.read_pickle(os.path.join(SZ.OUT, season, "games.pkl")).set_index("gid")
-    neutral, date = G.neutral.to_dict(), G.date.to_dict()
+    gp = os.path.join(SZ.OUT, season, "games.pkl")
+    if os.path.exists(gp):
+        G = pd.read_pickle(gp).set_index("gid")
+        neutral, date = G.neutral.to_dict(), G.date.to_dict()
+    else:                                  # the cloud has only the current season's tables
+        d = json.loads(gzip.decompress(open(os.path.join(SITE, "cbb", "games", f"{season}.json.gz"), "rb").read()))
+        ix = {c: i for i, c in enumerate(d["cols"])}
+        neutral = {r[0]: bool(r[ix["neutral"]]) for r in d["rows"]}
+        date = {r[0]: r[ix["date"]] for r in d["rows"]}
     rows = []
     with gzip.open(p, "rt") as fh:
         for gid, home, away, st in json.load(fh):
@@ -190,13 +198,11 @@ def build_prior(season, ids, co):
     y = int(season[:4])
     prev = f"{y - 1}-{str(y)[2:]}"
     po, pd_ = None, None
-    try:
-        dfp = A.frame(prev)
-        dfp = dfp[dfp.non_d1 == 0]
-        tp = pd.DataFrame(A.counts(dfp)).assign(e=dfp.eid.values).groupby("e").sum()
-        po, pd_ = box_impact(features(tp), co)
-    except OSError:
-        pass
+    last = os.path.join(OUT, f"{prev}.json")
+    if os.path.exists(last):               # last season's box impact, as this pipeline wrote it
+        lp = json.load(open(last))["players"]
+        po = pd.Series({e: v.get("bi_o") for e, v in lp.items() if v.get("bi_o") is not None}, dtype=float)
+        pd_ = pd.Series({e: v.get("bi_d") for e, v in lp.items() if v.get("bi_d") is not None}, dtype=float)
     k = 300.0
     out = {}
     low_o = float(o[f.poss.between(100, 400)].mean()) if len(o) else 0.0

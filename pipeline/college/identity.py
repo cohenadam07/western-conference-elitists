@@ -240,7 +240,9 @@ def build(seasons, log=print):
     for s in sorted(seasons):
         d = os.path.join(SZ.OUT, s)
         pg = pd.read_pickle(os.path.join(d, "pg.pkl"))
-        G = pd.read_pickle(os.path.join(d, "games.pkl"))
+        y0 = int(s[:4])
+        pp = os.path.join(OUT, f"{y0 - 1}-{str(y0)[2:]}.json")
+        prev_age = {e: v.get("age") for e, v in json.load(open(pp)).items()} if os.path.exists(pp) else {}
         ids = json.load(open(os.path.join(d, "ids.json")))
         played = pg[(pg["min"] > 0) | (pg.sec > 0)]
         mins = played.groupby(["eid", "team"])["min"].sum().reset_index().sort_values("min", ascending=False)
@@ -261,6 +263,11 @@ def build(seasons, log=print):
                 used = "t-rank" if e in dob else "t-rank (other season)"
             elif cb_dob.get(e):
                 v, used = cb_dob[e], "cbbd"
+            if v is None and prev_age.get(e):          # the cloud carries ages, never birthdates
+                age_c = prev_age[e] + 1.0
+                src["last season's age"] += 1
+            else:
+                age_c = None
             if e in fx and fx[e].get("birthdate"):
                 v, used = fx[e]["birthdate"], "manual"
             if v:
@@ -268,7 +275,10 @@ def build(seasons, log=print):
                 if age is not None and not 16 <= age <= 27:
                     ages_bad.append([e, players[e]["name"], age])
                     age = None
-            src[used or "none"] += 1
+            if age is None and age_c is not None:
+                age = round(age_c, 2)
+            elif age_c is None:
+                src[used or "none"] += 1
             r = rec.get(cb_id.get(e))
             exp = b.get("exp")
             rows[e] = {"name": b.get("name") or players[e]["name"], "team": t, "ht": b.get("ht"), "wt": b.get("wt"), "jersey": b.get("jersey"),

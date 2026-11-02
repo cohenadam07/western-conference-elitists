@@ -67,6 +67,17 @@ export const JOBS = [
     cadence: 'Game days: watches from about 11:17am until every game is final. Rebuilds every day at about 4:41am and 10:13am.',
   },
   {
+    id: 'college-savant', name: 'College Basketball Savant refresh', lane: 'github', product: 'basketball',
+    workflow: 'college-basketball-savant-cloud.yml', maxAgeH: 30, tz: 'UTC',
+    cron: ['47 16 * * *', '23 22 * * *', '19 1 * * *', '37 3 * * *', '29 10 * * *'],
+    cadence: 'Game days: watches from about noon ET until every game is final. Rebuilds daily at about 5:29am ET.',
+  },
+  {
+    id: 'college-savant-freshness', name: 'College freshness alarm', lane: 'github', product: 'basketball',
+    workflow: 'college-basketball-savant-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['37 17 * * *'],
+    cadence: 'Daily. Fails if College Basketball Savant goes 30 hours without a refresh, or the cloud is blocked from ESPN.',
+  },
+  {
     id: 'basketball-history', name: 'History additions', lane: 'github', product: 'basketball',
     workflow: 'basketball-savant-ext.yml', maxAgeH: 8, tz: 'UTC', cron: ['23 */2 * * *'],
     cadence: 'Every 2 hours. Publishes only when the Mac has sent a new seed.',

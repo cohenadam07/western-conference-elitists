@@ -13,6 +13,7 @@ import { KEY_SUCCESS, SUBSCRIBE_ERROR, getConnectorKey } from '../lib/forms.js'
 
 const COVERS = [
   'Basketball Savant',
+  'College Basketball Savant',
   'Football Savant',
   'Coaching Savant',
   'UFC Savant',

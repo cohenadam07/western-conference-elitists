@@ -332,7 +332,7 @@ svg text{font-family:var(--font)}
 (function(){
 'use strict';
 var M=window.SavantCBB,C=M.COL,$=function(s){return document.querySelector(s);};
-var API='/cbb/',cache={},REG,IDX,SEARCH,BYK={},TEAMS={};
+var API='/cbb/',cache={},REG,IDX,SEARCH,LINKS={},BYK={},TEAMS={};
 var S={season:null,pool:'pos',adj:true,gt:false,per:70,lstat:'bi',lpos:'all',lmin:300,tsort:'net',tab5:'5',splitTab:'site',wwA:null,wwOn:[],wwOff:[],cmpA:null,cmpB:null,lastP:null,lastT:null};
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function ord(n){var s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
@@ -455,7 +455,7 @@ function vPlayer(id,season){
       });
       h+='</section><div class="stack">';
       var rec=car.b,recL=(cs[id].r.filter(function(x){return x.rec;})[0]||{}).rec;
-      h+='<section class="card"><div class="hd"><h2>Profile</h2><span class="meta">Age on Feb 1</span></div><dl class="kv"><dt>Team</dt><dd>'+teamLink(p[C.team])+'</dd><dt>Conference</dt><dd>'+esc(confName(p[C.conf]))+'</dd><dt>Position</dt><dd>'+esc(p[C.pos]||'—')+'</dd><dt>Class</dt><dd>'+esc(p[C.cls]||'—')+'</dd><dt>Age</dt><dd class="num">'+(p[C.age]?p[C.age].toFixed(1):'—')+'</dd><dt>Games</dt><dd class="num">'+p[C.gp]+' ('+p[C.gs]+' starts)</dd><dt>Minutes</dt><dd class="num">'+num(p[C.min]/Math.max(1,p[C.gp]))+' a game</dd></dl><div class="hd" style="margin:18px 0 4px"><h2>Seasons</h2><span class="meta">From 2022-23</span></div><dl class="kv">'+hist+'</dl></section>';
+      h+='<section class="card"><div class="hd"><h2>Profile</h2><span class="meta">Age on Feb 1</span></div><dl class="kv"><dt>Team</dt><dd>'+teamLink(p[C.team])+'</dd><dt>Conference</dt><dd>'+esc(confName(p[C.conf]))+'</dd><dt>Position</dt><dd>'+esc(p[C.pos]||'—')+'</dd><dt>Class</dt><dd>'+esc(p[C.cls]||'—')+'</dd><dt>Age</dt><dd class="num">'+(p[C.age]?p[C.age].toFixed(1):'—')+'</dd><dt>Games</dt><dd class="num">'+p[C.gp]+' ('+p[C.gs]+' starts)</dd><dt>Minutes</dt><dd class="num">'+num(p[C.min]/Math.max(1,p[C.gp]))+' a game</dd>'+(LINKS.draft&&LINKS.draft[id]?'<dt>Draft Savant</dt><dd><a href="/draft-savant.html">Draft profile</a></dd>':'')+(LINKS.nba&&LINKS.nba[id]?'<dt>Basketball Savant</dt><dd><a href="/basketball-savant.html">NBA card</a></dd>':'')+'</dl><div class="hd" style="margin:18px 0 4px"><h2>Seasons</h2><span class="meta">From 2022-23</span></div><dl class="kv">'+hist+'</dl></section>';
       // zones
       var tr=IDX.seasons.filter(function(x){return x.season===sn;})[0]||{};
       var zs=ZONES.map(function(z){var n=d.samples[z[2]][i]||0,all=d.samples.n_fg[i]||0,r=R[z[3]];var vals=M.valuesFor(d,z[3],r.pool?r.pool.ids:[],{adj:false,gt:S.gt}),m=vals.length?vals.reduce(function(a,b){return a+b;},0)/vals.length:null;return {name:z[1],x:z[4],y:z[5],freq:all?Math.round(100*n/all):0,fg:r.tracked?r.value:null,pct:r.tracked&&r.pct!=null?r.pct:null,avg:m,n:n};});
@@ -621,8 +621,8 @@ setNav(saved==null?window.innerWidth<1100:saved==='1',false);
 function fit(){q.placeholder=window.innerWidth<520?'Search':'Search players and teams';}
 window.addEventListener('resize',function(){fit();if(pending.length)pending.forEach(function(f){f();});});
 readScale();fit();
-Promise.all([load('registry.json'),load('index.json'),load('search.json')]).then(function(a){
-  REG=a[0];IDX=a[1];SEARCH=a[2];REG.stats.forEach(function(s){BYK[s.key]=s;});
+Promise.all([load('registry.json'),load('index.json'),load('search.json'),load('links.json').catch(function(){return {};})]).then(function(a){
+  REG=a[0];IDX=a[1];SEARCH=a[2];LINKS=a[3]||{};REG.stats.forEach(function(s){BYK[s.key]=s;});
   SEARCH.teams.forEach(function(t){TEAMS[t[0]]={name:t[1],abbr:t[2],conf:t[3],color:t[5]};});
   S.season=IDX.default_season;
   $('#ver').textContent='Version '+REG.version;

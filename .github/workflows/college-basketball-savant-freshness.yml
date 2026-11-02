@@ -1,0 +1,53 @@
+name: College Basketball Savant freshness
+
+# The alarm: once a day it reads the heartbeat (data/cbb-refresh.json) and fails, which emails Adam,
+# when no refresh has landed for 30 hours, or when the cloud is blocked from ESPN and the run has
+# dropped down the ladder. Quiet outside the season (Nov 1 to Apr 12).
+on:
+  schedule:
+    - cron: '37 17 * * *'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            data/cbb-refresh.json
+            .github/scripts/control-room.sh
+          sparse-checkout-cone-mode: false
+      - name: Check the refresh has landed
+        run: |
+          python3 - <<'EOF'
+          import datetime as dt, json, os, sys
+          today = dt.date.today()
+          in_season = today.month in (11, 12, 1, 2, 3) or (today.month == 4 and today.day <= 12)
+          if not in_season:
+              print("offseason"); sys.exit(0)
+          path = "data/cbb-refresh.json"
+          if not os.path.exists(path):
+              print("::error::no heartbeat: College Basketball Savant has not published this season"); sys.exit(1)
+          b = json.load(open(path))
+          if b.get("espn_cloud_blocked"):
+              print(f"::error::ESPN is refusing the cloud; running from {b.get('source')}"); sys.exit(1)
+          last = dt.datetime.fromisoformat(b["last_ok"])
+          age = (dt.datetime.now(dt.timezone.utc) - last).total_seconds() / 3600
+          print(f"last refresh {last:%Y-%m-%d %H:%M} UTC ({age:.0f}h ago), source {b.get('source')}")
+          if age > 30:
+              print(f"::error::College Basketball Savant last refreshed {age:.0f} hours ago"); sys.exit(1)
+          EOF
+      - name: Control Room check-in
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/control-room.sh college-savant-freshness "${{ job.status }}"

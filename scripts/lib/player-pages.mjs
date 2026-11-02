@@ -49,6 +49,7 @@ const CARD_VERSION = 1
 const NAV = [
   [TOOL, 'Basketball Savant'],
   ['/player', 'Players'],
+  ['/college-basketball-savant.html', 'College Basketball Savant'],
   ['/draft-savant.html', 'Draft Savant'],
   ['/football-savant.html', 'Football Savant'],
   ['/articles', 'Analysis'],

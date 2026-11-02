@@ -47,6 +47,10 @@
 //                                                 ufc_get_upcoming_cards
 //   api/_draft.js        Draft Savant             nba_draft_search_prospects,
 //                                                 nba_draft_get_prospect_profile
+//   api/_cbb.js          College Basketball Savant  cbb_search_players, cbb_get_player_profile,
+//                                                 cbb_player_career, cbb_player_splits, cbb_leaderboard,
+//                                                 cbb_team_profile, cbb_team_rankings, cbb_lineups,
+//                                                 cbb_game, cbb_data, cbb_data_dictionary
 //   api/_site.js         News, articles, boards   wce_get_news, wce_search_articles,
 //                                                 wce_get_article, wce_get_big_board,
 //                                                 wce_get_dynasty_rankings, wce_get_trending,
@@ -101,6 +105,7 @@ import { tools as basketballLists } from './_basketball-lists.js'
 import { tools as bcoaching } from './_bcoaching.js'
 import { tools as coaching } from './_coaching.js'
 import { tools as draft } from './_draft.js'
+import { tools as cbb } from './_cbb.js'
 import { tools as fantasy } from './_fantasy.js'
 import { tools as football } from './_football.js'
 import { tools as footballGames } from './_football-games.js'
@@ -108,7 +113,7 @@ import { tools as footballLists } from './_football-lists.js'
 import { tools as site } from './_site.js'
 import { tools as ufc } from './_ufc.js'
 
-const SECTIONS = [basketball, basketballLists, fantasy, bcoaching, football, footballLists, footballGames, coaching, ufc, draft, site]
+const SECTIONS = [basketball, basketballLists, fantasy, bcoaching, football, footballLists, footballGames, coaching, ufc, draft, cbb, site]
 
 const RATE_PER_MINUTE = 300
 const MAX_BODY_BYTES = 64 * 1024
@@ -156,6 +161,7 @@ const INSTRUCTIONS = [
   'nfl_ is Football Savant and Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; its All-Savant Team, leaderboards, team pages, careers, game logs and recent form, splits, maps and route trees, and postseason games; and NFL head coaches and play-callers, with Coaching Savant\'s Leaders boards and coaching tree.',
   'ufc_ is UFC Savant: fighters ranked inside their division (or, on request, against every division of their sex), against active fighters and all-time, plus its leaderboard and head-to-head views.',
   'nba_draft_ is Draft Savant: college and pre-draft data on draft prospects, not NBA stats.',
+  'cbb_ is College Basketball Savant: every men\'s Division I player and team since 2022-23, opponent-adjusted percentiles against D1 at the same position by default, per 70 possessions, with RAPM, shot zones, lineups and team ratings computed by WCE.',
   'wce_ is the site itself: its news page, its articles, its draft Big Board, its crowd-priced Dynasty board, its most-searched players and prospects, and what is new on its homepage. nba_fantasy_league values a fan\'s Sleeper, ESPN or Fantrax league on that Dynasty board.',
   'Every percentile belongs to a pool, and each result names it. A percentile is only meaningful with its pool.',
   'A stat marked low sample is below its stabilization threshold. A stat a season did not track is listed as not tracked rather than shown as zero. Results state the date of their data and link to the matching page on wcehoops.com.',

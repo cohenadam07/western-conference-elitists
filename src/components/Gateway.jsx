@@ -240,6 +240,28 @@ export default function Gateway() {
               </div>
             </a>
 
+            {/* College Basketball Savant — the percentile bar is the thing worth showing on the card */}
+            <a className="card c-coach span2" href="/college-basketball-savant.html">
+              <Skeleton />
+              <div className="viz">
+                <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <rect width="600" height="150" fill="#22395A" />
+                  {[[92, '#BC3A2C'], [74, '#C4806F'], [51, '#C2C0B6'], [28, '#6F8BAB'], [83, '#BF5D4D']].map(([p, c], i) => (
+                    <g key={i}>
+                      <rect x="40" y={17 + i * 25} width="520" height="17" rx="4" fill="rgba(255,255,255,.14)" />
+                      <rect x="40" y={17 + i * 25} width={5.2 * p} height="17" rx="4" fill={c} />
+                    </g>
+                  ))}
+                </svg>
+              </div>
+              <div className="meta">
+                <span className="ck">Tool · College basketball</span>
+                <h3>College Basketball Savant</h3>
+                <p>Every men's Division I player on percentile bars: adjusted for opponents, ranked at their position, with RAPM, shot zones, lineups and team ratings, refreshed after every night of games.</p>
+                <span className="go">Open ↗</span>
+              </div>
+            </a>
+
             {/* Basketball Coaching Savant — the Rotation Map is the thing worth showing on the card */}
             <a className="card c-coach span2" href="/basketball-coaching-savant.html">
               <Skeleton />

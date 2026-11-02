@@ -24,6 +24,7 @@ const ld = (obj) => `<script type="application/ld+json">${JSON.stringify(obj).re
 // `blurb` is the line the homepage tile already uses for it (src/components/Gateway.jsx).
 export const PRODUCTS = [
   { name: 'Basketball Savant', href: '/basketball-savant.html', blurb: 'Every NBA player, every season back to 1979-80: percentile sliders, shot charts, and comps.' },
+  { name: 'College Basketball Savant', href: '/college-basketball-savant.html', blurb: 'Every men\'s Division I player: opponent-adjusted percentiles by position, RAPM, shot zones, lineups and team ratings, refreshed after every night of games.' },
   { name: 'Football Savant', href: '/football-savant.html', blurb: 'Every NFL player back to 1999, ranked against the men who play his position, with throw maps, run-gap maps and comps.' },
   { name: 'UFC Savant', href: '/ufc-savant.html', blurb: 'Every UFC fighter, ranked against the weight class: strike maps, round curves, head-to-heads and comps.' },
   { name: 'Basketball Coaching Savant', href: '/basketball-coaching-savant.html', blurb: 'Every NBA head coach: the Rotation Map, lineups judged from their parts, timeouts and challenges, wins against two expectations, and a coaching tree suggested from the record, 1946-47 to today.' },
@@ -115,6 +116,19 @@ export const TOOLS = {
       'Basketball Coaching Savant is a free profiler of NBA head coaches from Western Conference Elitists: records and the coaching tree back to 1946-47, and everything a coach decides on the floor from the season its data begins.',
       'Its centerpiece is the Rotation Map: for every man with 100 minutes under a coach, when he is usually on the floor, and how often and why the coach goes off-script. Lineups are judged from their parts rather than raw lineup ratings. Timeouts are tested against the runs they were called to stop. Wins are measured against two expectations: the roster\'s prior-season talent and the sportsbooks\' preseason win total.',
       'Play-by-play comes from ESPN, team tables from NBA.com, records and staffs from Basketball-Reference. Every percentile names its pool, every section is labelled with the year its data begins, and the rotation verdicts are the model\'s view, not a verdict. The rows behind every chart are open to the AI connector as a Data Room.',
+    ],
+  },
+  'college-basketball-savant.html': {
+    name: 'College Basketball Savant',
+    title: 'College Basketball Savant: D1 Player Percentiles by Position | WCE',
+    description:
+      'College Basketball Savant profiles every men\'s Division I player on percentile bars: adjusted for opponents, ranked at their position, with RAPM, shot zones, lineups and team ratings.',
+    look: 'soft',
+    heading: 'What is College Basketball Savant?',
+    about: [
+      'College Basketball Savant is a free profiler from Western Conference Elitists for every men\'s Division I player since 2022-23, refreshed after every night of games.',
+      'By default each percentile is adjusted for opponents and ranked against D1 at the same position, per 70 possessions, and it can be switched to raw numbers, all positions, high-majors, the same conference or the same age.',
+      { html: 'For the NBA version, see <a href="/basketball-savant.html">Basketball Savant</a>, and for prospects, <a href="/draft-savant.html">Draft Savant</a>.' },
     ],
   },
   'draft-savant.html': {

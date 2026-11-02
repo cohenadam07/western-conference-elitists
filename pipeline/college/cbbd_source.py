@@ -17,7 +17,8 @@ raw archive and never go in git; these rows are inputs, not something the site m
     <cache>/<season>/cbbd/<ESPN event id>.json.gz
     {"gid", "start", "home", "away", "names": {cbbd id: name},
      "plays": [[play id, type, text, period, secs left, team name, is home, home score, away score,
-                scoring, shooting, value, [participant ids], x, y, range, [on-floor ids]], ...]}
+                scoring, shooting, value, [participant ids], x, y, range, [on-floor ids], shooter, assister], ...]}
+    (participant order is random on assisted shots, so shooter and assister come from shotInfo)
 
     python3 cbbd_source.py history 2024-25 2023-24 2022-23
 """
@@ -69,7 +70,8 @@ def compact(rows):
                            p.get("team"), home, p.get("homeScore"), p.get("awayScore"), bool(p.get("scoringPlay")),
                            bool(p.get("shootingPlay")), p.get("scoreValue") or 0, [x.get("id") for x in p.get("participants") or []],
                            loc.get("x"), loc.get("y"), info.get("range"),
-                           [[x.get("id"), x.get("team")] for x in p.get("onFloor") or []]])
+                           [[x.get("id"), x.get("team")] for x in p.get("onFloor") or []],
+                           (info.get("shooter") or {}).get("id"), (info.get("assistedBy") or {}).get("id")])
     return games
 
 

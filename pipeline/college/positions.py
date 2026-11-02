@@ -89,7 +89,7 @@ def buckets(seasons, log=print):
     lo = float(q.est.quantile(share["Guard"]))
     hi = float(q.est.quantile(1 - share["Big"]))
     al["bucket"] = np.where(al.est <= lo, "Guard", np.where(al.est >= hi, "Big", "Wing"))
-    report = dict(cut_guard_wing=round(lo, 3), cut_wing_big=round(hi, 3), shares=share)
+    report = dict(cut_guard_wing=round(lo, 3), cut_wing_big=round(hi, 3), shares=share, height_icpt=round(float(icpt), 3), height_slope=round(float(slope), 4))
     q = al[al.poss >= 300]
     agree = pd.crosstab(q.listed, q.bucket, normalize="index").round(3)
     report["listed_vs_bucket"] = agree.to_dict("index")
@@ -103,6 +103,23 @@ def buckets(seasons, log=print):
     log({k: v for k, v in report.items() if k != "borderline"})
     log(report["borderline"][:12])
     return al
+
+
+def apply_cuts(season, log=print):
+    """The nightly run: the cut points and the height fit stay as the full build measured them."""
+    rep = json.load(open(os.path.join(OUT, "report.json")))
+    r = estimate(season)
+    ident = json.load(open(os.path.join(CC.HOME, "identity", f"{season}.json")))
+    r["ht"] = r.index.map(lambda e: (ident.get(e) or {}).get("ht"))
+    h = (rep["height_icpt"] + rep["height_slope"] * r.ht.astype(float)).fillna(r.est_raw)
+    w = r.poss / (r.poss + BLEND_K)
+    r["est"] = w * r.est_raw + (1 - w) * h
+    tm = r.groupby("team").apply(lambda x: np.average(x.est, weights=x.tmin.clip(lower=1)), include_groups=False)
+    r["est"] = (r.est + (3.0 - r.team.map(tm))).clip(1, 5)
+    lo, hi = rep["cut_guard_wing"], rep["cut_wing_big"]
+    b = np.where(r.est <= lo, "Guard", np.where(r.est >= hi, "Big", "Wing"))
+    json.dump({e: [round(float(v), 2), x] for e, v, x in zip(r.index, r.est, b)}, open(os.path.join(OUT, f"{season}.json"), "w"), separators=(",", ":"))
+    log(f"{season}: positions for {len(r)} players")
 
 
 if __name__ == "__main__":

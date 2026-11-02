@@ -10,7 +10,10 @@ import Button from './Button.jsx'
 const LINKS = [
   {
     href: '/basketball-savant.html', label: 'Basketball Savant', external: true,
-    children: [{ href: '/basketball-coaching-savant.html', label: 'Coaching Savant', external: true }],
+    children: [
+      { href: '/basketball-coaching-savant.html', label: 'Coaching Savant', external: true },
+      { href: '/college-basketball-savant.html', label: 'College Basketball Savant', external: true },
+    ],
   },
   {
     href: '/draft-savant.html', label: 'Draft Savant', external: true,

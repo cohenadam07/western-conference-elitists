@@ -76,6 +76,7 @@ export const PAGES = [
 // The five Savant tools take their title and description from TOOLS in seo-content.mjs.
 const STANDALONE = {
   'basketball-savant.html': { description: 'Percentile sliders, player comparisons, shot charts and on/off data for every NBA player.', sitemap: '0.9' },
+  'college-basketball-savant.html': { description: 'Baseball Savant-style percentiles for every men\'s Division I player: opponent-adjusted, by position, with RAPM, shot zones, lineups and team ratings.', sitemap: '0.8' },
   'draft-savant.html': { description: 'Draft prospect profiles, percentiles and comps from Western Conference Elitists.', sitemap: '0.8' },
   'football-savant.html': { sitemap: '0.8' },
   'coaching-savant.html': { sitemap: '0.6' },

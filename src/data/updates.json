@@ -1,5 +1,19 @@
 [
   {
+    "date": "2026-11-02",
+    "product": "College Basketball Savant",
+    "version": "1.0.0",
+    "text": "Every men's D1 player on percentile bars, adjusted for opponents, with RAPM, shot zones, lineups and team ratings",
+    "href": "/college-basketball-savant.html"
+  },
+  {
+    "date": "2026-11-02",
+    "product": "Draft Savant",
+    "version": "1.1.0",
+    "text": "College numbers for the 2027 class on come straight from College Basketball Savant, with links both ways",
+    "href": "/draft-savant.html"
+  },
+  {
     "date": "2026-10-30",
     "product": "Basketball Savant",
     "version": "2.6.0",
