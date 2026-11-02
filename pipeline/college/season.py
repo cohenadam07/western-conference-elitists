@@ -16,6 +16,9 @@ and kept for the rest. Box lines always count.
               reconcile that. Fails -> out of everything built from the play-by-play.
   lineup_ok   pbp_ok, has lineups, 90%+ of plays with five firm men on each D1 side, and at most 2
               players more than a minute off the box. Fails -> out of on/off, lineups and RAPM.
+
+The .pkl files are this pipeline's own intermediate tables, written and read on this machine or
+in the same cloud run. Nothing downloaded is ever unpickled.
 """
 import concurrent.futures as cf
 import gzip

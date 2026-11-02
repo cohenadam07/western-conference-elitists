@@ -27,6 +27,11 @@
       "permanent": true
     },
     {
+      "source": "/college-basketball-savant",
+      "destination": "/college-basketball-savant.html",
+      "permanent": true
+    },
+    {
       "source": "/draft-savant",
       "destination": "/draft-savant.html",
       "permanent": true
@@ -126,6 +131,10 @@
       "destination": "/savant-api/site/v1/articles/:slug.gz"
     },
     {
+      "source": "/cbb/:f(.*\\.json)",
+      "destination": "/cbb/:f.gz"
+    },
+    {
       "source": "/bcs/t/:f(.*\\.json)",
       "destination": "/bcs/t/:f.gz"
     },
@@ -151,6 +160,32 @@
     }
   ],
   "headers": [
+    {
+      "source": "/cbb/:f(.*\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/cbb/:f(.*\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
     {
       "source": "/savant-data.json",
       "headers": [
