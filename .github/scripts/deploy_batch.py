@@ -9,8 +9,8 @@ It deploys when data is waiting and
   - the live site's last build is at least GAP_H hours old, outside QUIET hours (ET), or
   - an injury update is waiting during an NFL game window (ET), when lineups are set, or
   - someone asked by hand (workflow_dispatch).
-Otherwise it waits for a later run. It runs every 30 minutes and right after each data bot
-finishes. Replayed over Oct 29 – Nov 2, 2026, this took the site from 18.4 deploys a day to
+Otherwise it looks again 5 minutes later: each run watches for close to six hours (see main).
+Replayed over Oct 29 – Nov 2, 2026, this took the site from 18.4 deploys a day to
 7.7 (code changes included); data waited about 2 hours on the median, and the night's late
 games went out together at 6am.
 
@@ -18,8 +18,9 @@ games went out together at 6am.
 until the first commit Vercel builds (anyone else's, or a deploy commit). Code changes still
 deploy the moment they land, and take every waiting data commit with them.
 
-Writes deploy-batch.txt (the Control Room check-in detail) and sets the step output
-deployed=yes|no. DRY_RUN=1 decides and prints without committing.
+Checks in with the Control Room (job deploy-batch) after each deploy and on a failure, and
+sets the step output deployed=yes|no. DRY_RUN=1 decides and prints without committing;
+WATCH_MINUTES=N keeps looking every 5 minutes for N minutes.
 """
 import datetime as dt
 import os
@@ -125,20 +126,26 @@ def output(key, value):
             f.write(f"{key}={value}\n")
 
 
-def main():
-    dry = os.environ.get("DRY_RUN") == "1"
-    force = os.environ.get("FORCE") == "true"
-    output("deployed", "no")
+def check_in(state, detail):
+    """Tell the Control Room (job deploy-batch). Never fails the run."""
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        return
+    subprocess.run(["bash", ".github/scripts/control-room.sh", "deploy-batch", state, detail[:290]],
+                   capture_output=True, text=True, timeout=120)
+
+
+def one_pass(dry, force):
+    """Look once and deploy if due. Returns 'deployed', 'waiting' or 'failed'."""
     for attempt in range(1, 4):
         if not dry:
             git("fetch", "-q", "--depth=120", "origin", "main")
         pending, last = waiting()
         go, reason = decide(pending, last, time.time(), force)
-        print(f"{'deploy' if go else 'wait'}: {reason}")
+        print(f"{dt.datetime.now(ET):%-I:%M %p} {'deploy' if go else 'wait'}: {reason}", flush=True)
         for c in pending[:20]:
             print(f"  waiting since {dt.datetime.fromtimestamp(c['t'], ET):%a %-I:%M %p}  {c['subject']}")
         if not go or dry:
-            return 0
+            return "waiting"
         line = summary(pending)
         body = "\n".join(f"- {c['subject']}" for c in reversed(pending[:40]))
         if len(pending) > 40:
@@ -149,16 +156,41 @@ def main():
             "-m", f"Ships the data waiting since the last build ({reason}).\n\n{body}")
         r = subprocess.run(["git", "push", "-q", "origin", "HEAD:main"], capture_output=True, text=True)
         if r.returncode == 0:
-            print(f"pushed: deploy: {line}")
-            with open("deploy-batch.txt", "w") as f:
-                f.write(f"Deployed {line}; {reason}"[:290])
+            print(f"pushed: deploy: {line}", flush=True)
+            check_in("success", f"Deployed {line}; {reason}")
             output("deployed", "yes")
-            return 0
+            return "deployed"
         print(f"push rejected (attempt {attempt}): {r.stderr.strip()[:200]}; looking again")
     print("::error::couldn't push the deploy commit after 3 tries")
-    with open("deploy-batch.txt", "w") as f:
-        f.write("Couldn't push the deploy commit after 3 tries")
-    return 1
+    check_in("failure", "Couldn't push the deploy commit after 3 tries")
+    return "failed"
+
+
+def main():
+    """One look, or with WATCH_MINUTES a watcher: look every 5 minutes until the time is up.
+
+    GitHub runs scheduled workflows late or not at all when it's busy (on Nov 2, 2026 nothing
+    scheduled in this repo ran for more than five hours), so the job doesn't rely on its
+    schedule: each run watches for close to six hours and the workflow starts a successor at
+    the end, the way the Basketball Savant slate watcher does. A force (a run by hand) applies
+    to the first look only.
+    """
+    dry = os.environ.get("DRY_RUN") == "1"
+    force = os.environ.get("FORCE") == "true"
+    start = time.time()
+    end = start + 60 * int(os.environ.get("WATCH_MINUTES") or 0)
+    output("deployed", "no")
+    while True:
+        if one_pass(dry, force) == "failed":
+            return 1
+        force = False
+        if time.time() + 300 > end:
+            if end - start >= 3600:
+                # The workflow starts a successor only after a full watch, so a run that ends
+                # early (a crash, a bad setting) can't set off a tight loop of runs.
+                open("watched-full.txt", "w").close()
+            return 0
+        time.sleep(300)
 
 
 if __name__ == "__main__":
