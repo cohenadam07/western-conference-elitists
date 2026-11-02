@@ -25,8 +25,8 @@ seed() {
   if git fetch -q --depth 1 origin cbb-data 2>/dev/null; then
     S=$(python3 -c "import sys;sys.path.insert(0,'$CC');import config;print(config.CURRENT)")
     mkdir -p "$ESPN_CBB_CACHE/$S/raw" "$ESPN_CBB_CACHE/$S/from-mac"
-    git archive FETCH_HEAD | tar -x -C "$ESPN_CBB_CACHE/$S/from-mac"
-    cp -n "$ESPN_CBB_CACHE/$S/from-mac"/*.json.gz "$ESPN_CBB_CACHE/$S/raw/" 2>/dev/null
+    git show FETCH_HEAD:cbb-data.tar.enc | openssl enc -d -aes-256-cbc -pbkdf2 -pass env:CBBD_API_KEY | tar -xz -C "$ESPN_CBB_CACHE/$S/from-mac" \
+      && cp -n "$ESPN_CBB_CACHE/$S/from-mac"/*.json.gz "$ESPN_CBB_CACHE/$S/raw/" 2>/dev/null
   fi
 }
 

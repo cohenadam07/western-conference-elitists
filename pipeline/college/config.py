@@ -30,6 +30,7 @@ PBP = "ESPN play-by-play, rebuilt by WCE"
 LIN = "Lineups rebuilt by WCE from ESPN substitutions (from Feb 2025) and CollegeBasketballData on-floor data (2024-25 before that)"
 LOC = "Shot locations from ESPN (2025 on) and CollegeBasketballData (earlier)"
 
+RAPM_EARLY = "Early: pools 2024-25 onward and firms up as the season goes."
 S = namedtuple("S", "key label group kind unit lower settle n family start what formula source sample")
 S.__new__.__defaults__ = (None,)
 
@@ -42,11 +43,11 @@ PER = "per possession, shown per 70 or per 100"
 STATS = [
     # ---------------------------------------------------------------- Impact
     R("rapm", "RAPM", "Impact", "skill", "sgn1", "Points per 100 possessions the player adds, on both ends, once the nine others on the floor are accounted for. The model's view, not a verdict.",
-      "Ridge regression on every clean stint, pooled over up to four seasons, with box impact as the prior", LIN, "Shown above 500 on-court possessions in the pool; low sample below.", family="court", start="2024-25", settle=None, n="rapm_n"),
+      "Ridge regression on every clean stint, pooled from 2024-25 onward, with box impact as the prior", LIN, f"{RAPM_EARLY} Shown above 500 on-court possessions in the pool; low sample below.", family="court", start="2024-25", settle=None, n="rapm_n"),
     R("rapm_o", "Offensive RAPM", "Impact", "skill", "sgn1", "The offensive half of RAPM: what the offense does per 100 with the player on the floor, others accounted for.",
-      "The offense terms of the RAPM regression", LIN, "As RAPM.", family="court", start="2024-25", n="rapm_n"),
+      "The offense terms of the RAPM regression", LIN, f"{RAPM_EARLY} As RAPM.", family="court", start="2024-25", n="rapm_n"),
     R("rapm_d", "Defensive RAPM", "Impact", "skill", "sgn1", "The defensive half of RAPM. Positive means the defense is better with the player.",
-      "The defense terms of the RAPM regression", LIN, "As RAPM.", family="court", start="2024-25", n="rapm_n"),
+      "The defense terms of the RAPM regression", LIN, f"{RAPM_EARLY} As RAPM.", family="court", start="2024-25", n="rapm_n"),
     R("bi", "Box impact", "Impact", "skill", "sgn1", "What the box line says RAPM should be. It is RAPM's prior, and the best read on a player with few possessions.",
       "Regression of pooled RAPM on per-possession points, assists, turnovers, rebounds, steals, blocks, fouls and shot mix", f"{ESPN}; fitted to {LIN}", "Reads every game.", n="poss"),
     R("onoff", "On/off", "Impact", "skill", "sgn1", "Team net rating with the player on the floor minus off. Raw: it does not know who else was out there.",

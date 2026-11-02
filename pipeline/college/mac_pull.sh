@@ -1,7 +1,8 @@
 #!/bin/bash
-# mac_pull.sh — rung 2: ESPN from Adam's Mac (launchd com.wcehoops.cbb-mac-pull, 5am ET and on wake).
-# It does nothing until the heartbeat says the cloud is blocked (data/cbb-refresh.json on main:
-# espn_cloud_blocked). Then it pulls that game day's finals and force-pushes the raw files as one
+# mac_pull.sh — ESPN from Adam's Mac (launchd com.wcehoops.cbb-mac-pull, 5am ET).
+# Every day: keeps the private raw archive current (rung 0). Mondays: sends this season's ages.
+# Rung 2: only when the heartbeat says the cloud is blocked (data/cbb-refresh.json on main:
+# espn_cloud_blocked), it pulls that game day's finals and force-pushes them, encrypted, as one
 # parentless commit to cbb-data, modeled on publish_tracking.sh. Vercel skips that branch
 # (no package.json: scripts/vercel-ignore.sh). DRY_RUN=1 forces the path and stops before the push.
 # Log: ~/Basketball-Savant/logs/cbb-mac.log
@@ -24,6 +25,12 @@ if [ "$(date +%u)" = "1" ] || [ "${AGES:-}" = "1" ]; then
     && { [ "${DRY_RUN:-}" = "1" ] && echo "ages: dry run, not pushed" || git push -qf "https://github.com/cohenadam07/western-conference-elitists.git" HEAD:refs/heads/cbb-bundles; }
   cd "$SAVANT" || exit 1
 fi
+# Rung 0: the private archive. Every morning, whatever the cloud is doing, this Mac keeps its own copy
+# of the season's raw responses, and packs last month's on the 1st. Nothing here leaves the Mac.
+(cd "$CODE" && "$PY" espn_cbb.py pull 2026-27 >/dev/null) || echo "archive pull failed"
+if [ "$(date +%d)" = "01" ]; then
+  M=$(date -v-1d +%Y-%m); (cd "$CODE" && "$PY" archive.py pack "$M" && "$PY" archive.py verify "$M") || echo "archive pack failed"
+fi
 BLOCKED=$(curl -fsS https://raw.githubusercontent.com/cohenadam07/western-conference-elitists/main/data/cbb-refresh.json 2>/dev/null | "$PY" -c 'import json,sys;print(json.load(sys.stdin).get("espn_cloud_blocked",False))' 2>/dev/null)
 if [ "$BLOCKED" != "True" ] && [ "${DRY_RUN:-}" != "1" ]; then echo "cloud is fine"; exit 0; fi
 rm -rf "$OUT"; mkdir -p "$OUT"
@@ -44,6 +51,10 @@ shutil.copy(os.path.join(E.ROOT, C.CURRENT, "days.json"), out)
 print(len(evs), "finals packed")
 PY
 cd "$OUT" || exit 1
+# The repo is public, so the raw files travel encrypted: only this Mac and the cloud job hold the key.
+export CBBD_API_KEY="$(cat "$HOME/.config/wce/cbbd.key")"
+tar -czf - ./*.json.gz days.json | openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:CBBD_API_KEY -out ../cbb-data.tar.enc || exit 1
+rm -f ./*.json.gz days.json && mv ../cbb-data.tar.enc . || exit 1
 git init -q . && git add -A && git -c user.name=wcehoops-mac -c user.email=bot@wcehoops.com commit -qm "cbb-data $(date +%F)"
-if [ "${DRY_RUN:-}" = "1" ]; then echo "dry run: $(git ls-files | wc -l | tr -d ' ') files in one parentless commit ($(git rev-list --count HEAD)); not pushed"; exit 0; fi
+if [ "${DRY_RUN:-}" = "1" ]; then echo "dry run: one encrypted file in one parentless commit ($(git rev-list --count HEAD)), $(du -h cbb-data.tar.enc | cut -f1); not pushed"; exit 0; fi
 git push -qf "https://github.com/cohenadam07/western-conference-elitists.git" HEAD:refs/heads/cbb-data && echo pushed

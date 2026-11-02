@@ -1,13 +1,13 @@
 """
 archive.py — rung 0. A month's raw ESPN responses as one bundle, so a cutoff never erases what we
-have. `release` uploads it as the GitHub release asset cbb-raw-YYYY-MM (never committed to git).
-Only ESPN's responses: CBBD's files are inputs we may not redistribute, so they stay out.
+have. Private, by Adam's decision of Nov 2, 2026: bundles stay on this Mac under ~/Basketball-Savant
+and are never uploaded. The repo is public, so a release asset would be a public copy of ESPN's raw
+JSON. mac_pull.sh keeps the raw files current and packs the month on the 1st.
 
     python3 archive.py pack 2026-11          -> <home>/archive/cbb-raw-2026-11.tar
     python3 archive.py verify 2026-11        every member decompresses and parses; prints the count
-    python3 archive.py release 2026-11       gh release create (the monthly workflow runs this)
 """
-import gzip, json, os, subprocess, sys, tarfile
+import gzip, json, os, sys, tarfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import cbbd_client as CC  # noqa: E402
@@ -53,13 +53,5 @@ def verify(month):
     return n
 
 
-def release(month):
-    tag = f"cbb-raw-{month}"
-    r = subprocess.run(["gh", "release", "view", tag], capture_output=True)
-    if r.returncode:
-        subprocess.run(["gh", "release", "create", tag, "--title", tag, "--notes", "College Basketball Savant: raw ESPN archive, one month."], check=True)
-    subprocess.run(["gh", "release", "upload", tag, path(month), "--clobber"], check=True)
-
-
 if __name__ == "__main__":
-    {"pack": pack, "verify": verify, "release": release}[sys.argv[1]](sys.argv[2])
+    {"pack": pack, "verify": verify}[sys.argv[1]](sys.argv[2])

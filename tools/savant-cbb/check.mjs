@@ -153,6 +153,27 @@ test('every connector value equals the page\'s math', async () => {
   assert.ok(n > 1000, `only ${n} values compared`)
 })
 
+test('RAPM says it is early, on the page and through the connector', async () => {
+  assert.match(reg.rapm_early, /pools 2024-25 onward/)
+  assert.match(reg.rapm_early, /firms up as the season goes/)
+  for (const k of ['rapm', 'rapm_o', 'rapm_d']) assert.ok(byKey[k].note.includes(reg.rapm_early), `${k} explainer`)
+  const html = readFileSync(path.join(ROOT, 'public', 'college-basketball-savant.html'), 'utf8')
+  assert.match(html, /REG\.rapm_early/)
+  const s = idx.default_season
+  const d = read(`s/${s}.json`)
+  const p = d.players.find((x) => x[M.COL.qual])
+  const a = await call('cbb_get_player_profile', { player: p[0], season: s })
+  for (const st of a.stats.filter((x) => x.key.startsWith('rapm'))) assert.equal(st.early, reg.rapm_early)
+  assert.equal((await call('cbb_leaderboard', { stat: 'rapm', season: s })).early, reg.rapm_early)
+})
+
+test('the raw archive stays off GitHub, and rung 2 travels encrypted', () => {
+  const yml = readFileSync(path.join(ROOT, '.github/workflows/college-basketball-savant-cloud.yml'), 'utf8')
+  assert.ok(!/archive\.py|gh release/.test(yml), 'the workflow must not upload the archive')
+  assert.ok(!/gh", "release/.test(readFileSync(path.join(ROOT, 'pipeline/college/archive.py'), 'utf8')), 'archive.py must not upload')
+  assert.match(readFileSync(path.join(ROOT, 'pipeline/college/mac_pull.sh'), 'utf8'), /openssl enc -aes-256-cbc/)
+})
+
 test('every tool answers', async () => {
   const s = idx.default_season
   const d = read(`s/${s}.json`)

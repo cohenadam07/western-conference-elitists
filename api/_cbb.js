@@ -60,8 +60,9 @@ async function findTeam(q) {
 const tname = async (id) => { const d = await search(); return (d.teams.find((t) => t[0] === id) || [])[1] || 'Non-D1' }
 
 // ---- answers --------------------------------------------------------------------------
-function statLine(s, r) {
+function statLine(s, r, R) {
   const b = { key: s.key, label: s.label, group: s.group, context: s.kind === 'context', lower_is_better: s.lower, tracked: r.tracked }
+  if (s.key.startsWith('rapm')) b.early = R.rapm_early
   if (!r.tracked) return { ...b, value: null, percentile: null, note: r.reason }
   if (r.low) return { ...b, value: r.value, shown: r.shown, percentile: null, low_sample: true, sample: r.n, note: 'low sample' }
   return { ...b, value: r.value, shown: r.shown, percentile: r.pct, before_adjustment: r.raw, sample: r.n, low_sample: r.settling, likely_to_settle_at: r.likelyShown }
@@ -83,12 +84,13 @@ async function profile({ player, season, pool, adjusted, garbage_time, per, grou
   if (i < 0) throw new SavantError(`${p[1]} has no line in ${s}. Try cbb_player_career.`)
   const pl = d.players[i]
   const o = { poolName: POOLKEY[pool], adj: adjusted, gt: garbage_time, per }
-  const rows = R.stats.filter((x) => group === 'all' || x.group.toLowerCase() === group).map((x) => statLine(x, M.row(d, R, x, i, o)))
+  const rows = R.stats.filter((x) => group === 'all' || x.group.toLowerCase() === group).map((x) => statLine(x, M.row(d, R, x, i, o), R))
   const pp = M.pool(d, R, i, POOLKEY[pool])
   const label = M.poolLabel(pp, pl, { adj: adjusted, season: s })
   const team = await tname(pl[C.team])
   const lines = [`${pl[C.name]}, ${team}, ${s}. ${pl[C.pos] || 'position unknown'}, ${pl[C.cls] || ''}, age ${miss(pl[C.age]) ? 'unknown' : pl[C.age].toFixed(1)} on Feb 1.`, `Percentiles ${label} (${pp.ids.length} players).${pp.widened ? ` ${pp.widened}.` : ''} Rates per ${per} possessions.`]
   for (const r of rows) lines.push(r.tracked ? `${r.label}${r.context ? ' (context)' : ''}: ${r.shown ?? '—'}${r.percentile == null ? (r.note ? ` (${r.note})` : '') : `, ${ordinal(r.percentile)} percentile`}${r.likely_to_settle_at ? `, likely to settle at ${r.likely_to_settle_at}` : ''}` : `${r.label}: ${r.note}`)
+  if (rows.some((r) => r.early)) lines.push(`RAPM: ${R.rapm_early}`)
   lines.push(`Data through ${day(d.through)}. ${playerUrl(pl[C.id], s)}`)
   return { text: lines.join('\n'), structured: { player: { id: pl[C.id], name: pl[C.name], team, team_id: pl[C.team], position: pl[C.pos], class: pl[C.cls], age_feb_1: pl[C.age], height_in: pl[C.ht], weight_lb: pl[C.wt], hometown: pl[C.home], recruit: pl[C.rrank] ? { stars: pl[C.stars], rank: pl[C.rrank], high_school: pl[C.hs] } : null, games: pl[C.gp], minutes: pl[C.min], qualified: !!pl[C.qual], url: playerUrl(pl[C.id], s) }, season: s, pool: { name: label, players: pp.ids.length, widened: pp.widened }, per, stats: rows, data_through: day(d.through), source: SOURCE } }
 }
@@ -149,7 +151,8 @@ async function leaderboard({ stat, season, position, min_possessions, adjusted, 
     rows.push({ rank: k + 1, id: p[C.id], name: p[C.name], team: await tname(p[C.team]), position: p[C.pos], value: +c[i], shown: M.display(st, c[i], per), percentile: r.pct ?? null, url: playerUrl(p[C.id], s) })
   }
   const pool = `vs D1 ${position === 'all' ? 'players' : `${position.toLowerCase()}s`}, ${adjusted && M.hasAdj(d, st.key) ? 'opponent-adjusted' : 'raw'}, ${s}`
-  return { text: [`${st.label} leaders, ${pool}, min ${min_possessions} possessions:`, ...rows.map((r) => `${r.rank}. ${r.name}, ${r.team}: ${r.shown}`), `Data through ${day(d.through)}. ${PAGE}#leaders`].join('\n'), structured: { stat: st.key, label: st.label, season: s, pool, players: ids.length, rows, data_through: day(d.through) } }
+  const early = st.key.startsWith('rapm') ? R.rapm_early : null
+  return { text: [`${st.label} leaders, ${pool}, min ${min_possessions} possessions:`, ...rows.map((r) => `${r.rank}. ${r.name}, ${r.team}: ${r.shown}`), ...(early ? [`RAPM: ${early}`] : []), `Data through ${day(d.through)}. ${PAGE}#leaders`].join('\n'), structured: { stat: st.key, label: st.label, season: s, pool, players: ids.length, rows, data_through: day(d.through), ...(early ? { early } : {}) } }
 }
 
 async function teamRankings({ season, limit, sort }) {
@@ -237,7 +240,7 @@ export const tools = [
   tool('cbb_get_player_profile', 'Get a college player\'s Savant profile', 'One men\'s D1 player-season: percentile bars by group (impact, scoring, shooting, playmaking, rebounding, defense, context), each with its pool, sample and settle estimate. Default pool: opponent-adjusted, D1 at the player\'s position, same season.', { player: who, season, ...opts, group: z.enum(['all', 'impact', 'scoring', 'shooting', 'playmaking', 'rebounding', 'defense', 'context']).default('all').describe('Which group of stats.') }, { player: open, season: z.string(), pool: open, per: z.number(), stats: z.array(open), data_through: z.string(), source: z.string() }, profile),
   tool('cbb_player_career', 'Get a college player\'s career', 'Every season on file across schools, transfers marked, with percentiles per season and nearest comparable players.', { player: who }, { player: open, pool: z.string(), seasons: z.array(open) }, playerCareer),
   tool('cbb_player_splits', 'Get a college player\'s splits', 'Home, road and neutral; conference; Quad 1-4 where NET is on file; month; garbage time; against our top 50; postseason flagged; and the game log.', { player: who, season }, { player: open, season: z.string(), splits: open, games: z.array(open), data_through: z.string() }, playerSplits),
-  tool('cbb_leaderboard', 'College Basketball Savant leaders', 'Leaders in any stat, season, position and minimum sample. Stat keys come from cbb_data_dictionary.', { stat: z.string().min(1).max(20).default('bi').describe('Stat key.'), season, position: z.enum(['all', 'Guard', 'Wing', 'Big']).default('all').describe('Position bucket.'), min_possessions: z.number().int().min(0).max(3000).default(300).describe('Minimum possessions.'), adjusted: opts.adjusted, garbage_time: opts.garbage_time, per: opts.per, limit: z.number().int().min(1).max(100).default(25).describe('Rows to return.') }, { stat: z.string(), label: z.string(), season: z.string(), pool: z.string(), players: z.number().int(), rows: z.array(open), data_through: z.string() }, leaderboard),
+  tool('cbb_leaderboard', 'College Basketball Savant leaders', 'Leaders in any stat, season, position and minimum sample. Stat keys come from cbb_data_dictionary.', { stat: z.string().min(1).max(20).default('bi').describe('Stat key.'), season, position: z.enum(['all', 'Guard', 'Wing', 'Big']).default('all').describe('Position bucket.'), min_possessions: z.number().int().min(0).max(3000).default(300).describe('Minimum possessions.'), adjusted: opts.adjusted, garbage_time: opts.garbage_time, per: opts.per, limit: z.number().int().min(1).max(100).default(25).describe('Rows to return.') }, { stat: z.string(), label: z.string(), season: z.string(), pool: z.string(), players: z.number().int(), rows: z.array(open), data_through: z.string(), early: z.string().optional() }, leaderboard),
   tool('cbb_team_profile', 'Get a D1 team\'s profile', 'A team-season: ratings, the market\'s view, BPI and NET as reference, four factors, shot diet, luck, schedule, roster and results.', { team: school, season }, { team: open, season: z.string(), roster: z.array(open), results: z.array(open), url: z.string() }, teamProfile),
   tool('cbb_team_rankings', 'Rank D1 teams', 'All D1 teams by our adjusted net, offense, defense, the market, BPI, luck or strength of schedule.', { season, sort: z.enum(['net', 'adjo', 'adjd', 'market', 'bpi', 'luck', 'sos', 'tempo']).default('net').describe('Column to rank by.'), limit: z.number().int().min(1).max(370).default(25).describe('Teams to return.') }, { season: z.string(), sort: z.string(), teams: z.array(open) }, teamRankings),
   tool('cbb_lineups', 'Get a D1 team\'s lineups', '2- to 5-man units, sample- and luck-adjusted, and With/Without for any players. From 2024-25.', { team: school, season, size: z.number().int().min(2).max(5).default(5).describe('Players in the unit.'), with: z.array(z.string()).max(4).optional().describe('Players on the floor.'), without: z.array(z.string()).max(4).optional().describe('Players off the floor.') }, { team: z.string(), season: z.string(), tracked: z.boolean(), size: z.number().optional(), units: z.array(open), with_without: open.nullable() }, lineups),

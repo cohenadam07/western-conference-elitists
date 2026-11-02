@@ -370,7 +370,7 @@ function prow(r){
   var s=statOf(r.key),l=esc(s.label);
   if(!r.tracked)return '<div class="pr off"><div class="pl">'+l+'</div><span class="bar none">'+esc(r.reason==='no value'?'no value this season':r.reason)+'</span><div class="pv">—</div></div>';
   if(r.low)return '<div class="pr off"><div class="pl">'+l+'</div><span class="bar none">low sample, '+esc(r.n==null?0:r.n)+' possessions in the pool</span><div class="pv">'+esc(r.shown)+'</div></div>';
-  var sm=r.settling?'<small>Likely to settle at '+esc(r.likelyShown)+'</small>':(s.lower?'<small>Lower is better</small>':'');
+  var sm=r.settling?'<small>Likely to settle at '+esc(r.likelyShown)+'</small>':(s.lower?'<small>Lower is better</small>':(r.key.indexOf('rapm')===0?'<small>Early</small>':''));
   return '<div class="pr'+(r.settling?' settle':'')+'"><div class="pl">'+l+sm+'</div>'+bar(r,s.label)+'<div class="pv">'+esc(r.shown)+'</div></div>';
 }
 
@@ -387,7 +387,7 @@ function vHome(){
     h+='<p class="finding"><strong>'+esc(top[0].name)+'</strong> leads our ratings at '+sg(top[0].net)+' per 100 possessions. <strong>'+esc(L[0][0][C.name])+'</strong> leads D1 in '+esc(st.label)+' at '+esc(M.display(st,L[0][1],S.per))+'.</p>';
     h+='<div class="cols even"><section class="card"><div class="hd"><h2>Top teams</h2><a class="meta" href="#teams">All 365</a></div><div class="twrap"><table class="tbl"><thead><tr><th>Team</th><th class="r">Net</th><th class="r hide-s">Off</th><th class="r hide-s">Def</th><th class="r">Record</th></tr></thead><tbody>'+
       top.map(function(r){return '<tr><td>'+teamLink(r.id)+'</td><td class="r">'+sg(r.net)+'</td><td class="r hide-s">'+num(r.adjo)+'</td><td class="r hide-s">'+num(r.adjd)+'</td><td class="r">'+r.w+'–'+r.l+'</td></tr>';}).join('')+'</tbody></table></div></section>';
-    h+='<section class="card"><div class="hd"><h2>'+esc(st.label)+' leaders</h2><a class="meta" href="#leaders">All leaders</a></div><div class="twrap"><table class="tbl"><thead><tr><th>Player</th><th>Team</th><th class="r">'+esc(st.label)+'</th></tr></thead><tbody>'+
+    h+='<section class="card"><div class="hd"><h2>'+esc(st.label)+' leaders</h2><a class="meta" href="#leaders">All leaders</a></div>'+(st.key==='rapm'?'<p class="pool-n" style="margin-top:0">'+esc(REG.rapm_early)+'</p>':'')+'<div class="twrap"><table class="tbl"><thead><tr><th>Player</th><th>Team</th><th class="r">'+esc(st.label)+'</th></tr></thead><tbody>'+
       L.map(function(x){var p=x[0];return '<tr><td>'+playerLink(p[C.id],p[C.name])+'</td><td>'+teamLink(p[C.team])+'</td><td class="r">'+esc(M.display(st,x[1],S.per))+'</td></tr>';}).join('')+'</tbody></table></div></section></div>';
     if(!(si.court))h+='<p class="meta" style="margin-top:12px">On/off, lineups and RAPM are not tracked this season: clean lineup data starts in 2024-25.</p>';
     return {html:h,cur:'players'};
@@ -448,7 +448,7 @@ function vPlayer(id,season){
       h+='<p class="pool-n">Pool: '+esc(label.replace(/^vs /,''))+', '+esc(pl.ids.length)+' qualified players (30% of team minutes).'+(pl.widened?' '+esc(pl.widened)+'.':'')+'</p>'+legend();
       REG.groups.forEach(function(g){
         var ss=REG.stats.filter(function(s){return s.group===g;});
-        h+='<div class="grp"><h3>'+esc(g==='Context'?'Context':g)+(g==='Context'?'<small>CONTEXT: how much, not how good</small>':'')+'</h3>'+ss.map(function(s){return prow(R[s.key]);}).join('')+'</div>';
+        h+='<div class="grp"><h3>'+esc(g==='Context'?'Context':g)+(g==='Context'?'<small>CONTEXT: how much, not how good</small>':g==='Impact'?'<small>'+esc(REG.rapm_early)+'</small>':'')+'</h3>'+ss.map(function(s){return prow(R[s.key]);}).join('')+'</div>';
       });
       h+='</section><div class="stack">';
       var rec=car.b,recL=(cs[id].r.filter(function(x){return x.rec;})[0]||{}).rec;

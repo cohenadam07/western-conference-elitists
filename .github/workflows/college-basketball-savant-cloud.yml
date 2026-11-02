@@ -6,12 +6,11 @@
 # published; after 5 hours it hands over to a fresh watcher. GitHub runs frequent schedules only when
 # it has spare capacity, so three backups cover a dropped start. Odd minutes on purpose.
 #
-# Dry run: `mode=dry` does a whole refresh and commits nothing. A push to this branch, before the
-# workflow is on main, runs that same dry run, which is how the build proved it on a runner.
+# Dry run: `mode=dry` does a whole refresh and commits nothing.
 #
 # T-Rank refuses GitHub's runners, so the Mac sends this season's ages (pipeline/college/mac_pull.sh).
 #
-# The first of each month it uploads the month's raw ESPN bundle (rung 0).
+# The raw archive (rung 0) is not here: it stays on Adam's Mac, private (pipeline/college/mac_pull.sh).
 name: College Basketball Savant cloud refresh
 
 on:
@@ -21,16 +20,12 @@ on:
     - cron: '19 1 * * *'      # watcher, backup
     - cron: '37 3 * * *'      # watcher, backup (late West Coast tips)
     - cron: '29 10 * * *'     # rebuild regardless, for stat corrections
-    - cron: '53 11 1 * *'     # the month's raw archive
-  push:
-    branches: [college-basketball-savant]
-    paths: ['.github/workflows/college-basketball-savant-cloud.yml']
   workflow_dispatch:
     inputs:
       mode:
-        description: 'once, watch, dry (a full refresh that commits nothing) or archive'
+        description: 'once, watch or dry (a full refresh that commits nothing)'
         type: choice
-        options: [once, watch, dry, archive]
+        options: [once, watch, dry]
         default: once
 
 concurrency:
@@ -77,11 +72,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           EV="${{ github.event_name }}"; CRON="${{ github.event.schedule }}"; MODE="${{ github.event.inputs.mode }}"
-          if [ "$EV" = "push" ] || [ "$MODE" = "dry" ]; then exec bash pipeline/college/cloud_run.sh dry
-          elif [ "$CRON" = "53 11 1 * *" ] || [ "$MODE" = "archive" ]; then
-            M=$(date -u -d 'yesterday' +%Y-%m)
-            cd pipeline/college && python3 -c "import config,espn_cbb as E;E.pull_summaries(config.CURRENT,E.sweep(config.CURRENT))" \
-              && python3 archive.py pack "$M" && python3 archive.py verify "$M" && python3 archive.py release "$M"
+          if [ "$MODE" = "dry" ]; then exec bash pipeline/college/cloud_run.sh dry
           elif [ "$CRON" = "29 10 * * *" ]; then exec bash pipeline/college/cloud_run.sh once --force
           elif [ "$MODE" = "once" ]; then exec bash pipeline/college/cloud_run.sh once --force
           else exec bash pipeline/college/cloud_run.sh watch 5

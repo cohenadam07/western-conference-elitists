@@ -587,7 +587,7 @@ def registry(public, gen):
                           k=k.get("k"), sample_unit=k.get("unit"), what=s.what, formula=s.formula, source=s.source, note=s.sample))
     adj = load_json(os.path.join(HOME, "adjust-test.json")) or {}
     return jdump(os.path.join(public, "cbb", "registry.json"), dict(version=C.VERSION, generated=gen, groups=C.GROUPS, stats=stats, adjusted=adj.get("adjust", []), three_prior=settle.get("_three_prior"),
-                                                                     min_pool=C.MIN_POOL, qual_min_share=C.QUAL_MIN_SHARE, per=[70, 100], high_major=sorted(AJ.HIGH_MAJOR), rapm_min=500))
+                                                                     rapm_early=C.RAPM_EARLY, min_pool=C.MIN_POOL, qual_min_share=C.QUAL_MIN_SHARE, per=[70, 100], high_major=sorted(AJ.HIGH_MAJOR), rapm_min=500))
 
 
 def lite(public, season):
