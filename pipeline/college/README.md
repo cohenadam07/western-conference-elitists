@@ -20,13 +20,13 @@ Men's Division I. `public/college-basketball-savant.html`, data in `public/cbb/`
 | `aggregate.py` | One formula per stat. `rates()` serves seasons, splits and games alike |
 | `ratings.py` | Our team ratings, the market's, and the walk-forward test |
 | `adjust.py` | Opponent adjustment and the transfer test that picks the method |
-| `positions.py` | Guard, wing, big from BPM 2.0's estimate |
+| `positions.py` | Guard, wing, big: box estimate, height and listing blended, plus a size rule |
 | `settle.py` | Settle points |
 | `xfg.py`, `rapm.py` | Shot quality; box impact and RAPM |
 | `config.py` | The stat registry. A stat missing here does not exist |
 | `build.py` | Everything to `public/cbb/`. `--merge <season>` rebuilds one |
 | `fallback.py` | Rungs 3 and 4, and their diff reports |
-| `archive.py`, `mac_pull.sh` | Rung 0, rung 2 |
+| `archive.py`, `mac_pull.sh` | Rung 0 (private, on the Mac), rung 2, Monday's ages |
 | `cloud_cbb.py`, `cloud_run.sh` | The nightly refresh |
 | `full_build.sh`, `backfill.sh` | The Mac's full build; the seasons before 2022-23 |
 
@@ -39,8 +39,8 @@ Men's Division I. `public/college-basketball-savant.html`, data in `public/cbb/`
   `2024-12-07T00:00:00Z` works.
 - **CBBD's participant order is random on assisted shots.** Use `shotInfo.shooter`.
 - **ESPN's college JSON has raw control characters.** Parse with `strict=False`.
-- **The repo is public.** Nothing from CBBD and no birthdate may reach `public/`, `cbb-bundles`,
-  `cbb-data` or a release. `tools/savant-cbb/check.mjs` holds `public/cbb` to that.
+- **The repo is public.** Nothing from CBBD, no birthdate and no raw ESPN file may reach `public/`,
+  `cbb-bundles` or a release. The raw archive stays on the Mac; `cbb-data` carries rung 2 encrypted. `tools/savant-cbb/check.mjs` holds `public/cbb` to that.
 - **Never run `pgrep -f` on a string in the same shell line.** It matches itself (Nov 2).
 
 ## Full rebuild on the Mac

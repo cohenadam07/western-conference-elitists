@@ -1,7 +1,41 @@
 # College Basketball Savant 1.0.0
 
-Built Nov 2, 2026 on branch `college-basketball-savant`, not merged. Connector changes need Adam's
-approval. Pipeline map: `pipeline/college/README.md`.
+Built Nov 2, 2026 on branch `college-basketball-savant`. Adam reviewed it the same day; his decisions are in
+the next section. Merged to main and live on wcehoops.com the same evening. Pipeline map: `pipeline/college/README.md`.
+
+## Adam's decisions, Nov 2, and what changed
+
+1. **Raw archive: private.** The monthly `cbb-raw-*` upload is gone, cron and step, and `archive.py` has no upload
+   any more. The Mac keeps the raw files under `~/Basketball-Savant`, pulled every morning by `mac_pull.sh` and packed
+   on the 1st. Nothing was ever uploaded. One thing beyond the ask: rung 2 pushed raw files to the public `cbb-data`
+   branch if it ever fired, so they now travel encrypted, with `CBBD_API_KEY` as the passphrase since both ends
+   already hold it. `check:savant-cbb` pins all of this.
+2. **Positions: fixed.** Details under step 8 and below.
+3. **Data checks: accepted.** Game-level exclusions for the final-score gate and 2024-25's stint minutes stand, and
+   `COURT_MIN = 0.60` stays.
+4. **RAPM: launched, labelled early.** "Early: pools 2024-25 onward and firms up as the season goes." On the
+   card's Impact group and each RAPM row, the home leaders, all three explainers, and connector profile and
+   leaderboard answers. `check:savant-cbb` pins it.
+5. **Connector: approved.** All 11 tools and the 72,000-character upfront size.
+
+## Launch, Nov 2
+
+- **Merged:** `5765d2b6e`, with `cbb-bundles` pushed first so the cloud reads the new position scales.
+- **All five checks passed before the merge and again before the fix below:** `check:savant` 208, `check:savant-cbb` 11,
+  `check:savant-draft` 18, `check:whats-new` 9, `check:connector-coverage` 1.
+- **A bug got through to live and was fixed within minutes.** Every lookup by name failed on the first deploy: profile, career,
+  splits, team profile and lineups all returned an error, because `findPlayer` and `findTeam` misread what `topTier` returns.
+  The check only ever called those tools by id, so it passed. Fixed in `dcffcb792`, and `check:savant-cbb` now asks by name
+  wherever a tool takes one.
+- **Confirmed live after the fix:** the page on desktop and phone with no page errors or side scroll, Cameron Boozer shown as a
+  Big ("vs D1 bigs", 628 players) and AJ Dybantsa as a Wing, the RAPM label on the card and in connector answers, 61 connector
+  tools with all 11 `cbb_` present, and name lookups answering on profile, career, splits, team profile, lineups, search,
+  rankings and the dictionary.
+- **Launchd:** `com.wcehoops.cbb-mac-pull` is loaded, 5:07am daily. The deployed script passed a dry run; the job itself has
+  not run under launchd yet.
+- **Nothing public:** no `cbb-raw-*` release exists and no `cbb-data` branch exists.
+- **Not yet seen:** a scheduled cloud refresh on main. The workflow's first runs were the dry runs on the branch. Until one
+  lands, `data/cbb-refresh.json` does not exist, and the freshness alarm would fail on it.
 
 ## What shipped
 
@@ -11,8 +45,8 @@ approval. Pipeline map: `pipeline/college/README.md`.
 - **Seasons on the site:** 2022-23 through 2026-27. 10,346 players, 41 stats, each with an explainer.
 - **The connector:** 11 `cbb_` tools in `api/_cbb.js`. Math shared with the page in `public/savant-cbb.js`.
 - **The check:** `tools/savant-cbb/check.mjs`, wired into `check:savant`.
-- **The refresh:** `college-basketball-savant-cloud.yml` with a slate watcher, a freshness alarm, a monthly
-  raw archive, and rungs 0 to 4 of the fallback ladder.
+- **The refresh:** `college-basketball-savant-cloud.yml` with a slate watcher, a freshness alarm, a private raw
+  archive on the Mac, and rungs 0 to 4 of the fallback ladder.
 - **Draft Savant 1.1.0:** cross-links both ways, and `draft_cbb.py` for the 2027 class on. It replaces
   nothing yet: Draft Savant has no 2027 class.
 - **Entry points:** nav, home card, AI connector list, SEO, sitemap, player pages, What's New, Control Room.
@@ -97,8 +131,14 @@ Within 0.5 of BPI in every season: **pass.** Market rating built for all four se
 - **Opponent adjustment:** 491 players who changed levels. RMSE relative to raw: regression .9676,
   multiplicative .9701. **The regression wins** and beats raw. `mid_fg`, `pnt_fg` and `tov` did not beat raw on
   their own, so they stay raw.
-- **Positions:** 77.5% agreement with ESPN's listings, cut points 2.913 and 3.411 to match Basketball Savant's
-  shares (41/34/25). See the review list.
+- **Positions:** agreement with ESPN's listings **77.5% before, 80.8% after**. Shares match Basketball Savant's
+  (40.7 / 34.1 / 25.2). Listed centers labelled Big: 85.7% to 97.9%.
+  Score = 0.5 box + 0.3 height + 0.2 listed, in standard deviations, plus one rule: a forward or center 6'8" or taller who
+  rebounds like a center (TRB% ≥ 15.2, the median of listed centers) is a big. That rule labels 1401 of the qualified
+  seasons. The blend alone did not fix Boozer under any weighting: his 26% assist rate takes 0.92 off the estimate. The spec's
+  team normalization is gone; it lowered agreement and pushed bigs down on tall rosters.
+  Boozer is a Big and Dybantsa a Wing. **Worth a look:** Yaxel Lendeborg is a Wing in 2025-26 (Big the two years before) and
+  Cooper Flagg a Big in 2024-25.
 - **Settle points:** 26 stats measured. 3P% needs 596 attempts, FT% 32, three-point rate 6. Year-to-year 3P% came
   out at .17 and attempt rate at .77, against the research doc's .29 and .73.
 
@@ -122,9 +162,9 @@ Qualified players per finished season: 2,666-2,740 (guards 1,132-1,181, wings 87
 
 | Rung | Test | Result |
 |---|---|---|
-| 0 Archive | Pack and verify Nov 2026 | Pass. **No upload yet**, see review list |
+| 0 Archive | Pack and verify Nov 2026 | Pass. Private, on this Mac only |
 | 1 ESPN cloud | Runner dry run | See step 15 |
-| 2 Mac | Forced dry run | Pass, 13 files in one parentless commit, not pushed |
+| 2 Mac | Forced dry run, from the deployed copy | Pass, one encrypted file in one parentless commit, decrypts to every file, not pushed |
 | 3 CBBD | Two dates vs ESPN, 231 games | Scores 99.6%, shooters 99.8%, coordinates within 2 ft 98-99.9%, bias .05 ft, fives exact on 77% of plays (timing around stoppages) |
 | 4 NCAA.com | Two dates, 80 games | FGA ratio 1.00, scores 90%, FGA lines 87.5%, names 80%. Thin: last resort only |
 
@@ -142,8 +182,8 @@ Taste Skill's app-screen rules were used as guidance; its scripts were not run.
 ### Steps 13, 14, 16
 
 - `check:savant-draft`: pass, 18 of 18.
-- `check:savant`: pass, 205 of 205, including `check:savant-cbb` 8 of 8.
-- `check:connector-coverage`: pass. Upfront connector size raised from 63,000 to 72,000 characters.
+- `check:savant`: pass, 207 of 207, including `check:savant-cbb` 10 of 10.
+- `check:connector-coverage`: pass. Upfront connector size raised from 63,000 to 72,000 characters, approved.
 - `check:whats-new`: pass, 9 of 9.
 - **`check:seo`: 5 of 6. Fails on `basketball-coaching-savant.html` only**, a panel-order failure already open on
   main. The new page passes. Left alone: it's another product's layout.
@@ -151,7 +191,7 @@ Taste Skill's app-screen rules were used as guidance; its scripts were not run.
 
 ### Step 15: refresh
 
-- **Merge-mode = full build:** byte-identical, 0 of 1,585 files differ, same checksum.
+- **Merge-mode = full build:** byte-identical, 0 of 1,585 files differ, rechecked after the position change.
 - **Runner dry run:** pass. A whole refresh on a GitHub runner in 2m 22s, ESPN reachable, nothing committed (run 41524412598). The first try failed on a missing folder and on T-Rank's 403; both fixed.
 - **Heads up:** every nightly refresh rewrites all 100 `p/` shards, because comps are scaled across seasons. The bot's commits ship through the deploy batch, so this costs repo size, not deploys.
 
@@ -174,37 +214,45 @@ CBBD: 460+ calls this month, under the 600 cap. About 25 were wasted by an accid
 pull. One day failed and was not retried: Mar 5, 2023, so those games have no shot locations.
 Torvik: the one URL, 10 seconds apart, not repeated within a week.
 
-## Review list for Adam
+## The 20 most borderline players, 2025-26
 
-**Decide before merging**
+Qualified players nearest a cut. Team is the ESPN team id. Full report: `~/Basketball-Savant/out/cbb/positions/report.json`.
 
-1. **The repo is public, so `cbb-raw-*` release assets would be public downloads of ESPN's raw JSON.** The workflow
-   does this on the 1st of each month once merged. If that's not what you want, remove the `53 11 1 * *` cron or
-   move the archive somewhere private. Nothing has been uploaded.
-2. **Position labels.** Cameron Boozer comes out a Wing and AJ Dybantsa a Guard: BPM's estimate follows passing and
-   steals, then each team is normalized to 3.0, so a roster's big men can slide. Borderline list:
-   `~/Basketball-Savant/out/cbb/positions/report.json`. A height floor is one option; I left the spec's rule as written.
-3. **Three seasons miss the raw final-score gate** (98.6-99.0% against 99.5%). I treated that as a game-level exclusion
-   under §5, not a season failure under §3. A strict reading would drop 2024-25's lineups too.
-4. **2024-25's stint minutes** are 94.86% raw, just under 95%, and 97.4% after the filter. Same call.
-5. **`COURT_MIN = 0.60`,** the share of clean games a season needs to show lineups. My judgment, between 2023-24 (51%) and
-   2024-25 (84%).
-6. **Connector:** 11 new tools and the larger upfront size need your approval, as always.
+| Player | Team | Height | Listed | Label | Between | Distance |
+|---|---|---|---|---|---|---|
+| Cam Morris III | 2193 | 6'8" | F | Wing | Wing/Big | 0.000 |
+| Josiah Sanders | 38 | 6'5" | G | Guard | Guard/Wing | 0.000 |
+| Adrian Wooley | 97 | 6'4" | G | Guard | Guard/Wing | 0.001 |
+| Jackson Hicke | 163 | 6'5" | G | Wing | Guard/Wing | 0.001 |
+| Ernest Shelton | 2771 | 6'5" | G | Wing | Guard/Wing | 0.001 |
+| Kaidon Rayfield | 2636 | 6'8" | F | Wing | Wing/Big | 0.001 |
+| Maguire Mitchell | 85 | 6'5" | G | Wing | Guard/Wing | 0.001 |
+| Nic Codie | 251 | 6'8" | F | Wing | Wing/Big | 0.002 |
+| John Squire | 160 | 6'8" | F | Wing | Wing/Big | 0.002 |
+| Nelson Lamizana | 2154 | 6'9" | F | Big | Wing/Big | 0.003 |
+| Jalen Kampen | 2117 | 6'4" | G | Wing | Guard/Wing | 0.003 |
+| Abdou Yadd | 2529 | 6'9" | F | Big | Wing/Big | 0.003 |
+| Zion Obanla | 2379 | 6'8" | G | Wing | Wing/Big | 0.003 |
+| Kur Teng | 127 | 6'5" | G | Wing | Guard/Wing | 0.003 |
+| Lukas Walls | 2515 | 6'5" | G | Guard | Guard/Wing | 0.003 |
+| Keishon Porter | 339 | 6'5" | G | Guard | Guard/Wing | 0.003 |
+| Dasear Haskins | 2603 | 6'8" | F | Wing | Wing/Big | 0.004 |
+| Amar Augillard | 270 | 6'5" | G | Wing | Guard/Wing | 0.004 |
+| Jaden Daughtry | 2368 | 6'7" | F | Wing | Wing/Big | 0.004 |
+| J.R. Leonard | 56 | 6'4" | G | Guard | Guard/Wing | 0.004 |
 
-**After merging**
+## Open items
 
-7. Load `pipeline/college/com.wcehoops.cbb-mac-pull.plist` on the Mac. It runs rung 2 and Monday's ages.
-8. 2026-27 ages come from that Monday step, because T-Rank refuses GitHub's runners (403). Its file has only 99 rows so
-   far, so same-age coverage for 2026-27 is 58.6% today and rises as the file fills.
-
-**For the record**
-
-9. Headshots: 97% of players overall (98.5-99.6% high-major, 97.3-98.8% elsewhere), far above the 66% in the spec's
-   test. Sample of 300 confirmed real, unique photos. The rest show initials.
-10. Birthdates: main source is T-Rank's file. If it went away, same-age pools would lose most coverage.
-11. NET: only 2025-26's final table could be read, 359 of 365 teams. Quads are "not tracked" for older seasons, and
-    2026-27 starts when NET publishes.
-12. Lines: ESPN for 2022-23 and 2025-26, CBBD for 2023-24 and 2024-25.
-13. CBBD portal rows were not used: transfers come from team changes in our own game tables.
-14. Non-D1 games are in the game log and in no rate.
-15. Trademark check on "Savant" before heavy promotion.
+1. Lendeborg and Flagg, above.
+2. `check:seo` fails on `basketball-coaching-savant.html` only, and `npm run lint` on the bundled Flappy Hoops file only.
+3. 2026-27 ages come from the Monday step, because T-Rank refuses GitHub's runners (403). Its file has only 99 rows so far, so
+   same-age coverage for 2026-27 is 58.6% today and rises as the file fills.
+4. Headshots: 97% of players overall (98.5-99.6% high-major, 97.3-98.8% elsewhere), far above the 66% in the spec's test. A sample
+   of 300 was checked: real, unique photos. The rest show initials.
+5. Birthdates: the main source is T-Rank's file. If it went away, same-age pools would lose most coverage.
+6. NET: only 2025-26's final table could be read, 359 of 365 teams. Quads are "not tracked" for older seasons, and 2026-27 starts
+   when NET publishes.
+7. Lines: ESPN for 2022-23 and 2025-26, CBBD for 2023-24 and 2024-25.
+8. CBBD portal rows were not used: transfers come from team changes in our own game tables.
+9. Non-D1 games are in the game log and in no rate.
+10. Trademark check on "Savant" before heavy promotion.
