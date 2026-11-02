@@ -1,0 +1,67 @@
+# Deploy batch — puts the data bots' commits on the live site a few times a day.
+#
+# Vercel skips the data bots' commits (scripts/vercel-ignore.sh). Every deployment is about
+# 280 MB, and the bots used to deploy about 20 a day, which took the team to 22 GB of the Hobby
+# plan's 10 GB of Deployment Storage (Nov 2, 2026). This job ships their waiting commits with
+# one empty "deploy:" commit, at most every 4 hours (none from 1 to 6am ET), and right away for
+# injury news during NFL game windows (.github/scripts/deploy_batch.py says exactly when). Code changes don't wait:
+# they deploy the moment they land, as before.
+#
+# Runs every 30 minutes and as soon as any data bot finishes. A run with nothing to ship does
+# nothing and doesn't check in, so the Control Room only lights up for real deploys.
+# To ship everything waiting right now: Actions > Deploy batch > Run workflow.
+name: Deploy batch
+
+on:
+  schedule:
+    - cron: '23,53 * * * *'   # odd minutes: GitHub delays :00 and :30 badly
+  workflow_run:
+    workflows:
+      - Basketball Savant cloud refresh
+      - Basketball Savant history additions
+      - Basketball Savant weekly snapshot
+      - Football Savant injuries
+      - Football Savant refresh
+      - Football Savant full rebuild
+      - UFC Savant refresh
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Ship everything waiting now, without waiting for the next batch'
+        type: boolean
+        default: true
+
+concurrency:
+  group: deploy-batch
+  cancel-in-progress: false
+
+permissions:
+  id-token: write   # Control Room check-ins prove they come from this repo (no secret needed)
+  contents: write
+
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 120
+          sparse-checkout: .github/scripts
+
+      - name: Ship waiting data
+        id: ship
+        env:
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.force }}
+        run: python3 .github/scripts/deploy_batch.py
+
+      # Only when it deployed or broke: a quiet run isn't news.
+      - name: Control Room check-in
+        if: ${{ !cancelled() && (steps.ship.outputs.deployed == 'yes' || failure()) }}
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+        run: bash .github/scripts/control-room.sh deploy-batch "${{ job.status }}" "$(cat deploy-batch.txt 2>/dev/null)"

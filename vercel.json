@@ -1,4 +1,5 @@
 {
+  "ignoreCommand": "bash scripts/vercel-ignore.sh",
   "redirects": [
     {
       "source": "/basketball-savant",

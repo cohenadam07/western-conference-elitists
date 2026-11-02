@@ -74,8 +74,12 @@ def dump(path, obj, gz=False):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     s = json.dumps(obj, separators=(",", ":"), allow_nan=False)
     if gz:
-        with gzip.open(path, "wt", compresslevel=6) as fh:
-            fh.write(s)
+        # Same JSON, same bytes: no timestamp or file name in the gzip header. gzip.open stamped
+        # the time, so every cloud refresh rewrote ~700 team-season files that hadn't changed,
+        # adding tens of MB to the repo per run.
+        with open(path + ".tmp", "wb") as fh:
+            fh.write(gzip.compress(s.encode(), 6, mtime=0))
+        os.replace(path + ".tmp", path)
     else:
         open(path, "w").write(s)
     return len(s)

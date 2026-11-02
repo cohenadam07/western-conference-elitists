@@ -80,9 +80,10 @@ if auth:
         try:
             deploys = (json.loads(body).get("deploys") or {}).get("list") or []
             prod = [d for d in deploys if d.get("target") == "production"]
-            if prod and prod[0].get("state") == "ERROR":
+            if prod and prod[0].get("state") in ("ERROR", "BLOCKED"):
                 msg = prod[0].get("message") or prod[0].get("sha") or ""
-                problems.append(f"latest deploy failed ({msg[:80]})")
+                what = "was blocked by Vercel (over a plan limit?)" if prod[0].get("state") == "BLOCKED" else "failed"
+                problems.append(f"latest deploy {what} ({msg[:80]})")
             elif prod:
                 notes.append(f"deploy {prod[0].get('state', '?').lower()}")
         except Exception as e:

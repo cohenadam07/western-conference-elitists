@@ -108,6 +108,11 @@ export const JOBS = [
     cadence: 'Sunday morning. Checks the AI connector covers every feature of the site.',
   },
   {
+    id: 'deploy-batch', name: 'Deploy batch', lane: 'site', product: 'site',
+    workflow: 'deploy-batch.yml', maxAgeH: 30, tz: 'UTC', cron: [],
+    cadence: 'Puts the data bots\' updates on the live site at most every 4 hours (none overnight), and right away for injury news in NFL game windows. Code changes still deploy at once.',
+  },
+  {
     id: 'site-watch', name: 'Site watch', lane: 'site', product: 'site',
     workflow: 'site-watch.yml', maxAgeH: 4, tz: 'UTC', cron: ['7,37 * * * *'],
     cadence: 'Every 30 minutes (GitHub skips some): the homepage, a Savant page, the AI connector and the latest deploy.',
@@ -314,7 +319,9 @@ function jobView(meta, s, now) {
 async function readDeploys() {
   const token = process.env.VERCEL_ANALYTICS_TOKEN || process.env.VERCEL_ACCESS_TOKEN
   if (!token) return { error: 'no Vercel token' }
-  const p = new URLSearchParams({ projectId: PROJECT_ID, teamId: TEAM_ID, limit: '15' })
+  // Not CANCELED: the data bots' commits are skipped on purpose (scripts/vercel-ignore.sh) and
+  // would otherwise fill the list, and hide a failed build behind them.
+  const p = new URLSearchParams({ projectId: PROJECT_ID, teamId: TEAM_ID, limit: '15', state: 'BLOCKED,BUILDING,ERROR,INITIALIZING,QUEUED,READY' })
   try {
     const res = await fetch(`https://api.vercel.com/v6/deployments?${p}`, {
       headers: { Authorization: `Bearer ${token}` },
