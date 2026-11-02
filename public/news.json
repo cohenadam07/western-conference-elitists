@@ -1,6 +1,29 @@
 {
-  "generated_at": "2026-11-01T19:04:57.021979+00:00",
+  "generated_at": "2026-11-02T13:05:01.404679+00:00",
   "headlines": [
+    {
+      "id": "7e4fc1945d4efd54",
+      "title": "NBA suspends Hawks rookie Kingston Flemings for 'intentionally elbowing' Pelicans' Bryce McGowens in the head",
+      "url": "https://sports.yahoo.com/nba/breaking-news/article/nba-suspends-hawks-rookie-kingston-flemings-for-intentionally-elbowing-pelicans-bryce-mcgowens-in-the-head-021248121.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-02T01:57:05+00:00",
+      "also_covered_by": [
+        "Hoops Rumors",
+        "RealGM",
+        "ESPN NBA"
+      ],
+      "wce_line": "Flemings' elbow to McGowens' head occurred during a play where the Pelicans had a significant lead, leading to his one-game suspension.",
+      "players": [
+        {
+          "name": "Kingston Flemings",
+          "savant_url": "/basketball-savant.html?p=1643412"
+        },
+        {
+          "name": "Bryce McGowens",
+          "savant_url": "/basketball-savant.html?p=1631121"
+        }
+      ]
+    },
     {
       "id": "1123d8838b10fd7b",
       "title": "Chet Holmgren Out 8-10 Weeks Due To Patellar Tendon Tear",
@@ -10,7 +33,7 @@
       "also_covered_by": [
         "ESPN NBA"
       ],
-      "wce_line": "Chet Holmgren will miss an extended period due to a patellar tendon tear, joining other injured Thunder starters Jalen Williams and Cason Wallace.",
+      "wce_line": "Chet Holmgren, who ranks at the 75th percentile in Box Plus/Minus, will miss eight to 10 weeks due to a patellar tendon tear.",
       "players": [
         {
           "name": "Chet Holmgren",
@@ -19,15 +42,70 @@
       ]
     },
     {
-      "id": "a4c3a1a0b6fafaa8",
-      "title": "Ja Morant Out At Least Four Weeks With Grade 2 Left Hamstring Strain",
-      "url": "https://basketball.realgm.com/wiretap/287982/Ja-Morant-Out-At-Least-Four-Weeks-With-Grade-2-Left-Hamstring-Strain",
-      "outlet": "RealGM",
-      "published": "2026-10-30T18:46:39+00:00",
+      "id": "6d0e6137bd912e44",
+      "title": "Luka Dončić teaches Yaxel Lendeborg a lesson, but Warriors bail their rookie out in comeback win over Lakers",
+      "url": "https://www.cbssports.com/nba/news/luka-doncic-yaxel-lendeborg-warriors-comeback-win-lakers/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-10-31T16:29:18+00:00",
       "also_covered_by": [
-        "CBS Sports NBA"
+        "Yahoo Sports NBA"
       ],
-      "wce_line": "Morant will miss at least four weeks due to a grade 2 left hamstring strain, impacting the Portland Trail Blazers' lineup significantly.",
+      "wce_line": "Luka Dončić's dominance and Yaxel Lendeborg's struggles highlighted the disparity in talent levels between them.",
+      "players": [
+        {
+          "name": "Luka Doncic",
+          "savant_url": "/basketball-savant.html?p=1629029"
+        },
+        {
+          "name": "Yaxel Lendeborg",
+          "savant_url": "/basketball-savant.html?p=1642865"
+        }
+      ]
+    },
+    {
+      "id": "90d32442210ec759",
+      "title": "Hawks Exercise Asa Newell’s Third-Year Option",
+      "url": "https://www.hoopsrumors.com/2026/11/hawks-exercise-2027-28-option-on-asa-newell.html",
+      "outlet": "Hoops Rumors",
+      "published": "2026-11-01T16:47:10+00:00",
+      "also_covered_by": [
+        "RealGM"
+      ],
+      "wce_line": "Newell's box plus-minus ranks at the 51st percentile for the season.",
+      "players": [
+        {
+          "name": "Asa Newell",
+          "savant_url": "/basketball-savant.html?p=1642854"
+        }
+      ]
+    },
+    {
+      "id": "62f03c664fa66081",
+      "title": "Hornets Pick Up 2027/28 Options On Kon Knueppel, Liam McNeeley",
+      "url": "https://www.hoopsrumors.com/2026/11/hornets-pick-up-2027-28-options-on-kon-knueppel-liam-mcneeley.html",
+      "outlet": "Hoops Rumors",
+      "published": "2026-11-01T19:37:25+00:00",
+      "also_covered_by": [
+        "RealGM"
+      ],
+      "wce_line": "Liam McNeeley's box plus-minus of just 2nd percentile this season suggests his performance has not met expectations.",
+      "players": [
+        {
+          "name": "Liam McNeeley",
+          "savant_url": "/basketball-savant.html?p=1642862"
+        }
+      ]
+    },
+    {
+      "id": "40e1d015c6a2662e",
+      "title": "Ja Morant injury: Trail Blazers star expected to miss at least four weeks with hamstring strain",
+      "url": "https://www.cbssports.com/nba/news/ja-morant-injury-trail-blazers-star-miss-at-least-four-weeks-hamstring-strain/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-10-30T20:05:18+00:00",
+      "also_covered_by": [
+        "Hoops Rumors"
+      ],
+      "wce_line": "Portland's defense could face challenges with Ja Morant out for at least four weeks, as they rank No. 2 in the NBA in defensive rating so far.",
       "players": [
         {
           "name": "Ja Morant",
@@ -36,15 +114,15 @@
       ]
     },
     {
-      "id": "8674a51209685497",
-      "title": "LSU lands 5-star center Xavier Young, now has 2027's top class",
-      "url": "https://www.espn.com/mens-college-basketball/story/_/id/50336401/lsu-lands-5-star-center-xavier-young-class-2027",
-      "outlet": "ESPN College Basketball",
-      "published": "2026-11-01T17:46:56+00:00",
+      "id": "fe2935eb42f21b20",
+      "title": "Five-Star Center Xavier Young Commits To LSU For 2027 Class",
+      "url": "https://basketball.realgm.com/wiretap/288005/Five-Star-Center-Xavier-Young-Commits-To-LSU-For-2027-Class",
+      "outlet": "RealGM",
+      "published": "2026-11-01T17:59:54+00:00",
       "also_covered_by": [
-        "RealGM"
+        "ESPN College Basketball"
       ],
-      "wce_line": "Xavier Young chose LSU over Tennessee, Maryland, Michigan, and TCU, committing to reclassify into the 2027 class to join Will Wade's program.",
+      "wce_line": "Xavier Young's commitment strengthens LSU's already top-ranked 2027 recruiting class significantly.",
       "players": []
     },
     {
@@ -68,141 +146,227 @@
       "also_covered_by": [
         "ESPN College Basketball"
       ],
-      "wce_line": "Dan Hurley's extension keeps him at UConn through 2031-32, ensuring continuity for the program's pursuit of excellence.",
+      "wce_line": "Dan Hurley's extension ensures he will coach at UConn through the 2031-32 season, maintaining continuity for the program.",
       "players": []
     },
     {
-      "id": "e86af356125226f8",
-      "title": "How To Watch And Live Stream Memphis Grizzlies vs Sacramento Kings NBA Game Tonight: TV Channels, Team News, Start Time",
-      "url": "https://basketball.realgm.com/wiretap/287972/How-To-Watch-And-Live-Stream-Memphis-Grizzlies-vs-Sacramento-Kings-NBA-Game-Tonight-TV-Channels-Team-News-Start-Time",
+      "id": "375e4f068e022c6d",
+      "title": "Thunder Exercise Options On McCain, Sorber, Will Decline Topic’s",
+      "url": "https://www.hoopsrumors.com/2026/11/thunder-exercise-mccain-sorber-team-options-decline-topic.html",
+      "outlet": "Hoops Rumors",
+      "published": "2026-11-02T01:09:01+00:00",
+      "also_covered_by": [
+        "RealGM"
+      ],
+      "wce_line": "Sorber's return remains uncertain due to ongoing knee issues, while McCain has stepped up in Sorber's absence, providing key contributions to the Thunder's rotation.",
+      "players": []
+    },
+    {
+      "id": "e94786c3430d3fcf",
+      "title": "Mike Brown On Struggling Knicks: 'We Have To Hit Singles'",
+      "url": "https://basketball.realgm.com/wiretap/288000/Mike-Brown-On-Struggling-Knicks-We-Have-To-Hit-Singles",
       "outlet": "RealGM",
-      "published": "2026-10-30T10:24:45+00:00",
+      "published": "2026-10-31T21:59:08+00:00",
       "also_covered_by": [
         "Yahoo Sports NBA"
       ],
-      "wce_line": "The Memphis Grizzlies enter this game on a remarkable five-game winning streak, while the Sacramento Kings struggle with a similar losing skid.",
+      "wce_line": "The New York Knicks need to focus on consistent play rather than attempting overly complex strategies, according to head coach Mike Brown.",
       "players": []
     },
     {
-      "id": "3d8f139bcf5bdec3",
-      "title": "Jeanie Buss accuses siblings of secret plot to oust her from Lakers",
-      "url": "https://sports.yahoo.com/articles/jeanie-buss-accuses-siblings-secret-205928000.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-31T20:59:28+00:00",
-      "also_covered_by": [
-        "ESPN NBA"
-      ],
-      "wce_line": "The Buss siblings' legal battle over the Lakers could determine Jeanie Buss's future as the team's governor.",
-      "players": []
-    },
-    {
-      "id": "504228028d8cbd31",
-      "title": "Mark Walter, Josh Kushner Finalize All Terms Of $12.5B Lakers Sale",
-      "url": "https://basketball.realgm.com/wiretap/287989/Mark-Walter-Josh-Kushner-Finalize-All-Terms-Of-$125B-Lakers-Sale",
+      "id": "a292eeb7d651b9ae",
+      "title": "How To Watch And Live Stream Golden State Warriors vs LA Clippers NBA Game Tonight: TV Channels, Team News, Start Time",
+      "url": "https://basketball.realgm.com/wiretap/287980/How-To-Watch-And-Live-Stream-Golden-State-Warriors-vs-LA-Clippers-NBA-Game-Tonight-TV-Channels-Team-News-Start-Time",
       "outlet": "RealGM",
-      "published": "2026-10-31T05:09:51+00:00",
-      "also_covered_by": [
-        "ESPN NBA"
-      ],
-      "wce_line": "The deal, valued at $12.5 billion, requires final signatures from Mark Walter and Josh Kushner before being reviewed by the NBA.",
-      "players": []
-    },
-    {
-      "id": "606e5f06f9f98191",
-      "title": "How To Watch And Live Stream Orlando Magic vs Boston Celtics NBA Game This Afternoon: TV Channels, Team News, Start Time",
-      "url": "https://basketball.realgm.com/wiretap/287977/How-To-Watch-And-Live-Stream-Orlando-Magic-vs-Boston-Celtics-NBA-Game-This-Afternoon-TV-Channels-Team-News-Start-Time",
-      "outlet": "RealGM",
-      "published": "2026-10-30T14:36:05+00:00",
+      "published": "2026-10-30T18:02:28+00:00",
       "also_covered_by": [
         "Yahoo Sports NBA"
       ],
-      "wce_line": "Orlando Magic's recent victory over Toronto Raptors featured multiple players scoring over 20 points, including Franz Wagner, Wendell Carter, and Desmond Bane.",
+      "wce_line": "Steph Curry's strong performance continues for the Warriors, while the Clippers struggle after their loss to the Timberwolves.",
       "players": []
     },
     {
-      "id": "429dd60235cef9f7",
-      "title": "Jazz spooked on their home floor against Trail Blazers",
-      "url": "https://sports.yahoo.com/articles/jazz-spooked-home-floor-against-213715026.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-31T21:37:15+00:00",
+      "id": "02f6530394bd92f7",
+      "title": "How To Watch And Live Stream Indiana Pacers vs Brooklyn Nets NBA Game This Afternoon: TV Channels, Team News, Start Time",
+      "url": "https://basketball.realgm.com/wiretap/287979/How-To-Watch-And-Live-Stream-Indiana-Pacers-vs-Brooklyn-Nets-NBA-Game-This-Afternoon-TV-Channels-Team-News-Start-Time",
+      "outlet": "RealGM",
+      "published": "2026-10-30T17:34:42+00:00",
       "also_covered_by": [
-        "Hoops Rumors"
+        "Yahoo Sports NBA"
       ],
-      "wce_line": "The Trail Blazers dominated the Jazz defensively and offensively throughout the game, leaving little hope for an upset in their home matchup.",
+      "wce_line": "Pascal Siakam leads the Indiana Pacers with his standout performance despite recent losses, while Julius Randle's all-around game keeps the Brooklyn Nets competitive.",
       "players": []
     },
     {
-      "id": "8507927d8544df5c",
-      "title": "Week 2 Aftermath: Anthony Edwards, Kawhi Leonard and others join the dreaded injury list",
-      "url": "https://sports.yahoo.com/articles/week-2-aftermath-anthony-edwards-180000590.html",
+      "id": "f186ac969a2e183c",
+      "title": "Rockets Jabari Smith Jr. has found his best self",
+      "url": "https://sports.yahoo.com/articles/rockets-jabari-smith-jr-found-101606899.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-01T18:00:00+00:00",
+      "published": "2026-11-02T10:16:06+00:00",
       "also_covered_by": [],
-      "wce_line": "Anthony Edwards will miss at least two months due to knee surgery, impacting the Minnesota Timberwolves' lineup significantly.",
+      "wce_line": "Jabari Smith Jr.'s box plus/minus ranks in the 85th percentile, showcasing his impact on defense this season.",
       "players": [
         {
-          "name": "Anthony Edwards",
-          "savant_url": "/basketball-savant.html?p=1630162"
+          "name": "Jabari Smith Jr.",
+          "savant_url": "/basketball-savant.html?p=1631095"
+        }
+      ]
+    },
+    {
+      "id": "8b954c39e78cb89d",
+      "title": "Lakers vs. Heat Preview: Luka Dončić meets Giannis Antetokounmpo",
+      "url": "https://sports.yahoo.com/articles/lakers-vs-heat-preview-luka-070121717.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-02T07:01:21+00:00",
+      "also_covered_by": [],
+      "wce_line": "The key matchup will be Luka Dončić and Giannis Antetokounmpo, both in the 99th percentile for points per 75 possessions.",
+      "players": [
+        {
+          "name": "Luka Doncic",
+          "savant_url": "/basketball-savant.html?p=1629029"
         },
         {
-          "name": "Kawhi Leonard",
-          "savant_url": "/basketball-savant.html?p=202695"
+          "name": "Giannis Antetokounmpo",
+          "savant_url": "/basketball-savant.html?p=203507"
         }
       ]
     },
     {
-      "id": "3dd9e781c39f0ea6",
-      "title": "Victor Wembanyama Scores 43 Points In Win Over Timberwolves",
-      "url": "https://basketball.realgm.com/wiretap/288003/Victor-Wembanyama-Scores-43-Points-In-Win-Over-Timberwolves",
-      "outlet": "RealGM",
-      "published": "2026-11-01T17:27:14+00:00",
-      "also_covered_by": [],
-      "wce_line": "Wembanyama's 36-point game before this one was also a high-efficiency outing, with 12 of his 14 shots coming within two feet of the basket.",
-      "players": [
-        {
-          "name": "Victor Wembanyama",
-          "savant_url": "/basketball-savant.html?p=1641705"
-        }
-      ]
-    },
-    {
-      "id": "90d32442210ec759",
-      "title": "Hawks Exercise 2027/28 Option On Asa Newell",
-      "url": "https://www.hoopsrumors.com/2026/11/hawks-exercise-2027-28-option-on-asa-newell.html",
-      "outlet": "Hoops Rumors",
-      "published": "2026-11-01T16:47:10+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Hawks have exercised Asa Newell's 2027/28 option, locking in his modest cap hit despite his recent struggles in the NBA.",
-      "players": [
-        {
-          "name": "Asa Newell",
-          "savant_url": "/basketball-savant.html?p=1642854"
-        }
-      ]
-    },
-    {
-      "id": "06cc1573b025f26c",
-      "title": "An exclusive with Kevin Durant: On his time in OKC, his legacy and the Thunder's 2025 title",
-      "url": "https://www.espn.com/nba/story/_/id/50308763/kevin-durant-oklahoma-city-thunder-reflection",
-      "outlet": "ESPN NBA",
-      "published": "2026-11-01T16:36:19+00:00",
-      "also_covered_by": [],
-      "wce_line": "Durant arrived in Oklahoma City as the second overall pick in the 2007 draft, joining a young roster that included future MVPs Russell Westbrook and James Harden.",
-      "players": [
-        {
-          "name": "Kevin Durant",
-          "savant_url": "/basketball-savant.html?p=201142"
-        }
-      ]
-    },
-    {
-      "id": "ae405135a4ae17a2",
-      "title": "Tyler Kolek's strong start gives the Knicks a tough rotation decision when Jose Alvarado returns",
-      "url": "https://sports.yahoo.com/articles/tyler-koleks-strong-start-gives-150500116.html",
+      "id": "41a21931adb18641",
+      "title": "Luka Dončić has taken a step forward defensively for the Lakers this season",
+      "url": "https://sports.yahoo.com/articles/luka-don-taken-step-forward-064900140.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-01T15:05:00+00:00",
+      "published": "2026-11-02T06:49:00+00:00",
       "also_covered_by": [],
-      "wce_line": "Kolek's playmaking has bolstered the Knicks' offense, potentially complicating rotation decisions when Alvarado returns.",
+      "wce_line": "Dončić's defensive efforts, including 15 rebounds and five steals, have raised his box plus/minus to 96th percentile this season.",
+      "players": [
+        {
+          "name": "Luka Doncic",
+          "savant_url": "/basketball-savant.html?p=1629029"
+        }
+      ]
+    },
+    {
+      "id": "71ea13b68468f4f4",
+      "title": "'Like a supernova.' Luka Doncic's 45 points only eclipsed by his defense in Lakers' win",
+      "url": "https://sports.yahoo.com/articles/luka-doncic-puts-another-sensational-045359694.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-02T04:53:59+00:00",
+      "also_covered_by": [],
+      "wce_line": "Doncic's five steals and three charges highlighted his improved defense, despite not being the team's top option on that end of the floor.",
+      "players": [
+        {
+          "name": "Luka Doncic",
+          "savant_url": "/basketball-savant.html?p=1629029"
+        }
+      ]
+    },
+    {
+      "id": "0e48b940595b43a1",
+      "title": "Yaxel Lendeborg bounces back with big night as Warriors beat Clippers",
+      "url": "https://sports.yahoo.com/articles/yaxel-lendeborg-bounces-back-big-040835659.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-02T04:08:35+00:00",
+      "also_covered_by": [],
+      "wce_line": "Yaxeb Lendeborg's performance against the Clippers ranked in the 89th percentile for points scored this season.",
+      "players": [
+        {
+          "name": "Yaxel Lendeborg",
+          "savant_url": "/basketball-savant.html?p=1642865"
+        }
+      ]
+    },
+    {
+      "id": "d9ad2884546adc87",
+      "title": "Lakers' Luka Doncic makes history twice, fills up stat sheet vs Raptors",
+      "url": "https://sports.yahoo.com/articles/lakers-luka-doncic-makes-history-040404950.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-02T04:04:04+00:00",
+      "also_covered_by": [],
+      "wce_line": "Dončić's performance pushed his points per 75 possessions to the 99th percentile for the season.",
+      "players": [
+        {
+          "name": "Luka Doncic",
+          "savant_url": "/basketball-savant.html?p=1629029"
+        }
+      ]
+    },
+    {
+      "id": "22b9e0de5e0e31b0",
+      "title": "Yaxel Lendeborg scores 37, carries Warriors to 124-112 win over Clippers",
+      "url": "https://sports.yahoo.com/articles/yaxel-lendeborg-scores-37-carries-035902318.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-02T03:59:02+00:00",
+      "also_covered_by": [],
+      "wce_line": "Yaxel Lendeborg, scoring in the 89th percentile of points per 75 possessions, led the Warriors to victory despite a slow three-point start.",
+      "players": [
+        {
+          "name": "Yaxel Lendeborg",
+          "savant_url": "/basketball-savant.html?p=1642865"
+        }
+      ]
+    },
+    {
+      "id": "49c2616b73ea7a08",
+      "title": "Wizards Exercise Team Options On Alex Sarr, Bub Carrington, Kyshawn George",
+      "url": "https://basketball.realgm.com/wiretap/288010/Wizards-Exercise-Team-Options-On-Alex-Sarr-Bub-Carrington-Kyshawn-George",
+      "outlet": "RealGM",
+      "published": "2026-11-02T03:28:40+00:00",
+      "also_covered_by": [],
+      "wce_line": "Kyshawn George's box plus/minus ranks below the league average, at 37th percentile.",
+      "players": [
+        {
+          "name": "Alex Sarr",
+          "savant_url": "/basketball-savant.html?p=1642259"
+        },
+        {
+          "name": "Bub Carrington",
+          "savant_url": "/basketball-savant.html?p=1642267"
+        },
+        {
+          "name": "Kyshawn George",
+          "savant_url": "/basketball-savant.html?p=1642273"
+        }
+      ]
+    },
+    {
+      "id": "287342e300370ec4",
+      "title": "The Spurs should be patient with Luke Kornet, for now",
+      "url": "https://sports.yahoo.com/articles/spurs-patient-luke-kornet-now-020224876.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-02T02:02:24+00:00",
+      "also_covered_by": [],
+      "wce_line": "The Spurs' patience with Luke Kornet is justified given his 30th percentile Box Plus/Minute rating.",
+      "players": [
+        {
+          "name": "Luke Kornet",
+          "savant_url": "/basketball-savant.html?p=1628436"
+        }
+      ]
+    },
+    {
+      "id": "646085256b33e9e0",
+      "title": "Luka Dončić knows the Lakers have to be ‘way better’ when teams blitz him",
+      "url": "https://sports.yahoo.com/articles/luka-don-knows-lakers-way-011326623.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-02T01:13:26+00:00",
+      "also_covered_by": [],
+      "wce_line": "Luka Dončić acknowledged the Lakers must execute better on defense-blitzing plays, describing it as a \"four on three\" advantage they need to capitalize more effectively.",
+      "players": [
+        {
+          "name": "Luka Doncic",
+          "savant_url": "/basketball-savant.html?p=1629029"
+        }
+      ]
+    },
+    {
+      "id": "51f54908bd8d4ebc",
+      "title": "Mike Brown’s plan for Tyler Kolek as Jose Alvarado nears Knicks return",
+      "url": "https://sports.yahoo.com/articles/mike-brown-plan-tyler-kolek-005624572.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-02T00:56:24+00:00",
+      "also_covered_by": [],
+      "wce_line": "If Jose Alvarado returns, Tyler Kolek's strong performance could challenge his minutes in the rotation.",
       "players": [
         {
           "name": "Tyler Kolek",
@@ -215,256 +379,93 @@
       ]
     },
     {
-      "id": "7d71c840f16e1d15",
-      "title": "Sandro Mamukelashvili was a fan-fave, but the Raptors need to win this",
-      "url": "https://sports.yahoo.com/articles/sandro-mamukelashvili-fan-fave-raptors-130000927.html",
+      "id": "769a4b14b69254d4",
+      "title": "Knicks Injury Tracker: Jose Alvarado questionable for Monday's tilt against Nets",
+      "url": "https://sports.yahoo.com/articles/knicks-injury-tracker-jose-alvarado-214221225.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-01T13:00:00+00:00",
+      "published": "2026-11-02T00:43:54+00:00",
       "also_covered_by": [],
-      "wce_line": "The Raptors aim to break their losing streak against the Lakers, facing a formidable challenge in Luka Dončić despite Sandro Mamukelashvili's return.",
+      "wce_line": "Alvarado's potential return could reduce Tyler Kolek's playing time, despite Kolek's recent strong performances.",
       "players": [
         {
-          "name": "Sandro Mamukelashvili",
-          "savant_url": "/basketball-savant.html?p=1630572"
+          "name": "Jose Alvarado",
+          "savant_url": "/basketball-savant.html?p=1630631"
         }
       ]
     },
     {
-      "id": "e23ba55086af2234",
-      "title": "Kings players must help ‘special' rookie Darius Acuff Jr., Doug Christie states",
-      "url": "https://sports.yahoo.com/articles/kings-players-must-help-special-094327638.html",
+      "id": "273449b9948374a9",
+      "title": "Celtics outlast Magic, 108-97, behind 32 points from Jayson Tatum",
+      "url": "https://sports.yahoo.com/articles/celtics-outlast-magic-108-97-232420006.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-01T09:43:27+00:00",
-      "also_covered_by": [],
-      "wce_line": "While Darius Acuff Jr. leads rookies in points, his usage and assist percentages rank among the league's top players, highlighting his importance to the team's offensive strategy.",
-      "players": [
-        {
-          "name": "Darius Acuff Jr.",
-          "savant_url": "/basketball-savant.html?p=1643411"
-        }
-      ]
-    },
-    {
-      "id": "ef50ccb79178d421",
-      "title": "Austin Reaves took the blame for the struggles of the second unit vs. Warriors",
-      "url": "https://sports.yahoo.com/articles/austin-reaves-took-blame-struggles-052646596.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-01T05:26:46+00:00",
-      "also_covered_by": [],
-      "wce_line": "Reaves ranked 12th in rebounds per 75 possessions this season, highlighting his struggles on the boards despite his other contributions.",
-      "players": [
-        {
-          "name": "Austin Reaves",
-          "savant_url": "/basketball-savant.html?p=1630559"
-        }
-      ]
-    },
-    {
-      "id": "6ff1e35c3781d76a",
-      "title": "Kings rookie Darius Acuff Jr. becomes NBA's first teenager to make 9 3-pointers in a game",
-      "url": "https://sports.yahoo.com/nba/article/kings-rookie-darius-acuff-jr-becomes-nbas-first-teenager-to-make-9-3-pointers-in-a-game-045202794.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-01T04:52:02+00:00",
-      "also_covered_by": [],
-      "wce_line": "Acuff Jr.'s nine 3-pointers tied the NBA rookie record, surpassing his own previous season's 88th percentile in points per 75 possessions.",
-      "players": [
-        {
-          "name": "Darius Acuff Jr.",
-          "savant_url": "/basketball-savant.html?p=1643411"
-        }
-      ]
-    },
-    {
-      "id": "3edfc4e7a9c4bb52",
-      "title": "Evan Mobley and Jarrett Allen lead Cavs to runaway victory over Bucks",
-      "url": "https://sports.yahoo.com/articles/evan-mobley-jarrett-allen-lead-022450371.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-01T02:24:50+00:00",
+      "published": "2026-11-01T23:24:20+00:00",
       "also_covered_by": [],
       "wce_line": null,
       "players": [
         {
-          "name": "Evan Mobley",
-          "savant_url": "/basketball-savant.html?p=1630596"
-        },
-        {
-          "name": "Jarrett Allen",
-          "savant_url": "/basketball-savant.html?p=1628386"
+          "name": "Jayson Tatum",
+          "savant_url": "/basketball-savant.html?p=1628369"
         }
       ]
     },
     {
-      "id": "96a94785ee0110d9",
-      "title": "Jimmy Butler mocks Luka Doncic with strange ‘only master’ Steph Curry AI post",
-      "url": "https://sports.yahoo.com/articles/jimmy-butler-mocks-luka-doncic-010222496.html",
+      "id": "547c992527d8fa3b",
+      "title": "Yaxel Lendeborg bounces back to fuel Steph Curry-less Warriors' win vs. Clippers",
+      "url": "https://sports.yahoo.com/articles/yaxel-lendeborg-bounces-back-fuel-222303353.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-01T01:02:22+00:00",
+      "published": "2026-11-01T22:23:03+00:00",
       "also_covered_by": [],
-      "wce_line": "Jimmy Butler's AI post humorously compares Steph Curry to a martial arts master, mocking Dončić's fall during the game.",
+      "wce_line": "Lendeborg's 37-point performance pushed his points per 75 possessions to the 89th percentile, showcasing his impact in Curry's absence.",
       "players": [
         {
-          "name": "Luka Doncic",
-          "savant_url": "/basketball-savant.html?p=1629029"
+          "name": "Yaxel Lendeborg",
+          "savant_url": "/basketball-savant.html?p=1642865"
         }
       ]
     },
     {
-      "id": "dd5336740d59b982",
-      "title": "Tyrese Maxey scores 38, Jaylen Brown returns to 76ers' lineup for 109-104 win over Hornets",
-      "url": "https://sports.yahoo.com/nba/article/tyrese-maxey-scores-38-jaylen-brown-returns-to-76ers-lineup-for-109-104-win-over-hornets-004717731.html",
+      "id": "77b1e3f467b4c033",
+      "title": "Yaxel Lendeborg dunking on girlfriend during basketball beatdown turns heads",
+      "url": "https://sports.yahoo.com/articles/yaxel-lendeborg-dunking-girlfriend-during-220000490.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-01T00:47:17+00:00",
+      "published": "2026-11-01T22:00:00+00:00",
       "also_covered_by": [],
-      "wce_line": "Brown's return brought a needed boost, scoring 38 points despite initial struggles in the first quarter.",
+      "wce_line": "Yaxel Lendeborg, who ranks in the 89th percentile for points per 75 possessions this season, struggled scoring against the Lakers with just six points.",
       "players": [
         {
-          "name": "Tyrese Maxey",
-          "savant_url": "/basketball-savant.html?p=1630178"
-        },
-        {
-          "name": "Jaylen Brown",
-          "savant_url": "/basketball-savant.html?p=1627759"
+          "name": "Yaxel Lendeborg",
+          "savant_url": "/basketball-savant.html?p=1642865"
         }
       ]
     },
     {
-      "id": "1455a1676f213f7c",
-      "title": "It’s time for Julius Randle and Michael Porter Jr. to be the leaders the Nets need",
-      "url": "https://sports.yahoo.com/articles/time-julius-randle-michael-porter-003602595.html",
+      "id": "0614eb407e954ac4",
+      "title": "Jaylen Brown and Grayson Allen shove each other in heated 76ers-Hornets scuffle",
+      "url": "https://sports.yahoo.com/articles/jaylen-brown-grayson-allen-shove-204350210.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-01T00:36:02+00:00",
+      "published": "2026-11-01T20:43:50+00:00",
       "also_covered_by": [],
-      "wce_line": "Randle and Porter must improve their in-game recognition to lead the Nets through adversity, given their team's current struggles.",
-      "players": [
-        {
-          "name": "Julius Randle",
-          "savant_url": "/basketball-savant.html?p=203944"
-        },
-        {
-          "name": "Michael Porter Jr.",
-          "savant_url": "/basketball-savant.html?p=1629008"
-        }
-      ]
-    },
-    {
-      "id": "fdd3ea3103f9111e",
-      "title": "Elly De La Cruz’s Luka Doncic trolling adds twist to Dodgers trade rumors",
-      "url": "https://sports.yahoo.com/articles/elly-la-cruz-luka-doncic-000431033.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-01T00:04:31+00:00",
-      "also_covered_by": [],
-      "wce_line": "De La Cruz's support for Curry contrasts with Doncic's performance, who is among the top percentile scorers and playmakers in the league.",
-      "players": [
-        {
-          "name": "Luka Doncic",
-          "savant_url": "/basketball-savant.html?p=1629029"
-        }
-      ]
-    },
-    {
-      "id": "3faf7a0436355dea",
-      "title": "LeBron James, Joel Embiid Out Saturday Due To Injury Management",
-      "url": "https://basketball.realgm.com/wiretap/287999/LeBron-James-Joel-Embiid-Out-Saturday-Due-To-Injury-Management",
-      "outlet": "RealGM",
-      "published": "2026-10-31T21:51:30+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Sixers' key players, James and Embiid, are managing injuries but remain among the league's top performers in various statistical categories.",
-      "players": [
-        {
-          "name": "LeBron James",
-          "savant_url": "/basketball-savant.html?p=2544"
-        },
-        {
-          "name": "Joel Embiid",
-          "savant_url": "/basketball-savant.html?p=203954"
-        }
-      ]
-    },
-    {
-      "id": "edeb9bbe3af7f5f8",
-      "title": "Jaylen Brown, Tacko Fall active, Joel Embiid, LeBron James ruled OUT for Sixers-Hornets",
-      "url": "https://sports.yahoo.com/articles/jaylen-brown-tacko-fall-questionable-171828834.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-31T21:15:00+00:00",
-      "also_covered_by": [],
-      "wce_line": "Jaylen Brown's return from patellar tendinopathy increases the Sixers' chances against the Hornets, with Tacko Fall also active after a quad injury.",
+      "wce_line": "Grayson Allen's competitive fire led to a scuffle with Jaylen Brown, both receiving technical fouls after grabbing for a loose ball.",
       "players": [
         {
           "name": "Jaylen Brown",
           "savant_url": "/basketball-savant.html?p=1627759"
         },
         {
-          "name": "Joel Embiid",
-          "savant_url": "/basketball-savant.html?p=203954"
-        },
-        {
-          "name": "LeBron James",
-          "savant_url": "/basketball-savant.html?p=2544"
+          "name": "Grayson Allen",
+          "savant_url": "/basketball-savant.html?p=1628960"
         }
       ]
     },
     {
-      "id": "e456b1a7bd372d67",
-      "title": "Luka Doncic catches unexpected stray in Ayesha Curry’s Warriors flex",
-      "url": "https://sports.yahoo.com/articles/luka-doncic-catches-unexpected-stray-200051376.html",
+      "id": "c2d443e7c8c2456d",
+      "title": "What we learned as Yaxel Lendeborg drops 37 points in Warriors' win vs. Clippers",
+      "url": "https://sports.yahoo.com/articles/learned-yaxel-lendeborg-drops-points-200640085.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-31T20:00:51+00:00",
+      "published": "2026-11-01T20:06:40+00:00",
       "also_covered_by": [],
-      "wce_line": "Dončić faces a long wait until facing the Warriors again, with their next matchup scheduled for January 27.",
+      "wce_line": "Lendeborg's 37-point performance in the Warriors' win placed him in the 89th percentile for points per 75 possessions this season.",
       "players": [
-        {
-          "name": "Luka Doncic",
-          "savant_url": "/basketball-savant.html?p=1629029"
-        }
-      ]
-    },
-    {
-      "id": "ff853ff8bffa5067",
-      "title": "Reed Sheppard gets paid… well, kind of",
-      "url": "https://sports.yahoo.com/articles/reed-sheppard-gets-paid-well-190331576.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-10-31T19:03:31+00:00",
-      "also_covered_by": [],
-      "wce_line": "Sheppard's role with the Rockets is evolving, moving away from his initial struggles and now playing off the ball more frequently.",
-      "players": [
-        {
-          "name": "Reed Sheppard",
-          "savant_url": "/basketball-savant.html?p=1642263"
-        }
-      ]
-    },
-    {
-      "id": "1c933ac5f8ab1fa7",
-      "title": "How can Thunder survive Chet Holmgren's absence? Rookie Aday Mara becomes vital as trade rumors swirl",
-      "url": "https://www.cbssports.com/nba/news/chet-holmgren-injury-how-can-thunder-survive-trade-rumors/",
-      "outlet": "CBS Sports NBA",
-      "published": "2026-10-31T16:39:54+00:00",
-      "also_covered_by": [],
-      "wce_line": "Aday Mara must step up significantly as Chet Holmgren's injury forces him into a more prominent role.",
-      "players": [
-        {
-          "name": "Chet Holmgren",
-          "savant_url": "/basketball-savant.html?p=1631096"
-        },
-        {
-          "name": "Aday Mara",
-          "savant_url": "/basketball-savant.html?p=1643530"
-        }
-      ]
-    },
-    {
-      "id": "6d0e6137bd912e44",
-      "title": "Luka Dončić teaches Yaxel Lendeborg a lesson, but Warriors bail their rookie out in comeback win over Lakers",
-      "url": "https://www.cbssports.com/nba/news/luka-doncic-yaxel-lendeborg-warriors-comeback-win-lakers/",
-      "outlet": "CBS Sports NBA",
-      "published": "2026-10-31T16:29:18+00:00",
-      "also_covered_by": [],
-      "wce_line": "Luka Dončić dominated with 37 points, while Yaxel Lendeborg struggled with a minus-20 rating in his debut.",
-      "players": [
-        {
-          "name": "Luka Doncic",
-          "savant_url": "/basketball-savant.html?p=1629029"
-        },
         {
           "name": "Yaxel Lendeborg",
           "savant_url": "/basketball-savant.html?p=1642865"
@@ -482,7 +483,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The study analyzed 1,230 games and found that only three teams won after trailing by at least 20 points at halftime during the 2025–26 regular season.",
+      "wce_line": null,
       "source_type": "article"
     },
     {
@@ -506,7 +507,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article shows how analysts can turn subjective team strength assessments into testable probabilities using data like pace-adjusted efficiency ratings and comparing them to market odds from prediction exchanges.",
+      "wce_line": "The article shows how analysts can turn subjective opinions into quantifiable probabilities using team efficiency ratings and comparing them to prediction market prices.",
       "source_type": "article"
     },
     {
@@ -542,7 +543,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article analyzes rest day patterns like 4IN5-B2B and 3IN4-B2B to understand their impact on team performance metrics.",
+      "wce_line": "The article analyzes rest days patterns like 4IN5-B2B and 3IN4-B2B to understand their impact on team performance metrics.",
       "source_type": "article"
     },
     {
@@ -566,7 +567,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article provides detailed game-by-game NBA referee stats in Excel, updating them within 2 to 4 hours post-game.",
+      "wce_line": "The study analyzed referee performance metrics including foul calls and percentages across the 2026-2027 NBA season.",
       "source_type": "article"
     },
     {
@@ -578,7 +579,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article provides detailed player statistics for the 2026-2027 NBA season, allowing users to sort and filter data for analysis.",
+      "wce_line": "The article provides detailed player statistics for the 2026-2027 NBA season, allowing users to sort and filter data easily.",
       "source_type": "article"
     },
     {
@@ -590,7 +591,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article analyzes advanced team stats for the 2026-2027 season, focusing on points per game, defensive efficiency, and other key metrics across divisions.",
+      "wce_line": "The article analyzes advanced team stats for the 2026-2027 season, focusing on offensive and defensive efficiency across divisions.",
       "source_type": "article"
     },
     {
@@ -602,7 +603,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses the Philadelphia team's new strategy but requires membership to read further details.",
+      "wce_line": "The article discusses Philadelphia's new basketball strategy but requires membership to read full details.",
       "source_type": "article"
     },
     {
@@ -639,7 +640,7 @@
         "Abhijit Brahme",
         "Alexander Franks"
       ],
-      "wce_line": "The study found that athleticism-related skills like blocks and rebounds peak earlier than shooting abilities, which reach their peaks in mid-twenties.",
+      "wce_line": "The study found that athleticism-driven metrics like blocks and rebounds peak earlier than skill-based shooting metrics, which peak later in a player's career.",
       "source_type": "paper"
     },
     {
@@ -652,7 +653,7 @@
         "Yang Zhou",
         "Tianyu Guan"
       ],
-      "wce_line": "The review identifies gaps in NBA analytics where individual component predictions fail to effectively combine or transfer across different contexts.",
+      "wce_line": "The review identifies gaps in NBA analytics, particularly at interfaces combining individual component predictions into actionable decisions across different contexts.",
       "source_type": "paper"
     },
     {
@@ -694,7 +695,7 @@
         "Nirek Duma",
         "Leo Benaharon"
       ],
-      "wce_line": "The study finds that increasing rim attempts and decreasing midrange and perimeter shots can improve overall team performance, suggesting the three-point shot has been overvalued in recent years.",
+      "wce_line": "The study finds that increasing rim attempts and decreasing midrange and perimeter shots can improve overall team performance near the efficient frontier.",
       "source_type": "paper"
     },
     {
@@ -742,7 +743,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes Oklahoma City's strategy to counter Wemby's strengths.",
+      "wce_line": "The article analyzes Oklahoma City's strategic approach to defend against a key player.",
       "source_type": "article"
     },
     {
@@ -754,7 +755,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how the San Antonio Spurs adjusted their defensive strategies and Oklahoma City's approach to playing against them.",
+      "wce_line": "The article discusses how the Spurs adjusted their defensive strategy and Oklahoma City's response.",
       "source_type": "article"
     },
     {
@@ -766,7 +767,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses how Oklahoma City adjusted their offense to create new player roles and strategies.",
+      "wce_line": "The article discusses how Oklahoma City adjusted their offense to create new play options.",
       "source_type": "article"
     },
     {
@@ -790,7 +791,7 @@
       "authors": [
         "Justin Jacobs"
       ],
-      "wce_line": "The study reconstructed 2,179 games from 1984-85 to 1995-96 using video footage to create RAPM estimates for pre-play-by-play NBA seasons.",
+      "wce_line": "The study reconstructs 2,179 games from 1984-1996 using video footage to create RAPM estimates for each player's impact during their court time.",
       "source_type": "paper"
     },
     {
@@ -803,7 +804,7 @@
         "Nirek Duma",
         "Leo Benaharon"
       ],
-      "wce_line": "The study introduces RIM, a metric that measures the impact of officiating on NBA games by aggregating win-probability changes from foul events.",
+      "wce_line": "The study introduces RIM, a metric that measures officiating impact by aggregating win-probability changes from foul events in NBA games.",
       "source_type": "paper"
     }
   ]
