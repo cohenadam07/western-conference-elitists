@@ -1,0 +1,27 @@
+{
+ "season": "2025-26",
+ "d1_games": 5752,
+ "pbp_games": 5740,
+ "pbp_rate": 0.9979,
+ "score_rate": 0.9993,
+ "pbp_ok_games": 5695,
+ "pbp_ok_rate": 0.9922,
+ "coord_rate": 1.0,
+ "box_rate_raw": 0.9943,
+ "box_rate": 0.997,
+ "lineup_games": 5740,
+ "lineup_ok_games": 5419,
+ "lineup_ok_rate_of_d1": 0.9421,
+ "five_rate": 0.996,
+ "firm_rate": 0.9897,
+ "minutes_within_1": 0.9911,
+ "team_minutes_ok": 0.9997,
+ "team_box_minutes_ok": 1.0,
+ "poss_team_seasons_within_2pct": 0.9507,
+ "poss_bias": -0.0083,
+ "sources": {
+  "subs": 5740,
+  "none": 12
+ },
+ "line_games": 4766
+}

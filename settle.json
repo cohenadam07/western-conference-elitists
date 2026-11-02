@@ -1,0 +1,189 @@
+{
+ "ts": {
+  "k": 421.7,
+  "pairs": 11755,
+  "rmse_raw": 9.813,
+  "rmse_prior": 6.608,
+  "unit": "shooting chances"
+ },
+ "efg": {
+  "k": 199.5,
+  "pairs": 11747,
+  "rmse_raw": 10.821,
+  "rmse_prior": 7.247,
+  "unit": "FGA"
+ },
+ "fg2": {
+  "k": 100.0,
+  "pairs": 11569,
+  "rmse_raw": 13.376,
+  "rmse_prior": 8.602,
+  "unit": "2PA"
+ },
+ "fg3": {
+  "k": 595.7,
+  "pairs": 10165,
+  "rmse_raw": 15.939,
+  "rmse_prior": 9.307,
+  "unit": "3PA"
+ },
+ "ft": {
+  "k": 31.6,
+  "pairs": 10849,
+  "rmse_raw": 17.353,
+  "rmse_prior": 11.198,
+  "unit": "FTA"
+ },
+ "tpar": {
+  "k": 6.0,
+  "pairs": 11747,
+  "rmse_raw": 8.862,
+  "rmse_prior": 8.328,
+  "unit": "FGA"
+ },
+ "ftr": {
+  "k": 47.3,
+  "pairs": 11747,
+  "rmse_raw": 18.692,
+  "rmse_prior": 13.879,
+  "unit": "FGA"
+ },
+ "usg": {
+  "k": 112.2,
+  "pairs": 11893,
+  "rmse_raw": 3.039,
+  "rmse_prior": 2.724,
+  "unit": "possessions"
+ },
+ "ast_pct": {
+  "k": 50.1,
+  "pairs": 11837,
+  "rmse_raw": 4.478,
+  "rmse_prior": 3.925,
+  "unit": "team makes"
+ },
+ "tov_pct": {
+  "k": 66.8,
+  "pairs": 11824,
+  "rmse_raw": 5.945,
+  "rmse_prior": 4.67,
+  "unit": "plays used"
+ },
+ "orb_pct": {
+  "k": 141.3,
+  "pairs": 11885,
+  "rmse_raw": 2.614,
+  "rmse_prior": 2.103,
+  "unit": "chances"
+ },
+ "drb_pct": {
+  "k": 177.8,
+  "pairs": 11864,
+  "rmse_raw": 4.044,
+  "rmse_prior": 3.168,
+  "unit": "chances"
+ },
+ "stl_pct": {
+  "k": 473.2,
+  "pairs": 11894,
+  "rmse_raw": 0.93,
+  "rmse_prior": 0.731,
+  "unit": "possessions"
+ },
+ "blk_pct": {
+  "k": 84.1,
+  "pairs": 11856,
+  "rmse_raw": 1.464,
+  "rmse_prior": 1.282,
+  "unit": "opp. 2PA"
+ },
+ "pts": {
+  "k": 167.9,
+  "pairs": 11889,
+  "rmse_raw": 0.048,
+  "rmse_prior": 0.041,
+  "unit": "possessions"
+ },
+ "ast": {
+  "k": 177.8,
+  "pairs": 11889,
+  "rmse_raw": 0.014,
+  "rmse_prior": 0.012,
+  "unit": "possessions"
+ },
+ "reb": {
+  "k": 298.5,
+  "pairs": 11889,
+  "rmse_raw": 0.023,
+  "rmse_prior": 0.019,
+  "unit": "possessions"
+ },
+ "tov": {
+  "k": 335.0,
+  "pairs": 11889,
+  "rmse_raw": 0.012,
+  "rmse_prior": 0.01,
+  "unit": "possessions"
+ },
+ "pf": {
+  "k": 223.9,
+  "pairs": 11894,
+  "rmse_raw": 0.016,
+  "rmse_prior": 0.013,
+  "unit": "possessions"
+ },
+ "rim_fg": {
+  "k": 89.1,
+  "pairs": 11312,
+  "rmse_raw": 17.606,
+  "rmse_prior": 10.735,
+  "unit": "rim FGA"
+ },
+ "mid_fg": {
+  "k": 100.0,
+  "pairs": 9115,
+  "rmse_raw": 30.313,
+  "rmse_prior": 17.588,
+  "unit": "mid FGA"
+ },
+ "pnt_fg": {
+  "k": 89.1,
+  "pairs": 9385,
+  "rmse_raw": 32.04,
+  "rmse_prior": 18.166,
+  "unit": "paint FGA"
+ },
+ "c3_fg": {
+  "k": 141.3,
+  "pairs": 8458,
+  "rmse_raw": 30.71,
+  "rmse_prior": 17.747,
+  "unit": "corner 3PA"
+ },
+ "ab3_fg": {
+  "k": 188.4,
+  "pairs": 9889,
+  "rmse_raw": 18.358,
+  "rmse_prior": 10.782,
+  "unit": "above-break 3PA"
+ },
+ "rim_freq": {
+  "k": 8.4,
+  "pairs": 11691,
+  "rmse_raw": 9.973,
+  "rmse_prior": 9.195,
+  "unit": "FGA"
+ },
+ "mid_freq": {
+  "k": 25.1,
+  "pairs": 11691,
+  "rmse_raw": 6.176,
+  "rmse_prior": 5.345,
+  "unit": "FGA"
+ },
+ "_three_prior": [
+  0.20555610080138534,
+  0.1355996353788625,
+  0.07553552449079472
+ ]
+}

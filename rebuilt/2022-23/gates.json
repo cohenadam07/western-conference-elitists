@@ -1,0 +1,26 @@
+{
+ "season": "2022-23",
+ "d1_games": 5715,
+ "pbp_games": 5629,
+ "pbp_rate": 0.985,
+ "score_rate": 0.9861,
+ "pbp_ok_games": 4975,
+ "pbp_ok_rate": 0.8838,
+ "coord_rate": 0.9342,
+ "box_rate_raw": 0.9549,
+ "box_rate": 0.9758,
+ "lineup_games": 0,
+ "lineup_ok_games": 0,
+ "lineup_ok_rate_of_d1": 0.0,
+ "five_rate": null,
+ "firm_rate": null,
+ "minutes_within_1": null,
+ "team_minutes_ok": null,
+ "team_box_minutes_ok": null,
+ "poss_team_seasons_within_2pct": 0.8926,
+ "poss_bias": 0.0069,
+ "sources": {
+  "none": 5715
+ },
+ "line_games": 5714
+}
