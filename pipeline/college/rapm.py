@@ -18,8 +18,11 @@ a thin sample to what his box line implies instead of to zero.
                     a recruit-based value, a man with no recruit row the average of low-minute men
     final           RAPM with that prior
 
-Lineups exist from 2023-24 on, so a pool is that season through the one asked for, up to four plus
-the current. Older seasons in the pool count less: 0.9 a year. 2022-23 has no lineups anywhere.
+Lineups count from 2024-25, so a pool is that season through the one asked for, up to four plus the
+current. Older seasons count less: 0.9 a year. 2022-23 has no lineups anywhere. 2023-24 has them from
+CBBD, but only 84% of its player-games land within a minute of the box, so it failed the gate and is
+out. Its 52% of clean games were tested as extra pool anyway: held-out RMSE 83.236 against 83.239
+without them, which is nothing.
 
 The check (`check`): train through 2025-01-31 style cut, hold out the last 20% of game dates in the
 newest pool; predict stint margins. RAPM must beat box impact alone and raw on/off.
@@ -48,8 +51,8 @@ import season as SZ  # noqa: E402
 OUT = os.path.join(CC.HOME, "impact")
 SITE = os.environ.get("CBB_PUBLIC") or os.path.join(HERE, "..", "..", "public")
 BOXF = os.path.join(HERE, "seed", "box_impact.json")
-FIRST = "2023-24"
-LAM = 1500.0            # possessions of ridge; `check` scans this
+FIRST = "2024-25"
+LAM = 2500.0            # possessions of ridge; `check` scans this (1,500 and 2,500 tie, 500 and 4,000 lose)
 AGE_DECAY = 0.9
 SHOW_MIN = 500          # on-court possessions in the pool, or the card says low sample
 ON = ("poss", "pts", "fga", "fgm", "fg3a", "fg3m", "fta", "ftm", "oreb", "dreb", "tov", "stl", "blk", "ast")
@@ -61,7 +64,7 @@ BOX_FEATS_D = ["dreb", "stl", "blk", "pf"]
 
 def seasons_upto(s):
     y = int(s[:4])
-    return [f"{k}-{str(k + 1)[2:]}" for k in range(max(2023, y - 3), y + 1)]
+    return [f"{k}-{str(k + 1)[2:]}" for k in range(max(2024, y - 3), y + 1)]
 
 
 def load_stints(season, weight=1.0):
@@ -251,8 +254,9 @@ def check(pool):
     rows = []
     for s in pool:
         rows += load_stints(s)
-    dates = sorted({r[5] for r in rows})
-    cut = dates[int(len(dates) * 0.8)]
+    # the same held-out games whatever the pool: the last 20% of the newest season's dates
+    newest = sorted({r[5] for r in load_stints(pool[-1])})
+    cut = newest[int(len(newest) * 0.8)]
     tr = [r for r in rows if r[5] < cut]
     te = [r for r in rows if r[5] >= cut]
     ids = sorted({e for r in tr for e in r[3] + r[4]})

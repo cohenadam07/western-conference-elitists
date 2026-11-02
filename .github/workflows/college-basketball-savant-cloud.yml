@@ -63,7 +63,9 @@ jobs:
       # in about two minutes, so a lost cache costs nothing.
       - uses: actions/cache@v4
         with:
-          path: .espn-cbb-cache
+          path: |
+            .espn-cbb-cache
+            .cbb-home
           key: espn-cbb-${{ github.run_id }}
           restore-keys: espn-cbb-
       - name: Install

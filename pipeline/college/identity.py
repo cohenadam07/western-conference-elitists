@@ -298,5 +298,8 @@ def build(seasons, log=print):
 if __name__ == "__main__":
     a = [x for x in sys.argv[1:] if not x.startswith("--")]
     logf = lambda m: print(time.strftime("%H:%M:%S"), str(m)[:900], flush=True)  # noqa: E731
-    cbbd_refs(a, log=logf)
+    try:
+        cbbd_refs(a, log=logf)
+    except CC.BudgetExhausted as e:            # bios still build; recruits wait for next month
+        logf(f"CBBD refs skipped: {e}")
     build(a, log=logf)

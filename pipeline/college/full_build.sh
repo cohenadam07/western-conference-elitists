@@ -14,10 +14,10 @@ python3 -W ignore ratings.py build $ALL
 python3 -W ignore ratings.py check 2023-24 2024-25 2025-26
 python3 -W ignore settle.py $DONE
 python3 -W ignore adjust.py
-python3 -W ignore xfg.py check 2022-23 2023-24 2024-25 2025-26
-python3 -W ignore xfg.py fit $DONE
-python3 -W ignore rapm.py check 2023-24 2024-25 2025-26
-python3 -W ignore rapm.py fit 2023-24 2024-25 2025-26
+python3 -W ignore xfg.py check 2024-25 2025-26
+python3 -W ignore xfg.py fit 2024-25 2025-26
+python3 -W ignore rapm.py check 2024-25 2025-26
+python3 -W ignore rapm.py fit 2024-25 2025-26
 python3 -W ignore rapm.py build 2023-24 2024-25 2025-26 2026-27
 python3 heads.py $ALL
 python3 -W ignore build.py $ALL

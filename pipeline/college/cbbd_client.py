@@ -23,6 +23,7 @@ import urllib.request
 
 BASE = "https://api.collegebasketballdata.com"
 MONTHLY_CAP = 600
+TIER = 1000             # the free tier, shared with CollegeFootballData
 HOME = os.environ.get("COLLEGE_HOME") or os.path.expanduser("~/Basketball-Savant/out/cbb")
 LEDGER = os.path.join(HOME, "cbbd-ledger.json")
 
@@ -55,6 +56,8 @@ def _spend(path):
         m = d.setdefault(_month(), {"calls": 0, "seed": 0, "log": []})
         if m["calls"] + m.get("seed", 0) >= MONTHLY_CAP:
             raise BudgetExhausted(f"CBBD budget reached: {m['calls'] + m.get('seed', 0)} of {MONTHLY_CAP} this month")
+        if m.get("meter_left") is not None and m["meter_left"] <= TIER - MONTHLY_CAP:
+            raise BudgetExhausted(f"CBBD's own meter says {m['meter_left']} left of {TIER}: the cap counts every machine")
         m["calls"] += 1
         m["log"].append([dt.datetime.now().isoformat(timespec="seconds"), path])
         m["log"] = m["log"][-400:]
@@ -62,6 +65,19 @@ def _spend(path):
         fh.truncate()
         json.dump(d, fh)
     return d[_month()]["calls"] + d[_month()].get("seed", 0)
+
+
+def _note_meter(left):
+    """The Mac and the cloud keep separate ledgers and share one quota; CBBD's meter sees both."""
+    if not (left and left.isdigit()):
+        return
+    with open(LEDGER, "r+") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        d = json.load(fh)
+        d.setdefault(_month(), {"calls": 0, "seed": 0, "log": []})["meter_left"] = int(left)
+        fh.seek(0)
+        fh.truncate()
+        json.dump(d, fh)
 
 
 def calls_this_month():
@@ -94,6 +110,7 @@ def get(path, timeout=240, **params):
         try:
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 left = r.headers.get("X-CallLimit-Remaining")
+                _note_meter(left)
                 return json.loads(r.read().decode("utf8", "replace"), strict=False), (int(left) if left and left.isdigit() else None)
         except urllib.error.HTTPError as e:
             raise RuntimeError(f"CBBD {path}: HTTP {e.code}") from None

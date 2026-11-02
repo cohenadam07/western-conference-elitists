@@ -9,7 +9,7 @@ NOT the assisted flag. It is only recorded on makes, so it would tell the model 
 
 Arena term. College scorekeepers disagree about what a jumper and a layup are, and that is the
 largest known bias in shot data. After the model is fit, each venue gets a shrunk log-odds residual
-per zone class (rim, or everything else); `check` asks whether the term measures the building or the
+per zone class (rim, or everything else), and only the rim term survives the check; `check` asks whether the term measures the building or the
 team that plays in it: a scorekeeper's habit shows up for the visitors too, so a venue's residual on
 the road team's shots must correlate with its residual on the home team's.
 
@@ -46,6 +46,7 @@ def shots(season):
     G = pd.read_pickle(os.path.join(d, "games.pkl")).set_index("gid")
     S = S[S.gid.map(G.pbp_ok) & S.gid.map(G.non_d1).eq(0)].copy()
     S["venue"] = S.gid.map(G.venue).astype(str)
+    S["native"] = S.gid.map(G.joined_locs).fillna(0).eq(0).values   # the location is ESPN's own
     S["season"] = season
     home = S.gid.map(G.home)
     neutral = S.gid.map(G.neutral).astype(bool)
@@ -98,9 +99,26 @@ def arena_terms(S, p):
 
 
 def apply_arena(S, p, g):
+    """Rim only. Measured on 1.77M shots: a venue's residual on visitors' shots tracks its residual
+    on the home team's at r = .64 at the rim, where scorekeepers decide what a layup is, and at .11
+    everywhere else, which is the team and not the building. So only the rim term is applied."""
     key = pd.MultiIndex.from_arrays([S.venue.values, zclass(S)])
-    a = g.a.reindex(key).fillna(0.0).values
+    a = g.a.reindex(key).fillna(0.0).values * (zclass(S) == "rim")
     return expit(logit(p) + a)
+
+
+def recentre(S, p):
+    """One logit shift per zone class: each season's rim and non-rim shots centred on their own make
+    rates. With one shift the top decile ran .044 hot on an unseen season, because rim finishing and
+    jump shooting drift apart between seasons."""
+    out = p.copy()
+    z = zclass(S)
+    y = S.made.values
+    for c in ("rim", "other"):
+        m = z == c
+        if m.any():
+            out[m] = expit(logit(p[m]) + season_shift(p[m], y[m]))
+    return out
 
 
 def season_shift(p, y):
@@ -119,7 +137,7 @@ def season_shift(p, y):
 def check(train, test):
     tr = pd.concat([shots(s) for s in train])
     te = shots(test)
-    tr, te = tr[tr.x.notna()], te[te.x.notna()]
+    tr, te = tr[tr.x.notna() & tr.native], te[te.x.notna()]     # see fit(): ESPN's coordinates only
     Xtr, Xte = frame_x(tr), frame_x(te)
     ytr, yte = tr.made.values, te.made.values
     m = clf().fit(Xtr, ytr)
@@ -128,7 +146,7 @@ def check(train, test):
     g = arena_terms(tr, p0tr)
     p1 = apply_arena(te, p0, g)
     out = dict(train=train, test=test, shots_train=len(tr), shots_test=len(te), logloss_distance_only=round(ll(yte, base), 5), logloss_model=round(ll(yte, p0), 5), logloss_with_arena=round(ll(yte, p1), 5))
-    p = expit(logit(p1) + season_shift(p1, yte))
+    p = recentre(te, p1)
     out["logloss_recentred"] = round(ll(yte, p), 5)
     d = pd.qcut(p, 10, labels=False, duplicates="drop")
     cal = pd.DataFrame({"p": p, "y": yte, "d": d}).groupby("d").agg(pred=("p", "mean"), made=("y", "mean"), n=("y", "size"))
@@ -153,8 +171,10 @@ def check(train, test):
 
 def fit(seasons):
     import joblib
+    # Trained on ESPN's own coordinates only. Adding the seasons located by CBBD ran the top decile
+    # .048 hot on an unseen season; ESPN's alone hold it near .016.
     tr = pd.concat([shots(s) for s in seasons])
-    tr = tr[tr.x.notna()]
+    tr = tr[tr.x.notna() & tr.native]
     X = frame_x(tr)
     m = clf().fit(X, tr.made.values)
     p = m.predict_proba(X)[:, 1]
@@ -174,11 +194,28 @@ def apply(season):
         return pd.DataFrame(columns=["xfg", "fg", "shots"]), S
     p = apply_arena(S, M["clf"].predict_proba(frame_x(S))[:, 1], M["arena"])
     y = S.made.values
-    p = expit(logit(p) + season_shift(p, y))
+    p = recentre(S, p)
     S["xp"] = p
     v = 1 + 0.5 * S.three.values
     t = pd.DataFrame({"e": S.eid.values, "xe": p * v, "ae": y * v, "n": 1.0}).groupby("e").agg(xefg=("xe", "mean"), efg=("ae", "mean"), n=("n", "sum"))
     return t, S
+
+
+def score_on(train, test):
+    """A model fit on ESPN-located shots, read on a season located by CBBD."""
+    tr = pd.concat([shots(s) for s in train])
+    tr = tr[tr.x.notna() & tr.native]
+    te = shots(test)
+    te = te[te.x.notna() & ~te.native]
+    m = clf().fit(frame_x(tr), tr.made.values)
+    p0tr, p0 = m.predict_proba(frame_x(tr))[:, 1], m.predict_proba(frame_x(te))[:, 1]
+    p = recentre(te, apply_arena(te, p0, arena_terms(tr, p0tr)))
+    y = te.made.values
+    base = clf().fit(frame_x(tr)[["dist"]], tr.made.values).predict_proba(frame_x(te)[["dist"]])[:, 1]
+    d = pd.qcut(p, 10, labels=False, duplicates="drop")
+    cal = pd.DataFrame({"p": p, "y": y, "d": d}).groupby("d").agg(pred=("p", "mean"), made=("y", "mean"))
+    print(test, "shots", len(te), "logloss", round(ll(y, p), 5), "distance-only", round(ll(y, base), 5), "worst decile", round(float(abs(cal.pred - cal.made).max()), 4))
+    print(" ", [[round(float(r.pred), 3), round(float(r.made), 3)] for _, r in cal.iterrows()])
 
 
 if __name__ == "__main__":
@@ -188,3 +225,6 @@ if __name__ == "__main__":
         check(a[:-1], a[-1])
     elif cmd == "fit":
         fit(sys.argv[2:])
+    elif cmd == "score":
+        a = sys.argv[2:]
+        score_on(a[:-1], a[-1])

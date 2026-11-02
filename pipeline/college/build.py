@@ -44,6 +44,7 @@ import config as C  # noqa: E402
 import season as SZ  # noqa: E402
 
 PUBLIC = os.path.join(HERE, "..", "..", "public")
+COURT_MIN = 0.60            # share of D1 games with clean lineups a season needs to show any of it
 LUCK_K = {5: 300.0, 4: 300.0, 3: 400.0, 2: 500.0}
 LINEUP_MIN_POSS = {5: 30, 4: 40, 3: 50, 2: 60}
 ON = ("poss", "pts", "fga", "fgm", "fg3a", "fg3m", "fta", "ftm", "oreb", "dreb", "tov", "stl", "blk", "ast")
@@ -319,6 +320,9 @@ def player_season(season, gen, public, teams_cache, log):
     aj_n, aj_g = adjusted_tables(d, adj_keys, False, method), adjusted_tables(d, adj_keys, True, method)
     oo, lg3, lgft = onoff_table(season, pg)
     imp = (load_json(os.path.join(HOME, "impact", f"{season}.json")) or {}).get("players", {})
+    if not tracked(season)["court"]:         # §3: a season that failed its gate shows no on/off or RAPM
+        oo = oo.iloc[0:0] if len(oo) else oo
+        imp = {e: {"bi": v.get("bi")} for e, v in imp.items()}
     xf = pd.DataFrame()
     try:
         import xfg as X
@@ -369,10 +373,11 @@ def player_season(season, gen, public, teams_cache, log):
         t = main.team.get(e)
         ms = float(tot_all.mins.get(e, 0)) / max(1.0, float(tm_cap.get(t, 40)))
         P.append([e, i.get("name") or ids["names"].get(e), t, (pos.get(e) or [None, None])[1], i.get("cls"), i.get("age"), i.get("ht"), i.get("wt"),
-                  int(tot_all.gp.get(e, 0)), int(tot_all.gs.get(e, 0)), rnd(tot_all.mins.get(e), 0), int(ms >= C.QUAL_MIN_SHARE), conf.get(t), int(heads.get(e, 0)), i.get("jersey")])
+                  int(tot_all.gp.get(e, 0)), int(tot_all.gs.get(e, 0)), rnd(tot_all.mins.get(e), 0), int(ms >= C.QUAL_MIN_SHARE), conf.get(t), int(heads.get(e, 0)), i.get("jersey"),
+                  ", ".join(x for x in (i.get("city"), i.get("state") or (i.get("country") if i.get("country") != "USA" else None)) if x) or None, (i.get("rec") or {}).get("stars"), (i.get("rec") or {}).get("rank"), (i.get("rec") or {}).get("hs")])
     means = {}
     q = [i for i, p in enumerate(P) if p[11]]
-    doc = {"season": season, "through": str(d.date.max()) if len(d) else None, "generated": gen, "cols": ["id", "name", "team", "pos", "cls", "age", "ht", "wt", "gp", "gs", "min", "qual", "conf", "head", "jersey"],
+    doc = {"season": season, "through": str(d.date.max()) if len(d) else None, "generated": gen, "cols": ["id", "name", "team", "pos", "cls", "age", "ht", "wt", "gp", "gs", "min", "qual", "conf", "head", "jersey", "hometown", "stars", "recruit_rank", "high_school"],
            "players": P, "values": V, "samples": N, "qualified": len(q), "lg3": lg3, "lgft": lgft}
     size = jdump(os.path.join(public, "cbb", "s", f"{season}.json"), doc)
     log(f"{season}: s/ {len(P)} players, {len(q)} qualified, {size / 1e6:.2f} MB")
@@ -411,7 +416,7 @@ def team_files(season, gen, ctx, public, log):
     teams = load_json(os.path.join(HOME, "tmp-teams", f"{season}.json")) or {}
     rank = {t: r["rank"] for t, r in teams.items()}
     net = net_table(season)
-    lu = lineups(season, ctx["lg3"] or 0.33, ctx["lgft"] or 0.72)
+    lu = lineups(season, ctx["lg3"] or 0.33, ctx["lgft"] or 0.72) if tracked(season)["court"] else {}
     names = ids["teams"]
     size = 0
     months = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"]
@@ -566,7 +571,7 @@ def tracked(season):
     g = load_json(os.path.join(SZ.OUT, season, "gates.json")) or {}
     # §3: a season keeps a section only if its gate passed
     shots = (g.get("coord_rate") or 0) >= 0.85
-    court = (g.get("lineup_ok_rate_of_d1") or 0) >= 0.60
+    court = (g.get("lineup_ok_rate_of_d1") or 0) >= COURT_MIN
     return dict(shots=shots, court=court, coord_rate=g.get("coord_rate"), lineup_rate=g.get("lineup_ok_rate_of_d1"), games=g.get("d1_games"))
 
 

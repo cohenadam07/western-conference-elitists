@@ -27,7 +27,7 @@ MIN_POOL = 20                  # no pool under this; the page widens it and says
 
 ESPN = "ESPN box scores"
 PBP = "ESPN play-by-play, rebuilt by WCE"
-LIN = "Lineups rebuilt by WCE from ESPN substitutions (2025 on) and CollegeBasketballData on-floor data (2023-24 to Feb 2025)"
+LIN = "Lineups rebuilt by WCE from ESPN substitutions (from Feb 2025) and CollegeBasketballData on-floor data (2024-25 before that)"
 LOC = "Shot locations from ESPN (2025 on) and CollegeBasketballData (earlier)"
 
 S = namedtuple("S", "key label group kind unit lower settle n family start what formula source sample")
@@ -42,17 +42,17 @@ PER = "per possession, shown per 70 or per 100"
 STATS = [
     # ---------------------------------------------------------------- Impact
     R("rapm", "RAPM", "Impact", "skill", "sgn1", "Points per 100 possessions the player adds, on both ends, once the nine others on the floor are accounted for. The model's view, not a verdict.",
-      "Ridge regression on every clean stint, pooled over up to four seasons, with box impact as the prior", LIN, "Shown above 500 on-court possessions in the pool; low sample below.", family="court", start="2023-24", settle=None, n="rapm_n"),
+      "Ridge regression on every clean stint, pooled over up to four seasons, with box impact as the prior", LIN, "Shown above 500 on-court possessions in the pool; low sample below.", family="court", start="2024-25", settle=None, n="rapm_n"),
     R("rapm_o", "Offensive RAPM", "Impact", "skill", "sgn1", "The offensive half of RAPM: what the offense does per 100 with the player on the floor, others accounted for.",
-      "The offense terms of the RAPM regression", LIN, "As RAPM.", family="court", start="2023-24", n="rapm_n"),
+      "The offense terms of the RAPM regression", LIN, "As RAPM.", family="court", start="2024-25", n="rapm_n"),
     R("rapm_d", "Defensive RAPM", "Impact", "skill", "sgn1", "The defensive half of RAPM. Positive means the defense is better with the player.",
-      "The defense terms of the RAPM regression", LIN, "As RAPM.", family="court", start="2023-24", n="rapm_n"),
+      "The defense terms of the RAPM regression", LIN, "As RAPM.", family="court", start="2024-25", n="rapm_n"),
     R("bi", "Box impact", "Impact", "skill", "sgn1", "What the box line says RAPM should be. It is RAPM's prior, and the best read on a player with few possessions.",
       "Regression of pooled RAPM on per-possession points, assists, turnovers, rebounds, steals, blocks, fouls and shot mix", f"{ESPN}; fitted to {LIN}", "Reads every game.", n="poss"),
     R("onoff", "On/off", "Impact", "skill", "sgn1", "Team net rating with the player on the floor minus off. Raw: it does not know who else was out there.",
-      "Net per 100 on - net per 100 off", LIN, "Clean-lineup games only.", family="court", start="2023-24", n="on_poss"),
+      "Net per 100 on - net per 100 off", LIN, "Clean-lineup games only.", family="court", start="2024-25", n="on_poss"),
     R("onoff_luck", "Luck-adjusted on/off", "Impact", "skill", "sgn1", "On/off with opponents' threes and free throws set to what they normally make: a cold shooting night by the other team does not count for the player.",
-      "On/off, with opponent 3P% and FT% replaced by league averages", LIN, "Clean-lineup games only.", family="court", start="2023-24", n="on_poss"),
+      "On/off, with opponent 3P% and FT% replaced by league averages", LIN, "Clean-lineup games only.", family="court", start="2024-25", n="on_poss"),
     # ---------------------------------------------------------------- Scoring
     R("pts", "Points", "Scoring", "skill", "per", "Points scored, per 70 possessions (about one college game) or per 100.", "Points ÷ the player's possessions", ESPN, PER, n="poss"),
     R("ts", "True shooting %", "Scoring", "skill", "pct1", "Scoring efficiency with threes and free throws counted at their worth.", "Points ÷ 2(FGA + 0.475 FTA). College's free-throw factor is 0.475", ESPN, "Settles over shooting chances.", n="n_tsa"),

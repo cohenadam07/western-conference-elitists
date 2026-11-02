@@ -92,8 +92,10 @@ def refresh(site):
             write_beat(site, b, source, fails, None)
             return
         source = "cbb-data" if use_mac_branch() else "cbbd"
+    subprocess.run([sys.executable, "torvik.py", SEASON], cwd=HERE)   # weekly at most; a failure keeps the last copy
     run("season.py", SEASON)
     run("identity.py", SEASON)
+    run("heads.py", SEASON)
     run("ratings.py", "build", SEASON)
     run("bpi_pull.py", SEASON)
     if dt.date.today().month in (12, 1, 2, 3, 4):
@@ -142,10 +144,16 @@ def bundle(out):
             p = os.path.join(CC.HOME, "rebuilt", s, f)
             if os.path.exists(p):
                 shutil.copy(p, d)
-    for sub in ("ratings", "impact", "identity", "positions"):
+    for sub in ("ratings", "impact", "positions"):
         src = os.path.join(CC.HOME, sub)
         if os.path.isdir(src):
             shutil.copytree(src, os.path.join(out, sub), dirs_exist_ok=True)
+    # identity: ages only. This branch is public; recruiting rows and birthdates stay on the Mac.
+    os.makedirs(os.path.join(out, "identity"), exist_ok=True)
+    for s in C.SEASONS:
+        p = os.path.join(CC.HOME, "identity", f"{s}.json")
+        if s != C.CURRENT and os.path.exists(p):
+            json.dump({e: {"age": v.get("age")} for e, v in json.load(open(p)).items()}, open(os.path.join(out, "identity", f"{s}.json"), "w"), separators=(",", ":"))
     for f in ("settle.json", "adjust-test.json", "heads.json"):
         p = os.path.join(CC.HOME, f)
         if os.path.exists(p):

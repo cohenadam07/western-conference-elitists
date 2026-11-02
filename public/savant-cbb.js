@@ -6,7 +6,7 @@
   root.SavantCBB = factory()
 })(typeof self !== 'undefined' ? self : globalThis, function () {
   'use strict'
-  const COL = { id: 0, name: 1, team: 2, pos: 3, cls: 4, age: 5, ht: 6, wt: 7, gp: 8, gs: 9, min: 10, qual: 11, conf: 12, head: 13, jersey: 14 }
+  const COL = { id: 0, name: 1, team: 2, pos: 3, cls: 4, age: 5, ht: 6, wt: 7, gp: 8, gs: 9, min: 10, qual: 11, conf: 12, head: 13, jersey: 14, home: 15, stars: 16, rrank: 17, hs: 18 }
   const ok = (v) => v !== null && v !== undefined && Number.isFinite(+v)
 
   function pct(values, v, lower) {

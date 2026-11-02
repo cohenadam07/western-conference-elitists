@@ -10,13 +10,14 @@ set -uo pipefail
 cd "${GITHUB_WORKSPACE:?}"
 CC=pipeline/college
 : "${RUNNER_TEMP:=/tmp}"
-export COLLEGE_HOME="$RUNNER_TEMP/cbb-home" ESPN_CBB_CACHE="$GITHUB_WORKSPACE/.espn-cbb-cache"
+# Both folders are kept by actions/cache: the CBBD ledger has to outlive a run, or the cap means nothing.
+export COLLEGE_HOME="$GITHUB_WORKSPACE/.cbb-home" ESPN_CBB_CACHE="$GITHUB_WORKSPACE/.espn-cbb-cache"
 git config user.name "college-savant-bot"
 git config user.email "bot@wcehoops.com"
 
 seed() {
   # finished seasons' working files (the Mac's full build pushes them, cloud_cbb.py bundle)
-  if [ ! -d "$COLLEGE_HOME/ratings" ] && git fetch -q --depth 1 origin cbb-bundles 2>/dev/null; then
+  if git fetch -q --depth 1 origin cbb-bundles 2>/dev/null; then
     mkdir -p "$COLLEGE_HOME" && git archive FETCH_HEAD | tar -x -C "$COLLEGE_HOME"
   fi
   [ -d "$COLLEGE_HOME/ratings" ] || { echo "::error::no cbb-bundles branch yet"; exit 1; }
