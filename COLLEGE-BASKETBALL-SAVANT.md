@@ -34,8 +34,10 @@ the next section. Merged to main and live on wcehoops.com the same evening. Pipe
 - **Launchd:** `com.wcehoops.cbb-mac-pull` is loaded, 5:07am daily. The deployed script passed a dry run; the job itself has
   not run under launchd yet.
 - **Nothing public:** no `cbb-raw-*` release exists and no `cbb-data` branch exists.
-- **Not yet seen:** a scheduled cloud refresh on main. The workflow's first runs were the dry runs on the branch. Until one
-  lands, `data/cbb-refresh.json` does not exist, and the freshness alarm would fail on it.
+- **Cloud:** a no-commit dry run on main passed after the merge, with the new position code and bundle (run 41536881355, under
+  2 minutes, 12 CBBD calls).
+- **Not yet seen:** a scheduled refresh publishing to main. Until one lands, `data/cbb-refresh.json` does not exist, and the
+  freshness alarm would fail on it.
 
 ## What shipped
 
