@@ -27,6 +27,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
+  id-token: write   # Control Room check-ins prove they come from this repo (no secret needed)
   contents: read
   issues: write
 
@@ -38,6 +39,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Control Room check-in (start)
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+        run: bash .github/scripts/control-room.sh connector-coverage start
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -70,3 +77,13 @@ jobs:
           for n in $(gh issue list --label connector-coverage --state open --json number --jq '.[].number'); do
             gh issue close "$n" --comment "Every feature of the site is covered again."
           done
+
+      # Tells the WCE Control Room (/wce) how the run went; a failure pushes to Adam's phone.
+      - name: Control Room check-in
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/control-room.sh connector-coverage "${{ job.status }}"

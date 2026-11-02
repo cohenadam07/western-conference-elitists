@@ -41,6 +41,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
+  id-token: write   # Control Room check-ins prove they come from this repo (no secret needed)
   contents: write
 
 jobs:
@@ -52,6 +53,11 @@ jobs:
         with:
           ref: main
           fetch-depth: 1
+      - name: Control Room check-in (start)
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+        run: bash .github/scripts/control-room.sh football-savant start
 
       - uses: actions/setup-python@v5
         with:
@@ -101,3 +107,13 @@ jobs:
           # --autostash: any other stray file the build touches can never block the push again
           git pull --rebase --autostash origin main
           git push origin HEAD:main
+
+      # Tells the WCE Control Room (/wce) how the run went; a failure pushes to Adam's phone.
+      - name: Control Room check-in
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/control-room.sh football-savant "${{ job.status }}"

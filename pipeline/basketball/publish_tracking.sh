@@ -34,6 +34,15 @@ git -C "$SITE" fetch -q origin main || { echo "fetch failed"; exit 1; }
 if [ ! -d "$WT" ]; then git -C "$SITE" worktree add -q --detach "$WT" origin/main || exit 1; fi
 git -C "$WT" checkout -q --detach -f origin/main || { echo "checkout failed"; exit 1; }
 
+# Control Room check-ins (wcehoops.com/api/status, shown in Adam's /wce panel). The key lives
+# outside the repo, in ~/.config/wce/control-room.env (WCE_STATUS_KEY=..., WCE_NTFY_TOPIC=...);
+# without that file nothing is reported. The end check-in carries the log's last line.
+[ -f "$HOME/.config/wce/control-room.env" ] && . "$HOME/.config/wce/control-room.env"
+checkin() { [ -n "${WCE_STATUS_KEY:-}" ] && WCE_STATUS_KEY="$WCE_STATUS_KEY" WCE_NTFY_TOPIC="${WCE_NTFY_TOPIC:-}" WCE_SOURCE=mac PYTHON="$PY" bash "$WT/.github/scripts/control-room.sh" basketball-tracking "$@" >/dev/null 2>&1 || true; }
+lastline() { grep -v '^===' "$SAVANT/logs/tracking.log" 2>/dev/null | tail -1 | cut -c1-280; }
+checkin start "Started on the Mac"
+trap 'rc=$?; rm -rf "$LOCK"; if [ $rc -eq 0 ]; then checkin success "$(lastline)"; else checkin failure "$(lastline)"; fi' EXIT
+
 cd "$SAVANT" || exit 1
 PYTHONPATH="$WT/pipeline/basketball" "$PY" -u "$WT/pipeline/basketball/export_tracking.py" "$OUT" || { echo "export failed"; exit 1; }
 [ -f "$OUT/manifest.json" ] || { echo "no manifest; nothing to push"; exit 1; }

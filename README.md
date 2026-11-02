@@ -277,3 +277,24 @@ Create a new file in `src/pages/`, add a `<Route>` for it in `App.jsx`, and add 
 ### Forms
 
 The newsletter and contact forms are currently client-side only (they just flip to a "submitted" state). Wire them to a real provider by replacing the `handleSubmit` functions in `NewsletterCTA.jsx` and `Contact.jsx` with calls to your email/CRM API of choice (Mailchimp, ConvertKit, Resend, a serverless function, etc).
+
+### The Control Room (/api/status)
+
+Adam's live dashboard for everything behind the site is a Claude mod, opened with `/wce`. It
+reads one private feed, `/api/status` (`api/_status.js`; `vercel.json` rewrites it into the
+analytics function, so it costs no function slot): every job's last run, the last day of runs,
+when each is due next, the Vercel deploys, and the site's reach (visits, connector calls,
+founding members, newsletter, Dynasty ballots).
+
+Every job checks in when it starts and ends with `.github/scripts/control-room.sh`: each
+GitHub workflow in its first and last steps (the last runs `if: always()`), proving itself
+with GitHub's signed identity token (`id-token: write`, checked against GitHub's public keys,
+so no secret lives on GitHub), and the Mac's two launchd jobs (`pipeline/news/run.sh`,
+`pipeline/basketball/publish_tracking.sh`) with the key in `~/.config/wce/control-room.env`.
+A check-in can never fail a job. `.github/workflows/site-watch.yml` checks the homepage, a
+Savant page, the AI connector and the latest deploy every 30 minutes.
+
+The first failure in a row, and the recovery after it, go to Adam's phone through ntfy.
+Settings on Vercel: `WCE_STATUS_KEY` (the feed's key; without it the feed is off and every
+check-in is skipped) and `WCE_NTFY_TOPIC` (the private ntfy topic). A new job goes in `JOBS`
+at the top of `api/_status.js` with its schedule, and calls `control-room.sh <id>` twice.

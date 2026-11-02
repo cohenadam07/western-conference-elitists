@@ -24,6 +24,7 @@ on:
         default: false
 
 permissions:
+  id-token: write   # Control Room check-ins prove they come from this repo (no secret needed)
   contents: write
 
 concurrency:
@@ -36,6 +37,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Control Room check-in (start)
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+        run: bash .github/scripts/control-room.sh weekly-snapshot start
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -60,3 +67,13 @@ jobs:
         env:
           BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
         run: node scripts/movers-draft.mjs
+
+      # Tells the WCE Control Room (/wce) how the run went; a failure pushes to Adam's phone.
+      - name: Control Room check-in
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/control-room.sh weekly-snapshot "${{ job.status }}"

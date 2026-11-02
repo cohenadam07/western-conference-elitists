@@ -23,12 +23,19 @@ import {
 import { readUsage } from '../_usage.js';
 import { readKeySummary } from '../_keys.js';
 import { readEdge, readPortfolios } from './_edge.js';
+import { statusHandler } from '../_status.js';
 
 export const config = { maxDuration: 30 };
 
 const isDate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s || '');
 
 export default async function handler(req, res) {
+  // The Control Room's feed (/api/status, rewritten here so it costs no function slot). It has a
+  // key of its own, WCE_STATUS_KEY, so the jobs that write to it never hold the analytics password.
+  if (new URL(req.url, 'http://localhost').searchParams.get('section') === 'status') {
+    return statusHandler(req, res);
+  }
+
   const password = process.env.ANALYTICS_DASHBOARD_PASSWORD;
   if (!password) {
     return res.status(500).json({

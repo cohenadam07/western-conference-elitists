@@ -23,6 +23,15 @@ echo "===== $(date '+%Y-%m-%d %H:%M:%S') run start ($(git -C "$WT" rev-parse --s
 
 cd "$WT" || { echo "worktree not found: $WT"; exit 1; }
 
+# Control Room check-ins (wcehoops.com/api/status, shown in Adam's /wce panel). The key lives
+# outside the repo, in ~/.config/wce/control-room.env (WCE_STATUS_KEY=..., WCE_NTFY_TOPIC=...);
+# without that file nothing is reported. The end check-in carries the log's last line.
+[ -f "$HOME/.config/wce/control-room.env" ] && . "$HOME/.config/wce/control-room.env"
+checkin() { [ -n "${WCE_STATUS_KEY:-}" ] && WCE_STATUS_KEY="$WCE_STATUS_KEY" WCE_NTFY_TOPIC="${WCE_NTFY_TOPIC:-}" WCE_SOURCE=mac PYTHON="$PY" bash "$WT/.github/scripts/control-room.sh" news "$@" >/dev/null 2>&1 || true; }
+lastline() { grep -v '^=====' "$LOG_DIR/run.log" 2>/dev/null | tail -1 | cut -c1-280; }
+checkin start "Started on the Mac"
+trap 'rc=$?; if [ $rc -eq 0 ]; then checkin success "$(lastline)"; else checkin failure "$(lastline)"; fi' EXIT
+
 "$PY" -m pipeline.news.build_news || { echo "pipeline failed"; exit 1; }
 
 # public/youtube-feed.json (the channel's latest uploads, for the homepage banner) rides along.

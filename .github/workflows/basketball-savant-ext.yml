@@ -24,6 +24,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
+  id-token: write   # Control Room check-ins prove they come from this repo (no secret needed)
   contents: write
 
 jobs:
@@ -35,6 +36,11 @@ jobs:
         with:
           ref: main
           fetch-depth: 1
+      - name: Control Room check-in (start)
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+        run: bash .github/scripts/control-room.sh basketball-history start
 
       - name: Has the seed changed?
         id: seed
@@ -87,3 +93,13 @@ jobs:
             git pull -q --rebase origin main || { git rebase --abort; exit 1; }
           done
           exit 1
+
+      # Tells the WCE Control Room (/wce) how the run went; a failure pushes to Adam's phone.
+      - name: Control Room check-in
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/control-room.sh basketball-history "${{ job.status }}"

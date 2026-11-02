@@ -1,0 +1,40 @@
+name: Site watch
+
+# The Control Room's eyes on the live site. Every 30 minutes it loads the homepage and a Savant
+# page, asks the AI connector for its tool list, and reads the latest production deploy from the
+# Control Room's feed (.github/scripts/site_watch.py). It checks in with the feed, which pushes to
+# Adam's phone the first time something breaks and again when it's fixed. If the site doesn't
+# answer at all, the check-in pushes directly (.github/scripts/control-room.sh).
+#
+# GitHub runs frequent schedules only when it has spare capacity, so some half-hours get skipped;
+# the Control Room shows this job late after 4 hours without a check.
+on:
+  schedule:
+    - cron: '7,37 * * * *'    # odd minutes: GitHub delays :00 and :30 badly
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # Control Room check-ins prove they come from this repo (no secret needed)
+  contents: read
+
+concurrency:
+  group: site-watch
+  cancel-in-progress: true
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+      - name: Check the site
+        run: python3 .github/scripts/site_watch.py
+      - name: Control Room check-in
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+        run: bash .github/scripts/control-room.sh site-watch "${{ job.status }}" "$(cat site-watch.txt 2>/dev/null)"

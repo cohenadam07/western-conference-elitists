@@ -14,6 +14,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  id-token: write   # Control Room check-ins prove they come from this repo (no secret needed)
   contents: read
 
 jobs:
@@ -23,8 +24,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: data/savant-refresh.json
+          sparse-checkout: |
+            data/savant-refresh.json
+            .github/scripts/control-room.sh
           sparse-checkout-cone-mode: false
+      - name: Control Room check-in (start)
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+        run: bash .github/scripts/control-room.sh basketball-freshness start
+
       - name: Check the refresh has landed
         run: |
           python3 - <<'EOF'
@@ -48,3 +57,13 @@ jobs:
               print(f"::error::The Basketball Savant refresh last ran {age:.0f} hours ago. See the Basketball Savant cloud refresh runs in the Actions tab")
               sys.exit(1)
           EOF
+
+      # Tells the WCE Control Room (/wce) how the run went; a failure pushes to Adam's phone.
+      - name: Control Room check-in
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/control-room.sh basketball-freshness "${{ job.status }}"
