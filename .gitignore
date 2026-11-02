@@ -43,3 +43,7 @@ pipeline/football/*.json
 pipeline/basketball/.espn-cache/
 pipeline/basketball/run/
 pipeline/basketball/cache_br/
+
+# College Basketball Savant: run directories and raw caches never go in git
+pipeline/college/run/
+.espn-cbb-cache/
