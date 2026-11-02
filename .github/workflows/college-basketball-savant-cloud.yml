@@ -9,6 +9,8 @@
 # Dry run: `mode=dry` does a whole refresh and commits nothing. A push to this branch, before the
 # workflow is on main, runs that same dry run, which is how the build proved it on a runner.
 #
+# T-Rank refuses GitHub's runners, so the Mac sends this season's ages (pipeline/college/mac_pull.sh).
+#
 # The first of each month it uploads the month's raw ESPN bundle (rung 0).
 name: College Basketball Savant cloud refresh
 

@@ -38,8 +38,8 @@ END_IDS = {"412", "402"}
 NON_ACTION = {"580", "579", "578", "216", "215"}  # timeouts, challenges
 REG_SECONDS, OT_SECONDS = 1200.0, 300.0
 
-# Measured on 2025-26 (window.py): the gap from a change of possession to the next shot has its
-# early bulge up to here, and half-court offense starts past it.
+# measure.py on 2025-26: the gap from a change of possession to the next shot peaks at 5 seconds and
+# is back to the half-court level (about 4% a second) by 9.
 TRANSITION_SECONDS = 8.0
 PUTBACK_SECONDS = 4.0
 
@@ -65,7 +65,7 @@ def is_garbage(lead, leader_has_ball, secs):
 ARC_2019 = 22.1458     # 22 ft 1.75 in, from 2019-20
 CORNER_2019 = 21.6458  # 21 ft 7.75 in along the sideline
 ARC_OLD = 20.75        # 20 ft 9 in before
-CORNER_Y = 8.0         # the straight line ends below here; checked on real shots (zones.py)
+CORNER_Y = 8.0         # measure.py: threes hold a median 23 ft across through y = 8, then follow the arc
 RIM_FT = 4.0
 LANE_HALF = 6.0        # the lane is 12 ft wide
 LANE_TOP = 13.75       # free-throw line, from the hoop

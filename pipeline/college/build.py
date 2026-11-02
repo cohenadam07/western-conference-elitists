@@ -45,7 +45,10 @@ import season as SZ  # noqa: E402
 
 PUBLIC = os.path.join(HERE, "..", "..", "public")
 COURT_MIN = 0.60            # share of D1 games with clean lineups a season needs to show any of it
-LUCK_K = {5: 300.0, 4: 300.0, 3: 400.0, 2: 500.0}
+# Possessions of pull toward the team, measured by measure.py on 2025-26: split a team's games odd and
+# even, shrink one half, score it on the other. Fives 800 (903 units), pairs 1,800 (10,026). The NBA's
+# are 843 and 1,221. Threes and fours were not measured; they sit between.
+LUCK_K = {5: 800.0, 4: 1000.0, 3: 1300.0, 2: 1800.0}
 LINEUP_MIN_POSS = {5: 30, 4: 40, 3: 50, 2: 60}
 ON = ("poss", "pts", "fga", "fgm", "fg3a", "fg3m", "fta", "ftm", "oreb", "dreb", "tov", "stl", "blk", "ast")
 IH = 6

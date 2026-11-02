@@ -72,8 +72,12 @@ def fetch(seasons, log=print):
         first = False
         year = int(s[:4]) + 1
         req = urllib.request.Request(URL.format(year=year), headers={"User-Agent": UA})
-        with urllib.request.urlopen(req, timeout=120) as r:
-            text = r.read().decode("utf8", "replace")
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                text = r.read().decode("utf8", "replace")
+        except OSError as e:          # his site refuses GitHub's runners; the Mac sends ages instead
+            log(f"torvik {s}: {e}; keeping the last copy")
+            continue
         rows, bad = parse(text)
         if not rows:
             log(f"torvik {s}: no rows; keeping the last copy")

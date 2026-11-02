@@ -5,6 +5,7 @@ cloud_cbb.py — one refresh of the season in progress (GitHub Actions; the Mac 
     python3 cloud_cbb.py refresh <site>     pull, rebuild, merge into public/cbb, write the heartbeat
     python3 cloud_cbb.py pending <site>     exit 10 while today's slate has games in play
     python3 cloud_cbb.py bundle <dir>       the finished seasons' working files, for cbb-bundles
+    python3 cloud_cbb.py ages <dir>         the Mac's weekly ages for the season in progress
 
 The ladder, §2. Rung 1 is ESPN from here. A 403 or a timeout counts one failed run in the heartbeat;
 at two in a row `espn_cloud_blocked` is set and the run reads the raw files the Mac pushed to the
@@ -161,6 +162,23 @@ def bundle(out):
     print("bundle", out)
 
 
+def ages(out):
+    """The Mac's weekly step: this season's ages, from T-Rank and the players ESPN has now. Ages only."""
+    import identity as I
+    import torvik as T
+    T.fetch([SEASON])
+    d = json.load(open(os.path.join(CC.HOME, "rebuilt", SEASON, "ids.json")))
+    pg = __import__("pandas").read_pickle(os.path.join(CC.HOME, "rebuilt", SEASON, "pg.pkl"))
+    main = pg.groupby(["eid", "team"])["min"].sum().reset_index().sort_values("min", ascending=False).drop_duplicates("eid").set_index("eid")["team"].to_dict()
+    players = {e: {"name": d["names"].get(e, ""), "team": t} for e, t in main.items()}
+    dob, _ = I.match_torvik(SEASON, players)
+    res = {e: I.age_on_feb1(v, SEASON) for e, v in dob.items()}
+    res = {e: a for e, a in res.items() if a is not None and 16 <= a <= 27}
+    os.makedirs(out, exist_ok=True)
+    json.dump(res, open(os.path.join(out, f"ages-{SEASON}.json"), "w"), separators=(",", ":"))
+    print(len(res), "ages of", len(players))
+
+
 if __name__ == "__main__":
     cmd, arg = sys.argv[1], os.path.abspath(sys.argv[2])
-    sys.exit({"check": check, "pending": pending, "refresh": refresh, "bundle": bundle}[cmd](arg))
+    sys.exit({"check": check, "pending": pending, "refresh": refresh, "bundle": bundle, "ages": ages}[cmd](arg))

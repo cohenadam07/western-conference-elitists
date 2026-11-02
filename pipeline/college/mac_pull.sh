@@ -14,6 +14,16 @@ OUT="$SAVANT/out/cbb/mac-push"
 [ -t 1 ] || exec >> "$SAVANT/logs/cbb-mac.log" 2>&1
 echo "=== $(date '+%Y-%m-%d %H:%M:%S') ==="
 export SSL_CERT_FILE="$("$PY" -c 'import certifi;print(certifi.where())')"
+# Mondays: this season's ages, onto cbb-bundles. T-Rank refuses GitHub's runners, and a birthdate may
+# not go on a public branch, so the Mac works out the age and sends only that.
+if [ "$(date +%u)" = "1" ] || [ "${AGES:-}" = "1" ]; then
+  A="$SAVANT/out/cbb/ages-push"; rm -rf "$A"; mkdir -p "$A"
+  git -C "$SITE" fetch -q origin cbb-bundles && git -C "$SITE" archive FETCH_HEAD | tar -x -C "$A"
+  (cd "$CODE" && "$PY" espn_cbb.py pull 2026-27 >/dev/null && "$PY" -W ignore season.py 2026-27 >/dev/null && "$PY" -W ignore cloud_cbb.py ages "$A/identity") \
+    && cd "$A" && git init -q . && git add -A && git -c user.name=wcehoops-mac -c user.email=bot@wcehoops.com commit -qm "cbb-bundles: ages $(date +%F)" \
+    && { [ "${DRY_RUN:-}" = "1" ] && echo "ages: dry run, not pushed" || git push -qf "https://github.com/cohenadam07/western-conference-elitists.git" HEAD:refs/heads/cbb-bundles; }
+  cd "$SAVANT" || exit 1
+fi
 BLOCKED=$(curl -fsS https://raw.githubusercontent.com/cohenadam07/western-conference-elitists/main/data/cbb-refresh.json 2>/dev/null | "$PY" -c 'import json,sys;print(json.load(sys.stdin).get("espn_cloud_blocked",False))' 2>/dev/null)
 if [ "$BLOCKED" != "True" ] && [ "${DRY_RUN:-}" != "1" ]; then echo "cloud is fine"; exit 0; fi
 rm -rf "$OUT"; mkdir -p "$OUT"

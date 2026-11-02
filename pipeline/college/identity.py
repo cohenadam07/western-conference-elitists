@@ -118,6 +118,7 @@ def load_bio(season, eid):
 
 def cbbd_refs(seasons, log=print):
     """Rosters per season and recruits per class, once each, cached in ref/."""
+    os.makedirs(REF, exist_ok=True)
     for s in seasons:
         y = E.season_year(s)
         p = os.path.join(REF, f"roster-{y}.json")
@@ -190,6 +191,11 @@ def age_on_feb1(dob, season):
     return round((feb1 - d).days / 365.25, 2)
 
 
+def load_ages(season):
+    p = os.path.join(OUT, f"ages-{season}.json")
+    return json.load(open(p)) if os.path.exists(p) else {}
+
+
 def fixes():
     p = os.path.join(HERE, "manual", "id_fixes.csv")
     if not os.path.exists(p):
@@ -250,6 +256,9 @@ def build(seasons, log=print):
         fetch_bio(s, sorted(main), log=log)
         players = {e: {"name": ids["names"].get(e, ""), "team": t} for e, t in main.items()}
         dob, how = match_torvik(s, players, log=log)
+        # T-Rank refuses GitHub's runners, so the Mac sends ages for the season in progress (ages only:
+        # this branch is public). cloud_cbb.py ages writes them.
+        sent = load_ages(s)
         for e, v in dob.items():
             known_dob.setdefault(e, v)
         rows = {}
@@ -275,6 +284,9 @@ def build(seasons, log=print):
                 if age is not None and not 16 <= age <= 27:
                     ages_bad.append([e, players[e]["name"], age])
                     age = None
+            if age is None and sent.get(e) is not None:
+                age = sent[e]
+                src["ages from the Mac"] += 1
             if age is None and age_c is not None:
                 age = round(age_c, 2)
             elif age_c is None:
