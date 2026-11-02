@@ -538,6 +538,12 @@
     "route:/privacy": {
       "excluded": "The privacy policy: no data, nothing to look up."
     },
+    "page:control.html": {
+      "excluded": "Private: Adam's WCE Control Room, the live status of the site's jobs and deploys, behind the feed key."
+    },
+    "data:control": {
+      "excluded": "The Control Room page's own scripts, not data."
+    },
     "route:/analytics": {
       "excluded": "Private: Adam's site analytics, behind a password."
     },
