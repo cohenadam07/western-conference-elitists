@@ -31,7 +31,6 @@ jobs:
       - name: Control Room check-in (start)
         continue-on-error: true
         timeout-minutes: 1
-        env:
         run: bash .github/scripts/control-room.sh basketball-freshness start
 
       - name: Check the refresh has landed

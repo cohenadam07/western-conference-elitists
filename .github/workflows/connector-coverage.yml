@@ -42,7 +42,6 @@ jobs:
       - name: Control Room check-in (start)
         continue-on-error: true
         timeout-minutes: 1
-        env:
         run: bash .github/scripts/control-room.sh connector-coverage start
 
       - uses: actions/setup-node@v4
