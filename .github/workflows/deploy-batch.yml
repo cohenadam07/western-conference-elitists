@@ -1,20 +1,26 @@
 # Deploy batch — puts the data bots' commits on the live site a few times a day.
 #
 # Vercel skips the data bots' commits (scripts/vercel-ignore.sh). Every deployment is about
-# 280 MB, and the bots used to deploy about 20 a day, which took the team to 22 GB of the Hobby
+# 350 MB, and the bots used to deploy about 18 a day, which took the team to 22 GB of the Hobby
 # plan's 10 GB of Deployment Storage (Nov 2, 2026). This job ships their waiting commits with
 # one empty "deploy:" commit, at most every 4 hours (none from 1 to 6am ET), and right away for
-# injury news during NFL game windows (.github/scripts/deploy_batch.py says exactly when). Code changes don't wait:
-# they deploy the moment they land, as before.
+# injury news during NFL game windows (.github/scripts/deploy_batch.py says exactly when).
+# Code changes don't wait: they deploy the moment they land, as before.
 #
-# Runs every 30 minutes and as soon as any data bot finishes. A run with nothing to ship does
-# nothing and doesn't check in, so the Control Room only lights up for real deploys.
+# A watcher, so it doesn't depend on GitHub's schedule (on Nov 2, 2026 nothing scheduled in
+# this repo ran for more than five hours): each run looks every 5 minutes for 5h40m, then
+# starts its successor, the way the Basketball Savant slate watcher does. It also starts on
+# any push to main (the Mac's news bot, code changes) and when a data bot finishes; with one
+# run at a time those only queue the next one. The hourly schedule just restarts the chain if
+# it ever breaks. It checks in with the Control Room only when it deploys or fails.
 # To ship everything waiting right now: Actions > Deploy batch > Run workflow.
 name: Deploy batch
 
 on:
   schedule:
-    - cron: '23,53 * * * *'   # odd minutes: GitHub delays :00 and :30 badly
+    - cron: '23 * * * *'      # backup only; odd minute: GitHub delays :00 and :30 badly
+  push:
+    branches: [main]
   workflow_run:
     workflows:
       - Basketball Savant cloud refresh
@@ -38,12 +44,13 @@ concurrency:
 
 permissions:
   id-token: write   # Control Room check-ins prove they come from this repo (no secret needed)
-  contents: write
+  contents: write   # the deploy commits
+  actions: write    # a watcher starts its successor
 
 jobs:
   batch:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 355
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,17 +58,28 @@ jobs:
           fetch-depth: 120
           sparse-checkout: .github/scripts
 
-      - name: Ship waiting data
-        id: ship
+      - name: Watch and ship waiting data
         env:
           FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.force }}
+          WATCH_MINUTES: '340'
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
         run: python3 .github/scripts/deploy_batch.py
 
-      # Only when it deployed or broke: a quiet run isn't news.
-      - name: Control Room check-in
-        if: ${{ !cancelled() && (steps.ship.outputs.deployed == 'yes' || failure()) }}
+      # Only after a full watch (the script leaves watched-full.txt), so an early exit can't loop.
+      - name: Start the next watcher
+        if: ${{ success() && hashFiles('watched-full.txt') != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run deploy-batch.yml --repo "$GITHUB_REPOSITORY" --ref main -f force=false \
+            && echo "started the next watcher" \
+            || echo "::warning::couldn't start the next watcher; the hourly schedule will"
+
+      # The script checks in itself after each deploy; this covers a crash.
+      - name: Control Room check-in (crash)
+        if: ${{ failure() }}
         continue-on-error: true
         timeout-minutes: 2
         env:
           WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
-        run: bash .github/scripts/control-room.sh deploy-batch "${{ job.status }}" "$(cat deploy-batch.txt 2>/dev/null)"
+        run: bash .github/scripts/control-room.sh deploy-batch failure "The deploy batch watcher stopped with an error; see its run log"
