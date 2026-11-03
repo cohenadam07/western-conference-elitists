@@ -128,6 +128,16 @@ export default function Privacy() {
                 address has swiped that day. Those counts are deleted after two days.
               </li>
               <li>
+                A Hoops account keeps your name, a scrambled (hashed) copy of your PIN and your game progress on our
+                server, so it follows you to your other devices: your best score on each hole and the taps that made
+                it, your tickets, the balls and trails you own, and what you've finished and found. We never see
+                your PIN itself. To delete an account, ask through the <Link to="/contact" className="underline underline-offset-2 hover:text-navy">contact page</Link>.
+              </li>
+              <li>
+                Hoops' all-time records show everyone the record holder's name, flaps and time, and the run's taps
+                so it can be watched back.
+              </li>
+              <li>
                 Names you enter for a leaderboard, lobby or race are stored on our server and shown to other players.
                 Don't use your real name if you'd rather not.
               </li>

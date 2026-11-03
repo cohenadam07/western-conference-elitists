@@ -21,6 +21,7 @@ import {
   CODE_RE, ID_RE, TTL, makeCode, newRoom, addPlayer, removePlayer, cleanLive, finValue, parseFin, finField,
   startVote, toLobby, advance, view, cleanNotes, iceServers, diag,
 } from './_race.js'
+import { hoopsGet, hoopsPost } from './_hoops.js'
 
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
@@ -150,6 +151,8 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
   if (!URL_ || !TOKEN) { res.status(503).json({ error: 'Racing is not set up on this deployment.' }); return }
   if (req.method !== 'POST') {
+    // (Flappy Hoops' all-time records: ./_hoops.js)
+    if (req.query && req.query.rec) return hoopsGet(req, res)
     // (how a party's games say their links are doing, for whoever has its code)
     const q = String((req.query && req.query.diag) || '').toUpperCase()
     if (CODE_RE.test(q)) {
@@ -163,6 +166,8 @@ export default async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {})
     const a = String(body.a || 'poll')
     const fail = (status, error) => res.status(status).json({ error })
+    // (Flappy Hoops accounts and all-time records: ./_hoops.js)
+    if (a.startsWith('acct.') || a.startsWith('rec.')) return hoopsPost(body, req, res)
 
     // ---- start a party --------------------------------------------------------
     if (a === 'create') {

@@ -922,6 +922,10 @@
     }
   ],
   "functions": {
+    "api/race.js": {
+      "includeFiles": "public/flappy-hoops/server/**",
+      "maxDuration": 30
+    },
     "api/mcp.js": {
       "maxDuration": 30
     },

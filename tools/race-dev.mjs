@@ -113,5 +113,5 @@ http.createServer(async (req, res) => {
     status(c) { res.statusCode = c; return shim },
     json(o) { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(o)) },
   }
-  await handler({ method: req.method, body: parsed, query: Object.fromEntries(url.searchParams) }, shim)
+  await handler({ method: req.method, body: parsed, query: Object.fromEntries(url.searchParams), headers: req.headers }, shim)
 }).listen(API_PORT, '127.0.0.1', () => console.log(`race api on http://127.0.0.1:${API_PORT}/api/race (redis ${REDIS_PORT}, rest ${REST_PORT})${SITE ? ', and the built site on the same port' : ''}`))
