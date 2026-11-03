@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-11-02",
+    "product": "Flappy Hoops",
+    "version": "2.3.0",
+    "text": "Indiana and Golden State, the 21st and 22nd cities",
+    "to": "/hoops"
+  },
+  {
+    "date": "2026-11-02",
     "product": "College Basketball Savant",
     "version": "1.0.0",
     "text": "Every men's D1 player on percentile bars, adjusted for opponents, with RAPM, shot zones, lineups and team ratings",
