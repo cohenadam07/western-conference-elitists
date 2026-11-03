@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-11-03",
+    "product": "Flappy Hoops",
+    "version": "2.6.0",
+    "text": "Memphis and Chicago, the 25th and 26th cities",
+    "to": "/hoops"
+  },
+  {
+    "date": "2026-11-03",
     "product": "College Basketball Savant",
     "version": "1.2.0",
     "text": "Seasons 2009-10 and 2010-11, with their All-Savant Teams",

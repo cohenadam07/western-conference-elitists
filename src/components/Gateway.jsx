@@ -462,7 +462,7 @@ export default function Gateway() {
               <div className="meta">
                 <span className="ck">Play · Arcade</span>
                 <h3>Flappy Hoops</h3>
-                <p>Flap the ball through the rim in as few taps as you can. Twenty-four NBA cities, nine holes in each, and online races with up to eight friends.</p>
+                <p>Flap the ball through the rim in as few taps as you can. Twenty-six NBA cities, nine holes in each, and online races with up to eight friends.</p>
                 <span className="go">Play ↗</span>
               </div>
             </a>
