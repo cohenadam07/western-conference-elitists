@@ -13,6 +13,9 @@ Three families of numbers, by what each needs:
   pbp      zones, assisted share, transition, putbacks. Only games with pbp_ok.
   on-court on/off, luck-adjusted on/off. Only games with lineup_ok.
 
+Seasons before 2022-23 are the box tier (config.BOX_TIER): box numbers only, from games whose player
+lines add up to the final. Their play-by-play is too thin to use, so garbage time can't be removed.
+
 `gt=False` takes garbage time out: the play-by-play's garbage-time counts come off the box line.
 
 Team shares use the minutes form (Basketball-Reference's): his share of the team's five seats,
@@ -31,6 +34,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import cbbd_client as CC  # noqa: E402
 import season as SZ  # noqa: E402
+from config import BOX_TIER  # noqa: E402
 
 BOX = ("pts", "fgm", "fga", "fg3m", "fg3a", "ftm", "fta", "oreb", "dreb", "ast", "tov", "stl", "blk", "pf")
 PBPK = ("rim_a", "rim_m", "pnt_a", "pnt_m", "mid_a", "mid_m", "c3_a", "c3_m", "ab3_a", "ab3_m", "rim_ast", "mid_ast", "three_ast", "ast_rim", "ast_three",
@@ -53,6 +57,11 @@ def frame(season):
     for c in ("date", "neutral", "confgame", "stype", "note", "pbp_ok", "lineup_ok", "non_d1"):
         pg[c] = pg.gid.map(G[c])
     pg = pg[pg["min"].gt(0) | pg.sec.gt(0)].copy()
+    pg["box_ok"] = pg.gid.map(G.box_ok).fillna(False).astype(bool)
+    if season in BOX_TIER:                 # box scores only, and only the ones that add up
+        pg = pg[pg.box_ok].copy()
+        pg["pbp_ok"] = False
+        pg["lineup_ok"] = False
     for c in [x for x in pg.columns if x[:2] in ("c_", "g_", "t_", "o_") or x[:3] in ("tg_", "og_")]:
         pg[c] = pg[c].fillna(0.0)
     tm = 40.0 + 5.0 * pg.tm_ot.fillna(0)

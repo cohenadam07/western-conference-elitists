@@ -269,6 +269,28 @@ class Row:
         self.poss_o = self.poss_d = self.poss_og = self.poss_dg = 0.0
 
 
+def box_only(g, team_of):
+    """A game with a box score and no play-by-play: it counts for box stats and nothing else."""
+    home, away = g["home"], g["away"]
+    opp = {home: away, away: home}
+    keys = ("pts", "fgm", "fga", "fg3m", "fg3a", "ftm", "fta", "oreb", "dreb", "ast", "tov", "stl", "blk", "pf")
+    tb = {t: _zero(keys) for t in (home, away)}
+    rows = []
+    for b in g["players"]:
+        if b["dnp"] or b["team"] not in tb:
+            continue
+        for k in keys:
+            tb[b["team"]][k] += b[k]
+        if b["team"] not in g["non_d1"]:
+            rows.append({"eid": b["eid"], "team": b["team"], "sec": 0.0, "min": b["min"], "starter": b["starter"], "box": {k: b[k] for k in keys},
+                         "c": None, "cg": None, "t": None, "o": None, "tg": None, "og": None, "poss": [0, 0, 0, 0]})
+    m = sum(b["min"] for b in g["players"] if b["team"] == home and not b["dnp"])
+    ot = max(0, round((m - 200) / 25))
+    team = [{"team": t, "opp": opp[t], "home": t == home, "pts": g["teams"][t]["score"], "opp_pts": g["teams"][opp[t]]["score"], "poss": 0.0, "opp_poss": 0.0, "poss_g": 0.0,
+             "box": tb[t], "pbp": _zero(ON), "pbp_g": _zero(ON), "ot": ot} for t in (home, away)]
+    return {"rows": rows, "team": team, "stints": [], "shots": [], "gate": {"gid": g["gid"], "plays": 0, "lineups": "none", "five": {}, "ot": ot, "score_ok": False, "box_players": 0, "box_match": 0, "players": 0, "minutes_off": 0, "fga": 0, "loc": 0, "fixes": 0}}
+
+
 def rebuild_game(g):
     home, away = g["home"], g["away"]
     teams = (home, away)
@@ -278,7 +300,7 @@ def rebuild_game(g):
     # Chronological: period, then clock. The sort is stable, so one clock keeps logged order.
     plays = sorted((p for p in g["plays"] if p["period"]), key=lambda p: (p["period"], -p["clock"]))
     if not plays:
-        return {"rows": [], "team": [], "stints": [], "shots": [], "gate": {"gid": g["gid"], "plays": 0}}
+        return box_only(g, team_of)
 
     if g.get("fives"):
         fives, lfix = {}, {"fixes": 0, "seed_over": 0}

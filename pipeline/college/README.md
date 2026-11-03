@@ -23,12 +23,16 @@ Men's Division I. `public/college-basketball-savant.html`, data in `public/cbb/`
 | `positions.py` | Guard, wing, big: box estimate, height and listing blended, plus a size rule |
 | `settle.py` | Settle points |
 | `xfg.py`, `rapm.py` | Shot quality; box impact and RAPM |
+| `confidence.py` | How sure each player's opponent adjustment is |
+| `college_value.py` | Savant value: features, the floor part, replacement, `apply_doc`; the first (on/off) weight test |
+| `team_fit.py` | The weights, fitted to team results; old against new; what drives the AP overlap |
+| `allsavant.py`, `ap_check.py` | All-Savant Teams and honours; the AP check (never a target) |
 | `config.py` | The stat registry. A stat missing here does not exist |
 | `build.py` | Everything to `public/cbb/`. `--merge <season>` rebuilds one |
 | `fallback.py` | Rungs 3 and 4, and their diff reports |
 | `archive.py`, `mac_pull.sh` | Rung 0 (private, on the Mac), rung 2, Monday's ages |
 | `cloud_cbb.py`, `cloud_run.sh` | The nightly refresh |
-| `full_build.sh`, `backfill.sh` | The Mac's full build; the seasons before 2022-23 |
+| `full_build.sh`, `backfill.sh` | The Mac's full build; the seasons before 2022-23 (box tier from 2013-14) |
 
 ## Things that are not obvious
 
@@ -41,6 +45,9 @@ Men's Division I. `public/college-basketball-savant.html`, data in `public/cbb/`
 - **ESPN's college JSON has raw control characters.** Parse with `strict=False`.
 - **The repo is public.** Nothing from CBBD, no birthdate and no raw ESPN file may reach `public/`,
   `cbb-bundles` or a release. The raw archive stays on the Mac; `cbb-data` carries rung 2 encrypted. `tools/savant-cbb/check.mjs` holds `public/cbb` to that.
+- **ESPN's season record gives a player's latest class**, not that season's. `identity.py` counts back.
+- **ESPN has deleted some athlete records** in old box scores. `normalize.fill_missing` recovers them only when the points add up exactly.
+- **Value's weights come from team results** (`team_fit.py`). Usage is fixed at zero: team results can't see it.
 - **Never run `pgrep -f` on a string in the same shell line.** It matches itself (Nov 2).
 
 ## Full rebuild on the Mac

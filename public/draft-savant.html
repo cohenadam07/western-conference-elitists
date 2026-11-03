@@ -1087,9 +1087,9 @@ async function exportCard(){
 }
 
 /* the player's College Basketball Savant card, where one exists (public/cbb/links.json) */
-let cbbLinks=null;
-if(typeof fetch==='function') fetch('/cbb/links.json').then(r=>r.ok?r.json():null).then(j=>{cbbLinks=j&&j.by_draft;}).catch(()=>{});
-function cbbLink(p){const e=cbbLinks&&cbbLinks[p.id];return e?'<a href="/college-basketball-savant.html#player-'+e+'">College Basketball Savant card</a>':'';}
+let cbbLinks=null,cbbHon={};
+if(typeof fetch==='function') fetch('/cbb/links.json').then(r=>r.ok?r.json():null).then(j=>{cbbLinks=j&&j.by_draft;cbbHon=(j&&j.draft_honours)||{};}).catch(()=>{});
+function cbbLink(p){const e=cbbLinks&&cbbLinks[p.id];if(!e)return '';const h=(cbbHon[p.id]||[]).map(x=>x[2]+' '+x[0]).join(', ');return '<a href="/college-basketball-savant.html#player-'+e+'">College Basketball Savant card</a>'+(h?' · '+h:'');}
 function render(){
   const p=byId(curId);
   const wt=val(p,'weight'), vt=val(p,'vert');

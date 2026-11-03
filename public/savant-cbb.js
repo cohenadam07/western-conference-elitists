@@ -135,5 +135,40 @@
     return { min: t.sec / 60, poss: t.p, ortg, drtg, net: ortg === null || drtg === null ? null : ortg - drtg }
   }
 
-  return { COL, ok, pct, column, hasAdj, POOLS, pool, poolLabel, valuesFor, likely, display, row, withWithout }
+  const nth = (n) => { const v = n % 100; return n + (['th', 'st', 'nd', 'rd'][(v - 20) % 10] || ['th', 'st', 'nd', 'rd'][v] || 'th') }
+
+  /* Part 2. The possession-weighted strength of the defenses he played, as a rank in his position. */
+  function schedule(doc, i) {
+    const c = doc.values.def_faced && doc.values.def_faced.r, P = doc.players
+    if (!c || !ok(c[i])) return null
+    const pos = P[i][COL.pos]
+    const vals = []
+    for (let j = 0; j < P.length; j++) if (P[j][COL.qual] && P[j][COL.pos] === pos && ok(c[j])) vals.push(+c[j])
+    if (!P[i][COL.qual] || !vals.length) return { rank: null, of: vals.length, value: +c[i], text: `Defenses faced allowed ${(+c[i]).toFixed(1)} points per 100` }
+    const rank = 1 + vals.filter((v) => v < +c[i]).length
+    const who = `among D1 ${plural[pos] || 'players'}`
+    return { rank, of: vals.length, value: +c[i], text: `Faced the ${rank === 1 ? '' : nth(rank) + '-'}toughest schedule ${who}` }
+  }
+
+  /* Part 2. How sure the opponent adjustment is: measured by confidence.py. */
+  function confidence(doc, i) {
+    const v = (doc.adjconf || [])[i]
+    if (!ok(v)) return null
+    const games = doc.players[i][COL.gp], links = (doc.links || {})[String(doc.players[i][COL.conf])] ?? null
+    const label = v >= 80 ? 'Firm' : v >= 50 ? 'Firming' : 'Early'
+    return { score: v, label, games, links, text: `${label}: ${games} game${games === 1 ? '' : 's'}, ${links === null ? 'no' : links.toFixed(1)} non-conference D1 games per conference team` }
+  }
+
+  /* Part 3. value = (rate - replacement) × possessions ÷ 100, from the stored rate. */
+  function valueLine(doc, i) {
+    const v = doc.values.value && doc.values.value.r[i]
+    if (!ok(v)) return null
+    const vp = doc.vparts || {}, pos = doc.players[i][COL.pos], poss = doc.samples.poss[i]
+    const parts = {}
+    for (const k of ['scoring', 'playmaking', 'rebounding', 'defense', 'floor']) parts[k] = vp[k] ? vp[k][i] : null
+    return { value: +v, rate: vp.rate ? vp.rate[i] : null, replacement: (doc.repl || {})[pos] ?? null, possessions: poss, parts, on_floor_part: doc.season >= '2024-25' }
+  }
+  const recompute = (l) => (l.rate - l.replacement) * (l.possessions || 0) / 100
+
+  return { schedule, confidence, valueLine, recompute, COL, ok, pct, column, hasAdj, POOLS, pool, poolLabel, valuesFor, likely, display, row, withWithout }
 })

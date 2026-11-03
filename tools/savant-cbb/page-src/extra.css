@@ -49,3 +49,13 @@ body{margin:0;padding-top:env(safe-area-inset-top)}
   .meta a,a.meta{display:inline-block;padding:8px 0}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+.sched{margin:6px 0 0;color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.conf{padding:0 8px;border-radius:4px;background:var(--pill-bg);color:var(--pill-ink);font-size:12px;line-height:22px}
+.conf.firm{background:transparent;padding:0;color:var(--muted)}
+.tag.gold{background:#F4ECDA;color:#6B531C}
+.tbl td.hon{color:var(--muted);font-size:12px;white-space:nowrap}
+.ast{--ink:var(--text);--line:var(--border);--navy:#22395A;--gold:#C2A263;--faint:var(--faint);--disp:var(--brand);--body:var(--font);width:100%;margin:18px 0 0;opacity:1;animation:none;text-align:left}
+a.ast-card{text-decoration:none}
+a.ast-card:hover{text-decoration:none}
+.ast-ctl{justify-content:flex-start}

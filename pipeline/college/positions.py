@@ -75,6 +75,7 @@ QUAL_POSS = 300
 
 def frame(season):
     r = estimate(season)
+    r = r[r.index.notna()]
     ident = json.load(open(os.path.join(CC.HOME, "identity", f"{season}.json")))
     r["ht"] = pd.to_numeric(r.index.map(lambda e: (ident.get(e) or {}).get("ht")), errors="coerce")
     r["listed"] = r.index.map(lambda e: (ident.get(e) or {}).get("listed"))

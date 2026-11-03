@@ -35,7 +35,9 @@ css = "\n".join(kept)
 css = css.replace("html.dir-framed", "html")
 css = re.sub(r"--meta-bg[^;]*;--meta-fg[^;]*;--meta-on[^;]*;--meta-on-bg[^;]*;", "", css)
 css = css.replace("min-height:calc(100vh - 44px)", "min-height:100vh")
-css += "\n" + open(os.path.join(HERE, "extra.css")).read()
+bs = open(os.path.join(ROOT, "public", "basketball-savant.html")).read()
+ast = bs[bs.index(".ast{position:relative"):bs.index("@media (prefers-reduced-motion:reduce){ .ast-row.swap")]
+css += "\n/* the starting-five card row, as Basketball Savant draws it */\n" + ast + "\n" + open(os.path.join(HERE, "extra.css")).read()
 js = open(os.path.join(HERE, "page.js")).read()
 mark = re.search(r'<svg class="mark".*?</svg>', proto, re.S).group(0)
 html = f"""<!doctype html>
@@ -62,6 +64,7 @@ html = f"""<!doctype html>
     <a href="#home" data-k="players" title="Players"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="3"/><path d="M2.5 14.5c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/></svg><span>Players</span></a>
     <a href="#teams" data-k="teams" title="Teams"><svg viewBox="0 0 16 16"><path d="M8 1.5 13.5 4v4.2c0 3-2.3 5.3-5.5 6.3-3.2-1-5.5-3.3-5.5-6.3V4z"/></svg><span>Teams</span></a>
     <a href="#leaders" data-k="leaders" title="Leaders"><svg viewBox="0 0 16 16"><path d="M2 13.5h12M4 11V7M8 11V3M12 11V5.5"/></svg><span>Leaders</span></a>
+    <a href="#all-savant" data-k="allsavant" title="All-Savant"><svg viewBox="0 0 16 16"><path d="m8 1.8 1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z"/></svg><span>All-Savant</span></a>
     <a href="#compare" data-k="compare" title="Compare"><svg viewBox="0 0 16 16"><path d="M5.5 2v12M10.5 2v12M2 5.5h3.5M10.5 10.5H14"/></svg><span>Compare</span></a>
   </nav>
   <div class="top">
@@ -77,7 +80,7 @@ html = f"""<!doctype html>
   <main class="main">
     <div class="view" id="view"><p class="empty">Loading…</p></div>
     <div id="home"></div>
-    <div class="wrap"><p class="foot"><span id="ver"></span> · New: College Basketball Savant, every men's D1 player since 2022-23. Data: ESPN, CollegeBasketballData and NCAA.com; team ratings follow T-Rank's published method and are computed by WCE. Some birthdates come from T-Rank's public player file. Model outputs are the model's view, not a verdict. <a href="/#ai">Ask it in Claude with the WCE connector</a>. <a href="/">Western Conference Elitists</a></p></div>
+    <div class="wrap"><p class="foot"><span id="ver"></span> · New in 1.1: seasons back to 2013-14, schedule strength and adjustment confidence, and the All-Savant Teams. Data: ESPN, CollegeBasketballData and NCAA.com; team ratings follow T-Rank's published method and are computed by WCE. Some birthdates come from T-Rank's public player file. Model outputs are the model's view, not a verdict. <a href="/#ai">Ask it in Claude with the WCE connector</a>. <a href="/">Western Conference Elitists</a></p></div>
   </main>
 </div>
 <script src="/savant-cbb.js"></script>

@@ -21,6 +21,7 @@ import re
 import sys
 import time
 import urllib.request
+from collections import Counter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -79,6 +80,9 @@ def fetch(seasons, log=print):
             log(f"torvik {s}: {e}; keeping the last copy")
             continue
         rows, bad = parse(text)
+        if bad and not any(r_[2] for r_ in rows):   # the format moved: note its shape, never its values
+            shapes = Counter(re.sub(r"[A-Za-z]", "a", re.sub(r"\d", "9", (r_ or [""])[-1].strip()))[:16] for r_ in csv.reader(io.StringIO(text)) if len(r_) >= 10)
+            log(f"torvik {s}: last column shapes {shapes.most_common(4)}, {len(next(csv.reader(io.StringIO(text))))} columns")
         if not rows:
             log(f"torvik {s}: no rows; keeping the last copy")
             continue

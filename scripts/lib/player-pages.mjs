@@ -25,7 +25,8 @@
 // in every file. Keep it that way; `npm run check:players` fails if the average page grows
 // past its budget.
 
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { gunzipSync } from 'node:zlib'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { assignSlugs, createEngine, headSeasonURL, inFt, loadPageConfig, miss, ordinal, slugify, smpl, val } from './savant-core.mjs'
@@ -159,6 +160,16 @@ function describe(e, row, season, prof, usable) {
   return d
 }
 
+// College honours from College Basketball Savant, for NBA players it can link: {NBA id: {eid, list}}.
+export function collegeHonours(root) {
+  const read = (f) => { const p = path.join(root, 'public', 'cbb', f); return existsSync(p) ? JSON.parse(gunzipSync(readFileSync(p)).toString('utf8')) : null }
+  const links = read('links.json.gz'), hon = read('honours.json.gz')
+  const out = new Map()
+  if (!links || !hon) return out
+  for (const [eid, nba] of Object.entries(links.nba || {})) if (hon[eid]) out.set(String(nba), { eid, list: hon[eid].map((h) => `${h[2]} ${h[0]}`) })
+  return out
+}
+
 function renderPlayer(ctx, e) {
   const { eng, slugs, site, stamp, split } = ctx
   const slug = slugs.get(e.id)
@@ -203,7 +214,9 @@ function renderPlayer(ctx, e) {
 
   const L = row.line
   const statline = L ? '<p class=sl>' + [['PPG', L.ppg], ['RPG', L.rpg], ['APG', L.apg], ['TPG', L.tpg], ['MPG', L.mpg]].map(([l, v]) => `<span><b>${f1(v)}</b> ${l}</span>`).join('') : ''
-  const accos = acc.length ? '<p class=ac>' + acc.map((a) => `<span${a.major ? ' class=mj' : ''}>${esc(a.short)}</span>`).join('') : ''
+  const college = ctx.college && ctx.college.get(String(e.id))
+  const accos = (acc.length ? '<p class=ac>' + acc.map((a) => `<span${a.major ? ' class=mj' : ''}>${esc(a.short)}</span>`).join('') : '') +
+    (college ? `<p class=ac><a href="/college-basketball-savant.html#player-${esc(college.eid)}">In college</a>: ${college.list.map((h) => `<span>${esc(h)}</span>`).join('')}` : '')
 
   const wt = val(row, 'strength'), vt = val(row, 'vert'), la = val(row, 'lateral')
   const meas = [
@@ -409,6 +422,7 @@ export { renderPlayer, renderDirectory }
  */
 export function buildPlayerPages({ root, dist, site }) {
   const ctx = makeContext({ ...loadSavant(root), site })
+  ctx.college = collegeHonours(root)
   const { eng, slugs } = ctx
   const cur = eng.seasons[0]
 

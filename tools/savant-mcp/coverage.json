@@ -767,7 +767,8 @@
         "cbb_lineups",
         "cbb_game",
         "cbb_data",
-        "cbb_data_dictionary"
+        "cbb_data_dictionary",
+        "cbb_all_savant_team"
       ]
     },
     "page:college-basketball-savant.html": {
@@ -779,7 +780,8 @@
         "cbb_leaderboard",
         "cbb_team_profile",
         "cbb_team_rankings",
-        "cbb_lineups"
+        "cbb_lineups",
+        "cbb_all_savant_team"
       ]
     }
   },

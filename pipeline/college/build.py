@@ -39,8 +39,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import adjust as AJ  # noqa: E402
 import aggregate as A  # noqa: E402
+import allsavant as AS  # noqa: E402
 import cbbd_client as CC  # noqa: E402
+import college_value as CV  # noqa: E402
+import confidence as CF  # noqa: E402
 import config as C  # noqa: E402
+import ratings as RT  # noqa: E402
 import season as SZ  # noqa: E402
 
 PUBLIC = os.path.join(HERE, "..", "..", "public")
@@ -108,10 +112,13 @@ def team_rows(season, G, T, ids, rat, mk, bpi, net):
     names = ids["teams"]
     tb = rat["teams"]
     out = []
-    S = pd.read_pickle(os.path.join(SZ.OUT, season, "shots.pkl"))
-    S = S[S.gid.isin(set(G[(G.pbp_ok) & (G.non_d1 == 0)].gid))]
-    zs = S.groupby(["team", "zone"]).size().unstack(fill_value=0)
-    zo = S.groupby(["opp", "zone"]).size().unstack(fill_value=0)
+    if season in C.BOX_TIER:
+        zs = zo = pd.DataFrame()
+    else:
+        S = pd.read_pickle(os.path.join(SZ.OUT, season, "shots.pkl"))
+        S = S[S.gid.isin(set(G[(G.pbp_ok) & (G.non_d1 == 0)].gid))]
+        zs = S.groupby(["team", "zone"]).size().unstack(fill_value=0)
+        zo = S.groupby(["opp", "zone"]).size().unstack(fill_value=0)
     lg = rat.get("lg", 105.0)
     lt = rat.get("lt", 68.0)
     for team, g in t.groupby("team"):
@@ -329,7 +336,7 @@ def player_season(season, gen, public, teams_cache, log):
     xf = pd.DataFrame()
     try:
         import xfg as X
-        if os.path.exists(X.MODEL):
+        if os.path.exists(X.MODEL) and season not in C.BOX_TIER:
             xf, _ = X.apply(season)
     except Exception as e:  # noqa
         log(f"xfg skipped for {season}: {e}")
@@ -353,6 +360,12 @@ def player_season(season, gen, public, teams_cache, log):
     V["min_share"] = {"r": [rnd(100 * float(tot_all.mins.get(e, 0)) / max(1.0, float(tm_cap.get(main.team.get(e), 40))), 1) for e in idx]}
     V["pace"] = {"r": [rnd(40 * float(tot_all.poss.get(e, 0)) / max(1.0, float(tot_all.mins.get(e, 0))), 1) for e in idx]}
     V["sos"] = {"r": [rnd(sos.get(e, np.nan), 1) for e in idx]}
+    # §Part 2: the defenses he played, weighted by the possessions he played against them
+    opp_def = d.tm_opp.map({t: v["adjd"] for t, v in rat["teams"].items()}).astype(float)
+    pw = np.where(opp_def.notna(), np.where(d.lineup_ok, d.pos_o + d.pos_og, d.seat * d.tm_est), 0.0)
+    fac = pd.DataFrame({"e": d.eid.values, "n": opp_def.fillna(0).values * pw, "w": pw}).groupby("e").sum()
+    faced = fac.n / fac.w.replace(0, np.nan)
+    V["def_faced"] = {"r": [rnd(faced.get(e, np.nan), 2) for e in idx]}
     V["onoff"] = {"r": [rnd(oo.onoff.get(e, np.nan) if len(oo) else None, 1) for e in idx]}
     V["onoff_luck"] = {"r": [rnd(oo.onoff_luck.get(e, np.nan) if len(oo) else None, 1) for e in idx]}
     for k in ("rapm", "rapm_o", "rapm_d", "bi"):
@@ -381,13 +394,30 @@ def player_season(season, gen, public, teams_cache, log):
     means = {}
     q = [i for i, p in enumerate(P) if p[11]]
     doc = {"season": season, "through": str(d.date.max()) if len(d) else None, "generated": gen, "cols": ["id", "name", "team", "pos", "cls", "age", "ht", "wt", "gp", "gs", "min", "qual", "conf", "head", "jersey", "hometown", "stars", "recruit_rank", "high_school"],
-           "players": P, "values": V, "samples": N, "qualified": len(q), "lg3": lg3, "lgft": lgft}
+           "players": P, "values": V, "samples": N, "qualified": len(q), "lg3": lg3, "lgft": lgft, "tier": "box" if season in C.BOX_TIER else "full"}
+    # adjustment confidence: his games, and how his conference links to the rest of D1
+    tbl = load_json(CF.TABLE)
+    lk = CF.links(RT.game_table(season), conf)
+    doc["links"] = {str(k): round(v, 1) for k, v in lk.items() if k}
+    doc["adjconf"] = [CF.score(p[8], lk.get(p[12], 0.0), tbl) if tbl else None for p in P]
+    if os.path.exists(CV.MODEL):
+        CV.apply_doc(doc, season)
     size = jdump(os.path.join(public, "cbb", "s", f"{season}.json"), doc)
     log(f"{season}: s/ {len(P)} players, {len(q)} qualified, {size / 1e6:.2f} MB")
     return dict(pg=pg, d=d, tot_all=tot_all, tb_all=tb_all, tb_nog=tb_nog, main=main, ident=ident, pos=pos, conf=conf, ids=ids, idx=idx, V=V, N=N, P=P, lg3=lg3, lgft=lgft, heads=heads)
 
 
 # ---------------------------------------------------------------- team-season files
+def ncaa_games(G):
+    return G[(G.stype == 3) & G.note.str.contains("men's basketball championship", case=False, na=False)]
+
+
+def ncaa_field(G):
+    """The teams in the NCAA tournament, from the postseason games themselves."""
+    g = ncaa_games(G)
+    return set(g.home) | set(g.away)
+
+
 QUADS = {"home": (30, 75, 160), "neutral": (50, 100, 200), "away": (75, 135, 240)}
 
 
@@ -446,7 +476,6 @@ def team_files(season, gen, ctx, public, log):
             dd["_site"] = np.where(dd.neutral.values, "Neutral", np.where(dd.tm_home.astype(bool).values, "Home", "Road"))
             dd["_conf"] = np.where(dd.confgame.values.astype(bool), "Conference", "Non-conference")
             dd["_mon"] = pd.to_datetime(dd.date).dt.strftime("%b").values
-            dd["_top"] = dd.tm_opp.map(lambda t: "vs our top 50" if (rank.get(t) or 999) <= 50 else None)
             dd["_tourn"] = np.where(dd.stype.values == 3, "Postseason", None)
 
             def qd(r):
@@ -455,7 +484,15 @@ def team_files(season, gen, ctx, public, log):
                 return f"Quad {q}" if q else None
 
             dd["_q"] = [qd(r) for r in dd.itertuples()] if net else None
-            for label, col in (("site", "_site"), ("conf", "_conf"), ("month", "_mon"), ("quad", "_q"), ("top", "_top"), ("post", "_tourn")):
+            # opponent quality, by our own ratings, so it works in every season. The rows overlap.
+            field = ncaa_field(G)
+            for name, test in (("vs top 50", lambda t: (rank.get(t) or 999) <= 50), ("vs top 100", lambda t: (rank.get(t) or 999) <= 100), ("vs NCAA tournament teams", lambda t: t in field)):
+                sub = dd[dd.tm_opp.map(test)]
+                if len(sub):
+                    rt = A.rates(A.sumby(sub, gt=True, by=sub.eid.astype(str).values))
+                    for e, row in rt.iterrows():
+                        splits.setdefault(str(ix[e]), {}).setdefault("quality", []).append([name] + [rnd(row[x], 4 if x in ("pts", "ast", "reb") else 1) for x in SPLIT_STATS])
+            for label, col in (("site", "_site"), ("conf", "_conf"), ("month", "_mon"), ("quad", "_q"), ("post", "_tourn")):
                 sub = dd[dd[col].notna()]
                 if not len(sub):
                     continue
@@ -492,7 +529,7 @@ def team_files(season, gen, ctx, public, log):
 
 
 # ---------------------------------------------------------------- careers and comps
-CAREER_STATS = ("pts", "ts", "fg3", "ast_pct", "tov_pct", "orb_pct", "drb_pct", "stl_pct", "blk_pct", "usg", "rapm", "bi")
+CAREER_STATS = ("value", "pts", "ts", "fg3", "ast_pct", "tov_pct", "orb_pct", "drb_pct", "stl_pct", "blk_pct", "usg", "rapm", "bi")
 
 
 def pct(values, v, lower=False):
@@ -572,10 +609,12 @@ def careers(contexts, public, log):
 # ---------------------------------------------------------------- index files
 def tracked(season):
     g = load_json(os.path.join(SZ.OUT, season, "gates.json")) or {}
+    if season in C.BOX_TIER:
+        return dict(shots=False, court=False, tier="box", box_gate=g.get("box_gate"), box_gate_raw=g.get("box_gate_raw"), coord_rate=None, lineup_rate=None, games=g.get("d1_games"))
     # §3: a season keeps a section only if its gate passed
     shots = (g.get("coord_rate") or 0) >= 0.85
     court = (g.get("lineup_ok_rate_of_d1") or 0) >= COURT_MIN
-    return dict(shots=shots, court=court, coord_rate=g.get("coord_rate"), lineup_rate=g.get("lineup_ok_rate_of_d1"), games=g.get("d1_games"))
+    return dict(shots=shots, court=court, tier="full", box_gate=g.get("box_gate"), box_gate_raw=g.get("box_gate_raw"), coord_rate=g.get("coord_rate"), lineup_rate=g.get("lineup_ok_rate_of_d1"), games=g.get("d1_games"))
 
 
 def registry(public, gen):
@@ -590,6 +629,19 @@ def registry(public, gen):
                                                                      rapm_early=C.RAPM_EARLY, min_pool=C.MIN_POOL, qual_min_share=C.QUAL_MIN_SHARE, per=[70, 100], high_major=sorted(AJ.HIGH_MAJOR), rapm_min=500))
 
 
+def games_lite(public, season):
+    d = json.loads(gzip.decompress(open(os.path.join(public, "cbb", "games", f"{season}.json.gz"), "rb").read()))
+    return d
+
+
+def is_final_lite(season, d):
+    """From the published games file: the same rule as is_final."""
+    if season < C.CURRENT:
+        return True
+    ix = d["cols"].index("title_game")
+    return any(r[ix] for r in d["rows"])
+
+
 def lite(public, season):
     """A finished season as the files already published have it."""
     d = gzip.decompress(open(os.path.join(public, "cbb", "s", f"{season}.json.gz"), "rb").read())
@@ -601,6 +653,7 @@ def main():
     ap.add_argument("--public", default=PUBLIC)
     ap.add_argument("--generated", default=None)
     ap.add_argument("--merge", default=None, help="rebuild only this season; the rest come from public/cbb")
+    ap.add_argument("--revalue", action="store_true", help="only re-apply the value model to the published tables")
     ap.add_argument("seasons", nargs="+")
     a = ap.parse_args()
     log = lambda m: print(time.strftime("%H:%M:%S"), m, flush=True)  # noqa: E731
@@ -609,8 +662,21 @@ def main():
     registry(public, gen)
     tr = {}
     os.makedirs(os.path.join(HOME, "tmp-teams"), exist_ok=True)
+    keep = []
+    for s in a.seasons:
+        g = load_json(os.path.join(SZ.OUT, s, "gates.json")) or {}
+        if s in C.BOX_TIER and (g.get("box_gate") or 0) < C.BOX_GATE:
+            log(f"{s}: box gate {g.get('box_gate')} under {C.BOX_GATE}: stays off the site")
+            continue
+        keep.append(s)
+    a.seasons = keep
     for s in a.seasons:
         tr[s] = tracked(s)
+        if a.revalue:
+            d = lite(public, s)
+            CV.apply_doc(d, s)
+            jdump(os.path.join(public, "cbb", "s", f"{s}.json"), d)
+            continue
         if a.merge and s != a.merge:
             continue
         G = pd.read_pickle(os.path.join(SZ.OUT, s, "games.pkl"))
@@ -629,8 +695,8 @@ def main():
         team_files(s, gen, ctx, public, log)
         games = []
         for r in G.itertuples():
-            games.append([r.gid, r.date, r.home, r.away, r.hs, r.as_, int(r.neutral), int(r.confgame), int(r.stype == 3), int(r.non_d1 > 0), int(r.ot), rnd(r.spread, 1), rnd(r.total, 1), int(r.pbp_ok), int(r.lineup_ok)])
-        jdump(os.path.join(public, "cbb", "games", f"{s}.json"), dict(season=s, cols=["gid", "date", "home", "away", "home_pts", "away_pts", "neutral", "conf_game", "postseason", "non_d1", "ot", "home_spread", "total", "pbp_ok", "lineup_ok"], rows=games))
+            games.append([r.gid, r.date, r.home, r.away, r.hs, r.as_, int(r.neutral), int(r.confgame), int(r.stype == 3), int(r.non_d1 > 0), int(r.ot), rnd(r.spread, 1), rnd(r.total, 1), int(r.pbp_ok), int(r.lineup_ok), int(r.box_ok), int(r.stype == 3 and "national championship" in (r.note or "").lower() and "men's basketball championship" in (r.note or "").lower())])
+        jdump(os.path.join(public, "cbb", "games", f"{s}.json"), dict(season=s, cols=["gid", "date", "home", "away", "home_pts", "away_pts", "neutral", "conf_game", "postseason", "non_d1", "ot", "home_spread", "total", "pbp_ok", "lineup_ok", "box_ok", "title_game"], rows=games))
     docs = {}
     for s in a.seasons:
         p = os.path.join(public, "cbb", "s", f"{s}.json.gz")
@@ -646,9 +712,25 @@ def main():
         for r in json.loads(gzip.decompress(open(tp, "rb").read()))["teams"]:
             tn[r["id"]] = [r["id"], r["name"], r["abbr"], r["conf"], s, r["color"]]
     jdump(os.path.join(public, "cbb", "search.json"), dict(players=sorted(seen.values(), key=lambda x: (x[1] or "", x[0])), teams=sorted(tn.values(), key=lambda x: (x[1] or "", x[0]))))
-    jdump(os.path.join(public, "cbb", "links.json"), links(seen, tn, public))
+    # the All-Savant Teams, every season, and the honours that follow from them
+    hon = defaultdict(list)
+    lk = None
+    for s in docs:
+        doc = lite(public, s)
+        if "value" not in doc["values"]:
+            continue
+        G = games_lite(public, s)
+        t = AS.teams(doc, is_final_lite(s, G), note=None if s not in ("2019-20",) else "No NCAA tournament: the season was called off in March 2020.")
+        jdump(os.path.join(public, "cbb", "allsavant", f"{s}.json"), t)
+        for e, key, label in AS.honours(t):
+            hon[e].append([s, key, label])
+    jdump(os.path.join(public, "cbb", "honours.json"), hon)
+    lnk = links(seen, tn, public)
+    lnk["draft_honours"] = {d: hon[e] for e, d in lnk["draft"].items() if e in hon}
+    jdump(os.path.join(public, "cbb", "links.json"), lnk)
     newest = list(docs)
-    idx = dict(version=C.VERSION, generated=gen, current=newest[-1], seasons=[dict(season=s, through=docs[s]["through"], players=len(docs[s]["P"]), qualified=sum(1 for p in docs[s]["P"] if p[11]), **tr[s]) for s in newest], default_season=latest_with_data(newest, docs))
+    dflt, dnote = latest_with_data(newest, docs, public)
+    idx = dict(version=C.VERSION, generated=gen, current=newest[-1], seasons=[dict(season=s, through=docs[s]["through"], players=len(docs[s]["P"]), qualified=sum(1 for p in docs[s]["P"] if p[11]), **tr[s]) for s in newest], default_season=dflt, landing_note=dnote)
     jdump(os.path.join(public, "cbb", "index.json"), idx)
     log("index written")
 
@@ -677,13 +759,14 @@ def links(seen, tn, public):
     return out
 
 
-def latest_with_data(newest, contexts):
-    """The season the page opens on: the newest whose pools are real. Early November is a handful
-    of games; the page opens last season until the current one has enough qualified players."""
-    for s in reversed(newest):
-        if sum(1 for p in contexts[s]["P"] if p[11]) >= 800:
-            return s
-    return newest[-1]
+def latest_with_data(newest, contexts, public):
+    """The current season, once the median team has played 10 games; until then the last full one."""
+    cur = newest[-1]
+    t = json.loads(gzip.decompress(open(os.path.join(public, "cbb", "teams", f"{cur}.json.gz"), "rb").read()))["teams"]
+    gp = sorted(r["gp"] for r in t)
+    if gp and gp[len(gp) // 2] >= 10:
+        return cur, None
+    return C.LAST_FINAL, f"{cur} has barely started, so this is {C.LAST_FINAL}. The current season takes over once the median team has played 10 games."
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 (function(){
 'use strict';
 var M=window.SavantCBB,C=M.COL,$=function(s){return document.querySelector(s);};
-var API='/cbb/',cache={},REG,IDX,SEARCH,LINKS={},BYK={},TEAMS={};
-var S={season:null,pool:'pos',adj:true,gt:false,per:70,lstat:'bi',lpos:'all',lmin:300,tsort:'net',tab5:'5',splitTab:'site',wwA:null,wwOn:[],wwOff:[],cmpA:null,cmpB:null,lastP:null,lastT:null};
+var API='/cbb/',cache={},REG,IDX,SEARCH,LINKS={},HON={},BYK={},TEAMS={};
+var S={season:null,pool:'pos',adj:true,gt:false,per:70,lstat:'bi',lpos:'all',lmin:300,tsort:'net',tab5:'5',splitTab:'site',wwA:null,wwOn:[],wwOff:[],cmpA:null,cmpB:null,lastP:null,lastT:null,astTab:'1',astConf:null};
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function ord(n){var s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
 function sg(v,d){d=d==null?1:d;if(v==null||!isFinite(v))return '—';if(Math.abs(v)<0.5*Math.pow(10,-d))return (0).toFixed(d);return (v>=0?'+':'−')+Math.abs(v).toFixed(d);}
@@ -49,8 +49,8 @@ function prow(r){
 /* ---------- home ---------- */
 function vHome(){
   var si=IDX.seasons.filter(function(x){return x.season===S.season;})[0]||{};
-  return Promise.all([load('s/'+S.season+'.json'),load('teams/'+S.season+'.json')]).then(function(a){
-    var d=a[0],t=a[1];
+  return Promise.all([load('s/'+S.season+'.json'),load('teams/'+S.season+'.json'),load('allsavant/'+S.season+'.json').catch(function(){return null;})]).then(function(a){
+    var d=a[0],t=a[1],ast=a[2];
     var top=t.teams.slice(0,8);
     var ids=d.players.map(function(p,i){return i;}).filter(function(i){return d.players[i][C.qual];});
     function leaders(k){var c=M.column(d,k,{adj:true,gt:false}),s=statOf(k);return ids.filter(function(i){return M.ok(c[i])&&(k.indexOf('rapm')<0||(d.samples.rapm_n[i]||0)>=REG.rapm_min);}).sort(function(x,y){return s.lower?c[x]-c[y]:c[y]-c[x];}).slice(0,8).map(function(i){return [d.players[i],c[i]];});}
@@ -62,6 +62,7 @@ function vHome(){
     h+='<section class="card"><div class="hd"><h2>'+esc(st.label)+' leaders</h2><a class="meta" href="#leaders">All leaders</a></div>'+(st.key==='rapm'?'<p class="pool-n" style="margin-top:0">'+esc(REG.rapm_early)+'</p>':'')+'<div class="twrap"><table class="tbl"><thead><tr><th>Player</th><th>Team</th><th class="r">'+esc(st.label)+'</th></tr></thead><tbody>'+
       L.map(function(x){var p=x[0];return '<tr><td>'+playerLink(p[C.id],p[C.name])+'</td><td>'+teamLink(p[C.team])+'</td><td class="r">'+esc(M.display(st,x[1],S.per))+'</td></tr>';}).join('')+'</tbody></table></div></section></div>';
     if(!(si.court))h+='<p class="meta" style="margin-top:12px">On/off, lineups and RAPM are not tracked this season: clean lineup data starts in 2024-25.</p>';
+    if(ast){var one=ast.national['1']||[];h+='<section class="ast" style="margin-top:24px"><div class="hd"><h2>All-Savant 1st team'+(ast.so_far?', so far':'')+'</h2><a class="meta" href="#all-savant">All teams</a></div>'+(IDX.landing_note&&S.season===IDX.default_season?'<p class="pool-n" style="margin-top:0">'+esc(IDX.landing_note)+'</p>':'')+'<div class="ast-row">'+one.map(function(x,i){return astCard(x,i,S.season);}).join('')+'</div></section>';}
     return {html:h,cur:'players'};
   });
 }
@@ -103,20 +104,23 @@ function vPlayer(id,season){
       var o={poolName:S.pool,adj:S.adj,gt:S.gt,per:S.per},R=statRows(d,i,o),pl=R.pts.pool,label=M.poolLabel(pl,p,{adj:S.adj,season:sn,conf:confName(p[C.conf])});
       var skill=REG.stats.filter(function(s){return s.kind==='skill'&&R[s.key].tracked&&!R[s.key].low&&R[s.key].pct!=null&&!R[s.key].settling;}),top=skill.reduce(function(b,s){return !b||R[s.key].pct>R[b.key].pct?s:b;},null);
       var sos=R.sos,findA=top?'<strong>'+ord(R[top.key].pct)+' percentile in '+esc(/^[A-Z]{2}/.test(top.label)?top.label:top.label.toLowerCase())+'</strong> '+esc(label)+'.':'Not enough minutes for a pool yet.';
-      var findB=sos&&sos.pct!=null?' Schedule: tougher than '+sos.pct+'% of the pool’s.':'';
+      var findB='';
       var ix=T.roster.findIndex(function(r){return r[0]===id;}),hist=rows.map(function(r,k){var moved=k>0&&r.t!==rows[k-1].t;return '<dt>'+esc(r.s)+'</dt><dd>'+teamLink(r.t)+(moved?'<span class="tag">Transferred</span>':'')+'</dd>';}).join('');
       var ribbon=rows.map(function(r,k){return (k&&r.t!==rows[k-1].t?'<span class="tr">→</span>':'')+'<a class="rb" href="#team-'+r.t+'"><span class="sw" style="background:#'+esc((TEAMS[r.t]||{}).color||'8B9099')+'"></span>'+esc(tname(r.t))+' <small>'+esc(r.s)+'</small></a>';}).join('');
       var ht=p[C.ht]?Math.floor(p[C.ht]/12)+'′'+(p[C.ht]%12)+'″':null;
       var sub=[tname(p[C.team]),confName(p[C.conf]),p[C.pos],p[C.cls],p[C.age]?p[C.age].toFixed(1)+' (age on Feb 1)':null,ht,p[C.wt]?p[C.wt]+' lb':null,p[C.home]].filter(Boolean).join(' · ');
       var h='<section class="trow"><div class="who-h">'+head(p)+'<div><h1>'+esc(p[C.name])+'</h1><p class="sub">'+esc(sub)+'</p></div></div><div class="actions"><a class="btn primary" href="#compare" data-cmp="'+esc(id)+'">Compare</a><a class="btn" href="#team-'+esc(p[C.team])+'">'+esc(tname(p[C.team]))+'</a></div></section>';
-      h+='<div class="ribbon">'+ribbon+'</div><p class="finding">'+findA+findB+'</p>';
-      var kp=[['rapm','RAPM'],['bi','Box impact'],['pts','Points / '+S.per],['ts','True shooting'],['usg','Usage'],['min_share','Minutes share']];
+      var honNow=(HON[id]||[]).filter(function(x){return x[0]===sn;}),sc=M.schedule(d,i),cfc=M.confidence(d,i);
+      h+='<div class="ribbon">'+ribbon+honNow.map(function(x){return '<span class="tag gold">'+esc(x[2])+'</span>';}).join('')+'</div><p class="finding">'+findA+findB+'</p>';
+      h+='<p class="sched">'+(sc?'<span>'+esc(sc.text)+', '+esc(sn)+'.</span> ':'')+(cfc?'<span class="conf '+esc(cfc.label.toLowerCase())+'" title="How sure the opponent adjustment is: measured from how far schedule reads moved over four seasons">Adjustment confidence: '+esc(cfc.text)+'</span>':'')+'</p>';
+      if(d.tier==='box')h+='<p class="pool-n">'+esc(sn)+' is a box-score season: shot zones, lineups, on/off and RAPM are not tracked, and garbage time can’t be taken out.</p>';
+      var kp=[['value','Savant value'],['rapm','RAPM'],['bi','Box impact'],['pts','Points / '+S.per],['ts','True shooting'],['usg','Usage']];
       h+='<div class="kpis">'+kp.map(function(k,n){var r=R[k[0]];var v=r.tracked?r.shown:'—',s=r.tracked?(r.low?'low sample':r.pct!=null?ord(r.pct)+' percentile':''):esc(r.reason);return '<div class="kpi"><div class="k">'+esc(k[1])+'</div><div class="v'+(n===0?' lead':'')+'">'+esc(v)+'</div><div class="s">'+s+'</div></div>';}).join('')+'</div>';
       // percentile card
       var opts=[['pos','D1 at position'],['all','All D1'],['hm','High-major'],['conf','Same conference'],['age','Same age']];
       h+='<div class="cols"><section class="card"><div class="hd"><h2>Percentiles</h2><span class="meta">'+esc(label)+'</span></div>';
       h+='<div class="ctrls"><label class="ctl" for="pool">Compare against<select class="sel" id="pool">'+opts.map(function(x){return '<option value="'+x[0]+'"'+(x[0]===S.pool?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select></label>'+seasonSel('pseason',have.slice().reverse(),sn)+
-        '<span class="ctl">'+seg('adj',[[1,'Adjusted'],[0,'Raw']],S.adj?1:0,'Opponent adjustment')+'</span><span class="ctl">'+seg('per',[[70,'Per 70'],[100,'Per 100']],S.per,'Rates per')+'</span><span class="ctl">'+seg('gt',[[0,'No garbage time'],[1,'All']],S.gt?1:0,'Garbage time')+'</span></div>';
+        '<span class="ctl">'+seg('adj',[[1,'Adjusted'],[0,'Raw']],S.adj?1:0,'Opponent adjustment')+'</span><span class="ctl">'+seg('per',[[70,'Per 70'],[100,'Per 100']],S.per,'Rates per')+'</span>'+(d.tier==='box'?'':'<span class="ctl">'+seg('gt',[[0,'No garbage time'],[1,'All']],S.gt?1:0,'Garbage time')+'</span>')+'</div>';
       h+='<p class="pool-n">Pool: '+esc(label.replace(/^vs /,''))+', '+esc(pl.ids.length)+' qualified players (30% of team minutes).'+(pl.widened?' '+esc(pl.widened)+'.':'')+'</p>'+legend();
       REG.groups.forEach(function(g){
         var ss=REG.stats.filter(function(s){return s.group===g;});
@@ -124,7 +128,7 @@ function vPlayer(id,season){
       });
       h+='</section><div class="stack">';
       var rec=car.b,recL=(cs[id].r.filter(function(x){return x.rec;})[0]||{}).rec;
-      h+='<section class="card"><div class="hd"><h2>Profile</h2><span class="meta">Age on Feb 1</span></div><dl class="kv"><dt>Team</dt><dd>'+teamLink(p[C.team])+'</dd><dt>Conference</dt><dd>'+esc(confName(p[C.conf]))+'</dd><dt>Position</dt><dd>'+esc(p[C.pos]||'—')+'</dd><dt>Class</dt><dd>'+esc(p[C.cls]||'—')+'</dd><dt>Age</dt><dd class="num">'+(p[C.age]?p[C.age].toFixed(1):'—')+'</dd><dt>Hometown</dt><dd>'+esc(p[C.home]||'—')+'</dd><dt>Recruiting</dt><dd>'+(p[C.rrank]?esc((p[C.stars]?p[C.stars]+'-star, ':'')+'No. '+p[C.rrank]+' in class'):'Not ranked')+'</dd><dt>Games</dt><dd class="num">'+p[C.gp]+' ('+p[C.gs]+' starts)</dd><dt>Minutes</dt><dd class="num">'+num(p[C.min]/Math.max(1,p[C.gp]))+' a game</dd>'+(LINKS.draft&&LINKS.draft[id]?'<dt>Draft Savant</dt><dd><a href="/draft-savant.html">Draft profile</a></dd>':'')+(LINKS.nba&&LINKS.nba[id]?'<dt>Basketball Savant</dt><dd><a href="/basketball-savant.html">NBA card</a></dd>':'')+'</dl><div class="hd" style="margin:18px 0 4px"><h2>Seasons</h2><span class="meta">From 2022-23</span></div><dl class="kv">'+hist+'</dl></section>';
+      h+='<section class="card"><div class="hd"><h2>Profile</h2><span class="meta">Age on Feb 1</span></div><dl class="kv"><dt>Team</dt><dd>'+teamLink(p[C.team])+'</dd><dt>Conference</dt><dd>'+esc(confName(p[C.conf]))+'</dd><dt>Position</dt><dd>'+esc(p[C.pos]||'—')+'</dd><dt>Class</dt><dd>'+esc(p[C.cls]||'—')+'</dd><dt>Age</dt><dd class="num">'+(p[C.age]?p[C.age].toFixed(1):'—')+'</dd><dt>Hometown</dt><dd>'+esc(p[C.home]||'—')+'</dd><dt>Recruiting</dt><dd>'+(p[C.rrank]?esc((p[C.stars]?p[C.stars]+'-star, ':'')+'No. '+p[C.rrank]+' in class'):'Not ranked')+'</dd><dt>Games</dt><dd class="num">'+p[C.gp]+' ('+p[C.gs]+' starts)</dd><dt>Minutes</dt><dd class="num">'+num(p[C.min]/Math.max(1,p[C.gp]))+' a game</dd>'+(LINKS.draft&&LINKS.draft[id]?'<dt>Draft Savant</dt><dd><a href="/draft-savant.html">Draft profile</a></dd>':'')+(LINKS.nba&&LINKS.nba[id]?'<dt>Basketball Savant</dt><dd><a href="/basketball-savant.html">NBA card</a></dd>':'')+'</dl><div class="hd" style="margin:18px 0 4px"><h2>Seasons</h2><span class="meta">From 2013-14</span></div><dl class="kv">'+hist+'</dl></section>';
       // zones
       var tr=IDX.seasons.filter(function(x){return x.season===sn;})[0]||{};
       var zs=ZONES.map(function(z){var n=d.samples[z[2]][i]||0,all=d.samples.n_fg[i]||0,r=R[z[3]];var vals=M.valuesFor(d,z[3],r.pool?r.pool.ids:[],{adj:false,gt:S.gt}),m=vals.length?vals.reduce(function(a,b){return a+b;},0)/vals.length:null;return {name:z[1],x:z[4],y:z[5],freq:all?Math.round(100*n/all):0,fg:r.tracked?r.value:null,pct:r.tracked&&r.pct!=null?r.pct:null,avg:m,n:n};});
@@ -137,15 +141,15 @@ function vPlayer(id,season){
       h+='<section class="card"><div class="hd"><h2>Recent games</h2><a class="meta" href="#team-'+esc(p[C.team])+'">Team schedule</a></div><div class="twrap"><table class="tbl"><thead><tr><th>Date</th><th>Opponent</th><th>Result</th><th class="r hide-s">Min</th><th class="r">Pts</th></tr></thead><tbody>'+last.map(function(g){var w=g.pf>g.pa;return '<tr><td class="num">'+g.date+'</td><td>'+(g.neutral?'vs ':g.home?'vs ':'at ')+teamLink(g.opp)+'</td><td class="num '+(w?'res-w':'res-l')+'">'+(w?'W ':'L ')+g.pf+'–'+g.pa+'</td><td class="r hide-s">'+num(g.min,0)+'</td><td class="r">'+g.pts+'</td></tr>';}).join('')+'</tbody></table></div></section></div></div>';
       h+='<section class="card full"><div class="hd"><h2>Points by game</h2><div class="legend"><span><i class="lgb"></i>Last five games</span><span><i class="lgl"></i>Five-game average</span><span>Dashed: season average</span></div></div><div class="glh" id="ptschart"></div></section>';
       // splits
-      var sp=T.splits[String(ix)]||{},tabs=[['site','Home / road'],['conf','Conference'],['quad','Quad'],['month','Month'],['garbage','Garbage time'],['top','Top 50'],['post','Postseason']].filter(function(t){return sp[t[0]];});
+      var sp=T.splits[String(ix)]||{},tabs=[['quality','Opponent quality'],['site','Home / road'],['conf','Conference'],['quad','Quad'],['month','Month'],['garbage','Garbage time'],['post','Postseason']].filter(function(t){return sp[t[0]];});
       if(tabs.length){var tab=sp[S.splitTab]?S.splitTab:tabs[0][0];
         h+='<section class="card full"><div class="hd"><h2>Splits</h2><span class="meta">'+esc(sn)+', D1 opponents. '+(sp.quad?'NET quads by venue.':'NET quads: not tracked this season.')+' Postseason games are flagged, with no percentiles.</span></div><div class="tabs" role="tablist">'+tabs.map(function(t){return '<button type="button" role="tab" data-split="'+t[0]+'" aria-selected="'+(t[0]===tab)+'">'+esc(t[1])+'</button>';}).join('')+'</div><div class="twrap"><table class="tbl"><thead><tr><th>Split</th><th class="r">G</th><th class="r">Min</th><th class="r">Pts/'+S.per+'</th><th class="r">TS%</th><th class="r hide-s">eFG%</th><th class="r hide-s">3P%</th><th class="r">Ast/'+S.per+'</th><th class="r hide-s">Reb/'+S.per+'</th><th class="r hide-s">TOV%</th><th class="r">Usg</th></tr></thead><tbody>'+
         sp[tab].map(function(r){return '<tr><td>'+esc(r[0])+'</td><td class="r">'+r[1]+'</td><td class="r">'+num(r[2],0)+'</td><td class="r">'+num(r[4]*S.per)+'</td><td class="r">'+num(r[5])+'</td><td class="r hide-s">'+num(r[6])+'</td><td class="r hide-s">'+num(r[7])+'</td><td class="r">'+num(r[8]*S.per)+'</td><td class="r hide-s">'+num(r[9]*S.per)+'</td><td class="r hide-s">'+num(r[10])+'</td><td class="r">'+num(r[11])+'</td></tr>';}).join('')+'</tbody></table></div></section>';}
       // game log
       h+='<section class="card full"><div class="hd"><h2>Game log</h2><span class="meta">'+esc(sn)+', '+L.length+' games. Non-D1 games are flagged and count in no rate.</span></div><div class="twrap scroll"><table class="tbl"><thead><tr><th>Date</th><th>Opponent</th><th>Result</th><th class="r">Min</th><th class="r">Pts</th><th class="r">FG</th><th class="r">3P</th><th class="r">FT</th><th class="r">Reb</th><th class="r">Ast</th><th class="r">TO</th><th class="r">Stl</th><th class="r">Blk</th></tr></thead><tbody>'+L.slice().reverse().map(function(g){var w=g.pf>g.pa;return '<tr><td class="num">'+g.date+'</td><td>'+(g.home?'vs ':'at ')+teamLink(g.opp)+(g.post?'<span class="tag">Postseason</span>':'')+'</td><td class="num '+(w?'res-w':'res-l')+'">'+(w?'W ':'L ')+g.pf+'–'+g.pa+'</td><td class="r">'+num(g.min,0)+'</td><td class="r">'+g.pts+'</td><td class="r">'+g.fgm+'–'+g.fga+'</td><td class="r">'+g.m3+'–'+g.a3+'</td><td class="r">'+g.ftm+'–'+g.fta+'</td><td class="r">'+g.reb+'</td><td class="r">'+g.ast+'</td><td class="r">'+g.tov+'</td><td class="r">'+g.stl+'</td><td class="r">'+g.blk+'</td></tr>';}).join('')+'</tbody></table></div></section>';
       // career
-      var CK=['pts','ts','fg3','ast_pct','orb_pct','drb_pct','stl_pct','blk_pct','usg','bi'];
-      h+='<section class="card full"><div class="hd"><h2>Career</h2><span class="meta">From 2022-23 · percentile vs D1 at position, adjusted where the stat has it</span></div><div class="twrap scroll"><table class="tbl"><thead><tr><th>Season</th><th>Team</th><th class="r">G</th><th class="r">Min</th>'+CK.map(function(k){return '<th class="r">'+esc(statOf(k).label)+'</th>';}).join('')+'</tr></thead><tbody>'+rows.slice().reverse().map(function(r){return '<tr'+(r.s===sn?' class="me"':'')+'><td class="num"><a href="#player-'+esc(id)+'/'+r.s+'">'+esc(r.s)+'</a></td><td>'+teamLink(r.t)+'</td><td class="r">'+r.g+'</td><td class="r">'+num(r.m,0)+'</td>'+CK.map(function(k){var v=(r.v[k]||[]);return '<td class="r">'+(M.ok(v[0])?esc(M.display(statOf(k),v[0],S.per)):'—')+(v[1]!=null?' <small class="pct">'+v[1]+'</small>':'')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div></section>';
+      var CK=['value','pts','ts','fg3','ast_pct','orb_pct','drb_pct','stl_pct','blk_pct','usg','bi'];
+      h+='<section class="card full"><div class="hd"><h2>Career</h2><span class="meta">From 2013-14 · percentile vs D1 at position, adjusted where the stat has it</span></div><div class="twrap scroll"><table class="tbl"><thead><tr><th>Season</th><th>Team</th><th>Honours</th><th class="r">G</th><th class="r">Min</th>'+CK.map(function(k){return '<th class="r">'+esc(statOf(k).label)+'</th>';}).join('')+'</tr></thead><tbody>'+rows.slice().reverse().map(function(r){return '<tr'+(r.s===sn?' class="me"':'')+'><td class="num"><a href="#player-'+esc(id)+'/'+r.s+'">'+esc(r.s)+'</a></td><td>'+teamLink(r.t)+'</td><td class="hon">'+esc((HON[id]||[]).filter(function(x){return x[0]===r.s;}).map(function(x){return x[2];}).join(', '))+'</td><td class="r">'+r.g+'</td><td class="r">'+num(r.m,0)+'</td>'+CK.map(function(k){var v=(r.v[k]||[]);return '<td class="r">'+(M.ok(v[0])?esc(M.display(statOf(k),v[0],S.per)):'—')+(v[1]!=null?' <small class="pct">'+v[1]+'</small>':'')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div></section>';
       // comps
       var cm=cr.cmp||[];h+='<section class="card full"><div class="hd"><h2>Nearest players</h2><span class="meta">Same position, within a year of age, seasons on file. The model’s view, not a verdict.</span></div>'+(cm.length?'<div class="twrap"><table class="tbl"><thead><tr><th>Player</th><th>Season</th><th>Team</th><th class="r">Match</th></tr></thead><tbody>'+cm.map(function(c){return '<tr><td><a href="#player-'+esc(c[0])+'/'+c[2]+'">'+esc(c[1])+'</a></td><td class="num">'+esc(c[2])+'</td><td>'+teamLink(c[3])+'</td><td class="r">'+Math.round(c[4]*100)+'</td></tr>';}).join('')+'</tbody></table></div>':empty('Needs a qualified season and a birthdate.'))+'</section>';
       // links
@@ -188,6 +192,29 @@ function vTeam(id,season){
       h+='<section class="card full"><div class="hd"><h2>With / Without</h2><span class="meta">From 2024-25 · any set of players, garbage time out</span></div><div class="ww">'+names.slice(0,10).map(function(x,i){var st=on.indexOf(i)>=0?'on':off.indexOf(i)>=0?'off':'any';return '<button type="button" class="wwb '+st+'" data-ww="'+i+'" aria-pressed="'+(st!=='any')+'">'+esc(x[1])+'<small>'+(st==='on'?'on':st==='off'?'off':'either')+'</small></button>';}).join('')+'</div><div class="twrap"><table class="tbl"><thead><tr><th></th><th class="r">Min</th><th class="r">Poss</th><th class="r">Off</th><th class="r">Def</th><th class="r">Net</th></tr></thead><tbody><tr><td>Selected</td><td class="r">'+num(w.min,0)+'</td><td class="r">'+w.poss+'</td><td class="r">'+num(w.ortg)+'</td><td class="r">'+num(w.drtg)+'</td><td class="r">'+sg(w.net)+'</td></tr><tr><td>Whole team</td><td class="r">'+num(base.min,0)+'</td><td class="r">'+base.poss+'</td><td class="r">'+num(base.ortg)+'</td><td class="r">'+num(base.drtg)+'</td><td class="r">'+sg(base.net)+'</td></tr></tbody></table></div></section>';
     } else h+='<section class="card full"><div class="hd"><h2>Lineups, pairs and With / Without</h2></div>'+empty('Not tracked this season. They start in 2024-25.')+'</section>';
     return {html:h,cur:'teams'};
+  });
+}
+
+/* ---------- all-savant ---------- */
+var POSW={Guard:'guard',Wing:'wing',Big:'big'};
+function astCard(x,i,season){
+  var nm=String(x.name||''),sp=nm.indexOf(' '),first=sp>0?nm.slice(0,sp):'',last=sp>0?nm.slice(sp+1):nm,why=nm+', '+tname(x.team)+', '+x.value+' Savant value';
+  return '<a class="ast-card" href="#player-'+esc(x.id)+'/'+esc(season)+'" style="--i:'+i+'" aria-label="'+esc(why)+'"><span class="ast-por'+(x.head?'':' noimg')+'"><span class="ast-pos">'+esc(x.slot)+'</span>'+(x.head?'<img src="https://a.espncdn.com/i/headshots/mens-college-basketball/players/full/'+esc(x.id)+'.png" alt="" loading="lazy" decoding="async" onerror="this.parentNode.classList.add(\'noimg\');this.remove()">':'')+'<span class="ast-init" aria-hidden="true">'+esc(ini(nm))+'</span></span><span class="ast-body"><span class="ast-first">'+esc(first||' ')+'</span><span class="ast-last'+(last.length>13?' xlong':last.length>10?' long':'')+'">'+esc(last)+'</span><span class="ast-meta">'+esc(tname(x.team))+(x.cls?' · '+esc(x.cls):'')+(x.filled?' · filled seat, a '+esc(String(x.pos||'').toLowerCase()):'')+'</span><span class="ast-rule" aria-hidden="true"></span><span class="ast-num'+(x.value<0?' neg':'')+'">'+num(x.value)+'</span><span class="ast-unit">points over a replacement '+esc(POSW[x.pos]||'player')+'</span></span></a>';
+}
+function vAllSavant(){
+  var sn=S.season;
+  return load('allsavant/'+sn+'.json').then(function(t){
+    var tab=S.astTab,confs=Object.keys(t.conference).sort(function(a,b){return confName(a).localeCompare(confName(b));}),cf=S.astConf&&t.conference[S.astConf]?S.astConf:confs[0];
+    var row=tab==='fr'?t.freshman:tab==='conf'?(t.conference[cf]||[]):(t.national[tab]||[]);
+    var titles={'1':'1st team','2':'2nd team','3':'3rd team','fr':'All-Freshman','conf':confName(cf)+' team'};
+    var h='<section class="trow"><div><h1>All-Savant Teams</h1><p class="sub">The best of '+esc(sn)+' by Savant value: points added over a replacement-level player at the same position. The model’s view, not a verdict.</p></div></section>';
+    if(t.poy)h+='<p class="finding"><strong>Savant Player of the Year'+(t.so_far?', so far':'')+':</strong> <a href="#player-'+esc(t.poy.id)+'/'+esc(sn)+'">'+esc(t.poy.name)+'</a>, '+esc(tname(t.poy.team))+', '+num(t.poy.value)+' points over replacement.</p>';
+    if(t.so_far)h+='<p class="pool-n">Standings so far, through '+esc(dateShort(t.through))+'. These become honours after the national championship.</p>';
+    if(t.note)h+='<p class="pool-n">'+esc(t.note)+'</p>';
+    if(IDX.landing_note&&sn===IDX.default_season)h+='<p class="pool-n">'+esc(IDX.landing_note)+'</p>';
+    h+='<section class="ast"><div class="ast-ctl">'+seg('ast',[['1','1st'],['2','2nd'],['3','3rd'],['conf','Conference'],['fr','Freshman']],tab,'Which team')+seasonSel('hseason',IDX.seasons.map(function(x){return x.season;}).reverse(),sn)+(tab==='conf'?'<label class="ctl" for="astconf">Conference<select class="sel" id="astconf">'+confs.map(function(c){return '<option value="'+esc(c)+'"'+(c===cf?' selected':'')+'>'+esc(confName(c))+'</option>';}).join('')+'</select></label>':'')+'</div><h2 class="vh">'+esc(titles[tab])+'</h2><div class="ast-row">'+(row.length?row.map(function(x,i){return astCard(x,i,sn);}).join(''):'<p class="ast-empty">No qualified players yet.</p>')+'</div></section>';
+    h+='<p class="pool-n" style="margin-top:18px">Two guards, two wings and a big, by this site’s positions. A player makes one national team. '+(sn>='2024-25'?'This season’s value includes the on-floor part, from lineups.':'This season’s value is box score only: lineups start in 2024-25.')+' Every D1 game counts, through the national championship. Missed games count: a player earns nothing on a night not played.</p>';
+    return {html:h,cur:'allsavant'};
   });
 }
 
@@ -240,6 +267,7 @@ function render(){
   if(h.indexOf('team-')===0){var a=h.slice(5).split('/');p=vTeam(a[0],a[1]);}
   else if(h==='teams')p=vTeams();
   else if(h==='leaders')p=vLeaders();
+  else if(h==='all-savant')p=vAllSavant();
   else if(h==='compare')p=vCompare();
   else if(h.indexOf('player-')===0){var b=h.slice(7).split('/');p=vPlayer(b[0],b[1]);}
   else p=vHome();
@@ -253,7 +281,8 @@ function render(){
   }).catch(function(e){if(my!==rid)return;console.error(e);$('#view').innerHTML='<p class="empty">That page could not load. '+esc(e.message)+'. Refresh to try again.</p>';});
 }
 document.addEventListener('click',function(e){
-  var t=e.target.closest('[data-per],[data-lpos],[data-cmp],[data-adj],[data-gt],[data-split],[data-units],[data-tsort],[data-ww]');if(!t)return;var d=t.dataset;
+  var t=e.target.closest('[data-per],[data-lpos],[data-cmp],[data-adj],[data-gt],[data-split],[data-units],[data-tsort],[data-ww],[data-ast]');if(!t)return;var d=t.dataset;
+  if(d.ast)S.astTab=d.ast;
   if(d.cmp){S.cmpA=d.cmp;return;}
   if(d.per)S.per=+d.per;if(d.lpos)S.lpos=d.lpos;if(d.adj!=null)S.adj=d.adj==='1';if(d.gt!=null)S.gt=d.gt==='1';if(d.split)S.splitTab=d.split;if(d.units)S.tab5=d.units;if(d.tsort)S.tsort=d.tsort;
   if(d.ww!=null){var i=+d.ww,on=S.wwOn.indexOf(i),off=S.wwOff.indexOf(i);if(on>=0){S.wwOn.splice(on,1);S.wwOff.push(i);}else if(off>=0){S.wwOff.splice(off,1);}else S.wwOn.push(i);}
@@ -267,6 +296,7 @@ document.addEventListener('change',function(e){
   if(id==='tseason'){location.hash='#team-'+location.hash.slice(6).split('/')[0]+'/'+v;}
   if(id==='lstat'){S.lstat=v;render();}
   if(id==='lmin'){S.lmin=+v;render();}
+  if(id==='astconf'){S.astConf=v;render();}
   if(id==='ca'){S.cmpA=v;render();}
   if(id==='cb'){S.cmpB=v;render();}
 });
@@ -290,8 +320,8 @@ setNav(saved==null?window.innerWidth<1100:saved==='1',false);
 function fit(){q.placeholder=window.innerWidth<520?'Search':'Search players and teams';}
 window.addEventListener('resize',function(){fit();if(pending.length)pending.forEach(function(f){f();});});
 readScale();fit();
-Promise.all([load('registry.json'),load('index.json'),load('search.json'),load('links.json').catch(function(){return {};})]).then(function(a){
-  REG=a[0];IDX=a[1];SEARCH=a[2];LINKS=a[3]||{};REG.stats.forEach(function(s){BYK[s.key]=s;});
+Promise.all([load('registry.json'),load('index.json'),load('search.json'),load('links.json').catch(function(){return {};}),load('honours.json').catch(function(){return {};})]).then(function(a){
+  REG=a[0];IDX=a[1];SEARCH=a[2];LINKS=a[3]||{};HON=a[4]||{};REG.stats.forEach(function(s){BYK[s.key]=s;});
   SEARCH.teams.forEach(function(t){TEAMS[t[0]]={name:t[1],abbr:t[2],conf:t[3],color:t[5]};});
   S.season=IDX.default_season;
   $('#ver').textContent='Version '+REG.version;

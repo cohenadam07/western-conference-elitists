@@ -63,6 +63,11 @@ def _one(a):
     gate = r["gate"]
     final_pbp = bool(r["team"]) and all(t["pbp"]["pts"] == t["pts"] for t in r["team"])
     pbp_ok, lineup_ok = flags(gate, final_pbp) if r["team"] else (False, False)
+    # The box tier's gate: the player lines add up to the final, both teams, after recovery.
+    def adds_up(players):
+        return bool(g["players"]) and all(sum(p["pts"] for p in players if p["team"] == t and not p["dnp"]) == g["teams"][t]["score"] for t in (g["home"], g["away"]) if t not in g["non_d1"])
+    box_ok = adds_up(g["players"])
+    box_raw = adds_up([p for p in g["players"] if not p.get("filled")])
     home, away = g["home"], g["away"]
     m = g["meta"]
     game = dict(gid=g["gid"], date=g["date"], home=home, away=away, hs=g["teams"][home]["score"] if home else 0, as_=g["teams"][away]["score"] if away else 0,
@@ -71,7 +76,7 @@ def _one(a):
                 plays=gate["plays"], pbp_ok=pbp_ok, lineup_ok=lineup_ok, lineups=gate.get("lineups", "none"), ot=gate.get("ot", 0),
                 loc=gate.get("loc", 0), fga=gate.get("fga", 0), score_ok=bool(gate.get("score_ok") or final_pbp),
                 firm=gate.get("clean"), five=min(gate["five"].values()) if gate.get("five") else None, minutes_off=gate.get("minutes_off", 0),
-                box_match=gate.get("box_match", 0), box_players=gate.get("box_players", 0), players=gate.get("players", 0),
+                box_ok=box_ok, box_raw=box_raw, filled=g.get("filled", 0), box_match=gate.get("box_match", 0), box_players=gate.get("box_players", 0), players=gate.get("players", 0),
                 fixes=gate.get("fixes", 0), joined_locs=(joined or {}).get("locs", 0))
     names = {p["eid"]: p["name"] for p in g["players"]}
     pos = {p["eid"]: p["pos"] for p in g["players"]}
@@ -161,7 +166,7 @@ def gates(season, G, PG, TG):
     ts = tg_ok.groupby("team").agg(p=("poss", "sum"), fga=("b_fga", "sum"), o=("b_oreb", "sum"), t=("b_tov", "sum"), f=("b_fta", "sum"), n=("gid", "count"))
     ts = ts[ts.n >= 10]
     dev = ts.p / (ts.fga - ts.o + ts.t + 0.475 * ts.f) - 1
-    return dict(season=season, d1_games=len(d1), pbp_games=len(with_pbp), pbp_rate=round(len(with_pbp) / max(1, len(d1)), 4),
+    return dict(season=season, d1_games=len(d1), box_gate_raw=round(float(d1.box_raw.mean()), 4), box_gate=round(float(d1.box_ok.mean()), 4), filled_lines=int(d1.filled.sum()), pbp_games=len(with_pbp), pbp_rate=round(len(with_pbp) / max(1, len(d1)), 4),
                 score_rate=round(float(with_pbp.score_ok.mean()), 4) if len(with_pbp) else None,
                 pbp_ok_games=len(ok), pbp_ok_rate=round(len(ok) / max(1, len(with_pbp)), 4),
                 coord_rate=round(float(ok["loc"].sum() / max(1, ok.fga.sum())), 4),

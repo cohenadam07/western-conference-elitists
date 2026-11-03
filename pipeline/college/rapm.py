@@ -64,6 +64,8 @@ BOX_FEATS_D = ["dreb", "stl", "blk", "pf"]
 
 def seasons_upto(s):
     y = int(s[:4])
+    if y < 2024:
+        return []
     return [f"{k}-{str(k + 1)[2:]}" for k in range(max(2024, y - 3), y + 1)]
 
 
@@ -230,12 +232,12 @@ def build(season, lam=LAM, log=print):
     for i, s in enumerate(reversed(pool)):
         rows += load_stints(s, weight=AGE_DECAY ** i)
     os.makedirs(OUT, exist_ok=True)
-    onc = pd.Series(dtype=float)
-    if not rows:
-        return None
     ids = sorted({e for r in rows for e in r[3] + r[4]})
     prior, f, (bo, bd) = build_prior(season, ids, co)
-    o, d, hca, lg = solve(rows, ids, lam=lam, prior=prior)
+    if rows:
+        o, d, hca, lg = solve(rows, ids, lam=lam, prior=prior)
+    else:                                  # the box tier: box impact, no lineups
+        o, d, hca, lg = pd.Series(dtype=float), pd.Series(dtype=float), 0.0, 0.0
     sample = {}
     for r in rows:
         for e in r[3]:

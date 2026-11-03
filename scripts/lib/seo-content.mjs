@@ -126,7 +126,7 @@ export const TOOLS = {
     look: 'soft',
     heading: 'What is College Basketball Savant?',
     about: [
-      'College Basketball Savant is a free profiler from Western Conference Elitists for every men\'s Division I player since 2022-23, refreshed after every night of games.',
+      'College Basketball Savant is a free profiler from Western Conference Elitists for every men\'s Division I player since 2013-14, with All-Savant Teams for every season, refreshed after every night of games.',
       'By default each percentile is adjusted for opponents and ranked against D1 at the same position, per 70 possessions, and it can be switched to raw numbers, all positions, high-majors, the same conference or the same age.',
       { html: 'For the NBA version, see <a href="/basketball-savant.html">Basketball Savant</a>, and for prospects, <a href="/draft-savant.html">Draft Savant</a>.' },
     ],

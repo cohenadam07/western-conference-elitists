@@ -1,4 +1,76 @@
-# College Basketball Savant 1.0.0
+# College Basketball Savant 1.1.0
+
+Built Nov 2, 2026 on branch `college-savant-1.1`: history to 2013-14, schedule difficulty, and All-Savant Teams.
+Value, the weight test, the All-America check and every season's teams are in `COLLEGE-ALL-SAVANT.md`. The 1.0.0
+note follows below.
+
+## What's new in 1.1.0
+
+- **Seasons 2013-14 to 2021-22, box-score tier.** Player cards, schedule-adjusted percentiles, team ratings,
+  leaders and compare. Shot zones, lineups, on/off and RAPM are "not tracked" in those seasons, on the card, in the
+  explainers and in every `cbb_` answer (`tier: "box"`). 2006-07 to 2012-13 stay archived and off the site.
+- **Quality splits** vs top-50, top-100 and NCAA tournament teams, by our own ratings. The field comes from the
+  postseason games: 68 teams, except 2016-17 (66, ESPN lacks the two March 14 First Four games), 2020-21 (67, VCU's
+  no-contest) and 2019-20 (none).
+- **Adjustment confidence** on the card (Early, Firming, Firm), from games played and how linked a schedule is to
+  the rest of D1 through non-conference games. Its error falls from 5.65 points at the fewest games to .52 at the most.
+- **Schedule strength** in the player header: "Faced the 21st-toughest schedule among D1 guards".
+- **All-Savant Teams** for every season, national 1st to 3rd, conference, All-Freshman and Player of the Year; honours
+  on the card, career rows, player pages and Draft Savant prospect cards once final.
+- **Connector:** `cbb_all_savant_team` (Adam approved it with the 1.1 request), and `cbb_get_player_profile` adds
+  `savant_value`, `honours`, `schedule_strength`, `adjustment_confidence` and `quality_splits`. Same-name players
+  resolve to the one who played that season, the better one if both did.
+- **The check:** `tools/savant-cbb/value.mjs` holds the table, the JS math, the teams, honours, player pages, Draft
+  Savant and the connector (by name, every national team player) to the Python. In `check:savant-cbb` and `check:savant`.
+
+## The history gate
+
+A box score and a matching final score on at least 98% of D1 games; games that miss are dropped. All nine pass.
+
+| Season | D1 games | Strict | Recovered | Lines recovered | Ages | Tier |
+|---|---|---|---|---|---|---|
+| 2013-14 | 5,503 | 99.7% | 99.8% | 6 | 71% | box |
+| 2014-15 | 5,495 | 99.6% | 99.6% | 0 | 54% | box |
+| 2015-16 | 5,514 | 99.7% | 99.7% | 0 | 39% | box |
+| 2016-17 | 5,520 | 99.0% | 99.6% | 31 | 28% | box |
+| 2017-18 | 5,533 | 94.1% | 99.4% | 373 | 22% | box |
+| 2018-19 | 5,600 | 86.6% | 98.0% | 1,056 | 26% | box |
+| 2019-20 | 5,330 | 83.6% | 98.1% | 1,513 | 37% | box |
+| 2020-21 | 3,948 | 84.8% | 98.1% | 1,107 | 55% | box |
+| 2021-22 | 5,476 | 84.5% | 98.8% | 1,448 | 69% | box |
+| 2022-23 | 5,715 | 86.1% | 99.0% | 903 | 99% | full |
+| 2023-24 | 5,726 | 94.1% | 99.8% | 354 | 99% | full |
+| 2024-25 | 5,764 | 99.8% | 99.8% | 0 | 99% | full |
+| 2025-26 | 5,752 | 99.8% | 99.8% | 0 | 98% | full |
+| 2026-27 | 8 | 100.0% | 100.0% | 0 | 60% | full |
+
+ESPN has deleted some athlete records, leaving blank box rows, while its team totals and play-by-play still count
+the player. `normalize.fill_missing` recovers them: one unknown shooter gets the team total minus everyone listed;
+several get the play-by-play's lines, accepted only if the points add up exactly. Five box seasons, 2017-18 to
+2021-22, pass only with it. **Cross-checked against CBBD's own player stats** in 2013-14, 2018-19 and 2021-22: r of .989
+or more on all eleven stats tested (TS%, eFG%, usage, rebound share, FT rate, 3P%, FT%, minutes, points, rebounds,
+assists), about 2,900 players a season. Three CBBD calls.
+
+## Found along the way
+
+- **Class was wrong on the live site since launch.** ESPN's season endpoint returns a player's latest class, not the
+  class that season, so 2022-23 to 2024-25 showed today's class. `identity.py` now counts back from an anchor season.
+  Checked on Wiggins, Young, Ayton, Brandon Miller, Braden Smith (Fr 2022-23, Sr 2025-26), Sheppard and Castle.
+- **Ages in old seasons are thin.** T-Rank's 2013-14 to 2021-22 files had no birthdate this site could read, and
+  ground rule 4 allows one fetch a week, so they weren't refetched. Ages there come from CBBD rosters, later seasons and
+  Basketball Savant: 22-71% coverage (the Ages column above). Next allowed fetch: Nov 9. `torvik.py` now logs the
+  last column's shape when nothing parses.
+- **The value weights were refitted before launch** at Adam's request. See `COLLEGE-ALL-SAVANT.md`.
+
+## Open items, 1.1.0
+
+1. Old-season ages: refetch T-Rank's files from Nov 9 and see whether the birthdate column can be read.
+2. Value loses to the old weights on next-season on/off (`COLLEGE-ALL-SAVANT.md`). Worth retesting once 2026-27 ends.
+3. Zuby Ejiofor (St. John's) is a Wing by our positions, which puts him on the 1st team's wing slot.
+
+---
+
+# College Basketball Savant 1.0.0 (the launch note)
 
 Built Nov 2, 2026 on branch `college-basketball-savant`. Adam reviewed it the same day; his decisions are in
 the next section. Merged to main and live on wcehoops.com the same evening. Pipeline map: `pipeline/college/README.md`.
@@ -57,6 +129,7 @@ the next section. Merged to main and live on wcehoops.com the same evening. Pipe
 
 | Season | Box and card stats | Shot zones | On/off, lineups, RAPM |
 |---|---|---|---|
+| 2013-14 to 2021-22 (1.1.0) | Yes, box tier | Not tracked | Not tracked |
 | 2022-23 | Yes | Yes (CBBD locations, 93%) | No lineup data exists |
 | 2023-24 | Yes | Yes (CBBD locations, 94%) | **Dropped: failed the gate** |
 | 2024-25 | Yes | Yes (99%) | Yes, 84% of D1 games |

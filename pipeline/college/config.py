@@ -17,10 +17,15 @@ family:  box / pbp / court. Which games it needs; decides "not tracked".
 """
 from collections import namedtuple
 
-FIRST_SEASON = "2022-23"
-SEASONS = ["2022-23", "2023-24", "2024-25", "2025-26", "2026-27"]
+FIRST_SEASON = "2013-14"
+FIRST_PBP = "2022-23"          # play-by-play stats need shot locations, which start here
+BOX_TIER = ["2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21", "2021-22"]
+LAUNCH = ["2022-23", "2023-24", "2024-25", "2025-26", "2026-27"]
+SEASONS = BOX_TIER + LAUNCH
 CURRENT = "2026-27"
-VERSION = "1.0.0"
+LAST_FINAL = "2025-26"
+VERSION = "1.1.0"
+BOX_GATE = 0.98                # a box-tier season needs its player lines to add up on this share of D1 games
 LINE_ERA = "2019-20"           # the three-point line moved to 22 ft 1.75 in
 QUAL_MIN_SHARE = 0.30          # share of team minutes to enter the pools
 MIN_POOL = 20                  # no pool under this; the page widens it and says so
@@ -35,8 +40,8 @@ S = namedtuple("S", "key label group kind unit lower settle n family start what 
 S.__new__.__defaults__ = (None,)
 
 
-def R(key, label, group, kind, unit, what, formula, source, sample="", lower=False, settle=None, n=None, family="box", start=FIRST_SEASON):
-    return S(key, label, group, kind, unit, lower, settle or key, n, family, start, what, formula, source, sample)
+def R(key, label, group, kind, unit, what, formula, source, sample="", lower=False, settle=None, n=None, family="box", start=None):
+    return S(key, label, group, kind, unit, lower, settle or key, n, family, start or (FIRST_PBP if family == "pbp" else FIRST_SEASON), what, formula, source, sample)
 
 
 PER = "per possession, shown per 70 or per 100"
@@ -48,6 +53,8 @@ STATS = [
       "The offense terms of the RAPM regression", LIN, f"{RAPM_EARLY} As RAPM.", family="court", start="2024-25", n="rapm_n"),
     R("rapm_d", "Defensive RAPM", "Impact", "skill", "sgn1", "The defensive half of RAPM. Positive means the defense is better with the player.",
       "The defense terms of the RAPM regression", LIN, f"{RAPM_EARLY} As RAPM.", family="court", start="2024-25", n="rapm_n"),
+    R("value", "Savant value", "Impact", "skill", "num1", "Points added this season over a replacement-level player at the same position, on opponent-adjusted stats. Missed games cost value. The number the All-Savant Teams are picked on. The model's view, not a verdict.",
+      "(Rate - replacement rate) × possessions ÷ 100. The rate weighs scoring, passing, rebounding and defense by what best explains team results across every season on the site. Replacement is the 25th-percentile qualified rate at the position that season. The rate adds the on-floor part (on/off) from 2024-25; before that it is box score only", f"{ESPN}; {LIN}", "Counts every D1 game. Before the title game it is a standing, not an honour.", settle="usg", n="poss"),
     R("bi", "Box impact", "Impact", "skill", "sgn1", "What the box line says RAPM should be. It is RAPM's prior, and the best read on a player with few possessions.",
       "Regression of pooled RAPM on per-possession points, assists, turnovers, rebounds, steals, blocks, fouls and shot mix", f"{ESPN}; fitted to {LIN}", "Reads every game.", n="poss"),
     R("onoff", "On/off", "Impact", "skill", "sgn1", "Team net rating with the player on the floor minus off. Raw: it does not know who else was out there.",
@@ -88,6 +95,7 @@ STATS = [
     R("min_share", "Minutes share", "Context", "context", "pct1", "Share of the team's minutes played.", "Minutes ÷ (team minutes ÷ 5)", ESPN, "How much, not how good.", settle="usg", n="poss"),
     R("pace", "Pace on floor", "Context", "context", "num1", "Possessions per 40 minutes for the team during the player's minutes.", "Possessions ÷ minutes × 40", ESPN, "How much, not how good.", settle="usg", n="poss"),
     R("sos", "Opponent strength", "Context", "context", "sgn1", "Average adjusted net rating of the teams played, weighted by minutes.", "Minute-weighted opponent net rating", "WCE team ratings", "How much, not how good.", settle="usg", n="poss"),
+    R("def_faced", "Defenses faced", "Context", "context", "num1", "The adjusted defensive rating of the teams he played, weighted by possessions. Lower is a tougher schedule, and the percentile is flipped so a higher bar means tougher.", "Possession-weighted opponent adjusted defense, points allowed per 100", "WCE team ratings", "How much, not how good.", lower=True, settle="usg", n="poss"),
     R("rim_freq", "Rim share", "Context", "context", "pct1", "Share of a player's shots taken at the rim.", "Rim FGA ÷ FGA", f"{PBP}. {LOC}", "How much, not how good.", family="pbp", n="n_fg"),
     R("mid_freq", "Mid-range share", "Context", "context", "pct1", "Share of a player's shots from mid-range.", "Mid-range FGA ÷ FGA", f"{PBP}. {LOC}", "How much, not how good.", family="pbp", n="n_fg"),
     R("tpar", "Three-point rate", "Context", "context", "pct1", "Share of a player's shots that are threes.", "3PA ÷ FGA", ESPN, "How much, not how good.", n="n_fga"),

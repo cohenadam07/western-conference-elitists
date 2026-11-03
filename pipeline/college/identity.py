@@ -44,6 +44,7 @@ OUT = os.path.join(CC.HOME, "identity")
 BIO = os.path.join(CC.HOME, "bio")
 REF = os.path.join(CC.HOME, "ref")
 CLASS = {1: "Fr", 2: "So", 3: "Jr", 4: "Sr", 5: "Gr", 6: "Gr"}
+C_CURRENT_YEAR = 2027
 
 
 def jaro_winkler(a, b):
@@ -125,7 +126,7 @@ def cbbd_refs(seasons, log=print):
         if not os.path.exists(p):
             r, _ = CC.get("/teams/roster", season=y)
             json.dump(r, open(p, "w"))
-    for y in range(2017, max(E.season_year(s) for s in seasons) + 1):
+    for y in range(2010, max(E.season_year(s) for s in seasons) + 1):
         p = os.path.join(REF, f"recruits-{y}.json")
         if not os.path.exists(p):
             r, _ = CC.get("/recruiting/players", year=y)
@@ -191,6 +192,56 @@ def age_on_feb1(dob, season):
     return round((feb1 - d).days / 365.25, 2)
 
 
+def current_exp(log=print):
+    """Every D1 player's class right now, from today's rosters. One request per team."""
+    p = os.path.join(REF, "current-exp.json")
+    if os.path.exists(p) and time.time() - os.path.getmtime(p) < 86400 * 6:
+        return json.load(open(p))
+    teams = E.get(f"{E.SITE}/teams?groups=50&limit=500")["sports"][0]["leagues"][0]["teams"]
+
+    def one(t):
+        d = E.get(f"{E.SITE}/teams/{t['team']['id']}/roster") or {}
+        return [(a["id"], (a.get("experience") or {}).get("years")) for a in d.get("athletes", [])]
+
+    out = {}
+    with cf.ThreadPoolExecutor(E.WORKERS) as ex:
+        for rows in ex.map(one, teams):
+            out.update({k: v for k, v in rows if v})
+    os.makedirs(REF, exist_ok=True)
+    json.dump(out, open(p, "w"))
+    log(f"current classes for {len(out)} players")
+    return out
+
+
+def career_span():
+    """{eid: (first season year, last season year)} across every season on file."""
+    out = {}
+    for s in sorted(os.listdir(SZ.OUT)):
+        p = os.path.join(SZ.OUT, s, "ids.json")
+        if not os.path.exists(p):
+            continue
+        y = int(s[:4]) + 1
+        for e in json.load(open(p))["pos"].keys() | json.load(open(p))["names"].keys():
+            a = out.get(e)
+            out[e] = (a[0] if a else y, y)
+    return out
+
+
+def class_in(exp_any, cur, span, eid, year):
+    """ESPN's "season-scoped" record returns a player's LATEST class, for every season: Braden Smith
+    reads Senior in all four of his years. So class is counted back from an anchor: today's roster for
+    a current player, else his last season on file. A fifth-year man, whom ESPN caps at Senior, would
+    count back to zero; he counts forward from his first season instead."""
+    first, last = span.get(eid, (year, year))
+    anchor_year, exp = (C_CURRENT_YEAR, cur[eid]) if eid in cur else (last, exp_any)
+    if not exp:
+        return None
+    n = exp - (anchor_year - year)
+    if exp - (anchor_year - first) < 1:
+        n = 1 + (year - first)
+    return CLASS.get(max(1, min(n, 5)))
+
+
 def load_ages(season):
     p = os.path.join(OUT, f"ages-{season}.json")
     return json.load(open(p)) if os.path.exists(p) else {}
@@ -206,7 +257,7 @@ def fixes():
 def recruits(seasons):
     """{CBBD athlete id: recruit row}, the most recent class a man appears in."""
     out = {}
-    for y in range(2017, max(E.season_year(s) for s in seasons) + 1):
+    for y in range(2010, max(E.season_year(s) for s in seasons) + 1):
         p = os.path.join(REF, f"recruits-{y}.json")
         if os.path.exists(p):
             for r in json.load(open(p)):
@@ -243,6 +294,30 @@ def build(seasons, log=print):
                     cb_home.setdefault(sid, x.get("hometown") or {})
                     if x.get("dateOfBirth"):
                         cb_dob[sid] = str(x["dateOfBirth"])[:10]
+    cur = current_exp(log)
+    span = career_span()
+    # T-Rank's files for 2013-14 to 2021-22 carried no readable birthdate on Nov 2, 2026, so those
+    # seasons take a date from any later season's match, or from Basketball Savant for NBA players.
+    nba_dob = {}
+    bd = os.path.expanduser("~/Basketball-Savant/aging_birthdates.json")
+    if os.path.exists(bd):
+        raw = json.load(open(bd))
+        rev = {str(v): k for k, v in nba.items()}
+        for pid, v in raw.items():
+            if str(pid) in rev and v:
+                nba_dob[rev[str(pid)]] = str(v)[:10]
+    for s in sorted(seasons, reverse=True):              # a first pass, newest first, so dates carry back
+        p = os.path.join(SZ.OUT, s, "ids.json")
+        if not os.path.exists(os.path.join(CC.HOME, "torvik", f"{s}.json")):
+            continue
+        ids0 = json.load(open(p))
+        pg0 = pd.read_pickle(os.path.join(SZ.OUT, s, "pg.pkl"))[["eid", "team", "min"]]
+        m0 = pg0.groupby(["eid", "team"])["min"].sum().reset_index().sort_values("min", ascending=False).drop_duplicates("eid").set_index("eid")["team"].to_dict()
+        d0, _ = match_torvik(s, {e: {"name": ids0["names"].get(e, ""), "team": t} for e, t in m0.items()})
+        for e, v in d0.items():
+            known_dob.setdefault(e, v)
+    for e, v in nba_dob.items():
+        known_dob.setdefault(e, v)
     for s in sorted(seasons):
         d = os.path.join(SZ.OUT, s)
         pg = pd.read_pickle(os.path.join(d, "pg.pkl"))
@@ -292,9 +367,9 @@ def build(seasons, log=print):
             elif age_c is None:
                 src[used or "none"] += 1
             r = rec.get(cb_id.get(e))
-            exp = b.get("exp")
+            exp = class_in(b.get("exp"), cur, span, e, int(s[:4]) + 1)
             rows[e] = {"name": b.get("name") or players[e]["name"], "team": t, "ht": b.get("ht"), "wt": b.get("wt"), "jersey": b.get("jersey"),
-                       "cls": CLASS.get(exp) if exp else None, "city": b.get("city"), "state": b.get("state"), "country": b.get("country"), "age": age,
+                       "cls": exp, "city": b.get("city"), "state": b.get("state"), "country": b.get("country"), "age": age,
                        "headshot": bool(b.get("headshot")), "listed": ids["pos"].get(e),
                        "rec": None if not r else {"stars": r.get("stars"), "rating": r.get("rating"), "rank": r.get("ranking"), "hs": r.get("school"), "year": r.get("year"), "pos": r.get("position")},
                        "nba": nba.get(e)}
