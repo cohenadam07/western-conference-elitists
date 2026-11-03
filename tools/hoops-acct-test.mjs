@@ -199,12 +199,20 @@ ok(wt.status === 200 && JSON.stringify(wt.j.inputs) === JSON.stringify(W.inp) &&
 ok((await get('?rec=watch&h=rucker&b=f')).status === 404 && (await get('?rec=watch&h=cage&b=x')).status === 400, 'watch: an empty board is 404, a bad board 400')
 ok((await get('')).j.races === true, 'a plain GET still answers for races')
 
+// the board's history: every holder, oldest first, and how many times it was broken / changed hands
+const hf = await get(`?rec=history&h=${H}&b=f`)
+ok(hf.status === 200 && hf.j.entries.map((e) => `${e.f}:${e.k}`).join() === [Y, X, V, W].map((e) => `${e.f}:${e.k}`).join() && hf.j.breaks === 3 && hf.j.hands === 0,
+  `GET ?rec=history: every holder, oldest first (${hf.j.entries.map((e) => `${e.f}:${e.k}`).join(' → ')}), broken 3 times, never changed hands (one player)`)
+ok(all.j.counts && JSON.stringify(all.j.counts[H + '|f']) === '[3,0]' && JSON.stringify(all.j.counts[H + '|s']) === '[2,0]' && JSON.stringify(all.j.counts[GR + '|f']) === '[0,0]',
+  'GET ?rec=all carries each board’s counts [broken, changed hands]: ' + JSON.stringify(all.j.counts))
 const ls = await post({ a: 'rec.admin', key: ADMIN_KEY, h: H, b: 'f', op: 'list' })
 ok(ls.status === 200 && ls.j.cur.k === W.k && ls.j.history.map((e) => `${e.f}:${e.k}`).join() === [V, X, Y].map((e) => `${e.f}:${e.k}`).join(), 'admin list: the holder and everyone before, newest first: ' + ls.j.history.map((e) => `${e.f}:${e.k}`).join(' '))
 const dr = await post({ a: 'rec.admin', key: ADMIN_KEY, h: H, b: 'f', op: 'drop' })
 const wt2 = await get(`?rec=watch&h=${H}&b=f`)
 ok(dr.j.dropped.k === W.k && dr.j.cur.k === V.k && JSON.stringify(wt2.j.inputs) === JSON.stringify(V.inp), 'admin drop: the record comes down and the one before it is back, taps and all')
 ok((await post({ a: 'rec.admin', key: 'wrong', h: H, b: 'f', op: 'list' })).status === 403, 'a wrong admin key → 403')
+const hd = await get(`?rec=history&h=${H}&b=f&x=1`)
+ok(hd.j.entries.length === 3 && hd.j.breaks === 2 && hd.j.entries[2].k === V.k, 'admin drop takes the dropped holder off the history too (broken 2 times now)')
 
 /* ---------------------------------------------------------------- admin: accounts */
 const rp = await post({ a: 'acct.admin', key: ADMIN_KEY, name: 'adam test', op: 'resetpin', pin: '9999' })
@@ -220,6 +228,19 @@ const del = await post({ a: 'acct.admin', key: ADMIN_KEY, name: 'Deleter', op: '
 const afterDel = (await get('?rec=all')).j.records[H + '|f']
 ok(before.n === 'Deleter' && del.status === 200 && del.j.recordsDropped.includes(H + '|f') && afterDel.n === 'Adam Test' && (await post({ a: 'acct.me', t: d1.j.t })).status === 401 && (await post({ a: 'acct.signin', name: 'Deleter', pin: '5555' })).status === 401,
   'admin delete: the account, its sessions and its records go (the board goes back to the one before)')
+const hDel = (await get(`?rec=history&h=${H}&b=f&x=2`)).j
+ok(hDel.breaks === 2 && hDel.hands === 0 && hDel.entries.every((e) => e.n === 'Adam Test'), 'a deleted account comes off the history too, and the counts go back')
+const d2 = await post({ a: 'acct.create', name: 'Taker', pin: '5555' })
+await post({ a: 'rec.submit', t: d2.j.t, h: H, in: W.inp })
+const hT = (await get(`?rec=history&h=${H}&b=f&x=3`)).j
+ok(hT.breaks === 3 && hT.hands === 1 && hT.entries[3].n === 'Taker', 'someone else taking it: broken 3 times, changed hands once')
+// boards set before the log existed: the admin rebuild makes it from their history
+const rest = async (cmd) => (await (await globalThis.fetch(`http://127.0.0.1:${PORT + 1}`, { method: 'POST', body: JSON.stringify(cmd) })).json()).result
+await rest(['DEL', `fhrec:log:${H}|f`, `fhrec:log:${H}|s`, 'fhrec:c'])
+const rb = await post({ a: 'rec.admin', key: ADMIN_KEY, op: 'rebuildlog' })
+const hR = (await get(`?rec=history&h=${H}&b=f&x=4`)).j, aR = (await get('?rec=all&x=4')).j
+ok(rb.status === 200 && rb.j.rebuilt.includes(H + '|f') && hR.breaks === 3 && hR.hands === 1 && hR.entries.map((e) => e.n).join() === 'Adam Test,Adam Test,Adam Test,Taker' && JSON.stringify(aR.counts[H + '|f']) === '[3,1]',
+  'admin rebuildlog: a board with no log gets one from its history (same order and counts)')
 ok((await post({ a: 'acct.create', name: 'Deleter', pin: '5555' })).status === 200, 'and the name is free again')
 
 console.log(`\nRedis commands per call: create ${(await cost(() => post({ a: 'acct.create', name: 'Counter', pin: '1234' })))[1]} · sign in ${signinCost} · sync ${syncCost} · rec.submit ${submitCost} · GET ?rec=all ${getCost} · GET ?rec=watch ${watchCost}`)

@@ -26,8 +26,12 @@
 //   fhrec:in     hash  <hole>|<b> → that run's taps, [[step, dir], ...]
 //   fhrec:h:<hole>|<b>  list: earlier holders, newest first ("<stored value>\n<taps>"), 25 kept, so a
 //                      record taken down by the admin key hands the board back to the one before it
+//   fhrec:log:<hole>|<b>  list: every holder the board has had, oldest first (the stored values, 500 kept),
+//                      for the record's history (GET ?rec=history)
+//   fhrec:c      hash  <hole>|<b> → "<breaks>|<hands>": how many times it's been broken (the first
+//                      make doesn't count) and how many of those went to someone else (changed hands)
 //
-// Redis per call: GET ?rec=all 1 · GET ?rec=watch 1 · rec.submit 2 · acct.sync 3 · acct.signin 4 ·
+// Redis per call: GET ?rec=all 2 · GET ?rec=history 1 · GET ?rec=watch 1 · rec.submit 2 · acct.sync 3 · acct.signin 4 ·
 // acct.create 2 · acct.me 1 · acct.signout 1.
 import { createHash, randomBytes, scrypt as scryptCb, timingSafeEqual } from 'node:crypto'
 import path from 'node:path'
@@ -60,6 +64,7 @@ const TOKEN_TTL = 400 * 86400
 const LOCK_AFTER = 5, LOCK_S = 900
 const IP_MAX = 20, IP_S = 600
 const HIST = 25
+const LOG = 500
 const SUBMITS_A_MINUTE = 30
 
 const HOLE_RE = /^[a-z0-9.-]{1,40}$/
@@ -204,7 +209,7 @@ const SAVE_CAS = `if (redis.call('GET', KEYS[2]) or '0') ~= ARGV[1] then return 
 redis.call('SET', KEYS[1], ARGV[2])
 redis.call('SET', KEYS[2], ARGV[3])
 return 1`
-// KEYS fhrec, fhrec:in, hist f, hist s; ARGV field f, field s, value, taps, flaps, steps
+// KEYS fhrec, fhrec:in, hist f, hist s, log f, log s, fhrec:c; ARGV field f, field s, value, taps, flaps, steps, user id
 // → per board { 1 if it's yours now, 1 if level on both, what was there ('' if nothing) }
 const SUBMIT = `local f, k = tonumber(ARGV[5]), tonumber(ARGV[6])
 local out = {}
@@ -226,6 +231,16 @@ for b = 1, 2 do
     end
     redis.call('HSET', KEYS[1], field, ARGV[3])
     redis.call('HSET', KEYS[2], field, ARGV[4])
+    redis.call('RPUSH', KEYS[4 + b], ARGV[3])
+    redis.call('LTRIM', KEYS[4 + b], -${LOG}, -1)
+    local c = redis.call('HGET', KEYS[7], field) or '0|0'
+    local br, ha = string.match(c, '^(%d+)|(%d+)$')
+    br, ha = tonumber(br or '0'), tonumber(ha or '0')
+    if cur then
+      br = br + 1
+      if not string.find(cur, '"u":"' .. ARGV[7] .. '"', 1, true) then ha = ha + 1 end
+    end
+    redis.call('HSET', KEYS[7], field, br .. '|' .. ha)
   end
   out[b] = { better, tied, cur or '' }
 end
@@ -252,6 +267,21 @@ const K = {
   save: (id) => 'fha:s:' + id, ver: (id) => 'fha:sv:' + id, bad: (id) => 'fha:bad:' + id, ip: (ip) => 'fha:ip:' + ip,
 }
 const REC = 'fhrec', REC_IN = 'fhrec:in', hist = (field) => 'fhrec:h:' + field
+const REC_C = 'fhrec:c', recLog = (field) => 'fhrec:log:' + field
+
+// Breaks and changes of hands, worked out from a board's log (oldest first)
+export function countLog(entries) {
+  let br = 0, ha = 0
+  for (let i = 1; i < entries.length; i++) { br++; if (!entries[i - 1] || !entries[i] || entries[i].u !== entries[i - 1].u) ha++ }
+  return [br, ha]
+}
+// After an admin drop: the dropped holder (the last in the log) comes off it, and the counts are worked out again
+async function afterDrop(field) {
+  await redis(['RPOP', recLog(field)])
+  const log = ((await redis(['LRANGE', recLog(field), 0, -1])) || []).map(unpackRecord)
+  const [br, ha] = countLog(log)
+  if (log.length) await redis(['HSET', REC_C, field, `${br}|${ha}`]); else await redis(['HDEL', REC_C, field])
+}
 
 function ipOf(req) {
   const h = (req && req.headers) || {}
@@ -409,6 +439,7 @@ async function acctAdmin(body, req) {
       let field = all[i], e = unpackRecord(all[i + 1])
       for (let n = 0; e && e.u === id && n < HIST + 1; n++) {
         const [, now] = await redis(['EVAL', DROP, 3, REC, REC_IN, hist(field), field])
+        await afterDrop(field)
         dropped.push(field)
         e = unpackRecord(now)
       }
@@ -437,8 +468,8 @@ async function submit(body) {
   const entry = { n: me.name, u: me.id, f, k, at: Date.now() }
   if (body.race === true) entry.r = 1
   const value = `${f}|${k}|${JSON.stringify(entry)}`
-  const res = await redis(['EVAL', SUBMIT, 4, REC, REC_IN, hist(h + '|f'), hist(h + '|s'),
-    h + '|f', h + '|s', value, JSON.stringify(inputs), String(f), String(k)])
+  const res = await redis(['EVAL', SUBMIT, 7, REC, REC_IN, hist(h + '|f'), hist(h + '|s'), recLog(h + '|f'), recLog(h + '|s'), REC_C,
+    h + '|f', h + '|s', value, JSON.stringify(inputs), String(f), String(k), me.id])
   const board = ([set, tied, was]) => {
     const prev = unpackRecord(was)
     return { set: Number(set) === 1, tied: Number(tied) === 1, cur: Number(set) === 1 ? entry : prev, prev: Number(set) === 1 ? prev : null }
@@ -450,6 +481,21 @@ const submits = makeLimiter()
 async function recAdmin(body, req) {
   if (!adminTries.take(ipOf(req), 20).ok) bad(429, 'Too many tries. Wait a few minutes.')
   if (!isAdmin(body.key)) bad(403, 'That key isn’t right.')
+  if (body.op === 'rebuildlog') {
+    // once, for boards set before the log existed: their history (newest first) then the holder, oldest first
+    const all = (await redis(['HGETALL', REC])) || [], done = []
+    for (let i = 0; i + 1 < all.length; i += 2) {
+      const field = all[i]
+      if (Number(await redis(['LLEN', recLog(field)])) > 0) continue
+      const older = ((await redis(['LRANGE', hist(field), 0, -1])) || []).map((x) => x.slice(0, x.indexOf('\n'))).reverse()
+      const vals = [...older, all[i + 1]]
+      await redis(['RPUSH', recLog(field), ...vals])
+      const [br, ha] = countLog(vals.map(unpackRecord))
+      await redis(['HSET', REC_C, field, `${br}|${ha}`])
+      done.push(field)
+    }
+    return { ok: true, rebuilt: done }
+  }
   const h = String(body.h || ''), b = String(body.b || '')
   if (!HOLE_RE.test(h) || (b !== 'f' && b !== 's')) bad(400, 'Say which hole (h) and which board (b: f or s).')
   const field = h + '|' + b
@@ -460,6 +506,7 @@ async function recAdmin(body, req) {
   }
   if (body.op === 'drop') {
     const [was, now] = await redis(['EVAL', DROP, 3, REC, REC_IN, hist(field), field])
+    await afterDrop(field)
     return { ok: true, dropped: unpackRecord(was), cur: unpackRecord(now) }
   }
   bad(400, 'Unknown op.')
@@ -481,10 +528,22 @@ export async function hoopsGet(req, res) {
       const all = (await redis(['HGETALL', REC])) || []
       const records = {}
       for (let i = 0; i + 1 < all.length; i += 2) { const e = unpackRecord(all[i + 1]); if (e) records[all[i]] = e }
+      const cs = (await redis(['HGETALL', REC_C])) || [], counts = {}
+      for (let i = 0; i + 1 < cs.length; i += 2) { const m = /^(\d+)\|(\d+)$/.exec(cs[i + 1]); if (m) counts[cs[i]] = [Number(m[1]), Number(m[2])] }
       let build = null
       try { build = (await sim()).BUILD } catch { /* no rules on this deployment */ }
       res.setHeader('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=60')
-      return send(res, 200, { ok: true, build, records })
+      return send(res, 200, { ok: true, build, records, counts })
+    }
+    if (q.rec === 'history') {
+      // every holder the board has had, oldest first, and how many times it's been broken / changed hands
+      const h = String(q.h || ''), b = String(q.b || '')
+      if (!HOLE_RE.test(h) || (b !== 'f' && b !== 's')) bad(400, 'Say which hole (h) and which board (b: f or s).')
+      const items = (await redis(['LRANGE', recLog(h + '|' + b), 0, -1])) || []
+      const entries = items.map(unpackRecord).filter(Boolean)
+      const [breaks, hands] = countLog(entries)
+      res.setHeader('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=60')
+      return send(res, 200, { ok: true, entries, breaks, hands })
     }
     if (q.rec === 'watch') {
       const h = String(q.h || ''), b = String(q.b || '')
