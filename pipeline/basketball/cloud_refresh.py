@@ -140,7 +140,9 @@ def player_index(season, games, rosters, idmap, known):
       * STATS_TIMEFRAME is "Season" for everyone who has played this season (the engine's
         player list), "Career" for everyone else;
       * ROSTER_STATUS is 1 for everyone on a roster now (the projections' player list);
-      * TEAM_ABBREVIATION / TEAM_ID is the team of his latest game, else his roster.
+      * TEAM_ABBREVIATION / TEAM_ID is the roster he is on now, else the team of his latest
+        game (a waived player, or a two-way man ESPN's roster pages leave out). Roster first,
+        so a player traded today reads as his new team before he has played for it.
     Rows come from the seed (the NBA's own index: names, positions, draft slot); players
     signed since the seed are added from ESPN's rosters."""
     idx = read_seed("PlayerIndex", season=season, historical_nullable="1")
@@ -175,7 +177,7 @@ def player_index(season, games, rosters, idmap, known):
     if new:
         idx = pd.concat([idx, pd.DataFrame(new)], ignore_index=True)
     pid = idx.PERSON_ID.astype(int)
-    team = pid.map(lambda p: latest.get(p) or rostered.get(p))
+    team = pid.map(lambda p: rostered.get(p) or latest.get(p))
     idx.loc[team.notna(), "TEAM_ABBREVIATION"] = team[team.notna()]
     idx.loc[team.notna(), "TEAM_ID"] = team[team.notna()].map(team_ids)
     idx["STATS_TIMEFRAME"] = pid.map(lambda p: "Season" if p in played else "Career")

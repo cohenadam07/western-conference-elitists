@@ -118,6 +118,11 @@ def rnd(v, p=4):
 
 
 # ---------------------------------------------------------------- source loading
+# players.csv statuses that mean "on a club right now": active, reserve lists, practice
+# squad, inactive, suspended. CUT, RET and the rest keep a stale latest_team.
+ON_A_CLUB = {'ACT', 'RES', 'DEV', 'PUP', 'INA', 'SUS'}
+
+
 def load_players():
     pl = pd.read_csv(os.path.join(RAW, 'players.csv'), low_memory=False)
     pl = pl[pl.gsis_id.notna()]
@@ -141,6 +146,10 @@ def load_players():
             pff_pos=r.pff_position if isinstance(r.pff_position, str) else None,
             ngs_pos=r.ngs_position if isinstance(r.ngs_position, str) else None,
             ht=num(r.height), wt=num(r.weight),
+            # the club he belongs to today, from a file nflverse rebuilds every day; only
+            # for a man still on a club's books (a cut player keeps his old team here)
+            now=(canon(r.latest_team) if isinstance(r.latest_team, str)
+                 and isinstance(r.status, str) and r.status in ON_A_CLUB else None),
         )
         if bio[gid]['pfr']:
             by_pfr[bio[gid]['pfr']] = gid
@@ -1892,6 +1901,19 @@ def main():
             )
             if gid in wteams:
                 rec_out['tms'] = wteams[gid]      # every team he appeared for, in order
+            # Traded but not yet on the field for his new club: the stat table still has
+            # him at the old one until he plays, which left DeForest Buckner (IND -> SF,
+            # Oct 27 2026) as a Colt on the All-Savant Team for a week. While a season is
+            # being played, his team is the club he is on today, and the path ends there;
+            # his numbers are untouched. A finished season keeps the clubs he played for.
+            now = b.get('now') if partial else None
+            if now and now in TEAMS and now != rec_out['team']:
+                path = list(rec_out.get('tms') or ([rec_out['team']] if rec_out['team'] else []))
+                if not path or path[-1] != now:
+                    path.append(now)
+                if len(path) > 1:
+                    rec_out['tms'] = path
+                rec_out['team'] = now
             role = S.roles.get(gid)
             if role:
                 rec_out['role'] = role            # depth-chart spot and best rank (2025 on)
