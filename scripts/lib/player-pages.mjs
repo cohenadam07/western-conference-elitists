@@ -29,6 +29,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { gunzipSync } from 'node:zlib'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import vm from 'node:vm'
 import { assignSlugs, createEngine, headSeasonURL, inFt, loadPageConfig, miss, ordinal, slugify, smpl, val } from './savant-core.mjs'
 import { readSavantData } from './savant-merge.mjs'
 
@@ -47,15 +48,14 @@ export const CARD_STATS = ['pts', 'ts', 'ast', 'reb75', 'stk75', 'bpm']
 // Bump when the preview image's design changes, so link previews refetch it.
 const CARD_VERSION = 1
 
-const NAV = [
-  [TOOL, 'Basketball Savant'],
-  ['/player', 'Players'],
-  ['/college-basketball-savant.html', 'College Basketball Savant'],
-  ['/draft-savant.html', 'Draft Savant'],
-  ['/football-savant.html', 'Football Savant'],
-  ['/articles', 'Analysis'],
-  ['/news', 'News'],
-]
+// The site ribbon is the shared <wce-nav> from public/wce-nav.js, the one menu every page uses.
+// Inside the tag go plain links to every page, read from that same file, so crawlers (and anyone
+// without JavaScript) still find the rest of the site; the script replaces them with the ribbon.
+const RIBBON = (() => {
+  const ctx = {}
+  vm.runInNewContext(readFileSync(path.join(HERE, '../../public/wce-nav.js'), 'utf8'), ctx)
+  return `<wce-nav style=display:block;min-height:60px>${ctx.WCE_NAV.fallbackHTML()}</wce-nav>`
+})()
 
 // Box Plus/Minus is points per 100 possessions, not a percentage. The tool's config gives the
 // three BPM stats the signed-percent unit, so it prints "+14.2%"; here they read "+14.2".
@@ -82,7 +82,7 @@ function fmtBirth(b) {
 const HEAD_LINKS =
   '<link rel=icon type=image/svg+xml href=/favicon.svg><link rel=apple-touch-icon href=/apple-touch-icon.png>' +
   '<link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">' +
-  '<link rel=stylesheet href=/player/p.css>' +
+  '<link rel=stylesheet href=/player/p.css><script defer src=/wce-nav.js></script>' +
   '<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}</script><script defer src=/_vercel/insights/script.js></script>'
 
 // These tags are read by other people's scrapers, some of them crude, so unlike the rest of the
@@ -101,11 +101,6 @@ function head({ title, ogTitle, description, url, image, imageAlt, type }) {
     '</head><body>'
   )
 }
-
-const TOP =
-  `<div class=top><a class=br href=${TOOL}><i>WCE</i><b>Basketball <span>Savant</span></b></a><nav class=nav aria-label="WCE Hoops">` +
-  NAV.map(([h, t]) => `<a href=${h}>${t}</a>`).join('') +
-  '<a class=sub href=/newsletter>Subscribe</a></nav></div>'
 
 // ---------------------------------------------------------------- one player
 
@@ -239,7 +234,7 @@ function renderPlayer(ctx, e) {
     : seasonShot ? `<img src=${seasonShot} data-l=${latestShot} alt="" width=88 height=88 onerror="if(this.dataset.l&&this.src!=this.dataset.l)this.src=this.dataset.l;else this.remove()">`
     : `<img src=${latestShot} alt="" width=88 height=88 onerror=this.remove()>`
 
-  let body = `<div class=w>${TOP}<p class=bc><a href=${TOOL}>Basketball Savant</a> / <a href=/player>Players</a> / ${esc(e.name)}`
+  let body = `${RIBBON}<div class=w><p class=bc><a href=${TOOL}>Basketball Savant</a> / <a href=/player>Players</a> / ${esc(e.name)}`
   body +=
     `<header class=id><div class=ih><div class=hw><span>${esc(initials(e.name))}</span>${headshot}</div><div class=it>` +
     `${peak === season ? '<div class=pk>CAREER BEST</div>' : ''}<h1>${esc(e.name)}</h1>` +
@@ -347,7 +342,7 @@ function renderDirectory(ctx) {
   const description = `Percentile profiles for ${n} NBA players across ${eng.seasons.length} seasons, ${span}: every stat ranked against the league and against the player’s position.`
   return (
     head({ title, description, url: `${site}/player`, image: `${site}/og-card.png`, imageAlt: 'Basketball Savant by Western Conference Elitists', type: 'website' }) +
-    `<div class=w>${TOP}<p class=bc><a href=${TOOL}>Basketball Savant</a> / Players` +
+    `${RIBBON}<div class=w><p class=bc><a href=${TOOL}>Basketball Savant</a> / Players` +
     `<header class=id><h1>Every player on Basketball Savant</h1><p class=meta>${n} players · ${eng.seasons.length} seasons · ${span}. Each page ranks a player’s season against the league and against his position.</header>` +
     '<input class=dq type=search data-filter placeholder="Filter by name…" aria-label="Filter players by name" autocomplete=off>' +
     `<section class=c><h2>${cur} by team</h2>${teamHtml}</section>` +

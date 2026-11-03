@@ -489,24 +489,9 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 .tp-p{font-family:var(--mono);font-size:9.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
 
 /* ---------------------------------------------------------------- home splash */
-.home{position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;padding:70px 24px 30px;
+.home{position:relative;min-height:calc(100vh - var(--wce-nav-h,60px));min-height:calc(100dvh - var(--wce-nav-h,60px));overflow:hidden;padding:30px 24px 30px;
   display:flex;flex-direction:column;align-items:center;justify-content:center}
 body:not(.home-open) .home{display:none}
-.home-nav{position:absolute;top:0;left:0;right:0;z-index:7;display:flex;align-items:center;
-  justify-content:space-between;gap:20px;padding:20px 26px}
-.home-nav-home{font-weight:800;font-size:13px;letter-spacing:.09em;text-transform:uppercase;
-  text-decoration:none;color:var(--ink);font-variation-settings:'wdth' 88}
-.home-nav-home span{color:var(--turf)}
-.home-nav-home:hover{opacity:.75}
-.home-nav-links{display:flex;align-items:center;gap:22px;overflow-x:auto;scrollbar-width:none}
-.home-nav-links::-webkit-scrollbar{display:none}
-.home-nav-links a{position:relative;font-family:var(--mono);font-size:11px;font-weight:500;
-  letter-spacing:.09em;text-transform:uppercase;color:var(--faint);text-decoration:none;
-  padding-bottom:3px;white-space:nowrap}
-.home-nav-links a::after{content:"";position:absolute;left:0;bottom:0;height:1.5px;width:0;
-  background:var(--turf);transition:width .22s ease}
-.home-nav-links a:hover{color:var(--ink)}
-.home-nav-links a:hover::after{width:100%}
 /* The field. Basketball Savant breathes a half-court behind its splash; this breathes a
    gridiron — yard lines, hashes, numbers and a goal line, drawn in chalk at 1px. */
 .home-field{position:absolute;inset:-6%;color:rgba(237,237,232,.075);pointer-events:none;z-index:0}
@@ -1073,10 +1058,6 @@ body{background-color:#1D6B3A;color:var(--ink);
 }
 
 /* ---- home splash */
-.home-nav-home{font-family:var(--pix);color:#FFF;font-size:12px;text-shadow:2px 2px 0 var(--turf-dk)}
-.home-nav-home span{color:var(--flag)}
-.home-nav-links a{color:rgba(255,255,255,.72);font-family:var(--pix);font-size:9.5px}
-.home-nav-links a:hover{color:#FFF} .home-nav-links a::after{background:var(--flag)}
 .home-field{color:rgba(255,255,255,.16)}
 .home-fade{background:radial-gradient(ellipse 62% 52% at 50% 46%,rgba(29,107,58,.90) 0%,rgba(29,107,58,.62) 46%,rgba(29,107,58,0) 78%)}
 .home-glow{display:none}
@@ -1312,24 +1293,12 @@ body{background-color:#1D6B3A;color:var(--ink);
   .seg button,.lb-seg button,.fm-modes button,.tm-x,.lb-preset,.lb-colchip{min-height:36px}
 }
 </style>
+<script src="/wce-nav.js" defer></script>
 </head>
 <body class="home-open">
+<wce-nav style="display:block;min-height:60px"></wce-nav>
 
 <div class="home" id="home">
-  <nav class="home-nav" aria-label="WCE Hoops navigation">
-    <a class="home-nav-home" href="/">WCE <span>Hoops</span></a>
-    <div class="home-nav-links">
-        <a href="/basketball-savant.html">Basketball Savant</a>
-        <a href="/draft-savant.html">Draft Savant</a>
-        <a href="/coaching-savant.html">Coaching Savant</a>
-        <a href="/dynasty">Dynasty</a>
-        <a href="/rankings">Big Board</a>
-        <a href="/comp-chain">Comp Chain</a>
-        <a href="/articles">Analysis</a>
-        <a href="/news">News</a>
-        <a href="/about">About</a>
-    </div>
-  </nav>
   <div class="home-glow" aria-hidden="true"></div>
   <div class="home-field" aria-hidden="true">
     <!-- A gridiron in chalk, seen from the sideline: yard lines every five, both hash sets,

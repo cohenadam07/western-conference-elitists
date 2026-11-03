@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-11-02",
+    "product": "Flappy Hoops",
+    "version": "2.3.0",
+    "text": "Indiana and Golden State, the 21st and 22nd cities",
+    "to": "/hoops"
+  },
+  {
+    "date": "2026-11-02",
     "product": "College Basketball Savant",
     "version": "1.1.0",
     "text": "Seasons back to 2013-14, schedule strength and adjustment confidence on every card, and the All-Savant Teams",

@@ -59,3 +59,7 @@ body{margin:0;padding-top:env(safe-area-inset-top)}
 a.ast-card{text-decoration:none}
 a.ast-card:hover{text-decoration:none}
 .ast-ctl{justify-content:flex-start}
+/* The site ribbon (<wce-nav>, public/wce-nav.js) sits above the app: the app fills the window
+   under it, and the sidebar sticks just below it instead of under it. */
+.app{min-height:calc(100vh - var(--wce-nav-h,60px))}
+@media (min-width:761px){html .nav{top:var(--wce-nav-h,0px)}}
