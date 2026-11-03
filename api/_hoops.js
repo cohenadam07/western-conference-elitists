@@ -532,7 +532,7 @@ export async function hoopsGet(req, res) {
       for (let i = 0; i + 1 < cs.length; i += 2) { const m = /^(\d+)\|(\d+)$/.exec(cs[i + 1]); if (m) counts[cs[i]] = [Number(m[1]), Number(m[2])] }
       let build = null
       try { build = (await sim()).BUILD } catch { /* no rules on this deployment */ }
-      res.setHeader('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=60')
+      res.setHeader('Cache-Control', 'public, s-maxage=5, stale-while-revalidate=10')
       return send(res, 200, { ok: true, build, records, counts })
     }
     if (q.rec === 'history') {
@@ -542,7 +542,7 @@ export async function hoopsGet(req, res) {
       const items = (await redis(['LRANGE', recLog(h + '|' + b), 0, -1])) || []
       const entries = items.map(unpackRecord).filter(Boolean)
       const [breaks, hands] = countLog(entries)
-      res.setHeader('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=60')
+      res.setHeader('Cache-Control', 'public, s-maxage=5, stale-while-revalidate=10')
       return send(res, 200, { ok: true, entries, breaks, hands })
     }
     if (q.rec === 'watch') {
@@ -553,7 +553,7 @@ export async function hoopsGet(req, res) {
       if (!entry) bad(404, 'Nobody holds that record yet.')
       let inputs = []
       try { inputs = JSON.parse(taps || '[]') } catch { /* none */ }
-      res.setHeader('Cache-Control', 'public, s-maxage=30')
+      res.setHeader('Cache-Control', 'public, s-maxage=5, stale-while-revalidate=10')
       return send(res, 200, { ok: true, entry, inputs })
     }
     bad(400, 'Unknown request.')

@@ -193,9 +193,9 @@ ok(solo.status === 422 && raced.status === 200 && raced.j.f === 3 && raced.j.k =
 const [all, getCost] = await cost(() => get('?rec=all'))
 ok(all.status === 200 && all.j.build === SIM.BUILD && all.j.records[H + '|f'].f === W.f && all.j.records[H + '|f'].k === W.k && all.j.records[GR + '|s'] && !('i' in all.j.records[H + '|f']),
   `GET ?rec=all: every board, no taps, and the build (${all.j.build})`)
-ok(/s-maxage=15/.test(all.headers.get('cache-control') || ''), 'GET ?rec=all is cached at the edge for 15 s: ' + all.headers.get('cache-control'))
+ok(/s-maxage=5/.test(all.headers.get('cache-control') || ''), 'GET ?rec=all is cached at the edge for 5 s: ' + all.headers.get('cache-control'))
 const [wt, watchCost] = await cost(() => get(`?rec=watch&h=${H}&b=s`))
-ok(wt.status === 200 && JSON.stringify(wt.j.inputs) === JSON.stringify(W.inp) && wt.j.entry.k === W.k && /s-maxage=30/.test(wt.headers.get('cache-control') || ''), 'GET ?rec=watch: the record’s taps, to watch it back')
+ok(wt.status === 200 && JSON.stringify(wt.j.inputs) === JSON.stringify(W.inp) && wt.j.entry.k === W.k && /s-maxage=5/.test(wt.headers.get('cache-control') || ''), 'GET ?rec=watch: the record’s taps, to watch it back')
 ok((await get('?rec=watch&h=rucker&b=f')).status === 404 && (await get('?rec=watch&h=cage&b=x')).status === 400, 'watch: an empty board is 404, a bad board 400')
 ok((await get('')).j.races === true, 'a plain GET still answers for races')
 
