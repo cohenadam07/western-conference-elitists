@@ -84,7 +84,8 @@
     },
     "page:basketball-savant.html#showLB": {
       "tools": [
-        "nba_leaderboard"
+        "nba_leaderboard",
+        "savant_query"
       ]
     },
     "page:savant-fantasy.js#openFantasy": {
@@ -189,7 +190,8 @@
     },
     "page:football-savant.html#showLB": {
       "tools": [
-        "nfl_leaderboard"
+        "nfl_leaderboard",
+        "savant_query"
       ]
     },
     "page:football-savant.html#openTeam": {

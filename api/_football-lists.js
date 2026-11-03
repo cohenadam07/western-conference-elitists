@@ -64,7 +64,7 @@ export function parsePosition(input, meta) {
   for (const [code, p] of Object.entries(meta.positions)) {
     if (norm(code) === q || norm(p.label) === q || norm(p.peers) === q || `${norm(p.label)}s` === q) return code
   }
-  if (EXTRA_POS[q]) return EXTRA_POS[q]
+  if (Object.hasOwn(EXTRA_POS, q)) return EXTRA_POS[q]
   const codes = Object.entries(meta.positions).map(([c, p]) => `${c} (${p.label})`)
   throw new SavantError(`"${input}" is not a Football Savant position. Use one of: ${codes.join(', ')}, or "team".`)
 }
