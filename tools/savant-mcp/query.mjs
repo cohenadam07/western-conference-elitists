@@ -230,7 +230,9 @@ test('NFL: every value, both percentiles and every low-sample flag are the file\
   const byId = new Map(file.players.map((p) => [String(p.id), p]))
   let checked = 0
   for (const pos of ['QB', 'RB', 'WR', 'TE', 'CB', 'ED']) {
-    const keys = nflMeta.metrics.filter((m) => m.positions.includes(pos) && file.players.some((p) => p.pos === pos && p.m && p.m[m.key])).map((m) => m.key)
+    // m and xm together, as nfl_leaderboard reads them (xm: numbers outside his own panels)
+    const cellOf = (p, k) => (p.m && p.m[k]) || (p.xm && p.xm[k]) || null
+    const keys = nflMeta.metrics.filter((m) => m.positions.includes(pos) && file.players.some((p) => p.pos === pos && cellOf(p, m.key))).map((m) => m.key)
     for (let i = 0; i < keys.length; i += 10) {
       const show = keys.slice(i, i + 10)
       const out = await ask({ dataset: 'nfl_players', season: NFL_FULL, position: pos, show, limit: 100 })
@@ -238,10 +240,10 @@ test('NFL: every value, both percentiles and every low-sample flag are the file\
         const p = byId.get(row.id)
         assert.equal(p.pos, pos)
         for (const key of show) {
-          const want = p.m[key]
+          const want = cellOf(p, key)
           const got = row.stats[key]
           if (!want || want[0] == null) { assert.equal(got.value, null); continue }
-          assert.deepEqual([got.value, got.pct_season, got.pct_all_time, got.low_sample], [want[0], want[1] ?? null, want[2] ?? null, (p.low || []).includes(key)], `${p.name} ${key}`)
+          assert.deepEqual([got.value, got.pct_season, got.pct_all_time, got.low_sample], [want[0], want[1] ?? null, want[2] ?? null, (p.low || []).includes(key) || (p.xlow || []).includes(key)], `${p.name} ${key}`)
           checked++
         }
       }
@@ -363,7 +365,8 @@ test('each group number is the arithmetic it claims, over the players it claims,
     const ps = nf.players.filter((p) => p.qualified && p.pos === 'WR' && p.team === grp.group && p.m.epatgt && p.d && p.d.tgt > 0)
     if (!ps.length) continue
     close(grp.aggregates[0].value, ps.reduce((a, p) => a + p.m.epatgt[0] * p.d.tgt, 0) / ps.reduce((a, p) => a + p.d.tgt, 0), `${grp.group} target-weighted EPA/target`)
-    assert.equal(grp.aggregates[0].weighting, 'weighted by tgt')
+    assert.equal(grp.aggregates[0].weighting, 'weighted by targets')
+    assert.equal(grp.aggregates[0].over, ps.length, `${grp.group}: over the players actually weighted`)
   }
 })
 
@@ -398,7 +401,7 @@ test('it says what to do instead of guessing', async () => {
   await refused({ dataset: 'nba_players', season: '2000-01', through: FULL, limit: 5 }, /at most 10/)
   await refused({ dataset: 'nba_players', season: '1985-86', where: [{ stat: 'tmpts', op: 'gte', value: 1 }] }, /not tracked in 1985-86; it starts in 1996-97/)
   await refused({ dataset: 'nba_players', season: FULL, summarize: [{ fn: 'mean', stat: 'ts' }] }, /needs group_by/)
-  await refused({ dataset: 'nba_players', season: FULL, group_by: 'team', summarize: [{ fn: 'sum', stat: 'ts' }] }, /sum is for counting stats/)
+  await refused({ dataset: 'nba_players', season: FULL, group_by: 'team', summarize: [{ fn: 'sum', stat: 'ts' }] }, /sum adds up counts/)
   await refused({ dataset: 'nba_players', season: FULL, group_by: 'team', summarize: [{ fn: 'weighted_mean', stat: 'ts', on: 'percentile' }] }, /weighted_mean is for values/)
   await refused({ dataset: 'nba_players', season: FULL, where: [{ stat: 'ts', op: 'between', value: 5 }] }, /between takes two numbers/)
   await refused({ dataset: 'nba_players', season: FULL, where: [{ stat: 'age', op: 'gte', value: 20, on: 'percentile' }] }, /field, not a stat/)
@@ -414,4 +417,144 @@ test('a season in progress says so', async () => {
   if (!live) return
   const out = await ask({ dataset: 'nba_players', season: live, limit: 3 })
   assert.ok(out.notes.some((n) => /In progress/.test(n) && n.includes(live)))
+})
+
+// ---- the independent review's findings (3 Nov 2026), one test each -----------------------------
+
+test('NFL: a weighted mean weighs only by a count every player has, and says over how many', async () => {
+  // p2s is a rate of pressures faced, kept per player only for thin samples: refused, not misweighed
+  const p2s = nflMeta.metrics.find((m) => m.den && !(nflMeta.denomCore || []).includes(m.den) && m.positions.includes('QB'))
+  assert.ok(p2s, 'a QB stat with a non-core denominator')
+  await refused({ dataset: 'nfl_players', season: NFL_FULL, position: 'QB', group_by: 'team', summarize: [{ fn: 'weighted_mean', stat: p2s.key }] }, /weigh the thin samples alone/)
+  // NBA: over counts only the players with minutes to weigh by
+  const out = await ask({ dataset: 'nba_players', season: FULL, qualified_only: false, group_by: 'position', summarize: [{ fn: 'weighted_mean', stat: 'ts' }] })
+  const file = nbaSeason(FULL)
+  for (const g of out.groups) assert.equal(g.aggregates[0].over, file.players.filter((p) => p.pos === g.group && p.m.ts && p.m.ts[0] != null && p.min > 0).length, g.group)
+})
+
+test('NFL: numbers outside a position\'s own panels (xm) count, as on nfl_leaderboard', async () => {
+  const file = nflSeason(NFL_FULL)
+  const wr = file.players.filter((p) => p.qualified && p.pos === 'WR')
+  const key = nflMeta.metrics.filter((m) => m.positions.includes('WR')).map((m) => m.key).find((k) => wr.filter((p) => p.xm && p.xm[k] && !(p.m && p.m[k])).length > 10)
+  assert.ok(key, 'a WR stat that lives in xm')
+  const want = wr.filter((p) => (p.m && p.m[key]) || (p.xm && p.xm[key]))
+  const out = await ask({ dataset: 'nfl_players', season: NFL_FULL, position: 'WR', where: [{ stat: key, op: 'gte', value: -1e9 }], limit: 100 })
+  assert.equal(out.matching, want.length)
+  const lb = (await nflLists.leaderboard({ stat: key, season: NFL_FULL, position: 'WR', top: 100, sample: 'raw' }).catch(() => nflLists.leaderboard({ stat: key, season: NFL_FULL, position: 'WR', top: 100 }))).structured
+  for (const p of lb.players) assert.ok(out.rows.some((r) => r.id === String(p.id)) || out.matching > 100, `${p.name} is on nfl_leaderboard for ${key} and in the query`)
+})
+
+test('a percentile pool is held to the dataset\'s own, in filters, summaries and sorts alike', async () => {
+  await refused({ dataset: 'nfl_players', season: NFL_FULL, position: 'QB', group_by: 'team', summarize: [{ fn: 'mean', stat: 'sav', on: 'percentile', pool: 'league' }] }, /pool is season or all_time/)
+  await refused({ dataset: 'nba_players', season: FULL, group_by: 'team', summarize: [{ fn: 'mean', stat: 'ts', on: 'percentile', pool: 'all_time' }] }, /pool is position or league/)
+  await refused({ dataset: 'nba_players', season: FULL, sort: { by: 'ts', on: 'percentile', pool: 'season' } }, /pool is position or league/)
+  await refused({ dataset: 'nfl_players', season: NFL_FULL, position: 'WR', sort: { by: 'epatgt', on: 'percentile', pool: 'position' } }, /pool is season or all_time/)
+  // and a sort on a percentile shows that percentile, named
+  const out = await ask({ dataset: 'nba_players', season: FULL, sort: { by: 'ts', on: 'percentile', pool: 'league' }, limit: 3 })
+  assert.ok(out.rows.every((r) => r.stats.ts.pct_league != null))
+  const text = (await keyedClient.callTool({ name: 'savant_query', arguments: { dataset: 'nba_players', season: FULL, sort: { by: 'ts', on: 'percentile', pool: 'league' }, limit: 3 } })).content[0].text
+  assert.match(text, /sorted by True shooting % percentile vs\. league/)
+  assert.match(text, /\(\d+(st|nd|rd|th) vs\. league\)/)
+})
+
+test('the sort stat is held to the same checks as every other stat named', async () => {
+  await refused({ dataset: 'nba_players', season: '1985-86', sort: { by: 'tmpts' } }, /not tracked in 1985-86; it starts in 1996-97/)
+  await refused({ dataset: 'nfl_players', season: NFL_FULL, position: 'QB', sort: { by: 'epatgt' } }, /not tracked for QB/)
+  const out = await ask({ dataset: 'nba_players', season: '1994-95', through: '1997-98', sort: { by: 'tmpts' }, limit: 5 })
+  assert.ok(out.notes.some((n) => /sort last/.test(n)))
+  assert.ok(out.rows.every((r) => r.stats.tmpts.value != null), 'the top of the sort has values')
+})
+
+test('groups sort by count even when count was not asked for; nothing asked to be shown is dropped', async () => {
+  const g = await ask({ dataset: 'nba_players', season: FULL, group_by: 'team', summarize: [{ fn: 'mean', stat: 'ts' }], sort: { by: 'count' }, limit: 100 })
+  const sizes = g.groups.map((x) => x.players)
+  assert.deepEqual(sizes, [...sizes].sort((a, b) => b - a))
+  assert.equal(g.sort.by, 'count')
+
+  const core0 = nbaMeta.metrics.filter((m) => !m.ext && m.since <= '1996-97' && nbaSeason(FULL).players.some((p) => p.qualified && p.m[m.key])).map((m) => m.key).filter((k) => k !== 'pts')
+  const where = core0.slice(0, 8).map((k) => ({ stat: k, op: 'gte', value: -1e9 }))
+  const show = core0.slice(8, 18)
+  const out = await ask({ dataset: 'nba_players', season: FULL, qualified_only: false, where, show, sort: { by: 'pts' }, limit: 3 })
+  for (const r of out.rows) for (const k of ['pts', ...core0.slice(0, 18)]) assert.ok(k in r.stats, `${k} is in the row`)
+})
+
+test('the NBA season in progress states its own qualifying line', async () => {
+  const live = nbaMeta.seasons.find((s) => nbaSeason(s).in_progress && nbaSeason(s).qualify)
+  if (!live) return
+  const q = nbaSeason(live).qualify
+  const out = await ask({ dataset: 'nba_players', season: live, limit: 1 })
+  assert.match(out.scope, new RegExp(`${q.min_gp}\\+ games, pro-rated`))
+  assert.doesNotMatch(out.scope, new RegExp(`${nbaMeta.qualify.min_gp}\\+ games\\)`))
+})
+
+test('names that are not stats, fields or positions are refused in words, never as a crash', async () => {
+  for (const bad of ['constructor', '__proto__', 'toString', 'hasOwnProperty']) {
+    await refused({ dataset: 'nba_players', season: FULL, where: [{ stat: bad, op: 'gte', value: 1 }] }, /No stat called/)
+    await refused({ dataset: 'nba_players', season: FULL, sort: { by: bad } }, /No stat called/)
+    await refused({ dataset: 'nba_players', season: FULL, group_by: 'team', summarize: [{ fn: 'mean', stat: bad }] }, /No stat called/)
+    await refused({ dataset: 'nba_players', season: FULL, position: bad }, /Guard, Wing or Big/)
+    await refused({ dataset: 'nfl_players', season: NFL_FULL, position: bad }, /position/)
+    // the free nfl_leaderboard shares the position parser
+    await assert.rejects(nflLists.leaderboard({ position: bad }), /not a Football Savant position/)
+  }
+  // a key in any case
+  const out = await ask({ dataset: 'nba_players', season: FULL, show: ['TS'], limit: 1 })
+  assert.ok('ts' in out.rows[0].stats)
+})
+
+test('NFL positions and teams: OL is the whole line, "edge" works, old codes and trades are found', async () => {
+  const file = nflSeason(NFL_FULL)
+  const ol = await ask({ dataset: 'nfl_players', season: NFL_FULL, position: 'OL', sort: { by: 'g', order: 'high' }, limit: 100 })
+  assert.equal(ol.matching, file.players.filter((p) => p.qualified && ['OL', 'OT', 'OG', 'OC'].includes(p.pos)).length)
+  assert.ok(ol.matching > 0)
+  assert.ok(ol.notes.some((n) => /OL covers the whole line/.test(n)))
+  const ed = await ask({ dataset: 'nfl_players', season: NFL_FULL, position: 'edge', limit: 5 })
+  assert.ok(ed.rows.every((r) => r.position === 'ED'))
+  await refused({ dataset: 'nfl_players', season: NFL_FULL, position: 'team' }, /savant_query is for players/)
+
+  // a player traded during the season is found under the team he left
+  const traded = file.players.find((p) => p.qualified && Array.isArray(p.tms) && p.tms.length > 1 && p.tms[0] !== p.team)
+  assert.ok(traded, 'a traded player to test with')
+  const t = await ask({ dataset: 'nfl_players', season: NFL_FULL, team: traded.tms[0], position: traded.pos, limit: 100 })
+  assert.ok(t.rows.some((r) => r.id === String(traded.id)), `${traded.name} counts for ${traded.tms[0]}`)
+
+  // an old code finds the franchise in the seasons it was used, and is shown as it was
+  const [now, [last, old]] = Object.entries(nflMeta.era).find(([, e]) => nflMeta.seasons.includes(String(e[0])))
+  const was = await ask({ dataset: 'nfl_players', season: String(last), team: old, limit: 100 })
+  assert.ok(was.matching > 0, `${old} in ${last}`)
+  // shown as it was; a player who left during that season shows the team he finished with
+  const then = new Map(nflSeason(String(last)).players.map((p) => [String(p.id), p]))
+  assert.ok(was.rows.every((r) => r.team === old || ((then.get(r.id).tms || []).includes(now) && then.get(r.id).team !== now)))
+  assert.ok(was.rows.some((r) => r.team === old))
+  const same = await ask({ dataset: 'nfl_players', season: String(last), team: now, limit: 100 })
+  assert.equal(same.matching, was.matching)
+})
+
+test('sum adds up counts only, and adds them right', async () => {
+  await refused({ dataset: 'nba_players', season: FULL, group_by: 'team', summarize: [{ fn: 'sum', stat: 'syn' }] }, /sum adds up counts/)
+  await refused({ dataset: 'nfl_players', season: NFL_FULL, position: 'K', group_by: 'team', summarize: [{ fn: 'sum', stat: 'fglong' }] }, /sum adds up counts/)
+  const out = await ask({ dataset: 'nba_players', season: FULL, group_by: 'team', min_group_size: 1, limit: 100, summarize: [{ fn: 'sum', stat: 'min' }, { fn: 'sum', stat: 'gp' }] })
+  const q = nbaSeason(FULL).players.filter((p) => p.qualified)
+  for (const g of out.groups) {
+    const ps = q.filter((p) => p.team === g.group)
+    assert.equal(g.aggregates[0].value, ps.reduce((a, p) => a + p.min, 0), `${g.group} minutes`)
+    assert.equal(g.aggregates[1].value, ps.reduce((a, p) => a + p.gp, 0), `${g.group} games`)
+  }
+})
+
+test('NFL reads at most 8 seasons a call; group examples follow the order asked; between reads either way', async () => {
+  const i = nflMeta.seasons.indexOf(NFL_FULL)
+  const nine = nflMeta.seasons.slice(i, i + 9)
+  await refused({ dataset: 'nfl_players', season: nine[8], through: nine[0] }, /at most 8/)
+
+  const worst = await ask({ dataset: 'nba_players', season: FULL, group_by: 'team', summarize: [{ fn: 'mean', stat: 'ts' }], sort: { order: 'worst' }, limit: 1 })
+  const g = worst.groups[0]
+  const ts = (id) => nbaSeason(FULL).players.find((p) => String(p.id) === id).m.ts[0]
+  const team = nbaSeason(FULL).players.filter((p) => p.qualified && p.team === g.group && p.m.ts).map((p) => p.m.ts[0]).sort((a, b) => a - b)
+  assert.deepEqual(g.examples.map((e) => ts(e.id)), team.slice(0, 3), 'the worst team\'s examples are its worst shooters')
+
+  const a = await ask({ dataset: 'nba_players', season: FULL, where: [{ stat: 'mpg', op: 'between', value: [30, 9] }], limit: 1 })
+  const b = await ask({ dataset: 'nba_players', season: FULL, where: [{ stat: 'mpg', op: 'between', value: [9, 30] }], limit: 1 })
+  assert.equal(a.matching, b.matching)
+  assert.match(a.filters[0], /between 9 and 30/)
 })
