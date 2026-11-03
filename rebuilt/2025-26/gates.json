@@ -1,6 +1,9 @@
 {
  "season": "2025-26",
  "d1_games": 5752,
+ "box_gate_raw": 0.9983,
+ "box_gate": 0.9983,
+ "filled_lines": 0,
  "pbp_games": 5740,
  "pbp_rate": 0.9979,
  "score_rate": 0.9993,

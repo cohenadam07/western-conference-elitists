@@ -1,17 +1,17 @@
 {
- "box_mean": 2.624903555985023,
- "box_sd": 0.5418549972737812,
- "ht_mean": 77.46215052193591,
- "ht_sd": 3.3356006857835285,
- "trb_center": 15.244975739672142,
+ "box_mean": 2.6246855663938065,
+ "box_sd": 0.5399897560151569,
+ "ht_mean": 77.46676363636364,
+ "ht_sd": 3.336186621365949,
+ "trb_center": 15.17067954034107,
  "weights": {
   "box": 0.5,
   "height": 0.3,
   "listed": 0.2
  },
  "big_min_ht": 80,
- "cut_guard_wing": -0.4108647500507773,
- "cut_wing_big": 0.6883086738280035,
+ "cut_guard_wing": -0.41032860348356526,
+ "cut_wing_big": 0.6889749038344708,
  "shares_target": {
   "Wing": 0.3409090909090909,
   "Guard": 0.4068181818181818,
@@ -22,8 +22,8 @@
   "Wing": 0.3409,
   "Big": 0.2523
  },
- "agree": 0.8081,
- "by_rule": 1401,
+ "agree": 0.8075,
+ "by_rule": 1418,
  "listed_vs_bucket": {
   "C": {
    "Big": 0.979,
@@ -31,19 +31,19 @@
    "Wing": 0.021
   },
   "F": {
-   "Big": 0.564,
+   "Big": 0.563,
    "Guard": 0.002,
-   "Wing": 0.434
+   "Wing": 0.435
   },
   "G": {
    "Big": 0.001,
-   "Guard": 0.688,
-   "Wing": 0.311
+   "Guard": 0.691,
+   "Wing": 0.308
   },
   "NA": {
-   "Big": 0.095,
+   "Big": 0.071,
    "Guard": 0.143,
-   "Wing": 0.762
+   "Wing": 0.786
   },
   "PF": {
    "Big": 0.8,
@@ -62,12 +62,39 @@
   },
   "SG": {
    "Big": 0.0,
-   "Guard": 0.333,
-   "Wing": 0.667
+   "Guard": 0.4,
+   "Wing": 0.6
   }
  },
  "agree_before": 0.7748,
  "borderline": [
+  [
+   "Maguire Mitchell",
+   "85",
+   77.0,
+   "G",
+   "Guard",
+   0.0,
+   "Guard/Wing"
+  ],
+  [
+   "Ernest Shelton",
+   "2771",
+   77.0,
+   "G",
+   "Guard",
+   0.0,
+   "Guard/Wing"
+  ],
+  [
+   "Jackson Hicke",
+   "163",
+   77.0,
+   "G",
+   "Guard",
+   0.0,
+   "Guard/Wing"
+  ],
   [
    "Cam Morris III",
    "2193",
@@ -78,35 +105,8 @@
    "Wing/Big"
   ],
   [
-   "Josiah Sanders",
-   "38",
-   77.0,
-   "G",
-   "Guard",
-   0.0,
-   "Guard/Wing"
-  ],
-  [
-   "Adrian Wooley",
-   "97",
-   76.0,
-   "G",
-   "Guard",
-   0.001,
-   "Guard/Wing"
-  ],
-  [
-   "Jackson Hicke",
-   "163",
-   77.0,
-   "G",
-   "Wing",
-   0.001,
-   "Guard/Wing"
-  ],
-  [
-   "Ernest Shelton",
-   "2771",
+   "Kur Teng",
+   "127",
    77.0,
    "G",
    "Wing",
@@ -119,17 +119,62 @@
    80.0,
    "F",
    "Wing",
-   0.001,
+   0.002,
    "Wing/Big"
   ],
   [
-   "Maguire Mitchell",
-   "85",
-   77.0,
+   "Nelson Lamizana",
+   "2154",
+   81.0,
+   "F",
+   "Big",
+   0.002,
+   "Wing/Big"
+  ],
+  [
+   "Jalen Kampen",
+   "2117",
+   76.0,
    "G",
    "Wing",
-   0.001,
+   0.002,
    "Guard/Wing"
+  ],
+  [
+   "Adrian Wooley",
+   "97",
+   76.0,
+   "G",
+   "Guard",
+   0.002,
+   "Guard/Wing"
+  ],
+  [
+   "Josiah Sanders",
+   "38",
+   77.0,
+   "G",
+   "Guard",
+   0.002,
+   "Guard/Wing"
+  ],
+  [
+   "Abdou Yadd",
+   "2529",
+   81.0,
+   "F",
+   "Big",
+   0.002,
+   "Wing/Big"
+  ],
+  [
+   "Zion Obanla",
+   "2379",
+   80.0,
+   "G",
+   "Wing",
+   0.002,
+   "Wing/Big"
   ],
   [
    "Nic Codie",
@@ -141,6 +186,15 @@
    "Wing/Big"
   ],
   [
+   "Amar Augillard",
+   "270",
+   77.0,
+   "G",
+   "Wing",
+   0.002,
+   "Guard/Wing"
+  ],
+  [
    "John Squire",
    "160",
    80.0,
@@ -150,17 +204,8 @@
    "Wing/Big"
   ],
   [
-   "Nelson Lamizana",
-   "2154",
-   81.0,
-   "F",
-   "Big",
-   0.003,
-   "Wing/Big"
-  ],
-  [
-   "Jalen Kampen",
-   "2117",
+   "Bahsil Laster",
+   "250",
    76.0,
    "G",
    "Wing",
@@ -168,47 +213,20 @@
    "Guard/Wing"
   ],
   [
-   "Abdou Yadd",
-   "2529",
-   81.0,
-   "F",
-   "Big",
-   0.003,
-   "Wing/Big"
-  ],
-  [
-   "Zion Obanla",
-   "2379",
-   80.0,
-   "G",
-   "Wing",
-   0.003,
-   "Wing/Big"
-  ],
-  [
-   "Kur Teng",
-   "127",
-   77.0,
+   "Carson Vis",
+   "2711",
+   76.0,
    "G",
    "Wing",
    0.003,
    "Guard/Wing"
   ],
   [
-   "Lukas Walls",
-   "2515",
-   77.0,
+   "David Bumpass",
+   "2415",
+   76.0,
    "G",
-   "Guard",
-   0.003,
-   "Guard/Wing"
-  ],
-  [
-   "Keishon Porter",
-   "339",
-   77.0,
-   "G",
-   "Guard",
+   "Wing",
    0.003,
    "Guard/Wing"
   ],
@@ -222,15 +240,6 @@
    "Wing/Big"
   ],
   [
-   "Amar Augillard",
-   "270",
-   77.0,
-   "G",
-   "Wing",
-   0.004,
-   "Guard/Wing"
-  ],
-  [
    "Jaden Daughtry",
    "2368",
    79.0,
@@ -238,15 +247,6 @@
    "Wing",
    0.004,
    "Wing/Big"
-  ],
-  [
-   "J.R. Leonard",
-   "56",
-   76.0,
-   "G",
-   "Guard",
-   0.004,
-   "Guard/Wing"
   ]
  ]
 }

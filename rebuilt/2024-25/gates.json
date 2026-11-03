@@ -1,6 +1,9 @@
 {
  "season": "2024-25",
  "d1_games": 5764,
+ "box_gate_raw": 0.9977,
+ "box_gate": 0.9977,
+ "filled_lines": 0,
  "pbp_games": 5652,
  "pbp_rate": 0.9806,
  "score_rate": 0.9904,
