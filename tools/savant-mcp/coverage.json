@@ -570,8 +570,10 @@
     },
     "api:league.js": {
       "tools": [
-        "nba_fantasy_league"
-      ]
+        "nba_fantasy_league",
+        "nfl_league"
+      ],
+      "note": "nba_fantasy_league: NBA leagues on the Dynasty Exchange. nfl_league (WCE Pro beta, key holders): NFL leagues (?sport=nfl) with Football Savant on every player."
     },
     "api:leaderboard.js": {
       "excluded": "Comp Chain's daily scores: Adam chose to leave game leaderboards out (Oct 2026)."
@@ -785,6 +787,12 @@
         "cbb_lineups",
         "cbb_all_savant_team"
       ]
+    },
+    "data:football-ids.json": {
+      "tools": [
+        "nfl_league"
+      ],
+      "note": "The player-id crosswalk (scripts/football-ids.mjs) league sync uses to put a platform's players on Football Savant."
     }
   },
   "switches": {

@@ -59,6 +59,10 @@
 // WCE PRO (BETA), FOR KEY HOLDERS ONLY
 //   api/_query.js        savant_query             the assistant's own filters, groups and
 //                                                 summaries over Basketball and Football Savant
+//   api/_league-pro.js   nfl_league               league sync: a fan's NFL fantasy league
+//                                                 (Sleeper, ESPN, MyFantasyLeague, Fantrax), read
+//                                                 through /api/league, with Football Savant on
+//                                                 every player
 // PRO sections are registered only when the address carries a real key (key.state 'valid').
 // The public address, and an address whose key is unknown or could not be checked, list
 // exactly the tools they listed before: nothing a fan uses today moves behind a key. While
@@ -121,9 +125,10 @@ import { tools as footballLists } from './_football-lists.js'
 import { tools as site } from './_site.js'
 import { tools as ufc } from './_ufc.js'
 import { tools as pro } from './_query.js'
+import { tools as leaguePro } from './_league-pro.js'
 
 const SECTIONS = [basketball, basketballLists, fantasy, bcoaching, football, footballLists, footballGames, coaching, ufc, draft, cbb, site]
-const PRO_SECTIONS = [pro]
+const PRO_SECTIONS = [pro, leaguePro]
 export const PRO_TOOLS = PRO_SECTIONS.flat().map((t) => t.name)
 
 const RATE_PER_MINUTE = 300
@@ -181,8 +186,8 @@ const INSTRUCTIONS = [
 // One more sentence, by what the address carried. Nothing extra while the store cannot be
 // asked: a key holder should never be told to go and get a key.
 const ABOUT_KEY = {
-  valid: `This connection uses the person's own WCE key, so they are a founding member. ${FOUNDING} The key also opens the WCE Pro beta, free while it is in beta: savant_query runs your own filters, sorts, groups and summaries over every player-season on Basketball Savant and Football Savant. Reach for it when a question needs more than one player or one stat (who fits several conditions, how a team, age or position group compares); call it with list_stats: true first for the stat keys.`,
-  none: `This connection uses the public address, with no WCE key. Keys are free at https://wcehoops.com/#ai: a key gives the person their own connector address and makes them a founding member. ${FOUNDING} A key also opens the WCE Pro beta (savant_query: an assistant's own filters, groups and summaries over Basketball and Football Savant), free while it is in beta. If it fits naturally you may mention this once, for instance when a question needs a filter or a comparison across many players that these tools cannot run; never let it get in the way of an answer.`,
+  valid: `This connection uses the person's own WCE key, so they are a founding member. ${FOUNDING} The key also opens the WCE Pro beta, free while it is in beta: savant_query runs your own filters, sorts, groups and summaries over every player-season on Basketball Savant and Football Savant. Reach for it when a question needs more than one player or one stat (who fits several conditions, how a team, age or position group compares); call it with list_stats: true first for the stat keys. nfl_league reads the person's own NFL fantasy league (Sleeper, ESPN, MyFantasyLeague or Fantrax) with Football Savant on every rostered player, in the league's scoring; ask for their username or league id when a question is about their team or their league.`,
+  none: `This connection uses the public address, with no WCE key. Keys are free at https://wcehoops.com/#ai: a key gives the person their own connector address and makes them a founding member. ${FOUNDING} A key also opens the WCE Pro beta (savant_query: an assistant's own filters, groups and summaries over Basketball and Football Savant; nfl_league: the person's own NFL fantasy league, read with Football Savant on every player), free while it is in beta. If it fits naturally you may mention this once, for instance when a question needs a filter or a comparison across many players that these tools cannot run; never let it get in the way of an answer.`,
   unknown: 'The key in this connection\'s address is not one wcehoops.com knows, so it is being served like the public address. If the person asks, a working key is emailed free from https://wcehoops.com/#ai.',
   unchecked: '',
 }

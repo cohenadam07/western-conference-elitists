@@ -119,9 +119,9 @@ test('only a real key lists and calls savant_query; every other address gets the
   assert.ok(!pub.includes('savant_query'), 'the public address does not list it')
   for (const state of ['unknown', 'unchecked']) assert.deepEqual(await names({ state }), pub, `${state}: the same list as the public address`)
   const keyed = await names({ state: 'valid', id: 'abcdef012345' })
-  assert.deepEqual(keyed.filter((n) => n !== 'savant_query'), pub, 'a key adds, never takes away')
+  assert.deepEqual(keyed.filter((n) => !mcp.PRO_TOOLS.includes(n)), pub, 'a key adds, never takes away')
   assert.deepEqual(keyed.filter((n) => !pub.includes(n)), mcp.PRO_TOOLS)
-  assert.deepEqual(mcp.PRO_TOOLS, ['savant_query'])
+  assert.deepEqual(mcp.PRO_TOOLS, ['savant_query', 'nfl_league'])
 
   // Calling it without a key is refused like any tool the server does not have.
   const c = await clientFor({ state: 'none' })

@@ -16,6 +16,8 @@
 // the same Upstash Redis the rest of the site uses, compacted to id -> name first. Without
 // Redis it still works, just refetching on a cold lambda.
 
+import { readNflLeague } from './_league-nfl.js'
+
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
 
@@ -185,6 +187,15 @@ export default async function handler(req, res) {
 
     if (!CODE_RE.test(code)) { res.status(400).json({ ok: false, error: 'bad-code' }); return }
     if (league && !CODE_RE.test(league)) { res.status(400).json({ ok: false, error: 'bad-code' }); return }
+
+    // NFL leagues (?sport=nfl): Sleeper, ESPN, MyFantasyLeague and Fantrax, in one shape
+    // (api/_league-nfl.js). Read by the AI connector's league sync.
+    if (String(q.sport || '').toLowerCase() === 'nfl') {
+      const out = await readNflLeague({ platform, code, league, season: q.season && String(q.season).slice(0, 4) })
+      if (out.error) { res.status(200).json({ ok: false, error: out.error, platform, sport: 'nfl' }); return }
+      res.status(200).json({ ok: true, platform, sport: 'nfl', ...out })
+      return
+    }
 
     let out
     if (platform === 'sleeper') out = await sleeper(code, league)

@@ -84,6 +84,13 @@ jobs:
           COACH_CURRENT="$GITHUB_WORKSPACE/public/coaching-savant-current.json" \
           NFL_RAW=raw python3 coaches.py
 
+      # League sync's player-id crosswalk (WCE Pro): fantasy platform ids -> gsis. Rewritten
+      # only when an id changes, so most days it is left alone. A failure here must not stop
+      # the refresh from landing.
+      - name: League sync player ids
+        continue-on-error: true
+        run: node scripts/football-ids.mjs
+
       - name: Commit if anything changed
         run: |
           git config user.name "football-savant-bot"
@@ -94,6 +101,7 @@ jobs:
           # up, and a modified-but-unstaged file makes `git pull --rebase` refuse (exit 128),
           # which is what froze the page at week 6 on Oct 26. Commit it with the data.
           git add pipeline/football/heads_etag.json
+          [ -f public/football-ids.json ] && git add public/football-ids.json
           if git diff --cached --quiet; then
             echo "no data change — nothing to commit"
             exit 0
