@@ -1,4 +1,50 @@
-# College Basketball Savant 1.1.0
+# College Basketball Savant 1.2.0
+
+Built Nov 2-3, 2026 on branch `college-savant-1.2`: the history back to 2002-03 that Adam asked for, of which two
+seasons pass. The 1.1.0 and 1.0.0 notes follow below; value, the weight test, the AP check and every season's
+teams are in `COLLEGE-ALL-SAVANT.md`.
+
+## What's new in 1.2.0
+
+- **2009-10 and 2010-11, box-score tier,** with All-Savant Teams. Gates 98.2% and 98.7% of 5,393 and 5,390 D1 games;
+  ages for 79% and 82% of players. Players of the Year: Jon Scheyer (2009-10) and Kemba Walker (2010-11).
+- **2011-12 and 2012-13 are not on the site** (gates 87.2% and 86.6%). Adam chose to ship the two passing seasons
+  with the gap. Careers, the connector and the page skip them.
+- **Nothing from 2002-03 to 2008-09 passes.** 2002-03 to 2005-06 were pulled from ESPN on Nov 2 (20,237 final games, none
+  missing, 6 requests at a time, raw kept on the Mac). Gates by season are in `COLLEGE-ALL-SAVANT.md`. ESPN lists the
+  players of the failing games with empty stats, the same today as in the archive. Before 2004-05 almost no game
+  has a player box at all.
+- **The value weights, refitted on 15 seasons** (5,318 team-seasons): held-out r 0.9055
+  against team net rating (0.7757 for the first set). The weights barely moved from 1.1.0.
+  AP overlap 94 of 226 names, 2009-10 to 2025-26.
+- **AP check from 2009-10.** `ap_check.py` reads the older Wikipedia layout (teams by selector) for 2003 to 2008 too,
+  ready for any season that later passes.
+
+## Three negative results, recorded so nobody repeats them
+
+1. **CBBD can't fill the missing box scores** (7 calls, Nov 2; `pipeline/college/cbbd_box.py`). Its `/games/players`
+   has the same gaps as ESPN. 2008-09 shows the same players with the same lines (Stony Brook on Feb 27, 2009: the
+   same 7 of 14 players, 42 of 57 points); 2012-13 has both teams for 22 of 321 failing games; 2002-03 has no
+   player rows at all. Its rows are per team-game, so a 1,000-row reply holds about 480 games.
+   `cbbd_box_plan.py` sizes the windows if a better source ever appears.
+2. **T-Rank's files before 2022-23 have no birthdate column** (78 columns, the last a single digit; 2007-08 to 2021-22
+   fetched once each, within ground rule 4). Refetching on Nov 9 won't help. Old ages come from CBBD rosters (which
+   carry birthdates back to 2003), later seasons and Basketball Savant.
+3. **The missing players can't be inferred.** ESPN still lists them, with empty stats, so the one-unknown rule from
+   1.1 can't tell which man played, and these seasons have little or no play-by-play to name him.
+
+## Found along the way
+
+- `season.py` crashed on a season with no play-by-play at all (2004-05 and earlier); it now fills those columns empty.
+- `team_fit.py`'s year-to-year test now skips pairs of seasons that aren't adjacent.
+- **A namesake got a Draft card's honour.** The Draft Savant link matched schools by substring, so "texas" matched
+  "northtexas", and Texas's Tristan Thompson (2010-11) showed a North Texas guard's All-Conference Savant. `links()` now
+  takes an exact school first, and a partial one only when it's the sole candidate. `value.mjs` caught it.
+- The Mac restarted at 11:56 PM on Nov 2 in the middle of the build; it was resumed from the site-file step.
+
+---
+
+# College Basketball Savant 1.1.0 (the 1.1 note)
 
 Built Nov 2, 2026 on branch `college-savant-1.1`: history to 2013-14, schedule difficulty, and All-Savant Teams.
 Value, the weight test, the All-America check and every season's teams are in `COLLEGE-ALL-SAVANT.md`. The 1.0.0

@@ -3,7 +3,7 @@
 # Long pulls come first and separately (espn_cbb.py pull, cbbd_source.py history, torvik.py).
 cd "$(dirname "$0")" || exit 1
 export SSL_CERT_FILE="$(python3 -c 'import certifi;print(certifi.where())')"
-BOX="2013-14 2014-15 2015-16 2016-17 2017-18 2018-19 2019-20 2020-21 2021-22"
+BOX="2009-10 2010-11 2013-14 2014-15 2015-16 2016-17 2017-18 2018-19 2019-20 2020-21 2021-22"
 LIVE="2022-23 2023-24 2024-25 2025-26"
 ALL="$BOX $LIVE 2026-27"
 set -e

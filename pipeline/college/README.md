@@ -27,12 +27,13 @@ Men's Division I. `public/college-basketball-savant.html`, data in `public/cbb/`
 | `college_value.py` | Savant value: features, the floor part, replacement, `apply_doc`; the first (on/off) weight test |
 | `team_fit.py` | The weights, fitted to team results; old against new; what drives the AP overlap |
 | `allsavant.py`, `ap_check.py` | All-Savant Teams and honours; the AP check (never a target) |
+| `cbbd_box.py`, `cbbd_box_plan.py` | CBBD box scores for games ESPN never recorded. Tried Nov 2: CBBD has the same gaps, so unused |
 | `config.py` | The stat registry. A stat missing here does not exist |
 | `build.py` | Everything to `public/cbb/`. `--merge <season>` rebuilds one |
 | `fallback.py` | Rungs 3 and 4, and their diff reports |
 | `archive.py`, `mac_pull.sh` | Rung 0 (private, on the Mac), rung 2, Monday's ages |
 | `cloud_cbb.py`, `cloud_run.sh` | The nightly refresh |
-| `full_build.sh`, `backfill.sh` | The Mac's full build; the seasons before 2022-23 (box tier from 2013-14) |
+| `full_build.sh`, `backfill.sh` | The Mac's full build; the seasons before 2022-23 (box tier: 2009-10, 2010-11 and 2013-14 on) |
 
 ## Things that are not obvious
 

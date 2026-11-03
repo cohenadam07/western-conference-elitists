@@ -17,14 +17,16 @@ family:  box / pbp / court. Which games it needs; decides "not tracked".
 """
 from collections import namedtuple
 
-FIRST_SEASON = "2013-14"
+FIRST_SEASON = "2009-10"
 FIRST_PBP = "2022-23"          # play-by-play stats need shot locations, which start here
-BOX_TIER = ["2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21", "2021-22"]
+# 2011-12 and 2012-13 fail the 98% box gate (ESPN never recorded some box scores), as does everything
+# before 2009-10; they stay off the site. cbbd_box_plan.py plans filling them from CBBD.
+BOX_TIER = ["2009-10", "2010-11", "2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21", "2021-22"]
 LAUNCH = ["2022-23", "2023-24", "2024-25", "2025-26", "2026-27"]
 SEASONS = BOX_TIER + LAUNCH
 CURRENT = "2026-27"
 LAST_FINAL = "2025-26"
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 BOX_GATE = 0.98                # a box-tier season needs its player lines to add up on this share of D1 games
 LINE_ERA = "2019-20"           # the three-point line moved to 22 ft 1.75 in
 QUAL_MIN_SHARE = 0.30          # share of team minutes to enter the pools

@@ -296,7 +296,8 @@ def build(seasons, log=print):
                         cb_dob[sid] = str(x["dateOfBirth"])[:10]
     cur = current_exp(log)
     span = career_span()
-    # T-Rank's files for 2013-14 to 2021-22 carried no readable birthdate on Nov 2, 2026, so those
+    # T-Rank's files before 2022-23 have no birthdate column at all (78 columns, the last a single digit;
+    # checked for 2007-08 to 2021-22, Nov 2, 2026), so refetching them will not help. Those
     # seasons take a date from any later season's match, or from Basketball Savant for NBA players.
     nba_dob = {}
     bd = os.path.expanduser("~/Basketball-Savant/aging_birthdates.json")

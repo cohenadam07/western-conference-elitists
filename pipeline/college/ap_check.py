@@ -30,13 +30,41 @@ def link_text(c):
     return (m.group(2) or m.group(1)) if m else re.sub(r"[{}'\[\]]", "", c).strip()
 
 
+def by_selector(t):
+    """Pages before 2009 list teams by selector: an AP block of rows, each row 1st, 2nd and 3rd team
+    side by side as player || school pairs."""
+    rows = {1: [], 2: [], 3: []}
+    m = re.search(r"rowspan\s*=\s*\"?\d+\"?\s*\|\s*\[\[Associated Press", t)   # the table's row, not the intro's mention
+    if not m:
+        return rows
+    a = m.start()
+    end = t.find("rowspan", t.find("\n", a))     # the next selector's block
+    blk = t[t.find("\n", a):end if end > 0 else None]
+    for r in re.split(r"\n\|-", blk):
+        r = r.strip().lstrip("|").strip()
+        if not r or r.startswith("style") or r.startswith("-"):
+            continue
+        cells = [c.strip() for c in re.split(r"\|\|", r)]
+        for k in (1, 2, 3):
+            i = 2 * (k - 1)
+            if len(cells) > i and "rowspan" not in cells[i] and "No third" not in cells[i]:
+                n = link_text(cells[i]).split(" (")[0].strip()
+                if n:
+                    rows[k].append(n)
+    return rows
+
+
 def parse():
     out = {}
-    for y in range(2014, 2027):
+    for y in range(2003, 2027):
         t = open(os.path.join(DIR, f"{y}.txt")).read()
         a = t.find("By player")
         if a < 0:
             a = t.find("Individual All-America")
+        if a < 0:                                   # before 2009: only the by-selector table
+            out[f"{y - 1}-{str(y)[2:]}"] = rows = by_selector(t)
+            print(y, {k: len(v) for k, v in rows.items()}, rows[1][:2])
+            continue
         a = t.find("{|", a)
         tb = t[a:t.find("\n|}", a)]      # on its own line: {{Center|}} inside a row also contains "|}"
         hdr = re.findall(r"^!\s*(?:[^|\n]*\|)?\s*([A-Za-z{}|. ]+)$", tb, re.M)
@@ -54,6 +82,8 @@ def parse():
             k = int(m.group(1) or m.group(2))
             if k in rows:
                 rows[k].append(link_text(cells[0]).split(" (")[0])
+        if not any(rows.values()):                # a heading over a table this can't read
+            rows = by_selector(t)
         out[f"{y - 1}-{str(y)[2:]}"] = rows
         print(y, {k: len(v) for k, v in rows.items()}, rows[1][:2])
     json.dump(out, open(os.path.join(DIR, "ap.json"), "w"), indent=1)
@@ -63,6 +93,9 @@ def overlap():
     ap = json.load(open(os.path.join(DIR, "ap.json")))
     res, tot = {}, [0, 0, 0, 0]
     for s, teams in sorted(ap.items()):
+        f = os.path.join(PUBLIC, "cbb", "allsavant", f"{s}.json.gz")
+        if not os.path.exists(f):          # a season not on the site
+            continue
         d = json.loads(gzip.decompress(open(os.path.join(PUBLIC, "cbb", "allsavant", f"{s}.json.gz"), "rb").read()))
         ours = {}
         for k in ("1", "2", "3"):

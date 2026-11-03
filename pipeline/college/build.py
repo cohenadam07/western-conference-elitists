@@ -746,12 +746,17 @@ def links(seen, tn, public):
     for e, r in seen.items():
         by[norm(r[1])].append(r)
     for x in d["players"]:
-        for r in by.get(norm(x.get("name")), ()):
-            sc = norm(tn.get(r[2], [None, ""])[1])
-            co = norm(x.get("college"))
-            if sc and (sc in co or co in sc):
-                out["draft"][r[0]] = x["id"]
-                out["by_draft"][x["id"]] = r[0]
+        co = norm(x.get("college"))
+        cands = [(r, norm(tn.get(r[2], [None, ""])[1])) for r in by.get(norm(x.get("name")), ())]
+        # An exact school first. A partial one only when it is the sole candidate: "texas" sits
+        # inside "northtexas", and in 2010-11 that gave Texas's Tristan Thompson a namesake's honour.
+        hit = [r for r, sc in cands if sc and sc == co]
+        if not hit:
+            part = [r for r, sc in cands if sc and co and (sc in co or co in sc)]
+            hit = part if len(part) == 1 else []
+        for r in hit:
+            out["draft"][r[0]] = x["id"]
+            out["by_draft"][x["id"]] = r[0]
     ids = load_json(os.path.join(HERE, "..", "basketball", "seed", "espn_ids.json")) or {}
     for e in seen:
         if e in ids:

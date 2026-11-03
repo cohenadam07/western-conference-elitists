@@ -143,6 +143,8 @@ def next_box(model, S):
     bv = np.array([model["beta"][f] * model["credit"].get(f, 1.0) for f in FEATS])
     xs, ys, ws = [], [], []
     for a, b in zip(S, S[1:]):
+        if int(b.season[:4]) != int(a.season[:4]) + 1:     # a season off the site leaves a gap
+            continue
         ra, rb = sum(bv[i] * a.X[f] for i, f in enumerate(FEATS)), sum(bv[i] * b.X[f] for i, f in enumerate(FEATS))
         nx = {e: j for j, e in enumerate(b.id)}
         for i, e in enumerate(a.id):

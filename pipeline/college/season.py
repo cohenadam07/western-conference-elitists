@@ -149,6 +149,9 @@ def gates(season, G, PG, TG):
     ok = d1[d1.pbp_ok]
     L = d1[d1.lineups != "none"]
     lo = d1[d1.lineup_ok]
+    if "c_fga" not in PG:            # a season with no play-by-play at all (2004-05 and earlier)
+        for k in ("pts", "fgm", "fga", "fg3m", "fg3a", "ftm", "fta"):
+            PG["c_" + k] = PG["g_" + k] = float("nan")
     in_ok = PG[PG.gid.isin(set(ok.gid)) & PG.c_fga.notna()]
     same = pd.Series(True, index=in_ok.index)
     for k in ("pts", "fgm", "fga", "fg3m", "fg3a", "ftm", "fta"):

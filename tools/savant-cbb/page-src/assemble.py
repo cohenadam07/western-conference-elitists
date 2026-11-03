@@ -82,7 +82,7 @@ html = f"""<!doctype html>
   <main class="main">
     <div class="view" id="view"><p class="empty">Loading…</p></div>
     <div id="home"></div>
-    <div class="wrap"><p class="foot"><span id="ver"></span> · New in 1.1: seasons back to 2013-14, schedule strength and adjustment confidence, and the All-Savant Teams. Data: ESPN, CollegeBasketballData and NCAA.com; team ratings follow T-Rank's published method and are computed by WCE. Some birthdates come from T-Rank's public player file. Model outputs are the model's view, not a verdict. <a href="/#ai">Ask it in Claude with the WCE connector</a>. <a href="/">Western Conference Elitists</a></p></div>
+    <div class="wrap"><p class="foot"><span id="ver"></span> · New in 1.2: 2009-10 and 2010-11, with their All-Savant Teams. Data: ESPN, CollegeBasketballData and NCAA.com; team ratings follow T-Rank's published method and are computed by WCE. Some birthdates come from T-Rank's public player file. Model outputs are the model's view, not a verdict. <a href="/#ai">Ask it in Claude with the WCE connector</a>. <a href="/">Western Conference Elitists</a></p></div>
   </main>
 </div>
 <script src="/savant-cbb.js"></script>
