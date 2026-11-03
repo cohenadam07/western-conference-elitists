@@ -139,6 +139,10 @@ test('only a real key lists and calls savant_query; every other address gets the
   // Its description is the length the directory review expects, and it is read-only.
   const t = (await keyedClient.listTools()).tools.find((x) => x.name === 'savant_query')
   assert.ok(t.description.length > 80 && t.description.length < 1300, `description is ${t.description.length} characters`)
+  // What Pro adds to what an assistant reads up front. The public list has its own budget in
+  // check:savant-mcp; Pro may add at most this much on top of it.
+  const pro = JSON.stringify({ name: t.name, description: t.description, inputSchema: t.inputSchema }).length
+  assert.ok(pro < 4500, `savant_query adds ${pro} characters to what a key holder's assistant reads up front`)
   assert.equal(t.annotations.readOnlyHint, true)
   assert.equal(t.annotations.destructiveHint, false)
 })
