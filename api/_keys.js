@@ -9,7 +9,10 @@
 // - Its tool calls are counted per key per day, in the same write the usage log already makes
 //   (api/_usage.js), so a keyed call costs the store nothing extra.
 // - Whoever holds a key from before WCE Pro launches is a founding member (FOUNDING below).
-// A key opens nothing else. The connector is read-only with or without one.
+// - It opens the WCE Pro beta: the Pro tools in api/mcp.js's PRO_SECTIONS (savant_query, in
+//   api/_query.js), free while WCE Pro is in beta. Nothing a fan can use without a key moves
+//   behind one.
+// The connector is read-only with or without one.
 //
 // WHAT IS STORED (Upstash, the site's store)
 //   wce:mcp:keys           hash  <id> -> { h, email, created, newsletter, source }

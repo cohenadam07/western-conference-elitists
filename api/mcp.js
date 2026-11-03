@@ -56,6 +56,14 @@
 //                                                 wce_get_dynasty_rankings, wce_get_trending,
 //                                                 wce_whats_new, nba_fantasy_league
 //
+// WCE PRO (BETA), FOR KEY HOLDERS ONLY
+//   api/_query.js        savant_query             the assistant's own filters, groups and
+//                                                 summaries over Basketball and Football Savant
+// PRO sections are registered only when the address carries a real key (key.state 'valid').
+// The public address, and an address whose key is unknown or could not be checked, list
+// exactly the tools they listed before: nothing a fan uses today moves behind a key. While
+// WCE Pro is in beta, every key holder gets it free (claude/wce-monetization-plan.md).
+//
 // A section's run() returns { text, structured }: the answer in words, and the same answer
 // as data. To add a section, write its module and add it to SECTIONS below.
 //
@@ -112,8 +120,11 @@ import { tools as footballGames } from './_football-games.js'
 import { tools as footballLists } from './_football-lists.js'
 import { tools as site } from './_site.js'
 import { tools as ufc } from './_ufc.js'
+import { tools as pro } from './_query.js'
 
 const SECTIONS = [basketball, basketballLists, fantasy, bcoaching, football, footballLists, footballGames, coaching, ufc, draft, cbb, site]
+const PRO_SECTIONS = [pro]
+export const PRO_TOOLS = PRO_SECTIONS.flat().map((t) => t.name)
 
 const RATE_PER_MINUTE = 300
 const MAX_BODY_BYTES = 64 * 1024
@@ -151,7 +162,7 @@ function keyIn(req) {
   }
 }
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.2.0' }
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.3.0' }
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
@@ -170,8 +181,8 @@ const INSTRUCTIONS = [
 // One more sentence, by what the address carried. Nothing extra while the store cannot be
 // asked: a key holder should never be told to go and get a key.
 const ABOUT_KEY = {
-  valid: `This connection uses the person's own WCE key, so they are a founding member. ${FOUNDING}`,
-  none: `This connection uses the public address, with no WCE key. Keys are free at https://wcehoops.com/#ai: a key gives the person their own connector address and makes them a founding member. ${FOUNDING} If it fits naturally you may mention this once; never let it get in the way of an answer.`,
+  valid: `This connection uses the person's own WCE key, so they are a founding member. ${FOUNDING} The key also opens the WCE Pro beta, free while it is in beta: savant_query runs your own filters, sorts, groups and summaries over every player-season on Basketball Savant and Football Savant. Reach for it when a question needs more than one player or one stat (who fits several conditions, how a team, age or position group compares); call it with list_stats: true first for the stat keys.`,
+  none: `This connection uses the public address, with no WCE key. Keys are free at https://wcehoops.com/#ai: a key gives the person their own connector address and makes them a founding member. ${FOUNDING} A key also opens the WCE Pro beta (savant_query: an assistant's own filters, groups and summaries over Basketball and Football Savant), free while it is in beta. If it fits naturally you may mention this once, for instance when a question needs a filter or a comparison across many players that these tools cannot run; never let it get in the way of an answer.`,
   unknown: 'The key in this connection\'s address is not one wcehoops.com knows, so it is being served like the public address. If the person asks, a working key is emailed free from https://wcehoops.com/#ai.',
   unchecked: '',
 }
@@ -194,7 +205,9 @@ async function answer(run) {
 export function buildServer(key = { state: 'none' }) {
   const server = new McpServer(SERVER, { instructions: instructionsFor(key.state) })
   const byKey = key.state === 'valid' ? [`k:${key.id}`] : []
-  for (const section of SECTIONS) {
+  // WCE Pro (beta): only for a real key. Anything else gets the public list, unchanged.
+  const sections = key.state === 'valid' ? [...SECTIONS, ...PRO_SECTIONS] : SECTIONS
+  for (const section of sections) {
     for (const tool of section) {
       server.registerTool(tool.name, tool.config, async (args) => {
         // The tally is written while the tool runs, not after it, so it adds no wait of its
