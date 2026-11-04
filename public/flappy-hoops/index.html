@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="/flappy-hoops/assets/index-B0srGkNz.js"></script>
-  <link rel="stylesheet" crossorigin href="/flappy-hoops/assets/index-Cy4Ta1uV.css">
+  <script type="module" crossorigin src="/flappy-hoops/assets/index-DLqm0MEW.js"></script>
+  <link rel="stylesheet" crossorigin href="/flappy-hoops/assets/index-COfJMHp7.css">
 </head>
 <body>
 <div id="app">
@@ -46,6 +46,7 @@
 
   <div id="popup" class="popup hidden"><b id="popT">SWISH!</b><span id="popS"></span></div>
   <div id="toast" class="toast hidden"></div>
+  <div id="edgeGlow" class="edge-glow hidden" aria-live="polite"><div class="eg-chip"><b id="egName"></b><span id="egWhat"></span></div></div>
   <div id="shotClock" class="shotclock hidden"><span>SHOT CLOCK</span><b id="scN">4</b></div>
 
   <div id="card" class="modal hidden">
@@ -115,7 +116,7 @@
         <div class="shop-bal"><span id="shopTix">0</span></div>
         <button class="shop-x" id="shopClose" aria-label="Close the shop">✕</button>
       </div>
-      <div class="shop-tabs"><button class="shop-tab on" data-tab="balls">Balls</button><button class="shop-tab" data-tab="trails">Trails</button><button class="shop-tab wheel" data-tab="wheel">★ Prize Wheel</button><button class="shop-tab drop" data-tab="drop">◆ The Drop</button></div>
+      <div class="shop-tabs"><button class="shop-tab on" data-tab="balls">Balls</button><button class="shop-tab" data-tab="trails">Trails</button><button class="shop-tab" data-tab="booms">Explosions</button><button class="shop-tab wheel" data-tab="wheel">★ Prize Wheel</button><button class="shop-tab drop" data-tab="drop">◆ The Drop</button><button class="shop-tab lotto" data-tab="lotto">● Lottery</button></div>
       <div class="shop-body" id="shopBody"></div>
     </div>
   </div>

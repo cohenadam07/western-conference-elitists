@@ -107,6 +107,8 @@ export function cleanLive(me, now) {
     n: typeof m.n === 'string' && NONCE_RE.test(m.n) ? m.n : '',
     // (lk: the ball and trail they have on, so everyone else's game draws their ball the way they see it)
     lk: typeof m.lk === 'string' && LOOK_RE.test(m.lk) ? m.lk : '',
+    // (ex: their goal explosion, Flappy Hoops 2.10, so it goes off when their ball goes in on everyone's screen)
+    ex: typeof m.ex === 'string' && /^[a-z0-9]{1,16}$/.test(m.ex) ? m.ex : '',
     // (d: how this game's links to the others are doing, in its own words: only ever read back by
     // someone asking after the party by its code, to find out why two games didn't connect)
     d: typeof m.d === 'string' ? m.d.replace(/[^\x20-\x7e]/g, '').slice(0, 600) : '' }
@@ -313,6 +315,7 @@ export function view(room, live, fins, you, now) {
     const o = { id: p.id, name: p.name, color: p.color, here: isHere(room, live, p.id, now) }
     if (l && l.n) o.n = l.n
     if (l && l.lk) o.lk = l.lk
+    if (l && l.ex) o.ex = l.ex
     if (room.phase === 'vote' && cur) { o.vw = l.vw; o.vm = l.vm }
     if (racing && cur && l.h === room.hole) { o.k = l.k; o.f = l.f; if (p.id !== you) o.in = l.in }
     if (racing && fins[p.id]) o.fin = fins[p.id].dnf ? { dnf: 1 } : { k: fins[p.id].k, f: fins[p.id].f }

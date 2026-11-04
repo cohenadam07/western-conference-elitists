@@ -98,7 +98,8 @@ const int = (v, lo, hi, d = 0) => { const n = Math.trunc(Number(v)); return Numb
 
 export const emptySave = () => ({
   bests: {}, flags: {},
-  wallet: { tickets: 0, earned: 0, balls: ['classic'], trails: ['streak'], ball: 'classic', trail: 'streak', spins: 0, drops: 0 },
+  wallet: { tickets: 0, earned: 0, balls: ['classic'], trails: ['streak'], ball: 'classic', trail: 'streak', spins: 0, drops: 0,
+    booms: ['bucket'], boom: 'bucket', pulls: 0, lfree: 0 },
 })
 
 // Taps as the game sends them: [[step, dir], ...], steps never going back, dir -1 / 0 / 1.
@@ -145,7 +146,13 @@ export function cleanSave(raw) {
     ball: typeof w.ball === 'string' && ITEM_RE.test(w.ball) ? w.ball : 'classic',
     trail: typeof w.trail === 'string' && ITEM_RE.test(w.trail) ? w.trail : 'streak',
     spins: int(w.spins, 0, 1e6), drops: int(w.drops, 0, 1e6),
+    // (goal explosions, Flappy Hoops 2.10: what you own and have on, Draft Lottery pulls and free pulls used)
+    booms: list(w.booms, ['bucket']),
+    boom: typeof w.boom === 'string' && ITEM_RE.test(w.boom) ? w.boom : 'bucket',
+    pulls: int(w.pulls, 0, 1e6), lfree: int(w.lfree, 0, 1e6),
   }
+  if (!S.wallet.booms.includes('bucket')) S.wallet.booms.unshift('bucket')
+  if (!S.wallet.booms.includes(S.wallet.boom)) S.wallet.boom = 'bucket'
   return S
 }
 
@@ -163,13 +170,17 @@ export function mergeSave(S, C, delta = {}, eq = false) {
   const W = out.wallet, cw = c.wallet
   for (const id of cw.balls) if (!W.balls.includes(id)) W.balls.push(id)
   for (const id of cw.trails) if (!W.trails.includes(id)) W.trails.push(id)
+  for (const id of cw.booms) if (!W.booms.includes(id)) W.booms.push(id)
   W.tickets = Math.max(0, W.tickets + int(delta.tickets, -1e7, 1e7))
   W.earned = W.earned + Math.max(0, int(delta.earned, -1e7, 1e7))
   W.spins = Math.max(W.spins, cw.spins)
   W.drops = Math.max(W.drops, cw.drops)
+  W.pulls = Math.max(W.pulls, cw.pulls)
+  W.lfree = Math.max(W.lfree, cw.lfree)
   if (eq === true) {
     if (W.balls.includes(cw.ball)) W.ball = cw.ball
     if (W.trails.includes(cw.trail)) W.trail = cw.trail
+    if (W.booms.includes(cw.boom)) W.boom = cw.boom
   }
   return out
 }

@@ -2,6 +2,13 @@
   {
     "date": "2026-11-04",
     "product": "Flappy Hoops",
+    "version": "2.10.0",
+    "text": "goal explosions: one goes off when your ball goes in, bigger for a swish, under par or a record; ten legendary ones in The Draft Lottery",
+    "to": "/hoops"
+  },
+  {
+    "date": "2026-11-04",
+    "product": "Flappy Hoops",
     "version": "2.9.0",
     "text": "a new home screen that fits every device: a city tour plays behind it, one row of buttons, and a city picker",
     "to": "/hoops"
