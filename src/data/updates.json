@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-11-04",
+    "product": "Flappy Hoops",
+    "version": "2.8.0",
+    "text": "Home Court: a legendary ball and trail for every city, earned there; Meatball on the wheel, Smokehouse on The Drop",
+    "to": "/hoops"
+  },
+  {
     "date": "2026-11-03",
     "product": "Flappy Hoops",
     "version": "2.7.0",
