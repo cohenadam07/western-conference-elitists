@@ -2,6 +2,13 @@
   {
     "date": "2026-11-03",
     "product": "Flappy Hoops",
+    "version": "2.7.0",
+    "text": "the LA Clippers and Charlotte, the 27th and 28th cities",
+    "to": "/hoops"
+  },
+  {
+    "date": "2026-11-03",
+    "product": "Flappy Hoops",
     "version": "2.6.0",
     "text": "Memphis and Chicago, the 25th and 26th cities",
     "to": "/hoops"
