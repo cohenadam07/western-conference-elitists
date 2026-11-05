@@ -52,18 +52,45 @@ run_once() {
   if [ ! -d "$BCSOUT/bundles" ] && git fetch -q --depth 1 origin bcs-bundles 2>/dev/null; then
     mkdir -p "$BCSOUT" && git archive FETCH_HEAD | tar -x -C "$BCSOUT"
   fi
+  # A coaching failure is an ::error:: (red in the run's annotations, and the Data Room check in
+  # basketball-savant-freshness.yml fails the next day), but the step goes on: Basketball Savant
+  # still publishes. refresh_live.py exits nonzero when the Data Room it wrote is behind the
+  # ESPN games it read, so a silent skip (Nov 2026: "2026-27: no schedule", rc=0, the Data Room
+  # stuck at Oct 31 for days) can't pass for success again.
+  local BCS_OK=0
   if [ -d "$BCSOUT/bundles" ]; then
-    BCS_ESPN_CACHE="$GITHUB_WORKSPACE/.espn-cache/bcs" BCS_OUT="$BCSOUT" \
-      python3 -W ignore $BB/coaching/refresh_live.py --public "$GITHUB_WORKSPACE/public" --out "$BCSOUT" --tracking "$TR" \
-      || echo "::warning::the coaching refresh failed; Basketball Savant publishes without it"
+    if BCS_ESPN_CACHE="$GITHUB_WORKSPACE/.espn-cache/bcs" BCS_OUT="$BCSOUT" \
+      python3 -W ignore $BB/coaching/refresh_live.py --public "$GITHUB_WORKSPACE/public" --out "$BCSOUT" --tracking "$TR"; then
+      BCS_OK=1
+    else
+      echo "::error::the Basketball Coaching Savant refresh failed; Basketball Savant publishes without it (see the coaching lines above)"
+    fi
   else
-    echo "coaching refresh skipped: no bcs-bundles branch yet (run the full build on the Mac and push it)"
+    echo "::error::coaching refresh skipped: no bcs-bundles branch (run the full build on the Mac and push it)"
   fi
   git add public/savant-current.json public/savant-proj.json public/savant-teams-current.json \
           public/lineups public/savant-ext data/savant-refresh.json $BB/seed/espn_ids.json
-  # the coaching files: everything daily except the two big Data Room tables, which go weekly
-  git add public/bcs/index.json public/bcs/c public/bcs/t public/bcs/ww "public/bcs/data/games" "public/bcs/data/decisions" "public/bcs/data/units" public/bcs/data/coaches.json public/bcs/data/dictionary.json 2>/dev/null
-  if [ "$(date -u +%u)" = "1" ]; then git add public/bcs/data/stints public/bcs/data/rotation 2>/dev/null; fi
+  # The coaching files. Only after a good coaching pass: a failed one may have written some
+  # files and not others, and the last good set online beats a mixed one.
+  if [ $BCS_OK = 1 ]; then
+    git add public/bcs/index.json public/bcs/c public/bcs/t public/bcs/ww "public/bcs/data/games" "public/bcs/data/decisions" "public/bcs/data/units" public/bcs/data/coaches.json public/bcs/data/dictionary.json 2>/dev/null
+    # The two big Data Room tables (stints, rotation: ~2 MB a season by April) go once the
+    # night's slate is all in (and on the morning rebuilds), not on every pass mid-slate, so the
+    # repo doesn't take ~5 copies a night; they are never more than a slate behind the games table.
+    python3 $BB/cloud_publish.py pending . >/dev/null
+    if [ $? -ne 10 ] || [ "$(date -u +%u)" = "1" ]; then
+      git add public/bcs/data/stints public/bcs/data/rotation 2>/dev/null
+    else
+      # not this pass: back to what main has (the next pass rebuilds them), so the tree is clean
+      # for the pull --rebase below
+      git checkout -q -- public/bcs/data/stints public/bcs/data/rotation 2>/dev/null
+      git clean -fdq public/bcs/data/stints public/bcs/data/rotation 2>/dev/null
+    fi
+  else
+    # leave the tree clean, or the pull --rebase below refuses to run and a push race loses
+    # this pass's Basketball Savant commit
+    git checkout -q -- public/bcs 2>/dev/null; git clean -fdq public/bcs 2>/dev/null
+  fi
   if git diff --cached --quiet; then echo "nothing changed"; return 0; fi
   local SEASON THROUGH MSG
   read SEASON THROUGH < <(python3 -c "import json;d=json.load(open('public/savant-current.json'));print(d['seasons'][0], d.get('through') or 'latest')")

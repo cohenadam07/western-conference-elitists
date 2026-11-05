@@ -55,6 +55,20 @@ it can never block Basketball Savant). A merge-mode build of 2026-27 is byte-ide
 full build. Full builds stay on the Mac, which holds the ESPN cache, the Basketball-Reference
 cache and the NBA tables; `publish_bundles.sh` pushes its bundles for the cloud to merge into.
 
+**The Nov 5 fix (the stalled Data Room).** "Byte-identical" held on the Mac, not in the cloud: the
+schedule pass one walks is the NBA's LeagueGameLog from the engine's cache, which the cloud cannot
+pull, so every cloud pass logged `2026-27: no schedule`, skipped the season and exited 0. The Data
+Room stayed at the Mac's Oct 31 build and the coach pages lost their 2026-27 row. Now the ESPN
+games fill in every game after the NBA log's last date (final score from ESPN's box, which matches
+the NBA's; the NBA game id carried from the published table where the Mac had joined it, null
+after), a game after the registry's last look goes to the team's coach of record, and
+`refresh_live.py` fails loudly (`::error::`, exit 4) when a Data Room table it wrote is behind the
+ESPN games it read. Stints and rotation now publish once the night's slate is in (and on the
+morning rebuilds), not Mondays only. Every Data Room file and `index.json` meta carry `through`,
+the newest game; the connector's "Data as of" is that date. `npm run check:freshness` (also in
+`basketball-savant-freshness.yml`) fails when a Data Room table lags Basketball Savant's newest
+game by more than a day, or the college games table lags by more than three.
+
 **Shipped on Oct 29.** The switch-rate column for 2017-18 and 2018-19 (the defensive box-score
 backfill reached them overnight; 41 coach pages gained samples), republished bundles, the faces,
 and two check fixes (the coverage manifest after the redesign, one tool description trimmed to
@@ -93,8 +107,8 @@ source is `pipeline/basketball/coaching/BUILD-NOTES.md`.
 6. **The visual pass ran in headless Chromium** and its screenshots were looked at (desktop and
    phone), but the page has not yet been used in a real browser by a person.
 7. **The cloud refresh's merge-mode step** should be watched through its first runs against the
-   republished bundles (the Actions log says "coaching refresh" either way; a failure is a
-   warning, not a stop).
+   republished bundles (the Actions log says "coaching refresh" either way; a failure is an
+   `::error::`, not a stop, and the daily freshness alarm fails while the Data Room lags).
 
 ## Known limits
 
