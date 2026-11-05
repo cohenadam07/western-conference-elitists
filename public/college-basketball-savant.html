@@ -429,7 +429,7 @@ a.ast-card:hover{text-decoration:none}
 'use strict';
 var M=window.SavantCBB,C=M.COL,$=function(s){return document.querySelector(s);};
 var API='/cbb/',cache={},REG,IDX,SEARCH,LINKS={},HON={},BYK={},TEAMS={};
-var S={season:null,pool:'pos',adj:true,gt:false,per:70,lstat:'bi',lpos:'all',lmin:300,tsort:'net',tab5:'5',splitTab:'site',wwA:null,wwOn:[],wwOff:[],cmpA:null,cmpB:null,lastP:null,lastT:null,astTab:'1',astConf:null};
+var S={season:null,pool:'pos',adj:true,gt:false,per:70,lstat:'bi',lpos:'all',lmin:null,tsort:'net',tab5:'5',splitTab:'site',wwA:null,wwOn:[],wwOff:[],cmpA:null,cmpB:null,lastP:null,lastT:null,astTab:'1',astConf:null};
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function ord(n){var s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
 function sg(v,d){d=d==null?1:d;if(v==null||!isFinite(v))return '—';if(Math.abs(v)<0.5*Math.pow(10,-d))return (0).toFixed(d);return (v>=0?'+':'−')+Math.abs(v).toFixed(d);}
@@ -483,13 +483,14 @@ function vHome(){
     function leaders(k){var c=M.column(d,k,{adj:true,gt:false}),s=statOf(k);return ids.filter(function(i){return M.ok(c[i])&&(k.indexOf('rapm')<0||(d.samples.rapm_n[i]||0)>=REG.rapm_min);}).sort(function(x,y){return s.lower?c[x]-c[y]:c[y]-c[x];}).slice(0,8).map(function(i){return [d.players[i],c[i]];});}
     var keyL=M.column(d,'rapm',{adj:true})&&leaders('rapm').length?'rapm':'bi',L=leaders(keyL),st=statOf(keyL);
     var h='<section class="trow"><div><h1>Men\'s Division I, '+esc(S.season)+'</h1><p class="sub">Every player and team, on the same percentile bars as Basketball Savant. Data through '+esc(dateShort(d.through))+'.</p></div><div class="actions">'+seasonSel('hseason',IDX.seasons.map(function(x){return x.season;}).reverse(),S.season)+'</div></section>';
+    if(earlyNote(S.season))h+='<p class="pool-n">'+esc(earlyNote(S.season))+'</p>';
     h+='<p class="finding"><strong>'+esc(top[0].name)+'</strong> leads our ratings at '+sg(top[0].net)+' per 100 possessions. <strong>'+esc(L[0][0][C.name])+'</strong> leads D1 in '+esc(st.label)+' at '+esc(M.display(st,L[0][1],S.per))+'.</p>';
     h+='<div class="cols even"><section class="card"><div class="hd"><h2>Top teams</h2><a class="meta" href="#teams">All 365</a></div><div class="twrap"><table class="tbl"><thead><tr><th>Team</th><th class="r">Net</th><th class="r hide-s">Off</th><th class="r hide-s">Def</th><th class="r">Record</th></tr></thead><tbody>'+
       top.map(function(r){return '<tr><td>'+teamLink(r.id)+'</td><td class="r">'+sg(r.net)+'</td><td class="r hide-s">'+num(r.adjo)+'</td><td class="r hide-s">'+num(r.adjd)+'</td><td class="r">'+r.w+'–'+r.l+'</td></tr>';}).join('')+'</tbody></table></div></section>';
     h+='<section class="card"><div class="hd"><h2>'+esc(st.label)+' leaders</h2><a class="meta" href="#leaders">All leaders</a></div>'+(st.key==='rapm'?'<p class="pool-n" style="margin-top:0">'+esc(REG.rapm_early)+'</p>':'')+'<div class="twrap"><table class="tbl"><thead><tr><th>Player</th><th>Team</th><th class="r">'+esc(st.label)+'</th></tr></thead><tbody>'+
       L.map(function(x){var p=x[0];return '<tr><td>'+playerLink(p[C.id],p[C.name])+'</td><td>'+teamLink(p[C.team])+'</td><td class="r">'+esc(M.display(st,x[1],S.per))+'</td></tr>';}).join('')+'</tbody></table></div></section></div>';
     if(!(si.court))h+='<p class="meta" style="margin-top:12px">On/off, lineups and RAPM are not tracked this season: clean lineup data starts in 2024-25.</p>';
-    if(ast){var one=ast.national['1']||[];h+='<section class="ast" style="margin-top:24px"><div class="hd"><h2>All-Savant 1st team'+(ast.so_far?', so far':'')+'</h2><a class="meta" href="#all-savant">All teams</a></div>'+(IDX.landing_note&&S.season===IDX.default_season?'<p class="pool-n" style="margin-top:0">'+esc(IDX.landing_note)+'</p>':'')+'<div class="ast-row">'+one.map(function(x,i){return astCard(x,i,S.season);}).join('')+'</div></section>';}
+    if(ast){var one=ast.national['1']||[];h+='<section class="ast" style="margin-top:24px"><div class="hd"><h2>All-Savant 1st team'+(ast.so_far?', so far':'')+'</h2><a class="meta" href="#all-savant">All teams</a></div>'+(earlyNote(S.season)?'<p class="pool-n" style="margin-top:0">'+esc(earlyNote(S.season))+'</p>':'')+'<div class="ast-row">'+one.map(function(x,i){return astCard(x,i,S.season);}).join('')+'</div></section>';}
     return {html:h,cur:'players'};
   });
 }
@@ -638,7 +639,7 @@ function vAllSavant(){
     if(t.poy)h+='<p class="finding"><strong>Savant Player of the Year'+(t.so_far?', so far':'')+':</strong> <a href="#player-'+esc(t.poy.id)+'/'+esc(sn)+'">'+esc(t.poy.name)+'</a>, '+esc(tname(t.poy.team))+', '+num(t.poy.value)+' points over replacement.</p>';
     if(t.so_far)h+='<p class="pool-n">Standings so far, through '+esc(dateShort(t.through))+'. These become honours after the national championship.</p>';
     if(t.note)h+='<p class="pool-n">'+esc(t.note)+'</p>';
-    if(IDX.landing_note&&sn===IDX.default_season)h+='<p class="pool-n">'+esc(IDX.landing_note)+'</p>';
+    if(earlyNote(sn))h+='<p class="pool-n">'+esc(earlyNote(sn))+'</p>';
     h+='<section class="ast"><div class="ast-ctl">'+seg('ast',[['1','1st'],['2','2nd'],['3','3rd'],['conf','Conference'],['fr','Freshman']],tab,'Which team')+seasonSel('hseason',IDX.seasons.map(function(x){return x.season;}).reverse(),sn)+(tab==='conf'?'<label class="ctl" for="astconf">Conference<select class="sel" id="astconf">'+confs.map(function(c){return '<option value="'+esc(c)+'"'+(c===cf?' selected':'')+'>'+esc(confName(c))+'</option>';}).join('')+'</select></label>':'')+'</div><h2 class="vh">'+esc(titles[tab])+'</h2><div class="ast-row">'+(row.length?row.map(function(x,i){return astCard(x,i,sn);}).join(''):'<p class="ast-empty">No qualified players yet.</p>')+'</div></section>';
     h+='<p class="pool-n" style="margin-top:18px">Two guards, two wings and a big, by this site’s positions. A player makes one national team. '+(sn>='2024-25'?'This season’s value includes the on-floor part, from lineups.':'This season’s value is box score only: lineups start in 2024-25.')+' Every D1 game counts, through the national championship. Missed games count: a player earns nothing on a night not played.</p>';
     return {html:h,cur:'allsavant'};
@@ -660,11 +661,14 @@ function vTeams(){
 function vLeaders(){
   return load('s/'+S.season+'.json').then(function(d){
     var st=statOf(S.lstat),c=M.column(d,st.key,{adj:S.adj,gt:S.gt})||[],ns=st.sample?d.samples[st.sample]:null,P=d.players;
-    var ids=[];for(var i=0;i<P.length;i++){if(!M.ok(c[i]))continue;if((d.samples.poss[i]||0)<S.lmin)continue;if(S.lpos!=='all'&&P[i][C.pos]!==S.lpos)continue;if(st.key.indexOf('rapm')===0&&(d.samples.rapm_n[i]||0)<REG.rapm_min)continue;ids.push(i);}
+    /* A season a few games old has nobody at 100 possessions, so its minimums start lower. */
+    var mins=earlyNote(S.season)?[25,50,100,300]:[100,300,500,800],lmin=S.lmin!=null&&mins.indexOf(S.lmin)>=0?S.lmin:mins[earlyNote(S.season)?0:1];
+    var ids=[];for(var i=0;i<P.length;i++){if(!M.ok(c[i]))continue;if((d.samples.poss[i]||0)<lmin)continue;if(S.lpos!=='all'&&P[i][C.pos]!==S.lpos)continue;if(st.key.indexOf('rapm')===0&&(d.samples.rapm_n[i]||0)<REG.rapm_min)continue;ids.push(i);}
     ids.sort(function(a,b){return st.lower?c[a]-c[b]:c[b]-c[a];});
     var opts=REG.groups.map(function(g){return '<optgroup label="'+esc(g)+'">'+REG.stats.filter(function(s){return s.group===g;}).map(function(s){return '<option value="'+s.key+'"'+(s.key===st.key?' selected':'')+'>'+esc(s.label)+'</option>';}).join('')+'</optgroup>';}).join('');
     var label='vs D1'+(S.lpos==='all'?' players':' '+S.lpos.toLowerCase()+'s')+', '+(S.adj&&M.hasAdj(d,st.key)?'opponent-adjusted':'raw')+', '+S.season;
-    var h='<section class="trow"><div><h1>Leaders</h1><p class="sub">'+esc(st.what)+'</p></div></section><section class="card full"><div class="hd"><h2>'+esc(st.label)+'</h2><span class="meta">'+esc(label)+' · '+ids.length+' players</span></div><div class="ctrls" style="margin-bottom:12px"><label class="ctl" for="lstat">Stat<select class="sel" id="lstat">'+opts+'</select></label>'+seasonSel('hseason',IDX.seasons.map(function(x){return x.season;}).reverse(),S.season)+'<span class="ctl">'+seg('lpos',[['all','All'],['Guard','Guards'],['Wing','Wings'],['Big','Bigs']],S.lpos,'Position')+'</span><label class="ctl" for="lmin">Min. possessions<select class="sel" id="lmin">'+[100,300,500,800].map(function(v){return '<option value="'+v+'"'+(v===S.lmin?' selected':'')+'>'+v+'</option>';}).join('')+'</select></label></div>';
+    var h='<section class="trow"><div><h1>Leaders</h1><p class="sub">'+esc(st.what)+'</p></div></section><section class="card full"><div class="hd"><h2>'+esc(st.label)+'</h2><span class="meta">'+esc(label)+' · '+ids.length+' players</span></div><div class="ctrls" style="margin-bottom:12px"><label class="ctl" for="lstat">Stat<select class="sel" id="lstat">'+opts+'</select></label>'+seasonSel('hseason',IDX.seasons.map(function(x){return x.season;}).reverse(),S.season)+'<span class="ctl">'+seg('lpos',[['all','All'],['Guard','Guards'],['Wing','Wings'],['Big','Bigs']],S.lpos,'Position')+'</span><label class="ctl" for="lmin">Min. possessions<select class="sel" id="lmin">'+mins.map(function(v){return '<option value="'+v+'"'+(v===lmin?' selected':'')+'>'+v+'</option>';}).join('')+'</select></label></div>';
+    if(earlyNote(S.season))h+='<p class="pool-n" style="margin-top:0">'+esc(earlyNote(S.season))+'</p>';
     var rows=ids.slice(0,100);
     h+='<div class="twrap"><table class="tbl"><thead><tr><th class="r">#</th><th>Player</th><th class="hide-s">Team</th><th class="hide-s">Pos</th><th class="r">'+esc(st.label)+'</th><th class="tw hide-s">Percentile</th></tr></thead><tbody>'+rows.map(function(i,k){var p=P[i],r=M.row(d,REG,st,i,{poolName:S.lpos==='all'?'all':'pos',adj:S.adj,gt:S.gt,per:S.per});return '<tr><td class="r">'+(k+1)+'</td><td>'+playerLink(p[C.id],p[C.name])+'</td><td class="hide-s">'+teamLink(p[C.team])+'</td><td class="pos hide-s">'+esc(p[C.pos]||'')+'</td><td class="r">'+esc(M.display(st,c[i],S.per))+'</td><td class="tw hide-s">'+(r.pct!=null?bar(r,st.label,'sm',p[C.name]):'')+'</td></tr>';}).join('')+'</tbody></table></div></section>';
     return {html:h,cur:'leaders'};
@@ -689,8 +693,21 @@ function vCompare(){
 
 /* ---------- shell ---------- */
 var lastHash='',rid=0;
+/* The page opens on the current season. Until it has settled (the index's default_season is
+   still last season), say so and point at the last full one. */
+function earlyNote(sn){
+  if(!IDX||sn!==IDX.current||IDX.default_season===IDX.current)return '';
+  return sn+' has barely started, so most numbers are still settling (a stat marked low sample has not settled yet). Pick '+IDX.default_season+' in the season menu for the last full season.';
+}
+/* A control redrawn in place: find it again in the new view by its data attributes. */
+function ctlKey(el){
+  if(!el||el===document.body||!$('#view').contains(el))return null;
+  if(el.id)return '#'+CSS.escape(el.id);
+  var k=Object.keys(el.dataset||{});if(!k.length)return null;
+  return k.map(function(x){return '[data-'+x.replace(/[A-Z]/g,function(c){return '-'+c.toLowerCase();})+'="'+CSS.escape(el.dataset[x])+'"]';}).join('');
+}
 function render(){
-  var h=(location.hash||'#home').slice(1),my=++rid,p;pending=[];
+  var h=(location.hash||'#home').slice(1),my=++rid,p,y=window.scrollY,fk=ctlKey(document.activeElement);pending=[];
   if(h.indexOf('team-')===0){var a=h.slice(5).split('/');p=vTeam(a[0],a[1]);}
   else if(h==='teams')p=vTeams();
   else if(h==='leaders')p=vLeaders();
@@ -704,7 +721,10 @@ function render(){
     document.querySelectorAll('.nav a').forEach(function(x){x.setAttribute('aria-current',x.dataset.k===r.cur?'page':'false');});
     var si=IDX.seasons.filter(function(x){return x.season===S.season;})[0]||{};
     $('#scope').textContent='Men’s Division I · '+S.season+(si.through?' · through '+dateShort(si.through):'');
+    /* A new page starts at the top. A redraw of the same page (a toggle, a with/without pick,
+       a sort) keeps the reader exactly where they were, on every browser. */
     if(h!==lastHash){lastHash=h;window.scrollTo(0,0);}
+    else{window.scrollTo(0,y);var f=fk&&$('#view').querySelector(fk);if(f)try{f.focus({preventScroll:true});}catch(e){}}
   }).catch(function(e){if(my!==rid)return;console.error(e);$('#view').innerHTML='<p class="empty">That page could not load. '+esc(e.message)+'. Refresh to try again.</p>';});
 }
 document.addEventListener('click',function(e){
@@ -750,7 +770,7 @@ readScale();fit();
 Promise.all([load('registry.json'),load('index.json'),load('search.json'),load('links.json').catch(function(){return {};}),load('honours.json').catch(function(){return {};})]).then(function(a){
   REG=a[0];IDX=a[1];SEARCH=a[2];LINKS=a[3]||{};HON=a[4]||{};REG.stats.forEach(function(s){BYK[s.key]=s;});
   SEARCH.teams.forEach(function(t){TEAMS[t[0]]={name:t[1],abbr:t[2],conf:t[3],color:t[5]};});
-  S.season=IDX.default_season;
+  S.season=IDX.current||IDX.default_season;
   $('#ver').textContent='Version '+REG.version;
   render();
 }).catch(function(e){console.error(e);$('#view').innerHTML='<p class="empty">The data could not load. Refresh to try again.</p>';});
