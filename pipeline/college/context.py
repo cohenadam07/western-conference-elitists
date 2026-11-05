@@ -104,6 +104,7 @@ def rotation(stints):
     for gid, home, away, rows in stints:
         games[home] += 1
         games[away] += 1
+        g_on = defaultdict(lambda: defaultdict(lambda: np.zeros(40)))   # this game, capped at a full minute
         for r in rows:
             period, start, end, h5, a5 = r[0], r[1], r[2], r[3], r[4]
             if period not in (1, 2):
@@ -117,7 +118,10 @@ def rotation(stints):
                 if b > a:
                     for team, five in ((home, h5), (away, a5)):
                         for e in five:
-                            on[team][e][m] += (b - a) / 60.0
+                            g_on[team][e][m] += (b - a) / 60.0
+        for team, pl in g_on.items():                # overlapping stints (old lineup feeds) can't count twice
+            for e, arr in pl.items():
+                on[team][e] += np.minimum(arr, 1.0)
     out = {}
     for team, players in on.items():
         n = max(1, games[team])
@@ -187,23 +191,25 @@ def build(season, public=PUBLIC, log=print):
         P["opp"] = [away.get(g) if t == home.get(g) else home.get(g) for g, t in zip(P.gid, P.team)]
         Pn = P[P.g == 0]
         teams |= set(Pn.team.unique())
-    league = {"season": season, "through": through, "pbp": has_pbp}
-    team_docs = {}
-    if has_pbp:
-        # league baselines
-        lb = bins(S)
-        league["bins"] = lb
-        league["starts"] = starts_table(Pn)
-        league["clock"] = clock_split(S)
-        tr = Pn[Pn.is_tr]
-        league["transition"] = [int(len(tr)), int(tr.pts.sum())]
-        a = Pn[Pn.is_ato]
-        league["ato"] = [int(len(a)), int(a.pts.sum())]
-        league["poss"] = [int(len(Pn)), int(Pn.pts.sum())]
     d1 = None
     tp = os.path.join(public, "cbb", "teams", f"{season}.json.gz")
     if os.path.exists(tp):
         d1 = {r["id"] for r in json.loads(gzip.decompress(open(tp, "rb").read()))["teams"]}
+    league = {"season": season, "through": through, "pbp": has_pbp}
+    team_docs = {}
+    if has_pbp:
+        # league baselines: D1 teams' own possessions and shots (games against non-D1 opponents count)
+        Ld = Pn if d1 is None else Pn[Pn.team.isin(d1)]
+        Sd = S if d1 is None else S[S.team.isin(d1)]
+        lb = bins(Sd)
+        league["bins"] = lb
+        league["starts"] = starts_table(Ld)
+        league["clock"] = clock_split(Sd)
+        tr = Ld[Ld.is_tr]
+        league["transition"] = [int(len(tr)), int(tr.pts.sum())]
+        a = Ld[Ld.is_ato]
+        league["ato"] = [int(len(a)), int(a.pts.sum())]
+        league["poss"] = [int(len(Ld)), int(Ld.pts.sum())]
     for team in sorted(t for t in teams if t and (d1 is None or t in d1)):
         doc = {"season": season, "team": team, "through": through, "games": games.get(team), "pbp": has_pbp, "rotation": rot.get(team, {})}
         if has_pbp:

@@ -323,8 +323,8 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   const { tools } = await client.listTools()
   // The whole list, by name. Adding or dropping a tool should be a decision, not a side effect.
   assert.deepEqual(tools.map((t) => t.name).sort(), [
-    'cbb_all_savant_team', 'cbb_data', 'cbb_data_dictionary', 'cbb_game', 'cbb_get_player_profile', 'cbb_leaderboard', 'cbb_lineups', 'cbb_player_career', 'cbb_player_splits', 'cbb_schedule',
-    'cbb_search_players', 'cbb_team_profile', 'cbb_team_rankings',
+    'cbb_all_savant_team', 'cbb_data', 'cbb_data_dictionary', 'cbb_game', 'cbb_get_player_profile', 'cbb_leaderboard', 'cbb_lineups', 'cbb_play_context', 'cbb_player_career', 'cbb_player_splits', 'cbb_rotation', 'cbb_schedule',
+    'cbb_search_players', 'cbb_shot_chart', 'cbb_team_profile', 'cbb_team_rankings',
     'nba_all_savant_team', 'nba_coaching_data', 'nba_coaching_dictionary', 'nba_coaching_leaders', 'nba_coaching_tree',
     'nba_draft_get_prospect_profile', 'nba_draft_search_prospects', 'nba_fantasy_league',
     'nba_fantasy_lock_in', 'nba_fantasy_player', 'nba_fantasy_rankings', 'nba_fantasy_streamers', 'nba_fantasy_trade',
@@ -342,8 +342,9 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   // since the connector was made to reach everything on the site (Oct 2026, about 15,000 tokens);
   // 63,000 since the six Basketball Coaching Savant tools (Oct 27, 2026); 72,000 since the eleven
   // College Basketball Savant tools (Nov 2, 2026); 74,000 since cbb_all_savant_team; 75,000 since
-  // cbb_schedule and the college leaderboard and team filters (Nov 5, 2026).
-  assert.ok(upfront < 75000, `tool names, descriptions and inputs came to ${upfront} characters`)
+  // cbb_schedule and the college leaderboard and team filters (Nov 5, 2026); 77,000 since
+  // cbb_play_context, cbb_shot_chart and cbb_rotation (Nov 5, 2026).
+  assert.ok(upfront < 77000, `tool names, descriptions and inputs came to ${upfront} characters`)
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)
