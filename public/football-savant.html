@@ -1359,7 +1359,7 @@ body{background-color:#1D6B3A;color:var(--ink);
       <div>
         <div class="brand-word">Football <span>Savant</span></div>
         <div style="display:flex;gap:9px;align-items:center;margin-top:7px;flex-wrap:wrap">
-          <span class="eyebrow-pill" id="srcpill">nflverse data</span>
+          <span class="eyebrow-pill" id="srcpill" title="Data: nflverse (CC BY 4.0). Play charting: FTN Data via nflverse (CC BY-SA 4.0).">nflverse data · FTN Data via nflverse</span>
           <span class="vchip" id="verchip"></span>
           <a class="backlink" href="/">&larr; wcehoops.com</a>
           <a class="backlink" href="/coaching-savant.html">Coaching Savant</a>
@@ -6073,7 +6073,7 @@ function init(){
     DATA=mergeData(res[0],res[1]); applyHeads(DATA,res[2]); prepData();
     document.getElementById('boot').remove();
     var top=DATA.data[DATA.seasons[0]]||{}, wk=top.week, wp=top.weekPlaying;
-    document.getElementById('srcpill').textContent='nflverse · '+DATA.seasons[DATA.seasons.length-1]+'–'+DATA.seasons[0]
+    document.getElementById('srcpill').textContent='nflverse · '+DATA.seasons[DATA.seasons.length-1]+'–'+DATA.seasons[0]+' · charting: FTN Data via nflverse'
       +(wk?(' · through week '+wk+(wp&&wp>wk?', week '+wp+' under way':'')):'');
     curSeason=DATA.seasons[0];
     renderHomePos();
