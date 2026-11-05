@@ -45,7 +45,7 @@ export const GROUPS = {
   pass_rush: 'prsh', run_defense: 'rdef', coverage: 'cov', kicking: 'kick', value: 'val', athletic: 'ath',
 }
 
-const SOURCE = 'Football Savant, Western Conference Elitists (wcehoops.com)'
+const SOURCE = 'Football Savant, Western Conference Elitists (wcehoops.com). Data: nflverse (CC BY 4.0); play charting: FTN Data via nflverse (CC BY-SA 4.0)'
 // Counts that are worked out from snap share until a season's lineups are published.
 const EST_COUNTS = new Set(['pblk', 'rblk', 'opsnap', 'dpsnap', 'drsnap', 'gaprun'])
 const SMALL_POOL = 10 // under this many qualified players, an answer says the pool is small

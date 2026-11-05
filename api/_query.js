@@ -44,7 +44,7 @@ const MAX_COLS = 19 // 8 conditions + 10 shown stats + the sort stat: nothing as
 const TEXT_ROWS = 50 // rows written out in words; every row is in the structured result
 const SOURCES = {
   nba: 'Basketball Savant, Western Conference Elitists (wcehoops.com)',
-  nfl: 'Football Savant, Western Conference Elitists (wcehoops.com)',
+  nfl: 'Football Savant, Western Conference Elitists (wcehoops.com). Data: nflverse (CC BY 4.0); play charting: FTN Data via nflverse (CC BY-SA 4.0)',
 }
 export const COMPUTED_NOTE = 'Group numbers are computed by this query (plain arithmetic over the values and percentiles the pages store); no page shows them. Every percentile itself is the page\'s own, never recomputed.'
 
