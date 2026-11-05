@@ -114,7 +114,7 @@ async function profile({ player, season, pool, adjusted, garbage_time, per, grou
   const quality = qr.map((r) => ({ split: r[0], ...Object.fromEntries(SPLIT_COLS.map((c, k) => [c, r[k + 1]])) }))
   const cr = await career(pl[C.id]).then((x) => x[pl[C.id]]).catch(() => null)
   const cs = cr ? (cr.r.find((r) => r.s === s && r.t === pl[C.team]) || cr.r.find((r) => r.s === s)) : null
-  const comps = cs ? (cs.cmp || []).map((x) => ({ id: x[0], name: x[1], season: x[2], match: x[4], url: playerUrl(x[0], x[2]) })) : []
+  const comps = cs ? (cs.cmp || []).map((x) => ({ id: x[0], name: x[1], season: x[2], match: Math.round(x[4] * 100), url: playerUrl(x[0], x[2]) })) : []
   const lines = [`${pl[C.name]}, ${team}, ${s}. ${pl[C.pos] || 'position unknown'}, ${pl[C.cls] || ''}, age ${miss(pl[C.age]) ? 'unknown' : pl[C.age].toFixed(1)} on Feb 1.`, `Percentiles ${label} (${pp.ids.length} players).${pp.widened ? ` ${pp.widened}.` : ''} Rates per ${per} possessions.`]
   for (const r of rows) lines.push(r.tracked ? `${r.label}${r.context ? ' (context)' : ''}: ${r.shown ?? '—'}${r.percentile == null ? (r.note ? ` (${r.note})` : '') : `, ${ordinal(r.percentile)} percentile`}${r.likely_to_settle_at ? `, likely to settle at ${r.likely_to_settle_at}` : ''}` : `${r.label}: ${r.note}`)
   if (rows.some((r) => r.early)) lines.push(`RAPM: ${R.rapm_early}`)
@@ -122,7 +122,7 @@ async function profile({ player, season, pool, adjusted, garbage_time, per, grou
   if (sched) lines.push(`${sched.text}.`)
   if (conf_) lines.push(`Adjustment confidence: ${conf_.text}.`)
   if ((pl[C.gp] || 0) < 5 && s === (await index()).seasons.map((x) => x.season).sort().slice(-1)[0]) lines.splice(2, 0, `EARLY SEASON: ${pl[C.gp] || 0} game${pl[C.gp] === 1 ? '' : 's'} played. Percentiles this early are noise; judge him on last season until about 10 games.`)
-  if (comps.length) lines.push(`Nearest comparable player-seasons (match 0 to 1, same position): ${comps.map((x) => `${x.name} ${x.season} (${x.match})`).join(', ')}.`)
+  if (comps.length) lines.push(`Nearest comparable player-seasons (match out of 100, as on the page; same position, within a year of age): ${comps.map((x) => `${x.name} ${x.season} (${x.match})`).join(', ')}.`)
   if (hon.length) lines.push(`Honours: ${hon.map((h) => `${h.label} ${h.season}`).join(', ')}.`)
   if (d.tier === 'box') lines.push(`${s} is a box-score season: shot zones, lineups, on/off and RAPM are not tracked.`)
   lines.push(`Data through ${day(d.through)}. ${playerUrl(pl[C.id], s)}`)
@@ -136,12 +136,12 @@ async function playerCareer({ player }) {
   const by = Object.fromEntries(R.stats.map((s) => [s.key, s]))
   const seasons = []
   for (const r of c.r) {
-    seasons.push({ season: r.s, team: await tname(r.t), team_id: r.t, position: r.p, class: r.c, games: r.g, minutes: r.m, transferred: seasons.length > 0 && seasons[seasons.length - 1].team_id !== r.t, stats: Object.fromEntries(Object.entries(r.v).map(([k, v]) => [k, { value: v[0], shown: M.display(by[k], v[0], 70), percentile: v[1] }])), comps: (r.cmp || []).map((x) => ({ id: x[0], name: x[1], season: x[2], match: x[4] })) })
+    seasons.push({ season: r.s, team: await tname(r.t), team_id: r.t, position: r.p, class: r.c, games: r.g, minutes: r.m, transferred: seasons.length > 0 && seasons[seasons.length - 1].team_id !== r.t, stats: Object.fromEntries(Object.entries(r.v).map(([k, v]) => [k, { value: v[0], shown: M.display(by[k], v[0], 70), percentile: v[1] }])), comps: (r.cmp || []).map((x) => ({ id: x[0], name: x[1], season: x[2], match: Math.round(x[4] * 100) })) })
   }
   const lines = [`${c.b[0]}: ${seasons.map((s) => `${s.season} ${s.team}${s.transferred ? ' (transfer)' : ''}`).join('; ')}. Percentiles vs D1 at position, per season, adjusted where the stat has it.`]
   for (const s of seasons) {
     lines.push(`${s.season}: ${s.games} games, ${Object.entries(s.stats).filter(([, v]) => v.percentile != null).map(([k, v]) => `${by[k].label} ${v.shown} (${ordinal(v.percentile)})`).join(', ')}`)
-    if (s.comps.length) lines.push(`  Nearest comparable player-seasons (match 0 to 1): ${s.comps.map((x) => `${x.name} ${x.season} (${x.match})`).join(', ')}`)
+    if (s.comps.length) lines.push(`  Nearest comparable player-seasons (match out of 100): ${s.comps.map((x) => `${x.name} ${x.season} (${x.match})`).join(', ')}`)
   }
   lines.push(playerUrl(p[0]))
   return { text: lines.join('\n'), structured: { player: { id: p[0], name: c.b[0], url: playerUrl(p[0]) }, pool: 'vs D1 at position, adjusted where the stat has it, same season', seasons } }
