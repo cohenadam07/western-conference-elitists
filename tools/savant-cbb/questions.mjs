@@ -124,3 +124,15 @@ test('Q9: the schedule tool answers, or fails cleanly when ESPN cannot be reache
   if (r.isError) assert.match(r.content[0].text, /could not be read just now/)
   else assert.ok(r.structuredContent.games.length >= 20 && r.structuredContent.games.every((g) => g.date && g.opponent))
 })
+
+test('Q31-33 (1.3.0): play context, a shot chart and a rotation map answer in one call each', async () => {
+  const full = idx.seasons.filter((x) => x.context === 'full').map((x) => x.season).filter((s) => s <= DONE).slice(-1)[0]
+  if (!full) return
+  const t = read(`teams/${full}.json`).teams.find((x) => x.gp >= 25)
+  const pc = await call('cbb_play_context', { team: t.id, season: full })
+  assert.match(pc.text, /Transition/); assert.match(pc.text, /estimated/)
+  const sc = await call('cbb_shot_chart', { team: t.id, season: full })
+  assert.ok(sc.s.areas.some((a) => a.area === 'rim' && a.fga > 100))
+  const ro = await call('cbb_rotation', { team: t.id, season: full })
+  assert.ok(ro.s.players.length >= 7)
+})

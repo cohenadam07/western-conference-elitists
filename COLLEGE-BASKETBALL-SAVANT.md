@@ -1,4 +1,51 @@
-# College Basketball Savant 1.2.0
+# College Basketball Savant 1.3.0
+
+Built overnight Nov 4-5, 2026 on branch `cbb-step1-context`: step one of making College Basketball Savant as deep as
+Basketball Savant, using only what ESPN's play-by-play already gives us. The 1.2.0 note follows.
+
+## What's new in 1.3.0
+
+- **A possession log** in `rebuild.py`: one row per possession with how it began (after a made basket, a defensive
+  rebound, a steal, a dead-ball turnover, made last free throws, a half's start), whether a team timeout or a media
+  timeout came before its first action, its first action and when, its points, the margin and clock at its start, and
+  both fives. It only records what the possession logic already decides: on 300 sampled 2025-26 games every existing
+  output (player rows, team rows, stints, shots, gates) is byte-identical to the old code, the log has exactly one row
+  per counted possession in all 600 team-games, and its points match the play-by-play's in 595 (the other 5 differ by
+  1-3 points: free throws after a technical while the other team has the ball). "Start not logged" (where the feed
+  missed how the previous possession ended) is 0.8% of possessions.
+- **Each shot carries an estimated shot clock**: seconds since its possession began or since the last offensive
+  rebound. The feed has no shot clock; every place that shows it says "estimated".
+- **`context.py`** writes, per team-season, `cbb/ctx/<season>/<team>.json` (possession starts own and allowed with
+  points, transition, after timeouts, clutch, the shot clock, 2-ft shot bins for the team, its opponents and each
+  player, each player's clutch and after-timeout shooting and his clutch on-floor net, and the rotation map) and
+  `cbb/ctx/<season>/league.json` (D1 baselines and every team's D1 rank). The Data Room gains
+  `cbb/pos/<season>/<team>.json`, one row per possession. 2025-26 and 2026-27 have all of it; 2023-24 and 2024-25
+  have rotation maps only (their stints are in `cbb-bundles`; their shots and possessions need `season.py` re-run on
+  the Mac, where the CBBD lineup files live). `build.py` runs it for the merge season every night; a failure warns and
+  leaves everything else.
+- **Definitions.** Transition: a possession after a defensive rebound or a steal whose first shot, free throw or
+  turnover comes within 8 seconds (rebuild.py's own transition window). After a timeout: run out of the team's own
+  timeout (media timeouts are their own level), first action a shot or a turnover. Clutch: last 5 minutes, overtime
+  included, within 5. Garbage time out of all of it. League baselines are D1 teams' own possessions.
+- **Checks.** `context.mjs`: starts add up to possessions, team and league; bins to shots; players to team; every
+  rotation map to 190-200 minutes a game; the connector to the files; rotation-only seasons say so. Oklahoma, Houston
+  and Duke 2025-26 possessions and points equal `tg.pkl`'s non-garbage totals exactly.
+- **Connector 3.5.0:** `cbb_play_context`, `cbb_shot_chart`, `cbb_rotation`; `cbb_player_splits` gains the shot
+  clock and clutch; `cbb_data` gains the `possessions` table.
+
+## Lineup history: no season before 2024-25 can be added
+
+| Season | Lineup source | Games with clean lineups | Gate (court stats need about 80%) |
+|---|---|---|---|
+| 2025-26 | ESPN substitutions | 94.2% of D1 games | passes |
+| 2024-25 | CBBD fives, ESPN subs from mid-February | 83.9% | passes |
+| 2023-24 | CBBD fives | 52.9% | fails |
+| 2022-23 and before | none (ESPN logged no substitutions; CBBD on-floor data starts 2023-24) | 0% | fails |
+
+So on/off, lineups and RAPM stay 2024-25 on. 2023-24 gets a rotation map, which needs only the stints of the games
+that pass (3,028), and says so.
+
+# College Basketball Savant 1.2.0 (the 1.2 note)
 
 Built Nov 2-3, 2026 on branch `college-savant-1.2`: the history back to 2002-03 that Adam asked for, of which two
 seasons pass. The 1.1.0 and 1.0.0 notes follow below; value, the weight test, the AP check and every season's
