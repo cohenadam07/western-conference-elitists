@@ -96,6 +96,66 @@ def clean(o):
     return o
 
 
+# ---------------------------------------------------------------- the season in progress, in the cloud
+# The schedule (registry.game_logs) is the NBA's LeagueGameLog from the engine's cache, which only
+# the Mac can pull: stats.nba.com refuses cloud servers. In the cloud that table is missing for
+# the season in progress, so until Nov 2026 pass one logged "no schedule", skipped the season,
+# and every cloud refresh republished the Mac's last Data Room rows (and coach pages without the
+# season). The ESPN games the cloud does have now fill in what the NBA log lacks.
+def published_nba_ids(public, season):
+    """{ESPN gid: NBA gid} from the Data Room games table already on the site: the Mac's last
+    build joined them to the NBA's log, and each cloud pass carries them forward."""
+    p = os.path.join(public, "bcs", "data", "games", f"{season}.json.gz")
+    try:
+        d = json.loads(gzip.decompress(open(p, "rb").read()))
+        i, j = d["columns"].index("gid"), d["columns"].index("nba_gid")
+        return {str(r[i]): r[j] for r in d["rows"] if r[i] and r[j]}
+    except Exception:  # noqa
+        return {}
+
+
+def schedule_from_espn(season, logs, proc):
+    """The NBA's team-game log plus a row per team for every ESPN regular-season or playoff game
+    played after the log's last date (the play-in comes from ESPN in context.build already). Up
+    to that date the log stays the schedule, as in a full build on the Mac. A game counts as in
+    the log if the same two teams met that date (a day either side for a neutral site abroad,
+    where the NBA and ESPN can disagree on the date)."""
+    if not proc:
+        return logs
+    year = int(season[:4])
+    have = {(r["date"], frozenset((r["team"], r["opp"]))) for r in logs}
+    last = max((r["date"] for r in logs), default="")
+    add = []
+    for g in proc["games"]:
+        if g.get("stype") not in (2, 3) or len(g.get("team") or {}) != 2 or g["date"] <= last:
+            continue
+        pair = frozenset(g["team"])
+        days = (-1, 0, 1) if g.get("neutral") else (0,)
+        d0 = dt.date.fromisoformat(g["date"])
+        if any(((d0 + dt.timedelta(days=k)).isoformat(), pair) in have for k in days):
+            continue
+        # The final score from ESPN's box (the players' points), which is what the NBA's log
+        # says; the running score in ESPN's play-by-play misses a basket now and then (6 of the
+        # first 120 games of 2026-27, one of them the wrong winner). The play-by-play score only
+        # where the box is blank.
+        box = defaultdict(float)
+        for p in g["players"].values():
+            box[p["team"]] += p.get("pts") or 0
+        final = {team: int(box[t["espn"]]) if all(box[x["espn"]] > 0 for x in g["team"].values()) else int(t["pts"])
+                 for team, t in g["team"].items()}
+        for team, t in g["team"].items():
+            opp = next(k for k in g["team"] if k != team)
+            pm = final[team] - final[opp]
+            add.append(dict(gid=g.get("nba_gid"), date=g["date"], team=team, abbr=TM.nba_abbr(team, year), opp=opp, home=bool(t["home"]),
+                            wl="W" if pm > 0 else "L", pts=final[team], type="RS" if g["stype"] == 2 else "PO", pm=pm))
+    if add:
+        log(f"{season}: {len(add) // 2} games from ESPN that the NBA game log lacks"
+            f" ({len(logs) // 2} in the log{', through ' + max(r['date'] for r in logs) if logs else ''})")
+    out = logs + add
+    out.sort(key=lambda r: (r["date"], r["gid"] or "", r["team"]))
+    return out
+
+
 # ---------------------------------------------------------------- pass one
 def bundle_path(out, season):
     return os.path.join(out, "bundles", f"{season}.pkl")
@@ -128,10 +188,20 @@ def pass_one(seasons, reg, public, out, refresh=None):
     for t in tenures:
         ten_by[(t["season"], t["team"])].append(t)
 
+    live = set(refresh or []) | {current_season()}
+
     def who_date(season, team, date):
-        for t in ten_by.get((season, team), []):
-            if t["first"] <= date <= t["last"]:
+        ts = ten_by.get((season, team), [])
+        for t in ts:
+            if t["first"] and t["last"] and t["first"] <= date <= t["last"]:
                 return t["coach"]
+        # The season in progress: registry.py (a Mac step) last saw the schedule some days ago, so a
+        # game after its last look goes to the coach of record, the tenure that ran latest. A coach
+        # change since then shows once the Mac runs the registry again.
+        if season in live:
+            prior = [t for t in ts if t["first"] and t["first"] <= date]
+            if prior:
+                return max(prior, key=lambda t: t["last"] or t["first"])["coach"]
         return None
 
     bundles = {}
@@ -151,11 +221,19 @@ def pass_one(seasons, reg, public, out, refresh=None):
                 bundles[season] = b
                 prev_min = b.get("prev_min")
                 continue
-        logs = logs_all.get(season)
+        logs = logs_all.get(season) or []
+        proc = P.load(season)
+        if proc and season in live:
+            ids = published_nba_ids(public, season)
+            for g in proc["games"]:
+                if not g.get("nba_gid") and ids.get(str(g["gid"])):
+                    g["nba_gid"] = ids[str(g["gid"])]
+            logs = schedule_from_espn(season, logs, proc)
         if not logs:
             log(f"{season}: no schedule")
+            if season in (refresh or []):
+                raise SystemExit(f"{season}: no schedule and no ESPN games for the season being refreshed; nothing to publish")
             continue
-        proc = P.load(season)
         games = proc["games"] if proc else []
         arch, prev_arch = A.players(season), A.players(season_label(year - 1))
         impact = {k: v["bpm"] for k, v in arch.items() if v.get("bpm") is not None}
@@ -239,10 +317,15 @@ def pass_one(seasons, reg, public, out, refresh=None):
     return bundles
 
 
+def _through(dates):
+    """The newest game date a Data Room table covers (the connector's "data as of")."""
+    return max((d for d in dates if d), default=None)
+
+
 def write_games_table(out, season, rows):
     cols = sorted({k for r in rows for k in r.keys()} - {"_g"})
     data = [[clean(r.get(k)) for k in cols] for r in rows]
-    dump(os.path.join(out, "data", "games", f"{season}.json.gz"), dict(table="games", season=season, columns=cols, rows=data), gz=True)
+    dump(os.path.join(out, "data", "games", f"{season}.json.gz"), dict(table="games", season=season, through=_through(r.get("date") for r in rows), columns=cols, rows=data), gz=True)
 
 
 def write_stints(out, season, games, who_g, names):
@@ -254,7 +337,7 @@ def write_stints(out, season, games, who_g, names):
         hc, ac = who_g(g, g["home"]), who_g(g, g["away"])
         for s in g["stints"]:
             data.append([g["gid"], g.get("nba_gid"), g["date"], g["home"], g["away"], hc, ac, s[0], s[1], s[2], round(s[1] - s[2], 1)] + s[3:5] + [int(x) for x in s[5:10]] + [int(x) for x in s[10:]])
-    dump(os.path.join(out, "data", "stints", f"{season}.json.gz"), dict(table="stints", season=season, columns=cols, rows=data), gz=True)
+    dump(os.path.join(out, "data", "stints", f"{season}.json.gz"), dict(table="stints", season=season, through=_through(g["date"] for g in games), columns=cols, rows=data), gz=True)
 
 
 def write_decisions(out, season, games, who_g):
@@ -285,7 +368,7 @@ def write_decisions(out, season, games, who_g):
                 if p["team"] == esp:
                     for per, clock, n, sat in p.get("trouble") or []:
                         data.append([g["gid"], g["date"], team, opp, coach, "foul_trouble", per, clock, None, pid, n, sat, None, None])
-    dump(os.path.join(out, "data", "decisions", f"{season}.json.gz"), dict(table="decisions", season=season, columns=cols, rows=data,
+    dump(os.path.join(out, "data", "decisions", f"{season}.json.gz"), dict(table="decisions", season=season, through=_through(g["date"] for g in games), columns=cols, rows=data,
          legend={"timeout": "a: full/short, b: opponent run at the call, c: own/opp ball, d: points on the first possession after, e: [opp points, possessions] over the next five",
                  "challenge": "a: result, b: timeout lost, c: text", "run_against": "a: size at detection, b: final size, c: timeout called, d: size at the timeout, e: [opp points, possessions] after the decision point",
                  "up3": "a: fouled before a shot, b: points allowed", "two_for_one": "a: got another possession", "end_of_period": "clock: seconds left at the start; a: points, b: how it ended, c: another possession followed",
@@ -301,7 +384,7 @@ def write_rotation_table(out, season, rot_rs, rot_po, names):
                 for pid, iv in gr["iv"].items():
                     pc = gr["pc"].get(pid) or [0, 0, 0, 0, 0]
                     data.append([gr["gid"], gr["date"], team, coach, kind, pid, names.get(pid), iv] + pc)
-    dump(os.path.join(out, "data", "rotation", f"{season}.json.gz"), dict(table="rotation", season=season, columns=cols, rows=data), gz=True)
+    dump(os.path.join(out, "data", "rotation", f"{season}.json.gz"), dict(table="rotation", season=season, through=_through(x[1] for x in data), columns=cols, rows=data), gz=True)
 
 
 # ---------------------------------------------------------------- pass two
@@ -645,7 +728,7 @@ def pass_two(bundles, reg, odds, public, out, seasons):
             for x in u["units2"]:
                 rows_.append([team, coach, 2, x["ids"], x["min"], x["poss"], x["gp"], x["ortg"], x["drtg"], x["net"], x["adj"], x["est"], None, None, x.get("oppq"), x.get("efg"), x.get("oefg"), x.get("orb"), x.get("tov"), None])
         if rows_:
-            dump(os.path.join(out, "data", "units", f"{season}.json.gz"), dict(table="units", season=season, columns=cols, rows=clean(rows_)), gz=True)
+            dump(os.path.join(out, "data", "units", f"{season}.json.gz"), dict(table="units", season=season, through=_through(r.get("date") for r in b.get("rows", [])), columns=cols, rows=clean(rows_)), gz=True)
     log(f"wrote {tfiles} team-season files")
     # ---- leaders
     leaders = []
@@ -719,7 +802,10 @@ def pass_two(bundles, reg, odds, public, out, seasons):
         pj = json.load(open(pp))
         pairings = dict(n_units=pj["n_units"], seasons=[pj["seasons"][0], pj["seasons"][-1]], results=pj["results"], replicated=pj["replicated"],
                         note="Luck-adjusted five-man net on Σ BPM, Σ usage, the count of each player type and the pairing, with team-season fixed effects and errors clustered by team-season; discovered on even seasons, replicated on odd. A pairing is used in the projection if it keeps its sign in both halves and its pooled estimate clears p < .05 (the stricter rule, p < .05 in each half, admitted nothing).")
-    meta = dict(version=VERSION, generated=dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), current=cur, seasons=seasons,
+    # the data's own date (the newest game in the build), which the connector quotes as "data as of";
+    # generated is only when the build ran
+    through = max((r["date"] for r in bundles[max(bundles)].get("rows", []) if r.get("date")), default=None) if bundles else None
+    meta = dict(version=VERSION, generated=dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), through=through, current=cur, seasons=seasons,
                 rules=dict(min_career_seasons=CF.MIN_CAREER_SEASONS, min_career_games=CF.MIN_CAREER_GAMES, min_season_games=CF.MIN_SEASON_GAMES, career_pool=len(eligible)),
                 fits=dict(talent=talent, parts={k: v for k, v in (parts or {}).items() if not k.startswith("_")}, spread_games=len(all_sp), pairings=pairings),
                 pools=pools, model_note=CF.MODEL, tree_note=TREE.TREE_NOTE, fixes=reg["fixes"], unconfirmed=reg["unconfirmed"])
