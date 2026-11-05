@@ -201,7 +201,7 @@ async function teamRankings({ season, limit, sort }) {
   const { s } = await pickSeason(season)
   const t = await teamsDoc(s)
   const rows = t.teams.slice().sort((a, b) => (sort === 'adjd' ? a.adjd - b.adjd : (b[sort] ?? -999) - (a[sort] ?? -999))).slice(0, limit)
-  return { text: [`D1 teams, ${s}, by ${sort}:`, ...rows.map((r, i) => `${i + 1}. ${r.name} ${r.w}-${r.l}: net ${r.net}, off ${r.adjo}, def ${r.adjd}, market ${r.market ?? '—'}, BPI ${r.bpi ?? '—'}, NET ${r.netrank ?? 'not tracked'}`), `${PAGE}#teams`].join('\n'), structured: { season: s, sort, teams: rows } }
+  return { text: [`D1 teams, ${s}, by ${sort}:`, ...rows.map((r, i) => `${i + 1}. ${r.name} ${r.w}-${r.l}: net ${r.net}, off ${r.adjo}, def ${r.adjd}, market ${r.market ?? '—'}, BPI ${r.bpi ?? '—'}, NET ${r.netrank ?? 'not tracked'}`), `${PAGE}#teams`].join('\n'), structured: { season: s, sort, teams: rows.map((r) => ({ ...r, conference: CONFS[r.conf] || null })) } }
 }
 
 async function teamProfile({ team, season }) {
@@ -211,7 +211,10 @@ async function teamProfile({ team, season }) {
   const r = tb.teams.find((x) => x.id === t[0])
   if (!r) throw new SavantError(`${t[1]} has no line in ${s}.`)
   const roster = T.roster.map((x) => ({ id: x[0], name: x[1], position: x[2], class: x[3], minutes: x[4] }))
-  return { text: [`${r.full || r.name}, ${s}: ${r.w}-${r.l} vs D1, ranked ${ordinal(r.rank)}. Net ${r.net}, offense ${r.adjo}, defense ${r.adjd}, pace ${r.tempo}. The market: ${r.market ?? 'no line'}. BPI ${r.bpi ?? '—'}. NET ${r.netrank ?? 'not tracked'}. Luck ${r.luck}. SOS ${r.sos}.`, `Roster by minutes: ${roster.slice(0, 8).map((x) => x.name).join(', ')}.`, teamUrl(t[0], s)].join('\n'), structured: { team: r, season: s, roster, results: T.results.map((g) => ({ gid: g[0], date: g[1], opponent_id: g[2], home: !!g[3], neutral: !!g[4], pts: g[5], opp_pts: g[6], non_d1: !!g[7], postseason: !!g[8], ot: g[9] })), url: teamUrl(t[0], s) } }
+  const results = []
+  for (const g of T.results) results.push({ gid: g[0], date: g[1], opponent_id: g[2], opponent: g[7] ? 'Non-D1' : await tname(g[2]), home: !!g[3], neutral: !!g[4], pts: g[5], opp_pts: g[6], non_d1: !!g[7], postseason: !!g[8], ot: g[9] })
+  const last = results.slice(-5).map((g) => `${g.pts > g.opp_pts ? 'W' : 'L'} ${g.pts}-${g.opp_pts} ${g.neutral ? 'vs' : g.home ? 'vs' : 'at'} ${g.opponent}`)
+  return { text: [`${r.full || r.name} (${CONFS[r.conf] || r.conf}), ${s}: ${r.w}-${r.l} vs D1, ranked ${ordinal(r.rank)}. Net ${r.net}, offense ${r.adjo}, defense ${r.adjd}, pace ${r.tempo}. The market: ${r.market ?? 'no line'}. BPI ${r.bpi ?? '—'}. NET ${r.netrank ?? 'not tracked'}. Luck ${r.luck}. SOS ${r.sos}.`, `Roster by minutes: ${roster.slice(0, 8).map((x) => x.name).join(', ')}.`, ...(last.length ? [`Latest results: ${last.join('; ')}.`] : []), teamUrl(t[0], s)].join('\n'), structured: { team: { ...r, conference: CONFS[r.conf] || null }, season: s, roster, results, url: teamUrl(t[0], s) } }
 }
 
 async function lineups({ team, season, size, with: withNames, without }) {

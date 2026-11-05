@@ -149,8 +149,29 @@ def apply_cuts(season, log=print):
     p = json.load(open(os.path.join(OUT, "report.json")))
     r = frame(season)
     s, b = label(r, p)
+    b, kept = carry_over(season, r, b)
     json.dump({e: [round(float(v), 2), x] for e, v, x in zip(r.eid, s, b)}, open(os.path.join(OUT, f"{season}.json"), "w"), separators=(",", ":"))
-    log(f"{season}: positions for {len(r)} players")
+    log(f"{season}: positions for {len(r)} players ({kept} kept from last season on a thin sample)")
+
+
+def prev_season(season):
+    y = int(season[:4]) - 1
+    return f"{y}-{str(y + 1)[2:]}"
+
+
+def carry_over(season, r, b):
+    """Early in a season one game's box score can move a player across a cut (a wing with ten
+    rebounds turns into a big). Below the qualifying line, a player keeps last season's bucket."""
+    path = os.path.join(OUT, f"{prev_season(season)}.json")
+    if not os.path.exists(path):
+        return b, 0
+    old = json.load(open(path))
+    out, kept = np.array(b, dtype=object), 0
+    for i, (e, poss) in enumerate(zip(r.eid, r.poss)):
+        o = old.get(e)
+        if o and poss < QUAL_POSS and o[1] != out[i]:
+            out[i], kept = o[1], kept + 1
+    return out, kept
 
 
 if __name__ == "__main__":
