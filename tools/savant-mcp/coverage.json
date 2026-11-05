@@ -767,6 +767,7 @@
         "cbb_team_profile",
         "cbb_team_rankings",
         "cbb_lineups",
+        "cbb_schedule",
         "cbb_game",
         "cbb_data",
         "cbb_data_dictionary",
