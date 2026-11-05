@@ -65,9 +65,24 @@ async function findTeam(q) {
   const d = await search()
   const hit = d.teams.find((t) => t[0] === q)
   if (hit) return hit
-  const hits = topTier(rank(prepare(d.teams.map((t) => ({ t, name: t[1] }))), q))
+  // A team answers to its short name ("Oklahoma"), its full name with the mascot ("Oklahoma
+  // Sooners", from the newest season's ratings) and its code ("OU").
+  const code = String(q).trim().toUpperCase()
+  const byCode = d.teams.filter((t) => String(t[2]).toUpperCase() === code)
+  if (byCode.length === 1) return byCode[0]
+  const full = await fullNames()
+  const rows = d.teams.map((t) => ({ t, name: t[1] })).concat(d.teams.filter((t) => full.has(t[0])).map((t) => ({ t, name: full.get(t[0]) })))
+  const hits = topTier(rank(prepare(rows), q))
   if (!hits.length) throw new SavantError(`No D1 team found for "${q}".`)
   return hits[0].t
+}
+let FULL = null
+async function fullNames() {              // team id -> "Oklahoma Sooners", from the last full season and the current one (a team that hasn't played yet isn't in the current file)
+  if (FULL) return FULL
+  const idx = await index()
+  const docs = await Promise.all([...new Set([idx.default_season, idx.current])].map((s) => teamsDoc(s).catch(() => ({ teams: [] }))))
+  FULL = new Map(docs.flatMap((t) => (t.teams || []).filter((r) => r.full).map((r) => [r.id, r.full])))
+  return FULL
 }
 const tname = async (id) => { const d = await search(); return (d.teams.find((t) => t[0] === id) || [])[1] || 'Non-D1' }
 const HIGH_MAJOR = new Set(['2', '4', '7', '8', '21', '23'])         // ACC, Big East, Big Ten, Big 12, Pac-12 while it played, SEC
