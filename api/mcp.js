@@ -56,6 +56,9 @@
 //                                                 wce_get_dynasty_rankings, wce_get_trending,
 //                                                 wce_whats_new, nba_fantasy_league
 //
+//   api/_ambiguous.js    (no tools)               names shared by an NBA and a college team
+//                                                 ("Oklahoma"): a note saying which, and to ask
+//
 // WCE PRO (BETA), FOR KEY HOLDERS ONLY
 //   api/_query.js        savant_query             the assistant's own filters, groups and
 //                                                 summaries over Basketball and Football Savant
@@ -121,6 +124,7 @@ import { tools as footballLists } from './_football-lists.js'
 import { tools as site } from './_site.js'
 import { tools as ufc } from './_ufc.js'
 import { tools as pro } from './_query.js'
+import { teamNote, notFoundNote } from './_ambiguous.js'
 
 const SECTIONS = [basketball, basketballLists, fantasy, bcoaching, football, footballLists, footballGames, coaching, ufc, draft, cbb, site]
 const PRO_SECTIONS = [pro]
@@ -162,7 +166,7 @@ function keyIn(req) {
   }
 }
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.5.0' }
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.5.1' }
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
@@ -174,6 +178,7 @@ const INSTRUCTIONS = [
   'nba_draft_ is Draft Savant: college and pre-draft data on draft prospects, not NBA stats.',
   'cbb_ is College Basketball Savant: every men\'s Division I player and team since 2013-14, opponent-adjusted percentiles against D1 at the same position by default, per 70 possessions, with RAPM, shot zones, lineups and team ratings computed by WCE; from 2025-26, play context (possession starts, transition, after timeouts, clutch, an estimated shot clock), shot charts and a possessions Data Room, and rotation maps from 2023-24; schedules read live from ESPN.',
   'wce_ is the site itself: its news page, its articles, its draft Big Board, its crowd-priced Dynasty board, its most-searched players and prospects, and what is new on its homepage. nba_fantasy_league values a fan\'s Sleeper, ESPN or Fantrax league on that Dynasty board.',
+  'Some names belong to both an NBA team and a D1 college team: Oklahoma (the Thunder or the Sooners), Memphis, Utah, Houston, Indiana, Miami, Charlotte, Denver, Portland, Washington, Minnesota, Milwaukee and others. When the person uses one of these without saying which league and the conversation has not made it clear, ask them which team they mean before answering; do not assume.',
   'Every percentile belongs to a pool, and each result names it. A percentile is only meaningful with its pool.',
   'A stat marked low sample is below its stabilization threshold. A stat a season did not track is listed as not tracked rather than shown as zero. Results state the date of their data and link to the matching page on wcehoops.com.',
 ].join(' ')
@@ -215,6 +220,10 @@ export function buildServer(key = { state: 'none' }) {
         // call is counted for its key in the same write.
         const counted = count([`t:${tool.name}`, ...byKey])
         const result = await answer(() => tool.run(args))
+        // "Oklahoma" is the Thunder and the Sooners: say which one this is, and to ask if unclear.
+        const t0 = result.content && result.content[0]
+        if (t0 && !result.isError) { const n = teamNote(tool.name, args); if (n) t0.text = `${n}\n\n${t0.text}` }
+        if (t0 && result.isError && args && args.team && /^No (D1 )?team (found|matches)/.test(t0.text)) { const n = notFoundNote(tool.name); if (n) t0.text += ` ${n}` }
         await counted
         if (result.isError) await count([`e:${tool.name}`])
         return result

@@ -14,7 +14,7 @@
     "check:forms": "node --test tools/forms/check.mjs",
     "check:dynasty-swipe": "node --test tools/dynasty-swipe/check.mjs",
     "check:savant-api": "node --test tools/savant-api/check.mjs && node --test tools/savant-api/more.mjs",
-    "check:savant-mcp": "node --test tools/savant-mcp/check.mjs",
+    "check:savant-mcp": "node --test tools/savant-mcp/ambiguity.mjs && node --test tools/savant-mcp/check.mjs",
     "check:connector-coverage": "node --test tools/savant-mcp/coverage.mjs",
     "check:savant-football": "node --test tools/savant-football/check.mjs && node --test tools/savant-football/more.mjs",
     "check:savant-ufc": "node --test tools/savant-ufc/check.mjs",
