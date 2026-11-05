@@ -98,6 +98,11 @@ test('the connector says what the files say', async () => {
   assert.equal(c.structured.possessions.own, d.poss[0])
   assert.equal(c.structured.after_timeout.possessions, d.ato[0])
   for (const r of c.structured.starts) assert.equal(r.own_poss, d.starts.own[r.start][0])
+  const L = read(`ctx/${s}/league.json`)
+  for (const r of c.structured.starts) {   // each start is shown against its own D1 average, in the text the assistant reads
+    const d1 = (L.starts[r.start][1] / L.starts[r.start][0]).toFixed(2)
+    assert.ok(c.text.includes(`${r.label} ${r.own_ppp.toFixed(2)} on ${r.own_poss} (allowed ${r.opp_ppp.toFixed(2)}; D1 ${d1})`), `${r.label} vs D1 ${d1}`)
+  }
   const sc = await run('cbb_shot_chart', { team: t, season: s, side: 'own' })
   assert.equal(sum(sc.structured.areas.map((a) => a.fga)), sum(d.shots.own.map((b) => b[2])))
   const ro = await run('cbb_rotation', { team: t, season: s })
