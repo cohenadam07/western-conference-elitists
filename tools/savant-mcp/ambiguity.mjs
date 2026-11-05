@@ -50,15 +50,38 @@ test('a bare "Oklahoma" on the NBA side says it is the Thunder and to ask', asyn
   assert.match(t, /Oklahoma City Thunder \d{4}-\d{2}:/)
 })
 
-test('clear names get no note', async () => {
-  for (const [n, a] of [['nba_team_profile', { team: 'OKC' }], ['nba_team_profile', { team: 'Thunder' }], ['cbb_team_profile', { team: 'Sooners', season: '2025-26' }], ['cbb_team_profile', { team: 'Oklahoma State', season: '2025-26' }]]) {
-    const t = await text(n, a)
-    assert.ok(!t.startsWith('Note:'), `${n} ${a.team}: ${t.slice(0, 80)}`)
+test('clear names get no note, and land on the right team', async () => {
+  for (const [n, a, want] of [['nba_team_profile', { team: 'OKC' }, /^Oklahoma City Thunder /], ['nba_team_profile', { team: 'Thunder' }, /^Oklahoma City Thunder /],
+    ['cbb_team_profile', { team: 'Sooners', season: '2025-26' }, /^Oklahoma Sooners \(/], ['cbb_team_profile', { team: 'Oklahoma Sooners', season: '2025-26' }, /^Oklahoma Sooners \(/],
+    ['cbb_team_profile', { team: 'OU', season: '2025-26' }, /^Oklahoma Sooners \(/], ['cbb_team_profile', { team: 'Oklahoma State', season: '2025-26' }, /^Oklahoma State Cowboys \(/],
+    ['cbb_team_profile', { team: 'Oklahoma State Cowboys', season: '2025-26' }, /^Oklahoma State Cowboys \(/], ['cbb_team_profile', { team: 'Miami (OH)', season: '2025-26' }, /^Miami \(OH\) RedHawks \(/]]) {
+    const r = await client.callTool({ name: n, arguments: a })
+    assert.ok(!r.isError, `${n} ${a.team}: ${r.content[0].text}`)
+    assert.match(r.content[0].text, want, `${n} ${a.team}`)
+  }
+})
+
+test('the team the note names is the team a follow-up call finds', async () => {
+  // The note says "the college Oklahoma Sooners"; an assistant that takes that name back to a
+  // cbb_ tool must land on the same team, not on "No D1 team found".
+  const { SHARED_NAMES } = await import('../../api/_ambiguous.js')
+  for (const [, [, col]] of Object.entries(SHARED_NAMES)) {
+    const r = await client.callTool({ name: 'cbb_team_profile', arguments: { team: col, season: '2025-26' } })
+    assert.ok(!r.isError, `${col}: ${r.content[0].text}`)
+    assert.ok(r.content[0].text.split('\n')[0].includes(col), `${col}: ${r.content[0].text.slice(0, 60)}`)
+  }
+})
+
+test('an NBA-only name on the college side is turned back, not fuzzy-matched', async () => {
+  for (const team of ['Thunder', 'OKC', 'Oklahoma City', 'Golden State', 'Celtics', 'Philadelphia 76ers']) {
+    const r = await client.callTool({ name: 'cbb_team_profile', arguments: { team, season: '2025-26' } })
+    assert.ok(r.isError, team)
+    assert.match(r.content[0].text, /is an NBA team .*the nba_ tools have it.*ask them/, team)
   }
 })
 
 test('an NBA name on the college side points to the other league', async () => {
-  const r = await client.callTool({ name: 'cbb_team_profile', arguments: { team: 'Oklahoma City Thunder', season: '2025-26' } })
+  const r = await client.callTool({ name: 'cbb_team_profile', arguments: { team: 'Brooklyn Nets Basketball Club', season: '2025-26' } })
   assert.ok(r.isError)
   assert.match(r.content[0].text, /No D1 team found .*If the person meant an NBA team, the nba_ tools have it; if it is not clear which league they mean, ask them\./)
 })

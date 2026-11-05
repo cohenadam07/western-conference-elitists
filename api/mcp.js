@@ -124,7 +124,7 @@ import { tools as footballLists } from './_football-lists.js'
 import { tools as site } from './_site.js'
 import { tools as ufc } from './_ufc.js'
 import { tools as pro } from './_query.js'
-import { teamNote, notFoundNote } from './_ambiguous.js'
+import { nbaOnly, teamNote, notFoundNote } from './_ambiguous.js'
 
 const SECTIONS = [basketball, basketballLists, fantasy, bcoaching, football, footballLists, footballGames, coaching, ufc, draft, cbb, site]
 const PRO_SECTIONS = [pro]
@@ -166,7 +166,7 @@ function keyIn(req) {
   }
 }
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.5.1' }
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.5.2' }
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
@@ -219,7 +219,8 @@ export function buildServer(key = { state: 'none' }) {
         // own; it cannot fail the call and gives up after 700 ms (api/_usage.js). A keyed
         // call is counted for its key in the same write.
         const counted = count([`t:${tool.name}`, ...byKey])
-        const result = await answer(() => tool.run(args))
+        const turnBack = nbaOnly(tool.name, args)
+        const result = turnBack ? { isError: true, content: [{ type: 'text', text: turnBack }] } : await answer(() => tool.run(args))
         // "Oklahoma" is the Thunder and the Sooners: say which one this is, and to ask if unclear.
         const t0 = result.content && result.content[0]
         if (t0 && !result.isError) { const n = teamNote(tool.name, args); if (n) t0.text = `${n}\n\n${t0.text}` }
