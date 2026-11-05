@@ -237,3 +237,51 @@ test('the Data Room pulls rows with filters, columns and paging, and the diction
   assert.ok(!d.isError && d.structuredContent.stats.length === index.stats.length && d.structuredContent.tables.games)
   for (const t of ['stints', 'units', 'rotation', 'decisions']) { const x = await call('nba_coaching_data', { table: t, season, limit: 3 }); assert.ok(!x.isError && x.structuredContent.rows.length === 3, `${t}: ${x.text}`) }
 })
+
+// Nov 2026: date >= "2026-10-30" returned the whole season (the range ops ran +v on a date, NaN),
+// and every answer said "Data as of <today>", the read date, while the rows were days old.
+test('range filters work on dates and numbers, and data_as_of is the newest game in the rows', async () => {
+  const seasons = readdirSync(path.join(BCS, 'data', 'games')).filter((f) => f.endsWith('.json.gz')).map((f) => f.slice(0, 7)).sort()
+  for (const season of [seasons.at(-1), seasons.at(-2)]) {
+    const file = readJson(path.join(BCS, 'data', 'games', `${season}.json.gz`))
+    const ci = Object.fromEntries(file.columns.map((c, i) => [c, i]))
+    const dates = [...new Set(file.rows.map((r) => r[ci.date]))].sort()
+    const mid = dates[Math.floor(dates.length / 2)]
+    const count = (fn) => file.rows.filter(fn).length
+    const pull = async (filters) => { const r = await call('nba_coaching_data', { table: 'games', season, filters, columns: ['date', 'team', 'margin'], limit: 500 }); assert.ok(!r.isError, r.text); return r.structuredContent }
+    for (const [op, fn] of [['gte', (d) => d >= mid], ['gt', (d) => d > mid], ['lte', (d) => d <= mid], ['lt', (d) => d < mid]]) {
+      const s = await pull([{ column: 'date', op, value: mid }])
+      assert.equal(s.total_matching, count((r) => fn(r[ci.date])), `${season} date ${op} ${mid}`)
+      assert.ok(s.total_matching < file.rows.length || op === 'gte' && mid === dates[0], `${season} date ${op}: the filter let everything through`)
+      assert.ok(s.rows.every((r) => fn(r[0])), `${season} date ${op}: a row outside the range`)
+    }
+    const between = await pull([{ column: 'date', op: 'gte', value: dates[1] }, { column: 'date', op: 'lte', value: dates.at(-2) }])
+    assert.equal(between.total_matching, count((r) => r[ci.date] >= dates[1] && r[ci.date] <= dates.at(-2)))
+    // numbers: numerically, also when the value comes as a string
+    for (const v of [10, '10']) {
+      const s = await pull([{ column: 'margin', op: 'gte', value: v }])
+      assert.equal(s.total_matching, count((r) => r[ci.margin] != null && r[ci.margin] >= 10), `margin gte ${JSON.stringify(v)}`)
+    }
+    assert.equal((await pull([{ column: 'margin', op: 'lt', value: -20 }])).total_matching, count((r) => r[ci.margin] != null && r[ci.margin] < -20))
+    // contains: text in a string column, a name inside a list column
+    const city = file.rows.find((r) => r[ci.city])[ci.city]
+    assert.equal((await pull([{ column: 'city', op: 'contains', value: city.slice(1, 5).toLowerCase() }])).total_matching, count((r) => String(r[ci.city] ?? '').toLowerCase().includes(city.slice(1, 5).toLowerCase())))
+    const ref = file.rows.find((r) => (r[ci.officials] || []).length)
+    if (ref) { const name = ref[ci.officials][0]; assert.equal((await pull([{ column: 'officials', op: 'contains', value: name }])).total_matching, count((r) => JSON.stringify(r[ci.officials] ?? '').toLowerCase().includes(name.toLowerCase()))) }
+    // the stamp: the table's newest game, not the day it was read
+    const r = await call('nba_coaching_data', { table: 'games', season, limit: 1 })
+    const newest = file.through || dates.at(-1)
+    assert.equal(r.structuredContent.data_as_of, newest)
+    assert.ok(r.text.includes(`Data as of ${newest}.`), r.text.slice(-200))
+  }
+  // the other tools: the build's newest game when the index carries it
+  const d = await call('nba_coaching_dictionary', {})
+  if (index.meta.through) assert.equal(d.structuredContent.data_as_of, index.meta.through.slice(0, 10))
+})
+
+test('the comparison behind the range ops orders numbers as numbers and ISO dates as text', () => {
+  const { compare } = mod
+  assert.ok(compare('2026-10-31', '2026-10-30') > 0 && compare('2026-10-20', '2026-10-30') < 0 && compare('2026-10-30', '2026-10-30') === 0)
+  assert.ok(compare(9, '10') < 0 && compare('9', 10) < 0 && compare(-3.5, -3) < 0)
+  assert.equal(compare(null, 1), null); assert.equal(compare([1], 1), null)
+})

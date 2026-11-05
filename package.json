@@ -32,7 +32,8 @@
     "movers-draft": "node scripts/movers-draft.mjs",
     "check:savant-bcoaching": "node --test tools/savant-bcoaching/check.mjs",
     "check:savant-cbb": "node --test tools/savant-cbb/check.mjs && node --test tools/savant-cbb/value.mjs && node --test tools/savant-cbb/questions.mjs",
-    "check:savant-query": "node --test tools/savant-mcp/query.mjs"
+    "check:savant-query": "node --test tools/savant-mcp/query.mjs",
+    "check:freshness": "node tools/savant-mcp/freshness.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.31.0",
