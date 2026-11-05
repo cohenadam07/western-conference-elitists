@@ -113,7 +113,8 @@ def reg_values(df, c, keys=None, damp=1.0):
         pc, oc = pl.codes[m].astype(np.int64), op.codes[m].astype(np.int64)    # small seasons get int8 codes
         X = sp.csr_matrix((np.r_[w, w, w * home[m]], (np.r_[rows, rows, rows], np.r_[pc, np_ + oc, np.full(m.sum(), np_ + no)])), shape=(m.sum(), np_ + no + 1))
         b = lsqr(X, w * (y - lg), damp=damp * float(np.sqrt(np.median(dd[m]))), iter_lim=120)[0]
-        out[key] = pd.Series(lg + b[:np_], index=pl.categories)
+        # a rate is a count over a count: the regression's term can dip below zero on a thin sample
+        out[key] = pd.Series(np.maximum(lg + b[:np_], 0.0), index=pl.categories)
         eff[key] = pd.Series(b[np_:np_ + no], index=op.categories)
     return out, eff
 
