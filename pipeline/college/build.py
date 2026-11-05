@@ -705,6 +705,11 @@ def main():
         jdump(os.path.join(public, "cbb", "teams", f"{s}.json"), dict(season=s, generated=gen, teams=rows, lg=rat.get("lg"), tempo=rat.get("lt"), market_home=(mk or {}).get("home")))
         ctx = player_season(s, gen, public, None, log)
         team_files(s, gen, ctx, public, log)
+        try:                                     # play context (context.py); a failure leaves the rest
+            import context as CX
+            CX.build(s, public, log)
+        except Exception as e:  # noqa
+            log(f"::warning::play context for {s} failed: {type(e).__name__}: {e}")
         games = []
         for r in G.itertuples():
             games.append([r.gid, r.date, r.home, r.away, r.hs, r.as_, int(r.neutral), int(r.confgame), int(r.stype == 3), int(r.non_d1 > 0), int(r.ot), rnd(r.spread, 1), rnd(r.total, 1), int(r.pbp_ok), int(r.lineup_ok), int(r.box_ok), int(r.stype == 3 and "national championship" in (r.note or "").lower() and "men's basketball championship" in (r.note or "").lower())])
@@ -742,7 +747,13 @@ def main():
     jdump(os.path.join(public, "cbb", "links.json"), lnk)
     newest = list(docs)
     dflt, dnote = latest_with_data(newest, docs, public)
-    idx = dict(version=C.VERSION, generated=gen, current=newest[-1], seasons=[dict(season=s, through=docs[s]["through"], players=len(docs[s]["P"]), qualified=sum(1 for p in docs[s]["P"] if p[11]), **tr[s]) for s in newest], default_season=dflt, landing_note=dnote)
+    def ctx_of(s):
+        """What play context a season has on the site: "full", "rotation" or None."""
+        p = os.path.join(public, "cbb", "ctx", s, "league.json.gz")
+        if not os.path.exists(p):
+            return None
+        return "full" if json.loads(gzip.decompress(open(p, "rb").read())).get("pbp") else "rotation"
+    idx = dict(version=C.VERSION, generated=gen, current=newest[-1], seasons=[dict(season=s, through=docs[s]["through"], players=len(docs[s]["P"]), qualified=sum(1 for p in docs[s]["P"] if p[11]), context=ctx_of(s), **tr[s]) for s in newest], default_season=dflt, landing_note=dnote)
     jdump(os.path.join(public, "cbb", "index.json"), idx)
     log("index written")
 

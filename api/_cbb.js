@@ -21,7 +21,7 @@ const SOURCE = 'College Basketball Savant, Western Conference Elitists (wcehoops
 const SEASON_RE = /^\d{4}-\d{2}$/
 export const POOLS = ['position', 'all', 'high_major', 'conference', 'same_age']
 const POOLKEY = { position: 'pos', all: 'all', high_major: 'hm', conference: 'conf', same_age: 'age' }
-const TABLES = ['games', 'player_games', 'units']
+const TABLES = ['games', 'player_games', 'units', 'possessions']
 const SPLIT_COLS = ['games', 'minutes', 'possessions', 'pts_per_poss', 'ts', 'efg', 'fg3', 'ast_per_poss', 'reb_per_poss', 'tov_pct', 'usg', 'stl_pct', 'blk_pct']
 const MAX_ROWS = 500
 
@@ -32,6 +32,9 @@ const seasonDoc = (s) => files.load(`s/${s}.json`)
 const teamsDoc = (s) => files.load(`teams/${s}.json`)
 const teamDoc = (s, t) => files.load(`t/${s}/${t}.json`)
 const career = (id) => files.load(`p/${String(id).slice(-2)}.json`)
+const ctxDoc = (s, t) => files.load(`ctx/${s}/${t}.json`)
+const ctxLeague = (s) => files.load(`ctx/${s}/league.json`)
+const possDoc = (s, t) => files.load(`pos/${s}/${t}.json`)
 export const playerUrl = (id, s) => `${PAGE}#player-${id}${s ? `/${s}` : ''}`
 export const teamUrl = (id, s) => `${PAGE}#team-${id}${s ? `/${s}` : ''}`
 
@@ -161,9 +164,21 @@ async function playerSplits({ player, season }) {
   const games = (T.log[String(ix)] || []).map((g) => ({ gid: g[0], date: fullDate(s, g[1]), opponent_id: g[2], opponent: g[22] ? 'Non-D1' : names.get(g[2]) || 'Non-D1', home: !!g[3], neutral: !!g[4], team_pts: g[5], opp_pts: g[6], min: g[7], pts: g[8], fgm: g[9], fga: g[10], fg3m: g[11], fg3a: g[12], ftm: g[13], fta: g[14], reb: g[15], ast: g[16], tov: g[17], stl: g[18], blk: g[19], pf: g[20], non_d1: !!g[22], postseason: !!g[23] }))
   const lines = [`${row[C.name]}, ${s} splits (D1 opponents; no percentiles on splits; NET quads ${sp.quad ? 'by venue' : 'not tracked this season'}).`]
   for (const [k, rows] of Object.entries(splits)) lines.push(`${k}: ${rows.map((r) => `${r.split} ${r.games}g, ${(r.pts_per_poss * 70).toFixed(1)} pts/70, ${r.ts}% TS`).join('; ')}`)
+  const cx = await ctxDoc(s, row[C.team]).catch(() => null)
+  const me = cx && cx.pbp ? (cx.players || {})[row[C.id]] : null
+  const context = me ? {
+    shot_clock: Object.fromEntries(Object.entries(me.clock || {}).map(([k, v]) => [k, { fga: v[0], fgm: v[1], efg: v[0] ? Math.round(500 * v[2] / v[0]) / 10 : null }])),
+    clutch_shooting: me.clutch_fg ? { fga: me.clutch_fg[0], fgm: me.clutch_fg[1], efg: me.clutch_fg[0] ? Math.round(500 * me.clutch_fg[2] / me.clutch_fg[0]) / 10 : null } : null,
+    clutch_on_floor: me.clutch_on ? { own_poss: me.clutch_on[0], own_pts: me.clutch_on[1], opp_poss: me.clutch_on[2], opp_pts: me.clutch_on[3], net_per_100: me.clutch_on[0] && me.clutch_on[2] ? Math.round(10 * (100 * me.clutch_on[1] / me.clutch_on[0] - 100 * me.clutch_on[3] / me.clutch_on[2])) / 10 : null } : null,
+    after_timeout: me.ato_fg ? { fga: me.ato_fg[0], fgm: me.ato_fg[1] } : null,
+  } : null
+  if (context) {
+    lines.push(`Shot clock (estimated from possession start): ${Object.entries(context.shot_clock).map(([k, v]) => `${CLOCK_LABEL[k]} ${v.fga} FGA, ${v.efg ?? '—'}% eFG`).join('; ')}.`)
+    if (context.clutch_shooting) lines.push(`Clutch (last 5 min within 5): ${context.clutch_shooting.fgm}/${context.clutch_shooting.fga} FG${context.clutch_on_floor && context.clutch_on_floor.net_per_100 != null ? `; team ${context.clutch_on_floor.net_per_100 > 0 ? '+' : ''}${context.clutch_on_floor.net_per_100} per 100 with him on the floor over ${context.clutch_on_floor.own_poss + context.clutch_on_floor.opp_poss} possessions` : ''}${context.clutch_shooting.fga < 20 ? ' (small sample)' : ''}.`)
+  }
   if (games.length) lines.push(`Game log (${games.length}): ${games.slice(-8).map((g) => `${g.date} ${g.home ? 'vs' : g.neutral ? 'vs' : 'at'} ${g.opponent} ${g.pts} pts, ${g.min} min`).join('; ')}${games.length > 8 ? '; the full log is in games' : ''}.`)
   lines.push(playerUrl(p[0], s))
-  return { text: lines.join('\n'), structured: { player: { id: row[C.id], name: row[C.name], url: playerUrl(row[C.id], s) }, season: s, splits, games, data_through: day(d.through) } }
+  return { text: lines.join('\n'), structured: { player: { id: row[C.id], name: row[C.name], url: playerUrl(row[C.id], s) }, season: s, splits, context, games, data_through: day(d.through) } }
 }
 
 async function leaderboard({ stat, season, position, min_possessions, min_sample, offset = 0, adjusted, garbage_time, per, limit, conference, level, class: cls, team, transfers_only, returning_only }) {
@@ -269,7 +284,7 @@ async function teamProfile({ team, season }) {
   const rk = (k) => (ranks[k] ? ` (${ordinal(ranks[k])})` : '')
   const last = results.slice(-5).map((g) => `${g.pts > g.opp_pts ? 'W' : 'L'} ${g.pts}-${g.opp_pts} ${g.neutral ? 'vs' : g.home ? 'vs' : 'at'} ${g.opponent}`)
   const earlyTeam = (r.gp || 0) < 5 && s === (await index()).seasons.map((x) => x.season).sort().slice(-1)[0]
-  return { text: [...(earlyTeam ? [`EARLY SEASON: ${r.gp} game${r.gp === 1 ? '' : 's'} played. Ratings and ranks this early are mostly noise; use last season for judgments.`] : []), `${r.full || r.name} (${CONFS[r.conf] || r.conf}), ${s}: ${r.w}-${r.l} vs D1, ranked ${ordinal(r.rank)}. Net ${r.net}, offense ${r.adjo}, defense ${r.adjd}, pace ${r.tempo}. The market: ${r.market ?? 'no line'}. BPI ${r.bpi ?? '—'}. NCAA NET rank ${r.netrank ?? 'not tracked'}. Luck ${r.luck}. SOS ${r.sos}.`, `Offense ranks ${ordinal(offRank)} and defense ${ordinal(defRank)} of ${tb.teams.length} D1 teams.`, `Four factors with D1 rank of ${n} (1st = best for this team). Offense: eFG ${r.efg}%${rk('efg')}, turnover rate ${r.tov}%${rk('tov')}, offensive rebounding ${r.orb}%${rk('orb')}, free-throw rate ${r.ftr}${rk('ftr')}. Defense: eFG allowed ${r.oefg}%${rk('oefg')}, turnovers forced ${r.otov}%${rk('otov')}, defensive rebounding ${r.drb}%${rk('drb')}, free-throw rate allowed ${r.oftr}${rk('oftr')}.`, `Shot diet, share of shots taken / allowed: rim ${r.rim}% / ${r.orim}%, midrange ${r.mid}% / ${r.omid}%, three ${r.three}% / ${r.othree}%.`, `Roster by minutes: ${roster.slice(0, 8).map((x) => x.name).join(', ')}.`, ...(last.length ? [`Latest results: ${last.join('; ')}.`] : []), teamUrl(t[0], s)].join('\n'), structured: { team: { ...r, conference: CONFS[r.conf] || null, off_rank: offRank, def_rank: defRank, factor_ranks: ranks }, season: s, roster, results, url: teamUrl(t[0], s) } }
+  return { text: [...(earlyTeam ? [`EARLY SEASON: ${r.gp} game${r.gp === 1 ? '' : 's'} played. Ratings and ranks this early are mostly noise; use last season for judgments.`] : []), `${r.full || r.name} (${CONFS[r.conf] || r.conf}), ${s}: ${r.w}-${r.l} vs D1, ranked ${ordinal(r.rank)}. Net ${r.net}, offense ${r.adjo}, defense ${r.adjd}, pace ${r.tempo}. The market: ${r.market ?? 'no line'}. BPI ${r.bpi ?? '—'}. NCAA NET rank ${r.netrank ?? 'not tracked'}. Luck ${r.luck}. SOS ${r.sos}.`, `Offense ranks ${ordinal(offRank)} and defense ${ordinal(defRank)} of ${tb.teams.length} D1 teams.`, `Four factors with D1 rank of ${n} (1st = best for this team). Offense: eFG ${r.efg}%${rk('efg')}, turnover rate ${r.tov}%${rk('tov')}, offensive rebounding ${r.orb}%${rk('orb')}, free-throw rate ${r.ftr}${rk('ftr')}. Defense: eFG allowed ${r.oefg}%${rk('oefg')}, turnovers forced ${r.otov}%${rk('otov')}, defensive rebounding ${r.drb}%${rk('drb')}, free-throw rate allowed ${r.oftr}${rk('oftr')}.`, `Shot diet, share of shots taken / allowed: rim ${r.rim}% / ${r.orim}%, midrange ${r.mid}% / ${r.omid}%, three ${r.three}% / ${r.othree}%.`, `Roster by minutes: ${roster.slice(0, 8).map((x) => x.name).join(', ')}.`, ...((await index()).seasons.find((x) => x.season === s && x.context === 'full') ? ['Play context (possession starts, transition, after timeouts, clutch, shot clock) is in cbb_play_context; shot charts in cbb_shot_chart; the rotation in cbb_rotation.'] : []), ...(last.length ? [`Latest results: ${last.join('; ')}.`] : []), teamUrl(t[0], s)].join('\n'), structured: { team: { ...r, conference: CONFS[r.conf] || null, off_rank: offRank, def_rank: defRank, factor_ranks: ranks }, season: s, roster, results, url: teamUrl(t[0], s) } }
 }
 
 const r1 = (x) => (x == null ? null : Math.round(x * 10) / 10)
@@ -332,7 +347,13 @@ async function data({ table, season, team, filters, columns, offset, limit, sort
     if (!team) throw new SavantError(`${table} needs a team: the rows are kept per team-season.`)
     const t = await findTeam(team)
     const T = await teamDoc(s, t[0])
-    if (table === 'units') { cols = ['players', 'seconds', 'poss', 'opp_poss', 'pts', 'opp_pts', 'opp_fg3a', 'opp_fg3m', 'opp_fta', 'opp_ftm']; rows = T.fives.map((f) => [f[0].map((i) => T.roster[i][1]).join(', '), ...f.slice(1)]) } else {
+    if (table === 'possessions') {
+      const pd = await possDoc(s, t[0]).catch(() => { throw new SavantError(`The possessions table starts in 2025-26.`) })
+      const nm = new Map(T.roster.map((r) => [r[0], r[1]]))
+      const fi = pd.cols.indexOf('five'), oi = pd.cols.indexOf('opp_five'), op = pd.cols.indexOf('opp')
+      cols = [...pd.cols.slice(0, op + 1), 'opp_team', ...pd.cols.slice(op + 1)]
+      rows = pd.rows.map((r) => { const x = r.slice(); x[fi] = (x[fi] || []).map((e) => nm.get(e) || e).join(', '); x[oi] = (x[oi] || []).length; x.splice(op + 1, 0, names.get(r[op]) || 'Non-D1'); return x })
+    } else if (table === 'units') { cols = ['players', 'seconds', 'poss', 'opp_poss', 'pts', 'opp_pts', 'opp_fg3a', 'opp_fg3m', 'opp_fta', 'opp_ftm']; rows = T.fives.map((f) => [f[0].map((i) => T.roster[i][1]).join(', '), ...f.slice(1)]) } else {
       cols = ['player_id', 'player', 'gid', 'date', 'opponent_id', 'opponent', 'home', 'neutral', 'team_pts', 'opp_pts', 'min', 'pts', 'fgm', 'fga', 'fg3m', 'fg3a', 'ftm', 'fta', 'reb', 'ast', 'tov', 'stl', 'blk', 'pf', 'starter', 'non_d1', 'postseason']
       rows = []
       for (const [k, list] of Object.entries(T.log)) for (const g of list) rows.push([T.roster[k][0], T.roster[k][1], g[0], fullDate(s, g[1]), g[2], g[22] ? 'Non-D1' : names.get(g[2]) || 'Non-D1', ...g.slice(3)])
@@ -393,6 +414,107 @@ async function schedule({ team, season, upcoming_only }) {
   return { text: lines.join('\n'), structured: { team: t[1], team_id: t[0], season: s, games: list, source: 'ESPN schedule (live)' } }
 }
 
+// ---- play context (pipeline/college/context.py): possession starts, transition, after timeouts,
+// clutch, the shot clock (estimated), shot charts and rotation maps. 2025-26 on; 2023-24 and
+// 2024-25 have rotation maps only.
+const KIND_LABEL = { made: 'after a made basket', dreb: 'after a defensive rebound', steal: 'after a steal', tov: 'after a dead-ball turnover', ft: 'after made free throws', period: 'at the start of a half', other: 'start not logged' }
+const CLOCK_LABEL = { early: '0-10 s', mid: '10-20 s', late: '20+ s' }
+const ppp = (x) => (x && x[0] ? x[1] / x[0] : null)
+const f2 = (x) => (x == null ? '—' : x.toFixed(2))
+async function contextSeasons() { const idx = await index(); return idx.seasons.filter((x) => x.context).map((x) => [x.season, x.context]) }
+async function pickContext(season, need = 'full') {
+  const have = await contextSeasons()
+  const ok = have.filter(([, c]) => need === 'rotation' || c === 'full').map(([s]) => s).sort()
+  const s = season || ok.slice(-1)[0]
+  if (!ok.includes(s)) throw new SavantError(`Play context ${need === 'rotation' ? 'and rotation maps are' : 'is'} on file for ${ok.join(', ') || 'no season yet'}${need === 'full' ? ' (2023-24 and 2024-25 have rotation maps only)' : ''}.`)
+  return s
+}
+const RANK_LABEL = { transition_ppp: 'transition points per possession', transition_share: 'share of live-ball possessions run in transition', transition_ppp_allowed: 'transition points allowed per possession (lower is better)', ato_ppp: 'points per possession after a timeout', clutch_net: 'clutch net per 100 possessions', early_share: 'share of shots in the first 10 seconds', late_efg: 'eFG% on shots 20+ seconds in' }
+const rk = (r) => (r ? ` (${ordinal(r[1])} of ${r[2]})` : '')
+
+async function playContext({ team, season }) {
+  const t = await findTeam(team)
+  const s = await pickContext(season)
+  const [d, L] = await Promise.all([ctxDoc(s, t[0]), ctxLeague(s)])
+  const R = d.ranks || {}
+  const lp = ppp(L.poss)
+  const kinds = Object.keys(KIND_LABEL).filter((k) => k !== 'other')
+  const starts = kinds.map((k) => ({ start: k, label: KIND_LABEL[k], own_poss: d.starts.own[k][0], own_ppp: ppp(d.starts.own[k]), opp_poss: d.starts.opp[k][0], opp_ppp: ppp(d.starts.opp[k]), d1_ppp: ppp(L.starts[k]) }))
+  const clock = Object.keys(CLOCK_LABEL).map((k) => ({ bucket: k, label: CLOCK_LABEL[k], fga: d.clock.own[k][0], efg: d.clock.own[k][0] ? 50 * d.clock.own[k][2] / d.clock.own[k][0] : null, opp_fga: d.clock.opp[k][0], opp_efg: d.clock.opp[k][0] ? 50 * d.clock.opp[k][2] / d.clock.opp[k][0] : null, d1_efg: L.clock[k][0] ? 50 * L.clock[k][2] / L.clock[k][0] : null }))
+  const clutch = { own_poss: d.clutch.own[0], own_ppp: ppp(d.clutch.own), opp_poss: d.clutch.opp[0], opp_ppp: ppp(d.clutch.opp), games: d.clutch.games, net_per_100: R.clutch_net ? R.clutch_net[0] : null }
+  const lines = [`${t[1]} ${s} play context (garbage time out; through ${day(d.through)}). D1 average ${f2(lp)} points per possession. Ranks are among D1 teams, 1st = best for the team.`,
+    `Possession starts, own points per possession (allowed): ${starts.map((x) => `${x.label} ${f2(x.own_ppp)} on ${x.own_poss} (${f2(x.opp_ppp)})`).join('; ')}.`,
+    `Transition (a live-ball start, first action within 8 s): ${d.transition.own[0]} possessions, ${f2(ppp(d.transition.own))} per possession${rk(R.transition_ppp)}; ${d.transition.own[2] ? Math.round(100 * d.transition.own[0] / d.transition.own[2]) : 0}% of live-ball possessions${rk(R.transition_share)}; allowed ${f2(ppp(d.transition.opp))}${rk(R.transition_ppp_allowed)}.`,
+    `After timeouts: ${d.ato[0]} possessions, ${f2(ppp(d.ato))} per possession${rk(R.ato_ppp)} (D1 ${f2(ppp(L.ato))}).`,
+    `Clutch (last 5 minutes within 5, ${d.clutch.games} games): offense ${f2(clutch.own_ppp)} on ${clutch.own_poss}, defense ${f2(clutch.opp_ppp)} on ${clutch.opp_poss}${R.clutch_net ? `, net ${R.clutch_net[0] > 0 ? '+' : ''}${R.clutch_net[0].toFixed(1)} per 100${rk(R.clutch_net)}` : ' (too few possessions to rank)'}.`,
+    `Shot clock (estimated from when each possession began; the feed has no shot clock): ${clock.map((x) => `${x.label} ${x.fga} FGA at ${x.efg == null ? '—' : x.efg.toFixed(1)}% eFG (D1 ${x.d1_efg == null ? '—' : x.d1_efg.toFixed(1)}%)`).join('; ')}.`,
+    teamUrl(t[0], s)]
+  return { text: lines.join('\n'), structured: { team: t[1], season: s, through: d.through, possessions: { own: d.poss[0], own_pts: d.poss[1], opp: d.poss[2], opp_pts: d.poss[3] }, d1_ppp: lp, starts, transition: { own: d.transition.own, opp: d.transition.opp, columns: ['possessions', 'points', 'live-ball possessions'] }, after_timeout: { possessions: d.ato[0], ppp: ppp(d.ato), d1_ppp: ppp(L.ato) }, clutch, shot_clock: clock, ranks: R, url: teamUrl(t[0], s) } }
+}
+
+// shot areas from 2-ft bins: approximate at the edges
+function area(c, r) {
+  const x = c * 2 + 1, y = r * 2 - 1, dx = x - 25, d = Math.hypot(dx, y)
+  if (y <= 8 && Math.abs(dx) >= 21.5) return dx < 0 ? 'corner_3_left' : 'corner_3_right'
+  if (d >= 22.1) return 'above_break_3'
+  if (d < 4) return 'rim'
+  if (Math.abs(dx) <= 6 && y <= 13.75) return 'paint'
+  return d < 15 ? 'short_mid' : 'long_mid'
+}
+const AREA_LABEL = { rim: 'at the rim (within 4 ft)', paint: 'paint, outside 4 ft', short_mid: 'short midrange', long_mid: 'long two', corner_3_left: 'left corner three', corner_3_right: 'right corner three', above_break_3: 'above-the-break three' }
+function areas(bins) {
+  const out = Object.fromEntries(Object.keys(AREA_LABEL).map((k) => [k, [0, 0]]))
+  for (const [c, r, a, m] of bins || []) { const k = area(c, r); out[k][0] += a; out[k][1] += m }
+  return out
+}
+
+async function shotChart({ player, team, season, side }) {
+  if (!player && !team) throw new SavantError('Name a player or a team.')
+  const s = await pickContext(season)
+  const L = await ctxLeague(s)
+  const lg = areas(L.bins)
+  let who, bins, url, tid
+  if (player) {
+    const p = await findPlayer(player, s)
+    const d = await seasonDoc(s)
+    const row = d.players.find((x) => x[C.id] === p[0])
+    if (!row) throw new SavantError(`${p[1]} has no line in ${s}.`)
+    tid = row[C.team]
+    const doc = await ctxDoc(s, tid)
+    const me = (doc.players || {})[p[0]]
+    if (!me || !me.fga) throw new SavantError(`${row[C.name]} has no field-goal attempts on file in ${s}.`)
+    who = `${row[C.name]} (${await tname(tid)})`; bins = me.shots; url = playerUrl(p[0], s)
+  } else {
+    const t = await findTeam(team); tid = t[0]
+    const doc = await ctxDoc(s, tid)
+    bins = side === 'allowed' ? doc.shots.opp : doc.shots.own
+    who = `${t[1]}${side === 'allowed' ? ', shots allowed' : ''}`; url = teamUrl(tid, s)
+  }
+  const a = areas(bins), tot = Object.values(a).reduce((n, v) => n + v[0], 0)
+  const rows = Object.entries(a).map(([k, [att, made]]) => ({ area: k, label: AREA_LABEL[k], fga: att, fgm: made, share: tot ? Math.round(1000 * att / tot) / 10 : 0, fg_pct: att ? Math.round(1000 * made / att) / 10 : null, d1_fg_pct: lg[k][0] ? Math.round(1000 * lg[k][1] / lg[k][0]) / 10 : null, d1_share: Math.round(1000 * lg[k][0] / Object.values(lg).reduce((n, v) => n + v[0], 0)) / 10 }))
+  const lines = [`${who} shot chart, ${s}: ${tot} located field-goal attempts, garbage time out. Areas are read from 2-ft squares, so edges are approximate.`,
+    ...rows.filter((r) => r.fga).map((r) => `${r.label}: ${r.fga} FGA (${r.share}% of shots; D1 ${r.d1_share}%), ${r.fg_pct}% (D1 ${r.d1_fg_pct}%)${r.fga < 25 ? ', small sample' : ''}`),
+    url]
+  return { text: lines.join('\n'), structured: { who, season: s, fga: tot, areas: rows, bins, bin_feet: 2, bin_origin: { x: 0, y: -2 }, hoop: { x: 25, y: 0 }, url } }
+}
+
+async function rotationMap({ team, season }) {
+  const t = await findTeam(team)
+  const s = await pickContext(season, 'rotation')
+  const [d, sd] = await Promise.all([ctxDoc(s, t[0]), seasonDoc(s)])
+  const nm = new Map(sd.players.map((x) => [x[C.id], x[C.name]]))
+  const rows = Object.entries(d.rotation || {}).map(([e, arr]) => {
+    const mpg = arr.reduce((n, v) => n + v, 0)
+    const windows = []
+    let st = null
+    arr.forEach((v, m) => { if (v >= 0.5 && st === null) st = m; if ((v < 0.5 || m === arr.length - 1) && st !== null) { windows.push([st, v >= 0.5 && m === arr.length - 1 ? m + 1 : m]); st = null } })
+    return { id: e, name: nm.get(e) || e, minutes_per_game: Math.round(mpg * 10) / 10, usual_windows: windows.map(([a, b]) => `${a}-${b}`), by_minute: arr }
+  }).sort((a, b) => b.minutes_per_game - a.minutes_per_game)
+  const lines = [`${t[1]} rotation, ${s} (${d.games} games with clean lineups; regulation only). Usual windows are game minutes where he was on the floor in at least half of games:`,
+    ...rows.slice(0, 12).map((r) => `${r.name}: ${r.minutes_per_game} min a game; usually on ${r.usual_windows.join(', ') || 'no fixed window'}`), teamUrl(t[0], s)]
+  return { text: lines.join('\n'), structured: { team: t[1], season: s, games: d.games, players: rows } }
+}
+
 const TEAM_FIELDS = {
   rank: 'WCE rank by adjusted net among D1 teams', net: 'adjusted offense minus adjusted defense, points per 100 possessions', adjo: 'adjusted offensive efficiency, points scored per 100 possessions vs an average D1 defense', adjd: 'adjusted defensive efficiency, points allowed per 100 vs an average D1 offense (lower is better)',
   tempo: 'possessions per 40 minutes', luck: 'wins vs D1 minus the wins our game-by-game ratings expected (site included); positive = luckier, so expected wins = w minus luck', sos: 'strength of schedule: the average adjusted net of the D1 opponents played', market: 'the betting market\'s rating, from closing lines', bpi: 'ESPN BPI, for reference', netrank: 'the NCAA NET rank, for reference',
@@ -421,14 +543,17 @@ export const tools = [
   tool('cbb_search_players', 'Search men\'s college players', 'Find men\'s Division I players in College Basketball Savant (wcehoops.com) by name, 2009-10 on (2011-12 and 2012-13 are not on the site). Tolerates accents and small typos.', { query: z.string().trim().min(2).max(80).describe('Player name or part of one.'), limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.') }, { query: z.string(), total: z.number().int(), count: z.number().int(), players: z.array(open) }, searchPlayers),
   tool('cbb_get_player_profile', 'Get a college player\'s Savant profile', 'One men\'s D1 player-season: percentile bars by group (impact, scoring, shooting, playmaking, rebounding, defense, context), each with its pool, sample and settle estimate, plus Savant value, honours, schedule strength, adjustment confidence, opponent-quality splits and the nearest comparable player-seasons. Seasons before 2022-23 are box-score seasons. Default pool: opponent-adjusted, D1 at the player\'s position, same season.', { player: who, season, ...opts, group: z.enum(['all', 'impact', 'scoring', 'shooting', 'playmaking', 'rebounding', 'defense', 'context']).default('all').describe('Which group of stats.') }, { player: open, season: z.string(), tier: z.string(), pool: open, per: z.number(), stats: z.array(open), savant_value: open.nullable(), honours: z.array(open), schedule_strength: open.nullable(), adjustment_confidence: open.nullable(), quality_splits: z.array(open), comps: z.array(open), data_through: z.string(), source: z.string() }, profile),
   tool('cbb_player_career', 'Get a college player\'s career', 'Every season on file across schools, transfers marked, with percentiles per season and nearest comparable players.', { player: who }, { player: open, pool: z.string(), seasons: z.array(open) }, playerCareer),
-  tool('cbb_player_splits', 'Get a college player\'s splits', 'Home, road and neutral; conference; opponent quality (vs our top 50, top 100 and NCAA tournament teams); Quad 1-4 where NET is on file; month; garbage time; postseason flagged; and the game log with opponent names and dates.', { player: who, season }, { player: open, season: z.string(), splits: open, games: z.array(open), data_through: z.string() }, playerSplits),
+  tool('cbb_player_splits', 'Get a college player\'s splits', 'Home, road and neutral; conference; opponent quality (vs our top 50, top 100 and NCAA tournament teams); Quad 1-4 where NET is on file; month; garbage time; postseason flagged; and the game log with opponent names and dates.', { player: who, season }, { player: open, season: z.string(), splits: open, context: open.nullable(), games: z.array(open), data_through: z.string() }, playerSplits),
   tool('cbb_leaderboard', 'College Basketball Savant leaders', 'Leaders in any stat (keys: cbb_data_dictionary), filtered by position, sample, conference, high/mid-major, class, team, transfers or returners.', { stat: z.string().min(1).max(20).default('bi').describe('Stat key.'), season, position: z.enum(['all', 'Guard', 'Wing', 'Big']).default('all').describe('Position bucket.'), min_possessions: z.number().int().min(0).max(3000).default(300).describe('Minimum possessions.'), min_sample: z.number().int().min(0).max(5000).optional().describe('Minimum of the stat\'s own sample (for 3-point %, attempts). Each row says its sample.'), offset: z.number().int().min(0).default(0).describe('Rows to skip.'), adjusted: opts.adjusted, garbage_time: opts.garbage_time, per: opts.per, limit: z.number().int().min(1).max(100).default(25).describe('Rows to return.'), conference: z.string().trim().min(2).max(40).optional().describe('Only this conference, e.g. "SEC".'), level: z.enum(['all', 'high_major', 'mid_major']).default('all').describe('high_major = ACC, Big East, Big Ten, Big 12, SEC (Pac-12 while it played).'), class: z.enum(['Fr', 'So', 'Jr', 'Sr', 'Gr']).optional().describe('Only this class.'), team: school.optional().describe('Only this team.'), transfers_only: z.boolean().default(false).describe('New school this season.'), returning_only: z.boolean().default(false).describe('Same school as last season.') }, { stat: z.string(), label: z.string(), season: z.string(), pool: z.string(), players: z.number().int(), rows: z.array(open), data_through: z.string(), early: z.string().optional() }, leaderboard),
   tool('cbb_team_profile', 'Get a D1 team\'s profile', 'A team-season: ratings, the market\'s view, BPI and NET as reference, four factors, shot diet, luck, schedule, roster and results.', { team: school, season }, { team: open, season: z.string(), roster: z.array(open), results: z.array(open), url: z.string() }, teamProfile),
   tool('cbb_team_rankings', 'Rank D1 teams', 'Rank D1 teams by any rating, four factor (own or allowed) or shot share, best first, with each row\'s D1 rank. Filter by conference or high/mid-major.', { season, sort: z.enum(Object.keys(TEAM_SORTS)).default('net').describe('Column; o-prefixed ones are opponents\' (cbb_data_dictionary team_fields).'), ascending: z.boolean().default(false).describe('Reverse the order (worst first).'), conference: z.string().trim().min(2).max(40).optional().describe('Only this conference, e.g. "SEC".'), level: z.enum(['all', 'high_major', 'mid_major']).default('all').describe('As in cbb_leaderboard.'), limit: z.number().int().min(1).max(370).default(25).describe('Teams to return.') }, { season: z.string(), sort: z.string(), conference: z.string().nullable(), level: z.string(), teams: z.array(open) }, teamRankings),
   tool('cbb_lineups', 'Get a D1 team\'s lineups', '2- to 5-man units, luck- and sample-adjusted, and With/Without for any players (units matching it, plus the rest of the time). From 2024-25.', { team: school, season, size: z.number().int().min(2).max(5).default(5).describe('Players in the unit.'), with: z.array(z.string()).max(4).optional().describe('Players on the floor.'), without: z.array(z.string()).max(4).optional().describe('Players off the floor.') }, { team: z.string(), season: z.string(), tracked: z.boolean(), size: z.number().optional(), units: z.array(open), with_without: open.nullable() }, lineups),
   tool('cbb_all_savant_team', 'College All-Savant Teams', 'The All-Savant Teams by Savant value, 2009-10 on (not 2011-12 or 2012-13): national 1st, 2nd and 3rd teams of 2 guards, 2 wings and a big, a team per conference, the All-Freshman team and the Savant Player of the Year. Before the national championship it is a standing, not an honour.', { season, team: z.enum(ALL_SAVANT).default('first').describe('Which team.'), conference: z.string().trim().min(2).max(40).optional().describe('Conference name, for team "conference".') }, { season: z.string(), team: z.string(), label: z.string(), final: z.boolean(), so_far: z.boolean(), players: z.array(open), replacement: open.nullable(), default_season: z.string() }, allSavant),
   tool('cbb_game', 'Get a college game', 'One men\'s college game by ESPN event id: the score, site, overtime, closing line and data-quality flags.', { game_id: z.string().regex(/^\d+$/).describe('ESPN event id.'), season }, { game: open, season: z.string() }, game),
-  tool('cbb_data', 'College Basketball Savant Data Room', 'Rows for your own analysis: games, player_games (box scores) and units (five-man totals), with names and full dates; filter and sort any column. player_games and units need a team.', { table: z.enum(TABLES).describe('Which table.'), season, team: school.optional(), filters: z.array(filterShape).max(6).optional().describe('Row filters.'), sort: z.string().max(40).optional().describe('Column to sort by.'), descending: z.boolean().default(false).describe('Sort high to low.'), columns: z.array(z.string()).max(40).optional().describe('Columns wanted; default all.'), offset: z.number().int().min(0).default(0).describe('Rows to skip.'), limit: z.number().int().min(1).max(MAX_ROWS).default(100).describe('Rows to return.') }, { table: z.string(), season: z.string(), total: z.number().int(), offset: z.number().int(), count: z.number().int(), columns: z.array(z.string()), rows: z.array(open) }, data),
+  tool('cbb_data', 'College Basketball Savant Data Room', 'Rows for your own analysis: games, player_games (box scores), units (five-man totals) and possessions (2025-26 on: how each began, after a timeout, points, clutch, the fives), with names and dates; filter and sort any column. All but games need a team.', { table: z.enum(TABLES).describe('Which table.'), season, team: school.optional(), filters: z.array(filterShape).max(6).optional().describe('Row filters.'), sort: z.string().max(40).optional().describe('Column to sort by.'), descending: z.boolean().default(false).describe('Sort high to low.'), columns: z.array(z.string()).max(40).optional().describe('Columns wanted; default all.'), offset: z.number().int().min(0).default(0).describe('Rows to skip.'), limit: z.number().int().min(1).max(MAX_ROWS).default(100).describe('Rows to return.') }, { table: z.string(), season: z.string(), total: z.number().int(), offset: z.number().int(), count: z.number().int(), columns: z.array(z.string()), rows: z.array(open) }, data),
   tool('cbb_schedule', 'Get a D1 team\'s schedule', 'A team\'s season schedule, played and still to play, with site and our opponent rating. Live from ESPN.', { team: school, season, upcoming_only: z.boolean().default(false).describe('Only games still to play.') }, { team: z.string(), team_id: z.string(), season: z.string(), games: z.array(open), source: z.string() }, schedule),
+  tool('cbb_play_context', 'A D1 team\'s play context', 'Possession starts with points per possession (own and allowed), transition, after timeouts, clutch and the shot clock (estimated), each ranked in D1. 2025-26 on.', { team: school, season }, { team: z.string(), season: z.string(), through: z.string().nullable(), possessions: open, d1_ppp: z.number().nullable(), starts: z.array(open), transition: open, after_timeout: open, clutch: open, shot_clock: z.array(open), ranks: open, url: z.string() }, playContext),
+  tool('cbb_shot_chart', 'A college shot chart', 'Where a player or team shoots (or allows shots) and how well, by court area against D1, plus the 2-ft bins. 2025-26 on.', { player: who.optional(), team: school.optional(), season, side: z.enum(['own', 'allowed']).default('own').describe('For a team: its shots or opponents\'.') }, { who: z.string(), season: z.string(), fga: z.number(), areas: z.array(open), bins: z.array(z.array(z.number())), bin_feet: z.number(), bin_origin: open, hoop: open, url: z.string() }, shotChart),
+  tool('cbb_rotation', 'A D1 team\'s rotation map', 'Who is on the floor in each minute of regulation, as a share of games, with each player\'s usual windows. 2023-24 on.', { team: school, season }, { team: z.string(), season: z.string(), games: z.number().nullable(), players: z.array(open) }, rotationMap),
   tool('cbb_data_dictionary', 'College Basketball Savant dictionary', 'Every stat defined: what it is, the formula, the source, the sample, the season it starts.', {}, { version: z.string(), stats: z.array(open), team_fields: open, tables: z.array(z.string()), qualified: z.string(), pools: z.array(z.string()) }, dictionary),
 ]
