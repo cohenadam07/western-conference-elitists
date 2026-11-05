@@ -567,30 +567,42 @@ def careers(contexts, public, log):
                 rows[p[0]].append(r)
                 bio[p[0]] = [p[1], p[6], p[7]]
     comps = {}
-    feats = ("pts", "ts", "fg3", "tpar", "ast_pct", "tov_pct", "orb_pct", "drb_pct", "stl_pct", "blk_pct", "usg", "rim_freq")
+    # Comps (Nov 2026 rework). Opponent-adjusted rates where a stat has them, plus box impact (how
+    # good) and the defenses faced (what level), weighted, so a high-major star's neighbours are
+    # players of his calibre and schedule, not low-major lookalikes. The match is 0-1: 1 - distance
+    # / the median distance to every qualified player at his position, floored at 0.
+    feats = {"pts": 1.0, "ts": 1.0, "fg3": 0.6, "tpar": 1.0, "ast_pct": 1.0, "tov_pct": 0.7, "orb_pct": 1.0, "drb_pct": 1.0,
+             "stl_pct": 1.0, "blk_pct": 1.0, "usg": 1.0, "rim_freq": 0.8, "bi": 2.0, "def_faced": 1.5}
     allrows = []
     for season, ctx in contexts.items():
         P, V = ctx["P"], ctx["V"]
         for i, p in enumerate(P):
             if p[11] and p[5]:
-                allrows.append([p[0], season, p[3], p[5], p[1], p[2]] + [(V[k].get("r") or [None] * len(P))[i] for k in feats])
+                vals = []
+                for k in feats:
+                    v = V.get(k) or {}
+                    arr = v.get("a") or v.get("r") or [None] * len(P)
+                    vals.append(arr[i])
+                allrows.append([p[0], season, p[3], p[5], p[1], p[2]] + vals)
     df = pd.DataFrame(allrows, columns=["e", "s", "pos", "age", "name", "team"] + list(feats))
     for k in feats:
         c = pd.to_numeric(df[k], errors="coerce")
         m, sd = c.mean(), c.std()
-        df[k] = ((c - m) / sd).fillna(0.0)
+        df[k] = ((c - m) / sd).fillna(0.0) if sd and np.isfinite(sd) else 0.0
     X = df[list(feats)].values
+    W = np.array(list(feats.values()))
     for pos in ("Guard", "Wing", "Big"):
         ii = np.where(df.pos.values == pos)[0]
         for a in range(0, len(ii), 500):
             batch = ii[a:a + 500]
-            D = ((X[batch, None, :] - X[ii][None, :, :]) ** 2).sum(axis=2)
+            D = np.sqrt((((X[batch, None, :] - X[ii][None, :, :]) ** 2) * W).sum(axis=2) / W.sum())
             for bi_, i in enumerate(batch):
                 age = df.age.values[i]
+                typ = float(np.median(D[bi_])) or 1.0
                 ok = (np.abs(df.age.values[ii] - age) <= 1.0) & (df.e.values[ii] != df.e.values[i])
                 dist = np.where(ok, D[bi_], np.inf)
                 top = np.argsort(dist, kind="stable")[:5]
-                comps[(df.e.values[i], df.s.values[i])] = [[df.e.values[ii][j], df.name.values[ii][j], df.s.values[ii][j], df.team.values[ii][j], rnd(1 / (1 + math.sqrt(dist[j])), 2)] for j in top if np.isfinite(dist[j])]
+                comps[(df.e.values[i], df.s.values[i])] = [[df.e.values[ii][j], df.name.values[ii][j], df.s.values[ii][j], df.team.values[ii][j], rnd(max(0.0, 1 - dist[j] / typ), 2)] for j in top if np.isfinite(dist[j])]
     shards = defaultdict(dict)
     for e, r in rows.items():
         r.sort(key=lambda x: x["s"])
