@@ -68,8 +68,50 @@ def main():
     # the cloud cannot pull; registry.py is a Mac step. Games the registry has not seen yet fall to
     # the tenure that covers the date (the coach of record for the team), see build.pass_one.
     rc = subprocess.call([sys.executable, "-u", os.path.join(HERE, "build.py"), "--public", a.public, "--out", a.out, "--refresh", a.season])
+    if rc == 0:
+        rc = check_data_room(a.public, a.season)
     print(f"=== coaching refresh done rc={rc}")
     return rc
+
+
+def newest_date(path):
+    """The newest date a Data Room table file covers (its `through` stamp, else the newest `date`
+    in its rows), or None."""
+    import gzip
+    import json
+    try:
+        d = json.loads(gzip.decompress(open(path, "rb").read()))
+        if d.get("through"):
+            return d["through"]
+        i = d["columns"].index("date")
+        return max((r[i] for r in d["rows"] if r[i]), default=None)
+    except Exception:  # noqa
+        return None
+
+
+def check_data_room(public, season):
+    """Did the build publish the games the refresh read? The newest ESPN final processed for the
+    season against the newest date in each Data Room table written to public/bcs/data. Until Nov
+    2026 the build skipped the season in the cloud without a word (rc=0) and the Data Room sat on
+    the Mac's last rows; now that is an error the log and the Control Room can see."""
+    import process as P
+    proc = P.load(season)
+    want = max((g["date"] for g in (proc or {}).get("games", []) if g.get("stype") in (2, 3, 5)), default=None)
+    if not want:
+        return 0
+    bad = []
+    # the games table must reach the newest final; the play-by-play tables may sit a day short
+    # (a night whose last game came with no play-by-play has no stints for that date)
+    floor = (dt.date.fromisoformat(want) - dt.timedelta(days=1)).isoformat()
+    for table in ("games", "stints", "units", "rotation", "decisions"):
+        got = newest_date(os.path.join(public, "bcs", "data", table, f"{season}.json.gz"))
+        print(f"  Data Room {table} {season}: through {got}")
+        if got is None or got < (want if table == "games" else floor):
+            bad.append(f"{table} through {got}")
+    if bad:
+        print(f"::error::Basketball Coaching Savant Data Room {season} is behind the ESPN games it read (through {want}): {', '.join(bad)}")
+        return 4
+    return 0
 
 
 if __name__ == "__main__":

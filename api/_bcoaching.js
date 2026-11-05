@@ -36,6 +36,22 @@ const loadTeam = (team, season) => files.load(`t/${team}-${season}.json`)
 const loadTable = (table, season) => files.load(`data/${table}/${season}.json`)
 const loadDict = () => files.load('data/dictionary.json')
 
+// "Data as of" is the data's date, never the day it was read or built: the newest game in the
+// build (index meta.through, build.py since Nov 2026). Before that stamp existed every answer
+// said "Data as of <today>" even while the Data Room sat days behind. meta.generated (when the
+// build ran) is the fallback only for an index older than the stamp.
+export const asOf = (idx) => day(idx.meta.through || idx.meta.generated)
+
+// A Data Room table's own date: its `through` stamp, else the newest `date` in its rows, else the
+// build's.
+export function tableAsOf(file, idx) {
+  if (file.through) return day(file.through)
+  const i = (file.columns || []).indexOf('date')
+  let best = null
+  if (i >= 0) for (const r of file.rows || []) if (r[i] && (best == null || r[i] > best)) best = r[i]
+  return best ? day(best) : asOf(idx)
+}
+
 export const coachUrl = (id) => `${SITE}/basketball-coaching-savant.html#c=${encodeURIComponent(id)}`
 const PAGE = `${SITE}/basketball-coaching-savant.html`
 
@@ -276,7 +292,7 @@ export async function coachProfile({ coach, group = 'all', season }) {
   L.push(bio.join('; ') + '.')
   L.push(`All-time (Basketball-Reference): ${record(at.w, at.l)} over ${plural(at.seasons, 'season')} ${at.first}–${at.last}, ${plural(at.po_seasons, 'playoff season')}, ${plural(at.titles, 'title')}${at.coy.length ? `, Coach of the Year ${at.coy.join(', ')}` : ''}. Since 1996-97 (the games here): ${record(p.career.w, p.career.l)}, playoffs ${record(p.career.pw, p.career.pl)}${p.career.eligible ? `, ${display('sgn1', p.career.w_talent_sum_raw)} wins above talent and ${display('sgn1', p.career.w_market_sum_raw)} above the market, added up` : ''}.`)
   if (p.stints.some((s) => s.acting_for)) for (const s of p.stints.filter((s) => s.acting_for)) say(notes, L, `Acting coach, ${s.first_season} ${s.team} (${s.first} to ${s.last}): ${s.note} Source: ${s.source}`)
-  const structured = { coach: { id: p.id, name: p.name, url: coachUrl(p.id) }, group, bio: p.bio, all_time: at, since_1996: { games: p.career.g, wins: p.career.w, losses: p.career.l, playoff_wins: p.career.pw, playoff_losses: p.career.pl, playoff_seasons: p.career.po_seasons, titles: p.career.titles, wins_above_talent: p.career.w_talent_sum_raw, wins_above_market: p.career.w_market_sum_raw, ranked_career: p.career.eligible }, stints: p.stints, awards: p.awards, notes, url: coachUrl(p.id), data_as_of: day(idx.meta.generated), source: SOURCE }
+  const structured = { coach: { id: p.id, name: p.name, url: coachUrl(p.id) }, group, bio: p.bio, all_time: at, since_1996: { games: p.career.g, wins: p.career.w, losses: p.career.l, playoff_wins: p.career.pw, playoff_losses: p.career.pl, playoff_seasons: p.career.po_seasons, titles: p.career.titles, wins_above_talent: p.career.w_talent_sum_raw, wins_above_market: p.career.w_market_sum_raw, ranked_career: p.career.eligible }, stints: p.stints, awards: p.awards, notes, url: coachUrl(p.id), data_as_of: asOf(idx), source: SOURCE }
   if (p.seasons.some((s) => s.in_progress)) say(notes, L, `${idx.meta.current} is in progress and counts as it stands.`)
   if (want('career')) { const c = careerBlock(idx, p, notes); structured.career_stats = c.stats; L.push('', ...c.lines) }
   if (want('rotation')) { const r = await rotationBlock(idx, p, season, notes); structured.rotation = r.structured; L.push('', ...r.lines) }
@@ -299,8 +315,8 @@ export async function coachingLeaders({ board = 'all', limit = 10 } = {}) {
   const out = boards.map((b) => ({ id: b.id, title: b.title, kind: b.kind, season: b.season, pool: b.pool, pool_size: b.rows.length, note: b.note, rows: b.rows.slice(0, limit).map((r, i) => ({ rank: i + 1, id: r.id, name: r.name, team: r.team, value: r.value, display: r.display })) }))
   const L = [`Basketball Coaching Savant's ${out.length === 1 ? `"${out[0].title}" board` : `${out.length} Leaders boards`}, in the page's order (the page shows ten).`]
   for (const b of out) { L.push('', `${b.title} (${b.pool}; ${b.pool_size} in all${b.pool_size > b.rows.length ? `, top ${b.rows.length} shown` : ''})`); for (const r of b.rows) L.push(`${r.rank}. ${r.name}${r.team ? ` (${r.team})` : ''}: ${r.display}`); if (b.note) L.push(b.note) }
-  L.push('', `Page: ${PAGE}`, `Source: ${SOURCE}. Data as of ${day(idx.meta.generated)}.`)
-  return { structured: { board, limit, boards: out, url: PAGE, data_as_of: day(idx.meta.generated), source: SOURCE }, text: L.join('\n') }
+  L.push('', `Page: ${PAGE}`, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`)
+  return { structured: { board, limit, boards: out, url: PAGE, data_as_of: asOf(idx), source: SOURCE }, text: L.join('\n') }
 }
 
 export async function coachingTree({ coach, depth = 3 } = {}) {
@@ -311,8 +327,8 @@ export async function coachingTree({ coach, depth = 3 } = {}) {
     const trees = idx.tree.roots.map((r) => ({ root: r, name: N[r].name, size: N[r].size, branches: N[r].kids.map((k) => ({ id: k, name: N[k].name, size: N[k].size })) }))
     const L = [`The coaching tree: ${trees.length} trees with more than one coach (${trees.reduce((s, t) => s + t.size, 0)} coaches in them). ${note}`, '']
     for (const t of trees.slice(0, 40)) L.push(`- ${t.name} tree: ${t.size} coaches. Under him: ${t.branches.map((b) => `${b.name} (${b.size})`).join(', ')}.`)
-    L.push('', `Page: ${PAGE}#tree`, `Source: ${SOURCE}. Data as of ${day(idx.meta.generated)}.`)
-    return { structured: { trees, note, url: `${PAGE}#tree`, data_as_of: day(idx.meta.generated), source: SOURCE }, text: L.join('\n') }
+    L.push('', `Page: ${PAGE}#tree`, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`)
+    return { structured: { trees, note, url: `${PAGE}#tree`, data_as_of: asOf(idx), source: SOURCE }, text: L.join('\n') }
   }
   const who = await resolveCoach(coach)
   const me = N[who.id]
@@ -328,24 +344,40 @@ export async function coachingTree({ coach, depth = 3 } = {}) {
   if (line.length) L.push(`Line back to the root: ${[who.name, ...line.map((l) => l.name)].join(' ← ')}.`)
   if (!branch.length) L.push('Nobody in the tree is placed under him.')
   else { L.push(`Beneath him: ${me.size - 1}${deeper ? ` (${branch.length} shown to depth ${depth}, ${deeper} deeper)` : ''}:`); for (const b of branch) L.push(`${'  '.repeat(b.depth - 1)}- ${b.name}${b.branch_size > 1 ? ` (${b.branch_size - 1} beneath)` : ''}${b.depth === 1 && b.role ? ` · ${b.role}` : ''}`) }
-  L.push('', `Tree: ${PAGE}#tree=${who.id}`, `His page: ${coachUrl(who.id)}`, `Source: ${SOURCE}. Data as of ${day(idx.meta.generated)}.`)
-  return { structured: { coach: { id: who.id, name: who.name, mentor: me.mentor ? { id: me.mentor, name: N[me.mentor].name, role: me.role, by_hand: !!me.override, unconfirmed: !!me.unconfirmed } : null, line, branch_size: me.size - 1 }, depth, branch, not_shown: deeper, note, url: `${PAGE}#tree=${who.id}`, data_as_of: day(idx.meta.generated), source: SOURCE }, text: L.join('\n') }
+  L.push('', `Tree: ${PAGE}#tree=${who.id}`, `His page: ${coachUrl(who.id)}`, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`)
+  return { structured: { coach: { id: who.id, name: who.name, mentor: me.mentor ? { id: me.mentor, name: N[me.mentor].name, role: me.role, by_hand: !!me.override, unconfirmed: !!me.unconfirmed } : null, line, branch_size: me.size - 1 }, depth, branch, not_shown: deeper, note, url: `${PAGE}#tree=${who.id}`, data_as_of: asOf(idx), source: SOURCE }, text: L.join('\n') }
 }
 
-function matches(row, cols, filters) {
+// Ordering for the range ops. Numbers compare as numbers (a numeric string too, so "5" >= 10 is
+// false, not text order); anything else as text, which orders ISO dates ("2026-10-30") correctly.
+// Until Nov 2026 every comparison went through +v, so a date was NaN, NaN < x is false, and
+// date >= "2026-10-30" let the whole season through. Lists and objects don't order: null.
+const num = (x) => (typeof x === 'number' ? x : typeof x === 'string' && x.trim() !== '' && Number.isFinite(+x) ? +x : null)
+export function compare(v, x) {
+  if (v == null || x == null || typeof v === 'object' || typeof x === 'object') return null
+  const a = num(v), b = num(x)
+  if (a != null && b != null) return a - b
+  const s = String(v), t = String(x)
+  return s < t ? -1 : s > t ? 1 : 0
+}
+const same = (v, x) => { const c = compare(v, x); return c == null ? String(v) === String(x) : c === 0 }
+
+export function matches(row, cols, filters) {
   for (const f of filters || []) {
     const i = cols.indexOf(f.column)
     if (i < 0) throw new SavantError(`No column "${f.column}". Columns: ${cols.join(', ')}.`)
     const v = row[i]
+    const c = ['gte', 'lte', 'gt', 'lt'].includes(f.op) ? compare(v, f.value) : null
     switch (f.op) {
-      case 'eq': if (String(v) !== String(f.value)) return false; break
-      case 'ne': if (String(v) === String(f.value)) return false; break
-      case 'in': if (!(Array.isArray(f.value) ? f.value : String(f.value).split(',')).map(String).includes(String(v))) return false; break
-      case 'gte': if (v == null || +v < +f.value) return false; break
-      case 'lte': if (v == null || +v > +f.value) return false; break
-      case 'gt': if (v == null || +v <= +f.value) return false; break
-      case 'lt': if (v == null || +v >= +f.value) return false; break
-      case 'contains': if (!JSON.stringify(v ?? '').toLowerCase().includes(String(f.value).toLowerCase())) return false; break
+      case 'eq': if (!same(v, f.value)) return false; break
+      case 'ne': if (same(v, f.value)) return false; break
+      case 'in': if (!(Array.isArray(f.value) ? f.value : String(f.value).split(',')).some((x) => same(v, typeof x === 'string' ? x.trim() : x))) return false; break
+      case 'gte': if (c == null || c < 0) return false; break
+      case 'lte': if (c == null || c > 0) return false; break
+      case 'gt': if (c == null || c <= 0) return false; break
+      case 'lt': if (c == null || c >= 0) return false; break
+      // text: the value itself; a list or object (officials, diet): its JSON, so a name inside it matches
+      case 'contains': if (!(typeof v === 'string' ? v : JSON.stringify(v ?? '')).toLowerCase().includes(String(f.value ?? '').toLowerCase())) return false; break
       case 'null': if (v != null) return false; break
       case 'notnull': if (v == null) return false; break
       default: throw new SavantError(`Unknown op "${f.op}". Use eq, ne, in, gte, lte, gt, lt, contains, null, notnull.`)
@@ -367,7 +399,7 @@ export async function coachingData({ table, season, filters = [], columns, limit
   const lim = Math.min(MAX_ROWS, Math.max(1, limit))
   const page = all.slice(offset, offset + lim).map((r) => idxs.map((i) => r[i]))
   const dict = await loadDict()
-  const structured = { table, season, columns: want, rows: page, total_matching: all.length, offset, limit: lim, next_offset: offset + lim < all.length ? offset + lim : null, definition: dict.tables[table], legend: file.legend || null, data_as_of: day(idx.meta.generated), source: SOURCE }
+  const structured = { table, season, columns: want, rows: page, total_matching: all.length, offset, limit: lim, next_offset: offset + lim < all.length ? offset + lim : null, definition: dict.tables[table], legend: file.legend || null, data_as_of: tableAsOf(file, idx), source: SOURCE }
   const text = [`${table} ${season}: ${all.length} rows match${filters.length ? ' the filters' : ''}; rows ${offset + 1}–${offset + page.length}${structured.next_offset != null ? ` (next offset ${structured.next_offset})` : ''}. Columns: ${want.join(', ')}.`, dict.tables[table], file.legend ? `Legend: ${JSON.stringify(file.legend)}` : '', '', ...page.slice(0, 50).map((r) => JSON.stringify(r)), page.length > 50 ? `… ${page.length - 50} more rows in the structured result` : '', '', `Source: ${SOURCE}. Data as of ${structured.data_as_of}.`].filter((x) => x !== '').join('\n')
   return { structured, text }
 }
@@ -378,8 +410,8 @@ export async function coachingDictionary({ table } = {}) {
   const stats = dict.stats.map((s) => ({ key: s.key, label: s.label, group: s.group, kind: s.kind === 'good' ? 'how good' : 'how much', unit: s.unit, lower_is_better: !!s.lower, settle_point: s.thr, since: s.first, what: s.what, formula: s.formula, source: s.source, sample: s.sample }))
   const tables = table ? { [table]: dict.tables[table] } : dict.tables
   if (table && !dict.tables[table]) throw new SavantError(`No table "${table}". Tables: ${Object.keys(dict.tables).join(', ')}.`)
-  const L = ['Basketball Coaching Savant data dictionary.', '', 'Tables (nba_coaching_data):', ...Object.entries(tables).map(([k, v]) => `- ${k}: ${v}`), '', `Stats on the coach pages (${stats.length}); each with its kind, unit, direction, settle point and first season:`, ...(table ? [] : stats.map((s) => `- ${s.key} (${s.label}; ${s.kind}; ${s.unit}${s.lower_is_better ? '; lower is better' : ''}; from ${s.since}): ${s.what} Formula: ${s.formula}`)), '', `Fits in this build: talent line ${JSON.stringify(idx.meta.fits.talent)}; projection from parts ${JSON.stringify(idx.meta.fits.parts)}.`, idx.meta.model_note, `Source: ${SOURCE}. Data as of ${day(idx.meta.generated)}.`]
-  return { structured: { tables, stats: table ? [] : stats, fits: idx.meta.fits, rules: idx.meta.rules, note: idx.meta.model_note, tree_note: idx.tree.note, data_as_of: day(idx.meta.generated), source: SOURCE }, text: L.join('\n') }
+  const L = ['Basketball Coaching Savant data dictionary.', '', 'Tables (nba_coaching_data):', ...Object.entries(tables).map(([k, v]) => `- ${k}: ${v}`), '', `Stats on the coach pages (${stats.length}); each with its kind, unit, direction, settle point and first season:`, ...(table ? [] : stats.map((s) => `- ${s.key} (${s.label}; ${s.kind}; ${s.unit}${s.lower_is_better ? '; lower is better' : ''}; from ${s.since}): ${s.what} Formula: ${s.formula}`)), '', `Fits in this build: talent line ${JSON.stringify(idx.meta.fits.talent)}; projection from parts ${JSON.stringify(idx.meta.fits.parts)}.`, idx.meta.model_note, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`]
+  return { structured: { tables, stats: table ? [] : stats, fits: idx.meta.fits, rules: idx.meta.rules, note: idx.meta.model_note, tree_note: idx.tree.note, data_as_of: asOf(idx), source: SOURCE }, text: L.join('\n') }
 }
 
 // ---- the tools -----------------------------------------------------------------------
@@ -437,7 +469,7 @@ export const tools = [
     config: {
       title: 'Pull rows from the Basketball Coaching Savant Data Room',
       description: 'The Data Room behind Basketball Coaching Savant (wcehoops.com): rows for your own splits and regressions, one file a season. Tables: games (team-game with every context column: opponent strength as of the date, rest, travel, altitude, missing regulars, officials, closing line, win probability, phase; 1996-97 on), stints, units, rotation (player-game on-floor intervals and off-script minutes by cause), decisions (timeouts, challenges, runs, late-game calls, foul trouble). Filter on any column, pick columns, page (500 rows a call). Call nba_coaching_dictionary first.',
-      inputSchema: { table: z.enum(TABLES).describe('Which table.'), season: z.string().regex(/^\d{4}-\d{2}$/).describe('e.g. 2024-25'), filters: z.array(filterShape).max(12).default([]).describe('{column, op, value}; ops eq, ne, in, gte, lte, gt, lt, contains, null, notnull.'), columns: z.array(z.string()).max(60).optional().describe('Columns to return (default all).'), limit: z.number().int().min(1).max(MAX_ROWS).default(100).describe('Rows per call.'), offset: z.number().int().min(0).default(0).describe('Row to start at.') },
+      inputSchema: { table: z.enum(TABLES).describe('Which table.'), season: z.string().regex(/^\d{4}-\d{2}$/).describe('e.g. 2024-25'), filters: z.array(filterShape).max(12).default([]).describe('{column, op, value}; ops eq, ne, in, gte, lte, gt, lt (numbers, and dates as YYYY-MM-DD), contains, null, notnull.'), columns: z.array(z.string()).max(60).optional().describe('Columns to return (default all).'), limit: z.number().int().min(1).max(MAX_ROWS).default(100).describe('Rows per call.'), offset: z.number().int().min(0).default(0).describe('Row to start at.') },
       outputSchema: { table: z.string(), season: z.string(), columns: z.array(z.string()), rows: z.array(z.array(z.any())), total_matching: z.number().int(), offset: z.number().int(), limit: z.number().int(), next_offset: z.number().int().nullable(), definition: z.string(), legend: z.any().nullable(), data_as_of: z.string(), source: z.string() },
       annotations: { title: 'Pull rows from the Basketball Coaching Savant Data Room', ...READ_ONLY },
     },
