@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-11-05",
+    "product": "College Basketball Savant",
+    "version": "1.3.0",
+    "text": "Shot charts, play context (possession starts, transition, after timeouts, clutch and an estimated shot clock) and rotation maps",
+    "href": "/college-basketball-savant.html"
+  },
+  {
     "date": "2026-11-04",
     "product": "Flappy Hoops",
     "version": "2.10.0",

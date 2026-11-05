@@ -23,6 +23,7 @@ Men's Division I. `public/college-basketball-savant.html`, data in `public/cbb/`
 | `positions.py` | Guard, wing, big: box estimate, height and listing blended, plus a size rule |
 | `settle.py` | Settle points |
 | `xfg.py`, `rapm.py` | Shot quality; box impact and RAPM |
+| `context.py` | Play context from the possession log: starts, transition, after timeouts, clutch, the estimated shot clock, shot bins, rotation maps; the possessions Data Room |
 | `confidence.py` | How sure each player's opponent adjustment is |
 | `college_value.py` | Savant value: features, the floor part, replacement, `apply_doc`; the first (on/off) weight test |
 | `team_fit.py` | The weights, fitted to team results; old against new; what drives the AP overlap |

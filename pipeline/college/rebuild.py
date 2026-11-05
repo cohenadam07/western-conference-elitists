@@ -3,7 +3,14 @@ rebuild.py — one college game: lineups, stints, possessions, garbage time, zon
 putbacks and assists, from the normalized play-by-play.
 
     rebuild_game(g) -> {"rows": player-game rows, "team": team-game rows, "stints": [...],
-                        "shots": [...], "gate": {...the game's own checks...}}
+                        "shots": [...], "poss": [...], "gate": {...the game's own checks...}}
+
+The possession log (Nov 2026): one row per possession, how it started (after a made basket, a
+defensive rebound, a steal, a dead-ball turnover, a made last free throw, a period start), whether
+a timeout came before its first action, the points it scored, its length, the margin and clock at
+its start (clutch = the last five minutes within five) and the fives on the floor. Each shot also
+carries how far into its possession it came, a stand-in for the shot clock, which the feed lacks.
+Nothing here changes the counts above: it only records what the possession logic already decides.
 
 Why this is not espn_tables.parse_game. That parser reads the NBA's feed; the college feed differs
 in every place it leans on:
@@ -36,6 +43,8 @@ SUB, JUMP, OREB, DREB, DEADREB, STEAL, BLOCK, FT = "584", "615", "586", "587", "
 TOV, PFOUL, TFOUL = "598", "519", "521"
 END_IDS = {"412", "402"}
 NON_ACTION = {"580", "579", "578", "216", "215"}  # timeouts, challenges
+TEAM_TIMEOUTS, TV_TIMEOUTS = {"579", "578"}, {"580"}   # a coach's timeout; the media timeout
+CLUTCH_SECONDS, CLUTCH_MARGIN = 300.0, 5    # last five minutes (overtime included), within five
 REG_SECONDS, OT_SECONDS = 1200.0, 300.0
 
 # measure.py on 2025-26: the gap from a change of possession to the next shot peaks at 5 seconds and
@@ -288,7 +297,7 @@ def box_only(g, team_of):
     ot = max(0, round((m - 200) / 25))
     team = [{"team": t, "opp": opp[t], "home": t == home, "pts": g["teams"][t]["score"], "opp_pts": g["teams"][opp[t]]["score"], "poss": 0.0, "opp_poss": 0.0, "poss_g": 0.0,
              "box": tb[t], "pbp": _zero(ON), "pbp_g": _zero(ON), "ot": ot} for t in (home, away)]
-    return {"rows": rows, "team": team, "stints": [], "shots": [], "gate": {"gid": g["gid"], "plays": 0, "lineups": "none", "five": {}, "ot": ot, "score_ok": False, "box_players": 0, "box_match": 0, "players": 0, "minutes_off": 0, "fga": 0, "loc": 0, "fixes": 0}}
+    return {"rows": rows, "team": team, "stints": [], "shots": [], "poss": [], "gate": {"gid": g["gid"], "plays": 0, "lineups": "none", "five": {}, "ot": ot, "score_ok": False, "box_players": 0, "box_match": 0, "players": 0, "minutes_off": 0, "fga": 0, "loc": 0, "fixes": 0}}
 
 
 def rebuild_game(g):
@@ -341,6 +350,7 @@ def rebuild_game(g):
     rows = defaultdict(Row)
     stints = []
     shots = []
+    plog = []
     team_t = {t: _zero(ON) for t in teams}
     team_tg = {t: _zero(ON) for t in teams}
     team_gar = {t: 0.0 for t in teams}
@@ -358,6 +368,9 @@ def rebuild_game(g):
         off, open_, in_poss, garbage, made_pending = None, False, {t: set() for t in teams}, False, None
         last_change, last_oreb = None, None      # (clock, team) of the last change of possession / offensive rebound
         stint = None
+        cur_p = None                             # the possession being logged
+        why, why_at = "period", period_length(period)   # how the last one ended, and when
+        to_pending = 0                           # since the last action: 2 a team timeout, 1 a media timeout
 
         def stint_for(on, g_flag):
             nonlocal stint
@@ -371,12 +384,25 @@ def rebuild_game(g):
             return (p.get("score_home") or 0), (p.get("score_away") or 0)
 
         def start_poss(team, p):
-            nonlocal off, open_, garbage
+            nonlocal off, open_, garbage, cur_p, to_pending
             off, open_ = team, True
             h, a = score_at(p)
             lead = abs(h - a)
             leader = home if h > a else away if a > h else None
             garbage = is_garbage(lead, leader == team, seconds_left_in_game(period, p["clock"]))
+            # the margin before this play, for the team with the ball
+            pre_h, pre_a = h, a
+            if p.get("scoring") and p["team"] in teams:
+                v = 1 if p["tid"] == FT else (3 if is_three(p) else 2)
+                pre_h, pre_a = (h - v, a) if p["team"] == home else (h, a - v)
+            margin = (pre_h - pre_a) if team == home else (pre_a - pre_h)
+            t0 = why_at if why_at >= p["clock"] else p["clock"]
+            on_now = fives.get(p["i"]) or {}
+            cur_p = {"team": team, "period": period, "start": t0, "kind": why, "ato": to_pending, "margin": margin,
+                     "secs_left": seconds_left_in_game(period, t0), "g": int(garbage),
+                     "pts0": team_t[team]["pts"] + team_tg[team]["pts"], "five": sorted(on_now.get(team, ())), "dfive": sorted(on_now.get(opp[team], ()))}
+            cur_p["clutch"] = int(cur_p["secs_left"] <= CLUTCH_SECONDS and abs(margin) <= CLUTCH_MARGIN)
+            to_pending = 0
 
         def tally(team, key, n=1.0):
             st = stint
@@ -387,10 +413,17 @@ def rebuild_game(g):
             pass
 
         def close(p=None):
-            nonlocal off, open_
+            nonlocal off, open_, cur_p, why, why_at
             if off is None:
                 return
             team, other = off, opp[off]
+            if cur_p is not None and cur_p["team"] == team:
+                end = p["clock"] if p is not None else 0.0
+                pts = team_t[team]["pts"] + team_tg[team]["pts"] - cur_p["pts0"]
+                end = cur_p.get("made_at", end)
+                plog.append([team, period, cur_p["start"], end, cur_p["kind"], cur_p["ato"], int(pts), cur_p["g"], cur_p["clutch"], cur_p["margin"], cur_p["five"], cur_p["dfive"],
+                             cur_p.get("first"), cur_p.get("first_kind")])
+                cur_p = None
             tally(team, "poss")
             for a in in_poss[team]:
                 r = rows[a]
@@ -453,9 +486,16 @@ def rebuild_game(g):
                 made_pending = None
                 if not (tid == FT and team == t0 and clock == c0):
                     close(p)
+                    why, why_at = "made", c0
 
             cur = stint_for(on, garbage)
             cur["end"] = clock
+            if tid in TEAM_TIMEOUTS or tid in TV_TIMEOUTS:
+                lvl = 2 if tid in TEAM_TIMEOUTS else 1
+                if cur_p is None or made_pending is not None:
+                    to_pending = max(to_pending, lvl)        # for the next possession
+                elif "first" not in cur_p:
+                    cur_p["ato"] = max(cur_p["ato"], lvl)
             if tid == SUB or tid in NON_ACTION:
                 continue
             events += 1
@@ -473,8 +513,11 @@ def rebuild_game(g):
                 if off != team:
                     if off is not None:
                         close(p)
+                        why, why_at = "other", clock      # the feed missed how the last one ended
                     start_poss(team, p)
                     cur = stint_for(on, garbage)
+                if cur_p is not None and "first" not in cur_p:
+                    cur_p["first"], cur_p["first_kind"] = clock, "fga"
                 three = is_three(p)
                 made = p["scoring"]
                 fam = shot_family(p)
@@ -534,20 +577,27 @@ def rebuild_game(g):
                     else:
                         box(shooter, "uast_m")
                     made_pending = (team, clock)
+                    if cur_p is not None:
+                        cur_p["made_at"] = clock
                 last_oreb = None
                 shots.append({"eid": shooter, "team": team, "opp": other, "period": period, "clock": clock, "made": int(made),
                               "three": int(three), "x": x, "y": y, "dist": None if d is None else round(d, 1), "fam": fam, "zone": z,
-                              "pb": int(pb), "tr": int(tr), "ast": ast if made else None, "g": int(garbage)})
+                              "pb": int(pb), "tr": int(tr), "ast": ast if made else None, "g": int(garbage),
+                              "t_in": None if cur_p is None else round(cur_p.get("reset", cur_p["start"]) - clock, 1), "start": None if cur_p is None else cur_p["kind"],
+                              "ato": 0 if cur_p is None else cur_p["ato"], "clutch": 0 if cur_p is None else cur_p["clutch"]})
             elif tid == FT:
                 is_tech = tech.get((period, clock, team), 0) > 0
                 if off != team and not is_tech:
                     if off is not None:
                         close(p)
+                        why, why_at = "other", clock      # the feed missed how the last one ended
                     start_poss(team, p)
                     cur = stint_for(on, garbage)
                 elif off is None:
                     start_poss(team, p)
                     cur = stint_for(on, garbage)
+                if cur_p is not None and "first" not in cur_p:
+                    cur_p["first"], cur_p["first_kind"] = clock, "ft"
                 a = p["ath"][0] if p["ath"] else None
                 count(team, "fta")
                 box(a, "fta")
@@ -559,6 +609,7 @@ def rebuild_game(g):
                     if p["i"] in last_ft and not is_tech:
                         close(p)
                         last_change = (clock, other)
+                        why, why_at = "ft", clock
             elif tid == OREB:
                 count(team, "oreb")
                 if p["ath"]:
@@ -566,12 +617,15 @@ def rebuild_game(g):
                 last_oreb = (clock, team)
                 if off is None:
                     start_poss(team, p)
+                if cur_p is not None and cur_p["team"] == team:
+                    cur_p["reset"] = clock                # the shot clock resets on an offensive rebound
             elif tid == DREB:
                 if off == other:
                     close(p)
                 count(team, "dreb")
                 if p["ath"]:
                     box(p["ath"][0], "dreb")
+                why, why_at = "dreb", clock
                 start_poss(team, p)
                 cur = stint_for(on, garbage)
                 last_change = (clock, team)
@@ -582,15 +636,23 @@ def rebuild_game(g):
                 if off != team:
                     if off is not None:
                         close(p)
+                        why, why_at = "other", clock      # the feed missed how the last one ended
                     start_poss(team, p)
                     cur = stint_for(on, garbage)
+                if cur_p is not None and "first" not in cur_p:
+                    cur_p["first"], cur_p["first_kind"] = clock, "tov"
                 count(team, "tov")
                 if p["ath"]:
                     box(p["ath"][0], "tov")
                 close(p)
                 last_change = (clock, other)
                 last_oreb = None
+                why, why_at = "tov", clock
             elif tid == STEAL:
+                if why == "tov" and why_at == clock:
+                    why = "steal"
+                    if cur_p is not None and cur_p["team"] == team and cur_p["start"] == clock:
+                        cur_p["kind"] = "steal"
                 count(team, "stl")
                 if p["ath"]:
                     box(p["ath"][0], "stl")
@@ -609,6 +671,7 @@ def rebuild_game(g):
         if off is not None and open_:
             close()
         off = None
+        cur_p = None
         # the end of the period: time left on the last stint
         if stint is not None and clock_prev > 0:
             for t in d1:
@@ -682,4 +745,4 @@ def rebuild_game(g):
             "ot": ot, "expect_sec": expect, "poss": {t: team_t[t]["poss"] + team_tg[t]["poss"] for t in teams}, "formula": formula,
             "fga": sum(1 for s in shots), "loc": sum(1 for s in shots if s["x"] is not None), "gar_sec": gar_sec,
             "score_ok": bool(plays and ((plays[-1].get("score_home") == g["teams"][home]["score"]) and (plays[-1].get("score_away") == g["teams"][away]["score"])))}
-    return {"rows": out, "team": team_rows, "stints": st_rows, "shots": shots, "gate": gate}
+    return {"rows": out, "team": team_rows, "stints": st_rows, "shots": shots, "poss": plog, "gate": gate}

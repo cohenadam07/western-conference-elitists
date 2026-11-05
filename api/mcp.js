@@ -162,7 +162,7 @@ function keyIn(req) {
   }
 }
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.4.0' }
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.5.0' }
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
@@ -172,7 +172,7 @@ const INSTRUCTIONS = [
   'nfl_ is Football Savant and Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; its All-Savant Team, leaderboards, team pages, careers, game logs and recent form, splits, maps and route trees, and postseason games; and NFL head coaches and play-callers, with Coaching Savant\'s Leaders boards and coaching tree.',
   'ufc_ is UFC Savant: fighters ranked inside their division (or, on request, against every division of their sex), against active fighters and all-time, plus its leaderboard and head-to-head views.',
   'nba_draft_ is Draft Savant: college and pre-draft data on draft prospects, not NBA stats.',
-  'cbb_ is College Basketball Savant: every men\'s Division I player and team since 2013-14, opponent-adjusted percentiles against D1 at the same position by default, per 70 possessions, with RAPM, shot zones, lineups and team ratings computed by WCE.',
+  'cbb_ is College Basketball Savant: every men\'s Division I player and team since 2013-14, opponent-adjusted percentiles against D1 at the same position by default, per 70 possessions, with RAPM, shot zones, lineups and team ratings computed by WCE; from 2025-26, play context (possession starts, transition, after timeouts, clutch, an estimated shot clock), shot charts and a possessions Data Room, and rotation maps from 2023-24; schedules read live from ESPN.',
   'wce_ is the site itself: its news page, its articles, its draft Big Board, its crowd-priced Dynasty board, its most-searched players and prospects, and what is new on its homepage. nba_fantasy_league values a fan\'s Sleeper, ESPN or Fantrax league on that Dynasty board.',
   'Every percentile belongs to a pool, and each result names it. A percentile is only meaningful with its pool.',
   'A stat marked low sample is below its stabilization threshold. A stat a season did not track is listed as not tracked rather than shown as zero. Results state the date of their data and link to the matching page on wcehoops.com.',

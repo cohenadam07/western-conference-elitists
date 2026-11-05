@@ -42,6 +42,7 @@ import normalize as N  # noqa: E402
 import rebuild as R  # noqa: E402
 
 OUT = os.path.join(CC.HOME, "rebuilt")
+POSS_COLS = ["gid", "lineup_ok", "team", "period", "start", "end", "kind", "ato", "pts", "g", "clutch", "margin", "five", "dfive", "first", "first_kind"]
 BOX = ("pts", "fgm", "fga", "fg3m", "fg3a", "ftm", "fta", "oreb", "dreb", "ast", "tov", "stl", "blk", "pf")
 
 
@@ -102,18 +103,20 @@ def _one(a):
             d["pg_" + k] = v
         tg.append(d)
     shots = [dict(s, gid=g["gid"]) for s in r["shots"]]
-    return game, pg, tg, shots, [g["gid"], home, away, r["stints"]] if lineup_ok else None, names, pos, tinfo
+    plog = [[g["gid"], int(lineup_ok)] + row for row in r.get("poss", [])] if pbp_ok else []
+    return game, pg, tg, shots, [g["gid"], home, away, r["stints"]] if lineup_ok else None, names, pos, tinfo, plog
 
 
 def run(season, log=print, workers=8):
     t0 = time.time()
     seen = json.load(open(os.path.join(E.ROOT, season, "days.json")))
     fin = [e for e in E.finals(seen) if os.path.exists(E.raw_path(season, e["id"]))]
-    games, pg, tg, shots, stints = [], [], [], [], []
+    games, pg, tg, shots, stints, plog = [], [], [], [], [], []
     names, poss, teams = {}, {}, {}
     with cf.ProcessPoolExecutor(workers) as ex:
-        for g, p, t, s, st, nm, ps, ti in ex.map(_one, [(season, e) for e in fin], chunksize=40):
+        for g, p, t, s, st, nm, ps, ti, pl in ex.map(_one, [(season, e) for e in fin], chunksize=40):
             games.append(g)
+            plog.extend(pl)
             pg.extend(p)
             tg.extend(t)
             shots.extend(s)
@@ -134,6 +137,8 @@ def run(season, log=print, workers=8):
     TG.to_pickle(os.path.join(d, "tg.pkl"))
     S = pd.DataFrame(shots)
     S.to_pickle(os.path.join(d, "shots.pkl"))
+    # the possession log, games that pass the play-by-play gate (fives only where lineups pass too)
+    pd.DataFrame(plog, columns=POSS_COLS).to_pickle(os.path.join(d, "poss.pkl"))
     with gzip.open(os.path.join(d, "stints.json.gz"), "wt") as fh:
         json.dump(stints, fh, separators=(",", ":"))
     json.dump({"names": names, "pos": poss, "teams": teams}, open(os.path.join(d, "ids.json"), "w"))
