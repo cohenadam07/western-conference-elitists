@@ -314,8 +314,5 @@ Coaching Savant (football) in the football theme:
     team's own timeouts, first action a shot or a turnover, under one name, **After own timeouts** (below).
 12. ~~The NBA and football themes on their coaching pages~~ Decided Nov 6 (Adam): Basketball Coaching Savant and
     football's Coaching Savant stay as they are for now; `tools/themes/preview.py` and its previews stay unapplied.
-13. **`cbcs-bundles` needs republishing before the merge.** Every season's values changed on Nov 6 (the shared stats,
-    then After own timeouts and the Rotation Map bar), so the published bundles (`2895fa7ee`) are stale: a cloud
-    refresh from them would put the old definitions back for finished seasons. The new bundle is committed in
-    `~/Basketball-Savant/out/cbcs-bundle` (`fb1f9d4`, scanned: no CBBD field) but not pushed (the force-push needs
-    Adam): `git fetch ~/Basketball-Savant/out/cbcs-bundle HEAD && git push -f origin FETCH_HEAD:refs/heads/cbcs-bundles`.
+13. ~~`cbcs-bundles` needs republishing before the merge~~ Done Nov 6, 2026: Adam pushed `fb1f9d4` (every season
+    rebuilt for the shared stats, After own timeouts and the Rotation Map bar; scanned, no CBBD field).
