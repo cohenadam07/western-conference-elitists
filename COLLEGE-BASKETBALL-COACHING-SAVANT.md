@@ -263,6 +263,29 @@ Coaching Savant (football) in the football theme:
 3. No Leaders entry: the football page has none.
 4. On a phone the inner cards' offset shadows run to the sheet's right edge.
 
+## Nov 6, 2026 (evening): After own timeouts, the Rotation Map from game 1
+
+- **After own timeouts.** College Savant's `rebuild.py` records who called the team timeout before each possession
+  (`ato_by`) and whether ESPN logged the game's media timeouts (`tv`); `games.py` takes the caller from there instead
+  of matching timeouts to possessions by the clock, and `cts.py` and `context.py` count the same possessions: the
+  team's own timeout, first action a shot or a turnover, garbage time out, games without logged media timeouts out.
+  Late-game ATO, after-timeout defense and the dead-ball baseline of "ATO over his half-court" follow the
+  shot-or-turnover rule too. Oklahoma 2025-26: 1.139 on 72 possessions on both pages. The shared check compares it
+  (61,564 completed-season figures, all equal; 2026-27: 5,150, all equal) and holds the name to both pages.
+- **The Rotation Map is whole from game 1.** The row bar was 60 minutes under the coach, so a one-game season drew
+  nothing; it is now 2 minutes a lineup game until a season has 30 (`rotation.MAP_MIN_PER_GAME`). The map says what it
+  is based on ("Based on 1 lineup game, through the latest refresh; it updates after every game"). Usual-window
+  outlines, and the On script and Chosen deviation tiles, start at 8 lineup games: measured on 2024-25 and 2025-26
+  coach-seasons with 25+ lineup games, the share of minutes outlined after N games still in a usual window at the
+  season's end is 58-62% after one game, 71-74% after five, 77-80% after eight, 83-85% after twelve, with no elbow.
+  A toggle shows his last season with a map, at whatever school, with a gold dot on the men on this season's roster
+  and the share of last season's minutes they played (Porter Moser: 3 of 11, 23%). Months with no man on 3+ games
+  are no longer drawn as empty maps. College Savant's team map gets the same sample line and toggle (its head coach
+  from `links.json`).
+- **The nightly refresh keeps moving.** The cloud never runs `registry.py`, so games after the last bundle had no
+  coach and the season in progress stood still. `build.py`'s `carry_current` gives them the team's coach of record.
+  Tested by removing the coach from all 91 games of Nov 4-5: all 142 D1 team-games came back to the registry's coach.
+
 ## The review list (spec §9)
 
 1. **Head-coach rows marked unconfirmed:** 751 in the stats era (13,027 in all, mostly tenure-list expansions before
@@ -287,13 +310,12 @@ Coaching Savant (football) in the football theme:
    Wikipedia facts, plus ESPN's and Wikipedia's coach birthdates, which the coach pages show anyway.
 10. ~~This page has no site ribbon~~ Done Nov 6, 2026: the ribbon sits above the college frame and the two old tab
     links are gone (below).
-11. **College Savant's "After timeouts" says "out of their own timeouts" but counts either team's** (`context.py`
-    takes every possession after a team timeout, `ato == 2`, whoever called it, and drops free-throw-first
-    possessions). Not changed here: it is College Savant's number on College Savant's page. Coaching's figure is now
-    named "After his own timeouts" and says how it differs. Fixing College Savant's label or its count is Adam's call.
-12. **The NBA and football themes** on their coaching pages, for approval (below). Nothing published.
-13. **`cbcs-bundles` needs republishing before the merge.** The Nov 6 rebuild changed every season's values (the shared
-    stats), so the published bundles (`2895fa7ee`) are stale: a cloud refresh from them would put the old definitions
-    back for finished seasons. The new bundle is committed in `~/Basketball-Savant/out/cbcs-bundle` (`0f72ebd`, scanned:
-    no CBBD field) but not pushed (the force-push needs Adam): `git fetch ~/Basketball-Savant/out/cbcs-bundle HEAD &&
-    git push -f origin FETCH_HEAD:refs/heads/cbcs-bundles`.
+11. ~~College Savant's "After timeouts" counts either team's timeouts~~ Decided Nov 6 (Adam): both pages count the
+    team's own timeouts, first action a shot or a turnover, under one name, **After own timeouts** (below).
+12. ~~The NBA and football themes on their coaching pages~~ Decided Nov 6 (Adam): Basketball Coaching Savant and
+    football's Coaching Savant stay as they are for now; `tools/themes/preview.py` and its previews stay unapplied.
+13. **`cbcs-bundles` needs republishing before the merge.** Every season's values changed on Nov 6 (the shared stats,
+    then After own timeouts and the Rotation Map bar), so the published bundles (`2895fa7ee`) are stale: a cloud
+    refresh from them would put the old definitions back for finished seasons. The new bundle is committed in
+    `~/Basketball-Savant/out/cbcs-bundle` (`fb1f9d4`, scanned: no CBBD field) but not pushed (the force-push needs
+    Adam): `git fetch ~/Basketball-Savant/out/cbcs-bundle HEAD && git push -f origin FETCH_HEAD:refs/heads/cbcs-bundles`.

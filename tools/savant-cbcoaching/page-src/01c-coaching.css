@@ -234,7 +234,7 @@ svg .hit{cursor:pointer}
 .rotname{height:22px;line-height:22px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px;border-bottom:1px solid var(--line)}
 .rotname small{font-family:var(--mono);color:var(--faint);font-size:10px}
 .rotsample{margin:0 0 12px;font-size:13px;line-height:1.45;color:var(--ink)}
-.backtag{display:inline-block;font-size:10px;line-height:14px;padding:0 5px;border-radius:3px;background:var(--gold);color:#fff;font-weight:600;vertical-align:1px}
+.bk{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-right:5px;vertical-align:1px}
 .rotname.gone{opacity:.55}
 .rotaxis{display:grid;grid-template-columns:repeat(4,1fr);height:18px;font-family:var(--mono);font-size:10px;color:var(--muted)}
 .rotaxis span{border-left:1px solid var(--line);padding-left:4px;line-height:18px}
