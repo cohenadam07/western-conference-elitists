@@ -292,3 +292,8 @@ Coaching Savant (football) in the football theme:
     possessions). Not changed here: it is College Savant's number on College Savant's page. Coaching's figure is now
     named "After his own timeouts" and says how it differs. Fixing College Savant's label or its count is Adam's call.
 12. **The NBA and football themes** on their coaching pages, for approval (below). Nothing published.
+13. **`cbcs-bundles` needs republishing before the merge.** The Nov 6 rebuild changed every season's values (the shared
+    stats), so the published bundles (`2895fa7ee`) are stale: a cloud refresh from them would put the old definitions
+    back for finished seasons. The new bundle is committed in `~/Basketball-Savant/out/cbcs-bundle` (`0f72ebd`, scanned:
+    no CBBD field) but not pushed (the force-push needs Adam): `git fetch ~/Basketball-Savant/out/cbcs-bundle HEAD &&
+    git push -f origin FETCH_HEAD:refs/heads/cbcs-bundles`.
