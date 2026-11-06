@@ -26,7 +26,9 @@ publishes) and adds the events a coach decides, read from the same normalized pl
                same clock makes it live-ball. ESPN logs no other turnover type, so "press-like
                pressure" is live-ball turnovers forced early in possessions that began after the
                team's own made basket (rotation.py / cgame.py), never a claim about a press.
-  possessions  rebuild.py's possession log, plus who called the timeout before it (own / opponent).
+  possessions  rebuild.py's possession log, with who called the team timeout before it (own / opponent),
+               which rebuild.py itself records since Nov 6 2026, so College Savant's after-timeout numbers
+               and these are one count (before, this file matched timeouts to possessions by the clock).
 
 Seasons. 2013-14 on: before that ESPN merges fouls and turnovers into one type (601) and has
 play-by-play for 53-68% of games, so rebuild.py's possessions do not hold (census2, Nov 5 2026).
@@ -143,18 +145,8 @@ def parse(season, ev):
     # ---------------------------------------------------------------- possessions with the caller
     plog = r.get("poss") or []
     out = []
-    prev_first = {}
     for row in plog:
-        team, per, start, end, kind, ato, pts, gflag, clutch, margin, five, dfive, first, fkind = row
-        caller = 0
-        if ato == 2:
-            # the team timeout between the last possession's first action and this one's
-            hi = prev_first.get(per, R.period_length(per))
-            lo = first if first is not None else end
-            cands = [t for t in tos if t[0] == per and lo <= t[1] <= hi]
-            if cands:
-                caller = 1 if cands[-1][2] == team else 2
-        prev_first[per] = first if first is not None else end
+        team, per, start, end, kind, ato, pts, gflag, clutch, margin, five, dfive, first, fkind, caller = row[:15]
         out.append([int(team == home), per, _r(start), _r(end), kind, ato, caller, int(pts), int(gflag), int(clutch), int(margin),
                     _r(first), fkind])
     rec["poss"] = out

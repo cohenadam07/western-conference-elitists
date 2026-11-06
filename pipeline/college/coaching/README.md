@@ -77,3 +77,19 @@ games and turnovers per box-estimated possession, zones count garbage time, clut
 and formula. Where the two measure different things the name differs and the stat's `what` says how (`config.py`).
 `npm run check:savant-cbcoaching-shared` compares every shared figure for every team. Every stat also carries a unit
 (`U` in `config.py`), which the page, the Leaders boards, the scouting lines and the connector print.
+
+After own timeouts (later that day) is one count on both pages: `rebuild.py` records who called the team timeout
+before each possession (`ato_by`) and whether ESPN logged the game's media timeouts (`tv`), `games.py` takes the
+caller from there, and both `context.py` and `cts.py` count the team's own timeouts whose possession starts with a
+shot or a turnover, garbage time out, games without logged media timeouts left out.
+
+## The season in progress (Nov 6, 2026)
+
+- **New games get their coach in the cloud.** The nightly refresh does not run `registry.py`, so `build.py`'s
+  `carry_current` gives a current-season game nobody is assigned to the team's coach of record (its latest assigned
+  game's coach, else its one registry row). A mid-season coaching change still needs the Mac's `registry.py`.
+- **The Rotation Map is whole from game 1.** A row needs 60 minutes under the coach, or 2 a lineup game before a
+  season has 30 (`rotation.MAP_MIN_PER_GAME`); one game used to draw an empty map. The page draws usual-window
+  outlines from 8 lineup games (`rotation.WINDOWS_FROM_GAMES`, measured: the share of minutes outlined after N games
+  still in a window at the season's end is 58-62% after one game, 77-80% after eight), and offers his last season's
+  map with the men on this season's roster marked.

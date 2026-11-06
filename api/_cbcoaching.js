@@ -160,7 +160,11 @@ export async function coachProfile({ coach, group = 'all', season }) {
         const tf = await loadTeam(sr.team, sr.season)
         const e = (tf.coaches || []).find((x) => x.coach === p.id)
         if (e?.rotation) {
+          const early = e.rotation.games < (e.rotation.windows_from || 8)
+          out.rotation.games = e.rotation.games
+          out.rotation.windows_settled = !early
           out.rotation.map = e.rotation.rows.map((x) => ({ id: x.id, name: x.name, gp: x.gp, starts: x.starts, mpg: x.mpg, usual: x.text, off_script: x.off, off_by_choice: x.off_choice, savant_rate: x.rate }))
+          if (early) say(notes, L, `The Rotation Map is based on ${e.rotation.games} lineup game${e.rotation.games === 1 ? '' : 's'}. Usual windows from fewer than ${e.rotation.windows_from || 8} games are a guess (about three in five still hold at the season's end), so read who plays when, not his script; last season's map is the better guide for now.`)
           L.push(`Rotation Map, ${sr.season} (${e.rotation.games} lineup games): on script ${display('pct1', 100 * (1 - e.rotation.off_script))}; off script by cause ${Object.entries(e.rotation.by_cause).map(([k, v]) => `${k} ${display('pct1', 100 * v)}`).join(', ')}.`)
           for (const x of out.rotation.map.slice(0, 10)) L.push(`  ${x.name}: ${x.mpg} mpg, ${x.usual}`)
         }

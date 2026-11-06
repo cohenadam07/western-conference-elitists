@@ -6,7 +6,8 @@
 // the same name it must be the same number; where the two sites measure different things the Coaching
 // page must use a different name and say, in the stat's explainer, how it differs. Oklahoma 2025-26 is
 // why this exists (Nov 6 2026): after-timeout offense 1.16 against 1.171 and clutch net -20.8 against
-// -18.5, both under one name.
+// -18.5, both under one name. Later that day Adam chose one after-timeout count for both pages (the team's
+// own timeouts, first action a shot or a turnover) under one name, After own timeouts.
 //
 // Compared: every team-season one head coach ran from start to finish (an interim's games are not the
 // team's), in every completed season both sites publish: every figure must match. The season in progress is
@@ -62,11 +63,11 @@ const SAME = [
   ['o_rim', 'Rim allowed', (t) => t.orim, 0.05],
   ['clutch_net', 'Clutch net', (t, c) => (c && c.clutch.own[0] && c.clutch.opp[0] ? 100 * (ppp(c.clutch.own) - ppp(c.clutch.opp)) : null), 0.001],
   ['ppp_stl', 'After a steal (PPP)', (t, c) => (c ? ppp(c.starts.own.steal) : null), 0.0001],
+  ['ato', 'After own timeouts', (t, c) => (c ? ppp(c.ato) : null), 0.0001],
   ['ppp_dreb', 'After a defensive rebound (PPP)', (t, c) => (c ? ppp(c.starts.own.dreb) : null), 0.0001],
 ]
 // Coaching keys that measure something College Savant measures differently: [key, College Savant's name]
 const DIFFERENT = [
-  ['ato', 'After timeouts'],
   ['mid', 'Mid'],
   ['o_mid', 'Mid'],
   ['fg3r', 'Three'],
@@ -155,6 +156,17 @@ test('a stat College Savant measures differently has a different name and says h
     assert.match(s.what, /College Basketball Savant/, `${key} ("${s.label}") does not say how it differs from College Savant's ${theirs}`)
   }
   for (const [key] of SAME) assert.ok(stats.has(key), `${key} is not in the registry`)
+})
+
+// Where the two pages show one count, they give it one name, and the College Savant page says so.
+const SAME_NAME = [['ato', 'After own timeouts']]
+test('a stat both pages count the same way has the same name on both', () => {
+  const page = readFileSync(path.join(ROOT, 'public', 'college-basketball-savant.html'), 'utf8')
+  for (const [key, name] of SAME_NAME) {
+    assert.equal(stats.get(key)?.label, name, `${key} is "${stats.get(key)?.label}" here`)
+    assert.ok(page.includes(`'${name}'`), `College Basketball Savant's page does not call it "${name}"`)
+    assert.ok(!page.includes("'After timeouts'"), 'College Basketball Savant still has a stat called "After timeouts"')
+  }
 })
 
 test('the season in progress is the same data on both pages', (t) => {

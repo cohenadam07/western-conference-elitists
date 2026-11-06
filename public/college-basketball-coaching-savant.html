@@ -336,6 +336,9 @@ svg .hit{cursor:pointer}
 .rotnames{display:flex;flex-direction:column;padding-top:18px}
 .rotname{height:22px;line-height:22px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px;border-bottom:1px solid var(--line)}
 .rotname small{font-family:var(--mono);color:var(--faint);font-size:10px}
+.rotsample{margin:0 0 12px;font-size:13px;line-height:1.45;color:var(--ink)}
+.backtag{display:inline-block;font-size:10px;line-height:14px;padding:0 5px;border-radius:3px;background:var(--gold);color:#fff;font-weight:600;vertical-align:1px}
+.rotname.gone{opacity:.55}
 .rotaxis{display:grid;grid-template-columns:repeat(4,1fr);height:18px;font-family:var(--mono);font-size:10px;color:var(--muted)}
 .rotaxis span{border-left:1px solid var(--line);padding-left:4px;line-height:18px}
 .rotmin{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:3px}
@@ -1982,7 +1985,7 @@ function renderHome(){
   document.getElementById('howto').innerHTML = `
     <p><b>Two kinds of rows.</b> A graded row (blue to red) is "how good": higher percentile, better, with lower-is-better rows already flipped. A gold row is "how much": a tendency, where a high percentile means more of it, not better. The number riding the bar is the percentile; every percentile names its pool: that season's D1 head coaches with ${m.rules.min_season_games}+ games, or the ${m.rules.career_pool} ranked careers. A hatched bar is under its settle point. Hover anything for its value, pool, sample and definition; click a row's name to pin the explainer; the chart glyph draws his seasons against the D1 median.</p>
     <p><b>The roster model is the headline.</b> Each returning player's Savant rate and role last season, each transfer's at his old school plus a level-jump term fitted on 2021-on portal moves, each freshman's recruit rank, summed into an expected net and expected wins against the schedule actually played. Out of sample it missed team net by ${t.vs_last?.ours_rmse?.toFixed(2) ?? '—'} points per 100 against ${t.vs_last?.baseline_rmse?.toFixed(2) ?? '—'} for last season's net (${(t.vs_last?.n || 0).toLocaleString()} team-seasons), and by ${t.vs_ap?.ours_rmse?.toFixed(2) ?? '—'} against ${t.vs_ap?.baseline_rmse?.toFixed(2) ?? '—'} for the preseason AP rank on ranked teams (${t.vs_ap?.n ?? '—'}): ${t.headline ? 'it beat both, so it is the baseline' : 'it did not beat both'}. The AP poll is context only. The market (the spread, 2013-14 on) is the third lens.</p>
-    <p><b>The Rotation Map</b> (2023-24 on, where College Savant's lineup gate passes) shows, for every man with 60 minutes under a coach, the share of games he was on the floor in each of the 40 minutes. His usual windows are where that share is 60% or better. Each off-script minute gets the first cause that fits: absence, blowout (College Savant's safe-lead rule), foul trouble (a 2nd foul in the first half; a 4th with 8:00 or more left), then choice. ${esc(m.model_note)}</p>
+    <p><b>The Rotation Map</b> (2023-24 on, where College Savant's lineup gate passes) shows, for every man with 60 minutes under a coach (2 a game until a season has 30), the share of games he was on the floor in each of the 40 minutes. His usual windows are where that share is 60% or better, outlined from his 8th lineup game of a season (before that about two in five outlined minutes would not hold to the season's end). Each off-script minute gets the first cause that fits: absence, blowout (College Savant's safe-lead rule), foul trouble (a 2nd foul in the first half; a 4th with 8:00 or more left), then choice. ${esc(m.model_note)}</p>
     <p><b>Lineups judged from their parts</b> use each five's Savant rates. Tested where the rates cannot see the games (last season's rates, odd games fit, even games scored), the projection's error was ${p.rmse_projection?.toFixed(2) ?? '—'} against ${p.rmse_team_net?.toFixed(2) ?? '—'} for the team's own net: ${p.validated ? 'validated' : 'not a real gain, so everything built on it is shown as unvalidated'}. <b>System fit</b> was tested on ${(f.n || 0).toLocaleString()} transfers: ${f.ships_as === 'fit score' ? 'it predicted their change, so it is a fit score' : 'it did not predict their change better than the roster model, so it is shown only as similar players under him'}.</p>
     <p class="k">${esc(m.credit)} Spending: the U.S. Department of Education's Equity in Athletics data. Player numbers: College Basketball Savant.</p>`;
 }
@@ -2051,7 +2054,7 @@ function renderCoach(){
   parts.push(renderCareerChart());
   parts.push(`<div class="ctxrow">${panelHTML('record', 'Results and expectation', sr, true)}</div>`);
   parts.push(`<div class="panels">${panelHTML('rotation', 'Rotation and lineups', sr)}${panelHTML('management', 'Game management', sr, false, renderManagement(sr))}</div>`);
-  parts.push(`<div class="col wide" id="rotation"><h2 class="col-h">The Rotation Map<span class="q">when each man plays</span></h2><p class="since">2023-24 on, the games College Savant's lineup gate passes · 40 minutes, halftime marked · the model's view, not a verdict · hover a cell for the man, the minute and the share</p><div id="rotbody"></div></div>`);
+  parts.push(`<div class="col wide" id="rotation"><h2 class="col-h">The Rotation Map<span class="q">when each man plays</span></h2><p class="since">2023-24 on, the games College Savant's lineup gate passes · 40 minutes, halftime marked · from his first game of a season, updated after every game · the model's view, not a verdict · hover a cell for the man, the minute and the share</p><div id="rotbody"></div></div>`);
   parts.push(`<div class="col wide" id="pairs"><h2 class="col-h">Who he plays together<span class="q">and does it work</span></h2><p class="since">2023-24 on · above the diagonal: share of the row's minutes with the column; below: net together, pulled toward the team by 1,800 possessions (College Savant's pair constant) · hover a cell</p><div id="pairbody"></div></div>`);
   parts.push(`<div class="col wide" id="quad"><h2 class="col-h">Is he playing his best groups?</h2><p class="since">2023-24 on · five-man units with 10+ minutes: minutes against a projection from the five men's Savant rates · ${IDX.meta.fits.parts?.validated ? 'validated out of sample' : '<b>unvalidated</b>: out of sample it barely beat the team\'s own net'} · hover a dot</p><div id="quadbody"></div></div>`);
   parts.push(`<div class="col wide" id="mvi"><h2 class="col-h">Who he trusts<span class="q">and is he right</span></h2><p class="since">2013-14 on · minutes per game against Savant rate, with D1's fair-minutes line that season · hover a dot</p><div id="mvibody"></div></div>`);
@@ -2226,14 +2229,44 @@ function renderCareerChart(){
 }
 
 // ---------------------------------------------------------------- the Rotation Map (40 minutes, halves)
-function renderRotation(srow){
-  const t = TFILE, rb = document.getElementById('rotbody');
+// His previous season's map (Nov 6 2026): in November a map of a game or three says little, so the toggle shows
+// the latest earlier season he has a map for, with the men who are on his roster this season marked.
+let PREV = null;
+function prevSeasonRow(srow){ return COACH.seasons.filter(s => s.season < srow.season && s.rotation).pop() || null; }
+async function loadPrev(srow){
+  const ps = prevSeasonRow(srow); if (!ps) return null;
+  const key = `${ps.team}-${ps.season}`;
+  const file = TCACHE[key] || (TCACHE[key] = await fetchJSON(`${BASE}/t/${key}.json`));
+  const entry = (file.coaches || []).find(e => e.coach === COACH.id);
+  return entry && entry.rotation ? {for: `${srow.team}-${srow.season}`, srow: ps, t: {...entry, names: file.names, season: file.season, team: file.team}} : null;
+}
+function rotationSample(view, srow, back){
+  const g = view.games, early = g < (view.windows_from || 8);
+  const what = `Based on ${g} lineup game${g === 1 ? '' : 's'}${srow.in_progress && !back ? ', through the latest refresh; it updates after every game' : ''}`;
+  return `<p class="rotsample"><b>${what}.</b> ${early ? `His usual windows are outlined from ${view.windows_from || 8} games: this early about two in five of them would not hold to the season's end, so for now read who plays when, not a script.` : `White outlines: his usual windows.`}</p>`;
+}
+async function renderRotation(srow){
+  const rb = document.getElementById('rotbody');
+  const prevRow = prevSeasonRow(srow);
+  let back = false;
+  if (state.rotPrev && prevRow) {
+    if (!PREV || PREV.for !== `${srow.team}-${srow.season}`) { try { PREV = await loadPrev(srow); } catch (e) { PREV = null; } }
+    back = !!PREV;
+  }
+  const cur = TFILE, t = back ? PREV.t : TFILE, s = back ? PREV.srow : srow;
   const view = t.rotation;
   if (!view) { rb.innerHTML = '<div class="empty">no lineup games for this season</div>'; return; }
-  const rows = view.rows, rot = srow.rotation || {}, bc = rot.by_cause || view.by_cause || {};
-  const P = seasonPct(srow), pools = seasonPools(srow);
+  const early = view.games < (view.windows_from || 8);
+  const now = new Set(Object.keys(cur.names || {}).map(String));
+  const rows = early ? view.rows.map(r => ({...r, windows: [], text: 'too few games for a usual window'})) : view.rows;
+  const rot = s.rotation || {}, bc = rot.by_cause || view.by_cause || {};
+  const P = seasonPct(s), pools = seasonPools(s);
+  const nBack = back ? rows.filter(r => now.has(String(r.id))).length : 0;
+  const minBack = back ? rows.filter(r => now.has(String(r.id))).reduce((a, r) => a + r.min, 0) / Math.max(1, rows.reduce((a, r) => a + r.min, 0)) : 0;
+  const prevTabs = prevRow ? `<button class="tab${!back ? ' on' : ''}" data-rprev="0">${srow.season}${srow.in_progress ? ' so far' : ''}</button><button class="tab${back ? ' on' : ''}" data-rprev="1">his last season with a map: ${prevRow.season}${prevRow.team !== srow.team ? `, ${esc(tAbbr(prevRow.team) || prevRow.team)}` : ''}</button>` : '';
   const tile = (key, label, value, sub) => `<div class="tile"${tipAttr(key && STATS[key] ? statTip(key, {v: srow.values?.[key]?.[0], pct: P[key], pool: pools[key], n: srow.values?.[key]?.[1], season: srow.season}) : `<b>${esc(label)}</b><br>${esc(sub)}`)}><div class="tl">${label}</div><div class="tv">${value}${key && !miss(P[key]) ? `<span class="pb" style="background:${STATS[key]?.kind === 'good' ? gradeColor(P[key]) : '#C2A263'}">${P[key]}</span>` : ''}</div><div class="ts">${sub}</div></div>`;
-  rb.innerHTML = seasonTabs(`<span style="flex:1"></span><button class="tab${state.base === 'played' ? ' on' : ''}" data-base="played">games he played</button><button class="tab${state.base === 'all' ? ' on' : ''}" data-base="all">all games</button>`) +
+  rb.innerHTML = seasonTabs(`${prevTabs}<span style="flex:1"></span><button class="tab${state.base === 'played' ? ' on' : ''}" data-base="played">games he played</button><button class="tab${state.base === 'all' ? ' on' : ''}" data-base="all">all games</button>`) +
+    (back ? `<p class="rotsample"><b>Last season's map: ${s.season}, ${esc(teamName(s.team))}, ${view.games} lineup games.</b> <span class="backtag">back</span> marks the ${nBack} of these ${rows.length} men on his ${srow.season} roster${srow.team !== s.team ? ` at ${esc(teamName(srow.team))}` : ''}, ${Math.round(100 * minBack)}% of last season's minutes on this map.</p>` : rotationSample(view, s, back)) +
     `<div class="tiles" style="margin-bottom:12px">
       ${tile('stability', 'On script', miss(view.off_script) ? '—' : (100 * (1 - view.off_script)).toFixed(1) + '%', 'share of scripted minutes that went as usual')}
       ${tile('chosen_dev', 'Chosen deviation', pc1(bc.choice), 'off script with no absence, blowout or foul trouble')}
@@ -2242,18 +2275,18 @@ function renderRotation(srow){
       ${tile('stagger2', 'Staggers his top two', miss(view.shape?.stagger2) ? '—' : pc1(view.shape.stagger2), 'exactly one of the two on the floor')}
       ${tile('closes_best', 'Closing five gap', miss(view.closing?.gap) ? '—' : view.closing.gap.toFixed(2), `Savant rate below the best five available, ${view.closing?.gap_n ?? 0} close games`)}
     </div>
-    <div class="rot"><div class="rotnames">${rows.map(r => `<div class="rotname"${tipAttr(`<b>${playerLink(r.id, r.name, srow.season)}</b> <span class="k">${r.mpg} mpg, ${r.gp} games${r.starts ? `, ${r.starts} starts` : ''}${r.rate != null ? `, Savant rate ${signed(r.rate)}` : ''}</span><br>${esc(r.text)}<br><span class="k">off his script ${pc1(r.off)} of his minutes, ${pc1(r.off_choice)} by choice</span>`)}>${playerLink(r.id, r.name, srow.season)} <small>${r.mpg}</small></div>`).join('')}</div>
+    <div class="rot"><div class="rotnames">${rows.map(r => { const b = back && now.has(String(r.id)); return `<div class="rotname${back && !b ? ' gone' : ''}"${tipAttr(`<b>${playerLink(r.id, r.name, s.season)}</b> <span class="k">${r.mpg} mpg, ${r.gp} games${r.starts ? `, ${r.starts} starts` : ''}${r.rate != null ? `, Savant rate ${signed(r.rate)}` : ''}</span><br>${esc(r.text)}${early ? '' : `<br><span class="k">off his script ${pc1(r.off)} of his minutes, ${pc1(r.off_choice)} by choice</span>`}${back ? `<br><span class="k">${b ? `back: on his ${srow.season} roster` : `not on his ${srow.season} roster`}</span>` : ''}`)}>${b ? '<span class="backtag">back</span> ' : ''}${playerLink(r.id, r.name, s.season)} <small>${r.mpg}</small></div>`; }).join('')}</div>
       <div class="rotwrap">${axisHTML()}<canvas class="map" id="rotmap"></canvas><div class="rotmin"><span>tip-off</span><span>10</span><span>half</span><span>30</span><span>40 min</span></div></div></div>
-    <div class="legend2"><span><span class="sw" style="background:#22395A"></span>never on</span><span><span class="sw" style="background:#C2A263"></span>always on</span><span>white outline: his usual windows (60%+ of the games he played, minutes still in the balance)</span><span>thick line: halftime</span><span>red marks: the selected game's minutes</span><span>${rows.length} men with 60+ minutes · ${view.games} lineup games</span></div>
+    <div class="legend2"><span><span class="sw" style="background:#22395A"></span>never on</span><span><span class="sw" style="background:#C2A263"></span>always on</span><span>${early ? `no outlines yet: usual windows are drawn from ${view.windows_from || 8} lineup games` : 'white outline: his usual windows (60%+ of the games he played, minutes still in the balance)'}</span><span>thick line: halftime</span><span>red marks: the selected game's minutes</span><span>${rows.length} men with ${view.bar ?? 60}+ minutes${(view.bar ?? 60) < 60 ? ` (2 a game until a season has 30 games)` : ''} · ${view.games} lineup game${view.games === 1 ? '' : 's'}</span>${back ? `<span><span class="backtag">back</span> on his ${srow.season} roster</span>` : ''}</div>
     <h3 class="sub">Game by game: how far he went off script, and why</h3>
-    <p class="since">each bar is one game; height is the share of that game's scripted player-minutes that went off script · hover a game for who was missing and who moved; click it to lay the game over the map</p>
+    <p class="since">each bar is one game; height is the share of that game's scripted player-minutes that went off script · hover a game for who was missing and who moved; click it to lay the game over the map${early ? ` · <b>measured against usual windows that are not settled yet (${view.games} of ${view.windows_from || 8} games)</b>` : ''}</p>
     <div class="tabs"><button class="tab${!state.allCauses ? ' on' : ''}" data-causes="choice">the coach's choice only</button><button class="tab${state.allCauses ? ' on' : ''}" data-causes="all">add absence, blowout and foul trouble</button></div>
     <div id="gchart">${offScriptChart(view, rows)}</div>
     <div class="legend2">${(state.allCauses ? CAUSES : ['choice']).map(c => `<span><span class="sw" style="background:${CAUSE_C[c]}"></span>${CAUSE_L[c]}: ${pc1(bc[c])} of the season's scripted minutes</span>`).join('')}${!miss(rot.overtime_min) && rot.overtime_min > 0 ? `<span>overtime, unscripted: ${rot.overtime_min.toFixed(1)} min a game</span>` : ''}</div>
     <div class="ginfo small" id="ginfo" style="margin-top:6px">${state.game !== null && view.game_rows[state.game] ? gameLine(view.game_rows[state.game], rows) : 'no game selected'}</div>
     ${view.months && Object.keys(view.months).length ? `<h3 class="sub">How it evolved, month by month</h3><p class="since">the same map, games he played in each month · hover a cell</p><div class="months">${Object.keys(view.months).map(mo => `<div class="month"><h4>${mo}</h4>${axisHTML()}<canvas class="map" data-month="${mo}"></canvas></div>`).join('')}</div>` : ''}`;
   const main = document.getElementById('rotmap');
-  drawMap(main, rows, state.base, true, state.game !== null ? view.game_rows[state.game] : null);
+  drawMap(main, rows, state.base, !early, state.game !== null ? view.game_rows[state.game] : null);
   wireMapHover(main, rows, state.base, null);
   rb.querySelectorAll('canvas[data-month]').forEach(cv => {
     const map = view.months[cv.dataset.month];
@@ -2263,6 +2296,7 @@ function renderRotation(srow){
   });
   rb.querySelectorAll('[data-base]').forEach(b => b.addEventListener('click', () => { state.base = b.dataset.base; renderRotation(srow); }));
   rb.querySelectorAll('[data-causes]').forEach(b => b.addEventListener('click', () => { state.allCauses = b.dataset.causes === 'all'; renderRotation(srow); }));
+  rb.querySelectorAll('[data-rprev]').forEach(b => b.addEventListener('click', () => { state.rotPrev = b.dataset.rprev === '1'; state.game = null; hideTip(); renderRotation(srow); }));
   wireSeasonTabs(rb);
   rb.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', () => { const i = +b.dataset.g; state.game = state.game === i ? null : i; hideTip(); renderRotation(srow); }));
 }

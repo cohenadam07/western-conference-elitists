@@ -9,8 +9,11 @@ From one season's working files (rebuilt/<season>/shots.pkl, poss.pkl, stints.js
                   with points; "other" is where the feed missed how the last one ended
       transition  live-ball possessions (after a defensive rebound or a steal) whose first shot,
                   free throw or turnover comes within 8 seconds
-      ato         possessions run out of a team's own timeout (not a media timeout), whose first
-                  action is a shot or a turnover, not free throws
+      ato         possessions run out of a team's own timeout (not a media timeout, not the other
+                  team's), whose first action is a shot or a turnover, not free throws, in games where
+                  ESPN logged the media timeouts on their own (where it did not, TV breaks come through
+                  as team timeouts). Until Nov 6 2026 either team's timeout counted; College Basketball
+                  Coaching Savant's "After own timeouts" is this same number.
       clutch      the last five minutes (overtime included) within five points, on both ends
       clock       field-goal attempts by seconds into the possession (an estimate of the shot
                   clock, which the feed doesn't carry): 0-10, 10-20, 20+
@@ -184,7 +187,7 @@ def build(season, public=PUBLIC, log=print):
         P["first"] = pd.to_numeric(P["first"], errors="coerce")
         P["to_first"] = (P.start - P["first"]).where(P["first"].notna())
         P["is_tr"] = P.kind.isin(LIVE) & (P.to_first <= TRANSITION_SECONDS)
-        P["is_ato"] = (P.ato == 2) & P.first_kind.isin(["fga", "tov"])
+        P["is_ato"] = (P.ato == 2) & (P.ato_by == 1) & (P.tv == 1) & P.first_kind.isin(["fga", "tov"])
         P["opp"] = P.gid.map(dict(zip(G.gid, G.home)) if G is not None else {})
         home = dict(zip(G.gid, G.home)) if G is not None else {}
         away = dict(zip(G.gid, G.away)) if G is not None else {}
@@ -247,7 +250,7 @@ def build(season, public=PUBLIC, log=print):
                 if eid is None:
                     continue
                 cl = d[d.clutch == 1]
-                at = d[d.ato == 2]
+                at = d[(d.ato == 2) & (d.ato_by == 1) & (d.tv == 1)]
                 pl[eid] = {"fga": int(len(d)), "shots": bins(d), "clock": clock_split(d),
                            "clutch_fg": [int(len(cl)), int(cl.made.sum()), int(sum(efg_pts(m, t) for m, t in zip(cl.made, cl.three)))],
                            "ato_fg": [int(len(at)), int(at.made.sum())]}
@@ -257,7 +260,7 @@ def build(season, public=PUBLIC, log=print):
             # the Data Room rows
             rows = []
             for r in P[P.team == team].itertuples(index=False):
-                rows.append([str(r.gid), dates.get(str(r.gid)), r.opp, int(r.period), r1(r.start), r1(r.end), r1(r.first) if r.first == r.first else None, r.kind, ["none", "media", "team"][int(r.ato)], int(r.pts), int(r.g), int(r.clutch), int(r.margin), list(r.five), list(r.dfive)])
+                rows.append([str(r.gid), dates.get(str(r.gid)), r.opp, int(r.period), r1(r.start), r1(r.end), r1(r.first) if r.first == r.first else None, r.kind, ["none", "media", ["team", "own", "opponent"][int(r.ato_by)]][int(r.ato)], int(r.pts), int(r.g), int(r.clutch), int(r.margin), list(r.five), list(r.dfive)])
             jdump(os.path.join(public, "cbb", "pos", season, f"{team}.json"), {"season": season, "team": team, "through": through,
                   "cols": ["gid", "date", "opp", "period", "start", "end", "first_action", "start_kind", "timeout_before", "pts", "garbage", "clutch", "margin", "five", "opp_five"], "rows": rows})
         team_docs[team] = doc

@@ -104,9 +104,42 @@ def has_games(s):
 
 
 # ---------------------------------------------------------------- shared inputs
+def carry_current(reg):
+    """The season in progress: a game played after the Mac last ran registry.py (the cloud's nightly refresh
+    never does) goes to the team's coach of record, the coach of its latest assigned game or else its one
+    registry row, so every stat and the Rotation Map move with each night's games (Nov 6 2026: without this
+    the cloud's coaching numbers stood still at the last bundle). His registry row's record follows. A
+    mid-season change of coach still needs the Mac's registry.py."""
+    if not has_games(CURRENT):
+        return 0
+    who = reg["who"].setdefault(CURRENT, {})
+    G = sorted(GM.load(CURRENT), key=lambda g: (g["date"], g["gid"]))
+    last, n = {}, 0
+    for g in G:
+        for t in (g["home"], g["away"]):
+            if t in g["non_d1"]:
+                continue
+            c = who.get(g["gid"], {}).get(t)
+            if not c:
+                rows = reg["seasons"].get(f"{t}|{CURRENT}") or []
+                c = last.get(t) or (rows[-1]["coach"] if rows else None)
+                if not c:
+                    continue
+                who.setdefault(g["gid"], {})[t] = c
+                n += 1
+                row = next((r for r in rows if r["coach"] == c), None)
+                if row is not None:
+                    won = (g["hs"] > g["as_"]) == (t == g["home"])
+                    f = row.get("games") or [g["date"], g["date"], 0, 0, 0]
+                    row["games"] = [min(f[0], g["date"]), max(f[1], g["date"]), f[2] + 1, f[3] + won, f[4] + (not won)]
+            last[t] = c
+    return n
+
+
 def inputs():
     I = {}
     I["reg"] = RG.load()
+    I["carried"] = carry_current(I["reg"])
     I["R"] = RS.load()
     I["nets"] = X.team_nets()
     I["E"], I["efit"] = X.load()
@@ -366,7 +399,7 @@ def tfile_entry(r, u, rates, names, c, I):
     e = dict(coach=c["coach"], first=c["games"][0][0] if c["games"] else None, last=c["games"][-1][0] if c["games"] else None)
     if r:
         e["rotation"] = dict(rows=r["rows"], by_cause=r["by_cause"], games=r["games"], game_rows=r["game_rows"], closing=r["closing"], months=r["months"],
-                             off_script=r["off_script"], shape=r["shape"])
+                             off_script=r["off_script"], shape=r["shape"], bar=r["bar"], windows_from=r["windows_from"])
         men = [x["id"] for x in sorted(r["rows"], key=lambda x: -x["min"])][:12]
         e["men"] = men
     if u:
@@ -999,7 +1032,7 @@ def leader_boards(careers, cpct, cpools, eligible, coaches, bundles, next_hc, I)
         career_board("w_resources", "w_resources", "Wins above resources", "Wins per 30 beyond the roster model plus the fitted effect of spending. Kept off the headline; EADA misses NIL money from 2021-22."),
         career_board("net_roster", "net_roster", "Net above the roster", "Adjusted net rating minus the roster model's expected net, per 100 possessions."),
         career_board("recruit_hit", "recruit_hit", "Recruits who outplay their ranking", "His high-school recruits' first-season rate against what their recruit rank predicts."),
-        career_board("ato", "ato", "After his own timeouts", "Points per possession on the first possession after his own timeout (not College Basketball Savant's After timeouts, which counts either team's)."),
+        career_board("ato", "ato", "After own timeouts", "Points per possession on the first possession after his own timeout, first action a shot or a turnover (the same count as College Basketball Savant's)."),
         career_board("halftime", "halftime", "Halftime adjusters", "Second-half net minus first-half net, per game."),
         career_board("winpct", "winpct", "Win %", "Every game under him in the stats era."),
         career_board("stability", "stability", "Most stable rotations", "Share of scripted minutes that went to script, 2023-24 on. A tendency."),
@@ -1141,7 +1174,7 @@ def dictionary():
         "decisions": (DEC_COLS, "Team timeouts (timeout_s short, timeout_f full) and coach's challenges, with the clock in seconds left in the period, the caller's margin, the opponent's unanswered points, whether a TV window was open, the challenge's result (1 overturned, 0 stood), and tv_logged: 1 where ESPN logged that game's TV timeouts separately. In the 0.1-2.6% of games a season where it did not, TV breaks come through as team timeouts, so the coach's timeout stats leave those games out; filter tv_logged = 1 to do the same. One row per team, period and clock (ESPN logs about 1% of timeouts twice)."),
         "stints": (STINT_COLS, "Every lineup stretch of the lineup games, College Savant's stints, from the team's side."),
         "units": (UNIT_COLS, "Five-man units per coach-team-season, garbage time out; adj_net shrunk to the team by 800 possessions."),
-        "rotation": (ROT_COLS, "The Rotation Map's rows: each man's usual windows (minute ranges, 0 = tip-off, 40 = the end of regulation) and his on-floor share per minute in the games he played."),
+        "rotation": (ROT_COLS, "The Rotation Map's rows: each man's usual windows (minute ranges, 0 = tip-off, 40 = the end of regulation) and his on-floor share per minute in the games he played. Every man with 60 minutes under the coach, or early in a season 2 a game. Usual windows from fewer than 8 lineup games are a guess (about three in five of them still hold at the season's end); the page draws them from 8."),
         "roster_moves": (MOVE_COLS, "Every player-season: how he arrived (returning, transfer, hs, juco, intl), from where, his Savant value and rate, and his next stop."),
         "programs": (["season", "team", "coach", "w", "l", "interim", "confirmed", "ncaa_seed", "ncaa_result", "ap_pre", "ap_peak", "ap_final", "spend_pct", "adj_net", "exp_net_roster", "source_url"],
                      "Every program-season with a head coach on record: the registry, the NCAA Tournament, the AP poll (ESPN), spending percentile (EADA), College Savant's net and the roster model."),

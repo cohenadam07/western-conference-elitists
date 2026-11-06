@@ -463,15 +463,18 @@ def pbp_rows(g, t, home, A, D, allowed, run_base, half_mean, margin, s, coach):
         if gar:
             continue
         late = per >= 3 or (per == 2 and start <= 240)
+        # a play out of a timeout: its first action is a shot or a turnover, not free throws (College Savant's
+        # rule, so its "After own timeouts" and his are one number); the dead-ball baseline follows the same rule
+        play = fk in ("fga", "tov")
         if mine:
             A["sec_poss"][0] += start - end; A["sec_poss"][1] += 1
             if first is not None:
                 A["early"][0] += 100 * (start - first <= 10); A["early"][1] += 1
-            if ato == 2 and caller == 1 and tv:
+            if ato == 2 and caller == 1 and tv and play:
                 A["ato"][0] += pts; A["ato"][1] += 1
                 if late:
                     A["ato_late"][0] += pts; A["ato_late"][1] += 1
-            if ato == 0 and kind in ("made", "ft"):
+            if ato == 0 and kind in ("made", "ft") and play:
                 A["deadball"][0] += pts; A["deadball"][1] += 1
             if kind == "steal":
                 A["ppp_stl"][0] += pts; A["ppp_stl"][1] += 1
@@ -484,7 +487,7 @@ def pbp_rows(g, t, home, A, D, allowed, run_base, half_mean, margin, s, coach):
             if per <= 2 and fk == "fga" and first is not None and 31 <= first <= 45:
                 two += 1
         else:
-            if ato == 2 and caller == 2 and tv:
+            if ato == 2 and caller == 2 and tv and play:
                 A["ato_d"][0] += pts; A["ato_d"][1] += 1
             if kind == "dreb" and first is not None:
                 A["crash_cost"][0] += 100 * (start - first <= 8); A["crash_cost"][1] += 1

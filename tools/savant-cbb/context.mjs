@@ -75,6 +75,21 @@ test('shot bins agree with the shot-clock counts, and players with their team', 
   }
 })
 
+// After own timeouts (Nov 6 2026): only the team's own timeouts count, so the possessions behind the number
+// are a subset of the Data Room's possessions after a timeout the team called, garbage time out.
+test('after own timeouts counts only possessions after the team\'s own timeout', () => {
+  for (const s of FULL) {
+    for (const team of teamsOf(s).slice(0, 60)) {
+      const d = read(`ctx/${s}/${team}.json`)
+      if (!d.pbp) continue
+      const pos = read(`pos/${s}/${team}.json`), c = Object.fromEntries(pos.cols.map((k, i) => [k, i]))
+      const own = pos.rows.filter((r) => r[c.timeout_before] === 'own' && !r[c.garbage]).length
+      assert.ok(d.ato[0] <= own, `${s} ${team}: ${d.ato[0]} after own timeouts, but ${own} possessions after one`)
+      assert.ok(pos.rows.every((r) => ['none', 'media', 'own', 'opponent', 'team'].includes(r[c.timeout_before])), `${s} ${team}: an unknown timeout_before`)
+    }
+  }
+})
+
 test('a rotation map adds up to five men for forty minutes', () => {
   for (const s of [...FULL, ...ROT]) {
     let checked = 0

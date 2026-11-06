@@ -7,7 +7,7 @@ putbacks and assists, from the normalized play-by-play.
 
 The possession log (Nov 2026): one row per possession, how it started (after a made basket, a
 defensive rebound, a steal, a dead-ball turnover, a made last free throw, a period start), whether
-a timeout came before its first action, the points it scored, its length, the margin and clock at
+a timeout came before its first action and which team called it (Nov 6 2026), the points it scored, its length, the margin and clock at
 its start (clutch = the last five minutes within five) and the fives on the floor. Each shot also
 carries how far into its possession it came, a stand-in for the shot clock, which the feed lacks.
 Nothing here changes the counts above: it only records what the possession logic already decides.
@@ -44,6 +44,14 @@ TOV, PFOUL, TFOUL = "598", "519", "521"
 END_IDS = {"412", "402"}
 NON_ACTION = {"580", "579", "578", "216", "215"}  # timeouts, challenges
 TEAM_TIMEOUTS, TV_TIMEOUTS = {"579", "578"}, {"580"}   # a coach's timeout; the media timeout
+
+
+def ato_by(cur_p):
+    """Who called the team timeout before this possession's first action: 1 the team with the ball, 2 the
+    other team, 0 no team timeout (or ESPN did not say whose it was)."""
+    if cur_p["ato"] != 2 or cur_p.get("ato_by") is None:
+        return 0
+    return 1 if cur_p["ato_by"] == cur_p["team"] else 2
 CLUTCH_SECONDS, CLUTCH_MARGIN = 300.0, 5    # last five minutes (overtime included), within five
 REG_SECONDS, OT_SECONDS = 1200.0, 300.0
 
@@ -371,6 +379,7 @@ def rebuild_game(g):
         cur_p = None                             # the possession being logged
         why, why_at = "period", period_length(period)   # how the last one ended, and when
         to_pending = 0                           # since the last action: 2 a team timeout, 1 a media timeout
+        to_by = None                             # the team that called the last team timeout since then
 
         def stint_for(on, g_flag):
             nonlocal stint
@@ -384,7 +393,7 @@ def rebuild_game(g):
             return (p.get("score_home") or 0), (p.get("score_away") or 0)
 
         def start_poss(team, p):
-            nonlocal off, open_, garbage, cur_p, to_pending
+            nonlocal off, open_, garbage, cur_p, to_pending, to_by
             off, open_ = team, True
             h, a = score_at(p)
             lead = abs(h - a)
@@ -402,7 +411,8 @@ def rebuild_game(g):
                      "secs_left": seconds_left_in_game(period, t0), "g": int(garbage),
                      "pts0": team_t[team]["pts"] + team_tg[team]["pts"], "five": sorted(on_now.get(team, ())), "dfive": sorted(on_now.get(opp[team], ()))}
             cur_p["clutch"] = int(cur_p["secs_left"] <= CLUTCH_SECONDS and abs(margin) <= CLUTCH_MARGIN)
-            to_pending = 0
+            cur_p["ato_by"] = to_by
+            to_pending, to_by = 0, None
 
         def tally(team, key, n=1.0):
             st = stint
@@ -422,7 +432,7 @@ def rebuild_game(g):
                 pts = team_t[team]["pts"] + team_tg[team]["pts"] - cur_p["pts0"]
                 end = cur_p.get("made_at", end)
                 plog.append([team, period, cur_p["start"], end, cur_p["kind"], cur_p["ato"], int(pts), cur_p["g"], cur_p["clutch"], cur_p["margin"], cur_p["five"], cur_p["dfive"],
-                             cur_p.get("first"), cur_p.get("first_kind")])
+                             cur_p.get("first"), cur_p.get("first_kind"), ato_by(cur_p)])
                 cur_p = None
             tally(team, "poss")
             for a in in_poss[team]:
@@ -492,10 +502,15 @@ def rebuild_game(g):
             cur["end"] = clock
             if tid in TEAM_TIMEOUTS or tid in TV_TIMEOUTS:
                 lvl = 2 if tid in TEAM_TIMEOUTS else 1
+                by = team if lvl == 2 and team in teams else None
                 if cur_p is None or made_pending is not None:
                     to_pending = max(to_pending, lvl)        # for the next possession
+                    if lvl == 2:
+                        to_by = by                           # the last team timeout's caller
                 elif "first" not in cur_p:
                     cur_p["ato"] = max(cur_p["ato"], lvl)
+                    if lvl == 2:
+                        cur_p["ato_by"] = by
             if tid == SUB or tid in NON_ACTION:
                 continue
             events += 1
@@ -584,7 +599,8 @@ def rebuild_game(g):
                               "three": int(three), "x": x, "y": y, "dist": None if d is None else round(d, 1), "fam": fam, "zone": z,
                               "pb": int(pb), "tr": int(tr), "ast": ast if made else None, "g": int(garbage),
                               "t_in": None if cur_p is None else round(cur_p.get("reset", cur_p["start"]) - clock, 1), "start": None if cur_p is None else cur_p["kind"],
-                              "ato": 0 if cur_p is None else cur_p["ato"], "clutch": 0 if cur_p is None else cur_p["clutch"]})
+                              "ato": 0 if cur_p is None else cur_p["ato"], "ato_by": 0 if cur_p is None else ato_by(cur_p),
+                              "clutch": 0 if cur_p is None else cur_p["clutch"]})
             elif tid == FT:
                 is_tech = tech.get((period, clock, team), 0) > 0
                 if off != team and not is_tech:
@@ -745,4 +761,11 @@ def rebuild_game(g):
             "ot": ot, "expect_sec": expect, "poss": {t: team_t[t]["poss"] + team_tg[t]["poss"] for t in teams}, "formula": formula,
             "fga": sum(1 for s in shots), "loc": sum(1 for s in shots if s["x"] is not None), "gar_sec": gar_sec,
             "score_ok": bool(plays and ((plays[-1].get("score_home") == g["teams"][home]["score"]) and (plays[-1].get("score_away") == g["teams"][away]["score"])))}
+    # whether ESPN logged this game's media timeouts on their own: where it did not (0.1-2.6% of games a
+    # season), the TV breaks come through as team timeouts, so after-timeout numbers leave the game out
+    tv = int(any(p["tid"] in TV_TIMEOUTS for p in plays))
+    for row in plog:
+        row.append(tv)
+    for s_ in shots:
+        s_["tv"] = tv
     return {"rows": out, "team": team_rows, "stints": st_rows, "shots": shots, "poss": plog, "gate": gate}

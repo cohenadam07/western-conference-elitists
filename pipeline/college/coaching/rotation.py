@@ -6,7 +6,9 @@ rotation.py — the Rotation Map and what hangs off it, per coach-team-season (s
 Basketball Coaching Savant's rotation.py, rule for rule, on the college clock: 40 regulation minutes in
 two halves (config.PERIODS, so quarters would be a config change), overtime apart. From each lineup
 game's stints (College Savant's: ESPN substitutions from 2025-26 and mid-February 2025, CBBD's fives for
-2023-24 and 2024-25, only the games its lineup gate passes) for every man with 60+ minutes under a coach:
+2023-24 and 2024-25, only the games its lineup gate passes) for every man with 60+ minutes under a coach
+(early in a season, 2 minutes a game the team has played, so the map is whole from the first game: Nov 6 2026,
+after a one-game 2026-27 season drew an empty map; 60 minutes is 2 a game over a 30-game season):
 
   map         per regulation minute, the share of games he was on the floor during it (seconds-
               weighted), on two bases: every lineup game under this coach, and only the games he played
@@ -37,6 +39,13 @@ REG_MIN = int(REG_SEC // 60)
 HALF_MIN = int(REG[0] // 60)
 ON_SHARE, OFF_SHARE = 0.60, 0.40
 MAP_MIN_MINUTES = 60.0
+MAP_MIN_PER_GAME = 2.0          # the same bar before a season has 30 lineup games
+# The page draws the usual-window outlines from this many lineup games. Measured Nov 6 2026 against the
+# season's final windows (coach-seasons with 25+ lineup games, the share of minutes outlined after N games
+# that are still in a usual window at the end): 1 game 58% (2025-26) / 62% (2024-25), 3 games 65 / 69,
+# 5 games 71 / 74, 8 games 77 / 80, 12 games 83 / 85. No elbow; 8 is where about four in five hold.
+# Before it, the map still draws every man and every minute, without the outlines.
+WINDOWS_FROM_GAMES = 8
 CLOSE_MARGIN = 10
 MONTHS = {11: "Nov", 12: "Dec", 1: "Jan", 2: "Feb", 3: "Mar+", 4: "Mar+", 10: "Nov"}
 MONTH_ORDER = ["Nov", "Dec", "Jan", "Feb", "Mar+"]
@@ -215,7 +224,8 @@ def build(season, games, who, rates=None, names=None):
                         on_live[eid][m] += min(s40[m], keep)
                 ot_all[eid] += ot
             per_game.append((g, row, fs, gf, box))
-        roster = [e for e, s in total_sec.items() if s >= MAP_MIN_MINUTES * 60]
+        bar = min(MAP_MIN_MINUTES, MAP_MIN_PER_GAME * n_games)
+        roster = [e for e, s in total_sec.items() if s >= bar * 60]
         roster.sort(key=lambda e: (-(starts[e] / max(1, played[e])) if starts[e] / max(1, played[e]) >= 0.5 else 1,
                                    sum(first_entry[e]) / max(1, len(first_entry[e])), -total_sec[e]))
         usual, rows = {}, []
@@ -357,7 +367,7 @@ def build(season, games, who, rates=None, names=None):
             if mon in month_on:
                 months[mon] = {e: [round(100 * month_on[mon][e][m] / (60.0 * month_n[mon][e])) for m in range(REG_MIN)] for e in month_on[mon] if month_n[mon][e] >= 3}
         out[(team, coach)] = dict(
-            season=season, team=team, coach=coach, games=n_games, rows=rows,
+            season=season, team=team, coach=coach, games=n_games, rows=rows, bar=round(bar, 1), windows_from=WINDOWS_FROM_GAMES,
             off_script=round(sum(tot[k] for k in causes) / tot["scripted"], 4) if tot["scripted"] else None,
             by_cause={k: round(tot[k] / tot["scripted"], 4) if tot["scripted"] else None for k in causes},
             overtime_min=round(tot["ot"] / n, 2),
