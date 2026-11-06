@@ -262,24 +262,42 @@ export default function Gateway() {
               </div>
             </a>
 
-            {/* College Basketball Coaching Savant — two halves of a Rotation Map and a verdict strip */}
+            {/* College Basketball Coaching Savant — half of a tournament region, one coach's run to the Final Four in gold */}
             <a className="card c-coach span2" href="/college-basketball-coaching-savant.html">
               <Skeleton />
               <div className="viz">
                 <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
                   <rect width="600" height="150" fill="#22395A" />
-                  {[0, 1, 2, 3, 4, 5].map((row) => (
-                    <g key={row}>
-                      {Array.from({ length: 40 }, (_, m) => {
-                        const h = Math.floor(m / 20), inH = m % 20
-                        const on = row < 2 ? (inH < 13 || inH > 15) : row < 4 ? (inH >= 4 && (h === 1 || inH < 17)) : (inH >= 12 && inH < 17)
-                        const a = on ? 0.9 : 0.12 + 0.08 * ((m * 7 + row * 3) % 5)
-                        return <rect key={m} x={24 + m * 13.8} y={14 + row * 21} width="12.8" height="19" fill="#C2A263" opacity={a} />
-                      })}
-                    </g>
-                  ))}
-                  <line x1={24 + 20 * 13.8} y1="10" x2={24 + 20 * 13.8} y2="142" stroke="rgba(255,255,255,.75)" strokeWidth="2.5" />
-                  <rect x="24" y="14" width={13 * 13.8} height="19" fill="none" stroke="#fff" strokeWidth="1.5" />
+                  {(() => {
+                    // the top half of a region: eight seeds, 15 apart; rounds join at these x; the region's other half
+                    // comes in at y 140; the 5 seed (slot 4) runs to the Final Four. Kept inside x 65-530 so a phone's
+                    // crop of the tile (preserveAspectRatio slice) still shows all of it.
+                    const seeds = [1, 16, 8, 9, 5, 12, 4, 13], y = (i) => 14 + i * 15, X = [92, 182, 268, 352, 430, 492]
+                    const mid = (r, k) => (r === 0 ? y(k) : (mid(r - 1, 2 * k) + mid(r - 1, 2 * k + 1)) / 2)
+                    const mute = { stroke: '#6F8BAB', strokeWidth: 2, opacity: 0.55, fill: 'none' }
+                    const lines = []
+                    for (let r = 0; r < 4; r++) {
+                      const n = 8 >> r
+                      for (let k = 0; k < n; k++) {
+                        const yy = mid(r, k)
+                        lines.push(<line key={`h${r}${k}`} x1={X[r]} y1={yy} x2={X[r + 1]} y2={yy} {...mute} />)
+                        if (k % 2 === 0 && n > 1) lines.push(<line key={`v${r}${k}`} x1={X[r + 1]} y1={yy} x2={X[r + 1]} y2={mid(r, k + 1)} {...mute} />)
+                      }
+                    }
+                    const ee = (mid(3, 0) + 140) / 2
+                    const run = [[X[0], y(4)], [X[1], y(4)], [X[1], mid(1, 2)], [X[2], mid(1, 2)], [X[2], mid(2, 1)], [X[3], mid(2, 1)], [X[3], mid(3, 0)], [X[4], mid(3, 0)], [X[4], ee], [X[5], ee]]
+                    return (
+                      <g>
+                        {lines}
+                        <line x1={X[3]} y1="140" x2={X[4]} y2="140" {...mute} />
+                        <line x1={X[4]} y1={ee} x2={X[4]} y2="140" {...mute} />
+                        {seeds.map((sd, i) => <text key={sd} x={X[0] - 9} y={y(i) + 4.5} textAnchor="end" fontSize="12.5" fontWeight="600" fill={i === 4 ? '#C2A263' : '#8FA4BE'} style={{ fontVariantNumeric: 'tabular-nums' }}>{sd}</text>)}
+                        <polyline points={run.map((q) => q.join(',')).join(' ')} fill="none" stroke="#C2A263" strokeWidth="3.5" strokeLinejoin="round" strokeLinecap="round" />
+                        <rect x={X[5]} y={ee - 11} width="34" height="22" rx="4" fill="#C2A263" />
+                        <text x={X[5] + 17} y={ee + 4.5} textAnchor="middle" fontSize="12.5" fontWeight="700" fill="#22395A">F4</text>
+                      </g>
+                    )
+                  })()}
                 </svg>
               </div>
               <div className="meta">
