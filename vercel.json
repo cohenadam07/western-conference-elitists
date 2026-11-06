@@ -37,6 +37,11 @@
       "permanent": true
     },
     {
+      "source": "/college-basketball-coaching-savant",
+      "destination": "/college-basketball-coaching-savant.html",
+      "permanent": true
+    },
+    {
       "source": "/draft-savant",
       "destination": "/draft-savant.html",
       "permanent": true
@@ -136,6 +141,10 @@
       "destination": "/savant-api/site/v1/articles/:slug.gz"
     },
     {
+      "source": "/cbcs/:f(.*\\.json)",
+      "destination": "/cbcs/:f.gz"
+    },
+    {
       "source": "/cbb/:f(.*\\.json)",
       "destination": "/cbb/:f.gz"
     },
@@ -165,6 +174,40 @@
     }
   ],
   "headers": [
+    {
+      "source": "/cbcs/:f(.*\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/cbcs/:f(.*\\.json\\.gz)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
     {
       "source": "/cbb/:f(.*\\.json)",
       "headers": [

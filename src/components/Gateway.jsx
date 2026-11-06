@@ -262,6 +262,34 @@ export default function Gateway() {
               </div>
             </a>
 
+            {/* College Basketball Coaching Savant — two halves of a Rotation Map and a verdict strip */}
+            <a className="card c-coach span2" href="/college-basketball-coaching-savant.html">
+              <Skeleton />
+              <div className="viz">
+                <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <rect width="600" height="150" fill="#22395A" />
+                  {[0, 1, 2, 3, 4, 5].map((row) => (
+                    <g key={row}>
+                      {Array.from({ length: 40 }, (_, m) => {
+                        const h = Math.floor(m / 20), inH = m % 20
+                        const on = row < 2 ? (inH < 13 || inH > 15) : row < 4 ? (inH >= 4 && (h === 1 || inH < 17)) : (inH >= 12 && inH < 17)
+                        const a = on ? 0.9 : 0.12 + 0.08 * ((m * 7 + row * 3) % 5)
+                        return <rect key={m} x={24 + m * 13.8} y={14 + row * 21} width="12.8" height="19" fill="#C2A263" opacity={a} />
+                      })}
+                    </g>
+                  ))}
+                  <line x1={24 + 20 * 13.8} y1="10" x2={24 + 20 * 13.8} y2="142" stroke="rgba(255,255,255,.75)" strokeWidth="2.5" />
+                  <rect x="24" y="14" width={13 * 13.8} height="19" fill="none" stroke="#fff" strokeWidth="1.5" />
+                </svg>
+              </div>
+              <div className="meta">
+                <span className="ck">Tool · College coaching</span>
+                <h3>College Basketball Coaching Savant</h3>
+                <p>Every men's D1 head coach: wins against the roster he was given, whether players get better under him, how he builds through the portal, the Rotation Map, March against the seed, and who won without money.</p>
+                <span className="go">Open ↗</span>
+              </div>
+            </a>
+
             {/* Basketball Coaching Savant — the Rotation Map is the thing worth showing on the card */}
             <a className="card c-coach span2" href="/basketball-coaching-savant.html">
               <Skeleton />

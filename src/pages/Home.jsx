@@ -29,6 +29,7 @@ const STANDING = [
   { text: 'Football Savant: refreshed every day of the NFL season', href: '/football-savant.html' },
   { text: 'UFC Savant: every fighter since 1993, updated after each card', href: '/ufc-savant.html' },
   { text: 'Basketball Coaching Savant: every NBA head coach, and his Rotation Map', href: '/basketball-coaching-savant.html' },
+  { text: 'College Basketball Coaching Savant: every D1 head coach against the roster he was given', href: '/college-basketball-coaching-savant.html' },
   { text: 'Coaching Savant: every NFL head coach since 1999', href: '/coaching-savant.html' },
   { text: 'Draft Savant: every class back to 2010', href: '/draft-savant.html' },
   { text: 'Dynasty Exchange: a board priced by the crowd', to: '/dynasty' },
