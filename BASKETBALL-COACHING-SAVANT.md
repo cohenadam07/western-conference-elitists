@@ -6,7 +6,7 @@ wcehoops.com on October 29, 2026 from the branch `basketball-coaching-savant`, m
 | where | what |
 |---|---|
 | wcehoops.com/basketball-coaching-savant.html | the page: Coaches, Leaders, the tree |
-| `public/basketball-coaching-savant.html` | the page, assembled from `tools/savant-bcoaching/page-src/` (concatenate in order) |
+| `public/basketball-coaching-savant.html` | the page, assembled from `tools/savant-bcoaching/page-src/` by `tools/savant-bcoaching/assemble.py` (edit page-src, never the page; `npm run check:page-src`) |
 | `public/bcs/` | its data: `index.json`, a file per coach (`c/`), per team-season (`t/`), the Data Room (`data/`), the photos (`heads.json`) |
 | `pipeline/basketball/coaching/` | the pipeline; `README.md` there is the map, `BUILD-NOTES.md` the fits, the decisions and the review list in full |
 | `api/_bcoaching.js` | the connector's six tools, registered in `api/mcp.js` |

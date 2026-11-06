@@ -1,0 +1,47 @@
+</style>
+<script src="/wce-nav.js" defer></script>
+</head>
+<body class="view-home anim">
+<wce-nav style="display:block;min-height:60px"></wce-nav>
+<div class="app">
+  <a class="brand" href="#" aria-label="College Basketball Coaching Savant, home">
+    <svg class="mark" viewBox="0 0 28 28" aria-hidden="true"><rect class="mk-bg" x="0" y="0" width="28" height="28" rx="7"/><line class="mk-tr" x1="6" y1="10" x2="22" y2="10"/><line class="mk-tr" x1="6" y1="18" x2="22" y2="18"/><circle class="mk-b" cx="10" cy="10" r="2.6"/><circle class="mk-a" cx="18.5" cy="18" r="3.2"/></svg>
+    <span class="wm">College Basketball Coaching Savant<small>Western Conference Elitists</small></span>
+  </a>
+  <nav class="nav" id="nav" aria-label="Sections">
+    <a href="#" data-tab="coaches" title="Coaches" aria-current="page"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="3"/><path d="M2.5 14.5c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/></svg><span>Coaches</span></a>
+    <a href="#leaders" data-tab="leaders" title="Leaders"><svg viewBox="0 0 16 16"><path d="M2 13.5h12M4 11V7M8 11V3M12 11V5.5"/></svg><span>Leaders</span></a>
+    <a href="#tree" data-tab="tree" title="The tree"><svg viewBox="0 0 16 16"><circle cx="8" cy="3" r="1.6"/><circle cx="3.5" cy="13" r="1.6"/><circle cx="12.5" cy="13" r="1.6"/><path d="M8 4.6V8M8 8H3.5v3.4M8 8h4.5v3.4"/></svg><span>The tree</span></a>
+  </nav>
+  <div class="top">
+    <button type="button" class="navtog" id="navtog" aria-controls="nav" aria-expanded="true" title="Collapse sidebar ( [ )"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="2"/><path d="M6 2.5v11"/><rect class="rl" x="2" y="3" width="3.5" height="10"/></svg><span class="vh">Collapse sidebar</span></button>
+    <span class="scope">Men's Division I head coaches</span>
+    <div class="search">
+      <svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="m9.5 9.5 3.5 3.5"/></svg>
+      <label class="vh" for="q">Search a head coach or assistant</label>
+      <input id="q" type="search" placeholder="Search a head coach or assistant…" autocomplete="off">
+      <div id="results" class="results" hidden></div>
+    </div>
+  </div>
+  <main class="main">
+    <div class="view">
+  <div class="chips" id="chips" role="group" aria-label="Trending coaches"></div>
+
+  <section class="home" id="home">
+    <div class="col wide" id="homeintro"></div>
+    <div class="col wide" id="leadersplate"><h2 class="col-h">Leaders</h2><p class="since" id="lead-since"></p><div class="grid3" id="leaders"></div></div>
+    <div class="col wide"><h2 class="col-h">The league, season by season</h2><p class="since">2009-10 on; game management 2013-14 on, the Rotation Map 2023-24 on, challenges 2025-26 on · D1 medians, every coach-season with 15+ games · hover a point for the season</p><div class="grid3" id="trends"></div></div>
+    <div class="col wide"><h2 class="col-h">The staffs that produced head coaches</h2><p class="since">from Wikipedia's team-season staffs and coach biographies, each row linked</p><div id="produced" class="small"></div></div>
+    <div class="col wide"><h2 class="col-h">Rising assistants<span class="q">context, not credit</span></h2><p class="since">current D1 assistants who have never been a D1 head coach: the staffs they have been on and how those teams did</p><div id="nexthc" class="small"></div></div>
+    <div class="col wide"><h2 class="col-h">How to read this</h2><div id="howto" class="small"></div></div>
+  </section>
+  <section class="coach" id="coach"></section>
+  <section class="treeview" id="treeview"></section>
+    </div>
+    <div class="wrap"><p class="foot"><span id="srcpill">live data</span> · <span id="verchip" title="Built by pipeline/college/coaching/build.py"></span> · Data: ESPN play-by-play and box scores, CollegeBasketballData, Wikipedia, the U.S. Department of Education (EADA); player and team numbers from <a href="/college-basketball-savant.html">College Basketball Savant</a>. Model outputs are the model's view, not a verdict.</p></div>
+  </main>
+</div>
+<div id="tip" role="tooltip"></div>
+<script>
+'use strict';
+var $=function(s){return document.querySelector(s);};

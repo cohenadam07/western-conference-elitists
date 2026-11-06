@@ -1,0 +1,141 @@
+
+/* ============================================================================
+   Coaching Savant components in a sport theme (tools/themes/README.md). The coaching pages' component CSS
+   (identity card, percentile rows, tables, tiles, the Rotation Map, the tree) speaks its own variable names
+   and the NBA page's type; this maps the names onto the theme's tokens and restyles the components to the
+   theme's frame: cards like its cards, headings in its text face, rows like its percentile rows (bar
+   height, radius, track, hatching and tick from the tokens), tables like its tables. Read after the
+   component CSS, so it wins. Used by College Basketball Coaching Savant; the NBA preview reads it too.
+   ========================================================================= */
+:root{
+  --bg:var(--ground);--sunk:var(--raised);--ink:var(--text);--line:var(--border);--navy:var(--hue);--gold:var(--tend);
+  --red:var(--hi);--accent:var(--sel);--cream:var(--ground);--c-lo:var(--lo);--c-mid:var(--mid);--c-hi:var(--hi);
+  --disp:var(--font);--body:var(--font);--mono:var(--fig);
+}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;overflow-x:clip;-webkit-font-smoothing:antialiased}
+button{cursor:pointer}
+.wm{white-space:normal;font-size:15px;line-height:1.12}
+.wm small{margin-top:2px}
+
+/* the page inside the sheet */
+.view{max-width:1360px}
+.chips{margin:0 0 18px}
+.chips-label,.ctl-lab,.leg,.lead-p,.legend2,.arc-h,.xmore-lab,.tile .tl,.acco,.since,.col-h .q,.rl .tag,.cmp-pill{font-family:var(--font);letter-spacing:0;text-transform:none}
+.chips-label{font-size:var(--fs-s);color:var(--muted)}
+.chip{border-radius:var(--r-ctl);border-color:var(--control);color:var(--text);font-size:13px}
+.chip:hover{border-color:var(--text);text-decoration:none}
+.chip[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+
+/* search: the frame's box, the coaching results list under it */
+.search .results{left:0;right:0;width:auto;top:40px;border-radius:var(--r-card);border-color:var(--border)}
+.search input.adding{border-color:var(--cmp);box-shadow:0 0 0 3px color-mix(in srgb,var(--cmp) 30%,transparent)}
+.res{border-radius:var(--r-ctl)}
+.res:hover,.res.on{background:var(--active)}
+
+/* cards */
+.id,.col{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:var(--pad);box-shadow:none}
+.id:hover,.col:hover{box-shadow:none}
+.col.wide,.id{margin-bottom:var(--gap)}
+.panels{gap:var(--gap);margin-bottom:var(--gap)}
+.col-h{font-family:var(--font);font-size:var(--fs-sec);font-weight:600;border-bottom:0;padding-bottom:0;margin:0 0 4px;display:block;line-height:1.3}
+.col-h .q{font-size:var(--fs-s);font-weight:400;color:var(--muted);margin-left:8px}
+.since{font-size:var(--fs-s);color:var(--muted);margin:0 0 14px}
+.cap,.note{background:var(--raised);border-left:3px solid var(--hue);border-radius:0 var(--r-ctl) var(--r-ctl) 0;font-size:13px}
+.expl{background:var(--raised);border-color:var(--border);border-radius:var(--r-ctl)}
+.small{font-size:13px}
+.empty{color:var(--muted)}
+
+/* the identity card */
+.id-name{font-family:var(--font);font-size:28px;font-weight:600;letter-spacing:-.01em;line-height:1.15}
+.id-meta{font-size:var(--fs)}
+.statline{font-family:var(--fig)}
+.acco{font-size:12px;border-radius:4px;border-color:var(--pill-bg);background:var(--pill-bg);color:var(--pill-ink);padding:2px 7px}
+.acco.major{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.acco.gold{background:var(--cmp);border-color:var(--cmp);color:var(--surface)}
+.arcbtn{border-radius:var(--r-ctl);border-color:var(--control);font-family:var(--font);font-size:13px;letter-spacing:0;text-transform:none;color:var(--text)}
+.eyebrow-pill,.vchip{font-family:var(--font);font-size:var(--fs-s);letter-spacing:0;text-transform:none;background:none;color:inherit;border:0;padding:0}
+
+/* controls: the frame's segmented buttons and selects */
+.controls{gap:12px 22px}
+.ctl-lab{font-size:var(--fs-s);color:var(--muted)}
+.seg{border-color:var(--control);border-radius:var(--r-ctl);padding:0;gap:0;overflow:hidden}
+.seg button{border-radius:0;height:30px;padding:0 12px;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--active);color:var(--text);font-weight:500}
+.selx-btn{font-family:var(--font);font-size:13px;border-color:var(--control);border-radius:var(--r-ctl);height:32px}
+.selx-pop{border-radius:var(--r-card);border-color:var(--border)}
+.legend{font-size:var(--fs-s)}
+.leg{font-size:var(--fs-s)}
+.ends{font-family:var(--font);letter-spacing:0;text-transform:none;font-size:11px}
+.legbar{background:linear-gradient(90deg,var(--lo),var(--mid),var(--hi))}
+
+/* percentile rows: the frame's bars. The label column grows and wraps, so no stat name is cut short. */
+.group-h{font-family:var(--font);font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--text);margin:20px 0 4px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.row{grid-template-columns:minmax(150px,1.1fr) minmax(160px,3fr) 92px 22px;column-gap:20px;min-height:calc(var(--barh) + 16px);padding:4px 0}
+.row.nochart{grid-template-columns:minmax(150px,1.1fr) minmax(160px,3fr) 92px}
+.rl .name{white-space:normal;overflow:visible;text-overflow:clip;font-size:var(--fs);line-height:1.3}
+.rl .tag{font-size:12px;color:var(--muted);margin-top:1px}
+.track{height:var(--barh);border-radius:var(--barr);background:var(--track)}
+.tick,.tick.mid{background:var(--gridl)}
+.fill{border-radius:var(--barr);box-shadow:none}
+.fill .hatch{background:repeating-linear-gradient(135deg,var(--hatch) 0 2px,transparent 2px 7px)}
+.row.un .fill{filter:none;opacity:.72}
+.pnum{font-family:var(--fig);font-size:13px;font-weight:600;color:var(--text)}
+.row.un .pnum{color:var(--text)}
+.rv{font-family:var(--fig);font-size:14px;line-height:1.2}
+.rv small.u,.tile .tv small.u{display:block;font-family:var(--font);font-size:11px;color:var(--muted);font-weight:400;white-space:nowrap}
+.row.un .rv{color:var(--muted)}
+.statbtn:hover{background:var(--active)}
+
+/* Leaders, tabs, pills: board columns wide enough that a name and a value with its unit share a line */
+.grid3{grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:var(--gap) 32px}
+.grid2{gap:var(--gap) 32px}
+.lead-h{font-family:var(--font);font-size:15px;font-weight:600}
+.lead-p{font-size:var(--fs-s);color:var(--muted)}
+.lrow{border-bottom-color:var(--rule);font-size:var(--fs)}
+.lrk{font-size:12px}
+.tab{font-family:var(--font);font-size:13px;border-radius:var(--r-ctl);border-color:var(--control);color:var(--muted)}
+.tab.on{background:var(--active);color:var(--text);border-color:var(--control);font-weight:500}
+.pill{font-family:var(--font);font-size:12px;letter-spacing:0;background:var(--pill-bg);color:var(--pill-ink);border-radius:4px}
+.xmore-btn{color:var(--text)}
+.xmore-lab{font-size:13px;font-weight:600}
+
+/* tables: the frame's tables */
+table.t th{font-family:var(--font);font-size:var(--fs-s);text-transform:none;letter-spacing:0;color:var(--muted);font-weight:400;padding:0 8px 8px;border-bottom-color:var(--border)}
+table.t td{height:var(--rowh);padding:0 8px;border-bottom-color:var(--rule);font-size:13px}
+table.t th:first-child,table.t td:first-child{font-family:var(--font);background:var(--surface);padding-left:0}
+table.t tr.link:hover td{color:var(--text);background:var(--raised)}
+table.t tr.on td{background:var(--raised)}
+
+/* tiles: the frame's KPI blocks */
+.tile{background:var(--surface);border-color:var(--border);border-radius:var(--r-card);padding:14px 16px}
+.tile .tl{font-size:var(--fs-s);color:var(--muted)}
+.tile .tv{font-family:var(--font);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums}
+.tile .ts{font-family:var(--font);font-size:var(--fs-s)}
+
+/* the tooltip on the sheet's colours */
+#tip{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 8px 24px rgba(0,0,0,.14);font-size:13px}
+#tip b{color:var(--text)}
+#tip .k{font-family:var(--fig);color:var(--muted)}
+#tip .def{border-top-color:var(--rule);color:var(--muted)}
+#tip a{color:var(--sel);border-bottom-color:var(--sel)}
+
+/* the components hard-code Basketball Savant's gold (#C2A263) in charts and swatches; it means "a tendency"
+   or "his peak", so it takes the theme's tendency colour */
+[fill="#C2A263"]{fill:var(--tend)}
+[stroke="#C2A263"]{stroke:var(--tend)}
+[style*="background:#C2A263"]{background:var(--tend)!important}
+
+@media (max-width:760px){
+  .chips{margin-bottom:14px}
+  .id,.col{padding:16px}
+  .row{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"lab val btn" "bar bar bar";row-gap:6px;padding:7px 0}
+  .row.nochart{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"lab val" "bar bar"}
+  .rv small.u{display:inline;margin-left:4px}
+  .id-name{font-size:24px}
+  .wm{font-size:14px;max-width:150px}
+  .grid3{grid-template-columns:minmax(0,1fr)}
+  .col-h .q{margin-left:0}
+}
+/* the low-sample clock after a value: the row's tag already says "low sample", and under a unit it hangs alone */
+.row.un .rv::after{content:none}

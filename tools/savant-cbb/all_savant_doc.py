@@ -7,7 +7,7 @@ sys.path.insert(0,'pipeline/basketball')
 from namematch import words
 H=os.path.expanduser('~/Basketball-Savant/out/cbb/')
 R=lambda p:json.loads(gzip.decompress(open('public/cbb/'+p+'.gz','rb').read()))
-for p,a,b in (('pipeline/college/config.py','Missed games cost him. The number','Missed games cost value. The number'),('tools/savant-cbb/page-src/page.js','Missed games cost a player: he earns nothing on nights he doesn’t play.','Missed games count: a player earns nothing on a night not played.')):
+for p,a,b in (('pipeline/college/config.py','Missed games cost him. The number','Missed games cost value. The number'),('tools/savant-cbb/page-src/05a-page.js','Missed games cost a player: he earns nothing on nights he doesn’t play.','Missed games count: a player earns nothing on a night not played.')):
     s=open(p).read()
     if a in s: open(p,'w').write(s.replace(a,b))
 import numpy as np

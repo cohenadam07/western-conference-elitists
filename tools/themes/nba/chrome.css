@@ -1,0 +1,4 @@
+/* nba: the frame's chrome in this theme, read after shared/frame.css (preview.py) */
+/* the wordmark in Basketball Savant's display face, navy on the warm ground */
+.wm{font-weight:600;font-size:18px;color:var(--primary)}
+.nav a[aria-current="page"]{background:var(--primary);color:var(--cmp)}

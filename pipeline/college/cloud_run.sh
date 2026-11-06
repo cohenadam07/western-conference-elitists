@@ -11,7 +11,7 @@ cd "${GITHUB_WORKSPACE:?}"
 CC=pipeline/college
 : "${RUNNER_TEMP:=/tmp}"
 # Both folders are kept by actions/cache: the CBBD ledger has to outlive a run, or the cap means nothing.
-export COLLEGE_HOME="$GITHUB_WORKSPACE/.cbb-home" ESPN_CBB_CACHE="$GITHUB_WORKSPACE/.espn-cbb-cache"
+export COLLEGE_HOME="$GITHUB_WORKSPACE/.cbb-home" ESPN_CBB_CACHE="$GITHUB_WORKSPACE/.espn-cbb-cache" CBCS_OUT="$GITHUB_WORKSPACE/.cbcs-home"
 git config user.name "college-savant-bot"
 git config user.email "bot@wcehoops.com"
 
@@ -21,6 +21,10 @@ seed() {
     mkdir -p "$COLLEGE_HOME" && git archive FETCH_HEAD | tar -x -C "$COLLEGE_HOME"
   fi
   [ -d "$COLLEGE_HOME/ratings" ] || { echo "::error::no cbb-bundles branch yet"; exit 1; }
+  # College Basketball Coaching Savant's inputs (the Mac pushes them: coaching/cloud_cbcs.py bundle)
+  if git fetch -q --depth 1 origin cbcs-bundles 2>/dev/null; then
+    mkdir -p "$CBCS_OUT" && git archive FETCH_HEAD | tar -x -C "$CBCS_OUT"
+  fi
   # rung 2: the Mac's raw files, when it has pushed any
   if git fetch -q --depth 1 origin cbb-data 2>/dev/null; then
     S=$(python3 -c "import sys;sys.path.insert(0,'$CC');import config;print(config.CURRENT)")
@@ -32,6 +36,7 @@ seed() {
 
 publish() {
   git add public/cbb data/cbb-refresh.json
+  [ -d public/cbcs ] && git add public/cbcs
   git diff --cached --quiet && { echo "nothing changed"; return 0; }
   git commit -q -m "College Basketball Savant: refresh $(date -u +%F)"
   for i in 1 2 3 4; do
@@ -47,13 +52,24 @@ once() {
     python3 $CC/cloud_cbb.py check . ; [ $? -eq 10 ] || return 0
   fi
   python3 -W ignore $CC/cloud_cbb.py refresh . || return 1
+  coaching
   publish
+}
+
+# College Basketball Coaching Savant rides along, continue-on-error: its failure is a warning, and
+# College Savant's own files publish either way.
+coaching() {
+  if [ -f "$CBCS_OUT/registry.json" ]; then
+    python3 -W ignore $CC/coaching/cloud_cbcs.py refresh . || echo "::warning::college coaching refresh failed; College Basketball Savant is unaffected"
+  else
+    echo "::warning::no cbcs-bundles branch yet; college coaching refresh skipped"
+  fi
 }
 
 seed
 case "${1:-once}" in
   once) once "${2:-}"; exit $? ;;
-  dry)  python3 -W ignore $CC/cloud_cbb.py refresh . ; rc=$?; git status --short public/cbb data | head -20; du -sh public/cbb; exit $rc ;;
+  dry)  python3 -W ignore $CC/cloud_cbb.py refresh . ; rc=$?; coaching; git status --short public/cbb public/cbcs data | head -20; du -sh public/cbb; exit $rc ;;
   watch)
     end=$(( $(date +%s) + ${2:-5} * 3600 ))
     while :; do

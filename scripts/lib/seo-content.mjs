@@ -27,6 +27,7 @@ export const PRODUCTS = [
   { name: 'College Basketball Savant', href: '/college-basketball-savant.html', blurb: 'Every men\'s Division I player: opponent-adjusted percentiles by position, RAPM, shot zones, lineups and team ratings, refreshed after every night of games.' },
   { name: 'Football Savant', href: '/football-savant.html', blurb: 'Every NFL player back to 1999, ranked against the men who play his position, with throw maps, run-gap maps and comps.' },
   { name: 'UFC Savant', href: '/ufc-savant.html', blurb: 'Every UFC fighter, ranked against the weight class: strike maps, round curves, head-to-heads and comps.' },
+  { name: 'College Basketball Coaching Savant', href: '/college-basketball-coaching-savant.html', blurb: 'Every men\'s Division I head coach: wins against the roster he was given, whether players get better under him, the portal, the Rotation Map, March against the seed, and who won without money.' },
   { name: 'Basketball Coaching Savant', href: '/basketball-coaching-savant.html', blurb: 'Every NBA head coach: the Rotation Map, lineups judged from their parts, timeouts and challenges, wins against two expectations, and a coaching tree suggested from the record, 1946-47 to today.' },
   { name: 'Coaching Savant', href: '/coaching-savant.html', blurb: 'Every NFL head coach since 1999: records, playoff history, what they called, and a coaching tree drawn back to Paul Brown.' },
   { name: 'Draft Savant', href: '/draft-savant.html', blurb: 'NBA Draft prospect models and the full board, every class back to 2010.' },
@@ -116,6 +117,19 @@ export const TOOLS = {
       'Basketball Coaching Savant is a free profiler of NBA head coaches from Western Conference Elitists: records and the coaching tree back to 1946-47, and everything a coach decides on the floor from the season its data begins.',
       'Its centerpiece is the Rotation Map: for every man with 100 minutes under a coach, when he is usually on the floor, and how often and why the coach goes off-script. Lineups are judged from their parts rather than raw lineup ratings. Timeouts are tested against the runs they were called to stop. Wins are measured against two expectations: the roster\'s prior-season talent and the sportsbooks\' preseason win total.',
       'Play-by-play comes from ESPN, team tables from NBA.com, records and staffs from Basketball-Reference. Every percentile names its pool, every section is labelled with the year its data begins, and the rotation verdicts are the model\'s view, not a verdict. The rows behind every chart are open to the AI connector as a Data Room.',
+    ],
+  },
+  'college-basketball-coaching-savant.html': {
+    name: 'College Basketball Coaching Savant',
+    title: 'College Basketball Coaching Savant: D1 Head Coaches, Rosters, Rotations & Coaching Tree | WCE',
+    description:
+      'Every men\'s D1 head coach: wins against the roster he was given, player development, the portal, the Rotation Map, March against the seed, the coaching tree.',
+    look: 'dark',
+    heading: 'What is College Basketball Coaching Savant?',
+    about: [
+      'College Basketball Coaching Savant is a free profiler of men\'s Division I head coaches from Western Conference Elitists: records and the coaching tree as far back as the sources go, and everything a coach decides on the floor from the season its data begins.',
+      'Its headline is wins above the roster: what the players he was handed were worth last season, read before he coached them, against what his teams did. It also follows whether players improve under him, how he builds a roster through high school and the portal, when each man plays and how often he goes off script, whether his timeouts stop runs, how his teams do in March against their seed, and whether he won with money or without it.',
+      { html: 'Player numbers come from <a href="/college-basketball-savant.html">College Basketball Savant</a>. Coaching histories and staffs are read from Wikipedia, spending from the Department of Education. For the NBA, see <a href="/basketball-coaching-savant.html">Basketball Coaching Savant</a>.' },
     ],
   },
   'college-basketball-savant.html': {

@@ -1,4 +1,31 @@
-# College Basketball Savant 1.3.0
+# College Basketball Savant 1.4.0
+
+1.4.0 ships with College Basketball Coaching Savant (branch `college-basketball-coaching-savant`, Nov 6, 2026). The
+1.3.0 note follows it.
+
+## What's new in 1.4.0
+
+- **Head coach links.** A team page names its head coach of record and links to his College Basketball Coaching
+  Savant page (`cbcs/links.json`).
+- **After own timeouts** (Adam's decision, Nov 6). "After timeouts" counted the possession after either team's
+  timeout although its label said the team's own. Now `rebuild.py` records who called the team timeout before each
+  possession and whether ESPN logged the game's media timeouts, and the stat counts only the team's own timeouts,
+  first action a shot or a turnover, garbage time out, games without logged media timeouts left out (where ESPN did
+  not log them, the TV breaks come through as team timeouts). Renamed **After own timeouts**, the name College
+  Basketball Coaching Savant uses for the same count; `check:savant-cbcoaching-shared` holds the two pages to one
+  number and one name. A player's "Shots out of own timeouts" follows the same rule. The Data Room's
+  `timeout_before` now reads `none`, `media`, `own` or `opponent`. In 2025-26, 19,288 possessions followed the team's
+  own timeout and 8,433 the opponent's; Oklahoma goes from 1.171 on 82 possessions to 1.139 on 72. 2025-26 was
+  re-run on the Mac (`season.py` into a scratch folder, then `context.py`): every other number in its 366 context
+  files came out identical, so only the after-timeout fields and the `timeout_before` column were replaced. The
+  season in progress follows on the next cloud refresh, which runs the new `rebuild.py`.
+- **Rotation maps from the first game, labelled by sample.** The map has always kept every player with half a minute
+  a game, so it is whole from game 1; it now says what it is based on ("Based on 3 games with clean lineups, through
+  Nov 5. It updates after every game."), and a player's usual minutes ("on the floor in 3 games in 4") are named
+  from 8 games (before that about two in five would not hold to the season's end, College Basketball Coaching
+  Savant's measurement). A toggle shows the head coach's last season with a map, at whatever school he coached,
+  with **Back** marking the players on this season's roster and the share of last season's minutes they played.
+  The connector's `cbb_rotation` says "based on N games" and flags a map under 8 games.
 
 Built overnight Nov 4-5, 2026 on branch `cbb-step1-context`: step one of making College Basketball Savant as deep as
 Basketball Savant, using only what ESPN's play-by-play already gives us. The 1.2.0 note follows.

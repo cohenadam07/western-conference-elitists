@@ -1,0 +1,12 @@
+:root{
+  --ground:#EEF1F5;--surface:#FFFFFF;--raised:#F4F6F9;--active:#E2E7EE;--border:#E1E5EB;--rule:#EDF0F3;--control:#C7CED8;
+  --text:#131416;--muted:#555B65;--faint:#666C76;--primary:#17263D;--on-primary:#FFFFFF;--hue:#22395A;--cmp:#A86F0C;--sel:#22395A;
+  --lo:#1C4E86;--mid:#C2C0B6;--hi:#BC3A2C;--tend:#8C8579;--track:#E6E9EE;--ring:#7C828C;--barbase:#C5CBD4;--courtbg:#F7F8FA;--courtline:#D3D8DF;--grid:#E8EBEF;
+  --pill-bg:#E9EDF3;--pill-ink:#2B3A52;
+  
+  --font:'IBM Plex Sans',system-ui,-apple-system,sans-serif;--fig:'IBM Plex Mono',ui-monospace,Menlo,monospace;--brand:'Newsreader',Georgia,serif;
+  --fs:14px;--fs-s:12px;--fs-title:22px;--fs-sec:16px;--fs-kpi:26px;--fs-lead:34px;
+  --r-card:8px;--r-ctl:6px;--gap:24px;--pad:24px;--rowh:40px;
+  --barh:26px;--barr:6px;--gridl:rgba(20,26,32,.10);--hatch:rgba(20,26,32,.24);--tick:#191B1F;
+  color-scheme:light;
+}

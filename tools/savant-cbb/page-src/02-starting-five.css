@@ -1,0 +1,83 @@
+
+/* the starting-five card row, as Basketball Savant draws it */
+.ast{position:relative;z-index:1;width:min(1040px,100%);margin:50px auto 4px;text-align:center;
+  opacity:0;animation:home-rise .85s .5s cubic-bezier(.2,.7,.2,1) forwards}
+.ast[hidden]{display:none}
+.ast-title{font-family:var(--disp);font-weight:600;font-size:clamp(26px,3.3vw,34px);line-height:1.1;
+  letter-spacing:-.01em;color:var(--ink);margin:0;display:inline-block;position:relative;padding-bottom:11px}
+.ast-title::after{content:"";position:absolute;left:50%;bottom:0;width:44px;margin-left:-22px;height:2px;
+  border-radius:2px;background:var(--gold)}
+.ast-sub{font-size:14px;line-height:1.55;color:var(--muted);margin:13px auto 18px;max-width:540px}
+.ast-sub b{color:var(--ink);font-weight:600}
+.ast-ctl{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.ast-seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.ast-seg button{font-family:var(--body);font-size:13px;font-weight:600;color:var(--muted);background:none;border:0;
+  border-radius:999px;padding:7px 17px;cursor:pointer;line-height:1.2;transition:color .16s ease,background .16s ease}
+.ast-seg button:hover{color:var(--ink)}
+.ast-seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.ast-season select{font-family:var(--body);font-size:13px;font-weight:600;color:var(--navy);
+  background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2322395A' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 13px center;
+  border:1px solid var(--line);border-radius:999px;padding:8px 32px 8px 15px;line-height:1.2;
+  -webkit-appearance:none;appearance:none;cursor:pointer;transition:border-color .16s ease}
+.ast-season select:hover{border-color:var(--gold)}
+.ast-seg button:focus-visible,.ast-season select:focus-visible,.ast-card:focus-visible,.ast-how:focus-visible{
+  outline:2px solid var(--gold);outline-offset:2px}
+.ast-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;text-align:left}
+.ast-card{display:flex;flex-direction:column;min-width:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;
+  box-shadow:0 1px 2px rgba(20,26,32,.04),0 18px 36px -26px rgba(34,57,90,.55);
+  transition:transform .22s cubic-bezier(.2,.7,.2,1),border-color .22s ease,box-shadow .22s ease}
+.ast-card:hover{transform:translateY(-3px);border-color:rgba(34,57,90,.4);
+  box-shadow:0 1px 2px rgba(20,26,32,.05),0 24px 40px -24px rgba(34,57,90,.62)}
+.ast-row.swap .ast-card{animation:ast-in .48s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*45ms)}
+@keyframes ast-in{from{opacity:0;transform:translateY(10px)}}
+/* the portrait: navy floor, a gold half-court traced behind the player */
+.ast-por{position:relative;display:block;aspect-ratio:1040/820;overflow:hidden;
+  background:radial-gradient(118% 92% at 50% 104%,#35577F 0%,#22395A 56%,#172A43 100%)}
+.ast-por::before{content:"";position:absolute;inset:0;opacity:.3;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 158' fill='none' stroke='%23C2A263' stroke-width='1.1'%3E%3Cpath d='M14 158 A86 86 0 0 1 186 158'/%3E%3Cpath d='M72 158 V96 H128 V158'/%3E%3Cpath d='M78 96 A22 22 0 0 1 122 96'/%3E%3C/svg%3E") no-repeat center bottom/100% auto}
+.ast-por img{position:absolute;left:0;bottom:0;width:100%;height:auto;display:block}
+.ast-pos{position:absolute;top:10px;left:12px;z-index:2;font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--gold)}
+.ast-init{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+  font-family:var(--disp);font-weight:600;font-size:42px;color:rgba(236,235,232,.88);letter-spacing:.01em}
+.ast-por.noimg .ast-init{display:flex}
+.ast-body{display:flex;flex-direction:column;flex:1;padding:13px 14px 15px}
+.ast-first{font-size:12.5px;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ast-last{font-family:var(--disp);font-weight:600;font-size:21px;line-height:1.08;letter-spacing:-.005em;color:var(--ink);
+  margin-top:2px;overflow-wrap:anywhere}
+.ast-last.long{font-size:18px}
+.ast-last.xlong{font-size:16px}
+.ast-meta{font-size:12px;color:var(--faint);margin:5px 0 14px}
+/* margin-top:auto pins the rule and the value to the card's foot, so the five numbers line
+   up whether a surname takes one line or two */
+.ast-rule{display:block;width:28px;height:2px;border-radius:2px;background:var(--gold);margin:auto 0 9px}
+.ast-num{font-family:var(--disp);font-weight:600;font-size:34px;line-height:1;letter-spacing:-.01em;color:var(--navy);
+  font-variant-numeric:lining-nums tabular-nums}
+.ast-num.neg{color:var(--muted)}
+.ast-unit{font-size:11.5px;line-height:1.3;color:var(--faint);margin-top:5px}
+.ast-note{font-size:13px;line-height:1.5;color:var(--muted);margin:16px auto 0;max-width:520px}
+.ast-how{margin-top:14px;background:none;border:0;padding:4px 2px;cursor:pointer;font-family:var(--body);font-size:13px;
+  font-weight:600;color:var(--navy);border-bottom:1px solid rgba(34,57,90,.28);transition:border-color .16s ease}
+.ast-how:hover{border-bottom-color:var(--gold)}
+.ast-expl{text-align:left;max-width:760px;margin:12px auto 0}
+.ast-expl[hidden]{display:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.ast-empty{grid-column:1/-1;padding:34px 0;font-size:13.5px;color:var(--faint);text-align:center}
+@media (max-width:860px){
+  .ast-row{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin:0 -24px;padding:4px 24px 20px;
+    scroll-padding:0 24px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .ast-row::-webkit-scrollbar{display:none}
+  .ast-card{flex:0 0 176px;scroll-snap-align:start}
+}
+@media (max-width:560px){
+  body.home-open .home{padding-bottom:56px}
+  .ast{margin-top:38px}
+  .ast-sub{font-size:13.5px;margin-bottom:16px}
+  .ast-row{margin:0 -16px;padding:4px 16px 18px;scroll-padding:0 16px}
+  .ast-card{flex-basis:164px}
+  .ast-last{font-size:19.5px}
+  .ast-last.long{font-size:17px}
+  .ast-last.xlong{font-size:15px}
+  .ast-num{font-size:31px}
+}
+

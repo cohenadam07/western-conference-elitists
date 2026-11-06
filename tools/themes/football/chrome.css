@@ -1,0 +1,10 @@
+/* football: the frame's chrome in this theme, read after shared/frame.css (preview.py) */
+/* chrome on the grass: light ink, the flag for the current section, the sheet with Football Savant's hard shadow */
+.brand,.wm,.top,.navtog{color:#F3F8F3}
+.wm small,.scope,.nav a,.navtog{color:#A9C7B4}
+.nav a:hover,.navtog:hover{color:#F3F8F3;background:rgba(243,248,243,.10)}
+.nav a[aria-current="page"]{background:var(--cmp);color:var(--primary)}
+.wm{font-size:15px;letter-spacing:.06em;text-transform:uppercase}
+.main{border:2px solid var(--primary);border-radius:0;box-shadow:6px 6px 0 rgba(14,42,23,.5)}
+/* on a phone the sidebar is a bar along the bottom, on the sheet's colour: dark ink again */
+@media (max-width:760px){.nav a{color:var(--muted)}.nav a:hover{color:var(--text);background:var(--active)}}

@@ -42,7 +42,7 @@ import normalize as N  # noqa: E402
 import rebuild as R  # noqa: E402
 
 OUT = os.path.join(CC.HOME, "rebuilt")
-POSS_COLS = ["gid", "lineup_ok", "team", "period", "start", "end", "kind", "ato", "pts", "g", "clutch", "margin", "five", "dfive", "first", "first_kind"]
+POSS_COLS = ["gid", "lineup_ok", "team", "period", "start", "end", "kind", "ato", "pts", "g", "clutch", "margin", "five", "dfive", "first", "first_kind", "ato_by", "tv"]
 BOX = ("pts", "fgm", "fga", "fg3m", "fg3a", "ftm", "fta", "oreb", "dreb", "ast", "tov", "stl", "blk", "pf")
 
 

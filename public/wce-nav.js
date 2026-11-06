@@ -38,6 +38,7 @@
           { label: 'Basketball Savant', href: '/basketball-savant.html', match: ['/player'] },
           { label: 'NBA Coaching Savant', href: '/basketball-coaching-savant.html' },
           { label: 'College Basketball Savant', href: '/college-basketball-savant.html' },
+          { label: 'College Coaching Savant', href: '/college-basketball-coaching-savant.html' },
         ],
       },
       {

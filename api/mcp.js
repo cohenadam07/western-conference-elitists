@@ -51,6 +51,9 @@
 //                                                 cbb_player_career, cbb_player_splits, cbb_leaderboard,
 //                                                 cbb_team_profile, cbb_team_rankings, cbb_lineups,
 //                                                 cbb_all_savant_team, cbb_game, cbb_data, cbb_data_dictionary
+//   api/_cbcoaching.js   College Basketball Coaching Savant  cbb_search_coaches, cbb_get_coach_profile,
+//                                                 cbb_coaching_leaders, cbb_coaching_tree, cbb_coaching_fit,
+//                                                 cbb_coaching_data, cbb_coaching_dictionary
 //   api/_site.js         News, articles, boards   wce_get_news, wce_search_articles,
 //                                                 wce_get_article, wce_get_big_board,
 //                                                 wce_get_dynasty_rankings, wce_get_trending,
@@ -117,6 +120,7 @@ import { tools as bcoaching } from './_bcoaching.js'
 import { tools as coaching } from './_coaching.js'
 import { tools as draft } from './_draft.js'
 import { tools as cbb } from './_cbb.js'
+import { tools as cbcoaching } from './_cbcoaching.js'
 import { tools as fantasy } from './_fantasy.js'
 import { tools as football } from './_football.js'
 import { tools as footballGames } from './_football-games.js'
@@ -126,7 +130,7 @@ import { tools as ufc } from './_ufc.js'
 import { tools as pro } from './_query.js'
 import { nbaOnly, teamNote, notFoundNote } from './_ambiguous.js'
 
-const SECTIONS = [basketball, basketballLists, fantasy, bcoaching, football, footballLists, footballGames, coaching, ufc, draft, cbb, site]
+const SECTIONS = [basketball, basketballLists, fantasy, bcoaching, football, footballLists, footballGames, coaching, ufc, draft, cbb, cbcoaching, site]
 const PRO_SECTIONS = [pro]
 export const PRO_TOOLS = PRO_SECTIONS.flat().map((t) => t.name)
 
