@@ -344,7 +344,8 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   // College Basketball Savant tools (Nov 2, 2026); 74,000 since cbb_all_savant_team; 75,000 since
   // cbb_schedule and the college leaderboard and team filters (Nov 5, 2026); 77,000 since
   // cbb_play_context, cbb_shot_chart and cbb_rotation (Nov 5, 2026); 82,000 for the seven College Basketball
-  // Coaching Savant tools (Nov 6, 2026: 81,667; AWAITING ADAM'S APPROVAL, connector changes need it before merge).
+  // Coaching Savant tools (Nov 6, 2026: 81,667; approved by Adam with PR #54). 81,753 after cbb_team_profile's head
+  // coach and cbb_get_player_profile's coaches who used players like him (Nov 6, 2026).
   assert.ok(upfront < 82000, `tool names, descriptions and inputs came to ${upfront} characters`)
   for (const t of tools) {
     assert.ok(t.name.length <= 64)

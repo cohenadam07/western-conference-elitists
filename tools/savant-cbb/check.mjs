@@ -226,3 +226,29 @@ test('every tool answers', async () => {
   const dd = await call('cbb_data_dictionary')
   assert.equal(dd.stats.length, reg.stats.length)
 })
+
+// College Savant 1.4.0 shows the head coach on a team page and "coaches who used players like him" on a player
+// card, both from College Basketball Coaching Savant's files; the connector gives the same (Nov 6 2026).
+test('the connector gives the page\'s head coach and the coaches who used players like him', async () => {
+  const cb = (p) => JSON.parse(gunzipSync(readFileSync(path.join(ROOT, 'public', 'cbcs', p + '.gz'))).toString('utf8'))
+  const links = cb('links.json'), fits = cb('player-fits.json')
+  for (const s of idx.seasons.map((x) => x.season).slice(-2)) {
+    const teams = read(`teams/${s}.json`).teams.filter((t) => links.ts[`${t.id}|${s}`]).slice(0, 3)
+    assert.ok(teams.length, `${s}: no team with a head coach of record`)
+    for (const t of teams) {
+      const tp = await call('cbb_team_profile', { team: t.id, season: s })
+      assert.deepEqual(tp.head_coach.map((c) => [c.id, c.name, c.interim]), links.ts[`${t.id}|${s}`].map(([id, name, i]) => [id, name, !!i]), `${s} ${t.name}`)
+      assert.ok(tp.head_coach.every((c) => c.url.includes(`#c=${encodeURIComponent(c.id)}&season=${s}`)))
+    }
+  }
+  const s = idx.default_season, d = read(`s/${s}.json`)
+  const withFits = d.players.filter((p) => fits.rows[p[0]]?.length).slice(0, 3)
+  assert.ok(withFits.length, `${s}: no player with coach fits`)
+  for (const p of withFits) {
+    const pr = await call('cbb_get_player_profile', { player: p[0], season: s })
+    assert.deepEqual(pr.coaches_like_him.coaches.map((c) => [c.id, c.name, c.match]), fits.rows[p[0]].map(([c, m]) => [c, fits.names[c] || c, m]), p[1])
+    assert.equal(pr.coaches_like_him.label, fits.label)
+  }
+  const none = d.players.find((p) => !fits.rows[p[0]])
+  if (none) assert.deepEqual((await call('cbb_get_player_profile', { player: none[0], season: s })).coaches_like_him.coaches, [])
+})

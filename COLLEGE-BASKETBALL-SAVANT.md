@@ -26,6 +26,11 @@
   Savant's measurement). A toggle shows the head coach's last season with a map, at whatever school he coached,
   with **Back** marking the players on this season's roster and the share of last season's minutes they played.
   The connector's `cbb_rotation` says "based on N games" and flags a map under 8 games.
+- **The connector matches the page** (Nov 6, after the merge). `cbb_team_profile` returns the head coach of record
+  (`head_coach`: id, name, interim, link to his coaching page) and `cbb_get_player_profile` the coaches whose systems
+  used players most like him (`coaches_like_him`, match out of 100), from the same two College Basketball Coaching
+  Savant files the page reads (`cbcs/links.json`, `cbcs/player-fits.json`). If those files cannot be read the answer
+  says so and the rest stands. `check:savant-cbb` holds both to the files (broken on purpose twice, caught both).
 
 Built overnight Nov 4-5, 2026 on branch `cbb-step1-context`: step one of making College Basketball Savant as deep as
 Basketball Savant, using only what ESPN's play-by-play already gives us. The 1.2.0 note follows.
