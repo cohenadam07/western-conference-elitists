@@ -1,0 +1,15 @@
+/* The frame on a phone: College Basketball Savant's own rules, line for line (they sit inside its last
+   @media block with the page's other phone rules, so they are copied here rather than cut out;
+   tools/themes/check.mjs fails if a line here stops matching that page). */
+@media (max-width:760px){
+  .app{grid-template-columns:auto minmax(0,1fr);grid-template-rows:56px 1fr;grid-template-areas:"brand top" "main main"}
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:30;flex-direction:row;justify-content:space-around;align-items:stretch;gap:0;background:var(--surface);border-top:1px solid var(--border);border-right:0;border-bottom:0;padding:4px max(8px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+  .nav a{flex-direction:column;justify-content:center;gap:2px;height:auto;min-height:48px;width:auto;padding:4px 10px;font-size:11px;border-radius:8px;box-shadow:none}
+  .wm small,.scope,.pname{display:none}
+  .wm{font-size:15px}
+  .brand{padding-right:6px}
+  .top{padding-left:4px}
+  .main{margin:0;border-radius:0;border-left:0;border-right:0;border-bottom:0}
+  .view{padding:20px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+  .foot{padding:0 max(16px,env(safe-area-inset-right,0px)) 96px max(16px,env(safe-area-inset-left,0px))}
+}

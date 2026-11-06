@@ -62,6 +62,8 @@ for (const { tool, page } of PAGES) {
   test(`${tool}/page-src holds only what its assembler reads, and a README`, () => {
     const order = JSON.parse(execFileSync('python3', ['-c', `import importlib.util,json,sys;s=importlib.util.spec_from_file_location('a',sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);print(json.dumps(m.ORDER))`, path.join(ROOT, tool, 'assemble.py')], { cwd: ROOT }).toString())
     const files = readdirSync(path.join(ROOT, tool, 'page-src')).filter((f) => !f.startsWith('.')).sort()
-    assert.deepEqual(files, [...order, 'README.md'].sort(), `${tool}/page-src: every file must be in the assembler's ORDER (or be the README)`)
+    const own = order.filter((f) => !f.startsWith('theme:'))
+    assert.deepEqual(files, [...own, 'README.md'].sort(), `${tool}/page-src: every file must be in the assembler's ORDER (or be the README)`)
+    for (const f of order.filter((x) => x.startsWith('theme:'))) assert.ok(statSync(path.join(ROOT, 'tools/themes', f.slice(6))).isFile(), `${tool}: ${f} is not in tools/themes`)
   })
 }

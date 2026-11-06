@@ -1,0 +1,14 @@
+/* Basketball Savant (NBA). Same token names as college/tokens.css. A value marked "= --x" is Basketball Savant's
+   own --x in public/basketball-savant.html, held to it by tools/themes/check.mjs; the rest are derived from those
+   (a step lighter or darker on the same warm grey), because the flagship has no frame to read them from. */
+:root{
+  --ground:#ECEBE8;/* = --bg */--surface:#FFFFFF;/* = --surface */--raised:#F6F5F2;--active:#E9E8E4;--border:#E1E0DC;/* = --line */--rule:#EEEDEA;--control:#CFCDC7;
+  --text:#191B1F;/* = --ink */--muted:#4E535B;/* = --muted */--faint:#8B9099;/* = --faint */--primary:#22395A;/* = --navy */--on-primary:#FFFFFF;--hue:#22395A;/* = --accent */--cmp:#C2A263;/* = --gold */--sel:#22395A;
+  --lo:#1C4E86;/* = --c-lo */--mid:#C2C0B6;/* = --c-mid */--hi:#BC3A2C;/* = --c-hi */--tend:#C2A263;--track:#E9E8E4;/* = --track */--ring:#8B9099;--barbase:#D6D4CE;--courtbg:#F6F5F2;--courtline:#DAD8D2;--grid:#E9E8E4;
+  --pill-bg:#22395A;--pill-ink:#FFFFFF;
+  --font:'IBM Plex Sans',sans-serif;/* = --body */--fig:'IBM Plex Mono',monospace;/* = --mono */--brand:'Newsreader',Georgia,serif;/* = --disp */
+  --fs:14px;--fs-s:12px;--fs-title:22px;--fs-sec:16px;--fs-kpi:26px;--fs-lead:34px;
+  --r-card:14px;--r-ctl:8px;--gap:24px;--pad:24px;--rowh:40px;
+  --barh:20px;--barr:6px;--gridl:rgba(25,27,31,.12);--hatch:rgba(20,26,32,.22);/* = --hatch */--tick:#191B1F;
+  color-scheme:light;
+}

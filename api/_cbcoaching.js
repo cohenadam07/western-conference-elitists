@@ -99,10 +99,18 @@ export function statRows(idx, values, pctMap, poolsMap, keys, careerPool) {
     if (miss(val)) continue
     const p = Array.isArray(v) ? pctMap?.[s.key] : v.pct
     const pool = Array.isArray(v) ? poolsMap?.[s.key] : v.pool
-    out.push({ key: s.key, label: s.label, group: s.group, kind: s.kind === 'good' ? 'how good' : 'how much', value: val, display: display(s.unit, val), percentile: p ?? null,
+    out.push({ key: s.key, label: s.label, group: s.group, kind: s.kind === 'good' ? 'how good' : 'how much', value: val, display: showStat(s, val), percentile: p ?? null,
       pool: careerPool || null, pool_size: pool ?? null, sample: n, small_sample: n < (s.thr > 1 ? s.thr : 1), lower_is_better: !!s.lower, since: s.first, what: s.what })
   }
   return out
+}
+// a value with its unit, as the page prints it (config.U): "1.16 PPP", "No. 49"
+function showStat(s, v) {
+  if (v == null) return display(s.unit, v)
+  if (s.unit === 'rank') return `No. ${Math.round(v)}`
+  if (s.unit === 'pctile') return `${ordinal(Math.round(v))} percentile`
+  const t = display(s.unit, v)
+  return s.u && s.u !== '%' ? `${t} ${s.u}` : t
 }
 const statLine = (r) => `- ${r.label}: ${r.display} (${r.percentile == null ? 'not ranked' : `${ordinal(r.percentile)} percentile of ${r.pool_size}`}; ${r.kind}${r.lower_is_better ? '; lower is better' : ''}${r.small_sample ? '; small sample' : ''})`
 

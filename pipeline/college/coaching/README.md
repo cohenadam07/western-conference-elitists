@@ -17,7 +17,7 @@ rate, College Savant's team ratings, and its cached CBBD rosters, recruits and l
 | `wiki_seasons.py` | team-season articles: head coach, interim tag, record, assistants | the same |
 | `polls.py`, `tourney.py` | AP polls every week; NCAA Tournament games and seeds (checked against Wikipedia's bracket every year); NIT, CBI/CIT/Crown, conference tournaments | ESPN core API; the ESPN raw archive; Wikipedia |
 | `eada.py` | men's basketball expenses, revenues and coach counts per school-year | U.S. Department of Education, Equity in Athletics |
-| `games.py` | every game through College Savant's `rebuild.py`, plus team and media timeouts, challenges, fouls, live-ball turnovers, the timeout's caller on each possession | the ESPN raw archive, 2013-14 on |
+| `games.py` | every game through College Savant's `rebuild.py`, plus team and media timeouts, challenges, fouls, live-ball turnovers, the timeout's caller on each possession, and shot zones twice: garbage out (`shots`) and garbage in (`zones`, how College Savant's shot diet counts them) | the ESPN raw archive, 2013-14 on |
 
 ## The engines
 
@@ -69,3 +69,11 @@ Check: `npm run check:savant-cbcoaching` (also inside `check:savant`).
 - **Pages are assembled, never edited.** `public/college-basketball-coaching-savant.html` is
   `tools/savant-cbcoaching/assemble.py`'s output; edit `page-src` and run it. `npm run check:page-src` fails on one
   byte of difference (College Savant's page and the NBA coaching page had drifted that way until Nov 6, 2026).
+
+## One number per stat (Nov 6, 2026)
+
+A stat this page shows under College Basketball Savant's name is College Savant's number: box rates count D1-against-D1
+games and turnovers per box-estimated possession, zones count garbage time, clutch net is College Savant's possessions
+and formula. Where the two measure different things the name differs and the stat's `what` says how (`config.py`).
+`npm run check:savant-cbcoaching-shared` compares every shared figure for every team. Every stat also carries a unit
+(`U` in `config.py`), which the page, the Leaders boards, the scouting lines and the connector print.

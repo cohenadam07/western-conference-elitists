@@ -214,15 +214,18 @@ def season(s, C):
                 pace = poss * 40.0 / (40.0 + 5 * g["ot"])
                 A["tempo_ctl"][0] += 100.0 * min(1.5, max(-0.5, (pace - to_) / (tt - to_))); A["tempo_ctl"][1] += 1
             # box identity and rotation shape
+            # Box rates count D1-against-D1 games only and turnovers per box-estimated possession, which is
+            # how College Savant's four factors count them, so the figures the two pages share are one
+            # number (Nov 6 2026: counting every game put 2,900 of 4,801 team-seasons off College Savant's
+            # eFG% allowed and both rebound rates, and the play-by-play denominator 4,088 off its TOV%).
             bx, ob = g["team"][t]["box"], g["team"][o]["box"] if o in g["team"] else None
-            if ob and bx["fga"]:
+            if ob and bx["fga"] and not g["non_d1"]:
                 op = box_poss(ob) if not g["pbp_ok"] else (g["team"][o]["poss"] or box_poss(ob))
-                tp = box_poss(bx) if not g["pbp_ok"] else (g["team"][t]["poss"] or box_poss(bx))
                 for key, num, den in (("fg3r", 100 * bx["fg3a"], bx["fga"]), ("ftr", 100 * bx["fta"], bx["fga"]), ("ast_pct", 100 * bx["ast"], bx["fgm"]),
                                       ("orb_pct", 100 * bx["oreb"], bx["oreb"] + ob["dreb"]), ("drb_pct", 100 * bx["dreb"], bx["dreb"] + ob["oreb"]),
                                       ("o_fg3r", 100 * ob["fg3a"], ob["fga"]), ("o_ftr", 100 * ob["fta"], ob["fga"]),
-                                      ("o_efg", 100 * (ob["fgm"] + 0.5 * ob["fg3m"]), ob["fga"]), ("tov_pct", 100 * bx["tov"], tp),
-                                      ("o_tov", 100 * ob["tov"], op), ("stl100", 100 * bx["stl"], op), ("pf100", 100 * bx["pf"], op)):
+                                      ("o_efg", 100 * (ob["fgm"] + 0.5 * ob["fg3m"]), ob["fga"]), ("tov_pct", 100 * bx["tov"], box_poss(bx)),
+                                      ("o_tov", 100 * ob["tov"], box_poss(ob)), ("stl100", 100 * bx["stl"], op), ("pf100", 100 * bx["pf"], op)):
                     if den:
                         A["_" + key][0] += num; A["_" + key][1] += den
                 A["_games_box"][1] += 1
@@ -304,8 +307,9 @@ def season(s, C):
         if A["halftime"][1]:
             put("halftime", A["halftime"][0] / A["halftime"][1], A["halftime"][1])
         if A["clutch_o"][1] and A["clutch_d"][1]:
+            # College Savant's clutch net: own points per 100 minus the opponents', each on its own possessions
             n = A["clutch_o"][1] + A["clutch_d"][1]
-            put("clutch_net", 100 * (A["clutch_o"][0] - A["clutch_d"][0]) / (n / 2.0), n)
+            put("clutch_net", 100 * (A["clutch_o"][0] / A["clutch_o"][1] - A["clutch_d"][0] / A["clutch_d"][1]), n)
         if A["ato"][1] and A["deadball"][1]:
             put("ato_vs", A["ato"][0] / A["ato"][1] - A["deadball"][0] / A["deadball"][1], A["ato"][1])
         for key in ("rim", "mid", "o_rim", "o_mid"):
@@ -452,7 +456,9 @@ def pbp_rows(g, t, home, A, D, allowed, run_base, half_mean, margin, s, coach):
     for p in g.get("poss") or []:
         mine = bool(p[0]) == home
         per, start, end, kind, ato, caller, pts, gar, clutch, mg, first, fk = p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11], p[12]
-        if clutch and not gar:
+        # clutch keeps the possessions the safe-lead rule also calls garbage (a four- or five-point game in its
+        # last seconds), as College Savant's clutch does: they are inside the clutch definition
+        if clutch:
             A["clutch_o" if mine else "clutch_d"][0] += pts; A["clutch_o" if mine else "clutch_d"][1] += 1
         if gar:
             continue
@@ -491,8 +497,12 @@ def pbp_rows(g, t, home, A, D, allowed, run_base, half_mean, margin, s, coach):
     A["two41"][0] += two; A["two41"][1] += 1
     sh, osh = g.get("shots", {}).get(t, {}), g.get("shots", {}).get(o, {})
     for pre, x in (("", sh), ("o_", osh)):
-        z = sum(x.get(f"{k}_a", 0) for k in ("rim", "paint", "mid", "c3", "ab3"))
-        A["_" + pre + "rim"][0] += x.get("rim_a", 0); A["_" + pre + "rim"][1] += z
-        A["_" + pre + "mid"][0] += x.get("mid_a", 0); A["_" + pre + "mid"][1] += z
         A["_" + pre + "trans"][0] += x.get("tr_a", 0); A["_" + pre + "trans"][1] += x.get("fga", 0)
-    A["_c3"][0] += sh.get("c3_a", 0); A["_c3"][1] += sh.get("c3_a", 0) + sh.get("ab3_a", 0)
+    # zones as College Savant's shot diet counts them: D1-against-D1 games, garbage time in
+    if not g["non_d1"]:
+        zs, ozs = g.get("zones", {}).get(t, {}), g.get("zones", {}).get(o, {})
+        for pre, x in (("", zs), ("o_", ozs)):
+            z = sum(x.get(f"{k}_a", 0) for k in ("rim", "paint", "mid", "c3", "ab3"))
+            A["_" + pre + "rim"][0] += x.get("rim_a", 0); A["_" + pre + "rim"][1] += z
+            A["_" + pre + "mid"][0] += x.get("mid_a", 0); A["_" + pre + "mid"][1] += z
+        A["_c3"][0] += zs.get("c3_a", 0); A["_c3"][1] += zs.get("c3_a", 0) + zs.get("ab3_a", 0)

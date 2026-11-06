@@ -214,7 +214,8 @@ def scouting_season(values, pct, pools, season):
         cands.sort(key=lambda x: -x[0])
         for _, s, p, val, n in cands[:2]:
             how = ("among the most" if p >= 85 else "among the least") if s["kind"] == "much" else ("among the best" if p >= 85 else "among the worst")
-            shown = (f"{val:+.1f}" if s["unit"].startswith("sgn") else f"{val:.1f}{'%' if s['unit'] == 'pct1' else ''}")
+            shown = (f"No. {val:.0f}" if s["unit"] == "rank" else f"{val:.0f} (percentile)" if s["unit"] == "pctile"
+                     else (f"{val:+.1f}" if s["unit"].startswith("sgn") else f"{val:.1f}") + ("%" if s["u"] == "%" else f" {s['u']}"))
             settled = n >= s["thr"]
             unit = "games" if s["thr"] in (CF.G, CF.S) else "in the sample"
             lines.append(dict(group=group, key=k, pct=p, value=val, n=n, settled=settled,

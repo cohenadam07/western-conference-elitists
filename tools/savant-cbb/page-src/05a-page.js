@@ -522,20 +522,3 @@ q.addEventListener('keydown',function(e){if(e.key==='Escape'){res.hidden=true;q.
 res.addEventListener('click',function(){res.hidden=true;q.value='';});
 document.addEventListener('click',function(e){if(!e.target.closest('.search'))res.hidden=true;});
 window.addEventListener('hashchange',render);
-var navtog=$('#navtog');
-function setNav(c,save){document.documentElement.classList.toggle('nav-collapsed',c);var t=c?'Expand sidebar':'Collapse sidebar';navtog.setAttribute('aria-expanded',String(!c));navtog.title=t+' ( [ )';navtog.querySelector('.vh').textContent=t;if(save){try{localStorage.setItem('cbs-nav',c?'1':'0');}catch(e){}}}
-navtog.addEventListener('click',function(){setNav(!document.documentElement.classList.contains('nav-collapsed'),true);});
-document.addEventListener('keydown',function(e){if(e.key!=='['||e.metaKey||e.ctrlKey||e.altKey)return;var t=e.target;if(t&&(t.isContentEditable||/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)))return;if(window.innerWidth>760){e.preventDefault();navtog.click();}});
-var saved=null;try{saved=localStorage.getItem('cbs-nav');}catch(e){}
-setNav(saved==null?window.innerWidth<1100:saved==='1',false);
-function fit(){q.placeholder=window.innerWidth<520?'Search':'Search players and teams';}
-window.addEventListener('resize',function(){fit();if(pending.length)pending.forEach(function(f){f();});});
-readScale();fit();
-Promise.all([load('registry.json'),load('index.json'),load('search.json'),load('links.json').catch(function(){return {};}),load('honours.json').catch(function(){return {};})]).then(function(a){
-  REG=a[0];IDX=a[1];SEARCH=a[2];LINKS=a[3]||{};HON=a[4]||{};REG.stats.forEach(function(s){BYK[s.key]=s;});
-  SEARCH.teams.forEach(function(t){TEAMS[t[0]]={name:t[1],abbr:t[2],conf:t[3],color:t[5]};});
-  S.season=IDX.current||IDX.default_season;
-  $('#ver').textContent='Version '+REG.version;
-  render();
-}).catch(function(e){console.error(e);$('#view').innerHTML='<p class="empty">The data could not load. Refresh to try again.</p>';});
-})();

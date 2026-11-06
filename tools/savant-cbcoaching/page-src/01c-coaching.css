@@ -1,55 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>College Basketball Coaching Savant — WCE Hoops</title>
-<meta name="description" content="Every men's Division I head coach: wins against the roster he was given, the Rotation Map, timeouts and challenges, player development, roster building and the portal, the NCAA Tournament against the seed, resources, and the coaching tree."/>
-<meta name="theme-color" content="#22395A"/>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-/* ============================================================================
-   COLLEGE BASKETBALL COACHING SAVANT — Basketball Coaching Savant's page, for men's D1 head coaches, assembled
-   by tools/savant-cbcoaching/assemble.py; data under /cbcs/ (pipeline/college/coaching/build.py). Below, the NBA
-   page's own note, which still describes the shared shell:
-   BASKETBALL COACHING SAVANT — Basketball Savant's page, for head coaches. The shell, the
-   identity card, the controls bar, the card rows (one stat per row, the percentile riding the
-   bar), the per-row chart, the compare bars and the "more" toggles are Basketball Savant's own
-   rules, copied so the two pages read as one tool. Every percentile names its pool; every
-   section says what it answers and the year its data begins; the rotation verdicts are the
-   model's view, not a verdict. Data: /bcs/index.json, /bcs/c/<coach>.json,
-   /bcs/t/<team>-<season>.json (pipeline/basketball/coaching/build.py).
-   ========================================================================= */
-:root{
-  --bg:#ECEBE8; --surface:#FFFFFF; --sunk:#F6F5F2; --ink:#191B1F; --muted:#4E535B; --faint:#8B9099;
-  --line:#E1E0DC; --track:#E9E8E4;
-  --navy:#22395A; --gold:#C2A263; --red:#BC3A2C; --accent:#22395A; --cream:#ECEBE8;
-  --c-lo:#1C4E86; --c-mid:#C2C0B6; --c-hi:#BC3A2C; --hatch:rgba(20,26,32,.22);
-  --disp:'Newsreader',Georgia,serif; --body:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
-}
-*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-a{color:inherit}button{font-family:inherit;cursor:pointer}
-/* the tab bar and the shell, as savant-fantasy.js draws them */
-.sv-tabs{display:flex;gap:4px;flex-wrap:wrap;max-width:1180px;margin:0 auto;padding:12px 18px 0}
-.sv-tab{white-space:nowrap;font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;padding:7px 13px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--navy);cursor:pointer;text-decoration:none}
-.sv-tab:hover{border-color:var(--gold)}
-.sv-tab.on{background:var(--navy);color:var(--gold);border-color:var(--navy)}
-.wrap{max-width:1080px;margin:0 auto;padding:22px 20px 64px;min-width:0}
-.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;position:relative;z-index:60}
-.brandwrap{display:flex;align-items:center;gap:11px}
-.wce{width:38px;height:38px;border-radius:9px;background:var(--navy);color:#fff;font-family:var(--body);font-weight:700;font-size:13px;letter-spacing:.01em;display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none}
-.brand-word{font-family:var(--body);font-weight:700;font-size:18px;letter-spacing:.03em;text-transform:uppercase;line-height:1}
-.brand-word span{color:var(--navy)}
 .eyebrow-pill{display:inline-block;background:var(--navy);color:#fff;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
 .vchip{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--navy);border:1px solid rgba(34,57,90,.35);padding:2px 6px;border-radius:4px;cursor:help}
-.backlink{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);text-decoration:none}
-.backlink:hover{color:var(--navy)}
-.search{position:relative}
-.search input{font-family:var(--body);font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;width:260px;outline:none}
-.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,57,90,.26)}
 .search input.adding{border-color:var(--gold);box-shadow:0 0 0 3px rgba(194,162,99,.3)}
 .results{position:absolute;top:calc(100% + 6px);right:0;width:320px;max-width:calc(100vw - 32px);max-height:344px;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 28px rgba(20,26,32,.12);padding:6px;z-index:70}
 .results[hidden]{display:none}
@@ -336,16 +286,12 @@ html.fslock,html.fslock body{overflow:hidden}
 @media (prefers-reduced-motion:reduce){ .anim .id,.anim .controls,.anim .ctxrow{animation:none} .anim .fill{transition:none} }
 @media (max-width:840px){ .panels{grid-template-columns:1fr} .id-name{font-size:34px} .legend{margin-left:0;width:100%} }
 @media (max-width:640px){
-  .wrap{padding:16px 12px 48px}
-  .sv-tabs{padding:10px 12px 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
   .col{padding:14px 12px 16px}
   .id{padding:16px 14px}
   .row{grid-template-columns:1fr auto auto;grid-template-areas:"lab val btn" "bar bar bar";row-gap:5px;padding:9px 0}
   .row.nochart{grid-template-columns:1fr auto;grid-template-areas:"lab val" "bar bar"}
   .rl .name{white-space:normal}
   .track{height:22px}
-  .search{flex-wrap:wrap}
-  .search input{width:100%;flex:1;min-width:150px}
   .id-name{font-size:28px}
   .headwrap{width:72px;height:72px}
   .rot{grid-template-columns:104px 1fr}.rotname{font-size:11px;padding-right:4px}
@@ -356,32 +302,3 @@ html.fslock,html.fslock body{overflow:hidden}
 body.view-home .coach,body.view-home .treeview{display:none}
 body.view-coach .home,body.view-coach .treeview{display:none}
 body.view-tree .home,body.view-tree .coach{display:none}
-</style>
-</head>
-<body class="view-home anim">
-<nav class="sv-tabs" aria-label="College Basketball Coaching Savant sections"><a class="sv-tab on" href="#" data-tab="coaches">Coaches</a><a class="sv-tab" href="#leaders" data-tab="leaders">Leaders</a><a class="sv-tab" href="#tree" data-tab="tree">The tree</a><a class="sv-tab" href="/college-basketball-savant.html">College Basketball Savant</a><a class="sv-tab" href="/basketball-coaching-savant.html">Basketball Coaching Savant (NBA)</a></nav>
-<div class="wrap">
-  <div class="top">
-    <div class="brandwrap">
-      <a class="wce" href="/" title="Back to WCE home">WCE</a>
-      <div><div class="brand-word">College Basketball Coaching <span>Savant</span></div>
-        <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap"><span class="eyebrow-pill" id="srcpill">live data</span><span class="vchip" id="verchip" title="Built by pipeline/college/coaching/build.py"></span><a class="backlink" href="/">&larr; wcehoops.com</a></div></div>
-    </div>
-    <div class="search"><input id="q" type="search" placeholder="Search a head coach or assistant…" autocomplete="off" aria-label="Search a coach"/><div id="results" class="results" hidden></div></div>
-  </div>
-  <div class="chips" id="chips" role="group" aria-label="Trending coaches"></div>
-
-  <section class="home" id="home">
-    <div class="col wide" id="homeintro"></div>
-    <div class="col wide" id="leadersplate"><h2 class="col-h">Leaders</h2><p class="since" id="lead-since"></p><div class="grid3" id="leaders"></div></div>
-    <div class="col wide"><h2 class="col-h">The league, season by season</h2><p class="since">2009-10 on; game management 2013-14 on, the Rotation Map 2023-24 on, challenges 2025-26 on · D1 medians, every coach-season with 15+ games · hover a point for the season</p><div class="grid3" id="trends"></div></div>
-    <div class="col wide"><h2 class="col-h">The staffs that produced head coaches</h2><p class="since">from Wikipedia's team-season staffs and coach biographies, each row linked</p><div id="produced" class="small"></div></div>
-    <div class="col wide"><h2 class="col-h">Rising assistants<span class="q">context, not credit</span></h2><p class="since">current D1 assistants who have never been a D1 head coach: the staffs they have been on and how those teams did</p><div id="nexthc" class="small"></div></div>
-    <div class="col wide"><h2 class="col-h">How to read this</h2><div id="howto" class="small"></div></div>
-  </section>
-  <section class="coach" id="coach"></section>
-  <section class="treeview" id="treeview"></section>
-</div>
-<div id="tip" role="tooltip"></div>
-<script>
-'use strict';

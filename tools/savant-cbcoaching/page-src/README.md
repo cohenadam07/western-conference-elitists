@@ -1,13 +1,23 @@
 # College Basketball Coaching Savant: page source
 
-Files `01` to `06` are Basketball Coaching Savant's page source as copied on Nov 6, 2026, with small in-place edits
-(the 40-minute clock and halves, College Savant player links, the college headline rows). `07-college.js` redefines
-the functions that differ in college (in one script the last declaration of a name wins) and adds the college-only
-sections (roster building, the NCAA Tournament, resources, similar players). `09-tail.html` starts the page.
+**In the college theme (Nov 6, 2026).** The page reads College Basketball Savant's look from `tools/themes/`
+(listed in `ORDER` as `theme:<path>`): its fonts, tokens, base rules, framed sheet with the collapsible sidebar,
+the frame's phone rules, and `shared/coaching-skin.css`, which paints this page's components in the theme. The
+site ribbon (`wce-nav`) sits above the frame; the old tab bar and its two cross-links are gone (the sidebar holds
+Coaches, Leaders and The tree; the footer credits College Basketball Savant).
 
-**Known (Nov 6, 2026).** The copy was taken from Basketball Coaching Savant's source before its site ribbon (#39) was
-brought into it, so this page has no `wce-nav` ribbon and still carries two extra tab links. Adding the ribbon is a
-visible change, left for its own decision.
+| file | what |
+|---|---|
+| `01a-head.html` | doctype to the font link |
+| `01b-style.html` | the opening `<style>` and the note on how the CSS is layered |
+| `01c-coaching.css` | the coach-page components: Basketball Coaching Savant's CSS as copied on Nov 6, 2026, less its own tokens, tab bar, brand row and search box (the frame has those) |
+| `01d-body.html` | the ribbon, the frame (brand, sidebar, top bar with search), the views' mount points, the footer, and the script's first lines (`$`, which `shared/sidebar.js` needs) |
+| `02-core.js` to `06-tree.js` | Basketball Coaching Savant's page script as copied on Nov 6, 2026, with small in-place edits (the 40-minute clock and halves, College Savant player links, the college headline rows, the sidebar's current section, a unit after every value) |
+| `07-college.js` | redefines the functions that differ in college (in one script the last declaration of a name wins) and adds the college-only sections (roster building, the NCAA Tournament, resources, similar players) |
+| `09-tail.html` | starts the page |
+
+Every value prints with its unit: `fmt(stat, v)` and `valHTML(stat, v)` (02-core.js, 03-coach.js) read the stat's
+`u` from the registry (`pipeline/college/coaching/config.py`, `U`).
 
 ## The rule
 

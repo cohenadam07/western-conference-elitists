@@ -158,6 +158,12 @@ function renderControls(sr){
     <div class="legend"><div class="legbox"><div class="legbar"></div><div class="ends"><span>poor</span><span>elite</span></div></div><div class="leg"><span class="goldswatch"></span>a tendency</div><div class="leg"><span class="hatchswatch"></span>under its settle point</div></div></div>`;
 }
 
+// the number, then its unit in a smaller face (config.U)
+function valHTML(s, v){
+  const t = fmt(s.unit, v);
+  return t === '—' || !s.u || s.u === '%' ? t : `${t}<small class="u">${esc(s.u)}</small>`;
+}
+
 // ---------------------------------------------------------------- the panels: Savant's card rows
 function statBtn(key, label){
   return `<button type="button" class="statbtn" data-stat="${key}" aria-expanded="false" title="Chart ${esc(label)} season by season" aria-label="Chart ${esc(label)} season by season"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 11.5L6 7l3 2.5L14 4"/><circle cx="2" cy="11.5" r="1.1"/><circle cx="6" cy="7" r="1.1"/><circle cx="9" cy="9.5" r="1.1"/><circle cx="14" cy="4" r="1.1"/></svg></button>`;
@@ -168,12 +174,12 @@ function rowHTML(s, v, sr){
   const numLeft = shown > 88 ? `calc(${shown}% - 24px)` : `calc(${shown}% + 6px)`;
   return `<div class="row${un ? ' un' : ''}${miss(p) ? ' na' : ''}" data-k="${s.key}"${tipAttr(statTip(s.key, {v: v.v, pct: p, pool: v.pool, n: v.n, seasons: v.seasons, season: sr?.season}))}><div class="rl"><div class="name">${esc(s.label)}</div><div class="tag">${s.kind === 'good' ? 'how good' : 'how much'}${s.lower ? ' · lower is better' : ''}${un ? ' · low sample' : ''}${s.sub ? ' · ' + esc(s.sub) : ''}</div></div>
     <div class="track"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div><div class="fill" data-w="${miss(p) ? 0 : Math.max(p, 1.5)}" style="background:${col}"><div class="hatch"></div></div><div class="pnum" style="left:${numLeft}">${miss(p) ? '·' : p}</div></div>
-    <div class="rv">${fmt(s.unit, v.v)}</div>${statBtn(s.key, s.label)}</div>`;
+    <div class="rv">${valHTML(s, v.v)}</div>${statBtn(s.key, s.label)}</div>`;
 }
 // compare: the way player compare draws it, one thin bar per coach inside the track
 function cmpRowHTML(s, entries, sr){
   const bh = entries.length > 2 ? 12 : 14, gap = 4, pad = 5, trH = entries.length * bh + (entries.length - 1) * gap + 10;
-  const items = entries.map(e => { const v = e.rows[s.key]; return v ? {pct: miss(v.pct) ? 0 : v.pct, p: v.pct, txt: fmt(s.unit, v.v), v: v.v, n: v.n, pool: v.pool, nm: e.name} : {pct: 0, p: null, txt: '—', nm: e.name}; });
+  const items = entries.map(e => { const v = e.rows[s.key]; return v ? {pct: miss(v.pct) ? 0 : v.pct, p: v.pct, txt: fmt(s, v.v), v: v.v, n: v.n, pool: v.pool, nm: e.name} : {pct: 0, p: null, txt: '—', nm: e.name}; });
   const bars = items.map((it, i) => `<div class="cbar" style="top:${pad + i * (bh + gap)}px;height:${bh}px;width:${Math.max(it.pct, 1.5)}%;background:${CMP_COLORS[i]}">${it.pct >= 22 ? `<span class="cbar-lab">${esc(last(it.nm))}${it.p != null ? ' ' + it.p : ''}</span>` : ''}</div>`).join('');
   const vals = items.map((it, i) => `<div class="cv"><span class="cdot" style="background:${CMP_COLORS[i]}"></span>${it.txt}</div>`).join('');
   const tip = `<b>${esc(s.label)}</b><br>` + items.map((it, i) => `<span class="cdot" style="background:${CMP_COLORS[i]};margin-right:5px"></span>${esc(it.nm)}: <b>${it.txt}</b>${it.p != null ? ` ${s.kind === 'good' ? pbox(it.p) : goldbox(it.p)}<span class="k">of ${it.pool ?? '—'}</span>` : ' <span class="k">not ranked</span>'}`).join('<br>') + `<div class="def">${esc(s.what)}</div>`;
@@ -230,7 +236,7 @@ function rcOpen(btn, key){
   const medPts = pts.map((p, i) => miss(p.med) ? null : `${X(i).toFixed(1)} ${Y(p.med).toFixed(1)}`);
   if (medPts.some(Boolean)) { let d = '', pen = false; medPts.forEach(m => { if (!m) { pen = false; return; } d += (pen ? 'L' : 'M') + m + ' '; pen = true; }); g += `<path class="rc-med" d="${d}"/>`; }
   g += `<path class="rc-ln" d="${line}"/>`;
-  pts.forEach((p, i) => { g += `<circle class="rc-pt hit" cx="${X(i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="3.6" fill="${p.pct == null ? '#22395A' : (s.kind === 'good' ? gradeColor(p.pct) : '#C2A263')}"${tipAttr(`<b>${p.s} ${esc(teamName(p.team))}</b><br>${esc(s.label)}: <b>${fmt(s.unit, p.v)}</b>${p.pct != null ? ` ${s.kind === 'good' ? pbox(p.pct) : goldbox(p.pct)}<span class="k">that season</span>` : ''}${miss(p.med) ? '' : `<br><span class="k">league median ${fmt(s.unit, p.med)}</span>`}<br><span class="k">sample ${Number(p.n).toLocaleString()}</span>`)}></circle>`; });
+  pts.forEach((p, i) => { g += `<circle class="rc-pt hit" cx="${X(i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="3.6" fill="${p.pct == null ? '#22395A' : (s.kind === 'good' ? gradeColor(p.pct) : '#C2A263')}"${tipAttr(`<b>${p.s} ${esc(teamName(p.team))}</b><br>${esc(s.label)}: <b>${fmt(s, p.v)}</b>${p.pct != null ? ` ${s.kind === 'good' ? pbox(p.pct) : goldbox(p.pct)}<span class="k">that season</span>` : ''}${miss(p.med) ? '' : `<br><span class="k">league median ${fmt(s, p.med)}</span>`}<br><span class="k">sample ${Number(p.n).toLocaleString()}</span>`)}></circle>`; });
   const first = pts[0], lastp = pts[pts.length - 1];
   host.innerHTML = head + `<svg class="rc-plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(s.label)} for ${esc(COACH.name)}, ${first.s} to ${lastp.s}">${g}</svg><div class="rc-note">${pts.length} seasons · ${first.s} → ${lastp.s} · dot colour = percentile that season · <span style="color:var(--gold)">- - -</span> league median</div>`;
 }
@@ -288,7 +294,7 @@ function seasonScout(sr){
     for (const c of cands.slice(0, 2)) {
       const how = c.s.kind === 'much' ? (c.p >= 85 ? 'among the most' : 'among the least') : (c.p >= 85 ? 'among the best' : 'among the worst');
       const settled = c.n >= c.s.thr;
-      out.push({group: g, key: c.s.key, pct: c.p, value: c.v, n: c.n, settled, text: `${c.s.label}: ${fmt(c.s.unit, c.v)}, ${how} of ${pools[c.s.key] ?? '—'} coaches in ${sr.season} (${ord(c.p)} percentile), over ${Number(c.n).toLocaleString()} ${c.s.thr === 41 || c.s.thr === 82 ? 'games' : 'in the sample'}${settled ? '.' : `; it settles at ${c.s.thr.toLocaleString()}, so this can still move.`}`});
+      out.push({group: g, key: c.s.key, pct: c.p, value: c.v, n: c.n, settled, text: `${c.s.label}: ${fmt(c.s, c.v)}, ${how} of ${pools[c.s.key] ?? '—'} coaches in ${sr.season} (${ord(c.p)} percentile), over ${Number(c.n).toLocaleString()} ${c.s.thr === 41 || c.s.thr === 82 ? 'games' : 'in the sample'}${settled ? '.' : `; it settles at ${c.s.thr.toLocaleString()}, so this can still move.`}`});
     }
   }
   return out;

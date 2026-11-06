@@ -8,48 +8,101 @@
 <meta name="theme-color" content="#22395A"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600&display=swap">
 <style>
 /* ============================================================================
-   COLLEGE BASKETBALL COACHING SAVANT — Basketball Coaching Savant's page, for men's D1 head coaches, assembled
-   by tools/savant-cbcoaching/assemble.py; data under /cbcs/ (pipeline/college/coaching/build.py). Below, the NBA
-   page's own note, which still describes the shared shell:
-   BASKETBALL COACHING SAVANT — Basketball Savant's page, for head coaches. The shell, the
-   identity card, the controls bar, the card rows (one stat per row, the percentile riding the
-   bar), the per-row chart, the compare bars and the "more" toggles are Basketball Savant's own
-   rules, copied so the two pages read as one tool. Every percentile names its pool; every
-   section says what it answers and the year its data begins; the rotation verdicts are the
-   model's view, not a verdict. Data: /bcs/index.json, /bcs/c/<coach>.json,
-   /bcs/t/<team>-<season>.json (pipeline/basketball/coaching/build.py).
+   COLLEGE BASKETBALL COACHING SAVANT, in the college theme (tools/themes/): College Basketball Savant's
+   tokens, base rules, framed sheet and collapsible sidebar, read from tools/themes/ exactly as College
+   Savant's own page reads them; then this page's components (01c-coaching.css, Basketball Coaching
+   Savant's component CSS for coach pages); then tools/themes/shared/coaching-skin.css, which paints those
+   components in the theme. Data: /cbcs/ (pipeline/college/coaching/build.py).
    ========================================================================= */
 :root{
-  --bg:#ECEBE8; --surface:#FFFFFF; --sunk:#F6F5F2; --ink:#191B1F; --muted:#4E535B; --faint:#8B9099;
-  --line:#E1E0DC; --track:#E9E8E4;
-  --navy:#22395A; --gold:#C2A263; --red:#BC3A2C; --accent:#22395A; --cream:#ECEBE8;
-  --c-lo:#1C4E86; --c-mid:#C2C0B6; --c-hi:#BC3A2C; --hatch:rgba(20,26,32,.22);
-  --disp:'Newsreader',Georgia,serif; --body:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+  --ground:#EEF1F5;--surface:#FFFFFF;--raised:#F4F6F9;--active:#E2E7EE;--border:#E1E5EB;--rule:#EDF0F3;--control:#C7CED8;
+  --text:#131416;--muted:#555B65;--faint:#666C76;--primary:#17263D;--on-primary:#FFFFFF;--hue:#22395A;--cmp:#A86F0C;--sel:#22395A;
+  --lo:#1C4E86;--mid:#C2C0B6;--hi:#BC3A2C;--tend:#8C8579;--track:#E6E9EE;--ring:#7C828C;--barbase:#C5CBD4;--courtbg:#F7F8FA;--courtline:#D3D8DF;--grid:#E8EBEF;
+  --pill-bg:#E9EDF3;--pill-ink:#2B3A52;
+  
+  --font:'IBM Plex Sans',system-ui,-apple-system,sans-serif;--fig:'IBM Plex Mono',ui-monospace,Menlo,monospace;--brand:'Newsreader',Georgia,serif;
+  --fs:14px;--fs-s:12px;--fs-title:22px;--fs-sec:16px;--fs-kpi:26px;--fs-lead:34px;
+  --r-card:8px;--r-ctl:6px;--gap:24px;--pad:24px;--rowh:40px;
+  --barh:26px;--barr:6px;--gridl:rgba(20,26,32,.10);--hatch:rgba(20,26,32,.24);--tick:#191B1F;
+  color-scheme:light;
 }
-*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-a{color:inherit}button{font-family:inherit;cursor:pointer}
-/* the tab bar and the shell, as savant-fantasy.js draws them */
-.sv-tabs{display:flex;gap:4px;flex-wrap:wrap;max-width:1180px;margin:0 auto;padding:12px 18px 0}
-.sv-tab{white-space:nowrap;font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;padding:7px 13px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--navy);cursor:pointer;text-decoration:none}
-.sv-tab:hover{border-color:var(--gold)}
-.sv-tab.on{background:var(--navy);color:var(--gold);border-color:var(--navy)}
-.wrap{max-width:1080px;margin:0 auto;padding:22px 20px 64px;min-width:0}
-.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;position:relative;z-index:60}
-.brandwrap{display:flex;align-items:center;gap:11px}
-.wce{width:38px;height:38px;border-radius:9px;background:var(--navy);color:#fff;font-family:var(--body);font-weight:700;font-size:13px;letter-spacing:.01em;display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none}
-.brand-word{font-family:var(--body);font-weight:700;font-size:18px;letter-spacing:.03em;text-transform:uppercase;line-height:1}
-.brand-word span{color:var(--navy)}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--text);font-family:var(--font);font-size:var(--fs);line-height:1.45}
+a{color:inherit;text-decoration:none}
+a:hover{text-decoration:underline}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+h1,h2,h3{margin:0;text-wrap:balance}
+.num{font-variant-numeric:tabular-nums}
+.fig{font-family:var(--fig);font-variant-numeric:tabular-nums}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+
+/* shell: framed sheet (default) */
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);grid-template-rows:56px 1fr;grid-template-areas:"brand top" "nav main";min-height:100vh}
+.brand{grid-area:brand;display:flex;align-items:center;gap:10px;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:12px;text-decoration:none}
+.brand:hover{text-decoration:none}
+.wm{font-family:var(--brand);font-weight:600;font-size:16px;line-height:1.15;white-space:nowrap}
+.wm small{display:block;font-family:var(--font);font-weight:400;font-size:12px;color:var(--muted)}
+.mark{width:28px;height:28px;flex:none}
+.mk-bg{fill:var(--primary)}.mk-tr{stroke:var(--on-primary);stroke-opacity:.45;stroke-width:2;stroke-linecap:round}.mk-a{fill:var(--hi)}.mk-b{fill:var(--lo)}
+.top{grid-area:top;display:flex;align-items:center;gap:16px;padding-left:8px;padding-right:max(16px,env(safe-area-inset-right,0px));min-width:0}
+.scope{color:var(--muted);font-size:13px;white-space:nowrap}
+.pname{display:none;font-weight:600;white-space:nowrap}
+.search{position:relative;margin-left:auto;width:min(340px,100%);min-width:0}
+.search input{width:100%;height:34px;border:1px solid var(--control);border-radius:var(--r-ctl);background:var(--surface);padding:0 12px 0 34px}
+.search input::placeholder{color:var(--faint)}
+.search svg{position:absolute;left:12px;top:10px;width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:1.6}
+.results{position:absolute;top:40px;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 8px 24px rgba(0,0,0,.14);padding:6px;z-index:40;list-style:none;margin:0}
+.results a{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:8px 10px;border-radius:var(--r-ctl)}
+.results a:hover,.results a:focus{background:var(--active);text-decoration:none;outline:none}
+.results small{color:var(--muted);white-space:nowrap}
+.nav{grid-area:nav;display:flex;flex-direction:column;gap:2px;padding:6px 12px;padding-left:max(12px,env(safe-area-inset-left,0px))}
+.nav a{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:8px;color:var(--muted)}
+.nav a svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;flex:none}
+.nav a:hover{color:var(--text);text-decoration:none}
+.nav a[aria-current="page"]{background:var(--active);color:var(--text)}
+.main{grid-area:main;background:var(--surface);border:1px solid var(--border);border-radius:16px;margin:0 8px 8px 0;min-width:0}
+.view{padding:28px var(--pad) var(--pad);max-width:1360px}
+.foot{padding:8px var(--pad) 28px;color:var(--muted);font-size:var(--fs-s)}
+
+/* framed: collapsible sidebar */
+.navtog{display:none;width:32px;height:32px;border:0;background:none;border-radius:var(--r-ctl);color:var(--muted);cursor:pointer;align-items:center;justify-content:center;flex:none;margin-left:-6px;padding:0}
+.navtog:hover{background:var(--active);color:var(--text)}
+.navtog svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5}
+.navtog .rl{fill:currentColor;stroke:none;opacity:.35}
+@media (min-width:761px){
+  html .navtog{display:inline-flex}
+  html .nav{position:sticky;top:0;align-self:start}
+  html.nav-collapsed .app{grid-template-columns:64px minmax(0,1fr)}
+  html.nav-collapsed .brand{justify-content:center;padding:0}
+  html.nav-collapsed .wm{display:none}
+  html.nav-collapsed .nav{align-items:center;padding:6px 0}
+  html.nav-collapsed .nav a{width:40px;height:40px;justify-content:center;padding:0}
+  html.nav-collapsed .nav a span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  html.nav-collapsed .navtog .rl{opacity:0}
+}
+@media (min-width:761px) and (prefers-reduced-motion:no-preference){html .app{transition:grid-template-columns .2s ease}}
+/* The frame on a phone: College Basketball Savant's own rules, line for line (they sit inside its last
+   @media block with the page's other phone rules, so they are copied here rather than cut out;
+   tools/themes/check.mjs fails if a line here stops matching that page). */
+@media (max-width:760px){
+  .app{grid-template-columns:auto minmax(0,1fr);grid-template-rows:56px 1fr;grid-template-areas:"brand top" "main main"}
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:30;flex-direction:row;justify-content:space-around;align-items:stretch;gap:0;background:var(--surface);border-top:1px solid var(--border);border-right:0;border-bottom:0;padding:4px max(8px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+  .nav a{flex-direction:column;justify-content:center;gap:2px;height:auto;min-height:48px;width:auto;padding:4px 10px;font-size:11px;border-radius:8px;box-shadow:none}
+  .wm small,.scope,.pname{display:none}
+  .wm{font-size:15px}
+  .brand{padding-right:6px}
+  .top{padding-left:4px}
+  .main{margin:0;border-radius:0;border-left:0;border-right:0;border-bottom:0}
+  .view{padding:20px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+  .foot{padding:0 max(16px,env(safe-area-inset-right,0px)) 96px max(16px,env(safe-area-inset-left,0px))}
+}
 .eyebrow-pill{display:inline-block;background:var(--navy);color:#fff;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
 .vchip{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--navy);border:1px solid rgba(34,57,90,.35);padding:2px 6px;border-radius:4px;cursor:help}
-.backlink{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);text-decoration:none}
-.backlink:hover{color:var(--navy)}
-.search{position:relative}
-.search input{font-family:var(--body);font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;width:260px;outline:none}
-.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,57,90,.26)}
 .search input.adding{border-color:var(--gold);box-shadow:0 0 0 3px rgba(194,162,99,.3)}
 .results{position:absolute;top:calc(100% + 6px);right:0;width:320px;max-width:calc(100vw - 32px);max-height:344px;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 28px rgba(20,26,32,.12);padding:6px;z-index:70}
 .results[hidden]{display:none}
@@ -336,16 +389,12 @@ html.fslock,html.fslock body{overflow:hidden}
 @media (prefers-reduced-motion:reduce){ .anim .id,.anim .controls,.anim .ctxrow{animation:none} .anim .fill{transition:none} }
 @media (max-width:840px){ .panels{grid-template-columns:1fr} .id-name{font-size:34px} .legend{margin-left:0;width:100%} }
 @media (max-width:640px){
-  .wrap{padding:16px 12px 48px}
-  .sv-tabs{padding:10px 12px 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
   .col{padding:14px 12px 16px}
   .id{padding:16px 14px}
   .row{grid-template-columns:1fr auto auto;grid-template-areas:"lab val btn" "bar bar bar";row-gap:5px;padding:9px 0}
   .row.nochart{grid-template-columns:1fr auto;grid-template-areas:"lab val" "bar bar"}
   .rl .name{white-space:normal}
   .track{height:22px}
-  .search{flex-wrap:wrap}
-  .search input{width:100%;flex:1;min-width:150px}
   .id-name{font-size:28px}
   .headwrap{width:72px;height:72px}
   .rot{grid-template-columns:104px 1fr}.rotname{font-size:11px;padding-right:4px}
@@ -356,19 +405,174 @@ html.fslock,html.fslock body{overflow:hidden}
 body.view-home .coach,body.view-home .treeview{display:none}
 body.view-coach .home,body.view-coach .treeview{display:none}
 body.view-tree .home,body.view-tree .coach{display:none}
+
+/* ============================================================================
+   Coaching Savant components in a sport theme (tools/themes/README.md). The coaching pages' component CSS
+   (identity card, percentile rows, tables, tiles, the Rotation Map, the tree) speaks its own variable names
+   and the NBA page's type; this maps the names onto the theme's tokens and restyles the components to the
+   theme's frame: cards like its cards, headings in its text face, rows like its percentile rows (bar
+   height, radius, track, hatching and tick from the tokens), tables like its tables. Read after the
+   component CSS, so it wins. Used by College Basketball Coaching Savant; the NBA preview reads it too.
+   ========================================================================= */
+:root{
+  --bg:var(--ground);--sunk:var(--raised);--ink:var(--text);--line:var(--border);--navy:var(--hue);--gold:var(--tend);
+  --red:var(--hi);--accent:var(--sel);--cream:var(--ground);--c-lo:var(--lo);--c-mid:var(--mid);--c-hi:var(--hi);
+  --disp:var(--font);--body:var(--font);--mono:var(--fig);
+}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;overflow-x:clip;-webkit-font-smoothing:antialiased}
+button{cursor:pointer}
+.wm{white-space:normal;font-size:15px;line-height:1.12}
+.wm small{margin-top:2px}
+
+/* the page inside the sheet */
+.view{max-width:1360px}
+.chips{margin:0 0 18px}
+.chips-label,.ctl-lab,.leg,.lead-p,.legend2,.arc-h,.xmore-lab,.tile .tl,.acco,.since,.col-h .q,.rl .tag,.cmp-pill{font-family:var(--font);letter-spacing:0;text-transform:none}
+.chips-label{font-size:var(--fs-s);color:var(--muted)}
+.chip{border-radius:var(--r-ctl);border-color:var(--control);color:var(--text);font-size:13px}
+.chip:hover{border-color:var(--text);text-decoration:none}
+.chip[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+
+/* search: the frame's box, the coaching results list under it */
+.search .results{left:0;right:0;width:auto;top:40px;border-radius:var(--r-card);border-color:var(--border)}
+.search input.adding{border-color:var(--cmp);box-shadow:0 0 0 3px color-mix(in srgb,var(--cmp) 30%,transparent)}
+.res{border-radius:var(--r-ctl)}
+.res:hover,.res.on{background:var(--active)}
+
+/* cards */
+.id,.col{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:var(--pad);box-shadow:none}
+.id:hover,.col:hover{box-shadow:none}
+.col.wide,.id{margin-bottom:var(--gap)}
+.panels{gap:var(--gap);margin-bottom:var(--gap)}
+.col-h{font-family:var(--font);font-size:var(--fs-sec);font-weight:600;border-bottom:0;padding-bottom:0;margin:0 0 4px;display:block;line-height:1.3}
+.col-h .q{font-size:var(--fs-s);font-weight:400;color:var(--muted);margin-left:8px}
+.since{font-size:var(--fs-s);color:var(--muted);margin:0 0 14px}
+.cap,.note{background:var(--raised);border-left:3px solid var(--hue);border-radius:0 var(--r-ctl) var(--r-ctl) 0;font-size:13px}
+.expl{background:var(--raised);border-color:var(--border);border-radius:var(--r-ctl)}
+.small{font-size:13px}
+.empty{color:var(--muted)}
+
+/* the identity card */
+.id-name{font-family:var(--font);font-size:28px;font-weight:600;letter-spacing:-.01em;line-height:1.15}
+.id-meta{font-size:var(--fs)}
+.statline{font-family:var(--fig)}
+.acco{font-size:12px;border-radius:4px;border-color:var(--pill-bg);background:var(--pill-bg);color:var(--pill-ink);padding:2px 7px}
+.acco.major{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.acco.gold{background:var(--cmp);border-color:var(--cmp);color:var(--surface)}
+.arcbtn{border-radius:var(--r-ctl);border-color:var(--control);font-family:var(--font);font-size:13px;letter-spacing:0;text-transform:none;color:var(--text)}
+.eyebrow-pill,.vchip{font-family:var(--font);font-size:var(--fs-s);letter-spacing:0;text-transform:none;background:none;color:inherit;border:0;padding:0}
+
+/* controls: the frame's segmented buttons and selects */
+.controls{gap:12px 22px}
+.ctl-lab{font-size:var(--fs-s);color:var(--muted)}
+.seg{border-color:var(--control);border-radius:var(--r-ctl);padding:0;gap:0;overflow:hidden}
+.seg button{border-radius:0;height:30px;padding:0 12px;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--active);color:var(--text);font-weight:500}
+.selx-btn{font-family:var(--font);font-size:13px;border-color:var(--control);border-radius:var(--r-ctl);height:32px}
+.selx-pop{border-radius:var(--r-card);border-color:var(--border)}
+.legend{font-size:var(--fs-s)}
+.leg{font-size:var(--fs-s)}
+.ends{font-family:var(--font);letter-spacing:0;text-transform:none;font-size:11px}
+.legbar{background:linear-gradient(90deg,var(--lo),var(--mid),var(--hi))}
+
+/* percentile rows: the frame's bars. The label column grows and wraps, so no stat name is cut short. */
+.group-h{font-family:var(--font);font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--text);margin:20px 0 4px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.row{grid-template-columns:minmax(150px,1.1fr) minmax(160px,3fr) 92px 22px;column-gap:20px;min-height:calc(var(--barh) + 16px);padding:4px 0}
+.row.nochart{grid-template-columns:minmax(150px,1.1fr) minmax(160px,3fr) 92px}
+.rl .name{white-space:normal;overflow:visible;text-overflow:clip;font-size:var(--fs);line-height:1.3}
+.rl .tag{font-size:12px;color:var(--muted);margin-top:1px}
+.track{height:var(--barh);border-radius:var(--barr);background:var(--track)}
+.tick,.tick.mid{background:var(--gridl)}
+.fill{border-radius:var(--barr);box-shadow:none}
+.fill .hatch{background:repeating-linear-gradient(135deg,var(--hatch) 0 2px,transparent 2px 7px)}
+.row.un .fill{filter:none;opacity:.72}
+.pnum{font-family:var(--fig);font-size:13px;font-weight:600;color:var(--text)}
+.row.un .pnum{color:var(--text)}
+.rv{font-family:var(--fig);font-size:14px;line-height:1.2}
+.rv small.u,.tile .tv small.u{display:block;font-family:var(--font);font-size:11px;color:var(--muted);font-weight:400;white-space:nowrap}
+.row.un .rv{color:var(--muted)}
+.statbtn:hover{background:var(--active)}
+
+/* Leaders, tabs, pills: board columns wide enough that a name and a value with its unit share a line */
+.grid3{grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:var(--gap) 32px}
+.grid2{gap:var(--gap) 32px}
+.lead-h{font-family:var(--font);font-size:15px;font-weight:600}
+.lead-p{font-size:var(--fs-s);color:var(--muted)}
+.lrow{border-bottom-color:var(--rule);font-size:var(--fs)}
+.lrk{font-size:12px}
+.tab{font-family:var(--font);font-size:13px;border-radius:var(--r-ctl);border-color:var(--control);color:var(--muted)}
+.tab.on{background:var(--active);color:var(--text);border-color:var(--control);font-weight:500}
+.pill{font-family:var(--font);font-size:12px;letter-spacing:0;background:var(--pill-bg);color:var(--pill-ink);border-radius:4px}
+.xmore-btn{color:var(--text)}
+.xmore-lab{font-size:13px;font-weight:600}
+
+/* tables: the frame's tables */
+table.t th{font-family:var(--font);font-size:var(--fs-s);text-transform:none;letter-spacing:0;color:var(--muted);font-weight:400;padding:0 8px 8px;border-bottom-color:var(--border)}
+table.t td{height:var(--rowh);padding:0 8px;border-bottom-color:var(--rule);font-size:13px}
+table.t th:first-child,table.t td:first-child{font-family:var(--font);background:var(--surface);padding-left:0}
+table.t tr.link:hover td{color:var(--text);background:var(--raised)}
+table.t tr.on td{background:var(--raised)}
+
+/* tiles: the frame's KPI blocks */
+.tile{background:var(--surface);border-color:var(--border);border-radius:var(--r-card);padding:14px 16px}
+.tile .tl{font-size:var(--fs-s);color:var(--muted)}
+.tile .tv{font-family:var(--font);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums}
+.tile .ts{font-family:var(--font);font-size:var(--fs-s)}
+
+/* the tooltip on the sheet's colours */
+#tip{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 8px 24px rgba(0,0,0,.14);font-size:13px}
+#tip b{color:var(--text)}
+#tip .k{font-family:var(--fig);color:var(--muted)}
+#tip .def{border-top-color:var(--rule);color:var(--muted)}
+#tip a{color:var(--sel);border-bottom-color:var(--sel)}
+
+/* the components hard-code Basketball Savant's gold (#C2A263) in charts and swatches; it means "a tendency"
+   or "his peak", so it takes the theme's tendency colour */
+[fill="#C2A263"]{fill:var(--tend)}
+[stroke="#C2A263"]{stroke:var(--tend)}
+[style*="background:#C2A263"]{background:var(--tend)!important}
+
+@media (max-width:760px){
+  .chips{margin-bottom:14px}
+  .id,.col{padding:16px}
+  .row{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"lab val btn" "bar bar bar";row-gap:6px;padding:7px 0}
+  .row.nochart{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"lab val" "bar bar"}
+  .rv small.u{display:inline;margin-left:4px}
+  .id-name{font-size:24px}
+  .wm{font-size:14px;max-width:150px}
+  .grid3{grid-template-columns:minmax(0,1fr)}
+  .col-h .q{margin-left:0}
+}
+/* the low-sample clock after a value: the row's tag already says "low sample", and under a unit it hangs alone */
+.row.un .rv::after{content:none}
 </style>
+<script src="/wce-nav.js" defer></script>
 </head>
 <body class="view-home anim">
-<nav class="sv-tabs" aria-label="College Basketball Coaching Savant sections"><a class="sv-tab on" href="#" data-tab="coaches">Coaches</a><a class="sv-tab" href="#leaders" data-tab="leaders">Leaders</a><a class="sv-tab" href="#tree" data-tab="tree">The tree</a><a class="sv-tab" href="/college-basketball-savant.html">College Basketball Savant</a><a class="sv-tab" href="/basketball-coaching-savant.html">Basketball Coaching Savant (NBA)</a></nav>
-<div class="wrap">
+<wce-nav style="display:block;min-height:60px"></wce-nav>
+<div class="app">
+  <a class="brand" href="#" aria-label="College Basketball Coaching Savant, home">
+    <svg class="mark" viewBox="0 0 28 28" aria-hidden="true"><rect class="mk-bg" x="0" y="0" width="28" height="28" rx="7"/><line class="mk-tr" x1="6" y1="10" x2="22" y2="10"/><line class="mk-tr" x1="6" y1="18" x2="22" y2="18"/><circle class="mk-b" cx="10" cy="10" r="2.6"/><circle class="mk-a" cx="18.5" cy="18" r="3.2"/></svg>
+    <span class="wm">College Basketball Coaching Savant<small>Western Conference Elitists</small></span>
+  </a>
+  <nav class="nav" id="nav" aria-label="Sections">
+    <a href="#" data-tab="coaches" title="Coaches" aria-current="page"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="3"/><path d="M2.5 14.5c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/></svg><span>Coaches</span></a>
+    <a href="#leaders" data-tab="leaders" title="Leaders"><svg viewBox="0 0 16 16"><path d="M2 13.5h12M4 11V7M8 11V3M12 11V5.5"/></svg><span>Leaders</span></a>
+    <a href="#tree" data-tab="tree" title="The tree"><svg viewBox="0 0 16 16"><circle cx="8" cy="3" r="1.6"/><circle cx="3.5" cy="13" r="1.6"/><circle cx="12.5" cy="13" r="1.6"/><path d="M8 4.6V8M8 8H3.5v3.4M8 8h4.5v3.4"/></svg><span>The tree</span></a>
+  </nav>
   <div class="top">
-    <div class="brandwrap">
-      <a class="wce" href="/" title="Back to WCE home">WCE</a>
-      <div><div class="brand-word">College Basketball Coaching <span>Savant</span></div>
-        <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap"><span class="eyebrow-pill" id="srcpill">live data</span><span class="vchip" id="verchip" title="Built by pipeline/college/coaching/build.py"></span><a class="backlink" href="/">&larr; wcehoops.com</a></div></div>
+    <button type="button" class="navtog" id="navtog" aria-controls="nav" aria-expanded="true" title="Collapse sidebar ( [ )"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="2"/><path d="M6 2.5v11"/><rect class="rl" x="2" y="3" width="3.5" height="10"/></svg><span class="vh">Collapse sidebar</span></button>
+    <span class="scope">Men's Division I head coaches</span>
+    <div class="search">
+      <svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="m9.5 9.5 3.5 3.5"/></svg>
+      <label class="vh" for="q">Search a head coach or assistant</label>
+      <input id="q" type="search" placeholder="Search a head coach or assistant…" autocomplete="off">
+      <div id="results" class="results" hidden></div>
     </div>
-    <div class="search"><input id="q" type="search" placeholder="Search a head coach or assistant…" autocomplete="off" aria-label="Search a coach"/><div id="results" class="results" hidden></div></div>
   </div>
+  <main class="main">
+    <div class="view">
   <div class="chips" id="chips" role="group" aria-label="Trending coaches"></div>
 
   <section class="home" id="home">
@@ -381,10 +585,14 @@ body.view-tree .home,body.view-tree .coach{display:none}
   </section>
   <section class="coach" id="coach"></section>
   <section class="treeview" id="treeview"></section>
+    </div>
+    <div class="wrap"><p class="foot"><span id="srcpill">live data</span> · <span id="verchip" title="Built by pipeline/college/coaching/build.py"></span> · Data: ESPN play-by-play and box scores, CollegeBasketballData, Wikipedia, the U.S. Department of Education (EADA); player and team numbers from <a href="/college-basketball-savant.html">College Basketball Savant</a>. Model outputs are the model's view, not a verdict.</p></div>
+  </main>
 </div>
 <div id="tip" role="tooltip"></div>
 <script>
 'use strict';
+var $=function(s){return document.querySelector(s);};
 const BASE = '/cbcs';
 const SAVANT = '/college-basketball-savant.html#player-';
 const CBB = '/college-basketball-savant.html';
@@ -412,10 +620,17 @@ let state = {mode:'career', base:'played', kind:'RS', game:null, season:null, al
 
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const miss = v => v === null || v === undefined || Number.isNaN(v);
+// fmt(code, v) prints a number; fmt(stat, v) prints it with the stat's unit ("1.16 PPP", "+7.1 per 100", "No. 49")
 function fmt(unit, v){
+  if (unit && typeof unit === 'object'){
+    const s = unit, t = fmt(s.unit, v);
+    return t === '—' || !s.u || s.u === '%' ? t : t + ' ' + s.u;
+  }
   if (miss(v)) return '—';
   v = +v;
   switch (unit){
+    case 'rank': return 'No. ' + Math.round(v);
+    case 'pctile': return ord(Math.round(v)) + ' percentile';
     case 'pct1': return v.toFixed(1) + '%';
     case 'num0': return String(Math.round(v));
     case 'num1': return v.toFixed(1);
@@ -429,7 +644,8 @@ const signed = (v, d=1) => miss(v) ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') 
 const pc1 = v => miss(v) ? '—' : (100 * v).toFixed(1) + '%';
 function mix(a, b, t){ const p = x => parseInt(x,16); const c = (i) => Math.round(p(a.slice(i,i+2)) + (p(b.slice(i,i+2)) - p(a.slice(i,i+2))) * t); return `rgb(${c(1)},${c(3)},${c(5)})`; }
 function gradeColor(p){ if (miss(p)) return '#C2C0B6'; const t = (p - 1) / 98; return t < .5 ? mix('#1C4E86', '#C2C0B6', t * 2) : mix('#C2C0B6', '#BC3A2C', (t - .5) * 2); }
-const muchColor = () => '#C2A263';
+// a tendency ("how much") bar takes the theme's tendency colour (tools/themes/<sport>/tokens.css)
+const muchColor = () => getComputedStyle(document.documentElement).getPropertyValue('--tend').trim() || '#8C8579';
 const ord = n => { const s = ['th','st','nd','rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
 const QN = ['1st','2nd','3rd','4th'];
 const teamName = (k) => IDX.teams[k]?.name || k;
@@ -547,7 +763,7 @@ function statTip(key, d){
 
 // ---------------------------------------------------------------- routing and the shell
 function syncTabs(view){
-  document.querySelectorAll('.sv-tab[data-tab]').forEach(t => t.classList.toggle('on', t.dataset.tab === view));
+  document.querySelectorAll('.nav a[data-tab]').forEach(t => { if (t.dataset.tab === view) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
 }
 function route(){
   const h = decodeURIComponent(location.hash.slice(1));
@@ -616,7 +832,7 @@ function renderTrends(){
     const vals = pts.map(p => p[1]); const lo = Math.min(...vals), hi = Math.max(...vals), pad = (hi - lo) * .15 || 1;
     const W = 300, H = 90, x = i => 30 + i * (W - 40) / (pts.length - 1), y = v => 10 + (H - 30) * (1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)));
     const d = pts.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ');
-    const u = STATS[k]?.unit || 'num1';
+    const u = STATS[k] || 'num1';
     return `<div><h3 class="lead-h"${tipAttr(statTip(k))}>${label}</h3><p class="lead-p">${pts[0][0]} → ${pts[pts.length-1][0]}: ${fmt(u, pts[0][1])} → ${fmt(u, pts[pts.length-1][1])}</p>
       <svg class="chart" viewBox="0 0 ${W} ${H}"><path d="${d}" fill="none" stroke="#22395A" stroke-width="2"/>${pts.map((p, i) => `<circle class="hit" cx="${x(i)}" cy="${y(p[1])}" r="3.5" fill="#C2A263"${tipAttr(`<b>${p[0]}</b><br>${esc(label)}: ${fmt(u, p[1])}<br><span class="k">league, games-weighted over every coach-season</span>`)}></circle>`).join('')}
       <text x="30" y="${H-4}" font-size="9" fill="#8B9099">${pts[0][0]}</text><text x="${W-10}" y="${H-4}" font-size="9" fill="#8B9099" text-anchor="end">${pts[pts.length-1][0]}</text></svg></div>`;
@@ -807,6 +1023,12 @@ function renderControls(sr){
     <div class="legend"><div class="legbox"><div class="legbar"></div><div class="ends"><span>poor</span><span>elite</span></div></div><div class="leg"><span class="goldswatch"></span>a tendency</div><div class="leg"><span class="hatchswatch"></span>under its settle point</div></div></div>`;
 }
 
+// the number, then its unit in a smaller face (config.U)
+function valHTML(s, v){
+  const t = fmt(s.unit, v);
+  return t === '—' || !s.u || s.u === '%' ? t : `${t}<small class="u">${esc(s.u)}</small>`;
+}
+
 // ---------------------------------------------------------------- the panels: Savant's card rows
 function statBtn(key, label){
   return `<button type="button" class="statbtn" data-stat="${key}" aria-expanded="false" title="Chart ${esc(label)} season by season" aria-label="Chart ${esc(label)} season by season"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 11.5L6 7l3 2.5L14 4"/><circle cx="2" cy="11.5" r="1.1"/><circle cx="6" cy="7" r="1.1"/><circle cx="9" cy="9.5" r="1.1"/><circle cx="14" cy="4" r="1.1"/></svg></button>`;
@@ -817,12 +1039,12 @@ function rowHTML(s, v, sr){
   const numLeft = shown > 88 ? `calc(${shown}% - 24px)` : `calc(${shown}% + 6px)`;
   return `<div class="row${un ? ' un' : ''}${miss(p) ? ' na' : ''}" data-k="${s.key}"${tipAttr(statTip(s.key, {v: v.v, pct: p, pool: v.pool, n: v.n, seasons: v.seasons, season: sr?.season}))}><div class="rl"><div class="name">${esc(s.label)}</div><div class="tag">${s.kind === 'good' ? 'how good' : 'how much'}${s.lower ? ' · lower is better' : ''}${un ? ' · low sample' : ''}${s.sub ? ' · ' + esc(s.sub) : ''}</div></div>
     <div class="track"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div><div class="fill" data-w="${miss(p) ? 0 : Math.max(p, 1.5)}" style="background:${col}"><div class="hatch"></div></div><div class="pnum" style="left:${numLeft}">${miss(p) ? '·' : p}</div></div>
-    <div class="rv">${fmt(s.unit, v.v)}</div>${statBtn(s.key, s.label)}</div>`;
+    <div class="rv">${valHTML(s, v.v)}</div>${statBtn(s.key, s.label)}</div>`;
 }
 // compare: the way player compare draws it, one thin bar per coach inside the track
 function cmpRowHTML(s, entries, sr){
   const bh = entries.length > 2 ? 12 : 14, gap = 4, pad = 5, trH = entries.length * bh + (entries.length - 1) * gap + 10;
-  const items = entries.map(e => { const v = e.rows[s.key]; return v ? {pct: miss(v.pct) ? 0 : v.pct, p: v.pct, txt: fmt(s.unit, v.v), v: v.v, n: v.n, pool: v.pool, nm: e.name} : {pct: 0, p: null, txt: '—', nm: e.name}; });
+  const items = entries.map(e => { const v = e.rows[s.key]; return v ? {pct: miss(v.pct) ? 0 : v.pct, p: v.pct, txt: fmt(s, v.v), v: v.v, n: v.n, pool: v.pool, nm: e.name} : {pct: 0, p: null, txt: '—', nm: e.name}; });
   const bars = items.map((it, i) => `<div class="cbar" style="top:${pad + i * (bh + gap)}px;height:${bh}px;width:${Math.max(it.pct, 1.5)}%;background:${CMP_COLORS[i]}">${it.pct >= 22 ? `<span class="cbar-lab">${esc(last(it.nm))}${it.p != null ? ' ' + it.p : ''}</span>` : ''}</div>`).join('');
   const vals = items.map((it, i) => `<div class="cv"><span class="cdot" style="background:${CMP_COLORS[i]}"></span>${it.txt}</div>`).join('');
   const tip = `<b>${esc(s.label)}</b><br>` + items.map((it, i) => `<span class="cdot" style="background:${CMP_COLORS[i]};margin-right:5px"></span>${esc(it.nm)}: <b>${it.txt}</b>${it.p != null ? ` ${s.kind === 'good' ? pbox(it.p) : goldbox(it.p)}<span class="k">of ${it.pool ?? '—'}</span>` : ' <span class="k">not ranked</span>'}`).join('<br>') + `<div class="def">${esc(s.what)}</div>`;
@@ -879,7 +1101,7 @@ function rcOpen(btn, key){
   const medPts = pts.map((p, i) => miss(p.med) ? null : `${X(i).toFixed(1)} ${Y(p.med).toFixed(1)}`);
   if (medPts.some(Boolean)) { let d = '', pen = false; medPts.forEach(m => { if (!m) { pen = false; return; } d += (pen ? 'L' : 'M') + m + ' '; pen = true; }); g += `<path class="rc-med" d="${d}"/>`; }
   g += `<path class="rc-ln" d="${line}"/>`;
-  pts.forEach((p, i) => { g += `<circle class="rc-pt hit" cx="${X(i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="3.6" fill="${p.pct == null ? '#22395A' : (s.kind === 'good' ? gradeColor(p.pct) : '#C2A263')}"${tipAttr(`<b>${p.s} ${esc(teamName(p.team))}</b><br>${esc(s.label)}: <b>${fmt(s.unit, p.v)}</b>${p.pct != null ? ` ${s.kind === 'good' ? pbox(p.pct) : goldbox(p.pct)}<span class="k">that season</span>` : ''}${miss(p.med) ? '' : `<br><span class="k">league median ${fmt(s.unit, p.med)}</span>`}<br><span class="k">sample ${Number(p.n).toLocaleString()}</span>`)}></circle>`; });
+  pts.forEach((p, i) => { g += `<circle class="rc-pt hit" cx="${X(i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="3.6" fill="${p.pct == null ? '#22395A' : (s.kind === 'good' ? gradeColor(p.pct) : '#C2A263')}"${tipAttr(`<b>${p.s} ${esc(teamName(p.team))}</b><br>${esc(s.label)}: <b>${fmt(s, p.v)}</b>${p.pct != null ? ` ${s.kind === 'good' ? pbox(p.pct) : goldbox(p.pct)}<span class="k">that season</span>` : ''}${miss(p.med) ? '' : `<br><span class="k">league median ${fmt(s, p.med)}</span>`}<br><span class="k">sample ${Number(p.n).toLocaleString()}</span>`)}></circle>`; });
   const first = pts[0], lastp = pts[pts.length - 1];
   host.innerHTML = head + `<svg class="rc-plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(s.label)} for ${esc(COACH.name)}, ${first.s} to ${lastp.s}">${g}</svg><div class="rc-note">${pts.length} seasons · ${first.s} → ${lastp.s} · dot colour = percentile that season · <span style="color:var(--gold)">- - -</span> league median</div>`;
 }
@@ -937,7 +1159,7 @@ function seasonScout(sr){
     for (const c of cands.slice(0, 2)) {
       const how = c.s.kind === 'much' ? (c.p >= 85 ? 'among the most' : 'among the least') : (c.p >= 85 ? 'among the best' : 'among the worst');
       const settled = c.n >= c.s.thr;
-      out.push({group: g, key: c.s.key, pct: c.p, value: c.v, n: c.n, settled, text: `${c.s.label}: ${fmt(c.s.unit, c.v)}, ${how} of ${pools[c.s.key] ?? '—'} coaches in ${sr.season} (${ord(c.p)} percentile), over ${Number(c.n).toLocaleString()} ${c.s.thr === 41 || c.s.thr === 82 ? 'games' : 'in the sample'}${settled ? '.' : `; it settles at ${c.s.thr.toLocaleString()}, so this can still move.`}`});
+      out.push({group: g, key: c.s.key, pct: c.p, value: c.v, n: c.n, settled, text: `${c.s.label}: ${fmt(c.s, c.v)}, ${how} of ${pools[c.s.key] ?? '—'} coaches in ${sr.season} (${ord(c.p)} percentile), over ${Number(c.n).toLocaleString()} ${c.s.thr === 41 || c.s.thr === 82 ? 'games' : 'in the sample'}${settled ? '.' : `; it settles at ${c.s.thr.toLocaleString()}, so this can still move.`}`});
     }
   }
   return out;
@@ -1304,7 +1526,7 @@ function renderManagement(sr){
   const c = COACH, S = sr ? [sr].filter(s => s.management) : c.seasons.filter(s => s.management);
   if (!S.length) return `<div class="col wide"><div class="empty">${sr ? `no play-by-play for ${sr.season}` : 'no play-by-play seasons for him'}</div></div>`;
   const cs = cardRows(sr);
-  const tile = (key, extra) => { const s = STATS[key], v = cs[key]; if (!s) return ''; return `<div class="tile"${tipAttr(statTip(key, v ? {v: v.v, pct: v.pct, pool: v.pool, n: v.n, seasons: v.seasons, season: sr?.season} : {}))}><div class="tl">${esc(s.label)}</div><div class="tv">${v ? fmt(s.unit, v.v) : '—'}<span style="font-size:12px;color:var(--faint)">${extra || ''}</span>${v && !miss(v.pct) ? `<span class="pb" style="background:${s.kind === 'good' ? gradeColor(v.pct) : '#C2A263'}">${v.pct}</span>` : ''}</div><div class="ts">${v && !miss(v.pct) ? `${ord(v.pct)} pct of ${v.pool}` : v ? 'not ranked' : 'no value'}${v && v.n < s.thr ? ' · small sample' : ''}</div></div>`; };
+  const tile = (key, extra) => { const s = STATS[key], v = cs[key]; if (!s) return ''; return `<div class="tile"${tipAttr(statTip(key, v ? {v: v.v, pct: v.pct, pool: v.pool, n: v.n, seasons: v.seasons, season: sr?.season} : {}))}><div class="tl">${esc(s.label)}</div><div class="tv">${v ? valHTML(s, v.v) : '—'}<span style="font-size:12px;color:var(--faint)">${extra || ''}</span>${v && !miss(v.pct) ? `<span class="pb" style="background:${s.kind === 'good' ? gradeColor(v.pct) : '#C2A263'}">${v.pct}</span>` : ''}</div><div class="ts">${v && !miss(v.pct) ? `${ord(v.pct)} pct of ${v.pool}` : v ? 'not ranked' : 'no value'}${v && v.n < s.thr ? ' · small sample' : ''}</div></div>`; };
   const ch = S.reduce((a, s) => { const x = s.management.challenges || {}; for (const k in x) a[k] = (a[k] || 0) + x[k]; return a; }, {});
   const runs = S.reduce((a, s) => { for (const [k, r] of Object.entries(s.management.runs || {})) { a[k] = a[k] || {to:[0,0], no:[0,0], lg:[0,0]}; if (r.to_ppp != null) { a[k].to[0] += r.to_ppp * r.to_n; a[k].to[1] += r.to_n; } if (r.no_ppp != null) { a[k].no[0] += r.no_ppp * r.no_n; a[k].no[1] += r.no_n; } const lg = IDX.league[s.season]?.runs?.[k]; if (lg != null && r.to_n) { a[k].lg[0] += lg * r.to_n; a[k].lg[1] += r.to_n; } } return a; }, {});
   const runRows = Object.entries(runs).map(([k, r]) => `<tr${tipAttr(`<b>Opponent run of ${k.replace('-', '–').replace(/–$/, '+')}</b><br>after his timeout: ${r.to[1] ? (r.to[0] / r.to[1]).toFixed(2) + ' points per possession over the next five, ' + r.to[1] + ' runs' : '—'}<br>when he let it ride: ${r.no[1] ? (r.no[0] / r.no[1]).toFixed(2) + ', ' + r.no[1] + ' runs' : '—'}<br>league, no timeout: ${r.lg[1] ? (r.lg[0] / r.lg[1]).toFixed(2) : '—'}`)}><td>Opponent run of ${k.replace('-', '–').replace(/–$/, '+')}</td><td>${r.to[1] ? (r.to[0] / r.to[1]).toFixed(2) + ci(r.to[1]) : '—'}</td><td>${r.to[1]}</td><td>${r.no[1] ? (r.no[0] / r.no[1]).toFixed(2) : '—'}</td><td>${r.no[1]}</td><td>${r.lg[1] ? (r.lg[0] / r.lg[1]).toFixed(2) : '—'}</td></tr>`).join('');
@@ -1399,7 +1621,7 @@ function renderArrival(){
     let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
     for (const g of [0, 25, 50, 75, 100]) svg += `<line x1="${x(g)}" x2="${x(g)}" y1="14" y2="${H - 24}" stroke="${g === 50 ? '#C4C0B6' : '#E4E1D9'}"/><text x="${x(g)}" y="${H - 10}" font-size="9" text-anchor="${g === 0 ? 'start' : g === 100 ? 'end' : 'middle'}" fill="#8A95A3">${g === 0 ? (W < 600 ? 'worst' : 'worst in the league') : g === 100 ? 'best' : g + 'th'}</text>`;
     ks.forEach((k, i) => {
-      const {v, p} = a.rows[k], s = STATS[k], y = 26 + 22 * i, u = s?.unit || 'num1';
+      const {v, p} = a.rows[k], s = STATS[k], y = 26 + 22 * i, u = s || 'num1';
       const lab = `${esc(s?.label || k)}${s?.lower ? ' ↓' : ''}`;
       svg += `<text x="${L - 10}" y="${y + 4}" font-size="${W < 600 ? 10 : 11}" text-anchor="end" fill="#1A2332" font-family="IBM Plex Sans"${tipAttr(statTip(k))}>${lab}</text>`;
       if (p[0] != null) svg += `<line x1="${x(p[0])}" y1="${y}" x2="${x(p[1])}" y2="${y}" stroke="#C4C0B6" stroke-width="2"/>`;
@@ -1766,14 +1988,14 @@ function renderHome(){
 }
 function renderTrends(){
   const el = document.getElementById('trends');
-  const keys = [['pace','Tempo'],['fg3r','3-point rate'],['tr_min','Minutes to D1 transfers'],['ret_min','Returning minutes'],['to_g','Timeouts per game'],['stability','Rotation stability']];
+  const keys = [['pace','Tempo'],['fg3r','3-point attempt rate'],['tr_min','Minutes to D1 transfers'],['ret_min','Returning minutes'],['to_g','Timeouts per game'],['stability','Rotation stability']];
   el.innerHTML = keys.map(([k, label]) => {
     const pts = IDX.trends.filter(t => !miss(t[k])).map(t => [t.season, t[k]]);
     if (pts.length < 2) return `<div><h3 class="lead-h">${label}</h3><div class="empty">${pts.length ? 'one season so far' : 'no seasons yet'}</div></div>`;
     const vals = pts.map(p => p[1]); const lo = Math.min(...vals), hi = Math.max(...vals), pad = (hi - lo) * .15 || 1;
     const W = 300, H = 90, x = i => 30 + i * (W - 40) / (pts.length - 1), y = v => 10 + (H - 30) * (1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)));
     const d = pts.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ');
-    const u = STATS[k]?.unit || 'num1';
+    const u = STATS[k] || 'num1';
     return `<div><h3 class="lead-h"${tipAttr(statTip(k))}>${label}</h3><p class="lead-p">${pts[0][0]} → ${pts[pts.length-1][0]}: ${fmt(u, pts[0][1])} → ${fmt(u, pts[pts.length-1][1])}</p>
       <svg class="chart" viewBox="0 0 ${W} ${H}"><path d="${d}" fill="none" stroke="#22395A" stroke-width="2"/>${pts.map((p, i) => `<circle class="hit" cx="${x(i)}" cy="${y(p[1])}" r="3.5" fill="#C2A263"${tipAttr(`<b>${p[0]}</b><br>${esc(label)}: ${fmt(u, p[1])}<br><span class="k">D1 median over coach-seasons with 15+ games</span>`)}></circle>`).join('')}
       <text x="30" y="${H-4}" font-size="9" fill="#8B9099">${pts[0][0]}</text><text x="${W-10}" y="${H-4}" font-size="9" fill="#8B9099" text-anchor="end">${pts[pts.length-1][0]}</text></svg></div>`;
@@ -2145,7 +2367,7 @@ function renderManagement(sr){
   const S = (sr ? [sr] : COACH.seasons).filter(s => s.management);
   if (!S.length) return `<div class="col wide"><div class="empty">${sr ? `no play-by-play for ${sr.season} (game management begins in 2013-14)` : 'no play-by-play seasons for him'}</div></div>`;
   const cs = cardRows(sr);
-  const tile = key => { const s = STATS[key], v = cs[key]; if (!s) return ''; return `<div class="tile"${tipAttr(statTip(key, v ? {v: v.v, pct: v.pct, pool: v.pool, n: v.n, seasons: v.seasons, season: sr?.season} : {}))}><div class="tl">${esc(s.label)}</div><div class="tv">${v ? fmt(s.unit, v.v) : '—'}${v && !miss(v.pct) ? `<span class="pb" style="background:${s.kind === 'good' ? gradeColor(v.pct) : '#C2A263'}">${v.pct}</span>` : ''}</div><div class="ts">${v && !miss(v.pct) ? `${ord(v.pct)} pct of ${v.pool}` : v ? 'not ranked' : 'no value'}${v && v.n < s.thr ? ' · small sample' : ''}</div></div>`; };
+  const tile = key => { const s = STATS[key], v = cs[key]; if (!s) return ''; return `<div class="tile"${tipAttr(statTip(key, v ? {v: v.v, pct: v.pct, pool: v.pool, n: v.n, seasons: v.seasons, season: sr?.season} : {}))}><div class="tl">${esc(s.label)}</div><div class="tv">${v ? valHTML(s, v.v) : '—'}${v && !miss(v.pct) ? `<span class="pb" style="background:${s.kind === 'good' ? gradeColor(v.pct) : '#C2A263'}">${v.pct}</span>` : ''}</div><div class="ts">${v && !miss(v.pct) ? `${ord(v.pct)} pct of ${v.pool}` : v ? 'not ranked' : 'no value'}${v && v.n < s.thr ? ' · small sample' : ''}</div></div>`; };
   const ch = S.reduce((a, s) => { a.n += s.management.challenges?.n || 0; a.won += s.management.challenges?.won || 0; return a; }, {n: 0, won: 0});
   const half = S.filter(s => !miss(s.management.halftime));
   return `<div class="col wide"><h3 class="sub">Timeouts, challenges and halftime</h3><p class="since">team-called timeouts only (TV timeouts are not his) · 2013-14 on · challenges 2025-26 on · ${sr ? sr.season : 'career'}</p>
@@ -2202,7 +2424,7 @@ function renderArrival(){
     let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
     for (const g of [0, 25, 50, 75, 100]) svg += `<line x1="${x(g)}" x2="${x(g)}" y1="14" y2="${H - 24}" stroke="${g === 50 ? '#C4C0B6' : '#E4E1D9'}"/><text x="${x(g)}" y="${H - 10}" font-size="9" text-anchor="${g === 0 ? 'start' : g === 100 ? 'end' : 'middle'}" fill="#8A95A3">${g === 0 ? 'lowest in D1' : g === 100 ? 'highest' : g + 'th'}</text>`;
     ks.forEach((k, i) => {
-      const {v, p} = a.rows[k], s = STATS[k], y = 26 + 22 * i, u = s?.unit || 'num1';
+      const {v, p} = a.rows[k], s = STATS[k], y = 26 + 22 * i, u = s || 'num1';
       svg += `<text x="${L - 10}" y="${y + 4}" font-size="${W < 600 ? 10 : 11}" text-anchor="end" fill="#1A2332" font-family="IBM Plex Sans"${tipAttr(statTip(k))}>${esc(s?.label || k)}${s?.lower ? ' ↓' : ''}</text>`;
       if (p[0] != null) svg += `<line x1="${x(p[0])}" y1="${y}" x2="${x(p[1])}" y2="${y}" stroke="#C4C0B6" stroke-width="2"/>`;
       if (p[2] != null) svg += `<line x1="${x(p[1])}" y1="${y}" x2="${x(p[2])}" y2="${y}" stroke="#C4C0B6" stroke-width="2" stroke-dasharray="3 3"/>`;
@@ -2361,6 +2583,12 @@ function seasonTabs(extra){
   const note = TFILE?.why ? `<div class="small" style="margin-bottom:6px">${esc(TFILE.why)}</div>` : '';
   return note + `<div class="tabs"><span class="pill" style="align-self:center">${srow?.season || state.season || ''} ${esc(tAbbr(srow?.team) || '')}</span>${extra || ''}</div>`;
 }
+var navtog=$('#navtog');
+function setNav(c,save){document.documentElement.classList.toggle('nav-collapsed',c);var t=c?'Expand sidebar':'Collapse sidebar';navtog.setAttribute('aria-expanded',String(!c));navtog.title=t+' ( [ )';navtog.querySelector('.vh').textContent=t;if(save){try{localStorage.setItem('cbs-nav',c?'1':'0');}catch(e){}}}
+navtog.addEventListener('click',function(){setNav(!document.documentElement.classList.contains('nav-collapsed'),true);});
+document.addEventListener('keydown',function(e){if(e.key!=='['||e.metaKey||e.ctrlKey||e.altKey)return;var t=e.target;if(t&&(t.isContentEditable||/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)))return;if(window.innerWidth>760){e.preventDefault();navtog.click();}});
+var saved=null;try{saved=localStorage.getItem('cbs-nav');}catch(e){}
+setNav(saved==null?window.innerWidth<1100:saved==='1',false);
 init();
 </script>
 </body>

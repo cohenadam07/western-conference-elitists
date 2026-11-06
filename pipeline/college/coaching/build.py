@@ -977,7 +977,7 @@ def leader_boards(careers, cpct, cpools, eligible, coaches, bundles, next_hc, I)
         unit = CF.BY_KEY[key]["unit"]
         return dict(id=id_, title=title, pool=f"head coaches with {CF.MIN_CAREER_SEASONS}+ seasons and {CF.MIN_CAREER_GAMES}+ games from {STATS_FROM}{', three seasons of this stat' if key in MD.SUMMED else ''}, career ({len(rows)})",
                     note=note, unit=unit, kind="coach", season=None,
-                    rows=[dict(id=c, name=coaches[c]["name"], value=v[0], display=fmtv(unit, v[0]) + (f" ({v[3]:+.1f} total)" if len(v) > 3 else ""), team=None, season=None) for c, v in rows[:n]])
+                    rows=[dict(id=c, name=coaches[c]["name"], value=v[0], display=fmtv(unit, v[0], CF.BY_KEY[key]["u"]) + (f" ({v[3]:+.1f} total)" if len(v) > 3 else ""), team=None, season=None) for c, v in rows[:n]])
 
     def season_board(id_, key, title, note, season, n=15, low=False):
         B = bundles.get(season)
@@ -989,7 +989,7 @@ def leader_boards(careers, cpct, cpools, eligible, coaches, bundles, next_hc, I)
         rows.sort(key=lambda r: ((r[1][0] if low else -r[1][0]), r[0]))
         unit = CF.BY_KEY[key]["unit"]
         return dict(id=id_, title=title, pool=f"{season} head coaches with {CF.MIN_LIVE_GAMES if season == CURRENT else CF.MIN_SEASON_GAMES}+ games and the stat's settle point ({len(rows)})", note=note, unit=unit, kind="season", season=season,
-                    rows=[dict(id=k[1], name=coaches.get(k[1], {}).get("name"), value=v[0], display=fmtv(unit, v[0]), team=I["names"].get(k[0], {}).get("abbr") or k[0], season=season) for k, v in rows[:n]])
+                    rows=[dict(id=k[1], name=coaches.get(k[1], {}).get("name"), value=v[0], display=fmtv(unit, v[0], CF.BY_KEY[key]["u"]), team=I["names"].get(k[0], {}).get("abbr") or k[0], season=season) for k, v in rows[:n]])
     boards = [
         career_board("w_roster", "w_roster", "Beat the roster model", "Wins per 30 games beyond what WCE's roster model expected from the players he had. The headline: it beat both naive baselines out of sample."),
         career_board("dev", "dev", "Best developers", "His players' change in Savant rate against D1's expected change for the same class step and level, minutes-weighted."),
@@ -999,7 +999,7 @@ def leader_boards(careers, cpct, cpools, eligible, coaches, bundles, next_hc, I)
         career_board("w_resources", "w_resources", "Wins above resources", "Wins per 30 beyond the roster model plus the fitted effect of spending. Kept off the headline; EADA misses NIL money from 2021-22."),
         career_board("net_roster", "net_roster", "Net above the roster", "Adjusted net rating minus the roster model's expected net, per 100 possessions."),
         career_board("recruit_hit", "recruit_hit", "Recruits who outplay their ranking", "His high-school recruits' first-season rate against what their recruit rank predicts."),
-        career_board("ato", "ato", "After-timeout offense", "Points per possession on the first possession after his own timeout."),
+        career_board("ato", "ato", "After his own timeouts", "Points per possession on the first possession after his own timeout (not College Basketball Savant's After timeouts, which counts either team's)."),
         career_board("halftime", "halftime", "Halftime adjusters", "Second-half net minus first-half net, per game."),
         career_board("winpct", "winpct", "Win %", "Every game under him in the stats era."),
         career_board("stability", "stability", "Most stable rotations", "Share of scripted minutes that went to script, 2023-24 on. A tendency."),
@@ -1041,10 +1041,16 @@ def did_more_with_less(careers, eligible, coaches, bundles):
                 rows=[dict(id=c, name=coaches[c]["name"], value=v, display=f"{v:+.1f} · spend {m:.0f}th pct", team=None, season=None) for c, v, m in rows[:25]])
 
 
-def fmtv(unit, v):
+def fmtv(unit, v, u=""):
+    """A value as the page prints it, with its unit (config.U)."""
     if v is None:
         return "—"
-    return {"pct1": f"{v:.1f}%", "num1": f"{v:.1f}", "num2": f"{v:.2f}", "sgn1": f"{v:+.1f}", "sgn2": f"{v:+.2f}", "num0": f"{v:.0f}"}.get(unit, str(v))
+    if unit == "rank":
+        return f"No. {v:.0f}"
+    if unit == "pctile":
+        return f"{v:.0f}{'th' if 10 <= round(v) % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(round(v) % 10, 'th')} percentile"
+    t = {"pct1": f"{v:.1f}%", "num1": f"{v:.1f}", "num2": f"{v:.2f}", "sgn1": f"{v:+.1f}", "sgn2": f"{v:+.2f}", "num0": f"{v:.0f}"}.get(unit, str(v))
+    return t + (f" {u}" if u and u != "%" else "")
 
 
 def nba_links(public):

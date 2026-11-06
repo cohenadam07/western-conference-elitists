@@ -195,6 +195,74 @@ at 6.4 MB (the limit is 15 MB). The page: 268 KB. The bundle for `cbcs-bundles`:
 - **The page was tested in headless Chromium**, not by a person in a real browser (the Chrome extension was not
   connected).
 
+## Nov 6, 2026 (later): one number per stat, the college theme, the season in progress
+
+**Shared stats now agree with College Basketball Savant.** Oklahoma 2025-26 showed after-timeout offense 1.16 here and
+1.171 there, clutch net -20.8 and -18.5. Measured across every team-season one coach ran start to finish, 25,365 of
+61,200 shared figures disagreed. The causes, and what changed:
+
+| stat | cause | now |
+|---|---|---|
+| clutch net | this page dropped clutch possessions the safe-lead rule also calls garbage (a four- or five-point game in its last seconds) and used net points per average possession; College Savant keeps them and subtracts the two ratings | College Savant's possessions and formula: Oklahoma -18.5 on both |
+| after-timeout offense | different things: College Savant counts the possession after either team's timeout and drops free-throw-first ones; this page counts his own timeouts, all of them | renamed **After his own timeouts**, explainer says how it differs (Oklahoma 1.16 here, 1.171 there) |
+| TOV%, TOV% allowed | play-by-play possessions here, the box estimate there | box estimate (FGA − OREB + TOV + 0.475 FTA) |
+| eFG% allowed, both Reb%, both FT rates | every game here, D1-against-D1 games there | D1-against-D1 games for every box rate |
+| Rim, Rim allowed | garbage time out here, in there | garbage time in, D1 games (`games.py` writes `zones` with garbage in) |
+| Mid | long twos here; College Savant's Mid adds paint shots away from the rim | renamed **Long-two rate**, explainer |
+| Three | box 3PA ÷ FGA here; located shots only there | renamed **3-point attempt rate**, explainer |
+| Off a make | includes made last free throws; College Savant splits them | renamed **After the opponent scores**, explainer |
+| transition, early offense | shares of shots and of possessions here; possessions and PPP there | explainers say so (names already differ) |
+| W–L | every game here, as the official record counts; D1 games there | explainer; the check compares the D1-only record |
+| net, offense, defense, pace, after a steal, after a defensive rebound | already the same | unchanged |
+
+`npm run check:savant-cbcoaching-shared` (`tools/savant-cbcoaching/shared.mjs`, in `check:savant`) compares every one
+of those figures for every team: 61,200 across the 15 completed seasons, all equal. It also fails if a stat College
+Savant measures differently shares College Savant's name or lacks an explainer. The season in progress is compared
+team by team where both sites hold the same games, and fails only if over 2% disagree: the two sites refresh
+separately, a refresh can land while a night's late games are on, and ESPN revises play-by-play afterwards. On this
+branch College Savant's copy is the 04:24 UTC refresh and the coaching data a 09:55 UTC pull: 4 teams skipped
+(their games differ: the earlier copy lacks Texas Tech v Bethune-Cookman, Nov 5, among others), 4,843 figures compared, 1 differs (Air Force's
+Nov 5 game against a non-D1 opponent: in the later pull ESPN's play-by-play for the opponent stops 3 points short
+of the final, so the play-by-play gate drops the game here and College Savant's earlier copy kept it). In the cloud
+both are built from one cache in one run.
+
+**The college theme.** The page now wears College Basketball Savant's look, read from `tools/themes/` (README there):
+the framed sheet, the collapsible left sidebar (Coaches, Leaders, The tree; `[` toggles it, the state is shared with
+College Savant), College Savant's tokens, type and bar style, the site ribbon above. Every section and number is
+where it was. Stat names wrap instead of being cut ("Top-seven minutes s…" before), and every value carries its unit
+("1.16 PPP", "+7.1 per 100", "2.9 a game", "No. 49"), from `U` in `config.py`, on the page, the Leaders boards, the
+scouting lines and the connector. College Savant's own page reads its tokens, frame and sidebar from the same files
+and is byte for byte what it was (`check:page-src`); `npm run check:themes` holds the NBA and football themes to their
+flagships.
+
+**The season in progress.** A coach page opens on 2026-27 when the coach has a row for it, with each row under its
+settle point tagged "low sample" and hatched; clutch net rating carries "mostly noise" (the `sub` tag).
+
+**For approval: the NBA and football themes on their coaching pages.** Not applied; `python3 tools/themes/preview.py
+public` builds both previews. Screenshots, before and after, at 1280 and 390 wide, are in `theme-shots/` (untracked).
+
+Basketball Coaching Savant in the NBA theme:
+1. The frame: the page sits on a white sheet over Basketball Savant's warm grey, with the sidebar (Coaches, Leaders,
+   The tree) in place of the pill tab bar; on a phone the sidebar becomes a bottom bar.
+2. The brand row (WCE badge, uppercase wordmark, "live data" and version pills, "← wcehoops.com") goes: the wordmark
+   moves to the sidebar in Newsreader, the pills to the footer, the back link to the ribbon that is already there.
+3. Search moves to the top bar.
+4. Section headings: Plex Sans 16px semibold instead of Newsreader 25px with a gold underline.
+5. Small labels (row tags, group headers, table headers, tile labels): sans, sentence case, instead of mono capitals.
+6. Rows: stat names wrap instead of being cut; under-sample bars hatched at 72% instead of washed grey.
+7. Tooltips: a white card instead of dark ink; segmented controls: light grey for the pressed button instead of navy.
+8. Cards keep their 14px corners; padding 24px; no hover shadow.
+9. Not included: units on values (the NBA registry has no `u` yet).
+
+Coaching Savant (football) in the football theme:
+1. The frame on Football Savant's grass: sidebar (Coaches, The tree) in light ink, the current section in flag yellow;
+   the page sits on a light sheet with a dark border and Football Savant's hard shadow, square corners.
+2. Everything inside the sheet is unchanged: its components are not the basketball coaching components, so the skin
+   does not apply. Its own header box (WCE badge, wordmark, search) stays inside the sheet, so the wordmark shows
+   twice; applying the theme for real would drop that box, as the college page did.
+3. No Leaders entry: the football page has none.
+4. On a phone the inner cards' offset shadows run to the sheet's right edge.
+
 ## The review list (spec §9)
 
 1. **Head-coach rows marked unconfirmed:** 751 in the stats era (13,027 in all, mostly tenure-list expansions before
@@ -217,5 +285,10 @@ at 6.4 MB (the limit is 15 MB). The page: 268 KB. The bundle for `cbcs-bundles`:
    to 82,000 with a note that it awaits Adam's approval.
 9. **`cbcs-bundles` is public** (pushed Nov 6): it carries no CBBD row, only WCE's numbers, EADA's public figures and
    Wikipedia facts, plus ESPN's and Wikipedia's coach birthdates, which the coach pages show anyway.
-10. **This page has no site ribbon** (`wce-nav`) and still carries two old tab links: its page-src was copied from
-    Basketball Coaching Savant's before that source had the ribbon. Adding it is a visible change, left for Adam.
+10. ~~This page has no site ribbon~~ Done Nov 6, 2026: the ribbon sits above the college frame and the two old tab
+    links are gone (below).
+11. **College Savant's "After timeouts" says "out of their own timeouts" but counts either team's** (`context.py`
+    takes every possession after a team timeout, `ato == 2`, whoever called it, and drops free-throw-first
+    possessions). Not changed here: it is College Savant's number on College Savant's page. Coaching's figure is now
+    named "After his own timeouts" and says how it differs. Fixing College Savant's label or its count is Adam's call.
+12. **The NBA and football themes** on their coaching pages, for approval (below). Nothing published.

@@ -2,13 +2,25 @@
 
 | file | what |
 |---|---|
-| `00-head.html` | doctype to the opening `<style>` |
-| `01-prototype.css` | the Framed sheet's CSS, as derived once from `design/college-basketball-savant-prototype.html` |
+| `00a-head.html` | doctype to the font link |
+| *(theme)* `college/fonts.html` | the Google Fonts link |
+| `00b-head.html` | the opening `<style>` |
+| `01a-prototype.css` | the note on the Framed sheet design |
+| *(theme)* `college/tokens.css` | the tokens: colour, scale, type, spacing, bars |
+| *(theme)* `shared/base.css` | base rules |
+| *(theme)* `shared/frame.css` | the frame: brand, top bar, search, collapsible sidebar, sheet |
+| `01c-blocks.css` | cards, percentile rows, tables, KPIs, tabs, charts, and the phone layout |
 | `02-starting-five.css` | the starting-five card row, as copied once from Basketball Savant's page |
 | `03-extra.css` | College Savant's own rules (1.0 to 1.3: shot charts, play context, rotation maps) |
 | `04-body.html` | the end of the style, the shell (nav, search, the views' mount points, the footer), the script tags |
-| `05-page.js` | the page's script (with 1.3.0's play context and 1.4.0's coach links and "coaches who used players like him") |
+| `05a-page.js` | the page's script up to the sidebar (with 1.3.0's play context and 1.4.0's coach links) |
+| *(theme)* `shared/sidebar.js` | the sidebar's collapse button, `[` shortcut and remembered state |
+| `05b-page.js` | the rest of the script |
 | `06-tail.html` | the closing tags |
+
+The *(theme)* rows live in `tools/themes/` (its README), shared with College Basketball Coaching Savant, and are
+listed in `ORDER` as `theme:<path>`. They were cut from this page's own files on Nov 6, 2026 without changing a
+byte of the published page, so changing one changes both pages: run both assemblers.
 
 **History (Nov 6, 2026).** The old assembler built the CSS by filtering the design prototype and cutting an excerpt
 out of the live `public/basketball-savant.html`, so an edit to Basketball Savant's page could change this page.

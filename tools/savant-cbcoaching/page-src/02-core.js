@@ -25,10 +25,17 @@ let state = {mode:'career', base:'played', kind:'RS', game:null, season:null, al
 
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const miss = v => v === null || v === undefined || Number.isNaN(v);
+// fmt(code, v) prints a number; fmt(stat, v) prints it with the stat's unit ("1.16 PPP", "+7.1 per 100", "No. 49")
 function fmt(unit, v){
+  if (unit && typeof unit === 'object'){
+    const s = unit, t = fmt(s.unit, v);
+    return t === '—' || !s.u || s.u === '%' ? t : t + ' ' + s.u;
+  }
   if (miss(v)) return '—';
   v = +v;
   switch (unit){
+    case 'rank': return 'No. ' + Math.round(v);
+    case 'pctile': return ord(Math.round(v)) + ' percentile';
     case 'pct1': return v.toFixed(1) + '%';
     case 'num0': return String(Math.round(v));
     case 'num1': return v.toFixed(1);
@@ -42,7 +49,8 @@ const signed = (v, d=1) => miss(v) ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') 
 const pc1 = v => miss(v) ? '—' : (100 * v).toFixed(1) + '%';
 function mix(a, b, t){ const p = x => parseInt(x,16); const c = (i) => Math.round(p(a.slice(i,i+2)) + (p(b.slice(i,i+2)) - p(a.slice(i,i+2))) * t); return `rgb(${c(1)},${c(3)},${c(5)})`; }
 function gradeColor(p){ if (miss(p)) return '#C2C0B6'; const t = (p - 1) / 98; return t < .5 ? mix('#1C4E86', '#C2C0B6', t * 2) : mix('#C2C0B6', '#BC3A2C', (t - .5) * 2); }
-const muchColor = () => '#C2A263';
+// a tendency ("how much") bar takes the theme's tendency colour (tools/themes/<sport>/tokens.css)
+const muchColor = () => getComputedStyle(document.documentElement).getPropertyValue('--tend').trim() || '#8C8579';
 const ord = n => { const s = ['th','st','nd','rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
 const QN = ['1st','2nd','3rd','4th'];
 const teamName = (k) => IDX.teams[k]?.name || k;
@@ -160,7 +168,7 @@ function statTip(key, d){
 
 // ---------------------------------------------------------------- routing and the shell
 function syncTabs(view){
-  document.querySelectorAll('.sv-tab[data-tab]').forEach(t => t.classList.toggle('on', t.dataset.tab === view));
+  document.querySelectorAll('.nav a[data-tab]').forEach(t => { if (t.dataset.tab === view) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
 }
 function route(){
   const h = decodeURIComponent(location.hash.slice(1));
@@ -229,7 +237,7 @@ function renderTrends(){
     const vals = pts.map(p => p[1]); const lo = Math.min(...vals), hi = Math.max(...vals), pad = (hi - lo) * .15 || 1;
     const W = 300, H = 90, x = i => 30 + i * (W - 40) / (pts.length - 1), y = v => 10 + (H - 30) * (1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)));
     const d = pts.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ');
-    const u = STATS[k]?.unit || 'num1';
+    const u = STATS[k] || 'num1';
     return `<div><h3 class="lead-h"${tipAttr(statTip(k))}>${label}</h3><p class="lead-p">${pts[0][0]} → ${pts[pts.length-1][0]}: ${fmt(u, pts[0][1])} → ${fmt(u, pts[pts.length-1][1])}</p>
       <svg class="chart" viewBox="0 0 ${W} ${H}"><path d="${d}" fill="none" stroke="#22395A" stroke-width="2"/>${pts.map((p, i) => `<circle class="hit" cx="${x(i)}" cy="${y(p[1])}" r="3.5" fill="#C2A263"${tipAttr(`<b>${p[0]}</b><br>${esc(label)}: ${fmt(u, p[1])}<br><span class="k">league, games-weighted over every coach-season</span>`)}></circle>`).join('')}
       <text x="30" y="${H-4}" font-size="9" fill="#8B9099">${pts[0][0]}</text><text x="${W-10}" y="${H-4}" font-size="9" fill="#8B9099" text-anchor="end">${pts[pts.length-1][0]}</text></svg></div>`;

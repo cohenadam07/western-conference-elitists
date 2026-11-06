@@ -35,14 +35,14 @@ function renderHome(){
 }
 function renderTrends(){
   const el = document.getElementById('trends');
-  const keys = [['pace','Tempo'],['fg3r','3-point rate'],['tr_min','Minutes to D1 transfers'],['ret_min','Returning minutes'],['to_g','Timeouts per game'],['stability','Rotation stability']];
+  const keys = [['pace','Tempo'],['fg3r','3-point attempt rate'],['tr_min','Minutes to D1 transfers'],['ret_min','Returning minutes'],['to_g','Timeouts per game'],['stability','Rotation stability']];
   el.innerHTML = keys.map(([k, label]) => {
     const pts = IDX.trends.filter(t => !miss(t[k])).map(t => [t.season, t[k]]);
     if (pts.length < 2) return `<div><h3 class="lead-h">${label}</h3><div class="empty">${pts.length ? 'one season so far' : 'no seasons yet'}</div></div>`;
     const vals = pts.map(p => p[1]); const lo = Math.min(...vals), hi = Math.max(...vals), pad = (hi - lo) * .15 || 1;
     const W = 300, H = 90, x = i => 30 + i * (W - 40) / (pts.length - 1), y = v => 10 + (H - 30) * (1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)));
     const d = pts.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ');
-    const u = STATS[k]?.unit || 'num1';
+    const u = STATS[k] || 'num1';
     return `<div><h3 class="lead-h"${tipAttr(statTip(k))}>${label}</h3><p class="lead-p">${pts[0][0]} → ${pts[pts.length-1][0]}: ${fmt(u, pts[0][1])} → ${fmt(u, pts[pts.length-1][1])}</p>
       <svg class="chart" viewBox="0 0 ${W} ${H}"><path d="${d}" fill="none" stroke="#22395A" stroke-width="2"/>${pts.map((p, i) => `<circle class="hit" cx="${x(i)}" cy="${y(p[1])}" r="3.5" fill="#C2A263"${tipAttr(`<b>${p[0]}</b><br>${esc(label)}: ${fmt(u, p[1])}<br><span class="k">D1 median over coach-seasons with 15+ games</span>`)}></circle>`).join('')}
       <text x="30" y="${H-4}" font-size="9" fill="#8B9099">${pts[0][0]}</text><text x="${W-10}" y="${H-4}" font-size="9" fill="#8B9099" text-anchor="end">${pts[pts.length-1][0]}</text></svg></div>`;
@@ -414,7 +414,7 @@ function renderManagement(sr){
   const S = (sr ? [sr] : COACH.seasons).filter(s => s.management);
   if (!S.length) return `<div class="col wide"><div class="empty">${sr ? `no play-by-play for ${sr.season} (game management begins in 2013-14)` : 'no play-by-play seasons for him'}</div></div>`;
   const cs = cardRows(sr);
-  const tile = key => { const s = STATS[key], v = cs[key]; if (!s) return ''; return `<div class="tile"${tipAttr(statTip(key, v ? {v: v.v, pct: v.pct, pool: v.pool, n: v.n, seasons: v.seasons, season: sr?.season} : {}))}><div class="tl">${esc(s.label)}</div><div class="tv">${v ? fmt(s.unit, v.v) : '—'}${v && !miss(v.pct) ? `<span class="pb" style="background:${s.kind === 'good' ? gradeColor(v.pct) : '#C2A263'}">${v.pct}</span>` : ''}</div><div class="ts">${v && !miss(v.pct) ? `${ord(v.pct)} pct of ${v.pool}` : v ? 'not ranked' : 'no value'}${v && v.n < s.thr ? ' · small sample' : ''}</div></div>`; };
+  const tile = key => { const s = STATS[key], v = cs[key]; if (!s) return ''; return `<div class="tile"${tipAttr(statTip(key, v ? {v: v.v, pct: v.pct, pool: v.pool, n: v.n, seasons: v.seasons, season: sr?.season} : {}))}><div class="tl">${esc(s.label)}</div><div class="tv">${v ? valHTML(s, v.v) : '—'}${v && !miss(v.pct) ? `<span class="pb" style="background:${s.kind === 'good' ? gradeColor(v.pct) : '#C2A263'}">${v.pct}</span>` : ''}</div><div class="ts">${v && !miss(v.pct) ? `${ord(v.pct)} pct of ${v.pool}` : v ? 'not ranked' : 'no value'}${v && v.n < s.thr ? ' · small sample' : ''}</div></div>`; };
   const ch = S.reduce((a, s) => { a.n += s.management.challenges?.n || 0; a.won += s.management.challenges?.won || 0; return a; }, {n: 0, won: 0});
   const half = S.filter(s => !miss(s.management.halftime));
   return `<div class="col wide"><h3 class="sub">Timeouts, challenges and halftime</h3><p class="since">team-called timeouts only (TV timeouts are not his) · 2013-14 on · challenges 2025-26 on · ${sr ? sr.season : 'career'}</p>
@@ -471,7 +471,7 @@ function renderArrival(){
     let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
     for (const g of [0, 25, 50, 75, 100]) svg += `<line x1="${x(g)}" x2="${x(g)}" y1="14" y2="${H - 24}" stroke="${g === 50 ? '#C4C0B6' : '#E4E1D9'}"/><text x="${x(g)}" y="${H - 10}" font-size="9" text-anchor="${g === 0 ? 'start' : g === 100 ? 'end' : 'middle'}" fill="#8A95A3">${g === 0 ? 'lowest in D1' : g === 100 ? 'highest' : g + 'th'}</text>`;
     ks.forEach((k, i) => {
-      const {v, p} = a.rows[k], s = STATS[k], y = 26 + 22 * i, u = s?.unit || 'num1';
+      const {v, p} = a.rows[k], s = STATS[k], y = 26 + 22 * i, u = s || 'num1';
       svg += `<text x="${L - 10}" y="${y + 4}" font-size="${W < 600 ? 10 : 11}" text-anchor="end" fill="#1A2332" font-family="IBM Plex Sans"${tipAttr(statTip(k))}>${esc(s?.label || k)}${s?.lower ? ' ↓' : ''}</text>`;
       if (p[0] != null) svg += `<line x1="${x(p[0])}" y1="${y}" x2="${x(p[1])}" y2="${y}" stroke="#C4C0B6" stroke-width="2"/>`;
       if (p[2] != null) svg += `<line x1="${x(p[1])}" y1="${y}" x2="${x(p[2])}" y2="${y}" stroke="#C4C0B6" stroke-width="2" stroke-dasharray="3 3"/>`;

@@ -158,10 +158,16 @@ def parse(season, ev):
         out.append([int(team == home), per, _r(start), _r(end), kind, ato, caller, int(pts), int(gflag), int(clutch), int(margin),
                     _r(first), fkind])
     rec["poss"] = out
-    # shots by team: zones, transition and the estimated clock, garbage out
+    # shots by team: zones, transition and the estimated clock, garbage out; and the zones again with
+    # garbage time in, which is how College Savant's shot diet (Rim / Mid / Three) counts them
     sh = {t: Counter() for t in teams}
+    zall = {t: Counter() for t in teams}
     for s in r["shots"]:
-        if s.get("g") or s["team"] not in sh:
+        if s["team"] not in sh:
+            continue
+        if s.get("zone") in ZONES:
+            zall[s["team"]][s["zone"] + "_a"] += 1
+        if s.get("g"):
             continue
         c = sh[s["team"]]
         z = s.get("zone")
@@ -172,6 +178,7 @@ def parse(season, ev):
         c["tr_a"] += int(bool(s.get("tr")))
         c["ast_m"] += int(bool(s.get("ast")) and bool(s["made"]))
     rec["shots"] = {t: dict(v) for t, v in sh.items()}
+    rec["zones"] = {t: dict(v) for t, v in zall.items()}
     if lineup_ok:
         # stints: period, start, end, home five, away five, garbage, then home and away counts (ON order)
         rec["stints"] = [[s[0], _r(s[1]), _r(s[2]), s[3], s[4], s[5]] + [_r(v, 1) for v in s[6:]] for s in r["stints"]]
