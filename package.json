@@ -23,7 +23,7 @@
     "check:savant-site": "node --test tools/savant-site/check.mjs",
     "check:savant-value": "node --test tools/savant-value/check.mjs",
     "check:savant-cleanup": "node --test tools/savant-cleanup/check.mjs",
-    "check:savant": "node --test tools/page-assembly/check.mjs && node --test tools/themes/check.mjs && node --test tools/savant-api/check.mjs && node --test tools/savant-api/more.mjs && node --test tools/savant-mcp/check.mjs && node --test tools/savant-mcp/query.mjs && node --test tools/savant-mcp/coverage.mjs && node --test tools/savant-football/check.mjs && node --test tools/savant-football/more.mjs && node --test tools/savant-ufc/check.mjs && node --test tools/savant-coaching/check.mjs && node --test tools/savant-bcoaching/check.mjs && node --test tools/savant-draft/check.mjs && node --test tools/savant-site/check.mjs && node --test tools/savant-value/check.mjs && node --test tools/savant-cleanup/check.mjs && node --test tools/savant-cbb/check.mjs && node --test tools/savant-cbb/value.mjs && node --test tools/savant-cbb/questions.mjs && node --test tools/savant-cbb/context.mjs && node --test tools/savant-cbcoaching/check.mjs && node --test tools/savant-cbcoaching/shared.mjs",
+    "check:savant": "node --test --test-concurrency=1 tools/page-assembly/check.mjs tools/themes/check.mjs tools/savant-api/check.mjs tools/savant-api/more.mjs tools/savant-mcp/check.mjs tools/savant-mcp/query.mjs tools/savant-mcp/coverage.mjs tools/savant-football/check.mjs tools/savant-football/more.mjs tools/savant-ufc/check.mjs tools/savant-coaching/check.mjs tools/savant-bcoaching/check.mjs tools/savant-draft/check.mjs tools/savant-site/check.mjs tools/savant-value/check.mjs tools/savant-cleanup/check.mjs tools/savant-cbb/check.mjs tools/savant-cbb/value.mjs tools/savant-cbb/questions.mjs tools/savant-cbb/context.mjs tools/savant-cbcoaching/check.mjs tools/savant-cbcoaching/shared.mjs",
     "check:players": "node --test tools/players/check.mjs",
     "check:seo": "node --test tools/seo/check.mjs",
     "check:whats-new": "node --test tools/whats-new/check.mjs",
@@ -35,7 +35,7 @@
     "check:savant-cbcoaching-shared": "node --test tools/savant-cbcoaching/shared.mjs",
     "check:themes": "node --test tools/themes/check.mjs",
     "check:page-src": "node --test tools/page-assembly/check.mjs",
-    "check:savant-cbb": "node --test tools/savant-cbb/check.mjs && node --test tools/savant-cbb/value.mjs && node --test tools/savant-cbb/questions.mjs && node --test tools/savant-cbb/context.mjs",
+    "check:savant-cbb": "node --test --test-concurrency=1 tools/savant-cbb/check.mjs tools/savant-cbb/value.mjs tools/savant-cbb/questions.mjs tools/savant-cbb/context.mjs",
     "check:savant-query": "node --test tools/savant-mcp/query.mjs",
     "check:freshness": "node tools/savant-mcp/freshness.mjs"
   },

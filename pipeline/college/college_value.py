@@ -422,13 +422,18 @@ def apply_doc(doc, season, m=None):
 
 def dump():
     """The Python's own answer for every player, recomputed from the model, for the check to hold the
-    published files, the page's math and the connector to."""
+    published files, the page's math and the connector to. Finished seasons only: one in progress is
+    rebuilt every day, so a dump of it is stale by the next refresh and the check holds it to its own
+    structure instead (tools/savant-cbb/value.mjs)."""
     m = json.load(open(MODEL))
     out = {}
     for s in C.SEASONS:
         p = os.path.join(PUBLIC, "cbb", "s", f"{s}.json.gz")
         if not os.path.exists(p):
             continue
+        with gzip.open(os.path.join(PUBLIC, "cbb", "allsavant", f"{s}.json.gz")) as fh:
+            if not json.load(fh).get("final"):
+                continue
         d = read_doc(s)
         apply_doc(d, s, m)
         out[s] = {"ids": [x[0] for x in d["players"]], "value": d["values"]["value"]["r"], "repl": d["repl"]}
