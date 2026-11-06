@@ -157,9 +157,10 @@ KenPom or EvanMiya data. Ages are not used: the only college birthdate source on
 - **Halftime adjustment's D1 mean is exactly zero** (each game's two sides cancel), so it is each coach's raw second-half
   minus first-half net.
 - **Player development** needed a season-pair step: 2021-22 sat 0.48 below the rest (the extra year of eligibility).
-- **College Savant's `tools/savant-cbb/page-src` predates its 1.3.0.** Running its `assemble.py` dropped 1.3.0's play
-  context and shot charts from the page (found by the diff, reverted). This build's two additions were made to the
-  published HTML; the page source still needs bringing up to date.
+- **College Savant's `tools/savant-cbb/page-src` predated its 1.3.0.** Running its assembler dropped 1.3.0's play
+  context and shot charts from the page (found by the diff, reverted). Fixed later on Nov 6: every page built from a
+  page-src folder now reproduces its published page byte for byte, and `npm run check:page-src` (first in
+  `check:savant`) fails on one byte of drift. See each `page-src/README.md`.
 
 ## The refresh
 
@@ -216,4 +217,5 @@ at 6.4 MB (the limit is 15 MB). The page: 268 KB. The bundle for `cbcs-bundles`:
    to 82,000 with a note that it awaits Adam's approval.
 9. **`cbcs-bundles` is public** (pushed Nov 6): it carries no CBBD row, only WCE's numbers, EADA's public figures and
    Wikipedia facts, plus ESPN's and Wikipedia's coach birthdates, which the coach pages show anyway.
-10. **College Savant's stale page source** (above).
+10. **This page has no site ribbon** (`wce-nav`) and still carries two old tab links: its page-src was copied from
+    Basketball Coaching Savant's before that source had the ribbon. Adding it is a visible change, left for Adam.

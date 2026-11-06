@@ -63,3 +63,50 @@ a.ast-card:hover{text-decoration:none}
    under it, and the sidebar sticks just below it instead of under it. */
 .app{min-height:calc(100vh - var(--wce-nav-h,60px))}
 @media (min-width:761px){html .nav{top:var(--wce-nav-h,0px)}}
+
+/* play context (from 2025-26) and rotation maps (from 2023-24), 1.3 */
+.ctxg{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:20px 32px;align-items:start}
+@container (max-width:780px){.ctxg{grid-template-columns:minmax(0,1fr)}}
+.shot{display:block;width:100%;height:auto;max-width:440px;margin:0 auto}
+.shot .cbg{fill:var(--courtbg)}
+.shot .ln{fill:none;stroke:#6B717B;stroke-width:1.5;opacity:.75}
+.shot .mu{fill:var(--control);opacity:.6}
+.shot rect.sq{stroke:var(--surface);stroke-width:.75}
+.lgm{display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--control);margin-right:6px;vertical-align:-1px}
+.lgsz{display:inline-flex;align-items:flex-end;gap:2px;margin-right:6px;vertical-align:-1px}
+.lgsz i{display:inline-block;background:var(--faint);border-radius:1px}
+.shot-leg{margin-top:10px}
+.tbl td small.d1,.tbl td small.sub2{display:block;color:var(--muted);font-size:11px;line-height:1.25;font-family:var(--font)}
+.tbl td.vs,.tbl td.vs:last-child{font-weight:500;padding-left:8px;padding-right:8px}
+.show-s,.tbl td small.show-s{display:none}
+.tbl td .tag{margin-left:6px}
+.tbl tr.tot td{border-top:1px solid var(--border);font-weight:500}
+.ctxnote{color:var(--muted);font-size:var(--fs-s);margin:10px 0 0;max-width:860px}
+.ctxh{font-size:13px;font-weight:600;padding-bottom:6px;margin:22px 0 4px;border-bottom:1px solid var(--border)}
+.ctxh:first-child{margin-top:4px}
+.ctxh small{font-weight:400;color:var(--muted);margin-left:6px;font-size:12px}
+.kv dd small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.kv dd .tag{margin-left:6px}
+.tag.ss{background:#F4ECDA;color:#6B531C}
+.lgrot{display:inline-block;width:92px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--track),var(--hue));margin:0 8px;vertical-align:0}
+.rmw{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;border:1px solid var(--rule);border-radius:var(--r-ctl);margin-top:8px}
+.rm{min-width:720px;padding:4px 0}
+.rmr{display:grid;grid-template-columns:150px repeat(20,minmax(13px,1fr)) 10px repeat(20,minmax(13px,1fr)) 64px;column-gap:2px;align-items:center;height:30px}
+.rmr .nm{position:sticky;left:0;z-index:1;background:var(--surface);height:100%;display:flex;align-items:center;padding:0 8px 0 10px;min-width:0;font-size:13px;box-shadow:6px 0 6px -6px rgba(20,26,32,.18)}
+.rmr .nm a,.rmr .nm span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.rmr i{display:block;height:22px;border-radius:2px;cursor:crosshair}
+.rmr i.ht{height:100%;border-radius:0;background:linear-gradient(var(--control),var(--control)) center/1px 100% no-repeat;cursor:default}
+.rmr i.sel{outline:2px solid var(--text);outline-offset:0}
+.rmr .mp{text-align:right;padding-right:10px;font-family:var(--fig);font-variant-numeric:tabular-nums;font-size:13px}
+.rmr.rmh{height:22px;color:var(--muted);font-family:var(--fig);font-size:11px}
+.rmr.rmh span{overflow:visible;white-space:nowrap}
+.rmr.rmh .nm,.rmr.rmh .mp{font-family:var(--font);font-size:11px;box-shadow:none}
+.rmr.rmh2{height:18px;color:var(--muted);font-size:11px}
+.rm-read{min-height:20px;margin:10px 0 0;color:var(--text);font-size:13px}
+@media (max-width:760px){
+  .rm{min-width:0;width:max-content}
+  span.show-s{display:inline}
+  .tbl td small.show-s{display:block}
+  .rmr{grid-template-columns:112px repeat(20,15px) 8px repeat(20,15px) 52px;height:32px}
+  .rmr .nm{font-size:12.5px;padding-left:8px}
+}

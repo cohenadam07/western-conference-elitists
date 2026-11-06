@@ -185,8 +185,8 @@ talent · above the market, honours as chips, "+ Compare", the career-arc dropdo
 peak), its controls bar (the season dropdown, "ranked against", the poor→elite legend), its card
 rows with the chart glyph, its two-column panels with "MORE … (n stats)" toggles, and its compare
 bars are copied rule for rule from `public/basketball-savant.html`, so the two pages read as one
-tool. The page is assembled from `tools/savant-bcoaching/page-src/` (concatenate the files in
-order); the Playwright pass (`tools/savant-bcoaching/shoot.py`) now also captures the matching
+tool. The page is assembled from `tools/savant-bcoaching/page-src/` by `tools/savant-bcoaching/assemble.py`
+(added Nov 6, 2026; edit page-src and run it, never the published page: `npm run check:page-src`); the Playwright pass (`tools/savant-bcoaching/shoot.py`) now also captures the matching
 player page for a side-by-side at 1280 and 390 wide.
 
 - **Panels**: Results and expectation across the top; then Rotation and lineups | Game management;

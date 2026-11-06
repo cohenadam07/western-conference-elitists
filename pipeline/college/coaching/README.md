@@ -66,5 +66,6 @@ Check: `npm run check:savant-cbcoaching` (also inside `check:savant`).
   player's old team's net beside his rate (R² .62 to .74). For a returner that includes last season's team.
 - **No CBBD row leaves the Mac.** `public/cbcs` and the cloud bundle carry WCE's numbers only; the check scans
   every published file for CBBD's field names.
-- **College Savant's `tools/savant-cbb/page-src` predates its 1.3.0**, which was edited straight into the HTML.
-  Running its `assemble.py` drops 1.3.0. This build's two additions were made to the published HTML too.
+- **Pages are assembled, never edited.** `public/college-basketball-coaching-savant.html` is
+  `tools/savant-cbcoaching/assemble.py`'s output; edit `page-src` and run it. `npm run check:page-src` fails on one
+  byte of difference (College Savant's page and the NBA coaching page had drifted that way until Nov 6, 2026).
