@@ -2,7 +2,7 @@
 
 Every men's Division I head coach, judged from the floor up, paired with College Basketball Savant and built in
 Basketball Coaching Savant's clothes. Built Nov 5–6, 2026 in one run on branch `college-basketball-coaching-savant`
-(worktree `.claude/worktrees/cbcs`, from `origin/main` at `dd5da2e92`). **Not merged; nothing pushed.** Adam reviews
+(worktree `.claude/worktrees/cbcs`, from `origin/main` at `dd5da2e92`). **Pushed, not merged** (Nov 6, at Adam's request: the branch and `cbcs-bundles`). Adam reviews
 and merges, and the connector changes need his approval first (standing rule).
 
 | where | what |
@@ -60,9 +60,10 @@ College Savant's `config.VERSION` to 1.4.0, the coverage manifest.
 **The refresh:** `cloud_cbcs.py refresh` rides College Savant's nightly cloud run (`cloud_run.sh`: seeded from a new
 `cbcs-bundles` branch, run after College Savant's refresh, a failure is a warning and never blocks College Savant; it
 builds beside `public/` and swaps in only on success). EADA is yearly and CBBD is not called by the refresh at all.
-**The `cbcs-bundles` branch has not been pushed**: until Adam pushes it (`python3 cloud_cbcs.py bundle <dir>`, then the
-same `git fetch <dir> HEAD && git push -f origin FETCH_HEAD:refs/heads/cbcs-bundles` as `cbb-bundles`), the cloud step
-logs "skipped" and the page keeps the Mac's build.
+**`cbcs-bundles` is pushed** (`2895fa7ee`, a parentless commit built from `~/Basketball-Savant/out/cbcs-bundle`, 92 MB,
+scanned for CBBD fields). The coaching step lives in this branch's `cloud_run.sh`, so the cloud starts refreshing
+the page once the branch is merged. To republish after a Mac rebuild: `python3 cloud_cbcs.py bundle <dir>`, commit it
+there, then `git fetch <dir> HEAD && git push -f origin FETCH_HEAD:refs/heads/cbcs-bundles` (the `cbb-bundles` way).
 
 ## Every check and its result
 
@@ -213,6 +214,6 @@ at 6.4 MB (the limit is 15 MB). The page: 268 KB. The bundle for `cbcs-bundles`:
    every season, the 0.1–2.6% of games without logged TV timeouts.
 8. **The connector's upfront size** is now 81,667 characters; `tools/savant-mcp/check.mjs` raises the limit from 77,000
    to 82,000 with a note that it awaits Adam's approval.
-9. **Pushing `cbcs-bundles`** (a public branch: the bundle carries no CBBD row, only WCE's numbers, EADA's public
-   figures and Wikipedia facts) before the cloud refresh can run.
+9. **`cbcs-bundles` is public** (pushed Nov 6): it carries no CBBD row, only WCE's numbers, EADA's public figures and
+   Wikipedia facts, plus ESPN's and Wikipedia's coach birthdates, which the coach pages show anyway.
 10. **College Savant's stale page source** (above).
