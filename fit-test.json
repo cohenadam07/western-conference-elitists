@@ -1,0 +1,29 @@
+{
+ "n": 2823,
+ "rmse_fit": 3.563107932270953,
+ "rmse_roster_model": 3.5424742539483107,
+ "folds": {
+  "2021-22": {
+   "n": 411,
+   "slope_on_fit": 0.746
+  },
+  "2022-23": {
+   "n": 447,
+   "slope_on_fit": 0.667
+  },
+  "2023-24": {
+   "n": 521,
+   "slope_on_fit": 0.526
+  },
+  "2024-25": {
+   "n": 676,
+   "slope_on_fit": 0.705
+  },
+  "2025-26": {
+   "n": 768,
+   "slope_on_fit": 0.869
+  }
+ },
+ "slope_positive_every_fold": true,
+ "ships_as": "similar players under him"
+}

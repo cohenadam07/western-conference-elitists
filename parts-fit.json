@@ -1,0 +1,14 @@
+{
+ "b": 1.7107,
+ "train_units": 2012,
+ "test_units": 1227,
+ "rmse_projection": 20.915941861092907,
+ "rmse_team_net": 20.926660773759668,
+ "validated": false,
+ "leaky_first_try": {
+  "rmse_projection": 21.591,
+  "rmse_team_net": 22.089,
+  "note": "same-season rates, which include the test games"
+ },
+ "label": "unvalidated: the parts barely beat the team's own net out of sample"
+}
