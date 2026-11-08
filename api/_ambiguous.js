@@ -70,3 +70,39 @@ export function notFoundNote(tool) {
 }
 
 export const SHARED_NAMES = SHARED
+
+// The thirty codes and the names nba.com gives them (LA Clippers, not Los Angeles).
+export const FULL_NAME = {
+  ATL: 'Atlanta Hawks', BOS: 'Boston Celtics', BKN: 'Brooklyn Nets', CHA: 'Charlotte Hornets', CHI: 'Chicago Bulls', CLE: 'Cleveland Cavaliers',
+  DAL: 'Dallas Mavericks', DEN: 'Denver Nuggets', DET: 'Detroit Pistons', GSW: 'Golden State Warriors', HOU: 'Houston Rockets', IND: 'Indiana Pacers',
+  LAC: 'LA Clippers', LAL: 'Los Angeles Lakers', MEM: 'Memphis Grizzlies', MIA: 'Miami Heat', MIL: 'Milwaukee Bucks', MIN: 'Minnesota Timberwolves',
+  NOP: 'New Orleans Pelicans', NYK: 'New York Knicks', OKC: 'Oklahoma City Thunder', ORL: 'Orlando Magic', PHI: 'Philadelphia 76ers', PHX: 'Phoenix Suns',
+  POR: 'Portland Trail Blazers', SAC: 'Sacramento Kings', SAS: 'San Antonio Spurs', TOR: 'Toronto Raptors', UTA: 'Utah Jazz', WAS: 'Washington Wizards',
+}
+const CODE_OF = (() => {
+  const m = {}
+  const code = Object.fromEntries(Object.entries(FULL_NAME).map(([c, n]) => [key(n), c]))
+  for (const [c, n] of Object.entries(FULL_NAME)) {
+    m[key(n)] = c
+    const words = n.split(' ')
+    m[key(words[words.length - 1])] = c                      // the nickname: Thunder, Celtics, 76ers
+    m[key(words.slice(0, -1).join(' '))] = m[key(words.slice(0, -1).join(' '))] === undefined ? c : null   // the city, unless two share it
+  }
+  m.trailblazers = m.blazers = 'POR'
+  m.la = m.losangeles = null                                  // the Lakers and the Clippers: not a team
+  for (const [k, v] of Object.entries(NBA)) if (code[key(v)]) m[k] = code[key(v)]
+  for (const [k, [nba]] of Object.entries(SHARED)) if (code[key(nba)]) m[k] = code[key(nba)]   // "Oklahoma" -> OKC (and the note asks)
+  return m
+})()
+
+// A team argument as a three-letter code: a code, a full name, a nickname, a city, or a name the NBA
+// shares with a college ("Oklahoma", which also gets the note). Any other short code passes through
+// as given (historical ones: SEA, NJN). null when it names no NBA team, or two ("LA").
+export function nbaCode(q) {
+  const s = String(q || '').trim()
+  if (!s) return null
+  if (FULL_NAME[s.toUpperCase()]) return s.toUpperCase()
+  const k = key(s)
+  if (k in CODE_OF) return CODE_OF[k]
+  return /^[A-Za-z]{2,3}$/.test(s) ? s.toUpperCase() : null
+}

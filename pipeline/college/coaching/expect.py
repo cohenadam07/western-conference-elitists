@@ -327,20 +327,7 @@ def run(log=print):
                 else:
                     p = phi(((pred[(s, t)]["exp_net"] - on) * POSS_PER_PT + edge) / sig)
                 e["exp_w"] += p
-                sp = (g.get("line") or {}).get("spread")
-                if sp is None:
-                    sp = lines.get(g["gid"])
-                if sp is not None:
-                    own = sp if home else -sp            # home spread, so the team's own number
-                    pw = curve(own)
-                    e["spread_g"] += 1
-                    e["w_spread"] += won - pw
-                    m = pts - opp + own
-                    e["ats_pts"] += m
-                    if m > 0:
-                        e["ats_w"] += 1
-                    elif m < 0:
-                        e["ats_l"] += 1
+                add_spread(e, g, home, lines, curve)
     for k, e in out.items():
         s, t = e["season"], e["team"]
         e["sigma"] = None
@@ -430,6 +417,39 @@ def spread_curve(seasons):
     curve.slope = slope
     curve.n = len(x)
     return curve
+
+
+def add_spread(e, g, home, lines, curve):
+    """One game into a team-season's record against the spread (spread_g, w_spread, ats_w, ats_l, and
+    ats_pts as a sum). The one rule for expect.py and for build.py's season in progress."""
+    sp = (g.get("line") or {}).get("spread")
+    if sp is None:
+        sp = lines.get(g["gid"])
+    if sp is None:
+        return
+    pts, opp = (g["hs"], g["as_"]) if home else (g["as_"], g["hs"])
+    own = sp if home else -sp            # home spread, so the team's own number
+    e["spread_g"] += 1
+    e["w_spread"] += (pts > opp) - curve(own)
+    m = pts - opp + own
+    e["ats_pts"] += m
+    if m > 0:
+        e["ats_w"] += 1
+    elif m < 0:
+        e["ats_l"] += 1
+
+
+def spread_record(G, lines, curve):
+    """Every team's record against the spread over these games: {team: dict(spread_g, covered, ats_l,
+    ats_pts per game, w_spread)}, regular season and postseason, as expect.py counts it."""
+    acc = {}
+    for g in G:
+        if g["stype"] != 2 and g["stype"] != 3:
+            continue
+        for t, home in ((g["home"], True), (g["away"], False)):
+            add_spread(acc.setdefault(t, dict(spread_g=0, w_spread=0.0, ats_w=0, ats_l=0, ats_pts=0.0)), g, home, lines, curve)
+    return {t: dict(spread_g=e["spread_g"], covered=e["ats_w"], ats_l=e["ats_l"], w_spread=round(e["w_spread"], 2),
+                    ats_pts=round(e["ats_pts"] / e["spread_g"], 2) if e["spread_g"] else None) for t, e in acc.items()}
 
 
 def load():

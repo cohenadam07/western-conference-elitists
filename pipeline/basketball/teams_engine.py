@@ -59,6 +59,19 @@ def _teams():
     return {t["id"]: t for t in static_teams.get_teams()}
 
 
+NBA_COM_NAME = {"LAC": "LA Clippers"}     # nba_api's static list says Los Angeles Clippers; nba.com's tables don't
+
+
+def team_name(name, meta):
+    """The team's name as the season had it. In the cloud the season in progress comes through
+    espn_shim.py, which gives the code ("OKC") as TEAM_NAME: then the franchise's full name. Older
+    seasons keep their own (Seattle SuperSonics, not Oklahoma City Thunder)."""
+    name = str(name or "")
+    if (not name or name == meta.get("abbreviation")) and meta.get("full_name"):
+        return NBA_COM_NAME.get(meta.get("abbreviation"), meta["full_name"])
+    return name
+
+
 def _f(x):
     try:
         v = float(x)
@@ -152,7 +165,7 @@ def build_teams(season):
         gp = int(a["GP"])
         pyth = lambda o_, d_: (o_ ** PYTH) / (o_ ** PYTH + d_ ** PYTH) if o_ and d_ else None
         p_w, x_w = pyth(ortg, drtg), pyth(ortg, adj_d)
-        t = dict(id=tid, abbr=meta.get(tid, {}).get("abbreviation", ""), name=str(a["TEAM_NAME"]), gp=gp, w=int(a["W"]), l=int(a["L"]),
+        t = dict(id=tid, abbr=meta.get(tid, {}).get("abbreviation", ""), name=team_name(a["TEAM_NAME"], meta.get(tid, {})), gp=gp, w=int(a["W"]), l=int(a["L"]),
                  ortg=ortg, drtg=drtg, net=_f(a["NET_RATING"]), pace=_f(a["PACE"]), poss=round(poss),
                  adjd=round(adj_d, 2) if adj_d is not None else None,
                  adjnet=round(ortg - adj_d, 2) if ortg is not None and adj_d is not None else None,

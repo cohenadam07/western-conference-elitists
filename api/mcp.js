@@ -227,7 +227,8 @@ export function buildServer(key = { state: 'none' }) {
         const result = turnBack ? { isError: true, content: [{ type: 'text', text: turnBack }] } : await answer(() => tool.run(args))
         // "Oklahoma" is the Thunder and the Sooners: say which one this is, and to ask if unclear.
         const t0 = result.content && result.content[0]
-        if (t0 && !result.isError) { const n = teamNote(tool.name, args); if (n) t0.text = `${n}\n\n${t0.text}` }
+        // On an error too: a bare shared name always gets the ask, whatever else went wrong (Nov 2026).
+        if (t0) { const n = teamNote(tool.name, args); if (n) t0.text = `${n}\n\n${t0.text}` }
         if (t0 && result.isError && args && args.team && /^No (D1 )?team (found|matches)/.test(t0.text)) { const n = notFoundNote(tool.name); if (n) t0.text += ` ${n}` }
         await counted
         if (result.isError) await count([`e:${tool.name}`])
