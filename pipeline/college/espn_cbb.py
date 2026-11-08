@@ -9,13 +9,17 @@ college parser (normalize.py) reads the archive, so a parser change never spends
 
 On disk, under ESPN_CBB_CACHE (default ~/Basketball-Savant/espn-cache/cbb):
     <season>/days.json            {"YYYY-MM-DD": [event rows]}
+    <season>/conferences.json     {team id: conference id} for every D1 team, refreshed daily
     <season>/raw/<event id>.json.gz    the summary response, byte for byte
 
 Three things the NBA module does not have to do:
   * ESPN's college JSON carries raw control characters, so every parse is strict=False
     (json.load fails on the scoreboard for Feb 14, 2026, at byte 573,390).
   * groups=50 lists a D1 team's games against non-D1 opponents too. They are kept: the box score
-    counts for the D1 player. The opponent has no conferenceId, which is the `non_d1` flag.
+    counts for the D1 player. The opponent has no conference, which is the `non_d1` flag.
+  * Since Nov 2026 the scoreboard sends no team.conferenceId and sets conferenceCompetition on every
+    game, so the conference comes from the core API's D1 list (conferences(), <season>/conferences.json)
+    and a conference game is ESPN's flag AND the same conference (conf_game()).
   * At most 6 requests in parallel, always (WORKERS).
 """
 import concurrent.futures as cf
@@ -83,19 +87,82 @@ def season_days(season):
     return dt.date(y, 10, 28), dt.date(y + 1, 4, 12)
 
 
-def event_row(e, key):
+def event_row(e, key, conf=None):
+    """One scoreboard event. `conf` is the season's team -> conference map (conferences()), used where
+    the scoreboard leaves a team's conferenceId out (ESPN stopped sending it in Nov 2026)."""
     c = (e.get("competitions") or [{}])[0]
     status = e.get("status") or c.get("status") or {}
     teams = []
     for t in c.get("competitors") or []:
         tm = t.get("team") or {}
         teams.append({"id": tm.get("id"), "abbr": tm.get("abbreviation"), "name": tm.get("displayName"),
-                      "conf": tm.get("conferenceId"), "side": t.get("homeAway"), "score": t.get("score")})
+                      "conf": tm.get("conferenceId") or (conf or {}).get(tm.get("id")), "side": t.get("homeAway"), "score": t.get("score")})
     notes = " ".join(n.get("headline") or "" for n in c.get("notes") or [])
-    return {"id": e.get("id"), "date": key, "start": e.get("date"), "status": (status.get("type") or {}).get("name"),
-            "stype": (e.get("season") or {}).get("type"), "neutral": bool(c.get("neutralSite")),
-            "confgame": bool(c.get("conferenceCompetition")), "tourn": c.get("tournamentId"),
-            "note": notes, "venue": (c.get("venue") or {}).get("id"), "pbp": c.get("playByPlayAvailable"), "teams": teams}
+    row = {"id": e.get("id"), "date": key, "start": e.get("date"), "status": (status.get("type") or {}).get("name"),
+           "stype": (e.get("season") or {}).get("type"), "neutral": bool(c.get("neutralSite")),
+           "cflag": bool(c.get("conferenceCompetition")), "tourn": c.get("tournamentId"),
+           "note": notes, "venue": (c.get("venue") or {}).get("id"), "pbp": c.get("playByPlayAvailable"), "teams": teams}
+    row["confgame"] = conf_game(row["cflag"], teams)
+    return row
+
+
+def conf_game(flag, teams):
+    """A conference game: ESPN's flag, and both teams in the same conference. In 2024-25 and 2025-26 the
+    flag never once marked two teams of different conferences (0 of 7,306 flagged finals), so the second
+    half changes nothing there; since Nov 2026 ESPN sets the flag on every game, and it is what keeps
+    Duke-Army a non-conference game."""
+    cs = [t.get("conf") for t in teams]
+    return bool(flag) and len(cs) == 2 and bool(cs[0]) and cs[0] == cs[1]
+
+
+def conferences(season, seen=None, log=print, max_age_hours=20):
+    """Every Division I team's conference for a season, {team id: conference id}, from ESPN's core API
+    (one call for the conferences, one per conference for its teams: 33 calls, about 4 seconds).
+    Kept in <season>/conferences.json and asked again after max_age_hours. The scoreboard used to carry
+    it as team.conferenceId and stopped in Nov 2026; without it every game reads as two non-D1 teams
+    and falls out of the stats. If ESPN can't be reached: the last copy, else what earlier rows recorded."""
+    import re
+    path = os.path.join(ROOT, season, "conferences.json")
+    have = json.load(open(path)) if os.path.exists(path) else None
+    if have and time.time() - have.get("fetched", 0) < max_age_hours * 3600:
+        return have["teams"]
+    base = f"{CORE}/seasons/{season_year(season)}/types/2/groups/50"
+    try:
+        kids = get(f"{base}/children?limit=100") or {}
+        cids = [re.search(r"/groups/(\d+)", it["$ref"]).group(1) for it in kids.get("items") or []]
+        teams = {}
+        for cid in cids:
+            for it in (get(f"{CORE}/seasons/{season_year(season)}/types/2/groups/{cid}/teams?limit=100") or {}).get("items") or []:
+                teams[re.search(r"/teams/(\d+)", it["$ref"]).group(1)] = cid
+        if len(teams) < 300:                  # D1 has had 347 to 365 teams since 2013-14
+            raise RuntimeError(f"only {len(teams)} teams in {len(cids)} conferences")
+    except Exception as ex:  # noqa
+        log(f"::warning::ESPN's conference list for {season} failed ({type(ex).__name__}: {ex}); using the last copy")
+        if have:
+            return have["teams"]
+        return {t["id"]: t["conf"] for d in sorted(seen or {}) for e in (seen or {})[d] for t in e["teams"] if t.get("conf")}
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    json.dump({"fetched": time.time(), "season": season, "teams": teams}, open(path + ".tmp", "w"), separators=(",", ":"))
+    os.replace(path + ".tmp", path)
+    log(f"{season}: {len(teams)} D1 teams in {len(set(teams.values()))} conferences")
+    return teams
+
+
+def repair(seen, conf):
+    """Rows already on disk that were swept while the scoreboard left out conferenceId: fill each D1
+    team's conference from the map and work the conference-game flag out again. Rows that have their
+    conference keep it. Returns how many rows changed."""
+    n = 0
+    for evs in seen.values():
+        for e in evs:
+            before = ([t.get("conf") for t in e["teams"]], e.get("confgame"))
+            for t in e["teams"]:
+                if not t.get("conf") and conf.get(t.get("id")):
+                    t["conf"] = conf[t["id"]]
+            e.setdefault("cflag", bool(e.get("confgame")))
+            e["confgame"] = conf_game(e["cflag"], e["teams"])
+            n += before != ([t.get("conf") for t in e["teams"]], e["confgame"])
+    return n
 
 
 def scoreboard(day):
@@ -115,13 +182,18 @@ def sweep(season, through=None, refetch_days=3, log=print):
     days = [start + dt.timedelta(n) for n in range((end - start).days + 1)]
     todo = [d for d in days if d.isoformat() not in seen or (today - d).days < refetch_days]
 
+    conf = conferences(season, seen, log)
+
     def one(d):
-        evs = [event_row(e, d.isoformat()) for e in scoreboard(d).get("events", []) if e.get("id")]
+        evs = [event_row(e, d.isoformat(), conf) for e in scoreboard(d).get("events", []) if e.get("id")]
         return d.isoformat(), evs
 
     with cf.ThreadPoolExecutor(WORKERS) as ex:
         for key, evs in ex.map(one, todo):
             seen[key] = evs
+    fixed = repair(seen, conf)
+    if fixed:
+        log(f"{season}: {fixed} stored rows given their conference back")
     tmp = path + ".tmp"
     json.dump(seen, open(tmp, "w"), separators=(",", ":"))
     os.replace(tmp, path)

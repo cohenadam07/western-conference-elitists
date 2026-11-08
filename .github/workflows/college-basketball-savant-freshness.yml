@@ -3,6 +3,13 @@ name: College Basketball Savant freshness
 # The alarm: once a day it reads the heartbeat (data/cbb-refresh.json) and fails, which emails Adam,
 # when no refresh has landed for 30 hours, or when the cloud is blocked from ESPN and the run has
 # dropped down the ladder. Quiet outside the season (Nov 1 to Apr 12).
+#
+# Then the live site against ESPN itself (tools/savant-cbb/freshness.py): every Division I final
+# more than a day old must be counted, as a D1 game, in College Basketball Savant and in College
+# Basketball Coaching Savant, and each one's `through` must be at least as new. Nov 2026: ESPN's
+# scoreboard dropped team.conferenceId, games from Nov 5 on counted as non-D1, Duke showed 1 game
+# after 2, and the heartbeat check passed every day because refreshes kept landing. A failure here
+# checks in with the Control Room as a failure, which pushes to Adam's phone.
 on:
   schedule:
     - cron: '37 17 * * *'
@@ -22,7 +29,14 @@ jobs:
           sparse-checkout: |
             data/cbb-refresh.json
             .github/scripts/control-room.sh
+            tools/savant-cbb/freshness.py
+            pipeline/college/config.py
+            pipeline/college/espn_cbb.py
           sparse-checkout-cone-mode: false
+      - name: Control Room check-in (start)
+        continue-on-error: true
+        timeout-minutes: 1
+        run: bash .github/scripts/control-room.sh college-savant-freshness start
       - name: Check the refresh has landed
         run: |
           python3 - <<'EOF'
@@ -43,6 +57,17 @@ jobs:
           if age > 30:
               print(f"::error::College Basketball Savant last refreshed {age:.0f} hours ago"); sys.exit(1)
           EOF
+      # Both run whatever the heartbeat said, so one alert names every product that is behind.
+      - name: College Basketball Savant against ESPN's D1 finals
+        if: success() || failure()
+        run: |
+          python3 -c "import datetime as d,sys;t=d.date.today();sys.exit(0 if t.month in (11,12,1,2,3) or (t.month==4 and t.day<=12) else 3)" || { echo "offseason"; exit 0; }
+          python3 tools/savant-cbb/freshness.py --site https://wcehoops.com --only cbb --hours 24
+      - name: College Basketball Coaching Savant against ESPN's D1 finals
+        if: success() || failure()
+        run: |
+          python3 -c "import datetime as d,sys;t=d.date.today();sys.exit(0 if t.month in (11,12,1,2,3) or (t.month==4 and t.day<=12) else 3)" || { echo "offseason"; exit 0; }
+          python3 tools/savant-cbb/freshness.py --site https://wcehoops.com --only cbcs --hours 24
       - name: Control Room check-in
         if: always()
         continue-on-error: true
