@@ -180,5 +180,8 @@ def ages(out):
 
 
 if __name__ == "__main__":
+    # Line by line: under Actions stdout is a pipe, and block buffering held this process's own lines
+    # (the sweep, the summaries) back until exit, so the log showed them after the build they precede.
+    sys.stdout.reconfigure(line_buffering=True)
     cmd, arg = sys.argv[1], os.path.abspath(sys.argv[2])
     sys.exit({"check": check, "pending": pending, "refresh": refresh, "bundle": bundle, "ages": ages}[cmd](arg))

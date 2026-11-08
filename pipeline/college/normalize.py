@@ -243,7 +243,7 @@ def normalize(summary, gid, ev, season):
     gi = summary.get("gameInfo") or {}
     non_d1 = [k for k, v in teams.items() if not v["conf"]]
     return {"gid": str(gid), "date": ev.get("date"), "season": season, "home": home, "away": away, "teams": teams,
-            "meta": {"neutral": bool(comp.get("neutralSite")), "confgame": bool(comp.get("conferenceCompetition")),
+            "meta": {"neutral": bool(comp.get("neutralSite")), "confgame": E.conf_game(comp.get("conferenceCompetition"), list(teams.values())),
                      "stype": ev.get("stype"), "note": ev.get("note") or "", "tourn": ev.get("tourn"),
                      "venue": (gi.get("venue") or {}).get("id"), "venue_name": (gi.get("venue") or {}).get("fullName"),
                      "attendance": gi.get("attendance"), "pbp_src": comp.get("playByPlaySource"), "box_src": comp.get("boxscoreSource"),

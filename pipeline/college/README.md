@@ -61,3 +61,14 @@ Men's Division I. `public/college-basketball-savant.html`, data in `public/cbb/`
     python3 cloud_cbb.py bundle <dir>                           # then push it to cbb-bundles
 
 Caches live in `~/Basketball-Savant/espn-cache/cbb` and `~/Basketball-Savant/out/cbb`.
+
+## Conferences (Nov 2026)
+
+ESPN's scoreboard stopped sending `team.conferenceId` around Nov 4, 2026 and now sets
+`conferenceCompetition` on every game. A team's conference is the D1 marker (`non_d1`), so every
+new game read as two non-D1 teams and dropped out of the stats while each refresh reported success.
+`espn_cbb.conferences()` now takes each D1 team's conference from the core API (33 calls, cached
+for a day in `<season>/conferences.json`). Each sweep repairs any stored row that lacks one. A
+conference game is ESPN's flag AND both teams in the same conference (`conf_game()`), which matches
+2024-25 and 2025-26 exactly. The alarm compares the live site with ESPN's D1 finals:
+`python3 tools/savant-cbb/freshness.py --site https://wcehoops.com`.
