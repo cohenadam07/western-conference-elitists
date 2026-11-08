@@ -105,6 +105,25 @@ test('a rotation map adds up to five men for forty minutes', () => {
   }
 })
 
+test('a rotation map says how many of the team\'s games it uses, and why it left the others out', () => {
+  // Nov 2026: the lineup gate is per side and repaired sides count (rebuild.py _repair), so a map leaves a
+  // game out only when its own side fails; each one it leaves out is named with a reason (context.py left_out).
+  let n = 0
+  for (const s of [...FULL, ...ROT]) {
+    for (const t of teamsOf(s)) {
+      const d = read(`ctx/${s}/${t}.json`)
+      if (d.games_total == null) continue
+      n++
+      const g = d.games || 0
+      assert.ok(g <= d.games_total, `${s} ${t}: map on ${g} of ${d.games_total} games`)
+      assert.ok(Array.isArray(d.left_out) && d.left_out.length === Math.min(25, d.games_total - g), `${s} ${t}: ${d.games_total - g} games left out, ${d.left_out?.length} named`)
+      for (const x of d.left_out) assert.ok(x.date && x.opp && /^lineup data incomplete/.test(x.reason) && x.why.length, `${s} ${t}: ${JSON.stringify(x)}`)
+    }
+  }
+  // seasons built before Nov 2026 carry neither field; once one is rebuilt, every team has them
+  if (n) assert.ok(n > 100, `only ${n} teams carry games_total`)
+})
+
 test('the connector says what the files say', async () => {
   const s = FULL.filter((x) => x < idx.seasons.slice(-1)[0].season).slice(-1)[0] || FULL[0]
   const t = teamsOf(s).find((x) => read(`ctx/${s}/${x}.json`).poss[0] > 1500)

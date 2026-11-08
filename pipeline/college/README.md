@@ -72,3 +72,15 @@ for a day in `<season>/conferences.json`). Each sweep repairs any stored row tha
 conference game is ESPN's flag AND both teams in the same conference (`conf_game()`), which matches
 2024-25 and 2025-26 exactly. The alarm compares the live site with ESPN's D1 finals:
 `python3 tools/savant-cbb/freshness.py --site https://wcehoops.com`.
+
+## Lineups per side, and the box-minutes repair (Nov 2026)
+
+The lineup gate used to be decided per game: one side's broken substitution log took both teams out
+of their Rotation Maps. It is now decided per side as well (`season.py side_flags`; `tg.pkl`
+`lineup_ok_team`, `lineup_why`). The map reads `side-stints.json.gz` and names each game it leaves out
+(`context.py left_out`; the page and `cbb_rotation` say "based on 1 of 2 games; Nov 5 vs ... left out").
+`rebuild.py` re-seeds each period from the five that ended the last one, instead of breaking ties by
+player id. Where a side's men end up more than a minute off the box, `_repair` moves the unlogged
+change to where the box minutes put it. Repaired games are `lineup_repaired` in `games.pkl` and in
+`public/cbb/games/<season>.json`. The old verdict is a floor. `tools/savant-cbb/lineup_holdout.py`
+measures the repair on clean games with real substitution rows deleted.

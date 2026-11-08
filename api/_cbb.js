@@ -548,9 +548,13 @@ async function rotationMap({ team, season }) {
   }).sort((a, b) => b.minutes_per_game - a.minutes_per_game)
   // under 8 games a usual window is a guess: about two in five would not hold to the season's end (Nov 6 2026)
   const early = (d.games || 0) < 8
-  const lines = [`${t[1]} rotation, ${s}: based on ${d.games} game${d.games === 1 ? '' : 's'} with clean lineups, regulation only. Usual windows are game minutes where he was on the floor in at least half of games${early ? ' (EARLY: under 8 games they are a guess; read who plays, not his script, and ask for last season\'s map to scout)' : ''}:`,
+  // the games the map leaves out and why (context.py left_out, the lineup gate per side, Nov 2026)
+  const g = d.games || 0, total = d.games_total ?? g
+  const left = (d.left_out || []).map((x) => ({ gid: x.gid, date: x.date, opponent: x.opp_name || x.opp, why: x.reason || 'lineup data incomplete' }))
+  const leftLine = left.length ? ` ${left.map((x) => `${x.date} vs ${x.opponent} left out: ${x.why}`).join('; ')}.` : ''
+  const lines = [`${t[1]} rotation, ${s}: based on ${g}${total > g ? ` of ${total}` : ''} game${(total > g ? total : g) === 1 ? '' : 's'}${total > g ? '' : ' with clean lineups'}, regulation only.${leftLine} Usual windows are game minutes where he was on the floor in at least half of games${early ? ' (EARLY: under 8 games they are a guess; read who plays, not his script, and ask for last season\'s map to scout)' : ''}:`,
     ...rows.slice(0, 12).map((r) => `${r.name}: ${r.minutes_per_game} min a game; usually on ${r.usual_windows.join(', ') || 'no fixed window'}`), teamUrl(t[0], s)]
-  return { text: lines.join('\n'), structured: { team: t[1], season: s, games: d.games, windows_settled: !early, players: rows } }
+  return { text: lines.join('\n'), structured: { team: t[1], season: s, games: g, games_total: total, left_out: left, windows_settled: !early, players: rows } }
 }
 
 const TEAM_FIELDS = {
@@ -592,6 +596,6 @@ export const tools = [
   tool('cbb_schedule', 'Get a D1 team\'s schedule', 'A team\'s season schedule, played and still to play, with site and our opponent rating. Live from ESPN.', { team: school, season, upcoming_only: z.boolean().default(false).describe('Only games still to play.') }, { team: z.string(), team_id: z.string(), season: z.string(), games: z.array(open), source: z.string() }, schedule),
   tool('cbb_play_context', 'A D1 team\'s play context', 'Possession starts with points per possession (own and allowed), transition, after own timeouts, clutch and the shot clock (estimated), each ranked in D1. 2025-26 on.', { team: school, season }, { team: z.string(), season: z.string(), through: z.string().nullable(), possessions: open, d1_ppp: z.number().nullable(), starts: z.array(open), transition: open, after_timeout: open, clutch: open, shot_clock: z.array(open), ranks: open, url: z.string() }, playContext),
   tool('cbb_shot_chart', 'A college shot chart', 'Where a player or team shoots (or allows shots) and how well, by court area against D1, plus the 2-ft bins. 2025-26 on.', { player: who.optional(), team: school.optional(), season, side: z.enum(['own', 'allowed']).default('own').describe('For a team: its shots or opponents\'.') }, { who: z.string(), season: z.string(), fga: z.number(), areas: z.array(open), bins: z.array(z.array(z.number())), bin_feet: z.number(), bin_origin: open, hoop: open, url: z.string() }, shotChart),
-  tool('cbb_rotation', 'A D1 team\'s rotation map', 'Who is on the floor in each minute of regulation, as a share of games, with each player\'s usual windows. 2023-24 on.', { team: school, season }, { team: z.string(), season: z.string(), games: z.number().nullable(), windows_settled: z.boolean().optional(), players: z.array(open) }, rotationMap),
+  tool('cbb_rotation', 'A D1 team\'s rotation map', 'Who is on the floor in each minute of regulation, as a share of games, with each player\'s usual windows. 2023-24 on.', { team: school, season }, { team: z.string(), season: z.string(), games: z.number().nullable(), games_total: z.number().nullable().optional(), left_out: z.array(open).optional(), windows_settled: z.boolean().optional(), players: z.array(open) }, rotationMap),
   tool('cbb_data_dictionary', 'College Basketball Savant dictionary', 'Every stat defined: what it is, the formula, the source, the sample, the season it starts.', {}, { version: z.string(), stats: z.array(open), team_fields: open, tables: z.array(z.string()), qualified: z.string(), pools: z.array(z.string()) }, dictionary),
 ]

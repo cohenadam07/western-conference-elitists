@@ -37,6 +37,7 @@ game: (lead - 3 ± 0.5)² > seconds left, +0.5 if the leader has the ball. Flagg
 tallied separately: they stay in totals and leave the default percentiles.
 """
 import math
+import os
 from collections import defaultdict
 
 SUB, JUMP, OREB, DREB, DEADREB, STEAL, BLOCK, FT = "584", "615", "586", "587", "449", "607", "618", "540"
@@ -201,15 +202,80 @@ def _sub_blocks(pp, team_of, team):
     return place
 
 
-def lineups_from_subs(g, plays):
+def _durations(pp):
+    """Seconds each play's five is on the floor: down to the next play's clock (the last to 0:00),
+    as rebuild_game credits them."""
+    return [max(0.0, pp[k]["clock"] - (pp[k + 1]["clock"] if k + 1 < len(pp) else 0.0)) for k in range(len(pp))]
+
+
+def _repair(seq, lv, men, dur, need, min_gain=30.0):
+    """Move where an unlogged change happened so the men's seconds come closer to the box's. A move
+    swaps x (in the five) for y (out of it) over the start or the end of a stretch where the two are
+    equally likely and x is not sure of being on: it shifts one boundary, so it is the same as filling
+    in a missing pair of substitution rows at another time. `need` is box seconds minus reconstructed
+    seconds, for the whole game, and is updated in place. Greedy, best move first. Returns seconds moved."""
+    moved = 0.0
+    n = len(seq)
+    for _ in range(40):
+        best = None
+        for x in men:
+            for y in men:
+                if x == y or abs(need.get(x, 0.0)) < 60.0 and abs(need.get(y, 0.0)) < 60.0:
+                    continue
+                k = 0
+                while k < n:
+                    ok = lambda j: x in seq[j][0] and y not in seq[j][0] and lv[y][j] == lv[x][j] and OFF < lv[x][j] < ON_SURE  # noqa: E731
+                    if not ok(k):
+                        k += 1
+                        continue
+                    a = k
+                    while k < n and ok(k):
+                        k += 1
+                    b = k                                    # the stretch is [a, b)
+                    # a prefix [a, m) or a suffix [m, b): one boundary moves either way
+                    acc = 0.0
+                    pref = []
+                    for m in range(a, b):
+                        acc += dur[m]
+                        pref.append((acc, a, m + 1))
+                    acc = 0.0
+                    suf = []
+                    for m in range(b - 1, a - 1, -1):
+                        acc += dur[m]
+                        suf.append((acc, m, b))
+                    nx, ny = need.get(x, 0.0), need.get(y, 0.0)
+                    for d, lo, hi in pref + suf:
+                        gain = abs(nx) + abs(ny) - abs(nx + d) - abs(ny - d)
+                        if gain > min_gain and (best is None or gain > best[0]):
+                            best = (gain, x, y, lo, hi, d)
+        if best is None:
+            break
+        _, x, y, lo, hi, d = best
+        for j in range(lo, hi):
+            five, firm = seq[j]
+            seq[j] = ((five - {x}) | {y}, firm)
+        need[x] = need.get(x, 0.0) + d
+        need[y] = need.get(y, 0.0) - d
+        moved += d
+    return moved
+
+
+def lineups_from_subs(g, plays, need=None, reseed=True):
     """{play index i: {team id: frozenset of five}}. Each man's events bound where he was
     (_status_runs); at each play the five are the men most surely on, sure first, then likely,
     then unsure, and among equals the men already out there. `clean` counts the plays that needed
-    no judgment: exactly five men at ON_SURE or ON_LIKELY."""
+    no judgment: exactly five men at ON_SURE or ON_LIKELY.
+
+    Each period starts from the five that ended the last one (the box's starters in the first), so a
+    tie among men with no event yet goes to the men already out there; it went to the lower player id
+    until Nov 2026. With `need` ({team: {eid: box seconds - reconstructed seconds}}), the teams in it are
+    repaired against the box's minutes (_repair) and `repaired` says how many seconds moved."""
     team_of = _team_of(g)
     d1 = [t for t in (g["home"], g["away"]) if t not in g["non_d1"]]
     out = {}
     clean = total = 0
+    clean_t, total_t = defaultdict(int), defaultdict(int)
+    repaired = defaultdict(float)
     prev = defaultdict(set)
     for p in g["players"]:
         if p["starter"]:
@@ -217,6 +283,7 @@ def lineups_from_subs(g, plays):
     for period in sorted({p["period"] for p in plays if p["period"]}):
         pp = [p for p in plays if p["period"] == period]
         n = len(pp)
+        dur = _durations(pp)
         cur = {}
         for t in d1:
             place = _sub_blocks(pp, team_of, t)
@@ -245,7 +312,7 @@ def lineups_from_subs(g, plays):
                     elif kind == "out":
                         arr[k] = OFF
                 lv[a] = arr
-            five = set()
+            five = set(prev[t]) if reseed else set()   # re-seeded from the five that ended the last period
             seq = []
             for k in range(n):
                 ranked = sorted((a for a in men if lv[a][k] > OFF), key=lambda a: (-lv[a][k], a not in five, a))
@@ -253,14 +320,21 @@ def lineups_from_subs(g, plays):
                 firm = sum(1 for a in men if lv[a][k] >= ON_LIKELY)
                 seq.append((set(pick), firm == 5))
                 five = set(pick)
+            if need and t in need:
+                repaired[t] += _repair(seq, lv, men, dur, need[t])
             cur[t] = seq
             prev[t] = set(seq[-1][0]) if seq else prev[t]
         for k, p in enumerate(pp):
             if p["tid"] not in NON_ACTION:
                 total += len(d1)
-                clean += sum(cur[t][k][1] for t in d1)
+                for t in d1:
+                    c = cur[t][k][1]
+                    clean += c
+                    clean_t[t] += c
+                    total_t[t] += 1
             out[p["i"]] = {t: frozenset(cur[t][k][0]) for t in d1}
-    return out, {"fixes": total - clean, "seed_over": 0, "clean": clean / total if total else 0.0}
+    return out, {"fixes": total - clean, "seed_over": 0, "clean": clean / total if total else 0.0,
+                 "clean_t": {t: clean_t[t] / total_t[t] if total_t[t] else 0.0 for t in d1}, "repaired": dict(repaired)}
 
 
 # ---------------------------------------------------------------- the game
@@ -308,7 +382,50 @@ def box_only(g, team_of):
     return {"rows": rows, "team": team, "stints": [], "shots": [], "poss": [], "gate": {"gid": g["gid"], "plays": 0, "lineups": "none", "five": {}, "ot": ot, "score_ok": False, "box_players": 0, "box_match": 0, "players": 0, "minutes_off": 0, "fga": 0, "loc": 0, "fixes": 0}}
 
 
+# A repaired side may keep one man more than a minute off the box. Measured Nov 2026 on 932 clean
+# 2025-26 games with real substitution rows deleted from one side, scored on that side's minute-by-minute
+# floor time (what the Rotation Map draws) against the untouched game: allowing one passes 732 sides
+# instead of 721 (one pair deleted) and 578 instead of 531 (two), misplacing 0.47% and 0.87% of the
+# side's floor time against 0.48% and 0.83%, 95th percentile 1.8% and 2.4% either way. The old gate,
+# on the same damaged games, passed 724 and 420 at 0.65% and 0.94%. Its worst case was lower (4.6%,
+# 3.8% against 6.0%, 7.2%).
+REPAIR_MAX_OFF = 1
+
+
+def _off(r, d1):
+    """{team: players more than a minute off the box}, {team: {eid: box seconds - reconstructed}}."""
+    off, need = {t: 0 for t in d1}, {t: {} for t in d1}
+    for x in r["rows"]:
+        if x["team"] in off and (x["min"] or x["sec"]):
+            need[x["team"]][x["eid"]] = x["min"] * 60.0 - x["sec"]
+            off[x["team"]] += abs(x["sec"] / 60.0 - x["min"]) > 1.0
+    return off, need
+
+
 def rebuild_game(g):
+    """_rebuild_game, then the box-minutes repair (Nov 2026) for each side whose substitution log leaves
+    men more than a minute off the box: kept only for a side it brings to every man within a minute,
+    and recorded in the gate's `sides`."""
+    r = _rebuild_game(g)
+    gate = r["gate"]
+    d1 = [t for t in (g["home"], g["away"]) if t not in g["non_d1"]]
+    off, need = _off(r, d1)
+    moved = {}
+    if gate["lineups"] == "subs" and any(off.values()):
+        trial = _rebuild_game(g, {t: dict(need[t]) for t in d1 if off[t]})          # copies: _repair spends them
+        off2, _ = _off(trial, d1)
+        good = [t for t in d1 if off[t] and off2[t] <= REPAIR_MAX_OFF and off2[t] < off[t]]
+        if good:
+            r = trial if len(good) == sum(1 for t in d1 if off[t]) else _rebuild_game(g, {t: dict(need[t]) for t in good})
+            gate = r["gate"]
+            off, _ = _off(r, d1)
+            moved = {t: round(gate["repaired"].get(t, 0.0), 1) for t in good if gate["repaired"].get(t, 0.0) > 0}
+    gate["sides"] = {t: {"five": round(gate["five"].get(t, 0.0), 4), "clean": round(gate.get("clean_t", {}).get(t, 0.0), 4) if gate["lineups"] == "subs" else None,
+                         "off": off[t], "repaired": t in moved, "moved_sec": moved.get(t, 0.0)} for t in d1}
+    return r
+
+
+def _rebuild_game(g, need=None, reseed=True):
     home, away = g["home"], g["away"]
     teams = (home, away)
     opp = {home: away, away: home}
@@ -329,7 +446,7 @@ def rebuild_game(g):
             fives[p["i"]] = cur
         lsource = "cbbd"
     elif any(p["tid"] == SUB for p in plays):
-        fives, lfix = lineups_from_subs(g, plays)
+        fives, lfix = lineups_from_subs(g, plays, need, reseed)
         lsource = "subs"
     else:
         fives, lfix, lsource = {}, {"fixes": 0, "seed_over": 0}, "none"
@@ -757,7 +874,7 @@ def rebuild_game(g):
         formula[t] = b["fga"] - b["oreb"] + b["tov"] + 0.475 * b["fta"]
     gate = {"gid": g["gid"], "plays": len(plays), "lineups": lsource if have_lineups else "none", "five": five,
             "act_share": (act_in / act_all) if act_all else 0.0, "players": players_ck, "minutes_off": minutes_off,
-            "box_players": box_total, "box_match": box_match, "fixes": lfix["fixes"], "clean": lfix.get("clean"),
+            "box_players": box_total, "box_match": box_match, "fixes": lfix["fixes"], "clean": lfix.get("clean"), "clean_t": lfix.get("clean_t", {}), "repaired": lfix.get("repaired", {}),
             "ot": ot, "expect_sec": expect, "poss": {t: team_t[t]["poss"] + team_tg[t]["poss"] for t in teams}, "formula": formula,
             "fga": sum(1 for s in shots), "loc": sum(1 for s in shots if s["x"] is not None), "gar_sec": gar_sec,
             "score_ok": bool(plays and ((plays[-1].get("score_home") == g["teams"][home]["score"]) and (plays[-1].get("score_away") == g["teams"][away]["score"])))}

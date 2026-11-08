@@ -712,8 +712,8 @@ def main():
             log(f"::warning::play context for {s} failed: {type(e).__name__}: {e}")
         games = []
         for r in G.itertuples():
-            games.append([r.gid, r.date, r.home, r.away, r.hs, r.as_, int(r.neutral), int(r.confgame), int(r.stype == 3), int(r.non_d1 > 0), int(r.ot), rnd(r.spread, 1), rnd(r.total, 1), int(r.pbp_ok), int(r.lineup_ok), int(r.box_ok), int(r.stype == 3 and "national championship" in (r.note or "").lower() and "men's basketball championship" in (r.note or "").lower())])
-        jdump(os.path.join(public, "cbb", "games", f"{s}.json"), dict(season=s, cols=["gid", "date", "home", "away", "home_pts", "away_pts", "neutral", "conf_game", "postseason", "non_d1", "ot", "home_spread", "total", "pbp_ok", "lineup_ok", "box_ok", "title_game"], rows=games))
+            games.append([r.gid, r.date, r.home, r.away, r.hs, r.as_, int(r.neutral), int(r.confgame), int(r.stype == 3), int(r.non_d1 > 0), int(r.ot), rnd(r.spread, 1), rnd(r.total, 1), int(r.pbp_ok), int(r.lineup_ok), int(r.box_ok), int(r.stype == 3 and "national championship" in (r.note or "").lower() and "men's basketball championship" in (r.note or "").lower()), int(getattr(r, "lineup_repaired", 0) or 0)])
+        jdump(os.path.join(public, "cbb", "games", f"{s}.json"), dict(season=s, cols=["gid", "date", "home", "away", "home_pts", "away_pts", "neutral", "conf_game", "postseason", "non_d1", "ot", "home_spread", "total", "pbp_ok", "lineup_ok", "box_ok", "title_game", "lineup_repaired"], rows=games))
     docs = {}
     for s in a.seasons:
         p = os.path.join(public, "cbb", "s", f"{s}.json.gz")
