@@ -9,6 +9,7 @@
 
 import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, norm, origin } from './_core.js'
+import { FULL_NAME, nbaCode } from './_ambiguous.js'
 
 const TTL_MS = 10 * 60 * 1000
 const cache = new Map()
@@ -281,7 +282,8 @@ export async function fantasyRankings({ format = 'points', scoring, window = 'ro
   let pick = rows
   if (players && players.length) { const ids = new Set(players.map((q) => findPlayer(M, q).id)); pick = rows.filter((r) => ids.has(r.p.id)) }
   if (position) pick = pick.filter((r) => r.p.pos.toLowerCase() === position.toLowerCase())
-  if (team) pick = pick.filter((r) => r.p.team === team.toUpperCase())
+  const code = team ? teamCode(team) : null
+  if (code) pick = pick.filter((r) => r.p.team === code)
   pick = pick.slice(0, limit)
   const out = pick.map((r) => {
     const G = r.L.pg ? 1 : Math.max(r.L.G, 1e-9), pgl = {}
@@ -412,7 +414,8 @@ export async function injuryReport({ team, limit = 25 }) {
   const M = await model(), w = PRESETS.sleeper
   const ros = new Map(M.valueAll({ scope: 'ros', fmt: 'points', w }).map((r) => [r.p.id, r]))
   const inv = (M.proj.ww_inv && M.proj.ww_inv.by) || {}
-  let hurt = M.list.filter((p) => p.status && (!team || p.team === team.toUpperCase()))
+  const code = team ? teamCode(team) : null
+  let hurt = M.list.filter((p) => p.status && (!code || p.team === code))
   hurt.sort((a, b) => (ros.get(b.id)?.v ?? -1e9) - (ros.get(a.id)?.v ?? -1e9))
   hurt = hurt.slice(0, limit)
   const out = hurt.map((p) => ({
@@ -421,12 +424,22 @@ export async function injuryReport({ team, limit = 25 }) {
       .map((b) => ({ id: String(b.id), name: M.byId.get(b.id).name, games_without: b.gwo, minutes_change: b.d.min, pts36_change: b.d.pts, reb36_change: b.d.reb, ast36_change: b.d.ast, usage36_change: b.d.usg }))
       .sort((a, b) => (b.pts36_change + b.reb36_change + b.ast36_change) - (a.pts36_change + a.reb36_change + a.ast36_change)),
   }))
-  const text = [`Injury designations from Sleeper's feed${team ? ` for ${team.toUpperCase()}` : ''}, best players first, with teammates who gained in the games each missed (${(M.proj.ww_inv && M.proj.ww_inv.season) || 'latest'} game logs).`,
+  const text = [`Injury designations from Sleeper's feed${code ? ` for ${code}` : ''}, best players first, with teammates who gained in the games each missed (${(M.proj.ww_inv && M.proj.ww_inv.season) || 'latest'} game logs).`,
     ...out.map((p) => `${p.name} (${p.team}) ${p.status}, plays next game ~${p.plays_next_game_pct}%. ${p.beneficiaries.length ? 'When he sat: ' + p.beneficiaries.map((b) => `${b.name} ${b.minutes_change >= 0 ? '+' : ''}${b.minutes_change} min, ${b.pts36_change >= 0 ? '+' : ''}${b.pts36_change} pts/36 (${b.games_without} g)`).join('; ') : 'No clear beneficiary.'}`), asOf(M)].join('\n')
   return { text, structured: { players: out, data_as_of: M.proj.generated, url: `${SITE}/basketball-savant.html#fantasy/inj` } }
 }
 
 // ---------------------------------------------------------------- teams + lineups
+// The season in progress is built in the cloud from ESPN (pipeline/basketball/espn_shim.py), which
+// named each team by its code, so 2026-27 read "OKC": a profile opened "OKC 2026-27" and a bare
+// "Oklahoma" matched nothing once the current season had 10 games. teams_engine.py now writes the
+// full name; this table covers files built before that, and any row whose name is only its code.
+// A team filter given as a code or a name; an unknown one is an error the not-found note can answer.
+const teamCode = (q) => { const c = nbaCode(q); if (!c) throw new SavantError(`No team matches "${q}". Use an abbreviation like BOS or a name like Celtics.`); return c }
+const fullNames = (b) => {
+  if (b && b.teams) for (const t of b.teams) if ((!t.name || t.name === t.abbr) && FULL_NAME[t.abbr]) t.name = FULL_NAME[t.abbr]
+  return b
+}
 async function teamsData() {
   const [a, c] = await Promise.all([getJson('savant-teams.json', (b) => b && b.data), getJson('savant-teams-current.json', (b) => b && b.data)])
   if (!a && !c) throw new SavantError('Team data is not available right now.')
@@ -435,7 +448,7 @@ async function teamsData() {
   for (const s of (c && c.seasons) || []) {
     const b = c.data[s]
     if (b.preseason) { upcoming = { season: s, sched: Object.fromEntries((b.teams || []).map((t) => [t.abbr, t.sched])) }; continue }
-    data[s] = b; seasons.add(s); current = s
+    data[s] = fullNames(b); seasons.add(s); current = s
   }
   return { data, seasons: [...seasons].sort((x, y) => parseInt(y, 10) - parseInt(x, 10)), upcoming, current, k: (a || c).k }
 }
@@ -519,7 +532,7 @@ export const tools = [
         window: z.enum(['ros', 'next7', 'week', 'pre', 'dyn']).default('ros').describe('ros = rest of season; next7; week = rest of this Mon-Sun week; pre = full 82-game season; dyn = three seasons weighted 1/0.8/0.6.'),
         per_game: z.boolean().default(false).describe('Rank per game instead of totals.'),
         position: z.enum(['Guard', 'Wing', 'Big']).optional().describe('Only this position group.'),
-        team: z.string().trim().max(3).optional().describe('Team abbreviation, e.g. "BOS".'),
+        team: z.string().trim().max(40).optional().describe('Team, e.g. "BOS" or "Celtics".'),
         players: z.array(z.string().trim().min(1).max(80)).max(30).optional().describe('Only these players (names or ids).'),
         punt: z.array(z.enum(['pts', 'reb', 'ast', 'stl', 'blk', 'fg3m', 'tov', 'fg_pct', 'ft_pct'])).max(4).default([]).describe('9-cat only: categories to punt (left out of the value), e.g. ["fg_pct", "tov"].'),
         limit: z.number().int().min(1).max(200).default(25).describe('Most players to return (default 25).'),
@@ -595,7 +608,7 @@ export const tools = [
     config: {
       title: 'NBA injury report with beneficiaries',
       description: pre + 'Current injury designations (Sleeper), best players first, each with the teammates whose minutes and per-36 production rose in games he missed.',
-      inputSchema: { team: z.string().trim().max(3).optional().describe('Team abbreviation, e.g. "LAL".'), limit: z.number().int().min(1).max(100).default(25).describe('Most injured players to return (default 25).') },
+      inputSchema: { team: z.string().trim().max(40).optional().describe('Team, e.g. "LAL" or "Lakers".'), limit: z.number().int().min(1).max(100).default(25).describe('Most injured players to return (default 25).') },
       outputSchema: { players: z.array(loose), data_as_of: z.string().nullable(), url: z.string() },
       annotations: { title: 'NBA injury report with beneficiaries', ...READ_ONLY },
     },

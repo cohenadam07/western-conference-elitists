@@ -95,3 +95,18 @@ test('every shared name has a college team on file', async () => {
     assert.ok(names.some((n) => n.replace(/[^a-z]/g, '').startsWith(k) || n.startsWith(first)), `${k}: ${col}`)
   }
 })
+
+test('a bare "Oklahoma" gets the ask from every nba_ and cbb_ tool that takes a team, answer or error', async () => {
+  // Nov 2026: the NBA side lost it without any check noticing, because the season in progress named
+  // teams by code ("OKC") and "Oklahoma" matched nothing; only the generic not-found line was left.
+  const { tools } = await client.listTools()
+  // (a `team` that is an enum is not a basketball team: nba_all_savant_team's first or second team)
+  const want = tools.filter((t) => /^(nba|cbb)_/.test(t.name) && t.inputSchema?.properties?.team && !t.inputSchema.properties.team.enum && (t.inputSchema.required || []).every((k) => k === 'team'))
+  assert.ok(want.length >= 8, `only ${want.length} tools take a team alone`)
+  for (const t of want) {
+    const r = await client.callTool({ name: t.name, arguments: { team: 'Oklahoma' } })
+    const side = t.name.startsWith('cbb_') ? "the college Oklahoma Sooners" : "the NBA's Oklahoma City Thunder"
+    assert.match(r.content[0].text, new RegExp(`^Note: "Oklahoma" names both .*This answer is about ${side.replace(/[()]/g, '\\$&')}\\. If the person has not made clear which they mean, ask them`), `${t.name}: ${r.content[0].text.slice(0, 200)}`)
+  }
+})
+

@@ -27,6 +27,7 @@ import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, norm, ordinal, tho
 import { PEERS, WINDOW_TEXT, cardUrl, display, inSpan, loadMeta, loadSeason, parseSeason, resolvePlayer, startYear } from './_basketball.js'
 import { AGE_POOLS, PANEL_VIEWS, agePercentile, agePoolInfo, describePanel, extCells, loadAgeIndex, loadAgePool, loadExtPanels, loadExtPlayer, loadExtSeason, wholeAge } from './_basketball-ext.js'
 
+import { nbaCode } from './_ambiguous.js'
 import '../public/savant-ww.js'
 
 const { SavantWW } = globalThis
@@ -104,10 +105,12 @@ export async function leaderboard(args) {
   }
   // lbEligible()
   const qualOnly = args.qualified_only !== false
+  const teamCode = args.team ? nbaCode(args.team) : null
+  if (args.team && !teamCode) throw new SavantError(`No team matches "${args.team}". Use an abbreviation like BOS or a name like Celtics.`)
   const cohort = file.players.filter((r) => {
     if (qualOnly && !r.qualified) return false
     if (pos !== 'All' && r.pos !== pos) return false
-    if (args.team && r.team !== String(args.team).trim().toUpperCase()) return false
+    if (teamCode && r.team !== teamCode) return false
     const age = parseFloat(r.age)
     if (args.age_min != null && !(age >= args.age_min)) return false
     if (args.age_max != null && !(age <= args.age_max)) return false
@@ -157,7 +160,7 @@ export async function leaderboard(args) {
     return out
   })
   const notes = [
-    `${qualOnly ? 'Qualified players' : 'Every player'}${pos !== 'All' ? ` at ${pos.toLowerCase()}` : ''}${args.team ? ` on ${String(args.team).toUpperCase()}` : ''}, ${windowKey === 'season' ? `${season}` : `${WINDOW_TEXT[windowKey]} of ${season}`}. The percentile is ${basis === 'league' ? 'against every qualified player that season' : 'against everyone these filters let through (the page\'s "vs. cohort")'}.`,
+    `${qualOnly ? 'Qualified players' : 'Every player'}${pos !== 'All' ? ` at ${pos.toLowerCase()}` : ''}${teamCode ? ` on ${teamCode}` : ''}, ${windowKey === 'season' ? `${season}` : `${WINDOW_TEXT[windowKey]} of ${season}`}. The percentile is ${basis === 'league' ? 'against every qualified player that season' : 'against everyone these filters let through (the page\'s "vs. cohort")'}.`,
   ]
   if (settling) notes.push('Season in progress: a number still on a small sample is ranked where it is likely to settle (his number so far blended with his position\'s average, moved toward his own last season); still_settling gives what he has actually done. estimate "raw" ranks the raw numbers.')
   if (ageMode) notes.push(`Each percentile is against that player's own age, ${ageIndex ? ageIndex.first : '1996-97'} on, finished seasons only; each row names its pool. A null percentile means the pool is too small.`)
@@ -264,7 +267,8 @@ export async function teamRankings({ season, sort = 'adjnet', team, top }) {
   // a team's depth chart: the page's openTeam(), Basketball Savant's own players
   if (team) {
     const meta = await loadMeta()
-    const code = String(team).trim().toUpperCase()
+    const code = nbaCode(team)
+    if (!code) throw new SavantError(`No team matches "${team}". Use an abbreviation like BOS or a name like Celtics.`)
     const sf = await loadSeason(meta.seasons.includes(s) ? s : meta.latestSeason)
     const ps = sf.players.filter((p) => p.team === code)
     if (!ps.length) throw new SavantError(`No ${code} players in Basketball Savant's ${sf.season}. Give the team's three-letter code, e.g. BOS.`)
@@ -559,7 +563,7 @@ export const tools = [
         season: z.string().trim().max(12).optional().describe('e.g. "2025-26". Omit for the page\'s default season.'),
         window: z.enum(['season', 'l10', 'l25', 'l75']).optional().describe('Latest season only: last 10, 25 or 75 games.'),
         position: z.string().trim().max(10).optional().describe('Guard, Wing, Big or All (default).'),
-        team: z.string().trim().max(3).optional().describe('Team abbreviation, e.g. "BOS".'),
+        team: z.string().trim().max(40).optional().describe('Team, e.g. "BOS" or "Celtics".'),
         age_min: z.number().optional().describe('Minimum age.'),
         age_max: z.number().optional().describe('Maximum age.'),
         exp_min: z.number().int().optional().describe('Minimum years in the league.'),
@@ -585,7 +589,7 @@ export const tools = [
       inputSchema: {
         sort: z.string().trim().max(40).default('adjnet').describe('Column key or name, e.g. "adjnet", "drtg", "pace", "xw". Default luck-adjusted net.'),
         season: z.string().trim().max(12).optional().describe('e.g. "2024-25". Omit for the page\'s default.'),
-        team: z.string().trim().max(3).optional().describe('A team abbreviation for its depth chart, e.g. "OKC".'),
+        team: z.string().trim().max(40).optional().describe('A team for its depth chart, e.g. "OKC" or "Thunder".'),
         top: z.number().int().min(1).max(30).optional().describe('How many teams (default all 30).'),
       },
       outputSchema: { season: z.string(), sort: z.string(), columns: z.array(row), teams: z.array(row), depth_chart: row.nullable(), schedule_season: z.string().nullable(), url: z.string(), source: z.string() },
