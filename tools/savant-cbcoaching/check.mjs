@@ -41,6 +41,17 @@ const pages = Object.fromEntries(index.coaches.map((c) => [c.id, J(`c/${c.id}.js
 const seasons = index.meta.seasons
 const table = (t, s) => { const p = path.join(CB, 'data', t, `${s}.json.gz`); return existsSync(p) ? readGz(p) : null }
 
+// ESPN's mislabelled challenge results: 11 of 158 second challenges in 2025-26 follow a first that,
+// read from the parenthetical, failed (Rule 11-4.1.d allows a second only after a win).
+const NOISE_SECOND_AFTER_LOSS = 11 / 158
+// P(X >= k) for X ~ Binomial(n, p): the chance the noise alone gives k or more.
+export function binomTail(k, n, p) {
+  if (k <= 0) return 1
+  let term = (1 - p) ** n, tail = 0                     // P(X = 0), then each next term from the last
+  for (let i = 0; i <= n; i++) { if (i >= k) tail += term; term *= ((n - i) / (i + 1)) * (p / (1 - p)) }
+  return Math.min(1, tail)                              // summed upward: exact in the small tail
+}
+
 // ---- 1 + 2 ------------------------------------------------------------------------------
 test('the index lists every coach once and every coach has a page', () => {
   const ids = index.coaches.map((c) => c.id)
@@ -149,12 +160,15 @@ test('timeouts and challenges sit inside each season\'s rules', () => {
       assert.ok(rows.length <= 2, `${s} ${k}: ${rows.length} challenges`)
       if (rows.length === 2) { pairs++; after_loss += rows[0][I('challenge_won')] !== 1 }
     }
-    // a second challenge is allowed only after a first that won (Rule 11-4.1.d). Read from the
+    // A second challenge is allowed only after a first that won (Rule 11-4.1.d). Read from the
     // parenthetical, 11 of 158 pairs in 2025-26 still break it on every signal ESPN gives: feed noise,
-    // listed in the build notes. A reading that broke it more would fail here (the clause: 41 of 158).
-    // a rate needs a sample: from 30 pairs the 8% bound, below it no more than two (2026-27 opened with 1 of 3)
-    if (pairs >= 30) assert.ok(after_loss / pairs <= 0.08, `${s}: ${after_loss} of ${pairs} second challenges follow a failed first`)
-    else assert.ok(after_loss <= 2, `${s}: ${after_loss} of ${pairs} second challenges follow a failed first`)
+    // listed in the build notes. So the test is whether a season's count is more than that noise can
+    // explain: one-sided binomial at ESPN's measured rate, 11/158, failing below p = 0.01. A fixed bound
+    // did not hold up: "no more than 2 below 30 pairs" failed 2026-27 at 3 of 11 (p = 0.036 at that rate,
+    // nothing wrong), and "8% from 30 pairs" passes or fails a few pairs either side of the same noise.
+    // The reading this guards against, the timeout clause, broke it 41 of 158 times (p = 1e-13).
+    const p = binomTail(after_loss, pairs, NOISE_SECOND_AFTER_LOSS)
+    assert.ok(p >= 0.01, `${s}: ${after_loss} of ${pairs} second challenges follow a failed first; ESPN's noise (${(100 * NOISE_SECOND_AFTER_LOSS).toFixed(1)}%) explains that with p = ${p.toPrecision(2)} (fails below 0.01)`)
   }
 })
 

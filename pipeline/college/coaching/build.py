@@ -221,6 +221,7 @@ def pass_one(s, I):
     names = {r["eid"]: r["name"] for t in rows_by_team.values() for r in t}
     exp = {k.split("|")[1]: v for k, v in I["E"].items() if k.startswith(s + "|")}
     B = dict(season=s, cts={}, league={}, tfiles={}, data={})
+    ats = {}
     ts_rows = {k.split("|")[0]: v for k, v in reg["seasons"].items() if k.endswith("|" + s)}
     if has_games(s):
         G = GM.load(s)
@@ -229,6 +230,7 @@ def pass_one(s, I):
                  rosters=rows_by_team, lines=X.extra_lines(s), by_date=CT.ratings_by_date(G, nets.get(prev, {})),
                  spend=I["spend"].get(s, {}), res_b=I["res_b"]["b"])
         cts_out, league = CT.season(s, C)
+        ats = X.spread_record(G, C["lines"], I["curve"])
         B["league"] = league
         # lineups and the rotation
         rot = RT.build(s, G, who, rates, names) if s >= LINEUP_FROM else {}
@@ -311,7 +313,9 @@ def pass_one(s, I):
             ex = (I["eada"]["seasons"].get(s, {}).get(t) or {})
             c["resources"] = dict(exp=ex.get("exp"), rev=ex.get("rev"), hc=ex.get("hc"), asst=ex.get("asst"), pct=sp, conf_pct=None, nil_era=s >= "2021-22")
         e = exp.get(t)
-        if e:
+        if e and t in ats:          # the record against the spread from this run's games: in the cloud expect.json
+            e = dict(e, **{k: ats[t][k] for k in ("spread_g", "w_spread", "ats_pts", "ats_l")}, ats_w=ats[t]["covered"])
+        if e:                       # is the Mac's last run, a day or more behind the season in progress
             c["exp"] = dict(exp_net=e["exp_net"], exp_w=e["exp_w"], w_roster=e["w_roster"], ap_pre=e["ap_pre"], ap_peak=e["ap_peak"], ap_final=e["ap_final"],
                             w_spread=e["w_spread"], ats_pts=e["ats_pts"], spread_g=e["spread_g"],
                             # against the spread, team-season: covers, losses (pushes are the rest of spread_g)
@@ -893,7 +897,7 @@ def exp_block(x, e):
     Done here, where the coach files are put together, and not only in pass one: finished seasons come from
     the pass-one bundles in cbcs-bundles, built before Nov 2026 with `covered` = the roster model's places
     filled (out of 5), and the cloud's merge build would otherwise publish that again as covers."""
-    if not x or "spread_g" not in x:
+    if not x or "spread_g" not in x or "ats_l" in x:     # built since Nov 2026: already covers, from its own games
         return x
     x = dict(x)
     if e:
