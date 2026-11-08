@@ -263,17 +263,25 @@ function prevRot(LK,id,sn){
   for(var i=0;i<qs.length;i++){for(var k in LK.ts){if(k.slice(-qs[i].length-1)==='|'+qs[i]&&LK.ts[k].some(function(x){return x[0]===c[0]&&!x[2];}))return {season:qs[i],team:k.split('|')[0],coach:c};}}
   return null;
 }
+// The games a team's map leaves out and why (context.py left_out, from the lineup gate per side):
+// "Nov 5 vs Coastal Carolina left out: lineup data incomplete (minutes do not match the box score)."
+function leftOut(L){
+  if(!L||!L.length)return '';
+  var one=function(x){var r=String(x.reason||'lineup data incomplete'),k=r.indexOf(': ');return esc(dateShort(x.date))+' vs '+esc(x.opp_name||tname(x.opp))+' left out: '+esc(k>0?r.slice(0,k)+' ('+r.slice(k+2)+')':r);};
+  var shown=L.slice(-3).reverse();
+  return ' '+shown.map(one).join('; ')+(L.length>3?'; and '+(L.length-3)+' more':'')+'.';
+}
 function rotMap(X,T,sn,PV){
   var back=!!(S.rotPrev&&PV&&PV.X),D=back?PV.X.doc:X.doc,TT=back?PV.T||{roster:[]}:T,q=back?PV.season:sn;
   var R=D.rotation||{},by={},now={};(TT.roster||[]).forEach(function(r){by[r[0]]=r;});(T.roster||[]).forEach(function(r){now[r[0]]=1;});
   var rows=Object.keys(R).map(function(k){var a=R[k];return {id:k,a:a,m:a.reduce(function(x,y){return x+y;},0),n:(by[k]||[])[1]||'Unlisted player'};}).sort(function(x,y){return y.m-x.m;});
-  var g=D.games||0,gt=back?g:(T.results||[]).length,trk=cssv('--track'),hue=cssv('--hue'),live=!back&&IDX.current===sn,early=g<ROT_WIN_FROM;
+  var g=D.games||0,gt=back?g:(D.games_total!=null?D.games_total:(T.results||[]).length),trk=cssv('--track'),hue=cssv('--hue'),live=!back&&IDX.current===sn,early=g<ROT_WIN_FROM;
   var nb=0,mb=0,mt=0;if(back)rows.forEach(function(r){mt+=r.m;if(now[r.id]){nb++;mb+=r.m;}});
   var h='<section class="card full"><div class="hd"><h2>Rotation map: who plays when</h2><span class="meta">From '+ROT_FROM+' · '+esc(q)+(back?', '+esc(tname(PV.team)):'')+': '+g+(gt&&gt!==g?' of '+gt:'')+' game'+((gt||g)===1?'':'s')+' with clean lineups, regulation</span></div>';
   if(PV)h+='<div class="tabs" role="tablist" aria-label="Which season’s map"><button type="button" role="tab" data-rprev="0" aria-selected="'+!back+'">'+esc(sn)+(IDX.current===sn?' so far':'')+'</button><button type="button" role="tab" data-rprev="1" aria-selected="'+back+'" title="'+esc(PV.coach[1])+'’s last season with a map">Last season: '+esc(PV.season)+'</button></div>';
   if(!rows.length)return h+empty(back?'No players on that map.':'No games with clean lineups for this team this season.')+'</section>';
   h+=back?'<p class="pool-n"><strong>'+esc(PV.coach[1])+'’s last season with a map: '+esc(q)+', '+esc(tname(PV.team))+', '+g+' games.</strong> <b class="bk" aria-hidden="true"></b> marks the '+nb+' of these '+rows.length+' players on '+esc(tname(T.team))+'’s '+esc(sn)+' roster, '+Math.round(100*mb/Math.max(1e-9,mt))+'% of last season’s minutes on this map.</p>'
-    :'<p class="pool-n"><strong>Based on '+g+' game'+(g===1?'':'s')+' with clean lineups'+(live&&D.through?', through '+esc(dateShort(D.through)):'')+'.</strong>'+(live?' It updates after every game.':'')+(early?' With under '+ROT_WIN_FROM+' games, read who plays when, not a pattern.':'')+'</p>';
+    :'<p class="pool-n"><strong>Based on '+g+(gt>g?' of '+gt:'')+' game'+((gt>g?gt:g)===1?'':'s')+(gt>g?'':' with clean lineups')+(live&&D.through?', through '+esc(dateShort(D.through)):'')+'.</strong>'+leftOut(D.left_out)+(live?' It updates after every game.':'')+(early?' With under '+ROT_WIN_FROM+' games, read who plays when, not a pattern.':'')+'</p>';
   h+='<div class="legend"><span>0%<i class="lgrot"></i>100% of games on the floor in that minute</span><span>Sorted by minutes a game</span><span class="show-s">Swipe the map sideways for the second half</span></div>'+(!back&&gt&&g<0.7*gt?'<p class="pool-n">Partial season: only '+g+' of '+gt+' games had clean lineups in the feed, so read the shares as a sample of the season.</p>':'');
   var cells=function(fn){var s='';for(var m=0;m<40;m++){if(m===20)s+='<i class="ht" aria-hidden="true"></i>';s+=fn(m);}return s;};
   h+='<div class="rmw" tabindex="0" aria-label="Rotation map, scrolls sideways"><div class="rm" role="list">';

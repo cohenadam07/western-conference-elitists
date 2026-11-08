@@ -18,6 +18,12 @@ and kept for the rest. Box lines always count.
               reconcile that. Fails -> out of everything built from the play-by-play.
   lineup_ok   pbp_ok, has lineups, 90%+ of plays with five firm men on each D1 side, and at most 2
               players more than a minute off the box. Fails -> out of on/off, lineups and RAPM.
+              Since Nov 2026 also per side (side_flags, tg.pkl lineup_ok_team and lineup_why): the
+              Rotation Map uses each side that passes (side-stints.json.gz), and a side whose
+              substitution log leaves men off the box is first repaired against the box minutes
+              (rebuild.py _repair; games.pkl lineup_repaired). What the old gate passed still passes.
+              2026-27: 92.9% -> 98.2% of D1 games, 92.4% -> 98.6% of D1 sides; 2025-26: 94.2% ->
+              97.1% and 93.8% -> 97.7% (tools/savant-cbb/lineup_holdout.py measures the repair).
 
 The .pkl files are this pipeline's own intermediate tables, written and read on this machine or
 in the same cloud run. Nothing downloaded is ever unpickled.
@@ -46,13 +52,56 @@ POSS_COLS = ["gid", "lineup_ok", "team", "period", "start", "end", "kind", "ato"
 BOX = ("pts", "fgm", "fga", "fg3m", "fg3a", "ftm", "fta", "oreb", "dreb", "ast", "tov", "stl", "blk", "pf")
 
 
+# Why a side's lineups are left out, in the words the Rotation Map and cbb_rotation use.
+WHY = {"pbp": "play-by-play does not add up", "no_lineups": "no substitutions logged", "five": "fewer than five men on the floor",
+       "firm": "substitutions missing from ESPN's log", "minutes": "minutes do not match the box score"}
+
+
+def legacy_ok(gate, pbp_ok):
+    """The gate until Nov 2026, kept as a floor: what it accepted stays accepted."""
+    firm = gate.get("clean")
+    five_ok = all(v >= 0.9 for v in gate["five"].values()) if gate["five"] else False
+    return bool(pbp_ok and gate["lineups"] != "none" and five_ok and (firm is None or firm >= 0.9) and gate["minutes_off"] <= 2)
+
+
+def side_flags(gate, pbp_ok):
+    """{team: (ok, [reasons])} for each D1 side: the lineup gate one team at a time, which is what a
+    team's Rotation Map needs (a side whose own log is clean is not dropped for the other side's).
+    A side passes when the game passes the old gate (legacy_ok); or with 90%+ of plays with five on
+    the floor, 90%+ of plays needing no judgment, and at most 2 men more than a minute off the box; or,
+    repaired against the box minutes (rebuild.py _repair), with at most REPAIR_MAX_OFF men still off."""
+    out = {}
+    legacy = legacy_ok(gate, pbp_ok)
+    for t, sd in (gate.get("sides") or {}).items():
+        why = []
+        if not pbp_ok:
+            why.append("pbp")
+        if gate["lineups"] == "none":
+            why.append("no_lineups")
+        if sd["five"] < 0.9:
+            why.append("five")
+        if sd["repaired"]:
+            if sd["off"] > R.REPAIR_MAX_OFF:
+                why.append("minutes")
+        else:
+            if sd["clean"] is not None and sd["clean"] < 0.9:
+                why.append("firm")
+            if sd["off"] > 2:
+                why.append("minutes")
+        out[t] = (True, []) if legacy else (not why, why)
+    return out
+
+
 def flags(gate, final_pbp):
+    """(pbp_ok, lineup_ok). A game's lineups pass the old gate (legacy_ok), or every D1 side passes
+    (side_flags, repairs included) with no more than 2 men in the game more than a minute off the box."""
     ok_score = gate["score_ok"] or final_pbp
     ok_box = gate["box_players"] > 0 and gate["box_match"] >= 0.85 * gate["box_players"]
     pbp_ok = bool(ok_score and ok_box and gate["plays"] >= 150)
-    firm = gate.get("clean")
-    five_ok = all(v >= 0.9 for v in gate["five"].values()) if gate["five"] else False
-    lineup_ok = bool(pbp_ok and gate["lineups"] != "none" and five_ok and (firm is None or firm >= 0.9) and gate["minutes_off"] <= 2)
+    lineup_ok = legacy_ok(gate, pbp_ok)
+    if not lineup_ok and gate.get("sides"):
+        off = sum(sd["off"] for sd in gate["sides"].values())
+        lineup_ok = bool(pbp_ok and gate["lineups"] != "none" and all(ok for ok, _ in side_flags(gate, pbp_ok).values()) and off <= 2)
     return pbp_ok, lineup_ok
 
 
@@ -79,6 +128,7 @@ def _one(a):
                 firm=gate.get("clean"), five=min(gate["five"].values()) if gate.get("five") else None, minutes_off=gate.get("minutes_off", 0),
                 box_ok=box_ok, box_raw=box_raw, filled=g.get("filled", 0), box_match=gate.get("box_match", 0), box_players=gate.get("box_players", 0), players=gate.get("players", 0),
                 fixes=gate.get("fixes", 0), joined_locs=(joined or {}).get("locs", 0))
+    game["lineup_repaired"] = sum(1 for sd in (gate.get("sides") or {}).values() if sd.get("repaired"))   # sides repaired against the box
     names = {p["eid"]: p["name"] for p in g["players"]}
     pos = {p["eid"]: p["pos"] for p in g["players"]}
     tinfo = {k: {x: v.get(x) for x in ("abbr", "name", "loc", "color", "alt", "conf")} for k, v in g["teams"].items()}
@@ -92,9 +142,13 @@ def _one(a):
                 for k, v in src.items():
                     d[pre + k] = v
         pg.append(d)
+    sides = side_flags(gate, pbp_ok) if r["team"] else {}
     tg = []
     for t in r["team"]:
-        d = dict(gid=g["gid"], team=t["team"], opp=t["opp"], home=t["home"], pts=t["pts"], opp_pts=t["opp_pts"], poss=t["poss"], opp_poss=t["opp_poss"], poss_g=t["poss_g"], ot=t["ot"])
+        sd = (gate.get("sides") or {}).get(t["team"]) or {}
+        ok_t, why_t = sides.get(t["team"], (False, ["no_lineups"]))
+        d = dict(gid=g["gid"], team=t["team"], opp=t["opp"], home=t["home"], pts=t["pts"], opp_pts=t["opp_pts"], poss=t["poss"], opp_poss=t["opp_poss"], poss_g=t["poss_g"], ot=t["ot"],
+                 lineup_ok_team=bool(ok_t), lineup_why=",".join(why_t), repaired=bool(sd.get("repaired")), repaired_sec=sd.get("moved_sec", 0.0))
         for k, v in t["box"].items():
             d["b_" + k] = v
         for k, v in t["pbp"].items():
@@ -104,18 +158,22 @@ def _one(a):
         tg.append(d)
     shots = [dict(s, gid=g["gid"]) for s in r["shots"]]
     plog = [[g["gid"], int(lineup_ok)] + row for row in r.get("poss", [])] if pbp_ok else []
-    return game, pg, tg, shots, [g["gid"], home, away, r["stints"]] if lineup_ok else None, names, pos, tinfo, plog
+    ok_sides = sorted(t for t, (ok, _) in sides.items() if ok)
+    side_st = [g["gid"], home, away, r["stints"], ok_sides] if ok_sides else None
+    return game, pg, tg, shots, [g["gid"], home, away, r["stints"]] if lineup_ok else None, names, pos, tinfo, plog, side_st
 
 
 def run(season, log=print, workers=8):
     t0 = time.time()
     seen = json.load(open(os.path.join(E.ROOT, season, "days.json")))
     fin = [e for e in E.finals(seen) if os.path.exists(E.raw_path(season, e["id"]))]
-    games, pg, tg, shots, stints, plog = [], [], [], [], [], []
+    games, pg, tg, shots, stints, plog, side_stints = [], [], [], [], [], [], []
     names, poss, teams = {}, {}, {}
     with cf.ProcessPoolExecutor(workers) as ex:
-        for g, p, t, s, st, nm, ps, ti, pl in ex.map(_one, [(season, e) for e in fin], chunksize=40):
+        for g, p, t, s, st, nm, ps, ti, pl, sst in ex.map(_one, [(season, e) for e in fin], chunksize=40):
             games.append(g)
+            if sst:
+                side_stints.append(sst)
             plog.extend(pl)
             pg.extend(p)
             tg.extend(t)
@@ -141,6 +199,9 @@ def run(season, log=print, workers=8):
     pd.DataFrame(plog, columns=POSS_COLS).to_pickle(os.path.join(d, "poss.pkl"))
     with gzip.open(os.path.join(d, "stints.json.gz"), "wt") as fh:
         json.dump(stints, fh, separators=(",", ":"))
+    # the Rotation Map's: every game with at least one side whose lineups pass, and which sides (context.py)
+    with gzip.open(os.path.join(d, "side-stints.json.gz"), "wt") as fh:
+        json.dump(side_stints, fh, separators=(",", ":"))
     json.dump({"names": names, "pos": poss, "teams": teams}, open(os.path.join(d, "ids.json"), "w"))
     g_ = gates(season, G, PG, TG)
     json.dump(g_, open(os.path.join(d, "gates.json"), "w"), indent=1)
@@ -180,6 +241,8 @@ def gates(season, G, PG, TG):
                 coord_rate=round(float(ok["loc"].sum() / max(1, ok.fga.sum())), 4),
                 box_rate_raw=round(float(sam2.mean()), 4) if len(sam2) else None, box_rate=round(float(same.mean()), 4) if len(same) else None,
                 lineup_games=len(L), lineup_ok_games=len(lo), lineup_ok_rate_of_d1=round(len(lo) / max(1, len(d1)), 4),
+                lineup_repaired_games=int((d1.lineup_repaired > 0).sum()) if "lineup_repaired" in d1 else 0,
+                side_ok_rate_of_d1=round(float(TG[TG.gid.isin(set(d1.gid))].lineup_ok_team.mean()), 4) if "lineup_ok_team" in TG and len(d1) else None,
                 five_rate=round(float((L.five == 1).mean()), 4) if len(L) else None,
                 firm_rate=round(float(L.firm.mean()), 4) if len(L) and L.firm.notna().any() else None,
                 minutes_within_1=None if within is None else round(float(within), 4),

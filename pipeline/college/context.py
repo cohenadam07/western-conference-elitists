@@ -92,10 +92,14 @@ def load(season):
     if S is not None and "t_in" not in S.columns:
         S = None                    # shots from before the possession log
     st = []
-    p = os.path.join(d, "stints.json.gz")
-    if os.path.exists(p):
-        with gzip.open(p, "rt") as fh:
-            st = json.load(fh)
+    # the Rotation Map's stints: per side since Nov 2026 (season.py side-stints, [gid, home, away, rows,
+    # sides that pass]); a season built before that has only the games whose both sides passed
+    for name in ("side-stints.json.gz", "stints.json.gz"):
+        p = os.path.join(d, name)
+        if os.path.exists(p):
+            with gzip.open(p, "rt") as fh:
+                st = json.load(fh)
+            break
     G = pd.read_pickle(os.path.join(d, "games.pkl")) if os.path.exists(os.path.join(d, "games.pkl")) else None
     return S, P, st, G
 
@@ -104,9 +108,13 @@ def rotation(stints):
     """{team: {eid: [share of games on the floor in each regulation minute]}, team: games}."""
     on = defaultdict(lambda: defaultdict(lambda: np.zeros(40)))
     games = defaultdict(int)
-    for gid, home, away, rows in stints:
-        games[home] += 1
-        games[away] += 1
+    used = defaultdict(set)
+    for row in stints:
+        gid, home, away, rows = row[:4]
+        sides = set(row[4]) if len(row) > 4 else {home, away}
+        for t in sides:
+            games[t] += 1
+            used[t].add(str(gid))
         g_on = defaultdict(lambda: defaultdict(lambda: np.zeros(40)))   # this game, capped at a full minute
         for r in rows:
             period, start, end, h5, a5 = r[0], r[1], r[2], r[3], r[4]
@@ -120,6 +128,8 @@ def rotation(stints):
                 a, b = max(t0, m * 60.0), min(t1, (m + 1) * 60.0)
                 if b > a:
                     for team, five in ((home, h5), (away, a5)):
+                        if team not in sides:
+                            continue
                         for e in five:
                             g_on[team][e][m] += (b - a) / 60.0
         for team, pl in g_on.items():                # overlapping stints (old lineup feeds) can't count twice
@@ -129,7 +139,38 @@ def rotation(stints):
     for team, players in on.items():
         n = max(1, games[team])
         out[team] = {e: [round(float(v) / n, 3) for v in arr] for e, arr in players.items() if arr.sum() / n >= 0.5}
-    return out, dict(games)
+    return out, dict(games), {t: v for t, v in used.items()}
+
+
+def left_out(season, used, G):
+    """{team: (team-games, [games the Rotation Map leaves out, with why])}, from tg.pkl's per-side
+    lineup verdict (season.py side_flags). None for a season built before it."""
+    import season as SZ
+    p = os.path.join(REB, season, "tg.pkl")
+    if not os.path.exists(p) or G is None:
+        return None
+    T = pd.read_pickle(p)
+    if "lineup_why" not in T:
+        return None
+    ids = {}
+    ip = os.path.join(REB, season, "ids.json")
+    if os.path.exists(ip):
+        ids = json.load(open(ip)).get("teams", {})
+    date = dict(zip(G.gid.astype(str), G.date.astype(str)))
+    out = {}
+    for team, d in T.groupby("team"):
+        rows = []
+        for r in d.itertuples(index=False):
+            gid = str(r.gid)
+            if gid in used.get(team, ()):
+                continue
+            why = [w for w in str(r.lineup_why or "").split(",") if w] or ["no_lineups"]
+            o = ids.get(str(r.opp)) or {}
+            rows.append({"gid": gid, "date": date.get(gid), "opp": str(r.opp), "opp_name": o.get("loc") or o.get("name") or str(r.opp),
+                         "why": why, "reason": "lineup data incomplete: " + "; ".join(SZ.WHY.get(w, w) for w in why)})
+        rows.sort(key=lambda x: x["date"] or "")
+        out[team] = (int(d.gid.nunique()), rows)
+    return out
 
 
 def bins(df):
@@ -172,7 +213,7 @@ def starts_table(P):
 
 def build(season, public=PUBLIC, log=print):
     S, P, stints, G = load(season)
-    rot, games = rotation(stints) if stints else ({}, {})
+    rot, games, used = rotation(stints) if stints else ({}, {}, {})
     teams = set(rot)
     has_pbp = S is not None and P is not None and len(P) > 0
     dates = {}
@@ -199,6 +240,7 @@ def build(season, public=PUBLIC, log=print):
     if os.path.exists(tp):
         d1 = {r["id"] for r in json.loads(gzip.decompress(open(tp, "rb").read()))["teams"]}
     league = {"season": season, "through": through, "pbp": has_pbp}
+    left_map = left_out(season, used, G)
     team_docs = {}
     if has_pbp:
         # league baselines: D1 teams' own possessions and shots (games against non-D1 opponents count)
@@ -215,6 +257,10 @@ def build(season, public=PUBLIC, log=print):
         league["poss"] = [int(len(Ld)), int(Ld.pts.sum())]
     for team in sorted(t for t in teams if t and (d1 is None or t in d1)):
         doc = {"season": season, "team": team, "through": through, "games": games.get(team), "pbp": has_pbp, "rotation": rot.get(team, {})}
+        if left_map is not None:
+            n_all, left = left_map.get(team, (games.get(team) or 0, []))
+            doc["games_total"] = n_all            # the team's games; `games` is how many the map is built on
+            doc["left_out"] = left[-25:]
         if has_pbp:
             own, opp_ = Pn[Pn.team == team], Pn[Pn.opp == team]
             sh_own, sh_opp = S[S.team == team], S[S.opp == team]

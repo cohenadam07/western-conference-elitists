@@ -141,7 +141,7 @@ def bundle(out):
             continue
         d = os.path.join(out, "rebuilt", s)
         os.makedirs(d, exist_ok=True)
-        for f in ("stints.json.gz", "gates.json"):
+        for f in ("stints.json.gz", "side-stints.json.gz", "gates.json"):
             p = os.path.join(CC.HOME, "rebuilt", s, f)
             if os.path.exists(p):
                 shutil.copy(p, d)
