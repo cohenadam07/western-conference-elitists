@@ -313,7 +313,13 @@ def pass_one(s, I):
         e = exp.get(t)
         if e:
             c["exp"] = dict(exp_net=e["exp_net"], exp_w=e["exp_w"], w_roster=e["w_roster"], ap_pre=e["ap_pre"], ap_peak=e["ap_peak"], ap_final=e["ap_final"],
-                            w_spread=e["w_spread"], ats_pts=e["ats_pts"], spread_g=e["spread_g"], covered=e["covered"])
+                            w_spread=e["w_spread"], ats_pts=e["ats_pts"], spread_g=e["spread_g"],
+                            # against the spread, team-season: covers, losses (pushes are the rest of spread_g)
+                            covered=e.get("ats_w"), ats_l=e.get("ats_l"),
+                            # the roster model's share of the five places its players fill, out of 5. Published
+                            # as `covered` until Nov 2026, beside spread_g, where it read as covers (Duke 2026-27:
+                            # "covered 5" with 2 lines). expect.json called it `covered` until then too.
+                            roster_places=e.get("roster_places", e.get("covered")))
         apx = I["ap"].get(s, {}).get(t)
         if apx and "exp" not in c:
             c["exp"] = dict(ap_pre=apx.get("pre"), ap_peak=apx.get("peak"), ap_final=apx.get("final"))
@@ -882,11 +888,26 @@ def tenures(rs):
     return out
 
 
+def exp_block(x, e):
+    """A coach-season's expectation, its against-the-spread counts read from expect.json (e, the team-season).
+    Done here, where the coach files are put together, and not only in pass one: finished seasons come from
+    the pass-one bundles in cbcs-bundles, built before Nov 2026 with `covered` = the roster model's places
+    filled (out of 5), and the cloud's merge build would otherwise publish that again as covers."""
+    if not x or "spread_g" not in x:
+        return x
+    x = dict(x)
+    if e:
+        x.update(covered=e.get("ats_w"), ats_l=e.get("ats_l"), roster_places=e.get("roster_places", e.get("covered")))
+    elif "ats_l" not in x:                  # an old block with no team-season to read: never let it pass as covers
+        x.update(roster_places=x.get("covered"), covered=None, ats_l=None)
+    return x
+
+
 def season_row(c, I, bundles):
     s = c["season"]
     L = bundles[s]["league"]
     return dict(season=s, team=c["team"], g=c["g"], w=c["w"], l=c["l"], cw=c.get("cw"), cl=c.get("cl"),
-                net=(c["values"].get("net") or [None])[0], exp=c.get("exp"), values=c["values"], pct=c.get("pct"), ranked=c.get("ranked"),
+                net=(c["values"].get("net") or [None])[0], exp=exp_block(c.get("exp"), I["E"].get(f"{s}|{c['team']}")), values=c["values"], pct=c.get("pct"), ranked=c.get("ranked"),
                 live_pct=c.get("live_pct"), live_pools=c.get("live_pools"), in_progress=c.get("in_progress"),
                 rotation=c.get("rotation"), management=management_block(c, L), splits=c.get("splits"), identity=identity_block(c),
                 development=c.get("development"), roster=c.get("roster"), tournament=c.get("tournament"), resources=c.get("resources"),

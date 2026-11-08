@@ -147,6 +147,11 @@ export async function coachProfile({ coach, group = 'all', season }) {
       pool: live ? `${sr.season} D1 head coaches with ${idx.meta.rules.min_live_games}+ games, provisional` : `${sr.season} D1 head coaches with ${idx.meta.rules.min_season_games}+ games`, expectation: sr.exp || null }
     L.push('', `${sr.season} ${teamName(idx, sr.team)}: ${record(sr.w, sr.l)} in ${sr.g} games${live ? ' (in progress, ranked provisionally)' : ''}${!sr.ranked && !live ? ' (under the line, not ranked)' : ''}.`)
     if (sr.exp?.exp_net != null) L.push(`Roster model: expected net ${display('sgn1', sr.exp.exp_net)}, ${sr.exp.exp_w?.toFixed?.(1) ?? '—'} expected wins; ${display('sgn1', sr.exp.w_roster)} above the roster. AP context: preseason ${sr.exp.ap_pre ? '#' + sr.exp.ap_pre : 'unranked'}, peak ${sr.exp.ap_peak ? '#' + sr.exp.ap_peak : '—'}, final ${sr.exp.ap_final ? '#' + sr.exp.ap_final : '—'} (never the baseline).`)
+    const x = sr.exp
+    if (x?.spread_g) {      // team-season counts: covered and ats_l are covers and losses; the rest of spread_g pushed
+      const cov = x.covered ?? 0, lost = x.ats_l ?? 0, push = x.spread_g - cov - lost
+      L.push(`Against the spread (the team's season): ${cov}-${lost}${push ? `-${push} (pushes)` : ''} in ${x.spread_g} game${x.spread_g === 1 ? '' : 's'} with a line, ${display('sgn1', x.ats_pts)} points a game against it; ${display('sgn1', x.w_spread)} wins above the spread.`)
+    }
     for (const [g, keys] of Object.entries(GROUP_OF)) {
       if (!keys || !want(g)) continue
       const rows = statRows(idx, sr.values || {}, pct, pools, keys)

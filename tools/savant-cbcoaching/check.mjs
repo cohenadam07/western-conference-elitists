@@ -159,6 +159,33 @@ test('timeouts and challenges sit inside each season\'s rules', () => {
 })
 
 // ---- 4. nothing from CBBD raw ------------------------------------------------------------
+test('against the spread: covers and losses fit inside the games with a line, and the page\'s ATS rate agrees', () => {
+  // Nov 2026: `covered` was the roster model's places filled (out of 5), published beside spread_g, and
+  // read as covers (Jon Scheyer 2026-27: covered 5, spread_g 2). It is now covers; the roster figure is roster_places.
+  let n = 0
+  for (const [id, p] of Object.entries(pages)) {
+    for (const sr of p.seasons || []) {
+      const x = sr.exp
+      if (!x || x.spread_g == null) continue
+      const tag = `${id} ${sr.season} ${sr.team}`
+      n++
+      for (const k of ['covered', 'ats_l']) assert.ok(Number.isInteger(x[k]) && x[k] >= 0, `${tag}: ${k} ${x[k]}`)
+      assert.ok(x.covered <= x.spread_g, `${tag}: covered ${x.covered} > spread_g ${x.spread_g}`)
+      assert.ok(x.covered + x.ats_l <= x.spread_g, `${tag}: ${x.covered}-${x.ats_l} against the spread in ${x.spread_g} games with a line`)
+      if (x.roster_places != null) assert.ok(x.roster_places >= 0 && x.roster_places <= 5, `${tag}: roster_places ${x.roster_places}`)
+      // the page's ATS stat counts this coach's games without pushes: never more than the team's decided ones,
+      // and the same rate when he coached all of them
+      const a = sr.values?.ats
+      if (a && a[1] != null) {
+        const decided = x.covered + x.ats_l
+        assert.ok(a[1] <= decided, `${tag}: ATS stat on ${a[1]} games, team decided ${decided}`)
+        if (a[1] === decided && decided) assert.ok(Math.abs(a[0] - 100 * x.covered / decided) < 0.15, `${tag}: ATS ${a[0]} vs ${x.covered}/${decided}`)
+      }
+    }
+  }
+  assert.ok(n > 1000, `only ${n} coach-seasons with a line`)
+})
+
 test('no CollegeBasketballData row is published raw', () => {
   const banned = /"(committedTo|athleteId|heightInches|weightPounds|dateOfBirth|sourceId|yearsRemaining|eligibility|rrating|rating)"\s*:/
   const walk = (d) => { for (const f of readdirSync(d, { withFileTypes: true })) { const p = path.join(d, f.name); if (f.isDirectory()) walk(p); else if (f.name.endsWith('.gz')) { const s = gunzipSync(readFileSync(p)).toString('utf8'); assert.ok(!banned.test(s), `${path.relative(CB, p)} carries a CBBD field`) } } }
@@ -215,6 +242,8 @@ test('the profile quotes the page: career stats and the current season\'s, value
     const sr = p.seasons.find((x) => x.season === index.meta.current) || p.seasons[p.seasons.length - 1]
     if (sr && S.season) {
       assert.equal(S.season.season, sr.season)
+      const x = S.season.expectation
+      if (x?.spread_g != null) assert.ok(x.covered <= x.spread_g && x.covered + x.ats_l <= x.spread_g, `${c.id} ${sr.season}: connector says ${x.covered}-${x.ats_l} in ${x.spread_g} with a line`)
       const pct = sr.ranked ? sr.pct : sr.live_pct || {}
       for (const g of ['rotation', 'game_management', 'identity', 'development', 'roster_building', 'tournament', 'resources', 'context']) for (const row of S[g]?.stats || []) { assert.equal(row.value, sr.values[row.key][0], `${c.id} ${sr.season} ${row.key}`); assert.equal(row.percentile, pct[row.key] ?? null, `${c.id} ${sr.season} ${row.key} pct`) }
     }

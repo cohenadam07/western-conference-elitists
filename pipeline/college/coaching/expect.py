@@ -349,7 +349,7 @@ def run(log=print):
         e.update(exp_net=round(p["exp_net"], 2), exp_w=round(e["exp_w"], 2), w_roster=round(e["w"] - e["exp_w"], 2),
                  w_spread=round(e["w_spread"], 2), ats_pts=round(e["ats_pts"] / e["spread_g"], 2) if e["spread_g"] else None,
                  net=nets.get(s, {}).get(t, {}).get("net"), ap_pre=a.get("pre"), ap_peak=a.get("peak"), ap_final=a.get("final"),
-                 parts=p["parts"], covered=round(p["covered"], 2))
+                 parts=p["parts"], roster_places=round(p["covered"], 2))   # of 5; not covers (those are ats_w)
     m_last = models[final[-1]][0]
     fit = dict(headline=headline, vs_last=t_last, vs_ap=t_ap, seasons=seasons, scored=final, k_shrink=K_SHRINK,
                spread_slope=curve.slope, spread_n=curve.n,
