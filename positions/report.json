@@ -1,0 +1,252 @@
+{
+ "box_mean": 2.6246855663938065,
+ "box_sd": 0.5399897560151569,
+ "ht_mean": 77.46676363636364,
+ "ht_sd": 3.336186621365949,
+ "trb_center": 15.17067954034107,
+ "weights": {
+  "box": 0.5,
+  "height": 0.3,
+  "listed": 0.2
+ },
+ "big_min_ht": 80,
+ "cut_guard_wing": -0.40129281568486913,
+ "cut_wing_big": 0.6874392827526792,
+ "shares_target": {
+  "Wing": 0.3363431151241535,
+  "Guard": 0.4108352144469526,
+  "Big": 0.2528216704288939
+ },
+ "shares": {
+  "Guard": 0.4109,
+  "Wing": 0.3363,
+  "Big": 0.2529
+ },
+ "agree": 0.8116,
+ "by_rule": 1418,
+ "listed_vs_bucket": {
+  "C": {
+   "Big": 0.979,
+   "Guard": 0.0,
+   "Wing": 0.021
+  },
+  "F": {
+   "Big": 0.564,
+   "Guard": 0.002,
+   "Wing": 0.433
+  },
+  "G": {
+   "Big": 0.001,
+   "Guard": 0.698,
+   "Wing": 0.301
+  },
+  "NA": {
+   "Big": 0.071,
+   "Guard": 0.143,
+   "Wing": 0.786
+  },
+  "PF": {
+   "Big": 0.8,
+   "Guard": 0.0,
+   "Wing": 0.2
+  },
+  "PG": {
+   "Big": 0.0,
+   "Guard": 0.931,
+   "Wing": 0.069
+  },
+  "SF": {
+   "Big": 0.0,
+   "Guard": 0.0,
+   "Wing": 1.0
+  },
+  "SG": {
+   "Big": 0.0,
+   "Guard": 0.4,
+   "Wing": 0.6
+  }
+ },
+ "agree_before": 0.7748,
+ "borderline": [
+  [
+   "Kaidon Rayfield",
+   "2636",
+   80.0,
+   "F",
+   "Big",
+   0.0,
+   "Wing/Big"
+  ],
+  [
+   "Emanuel Richards",
+   "2344",
+   76.0,
+   "G",
+   "Guard",
+   0.0,
+   "Guard/Wing"
+  ],
+  [
+   "Zion Obanla",
+   "2379",
+   80.0,
+   "G",
+   "Wing",
+   0.0,
+   "Wing/Big"
+  ],
+  [
+   "Nic Codie",
+   "251",
+   80.0,
+   "F",
+   "Wing",
+   0.001,
+   "Wing/Big"
+  ],
+  [
+   "John Squire",
+   "160",
+   80.0,
+   "F",
+   "Wing",
+   0.001,
+   "Wing/Big"
+  ],
+  [
+   "Cam Morris III",
+   "2193",
+   80.0,
+   "F",
+   "Big",
+   0.001,
+   "Wing/Big"
+  ],
+  [
+   "Mike Evbagharu",
+   "2099",
+   76.0,
+   "G",
+   "Wing",
+   0.001,
+   "Guard/Wing"
+  ],
+  [
+   "Kasheem Grady II",
+   "140",
+   77.0,
+   "G",
+   "Wing",
+   0.002,
+   "Guard/Wing"
+  ],
+  [
+   "Isaiah Skinner",
+   "2908",
+   77.0,
+   "G",
+   "Wing",
+   0.002,
+   "Guard/Wing"
+  ],
+  [
+   "Dasear Haskins",
+   "2603",
+   80.0,
+   "F",
+   "Wing",
+   0.002,
+   "Wing/Big"
+  ],
+  [
+   "Jaden Daughtry",
+   "2368",
+   79.0,
+   "F",
+   "Wing",
+   0.002,
+   "Wing/Big"
+  ],
+  [
+   "Garrett Nuckolls",
+   "2501",
+   78.0,
+   "G",
+   "Guard",
+   0.002,
+   "Guard/Wing"
+  ],
+  [
+   "Cameron Palesse",
+   "2011",
+   77.0,
+   "G",
+   "Wing",
+   0.003,
+   "Guard/Wing"
+  ],
+  [
+   "Merritt Alderink",
+   "2199",
+   79.0,
+   "F",
+   "Wing",
+   0.003,
+   "Wing/Big"
+  ],
+  [
+   "Nick Janowski",
+   "2900",
+   76.0,
+   "G",
+   "Guard",
+   0.003,
+   "Guard/Wing"
+  ],
+  [
+   "Nelson Lamizana",
+   "2154",
+   81.0,
+   "F",
+   "Big",
+   0.003,
+   "Wing/Big"
+  ],
+  [
+   "Liam Campbell",
+   "2608",
+   76.0,
+   "G",
+   "Wing",
+   0.003,
+   "Guard/Wing"
+  ],
+  [
+   "Abdou Yadd",
+   "2529",
+   81.0,
+   "F",
+   "Big",
+   0.003,
+   "Wing/Big"
+  ],
+  [
+   "Trey McKenney",
+   "130",
+   76.0,
+   "G",
+   "Wing",
+   0.003,
+   "Guard/Wing"
+  ],
+  [
+   "Devin Hines",
+   "2454",
+   76.0,
+   "G",
+   "Wing",
+   0.004,
+   "Guard/Wing"
+  ]
+ ]
+}

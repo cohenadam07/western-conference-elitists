@@ -1,0 +1,29 @@
+{
+ "season": "2020-21",
+ "d1_games": 3948,
+ "box_gate_raw": 0.8483,
+ "box_gate": 0.9807,
+ "filled_lines": 1107,
+ "pbp_games": 3758,
+ "pbp_rate": 0.9519,
+ "score_rate": 0.9862,
+ "pbp_ok_games": 3156,
+ "pbp_ok_rate": 0.8398,
+ "coord_rate": 0.187,
+ "box_rate_raw": 0.9448,
+ "box_rate": 0.9764,
+ "lineup_games": 0,
+ "lineup_ok_games": 0,
+ "lineup_ok_rate_of_d1": 0.0,
+ "five_rate": null,
+ "firm_rate": null,
+ "minutes_within_1": null,
+ "team_minutes_ok": null,
+ "team_box_minutes_ok": null,
+ "poss_team_seasons_within_2pct": 0.9472,
+ "poss_bias": -0.0046,
+ "sources": {
+  "none": 3948
+ },
+ "line_games": 3931
+}
