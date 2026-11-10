@@ -54,6 +54,7 @@
         items: [
           { label: 'Football Savant', href: '/football-savant.html', match: ['/game.html'] },
           { label: 'NFL Coaching Savant', href: '/coaching-savant.html' },
+          { label: 'College Football Savant', href: '/college-football-savant.html' },
         ],
       },
       { label: 'UFC Savant', href: '/ufc-savant.html' },

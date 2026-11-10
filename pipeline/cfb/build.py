@@ -160,7 +160,9 @@ def history():
         ex["coaches"].setdefault(str(int(y)), {})[str(int(t))] = list(dict.fromkeys(x.coach))
     EXTRAS.write_text(json.dumps(ex, sort_keys=True))
     careers, honours, entries, vol_prev, sizes = {}, {}, [], None, {}
-    for y in range(C.FIRST_SEASON, C.CURRENT):
+    for y in [x for x in C.SEASONS if x < C.CURRENT]:
+        if vol_prev is not None and y - 1 not in C.SEASONS:
+            vol_prev = None              # returning production needs the season just before
         if vol_prev is not None:
             ex["returning"][str(y)] = returning(vol_prev, N.people(y))
             EXTRAS.write_text(json.dumps(ex, sort_keys=True))
@@ -191,10 +193,23 @@ def current_site():
     return X, sz
 
 
+BEAT = REPO / "data" / "cfb-refresh.json"
+
+
+def active(today=None):
+    """The refresh runs from late August to the national title game (about Jan 20); quiet otherwise."""
+    t = (today or pd.Timestamp.now(tz="America/New_York")).date()
+    return (t.month, t.day) >= (8, 20) or (t.month, t.day) <= (1, 25)
+
+
 def refresh(fetch=True):
-    """ESPN -> tables -> site files, for the season being played."""
-    from . import espn_feed, ep, teamgame, playergame
+    """ESPN -> tables -> site files, for the season being played. Writes the heartbeat."""
+    import os
+    from . import espn_feed, ep, teamgame, playergame, heads
     y = C.CURRENT
+    beat = json.loads(BEAT.read_text()) if BEAT.exists() else {}
+    beat["last_try"] = pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%dT%H:%M:%SZ")
+    src = {}
     if fetch:
         out = espn_feed.build_season(y)
         src = out["sources"]
@@ -203,7 +218,18 @@ def refresh(fetch=True):
     teamgame.build([y])
     playergame.main("cfbd", [y])
     playergame.main("all", [y])
+    if os.environ.get("CFB_OFFLINE") != "1":
+        heads.check(heads.wanted())          # new names this week: ask ESPN once whether a headshot exists
     X, sz = current_site()
+    if os.environ.get("CFB_PUB"):            # refresh_check's clean room: no heartbeat
+        return X
+    beat.update(last_ok=beat["last_try"], season=y, through=X.through, week=X.week, finals=int(X.g.final.sum()),
+                fbs_vs_fbs_finals=int((X.g.final & X.g.fbs_game).sum()), players=int(len(X.pl)), qualified=int(X.pl.qual.sum()),
+                games_with_plays=sum(1 for v in src.values() if v["plays"] >= 80) if src else beat.get("games_with_plays"),
+                sources={"espn": len(src)} if src else beat.get("sources"),
+                source_note="Every final of the season being played comes from ESPN's summary and core play feeds (no other source is read live).")
+    BEAT.parent.mkdir(parents=True, exist_ok=True)
+    BEAT.write_text(json.dumps(beat, indent=1, sort_keys=True) + "\n")
     print(f"{y}: through {X.through}, week {X.week}; players {len(X.pl)}, qualified {int(X.pl.qual.sum())}; bytes {sum(sz.values())}")
     return X
 
@@ -214,6 +240,8 @@ if __name__ == "__main__":
         history()
     if cmd in ("refresh", "all"):
         refresh()
+    if cmd == "active":
+        raise SystemExit(0 if active() else 10)
     if cmd == "site":
         X, sz = current_site()
         print(sz)

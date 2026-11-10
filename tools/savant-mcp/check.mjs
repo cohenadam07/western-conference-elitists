@@ -346,8 +346,9 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   // cbb_schedule and the college leaderboard and team filters (Nov 5, 2026); 77,000 since
   // cbb_play_context, cbb_shot_chart and cbb_rotation (Nov 5, 2026); 82,000 for the seven College Basketball
   // Coaching Savant tools (Nov 6, 2026: 81,667; approved by Adam with PR #54). 81,753 after cbb_team_profile's head
-  // coach and cbb_get_player_profile's coaches who used players like him (Nov 6, 2026).
-  assert.ok(upfront < 82000, `tool names, descriptions and inputs came to ${upfront} characters`)
+  // coach and cbb_get_player_profile's coaches who used players like him (Nov 6, 2026). 90,000 for the ten College
+  // Football Savant tools (Nov 10, 2026: 89,697; raising the cap for the cfb_ tools approved by Adam that day).
+  assert.ok(upfront < 90000, `tool names, descriptions and inputs came to ${upfront} characters`)
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)

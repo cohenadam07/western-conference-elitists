@@ -1,6 +1,6 @@
 """shoot.py — open College Football Savant in Chromium at desktop and phone width, walk every view, and report
 console errors, horizontal page scroll, small tap targets and percentile panels that do not name their pool.
-Saves screenshots to ~/College-Football-Savant/shots. Serve public/ first (x.json must come from x.json.gz):
+Saves screenshots to ~/College-Football-Savant/shots. Serve public/ first: python3 tools/savant-cfb/serve.py
 
     python3 tools/savant-cfb/shoot.py [base url]        # default http://127.0.0.1:8791
 """
@@ -23,9 +23,11 @@ def run(p, name, w, h, mobile, reduced=False):
     pg.wait_for_selector("main h2", timeout=20000)
     ids = pg.evaluate("""async()=>{const ix=await (await fetch('/cfb/index.json')).json();const d=await (await fetch('/cfb/s/'+ix.current+'.json')).json();const q=d.players.filter(p=>p[7]);const pick=s=>q.filter(p=>p[3]===s)[3];return {qb:pick('QB')[0],wr:pick('WR')[0],lb:pick('LB')[0],k:pick('K')[0],team:pick('QB')[2]}}""")
     old = pg.evaluate("""async()=>{const d=await (await fetch('/cfb/s/2019.json')).json();const q=d.players.filter(p=>p[7]&&p[3]==='EDGE');return q[5][0]}""")
+    early = pg.evaluate("""async()=>{const d=await (await fetch('/cfb/s/2010.json')).json();const q=d.players.filter(p=>p[7]&&p[3]==='LB');return q[2][0]}""")
     views = [("home", "#home"), ("player-qb", f"#player-{ids['qb']}"), ("player-wr", f"#player-{ids['wr']}"), ("player-lb", f"#player-{ids['lb']}"), ("player-k", f"#player-{ids['k']}"),
              ("player-2019-edge", f"#player-{old}/2019"), ("team", f"#team-{ids['team']}"), ("teams", "#teams"), ("playoff", "#playoff"), ("playoff-2019", "#playoff/2019"),
-             ("all-savant", "#all-savant"), ("all-savant-2016", "#all-savant/2016"), ("leaders", "#leaders")]
+             ("all-savant", "#all-savant"), ("all-savant-2016", "#all-savant/2016"), ("leaders", "#leaders"),
+             ("player-2010-lb", f"#player-{early}/2010"), ("playoff-2011", "#playoff/2011"), ("all-savant-2010", "#all-savant/2010")]
     res, bad = {}, []
     for label, h_ in views:
         pg.evaluate(f"location.hash='{h_}'")

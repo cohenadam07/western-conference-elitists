@@ -1,12 +1,12 @@
 # Identity (BUILD step 5)
 
-- Players on a roster or with a stat, 2014 to 2026: 117,681; with a stat in an FBS game: 38,893.
-- Player-seasons moved to the team they recorded stats for (the roster file had them elsewhere): 901. Player-seasons with stats and no roster row: 2,162.
-- Recruits joined: 38,853 of 59,438 rated high-school recruits in CFBD's 2010 to 2026 classes. By method: espn id 28,022; name + school + class year 10,624; roster file's CFBD id 207.
+- Players on a roster or with a stat, 2009 to 2026: 132,493; with a stat in an FBS game: 47,947.
+- Player-seasons moved to the team they recorded stats for (the roster file had them elsewhere): 909. Player-seasons with stats and no roster row: 2,162.
+- Recruits joined: 39,984 of 59,438 rated high-school recruits in CFBD's 2010 to 2026 classes. By method: espn id 28,630; name + school + class year 11,147; roster file's CFBD id 207.
 - ESPN-id joins refused because neither the surname nor the school agreed: 0 (listed in the Mac's work folder).
-- Share of FBS players with a stat who have a recruit record, by season: 2014 58%, 2015 58%, 2016 60%, 2017 63%, 2018 67%, 2019 70%, 2020 74%, 2021 73%, 2022 73%, 2023 71%, 2024 69%, 2025 68%, 2026 69%.
-- Transfers seen as a change of team between a player's seasons: 7,643. Portal rows (2021 on): 18,906, 13,733 with a destination in our team table, 11,593 joined to a player by name, destination and season.
-- NFL: 4,360 players linked to a Football Savant id (11,941 ids on Football Savant). By method: espn id 3,306; name + college + rookie year 1,054.
+- Share of FBS players with a stat who have a recruit record, by season: 2009 0%, 2010 8%, 2011 22%, 2012 37%, 2014 58%, 2015 58%, 2016 60%, 2017 63%, 2018 67%, 2019 70%, 2020 74%, 2021 73%, 2022 73%, 2023 71%, 2024 69%, 2025 68%, 2026 69%.
+- Transfers seen as a change of team between a player's seasons: 7,862. Portal rows (2021 on): 18,906, 13,733 with a destination in our team table, 11,596 joined to a player by name, destination and season.
+- NFL: 5,727 players linked to a Football Savant id (11,941 ids on Football Savant). By method: espn id 3,306; name + college + rookie year 2,421.
 - Head coaches: 1,840 coach-seasons for 1,706 team-seasons; 132 team-seasons had more than one.
 - Hand fixes applied from pipeline/cfb/manual/id_fixes.csv: 0.
 

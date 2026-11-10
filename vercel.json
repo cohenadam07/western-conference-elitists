@@ -32,6 +32,11 @@
       "permanent": true
     },
     {
+      "source": "/college-football-savant",
+      "destination": "/college-football-savant.html",
+      "permanent": true
+    },
+    {
       "source": "/college-basketball-savant",
       "destination": "/college-basketball-savant.html",
       "permanent": true

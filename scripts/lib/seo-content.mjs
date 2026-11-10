@@ -26,6 +26,7 @@ export const PRODUCTS = [
   { name: 'Basketball Savant', href: '/basketball-savant.html', blurb: 'Every NBA player, every season back to 1979-80: percentile sliders, shot charts, and comps.' },
   { name: 'College Basketball Savant', href: '/college-basketball-savant.html', blurb: 'Every men\'s Division I player: opponent-adjusted percentiles by position, RAPM, shot zones, lineups and team ratings, refreshed after every night of games.' },
   { name: 'Football Savant', href: '/football-savant.html', blurb: 'Every NFL player back to 1999, ranked against the men who play his position, with throw maps, run-gap maps and comps.' },
+  { name: 'College Football Savant', href: '/college-football-savant.html', blurb: 'Every FBS player and team since 2009: opponent-adjusted percentiles by position, an All-Savant team lined up at the snap, and an objective 12-team playoff field with odds.' },
   { name: 'UFC Savant', href: '/ufc-savant.html', blurb: 'Every UFC fighter, ranked against the weight class: strike maps, round curves, head-to-heads and comps.' },
   { name: 'College Basketball Coaching Savant', href: '/college-basketball-coaching-savant.html', blurb: 'Every men\'s Division I head coach: wins against the roster he was given, whether players get better under him, the portal, the Rotation Map, March against the seed, and who won without money.' },
   { name: 'Basketball Coaching Savant', href: '/basketball-coaching-savant.html', blurb: 'Every NBA head coach: the Rotation Map, lineups judged from their parts, timeouts and challenges, wins against two expectations, and a coaching tree suggested from the record, 1946-47 to today.' },
@@ -145,6 +146,19 @@ export const TOOLS = {
       { html: 'For the NBA version, see <a href="/basketball-savant.html">Basketball Savant</a>, and for prospects, <a href="/draft-savant.html">Draft Savant</a>.' },
     ],
   },
+  'college-football-savant.html': {
+    name: 'College Football Savant',
+    title: 'College Football Savant: FBS Player Percentiles & Playoff Field | WCE',
+    description:
+      'Every FBS player on percentile bars, opponent-adjusted by position, plus All-Savant teams and an objective 12-team playoff field with odds.',
+    look: 'soft',
+    heading: 'What is College Football Savant?',
+    about: [
+      'College Football Savant is a free profiler from Western Conference Elitists for every FBS player and team since 2009, with All-Savant teams for every season and an objective College Football Playoff field, refreshed through the season.',
+      'Each percentile is adjusted for the opponents a player faced and ranked against FBS players at his position in the same season, and it can be switched to raw numbers, Power 4 only or his own conference. The playoff field is seeded by résumé, wins and losses against the schedule, never margin.',
+      { html: 'For the NFL, see <a href="/football-savant.html">Football Savant</a>, and for college basketball, <a href="/college-basketball-savant.html">College Basketball Savant</a>.' },
+    ],
+  },
   'draft-savant.html': {
     name: 'Draft Savant',
     title: 'Draft Savant: NBA Draft Prospect Percentiles & Models | WCE',
@@ -227,7 +241,8 @@ export function homeJsonLd() {
       {
         '@type': 'ItemList',
         name: `${SITE_NAME} tools`,
-        itemListElement: PRODUCTS.slice(0, 9).map((p, i) => ({ '@type': 'ListItem', position: i + 1, name: p.name, url: SITE + p.href })),
+        itemListElement: PRODUCTS.slice(0, 10).map(   // every Savant tool and the Dynasty Exchange (10 since College Football Savant)
+          (p, i) => ({ '@type': 'ListItem', position: i + 1, name: p.name, url: SITE + p.href })),
       },
     ],
   })

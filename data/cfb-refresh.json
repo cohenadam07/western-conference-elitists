@@ -1,0 +1,16 @@
+{
+ "fbs_vs_fbs_finals": 562,
+ "finals": 685,
+ "games_with_plays": 685,
+ "last_ok": "2026-11-10T22:25:09Z",
+ "last_try": "2026-11-10T22:25:09Z",
+ "players": 4959,
+ "qualified": 3297,
+ "season": 2026,
+ "source_note": "Every final of the season being played comes from ESPN's summary and core play feeds (no other source is read live).",
+ "sources": {
+  "espn": 685
+ },
+ "through": "2026-11-07",
+ "week": 10
+}

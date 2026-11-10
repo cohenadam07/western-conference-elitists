@@ -40,16 +40,27 @@ ND = 87
 FCS_RATING = -22.0        # an FCS opponent, in points against an average FBS team (hand-set; only feeds the resume)
 # conference seasons with NO championship game (hand-entered from the conferences' histories)
 NO_CCG = {("American Athletic", 2014), ("Big 12", 2014), ("Big 12", 2015), ("Big 12", 2016), ("Sun Belt", 2014), ("Sun Belt", 2015),
-          ("Sun Belt", 2016), ("Sun Belt", 2017), ("Sun Belt", 2020), ("Pac-12", 2024), ("Pac-12", 2025)}
+          ("Sun Belt", 2016), ("Sun Belt", 2017), ("Sun Belt", 2020), ("Pac-12", 2024), ("Pac-12", 2025),
+          # 2009-2012 (added with the backfill): the Big Ten's and the Pac-12's title games began in 2011, the
+          # Big 12 played none from 2011, the Mountain West's began in 2013; the Big East, the WAC and the Sun
+          # Belt had none
+          ("Big Ten", 2009), ("Big Ten", 2010), ("Pac-10", 2009), ("Pac-10", 2010), ("Big 12", 2011), ("Big 12", 2012),
+          *[(c, y) for c in ("Big East", "Western Athletic", "Sun Belt", "Mountain West") for y in range(2009, 2013)]}
 N_SIMS = 20000
 
 
 def power_confs(y):
-    return P4 | ({"Pac-12"} if (y <= 2023 and CFG["pac12_power_through_2023"]) else set())
+    """The 2026 rules' four, plus the Pac-12 through 2023 (it was a power conference then: Adam's rule), and
+    for the backfilled seasons the leagues that were power conferences in their day: the Pac-10 (2009-2010)
+    and the Big East, whose champion had a guaranteed BCS bowl through 2012. READING, listed for review."""
+    out = P4 | ({"Pac-12"} if (y <= 2023 and CFG["pac12_power_through_2023"]) else set())
+    if y <= 2012:
+        out |= {"Big East", "Pac-10"}
+    return out
 
 
 def g6_confs(y):
-    return (G5 | {"Pac-12"}) - power_confs(y)
+    return (G5 | {"Pac-12", "Western Athletic"}) - power_confs(y)
 
 
 class Season:
@@ -99,7 +110,8 @@ class Season:
             else:
                 self.has_ccg[c] = False
         self.g = g.reset_index(drop=True)
-        w = pd.read_parquet(WORK / "ratings_weekly.parquet")
+        from .rating import weekly_for
+        w = pd.read_parquet(weekly_for(y))
         self.w = w[w.season == y]
         self.fws = sorted(self.g.fw.unique())
 

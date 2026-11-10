@@ -959,6 +959,33 @@
         "cbb_coaching_data",
         "cbb_coaching_dictionary"
       ]
+    },
+    "page:college-football-savant.html": {
+      "tools": [
+        "cfb_search_players",
+        "cfb_get_player_profile",
+        "cfb_player_career",
+        "cfb_player_splits",
+        "cfb_leaderboard",
+        "cfb_team_profile",
+        "cfb_team_rankings",
+        "cfb_game",
+        "cfb_all_savant_team",
+        "cfb_playoff_field"
+      ]
+    },
+    "data:cfb": {
+      "tools": [
+        "cfb_get_player_profile",
+        "cfb_player_career",
+        "cfb_player_splits",
+        "cfb_leaderboard",
+        "cfb_team_profile",
+        "cfb_team_rankings",
+        "cfb_game",
+        "cfb_all_savant_team",
+        "cfb_playoff_field"
+      ]
     }
   },
   "switches": {

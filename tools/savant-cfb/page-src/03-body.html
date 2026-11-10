@@ -1,13 +1,13 @@
 </style>
 <script src="/wce-nav.js" defer></script>
 </head>
-<body>
+<body class="view-home">
 <wce-nav style="display:block;min-height:60px"></wce-nav>
 <header class="hero" id="hero">
   <div class="bg" aria-hidden="true" id="herobg"></div>
   <div class="in">
     <div class="ttl" data-tilt><div><h1>College Football Savant</h1></div></div>
-    <p>Every FBS player and team · opponent-adjusted percentiles · 2014–2026</p>
+    <p>Every FBS player and team · opponent-adjusted percentiles · 2009–2026</p>
   </div>
 </header>
 <div class="bar1">
@@ -26,6 +26,9 @@
   </div>
 </div>
 <main id="view"><p class="empty">Loading…</p></main>
-<footer class="foot"><p><span id="ver"></span> · New in 1.0.0: every FBS player and team since 2014 on percentile bars, the All-Savant teams lined up at the snap, and an objective 12-team playoff field with odds from 20,000 simulated seasons. Data: ESPN play-by-play, box scores and rosters; recruiting stars and class ranks from CollegeFootballData's composite. Expected points, the opponent adjustment, the power rating, the résumé score and Savant value are WCE's own. FBS-vs-FBS games only. Model outputs are the model's view, not a verdict. <a href="/#ai">Ask it in Claude with the WCE connector</a>. <a href="/">Western Conference Elitists</a></p></footer>
+<div id="home"></div>
+<!-- the site build (scripts/lib/seo-build.mjs) puts the "What is College Football Savant?" panel straight before this wrap; it shows on the Players screen only (body.view-home) -->
+<div class="wrap"></div>
+<footer class="foot"><p><span id="ver"></span> · New in 1.0.0: every FBS player and team since 2009 on percentile bars, the All-Savant teams lined up at the snap, and an objective 12-team playoff field with odds from 20,000 simulated seasons. Data: ESPN play-by-play, box scores and rosters; recruiting stars and class ranks from CollegeFootballData's composite. Expected points, the opponent adjustment, the power rating, the résumé score and Savant value are WCE's own. FBS-vs-FBS games only. 2013 and 2004 to 2008 are not on the site: their play-by-play fails the data gates. Model outputs are the model's view, not a verdict. <a href="/#ai">Ask it in Claude with the WCE connector</a>. <a href="/">Western Conference Elitists</a></p></footer>
 <script src="/savant-cfb.js"></script>
 <script>

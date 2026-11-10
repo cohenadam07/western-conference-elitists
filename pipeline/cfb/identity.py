@@ -34,7 +34,7 @@ import numpy as np
 import pandas as pd
 from .paths import RAW, WORK, OUT, REPO
 
-FIRST, LAST = 2014, 2026
+FIRST, LAST = 2009, 2026
 MANUAL = REPO / "pipeline" / "cfb" / "manual" / "id_fixes.csv"
 _SUFFIX = re.compile(r"\s+(jr|sr|ii|iii|iv|v)$")
 
@@ -81,7 +81,7 @@ def spine():
     ro = ro.sort_values("games_rostered", ascending=False)
     ro = ro.merge(st.rename(columns={"team": "stat_team", "games": "stat_games"}), on=["season", "pid"], how="left")
     ro["pref"] = (ro.team == ro.stat_team).astype(int)
-    ps = ro.sort_values(["pref", "games_rostered"], ascending=False).drop_duplicates(["season", "pid"]).copy()
+    ps = ro.sort_values(["pref", "games_rostered", "team"], ascending=[False, False, True], kind="stable").drop_duplicates(["season", "pid"]).copy()   # ties: the lower team id, so reruns agree
     moved = ps.stat_team.notna() & (ps.team != ps.stat_team)
     ps.loc[moved, "team"] = ps.loc[moved, "stat_team"].astype("int64")
     # players with stats but no roster row at all
@@ -192,7 +192,8 @@ def classes(ps, rec_m):
     # junior-college or lower-division transfer a quarter of the time, so history only calls a man a
     # freshman when his high-school class year is known.
     derived = (ps.exp == 1) | ((ps.exp == 2) & (ps.prev_games.fillna(0) <= np.where(ps.season >= 2019, 4, 0)))
-    derived &= ps.class_year.notna() & (ps.class_year >= ps.season - 1)
+    # (the recruit file starts with the 2010 class, so for the backfilled seasons before 2014 the first roster season decides)
+    derived &= (ps.class_year.notna() & (ps.class_year >= ps.season - 1)) | (ps.season < 2014)
     cur = ps.season == LAST
     ps["fr"] = np.where(cur & ps.cls.notna(), ps.cls == "FR", derived)
     lab = np.select([ps.exp <= 1, ps.exp == 2, ps.exp == 3], ["FR", "SO", "JR"], default="SR")
@@ -366,5 +367,36 @@ def main():
     print("\n".join(lines))
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and len(__import__("sys").argv) == 1:
     main()
+
+
+# ---------------------------------------------------------------- positions for 2009-2012
+ATHLETE = "https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/athletes/{}"
+
+
+def early_positions():
+    """The 2009-2012 rosters carry no position at all ("-" for every player), so a position comes from ESPN's
+    athlete record: its listing for the man's career, not for that season (Bruce Irvin, a defensive end at West
+    Virginia in 2010, is listed LB). Asked once per player with a graded play, cached like every ESPN response.
+    Writes work/early_positions.parquet; numbers.people reads it for those seasons."""
+    from .espn_http import get_json, pmap
+    from . import config as C
+    ids = set()
+    for t in ("qb", "rush", "rec", "dfn", "kick", "punt"):
+        d = pd.read_parquet(WORK / f"pg_{t}_all.parquet", columns=["season", "pid"])
+        ids |= set(d[d.season.isin(C.EARLY) & (d.pid > 0)].pid.astype(int))
+    ids = sorted(ids)
+    docs = pmap(lambda a: get_json(ATHLETE.format(a), f"ath_{a}"), ids)
+    rows = []
+    for a, d in zip(ids, docs):
+        p = d.get("position") or {}
+        rows.append(dict(pid=a, pos=p.get("abbreviation"), weight=d.get("weight"), height=d.get("height"), name=d.get("displayName")))
+    t = pd.DataFrame(rows)
+    t.to_parquet(WORK / "early_positions.parquet", index=False)
+    print(f"{len(t)} players asked; with a position {int(t.pos.notna().sum())}; by position {t.pos.value_counts().head(14).to_dict()}")
+    return t
+
+
+if __name__ == "__main__" and len(__import__("sys").argv) > 1 and __import__("sys").argv[1] == "early":
+    early_positions()

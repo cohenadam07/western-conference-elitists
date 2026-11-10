@@ -31,6 +31,7 @@ The sportsdataverse conventions this reproduces (each one measured in `check`):
   * ESPN's raw type names are normalised (see TYPE_FIX);
   * rush / pass / sack on fumble and safety plays come from the play text.
 """
+import os
 import re
 import sys
 import json
@@ -446,13 +447,16 @@ def build_season(season, only=None, fresh_days=3, rosters=True, write=True):
     from .plays import finish
     fbs = fbs_of(season)
     current = season >= pd.Timestamp.now(tz="UTC").year - (1 if pd.Timestamp.now(tz="UTC").month < 3 else 0)
-    events = scoreboards(season, fresh=current)
+    # CFB_OFFLINE=1: read only what is cached, refetch nothing (refresh_check's clean room, which must see
+    # exactly the responses the build it is compared with saw)
+    refetch = current and os.environ.get("CFB_OFFLINE") != "1"
+    events = scoreboards(season, fresh=refetch)
     g = games_rows(season, events, fbs)
     fin = g[g.final & (g.home_fbs | g.away_fbs)]
     if only is not None:
         fin = fin[fin.game_id.isin(only)]
     now = pd.Timestamp.now(tz="UTC")
-    recent = set(fin[(now - fin.date) < pd.Timedelta(days=fresh_days)].game_id) if current else set()
+    recent = set(fin[(now - fin.date) < pd.Timedelta(days=fresh_days)].game_id) if refetch else set()
 
     def pull(eid):
         fr = eid in recent
@@ -496,7 +500,7 @@ def build_season(season, only=None, fresh_days=3, rosters=True, write=True):
     if rosters and only is None:
         teams = sorted(fbs.index)
         docs = pmap(lambda t: get_json(ROSTER.format(t=t) + (f"?season={season}" if not current else ""),
-                                       f"roster_{season}_{t}", fresh=current, max_age_days=6 if current else None), teams)
+                                       f"roster_{season}_{t}", fresh=refetch, max_age_days=6 if refetch else None), teams)
         rr = []
         for t, doc in zip(teams, docs):
             rr += roster_rows(season, t, doc)

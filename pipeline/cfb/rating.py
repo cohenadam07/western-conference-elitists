@@ -302,5 +302,38 @@ def run():
     fig.savefig(CHARTS / "rating_backtest.png", dpi=110)
 
 
+EARLY = (2009, 2012)
+
+
+def early():
+    """2009-2012, the history added after launch (BUILD step 16), walked forward on their own from a flat
+    prior in 2009, the way 2014 starts. A separate chain, so nothing about 2014 on moves; its constants
+    (the points scale, home field) are re-fitted inside it from 2009 on, exactly as the main chain does."""
+    global FIRST, LAST
+    keep = (FIRST, LAST)
+    FIRST, LAST = EARLY
+    try:
+        t, g, pre, kappa = inputs()
+        pf = OUT / "rating_params.json"
+        P = {k: v for k, v in json.loads(pf.read_text()).items() if k != "kappa"} if pf.exists() else DEFAULT
+        p, weekly, pm = chain(t, g, pre, kappa, P, keep_weekly=True)
+    finally:
+        FIRST, LAST = keep
+    p.to_parquet(WORK / "rating_preds_early.parquet", index=False)
+    weekly.to_parquet(WORK / "ratings_weekly_early.parquet", index=False)
+    x = p[p.season >= 2010]
+    print("2010-2012 games", len(x), "MAE vs margin", round(float((x.pred - x.margin).abs().mean()), 2),
+          "| with a closing spread:", int(x.spread_home.notna().sum()), "spread MAE", round(float((-x.spread_home - x.margin).abs().mean()), 2))
+
+
+def weekly_for(y):
+    """The weekly ratings file that holds season y."""
+    return WORK / ("ratings_weekly_early.parquet" if y < 2014 else "ratings_weekly.parquet")
+
+
+def preds_for(y):
+    return WORK / ("rating_preds_early.parquet" if y < 2014 else "rating_preds.parquet")
+
+
 if __name__ == "__main__":
-    {"tune": tune, "run": run}[sys.argv[1]]()
+    {"tune": tune, "run": run, "early": early}[sys.argv[1]]()

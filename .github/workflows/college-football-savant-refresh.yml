@@ -1,0 +1,76 @@
+# College Football Savant — the season being played, refreshed in the cloud (BUILD step 14).
+#
+# Daily at about 10:07 UTC (after the night's late West Coast games are final and ESPN's stat crews have
+# corrected them), plus a Sunday run at about 08:13 UTC for Saturday's slate. Late August to the title
+# game; pipeline.cfb.build `active` keeps it quiet outside that window. A run commits only if a file
+# changed. Odd minutes on purpose: GitHub delays :00 and :30.
+#
+# Dry run: `mode=dry` does a whole refresh and commits nothing. A push to the build branch runs it too,
+# so the workflow is proven on a GitHub runner before it is merged.
+#
+# The raw ESPN responses live in the Actions cache between runs (a lost cache costs one full pull, about
+# ten minutes). They are never committed or uploaded as a release: the archive is Adam's Mac only.
+name: College Football Savant refresh
+
+on:
+  schedule:
+    - cron: '7 10 * 8-12,1 *'     # daily, late August to the title game
+    - cron: '13 8 * 8-12,1 0'     # Sunday morning, for Saturday's slate
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'once or dry (a full refresh that commits nothing)'
+        type: choice
+        options: [once, dry]
+        default: once
+  push:
+    branches: [college-football-savant]
+    paths: ['pipeline/cfb/**', '.github/workflows/college-football-savant-refresh.yml']
+
+concurrency:
+  group: college-football-savant-refresh
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Control Room check-in (start)
+        if: github.event_name != 'push'
+        continue-on-error: true
+        timeout-minutes: 1
+        run: bash .github/scripts/control-room.sh college-football-savant start
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: pipeline/cfb/requirements-cloud.txt
+      - uses: actions/cache@v4
+        with:
+          path: .cfb-home/raw/espn_live
+          key: espn-cfb-${{ github.run_id }}
+          restore-keys: espn-cfb-
+      - name: Install
+        run: pip install --quiet -r pipeline/cfb/requirements-cloud.txt
+      - name: Refresh
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] || [ "${{ github.event.inputs.mode }}" = "dry" ]; then
+            exec bash pipeline/cfb/cloud_run.sh dry
+          fi
+          exec bash pipeline/cfb/cloud_run.sh once
+      - name: Control Room check-in
+        if: always() && github.event_name != 'push'
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/control-room.sh college-football-savant "${{ job.status }}"

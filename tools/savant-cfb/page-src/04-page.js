@@ -150,7 +150,7 @@ function playerHtml(id,P,d,i,TF,TD,A,seasons,cur){
     h+='<div class="grp"><div class="hd"><h3>'+esc(g)+'</h3>'+(g==='Context'?'<span class="ctx">CONTEXT</span>':'')+'</div><div class="rows">';
     ss.forEach(function(s){h+=prow(s,M.row(d,REG,s,i,o),g);});h+='</div></div>';});
   var isD=table==='dfn';
-  h+='<div class="pad">'+(isD?'<p class="note">'+esc(REG.defender_note)+'</p>':'')+(isD&&y<2024?'<p class="note" style="margin-top:8px"><strong>'+esc(REG.pre_box_warning)+'</strong></p>':'')+'<p class="note" style="margin-top:8px">Sources: ESPN play-by-play and box scores; WCE\'s own expected-points model and opponent adjustment. FBS-vs-FBS games only.</p></div></section>';
+  h+='<div class="pad">'+(isD?'<p class="note">'+esc(REG.defender_note)+'</p>':'')+(isD&&y<2024?'<p class="note" style="margin-top:8px"><strong>'+esc(REG.pre_box_warning)+(REG.no_tacklers.indexOf(y)>=0?' '+esc(REG.early_def_note):'')+'</strong></p>':'')+'<p class="note" style="margin-top:8px">Sources: ESPN play-by-play and box scores; WCE\'s own expected-points model and opponent adjustment. FBS-vs-FBS games only.</p></div></section>';
   /* splits, game log, career */
   var rows=TF&&TF.logs[String(id)],cols=REG.logcols[table];
   if(rows&&rows.length){
@@ -167,7 +167,7 @@ function playerHtml(id,P,d,i,TF,TD,A,seasons,cur){
   if(career.length){
     var same=career.filter(function(r){return M.SLOT_TABLE[r[2]]===table;});
     var hdr=same.length?M.line(table,asTot(same[0][9],cols,same[0][4])).slice(1):[];
-    h+='<section class="stk sm"><div class="band"><h2>Career</h2><span class="lab">across schools · since 2014</span></div><div class="scroll"><table class="t"><thead><tr><th class="pin">Season</th><th>School</th><th>Pos</th><th class="n">G</th><th class="n">Savant value</th><th class="n">Rank at pos</th>'+hdr.map(function(c){return '<th class="n">'+esc(c[0])+'</th>';}).join('')+'</tr></thead><tbody>';
+    h+='<section class="stk sm"><div class="band"><h2>Career</h2><span class="lab">across schools · since 2009</span></div><div class="scroll"><table class="t"><thead><tr><th class="pin">Season</th><th>School</th><th>Pos</th><th class="n">G</th><th class="n">Savant value</th><th class="n">Rank at pos</th>'+hdr.map(function(c){return '<th class="n">'+esc(c[0])+'</th>';}).join('')+'</tr></thead><tbody>';
     career.forEach(function(r){var sameT=M.SLOT_TABLE[r[2]]===table,ln=sameT?M.line(table,asTot(r[9],cols,r[4])).slice(1):hdr.map(function(){return ['','—'];});
       h+='<tr><td class="pin fig"><a href="'+plink(id,r[0])+'">'+r[0]+'</a></td><td><a href="'+tlink(r[1],r[0])+'">'+esc(TEAMK[r[1]]?TEAMK[r[1]][1]:tname(d,r[1]))+'</a></td><td>'+esc(r[2])+(r[3]?' · '+esc(r[3]):'')+'</td><td class="n">'+r[4]+'</td><td class="n">'+(r[6]==null?'—':sg(r[6],1))+'</td><td class="n">'+(r[7]?r[7]+' of '+r[8]:'—')+'</td>'+ln.map(function(c){return '<td class="n">'+esc(c[1])+'</td>';}).join('')+'</tr>';});
     h+='</tbody></table></div><p class="note pad">Games are FBS-vs-FBS games in which he recorded a play. Rank is among qualified players at his position that season.</p></section>';}
@@ -332,7 +332,7 @@ function vLeaders(){
       rows.slice(0,60).forEach(function(x,n){var p=d.players[x.i];
         h+='<tr><td class="n">'+(n+1)+'</td><td class="pin"><a href="'+plink(p[C.id],d.season)+'"><strong>'+esc(p[C.name])+'</strong></a>'+(p[C.qual]?'':' <span class="lab" style="color:var(--muted)">below sample</span>')+'</td><td><span class="chip" style="height:18px;background:'+tcolor(d,p[C.team])+'"></span>'+esc(tname(d,p[C.team]))+'</td><td class="n"><strong>'+(stat?esc(x.r.shown):sg(x.v,1))+'</strong></td>'+(stat?'<td>'+bar(x.r)+'</td><td class="n">'+(x.r.n==null?'—':Math.round(x.r.n))+'</td>':'<td class="n">'+p[C.gp]+'</td>')+'</tr>';});
       h+='</tbody></table></div>';}
-    h+='<div class="pad">'+(stat?'<p class="note"><strong>'+esc(stat.label)+'.</strong> '+esc(stat.what)+' Formula: '+esc(stat.formula)+'. Source: '+esc(stat.source)+'. From '+stat.start+'.'+(stat.k?' Settles around '+stat.k+' '+esc(stat.unit_n)+'.':'')+(stat.verdict==='context'?' A CONTEXT stat: how much, or too noisy to grade.':'')+(stat.lower?' Lower is better, so the bar is flipped.':'')+'</p>':'<p class="note">Savant value is expected points above a replacement-level player at the position, opponent-adjusted. Pure individual value: nothing in it knows whether his team won.</p>')+(M.SLOT_TABLE[slot]==='dfn'&&d.season<2024?'<p class="note" style="margin-top:8px"><strong>'+esc(REG.pre_box_warning)+'</strong></p>':'')+'</div></section>';
+    h+='<div class="pad">'+(stat?'<p class="note"><strong>'+esc(stat.label)+'.</strong> '+esc(stat.what)+' Formula: '+esc(stat.formula)+'. Source: '+esc(stat.source)+'. From '+stat.start+'.'+(stat.k?' Settles around '+stat.k+' '+esc(stat.unit_n)+'.':'')+(stat.verdict==='context'?' A CONTEXT stat: how much, or too noisy to grade.':'')+(stat.lower?' Lower is better, so the bar is flipped.':'')+'</p>':'<p class="note">Savant value is expected points above a replacement-level player at the position, opponent-adjusted. Pure individual value: nothing in it knows whether his team won.</p>')+(M.SLOT_TABLE[slot]==='dfn'&&d.season<2024?'<p class="note" style="margin-top:8px"><strong>'+esc(REG.pre_box_warning)+(REG.no_tacklers.indexOf(d.season)>=0?' '+esc(REG.early_def_note):'')+'</strong></p>':'')+'</div></section>';
     return h;});}
 
 /* ---------- search ---------- */
@@ -382,6 +382,7 @@ function render(keep){
   else if(h==='leaders'){view=vLeaders();key='leaders';}
   else{view=vHome();small=false;}
   $('#hero').className='hero'+(small?' small':'');
+  document.body.classList.toggle('view-home',!small);
   document.querySelectorAll('#tabs a').forEach(function(a){if(a.dataset.k===key)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');var base=a.getAttribute('href').replace(/\/\d{4}$/,'');a.setAttribute('href',base+(S.season!==IDX.current&&base!=='#home'?'/'+S.season:''));});
   $('#season').value=String(want&&/^player-/.test(h)?want:S.season);
   var v=$('#view'),sy=window.scrollY;

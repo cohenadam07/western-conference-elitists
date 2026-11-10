@@ -28,6 +28,7 @@ import gzip
 import json
 import math
 import numpy as np
+from pathlib import Path
 import pandas as pd
 from scipy.stats import norm
 from .paths import WORK, REPO
@@ -39,7 +40,7 @@ from .player_study import opp_effects
 from .resume import FCS_RATING
 from .rating import fw_of
 
-PUB = REPO / "public" / "cfb"
+PUB = Path(os.environ["CFB_PUB"]) if os.environ.get("CFB_PUB") else REPO / "public" / "cfb"    # refresh_check writes elsewhere
 SLOT_ORDER = {s: i for i, s in enumerate(C.SLOTS)}
 LOGCOLS = {
     "qb": ["db", "att", "cmp", "yards", "td", "ints", "sacks", "epa", "succ", "q_rush", "q_rush_yds", "q_rush_td", "q_rush_epa"],
@@ -136,11 +137,12 @@ class Ctx:
         g = g[(g.season == y) & (g.home_fbs | g.away_fbs)].sort_values(["date", "game_id"]).reset_index(drop=True)
         self.g = g
         self.fbs = D["fbs"]
-        w = pd.read_parquet(WORK / "ratings_weekly.parquet") if weekly is None else weekly
+        from .rating import weekly_for, preds_for
+        w = pd.read_parquet(weekly_for(y)) if weekly is None else weekly
         self.weekly = w[w.season == y]
         w = w[(w.season == y) & (w.fw == 99999)].set_index("team")
         self.rt = w
-        p = pd.read_parquet(WORK / "rating_preds.parquet") if preds is None else preds
+        p = pd.read_parquet(preds_for(y)) if preds is None else preds
         self.preds = p[p.season == y].set_index("game_id") if len(p) else p
         self.hfa, self.sigma = float(w.hfa.iloc[0]), float(w.sigma.iloc[0])
         fin = g[g.final]
@@ -352,7 +354,7 @@ def allsavant_doc(X, A):
            "conference": {c: [row(r) for r in rows] for c, rows in A["conference"].items()},
            "freshman": [row(r) for r in A["freshman"]],
            "heisman": [row(r) for r in A["heisman"]], "non_qb": [row(r) for r in A["non_qb"]],
-           "warning": C.PRE_BOX_WARNING if X.y < 2024 else None, "note": C.DEFENDER_NOTE,
+           "warning": (C.PRE_BOX_WARNING + (" " + C.EARLY_DEF_NOTE if X.y in C.NO_TACKLERS else "")) if X.y < 2024 else None, "note": C.DEFENDER_NOTE,
            "standing": None if X.final else f"as of week {X.week}"}
     return doc
 
@@ -474,7 +476,8 @@ def write_index(entries):
     for e in entries:
         by[e["season"]] = e
     seasons = [by[k] for k in sorted(by, reverse=True)]
-    doc = {"version": C.VERSION, "current": C.CURRENT, "default_season": C.CURRENT, "first_season": C.FIRST_SEASON, "seasons": seasons}
+    doc = {"version": C.VERSION, "current": C.CURRENT, "default_season": C.CURRENT, "first_season": C.FIRST_SEASON, "seasons": seasons,
+           "not_on_site": {str(k): v for k, v in sorted(C.DROPPED.items())}}
     return jdump(PUB / "index.json", doc)
 
 
@@ -492,7 +495,7 @@ def registry_doc():
                            for k, l, g, v, u, lo, w in C.TEAM_STATS],
             "slots": C.SLOTS, "slot_name": C.SLOT_NAME, "wider": C.WIDER, "wider_name": C.WIDER_NAME, "min_pool": C.MIN_POOL,
             "qual": {k: list(v) for k, v in C.QUAL.items()}, "games_full": C.GAMES_FULL, "power4": C.POWER4,
-            "pre_box_warning": C.PRE_BOX_WARNING, "defender_note": C.DEFENDER_NOTE, "pbu_off": C.PBU_OFF, "ff_off": C.FF_OFF,
+            "pre_box_warning": C.PRE_BOX_WARNING, "early_def_note": C.EARLY_DEF_NOTE, "no_tacklers": C.NO_TACKLERS, "defender_note": C.DEFENDER_NOTE, "pbu_off": C.PBU_OFF, "ff_off": C.FF_OFF,
             "garbage_rule": "a margin above 38 points in the second quarter, 28 in the third, 22 in the fourth",
             "logcols": LOGCOLS, "replacement_percentile": 25,
             "value_k": {k: v for k, v in __import__("pipeline.cfb.value", fromlist=["KSET"]).KSET.items()}}

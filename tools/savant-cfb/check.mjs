@@ -36,13 +36,13 @@ const reg = read('registry.json')
 const idx = read('index.json')
 const byKey = Object.fromEntries(reg.stats.map((s) => [s.key, s]))
 const SEASONS = idx.seasons.map((s) => s.season).sort()
-const SAMPLE = [SEASONS[0], 2019, 2022, 2024, idx.current].filter((s, i, a) => SEASONS.includes(s) && a.indexOf(s) === i)
+const SAMPLE = [SEASONS[0], 2014, 2019, 2022, 2024, idx.current].filter((s, i, a) => SEASONS.includes(s) && a.indexOf(s) === i)
 const P4 = new Set(reg.power4)
-const G6 = new Set(['American Athletic', 'Conference USA', 'Mid-American', 'Mountain West', 'Sun Belt', 'Pac-12'])
+const G6 = new Set(['American Athletic', 'Conference USA', 'Mid-American', 'Mountain West', 'Sun Belt', 'Pac-12', 'Western Athletic'])
 
 test('the registry explains every stat', () => {
   assert.match(reg.version, /^\d+\.\d+\.\d+$/)
-  assert.ok(reg.stats.length >= 80)
+  assert.ok(reg.stats.length >= 60, `${reg.stats.length} player stats`)          // 68 at 1.0.0: every row of BACKTEST.md's verdict table, plus context rows
   for (const s of reg.stats) {
     for (const k of ['label', 'group', 'verdict', 'unit', 'what', 'formula', 'source', 'start']) assert.ok(s[k] !== undefined && s[k] !== '', `${s.key}.${k}`)
     assert.ok(['full', 'hatched', 'context'].includes(s.verdict), s.key)
@@ -58,12 +58,14 @@ test('the registry explains every stat', () => {
 })
 
 test('every season has its files, a file per team, and arrays that line up', () => {
-  assert.deepEqual(SEASONS, Array.from({ length: idx.current - idx.first_season + 1 }, (_, i) => idx.first_season + i))
+  // 2009-2012 (added after launch) and 2014 on; 2013 and 2004-2008 fail prompt 1's gates and say why
+  assert.deepEqual(SEASONS, [2009, 2010, 2011, 2012, ...Array.from({ length: idx.current - 2014 + 1 }, (_, i) => 2014 + i)])
+  for (const y of [2004, 2008, 2013]) assert.ok(idx.not_on_site[y] && !SEASONS.includes(y), `${y} should be listed as not on the site`)
   for (const s of SEASONS) {
     const d = read(`s/${s}.json`), T = read(`teams/${s}.json`)
     for (const f of ['allsavant', 'playoff', 'games']) assert.ok(existsSync(path.join(CFB, f, `${s}.json.gz`)), `${f}/${s}`)
     assert.equal(d.season, s)
-    assert.ok(d.players.length > 3500, `${s}: ${d.players.length} players`)
+    assert.ok(d.players.length > (s < 2014 ? 2000 : 3500), `${s}: ${d.players.length} players`)     // before 2014 no tackler is named, so fewer defenders have a credited play
     const n = d.players.length
     for (const [k, c] of Object.entries(d.values)) for (const tag of ['r', 'a', 'rg', 'ag']) if (c[tag]) assert.ok(c['o' + tag] >= 0 && c['o' + tag] + c[tag].length <= n, `${s} ${k}.${tag}`)
     for (const [k, c] of Object.entries(d.samples)) assert.ok(c.o + c.v.length <= n, `${s} sample ${k}`)
@@ -122,6 +124,9 @@ test('"not tracked" is kept apart from zero', () => {
   assert.ok(d25.values.qb_cpoe.r.some((v) => v !== null))
   for (const k of ['db_pd', 'lb_pd', 'dl_disrupt']) assert.ok(!d22.values[k] || !d22.values[k].r, `${k} has values in 2022`)
   for (const k of ['dl_hur', 'lb_tkl']) assert.ok(!d19.values[k] || !d19.values[k].r, `${k} has values in 2019`)
+  const d10 = read('s/2010.json')
+  for (const k of ['dl_tfl', 'lb_stop', 'dl_disrupt']) assert.ok(!d10.values[k] || !d10.values[k].r, `${k} has values in 2010 (no tacklers named before 2014)`)
+  assert.ok(d10.values.dl_sack.r.some((v) => v !== null))
   const qb = d19.players.findIndex((p) => p[C.slot] === 'QB' && p[C.qual])
   assert.deepEqual(M.row(d19, reg, byKey.qb_cpoe, qb, {}).reason, 'not tracked before 2025')
   const cb = d22.players.findIndex((p) => p[C.slot] === 'CB' && p[C.qual])
@@ -161,7 +166,7 @@ test('All-Savant: the AP shape, nobody twice, the warning before 2024', () => {
     const best = Math.max(...d.players.map((p, i) => (p[C.qual] && M.ok(d.value.v[i]) ? d.value.v[i] : -1e9)))
     assert.equal(A.heisman[0].value, best, `${s}: the Savant Heisman is the highest Savant value`)
     assert.notEqual(A.non_qb[0].slot, 'QB')
-    assert.equal(A.warning, s < 2024 ? reg.pre_box_warning : null, `${s} warning`)
+    assert.equal(A.warning, s < 2024 ? reg.pre_box_warning + (reg.no_tacklers.includes(s) ? ` ${reg.early_def_note}` : '') : null, `${s} warning`)
     assert.equal(A.final ? A.standing : /^as of week \d+$/.test(A.standing), A.final ? null : true, `${s} standing`)
   }
 })
@@ -174,7 +179,7 @@ test('the playoff field obeys every rule in every season', () => {
     assert.deepEqual(P.field.map((f) => f.seed), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], `${s} seeds`)
     assert.equal(new Set(P.field.map((f) => f.team)).size, 12)
     const inF = new Set(P.field.map((f) => f.team))
-    const power = new Set([...P4, ...(s <= 2023 ? ['Pac-12'] : [])])
+    const power = new Set([...P4, ...(s <= 2023 ? ['Pac-12'] : []), ...(s <= 2012 ? ['Big East', 'Pac-10'] : [])])   // resume.power_confs
     const champs = P.champions || Object.fromEntries(Object.entries(P.leaders).map(([c, L]) => [c, L.first]))
     for (const c of power) if (champs[c]) assert.ok(inF.has(champs[c]), `${s}: the ${c} champion is not in the field`)
     const g6 = P.table.filter((r) => G6.has(conf(r[0])) && !power.has(conf(r[0])))
@@ -345,5 +350,6 @@ test('the refresh keeps raw ESPN off GitHub', () => {
   if (!existsSync(f)) return
   const y = readFileSync(f, 'utf8')
   assert.doesNotMatch(y, /gh release|upload-release-asset|cfb-raw/)
-  assert.match(y, /pipeline\.cfb\.build refresh/)
+  assert.match(y, /pipeline\/cfb\/cloud_run\.sh/)
+  assert.match(readFileSync(path.join(ROOT, 'pipeline', 'cfb', 'cloud_run.sh'), 'utf8'), /pipeline\.cfb\.build refresh/)
 })

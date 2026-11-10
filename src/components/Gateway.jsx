@@ -262,6 +262,32 @@ export default function Gateway() {
               </div>
             </a>
 
+            {/* College Football Savant — the sticker look: a navy field, a white card with a hard shadow, three bars */}
+            <a className="card c-coach span2" href="/college-football-savant.html">
+              <Skeleton />
+              <div className="viz">
+                <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <rect width="600" height="150" fill="#0B1730" />
+                  <rect x="58" y="22" width="490" height="112" fill="#030914" />
+                  <g transform="rotate(-1.2 300 75)">
+                    <rect x="48" y="14" width="490" height="112" fill="#FFFFFF" />
+                    {[[94, '#BC3A2C'], [62, '#C4A99F'], [31, '#6F8BAB']].map(([p, c], i) => (
+                      <g key={i}>
+                        <rect x="70" y={32 + i * 30} width="446" height="18" fill="#E9E8E4" />
+                        <rect x="70" y={32 + i * 30} width={4.46 * p} height="18" fill={c} />
+                      </g>
+                    ))}
+                  </g>
+                </svg>
+              </div>
+              <div className="meta">
+                <span className="ck">Tool · College football</span>
+                <h3>College Football Savant</h3>
+                <p>Every FBS player and team since 2009: opponent-adjusted percentiles by position, an All-Savant team lined up at the snap, and an objective 12-team playoff field with odds.</p>
+                <span className="go">Open ↗</span>
+              </div>
+            </a>
+
             {/* College Basketball Coaching Savant — half of a tournament region, one coach's run to the Final Four in gold */}
             <a className="card c-coach span2" href="/college-basketball-coaching-savant.html">
               <Skeleton />

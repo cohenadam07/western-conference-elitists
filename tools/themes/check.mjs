@@ -69,7 +69,7 @@ test('the phone frame is College Savant\'s, line for line', () => {
 
 test('every theme file is read by an assembler or by preview.py', () => {
   const used = new Set()
-  for (const tool of ['tools/savant-cbb', 'tools/savant-cbcoaching']) {
+  for (const tool of ['tools/savant-cbb', 'tools/savant-cbcoaching', 'tools/savant-cfb']) {
     const order = JSON.parse(execFileSync('python3', ['-c', 'import importlib.util,json,sys;s=importlib.util.spec_from_file_location("a",sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);print(json.dumps(m.ORDER))', path.join(ROOT, tool, 'assemble.py')]).toString())
     for (const f of order) if (f.startsWith('theme:')) used.add(f.slice(6))
   }

@@ -122,7 +122,13 @@ def people(y):
     played, the roster as ESPN has it today (its class label is current) and the team he has stats for."""
     if y < C.CURRENT and (WORK / "player_seasons.parquet").exists():
         p = pd.read_parquet(WORK / "player_seasons.parquet")
-        return p[p.season == y].copy()
+        p = p[p.season == y].copy()
+        if y in C.EARLY:                 # no positions on those rosters: ESPN's athlete record (identity.early_positions)
+            e = pd.read_parquet(WORK / "early_positions.parquet").set_index("pid")
+            p["pos"] = p.pid.map(e.pos).where(p.pid.map(e.pos).notna(), p.pos)
+            for c in ("weight", "height"):
+                p[c] = p[c].where(p[c].notna(), p.pid.map(pd.to_numeric(e[c], errors="coerce")))
+        return p
     from .playergame import roster
     ro = roster(y).sort_values("games_rostered", ascending=False)
     parts = [_read(t, y, "_all")[["pid", "team", "game_id"]] for t in ("qb", "rush", "rec", "dfn", "kick", "punt", "ret")]

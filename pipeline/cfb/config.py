@@ -23,9 +23,19 @@ not ("not tracked" is never shown as zero).
 from collections import namedtuple
 
 VERSION = "1.0.0"
-FIRST_SEASON = 2014
+FIRST_SEASON = 2009
 CURRENT = 2026
-SEASONS = list(range(FIRST_SEASON, CURRENT + 1))
+LAUNCH_FIRST = 2014
+# 2009-2012 were added after launch (BUILD step 16), behind prompt 1's gates (research/cfb/out/completeness.md):
+# 2013 passes only for teams (its play text names a sacker on a third of sacks), 2004-2008 have play-by-play for
+# under 97% of FBS games. Neither is on the site.
+EARLY = [2009, 2010, 2011, 2012]
+DROPPED = {2013: "its play-by-play names the defender on only a third of sacks, so it passes the gate for teams only",
+           **{y: "play-by-play exists for under 97% of its FBS games" for y in range(2004, 2009)}}
+SEASONS = EARLY + list(range(LAUNCH_FIRST, CURRENT + 1))
+NO_TACKLERS = EARLY        # before 2014 the play text names no tackler: tackles for loss and run stops are not tracked
+EARLY_DEF_NOTE = ("Before 2014 the play-by-play names no tacklers, so tackles for loss and run stops are not tracked, "
+                  "and a defender's Savant value counts his sacks, interceptions, break-ups and forced fumbles only.")
 MIN_POOL = 20                 # a pool under 20 players is widened and labelled (BUILD step 8)
 GAMES_FULL = 12               # qualifying samples are stated for a 12-game regular season
 PBU_OFF = [2021, 2022, 2023]            # the play text stopped naming who broke up the pass; no box score yet
@@ -215,6 +225,10 @@ for _slot, _tab, _num, _den, _s in (("QB", "qb", "garb_db", "db_all", "db_all"),
       "context", "pct1", 50, "plays", _s,
       "Share of his plays that came in garbage time (a margin above 38 points in the second quarter, 28 in the third, 22 in "
       "the fourth). Those plays are left out of every bar unless you turn them on.", "garbage-time plays / all his plays")
+
+for _i, _s in enumerate(STATS):
+    if _s.key.split("_", 1)[1] in ("tfl", "stop", "disrupt", "disrupt_epa") and _s.table == "dfn":
+        STATS[_i] = _s._replace(off=sorted(set(_s.off) | set(NO_TACKLERS)))
 
 TEAM_STATS = [
     # key, label, group, verdict, unit, lower, what
