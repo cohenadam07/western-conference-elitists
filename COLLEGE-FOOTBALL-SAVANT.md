@@ -77,14 +77,23 @@ Library versions are pinned to the Mac's.
 | 13 | New check passes; coverage map updated | `tools/savant-cfb/check.mjs` 16 of 16, comparing over 1,000 connector values with the page's math in 6 seasons; `coverage.json` updated |
 | 13 | Connector size cap | upfront tool text 89,697 characters; cap raised from 82,000 to 90,000 with Adam's approval (noted in `tools/savant-mcp/check.mjs`) |
 | 14 | A refresh is byte-identical to the full build | **144 of 144 files identical** (`python -m pipeline.cfb.refresh_check`: a clean room holding only ESPN's responses and the committed state, against the Mac's build) |
-| 14 | One dry run on a GitHub runner | see "Dry run" below |
+| 14 | One dry run on a GitHub runner | success (run 42917444476): 685 finals pulled, counts equal the Mac's; see "Dry run" |
 | 15 | `check:seo` and `check:whats-new` pass | `check:whats-new` passes. `check:seo` fails one test, the existing failure on main (Basketball Coaching Savant's "What is" panel); College Football Savant passes that test. Adding a tenth product needed the homepage's product list raised from 9 to 10 |
 | 16 | Backfill behind the same gates | 2009–2012 landed (players and teams, 2,686 to 2,929 graded players a season); 2013 and 2004–2008 dropped (reasons above) |
 | — | `npm run check:savant` | 306 pass, 0 fail, 4 skipped |
 
 ### Dry run
 
-Pending; this section is updated after the run.
+GitHub run 42917444476 (push to this branch, `mode=dry`), Nov 10, 22:45 UTC: **success in 3.5 minutes**. A fresh
+runner with an empty cache pulled all 685 finals from ESPN without being refused, and matched the Mac's counts:
+74,340 scrimmage plays, 4,959 graded players, data through Nov 7, week 10. It then rebuilt the season's files.
+
+5 of the 144 current-season files came out different from the committed build: `s/2026` and four team files. The
+byte-identity test shows that identical inputs give identical bytes, so the likely cause is ESPN's responses being
+fetched an hour apart (a roster or a stat correction). This was not confirmed: a dry run uploads nothing to compare.
+The first scheduled run after merging will commit such changes, which is what a refresh is for.
+
+The schedule itself starts only once the workflow is on main.
 
 ### npm run check:savant
 
