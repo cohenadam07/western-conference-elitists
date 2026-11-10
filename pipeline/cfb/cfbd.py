@@ -26,8 +26,8 @@ from datetime import datetime, timezone
 from .paths import RAW, HOME
 
 BASE = "https://api.collegefootballdata.com"
-RUN_CAP = 60
-FLOOR = 300
+RUN_CAP = 30           # prompt 1 spent 3; the build adds about 25 (Adam, Nov 10 2026)
+FLOOR = 405            # College Basketball Savant's own guard refuses at 400 left: this run never takes it there
 LEDGER = HOME / "cfbd-ledger.json"
 CACHE = RAW / "cfbd"
 CACHE.mkdir(parents=True, exist_ok=True)
@@ -139,6 +139,37 @@ def pull():
             break
 
 
+BUILD_PLAN = ([("/coaches", dict(minYear=2014, maxYear=2026))]
+              + [("/recruiting/players", dict(year=y, classification="HighSchool")) for y in range(2026, 2009, -1)]
+              + [("/player/portal", dict(year=y)) for y in range(2026, 2020, -1)])
+
+
+def build(limit=None):
+    """The build's pulls (BUILD step 4): head coaches, recruits by class year, the transfer portal.
+
+    25 calls: 1 for every head coach since 2014, 17 recruiting classes (2010 to 2026, which covers a
+    fifth-year senior on a 2014 roster), 6 portal years (2021 on, when CFBD's
+    table starts). Conference membership by season and the rest are in the keyless release files.
+    Newest first, so a stop for budget leaves the oldest classes for the Dec 1 script.
+    """
+    done = 0
+    for path, params in BUILD_PLAN:
+        fresh = not _cache_path(path, params).exists()
+        if fresh and limit is not None and done >= limit:
+            continue
+        try:
+            d = get(path, **params)
+        except BudgetExhausted as e:
+            print("STOP:", e)
+            break
+        done += fresh
+        led = _ledger()
+        print(path, params, "rows", len(d), "| meter", led["meter_left"], "| calls so far", led["calls"], flush=True)
+    waiting = [(p, q) for p, q in BUILD_PLAN if not _cache_path(p, q).exists()]
+    print("waiting for the next month:", waiting if waiting else "nothing")
+    return waiting
+
+
 def ledger():
     led = _ledger()
     print("calls this run:", led["calls"], "| CFBD meter left:", led["meter_left"])
@@ -147,4 +178,7 @@ def ledger():
 
 
 if __name__ == "__main__":
-    {"check": check, "pull": pull, "ledger": ledger}[sys.argv[1]]()
+    if sys.argv[1] == "build":
+        build(int(sys.argv[2]) if len(sys.argv) > 2 else None)
+    else:
+        {"check": check, "pull": pull, "ledger": ledger}[sys.argv[1]]()
