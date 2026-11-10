@@ -194,6 +194,7 @@ test('the playoff field obeys every rule in every season', () => {
     for (const f of P.field) assert.equal(f.rank, rank.get(f.team))
     assert.ok(!inF.has(P.first_out[0]) && P.first_out.length === 4)
     assert.equal(P.rules.length, 6)
+    assert.match(P.rules[0], /whatever their record/, 'the explainer must say a Power 4 champion is in regardless of record')
   }
 })
 
@@ -330,6 +331,7 @@ test('every tool answers, and says what it must', async () => {
   const po = await call('cfb_playoff_field', {})
   assert.equal(po.field.length, 12)
   assert.match(po._text, /Margin never enters it\. No committee ranking is used\./)
+  assert.match(po._text, /A Power 4 champion is in whatever its record/)
   if (po.live) { assert.equal(po.simulated_seasons, 20000); assert.ok(po.conference_leaders.length >= 9) }
   const old = await call('cfb_playoff_field', { season: 2014 })
   assert.equal(old.live, false)

@@ -12,6 +12,32 @@ before merging (standing rule).
 - The connector's size cap may be raised for the `cfb_` tools.
 - The `check:seo` failure on main is left alone.
 
+## Adam's decisions after the first review, Nov 10 evening
+
+1. **Defenders.** Any defender who played in at least half his team's FBS games is now graded, as well as everyone
+   the old rule kept (5 credited plays or 15 box-score tackles). Quiet players simply score low, under the existing
+   "credits playmakers" note. "Played" means the box score or the play-by-play credits him with something in that
+   game, because no free source says who was on the field.
+   - The change adds 237 to 365 defenders a season from 2014 on (2,700 to 2,937 in 2025) and none before 2014,
+     when no tackler is named.
+   - Rerunning the All-Savant sets changed 9 of 468 national-team defensive picks across 2014–2026, all through the
+     shift in replacement level. No Savant Heisman changed.
+   - The AP comparison is unchanged at 38%. **The stars it was meant to catch are still missing**, and the reason is
+     the data, not the rule. Before 2024 many schools' stat crews rarely name a tackler: Oklahoma's named one on 6 of
+     886 defensive plays in 2019. So Kenneth Murray (102 tackles) shows a credited play in 5 of 14 games, Jeff Okudah
+     in 4, and Pat Surtain in 2. Will Johnson (2024) is a correct miss: he played 5 of Michigan's 13 games. Only the
+     2024-on box score fixes this, and no free source covers the earlier seasons.
+   - The position classifiers were refitted on the larger pool (87.6% for DL, 78.1% for DB).
+2. **Big East.** It keeps its automatic bid through 2012. The playoff explainer, the rules panel and the connector
+   now say plainly that a Power 4 champion is in whatever its record. The check holds that wording in place.
+3. **Raw archive, nightly.** `pipeline/cfb/mac_archive.sh` and `pipeline/cfb/com.wcehoops.cfb-mac-archive.plist`
+   follow the College Basketball Savant pattern: the job runs the copy in the `savant-bot` worktree, which follows
+   main.
+   - It is installed in `~/Library/LaunchAgents` and loaded. It runs at 5:23am, pulls the season being played every
+     night in season, and packs and verifies last month on the 1st.
+   - Until this branch is merged it logs "not on main yet" and exits cleanly (a test trigger exited with status 0).
+     Run from this worktree, the script itself pulled all 685 finals.
+
 ## What shipped
 
 | piece | where |
@@ -69,7 +95,7 @@ Library versions are pinned to the Mac's.
 | 7 | Simulator calibration unchanged | Brier 0.0369 (was 0.0369); weighted gap 0.72 points (was 0.79); worst bin 7.5 points (was 6.6; see the review list) |
 | 7 | Tiebreakers implemented | `pipeline/cfb/tiebreak.py`; tests from the rulebooks' own worked examples pass |
 | 8 | No pool under 20 players (widen and label) | holds in every sampled season, position and pool (`check.mjs`) |
-| 9 | Savant value matches prompt 1's | r = 0.9999 on 2025 (3,811 qualified players) |
+| 9 | Savant value matches prompt 1's | r = 0.9999 on 2025 (3,811 qualified players), before Adam's defender decision widened the pool |
 | 9 | AP overlap reported, pre-2024 warning attached | 38% of matched AP All-Americans are on one of our three national teams (`research/cfb/out/review.md`); the warning is on every pre-2024 defensive pick, card and answer |
 | 10 | Field obeys every rule; seeds and byes; Group of Six and Notre Dame rules tested | `python -m pipeline.cfb.playoff test` passes; `check.mjs` holds all 17 seasons' fields to every rule |
 | 11 | No file over 15 MB | largest 0.44 MB |
@@ -111,9 +137,9 @@ The numbers are in `research/cfb/out/review.md` (`python -m pipeline.cfb.review`
 3. **2021–2022 gate results after the backfill.** 2021 is at 98.96% and 2022 at 98.20%; both pass. The 22 games still
    missing are partial at ESPN (fewer than 80 scrimmage plays).
 4. **AP overlap per season, and the biggest disagreements.** 32% to 43% a season, 38% overall. About 1 in 9 AP
-   All-Americans are not graded at all, chiefly lockdown corners and run-stuffing tackles (Okudah, Surtain, Jordan
-   Davis). Prompt 1's rule keeps only defenders with at least 5 credited plays, and a corner who is never thrown at
-   makes few. Some misses are name mismatches ("Ahmad" for "Sauce" Gardner). Decide whether that rule stays.
+   All-Americans are still not graded. After Adam's decision the cause is the data, not the rule: before 2024 their
+   schools' stat crews rarely named a tackler (decision 1 above). A few misses are name mismatches ("Ahmad" for
+   "Sauce" Gardner).
 5. **Retroactive fields that look surprising.** All 21 are in `review.md`. The ones to look at:
    - Wisconsin 2012 (9-5) and Duke 2025 (8-5) get in as conference champions.
    - The Big East champion takes a power bid through 2012 (West Virginia twice, Cincinnati).
@@ -138,9 +164,8 @@ The numbers are in `research/cfb/out/review.md` (`python -m pipeline.cfb.review`
      before the Football Savant link is promoted.
 9. **Trademark.** Check the use of "Savant" before heavy promotion. Baseball Savant is MLB's. This is a legal question,
    not answered here.
-10. **Raw archive schedule.** `python -m pipeline.cfb.archive pull` (weekly) and `pack` (on the 1st) are written and
-    tested; November is 1,944 responses, 79 MB, all of which parse. They are not yet on a launchd schedule: adding one
-    is a standing change to the Mac and waits for a yes.
+10. **Raw archive.** Nightly on launchd since Nov 10 (decision 3). November so far is 1,944 responses, 79 MB, all of
+    which parse.
 
 ## Traps found while building
 

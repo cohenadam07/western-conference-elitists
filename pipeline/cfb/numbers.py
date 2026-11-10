@@ -106,14 +106,35 @@ def frames(y, suffix, state, regulars=None):
     return {"qb": qb, "rush": ru, "rec": rc, "dfn": df, "kick": kg, "punt": pg, "team": tm}
 
 
+MIN_GAME_SHARE = 0.5      # Adam, Nov 10 2026: grade every defender who played in at least half his team's games
+
+
 def regular_defenders(y):
-    """The defenders kept all season, from the garbage-in table, so a toggle never drops a man."""
-    from .player_study import box_interceptions, MIN_EVENTS, MIN_BOX_TACKLES
+    """The defenders graded in a season: everyone who played in at least half his team's FBS games, as well as everyone
+    prompt 1 kept, those with 5 credited plays or 15 box-score tackles (Adam, Nov 10 2026: "not only those with 5+
+    credited plays"; the old rule alone left out corners nobody threw at). No free source
+    says who was on the field, so "played" means the box score or the play-by-play credits him with something in that
+    game: a tackle, an assist, a sack, a break-up, an interception, a forced fumble, a hurry. A quiet player simply
+    scores low; the page's note says the grades credit playmakers. Read from the garbage-in table, so the toggle never
+    drops a man. Before 2014 the play text names no tacklers, so a man appears only through his sacks, break-ups,
+    interceptions and forced fumbles."""
+    from .player_study import box_interceptions
     df = box_interceptions(_read("dfn", y, "_all"))
-    ps = df.groupby(["season", "pid"]).agg(team=("team", lambda s: s.value_counts().index[0]), ev=("sack", "sum"), e2=("tfl", "sum"),
-                                           e3=("int", "sum"), e4=("pbu", "sum"), e5=("ff", "sum"), e6=("stop", "sum"),
-                                           bt=("b_tkl", "sum")).reset_index()
-    return ps[(ps[["ev", "e2", "e3", "e4", "e5", "e6"]].sum(axis=1) >= MIN_EVENTS) | (ps.bt.fillna(0) >= MIN_BOX_TACKLES)]
+    credit = [c for c in ("sack", "tfl", "int", "pbu", "ff", "stop", "tkl", "ast", "b_tkl", "b_solo", "b_sack", "b_tfl", "b_pd", "b_hur")
+              if c in df.columns]
+    df = df[df[credit].fillna(0).sum(axis=1) > 0]
+    g = df.groupby(["season", "pid", "team"]).game_id.nunique().rename("g").reset_index()
+    g = g.sort_values(["season", "pid", "g", "team"], ascending=[True, True, False, True]).drop_duplicates(["season", "pid"])
+    tm = _read("team", y, "_all")
+    n = tm.groupby("team").game_id.nunique()
+    half = g[g.g >= MIN_GAME_SHARE * g.team.map(n).fillna(np.inf)]
+    # ...and, as before, anyone with 5 credited plays or 15 box-score tackles (a starter hurt at midseason)
+    from .player_study import MIN_EVENTS, MIN_BOX_TACKLES
+    ps = df.groupby(["season", "pid"]).agg(ev=("sack", "sum"), e2=("tfl", "sum"), e3=("int", "sum"), e4=("pbu", "sum"), e5=("ff", "sum"),
+                                           e6=("stop", "sum"), bt=("b_tkl", "sum")).reset_index()
+    old = ps[(ps[["ev", "e2", "e3", "e4", "e5", "e6"]].sum(axis=1) >= MIN_EVENTS) | (ps.bt.fillna(0) >= MIN_BOX_TACKLES)]
+    keep = set(half.pid) | set(old.pid)
+    return g[g.pid.isin(keep)][["season", "pid", "team"]].reset_index(drop=True)
 
 
 # ---------------------------------------------------------------- people and positions

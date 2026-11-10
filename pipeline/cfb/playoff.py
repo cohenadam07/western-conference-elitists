@@ -33,12 +33,12 @@ from .tiebreak import Race, sec_margin, STEP_NAME
 
 P4 = ["ACC", "Big Ten", "Big 12", "SEC"]
 RULES_TEXT = [
-    "Twelve teams. The ACC, Big Ten, Big 12 and SEC champions are in.",
+    "Twelve teams. The ACC, Big Ten, Big 12 and SEC champions are in, whatever their record or rank.",
     "So is the highest-ranked team from the American, Conference USA, the MAC, the Mountain West, the Pac-12 or the Sun Belt. It does not have to be a champion.",
     "Notre Dame is in if it ranks in the top 12.",
     "The best remaining teams fill the field.",
     "Seeding is straight, by rank. Seeds 1 to 4 get a bye; seeds 5 to 8 host a first-round game. A team that qualified automatically from outside the top 12 goes to the bottom.",
-    "Through 2023 the Pac-12 was a power conference, so its champion gets an automatic bid in those seasons.",
+    "Earlier seasons use their own power conferences: the Pac-12 through 2023, the Pac-10 in 2009 and 2010, and the Big East through 2012. Their champions get an automatic bid in those seasons, whatever their record.",
 ]
 
 

@@ -347,7 +347,7 @@ async function playoffField({ season, teams }) {
   const leaders = cur ? Object.entries(P.leaders).map(([c, L]) => ({ conference: c, first: nm(L.first), second: nm(L.second), title_game_set: !!L.set, tiebreakers: Object.entries(L.how || {}).filter(([, h]) => h).map(([t, h]) => ({ team: nm(+t), decided_by: h.name, outside_number: !!h.outside, level_with: h.tied_with.map(nm) })) })) : null
   const lines = [cur ? `The objective playoff field if the season ended today, ${s}, through ${day(P.through)} (week ${P.week}). Conference leaders hold the champions' places until the title games are played.` : `The ${s} objective field under the 2026 rules, with the champions that season had. Ours, not the field that was played.`]
   for (const f of field) lines.push(`${f.seed}. ${f.team} (${f.record}, ${f.how}, résumé rank ${f.resume_rank})`)
-  lines.push(`First round at the higher seed: 12 at 5, 11 at 6, 10 at 7, 9 at 8. Seeds 1 to 4 have byes.`)
+  lines.push(`First round at the higher seed: 12 at 5, 11 at 6, 10 at 7, 9 at 8. Seeds 1 to 4 have byes. A Power 4 champion is in whatever its record; one ranked outside the top 12 is seeded at the bottom.`)
   lines.push(`First out: ${P.first_out.map(nm).join(', ')}.`)
   if (cur) {
     const flagged = leaders.flatMap((L) => L.tiebreakers.map((t) => `${t.team} (${L.conference}: ${t.decided_by})`))
