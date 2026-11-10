@@ -47,6 +47,7 @@ SUMMARY = SITE + "/summary?event={e}"
 PLAYS = CORE + "/events/{e}/competitions/{e}/plays?limit=300&page={p}"
 ROSTER = SITE + "/teams/{t}/roster"
 REG_WEEKS = 16
+BATCH = 24          # games fetched and parsed at a time (memory, not speed: see build_season)
 
 # ESPN's raw play types -> the names the release files (and plays.py) use
 TYPE_FIX = {"Pass Interception Return": "Interception Return", "Pass Interception": "Interception Return",
@@ -132,7 +133,39 @@ def drive_order(summary):
     return order, drive_of
 
 
-def base_rows(eid, items, home, away, season, week, season_type, summary=None):
+def fix_yardline(d):
+    """Fill a snap ESPN sent with yardsToEndzone = 0 from its yardLine.
+
+    Measured on 2026: 218 scrimmage plays (25 of them in one game) carry yardsToEndzone 0, in the
+    summary and the core feed alike, while `yardLine` is right. yardLine runs 0-100 from one goal
+    line for the whole game, so for each team it is either the distance to go or 100 minus it;
+    which one is read off that team's other snaps in the same game, and only when at least 90% of
+    them agree. Field goals keep their own rule (length less 17).
+    """
+    yl = pd.to_numeric(d.pop("_yl"), errors="coerce")
+    st = d.pop("_st")
+    ytg = pd.to_numeric(d.ytg, errors="coerce")
+    plain = d.yds_fg.isna() & yl.between(1, 99) & st.notna()
+    good = plain & ytg.between(1, 99)
+    need = plain & ~ytg.between(1, 99) & d.down.isin([1, 2, 3, 4])
+    if not need.any():
+        return d
+    d["ytg"] = ytg
+    for t in st[need].unique():
+        g = good & (st == t)
+        if g.sum() < 5:
+            continue
+        same, flip = float((ytg[g] == yl[g]).mean()), float((ytg[g] == 100 - yl[g]).mean())
+        if max(same, flip) < 0.9:
+            continue
+        m = need & (st == t)
+        d.loc[m, "ytg"] = yl[m] if same >= flip else 100 - yl[m]
+        gtg = m & (pd.to_numeric(d.dist, errors="coerce") <= 0)
+        d.loc[gtg, "dist"] = d.loc[gtg, "ytg"]
+    return d
+
+
+def base_rows(eid, items, home, away, season, week, season_type, summary=None, final=None):
     """ESPN core plays -> the frame plays.finish() expects (the release files' columns, renamed)."""
     rows = []
     order, drive_of = drive_order(summary)
@@ -153,7 +186,8 @@ def base_rows(eid, items, home, away, season, week, season_type, summary=None):
         st_team, en_team = _team(st.get("team")), _team(en.get("team"))
         if t == "Pass Incompletion" and "pass complete" in low and "pass incomplete" not in low:
             t = "Pass Reception"
-        if t in TD_FIX and _RE_TD.search(text) and "no play" not in low and "nullified" not in low:
+        # (only when ESPN itself flags a score: the stat crew's review notes also say "touchdown")
+        if t in TD_FIX and p.get("scoringPlay") and _RE_TD.search(text) and "no play" not in low and "nullified" not in low:
             t = TD_FIX[t]
         per = int((p.get("period") or {}).get("number") or 0)
         clock = _clock(p.get("clock"))
@@ -231,20 +265,63 @@ def base_rows(eid, items, home, away, season, week, season_type, summary=None):
             "tk1": r("tackler"), "tk2": r("tackler", 1), "ast1": r("assistedBy"), "ast2": r("assistedBy", 1),
             "pdef1": r("passDefender"), "pdef2": r("passDefender", 1), "skby1": r("sackedBy"), "skby2": r("sackedBy", 1),
             "ffby1": r("forcedBy"), "ffby2": r("forcedBy", 1), "recby1": r("recoverer"), "recby2": r("recoverer", 1),
-            "has_part": bool(roles),
+            "has_part": bool(roles), "_yl": st.get("yardLine"), "_st": st_team,
         })
     d = pd.DataFrame(rows)
     if not len(d):
         return d
+    d = fix_yardline(d)
     d["gpn"] = np.arange(1, len(d) + 1)
-    # The score at the start of a play is the score after the last SCORING play before it.
-    # ESPN's running score on ordinary rows cannot be trusted: it ticks over a row or two early,
-    # and timeout rows carry stale values (measured in `check`: 2 of 38 games had 40+ such rows,
-    # and the release files inherit some of them). Scoring rows are right, and never go down.
-    sc = d.scoring.fillna(False).astype(bool)
-    hs = d.home_score_row.where(sc).cummax().ffill().shift(1).fillna(0)
-    as_ = d.away_score_row.where(sc).cummax().ffill().shift(1).fillna(0)
-    d["score_diff"] = np.where(d.off == d.home, hs - as_, as_ - hs)
+    # The score at the start of a play. ESPN's running score cannot be trusted row by row: it
+    # ticks over early, timeout rows carry stale values, and even scoring rows are sometimes
+    # wrong (measured on 2026: a team shown "at 4" that finished with 2; a touchdown that moved
+    # the score from 10 to 11). So the score is rebuilt from the scoring plays themselves, and
+    # ESPN's number is used only to settle what the play type cannot say (a missed extra point,
+    # a two-point try), and only when it is a possible value for that kind of score.
+    #
+    # Better still, where the summary has it: ESPN's own scoring summary (`scoringPlays`), the
+    # list a box score prints. Its running score matched the official final in every 2026 game
+    # that has one, so a play found there sets the score outright.
+    from .plays import OFF_TD, DEF_TD, FG_GOOD, SAFETY
+    official = {}
+    for sp in (summary or {}).get("scoringPlays") or []:
+        try:
+            official[int(sp["id"])] = (float(sp["homeScore"]), float(sp["awayScore"]))
+        except (KeyError, TypeError, ValueError):
+            pass
+    h, a = 0.0, 0.0
+    sh, sa = np.zeros(len(d)), np.zeros(len(d))
+    for i, (pid, t, off, home, hrow, arow) in enumerate(zip(d.play_id, d.ptype, d.off, d.home, d.home_score_row,
+                                                            d.away_score_row)):
+        sh[i], sa[i] = h, a
+        if pid in official:
+            h, a = max(h, official[pid][0]), max(a, official[pid][1])
+            if final is not None and final[0] == final[0]:      # never past the official final
+                h, a = min(h, final[0]), min(a, final[1])
+            continue
+        if official:
+            continue
+        if t in OFF_TD or t in DEF_TD:
+            default, allowed = 7.0, (6.0, 7.0, 8.0)
+        elif t in FG_GOOD:
+            default, allowed = 3.0, (3.0,)
+        elif t in SAFETY:
+            default, allowed = 2.0, (2.0,)
+        else:
+            continue
+        if off != off:
+            continue
+        for_offence = (t in OFF_TD) or (t in FG_GOOD)
+        home_scores = (off == home) == for_offence
+        cur, row = (h, hrow) if home_scores else (a, arow)
+        delta = (row - cur) if row is not None and row == row else default
+        add = delta if delta in allowed else default
+        if home_scores:
+            h += add
+        else:
+            a += add
+    d["score_diff"] = np.where(d.off == d.home, sh - sa, sa - sh)
+    d["end_home"], d["end_away"] = h, a
     d["season"] = season
     return d
 
@@ -252,7 +329,7 @@ def base_rows(eid, items, home, away, season, week, season_type, summary=None):
 def parse_game(eid, season, week, season_type, home, away):
     from .plays import finish
     d = base_rows(eid, fetch_plays(eid), home, away, season, week, season_type, fetch_summary(eid))
-    return finish(d) if len(d) else d
+    return finish(d.drop(columns=["end_home", "end_away"])) if len(d) else d
 
 
 # ---------------------------------------------------------------- a whole season from ESPN
@@ -386,25 +463,32 @@ def build_season(season, only=None, fresh_days=3, rosters=True, write=True):
         return s, items
 
     eids = list(fin.game_id)
-    pulled = pmap(pull, eids)
     plays, pbox, tbox, src, spreads = [], [], [], {}, {}
     gi = g.set_index("game_id")
-    for eid, (s, items) in zip(eids, pulled):
-        r = gi.loc[eid]
-        d = base_rows(eid, items, int(r.home), int(r.away), season, int(r.week), int(r.season_type), s)
-        if len(d):
-            plays.append(d)
-        a, b = box_rows(eid, season, s)
-        pbox += a
-        tbox += b
-        spreads[eid] = spread_of(s)
-        src[eid] = {"plays": int(len(d)), "box": bool(a), "drives": bool(drive_order(s)[0])}
+    # A batch at a time: a game's raw JSON is about 4 MB parsed, so holding a whole season of them
+    # (as this did at first) took several GB on an 8 GB Mac. Only the parsed rows are kept.
+    for i in range(0, len(eids), BATCH):
+        chunk = eids[i:i + BATCH]
+        for eid, (s, items) in zip(chunk, pmap(pull, chunk)):
+            r = gi.loc[eid]
+            d = base_rows(eid, items, int(r.home), int(r.away), season, int(r.week), int(r.season_type), s,
+                          final=(float(r.home_pts), float(r.away_pts)))
+            if len(d):
+                plays.append(d)
+            a, b = box_rows(eid, season, s)
+            pbox += a
+            tbox += b
+            spreads[eid] = spread_of(s)
+            src[eid] = {"plays": int(len(d)), "box": bool(a), "drives": bool(drive_order(s)[0])}
     g["spread_home"] = g.game_id.map(spreads)
     g["spread_espn"] = g.spread_home
     g.loc[g.spread_home.notna(), "spread_src"] = "espn"
     out = {"games": g, "sources": src}
     if plays:
-        d = finish(pd.concat(plays, ignore_index=True).drop(columns=["scoring"]))
+        allp = pd.concat(plays, ignore_index=True)
+        end = allp.groupby("game_id")[["end_home", "end_away"]].first()
+        out["score_check"] = end
+        d = finish(allp.drop(columns=["scoring", "end_home", "end_away"]))
         out["plays"] = d
     out["player_box"] = pd.DataFrame(pbox)
     out["team_box"] = pd.DataFrame(tbox)
@@ -419,6 +503,77 @@ def build_season(season, only=None, fresh_days=3, rosters=True, write=True):
     if write:
         write_season(season, out, replace=only is None)
     return out
+
+
+def backfill(season):
+    """Add the finals the release files lack (2021 and 2022 miss about 4% of games; ESPN still serves them).
+
+    Only games with no usable play-by-play in work/plays_<season>.parquet are fetched; everything
+    already there is left exactly as the release files gave it.
+    """
+    from .plays import finish
+    from .teamgame import MIN_PLAYS
+    g = pd.read_parquet(WORK / "games.parquet")
+    g = g[(g.season == season) & g.final & g.fbs_game]
+    d = pd.read_parquet(WORK / f"plays_{season}.parquet")
+    n = d[d.cat.isin(["rush", "pass"])].groupby("game_id").size()
+    have = set(n[n >= MIN_PLAYS].index)
+    rep_f = WORK / f"backfill_{season}.csv"
+    if rep_f.exists():          # games an earlier backfill added are parsed again (from the cache), so a parser fix reaches them
+        prev = pd.read_csv(rep_f)
+        have -= set(prev[prev.used].game_id)
+    todo = g[~g.game_id.isin(have)]
+    print(f"{season}: {len(g)} FBS-vs-FBS finals, {len(have & set(g.game_id))} from the release files "
+          f"({len(have & set(g.game_id)) / len(g):.1%}); fetching {len(todo)}", flush=True)
+    new, pbox, tbox, report = [], [], [], []
+    for r in todo.itertuples(index=False):
+        s, items = fetch_summary(r.game_id), fetch_plays(r.game_id)      # one game in memory at a time
+        x = base_rows(r.game_id, items, int(r.home), int(r.away), season, int(r.week), int(r.season_type), s,
+                      final=(float(r.home_pts), float(r.away_pts)))
+        scrim = int((x.f_rush | x.f_pass).sum()) if len(x) else 0
+        fin_ok = bool(len(x) and x.end_home.iloc[0] == r.home_pts and x.end_away.iloc[0] == r.away_pts)
+        report.append(dict(game_id=int(r.game_id), game=f"{r.away_team} at {r.home_team}", plays=len(x), scrimmage=scrim,
+                           final_matches=fin_ok, used=scrim >= MIN_PLAYS))
+        if scrim >= MIN_PLAYS:
+            new.append(x)
+            a, b = box_rows(int(r.game_id), season, s)
+            pbox += a
+            tbox += b
+    rep = pd.DataFrame(report)
+    if new:
+        add = finish(pd.concat(new, ignore_index=True).drop(columns=["scoring", "end_home", "end_away"]))
+        d = d[~d.game_id.isin(add.game_id)]
+        for c in d.columns:
+            if c not in add.columns:
+                add[c] = np.nan
+        add = add[d.columns].astype({c: d[c].dtype for c in d.columns if str(d[c].dtype) in ("bool", "int64")})
+        d = pd.concat([d, add], ignore_index=True)
+        d.to_parquet(WORK / f"plays_{season}.parquet", index=False)
+        for rows, fam, name, key in ((pbox, "espn_cfb_player_box", f"player_box_{season}.parquet", "athlete_id"),
+                                     (tbox, "espn_cfb_team_box", f"team_box_{season}.parquet", "team_id")):
+            old = pd.read_parquet(RAW / fam / name)
+            addb = pd.DataFrame(rows)
+            addb = addb[~addb.game_id.isin(set(old.game_id))]
+            if len(addb):
+                for c in old.columns:
+                    if c not in addb.columns:
+                        addb[c] = None
+                addb = addb[old.columns]
+                for c in old.columns:
+                    try:
+                        addb[c] = addb[c].astype(old[c].dtype)
+                    except (TypeError, ValueError):
+                        old[c] = old[c].astype("string")
+                        addb[c] = addb[c].astype("string")
+                pd.concat([old, addb], ignore_index=True).to_parquet(RAW / fam / name, index=False)
+    n = d[d.cat.isin(["rush", "pass"])].groupby("game_id").size()
+    have = set(n[n >= MIN_PLAYS].index) & set(g.game_id)
+    rep.to_csv(WORK / f"backfill_{season}.csv", index=False)
+    print(f"{season}: added {int(rep.used.sum()) if len(rep) else 0} games "
+          f"({int((rep.used & rep.final_matches).sum()) if len(rep) else 0} with the rebuilt score equal to the final); "
+          f"now {len(have)} of {len(g)} = {len(have) / len(g):.2%} (gate 97%)", flush=True)
+    print(rep[~rep.used].to_string(index=False) if len(rep) and (~rep.used).any() else "every fetched game was usable")
+    return rep
 
 
 def write_season(season, out, replace=True):
@@ -499,6 +654,9 @@ def check():
 def main(argv):
     if argv[0] == "check":
         check()
+    elif argv[0] == "backfill":
+        for y in argv[1:]:
+            backfill(int(y))
     elif argv[0] == "season":
         out = build_season(int(argv[1]))
         g = out["games"]

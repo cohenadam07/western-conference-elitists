@@ -229,12 +229,14 @@ def roster(y):
     return r
 
 
-def main():
-    filt = sys.argv[1] if len(sys.argv) > 1 else "cfbd"
+def main(filt="cfbd", seasons=None):
+    """filt: cfbd (garbage time out, the default tables pg_<name>.parquet) or all (garbage time in,
+    written as pg_<name>_all.parquet). `seasons` rebuilds only those and keeps the rest of each table."""
     games = pd.read_parquet(WORK / "games.parquet")
+    suffix = "" if filt == "cfbd" else f"_{filt}"
     acc = {}
     covs = []
-    for y in SEASONS:
+    for y in (seasons or SEASONS):
         out, cov = season_tables(y, games, filt)
         for kname, t in out.items():
             acc.setdefault(kname, []).append(t)
@@ -245,9 +247,16 @@ def main():
         covs.append(row)
         print(row, flush=True)
     for kname, parts in acc.items():
-        pd.concat(parts, ignore_index=True).to_parquet(WORK / f"pg_{kname}.parquet", index=False)
-    pd.DataFrame(covs).to_csv(WORK / "defender_id_coverage.csv", index=False)
+        f = WORK / f"pg_{kname}{suffix}.parquet"
+        new = pd.concat(parts, ignore_index=True)
+        if seasons and f.exists():
+            old = pd.read_parquet(f)
+            new = pd.concat([old[~old.season.isin(seasons)], new], ignore_index=True)
+        new.to_parquet(f, index=False)
+    if not seasons and filt == "cfbd":
+        pd.DataFrame(covs).to_csv(WORK / "defender_id_coverage.csv", index=False)
 
 
 if __name__ == "__main__":
-    main()
+    a = sys.argv[1:]
+    main(a[0] if a else "cfbd", [int(x) for x in a[1:]] or None)

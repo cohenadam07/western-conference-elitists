@@ -143,11 +143,11 @@ def wp_frame(d, ep):
     return W, ok & ~np.isnan(secs_game), e
 
 
-def score():
+def score(seasons=None):
     ep = joblib.load(WORK / "ep_model.joblib")
     wpm = joblib.load(WORK / "wp_model.joblib")
     g = games()
-    for y in range(2004, 2027):
+    for y in (seasons or range(2004, 2027)):
         d = load(y, g)
         W, ok, e = wp_frame(d, ep)
         n = len(d)
@@ -344,4 +344,7 @@ def report():
 
 
 if __name__ == "__main__":
-    {"fit": fit, "score": score, "report": report}[sys.argv[1]]()
+    if sys.argv[1] == "score":
+        score([int(a) for a in sys.argv[2:]] or None)
+    else:
+        {"fit": fit, "report": report}[sys.argv[1]]()

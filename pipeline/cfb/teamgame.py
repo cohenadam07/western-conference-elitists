@@ -143,17 +143,23 @@ def season_table(y, games):
     return t.drop(columns=["home", "away"])
 
 
-def build():
+def build(seasons=None):
+    """All seasons, or only `seasons` (their rows replace the ones already in the table)."""
     games = pd.read_parquet(WORK / "games.parquet")
     parts = []
-    for y in range(2004, 2027):
+    f = WORK / "teamgame.parquet"
+    if seasons is not None and f.exists():
+        old = pd.read_parquet(f)
+        parts.append(old[~old.season.isin(seasons)])
+    for y in (seasons if seasons is not None else range(2004, 2027)):
         t = season_table(y, games)
         parts.append(t)
         a = t[t.filt == "all"]
         print(y, "team-games", len(a), "plays/team", round(a.plays.mean(), 1), "epa/play", round(a.epa.sum() / a.epa_n.sum(), 4),
               "succ", round(a.succ.sum() / a.plays.sum(), 3), "drives", round(a.drives.mean(), 1), "TO", round(a.to_box.mean(), 2),
               "pen", round(a.pen_n.mean(), 2), "st_epa", round(a.st_epa.mean(), 3), flush=True)
-    pd.concat(parts, ignore_index=True).to_parquet(WORK / "teamgame.parquet", index=False)
+    pd.concat(parts, ignore_index=True).sort_values(["season", "filt", "game_id", "team"], kind="stable").reset_index(
+        drop=True).to_parquet(WORK / "teamgame.parquet", index=False)
 
 
 def load(filt="cfbd", seasons=None):
@@ -169,4 +175,5 @@ def load(filt="cfbd", seasons=None):
 
 
 if __name__ == "__main__":
-    build()
+    import sys
+    build([int(a) for a in sys.argv[1:]] or None)
