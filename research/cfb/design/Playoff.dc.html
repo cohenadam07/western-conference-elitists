@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>College Football Savant – Objective playoff field</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Bebas+Neue&amp;family=Oswald:wght@600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B1730}
+a{color:#7CC4FF}a:hover{color:#B9E0FF}
+button:focus-visible,a:focus-visible{outline:3px solid #FFD25A;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 100%; background: #0B1730; color: #FFFFFF; font-family: 'IBM Plex Sans', system-ui, sans-serif">
+
+  <header style="position: relative; overflow: hidden; padding: 44px 32px 40px; border-bottom: 4px solid #2E8FE8">
+    <div aria-hidden="true" style="position: absolute; inset: -80px -40px; transform: rotate(-7deg); display: flex; flex-direction: column; gap: 6px; pointer-events: none">
+      <sc-for list="{{bgLines}}" as="line" hint-placeholder-count="6">
+        <div style="white-space: nowrap; font-family: {{displayFont}}; font-size: 54px; line-height: 1; color: rgba(46,143,232,0.09)">{{line}}</div>
+      </sc-for>
+    </div>
+    <div style="position: relative; max-width: 1280px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px">
+      <div style="display: flex; flex-direction: column; gap: 14px">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.12em; color: #B8C3D9">COLLEGE FOOTBALL SAVANT</span>
+        <div style="display: inline-block; align-self: flex-start; transform: rotate(-1.5deg); background: #2E8FE8; padding: 6px; box-shadow: 10px 10px 0 #030914">
+          <div style="border: 2px solid rgba(255,255,255,0.85); padding: 10px 30px 6px">
+            <h1 style="margin: 0; font-family: {{displayFont}}; font-weight: 700; font-size: clamp(40px, 6vw, 76px); line-height: 0.95; text-transform: uppercase; color: #FFFFFF">The Objective Playoff Field</h1>
+          </div>
+        </div>
+        <p style="margin: 4px 0 0; max-width: 640px; font-size: 16px; line-height: 1.5; color: #DCE4F2">If the season ended today. Seeded only by résumé: how likely a bubble team would have been to match each record against the same schedule. 2026 CFP rules, no committee.</p>
+      </div>
+      <div style="transform: rotate(2deg); background: #FFD25A; color: #0B1730; padding: 12px 18px; border: 4px solid #FFFFFF; box-shadow: 6px 6px 0 #030914">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em">THROUGH WEEK 11</div>
+        <div style="font-family: {{displayFont}}; font-size: 26px; text-transform: uppercase">Updated Sun 10:00</div>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width: 1280px; margin: 0 auto; padding: 32px 32px 64px; display: flex; flex-direction: column; gap: 40px">
+
+    <section aria-labelledby="bracket-h" style="display: flex; flex-direction: column; gap: 18px">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <h2 id="bracket-h" style="margin: 0; font-family: {{displayFont}}; font-size: 34px; text-transform: uppercase">The Bracket</h2>
+        <div style="flex: 1; height: 3px; background: #C2A263"></div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 28px">
+        <div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+          <h3 style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.12em; color: #B8C3D9">FIRST-ROUND BYES · SEEDS 1–4</h3>
+          <sc-for list="{{byes}}" as="b" hint-placeholder-count="4">
+            <div style="display: flex; align-items: center; gap: 14px; background: #FFFFFF; color: #191B1F; padding: 12px 16px; border: 4px solid #FFFFFF; box-shadow: 6px 6px 0 #030914; transform: rotate({{b.tilt}})">
+              <span style="font-family: {{displayFont}}; font-size: 34px; width: 34px; color: #0B1730">{{b.seed}}</span>
+              <span aria-hidden="true" style="width: 14px; height: 30px; background: {{b.color}}"></span>
+              <div style="min-width: 0; flex: 1">
+                <div style="font-weight: 700; font-size: 17px">{{b.name}}</div>
+                <div style="font-size: 13px; color: #4E535B">{{b.conf}} · {{b.record}}</div>
+              </div>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4E535B; text-align: right">meets<br>{{b.meets}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="flex: 2 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+          <h3 style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.12em; color: #B8C3D9">FIRST ROUND · DEC 18–19 · HIGHER SEED HOSTS</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+            <sc-for list="{{firstRound}}" as="m" hint-placeholder-count="4">
+              <div style="background: #FFFFFF; color: #191B1F; border: 4px solid #FFFFFF; box-shadow: 6px 6px 0 #030914; transform: rotate({{m.tilt}})">
+                <div style="background: #0B1730; color: #FFFFFF; padding: 6px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em">{{m.label}}</div>
+                <sc-for list="{{m.teams}}" as="t" hint-placeholder-count="2">
+                  <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid #E1E0DC">
+                    <span style="font-family: {{displayFont}}; font-size: 24px; width: 28px; color: #0B1730">{{t.seed}}</span>
+                    <span aria-hidden="true" style="width: 10px; height: 24px; background: {{t.color}}"></span>
+                    <span style="flex: 1; font-weight: 700">{{t.name}}</span>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4E535B">{{t.record}}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="align-self: flex-start; max-width: 760px; transform: rotate(-1deg); background: #BC3A2C; color: #FFFFFF; padding: 14px 18px; border: 4px solid #FFFFFF; box-shadow: 6px 6px 0 #030914">
+        <div style="font-family: {{displayFont}}; font-size: 22px; text-transform: uppercase">First out: Mesa, ranked 12th</div>
+        <p style="margin: 4px 0 0; font-size: 14px; line-height: 1.45">Harbor State is the best Group of Six résumé at No. 17, so it takes the guaranteed bid and drops in at the 12 seed. That pushes the 12th-ranked team out.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="rank-h" style="background: #FFFFFF; color: #191B1F; border: 6px solid #FFFFFF; outline: 2px solid #0B1730; box-shadow: 9px 9px 0 #030914">
+      <div style="background: #2E8FE8; padding: 14px 22px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px">
+        <h2 id="rank-h" style="margin: 0; font-family: {{displayFont}}; font-size: 30px; text-transform: uppercase; color: #FFFFFF">The Résumé Ranking</h2>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #FFFFFF">ODDS FROM 20,000 SIMULATED SEASONS</span>
+      </div>
+      <div style="overflow-x: auto">
+        <table style="width: 100%; min-width: 860px; border-collapse: collapse; font-size: 14px">
+          <thead>
+            <tr style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #4E535B">
+              <th scope="col" style="padding: 12px 16px; border-bottom: 2px solid #191B1F">RK</th>
+              <th scope="col" style="padding: 12px 8px; border-bottom: 2px solid #191B1F">TEAM</th>
+              <th scope="col" style="padding: 12px 8px; border-bottom: 2px solid #191B1F">RECORD</th>
+              <th scope="col" style="padding: 12px 8px; border-bottom: 2px solid #191B1F">RÉSUMÉ<br>bubble team matches it</th>
+              <th scope="col" style="padding: 12px 8px; border-bottom: 2px solid #191B1F">POWER<br>pts vs avg FBS</th>
+              <th scope="col" style="padding: 12px 8px; border-bottom: 2px solid #191B1F">MAKES FIELD</th>
+              <th scope="col" style="padding: 12px 8px; border-bottom: 2px solid #191B1F">BYE</th>
+              <th scope="col" style="padding: 12px 16px; border-bottom: 2px solid #191B1F">BID TODAY</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{teams}}" as="t" hint-placeholder-count="16">
+              <tr style="background: {{t.rowBg}}; border-bottom: 1px solid #E1E0DC">
+                <td style="padding: 10px 16px; font-family: {{displayFont}}; font-size: 22px; color: #0B1730">{{t.rank}}</td>
+                <td style="padding: 10px 8px">
+                  <div style="display: flex; align-items: center; gap: 10px">
+                    <span aria-hidden="true" style="width: 12px; height: 26px; background: {{t.color}}"></span>
+                    <div><div style="font-weight: 700">{{t.name}}</div><div style="font-size: 12px; color: #4E535B">{{t.conf}}</div></div>
+                  </div>
+                </td>
+                <td style="padding: 10px 8px; font-family: 'IBM Plex Mono', monospace">{{t.record}}</td>
+                <td style="padding: 10px 8px; font-family: 'IBM Plex Mono', monospace; font-weight: 600">{{t.resume}}</td>
+                <td style="padding: 10px 8px; font-family: 'IBM Plex Mono', monospace">{{t.power}}</td>
+                <td style="padding: 10px 8px">
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <div style="width: 80px; height: 10px; background: #E9E8E4"><div style="width: {{t.field}}%; height: 10px; background: {{t.fieldColor}}"></div></div>
+                    <span style="font-family: 'IBM Plex Mono', monospace">{{t.field}}%</span>
+                  </div>
+                </td>
+                <td style="padding: 10px 8px; font-family: 'IBM Plex Mono', monospace">{{t.bye}}%</td>
+                <td style="padding: 10px 16px">
+                  <span style="{{t.tagStyle}}">{{t.tag}}</span>
+                </td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin: 0; padding: 14px 22px 18px; font-size: 12px; line-height: 1.5; color: #4E535B">Sample data for layout only; every team is invented. Résumé counts wins and losses only, measured against how a bubble team (the 12th-best by our power rating) would fare against the same schedule. Margin never enters it. Power rating is shown for context and breaks ties.</p>
+    </section>
+
+    <section aria-labelledby="rules-h" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px">
+      <h2 id="rules-h" style="grid-column: 1 / -1; margin: 0; font-family: {{displayFont}}; font-size: 28px; text-transform: uppercase">The 2026 Rules We Apply</h2>
+      <sc-for list="{{rules}}" as="r" hint-placeholder-count="4">
+        <div style="background: #101F3E; border: 2px solid #33476E; padding: 16px">
+          <div style="font-family: {{displayFont}}; font-size: 22px; text-transform: uppercase; color: #FFD25A">{{r.title}}</div>
+          <p style="margin: 6px 0 0; font-size: 14px; line-height: 1.45; color: #DCE4F2">{{r.body}}</p>
+        </div>
+      </sc-for>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"displayFont":{"editor":"enum","options":["Anton","Bebas Neue","Oswald"],"default":"Anton","section":"Theme"},"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const FONTS = {
+      'Anton': "'Anton', Impact, sans-serif",
+      'Bebas Neue': "'Bebas Neue', Impact, sans-serif",
+      'Oswald': "'Oswald', 'Arial Narrow', sans-serif"
+    };
+    const displayFont = FONTS[this.props.displayFont] || FONTS['Anton'];
+    const T = [
+      ['Ridgeline', 'Big Ten', '10-0', '0.4%', '+27.1', 99, 88, '#7A1F2B', 'P4 leader'],
+      ['Coastal A&M', 'SEC', '10-0', '0.6%', '+25.8', 99, 84, '#5B2A86', 'P4 leader'],
+      ['Lakeshore', 'Big Ten', '9-1', '2.1%', '+24.0', 95, 51, '#1F5FA8', 'At-large'],
+      ['Pinecrest', 'SEC', '9-1', '2.9%', '+22.6', 92, 39, '#0F6E5C', 'At-large'],
+      ['Summit State', 'Big 12', '10-0', '3.4%', '+17.9', 90, 28, '#C2561C', 'P4 leader'],
+      ['Bayview', 'SEC', '8-2', '6.8%', '+21.3', 77, 6, '#14465E', 'At-large'],
+      ['Granite', 'ACC', '9-1', '7.5%', '+15.2', 81, 4, '#6B6B6B', 'P4 leader'],
+      ['Riverbend', 'Big Ten', '8-2', '9.9%', '+19.7', 64, 2, '#8A1C1C', 'At-large'],
+      ['Prairie Tech', 'Big 12', '9-1', '11.2%', '+13.4', 58, 3, '#B8860B', 'At-large'],
+      ['Copperfield', 'SEC', '8-2', '13.0%', '+18.8', 52, 1, '#A0522D', 'At-large'],
+      ['Northgate', 'ACC', '8-2', '15.6%', '+14.1', 46, 1, '#2F4F4F', 'At-large'],
+      ['Mesa', 'Big 12', '8-2', '17.4%', '+15.9', 39, 0, '#9C2C5A', 'First out'],
+      ['Elk River', 'SEC', '7-3', '21.0%', '+17.2', 27, 0, '#3B5B2A', 'Out'],
+      ['Fairmont', 'ACC', '8-2', '22.8%', '+11.0', 24, 0, '#4B3F8F', 'Out'],
+      ['Wolf Creek', 'Big Ten', '7-3', '26.1%', '+16.4', 18, 0, '#555555', 'Out'],
+      ['Delta', 'ACC', '7-3', '28.4%', '+12.3', 15, 0, '#0E7C86', 'Out'],
+      ['Harbor State', 'Sun Belt', '10-0', '31.5%', '+6.7', 71, 0, '#0F6E5C', 'G6 bid']
+    ];
+    const tagStyles = {
+      'P4 leader': 'background: #0B1730; color: #FFFFFF',
+      'G6 bid': 'background: #FFD25A; color: #0B1730',
+      'At-large': 'background: #2E8FE8; color: #FFFFFF',
+      'First out': 'background: #BC3A2C; color: #FFFFFF',
+      'Out': 'background: #E9E8E4; color: #4E535B'
+    };
+    const base = "display: inline-block; padding: 4px 10px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; ";
+    const teams = T.map((r, i) => ({
+      rank: i + 1, name: r[0], conf: r[1], record: r[2], resume: r[3], power: r[4],
+      field: r[5], bye: r[6], color: r[7], tag: r[8],
+      tagStyle: base + tagStyles[r[8]],
+      rowBg: (r[8] === 'Out' || r[8] === 'First out') ? '#F6F5F2' : '#FFFFFF',
+      fieldColor: r[5] >= 70 ? '#BC3A2C' : (r[5] >= 40 ? '#C2C0B6' : '#1C4E86')
+    }));
+    const byName = {};
+    teams.forEach((t) => { byName[t.name] = t; });
+    const seeds = ['Ridgeline', 'Coastal A&M', 'Lakeshore', 'Pinecrest', 'Summit State', 'Bayview', 'Granite', 'Riverbend', 'Prairie Tech', 'Copperfield', 'Northgate', 'Harbor State'];
+    const s = (n) => { const t = byName[seeds[n - 1]]; return { seed: n, name: t.name, color: t.color, record: t.record, conf: t.conf }; };
+    const byes = [
+      Object.assign(s(1), { meets: '8 / 9 winner', tilt: '-1deg' }),
+      Object.assign(s(2), { meets: '7 / 10 winner', tilt: '0.8deg' }),
+      Object.assign(s(3), { meets: '6 / 11 winner', tilt: '-0.6deg' }),
+      Object.assign(s(4), { meets: '5 / 12 winner', tilt: '1.2deg' })
+    ];
+    const firstRound = [
+      { label: 'AT NO. 5 · WINNER MEETS NO. 4', teams: [s(5), s(12)], tilt: '-1.2deg' },
+      { label: 'AT NO. 8 · WINNER MEETS NO. 1', teams: [s(8), s(9)], tilt: '1deg' },
+      { label: 'AT NO. 6 · WINNER MEETS NO. 3', teams: [s(6), s(11)], tilt: '0.6deg' },
+      { label: 'AT NO. 7 · WINNER MEETS NO. 2', teams: [s(7), s(10)], tilt: '-0.8deg' }
+    ];
+    const rules = [
+      { title: 'Power 4 champions', body: 'The ACC, Big Ten, Big 12 and SEC champions are in. Before title games, the current conference leader holds the spot.' },
+      { title: 'Best Group of Six team', body: 'The highest-ranked team from the American, Conference USA, MAC, Mountain West, Pac-12 or Sun Belt gets a bid.' },
+      { title: 'Notre Dame', body: 'In automatically if it ranks in the top 12; six at-large bids then remain instead of seven.' },
+      { title: 'Straight seeding', body: 'Seeds follow the ranking. Seeds 1–4 get byes. An automatic qualifier ranked outside the top 12 drops to the bottom seeds.' }
+    ];
+    const phrase = 'THE OBJECTIVE PLAYOFF FIELD · ';
+    const bgLines = Array.from({ length: 6 }, (_, i) => (i % 2 ? '    ' : '') + phrase.repeat(7));
+    return { displayFont, teams, byes, firstRound, rules, bgLines };
+  }
+}
+</script>
+</body>
+</html>

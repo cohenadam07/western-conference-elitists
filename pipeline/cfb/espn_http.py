@@ -11,6 +11,7 @@ Rules it enforces (PROMPT-1 ground rules 4, 6, 7):
 import gzip
 import hashlib
 import json
+import os
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -43,6 +44,17 @@ def _log(method, url, status, latency, nbytes):
             f.write(line)
 
 
+PUBLISH_LOCK = os.path.expanduser("~/Basketball-Savant/logs/.publish.lock")
+
+
+def _yield_to_publish():
+    """Basketball Savant's Mac publish holds this lock directory; a pull waits for it (BUILD ground rule 8)."""
+    waited = 0
+    while os.path.isdir(PUBLISH_LOCK) and waited < 3600:
+        time.sleep(20)
+        waited += 20
+
+
 def _check(url):
     host = urlparse(url).netloc
     if host not in ALLOWED:
@@ -53,17 +65,22 @@ def url_key(url):
     return "u_" + hashlib.sha1(url.encode()).hexdigest()[:16]
 
 
-def get_json(url, key=None, tries=3):
+def get_json(url, key=None, tries=3, fresh=False, max_age_days=None):
     """GET a JSON document, cached as CACHE/<key>.json.gz. Returns the parsed object.
 
     A non-200 answer is cached too (as {"_http_status": n}) so it is never refetched.
+    `fresh` refetches and overwrites (a live scoreboard, a final from the last few days that ESPN
+    may still correct); with `max_age_days` it refetches only a copy older than that.
     """
     _check(url)
     path = CACHE / f"{key or url_key(url)}.json.gz"
-    if path.exists():
+    if fresh and max_age_days is not None and path.exists():
+        fresh = (time.time() - path.stat().st_mtime) > max_age_days * 86400
+    if path.exists() and not fresh:
         with gzip.open(path, "rt", encoding="utf-8") as f:
             return json.loads(f.read(), strict=False)
     last = None
+    _yield_to_publish()
     for attempt in range(tries):
         with _sem:
             t0 = time.time()

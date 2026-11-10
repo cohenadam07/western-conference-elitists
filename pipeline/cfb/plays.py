@@ -215,7 +215,14 @@ def build_plays(y):
         d["has_part"] = d.play_id.isin(set(p.play_id))
     else:
         d["has_part"] = False
+    d = finish(d)
+    d.to_parquet(WORK / f"plays_{y}.parquet", index=False)
+    return d
 
+
+def finish(d):
+    """Category, text flags, points and next score. Shared by the release route (build_plays)
+    and the ESPN route (espn_feed), so the two cannot drift apart."""
     # ---- play category ------------------------------------------------------
     t = d.ptype
     cat = np.full(len(d), "other", dtype=object)
@@ -268,7 +275,6 @@ def build_plays(y):
     keep_int = ["game_id", "play_id", "season", "week", "season_type", "period", "halfb"]
     for c in keep_int:
         d[c] = pd.to_numeric(d[c], errors="coerce").fillna(-1).astype("int64")
-    d.to_parquet(WORK / f"plays_{y}.parquet", index=False)
     return d
 
 
