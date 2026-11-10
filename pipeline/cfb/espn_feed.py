@@ -429,15 +429,16 @@ def roster_rows(season, team, doc):
 
 
 def fbs_of(season):
-    """FBS teams of a season (team id -> conference, division, school): the release table, or the committed state."""
-    f = WORK / "fbs_teams.parquet"
-    if f.exists():
-        t = pd.read_parquet(f)
-        t = t[t.season == season]
-        if len(t):
-            return t.set_index("team_id")
-    from .state import load_state
-    return pd.DataFrame(load_state()["teams"][str(season)]).set_index("team_id")
+    """FBS teams of a season (team id -> school, abbreviation, conference, division): the committed
+    state where it has the season (so the Mac and the cloud read the same table), else the release table."""
+    from .state import load_state, FILE
+    if FILE.exists():
+        rows = load_state()["teams"].get(str(season))
+        if rows:
+            return pd.DataFrame(rows).set_index("team_id")
+    t = pd.read_parquet(WORK / "fbs_teams.parquet")
+    t = t[t.season == season]
+    return t.drop(columns=["season"]).set_index("team_id")
 
 
 def build_season(season, only=None, fresh_days=3, rosters=True, write=True):

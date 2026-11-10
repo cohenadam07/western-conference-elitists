@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>College Football Savant: every FBS player and team, on percentile bars | Western Conference Elitists</title>
+<meta name="description" content="Baseball Savant-style profiles for every FBS player and team since 2014: opponent-adjusted percentiles, an All-Savant team lined up at the snap, and an objective 12-team playoff field with odds.">
+<link rel="canonical" href="https://wcehoops.com/college-football-savant.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* College football's own theme: "Sticker Bomb" (Adam, Nov 10 2026). College Football Savant reads it; any later
+   college football page should too. It shares nothing with Football Savant's look except the site ribbon. */
+:root{
+  --field:#0B1730;--deep:#060E1F;--panel:#101F3E;--panel-b:#33476E;--banner:#2E8FE8;--sticker:#FFD25A;--shadow:#030914;
+  --white:#FFFFFF;--ink:#191B1F;--muted:#4E535B;--soft:#B8C3D9;--softer:#DCE4F2;--line:#E1E0DC;--track:#E9E8E4;--sunk:#F6F5F2;
+  --gold:#C2A263;--red:#BC3A2C;--turf:#1D4D2E;--st:#6B4FA0;--link:#7CC4FF;
+  --lo:#1C4E86;--mid:#C2C0B6;--hi:#BC3A2C;
+  --disp:'Anton',Impact,'Arial Narrow',sans-serif;--font:'IBM Plex Sans',system-ui,-apple-system,sans-serif;--fig:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --barh:26px;--tap:44px;--wrap:1280px;--gut:32px;
+  color-scheme:dark;
+}
+/* The theme's parts: the ground, stickers, panels, the gold rule, controls, tables, percentile bars. */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--field);color:var(--white);font-family:var(--font);font-size:15px;line-height:1.45}
+a{color:var(--link)}a:hover{color:#B9E0FF}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sticker);outline-offset:2px}
+h1,h2,h3,h4{margin:0;font-family:var(--disp);font-weight:400;text-transform:uppercase;letter-spacing:.03em;line-height:1;text-wrap:balance}
+.fig{font-family:var(--fig);font-variant-numeric:tabular-nums}
+.lab{font-family:var(--fig);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gut)}
+/* white sticker card: white border, hard shadow; a tilt only where the markup asks for one */
+.stk{background:var(--white);color:var(--ink);border:6px solid var(--white);outline:2px solid var(--field);box-shadow:9px 9px 0 var(--shadow)}
+.stk.sm{border-width:4px;outline:0;box-shadow:6px 6px 0 var(--shadow)}
+.stk a{color:#1B5FAA}
+.tl{transform:rotate(-1.2deg)}.tr{transform:rotate(1.2deg)}.tl2{transform:rotate(-.6deg)}.tr2{transform:rotate(.8deg)}
+.band{background:var(--banner);color:var(--white);padding:14px 22px;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px}
+.band h2{font-size:30px}.band .lab{color:var(--white)}
+.pnl{background:var(--panel);border:2px solid var(--panel-b);padding:18px;color:var(--softer)}
+.pnl h3{font-size:22px;color:var(--white);margin-bottom:10px}
+.rule{display:flex;align-items:center;gap:12px}.rule::after{content:"";flex:1;height:3px;background:var(--gold)}
+.rule h2{font-size:34px}.rule h3{font-size:22px}
+.tag{display:inline-block;padding:4px 10px;font-family:var(--fig);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.ctx{font-family:var(--fig);font-size:11px;letter-spacing:.1em;padding:3px 8px;border:1.5px solid var(--muted);color:var(--muted)}
+.badge{background:var(--sticker);color:var(--field);padding:10px 16px;border:4px solid var(--white);box-shadow:6px 6px 0 var(--shadow);display:inline-flex;align-items:center;gap:10px;font-family:var(--disp);font-size:20px;letter-spacing:.03em;text-transform:uppercase;line-height:1.05}
+.badge.red{background:var(--red);color:var(--white)}
+/* controls */
+.btn{min-height:var(--tap);padding:0 14px;border:2px solid #C9C7C0;background:var(--white);color:var(--ink);font-size:13px;font-weight:600;cursor:pointer}
+.btn[aria-pressed=true]{border-color:var(--field);background:var(--field);color:var(--white)}
+.btn.dk{border-color:var(--panel-b);background:transparent;color:var(--white);font-size:14px}
+.btn.dk[aria-pressed=true]{border-color:var(--white);background:var(--white);color:var(--field);font-weight:700}
+select.btn{padding-right:8px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 18px;border:2px solid var(--panel-b);background:transparent;color:var(--white);font-family:var(--disp);font-size:18px;letter-spacing:.04em;text-transform:uppercase;text-decoration:none}
+.tab:hover{color:var(--white);border-color:var(--soft)}
+.tab[aria-current=page]{border-color:var(--white);background:var(--white);color:var(--field)}
+/* tables scroll inside their own panel, first column pinned */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+table.t th{padding:12px 8px;border-bottom:2px solid var(--ink);text-align:left;font-family:var(--fig);font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;vertical-align:bottom}
+table.t th small{display:block;text-transform:none;letter-spacing:0;font-size:10.5px}
+table.t td{padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.t td.n,table.t th.n{text-align:right;font-family:var(--fig);font-variant-numeric:tabular-nums}
+table.t th.pin,table.t td.pin{position:sticky;left:0;background:var(--white);z-index:1}
+table.t tr.dim td{background:var(--sunk)}table.t tr.dim td.pin{background:var(--sunk)}
+table.t th button{all:unset;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;min-height:40px;display:inline-flex;align-items:flex-end}
+table.t th button:focus-visible{outline:3px solid var(--banner);outline-offset:2px}
+table.t th[aria-sort] button::after{content:" ↓"}table.t th[aria-sort=ascending] button::after{content:" ↑"}
+.chip{display:inline-block;width:12px;height:26px;vertical-align:middle;margin-right:8px;flex:none}
+.rk{font-family:var(--disp);font-size:22px;color:var(--field)}
+/* percentile bars: thick, filled to the percentile, blue to red, the number on the bar */
+.prow{display:grid;grid-template-columns:minmax(130px,200px) minmax(0,1fr) 78px;align-items:center;gap:14px}
+.prow .nm{font-size:14px;font-weight:600;line-height:1.25}.prow .nm small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.prow .v{text-align:right;font-family:var(--fig);font-size:15px;font-weight:600}
+.bar{position:relative;height:var(--barh);background:var(--track)}
+.bar .f{position:absolute;left:0;top:0;bottom:0}
+.bar .k{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--ink)}
+.bar .d{position:absolute;top:6px;width:14px;height:14px;transform:rotate(45deg);background:var(--white);border:2px solid var(--ink)}
+.bar .n{position:absolute;top:-3px;width:32px;height:32px;border-radius:50%;border:2px solid var(--white);box-shadow:0 0 0 1px var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--fig);font-weight:600;font-size:13px}
+.bar.none{background:repeating-linear-gradient(135deg,var(--track) 0 6px,var(--sunk) 6px 12px);display:flex;align-items:center;padding:0 10px;font-family:var(--fig);font-size:12px;color:var(--muted)}
+.bar.mini{height:14px;min-width:70px}.bar.mini .n{display:none}
+/* headshots: the photo where ESPN has one, the initials badge in team colours where it does not */
+.hs{flex:none;border-radius:50%;border:4px solid var(--sticker);display:flex;align-items:center;justify-content:center;font-family:var(--disp);color:var(--white);overflow:hidden;background:#3A4763}
+.hs img{width:100%;height:100%;object-fit:cover;object-position:50% 12%;background:#E9E8E4}
+.logo{width:22px;height:22px;object-fit:contain;vertical-align:middle;margin-right:6px}
+@media (prefers-reduced-motion:reduce){.tl,.tr,.tl2,.tr2,[data-tilt]{transform:none!important}*{scroll-behavior:auto!important;transition:none!important}}
+@media (max-width:640px){:root{--gut:16px}.prow{grid-template-columns:minmax(0,1fr) 64px;gap:4px 10px}.prow .nm{grid-column:1/-1}.band{padding:12px 14px}.band h2{font-size:24px}.rule h2{font-size:26px}.stk{border-width:4px;box-shadow:6px 6px 0 var(--shadow)}}
+/* College Football Savant's own layout, on the cfb theme. */
+.hero{position:relative;overflow:hidden;padding:44px var(--gut) 38px;border-bottom:4px solid var(--banner)}
+.hero .bg{position:absolute;inset:-80px -40px;transform:rotate(-7deg);display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.hero .bg div{white-space:nowrap;font-family:var(--disp);font-size:54px;line-height:1;letter-spacing:.02em;color:rgba(46,143,232,.09)}
+.hero .cp{position:absolute;border:5px solid var(--white);box-shadow:6px 6px 0 var(--shadow);pointer-events:none}
+.hero .in{position:relative;max-width:var(--wrap);margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
+.hero .ttl{display:inline-block;transform:rotate(-1.5deg);background:var(--banner);padding:6px;box-shadow:10px 10px 0 var(--shadow)}
+.hero .ttl>div{border:2px solid rgba(255,255,255,.85);padding:12px 36px 8px}
+.hero h1{font-size:clamp(34px,6.4vw,84px);line-height:.95;color:var(--white)}
+.hero p{margin:0;font-family:var(--fig);font-size:13px;letter-spacing:.12em;color:var(--soft);text-transform:uppercase}
+.hero.small{padding:20px var(--gut) 18px}.hero.small h1{font-size:clamp(26px,4vw,44px)}.hero.small .ttl>div{padding:8px 22px 5px}.hero.small p,.hero.small .cp{display:none}
+.bar1{max-width:var(--wrap);margin:0 auto;padding:22px var(--gut) 0;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.srch{position:relative;display:flex;flex-direction:column;gap:4px}
+.srch label{color:var(--soft)}
+.srch input{min-height:var(--tap);width:300px;max-width:100%;padding:0 14px;border:2px solid var(--panel-b);background:var(--panel);color:var(--white);font-size:15px}
+.srch input::placeholder{color:#93A1BD}
+.res{position:absolute;top:100%;left:0;right:0;z-index:30;margin:4px 0 0;padding:0;list-style:none;background:var(--white);color:var(--ink);border:2px solid var(--field);box-shadow:6px 6px 0 var(--shadow);max-height:60vh;overflow:auto}
+.res a{display:flex;justify-content:space-between;gap:10px;min-height:var(--tap);align-items:center;padding:6px 12px;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
+.res a:hover,.res a.on{background:#E7F1FC}.res small{color:var(--muted);font-family:var(--fig);font-size:11px;white-space:nowrap}
+.seas{display:flex;align-items:center;gap:8px}.seas select{min-height:var(--tap);padding:0 10px;border:2px solid var(--panel-b);background:var(--panel);color:var(--white)}
+main{max-width:var(--wrap);margin:0 auto;padding:26px var(--gut) 56px;display:flex;flex-direction:column;gap:36px;min-height:50vh}
+.two{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+.two>.side{flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:22px}
+.two>.wide{flex:999 1 600px;min-width:0}
+.empty{font-family:var(--fig);color:var(--soft);padding:40px 0}
+.note{font-size:12.5px;line-height:1.5;color:var(--muted);margin:0}.dark .note,.note.lt{color:var(--soft)}
+.sec{display:flex;flex-direction:column;gap:16px}
+.pad{padding:16px 22px 22px}
+/* player header sticker */
+.who{padding:22px}
+.who .top{display:flex;gap:18px;align-items:center}
+.who .pos{margin:0;font-family:var(--fig);font-size:12px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.who h2{margin-top:2px;font-size:clamp(30px,4.2vw,42px);line-height:.98;color:var(--field);overflow-wrap:break-word}
+.who .tm{margin:6px 0 0;display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:15px;font-weight:600}
+.who .tm a{color:var(--ink)}
+.sw{width:14px;height:14px;border-radius:3px;flex:none}
+.gr{margin-top:18px;height:3px;background:var(--gold)}
+.who dl{margin:16px 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 18px;font-size:14px}
+.who dt{font-family:var(--fig);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}.who dd{margin:2px 0 0;font-weight:600}
+.hist{margin-top:16px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px}
+.hist span.s{padding:4px 10px;background:var(--track);font-weight:600}.hist span.c{color:var(--white)}
+.hist .lab{color:var(--muted)}
+.acc{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.ctl{padding:16px 22px 0;display:flex;flex-wrap:wrap;gap:8px}
+.poolline{margin:12px 22px 0;font-family:var(--fig);font-size:12px;color:var(--muted);text-transform:none}
+.grp{padding:8px 22px 4px}.grp .hd{display:flex;align-items:center;gap:10px;margin:16px 0 12px}
+.grp .hd h3{font-size:22px;color:var(--field)}.grp .hd::after{content:"";flex:1;height:3px;background:var(--gold);order:1}.grp .hd .ctx{order:2}
+.rows{display:flex;flex-direction:column;gap:12px}
+.valline{margin:18px 22px 0;padding:12px 14px;background:var(--sunk);border-left:5px solid var(--gold);font-size:14px}
+.valline b{font-family:var(--fig);font-size:18px}
+.warn{display:flex;gap:12px;align-items:flex-start;background:var(--sticker);color:var(--field);padding:12px 16px;border:4px solid var(--white);box-shadow:6px 6px 0 var(--shadow);max-width:760px;font-size:14px;line-height:1.45}
+.warn svg{flex:none;margin-top:2px}.warn p{margin:0}
+details.ex{border-top:1px solid var(--line);padding:10px 0}details.ex summary{cursor:pointer;font-family:var(--disp);font-size:18px;letter-spacing:.03em;text-transform:uppercase;color:var(--field);min-height:40px;display:flex;align-items:center}
+.exi{margin:10px 0;font-size:14px;line-height:1.5}.exi .meta{font-size:12.5px;color:var(--muted);margin-top:2px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px}
+.pc{display:flex;gap:12px;align-items:center;padding:12px;color:var(--ink);text-decoration:none}
+.pc:hover{color:var(--ink)}.pc .nm{font-weight:700;line-height:1.15}.pc small{display:block;color:var(--muted);font-size:12px}.pc .v{margin-left:auto;font-family:var(--fig);font-weight:600;color:var(--field);white-space:nowrap}
+.awards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px}
+.aw .hd{padding:10px 18px;font-family:var(--disp);font-size:26px;text-transform:uppercase;line-height:1.05}
+.aw .bd{display:flex;align-items:center;gap:18px;padding:18px}.aw .bd a{color:var(--field);text-decoration:none}
+.aw .nm{font-family:var(--disp);font-size:clamp(28px,4vw,38px);line-height:1;text-transform:uppercase;color:var(--field)}
+/* playoff */
+.brk{display:flex;flex-wrap:wrap;gap:28px}.brk .byes{flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:14px}.brk .fr{flex:2 1 520px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.brk h3{font-family:var(--fig);font-size:12px;letter-spacing:.12em;color:var(--soft)}
+.bye{display:flex;align-items:center;gap:14px;padding:12px 16px}.bye .sd{font-family:var(--disp);font-size:34px;width:34px;color:var(--field)}
+.bye .nm{font-weight:700;font-size:17px}.bye small{font-size:13px;color:var(--muted);display:block}.bye .mt{margin-left:auto;font-family:var(--fig);font-size:12px;color:var(--muted);text-align:right}
+.frg{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.gm .lb{background:var(--field);color:var(--white);padding:6px 12px;font-family:var(--fig);font-size:11px;letter-spacing:.1em}
+.gm .tm{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}.gm .sd{font-family:var(--disp);font-size:24px;width:28px;color:var(--field)}.gm .nm{flex:1;font-weight:700}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}.rules h2{grid-column:1/-1;font-size:28px}
+.rules .pnl h3{color:var(--sticker)}.rules .pnl p{margin:0;font-size:14px;line-height:1.45}
+.odds{display:flex;align-items:center;gap:8px}.odds i{display:block;width:80px;height:10px;background:var(--track)}.odds i b{display:block;height:10px}
+/* All-Savant formation */
+.fieldbox{overflow-x:auto;border:6px solid var(--white);box-shadow:9px 9px 0 var(--shadow)}
+.turf{position:relative;min-width:1100px;height:1120px;background-color:var(--turf);background-image:repeating-linear-gradient(180deg,rgba(255,255,255,.13) 0 2px,transparent 2px 112px),repeating-linear-gradient(90deg,rgba(0,0,0,.06) 0 56px,transparent 56px 112px)}
+.turf .hash{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed rgba(255,255,255,.18)}
+.turf .side{position:absolute;left:24px;font-family:var(--disp);font-size:64px;line-height:1;color:rgba(255,255,255,.14);text-transform:uppercase}
+.turf .los{position:absolute;left:0;right:0;top:548px;height:5px;background:var(--banner);box-shadow:0 0 0 2px rgba(255,255,255,.5)}
+.turf .losl{position:absolute;right:18px;top:524px;font-family:var(--fig);font-size:11px;letter-spacing:.12em;color:var(--white)}
+.spot{position:absolute;width:138px;transform:translateX(-50%)}
+.fc{display:block;color:var(--ink);text-decoration:none}.fc:hover{color:var(--ink)}
+.fc .ph{text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;color:var(--white);padding:3px 8px;font-family:var(--disp);font-size:18px;letter-spacing:.04em}
+.fc .ph i{width:16px;height:9px;outline:1px solid rgba(255,255,255,.6)}
+.fc .bd{padding:10px 8px 9px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
+.fc .nm{font-weight:700;font-size:13px;line-height:1.15}.fc .sc{font-size:11px;color:var(--muted)}.fc .v{font-family:var(--fig);font-size:13px;font-weight:600;color:var(--field)}
+.strow{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:22px;max-width:720px}
+.strip{display:flex;gap:14px;overflow-x:auto;padding:6px 4px 14px}.strip a{flex:none;width:92px;text-align:center;color:var(--ink);text-decoration:none;font-size:12px;line-height:1.2}.strip a b{display:block;margin-top:6px}.strip a small{color:var(--muted)}
+.depth{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px 22px}.depth h4{font-family:var(--fig);font-size:11px;letter-spacing:.1em;color:var(--muted);margin-bottom:4px}
+.depth a{display:flex;justify-content:space-between;gap:8px;color:var(--ink);text-decoration:none;padding:3px 0;border-bottom:1px solid var(--line);font-size:13.5px}.depth a span{font-family:var(--fig);color:var(--muted)}
+.foot{border-top:1px solid #1E2C4A;background:var(--deep);padding:22px var(--gut) 34px;font-size:13px;line-height:1.6;color:var(--soft)}.foot p{max-width:var(--wrap);margin:0 auto}
+@media (max-width:640px){.hero .cp{display:none}.hero{padding:28px var(--gut) 24px}.hero .ttl>div{padding:10px 16px 6px}.bar1{align-items:stretch}.srch,.srch input{width:100%}.tab{padding:0 12px;font-size:16px}.who{padding:16px}.who .top{gap:12px}.ctl,.grp{padding-left:14px;padding-right:14px}.poolline,.valline{margin-left:14px;margin-right:14px}.pad{padding:14px}.bye .mt{display:none}main{gap:28px}}
+</style>
+<script src="/wce-nav.js" defer></script>
+</head>
+<body>
+<wce-nav style="display:block;min-height:60px"></wce-nav>
+<header class="hero" id="hero">
+  <div class="bg" aria-hidden="true" id="herobg"></div>
+  <div class="in">
+    <div class="ttl" data-tilt><div><h1>College Football Savant</h1></div></div>
+    <p>Every FBS player and team · opponent-adjusted percentiles · 2014–2026</p>
+  </div>
+</header>
+<div class="bar1">
+  <nav class="tabs" id="tabs" aria-label="Sections">
+    <a class="tab" href="#home" data-k="home">Players</a>
+    <a class="tab" href="#teams" data-k="teams">Teams</a>
+    <a class="tab" href="#playoff" data-k="playoff">Playoff Field</a>
+    <a class="tab" href="#all-savant" data-k="allsavant">All-Savant</a>
+    <a class="tab" href="#leaders" data-k="leaders">Leaders</a>
+  </nav>
+  <div class="seas"><label class="lab" for="season" style="color:var(--soft)">Season</label><select id="season"></select></div>
+  <div class="srch">
+    <label class="lab" for="q">Search players and teams</label>
+    <input id="q" type="search" placeholder="Name, school or conference" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="res">
+    <ul class="res" id="res" hidden></ul>
+  </div>
+</div>
+<main id="view"><p class="empty">Loading…</p></main>
+<footer class="foot"><p><span id="ver"></span> · New in 1.0.0: every FBS player and team since 2014 on percentile bars, the All-Savant teams lined up at the snap, and an objective 12-team playoff field with odds from 20,000 simulated seasons. Data: ESPN play-by-play, box scores and rosters; recruiting stars and class ranks from CollegeFootballData's composite. Expected points, the opponent adjustment, the power rating, the résumé score and Savant value are WCE's own. FBS-vs-FBS games only. Model outputs are the model's view, not a verdict. <a href="/#ai">Ask it in Claude with the WCE connector</a>. <a href="/">Western Conference Elitists</a></p></footer>
+<script src="/savant-cfb.js"></script>
+<script>
+(function(){
+'use strict';
+var M=window.SavantCFB,C=M.COL,T=M.TCOL,SC=M.SCOL;
+var API='/cfb/',cache={},REG,IDX,SEARCH,HON={},BYK={},TEAMK={};
+var S={season:null,pool:'pos',adj:true,gt:false,set:'national',tier:'1',conf:null,lbSlot:'QB',lbStat:null,lbQual:true,tSort:'rating',tDir:-1,tAdj:true,tConf:''};
+var $=function(s,r){return (r||document).querySelector(s);};
+var HEAD='https://a.espncdn.com/i/headshots/college-football/players/full/';
+var LOGO='https://a.espncdn.com/i/teamlogos/ncaa/500/';
+function load(p){if(!cache[p])cache[p]=fetch(API+p).then(function(r){if(!r.ok)throw new Error(p+' '+r.status);return r.json();}).catch(function(e){delete cache[p];throw e;});return cache[p];}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function mix(a,b,t){return a.map(function(v,i){return Math.round(v+(b[i]-v)*t);});}
+function col(p){var L=[28,78,134],Md=[194,192,182],H=[188,58,44];var c=p<50?mix(L,Md,p/50):mix(Md,H,(p-50)/50);return 'rgb('+c.join(',')+')';}
+function ink(p){return (p>30&&p<70)?'#191B1F':'#FFFFFF';}
+function sg(v,d){if(v==null||!isFinite(v))return '—';var a=Math.abs(v).toFixed(d==null?1:d);return (v>0?'+':v<0?'−':'')+a;}
+function ht(v){return v?Math.floor(v/12)+'-'+Math.round(v%12):'—';}
+function ini(n){return String(n||'').split(/\s+/).filter(function(w){return /^[A-Za-z]/.test(w);}).map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();}
+function tcolor(doc,t){var x=doc&&doc.teams&&doc.teams[String(t)];var c=x&&x[3];return c&&/^[0-9a-fA-F]{6}$/.test(c)&&c.toLowerCase()!=='ffffff'?'#'+c:(x&&x[4]&&/^[0-9a-fA-F]{6}$/.test(x[4])?'#'+x[4]:'#3A4763');}
+function tname(doc,t){var x=doc&&doc.teams&&doc.teams[String(t)];return x?x[0]:(TEAMK[t]?TEAMK[t][1]:'Team '+t);}
+function tconf(doc,t){var x=doc&&doc.teams&&doc.teams[String(t)];return x?x[2]:'';}
+function logo(t){return '<img class="logo" src="'+LOGO+t+'.png" alt="" loading="lazy" onerror="this.remove()">';}
+/* the photo where the build found one, the initials badge in team colours where it did not */
+function hs(id,name,color,size,has){var st='width:'+size+'px;height:'+size+'px;font-size:'+Math.round(size*.42)+'px;background:'+color;
+  if(!has||!id)return '<span class="hs" style="'+st+'" role="img" aria-label="'+esc(name)+'">'+esc(ini(name))+'</span>';
+  return '<span class="hs" style="'+st+'"><img src="'+HEAD+id+'.png" alt="'+esc(name)+'" loading="lazy" onerror="this.parentNode.textContent=\''+esc(ini(name)).replace(/'/g,'')+'\'"></span>';}
+function seasonInfo(y){return IDX.seasons.filter(function(s){return s.season===y;})[0];}
+function day(d){if(!d)return '';var p=d.split('-');return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+p[1]-1]+' '+(+p[2])+', '+p[0];}
+function asof(doc){return doc.final?'final':'through '+day(doc.through)+' (week '+doc.week+')';}
+function tilt(i){return ['tl','tr2','tl2','tr'][i%4];}
+function warnBox(t){return '<div class="warn" data-tilt><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24"><path d="M12 3L2 20h20L12 3z" fill="none" stroke="#0B1730" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v5M12 17.5v.5" stroke="#0B1730" stroke-width="2" stroke-linecap="round"/></svg><p>'+t+'</p></div>';}
+function plink(id,season){return '#player-'+id+(season&&season!==IDX.current?'/'+season:'');}
+function tlink(id,season){return '#team-'+id+(season&&season!==IDX.current?'/'+season:'');}
+
+/* ---------- the bar ---------- */
+function bar(r,mini){
+  if(!r.tracked)return '<div class="bar none">'+esc(r.reason)+'</div>';
+  if(r.none||r.pct==null)return '<div class="bar none">'+esc(r.reason||'no value')+'</div>';
+  var c=col(r.pct),fill=r.hatched?'repeating-linear-gradient(135deg,'+c+' 0 7px,rgba(255,255,255,.6) 7px 11px)':c;
+  var h='<div class="bar'+(mini?' mini':'')+'"><div class="f" style="width:'+r.pct+'%;background:'+fill+'"></div>';
+  if(r.raw!=null&&r.raw!==r.pct)h+='<div class="k" aria-hidden="true" style="left:calc('+r.raw+'% - 1px)" title="Before opponent adjustment: '+M.nth(r.raw)+' percentile"></div>';
+  if(r.settling&&r.likelyPct!=null)h+='<div class="d" aria-hidden="true" style="left:calc('+r.likelyPct+'% - 7px)" title="Likely to settle at '+esc(r.likelyShown)+'"></div>';
+  h+='<div class="n" style="left:calc('+r.pct+'% - 16px);background:'+c+';color:'+ink(r.pct)+'">'+r.pct+'</div></div>';
+  return h;}
+function prow(stat,r,group){
+  var note='';
+  if(!r.tracked||r.none)note='';
+  else if(r.settling)note='below settle point · likely to settle at '+r.likelyShown;
+  else if(stat.lower)note='lower is better, flipped';
+  else if(stat.verdict==='hatched')note='noisy in one season';
+  else if(stat.note&&stat.note.length<34)note=stat.note.replace(/\.$/,'');
+  if(r.tracked&&!r.none&&stat.lower&&r.settling)note+=' · lower is better, flipped';
+  var tag=(stat.verdict==='context'&&group!=='Context')?' <span class="ctx">CONTEXT</span>':'';
+  return '<div class="prow"><div class="nm">'+esc(stat.label)+tag+(note?'<small>'+esc(note)+'</small>':'')+'</div>'+bar(r)+'<div class="v">'+(r.tracked&&!r.none?esc(r.shown):'—')+'</div></div>';}
+function explain(reg,slot,season){
+  var h='<div class="stk sm"><div class="pad"><h3 style="font-size:24px;color:var(--field)">What each stat means</h3>';
+  reg.groups.forEach(function(g){var ss=M.statsFor(reg,slot).filter(function(s){return s.group===g;});if(!ss.length)return;
+    h+='<details class="ex"><summary>'+esc(g)+'</summary>';
+    ss.forEach(function(s){h+='<div class="exi"><strong>'+esc(s.label)+'.</strong> '+esc(s.what)+'<div class="meta">Formula: '+esc(s.formula)+'. Source: '+esc(s.source)+'. From '+s.start+'. '+(s.k?'Settles around '+s.k+' '+esc(s.unit_n)+'. ':'')+(s.adj?'Opponent-adjusted. ':'')+esc(s.note||'')+'</div></div>';});
+    h+='</details>';});
+  h+='<details class="ex"><summary>Savant value</summary><div class="exi">Expected points above a replacement-level player at his position, opponent-adjusted, on the plays he was credited with. His rate is pulled toward the position average until he has played enough, the replacement rate (the 25th-percentile qualified player) is taken away, and the rest is multiplied by his volume. Nothing in it knows whether his team won. Missed games and small roles cost value.<div class="meta">Garbage time ('+esc(reg.garbage_rule)+') is left out. FBS-vs-FBS games only. The model\'s view, not a verdict.</div></div></details>';
+  return h+'</div></div>';}
+
+/* ---------- home ---------- */
+function vHome(){
+  var y=S.season;
+  return Promise.all([load('s/'+y+'.json'),load('allsavant/'+y+'.json')]).then(function(a){
+    var d=a[0],A=a[1],ix={};d.players.forEach(function(p,i){ix[p[C.id]]=i;});
+    var h='<section class="sec"><div class="rule"><h2>Savant Heisman'+(A.final?'':' race')+'</h2></div><p class="note lt">Pure Savant value, '+y+', '+esc(asof(A))+'. Expected points above a replacement player at his position, opponent-adjusted. Search any FBS player since 2014 above.</p><div class="cards">';
+    A.heisman.slice(0,6).forEach(function(r,i){h+=pcard(d,r,i,'#'+(i+1));});
+    h+='</div></section><section class="sec"><div class="rule"><h2>Non-QB Player of the Year</h2></div><div class="cards">';
+    A.non_qb.slice(0,6).forEach(function(r,i){h+=pcard(d,r,i+1,'#'+(i+1));});
+    h+='</div></section><section class="sec"><div class="rule"><h2>Best at each position</h2></div><p class="note lt">The top qualified player by Savant value at every position, '+y+'. Open a card for his percentile bars.</p><div class="cards">';
+    REG.slots.forEach(function(sl,k){var best=null;d.players.forEach(function(p,i){if(p[C.slot]===sl&&p[C.qual]&&M.ok(d.value.v[i])&&(best===null||d.value.v[i]>d.value.v[best]))best=i;});
+      if(best!==null)h+=pcard(d,{pid:d.players[best][C.id],team:d.players[best][C.team],slot:sl,value:d.value.v[best],name:d.players[best][C.name],head:d.players[best][C.head]},k,sl);});
+    h+='</div></section>';
+    return h;});}
+function pcard(d,r,i,lead){var c=tcolor(d,r.team);
+  return '<a class="stk sm pc '+tilt(i)+'" data-tilt href="'+plink(r.pid,d.season)+'">'+hs(r.pid,r.name,c,54,r.head)+'<div><div class="lab" style="color:var(--muted)">'+esc(lead)+' · '+esc(r.slot)+'</div><div class="nm">'+esc(r.name)+'</div><small>'+esc(tname(d,r.team))+'</small></div><span class="v">'+sg(r.value,1)+'</span></a>';}
+
+/* ---------- player ---------- */
+function shard(id){return load('p/'+('0'+(Math.abs(id)%100)).slice(-2)+'.json').then(function(d){return d[String(id)]||null;}).catch(function(){return null;});}
+function vPlayer(id,want){
+  return Promise.all([shard(id),load('s/'+IDX.current+'.json')]).then(function(a){
+    var P=a[0]||{bio:{},seasons:[]},cur=a[1],seasons=P.seasons.map(function(r){return r[0];});
+    var inCur=cur.players.some(function(p){return p[C.id]===id;});
+    if(inCur&&seasons.indexOf(IDX.current)<0)seasons.push(IDX.current);
+    if(!seasons.length){
+      if(P.bio&&P.bio.name)return '<div class="stk who"><h2>'+esc(P.bio.name)+'</h2><p>No graded plays in an FBS-vs-FBS game yet. He appears on a roster; a card needs a pass, a run, a target, a tackle or a kick.</p></div>';
+      return '<p class="empty">No player with that id.</p>';}
+    var y=want&&seasons.indexOf(want)>=0?want:seasons[seasons.length-1];
+    return load('s/'+y+'.json').then(function(d){
+      var i=-1;d.players.forEach(function(p,k){if(p[C.id]===id)i=k;});
+      if(i<0)return '<p class="empty">No graded plays in '+y+'.</p>';
+      var team=d.players[i][C.team];
+      return Promise.all([load('t/'+y+'/'+team+'.json').catch(function(){return null;}),load('teams/'+y+'.json').catch(function(){return null;}),load('allsavant/'+y+'.json').catch(function(){return null;})]).then(function(b){
+        return playerHtml(id,P,d,i,b[0],b[1],b[2],seasons,cur);});});});}
+function schedFaced(TD,team){if(!TD)return '—';var rows=TD.teams,v=null,all=[];rows.forEach(function(r){if(M.ok(r[T.sos])){all.push(+r[T.sos]);if(r[T.id]===team)v=+r[T.sos];}});
+  if(v===null)return '—';var p=M.pct(all,v,false);return M.nth(p)+' pct · '+(p>=60?'tougher':p<=40?'softer':'about average')+' <span style="font-weight:400;color:var(--muted)">(his team\'s)</span>';}
+function historyRibbon(P,d,team){
+  var sc=(P.bio&&P.bio.schools)||[],runs=[];
+  sc.forEach(function(r){var last=runs[runs.length-1];if(last&&last.team===r[1])last.to=r[0];else runs.push({team:r[1],from:r[0],to:r[0],origin:r[3]});});
+  if(!runs.length||runs[runs.length-1].team!==team)runs.push({team:team,from:d.season,to:d.season});
+  if(runs[runs.length-1].to<d.season)runs[runs.length-1].to=d.season;
+  var h='<div class="hist">';
+  if(runs[0].origin)h+='<span class="s">'+esc(runs[0].origin)+'</span>'+arrow();
+  runs.forEach(function(r,k){var on=r.team===team&&k===runs.length-1;
+    if(k>0){if(r.origin&&r.origin!==tname(null,runs[k-1].team))h+='';h+=arrow();}
+    h+='<span class="s'+(on?' c':'')+'"'+(on?' style="background:'+tcolor(d,team)+'"':'')+'>'+(r.from===r.to?r.from:r.from+'–'+String(r.to).slice(2))+' '+esc(TEAMK[r.team]?TEAMK[r.team][1]:tname(d,r.team))+'</span>';});
+  if(runs.length>1||runs[0].origin)h+='<span class="lab">Transfer</span>';
+  return h+'</div>';}
+function arrow(){return '<svg aria-hidden="true" width="18" height="12" viewBox="0 0 18 12"><path d="M1 6h15M11 1l5 5-5 5" fill="none" stroke="#4E535B" stroke-width="2"/></svg>';}
+function standing(A,id){
+  if(!A)return [];var out=[],sfx=A.final?' · '+A.season:' · standing, week '+A.week;
+  if(A.heisman[0]&&A.heisman[0].pid===id)out.push('Savant Heisman'+sfx);
+  if(A.non_qb[0]&&A.non_qb[0].pid===id)out.push('Non-QB Player of the Year'+sfx);
+  ['1','2','3'].forEach(function(t){if(A.national[t].some(function(r){return r.pid===id;}))out.push(['','1st','2nd','3rd'][+t]+'-team All-Savant'+sfx);});
+  Object.keys(A.conference).forEach(function(c){if(A.conference[c].some(function(r){return r.pid===id;}))out.push('All-'+c+' Savant'+sfx);});
+  if(A.freshman.some(function(r){return r.pid===id;}))out.push('Freshman All-Savant'+sfx);
+  return out;}
+function playerHtml(id,P,d,i,TF,TD,A,seasons,cur){
+  var p=d.players[i],slot=p[C.slot],team=p[C.team],tc=tcolor(d,team),bio=P.bio||{},y=d.season,o={poolName:S.pool,adj:S.adj,gt:S.gt};
+  var stats=M.statsFor(REG,slot),table=M.SLOT_TABLE[slot];
+  var ros=TF?TF.roster.filter(function(r){return r[0]===id;})[0]:null;
+  var home=bio.city?(bio.city+(bio.state?', '+bio.state:'')):(ros&&ros[9]?ros[9]+(ros[10]?', '+ros[10]:''):'—');
+  var rec=bio.recruit?(bio.recruit[0]+'★'+(bio.recruit[1]?' · No. '+bio.recruit[1]+' in the '+bio.recruit[2]+' class':' · '+bio.recruit[2]+' class')):'No recruit record';
+  var h='<div class="two"><section class="side" aria-label="Player">';
+  h+='<div class="stk who tl" data-tilt><div class="top">'+hs(id,p[C.name],tc,96,p[C.head])+'<div style="min-width:0"><p class="pos">'+esc(slot)+(p[C.pos]&&p[C.pos]!==slot?' ('+esc(p[C.pos])+')':'')+(p[C.jersey]?' · #'+esc(p[C.jersey]):'')+(p[C.cls]?' · '+esc(p[C.cls]):'')+' · '+y+'</p><h2>'+esc(p[C.name])+'</h2><p class="tm"><span class="sw" style="background:'+tc+'"></span>'+logo(team)+'<a href="'+tlink(team,y)+'">'+esc(tname(d,team))+'</a> · '+esc(tconf(d,team))+'</p></div></div><div class="gr"></div>';
+  h+='<dl><div><dt>Ht / Wt</dt><dd>'+ht(p[C.ht])+' · '+(p[C.wt]||'—')+'</dd></div><div><dt>Hometown</dt><dd>'+esc(home)+'</dd></div><div><dt>Recruit</dt><dd>'+esc(rec)+'</dd></div><div><dt>Schedule faced</dt><dd>'+schedFaced(TD,team)+'</dd></div></dl>';
+  h+=historyRibbon(P,d,team);
+  if(p[C.inferred])h+='<p class="note" style="margin-top:10px">Position: the roster lists him as '+esc(p[C.pos]||'no position')+'; '+esc(slot)+' is read from his size and the plays he makes.</p>';
+  if(bio.nfl)h+='<p style="margin:12px 0 0;font-size:14px"><a href="/football-savant.html#p='+encodeURIComponent(bio.nfl[0])+(bio.nfl[1]?'&s='+bio.nfl[1]:'')+'">His NFL card on Football Savant ↗</a></p>';
+  h+='</div>';
+  var acc=standing(A,id).map(function(t){return t;});
+  (P.honours||[]).forEach(function(r){if(r[0]!==y||!(A&&A.final))if(r[0]!==y)acc.push(r[2]+' · '+r[0]);});
+  if(acc.length){h+='<div class="acc">';acc.slice(0,8).forEach(function(t,k){h+='<div class="badge '+(k%2?'tl2':'tr')+'" data-tilt><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .8-5.2 4.8 1.5 7L12 17.6 5.7 21.1l1.5-7L2 9.3l7-.8z" fill="none" stroke="#0B1730" stroke-width="2" stroke-linejoin="round"/></svg><span>'+esc(t)+'</span></div>';});h+='</div>';}
+  var pl=M.pool(d,REG,i,S.pool),plabel=M.poolLabel(pl,p,{adj:S.adj,season:y,conf:tconf(d,team),reg:REG});
+  h+='<div class="pnl"><h3>How to read the bars</h3><ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.45"><li>Each bar is his percentile '+esc(plabel.replace(/^vs /,'against ').replace(/, (opponent-adjusted|raw), \d+$/,''))+' that season. Higher is always better; a stat where lower is better is flipped and says so.</li><li>The thin dark tick is where he would sit before the opponent adjustment.</li><li>Striped bars have not reached their settle point, or are noisy in any one season. The diamond marks where the stat is likely to land.</li><li>CONTEXT rows show how much, not how good.</li><li>Seasons are never pooled: a 2016 bar is against 2016.</li></ul></div>';
+  h+='</section><div class="wide" style="display:flex;flex-direction:column;gap:28px"><section class="stk" aria-label="Percentiles">';
+  var q=REG.qual[slot],qn=q?M.sample(d,q[0],i,true):null;
+  h+='<div class="band"><h2>'+y+' Percentile Rankings</h2><span class="lab">'+esc(asof(d))+(qn!=null?' · '+Math.round(qn)+' '+esc(sampleName(q[0])):'')+'</span></div>';
+  h+='<div class="ctl" role="group" aria-label="Percentile controls">';
+  [['pos','vs FBS '+slot+'s'],['p4','Power 4 only'],['conf',esc(tconf(d,team))+' only']].forEach(function(x){h+='<button class="btn" data-pool="'+x[0]+'" aria-pressed="'+(S.pool===x[0])+'">'+x[1]+'</button>';});
+  h+='<button class="btn" data-adj="1" aria-pressed="'+S.adj+'">Adjusted</button><button class="btn" data-adj="0" aria-pressed="'+!S.adj+'">Raw</button>';
+  h+='<button class="btn" data-gt="'+(S.gt?0:1)+'" aria-pressed="'+S.gt+'">Garbage time '+(S.gt?'in':'out')+'</button>';
+  h+='<label class="vh" for="pseason">Season</label><select class="btn" id="pseason">'+seasons.slice().reverse().map(function(s){return '<option value="'+s+'"'+(s===y?' selected':'')+'>Season: '+s+'</option>';}).join('')+'</select></div>';
+  h+='<p class="poolline">POOL: '+esc(plabel)+', garbage time '+(S.gt?'included':'excluded')+' · '+pl.ids.length+' qualified players'+(pl.widened?' · '+esc(pl.widened):'')+'</p>';
+  if(!p[C.qual]&&q)h+='<p class="poolline">He is under the qualifying sample ('+Math.round(q[1]*(d.scale||1))+' '+esc(sampleName(q[0]))+(d.scale<1?' at this point of the season':'')+'), so his bars show where his numbers would sit among qualified players.</p>';
+  var vl=M.valueLine(d,i);
+  if(vl)h+='<p class="valline"><b>'+sg(vl.value,1)+'</b> Savant value: expected points above a replacement '+esc(REG.slot_name[slot].replace(/s$/,''))+', opponent-adjusted'+(vl.rank?' · '+M.nth(vl.rank)+' of '+vl.of+' qualified '+esc(REG.slot_name[slot]):'')+'.</p>';
+  REG.groups.forEach(function(g){var ss=stats.filter(function(s){return s.group===g;});if(!ss.length)return;
+    h+='<div class="grp"><div class="hd"><h3>'+esc(g)+'</h3>'+(g==='Context'?'<span class="ctx">CONTEXT</span>':'')+'</div><div class="rows">';
+    ss.forEach(function(s){h+=prow(s,M.row(d,REG,s,i,o),g);});h+='</div></div>';});
+  var isD=table==='dfn';
+  h+='<div class="pad">'+(isD?'<p class="note">'+esc(REG.defender_note)+'</p>':'')+(isD&&y<2024?'<p class="note" style="margin-top:8px"><strong>'+esc(REG.pre_box_warning)+'</strong></p>':'')+'<p class="note" style="margin-top:8px">Sources: ESPN play-by-play and box scores; WCE\'s own expected-points model and opponent adjustment. FBS-vs-FBS games only.</p></div></section>';
+  /* splits, game log, career */
+  var rows=TF&&TF.logs[String(id)],cols=REG.logcols[table];
+  if(rows&&rows.length){
+    var sp=M.splits(rows,TF.sched,cols,table);
+    h+='<section class="stk sm"><div class="band"><h2>Splits</h2><span class="lab">'+y+' · raw totals, garbage time included</span></div><div class="scroll"><table class="t"><thead><tr><th class="pin">Split</th>'+sp[0].line.map(function(c){return '<th class="n">'+esc(c[0])+'</th>';}).join('')+'</tr></thead><tbody>';
+    sp.forEach(function(x){h+='<tr><td class="pin"><strong>'+esc(x.label)+'</strong></td>'+x.line.map(function(c){return '<td class="n">'+esc(c[1])+'</td>';}).join('')+'</tr>';});
+    h+='</tbody></table></div><p class="note pad">"Our top 25" is the top 25 of WCE\'s power rating '+(d.final?'at season\'s end':'today')+'. Small splits are a few games: read them as a record of what happened, not a skill.</p></section>';
+    h+='<section class="stk sm"><div class="band"><h2>Game Log</h2><span class="lab">'+y+' · FBS opponents</span></div><div class="scroll"><table class="t"><thead><tr><th class="pin">Date</th><th>Opponent</th><th>Result</th>'+M.line(table,M.total([rows[0]],cols)).slice(1).map(function(c){return '<th class="n">'+esc(c[0])+'</th>';}).join('')+'</tr></thead><tbody>';
+    rows.forEach(function(r){var g=TF.sched[r[0]],won=g[SC.pf]>g[SC.pa];
+      h+='<tr><td class="pin fig">'+esc(day(g[SC.date]).replace(/, \d+$/,''))+'</td><td>'+(g[SC.site]===-1?'at ':'vs ')+'<a href="'+tlink(g[SC.opp],y)+'">'+esc(tname(d,g[SC.opp]))+'</a>'+(M.ok(g[SC.opp_rank])&&g[SC.opp_rank]<=25?' <span class="lab" style="color:var(--muted)">#'+g[SC.opp_rank]+'</span>':'')+(g[SC.site]===0?' <span class="lab" style="color:var(--muted)">neutral</span>':'')+'</td><td class="fig">'+(g[SC.final]?(won?'W ':'L ')+g[SC.pf]+'-'+g[SC.pa]:'')+'</td>'+M.line(table,M.total([r],cols)).slice(1).map(function(c){return '<td class="n">'+esc(c[1])+'</td>';}).join('')+'</tr>';});
+    h+='</tbody></table></div></section>';}
+  var career=P.seasons.slice();
+  if(rows&&y===IDX.current&&!career.some(function(r){return r[0]===y;})){var tt=M.total(rows,cols);career.push([y,team,slot,p[C.cls],p[C.gp],p[C.qual],vl?vl.value:null,vl?vl.rank:null,vl?vl.of:null,cols.map(function(c){return tt[c];})]);}
+  if(career.length){
+    var same=career.filter(function(r){return M.SLOT_TABLE[r[2]]===table;});
+    var hdr=same.length?M.line(table,asTot(same[0][9],cols,same[0][4])).slice(1):[];
+    h+='<section class="stk sm"><div class="band"><h2>Career</h2><span class="lab">across schools · since 2014</span></div><div class="scroll"><table class="t"><thead><tr><th class="pin">Season</th><th>School</th><th>Pos</th><th class="n">G</th><th class="n">Savant value</th><th class="n">Rank at pos</th>'+hdr.map(function(c){return '<th class="n">'+esc(c[0])+'</th>';}).join('')+'</tr></thead><tbody>';
+    career.forEach(function(r){var sameT=M.SLOT_TABLE[r[2]]===table,ln=sameT?M.line(table,asTot(r[9],cols,r[4])).slice(1):hdr.map(function(){return ['','—'];});
+      h+='<tr><td class="pin fig"><a href="'+plink(id,r[0])+'">'+r[0]+'</a></td><td><a href="'+tlink(r[1],r[0])+'">'+esc(TEAMK[r[1]]?TEAMK[r[1]][1]:tname(d,r[1]))+'</a></td><td>'+esc(r[2])+(r[3]?' · '+esc(r[3]):'')+'</td><td class="n">'+r[4]+'</td><td class="n">'+(r[6]==null?'—':sg(r[6],1))+'</td><td class="n">'+(r[7]?r[7]+' of '+r[8]:'—')+'</td>'+ln.map(function(c){return '<td class="n">'+esc(c[1])+'</td>';}).join('')+'</tr>';});
+    h+='</tbody></table></div><p class="note pad">Games are FBS-vs-FBS games in which he recorded a play. Rank is among qualified players at his position that season.</p></section>';}
+  var cm=M.comps(d,REG,i,6);
+  if(cm.length){h+='<section class="sec"><div class="rule"><h3>Nearest players, '+y+'</h3></div><p class="note lt">Qualified '+esc(REG.slot_name[slot])+(cm[0].sameClass&&p[C.cls]?' in the same class ('+esc(p[C.cls])+')':'')+' whose percentile bars sit closest to his. A likeness of shape this season, not a projection.</p><div class="cards">';
+    cm.forEach(function(c,k){var q2=d.players[c.i];h+=pcard(d,{pid:q2[C.id],team:q2[C.team],slot:q2[C.slot],value:d.value.v[c.i],name:q2[C.name],head:q2[C.head]},k,Math.round(100-c.distance)+' match');});h+='</div></section>';}
+  h+=explain(REG,slot,y);
+  return h+'</div></div>';}
+function asTot(arr,cols,g){var t={g:g};cols.forEach(function(c,k){t[c]=arr[k];});return t;}
+function sampleName(k){return {plays:'plays',rush:'rushes',tgt:'targets',dplays:'team defensive plays',fga:'field-goal attempts',punts:'punts'}[k]||k;}
+
+/* ---------- teams ---------- */
+var TCOLS_SHOW=[['rating','Power','pts vs avg FBS',1],['off','Off','',1],['def','Def','',1],['st','ST','',1],['resume_rank','Résumé','rank',0],['sos','Schedule','tougher is higher',0],['off_epa','Off EPA/play','efficiency',0,1],['def_epa','Def EPA/play','lower is better',0,1],['off_sr','Off success','',0,1],['def_sr','Def success','lower is better',0,1],['off_expl','Explosiveness','EPA per successful play',0,1],['off_fp','Start field pos.','yards to go',0,1],['off_ppo','Pts per trip','inside the 40',0,1],['def_havoc','Havoc','',0,1],['pace','Pace','plays per game',0,1],['to_margin','TO margin','LUCK',0,1],['talent_rank','Talent','rank',0],['ret_off','Returning off.','share',0],['ret_def','Returning def.','share',0]];
+function vTeams(){
+  return load('teams/'+S.season+'.json').then(function(D){
+    var ts=REG.team_stats,by={};ts.forEach(function(s){by[s.key]=s;});
+    var rows=D.teams.map(function(r,i){return {r:r,i:i};});
+    var confs=[];rows.forEach(function(x){if(confs.indexOf(x.r[T.conf])<0)confs.push(x.r[T.conf]);});confs.sort();
+    if(S.tConf)rows=rows.filter(function(x){return x.r[T.conf]===S.tConf;});
+    function get(x,k){if(k in T)return x.r[T[k]];var c=D.values[k];if(!c)return null;return (S.tAdj&&c.a?c.a:c.r)[x.i];}
+    var key=S.tSort,dir=S.tDir;
+    rows.sort(function(a,b){var u=get(a,key),v=get(b,key);if(u==null)return 1;if(v==null)return -1;return dir*(u-v)||a.r[T.school].localeCompare(b.r[T.school]);});
+    var h='<section class="stk"><div class="band"><h2>All Teams · '+D.season+'</h2><span class="lab">'+esc(asof(D))+' · '+rows.length+' teams</span></div><div class="ctl"><button class="btn" data-tadj="1" aria-pressed="'+S.tAdj+'">Adjusted</button><button class="btn" data-tadj="0" aria-pressed="'+!S.tAdj+'">Raw</button><label class="vh" for="tconf">Conference</label><select class="btn" id="tconf"><option value="">All of FBS</option>'+confs.map(function(c){return '<option'+(c===S.tConf?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select></div>';
+    h+='<p class="poolline">Ranked against all FBS teams, '+D.season+'. '+(S.tAdj?'Efficiency stats are opponent-adjusted where the backtest found the adjustment predicts better.':'Raw, before any opponent adjustment.')+' Garbage time excluded.</p><div class="scroll" style="margin-top:12px"><table class="t"><thead><tr><th class="n">#</th><th class="pin">Team</th><th>Record</th>';
+    TCOLS_SHOW.forEach(function(c){var on=key===c[0];h+='<th class="n"'+(on?' aria-sort="'+(dir<0?'descending':'ascending')+'"':'')+'><button data-tsort="'+c[0]+'">'+esc(c[1])+'</button>'+(c[2]?'<small>'+esc(c[2])+'</small>':'')+'</th>';});
+    h+='</tr></thead><tbody>';
+    rows.forEach(function(x,n){var r=x.r,tc=tcolor({teams:teamsMap(D)},r[T.id]);
+      h+='<tr><td class="n">'+(n+1)+'</td><td class="pin"><span class="chip" style="background:'+tc+'"></span>'+logo(r[T.id])+'<a href="'+tlink(r[T.id],D.season)+'"><strong>'+esc(r[T.school])+'</strong></a> <span class="lab" style="color:var(--muted)">'+esc(r[T.conf])+'</span></td><td class="fig">'+r[T.w]+'-'+r[T.l]+' <span style="color:var(--muted)">('+r[T.cw]+'-'+r[T.cl]+')</span></td>';
+      TCOLS_SHOW.forEach(function(c){var v=get(x,c[0]),s=by[c[0]],t;
+        if(v==null)t='—';else if(s)t=M.display(s,v);else if(c[0]==='sos')t=(100*v).toFixed(0)+'%';else if(c[0]==='ret_off'||c[0]==='ret_def')t=(100*v).toFixed(0)+'%';else if(c[3])t=sg(v,1);else t=String(v);
+        h+='<td class="n">'+t+'</td>';});
+      h+='</tr>';});
+    h+='</tbody></table></div><div class="pad"><p class="note">Power is WCE\'s rating in points per game against an average FBS team, split into offense, defense and special teams. Résumé is the playoff résumé rank: wins and losses against the schedule, never margin. Schedule is how often the bubble team (the 12th-best by power) would have lost these games. Turnover margin behaves like luck: it takes about 33 games to be half signal. Talent is WCE\'s own, computed from the recruiting stars and class ranks of the players on each roster. Returning is the share of last season\'s offensive touches and tackles still on the roster. Tap a column to sort.</p></div></section>';
+    h+='<section class="stk sm"><div class="pad"><h3 style="font-size:24px;color:var(--field)">What each team stat means</h3>';
+    var gs=[];ts.forEach(function(s){if(gs.indexOf(s.group)<0)gs.push(s.group);});
+    gs.forEach(function(g){h+='<details class="ex"><summary>'+esc(g)+'</summary>';ts.filter(function(s){return s.group===g;}).forEach(function(s){h+='<div class="exi"><strong>'+esc(s.label)+'.</strong> '+esc(s.what)+'<div class="meta">'+(s.verdict==='luck'?'Labeled luck. ':s.verdict==='context'?'Context. ':s.verdict==='hatched'?'Noisy early in a season. ':'')+(s.adj?'Opponent-adjusted. ':'')+'Source: ESPN play-by-play and team box scores, valued by WCE\'s expected-points model. From 2014.</div></div>';});h+='</details>';});
+    return h+'</div></section>';});}
+function teamsMap(D){if(!D._m){D._m={};D.teams.forEach(function(r){var k=TEAMK[r[T.id]];D._m[String(r[T.id])]=[r[T.school],r[T.abbr],r[T.conf],k?k[6]:null,k?k[7]:null,k?k[5]:null];});}return D._m;}
+function vTeam(id,want){
+  var y=want||S.season;
+  return Promise.all([load('t/'+y+'/'+id+'.json'),load('teams/'+y+'.json'),load('s/'+y+'.json')]).then(function(a){
+    var F=a[0],D=a[1],d=a[2],ti=-1;D.teams.forEach(function(r,k){if(r[T.id]===id)ti=k;});
+    var r=D.teams[ti],tc=tcolor(d,id);
+    var h='<div class="two"><section class="side"><div class="stk who tl" data-tilt><div class="top"><span class="hs" style="width:96px;height:96px;background:#fff;border-color:'+tc+'"><img src="'+LOGO+id+'.png" alt="" style="object-fit:contain;object-position:center;padding:10px;background:#fff" onerror="this.remove()"></span><div style="min-width:0"><p class="pos">'+esc(F.conf)+' · '+y+'</p><h2>'+esc(F.name)+'</h2><p class="tm"><span class="sw" style="background:'+tc+'"></span>'+r[T.w]+'-'+r[T.l]+' ('+r[T.cw]+'-'+r[T.cl]+' in conference)</p></div></div><div class="gr"></div>';
+    h+='<dl><div><dt>Power rating</dt><dd>'+sg(r[T.rating],1)+' · '+M.nth(r[T.rating_rank])+'</dd></div><div><dt>Résumé rank</dt><dd>'+(r[T.resume_rank]?M.nth(r[T.resume_rank]):'—')+'</dd></div><div><dt>Offense / Defense / ST</dt><dd>'+sg(r[T.off],1)+' / '+sg(r[T.def],1)+' / '+sg(r[T.st],1)+'</dd></div><div><dt>Team talent</dt><dd>'+(r[T.talent_rank]?M.nth(r[T.talent_rank])+' <span style="font-weight:400;color:var(--muted)">from recruiting stars</span>':'—')+'</dd></div></dl>';
+    if(F.coach&&F.coach.length)h+='<p style="margin:14px 0 0;font-size:14px">Head coach: <strong>'+esc(F.coach[0])+'</strong>'+(F.coach.length>1?' (also '+esc(F.coach.slice(1).join(', '))+')':'')+'</p>';
+    if(F.ol)h+='<p style="margin:8px 0 0;font-size:14px">Offensive line, as a unit: <strong>'+sg(F.ol.value,1)+'</strong> points ('+M.nth(F.ol.rank)+' of '+F.ol.of+'), '+sg(F.ol.pass_pro,1)+' in pass protection and '+sg(F.ol.run_block,1)+' in run blocking.</p>';
+    h+='<p style="margin:12px 0 0;font-size:14px"><a href="#playoff'+(y!==IDX.current?'/'+y:'')+'">Playoff field</a> · <a href="#teams'+(y!==IDX.current?'/'+y:'')+'">All teams</a></p></div>';
+    h+='<div class="pnl"><h3>Reading this page</h3><p style="margin:0;font-size:14px">Bars are '+esc(F.name)+'\'s percentile among all FBS teams in '+y+', '+(S.tAdj?'opponent-adjusted where the backtest found it predicts better':'raw')+', garbage time excluded. Defense is flipped so higher is always better. Striped bars are noisy early in a season. Pregame win chances come from the power ratings as they stood before each game.</p></div></section>';
+    h+='<div class="wide" style="display:flex;flex-direction:column;gap:28px">';
+    /* schedule */
+    h+='<section class="stk sm"><div class="band"><h2>Schedule</h2><span class="lab">'+esc(asof(D))+' · our pregame win chance</span></div><div class="scroll"><table class="t"><thead><tr><th class="pin">Date</th><th>Opponent</th><th>Result</th><th class="n">Win chance</th><th class="n">Opp. power rank</th></tr></thead><tbody>';
+    F.sched.forEach(function(g){var won=g[SC.pf]>g[SC.pa],opn=g[SC.opp_name]||tname(d,g[SC.opp]),fb=!g[SC.opp_name];
+      h+='<tr><td class="pin fig">'+esc(day(g[SC.date]).replace(/, \d+$/,''))+'</td><td>'+(g[SC.site]===-1?'at ':'vs ')+(fb?'<a href="'+tlink(g[SC.opp],y)+'">'+esc(opn)+'</a>':esc(opn)+' <span class="lab" style="color:var(--muted)">FCS</span>')+(g[SC.conf]?' <span class="lab" style="color:var(--muted)">conf</span>':'')+(g[SC.site]===0?' <span class="lab" style="color:var(--muted)">neutral</span>':'')+'</td><td class="fig">'+(g[SC.final]?'<strong>'+(won?'W':'L')+'</strong> '+g[SC.pf]+'-'+g[SC.pa]:'<span style="color:var(--muted)">week '+g[SC.week]+'</span>')+'</td><td class="n">'+M.chance(g[SC.wp])+'</td><td class="n">'+(g[SC.opp_rank]||'—')+'</td></tr>';});
+    h+='</tbody></table></div></section>';
+    /* team bars */
+    h+='<section class="stk"><div class="band"><h2>'+y+' Team Percentiles</h2><span class="lab">vs all FBS teams</span></div><div class="ctl"><button class="btn" data-tadj="1" aria-pressed="'+S.tAdj+'">Adjusted</button><button class="btn" data-tadj="0" aria-pressed="'+!S.tAdj+'">Raw</button></div><p class="poolline">POOL: vs all '+D.teams.length+' FBS teams, '+(S.tAdj?'opponent-adjusted':'raw')+', garbage time excluded, '+y+'</p>';
+    var gs=[];REG.team_stats.forEach(function(s){if(gs.indexOf(s.group)<0)gs.push(s.group);});
+    gs.forEach(function(g){h+='<div class="grp"><div class="hd"><h3>'+esc(g)+'</h3>'+(g==='Turnovers'?'<span class="ctx">LUCK</span>':'')+'</div><div class="rows">';
+      REG.team_stats.filter(function(s){return s.group===g;}).forEach(function(s){var x=M.teamRow(D,s,ti,S.tAdj);
+        var rr=x?{tracked:true,pct:x.pct,shown:x.shown,hatched:s.verdict==='hatched'||s.verdict==='luck'}:{tracked:true,none:true,reason:'no value'};
+        var st={label:s.label,lower:s.lower,verdict:s.verdict==='luck'?'context':s.verdict,note:''};
+        h+=prow(st,rr,g==='Turnovers'?'Context':g);});
+      h+='</div></div>';});
+    h+='<div class="pad"><p class="note">Turnovers and fumble recoveries are labeled luck: they barely repeat from one half of a season to the other.</p></div></section>';
+    /* roster strip and depth */
+    var gr=F.roster.filter(function(p){return p[11]!=null;}).sort(function(a,b){return (b[12]||-99)-(a[12]||-99);});
+    h+='<section class="stk sm"><div class="band"><h2>Roster</h2><span class="lab">'+F.roster.length+' players · sorted by Savant value</span></div><div class="strip">';
+    gr.slice(0,30).forEach(function(p){h+='<a href="'+plink(p[0],y)+'">'+hs(p[0],p[1],tc,64,p[8])+'<b>'+esc(p[1])+'</b><small>'+esc(p[3]||p[2]||'')+(p[12]!=null?' · '+sg(p[12],1):'')+'</small></a>';});
+    h+='</div><div class="pad"><h3 style="font-size:20px;color:var(--field);margin-bottom:10px">Depth by usage</h3><div class="depth">';
+    REG.slots.forEach(function(sl){var ps=F.roster.filter(function(p){return p[3]===sl&&p[11]!=null;}).sort(function(a,b){return b[11]-a[11];});if(!ps.length)return;
+      var q=REG.qual[sl];h+='<div><h4>'+esc(REG.slot_name[sl])+' · '+esc(q?sampleName(q[0]):'')+'</h4>';ps.slice(0,sl==='WR'?6:sl==='QB'||sl==='K'||sl==='P'?2:4).forEach(function(p){h+='<a href="'+plink(p[0],y)+'">'+esc(p[1])+'<span>'+Math.round(p[11])+'</span></a>';});h+='</div>';});
+    var olp=F.roster.filter(function(p){return p[3]==='OL';});
+    if(olp.length)h+='<div><h4>offensive line · graded as a unit</h4>'+olp.slice(0,8).map(function(p){return '<a>'+esc(p[1])+'<span>'+esc(p[5]||'')+'</span></a>';}).join('')+'</div>';
+    h+='</div><p class="note" style="margin-top:12px">No free source tracks snaps, so depth is by plays credited: dropbacks and runs, carries, targets, and for defenders their team\'s defensive plays in games they made a play.</p></div></section>';
+    return h+'</div></div>';});}
+
+/* ---------- playoff ---------- */
+function vPlayoff(){
+  return Promise.all([load('playoff/'+S.season+'.json'),load('s/'+S.season+'.json')]).then(function(a){
+    var P=a[0],d=a[1],cur=!!P.odds,seed={},rowOf={};
+    P.field.forEach(function(f){seed[f.seed]=f;});P.table.forEach(function(r){rowOf[r[0]]=r;});
+    function nm(t){return esc(tname(d,t));}
+    var h='<section class="sec"><div class="rule"><h2>The Bracket</h2></div><p class="note lt">'+(cur?'If the season ended today. '+P.season+', '+esc(asof(P))+'. Until the title games are played, each conference\'s current leader holds its champion\'s place.':'The '+P.season+' season under the 2026 rules, with the conference champions that season had. This is our field, not the one that was played.')+'</p><div class="brk"><div class="byes"><h3>FIRST-ROUND BYES · SEEDS 1–4</h3>';
+    [[1,'8 / 9 winner'],[2,'7 / 10 winner'],[3,'6 / 11 winner'],[4,'5 / 12 winner']].forEach(function(x,k){var f=seed[x[0]];
+      h+='<div class="stk sm bye '+tilt(k)+'" data-tilt><span class="sd">'+f.seed+'</span><span class="chip" style="height:30px;width:14px;background:'+tcolor(d,f.team)+'"></span><div style="min-width:0"><a class="nm" style="color:var(--ink);text-decoration:none" href="'+tlink(f.team,P.season)+'">'+logo(f.team)+nm(f.team)+'</a><small>'+esc(f.how)+' · '+f.w+'-'+f.l+'</small></div><span class="mt">meets<br>'+x[1]+'</span></div>';});
+    h+='</div><div class="fr"><h3>FIRST ROUND · HIGHER SEED HOSTS</h3><div class="frg">';
+    [[5,12,4],[8,9,1],[6,11,3],[7,10,2]].forEach(function(m,k){h+='<div class="stk sm gm '+tilt(k+1)+'" data-tilt><div class="lb">AT NO. '+m[0]+' · WINNER MEETS NO. '+m[2]+'</div>';
+      [m[0],m[1]].forEach(function(s){var f=seed[s];h+='<div class="tm"><span class="sd">'+s+'</span><span class="chip" style="height:24px;width:10px;background:'+tcolor(d,f.team)+'"></span><a class="nm" style="color:var(--ink);text-decoration:none" href="'+tlink(f.team,P.season)+'">'+nm(f.team)+'</a><span class="fig" style="font-size:12px;color:var(--muted)">'+f.w+'-'+f.l+'</span></div>';});
+      h+='</div>';});
+    h+='</div></div></div>';
+    var low=P.field.filter(function(f){return f.rank>12;}),fo=P.first_out[0],fr=rowOf[fo];
+    h+='<div class="badge red tl2" data-tilt style="display:block;max-width:760px;font-size:22px">First out: '+nm(fo)+', ranked '+M.nth(fr[1])+'<p style="margin:6px 0 0;font:400 14px/1.45 var(--font);text-transform:none;letter-spacing:0">'+(low.length?low.map(function(f){return nm(f.team)+' ('+esc(f.how)+', ranked '+M.nth(f.rank)+')';}).join(' and ')+' qualif'+(low.length>1?'y':'ies')+' automatically from outside the top 12 and drop'+(low.length>1?'':'s')+' in at the bottom. That pushes out the lowest-ranked at-large team'+(low.length>1?'s':'')+'.':'Every automatic qualifier ranks inside the top 12, so the field is simply the top 12 and '+nm(fo)+' is the next team.')+' Next out: '+P.first_out.slice(1).map(nm).join(', ')+'.</p></div></section>';
+    if(cur){h+='<section class="sec"><div class="rule"><h2>Conference leaders</h2></div><p class="note lt">Who would play for each title today. The Power 4 follow their published tiebreakers; a seat that needed one is marked, and where a rulebook calls for a number that is not public (SportSource\'s ranking) our power rating stands in for it and the seat is marked as such.</p><div class="cards">';
+      Object.keys(P.leaders).forEach(function(c,k){var L=P.leaders[c],p4=REG.power4.indexOf(c)>=0,notes=[];
+        Object.keys(L.how||{}).forEach(function(t){var x=L.how[t];if(x)notes.push(nm(+t)+'\'s place rests on a tiebreaker: '+esc(x.name)+(x.tied_with.length?' (level with '+x.tied_with.map(nm).join(', ')+')':''));});
+        h+='<div class="stk sm" style="padding:12px 14px"><div class="lab" style="color:var(--muted)">'+esc(c)+(p4?' · automatic bid':'')+'</div><div style="font-weight:700;margin-top:4px">'+logo(L.first)+nm(L.first)+' <span style="font-weight:400;color:var(--muted)">v</span> '+nm(L.second)+'</div>'+(notes.length?'<p class="note" style="margin-top:6px"><span class="tag" style="background:var(--sticker);color:var(--field)">Tiebreaker</span> '+notes.join('. ')+'.</p>':'<p class="note" style="margin-top:6px">'+(L.set?'The title game is set.':'No tiebreaker needed today.')+'</p>')+'</div>';});
+      h+='</div></section>';}
+    h+='<section class="stk"><div class="band"><h2>The Résumé Ranking</h2><span class="lab">'+(cur?'odds from '+P.sims.toLocaleString()+' simulated seasons':P.season+' · final')+'</span></div><div class="scroll"><table class="t" style="min-width:'+(cur?900:640)+'px"><thead><tr><th class="n">Rk</th><th class="pin">Team</th><th>Record</th><th class="n">Résumé<small>bubble team matches it</small></th><th class="n">Power<small>pts vs avg FBS</small></th><th class="n">Schedule<small>bubble team loses</small></th>'+(cur?'<th>Makes field</th><th class="n">Bye</th><th class="n">Hosts</th><th class="n">Wins conf.</th>':'')+'<th>Bid'+(cur?' today':'')+'</th></tr></thead><tbody>';
+    var inF={};P.field.forEach(function(f){inF[f.team]=f;});
+    var show=P.table.filter(function(r,k){return k<40||inF[r[0]]||(cur&&P.odds[r[0]]&&P.odds[r[0]][0]>=0.005);});
+    show.forEach(function(r){var f=inF[r[0]],o=cur?P.odds[r[0]]:null,tag,ts;
+      if(f){if(/champion/.test(f.how)){tag=cur?'P4 leader':'P4 champion';ts='background:var(--field);color:#fff';}else if(/Group of Six/.test(f.how)){tag='G6 bid';ts='background:var(--sticker);color:var(--field)';}else if(/Notre Dame/.test(f.how)){tag='Notre Dame';ts='background:var(--gold);color:var(--field)';}else{tag='At-large';ts='background:var(--banner);color:#fff';}}
+      else if(r[0]===fo){tag='First out';ts='background:var(--red);color:#fff';}else{tag='Out';ts='background:var(--track);color:var(--muted)';}
+      h+='<tr'+(f?'':' class="dim"')+'><td class="n"><span class="rk">'+r[1]+'</span></td><td class="pin"><span class="chip" style="background:'+tcolor(d,r[0])+'"></span>'+logo(r[0])+'<a href="'+tlink(r[0],P.season)+'"><strong>'+nm(r[0])+'</strong></a> <span class="lab" style="color:var(--muted)">'+esc(tconf(d,r[0]))+'</span></td><td class="fig">'+r[2]+'-'+r[3]+'</td><td class="n"><strong>'+(100*r[4]).toFixed(1)+'%</strong></td><td class="n">'+sg(r[5],1)+'</td><td class="n">'+(r[7]==null?'—':(100*r[7]).toFixed(0)+'%')+'</td>';
+      if(cur){var pf=o?Math.round(100*o[0]):0;h+='<td><div class="odds"><i><b style="width:'+pf+'%;background:'+(pf>=70?'var(--hi)':pf>=40?'var(--mid)':'var(--lo)')+'"></b></i><span class="fig">'+M.chance(o?o[0]:0)+'</span></div></td><td class="n">'+M.chance(o?o[1]:0)+'</td><td class="n">'+M.chance(o?o[2]:0)+'</td><td class="n">'+M.chance(o?o[3]:0)+'</td>';}
+      h+='<td><span class="tag" style="'+ts+'">'+tag+'</span></td></tr>';});
+    h+='</tbody></table></div><div class="pad"><p class="note"><strong>Margin never enters the résumé score.</strong> It counts wins and losses only: the chance that a bubble team (the 12th-best by our power rating, '+sg(P.bubble,1)+' points) would have won at least this many games against the same schedule. Lower is better; ties break on the power rating, which is shown for context. '+(cur?'Odds are the share of '+P.sims.toLocaleString()+' simulated seasons in which a team makes the field, earns a bye (seeds 1 to 4), hosts a first-round game (seeds 5 to 8) or wins its conference; each simulated season plays out the remaining schedule from the power ratings and sends each Power 4 league\'s top two to its title game by the league\'s own tiebreakers. The model\'s view, not a verdict.':'Past fields are history under today\'s rules, not a claim about what the committee should have done.')+' No committee ranking is used anywhere on this page.</p></div></section>';
+    h+='<section class="rules"><h2>The 2026 rules we apply</h2>';
+    var titles=['Twelve teams','Group of Six','Notre Dame','At-large','Seeding','Pac-12, through 2023'];
+    P.rules.forEach(function(t,k){h+='<div class="pnl"><h3>'+titles[k]+'</h3><p>'+esc(t)+'</p></div>';});
+    return h+'</section>';});}
+
+/* ---------- All-Savant ---------- */
+var DSPOTS=[['S',34,20],['S',66,20],['CB',8,130],['CB',92,130],['DB',21,200],['LB',38,200],['LB',50,200],['LB',62,200],['EDGE',24,372],['IDL',41,372],['IDL',59,372],['EDGE',76,372]];
+var OSPOTS=[['WR',8,580],['WR',22,620],['OL',50,576,300],['TE',72,580],['WR',92,580],['QB',50,760],['RB',38,930],['RB',62,930]];
+function vAllSavant(){
+  return Promise.all([load('allsavant/'+S.season+'.json'),load('s/'+S.season+'.json')]).then(function(a){
+    var A=a[0],d=a[1],confs=Object.keys(A.conference).sort();
+    if(!S.conf||confs.indexOf(S.conf)<0)S.conf=confs[0];
+    var rows=S.set==='national'?A.national[S.tier]:S.set==='freshman'?A.freshman:A.conference[S.conf];
+    var h='<section class="awards">';
+    [['Savant Heisman',A.heisman[0],'var(--sticker)','var(--field)'],['Non-QB Player of the Year',A.non_qb[0],'var(--banner)','#fff']].forEach(function(x,k){var r=x[1];if(!r)return;
+      h+='<div class="stk aw '+(k?'tr':'tl')+'" data-tilt><div class="hd" style="background:'+x[2]+';color:'+x[3]+'">'+x[0]+(A.final?'':' · '+esc(A.standing))+'</div><div class="bd">'+hs(r.pid,r.name,tcolor(d,r.team),88,r.head)+'<div style="min-width:0"><div class="lab" style="color:var(--muted)">'+esc(r.slot)+' · '+esc(tname(d,r.team))+'</div><a href="'+plink(r.pid,A.season)+'"><div class="nm">'+esc(r.name)+'</div></a><div class="fig" style="margin-top:6px;font-size:14px;font-weight:600">'+sg(r.value,1)+' <span style="font-weight:400;color:var(--muted)">points above replacement</span></div></div></div></div>';});
+    h+='</section><section class="sec"><div class="rule"><h2>Lined up at the snap</h2></div><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center" role="group" aria-label="Which team">';
+    [['national','National'],['conference','Conference'],['freshman','Freshman']].forEach(function(x){h+='<button class="btn dk" data-set="'+x[0]+'" aria-pressed="'+(S.set===x[0])+'">'+x[1]+'</button>';});
+    if(S.set==='national')['1','2','3'].forEach(function(t){h+='<button class="btn dk" data-tier="'+t+'" aria-pressed="'+(S.tier===t)+'">'+['','1st','2nd','3rd'][+t]+' Team</button>';});
+    if(S.set==='conference')h+='<label class="vh" for="asconf">Conference</label><select class="btn dk" id="asconf" style="background:var(--panel)">'+confs.map(function(c){return '<option'+(c===S.conf?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select>';
+    h+='</div><p class="note lt">'+A.season+', '+esc(A.final?'final':A.standing+': a standing, not yet an award')+'. Pure individual Savant value, no credit for team success; missed games and small roles cost value. The shape follows the AP All-America team, with the offensive line picked as one unit'+(S.set==='freshman'?'. Freshmen include redshirt freshmen; no line unit is named':'')+'.</p>';
+    var used={};
+    function take(slot){for(var k=0;k<rows.length;k++){if(used[k])continue;if(rows[k].slot===slot){used[k]=1;return rows[k];}}return null;}
+    function card(sp,band,k){var r=take(sp[0]);if(!r)return '';var isOL=r.slot==='OL',c=tcolor(d,r.team),nm=isOL?tname(d,r.team)+' line':r.name;
+      return '<div class="spot" style="left:'+sp[1]+'%;top:'+sp[2]+'px'+(sp[3]?';width:'+sp[3]+'px':'')+'"><a class="stk sm fc" data-tilt style="transform:rotate('+[-1.5,1,-.6,1.6,-1.1,.5][k%6]+'deg)" href="'+(isOL?tlink(r.team,A.season):plink(r.pid,A.season))+'"><div class="ph" style="background:'+band+'"><span>'+esc(sp[0]==='IDL'?'DL':sp[0])+'</span><i style="background:'+c+'"></i></div><div class="bd">'+(isOL?'<span class="hs" style="width:46px;height:46px;font-size:20px;border-radius:10px;border-width:0;background:'+c+'">OL</span>':hs(r.pid,r.name,c,46,r.head).replace('class="hs"','class="hs" data-s'))+'<div class="nm">'+esc(nm)+'</div><div class="sc">'+esc(isOL?'unit':tname(d,r.team))+'</div><div class="v">'+sg(r.value,1)+'</div></div></a></div>';}
+    h+='<div class="fieldbox" tabindex="0" role="region" aria-label="The team in formation; scrolls sideways"><div class="turf"><div class="hash" style="left:33%"></div><div class="hash" style="left:67%"></div><div class="side" style="top:20px" aria-hidden="true">Defense</div><div class="side" style="bottom:20px" aria-hidden="true">Offense</div><div class="los" aria-hidden="true"></div><div class="losl" aria-hidden="true">LINE OF SCRIMMAGE</div>';
+    DSPOTS.forEach(function(sp,k){h+=card(sp,'var(--red)',k);});OSPOTS.forEach(function(sp,k){h+=card(sp,'var(--field)',k+2);});
+    h+='</div></div>';
+    if(A.warning)h+=warnBox('<strong>'+A.season+' is before 2024.</strong> '+esc(A.warning));
+    h+='</section><section class="sec"><div class="rule"><h2>Special teams</h2></div><div class="strow">';
+    [['K','K'],['P','P'],['AP','AP']].forEach(function(x,k){var r=take(x[0]);if(!r)return;var c=tcolor(d,r.team);
+      h+='<a class="stk sm fc '+tilt(k)+'" data-tilt href="'+plink(r.pid,A.season)+'"><div class="ph" style="background:var(--st)"><span>'+(x[1]==='AP'?'All-purpose':x[1])+'</span><i style="background:'+c+'"></i></div><div class="bd">'+hs(r.pid,r.name,c,46,r.head)+'<div class="nm">'+esc(r.name)+'</div><div class="sc">'+esc(tname(d,r.team))+(x[0]==='AP'?' · '+esc(r.pos):'')+'</div><div class="v">'+sg(r.value,1)+'</div></div></a>';});
+    h+='</div><p class="note lt">All-purpose is the best remaining back, receiver or tight end once return value is added. '+esc(A.note)+' Values are expected points above a replacement player at the position. The model\'s view, not a verdict.</p></section>';
+    return h;});}
+
+/* ---------- leaders ---------- */
+function vLeaders(){
+  return load('s/'+S.season+'.json').then(function(d){
+    var slot=S.lbSlot,stats=M.statsFor(REG,slot),key=S.lbStat;
+    if(key!=='value'&&!stats.some(function(s){return s.key===key;}))key=S.lbStat='value';
+    var stat=key==='value'?null:BYK[key],o={poolName:S.pool,adj:S.adj,gt:S.gt},rows=[];
+    d.players.forEach(function(p,i){if(p[C.slot]!==slot)return;if(S.lbQual&&!p[C.qual])return;
+      if(stat){var r=M.row(d,REG,stat,i,o);if(!r.tracked||r.none||r.pct==null)return;rows.push({i:i,v:r.value,r:r});}
+      else{var v=d.value.v[i];if(!M.ok(v))return;rows.push({i:i,v:+v});}});
+    var lower=stat&&stat.lower;rows.sort(function(a,b){return (lower?a.v-b.v:b.v-a.v)||d.players[a.i][C.id]-d.players[b.i][C.id];});
+    var off=stat&&!M.tracked(stat,d.season);
+    var h='<section class="stk"><div class="band"><h2>Leaders · '+d.season+'</h2><span class="lab">'+esc(asof(d))+'</span></div><div class="ctl"><label class="vh" for="lbslot">Position</label><select class="btn" id="lbslot">'+REG.slots.filter(function(s){return s!=='OL';}).map(function(s){return '<option value="'+s+'"'+(s===slot?' selected':'')+'>'+esc(REG.slot_name[s])+'</option>';}).join('')+'</select><label class="vh" for="lbstat">Stat</label><select class="btn" id="lbstat"><option value="value">Savant value</option>'+stats.map(function(s){return '<option value="'+s.key+'"'+(s.key===key?' selected':'')+'>'+esc(s.label)+(s.verdict==='context'?' (context)':'')+'</option>';}).join('')+'</select>';
+    [['pos','FBS'],['p4','Power 4'],['conf','His conference']].forEach(function(x){h+='<button class="btn" data-pool="'+x[0]+'" aria-pressed="'+(S.pool===x[0])+'">'+x[1]+'</button>';});
+    h+='<button class="btn" data-adj="'+(S.adj?0:1)+'" aria-pressed="'+S.adj+'">Adjusted</button><button class="btn" data-gt="'+(S.gt?0:1)+'" aria-pressed="'+S.gt+'">Garbage time '+(S.gt?'in':'out')+'</button><button class="btn" data-lbq="'+(S.lbQual?0:1)+'" aria-pressed="'+S.lbQual+'">Qualified only</button></div>';
+    var q=REG.qual[slot];
+    h+='<p class="poolline">'+(stat?'Percentiles '+(S.pool==='conf'?'vs qualified '+esc(REG.slot_name[slot])+' in each player\'s own conference':'vs '+(S.pool==='p4'?'Power 4 ':'FBS ')+esc(REG.slot_name[slot]))+', '+(S.adj&&stat.adj?'opponent-adjusted':'raw')+', garbage time '+(S.gt?'included':'excluded')+', '+d.season+'. ':'Savant value: expected points above a replacement player, opponent-adjusted, '+d.season+'. ')+(q?'Qualified: '+Math.round(q[1]*(d.scale||1))+' '+esc(sampleName(q[0]))+(d.scale<1?' so far (scaled to the season played)':'')+'.':'')+'</p>';
+    if(off)h+='<div class="pad"><div class="bar none">'+esc(d.season<stat.start?'not tracked before '+stat.start:'not tracked in '+d.season)+'</div></div>';
+    else{h+='<div class="scroll" style="margin-top:12px"><table class="t"><thead><tr><th class="n">#</th><th class="pin">Player</th><th>Team</th><th class="n">'+esc(stat?stat.label:'Savant value')+'</th>'+(stat?'<th style="min-width:150px">Percentile</th><th class="n">'+esc(stat.unit_n)+'</th>':'<th class="n">Games</th>')+'</tr></thead><tbody>';
+      rows.slice(0,60).forEach(function(x,n){var p=d.players[x.i];
+        h+='<tr><td class="n">'+(n+1)+'</td><td class="pin"><a href="'+plink(p[C.id],d.season)+'"><strong>'+esc(p[C.name])+'</strong></a>'+(p[C.qual]?'':' <span class="lab" style="color:var(--muted)">below sample</span>')+'</td><td><span class="chip" style="height:18px;background:'+tcolor(d,p[C.team])+'"></span>'+esc(tname(d,p[C.team]))+'</td><td class="n"><strong>'+(stat?esc(x.r.shown):sg(x.v,1))+'</strong></td>'+(stat?'<td>'+bar(x.r)+'</td><td class="n">'+(x.r.n==null?'—':Math.round(x.r.n))+'</td>':'<td class="n">'+p[C.gp]+'</td>')+'</tr>';});
+      h+='</tbody></table></div>';}
+    h+='<div class="pad">'+(stat?'<p class="note"><strong>'+esc(stat.label)+'.</strong> '+esc(stat.what)+' Formula: '+esc(stat.formula)+'. Source: '+esc(stat.source)+'. From '+stat.start+'.'+(stat.k?' Settles around '+stat.k+' '+esc(stat.unit_n)+'.':'')+(stat.verdict==='context'?' A CONTEXT stat: how much, or too noisy to grade.':'')+(stat.lower?' Lower is better, so the bar is flipped.':'')+'</p>':'<p class="note">Savant value is expected points above a replacement-level player at the position, opponent-adjusted. Pure individual value: nothing in it knows whether his team won.</p>')+(M.SLOT_TABLE[slot]==='dfn'&&d.season<2024?'<p class="note" style="margin-top:8px"><strong>'+esc(REG.pre_box_warning)+'</strong></p>':'')+'</div></section>';
+    return h;});}
+
+/* ---------- search ---------- */
+var q=$('#q'),res=$('#res'),curNames=null;
+function norm(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,'');}
+function doSearch(){
+  var t=norm(q.value).trim();if(t.length<2){res.hidden=true;q.setAttribute('aria-expanded','false');return;}
+  var out=[],seen={};
+  SEARCH.teams.forEach(function(x){if(out.length<6&&(norm(x[1]).indexOf(t)>=0||norm(x[5]||'').indexOf(t)===0||norm(x[2]).indexOf(t)===0))out.push('<li><a href="'+tlink(x[0],Math.min(x[4],S.season>x[4]?x[4]:S.season))+'"><span>'+esc(x[1])+(x[5]?' '+esc(x[5]):'')+'</span><small>TEAM · '+esc(x[3])+'</small></a></li>');});
+  var confs={};SEARCH.teams.forEach(function(x){if(x[4]===IDX.current)confs[x[3]]=1;});
+  Object.keys(confs).forEach(function(c){if(norm(c).indexOf(t)>=0)out.push('<li><a href="#teams" data-conf="'+esc(c)+'"><span>'+esc(c)+'</span><small>CONFERENCE</small></a></li>');});
+  function add(id,name,slot,team,first,last){if(seen[id]||out.length>=24)return;if(norm(name).indexOf(t)<0)return;seen[id]=1;out.push('<li><a href="#player-'+id+'"><span>'+esc(name)+'</span><small>'+esc(slot)+' · '+esc(TEAMK[team]?TEAMK[team][1]:'')+' · '+(first===last?first:first+'–'+String(last).slice(2))+'</small></a></li>');}
+  (curNames||[]).forEach(function(p){var h=SEARCH._first&&SEARCH._first[p[C.id]];add(p[C.id],p[C.name],p[C.slot],p[C.team],h||IDX.current,IDX.current);});
+  for(var k=SEARCH.players.length-1;k>=0&&out.length<24;k--){var p=SEARCH.players[k];add(p[0],p[1],p[2],p[3],p[4],p[5]);}
+  res.innerHTML=out.length?out.join(''):'<li><a><span>No player or team by that name</span></a></li>';res.hidden=false;q.setAttribute('aria-expanded','true');}
+q.addEventListener('input',doSearch);
+q.addEventListener('keydown',function(e){var as=res.querySelectorAll('a[href]');if(e.key==='Escape'){res.hidden=true;return;}if(e.key==='Enter'&&as.length){location.hash=as[0].getAttribute('href');res.hidden=true;q.blur();}});
+document.addEventListener('click',function(e){
+  var a=e.target.closest&&e.target.closest('.res a');
+  if(a){if(a.dataset.conf){S.tConf=a.dataset.conf;}res.hidden=true;q.value='';if(a.getAttribute('href')===location.hash)render();return;}
+  if(!e.target.closest||!e.target.closest('.srch'))res.hidden=true;
+  var b=e.target.closest&&e.target.closest('button');if(!b)return;var ds=b.dataset,hit=true;
+  if(ds.pool)S.pool=ds.pool;else if(ds.adj!=null)S.adj=ds.adj==='1';else if(ds.gt!=null)S.gt=ds.gt==='1';else if(ds.set)S.set=ds.set;else if(ds.tier)S.tier=ds.tier;
+  else if(ds.lbq!=null)S.lbQual=ds.lbq==='1';else if(ds.tadj!=null)S.tAdj=ds.tadj==='1';
+  else if(ds.tsort){if(S.tSort===ds.tsort)S.tDir=-S.tDir;else{S.tSort=ds.tsort;var lowerFirst=['resume_rank','talent_rank','def_epa','def_sr','off_fp'];S.tDir=lowerFirst.indexOf(ds.tsort)>=0?1:-1;}}
+  else hit=false;
+  if(hit)render(true);});
+document.addEventListener('change',function(e){var t=e.target;
+  if(t.id==='season'){S.season=+t.value;var h=location.hash.replace(/\/\d{4}$/,'');if(/^#(player|team)-/.test(h))location.hash=h+'/'+S.season;else render();}
+  else if(t.id==='pseason'){location.hash=location.hash.replace(/\/\d{4}$/,'')+'/'+t.value;}
+  else if(t.id==='tconf'){S.tConf=t.value;render(true);}
+  else if(t.id==='asconf'){S.conf=t.value;render(true);}
+  else if(t.id==='lbslot'){S.lbSlot=t.value;S.lbStat='value';render(true);}
+  else if(t.id==='lbstat'){S.lbStat=t.value;render(true);}});
+
+/* ---------- routing ---------- */
+var seq=0;
+function render(keep){
+  var h=location.hash.replace(/^#/,'')||'home',m,view,key='home',small=true,my=++seq;
+  var ys=/\/(\d{4})$/.exec(h),want=ys?+ys[1]:null;if(ys)h=h.slice(0,ys.index);
+  if(want&&seasonInfo(want)&&!/^player-/.test(h))S.season=want;
+  if((m=/^player-(-?\d+)$/.exec(h))){view=vPlayer(+m[1],want);key='home';}
+  else if((m=/^team-(\d+)$/.exec(h))){view=vTeam(+m[1],want);key='teams';}
+  else if(h==='teams'){view=vTeams();key='teams';}
+  else if(h==='playoff'){view=vPlayoff();key='playoff';}
+  else if(h==='all-savant'){view=vAllSavant();key='allsavant';}
+  else if(h==='leaders'){view=vLeaders();key='leaders';}
+  else{view=vHome();small=false;}
+  $('#hero').className='hero'+(small?' small':'');
+  document.querySelectorAll('#tabs a').forEach(function(a){if(a.dataset.k===key)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');var base=a.getAttribute('href').replace(/\/\d{4}$/,'');a.setAttribute('href',base+(S.season!==IDX.current&&base!=='#home'?'/'+S.season:''));});
+  $('#season').value=String(want&&/^player-/.test(h)?want:S.season);
+  var v=$('#view'),sy=window.scrollY;
+  if(!keep)v.innerHTML='<p class="empty">Loading…</p>';
+  view.then(function(html){if(my!==seq)return;v.innerHTML=html;if(keep)window.scrollTo(0,sy);else if(small)window.scrollTo(0,Math.min(window.scrollY,$('#hero').offsetTop));})
+    .catch(function(e){if(my!==seq)return;console.error(e);v.innerHTML='<p class="empty">That page could not load. Check the address, or refresh to try again.</p>';});}
+window.addEventListener('hashchange',function(){render();});
+(function(){var bg=$('#herobg'),ph='COLLEGE FOOTBALL SAVANT · ',s='';for(var i=0;i<7;i++)s+='<div>'+(i%2?'&nbsp;&nbsp;&nbsp;&nbsp;':'')+new Array(9).join(ph)+'</div>';bg.innerHTML=s;
+  [['left:3%;top:22px;width:80px;height:80px;border-radius:50%;background:#0F6E5C;transform:rotate(-8deg)'],['left:13%;top:128px;width:110px;height:50px;border-radius:10px;background:#BC3A2C;transform:rotate(9deg)'],['left:23%;top:30px;width:56px;height:56px;background:#FFD25A;transform:rotate(14deg)'],['right:4%;top:26px;width:96px;height:96px;border-radius:50%;background:#5B2A86;transform:rotate(6deg)'],['right:15%;top:134px;width:118px;height:46px;border-radius:26px;background:#C2561C;transform:rotate(-11deg)'],['right:25%;top:18px;width:50px;height:50px;background:#7A1F2B;transform:rotate(-18deg)']].forEach(function(c){var e=document.createElement('div');e.className='cp';e.setAttribute('aria-hidden','true');e.setAttribute('data-tilt','');e.style.cssText=c[0];$('#hero').insertBefore(e,$('#hero .in'));});})();
+Promise.all([load('registry.json'),load('index.json'),load('search.json'),load('honours.json').catch(function(){return {};})]).then(function(a){
+  REG=a[0];IDX=a[1];SEARCH=a[2];HON=a[3]||{};REG.stats.forEach(function(s){BYK[s.key]=s;});
+  SEARCH.teams.forEach(function(t){TEAMK[t[0]]=t;});
+  S.season=IDX.current;
+  $('#season').innerHTML=IDX.seasons.map(function(s){return '<option value="'+s.season+'">'+s.season+(s.final?'':' · live')+'</option>';}).join('');
+  $('#ver').textContent='Version '+REG.version;
+  load('s/'+IDX.current+'.json').then(function(d){curNames=d.players;Object.keys(d.teams).forEach(function(t){var x=d.teams[t];if(TEAMK[t]){TEAMK[t][6]=x[3];TEAMK[t][7]=x[4];}});SEARCH._first={};SEARCH.players.forEach(function(p){SEARCH._first[p[0]]=p[4];});}).catch(function(){});
+  render();
+}).catch(function(e){console.error(e);$('#view').innerHTML='<p class="empty">The data could not load. Refresh to try again.</p>';});
+})();
+</script>
+</body>
+</html>

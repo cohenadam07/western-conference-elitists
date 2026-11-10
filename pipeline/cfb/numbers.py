@@ -264,7 +264,14 @@ def build(y, state):
         ids = F["_all"][tab].pid.unique()
         rows += [(int(i), sl) for i in ids if slot.get(i) == sl]
     pl = pd.DataFrame(rows, columns=["pid", "slot"]).drop_duplicates("pid")
+    pl = pl[pl.pid > 0]                  # ESPN's negative ids are placeholders ("team" or an unknown man), not players
     pl = pl.merge(ppl.drop_duplicates("pid"), on="pid", how="left").merge(pos[["pid", "inferred", "p_first"]], on="pid", how="left")
+    # a man with plays and no roster row: his name as the box score prints it; no name anywhere, no card
+    box = pd.read_parquet(RAW / "espn_cfb_player_box" / f"player_box_{y}.parquet", columns=["athlete_id", "athlete_name"])
+    box = box.assign(pid=pd.to_numeric(box.athlete_id, errors="coerce")).dropna(subset=["pid", "athlete_name"])
+    bn = box.astype({"pid": "int64"}).drop_duplicates("pid").set_index("pid").athlete_name.astype(str)
+    pl["name"] = pl["name"].where(pl["name"].notna(), pl.pid.map(bn))
+    pl = pl[pl["name"].notna() & (pl["name"].astype(str).str.strip() != "")]
     pl = pl.sort_values(["slot", "pid"]).reset_index(drop=True)
     idx = {p: i for i, p in enumerate(pl.pid)}
     n = len(pl)

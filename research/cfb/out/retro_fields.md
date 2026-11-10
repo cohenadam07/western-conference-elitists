@@ -135,18 +135,18 @@ Same 12 as the committee's ranking put through the same rules: 11 of 12. In ours
 
 | seed | team | record | how it got in | resume score | power rating | committee's final rank |
 |---:|---|---|---|---:|---:|---:|
-| 1 | Alabama | 12-1 | SEC champion | 0.004 | +33.8 | 1 |
-| 2 | Georgia | 12-1 | at large | 0.018 | +38.3 | 3 |
-| 3 | Michigan | 12-1 | Big Ten champion | 0.039 | +22.4 | 2 |
-| 4 | Cincinnati | 13-0 | top Group of Six team | 0.071 | +17.9 | 4 |
+| 1 | Alabama | 12-1 | SEC champion | 0.004 | +33.9 | 1 |
+| 2 | Georgia | 12-1 | at large | 0.017 | +38.4 | 3 |
+| 3 | Michigan | 12-1 | Big Ten champion | 0.040 | +22.4 | 2 |
+| 4 | Cincinnati | 13-0 | top Group of Six team | 0.071 | +17.8 | 4 |
 | 5 | Ole Miss | 10-2 | at large | 0.084 | +14.6 | 8 |
-| 6 | Notre Dame | 11-1 | Notre Dame, top 12 | 0.109 | +17.7 | 5 |
-| 7 | Michigan State | 10-2 | at large | 0.191 | +4.5 | 10 |
-| 8 | Ohio State | 10-2 | at large | 0.229 | +29.1 | 6 |
-| 9 | Baylor | 11-2 | Big 12 champion | 0.296 | +9.0 | 7 |
-| 10 | Oklahoma State | 11-2 | at large | 0.300 | +15.1 | 9 |
-| 11 | Pittsburgh | 11-2 | ACC champion | 0.474 | +10.9 | 12 |
-| 12 | Utah | 10-3 | Pac-12 champion | 0.476 | +16.5 | 11 |
+| 6 | Notre Dame | 11-1 | Notre Dame, top 12 | 0.108 | +17.8 | 5 |
+| 7 | Michigan State | 10-2 | at large | 0.199 | +4.3 | 10 |
+| 8 | Ohio State | 10-2 | at large | 0.234 | +29.0 | 6 |
+| 9 | Oklahoma State | 11-2 | at large | 0.274 | +14.7 | 9 |
+| 10 | Baylor | 11-2 | Big 12 champion | 0.277 | +9.2 | 7 |
+| 11 | Pittsburgh | 11-2 | ACC champion | 0.466 | +11.3 | 12 |
+| 12 | Utah | 10-3 | Pac-12 champion | 0.485 | +16.4 | 11 |
 
 Same 12 as the committee's ranking put through the same rules: 12 of 12. Identical fields.
 
@@ -155,17 +155,17 @@ Same 12 as the committee's ranking put through the same rules: 12 of 12. Identic
 | seed | team | record | how it got in | resume score | power rating | committee's final rank |
 |---:|---|---|---|---:|---:|---:|
 | 1 | Georgia | 13-0 | SEC champion | 0.003 | +34.9 | 1 |
-| 2 | Michigan | 13-0 | Big Ten champion | 0.004 | +28.7 | 2 |
-| 3 | Ohio State | 11-1 | at large | 0.055 | +33.7 | 4 |
-| 4 | TCU | 12-1 | at large | 0.095 | +12.1 | 3 |
-| 5 | Tennessee | 10-2 | at large | 0.112 | +22.4 | 6 |
-| 6 | Alabama | 10-2 | at large | 0.142 | +27.5 | 5 |
-| 7 | Penn State | 10-2 | at large | 0.157 | +19.6 | 11 |
-| 8 | USC | 11-2 | at large | 0.231 | +9.0 | 10 |
-| 9 | Clemson | 11-2 | ACC champion | 0.363 | +16.2 | 7 |
-| 10 | Kansas State | 10-3 | Big 12 champion | 0.480 | +14.6 | 9 |
-| 11 | Utah | 10-3 | Pac-12 champion | 0.604 | +20.8 | 8 |
-| 12 | Tulane | 11-2 | top Group of Six team | 0.657 | +4.0 | 16 |
+| 2 | Michigan | 13-0 | Big Ten champion | 0.004 | +28.6 | 2 |
+| 3 | Ohio State | 11-1 | at large | 0.055 | +33.8 | 4 |
+| 4 | TCU | 12-1 | at large | 0.093 | +12.3 | 3 |
+| 5 | Tennessee | 10-2 | at large | 0.114 | +22.3 | 6 |
+| 6 | Alabama | 10-2 | at large | 0.145 | +27.5 | 5 |
+| 7 | Penn State | 10-2 | at large | 0.160 | +19.6 | 11 |
+| 8 | USC | 11-2 | at large | 0.244 | +8.7 | 10 |
+| 9 | Clemson | 11-2 | ACC champion | 0.366 | +16.2 | 7 |
+| 10 | Kansas State | 10-3 | Big 12 champion | 0.475 | +14.7 | 9 |
+| 11 | Utah | 10-3 | Pac-12 champion | 0.625 | +20.5 | 8 |
+| 12 | Tulane | 11-2 | top Group of Six team | 0.655 | +4.0 | 16 |
 
 Same 12 as the committee's ranking put through the same rules: 12 of 12. Identical fields.
 
@@ -173,18 +173,18 @@ Same 12 as the committee's ranking put through the same rules: 12 of 12. Identic
 
 | seed | team | record | how it got in | resume score | power rating | committee's final rank |
 |---:|---|---|---|---:|---:|---:|
-| 1 | Washington | 13-0 | Pac-12 champion | 0.008 | +19.9 | 2 |
+| 1 | Washington | 13-0 | Pac-12 champion | 0.009 | +19.9 | 2 |
 | 2 | Michigan | 13-0 | Big Ten champion | 0.011 | +33.2 | 1 |
 | 3 | Florida State | 13-0 | ACC champion | 0.024 | +19.7 | 5 |
-| 4 | Alabama | 12-1 | SEC champion | 0.040 | +24.0 | 4 |
+| 4 | Alabama | 12-1 | SEC champion | 0.040 | +24.1 | 4 |
 | 5 | Ohio State | 11-1 | at large | 0.055 | +34.0 | 7 |
 | 6 | Georgia | 12-1 | at large | 0.124 | +28.8 | 6 |
-| 7 | Texas | 12-1 | Big 12 champion | 0.127 | +22.0 | 3 |
-| 8 | Ole Miss | 10-2 | at large | 0.274 | +11.9 | 11 |
+| 7 | Texas | 12-1 | Big 12 champion | 0.126 | +22.1 | 3 |
+| 8 | Ole Miss | 10-2 | at large | 0.273 | +11.9 | 11 |
 | 9 | Missouri | 10-2 | at large | 0.329 | +17.7 | 9 |
 | 10 | Penn State | 10-2 | at large | 0.361 | +27.8 | 10 |
-| 11 | Oregon | 11-2 | at large | 0.477 | +28.5 | 8 |
-| 12 | Liberty | 13-0 | top Group of Six team | 0.568 | +5.9 | 23 |
+| 11 | Oregon | 11-2 | at large | 0.480 | +28.4 | 8 |
+| 12 | Liberty | 13-0 | top Group of Six team | 0.570 | +5.9 | 23 |
 
 Same 12 as the committee's ranking put through the same rules: 12 of 12. Identical fields.
 
@@ -194,16 +194,16 @@ Same 12 as the committee's ranking put through the same rules: 12 of 12. Identic
 |---:|---|---|---|---:|---:|---:|
 | 1 | Oregon | 13-0 | Big Ten champion | 0.008 | +27.4 | 1 |
 | 2 | Georgia | 11-2 | SEC champion | 0.037 | +24.2 | 2 |
-| 3 | Texas | 11-2 | at large | 0.154 | +27.6 | 3 |
-| 4 | Notre Dame | 11-1 | Notre Dame, top 12 | 0.209 | +28.3 | 5 |
-| 5 | Penn State | 11-2 | at large | 0.223 | +27.0 | 4 |
+| 3 | Texas | 11-2 | at large | 0.153 | +27.6 | 3 |
+| 4 | Notre Dame | 11-1 | Notre Dame, top 12 | 0.208 | +28.3 | 5 |
+| 5 | Penn State | 11-2 | at large | 0.222 | +27.0 | 4 |
 | 6 | Indiana | 11-1 | at large | 0.254 | +13.9 | 8 |
 | 7 | Ohio State | 10-2 | at large | 0.313 | +28.8 | 6 |
-| 8 | Tennessee | 10-2 | at large | 0.331 | +21.0 | 7 |
-| 9 | South Carolina | 9-3 | at large | 0.393 | +14.8 | 15 |
-| 10 | Boise State | 12-1 | top Group of Six team | 0.419 | +11.6 | 9 |
-| 11 | Arizona State | 11-2 | Big 12 champion | 0.515 | +9.5 | 12 |
-| 12 | Clemson | 10-3 | ACC champion | 0.644 | +17.8 | 16 |
+| 8 | Tennessee | 10-2 | at large | 0.330 | +21.0 | 7 |
+| 9 | South Carolina | 9-3 | at large | 0.392 | +14.8 | 15 |
+| 10 | Boise State | 12-1 | top Group of Six team | 0.418 | +11.6 | 9 |
+| 11 | Arizona State | 11-2 | Big 12 champion | 0.513 | +9.5 | 12 |
+| 12 | Clemson | 10-3 | ACC champion | 0.643 | +17.8 | 16 |
 
 Same 12 as the committee's ranking put through the same rules: 11 of 12. In ours, not theirs: South Carolina (ours #9, committee #15). In theirs, not ours: SMU (committee #10, ours #15).
 
@@ -213,14 +213,14 @@ Same 12 as the committee's ranking put through the same rules: 11 of 12. In ours
 |---:|---|---|---|---:|---:|---:|
 | 1 | Indiana | 13-0 | Big Ten champion | 0.007 | +26.7 | 1 |
 | 2 | Texas A&M | 11-1 | at large | 0.070 | +26.8 | 7 |
-| 3 | Georgia | 12-1 | SEC champion | 0.072 | +27.6 | 3 |
-| 4 | Ohio State | 12-1 | at large | 0.124 | +35.1 | 2 |
+| 3 | Georgia | 12-1 | SEC champion | 0.072 | +27.5 | 3 |
+| 4 | Ohio State | 12-1 | at large | 0.124 | +35.0 | 2 |
 | 5 | Oregon | 11-1 | at large | 0.152 | +27.3 | 5 |
 | 6 | Ole Miss | 11-1 | at large | 0.157 | +17.2 | 6 |
-| 7 | Oklahoma | 10-2 | at large | 0.267 | +21.6 | 8 |
+| 7 | Oklahoma | 10-2 | at large | 0.266 | +21.5 | 8 |
 | 8 | Alabama | 10-3 | at large | 0.272 | +22.3 | 9 |
-| 9 | BYU | 11-2 | at large | 0.310 | +13.4 | 12 |
-| 10 | Texas Tech | 12-1 | Big 12 champion | 0.338 | +29.5 | 4 |
+| 9 | BYU | 11-2 | at large | 0.309 | +13.3 | 12 |
+| 10 | Texas Tech | 12-1 | Big 12 champion | 0.337 | +29.5 | 4 |
 | 11 | James Madison | 12-1 | top Group of Six team | 0.791 | +12.2 | 24 |
 | 12 | Duke | 8-5 | ACC champion | 0.997 | +3.8 | unranked |
 

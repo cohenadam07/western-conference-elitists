@@ -144,8 +144,9 @@ def wp_frame(d, ep):
 
 
 def score(seasons=None):
-    ep = joblib.load(WORK / "ep_model.joblib")
-    wpm = joblib.load(WORK / "wp_model.joblib")
+    from .state import model_path          # the Mac's work copy, else the committed one (the cloud)
+    ep = joblib.load(model_path("ep_model.joblib"))
+    wpm = joblib.load(model_path("wp_model.joblib"))
     g = games()
     for y in (seasons or range(2004, 2027)):
         d = load(y, g)

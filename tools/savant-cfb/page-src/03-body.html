@@ -1,0 +1,31 @@
+</style>
+<script src="/wce-nav.js" defer></script>
+</head>
+<body>
+<wce-nav style="display:block;min-height:60px"></wce-nav>
+<header class="hero" id="hero">
+  <div class="bg" aria-hidden="true" id="herobg"></div>
+  <div class="in">
+    <div class="ttl" data-tilt><div><h1>College Football Savant</h1></div></div>
+    <p>Every FBS player and team · opponent-adjusted percentiles · 2014–2026</p>
+  </div>
+</header>
+<div class="bar1">
+  <nav class="tabs" id="tabs" aria-label="Sections">
+    <a class="tab" href="#home" data-k="home">Players</a>
+    <a class="tab" href="#teams" data-k="teams">Teams</a>
+    <a class="tab" href="#playoff" data-k="playoff">Playoff Field</a>
+    <a class="tab" href="#all-savant" data-k="allsavant">All-Savant</a>
+    <a class="tab" href="#leaders" data-k="leaders">Leaders</a>
+  </nav>
+  <div class="seas"><label class="lab" for="season" style="color:var(--soft)">Season</label><select id="season"></select></div>
+  <div class="srch">
+    <label class="lab" for="q">Search players and teams</label>
+    <input id="q" type="search" placeholder="Name, school or conference" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="res">
+    <ul class="res" id="res" hidden></ul>
+  </div>
+</div>
+<main id="view"><p class="empty">Loading…</p></main>
+<footer class="foot"><p><span id="ver"></span> · New in 1.0.0: every FBS player and team since 2014 on percentile bars, the All-Savant teams lined up at the snap, and an objective 12-team playoff field with odds from 20,000 simulated seasons. Data: ESPN play-by-play, box scores and rosters; recruiting stars and class ranks from CollegeFootballData's composite. Expected points, the opponent adjustment, the power rating, the résumé score and Savant value are WCE's own. FBS-vs-FBS games only. Model outputs are the model's view, not a verdict. <a href="/#ai">Ask it in Claude with the WCE connector</a>. <a href="/">Western Conference Elitists</a></p></footer>
+<script src="/savant-cfb.js"></script>
+<script>

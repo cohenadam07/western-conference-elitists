@@ -71,6 +71,30 @@ def inputs():
     return t, g, pre, float(kappa)
 
 
+def season_inputs(y):
+    """One season's team-games and finished FBS-vs-FBS games, as chain() sees them."""
+    t = teamgame.load("cfbd", [y])
+    t["epa_pp"] = t.epa / t.epa_n.clip(lower=1)
+    t["sr"] = t.succ / t.plays.clip(lower=1)
+    t["fw"] = fw_of(t.date)
+    g = pd.read_parquet(WORK / "games.parquet")
+    g = g[g.fbs_game & g.final & (g.season == y)].copy()
+    g["fw"] = fw_of(g.date)
+    g["site"] = np.where(g.neutral_site.fillna(False), 0, 1)
+    return t, g
+
+
+def current(st):
+    """The season being played, from the frozen prior in pipeline/cfb/state (state.py): (predictions, weekly ratings).
+    Equal to chain()'s rows for that season to the last bit; `python -m pipeline.cfb.refresh check` proves it."""
+    y = st["season"]
+    t, g = season_inputs(y)
+    pr, wk, _ = season_ratings(t, g, y, st["teams"], np.array(st["po"]), np.array(st["pdv"]), np.array(st["pst"]), st["beta"],
+                               st["hfa"], st["sigma"], st["params"], st["kappa"])
+    preds = pd.concat(pr, ignore_index=True) if pr else pd.DataFrame()
+    return preds, pd.concat(wk, ignore_index=True)
+
+
 def fit(tr, teams, po, pdv, pst, cur_fw, P, kappa):
     """Ridge toward the prior. Returns per-play offence and defence effects and per-game special teams."""
     T = len(teams)

@@ -1111,8 +1111,8 @@
     "school": "Alabama",
     "how": "SEC champion",
     "record": "12-1",
-    "resume": 0.0042563125002050605,
-    "power_rating": 33.835234625511355,
+    "resume": 0.004270208117511628,
+    "power_rating": 33.9099451661099,
     "committee_rank": 1
    },
    {
@@ -1120,8 +1120,8 @@
     "school": "Georgia",
     "how": "at large",
     "record": "12-1",
-    "resume": 0.017507951413266092,
-    "power_rating": 38.31532541131586,
+    "resume": 0.017430027990388664,
+    "power_rating": 38.37287796903511,
     "committee_rank": 3
    },
    {
@@ -1129,8 +1129,8 @@
     "school": "Michigan",
     "how": "Big Ten champion",
     "record": "12-1",
-    "resume": 0.03910907110529154,
-    "power_rating": 22.40667201557686,
+    "resume": 0.03998120609245712,
+    "power_rating": 22.369184549922235,
     "committee_rank": 2
    },
    {
@@ -1138,8 +1138,8 @@
     "school": "Cincinnati",
     "how": "top Group of Six team",
     "record": "13-0",
-    "resume": 0.07085427170626087,
-    "power_rating": 17.871335889865485,
+    "resume": 0.07116013938331812,
+    "power_rating": 17.84807469356833,
     "committee_rank": 4
    },
    {
@@ -1147,8 +1147,8 @@
     "school": "Ole Miss",
     "how": "at large",
     "record": "10-2",
-    "resume": 0.08350562162311047,
-    "power_rating": 14.619491665742766,
+    "resume": 0.08380826503328612,
+    "power_rating": 14.641989881540452,
     "committee_rank": 8
    },
    {
@@ -1156,8 +1156,8 @@
     "school": "Notre Dame",
     "how": "Notre Dame, top 12",
     "record": "11-1",
-    "resume": 0.10923907434245303,
-    "power_rating": 17.670015270532282,
+    "resume": 0.10802062721602072,
+    "power_rating": 17.788707293755945,
     "committee_rank": 5
    },
    {
@@ -1165,8 +1165,8 @@
     "school": "Michigan State",
     "how": "at large",
     "record": "10-2",
-    "resume": 0.1909018447640899,
-    "power_rating": 4.541982928203927,
+    "resume": 0.19862432160173202,
+    "power_rating": 4.327558280586209,
     "committee_rank": 10
    },
    {
@@ -1174,35 +1174,35 @@
     "school": "Ohio State",
     "how": "at large",
     "record": "10-2",
-    "resume": 0.22940785370479183,
-    "power_rating": 29.118215436216246,
+    "resume": 0.23357882126730667,
+    "power_rating": 29.007815015642795,
     "committee_rank": 6
    },
    {
     "seed": 9,
-    "school": "Baylor",
-    "how": "Big 12 champion",
-    "record": "11-2",
-    "resume": 0.2963648348198459,
-    "power_rating": 8.95839000297031,
-    "committee_rank": 7
-   },
-   {
-    "seed": 10,
     "school": "Oklahoma State",
     "how": "at large",
     "record": "11-2",
-    "resume": 0.2996879265447875,
-    "power_rating": 15.145080878796923,
+    "resume": 0.2735104767805837,
+    "power_rating": 14.67878821528415,
     "committee_rank": 9
+   },
+   {
+    "seed": 10,
+    "school": "Baylor",
+    "how": "Big 12 champion",
+    "record": "11-2",
+    "resume": 0.2770912166125571,
+    "power_rating": 9.188626857430641,
+    "committee_rank": 7
    },
    {
     "seed": 11,
     "school": "Pittsburgh",
     "how": "ACC champion",
     "record": "11-2",
-    "resume": 0.4739652246624722,
-    "power_rating": 10.904052635689053,
+    "resume": 0.46567327541649045,
+    "power_rating": 11.316861404714148,
     "committee_rank": 12
    },
    {
@@ -1210,8 +1210,8 @@
     "school": "Utah",
     "how": "Pac-12 champion",
     "record": "10-3",
-    "resume": 0.47617385541883966,
-    "power_rating": 16.511453125849563,
+    "resume": 0.48520930548090535,
+    "power_rating": 16.40881570502288,
     "committee_rank": 11
    }
   ],
@@ -1264,8 +1264,8 @@
     "school": "Georgia",
     "how": "SEC champion",
     "record": "13-0",
-    "resume": 0.00313036279541631,
-    "power_rating": 34.86288174349468,
+    "resume": 0.0032436896810610787,
+    "power_rating": 34.911003463587925,
     "committee_rank": 1
    },
    {
@@ -1273,8 +1273,8 @@
     "school": "Michigan",
     "how": "Big Ten champion",
     "record": "13-0",
-    "resume": 0.0042768303713198366,
-    "power_rating": 28.653681295587806,
+    "resume": 0.004390246713830141,
+    "power_rating": 28.6002048657907,
     "committee_rank": 2
    },
    {
@@ -1282,8 +1282,8 @@
     "school": "Ohio State",
     "how": "at large",
     "record": "11-1",
-    "resume": 0.054878914515029145,
-    "power_rating": 33.74953560126132,
+    "resume": 0.0554578942780505,
+    "power_rating": 33.76191155626153,
     "committee_rank": 4
    },
    {
@@ -1291,8 +1291,8 @@
     "school": "TCU",
     "how": "at large",
     "record": "12-1",
-    "resume": 0.09501506511723089,
-    "power_rating": 12.079060598838344,
+    "resume": 0.09343385029583237,
+    "power_rating": 12.316858153206146,
     "committee_rank": 3
    },
    {
@@ -1300,8 +1300,8 @@
     "school": "Tennessee",
     "how": "at large",
     "record": "10-2",
-    "resume": 0.11243711020572388,
-    "power_rating": 22.361733212243085,
+    "resume": 0.11372954696462564,
+    "power_rating": 22.3427286346968,
     "committee_rank": 6
    },
    {
@@ -1309,8 +1309,8 @@
     "school": "Alabama",
     "how": "at large",
     "record": "10-2",
-    "resume": 0.14193833637240608,
-    "power_rating": 27.531352409321002,
+    "resume": 0.14468716920756564,
+    "power_rating": 27.509418738756843,
     "committee_rank": 5
    },
    {
@@ -1318,8 +1318,8 @@
     "school": "Penn State",
     "how": "at large",
     "record": "10-2",
-    "resume": 0.1571842947940287,
-    "power_rating": 19.589614782106143,
+    "resume": 0.16006281430886962,
+    "power_rating": 19.600117179427667,
     "committee_rank": 11
    },
    {
@@ -1327,8 +1327,8 @@
     "school": "USC",
     "how": "at large",
     "record": "11-2",
-    "resume": 0.23143371509582897,
-    "power_rating": 8.954738789997899,
+    "resume": 0.2439526702924651,
+    "power_rating": 8.741456483371055,
     "committee_rank": 10
    },
    {
@@ -1336,8 +1336,8 @@
     "school": "Clemson",
     "how": "ACC champion",
     "record": "11-2",
-    "resume": 0.36313085099699366,
-    "power_rating": 16.18846522549444,
+    "resume": 0.36588549618138,
+    "power_rating": 16.209594692334825,
     "committee_rank": 7
    },
    {
@@ -1345,8 +1345,8 @@
     "school": "Kansas State",
     "how": "Big 12 champion",
     "record": "10-3",
-    "resume": 0.4802080197387692,
-    "power_rating": 14.571326190964683,
+    "resume": 0.47491991422798663,
+    "power_rating": 14.734500308465249,
     "committee_rank": 9
    },
    {
@@ -1354,8 +1354,8 @@
     "school": "Utah",
     "how": "Pac-12 champion",
     "record": "10-3",
-    "resume": 0.6038875686157693,
-    "power_rating": 20.82354406246808,
+    "resume": 0.6249410930078863,
+    "power_rating": 20.532783591541314,
     "committee_rank": 8
    },
    {
@@ -1363,8 +1363,8 @@
     "school": "Tulane",
     "how": "top Group of Six team",
     "record": "11-2",
-    "resume": 0.657218336712535,
-    "power_rating": 3.9538530001060597,
+    "resume": 0.6550356155117883,
+    "power_rating": 4.039530895258905,
     "committee_rank": 16
    }
   ],
@@ -1417,8 +1417,8 @@
     "school": "Washington",
     "how": "Pac-12 champion",
     "record": "13-0",
-    "resume": 0.008375155645113975,
-    "power_rating": 19.9444665808522,
+    "resume": 0.008500197721739237,
+    "power_rating": 19.9023895987606,
     "committee_rank": 2
    },
    {
@@ -1426,8 +1426,8 @@
     "school": "Michigan",
     "how": "Big Ten champion",
     "record": "13-0",
-    "resume": 0.01130549430577923,
-    "power_rating": 33.235263150326375,
+    "resume": 0.011279770679025223,
+    "power_rating": 33.23851669009745,
     "committee_rank": 1
    },
    {
@@ -1435,8 +1435,8 @@
     "school": "Florida State",
     "how": "ACC champion",
     "record": "13-0",
-    "resume": 0.02365117321106758,
-    "power_rating": 19.72108059673738,
+    "resume": 0.023775278672063607,
+    "power_rating": 19.706553825003077,
     "committee_rank": 5
    },
    {
@@ -1444,8 +1444,8 @@
     "school": "Alabama",
     "how": "SEC champion",
     "record": "12-1",
-    "resume": 0.04029073972957133,
-    "power_rating": 24.044110216878423,
+    "resume": 0.04016137504498524,
+    "power_rating": 24.052577289731694,
     "committee_rank": 4
    },
    {
@@ -1453,8 +1453,8 @@
     "school": "Ohio State",
     "how": "at large",
     "record": "11-1",
-    "resume": 0.05500534514931906,
-    "power_rating": 34.015318726915226,
+    "resume": 0.055181744028967,
+    "power_rating": 34.00642098663008,
     "committee_rank": 7
    },
    {
@@ -1462,8 +1462,8 @@
     "school": "Georgia",
     "how": "at large",
     "record": "12-1",
-    "resume": 0.12407807205675722,
-    "power_rating": 28.832059223115248,
+    "resume": 0.12395600650842131,
+    "power_rating": 28.841245807228876,
     "committee_rank": 6
    },
    {
@@ -1471,8 +1471,8 @@
     "school": "Texas",
     "how": "Big 12 champion",
     "record": "12-1",
-    "resume": 0.12708133313721934,
-    "power_rating": 22.00913553558112,
+    "resume": 0.12599860272332863,
+    "power_rating": 22.056864566306288,
     "committee_rank": 3
    },
    {
@@ -1480,8 +1480,8 @@
     "school": "Ole Miss",
     "how": "at large",
     "record": "10-2",
-    "resume": 0.27355464821636155,
-    "power_rating": 11.887319992648838,
+    "resume": 0.2732897056751944,
+    "power_rating": 11.904220418439623,
     "committee_rank": 11
    },
    {
@@ -1489,8 +1489,8 @@
     "school": "Missouri",
     "how": "at large",
     "record": "10-2",
-    "resume": 0.3293527820335189,
-    "power_rating": 17.741041024819843,
+    "resume": 0.32859908383751185,
+    "power_rating": 17.74477547306382,
     "committee_rank": 9
    },
    {
@@ -1498,8 +1498,8 @@
     "school": "Penn State",
     "how": "at large",
     "record": "10-2",
-    "resume": 0.36142657335372746,
-    "power_rating": 27.818196419477246,
+    "resume": 0.3609864251063224,
+    "power_rating": 27.810504489412587,
     "committee_rank": 10
    },
    {
@@ -1507,8 +1507,8 @@
     "school": "Oregon",
     "how": "at large",
     "record": "11-2",
-    "resume": 0.4769147122552492,
-    "power_rating": 28.476932141790407,
+    "resume": 0.4797210673516351,
+    "power_rating": 28.426746580581042,
     "committee_rank": 8
    },
    {
@@ -1516,8 +1516,8 @@
     "school": "Liberty",
     "how": "top Group of Six team",
     "record": "13-0",
-    "resume": 0.5676199210791284,
-    "power_rating": 5.91635262627612,
+    "resume": 0.5702009488713722,
+    "power_rating": 5.8711224949575005,
     "committee_rank": 23
    }
   ],
@@ -1570,8 +1570,8 @@
     "school": "Oregon",
     "how": "Big Ten champion",
     "record": "13-0",
-    "resume": 0.007965456844379465,
-    "power_rating": 27.381717799551247,
+    "resume": 0.007941967480432284,
+    "power_rating": 27.36608034409471,
     "committee_rank": 1
    },
    {
@@ -1579,8 +1579,8 @@
     "school": "Georgia",
     "how": "SEC champion",
     "record": "11-2",
-    "resume": 0.03713760829679734,
-    "power_rating": 24.16146518486565,
+    "resume": 0.0368916558400827,
+    "power_rating": 24.16517262378975,
     "committee_rank": 2
    },
    {
@@ -1588,8 +1588,8 @@
     "school": "Texas",
     "how": "at large",
     "record": "11-2",
-    "resume": 0.15355856206043886,
-    "power_rating": 27.55750124494155,
+    "resume": 0.15274592651537505,
+    "power_rating": 27.55613083265063,
     "committee_rank": 3
    },
    {
@@ -1597,8 +1597,8 @@
     "school": "Notre Dame",
     "how": "Notre Dame, top 12",
     "record": "11-1",
-    "resume": 0.20880889768218708,
-    "power_rating": 28.347437075620075,
+    "resume": 0.20826481566427948,
+    "power_rating": 28.326537331695018,
     "committee_rank": 5
    },
    {
@@ -1606,8 +1606,8 @@
     "school": "Penn State",
     "how": "at large",
     "record": "11-2",
-    "resume": 0.22290045791071494,
-    "power_rating": 26.984925701373488,
+    "resume": 0.22243888814110435,
+    "power_rating": 26.96540455775385,
     "committee_rank": 4
    },
    {
@@ -1615,8 +1615,8 @@
     "school": "Indiana",
     "how": "at large",
     "record": "11-1",
-    "resume": 0.25403075167410377,
-    "power_rating": 13.944921820097864,
+    "resume": 0.25383620980177257,
+    "power_rating": 13.92473716337929,
     "committee_rank": 8
    },
    {
@@ -1624,8 +1624,8 @@
     "school": "Ohio State",
     "how": "at large",
     "record": "10-2",
-    "resume": 0.3129352197614118,
-    "power_rating": 28.80095933187172,
+    "resume": 0.3128918617531916,
+    "power_rating": 28.77530315667232,
     "committee_rank": 6
    },
    {
@@ -1633,8 +1633,8 @@
     "school": "Tennessee",
     "how": "at large",
     "record": "10-2",
-    "resume": 0.3309116699377556,
-    "power_rating": 21.002676259844716,
+    "resume": 0.32981774963044863,
+    "power_rating": 21.000202019128636,
     "committee_rank": 7
    },
    {
@@ -1642,8 +1642,8 @@
     "school": "South Carolina",
     "how": "at large",
     "record": "9-3",
-    "resume": 0.39288988886450027,
-    "power_rating": 14.811862329831,
+    "resume": 0.3917682146066663,
+    "power_rating": 14.800979602785475,
     "committee_rank": 15
    },
    {
@@ -1651,8 +1651,8 @@
     "school": "Boise State",
     "how": "top Group of Six team",
     "record": "12-1",
-    "resume": 0.4194815309981899,
-    "power_rating": 11.576526418757622,
+    "resume": 0.4184883158562822,
+    "power_rating": 11.587247284892236,
     "committee_rank": 9
    },
    {
@@ -1660,8 +1660,8 @@
     "school": "Arizona State",
     "how": "Big 12 champion",
     "record": "11-2",
-    "resume": 0.514591657473791,
-    "power_rating": 9.506493094693884,
+    "resume": 0.5131151822043098,
+    "power_rating": 9.476287979850154,
     "committee_rank": 12
    },
    {
@@ -1669,8 +1669,8 @@
     "school": "Clemson",
     "how": "ACC champion",
     "record": "10-3",
-    "resume": 0.6436651638153003,
-    "power_rating": 17.800137999821835,
+    "resume": 0.6430415231417455,
+    "power_rating": 17.775667398309302,
     "committee_rank": 16
    }
   ],
@@ -1727,8 +1727,8 @@
     "school": "Indiana",
     "how": "Big Ten champion",
     "record": "13-0",
-    "resume": 0.0072701776812513766,
-    "power_rating": 26.74767607113139,
+    "resume": 0.007275912958987021,
+    "power_rating": 26.728310557949417,
     "committee_rank": 1
    },
    {
@@ -1736,8 +1736,8 @@
     "school": "Texas A&M",
     "how": "at large",
     "record": "11-1",
-    "resume": 0.07005717409368634,
-    "power_rating": 26.779295757039492,
+    "resume": 0.06996557736972704,
+    "power_rating": 26.76692707641642,
     "committee_rank": 7
    },
    {
@@ -1745,8 +1745,8 @@
     "school": "Georgia",
     "how": "SEC champion",
     "record": "12-1",
-    "resume": 0.07171902647224881,
-    "power_rating": 27.55334289296169,
+    "resume": 0.07163334547417233,
+    "power_rating": 27.544781738396203,
     "committee_rank": 3
    },
    {
@@ -1754,8 +1754,8 @@
     "school": "Ohio State",
     "how": "at large",
     "record": "12-1",
-    "resume": 0.1241910865571769,
-    "power_rating": 35.071197619128114,
+    "resume": 0.12420397620651064,
+    "power_rating": 35.047993987160794,
     "committee_rank": 2
    },
    {
@@ -1763,8 +1763,8 @@
     "school": "Oregon",
     "how": "at large",
     "record": "11-1",
-    "resume": 0.1515544830787104,
-    "power_rating": 27.28609096825545,
+    "resume": 0.15158609475705606,
+    "power_rating": 27.27345334023475,
     "committee_rank": 5
    },
    {
@@ -1772,8 +1772,8 @@
     "school": "Ole Miss",
     "how": "at large",
     "record": "11-1",
-    "resume": 0.1573087621703689,
-    "power_rating": 17.22795447411124,
+    "resume": 0.1570832347732269,
+    "power_rating": 17.220399428528435,
     "committee_rank": 6
    },
    {
@@ -1781,8 +1781,8 @@
     "school": "Oklahoma",
     "how": "at large",
     "record": "10-2",
-    "resume": 0.2665911609729679,
-    "power_rating": 21.55727888683039,
+    "resume": 0.26640715160572703,
+    "power_rating": 21.54118612287942,
     "committee_rank": 8
    },
    {
@@ -1790,8 +1790,8 @@
     "school": "Alabama",
     "how": "at large",
     "record": "10-3",
-    "resume": 0.272097769862937,
-    "power_rating": 22.32410127659332,
+    "resume": 0.2718550120643246,
+    "power_rating": 22.3110276641791,
     "committee_rank": 9
    },
    {
@@ -1799,8 +1799,8 @@
     "school": "BYU",
     "how": "at large",
     "record": "11-2",
-    "resume": 0.3095154760373832,
-    "power_rating": 13.353038979665289,
+    "resume": 0.30908562196198475,
+    "power_rating": 13.347638688683238,
     "committee_rank": 12
    },
    {
@@ -1808,8 +1808,8 @@
     "school": "Texas Tech",
     "how": "Big 12 champion",
     "record": "12-1",
-    "resume": 0.3378224334609996,
-    "power_rating": 29.487342267179457,
+    "resume": 0.33747496894060525,
+    "power_rating": 29.479489850273193,
     "committee_rank": 4
    },
    {
@@ -1817,8 +1817,8 @@
     "school": "James Madison",
     "how": "top Group of Six team",
     "record": "12-1",
-    "resume": 0.791302501978467,
-    "power_rating": 12.1727112167174,
+    "resume": 0.7910425233371405,
+    "power_rating": 12.155650891893039,
     "committee_rank": 24
    },
    {
@@ -1826,8 +1826,8 @@
     "school": "Duke",
     "how": "ACC champion",
     "record": "8-5",
-    "resume": 0.9968509520001934,
-    "power_rating": 3.840778953262857,
+    "resume": 0.9968403479326924,
+    "power_rating": 3.828235798754014,
     "committee_rank": null
    }
   ],
