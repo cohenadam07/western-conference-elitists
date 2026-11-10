@@ -1,0 +1,158 @@
+{
+ "positions": {
+  "DL?": {
+   "labelled_player_seasons": 3101,
+   "cross_validated_accuracy": 0.8755207521687186,
+   "coefficients": {
+    "weight": -2.67,
+    "height": 0.818,
+    "f_sack_share": 0.405,
+    "f_stop_rate": 0.066
+   },
+   "generic_player_seasons": 3805,
+   "share_called_EDGE": 0.47516425755584757
+  },
+  "DB?": {
+   "labelled_player_seasons": 3443,
+   "cross_validated_accuracy": 0.7940662233773248,
+   "coefficients": {
+    "weight": -1.273,
+    "height": 0.061,
+    "f_pd_share": 0.89,
+    "f_stop_rate": -0.73,
+    "f_tk_rate": 0.159
+   },
+   "generic_player_seasons": 3347,
+   "share_called_CB": 0.43083358231251867
+  }
+ },
+ "event_weights_2025": {
+  "sack": 1.788671542181219,
+  "tfl": 1.3918207757632297,
+  "int": 4.162920380019319,
+  "pbu": 0.9686127793598179,
+  "ff": 2.571500345025917,
+  "stop": 0.5536399337119077,
+  "hur": 1.0657477358859713
+ },
+ "replacement_percentile": 25,
+ "top50_mix_per_season": {
+  "QB": 42.6,
+  "WR": 5.1,
+  "RB": 2.3
+ },
+ "credit_by_position": {
+  "QB": {
+   "r_stayed": 0.4742076494988677,
+   "n_stayed": 457,
+   "r_transferred": 0.33760956322210856,
+   "n_transferred": 62,
+   "credit": 0.7119445744472638
+  },
+  "RB": {
+   "r_stayed": 0.3395916040516438,
+   "n_stayed": 656,
+   "r_transferred": 0.13569468787837305,
+   "n_transferred": 59,
+   "credit": 0.39958198689075103
+  },
+  "WR/TE": {
+   "r_stayed": 0.37499744386121675,
+   "n_stayed": 1652,
+   "r_transferred": 0.1310459431822529,
+   "n_transferred": 160,
+   "credit": 0.3494582305226375
+  },
+  "EDGE/IDL": {
+   "r_stayed": 0.4438515964494845,
+   "n_stayed": 2309,
+   "r_transferred": 0.3511524235039898,
+   "n_transferred": 196,
+   "credit": 0.7911482718840576
+  },
+  "LB": {
+   "r_stayed": 0.33285595917709004,
+   "n_stayed": 1861,
+   "r_transferred": 0.1743690457890947,
+   "n_transferred": 132,
+   "credit": 0.5238573652704976
+  },
+  "CB/S": {
+   "r_stayed": 0.2454048500281843,
+   "n_stayed": 2098,
+   "r_transferred": 0.14847628188075102,
+   "n_transferred": 243,
+   "credit": 0.6050258658852863
+  }
+ },
+ "top50_mix_shared_credit": {
+  "QB": 49.5,
+  "RB": 0.3,
+  "EDGE": 0.1,
+  "WR": 0.1
+ },
+ "awards": {
+  "winners_checked": 163,
+  "found_in_our_data": 166,
+  "winners_total": 188,
+  "on_first_team": 0.43558282208588955,
+  "on_any_team": 0.7116564417177914,
+  "median_slot_rank": 3.0,
+  "heisman_winner_rank_overall": {
+   "2014": [
+    "Marcus Mariota",
+    1
+   ],
+   "2015": [
+    "Derrick Henry",
+    55
+   ],
+   "2016": [
+    "Lamar Jackson",
+    5
+   ],
+   "2017": [
+    "Baker Mayfield",
+    1
+   ],
+   "2018": [
+    "Kyler Murray",
+    1
+   ],
+   "2019": [
+    "Joe Burrow",
+    1
+   ],
+   "2020": [
+    "DeVonta Smith",
+    10
+   ],
+   "2023": [
+    "Jayden Daniels",
+    2
+   ],
+   "2024": [
+    "Travis Hunter",
+    108
+   ],
+   "2025": [
+    "Fernando Mendoza",
+    3
+   ]
+  }
+ },
+ "ap_partial": {
+  "2019": {
+   "ap_first_teamers_entered": 16,
+   "matched_to_a_player": 15,
+   "on_our_first_team": 6,
+   "on_any_of_our_teams": 8
+  },
+  "2024": {
+   "ap_first_teamers_entered": 16,
+   "matched_to_a_player": 16,
+   "on_our_first_team": 7,
+   "on_any_of_our_teams": 10
+  }
+ }
+}
