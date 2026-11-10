@@ -240,6 +240,12 @@ def finish(d):
     d["f_kneel"] = d.f_kneel | (txt.str.contains("kneel", regex=False) & (d.cat == "rush"))
     d["f_scramble"] = txt.str.contains("scrambl", regex=False)
     d["hurry_txt"] = txt.str.contains("hurried by", regex=False) | txt.str.contains("qb hurry", regex=False)
+    # pass depth and side as the stat crew wrote them ("pass complete deep left to ..."). The play text
+    # carries them from 2025; before that both columns are empty, which is why completion % over
+    # expected is "not tracked before 2025".
+    dp = txt.str.extract(r"\b(short|deep)\b(?:\s+(left|middle|right))?")
+    d["p_deep"] = np.where(d.cat == "pass", dp[0].map({"short": 0.0, "deep": 1.0}), np.nan)
+    d["p_side"] = np.where(d.cat == "pass", dp[1].map({"left": 0.0, "middle": 1.0, "right": 2.0}), np.nan)
     d = d.drop(columns=["text"])
 
     # ---- who scored on the play (from the play type) ------------------------

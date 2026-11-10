@@ -79,6 +79,19 @@ def season_tables(y, games, filt):
     d["pdn"] = d.sc & (((d.down == 2) & (d.dist >= 8)) | ((d.down >= 3) & (d.dist >= 5)))
     d["epa0"] = d.epa.fillna(0.0)
     d["epa_ok"] = d.epa.notna()
+    # completion % over expected: a throw's expected completion is the season's FBS completion rate on
+    # throws of the same depth, side, down and distance to go (cells under 100 throws fall back to
+    # depth and side). Only throws whose depth the stat crew charted count (the play text has it from 2025).
+    d["xc"] = np.nan
+    if "p_deep" in d.columns and d.p_deep.notna().any():
+        th = d[d.attp & d.p_deep.notna() & d.p_side.notna()].assign(
+            db_=lambda x: pd.cut(x.dist, [-1, 3, 6, 10, 99], labels=False), dn_=lambda x: x.down.clip(1, 4))
+        cell = th.groupby(["p_deep", "p_side", "dn_", "db_"]).comp.agg(["mean", "size"])
+        wide = th.groupby(["p_deep", "p_side"]).comp.mean().rename("wide")
+        th = th.join(cell, on=["p_deep", "p_side", "dn_", "db_"]).join(wide, on=["p_deep", "p_side"])
+        d.loc[th.index, "xc"] = np.where(th["size"] >= 100, th["mean"], th.wide)
+    d["depth_att"] = d.xc.notna()
+    d["cpoe"] = np.where(d.depth_att, d.comp.astype(float) - d.xc.fillna(0), 0.0)
     k = d[d.sc & ~d.garb]
     out = {}
 
@@ -96,7 +109,7 @@ def season_tables(y, games, filt):
     qb = agg(p, "passer", db=("is_pass", "sum"), epa=("epa0", "sum"), epa_n=("epa_ok", "sum"), succ=("succ", "sum"),
              sacks=("f_sack", "sum"), ints=("f_int", "sum"), att=("attp", "sum"), cmp=("comp", "sum"), yards=("cyds", "sum"),
              expl=("ex", "sum"), td=("td", "sum"), pd_db=("pdn", "sum"), sd_db=("sd", "sum"), pd_epa=("e_pd", "sum"),
-             sd_epa=("e_sd", "sum"))
+             sd_epa=("e_sd", "sum"), cpoe=("cpoe", "sum"), att_depth=("depth_att", "sum"))
     # ---- rushers --------------------------------------------------------------
     r = k[k.is_rush & k.rusher.notna()].assign(ex=lambda x: x.yards >= EXPL_RUSH, st=lambda x: x.yards <= 0,
                                                td=lambda x: x.pts == 7)
@@ -209,8 +222,7 @@ def season_tables(y, games, filt):
         opp = np.where(t.team == t.game_id.map(gg.home), t.game_id.map(gg.away), t.game_id.map(gg.home))
         t["opp"] = opp
         if "pid" in t.columns:
-            t.dropna(subset=["pid"], inplace=True)
-            t["pid"] = t.pid.astype("int64")
+            t = out[name] = t.dropna(subset=["pid"]).astype({"pid": "int64"})
     return out, cov
 
 

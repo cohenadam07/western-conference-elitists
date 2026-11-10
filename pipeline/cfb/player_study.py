@@ -85,7 +85,7 @@ def box_interceptions(df):
     return m.drop(columns=["bi"])
 
 
-def defender_frame(tm):
+def defender_frame(tm, suffix="", seasons=None, regulars=None):
     """One row per defender per game of HIS TEAM'S season, zeros where he recorded nothing.
 
     No source says who played in a game (the game-roster files list the whole roster every week), so a
@@ -93,7 +93,10 @@ def defender_frame(tm):
     without a credited play, counts against his rate, as RESEARCH section 6 asks. Only regulars are kept:
     at least 5 credited disruptive plays or run stops in the season, or 15 box-score tackles.
     """
-    df = pd.read_parquet(WORK / "pg_dfn.parquet")
+    df = pd.read_parquet(WORK / f"pg_dfn{suffix}.parquet")
+    if seasons is not None:
+        df = df[df.season.isin(seasons)]
+        tm = tm[tm.season.isin(seasons)]
     df = box_interceptions(df)
     cnt = [c for c in df.columns if c not in ("game_id", "team", "pid", "season", "date", "week", "opp", "has_box")]
     box = df.groupby(["game_id", "team"]).has_box.max().rename("has_box").reset_index()
@@ -101,6 +104,8 @@ def defender_frame(tm):
                                            ev=("sack", "sum"), e2=("tfl", "sum"), e3=("int", "sum"), e4=("pbu", "sum"),
                                            e5=("ff", "sum"), e6=("stop", "sum"), bt=("b_tkl", "sum")).reset_index()
     ps = ps[(ps[["ev", "e2", "e3", "e4", "e5", "e6"]].sum(axis=1) >= MIN_EVENTS) | (ps.bt.fillna(0) >= MIN_BOX_TACKLES)]
+    if regulars is not None:      # the same men in every garbage-time variant (numbers.py passes the garbage-in set)
+        ps = regulars
     tgm = tm[["season", "game_id", "team", "date", "week", "opp", "dplays", "ddb", "drush"]]
     full = ps[["season", "pid", "team"]].merge(tgm, on=["season", "team"])
     full = full.merge(df[["game_id", "team", "pid"] + cnt], on=["game_id", "team", "pid"], how="left")
@@ -112,16 +117,17 @@ def defender_frame(tm):
     return full
 
 
-def tables():
-    """Player-game frames per role with every numerator / denominator, position attached."""
+def tables(suffix=""):
+    """Player-game frames per role with every numerator / denominator, position attached.
+    `suffix` picks the garbage-time variant playergame wrote ("" = out, "_all" = in)."""
     ro = rosters()[["season", "pid", "pos", "grp", "cls", "name", "team"]].rename(columns={"team": "roster_team"})
-    tm = pd.read_parquet(WORK / "pg_team.parquet")
+    tm = pd.read_parquet(WORK / f"pg_team{suffix}.parquet")
     tmk = tm[["game_id", "team", "plays", "db", "rush", "att", "dplays", "ddb", "drush", "tgt_tracked", "plays_all", "garb"]].rename(
         columns={"plays": "t_plays", "db": "t_db", "rush": "t_rush", "att": "t_att"})
-    qb = pd.read_parquet(WORK / "pg_qb.parquet").merge(ro, on=["season", "pid"], how="left")
-    ru = pd.read_parquet(WORK / "pg_rush.parquet").merge(ro, on=["season", "pid"], how="left")
-    rc = pd.read_parquet(WORK / "pg_rec.parquet").merge(ro, on=["season", "pid"], how="left")
-    df = defender_frame(tm).merge(ro, on=["season", "pid"], how="left")
+    qb = pd.read_parquet(WORK / f"pg_qb{suffix}.parquet").merge(ro, on=["season", "pid"], how="left")
+    ru = pd.read_parquet(WORK / f"pg_rush{suffix}.parquet").merge(ro, on=["season", "pid"], how="left")
+    rc = pd.read_parquet(WORK / f"pg_rec{suffix}.parquet").merge(ro, on=["season", "pid"], how="left")
+    df = defender_frame(tm, suffix).merge(ro, on=["season", "pid"], how="left")
     qb = qb.merge(tmk, on=["game_id", "team"], how="left")
     # QB rushing rides on the passer row
     qr = ru[["game_id", "team", "pid", "rush", "epa", "succ", "scr"]].rename(columns={"rush": "q_rush", "epa": "q_rush_epa",
@@ -146,7 +152,7 @@ def tables():
         df[c] = np.where(df.has_box, df[c].fillna(0), np.nan)
     df["dplays_box"] = np.where(df.has_box, df.dplays, np.nan)
     # specialists
-    kick = pd.read_parquet(WORK / "pg_kick.parquet")
+    kick = pd.read_parquet(WORK / f"pg_kick{suffix}.parquet")
     kick = kick[kick.dist.between(17, 70)]
     fitk = kick[kick.season.between(2014, 2024)]
     X = np.column_stack([np.ones(len(fitk)), fitk.dist, fitk.dist ** 2])
@@ -158,7 +164,7 @@ def tables():
     kg = kick.groupby(["season", "game_id", "team", "pid", "date", "opp"]).agg(fgoe=("fgoe", "sum"), fga=("n", "sum"), made=("made", "sum"),
                                                                               pts_oe=("fgoe", lambda s: 3 * s.sum())).reset_index()
     kg = kg.merge(ro, on=["season", "pid"], how="left")
-    punt = pd.read_parquet(WORK / "pg_punt.parquet")
+    punt = pd.read_parquet(WORK / f"pg_punt{suffix}.parquet")
     punt = punt[punt.epa.notna() & punt.ytg.between(1, 99)]
     co = np.polyfit(punt[punt.season.between(2014, 2024)].ytg, punt[punt.season.between(2014, 2024)].epa, 3)
     punt["poe"] = punt.epa - np.polyval(co, punt.ytg)

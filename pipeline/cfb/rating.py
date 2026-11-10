@@ -108,6 +108,44 @@ def fit(tr, teams, po, pdv, pst, cur_fw, P, kappa):
     return o, d, st
 
 
+STATE = {}
+
+
+def season_ratings(t, g, y, teams, po, pdv, pst, beta, hfa, sigma, P, kappa, keep_weekly=True):
+    """One season walked forward from its prior: (game predictions, weekly ratings, final effects).
+    chain() calls it for every season; a refresh calls it for the current one with the frozen prior."""
+    preds, weekly = [], []
+    teams = np.asarray(teams)
+    S = t[(t.season == y) & t.team.isin(teams) & t.opp.isin(teams)]
+    G = g[(g.season == y) & g.home.isin(teams) & g.away.isin(teams)]
+    ix = {x: i for i, x in enumerate(teams)}
+    for fw in sorted(G.fw.unique()):
+        o, d, st = fit(S[S.fw < fw], teams, po, pdv, pst, fw, P, kappa)
+        R = PLAYS * (o - d) + st
+        gw = G[G.fw == fw]
+        hi = np.array([ix[x] for x in gw.home])
+        ai = np.array([ix[x] for x in gw.away])
+        raw = R[hi] - R[ai]
+        site = gw.site.to_numpy()
+        pred = beta * raw + hfa * site
+        preds.append(pd.DataFrame({"season": y, "game_id": gw.game_id.to_numpy(), "fw": fw, "week": gw.week.to_numpy(),
+                                   "season_type": gw.season_type.to_numpy(), "home": gw.home.to_numpy(), "away": gw.away.to_numpy(),
+                                   "site": site, "pred": pred, "raw": raw, "margin": gw.home_margin.to_numpy(),
+                                   "spread_home": gw.spread_home.to_numpy(), "fpi": gw.fpi_home_margin.to_numpy(),
+                                   "sigma": sigma}))
+        if keep_weekly:
+            gp = S[S.fw < fw].groupby("team").size().reindex(teams).fillna(0).to_numpy()
+            weekly.append(pd.DataFrame({"season": y, "fw": fw, "team": teams, "off": PLAYS * o * beta, "def": -PLAYS * d * beta,
+                                        "st": st * beta, "rating": R * beta, "games": gp, "beta": beta, "hfa": hfa, "sigma": sigma}))
+    o, d, st = fit(S, teams, po, pdv, pst, int(G.fw.max()) + 1 if len(G) else 0, P, kappa)
+    if keep_weekly:
+        gp = S.groupby("team").size().reindex(teams).fillna(0).to_numpy()
+        weekly.append(pd.DataFrame({"season": y, "fw": 99999, "team": teams, "off": PLAYS * o * beta, "def": -PLAYS * d * beta,
+                                    "st": st * beta, "rating": (PLAYS * (o - d) + st) * beta, "games": gp, "beta": beta,
+                                    "hfa": hfa, "sigma": sigma}))
+    return preds, weekly, (o, d, st)
+
+
 def chain(t, g, pre, kappa, P, keep_weekly=False):
     """Walk every season forward. Returns game predictions (and weekly ratings if asked)."""
     preds, weekly, finals = [], [], {}
@@ -147,36 +185,15 @@ def chain(t, g, pre, kappa, P, keep_weekly=False):
             sigma = float(np.std(ph.margin - beta * ph.raw - hfa * ph.site))
         else:
             beta, hfa, sigma = 1.0, 2.5, 16.5
-        S = t[(t.season == y) & t.team.isin(teams) & t.opp.isin(teams)]
-        G = g[(g.season == y) & g.home.isin(teams) & g.away.isin(teams)]
-        ix = {x: i for i, x in enumerate(teams)}
-        for fw in sorted(G.fw.unique()):
-            o, d, st = fit(S[S.fw < fw], teams, po, pdv, pst, fw, P, kappa)
-            R = PLAYS * (o - d) + st
-            gw = G[G.fw == fw]
-            hi = np.array([ix[x] for x in gw.home])
-            ai = np.array([ix[x] for x in gw.away])
-            raw = R[hi] - R[ai]
-            site = gw.site.to_numpy()
-            pred = beta * raw + hfa * site
-            for a, b, c, dd, e_, f_ in zip(gw.game_id, raw, site, gw.home_margin, pred, gw.fw):
-                pred_hist.append((y, b, c, dd))
-            preds.append(pd.DataFrame({"season": y, "game_id": gw.game_id.to_numpy(), "fw": fw, "week": gw.week.to_numpy(),
-                                       "season_type": gw.season_type.to_numpy(), "home": gw.home.to_numpy(), "away": gw.away.to_numpy(),
-                                       "site": site, "pred": pred, "raw": raw, "margin": gw.home_margin.to_numpy(),
-                                       "spread_home": gw.spread_home.to_numpy(), "fpi": gw.fpi_home_margin.to_numpy(),
-                                       "sigma": sigma}))
-            if keep_weekly:
-                gp = S[S.fw < fw].groupby("team").size().reindex(teams).fillna(0).to_numpy()
-                weekly.append(pd.DataFrame({"season": y, "fw": fw, "team": teams, "off": PLAYS * o * beta, "def": -PLAYS * d * beta,
-                                            "st": st * beta, "rating": R * beta, "games": gp, "beta": beta, "hfa": hfa, "sigma": sigma}))
-        o, d, st = fit(S, teams, po, pdv, pst, int(G.fw.max()) + 1 if len(G) else 0, P, kappa)
+        if y == LAST:           # what a refresh of the current season needs instead of every season before it
+            STATE.update(season=y, teams=[int(x) for x in teams], po=po.tolist(), pdv=pdv.tolist(), pst=pst.tolist(),
+                         beta=float(beta), hfa=float(hfa), sigma=float(sigma), kappa=float(kappa), params=dict(P))
+        pr_, wk_, (o, d, st) = season_ratings(t, g, y, teams, po, pdv, pst, beta, hfa, sigma, P, kappa, keep_weekly)
+        preds += pr_
+        weekly += wk_
+        for b, c, dd in zip(*[np.concatenate([x[k].to_numpy() for x in pr_]) if pr_ else np.array([]) for k in ("raw", "site", "margin")]):
+            pred_hist.append((y, b, c, dd))
         finals[y] = {"o": dict(zip(teams, o)), "d": dict(zip(teams, d)), "st": dict(zip(teams, st))}
-        if keep_weekly:
-            gp = S.groupby("team").size().reindex(teams).fillna(0).to_numpy()
-            weekly.append(pd.DataFrame({"season": y, "fw": 99999, "team": teams, "off": PLAYS * o * beta, "def": -PLAYS * d * beta,
-                                        "st": st * beta, "rating": (PLAYS * (o - d) + st) * beta, "games": gp, "beta": beta,
-                                        "hfa": hfa, "sigma": sigma}))
         if prev is not None:
             for i, x in enumerate(teams):
                 prior_rows.append((y, oprev[i], dprev[i], pr.talent_z.to_numpy()[i], pr.off_returning.to_numpy()[i],
@@ -216,6 +233,7 @@ def run():
     p, weekly, pm = chain(t, g, pre, kappa, P, keep_weekly=True)
     p.to_parquet(WORK / "rating_preds.parquet", index=False)
     weekly.to_parquet(WORK / "ratings_weekly.parquet", index=False)
+    (WORK / "rating_state.json").write_text(json.dumps(STATE))
     s = p[p.season.isin(SCORED)].copy()
     s["e_ours"] = (s.pred - s.margin).abs()
     s["e_spread"] = (-s.spread_home - s.margin).abs()
