@@ -36,6 +36,7 @@ const MIN_N = 30, MIN_CLUSTERS = 10
 const fmt = (x, d = 3) => (x == null || !Number.isFinite(x) ? 'n/a' : Math.abs(x) >= 1000 ? Math.round(x).toLocaleString('en-US') : Number(x.toPrecision(Math.max(d, 1))).toString())
 const pct = (x) => (x == null ? 'n/a' : `${(100 * x).toFixed(1)}%`)
 const num = (x) => `${Number(x).toPrecision(17)}`   // a fitted number written into the study's own SQL
+const points = (x) => `${Number((100 * x).toPrecision(3))}`   // a difference of rates, in percentage points, 3 significant figures
 
 // The caller's column names, checked against what their SELECT returned.
 function column(cols, name, what, { numeric = false } = {}) {
@@ -111,7 +112,7 @@ async function compare(args, ctx) {
   }
   const what = binary ? 'rate' : 'mean'
   const show = (x) => (binary ? pct(x) : fmt(x, 4))
-  const lines = tests.map((t) => `${t.group} vs ${ref}: ${show(groups.find((x) => x.group === t.group).mean)} vs ${show(groups[0].mean)}, a difference of ${binary ? `${(100 * t.difference).toFixed(1)} points` : fmt(t.difference, 3)} (95% interval ${binary ? `${(100 * t.ci_low).toFixed(1)} to ${(100 * t.ci_high).toFixed(1)}` : `${fmt(t.ci_low, 3)} to ${fmt(t.ci_high, 3)}`}). Verdict: ${t.verdict}.`)
+  const lines = tests.map((t) => `${t.group} vs ${ref}: ${show(groups.find((x) => x.group === t.group).mean)} vs ${show(groups[0].mean)}, a difference of ${binary ? `${points(t.difference)} points` : fmt(t.difference, 3)} (95% interval ${binary ? `${points(t.ci_low)} to ${points(t.ci_high)}` : `${fmt(t.ci_low, 3)} to ${fmt(t.ci_high, 3)}`}). Verdict: ${t.verdict}.`)
   return {
     interpretation: `${lines.join(' ')} The ${what}s differ ${tests.some((t) => t.verdict.startsWith('real')) ? 'by more than chance would explain' : 'by no more than chance could explain'}; this is an association in the rows, not proof of a cause.`,
     groups, tests, binary, clusters: c ? Gn : null, resamples: B,
@@ -306,7 +307,7 @@ async function trend(args, ctx) {
   const show = (x) => (binary ? pct(x) : fmt(x, 4))
   const beyond = slope.p_adjusted < 0.05 || (lastFirst.p_adjusted != null && lastFirst.p_adjusted < 0.05)
   return {
-    interpretation: `${y} went from ${show(out[f].value)} in ${periods[f]} to ${show(out[l].value)} in ${periods[l]}. ${beyond ? 'The change is beyond what noise would explain' : 'The change is within what noise could produce'} (slope ${binary ? `${(100 * slope.per_period).toFixed(2)} points` : fmt(slope.per_period, 3)} per period, 95% interval ${binary ? `${(100 * slope.ci_low).toFixed(2)} to ${(100 * slope.ci_high).toFixed(2)}` : `${fmt(slope.ci_low, 3)} to ${fmt(slope.ci_high, 3)}`}). A trend in the rows, not its cause.`,
+    interpretation: `${y} went from ${show(out[f].value)} in ${periods[f]} to ${show(out[l].value)} in ${periods[l]}. ${beyond ? 'The change is beyond what noise would explain' : 'The change is within what noise could produce'} (slope ${binary ? `${points(slope.per_period)} points` : fmt(slope.per_period, 3)} per period, 95% interval ${binary ? `${points(slope.ci_low)} to ${points(slope.ci_high)}` : `${fmt(slope.ci_low, 3)} to ${fmt(slope.ci_high, 3)}`}). A trend in the rows, not its cause.`,
     periods: out, slope, last_vs_first: lastFirst, binary, clusters: c ? G : null,
     multiple_comparisons: 'Two tests (the slope, and the last period against the first); p-values are Holm-adjusted.',
     warnings,

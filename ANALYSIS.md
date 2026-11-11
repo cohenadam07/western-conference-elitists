@@ -117,7 +117,30 @@ Spike, measured on the second preview. Cold means a fresh engine: no data cached
 | back-to-back FG%, 16 seasons (window function and join) | 1.7 s | — | 7.2 MB |
 | heavy group-by (5.96 M shots by player and game) | 3.9 s, 119 MB peak, 411 MB RSS | — | 41.6 MB |
 
-Final preview: FINAL_TIMINGS
+Final preview (the branch head; DuckDB setup now under 1 s, since a view is made the first time a query
+names its table). Cold means a fresh engine; "new copy" means a copy of the function that had never run.
+
+| query | cold | warm | fetched |
+|---|---|---|---|
+| first request of a new copy (load, httpfs, setup) + a narrow query | 2.6 s (setup 1.5 s) | 0.016 s | 0.28 MB |
+| NBA: one season league-wide (team FG%, 2024-25) | 0.81 s | 0.016 s | 0.09 MB |
+| NBA: one stat, every season (31 seasons of shots) | 4.2 s | — | 42.9 MB |
+| NBA: every season league-wide (5.96 M shots by team-season) | 6.6 s | 0.20 s | 44.1 MB |
+| NBA: back-to-back FG%, 16 seasons | 2.1 s | — | 7.1 MB |
+| NBA: heavy group-by (5.96 M shots by player and game) | 4.5 s, 106 MB peak | — | 43.1 MB |
+| NFL: one QB's season (Allen, 2024 dropbacks) | 1.0 s | — | 1.9 MB |
+| NFL: one season league-wide (team EPA, 2024) | 0.46 s | — | 1.9 MB |
+| NFL: every season (EPA per dropback and per run, 28 seasons) | 2.6 s | 0.08 s | 40.2 MB |
+| CFB: every season (EPA per play and pass rate, 13 seasons, 1.3 M plays) | 6.5 s | — | 4.7 MB |
+| UFC: every year (strikes per minute by division) | 3.0 s | — | 1.7 MB |
+| CBB: one season (team points per game, player-games 2024-25) | 0.66 s | — | 1.4 MB |
+| study: compare (back-to-back FG%, 16 seasons, bootstrap by game) | 4.8 s | — | 7.1 MB |
+| study: regress (EPA on shotgun, no-huddle, yards to go; 10 seasons, 329 k plays, clustered) | 1.4 s | — | 17.8 MB |
+| study: logistic (make on distance, 6 seasons, 1.28 M shots, clustered) | 3.9 s | — | 3.2 MB |
+| study: trend (corner-three share, 27 seasons, 5.28 M shots, clustered) | 5.9 s | 1.1 s | 36.8 MB |
+| study: stability (3P% settle point, 16 seasons, 321 k player-games, 200 splits) | 8.2 s new copy, 6.5 s fresh engine | 6.5 s (it computes) | 7.4 MB |
+
+The function's memory stayed under 0.9 GB of its 2 GB through the whole run (17 fresh engines in one copy).
 
 All of these meet the targets: most answers under 5 s, whole-league answers under 20 s, and a hard stop
 before the function's limit. No paid option is needed.
@@ -186,5 +209,7 @@ KV_REST_API_URL=… KV_REST_API_TOKEN=… node tools/keys/tier.mjs <co-founder's
 - **No study type was cut.**
 - **The weekly live exam can't ask the 20 analysis questions** without a founder key in the workflow's
   secrets.
-- **Cold-start setup is 1 to 2 s** on top of the first query of a new copy. Bundling httpfs into the
+- **Cold-start setup is about 1.5 s** on top of the first query of a new copy. Bundling httpfs into the
   deployment would save about 1 s, at the cost of a build-time download.
+- **Stability is the slowest study,** at 6.5 to 8 s for 16 seasons, because it computes 200 splits in
+  JavaScript on one CPU. It was 15 to 17 s before the split-half loop was rewritten.
