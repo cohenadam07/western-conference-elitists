@@ -71,6 +71,11 @@
 // WCE PRO (BETA), FOR KEY HOLDERS ONLY
 //   api/_query.js        savant_query             the assistant's own filters, groups and
 //                                                 summaries over Basketball and Football Savant
+//   api/_analysis.js     savant_sql, savant_analyze  WCE Pro analysis (Nov 2026): read-only SQL and studies over every
+//                                                 Data Room table, on WCE's server (api/_sql.js, api/_analyze.js).
+//                                                 Founder-tier keys only (api/_keys.js tier) until PRO_ANALYSIS_OPEN
+//                                                 opens them to every key; where listed they stand in for savant_data
+//                                                 and savant_dictionary (research/analysis/BUILD.md, ANALYSIS.md)
 // PRO sections are registered only when the address carries a real key (key.state 'valid').
 // The public address, and an address whose key is unknown or could not be checked, list
 // exactly the tools they listed before: nothing a fan uses today moves behind a key. While
@@ -187,7 +192,7 @@ function keyIn(req) {
   }
 }
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.7.0' }
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.8.0' }
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',

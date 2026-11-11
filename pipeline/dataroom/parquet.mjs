@@ -165,7 +165,7 @@ export async function writeSeason(con, { sport, table, season, columns, rows, ki
   const sizes = await con.runAndReadAll(`SELECT path_in_schema, sum(total_compressed_size) FROM parquet_metadata('${tmp.replace(/'/g, "''")}') GROUP BY 1`)
   const colBytes = Object.fromEntries(sizes.getRows().map(([c, b]) => [String(c), Number(b)]))
   renameSync(tmp, out)
-  return { rows: rows.length, bytes: statSync(out).size, sha256: a, colBytes }
+  return { rows: rows.length, bytes: statSync(out).size, sha256: a, colBytes, fileSha: createHash('sha256').update(readFileSync(out)).digest('hex') }
 }
 
 // ---- the manifest ----------------------------------------------------------------------------
@@ -240,7 +240,7 @@ async function main() {
       let through = null
       const di = names.indexOf('date')
       if (di >= 0) for (const row of rows) if (row[di] && (!through || row[di] > through)) through = row[di]
-      entry.seasons[s] = { rows: r.rows, bytes: r.bytes, sha256: r.sha256, through: t.through || through || null, col_bytes: r.colBytes }
+      entry.seasons[s] = { rows: r.rows, bytes: r.bytes, sha256: r.sha256, file_sha256: r.fileSha, through: t.through || through || null, col_bytes: r.colBytes }
       console.log(`${key} ${s}: ${r.rows} rows, ${(r.bytes / 1e6).toFixed(2)} MB, checksum ok`)
     } catch (e) { console.error(`::warning::${e.message}`); bad++ }
   }
