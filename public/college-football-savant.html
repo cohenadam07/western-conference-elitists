@@ -656,7 +656,7 @@ document.addEventListener('click',function(e){
   else hit=false;
   if(hit)render(true);});
 document.addEventListener('change',function(e){var t=e.target;
-  if(t.id==='season'){S.season=+t.value;var h=location.hash.replace(/\/\d{4}$/,'');if(/^#(player|team)-/.test(h))location.hash=h+'/'+S.season;else render();}
+  if(t.id==='season'){S.season=+t.value;var h=location.hash.replace(/\/\d{4}$/,'')||'#home',nh=/^#(player|team)-/.test(h)?h+'/'+S.season:(h==='#home'||S.season===IDX.current?h:h+'/'+S.season);if(nh===(location.hash||'#home'))render();else location.hash=nh;}
   else if(t.id==='pseason'){location.hash=location.hash.replace(/\/\d{4}$/,'')+'/'+t.value;}
   else if(t.id==='tconf'){S.tConf=t.value;render(true);}
   else if(t.id==='asconf'){S.conf=t.value;render(true);}
