@@ -99,9 +99,12 @@ Reconciliation, per table (each row: seasons checked, what was compared):
 | ufc fights | all years | fights, minutes, strikes landed and absorbed per minute, win %, 2,779 fighters vs UFC Savant career totals |
 | ufc rounds | 5 years | significant strikes summed over rounds equal the fight row, 3,648 fights |
 
-**Speed.** Cold calls (a fresh process, the asset fetched from GitHub), slowest per table: cfb plays
-893 ms (2014, 136k rows), nba shots 691 ms, nfl player_games 555 ms, nfl plays 548 ms, nba player_games
-327 ms. The figures on the Vercel preview are in the PR.
+**Speed.** On the Vercel preview, cold cache (a season no instance had read), the slowest call per
+table: cfb plays 1.71 s (2015, 138k rows), nba shots 1.31 s (2018-19, filtered and sorted), nfl
+player_games 1.02 s, nfl plays 0.93 s, nba player_games 0.33 s, nba coaching_games 0.29 s, cbb
+player_games 0.31 s, cbb coaching_games 0.24 s. Limit: 10 s. The four public/ tables (UFC, NFL and
+CFB team-games) are read off the live site, so on a preview they answer only after the merge.
+Per-season file sizes are in the catalog (`bytes` for each season).
 
 ## The analyst exam
 
