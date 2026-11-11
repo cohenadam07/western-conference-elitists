@@ -10,7 +10,8 @@ Inputs (NFL_RAW, default pipeline/football/raw, the layout fetch.sh writes):
     part/part_<y>.csv           participation (2016 on; posted after the season since 2023)
     ftn_<y>.csv                 FTN charting (2022 on, posted weekly)
     schedules.csv               spread, total, rest, roof (every season)
-Output (DATAROOM_OUT, default out/dataroom): nfl/<table>/<season>.json.gz
+Output: plays and player_games to DATAROOM_HOSTED (out/dataroom: release assets), games to
+DATAROOM_PUBLIC (public/dataroom): nfl/<table>/<season>.json.gz
 
 Only derived rows are written: no play description text, no raw file is copied. Columns that a
 source only has from some season on are null before it; the dictionary (dictionary.py) names
@@ -30,7 +31,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import frame_rows, write_table, newest  # noqa: E402
 
 RAW = os.environ.get('NFL_RAW', os.path.join(os.path.dirname(__file__), '..', 'football', 'raw'))
-OUT = os.environ.get('DATAROOM_OUT', 'out/dataroom')
+OUT = os.environ.get('DATAROOM_HOSTED', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'out', 'dataroom'))
 
 # (output column, nflverse column) — the play-by-play part, every season
 PBP = [

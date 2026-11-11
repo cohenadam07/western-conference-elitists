@@ -377,6 +377,18 @@ def main():
     skip = set(filter(None, a.skip.split(",")))
     if rc not in (0, 3):
         return rc
+    # The connector's Data Room (pipeline/dataroom/nba.py): this season's player-games and shots,
+    # through the same shim, so they are the rows the page just counted. DATAROOM_HOSTED is set by
+    # cloud_run.sh; pipeline/dataroom/publish.sh uploads what changed. A failure here never fails
+    # the refresh (research/data-room/BUILD.md: a Data Room failure can't block a Savant page).
+    if os.environ.get("DATAROOM_HOSTED") and "dataroom" not in skip:
+        try:
+            sys.path.insert(0, os.path.join(HERE, "..", "dataroom"))
+            import nba as DR
+            for r in DR.build_current(season, out_hosted=os.environ["DATAROOM_HOSTED"]):
+                print(f"  data room: {os.path.basename(os.path.dirname(r['path']))} {season}: {r['rows']} rows through {r['through']}")
+        except Exception as e:  # noqa
+            print(f"::warning::the Data Room's NBA tables failed: {repr(e)[:160]}")
     os.environ.setdefault("SAVANT_PUBLIC", os.path.abspath(a.public))
     if "projections" not in skip:
         try:

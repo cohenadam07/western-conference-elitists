@@ -52,11 +52,18 @@ jobs:
           python3 rankings.py
       - name: Build
         run: cd pipeline/ufc && python3 build.py
+      # The connector's Data Room: fights and rounds, every year, from the fights file just built
+      # (pipeline/dataroom/ufc.py), and the catalog. continue-on-error: a Data Room failure can't
+      # block UFC Savant (research/data-room/BUILD.md).
+      - name: Data Room
+        continue-on-error: true
+        run: python3 pipeline/dataroom/ufc.py && bash pipeline/dataroom/publish.sh ufc
       - name: Commit if changed
         run: |
           git config user.name "ufc-savant-bot"
           git config user.email "bot@wcehoops.com"
           git add pipeline/ufc/raw public/ufc-savant-data.json public/ufc-savant-fights.json
+          git add public/dataroom 2>/dev/null || true
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
           git commit -m "UFC Savant: refresh $(date -u +%Y-%m-%d)"
           git push

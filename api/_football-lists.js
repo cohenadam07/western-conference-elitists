@@ -192,7 +192,7 @@ export async function leaderboard(args) {
     players: shown,
     notes,
     url: `${SITE}/football-savant.html`,
-    data_as_of: day((file && file.generated) || meta.generated),
+    data_as_of: day(meta.through || (file && file.generated) || meta.generated),
     source: SOURCE,
   }
   if (!shown.length) {
@@ -278,7 +278,7 @@ async function teamBoard(args, meta) {
     board: season, position: 'Teams', stat: { key: pick.key, label: pick.label, lower_is_better: pick.lowerIsBetter, what: null },
     sample: 'everyone', window: null, in_progress: live ? { through_week: live } : null, total: teams.length, players: [], teams: rows,
     notes: ['Kneel-downs and spikes are left out; a scramble counts as a pass play.', 'For the schedule stats (defenses faced, offenses faced) 1st is the hardest slate.'],
-    url: `${SITE}/football-savant.html`, data_as_of: day(file.generated || meta.generated), source: SOURCE,
+    url: `${SITE}/football-savant.html`, data_as_of: day(meta.through || file.generated || meta.generated), source: SOURCE,
   }
   const L = [`${pick.label}${pick.lowerIsBetter ? ' (lower is better)' : ''}: all ${teams.length} teams in ${season}${live ? ` through week ${live}` : ''}`]
   for (const r of rows) L.push(`${r.rank}. ${r.name} ${r.display}${r.columns.length ? `. ${r.columns.map((c) => `${c.label} ${c.display ?? 'n/a'}${c.league_rank ? ` (${ordinal(c.league_rank)})` : ''}`).join('; ')}` : ''}`)
@@ -332,7 +332,7 @@ export async function teamProfile({ team, season }) {
       'Ranks are among all the teams with totals that season; 1st is best, except for the schedule rows, where 1st means the hardest slate. Opponents are measured by what they do in their other games.',
       `The profile score is the average percentile of a man's headline stats against his position${live ? ', with unsettled stats scored where they are likely to settle' : ''}; qualified players only.`,
     ],
-    url: `${SITE}/football-savant.html#t=${code}&s=${s}`, data_as_of: day(file.generated || meta.generated), source: SOURCE,
+    url: `${SITE}/football-savant.html#t=${code}&s=${s}`, data_as_of: day(meta.through || file.generated || meta.generated), source: SOURCE,
   }
   const L = [`${structured.name}, ${s}${live ? ` through week ${live}` : ''}${t.rec ? `: ${t.rec[0]}-${t.rec[1]}${t.rec[2] ? `-${t.rec[2]}` : ''}` : ''}${t.coach ? `. Head coach ${t.coach}` : ''}.`]
   if (units) {
@@ -382,7 +382,7 @@ export async function playerCareer({ player, stat }) {
 
   if (!row) {
     // one season, or none filed: the season card is the career
-    const structured = { player: { id: who.id, name: who.name, position: posLabel }, seasons: [String(who.from)], one_season: true, series, url: cardUrl(who.id, who.to), data_as_of: day(meta.generated), source: SOURCE }
+    const structured = { player: { id: who.id, name: who.name, position: posLabel }, seasons: [String(who.from)], one_season: true, series, url: cardUrl(who.id, who.to), data_as_of: day(meta.through || meta.generated), source: SOURCE }
     const text = `${who.name} has ${who.seasons === 1 ? 'one season' : 'no career'} on file (${seasonsOf(who)}), so his career is that season's card: ask nfl_get_player_profile.${series && series.seasons.length ? `\n${series.label}: ${series.seasons.map((x) => `${x.season} ${x.display} (${x.percentile == null ? 'n/a' : ordinal(x.percentile)})`).join(', ')}.` : ''}`
     return { structured, text }
   }
@@ -421,7 +421,7 @@ export async function playerCareer({ player, stat }) {
     stats,
     series,
     notes: [],
-    url: SAVANT, data_as_of: day(cf.generated || meta.generated), source: SOURCE,
+    url: SAVANT, data_as_of: day(meta.through || cf.generated || meta.generated), source: SOURCE,
   }
   const notes = structured.notes
   notes.push(`A career here is every play of his ${row.seasons.length} seasons added together and divided once: each rate is weighted by its own sample, so a big season outweighs a small one. Games, starts and total EPA add up; the longest field goal is a best; availability is his games over his teams' games.`)

@@ -303,7 +303,7 @@ export async function fantasyRankings({ format = 'points', scoring, window = 'ro
     + (format === 'cats' ? `value ${r.value} (+${r.value_over_replacement} over replacement)` : `${r.fantasy_points_per_game} FP/G${r.fantasy_points != null ? `, ${r.fantasy_points} FP over ${r.expected_games} games` : ''}`)
     + ` | ${r.per_game.pts} pts ${r.per_game.reb} reb ${r.per_game.ast} ast ${r.per_game.min} min`), asOf(M),
   'Method: Marcel-style projections (3 seasons 5/4/3, regressed by measured settle points, aged), blended with this season; backtested at 2.39 preseason points MAE vs 2.52 for last season. Explainers: wcehoops.com/basketball-savant.html#fantasy (click any column).'].join('\n')
-  return { text, structured: { format, scoring: label, window, per_game: !!per_game, replacement_level: format === 'cats' ? r2(rows.repl) : r1(rows.repl), players: out, data_as_of: M.proj.generated, url: `${SITE}/basketball-savant.html#fantasy` } }
+  return { text, structured: { format, scoring: label, window, per_game: !!per_game, replacement_level: format === 'cats' ? r2(rows.repl) : r1(rows.repl), players: out, data_as_of: M.proj.through || M.proj.generated, url: `${SITE}/basketball-savant.html#fantasy` } }
 }
 
 export async function fantasyPlayer({ player, scoring }) {
@@ -318,7 +318,7 @@ export async function fantasyPlayer({ player, scoring }) {
     this_week: { games: wk.map((g) => `${g[0]} ${g[2] ? 'vs' : '@'} ${g[1]}`), fantasy_points: r1(M.fpPerGame(p, p.ros, w) * M.expGames(p, wk)) },
     three_seasons: (p.y3 || []).map((y) => ({ season: y.season, per_game: pgLine(y.pg), fantasy_points_per_game: r1(M.fpPerGame(p, y.pg, w)) })),
     crowd_dynasty_rank: crowd ? crowd.rank : null, crowd_dynasty_value: crowd ? crowd.value : null,
-    scoring: label, url: cardUrl(p.id), data_as_of: M.proj.generated,
+    scoring: label, url: cardUrl(p.id), data_as_of: M.proj.through || M.proj.generated,
   }
   const l = s.rest_of_season.per_game
   const text = [`${p.name} (${p.team}, ${p.pos}${p.status ? `, ${p.status}` : ''}) — ${M.proj.season} projection per game: ${l.min} min, ${l.pts} pts, ${l.reb} reb, ${l.ast} ast, ${l.stl} stl, ${l.blk} blk, ${l.fg3m} 3PM, ${l.tov} TO, ${l.fg_pct}% FG, ${l.ft_pct}% FT.`,
@@ -359,7 +359,7 @@ export async function fantasyTrade({ side_a, side_b, format = 'points', scoring,
     `Dynasty, WCE crowd board: ${v.dynasty_crowd} (${A.dynasty_crowd} vs ${B.dynasty_crowd}).`,
     `Next 7 days: ${v.next_7_days} (${A.next_7_fp} vs ${B.next_7_fp} FP).`,
     disagree ? 'Our model and the crowd disagree on the dynasty side of this deal: age, role changes and injuries are the usual reasons.' : '', asOf(M)].filter(Boolean).join('\n')
-  return { text, structured: { format: fmt, scoring: label, side_a: A, side_b: B, verdicts: v, model_and_crowd_disagree: disagree, data_as_of: M.proj.generated, url: `${SITE}/basketball-savant.html#fantasy/trade` } }
+  return { text, structured: { format: fmt, scoring: label, side_a: A, side_b: B, verdicts: v, model_and_crowd_disagree: disagree, data_as_of: M.proj.through || M.proj.generated, url: `${SITE}/basketball-savant.html#fantasy/trade` } }
 }
 
 export async function lockIn({ player, scoring, scored_unlocked, my_other_slots, opponent_total, uncertainty }) {
@@ -407,7 +407,7 @@ export async function streamers({ window = 'next7', format = 'points', scoring, 
   })
   const text = [`Streamers for the ${window === 'week' ? 'rest of this week' : 'next 7 days'} (${fmt === 'cats' ? '9-cat' : label}). ${exclude.length ? 'Excluding the players you listed.' : `Players ranked outside the top ${Math.round(N * 0.75)} rest-of-season (likely available).`}`,
     ...out.map((r) => `${r.rank}. ${r.name} (${r.team}${r.status ? `, ${r.status}` : ''}): ${r.games.join(', ')} -> ${r.window_value}${fmt === 'cats' ? ' z' : ' FP'}`), asOf(M)].join('\n')
-  return { text, structured: { window, format: fmt, scoring: label, players: out, data_as_of: M.proj.generated } }
+  return { text, structured: { window, format: fmt, scoring: label, players: out, data_as_of: M.proj.through || M.proj.generated } }
 }
 
 export async function injuryReport({ team, limit = 25 }) {
@@ -426,7 +426,7 @@ export async function injuryReport({ team, limit = 25 }) {
   }))
   const text = [`Injury designations from Sleeper's feed${code ? ` for ${code}` : ''}, best players first, with teammates who gained in the games each missed (${(M.proj.ww_inv && M.proj.ww_inv.season) || 'latest'} game logs).`,
     ...out.map((p) => `${p.name} (${p.team}) ${p.status}, plays next game ~${p.plays_next_game_pct}%. ${p.beneficiaries.length ? 'When he sat: ' + p.beneficiaries.map((b) => `${b.name} ${b.minutes_change >= 0 ? '+' : ''}${b.minutes_change} min, ${b.pts36_change >= 0 ? '+' : ''}${b.pts36_change} pts/36 (${b.games_without} g)`).join('; ') : 'No clear beneficiary.'}`), asOf(M)].join('\n')
-  return { text, structured: { players: out, data_as_of: M.proj.generated, url: `${SITE}/basketball-savant.html#fantasy/inj` } }
+  return { text, structured: { players: out, data_as_of: M.proj.through || M.proj.generated, url: `${SITE}/basketball-savant.html#fantasy/inj` } }
 }
 
 // ---------------------------------------------------------------- teams + lineups
@@ -507,7 +507,7 @@ export async function schedule({ window = 'next7', limit = 30 }) {
   out.sort((a, b2) => b2.games - a.games || a.back_to_backs - b2.back_to_backs)
   const text = [`Games per team, ${window === 'week' ? `rest of the fantasy week (${b[0]} to ${b[1]})` : 'next 7 days'}: more games = more fantasy points; second nights of back-to-backs are when stars rest.`,
     ...out.slice(0, limit).map((t) => `${t.team}: ${t.games} games (${t.back_to_backs} B2B) — ${t.slate.join(', ')}`), asOf(M)].join('\n')
-  return { text, structured: { window, teams: out.slice(0, limit), data_as_of: M.proj.generated } }
+  return { text, structured: { window, teams: out.slice(0, limit), data_as_of: M.proj.through || M.proj.generated } }
 }
 
 // ---------------------------------------------------------------- tool registrations

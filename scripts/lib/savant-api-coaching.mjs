@@ -64,6 +64,7 @@
 
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+import { footballThrough } from './savant-api-football.mjs'
 import vm from 'node:vm'
 import { gzipSync } from 'node:zlib'
 
@@ -325,7 +326,7 @@ export function readLeaders(drawn) {
 
 const isD4 = (key) => key.indexOf('d4_') === 0
 
-export function buildCoachingApi({ data, current = null, html }) {
+export function buildCoachingApi({ data, current = null, html, through = null }) {
   if (!data || typeof data.coaches !== 'object' || !data.coaches || typeof data.tree !== 'object' || !data.tree || !Array.isArray(data.seasons)) {
     throw new Error('coaching-savant-data.json: expected { seasons, tree, coaches, callers, units }')
   }
@@ -704,6 +705,8 @@ export function buildCoachingApi({ data, current = null, html }) {
     page: `${SITE}/coaching-savant.html`,
     coachUrl: `${SITE}/coaching-savant.html#c={name}`,
     generated,
+    // the newest NFL game in the data (writeCoachingApi fills it): what "data as of" says
+    through: through || null,
     source: data.source || null,
     seasons,
     firstSeason,
@@ -798,6 +801,7 @@ export function writeCoachingApi({ publicDir, dist }) {
     data: JSON.parse(readFileSync(dataFile, 'utf8')),
     current: existsSync(currentFile) ? JSON.parse(readFileSync(currentFile, 'utf8')) : null,
     html: readFileSync(pageFile, 'utf8'),
+    through: footballThrough(publicDir, existsSync(path.join(publicDir, 'football-savant-current.json')) ? JSON.parse(readFileSync(path.join(publicDir, 'football-savant-current.json'), 'utf8')) : null),
   })
 
   // Build everything before touching dist, so a failure leaves nothing half-written.

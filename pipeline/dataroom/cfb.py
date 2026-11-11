@@ -11,9 +11,10 @@ direction, air yards, YAC, hurried by, broken up by, tacklers) are filled only w
 charting layer read the play (charted = 1: 2025 week 9 on); null before.
 
 games: one row per team per game (both sides of every game with an FBS team, 2014 on): the
-result, the market's line, College Football Savant's pre-game ratings for both teams (the fit
-on every game before that week, rating.py) and its season rating, and EPA, success and
-explosive rate each way from teamgame.parquet (the team pages' table).
+result, the market's line, the page's pre-game win probability and season ratings for both
+teams (its published game and team files), and EPA, success and explosive rate each way from
+teamgame.parquet (the team pages' table). Names and ratings come from the published files, not
+the Mac-only identity and rating tables, so the cloud refresh writes the same bytes.
 
 Only WCE-derived rows: no ESPN play text, no raw release column is copied. Inputs are the
 work tables in ~/College-Football-Savant/work (CFB_HOME), the same the page build reads.
@@ -22,7 +23,6 @@ Output: plays to DATAROOM_HOSTED (out/dataroom, release assets), games to public
 import os
 import sys
 
-import numpy as np
 import pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +31,7 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, ROOT)
 from common import frame_rows, write_table, newest  # noqa: E402
 
-OUT_PUBLIC = os.environ.get('DATAROOM_OUT', os.path.join(ROOT, 'public', 'dataroom'))
+OUT_PUBLIC = os.environ.get('DATAROOM_PUBLIC', os.path.join(ROOT, 'public', 'dataroom'))
 OUT_HOSTED = os.environ.get('DATAROOM_HOSTED', os.path.join(ROOT, 'out', 'dataroom'))
 FIRST = 2014
 CHART_START = '2025 week 9'
@@ -51,10 +51,19 @@ PLAY_COLUMNS = [
 DIGITS = {'wp': 4, 'wpa': 4, 'xpass': 3, 'xc': 3}
 
 
-def _names():
-    from pipeline.cfb.paths import WORK
-    idn = pd.read_parquet(WORK / 'identity.parquet', columns=['pid', 'name'])
-    return dict(zip(idn.pid.astype('int64'), idn.name))
+def _site(rel):
+    import gzip
+    import json as _json
+    with gzip.open(os.path.join(ROOT, 'public', 'cfb', rel + '.gz'), 'rt') as f:
+        return _json.load(f)
+
+
+def _names(y):
+    """Names as the page shows them: the season file's players (published, so the cloud refresh,
+    which has no identity table, writes the same bytes as a full build on the Mac)."""
+    d = _site(f's/{y}.json')
+    i, n = d['cols'].index('id'), d['cols'].index('name')
+    return {int(r[i]): r[n] for r in d['players']}
 
 
 def _teams(games, y):
@@ -79,7 +88,7 @@ def plays_frame(y, games=None):
     from pipeline.cfb.paths import WORK
     games = games if games is not None else pd.read_parquet(WORK / 'games.parquet')
     d = PG.prepare_plays(y, games, 'cfbd')
-    names = _names()
+    names = _names(y)
     teams = _teams(games, y)
     dates = dict(zip(games.game_id, _et_day(games.date)))
     nm = lambda s: [names.get(int(v)) if v == v and v is not None else None for v in s]  # noqa: E731
@@ -125,8 +134,7 @@ def build_plays(y):
 
 GAME_COLUMNS = ['game_id', 'season_type', 'week', 'date', 'team_id', 'team', 'conference', 'opponent_id', 'opponent',
                 'opp_conference', 'home', 'neutral', 'conference_game', 'fbs_game', 'points', 'opp_points', 'result',
-                'margin', 'spread', 'pred_margin', 'rating', 'off_rating', 'def_rating', 'st_rating', 'opp_rating',
-                'season_rating', 'opp_season_rating',
+                'margin', 'spread', 'pregame_wp', 'rating', 'off_rating', 'def_rating', 'st_rating', 'opp_rating',
                 'plays', 'epa_play', 'success_rate', 'explosive_rate', 'pass_epa_play', 'rush_epa_play', 'yards',
                 'turnovers', 'opp_plays', 'opp_epa_play', 'opp_success_rate', 'opp_explosive_rate', 'opp_pass_epa_play',
                 'opp_rush_epa_play', 'opp_yards', 'opp_turnovers']
@@ -134,18 +142,16 @@ GAME_COLUMNS = ['game_id', 'season_type', 'week', 'date', 'team_id', 'team', 'co
 
 def build_games(y):
     from pipeline.cfb.paths import WORK
-    from pipeline.cfb.rating import fw_of
     g = pd.read_parquet(WORK / 'games.parquet')
     g = g[(g.season == y) & g.final.fillna(False).astype(bool)].copy()
-    g['date'] = pd.to_datetime(g.date, utc=True)
-    g['fw'] = fw_of(g.date)
     g['day'] = _et_day(g.date)
-    rw = pd.read_parquet(WORK / 'ratings_weekly.parquet')
-    rw = rw[rw.season == y].rename(columns={'def': 'dfn'})
-    R = {(r.fw, r.team): r for r in rw.itertuples(index=False)}
-    fin = {r.team: r.rating for r in rw[rw.fw == 99999].itertuples(index=False)}
-    pr = pd.read_parquet(WORK / 'rating_preds.parquet')
-    pred = dict(zip(pr[pr.season == y].game_id, pr[pr.season == y].pred))
+    # the page's own season ratings (teams/<y>.json) and pre-game win probability (games/<y>.json)
+    T_ = _site(f'teams/{y}.json')
+    ti = {c: i for i, c in enumerate(T_['cols'])}
+    R = {r[ti['id']]: r for r in T_['teams']}
+    G_ = _site(f'games/{y}.json')
+    gi = {c: i for i, c in enumerate(G_['cols'])}
+    wp = {r[gi['gid']]: r[gi['wp_home']] for r in G_['rows']}
     # the team pages' and game file's own rows: every play, garbage time in (site.py games_doc)
     tg = pd.read_parquet(WORK / 'teamgame.parquet')
     tg = tg[(tg.season == y) & (tg.filt == 'all') & tg.game_id.isin(g.game_id)]
@@ -156,10 +162,10 @@ def build_games(y):
             o = 'away' if side == 'home' else 'home'
             tid, oid = int(getattr(x, side)), int(getattr(x, o))
             pts, opts = getattr(x, f'{side}_pts'), getattr(x, f'{o}_pts')
-            rt, ro = R.get((x.fw, tid)), R.get((x.fw, oid))
-            p = pred.get(x.game_id)
             sp = x.spread_home
+            w = wp.get(int(x.game_id))
             a, b = T.get((x.game_id, tid)), T.get((x.game_id, oid))
+            rt, ro = R.get(tid), R.get(oid)
 
             def side_stats(t):
                 if t is None:
@@ -174,13 +180,11 @@ def build_games(y):
                          1 if x.conference_game else 0, 1 if x.fbs_game else 0, pts, opts,
                          'W' if pts > opts else 'L' if pts < opts else 'T', pts - opts,
                          (-sp if side == 'home' else sp) if sp == sp and sp is not None else None,
-                         (p if side == 'home' else -p) if p is not None else None,
-                         rt.rating if rt is not None and rt.games else None, rt.off if rt is not None and rt.games else None,
-                         rt.dfn if rt is not None and rt.games else None,
-                         rt.st if rt is not None and rt.games else None, ro.rating if ro is not None and ro.games else None,
-                         fin.get(tid), fin.get(oid)] + side_stats(a) + side_stats(b))
+                         (w if side == 'home' else 1 - w) if w is not None else None,
+                         rt[ti['rating']] if rt else None, rt[ti['off']] if rt else None, rt[ti['def']] if rt else None,
+                         rt[ti['st']] if rt else None, ro[ti['rating']] if ro else None] + side_stats(a) + side_stats(b))
     df = pd.DataFrame(rows, columns=GAME_COLUMNS).sort_values(['date', 'game_id', 'home'], ascending=[True, True, False], kind='mergesort')
-    out = frame_rows(df, GAME_COLUMNS, {c: 4 for c in GAME_COLUMNS if c.endswith('_rate') or c.endswith('_play')})
+    out = frame_rows(df, GAME_COLUMNS, {c: 4 for c in GAME_COLUMNS if c.endswith('_rate') or c.endswith('_play') or c == 'pregame_wp'})
     through = newest(out, GAME_COLUMNS)
     path = os.path.join(OUT_PUBLIC, 'cfb', 'games', f'{y}.json.gz')
     raw, gz = write_table(path, 'cfb', 'games', y, GAME_COLUMNS, out, through)

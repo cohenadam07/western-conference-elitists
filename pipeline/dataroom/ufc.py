@@ -3,7 +3,7 @@
     python3 pipeline/dataroom/ufc.py            every year, both tables
 
 Input: public/ufc-savant-fights.json (pipeline/ufc/build.py writes it on every refresh).
-Output (DATAROOM_OUT, default public/dataroom): ufc/fights/<year>.json.gz and
+Output (DATAROOM_PUBLIC, default public/dataroom): ufc/fights/<year>.json.gz and
 ufc/rounds/<year>.json.gz. A UFC "season" is a calendar year, by fight date.
 
 fights: one row per fighter per fight (so every fight is two rows, one from each corner's
@@ -24,7 +24,7 @@ from common import write_table  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 SRC = os.environ.get('UFC_FIGHTS', os.path.join(ROOT, 'public', 'ufc-savant-fights.json'))
-OUT = os.environ.get('DATAROOM_OUT', os.path.join(ROOT, 'public', 'dataroom'))
+OUT = os.environ.get('DATAROOM_PUBLIC', os.path.join(ROOT, 'public', 'dataroom'))
 
 STAT = ['kd', 'ss', 'ssa', 'ts', 'tsa', 'td', 'tda', 'sub', 'rev', 'ctrl', 'head', 'heada', 'body', 'bodya',
         'leg', 'lega', 'dist', 'dista', 'clinch', 'clincha', 'ground', 'grounda']

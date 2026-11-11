@@ -124,6 +124,31 @@ export const JOBS = [
     cadence: 'Thursday morning. Saves the week\'s percentiles and drafts the movers newsletter.',
   },
   {
+    id: 'connector-freshness-nba', name: 'Connector freshness — NBA', lane: 'github', product: 'connector',
+    workflow: 'connector-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['47 13 * * *'],
+    cadence: 'After every refresh and daily. Red when a NBA Data Room table or connector tool lags its source; names which.',
+  },
+  {
+    id: 'connector-freshness-nfl', name: 'Connector freshness — NFL', lane: 'github', product: 'connector',
+    workflow: 'connector-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['47 13 * * *'],
+    cadence: 'After every refresh and daily. Red when a NFL Data Room table or connector tool lags its source; names which.',
+  },
+  {
+    id: 'connector-freshness-cfb', name: 'Connector freshness — college football', lane: 'github', product: 'connector',
+    workflow: 'connector-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['47 13 * * *'],
+    cadence: 'After every refresh and daily. Red when a college football Data Room table or connector tool lags its source; names which.',
+  },
+  {
+    id: 'connector-freshness-cbb', name: 'Connector freshness — college basketball', lane: 'github', product: 'connector',
+    workflow: 'connector-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['47 13 * * *'],
+    cadence: 'After every refresh and daily. Red when a college basketball Data Room table or connector tool lags its source; names which.',
+  },
+  {
+    id: 'connector-freshness-ufc', name: 'Connector freshness — UFC', lane: 'github', product: 'connector',
+    workflow: 'connector-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['47 13 * * *'],
+    cadence: 'After every refresh and daily. Red when a UFC Data Room table or connector tool lags its source; names which.',
+  },
+  {
     id: 'connector-coverage', name: 'Connector coverage test', lane: 'github', product: 'connector',
     workflow: 'connector-coverage.yml', maxAgeH: 180, tz: 'UTC', cron: ['23 12 * * 0'],
     cadence: 'Sunday morning. Checks the AI connector covers every feature of the site.',

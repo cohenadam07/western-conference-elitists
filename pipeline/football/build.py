@@ -2008,8 +2008,20 @@ def main():
                # before it moved, `alias` the codes an old link might still carry
                era={k: list(v) for k, v in ERA.items()}, alias=dict(CANON),
                season=season_list[-1] if season_list else None)
+    # The newest game in the data (regular season, as every number here is): the connector's
+    # "data as of" line is this, not `generated`, which is when the build ran (Nov 2026).
+    through = None
+    if season_list:
+        pp = os.path.join(RAW, 'pbp', f'pbp_{season_list[-1]}.parquet')
+        if os.path.exists(pp):
+            try:
+                g = pd.read_parquet(pp, columns=['game_date', 'season_type'])
+                through = str(g[g.season_type == 'REG'].game_date.max())[:10] or None
+            except Exception:  # noqa
+                through = None
     out = dict(seasons=list(reversed(season_list)),
                generated=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+               **({'through': through} if through else {}),
                source='nflverse (nflfastR pbp, FTN charting, PFR advanced, Next Gen Stats, snap counts, combine, ESPN QBR)',
                cfg=cfg, data=data)
 

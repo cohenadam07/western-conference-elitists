@@ -4,9 +4,10 @@ name: Basketball Savant freshness
 # slate, plus 5:41am and 11:13am ET regardless) and writes a heartbeat, data/savant-refresh.json.
 # This job is the alarm: once a day it reads the heartbeat and fails (GitHub emails the failure)
 # when no refresh has landed for 30 hours, i.e. both daily runs and every slate check missed,
-# so a broken refresh doesn't go unnoticed. A second step fails when the connector's Data Rooms
-# (Basketball Coaching Savant's nba_coaching_data, College Basketball Savant's cbb_data) lag
-# Basketball Savant's newest game: tools/savant-mcp/freshness.mjs, against the live site.
+# so a broken refresh doesn't go unnoticed. A second step fails when the connector's basketball
+# tables and tools (the Data Room's NBA and college basketball tables, savant_data) lag Basketball
+# Savant's newest game: tools/savant-mcp/freshness.mjs --only nba,cbb, against the live site. Every
+# sport's tables and tools are checked by connector-freshness.yml, with a light per sport on /control.
 #
 # The heartbeat is written even on days with no games, so the All-Star break doesn't trip it.
 # Quiet outside the regular season, and in the first week before any refresh has landed.
@@ -75,7 +76,7 @@ jobs:
           sys.exit(0 if in_season else 3)
           EOF
           if [ $rc -eq 3 ]; then echo "offseason; nothing to check"; exit 0; fi
-          node tools/savant-mcp/freshness.mjs --site https://wcehoops.com --days 1 --cbb-days 3
+          node tools/savant-mcp/freshness.mjs --site https://wcehoops.com --only nba,cbb
 
       # Tells the WCE Control Room (/wce) how the run went; a failure pushes to Adam's phone.
       - name: Control Room check-in

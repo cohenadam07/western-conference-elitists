@@ -15,13 +15,14 @@ College Basketball Savant's and College Basketball Coaching Savant's) are counte
 site files, so the catalog speaks for every table savant_data can reach.
 """
 import gzip
+import hashlib
 import json
 import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
-PUB = os.environ.get('DATAROOM_OUT', os.path.join(ROOT, 'public', 'dataroom'))
+PUB = os.environ.get('DATAROOM_PUBLIC', os.path.join(ROOT, 'public', 'dataroom'))
 HOSTED = os.environ.get('DATAROOM_HOSTED', os.path.join(ROOT, 'out', 'dataroom'))
 SITE = os.path.join(ROOT, 'public')
 OUT = os.path.join(PUB, 'catalog.json.gz')
@@ -74,13 +75,16 @@ def scan_new(sport, table, spec, prev):
         for fn in sorted(os.listdir(d)):
             if not fn.endswith('.json.gz'):
                 continue
-            with gzip.open(os.path.join(d, fn), 'rt') as f:
-                doc = json.load(f)
-            seasons[doc['season']] = {'rows': len(doc['rows']), 'through': doc.get('through'), 'bytes': os.path.getsize(os.path.join(d, fn))}
+            p = os.path.join(d, fn)
+            with open(p, 'rb') as f:
+                raw = f.read()
+            doc = json.loads(gzip.decompress(raw))
+            seasons[doc['season']] = {'rows': len(doc['rows']), 'through': doc.get('through'), 'bytes': len(raw),
+                                      'sha256': hashlib.sha256(raw).hexdigest()}
     return seasons
 
 
-def scan_legacy(src, t):
+def scan_legacy(src, t, current=None):
     seasons = {}
     if src in ('bcs', 'cbcs'):
         if t == 'programs':
@@ -91,6 +95,8 @@ def scan_legacy(src, t):
         d = os.path.join(SITE, src, 'data', t)
         for fn in sorted(os.listdir(d)) if os.path.isdir(d) else []:
             s = fn.split('.')[0]
+            if current and s != current:
+                continue
             doc = _load(os.path.join(d, s + '.json'))
             if doc:
                 seasons[s] = {'rows': len(doc['rows']), 'through': _newest(doc)}
@@ -99,6 +105,8 @@ def scan_legacy(src, t):
     idx = _load(os.path.join(SITE, 'cbb', 'index.json')) or {}
     for row in idx.get('seasons', []):
         s = row['season']
+        if current and s != current:
+            continue
         if t == 'games':
             doc = _load(os.path.join(SITE, 'cbb', 'games', f'{s}.json'))
             if doc:
@@ -125,7 +133,7 @@ def scan_legacy(src, t):
     return seasons
 
 
-def build(only=None):
+def build(only=None, current=None):
     D = _load(os.path.join(PUB, 'dictionary.json'))
     prev = _load(OUT[:-3]) or {}
     out = {'schema': 1, 'assets': ASSETS, 'sports': {}}
@@ -141,7 +149,9 @@ def build(only=None):
             tables[t] = {'row': spec['row'], 'first_season': spec['first'], 'hosting': spec['hosting'], 'page': PAGES[sport],
                          'note': spec['note'], 'seasons': dict(sorted(seasons.items()))}
         for t, src, inner, row in LEGACY.get(sport, []):
-            seasons = scan_legacy(src, inner) or (old.get(t) or {}).get('seasons') or {}
+            # a refresh rescans only the season it rebuilt (--current); the rest stand as they were
+            seasons = dict((old.get(t) or {}).get('seasons') or {}) if current else {}
+            seasons.update(scan_legacy(src, inner, current))
             tables[t] = {'row': row, 'first_season': min(seasons) if seasons else None, 'hosting': 'site', 'source': src,
                          'page': LEGACY_PAGES[src], 'seasons': dict(sorted(seasons.items()))}
         out['sports'][sport] = tables
@@ -153,7 +163,9 @@ def build(only=None):
 
 
 if __name__ == '__main__':
-    d = build(set(sys.argv[1:]) or None)
+    a = sys.argv[1:]
+    cur = a[a.index('--current') + 1] if '--current' in a else None
+    d = build(set(x for x in a if not x.startswith('--') and x != cur) or None, cur)
     for sport, tables in d['sports'].items():
         for t, v in tables.items():
             ss = v['seasons']

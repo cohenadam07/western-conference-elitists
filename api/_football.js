@@ -493,7 +493,7 @@ async function profile({ player, season, group = 'all', rank_against = 'season' 
     not_charted_yet: notCharted,
     notes: [],
     url,
-    data_as_of: day(file.generated || meta.generated),
+    data_as_of: day(meta.through || file.generated || meta.generated),
     source: SOURCE,
   }
 
@@ -765,7 +765,7 @@ export async function allSavantTeam({ season, team = 'both' }) {
     method,
     notes,
     url: `${SITE}/football-savant.html`,
-    data_as_of: day(file.generated || meta.generated),
+    data_as_of: day(meta.through || file.generated || meta.generated),
     source: SOURCE,
   }
 

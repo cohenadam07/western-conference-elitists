@@ -154,7 +154,7 @@ export async function playerGames({ player, season, stats }) {
   const structured = {
     player: { id: who.id, name: who.name, position: posMeta.label }, season: s, in_progress: live ? { through_week: live } : null,
     stats: picked.map((m) => ({ key: m.key, label: m.label, lower_is_better: m.lowerIsBetter })), games, lines, form, notes,
-    url: cardUrl(who.id, s), data_as_of: day(file.generated || meta.generated), source: SOURCE,
+    url: cardUrl(who.id, s), data_as_of: day(meta.through || file.generated || meta.generated), source: SOURCE,
   }
   if (!f) return { structured, text: `No game-by-game lines for ${who.name} in ${s}${idx ? '' : ': they have not been published yet'}. His season line: nfl_get_player_profile.` }
   const L = [`${who.name} (${posMeta.label}), ${s} game by game${live ? `, through week ${live}` : ''}`]

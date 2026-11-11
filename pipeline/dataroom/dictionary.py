@@ -10,7 +10,6 @@ reads those where it serves them. Football Savant's per-game rates take their de
 from Football Savant's own metric registry (pipeline/football/metrics.py), so a column here
 and a bar on the page are described by one sentence.
 """
-import json
 import os
 import sys
 
@@ -224,7 +223,8 @@ def nfl_player_games():
 
 # ---------------------------------------------------------------- NBA
 NBA_PG = {
-    'game_id': C('NBA game id (10 digits)', 'id', NBA, '1996-97'), 'date': C('Game date', 'YYYY-MM-DD', NBA, '1996-97'),
+    'game_id': C('Game id: the NBA\'s 10-digit id; in the season in progress ESPN\'s event id (the cloud refresh reads ESPN)', 'id', NBA, '1996-97'),
+    'date': C('Game date', 'YYYY-MM-DD', NBA, '1996-97'),
     'player_id': C('NBA person id (the id nba_get_player_profile takes)', 'id', NBA, '1996-97'), 'player': C('Player', 'text', NBA, '1996-97'),
     'team': C('His team', 'team', NBA, '1996-97'), 'opponent': C('Opponent', 'team', NBA, '1996-97'), 'home': flag('Home game', NBA, '1996-97'),
     'result': C('W or L', 'text', NBA, '1996-97'), 'min': C('Minutes played', 'minutes', NBA, '1996-97'),
@@ -241,7 +241,8 @@ NBA_PG = {
     'poss': C('His on-court possessions: team_poss x his share of the team\'s minutes (min / (team minutes / 5))', 'possessions', 'WCE from the box score', '1996-97', 'An estimate'),
 }
 NBA_SHOTS = {
-    'game_id': C('NBA game id', 'id', NBA, '1996-97'), 'date': C('Game date', 'YYYY-MM-DD', NBA, '1996-97'),
+    'game_id': C('Game id, as in player_games (ESPN\'s event id in the season in progress)', 'id', NBA, '1996-97'),
+    'date': C('Game date', 'YYYY-MM-DD', NBA, '1996-97'),
     'player_id': C('Shooter (NBA person id)', 'id', NBA, '1996-97'), 'player': C('Shooter', 'text', NBA, '1996-97'),
     'team': C('Shooter\'s team', 'team', NBA, '1996-97'), 'opponent': C('Opponent', 'team', NBA, '1996-97'), 'home': flag('Shooter\'s team at home', NBA, '1996-97'),
     'period': C('Period (5+ = overtime)', 'period', NBA, '1996-97'), 'clock': C('Clock left in the period', 'M:SS', NBA, '1996-97'),
@@ -249,7 +250,8 @@ NBA_SHOTS = {
     'made': flag('Made', NBA, '1996-97'), 'value': C('2 or 3', 'points', NBA, '1996-97'),
     'action': C('NBA shot description, e.g. Driving Layup Shot, Pullup Jump shot', 'text', NBA, '1996-97'),
     'zone': C('Restricted Area, In The Paint (Non-RA), Mid-Range, Left Corner 3, Right Corner 3, Above the Break 3, Backcourt', 'text', NBA, '1996-97'),
-    'area': C('Side of the floor', 'text', NBA, '1996-97'), 'range': C('Distance band', 'text', NBA, '1996-97'),
+    'area': C('Side of the floor', 'text', NBA, '1996-97', 'Null in the season in progress: the ESPN feed it is built from has no such field'),
+    'range': C('Distance band', 'text', NBA, '1996-97', 'Null in the season in progress (as area)'),
     'distance': C('Shot distance', 'feet', NBA, '1996-97'),
     'x': C('Court x: tenths of a foot from the hoop, sideline to sideline (the NBA\'s LOC_X)', 'tenths of a foot', NBA, '1996-97'),
     'y': C('Court y: tenths of a foot from the hoop toward half court (LOC_Y)', 'tenths of a foot', NBA, '1996-97'),
@@ -310,13 +312,11 @@ CFB_GAMES = {
     'points': C('Points', 'points', CFBS, 2014), 'opp_points': C('Points allowed', 'points', CFBS, 2014), 'result': C('W, L or T', 'text', CFBS, 2014),
     'margin': C('Points minus points allowed', 'points', CFBS, 2014),
     'spread': C('Closing spread from this team\'s side, positive when favored', 'points', 'the market (ESPN / CFBD lines)', 2014, 'Missing for some FCS opponents'),
-    'pred_margin': C('College Football Savant\'s pre-game predicted margin for this team, from its ratings and home field', 'points', CFBS, 2014),
-    'rating': C('This team\'s opponent-adjusted rating before the game (points per game vs an average FBS team; the fit on every earlier game)', 'points', CFBS, 2014,
-                'Null before a team has played'),
+    'pregame_wp': C('College Football Savant\'s pre-game win probability for this team (the game file\'s)', 'probability (0-1)', CFBS, 2014),
+    'rating': C('This team\'s College Football Savant rating for the season, as its team page shows it (points per game vs an average FBS team; the season in progress: as of the latest build)', 'points', CFBS, 2014),
     'off_rating': C('Offensive part of rating', 'points', CFBS, 2014), 'def_rating': C('Defensive part of rating (higher is better)', 'points', CFBS, 2014),
-    'st_rating': C('Special teams part of rating', 'points', CFBS, 2014), 'opp_rating': C('Opponent\'s rating before the game', 'points', CFBS, 2014),
-    'season_rating': C('This team\'s rating on the season\'s latest build (end of season once it is over)', 'points', CFBS, 2014),
-    'opp_season_rating': C('Opponent\'s season rating', 'points', CFBS, 2014),
+    'st_rating': C('Special teams part of rating', 'points', CFBS, 2014), 'opp_rating': C('Opponent\'s season rating', 'points', CFBS, 2014,
+                   'Null for an FCS opponent (not rated)'),
     'plays': C('Scrimmage plays, garbage time in (the game file\'s count)', 'count', CFBS, 2014),
     'epa_play': C('EPA per play', 'points per play', CFBS, 2014), 'success_rate': C('Success rate', 'rate (0-1)', CFBS, 2014),
     'explosive_rate': C('Explosive play rate (runs 12+, passes 16+)', 'rate (0-1)', CFBS, 2014),
@@ -387,7 +387,7 @@ TABLES = {
         'plays': {'row': 'play', 'first': '2014', 'columns': CFB_PLAYS, 'page': '/college-football-savant.html', 'hosting': 'release',
                   'note': 'Every play of every counted game (FBS vs FBS, final, 80+ scrimmage plays), with College Football Savant\'s own flags: sum scrimmage = 1 and garbage = 0 rows to get a page number. The charted columns start 2025 week 9.'},
         'games': {'row': 'team-game', 'first': '2014', 'columns': CFB_GAMES, 'page': '/college-football-savant.html', 'hosting': 'public',
-                  'note': 'Both sides of every game with an FBS team: result, the line, College Football Savant\'s pre-game ratings for both teams, and EPA, success and explosive rate each way (garbage time in, as the game file).'},
+                  'note': 'Both sides of every game with an FBS team: result, the line, the page\'s pre-game win probability and season ratings, and EPA, success and explosive rate each way (garbage time in, as the game file).'},
     },
     'ufc': {
         'fights': {'row': 'fighter-fight', 'first': '1994', 'columns': UFC_FIGHTS, 'page': '/ufc-savant.html', 'hosting': 'public',

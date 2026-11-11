@@ -84,6 +84,21 @@ jobs:
           COACH_CURRENT="$GITHUB_WORKSPACE/public/coaching-savant-current.json" \
           NFL_RAW=raw python3 coaches.py
 
+      # The connector's Data Room, the season in progress: plays, team-games and player-games from the
+      # downloads above (pipeline/dataroom/nfl.py); publish.sh uploads the release-asset tables that
+      # changed and updates the catalog. continue-on-error: a Data Room failure can't block the
+      # Football Savant refresh (research/data-room/BUILD.md).
+      - name: Data Room — the season in progress
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          Y=${{ github.event.inputs.season }}
+          if [ -z "$Y" ]; then Y=$(date +%Y); [ "$(date +%m)" -ge 8 ] || Y=$((Y-1)); fi
+          export NFL_RAW="$GITHUB_WORKSPACE/pipeline/football/raw" DATAROOM_HOSTED="$RUNNER_TEMP/dataroom"
+          for t in plays games player_games; do python3 pipeline/dataroom/nfl.py $t $Y; done
+          bash pipeline/dataroom/publish.sh nfl $Y
+
       - name: Commit if anything changed
         run: |
           git config user.name "football-savant-bot"
@@ -94,6 +109,7 @@ jobs:
           # up, and a modified-but-unstaged file makes `git pull --rebase` refuse (exit 128),
           # which is what froze the page at week 6 on Oct 26. Commit it with the data.
           git add pipeline/football/heads_etag.json
+          git add public/dataroom 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "no data change — nothing to commit"
             exit 0

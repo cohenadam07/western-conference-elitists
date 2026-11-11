@@ -12,7 +12,19 @@ mkdir -p "$CFB_HOME"
 git config user.name "college-football-bot"
 git config user.email "bot@wcehoops.com"
 
+dataroom() {
+  # The connector's Data Room, the season being played: plays and team-games from the tables the
+  # refresh just wrote (pipeline/dataroom/cfb.py), uploaded by publish.sh. Never fails the run.
+  local y; y=$(python3 -c "from pipeline.cfb import config as C; print(C.CURRENT)") || return 0
+  export DATAROOM_HOSTED="${RUNNER_TEMP:-/tmp}/dataroom"
+  python3 -W ignore pipeline/dataroom/cfb.py plays "$y" && python3 -W ignore pipeline/dataroom/cfb.py games "$y" \
+    && bash pipeline/dataroom/publish.sh cfb "$y" || echo "::warning::the Data Room's college football tables failed"
+  return 0
+}
+
 publish() {
+  dataroom
+  git add public/dataroom 2>/dev/null
   git add public/cfb data/cfb-refresh.json pipeline/cfb/state/heads.json
   git diff --cached --quiet && { echo "nothing changed"; return 0; }
   git commit -q -m "College Football Savant: refresh $(date -u +%F)"

@@ -11,7 +11,6 @@ check and writes tools/dataroom/reconcile.json; exits 1 if any check fails.
 """
 import gzip
 import json
-import math
 import os
 import sys
 from collections import Counter, defaultdict
@@ -190,6 +189,22 @@ def nba():
             if k:
                 z[k][0] += 1
                 z[k][1] += r[ix['made']]
+        # every shot belongs to a team in its game, and that team's games are its player-games
+        pg = os.path.join(HOSTED, 'nba', 'player_games', f'{s}.json.gz')
+        if os.path.exists(pg):
+            P, px = table('nba', 'player_games', s, HOSTED)
+            played = {(r[px['game_id']], r[px['player_id']]): (r[px['team']], r[px['opponent']], r[px['home']]) for r in P['rows']}
+            n = bad = 0
+            smp = None
+            for r in d['rows']:
+                k = (r[ix['game_id']], r[ix['player_id']])
+                if k not in played:
+                    continue
+                n += 1
+                if (r[ix['team']], r[ix['opponent']], r[ix['home']]) != played[k]:
+                    bad += 1
+                    smp = smp or {'shot': k, 'shots': (r[ix['team']], r[ix['opponent']], r[ix['home']]), 'player_games': played[k]}
+            record('nba', 'shots', s, 'each shot\'s team, opponent and home flag vs the shooter\'s player-game', n, bad, smp)
         ep = os.path.join(ROOT, 'public', 'savant-ext', 's', f'{s}.json')
         if os.path.exists(ep):
             E = json.load(open(ep))
@@ -253,7 +268,7 @@ def nfl():
             continue
         d, ix = table('nfl', 'plays', s)
         g = lambda r, c: r[ix[c]]  # noqa: E731
-        db, dbe, car, care, tgt, att = Counter(), Counter(), Counter(), Counter(), Counter(), Counter()
+        db, dbe, car, care, tgt = Counter(), Counter(), Counter(), Counter(), Counter()
         for r in d['rows']:
             if g(r, 'season_type') != 'REG' or (g(r, 'two_point') or 0) == 1:
                 continue

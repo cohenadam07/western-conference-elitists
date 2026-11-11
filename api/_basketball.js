@@ -278,7 +278,7 @@ export async function playerProfile({ player, season, window = 'season', group =
     not_tracked: notTracked,
     notes: [],
     url: cardUrl(row.id),
-    data_as_of: day(meta.generated),
+    data_as_of: day(meta.through || meta.generated),
     source: 'Basketball Savant, Western Conference Elitists (wcehoops.com)',
   }
 
@@ -510,7 +510,7 @@ export async function allSavantTeam({ season, team = 'both' }) {
     method: meta.savant_value.what,
     notes,
     url: `${SITE}/basketball-savant.html`,
-    data_as_of: day(meta.generated),
+    data_as_of: day(meta.through || meta.generated),
     source: 'Basketball Savant, Western Conference Elitists (wcehoops.com)',
   }
   const L = [`The All-Savant Team, ${seasonId}${file.in_progress && file.through ? ` (through ${file.through})` : ''}`]

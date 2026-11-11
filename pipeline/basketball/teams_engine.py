@@ -404,6 +404,16 @@ def build_all(out_dir, first=1996):
                                      lineup_seasons=[x for x in seasons if int(x[:4]) >= 2007], k=load_k()))
 
 
+def _through():
+    """The newest game the season's numbers are built on (the season file the same refresh just
+    wrote): freshness checks and the connector judge this file by it, not by when it was built."""
+    try:
+        t = json.load(open(next(f for f in (os.path.join("out", "current.json"), os.path.join(os.environ.get("SAVANT_PUBLIC", "public"), "savant-current.json")) if os.path.exists(f)))).get("through")
+        return {"through": t} if t else {}
+    except Exception:  # noqa
+        return {}
+
+
 def build_current(out_dir, season=None):
     global LIVE
     season = season or C.SEASON
@@ -421,7 +431,8 @@ def build_current(out_dir, season=None):
             print(f"  preseason schedule failed ({repr(e)[:80]})")
             return 3
     safe_io.dump_json(os.path.join(out_dir, "savant-teams-current.json"),
-                      dict(generated=dt.datetime.now(dt.timezone.utc).isoformat(), seasons=[season], data={season: tb}, k=load_k()))
+                      dict(generated=dt.datetime.now(dt.timezone.utc).isoformat(), seasons=[season], data={season: tb}, k=load_k(),
+                           **_through()))
     write_lineups(out_dir, season, lu)
     return 0
 

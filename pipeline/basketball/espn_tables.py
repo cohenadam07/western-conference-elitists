@@ -134,7 +134,10 @@ def _starters_for_period(plays, period, team_of, prev_end, box_starters):
         cand = [a for a, k in first.items() if k == "other" and team_of[a] == team]
         five = list(dict.fromkeys(cand))[:5]
         if len(five) < 5:
-            for a in prev_end[team]:
+            # sorted: prev_end holds sets, and a set's order changes with each process's hash seed, so
+            # an ambiguous top-up picked a different man run to run and a refresh's minutes moved with
+            # nothing new in the data (found by the Data Room's byte-identity check, Nov 2026)
+            for a in sorted(prev_end[team]):
                 if a not in five and first.get(a) != "in":
                     five.append(a)
                 if len(five) == 5:
@@ -292,7 +295,9 @@ def parse_game(g):
                         on[team].discard(tout)
                         on[team].add(tin)
                         if len(on[team]) > 5:
-                            on[team] = set(list(on[team])[:5])
+                            # keep the man coming in and drop by id, not by the set's hash order (which
+                            # changes run to run: see _starters_for_period)
+                            on[team] = {tin} | set(sorted(on[team] - {tin})[:4])
                         cur.end = clock
                         cur = Stint(period, clock, on)
                         stints.append(cur)

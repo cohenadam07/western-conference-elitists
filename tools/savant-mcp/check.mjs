@@ -1011,6 +1011,45 @@ test('every tool of every section answers through the endpoint', async () => {
   assert.doesNotMatch(textOf(board), /127\.0\.0\.1|ECONNREFUSED|\.js:\d+/)
 })
 
+// No stamp ahead of its data (research/data-room/BUILD.md §3): every tool's "data as of" or "data
+// through" is the date of the newest row it read, never the day the build ran. Until Nov 2026 most
+// Basketball, Football and Coaching Savant answers said `generated` (a 03:55 UTC build on Nov 11
+// said "Data as of 2026-11-11" for games through Nov 10).
+test('no stamp ahead of its data: each tool\'s date is its newest row', async () => {
+  const pub = (f) => JSON.parse(readFileSync(path.join(ROOT, 'public', f), 'utf8'))
+  const nbaThrough = pub('savant-current.json').through
+  const { footballThrough } = await import('../../scripts/lib/savant-api-football.mjs')
+  const nflThrough = footballThrough(path.join(ROOT, 'public'), pub('football-savant-current.json'))
+  const fights = pub('ufc-savant-fights.json')
+  const ufcThrough = Object.values(fights).map((f) => f.date).filter(Boolean).sort().pop()
+  const stamp = (r) => (r.structuredContent || {}).data_as_of || (r.structuredContent || {}).data_through
+  const cases = [
+    ['nba_get_player_profile', { player: 'Nikola Jokic' }, nbaThrough],
+    ['nba_all_savant_team', { season: '2025-26' }, nbaThrough],
+    ['nba_leaderboard', { stat: 'ts', season: '2024-25', top: 3 }, nbaThrough],
+    ['nfl_get_player_profile', { player: 'Patrick Mahomes' }, nflThrough],
+    ['nfl_leaderboard', { position: 'QB', stat: 'epadb', season: '2024', top: 3 }, nflThrough],
+    ['nfl_team_profile', { team: 'Bills', season: '2024' }, nflThrough],
+    ['nfl_player_games', { player: 'Patrick Mahomes', season: '2024' }, nflThrough],
+    ['nfl_coaching_leaders', { limit: 3 }, nflThrough],
+    ['ufc_leaderboard', {}, ufcThrough],
+    ['savant_data', { sport: 'ufc', table: 'fights', limit: 1 }, ufcThrough],
+  ]
+  for (const [name, args, want] of cases) {
+    const r = await call(name, args)
+    assert.ok(!r.isError, `${name}: ${textOf(r).slice(0, 200)}`)
+    assert.ok(want, `${name}: no reference date`)
+    assert.equal(String(stamp(r)).slice(0, 10), want, `${name} says ${stamp(r)}; its newest row is ${want}`)
+  }
+  // The fantasy projections say the newest game they were built on once projections.py writes it
+  // (the cloud refresh after this change); until then they say when they were generated, and that
+  // must not be after the season file's newest game plus the overnight build.
+  const proj = pub('savant-proj.json')
+  const fr = await call('nba_fantasy_rankings', { limit: 1 })
+  if (proj.through) assert.equal(stamp(fr), proj.through)
+  else console.log(`      nba_fantasy_*: savant-proj.json has no through yet (written by the next refresh); stamp ${stamp(fr)}`)
+})
+
 // The homepage shows one worked answer and three questions to try (src/data/connector.js,
 // drawn by AiConnector.jsx and Gateway.jsx). The answer is presented as real, so it has to
 // be: every figure on it is held here to what the connector says for that player and season.

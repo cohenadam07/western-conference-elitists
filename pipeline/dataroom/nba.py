@@ -30,7 +30,7 @@ sys.path.insert(0, HERE)
 from common import frame_rows, write_table, newest  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
-OUT_PUBLIC = os.environ.get('DATAROOM_OUT', os.path.join(ROOT, 'public', 'dataroom'))
+OUT_PUBLIC = os.environ.get('DATAROOM_PUBLIC', os.path.join(ROOT, 'public', 'dataroom'))
 OUT_HOSTED = os.environ.get('DATAROOM_HOSTED', os.path.join(ROOT, 'out', 'dataroom'))
 SEASON_TYPE = 'Regular Season'
 FIRST_SEASON = '1996-97'       # the first season the NBA's game logs and shot charts have
@@ -41,6 +41,13 @@ PG_COLUMNS = ['game_id', 'date', 'player_id', 'player', 'team', 'opponent', 'hom
 SHOT_COLUMNS = ['game_id', 'date', 'player_id', 'player', 'team', 'opponent', 'home', 'period', 'clock',
                 'seconds_left', 'event_id', 'made', 'value', 'action', 'zone', 'area', 'range', 'distance',
                 'x', 'y', 'assisted']
+
+
+def gid(v):
+    """A game id as text: the NBA's 10-digit id ("0022400061"; restored if it came as the integer
+    22400061), or ESPN's event id in the season in progress (the cloud's shim reads ESPN)."""
+    t = str(v)
+    return t.zfill(10) if len(t) == 8 and t.isdigit() else t
 
 
 def seasons_between(a, b):
@@ -62,7 +69,7 @@ def player_games_frame(gl, season):
            'BLKA', 'PF', 'PFD', 'PLUS_MINUS', 'DD2', 'TD3']
     for c in num:
         g[c] = pd.to_numeric(g[c], errors='coerce') if c in g.columns else np.nan
-    g['GAME_ID'] = g['GAME_ID'].astype(str).str.zfill(10)
+    g['GAME_ID'] = g['GAME_ID'].map(gid)
     g['date'] = pd.to_datetime(g['GAME_DATE']).dt.strftime('%Y-%m-%d')
     m = g['MATCHUP'].astype(str)
     g['home'] = m.str.contains(' vs. ').astype(int)
@@ -104,18 +111,27 @@ def write_player_games(season, gl, out=None):
 
 
 # ---------------------------------------------------------------- shots
-def shots_frame(frames, season, assisted=None):
-    """ShotChartDetail frames (one per team) -> shots rows. `assisted` maps (game_id, event_id) -> 0/1."""
+def shots_frame(frames, season, assisted=None, home_of=None):
+    """ShotChartDetail frames (one per team) -> shots rows. `assisted` maps (game_id, event_id) -> 0/1.
+    `home_of` maps (game_id, team) -> 1/0 from the game logs: the NBA's two tables disagree on which
+    side was at home in a few neutral-site games (2024-25's Mexico City game), and the Data Room
+    takes the game logs' word in both tables so they join cleanly."""
     s = pd.concat([f for f in frames if f is not None and len(f)], ignore_index=True) if frames else pd.DataFrame()
     if not len(s):
         return pd.DataFrame(columns=SHOT_COLUMNS)
     s = s.drop_duplicates(['GAME_ID', 'GAME_EVENT_ID', 'PLAYER_ID'])
-    s['GAME_ID'] = s['GAME_ID'].astype(str).str.zfill(10)
+    s['GAME_ID'] = s['GAME_ID'].map(gid)
     ds = s['GAME_DATE'].astype(str)
     s['date'] = ds.str.slice(0, 4) + '-' + ds.str.slice(4, 6) + '-' + ds.str.slice(6, 8) if not ds.str.contains('-').any() else ds.str.slice(0, 10)
-    s['team'] = s['TEAM_ABBREVIATION'] if 'TEAM_ABBREVIATION' in s.columns else None
-    if s['team'] is None or s['team'].isna().all():
-        s['team'] = np.where(s.get('TEAM_SIDE', '') == 'H', s.HTM, s.VTM) if 'TEAM_SIDE' in s.columns else None
+    # The shot chart names the shooter's team only by id (and TEAM_NAME, a full name on stats.nba.com);
+    # HTM / VTM are the game's two codes as they were that season (NJN, SEA ...). A team's code is
+    # the one that is in every one of its games. (Until Nov 11 2026 this read a TEAM_ABBREVIATION
+    # column the NBA's table doesn't have: every shot had no team and the home team as opponent.)
+    code = {}
+    for tid, grp in s.groupby('TEAM_ID'):
+        both = pd.concat([grp.HTM, grp.VTM]).value_counts()
+        code[tid] = both.index[0] if len(both) else None
+    s['team'] = s.TEAM_ID.map(code)
     mins = pd.to_numeric(s.MINUTES_REMAINING, errors='coerce')
     secs = pd.to_numeric(s.SECONDS_REMAINING, errors='coerce')
     per = pd.to_numeric(s.PERIOD, errors='coerce')
@@ -126,11 +142,15 @@ def shots_frame(frames, season, assisted=None):
         'seconds_left': mins * 60 + secs, 'event_id': pd.to_numeric(s.GAME_EVENT_ID).astype(int),
         'made': pd.to_numeric(s.SHOT_MADE_FLAG).astype(int),
         'value': np.where(s.SHOT_TYPE.astype(str).str.startswith('3'), 3, 2),
-        'action': s.ACTION_TYPE, 'zone': s.SHOT_ZONE_BASIC, 'area': s.SHOT_ZONE_AREA, 'range': s.SHOT_ZONE_RANGE,
+        # area and range are the NBA's own; the ESPN-built table of the season in progress has neither
+        'action': s.ACTION_TYPE, 'zone': s.SHOT_ZONE_BASIC, 'area': s.get('SHOT_ZONE_AREA'), 'range': s.get('SHOT_ZONE_RANGE'),
         'distance': pd.to_numeric(s.SHOT_DISTANCE, errors='coerce'), 'x': pd.to_numeric(s.LOC_X, errors='coerce'),
         'y': pd.to_numeric(s.LOC_Y, errors='coerce')})
-    out['home'] = (out.team == s.HTM.values).astype(int)
-    out['opponent'] = np.where(out.home == 1, s.VTM.values, s.HTM.values)
+    out['opponent'] = np.where(out.team.values == s.HTM.values, s.VTM.values, s.HTM.values)
+    home = (out.team.values == s.HTM.values).astype(int)
+    if home_of:
+        home = np.array([home_of.get((g, t), h) for g, t, h in zip(out.game_id, out.team, home)])
+    out['home'] = home
     if assisted is not None:
         out['assisted'] = [assisted.get((g, e)) for g, e in zip(out.game_id, out.event_id)]
     else:
@@ -140,8 +160,16 @@ def shots_frame(frames, season, assisted=None):
     return out[SHOT_COLUMNS]
 
 
-def write_shots(season, frames, assisted=None, out=None, extra=None):
-    df = shots_frame(frames, season, assisted)
+def home_map(gl):
+    """(game_id, team) -> 1 at home, 0 away, from a PlayerGameLogs frame's MATCHUP."""
+    if gl is None or not len(gl):
+        return {}
+    g = gl[['GAME_ID', 'TEAM_ABBREVIATION', 'MATCHUP']].drop_duplicates(['GAME_ID', 'TEAM_ABBREVIATION'])
+    return {(gid(a), b): int(' vs. ' in str(c)) for a, b, c in zip(g.GAME_ID, g.TEAM_ABBREVIATION, g.MATCHUP)}
+
+
+def write_shots(season, frames, assisted=None, out=None, extra=None, home_of=None):
+    df = shots_frame(frames, season, assisted, home_of)
     rows = frame_rows(df, SHOT_COLUMNS)
     through = newest(rows, SHOT_COLUMNS)
     path = os.path.join(out or OUT_HOSTED, 'nba', 'shots', f'{season}.json.gz')
@@ -194,9 +222,10 @@ def fetch_shots(season, log=print):
 
 def build_current(season, out_public=None, out_hosted=None, log=print):
     """The season in progress, inside the cloud refresh (the ESPN shim answers E.call)."""
-    rep = [write_player_games(season, fetch_game_logs(season), out_public)]
+    gl = fetch_game_logs(season)
+    rep = [write_player_games(season, gl, out_hosted)]
     try:
-        rep.append(write_shots(season, fetch_shots(season, log=log), out=out_hosted))
+        rep.append(write_shots(season, fetch_shots(season, log=log), out=out_hosted, home_of=home_map(gl)))
     except Exception as e:  # noqa
         log(f'  data room shots {season}: failed ({repr(e)[:120]})')
     return rep
@@ -209,7 +238,7 @@ if __name__ == '__main__':
         if what == 'player_games':
             r = write_player_games(s, fetch_game_logs(s))
         elif what == 'shots':
-            r = write_shots(s, fetch_shots(s))
+            r = write_shots(s, fetch_shots(s), home_of=home_map(fetch_game_logs(s)))
         else:
             raise SystemExit(f'unknown table {what}')
         print(f"nba {what} {s}: {r['rows']} rows, {r['raw']/1e6:.1f} MB raw, {r['gz']/1e6:.2f} MB gz, through {r['through']}", flush=True)
