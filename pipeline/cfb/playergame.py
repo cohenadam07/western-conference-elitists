@@ -60,6 +60,16 @@ def _credit(k, mask, cols_primary, cols_fallback, stat):
 
 
 def season_tables(y, games, filt):
+    d = prepare_plays(y, games, filt)
+    k = d[d.sc & ~d.garb]
+    return _season_tables(d, k, y, games, filt)
+
+
+def prepare_plays(y, games, filt):
+    """Every play of a season's counted games, with the flags every table below is cut from
+    (scrimmage, success, pass/rush, garbage time, the charted layer). Split out of season_tables
+    (Nov 2026) so the connector's Data Room (pipeline/dataroom/cfb.py) serves the very plays the
+    page counts; nothing about them changed."""
     g = games[(games.season == y) & games.fbs_game & games.final]
     d = pd.read_parquet(WORK / f"plays_{y}.parquet")
     e = pd.read_parquet(WORK / f"epa_{y}.parquet")
@@ -97,7 +107,10 @@ def season_tables(y, games, filt):
     d["cpoe"] = np.where(d.depth_att, d.comp.astype(float) - d.xc.fillna(0), 0.0)
     # 1.1.0: the expansion's per-play columns (expand.py) and the charted layer (charting.py)
     d = expand.charted(expand.enrich(expand.outcome_cols(d, games), y), y)
-    k = d[d.sc & ~d.garb]
+    return d
+
+
+def _season_tables(d, k, y, games, filt):
     out = {}
 
     def agg(frame, key, **named):
@@ -220,7 +233,7 @@ def season_tables(y, games, filt):
                       "ytg": pu[pu.punt_ret.notna()].ytg})], ignore_index=True)
     out = {"qb": qb, "rush": ru, "rec": rc, "team": tm, "dfn": dfn, "kick": kick, "punt": punt, "ret": ret}
     out = pgx.extend(d, k, out, y, filt)
-    gg = g.set_index("game_id")
+    gg = games[(games.season == y) & games.fbs_game & games.final].set_index("game_id")
     for name, t in out.items():
         t["season"] = y
         t["date"] = t.game_id.map(gg.date)

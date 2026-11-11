@@ -37,6 +37,11 @@ seed() {
 publish() {
   git add public/cbb data/cbb-refresh.json
   [ -d public/cbcs ] && git add public/cbcs
+  # The connector's Data Room catalog: this season's row counts and dates for the college tables
+  # savant_data serves straight from public/cbb and public/cbcs. Never fails the run.
+  local S; S=$(python3 -c "import sys;sys.path.insert(0,'$CC');import config;print(config.CURRENT)" 2>/dev/null) \
+    && python3 pipeline/dataroom/catalog.py cbb --current "$S" >/dev/null 2>&1 && git add public/dataroom/catalog.json.gz \
+    || echo "::warning::the Data Room catalog update for college basketball failed"
   git diff --cached --quiet && { echo "nothing changed"; return 0; }
   git commit -q -m "College Basketball Savant: refresh $(date -u +%F)"
   for i in 1 2 3 4; do

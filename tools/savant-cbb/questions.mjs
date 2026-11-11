@@ -33,7 +33,8 @@ before(async () => {
   process.env.SAVANT_API_ORIGIN = `http://127.0.0.1:${server.address().port}`
   const { tools } = await import('../../api/_cbb.js')
   const mcp = new McpServer({ name: 't', version: '0' })
-  for (const t of tools) mcp.registerTool(t.name, t.config, async (a) => { try { const r = await t.run(a); return { content: [{ type: 'text', text: r.text }], structuredContent: r.structured } } catch (e) { return { isError: true, content: [{ type: 'text', text: e.message }] } } })
+  const { tools: dataroomTools } = await import('../../api/_dataroom.js')
+  for (const t of [...tools, ...dataroomTools]) mcp.registerTool(t.name, t.config, async (a) => { try { const r = await t.run(a); return { content: [{ type: 'text', text: r.text }], structuredContent: r.structured } } catch (e) { return { isError: true, content: [{ type: 'text', text: e.message }] } } })
   const [a, b] = InMemoryTransport.createLinkedPair()
   client = new Client({ name: 'c', version: '0' })
   await Promise.all([mcp.connect(a), client.connect(b)])
@@ -97,14 +98,16 @@ test('Q10/Q28: a team profile states the four factors with D1 ranks in its text'
 
 test('Q11/Q19/Q24: game logs and box scores carry opponent names and full dates', async () => {
   const t = teamWith((x) => x.gp >= 25)
-  const pg = await call('cbb_data', { table: 'player_games', team: t.id, season: DONE, columns: ['player', 'date', 'opponent', 'pts'], limit: 5 })
-  assert.ok(pg.s.rows.every((r) => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && r.opponent && !/^\d+$/.test(r.opponent)))
-  const first = pg.s.rows[0].date
-  const later = await call('cbb_data', { table: 'player_games', team: t.id, season: DONE, filters: [{ column: 'date', op: 'gt', value: first }], limit: 500 })
-  assert.ok(later.s.rows.every((r) => r.date > first), 'date filters work on full dates')
-  const games = await call('cbb_data', { table: 'games', team: t.id, season: DONE, limit: 100 })
-  assert.ok(games.s.total >= 25 && games.s.total < 50, 'games honour team')
-  assert.ok(games.s.rows.every((r) => r.home === t.id || r.away === t.id) && games.s.rows[0].home_team)
+  // Nov 2026: savant_data (sport cbb) serves these rows, as arrays in `columns` order
+  const obj = (x) => x.s.rows.map((r) => Object.fromEntries(x.s.columns.map((c, i) => [c, r[i]])))
+  const pg = await call('savant_data', { sport: 'cbb', table: 'player_games', team: t.id, season: DONE, columns: ['player', 'date', 'opponent', 'pts'], limit: 5 })
+  assert.ok(obj(pg).every((r) => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && r.opponent && !/^\d+$/.test(r.opponent)))
+  const first = obj(pg)[0].date
+  const later = await call('savant_data', { sport: 'cbb', table: 'player_games', team: t.id, season: DONE, filters: [{ column: 'date', op: 'gt', value: first }], limit: 500 })
+  assert.ok(obj(later).every((r) => r.date > first), 'date filters work on full dates')
+  const games = await call('savant_data', { sport: 'cbb', table: 'games', team: t.id, season: DONE, limit: 100 })
+  assert.ok(games.s.total_matching >= 25 && games.s.total_matching < 50, 'games honour team')
+  assert.ok(obj(games).every((r) => r.home === t.id || r.away === t.id) && obj(games)[0].home_team)
 })
 
 test('Q6: a profile carries its comps, out of 100', async () => {
@@ -115,7 +118,7 @@ test('Q6: a profile carries its comps, out of 100', async () => {
 })
 
 test('Q16/Q17: the dictionary defines team fields, luck included', async () => {
-  const { s } = await call('cbb_data_dictionary', {})
+  const { s } = await call('savant_dictionary', { sport: 'cbb', table: 'stats' })
   for (const k of ['luck', 'sos', 'drb', 'oefg', 'othree', 'netrank']) assert.ok(s.team_fields[k], k)
 })
 

@@ -1,0 +1,81 @@
+name: Connector freshness
+
+# Every connector tool and every Data Room table against the source it should match
+# (tools/savant-mcp/freshness.mjs, research/data-room/BUILD.md §3), read from the live site and the
+# release assets, the way an assistant gets them:
+#   nba  Basketball Savant's newest game, 1 day      nfl  the last completed game day, by the Tuesday after
+#   cfb  the college football refresh's through, 3   cbb  the college basketball build, 3 days
+#   ufc  the last event, 2 days                       offseasons are exempt and labeled
+#
+# It runs after every sport's refresh and once a day. Each run checks in one light per sport with the
+# Control Room (/control: "Connector freshness — NBA" and so on), red with the lagging tables and tools
+# named. Only the daily run fails the job on lag (GitHub emails the failure, as the 30-hour freshness
+# alarms do); a run after a refresh only sets the lights, so a slate night can't send a dozen emails.
+# The live site takes the bots' data at most every 4 hours (deploy-batch.yml), well inside every
+# tolerance here.
+on:
+  workflow_run:
+    workflows:
+      - Basketball Savant cloud refresh
+      - Football Savant refresh
+      - College Football Savant refresh
+      - College Basketball Savant cloud refresh
+      - UFC Savant refresh
+    types: [completed]
+  schedule:
+    - cron: '47 13 * * *'     # 9:47am ET (8:47 in winter): after the morning rebuilds and their deploy
+  workflow_dispatch:
+
+concurrency:
+  group: connector-freshness
+  cancel-in-progress: true
+
+permissions:
+  id-token: write   # Control Room check-ins prove they come from this repo (no secret needed)
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            data/cfb-refresh.json
+            .github/scripts/control-room.sh
+            tools/savant-mcp/freshness.mjs
+          sparse-checkout-cone-mode: false
+      - name: Every tool and table against its source
+        id: fresh
+        run: |
+          set +e
+          node tools/savant-mcp/freshness.mjs --site https://wcehoops.com --out "$RUNNER_TEMP/fresh.json"
+          echo "rc=$?" >> "$GITHUB_OUTPUT"
+      # One light per sport on /control. Red names what lags; green says how many were checked.
+      - name: Control Room lights
+        if: always()
+        continue-on-error: true
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [ -f "$RUNNER_TEMP/fresh.json" ] || { for s in nba nfl cfb cbb ufc; do bash .github/scripts/control-room.sh "connector-freshness-$s" failure "The freshness check could not run"; done; exit 0; }
+          python3 - "$RUNNER_TEMP/fresh.json" > "$RUNNER_TEMP/lights.txt" <<'PY'
+          import json, sys
+          r = json.load(open(sys.argv[1]))["results"]
+          for s in ("nba", "nfl", "cfb", "cbb", "ufc"):
+              mine = [x for x in r if x["sport"] == s]
+              bad = [x for x in mine if not x["ok"]]
+              off = mine and all((x.get("note") or "").startswith("offseason") for x in mine)
+              if bad:
+                  print(s, "failure", "Behind: " + "; ".join(f"{x['name']} through {x.get('through') or '—'} (reference {x.get('ref')})" for x in bad))
+              else:
+                  print(s, "success", ("Offseason: exempt" if off else f"{len(mine)} tables and tools fresh, through {max((x.get('through') or '') for x in mine) or '—'}"))
+          PY
+          while read -r s state detail; do bash .github/scripts/control-room.sh "connector-freshness-$s" "$state" "$detail"; done < "$RUNNER_TEMP/lights.txt"
+      - name: Fail the daily run on lag (the email)
+        if: github.event_name != 'workflow_run' && steps.fresh.outputs.rc != '0'
+        run: |
+          echo "::error::a connector table or tool lags its source; see the lines above and the Control Room"
+          exit 1

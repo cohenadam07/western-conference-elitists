@@ -359,6 +359,8 @@ export function buildSavantApi({ data, html, valueModel = null }) {
     page: `${SITE}/basketball-savant.html`,
     playerUrl: `${SITE}/basketball-savant.html?p={id}`,
     generated: data.generated || null,
+    // the newest game in the data (the season in progress's last game): what "data as of" says
+    through: (data.current && data.current.through) || null,
     source: data.source || null,
     latestSeason: latest,
     seasons: data.seasons,

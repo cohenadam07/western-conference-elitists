@@ -146,6 +146,10 @@
       "destination": "/savant-api/site/v1/articles/:slug.gz"
     },
     {
+      "source": "/dataroom/:f(.*\\.json)",
+      "destination": "/dataroom/:f.gz"
+    },
+    {
       "source": "/cbcs/:f(.*\\.json)",
       "destination": "/cbcs/:f.gz"
     },
@@ -183,6 +187,23 @@
     }
   ],
   "headers": [
+    {
+      "source": "/dataroom/:f(.*\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
     {
       "source": "/cbcs/:f(.*\\.json)",
       "headers": [
@@ -1005,7 +1026,8 @@
       "maxDuration": 30
     },
     "api/mcp.js": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "includeFiles": "public/dataroom/{catalog,dictionary}.json.gz"
     },
     "api/dynasty.js": {
       "includeFiles": "public/dynasty/players.json"

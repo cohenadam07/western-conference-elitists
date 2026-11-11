@@ -77,6 +77,12 @@ jobs:
             gh issue close "$n" --comment "Every feature of the site is covered again."
           done
 
+      # The analyst exam's self-check on the live address (research/data-room/BUILD.md §4): every
+      # answerable question asked through the connector as an assistant would, its answer held to
+      # the gold computed from the live files. A failure here fails the run (and the light).
+      - name: The analyst exam, self-check on the live connector
+        run: node tools/savant-mcp/exam/exam.mjs check --site https://wcehoops.com --out exam.json
+
       # Tells the WCE Control Room (/wce) how the run went; a failure pushes to Adam's phone.
       - name: Control Room check-in
         if: always()

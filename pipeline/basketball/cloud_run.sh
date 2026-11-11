@@ -39,6 +39,8 @@ run_once() {
 
   local RUN="$RUNNER_TEMP/savant-run"
   rm -rf "$RUN"; mkdir -p "$RUN/out"
+  # the Data Room's NBA tables for the season (cloud_refresh.py writes them, publish.sh uploads them)
+  export DATAROOM_HOSTED="$RUNNER_TEMP/dataroom"; rm -rf "$DATAROOM_HOSTED"
   cp $BB/seed/out/* "$RUN/out/"
   (cd "$RUN" && python3 -W ignore "$GITHUB_WORKSPACE/$BB/cloud_refresh.py" \
       --cache "$GITHUB_WORKSPACE/.espn-cache" --public "$GITHUB_WORKSPACE/public" --tracking "$TR") \
@@ -68,6 +70,10 @@ run_once() {
   else
     echo "::error::coaching refresh skipped: no bcs-bundles branch (run the full build on the Mac and push it)"
   fi
+  # The Data Room: upload this season's player-games and shots if they changed, then the catalog
+  # (the coaching tables' counts too, so this runs after the coaching pass). Never fails the run.
+  bash pipeline/dataroom/publish.sh nba "$(python3 -c "import json;print(json.load(open('public/savant-current.json'))['seasons'][0])")" || true
+  git add public/dataroom/catalog.json.gz 2>/dev/null
   git add public/savant-current.json public/savant-proj.json public/savant-teams-current.json \
           public/lineups public/savant-ext data/savant-refresh.json $BB/seed/espn_ids.json
   # The coaching files. Only after a good coaching pass: a failed one may have written some

@@ -119,7 +119,8 @@ before(async () => {
   const { tools } = await import('../../api/_cbb.js')
   S = tools
   const mcp = new McpServer({ name: 't', version: '0' })
-  for (const t of tools) mcp.registerTool(t.name, t.config, async (a) => { try { const r = await t.run(a); return { content: [{ type: 'text', text: r.text }], structuredContent: r.structured } } catch (e) { return { isError: true, content: [{ type: "text", text: e.message }] } } })
+  const { tools: dataroomTools } = await import('../../api/_dataroom.js')
+  for (const t of [...tools, ...dataroomTools]) mcp.registerTool(t.name, t.config, async (a) => { try { const r = await t.run(a); return { content: [{ type: 'text', text: r.text }], structuredContent: r.structured } } catch (e) { return { isError: true, content: [{ type: "text", text: e.message }] } } })
   const [a, b] = InMemoryTransport.createLinkedPair()
   client = new Client({ name: 'c', version: '0' })
   await Promise.all([mcp.connect(a), client.connect(b)])
@@ -190,7 +191,7 @@ test('names work wherever a tool takes one, the way a person asks', async () => 
   assert.ok(lu.units.length >= 1)
   const man = lu.units[0].players[0]
   assert.ok((await call('cbb_lineups', { team: t.name, season: s, size: 5, with: [man] })).with_without.possessions > 0)
-  assert.equal((await call('cbb_data', { table: 'units', season: s, team: t.name, limit: 2 })).count, 2)
+  assert.equal((await call('savant_data', { sport: 'cbb', table: 'units', season: s, team: t.name, limit: 2 })).rows.length, 2)
   const miss = await client.callTool({ name: 'cbb_get_player_profile', arguments: { player: 'Zzzz Qqqq' } })
   assert.ok(miss.isError || /No men/.test(miss.content[0].text), 'an unknown name says so')
 })
@@ -219,11 +220,12 @@ test('every tool answers', async () => {
   const g = read(`games/${s}.json`).rows[0]
   const gg = await call('cbb_game', { game_id: g[0], season: s })
   assert.equal(gg.game.home_pts, g[4])
-  const dr = await call('cbb_data', { table: 'games', season: s, limit: 5 })
-  assert.equal(dr.count, 5)
-  const dp = await call('cbb_data', { table: 'player_games', season: s, team: t.id, limit: 3 })
-  assert.equal(dp.count, 3)
-  const dd = await call('cbb_data_dictionary')
+  // Nov 2026: the Data Room is the connector's shared savant_data / savant_dictionary (sport cbb)
+  const dr = await call('savant_data', { sport: 'cbb', table: 'games', season: s, limit: 5 })
+  assert.equal(dr.rows.length, 5)
+  const dp = await call('savant_data', { sport: 'cbb', table: 'player_games', season: s, team: t.id, limit: 3 })
+  assert.equal(dp.rows.length, 3)
+  const dd = await call('savant_dictionary', { sport: 'cbb', table: 'stats' })
   assert.equal(dd.stats.length, reg.stats.length)
 })
 

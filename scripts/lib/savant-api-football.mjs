@@ -47,10 +47,10 @@
 // refresh reaches these files by itself. Season files ship gzipped (Deployment Storage: see
 // compress-data.mjs) and are requested as seasons/<year>.json.
 
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import vm from 'node:vm'
-import { gzipSync } from 'node:zlib'
+import { gunzipSync, gzipSync } from 'node:zlib'
 
 export const SITE = 'https://wcehoops.com'
 export const BASE = 'savant-api/football/v1'
@@ -270,7 +270,7 @@ function checkConfig(cfg, page) {
 
 const sorted = (a) => Float64Array.from(a).sort()
 
-export function buildFootballApi({ data, current = null, html }) {
+export function buildFootballApi({ data, current = null, html, through = null }) {
   if (!data || !data.data || typeof data.data !== 'object') throw new Error('football-savant-data.json: expected { data, cfg }')
   const page = readPage(html)
   const merged = mergeData(data, current)
@@ -991,6 +991,8 @@ export function buildFootballApi({ data, current = null, html }) {
     page: `${SITE}/${PAGE}`,
     playerUrl: `${SITE}/${PAGE}#p={id}&s={season}`,
     generated: merged.generated,
+    // the newest game in the data: what "data as of" says (writeFootballApi fills it)
+    through: through || null,
     source: merged.source,
     latestSeason: latest,
     // Set while the latest season is still being played: the page says "through week N".
@@ -1147,6 +1149,24 @@ export function buildFootballApi({ data, current = null, html }) {
 
 const commas = (n) => Number(n).toLocaleString('en-US')
 
+// The newest NFL game in the data: football-savant-current.json's own `through` (build.py writes it
+// since Nov 2026), else the newest game in the Data Room's team-games table for the latest season,
+// which the same refresh builds from the same nflverse files. Shared with the coaching build.
+export function footballThrough(publicDir, current = null) {
+  if (current && current.through) return String(current.through).slice(0, 10)
+  const dir = path.join(publicDir, 'dataroom', 'nfl', 'games')
+  if (!existsSync(dir)) return null
+  const last = readdirSync(dir).filter((f) => /^\d{4}\.json\.gz$/.test(f)).sort().pop()
+  if (!last) return null
+  try {
+    const doc = JSON.parse(gunzipSync(readFileSync(path.join(dir, last))).toString('utf8'))
+    const i = doc.columns.indexOf('date'), t = doc.columns.indexOf('season_type')
+    let best = null
+    for (const r of doc.rows) if (r[t] === 'REG' && r[i] && (!best || r[i] > best)) best = r[i]
+    return best
+  } catch { return null }
+}
+
 export function writeFootballApi({ publicDir, dist }) {
   const dataFile = path.join(publicDir, 'football-savant-data.json')
   const currentFile = path.join(publicDir, 'football-savant-current.json')
@@ -1162,6 +1182,7 @@ export function writeFootballApi({ publicDir, dist }) {
     data: JSON.parse(readFileSync(dataFile, 'utf8')),
     current,
     html: readFileSync(pageFile, 'utf8'),
+    through: footballThrough(publicDir, current),
   })
 
   // Build everything before touching dist, so a failure leaves nothing half-written.

@@ -85,6 +85,11 @@ const cdn = http.createServer((req, res) => {
     const f = path.join(ROOT, 'public', url)
     return existsSync(f) ? json200(res, readFileSync(f)) : html200(res)
   }
+  // The Data Room's catalog, dictionary and small tables (public/dataroom, served gzipped)
+  if (/^\/dataroom\/[\w/.-]+\.json$/.test(url)) {
+    const f = path.join(ROOT, 'public', url)
+    return existsSync(`${f}.gz`) ? json200(res, gunzipSync(readFileSync(`${f}.gz`))) : existsSync(f) ? json200(res, readFileSync(f)) : html200(res)
+  }
   const file = path.join(dist, url)
   if (!file.startsWith(dist)) return html200(res)
   if (existsSync(file) && statSync(file).isFile()) return json200(res, readFileSync(file))
@@ -323,16 +328,17 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   const { tools } = await client.listTools()
   // The whole list, by name. Adding or dropping a tool should be a decision, not a side effect.
   assert.deepEqual(tools.map((t) => t.name).sort(), [
-    'cbb_all_savant_team', 'cbb_coaching_data', 'cbb_coaching_dictionary', 'cbb_coaching_fit', 'cbb_coaching_leaders', 'cbb_coaching_tree', 'cbb_data', 'cbb_data_dictionary', 'cbb_game', 'cbb_get_coach_profile', 'cbb_get_player_profile', 'cbb_leaderboard', 'cbb_lineups', 'cbb_play_context', 'cbb_player_career', 'cbb_player_splits', 'cbb_rotation', 'cbb_schedule',
+    'cbb_all_savant_team', 'cbb_coaching_fit', 'cbb_coaching_leaders', 'cbb_coaching_tree', 'cbb_game', 'cbb_get_coach_profile', 'cbb_get_player_profile', 'cbb_leaderboard', 'cbb_lineups', 'cbb_play_context', 'cbb_player_career', 'cbb_player_splits', 'cbb_rotation', 'cbb_schedule',
     'cbb_search_coaches', 'cbb_search_players', 'cbb_shot_chart', 'cbb_team_profile', 'cbb_team_rankings',
     'cfb_all_savant_team', 'cfb_game', 'cfb_get_player_profile', 'cfb_leaderboard', 'cfb_nfl_comps', 'cfb_player_career', 'cfb_player_splits', 'cfb_playoff_field', 'cfb_search_players', 'cfb_team_profile', 'cfb_team_rankings',
-    'nba_all_savant_team', 'nba_coaching_data', 'nba_coaching_dictionary', 'nba_coaching_leaders', 'nba_coaching_tree',
+    'nba_all_savant_team', 'nba_coaching_leaders', 'nba_coaching_tree',
     'nba_draft_get_prospect_profile', 'nba_draft_search_prospects', 'nba_fantasy_league',
     'nba_fantasy_lock_in', 'nba_fantasy_player', 'nba_fantasy_rankings', 'nba_fantasy_streamers', 'nba_fantasy_trade',
     'nba_get_coach_profile', 'nba_get_player_profile', 'nba_injury_report', 'nba_leaderboard', 'nba_lineups', 'nba_player_career', 'nba_player_splits',
     'nba_schedule', 'nba_search_coaches', 'nba_search_players', 'nba_team_profile', 'nba_team_rankings',
     'nfl_all_savant_team', 'nfl_coaching_leaders', 'nfl_coaching_tree', 'nfl_game', 'nfl_get_coach_profile', 'nfl_get_player_profile', 'nfl_leaderboard', 'nfl_player_career',
     'nfl_player_games', 'nfl_player_splits', 'nfl_search_coaches', 'nfl_search_players', 'nfl_team_profile',
+    'savant_data', 'savant_dictionary',
     'ufc_get_fighter_profile', 'ufc_get_upcoming_cards', 'ufc_leaderboard', 'ufc_matchup', 'ufc_search_fighters',
     'wce_get_article', 'wce_get_big_board', 'wce_get_dynasty_rankings', 'wce_get_news', 'wce_get_trending', 'wce_search_articles', 'wce_whats_new',
   ])
@@ -348,6 +354,8 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   // Coaching Savant tools (Nov 6, 2026: 81,667; approved by Adam with PR #54). 81,753 after cbb_team_profile's head
   // coach and cbb_get_player_profile's coaches who used players like him (Nov 6, 2026). 90,000 for the ten College
   // Football Savant tools (Nov 10, 2026: 89,697; raising the cap for the cfb_ tools approved by Adam that day).
+  // 87,284 after the Data Room went to every sport behind savant_data and savant_dictionary, which
+  // replaced the six per-sport data and dictionary tools (Nov 11, 2026: 89,998 before).
   assert.ok(upfront < 90000, `tool names, descriptions and inputs came to ${upfront} characters`)
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
@@ -983,6 +991,11 @@ test('every tool of every section answers through the endpoint', async () => {
   await ok('ufc_get_fighter_profile', { fighter: 'Islam Makhachev', cohort: 'everyone', group: 'fights' }, /Makhachev/)
   await ok('nba_draft_search_prospects', { year: 2025 }, /Cooper Flagg/)
   await ok('wce_whats_new', {}, /./)
+  // The Data Room (api/_dataroom.js; its own check is tools/dataroom/check.mjs)
+  await ok('savant_dictionary', {}, /nfl \(Football Savant\)/)
+  await ok('savant_dictionary', { sport: 'ufc', table: 'fights' }, /fight_seconds/)
+  const dr = await ok('savant_data', { sport: 'ufc', table: 'fights', season: '2024', filters: [{ column: 'finish', op: 'eq', value: 'KO' }], columns: ['date', 'fighter', 'opponent', 'round'], limit: 5 }, /Data through 2024-/)
+  assert.ok(dr.total_matching > 50 && dr.rows.length === 5 && dr.definitions.round)
 
   // Trending and a fan's league are read live from the site's own endpoints. With those not
   // answering here, each must say so plainly rather than guess.
@@ -996,6 +1009,45 @@ test('every tool of every section answers through the endpoint', async () => {
   const board = await call('wce_get_dynasty_rankings', {})
   assert.ok(board.isError)
   assert.doesNotMatch(textOf(board), /127\.0\.0\.1|ECONNREFUSED|\.js:\d+/)
+})
+
+// No stamp ahead of its data (research/data-room/BUILD.md §3): every tool's "data as of" or "data
+// through" is the date of the newest row it read, never the day the build ran. Until Nov 2026 most
+// Basketball, Football and Coaching Savant answers said `generated` (a 03:55 UTC build on Nov 11
+// said "Data as of 2026-11-11" for games through Nov 10).
+test('no stamp ahead of its data: each tool\'s date is its newest row', async () => {
+  const pub = (f) => JSON.parse(readFileSync(path.join(ROOT, 'public', f), 'utf8'))
+  const nbaThrough = pub('savant-current.json').through
+  const { footballThrough } = await import('../../scripts/lib/savant-api-football.mjs')
+  const nflThrough = footballThrough(path.join(ROOT, 'public'), pub('football-savant-current.json'))
+  const fights = pub('ufc-savant-fights.json')
+  const ufcThrough = Object.values(fights).map((f) => f.date).filter(Boolean).sort().pop()
+  const stamp = (r) => (r.structuredContent || {}).data_as_of || (r.structuredContent || {}).data_through
+  const cases = [
+    ['nba_get_player_profile', { player: 'Nikola Jokic' }, nbaThrough],
+    ['nba_all_savant_team', { season: '2025-26' }, nbaThrough],
+    ['nba_leaderboard', { stat: 'ts', season: '2024-25', top: 3 }, nbaThrough],
+    ['nfl_get_player_profile', { player: 'Patrick Mahomes' }, nflThrough],
+    ['nfl_leaderboard', { position: 'QB', stat: 'epadb', season: '2024', top: 3 }, nflThrough],
+    ['nfl_team_profile', { team: 'Bills', season: '2024' }, nflThrough],
+    ['nfl_player_games', { player: 'Patrick Mahomes', season: '2024' }, nflThrough],
+    ['nfl_coaching_leaders', { limit: 3 }, nflThrough],
+    ['ufc_leaderboard', {}, ufcThrough],
+    ['savant_data', { sport: 'ufc', table: 'fights', limit: 1 }, ufcThrough],
+  ]
+  for (const [name, args, want] of cases) {
+    const r = await call(name, args)
+    assert.ok(!r.isError, `${name}: ${textOf(r).slice(0, 200)}`)
+    assert.ok(want, `${name}: no reference date`)
+    assert.equal(String(stamp(r)).slice(0, 10), want, `${name} says ${stamp(r)}; its newest row is ${want}`)
+  }
+  // The fantasy projections say the newest game they were built on once projections.py writes it
+  // (the cloud refresh after this change); until then they say when they were generated, and that
+  // must not be after the season file's newest game plus the overnight build.
+  const proj = pub('savant-proj.json')
+  const fr = await call('nba_fantasy_rankings', { limit: 1 })
+  if (proj.through) assert.equal(stamp(fr), proj.through)
+  else console.log(`      nba_fantasy_*: savant-proj.json has no through yet (written by the next refresh); stamp ${stamp(fr)}`)
 })
 
 // The homepage shows one worked answer and three questions to try (src/data/connector.js,

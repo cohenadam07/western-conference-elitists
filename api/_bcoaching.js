@@ -15,9 +15,10 @@
 // model's view; that the lineage is suggested from the record and where it was set by hand;
 // where the page is (basketball-coaching-savant.html#c=<id>).
 //
-// The Data Room (nba_coaching_data) hands over rows, not conclusions, so an assistant can run its
-// own splits and regressions: pick a table, a season, filters on any column, the columns wanted,
-// and page through. nba_coaching_dictionary returns the definitions alone, to plan a pull.
+// The Data Room hands over rows, not conclusions, so an assistant can run its own splits and
+// regressions. Since Nov 2026 it is served by the connector's shared savant_data and
+// savant_dictionary (api/_dataroom.js, sport nba, tables coaching_<name>); coachingData and
+// coachingDictionary below are kept as what those are checked against (tools/dataroom/check.mjs).
 //
 // Not a function itself: Vercel skips api files that start with an underscore.
 
@@ -410,14 +411,13 @@ export async function coachingDictionary({ table } = {}) {
   const stats = dict.stats.map((s) => ({ key: s.key, label: s.label, group: s.group, kind: s.kind === 'good' ? 'how good' : 'how much', unit: s.unit, lower_is_better: !!s.lower, settle_point: s.thr, since: s.first, what: s.what, formula: s.formula, source: s.source, sample: s.sample }))
   const tables = table ? { [table]: dict.tables[table] } : dict.tables
   if (table && !dict.tables[table]) throw new SavantError(`No table "${table}". Tables: ${Object.keys(dict.tables).join(', ')}.`)
-  const L = ['Basketball Coaching Savant data dictionary.', '', 'Tables (nba_coaching_data):', ...Object.entries(tables).map(([k, v]) => `- ${k}: ${v}`), '', `Stats on the coach pages (${stats.length}); each with its kind, unit, direction, settle point and first season:`, ...(table ? [] : stats.map((s) => `- ${s.key} (${s.label}; ${s.kind}; ${s.unit}${s.lower_is_better ? '; lower is better' : ''}; from ${s.since}): ${s.what} Formula: ${s.formula}`)), '', `Fits in this build: talent line ${JSON.stringify(idx.meta.fits.talent)}; projection from parts ${JSON.stringify(idx.meta.fits.parts)}.`, idx.meta.model_note, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`]
+  const L = ['Basketball Coaching Savant data dictionary.', '', 'Tables (savant_data, sport nba, table coaching_<name>):', ...Object.entries(tables).map(([k, v]) => `- ${k}: ${v}`), '', `Stats on the coach pages (${stats.length}); each with its kind, unit, direction, settle point and first season:`, ...(table ? [] : stats.map((s) => `- ${s.key} (${s.label}; ${s.kind}; ${s.unit}${s.lower_is_better ? '; lower is better' : ''}; from ${s.since}): ${s.what} Formula: ${s.formula}`)), '', `Fits in this build: talent line ${JSON.stringify(idx.meta.fits.talent)}; projection from parts ${JSON.stringify(idx.meta.fits.parts)}.`, idx.meta.model_note, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`]
   return { structured: { tables, stats: table ? [] : stats, fits: idx.meta.fits, rules: idx.meta.rules, note: idx.meta.model_note, tree_note: idx.tree.note, data_as_of: asOf(idx), source: SOURCE }, text: L.join('\n') }
 }
 
 // ---- the tools -----------------------------------------------------------------------
 const pct = z.number().int().min(1).max(99).nullable()
 const statShape = z.object({ key: z.string(), label: z.string(), group: z.string().optional(), kind: z.string().optional(), value: z.number().nullable(), display: z.string(), percentile: pct.optional(), pool: z.string().optional(), pool_size: z.number().int().nullable().optional(), sample: z.number().nullable().optional(), seasons_covered: z.number().int().optional(), small_sample: z.boolean().optional(), lower_is_better: z.boolean().optional(), since: z.string().optional(), what: z.string().nullable().optional() }).passthrough()
-const filterShape = z.object({ column: z.string(), op: z.enum(['eq', 'ne', 'in', 'gte', 'lte', 'gt', 'lt', 'contains', 'null', 'notnull']), value: z.any().optional() })
 
 export const tools = [
   {
@@ -463,27 +463,5 @@ export const tools = [
       annotations: { title: 'Get the NBA coaching tree', ...READ_ONLY },
     },
     run: ({ coach, depth }) => coachingTree({ coach, depth }),
-  },
-  {
-    name: 'nba_coaching_data',
-    config: {
-      title: 'Pull rows from the Basketball Coaching Savant Data Room',
-      description: 'The Data Room behind Basketball Coaching Savant (wcehoops.com): rows for your own splits and regressions, one file a season. Tables: games (team-game with every context column: opponent strength as of the date, rest, travel, altitude, missing regulars, officials, closing line, win probability, phase; 1996-97 on), stints, units, rotation (player-game on-floor intervals and off-script minutes by cause), decisions (timeouts, challenges, runs, late-game calls, foul trouble). Filter on any column, pick columns, page (500 rows a call). Call nba_coaching_dictionary first.',
-      inputSchema: { table: z.enum(TABLES).describe('Which table.'), season: z.string().regex(/^\d{4}-\d{2}$/).describe('e.g. 2024-25'), filters: z.array(filterShape).max(12).default([]).describe('{column, op, value}; ops eq, ne, in, gte, lte, gt, lt (numbers, and dates as YYYY-MM-DD), contains, null, notnull.'), columns: z.array(z.string()).max(60).optional().describe('Columns to return (default all).'), limit: z.number().int().min(1).max(MAX_ROWS).default(100).describe('Rows per call.'), offset: z.number().int().min(0).default(0).describe('Row to start at.') },
-      outputSchema: { table: z.string(), season: z.string(), columns: z.array(z.string()), rows: z.array(z.array(z.any())), total_matching: z.number().int(), offset: z.number().int(), limit: z.number().int(), next_offset: z.number().int().nullable(), definition: z.string(), legend: z.any().nullable(), data_as_of: z.string(), source: z.string() },
-      annotations: { title: 'Pull rows from the Basketball Coaching Savant Data Room', ...READ_ONLY },
-    },
-    run: (args) => coachingData(args),
-  },
-  {
-    name: 'nba_coaching_dictionary',
-    config: {
-      title: 'Get the Basketball Coaching Savant data dictionary',
-      description: 'Every Data Room column and every coach-page stat defined (what, formula, unit, direction, settle point, source, first season), plus the fits behind the build. Read before nba_coaching_data.',
-      inputSchema: { table: z.enum(TABLES).optional().describe('One table only.') },
-      outputSchema: { tables: z.record(z.string()), stats: z.array(z.object({}).passthrough()), fits: z.object({}).passthrough(), rules: z.object({}).passthrough(), note: z.string(), tree_note: z.string(), data_as_of: z.string(), source: z.string() },
-      annotations: { title: 'Get the Basketball Coaching Savant data dictionary', ...READ_ONLY },
-    },
-    run: ({ table }) => coachingDictionary({ table }),
   },
 ]

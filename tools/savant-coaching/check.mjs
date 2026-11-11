@@ -35,6 +35,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { BASE, SIDES, buildCoachingApi, overlay, superBowl, writeCoachingApi, yearsLabel } from '../../scripts/lib/savant-api-coaching.mjs'
+import { footballThrough } from '../../scripts/lib/savant-api-football.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const PUBLIC = path.join(ROOT, 'public')
@@ -47,7 +48,8 @@ const current = JSON.parse(readFileSync(path.join(PUBLIC, 'coaching-savant-curre
 // Through JSON once, because that is what gets published.
 const plain = (v) => JSON.parse(JSON.stringify(v))
 const build = (d, c) => plain(buildCoachingApi({ data: d, current: c, html }))
-const out = build(data, current)
+// `through` as writeCoachingApi finds it: the newest NFL game in the data (Nov 2026)
+const out = plain(buildCoachingApi({ data, current, html, through: footballThrough(PUBLIC, JSON.parse(readFileSync(path.join(PUBLIC, 'football-savant-current.json'), 'utf8'))) }))
 const meta = out.meta
 const people = out.profiles.people
 

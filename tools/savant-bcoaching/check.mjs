@@ -156,7 +156,8 @@ before(async () => {
   process.env.SAVANT_API_ORIGIN = `http://127.0.0.1:${server.address().port}`
   mod = await import('../../api/_bcoaching.js')
   const srv = new McpServer({ name: 't', version: '0' })
-  for (const t of mod.tools) srv.registerTool(t.name, t.config, async (a) => { try { const { text, structured } = await t.run(a); return { content: [{ type: 'text', text }], structuredContent: structured } } catch (e) { return { isError: true, content: [{ type: 'text', text: e.message }] } } })
+  const { tools: dataroomTools } = await import('../../api/_dataroom.js')
+  for (const t of [...mod.tools, ...dataroomTools]) srv.registerTool(t.name, t.config, async (a) => { try { const { text, structured } = await t.run(a); return { content: [{ type: 'text', text }], structuredContent: structured } } catch (e) { return { isError: true, content: [{ type: 'text', text: e.message }] } } })
   const [a, b] = InMemoryTransport.createLinkedPair()
   await srv.connect(a)
   client = new Client({ name: 'check', version: '0' })
@@ -165,9 +166,11 @@ before(async () => {
 after(async () => { await client?.close(); server?.close() })
 const call = async (name, args) => { const r = await client.callTool({ name, arguments: args }); return { ...r, text: r.content.map((c) => c.text).join('\n') } }
 
-test('the six tools are declared and listed', async () => {
+// Nov 2026: the Data Room and its dictionary moved to the connector's shared savant_data and
+// savant_dictionary (api/_dataroom.js, sport nba, tables coaching_<name>); the calls below use them.
+test('the four tools are declared and listed, with the shared Data Room', async () => {
   const names = (await client.listTools()).tools.map((t) => t.name).sort()
-  assert.deepEqual(names, ['nba_coaching_data', 'nba_coaching_dictionary', 'nba_coaching_leaders', 'nba_coaching_tree', 'nba_get_coach_profile', 'nba_search_coaches'])
+  assert.deepEqual(names, ['nba_coaching_leaders', 'nba_coaching_tree', 'nba_get_coach_profile', 'nba_search_coaches', 'savant_data', 'savant_dictionary'])
 })
 
 test('search finds a coach by last name and by id, and says what it covers when it finds nobody', async () => {
@@ -222,7 +225,7 @@ test('the tree tool gives a coach his line and his branch', async () => {
 
 test('the Data Room pulls rows with filters, columns and paging, and the dictionary defines the tables', async () => {
   const season = readdirSync(path.join(BCS, 'data', 'games')).filter((f) => f.endsWith('.json.gz')).map((f) => f.slice(0, 7)).sort().slice(-2)[0]
-  const r = await call('nba_coaching_data', { table: 'games', season, filters: [{ column: 'type', op: 'eq', value: 'RS' }, { column: 'b2b', op: 'eq', value: true }], columns: ['date', 'team', 'opp', 'w', 'margin', 'rest_days'], limit: 20 })
+  const r = await call('savant_data', { sport: 'nba', table: 'coaching_games', season, filters: [{ column: 'type', op: 'eq', value: 'RS' }, { column: 'b2b', op: 'eq', value: true }], columns: ['date', 'team', 'opp', 'w', 'margin', 'rest_days'], limit: 20 })
   assert.ok(!r.isError, r.text)
   const s = r.structuredContent
   assert.deepEqual(s.columns, ['date', 'team', 'opp', 'w', 'margin', 'rest_days'])
@@ -231,11 +234,11 @@ test('the Data Room pulls rows with filters, columns and paging, and the diction
   const ci = Object.fromEntries(file.columns.map((c, i) => [c, i]))
   const expect = file.rows.filter((row) => row[ci.type] === 'RS' && row[ci.b2b] === true).length
   assert.equal(s.total_matching, expect)
-  const bad = await call('nba_coaching_data', { table: 'games', season, filters: [{ column: 'nope', op: 'eq', value: 1 }] })
+  const bad = await call('savant_data', { sport: 'nba', table: 'coaching_games', season, filters: [{ column: 'nope', op: 'eq', value: 1 }] })
   assert.ok(bad.isError && /No column "nope"/.test(bad.text))
-  const d = await call('nba_coaching_dictionary', {})
+  const d = await call('savant_dictionary', { sport: 'nba', table: 'coaching_stats' })
   assert.ok(!d.isError && d.structuredContent.stats.length === index.stats.length && d.structuredContent.tables.games)
-  for (const t of ['stints', 'units', 'rotation', 'decisions']) { const x = await call('nba_coaching_data', { table: t, season, limit: 3 }); assert.ok(!x.isError && x.structuredContent.rows.length === 3, `${t}: ${x.text}`) }
+  for (const t of ['stints', 'units', 'rotation', 'decisions']) { const x = await call('savant_data', { sport: 'nba', table: `coaching_${t}`, season, limit: 3 }); assert.ok(!x.isError && x.structuredContent.rows.length === 3, `${t}: ${x.text}`) }
 })
 
 // Nov 2026: date >= "2026-10-30" returned the whole season (the range ops ran +v on a date, NaN),
@@ -248,7 +251,7 @@ test('range filters work on dates and numbers, and data_as_of is the newest game
     const dates = [...new Set(file.rows.map((r) => r[ci.date]))].sort()
     const mid = dates[Math.floor(dates.length / 2)]
     const count = (fn) => file.rows.filter(fn).length
-    const pull = async (filters) => { const r = await call('nba_coaching_data', { table: 'games', season, filters, columns: ['date', 'team', 'margin'], limit: 500 }); assert.ok(!r.isError, r.text); return r.structuredContent }
+    const pull = async (filters) => { const r = await call('savant_data', { sport: 'nba', table: 'coaching_games', season, filters, columns: ['date', 'team', 'margin'], limit: 500 }); assert.ok(!r.isError, r.text); return r.structuredContent }
     for (const [op, fn] of [['gte', (d) => d >= mid], ['gt', (d) => d > mid], ['lte', (d) => d <= mid], ['lt', (d) => d < mid]]) {
       const s = await pull([{ column: 'date', op, value: mid }])
       assert.equal(s.total_matching, count((r) => fn(r[ci.date])), `${season} date ${op} ${mid}`)
@@ -269,13 +272,13 @@ test('range filters work on dates and numbers, and data_as_of is the newest game
     const ref = file.rows.find((r) => (r[ci.officials] || []).length)
     if (ref) { const name = ref[ci.officials][0]; assert.equal((await pull([{ column: 'officials', op: 'contains', value: name }])).total_matching, count((r) => JSON.stringify(r[ci.officials] ?? '').toLowerCase().includes(name.toLowerCase()))) }
     // the stamp: the table's newest game, not the day it was read
-    const r = await call('nba_coaching_data', { table: 'games', season, limit: 1 })
+    const r = await call('savant_data', { sport: 'nba', table: 'coaching_games', season, limit: 1 })
     const newest = file.through || dates.at(-1)
-    assert.equal(r.structuredContent.data_as_of, newest)
-    assert.ok(r.text.includes(`Data as of ${newest}.`), r.text.slice(-200))
+    assert.equal(r.structuredContent.data_through, newest)
+    assert.ok(r.text.includes(`Data through ${newest} `), r.text.slice(-200))
   }
   // the other tools: the build's newest game when the index carries it
-  const d = await call('nba_coaching_dictionary', {})
+  const d = await call('savant_dictionary', { sport: 'nba', table: 'coaching_stats' })
   if (index.meta.through) assert.equal(d.structuredContent.data_as_of, index.meta.through.slice(0, 10))
 })
 

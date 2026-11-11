@@ -575,7 +575,15 @@ def build(season=None):
         if d >= today:
             team_sched[h].append([d.isoformat(), a, 1])
             team_sched[a].append([d.isoformat(), h, 0])
+    # the newest game the projections were built on (the connector's "data as of"; `generated` is
+    # when this ran), read off the season file the same refresh just wrote
+    through = None
+    try:
+        through = json.load(open(next(f for f in (os.path.join("out", "current.json"), os.path.join(os.environ.get("SAVANT_PUBLIC", "public"), "savant-current.json")) if os.path.exists(f)))).get("through")
+    except Exception:  # noqa
+        pass
     payload = dict(season=season, generated=dt.datetime.now(dt.timezone.utc).isoformat(), today=today.isoformat(),
+                   **({"through": through} if through else {}),
                    log_cols=[c.lower() for c in LOG_COLS], players=players, sched=dict(team_sched), ww_inv=WW_INV,
                    method="projections.py: Marcel 5/4/3 history, regressed to position with settle-point k, aged; in season blended with this season at the same k. Backtest: out/projections_report.txt")
     s = json.dumps(payload, separators=(",", ":"))

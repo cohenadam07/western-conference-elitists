@@ -653,7 +653,7 @@ export async function coachProfile({ coach, group = 'all', season }) {
     head_coach: null,
     notes,
     url: coachUrl(p.name),
-    data_as_of: day(meta.generated),
+    data_as_of: day(meta.through || meta.generated),
     source: SOURCE,
   }
   const L = [`${p.name}: NFL ${roles.join(' and ')}`]
@@ -758,7 +758,7 @@ export async function coachingLeaders({ board = 'all', limit = 10 } = {}) {
     if (meta.notes.callers) notes.push(`About the play-callers: ${meta.notes.callers}`)
     if (out.some((b) => b.rows.some((r) => r.confirmed === false))) notes.push(`Unconfirmed: ${meta.notes.unconfirmed}`)
   }
-  const structured = { board, limit, boards: out, notes, url: file.page, data_as_of: day(meta.generated), source: SOURCE }
+  const structured = { board, limit, boards: out, notes, url: file.page, data_as_of: day(meta.through || meta.generated), source: SOURCE }
   const text = [...lines, ...notes, ...L, '', `Page: ${file.page}`, `Source: ${SOURCE}. Data as of ${structured.data_as_of}.`]
   return { structured, text: text.join('\n').replace(/\n{3,}/g, '\n\n') }
 }
@@ -792,7 +792,7 @@ export async function coachingTree({ coach, depth = 3 } = {}) {
       no_lineage: sprouts,
       notes,
       url: file.page,
-      data_as_of: day(meta.generated),
+      data_as_of: day(meta.through || meta.generated),
       source: SOURCE,
     }
     const L = [`Coaching Savant's coaching tree: ${trees.reduce((n, t) => n + t[1], 0)} coaches in ${trees.length} trees, biggest first, and ${sprouts.length} head coaches with no recorded lineage.`, caveat, '']
@@ -852,7 +852,7 @@ export async function coachingTree({ coach, depth = 3 } = {}) {
     not_shown: deeper,
     notes,
     url: file.page,
-    data_as_of: day(meta.generated),
+    data_as_of: day(meta.through || meta.generated),
     source: SOURCE,
   }
   const L = [`${name} in Coaching Savant's coaching tree${structured.coach.record ? ` (head coach, ${structured.coach.record})` : me.p ? '' : ' (no head-coaching record since 1999, so no page of his own)'}.`, caveat, '']

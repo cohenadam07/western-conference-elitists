@@ -122,8 +122,8 @@ test('the connector says what the files say', async () => {
   assert.equal(sum(sc.structured.areas.map((a) => a.fga)), sum(d.shots.own.map((b) => b[2])))
   const ro = await run('cbb_rotation', { team: t, season: s })
   assert.equal(ro.structured.players.length, Object.keys(d.rotation).length)
-  const pos = await run('cbb_data', { table: 'possessions', team: t, season: s, filters: [{ column: 'garbage', op: 'eq', value: 0 }], limit: 1, offset: 0 })
-  assert.equal(pos.structured.total, d.poss[0], 'the Data Room rows are the possessions counted')
+  const pos = await (await import('../../api/_dataroom.js')).savantData({ sport: 'cbb', table: 'possessions', team: t, season: s, filters: [{ column: 'garbage', op: 'eq', value: 0 }], limit: 1, offset: 0 })
+  assert.equal(pos.structured.total_matching, d.poss[0], 'the Data Room rows are the possessions counted')
   const pl = Object.entries(d.players).sort((a, b) => b[1].fga - a[1].fga)[0]
   const sp = await run('cbb_player_splits', { player: pl[0], season: s })
   assert.equal(sum(Object.values(sp.structured.context.shot_clock).map((v) => v.fga)), pl[1].fga)
