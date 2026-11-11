@@ -70,6 +70,8 @@ jobs:
       - name: Refresh
         env:
           GH_TOKEN: ${{ github.token }}
+          WCE_DOWNHILL_DEPLOY_KEY: ${{ secrets.WCE_DOWNHILL_DEPLOY_KEY }}
+          SCOUTING_UPLOAD_TOKEN: ${{ secrets.SCOUTING_UPLOAD_TOKEN }}
         run: |
           EV="${{ github.event_name }}"; CRON="${{ github.event.schedule }}"; MODE="${{ github.event.inputs.mode }}"
           if [ "$MODE" = "dry" ]; then exec bash pipeline/college/cloud_run.sh dry

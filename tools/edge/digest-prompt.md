@@ -19,7 +19,7 @@ Then read claude/edge-lab.md and claude/edge-lab-research.md (it may not exist y
 3. Study review.json with Python (read it from the file). What it holds:
 - nights: each night covered, game by game: matchup, status (settled, or decided and still waiting on results), how early it was decided, missing Claude answers, every arm's result (bets, record, units, dollars, average CLV and market move), each base arm's two best and two worst bets, and the Claude forecasters' own notes.
 - portfolios: every arm's portfolio (the three base arms and each experiment), with closes by night.
-- base: the three original arms over the whole test: CLV and its t, market move and its t, spread paid, record, ROI, Brier vs market, "info" (how much of the arm's disagreement with Kalshi a blend should keep, with its t); headToHead is the same on games all three priced.
+- base: the three original arms over the whole test: CLV and its t, market move and its t, spread paid, record, ROI, Brier vs market, "info" (how much of the arm's disagreement with Kalshi a blend should keep, with its t); headToHead is the same on games all three priced. Each arm's "maker" is the resting-order test: the same bets resting at the bid until tip (orders, fills, fillRate, CLV on fills with its t, perOrderClv with its t); null until fills are known.
 - experiments: each experiment's rule, reason, standing and record since it started; armsTried and bar (the CLV t needed over minBets bets to graduate); market (Kalshi's own lean: how far the YES price sat above how often YES hit).
 - breakdown: the last four weeks of bets by arm, side, stat, price and how early decided.
 - runs: the lab's recent job log, including any failures.
@@ -28,7 +28,8 @@ Then read claude/edge-lab.md and claude/edge-lab-research.md (it may not exist y
 - First line: the night in one sentence (how the three portfolios moved, and whether anything changed in the bigger picture).
 - Portfolios: each base arm's value, its change last night, and its change since the start. Then the experiments' portfolios in one or two lines.
 - The real test: for each base arm, CLV and its t, market move and its t, and "knows more than market" with its t, each with a few words on what it means. Say plainly whether anything is beyond noise yet, and how many bets each arm has toward the roughly 300 a first read needs.
-- Experiments: each live experiment's bets so far, CLV t against the bar, and standing; any arm added or retired since the last email and why; the report-card arm against its control (Claude + WCE) when it has data. Kalshi's own lean in one line.
+- Experiments: each live experiment's bets so far, CLV t against the bar, and standing; any arm added or retired since the last email and why; each Claude experiment (the report card, the Opus run) against its control when it has data. Kalshi's own lean in one line.
+- Resting orders: for each base arm and the best NO-side rule arm, fill rate, CLV on fills and CLV per order (with t), against its taker CLV. Say whether resting at the bid beats paying the spread.
 - Last night, game by game: the matchup, how each base arm did in dollars, and the most telling bet or two. Then what Claude's notes say moved it (a sentence per game, in your words, not pasted).
 - Anything that went wrong: missing Claude answers, failed or blocked runs, games still waiting on results.
 - Your read: three to five sentences of honest interpretation. Separate signal from noise; small samples lie. Say what to watch next.

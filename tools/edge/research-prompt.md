@@ -35,7 +35,7 @@ Look for patterns that have a plausible reason behind them: where would Kalshi's
 
 curl -sS -m 120 -X POST -H "x-edge-research: {{TOKEN}}" -H "content-type: application/json" --data-binary @arm.json "https://wcehoops.com/api/analytics/snapshot?job=edge-arm"
 
-arm.json is {"action": "add", "arm": {"name": "...", "hypothesis": "...", "success": "...", "source": "claude_box", "side": "no", "stats": ["reb"], "minEdge": 0.05}} (only the fields you need), or {"action": "retire", "id": "r3", "reason": "..."}. Read each reply: ok:true means done; a refusal's reason is final for this week.
+arm.json is {"action": "add", "arm": {"name": "...", "hypothesis": "...", "success": "...", "source": "claude_box", "side": "no", "stats": ["reb"], "minEdge": 0.05, "minLead": 120}} (only the fields you need; minLead and maxLead are minutes before tip the game was decided), or {"action": "retire", "id": "r3", "reason": "..."}. Read each reply: ok:true means done; a refusal's reason is final for this week.
 
 5. Write the log. Read claude/edge-lab-research.md, add a section headed with today's date (create the doc with a one-line title if it is missing), and write the whole doc back, keeping earlier sections as they are. The section: what you looked at, what you learned (with the numbers), what you added or retired and why, proposals for Adam, and what to check next week.
 

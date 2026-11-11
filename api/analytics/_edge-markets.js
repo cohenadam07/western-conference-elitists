@@ -179,21 +179,33 @@ export async function marketsByTicker(tickers, opts = {}) {
   return out
 }
 
-// The quote standing at tip-off: the last minute candle that ended at or before the tip.
-// Candles only exist for minutes in which something changed, so the window looks back a full
-// day; null means the quote never moved in that day (the caller then keeps the quote it bet
-// at, which is what was still standing).
-export async function quoteAt(series, ticker, atMs, opts = {}) {
+// One market's one-minute candles over the day before `atMs`: the quote at each minute's end
+// and the trades in it (YES dollars). Candles only exist for minutes in which something changed.
+export async function candlesBefore(series, ticker, atMs, opts = {}) {
   const end = Math.floor(atMs / 1000)
   const start = end - 24 * 3600
   const body = await kalshi(`/series/${series}/markets/${encodeURIComponent(ticker)}/candlesticks?start_ts=${start}&end_ts=${end}&period_interval=1`, opts)
-  const cs = (body.candlesticks || []).filter((c) => c.end_period_ts <= end)
-  const c = cs[cs.length - 1]
-  if (!c) return null
-  const bid = num(c.yes_bid?.close_dollars)
-  const ask = num(c.yes_ask?.close_dollars)
-  if (bid == null || ask == null) return null
-  return { bid, ask, at: new Date(c.end_period_ts * 1000).toISOString() }
+  return (body.candlesticks || []).filter((c) => c.end_period_ts <= end).map((c) => ({
+    end: c.end_period_ts * 1000,
+    bid: num(c.yes_bid?.close_dollars), ask: num(c.yes_ask?.close_dollars),
+    lo: num(c.price?.low_dollars), hi: num(c.price?.high_dollars),
+    vol: num(c.volume_fp) ?? num(c.volume) ?? 0,
+  }))
+}
+
+// The quote standing at tip-off, from candles: the last minute candle that ended at or before
+// the tip. Null means the quote never moved in that day (the caller then keeps the quote it bet
+// at, which is what was still standing).
+export function closeFromCandles(cs) {
+  for (let i = cs.length - 1; i >= 0; i--) {
+    const c = cs[i]
+    if (c.bid != null && c.ask != null) return { bid: c.bid, ask: c.ask, at: new Date(c.end).toISOString() }
+  }
+  return null
+}
+
+export async function quoteAt(series, ticker, atMs, opts = {}) {
+  return closeFromCandles(await candlesBefore(series, ticker, atMs, opts))
 }
 
 /* ------------------------------------------------------------------ *
