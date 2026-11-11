@@ -66,6 +66,8 @@ fi
 if [ $ok = 1 ]; then
   python3 pipeline/dataroom/catalog.py "$SPORT" ${ONLY:+--current "$ONLY"} >/dev/null 2>&1 \
     && echo "Data Room: catalog updated for $SPORT" || echo "::warning::Data Room: the $SPORT catalog update failed"
+  # the Parquet copies follow the JSON they copy, never ahead of it (research/analysis/BUILD.md §2)
+  bash pipeline/dataroom/parquet_publish.sh "$SPORT" "$ONLY" || echo "::warning::Parquet: the $SPORT copies were not refreshed"
 else
   echo "::warning::Data Room: $SPORT catalog left as it was (an upload failed)"
 fi

@@ -71,6 +71,11 @@
 // WCE PRO (BETA), FOR KEY HOLDERS ONLY
 //   api/_query.js        savant_query             the assistant's own filters, groups and
 //                                                 summaries over Basketball and Football Savant
+//   api/_analysis.js     savant_sql, savant_analyze  WCE Pro analysis (Nov 2026): read-only SQL and studies over every
+//                                                 Data Room table, on WCE's server (api/_sql.js, api/_analyze.js).
+//                                                 Founder-tier keys only (api/_keys.js tier) until PRO_ANALYSIS_OPEN
+//                                                 opens them to every key; where listed they stand in for savant_data
+//                                                 and savant_dictionary (research/analysis/BUILD.md, ANALYSIS.md)
 // PRO sections are registered only when the address carries a real key (key.state 'valid').
 // The public address, and an address whose key is unknown or could not be checked, list
 // exactly the tools they listed before: nothing a fan uses today moves behind a key. While
@@ -136,11 +141,20 @@ import { tools as footballLists } from './_football-lists.js'
 import { tools as site } from './_site.js'
 import { tools as ufc } from './_ufc.js'
 import { tools as pro } from './_query.js'
+import { tools as analysis, ANALYSIS_TOOLS, REPLACED } from './_analysis.js'
 import { nbaOnly, teamNote, notFoundNote } from './_ambiguous.js'
 
 const SECTIONS = [basketball, basketballLists, fantasy, bcoaching, football, footballLists, footballGames, coaching, ufc, draft, cbb, cbcoaching, cfb, dataroom, site]
 const PRO_SECTIONS = [pro]
 export const PRO_TOOLS = PRO_SECTIONS.flat().map((t) => t.name)
+export { ANALYSIS_TOOLS }
+
+// WCE Pro analysis (savant_sql, savant_analyze): only a key with the founder tier, until one setting
+// opens it to every key holder (PRO_ANALYSIS_OPEN=1 on Vercel, read per request), as the Pro beta is
+// open to every key today. The public address never gets it.
+export const analysisOpen = () => /^(1|true|on|yes)$/i.test(String(process.env.PRO_ANALYSIS_OPEN || ''))
+export const analysisFor = (key) => key.state === 'valid' && (key.tier === 'founder' || analysisOpen())
+const NOT_ANALYSIS = 'savant_sql and savant_analyze are WCE Pro analysis, open only to founder-tier keys for now. Use savant_data (one season of one table, 500 rows a call) instead, or savant_query with a free key for questions over many players.'
 
 const RATE_PER_MINUTE = 300
 const MAX_BODY_BYTES = 64 * 1024
@@ -178,7 +192,7 @@ function keyIn(req) {
   }
 }
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.7.0' }
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.8.0' }
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
@@ -205,7 +219,8 @@ const ABOUT_KEY = {
   unknown: 'The key in this connection\'s address is not one wcehoops.com knows, so it is being served like the public address. If the person asks, a working key is emailed free from https://wcehoops.com/#ai.',
   unchecked: '',
 }
-export const instructionsFor = (state) => [INSTRUCTIONS, ABOUT_KEY[state] || ''].filter(Boolean).join(' ')
+const ABOUT_ANALYSIS = 'This key also opens WCE Pro analysis: savant_sql runs your own read-only SQL over every Data Room table and season on WCE\'s server, and savant_analyze runs a study (compare, regress, stability, trend, distribution) with intervals, clustered errors and a verdict. Reach for them when a question is whole-league or multi-season, or needs an interval or a regression. On this address savant_sql also does what savant_data and savant_dictionary do elsewhere: where a tool says savant_dictionary, call savant_sql with dictionary: {sport, table} (e.g. {sport: "cbb", table: "stats"}); read a table\'s columns that way before writing SQL.'
+export const instructionsFor = (state, { analysis: withAnalysis = false } = {}) => [INSTRUCTIONS, ABOUT_KEY[state] || '', withAnalysis ? ABOUT_ANALYSIS : ''].filter(Boolean).join(' ')
 
 // Run a tool and turn what it returns, or throws, into an MCP result. A SavantError carries
 // a message written for the caller; anything else is a bug and is logged, not leaked.
@@ -222,10 +237,15 @@ async function answer(run) {
 
 // `key` is what checkKey made of the address: { state, id }.
 export function buildServer(key = { state: 'none' }) {
-  const server = new McpServer(SERVER, { instructions: instructionsFor(key.state) })
+  const withAnalysis = analysisFor(key)
+  const server = new McpServer(SERVER, { instructions: instructionsFor(key.state, { analysis: withAnalysis }) })
   const byKey = key.state === 'valid' ? [`k:${key.id}`] : []
   // WCE Pro (beta): only for a real key. Anything else gets the public list, unchanged.
-  const sections = key.state === 'valid' ? [...SECTIONS, ...PRO_SECTIONS] : SECTIONS
+  // With analysis, savant_sql does savant_data's and savant_dictionary's jobs (rows from any table and
+  // season; dictionary: {sport, table}), so they are not listed twice: that keeps the listing under the
+  // 90,000-character cap (tools/analysis/check.mjs).
+  const base = key.state === 'valid' ? [...SECTIONS, ...PRO_SECTIONS] : SECTIONS
+  const sections = withAnalysis ? [...base.map((sec) => sec.filter((t) => !REPLACED.includes(t.name))), analysis] : base
   for (const section of sections) {
     for (const tool of section) {
       server.registerTool(tool.name, tool.config, async (args) => {
@@ -270,6 +290,8 @@ export default async function handler(req, res) {
   cors(res)
   res.setHeader('Cache-Control', 'no-store')
   if (req.method === 'OPTIONS') { res.statusCode = 204; return res.end() }
+  // The analysis engine's speed check (api/_bench.js): fixed queries, preview deployments only.
+  if (req.method === 'GET' && process.env.VERCEL_ENV === 'preview' && /[?&]bench=1/.test(req.url || '')) return (await import('./_bench.js')).bench(req, res)
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST, OPTIONS')
     return send(res, 405, rpcError(-32000, 'This is the Western Conference Elitists MCP server. It answers JSON-RPC over POST; add this URL to an MCP client such as Claude as a custom connector.'))
@@ -306,6 +328,13 @@ export default async function handler(req, res) {
   // An app saying hello: note which family of app it is. Only the family is kept.
   const hellos = messages.filter((m) => m && m.method === 'initialize').map((m) => `c:${clientFamily(m.params?.clientInfo?.name)}`)
   if (hellos.length) await count(hellos)
+
+  // A call to an analysis tool from an address that does not list it: a clear answer, not "not found".
+  const asked = messages.length === 1 ? messages[0] : null
+  if (asked && asked.method === 'tools/call' && ANALYSIS_TOOLS.includes(asked.params?.name) && !analysisFor(key)) {
+    await count([`e:${asked.params.name}`])
+    return send(res, 200, { jsonrpc: '2.0', id: asked.id ?? null, result: { isError: true, content: [{ type: 'text', text: NOT_ANALYSIS }] } })
+  }
 
   const server = buildServer(key)
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true })

@@ -171,6 +171,19 @@ async function main() {
     return onlyType ? newest(doc, onlyType) : newest(doc)
   })
 
+  // The Parquet copies (savant_sql, savant_analyze; pipeline/dataroom/parquet.mjs): each table's season in
+  // progress, judged like its JSON. A copy that lags its JSON is stale the same way.
+  const pq = await load('dataroom/parquet.json').catch(() => null)
+  const parquetTables = async (sport, R, tol) => {
+    for (const [key, v] of Object.entries((pq || {}).tables || {}).filter(([k]) => k.startsWith(`${sport}.`))) {
+      await check(sport, 'table', `savant_sql ${key} (Parquet)`, R.season, R, tol, async () => {
+        const s = v.seasons[R.season] || v.seasons.all     // coaching_programs is one file of every season
+        if (!s) throw new Error(`no ${R.season} Parquet copy`)
+        return s.through ? dayOf(s.through) : R.ref      // a table with no dates (units) carries its build's
+      })
+    }
+  }
+
   const nba = await nbaRef()
   if (want('nba')) {
     const R = nba, tol = TOLERANCE.nba
@@ -188,12 +201,14 @@ async function main() {
     await check('nba', 'tool', 'nba_fantasy_*, nba_injury_report, nba_schedule (savant-proj.json)', R.season, R, tol, async () => { const p = await load('savant-proj.json'); return dayOf(p.through || p.generated) })
     await check('nba', 'tool', 'nba_team_profile, nba_lineups (savant-teams-current.json)', R.season, R, tol, async () => { const t = await load('savant-teams-current.json'); return dayOf(t.through || t.generated) })
     await check('nba', 'tool', 'nba_*_coach*, nba_coaching_* (bcs/index.json)', R.season, R, tol, async () => { const i = await load('bcs/index.json'); return dayOf(i.meta.through || i.meta.generated) })
+    await parquetTables('nba', R, tol)
   }
   if (want('nfl')) {
     const R = await nflRef()
     console.log(`nfl: last completed regular-season game ${R.played}; due through ${R.ref} (the Tuesday after its week has passed)`)
     // The Data Room's games and plays carry the postseason; the comparison is to regular-season days.
     for (const [t] of roomTables('nfl')) await roomTable('nfl', t, R.season, R, 0, 'REG')
+    await parquetTables('nfl', R, 0)
     await check('nfl', 'tool', 'nfl_* players, leaderboards, teams, games (savant-api football meta)', R.season, R, 0, async () => {
       if (SITE) { const m = await load('savant-api/football/v1/meta.json'); return dayOf(m.through || m.generated) }
       const c = await load('football-savant-current.json')
@@ -209,6 +224,7 @@ async function main() {
     const R = await cfbRef(), tol = TOLERANCE.cfb
     console.log(`cfb: the college football refresh's through ${R.ref}`)
     for (const [t] of roomTables('cfb')) await roomTable('cfb', t, R.season, R, tol)
+    await parquetTables('cfb', R, tol)
     await check('cfb', 'tool', 'cfb_* (cfb season file)', R.season, R, tol, async () => dayOf((await load(`cfb/s/${R.season}.json`)).through))
   }
   if (want('cbb')) {
@@ -220,12 +236,14 @@ async function main() {
       await check('cbb', 'table', 'savant_data cbb coaching_games', R.season, R, tol, async () => newest(await load(`cbcs/data/games/${R.season}.json`)))
       await check('cbb', 'tool', 'cbb_* (cbb/index.json)', R.season, R, tol, async () => { const i = await load('cbb/index.json'); const row = i.seasons.find((s) => s.season === R.season); return dayOf(row && row.through) })
       await check('cbb', 'tool', 'cbb_*coach* (cbcs/index.json)', R.season, R, tol, async () => { const i = await load('cbcs/index.json'); return dayOf(i.meta.through || i.meta.generated) })
+      await parquetTables('cbb', R, tol)
     }
   }
   if (want('ufc')) {
     const R = await ufcRef(), tol = TOLERANCE.ufc
     console.log(`ufc: last event ${R.ref}`)
     for (const [t] of roomTables('ufc')) await roomTable('ufc', t, R.season, R, tol)
+    await parquetTables('ufc', R, tol)
     await check('ufc', 'tool', 'ufc_* (ufc-savant-data.json cfg.latest)', R.season, R, tol, async () => dayOf((await load('ufc-savant-data.json')).cfg.latest))
   }
 

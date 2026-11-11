@@ -42,6 +42,8 @@ publish() {
   local S; S=$(python3 -c "import sys;sys.path.insert(0,'$CC');import config;print(config.CURRENT)" 2>/dev/null) \
     && python3 pipeline/dataroom/catalog.py cbb --current "$S" >/dev/null 2>&1 && git add public/dataroom/catalog.json.gz \
     || echo "::warning::the Data Room catalog update for college basketball failed"
+  # and the Parquet copies the analysis tools read (savant_sql, savant_analyze): never fails the run either
+  [ -n "${S:-}" ] && bash pipeline/dataroom/parquet_publish.sh cbb "$S" && git add public/dataroom/parquet.json.gz 2>/dev/null
   git diff --cached --quiet && { echo "nothing changed"; return 0; }
   git commit -q -m "College Basketball Savant: refresh $(date -u +%F)"
   for i in 1 2 3 4; do

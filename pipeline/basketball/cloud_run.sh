@@ -73,7 +73,7 @@ run_once() {
   # The Data Room: upload this season's player-games and shots if they changed, then the catalog
   # (the coaching tables' counts too, so this runs after the coaching pass). Never fails the run.
   bash pipeline/dataroom/publish.sh nba "$(python3 -c "import json;print(json.load(open('public/savant-current.json'))['seasons'][0])")" || true
-  git add public/dataroom/catalog.json.gz 2>/dev/null
+  git add public/dataroom/catalog.json.gz public/dataroom/parquet.json.gz 2>/dev/null
   git add public/savant-current.json public/savant-proj.json public/savant-teams-current.json \
           public/lineups public/savant-ext data/savant-refresh.json $BB/seed/espn_ids.json
   # The coaching files. Only after a good coaching pass: a failed one may have written some

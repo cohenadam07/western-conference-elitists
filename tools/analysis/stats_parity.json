@@ -1,0 +1,170 @@
+[
+ {
+  "case": "compare-nba-b2b-fg",
+  "study": "compare",
+  "rows": 16578,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "compare-nba-home-pts",
+  "study": "compare",
+  "rows": 2460,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "compare-nfl-pass-run-epa",
+  "study": "compare",
+  "rows": 33335,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "compare-nfl-pressure-epa",
+  "study": "compare",
+  "rows": 20693,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "compare-nfl-shotgun-success",
+  "study": "compare",
+  "rows": 33335,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "compare-cfb-garbage-epa",
+  "study": "compare",
+  "rows": 106291,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "compare-ufc-title-ss",
+  "study": "compare",
+  "rows": 11436,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "compare-cbb-home-pts",
+  "study": "compare",
+  "rows": 10050,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "compare-nfl-downs-holm",
+  "study": "compare",
+  "rows": 33652,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "ols-nba-pts-classical",
+  "study": "regress",
+  "rows": 2460,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "ols-nba-pts-cluster-team",
+  "study": "regress",
+  "rows": 2460,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "ols-nba-pts-categorical-home",
+  "study": "regress",
+  "rows": 2460,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "ols-nfl-epa-cluster-game",
+  "study": "regress",
+  "rows": 33335,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "ols-nfl-epa-categorical-down",
+  "study": "regress",
+  "rows": 33986,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "logit-nfl-success",
+  "study": "regress",
+  "rows": 33335,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "logit-nfl-success-cluster",
+  "study": "regress",
+  "rows": 33335,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "logit-nba-made-distance",
+  "study": "regress",
+  "rows": 219527,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "ols-cfb-epa-garbage",
+  "study": "regress",
+  "rows": 102198,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "logit-ufc-win",
+  "study": "regress",
+  "rows": 8880,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "ols-nfl-games-rest",
+  "study": "regress",
+  "rows": 5246,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "ols-collinear-vif",
+  "study": "regress",
+  "rows": 2460,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "trend-nba-corner3",
+  "study": "trend",
+  "rows": 2306166,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "trend-nfl-shotgun",
+  "study": "trend",
+  "rows": 426791,
+  "ok": true,
+  "misses": []
+ },
+ {
+  "case": "distribution-nba-ppg",
+  "study": "distribution",
+  "rows": 292,
+  "ok": true,
+  "misses": []
+ }
+]

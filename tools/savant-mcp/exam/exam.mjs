@@ -14,6 +14,7 @@
 // the same files the check reads. Traps have no gold: the right answer says the data can't answer;
 // where a trap names a proof (a count that must be zero), the check runs it both ways.
 
+import { spawnSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import http from 'node:http'
 import os from 'node:os'
@@ -205,7 +206,11 @@ async function connector() {
   if (SITE) {
     const { StreamableHTTPClientTransport } = await import('@modelcontextprotocol/sdk/client/streamableHttp.js')
     await client.connect(new StreamableHTTPClientTransport(new URL(`${SITE}/api/mcp`)))
-    return { call: (name, a) => client.callTool({ name, arguments: a }), close: () => client.close() }
+    // The analysis questions need a founder-tier key's address (WCE_EXAM_KEY); without one they are skipped.
+    const key = process.env.WCE_EXAM_KEY
+    let founder = null, fc = null
+    if (key) { fc = new Client({ name: 'wce-exam', version: '1' }); await fc.connect(new StreamableHTTPClientTransport(new URL(`${SITE}/mcp/${key}`))); founder = (name, a) => fc.callTool({ name, arguments: a }) }
+    return { call: (name, a) => client.callTool({ name, arguments: a }), founder, whyNoFounder: 'skipped: the analysis questions need a founder-tier key (WCE_EXAM_KEY)', close: async () => { await client.close(); if (fc) await fc.close() } }
   }
   // the site's files as Vercel serves them: dist (the build's savant-api files), then public/, then the
   // release-asset tables from out/dataroom
@@ -213,9 +218,12 @@ async function connector() {
   const dist = mkdtempSync(path.join(os.tmpdir(), 'wce-exam-'))
   writeAll({ publicDir: path.join(ROOT, 'public'), dist, log: () => {} })
   const HOSTED = path.join(ROOT, 'out', 'dataroom')
+  const { serveParquet, hasParquet } = await import('../../analysis/serve.mjs')
+  process.env.SQL_TMP = process.env.SQL_TMP || mkdtempSync(path.join(os.tmpdir(), 'wce-sql-'))
   const server = http.createServer((req, res) => {
     const url = decodeURIComponent(req.url.split('?')[0])
     const send = (b, t = 'application/json') => { res.writeHead(200, { 'content-type': t, connection: 'close' }); res.end(b) }
+    if (serveParquet && serveParquet(req, res, url)) return
     const m = url.match(/^\/assets\/([a-z]+)-([a-z_]+)-([0-9-]+)\.json\.gz$/)
     if (m) { const f = path.join(HOSTED, m[1], m[2], `${m[3]}.json.gz`); if (existsSync(f)) return send(readFileSync(f), 'application/octet-stream'); res.writeHead(404); return res.end() }
     for (const base of [dist, path.join(ROOT, 'public')]) {
@@ -234,11 +242,34 @@ async function connector() {
   const [a, b] = InMemoryTransport.createLinkedPair()
   await srv.connect(a)
   await client.connect(b)
-  return { call: (name, x) => client.callTool({ name, arguments: x }), close: async () => { await client.close(); server.close() } }
+  // a founder-tier address for the analysis questions: the same handler code, the founder's listing
+  const fsrv = buildServer({ state: 'valid', id: 'exam00000000', tier: 'founder' })
+  const fc = new Client({ name: 'wce-exam-founder', version: '1' })
+  const [c2, d2] = InMemoryTransport.createLinkedPair()
+  await fsrv.connect(c2)
+  await fc.connect(d2)
+  const founder = hasParquet() ? (name, x) => fc.callTool({ name, arguments: x }) : null
+  return { call: (name, x) => client.callTool({ name, arguments: x }), founder, whyNoFounder: 'skipped: the Parquet copies are not built on this machine (out/parquet)', close: async () => { await client.close(); await fc.close(); server.close() } }
 }
 
 // ---- gold -----------------------------------------------------------------------------------------
+// The analysis questions (a-01 …, savant_sql and savant_analyze, founder tier): gold from
+// analysis_gold.py, pandas and statsmodels over the JSON tables, never from the tools under test.
+let ANALYSIS_GOLD = null
+function analysisGold() {
+  if (ANALYSIS_GOLD) return ANALYSIS_GOLD
+  const out = path.join(mkdtempSync(path.join(os.tmpdir(), 'wce-gold-')), 'gold.json')
+  const r = spawnSync('python3', [path.join(HERE, 'analysis_gold.py'), '--out', out], { encoding: 'utf8', timeout: 3600000 })
+  if (r.status !== 0) throw new Error(`analysis_gold.py failed: ${(r.stderr || '').slice(-400)}`)
+  ANALYSIS_GOLD = JSON.parse(readFileSync(out, 'utf8'))
+  return ANALYSIS_GOLD
+}
+// What a question reads off a tool's structured answer: a dotted path, or {name: path}.
+const at = (o, p) => String(p).split('.').reduce((x, k) => (x == null ? x : x[/^\d+$/.test(k) ? +k : k]), o)
+const readOff = (sc, spec) => (typeof spec === 'string' ? at(sc, spec) : Object.fromEntries(Object.entries(spec).map(([k, p]) => [k, at(sc, p)])))
+
 async function gold(q, F) {
+  if (q.recipe === 'analysis') return round(analysisGold()[q.id], 6)
   if (q.recipe === 'trap') return null
   if (q.recipe === 'field') return round(await FIELDS[q.field].gold(F), 6)
   return round(await solve(q, goldSource(F), F), 6)
@@ -257,11 +288,11 @@ async function main() {
     for (const q of src.questions) {
       const g = await gold(q, F).catch((e) => ({ error: e.message }))
       const proof = q.recipe === 'trap' ? await trapProof(q, goldSource(F), F).catch((e) => ({ error: e.message })) : undefined
-      const calls = q.recipe === 'field' ? FIELDS[q.field].calls : q.recipe === 'trap' ? [] : planCalls(q)
+      const calls = q.recipe === 'field' ? FIELDS[q.field].calls : q.recipe === 'trap' ? [] : q.recipe === 'analysis' ? [q.call] : planCalls(q)
       out.push({ ...q, gold: g, ...(proof !== undefined && proof !== null ? { proof_value: proof } : {}), calls })
       console.log(`${q.id.padEnd(7)} ${q.recipe === 'trap' ? 'trap' : JSON.stringify(g).slice(0, 110)}`)
     }
-    writeFileSync(path.join(HERE, 'questions.json'), JSON.stringify({ about: 'The analyst exam: 80 questions, each with its gold answer computed from the data files by tools/savant-mcp/exam/exam.mjs (never typed), its tolerance and the tool calls that reach it. Traps have no gold: the right answer says the data cannot answer, and why (reason). Regenerate: node tools/savant-mcp/exam/exam.mjs gold. Take the exam: RUN.md.', generated_from: 'questions.src.json', count: out.length, questions: out }, null, 1) + '\n')
+    writeFileSync(path.join(HERE, 'questions.json'), JSON.stringify({ about: 'The analyst exam: 100 questions (80 for every address, 20 analysis questions for founder-tier addresses, answered with savant_sql and savant_analyze, their gold from analysis_gold.py: pandas and statsmodels over the JSON tables), each with its gold answer computed from the data files by tools/savant-mcp/exam/exam.mjs (never typed), its tolerance and the tool calls that reach it. Traps have no gold: the right answer says the data cannot answer, and why (reason). Regenerate: node tools/savant-mcp/exam/exam.mjs gold. Take the exam: RUN.md.', generated_from: 'questions.src.json', count: out.length, questions: out }, null, 1) + '\n')
     return
   }
   // check
@@ -283,7 +314,13 @@ async function main() {
       }
       const want = q.in_progress ? await gold(q, F) : q.gold
       let got
-      if (q.recipe === 'field') {
+      if (q.recipe === 'analysis') {
+        if (!C.founder) { results.push({ id: q.id, sport: q.sport, kind: 'analysis', ok: true, skipped: true, note: C.whyNoFounder }); continue }
+        calls.push(q.call)
+        const r = await C.founder(q.call.tool, q.call.args)
+        if (r.isError) throw new Error(r.content[0].text)
+        got = round(readOff(r.structuredContent, q.read), 6)
+      } else if (q.recipe === 'field') {
         const f = FIELDS[q.field]
         const rs = []
         for (const c of f.calls) { calls.push(c); const r = await C.call(c.tool, c.args); if (r.isError) throw new Error(r.content[0].text); rs.push(r.structuredContent) }
@@ -295,13 +332,14 @@ async function main() {
       results.push({ id: q.id, sport: q.sport, kind: q.kind, ok: false, error: e.message.slice(0, 300), calls: calls.length })
     }
     const r = results[results.length - 1]
-    console.log(`${r.ok ? 'ok  ' : 'FAIL'}  ${q.id.padEnd(7)} ${r.kind.padEnd(10)} ${r.error ? r.error : r.note || `gold ${JSON.stringify(r.gold).slice(0, 70)}  got ${JSON.stringify(r.got).slice(0, 70)}  (${r.calls} calls, ${r.ms} ms)`}`)
+    console.log(`${r.skipped ? 'skip' : r.ok ? 'ok  ' : 'FAIL'}  ${q.id.padEnd(7)} ${r.kind.padEnd(10)} ${r.error ? r.error : r.note || `gold ${JSON.stringify(r.gold).slice(0, 70)}  got ${JSON.stringify(r.got).slice(0, 70)}  (${r.calls} calls, ${r.ms} ms)`}`)
   }
   await C.close()
-  const answerable = results.filter((r) => r.kind !== 'trap')
+  const answerable = results.filter((r) => r.kind !== 'trap' && !r.skipped)
   const score = answerable.filter((r) => r.ok).length
-  const summary = { where: SITE || 'local files', answerable: answerable.length, answered: score, traps: results.length - answerable.length, traps_proved: results.filter((r) => r.kind === 'trap' && r.ok).length, failed: results.filter((r) => !r.ok).map((r) => r.id) }
-  console.log(`self-check: ${score} of ${answerable.length} answerable questions answered through the connector (${summary.traps} traps, ${summary.traps_proved} with their proof holding)`)
+  const an = results.filter((r) => r.kind === 'analysis')
+  const summary = { where: SITE || 'local files', answerable: answerable.length, answered: score, analysis: { asked: an.filter((r) => !r.skipped).length, answered: an.filter((r) => r.ok && !r.skipped).length, skipped: an.filter((r) => r.skipped).length }, traps: results.filter((r) => r.kind === 'trap').length, traps_proved: results.filter((r) => r.kind === 'trap' && r.ok).length, failed: results.filter((r) => !r.ok).map((r) => r.id) }
+  console.log(`self-check: ${score} of ${answerable.length} answerable questions answered through the connector (${summary.traps} traps, ${summary.traps_proved} with their proof holding; analysis ${summary.analysis.answered} of ${summary.analysis.asked}${summary.analysis.skipped ? `, ${summary.analysis.skipped} skipped` : ''})`)
   if (opt('out', null)) writeFileSync(opt('out'), JSON.stringify({ summary, results }, null, 1))
   if (args.includes('--json')) console.log(JSON.stringify(summary))
   process.exit(summary.failed.length ? 1 : 0)

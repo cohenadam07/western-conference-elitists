@@ -134,7 +134,7 @@ function checkSeason(sport, table, season, seasons) {
 }
 
 // -> { columns, rows, through, definition(s), legend, url, season, row }
-async function readTable(sport, table, season, team) {
+export async function readTable(sport, table, season, team) {
   const cat = await catalog()
   const tables = (cat.sports || {})[sport]
   if (!tables) throw new SavantError(`Pick a sport: ${SPORTS.join(', ')}.`)
