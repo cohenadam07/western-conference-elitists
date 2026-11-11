@@ -571,9 +571,16 @@ export function takeaways(A, mode) {
   if (Math.abs(lo) >= 4 || Math.abs(lw) >= 4) {
     const lead = T.pm; let head, kind;
     if (Math.abs(adj - lead) <= 2.5) { head = lead > 0 ? `The ${lead}-point lead is earned. Shooting luck has about cancelled out.` : 'Shooting luck has about cancelled out.'; kind = 'Big picture'; }
-    else if (adj < lead) { head = adj > 0 && lead > 0 ? `Most of the ${lead}-point lead is real: about ${r0(adj)} without shooting luck.` : lead > 0 ? 'Shooting luck is carrying this lead.' : `Shooting luck is hurting them more than you. Without it you would be down about ${r0(-adj)}.`; kind = "Don't overreact"; }
-    else { head = adj > 0 ? `You are playing better than the score. Without shooting luck you would be up about ${r0(adj)}.` : `You are playing better than the score. Without shooting luck it would be about ${r0(-adj)} the other way.`; kind = "Don't overreact"; }
-    const part = (m, a, luck, who) => `${who} ${m} for ${a} from three, which has ${luck > 0 ? 'helped you by' : 'cost you'} about ${Math.abs(Math.round(luck * 2) / 2)} points`;
+    else if (adj < lead) { const a = Math.round(adj);
+      head = lead <= 0 ? `Shooting luck is hurting them more than you. Without it you would be down about ${-a}.`
+        : a >= lead / 2 ? `Most of the ${lead}-point lead is real: about ${a} without shooting luck.`
+        : a >= 1 ? `Shooting luck is carrying much of this lead. Without it you would be up only about ${a}.`
+        : a === 0 ? 'Shooting luck is carrying this lead. Without it the game would be about even.'
+        : `Shooting luck is carrying this lead. Without it you would be down about ${-a}.`; kind = "Don't overreact"; }
+    // Found live on FDU at ETAM: down 8 with luck worth 8 printed "about 0 the other way". Adjusted can still be a deficit.
+    else { const a = Math.round(adj); head = `You are playing better than the score. ${a >= 1 ? `Without shooting luck you would be up about ${a}.` : a <= -1 ? `Without shooting luck you would be down only about ${-a}.` : 'Without shooting luck it would be about even.'}`; kind = "Don't overreact"; }
+    const part = (m, a, luck, who) => { const v = Math.abs(Math.round(luck * 2) / 2);
+      return v < 1 ? `${who} ${m} for ${a} from three, about what you would expect` : `${who} ${m} for ${a} from three, which has ${luck > 0 ? 'helped you by' : 'cost you'} about ${v} points`; };
     const why = part(T.opp3[0], T.opp3[1], lo, `${OPP} is`) + '. ' + part(T.own3[0], T.own3[1], lw, 'You are') + '. Neither tends to last.';
     out.push({ p: 3, kind, head, why });
   }
