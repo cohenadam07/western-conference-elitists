@@ -1,0 +1,186 @@
+{
+ "test4": {
+  "total shots": {
+   "got": 93,
+   "want": 93,
+   "ok": true
+  },
+  "Oklahoma shots": {
+   "got": 52,
+   "want": 52,
+   "ok": true
+  },
+  "MVSU shots": {
+   "got": 41,
+   "want": 41,
+   "ok": true
+  },
+  "OU at the rim": {
+   "got": "12 of 20",
+   "want": "12 of 20",
+   "ok": true
+  },
+  "OU threes": {
+   "got": "9 of 31",
+   "want": "9 of 31",
+   "ok": true
+  },
+  "MVSU threes": {
+   "got": "2 of 13",
+   "want": "2 of 13",
+   "ok": true
+  },
+  "every shot identical to reference/shots.json (team, x, y, made, assisted, three, rim, time)": {
+   "got": true,
+   "want": true,
+   "ok": true
+  },
+  "dots drawn on the court": {
+   "got": 93,
+   "want": 93,
+   "ok": true
+  },
+  "caption": "Oklahoma shots (52) Whole game so far MVSU shots (41)",
+  "table": "Shot type Oklahoma MVSU At the rim 12 of 20 11 of 16 Other twos 0 of 1 2 of 12 Threes 9 of 31 2 of 13 Makes that were assisted 17 of 21 7 of 15"
+ },
+ "test5": {
+  "2-9:00": {
+   "dom": {
+    "lead": "MVSU has 6 team fouls.",
+    "leadWhy": "Their next foul puts you in the bonus.",
+    "notes": [
+     "Most of the 17-point lead is real: about 14 without shooting luck.",
+     "You are taking far more threes than usual."
+    ],
+    "nowtag": "+17",
+    "run": "Oklahoma 20–3 run",
+    "together": "Together 1:09",
+    "ouFloor": [
+     "Derrion Reid",
+     "Xzayvier Brown",
+     "Dayton Forsythe",
+     "Quincy Wadley",
+     "Gage Mayfield"
+    ],
+    "oppFloor": [
+     "Gabriel Martinez 27 min 0",
+     "Caleb Cameron 24 min 1",
+     "Eli Pippins 19 min 1",
+     "Tory James Jr. 15 min 0",
+     "Tianhao Wu 10 min 2"
+    ],
+    "paper": "On paper, this matchup is about even. Rough read: 7 of the 10 have little college data yet.",
+    "score": "55-38",
+    "fouls": "Oklahoma team fouls 5 MVSU team fouls 6Bonus on next foul Right now Shots and scoring Their key players Spreadsheet"
+   },
+   "lead +17": {
+    "got": "+17",
+    "want": "+17",
+    "ok": true
+   },
+   "run label": {
+    "got": "Oklahoma 20–3 run",
+    "want": "Oklahoma 20–3 run",
+    "ok": true
+   },
+   "current five": {
+    "got": [
+     "Dayton Forsythe",
+     "Derrion Reid",
+     "Gage Mayfield",
+     "Quincy Wadley",
+     "Xzayvier Brown"
+    ],
+    "want": [
+     "Dayton Forsythe",
+     "Derrion Reid",
+     "Gage Mayfield",
+     "Quincy Wadley",
+     "Xzayvier Brown"
+    ],
+    "ok": true
+   },
+   "lead takeaway": {
+    "got": "MVSU has 6 team fouls.",
+    "want": "Go at Tymias Williams. He has 4 fouls.",
+    "ok": false
+   },
+   "together": {
+    "got": "Together 1:09",
+    "want": "Together 1:01",
+    "ok": false
+   },
+   "allMatchMockup": false
+  },
+  "at900": false,
+  "2-9:08": {
+   "dom": {
+    "lead": "Go at Tymias Williams. He has 4 fouls.",
+    "leadWhy": "He is their second most-used player tonight (25 min).",
+    "notes": [
+     "Most of the 17-point lead is real: about 14 without shooting luck.",
+     "You are taking far more threes than usual."
+    ],
+    "nowtag": "+17",
+    "run": "Oklahoma 20–3 run",
+    "together": "Together 1:01",
+    "ouFloor": [
+     "Derrion Reid",
+     "Xzayvier Brown",
+     "Dayton Forsythe",
+     "Quincy Wadley",
+     "Gage Mayfield"
+    ],
+    "oppFloor": [
+     "Gabriel Martinez 27 min 0",
+     "Tymias Williams 25 min 4",
+     "Caleb Cameron 24 min 1",
+     "Eli Pippins 19 min 0",
+     "AJ Abrams 13 min 0"
+    ],
+    "paper": "On paper, this matchup is about even. Rough read: 7 of the 10 have little college data yet.",
+    "score": "55-38",
+    "fouls": "Oklahoma team fouls 5 MVSU team fouls 5 Right now Shots and scoring Their key players Spreadsheet"
+   },
+   "lead +17": {
+    "got": "+17",
+    "want": "+17",
+    "ok": true
+   },
+   "run label": {
+    "got": "Oklahoma 20–3 run",
+    "want": "Oklahoma 20–3 run",
+    "ok": true
+   },
+   "current five": {
+    "got": [
+     "Dayton Forsythe",
+     "Derrion Reid",
+     "Gage Mayfield",
+     "Quincy Wadley",
+     "Xzayvier Brown"
+    ],
+    "want": [
+     "Dayton Forsythe",
+     "Derrion Reid",
+     "Gage Mayfield",
+     "Quincy Wadley",
+     "Xzayvier Brown"
+    ],
+    "ok": true
+   },
+   "lead takeaway": {
+    "got": "Go at Tymias Williams. He has 4 fouls.",
+    "want": "Go at Tymias Williams. He has 4 fouls.",
+    "ok": true
+   },
+   "together": {
+    "got": "Together 1:01",
+    "want": "Together 1:01",
+    "ok": true
+   },
+   "allMatchMockup": true
+  },
+  "at908": true
+ }
+}
