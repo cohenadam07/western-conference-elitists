@@ -185,6 +185,8 @@ async function main() {
   const flag = (n) => { const i = argv.indexOf(n); if (i < 0) return null; const v = argv[i + 1]; argv.splice(i, 2); return v }
   const out = path.resolve(ROOT, flag('--out') || 'out/parquet')
   const all = argv.includes('--all'); if (all) argv.splice(argv.indexOf('--all'), 1)
+  const verify = argv.includes('--verify'); if (verify) argv.splice(argv.indexOf('--verify'), 1)
+  if (verify) return verifyAll(argv, out)
   const [sport, table, ...only] = argv
   if (!sport || !table) { console.error(`usage: parquet.mjs <sport> <table> [season ...] [--all]\ntables: ${Object.keys(SOURCES).join(', ')}`); process.exit(2) }
   const key = `${sport}.${table}`
@@ -244,6 +246,38 @@ async function main() {
   }
   writeManifest(manifest)
   con.closeSync?.()
+  if (bad) process.exitCode = 1
+}
+
+// --verify [sport table]: every season's Parquet file read back and held to its JSON as it is now (the row
+// count, then the checksum of the sorted rows) and to the manifest. Nothing is written.
+async function verifyAll(argv, out) {
+  const manifest = readManifest()
+  const keys = argv.length >= 2 ? [`${argv[0]}.${argv[1]}`] : Object.keys(manifest.tables)
+  const db = await DuckDBInstance.create(':memory:', { threads: '2', memory_limit: '2GB' })
+  const con = await db.connect()
+  let bad = 0, n = 0
+  for (const key of keys) {
+    const [sport, table] = key.split('.')
+    const entry = manifest.tables[key]
+    const src = sourceFor(sport, table)
+    const names = entry.columns.map(([c]) => c)
+    const kinds = entry.own_season ? names.map((c) => Object.fromEntries(entry.columns)[c]) : ['VARCHAR', ...names.map((c) => Object.fromEntries(entry.columns)[c])]
+    let ok = 0
+    for (const s of Object.keys(entry.seasons).sort()) {
+      n++
+      const t = await src.read(s)
+      const ix = names.map((c) => t.columns.indexOf(c))
+      const rows = t.rows.map((r) => { const x = ix.map((i) => (i < 0 ? null : r[i] === undefined ? null : r[i])); return entry.own_season ? x : [s, ...x] })
+      const file = path.join(out, parquetName(sport, table, s)).replace(/'/g, "''")
+      const back = (await con.runAndReadAll(`SELECT * FROM read_parquet('${file}')`)).getRows().map((r) => r.map((v) => (v && typeof v === 'object' && !Array.isArray(v) && typeof v.toString === 'function' ? v.toString() : v)))
+      const a = checksum(kinds, rows), b = checksum(kinds, back)
+      const why = back.length !== rows.length ? `${back.length} Parquet rows, ${rows.length} JSON rows` : a !== b ? 'checksums differ' : a !== entry.seasons[s].sha256 ? 'the JSON has changed since the Parquet was written (rewrite it)' : null
+      if (why) { bad++; console.error(`::warning::${key} ${s}: ${why}`) } else ok++
+    }
+    console.log(`${key}: ${ok} of ${Object.keys(entry.seasons).length} seasons identical`)
+  }
+  console.log(`${n - bad} of ${n} season files identical to their JSON`)
   if (bad) process.exitCode = 1
 }
 

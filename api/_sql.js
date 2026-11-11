@@ -43,7 +43,7 @@ export const LIMITS = {
 const TABLE_FUNCTIONS = new Set(['range', 'generate_series', 'unnest'])
 // Functions refused by name, whatever the engine would make of them: files, URLs, settings, the
 // catalog, SQL-in-a-string, extensions, secrets.
-const DENY = /^(read_|parquet_|glob$|getenv$|current_setting$|duckdb_|pragma_|sniff_csv$|query$|query_table$|iceberg|delta_|which_secret$|load_extension|install_extension|enable_|disable_|checkpoint$|force_checkpoint$|export_|import_|json_execute_serialized_sql$|json_deserialize_sql$|json_serialize_sql$|json_serialize_plan$|setseed$|sql_auto_complete$|ducklake|http_|s3_|gcs_|azure_|postgres_|mysql_|sqlite_|current_database$|current_schemas?$|current_catalog$|pg_|has_.*_privilege$|txid_current$|nextval$|currval$|finalize$|combine$|test_|stats$|icu_|summary$|repeat$|repeat_row$)/i
+const DENY = /^(read_|parquet_|glob$|getenv$|current_setting$|duckdb_|pragma_|sniff_csv$|query$|query_table$|iceberg|delta_|which_secret$|load_extension|install_extension|enable_|disable_|checkpoint$|force_checkpoint$|export_|import_|json_execute_serialized_sql$|json_deserialize_sql$|json_serialize_sql$|json_serialize_plan$|setseed$|sql_auto_complete$|ducklake|http_|s3_|gcs_|azure_|postgres_|mysql_|sqlite_|current_database$|current_schemas?$|current_catalog$|pg_|has_.*_privilege$|txid_current$|nextval$|currval$|finalize$|combine$|test_|stats$|icu_|summary$|repeat$|repeat_row$|version$|platform$|current_user$|session_user$|user$|current_role$)/i
 
 // ---- the manifest: tables, columns, seasons ----------------------------------------------------
 const room = makeLoader('dataroom', { what: 'The Data Room', maxCached: 4, shape: (b) => b && typeof b === 'object' && b.tables })
@@ -92,7 +92,9 @@ async function setup() {
     const [sport, table] = key.split('.')
     const seasons = Object.keys(t.seasons).sort()
     if (!seasons.length) continue
-    const list = seasons.map((s) => parquetUrl(sport, table, s))
+    // Newest first: DuckDB takes a view's columns from the first file's footer, so a question about the
+    // season in progress (the commonest) opens one file, and any other season opens two footers at most.
+    const list = seasons.slice().reverse().map((s) => parquetUrl(sport, table, s))
     urls.push(...list)
     // Every season is written to one stored schema (parquet.mjs), so the first file's columns are every file's.
     // A table that carries its own season column (coaching_programs: one file, every season) is read as it is.
@@ -127,6 +129,9 @@ async function engine() {
   return ready
 }
 export function resetEngine() { current = null }
+// The locked engine itself, for tools/analysis/check.mjs: SQL sent here skips checkSql, to prove the
+// engine's own locks hold without it. Nothing in the connector calls it.
+export const _engineForTests = () => engine()
 
 // One query at a time per copy of the function: it has one CPU, and the profiler writes one file.
 function serial(fn) {

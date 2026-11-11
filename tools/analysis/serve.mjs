@@ -15,27 +15,33 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 export const PARQUET = path.resolve(ROOT, process.env.ANALYSIS_PARQUET || 'out/parquet')
 export const hasParquet = () => existsSync(PARQUET) && existsSync(path.join(PARQUET, 'nba-shots-2024-25.parquet'))
 
-export async function start({ log = null } = {}) {
-  const PUB = path.join(ROOT, 'public')
-  const server = http.createServer((req, res) => {
-    const url = decodeURIComponent(req.url.split('?')[0])
-    if (log) log.push(url)
+// A Parquet release asset, as GitHub's file host serves it (HEAD, Range). true when it answered.
+export function serveParquet(req, res, url) {
     const m = url.match(/^\/assets\/([a-z]+-[a-z_]+-[0-9a-z-]+\.parquet)$/)
-    if (m) {
+    if (!m) return false
+    {
       const f = path.join(PARQUET, m[1])
-      if (!existsSync(f)) { res.writeHead(404); return res.end() }
+      if (!existsSync(f)) { res.writeHead(404); res.end(); return true }
       const size = statSync(f).size
       const range = String(req.headers.range || '').match(/^bytes=(\d+)-(\d*)$/)
-      if (req.method === 'HEAD') { res.writeHead(200, { 'content-length': size, 'accept-ranges': 'bytes', 'content-type': 'application/octet-stream' }); return res.end() }
+      if (req.method === 'HEAD') { res.writeHead(200, { 'content-length': size, 'accept-ranges': 'bytes', 'content-type': 'application/octet-stream' }); res.end(); return true }
       if (range) {
         const a = +range[1], b = Math.min(size - 1, range[2] ? +range[2] : size - 1)
         const buf = Buffer.alloc(b - a + 1)
         const fd = openSync(f, 'r'); readSync(fd, buf, 0, buf.length, a); closeSync(fd)
         res.writeHead(206, { 'content-length': buf.length, 'content-range': `bytes ${a}-${b}/${size}`, 'accept-ranges': 'bytes', 'content-type': 'application/octet-stream' })
-        return res.end(buf)
+        res.end(buf); return true
       }
-      res.writeHead(200, { 'content-length': size, 'accept-ranges': 'bytes' }); return res.end(readFileSync(f))
+      res.writeHead(200, { 'content-length': size, 'accept-ranges': 'bytes' }); res.end(readFileSync(f)); return true
     }
+}
+
+export async function start({ log = null } = {}) {
+  const PUB = path.join(ROOT, 'public')
+  const server = http.createServer((req, res) => {
+    const url = decodeURIComponent(req.url.split('?')[0])
+    if (log) log.push(url)
+    if (serveParquet(req, res, url)) return
     const p = path.join(PUB, url)
     const send = (code, body, type = 'application/json') => { res.writeHead(code, { 'content-type': type }); res.end(body) }
     if (!p.startsWith(PUB)) return send(404, '')
