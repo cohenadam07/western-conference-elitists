@@ -241,6 +241,7 @@ export function repairPlays(g) {
     for (let k = from; k < plays.length; k++) { const q = plays[k]; if (q[2] !== t || q[3] === 'Substitution' || !q[8]?.length) continue; const pid = q[8][0]; if (roster[t].has(pid) && !lineup[t].has(pid) && !exclude.has(pid)) return pid; }
     return null;
   };
+  const recentBench = t => [...roster[t]].filter(x => !lineup[t].has(x) && lastSeen[x] != null).sort((a, b) => lastSeen[b] - lastSeen[a])[0] || null;
   const idlest = (t, keep) => [...lineup[t]].filter(x => !keep.has(x)).sort((a, b) => (lastSeen[a] ?? -1) - (lastSeen[b] ?? -1))[0];
   const synth = (p, t, pid, inOut) => [p[0], p[1], t, 'Substitution', `${pid} subbing ${inOut} (repaired)`, 0, false, false, [pid], null, null, p[11], p[12], null, 'repair'];
   let i = 0;
@@ -260,7 +261,9 @@ export function repairPlays(g) {
       for (const tt of touched) {
         let guard = 0;
         while (lineup[tt].size > 5 && guard++ < 5) { const x = idlest(tt, cameIn); lineup[tt].delete(x); out.push(synth(p, tt, x, 'out')); repairs.push({ period: per, clock: clk, team: tt }); }
-        while (lineup[tt].size < 5 && guard++ < 10) { const x = nextAction(j, tt, new Set()); if (!x) break; lineup[tt].add(x); out.push(synth(p, tt, x, 'in')); repairs.push({ period: per, clock: clk, team: tt }); }
+        // Short-handed: the next bench player credited with an action comes on. Live, that action may not have happened
+        // yet (KC vs FAMU, 1st half 8:20, the feed ended at 7:47), so fall back to the bench player seen most recently.
+        while (lineup[tt].size < 5 && guard++ < 10) { const x = nextAction(j, tt, new Set()) || recentBench(tt); if (!x) break; lineup[tt].add(x); out.push(synth(p, tt, x, 'in')); repairs.push({ period: per, clock: clk, team: tt }); }
       }
       i = j; continue;
     }
@@ -526,7 +529,11 @@ export function analyze(g, team, { prior = [], ratings = null, replay = false, r
   timeline.push([cut, timeline[timeline.length - 1][1]]);
 
   // reconciliation: parsed points vs ESPN's running score
-  const parsed = { OU: 0, OPP: 0 }; for (const p of poss) parsed[side(p.off)] += p.pts;
+  // Points from the play-by-play. With a lineup parse, from its possessions (that also checks the parser); without one,
+  // straight from the scoring plays, so bad substitutions never turn the light red when the points are all there.
+  const parsed = { OU: 0, OPP: 0 };
+  if (res) for (const p of poss) parsed[side(p.off)] += p.pts;
+  else for (const p of plays) if (p[6] && p[2] && p[5]) parsed[side(p[2])] += p[5];
 
   // per-player rows
   const prow = pid => ({ pid, name: names[pid] || pid, min: minutes[pid] || 0, fouls: fouls[pid] || 0, on: !!((usNowKey && usNowKey.split('|').includes(pid)) || (oppNowKey && oppNowKey.split('|').includes(pid))),

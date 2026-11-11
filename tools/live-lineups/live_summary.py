@@ -79,7 +79,7 @@ if __name__ == '__main__':
     out = [summary(l) for l in sys.argv[1:]]
     json.dump(out, open(f'{ROOT}/summary.json', 'w'), indent=1, default=list)
     for s in out:
-        print(f"\n== {s['label']}: {s['refreshes']} refreshes ({s['live_refreshes']} live) over {s['live_span_min']} min, {s['from']} -> {s['to']}; gap median {s['gap_median_s']:.1f}s max {s['gap_max_s']}s")
+        print(f"\n== {s['label']}: {s['refreshes']} refreshes ({s['live_refreshes']} live) over {s['live_span_min']} min, {s['from']} -> {s['to']}; gap median {s['gap_median_s'] and round(s['gap_median_s'], 1)}s max {s['gap_max_s']}s")
         print(f"   lights {s['lights']}; repairs {s['repairs'] or 'none'}; lineups hidden {s['lineups_hidden']}; errors {len(s['errors'])}; Data delayed {len(s['data_delayed'])}")
         for e in s['non_green']: print(f"   non-green at {e['clock']}: {e['n']} refresh(es), {e['secs']}s, worst {e['worst']}: {e['text']}")
         for to in s['timeouts']: print(f"   timeout {to['type']} at {to['at']}: ~{to['secs']}s, {to['refreshes']} refreshes, ESPN clock {to['espn_clock']}, banners {to['banners'] or 'none'}")
