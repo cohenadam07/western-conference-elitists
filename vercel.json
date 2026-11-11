@@ -178,7 +178,7 @@
       "destination": "/bcs/c/:f.gz"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/((?!api/|\\.well-known/).*)",
       "destination": "/spa.html"
     }
   ],
