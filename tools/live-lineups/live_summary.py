@@ -1,8 +1,10 @@
 """Summarise test 6 logs (research/live-lineups-test/live/<label>/refresh-log.jsonl) into numbers for BUILD-REPORT.
 
-usage: python3 tools/live-lineups/live_summary.py fdu-etam kc-famu dart-ualb
+usage: python3 tools/live-lineups/live_summary.py fdu-etam=401919759 kc-famu=401921005 dart-ualb=401920234
+Timeouts come from ESPN's own play list (fetched now): each is matched to the refreshes where ESPN's clock sat at that
+time in that period, so a timeout followed by substitutions at the same clock still counts.
 """
-import json, re, sys
+import json, re, subprocess, sys
 from datetime import datetime
 
 ROOT = 'research/live-lineups-test/live'
@@ -13,7 +15,21 @@ def t(s):
     return datetime.fromisoformat(s.replace('Z', '+00:00')).timestamp()
 
 
-def summary(label):
+UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+
+
+def espn_timeouts(gid):
+    url = f'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/summary?event={gid}'
+    d = json.loads(subprocess.run(['curl', '-s', '-A', UA, url], capture_output=True, check=True).stdout)  # python.org certs fail here
+    out = []
+    for p in d.get('plays', []):
+        ty = p.get('type', {}).get('text', '')
+        if TO.search(ty) and (not out or out[-1][:2] != (p['period']['number'], p['clock']['displayValue'])):
+            out.append((p['period']['number'], p['clock']['displayValue'], ty))
+    return out
+
+
+def summary(label, gid=None):
     rows = [json.loads(l) for l in open(f'{ROOT}/{label}/refresh-log.jsonl')]
     ref = [r for r in rows if r['kind'] == 'refresh']
     live = [r for r in ref if r['espn'].get('state') == 'in']
@@ -37,19 +53,24 @@ def summary(label):
                 if c == 'red': cur['worst'] = 'red'
     if cur is not None:
         cur['secs'] = None; eps.append(cur)
-    # stoppages ESPN marks as timeouts: group consecutive refreshes whose last play is a timeout at the same clock
-    tos, cur = [], None
-    for r in live:
-        e = r['espn']
-        if TO.search(e.get('lastType') or ''):
-            k = (e['lastClock'], e['lastType'])
-            if cur is None or cur['key'] != k:
-                cur = {'key': k, 'first': r['wall'], 'last': r['wall'], 'refreshes': 0, 'banners': set(), 'clocks': set()}
-                tos.append(cur)
-            cur['last'] = r['wall']; cur['refreshes'] += 1; cur['clocks'].add(e.get('clock'))
-            for b in r['page']['banners']: cur['banners'].add(b)
-        else:
-            cur = None
+    # timeouts: refreshes where ESPN's clock sat at a timeout's time in its period
+    tos = []
+    for per, clk, ty in (espn_timeouts(gid) if gid else []):
+        rs = [r for r in live if r['espn'].get('period') == per and r['espn'].get('clock') == clk]
+        if not rs: continue
+        tos.append({'key': (f'{per}-{clk}', ty), 'first': rs[0]['wall'], 'last': rs[-1]['wall'], 'refreshes': len(rs),
+                    'banners': {b for r in rs for b in r['page']['banners']}, 'clocks': {clk},
+                    'lights': sorted({(r['page'].get('recon') or {}).get('cls', '-') for r in rs})})
+    # every long stoppage: ESPN's clock frozen 90+ s (covers TV timeouts ESPN never posts as a play, and halftime)
+    from itertools import groupby
+    stops = []
+    for k, g in groupby(live, key=lambda r: (r['espn'].get('period'), r['espn'].get('clock'), r['espn'].get('detail') == 'Halftime')):
+        g = list(g); secs = t(g[-1]['wall']) - t(g[0]['wall']) + 15
+        if secs >= 90:
+            stops.append({'at': 'Halftime' if k[2] else f'{k[0]}-{k[1]}', 'secs': round(secs), 'refreshes': len(g),
+                          'last_plays': sorted({r['espn'].get('lastType') or '' for r in g}),
+                          'banners': sorted({b for r in g for b in r['page']['banners']}),
+                          'lights': sorted({(r['page'].get('recon') or {}).get('cls', '-') for r in g})})
     # banner changes during timeouts (the 1 s sampler), matched by wall time
     bc = [r for r in rows if r['kind'] == 'banner-change']
     for to in tos:
@@ -69,19 +90,20 @@ def summary(label):
         'gap_median_s': sorted(gaps)[len(gaps) // 2] if gaps else None, 'gap_max_s': round(max(gaps), 1) if gaps else None,
         'lights': lights, 'non_green': eps,
         'timeouts': [{'at': k['key'][0], 'type': k['key'][1], 'secs': round(t(k['last']) - t(k['first'])) + 15, 'refreshes': k['refreshes'],
-                      'espn_clock': sorted(c for c in k['clocks'] if c), 'banners': sorted(k['banners'])} for k in tos],
-        'data_delayed': [(r['wall'], r.get('band') or r.get('espn', {}).get('detail')) for r in delayed],
+                      'espn_clock': sorted(c for c in k['clocks'] if c), 'banners': sorted(k['banners']), 'lights': k['lights']} for k in tos],
+        'stoppages': stops, 'data_delayed': [(r['wall'], r.get('band') or r.get('espn', {}).get('detail')) for r in delayed],
         'repairs': repairs, 'lineups_hidden': hidden, 'errors': [r['text'][:200] for r in errs], 'end': end,
     }
 
 
 if __name__ == '__main__':
-    out = [summary(l) for l in sys.argv[1:]]
+    out = [summary(*a.split('=')) for a in sys.argv[1:]]
     json.dump(out, open(f'{ROOT}/summary.json', 'w'), indent=1, default=list)
     for s in out:
         print(f"\n== {s['label']}: {s['refreshes']} refreshes ({s['live_refreshes']} live) over {s['live_span_min']} min, {s['from']} -> {s['to']}; gap median {s['gap_median_s'] and round(s['gap_median_s'], 1)}s max {s['gap_max_s']}s")
         print(f"   lights {s['lights']}; repairs {s['repairs'] or 'none'}; lineups hidden {s['lineups_hidden']}; errors {len(s['errors'])}; Data delayed {len(s['data_delayed'])}")
         for e in s['non_green']: print(f"   non-green at {e['clock']}: {e['n']} refresh(es), {e['secs']}s, worst {e['worst']}: {e['text']}")
-        for to in s['timeouts']: print(f"   timeout {to['type']} at {to['at']}: ~{to['secs']}s, {to['refreshes']} refreshes, ESPN clock {to['espn_clock']}, banners {to['banners'] or 'none'}")
+        for to in s['timeouts']: print(f"   timeout {to['type']} at {to['at']}: ~{to['secs']}s, {to['refreshes']} refreshes, ESPN clock {to['espn_clock']}, lights {to['lights']}, banners {to['banners'] or 'none'}")
+        for st in s['stoppages']: print(f"   stoppage {st['at']}: ~{st['secs']}s, {st['refreshes']} refreshes, plays {st['last_plays']}, lights {st['lights']}, banners {st['banners'] or 'none'}")
         for d in s['data_delayed']: print(f"   DATA DELAYED {d}")
         for e in s['errors']: print(f"   ERROR {e}")

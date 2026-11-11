@@ -32,9 +32,13 @@ function statusOf(g, A) {
   const N = teamNames(g, TEAM); const s = g.status || {};
   let state = s.state === 'pre' ? 'pre' : s.state === 'post' ? 'final' : 'live';
   if (state === 'live' && (s.name === 'STATUS_HALFTIME' || (s.name === 'STATUS_END_PERIOD' && s.period === 1))) state = 'half';
+  // ESPN's status can say Halftime for a minute or more after 2nd-half plays arrive (FDU at ETAM, Nov 11: 75 s). A real
+  // play after the break means the half has started; the clock is that play's.
+  const lastP = g.plays?.[g.plays.length - 1]; let lagClock = null;
+  if (state === 'half' && lastP && lastP[0] >= 2 && g.plays.some(p => p[0] >= 2 && p[3] !== 'Substitution' && p[3] !== 'End Period')) { state = 'live'; lagClock = lastP[1]; }
   if (g.replayState) state = g.replayState;
   const score = A ? A.score : { OU: Number(g.score[TEAM]) || 0, OPP: Number(g.score[N.opp]) || 0 };
-  let period = A ? A.period : s.period || 1, clock = s.clock || '';
+  let period = A ? A.period : s.period || 1, clock = lagClock || s.clock || '';
   if (g.replayClock != null) clock = g.replayClock;
   const dt = new Date(g.date);
   const when = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', weekday: 'long', month: 'short', day: 'numeric' }).format(dt);
