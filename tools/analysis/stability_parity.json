@@ -5,7 +5,7 @@
   "published": 94,
   "ratio": 1.004,
   "pairs": 3963,
-  "full_season_reliability": 0.585,
+  "full_season_reliability": 0.583,
   "verdict": "skill (a full bar on the Savant pages)",
   "ok": true
  },
@@ -15,7 +15,7 @@
   "published": 150,
   "ratio": 0.997,
   "pairs": 4466,
-  "full_season_reliability": 0.725,
+  "full_season_reliability": 0.724,
   "verdict": "skill (a full bar on the Savant pages)",
   "ok": true
  },
@@ -25,7 +25,7 @@
   "published": 38,
   "ratio": 0.989,
   "pairs": 4351,
-  "full_season_reliability": 0.768,
+  "full_season_reliability": 0.769,
   "verdict": "skill (a full bar on the Savant pages)",
   "ok": true
  },
@@ -115,7 +115,7 @@
   "published": 750,
   "ratio": 1.0,
   "pairs": 4523,
-  "full_season_reliability": 0.826,
+  "full_season_reliability": 0.825,
   "verdict": "skill (a full bar on the Savant pages)",
   "ok": true
  },

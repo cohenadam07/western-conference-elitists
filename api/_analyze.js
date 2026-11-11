@@ -380,19 +380,34 @@ async function stability(args, ctx) {
   const rand = rng(seedOf(JSON.stringify({ s: args.sql, nu, de, minS })))
   // split-half (player_study.split_half): each player-season's games shuffled and dealt alternately into
   // two halves; each half's rate, demeaned within its season; Pearson r; 200 splits averaged.
+  // Each player-season's games as two typed arrays, shuffled in place (Fisher–Yates) on every split and
+  // dealt alternately: the same exact half split as player_study's random-rank parity, without a sort.
+  const nums = qual.map((p) => Float64Array.from(p.games, (g) => g[3]))
+  const dens = qual.map((p) => Float64Array.from(p.games, (g) => g[4]))
+  const seasonIx = new Map()
+  const sIdx = Int32Array.from(qual, (p) => { if (!seasonIx.has(p.season)) seasonIx.set(p.season, seasonIx.size); return seasonIx.get(p.season) })
+  const S = seasonIx.size
+  const maxLen = Math.max(...qual.map((p) => p.games.length))
+  const perm = new Int32Array(maxLen)
+  const A = new Float64Array(qual.length), Bv = new Float64Array(qual.length), ok = new Uint8Array(qual.length)
   const rs = [], nbars = []
   for (let it = 0; it < N_SPLITS; it++) {
-    const a = [], b = [], s = []
     let d0 = 0, d1 = 0
-    for (const p of qual) {
-      const order = p.games.map((g) => [rand(), g]).sort((x, y) => x[0] - y[0])
+    const sumA = new Float64Array(S), sumB = new Float64Array(S), cnt = new Float64Array(S)
+    for (let i = 0; i < qual.length; i++) {
+      const nu = nums[i], de = dens[i], n = nu.length
+      for (let j = 0; j < n; j++) perm[j] = j
+      for (let j = n - 1; j > 0; j--) { const k = (rand() * (j + 1)) | 0; const t = perm[j]; perm[j] = perm[k]; perm[k] = t }
       let n0 = 0, q0 = 0, n1 = 0, q1 = 0
-      order.forEach(([, g], i) => { if (i % 2 === 0) { n0 += g[3]; q0 += g[4] } else { n1 += g[3]; q1 += g[4] } })
+      for (let j = 0; j < n; j++) { const g = perm[j]; if (j % 2 === 0) { n0 += nu[g]; q0 += de[g] } else { n1 += nu[g]; q1 += de[g] } }
       d0 += q0; d1 += q1
-      if (q0 > 0 && q1 > 0) { a.push(n0 / q0); b.push(n1 / q1); s.push(p.season) }
+      ok[i] = q0 > 0 && q1 > 0 ? 1 : 0
+      if (ok[i]) { A[i] = n0 / q0; Bv[i] = n1 / q1; sumA[sIdx[i]] += A[i]; sumB[sIdx[i]] += Bv[i]; cnt[sIdx[i]]++ }
     }
-    const mean = (xs, ss) => { const m = new Map(); xs.forEach((x, i) => { const e = m.get(ss[i]) || [0, 0]; e[0] += x; e[1]++; m.set(ss[i], e) }); return xs.map((x, i) => x - m.get(ss[i])[0] / m.get(ss[i])[1]) }
-    const r = pearson(mean(a, s), mean(b, s))
+    // each half's rate demeaned within its season, then Pearson r
+    const a = [], b = []
+    for (let i = 0; i < qual.length; i++) if (ok[i]) { const k = sIdx[i]; a.push(A[i] - sumA[k] / cnt[k]); b.push(Bv[i] - sumB[k] / cnt[k]) }
+    const r = pearson(a, b)
     if (Number.isFinite(r)) { rs.push(r); nbars.push((d0 / qual.length + d1 / qual.length) / 2) }
   }
   const r = rs.reduce((x, y) => x + y, 0) / rs.length

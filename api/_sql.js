@@ -313,7 +313,7 @@ function failure(err, timedOut, wallMs) {
 // so millions of rows never have to cross into JavaScript. Column names the caller gives are checked
 // against that table and quoted; nothing the caller wrote is ever pasted into the study's SQL.
 let seq = 0
-export async function withObservations(sql, fn, { wallMs = LIMITS.wallMs, budget = LIMITS.scanBytes, maxRows = 3e6 } = {}) {
+export async function withObservations(sql, fn, { wallMs = LIMITS.wallMs, budget = LIMITS.scanBytes, maxRows = 7e6 } = {}) {
   const t0 = Date.now()
   const e = await engine()
   return serial(async () => {
