@@ -218,7 +218,7 @@ async function main() {
       if (!ownSeason) columns = columns.filter((c) => c !== 'season')
       else kinds.season = 'VARCHAR'
     }
-    entry = { columns: columns.map((c) => [c, kinds[c] || null]), own_season: ownSeason, sort: (SORT[key] || DEFAULT_SORT).filter((c) => columns.includes(c)), seasons: all ? {} : (entry?.seasons || {}) }
+    entry = { columns: columns.map((c) => [c, kinds[c] || null]), own_season: ownSeason, ...(src.row ? { analysis_only: true, row: src.row, note: src.note } : {}), sort: (SORT[key] || DEFAULT_SORT).filter((c) => columns.includes(c)), seasons: all ? {} : (entry?.seasons || {}) }
     manifest.tables[key] = entry
   }
   const kinds = Object.fromEntries(entry.columns)

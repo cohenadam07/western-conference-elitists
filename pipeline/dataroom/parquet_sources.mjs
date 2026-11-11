@@ -51,9 +51,35 @@ function start() {
 const catalog = () => JSON.parse(gunzipSync(readFileSync(path.join(PUB, 'dataroom/catalog.json.gz'))).toString('utf8'))
 const PER_TEAM = new Set(['player_games', 'units', 'possessions'])
 
-export const SOURCES = Object.fromEntries(Object.entries(catalog().sports).flatMap(([s, tt]) => Object.keys(tt).map((t) => [`${s}.${t}`, true])))
+// Tables only the analysis engine reads (not in the Data Room catalog, so savant_data and
+// savant_dictionary are unchanged): what a study needs that the Data Room's rows do not carry.
+//   nba.player_seasons   Basketball Savant's own player-seasons: position (Guard / Wing / Big, as the page
+//                        assigns it), the page's qualified flag, team, age, experience and the per-game line.
+//                        It is what lets a stability study take its prior within position, as
+//                        settle_points.py does, and lets SQL use the page's own qualification.
+const readJson = (rel) => JSON.parse(readFileSync(path.join(PUB, rel), 'utf8'))
+export const EXTRA = {
+  'nba.player_seasons': {
+    row: 'player-season (Basketball Savant)',
+    note: "Basketball Savant's player-seasons as the page holds them (public/savant-data.json and savant-current.json): pos is the page's position group (Guard, Wing, Big), qualified the page's flag (20+ games at 15+ minutes), and ppg/rpg/apg/mpg its per-game line. Join to nba.player_games on season and player_id.",
+    seasons: async () => {
+      const d = readJson('savant-data.json'), c = readJson('savant-current.json')
+      return [...new Set([...d.seasons.filter((s) => d.data[s]), ...c.seasons.filter((s) => c.data[s])])].sort()
+    },
+    read: async (season) => {
+      const d = readJson('savant-data.json'), c = readJson('savant-current.json')
+      const src = (c.data[season] || d.data[season])
+      const columns = ['player_id', 'player', 'team', 'pos', 'age', 'exp', 'qualified', 'ppg', 'rpg', 'apg', 'mpg']
+      const rows = (src.players || []).map((p) => [p.id, p.name, p.team ?? null, p.pos ?? null, p.age ?? null, p.exp ?? null, p.qualified === true, p.line?.ppg ?? null, p.line?.rpg ?? null, p.line?.apg ?? null, p.line?.mpg ?? null])
+      return { columns, rows, through: (c.data[season] && c.through) || null }
+    },
+  },
+}
+
+export const SOURCES = { ...Object.fromEntries(Object.entries(catalog().sports).flatMap(([s, tt]) => Object.keys(tt).map((t) => [`${s}.${t}`, true]))), ...Object.fromEntries(Object.keys(EXTRA).map((k) => [k, true])) }
 
 export function sourceFor(sport, table) {
+  if (EXTRA[`${sport}.${table}`]) return EXTRA[`${sport}.${table}`]
   const entry = (catalog().sports[sport] || {})[table]
   if (!entry) throw new Error(`No Data Room table ${sport}.${table}. Tables: ${Object.keys(SOURCES).join(', ')}`)
   const seasons = async () => Object.keys(entry.seasons || {}).sort()

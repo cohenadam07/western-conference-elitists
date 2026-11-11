@@ -79,7 +79,13 @@ function gammaQ(a, x) {
   }
   return Math.exp(-x + a * Math.log(x) - gln) * h
 }
-export const twoSidedP = (t, df) => 2 * Math.min(tCdf(t, df), 1 - tCdf(t, df))
+// Two-sided p from the upper tail itself (no 1 − cdf, which loses everything past ~1e-16).
+export function twoSidedP(t, df) {
+  const a = Math.abs(t)
+  if (!Number.isFinite(a)) return Number.isNaN(a) ? NaN : 0
+  const tail = !Number.isFinite(df) || df > 1e7 ? 0.5 * gammaQ(0.5, (a * a) / 2) : 0.5 * betaInc(df / (df + a * a), df / 2, 0.5)
+  return Math.min(1, 2 * tail)
+}
 export function tQuantile(p, df) {
   // Bisection on tCdf: slow but exact to the precision of tCdf, and called a handful of times.
   let lo = -1e3, hi = 1e3

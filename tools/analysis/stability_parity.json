@@ -1,0 +1,142 @@
+[
+ {
+  "stat": "tp3",
+  "k": 94.4,
+  "published": 94,
+  "ratio": 1.004,
+  "pairs": 3963,
+  "full_season_reliability": 0.585,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "tp2",
+  "k": 149.6,
+  "published": 150,
+  "ratio": 0.997,
+  "pairs": 4466,
+  "full_season_reliability": 0.725,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "ft",
+  "k": 37.6,
+  "published": 38,
+  "ratio": 0.989,
+  "pairs": 4351,
+  "full_season_reliability": 0.768,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "efg",
+  "k": 251.2,
+  "published": 251,
+  "ratio": 1.001,
+  "pairs": 4487,
+  "full_season_reliability": 0.7,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "ts",
+  "k": 281.8,
+  "published": 282,
+  "ratio": 0.999,
+  "pairs": 4486,
+  "full_season_reliability": 0.701,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "tp3r",
+  "k": 10,
+  "published": 9,
+  "ratio": 1.111,
+  "pairs": 4487,
+  "full_season_reliability": 0.989,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "ftr",
+  "k": 63.1,
+  "published": 60,
+  "ratio": 1.052,
+  "pairs": 4487,
+  "full_season_reliability": 0.906,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "pts",
+  "k": 188.4,
+  "published": 188,
+  "ratio": 1.002,
+  "pairs": 4523,
+  "full_season_reliability": 0.96,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "ast75",
+  "k": 199.5,
+  "published": 188,
+  "ratio": 1.061,
+  "pairs": 4523,
+  "full_season_reliability": 0.978,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "tov75",
+  "k": 398.1,
+  "published": 398,
+  "ratio": 1.0,
+  "pairs": 4523,
+  "full_season_reliability": 0.908,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "reb75",
+  "k": 251.2,
+  "published": 224,
+  "ratio": 1.121,
+  "pairs": 4523,
+  "full_season_reliability": 0.979,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "stl",
+  "k": 749.9,
+  "published": 750,
+  "ratio": 1.0,
+  "pairs": 4523,
+  "full_season_reliability": 0.826,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "blk",
+  "k": 354.8,
+  "published": 335,
+  "ratio": 1.059,
+  "pairs": 4523,
+  "full_season_reliability": 0.947,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ },
+ {
+  "stat": "stk75",
+  "k": 473.2,
+  "published": 447,
+  "ratio": 1.059,
+  "pairs": 4523,
+  "full_season_reliability": 0.9,
+  "verdict": "skill (a full bar on the Savant pages)",
+  "ok": true
+ }
+]

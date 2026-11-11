@@ -1,0 +1,226 @@
+[
+ {
+  "check": "nba player_games 2024-25: 3PA, FTA, 2PA, TS% per player vs the Basketball Savant card",
+  "sql": "SELECT player_id, sum(fg3a) AS fg3a, sum(fta) AS fta, sum(fga) - sum(fg3a) AS fg2a, sum(pts) / (2 * (sum(fga) + 0.44 * sum(fta))) AS ts FROM nba.player_games WHERE season = '2024-25' GROUP BY player_id",
+  "compared": 566,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 843
+ },
+ {
+  "check": "nba player_games 2016-17: 3PA, FTA, 2PA, TS% per player vs the Basketball Savant card",
+  "sql": "SELECT player_id, sum(fg3a) AS fg3a, sum(fta) AS fta, sum(fga) - sum(fg3a) AS fg2a, sum(pts) / (2 * (sum(fga) + 0.44 * sum(fta))) AS ts FROM nba.player_games WHERE season = '2016-17' GROUP BY player_id",
+  "compared": 485,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 7
+ },
+ {
+  "check": "nba player_games 2005-06: 3PA, FTA, 2PA, TS% per player vs the Basketball Savant card",
+  "sql": "SELECT player_id, sum(fg3a) AS fg3a, sum(fta) AS fta, sum(fga) - sum(fg3a) AS fg2a, sum(pts) / (2 * (sum(fga) + 0.44 * sum(fta))) AS ts FROM nba.player_games WHERE season = '2005-06' GROUP BY player_id",
+  "compared": 455,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 7
+ },
+ {
+  "check": "nba player_games 1998-99: 3PA, FTA, 2PA, TS% per player vs the Basketball Savant card",
+  "sql": "SELECT player_id, sum(fg3a) AS fg3a, sum(fta) AS fta, sum(fga) - sum(fg3a) AS fg2a, sum(pts) / (2 * (sum(fga) + 0.44 * sum(fta))) AS ts FROM nba.player_games WHERE season = '1998-99' GROUP BY player_id",
+  "compared": 438,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 6
+ },
+ {
+  "check": "nba shots 2024-25: attempts and makes by zone vs the shot-zone bars",
+  "sql": "SELECT player_id, count(*) AS fga, count(*) FILTER (WHERE zone = 'Restricted Area') AS ra_a, sum(made) FILTER (WHERE zone = 'Restricted Area') AS ra_m, count(*) FILTER (WHERE zone = 'In The Paint (Non-RA)') AS pnt_a, sum(made) FILTER (WHERE zone = 'In The Paint (Non-RA)') AS pnt_m, count(*) FILTER (WHERE zone = 'Mid-Range') AS mid_a, sum(made) FILTER (WHERE zone = 'Mid-Range') AS mid_m, count(*) FILTER (WHERE zone LIKE '%Corner 3') AS c3_a, sum(made) FILTER (WHERE zone LIKE '%Corner 3') AS c3_m, count(*) FILTER (WHERE zone = 'Above the Break 3') AS ab3_a, sum(made) FILTER (WHERE zone = 'Above the Break 3') AS ab3_m FROM nba.shots WHERE season = '2024-25' GROUP BY player_id",
+  "compared": 566,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 16
+ },
+ {
+  "check": "nba shots 2019-20: attempts and makes by zone vs the shot-zone bars",
+  "sql": "SELECT player_id, count(*) AS fga, count(*) FILTER (WHERE zone = 'Restricted Area') AS ra_a, sum(made) FILTER (WHERE zone = 'Restricted Area') AS ra_m, count(*) FILTER (WHERE zone = 'In The Paint (Non-RA)') AS pnt_a, sum(made) FILTER (WHERE zone = 'In The Paint (Non-RA)') AS pnt_m, count(*) FILTER (WHERE zone = 'Mid-Range') AS mid_a, sum(made) FILTER (WHERE zone = 'Mid-Range') AS mid_m, count(*) FILTER (WHERE zone LIKE '%Corner 3') AS c3_a, sum(made) FILTER (WHERE zone LIKE '%Corner 3') AS c3_m, count(*) FILTER (WHERE zone = 'Above the Break 3') AS ab3_a, sum(made) FILTER (WHERE zone = 'Above the Break 3') AS ab3_m FROM nba.shots WHERE season = '2019-20' GROUP BY player_id",
+  "compared": 527,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 12
+ },
+ {
+  "check": "nba shots 2013-14: attempts and makes by zone vs the shot-zone bars",
+  "sql": "SELECT player_id, count(*) AS fga, count(*) FILTER (WHERE zone = 'Restricted Area') AS ra_a, sum(made) FILTER (WHERE zone = 'Restricted Area') AS ra_m, count(*) FILTER (WHERE zone = 'In The Paint (Non-RA)') AS pnt_a, sum(made) FILTER (WHERE zone = 'In The Paint (Non-RA)') AS pnt_m, count(*) FILTER (WHERE zone = 'Mid-Range') AS mid_a, sum(made) FILTER (WHERE zone = 'Mid-Range') AS mid_m, count(*) FILTER (WHERE zone LIKE '%Corner 3') AS c3_a, sum(made) FILTER (WHERE zone LIKE '%Corner 3') AS c3_m, count(*) FILTER (WHERE zone = 'Above the Break 3') AS ab3_a, sum(made) FILTER (WHERE zone = 'Above the Break 3') AS ab3_m FROM nba.shots WHERE season = '2013-14' GROUP BY player_id",
+  "compared": 480,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 13
+ },
+ {
+  "check": "nba shots 2024-25: attempts inside the heat map window per player vs public/shots",
+  "sql": "SELECT player_id, count(*) FILTER (WHERE y BETWEEN -52 AND 418) AS n FROM nba.shots WHERE season = '2024-25' GROUP BY player_id",
+  "compared": 415,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 8
+ },
+ {
+  "check": "nba leaderboard 2024-25: the ten most three-point attempts vs the card",
+  "sql": "SELECT player_id, sum(fg3a) AS fg3a FROM nba.player_games WHERE season = '2024-25' GROUP BY player_id ORDER BY fg3a DESC, player_id LIMIT 10",
+  "compared": 10,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 5
+ },
+ {
+  "check": "nfl plays 2025: dropbacks, EPA per dropback, EPA per carry per player vs Football Savant",
+  "sql": "SELECT pid, sum(db) AS db, sum(dbe) AS dbe, sum(car) AS car, sum(care) AS care FROM ( SELECT coalesce(passer_id, rusher_id) AS pid, 1 AS db, coalesce(qb_epa, 0) AS dbe, 0 AS car, 0.0 AS care FROM nfl.plays WHERE season = '2025' AND season_type = 'REG' AND coalesce(two_point, 0) = 0 AND qb_dropback = 1 AND coalesce(kneel, 0) = 0 AND coalesce(spike, 0) = 0 AND coalesce(passer_id, rusher_id) IS NOT NULL UNION ALL SELECT rusher_id, 0, 0.0, 1, coalesce(epa, 0) FROM nfl.plays WHERE season = '2025' AND season_type = 'REG' AND coalesce(two_point, 0) = 0 AND play_type = 'run' AND coalesce(kneel, 0) = 0 AND rusher_id IS NOT NULL ) GROUP BY pid",
+  "compared": 305,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 21
+ },
+ {
+  "check": "nfl plays 2018: dropbacks, EPA per dropback, EPA per carry per player vs Football Savant",
+  "sql": "SELECT pid, sum(db) AS db, sum(dbe) AS dbe, sum(car) AS car, sum(care) AS care FROM ( SELECT coalesce(passer_id, rusher_id) AS pid, 1 AS db, coalesce(qb_epa, 0) AS dbe, 0 AS car, 0.0 AS care FROM nfl.plays WHERE season = '2018' AND season_type = 'REG' AND coalesce(two_point, 0) = 0 AND qb_dropback = 1 AND coalesce(kneel, 0) = 0 AND coalesce(spike, 0) = 0 AND coalesce(passer_id, rusher_id) IS NOT NULL UNION ALL SELECT rusher_id, 0, 0.0, 1, coalesce(epa, 0) FROM nfl.plays WHERE season = '2018' AND season_type = 'REG' AND coalesce(two_point, 0) = 0 AND play_type = 'run' AND coalesce(kneel, 0) = 0 AND rusher_id IS NOT NULL ) GROUP BY pid",
+  "compared": 316,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 15
+ },
+ {
+  "check": "nfl plays 2010: dropbacks, EPA per dropback, EPA per carry per player vs Football Savant",
+  "sql": "SELECT pid, sum(db) AS db, sum(dbe) AS dbe, sum(car) AS car, sum(care) AS care FROM ( SELECT coalesce(passer_id, rusher_id) AS pid, 1 AS db, coalesce(qb_epa, 0) AS dbe, 0 AS car, 0.0 AS care FROM nfl.plays WHERE season = '2010' AND season_type = 'REG' AND coalesce(two_point, 0) = 0 AND qb_dropback = 1 AND coalesce(kneel, 0) = 0 AND coalesce(spike, 0) = 0 AND coalesce(passer_id, rusher_id) IS NOT NULL UNION ALL SELECT rusher_id, 0, 0.0, 1, coalesce(epa, 0) FROM nfl.plays WHERE season = '2010' AND season_type = 'REG' AND coalesce(two_point, 0) = 0 AND play_type = 'run' AND coalesce(kneel, 0) = 0 AND rusher_id IS NOT NULL ) GROUP BY pid",
+  "compared": 307,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 14
+ },
+ {
+  "check": "nfl plays 2001: dropbacks, EPA per dropback, EPA per carry per player vs Football Savant",
+  "sql": "SELECT pid, sum(db) AS db, sum(dbe) AS dbe, sum(car) AS car, sum(care) AS care FROM ( SELECT coalesce(passer_id, rusher_id) AS pid, 1 AS db, coalesce(qb_epa, 0) AS dbe, 0 AS car, 0.0 AS care FROM nfl.plays WHERE season = '2001' AND season_type = 'REG' AND coalesce(two_point, 0) = 0 AND qb_dropback = 1 AND coalesce(kneel, 0) = 0 AND coalesce(spike, 0) = 0 AND coalesce(passer_id, rusher_id) IS NOT NULL UNION ALL SELECT rusher_id, 0, 0.0, 1, coalesce(epa, 0) FROM nfl.plays WHERE season = '2001' AND season_type = 'REG' AND coalesce(two_point, 0) = 0 AND play_type = 'run' AND coalesce(kneel, 0) = 0 AND rusher_id IS NOT NULL ) GROUP BY pid",
+  "compared": 283,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 13
+ },
+ {
+  "check": "nfl games 2024: team plays, EPA, dropbacks, runs, sacks both ways vs the team table",
+  "sql": "SELECT team, sum(plays), sum(epa), sum(dropbacks), sum(pass_epa), sum(runs), sum(rush_epa), sum(sacks), sum(d_plays), sum(d_epa), sum(d_dropbacks), sum(d_runs) FROM nfl.games WHERE season = '2024' AND season_type = 'REG' AND plays IS NOT NULL GROUP BY team",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 7
+ },
+ {
+  "check": "nfl games 2012: team plays, EPA, dropbacks, runs, sacks both ways vs the team table",
+  "sql": "SELECT team, sum(plays), sum(epa), sum(dropbacks), sum(pass_epa), sum(runs), sum(rush_epa), sum(sacks), sum(d_plays), sum(d_epa), sum(d_dropbacks), sum(d_runs) FROM nfl.games WHERE season = '2012' AND season_type = 'REG' AND plays IS NOT NULL GROUP BY team",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 6
+ },
+ {
+  "check": "nfl player_games 2025: pass attempts, targets, receptions per player vs the season card",
+  "sql": "SELECT player_id, sum(attempts), sum(targets), sum(receptions) FROM nfl.player_games WHERE season = '2025' GROUP BY player_id",
+  "compared": 573,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 16
+ },
+ {
+  "check": "nfl player_games 2016: pass attempts, targets, receptions per player vs the season card",
+  "sql": "SELECT player_id, sum(attempts), sum(targets), sum(receptions) FROM nfl.player_games WHERE season = '2016' GROUP BY player_id",
+  "compared": 563,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 15
+ },
+ {
+  "check": "nfl leaderboard 2024: the ten best EPA per dropback (200+ dropbacks) vs Football Savant",
+  "sql": "SELECT coalesce(passer_id, rusher_id) AS pid, avg(coalesce(qb_epa, 0)) AS epadb FROM nfl.plays WHERE season = '2024' AND season_type = 'REG' AND coalesce(two_point, 0) = 0 AND qb_dropback = 1 AND coalesce(kneel, 0) = 0 AND coalesce(spike, 0) = 0 GROUP BY 1 HAVING count(*) >= 200 ORDER BY epadb DESC LIMIT 10",
+  "compared": 10,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 11
+ },
+ {
+  "check": "cfb plays 2025: dropbacks (with and without garbage time), EPA per dropback, rushes, EPA per rush vs the season file",
+  "sql": "SELECT pid, sum(db), sum(dba), sum(dbe), sum(ru), sum(rue) FROM ( SELECT passer_id AS pid, CASE WHEN NOT coalesce(garbage, false) THEN 1 ELSE 0 END AS db, 1 AS dba, CASE WHEN NOT coalesce(garbage, false) THEN coalesce(epa, 0) ELSE 0 END AS dbe, 0 AS ru, 0.0 AS rue FROM cfb.plays WHERE season = '2025' AND scrimmage AND pass AND passer_id IS NOT NULL UNION ALL SELECT rusher_id, 0, 0, 0.0, 1, coalesce(epa, 0) FROM cfb.plays WHERE season = '2025' AND scrimmage AND rush AND rusher_id IS NOT NULL AND NOT coalesce(garbage, false) ) GROUP BY pid",
+  "compared": 929,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 18
+ },
+ {
+  "check": "cfb plays 2019: dropbacks (with and without garbage time), EPA per dropback, rushes, EPA per rush vs the season file",
+  "sql": "SELECT pid, sum(db), sum(dba), sum(dbe), sum(ru), sum(rue) FROM ( SELECT passer_id AS pid, CASE WHEN NOT coalesce(garbage, false) THEN 1 ELSE 0 END AS db, 1 AS dba, CASE WHEN NOT coalesce(garbage, false) THEN coalesce(epa, 0) ELSE 0 END AS dbe, 0 AS ru, 0.0 AS rue FROM cfb.plays WHERE season = '2019' AND scrimmage AND pass AND passer_id IS NOT NULL UNION ALL SELECT rusher_id, 0, 0, 0.0, 1, coalesce(epa, 0) FROM cfb.plays WHERE season = '2019' AND scrimmage AND rush AND rusher_id IS NOT NULL AND NOT coalesce(garbage, false) ) GROUP BY pid",
+  "compared": 896,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 16
+ },
+ {
+  "check": "cfb plays 2015: dropbacks (with and without garbage time), EPA per dropback, rushes, EPA per rush vs the season file",
+  "sql": "SELECT pid, sum(db), sum(dba), sum(dbe), sum(ru), sum(rue) FROM ( SELECT passer_id AS pid, CASE WHEN NOT coalesce(garbage, false) THEN 1 ELSE 0 END AS db, 1 AS dba, CASE WHEN NOT coalesce(garbage, false) THEN coalesce(epa, 0) ELSE 0 END AS dbe, 0 AS ru, 0.0 AS rue FROM cfb.plays WHERE season = '2015' AND scrimmage AND pass AND passer_id IS NOT NULL UNION ALL SELECT rusher_id, 0, 0, 0.0, 1, coalesce(epa, 0) FROM cfb.plays WHERE season = '2015' AND scrimmage AND rush AND rusher_id IS NOT NULL AND NOT coalesce(garbage, false) ) GROUP BY pid",
+  "compared": 869,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 14
+ },
+ {
+  "check": "cfb games 2025: plays, EPA per play, success rate per team-game vs the game file",
+  "sql": "SELECT game_id, team_id, plays, epa_play, 100 * success_rate FROM cfb.games WHERE season = '2025' AND plays IS NOT NULL",
+  "compared": 1614,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 6
+ },
+ {
+  "check": "cfb games 2017: plays, EPA per play, success rate per team-game vs the game file",
+  "sql": "SELECT game_id, team_id, plays, epa_play, 100 * success_rate FROM cfb.games WHERE season = '2017' AND plays IS NOT NULL",
+  "compared": 1544,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 6
+ },
+ {
+  "check": "ufc fights, every year: career fights, minutes, strikes landed and absorbed per minute, win % vs UFC Savant",
+  "sql": "SELECT fighter_id, count(*), sum(coalesce(fight_seconds, 0)) / 60.0 AS mins, sum(CASE WHEN stats THEN coalesce(ss, 0) ELSE 0 END), sum(CASE WHEN stats THEN coalesce(opp_ss, 0) ELSE 0 END), count(*) FILTER (WHERE result = 'W'), count(*) FILTER (WHERE result = 'L') FROM ufc.fights GROUP BY fighter_id",
+  "compared": 2779,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 30
+ },
+ {
+  "check": "ufc rounds 2024: significant strikes summed over rounds = each fight row",
+  "sql": "SELECT f.fight_id, f.fighter_id, f.ss, sum(r.ss) FROM ufc.fights f JOIN ufc.rounds r USING (fight_id, fighter_id) WHERE f.season = '2024' AND r.season = '2024' GROUP BY 1, 2, 3",
+  "compared": 1034,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 17
+ },
+ {
+  "check": "cbb player_games 2024-25: D1 games and minutes per player vs the College Basketball Savant season file",
+  "sql": "SELECT player_id, count(*) AS gp, sum(min) AS mins FROM cbb.player_games WHERE season = '2024-25' AND NOT coalesce(non_d1::BOOLEAN, false) GROUP BY player_id",
+  "compared": 5066,
+  "mismatches": 0,
+  "ok": true,
+  "ms": 10
+ },
+ {
+  "check": "cbb player_games 2018-19: D1 games and minutes per player vs the College Basketball Savant season file",
+  "sql": "SELECT player_id, count(*) AS gp, sum(min) AS mins FROM cbb.player_games WHERE season = '2018-19' AND NOT coalesce(non_d1::BOOLEAN, false) GROUP BY player_id",
+  "compared": 4743,
+  "mismatches": 19,
+  "ok": false,
+  "ms": 9,
+  "sample": {
+   "who": "David Collins",
+   "min": [
+    1271,
+    1270
+   ]
+  },
+  "known": "College Basketball Savant's 2018-19 season file and its own team game logs differ by one or two minutes for 19 of 4,743 players (whole-minute game lines summed vs the season total); games played match for all of them."
+ }
+]

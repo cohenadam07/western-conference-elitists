@@ -108,7 +108,23 @@ export const tools = [
     },
     run: async (args) => {
       if (args.dictionary && args.dictionary.sport != null && !['nba', 'nfl', 'cfb', 'cbb', 'ufc'].includes(args.dictionary.sport)) throw new SavantError('dictionary.sport is one of nba, nfl, cfb, cbb, ufc.')
-      if (args.dictionary) return (await lazyRoom()).savantDictionary(args.dictionary)
+      if (args.dictionary) {
+        // The analysis-only tables (nba.player_seasons) are not in the Data Room catalog: their columns come from the manifest.
+        const { manifest } = await lazySql()
+        const m = await manifest()
+        const key = `${args.dictionary.sport}.${args.dictionary.table}`
+        const t = args.dictionary.table && m.tables[key]
+        if (t && t.analysis_only) {
+          const cols = t.columns.map(([c, k]) => ({ column: c, type: k === 'JSON' || !k ? 'VARCHAR' : k }))
+          return { structured: { sport: args.dictionary.sport, table: args.dictionary.table, row: t.row, note: t.note, columns: cols, seasons: Object.keys(t.seasons).sort(), analysis_only: true }, text: `${key} (savant_sql only): one row per ${t.row}. ${t.note}\nColumns: ${cols.map((c) => `${c.column} (${c.type.toLowerCase()})`).join(', ')}, plus season.\nSeasons ${Object.keys(t.seasons).sort()[0]} to ${Object.keys(t.seasons).sort().slice(-1)[0]}.` }
+        }
+        const r = await (await lazyRoom()).savantDictionary(args.dictionary)
+        if (!args.dictionary.table) {
+          const extra = Object.entries(m.tables).filter(([k, v]) => v.analysis_only && (!args.dictionary.sport || k.startsWith(`${args.dictionary.sport}.`)))
+          if (extra.length) r.text += `\n\nAlso for savant_sql only: ${extra.map(([k, v]) => `${k} (one row per ${v.row})`).join('; ')}.`
+        }
+        return r
+      }
       if (!args.sql) return { structured: { rules: SQL_RULES }, text: SQL_RULES }
       return savantSql(args)
     },
