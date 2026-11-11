@@ -203,7 +203,10 @@ function startReplay(raw, speed, at) {
   if (at) { if (at === 'half') rp.t = 1200; else if (at === 'end') rp.t = endT; else { const m = /^(\d)-(\d+:\d+(?:\.\d+)?)$/.exec(at); if (m) rp.t = elapsed(Number(m[1]), m[2]); } }
   if (qs.get('pause') === '1') rp.paused = true;
   const snapshot = () => {
-    const t = rp.t; const plays = full.plays.filter((p, i) => els[i] <= t);
+    const t = rp.t;
+    // at a period end, plays stamped at the next period's opening clock share the same elapsed time; hold them back
+    const brk = t > 0 && t === periodEnd(periodOf(t - 1e-9)) ? periodOf(t - 1e-9) : null;
+    const plays = full.plays.filter((p, i) => els[i] < t || (els[i] === t && (brk == null || p[0] <= brk)));
     const lastP = plays[plays.length - 1];
     const endedHere = !!(lastP && lastP[3] === 'End Period' && t === periodEnd(lastP[0]));
     const state = t >= endT ? 'final' : endedHere && lastP[0] === 1 ? 'half' : 'live';

@@ -20,7 +20,8 @@ async function runGame(gid) {
   const endT = await p.evaluate(() => window.__llControl.endT);
   const cps = [['live-1st-half-8-00', s => s.t >= 720 && s.state === 'live'], ['halftime', s => s.state === 'half'], ['live-2nd-half-9-00', s => s.t >= 1860 && s.state === 'live'], ['final', s => s.state === 'final']];
   for (const [name, cond] of cps) {
-    await p.waitForFunction(c => { const s = { t: window.__llControl.t, state: window.__ll.S.state }; return (new Function('s', 'return (' + c + ')(s)'))(s); }, cond.toString(), { timeout: 600000, polling: 200 });
+    try { await p.waitForFunction(c => { const s = { t: window.__llControl.t, state: window.__ll.S.state }; return (new Function('s', 'return (' + c + ')(s)'))(s); }, cond.toString(), { timeout: 600000, polling: 200 }); } catch (e) { const st = await p.evaluate(() => [window.__llControl?.t, window.__ll?.S?.state]); console.log(gid, 'STUCK before', name, 'at', st, R.errors.slice(-3)); throw e; }
+    console.log(gid, 'reached', name, 'after', Math.round((Date.now() - t0) / 1000), 's');
     await p.evaluate(() => window.__llControl.pause());
     const snap = await p.evaluate(() => ({ t: window.__llControl.t, state: window.__ll.S.state, score: window.__ll.A.score, parsed: window.__ll.A.parsed, stints: window.__ll.A.stints.length, mins: window.__ll.A.stints.reduce((a, s) => a + (s.t1 - s.t0), 0) / 60, lineupOk: window.__ll.A.lineupOk }));
     R.recon.push({ checkpoint: name, ...snap, match: snap.parsed.OU === snap.score.OU && snap.parsed.OPP === snap.score.OPP, realSeconds: Math.round((Date.now() - t0) / 1000) });

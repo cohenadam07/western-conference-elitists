@@ -146,7 +146,7 @@ function strip(A, S, { live }) {
   for (const s of A.stints) { const a = agg.get(s.key) || { min: 0, pm: 0, st: [] }; a.min += (s.t1 - s.t0) / 60; a.pm += s.pm; a.st.push(s); agg.set(s.key, a); }
   const now = live ? A.usNowKey : null;
   const order = [...agg.keys()].sort((a, b) => agg.get(b).min - agg.get(a).min);
-  const keep = order.slice(0, 3); if (now && !keep.includes(now)) keep.push(now);
+  const keep = order.slice(0, 3); if (now && !keep.includes(now)) { keep.push(now); if (!agg.has(now)) agg.set(now, { min: 0, pm: 0, st: [] }); } // just checked in
   const rest = order.filter(k => !keep.includes(k));
   const lastSt = A.stints[A.stints.length - 1];
   const blocks = sts => sts.map(s => `<span class="blk ${pmc(s.pm)}${live && s === lastSt ? ' cur' : ''}${s.flagged ? ' flag' : ''}" style="left:${x(s.t0).toFixed(2)}%;width:${Math.max(0.35, x(s.t1) - x(s.t0)).toFixed(2)}%" title="${sgn(s.pm)}"></span>`).join('');
@@ -194,7 +194,7 @@ function shotMix(shots, team) {
 export function lineupOptions(A, live) {
   const agg = new Map(); for (const s of A.stints) { const a = agg.get(s.key) || { min: 0, pm: 0, W: [] }; a.min += (s.t1 - s.t0) / 60; a.pm += s.pm; a.W.push([s.t0, s.t1]); agg.set(s.key, a); }
   const order = [...agg.keys()].sort((a, b) => agg.get(b).min - agg.get(a).min).slice(0, 4);
-  if (live && A.usNowKey && !order.includes(A.usNowKey)) order.push(A.usNowKey);
+  if (live && A.usNowKey && !order.includes(A.usNowKey)) { order.push(A.usNowKey); if (!agg.has(A.usNowKey)) agg.set(A.usNowKey, { min: 0, pm: 0, W: [] }); }
   return { agg, order };
 }
 export function shotsTab(A, S, view) {

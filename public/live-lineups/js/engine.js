@@ -305,7 +305,7 @@ export function digest(g, team) {
   const units = {}, players = {}, teamU = emptyCounter();
   for (const p of r.poss) {
     addPoss(teamU, p, team);
-    const five = p.off === team ? p.off5 : p.def5;
+    const five = p.off === team ? p.off5 : p.def5; if (!five) continue; // a possession that never got a lineup snapshot (parser keeps it)
     addPoss(units[five] ||= emptyCounter(), p, team);
     for (const pid of five.split('|')) addPoss(players[pid] ||= emptyCounter(), p, team);
   }
@@ -459,7 +459,7 @@ export function analyze(g, team, { prior = [], ratings = null, replay = false, r
 
   // tonight + prior
   const teamT = emptyCounter(), unitsT = {};
-  for (const p of poss) { addPoss(teamT, p, team); const five = p.off === team ? p.off5 : p.def5; addPoss(unitsT[five] ||= emptyCounter(), p, team); }
+  for (const p of poss) { addPoss(teamT, p, team); const five = p.off === team ? p.off5 : p.def5; if (five) addPoss(unitsT[five] ||= emptyCounter(), p, team); }
   const teamP = emptyCounter(); const unitsP = {}; const playersP = {};
   for (const d of prior) { if (!d.ok) continue; addCounter(teamP, d.teamU); for (const [k, u] of Object.entries(d.units)) addCounter(unitsP[k] ||= emptyCounter(), u); for (const [k, u] of Object.entries(d.players)) addCounter(playersP[k] ||= emptyCounter(), u); }
   const T = summarize(teamT), P = summarize(teamP);
@@ -473,7 +473,7 @@ export function analyze(g, team, { prior = [], ratings = null, replay = false, r
 
   // players: tonight's on-court +/- and season on/off best guess
   const playersT = {};
-  for (const p of poss) { const five = p.off === team ? p.off5 : p.def5; for (const pid of five.split('|')) addPoss(playersT[pid] ||= emptyCounter(), p, team); }
+  for (const p of poss) { const five = p.off === team ? p.off5 : p.def5; if (five) for (const pid of five.split('|')) addPoss(playersT[pid] ||= emptyCounter(), p, team); }
   const teamAll = addCounter(addCounter(emptyCounter(), teamT), teamP);
   const onoff = {};
   for (const pid of new Set([...Object.keys(playersT), ...Object.keys(playersP)])) {
