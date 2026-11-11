@@ -52,7 +52,7 @@ function bundledManifest() {
   return existsSync(p) ? JSON.parse(gunzipSync(readFileSync(p)).toString('utf8')) : null
 }
 export async function manifest() {
-  try { return await room.load('parquet.json') } catch (e) { const b = bundledManifest(); if (b) return b; throw new SavantError('The analysis tables could not be read right now. Try again in a minute.') }
+  try { return await room.load('parquet.json') } catch { const b = bundledManifest(); if (b) return b; throw new SavantError('The analysis tables could not be read right now. Try again in a minute.') }
 }
 export const parquetUrl = (sport, table, season) => `${assetBase()}/${sport}-${table}-${season}.parquet?p=/season=${season}/`
 
@@ -260,7 +260,7 @@ export async function runSql(sql, { maxRows = MAX_ROWS, wallMs = LIMITS.wallMs, 
       clearTimeout(timer)
       let prof = null
       try { prof = JSON.parse(readFileSync(e.profile, 'utf8')) } catch { prof = null }
-      const scanned = rowsRead(prof, e.tables)
+      const scanned = rowsRead(prof)
       return {
         columns, types, rows, total, truncated: total > rows.length, tables: used,
         through: Object.fromEntries(used.map((k) => [k, newest(e.tables[k])])),
@@ -334,7 +334,7 @@ const jsonish = (v) => (typeof v === 'bigint' ? (Number.isSafeInteger(Number(v))
 const newest = (t) => { let best = null; for (const s of t.seasons) { const d = t.through[s]; if (d && (!best || d > best)) best = d } return best ? day(best) : null }
 
 // Rows read from storage: every row of each row group the scans did not skip, from the profile.
-function rowsRead(prof, tables) {
+function rowsRead(prof) {
   if (!prof) return null
   const q = prof.query || {}
   return { rows_out_of_scans: q.total_rows_scanned ?? null, row_groups_read: q.total_row_groups_scanned ?? null, row_groups_in_files: q.total_row_groups_to_scan ?? null, rows_per_group: 65536 }

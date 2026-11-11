@@ -45,7 +45,7 @@ export async function savantAnalyze(args = {}) {
   const { analyze } = await lazyAnalyze()
   const r = await analyze(args)
   const through = Object.entries(r.through || {}).map(([t, d]) => `${t} through ${d || 'unknown'}`).join('; ')
-  const { interpretation, warnings = [], method, tables, observations, ms, bytes_read: bytes, through: th, multiple_comparisons: mc, ...numbers } = r
+  const { interpretation, warnings = [], method, tables, observations, ms, bytes_read: _bytes, through: th, multiple_comparisons: mc, ...numbers } = r
   const cannot = cannotAccount(args)
   const structured = { study: args.study, interpretation, ...numbers, warnings, multiple_comparisons: mc || null, cannot_account_for: cannot, method, observations, tables, data_through: th, ms, computed: true, source: SOURCE }
   const text = [
