@@ -5,7 +5,7 @@
 ## 2025
 
 - FBS-vs-FBS games: 807; charted at 80% or more: 393; under: 414 (they contribute nothing to Tier B).
-- Weeks 1-8: 2 of 411 games charted; week 9 on: 391 of 396 (mean charted share 96.6%).
+- Weeks 1-8: 2 of 411 games charted; week 9 on: 391 of 396 (mean charted share 97.3%).
 - Air yards against the release file: 23,058 throws in both; median absolute difference 0.00 yards; within 1 yard on 100.0% (bar: median <= 1 on >= 95%).
 - Air yards + YAC = gain within 1 yard on 99.5% of 14,454 completions (bar 98%); both spots parsed on 98.2% of completions.
 - Named defenders resolved to a roster id: 53,790 of 54,261 = 99.1% (bar 95%).
@@ -15,11 +15,11 @@ Games under 80% charted (week 9 of 2025 on):
 
 | game | week | charted share | plays |
 |---|---:|---:|---:|
-| Texas A&M Aggies at LSU Tigers | 9 | 0.0% | 118 |
-| Ole Miss Rebels at Oklahoma Sooners | 9 | 0.0% | 143 |
-| Alabama Crimson Tide at South Carolina Gamecocks | 9 | 0.0% | 132 |
-| Ole Miss Rebels at Georgia Bulldogs | 1 | 0.0% | 141 |
-| Coastal Carolina Chanticleers at Louisiana Tech Bulldogs | 1 | 0.0% | 136 |
+| Texas A&M Aggies at LSU Tigers | 9 | 0.0% | 109 |
+| Ole Miss Rebels at Oklahoma Sooners | 9 | 0.0% | 136 |
+| Alabama Crimson Tide at South Carolina Gamecocks | 9 | 0.0% | 126 |
+| Ole Miss Rebels at Georgia Bulldogs | 1 | 0.0% | 133 |
+| Coastal Carolina Chanticleers at Louisiana Tech Bulldogs | 1 | 0.0% | 132 |
 
 ## 2026
 
@@ -33,8 +33,8 @@ Games under 80% charted (week 9 of 2025 on):
 
 | game | week | charted share | plays |
 |---|---:|---:|---:|
-| East Carolina Pirates at Alabama Crimson Tide | 1 | 0.0% | 114 |
-| SMU Mustangs at Florida State Seminoles | 1 | 0.0% | 131 |
+| East Carolina Pirates at Alabama Crimson Tide | 1 | 0.0% | 107 |
+| SMU Mustangs at Florida State Seminoles | 1 | 0.0% | 125 |
 
 
 **All checks pass: yes**

@@ -54,6 +54,7 @@ RE_PAREN = re.compile(r"\(([^()]*#\d[^()]*)\)")
 RE_HUR = re.compile(r"hurried by (.*?)(?=$|broken up|PENALTY|intercepted|\(|, )", re.I)
 RE_PBU = re.compile(r"broken up by (.*?)(?=$|QB hurried|PENALTY|\(|, )", re.I)
 RE_INJ = re.compile(r"injur", re.I)
+RE_FMT = re.compile(r"#\d{1,2} [A-Z]")
 SIDE = {"left": 0, "middle": 1, "right": 2}
 
 
@@ -176,7 +177,11 @@ def season(y):
         dep = RE_DEPTH.search(t) or (RE_DEPTH2.search(t) if r.cat == "pass" else None)
         run = RE_RUN.search(t) if r.cat == "rush" else None
         is_pass, is_sack = r.cat == "pass", bool(r.f_sack)
-        charted = (is_pass and not is_sack and dep is not None) or (r.cat == "rush" and run is not None)
+        # charted format: the crew names players "#8 C.Boley". Some scoring plays carry the scoring summary instead
+        # ("Edrees Farooq 45 Yd Interception Return (Max Gilbert Kick)"), with no formation, depth or hurry: such a
+        # play counts in every total but in none of the charted splits (`fmt` False)
+        fmt = bool(RE_FMT.search(t))
+        charted = fmt and ((is_pass and not is_sack and dep is not None) or (r.cat == "rush" and run is not None))
         mc, mt = RE_CATCH.search(t), RE_THROWN.search(t)
         sp = spot_ytg(mc.groups() if mc else (mt.groups() if mt else None), r.game_id, r.off, r.deff, sides)
         air = (r.ytg - sp) if (is_pass and not is_sack and sp == sp and r.ytg == r.ytg) else np.nan
@@ -205,16 +210,16 @@ def season(y):
                 tk = _names(pars[-1])
         pen = _names(RE_PAREN.findall(r.pen_txt)[0]) if r.pen_txt and RE_PAREN.findall(r.pen_txt) else []
         res = lambda team, lst, i: ro.resolve(team, lst[i][0], lst[i][1]) if len(lst) > i else np.nan
-        rows.append((r.game_id, r.play_id, charted, shot, nh, dep.group(1).lower() if dep else None, dep.group(2).lower() if dep else None,
+        rows.append((r.game_id, r.play_id, fmt, charted, shot and fmt, nh and fmt, dep.group(1).lower() if dep else None, dep.group(2).lower() if dep else None,
                      sp, air, yac, SIDE[run.group(1).lower()] if run else np.nan,
                      res(r.deff, hur, 0), res(r.deff, hur, 1), len(hur), res(r.deff, pb, 0), len(pb),
                      res(r.deff, tk, 0), res(r.deff, tk, 1), res(r.deff, tk, 2), len(tk),
                      pen[0][0] if pen else np.nan, bool(RE_INJ.search(r.text))))
-    c = pd.DataFrame(rows, columns=["game_id", "play_id", "charted", "shotgun", "no_huddle", "depth", "side", "spot_ytg", "air", "yac", "run_dir",
+    c = pd.DataFrame(rows, columns=["game_id", "play_id", "fmt", "charted", "shotgun", "no_huddle", "depth", "side", "spot_ytg", "air", "yac", "run_dir",
                                     "hur1", "hur2", "n_hur", "pbu1", "n_pbu", "tk1", "tk2", "tk3", "n_tk", "pen_jersey", "injury"])
     # a sack, spike-free scramble or any play without its own tag inherits the game's format
-    gm = c.merge(d[["play_id", "cat", "f_sack"]], on="play_id")
-    own = gm[(gm.cat == "rush") | ((gm.cat == "pass") & ~gm.f_sack)]
+    gm = c.merge(d[["play_id", "cat", "f_sack", "pts"]], on="play_id")
+    own = gm[((gm.cat == "rush") | ((gm.cat == "pass") & ~gm.f_sack)) & (gm.fmt | (gm.pts == 0))]   # a scoring summary is not a lapse
     share = own.groupby("game_id").charted.mean()
     nplays = own.groupby("game_id").size()
     g = pd.DataFrame({"plays": nplays, "charted_share": share}).reset_index()
@@ -223,7 +228,7 @@ def season(y):
     g = g.merge(gg[gg.season == y], on="game_id", how="left")
     okset = set(g[g.ok].game_id)
     c["game_ok"] = c.game_id.isin(okset)
-    c["formation_known"] = c.game_ok          # under center = charted game, no Shotgun tag
+    c["formation_known"] = c.game_ok & c.fmt  # under center = a charted-format play with no Shotgun tag
     c.to_parquet(WORK / f"chart_{y}.parquet", index=False)
     g.to_parquet(WORK / f"chart_games_{y}.parquet", index=False)
     print(f"{y}: {len(c)} scrimmage plays, charted {c.charted.mean():.3f}; games {len(g)}, charted (>= {GAME_MIN:.0%}) {int(g.ok.sum())}; "

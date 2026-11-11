@@ -325,7 +325,7 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   assert.deepEqual(tools.map((t) => t.name).sort(), [
     'cbb_all_savant_team', 'cbb_coaching_data', 'cbb_coaching_dictionary', 'cbb_coaching_fit', 'cbb_coaching_leaders', 'cbb_coaching_tree', 'cbb_data', 'cbb_data_dictionary', 'cbb_game', 'cbb_get_coach_profile', 'cbb_get_player_profile', 'cbb_leaderboard', 'cbb_lineups', 'cbb_play_context', 'cbb_player_career', 'cbb_player_splits', 'cbb_rotation', 'cbb_schedule',
     'cbb_search_coaches', 'cbb_search_players', 'cbb_shot_chart', 'cbb_team_profile', 'cbb_team_rankings',
-    'cfb_all_savant_team', 'cfb_game', 'cfb_get_player_profile', 'cfb_leaderboard', 'cfb_player_career', 'cfb_player_splits', 'cfb_playoff_field', 'cfb_search_players', 'cfb_team_profile', 'cfb_team_rankings',
+    'cfb_all_savant_team', 'cfb_game', 'cfb_get_player_profile', 'cfb_leaderboard', 'cfb_nfl_comps', 'cfb_player_career', 'cfb_player_splits', 'cfb_playoff_field', 'cfb_search_players', 'cfb_team_profile', 'cfb_team_rankings',
     'nba_all_savant_team', 'nba_coaching_data', 'nba_coaching_dictionary', 'nba_coaching_leaders', 'nba_coaching_tree',
     'nba_draft_get_prospect_profile', 'nba_draft_search_prospects', 'nba_fantasy_league',
     'nba_fantasy_lock_in', 'nba_fantasy_player', 'nba_fantasy_rankings', 'nba_fantasy_streamers', 'nba_fantasy_trade',

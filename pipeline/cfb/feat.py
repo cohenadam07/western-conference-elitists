@@ -6,7 +6,8 @@
 
 1. NFL translation. For every player with a qualified college season, the five most similar FINAL college seasons at his
    position among players who reached the NFL (1.0.0's college-to-NFL links): z-scores of the position's five headline
-   stats (within that season and position) plus height, weight and recruiting rating, Euclidean distance. Each comp
+   stats (within that season and position) plus height, weight and recruiting rating (as its percentile among all rated
+   recruits), Euclidean distance. Each comp
    carries his draft slot and his NFL Savant value per season from Football Savant; a linked player's own card shows
    his combine numbers, from Football Savant. Labelled everywhere "comparison, not a projection".
    The test: for college finals of 2014-2021 by players who reached the NFL, does the comp group's mean NFL value per
@@ -108,8 +109,7 @@ def build_pool():
     prof = [season_profiles(y) for y in C.SEASONS if y < C.CURRENT]
     prof = pd.concat([p for p in prof if p is not None], ignore_index=True)
     # every player's final qualified college season (his latest), with size and recruiting rating
-    allid = pd.read_parquet(WORK / "identity.parquet").set_index("pid")
-    prof["rating"] = prof.id.map(allid.rating)
+    prof["rating"] = prof.id.map(rating_pct(pd.read_parquet(WORK / "identity.parquet")))
     fin = prof.sort_values(["id", "season"]).drop_duplicates("id", keep="last")
     car, comb = nfl_careers()
     cs = car.groupby("gsis").agg(nfl_seasons=("season", "nunique"), nfl_value=("sav", "sum"), first=("season", "min"))
@@ -197,17 +197,28 @@ def check():
         ix = [i for i, s in enumerate(slot) if s == sl]
         if len(ix) >= 30:
             by[sl] = (round(float(spearmanr([grp[i] for i in ix], [own[i] for i in ix])[0]), 3), len(ix))
-    res = {"players": len(own), "spearman": round(float(rho), 4), "p_value": float(pv), "by_slot": by, "show_outcomes": bool(rho > 0)}
+    # the rule (BUILD-1.1 5.1) applied overall and, as a judgment call, per position: a position whose comps do not track
+    # their own NFL value (correlation not above zero) shows comps without outcome averages
+    show = {sl: bool(rho > 0 and v[0] > 0) for sl, v in by.items()}
+    res = {"players": len(own), "spearman": round(float(rho), 4), "p_value": float(pv), "by_slot": by, "show_outcomes": bool(rho > 0), "show_by_slot": show}
     lines = ["# NFL translation: does the comp group's NFL value track the player's own?", "",
              f"*`python -m pipeline.cfb.feat check`. College finals {NFL_FIRST}-{NFL_LAST} by players who reached the NFL; each player's five "
              "comps found among the other NFL-linked final seasons at his position (leave-one-out).*", "",
              f"- Players tested: {len(own):,}", f"- Spearman rank correlation of the comps' mean NFL Savant value per season with his own: "
-             f"**{rho:.3f}** (p = {pv:.2g})", f"- Outcome averages shown on the card: **{'yes' if rho > 0 else 'no'}**", "",
+             f"**{rho:.3f}** (p = {pv:.2g})", f"- Outcome averages shown on the card: **{'yes' if rho > 0 else 'no'}**, except at positions whose own correlation is not above zero: "
+             f"{', '.join(k for k, v in show.items() if not v) or 'none'} (comps shown there without NFL outcome averages).", "",
              "| position | correlation | players |", "|---|---:|---:|"] + [f"| {k} | {v[0]:.3f} | {v[1]} |" for k, v in by.items()] + [""]
     (OUT / "nfl_translation.md").write_text("\n".join(lines))
     (OUT / "nfl_translation.json").write_text(json.dumps(res, indent=1))
     print("\n".join(lines))
     return res
+
+
+def rating_pct(ident):
+    """Each player's recruiting rating as its percentile among every rated recruit on file (0-100). The raw composite never
+    leaves the Mac: the public repo carries only this rank transform (1.0.0's rule: no CFBD row is published)."""
+    r = ident.set_index("pid").rating.dropna() if "pid" in ident.columns else ident.rating.dropna()
+    return (r.rank(pct=True, method="average") * 100).round(2)
 
 
 def write_state():
@@ -216,14 +227,14 @@ def write_state():
     ident = pd.read_parquet(WORK / "identity.parquet")
     ps = pd.read_parquet(WORK / "player_seasons.parquet", columns=["pid", "season"])
     cur = set(ps[ps.season == C.CURRENT].pid)
-    r = ident[ident.pid.isin(cur) & ident.rating.notna()]
-    (DIR / "recruits_current.json").write_text(json.dumps({str(int(p)): [round(float(a), 4), None if pd.isna(b) else int(b)]
-                                                          for p, a, b in zip(r.pid, r.rating, r.stars)}, sort_keys=True))
+    rp = rating_pct(ident)
+    rp = rp[rp.index.isin(cur)]
+    (DIR / "recruits_current.json").write_text(json.dumps({str(int(p)): [float(v)] for p, v in rp.items()}, sort_keys=True))
     tr = pd.read_parquet(WORK / "transfers.parquet")
     t = tr[tr.season == C.CURRENT]
-    cols = [c for c in ("pid", "season", "orig", "dest", "origin") if c in t.columns]
+    cols = [c for c in ("pid", "season", "orig", "dest") if c in t.columns]
     (DIR / "transfers_current.json").write_text(t[cols].to_json(orient="records"))
-    print("state: recruits for", len(r), "current players;", len(t), "transfers")
+    print("state: recruiting percentiles for", len(rp), "current players;", len(t), "transfers")
 
 
 def jdump(path, doc):
@@ -243,11 +254,14 @@ def write_site(seasons=None):
     # the season being played reads the committed state on the Mac too, so a refresh and a full build agree byte for byte
     rr = json.loads((DIR / "recruits_current.json").read_text()) if (DIR / "recruits_current.json").exists() else {}
     cur_rating = pd.Series({int(k): v[0] for k, v in rr.items()}, dtype=float)
-    past_rating = ident.rating if ident is not None else pd.Series(dtype=float)
+    past_rating = rating_pct(ident.reset_index()) if ident is not None else pd.Series(dtype=float)
     rating_of = lambda y: cur_rating if y == C.CURRENT else past_rating
     # ---- comps: every player's latest qualified season up to each season on disk
+    refresh = seasons is not None and list(seasons) == [C.CURRENT]
     latest = {}
-    for y in sorted(set([v for v in C.SEASONS if (PUB / "s" / f"{v}.json.gz").exists() or v == C.CURRENT])):
+    # a refresh recomputes only this season's players and keeps everyone else's entries from the committed shards, so the
+    # cloud (which has no identity table) and the Mac write the same bytes; the full build recomputes everyone
+    for y in ([C.CURRENT] if refresh else sorted(set([v for v in C.SEASONS if (PUB / "s" / f"{v}.json.gz").exists() or v == C.CURRENT]))):
         pr = season_profiles(y)
         if pr is None:
             continue
@@ -255,6 +269,10 @@ def write_site(seasons=None):
         for r in pr.to_dict("records"):
             latest[int(r["id"])] = r
     shards = {i: {} for i in range(100)}
+    if refresh:
+        from .site import jload
+        for i in range(100):
+            shards[i] = jload(PUB / "x" / "comps" / f"{i:02d}.json") or {}
     for pid, me in latest.items():
         me = {k: (None if isinstance(v, float) and not np.isfinite(v) else v) for k, v in me.items()}
         cs = comps_for(me, p)
@@ -268,6 +286,7 @@ def write_site(seasons=None):
     nfl = {str(r["id"]): [r["name"], r["slot"], r["season"], r["team"], r["gsis"], r["draft"], r["nfl"], r["per_season"]] for r in p["rows_d"]}
     sizes["x/nfl"] = jdump(O / "x" / "nfl.json", {"cols": ["name", "slot", "final", "team", "gsis", "draft", "nfl", "per_season"], "players": nfl,
                                                     "combine": p["combine"], "show_outcomes": res.get("show_outcomes", False),
+                                                    "show_by_slot": res.get("show_by_slot", {}),
                                                     "test": {k: res.get(k) for k in ("players", "spearman", "by_slot")},
                                                     "label": "comparison, not a projection"})
     # ---- pedigree and portal haul, per season

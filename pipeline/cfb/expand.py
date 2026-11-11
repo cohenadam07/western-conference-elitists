@@ -254,7 +254,7 @@ def charted(d, y):
     """Joins the charted columns (charting.py) and the per-play Tier B flags. Rows outside a charted game get
     c_ok = False and contribute nothing to any Tier B number."""
     f = WORK / f"chart_{y}.parquet"
-    cols = ["play_id", "game_ok", "shotgun", "no_huddle", "depth", "side", "spot_ytg", "air", "yac", "run_dir", "hur1", "hur2", "n_hur",
+    cols = ["play_id", "game_ok", "fmt", "shotgun", "no_huddle", "depth", "side", "spot_ytg", "air", "yac", "run_dir", "hur1", "hur2", "n_hur",
             "pbu1", "n_pbu", "tk1", "tk2", "tk3", "n_tk"]
     if f.exists():
         c = pd.read_parquet(f, columns=cols)
@@ -262,9 +262,10 @@ def charted(d, y):
         c = pd.DataFrame({k: pd.Series(dtype=object if k in ("depth", "side") else float) for k in cols})
         c["play_id"] = c.play_id.astype("int64")
         c["game_ok"] = c.game_ok.astype(bool)
+        c["fmt"] = c.fmt.astype(bool)
     c = c.rename(columns={k: "c_" + k for k in cols if k != "play_id"})
     d = d.merge(c, on="play_id", how="left")
-    d["c_ok"] = d.c_game_ok.fillna(False).astype(bool) & d.sc
+    d["c_ok"] = d.c_game_ok.fillna(False).astype(bool) & d.c_fmt.fillna(False).astype(bool) & d.sc
     d["is_home"] = (d.off == d.home).astype(float)
     d["c_shotgun"] = d.c_shotgun.fillna(False).astype(bool) & d.c_ok
     d["c_uc"] = ~d.c_shotgun & d.c_ok

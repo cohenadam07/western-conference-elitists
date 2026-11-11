@@ -11,7 +11,8 @@ import json
 from pathlib import Path
 
 TIER_B_START = 2025
-TIER_B_NOTE = "Tracked from 2025 week 9, when ESPN's play text became fully charted; settle points will firm up as seasons accumulate."
+TIER_B_NOTE = ("Tracked from 2025 week 9, when ESPN's play text became fully charted; settle points will firm up as seasons accumulate. "
+               "About one touchdown in six is written as a scoring summary with no formation, depth or hurry, so it counts in his totals but not here.")
 PRE_BOX = "Before 2024 it depends on how fully each school's stat crew logged tackles, so it is not comparable across schools."
 NO_TGT = "Before 2025 most games do not name the target of an incompletion."
 PEN_NOTE = "ESPN names the penalized player on about half of accepted penalties; the rest are the team's, not his."

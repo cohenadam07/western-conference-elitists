@@ -101,9 +101,12 @@ def measure(st, data, tier):
     if x is None or not len(x):
         return None
     base = BASE_Q.get(st.pos[0], (None, 0))[1]
-    bt = x.groupby(["season", "pid"])._base.transform("sum")
     if tier == "B":
+        # qualified on his charted sample: counting his whole season let in backups with a handful of charted plays,
+        # whose tiny halves pulled the split-half below zero (2025 shotgun EPA: -0.25 that way, +0.15 this way)
         base = base * 0.4                                 # half a season charted at most
+        x = x[x._den > 0]
+    bt = x.groupby(["season", "pid"])._base.transform("sum")
     q = x[(bt >= base) & (x._den > 0)].copy()
     tot = q.groupby(["season", "pid"])._den.transform("sum")
     q = q[tot >= 1]
@@ -177,11 +180,16 @@ def team_measure(key, num, den, side, tier):
     return dict(players=q.ps.nunique(), r=r, full=full, typical=float(q.groupby("ps")._den.sum().median()))
 
 
-def main():
+def main(only=None):
     new = {k for k, *_ in CX.NEW} | {"qb_cpoe"}
-    stats = [s for s in C.STATS if s.key in new]
-    data = collect(sorted(set(TIER_A) | set(TIER_B)), False)
+    stats = [s for s in C.STATS if s.key in new and (only is None or s.tier == only)]
+    data = collect(sorted(set(TIER_A) | set(TIER_B)) if only != "B" else TIER_B, False)
     rows, verdicts = [], {}
+    if only:                                              # re-measure one tier; keep the other's rows
+        old = pd.read_csv(OUT / "expansion_stability.csv")
+        keep = old[old.tier != only]
+        rows = keep.to_dict("records")
+        verdicts = {k: v for k, v in json.loads(CX.VFILE.read_text()).items() if k.startswith("team:") or k in set(keep.stat)}
     for st in stats:
         tier = st.tier
         m = measure(st, data, tier)
@@ -198,6 +206,11 @@ def main():
                             "label": v}
         print(f"{st.key:20s} {tier} n={m['players']:5d} typ={m['typical']:8.1f} rel={m['full']:.3f} k={k} -> {v}", flush=True)
     trows = []
+    if only:
+        pd.DataFrame(rows).to_csv(OUT / "expansion_stability.csv", index=False)
+        CX.VFILE.write_text(json.dumps(verdicts, indent=1, sort_keys=True))
+        write_md(pd.DataFrame(rows), pd.read_csv(OUT / "expansion_stability_teams.csv"))
+        return
     for (key, lab, grp, tier, unit, lo, what, num, den, side) in CX.TEAM_X:
         m = team_measure(key, num, den, side, tier)
         if m is None:
@@ -240,4 +253,5 @@ def write_md(r, t):
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    main(sys.argv[1] if len(sys.argv) > 1 else None)

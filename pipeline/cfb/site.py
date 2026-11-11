@@ -330,6 +330,13 @@ def team_docs(X, alls):
     names = {}
     for r in g.itertuples():
         names[int(r.home)], names[int(r.away)] = r.home_team, r.away_team
+    # 1.1.0: every decision, by team, for the team page and a future College Football Coaching Savant
+    from . import fourth as FD
+    dec = pd.read_parquet(WORK / f"decisions_{X.y}.parquet") if (WORK / f"decisions_{X.y}.parquet").exists() else None
+    try:
+        tries, tos = FD.tries(X.y), FD.timeouts(X.y)
+    except FileNotFoundError:
+        tries = tos = None
     out = {}
     for t in [int(x) for x in X.fbs.index]:
         gg = g[(g.home == t) | (g.away == t)]
@@ -368,13 +375,30 @@ def team_docs(X, alls):
                         rows.append([gi[r.game_id]] + [rnd(getattr(r, c), 3) or 0 for c in cols])
                 if rows:
                     logs[str(int(p))] = rows
+        decisions = None
+        if dec is not None:
+            x = dec[dec.off == t].sort_values(["game_id", "secs_game"], ascending=[True, False])
+            decisions = {"cols": ["gid", "period", "secs_half", "ytg", "dist", "score_diff", "decision", "converted", "rec", "xgo", "ep_go", "ep_punt", "ep_fg",
+                                  "ep_lost", "garbage"],
+                         "fourth": [[int(r.game_id), int(r.period), rnd(r.secs_half, 0), rnd(r.ytg, 0), rnd(r.dist, 0), rnd(r.score_diff, 0), r.decision,
+                                     int(bool(r.conv)), r.rec, rnd(r.xgo, 3), rnd(r.ep_go, 2), rnd(r.ep_punt, 2), rnd(r.ep_fg, 2), rnd(r.ep_lost, 2),
+                                     int(bool(r.garbage_cfbd))] for r in x.itertuples()]}
+            if tries is not None:
+                tt = tries[(tries.team == t) & tries.known]
+                decisions["tries_cols"] = ["gid", "secs_game", "margin", "two", "two_good"]
+                decisions["tries"] = [[int(r.game_id), rnd(r.secs_game, 0), rnd(r.margin, 0), int(bool(r.two)), int(bool(r.two_good))] for r in tt.itertuples()]
+                oo = tos[tos.team == t]
+                decisions["timeouts_cols"] = ["gid", "period", "secs_half"]
+                decisions["timeouts"] = [[int(r.game_id), int(r.period), rnd(r.secs_half, 0)] for r in oo.itertuples()]
+            decisions["model"] = ("WCE's fourth-down model: an average FBS coach's go rate in the same spot (xgo), and the choice worth the most "
+                                  "expected points (win probability in the last 15 minutes of a game within 16 points)")
         f = X.fbs.loc[t]
         doc = {"season": X.y, "team": t, "name": f.school, "abbr": f.abbreviation, "conf": f.conference, "through": X.through,
                "coach": X.extra.get("coaches", {}).get(str(X.y), {}).get(str(t)),
                "sched_cols": ["gid", "date", "week", "stype", "opp", "site", "conf", "final", "pf", "pa", "wp", "opp_rank", "opp_name"],
                "sched": sched,
                "roster_cols": ["id", "name", "pos", "slot", "jersey", "cls", "ht", "wt", "head", "city", "state", "usage", "value"],
-               "roster": roster, "logcols": LOGCOLS, "logs": logs,
+               "roster": roster, "logcols": LOGCOLS, "logs": logs, "decisions": decisions,
                "ol": None if ol is None or t not in ol.index else {"value": rnd(ol.value[t], 2), "pass_pro": rnd(ol.pass_pro_pts[t] * ol.games[t], 2),
                                                                    "run_block": rnd(ol.run_block_pts[t] * ol.games[t], 2), "rank": int(olrank[t]),
                                                                    "of": int(len(ol))}}

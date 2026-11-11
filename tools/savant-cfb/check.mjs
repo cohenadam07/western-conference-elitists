@@ -215,7 +215,7 @@ test('the page parses, names its pools and carries the footer every product page
   const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
   const js = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].pop()[1]
   assert.doesNotThrow(() => new Function(js))
-  for (const re of [/poolLabel/, /POOL: /, /viewport-fit=cover/, /prefers-reduced-motion:reduce/, /Ask it in Claude with the WCE connector/, /id="ver"/, /New in 1\.0\.0/, /ESPN play-by-play/, /wce-nav\.js/, /savant-cfb\.js/, /Margin never enters the résumé score/, /not tracked/, /the model\\'s view, not a verdict|The model\\'s view, not a verdict/]) assert.match(html, re)
+  for (const re of [/poolLabel/, /POOL: /, /viewport-fit=cover/, /prefers-reduced-motion:reduce/, /Ask it in Claude with the WCE connector/, /id="ver"/, /New in 1\.1\.0/, /ESPN play-by-play/, /wce-nav\.js/, /savant-cfb\.js/, /Margin never enters the résumé score/, /not tracked/, /the model\\'s view, not a verdict|The model\\'s view, not a verdict/]) assert.match(html, re)
   assert.match(html, /family=Anton/)
   assert.doesNotMatch(html, /x-dc|support\.js|Harbor State|Marcus Delane/, 'the mockups\' runtime or invented names shipped')
   assert.match(js, /No committee ranking is used anywhere on this page/)
@@ -373,7 +373,8 @@ test('1.1.0: charted rows, the returner pool, profile score, weakness comps, NFL
   const c = await call('cfb_nfl_comps', { player: String(cur.players[qi][C.id]) })
   assert.equal(c.label, 'comparison, not a projection')
   assert.deepEqual(c.comps.map((x) => x.id), shard[String(cur.players[qi][C.id])].comps.map((x) => x[0]))
-  assert.equal(c.comp_average === null, !nfl.show_outcomes)
+  const slotShow = nfl.show_outcomes && !(nfl.show_by_slot && nfl.show_by_slot[shard[String(cur.players[qi][C.id])].slot] === false)
+  assert.equal(c.comp_average === null, !slotShow)
   assert.match(c._text, /A comparison, not a projection\./)
 })
 

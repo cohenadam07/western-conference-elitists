@@ -511,7 +511,7 @@ def build_season(season, only=None, fresh_days=3, rosters=True, write=True):
         end = allp.groupby("game_id")[["end_home", "end_away"]].first()
         out["score_check"] = end
         out["xtra"] = allp[list(XTRA_COLS)].copy()
-        d = finish(allp.drop(columns=["scoring", "end_home", "end_away"] + list(XTRA_COLS[2:])))
+        d = finish(allp.drop(columns=["scoring", "end_home", "end_away"] + list(XTRA_COLS[3:])))
         out["plays"] = d
     out["player_box"] = pd.DataFrame(pbox)
     out["team_box"] = pd.DataFrame(tbox)
@@ -558,7 +558,7 @@ def backfill(season):
             tbox += b
     rep = pd.DataFrame(report)
     if new:
-        add = finish(pd.concat(new, ignore_index=True).drop(columns=["scoring", "end_home", "end_away"] + list(XTRA_COLS[2:])))
+        add = finish(pd.concat(new, ignore_index=True).drop(columns=["scoring", "end_home", "end_away"] + list(XTRA_COLS[3:])))
         d = d[~d.game_id.isin(add.game_id)]
         for c in d.columns:
             if c not in add.columns:
