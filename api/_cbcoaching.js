@@ -321,7 +321,7 @@ export async function coachingDictionary({ table } = {}) {
   if (table && !dict.tables[table]) throw new SavantError(`No table "${table}". Tables: ${Object.keys(dict.tables).join(', ')}.`)
   const tables = table ? { [table]: dict.tables[table] } : dict.tables
   const stats = dict.stats.map((s) => ({ key: s.key, label: s.label, group: s.group, kind: s.kind === 'good' ? 'how good' : 'how much', unit: s.unit, lower_is_better: !!s.lower, settle_point: s.thr, since: s.first, what: s.what, formula: s.formula, source: s.source, sample: s.sample }))
-  const L = ['College Basketball Coaching Savant data dictionary.', '', 'Tables (cbb_coaching_data):', ...Object.entries(tables).map(([k, v]) => `- ${k}: ${v.note} Columns: ${v.cols.join(', ')}.`), '', `Stats on the coach pages (${stats.length}):`, ...(table ? [] : stats.map((s) => `- ${s.key} (${s.label}; ${s.kind}; ${s.unit}${s.lower_is_better ? '; lower is better' : ''}; from ${s.since}; settles at ${s.settle_point}): ${s.what} Formula: ${s.formula}`)), '', dict.pools, idx.meta.model_note, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`]
+  const L = ['College Basketball Coaching Savant data dictionary.', '', 'Tables (savant_data, sport cbb, table coaching_<name>):', ...Object.entries(tables).map(([k, v]) => `- ${k}: ${v.note} Columns: ${v.cols.join(', ')}.`), '', `Stats on the coach pages (${stats.length}):`, ...(table ? [] : stats.map((s) => `- ${s.key} (${s.label}; ${s.kind}; ${s.unit}${s.lower_is_better ? '; lower is better' : ''}; from ${s.since}; settles at ${s.settle_point}): ${s.what} Formula: ${s.formula}`)), '', dict.pools, idx.meta.model_note, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`]
   return { structured: { tables, stats: table ? [] : stats, fits: idx.meta.fits, rules: idx.meta.rules, first_seasons: idx.meta.first_seasons, note: idx.meta.model_note, credit: idx.meta.credit, data_as_of: asOf(idx), source: SOURCE }, text: L.join('\n') }
 }
 
@@ -386,27 +386,5 @@ export const tools = [
       annotations: { title: 'Match college players and coaches\' systems', ...READ_ONLY },
     },
     run: (args) => coachingFit(args),
-  },
-  {
-    name: 'cbb_coaching_data',
-    config: {
-      title: 'Pull rows from the College Basketball Coaching Savant Data Room',
-      description: 'The Data Room behind College Basketball Coaching Savant (wcehoops.com): rows for your own analysis. Tables: games and decisions (2013-14 on), stints, units and rotation (2023-24 on), roster_moves (2009-10 on), programs (every season). Filter on any column, pick columns, page (500 rows a call). WCE-computed rows only. Read cbb_coaching_dictionary first.',
-      inputSchema: { table: z.enum(TABLES).describe('Which table.'), season: z.string().regex(/^\d{4}-\d{2}$/).optional().describe('e.g. 2025-26 (not needed for programs).'), filters: z.array(filterShape).max(12).default([]).describe('{column, op, value}; ops eq, ne, in, gte, lte, gt, lt, contains, null, notnull.'), columns: z.array(z.string()).max(40).optional().describe('Columns to return.'), limit: z.number().int().min(1).max(MAX_ROWS).default(100).describe('Rows per call.'), offset: z.number().int().min(0).default(0).describe('Row to start at.') },
-      outputSchema: { table: z.string(), season: z.string().nullable(), columns: z.array(z.string()), rows: z.array(z.array(z.any())), total_matching: z.number().int(), offset: z.number().int(), limit: z.number().int(), next_offset: z.number().int().nullable(), definition: z.string(), data_as_of: z.string(), source: z.string() },
-      annotations: { title: 'Pull rows from the College Basketball Coaching Savant Data Room', ...READ_ONLY },
-    },
-    run: (args) => coachingData(args),
-  },
-  {
-    name: 'cbb_coaching_dictionary',
-    config: {
-      title: 'Get the College Basketball Coaching Savant data dictionary',
-      description: 'Every Data Room column and every coach-page stat defined (what, formula, unit, direction, settle point, source, first season), plus the fits behind the build and each module\'s first season. Read before cbb_coaching_data.',
-      inputSchema: { table: z.enum(TABLES).optional().describe('One table only.') },
-      outputSchema: { tables: loose, stats: z.array(loose), fits: loose, rules: loose, first_seasons: loose, note: z.string(), credit: z.string(), data_as_of: z.string(), source: z.string() },
-      annotations: { title: 'Get the College Basketball Coaching Savant data dictionary', ...READ_ONLY },
-    },
-    run: ({ table }) => coachingDictionary({ table }),
   },
 ]

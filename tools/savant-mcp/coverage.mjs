@@ -23,7 +23,8 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import { gunzipSync } from 'node:zlib'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -59,6 +60,9 @@ export function discover() {
     if (statSync(full).isDirectory()) { add(`api:${name}/`, `api/${name}/`); continue }
     if (name.endsWith('.js')) add(`api:${name}`, `api/${name}`)
   }
+  // every Data Room table (the catalog savant_dictionary serves): each must be listed (BUILD.md §5)
+  const cat = path.join(PUBLIC, 'dataroom', 'catalog.json.gz')
+  if (existsSync(cat)) for (const [s, tables] of Object.entries(JSON.parse(gunzipSync(readFileSync(cat)).toString('utf8')).sports)) for (const t of Object.keys(tables)) add(`dataroom:${s}/${t}`, 'public/dataroom/catalog.json')
   return found
 }
 

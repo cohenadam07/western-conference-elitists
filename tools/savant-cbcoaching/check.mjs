@@ -220,7 +220,8 @@ before(async () => {
   process.env.SAVANT_API_ORIGIN = `http://127.0.0.1:${server.address().port}`
   mod = await import('../../api/_cbcoaching.js')
   const srv = new McpServer({ name: 't', version: '0' })
-  for (const t of mod.tools) srv.registerTool(t.name, t.config, async (a) => { try { const { text, structured } = await t.run(a); return { content: [{ type: 'text', text }], structuredContent: structured } } catch (e) { return { isError: true, content: [{ type: 'text', text: e.message }] } } })
+  const { tools: dataroomTools } = await import('../../api/_dataroom.js')
+  for (const t of [...mod.tools, ...dataroomTools]) srv.registerTool(t.name, t.config, async (a) => { try { const { text, structured } = await t.run(a); return { content: [{ type: 'text', text }], structuredContent: structured } } catch (e) { return { isError: true, content: [{ type: 'text', text: e.message }] } } })
   const [a, b] = InMemoryTransport.createLinkedPair()
   await srv.connect(a)
   client = new Client({ name: 'check', version: '0' })
@@ -231,7 +232,8 @@ const call = async (name, args) => { const r = await client.callTool({ name, arg
 
 test('the seven tools are declared and listed', async () => {
   const names = (await client.listTools()).tools.map((t) => t.name).sort()
-  assert.deepEqual(names, ['cbb_coaching_data', 'cbb_coaching_dictionary', 'cbb_coaching_fit', 'cbb_coaching_leaders', 'cbb_coaching_tree', 'cbb_get_coach_profile', 'cbb_search_coaches'])
+  // Nov 2026: the Data Room moved to the shared savant_data / savant_dictionary (sport cbb, coaching_<name>)
+  assert.deepEqual(names, ['cbb_coaching_fit', 'cbb_coaching_leaders', 'cbb_coaching_tree', 'cbb_get_coach_profile', 'cbb_search_coaches', 'savant_data', 'savant_dictionary'])
   for (const t of mod.tools) assert.ok(t.config.description.length <= 700, `${t.name}: description over 700 characters`)
 })
 
@@ -299,14 +301,14 @@ test('similar players: the connector\'s scores are the page\'s and College Savan
 
 test('the Data Room hands back the file\'s rows, filtered and paged', async () => {
   const s = '2025-26', g = table('games', s)
-  const r = await call('cbb_coaching_data', { table: 'games', season: s, filters: [{ column: 'team', op: 'eq', value: '150' }], limit: 500 })
+  const r = await call('savant_data', { sport: 'cbb', table: 'coaching_games', season: s, filters: [{ column: 'team', op: 'eq', value: '150' }], limit: 500 })
   assert.ok(!r.isError, r.text)
   const want = g.rows.filter((x) => x[g.cols.indexOf('team')] === '150')
   assert.equal(r.structuredContent.total_matching, want.length)
   assert.deepEqual(r.structuredContent.rows, want.slice(0, 500))
-  const d = await call('cbb_coaching_dictionary', {})
+  const d = await call('savant_dictionary', { sport: 'cbb', table: 'coaching_stats' })
   assert.ok(!d.isError && d.structuredContent.stats.length === index.stats.length)
-  const bad = await call('cbb_coaching_data', { table: 'stints', season: '2015-16' })
+  const bad = await call('savant_data', { sport: 'cbb', table: 'coaching_stints', season: '2015-16' })
   assert.ok(bad.isError && /2023-24/.test(bad.text), 'a season without lineups should say when they begin')
 })
 

@@ -657,13 +657,13 @@
     "page:basketball-coaching-savant.html#renderManagement": {
       "tools": [
         "nba_get_coach_profile",
-        "nba_coaching_data"
+        "savant_data"
       ]
     },
     "page:basketball-coaching-savant.html#renderPairs": {
       "tools": [
         "nba_get_coach_profile",
-        "nba_coaching_data"
+        "savant_data"
       ]
     },
     "page:basketball-coaching-savant.html#renderPlayTypes": {
@@ -674,13 +674,13 @@
     "page:basketball-coaching-savant.html#renderQuadrant": {
       "tools": [
         "nba_get_coach_profile",
-        "nba_coaching_data"
+        "savant_data"
       ]
     },
     "page:basketball-coaching-savant.html#renderRotation": {
       "tools": [
         "nba_get_coach_profile",
-        "nba_coaching_data"
+        "savant_data"
       ]
     },
     "page:basketball-coaching-savant.html#renderScouting": {
@@ -696,7 +696,7 @@
     "page:basketball-coaching-savant.html#renderSplits": {
       "tools": [
         "nba_get_coach_profile",
-        "nba_coaching_data"
+        "savant_data"
       ]
     },
     "page:basketball-coaching-savant.html#renderStaff": {
@@ -707,7 +707,7 @@
     },
     "page:basketball-coaching-savant.html#renderTrends": {
       "tools": [
-        "nba_coaching_dictionary"
+        "savant_dictionary"
       ],
       "note": "The league trends are the season means of the stats in the dictionary; nba_coaching_data gives the rows behind them."
     },
@@ -748,8 +748,8 @@
         "nba_get_coach_profile",
         "nba_coaching_leaders",
         "nba_coaching_tree",
-        "nba_coaching_data",
-        "nba_coaching_dictionary"
+        "savant_data",
+        "savant_dictionary"
       ]
     },
     "page:basketball-savant.html#renderRotStrip": {
@@ -772,8 +772,8 @@
         "cbb_shot_chart",
         "cbb_rotation",
         "cbb_game",
-        "cbb_data",
-        "cbb_data_dictionary",
+        "savant_data",
+        "savant_dictionary",
         "cbb_all_savant_team"
       ]
     },
@@ -829,7 +829,7 @@
     },
     "page:college-basketball-coaching-savant.html#renderTrends": {
       "tools": [
-        "cbb_coaching_dictionary"
+        "savant_dictionary"
       ],
       "note": "The D1 medians by season are the medians of the dictionary's stats over coach-seasons; cbb_coaching_data gives the rows."
     },
@@ -856,19 +856,19 @@
     "page:college-basketball-coaching-savant.html#renderRotation": {
       "tools": [
         "cbb_get_coach_profile",
-        "cbb_coaching_data"
+        "savant_data"
       ]
     },
     "page:college-basketball-coaching-savant.html#renderPairs": {
       "tools": [
         "cbb_get_coach_profile",
-        "cbb_coaching_data"
+        "savant_data"
       ]
     },
     "page:college-basketball-coaching-savant.html#renderQuadrant": {
       "tools": [
         "cbb_get_coach_profile",
-        "cbb_coaching_data"
+        "savant_data"
       ]
     },
     "page:college-basketball-coaching-savant.html#renderMVI": {
@@ -879,13 +879,13 @@
     "page:college-basketball-coaching-savant.html#renderManagement": {
       "tools": [
         "cbb_get_coach_profile",
-        "cbb_coaching_data"
+        "savant_data"
       ]
     },
     "page:college-basketball-coaching-savant.html#renderSplits": {
       "tools": [
         "cbb_get_coach_profile",
-        "cbb_coaching_data"
+        "savant_data"
       ]
     },
     "page:college-basketball-coaching-savant.html#renderDiet": {
@@ -922,7 +922,7 @@
     "page:college-basketball-coaching-savant.html#renderRosterBuilding": {
       "tools": [
         "cbb_get_coach_profile",
-        "cbb_coaching_data"
+        "savant_data"
       ]
     },
     "page:college-basketball-coaching-savant.html#renderTournament": {
@@ -956,8 +956,8 @@
         "cbb_coaching_leaders",
         "cbb_coaching_tree",
         "cbb_coaching_fit",
-        "cbb_coaching_data",
-        "cbb_coaching_dictionary"
+        "savant_data",
+        "savant_dictionary"
       ]
     },
     "page:college-football-savant.html": {
@@ -995,6 +995,188 @@
         "cfb_get_player_profile",
         "cfb_team_profile"
       ]
+    },
+    "data:dataroom": {
+      "tools": [
+        "savant_dictionary",
+        "savant_data"
+      ],
+      "note": "The Data Room: the catalog, the dictionary and the small tables (public/dataroom); the large tables are release assets."
+    },
+    "dataroom:nba/player_games": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per player-game"
+    },
+    "dataroom:nba/shots": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per shot"
+    },
+    "dataroom:nba/coaching_games": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per team-game (coaching context)"
+    },
+    "dataroom:nba/coaching_stints": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per player stint"
+    },
+    "dataroom:nba/coaching_units": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per five-man unit, team-season"
+    },
+    "dataroom:nba/coaching_rotation": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per player-game (rotation)"
+    },
+    "dataroom:nba/coaching_decisions": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per coaching decision"
+    },
+    "dataroom:nfl/plays": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per play"
+    },
+    "dataroom:nfl/player_games": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per player-game"
+    },
+    "dataroom:nfl/games": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per team-game"
+    },
+    "dataroom:cfb/plays": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per play"
+    },
+    "dataroom:cfb/games": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per team-game"
+    },
+    "dataroom:cbb/games": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per game"
+    },
+    "dataroom:cbb/player_games": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per player-game (per team)"
+    },
+    "dataroom:cbb/units": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per five-man unit, team-season (per team)"
+    },
+    "dataroom:cbb/possessions": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per possession (per team)"
+    },
+    "dataroom:cbb/coaching_games": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per team-game (coaching context)"
+    },
+    "dataroom:cbb/coaching_stints": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per player stint"
+    },
+    "dataroom:cbb/coaching_units": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per five-man unit"
+    },
+    "dataroom:cbb/coaching_rotation": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per player-game (rotation)"
+    },
+    "dataroom:cbb/coaching_decisions": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per coaching decision"
+    },
+    "dataroom:cbb/coaching_roster_moves": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per roster move"
+    },
+    "dataroom:cbb/coaching_programs": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per program (every season in one table)"
+    },
+    "dataroom:ufc/fights": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per fighter-fight"
+    },
+    "dataroom:ufc/rounds": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per fighter-round"
     }
   },
   "switches": {

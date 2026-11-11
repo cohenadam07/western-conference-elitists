@@ -48,3 +48,7 @@ pipeline/basketball/cache_br/
 pipeline/college/run/
 .espn-cbb-cache/
 .cbb-home/
+
+# Data Room: the large tables are GitHub release assets, never git (research/data-room/BUILD.md)
+out/dataroom/
+out/logs/

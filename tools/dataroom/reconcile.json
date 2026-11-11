@@ -1,0 +1,2062 @@
+[
+ {
+  "sport": "ufc",
+  "table": "fights",
+  "season": "all years",
+  "check": "career fights, minutes, strikes landed and absorbed per minute, win % vs UFC Savant career totals",
+  "compared": 2779,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "ufc",
+  "table": "rounds",
+  "season": "2024",
+  "check": "significant strikes summed over rounds = the fight row",
+  "compared": 1034,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "ufc",
+  "table": "rounds",
+  "season": "2025",
+  "check": "significant strikes summed over rounds = the fight row",
+  "compared": 1040,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "ufc",
+  "table": "rounds",
+  "season": "2026",
+  "check": "significant strikes summed over rounds = the fight row",
+  "compared": 988,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "ufc",
+  "table": "rounds",
+  "season": "2010",
+  "check": "significant strikes summed over rounds = the fight row",
+  "compared": 506,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "ufc",
+  "table": "rounds",
+  "season": "2001",
+  "check": "significant strikes summed over rounds = the fight row",
+  "compared": 80,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "1999",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 291,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "1999",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 31,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "1999",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 519,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2000",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 303,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2000",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 31,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2000",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 507,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2001",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 283,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2001",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 31,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2001",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 499,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2002",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 298,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2002",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2002",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 501,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2003",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 313,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2003",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2003",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 509,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2004",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 316,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2004",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2004",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 520,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2005",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 299,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2005",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2005",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 502,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2006",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 297,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2006",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2006",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 491,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2007",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 302,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2007",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2007",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 513,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2008",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 298,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2008",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2008",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 516,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2009",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 299,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2009",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2009",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 540,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2010",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 307,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2010",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2010",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 539,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2011",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 297,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2011",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2011",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 554,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2012",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 298,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2012",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2012",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 558,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2013",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 284,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2013",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2013",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 546,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2014",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 295,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2014",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2014",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 555,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2015",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 296,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2015",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2015",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 556,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2016",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 310,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2016",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2016",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 563,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2017",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 296,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2017",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2017",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 559,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2018",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 316,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2018",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2018",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 579,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2019",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 312,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2019",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2019",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 578,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2020",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 341,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2020",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2020",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 598,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2021",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 346,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2021",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2021",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 614,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2022",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 338,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2022",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2022",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 588,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2023",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 316,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2023",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2023",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 558,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2024",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 309,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2024",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2024",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 571,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2025",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 305,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2025",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2025",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 573,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "plays",
+  "season": "2026",
+  "check": "dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons",
+  "compared": 247,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "games",
+  "season": "2026",
+  "check": "plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways",
+  "compared": 32,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nfl",
+  "table": "player_games",
+  "season": "2026",
+  "check": "pass attempts, targets and receptions summed over game lines vs the Football Savant season card",
+  "compared": 509,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2014",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 865,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2014",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1490,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2015",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 869,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2015",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1512,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2016",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 859,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2016",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1490,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2017",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 892,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2017",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1544,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2018",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 896,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2018",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1540,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2019",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 896,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2019",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1544,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2020",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 834,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2020",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1058,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2021",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 908,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2021",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1524,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2022",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 890,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2022",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1524,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2023",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 944,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2023",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1570,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2024",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 923,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2024",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1564,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2025",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 929,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2025",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1614,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "plays",
+  "season": "2026",
+  "check": "dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file",
+  "compared": 872,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "cfb",
+  "table": "games",
+  "season": "2026",
+  "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
+  "compared": 1126,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "1996-97",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 440,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "1997-98",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 437,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "1998-99",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 438,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "1999-00",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 438,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2000-01",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 439,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2001-02",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 439,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2002-03",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 427,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2003-04",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 440,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2004-05",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 464,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2005-06",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 455,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2006-07",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 458,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2007-08",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 451,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2008-09",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 445,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2009-10",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 440,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2010-11",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 449,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2011-12",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 478,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2012-13",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 467,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2013-14",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 480,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2014-15",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 490,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2015-16",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 475,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2016-17",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 485,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2017-18",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 537,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2018-19",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 526,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2019-20",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 527,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2020-21",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 539,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2021-22",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 597,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2022-23",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 537,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2023-24",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 568,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2024-25",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 566,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2025-26",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 582,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1996-97",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 440,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1996-97",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 328,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1997-98",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 437,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1997-98",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 332,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1998-99",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 437,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1998-99",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 294,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1999-00",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 438,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1999-00",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 338,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2000-01",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 439,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2000-01",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 336,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2001-02",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 439,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2001-02",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 335,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2002-03",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 427,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2002-03",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 332,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2003-04",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 440,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2003-04",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 341,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2004-05",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 463,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2004-05",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 355,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2005-06",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 455,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2005-06",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 336,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2006-07",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 458,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2006-07",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 342,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2007-08",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 451,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2007-08",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 341,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2008-09",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 445,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2008-09",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 346,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2009-10",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 440,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2009-10",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 352,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2010-11",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 449,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2010-11",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 360,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2011-12",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 478,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2011-12",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 357,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2012-13",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 467,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2012-13",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 372,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2013-14",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 480,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2013-14",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 367,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2014-15",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 490,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2014-15",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 385,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2015-16",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 475,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2015-16",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 378,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2016-17",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 485,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2016-17",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 379,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2017-18",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 537,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2017-18",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 388,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2018-19",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 526,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2018-19",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 397,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2019-20",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 527,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2019-20",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 374,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2020-21",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 539,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2020-21",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 396,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2021-22",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 596,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2021-22",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 414,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2022-23",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 537,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2022-23",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 400,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2023-24",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 568,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2023-24",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 395,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2024-25",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 566,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2024-25",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 415,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2025-26",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 582,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2025-26",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 427,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ }
+]
