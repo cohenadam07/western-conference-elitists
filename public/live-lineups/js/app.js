@@ -142,7 +142,7 @@ function ingest(g, quiet = false) {
   st.S = S; if (!quiet) st.pulse = true;
   document.title = `Oklahoma ${S.score.OU}, ${S.oppShort} ${S.score.OPP} · Live lineups`;
   if (S.state === 'live' && st.priorLoaded && !st.replay) { /* keep it fresh */ }
-  render();
+  try { render(); } catch (e) { console.error('[live-lineups] render failed', e); $app.insertAdjacentHTML('afterbegin', '<div class="banner err" role="alert"><b>This view hit an error.</b> The data keeps updating; switch tabs or reload.</div>'); }
   window.__ll = { A: st.A, S: st.S, view, sheet: () => sheetModel() }; // test hook
 }
 

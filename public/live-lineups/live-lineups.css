@@ -361,3 +361,6 @@ table.xl{border-collapse:separate;border-spacing:0;font:400 12.5px/1.2 "Libre Fr
   .dh{padding:16px}.seg{margin:0 16px}.db{padding:14px 16px 24px}.df{padding:12px 16px}
   .dt td.g{max-width:150px}
 }
+/* grid children must be allowed to shrink so the chip row scrolls inside itself */
+.pick,.courtwrap{min-width:0}
+@media (max-width:1024px){.opt{max-width:220px}.opt .o2{white-space:nowrap}}

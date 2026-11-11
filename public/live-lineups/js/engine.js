@@ -208,7 +208,7 @@ export function stintWindows(g, team) {
   const lastT = plays.length ? elapsed(plays[plays.length - 1][0], plays[plays.length - 1][1]) : 0;
   const endT = g.cut != null ? Math.max(g.cut, lastT) : lastT;
   if (endT > start) out.push({ t0: start, t1: endT, key: key(cur), open: !g.final });
-  return { ok: true, windows: out };
+  return { ok: true, windows: out, current: key(cur), currentStart: start };
 }
 
 const STAT_KEYS = ['pts', 'fga', 'oreb', 'tov', 'fta', 'fg3m', 'fg3a', 'rim_fga'];
@@ -452,10 +452,10 @@ export function analyze(g, team, { prior = [], ratings = null, replay = false, r
   // stints (ours) with +/-
   const rows = W.ok ? stintRows(W.windows, poss, team) : [];
   const stints = rows.map(r => ({ t0: r.t0, t1: r.t1, key: r.key, players: r.players, pm: r.u.OU_pts - r.u.Opp_pts, open: !!r.open, flagged: repairT != null && r.t1 > repairT }));
-  const usNowKey = W.ok && W.windows.length ? W.windows[W.windows.length - 1].key : null;
-  const oppNowKey = Wopp.ok && Wopp.windows.length ? Wopp.windows[Wopp.windows.length - 1].key : null;
-  const lastW = W.ok && W.windows.length ? W.windows[W.windows.length - 1] : null;
-  const together = lastW ? (lastW.t1 - lastW.t0) / 60 : 0;
+  // the five on the floor now: the lineup after the latest substitution, even if it has not played a second yet
+  const usNowKey = W.ok ? W.current : null;
+  const oppNowKey = Wopp.ok ? Wopp.current : null;
+  const together = W.ok ? Math.max(0, cut - W.currentStart) / 60 : 0;
 
   // tonight + prior
   const teamT = emptyCounter(), unitsT = {};
