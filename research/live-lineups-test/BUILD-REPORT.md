@@ -118,3 +118,57 @@ Item 3 of the original list is done; the proxy is verified. Still open:
 - live test 6 on 3+ games: the stale banner should now stay off through TV timeouts,
 - Friday's dry run on 401906804,
 - a double-overtime game and a live bad substitution, neither exercised yet.
+
+# Test 6 — live games (Nov 11, 2026, daytime) — PASS, with four fixes found by watching
+
+The local page (`python3 -m http.server 4173` in `public/`, Chromium with a normal Chrome user agent) ran each game through the real live code path (`?game=<id>&team=<id>`, 15-second refresh). `tools/live-lineups/live-test.mjs` logged, per ESPN response: ESPN's status, clock and last play; the page's reconciliation light and text; every banner; and repairs. A 1-second sampler logged every banner change between refreshes. `tools/live-lineups/live_summary.py` turns each log into the numbers below. Timeouts are matched to ESPN's own play list, and every stretch where ESPN's clock sat still for 90+ s is listed too, which catches TV timeouts ESPN never posts as a play.
+
+| game (ESPN id, "us" team) | watched | live refreshes | gap median / max | light | "Data delayed" | repairs |
+|---|---|---|---|---|---|---|
+| FDU at ETAM (401919759, FDU) | 1st 9:30 → halftime, 34.9 min | 140 | 15.1 s / 15.9 s | 137 green, 3 amber (one 45 s catch-up) | never | none |
+| FDU at ETAM, 2nd run on fixed code | halftime → 2nd 12:48, 24.9 min | 100 | 15.1 s / 15.3 s | 100 green | never | none |
+| KC vs FAMU (401921005, KC), on fixed code | 1st 6:43 → halftime, 29.9 min | 120 | 15.1 s / 15.9 s | 120 green | never | ESPN's bad FAMU subs repaired (1st 8:27, 8:22, 8:20, 5:18) until ESPN corrected them |
+| KC vs FAMU, first run (before the fix) | 1st 19:58 → 6:47, 22.1 min | 89 | 15.0 s / 15.3 s | 74 green, 4 amber, **11 red** (the bug below) | never | lineups hidden |
+| DART at UALB (401920234, DART) | 1st 19:39 → 6:03, 35.0 min | 140 | 15.1 s / 15.4 s | 140 green | never | two half-posted groups at 13:26 and 8:26 (the bug below) |
+
+Console or page errors: 0 in every run. The page picked up DART's tip-off by itself after 36 pre-game polls (60 s apart).
+
+**Timeouts and other stoppages: no "Data delayed" in any of them.**
+
+| game | stoppage | ESPN clock frozen | light | banners |
+|---|---|---|---|---|
+| FDU | Official TV timeout, 1st 7:01 | ~211 s (14 refreshes) | green, amber for 45 s | none |
+| FDU | Coach's challenge (overturned), 1st 4:33 | ~211 s | green | none |
+| FDU | Official TV timeout, 1st 2:56 | ~135 s | green | none |
+| FDU | Halftime | ~12 min (49 refreshes) | green | none |
+| FDU | 2nd-half under-16 TV break, 2nd 14:47 (ESPN posted no timeout play) | ~196 s | green | none |
+| KC | Short timeout, 1st 11:53 (first run) | ~150 s | green | none |
+| KC | Official TV timeout, 1st 3:59 | ~226 s (15 refreshes) | green | only the repair warning, correctly |
+| KC | Halftime | ~16 min | green | repair warning until ESPN's correction, then none |
+| DART | Official TV timeout, 1st 14:29 | ~166 s | green | none |
+| DART | Short timeout, 1st 10:32 | ~196 s | green | none |
+| DART | Official TV timeout, 1st 7:52 | ~227 s | green | none |
+
+The only non-green light on fixed code was FDU at 1st 7:01. The play-by-play had a free throw (17-25) that ESPN's score header didn't show yet (16-25). The light read amber "catching up" for 3 refreshes (45 s), then green. That's the designed brief catch-up.
+
+**Screenshots during FDU at ETAM** (`research/live-lineups-test/live/fdu-etam/` and `fdu-etam-2h/`). All four tabs (Right now, Shots and scoring, Their key players, Spreadsheet) plus the drawer, at 1440×900, and the four tabs at 390×844, each at three moments:
+- `live-*`: 1st half 9:30;
+- `media-timeout-*`: during the 7:01 TV timeout;
+- `fdu-etam-2h/live-*`: halftime, on fixed code, showing the corrected luck copy.
+
+## Found by watching, fixed and committed
+
+1. **Shooting-luck copy said "about 0 the other way"** (FDU, 1st 9:30: down 8 with 8 points of luck). ETAM's side read "Most of the 8-point lead is real: about 0." The headline now says up about N / about even / down only about N, and a lead that is mostly luck says so. A side with less than a point of luck reads "about what you would expect". `takeaway-sweep.mjs`: 2,975 takeaways over 300 games × 6 moments × both teams, 0 nonsense lines. (b14ffdcde)
+2. **One bad ESPN substitution hid all lineups and turned the light red** (KC vs FAMU, 1st 8:20). ESPN subbed out FAMU's Jayden Joseph at 11:53, credited him with a shot at 8:27, and subbed in Chandler Davis at 8:20 while he was already on. The repair left FAMU with four on the floor, because the bench player it waits for hadn't acted yet in a live feed. Lineups were hidden, and the light read "Play-by-play 0-0, score 25-16" (red) because the light counted points only from the lineup parse. Fixed in 4ae97c8df:
+   - With no future actor, repair brings back the most recently seen bench player.
+   - Without a lineup parse, the light counts the scoring plays.
+
+   On the same feed, KC now shows lineups, 25-16 reconciles, and the warning is correct. At halftime ESPN backfilled the missing 10:25 sub (Davis out, Joseph in), and the page dropped the repair and warning by itself, because it rebuilds from scratch each pull. Over the 300-game sample, repair rescues 8 of 16 broken games (was 5), and 7 of those reconcile. The other 8 hide lineups but keep a green light. 0 clean games are touched. In 5,001 mid-game cuts of clean games, lineups are never hidden. 5 of those cuts show ESPN's score field one play behind (brief amber). `repair-300.log`.
+3. **Halftime screen held 75 s into the 2nd half** (FDU). ESPN's status still said Halftime while 2nd-half plays arrived. A real play after the break now ends the halftime view, while the 20:00 substitutions alone do not. `half-lag-test.mjs`: 2/2. The stale test still passes 4/4. (58bfaa5fc)
+4. **False "One substitution looks wrong" for 15 s** (DART, at 1st 13:26 and again at 8:26). ESPN posts a five-man change a few lines at a time, so for one pull the group was five out, four in. While live, repairs that all sit at the feed's last clock now stay quiet, and lineups are still repaired. The same group with later plays, or at the final, still warns. `tail-repair-test.mjs`: 6/6 on the saved live feeds in `live/feeds/`. (253e493fe)
+
+After the fixes: parser parity 3/3 and 300/300 identical, and the expected workbook shows 0 differences in 2,666 cells. The KC fixed run used fixes 1-2. The DART run loaded before fixes 3-4, so its log still shows the two 15-second warnings that fix 4 removes.
+
+**Not exercised live:** the 2nd half to the final, overtime, and the drawer on a phone mid-game. Friday's dry run on 401906804 covers a full game. The page still says "Oklahoma" for any `team=`, by design (the `team` parameter is a test hook).
+
+Logs: `research/live-lineups-test/live/<game>/refresh-log.txt` (one line per refresh), `refresh-log.jsonl`, `monitor.out`; `live/summary.json`.

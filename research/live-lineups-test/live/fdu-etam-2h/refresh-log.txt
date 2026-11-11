@@ -1,0 +1,102 @@
+12:27:36 #1 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none
+12:27:51 #2 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:27:58 SCREENSHOTS live: now, shots, players, sheet, drawer (1440x900) and phone (390x844)
+12:28:06 #3 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:28:21 #4 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:28:36 #5 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:28:51 #6 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:29:06 #7 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:29:21 #8 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:29:36 #9 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:29:52 #10 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:30:07 #11 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:30:22 #12 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:30:37 #13 ESPN in Halftime (222 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:30:52 #14 ESPN in Halftime (232 plays, last 2-20:00 Substitution) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:31:07 #15 ESPN in Halftime (232 plays, last 2-20:00 Substitution) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:31:22 #16 ESPN in Halftime (232 plays, last 2-20:00 Substitution) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:31:37 #17 ESPN in Halftime (232 plays, last 2-20:00 Substitution) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:31:52 #18 ESPN in Halftime (232 plays, last 2-20:00 Substitution) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:32:08 #19 ESPN in Halftime (232 plays, last 2-20:00 Substitution) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:32:23 #20 ESPN in Halftime (232 plays, last 2-20:00 Substitution) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:32:38 #21 ESPN in Halftime (233 plays, last 2-19:41 JumpShot) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:32:53 #22 ESPN in Halftime (233 plays, last 2-19:41 JumpShot) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:33:08 #23 ESPN in Halftime (233 plays, last 2-19:41 JumpShot) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:33:23 #24 ESPN in Halftime (233 plays, last 2-19:41 JumpShot) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:33:38 #25 ESPN in Halftime (234 plays, last 2-19:44 JumpShot) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+12:33:53 #26 ESPN in 19:44 - 2nd (234 plays, last 2-19:44 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:34:08 #27 ESPN in 19:44 - 2nd (234 plays, last 2-19:44 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:34:23 #28 ESPN in 19:44 - 2nd (233 plays, last 2-19:44 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:34:38 #29 ESPN in 19:44 - 2nd (233 plays, last 2-19:44 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:34:53 #30 ESPN in 19:38 - 2nd (233 plays, last 2-19:44 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+12:35:08 #31 ESPN in 19:19 - 2nd (237 plays, last 2-19:24 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:35:23 #32 ESPN in 19:19 - 2nd (238 plays, last 2-19:19 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:35:38 #33 ESPN in 18:59 - 2nd (238 plays, last 2-19:19 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:35:54 #34 ESPN in 18:44 - 2nd (240 plays, last 2-18:59 Steal) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:36:09 #35 ESPN in 18:44 - 2nd (243 plays, last 2-18:44 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:36:24 #36 ESPN in 18:44 - 2nd (243 plays, last 2-18:44 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:36:39 #37 ESPN in 18:38 - 2nd (247 plays, last 2-18:44 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:36:54 #38 ESPN in 18:38 - 2nd (247 plays, last 2-18:44 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:37:09 #39 ESPN in 18:38 - 2nd (247 plays, last 2-18:44 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:37:24 #40 ESPN in 18:20 - 2nd (248 plays, last 2-18:20 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:37:39 #41 ESPN in 18:04 - 2nd (248 plays, last 2-18:22 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:37:54 #42 ESPN in 17:52 - 2nd (251 plays, last 2-17:52 Shot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:38:09 #43 ESPN in 17:52 - 2nd (250 plays, last 2-18:04 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:38:24 #44 ESPN in 17:52 - 2nd (251 plays, last 2-17:52 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:38:39 #45 ESPN in 17:52 - 2nd (251 plays, last 2-17:52 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:38:54 #46 ESPN in 17:52 - 2nd (251 plays, last 2-17:52 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:39:09 #47 ESPN in 17:50 - 2nd (252 plays, last 2-17:50 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:39:25 #48 ESPN in 17:49 - 2nd (255 plays, last 2-17:49 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:39:40 #49 ESPN in 17:34 - 2nd (258 plays, last 2-17:44 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:39:55 #50 ESPN in 17:23 - 2nd (261 plays, last 2-17:23 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:40:10 #51 ESPN in 17:23 - 2nd (261 plays, last 2-17:23 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:40:25 #52 ESPN in 16:55 - 2nd (263 plays, last 2-16:55 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:40:40 #53 ESPN in 16:38 - 2nd (263 plays, last 2-16:55 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:40:55 #54 ESPN in 16:38 - 2nd (264 plays, last 2-16:38 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:41:10 #55 ESPN in 16:38 - 2nd (264 plays, last 2-16:38 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:41:25 #56 ESPN in 16:38 - 2nd (264 plays, last 2-16:38 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:41:40 #57 ESPN in 16:38 - 2nd (264 plays, last 2-16:38 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:41:55 #58 ESPN in 16:38 - 2nd (265 plays, last 2-16:38 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:42:10 #59 ESPN in 16:38 - 2nd (265 plays, last 2-16:38 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:42:25 #60 ESPN in 16:38 - 2nd (274 plays, last 2-16:38 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:42:40 #61 ESPN in 16:16 - 2nd (274 plays, last 2-16:38 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:42:56 #62 ESPN in 16:16 - 2nd (276 plays, last 2-16:19 Steal) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:43:11 #63 ESPN in 16:16 - 2nd (277 plays, last 2-16:16 Shot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:43:26 #64 ESPN in 16:16 - 2nd (278 plays, last 2-16:16 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:43:41 #65 ESPN in 16:16 - 2nd (279 plays, last 2-16:16 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:43:56 #66 ESPN in 15:54 - 2nd (280 plays, last 2-15:54 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:44:11 #67 ESPN in 15:54 - 2nd (280 plays, last 2-15:54 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:44:26 #68 ESPN in 15:54 - 2nd (280 plays, last 2-15:54 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:44:41 #69 ESPN in 15:22 - 2nd (281 plays, last 2-15:22 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:44:56 #70 ESPN in 15:02 - 2nd (283 plays, last 2-15:02 Steal) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:45:11 #71 ESPN in 14:47 - 2nd (285 plays, last 2-14:47 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:45:26 #72 ESPN in 14:47 - 2nd (285 plays, last 2-14:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:45:41 #73 ESPN in 14:47 - 2nd (285 plays, last 2-14:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:45:56 #74 ESPN in 14:47 - 2nd (285 plays, last 2-14:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:46:11 #75 ESPN in 14:47 - 2nd (285 plays, last 2-14:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:46:26 #76 ESPN in 14:47 - 2nd (285 plays, last 2-14:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:46:41 #77 ESPN in 14:47 - 2nd (285 plays, last 2-14:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:46:57 #78 ESPN in 14:47 - 2nd (285 plays, last 2-14:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:47:12 #79 ESPN in 14:47 - 2nd (285 plays, last 2-14:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:47:27 #80 ESPN in 14:47 - 2nd (285 plays, last 2-14:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:47:42 #81 ESPN in 14:47 - 2nd (285 plays, last 2-14:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:47:57 #82 ESPN in 14:47 - 2nd (285 plays, last 2-14:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:48:12 #83 ESPN in 14:47 - 2nd (293 plays, last 2-14:47 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:48:27 #84 ESPN in 14:04 - 2nd (296 plays, last 2-14:21 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:48:42 #85 ESPN in 13:57 - 2nd (298 plays, last 2-14:05 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:48:57 #86 ESPN in 13:57 - 2nd (299 plays, last 2-13:57 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:49:12 #87 ESPN in 13:57 - 2nd (300 plays, last 2-13:57 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:49:27 #88 ESPN in 13:57 - 2nd (305 plays, last 2-13:55 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:49:42 #89 ESPN in 13:57 - 2nd (305 plays, last 2-13:55 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:49:58 #90 ESPN in 13:30 - 2nd (305 plays, last 2-13:55 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:50:13 #91 ESPN in 13:30 - 2nd (306 plays, last 2-13:30 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:50:28 #92 ESPN in 13:30 - 2nd (306 plays, last 2-13:30 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:50:43 #93 ESPN in 13:30 - 2nd (306 plays, last 2-13:30 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:50:58 #94 ESPN in 13:30 - 2nd (312 plays, last 2-13:30 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:51:13 #95 ESPN in 13:30 - 2nd (312 plays, last 2-13:30 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:51:28 #96 ESPN in 13:16 - 2nd (314 plays, last 2-13:29 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+12:51:43 #97 ESPN in 13:15 - 2nd (316 plays, last 2-13:16 Steal) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+12:51:58 #98 ESPN in 13:15 - 2nd (318 plays, last 2-13:15 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:52:14 #99 ESPN in 13:15 - 2nd (318 plays, last 2-13:15 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+12:52:29 #100 ESPN in 12:48 - 2nd (320 plays, last 2-12:56 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+12:52:36 END 100 refreshes, 0 errors, 25.0 live minutes
