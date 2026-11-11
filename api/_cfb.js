@@ -85,7 +85,7 @@ async function findTeam(q, season) {
 
 // ---- answers --------------------------------------------------------------------------
 function statLine(s, r) {
-  const b = { key: s.key, label: s.label, group: s.group, context: s.verdict === 'context', lower_is_better: s.lower, tracked: r.tracked }
+  const b = { key: s.key, label: s.label, group: s.cgroup || s.group, context: s.verdict === 'context', lower_is_better: s.lower, tracked: r.tracked, ...(s.tier === 'B' ? { charted: true } : {}) }
   if (!r.tracked) return { ...b, value: null, percentile: null, note: r.reason }
   if (r.none) return { ...b, value: null, percentile: null, note: r.reason }
   return { ...b, value: r.value, shown: r.shown, percentile: r.pct, before_adjustment: r.raw, sample: r.n, sample_unit: s.unit_n, low_sample: r.settling, noisy_in_one_season: s.verdict === 'hatched', likely_to_settle_at: r.likelyShown }
@@ -127,8 +127,14 @@ async function profile({ player, season, pool, adjusted, garbage_time, group }) 
   if (i < 0) throw new SavantError(`${p.name} has no graded plays in ${s} (he is on file ${p.first} to ${p.last}). Try cfb_player_career.`)
   const pl = d.players[i], slot = pl[C.slot], team = pl[C.team]
   const o = { poolName: POOLKEY[pool], adj: adjusted, gt: garbage_time }
-  const stats = M.statsFor(R, slot).filter((x) => group === 'all' || x.group.toLowerCase() === group.toLowerCase())
+  const g0 = group.toLowerCase(), inG = (x) => g0 === 'all' || (x.cgroup || x.group).toLowerCase().includes(g0) || x.group.toLowerCase() === g0
+  const stats = M.cardGroups(R, slot).flatMap((G) => G.stats).filter(inG)
   const rows = stats.map((x) => statLine(x, M.row(d, R, x, i, o)))
+  const nret = M.sample(d, 'returns', i, false)
+  const retRows = nret ? M.cardGroups(R, 'RET').flatMap((G) => G.stats).filter((x) => g0 === 'all' || g0.startsWith('ret')).map((x) => statLine(x, M.row(d, R, x, i, o))) : []
+  const prof = M.profile(d, R, i, o)
+  const weak = M.weakComps(d, R, i, 5).map((c) => ({ id: d.players[c.i][C.id], name: d.players[c.i][C.name], team: dname(d, d.players[c.i][C.team]), match: Math.round(100 - c.distance) }))
+  const ped = await files.load(`x/pedigree/${s}.json`).then((x) => x.rows.find((r) => r[0] === p.id) || null).catch(() => null)
   const pp = M.pool(d, R, i, POOLKEY[pool])
   const label = M.poolLabel(pp, pl, { adj: adjusted, season: s, conf: M.confOf(d, i), reg: R })
   const [P, A] = await Promise.all([shard(p.id), files.load(`allsavant/${s}.json`).catch(() => null)])
@@ -140,18 +146,22 @@ async function profile({ player, season, pool, adjusted, garbage_time, group }) 
   const lines = [`${pl[C.name]}, ${slot}, ${dname(d, team)} (${M.confOf(d, i)}), ${s}${pl[C.cls] ? `, ${pl[C.cls]}` : ''}. ${asOf(d)}.`,
     `Percentiles ${label}, garbage time ${garbage_time ? 'included' : 'excluded'} (${pp.ids.length} qualified players).${pp.widened ? ` ${pp.widened}.` : ''}`]
   if (!pl[C.qual] && q) lines.push(`LOW SAMPLE: ${Math.round(qn || 0)} ${q[0] === 'tgt' ? 'targets' : q[0]}, under the qualifying ${Math.round(q[1] * (d.scale || 1))}. His percentiles show where his numbers would sit among qualified players.`)
-  for (const r of rows) lines.push(lineText(r))
+  if (prof) lines.push(`Profile score ${prof.score}: the mean of his percentiles on his position's ${prof.n} headline stats.`)
+  for (const r of rows) lines.push(lineText(r) + (r.charted ? ' [charted, from 2025 week 9]' : ''))
+  if (retRows.length) { lines.push(`Returner (${Math.round(nret)} returns; pool: FBS returners, raw):`); for (const r of retRows) lines.push(lineText(r)) }
   if (val) lines.push(`Savant value: ${sg(val.value)} expected points above a replacement ${R.slot_name[slot].replace(/s$/, '')}${val.rank ? `, ${ordinal(val.rank)} of ${val.of} qualified ${R.slot_name[slot]}` : ''}.`)
   if (bio.recruit) lines.push(`Recruit: ${bio.recruit.stars} stars${bio.recruit.class_rank ? `, No. ${bio.recruit.class_rank} in the ${bio.recruit.class_year} class` : ''}.`)
   if (bio.transfers.length) lines.push(`Transferred ${bio.transfers.join(', ')}.`)
   if (honours.length) lines.push(`All-Savant: ${honours.join('; ')}.`)
   if (comps.length) lines.push(`Nearest players this season (match out of 100, as on the page): ${comps.map((c) => `${c.name}, ${c.team} (${c.match})`).join('; ')}.`)
+  if (weak.length) lines.push(`Weakness comps (closest on his five lowest bars): ${weak.map((c) => `${c.name}, ${c.team} (${c.match})`).join('; ')}.`)
+  if (ped) lines.push(`Production vs pedigree: ${ped[3] > 0 ? '+' : ''}${Math.round(ped[3])} (Savant value ${ordinal(Math.round(ped[1]))} percentile at his position, recruiting rating ${ordinal(Math.round(ped[2]))}).`)
   if (isDef) lines.push(R.defender_note)
   if (warn) lines.push(warn)
   if (pl[C.inferred]) lines.push(`Position: the roster lists him as ${pl[C.pos] || 'no position'}; ${slot} is read from his size and plays.`)
   if (others && others.length) lines.push(`Also on file under that name: ${others.map((x) => `${x.name}, ${tname(S, x.team)} ${x.last} (id ${x.id})`).join('; ')}.`)
   lines.push(`FBS-vs-FBS games only. ${playerUrl(p.id, s, idx.current)}`)
-  return { text: lines.join('\n'), structured: { player: { id: p.id, name: pl[C.name], position: slot, roster_position: pl[C.pos], position_inferred: !!pl[C.inferred], team: dname(d, team), team_id: team, conference: M.confOf(d, i), class: pl[C.cls], jersey: pl[C.jersey], height_in: pl[C.ht], weight_lb: pl[C.wt], games: pl[C.gp], qualified: !!pl[C.qual], ...bio }, season: s, final: d.final, data_through: day(d.through), pool: { name: label, players: pp.ids.length, widened: pp.widened, adjusted, garbage_time }, stats: rows, savant_value: val ? { value: val.value, rank: val.rank, of: val.of, rate: val.rate, replacement: val.replacement, volume: val.volume } : null, honours, comparable_players: comps, warning: warn, url: playerUrl(p.id, s, idx.current) } }
+  return { text: lines.join('\n'), structured: { player: { id: p.id, name: pl[C.name], position: slot, roster_position: pl[C.pos], position_inferred: !!pl[C.inferred], team: dname(d, team), team_id: team, conference: M.confOf(d, i), class: pl[C.cls], jersey: pl[C.jersey], height_in: pl[C.ht], weight_lb: pl[C.wt], games: pl[C.gp], qualified: !!pl[C.qual], ...bio }, season: s, final: d.final, data_through: day(d.through), pool: { name: label, players: pp.ids.length, widened: pp.widened, adjusted, garbage_time }, stats: rows, returner: retRows.length ? { returns: nret, stats: retRows } : null, profile_score: prof ? prof.score : null, weakness_comps: weak, production_vs_pedigree: ped ? { gap: ped[3], production_pct: ped[1], pedigree_pct: ped[2] } : null, savant_value: val ? { value: val.value, rank: val.rank, of: val.of, rate: val.rate, replacement: val.replacement, volume: val.volume } : null, honours, comparable_players: comps, warning: warn, url: playerUrl(p.id, s, idx.current) } }
 }
 
 const lineObj = (table, tot) => Object.fromEntries(M.line(table, tot))
@@ -205,21 +215,23 @@ async function leaderboard({ stat, season, position, pool, adjusted, garbage_tim
   const isValue = stat === 'value'
   const st = isValue ? null : R.stats.find((x) => x.key === stat)
   if (!isValue && !st) throw new SavantError(`No stat "${stat}". Keys: value, ${R.stats.map((x) => x.key).join(', ')}.`)
+  if (isValue && position === 'RET') throw new SavantError('Returners have no Savant value of their own; ask for a returner stat (ret_epa, ret_kyds, ret_pyds, ret_20, ret_td, ret_fc, ret_muff).')
   const slots = position ? [position] : isValue ? R.slots.filter((x) => x !== 'OL') : st.slots
+  const ret = slots.includes('RET'), rp = ret ? M.retPool(d, R) : null
   if (st && position && !st.slots.includes(position)) throw new SavantError(`${st.label} is a stat for ${st.slots.join(' and ')}, not ${position}.`)
   if (st && !M.tracked(st, s)) return { text: `${st.label}: ${s < st.start ? `not tracked before ${st.start}` : `not tracked in ${s}`}.${st.note ? ` ${st.note}` : ''}`, structured: { stat: stat, label: st.label, season: s, tracked: false, note: s < st.start ? `not tracked before ${st.start}` : `not tracked in ${s}`, pool: null, count: 0, leaders: [] } }
   const o = { poolName: POOLKEY[pool], adj: adjusted, gt: garbage_time }
   const out = []
   d.players.forEach((p, i) => {
-    if (!slots.includes(p[C.slot])) return
-    if (qualified_only && !p[C.qual]) return
+    if (ret) { if (!M.sample(d, 'returns', i, false) || (qualified_only && !rp.ids.includes(i))) return }
+    else { if (!slots.includes(p[C.slot])) return; if (qualified_only && !p[C.qual]) return }
     if (conference && String(M.confOf(d, i)).toLowerCase() !== conference.toLowerCase()) return
     if (isValue) { const v = d.value.v[i]; if (M.ok(v)) out.push({ i, v: +v }) } else { const r = M.row(d, R, st, i, o); if (r.tracked && !r.none && r.pct != null) out.push({ i, v: r.value, r }) }
   })
   const lower = st && st.lower
   out.sort((a, b) => (lower ? a.v - b.v : b.v - a.v) || d.players[a.i][C.id] - d.players[b.i][C.id])
   const leaders = out.slice(0, limit).map((x, k) => { const p = d.players[x.i]; return { rank: k + 1, id: p[C.id], name: p[C.name], position: p[C.slot], team: dname(d, p[C.team]), conference: M.confOf(d, x.i), qualified: !!p[C.qual], value: x.v, shown: isValue ? sg(x.v) : x.r.shown, percentile: isValue ? null : x.r.pct, sample: isValue ? null : x.r.n, low_sample: isValue ? false : x.r.settling, url: playerUrl(p[C.id], s, idx.current) } })
-  const who = slots.length === 1 ? R.slot_name[slots[0]] : slots.length > 4 ? 'players at every position' : slots.map((x) => R.slot_name[x]).join(' and ')
+  const who = ret ? 'returners' : slots.length === 1 ? R.slot_name[slots[0]] : slots.length > 4 ? 'players at every position' : slots.map((x) => R.slot_name[x]).join(' and ')
   const poolText = isValue ? `Savant value (expected points above a replacement player at his position, opponent-adjusted), ${s}` : `percentiles vs ${pool === 'conference' ? 'each player\'s own conference' : pool === 'power_4' ? 'Power 4' : 'FBS'} ${who}, ${adjusted && st.adj ? 'opponent-adjusted' : 'raw'}, garbage time ${garbage_time ? 'included' : 'excluded'}, ${s}`
   const isDef = slots.some((x) => M.SLOT_TABLE[x] === 'dfn'), warn = isDef ? defWarning(R, s) : null
   const lines = [`${isValue ? 'Savant value' : st.label} leaders, ${who}${conference ? `, ${conference}` : ''}, ${asOf(d)}. ${poolText[0].toUpperCase()}${poolText.slice(1)}.${qualified_only ? ' Qualified players only.' : ''}`]
@@ -358,24 +370,42 @@ async function playoffField({ season, teams }) {
   return { text: lines.join('\n'), structured: { season: s, live: cur, data_through: day(P.through), field, first_out: P.first_out.map(nm), conference_leaders: leaders, ranking: table, simulated_seasons: cur ? P.sims : null, rules: P.rules, champions: P.champions ? Object.fromEntries(Object.entries(P.champions).map(([c, t]) => [c, nm(t)])) : null } }
 }
 
+async function nflComps({ player }) {
+  const { p } = await findPlayer(player)
+  const [X, N, idx] = await Promise.all([files.load(`x/comps/${String(Math.abs(p.id) % 100).padStart(2, '0')}.json`).catch(() => ({})), files.load('x/nfl.json'), index()])
+  const me = X[String(p.id)]
+  if (!me) throw new SavantError(`${p.name} has no qualified college season to compare.`)
+  const show = N.show_outcomes && !(N.show_by_slot && N.show_by_slot[me.slot] === false)
+  const comps = me.comps.map(([id, dist]) => { const q = N.players[String(id)]; return q && { id, name: q[0], position: q[1], final_college_season: q[2], drafted: q[5] ? (q[5][1] ? { year: q[5][0], round: q[5][1], pick: q[5][2], team: q[5][3] } : { year: q[5][0], undrafted: true }) : null, nfl_seasons: q[6].length, nfl_value_per_season: show ? q[7] : null, nfl_value_by_season: show ? q[6] : null, distance: dist, url: playerUrl(id, q[2], idx.current) } }).filter(Boolean)
+  const combine = N.combine[String(p.id)] || null
+  const vals = comps.map((c) => c.nfl_value_per_season).filter((v) => v != null)
+  const lines = [`${p.name}: the five final college seasons at his position most like his ${me.season} profile, among players who reached the NFL. A comparison, not a projection.`]
+  for (const c of comps) lines.push(`${c.name} (${c.final_college_season}): ${c.drafted ? (c.drafted.undrafted ? `undrafted ${c.drafted.year}` : `round ${c.drafted.round}, pick ${c.drafted.pick}, ${c.drafted.year}`) : 'undrafted'}; ${c.nfl_seasons} NFL seasons${c.nfl_value_per_season != null ? `, ${sg(c.nfl_value_per_season)} NFL Savant value per season` : ''}`)
+  if (show && vals.length) lines.push(`Comp average: ${sg(vals.reduce((a, b) => a + b, 0) / vals.length)} per season. Tested on ${N.test.players} NFL players' 2014-2021 college finals: rank correlation ${N.test.spearman.toFixed(2)} with their own NFL value.`)
+  else lines.push('NFL outcome averages are not shown: on 2014-2021 college finals they did not track the player\'s own at his position.')
+  if (combine) lines.push(`His NFL combine (Football Savant): ${Object.entries(combine).map(([k, v]) => `${k} ${v}`).join(', ')}.`)
+  return { text: lines.join('\n'), structured: { player: { id: p.id, name: p.name }, profile_season: me.season, label: 'comparison, not a projection', comps, comp_average: show && vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null, test: N.test, combine, url: playerUrl(p.id, me.season, idx.current) } }
+}
+
 // ---- the tools ------------------------------------------------------------------------
 const season = z.number().int().min(2004).max(2100).optional().describe('Season year, e.g. 2025. Default: the season being played.')
 const open = z.object({}).passthrough()
 const who = z.string().trim().min(2).max(80).describe('Player name or ESPN athlete id, e.g. "Jeremiah Smith".')
 const school = z.string().trim().min(2).max(60).describe('Team name or ESPN team id, e.g. "Ohio State".')
-const SLOTS = ['QB', 'RB', 'WR', 'TE', 'EDGE', 'IDL', 'LB', 'CB', 'S', 'K', 'P']
+const SLOTS = ['QB', 'RB', 'WR', 'TE', 'EDGE', 'IDL', 'LB', 'CB', 'S', 'K', 'P', 'RET']
 const opts = { pool: z.enum(POOLS).default('position').describe('Percentile pool: FBS at his position, Power 4 only, or his conference.'), adjusted: z.boolean().default(true).describe('Opponent-adjusted where the stat has it.'), garbage_time: z.boolean().default(false).describe('Include garbage time.') }
 const tool = (name, title, description, inputSchema, outputSchema, run) => ({ name, config: { title, description, inputSchema, outputSchema, annotations: { title, ...READ_ONLY } }, run })
 
 export const tools = [
   tool('cfb_search_players', 'Search college football players', 'Find FBS players in College Football Savant (wcehoops.com) by name, 2009 on (2013 is not on the site). Tolerates accents and small typos.', { query: z.string().trim().min(2).max(80).describe('Player name or part of one.'), limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.') }, { query: z.string(), total: z.number(), count: z.number(), players: z.array(open) }, searchPlayers),
-  tool('cfb_get_player_profile', 'Get a college football player\'s Savant profile', 'One FBS player-season: percentile bars by group against his position that season, each with its pool, sample and settle estimate, plus Savant value, recruiting stars, transfers, All-Savant honours and the nearest players. Seasons are never pooled.', { player: who, season, ...opts, group: z.string().max(20).default('all').describe('One group (passing, rushing, receiving, pass rush, run defense, coverage, disruption, kicking, punting, context) or all.') }, { player: open, season: z.number(), final: z.boolean(), data_through: z.string(), pool: open, stats: z.array(open), savant_value: open.nullable(), honours: z.array(z.string()), comparable_players: z.array(open), warning: z.string().nullable(), url: z.string() }, profile),
+  tool('cfb_get_player_profile', 'Get a college football player\'s Savant profile', 'One FBS player-season: percentile bars by card group against his position, each with pool, sample and settle estimate; profile score, Savant value, recruiting, transfers, honours, nearest and weakness comps. Seasons are never pooled.', { player: who, season, ...opts, group: z.string().max(30).default('all').describe('A card group, or all.') }, { player: open, season: z.number(), final: z.boolean(), data_through: z.string(), pool: open, stats: z.array(open), returner: open.nullable(), profile_score: z.number().nullable(), weakness_comps: z.array(open), production_vs_pedigree: open.nullable(), savant_value: open.nullable(), honours: z.array(z.string()), comparable_players: z.array(open), warning: z.string().nullable(), url: z.string() }, profile),
   tool('cfb_player_career', 'Get a college football player\'s career', 'Every season on file across schools since 2009, transfers marked, with Savant value, rank at his position each season and his totals.', { player: who }, { player: open, seasons: z.array(open), url: z.string() }, playerCareer),
   tool('cfb_player_splits', 'Get a college football player\'s splits', 'Home, road and neutral; conference and non-conference; against our top 25; by month; and the game log with opponents and results.', { player: who, season }, { player: open, season: z.number(), data_through: z.string(), splits: z.array(open), games: z.array(open), url: z.string() }, playerSplits),
-  tool('cfb_leaderboard', 'College Football Savant leaders', 'Leaders in any stat, or in Savant value, for a season: by position, pool, conference and sample. Stat keys are in each profile\'s stats (e.g. qb_epa_db, wr_yptpa, dl_sack); "value" is Savant value.', { stat: z.string().min(1).max(24).default('value').describe('Stat key, or "value".'), season, position: z.enum(SLOTS).optional().describe('Position. Default: the stat\'s own positions.'), ...opts, qualified_only: z.boolean().default(true).describe('Only players with the qualifying sample.'), conference: z.string().max(40).optional().describe('Only this conference, e.g. "SEC".'), limit: z.number().int().min(1).max(50).default(15).describe('Rows to return.') }, { stat: z.string(), label: z.string(), season: z.number(), tracked: z.boolean(), note: z.string().nullable(), pool: z.string().nullable(), data_through: z.string().optional(), count: z.number(), leaders: z.array(open), warning: z.string().nullable().optional() }, leaderboard),
-  tool('cfb_team_profile', 'Get an FBS team\'s profile', 'A team-season: record, WCE power rating (offense, defense, special teams), résumé rank, schedule strength, team stats as percentiles among FBS, head coach, talent, playoff odds in the season being played, schedule with pregame win chances, and its best players.', { team: school, season, adjusted: opts.adjusted }, { team: open, season: z.number(), final: z.boolean(), data_through: z.string(), pool: z.string(), stats: z.array(open), playoff_odds: open.nullable(), schedule: z.array(open), top_players: z.array(open), url: z.string() }, teamProfile),
+  tool('cfb_leaderboard', 'College Football Savant leaders', 'Leaders in any stat, or in Savant value, for a season: by position, pool, conference and sample. Stat keys are in each profile\'s stats (e.g. qb_epa_db); "value" is Savant value.', { stat: z.string().min(1).max(24).default('value').describe('Stat key, or "value".'), season, position: z.enum(SLOTS).optional().describe('Position. Default: the stat\'s own positions.'), ...opts, qualified_only: z.boolean().default(true).describe('Only players with the qualifying sample.'), conference: z.string().max(40).optional().describe('Only this conference, e.g. "SEC".'), limit: z.number().int().min(1).max(50).default(15).describe('Rows to return.') }, { stat: z.string(), label: z.string(), season: z.number(), tracked: z.boolean(), note: z.string().nullable(), pool: z.string().nullable(), data_through: z.string().optional(), count: z.number(), leaders: z.array(open), warning: z.string().nullable().optional() }, leaderboard),
+  tool('cfb_team_profile', 'Get an FBS team\'s profile', 'A team-season: record, WCE power rating by unit, résumé rank, schedule strength, team stats as percentiles among FBS, head coach, talent, playoff odds in the season being played, schedule with pregame win chances, and its best players.', { team: school, season, adjusted: opts.adjusted }, { team: open, season: z.number(), final: z.boolean(), data_through: z.string(), pool: z.string(), stats: z.array(open), playoff_odds: open.nullable(), schedule: z.array(open), top_players: z.array(open), url: z.string() }, teamProfile),
   tool('cfb_team_rankings', 'Rank FBS teams', 'Rank FBS teams by power rating, offense, defense, special teams, résumé, schedule, talent or any team stat key (off_epa, def_sr, def_havoc, to_margin and so on), best first, with each row\'s FBS rank. Filter by conference.', { season, sort: z.string().min(2).max(24).default('power').describe('power, offense, defense, special_teams, resume, schedule, talent, or a team stat key.'), ascending: z.boolean().default(false).describe('Worst first.'), conference: z.string().max(40).optional().describe('Only this conference.'), adjusted: opts.adjusted, limit: z.number().int().min(1).max(140).default(25).describe('Rows to return.') }, { season: z.number(), sort: z.string(), label: z.string(), data_through: z.string(), count: z.number(), teams: z.array(open) }, teamRankings),
   tool('cfb_game', 'Get a college football game', 'One game by ESPN event id: score, site, our pregame win chance, each team\'s plays, EPA per play, success rate and turnovers, and the main players\' lines.', { game_id: z.string().regex(/^\d+$/).describe('ESPN event id (cfb_team_profile lists them).'), season }, { game: open, home: open.nullable(), away: open.nullable(), players: open, season: z.number() }, game),
   tool('cfb_all_savant_team', 'College football All-Savant teams', 'The All-Savant teams by Savant value, 2009 on (not 2013), in the AP shape with the offensive line as one unit: national 1st, 2nd and 3rd teams, a team per conference, a Freshman team, the Savant Heisman and the Non-QB Player of the Year. Before the final week it is a standing.', { season, team: z.enum(SETS).default('first').describe('Which team.'), conference: z.string().max(40).optional().describe('For team "conference", e.g. "Big Ten".') }, { season: z.number(), team: z.string(), final: z.boolean(), standing: z.string().nullable(), data_through: z.string(), picks: z.array(open), savant_heisman: open.nullable(), heisman_race: z.array(open.nullable()), non_qb_player_of_the_year: open.nullable(), warning: z.string().nullable(), note: z.string() }, allSavant),
+  tool('cfb_nfl_comps', 'College-to-NFL comparisons', 'NFL players whose final college seasons were most like his: draft slot, NFL value. A comparison, not a projection.', { player: who }, { player: open, profile_season: z.number(), label: z.string(), comps: z.array(open), comp_average: z.number().nullable(), test: open, combine: open.nullable(), url: z.string() }, nflComps),
   tool('cfb_playoff_field', 'The objective College Football Playoff field', 'WCE\'s own 12-team field under the 2026 rules, seeded by résumé score (wins and losses against the schedule, never margin): today\'s field with conference leaders, tiebreaker flags and odds from 20,000 simulated seasons, or any past season since 2009 (not 2013) as history. No committee ranking is used.', { season, teams: z.number().int().min(12).max(60).default(25).describe('Rows of the résumé ranking to return.') }, { season: z.number(), live: z.boolean(), data_through: z.string(), field: z.array(open), first_out: z.array(z.string().nullable()), conference_leaders: z.array(open).nullable(), ranking: z.array(open), simulated_seasons: z.number().nullable(), rules: z.array(z.string()), champions: open.nullable() }, playoffField),
 ]

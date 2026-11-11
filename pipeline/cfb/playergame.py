@@ -33,8 +33,9 @@ import numpy as np
 import pandas as pd
 from .paths import RAW, WORK
 from .teamgame import scrimmage, success, EXPL_RUSH, EXPL_PASS, MIN_PLAYS
+from . import expand, pgx
 
-SEASONS = list(range(2014, 2027))
+SEASONS = [2009, 2010, 2011, 2012] + list(range(2014, 2027))
 
 
 def _credit(k, mask, cols_primary, cols_fallback, stat):
@@ -62,8 +63,10 @@ def season_tables(y, games, filt):
     g = games[(games.season == y) & games.fbs_game & games.final]
     d = pd.read_parquet(WORK / f"plays_{y}.parquet")
     e = pd.read_parquet(WORK / f"epa_{y}.parquet")
-    for c in ("ep", "epa", "garbage_cfbd", "garbage_wp"):
+    for c in ("ep", "epa", "wp", "garbage_cfbd", "garbage_wp"):
         d[c] = e[c].to_numpy()
+    x = pd.read_parquet(WORK / f"xtra_{y}.parquet", columns=["play_id", "text", "pen1", "pen2"])
+    d = d.merge(x, on="play_id", how="left")
     d = d[d.game_id.isin(g.game_id) & d.off.notna()].copy()
     n = d[d.cat.isin(["rush", "pass"])].groupby("game_id").size()
     d = d[d.game_id.isin(n[n >= MIN_PLAYS].index)]
@@ -92,6 +95,8 @@ def season_tables(y, games, filt):
         d.loc[th.index, "xc"] = np.where(th["size"] >= 100, th["mean"], th.wide)
     d["depth_att"] = d.xc.notna()
     d["cpoe"] = np.where(d.depth_att, d.comp.astype(float) - d.xc.fillna(0), 0.0)
+    # 1.1.0: the expansion's per-play columns (expand.py) and the charted layer (charting.py)
+    d = expand.charted(expand.enrich(expand.outcome_cols(d, games), y), y)
     k = d[d.sc & ~d.garb]
     out = {}
 
@@ -214,6 +219,7 @@ def season_tables(y, games, filt):
                       "pid": pu[pu.punt_ret.notna()].punt_ret, "kind": "punt", "epa": -pu[pu.punt_ret.notna()].epa,
                       "ytg": pu[pu.punt_ret.notna()].ytg})], ignore_index=True)
     out = {"qb": qb, "rush": ru, "rec": rc, "team": tm, "dfn": dfn, "kick": kick, "punt": punt, "ret": ret}
+    out = pgx.extend(d, k, out, y, filt)
     gg = g.set_index("game_id")
     for name, t in out.items():
         t["season"] = y

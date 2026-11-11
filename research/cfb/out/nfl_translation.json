@@ -1,0 +1,55 @@
+{
+ "players": 781,
+ "spearman": 0.1096,
+ "p_value": 0.002164987505096038,
+ "by_slot": {
+  "QB": [
+   0.278,
+   37
+  ],
+  "RB": [
+   0.058,
+   67
+  ],
+  "WR": [
+   0.062,
+   108
+  ],
+  "TE": [
+   0.214,
+   33
+  ],
+  "EDGE": [
+   -0.079,
+   105
+  ],
+  "IDL": [
+   -0.052,
+   99
+  ],
+  "LB": [
+   0.137,
+   98
+  ],
+  "CB": [
+   0.132,
+   140
+  ],
+  "S": [
+   -0.01,
+   94
+  ]
+ },
+ "show_outcomes": true,
+ "show_by_slot": {
+  "QB": true,
+  "RB": true,
+  "WR": true,
+  "TE": true,
+  "EDGE": false,
+  "IDL": false,
+  "LB": true,
+  "CB": true,
+  "S": false
+ }
+}

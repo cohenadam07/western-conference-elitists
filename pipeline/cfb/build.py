@@ -179,6 +179,8 @@ def history():
     EXTRAS.write_text(json.dumps(ex, sort_keys=True))
     sizes.update(write_static(careers, honours))
     site.write_index(entries)
+    from . import feat
+    feat.write_state()
     print({k: v for k, v in sizes.items() if "/" not in k or k.startswith("p/")})
 
 
@@ -215,14 +217,23 @@ def refresh(fetch=True):
         src = out["sources"]
         print(f"{y}: {len(src)} finals fetched or read from the cache; plays for {sum(1 for v in src.values() if v['plays'] >= 80)}", flush=True)
     ep.score([y])
+    from . import charting, fourth, feat
+    charting.season(y)                   # 1.1.0: the charted layer, then fourth-down decisions, before the tables
+    fourth.score(y)
     teamgame.build([y])
     playergame.main("cfbd", [y])
     playergame.main("all", [y])
     if os.environ.get("CFB_OFFLINE") != "1":
         heads.check(heads.wanted())          # new names this week: ask ESPN once whether a headshot exists
     X, sz = current_site()
+    sz.update(feat.write_site([y]) or {})   # the season's comps, pedigree and portal haul (state/: the Mac's recruits and transfers)
     if os.environ.get("CFB_PUB"):            # refresh_check's clean room: no heartbeat
         return X
+    days = charting.day_shares(y)
+    low = sorted(k for k, v in days.items() if v < charting.DAY_ALARM)
+    recent = sorted(days)[-3:]
+    beat["charting"] = {"last_days": {k: days[k] for k in recent}, "low_days": low, "alarm": any(k in low for k in recent),
+                        "rule": f"alarm when a game day's charted share is under {charting.DAY_ALARM:.0%} (ESPN could switch formats back)"}
     beat.update(last_ok=beat["last_try"], season=y, through=X.through, week=X.week, finals=int(X.g.final.sum()),
                 fbs_vs_fbs_finals=int((X.g.final & X.g.fbs_game).sum()), players=int(len(X.pl)), qualified=int(X.pl.qual.sum()),
                 games_with_plays=sum(1 for v in src.values() if v["plays"] >= 80) if src else beat.get("games_with_plays"),

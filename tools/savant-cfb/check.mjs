@@ -47,7 +47,9 @@ test('the registry explains every stat', () => {
     for (const k of ['label', 'group', 'verdict', 'unit', 'what', 'formula', 'source', 'start']) assert.ok(s[k] !== undefined && s[k] !== '', `${s.key}.${k}`)
     assert.ok(['full', 'hatched', 'context'].includes(s.verdict), s.key)
     assert.ok(reg.groups.includes(s.group), s.key)
-    assert.ok(s.slots.every((x) => reg.slots.includes(x)), s.key)
+    assert.ok(s.slots.every((x) => reg.slots.includes(x) || (reg.pools_extra || {})[x]), s.key)
+    assert.ok(['1.0', 'A', 'B'].includes(s.tier) && s.cgroup, `${s.key}: tier and card group`)
+    if (s.tier === 'B') assert.ok(s.start >= 2025 && /2025 week 9/.test(s.note), `${s.key}: a charted stat names its start`)
     assert.ok(s.k > 0 && s.sample, `${s.key}: settle point`)
   }
   for (const s of reg.team_stats) assert.ok(s.label && s.what && ['full', 'hatched', 'context', 'luck'].includes(s.verdict), s.key)
@@ -213,7 +215,7 @@ test('the page parses, names its pools and carries the footer every product page
   const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
   const js = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].pop()[1]
   assert.doesNotThrow(() => new Function(js))
-  for (const re of [/poolLabel/, /POOL: /, /viewport-fit=cover/, /prefers-reduced-motion:reduce/, /Ask it in Claude with the WCE connector/, /id="ver"/, /New in 1\.0\.0/, /ESPN play-by-play/, /wce-nav\.js/, /savant-cfb\.js/, /Margin never enters the résumé score/, /not tracked/, /the model\\'s view, not a verdict|The model\\'s view, not a verdict/]) assert.match(html, re)
+  for (const re of [/poolLabel/, /POOL: /, /viewport-fit=cover/, /prefers-reduced-motion:reduce/, /Ask it in Claude with the WCE connector/, /id="ver"/, /New in 1\.1\.0/, /ESPN play-by-play/, /wce-nav\.js/, /savant-cfb\.js/, /Margin never enters the résumé score/, /not tracked/, /the model\\'s view, not a verdict|The model\\'s view, not a verdict/]) assert.match(html, re)
   assert.match(html, /family=Anton/)
   assert.doesNotMatch(html, /x-dc|support\.js|Harbor State|Marcus Delane/, 'the mockups\' runtime or invented names shipped')
   assert.match(js, /No committee ranking is used anywhere on this page/)
@@ -312,7 +314,7 @@ test('team answers are the page\'s numbers', async () => {
 
 test('every tool answers, and says what it must', async () => {
   const names = TOOLS.map((t) => t.name).sort()
-  assert.deepEqual(names, ['cfb_all_savant_team', 'cfb_game', 'cfb_get_player_profile', 'cfb_leaderboard', 'cfb_player_career', 'cfb_player_splits', 'cfb_playoff_field', 'cfb_search_players', 'cfb_team_profile', 'cfb_team_rankings'])
+  assert.deepEqual(names, ['cfb_all_savant_team', 'cfb_game', 'cfb_get_player_profile', 'cfb_leaderboard', 'cfb_nfl_comps', 'cfb_player_career', 'cfb_player_splits', 'cfb_playoff_field', 'cfb_search_players', 'cfb_team_profile', 'cfb_team_rankings'])
   const cur = read(`s/${idx.current}.json`)
   const star = cur.players.map((p, i) => [p, cur.value.v[i]]).filter(([p]) => p[C.qual] && p[C.slot] === 'WR').sort((a, b) => b[1] - a[1])[0][0]
   const sp = await call('cfb_search_players', { query: star[C.name] })
@@ -345,6 +347,35 @@ test('every tool answers, and says what it must', async () => {
     const r = await callRaw(name, args)
     assert.ok(r.isError && re.test(r.content[0].text), `${name}: ${r.content[0].text}`)
   }
+})
+
+test('1.1.0: charted rows, the returner pool, profile score, weakness comps, NFL comps', async () => {
+  assert.equal(reg.version.split('.').slice(0, 2).join('.'), '1.1')
+  const cur = read(`s/${idx.current}.json`), old = read('s/2019.json')
+  // a charted stat is "not tracked" before 2025, never zero, and flagged charted in the answer
+  const q19 = old.players.findIndex((p) => p[C.qual] && p[C.slot] === 'QB')
+  const a = await call('cfb_get_player_profile', { player: String(old.players[q19][C.id]), season: 2019 })
+  const adot = a.stats.find((x) => x.key === 'qb_adot')
+  assert.deepEqual([adot.tracked, adot.value, adot.charted, adot.note], [false, null, true, 'not tracked before 2025'])
+  const qi = cur.players.map((p, i) => [p, i]).filter(([p]) => p[C.qual] && p[C.slot] === 'QB').sort((x, y) => cur.value.v[y[1]] - cur.value.v[x[1]])[0][1]
+  const b = await call('cfb_get_player_profile', { player: String(cur.players[qi][C.id]) })
+  const pf = M.profile(cur, reg, qi, {})
+  assert.equal(b.profile_score, pf ? pf.score : null)
+  assert.deepEqual(b.weakness_comps.map((c) => c.id), M.weakComps(cur, reg, qi, 5).map((c) => cur.players[c.i][C.id]))
+  assert.ok(b.stats.some((x) => x.key === 'qb_adot' && x.tracked && x.charted && x.percentile != null))
+  // the returner pool: anyone with enough returns, and a leaderboard drawn from it
+  const rp = M.retPool(cur, reg)
+  assert.ok(rp.ids.length >= 20, `${rp.ids.length} qualified returners`)
+  const lb = await call('cfb_leaderboard', { stat: 'ret_kyds', position: 'RET', limit: 10 })
+  assert.ok(lb.count > 0 && lb.leaders.every((l) => rp.ids.includes(cur.players.findIndex((p) => p[C.id] === l.id))))
+  // NFL comps: five comps, labelled a comparison, outcome averages only when the test passed
+  const nfl = read('x/nfl.json'), shard = read(`x/comps/${String(Math.abs(cur.players[qi][C.id]) % 100).padStart(2, '0')}.json`)
+  const c = await call('cfb_nfl_comps', { player: String(cur.players[qi][C.id]) })
+  assert.equal(c.label, 'comparison, not a projection')
+  assert.deepEqual(c.comps.map((x) => x.id), shard[String(cur.players[qi][C.id])].comps.map((x) => x[0]))
+  const slotShow = nfl.show_outcomes && !(nfl.show_by_slot && nfl.show_by_slot[shard[String(cur.players[qi][C.id])].slot] === false)
+  assert.equal(c.comp_average === null, !slotShow)
+  assert.match(c._text, /A comparison, not a projection\./)
 })
 
 test('the refresh keeps raw ESPN off GitHub', () => {

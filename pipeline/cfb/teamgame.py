@@ -16,6 +16,7 @@ Sources, chosen after measuring each (completeness.py and the sanity table):
 import numpy as np
 import pandas as pd
 from .paths import RAW, WORK
+from . import tgx
 
 MIN_PLAYS = 80
 EXPL_RUSH, EXPL_PASS = 12, 16     # "explosive": a run of 12+ or a pass of 16+ yards (Connelly's cut)
@@ -65,6 +66,7 @@ def season_table(y, games):
     d["third"] = d.sc & (d.down == 3)
     d["third_conv"] = d.third & ((d.yards >= d.dist) | (d.pts == 7))
     d["pd_down"] = d.sc & (((d.down == 2) & (d.dist >= 8)) | ((d.down >= 3) & (d.dist >= 5)))   # passing downs
+    d = tgx.prepare(d, y, games)
     out = []
     for filt in ("all", "cfbd", "wp"):
         k = d if filt == "all" else d[~d["garbage_" + filt].fillna(False)]
@@ -102,6 +104,7 @@ def season_table(y, games):
                        - st.groupby(["game_id", "deff"]).epa.sum().rename_axis(["game_id", "off"]).reindex(a.index).fillna(0))
         a["st_n"] = (st.groupby(["game_id", "off"]).size().reindex(a.index).fillna(0)
                      + st.groupby(["game_id", "deff"]).size().rename_axis(["game_id", "off"]).reindex(a.index).fillna(0))
+        a = tgx.add(a, k, d, y, filt)
         a = a.fillna(0).reset_index().rename(columns={"off": "team"})
         a["filt"] = filt
         out.append(a)

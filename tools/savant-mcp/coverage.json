@@ -971,6 +971,7 @@
         "cfb_team_rankings",
         "cfb_game",
         "cfb_all_savant_team",
+        "cfb_nfl_comps",
         "cfb_playoff_field"
       ]
     },
@@ -984,6 +985,7 @@
         "cfb_team_rankings",
         "cfb_game",
         "cfb_all_savant_team",
+        "cfb_nfl_comps",
         "cfb_playoff_field"
       ]
     },

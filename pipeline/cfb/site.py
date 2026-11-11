@@ -70,6 +70,13 @@ TEAM_FORM = {
 }
 
 
+from . import config_x as CX                                   # noqa: E402
+TEAM_FORM.update({k: (num, den, side) for (k, _l, _g, _t, _u, _lo, _w, num, den, side) in CX.TEAM_X})
+CENTRED = {"proe"}             # shown against the season's FBS average (a league-wide drift is nobody's)
+POS_ALLOW = {"def_qb": ("qb", "QB", "epa", "db", "epa_pass", "db"), "def_rb": ("rush", "RB", "epa", "rush", "epa_rush", "rush"),
+             "def_wr": ("rec", "WR", "epa_eff", "tgt_eff", "epa_pass", "db"), "def_te": ("rec", "TE", "epa_eff", "tgt_eff", "epa_pass", "db")}
+
+
 def rnd(x, d=4):
     try:
         f = float(x)
@@ -202,12 +209,42 @@ def season_doc(X):
 
 
 # ---------------------------------------------------------------- teams/<season>.json
-def team_values(y):
+def allowed_by_position(D, tg):
+    """What each defence allowed to QBs, RBs, WRs and TEs, raw and opponent-adjusted (BUILD-1.1 section 4): the
+    position's production against it, then a ridge on offence and defence (as every 1.0.0 team adjustment) so the
+    offences it happened to face are taken out. Returns ({key: {"r": Series, "a": Series}}, reconciliation)."""
+    from .team_study import ridge_adjust
+    F = D["frames"][""]
+    slot = dict(zip(D["players"].pid, D["players"].slot))
+    site_ = tg.drop_duplicates(["game_id", "team"]).set_index(["game_id", "team"]).site
+    out, rec = {}, {}
+    for key, (tab, sl, num, den, _, _) in POS_ALLOW.items():
+        d = F[tab]
+        d = d[d.pid.map(slot) == sl]
+        g = d.groupby(["game_id", "team", "opp"])[[num, den]].sum().reset_index()
+        g = g[g[den] > 0]
+        g["site"] = [site_.get((a, b), 0) for a, b in zip(g.game_id, g.team)]
+        g["yv"] = g[num] / g[den]
+        raw = g.groupby("opp")[[num, den]].sum()
+        o, dfn, h, mu = ridge_adjust(g, "yv", den, 1.0 * g[den].mean())
+        out[key] = {"r": raw[num] / raw[den], "a": pd.Series({t: mu + v for t, v in dfn.items()})}
+        rec[key] = (float(raw[num].sum()), float(d[num].sum()), float(raw[den].sum()), float(d[den].sum()))
+    return out, rec
+
+
+def team_values(y, D=None):
     out = {}
     for tag, filt in (("", "cfbd"),):
         tg = teamgame.load(filt, [y])
         tg["g"] = 1.0
         tg["d_g"] = 1.0
+        for pre in ("", "d_"):
+            if pre + "fd4_go" in tg.columns:
+                tg[pre + "fd4_goe_n"] = tg[pre + "fd4_go"] - tg[pre + "fd4_xgo"]
+        for c in set(v[0] for v in TEAM_FORM.values()) | set(v[1] for v in TEAM_FORM.values()):
+            for pre in ("", "d_"):
+                if pre + c not in tg.columns:
+                    tg[pre + c] = np.nan
         teams = sorted(tg.team.unique())
         a = tg.groupby("team").sum(numeric_only=True)
         for key, (num, den, side) in TEAM_FORM.items():
@@ -218,7 +255,14 @@ def team_values(y):
                 off, dfn, mu = opp_effects(tg, num, den).get(y, ({}, {}, np.nan))
                 eff = off if side == "o" else dfn
                 o["a"] = pd.Series({t: mu + eff.get(t, 0.0) for t in teams})
+            if key in CENTRED:
+                lg = a[pre + num].sum() / a[pre + den].sum() if a[pre + den].sum() > 0 else 0.0
+                o = {"r": raw - lg}
             out[key] = o
+        if D is not None:
+            pos, _ = allowed_by_position(D, tg)
+            for key, v in pos.items():
+                out[key] = {"r": v["r"].reindex(teams), "a": v["a"].reindex(teams)}
         g = a.g
         out["to_margin"] = {"r": ((a.d_to_box - a.to_box) / g).reindex(teams)}
         fum = a.fum_all + a.d_fum_all
@@ -239,7 +283,7 @@ def records(g, fbs):
 
 
 def teams_doc(X, res):
-    teams, vals, games = team_values(X.y)
+    teams, vals, games = team_values(X.y, X.D)
     rec = records(X.g, X.fbs)
     rs = res.set_index("team")
     ex = X.extra
@@ -286,6 +330,13 @@ def team_docs(X, alls):
     names = {}
     for r in g.itertuples():
         names[int(r.home)], names[int(r.away)] = r.home_team, r.away_team
+    # 1.1.0: every decision, by team, for the team page and a future College Football Coaching Savant
+    from . import fourth as FD
+    dec = pd.read_parquet(WORK / f"decisions_{X.y}.parquet") if (WORK / f"decisions_{X.y}.parquet").exists() else None
+    try:
+        tries, tos = FD.tries(X.y), FD.timeouts(X.y)
+    except FileNotFoundError:
+        tries = tos = None
     out = {}
     for t in [int(x) for x in X.fbs.index]:
         gg = g[(g.home == t) | (g.away == t)]
@@ -324,13 +375,30 @@ def team_docs(X, alls):
                         rows.append([gi[r.game_id]] + [rnd(getattr(r, c), 3) or 0 for c in cols])
                 if rows:
                     logs[str(int(p))] = rows
+        decisions = None
+        if dec is not None:
+            x = dec[dec.off == t].sort_values(["game_id", "secs_game"], ascending=[True, False])
+            decisions = {"cols": ["gid", "period", "secs_half", "ytg", "dist", "score_diff", "decision", "converted", "rec", "xgo", "ep_go", "ep_punt", "ep_fg",
+                                  "ep_lost", "garbage"],
+                         "fourth": [[int(r.game_id), int(r.period), rnd(r.secs_half, 0), rnd(r.ytg, 0), rnd(r.dist, 0), rnd(r.score_diff, 0), r.decision,
+                                     int(bool(r.conv)), r.rec, rnd(r.xgo, 3), rnd(r.ep_go, 2), rnd(r.ep_punt, 2), rnd(r.ep_fg, 2), rnd(r.ep_lost, 2),
+                                     int(bool(r.garbage_cfbd))] for r in x.itertuples()]}
+            if tries is not None:
+                tt = tries[(tries.team == t) & tries.known]
+                decisions["tries_cols"] = ["gid", "secs_game", "margin", "two", "two_good"]
+                decisions["tries"] = [[int(r.game_id), rnd(r.secs_game, 0), rnd(r.margin, 0), int(bool(r.two)), int(bool(r.two_good))] for r in tt.itertuples()]
+                oo = tos[tos.team == t]
+                decisions["timeouts_cols"] = ["gid", "period", "secs_half"]
+                decisions["timeouts"] = [[int(r.game_id), int(r.period), rnd(r.secs_half, 0)] for r in oo.itertuples()]
+            decisions["model"] = ("WCE's fourth-down model: an average FBS coach's go rate in the same spot (xgo), and the choice worth the most "
+                                  "expected points (win probability in the last 15 minutes of a game within 16 points)")
         f = X.fbs.loc[t]
         doc = {"season": X.y, "team": t, "name": f.school, "abbr": f.abbreviation, "conf": f.conference, "through": X.through,
                "coach": X.extra.get("coaches", {}).get(str(X.y), {}).get(str(t)),
                "sched_cols": ["gid", "date", "week", "stype", "opp", "site", "conf", "final", "pf", "pa", "wp", "opp_rank", "opp_name"],
                "sched": sched,
                "roster_cols": ["id", "name", "pos", "slot", "jersey", "cls", "ht", "wt", "head", "city", "state", "usage", "value"],
-               "roster": roster, "logcols": LOGCOLS, "logs": logs,
+               "roster": roster, "logcols": LOGCOLS, "logs": logs, "decisions": decisions,
                "ol": None if ol is None or t not in ol.index else {"value": rnd(ol.value[t], 2), "pass_pro": rnd(ol.pass_pro_pts[t] * ol.games[t], 2),
                                                                    "run_block": rnd(ol.run_block_pts[t] * ol.games[t], 2), "rank": int(olrank[t]),
                                                                    "of": int(len(ol))}}
@@ -490,8 +558,15 @@ def registry_doc():
             d.pop(k)
         d["adj"] = bool(s.adj)
         stats.append(d)
+    tg_order = []
+    for t in C.TEAM_STATS:
+        if t[2] not in tg_order:
+            tg_order.append(t[2])
     return {"version": C.VERSION, "first_season": C.FIRST_SEASON, "current": C.CURRENT, "groups": C.GROUPS, "stats": stats,
-            "team_stats": [dict(key=k, label=l, group=g, verdict=v, unit=u, lower=lo, what=w, adj=k in C.TEAM_ADJ)
+            "card_groups": CX.CARD_GROUPS, "headline": CX.HEADLINE, "cant_see": {k: [[i, CX.TIER_C[i]] for i in v] for k, v in CX.CANT_SEE.items()},
+            "tier_b_note": CX.TIER_B_NOTE, "pools_extra": C.POOLS_EXTRA, "team_groups": tg_order,
+            "team_stats": [dict(key=k, label=l, group=g, verdict=v, unit=u, lower=lo, what=w, adj=k in C.TEAM_ADJ, tier=C.TEAM_TIER.get(k, "1.0"),
+                                start=2025 if C.TEAM_TIER.get(k) == "B" else C.FIRST_SEASON)
                            for k, l, g, v, u, lo, w in C.TEAM_STATS],
             "slots": C.SLOTS, "slot_name": C.SLOT_NAME, "wider": C.WIDER, "wider_name": C.WIDER_NAME, "min_pool": C.MIN_POOL,
             "qual": {k: list(v) for k, v in C.QUAL.items()}, "games_full": C.GAMES_FULL, "power4": C.POWER4,

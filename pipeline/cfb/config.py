@@ -22,7 +22,7 @@ not ("not tracked" is never shown as zero).
 """
 from collections import namedtuple
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 FIRST_SEASON = 2009
 CURRENT = 2026
 LAUNCH_FIRST = 2014
@@ -47,6 +47,7 @@ DEFENDER_NOTE = ("Defenders are graded on the plays the box score and play-by-pl
 
 # position slots (the pools) and the wider group each falls back to when a pool is under MIN_POOL
 SLOTS = ["QB", "RB", "WR", "TE", "OL", "EDGE", "IDL", "LB", "CB", "S", "K", "P"]
+POOLS_EXTRA = {"RET": "returners"}       # 1.1.0: a pool that is not a roster slot (anyone with returns)
 SLOT_NAME = {"QB": "quarterbacks", "RB": "running backs", "WR": "wide receivers", "TE": "tight ends",
              "OL": "offensive linemen", "EDGE": "edge rushers", "IDL": "interior linemen", "LB": "linebackers",
              "CB": "cornerbacks", "S": "safeties", "K": "kickers", "P": "punters"}
@@ -58,9 +59,10 @@ POWER4 = ["ACC", "Big Ten", "Big 12", "SEC"]
 # being played it is scaled by the share of 12 games the median team has played.
 QUAL = {"QB": ("plays", 150), "RB": ("rush", 80), "WR": ("tgt", 30), "TE": ("tgt", 15), "EDGE": ("dplays", 350),
         "IDL": ("dplays", 350), "LB": ("dplays", 350), "CB": ("dplays", 350), "S": ("dplays", 350),
-        "K": ("fga", 10), "P": ("punts", 25)}
+        "K": ("fga", 10), "P": ("punts", 25), "RET": ("returns", 12)}
 
-S = namedtuple("S", "key pos table num den label group verdict unit lower k unit_n sample adj start off what formula source note")
+S = namedtuple("S", "key pos table num den label group verdict unit lower k unit_n sample adj start off what formula source note tier cgroup",
+               defaults=("1.0", None))
 _ALL_D = ["EDGE", "IDL", "LB", "CB", "S"]
 SRC_PBP = "ESPN play-by-play, valued by WCE's expected-points model"
 SRC_BOX = "ESPN box score"
@@ -108,10 +110,12 @@ R("qb_rush_value", "QB", "qb", "q_rush_epa", "tot_plays", "Rushing EPA per play"
 R("qb_int_rate", "QB", "qb", "ints", "att", "Interception rate", "Context", "context", "pct1", 1188, "attempts", "att",
   "Interceptions per pass. Mostly noise in one season: it needs about 1,200 attempts to be half signal.",
   "interceptions / attempts", lower=True, note="Mostly noise in one season.")
-R("qb_cpoe", "QB", "qb", "cpoe", "att_depth", "Completion % over expected", "Context", "context", "sgn1", 250, "attempts", "att_depth",
-  "Completion rate against what an average FBS passer completes on the same throws, by depth, side, down and distance.",
-  "completions - expected completions, per 100 attempts with a charted depth", start=2025,
-  note="Needs the stat crew's pass depth, which the play text carries from 2025. New, so shown as context until it has a backtest.")
+R("qb_cpoe", "QB", "qb", "c_cpoe", "c_cpoe_n", "Completion % over expected", "Context", "context", "sgn1", 250, "attempts", "c_cpoe_n",
+  "Completion rate against what WCE's model expects from the same throws: air yards, direction, down and distance, formation, whether he "
+  "was hurried, home or away. Fitted on charted 2025-2026 throws; it beats 1.0.0's depth-and-side cells out of sample.",
+  "completions - expected completions, per 100 charted attempts", start=2025,
+  source="ESPN's charted play text (2025 week 9 on), WCE's completion model",
+  note="Tracked from 2025 week 9, when ESPN's play text became fully charted; settle points will firm up as seasons accumulate.")
 R("qb_usage", "QB", "qb", "db", "t_db", "Share of team dropbacks", "Context", "context", "pct1", 53, "team dropbacks", "t_db",
   "Share of his team's dropbacks he took in the games he played.", "his dropbacks / team dropbacks in games he played")
 
@@ -230,6 +234,21 @@ for _i, _s in enumerate(STATS):
     if _s.key.split("_", 1)[1] in ("tfl", "stop", "disrupt", "disrupt_epa") and _s.table == "dfn":
         STATS[_i] = _s._replace(off=sorted(set(_s.off) | set(NO_TACKLERS)))
 
+# ---------------------------------------------------------------- 1.1.0: the stat expansion (config_x.py)
+from . import config_x as CX                                        # noqa: E402
+for _i, _s in enumerate(STATS):
+    STATS[_i] = _s._replace(cgroup=CX.CGROUP_1.get(_s.key, _s.group), tier="B" if _s.key == "qb_cpoe" else "1.0")
+    if _s.key in CX.VERDICTS:                                       # the CPOE row was re-measured with its new model
+        STATS[_i] = STATS[_i]._replace(verdict=CX.VERDICTS[_s.key]["verdict"], k=CX.VERDICTS[_s.key]["k"])
+for (_k, _pos, _tab, _num, _den, _lab, _cg, _tier, _unit, _un, _smp, _what, _form, _ex) in CX.NEW:
+    _v = CX.VERDICTS.get(_k, {})
+    STATS.append(S(_k, _pos, _tab, _num, _den, _lab, _cg, _v.get("verdict", "context"), _unit, _ex.get("lower", False), _v.get("k", 100),
+                   _un, _smp, None, _ex.get("start", FIRST_SEASON if _tier == "B" or _tab not in ("dfn",) else FIRST_SEASON),
+                   sorted(set(_ex.get("off", [])) | (set(NO_TACKLERS) if _tab == "dfn" and _ex.get("start", 0) < 2014 and
+                                                         _k.split("_", 1)[1] in ("tfl_run", "tfl_pass", "havoc") else set())),
+                   _what, _form, _ex.get("source", SRC_PBP), _ex.get("note", ""), _tier, _cg))
+GROUPS = GROUPS + sorted({g for v in CX.CARD_GROUPS.values() for g in v} - set(GROUPS))
+
 TEAM_STATS = [
     # key, label, group, verdict, unit, lower, what
     ("off_epa", "Offense EPA per play", "Efficiency", "full", "epa", False, "Expected points the offense adds per play."),
@@ -276,9 +295,17 @@ TEAM_STATS = [
     ("fum_lost", "Fumbles lost per play", "Turnovers", "luck", "pct2", True, "Fumbles lost per offensive play."),
     ("fum_rec", "Fumble recovery rate", "Turnovers", "luck", "pct1", False, "Share of all fumbles in a team's games that it recovered. No signal at all: pure luck."),
 ]
+for (_k, _lab, _g, _tier, _unit, _lo, _what, _num, _den, _side) in CX.TEAM_X:
+    TEAM_STATS.append((_k, _lab, _g, CX.VERDICTS.get("team:" + _k, {}).get("verdict", "context"), _unit, _lo, _what))
+for (_k, _lab, _p, _unit) in CX.TEAM_POS:
+    TEAM_STATS.append((_k, _lab, "What the defense allows", CX.VERDICTS.get("team:" + _k, {}).get("verdict", "context"), _unit, True,
+                       f"What {_p}s did against it, opponent-adjusted: the {_p} production it allowed with the offences' strength taken out."))
+TEAM_TIER = {k: "1.0" for k, *_ in TEAM_STATS}
+TEAM_TIER.update({t[0]: t[3] for t in CX.TEAM_X})
+TEAM_TIER.update({t[0]: "A" for t in CX.TEAM_POS})
 TEAM_ADJ = {"off_epa", "def_epa", "off_sr", "def_sr", "off_epa_db", "def_epa_db", "off_epa_rush", "def_epa_rush", "off_pass_sr",
             "def_pass_sr", "off_rush_sr", "def_rush_sr", "off_expl_rate", "def_expl_rate", "off_stuff", "def_stuff", "off_ly",
-            "def_ly", "off_sack", "def_sack"}
+            "def_ly", "off_sack", "def_sack", "def_qb", "def_rb", "def_wr", "def_te"}
 
 # the backtest's verdict table, as (BACKTEST label fragment -> registry key): the coverage check
 VERDICT_ROWS = {
@@ -358,7 +385,26 @@ def check():
     assert len(keys) == len(set(keys)), "duplicate stat key"
     for s in STATS:
         assert s.what and s.formula and s.source and s.label and s.group in GROUPS, s.key
-        assert s.verdict in ("full", "hatched", "context"), s.key
+        assert s.verdict in ("full", "hatched", "context", "luck"), s.key
+        assert s.tier in ("1.0", "A", "B") and s.cgroup, s.key
+        assert s.tier != "B" or (s.start >= 2025 and "2025 week 9" in s.note), s.key
+    for s in STATS:                                                 # every stat sits in a card group its positions show
+        for sl in s.pos:
+            ck = "D" if sl in _ALL_D else sl
+            assert s.cgroup in CX.CARD_GROUPS[ck], f"{s.key}: card group {s.cgroup!r} is not on the {sl} card"
+    # every catalog item (research/cfb/EXPANSION.md) is a stat, a team stat, a page feature, or Tier C with a reason
+    special = {"RET pool", "page: career trajectory", "feature: production vs pedigree", "feature: transfer impact"}
+    missing = []
+    for item, keys in CX.CATALOG.items():
+        if isinstance(keys, tuple):
+            assert keys[0] in ("C", "cut") and keys[1], item
+            continue
+        for k in keys:
+            if k not in bk and k not in teams and k not in special:
+                missing.append(f"{item}: {k}")
+    bad += [f"catalog item without a stat: {m}" for m in missing]
+    print(f"catalog: {len(CX.CATALOG)} items; {len(CX.TIER_C)} Tier C with reasons; new player stats {len(CX.NEW)}, "
+          f"new team stats {len(CX.TEAM_X) + len(CX.TEAM_POS)}")
     print(f"registry: {len(STATS)} player stats, {len(TEAM_STATS)} team stats; verdict-table rows checked: {rows}; problems: {len(bad)}")
     for b in bad:
         print("  !!", b)

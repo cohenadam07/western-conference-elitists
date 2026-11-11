@@ -1,3 +1,167 @@
+# College Football Savant 1.1.0: the stat expansion
+
+Built Nov 10, 2026 on branch `cfb-1.1` from `research/cfb/BUILD-1.1.md`, with the catalog `research/cfb/EXPANSION.md`.
+Not merged: Adam reviews. The connector changes need his approval before merging (standing rule).
+
+## Adam's decision during the build (Nov 10)
+
+**Devy fantasy (BUILD-1.1 section 5.4) is deferred.** No devy tab, no fantasy points on cards, no `cfb_devy_rankings`
+tool, and it is not in What's New or the README. `pipeline/cfb/devy.py` and the two models only it used (expected
+fantasy-point cells, touchdown chance by where a target was thrown) were removed. The models other stats use stay:
+expected touchdowns, completion probability with air yards, expected YAC.
+
+## What shipped
+
+- **242 new stats:** 186 player stats (counting each position's version) and 56 team stats, every catalog item mapped
+  (`pipeline/cfb/config_x.py`; `python -m pipeline.cfb.config` checks all 125 catalog items). The registry now holds 254
+  player and 99 team stats.
+- **Tier A, every season the data has (2009 or 2014 on):**
+  - QB: passer efficiency rating, ANY/A, TD and first-down rates, situational splits, drives, total EPA, WPA,
+    touchdowns over expected, rushing first downs, fumbles, and team pass rate over expected as context.
+  - RB: line, second-level and open-field yards, opportunity rate, highlight yards per opportunity, power success,
+    red-zone and goal-line shares, touchdowns over expected, receiving volume.
+  - WR/TE: first downs per target, red-zone and third-down target shares (from 2025, when every target is named),
+    touchdowns over expected, WPA.
+  - Defenders: solo and assisted tackles, TFLs on runs and passes, sack value, third-down and strip sacks,
+    interception returns, fumble recoveries, penalties, havoc share.
+  - Special teams: a **returner pool** of its own; kickoffs (touchback rate, EPA) and long field goals; punting
+    placement (inside the 20, touchbacks, return yards allowed).
+- **Tier B, the charted layer (2025 week 9 on):**
+  - `pipeline/cfb/charting.py` reads ESPN's charted play text: formation, tempo, depth and direction, air yards and
+    YAC from the caught-at and thrown-to spots, run direction, hurries, break-ups and tacklers.
+  - QBs get shot selection, by-depth, pressure, formation and tempo, and a real CPOE.
+  - Backs get run direction and formation splits.
+  - Receivers get aDOT, air-yards share, WOPR, YAC over expected, and depth and direction splits.
+  - Defenders get pressures, tackle depth, run-stop rate and credited coverage.
+  - Teams get pressure, OL by direction, formation identity, and what the defense allows downfield.
+- **Team page:**
+  - pace, PROE, early-down pass rate, drives, explosives by type, two-minute and middle 8
+  - special teams by phase
+  - what the defense allows to QBs, RBs, WRs and TEs, opponent-adjusted
+  - fourth-down go rate over expected with WCE's own recommendation, two-point tries and timeouts
+  - a Fourth downs panel and the portal haul (2021 on)
+
+  Every fourth down, try and timeout is stored in each team's season file (`t/<season>/<team>.json`, `decisions`)
+  for a future College Football Coaching Savant.
+- **Card:**
+  - Football Savant-style groups that collapse to their headline stat and stack on phones
+  - a profile score (mean percentile of five headline stats), CHARTED tags, a returner section
+  - "what the page can't see" for every position (the catalog's Tier C)
+  - weakness comps
+  - career trajectory, production vs pedigree, transfer impact, NFL translation
+- **Leaderboards:** every new stat, a returner pool, and "outplaying his stars" both ways.
+- **Connector:**
+  - the `cfb_` tools carry the card groups, CHARTED flags, profile score, weakness comps, returner rows and pedigree
+  - `cfb_leaderboard` takes position RET
+  - new `cfb_nfl_comps`
+  - the upfront tool text stays under the existing 90,000 cap (tightened descriptions, no raise needed)
+- **Refresh:** charting, fourth downs and the current season's features run in the cloud from ESPN plus committed state
+  (`state/expansion.json`, `state/verdicts_x.json`, `state/nfl_pool.json`, `state/recruits_current.json`,
+  `state/transfers_current.json`, `state/models/xpass_model.joblib` and `go_model.joblib`). The heartbeat carries a
+  charting block and the freshness workflow alarms if a recent game day's charted share drops under 90%.
+
+### A 1.0.0 defect fixed on the way
+
+ESPN's roster endpoint returns 100 players a team unless asked for more (`?limit=300` gives Auburn 113). 1.0.0's 2026
+rosters were capped: **201 FBS defenders with 20+ tackles had no roster row and so no position, and only 7 were
+graded**, along with 13 quarterbacks with 500+ passing yards. Fixed in `espn_feed.fetch_rosters` (new cache key). The
+2026 file now grades 6,097 players instead of 5,535; Savant values move with the bigger pools. Release rosters for
+2014-2025 were already complete (median 112-122 a team).
+
+## Every check and its result
+
+| step | check | result |
+|---|---|---|
+| 1 | Registry: every catalog stat present or Tier C with a reason | 125 items: all mapped, 12 Tier C with reasons; 254 player / 99 team stats; problems 0 |
+| 2 | Air yards vs the release file's `air_yards`: median abs. diff <= 1 on >= 95% | 2025: 0.00, 100.0% within 1 (23,058 throws); 2026: 0.00, 99.8% (32,726) |
+| 2 | Air yards + YAC = gain within 1 yard on >= 98% | 99.5% in both seasons (14,454 and 20,821 completions) |
+| 2 | Named defenders resolve to roster ids on >= 95% | 99.1% in both (53,790 of 54,261; 76,877 of 77,612) |
+| 2 | Charting share per game; under 80% contributes nothing | 2025 week 9 on: 391 of 396 FBS-vs-FBS games charted; 2026: 560 of 562 (list in `research/cfb/out/charting.md`) |
+| 3 | Returns, punting, penalties within 2% of box totals | returns, return yards, return TDs and punts: within 2% every season (`research/cfb/out/box_check.md`). Penalties: see the review list |
+| 4 | CPOE beats 1.0.0 on log-loss, calibrated by decile (game-level CV) | out-of-fold log-loss 0.537 vs 0.632; largest decile gap 0.017 |
+| 4 | YACOE, same validation | RMSE 7.14 vs 7.27 (MAE 4.45 vs 4.57); largest decile gap 0.32 yards |
+| 4 | Expected TDs fit 2014-2024, calibrated on 2025 | before the 2025 shift the models were within 1-5% of 2025's TDs; after it exact; largest decile gap under 0.01 |
+| 5 | `expansion_stability.md` written, verdicts in the registry | written; `state/verdicts_x.json`. Player: 22 full bars, 22 hatched, 101 CONTEXT (51 of them style), 42 dropped. Team: 12 full, 7 hatched, 28 CONTEXT, 5 dropped |
+| 6 | What-it-allows totals reconcile with the opponents' player totals | exact: for QBs, RBs, WRs and TEs, the defenses' allowed EPA and plays sum to the position's own totals with a difference of 0 (measured on 2019 and 2025) |
+| 7 | NFL translation correlation reported | Spearman 0.110 (p = 0.002) on 2014-2021 college finals of NFL players (`research/cfb/out/nfl_translation.md`) |
+| 8 | No file over 15 MB, sizes reported | `public/cfb`: 2,501 files, 35.1 MB; largest `s/2025.json.gz` 0.95 MB; new `x/` 124 files, 1.38 MB |
+| 9 | Values match the data files; no JS errors; no sideways scroll at 375px; pools named; reduced motion | `tools/savant-cfb/shoot.py`: 19 views at 1440, 375 and 375 reduced: no errors, no problems; every bar on the QB card recomputed from the files and matched; 2019 charted rows read "not tracked before 2025" |
+| 10 | cfb check extended to the new values | `tools/savant-cfb/check.mjs` 17 of 17 |
+| 11 | A refresh of 2026 is byte-identical to the full build | **247 of 247 files identical** (the new `x/` files included) |
+| 12 | `check:savant`, `check:whats-new` | 307 pass, 0 fail, 4 skipped; whats-new 9 of 9 |
+
+## The review list for Adam
+
+1. **Stability.**
+   - **Player stats (187 new or re-measured):**
+     - 22 full bars and 22 hatched.
+     - 101 CONTEXT, 51 of them "style" (how he plays, not how well: direction mix, shotgun rate, depth of target,
+       shares of his team's work, solo and assisted tackles).
+     - 42 dropped, shown as CONTEXT labelled noise.
+   - **Most of the drops are small samples:** EPA and yards per sack (2 sacks a season), interception return yards,
+     two-minute and middle-8 EPA for a QB, short-yardage conversion, fumble recoveries, return EPA, deep and short
+     splits for tight ends.
+   - **Tier B full bars:** pressure rate faced, pressure-to-sack rate, completed air yards per attempt, defenders'
+     hurries, pressures and share of team pressures, break-ups per opponent dropback.
+   - **Two Tier B rows land as CONTEXT:** the new CPOE (0.37 at a starter's sample) and shotgun EPA (0.43).
+   - **Team stats:** 12 full, 7 hatched, 28 CONTEXT, 5 dropped (FG EPA per game, two-point conversion rate, OL left
+     line yards and stuffs). Full table: `research/cfb/out/expansion_stability.md`.
+2. **Charted parser.**
+   - **Agreement:** the numbers are in the checks table.
+   - **Games under 80%:** five in 2025 week 9 on (Texas A&M at LSU, Ole Miss at Oklahoma, Alabama at South Carolina,
+     two bowl games: 0% charted) and two in 2026 week 1.
+   - **Judgment call:** about one touchdown in six in charted games is written as a scoring summary ("Edrees Farooq 45
+     Yd Interception Return (Max Gilbert Kick)"), with no formation, depth or hurry. Those plays count in every total
+     but in none of the charted splits, and every Tier B explainer says so. A first version read the missing
+     "Shotgun" tag as under center, which put interception-return touchdowns under center; caught by the stability
+     study.
+3. **CPOE and YACOE.** Both beat their baselines out of fold and are calibrated by decile (numbers above). The models are
+   frozen in `state/expansion.json`, fitted on charted 2025-2026.
+4. **NFL translation.**
+   - Overall correlation 0.110 (p = 0.002): positive, so outcome averages show, but it is weak.
+   - By position: QB 0.28, TE 0.21, LB 0.14, CB 0.13, WR 0.06, RB 0.06, **S -0.01, IDL -0.05, EDGE -0.08**.
+   - **Judgment call:** the rule is applied per position too, so EDGE, IDL and S cards show comps without NFL outcome
+     averages.
+   - The recruiting rating enters as its percentile among all rated recruits. The public repo carries only that rank
+     transform, never CollegeFootballData's composite (1.0.0's rule).
+   - The pool is 4,085 linked final seasons, of which 2,211 have NFL value.
+5. **Stats cut, with reasons.**
+   - **Devy fantasy:** deferred (Adam).
+   - **End-zone target share:** Tier B only, because only the charted text gives the spot a ball was thrown to.
+   - **Muff rate:** Tier B only, because earlier text rarely says "muffed".
+   - **Strip sacks:** tracked to 2020 only, because forced fumbles stop being credited after that (17 strip sacks in
+     2025).
+   - **Red-zone and third-down target shares:** start in 2025, like 1.0.0's target share.
+6. **Penalties (step 3's check).**
+   - The box has no per-player penalty line, so a player's penalties cannot be checked against it.
+   - ESPN names the penalized player on 50-66% of accepted penalties. The stat is "penalties ESPN charges to him" and
+     says so.
+   - Play-by-play penalty rows run 0-11% under the team box (worst in 2022-2024). The team page's penalty stats were
+     already the team box's.
+7. **Returns.**
+   - The play text of some seasons stops at "kickoff for 62 yds" (2,725 kickoffs in 2023), so return counts, yards
+     and touchdowns are the box score's.
+   - Per-return rates come from the returns the text describes: 87-99% of the box's in most seasons, but **51% in
+     2023** and 62-75% in 2009-2011.
+8. **Fourth downs.**
+   - The release file's recommendation is not used, because the cloud refresh can't read it. WCE's own model uses
+     expected points, and win probability in the last 15 minutes of a game within 16 points.
+   - It agrees with the release file's recommendation on 74% of 2025's fourth downs. It is more aggressive in
+     field-goal range and less aggressive on fourth-and-long in its own territory.
+   - WP alone agreed on 67%: in lopsided games WP barely moves between choices.
+9. **Timeouts.** Credited to a team on 99.8-99.95% in most seasons, but 2025 has 782 timeout rows with no team named
+   (91.5% credited); those are left out.
+10. **Connector size.** Under the existing 90,000-character cap. Two existing `cfb_` descriptions were tightened to make
+    room for `cfb_nfl_comps`: the player profile's and the team profile's ("WCE power rating by unit"). No cap raise
+    is needed.
+11. **Every judgment call, briefly:**
+    - Expected pass rate is a boosted model (a logistic calibrated worse) and is centred on each season.
+    - WOPR is computed game by game, weighted by team attempts.
+    - Tier B reliability is stepped up to a starter's full season, and Tier B qualifiers count charted plays only.
+    - The returner pool needs 12 returns, scaled to the season played.
+    - Class stands in for age where it is used.
+    - Production vs pedigree uses the recruiting rating's percentile among qualified players with one.
+
 # College Football Savant 1.0.0
 
 Built Nov 10, 2026 on branch `college-football-savant` from `~/College-Football-Savant/BUILD.md`, on top of prompt 1's

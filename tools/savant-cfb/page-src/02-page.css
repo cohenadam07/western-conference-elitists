@@ -44,7 +44,7 @@ main{max-width:var(--wrap);margin:0 auto;padding:26px var(--gut) 56px;display:fl
 .ctl{padding:16px 22px 0;display:flex;flex-wrap:wrap;gap:8px}
 .poolline{margin:12px 22px 0;font-family:var(--fig);font-size:12px;color:var(--muted);text-transform:none}
 .grp{padding:8px 22px 4px}.grp .hd{display:flex;align-items:center;gap:10px;margin:16px 0 12px}
-.grp .hd h3{font-size:22px;color:var(--field)}.grp .hd::after{content:"";flex:1;height:3px;background:var(--gold);order:1}.grp .hd .ctx{order:2}
+.grp .hd h3{font-size:22px;color:var(--field)}.grp .hd::after{content:"";flex:1;height:3px;background:var(--gold);order:1}.grp .hd .ctx,.grp .hd .tg{order:2}
 .rows{display:flex;flex-direction:column;gap:12px}
 .valline{margin:18px 22px 0;padding:12px 14px;background:var(--sunk);border-left:5px solid var(--gold);font-size:14px}
 .valline b{font-family:var(--fig);font-size:18px}
@@ -120,3 +120,18 @@ dialog.sheet::backdrop{background:rgba(3,9,20,.62)}
 @media (max-width:639.98px){.fieldbox,.strow{display:none}.as-ph{display:block}.as-mob{display:inline-flex;align-items:center}}
 .foot{border-top:1px solid #1E2C4A;background:var(--deep);padding:22px var(--gut) 34px;font-size:13px;line-height:1.6;color:var(--soft)}.foot p{max-width:var(--wrap);margin:0 auto}
 @media (max-width:640px){.hero .cp{display:none}.hero{padding:28px var(--gut) 24px}.hero .ttl>div{padding:10px 16px 6px}.bar1{align-items:stretch}.srch,.srch input{width:100%}.tab{padding:0 12px;font-size:16px}.who{padding:16px}.who .top{gap:12px}.ctl,.grp{padding-left:14px;padding-right:14px}.poolline,.valline{margin-left:14px;margin-right:14px}.pad{padding:14px}.bye .mt{display:none}main{gap:28px}}
+
+/* 1.1.0: card groups that collapse to their headline stat */
+details.cg{border-top:2px solid var(--line);padding:6px 22px 8px}details.cg>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(90px,1fr) minmax(90px,1.4fr) 64px 24px;align-items:center;gap:10px;min-height:44px}
+details.cg>summary::-webkit-details-marker{display:none}.cgn{font-family:var(--disp);font-size:20px;color:var(--field);text-transform:uppercase;line-height:1.05}
+.cgh{font-size:13px;color:var(--muted)}.cgv{font-weight:700;text-align:right;font-variant-numeric:tabular-nums}.cgc{font-size:12px;color:var(--muted);text-align:center;border:1.5px solid var(--line);border-radius:10px}
+details.cg[open]>summary .cgh,details.cg[open]>summary .cgb,details.cg[open]>summary .cgv{visibility:hidden}details.cg[open]>.rows{margin:6px 0 10px}
+.ctx.tb{background:var(--sticker,#5B2A86);color:#fff}.band.sub{margin-top:8px}ul.cant{margin:8px 0 0;padding-left:18px;font-size:13.5px;line-height:1.5;display:flex;flex-direction:column;gap:4px}
+@media (max-width:640px){details.cg{padding:6px 14px 8px}details.cg>summary{grid-template-columns:1fr 64px 24px;grid-template-areas:"n v c" "h h h" "b b b";row-gap:4px}
+.cgn{grid-area:n}.cgh{grid-area:h}.cgb{grid-area:b}.cgv{grid-area:v}.cgc{grid-area:c}details.cg[open]>summary .cgh,details.cg[open]>summary .cgb{display:none}}
+
+/* row tags: "for context", "since 2025" (1.1.0) */
+.tg{display:inline-block;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:11px;font-weight:600;line-height:1.5;letter-spacing:.01em;padding:0 8px;border-radius:999px;margin-left:6px;vertical-align:1px;white-space:nowrap}
+.tg-ctx{background:#ECEBE7;color:var(--muted)}
+.tg-new{background:var(--sticker);color:var(--ink)}
+.nm .tg:first-of-type{margin-left:6px}

@@ -57,7 +57,7 @@
 //   api/_cfb.js          College Football Savant  cfb_search_players, cfb_get_player_profile, cfb_player_career,
 //                                                 cfb_player_splits, cfb_leaderboard, cfb_team_profile,
 //                                                 cfb_team_rankings, cfb_game, cfb_all_savant_team,
-//                                                 cfb_playoff_field
+//                                                 cfb_nfl_comps, cfb_playoff_field
 //   api/_site.js         News, articles, boards   wce_get_news, wce_search_articles,
 //                                                 wce_get_article, wce_get_big_board,
 //                                                 wce_get_dynasty_rankings, wce_get_trending,

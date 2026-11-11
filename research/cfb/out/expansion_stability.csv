@@ -1,0 +1,188 @@
+stat,label,slots,tier,group,players,typical,unit,split_half,reliability,settle,yoy_stay,yoy_move,verdict
+qb_rating,Passer efficiency rating,QB,A,Passing: Efficiency,1688,266.0,attempts,0.3723050384203148,0.5425980784110243,158.5,0.12486697346790686,0.1708657133840656,full bar
+qb_anya,Adjusted net yards per attempt,QB,A,Passing: Efficiency,1688,285.0,dropbacks,0.35663073638136344,0.5257594816591429,188.4,0.10749744606495981,0.1231037944095071,full bar
+qb_td_rate,Touchdown rate,QB,A,Passing: Efficiency,1688,266.0,attempts,0.3000420474333603,0.4615882202052244,251.2,0.041535808462817424,0.10899896098351997,hatched
+qb_fd_rate,First-down rate,QB,A,Passing: Efficiency,1688,285.0,dropbacks,0.39730596859521433,0.5686742596464353,188.4,0.14941107848304586,0.18999584741303732,full bar
+qb_third,Third- and fourth-down conversion,QB,A,Passing: Situational,1688,82.0,dropbacks,0.20441138998757816,0.339437822801869,118.9,0.11592456256845127,0.2586010897588916,hatched
+qb_rz_td,Red-zone touchdown rate,QB,A,Passing: Situational,1688,30.0,dropbacks,0.0731990989232472,0.13641289672473392,167.9,0.023080612558381206,-0.011672157550013608,dropped
+qb_short,Short-yardage conversion,QB,A,Passing: Situational,1684,13.0,plays,0.03171479369438892,0.061479769192460315,75.0,0.04192896324590783,0.061104787744912535,dropped
+qb_twomin,Two-minute drill EPA,QB,A,Passing: Situational,1687,29.0,dropbacks,0.06052933792335791,0.11414929461900888,177.8,0.00845213974439987,0.094930640603021,dropped
+qb_doubt,EPA when the game is in doubt,QB,A,Passing: Situational,1684,122.0,dropbacks,0.1252994626285069,0.2226953211829122,335.0,-0.003313191470344035,0.1598443618699968,CONTEXT
+qb_mid8,Middle-8 EPA,QB,A,Passing: Situational,1688,51.0,dropbacks,0.06883968825090085,0.12881199867035875,223.9,0.04174410444098729,0.015271105829882252,dropped
+qb_d_pts,Points per drive,QB,A,Passing: Drives,1688,95.0,drives,0.44825371123854374,0.6190264975812808,47.3,0.21373303782320047,0.08668366247273086,full bar
+qb_d_td,Touchdown-drive rate,QB,A,Passing: Drives,1688,95.0,drives,0.44321364899735,0.6142037934650434,50.1,0.1936944640345631,0.069910650933341,full bar
+qb_d_3out,Three-and-out rate,QB,A,Passing: Drives,1688,95.0,drives,0.252476022160439,0.4031630429538035,125.9,0.10714743077180162,0.02331304213420087,hatched
+qb_tot_epa,Total EPA,QB,A,Value,1688,10.0,season,0.38992457157010435,0.5610729956800933,7.1,0.3658640099922931,0.17686151802082437,full bar
+qb_wpa,Win probability added,QB,A,Value,1688,10.0,season,0.1566182541254293,0.270820996585179,22.4,0.15719196103255478,0.055871130951731525,CONTEXT
+qb_tdoe,Touchdowns over expected,QB,A,Value,1688,10.0,season,0.2596526557515781,0.4122607205502298,13.3,0.24168794136252478,0.12128764339001433,hatched
+qb_rush_fd,First-down rate on runs,QB,A,Rushing,1688,48.0,rushes,0.19940484588449817,0.3325063202282588,75.0,0.0778319370400371,0.05135560906702075,hatched
+qb_fum,Fumble rate,QB,A,Rushing,1688,344.0,plays,0.10520486404142027,0.19038074743304326,1496.2,0.06863841955902826,-0.01664007984425805,CONTEXT
+qb_sneak,Short-yardage run conversion,QB,A,Rushing,1575,6.0,rushes,-0.025260170246728473,-0.05182956410660348,70.8,0.08508596245154909,-0.0002231451110413109,dropped
+qb_proe,Team pass rate over expected,QB,A,Context,1685,247.0,team plays,0.6803309938373281,0.8097583111094963,47.3,0.5782573719675119,0.20986425366386544,CONTEXT (style)
+qb_pen,Penalties,QB,A,Context,1688,640.0,team plays,0.07851964489194807,0.14560633227930603,10000.0,0.11752152757695453,-0.05810882964178284,dropped
+rb_ly,Line yards per carry,RB,A,Where the yards come from,2088,127.5,rushes,0.2715415196052991,0.4271060211853541,167.9,0.08701181339729187,0.12140426950822589,hatched
+rb_slv,Second-level yards per carry,RB,A,Where the yards come from,2088,127.5,rushes,0.3022535526263368,0.46420077260186854,141.3,0.1783922942335613,0.10636651694492094,hatched
+rb_ofy,Open-field yards per carry,RB,A,Where the yards come from,2088,127.5,rushes,0.22819301603760525,0.37159145681157063,211.3,0.17116512552999064,0.13527451486472453,hatched
+rb_opp_rate,Opportunity rate,RB,A,Where the yards come from,2088,127.5,rushes,0.24808808338540175,0.3975489978439185,188.4,0.12178441566232467,0.13809761116257277,hatched
+rb_hly_opp,Highlight yards per opportunity,RB,A,Where the yards come from,2088,61.0,opportunities,0.20389190775609087,0.3387212862591971,105.9,0.15052127807021287,0.10999381691899049,hatched
+rb_fd,First-down rate,RB,A,Rushing: Efficiency,2088,127.5,rushes,0.2833616497061077,0.4415928273546246,158.5,0.12360183757628164,0.0437664015929982,hatched
+rb_power,Power success,RB,A,Rushing: Situational,2079,12.0,rushes,0.023011382348812302,0.0449875392314378,841.4,0.04436151620328313,-0.07892133764622003,dropped
+rb_rz_share,Red-zone carry share,RB,A,Rushing: Situational,2088,61.0,team rushes,0.5125751787874393,0.6777516727444209,33.5,0.31747875259148756,0.15913270019454182,CONTEXT (style)
+rb_gl_share,Goal-line carry share,RB,A,Rushing: Situational,2088,18.0,team rushes,0.39696157149274586,0.5683213906429311,12.6,0.3020500387121592,0.1428216692394451,CONTEXT (style)
+rb_tdoe,Touchdowns over expected,RB,A,Value,2088,11.0,season,0.13903845597917389,0.24413303211900697,37.6,0.19626082828461527,0.10993601917740047,CONTEXT
+rb_wpa,Win probability added,RB,A,Value,2088,11.0,season,0.09843963163148572,0.1792353968242674,59.6,0.10405761406075399,0.08907773190490709,CONTEXT
+rb_fum,Fumble rate,RB,A,Rushing: Efficiency,2088,143.0,touches,0.021604877473810572,0.0422959560005907,2113.5,-0.004404355618254496,0.10284428640740377,dropped
+rb_tgt_g,Targets per game,RB,A,Receiving,2088,11.0,games,0.6771489359172207,0.8075000632509632,3.2,0.5077075226966533,0.2915322709777706,CONTEXT (style)
+rb_rec_yptpa,Receiving yards per team pass attempt,RB,A,Receiving,2088,315.0,team attempts,0.5209275174856036,0.6850129430846259,158.5,0.42614193603850525,0.2618326304180108,full bar
+rb_pen,Penalties,RB,A,Context,2088,693.0,team plays,0.06397414538429554,0.12025507511028624,5011.9,0.05013953724170037,-0.07841949530288946,dropped
+wr_fd_tgt,First downs per target,WR,A,Efficiency,4646,55.42645172968399,targets,0.21005251680617334,0.3471791742735074,105.9,0.09584445399818282,0.07028913218997639,hatched
+wr_rz_share,Red-zone target share,WR,A,Situational,409,25.0,team attempts,0.1929398437696714,0.3234695274490698,50.1,,,CONTEXT (style)
+wr_third_share,Third-down target share,WR,A,Situational,409,66.0,team attempts,0.3479409327911213,0.5162554594594223,59.6,,,CONTEXT (style)
+wr_tdoe,Touchdowns over expected,WR,A,Value,4646,11.0,season,0.1368124269073218,0.24069481238785817,31.6,0.14502237254342518,0.08187939932721792,CONTEXT
+wr_wpa,Win probability added,WR,A,Value,4646,11.0,season,0.16730687135538688,0.28665447871667715,26.6,0.18905479125948726,0.027221407192762514,CONTEXT
+wr_pen,Penalties,WR,A,Context,4646,674.0,team plays,0.11650075052262306,0.20868906799765286,2371.4,0.13713245833047377,0.0025534706612374294,CONTEXT
+te_fd_tgt,First downs per target,TE,A,Efficiency,1597,29.0656162464986,targets,0.11736735250208191,0.21007836364516158,100.0,0.07678101902098348,0.04773134906577976,CONTEXT
+te_rz_share,Red-zone target share,TE,A,Situational,181,23.0,team attempts,0.3564267441530056,0.5255377714858747,29.9,,,CONTEXT (style)
+te_third_share,Third-down target share,TE,A,Situational,181,58.0,team attempts,0.3797437059491553,0.5504554277896436,47.3,,,CONTEXT (style)
+te_tdoe,Touchdowns over expected,TE,A,Value,1597,9.0,season,0.06988082132738181,0.13063290776758096,75.0,0.026909728225754756,0.11361128178439217,dropped
+te_wpa,Win probability added,TE,A,Value,1597,9.0,season,0.13070649867366835,0.23119438833506054,39.8,0.08109234703374153,0.19046077845005335,CONTEXT
+te_pen,Penalties,TE,A,Context,1597,590.0,team plays,0.06507732965296839,0.12220207461212677,3349.7,0.05309331755820004,0.02955143953115075,dropped
+dl_solo,Solo tackles,EDGE/IDL,A,Run defense,9237,730.0,team def. plays,0.44040486234463067,0.6115014935839055,562.3,0.36878176614649205,0.2631439410759542,CONTEXT (style)
+dl_asst,Assisted tackles,EDGE/IDL,A,Run defense,9237,730.0,team def. plays,0.4487602413306771,0.6195093273935979,501.2,0.40106470377896897,0.2383512316682635,CONTEXT (style)
+dl_tfl_run,Tackles for loss on runs,EDGE/IDL,A,Run defense,9237,730.0,team def. plays,0.23888408279285542,0.38564396154696173,1333.5,0.2755822313944754,0.13635220185967872,hatched
+dl_tfl_pass,Tackles for loss on passes,EDGE/IDL,A,Pass rush,9237,730.0,team def. plays,0.38736407849521276,0.5584173390381599,595.7,0.4641556165309885,0.3245679171928148,full bar
+dl_frec,Fumble recoveries,EDGE/IDL,A,Turnovers,9237,730.0,team def. plays,0.05273180922730079,0.10018089843035262,5011.9,0.05384496108741954,-0.03413448895988547,dropped
+dl_int_yds,Interception return yards,EDGE/IDL,A,Turnovers,429,1.0,interceptions,0.175715344387704,0.29890797160466437,,,,CONTEXT
+dl_int_epa,Interception value,EDGE/IDL,A,Turnovers,9237,12.0,season,0.021513437060733543,0.042120712817318474,237.1,0.03639402619383315,0.04579708429034257,dropped
+dl_pen,Penalties,EDGE/IDL,A,Discipline,9237,730.0,team def. plays,0.157714542228576,0.2724584281803679,1883.6,0.22009321299581272,0.17359739364279983,CONTEXT
+dl_havoc,Havoc share,EDGE/IDL,A,Value,6870,99.0,team havoc plays,0.42321977698229174,0.5947356604046932,66.8,0.4700676323864504,0.3684160334329743,full bar
+dl_sack_epa,EPA per sack,EDGE/IDL,A,Pass rush,6101,2.0,sacks,0.02508141918411794,0.048935467397469214,44.7,-0.025273534284977514,-0.07078049612536313,dropped
+dl_sack_yds,Yards lost per sack,EDGE/IDL,A,Pass rush,6101,2.0,sacks,0.018414897084289273,0.036163840762759705,105.9,0.037906294885440894,0.06274512040067841,dropped
+dl_sack3,Third-down sack rate,EDGE/IDL,A,Pass rush,9237,105.0,opp. 3rd-down dropbacks,0.23959996804750666,0.3865762733519596,177.8,0.302177541622598,0.2271492293643745,hatched
+dl_strip,Strip sacks,EDGE/IDL,A,Pass rush,4831,742.0,team def. plays,0.07627469696243097,0.14173834463952553,4731.5,0.11711894543971255,0.15869696199704852,dropped
+lb_solo,Solo tackles,LB,A,Run defense,7164,729.0,team def. plays,0.6208945969027106,0.7661134759646286,298.5,0.4201736874956295,0.21692589747516502,CONTEXT (style)
+lb_asst,Assisted tackles,LB,A,Run defense,7164,729.0,team def. plays,0.6320990806404109,0.774584200356739,266.1,0.4489050214704582,0.14352595310378347,CONTEXT (style)
+lb_tfl_run,Tackles for loss on runs,LB,A,Run defense,7164,729.0,team def. plays,0.2732897823751319,0.4292656489638213,1000.0,0.24890446820100007,-0.01642324232747268,hatched
+lb_tfl_pass,Tackles for loss on passes,LB,A,Pass rush,7164,729.0,team def. plays,0.32955639738703496,0.49573887656771704,841.4,0.3230283580794831,0.37412782663598737,hatched
+lb_frec,Fumble recoveries,LB,A,Turnovers,7164,729.0,team def. plays,0.04130830468839647,0.07933923988200145,10000.0,0.07800590280445874,0.12173107442214376,dropped
+lb_int_yds,Interception return yards,LB,A,Turnovers,1908,1.0,interceptions,-0.04404149679537219,-0.09214102212121833,,0.0454320137277687,,dropped
+lb_int_epa,Interception value,LB,A,Turnovers,7164,12.0,season,0.12227143293001656,0.21789992927253146,44.7,0.16404638326292434,0.13124543974710356,CONTEXT
+lb_pen,Penalties,LB,A,Discipline,7164,729.0,team def. plays,0.11601883776659791,0.2079155545416732,2511.9,0.15633177818613953,0.044715089189677024,CONTEXT
+lb_havoc,Havoc share,LB,A,Value,5307,98.0,team havoc plays,0.43837281712490295,0.60953990774262,66.8,0.34035728232098633,0.1716570610615667,full bar
+lb_sack_epa,EPA per sack,LB,A,Pass rush,4123,2.0,sacks,0.020846033495039246,0.040840700381955385,10000.0,-0.009312057905790101,0.2030637959452522,dropped
+lb_sack_yds,Yards lost per sack,LB,A,Pass rush,4123,2.0,sacks,0.006607064850193756,0.013127396142758126,42.2,-0.017831292533391323,-0.012405284585826012,dropped
+lb_sack3,Third-down sack rate,LB,A,Pass rush,7164,104.0,opp. 3rd-down dropbacks,0.20918163978467136,0.34598877935646133,237.1,0.2506027152642741,0.23636696496598278,hatched
+lb_strip,Strip sacks,LB,A,Pass rush,3869,741.0,team def. plays,0.08814219808852077,0.16200492590647672,2511.9,0.12504407177789342,,CONTEXT
+db_solo,Solo tackles,CB/S,A,Run defense,9625,726.0,team def. plays,0.5225282266022767,0.6863954539199153,501.2,0.3996906853505423,0.13485762148635377,CONTEXT (style)
+db_asst,Assisted tackles,CB/S,A,Run defense,9625,726.0,team def. plays,0.5542285647533645,0.7131879793256962,335.0,0.518202431661176,0.3334166671789115,CONTEXT (style)
+db_tfl_run,Tackles for loss on runs,CB/S,A,Run defense,9625,726.0,team def. plays,0.16054695226076895,0.276674635089981,2371.4,0.18568591406190313,0.13137910612611817,CONTEXT
+db_tfl_pass,Tackles for loss on passes,CB/S,A,Pass rush,9625,726.0,team def. plays,0.1434758528419419,0.25094688704681195,1995.3,0.15284257826724068,0.08910316991225771,CONTEXT
+db_frec,Fumble recoveries,CB/S,A,Turnovers,9625,726.0,team def. plays,0.04941069712495093,0.09416846475897456,6309.6,0.04760158522337777,0.09443202376409095,dropped
+db_int_yds,Interception return yards,CB/S,A,Turnovers,5529,1.0,interceptions,0.06827595742659769,0.1278245699567548,,0.02392813557756435,0.18910293455527186,dropped
+db_int_epa,Interception value,CB/S,A,Turnovers,9625,12.0,season,0.17539955386812411,0.298450945112071,31.6,0.19041557783846114,0.13773014081005036,CONTEXT
+db_pen,Penalties,CB/S,A,Discipline,9625,726.0,team def. plays,0.17447567622681684,0.29711245581065876,1778.3,0.2396329723718025,0.030462111003182586,CONTEXT
+db_havoc,Havoc share,CB/S,A,Value,7158,98.0,team havoc plays,0.331894755098257,0.49837985145271085,105.9,0.2725859970519012,0.10070295403018734,hatched
+k_long_rate,Long field-goal rate,K,A,Field goals,903,2.0,attempts,0.01831354503765878,0.03596838150077149,,0.016184153875802344,0.1520187545693588,dropped
+k_ko_tb,Kickoff touchback rate,K,A,Kickoffs,1041,42.0,kickoffs,0.647246460140041,0.7858526040906049,15.0,0.46795336504602986,0.454369299461394,full bar
+k_ko_epa,Kickoff EPA,K,A,Kickoffs,1040,42.0,kickoffs,0.21240983471608543,0.3503927939776672,266.1,-0.024786462484789117,0.033981704665436825,hatched
+p_in20,Inside-20 rate,P,A,Placement,1258,51.0,punts,0.2427438989011762,0.3906579611709353,94.4,0.16515605443909556,0.12803811683900587,hatched
+p_tb,Touchback rate,P,A,Placement,1258,51.0,punts,0.08550809428891311,0.15754483036798936,237.1,0.036900246816785685,0.021968411015163676,CONTEXT
+p_ret_allowed,Return yards allowed per punt,P,A,Punting,1258,47.0,punts,0.1987553621965677,0.3316028748891244,79.4,0.11448340088927048,-0.06566086184605106,hatched
+ret_epa,Return EPA over average,RET,A,Returns,2119,16.0,returns,0.04758346561149234,0.09084424711441405,141.3,0.025201302900599687,0.0018608023159280107,dropped
+ret_kyds,Yards per kick return,RET,A,Returns,1787,15.0,returns,0.24198574449790541,0.38967555878949706,26.6,0.1336775894327992,0.046145274531114326,hatched
+ret_pyds,Yards per punt return,RET,A,Returns,1276,12.0,returns,0.06017003927515357,0.11351016732427618,39.8,0.090676233159014,-0.013749260393629954,dropped
+ret_20,20-yard return rate,RET,A,Returns,2119,16.0,returns,0.5469275610608595,0.7071146378512836,5.3,0.38853200781105673,0.3478715530778849,full bar
+ret_td,Return touchdowns,RET,A,Returns,2120,9.0,season,0.07908678453857151,0.14658095284224953,39.8,0.1069896285774507,0.10395970897909473,dropped
+ret_fc,Fair-catch rate,RET,A,Fair catches and muffs,1294,21.0,punts fielded,0.23614348525902673,0.38206484615261993,31.6,0.21879558428624693,0.12462165481067627,CONTEXT (style)
+qb_cpoe,Completion % over expected,QB,B,Passing: Shot selection,340,276.0,attempts,0.13012312069748483,0.365561938821961,298.5,,,CONTEXT
+qb_adot,Average depth of target,QB,B,Passing: Shot selection,340,276.0,attempts,0.4582786389696433,0.7651800776124443,105.9,,,CONTEXT (style)
+qb_deep_rate,Deep-throw rate,QB,B,Passing: Shot selection,340,276.0,attempts,0.29532128425913845,0.6174853875622112,177.8,,,CONTEXT (style)
+qb_behind,Behind-the-line throw rate,QB,B,Passing: Shot selection,340,276.0,attempts,0.44969404474010893,0.7589002702376415,94.4,,,CONTEXT (style)
+qb_dir_l,Throws to the left,QB,B,Passing: Shot selection,340,276.0,attempts,0.23278495432020846,0.5388998825568276,167.9,,,CONTEXT (style)
+qb_dir_m,Throws to the middle,QB,B,Passing: Shot selection,340,276.0,attempts,0.27728559458999824,0.5964272574264524,149.6,,,CONTEXT (style)
+qb_dir_r,Throws to the right,QB,B,Passing: Shot selection,340,276.0,attempts,0.22800301979884033,0.5321916333130415,118.9,,,CONTEXT (style)
+qb_b0_cmp,"Completion rate, behind the line",QB,B,Passing: By depth,332,55.199999999999996,attempts,0.020382090991025826,0.08439990926598166,10000.0,,,dropped
+qb_b0_ypa,"Yards per attempt, behind the line",QB,B,Passing: By depth,332,55.199999999999996,attempts,-0.06558507329286473,-0.3749198026620412,10000.0,,,dropped
+qb_b1_cmp,"Completion rate, 0-9 air yards",QB,B,Passing: By depth,338,130.0,attempts,0.03643341567807039,0.12552800797751298,158.5,,,dropped
+qb_b1_ypa,"Yards per attempt, 0-9 air yards",QB,B,Passing: By depth,338,130.0,attempts,0.1345743173738494,0.37120728044513907,133.4,,,CONTEXT
+qb_b2_cmp,"Completion rate, 10-19 air yards",QB,B,Passing: By depth,338,72.0,attempts,0.08320590876243744,0.2947777771865216,10000.0,,,CONTEXT
+qb_b2_ypa,"Yards per attempt, 10-19 air yards",QB,B,Passing: By depth,338,72.0,attempts,0.06574747524416556,0.244779463643891,10000.0,,,CONTEXT
+qb_b3_cmp,"Completion rate, 20+ air yards",QB,B,Passing: By depth,328,48.0,attempts,0.10682569362928895,0.3621873021231476,167.9,,,CONTEXT
+qb_b3_ypa,"Yards per attempt, 20+ air yards",QB,B,Passing: By depth,328,48.0,attempts,0.08367701221776387,0.30244023405031245,10000.0,,,CONTEXT
+qb_cair,Completed air yards per attempt,QB,B,Passing: Shot selection,340,276.0,attempts,0.3718112866371825,0.6951086062735056,211.3,,,full bar
+qb_yac_share,YAC share,QB,B,Passing: Shot selection,340,2031.0,yards,0.4274913688434783,0.7423770851945286,891.3,,,CONTEXT (style)
+qb_press_rate,Pressure rate faced,QB,B,Passing: Pressure,341,302.0,dropbacks,0.2754514771846916,0.5952466067393908,167.9,,,full bar
+qb_p2s,Pressure-to-sack rate,QB,B,Passing: Pressure,333,52.800000000000004,pressures,0.30407837228348145,0.6661612519198306,23.7,,,full bar
+qb_press_epa,EPA per dropback when pressured,QB,B,Passing: Pressure,333,52.800000000000004,dropbacks,0.1156719154228225,0.3739647803308862,79.4,,,CONTEXT
+qb_clean_epa,EPA per dropback when clean,QB,B,Passing: Pressure,340,256.0,dropbacks,0.11820614269360838,0.33910483041522355,530.9,,,CONTEXT
+qb_shotgun,Shotgun rate,QB,B,Passing: Formation and tempo,341,302.0,dropbacks,0.6696741100441836,0.8869086945480769,14.1,,,CONTEXT (style)
+qb_shot_epa,"EPA per dropback, shotgun",QB,B,Passing: Formation and tempo,341,290.0,dropbacks,0.165088298114173,0.4304635749850091,562.3,,,CONTEXT
+qb_uc_epa,"EPA per dropback, under center",QB,B,Passing: Formation and tempo,129,28.0,dropbacks,-0.02087596142794098,-0.12307508549658032,,,,dropped
+qb_nohuddle,No-huddle rate,QB,B,Passing: Formation and tempo,341,302.0,dropbacks,0.7638860720734523,0.9260089170803041,14.1,,,CONTEXT (style)
+qb_nh_epa,"EPA per dropback, no-huddle",QB,B,Passing: Formation and tempo,330,207.60000000000002,dropbacks,0.03185099790126423,0.1216951557671763,944.1,,,dropped
+rb_dir_l,Runs to the left,RB,B,Rushing: Direction,505,108.0,rushes,0.325975888654973,0.6025928307299481,56.2,,,CONTEXT (style)
+rb_succ_l,"Success rate, left",RB,B,Rushing: Direction,399,31.200000000000003,rushes,0.015848072938607776,0.06429398718839095,10000.0,,,dropped
+rb_dir_m,Runs to the middle,RB,B,Rushing: Direction,505,108.0,rushes,0.42037658930673333,0.6945536321234881,37.6,,,CONTEXT (style)
+rb_succ_m,"Success rate, middle",RB,B,Rushing: Direction,497,68.57142857142857,rushes,0.10233059729014155,0.2590680462517698,66.8,,,CONTEXT
+rb_dir_r,Runs to the right,RB,B,Rushing: Direction,505,108.0,rushes,0.25579117043099153,0.5186819280421681,79.4,,,CONTEXT (style)
+rb_succ_r,"Success rate, right",RB,B,Rushing: Direction,404,28.799999999999997,rushes,0.05089215669131466,0.18393618744019982,47.3,,,CONTEXT
+rb_shot_epa,"EPA per rush, shotgun",RB,B,Rushing: Efficiency,501,97.71428571428571,rushes,0.0697818203169181,0.1864798645652682,562.3,,,CONTEXT
+rb_uc_epa,"EPA per rush, under center",RB,B,Rushing: Efficiency,141,26.400000000000002,rushes,0.22010644241124552,0.48987181818064107,,,,CONTEXT
+rb_adot,Average depth of target,RB,B,Receiving,365,28.799999999999997,targets,0.20426589894422625,0.5192865598581458,25.1,,,CONTEXT (style)
+rb_yac,YAC per catch,RB,B,Receiving,324,24.0,catches,0.015574836491630583,0.06528221762635418,66.8,,,dropped
+wr_adot,Average depth of target,WR,B,Opportunity,1002,55.0,targets,0.3682298435506327,0.6744148321147866,23.7,,,CONTEXT (style)
+wr_air_share,Air-yards share,WR,B,Opportunity,1004,3059.0,team air yards,0.5287702987368573,0.8170084621427068,794.3,,,CONTEXT (style)
+wr_wopr,Opportunity score (WOPR),WR,B,Opportunity,1004,366.0,team attempts,0.5964607017161072,0.8555518524213244,66.8,,,CONTEXT (style)
+wr_deep_share,Deep-target share,WR,B,Opportunity,1002,55.0,targets,0.21215224651984282,0.4890115068552703,53.1,,,CONTEXT (style)
+wr_ez_share,End-zone target share,WR,B,Situational,861,26.400000000000002,team attempts,0.22373564954531658,0.5632261434109527,15.8,,,CONTEXT (style)
+wr_yac,YAC per reception,WR,B,After the catch,942,36.0,catches,0.12914024598439425,0.3466405447021879,75.0,,,CONTEXT
+wr_yacoe,YAC over expected,WR,B,After the catch,942,36.0,catches,0.056538234812042794,0.17655041566656654,335.0,,,CONTEXT
+wr_catch_short,"Catch rate, short",WR,B,By depth,982,44.0,targets,0.11524601546989849,0.30851696208962326,158.5,,,CONTEXT
+wr_catch_deep,"Catch rate, deep",WR,B,By depth,679,18.0,targets,0.015288777312183643,0.0723377011510787,35.5,,,dropped
+wr_epa_short,"EPA per target, short",WR,B,By depth,982,44.0,targets,0.044593252229848376,0.13783659906720802,10000.0,,,dropped
+wr_epa_deep,"EPA per target, deep",WR,B,By depth,679,18.0,targets,-0.0005145172292693847,-0.0025894682759805996,26.6,,,dropped
+wr_dir_l,Targets to the left,WR,B,Opportunity,1002,55.0,targets,0.4110850306170839,0.7127049788624886,20.0,,,CONTEXT (style)
+wr_dir_m,Targets to the middle,WR,B,Opportunity,1002,55.0,targets,0.18522343893707852,0.4468734458010229,53.1,,,CONTEXT (style)
+wr_dir_r,Targets to the right,WR,B,Opportunity,1002,55.0,targets,0.42004480776735276,0.7201992562171784,20.0,,,CONTEXT (style)
+te_adot,Average depth of target,TE,B,Opportunity,465,31.200000000000003,targets,0.2353411508506326,0.542899423688754,39.8,,,CONTEXT (style)
+te_air_share,Air-yards share,TE,B,Opportunity,465,3093.6000000000004,team air yards,0.5094485504794932,0.8308253277002507,794.3,,,CONTEXT (style)
+te_wopr,Opportunity score (WOPR),TE,B,Opportunity,465,367.20000000000005,team attempts,0.5906496267169485,0.869317353949942,56.2,,,CONTEXT (style)
+te_deep_share,Deep-target share,TE,B,Opportunity,465,31.200000000000003,targets,0.15918558818567985,0.4221665032488354,70.8,,,CONTEXT (style)
+te_ez_share,End-zone target share,TE,B,Situational,400,27.0,team attempts,0.09879524563269376,0.36797933402093697,22.4,,,CONTEXT (style)
+te_yac,YAC per reception,TE,B,After the catch,409,24.0,catches,0.11915365479363371,0.35189834498809325,149.6,,,CONTEXT
+te_yacoe,YAC over expected,TE,B,After the catch,409,24.0,catches,0.07866244082498203,0.2552326168681205,70.8,,,CONTEXT
+te_catch_short,"Catch rate, short",TE,B,By depth,452,28.799999999999997,targets,-0.013290448367147469,-0.05229003200044827,56.2,,,dropped
+te_catch_deep,"Catch rate, deep",TE,B,By depth,126,18.0,targets,-0.06596506817893688,-2.8555867371058383,,,,dropped
+te_epa_short,"EPA per target, short",TE,B,By depth,452,28.799999999999997,targets,0.04036162129760177,0.13744407560350502,266.1,,,dropped
+te_epa_deep,"EPA per target, deep",TE,B,By depth,126,18.0,targets,-0.03373188443416257,-0.6407992061516997,,,,dropped
+te_dir_l,Targets to the left,TE,B,Opportunity,465,31.200000000000003,targets,0.0913636262846115,0.27955232680885017,66.8,,,CONTEXT (style)
+te_dir_m,Targets to the middle,TE,B,Opportunity,465,31.200000000000003,targets,0.12768333705651938,0.36096344130241853,33.5,,,CONTEXT (style)
+te_dir_r,Targets to the right,TE,B,Opportunity,465,31.200000000000003,targets,0.11738169603492811,0.3391582475317223,133.4,,,CONTEXT (style)
+dl_hur_g,Hurries per game,EDGE/IDL,B,Pass rush,2135,12.0,games,0.2645713407903492,0.5533030454557644,11.9,,,CONTEXT (style)
+dl_hur_db,Hurries per opponent dropback,EDGE/IDL,B,Pass rush,2135,316.5,opp. dropbacks,0.2593102054868834,0.5173977334922,335.0,,,full bar
+dl_press_g,Pressures per game,EDGE/IDL,B,Pass rush,2135,12.0,games,0.39019499175221833,0.6878045745518274,6.0,,,CONTEXT (style)
+dl_press_db,Pressures per opponent dropback,EDGE/IDL,B,Pass rush,2135,316.5,opp. dropbacks,0.3861138555887069,0.658248511719055,158.5,,,full bar
+dl_press_share,Share of team pressures,EDGE/IDL,B,Pass rush,2135,51.42857142857143,team pressures,0.37310461571277886,0.6698883418026912,23.7,,,full bar
+dl_p2s,Pressure-to-sack rate,EDGE/IDL,B,Pass rush,631,20.0,pressures,0.005098411550259524,0.037228143573130014,,,,dropped
+dl_tk_depth,Average depth of tackle,EDGE/IDL,B,Run defense,1871,26.400000000000002,tackles,0.1167255091455076,0.3675813025586268,23.7,,,CONTEXT
+dl_rstop_rate,Run-stop rate,EDGE/IDL,B,Run defense,1820,24.0,run tackles,0.062428795605038445,0.2208489340044216,44.7,,,CONTEXT
+dl_pbu_db,Break-ups per opponent dropback,EDGE/IDL,B,Credited coverage,2135,316.5,opp. dropbacks,0.1255112929700461,0.30532491124246236,562.3,,,CONTEXT
+dl_cov_air,Air yards on credited throws,EDGE/IDL,B,Credited coverage,324,12.0,throws,-0.013088743628242994,-0.09005810325865,,,,CONTEXT (style)
+dl_cov_epa,EPA on credited throws,EDGE/IDL,B,Credited coverage,324,12.0,throws,0.026547888854743337,0.14849891546397814,,,,dropped
+lb_hur_g,Hurries per game,LB,B,Pass rush,1476,12.0,games,0.26851771507385713,0.5587292607119627,10.6,,,CONTEXT (style)
+lb_hur_db,Hurries per opponent dropback,LB,B,Pass rush,1476,317.25,opp. dropbacks,0.256619973709274,0.5133279874240932,335.0,,,full bar
+lb_press_g,Pressures per game,LB,B,Pass rush,1476,12.0,games,0.35342263375896066,0.6534263047119248,7.1,,,CONTEXT (style)
+lb_press_db,Pressures per opponent dropback,LB,B,Pass rush,1476,317.25,opp. dropbacks,0.3485938249301934,0.6205091179718283,223.9,,,full bar
+lb_press_share,Share of team pressures,LB,B,Pass rush,1476,51.42857142857143,team pressures,0.3251869061522355,0.6197828422234642,25.1,,,full bar
+lb_p2s,Pressure-to-sack rate,LB,B,Pass rush,378,16.0,pressures,0.0667152860850787,0.31503733706270165,,,,CONTEXT
+lb_tk_depth,Average depth of tackle,LB,B,Run defense,1274,44.0,tackles,0.1494712657021519,0.3716152915799437,70.8,,,CONTEXT
+lb_rstop_rate,Run-stop rate,LB,B,Run defense,1229,40.8,run tackles,0.09699195057298642,0.3031327748952343,70.8,,,CONTEXT
+lb_pbu_db,Break-ups per opponent dropback,LB,B,Credited coverage,1476,317.25,opp. dropbacks,0.14196958405370977,0.3357947665952977,501.2,,,CONTEXT
+lb_cov_air,Air yards on credited throws,LB,B,Credited coverage,905,24.0,throws,0.0965467462950771,0.3486380644055772,281.8,,,CONTEXT (style)
+lb_cov_epa,EPA on credited throws,LB,B,Credited coverage,905,24.0,throws,0.06374288904067944,0.25428902607613807,10000.0,,,CONTEXT
+db_tk_depth,Average depth of tackle,CB/S,B,Run defense,2021,38.0,tackles,0.10965439214283566,0.3083381031008852,47.3,,,CONTEXT
+db_rstop_rate,Run-stop rate,CB/S,B,Run defense,1703,24.0,run tackles,0.08432029273188292,0.2606672482505718,26.6,,,CONTEXT
+db_pbu_db,Break-ups per opponent dropback,CB/S,B,Credited coverage,2332,315.0,opp. dropbacks,0.27530139062066494,0.5364762199607344,251.2,,,full bar
+db_cov_air,Air yards on credited throws,CB/S,B,Credited coverage,1825,28.799999999999997,throws,0.09864537640874328,0.33069767355050705,33.5,,,CONTEXT (style)
+db_cov_epa,EPA on credited throws,CB/S,B,Credited coverage,1825,28.799999999999997,throws,0.05446766826574032,0.20639325935687722,50.1,,,CONTEXT
+ret_muff,Muff rate,RET,B,Fair catches and muffs,396,31.200000000000003,chances,0.045467856795894074,0.175966287799904,158.5,,,CONTEXT

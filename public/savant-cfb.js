@@ -43,6 +43,16 @@
   const confOf = (doc, j) => { const t = doc.teams[String(doc.players[j][COL.team])]; return t ? t[2] : null }
   const tracked = (stat, season) => season >= stat.start && !(stat.off || []).includes(season)
 
+  /* 1.1.0: the returner pool. Anyone whose returns reach the qualifier (scaled to the season so far), whatever his slot. */
+  function retPool(doc, reg) {
+    if (doc._ret) return doc._ret
+    const q = (reg.qual && reg.qual.RET) || ['returns', 12], need = q[1] * (doc.scale || 1), ids = []
+    for (let j = 0; j < doc.players.length; j++) { const n = sample(doc, q[0], j, false); if (n !== null && n >= need) ids.push(j) }
+    doc._ret = { ids, name: 'ret', widened: ids.length < reg.min_pool ? `only ${ids.length} qualified returners so far` : null }
+    return doc._ret
+  }
+  const isRet = (stat) => !!stat && (stat.slots || []).includes('RET')
+
   /* The qualified players a percentile is against. A pool under the floor widens, and says so. */
   function pool(doc, reg, i, name) {
     const P = doc.players, me = P[i], slot = me[COL.slot], myConf = confOf(doc, i)
@@ -72,6 +82,7 @@
 
   function poolLabel(pool_, player, { adj, season, conf, reg }) {
     const slot = player[COL.slot]
+    if (pool_.name === 'ret') return `vs FBS returners, raw, ${season}`
     const who = pool_.name === 'wide' ? reg.wider_name[reg.wider[slot]] : (reg.slot_name[slot] || 'players')
     const where = { pos: 'FBS', wide: 'FBS', p4: 'Power 4', conf: conf || 'conference' }[pool_.name]
     return `vs ${where} ${who}, ${adj ? 'opponent-adjusted' : 'raw'}, ${season}`
@@ -109,6 +120,9 @@
       case 'num2': return v.toFixed(2)
       case 'sgn1': return sg(1)
       case 'sgn2': return sg(2)
+      case 'wpa': return sg(2)
+      case 'tot': return sg(1)
+      case 'tot0': return String(Math.round(v))
       default: return String(v)
     }
   }
@@ -116,7 +130,7 @@
   /* One stat for one player: everything a row on the card shows. */
   function row(doc, reg, stat, i, o) {
     const { poolName = 'pos', adj = true, gt = false } = o || {}
-    const pl = pool(doc, reg, i, poolName)
+    const pl = isRet(stat) ? retPool(doc, reg) : pool(doc, reg, i, poolName)
     if (!tracked(stat, doc.season)) {
       const reason = doc.season < stat.start ? `not tracked before ${stat.start}` : `not tracked in ${doc.season}`
       return { key: stat.key, tracked: false, reason, pool: pl }
@@ -137,6 +151,24 @@
   }
 
   const statsFor = (reg, slot) => reg.stats.filter((s) => s.slots.includes(slot))
+  /* The card's groups for a slot, in order (1.1.0), each with its stats. */
+  const cardKey = (slot) => (['EDGE', 'IDL', 'LB', 'CB', 'S'].includes(slot) ? 'D' : slot)
+  function cardGroups(reg, slot) {
+    const st = statsFor(reg, slot), order = (reg.card_groups && reg.card_groups[cardKey(slot)]) || reg.groups
+    return order.map((g) => ({ group: g, stats: st.filter((s) => (s.cgroup || s.group) === g) })).filter((x) => x.stats.length)
+  }
+  /* The five headline stats of a slot (Football Savant's profile score is their mean percentile). */
+  function headline(reg, slot) {
+    const h = reg.headline || {}, n = { EDGE: 'dl', IDL: 'dl', LB: 'lb' }[slot]
+    const keys = slot === 'CB' || slot === 'S' ? h.DB : n ? (h.D || []).map((k) => k.replace('{p}', n)) : h[slot]
+    const by = {}; for (const s of reg.stats) by[s.key] = s
+    return (keys || []).map((k) => by[k]).filter(Boolean)
+  }
+  function profile(doc, reg, i, o) {
+    const slot = doc.players[i][COL.slot], ps = []
+    for (const s of headline(reg, slot)) { const r = row(doc, reg, s, i, o); if (r.tracked && !r.none && r.pct !== null) ps.push(r.pct) }
+    return ps.length >= 3 ? { score: Math.round(ps.reduce((a, b) => a + b, 0) / ps.length), n: ps.length } : null
+  }
 
   /* Savant value: (shrunk rate − replacement rate) × volume, from the stored parts. */
   function valueLine(doc, i) {
@@ -222,6 +254,27 @@
     return out.slice(0, count).map((c) => ({ ...c, sameClass: cand === sameCls }))
   }
 
+  /* Weakness comps (Football Savant's): qualified players at his position whose percentiles on HIS five lowest bars sit closest. */
+  function weakComps(doc, reg, i, count = 5) {
+    const P = doc.players, me = P[i], slot = me[COL.slot]
+    if (!me[COL.qual]) return []
+    const ids = []
+    for (let j = 0; j < P.length; j++) if (P[j][COL.qual] && P[j][COL.slot] === slot) ids.push(j)
+    const stats = statsFor(reg, slot).filter((s) => s.verdict !== 'context' && tracked(s, doc.season))
+    const pc = (j, s) => { const v = val(doc, s.key, j, {}); return v === null ? null : pct(valuesFor(doc, s.key, ids, {}), v, s.lower) }
+    const mine = stats.map((s) => [s, pc(i, s)]).filter((x) => x[1] !== null).sort((a, b) => a[1] - b[1] || (a[0].key < b[0].key ? -1 : 1)).slice(0, 5)
+    if (mine.length < 3) return []
+    const out = []
+    for (const j of ids) {
+      if (j === i) continue
+      let d = 0, n = 0
+      for (const [s, m] of mine) { const v = pc(j, s); if (v !== null) { d += Math.abs(v - m); n++ } }
+      if (n >= 3) out.push({ i: j, distance: d / n, shared: n })
+    }
+    out.sort((a, b) => a.distance - b.distance || P[a.i][COL.id] - P[b.i][COL.id])
+    return out.slice(0, count).map((c) => ({ ...c, on: mine.map((x) => x[0].key) }))
+  }
+
   /* Teams: a stat's percentile among FBS teams that season, and its rank (1 = best). */
   function teamRow(doc, stat, i, adj) {
     const c = doc.values[stat.key]
@@ -238,5 +291,5 @@
 
   const nth = (n) => { const v = n % 100; return n + (['th', 'st', 'nd', 'rd'][(v - 20) % 10] || ['th', 'st', 'nd', 'rd'][v] || 'th') }
 
-  return { COL, TCOL, SCOL, SLOT_TABLE, ok, pct, val, hasAdj, sample, confOf, tracked, pool, poolLabel, valuesFor, likely, display, row, statsFor, valueLine, recompute, total, line, splits, comps, teamRow, nth, chance, MONTHS }
+  return { COL, TCOL, SCOL, SLOT_TABLE, ok, pct, val, retPool, isRet, cardGroups, cardKey, headline, profile, weakComps, hasAdj, sample, confOf, tracked, pool, poolLabel, valuesFor, likely, display, row, statsFor, valueLine, recompute, total, line, splits, comps, teamRow, nth, chance, MONTHS }
 })

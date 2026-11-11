@@ -1,0 +1,53 @@
+stat,label,tier,team_seasons,reliability,verdict
+sec_play,Seconds per play,A,1565,0.774434314723363,CONTEXT (style)
+proe,Pass rate over expected,A,1564,0.8435505856427011,CONTEXT (style)
+early_pass,Early-down pass rate,A,1564,0.8188624473423811,CONTEXT (style)
+off_d_pts,Offense points per drive,A,1565,0.7141286364146038,full bar
+def_d_pts,Defense points per drive allowed,A,1565,0.6401514804810358,full bar
+off_d_td,Offense touchdown-drive rate,A,1565,0.7039656795219437,full bar
+def_d_td,Defense touchdown-drive rate allowed,A,1565,0.6394223855496315,full bar
+off_3out,Offense three-and-out rate,A,1565,0.5379854673660764,full bar
+def_3out,Defense three-and-outs forced,A,1565,0.4494247987006673,hatched
+off_expl_pass,Offense explosive pass rate,A,1565,0.5722161650336841,full bar
+def_expl_pass,Defense explosive passes allowed,A,1565,0.3362004603748409,hatched
+off_expl_rush,Offense explosive run rate,A,1565,0.5064279804735115,full bar
+def_expl_rush,Defense explosive runs allowed,A,1565,0.4814913707481697,hatched
+off_twomin,Offense two-minute EPA,A,1565,0.21399892498633433,CONTEXT
+def_twomin,Defense two-minute EPA allowed,A,1565,0.21210815497577273,CONTEXT
+off_mid8,Offense middle-8 EPA,A,1565,0.32050544050986873,hatched
+def_mid8,Defense middle-8 EPA allowed,A,1565,0.27326504812416347,CONTEXT
+st_ko,Kickoff EPA per game,A,1565,0.23271434137643815,CONTEXT
+st_kr,Kick return EPA per game,A,1565,0.2498420669425408,CONTEXT
+st_pu,Punt EPA per game,A,1565,0.3438505335800302,hatched
+st_pr,Punt return EPA per game,A,1565,0.19475052209355517,CONTEXT
+st_fg,Field-goal EPA per game,A,1565,0.13860687480158632,dropped
+fd4_goe,Fourth-down go rate over expected,A,1565,0.6840525214144599,CONTEXT (style)
+fd4_follow,Fourth downs that follow the recommendation,A,1565,0.3290358749580356,hatched
+fd4_eplost,"Expected points given up on fourth downs, per game",A,1565,0.4245664912145581,hatched
+two_rate,Two-point try rate,A,1565,0.279113930337291,CONTEXT (style)
+two_conv,Two-point conversion rate,A,1258,-0.03400366207631916,dropped
+to_g,Timeouts per game,A,1565,0.6277817068358532,CONTEXT (style)
+to_late,Late-half timeout share,A,1553,0.48997266021121555,CONTEXT (style)
+off_press,Offense pressure rate allowed,B,274,0.6348430810059451,full bar
+def_press,Defense pressure rate,B,274,0.5053815443286653,full bar
+off_hur,Offense hurry rate allowed,B,274,0.6082703621266957,full bar
+off_adot,Offense average depth of target,B,274,0.7487805855349751,CONTEXT (style)
+def_adot,Defense average depth of target allowed,B,274,0.4539167138806013,CONTEXT (style)
+def_yac,Defense YAC per catch allowed,B,274,0.3211334412630302,CONTEXT
+def_deep,Defense deep-throw rate allowed,B,274,0.4581487280906279,CONTEXT
+shotgun,Shotgun rate,B,274,0.959235009457087,CONTEXT (style)
+nohuddle,No-huddle rate,B,274,0.9452266874321847,CONTEXT (style)
+shot_epa,"EPA per play, shotgun",B,274,0.6351900762364168,full bar
+uc_epa,"EPA per play, under center",B,254,-0.04576905325748956,dropped
+ol_succ_l,"Run success, left",B,274,0.2479520091470276,CONTEXT
+ol_ly_l,"Line yards, left",B,274,0.11113004385446104,dropped
+ol_stuff_l,"Stuff rate, left",B,274,0.07966816549106681,dropped
+def_run_l,"Defense EPA per run allowed, left",B,274,0.3296352101707259,CONTEXT
+ol_succ_m,"Run success, middle",B,274,0.5274216555384408,full bar
+ol_ly_m,"Line yards, middle",B,274,0.3973620328207314,CONTEXT
+ol_stuff_m,"Stuff rate, middle",B,274,0.4473377192685635,CONTEXT
+def_run_m,"Defense EPA per run allowed, middle",B,274,0.48283957931998706,CONTEXT
+ol_succ_r,"Run success, right",B,274,0.3547187807987123,CONTEXT
+ol_ly_r,"Line yards, right",B,274,0.2911595693728796,CONTEXT
+ol_stuff_r,"Stuff rate, right",B,274,0.22907854051379625,CONTEXT
+def_run_r,"Defense EPA per run allowed, right",B,274,0.24673130947979177,CONTEXT

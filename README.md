@@ -87,7 +87,10 @@ because no open dataset records who assisted whom, and the page says so wherever
 **College Football Savant** (`public/college-football-savant.html`, data in `public/cfb/`) is every FBS player
 and team since 2009 (2013 and 2004 to 2008 fail its data gates), opponent-adjusted and ranked at the position within
 one season, with the All-Savant teams lined up at the snap and WCE's own 12-team playoff field seeded by résumé, with
-odds from 20,000 simulated seasons. Its look is college football's own ("Sticker Bomb", `tools/themes/cfb/`), and the
+odds from 20,000 simulated seasons. Version 1.1.0 adds 242 stats in Football Savant-style card groups: the charted
+layer from ESPN's play text (formation, tempo, air yards, YAC, pressure, tracked from 2025 week 9), special teams with a
+returner pool, fourth-down and two-point decisions, what each defense allows by position, NFL translation, production
+vs pedigree and transfer impact (`research/cfb/BUILD-1.1.md`). Its look is college football's own ("Sticker Bomb", `tools/themes/cfb/`), and the
 page is assembled from `tools/savant-cfb/page-src/`. The pipeline is `pipeline/cfb/` (start with its README); it
 refreshes on GitHub Actions through the season (`college-football-savant-refresh.yml`). See
 `COLLEGE-FOOTBALL-SAVANT.md`.
@@ -161,7 +164,7 @@ read-only: nothing in it can vote, write or change anything.
 | `ufc_search_fighters`, `ufc_get_fighter_profile`, `ufc_leaderboard`, `ufc_matchup`, `ufc_get_upcoming_cards` | UFC Savant | Records, every stat ranked inside the division or against every division of that sex (active and all-time), comps, strike map, round curve, the whole fight log, title reigns; the leaderboard; the head-to-head with its rating-implied win probability |
 | `nba_draft_search_prospects`, `nba_draft_get_prospect_profile` | Draft Savant | Pre-draft production and measurements, ranked against a named pool; a draft class as the page's board lists it |
 | `cbb_search_players`, `cbb_get_player_profile`, `cbb_player_career`, `cbb_player_splits`, `cbb_leaderboard`, `cbb_team_profile`, `cbb_team_rankings`, `cbb_lineups`, `cbb_game`, `cbb_data`, `cbb_data_dictionary` | College Basketball Savant | Every men's D1 player and team since 2022-23: opponent-adjusted percentiles with their pool, RAPM, lineups and team ratings. |
-| `cfb_search_players`, `cfb_get_player_profile`, `cfb_player_career`, `cfb_player_splits`, `cfb_leaderboard`, `cfb_team_profile`, `cfb_team_rankings`, `cfb_game`, `cfb_all_savant_team`, `cfb_playoff_field` | College Football Savant | Every FBS player since 2009 ranked at his position within the season, Savant value, careers across schools with transfers, splits, team ratings and ranks, games, the All-Savant teams with the Savant Heisman, and the objective playoff field with today's odds |
+| `cfb_search_players`, `cfb_get_player_profile`, `cfb_player_career`, `cfb_player_splits`, `cfb_leaderboard`, `cfb_team_profile`, `cfb_team_rankings`, `cfb_game`, `cfb_all_savant_team`, `cfb_nfl_comps`, `cfb_playoff_field` | College Football Savant | Every FBS player since 2009 ranked at his position within the season in card groups (with the charted layer from 2025 week 9 and a returner pool), Savant value, profile score and weakness comps, careers across schools with transfers, splits, team ratings, decisions and ranks, games, the All-Savant teams with the Savant Heisman, college-to-NFL comparisons, and the objective playoff field with today's odds |
 | `wce_get_news`, `wce_search_articles`, `wce_get_article`, `wce_get_big_board`, `wce_get_dynasty_rankings`, `wce_get_trending`, `wce_whats_new`, `nba_fantasy_league` | The site | The News list, WCE's articles, the Big Board, the live Dynasty board, the most-searched players and prospects, the homepage's What's new lines, a fan's league valued on the Dynasty board |
 
 `api/mcp.js` speaks the protocol (the official SDK, stateless, one function) and knows no
