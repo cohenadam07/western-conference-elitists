@@ -1,0 +1,1882 @@
+{
+ "2014": {
+  "field": [
+   {
+    "seed": 1,
+    "school": "Florida State",
+    "how": "ACC champion",
+    "record": "13-0",
+    "resume": 0.011396255855500824,
+    "power_rating": 9.893770194945429,
+    "committee_rank": 3
+   },
+   {
+    "seed": 2,
+    "school": "Alabama",
+    "how": "SEC champion",
+    "record": "12-1",
+    "resume": 0.02878566803653748,
+    "power_rating": 16.67230215005963,
+    "committee_rank": 1
+   },
+   {
+    "seed": 3,
+    "school": "Ohio State",
+    "how": "Big Ten champion",
+    "record": "12-1",
+    "resume": 0.06595950645808783,
+    "power_rating": 15.3712731227511,
+    "committee_rank": 4
+   },
+   {
+    "seed": 4,
+    "school": "Oregon",
+    "how": "Pac-12 champion",
+    "record": "12-1",
+    "resume": 0.09138455889001441,
+    "power_rating": 19.881429568026086,
+    "committee_rank": 2
+   },
+   {
+    "seed": 5,
+    "school": "TCU",
+    "how": "at large",
+    "record": "11-1",
+    "resume": 0.11653010387677085,
+    "power_rating": 14.248676637384792,
+    "committee_rank": 6
+   },
+   {
+    "seed": 6,
+    "school": "Baylor",
+    "how": "Big 12 champion",
+    "record": "11-1",
+    "resume": 0.12900036364124992,
+    "power_rating": 14.047342886691135,
+    "committee_rank": 5
+   },
+   {
+    "seed": 7,
+    "school": "Mississippi State",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.21756251584455416,
+    "power_rating": 15.003354890820157,
+    "committee_rank": 7
+   },
+   {
+    "seed": 8,
+    "school": "Marshall",
+    "how": "top Group of Six team",
+    "record": "12-1",
+    "resume": 0.3007762056707918,
+    "power_rating": 12.265171266863932,
+    "committee_rank": null
+   },
+   {
+    "seed": 9,
+    "school": "Ole Miss",
+    "how": "at large",
+    "record": "9-3",
+    "resume": 0.32693402337596167,
+    "power_rating": 11.470907722188374,
+    "committee_rank": 9
+   },
+   {
+    "seed": 10,
+    "school": "Michigan State",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.3314031133204673,
+    "power_rating": 19.01452798621032,
+    "committee_rank": 8
+   },
+   {
+    "seed": 11,
+    "school": "UCLA",
+    "how": "at large",
+    "record": "9-3",
+    "resume": 0.3928940305450819,
+    "power_rating": 4.671625734013914,
+    "committee_rank": 14
+   },
+   {
+    "seed": 12,
+    "school": "Arizona",
+    "how": "at large",
+    "record": "10-3",
+    "resume": 0.39634419110362884,
+    "power_rating": 2.861108729629836,
+    "committee_rank": 10
+   }
+  ],
+  "committee_field_same_rules": [
+   "Alabama",
+   "Oregon",
+   "Florida State",
+   "Ohio State",
+   "Baylor",
+   "TCU",
+   "Mississippi State",
+   "Michigan State",
+   "Ole Miss",
+   "Arizona",
+   "Kansas State",
+   "Boise State"
+  ],
+  "in_ours_not_committee": [
+   "Marshall",
+   "UCLA"
+  ],
+  "in_committee_not_ours": [
+   "Kansas State",
+   "Boise State"
+  ],
+  "same_teams": 10,
+  "champions": {
+   "ACC": "Florida State",
+   "American Athletic": "Memphis",
+   "Big 12": "Baylor",
+   "Big Ten": "Ohio State",
+   "Conference USA": "Marshall",
+   "Mid-American": "Northern Illinois",
+   "Mountain West": "Boise State",
+   "Pac-12": "Oregon",
+   "SEC": "Alabama",
+   "Sun Belt": "Georgia Southern"
+  },
+  "top4_ours": [
+   "Florida State",
+   "Alabama",
+   "Ohio State",
+   "Oregon"
+  ],
+  "top4_committee": [
+   "Alabama",
+   "Oregon",
+   "Florida State",
+   "Ohio State"
+  ]
+ },
+ "2015": {
+  "field": [
+   {
+    "seed": 1,
+    "school": "Clemson",
+    "how": "ACC champion",
+    "record": "13-0",
+    "resume": 0.011298459260495183,
+    "power_rating": 25.156470301821557,
+    "committee_rank": 1
+   },
+   {
+    "seed": 2,
+    "school": "Alabama",
+    "how": "SEC champion",
+    "record": "12-1",
+    "resume": 0.02218079888309749,
+    "power_rating": 30.697173494841174,
+    "committee_rank": 2
+   },
+   {
+    "seed": 3,
+    "school": "Michigan State",
+    "how": "Big Ten champion",
+    "record": "12-1",
+    "resume": 0.035057115672748385,
+    "power_rating": 14.725409736201657,
+    "committee_rank": 3
+   },
+   {
+    "seed": 4,
+    "school": "Oklahoma",
+    "how": "Big 12 champion",
+    "record": "11-1",
+    "resume": 0.06397665039778054,
+    "power_rating": 20.09977216094692,
+    "committee_rank": 4
+   },
+   {
+    "seed": 5,
+    "school": "Iowa",
+    "how": "at large",
+    "record": "12-1",
+    "resume": 0.13230762895344717,
+    "power_rating": 9.265354244248622,
+    "committee_rank": 5
+   },
+   {
+    "seed": 6,
+    "school": "Ohio State",
+    "how": "at large",
+    "record": "11-1",
+    "resume": 0.13371458561195856,
+    "power_rating": 25.654020081401118,
+    "committee_rank": 7
+   },
+   {
+    "seed": 7,
+    "school": "Notre Dame",
+    "how": "Notre Dame, top 12",
+    "record": "10-2",
+    "resume": 0.1754944054752406,
+    "power_rating": 16.263515254758712,
+    "committee_rank": 8
+   },
+   {
+    "seed": 8,
+    "school": "Stanford",
+    "how": "Pac-12 champion",
+    "record": "11-2",
+    "resume": 0.19355978132922141,
+    "power_rating": 17.541105167883952,
+    "committee_rank": 6
+   },
+   {
+    "seed": 9,
+    "school": "Oklahoma State",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.2643718022888494,
+    "power_rating": 9.488321376221961,
+    "committee_rank": 16
+   },
+   {
+    "seed": 10,
+    "school": "TCU",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.27571906835497406,
+    "power_rating": 16.273245588028146,
+    "committee_rank": 11
+   },
+   {
+    "seed": 11,
+    "school": "Northwestern",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.3035073631080216,
+    "power_rating": 3.4863739740098434,
+    "committee_rank": 13
+   },
+   {
+    "seed": 12,
+    "school": "Houston",
+    "how": "top Group of Six team",
+    "record": "12-1",
+    "resume": 0.31001031085121855,
+    "power_rating": 10.487381278752961,
+    "committee_rank": 18
+   }
+  ],
+  "committee_field_same_rules": [
+   "Clemson",
+   "Alabama",
+   "Michigan State",
+   "Oklahoma",
+   "Iowa",
+   "Stanford",
+   "Ohio State",
+   "Notre Dame",
+   "Florida State",
+   "North Carolina",
+   "TCU",
+   "Houston"
+  ],
+  "in_ours_not_committee": [
+   "Northwestern",
+   "Oklahoma State"
+  ],
+  "in_committee_not_ours": [
+   "North Carolina",
+   "Florida State"
+  ],
+  "same_teams": 10,
+  "champions": {
+   "ACC": "Clemson",
+   "American Athletic": "Houston",
+   "Big 12": "Oklahoma",
+   "Big Ten": "Michigan State",
+   "Conference USA": "Western Kentucky",
+   "Mid-American": "Bowling Green",
+   "Mountain West": "San Diego State",
+   "Pac-12": "Stanford",
+   "SEC": "Alabama",
+   "Sun Belt": "Arkansas State"
+  },
+  "top4_ours": [
+   "Clemson",
+   "Alabama",
+   "Michigan State",
+   "Oklahoma"
+  ],
+  "top4_committee": [
+   "Clemson",
+   "Alabama",
+   "Michigan State",
+   "Oklahoma"
+  ]
+ },
+ "2016": {
+  "field": [
+   {
+    "seed": 1,
+    "school": "Alabama",
+    "how": "SEC champion",
+    "record": "13-0",
+    "resume": 0.00169424860707868,
+    "power_rating": 44.84901968154154,
+    "committee_rank": 1
+   },
+   {
+    "seed": 2,
+    "school": "Ohio State",
+    "how": "at large",
+    "record": "11-1",
+    "resume": 0.06482277285667853,
+    "power_rating": 29.29929847284663,
+    "committee_rank": 3
+   },
+   {
+    "seed": 3,
+    "school": "Clemson",
+    "how": "ACC champion",
+    "record": "12-1",
+    "resume": 0.07171341679314375,
+    "power_rating": 26.63039104595357,
+    "committee_rank": 2
+   },
+   {
+    "seed": 4,
+    "school": "Washington",
+    "how": "Pac-12 champion",
+    "record": "12-1",
+    "resume": 0.14369947860039906,
+    "power_rating": 35.695617954185835,
+    "committee_rank": 4
+   },
+   {
+    "seed": 5,
+    "school": "Penn State",
+    "how": "Big Ten champion",
+    "record": "11-2",
+    "resume": 0.20758698032004946,
+    "power_rating": 14.112845289472968,
+    "committee_rank": 5
+   },
+   {
+    "seed": 6,
+    "school": "Colorado",
+    "how": "at large",
+    "record": "10-3",
+    "resume": 0.3008614958791709,
+    "power_rating": 17.02273372421304,
+    "committee_rank": 10
+   },
+   {
+    "seed": 7,
+    "school": "Western Michigan",
+    "how": "top Group of Six team",
+    "record": "13-0",
+    "resume": 0.33777863617796794,
+    "power_rating": 14.713718401280946,
+    "committee_rank": 15
+   },
+   {
+    "seed": 8,
+    "school": "Oklahoma",
+    "how": "Big 12 champion",
+    "record": "10-2",
+    "resume": 0.3831552974796999,
+    "power_rating": 21.34034184377013,
+    "committee_rank": 7
+   },
+   {
+    "seed": 9,
+    "school": "Wisconsin",
+    "how": "at large",
+    "record": "10-3",
+    "resume": 0.3937003683245975,
+    "power_rating": 19.57585691587609,
+    "committee_rank": 8
+   },
+   {
+    "seed": 10,
+    "school": "USC",
+    "how": "at large",
+    "record": "9-3",
+    "resume": 0.39754605809948523,
+    "power_rating": 27.193093105945444,
+    "committee_rank": 9
+   },
+   {
+    "seed": 11,
+    "school": "Michigan",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.404713237246096,
+    "power_rating": 32.36688988047208,
+    "committee_rank": 6
+   },
+   {
+    "seed": 12,
+    "school": "Stanford",
+    "how": "at large",
+    "record": "9-3",
+    "resume": 0.48011679863937284,
+    "power_rating": 14.189640368416399,
+    "committee_rank": 18
+   }
+  ],
+  "committee_field_same_rules": [
+   "Alabama",
+   "Clemson",
+   "Ohio State",
+   "Washington",
+   "Penn State",
+   "Michigan",
+   "Oklahoma",
+   "Wisconsin",
+   "USC",
+   "Colorado",
+   "Florida State",
+   "Western Michigan"
+  ],
+  "in_ours_not_committee": [
+   "Stanford"
+  ],
+  "in_committee_not_ours": [
+   "Florida State"
+  ],
+  "same_teams": 11,
+  "champions": {
+   "ACC": "Clemson",
+   "American Athletic": "Temple",
+   "Big 12": "Oklahoma",
+   "Big Ten": "Penn State",
+   "Conference USA": "Western Kentucky",
+   "Mid-American": "Western Michigan",
+   "Mountain West": "San Diego State",
+   "Pac-12": "Washington",
+   "SEC": "Alabama",
+   "Sun Belt": "App State"
+  },
+  "top4_ours": [
+   "Alabama",
+   "Ohio State",
+   "Clemson",
+   "Washington"
+  ],
+  "top4_committee": [
+   "Alabama",
+   "Clemson",
+   "Ohio State",
+   "Washington"
+  ]
+ },
+ "2017": {
+  "field": [
+   {
+    "seed": 1,
+    "school": "Georgia",
+    "how": "SEC champion",
+    "record": "12-1",
+    "resume": 0.0331640489146995,
+    "power_rating": 35.24783049670035,
+    "committee_rank": 3
+   },
+   {
+    "seed": 2,
+    "school": "Oklahoma",
+    "how": "Big 12 champion",
+    "record": "12-1",
+    "resume": 0.03932988465897373,
+    "power_rating": 28.845615949425085,
+    "committee_rank": 2
+   },
+   {
+    "seed": 3,
+    "school": "Clemson",
+    "how": "ACC champion",
+    "record": "12-1",
+    "resume": 0.04264948854952011,
+    "power_rating": 32.56156962414841,
+    "committee_rank": 1
+   },
+   {
+    "seed": 4,
+    "school": "Auburn",
+    "how": "at large",
+    "record": "10-3",
+    "resume": 0.07617678829075201,
+    "power_rating": 28.838731686768135,
+    "committee_rank": 7
+   },
+   {
+    "seed": 5,
+    "school": "Alabama",
+    "how": "at large",
+    "record": "11-1",
+    "resume": 0.08053533816019609,
+    "power_rating": 36.08770535268608,
+    "committee_rank": 4
+   },
+   {
+    "seed": 6,
+    "school": "Wisconsin",
+    "how": "at large",
+    "record": "12-1",
+    "resume": 0.17675695387675475,
+    "power_rating": 23.26615080113545,
+    "committee_rank": 6
+   },
+   {
+    "seed": 7,
+    "school": "Ohio State",
+    "how": "Big Ten champion",
+    "record": "11-2",
+    "resume": 0.22345151907703154,
+    "power_rating": 36.11698046622709,
+    "committee_rank": 5
+   },
+   {
+    "seed": 8,
+    "school": "UCF",
+    "how": "top Group of Six team",
+    "record": "12-0",
+    "resume": 0.22563214959197367,
+    "power_rating": 12.445710620997044,
+    "committee_rank": 12
+   },
+   {
+    "seed": 9,
+    "school": "Miami",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.2809924187712304,
+    "power_rating": 14.0082031287955,
+    "committee_rank": 10
+   },
+   {
+    "seed": 10,
+    "school": "USC",
+    "how": "Pac-12 champion",
+    "record": "11-2",
+    "resume": 0.3440478884693669,
+    "power_rating": 18.1483751052864,
+    "committee_rank": 8
+   },
+   {
+    "seed": 11,
+    "school": "Penn State",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.405505069700954,
+    "power_rating": 26.024305865307987,
+    "committee_rank": 9
+   },
+   {
+    "seed": 12,
+    "school": "Notre Dame",
+    "how": "Notre Dame, top 12",
+    "record": "9-3",
+    "resume": 0.4521471977085319,
+    "power_rating": 17.40309556413564,
+    "committee_rank": 14
+   }
+  ],
+  "committee_field_same_rules": [
+   "Clemson",
+   "Oklahoma",
+   "Georgia",
+   "Alabama",
+   "Ohio State",
+   "Wisconsin",
+   "Auburn",
+   "USC",
+   "Penn State",
+   "Miami",
+   "Washington",
+   "UCF"
+  ],
+  "in_ours_not_committee": [
+   "Notre Dame"
+  ],
+  "in_committee_not_ours": [
+   "Washington"
+  ],
+  "same_teams": 11,
+  "champions": {
+   "ACC": "Clemson",
+   "American Athletic": "UCF",
+   "Big 12": "Oklahoma",
+   "Big Ten": "Ohio State",
+   "Conference USA": "Florida Atlantic",
+   "Mid-American": "Toledo",
+   "Mountain West": "Boise State",
+   "Pac-12": "USC",
+   "SEC": "Georgia",
+   "Sun Belt": "Troy"
+  },
+  "top4_ours": [
+   "Georgia",
+   "Oklahoma",
+   "Clemson",
+   "Auburn"
+  ],
+  "top4_committee": [
+   "Clemson",
+   "Oklahoma",
+   "Georgia",
+   "Alabama"
+  ]
+ },
+ "2018": {
+  "field": [
+   {
+    "seed": 1,
+    "school": "Alabama",
+    "how": "SEC champion",
+    "record": "13-0",
+    "resume": 0.002379353526939434,
+    "power_rating": 50.74617069087572,
+    "committee_rank": 1
+   },
+   {
+    "seed": 2,
+    "school": "Notre Dame",
+    "how": "Notre Dame, top 12",
+    "record": "12-0",
+    "resume": 0.040732306631052415,
+    "power_rating": 21.08253558191209,
+    "committee_rank": 3
+   },
+   {
+    "seed": 3,
+    "school": "Clemson",
+    "how": "ACC champion",
+    "record": "13-0",
+    "resume": 0.048069445149418286,
+    "power_rating": 34.03180806206027,
+    "committee_rank": 2
+   },
+   {
+    "seed": 4,
+    "school": "Georgia",
+    "how": "at large",
+    "record": "11-2",
+    "resume": 0.08135192834101711,
+    "power_rating": 35.893559498931396,
+    "committee_rank": 5
+   },
+   {
+    "seed": 5,
+    "school": "LSU",
+    "how": "at large",
+    "record": "9-3",
+    "resume": 0.17280816255189912,
+    "power_rating": 20.11400694347384,
+    "committee_rank": 11
+   },
+   {
+    "seed": 6,
+    "school": "Ohio State",
+    "how": "Big Ten champion",
+    "record": "12-1",
+    "resume": 0.17321353355218772,
+    "power_rating": 27.571572810980555,
+    "committee_rank": 6
+   },
+   {
+    "seed": 7,
+    "school": "Oklahoma",
+    "how": "Big 12 champion",
+    "record": "12-1",
+    "resume": 0.2192776199001643,
+    "power_rating": 23.029695471038213,
+    "committee_rank": 4
+   },
+   {
+    "seed": 8,
+    "school": "UCF",
+    "how": "top Group of Six team",
+    "record": "12-0",
+    "resume": 0.28338836723398214,
+    "power_rating": 12.097120408328326,
+    "committee_rank": 8
+   },
+   {
+    "seed": 9,
+    "school": "Michigan",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.36500880198063107,
+    "power_rating": 28.720709359949687,
+    "committee_rank": 7
+   },
+   {
+    "seed": 10,
+    "school": "Kentucky",
+    "how": "at large",
+    "record": "9-3",
+    "resume": 0.3932867077789932,
+    "power_rating": 11.99629725269805,
+    "committee_rank": 14
+   },
+   {
+    "seed": 11,
+    "school": "Florida",
+    "how": "at large",
+    "record": "9-3",
+    "resume": 0.45878857361530784,
+    "power_rating": 21.947939158982358,
+    "committee_rank": 10
+   },
+   {
+    "seed": 12,
+    "school": "Washington",
+    "how": "Pac-12 champion",
+    "record": "10-3",
+    "resume": 0.6371950144670209,
+    "power_rating": 18.16301045199668,
+    "committee_rank": 9
+   }
+  ],
+  "committee_field_same_rules": [
+   "Alabama",
+   "Clemson",
+   "Notre Dame",
+   "Oklahoma",
+   "Georgia",
+   "Ohio State",
+   "Michigan",
+   "UCF",
+   "Washington",
+   "Florida",
+   "LSU",
+   "Penn State"
+  ],
+  "in_ours_not_committee": [
+   "Kentucky"
+  ],
+  "in_committee_not_ours": [
+   "Penn State"
+  ],
+  "same_teams": 11,
+  "champions": {
+   "ACC": "Clemson",
+   "American Athletic": "UCF",
+   "Big 12": "Oklahoma",
+   "Big Ten": "Ohio State",
+   "Conference USA": "UAB",
+   "Mid-American": "Northern Illinois",
+   "Mountain West": "Fresno State",
+   "Pac-12": "Washington",
+   "SEC": "Alabama",
+   "Sun Belt": "App State"
+  },
+  "top4_ours": [
+   "Alabama",
+   "Notre Dame",
+   "Clemson",
+   "Georgia"
+  ],
+  "top4_committee": [
+   "Alabama",
+   "Clemson",
+   "Notre Dame",
+   "Oklahoma"
+  ]
+ },
+ "2019": {
+  "field": [
+   {
+    "seed": 1,
+    "school": "LSU",
+    "how": "SEC champion",
+    "record": "13-0",
+    "resume": 0.0006754453528178773,
+    "power_rating": 41.17888349488942,
+    "committee_rank": 1
+   },
+   {
+    "seed": 2,
+    "school": "Ohio State",
+    "how": "Big Ten champion",
+    "record": "13-0",
+    "resume": 0.013277125071425358,
+    "power_rating": 43.05902837082726,
+    "committee_rank": 2
+   },
+   {
+    "seed": 3,
+    "school": "Clemson",
+    "how": "ACC champion",
+    "record": "13-0",
+    "resume": 0.11766626620252546,
+    "power_rating": 38.62370304834755,
+    "committee_rank": 3
+   },
+   {
+    "seed": 4,
+    "school": "Georgia",
+    "how": "at large",
+    "record": "11-2",
+    "resume": 0.1387549488755675,
+    "power_rating": 28.251754934453807,
+    "committee_rank": 5
+   },
+   {
+    "seed": 5,
+    "school": "Auburn",
+    "how": "at large",
+    "record": "9-3",
+    "resume": 0.1791386396362996,
+    "power_rating": 25.46415162568908,
+    "committee_rank": 12
+   },
+   {
+    "seed": 6,
+    "school": "Florida",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.20627621320043943,
+    "power_rating": 23.101288464185526,
+    "committee_rank": 9
+   },
+   {
+    "seed": 7,
+    "school": "Alabama",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.2634433391008759,
+    "power_rating": 43.13444063594763,
+    "committee_rank": 13
+   },
+   {
+    "seed": 8,
+    "school": "Oklahoma",
+    "how": "Big 12 champion",
+    "record": "12-1",
+    "resume": 0.2651621957685491,
+    "power_rating": 22.554765007500748,
+    "committee_rank": 4
+   },
+   {
+    "seed": 9,
+    "school": "Oregon",
+    "how": "Pac-12 champion",
+    "record": "11-2",
+    "resume": 0.39198939003065153,
+    "power_rating": 19.239722861018432,
+    "committee_rank": 6
+   },
+   {
+    "seed": 10,
+    "school": "Penn State",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.3942376202755394,
+    "power_rating": 17.421751713414977,
+    "committee_rank": 10
+   },
+   {
+    "seed": 11,
+    "school": "Wisconsin",
+    "how": "at large",
+    "record": "10-3",
+    "resume": 0.47852253385635896,
+    "power_rating": 25.363508208911465,
+    "committee_rank": 8
+   },
+   {
+    "seed": 12,
+    "school": "Memphis",
+    "how": "top Group of Six team",
+    "record": "12-1",
+    "resume": 0.6082510091420643,
+    "power_rating": 12.312231916013983,
+    "committee_rank": 17
+   }
+  ],
+  "committee_field_same_rules": [
+   "LSU",
+   "Ohio State",
+   "Clemson",
+   "Oklahoma",
+   "Georgia",
+   "Oregon",
+   "Baylor",
+   "Wisconsin",
+   "Florida",
+   "Penn State",
+   "Utah",
+   "Memphis"
+  ],
+  "in_ours_not_committee": [
+   "Auburn",
+   "Alabama"
+  ],
+  "in_committee_not_ours": [
+   "Utah",
+   "Baylor"
+  ],
+  "same_teams": 10,
+  "champions": {
+   "ACC": "Clemson",
+   "American Athletic": "Memphis",
+   "Big 12": "Oklahoma",
+   "Big Ten": "Ohio State",
+   "Conference USA": "Florida Atlantic",
+   "Mid-American": "Miami (OH)",
+   "Mountain West": "Boise State",
+   "Pac-12": "Oregon",
+   "SEC": "LSU",
+   "Sun Belt": "App State"
+  },
+  "top4_ours": [
+   "LSU",
+   "Ohio State",
+   "Clemson",
+   "Georgia"
+  ],
+  "top4_committee": [
+   "LSU",
+   "Ohio State",
+   "Clemson",
+   "Oklahoma"
+  ]
+ },
+ "2020": {
+  "field": [
+   {
+    "seed": 1,
+    "school": "Alabama",
+    "how": "SEC champion",
+    "record": "11-0",
+    "resume": 0.0009485492645296676,
+    "power_rating": 43.31762258725757,
+    "committee_rank": 1
+   },
+   {
+    "seed": 2,
+    "school": "Texas A&M",
+    "how": "at large",
+    "record": "8-1",
+    "resume": 0.02928939558324881,
+    "power_rating": 26.25283729783936,
+    "committee_rank": 5
+   },
+   {
+    "seed": 3,
+    "school": "Notre Dame",
+    "how": "at large",
+    "record": "10-1",
+    "resume": 0.04402706098606267,
+    "power_rating": 21.412964424581247,
+    "committee_rank": 2
+   },
+   {
+    "seed": 4,
+    "school": "Ohio State",
+    "how": "Big Ten champion",
+    "record": "6-0",
+    "resume": 0.12007080883924744,
+    "power_rating": 32.55955530823925,
+    "committee_rank": 4
+   },
+   {
+    "seed": 5,
+    "school": "Georgia",
+    "how": "at large",
+    "record": "7-2",
+    "resume": 0.1598461018028045,
+    "power_rating": 28.488061648284102,
+    "committee_rank": 8
+   },
+   {
+    "seed": 6,
+    "school": "Clemson",
+    "how": "ACC champion",
+    "record": "10-1",
+    "resume": 0.1658422589024587,
+    "power_rating": 36.025734259342606,
+    "committee_rank": 3
+   },
+   {
+    "seed": 7,
+    "school": "Indiana",
+    "how": "at large",
+    "record": "6-1",
+    "resume": 0.1833905509289537,
+    "power_rating": 14.251064616920331,
+    "committee_rank": 11
+   },
+   {
+    "seed": 8,
+    "school": "Coastal Carolina",
+    "how": "top Group of Six team",
+    "record": "11-0",
+    "resume": 0.22121255963683908,
+    "power_rating": 7.464474580120371,
+    "committee_rank": 12
+   },
+   {
+    "seed": 9,
+    "school": "Florida",
+    "how": "at large",
+    "record": "8-3",
+    "resume": 0.250597833108389,
+    "power_rating": 25.656809452734453,
+    "committee_rank": 7
+   },
+   {
+    "seed": 10,
+    "school": "Cincinnati",
+    "how": "at large",
+    "record": "9-0",
+    "resume": 0.271189002647606,
+    "power_rating": 15.95739724159276,
+    "committee_rank": 9
+   },
+   {
+    "seed": 11,
+    "school": "Oklahoma",
+    "how": "Big 12 champion",
+    "record": "8-2",
+    "resume": 0.4540774760654255,
+    "power_rating": 19.860381091118775,
+    "committee_rank": 10
+   },
+   {
+    "seed": 12,
+    "school": "Oregon",
+    "how": "Pac-12 champion",
+    "record": "4-2",
+    "resume": 0.8049093886482013,
+    "power_rating": 13.579314456770204,
+    "committee_rank": null
+   }
+  ],
+  "committee_field_same_rules": [
+   "Alabama",
+   "Notre Dame",
+   "Clemson",
+   "Ohio State",
+   "Texas A&M",
+   "Iowa State",
+   "Florida",
+   "Georgia",
+   "Cincinnati",
+   "Oklahoma",
+   "Indiana",
+   "Oregon"
+  ],
+  "in_ours_not_committee": [
+   "Coastal Carolina"
+  ],
+  "in_committee_not_ours": [
+   "Iowa State"
+  ],
+  "same_teams": 11,
+  "champions": {
+   "ACC": "Clemson",
+   "American Athletic": "Cincinnati",
+   "Big 12": "Oklahoma",
+   "Big Ten": "Ohio State",
+   "Conference USA": "UAB",
+   "Mid-American": "Ball State",
+   "Mountain West": "San Jos\u00e9 State",
+   "Pac-12": "Oregon",
+   "SEC": "Alabama",
+   "Sun Belt": "Coastal Carolina"
+  },
+  "top4_ours": [
+   "Alabama",
+   "Texas A&M",
+   "Notre Dame",
+   "Ohio State"
+  ],
+  "top4_committee": [
+   "Alabama",
+   "Notre Dame",
+   "Clemson",
+   "Ohio State"
+  ]
+ },
+ "2021": {
+  "field": [
+   {
+    "seed": 1,
+    "school": "Alabama",
+    "how": "SEC champion",
+    "record": "12-1",
+    "resume": 0.004270208117511628,
+    "power_rating": 33.9099451661099,
+    "committee_rank": 1
+   },
+   {
+    "seed": 2,
+    "school": "Georgia",
+    "how": "at large",
+    "record": "12-1",
+    "resume": 0.017430027990388664,
+    "power_rating": 38.37287796903511,
+    "committee_rank": 3
+   },
+   {
+    "seed": 3,
+    "school": "Michigan",
+    "how": "Big Ten champion",
+    "record": "12-1",
+    "resume": 0.03998120609245712,
+    "power_rating": 22.369184549922235,
+    "committee_rank": 2
+   },
+   {
+    "seed": 4,
+    "school": "Cincinnati",
+    "how": "top Group of Six team",
+    "record": "13-0",
+    "resume": 0.07116013938331812,
+    "power_rating": 17.84807469356833,
+    "committee_rank": 4
+   },
+   {
+    "seed": 5,
+    "school": "Ole Miss",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.08380826503328612,
+    "power_rating": 14.641989881540452,
+    "committee_rank": 8
+   },
+   {
+    "seed": 6,
+    "school": "Notre Dame",
+    "how": "Notre Dame, top 12",
+    "record": "11-1",
+    "resume": 0.10802062721602072,
+    "power_rating": 17.788707293755945,
+    "committee_rank": 5
+   },
+   {
+    "seed": 7,
+    "school": "Michigan State",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.19862432160173202,
+    "power_rating": 4.327558280586209,
+    "committee_rank": 10
+   },
+   {
+    "seed": 8,
+    "school": "Ohio State",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.23357882126730667,
+    "power_rating": 29.007815015642795,
+    "committee_rank": 6
+   },
+   {
+    "seed": 9,
+    "school": "Oklahoma State",
+    "how": "at large",
+    "record": "11-2",
+    "resume": 0.2735104767805837,
+    "power_rating": 14.67878821528415,
+    "committee_rank": 9
+   },
+   {
+    "seed": 10,
+    "school": "Baylor",
+    "how": "Big 12 champion",
+    "record": "11-2",
+    "resume": 0.2770912166125571,
+    "power_rating": 9.188626857430641,
+    "committee_rank": 7
+   },
+   {
+    "seed": 11,
+    "school": "Pittsburgh",
+    "how": "ACC champion",
+    "record": "11-2",
+    "resume": 0.46567327541649045,
+    "power_rating": 11.316861404714148,
+    "committee_rank": 12
+   },
+   {
+    "seed": 12,
+    "school": "Utah",
+    "how": "Pac-12 champion",
+    "record": "10-3",
+    "resume": 0.48520930548090535,
+    "power_rating": 16.40881570502288,
+    "committee_rank": 11
+   }
+  ],
+  "committee_field_same_rules": [
+   "Alabama",
+   "Michigan",
+   "Georgia",
+   "Cincinnati",
+   "Notre Dame",
+   "Ohio State",
+   "Baylor",
+   "Ole Miss",
+   "Oklahoma State",
+   "Michigan State",
+   "Utah",
+   "Pittsburgh"
+  ],
+  "in_ours_not_committee": [],
+  "in_committee_not_ours": [],
+  "same_teams": 12,
+  "champions": {
+   "ACC": "Pittsburgh",
+   "American Athletic": "Cincinnati",
+   "Big 12": "Baylor",
+   "Big Ten": "Michigan",
+   "Conference USA": "UTSA",
+   "Mid-American": "Northern Illinois",
+   "Mountain West": "Utah State",
+   "Pac-12": "Utah",
+   "SEC": "Alabama",
+   "Sun Belt": "Louisiana"
+  },
+  "top4_ours": [
+   "Alabama",
+   "Georgia",
+   "Michigan",
+   "Cincinnati"
+  ],
+  "top4_committee": [
+   "Alabama",
+   "Michigan",
+   "Georgia",
+   "Cincinnati"
+  ]
+ },
+ "2022": {
+  "field": [
+   {
+    "seed": 1,
+    "school": "Georgia",
+    "how": "SEC champion",
+    "record": "13-0",
+    "resume": 0.0032436896810610787,
+    "power_rating": 34.911003463587925,
+    "committee_rank": 1
+   },
+   {
+    "seed": 2,
+    "school": "Michigan",
+    "how": "Big Ten champion",
+    "record": "13-0",
+    "resume": 0.004390246713830141,
+    "power_rating": 28.6002048657907,
+    "committee_rank": 2
+   },
+   {
+    "seed": 3,
+    "school": "Ohio State",
+    "how": "at large",
+    "record": "11-1",
+    "resume": 0.0554578942780505,
+    "power_rating": 33.76191155626153,
+    "committee_rank": 4
+   },
+   {
+    "seed": 4,
+    "school": "TCU",
+    "how": "at large",
+    "record": "12-1",
+    "resume": 0.09343385029583237,
+    "power_rating": 12.316858153206146,
+    "committee_rank": 3
+   },
+   {
+    "seed": 5,
+    "school": "Tennessee",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.11372954696462564,
+    "power_rating": 22.3427286346968,
+    "committee_rank": 6
+   },
+   {
+    "seed": 6,
+    "school": "Alabama",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.14468716920756564,
+    "power_rating": 27.509418738756843,
+    "committee_rank": 5
+   },
+   {
+    "seed": 7,
+    "school": "Penn State",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.16006281430886962,
+    "power_rating": 19.600117179427667,
+    "committee_rank": 11
+   },
+   {
+    "seed": 8,
+    "school": "USC",
+    "how": "at large",
+    "record": "11-2",
+    "resume": 0.2439526702924651,
+    "power_rating": 8.741456483371055,
+    "committee_rank": 10
+   },
+   {
+    "seed": 9,
+    "school": "Clemson",
+    "how": "ACC champion",
+    "record": "11-2",
+    "resume": 0.36588549618138,
+    "power_rating": 16.209594692334825,
+    "committee_rank": 7
+   },
+   {
+    "seed": 10,
+    "school": "Kansas State",
+    "how": "Big 12 champion",
+    "record": "10-3",
+    "resume": 0.47491991422798663,
+    "power_rating": 14.734500308465249,
+    "committee_rank": 9
+   },
+   {
+    "seed": 11,
+    "school": "Utah",
+    "how": "Pac-12 champion",
+    "record": "10-3",
+    "resume": 0.6249410930078863,
+    "power_rating": 20.532783591541314,
+    "committee_rank": 8
+   },
+   {
+    "seed": 12,
+    "school": "Tulane",
+    "how": "top Group of Six team",
+    "record": "11-2",
+    "resume": 0.6550356155117883,
+    "power_rating": 4.039530895258905,
+    "committee_rank": 16
+   }
+  ],
+  "committee_field_same_rules": [
+   "Georgia",
+   "Michigan",
+   "TCU",
+   "Ohio State",
+   "Alabama",
+   "Tennessee",
+   "Clemson",
+   "Utah",
+   "Kansas State",
+   "USC",
+   "Penn State",
+   "Tulane"
+  ],
+  "in_ours_not_committee": [],
+  "in_committee_not_ours": [],
+  "same_teams": 12,
+  "champions": {
+   "ACC": "Clemson",
+   "American Athletic": "Tulane",
+   "Big 12": "Kansas State",
+   "Big Ten": "Michigan",
+   "Conference USA": "UTSA",
+   "Mid-American": "Toledo",
+   "Mountain West": "Fresno State",
+   "Pac-12": "Utah",
+   "SEC": "Georgia",
+   "Sun Belt": "Troy"
+  },
+  "top4_ours": [
+   "Georgia",
+   "Michigan",
+   "Ohio State",
+   "TCU"
+  ],
+  "top4_committee": [
+   "Georgia",
+   "Michigan",
+   "TCU",
+   "Ohio State"
+  ]
+ },
+ "2023": {
+  "field": [
+   {
+    "seed": 1,
+    "school": "Washington",
+    "how": "Pac-12 champion",
+    "record": "13-0",
+    "resume": 0.008500197721739237,
+    "power_rating": 19.9023895987606,
+    "committee_rank": 2
+   },
+   {
+    "seed": 2,
+    "school": "Michigan",
+    "how": "Big Ten champion",
+    "record": "13-0",
+    "resume": 0.011279770679025223,
+    "power_rating": 33.23851669009745,
+    "committee_rank": 1
+   },
+   {
+    "seed": 3,
+    "school": "Florida State",
+    "how": "ACC champion",
+    "record": "13-0",
+    "resume": 0.023775278672063607,
+    "power_rating": 19.706553825003077,
+    "committee_rank": 5
+   },
+   {
+    "seed": 4,
+    "school": "Alabama",
+    "how": "SEC champion",
+    "record": "12-1",
+    "resume": 0.04016137504498524,
+    "power_rating": 24.052577289731694,
+    "committee_rank": 4
+   },
+   {
+    "seed": 5,
+    "school": "Ohio State",
+    "how": "at large",
+    "record": "11-1",
+    "resume": 0.055181744028967,
+    "power_rating": 34.00642098663008,
+    "committee_rank": 7
+   },
+   {
+    "seed": 6,
+    "school": "Georgia",
+    "how": "at large",
+    "record": "12-1",
+    "resume": 0.12395600650842131,
+    "power_rating": 28.841245807228876,
+    "committee_rank": 6
+   },
+   {
+    "seed": 7,
+    "school": "Texas",
+    "how": "Big 12 champion",
+    "record": "12-1",
+    "resume": 0.12599860272332863,
+    "power_rating": 22.056864566306288,
+    "committee_rank": 3
+   },
+   {
+    "seed": 8,
+    "school": "Ole Miss",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.2732897056751944,
+    "power_rating": 11.904220418439623,
+    "committee_rank": 11
+   },
+   {
+    "seed": 9,
+    "school": "Missouri",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.32859908383751185,
+    "power_rating": 17.74477547306382,
+    "committee_rank": 9
+   },
+   {
+    "seed": 10,
+    "school": "Penn State",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.3609864251063224,
+    "power_rating": 27.810504489412587,
+    "committee_rank": 10
+   },
+   {
+    "seed": 11,
+    "school": "Oregon",
+    "how": "at large",
+    "record": "11-2",
+    "resume": 0.4797210673516351,
+    "power_rating": 28.426746580581042,
+    "committee_rank": 8
+   },
+   {
+    "seed": 12,
+    "school": "Liberty",
+    "how": "top Group of Six team",
+    "record": "13-0",
+    "resume": 0.5702009488713722,
+    "power_rating": 5.8711224949575005,
+    "committee_rank": 23
+   }
+  ],
+  "committee_field_same_rules": [
+   "Michigan",
+   "Washington",
+   "Texas",
+   "Alabama",
+   "Florida State",
+   "Georgia",
+   "Ohio State",
+   "Oregon",
+   "Missouri",
+   "Penn State",
+   "Ole Miss",
+   "Liberty"
+  ],
+  "in_ours_not_committee": [],
+  "in_committee_not_ours": [],
+  "same_teams": 12,
+  "champions": {
+   "ACC": "Florida State",
+   "American Athletic": "SMU",
+   "Big 12": "Texas",
+   "Big Ten": "Michigan",
+   "Conference USA": "Liberty",
+   "Mid-American": "Miami (OH)",
+   "Mountain West": "Boise State",
+   "Pac-12": "Washington",
+   "SEC": "Alabama",
+   "Sun Belt": "Troy"
+  },
+  "top4_ours": [
+   "Washington",
+   "Michigan",
+   "Florida State",
+   "Alabama"
+  ],
+  "top4_committee": [
+   "Michigan",
+   "Washington",
+   "Texas",
+   "Alabama"
+  ]
+ },
+ "2024": {
+  "field": [
+   {
+    "seed": 1,
+    "school": "Oregon",
+    "how": "Big Ten champion",
+    "record": "13-0",
+    "resume": 0.007941967480432284,
+    "power_rating": 27.36608034409471,
+    "committee_rank": 1
+   },
+   {
+    "seed": 2,
+    "school": "Georgia",
+    "how": "SEC champion",
+    "record": "11-2",
+    "resume": 0.0368916558400827,
+    "power_rating": 24.16517262378975,
+    "committee_rank": 2
+   },
+   {
+    "seed": 3,
+    "school": "Texas",
+    "how": "at large",
+    "record": "11-2",
+    "resume": 0.15274592651537505,
+    "power_rating": 27.55613083265063,
+    "committee_rank": 3
+   },
+   {
+    "seed": 4,
+    "school": "Notre Dame",
+    "how": "Notre Dame, top 12",
+    "record": "11-1",
+    "resume": 0.20826481566427948,
+    "power_rating": 28.326537331695018,
+    "committee_rank": 5
+   },
+   {
+    "seed": 5,
+    "school": "Penn State",
+    "how": "at large",
+    "record": "11-2",
+    "resume": 0.22243888814110435,
+    "power_rating": 26.96540455775385,
+    "committee_rank": 4
+   },
+   {
+    "seed": 6,
+    "school": "Indiana",
+    "how": "at large",
+    "record": "11-1",
+    "resume": 0.25383620980177257,
+    "power_rating": 13.92473716337929,
+    "committee_rank": 8
+   },
+   {
+    "seed": 7,
+    "school": "Ohio State",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.3128918617531916,
+    "power_rating": 28.77530315667232,
+    "committee_rank": 6
+   },
+   {
+    "seed": 8,
+    "school": "Tennessee",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.32981774963044863,
+    "power_rating": 21.000202019128636,
+    "committee_rank": 7
+   },
+   {
+    "seed": 9,
+    "school": "South Carolina",
+    "how": "at large",
+    "record": "9-3",
+    "resume": 0.3917682146066663,
+    "power_rating": 14.800979602785475,
+    "committee_rank": 15
+   },
+   {
+    "seed": 10,
+    "school": "Boise State",
+    "how": "top Group of Six team",
+    "record": "12-1",
+    "resume": 0.4184883158562822,
+    "power_rating": 11.587247284892236,
+    "committee_rank": 9
+   },
+   {
+    "seed": 11,
+    "school": "Arizona State",
+    "how": "Big 12 champion",
+    "record": "11-2",
+    "resume": 0.5131151822043098,
+    "power_rating": 9.476287979850154,
+    "committee_rank": 12
+   },
+   {
+    "seed": 12,
+    "school": "Clemson",
+    "how": "ACC champion",
+    "record": "10-3",
+    "resume": 0.6430415231417455,
+    "power_rating": 17.775667398309302,
+    "committee_rank": 16
+   }
+  ],
+  "committee_field_same_rules": [
+   "Oregon",
+   "Georgia",
+   "Texas",
+   "Penn State",
+   "Notre Dame",
+   "Ohio State",
+   "Tennessee",
+   "Indiana",
+   "Boise State",
+   "SMU",
+   "Arizona State",
+   "Clemson"
+  ],
+  "in_ours_not_committee": [
+   "South Carolina"
+  ],
+  "in_committee_not_ours": [
+   "SMU"
+  ],
+  "same_teams": 11,
+  "champions": {
+   "ACC": "Clemson",
+   "American Athletic": "Army",
+   "Big 12": "Arizona State",
+   "Big Ten": "Oregon",
+   "Conference USA": "Jacksonville State",
+   "Mid-American": "Ohio",
+   "Mountain West": "Boise State",
+   "Pac-12": "Oregon State",
+   "SEC": "Georgia",
+   "Sun Belt": "Marshall"
+  },
+  "top4_ours": [
+   "Oregon",
+   "Georgia",
+   "Texas",
+   "Notre Dame"
+  ],
+  "top4_committee": [
+   "Oregon",
+   "Georgia",
+   "Texas",
+   "Penn State"
+  ]
+ },
+ "2025": {
+  "field": [
+   {
+    "seed": 1,
+    "school": "Indiana",
+    "how": "Big Ten champion",
+    "record": "13-0",
+    "resume": 0.007275912958987021,
+    "power_rating": 26.728310557949417,
+    "committee_rank": 1
+   },
+   {
+    "seed": 2,
+    "school": "Texas A&M",
+    "how": "at large",
+    "record": "11-1",
+    "resume": 0.06996557736972704,
+    "power_rating": 26.76692707641642,
+    "committee_rank": 7
+   },
+   {
+    "seed": 3,
+    "school": "Georgia",
+    "how": "SEC champion",
+    "record": "12-1",
+    "resume": 0.07163334547417233,
+    "power_rating": 27.544781738396203,
+    "committee_rank": 3
+   },
+   {
+    "seed": 4,
+    "school": "Ohio State",
+    "how": "at large",
+    "record": "12-1",
+    "resume": 0.12420397620651064,
+    "power_rating": 35.047993987160794,
+    "committee_rank": 2
+   },
+   {
+    "seed": 5,
+    "school": "Oregon",
+    "how": "at large",
+    "record": "11-1",
+    "resume": 0.15158609475705606,
+    "power_rating": 27.27345334023475,
+    "committee_rank": 5
+   },
+   {
+    "seed": 6,
+    "school": "Ole Miss",
+    "how": "at large",
+    "record": "11-1",
+    "resume": 0.1570832347732269,
+    "power_rating": 17.220399428528435,
+    "committee_rank": 6
+   },
+   {
+    "seed": 7,
+    "school": "Oklahoma",
+    "how": "at large",
+    "record": "10-2",
+    "resume": 0.26640715160572703,
+    "power_rating": 21.54118612287942,
+    "committee_rank": 8
+   },
+   {
+    "seed": 8,
+    "school": "Alabama",
+    "how": "at large",
+    "record": "10-3",
+    "resume": 0.2718550120643246,
+    "power_rating": 22.3110276641791,
+    "committee_rank": 9
+   },
+   {
+    "seed": 9,
+    "school": "BYU",
+    "how": "at large",
+    "record": "11-2",
+    "resume": 0.30908562196198475,
+    "power_rating": 13.347638688683238,
+    "committee_rank": 12
+   },
+   {
+    "seed": 10,
+    "school": "Texas Tech",
+    "how": "Big 12 champion",
+    "record": "12-1",
+    "resume": 0.33747496894060525,
+    "power_rating": 29.479489850273193,
+    "committee_rank": 4
+   },
+   {
+    "seed": 11,
+    "school": "James Madison",
+    "how": "top Group of Six team",
+    "record": "12-1",
+    "resume": 0.7910425233371405,
+    "power_rating": 12.155650891893039,
+    "committee_rank": 24
+   },
+   {
+    "seed": 12,
+    "school": "Duke",
+    "how": "ACC champion",
+    "record": "8-5",
+    "resume": 0.9968403479326924,
+    "power_rating": 3.828235798754014,
+    "committee_rank": null
+   }
+  ],
+  "committee_field_same_rules": [
+   "Indiana",
+   "Ohio State",
+   "Georgia",
+   "Texas Tech",
+   "Oregon",
+   "Ole Miss",
+   "Texas A&M",
+   "Oklahoma",
+   "Alabama",
+   "Notre Dame",
+   "Tulane",
+   "Duke"
+  ],
+  "in_ours_not_committee": [
+   "BYU",
+   "James Madison"
+  ],
+  "in_committee_not_ours": [
+   "Tulane",
+   "Notre Dame"
+  ],
+  "same_teams": 10,
+  "champions": {
+   "ACC": "Duke",
+   "American Athletic": "Tulane",
+   "Big 12": "Texas Tech",
+   "Big Ten": "Indiana",
+   "Conference USA": "Kennesaw State",
+   "Mid-American": "Western Michigan",
+   "Mountain West": "Boise State",
+   "Pac-12": "Washington State",
+   "SEC": "Georgia",
+   "Sun Belt": "James Madison"
+  },
+  "top4_ours": [
+   "Indiana",
+   "Texas A&M",
+   "Georgia",
+   "Ohio State"
+  ],
+  "top4_committee": [
+   "Indiana",
+   "Ohio State",
+   "Georgia",
+   "Texas Tech"
+  ]
+ }
+}

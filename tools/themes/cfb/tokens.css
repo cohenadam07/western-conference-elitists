@@ -1,0 +1,11 @@
+/* College football's own theme: "Sticker Bomb" (Adam, Nov 10 2026). College Football Savant reads it; any later
+   college football page should too. It shares nothing with Football Savant's look except the site ribbon. */
+:root{
+  --field:#0B1730;--deep:#060E1F;--panel:#101F3E;--panel-b:#33476E;--banner:#2E8FE8;--sticker:#FFD25A;--shadow:#030914;
+  --white:#FFFFFF;--ink:#191B1F;--muted:#4E535B;--soft:#B8C3D9;--softer:#DCE4F2;--line:#E1E0DC;--track:#E9E8E4;--sunk:#F6F5F2;
+  --gold:#C2A263;--red:#BC3A2C;--turf:#1D4D2E;--st:#6B4FA0;--link:#7CC4FF;
+  --lo:#1C4E86;--mid:#C2C0B6;--hi:#BC3A2C;
+  --disp:'Anton',Impact,'Arial Narrow',sans-serif;--font:'IBM Plex Sans',system-ui,-apple-system,sans-serif;--fig:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --barh:26px;--tap:44px;--wrap:1280px;--gut:32px;
+  color-scheme:dark;
+}

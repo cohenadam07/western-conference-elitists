@@ -1,0 +1,68 @@
+/* The theme's parts: the ground, stickers, panels, the gold rule, controls, tables, percentile bars. */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--field);color:var(--white);font-family:var(--font);font-size:15px;line-height:1.45}
+a{color:var(--link)}a:hover{color:#B9E0FF}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sticker);outline-offset:2px}
+h1,h2,h3,h4{margin:0;font-family:var(--disp);font-weight:400;text-transform:uppercase;letter-spacing:.03em;line-height:1;text-wrap:balance}
+.fig{font-family:var(--fig);font-variant-numeric:tabular-nums}
+.lab{font-family:var(--fig);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gut)}
+/* white sticker card: white border, hard shadow; a tilt only where the markup asks for one */
+.stk{background:var(--white);color:var(--ink);border:6px solid var(--white);outline:2px solid var(--field);box-shadow:9px 9px 0 var(--shadow)}
+.stk.sm{border-width:4px;outline:0;box-shadow:6px 6px 0 var(--shadow)}
+.stk a{color:#1B5FAA}
+.tl{transform:rotate(-1.2deg)}.tr{transform:rotate(1.2deg)}.tl2{transform:rotate(-.6deg)}.tr2{transform:rotate(.8deg)}
+.band{background:var(--banner);color:var(--white);padding:14px 22px;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px}
+.band h2{font-size:30px}.band .lab{color:var(--white)}
+.pnl{background:var(--panel);border:2px solid var(--panel-b);padding:18px;color:var(--softer)}
+.pnl h3{font-size:22px;color:var(--white);margin-bottom:10px}
+.rule{display:flex;align-items:center;gap:12px}.rule::after{content:"";flex:1;height:3px;background:var(--gold)}
+.rule h2{font-size:34px}.rule h3{font-size:22px}
+.tag{display:inline-block;padding:4px 10px;font-family:var(--fig);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.ctx{font-family:var(--fig);font-size:11px;letter-spacing:.1em;padding:3px 8px;border:1.5px solid var(--muted);color:var(--muted)}
+.badge{background:var(--sticker);color:var(--field);padding:10px 16px;border:4px solid var(--white);box-shadow:6px 6px 0 var(--shadow);display:inline-flex;align-items:center;gap:10px;font-family:var(--disp);font-size:20px;letter-spacing:.03em;text-transform:uppercase;line-height:1.05}
+.badge.red{background:var(--red);color:var(--white)}
+/* controls */
+.btn{min-height:var(--tap);padding:0 14px;border:2px solid #C9C7C0;background:var(--white);color:var(--ink);font-size:13px;font-weight:600;cursor:pointer}
+.btn[aria-pressed=true]{border-color:var(--field);background:var(--field);color:var(--white)}
+.btn.dk{border-color:var(--panel-b);background:transparent;color:var(--white);font-size:14px}
+.btn.dk[aria-pressed=true]{border-color:var(--white);background:var(--white);color:var(--field);font-weight:700}
+select.btn{padding-right:8px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 18px;border:2px solid var(--panel-b);background:transparent;color:var(--white);font-family:var(--disp);font-size:18px;letter-spacing:.04em;text-transform:uppercase;text-decoration:none}
+.tab:hover{color:var(--white);border-color:var(--soft)}
+.tab[aria-current=page]{border-color:var(--white);background:var(--white);color:var(--field)}
+/* tables scroll inside their own panel, first column pinned */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+table.t th{padding:12px 8px;border-bottom:2px solid var(--ink);text-align:left;font-family:var(--fig);font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;vertical-align:bottom}
+table.t th small{display:block;text-transform:none;letter-spacing:0;font-size:10.5px}
+table.t td{padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.t td.n,table.t th.n{text-align:right;font-family:var(--fig);font-variant-numeric:tabular-nums}
+table.t th.pin,table.t td.pin{position:sticky;left:0;background:var(--white);z-index:1}
+table.t tr.dim td{background:var(--sunk)}table.t tr.dim td.pin{background:var(--sunk)}
+table.t th button{all:unset;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;min-height:40px;display:inline-flex;align-items:flex-end}
+table.t th button:focus-visible{outline:3px solid var(--banner);outline-offset:2px}
+table.t th[aria-sort] button::after{content:" ↓"}table.t th[aria-sort=ascending] button::after{content:" ↑"}
+.chip{display:inline-block;width:12px;height:26px;vertical-align:middle;margin-right:8px;flex:none}
+.rk{font-family:var(--disp);font-size:22px;color:var(--field)}
+/* percentile bars: thick, filled to the percentile, blue to red, the number on the bar */
+.prow{display:grid;grid-template-columns:minmax(130px,200px) minmax(0,1fr) 78px;align-items:center;gap:14px}
+.prow .nm{font-size:14px;font-weight:600;line-height:1.25}.prow .nm small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.prow .v{text-align:right;font-family:var(--fig);font-size:15px;font-weight:600}
+.bar{position:relative;height:var(--barh);background:var(--track)}
+.bar .f{position:absolute;left:0;top:0;bottom:0}
+.bar .k{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--ink)}
+.bar .d{position:absolute;top:6px;width:14px;height:14px;transform:rotate(45deg);background:var(--white);border:2px solid var(--ink)}
+.bar .n{position:absolute;top:-3px;width:32px;height:32px;border-radius:50%;border:2px solid var(--white);box-shadow:0 0 0 1px var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--fig);font-weight:600;font-size:13px}
+.bar.none{background:repeating-linear-gradient(135deg,var(--track) 0 6px,var(--sunk) 6px 12px);display:flex;align-items:center;padding:0 10px;font-family:var(--fig);font-size:12px;color:var(--muted)}
+.bar.mini{height:14px;min-width:70px}.bar.mini .n{display:none}
+/* headshots: the photo where ESPN has one, the initials badge in team colours where it does not */
+.hs{flex:none;border-radius:50%;border:4px solid var(--sticker);display:flex;align-items:center;justify-content:center;font-family:var(--disp);color:var(--white);overflow:hidden;background:#3A4763}
+.hs img{width:100%;height:100%;object-fit:cover;object-position:50% 12%;background:#E9E8E4}
+.logo{width:22px;height:22px;object-fit:contain;vertical-align:middle;margin-right:6px}
+@media (prefers-reduced-motion:reduce){.tl,.tr,.tl2,.tr2,[data-tilt]{transform:none!important}*{scroll-behavior:auto!important;transition:none!important}}
+@media (max-width:640px){:root{--gut:16px}.prow{grid-template-columns:minmax(0,1fr) 64px;gap:4px 10px}.prow .nm{grid-column:1/-1}.band{padding:12px 14px}.band h2{font-size:24px}.rule h2{font-size:26px}.stk{border-width:4px;box-shadow:6px 6px 0 var(--shadow)}}

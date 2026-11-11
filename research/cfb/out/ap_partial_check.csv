@@ -1,0 +1,33 @@
+season,slot_x,player,school,source,key,pid,slot_y,slot_rank,value,tier
+2024,QB,Cam Ward,Miami,web search summary of AP coverage (Bleacher Report / AP wire) on 2026-11-10; PARTIAL list,cam ward,4688380.0,QB,2.0,129.79629692270726,2.0
+2024,RB,Ashton Jeanty,Boise State,same,ashton jeanty,4890973.0,RB,2.0,46.85245266459072,1.0
+2024,RB,Cam Skattebo,Arizona State,same,cam skattebo,4696981.0,RB,1.0,57.604789847898786,1.0
+2024,WR,Nick Nash,San Jose State,same,nick nash,4570242.0,WR,83.0,12.567909937281863,
+2024,WR,Tetairoa McMillan,Arizona,same,tetairoa mcmillan,4685472.0,WR,3.0,32.25797138842829,1.0
+2024,WR,Xavier Restrepo,Miami,same,xavier restrepo,4431353.0,WR,4.0,30.984949018134834,2.0
+2024,K,Kenneth Almendares,Louisiana,same,kenneth almendares,4373653.0,K,2.0,2.4760160734864143,2.0
+2024,AP,Travis Hunter,Colorado,same,travis hunter,4685415.0,WR,14.0,22.777181270344386,
+2024,EDGE,Abdul Carter,Penn State,same,abdul carter,4725996.0,EDGE,1.0,31.15191163621333,1.0
+2024,EDGE,Donovan Ezeiruaku,Boston College,same,donovan ezeiruaku,4683848.0,EDGE,2.0,26.71171245663599,1.0
+2024,IDL,Walter Nolen,Ole Miss,same,walter nolen,4685503.0,IDL,8.0,11.497032671369118,
+2024,CB,Jahdae Barron,Texas,same,jahdae barron,4430925.0,CB,1.0,8.939966858986452,1.0
+2024,S,Xavier Watts,Notre Dame,same,xavier watts,4431005.0,S,1.0,13.980241073992907,1.0
+2024,S,Caleb Downs,Ohio State,same,caleb downs,4870706.0,S,25.0,6.060203870520035,
+2024,DB,Nick Emmanwori,South Carolina,same,nick emmanwori,4869523.0,S,170.0,2.5634209524672795,
+2024,P,Alex Mastromanno,Florida State,same,alex mastromanno,4608749.0,P,4.0,5.3622368860742675,
+2019,QB,Joe Burrow,LSU,web search summary of AP coverage (CBS Sports / AP wire) on 2026-11-10; PARTIAL list,joe burrow,3915511.0,QB,1.0,239.494177760478,1.0
+2019,RB,Chuba Hubbard,Oklahoma State,same,chuba hubbard,4241416.0,RB,4.0,43.20337300791813,2.0
+2019,RB,Jonathan Taylor,Wisconsin,same,jonathan taylor,4242335.0,RB,2.0,44.851405322434786,1.0
+2019,WR,Ja'Marr Chase,LSU,same,jamarr chase,4362628.0,WR,1.0,63.80108638754623,1.0
+2019,WR,CeeDee Lamb,Oklahoma,same,ceedee lamb,4241389.0,WR,33.0,23.54813776077425,
+2019,EDGE,Chase Young,Ohio State,same,chase young,4241986.0,EDGE,2.0,18.53794789211613,1.0
+2019,EDGE,James Lynch,Baylor,same,james lynch,4259181.0,IDL,1.0,20.293304143172094,1.0
+2019,IDL,Derrick Brown,Auburn,same,derrick brown,4035495.0,IDL,108.0,2.831987870361654,
+2019,IDL,Javon Kinlaw,South Carolina,same,javon kinlaw,4259491.0,IDL,37.0,6.193919198712571,
+2019,LB,Isaiah Simmons,Clemson,same,isaiah simmons,4035462.0,LB,2.0,19.659703365039416,1.0
+2019,LB,Micah Parsons,Penn State,same,micah parsons,4361423.0,LB,105.0,7.228884904693679,
+2019,CB,Jeff Okudah,Ohio State,same,jeff okudah,,,,,
+2019,CB,Derek Stingley Jr.,LSU,same,derek stingley,4426434.0,CB,6.0,6.432176729334759,3.0
+2019,S,Antoine Winfield Jr.,Minnesota,same,antoine winfield,4034790.0,CB,15.0,5.299664503687843,
+2019,S,J.R. Reed,Georgia,same,jr reed,3917012.0,CB,98.0,2.051742840378316,
+2019,P,Max Duffy,Kentucky,same,max duffy,4362606.0,P,8.0,4.568518579093213,

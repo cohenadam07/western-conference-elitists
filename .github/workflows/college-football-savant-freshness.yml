@@ -1,0 +1,58 @@
+name: College Football Savant freshness
+
+# The alarm: once a day in season it reads the heartbeat (data/cfb-refresh.json) and fails, which emails Adam
+# and checks in with the Control Room as a failure, when no refresh has landed for 36 hours, or when the
+# newest final in the files is more than four days old on a day after a Saturday of games. Quiet outside
+# late August to the title game.
+on:
+  schedule:
+    - cron: '41 15 * 8-12,1 *'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            data/cfb-refresh.json
+            .github/scripts/control-room.sh
+          sparse-checkout-cone-mode: false
+      - name: Control Room check-in (start)
+        continue-on-error: true
+        timeout-minutes: 1
+        run: bash .github/scripts/control-room.sh college-football-savant-freshness start
+      - name: Check the refresh has landed
+        run: |
+          python3 - <<'PY'
+          import datetime as dt, json, os, sys
+          today = dt.date.today()
+          if not ((today.month, today.day) >= (8, 28) or (today.month, today.day) <= (1, 25)):
+              print("offseason"); sys.exit(0)
+          path = "data/cfb-refresh.json"
+          if not os.path.exists(path):
+              print("::error::no heartbeat: College Football Savant has not refreshed this season"); sys.exit(1)
+          b = json.load(open(path))
+          last = dt.datetime.fromisoformat(b["last_ok"].replace("Z", "+00:00"))
+          age = (dt.datetime.now(dt.timezone.utc) - last).total_seconds() / 3600
+          print(f"last refresh {last:%Y-%m-%d %H:%M} UTC ({age:.0f}h ago); through {b.get('through')}, week {b.get('week')}, {b.get('finals')} finals")
+          if age > 36:
+              print(f"::error::College Football Savant last refreshed {age:.0f} hours ago"); sys.exit(1)
+          thr = b.get("through")
+          if thr and (today - dt.date.fromisoformat(thr)).days > 4 and today.month in (9, 10, 11):
+              print(f"::error::the newest final in College Football Savant is from {thr}"); sys.exit(1)
+          PY
+      - name: Control Room check-in
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/control-room.sh college-football-savant-freshness "${{ job.status }}"

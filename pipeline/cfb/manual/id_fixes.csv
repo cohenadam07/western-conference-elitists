@@ -1,0 +1,3 @@
+# Hand fixes to the identity table (BUILD step 5). One fix per row; every row needs a source.
+# field is a column of work/identity.parquet (name, gsis_id, class_year, stars, recruit_rank). An empty value clears it.
+pid,field,value,source

@@ -325,6 +325,7 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   assert.deepEqual(tools.map((t) => t.name).sort(), [
     'cbb_all_savant_team', 'cbb_coaching_data', 'cbb_coaching_dictionary', 'cbb_coaching_fit', 'cbb_coaching_leaders', 'cbb_coaching_tree', 'cbb_data', 'cbb_data_dictionary', 'cbb_game', 'cbb_get_coach_profile', 'cbb_get_player_profile', 'cbb_leaderboard', 'cbb_lineups', 'cbb_play_context', 'cbb_player_career', 'cbb_player_splits', 'cbb_rotation', 'cbb_schedule',
     'cbb_search_coaches', 'cbb_search_players', 'cbb_shot_chart', 'cbb_team_profile', 'cbb_team_rankings',
+    'cfb_all_savant_team', 'cfb_game', 'cfb_get_player_profile', 'cfb_leaderboard', 'cfb_player_career', 'cfb_player_splits', 'cfb_playoff_field', 'cfb_search_players', 'cfb_team_profile', 'cfb_team_rankings',
     'nba_all_savant_team', 'nba_coaching_data', 'nba_coaching_dictionary', 'nba_coaching_leaders', 'nba_coaching_tree',
     'nba_draft_get_prospect_profile', 'nba_draft_search_prospects', 'nba_fantasy_league',
     'nba_fantasy_lock_in', 'nba_fantasy_player', 'nba_fantasy_rankings', 'nba_fantasy_streamers', 'nba_fantasy_trade',
@@ -345,8 +346,9 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   // cbb_schedule and the college leaderboard and team filters (Nov 5, 2026); 77,000 since
   // cbb_play_context, cbb_shot_chart and cbb_rotation (Nov 5, 2026); 82,000 for the seven College Basketball
   // Coaching Savant tools (Nov 6, 2026: 81,667; approved by Adam with PR #54). 81,753 after cbb_team_profile's head
-  // coach and cbb_get_player_profile's coaches who used players like him (Nov 6, 2026).
-  assert.ok(upfront < 82000, `tool names, descriptions and inputs came to ${upfront} characters`)
+  // coach and cbb_get_player_profile's coaches who used players like him (Nov 6, 2026). 90,000 for the ten College
+  // Football Savant tools (Nov 10, 2026: 89,697; raising the cap for the cfb_ tools approved by Adam that day).
+  assert.ok(upfront < 90000, `tool names, descriptions and inputs came to ${upfront} characters`)
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)

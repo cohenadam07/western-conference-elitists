@@ -78,6 +78,16 @@ export const JOBS = [
     cadence: 'Daily. Fails if College Basketball Savant goes 30 hours without a refresh, or the cloud is blocked from ESPN.',
   },
   {
+    id: 'college-football-savant', name: 'College Football Savant refresh', lane: 'github', product: 'football',
+    workflow: 'college-football-savant-refresh.yml', maxAgeH: 30, tz: 'UTC', cron: ['7 10 * 8-12,1 *', '13 8 * 8-12,1 0'],
+    cadence: 'Daily at about 5am ET, late August to the title game, plus Sunday at about 3am ET. Commits only when a file changed.',
+  },
+  {
+    id: 'college-football-savant-freshness', name: 'College football freshness alarm', lane: 'github', product: 'football',
+    workflow: 'college-football-savant-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['41 15 * 8-12,1 *'],
+    cadence: 'Daily in season. Fails if College Football Savant goes 36 hours without a refresh, or its newest final is more than four days old.',
+  },
+  {
     id: 'basketball-history', name: 'History additions', lane: 'github', product: 'basketball',
     workflow: 'basketball-savant-ext.yml', maxAgeH: 8, tz: 'UTC', cron: ['23 */2 * * *'],
     cadence: 'Every 2 hours. Publishes only when the Mac has sent a new seed.',

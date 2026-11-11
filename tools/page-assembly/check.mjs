@@ -23,6 +23,7 @@ export const PAGES = [
   { tool: 'tools/savant-cbb', page: 'public/college-basketball-savant.html' },
   { tool: 'tools/savant-bcoaching', page: 'public/basketball-coaching-savant.html' },
   { tool: 'tools/savant-cbcoaching', page: 'public/college-basketball-coaching-savant.html' },
+  { tool: 'tools/savant-cfb', page: 'public/college-football-savant.html' },
 ]
 
 function pageSrcFolders(dir, out = []) {

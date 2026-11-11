@@ -45,3 +45,10 @@ then the page's own CSS, then any skin. The page's markup supplies the frame's e
 ```
 python3 tools/themes/preview.py public      # writes public/_preview-*.html; delete them after
 ```
+
+## College football's own theme (`cfb/`)
+
+`cfb/tokens.css`, `cfb/fonts.html` and `cfb/sticker.css` are "Sticker Bomb", College Football Savant's look (Adam, Nov 10,
+2026): field navy, white sticker cards with a hard shadow, Anton headlines. It is deliberately not one of the three
+sport themes above and does not share their token names, so `check:themes` holds it only to rule 5 (every file is read by an
+assembler). Any later college football page reads these files.

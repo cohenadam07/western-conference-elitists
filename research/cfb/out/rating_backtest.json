@@ -1,0 +1,150 @@
+{
+ "params": {
+  "k": 3.0,
+  "tau": 40.0,
+  "alpha": 0.7,
+  "k_st": 6.0,
+  "cap": 99.0
+ },
+ "kappa": 2.0450733668691288,
+ "prior_model": {
+  "co": [
+   0.5762097911426614,
+   0.028525311014977052,
+   0.11636194265393539
+  ],
+  "cd": [
+   0.5913782898500517,
+   -0.02486372179300774,
+   -0.15141787139265364
+  ],
+  "cst": 0.4522639645538242
+ },
+ "games_scored": 7560,
+ "games_with_spread_and_fpi": 7511,
+ "mae_ours_all": 12.887717526865586,
+ "mae_ours": 12.894726230231141,
+ "mae_spread": 12.344960724271068,
+ "mae_fpi": 12.645650778857677,
+ "tune_seasons": {
+  "ours": 13.161107431654967,
+  "fpi": 12.81727318576632,
+  "spread": 12.569487251330905
+ },
+ "untouched_seasons_2021_2025": {
+  "ours": 12.653550555984152,
+  "fpi": 12.490267630644343,
+  "spread": 12.14167935058346
+ },
+ "winner_right": {
+  "ours": 0.7248036213553455,
+  "fpi": 0.7248036213553455,
+  "spread": 0.7334575955265611
+ },
+ "corr_ours_fpi": 0.9404822150435201,
+ "corr_ours_spread": 0.9477498088441275,
+ "gap_to_fpi": 0.24907545137346432,
+ "passes_bar": true,
+ "by_season": [
+  {
+   "season": 2016,
+   "e_ours": 13.7,
+   "e_fpi": 13.28,
+   "e_spread": 13.12,
+   "games": 745
+  },
+  {
+   "season": 2017,
+   "e_ours": 12.87,
+   "e_fpi": 12.37,
+   "e_spread": 12.14,
+   "games": 769
+  },
+  {
+   "season": 2018,
+   "e_ours": 13.21,
+   "e_fpi": 12.86,
+   "e_spread": 12.62,
+   "games": 768
+  },
+  {
+   "season": 2019,
+   "e_ours": 12.72,
+   "e_fpi": 12.57,
+   "e_spread": 12.15,
+   "games": 772
+  },
+  {
+   "season": 2020,
+   "e_ours": 13.41,
+   "e_fpi": 13.13,
+   "e_spread": 12.97,
+   "games": 515
+  },
+  {
+   "season": 2021,
+   "e_ours": 13.11,
+   "e_fpi": 12.98,
+   "e_spread": 12.58,
+   "games": 770
+  },
+  {
+   "season": 2022,
+   "e_ours": 12.73,
+   "e_fpi": 12.35,
+   "e_spread": 12.02,
+   "games": 776
+  },
+  {
+   "season": 2023,
+   "e_ours": 12.52,
+   "e_fpi": 12.49,
+   "e_spread": 12.2,
+   "games": 792
+  },
+  {
+   "season": 2024,
+   "e_ours": 12.77,
+   "e_fpi": 12.37,
+   "e_spread": 12.12,
+   "games": 797
+  },
+  {
+   "season": 2025,
+   "e_ours": 12.16,
+   "e_fpi": 12.27,
+   "e_spread": 11.81,
+   "games": 807
+  }
+ ],
+ "by_part": [
+  {
+   "part": "bowls and playoff",
+   "e_ours": 13.62,
+   "e_fpi": 13.43,
+   "e_spread": 12.78,
+   "games": 397
+  },
+  {
+   "part": "weeks 1-4",
+   "e_ours": 13.09,
+   "e_fpi": 12.74,
+   "e_spread": 12.33,
+   "games": 1850
+  },
+  {
+   "part": "weeks 10+",
+   "e_ours": 12.71,
+   "e_fpi": 12.58,
+   "e_spread": 12.39,
+   "games": 2674
+  },
+  {
+   "part": "weeks 5-9",
+   "e_ours": 12.84,
+   "e_fpi": 12.53,
+   "e_spread": 12.25,
+   "games": 2590
+  }
+ ]
+}

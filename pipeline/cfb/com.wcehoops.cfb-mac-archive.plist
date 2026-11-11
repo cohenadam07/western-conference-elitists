@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- College Football Savant's private raw archive, nightly. Installed in ~/Library/LaunchAgents and loaded on Nov 10,
+     2026 (Adam's go-ahead). It runs the copy of mac_archive.sh in the savant-bot worktree, which follows main, so until
+     this branch is merged it writes "not on main yet" to the log and exits cleanly. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.wcehoops.cfb-mac-archive</string>
+  <key>ProgramArguments</key>
+  <array><string>/bin/bash</string><string>-c</string><string>S=/Users/adamcohen/western-conference-elitists/.worktrees/savant-bot/pipeline/cfb/mac_archive.sh; if [ -f "$S" ]; then exec /bin/bash "$S"; else mkdir -p "$HOME/College-Football-Savant/logs"; echo "$(date '+%Y-%m-%d %H:%M:%S') pipeline/cfb is not on main yet: nothing to do" &gt;&gt; "$HOME/College-Football-Savant/logs/cfb-mac.log"; fi</string></array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>5</integer><key>Minute</key><integer>23</integer></dict>
+  <key>RunAtLoad</key><false/>
+</dict>
+</plist>

@@ -77,6 +77,7 @@ export const PAGES = [
 const STANDALONE = {
   'basketball-savant.html': { description: 'Percentile sliders, player comparisons, shot charts and on/off data for every NBA player.', sitemap: '0.9' },
   'college-basketball-savant.html': { description: 'Baseball Savant-style percentiles for every men\'s Division I player: opponent-adjusted, by position, with RAPM, shot zones, lineups and team ratings.', sitemap: '0.8' },
+  'college-football-savant.html': { description: 'Baseball Savant-style percentiles for every FBS player since 2009: opponent-adjusted, by position, with All-Savant teams and an objective playoff field.', sitemap: '0.8' },
   'draft-savant.html': { description: 'Draft prospect profiles, percentiles and comps from Western Conference Elitists.', sitemap: '0.8' },
   'football-savant.html': { sitemap: '0.8' },
   'coaching-savant.html': { sitemap: '0.6' },
