@@ -49,15 +49,71 @@ function prow(stat,r,group){
   else if(stat.note&&stat.note.length<34)note=stat.note.replace(/\.$/,'');
   if(r.tracked&&!r.none&&stat.lower&&r.settling)note+=' · lower is better, flipped';
   var tag=(stat.verdict==='context'&&group!=='Context')?' <span class="ctx">CONTEXT</span>':'';
+  if(stat.tier==='B')tag+=' <span class="ctx tb" title="'+esc(REG.tier_b_note||'')+'">CHARTED</span>';
   return '<div class="prow"><div class="nm">'+esc(stat.label)+tag+(note?'<small>'+esc(note)+'</small>':'')+'</div>'+bar(r)+'<div class="v">'+(r.tracked&&!r.none?esc(r.shown):'—')+'</div></div>';}
 function explain(reg,slot,season){
   var h='<div class="stk sm"><div class="pad"><h3 style="font-size:24px;color:var(--field)">What each stat means</h3>';
-  reg.groups.forEach(function(g){var ss=M.statsFor(reg,slot).filter(function(s){return s.group===g;});if(!ss.length)return;
+  M.cardGroups(reg,slot).concat(M.cardGroups(reg,'RET')).forEach(function(G){var g=G.group,ss=G.stats;
     h+='<details class="ex"><summary>'+esc(g)+'</summary>';
-    ss.forEach(function(s){h+='<div class="exi"><strong>'+esc(s.label)+'.</strong> '+esc(s.what)+'<div class="meta">Formula: '+esc(s.formula)+'. Source: '+esc(s.source)+'. From '+s.start+'. '+(s.k?'Settles around '+s.k+' '+esc(s.unit_n)+'. ':'')+(s.adj?'Opponent-adjusted. ':'')+esc(s.note||'')+'</div></div>';});
+    ss.forEach(function(s){h+='<div class="exi"><strong>'+esc(s.label)+'.</strong> '+esc(s.what)+'<div class="meta">Formula: '+esc(s.formula)+'. Source: '+esc(s.source)+'. From '+s.start+'. '+(s.k?'Settles around '+s.k+' '+esc(s.unit_n)+'. ':'')+(s.adj?'Opponent-adjusted. ':'')+(s.tier==='B'?'Charted layer. ':'')+esc(s.note||'')+'</div></div>';});
     h+='</details>';});
   h+='<details class="ex"><summary>Savant value</summary><div class="exi">Expected points above a replacement-level player at his position, opponent-adjusted, on the plays he was credited with. His rate is pulled toward the position average until he has played enough, the replacement rate (the 25th-percentile qualified player) is taken away, and the rest is multiplied by his volume. Nothing in it knows whether his team won. Missed games and small roles cost value.<div class="meta">Garbage time ('+esc(reg.garbage_rule)+') is left out. FBS-vs-FBS games only. The model\'s view, not a verdict.</div></div></details>';
   return h+'</div></div>';}
+
+function groupsHtml(G,d,i,o,openFirst){
+  var h='',opened=false;
+  G.forEach(function(g){var rows=g.stats.map(function(st){return [st,M.row(d,REG,st,i,o)];});
+    var hd=rows.filter(function(x){return x[0].verdict!=='context'&&x[1].tracked&&!x[1].none&&x[1].pct!=null;})[0]||rows.filter(function(x){return x[1].tracked&&!x[1].none;})[0]||rows[0];
+    var op=openFirst&&!opened&&g.group!=='Context'&&hd[1].tracked&&!hd[1].none;if(op)opened=true;
+    h+='<details class="cg grp"'+(op?' open':'')+'><summary><span class="cgn">'+esc(g.group)+(g.group==='Context'?' <span class="ctx">CONTEXT</span>':'')+'</span><span class="cgh">'+esc(hd[0].label)+'</span><span class="cgb">'+bar(hd[1],true)+'</span><span class="cgv">'+(hd[1].tracked&&!hd[1].none?esc(hd[1].shown):'—')+'</span><span class="cgc" aria-hidden="true">'+rows.length+'</span></summary><div class="rows">';
+    rows.forEach(function(x){h+=prow(x[0],x[1],g.group);});h+='</div></details>';});
+  return h;}
+function traj(P,y){
+  var r=P.seasons.filter(function(x){return x[5]&&x[7]&&x[8];});if(r.length<2)return '';
+  var pts=r.map(function(x){return [x[0],Math.round(100*(1-(x[7]-1)/x[8])),x[3]];}),w=300,hh=90,x0=Math.min.apply(null,pts.map(function(p){return p[0];})),x1=Math.max.apply(null,pts.map(function(p){return p[0];}));
+  var X=function(v){return x1===x0?w/2:16+(v-x0)/(x1-x0)*(w-32);},Y=function(v){return hh-10-(v/100)*(hh-24);};
+  var h='<div class="pnl"><h3>Career trajectory</h3><svg viewBox="0 0 '+w+' '+hh+'" width="100%" role="img" aria-label="Savant value percentile by season: '+pts.map(function(p){return p[0]+' '+M.nth(p[1]);}).join(', ')+'"><line x1="8" x2="'+(w-8)+'" y1="'+Y(50)+'" y2="'+Y(50)+'" stroke="var(--line)" stroke-dasharray="3 3"/><polyline fill="none" stroke="var(--field)" stroke-width="3" points="'+pts.map(function(p){return X(p[0])+','+Y(p[1]);}).join(' ')+'"/>';
+  pts.forEach(function(p){h+='<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="5" fill="'+col(p[1])+'" stroke="#0B1730" stroke-width="1.5"/><text x="'+X(p[0])+'" y="'+(hh-1)+'" text-anchor="middle" font-size="10">'+p[0]+'</text>';});
+  return h+'</svg><p class="note">His Savant-value percentile among qualified players at his position, season by season'+(pts.some(function(p){return p[2];})?' (class: '+pts.map(function(p){return p[0]+' '+(p[2]||'?');}).join(', ')+')':'')+'.</p></div>';}
+function extrasHtml(id,P,d,i,X){
+  var p=d.players[i],slot=p[C.slot],y=d.season,h='',o={poolName:'pos',adj:true,gt:false};
+  /* weakness comps */
+  var wc=M.weakComps(d,REG,i,5);
+  if(wc.length){h+='<section class="sec"><div class="rule"><h3>Weakness comps, '+y+'</h3></div><p class="note lt">Qualified '+esc(REG.slot_name[slot])+' whose percentiles sit closest to his on his five lowest bars ('+wc[0].on.map(function(k){return esc(BYK[k].label);}).join(', ')+'). Who shares his flaws, not a projection.</p><div class="cards">';
+    wc.forEach(function(c,k){var q2=d.players[c.i];h+=pcard(d,{pid:q2[C.id],team:q2[C.team],slot:q2[C.slot],value:d.value.v[c.i],name:q2[C.name],head:q2[C.head]},k,Math.round(100-c.distance)+' match');});h+='</div></section>';}
+  /* production vs pedigree */
+  var pr=X.ped&&X.ped.rows.filter(function(r){return r[0]===id;})[0];
+  if(pr)h+='<section class="stk sm"><div class="band"><h2>Production vs pedigree</h2><span class="lab">'+y+'</span></div><div class="pad"><p style="margin:0 0 8px;font-size:15px"><b>'+(pr[3]>0?'+':'')+pr[3].toFixed(0)+'</b> points: his Savant value sits in the '+M.nth(Math.round(pr[1]))+' percentile of qualified '+esc(REG.slot_name[slot])+', his recruiting rating in the '+M.nth(Math.round(pr[2]))+'. '+(pr[3]>=20?'He is outplaying his stars.':pr[3]<=-20?'His stars promised more than he has produced.':'Production and pedigree roughly agree.')+'</p><p class="note">'+esc(X.ped.note)+' <a href="#leaders">Leaderboards</a> rank it both ways.</p></div></section>';
+  /* transfer impact */
+  if(X.tr)h+=X.tr;
+  /* NFL translation */
+  var nc=X.comps&&X.comps[String(id)],N=X.nfl;
+  if(nc&&N){var sh=N.show_outcomes,me=N.players[String(id)];
+    h+='<section class="stk sm"><div class="band"><h2>NFL translation</h2><span class="lab">comparison, not a projection</span></div><div class="pad"><p class="note" style="margin-bottom:10px">The five final college seasons at his position most like his '+nc.season+' profile (his position\'s five headline stats, height, weight and recruiting rating), among players who reached the NFL. '+(sh?'Their NFL Savant value per season comes from Football Savant. On '+N.test.players+' NFL players\' college finals of 2014-2021, the comps\' NFL value rank-correlated '+N.test.spearman.toFixed(2)+' with the player\'s own.':'Their NFL outcomes are not averaged: on 2014-2021 college finals the comps\' NFL value did not track the player\'s own.')+'</p><div class="scroll"><table class="t"><thead><tr><th class="pin">Comp</th><th>Final college season</th><th>Drafted</th><th class="n">NFL seasons</th>'+(sh?'<th class="n">NFL value / season</th>':'')+'</tr></thead><tbody>';
+    var vals=[];nc.comps.forEach(function(c){var q=N.players[String(c[0])];if(!q)return;var dr=q[5],ps=q[7];if(ps!=null)vals.push(ps);
+      h+='<tr><td class="pin"><a href="'+plink(c[0],q[2])+'"><strong>'+esc(q[0])+'</strong></a></td><td>'+q[2]+' · '+esc(TEAMK[q[3]]?TEAMK[q[3]][1]:'')+'</td><td>'+(dr?(dr[1]?'Round '+dr[1]+', pick '+dr[2]+' ('+dr[0]+(dr[3]?', '+esc(dr[3]):'')+')':'Undrafted ('+dr[0]+')'):'Undrafted')+'</td><td class="n">'+q[6].length+'</td>'+(sh?'<td class="n">'+(ps==null?'—':sg(ps,1))+'</td>':'')+'</tr>';});
+    h+='</tbody></table></div>'+(sh&&vals.length?'<p style="margin:10px 0 0;font-size:14px">The comps averaged <b>'+sg(vals.reduce(function(a,b){return a+b;},0)/vals.length,1)+'</b> NFL Savant value per season. A comparison, not a projection.</p>':'');
+    var cb=N.combine&&N.combine[String(id)];
+    if(cb)h+='<p style="margin:10px 0 0;font-size:14px"><strong>NFL combine</strong> (from Football Savant): '+[['forty','40-yard dash','s'],['vert','vertical','"'],['broad','broad jump','"'],['cone','3-cone','s'],['shuttle','shuttle','s'],['bench','bench','reps']].filter(function(k){return cb[k[0]]!=null;}).map(function(k){return k[1]+' '+cb[k[0]]+k[2];}).join(' · ')+'</p>';
+    if(me&&me[5])h+='<p class="note" style="margin-top:8px">He reached the NFL himself: '+(me[5][1]?'round '+me[5][1]+', pick '+me[5][2]+' in '+me[5][0]:'undrafted, '+me[5][0])+'.</p>';
+    h+='</div></section>';}
+  return h;}
+function transferHtml(id,P,cb){
+  var sc=(P.bio&&P.bio.schools)||[],k=-1;sc.forEach(function(r,j){if(r[2]===1&&j>0)k=j;});
+  if(k<0)return Promise.resolve('');
+  var a=sc[k-1],b=sc[k];
+  return Promise.all([load('s/'+a[0]+'.json').catch(function(){return null;}),load('s/'+b[0]+'.json').catch(function(){return null;})]).then(function(D){
+    if(!D[0]||!D[1])return '';
+    var ia=-1,ib=-1;D[0].players.forEach(function(p,j){if(p[C.id]===id)ia=j;});D[1].players.forEach(function(p,j){if(p[C.id]===id)ib=j;});
+    if(ia<0||ib<0)return '';
+    var sa=D[0].players[ia][C.slot],sb=D[1].players[ib][C.slot];if(M.SLOT_TABLE[sa]!==M.SLOT_TABLE[sb])return '';
+    var hs_=M.headline(REG,sb),o={poolName:'pos',adj:true,gt:false};
+    var h='<section class="stk sm"><div class="band"><h2>Transfer impact</h2><span class="lab">'+a[0]+' '+esc(TEAMK[a[1]]?TEAMK[a[1]][1]:'')+' → '+b[0]+' '+esc(TEAMK[b[1]]?TEAMK[b[1]][1]:'')+'</span></div><div class="scroll"><table class="t"><thead><tr><th class="pin">Stat</th><th class="n">'+a[0]+' (before)</th><th class="n">pct</th><th class="n">'+b[0]+' (after)</th><th class="n">pct</th></tr></thead><tbody>';
+    hs_.forEach(function(st){var ra=M.row(D[0],REG,st,ia,o),rb=M.row(D[1],REG,st,ib,o);
+      h+='<tr><td class="pin">'+esc(st.label)+'</td><td class="n">'+(ra.tracked&&!ra.none?esc(ra.shown):'—')+'</td><td class="n">'+(ra.pct!=null?ra.pct:'—')+'</td><td class="n">'+(rb.tracked&&!rb.none?esc(rb.shown):'—')+'</td><td class="n">'+(rb.pct!=null?rb.pct:'—')+'</td></tr>';});
+    var va=D[0].value.v[ia],vb=D[1].value.v[ib];
+    h+='<tr><td class="pin"><strong>Savant value</strong></td><td class="n">'+(va==null?'—':sg(va,1))+'</td><td></td><td class="n">'+(vb==null?'—':sg(vb,1))+'</td><td></td></tr></tbody></table></div><p class="note pad">The same stats each season, opponent-adjusted where the stat is, each against that season\'s FBS players at his position.</p></section>';
+    return h;});}
 
 /* ---------- home ---------- */
 function vHome(){
@@ -91,8 +147,10 @@ function vPlayer(id,want){
       var i=-1;d.players.forEach(function(p,k){if(p[C.id]===id)i=k;});
       if(i<0)return '<p class="empty">No graded plays in '+y+'.</p>';
       var team=d.players[i][C.team];
-      return Promise.all([load('t/'+y+'/'+team+'.json').catch(function(){return null;}),load('teams/'+y+'.json').catch(function(){return null;}),load('allsavant/'+y+'.json').catch(function(){return null;})]).then(function(b){
-        return playerHtml(id,P,d,i,b[0],b[1],b[2],seasons,cur);});});});}
+      return Promise.all([load('t/'+y+'/'+team+'.json').catch(function(){return null;}),load('teams/'+y+'.json').catch(function(){return null;}),load('allsavant/'+y+'.json').catch(function(){return null;}),
+        load('x/comps/'+('0'+(Math.abs(id)%100)).slice(-2)+'.json').catch(function(){return null;}),load('x/nfl.json').catch(function(){return null;}),
+        load('x/pedigree/'+y+'.json').catch(function(){return null;}),transferHtml(id,P).catch(function(){return '';})]).then(function(b){
+        return playerHtml(id,P,d,i,b[0],b[1],b[2],seasons,cur,{comps:b[3],nfl:b[4],ped:b[5],tr:b[6]});});});});}
 function schedFaced(TD,team){if(!TD)return '—';var rows=TD.teams,v=null,all=[];rows.forEach(function(r){if(M.ok(r[T.sos])){all.push(+r[T.sos]);if(r[T.id]===team)v=+r[T.sos];}});
   if(v===null)return '—';var p=M.pct(all,v,false);return M.nth(p)+' pct · '+(p>=60?'tougher':p<=40?'softer':'about average')+' <span style="font-weight:400;color:var(--muted)">(his team\'s)</span>';}
 function historyRibbon(P,d,team){
@@ -116,7 +174,7 @@ function standing(A,id){
   Object.keys(A.conference).forEach(function(c){if(A.conference[c].some(function(r){return r.pid===id;}))out.push('All-'+c+' Savant'+sfx);});
   if(A.freshman.some(function(r){return r.pid===id;}))out.push('Freshman All-Savant'+sfx);
   return out;}
-function playerHtml(id,P,d,i,TF,TD,A,seasons,cur){
+function playerHtml(id,P,d,i,TF,TD,A,seasons,cur,X){
   var p=d.players[i],slot=p[C.slot],team=p[C.team],tc=tcolor(d,team),bio=P.bio||{},y=d.season,o={poolName:S.pool,adj:S.adj,gt:S.gt};
   var stats=M.statsFor(REG,slot),table=M.SLOT_TABLE[slot];
   var ros=TF?TF.roster.filter(function(r){return r[0]===id;})[0]:null;
@@ -146,10 +204,15 @@ function playerHtml(id,P,d,i,TF,TD,A,seasons,cur){
   if(!p[C.qual]&&q)h+='<p class="poolline">He is under the qualifying sample ('+Math.round(q[1]*(d.scale||1))+' '+esc(sampleName(q[0]))+(d.scale<1?' at this point of the season':'')+'), so his bars show where his numbers would sit among qualified players.</p>';
   var vl=M.valueLine(d,i);
   if(vl)h+='<p class="valline"><b>'+sg(vl.value,1)+'</b> Savant value: expected points above a replacement '+esc(REG.slot_name[slot].replace(/s$/,''))+', opponent-adjusted'+(vl.rank?' · '+M.nth(vl.rank)+' of '+vl.of+' qualified '+esc(REG.slot_name[slot]):'')+'.</p>';
-  REG.groups.forEach(function(g){var ss=stats.filter(function(s){return s.group===g;});if(!ss.length)return;
-    h+='<div class="grp"><div class="hd"><h3>'+esc(g)+'</h3>'+(g==='Context'?'<span class="ctx">CONTEXT</span>':'')+'</div><div class="rows">';
-    ss.forEach(function(s){h+=prow(s,M.row(d,REG,s,i,o),g);});h+='</div></div>';});
+  var pf=M.profile(d,REG,i,o);
+  if(pf)h+='<p class="valline"><b>'+pf.score+'</b> Profile score: the mean of his percentiles on the '+pf.n+' headline stats of a '+esc(REG.slot_name[slot].replace(/s$/,''))+' ('+M.headline(REG,slot).map(function(s){return esc(s.label);}).join(', ')+').</p>';
+  h+=groupsHtml(M.cardGroups(REG,slot),d,i,o,true);
+  var nr=M.sample(d,'returns',i,false);
+  if(nr){var rp=M.retPool(d,REG);h+='<div class="band sub"><h2>Returner</h2><span class="lab">'+Math.round(nr)+' returns · POOL: vs FBS returners with '+Math.round(REG.qual.RET[1]*(d.scale||1))+'+ returns, raw, '+y+' · '+rp.ids.length+' qualified</span></div>';
+    h+=groupsHtml(M.cardGroups(REG,'RET'),d,i,o,false);}
   var isD=table==='dfn';
+  var cs=REG.cant_see&&REG.cant_see[M.cardKey(slot)];
+  if(cs&&cs.length)h+='<div class="pad"><details class="ex"><summary>What the page can\'t see</summary><ul class="cant">'+cs.map(function(c){return '<li><strong>'+esc(c[0])+'</strong>: '+esc(c[1])+'</li>';}).join('')+'</ul></details></div>';
   h+='<div class="pad">'+(isD?'<p class="note">'+esc(REG.defender_note)+'</p>':'')+(isD&&y<2024?'<p class="note" style="margin-top:8px"><strong>'+esc(REG.pre_box_warning)+(REG.no_tacklers.indexOf(y)>=0?' '+esc(REG.early_def_note):'')+'</strong></p>':'')+'<p class="note" style="margin-top:8px">Sources: ESPN play-by-play and box scores; WCE\'s own expected-points model and opponent adjustment. FBS-vs-FBS games only.</p></div></section>';
   /* splits, game log, career */
   var rows=TF&&TF.logs[String(id)],cols=REG.logcols[table];
@@ -171,13 +234,15 @@ function playerHtml(id,P,d,i,TF,TD,A,seasons,cur){
     career.forEach(function(r){var sameT=M.SLOT_TABLE[r[2]]===table,ln=sameT?M.line(table,asTot(r[9],cols,r[4])).slice(1):hdr.map(function(){return ['','—'];});
       h+='<tr><td class="pin fig"><a href="'+plink(id,r[0])+'">'+r[0]+'</a></td><td><a href="'+tlink(r[1],r[0])+'">'+esc(TEAMK[r[1]]?TEAMK[r[1]][1]:tname(d,r[1]))+'</a></td><td>'+esc(r[2])+(r[3]?' · '+esc(r[3]):'')+'</td><td class="n">'+r[4]+'</td><td class="n">'+(r[6]==null?'—':sg(r[6],1))+'</td><td class="n">'+(r[7]?r[7]+' of '+r[8]:'—')+'</td>'+ln.map(function(c){return '<td class="n">'+esc(c[1])+'</td>';}).join('')+'</tr>';});
     h+='</tbody></table></div><p class="note pad">Games are FBS-vs-FBS games in which he recorded a play. Rank is among qualified players at his position that season.</p></section>';}
+  h+=traj(P,y);
   var cm=M.comps(d,REG,i,6);
   if(cm.length){h+='<section class="sec"><div class="rule"><h3>Nearest players, '+y+'</h3></div><p class="note lt">Qualified '+esc(REG.slot_name[slot])+(cm[0].sameClass&&p[C.cls]?' in the same class ('+esc(p[C.cls])+')':'')+' whose percentile bars sit closest to his. A likeness of shape this season, not a projection.</p><div class="cards">';
     cm.forEach(function(c,k){var q2=d.players[c.i];h+=pcard(d,{pid:q2[C.id],team:q2[C.team],slot:q2[C.slot],value:d.value.v[c.i],name:q2[C.name],head:q2[C.head]},k,Math.round(100-c.distance)+' match');});h+='</div></section>';}
+  h+=extrasHtml(id,P,d,i,X||{});
   h+=explain(REG,slot,y);
   return h+'</div></div>';}
 function asTot(arr,cols,g){var t={g:g};cols.forEach(function(c,k){t[c]=arr[k];});return t;}
-function sampleName(k){return {plays:'plays',rush:'rushes',tgt:'targets',dplays:'team defensive plays',fga:'field-goal attempts',punts:'punts'}[k]||k;}
+function sampleName(k){return {plays:'plays',rush:'rushes',tgt:'targets',dplays:'team defensive plays',fga:'field-goal attempts',punts:'punts',returns:'returns'}[k]||k;}
 
 /* ---------- teams ---------- */
 var TCOLS_SHOW=[['rating','Power','pts vs avg FBS',1],['off','Off','',1],['def','Def','',1],['st','ST','',1],['resume_rank','Résumé','rank',0],['sos','Schedule','tougher is higher',0],['off_epa','Off EPA/play','efficiency',0,1],['def_epa','Def EPA/play','lower is better',0,1],['off_sr','Off success','',0,1],['def_sr','Def success','lower is better',0,1],['off_expl','Explosiveness','EPA per successful play',0,1],['off_fp','Start field pos.','yards to go',0,1],['off_ppo','Pts per trip','inside the 40',0,1],['def_havoc','Havoc','',0,1],['pace','Pace','plays per game',0,1],['to_margin','TO margin','LUCK',0,1],['talent_rank','Talent','rank',0],['ret_off','Returning off.','share',0],['ret_def','Returning def.','share',0]];
@@ -208,8 +273,8 @@ function vTeams(){
 function teamsMap(D){if(!D._m){D._m={};D.teams.forEach(function(r){var k=TEAMK[r[T.id]];D._m[String(r[T.id])]=[r[T.school],r[T.abbr],r[T.conf],k?k[6]:null,k?k[7]:null,k?k[5]:null];});}return D._m;}
 function vTeam(id,want){
   var y=want||S.season;
-  return Promise.all([load('t/'+y+'/'+id+'.json'),load('teams/'+y+'.json'),load('s/'+y+'.json')]).then(function(a){
-    var F=a[0],D=a[1],d=a[2],ti=-1;D.teams.forEach(function(r,k){if(r[T.id]===id)ti=k;});
+  return Promise.all([load('t/'+y+'/'+id+'.json'),load('teams/'+y+'.json'),load('s/'+y+'.json'),y>=2021?load('x/haul/'+y+'.json').catch(function(){return null;}):Promise.resolve(null)]).then(function(a){
+    var F=a[0],D=a[1],d=a[2],HL=a[3],ti=-1;D.teams.forEach(function(r,k){if(r[T.id]===id)ti=k;});
     var r=D.teams[ti],tc=tcolor(d,id);
     var h='<div class="two"><section class="side"><div class="stk who tl" data-tilt><div class="top"><span class="hs" style="width:96px;height:96px;background:#fff;border-color:'+tc+'"><img src="'+LOGO+id+'.png" alt="" style="object-fit:contain;object-position:center;padding:10px;background:#fff" onerror="this.remove()"></span><div style="min-width:0"><p class="pos">'+esc(F.conf)+' · '+y+'</p><h2>'+esc(F.name)+'</h2><p class="tm"><span class="sw" style="background:'+tc+'"></span>'+r[T.w]+'-'+r[T.l]+' ('+r[T.cw]+'-'+r[T.cl]+' in conference)</p></div></div><div class="gr"></div>';
     h+='<dl><div><dt>Power rating</dt><dd>'+sg(r[T.rating],1)+' · '+M.nth(r[T.rating_rank])+'</dd></div><div><dt>Résumé rank</dt><dd>'+(r[T.resume_rank]?M.nth(r[T.resume_rank]):'—')+'</dd></div><div><dt>Offense / Defense / ST</dt><dd>'+sg(r[T.off],1)+' / '+sg(r[T.def],1)+' / '+sg(r[T.st],1)+'</dd></div><div><dt>Team talent</dt><dd>'+(r[T.talent_rank]?M.nth(r[T.talent_rank])+' <span style="font-weight:400;color:var(--muted)">from recruiting stars</span>':'—')+'</dd></div></dl>';
@@ -228,11 +293,14 @@ function vTeam(id,want){
     var gs=[];REG.team_stats.forEach(function(s){if(gs.indexOf(s.group)<0)gs.push(s.group);});
     gs.forEach(function(g){h+='<div class="grp"><div class="hd"><h3>'+esc(g)+'</h3>'+(g==='Turnovers'?'<span class="ctx">LUCK</span>':'')+'</div><div class="rows">';
       REG.team_stats.filter(function(s){return s.group===g;}).forEach(function(s){var x=M.teamRow(D,s,ti,S.tAdj);
-        var rr=x?{tracked:true,pct:x.pct,shown:x.shown,hatched:s.verdict==='hatched'||s.verdict==='luck'}:{tracked:true,none:true,reason:'no value'};
-        var st={label:s.label,lower:s.lower,verdict:s.verdict==='luck'?'context':s.verdict,note:''};
+        var rr=s.start&&y<s.start?{tracked:false,reason:'not tracked before '+s.start}:x?{tracked:true,pct:x.pct,shown:x.shown,hatched:s.verdict==='hatched'||s.verdict==='luck'}:{tracked:true,none:true,reason:'no value'};
+        var st={label:s.label,lower:s.lower,verdict:s.verdict==='luck'?'context':s.verdict,note:'',tier:s.tier};
         h+=prow(st,rr,g==='Turnovers'?'Context':g);});
       h+='</div></div>';});
-    h+='<div class="pad"><p class="note">Turnovers and fumble recoveries are labeled luck: they barely repeat from one half of a season to the other.</p></div></section>';
+    h+='<div class="pad"><p class="note">Turnovers and fumble recoveries are labeled luck: they barely repeat from one half of a season to the other. CHARTED rows come from ESPN\'s charted play text, tracked from 2025 week 9. Fourth-down choices are judged by WCE\'s own model: expected points, and win probability in the last 15 minutes of a game within 16 points.</p></div></section>';
+    var hl=HL&&HL.teams[String(id)];
+    if(hl){var nm=function(r){var q=d.players.filter(function(p){return p[C.id]===r[0];})[0];return '<a href="'+plink(r[0],y)+'">'+esc(q?q[C.name]:'Player '+r[0])+'</a> '+sg(r[1],1);};
+      h+='<section class="stk sm"><div class="band"><h2>Portal haul</h2><span class="lab">'+y+' · Savant value</span></div><div class="pad"><p style="margin:0 0 8px;font-size:15px">In: <b>'+sg(hl['in'],1)+'</b> from '+hl.n_in+' transfer'+(hl.n_in===1?'':'s')+' · Out: <b>'+sg(hl.out,1)+'</b> from '+hl.n_out+' who left · Net <b>'+sg(hl['in']-hl.out,1)+'</b></p>'+(hl.top_in.length?'<p style="margin:0 0 6px;font-size:14px">Best arrivals: '+hl.top_in.map(nm).join(', ')+'</p>':'')+(hl.top_out.length?'<p style="margin:0 0 6px;font-size:14px">Best departures (at their new schools): '+hl.top_out.map(nm).join(', ')+'</p>':'')+'<p class="note">'+esc(HL.note)+'</p></div></section>';}
     /* roster strip and depth */
     var gr=F.roster.filter(function(p){return p[11]!=null;}).sort(function(a,b){return (b[12]||-99)-(a[12]||-99);});
     h+='<section class="stk sm"><div class="band"><h2>Roster</h2><span class="lab">'+F.roster.length+' players · sorted by Savant value</span></div><div class="strip">';
@@ -360,15 +428,18 @@ function openSheet(i,from){
 /* ---------- leaders ---------- */
 function vLeaders(){
   return load('s/'+S.season+'.json').then(function(d){
-    var slot=S.lbSlot,stats=M.statsFor(REG,slot),key=S.lbStat;
-    if(key!=='value'&&!stats.some(function(s){return s.key===key;}))key=S.lbStat='value';
+    var slot=S.lbSlot,stats=M.statsFor(REG,slot),key=S.lbStat,ret=slot==='RET';
+    if(/^ped_/.test(key))return vPedigree(d,slot,key);
+    if(key!=='value'&&!stats.some(function(s){return s.key===key;}))key=S.lbStat=ret?stats[0].key:'value';
+    if(ret&&key==='value')key=S.lbStat=stats[0].key;
+    var rpool=ret?M.retPool(d,REG):null;
     var stat=key==='value'?null:BYK[key],o={poolName:S.pool,adj:S.adj,gt:S.gt},rows=[];
-    d.players.forEach(function(p,i){if(p[C.slot]!==slot)return;if(S.lbQual&&!p[C.qual])return;
+    d.players.forEach(function(p,i){if(ret){if(S.lbQual&&rpool.ids.indexOf(i)<0)return;if(!M.sample(d,'returns',i,false))return;}else{if(p[C.slot]!==slot)return;if(S.lbQual&&!p[C.qual])return;}
       if(stat){var r=M.row(d,REG,stat,i,o);if(!r.tracked||r.none||r.pct==null)return;rows.push({i:i,v:r.value,r:r});}
       else{var v=d.value.v[i];if(!M.ok(v))return;rows.push({i:i,v:+v});}});
     var lower=stat&&stat.lower;rows.sort(function(a,b){return (lower?a.v-b.v:b.v-a.v)||d.players[a.i][C.id]-d.players[b.i][C.id];});
     var off=stat&&!M.tracked(stat,d.season);
-    var h='<section class="stk"><div class="band"><h2>Leaders · '+d.season+'</h2><span class="lab">'+esc(asof(d))+'</span></div><div class="ctl"><label class="vh" for="lbslot">Position</label><select class="btn" id="lbslot">'+REG.slots.filter(function(s){return s!=='OL';}).map(function(s){return '<option value="'+s+'"'+(s===slot?' selected':'')+'>'+esc(REG.slot_name[s])+'</option>';}).join('')+'</select><label class="vh" for="lbstat">Stat</label><select class="btn" id="lbstat"><option value="value">Savant value</option>'+stats.map(function(s){return '<option value="'+s.key+'"'+(s.key===key?' selected':'')+'>'+esc(s.label)+(s.verdict==='context'?' (context)':'')+'</option>';}).join('')+'</select>';
+    var h='<section class="stk"><div class="band"><h2>Leaders · '+d.season+'</h2><span class="lab">'+esc(asof(d))+'</span></div><div class="ctl"><label class="vh" for="lbslot">Position</label><select class="btn" id="lbslot">'+REG.slots.filter(function(s){return s!=='OL';}).concat(['RET']).map(function(s){return '<option value="'+s+'"'+(s===slot?' selected':'')+'>'+esc(REG.slot_name[s]||REG.pools_extra[s])+'</option>';}).join('')+'</select><label class="vh" for="lbstat">Stat</label><select class="btn" id="lbstat">'+(ret?'':'<option value="value">Savant value</option><option value="ped_up">Outplaying his stars</option><option value="ped_down">Stars ahead of production</option>')+stats.map(function(s){return '<option value="'+s.key+'"'+(s.key===key?' selected':'')+'>'+esc(s.label)+(s.verdict==='context'?' (context)':'')+'</option>';}).join('')+'</select>';
     [['pos','FBS'],['p4','Power 4'],['conf','His conference']].forEach(function(x){h+='<button class="btn" data-pool="'+x[0]+'" aria-pressed="'+(S.pool===x[0])+'">'+x[1]+'</button>';});
     h+='<button class="btn" data-adj="'+(S.adj?0:1)+'" aria-pressed="'+S.adj+'">Adjusted</button><button class="btn" data-gt="'+(S.gt?0:1)+'" aria-pressed="'+S.gt+'">Garbage time '+(S.gt?'in':'out')+'</button><button class="btn" data-lbq="'+(S.lbQual?0:1)+'" aria-pressed="'+S.lbQual+'">Qualified only</button></div>';
     var q=REG.qual[slot];
@@ -379,6 +450,18 @@ function vLeaders(){
         h+='<tr><td class="n">'+(n+1)+'</td><td class="pin"><a href="'+plink(p[C.id],d.season)+'"><strong>'+esc(p[C.name])+'</strong></a>'+(p[C.qual]?'':' <span class="lab" style="color:var(--muted)">below sample</span>')+'</td><td><span class="chip" style="height:18px;background:'+tcolor(d,p[C.team])+'"></span>'+esc(tname(d,p[C.team]))+'</td><td class="n"><strong>'+(stat?esc(x.r.shown):sg(x.v,1))+'</strong></td>'+(stat?'<td>'+bar(x.r)+'</td><td class="n">'+(x.r.n==null?'—':Math.round(x.r.n))+'</td>':'<td class="n">'+p[C.gp]+'</td>')+'</tr>';});
       h+='</tbody></table></div>';}
     h+='<div class="pad">'+(stat?'<p class="note"><strong>'+esc(stat.label)+'.</strong> '+esc(stat.what)+' Formula: '+esc(stat.formula)+'. Source: '+esc(stat.source)+'. From '+stat.start+'.'+(stat.k?' Settles around '+stat.k+' '+esc(stat.unit_n)+'.':'')+(stat.verdict==='context'?' A CONTEXT stat: how much, or too noisy to grade.':'')+(stat.lower?' Lower is better, so the bar is flipped.':'')+'</p>':'<p class="note">Savant value is expected points above a replacement-level player at the position, opponent-adjusted. Pure individual value: nothing in it knows whether his team won.</p>')+(M.SLOT_TABLE[slot]==='dfn'&&d.season<2024?'<p class="note" style="margin-top:8px"><strong>'+esc(REG.pre_box_warning)+(REG.no_tacklers.indexOf(d.season)>=0?' '+esc(REG.early_def_note):'')+'</strong></p>':'')+'</div></section>';
+    return h;});}
+
+function vPedigree(d,slot,key){
+  return load('x/pedigree/'+d.season+'.json').catch(function(){return null;}).then(function(X){
+    var ix={};d.players.forEach(function(p,i){ix[p[C.id]]=i;});
+    var rows=(X?X.rows:[]).filter(function(r){var i=ix[r[0]];return i!=null&&d.players[i][C.slot]===slot;});
+    rows.sort(function(a,b){return (key==='ped_up'?b[3]-a[3]:a[3]-b[3])||a[0]-b[0];});
+    var h='<section class="stk"><div class="band"><h2>Production vs pedigree · '+d.season+'</h2><span class="lab">'+esc(REG.slot_name[slot])+'</span></div><div class="ctl"><label class="vh" for="lbslot">Position</label><select class="btn" id="lbslot">'+REG.slots.filter(function(s){return s!=='OL';}).map(function(s){return '<option value="'+s+'"'+(s===slot?' selected':'')+'>'+esc(REG.slot_name[s])+'</option>';}).join('')+'</select><label class="vh" for="lbstat">Board</label><select class="btn" id="lbstat"><option value="value">Savant value</option><option value="ped_up"'+(key==='ped_up'?' selected':'')+'>Outplaying his stars</option><option value="ped_down"'+(key==='ped_down'?' selected':'')+'>Stars ahead of production</option></select></div>';
+    h+='<p class="poolline">POOL: qualified FBS '+esc(REG.slot_name[slot])+' with a recruiting rating, '+d.season+'. Gap = Savant-value percentile less recruiting-rating percentile.</p>';
+    h+='<div class="scroll" style="margin-top:12px"><table class="t"><thead><tr><th class="n">#</th><th class="pin">Player</th><th>Team</th><th class="n">Gap</th><th class="n">Production pct</th><th class="n">Pedigree pct</th></tr></thead><tbody>';
+    rows.slice(0,60).forEach(function(r,n){var p=d.players[ix[r[0]]];h+='<tr><td class="n">'+(n+1)+'</td><td class="pin"><a href="'+plink(r[0],d.season)+'"><strong>'+esc(p[C.name])+'</strong></a></td><td><span class="chip" style="height:18px;background:'+tcolor(d,p[C.team])+'"></span>'+esc(tname(d,p[C.team]))+'</td><td class="n"><strong>'+(r[3]>0?'+':'')+r[3].toFixed(0)+'</strong></td><td class="n">'+Math.round(r[1])+'</td><td class="n">'+Math.round(r[2])+'</td></tr>';});
+    h+='</tbody></table></div><div class="pad"><p class="note">'+esc(X?X.note:'')+' Only players with a recruiting rating appear.</p></div></section>';
     return h;});}
 
 /* ---------- search ---------- */

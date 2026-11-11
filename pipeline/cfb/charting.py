@@ -83,7 +83,7 @@ class Roster:
         r = r.dropna(subset=["athlete_id", "team_id"])
         self.boxed = set(b.athlete_id.map(lambda v: pd.to_numeric(v, errors="coerce")).dropna().astype("int64"))
         r = r.sort_values("src").drop_duplicates(["team_id", "athlete_id"])
-        r["last"] = r.athlete_display_name.astype(str).map(lambda s: _last(s.split(" ", 1)[-1] if " " in s else s))
+        r["last"] = r.athlete_display_name.fillna("").astype(object).map(str).map(lambda s: _last(s.split(" ", 1)[-1] if " " in s else s))
         self.by = {}
         for t, x in r.groupby("team_id"):
             self.by[int(t)] = list(zip(x.jersey, x["last"], x.athlete_id.astype("int64")))

@@ -51,3 +51,26 @@ Memory: the Mac has 8 GB. Run one module at a time; two at once pushed it into s
 Full rebuild on the Mac, after new raw data: `espn_feed season 2026`, `ep score 2026`, `teamgame 2026`,
 `playergame cfbd 2026` and `all 2026`, then `rating run`, `state build`, `heads`, `build history`, `build site`.
 The 2009-2012 seasons also need `rating early`.
+
+## The stat expansion (version 1.1.0)
+
+Built from `research/cfb/BUILD-1.1.md` and the catalog `research/cfb/EXPANSION.md`. Devy fantasy (BUILD-1.1 section 5.4)
+is deferred (Adam, Nov 10 2026).
+
+| module | what it does |
+|---|---|
+| `xtext` | the play side table `work/xtra_<season>.parquet`: the stat crew's text and the "penalized" and "returner" ids (release files 2009-2025, ESPN's responses for 2026 and the backfilled games) |
+| `charting` | the charted text (2025 week 9 on): formation, tempo, depth and direction, the catch / thrown-to spot (air yards, YAC), run direction, hurries, break-ups, tacklers; games under 80% charted are left out; `check` writes `research/cfb/out/charting.md` |
+| `expand` | every new per-play column, shared by players and teams: first downs, situations, Connelly's yards, WPA, the model columns, the charted columns |
+| `xmodels` | expected touchdowns, expected pass rate, completion probability with air yards (CPOE), expected YAC; frozen in `state/expansion.json` and `state/models/` |
+| `fourth` | fourth-down decisions (average-coach go rate, WCE's recommendation), two-point tries, timeouts; `work/decisions_<season>.parquet` |
+| `pgx`, `tgx`, `nfx` | the player-game, team-game and season-frame expansions that `playergame`, `teamgame` and `numbers` call |
+| `config_x` | the expansion's registry: tier, card group, the catalog map and Tier C, headline stats, what each card can't see |
+| `xcheck` | step 3's box-score cross-checks (`research/cfb/out/box_check.md`) |
+| `xstudy` | stability for every new stat (`research/cfb/out/expansion_stability.md`); writes `state/verdicts_x.json` |
+| `feat` | NFL translation (`pool`, `check`), production vs pedigree, portal haul; `public/cfb/x/` |
+
+Rebuild after new raw data, in this order: `xtext <seasons>`, `charting 2025 2026` (and `charting check`), `xmodels fit`,
+`fourth fit` then `fourth score <seasons>`, `playergame cfbd`, `playergame all`, `teamgame`, `xcheck`, `xstudy`,
+`build history`, `feat pool`, `feat check`, `feat site`, `build site`. The refresh runs `charting`, `fourth score` and
+`feat site` for the season being played on its own.

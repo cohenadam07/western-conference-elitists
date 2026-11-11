@@ -47,6 +47,9 @@ jobs:
           thr = b.get("through")
           if thr and (today - dt.date.fromisoformat(thr)).days > 4 and today.month in (9, 10, 11):
               print(f"::error::the newest final in College Football Savant is from {thr}"); sys.exit(1)
+          ch = b.get("charting") or {}
+          if ch.get("alarm"):
+              print(f"::error::ESPN's charted play text fell below 90% on {', '.join(ch.get('low_days', []))}: the Tier B layer may have lost its format"); sys.exit(1)
           PY
       - name: Control Room check-in
         if: always()

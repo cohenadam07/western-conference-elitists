@@ -38,7 +38,7 @@ FILT = {"": "cfbd", "_all": "all"}
 # what a receiver's opponent adjustment is charged on: his own targets, not his team's dropbacks
 EXPOSURE = {"rec": "tgt_eff"}
 UNIT_SCALE = {"pct1": 100.0, "pct2": 100.0, "per100": 100.0, "sgn1": 100.0}
-UNIT_DP = {"epa": 4, "pct1": 2, "pct2": 3, "per100": 3, "num1": 3, "num2": 4, "sgn1": 2, "sgn2": 4}
+UNIT_DP = {"epa": 4, "pct1": 2, "pct2": 3, "per100": 3, "num1": 3, "num2": 4, "sgn1": 2, "sgn2": 4, "wpa": 3, "tot": 2, "tot0": 0}
 
 
 def _read(name, y, suffix=""):
@@ -103,7 +103,8 @@ def frames(y, suffix, state, regulars=None):
     punt["punts"] = 1.0
     pg = punt.groupby(["season", "game_id", "team", "pid", "date", "week", "opp"]).agg(
         poe=("poe", "sum"), punts=("punts", "sum"), gross=("gross", "sum")).reset_index()
-    return {"qb": qb, "rush": ru, "rec": rc, "dfn": df, "kick": kg, "punt": pg, "team": tm}
+    from . import nfx
+    return nfx.extend({"qb": qb, "rush": ru, "rec": rc, "dfn": df, "kick": kg, "punt": pg, "team": tm}, y, suffix, state)
 
 
 MIN_GAME_SHARE = 0.5      # Adam, Nov 10 2026: grade every defender who played in at least half his team's games
@@ -290,6 +291,10 @@ def build(y, state):
     for sl, tab in SLOT_TABLE.items():
         ids = F["_all"][tab].pid.unique()
         rows += [(int(i), sl) for i in ids if slot.get(i) == sl]
+    rt = F["_all"]["ret"]
+    if len(rt):                          # 1.1.0: a returner is graded in the RET pool whatever his slot's own table holds
+        have = {p for p, _ in rows}
+        rows += [(int(i), slot.get(i)) for i in rt.pid.unique() if i not in have and isinstance(slot.get(i), str) and slot.get(i) in SLOT_TABLE]
     pl = pd.DataFrame(rows, columns=["pid", "slot"]).drop_duplicates("pid")
     pl = pl[pl.pid > 0]                  # ESPN's negative ids are placeholders ("team" or an unknown man), not players
     pl = pl.merge(ppl.drop_duplicates("pid"), on="pid", how="left").merge(pos[["pid", "inferred", "p_first"]], on="pid", how="left")
@@ -307,7 +312,10 @@ def build(y, state):
 
     def col(tab, s, name, slots):
         d = F[s][tab]
-        d = d[d.pid.map(slot).isin(slots)]
+        if "RET" not in slots:           # the returner pool is anyone with returns, whatever his slot
+            d = d[d.pid.map(slot).isin(slots)]
+        if name not in d.columns:
+            return d, pd.Series(dtype=float)
         return d, d.groupby("pid")[name].sum(min_count=1)
 
     def arr(series, dp=None):
@@ -352,7 +360,8 @@ def build(y, state):
     # ---- samples the qualifier and the card header need ---------------------------------------------
     for s, tag in (("", ""), ("_all", "_g")):
         for nm, tab, c_, slots in (("plays", "qb", "tot_plays", ["QB"]), ("rush", "rush", "rush", ["RB"]), ("tgt", "rec", "tgt_eff", ["WR", "TE"]),
-                                   ("dplays", "dfn", "dplays", C._ALL_D), ("fga", "kick", "fga", ["K"]), ("punts", "punt", "punts", ["P"])):
+                                   ("dplays", "dfn", "dplays", C._ALL_D), ("fga", "kick", "fga", ["K"]), ("punts", "punt", "punts", ["P"]),
+                                   ("returns", "ret", "returns", ["RET"])):
             _, sm = col(tab, s, c_, slots)
             samples[nm + tag] = _merge(samples.get(nm + tag), arr(sm))
     gp = np.zeros(n)

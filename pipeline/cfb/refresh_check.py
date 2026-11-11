@@ -25,7 +25,9 @@ def files(root):
     for sub in ("s", "teams", "allsavant", "playoff", "games"):
         out.add(f"{sub}/{y}.json.gz")
     out |= {f"t/{y}/{p.name}" for p in (root / "t" / y).glob("*.json.gz")}
-    return out
+    out |= {f"x/{sub}/{y}.json.gz" for sub in ("pedigree", "haul")} | {"x/nfl.json.gz"}           # 1.1.0's features
+    out |= {f"x/comps/{p.name}" for p in (root / "x" / "comps").glob("*.json.gz")}
+    return {f for f in out if (root / f).exists()}
 
 
 def main():
