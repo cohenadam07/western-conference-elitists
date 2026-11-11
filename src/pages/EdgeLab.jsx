@@ -18,7 +18,7 @@ const POLL_MS = 30000 // while bets are open
 const JOB = '/api/analytics/snapshot'
 
 const ARMS = ['model', 'claude_wce', 'claude_box']
-const ARM_SHORT = { model: 'WCE model', claude_wce: 'Claude + WCE', claude_box: 'Claude, box only', claude_rc: 'Claude + report card' }
+const ARM_SHORT = { model: 'WCE model', claude_wce: 'Claude + WCE', claude_box: 'Claude, box only', claude_rc: 'Claude + report card', claude_opus_wce: 'Opus + WCE', claude_opus_box: 'Opus, box only' }
 const isBase = (arm) => ARMS.includes(arm)
 const TICK_NAME = { model: 'WCE model', claude_wce: 'Claude + WCE', claude_box: 'Claude, box' }
 const STAT = { pts: 'PTS', reb: 'REB', ast: 'AST', fg3m: '3PM', pra: 'PRA' }
@@ -290,17 +290,21 @@ function Portfolios({ pf, error, now }) {
 
 /* ---------------------------------------------------------------- experiments */
 
-const SOURCE_WORD = { model: 'WCE model', claude_wce: 'Claude + WCE', claude_box: 'Claude box-only', claude_rc: 'Claude + report card', claude_avg: 'both Claudes averaged' }
+const SOURCE_WORD = { model: 'WCE model', claude_wce: 'Claude + WCE', claude_box: 'Claude box-only', claude_rc: 'Claude + report card', claude_avg: 'both Claudes averaged',
+  claude_opus_wce: 'Opus + WCE', claude_opus_box: 'Opus box-only', opus_avg: 'both Opus arms averaged' }
+const CLAUDE_EXP = { claude_rc: 'A new forecaster: Claude + WCE, shown its own track record before each game.', claude_opus_wce: 'A fresh run of Claude + WCE on Claude Opus: the same prompt, scored only from its first game.', claude_opus_box: 'A fresh run of Claude box-only on Claude Opus: the same prompt, scored only from its first game.' }
+const EXP_TAG = { claude_rc: 'C1', claude_opus_wce: 'O1', claude_opus_box: 'O2' }
 const STANDING = { collecting: 'collecting', graduated: 'graduated', 'no edge yet': 'no edge yet', retired: 'retired', 'not started': 'starts with the next slate' }
 
 function ruleText(a) {
-  if (a.kind !== 'rule') return 'A new forecaster: Claude + WCE, shown its own track record before each game.'
+  if (a.kind !== 'rule') return CLAUDE_EXP[a.id] || 'A new Claude forecaster.'
   const bits = [SOURCE_WORD[a.source] || a.source]
   if (a.blend === 'fit') bits.push(`blended with the market${a.weight != null ? ` (weight ${Math.round(a.weight * 100)}%)` : ' (weight fits after 1,000 forecasts)'}`)
   if (a.side) bits.push(`${a.side.toUpperCase()} only`)
   if (a.stats) bits.push(a.stats.map((x) => STAT[x]).join(', '))
   bits.push(`${Math.round((a.minEdge ?? 0.03) * 100)}¢+ edge${a.maxEdge != null ? `, under ${Math.round(a.maxEdge * 100)}¢` : ''}`)
   if (a.minPrice != null || a.maxPrice != null) bits.push(`price ${Math.round((a.minPrice ?? 0.05) * 100)}–${Math.round((a.maxPrice ?? 0.95) * 100)}¢`)
+  if (a.minLead != null || a.maxLead != null) bits.push(a.maxLead == null ? `decided ${a.minLead}+ min before tip` : `decided ${a.minLead ?? 0}–${a.maxLead} min before tip`)
   return bits.join(' · ')
 }
 
@@ -310,7 +314,7 @@ function ExperimentRow({ a, equity }) {
   return (
     <>
       <tr className="el-exp-row" onClick={() => setOpen((v) => !v)}>
-        <td className="el-left"><b>{a.id === 'claude_rc' ? 'C1' : a.id.toUpperCase()}</b> {a.name}<span className="el-muted el-small"> · {started}</span></td>
+        <td className="el-left"><b>{EXP_TAG[a.id] || a.id.toUpperCase()}</b> {a.name}<span className="el-muted el-small"> · {started}</span></td>
         <td>{a.clvBets ?? 0}</td>
         <td>{cents(a.moveMean)} <span className="el-muted">({tStat(a.moveT)})</span></td>
         <td><b>{cents(a.clvMean)}</b> <span className="el-muted">({tStat(a.clvT)})</span></td>
@@ -323,7 +327,8 @@ function ExperimentRow({ a, equity }) {
           <p><b>Rule:</b> {ruleText(a)}</p>
           <p><b>Why:</b> {a.hypothesis}</p>
           <p><b>Success:</b> {a.success}</p>
-          {a.control && a.forecasts > 0 && <p><b>Against its control (Claude + WCE, same games):</b> Brier vs market {skillPct(a.skill)} vs {skillPct(a.control.skill)}; knows more than market {infoText(a.info)} vs {infoText(a.control.info)}.</p>}
+          {a.maker?.orders > 0 && <p><b>As resting orders:</b> {makerText(a.maker)}</p>}
+          {a.control && a.forecasts > 0 && <p><b>Against its control ({SOURCE_WORD[a.control.arm] || a.control.arm}, same games):</b> Brier vs market {skillPct(a.skill)} vs {skillPct(a.control.skill)}; knows more than market {infoText(a.info)} vs {infoText(a.control.info)}.</p>}
           {a.status === 'retired' && <p><b>Retired {a.retiredAt ? new Date(a.retiredAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}:</b> {a.reason}</p>}
           <p className="el-muted">Added by {a.createdBy === 'researcher' ? 'the weekly researcher' : 'Claude, when experiments began'}. Scored only on games after it started.</p>
         </div></td></tr>
@@ -334,6 +339,7 @@ function ExperimentRow({ a, equity }) {
 
 const skillPct = (x) => (x == null ? '—' : `${x > 0 ? '+' : x < 0 ? '−' : ''}${Math.abs(x * 100).toFixed(1)}%`)
 const infoText = (i) => (i ? `${Math.round(i.weight * 100)}% (t ${tStat(i.t)})` : '—')
+const makerText = (m) => `${m.fills.toLocaleString('en-US')} of ${m.orders.toLocaleString('en-US')} filled (${pct(m.fillRate)}); CLV on fills ${cents(m.clvMean)} (t ${tStat(m.clvT)}); per order placed ${cents(m.perOrderClv)} (t ${tStat(m.perOrderT)}); ROI on fills ${m.roi == null ? '—' : pct(m.roi, 1)}.`
 
 function Experiments({ exp, pf }) {
   const [graveyard, setGraveyard] = useState(false)
@@ -388,6 +394,9 @@ function Scoreboard({ arms, scope, setScope, commonGames, settledGames }) {
     ['Market move', (a) => <b>{cents(a.moveMean)}</b>, 'How far Kalshi\'s mid moved toward the bet between the moment it was made and tip-off. The part of CLV that is about the forecast, with the spread taken out.'],
     ['Move t', (a) => tStat(a.moveT), 'The market move divided by its standard error. Beyond +2 means the market keeps moving the arm\'s way: an edge.'],
     ['Spread paid', (a) => (a.spreadPaid == null ? '—' : cents(-a.spreadPaid)), 'Half the bid-ask spread: what buying at the ask costs against the mid. A taker always pays it; CLV = market move − spread paid.'],
+    ['Resting: filled', (a) => (a.maker ? `${pct(a.maker.fillRate)} of ${a.maker.orders.toLocaleString('en-US')}` : '—'), 'The same bets as resting orders at the bid instead, from the moment each bet was made until tip (paper). Filled only if a trade printed past the order\'s price, so the whole queue at that price had been taken.'],
+    ['Resting: CLV on fills', (a) => (a.maker?.clvMean == null ? '—' : <>{cents(a.maker.clvMean)} <span className="el-muted">({tStat(a.maker.clvT)})</span></>), 'CLV of the resting orders that filled. No spread is paid, but an order mostly fills when the price moves against it.'],
+    ['Resting: per order', (a) => (a.maker?.perOrderClv == null ? '—' : <>{cents(a.maker.perOrderClv)} <span className="el-muted">({tStat(a.maker.perOrderT)})</span></>), 'CLV per order placed, counting unfilled orders as zero: what the resting strategy earns per try. Compare it with Avg CLV above.'],
     ['Beat the close', (a) => pct(a.beatRate)],
     ['Bets', (a) => `${a.bets}${a.voids ? ` (${a.voids} void)` : ''}`],
     ['With a close', (a) => a.clvBets, 'Bets with a two-sided quote at tip-off, the ones CLV is measured on.'],
@@ -432,7 +441,7 @@ function BetRow({ b, st }) {
   const live = !r && st?.open
   return (
     <tr className={`el-${outcome}`}>
-      <td className="el-left">{isBase(b.arm) ? <i className={`el-sw el-${b.arm}`} title={ARM_SHORT[b.arm]} /> : <span className="el-tag">{b.arm === 'claude_rc' ? 'C1' : b.arm.toUpperCase()}</span>}{b.player}</td>
+      <td className="el-left">{isBase(b.arm) ? <i className={`el-sw el-${b.arm}`} title={ARM_SHORT[b.arm]} /> : <span className="el-tag">{EXP_TAG[b.arm] || b.arm.toUpperCase()}</span>}{b.player}</td>
       <td>{b.side === 'yes' ? '' : 'NO '}{STAT[b.stat]} {b.k}+</td>
       <td>{price(b.price)}</td>
       <td>{pct(b.side === 'yes' ? b.p : 1 - b.p)}</td>
@@ -505,7 +514,7 @@ function GameCard({ g, armFilter, stakes }) {
       </header>
       {errors.map(([arm, a]) => <p key={arm} className="el-warn">{ARM_SHORT[arm]} failed: {a.error}</p>)}
       {summary.length ? (
-        <div className="el-sum">{summary.map(([arm, text]) => <span key={arm}>{isBase(arm) ? <i className={`el-sw el-${arm}`} /> : <span className="el-tag">{arm === 'claude_rc' ? 'C1' : arm.toUpperCase()}</span>}{ARM_SHORT[arm] || ''}{ARM_SHORT[arm] ? ': ' : ''}{text}</span>)}</div>
+        <div className="el-sum">{summary.map(([arm, text]) => <span key={arm}>{isBase(arm) ? <i className={`el-sw el-${arm}`} /> : <span className="el-tag">{EXP_TAG[arm] || arm.toUpperCase()}</span>}{ARM_SHORT[arm] || ''}{ARM_SHORT[arm] ? ': ' : ''}{text}</span>)}</div>
       ) : <p className="el-muted el-small">No bets cleared the threshold{armFilter !== 'all' ? ' for this arm' : ''}.</p>}
       <div className="el-toggles">
         {bets.length > 0 && <button className="el-link" onClick={() => setOpen((v) => !v)}>{open ? 'Hide bets' : `Show ${bets.length} bets`}</button>}
@@ -519,7 +528,7 @@ function GameCard({ g, armFilter, stakes }) {
           </table>
         </div>
       )}
-      {notes && ['claude_wce', 'claude_box', 'claude_rc'].filter((a) => g.notes[a]).map((a) => (
+      {notes && ['claude_wce', 'claude_box', 'claude_rc', 'claude_opus_wce', 'claude_opus_box'].filter((a) => g.notes[a]).map((a) => (
         <p key={a} className="el-note"><b>{ARM_SHORT[a]}:</b> {g.notes[a]}</p>
       ))}
     </section>

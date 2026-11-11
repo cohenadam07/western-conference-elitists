@@ -107,16 +107,36 @@ The three arms above stay the head-to-head scoreboard. Everything tried since is
 **experiment**, scored only on games after it started, each with its own $1,000 portfolio.
 
 - **Rule arms** are betting rules over forecasts the lab already makes, so they cost nothing:
-  a source (`model`, `claude_wce`, `claude_box`, `claude_rc`, or `claude_avg`, the two original
-  Claude arms averaged), optionally a **blend** with the market (bet on mid + w × (source − mid),
+  a source (`model`, `claude_wce`, `claude_box`, `claude_rc`, `claude_avg` (the two original
+  Claude arms averaged), or the Opus run's `claude_opus_wce`, `claude_opus_box`, `opus_avg`), optionally a **blend** with the market (bet on mid + w × (source − mid),
   with w the source's information weight fitted only on games settled before that night, 0 to 1,
   and no bets until 1,000 forecasts are scored), a side, a list of stats, an edge floor and
-  ceiling, and a price range. They bet at the same moment and quotes as the arms they read from.
+  ceiling, a price range and a lead-time window. They bet at the same moment and quotes as the arms they read from.
 - **The report-card arm (`claude_rc`)** is a fourth Claude forecaster: Claude + WCE, shown its
   own track record before each game (calibration, its lean against the market, its record by
   stat; Claude + WCE's record until it has 1,000 scored forecasts of its own). Its control is
   Claude + WCE on the same games. It adds one answer per game to the scheduled task;
   `EDGE_RC=off` switches it off. A game waits only for the Claude arms it was prepared for.
+- **The Opus run (`claude_opus_wce`, `claude_opus_box`, Nov 2026).** After about 1,750 bets
+  each, neither Sonnet arm knew anything Kalshi's price didn't. The Opus pair is a fresh run on
+  Claude Opus with exactly the Sonnet prompts (`PROMPT_OF`), scored from its first game and never
+  pooled with the Sonnet history. Their control is the WCE model on the same games; Sonnet's full
+  record is the bar to beat. `EDGE_CLAUDE_ARMS` (a comma list) picks the Claude arms that get
+  prompts; `claude_opus_wce,claude_opus_box` with the scheduled task switched to Opus replaces
+  Sonnet. Rule arms can read them (`claude_opus_wce`, `claude_opus_box`, or `opus_avg`).
+- **Resting orders (the maker test, Nov 2026).** Every bet has a paper twin: the same side of
+  the same market resting at that side's bid (YES at the YES bid, NO at 1 − YES ask) from the
+  moment of the bet until tip, paying Kalshi's maker fee (0.0175 × P × (1 − P), charged on
+  every series here, which errs against it). It fills only when a trade printed past its
+  price between the bet and tip (so the whole queue at that price was taken); a trade exactly at
+  its price is a "touch", counted separately. Fills come from the same one-minute candles the
+  closing quote does, so settling costs no extra Kalshi calls; games settled before the test are
+  backfilled by quiet picks runs and the settle job with their spare time. Every arm shows its
+  fill rate, CLV on fills, and CLV per order placed (unfilled orders count as zero). The NO
+  drift beats the spread by only a hair as a taker; this asks whether it survives adverse
+  selection as a maker. It is paper only, as is everything here.
+- **Lead time.** Rule arms can set `minLead` / `maxLead`: minutes before tip the game was
+  decided. The drift has lived 2 h+ before tip since the first week.
 - **The bar.** An arm graduates when its CLV t clears the one-sided 5% point divided across
   every arm ever tried (Bonferroni), over at least 300 bets with a close: 2.13 with 3 arms
   tried, 2.54 with 9, 2.81 with 20. Each new arm raises it for all of them, so "we found an
@@ -229,6 +249,7 @@ Optional:
 | `EDGE_MIN_EDGE` | The bet threshold, default `0.03`. |
 | `EDGE_TASK_TOKEN_SHA256` | Replaces the scheduled task's token (see above). |
 | `EDGE_CLAUDE` | `off` switches the Claude arms off; `task` (the default) or `api`. |
+| `EDGE_CLAUDE_ARMS` | Which Claude arms get prompts, a comma list (default `claude_wce,claude_box,claude_rc`). `claude_opus_wce,claude_opus_box` is the Opus run. |
 | `ANTHROPIC_API_KEY`, `EDGE_CLAUDE_MODEL` | The other way to run the Claude arms: with a key set, the picks job calls the API itself and the scheduled task has nothing to do. About 5¢ a game for both arms on Sonnet 5.5 (`claude-sonnet-5-5`, the default model). |
 
 ## Running it by hand

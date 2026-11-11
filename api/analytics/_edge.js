@@ -71,7 +71,7 @@ const KEY = {
 // The Claude arms a game is prepared for. The report-card arm can be switched off with
 // EDGE_RC=off without touching the others. A game is waiting on exactly the arms its packet
 // has a prompt for, so games prepared before an arm existed are never stuck waiting on it.
-const claudeArms = () => M.CLAUDE_FORECASTERS.filter((a) => a !== 'claude_rc' || String(process.env.EDGE_RC || '').toLowerCase() !== 'off')
+const claudeArms = () => M.liveClaudeArms(process.env)
 const packetArms = (packet) => Object.keys(packet?.prompts || {}).filter((a) => M.CLAUDE_FORECASTERS.includes(a))
 
 // The scheduled task proves itself with a token (header x-edge-token) that can only queue and
@@ -446,7 +446,7 @@ function prepareGame(game, inp) {
       }
     })
     const input = { game, players: cards, ix, teams: [teamLine(ctx, game.away), teamLine(ctx, game.home)], health, rosters, schedule, reportCard: inp.reportCard }
-    packet.prompts = Object.fromEntries(claudeArms().map((a) => [a, buildPrompt(a, input)]))
+    packet.prompts = Object.fromEntries(claudeArms().map((a) => [a, buildPrompt(M.PROMPT_OF[a] || a, input)]))
   }
   return packet
 }
@@ -506,8 +506,9 @@ async function finalizeGame(packet, answers, quotes) {
   }
   // The rule arms live at this moment, each betting on the forecasts above at the same quotes.
   const ruleArms = await liveRules(packet.game.date).catch(() => [])
+  const leadNow = Math.round((packet.game.tip - Date.now()) / MIN)
   for (const r of ruleArms) {
-    const picked = M.pickRuleBets(r, live, probs, r.weight, rules)
+    const picked = M.pickRuleBets(r, live, probs, r.weight, rules, leadNow)
     arms[r.id] = { rule: true, bets: picked.length, ...(r.blend === 'fit' ? { weight: r.weight } : {}) }
     pushBets(r.id, picked)
   }
@@ -700,6 +701,9 @@ export async function runPicks(opts = {}) {
       const s = await settleGames({ budget: 100e3, started })
       result.settled = s.settled
       result.warnings.push(...s.warnings)
+      // Then older games get their resting-order fills, with the time left.
+      const bf = await backfillMaker(started + 200e3).catch((err) => { result.warnings.push(`maker backfill: ${String(err?.message || err).slice(0, 160)}`); return null })
+      if (bf?.done.length) result.note = `no games due; resting-order fills for ${bf.done.length} older game${bf.done.length === 1 ? '' : 's'} (${bf.left} left)`
       await logRun({ job: 'edge-picks', status: 'ok', ms: Date.now() - started, note: result.note, closed: result.closed, settled: s.settled,
         error: result.warnings.join(' | ').slice(0, 600) })
       await tickIfTime(started)
@@ -783,7 +787,7 @@ export async function runQueue(opts = {}) {
 // One arm's answer for one game, posted by the scheduled task. When every arm the game was
 // prepared for is in, the game is decided straight away at Kalshi's quotes of this moment.
 export async function runAnswer({ task, body }) {
-  const m = /^(\d{2}[A-Z]{3}\d{2}[A-Z]{6})\.(claude_[a-z]+)$/.exec(String(task || ''))
+  const m = /^(\d{2}[A-Z]{3}\d{2}[A-Z]{6})\.(claude_[a-z_]+)$/.exec(String(task || ''))
   if (!m || !M.CLAUDE_FORECASTERS.includes(m[2])) return { ok: false, status: 400, error: 'task must look like 26OCT21MINMIA.claude_wce' }
   const [, key, arm] = m
   let input = body
@@ -831,6 +835,53 @@ export async function runAnswer({ task, body }) {
  * The settle job
  * ------------------------------------------------------------------ */
 
+// Closing quotes for every market that carries a bet, and each bet's resting-order fill (written
+// onto the bet as b.maker). No candle in the day before tip means the quote never moved, so the
+// one bet at was still standing. Running out of time abandons the game whole (OutOfTime
+// propagates); the next run picks it up.
+const MAKER_V = 1
+async function closesAndFills(bets, tip, deadline) {
+  const closes = new Map()
+  for (const t of [...new Set(bets.map((b) => b.ticker))]) {
+    const b = bets.find((x) => x.ticker === t)
+    let cs = null
+    try {
+      cs = await K.candlesBefore(b.series, t, tip, { deadline })
+    } catch (err) {
+      if (err instanceof K.OutOfTime) throw err
+    }
+    const q = cs ? K.closeFromCandles(cs) : null
+    closes.set(t, q || (Date.parse(b.at) > tip - 24 * 60 * MIN ? { bid: b.bid, ask: b.ask, at: b.at, from: 'decision' } : null))
+    if (cs) for (const x of bets) if (x.ticker === t) x.maker = M.makerFill(x, cs, tip)
+  }
+  return closes
+}
+
+// Settled games from before the resting-order test, given their fills from Kalshi's candles and
+// their aggregates recomputed. Run with whatever time a quiet job has left over; oldest first.
+async function backfillMaker(deadline) {
+  const games = Object.values(toHash(await redis(['HGETALL', KEY.games]))).map((v) => parseJSONSafe(v, null))
+    .filter((g) => g?.status === 'settled' && g.makerV !== MAKER_V).sort((a, b) => Date.parse(a.tip) - Date.parse(b.tip))
+  const done = []
+  for (const g of games) {
+    if (deadline - Date.now() < 30e3) break
+    const [fcRaw, betsRaw] = await redisPipeline([['GET', KEY.fc(g.key)], ['GET', KEY.bets(g.key)]])
+    const fc = parseJSONSafe(fcRaw.result, null), bb = parseJSONSafe(betsRaw.result, null)
+    if (!fc || !bb) continue
+    try {
+      await closesAndFills(bb.bets || [], Date.parse(g.tip), deadline)
+    } catch (err) {
+      if (err instanceof K.OutOfTime) break
+      throw err
+    }
+    // Closes stay the ones each bet was settled on; only the fills are new.
+    const next = { ...g, agg: aggregate(fc, bb), aggV: M.AGG_VERSION, makerV: MAKER_V }
+    await redisPipeline([['SET', KEY.bets(g.key), JSON.stringify(bb)], ['HSET', KEY.games, g.key, JSON.stringify(next)]])
+    done.push(g.key)
+  }
+  return { done, left: games.length - done.length }
+}
+
 async function settleOne(rec, now, deadline) {
   const tip = Date.parse(rec.tip)
   const [fcRaw, betsRaw] = await redisPipeline([['GET', KEY.fc(rec.key)], ['GET', KEY.bets(rec.key)]])
@@ -842,20 +893,8 @@ async function settleOne(rec, now, deadline) {
   const unresolved = fc.rows.filter((r) => value(r[0]) == null).length + bb.bets.filter((b) => value(b.ticker) == null).length
   if (unresolved && now - tip < SETTLE_GIVE_UP) return { waiting: unresolved }
 
-  // Closing quotes for the markets that carry a bet. No candle in the day before tip means the
-  // quote never moved, so the one bet at was still standing. Running out of time abandons the
-  // game whole (OutOfTime propagates); the next run settles it.
-  const closes = new Map()
-  for (const t of [...new Set(bb.bets.map((b) => b.ticker))]) {
-    const b = bb.bets.find((x) => x.ticker === t)
-    let q = null
-    try {
-      q = await K.quoteAt(b.series, t, tip, { deadline })
-    } catch (err) {
-      if (err instanceof K.OutOfTime) throw err
-    }
-    closes.set(t, q || (Date.parse(b.at) > tip - 24 * 60 * MIN ? { bid: b.bid, ask: b.ask, at: b.at, from: 'decision' } : null))
-  }
+  // Closing quotes for the markets that carry a bet, and each bet's resting-order fill.
+  const closes = await closesAndFills(bb.bets, tip, deadline)
 
   for (const b of bb.bets) {
     const s = M.settleBet(b, value(b.ticker), closes.get(b.ticker))
@@ -864,7 +903,7 @@ async function settleOne(rec, now, deadline) {
   fc.results = Object.fromEntries(fc.rows.map((r) => [r[0], value(r[0])]))
   const agg = aggregate(fc, bb)
 
-  const next = { ...rec, status: 'settled', settledAt: new Date().toISOString(), agg, aggV: M.AGG_VERSION, unresolved }
+  const next = { ...rec, status: 'settled', settledAt: new Date().toISOString(), agg, aggV: M.AGG_VERSION, makerV: MAKER_V, unresolved }
   await redisPipeline([
     ['SET', KEY.bets(rec.key), JSON.stringify(bb)],
     ['SET', KEY.fc(rec.key), JSON.stringify(fc)],
@@ -887,6 +926,16 @@ function aggregate(fc, bb) {
     b.result = { ...r, ...s }
     if (!agg[b.arm]) agg[b.arm] = { bets: M.emptyBetAgg() } // a rule arm: bets only
     M.addBet(agg[b.arm].bets, s)
+    // Its resting-order twin, for bets whose fill is known (every bet settled since the test began).
+    if (b.maker !== undefined && b.result.outcome !== 'void') {
+      const a = agg[b.arm]
+      a.maker = a.maker || { orders: 0, touched: 0, bets: M.emptyBetAgg() }
+      if (b.maker) {
+        a.maker.orders += 1
+        if (b.maker.touched) a.maker.touched += 1
+        M.addBet(a.maker.bets, M.settleMaker(b, r.value, r.close))
+      }
+    }
   }
   const armCol = Object.fromEntries(M.FORECASTERS.map((a) => [a, (fc.cols || []).indexOf(a)]))
   const market = M.emptyMktAgg()
@@ -957,6 +1006,8 @@ export async function runSettle(opts = {}) {
     const c = await closeDue({ deadline: started + 60e3 })
     const s = await settleGames({ budget: SETTLE_BUDGET, started, keys: opts.keys })
     s.warnings.unshift(...c.warnings)
+    const bf = await backfillMaker(started + 250e3).catch((err) => { s.warnings.push(`maker backfill: ${String(err?.message || err).slice(0, 160)}`); return null })
+    if (bf) s.makerBackfill = { games: bf.done.length, left: bf.left }
     const status = s.warnings.length ? 'partial' : 'ok'
     await logRun({ job: 'edge-settle', status, ms: Date.now() - started, closed: c.closed, settled: s.settled, waiting: s.waiting, error: s.warnings.join(' | ').slice(0, 600) })
     // The night's last point: everything it bet, now settled.
@@ -1106,7 +1157,7 @@ const SEED_RULES = [
     hypothesis: 'On night one nearly every arm bet NO, which points to Kalshi pricing the YES side of "N+" props rich (a retail lean toward overs). Taking only the NO side of Claude box-only\'s edges isolates that.',
     success: 'CLV t past the bar over 300+ bets. The page\'s market-lean line tests the same idea without any forecaster.' },
 ]
-const RULE_FIELDS = ['source', 'blend', 'side', 'stats', 'minEdge', 'maxEdge', 'minPrice', 'maxPrice']
+const RULE_FIELDS = ['source', 'blend', 'side', 'stats', 'minEdge', 'maxEdge', 'minPrice', 'maxPrice', 'minLead', 'maxLead']
 const MAX_LIVE_RULES = 12
 const MAX_ADDS_PER_WEEK = 2
 const RETIRE_MIN_DAYS = 21
@@ -1148,32 +1199,37 @@ async function liveRules(date) {
 async function readExperiments(games) {
   const reg = await loadRegistry()
   const settled = games.filter((g) => g.status === 'settled')
-  const rcStarted = games.filter((g) => (g.arms?.claude_rc?.fc || 0) > 0).map((g) => g.date).sort()[0] || null
   const armsTried = M.ARMS.length + Object.keys(M.FORECASTER_EXPERIMENTS).length + reg.length
   const bar = M.graduationBar(armsTried)
+  // Each arm's resting-order twin (see makerFill), over the bets whose fill is known.
+  const makerOf = (id) => { const m = M.emptyMakerAgg(); for (const g of settled) M.mergeMakerAgg(m, g.agg?.[id]?.maker); return M.summarizeMaker(m) }
 
   const market = M.emptyMktAgg()
   for (const g of settled) for (const k of Object.keys(market)) market[k] += g.agg?._market?.[k] || 0
 
   const list = []
-  // The report-card arm, against its control (Claude + WCE) on the same games.
+  // The Claude experiments (the report card, the Opus run), each against its control on the
+  // same games, from the first game it priced.
   for (const [id, meta] of Object.entries(M.FORECASTER_EXPERIMENTS)) {
+    const started = games.filter((g) => (g.arms?.[id]?.fc || 0) > 0).map((g) => g.date).sort()[0] || null
+    const ctlArm = meta.control || 'claude_wce'
     const bets = M.emptyBetAgg(), fc = M.emptyFcAgg(), ctl = M.emptyFcAgg(), ctlBets = M.emptyBetAgg()
     for (const g of settled) {
       if (!((g.arms?.[id]?.fc || 0) > 0)) continue
       M.mergeBetAgg(bets, g.agg?.[id]?.bets); M.mergeFcAgg(fc, g.agg?.[id]?.fc)
-      M.mergeFcAgg(ctl, g.agg?.claude_wce?.fc); M.mergeBetAgg(ctlBets, g.agg?.claude_wce?.bets)
+      M.mergeFcAgg(ctl, g.agg?.[ctlArm]?.fc); M.mergeBetAgg(ctlBets, g.agg?.[ctlArm]?.bets)
     }
     const d = M.describeBets(bets)
-    list.push({ id, kind: 'forecaster', ...meta, status: claudeArms().includes(id) ? 'live' : 'off', createdAt: rcStarted, ...d, ...M.describeForecasts(fc),
-      control: { arm: 'claude_wce', ...M.describeBets(ctlBets), ...M.describeForecasts(ctl) }, standing: rcStarted ? M.armStanding(d, bar) : 'not started' })
+    const { control: _c, ...shown } = meta
+    list.push({ id, kind: 'forecaster', ...shown, status: claudeArms().includes(id) ? 'live' : 'off', createdAt: started, ...d, ...M.describeForecasts(fc),
+      maker: makerOf(id), control: { arm: ctlArm, ...M.describeBets(ctlBets), ...M.describeForecasts(ctl) }, standing: started ? M.armStanding(d, bar) : 'not started' })
   }
   for (const r of reg) {
     const bets = M.emptyBetAgg()
     for (const g of settled) M.mergeBetAgg(bets, g.agg?.[r.id]?.bets)
     const d = M.describeBets(bets)
     const lastWeight = games.filter((g) => g.arms?.[r.id]?.weight != null).sort((a, b) => Date.parse(b.tip) - Date.parse(a.tip))[0]?.arms?.[r.id]?.weight ?? null
-    list.push({ ...r, kind: 'rule', ...d, weight: lastWeight, standing: M.armStanding(d, bar, r.status === 'retired') })
+    list.push({ ...r, kind: 'rule', ...d, weight: lastWeight, maker: makerOf(r.id), standing: M.armStanding(d, bar, r.status === 'retired') })
   }
   return { armsTried, bar, minBets: M.GRADUATE_MIN_BETS, market: M.describeMarket(market), list }
 }
@@ -1218,7 +1274,7 @@ async function readNights(games, nights, stakes) {
           actual: b.result?.actual ?? null, outcome: b.result?.outcome || 'open', dollars: st ? r2(st.pnl) : null, clv: b.result?.clv ?? null }
       }
       const extremes = {}
-      for (const arm of M.ARMS) {
+      for (const arm of [...M.ARMS, 'claude_opus_wce', 'claude_opus_box']) {
         const xs = (bb.bets || []).filter((b) => b.arm === arm && stakes[`${g.key}|${arm}|${b.ticker}`])
           .sort((x, y) => stakes[`${g.key}|${arm}|${y.ticker}`].pnl - stakes[`${g.key}|${arm}|${x.ticker}`].pnl)
         if (xs.length) extremes[arm] = { best: xs.slice(0, 2).map(line), worst: xs.slice(-2).reverse().map(line) }
@@ -1281,7 +1337,7 @@ export async function runReview({ nights = 0 } = {}) {
     experiments: exp,
     breakdownSince: since, breakdown,
     rules: {
-      fields: { source: M.RULE_SOURCES, blend: [null, 'fit'], side: [null, 'yes', 'no'], stats: [null, ...M.STATS], minEdge: '0.01-0.5 (default 0.03)', maxEdge: 'optional', minPrice: '0.02-0.98 (default 0.05)', maxPrice: '0.02-0.98 (default 0.95)' },
+      fields: { source: M.RULE_SOURCES, blend: [null, 'fit'], side: [null, 'yes', 'no'], stats: [null, ...M.STATS], minEdge: '0.01-0.5 (default 0.03)', maxEdge: 'optional', minPrice: '0.02-0.98 (default 0.05)', maxPrice: '0.02-0.98 (default 0.95)', minLead: 'minutes before tip, 0-720 (default any)', maxLead: 'minutes before tip, 0-720 (default any)' },
       limits: { maxLive: MAX_LIVE_RULES, maxAddsPerWeek: MAX_ADDS_PER_WEEK, retireAfterDays: RETIRE_MIN_DAYS, retireAfterBets: RETIRE_MIN_BETS },
     },
   }
@@ -1346,7 +1402,7 @@ export async function readEdge({ from = null, recentDays = 10 } = {}) {
   // Head to head: only games every arm priced, so no arm is scored on an easier set of nights
   // (the Claude arms miss a game when the scheduled task didn't answer it before tip).
   const allPriced = (g) => M.ARMS.every((a) => (g.arms?.[a]?.fc || 0) > 0)
-  const empty = () => Object.fromEntries(M.ARMS.map((a) => [a, { bets: M.emptyBetAgg(), fc: M.emptyFcAgg() }]))
+  const empty = () => Object.fromEntries(M.ARMS.map((a) => [a, { bets: M.emptyBetAgg(), fc: M.emptyFcAgg(), maker: M.emptyMakerAgg() }]))
   const totals = empty(), common = empty()
   let commonGames = 0
   const byDate = new Map()
@@ -1357,12 +1413,13 @@ export async function readEdge({ from = null, recentDays = 10 } = {}) {
     for (const a of M.ARMS) {
       M.mergeBetAgg(totals[a].bets, g.agg?.[a]?.bets)
       M.mergeFcAgg(totals[a].fc, g.agg?.[a]?.fc)
-      if (both) { M.mergeBetAgg(common[a].bets, g.agg?.[a]?.bets); M.mergeFcAgg(common[a].fc, g.agg?.[a]?.fc) }
+      M.mergeMakerAgg(totals[a].maker, g.agg?.[a]?.maker)
+      if (both) { M.mergeBetAgg(common[a].bets, g.agg?.[a]?.bets); M.mergeFcAgg(common[a].fc, g.agg?.[a]?.fc); M.mergeMakerAgg(common[a].maker, g.agg?.[a]?.maker) }
       if (!byDate.has(g.date)) byDate.set(g.date, Object.fromEntries(M.ARMS.map((x) => [x, M.emptyBetAgg()])))
       M.mergeBetAgg(byDate.get(g.date)[a], g.agg?.[a]?.bets)
     }
   }
-  const describe = (t) => M.ARMS.map((a) => ({ arm: a, label: M.ARM_LABEL[a], ...M.describeBets(t[a].bets), ...M.describeForecasts(t[a].fc) }))
+  const describe = (t) => M.ARMS.map((a) => ({ arm: a, label: M.ARM_LABEL[a], ...M.describeBets(t[a].bets), ...M.describeForecasts(t[a].fc), maker: M.summarizeMaker(t[a].maker) }))
   const arms = describe(totals)
   const armsCommon = describe(common)
 

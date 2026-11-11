@@ -16,13 +16,27 @@
 export const ARMS = ['model', 'claude_wce', 'claude_box']
 // Every forecaster: the three above plus Claude arms added as experiments. Each prices every
 // market, so each has forecasts to score.
-export const CLAUDE_FORECASTERS = ['claude_wce', 'claude_box', 'claude_rc']
+// The Opus pair (Nov 2026) is a fresh run of the two original Claude arms on Claude Opus: the
+// same prompts, scored only from the day they start and never pooled with the Sonnet history.
+export const CLAUDE_FORECASTERS = ['claude_wce', 'claude_box', 'claude_rc', 'claude_opus_wce', 'claude_opus_box']
 export const FORECASTERS = ['model', ...CLAUDE_FORECASTERS]
 export const ARM_LABEL = {
   model: 'WCE model (no Claude)',
   claude_wce: 'Claude + WCE analytics',
   claude_box: 'Claude, box scores only',
   claude_rc: 'Claude + WCE + its own report card',
+  claude_opus_wce: 'Opus + WCE analytics',
+  claude_opus_box: 'Opus, box scores only',
+}
+// The prompt each Claude arm is asked with. The Opus arms read exactly what the Sonnet arms read.
+export const PROMPT_OF = { claude_wce: 'claude_wce', claude_box: 'claude_box', claude_rc: 'claude_rc', claude_opus_wce: 'claude_wce', claude_opus_box: 'claude_box' }
+// The Claude arms that get prompts unless EDGE_CLAUDE_ARMS says otherwise.
+export const DEFAULT_CLAUDE_ARMS = ['claude_wce', 'claude_box', 'claude_rc']
+// Which Claude arms are live, from EDGE_CLAUDE_ARMS (a comma list) and the older EDGE_RC=off.
+export function liveClaudeArms(env = {}) {
+  const listed = String(env.EDGE_CLAUDE_ARMS || '').split(',').map((x) => x.trim()).filter((x) => CLAUDE_FORECASTERS.includes(x))
+  const arms = listed.length ? listed : DEFAULT_CLAUDE_ARMS
+  return arms.filter((a) => a !== 'claude_rc' || String(env.EDGE_RC || '').toLowerCase() !== 'off')
 }
 // The experiments that are forecasters rather than rules, with the day each started.
 export const FORECASTER_EXPERIMENTS = {
@@ -30,6 +44,19 @@ export const FORECASTER_EXPERIMENTS = {
     name: 'Claude + WCE + report card',
     hypothesis: 'Claude + WCE, shown its own track record (calibration, its lean against the market, its record by stat) before each game, corrects its own mistakes and forecasts better than Claude + WCE without it. Its control is Claude + WCE on the same games.',
     success: 'CLV t past the bar over 300+ bets; and a better Brier score than Claude + WCE on the same games.',
+    control: 'claude_wce',
+  },
+  claude_opus_wce: {
+    name: 'Opus + WCE analytics (fresh run)',
+    hypothesis: 'Sonnet + WCE showed no information beyond Kalshi\'s price over 1,750 bets. A stronger model reading the same game facts and WCE analytics may find what Sonnet missed. Its control is the WCE model on the same games, and Sonnet + WCE\'s full record is the bar to beat.',
+    success: 'CLV t past the bar over 300+ bets, or a "knows more than market" weight past t 3; secondary, CLV and Brier better than Sonnet + WCE\'s record.',
+    control: 'model',
+  },
+  claude_opus_box: {
+    name: 'Opus, box scores only (fresh run)',
+    hypothesis: 'The same fresh run without WCE analytics. Against Opus + WCE it answers whether the analytics help a stronger reader.',
+    success: 'CLV t past the bar over 300+ bets; secondary, Opus + WCE beating it on Brier on the same games.',
+    control: 'model',
   },
 }
 
@@ -41,6 +68,10 @@ export const STATS = ['pts', 'reb', 'ast', 'fg3m', 'pra']
 // a 100-contract order pays to within a hundredth of a cent.
 export const FEE_RATE = 0.07
 export const takerFee = (p) => FEE_RATE * p * (1 - p)
+// Kalshi charges resting (maker) orders a quarter of the taker rate on the series that carry a
+// maker fee. Paper resting orders pay it everywhere, which errs against them.
+export const MAKER_FEE_RATE = 0.0175
+export const makerFee = (p) => MAKER_FEE_RATE * p * (1 - p)
 
 /* ------------------------------------------------------------------ *
  * The WCE model arm
@@ -229,6 +260,78 @@ export function settleBet(bet, value, close) {
 }
 
 /* ------------------------------------------------------------------ *
+ * Resting orders (the maker test)
+ * ------------------------------------------------------------------ *
+ * Every bet also has a paper twin: the same side of the same market, resting at that side's bid
+ * (YES at the YES bid, NO at the NO bid = 1 - YES ask) from the moment the bet was made until
+ * tip. It costs no spread, but it only fills when someone sells into it, and that tends to
+ * happen when the price is moving against it (adverse selection). The fill rule is the strict
+ * one: a trade printed past the order's price between the bet and tip, which can only happen
+ * once every order at that price, ours included, has been taken. A trade exactly at the price
+ * is a "touch" (it may or may not have reached us in the queue) and is counted separately. */
+
+// The resting price for a bet, or null when there is no bid to rest at.
+export function makerPrice(bet) {
+  if (!(bet.bid > 0) || !(bet.ask < 1) || !(bet.ask > bet.bid)) return null
+  const p = bet.side === 'yes' ? bet.bid : 1 - bet.ask
+  return p >= 0.01 && p < bet.price ? Math.round(p * 100) / 100 : null
+}
+
+// Whether the resting order filled, from one-minute candles ({ end, lo, hi, vol } in YES
+// dollars, trades only) between the bet and tip. A YES bid at b fills on a trade below b; a NO
+// bid at q (YES at 1 - q) fills on a trade above 1 - q.
+export function makerFill(bet, candles, tipMs) {
+  const price = makerPrice(bet)
+  if (price == null) return null
+  const from = Date.parse(bet.at), out = { price, fee: makerFee(price), filled: false, touched: false, at: null }
+  const yesLevel = bet.side === 'yes' ? price : 1 - price
+  for (const c of candles || []) {
+    // A candle covers the minute that ends at c.end: only minutes wholly after the bet count.
+    if (!(c.vol > 0) || c.end - 60e3 < from || c.end > tipMs) continue
+    const through = bet.side === 'yes' ? c.lo < yesLevel - 1e-9 : c.hi > yesLevel + 1e-9
+    const touch = bet.side === 'yes' ? c.lo <= yesLevel + 1e-9 : c.hi >= yesLevel - 1e-9
+    if (touch) out.touched = true
+    if (through) { out.filled = true; out.at = new Date(c.end).toISOString(); break }
+  }
+  return out
+}
+
+// A filled resting order settled like a bet at its own price and fee. Null when it never filled.
+export function settleMaker(bet, value, close) {
+  const mk = bet.maker
+  if (!mk?.filled) return null
+  // cost comes out negative: a resting order is paid half the spread instead of paying it
+  return settleBet({ ...bet, price: mk.price, fee: mk.fee }, value, close)
+}
+
+export const emptyMakerAgg = () => ({ orders: 0, touched: 0, bets: emptyBetAgg() })
+export function mergeMakerAgg(into, a) {
+  if (!a) return into
+  into.orders += a.orders || 0
+  into.touched += a.touched || 0
+  mergeBetAgg(into.bets, a.bets)
+  return into
+}
+export const summarizeMaker = (m) => (m.orders ? describeMaker(m.orders, m.touched, m.bets) : null)
+
+// The resting-order summary for an arm: how many orders, how many filled, and the filled
+// orders' record. perOrderClv counts an unfilled order as zero, which is what the strategy
+// earns per order it places; its t is from the filled orders' spread over all orders.
+export function describeMaker(orders, touched, a) {
+  const d = describeBets(a)
+  const fills = a.n
+  let perOrderClv = null, perOrderT = null
+  if (orders > 1 && a.clvN) {
+    const m = a.clvSum / orders
+    const varr = Math.max(0, (a.clvSq - orders * m * m) / (orders - 1))
+    perOrderClv = m
+    perOrderT = varr > 0 ? m / Math.sqrt(varr / orders) : null
+  }
+  return { orders, fills, fillRate: orders ? fills / orders : null, touchRate: orders ? touched / orders : null,
+    clvMean: d.clvMean, clvT: d.clvT, moveMean: d.moveMean, moveT: d.moveT, wins: d.wins, losses: d.losses, pnl: d.pnl, roi: d.roi, perOrderClv, perOrderT }
+}
+
+/* ------------------------------------------------------------------ *
  * Aggregates (summed per game at settlement, then across games by the page)
  * ------------------------------------------------------------------ */
 
@@ -236,7 +339,7 @@ export const emptyBetAgg = () => ({ n: 0, w: 0, l: 0, v: 0, staked: 0, pnl: 0, c
   mvN: 0, mvSum: 0, mvSq: 0, mvUp: 0, costSum: 0 })
 // Bumped whenever a settled game's aggregates gain a field; older games are recomputed from
 // their stored bets and forecasts the next time the page reads them.
-export const AGG_VERSION = 3
+export const AGG_VERSION = 4
 export const BINS = 10
 // dd, dr, rr: sums for one regression, of the result's surprise against the market
 // (r = y - market) on the arm's disagreement with the market (d = p - market). Its slope is
@@ -526,8 +629,10 @@ export function buildPortfolios(games, marks = null, cfg = PORTFOLIO, armIds = A
 //   stats     a list of stats, or null for all
 //   minEdge   the edge after the fee a bet needs (default 3 points); maxEdge an optional ceiling
 //   minPrice, maxPrice   the price of the side taken (default 5 to 95 cents)
+//   minLead, maxLead     minutes before tip the game was decided (default any)
+//   'opus_avg' is the two Opus arms averaged, as 'claude_avg' is for the two Sonnet arms.
 // One bet per player per game, the market and side with the largest edge, as for every arm.
-export const RULE_SOURCES = ['model', 'claude_wce', 'claude_box', 'claude_rc', 'claude_avg']
+export const RULE_SOURCES = ['model', 'claude_wce', 'claude_box', 'claude_rc', 'claude_avg', 'claude_opus_wce', 'claude_opus_box', 'opus_avg']
 export const BLEND_MIN_FORECASTS = 1000
 
 export function validateRule(r) {
@@ -539,7 +644,9 @@ export function validateRule(r) {
   if (r.stats != null && (!Array.isArray(r.stats) || !r.stats.length || r.stats.some((x) => !STATS.includes(x)))) errs.push(`stats must be null or a list from ${STATS.join(', ')}`)
   for (const k of ['minEdge', 'maxEdge']) if (r[k] != null && !(Number(r[k]) >= 0.01 && Number(r[k]) <= 0.5)) errs.push(`${k} must be between 0.01 and 0.5`)
   for (const k of ['minPrice', 'maxPrice']) if (r[k] != null && !(Number(r[k]) >= 0.02 && Number(r[k]) <= 0.98)) errs.push(`${k} must be between 0.02 and 0.98`)
-  if (r.blend === 'fit' && r.source === 'claude_avg') errs.push('a blend needs a single forecaster as its source')
+  for (const k of ['minLead', 'maxLead']) if (r[k] != null && !(Number(r[k]) >= 0 && Number(r[k]) <= 720)) errs.push(`${k} must be between 0 and 720 minutes`)
+  if (r.minLead != null && r.maxLead != null && Number(r.maxLead) <= Number(r.minLead)) errs.push('maxLead must be above minLead')
+  if (r.blend === 'fit' && (r.source === 'claude_avg' || r.source === 'opus_avg')) errs.push('a blend needs a single forecaster as its source')
   if (r.minEdge != null && r.maxEdge != null && Number(r.maxEdge) <= Number(r.minEdge)) errs.push('maxEdge must be above minEdge')
   if (r.minPrice != null && r.maxPrice != null && Number(r.maxPrice) <= Number(r.minPrice)) errs.push('maxPrice must be above minPrice')
   for (const k of ['name', 'hypothesis', 'success']) if (typeof r[k] !== 'string' || r[k].trim().length < (k === 'name' ? 3 : 20)) errs.push(`${k} must be written out`)
@@ -548,8 +655,9 @@ export function validateRule(r) {
 
 // The source's probability for one market (ticker), or null.
 export function sourceProb(source, probs, ticker) {
-  if (source === 'claude_avg') {
-    const a = probs.claude_wce?.get(ticker), b = probs.claude_box?.get(ticker)
+  if (source === 'claude_avg' || source === 'opus_avg') {
+    const [x, y] = source === 'claude_avg' ? ['claude_wce', 'claude_box'] : ['claude_opus_wce', 'claude_opus_box']
+    const a = probs[x]?.get(ticker), b = probs[y]?.get(ticker)
     return a != null && b != null ? (a + b) / 2 : null
   }
   return probs[source]?.get(ticker) ?? null
@@ -559,8 +667,12 @@ export function sourceProb(source, probs, ticker) {
 //   markets  the live quoted markets ({ ticker, playerKey, stat, bid, ask, noAsk, ... })
 //   probs    { forecaster: Map(ticker -> p) }
 //   weight   the blend weight for a blend arm (null when there isn't one yet)
-export function pickRuleBets(rule, markets, probs, weight = null, base = BET_RULES) {
+//   leadMin  minutes before tip the game is being decided (for minLead / maxLead)
+export function pickRuleBets(rule, markets, probs, weight = null, base = BET_RULES, leadMin = null) {
   if (rule.blend === 'fit' && !(weight > 0)) return []
+  if ((rule.minLead != null || rule.maxLead != null) && leadMin == null) return []
+  if (rule.minLead != null && leadMin < Number(rule.minLead)) return []
+  if (rule.maxLead != null && leadMin > Number(rule.maxLead)) return []
   const rules = {
     ...base,
     minEdge: rule.minEdge != null ? Number(rule.minEdge) : base.minEdge,
