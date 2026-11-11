@@ -5,7 +5,7 @@
   "compared": 566,
   "mismatches": 0,
   "ok": true,
-  "ms": 843
+  "ms": 669
  },
  {
   "check": "nba player_games 2016-17: 3PA, FTA, 2PA, TS% per player vs the Basketball Savant card",
@@ -13,7 +13,7 @@
   "compared": 485,
   "mismatches": 0,
   "ok": true,
-  "ms": 7
+  "ms": 8
  },
  {
   "check": "nba player_games 2005-06: 3PA, FTA, 2PA, TS% per player vs the Basketball Savant card",
@@ -21,7 +21,7 @@
   "compared": 455,
   "mismatches": 0,
   "ok": true,
-  "ms": 7
+  "ms": 6
  },
  {
   "check": "nba player_games 1998-99: 3PA, FTA, 2PA, TS% per player vs the Basketball Savant card",
@@ -37,7 +37,7 @@
   "compared": 566,
   "mismatches": 0,
   "ok": true,
-  "ms": 16
+  "ms": 15
  },
  {
   "check": "nba shots 2019-20: attempts and makes by zone vs the shot-zone bars",
@@ -45,7 +45,7 @@
   "compared": 527,
   "mismatches": 0,
   "ok": true,
-  "ms": 12
+  "ms": 11
  },
  {
   "check": "nba shots 2013-14: attempts and makes by zone vs the shot-zone bars",
@@ -61,7 +61,7 @@
   "compared": 415,
   "mismatches": 0,
   "ok": true,
-  "ms": 8
+  "ms": 5
  },
  {
   "check": "nba leaderboard 2024-25: the ten most three-point attempts vs the card",
@@ -69,7 +69,7 @@
   "compared": 10,
   "mismatches": 0,
   "ok": true,
-  "ms": 5
+  "ms": 4
  },
  {
   "check": "nfl plays 2025: dropbacks, EPA per dropback, EPA per carry per player vs Football Savant",
@@ -77,7 +77,7 @@
   "compared": 305,
   "mismatches": 0,
   "ok": true,
-  "ms": 21
+  "ms": 18
  },
  {
   "check": "nfl plays 2018: dropbacks, EPA per dropback, EPA per carry per player vs Football Savant",
@@ -85,7 +85,7 @@
   "compared": 316,
   "mismatches": 0,
   "ok": true,
-  "ms": 15
+  "ms": 17
  },
  {
   "check": "nfl plays 2010: dropbacks, EPA per dropback, EPA per carry per player vs Football Savant",
@@ -117,7 +117,7 @@
   "compared": 32,
   "mismatches": 0,
   "ok": true,
-  "ms": 6
+  "ms": 8
  },
  {
   "check": "nfl player_games 2025: pass attempts, targets, receptions per player vs the season card",
@@ -133,7 +133,7 @@
   "compared": 563,
   "mismatches": 0,
   "ok": true,
-  "ms": 15
+  "ms": 14
  },
  {
   "check": "nfl leaderboard 2024: the ten best EPA per dropback (200+ dropbacks) vs Football Savant",
@@ -141,7 +141,7 @@
   "compared": 10,
   "mismatches": 0,
   "ok": true,
-  "ms": 11
+  "ms": 10
  },
  {
   "check": "cfb plays 2025: dropbacks (with and without garbage time), EPA per dropback, rushes, EPA per rush vs the season file",
@@ -149,7 +149,7 @@
   "compared": 929,
   "mismatches": 0,
   "ok": true,
-  "ms": 18
+  "ms": 16
  },
  {
   "check": "cfb plays 2019: dropbacks (with and without garbage time), EPA per dropback, rushes, EPA per rush vs the season file",
@@ -157,7 +157,7 @@
   "compared": 896,
   "mismatches": 0,
   "ok": true,
-  "ms": 16
+  "ms": 15
  },
  {
   "check": "cfb plays 2015: dropbacks (with and without garbage time), EPA per dropback, rushes, EPA per rush vs the season file",
@@ -165,7 +165,7 @@
   "compared": 869,
   "mismatches": 0,
   "ok": true,
-  "ms": 14
+  "ms": 15
  },
  {
   "check": "cfb games 2025: plays, EPA per play, success rate per team-game vs the game file",
@@ -173,7 +173,7 @@
   "compared": 1614,
   "mismatches": 0,
   "ok": true,
-  "ms": 6
+  "ms": 7
  },
  {
   "check": "cfb games 2017: plays, EPA per play, success rate per team-game vs the game file",
@@ -189,7 +189,7 @@
   "compared": 2779,
   "mismatches": 0,
   "ok": true,
-  "ms": 30
+  "ms": 26
  },
  {
   "check": "ufc rounds 2024: significant strikes summed over rounds = each fight row",
@@ -197,7 +197,7 @@
   "compared": 1034,
   "mismatches": 0,
   "ok": true,
-  "ms": 17
+  "ms": 13
  },
  {
   "check": "cbb player_games 2024-25: D1 games and minutes per player vs the College Basketball Savant season file",
@@ -213,7 +213,7 @@
   "compared": 4743,
   "mismatches": 19,
   "ok": false,
-  "ms": 9,
+  "ms": 10,
   "sample": {
    "who": "David Collins",
    "min": [

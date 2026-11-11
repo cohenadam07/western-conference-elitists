@@ -61,6 +61,7 @@ let current = null   // { at, db, con, profile, tables, ready }
 let queue = Promise.resolve()
 export const stats = { engines: 0, lastSetupMs: null }
 
+const CA_BUNDLES = ['/etc/ssl/certs/ca-certificates.crt', '/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem', '/etc/pki/tls/certs/ca-bundle.crt', '/etc/ssl/ca-bundle.pem', '/etc/ssl/cert.pem']
 const sqlStr = (s) => `'${String(s).replace(/'/g, "''")}'`
 const ident = (s) => `"${String(s).replace(/"/g, '""')}"`
 
@@ -81,6 +82,7 @@ async function setup() {
     autoload_known_extensions: 'false',
     allow_community_extensions: 'false',
     allow_unsigned_extensions: 'false',
+    allow_persistent_secrets: 'false',      // no secrets directory to read (or to be locked out of)
   })
   const con = await db.connect()
   // httpfs is the one extension: DuckDB's own signed build, fetched once per copy into /tmp.
@@ -96,12 +98,18 @@ async function setup() {
     // season in progress (the commonest) opens one file, and any other season opens two footers at most.
     const list = seasons.slice().reverse().map((s) => parquetUrl(sport, table, s))
     urls.push(...list)
-    // Every season is written to one stored schema (parquet.mjs), so the first file's columns are every file's.
     // A table that carries its own season column (coaching_programs: one file, every season) is read as it is.
     const hive = t.own_season ? '' : ", hive_partitioning = true, hive_types = {'season': VARCHAR}"
-    await con.run(`CREATE VIEW ${sport}.${ident(table)} AS SELECT * FROM read_parquet([${list.map(sqlStr).join(', ')}]${hive})`)
-    tables[key] = { sport, table, seasons, columns: t.columns.map(([c, k]) => [c, k === 'JSON' || !k ? 'VARCHAR' : k]), through: Object.fromEntries(seasons.map((s) => [s, t.seasons[s].through || null])), rows: Object.fromEntries(seasons.map((s) => [s, t.seasons[s].rows])), bytes: Object.fromEntries(seasons.map((s) => [s, t.seasons[s].bytes])), colBytes: Object.fromEntries(seasons.map((s) => [s, t.seasons[s].col_bytes || null])) }
+    // The view is made the first time a query names the table (ensureViews): making it reads a footer
+    // over HTTP, and 26 of them up front cost 3 to 8 seconds of every new copy's first call.
+    tables[key] = { sport, table, seasons, view: `CREATE VIEW ${sport}.${ident(table)} AS SELECT * FROM read_parquet([${list.map(sqlStr).join(', ')}]${hive})`, made: false, columns: t.columns.map(([c, k]) => [c, k === 'JSON' || !k ? 'VARCHAR' : k]), through: Object.fromEntries(seasons.map((s) => [s, t.seasons[s].through || null])), rows: Object.fromEntries(seasons.map((s) => [s, t.seasons[s].rows])), bytes: Object.fromEntries(seasons.map((s) => [s, t.seasons[s].bytes])), colBytes: Object.fromEntries(seasons.map((s) => [s, t.seasons[s].col_bytes || null])) }
   }
+  // httpfs sets up its secret storage on first use; do it now, before the lock, since views are made later.
+  await con.run('SELECT count(*) FROM duckdb_secrets()')
+  // HTTPS needs the system's CA bundle, read when a connection is first made, which is now after the lock:
+  // the one file outside the Data Room the engine may read (public certificates, nothing of WCE's).
+  const ca = CA_BUNDLES.find((f) => existsSync(f))
+  if (ca) await con.run(`SET ca_cert_file = ${sqlStr(ca)}`)
   for (const s of [
     'SET enable_http_metadata_cache = true',
     'SET parquet_metadata_cache = true',
@@ -110,7 +118,7 @@ async function setup() {
     "SET enable_profiling = 'json'",
     `SET profiling_output = ${sqlStr(profile)}`,
     'SET preserve_insertion_order = false',
-    `SET allowed_paths = [${[...urls, profile].map(sqlStr).join(', ')}]`,
+    `SET allowed_paths = [${[...urls, profile, ...(ca ? [ca] : [])].map(sqlStr).join(', ')}]`,
     'SET enable_external_access = false',
     'SET lock_configuration = true',
   ]) await con.run(s)
@@ -132,6 +140,16 @@ export function resetEngine() { current = null }
 // The locked engine itself, for tools/analysis/check.mjs: SQL sent here skips checkSql, to prove the
 // engine's own locks hold without it. Nothing in the connector calls it.
 export const _engineForTests = () => engine()
+
+// Make the views a query names (once per engine), each reading one footer. On the engine's own
+// connection, one after another: views made on parallel connections race in httpfs's secret storage
+// ("Secret Storage with name 'memory' already registered", DuckDB 2.0).
+async function ensureViews(e, used) {
+  for (const t of used.map((k) => e.tables[k]).filter((x) => x && !x.made)) {
+    try { await e.con.run(t.view) } catch (err) { if (!/already exists/i.test(String(err.message))) throw err }
+    t.made = true
+  }
+}
 
 // One query at a time per copy of the function: it has one CPU, and the profiler writes one file.
 function serial(fn) {
@@ -236,6 +254,7 @@ export async function runSql(sql, { maxRows = MAX_ROWS, wallMs = LIMITS.wallMs, 
   return serial(async () => {
     const left = () => wallMs - (Date.now() - t0)
     const used = await checkSql(e.con, sql, e.tables)
+    await ensureViews(e, used)
     const { JsonDuckDBValueConverter } = await import('@duckdb/node-api')
     let timer = null, timedOut = false
     const arm = () => { clearTimeout(timer); timer = setTimeout(() => { timedOut = true; try { e.con.interrupt() } catch { /* done */ } }, Math.max(1, left())) }
@@ -299,6 +318,7 @@ export async function withObservations(sql, fn, { wallMs = LIMITS.wallMs, budget
   const e = await engine()
   return serial(async () => {
     const used = await checkSql(e.con, sql, e.tables)
+    await ensureViews(e, used)
     const { JsonDuckDBValueConverter } = await import('@duckdb/node-api')
     let timer = null, timedOut = false
     timer = setTimeout(() => { timedOut = true; try { e.con.interrupt() } catch { /* done */ } }, Math.max(1, wallMs - (Date.now() - t0)))
