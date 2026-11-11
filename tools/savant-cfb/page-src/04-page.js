@@ -48,14 +48,14 @@ function prow(stat,r,group){
   else if(stat.verdict==='hatched')note='noisy in one season';
   else if(stat.note&&stat.note.length<34)note=stat.note.replace(/\.$/,'');
   if(r.tracked&&!r.none&&stat.lower&&r.settling)note+=' · lower is better, flipped';
-  var tag=(stat.verdict==='context'&&group!=='Context')?' <span class="ctx">CONTEXT</span>':'';
-  if(stat.tier==='B')tag+=' <span class="ctx tb" title="'+esc(REG.tier_b_note||'')+'">CHARTED</span>';
+  var tag=(stat.verdict==='context'&&group!=='Context')?' <span class="tg tg-ctx" title="Shows how much, not how good: too noisy to grade as a percentile.">for context</span>':'';
+  if(stat.tier==='B')tag+=' <span class="tg tg-new" title="'+esc(REG.tier_b_note||'')+'">since 2025</span>';
   return '<div class="prow"><div class="nm">'+esc(stat.label)+tag+(note?'<small>'+esc(note)+'</small>':'')+'</div>'+bar(r)+'<div class="v">'+(r.tracked&&!r.none?esc(r.shown):'—')+'</div></div>';}
 function explain(reg,slot,season){
   var h='<div class="stk sm"><div class="pad"><h3 style="font-size:24px;color:var(--field)">What each stat means</h3>';
   M.cardGroups(reg,slot).concat(M.cardGroups(reg,'RET')).forEach(function(G){var g=G.group,ss=G.stats;
     h+='<details class="ex"><summary>'+esc(g)+'</summary>';
-    ss.forEach(function(s){h+='<div class="exi"><strong>'+esc(s.label)+'.</strong> '+esc(s.what)+'<div class="meta">Formula: '+esc(s.formula)+'. Source: '+esc(s.source)+'. From '+s.start+'. '+(s.k?'Settles around '+s.k+' '+esc(s.unit_n)+'. ':'')+(s.adj?'Opponent-adjusted. ':'')+(s.tier==='B'?'Charted layer. ':'')+esc(s.note||'')+'</div></div>';});
+    ss.forEach(function(s){h+='<div class="exi"><strong>'+esc(s.label)+'.</strong> '+esc(s.what)+'<div class="meta">Formula: '+esc(s.formula)+'. Source: '+esc(s.source)+'. From '+s.start+'. '+(s.k?'Settles around '+s.k+' '+esc(s.unit_n)+'. ':'')+(s.adj?'Opponent-adjusted. ':'')+(s.tier==='B'?'Tracked since 2025 week 9. ':'')+esc(s.note||'')+'</div></div>';});
     h+='</details>';});
   h+='<details class="ex"><summary>Savant value</summary><div class="exi">Expected points above a replacement-level player at his position, opponent-adjusted, on the plays he was credited with. His rate is pulled toward the position average until he has played enough, the replacement rate (the 25th-percentile qualified player) is taken away, and the rest is multiplied by his volume. Nothing in it knows whether his team won. Missed games and small roles cost value.<div class="meta">Garbage time ('+esc(reg.garbage_rule)+') is left out. FBS-vs-FBS games only. The model\'s view, not a verdict.</div></div></details>';
   return h+'</div></div>';}
@@ -65,7 +65,7 @@ function groupsHtml(G,d,i,o,openFirst){
   G.forEach(function(g){var rows=g.stats.map(function(st){return [st,M.row(d,REG,st,i,o)];});
     var hd=rows.filter(function(x){return x[0].verdict!=='context'&&x[1].tracked&&!x[1].none&&x[1].pct!=null;})[0]||rows.filter(function(x){return x[1].tracked&&!x[1].none;})[0]||rows[0];
     var op=openFirst&&!opened&&g.group!=='Context'&&hd[1].tracked&&!hd[1].none;if(op)opened=true;
-    h+='<details class="cg grp"'+(op?' open':'')+'><summary><span class="cgn">'+esc(g.group)+(g.group==='Context'?' <span class="ctx">CONTEXT</span>':'')+'</span><span class="cgh">'+esc(hd[0].label)+'</span><span class="cgb">'+bar(hd[1],true)+'</span><span class="cgv">'+(hd[1].tracked&&!hd[1].none?esc(hd[1].shown):'—')+'</span><span class="cgc" aria-hidden="true">'+rows.length+'</span></summary><div class="rows">';
+    h+='<details class="cg grp"'+(op?' open':'')+'><summary><span class="cgn">'+esc(g.group)+''+'</span><span class="cgh">'+esc(hd[0].label)+'</span><span class="cgb">'+bar(hd[1],true)+'</span><span class="cgv">'+(hd[1].tracked&&!hd[1].none?esc(hd[1].shown):'—')+'</span><span class="cgc" aria-hidden="true">'+rows.length+'</span></summary><div class="rows">';
     rows.forEach(function(x){h+=prow(x[0],x[1],g.group);});h+='</div></details>';});
   return h;}
 function traj(P,y){
@@ -191,7 +191,7 @@ function playerHtml(id,P,d,i,TF,TD,A,seasons,cur,X){
   (P.honours||[]).forEach(function(r){if(r[0]!==y||!(A&&A.final))if(r[0]!==y)acc.push(r[2]+' · '+r[0]);});
   if(acc.length){h+='<div class="acc">';acc.slice(0,8).forEach(function(t,k){h+='<div class="badge '+(k%2?'tl2':'tr')+'" data-tilt><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .8-5.2 4.8 1.5 7L12 17.6 5.7 21.1l1.5-7L2 9.3l7-.8z" fill="none" stroke="#0B1730" stroke-width="2" stroke-linejoin="round"/></svg><span>'+esc(t)+'</span></div>';});h+='</div>';}
   var pl=M.pool(d,REG,i,S.pool),plabel=M.poolLabel(pl,p,{adj:S.adj,season:y,conf:tconf(d,team),reg:REG});
-  h+='<div class="pnl"><h3>How to read the bars</h3><ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.45"><li>Each bar is his percentile '+esc(plabel.replace(/^vs /,'against ').replace(/, (opponent-adjusted|raw), \d+$/,''))+' that season. Higher is always better; a stat where lower is better is flipped and says so.</li><li>The thin dark tick is where he would sit before the opponent adjustment.</li><li>Striped bars have not reached their settle point, or are noisy in any one season. The diamond marks where the stat is likely to land.</li><li>CONTEXT rows show how much, not how good.</li><li>Seasons are never pooled: a 2016 bar is against 2016.</li></ul></div>';
+  h+='<div class="pnl"><h3>How to read the bars</h3><ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.45"><li>Each bar is his percentile '+esc(plabel.replace(/^vs /,'against ').replace(/, (opponent-adjusted|raw), \d+$/,''))+' that season. Higher is always better; a stat where lower is better is flipped and says so.</li><li>The thin dark tick is where he would sit before the opponent adjustment.</li><li>Striped bars have not reached their settle point, or are noisy in any one season. The diamond marks where the stat is likely to land.</li><li>Rows marked <span class="tg tg-ctx">for context</span> show how much, not how good.</li><li>Seasons are never pooled: a 2016 bar is against 2016.</li></ul></div>';
   h+='</section><div class="wide" style="display:flex;flex-direction:column;gap:28px"><section class="stk" aria-label="Percentiles">';
   var q=REG.qual[slot],qn=q?M.sample(d,q[0],i,true):null;
   h+='<div class="band"><h2>'+y+' Percentile Rankings</h2><span class="lab">'+esc(asof(d))+(qn!=null?' · '+Math.round(qn)+' '+esc(sampleName(q[0])):'')+'</span></div>';
@@ -291,13 +291,13 @@ function vTeam(id,want){
     /* team bars */
     h+='<section class="stk"><div class="band"><h2>'+y+' Team Percentiles</h2><span class="lab">vs all FBS teams</span></div><div class="ctl"><button class="btn" data-tadj="1" aria-pressed="'+S.tAdj+'">Adjusted</button><button class="btn" data-tadj="0" aria-pressed="'+!S.tAdj+'">Raw</button></div><p class="poolline">POOL: vs all '+D.teams.length+' FBS teams, '+(S.tAdj?'opponent-adjusted':'raw')+', garbage time excluded, '+y+'</p>';
     var gs=[];REG.team_stats.forEach(function(s){if(gs.indexOf(s.group)<0)gs.push(s.group);});
-    gs.forEach(function(g){h+='<div class="grp"><div class="hd"><h3>'+esc(g)+'</h3>'+(g==='Turnovers'?'<span class="ctx">LUCK</span>':'')+'</div><div class="rows">';
+    gs.forEach(function(g){h+='<div class="grp"><div class="hd"><h3>'+esc(g)+'</h3>'+(g==='Turnovers'?'<span class="tg tg-ctx">mostly luck</span>':'')+'</div><div class="rows">';
       REG.team_stats.filter(function(s){return s.group===g;}).forEach(function(s){var x=M.teamRow(D,s,ti,S.tAdj);
         var rr=s.start&&y<s.start?{tracked:false,reason:'not tracked before '+s.start}:x?{tracked:true,pct:x.pct,shown:x.shown,hatched:s.verdict==='hatched'||s.verdict==='luck'}:{tracked:true,none:true,reason:'no value'};
         var st={label:s.label,lower:s.lower,verdict:s.verdict==='luck'?'context':s.verdict,note:'',tier:s.tier};
         h+=prow(st,rr,g==='Turnovers'?'Context':g);});
       h+='</div></div>';});
-    h+='<div class="pad"><p class="note">Turnovers and fumble recoveries are labeled luck: they barely repeat from one half of a season to the other. CHARTED rows come from ESPN\'s charted play text, tracked from 2025 week 9. Fourth-down choices are judged by WCE\'s own model: expected points, and win probability in the last 15 minutes of a game within 16 points.</p></div></section>';
+    h+='<div class="pad"><p class="note">Turnovers and fumble recoveries are labeled luck: they barely repeat from one half of a season to the other. Rows marked <span class="tg tg-new">since 2025</span> come from ESPN\'s detailed play-by-play, tracked from 2025 week 9. Fourth-down choices are judged by WCE\'s own model: expected points, and win probability in the last 15 minutes of a game within 16 points.</p></div></section>';
     var DC=F.decisions;
     if(DC&&DC.fourth&&DC.fourth.length){var ci={};DC.cols.forEach(function(c,k){ci[c]=k;});var fo=DC.fourth.filter(function(r){return !r[ci.garbage];});
       var went=fo.filter(function(r){return r[ci.decision]==='go';}).length,rgo=fo.filter(function(r){return r[ci.rec]==='go';}).length,fol=fo.filter(function(r){return r[ci.rec]===r[ci.decision];}).length;
@@ -460,7 +460,7 @@ function vLeaders(){
       rows.slice(0,60).forEach(function(x,n){var p=d.players[x.i];
         h+='<tr><td class="n">'+(n+1)+'</td><td class="pin"><a href="'+plink(p[C.id],d.season)+'"><strong>'+esc(p[C.name])+'</strong></a>'+(p[C.qual]?'':' <span class="lab" style="color:var(--muted)">below sample</span>')+'</td><td><span class="chip" style="height:18px;background:'+tcolor(d,p[C.team])+'"></span>'+esc(tname(d,p[C.team]))+'</td><td class="n"><strong>'+(stat?esc(x.r.shown):sg(x.v,1))+'</strong></td>'+(stat?'<td>'+bar(x.r)+'</td><td class="n">'+(x.r.n==null?'—':Math.round(x.r.n))+'</td>':'<td class="n">'+p[C.gp]+'</td>')+'</tr>';});
       h+='</tbody></table></div>';}
-    h+='<div class="pad">'+(stat?'<p class="note"><strong>'+esc(stat.label)+'.</strong> '+esc(stat.what)+' Formula: '+esc(stat.formula)+'. Source: '+esc(stat.source)+'. From '+stat.start+'.'+(stat.k?' Settles around '+stat.k+' '+esc(stat.unit_n)+'.':'')+(stat.verdict==='context'?' A CONTEXT stat: how much, or too noisy to grade.':'')+(stat.lower?' Lower is better, so the bar is flipped.':'')+'</p>':'<p class="note">Savant value is expected points above a replacement-level player at the position, opponent-adjusted. Pure individual value: nothing in it knows whether his team won.</p>')+(M.SLOT_TABLE[slot]==='dfn'&&d.season<2024?'<p class="note" style="margin-top:8px"><strong>'+esc(REG.pre_box_warning)+(REG.no_tacklers.indexOf(d.season)>=0?' '+esc(REG.early_def_note):'')+'</strong></p>':'')+'</div></section>';
+    h+='<div class="pad">'+(stat?'<p class="note"><strong>'+esc(stat.label)+'.</strong> '+esc(stat.what)+' Formula: '+esc(stat.formula)+'. Source: '+esc(stat.source)+'. From '+stat.start+'.'+(stat.k?' Settles around '+stat.k+' '+esc(stat.unit_n)+'.':'')+(stat.verdict==='context'?' Shown for context: how much, or too noisy to grade.':'')+(stat.lower?' Lower is better, so the bar is flipped.':'')+'</p>':'<p class="note">Savant value is expected points above a replacement-level player at the position, opponent-adjusted. Pure individual value: nothing in it knows whether his team won.</p>')+(M.SLOT_TABLE[slot]==='dfn'&&d.season<2024?'<p class="note" style="margin-top:8px"><strong>'+esc(REG.pre_box_warning)+(REG.no_tacklers.indexOf(d.season)>=0?' '+esc(REG.early_def_note):'')+'</strong></p>':'')+'</div></section>';
     return h;});}
 
 function vPedigree(d,slot,key){
