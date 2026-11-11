@@ -63,3 +63,58 @@ Every other mockup element matches at 9:00: score 55-38, lead tag +17, "Oklahoma
 4. **Dry run:** keep `?team=201` open all game. Before tip it should pick FDU and show the pre-game card, then switch to live without a reload. Log reconciliation, repairs and banners. Afterwards, download This game and Whole season, open them in Excel, and check points and 40:00 against the official box score. FDU is 19 characters, so it shows as "FDU" in the Game column.
 5. Not exercised by any test yet: overtime in a live game, a live bad substitution, the localStorage season cache across reloads, and the "added to roster" path.
 6. Then Adam sends Lucas the link.
+
+---
+
+# Follow-up fixes (Nov 11, 2026, commit 6902fb26e and after)
+
+All five checks pass. Parity (3/3 and 300/300) and the expected-workbook comparison (2,666 cells, 0 differences) were re-run after the changes and are unchanged.
+
+### 1. On-paper matchup uses every rating — PASS
+The expected margin now sums every player's rating in `ratings-2025-26.json`. Ridge already shrinks small samples, and this is what the backtest validated (calibration slope 0.93). The 300-possession threshold now only feeds the "N of the 10 have little college data" count. This supersedes the test 5 note above: at **2nd half 9:08** of 401906802, the page reads "**On paper, this five beats theirs by about 4 per 100 possessions.** Rough read: 7 of the 10 have little college data yet." The margin is +4.4, matching the mockup (`moment-test.mjs`, `mockup-moment/right-now-2-9-08-*.png`).
+
+### 2. Overtime in the spreadsheet download — PASS
+Half is written as the template's dropdown value (`OT1`, `OT2`, `OT3`). Start and End Clock are plain m:ss within the 5:00 period, never negative and never prefixed. Checked on two 2025-26 overtime games, filled with the page's own modules (`tools/live-lineups/fill-any.mjs`), recalculated in LibreOffice, then checked with `tools/live-lineups/check_ot.py` against the template's three red-flag rules:
+
+| game | team | stints | minutes | points vs final | OT rows | red flags |
+|---|---|---|---|---|---|---|
+| 401830778 | 127 vs Illinois | 34 | 45.00 | 85-82 = 85-82 | OT1 5:00-2:22, 2:22-0:49, 0:49-0:21, 0:21-0:11, 0:11-0:10, 0:10-0:00 | 0 |
+| 401804959 | 55 vs New Mexico State | 34 | 45.00 | 75-77 = 75-77 | OT1 5:00-4:32, 4:32-0:24, 0:24-0:03, 0:03-0:00 | 0 |
+
+The Game Summary reads 45 minutes logged and the correct score for both. Neither team is on OU's Roster tab, so this also exercised the add-to-roster path: 10 and 9 players added, every Lineup Key valid. Files: `research/live-lineups-test/overtime/`. No double-overtime game in the 300-game sample parsed cleanly, so 50:00 wasn't exercised.
+
+### 3. Stale banner — PASS
+"Data delayed" now has exactly two triggers:
+- the last successful ESPN fetch is more than 60 s old, or
+- ESPN's own game clock has run 60+ s of game time with no new play.
+
+A stopped clock (timeout, halftime, any stoppage) can't trip the second one. The old trigger ("nothing changed for 60 s") is gone. When ESPN is unreachable, "Data delayed" now shows alongside "Can't reach ESPN".
+
+Proof (`tools/live-lineups/stale-test.mjs`): the real page on the live path (`?game=401906803`), fed 401906803's actual ESPN summary cut at a moment, with a fake clock polling every 15 s:
+
+| phase | what the feed does | Data delayed | result |
+|---|---|---|---|
+| Media timeout, 1st half 15:01 (Official TV Timeout) | 150 s, clock frozen at 15:01, no new plays, every poll succeeds | not shown | PASS |
+| Halftime | 150 s, STATUS_HALFTIME | not shown | PASS |
+| Control: clock runs, no plays | clock goes 15:01 → 13:55 (66 s) with no new play | shown ("Last update 0:32 ago") | PASS |
+| Control: ESPN unreachable | requests fail for 90 s | shown with "Can't reach ESPN" ("Last update 1:33 ago") | PASS |
+
+Screenshots and JSON: `research/live-lineups-test/stale/`.
+
+### 4. Proxy on the Vercel preview — PASS
+Preview `western-conference-elitists-b4giu5rpz-cohenadam07s-projects.vercel.app` (commit 6902fb26e) sits behind Vercel Authentication, so it was requested through a Vercel share link.
+- `GET /api/espn-summary?event=401906803` returned **HTTP 200**: 494,622 bytes, `content-type: application/json`, `access-control-allow-origin: *`.
+- The second request was `x-vercel-cache: HIT` (0.11 s).
+- Parsed with the page's engine: status STATUS_FINAL, 135 possessions, **81-72, reconciling exactly** to ESPN's score, 28 stints, 40:00.
+
+So Vercel's servers can reach ESPN, and the fallback works if a browser is ever blocked.
+
+### 5. Download note — PASS
+"Opens in Excel or Google Sheets." now sits directly under the Download for Excel / CSV buttons: right-aligned on desktop, left-aligned on phones. No overflow at 1440×900 or 390×844 (`research/live-lineups-test/fixes/`).
+
+### Updated list for the live test and Friday
+Item 3 of the original list is done; the proxy is verified. Still open:
+- a real-device pass on the preview (iPhone and iPad Safari),
+- live test 6 on 3+ games: the stale banner should now stay off through TV timeouts,
+- Friday's dry run on 401906804,
+- a double-overtime game and a live bad substitution, neither exercised yet.
