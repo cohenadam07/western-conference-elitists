@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-11-11",
+    "product": "WCE connector",
+    "version": "3.7.0",
+    "text": "The WCE connector's Data Room now covers every sport: NFL and college football plays, NBA player-games and shots, UFC fights",
+    "href": "/#ai"
+  },
+  {
     "date": "2026-11-10",
     "product": "College Football Savant",
     "version": "1.1.0",

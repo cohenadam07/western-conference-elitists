@@ -60,6 +60,1206 @@
   "sample": null
  },
  {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "1996-97",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 440,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "1997-98",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 437,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "1998-99",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 438,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "1999-00",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 438,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2000-01",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 439,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2001-02",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 439,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2002-03",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 427,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2003-04",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 440,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2004-05",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 464,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2005-06",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 455,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2006-07",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 458,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2007-08",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 451,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2008-09",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 445,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2009-10",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 440,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2010-11",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 449,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2011-12",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 478,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2012-13",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 467,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2013-14",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 480,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2014-15",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 490,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2015-16",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 475,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2016-17",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 485,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2017-18",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 537,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2018-19",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 526,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2019-20",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 527,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2020-21",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 539,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2021-22",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 597,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2022-23",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 537,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2023-24",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 568,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2024-25",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 566,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "player_games",
+  "season": "2025-26",
+  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
+  "compared": 582,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1996-97",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 188589,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1996-97",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 440,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1996-97",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 328,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1997-98",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 189536,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1997-98",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 437,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1997-98",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 332,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1998-99",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 113377,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1998-99",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 437,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1998-99",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 294,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1999-00",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 195220,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1999-00",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 438,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "1999-00",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 338,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2000-01",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 191664,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2000-01",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 439,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2000-01",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 336,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2001-02",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 193263,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2001-02",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 439,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2001-02",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 335,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2002-03",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 192109,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2002-03",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 427,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2002-03",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 332,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2003-04",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 189803,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2003-04",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 440,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2003-04",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 341,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2004-05",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 197626,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2004-05",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 463,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2004-05",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 355,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2005-06",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 194314,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2005-06",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 455,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2005-06",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 336,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2006-07",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 196072,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2006-07",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 458,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2006-07",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 342,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2007-08",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 200501,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2007-08",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 451,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2007-08",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 341,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2008-09",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 199054,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2008-09",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 445,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2008-09",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 346,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2009-10",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 200989,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2009-10",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 440,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2009-10",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 352,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2010-11",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 199790,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2010-11",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 449,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2010-11",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 360,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2011-12",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 161225,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2011-12",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 478,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2011-12",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 357,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2012-13",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 201609,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2012-13",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 467,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2012-13",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 372,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2013-14",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 204172,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2013-14",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 480,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2013-14",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 367,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2014-15",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 205570,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2014-15",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 490,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2014-15",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 385,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2015-16",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 208049,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2015-16",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 475,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2015-16",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 378,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2016-17",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 210114,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2016-17",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 485,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2016-17",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 379,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2017-18",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 211707,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2017-18",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 537,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2017-18",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 388,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2018-19",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 219458,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2018-19",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 526,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2018-19",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 397,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2019-20",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 188116,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2019-20",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 527,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2019-20",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 374,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2020-21",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 190983,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2020-21",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 539,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2020-21",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 396,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2021-22",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 216722,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2021-22",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 596,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2021-22",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 414,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2022-23",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 217220,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2022-23",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 537,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2022-23",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 400,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2023-24",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 218700,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2023-24",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 568,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2023-24",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 395,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2024-25",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 219527,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2024-25",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 566,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2024-25",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 415,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2025-26",
+  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
+  "compared": 219160,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2025-26",
+  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
+  "compared": 582,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
+  "sport": "nba",
+  "table": "shots",
+  "season": "2025-26",
+  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
+  "compared": 427,
+  "mismatches": 0,
+  "ok": true,
+  "sample": null
+ },
+ {
   "sport": "nfl",
   "table": "plays",
   "season": "1999",
@@ -1155,1656 +2355,6 @@
   "season": "2026",
   "check": "plays, EPA per play and success rate per team-game vs the College Football Savant game file",
   "compared": 1126,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "1996-97",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 440,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "1997-98",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 437,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "1998-99",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 438,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "1999-00",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 438,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2000-01",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 439,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2001-02",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 439,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2002-03",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 427,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2003-04",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 440,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2004-05",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 464,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2005-06",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 455,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2006-07",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 458,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2007-08",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 451,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2008-09",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 445,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2009-10",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 440,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2010-11",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 449,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2011-12",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 478,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2012-13",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 467,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2013-14",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 480,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2014-15",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 490,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2015-16",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 475,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2016-17",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 485,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2017-18",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 537,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2018-19",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 526,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2019-20",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 527,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2020-21",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 539,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2021-22",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 597,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2022-23",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 537,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2023-24",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 568,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2024-25",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 566,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "player_games",
-  "season": "2025-26",
-  "check": "3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card",
-  "compared": 582,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "1996-97",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 188589,
-  "mismatches": 188589,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0029600001",
-    23
-   ],
-   "shots": [
-    null,
-    "BOS",
-    0
-   ],
-   "player_games": [
-    "CHI",
-    "BOS",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "1996-97",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 440,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "1996-97",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 328,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "1997-98",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 189536,
-  "mismatches": 189536,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0029700001",
-    679
-   ],
-   "shots": [
-    null,
-    "BOS",
-    0
-   ],
-   "player_games": [
-    "CHI",
-    "BOS",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "1997-98",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 437,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "1997-98",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 332,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "1998-99",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 113377,
-  "mismatches": 113377,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0029800001",
-    72
-   ],
-   "shots": [
-    null,
-    "BOS",
-    0
-   ],
-   "player_games": [
-    "BOS",
-    "TOR",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "1998-99",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 437,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "1998-99",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 294,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "1999-00",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 195220,
-  "mismatches": 195220,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0029900001",
-    275
-   ],
-   "shots": [
-    null,
-    "NYK",
-    0
-   ],
-   "player_games": [
-    "NYK",
-    "CLE",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "1999-00",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 438,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "1999-00",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 338,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2000-01",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 191664,
-  "mismatches": 191664,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0020000001",
-    84
-   ],
-   "shots": [
-    null,
-    "NYK",
-    0
-   ],
-   "player_games": [
-    "NYK",
-    "PHI",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2000-01",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 439,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2000-01",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 336,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2001-02",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 193263,
-  "mismatches": 193263,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0020100001",
-    1889
-   ],
-   "shots": [
-    null,
-    "CLE",
-    0
-   ],
-   "player_games": [
-    "CLE",
-    "BOS",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2001-02",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 439,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2001-02",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 335,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2002-03",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 192109,
-  "mismatches": 192109,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0020200001",
-    255
-   ],
-   "shots": [
-    null,
-    "ORL",
-    0
-   ],
-   "player_games": [
-    "ORL",
-    "PHI",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2002-03",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 427,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2002-03",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 332,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2003-04",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 189803,
-  "mismatches": 189803,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0020300001",
-    2548
-   ],
-   "shots": [
-    null,
-    "PHI",
-    0
-   ],
-   "player_games": [
-    "MIA",
-    "PHI",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2003-04",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 440,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2003-04",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 341,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2004-05",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 197626,
-  "mismatches": 197626,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0020400001",
-    1888
-   ],
-   "shots": [
-    null,
-    "DET",
-    0
-   ],
-   "player_games": [
-    "DET",
-    "HOU",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2004-05",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 463,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2004-05",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 355,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2005-06",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 194314,
-  "mismatches": 194314,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0020500001",
-    185
-   ],
-   "shots": [
-    null,
-    "PHI",
-    0
-   ],
-   "player_games": [
-    "PHI",
-    "MIL",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2005-06",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 455,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2005-06",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 336,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2006-07",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 196072,
-  "mismatches": 196072,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0020600001",
-    406
-   ],
-   "shots": [
-    null,
-    "MIA",
-    0
-   ],
-   "player_games": [
-    "MIA",
-    "CHI",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2006-07",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 458,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2006-07",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 342,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2007-08",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 200501,
-  "mismatches": 200501,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0020700001",
-    200746
-   ],
-   "shots": [
-    null,
-    "SAS",
-    0
-   ],
-   "player_games": [
-    "POR",
-    "SAS",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2007-08",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 451,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2007-08",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 341,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2008-09",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 199054,
-  "mismatches": 199054,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0020800001",
-    708
-   ],
-   "shots": [
-    null,
-    "BOS",
-    0
-   ],
-   "player_games": [
-    "BOS",
-    "CLE",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2008-09",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 445,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2008-09",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 346,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2009-10",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 200989,
-  "mismatches": 200989,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0020900001",
-    2760
-   ],
-   "shots": [
-    null,
-    "CLE",
-    0
-   ],
-   "player_games": [
-    "CLE",
-    "BOS",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2009-10",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 440,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2009-10",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 352,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2010-11",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 199790,
-  "mismatches": 199790,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0021000001",
-    406
-   ],
-   "shots": [
-    null,
-    "BOS",
-    0
-   ],
-   "player_games": [
-    "BOS",
-    "MIA",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2010-11",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 449,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2010-11",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 360,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2011-12",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 161225,
-  "mismatches": 161225,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0021100001",
-    201962
-   ],
-   "shots": [
-    null,
-    "NYK",
-    0
-   ],
-   "player_games": [
-    "NYK",
-    "BOS",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2011-12",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 478,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2011-12",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 357,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2012-13",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 201609,
-  "mismatches": 201609,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0021200001",
-    2772
-   ],
-   "shots": [
-    null,
-    "CLE",
-    0
-   ],
-   "player_games": [
-    "WAS",
-    "CLE",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2012-13",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 467,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2012-13",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 372,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2013-14",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 204172,
-  "mismatches": 204172,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0021300001",
-    2561
-   ],
-   "shots": [
-    null,
-    "IND",
-    0
-   ],
-   "player_games": [
-    "IND",
-    "ORL",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2013-14",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 480,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2013-14",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 367,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2014-15",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 205570,
-  "mismatches": 205570,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0021400001",
-    203076
-   ],
-   "shots": [
-    null,
-    "NOP",
-    0
-   ],
-   "player_games": [
-    "NOP",
-    "ORL",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2014-15",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 490,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2014-15",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 385,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2015-16",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 208049,
-  "mismatches": 208049,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0021500001",
-    203083
-   ],
-   "shots": [
-    null,
-    "ATL",
-    0
-   ],
-   "player_games": [
-    "DET",
-    "ATL",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2015-16",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 475,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2015-16",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 378,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2016-17",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 210114,
-  "mismatches": 210114,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0021600001",
-    201565
-   ],
-   "shots": [
-    null,
-    "CLE",
-    0
-   ],
-   "player_games": [
-    "NYK",
-    "CLE",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2016-17",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 485,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2016-17",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 379,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2017-18",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 211707,
-  "mismatches": 211707,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0021700001",
-    202681
-   ],
-   "shots": [
-    null,
-    "CLE",
-    0
-   ],
-   "player_games": [
-    "BOS",
-    "CLE",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2017-18",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 537,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2017-18",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 388,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2018-19",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 219458,
-  "mismatches": 219458,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0021800001",
-    203496
-   ],
-   "shots": [
-    null,
-    "BOS",
-    0
-   ],
-   "player_games": [
-    "PHI",
-    "BOS",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2018-19",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 526,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2018-19",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 397,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2019-20",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 188116,
-  "mismatches": 188116,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0021900001",
-    1628366
-   ],
-   "shots": [
-    null,
-    "TOR",
-    0
-   ],
-   "player_games": [
-    "NOP",
-    "TOR",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2019-20",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 527,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2019-20",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 374,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2020-21",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 190983,
-  "mismatches": 190983,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0022000001",
-    202681
-   ],
-   "shots": [
-    null,
-    "BKN",
-    0
-   ],
-   "player_games": [
-    "BKN",
-    "GSW",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2020-21",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 539,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2020-21",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 396,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2021-22",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 216722,
-  "mismatches": 216722,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0022100001",
-    1628960
-   ],
-   "shots": [
-    null,
-    "MIL",
-    0
-   ],
-   "player_games": [
-    "MIL",
-    "BKN",
-    1
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2021-22",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 596,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2021-22",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 414,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2022-23",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 217220,
-  "mismatches": 217220,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0022200001",
-    203954
-   ],
-   "shots": [
-    null,
-    "BOS",
-    0
-   ],
-   "player_games": [
-    "PHI",
-    "BOS",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2022-23",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 537,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2022-23",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 400,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2023-24",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 218700,
-  "mismatches": 218700,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0022300061",
-    203076
-   ],
-   "shots": [
-    null,
-    "DEN",
-    0
-   ],
-   "player_games": [
-    "LAL",
-    "DEN",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2023-24",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 568,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2023-24",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 395,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2024-25",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 219527,
-  "mismatches": 439,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0022400147",
-    1642273
-   ],
-   "shots": [
-    "WAS",
-    "MIA",
-    1
-   ],
-   "player_games": [
-    "WAS",
-    "MIA",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2024-25",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 566,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2024-25",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 415,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2025-26",
-  "check": "each shot's team, opponent and home flag vs the shooter's player-game",
-  "compared": 219160,
-  "mismatches": 219160,
-  "ok": false,
-  "sample": {
-   "shot": [
-    "0022500001",
-    1630578
-   ],
-   "shots": [
-    null,
-    "OKC",
-    0
-   ],
-   "player_games": [
-    "HOU",
-    "OKC",
-    0
-   ]
-  }
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2025-26",
-  "check": "attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant's shot-zone bars",
-  "compared": 582,
-  "mismatches": 0,
-  "ok": true,
-  "sample": null
- },
- {
-  "sport": "nba",
-  "table": "shots",
-  "season": "2025-26",
-  "check": "attempts per player inside the heat map's half-court window (y -52 to 418) vs the heat-map files (public/shots)",
-  "compared": 427,
   "mismatches": 0,
   "ok": true,
   "sample": null

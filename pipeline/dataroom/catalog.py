@@ -165,7 +165,17 @@ def build(only=None, current=None):
 if __name__ == '__main__':
     a = sys.argv[1:]
     cur = a[a.index('--current') + 1] if '--current' in a else None
-    d = build(set(x for x in a if not x.startswith('--') and x != cur) or None, cur)
+    # --forget sport/table/season: drop a hosted season the catalog remembers but no asset holds
+    forget = [a[i + 1] for i, x in enumerate(a) if x == '--forget']
+    d = build(set(x for x in a if not x.startswith('--') and x not in (cur, *forget)) or None, cur)
+    if forget:
+        from common import dumps, gz_bytes
+        for f in forget:
+            sp, t, se = f.split('/')
+            d['sports'][sp][t]['seasons'].pop(se, None)
+        with open(OUT, 'wb') as fh:
+            fh.write(gz_bytes(dumps(d)))
+        print('forgot', ', '.join(forget))
     for sport, tables in d['sports'].items():
         for t, v in tables.items():
             ss = v['seasons']

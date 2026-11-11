@@ -220,14 +220,62 @@ def fetch_shots(season, log=print):
     return frames
 
 
-def build_current(season, out_public=None, out_hosted=None, log=print):
-    """The season in progress, inside the cloud refresh (the ESPN shim answers E.call)."""
+def reconcile_card(pg_path, card_path, season):
+    """The player-games just written, summed, against the season card the same pass wrote
+    (out/current.json): 3PA, FTA, 2PA and TS% for every player (tools/dataroom/reconcile.py's
+    rule). -> (players compared, mismatches, an example)."""
+    import gzip
+    import json as _json
+    from collections import Counter, defaultdict
+    with gzip.open(pg_path, 'rt') as f:
+        d = _json.load(f)
+    with open(card_path) as f:
+        card = _json.load(f)
+    ix = {c: i for i, c in enumerate(d['columns'])}
+    tot = defaultdict(Counter)
+    for r in d['rows']:
+        for k in ('pts', 'fga', 'fg3a', 'fta'):
+            tot[r[ix['player_id']]][k] += r[ix[k]] or 0
+    n = bad = 0
+    ex = None
+    for p in (card.get('data', {}).get(season) or {}).get('players', []):
+        t, m = tot.get(p['id']), p.get('m') or {}
+        if t is None:
+            continue
+        sn = lambda k: ((m.get(k) or {}).get('season') or {})  # noqa: E731
+        checks = [(k, got, sn(key).get('n')) for k, key, got in (('3PA', 'tp3', t['fg3a']), ('FTA', 'ft', t['fta']), ('2PA', 'tp2', t['fga'] - t['fg3a'])) if sn(key).get('n') is not None]
+        tsa = t['fga'] + 0.44 * t['fta']
+        if sn('ts').get('v') is not None and tsa > 0 and abs(round(t['pts'] / (2 * tsa), 3) - sn('ts')['v']) > 0.0011:
+            checks.append(('TS', round(t['pts'] / (2 * tsa), 3), sn('ts')['v']))
+        if not checks:
+            continue
+        n += 1
+        off = [c for c in checks if c[0] == 'TS' or c[1] != c[2]]
+        if off:
+            bad += 1
+            ex = ex or (p.get('name'), off)
+    return n, bad, ex
+
+
+def build_current(season, out_public=None, out_hosted=None, log=print, card=os.path.join('out', 'current.json')):
+    """The season in progress, inside the cloud refresh (the ESPN shim answers E.call). The
+    player-games are held to the season card the same pass wrote before anything is kept: a table
+    that fails its reconciliation is never shipped (BUILD.md ground rule 1), so on a mismatch both
+    files are removed and publish.sh has nothing to upload."""
     gl = fetch_game_logs(season)
     rep = [write_player_games(season, gl, out_hosted)]
     try:
         rep.append(write_shots(season, fetch_shots(season, log=log), out=out_hosted, home_of=home_map(gl)))
     except Exception as e:  # noqa
         log(f'  data room shots {season}: failed ({repr(e)[:120]})')
+    if card and os.path.exists(card):
+        n, bad, ex = reconcile_card(rep[0]['path'], card, season)
+        if bad or not n:
+            for r in rep:
+                os.remove(r['path'])
+            log(f'::warning::the Data Room NBA tables for {season} did not reconcile with the season card ({bad} of {n} players off, e.g. {ex}); not published')
+            return []
+        log(f'  data room: {n} players reconcile with the season card')
     return rep
 
 

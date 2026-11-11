@@ -1,0 +1,4742 @@
+{
+ "about": "The analyst exam: 80 questions, each with its gold answer computed from the data files by tools/savant-mcp/exam/exam.mjs (never typed), its tolerance and the tool calls that reach it. Traps have no gold: the right answer says the data cannot answer, and why (reason). Regenerate: node tools/savant-mcp/exam/exam.mjs gold. Take the exam: RUN.md.",
+ "generated_from": "questions.src.json",
+ "count": 80,
+ "questions": [
+  {
+   "id": "nba-01",
+   "sport": "nba",
+   "kind": "lookup",
+   "question": "What was Nikola Jokic's highest-scoring game of the 2024-25 regular season, in points?",
+   "recipe": "agg",
+   "table": "player_games",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "player_id",
+     "op": "eq",
+     "value": 203999
+    }
+   ],
+   "metric": {
+    "fn": "max",
+    "col": "pts"
+   },
+   "tolerance": 0,
+   "gold": {
+    "value": 61
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "player_games",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "player_id",
+        "op": "eq",
+        "value": 203999
+       }
+      ],
+      "columns": [
+       "player_id",
+       "pts"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-02",
+   "sport": "nba",
+   "kind": "filter",
+   "question": "How many 40-point games were there in the 2024-25 regular season?",
+   "recipe": "agg",
+   "table": "player_games",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "pts",
+     "op": "gte",
+     "value": 40
+    }
+   ],
+   "metric": {
+    "fn": "count"
+   },
+   "tolerance": 0,
+   "gold": {
+    "value": 139
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "player_games",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "pts",
+        "op": "gte",
+        "value": 40
+       }
+      ],
+      "columns": [
+       "pts"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-03",
+   "sport": "nba",
+   "kind": "filter",
+   "question": "Who took the most three-point attempts in a single 2023-24 game, and how many?",
+   "recipe": "agg",
+   "table": "player_games",
+   "seasons": [
+    "2023-24"
+   ],
+   "filters": [
+    {
+     "column": "fg3a",
+     "op": "gte",
+     "value": 15
+    }
+   ],
+   "group": [
+    "player",
+    "game_id"
+   ],
+   "metric": {
+    "fn": "sum",
+    "col": "fg3a"
+   },
+   "pick": "max",
+   "tolerance": 0,
+   "gold": {
+    "key": "Stephen Curry | 0022300699",
+    "value": 23
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "player_games",
+      "season": "2023-24",
+      "filters": [
+       {
+        "column": "fg3a",
+        "op": "gte",
+        "value": 15
+       }
+      ],
+      "columns": [
+       "fg3a",
+       "player",
+       "game_id"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-04",
+   "sport": "nba",
+   "kind": "split",
+   "question": "Stephen Curry's true shooting at home and on the road in 2024-25: how different were they?",
+   "recipe": "split",
+   "table": "player_games",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "player_id",
+     "op": "eq",
+     "value": 201939
+    }
+   ],
+   "a": [
+    {
+     "column": "home",
+     "op": "eq",
+     "value": 1
+    }
+   ],
+   "b": [
+    {
+     "column": "home",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "metric": {
+    "fn": "ts"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": {
+     "a": 0.616402,
+     "b": 0.619687
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "player_games",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "player_id",
+        "op": "eq",
+        "value": 201939
+       }
+      ],
+      "columns": [
+       "player_id",
+       "home",
+       "pts",
+       "fga",
+       "fta"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-05",
+   "sport": "nba",
+   "kind": "comparison",
+   "question": "Shai Gilgeous-Alexander or Jalen Brunson: who shot better from mid-range in 2024-25, and what were their percentages?",
+   "recipe": "agg",
+   "table": "shots",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "zone",
+     "op": "eq",
+     "value": "Mid-Range"
+    },
+    {
+     "column": "player_id",
+     "op": "in",
+     "value": [
+      1628983,
+      1628973
+     ]
+    }
+   ],
+   "group": [
+    "player"
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "made"
+   },
+   "top": 2,
+   "tolerance": 0.0005,
+   "gold": {
+    "value": [
+     [
+      "Shai Gilgeous-Alexander",
+      0.5
+     ],
+     [
+      "Jalen Brunson",
+      0.449339
+     ]
+    ]
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "shots",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "zone",
+        "op": "eq",
+        "value": "Mid-Range"
+       },
+       {
+        "column": "player_id",
+        "op": "in",
+        "value": [
+         1628983,
+         1628973
+        ]
+       }
+      ],
+      "columns": [
+       "zone",
+       "player_id",
+       "made",
+       "player"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-06",
+   "sport": "nba",
+   "kind": "filter",
+   "question": "What did the whole league shoot on corner threes in 2024-25?",
+   "recipe": "agg",
+   "table": "shots",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "zone",
+     "op": "in",
+     "value": [
+      "Left Corner 3",
+      "Right Corner 3"
+     ]
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "made"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.387916
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "shots",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "zone",
+        "op": "in",
+        "value": [
+         "Left Corner 3",
+         "Right Corner 3"
+        ]
+       }
+      ],
+      "columns": [
+       "zone",
+       "made"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-07",
+   "sport": "nba",
+   "kind": "lookup",
+   "question": "What share of Giannis Antetokounmpo's 2024-25 field-goal attempts came in the restricted area?",
+   "recipe": "split_share",
+   "table": "shots",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "player_id",
+     "op": "eq",
+     "value": 203507
+    }
+   ],
+   "a": [
+    {
+     "column": "zone",
+     "op": "eq",
+     "value": "Restricted Area"
+    }
+   ],
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.567854
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "shots",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "player_id",
+        "op": "eq",
+        "value": 203507
+       }
+      ],
+      "columns": [
+       "player_id",
+       "zone"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-08",
+   "sport": "nba",
+   "kind": "split",
+   "question": "Fantasy buy or sell: was Cade Cunningham's usage higher over the last month of 2024-25 (March 15 on) than before it?",
+   "recipe": "split",
+   "table": "player_games",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "player_id",
+     "op": "eq",
+     "value": 1630595
+    }
+   ],
+   "a": [
+    {
+     "column": "date",
+     "op": "gte",
+     "value": "2025-03-15"
+    }
+   ],
+   "b": [
+    {
+     "column": "date",
+     "op": "lt",
+     "value": "2025-03-15"
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "usg"
+   },
+   "tolerance": 0.05,
+   "gold": {
+    "value": {
+     "a": 36.5,
+     "b": 32.906452
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "player_games",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "player_id",
+        "op": "eq",
+        "value": 1630595
+       }
+      ],
+      "columns": [
+       "player_id",
+       "date",
+       "usg"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-09",
+   "sport": "nba",
+   "kind": "filter",
+   "question": "GM trade fit: which player with 300+ threes attempted in 2024-25 took the largest share of them from the corners?",
+   "recipe": "share_by",
+   "table": "shots",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "value",
+     "op": "eq",
+     "value": 3
+    }
+   ],
+   "group": [
+    "player"
+   ],
+   "a": [
+    {
+     "column": "zone",
+     "op": "in",
+     "value": [
+      "Left Corner 3",
+      "Right Corner 3"
+     ]
+    }
+   ],
+   "min": 300,
+   "tolerance": 0.0005,
+   "gold": {
+    "key": "Harrison Barnes",
+    "value": 0.569444
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "shots",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "value",
+        "op": "eq",
+        "value": 3
+       }
+      ],
+      "columns": [
+       "value",
+       "zone",
+       "player"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-10",
+   "sport": "nba",
+   "kind": "trap",
+   "question": "What was Nikola Jokic's true shooting in the 2025 playoffs?",
+   "recipe": "trap",
+   "reason": "The Data Room's NBA player-games and shots are regular season only (season_type Regular Season); no tool holds playoff game lines.",
+   "proof": {
+    "recipe": "meta",
+    "table": "player_games",
+    "season": "2024-25",
+    "field": "season_type",
+    "expect": "Regular Season"
+   },
+   "gold": null,
+   "calls": []
+  },
+  {
+   "id": "nba-11",
+   "sport": "nba",
+   "kind": "filter",
+   "question": "How many games did the Boston Celtics play on the second night of a back-to-back in 2024-25?",
+   "recipe": "agg",
+   "table": "coaching_games",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "team",
+     "op": "eq",
+     "value": "BOS"
+    },
+    {
+     "column": "b2b",
+     "op": "eq",
+     "value": true
+    },
+    {
+     "column": "type",
+     "op": "eq",
+     "value": "RS"
+    }
+   ],
+   "metric": {
+    "fn": "count"
+   },
+   "tolerance": 0,
+   "gold": {
+    "value": 13
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "coaching_games",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "team",
+        "op": "eq",
+        "value": "BOS"
+       },
+       {
+        "column": "b2b",
+        "op": "eq",
+        "value": true
+       },
+       {
+        "column": "type",
+        "op": "eq",
+        "value": "RS"
+       }
+      ],
+      "columns": [
+       "team",
+       "b2b",
+       "type"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-12",
+   "sport": "nba",
+   "kind": "split",
+   "question": "League-wide in 2023-24, how did teams' win rate on the second night of a back-to-back compare with every other regular-season game?",
+   "recipe": "split",
+   "table": "coaching_games",
+   "seasons": [
+    "2023-24"
+   ],
+   "filters": [
+    {
+     "column": "type",
+     "op": "eq",
+     "value": "RS"
+    }
+   ],
+   "a": [
+    {
+     "column": "b2b",
+     "op": "eq",
+     "value": true
+    }
+   ],
+   "b": [
+    {
+     "column": "b2b",
+     "op": "eq",
+     "value": false
+    }
+   ],
+   "metric": {
+    "fn": "rate",
+    "col": "w"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": {
+     "a": 0.440758,
+     "b": 0.512267
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "coaching_games",
+      "season": "2023-24",
+      "filters": [
+       {
+        "column": "type",
+        "op": "eq",
+        "value": "RS"
+       }
+      ],
+      "columns": [
+       "type",
+       "b2b",
+       "w"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-13",
+   "sport": "nba",
+   "kind": "trap",
+   "question": "How many deflections did Alex Caruso have in each of his 2024-25 games?",
+   "recipe": "trap",
+   "reason": "Deflections are NBA hustle tracking, not in any Data Room table (the player-games are the box score); Basketball Savant shows season deflections only, on the card.",
+   "gold": null,
+   "calls": []
+  },
+  {
+   "id": "nba-14",
+   "sport": "nba",
+   "kind": "lookup",
+   "question": "Luka Doncic's average shot distance in 2024-25, in feet?",
+   "recipe": "agg",
+   "table": "shots",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "player_id",
+     "op": "eq",
+     "value": 1629029
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "distance"
+   },
+   "tolerance": 0.005,
+   "gold": {
+    "value": 16.954146
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "shots",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "player_id",
+        "op": "eq",
+        "value": 1629029
+       }
+      ],
+      "columns": [
+       "player_id",
+       "distance"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-15",
+   "sport": "nba",
+   "kind": "comparison",
+   "question": "How many more three-point attempts per team-game were taken in 2024-25 than in 2015-16?",
+   "recipe": "per_team_game_diff",
+   "table": "player_games",
+   "seasons": [
+    "2015-16",
+    "2024-25"
+   ],
+   "col": "fg3a",
+   "tolerance": 0.005,
+   "gold": {
+    "value": {
+     "first": 24.081707,
+     "last": 37.582927,
+     "diff": 13.50122
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "player_games",
+      "season": "2015-16",
+      "filters": [],
+      "columns": [
+       "fg3a"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    },
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "player_games",
+      "season": "2024-25",
+      "filters": [],
+      "columns": [
+       "fg3a"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-16",
+   "sport": "nba",
+   "kind": "comparison",
+   "question": "Which team had the best point differential so far this season (2026-27)?",
+   "recipe": "agg",
+   "table": "coaching_games",
+   "seasons": [
+    "@current_nba"
+   ],
+   "filters": [
+    {
+     "column": "type",
+     "op": "eq",
+     "value": "RS"
+    }
+   ],
+   "group": [
+    "team"
+   ],
+   "metric": {
+    "fn": "sum",
+    "col": "margin"
+   },
+   "pick": "max",
+   "in_progress": true,
+   "tolerance": 0,
+   "gold": {
+    "key": "BOS",
+    "value": 129
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "coaching_games",
+      "season": "@current_nba",
+      "filters": [
+       {
+        "column": "type",
+        "op": "eq",
+        "value": "RS"
+       }
+      ],
+      "columns": [
+       "type",
+       "margin",
+       "team"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-17",
+   "sport": "nba",
+   "kind": "trap",
+   "question": "What was the shot clock on each of Stephen Curry's 2024-25 threes?",
+   "recipe": "trap",
+   "reason": "The NBA's shot chart has no shot clock, so the Data Room's shots carry period and game clock only.",
+   "gold": null,
+   "calls": []
+  },
+  {
+   "id": "nba-18",
+   "sport": "nba",
+   "kind": "filter",
+   "question": "In 2024-25, how many players had a triple-double in 10 or more games, and who had the most?",
+   "recipe": "agg",
+   "table": "player_games",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "td3",
+     "op": "eq",
+     "value": 1
+    }
+   ],
+   "group": [
+    "player"
+   ],
+   "metric": {
+    "fn": "count"
+   },
+   "pick": "max",
+   "tolerance": 0,
+   "gold": {
+    "key": "Nikola Jokić",
+    "value": 34
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "player_games",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "td3",
+        "op": "eq",
+        "value": 1
+       }
+      ],
+      "columns": [
+       "td3",
+       "player"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-19",
+   "sport": "nba",
+   "kind": "split",
+   "question": "In 2024-25, did the league shoot better from the restricted area in the first quarter or the fourth?",
+   "recipe": "split",
+   "table": "shots",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "zone",
+     "op": "eq",
+     "value": "Restricted Area"
+    }
+   ],
+   "a": [
+    {
+     "column": "period",
+     "op": "eq",
+     "value": 1
+    }
+   ],
+   "b": [
+    {
+     "column": "period",
+     "op": "eq",
+     "value": 4
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "made"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": {
+     "a": 0.660664,
+     "b": 0.669804
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "shots",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "zone",
+        "op": "eq",
+        "value": "Restricted Area"
+       }
+      ],
+      "columns": [
+       "zone",
+       "period",
+       "made"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nba-20",
+   "sport": "nba",
+   "kind": "filter",
+   "question": "Playoff fit: which 2024-25 team won the most regular-season games against opponents ranked in the top 10 going into the game?",
+   "recipe": "agg",
+   "table": "coaching_games",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "type",
+     "op": "eq",
+     "value": "RS"
+    },
+    {
+     "column": "opp_rank_prior",
+     "op": "lte",
+     "value": 10
+    },
+    {
+     "column": "w",
+     "op": "eq",
+     "value": 1
+    }
+   ],
+   "group": [
+    "team"
+   ],
+   "metric": {
+    "fn": "count"
+   },
+   "pick": "max",
+   "tolerance": 0,
+   "gold": {
+    "key": "OKC",
+    "value": 25
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "coaching_games",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "type",
+        "op": "eq",
+        "value": "RS"
+       },
+       {
+        "column": "opp_rank_prior",
+        "op": "lte",
+        "value": 10
+       },
+       {
+        "column": "w",
+        "op": "eq",
+        "value": 1
+       }
+      ],
+      "columns": [
+       "type",
+       "opp_rank_prior",
+       "w",
+       "team"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-01",
+   "sport": "nfl",
+   "kind": "lookup",
+   "question": "Why are the Chargers bad: where does their offense rank in EPA per play so far this season, out of 32?",
+   "recipe": "agg",
+   "table": "games",
+   "seasons": [
+    "@current_nfl"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    }
+   ],
+   "group": [
+    "team"
+   ],
+   "metric": {
+    "fn": "ratio",
+    "num": "epa",
+    "den": "plays"
+   },
+   "key": "LAC",
+   "rank_of": true,
+   "in_progress": true,
+   "tolerance": 0,
+   "gold": {
+    "value": 32,
+    "of": 32
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "games",
+      "season": "@current_nfl",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       }
+      ],
+      "columns": [
+       "season_type",
+       "epa",
+       "plays",
+       "team"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-02",
+   "sport": "nfl",
+   "kind": "lookup",
+   "question": "And the Chargers' defense: its rank in EPA allowed per play this season (1 = fewest allowed)?",
+   "recipe": "agg",
+   "table": "games",
+   "seasons": [
+    "@current_nfl"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    }
+   ],
+   "group": [
+    "team"
+   ],
+   "metric": {
+    "fn": "ratio",
+    "num": "d_epa",
+    "den": "d_plays"
+   },
+   "key": "LAC",
+   "rank_of": true,
+   "ascending": true,
+   "in_progress": true,
+   "tolerance": 0,
+   "gold": {
+    "value": 17,
+    "of": 32
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "games",
+      "season": "@current_nfl",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       }
+      ],
+      "columns": [
+       "season_type",
+       "d_epa",
+       "d_plays",
+       "team"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-03",
+   "sport": "nfl",
+   "kind": "split",
+   "question": "Chargers this season: EPA per dropback against EPA per designed run.",
+   "recipe": "split_ratio",
+   "table": "games",
+   "seasons": [
+    "@current_nfl"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    },
+    {
+     "column": "team",
+     "op": "eq",
+     "value": "LAC"
+    }
+   ],
+   "a": {
+    "num": "pass_epa",
+    "den": "dropbacks"
+   },
+   "b": {
+    "num": "rush_epa",
+    "den": "runs"
+   },
+   "in_progress": true,
+   "tolerance": 0.0005,
+   "gold": {
+    "value": {
+     "a": -0.240508,
+     "b": -0.231206
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "games",
+      "season": "@current_nfl",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       },
+       {
+        "column": "team",
+        "op": "eq",
+        "value": "LAC"
+       }
+      ],
+      "columns": [
+       "season_type",
+       "team",
+       "pass_epa",
+       "dropbacks",
+       "rush_epa",
+       "runs"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-04",
+   "sport": "nfl",
+   "kind": "split",
+   "question": "How does Patrick Mahomes's EPA per dropback change when he is pressured, 2024 on?",
+   "recipe": "split",
+   "table": "plays",
+   "seasons": [
+    "2024",
+    "2025"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    },
+    {
+     "column": "passer",
+     "op": "eq",
+     "value": "P.Mahomes"
+    },
+    {
+     "column": "qb_dropback",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "two_point",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "column": "pressure",
+     "op": "notnull"
+    }
+   ],
+   "a": [
+    {
+     "column": "pressure",
+     "op": "eq",
+     "value": 1
+    }
+   ],
+   "b": [
+    {
+     "column": "pressure",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "qb_epa"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": {
+     "a": -0.202401,
+     "b": 0.276949
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "plays",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       },
+       {
+        "column": "passer",
+        "op": "eq",
+        "value": "P.Mahomes"
+       },
+       {
+        "column": "qb_dropback",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "two_point",
+        "op": "eq",
+        "value": 0
+       },
+       {
+        "column": "pressure",
+        "op": "notnull"
+       }
+      ],
+      "columns": [
+       "season_type",
+       "passer",
+       "qb_dropback",
+       "two_point",
+       "pressure",
+       "qb_epa"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    },
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "plays",
+      "season": "2025",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       },
+       {
+        "column": "passer",
+        "op": "eq",
+        "value": "P.Mahomes"
+       },
+       {
+        "column": "qb_dropback",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "two_point",
+        "op": "eq",
+        "value": 0
+       },
+       {
+        "column": "pressure",
+        "op": "notnull"
+       }
+      ],
+      "columns": [
+       "season_type",
+       "passer",
+       "qb_dropback",
+       "two_point",
+       "pressure",
+       "qb_epa"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-05",
+   "sport": "nfl",
+   "kind": "split",
+   "question": "Lamar Jackson in 2024: EPA per dropback with and without play action.",
+   "recipe": "split",
+   "table": "plays",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    },
+    {
+     "column": "passer",
+     "op": "eq",
+     "value": "L.Jackson"
+    },
+    {
+     "column": "posteam",
+     "op": "eq",
+     "value": "BAL"
+    },
+    {
+     "column": "qb_dropback",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "two_point",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "a": [
+    {
+     "column": "play_action",
+     "op": "eq",
+     "value": 1
+    }
+   ],
+   "b": [
+    {
+     "column": "play_action",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "qb_epa"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": {
+     "a": 0.449829,
+     "b": 0.320826
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "plays",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       },
+       {
+        "column": "passer",
+        "op": "eq",
+        "value": "L.Jackson"
+       },
+       {
+        "column": "posteam",
+        "op": "eq",
+        "value": "BAL"
+       },
+       {
+        "column": "qb_dropback",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "two_point",
+        "op": "eq",
+        "value": 0
+       }
+      ],
+      "columns": [
+       "season_type",
+       "passer",
+       "posteam",
+       "qb_dropback",
+       "two_point",
+       "play_action",
+       "qb_epa"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-06",
+   "sport": "nfl",
+   "kind": "filter",
+   "question": "How many times did the Lions go for it on fourth down (a run or a pass) in the 2024 regular season?",
+   "recipe": "agg",
+   "table": "plays",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    },
+    {
+     "column": "posteam",
+     "op": "eq",
+     "value": "DET"
+    },
+    {
+     "column": "down",
+     "op": "eq",
+     "value": 4
+    },
+    {
+     "column": "play_type",
+     "op": "in",
+     "value": [
+      "pass",
+      "run"
+     ]
+    }
+   ],
+   "metric": {
+    "fn": "count"
+   },
+   "tolerance": 0,
+   "gold": {
+    "value": 33
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "plays",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       },
+       {
+        "column": "posteam",
+        "op": "eq",
+        "value": "DET"
+       },
+       {
+        "column": "down",
+        "op": "eq",
+        "value": 4
+       },
+       {
+        "column": "play_type",
+        "op": "in",
+        "value": [
+         "pass",
+         "run"
+        ]
+       }
+      ],
+      "columns": [
+       "season_type",
+       "posteam",
+       "down",
+       "play_type"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-07",
+   "sport": "nfl",
+   "kind": "lookup",
+   "question": "What was the longest gain from scrimmage in the 2023 regular season, and by which team?",
+   "recipe": "agg",
+   "table": "plays",
+   "seasons": [
+    "2023"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    },
+    {
+     "column": "play_type",
+     "op": "in",
+     "value": [
+      "pass",
+      "run"
+     ]
+    },
+    {
+     "column": "yards_gained",
+     "op": "gte",
+     "value": 80
+    }
+   ],
+   "group": [
+    "posteam",
+    "game_id",
+    "play_id"
+   ],
+   "metric": {
+    "fn": "max",
+    "col": "yards_gained"
+   },
+   "pick": "max",
+   "tolerance": 0,
+   "gold": {
+    "key": "DAL | 2023_17_DET_DAL | 698",
+    "value": 92
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "plays",
+      "season": "2023",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       },
+       {
+        "column": "play_type",
+        "op": "in",
+        "value": [
+         "pass",
+         "run"
+        ]
+       },
+       {
+        "column": "yards_gained",
+        "op": "gte",
+        "value": 80
+       }
+      ],
+      "columns": [
+       "season_type",
+       "play_type",
+       "yards_gained",
+       "posteam",
+       "game_id",
+       "play_id"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-08",
+   "sport": "nfl",
+   "kind": "comparison",
+   "question": "Bijan Robinson or Jahmyr Gibbs: who had the better EPA per carry in 2024?",
+   "recipe": "agg",
+   "table": "plays",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    },
+    {
+     "column": "play_type",
+     "op": "eq",
+     "value": "run"
+    },
+    {
+     "column": "kneel",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "column": "two_point",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "column": "rusher",
+     "op": "in",
+     "value": [
+      "B.Robinson",
+      "J.Gibbs"
+     ]
+    },
+    {
+     "column": "posteam",
+     "op": "in",
+     "value": [
+      "ATL",
+      "DET"
+     ]
+    }
+   ],
+   "group": [
+    "rusher"
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "epa"
+   },
+   "top": 2,
+   "tolerance": 0.0005,
+   "gold": {
+    "value": [
+     [
+      "J.Gibbs",
+      0.140244
+     ],
+     [
+      "B.Robinson",
+      0.055543
+     ]
+    ]
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "plays",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       },
+       {
+        "column": "play_type",
+        "op": "eq",
+        "value": "run"
+       },
+       {
+        "column": "kneel",
+        "op": "eq",
+        "value": 0
+       },
+       {
+        "column": "two_point",
+        "op": "eq",
+        "value": 0
+       },
+       {
+        "column": "rusher",
+        "op": "in",
+        "value": [
+         "B.Robinson",
+         "J.Gibbs"
+        ]
+       },
+       {
+        "column": "posteam",
+        "op": "in",
+        "value": [
+         "ATL",
+         "DET"
+        ]
+       }
+      ],
+      "columns": [
+       "season_type",
+       "play_type",
+       "kneel",
+       "two_point",
+       "rusher",
+       "posteam",
+       "epa"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-09",
+   "sport": "nfl",
+   "kind": "split",
+   "question": "Fantasy buy or sell: Ja'Marr Chase's targets per game in weeks 1-9 of 2024 against weeks 10-18.",
+   "recipe": "split",
+   "table": "player_games",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "player",
+     "op": "eq",
+     "value": "Ja'Marr Chase"
+    }
+   ],
+   "a": [
+    {
+     "column": "week",
+     "op": "lte",
+     "value": 9
+    }
+   ],
+   "b": [
+    {
+     "column": "week",
+     "op": "gte",
+     "value": 10
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "targets"
+   },
+   "tolerance": 0.005,
+   "gold": {
+    "value": {
+     "a": 7.777778,
+     "b": 13.125
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "player_games",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "player",
+        "op": "eq",
+        "value": "Ja'Marr Chase"
+       }
+      ],
+      "columns": [
+       "player",
+       "week",
+       "targets"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-10",
+   "sport": "nfl",
+   "kind": "filter",
+   "question": "In the 2024 regular season, how often did the favorite cover the closing spread (pushes and pick'ems out)?",
+   "recipe": "cover_rate",
+   "table": "games",
+   "seasons": [
+    "2024"
+   ],
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.533582,
+    "of": 268
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "games",
+      "season": "2024",
+      "filters": [],
+      "columns": [],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-11",
+   "sport": "nfl",
+   "kind": "lookup",
+   "question": "Who had the most PPR fantasy points in a single 2024 game?",
+   "recipe": "agg",
+   "table": "player_games",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "fantasy_points_ppr",
+     "op": "gte",
+     "value": 35
+    }
+   ],
+   "group": [
+    "player",
+    "week"
+   ],
+   "metric": {
+    "fn": "max",
+    "col": "fantasy_points_ppr"
+   },
+   "pick": "max",
+   "tolerance": 0.005,
+   "gold": {
+    "key": "Ja'Marr Chase | 10",
+    "value": 55.4
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "player_games",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "fantasy_points_ppr",
+        "op": "gte",
+        "value": 35
+       }
+      ],
+      "columns": [
+       "fantasy_points_ppr",
+       "player",
+       "week"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-12",
+   "sport": "nfl",
+   "kind": "filter",
+   "question": "League-wide in 2025, what was the success rate of designed runs on third or fourth and 2 or less?",
+   "recipe": "agg",
+   "table": "plays",
+   "seasons": [
+    "2025"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    },
+    {
+     "column": "play_type",
+     "op": "eq",
+     "value": "run"
+    },
+    {
+     "column": "scramble",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "column": "down",
+     "op": "in",
+     "value": [
+      3,
+      4
+     ]
+    },
+    {
+     "column": "ydstogo",
+     "op": "lte",
+     "value": 2
+    },
+    {
+     "column": "two_point",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "success"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.68311
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "plays",
+      "season": "2025",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       },
+       {
+        "column": "play_type",
+        "op": "eq",
+        "value": "run"
+       },
+       {
+        "column": "scramble",
+        "op": "eq",
+        "value": 0
+       },
+       {
+        "column": "down",
+        "op": "in",
+        "value": [
+         3,
+         4
+        ]
+       },
+       {
+        "column": "ydstogo",
+        "op": "lte",
+        "value": 2
+       },
+       {
+        "column": "two_point",
+        "op": "eq",
+        "value": 0
+       }
+      ],
+      "columns": [
+       "season_type",
+       "play_type",
+       "scramble",
+       "down",
+       "ydstogo",
+       "two_point",
+       "success"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-13",
+   "sport": "nfl",
+   "kind": "split",
+   "question": "In 2023, how much did eight or more defenders in the box cost a designed run in EPA, against fewer?",
+   "recipe": "split",
+   "table": "plays",
+   "seasons": [
+    "2023"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    },
+    {
+     "column": "play_type",
+     "op": "eq",
+     "value": "run"
+    },
+    {
+     "column": "scramble",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "column": "box",
+     "op": "notnull"
+    },
+    {
+     "column": "two_point",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "a": [
+    {
+     "column": "box",
+     "op": "gte",
+     "value": 8
+    }
+   ],
+   "b": [
+    {
+     "column": "box",
+     "op": "lt",
+     "value": 8
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "epa"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": {
+     "a": -0.107929,
+     "b": -0.074806
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "plays",
+      "season": "2023",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       },
+       {
+        "column": "play_type",
+        "op": "eq",
+        "value": "run"
+       },
+       {
+        "column": "scramble",
+        "op": "eq",
+        "value": 0
+       },
+       {
+        "column": "box",
+        "op": "notnull"
+       },
+       {
+        "column": "two_point",
+        "op": "eq",
+        "value": 0
+       }
+      ],
+      "columns": [
+       "season_type",
+       "play_type",
+       "scramble",
+       "box",
+       "two_point",
+       "epa"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-14",
+   "sport": "nfl",
+   "kind": "trap",
+   "question": "Which offensive formation did the Chiefs use most this season (2026)?",
+   "recipe": "trap",
+   "reason": "Formation comes from nflverse participation, which since 2023 is published after the season: the season in progress has none (the plays table's formation is null for 2026).",
+   "proof": {
+    "recipe": "agg",
+    "table": "plays",
+    "seasons": [
+     "@current_nfl"
+    ],
+    "filters": [
+     {
+      "column": "formation",
+      "op": "notnull"
+     }
+    ],
+    "metric": {
+     "fn": "count"
+    },
+    "expect": 0
+   },
+   "gold": null,
+   "proof_value": 0,
+   "calls": []
+  },
+  {
+   "id": "nfl-15",
+   "sport": "nfl",
+   "kind": "trap",
+   "question": "What coverage did the defense play on each of Tom Brady's 2015 touchdown passes?",
+   "recipe": "trap",
+   "reason": "Coverage shells start in 2018 (nflverse participation); 2015 has none.",
+   "proof": {
+    "recipe": "agg",
+    "table": "plays",
+    "seasons": [
+     "2015"
+    ],
+    "filters": [
+     {
+      "column": "coverage",
+      "op": "notnull"
+     }
+    ],
+    "metric": {
+     "fn": "count"
+    },
+    "expect": 0
+   },
+   "gold": null,
+   "proof_value": 0,
+   "calls": []
+  },
+  {
+   "id": "nfl-16",
+   "sport": "nfl",
+   "kind": "filter",
+   "question": "What was the league's field-goal percentage from 50 yards and beyond in the 2024 regular season?",
+   "recipe": "agg",
+   "table": "plays",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    },
+    {
+     "column": "play_type",
+     "op": "eq",
+     "value": "field_goal"
+    },
+    {
+     "column": "kick_distance",
+     "op": "gte",
+     "value": 50
+    }
+   ],
+   "metric": {
+    "fn": "share_eq",
+    "col": "field_goal_result",
+    "value": "made"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.698925
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "plays",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       },
+       {
+        "column": "play_type",
+        "op": "eq",
+        "value": "field_goal"
+       },
+       {
+        "column": "kick_distance",
+        "op": "gte",
+        "value": 50
+       }
+      ],
+      "columns": [
+       "season_type",
+       "play_type",
+       "kick_distance",
+       "field_goal_result"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-17",
+   "sport": "nfl",
+   "kind": "comparison",
+   "question": "League EPA per dropback in 1999 against 2024 (regular season, two-point tries out).",
+   "recipe": "agg",
+   "table": "games",
+   "seasons": [
+    "1999",
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    }
+   ],
+   "group": [
+    "@season"
+   ],
+   "metric": {
+    "fn": "ratio",
+    "num": "pass_epa",
+    "den": "dropbacks"
+   },
+   "top": 2,
+   "tolerance": 0.0005,
+   "gold": {
+    "value": [
+     [
+      "2024",
+      0.05235
+     ],
+     [
+      "1999",
+      -0.019428
+     ]
+    ]
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "games",
+      "season": "1999",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       }
+      ],
+      "columns": [
+       "season_type",
+       "pass_epa",
+       "dropbacks",
+       "@season"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    },
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "games",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       }
+      ],
+      "columns": [
+       "season_type",
+       "pass_epa",
+       "dropbacks",
+       "@season"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-18",
+   "sport": "nfl",
+   "kind": "filter",
+   "question": "Which team had the most takeaways in the 2024 regular season?",
+   "recipe": "agg",
+   "table": "games",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    }
+   ],
+   "group": [
+    "team"
+   ],
+   "metric": {
+    "fn": "sum",
+    "col": "d_turnovers"
+   },
+   "pick": "max",
+   "tolerance": 0,
+   "gold": {
+    "key": "MIN",
+    "value": 31
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "games",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       }
+      ],
+      "columns": [
+       "season_type",
+       "d_turnovers",
+       "team"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-19",
+   "sport": "nfl",
+   "kind": "lookup",
+   "question": "Josh Allen's rushing EPA per carry on scrambles in 2024?",
+   "recipe": "agg",
+   "table": "plays",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    },
+    {
+     "column": "rusher",
+     "op": "eq",
+     "value": "J.Allen"
+    },
+    {
+     "column": "posteam",
+     "op": "eq",
+     "value": "BUF"
+    },
+    {
+     "column": "scramble",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "two_point",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "epa"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.806605
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "plays",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       },
+       {
+        "column": "rusher",
+        "op": "eq",
+        "value": "J.Allen"
+       },
+       {
+        "column": "posteam",
+        "op": "eq",
+        "value": "BUF"
+       },
+       {
+        "column": "scramble",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "two_point",
+        "op": "eq",
+        "value": 0
+       }
+      ],
+      "columns": [
+       "season_type",
+       "rusher",
+       "posteam",
+       "scramble",
+       "two_point",
+       "epa"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "nfl-20",
+   "sport": "nfl",
+   "kind": "trap",
+   "question": "How fast was Tyreek Hill running on each of his 2024 touchdowns?",
+   "recipe": "trap",
+   "reason": "Player speed is NFL Next Gen tracking at the frame level; no free source publishes it per play, and no Data Room table carries it.",
+   "gold": null,
+   "calls": []
+  },
+  {
+   "id": "cbb-01",
+   "sport": "cbb",
+   "kind": "lookup",
+   "question": "Duke's average scoring margin in its 2024-25 games against D1 opponents?",
+   "recipe": "team_margin",
+   "table": "games",
+   "seasons": [
+    "2024-25"
+   ],
+   "team": "150",
+   "tolerance": 0.005,
+   "gold": {
+    "value": 20.461538,
+    "of": 39
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cbb",
+      "table": "games",
+      "season": "2024-25",
+      "team": "150",
+      "filters": [],
+      "columns": [],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cbb-02",
+   "sport": "cbb",
+   "kind": "filter",
+   "question": "How many 2024-25 D1 games went to overtime?",
+   "recipe": "agg",
+   "table": "games",
+   "seasons": [
+    "2024-25"
+   ],
+   "filters": [
+    {
+     "column": "ot",
+     "op": "gte",
+     "value": 1
+    },
+    {
+     "column": "non_d1",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "metric": {
+    "fn": "count"
+   },
+   "tolerance": 0,
+   "gold": {
+    "value": 323
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cbb",
+      "table": "games",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "ot",
+        "op": "gte",
+        "value": 1
+       },
+       {
+        "column": "non_d1",
+        "op": "eq",
+        "value": 0
+       }
+      ],
+      "columns": [
+       "ot",
+       "non_d1"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cbb-03",
+   "sport": "cbb",
+   "kind": "split",
+   "question": "Auburn in 2025-26: points per possession on possessions right after its own timeout, against all others.",
+   "recipe": "split",
+   "table": "possessions",
+   "seasons": [
+    "2025-26"
+   ],
+   "team": "Auburn",
+   "filters": [
+    {
+     "column": "garbage",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "a": [
+    {
+     "column": "timeout_before",
+     "op": "eq",
+     "value": "own"
+    }
+   ],
+   "b": [
+    {
+     "column": "timeout_before",
+     "op": "ne",
+     "value": "own"
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "pts"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": {
+     "a": 0.962963,
+     "b": 1.185123
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cbb",
+      "table": "possessions",
+      "season": "2025-26",
+      "team": "Auburn",
+      "filters": [
+       {
+        "column": "garbage",
+        "op": "eq",
+        "value": 0
+       }
+      ],
+      "columns": [
+       "garbage",
+       "timeout_before",
+       "pts"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cbb-04",
+   "sport": "cbb",
+   "kind": "filter",
+   "question": "Across D1 in 2024-25, how often did the home team win (neutral sites out)?",
+   "recipe": "home_win_rate",
+   "table": "games",
+   "seasons": [
+    "2024-25"
+   ],
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.647761,
+    "of": 5025
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cbb",
+      "table": "games",
+      "season": "2024-25",
+      "filters": [],
+      "columns": [],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cbb-05",
+   "sport": "cbb",
+   "kind": "lookup",
+   "question": "Which program has the most head-coach seasons on record in College Basketball Coaching Savant's programs table?",
+   "recipe": "agg",
+   "table": "coaching_programs",
+   "seasons": [
+    "all"
+   ],
+   "group": [
+    "team"
+   ],
+   "metric": {
+    "fn": "count"
+   },
+   "pick": "max",
+   "tolerance": 0,
+   "gold": {
+    "key": "282",
+    "value": 203
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cbb",
+      "table": "coaching_programs",
+      "season": "all",
+      "filters": [],
+      "columns": [
+       "team"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cbb-06",
+   "sport": "cbb",
+   "kind": "filter",
+   "question": "Scouting a coach's roster building: how many transfers did Kentucky bring in for 2025-26?",
+   "recipe": "agg",
+   "table": "coaching_roster_moves",
+   "seasons": [
+    "2025-26"
+   ],
+   "filters": [
+    {
+     "column": "team",
+     "op": "eq",
+     "value": "96"
+    },
+    {
+     "column": "source",
+     "op": "eq",
+     "value": "transfer"
+    }
+   ],
+   "metric": {
+    "fn": "count"
+   },
+   "tolerance": 0,
+   "gold": {
+    "value": 5
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cbb",
+      "table": "coaching_roster_moves",
+      "season": "2025-26",
+      "filters": [
+       {
+        "column": "team",
+        "op": "eq",
+        "value": "96"
+       },
+       {
+        "column": "source",
+        "op": "eq",
+        "value": "transfer"
+       }
+      ],
+      "columns": [
+       "team",
+       "source"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cbb-07",
+   "sport": "cbb",
+   "kind": "lookup",
+   "question": "Which D1 team had the best adjusted net rating in 2024-25?",
+   "recipe": "field",
+   "field": "cbb_top_net",
+   "tolerance": 0.05,
+   "gold": {
+    "key": "Duke",
+    "value": 37.9
+   },
+   "calls": [
+    {
+     "tool": "cbb_team_rankings",
+     "args": {
+      "season": "2024-25",
+      "sort": "net",
+      "limit": 1
+     }
+    }
+   ]
+  },
+  {
+   "id": "cbb-08",
+   "sport": "cbb",
+   "kind": "trap",
+   "question": "How many drives per game did Cooper Flagg have at Duke (NBA-style tracking)?",
+   "recipe": "trap",
+   "reason": "College basketball has no player-tracking feed; drives are not in any college table (play-by-play, box score and shot data only).",
+   "gold": null,
+   "calls": []
+  },
+  {
+   "id": "cbb-09",
+   "sport": "cbb",
+   "kind": "split",
+   "question": "Auburn 2025-26: points per possession on possessions in transition (started off a steal or defensive rebound) against all others, garbage time out.",
+   "recipe": "split",
+   "table": "possessions",
+   "seasons": [
+    "2025-26"
+   ],
+   "team": "Auburn",
+   "filters": [
+    {
+     "column": "garbage",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "a": [
+    {
+     "column": "start_kind",
+     "op": "in",
+     "value": [
+      "steal",
+      "dreb"
+     ]
+    }
+   ],
+   "b": [
+    {
+     "column": "start_kind",
+     "op": "nin",
+     "value": [
+      "steal",
+      "dreb"
+     ]
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "pts"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": {
+     "a": 1.21609,
+     "b": 1.156181
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cbb",
+      "table": "possessions",
+      "season": "2025-26",
+      "team": "Auburn",
+      "filters": [
+       {
+        "column": "garbage",
+        "op": "eq",
+        "value": 0
+       }
+      ],
+      "columns": [
+       "garbage",
+       "start_kind",
+       "pts"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cbb-10",
+   "sport": "cbb",
+   "kind": "filter",
+   "question": "How many D1 games has Duke played so far this season (2026-27)?",
+   "recipe": "agg",
+   "table": "games",
+   "seasons": [
+    "@current_cbb"
+   ],
+   "team": "150",
+   "filters": [
+    {
+     "column": "non_d1",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "metric": {
+    "fn": "count"
+   },
+   "in_progress": true,
+   "tolerance": 0,
+   "gold": {
+    "value": 3
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cbb",
+      "table": "games",
+      "season": "@current_cbb",
+      "team": "150",
+      "filters": [
+       {
+        "column": "non_d1",
+        "op": "eq",
+        "value": 0
+       }
+      ],
+      "columns": [
+       "non_d1"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cbb-11",
+   "sport": "cbb",
+   "kind": "comparison",
+   "question": "College coaching: in 2024-25, how did teams do against the spread as home favorites? (Share of games a home team favored by its own number won by more.)",
+   "recipe": "cbb_home_fav_cover",
+   "table": "coaching_games",
+   "seasons": [
+    "2024-25"
+   ],
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.496952,
+    "of": 3445
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cbb",
+      "table": "coaching_games",
+      "season": "2024-25",
+      "filters": [],
+      "columns": [],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cbb-12",
+   "sport": "cbb",
+   "kind": "trap",
+   "question": "What was the attendance at each of Kansas's 2024-25 home games?",
+   "recipe": "trap",
+   "reason": "Attendance is not carried in any college basketball table (the games table holds scores, site, line and data-quality flags).",
+   "gold": null,
+   "calls": []
+  },
+  {
+   "id": "cfb-01",
+   "sport": "cfb",
+   "kind": "lookup",
+   "question": "Ohio State's offensive EPA per play in its 2024 games (garbage time in), play-weighted?",
+   "recipe": "weighted",
+   "table": "games",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "team",
+     "op": "eq",
+     "value": "Ohio State Buckeyes"
+    },
+    {
+     "column": "plays",
+     "op": "notnull"
+    }
+   ],
+   "value": "epa_play",
+   "weight": "plays",
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.16746
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cfb",
+      "table": "games",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "team",
+        "op": "eq",
+        "value": "Ohio State Buckeyes"
+       },
+       {
+        "column": "plays",
+        "op": "notnull"
+       }
+      ],
+      "columns": [
+       "team",
+       "plays",
+       "epa_play"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cfb-02",
+   "sport": "cfb",
+   "kind": "lookup",
+   "question": "Which passer had the most dropbacks in counted 2024 games, garbage time out?",
+   "recipe": "agg",
+   "table": "plays",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "scrimmage",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "pass",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "garbage",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "column": "passer_id",
+     "op": "notnull"
+    }
+   ],
+   "group": [
+    "passer"
+   ],
+   "metric": {
+    "fn": "count"
+   },
+   "pick": "max",
+   "tolerance": 0,
+   "gold": {
+    "key": "Kyle McCord",
+    "value": 528
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cfb",
+      "table": "plays",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "scrimmage",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "pass",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "garbage",
+        "op": "eq",
+        "value": 0
+       },
+       {
+        "column": "passer_id",
+        "op": "notnull"
+       }
+      ],
+      "columns": [
+       "scrimmage",
+       "pass",
+       "garbage",
+       "passer_id",
+       "passer"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cfb-03",
+   "sport": "cfb",
+   "kind": "split",
+   "question": "On charted 2025 plays, how much worse was the average FBS dropback when the passer was pressured?",
+   "recipe": "split",
+   "table": "plays",
+   "seasons": [
+    "2025"
+   ],
+   "filters": [
+    {
+     "column": "charted",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "pass",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "garbage",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "a": [
+    {
+     "column": "pressured",
+     "op": "eq",
+     "value": 1
+    }
+   ],
+   "b": [
+    {
+     "column": "pressured",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "epa"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": {
+     "a": -1.296359,
+     "b": 0.200311
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cfb",
+      "table": "plays",
+      "season": "2025",
+      "filters": [
+       {
+        "column": "charted",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "pass",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "garbage",
+        "op": "eq",
+        "value": 0
+       }
+      ],
+      "columns": [
+       "charted",
+       "pass",
+       "garbage",
+       "pressured",
+       "epa"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cfb-04",
+   "sport": "cfb",
+   "kind": "lookup",
+   "question": "What share of Alabama's 2024 scrimmage plays came in garbage time?",
+   "recipe": "agg",
+   "table": "plays",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "offense",
+     "op": "eq",
+     "value": "Alabama Crimson Tide"
+    },
+    {
+     "column": "scrimmage",
+     "op": "eq",
+     "value": 1
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "garbage"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.110526
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cfb",
+      "table": "plays",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "offense",
+        "op": "eq",
+        "value": "Alabama Crimson Tide"
+       },
+       {
+        "column": "scrimmage",
+        "op": "eq",
+        "value": 1
+       }
+      ],
+      "columns": [
+       "offense",
+       "scrimmage",
+       "garbage"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cfb-05",
+   "sport": "cfb",
+   "kind": "filter",
+   "question": "Georgia's third-down conversion rate in 2023, garbage time out?",
+   "recipe": "agg",
+   "table": "plays",
+   "seasons": [
+    "2023"
+   ],
+   "filters": [
+    {
+     "column": "offense",
+     "op": "eq",
+     "value": "Georgia Bulldogs"
+    },
+    {
+     "column": "scrimmage",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "down",
+     "op": "eq",
+     "value": 3
+    },
+    {
+     "column": "garbage",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "first_down"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.545455
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cfb",
+      "table": "plays",
+      "season": "2023",
+      "filters": [
+       {
+        "column": "offense",
+        "op": "eq",
+        "value": "Georgia Bulldogs"
+       },
+       {
+        "column": "scrimmage",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "down",
+        "op": "eq",
+        "value": 3
+       },
+       {
+        "column": "garbage",
+        "op": "eq",
+        "value": 0
+       }
+      ],
+      "columns": [
+       "offense",
+       "scrimmage",
+       "down",
+       "garbage",
+       "first_down"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cfb-06",
+   "sport": "cfb",
+   "kind": "lookup",
+   "question": "What was the biggest upset of 2024 by College Football Savant's pre-game win probability (FBS vs FBS)?",
+   "recipe": "agg",
+   "table": "games",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "result",
+     "op": "eq",
+     "value": "W"
+    },
+    {
+     "column": "fbs_game",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "pregame_wp",
+     "op": "notnull"
+    }
+   ],
+   "group": [
+    "team",
+    "opponent",
+    "date"
+   ],
+   "metric": {
+    "fn": "min",
+    "col": "pregame_wp"
+   },
+   "pick": "max",
+   "ascending": true,
+   "tolerance": 0.0005,
+   "gold": {
+    "key": "Northern Illinois Huskies | Notre Dame Fighting Irish | 2024-09-07",
+    "value": 0.043
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cfb",
+      "table": "games",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "result",
+        "op": "eq",
+        "value": "W"
+       },
+       {
+        "column": "fbs_game",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "pregame_wp",
+        "op": "notnull"
+       }
+      ],
+      "columns": [
+       "result",
+       "fbs_game",
+       "pregame_wp",
+       "team",
+       "opponent",
+       "date"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cfb-07",
+   "sport": "cfb",
+   "kind": "trap",
+   "question": "Caleb Williams's average air yards per attempt at USC in 2023?",
+   "recipe": "trap",
+   "reason": "Air yards come from the charting layer, which starts in 2025 week 9; 2023 has no air yards in any table.",
+   "proof": {
+    "recipe": "agg",
+    "table": "plays",
+    "seasons": [
+     "2023"
+    ],
+    "filters": [
+     {
+      "column": "air_yards",
+      "op": "notnull"
+     }
+    ],
+    "metric": {
+     "fn": "count"
+    },
+    "expect": 0
+   },
+   "gold": null,
+   "proof_value": 0,
+   "calls": []
+  },
+  {
+   "id": "cfb-08",
+   "sport": "cfb",
+   "kind": "comparison",
+   "question": "Scouting for a coach: Fernando Mendoza (Indiana) and Julian Sayin (Ohio State), EPA per dropback in 2025, garbage time out.",
+   "recipe": "agg",
+   "table": "plays",
+   "seasons": [
+    "2025"
+   ],
+   "filters": [
+    {
+     "column": "scrimmage",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "pass",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "garbage",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "column": "passer",
+     "op": "in",
+     "value": [
+      "Fernando Mendoza",
+      "Julian Sayin"
+     ]
+    }
+   ],
+   "group": [
+    "passer"
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "epa"
+   },
+   "top": 2,
+   "tolerance": 0.0005,
+   "gold": {
+    "value": [
+     [
+      "Julian Sayin",
+      0.358019
+     ],
+     [
+      "Fernando Mendoza",
+      0.275837
+     ]
+    ]
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cfb",
+      "table": "plays",
+      "season": "2025",
+      "filters": [
+       {
+        "column": "scrimmage",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "pass",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "garbage",
+        "op": "eq",
+        "value": 0
+       },
+       {
+        "column": "passer",
+        "op": "in",
+        "value": [
+         "Fernando Mendoza",
+         "Julian Sayin"
+        ]
+       }
+      ],
+      "columns": [
+       "scrimmage",
+       "pass",
+       "garbage",
+       "passer",
+       "epa"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cfb-09",
+   "sport": "cfb",
+   "kind": "lookup",
+   "question": "Which FBS team has the best offensive EPA per play so far this season (2026), with 5+ games?",
+   "recipe": "weighted_by",
+   "table": "games",
+   "seasons": [
+    "@current_cfb"
+   ],
+   "filters": [
+    {
+     "column": "fbs_game",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "plays",
+     "op": "notnull"
+    }
+   ],
+   "group": [
+    "team"
+   ],
+   "value": "epa_play",
+   "weight": "plays",
+   "min_games": 5,
+   "in_progress": true,
+   "tolerance": 0.0005,
+   "gold": {
+    "key": "Boise State Broncos",
+    "value": 0.288078
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cfb",
+      "table": "games",
+      "season": "@current_cfb",
+      "filters": [
+       {
+        "column": "fbs_game",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "plays",
+        "op": "notnull"
+       }
+      ],
+      "columns": [
+       "fbs_game",
+       "plays",
+       "epa_play",
+       "team"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cfb-10",
+   "sport": "cfb",
+   "kind": "filter",
+   "question": "How many 2024 FBS-vs-FBS games did the team College Football Savant favored pre-game lose?",
+   "recipe": "agg",
+   "table": "games",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "fbs_game",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "pregame_wp",
+     "op": "gt",
+     "value": 0.5
+    },
+    {
+     "column": "result",
+     "op": "eq",
+     "value": "L"
+    }
+   ],
+   "metric": {
+    "fn": "count"
+   },
+   "tolerance": 0,
+   "gold": {
+    "value": 239
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cfb",
+      "table": "games",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "fbs_game",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "pregame_wp",
+        "op": "gt",
+        "value": 0.5
+       },
+       {
+        "column": "result",
+        "op": "eq",
+        "value": "L"
+       }
+      ],
+      "columns": [
+       "fbs_game",
+       "pregame_wp",
+       "result"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "cfb-11",
+   "sport": "cfb",
+   "kind": "trap",
+   "question": "What were Ohio State's practice snap counts in 2024?",
+   "recipe": "trap",
+   "reason": "No free source publishes snap counts for college football (ESPN's play-by-play names the ball carrier and a few defenders, not the eleven on the field).",
+   "gold": null,
+   "calls": []
+  },
+  {
+   "id": "cfb-12",
+   "sport": "cfb",
+   "kind": "filter",
+   "question": "In 2024, what share of red-zone scrimmage plays (garbage time out) ended in a touchdown?",
+   "recipe": "agg",
+   "table": "plays",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "scrimmage",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "red_zone",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "garbage",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "metric": {
+    "fn": "mean",
+    "col": "touchdown"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.226621
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cfb",
+      "table": "plays",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "scrimmage",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "red_zone",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "garbage",
+        "op": "eq",
+        "value": 0
+       }
+      ],
+      "columns": [
+       "scrimmage",
+       "red_zone",
+       "garbage",
+       "touchdown"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "ufc-01",
+   "sport": "ufc",
+   "kind": "lookup",
+   "question": "Most significant strikes landed by one fighter in a single fight in 2024?",
+   "recipe": "agg",
+   "table": "fights",
+   "seasons": [
+    "2024"
+   ],
+   "group": [
+    "fighter",
+    "fight_id"
+   ],
+   "metric": {
+    "fn": "max",
+    "col": "ss"
+   },
+   "pick": "max",
+   "tolerance": 0,
+   "gold": {
+    "key": "Sean O'Malley | 894c44c3d04aaf6f",
+    "value": 230
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "ufc",
+      "table": "fights",
+      "season": "2024",
+      "filters": [],
+      "columns": [
+       "ss",
+       "fighter",
+       "fight_id"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "ufc-02",
+   "sport": "ufc",
+   "kind": "filter",
+   "question": "Which fighter fought the most times in 2025?",
+   "recipe": "agg",
+   "table": "fights",
+   "seasons": [
+    "2025"
+   ],
+   "group": [
+    "fighter"
+   ],
+   "metric": {
+    "fn": "count"
+   },
+   "pick": "max",
+   "tolerance": 0,
+   "gold": {
+    "key": "Kevin Holland",
+    "value": 5
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "ufc",
+      "table": "fights",
+      "season": "2025",
+      "filters": [],
+      "columns": [
+       "fighter"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "ufc-03",
+   "sport": "ufc",
+   "kind": "filter",
+   "question": "What share of 2024 heavyweight fights ended by KO/TKO?",
+   "recipe": "agg",
+   "table": "fights",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "division",
+     "op": "eq",
+     "value": "Heavyweight"
+    },
+    {
+     "column": "result",
+     "op": "eq",
+     "value": "W"
+    }
+   ],
+   "metric": {
+    "fn": "share_eq",
+    "col": "finish",
+    "value": "KO"
+   },
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.354839
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "ufc",
+      "table": "fights",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "division",
+        "op": "eq",
+        "value": "Heavyweight"
+       },
+       {
+        "column": "result",
+        "op": "eq",
+        "value": "W"
+       }
+      ],
+      "columns": [
+       "division",
+       "result",
+       "finish"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "ufc-04",
+   "sport": "ufc",
+   "kind": "lookup",
+   "question": "Islam Makhachev's total control time in UFC fights from 2022 through 2025, in minutes?",
+   "recipe": "agg",
+   "table": "fights",
+   "seasons": [
+    "2022",
+    "2023",
+    "2024",
+    "2025"
+   ],
+   "filters": [
+    {
+     "column": "fighter",
+     "op": "eq",
+     "value": "Islam Makhachev"
+    }
+   ],
+   "metric": {
+    "fn": "sum_div",
+    "col": "ctrl",
+    "div": 60
+   },
+   "tolerance": 0.005,
+   "gold": {
+    "value": 45.966667
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "ufc",
+      "table": "fights",
+      "season": "2022",
+      "filters": [
+       {
+        "column": "fighter",
+        "op": "eq",
+        "value": "Islam Makhachev"
+       }
+      ],
+      "columns": [
+       "fighter",
+       "ctrl"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    },
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "ufc",
+      "table": "fights",
+      "season": "2023",
+      "filters": [
+       {
+        "column": "fighter",
+        "op": "eq",
+        "value": "Islam Makhachev"
+       }
+      ],
+      "columns": [
+       "fighter",
+       "ctrl"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    },
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "ufc",
+      "table": "fights",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "fighter",
+        "op": "eq",
+        "value": "Islam Makhachev"
+       }
+      ],
+      "columns": [
+       "fighter",
+       "ctrl"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    },
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "ufc",
+      "table": "fights",
+      "season": "2025",
+      "filters": [
+       {
+        "column": "fighter",
+        "op": "eq",
+        "value": "Islam Makhachev"
+       }
+      ],
+      "columns": [
+       "fighter",
+       "ctrl"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "ufc-05",
+   "sport": "ufc",
+   "kind": "filter",
+   "question": "How many title fights were there in 2023?",
+   "recipe": "agg",
+   "table": "fights",
+   "seasons": [
+    "2023"
+   ],
+   "filters": [
+    {
+     "column": "title",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "column": "result",
+     "op": "in",
+     "value": [
+      "W",
+      "D",
+      "NC"
+     ]
+    }
+   ],
+   "metric": {
+    "fn": "count_distinct",
+    "col": "fight_id"
+   },
+   "tolerance": 0,
+   "gold": {
+    "value": 25
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "ufc",
+      "table": "fights",
+      "season": "2023",
+      "filters": [
+       {
+        "column": "title",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "result",
+        "op": "in",
+        "value": [
+         "W",
+         "D",
+         "NC"
+        ]
+       }
+      ],
+      "columns": [
+       "title",
+       "result",
+       "fight_id"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "ufc-06",
+   "sport": "ufc",
+   "kind": "trap",
+   "question": "How did each judge score round 2 of Holly Holm vs Irene Aldana?",
+   "recipe": "trap",
+   "reason": "UFC Savant holds each judge's total for the fight (the detail column), not round-by-round scorecards.",
+   "gold": null,
+   "calls": []
+  },
+  {
+   "id": "ufc-07",
+   "sport": "ufc",
+   "kind": "lookup",
+   "question": "Average fight length in women's flyweight in 2024, in minutes?",
+   "recipe": "agg",
+   "table": "fights",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "division",
+     "op": "eq",
+     "value": "Women's Flyweight"
+    },
+    {
+     "column": "result",
+     "op": "in",
+     "value": [
+      "W",
+      "D",
+      "NC"
+     ]
+    }
+   ],
+   "metric": {
+    "fn": "mean_div",
+    "col": "fight_seconds",
+    "div": 60
+   },
+   "tolerance": 0.005,
+   "gold": {
+    "value": 15.075595
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "ufc",
+      "table": "fights",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "division",
+        "op": "eq",
+        "value": "Women's Flyweight"
+       },
+       {
+        "column": "result",
+        "op": "in",
+        "value": [
+         "W",
+         "D",
+         "NC"
+        ]
+       }
+      ],
+      "columns": [
+       "division",
+       "result",
+       "fight_seconds"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "ufc-08",
+   "sport": "ufc",
+   "kind": "filter",
+   "question": "How many UFC fights have there been so far this year (2026)?",
+   "recipe": "agg",
+   "table": "fights",
+   "seasons": [
+    "@current_ufc"
+   ],
+   "metric": {
+    "fn": "count_distinct",
+    "col": "fight_id"
+   },
+   "in_progress": true,
+   "tolerance": 0,
+   "gold": {
+    "value": 494
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "ufc",
+      "table": "fights",
+      "season": "@current_ufc",
+      "filters": [],
+      "columns": [
+       "fight_id"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "x-01",
+   "sport": "cross",
+   "kind": "comparison",
+   "question": "Oklahoma City in 2024-25: win rate in the games Shai Gilgeous-Alexander played against the games he missed.",
+   "recipe": "with_without",
+   "player_id": 1628983,
+   "team": "OKC",
+   "season": "2024-25",
+   "tolerance": 0.0005,
+   "gold": {
+    "value": {
+     "with": 0.828947,
+     "without": 0.833333
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "coaching_games",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "team",
+        "op": "eq",
+        "value": "OKC"
+       }
+      ],
+      "columns": [
+       "nba_gid",
+       "w"
+      ]
+     },
+     "paged": true
+    },
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "player_games",
+      "season": "2024-25",
+      "filters": [
+       {
+        "column": "player_id",
+        "op": "eq",
+        "value": 1628983
+       }
+      ],
+      "columns": [
+       "game_id"
+      ]
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "x-02",
+   "sport": "cross",
+   "data_sport": "nfl",
+   "kind": "split",
+   "question": "Kansas City 2024: offensive EPA per play in games it was favored by 7 or more, against the rest.",
+   "recipe": "split_ratio_rows",
+   "table": "games",
+   "seasons": [
+    "2024"
+   ],
+   "filters": [
+    {
+     "column": "team",
+     "op": "eq",
+     "value": "KC"
+    },
+    {
+     "column": "season_type",
+     "op": "eq",
+     "value": "REG"
+    }
+   ],
+   "a": [
+    {
+     "column": "favored_by",
+     "op": "gte",
+     "value": 7
+    }
+   ],
+   "b": [
+    {
+     "column": "favored_by",
+     "op": "lt",
+     "value": 7
+    }
+   ],
+   "num": "epa",
+   "den": "plays",
+   "tolerance": 0.0005,
+   "gold": {
+    "value": {
+     "a": 0.0865,
+     "b": 0.063133
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "games",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "team",
+        "op": "eq",
+        "value": "KC"
+       },
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       }
+      ],
+      "columns": [
+       "team",
+       "season_type",
+       "favored_by",
+       "epa",
+       "plays"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "x-03",
+   "sport": "cross",
+   "kind": "comparison",
+   "question": "Caleb Williams: EPA per dropback at USC in 2023 (garbage time out) against his NFL rookie 2024 (EPA per dropback, qb_epa).",
+   "recipe": "two",
+   "parts": [
+    {
+     "sport": "cfb",
+     "recipe": "agg",
+     "table": "plays",
+     "seasons": [
+      "2023"
+     ],
+     "filters": [
+      {
+       "column": "scrimmage",
+       "op": "eq",
+       "value": 1
+      },
+      {
+       "column": "pass",
+       "op": "eq",
+       "value": 1
+      },
+      {
+       "column": "garbage",
+       "op": "eq",
+       "value": 0
+      },
+      {
+       "column": "passer",
+       "op": "eq",
+       "value": "Caleb Williams"
+      }
+     ],
+     "metric": {
+      "fn": "mean",
+      "col": "epa"
+     }
+    },
+    {
+     "sport": "nfl",
+     "recipe": "agg",
+     "table": "plays",
+     "seasons": [
+      "2024"
+     ],
+     "filters": [
+      {
+       "column": "season_type",
+       "op": "eq",
+       "value": "REG"
+      },
+      {
+       "column": "passer",
+       "op": "eq",
+       "value": "C.Williams"
+      },
+      {
+       "column": "posteam",
+       "op": "eq",
+       "value": "CHI"
+      },
+      {
+       "column": "qb_dropback",
+       "op": "eq",
+       "value": 1
+      },
+      {
+       "column": "two_point",
+       "op": "eq",
+       "value": 0
+      },
+      {
+       "column": "kneel",
+       "op": "eq",
+       "value": 0
+      },
+      {
+       "column": "spike",
+       "op": "eq",
+       "value": 0
+      }
+     ],
+     "metric": {
+      "fn": "mean",
+      "col": "qb_epa"
+     }
+    }
+   ],
+   "tolerance": 0.0005,
+   "gold": {
+    "value": [
+     0.221012,
+     -0.071008
+    ]
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "cfb",
+      "table": "plays",
+      "season": "2023",
+      "filters": [
+       {
+        "column": "scrimmage",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "pass",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "garbage",
+        "op": "eq",
+        "value": 0
+       },
+       {
+        "column": "passer",
+        "op": "eq",
+        "value": "Caleb Williams"
+       }
+      ],
+      "columns": [
+       "scrimmage",
+       "pass",
+       "garbage",
+       "passer",
+       "epa"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    },
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "plays",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       },
+       {
+        "column": "passer",
+        "op": "eq",
+        "value": "C.Williams"
+       },
+       {
+        "column": "posteam",
+        "op": "eq",
+        "value": "CHI"
+       },
+       {
+        "column": "qb_dropback",
+        "op": "eq",
+        "value": 1
+       },
+       {
+        "column": "two_point",
+        "op": "eq",
+        "value": 0
+       },
+       {
+        "column": "kneel",
+        "op": "eq",
+        "value": 0
+       },
+       {
+        "column": "spike",
+        "op": "eq",
+        "value": 0
+       }
+      ],
+      "columns": [
+       "season_type",
+       "passer",
+       "posteam",
+       "qb_dropback",
+       "two_point",
+       "kneel",
+       "spike",
+       "qb_epa"
+      ],
+      "limit": 500
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "x-04",
+   "sport": "cross",
+   "kind": "comparison",
+   "question": "NBA shots and player-games: what share of Stephen Curry's 2024-25 points came on threes?",
+   "recipe": "curry_threes",
+   "tolerance": 0.0005,
+   "gold": {
+    "value": 0.543073
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "player_games",
+      "season": "2024-25"
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "x-05",
+   "sport": "cross",
+   "kind": "lookup",
+   "question": "Do UFC Savant's career numbers and the Data Room agree on Islam Makhachev's significant strikes landed per minute (UFC career)?",
+   "recipe": "field",
+   "field": "ufc_slpm_vs_room",
+   "tolerance": 0.0002,
+   "gold": {
+    "value": 2.2708
+   },
+   "calls": [
+    {
+     "tool": "ufc_get_fighter_profile",
+     "args": {
+      "fighter": "Islam Makhachev"
+     }
+    }
+   ]
+  },
+  {
+   "id": "x-06",
+   "sport": "cross",
+   "kind": "comparison",
+   "question": "Football Savant's own team page against the Data Room: the Bills' 2024 offensive plays (regular season), by both.",
+   "recipe": "field",
+   "field": "nfl_team_plays_vs_room",
+   "tolerance": 0,
+   "gold": {
+    "value": 1004
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nfl",
+      "table": "games",
+      "season": "2024",
+      "filters": [
+       {
+        "column": "team",
+        "op": "eq",
+        "value": "BUF"
+       },
+       {
+        "column": "season_type",
+        "op": "eq",
+        "value": "REG"
+       }
+      ],
+      "columns": [
+       "plays"
+      ],
+      "limit": 500
+     }
+    }
+   ]
+  },
+  {
+   "id": "x-07",
+   "sport": "cross",
+   "kind": "comparison",
+   "question": "Basketball Coaching Savant's games table against Basketball Savant's player-games: points the Nuggets scored in 2024-25, summed both ways.",
+   "recipe": "nuggets_points",
+   "tolerance": 0,
+   "gold": {
+    "value": {
+     "coaching_games": 9902,
+     "player_games": 9902
+    }
+   },
+   "calls": [
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "player_games",
+      "season": "2024-25"
+     },
+     "paged": true
+    },
+    {
+     "tool": "savant_data",
+     "args": {
+      "sport": "nba",
+      "table": "coaching_games",
+      "season": "2024-25"
+     },
+     "paged": true
+    }
+   ]
+  },
+  {
+   "id": "x-08",
+   "sport": "cross",
+   "kind": "trap",
+   "question": "What were Cooper Flagg's high school (Montverde) stats?",
+   "recipe": "trap",
+   "reason": "No tool or table covers high school basketball; College Basketball Savant starts at D1 and Draft Savant holds college and pre-draft data only.",
+   "gold": null,
+   "calls": []
+  }
+ ]
+}

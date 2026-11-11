@@ -418,7 +418,6 @@ export async function coachingDictionary({ table } = {}) {
 // ---- the tools -----------------------------------------------------------------------
 const pct = z.number().int().min(1).max(99).nullable()
 const statShape = z.object({ key: z.string(), label: z.string(), group: z.string().optional(), kind: z.string().optional(), value: z.number().nullable(), display: z.string(), percentile: pct.optional(), pool: z.string().optional(), pool_size: z.number().int().nullable().optional(), sample: z.number().nullable().optional(), seasons_covered: z.number().int().optional(), small_sample: z.boolean().optional(), lower_is_better: z.boolean().optional(), since: z.string().optional(), what: z.string().nullable().optional() }).passthrough()
-const filterShape = z.object({ column: z.string(), op: z.enum(['eq', 'ne', 'in', 'gte', 'lte', 'gt', 'lt', 'contains', 'null', 'notnull']), value: z.any().optional() })
 
 export const tools = [
   {

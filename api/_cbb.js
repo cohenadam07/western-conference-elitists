@@ -23,7 +23,6 @@ export const POOLS = ['position', 'all', 'high_major', 'conference', 'same_age']
 const POOLKEY = { position: 'pos', all: 'all', high_major: 'hm', conference: 'conf', same_age: 'age' }
 const TABLES = ['games', 'player_games', 'units', 'possessions']
 const SPLIT_COLS = ['games', 'minutes', 'possessions', 'pts_per_poss', 'ts', 'efg', 'fg3', 'ast_per_poss', 'reb_per_poss', 'tov_pct', 'usg', 'stl_pct', 'blk_pct']
-const MAX_ROWS = 500
 
 const reg = () => files.load('registry.json')
 const index = () => files.load('index.json')
@@ -590,7 +589,6 @@ const who = z.string().trim().min(2).max(80).describe('Player name or ESPN id, e
 const school = z.string().trim().min(2).max(60).describe('Team name or ESPN team id, e.g. "Duke".')
 const opts = { pool: z.enum(POOLS).default('position').describe('Percentile pool.'), adjusted: z.boolean().default(true).describe('Opponent-adjusted where the stat has it.'), garbage_time: z.boolean().default(false).describe('Include garbage time.'), per: z.union([z.literal(70), z.literal(100)]).default(70).describe('Rates per 70 or per 100 possessions.') }
 const tool = (name, title, description, inputSchema, outputSchema, run) => ({ name, config: { title, description, inputSchema, outputSchema, annotations: { title, ...READ_ONLY } }, run })
-const filterShape = z.object({ column: z.string(), op: z.enum(['eq', 'gte', 'lte', 'gt', 'lt', 'contains']), value: z.any() })
 
 export const tools = [
   tool('cbb_search_players', 'Search men\'s college players', 'Find men\'s Division I players in College Basketball Savant (wcehoops.com) by name, 2009-10 on (2011-12 and 2012-13 are not on the site). Tolerates accents and small typos.', { query: z.string().trim().min(2).max(80).describe('Player name or part of one.'), limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.') }, { query: z.string(), total: z.number().int(), count: z.number().int(), players: z.array(open) }, searchPlayers),

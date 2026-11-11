@@ -326,7 +326,6 @@ export async function coachingDictionary({ table } = {}) {
 }
 
 // ---- the tools -----------------------------------------------------------------------
-const filterShape = z.object({ column: z.string(), op: z.enum(['eq', 'ne', 'in', 'gte', 'lte', 'gt', 'lt', 'contains', 'null', 'notnull']), value: z.any().optional() })
 const loose = z.object({}).passthrough()
 
 export const tools = [

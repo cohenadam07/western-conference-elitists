@@ -64,10 +64,12 @@ const dictionary = () => room.load('dictionary.json')
 
 // ---- the release-asset tables ---------------------------------------------------------------
 // GitHub serves a release asset as gzip bytes (application/octet-stream, no Content-Encoding):
-// they are unzipped here. Two parsed seasons are kept at most; the biggest is ~55 MB of JSON.
+// they are unzipped here. The cache is held to a budget of raw JSON, not a count: a college football
+// plays season is ~55 MB of JSON and ~450 MB once parsed (measured Nov 2026), so the budget keeps one
+// big season or a few small ones, and always the one being read.
 const ASSET_TTL_MS = 10 * 60 * 1000
 const ASSET_TIMEOUT_MS = 15000
-const MAX_ASSETS = 2
+const ASSET_BUDGET = 80e6
 const assets = new Map()
 export const assetBase = () => (process.env.DATAROOM_ASSETS || 'https://github.com/cohenadam07/western-conference-elitists/releases/download/dataroom').replace(/\/+$/, '')
 export const assetName = (sport, table, season) => `${sport}-${table}-${season}.json.gz`
@@ -84,13 +86,15 @@ async function loadAsset(sport, table, season) {
     if (buf[0] === 0x1f && buf[1] === 0x8b) buf = gunzipSync(buf)
     const doc = JSON.parse(buf.toString('utf8'))
     if (!doc || doc.schema !== 1 || !Array.isArray(doc.columns)) throw new Error(`${key}: unexpected shape`)
+    Object.defineProperty(doc, '_bytes', { value: buf.length, enumerable: false })
     return doc
   })()
   assets.set(key, { pending, used: Date.now() })
   try {
     const value = await pending
     assets.set(key, { value, at: Date.now(), used: Date.now() })
-    while (assets.size > MAX_ASSETS) {
+    const held = () => [...assets.values()].reduce((n, v) => n + ((v.value && v.value._bytes) || 0), 0)
+    while (held() > ASSET_BUDGET) {
       const idle = [...assets.entries()].filter(([k, v]) => !v.pending && k !== key).sort((a, b) => a[1].used - b[1].used)[0]
       if (!idle) break
       assets.delete(idle[0])

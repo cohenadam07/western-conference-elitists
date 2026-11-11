@@ -35,7 +35,7 @@ import vm from 'node:vm'
 import { gunzipSync } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
 import { z } from 'zod'
-import { BASE, buildFootballApi, mergeData, writeFootballApi } from '../../scripts/lib/savant-api-football.mjs'
+import { BASE, buildFootballApi, footballThrough, mergeData, writeFootballApi } from '../../scripts/lib/savant-api-football.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const PUBLIC = path.join(ROOT, 'public')
@@ -67,7 +67,8 @@ function load() {
   current = JSON.parse(readFileSync(path.join(PUBLIC, 'football-savant-current.json'), 'utf8'))
   // The slicer leaves its inputs alone, so the same parsed files then go to the page's own
   // mergeData, which does not.
-  const built = buildFootballApi({ data: archive, current, html })
+  // `through` as the writer finds it (the newest game in the data, Nov 2026)
+  const built = buildFootballApi({ data: archive, current, html, through: footballThrough(PUBLIC, current) })
   json = {
     meta: JSON.stringify(built.meta),
     players: JSON.stringify(built.players),
