@@ -7,7 +7,7 @@ per-sport tools (`nba_coaching_data`, `cbb_data`, `cbb_coaching_data` and their 
 which answer the same rows from the new tool (the parity check). The build brief is
 [research/data-room/BUILD.md](research/data-room/BUILD.md).
 
-Connector 3.7.0. Up-front tool text: **89,998 → 87,284 characters** (cap 90,000), 84 → 80 tools.
+Connector 3.7.0 (3.8.0 adds WCE Pro analysis on top; see below). Up-front tool text: **89,998 → 87,284 characters** (cap 90,000), 84 → 80 tools.
 
 ## Tables
 
@@ -123,3 +123,19 @@ with the Control Room: **Connector freshness — NBA, NFL, college football, col
 (List and Timeline tabs). Red names what lags. Only the daily run fails on lag, which emails it, as the
 30-hour alarms do. `basketball-savant-freshness.yml` keeps its 30-hour heartbeat and now checks the
 basketball tables and tools (`--only nba,cbb`).
+
+## WCE Pro analysis (connector 3.8.0, founders only for now)
+
+`savant_sql` (read-only SQL over every table and season) and `savant_analyze` (compare, regress, stability,
+trend, distribution, with intervals and clustered errors) run on WCE's server over **Parquet copies** of these
+tables: one file per sport, table and season beside the JSON in the `dataroom` release (511 files, 297 MB),
+written by `pipeline/dataroom/parquet.mjs` from the same rows `savant_data` serves and checked against them
+(511 of 511 seasons identical, row for row). Each sport's refresh rewrites its season in progress after its JSON
+(`pipeline/dataroom/parquet_publish.sh`, from `publish.sh` and the college run, `continue-on-error`), and
+`freshness.mjs` judges the copies like the JSON. The JSON files and `savant_data` are unchanged.
+
+The tools are listed only on founder-tier keys (`tools/keys/tier.mjs`) until `PRO_ANALYSIS_OPEN` opens them to
+every key; the public address and its up-front text are byte-identical to 3.7.0. Where they are listed,
+`savant_sql` also does `savant_data`'s and `savant_dictionary`'s jobs, which keeps that listing under the
+90,000-character cap. No What's New line yet: it waits until the tools open. The full write-up is
+[ANALYSIS.md](ANALYSIS.md); the brief is [research/analysis/BUILD.md](research/analysis/BUILD.md).
