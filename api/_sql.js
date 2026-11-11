@@ -76,6 +76,7 @@ async function setup() {
     memory_limit: LIMITS.memory,
     max_temp_directory_size: '0B',          // never spill to /tmp: a query past the memory cap fails, cleanly
     extension_directory: extDir,
+    home_directory: tmp,                    // the function's home is read-only; /tmp is its one writable place
     autoinstall_known_extensions: 'false',
     autoload_known_extensions: 'false',
     allow_community_extensions: 'false',
