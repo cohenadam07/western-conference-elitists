@@ -38,6 +38,25 @@ before merging (standing rule).
    - Until this branch is merged it logs "not on main yet" and exits cleanly (a test trigger exited with status 0).
      Run from this worktree, the script itself pulled all 685 finals.
 
+## All-Savant on phones (Adam, Nov 10 evening)
+
+Below 640px the 1,100px field gives way to chips in the same formation:
+- **Chips:** each one is a real button at least 44px tall. It shows a position badge (red for defense, navy for
+  offense, purple for special teams), the last name and the Savant value. The OL unit is one wider chip. Each chip's
+  aria-label carries the position, full name, school and value.
+- **Bottom sheet:** tapping a chip opens it with the full card: headshot or initials badge, name, position and
+  school, Savant value, rank at the position (for the OL, its rank among lines, from the team file), and a link to
+  the full card. The close button, Escape and the backdrop each close it, and focus goes in and comes back to the
+  chip.
+- **Field / List toggle:** shown on phones only, next to the 1st/2nd/3rd buttons. List is the depth chart: one
+  section per position group, full-width cards. The default is Field, and the choice is remembered per viewer in
+  localStorage, with every read and write in try/catch.
+- **Special teams:** a row of chips below the field.
+- **Desktop:** unchanged. The view at 1440px is pixel-identical to the previous commit's.
+
+`tools/savant-cfb/allsavant_phone.py` tests all of this at 375 and 390px (no sideways scroll, 23 chips on screen,
+the sheet's three ways to close, the reload) and runs the desktop pixel comparison.
+
 ## What shipped
 
 | piece | where |

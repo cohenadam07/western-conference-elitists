@@ -89,5 +89,34 @@ details.ex{border-top:1px solid var(--line);padding:10px 0}details.ex summary{cu
 .depth a{display:flex;justify-content:space-between;gap:8px;color:var(--ink);text-decoration:none;padding:3px 0;border-bottom:1px solid var(--line);font-size:13.5px}.depth a span{font-family:var(--fig);color:var(--muted)}
 .wce-about{--surface:#FFFFFF;--ink:#191B1F;--line:#E1E0DC;--mono:var(--fig);--faint:#4E535B;--muted:#4E535B;--body:var(--font)}
 .wce-about .wce-about-in{border:6px solid #FFFFFF;outline:2px solid var(--field);border-radius:0;box-shadow:9px 9px 0 var(--shadow)}
+/* All-Savant on phones: below 640px the 1100px field gives way to chips in the same formation, a list, and a bottom
+   sheet with the full card. Desktop never shows any of it. */
+.as-ph,.as-mob{display:none}
+.asf{background:var(--turf);border:4px solid var(--white);box-shadow:6px 6px 0 var(--shadow);padding:10px 6px 12px;display:flex;flex-direction:column;gap:8px}
+.asr{display:flex;gap:6px;justify-content:center}
+.cp{flex:1 1 0;min-width:0;max-width:120px;min-height:52px;display:flex;flex-direction:column;align-items:stretch;padding:0;border:2px solid var(--white);background:var(--white);color:var(--ink);cursor:pointer;font:inherit;text-align:center;box-shadow:3px 3px 0 var(--shadow)}
+.cp.w{flex-grow:2;max-width:200px}
+.cp .b{display:block;color:var(--white);font-family:var(--disp);font-size:13px;letter-spacing:.04em;line-height:1;padding:4px 0 3px}
+.cp .n{font-size:11.5px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:3px 3px 0}
+.cp .v{font-family:var(--fig);font-size:11px;font-weight:600;color:var(--field);padding:1px 0 3px}
+.cp:focus-visible{outline:3px solid var(--sticker);outline-offset:2px}
+.ast-los{height:4px;background:var(--banner);box-shadow:0 0 0 2px rgba(255,255,255,.5);margin:6px 0}
+.ast-lab{font-family:var(--disp);font-size:20px;line-height:1;color:rgba(255,255,255,.3);text-transform:uppercase;padding:0 4px}
+.ast-st{justify-content:flex-start}.ast-st .cp{max-width:none}
+.asl{display:flex;flex-direction:column;gap:12px}.asl h3{font-size:22px;margin-top:10px}.asl .pc{width:100%}
+dialog.sheet{position:fixed;inset:auto 0 0 0;margin:0;width:100%;max-width:100%;max-height:85vh;overflow:auto;border:0;padding:0;background:transparent;color:var(--ink)}
+dialog.sheet::backdrop{background:rgba(3,9,20,.62)}
+.sheet .in{background:var(--white);border-top:6px solid var(--banner);padding:16px 16px calc(20px + env(safe-area-inset-bottom));animation:sheetup .18s ease-out}
+.sheet .top{display:flex;gap:14px;align-items:center}
+.sheet h2{font-size:28px;line-height:1;color:var(--field);overflow-wrap:break-word}
+.sheet .sc{margin:4px 0 0;font-size:14px;font-weight:600}
+.sheet .x{flex:none;width:44px;min-height:44px;padding:0;font-size:18px;align-self:flex-start}
+.sheet dl{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 0}
+.sheet dt{font-family:var(--fig);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}.sheet dd{margin:2px 0 0;font-weight:700;font-size:16px}
+.sheet dd small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.sheet .go{display:flex;align-items:center;justify-content:center;min-height:48px;margin-top:16px;background:var(--field);color:var(--white);text-decoration:none;font-family:var(--disp);font-size:18px;letter-spacing:.04em;text-transform:uppercase}
+@keyframes sheetup{from{transform:translateY(24px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.sheet .in{animation:none}}
+@media (max-width:639.98px){.fieldbox,.strow{display:none}.as-ph{display:block}.as-mob{display:inline-flex;align-items:center}}
 .foot{border-top:1px solid #1E2C4A;background:var(--deep);padding:22px var(--gut) 34px;font-size:13px;line-height:1.6;color:var(--soft)}.foot p{max-width:var(--wrap);margin:0 auto}
 @media (max-width:640px){.hero .cp{display:none}.hero{padding:28px var(--gut) 24px}.hero .ttl>div{padding:10px 16px 6px}.bar1{align-items:stretch}.srch,.srch input{width:100%}.tab{padding:0 12px;font-size:16px}.who{padding:16px}.who .top{gap:12px}.ctl,.grp{padding-left:14px;padding-right:14px}.poolline,.valline{margin-left:14px;margin-right:14px}.pad{padding:14px}.bye .mt{display:none}main{gap:28px}}

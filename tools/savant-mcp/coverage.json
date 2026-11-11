@@ -986,6 +986,13 @@
         "cfb_all_savant_team",
         "cfb_playoff_field"
       ]
+    },
+    "page:college-football-savant.html#openSheet": {
+      "tools": [
+        "cfb_all_savant_team",
+        "cfb_get_player_profile",
+        "cfb_team_profile"
+      ]
     }
   },
   "switches": {

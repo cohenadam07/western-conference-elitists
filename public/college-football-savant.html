@@ -179,6 +179,35 @@ details.ex{border-top:1px solid var(--line);padding:10px 0}details.ex summary{cu
 .depth a{display:flex;justify-content:space-between;gap:8px;color:var(--ink);text-decoration:none;padding:3px 0;border-bottom:1px solid var(--line);font-size:13.5px}.depth a span{font-family:var(--fig);color:var(--muted)}
 .wce-about{--surface:#FFFFFF;--ink:#191B1F;--line:#E1E0DC;--mono:var(--fig);--faint:#4E535B;--muted:#4E535B;--body:var(--font)}
 .wce-about .wce-about-in{border:6px solid #FFFFFF;outline:2px solid var(--field);border-radius:0;box-shadow:9px 9px 0 var(--shadow)}
+/* All-Savant on phones: below 640px the 1100px field gives way to chips in the same formation, a list, and a bottom
+   sheet with the full card. Desktop never shows any of it. */
+.as-ph,.as-mob{display:none}
+.asf{background:var(--turf);border:4px solid var(--white);box-shadow:6px 6px 0 var(--shadow);padding:10px 6px 12px;display:flex;flex-direction:column;gap:8px}
+.asr{display:flex;gap:6px;justify-content:center}
+.cp{flex:1 1 0;min-width:0;max-width:120px;min-height:52px;display:flex;flex-direction:column;align-items:stretch;padding:0;border:2px solid var(--white);background:var(--white);color:var(--ink);cursor:pointer;font:inherit;text-align:center;box-shadow:3px 3px 0 var(--shadow)}
+.cp.w{flex-grow:2;max-width:200px}
+.cp .b{display:block;color:var(--white);font-family:var(--disp);font-size:13px;letter-spacing:.04em;line-height:1;padding:4px 0 3px}
+.cp .n{font-size:11.5px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:3px 3px 0}
+.cp .v{font-family:var(--fig);font-size:11px;font-weight:600;color:var(--field);padding:1px 0 3px}
+.cp:focus-visible{outline:3px solid var(--sticker);outline-offset:2px}
+.ast-los{height:4px;background:var(--banner);box-shadow:0 0 0 2px rgba(255,255,255,.5);margin:6px 0}
+.ast-lab{font-family:var(--disp);font-size:20px;line-height:1;color:rgba(255,255,255,.3);text-transform:uppercase;padding:0 4px}
+.ast-st{justify-content:flex-start}.ast-st .cp{max-width:none}
+.asl{display:flex;flex-direction:column;gap:12px}.asl h3{font-size:22px;margin-top:10px}.asl .pc{width:100%}
+dialog.sheet{position:fixed;inset:auto 0 0 0;margin:0;width:100%;max-width:100%;max-height:85vh;overflow:auto;border:0;padding:0;background:transparent;color:var(--ink)}
+dialog.sheet::backdrop{background:rgba(3,9,20,.62)}
+.sheet .in{background:var(--white);border-top:6px solid var(--banner);padding:16px 16px calc(20px + env(safe-area-inset-bottom));animation:sheetup .18s ease-out}
+.sheet .top{display:flex;gap:14px;align-items:center}
+.sheet h2{font-size:28px;line-height:1;color:var(--field);overflow-wrap:break-word}
+.sheet .sc{margin:4px 0 0;font-size:14px;font-weight:600}
+.sheet .x{flex:none;width:44px;min-height:44px;padding:0;font-size:18px;align-self:flex-start}
+.sheet dl{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 0}
+.sheet dt{font-family:var(--fig);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}.sheet dd{margin:2px 0 0;font-weight:700;font-size:16px}
+.sheet dd small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.sheet .go{display:flex;align-items:center;justify-content:center;min-height:48px;margin-top:16px;background:var(--field);color:var(--white);text-decoration:none;font-family:var(--disp);font-size:18px;letter-spacing:.04em;text-transform:uppercase}
+@keyframes sheetup{from{transform:translateY(24px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.sheet .in{animation:none}}
+@media (max-width:639.98px){.fieldbox,.strow{display:none}.as-ph{display:block}.as-mob{display:inline-flex;align-items:center}}
 .foot{border-top:1px solid #1E2C4A;background:var(--deep);padding:22px var(--gut) 34px;font-size:13px;line-height:1.6;color:var(--soft)}.foot p{max-width:var(--wrap);margin:0 auto}
 @media (max-width:640px){.hero .cp{display:none}.hero{padding:28px var(--gut) 24px}.hero .ttl>div{padding:10px 16px 6px}.bar1{align-items:stretch}.srch,.srch input{width:100%}.tab{padding:0 12px;font-size:16px}.who{padding:16px}.who .top{gap:12px}.ctl,.grp{padding-left:14px;padding-right:14px}.poolline,.valline{margin-left:14px;margin-right:14px}.pad{padding:14px}.bye .mt{display:none}main{gap:28px}}
 </style>
@@ -219,7 +248,7 @@ details.ex{border-top:1px solid var(--line);padding:10px 0}details.ex summary{cu
 'use strict';
 var M=window.SavantCFB,C=M.COL,T=M.TCOL,SC=M.SCOL;
 var API='/cfb/',cache={},REG,IDX,SEARCH,HON={},BYK={},TEAMK={};
-var S={season:null,pool:'pos',adj:true,gt:false,set:'national',tier:'1',conf:null,lbSlot:'QB',lbStat:null,lbQual:true,tSort:'rating',tDir:-1,tAdj:true,tConf:''};
+var S={asView:(function(){try{return localStorage.getItem('cfb-as-view')==='list'?'list':'field';}catch(e){return 'field';}})(),season:null,pool:'pos',adj:true,gt:false,set:'national',tier:'1',conf:null,lbSlot:'QB',lbStat:null,lbQual:true,tSort:'rating',tDir:-1,tAdj:true,tConf:''};
 var $=function(s,r){return (r||document).querySelector(s);};
 var HEAD='https://a.espncdn.com/i/headshots/college-football/players/full/';
 var LOGO='https://a.espncdn.com/i/teamlogos/ncaa/500/';
@@ -513,20 +542,66 @@ function vAllSavant(){
     [['national','National'],['conference','Conference'],['freshman','Freshman']].forEach(function(x){h+='<button class="btn dk" data-set="'+x[0]+'" aria-pressed="'+(S.set===x[0])+'">'+x[1]+'</button>';});
     if(S.set==='national')['1','2','3'].forEach(function(t){h+='<button class="btn dk" data-tier="'+t+'" aria-pressed="'+(S.tier===t)+'">'+['','1st','2nd','3rd'][+t]+' Team</button>';});
     if(S.set==='conference')h+='<label class="vh" for="asconf">Conference</label><select class="btn dk" id="asconf" style="background:var(--panel)">'+confs.map(function(c){return '<option'+(c===S.conf?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select>';
+    [['field','Field'],['list','List']].forEach(function(x){h+='<button class="btn dk as-mob" data-asv="'+x[0]+'" aria-pressed="'+(S.asView===x[0])+'">'+x[1]+'</button>';});
     h+='</div><p class="note lt">'+A.season+', '+esc(A.final?'final':A.standing+': a standing, not yet an award')+'. Pure individual Savant value, no credit for team success; missed games and small roles cost value. The shape follows the AP All-America team, with the offensive line picked as one unit'+(S.set==='freshman'?'. Freshmen include redshirt freshmen; no line unit is named':'')+'.</p>';
     var used={};
     function take(slot){for(var k=0;k<rows.length;k++){if(used[k])continue;if(rows[k].slot===slot){used[k]=1;return rows[k];}}return null;}
-    function card(sp,band,k){var r=take(sp[0]);if(!r)return '';var isOL=r.slot==='OL',c=tcolor(d,r.team),nm=isOL?tname(d,r.team)+' line':r.name;
+    // every pick in one list, taken in the order the field fills (defense, offense, then special teams), so the
+    // desktop field, the phone chips, the list and the bottom sheet all show the same men
+    var PD=DSPOTS.map(function(sp){return {sp:sp,r:take(sp[0]),side:'d'};}),PO=OSPOTS.map(function(sp){return {sp:sp,r:take(sp[0]),side:'o'};});
+    var PS=[['K','K'],['P','P'],['AP','AP']].map(function(x){return {sp:x,r:take(x[0]),side:'s'};});
+    AS={A:A,d:d,picks:PD.concat(PO,PS)};
+    var pi=0;
+    function card(sp,band,k){var r=AS.picks[pi++].r;if(!r)return '';var isOL=r.slot==='OL',c=tcolor(d,r.team),nm=isOL?tname(d,r.team)+' line':r.name;
       return '<div class="spot" style="left:'+sp[1]+'%;top:'+sp[2]+'px'+(sp[3]?';width:'+sp[3]+'px':'')+'"><a class="stk sm fc" data-tilt style="transform:rotate('+[-1.5,1,-.6,1.6,-1.1,.5][k%6]+'deg)" href="'+(isOL?tlink(r.team,A.season):plink(r.pid,A.season))+'"><div class="ph" style="background:'+band+'"><span>'+esc(sp[0]==='IDL'?'DL':sp[0])+'</span><i style="background:'+c+'"></i></div><div class="bd">'+(isOL?'<span class="hs" style="width:46px;height:46px;font-size:20px;border-radius:10px;border-width:0;background:'+c+'">OL</span>':hs(r.pid,r.name,c,46,r.head).replace('class="hs"','class="hs" data-s'))+'<div class="nm">'+esc(nm)+'</div><div class="sc">'+esc(isOL?'unit':tname(d,r.team))+'</div><div class="v">'+sg(r.value,1)+'</div></div></a></div>';}
     h+='<div class="fieldbox" tabindex="0" role="region" aria-label="The team in formation; scrolls sideways"><div class="turf"><div class="hash" style="left:33%"></div><div class="hash" style="left:67%"></div><div class="side" style="top:20px" aria-hidden="true">Defense</div><div class="side" style="bottom:20px" aria-hidden="true">Offense</div><div class="los" aria-hidden="true"></div><div class="losl" aria-hidden="true">LINE OF SCRIMMAGE</div>';
     DSPOTS.forEach(function(sp,k){h+=card(sp,'var(--red)',k);});OSPOTS.forEach(function(sp,k){h+=card(sp,'var(--field)',k+2);});
     h+='</div></div>';
+    h+=phoneField(PD,PO,PS);
     if(A.warning)h+=warnBox('<strong>'+A.season+' is before 2024.</strong> '+esc(A.warning));
     h+='</section><section class="sec"><div class="rule"><h2>Special teams</h2></div><div class="strow">';
-    [['K','K'],['P','P'],['AP','AP']].forEach(function(x,k){var r=take(x[0]);if(!r)return;var c=tcolor(d,r.team);
+    [['K','K'],['P','P'],['AP','AP']].forEach(function(x,k){var r=PS[k].r;if(!r)return;var c=tcolor(d,r.team);
       h+='<a class="stk sm fc '+tilt(k)+'" data-tilt href="'+plink(r.pid,A.season)+'"><div class="ph" style="background:var(--st)"><span>'+(x[1]==='AP'?'All-purpose':x[1])+'</span><i style="background:'+c+'"></i></div><div class="bd">'+hs(r.pid,r.name,c,46,r.head)+'<div class="nm">'+esc(r.name)+'</div><div class="sc">'+esc(tname(d,r.team))+(x[0]==='AP'?' · '+esc(r.pos):'')+'</div><div class="v">'+sg(r.value,1)+'</div></div></a>';});
-    h+='</div><p class="note lt">All-purpose is the best remaining back, receiver or tight end once return value is added. '+esc(A.note)+' Values are expected points above a replacement player at the position. The model\'s view, not a verdict.</p></section>';
+    h+='</div>'+(S.asView==='field'?'<div class="as-ph"><div class="asr ast-st">'+PS.map(function(p,k){return chip(p,PD.length+PO.length+k);}).join('')+'</div></div>':'')+'<p class="note lt">All-purpose is the best remaining back, receiver or tight end once return value is added. '+esc(A.note)+' Values are expected points above a replacement player at the position. The model\'s view, not a verdict.</p></section>';
     return h;});}
+
+/* ---------- All-Savant on phones (below 640px): chips in formation, a list, a bottom sheet ---------- */
+var AS=null;
+var POSNAME={QB:'Quarterback',RB:'Running back',WR:'Wide receiver',TE:'Tight end',OL:'Offensive line',EDGE:'Edge rusher',IDL:'Defensive lineman',LB:'Linebacker',CB:'Cornerback',S:'Safety',DB:'Defensive back',K:'Kicker',P:'Punter',AP:'All-purpose'};
+var BADGE={d:'var(--red)',o:'var(--field)',s:'var(--st)'};
+function lastName(n){var w=String(n||'').split(/\s+/).filter(function(x){return !/^(jr\.?|sr\.?|ii|iii|iv|v)$/i.test(x);});return w.length?w[w.length-1]:n;}
+function chip(p,i){var r=p.r;if(!r)return '';var isOL=r.slot==='OL',slot=p.sp[0],lab=slot==='IDL'?'DL':slot,nm=isOL?tname(AS.d,r.team):r.name;
+  var aria=(isOL?'Offensive line unit, '+nm:POSNAME[slot]+', '+nm+', '+tname(AS.d,r.team))+', Savant value '+sg(r.value,1);
+  return '<button type="button" class="cp'+(isOL?' w':'')+'" data-pick="'+i+'" aria-label="'+esc(aria)+'"><span class="b" style="background:'+BADGE[p.side]+'" aria-hidden="true">'+esc(lab)+'</span><span class="n" aria-hidden="true">'+esc(isOL?nm+' line':lastName(nm))+'</span><span class="v" aria-hidden="true">'+sg(r.value,1)+'</span></button>';}
+function phoneField(PD,PO,PS){
+  if(S.asView==='list'){
+    var groups=[['Quarterback',['QB']],['Running backs',['RB']],['Receivers',['WR']],['Tight end',['TE']],['Offensive line',['OL']],['Defensive line',['EDGE','IDL']],['Linebackers',['LB']],['Defensive backs',['CB','S','DB']],['Special teams',['K','P','AP']]];
+    var h='<div class="as-ph asl">';
+    groups.forEach(function(g){var ps=AS.picks.map(function(p,i){return {p:p,i:i};}).filter(function(x){return x.p.r&&g[1].indexOf(x.p.sp[0])>=0;});if(!ps.length)return;
+      h+='<h3>'+esc(g[0])+'</h3>';
+      ps.forEach(function(x){var r=x.p.r,isOL=r.slot==='OL',c=tcolor(AS.d,r.team),slot=x.p.sp[0];
+        h+='<a class="stk sm pc" href="'+(isOL?tlink(r.team,AS.A.season):plink(r.pid,AS.A.season))+'">'+(isOL?'<span class="hs" style="width:54px;height:54px;font-size:22px;border-radius:10px;background:'+c+'">OL</span>':hs(r.pid,r.name,c,54,r.head))+'<div style="min-width:0"><div class="lab" style="color:var(--muted)">'+esc(POSNAME[slot])+'</div><div class="nm">'+esc(isOL?tname(AS.d,r.team)+' offensive line':r.name)+'</div><small>'+esc(isOL?'unit':tname(AS.d,r.team))+'</small></div><span class="v">'+sg(r.value,1)+'</span></a>';});});
+    return h+'</div>';}
+  var off=PD.length;
+  function row(idx,base){return '<div class="asr">'+idx.map(function(k){return chip((base?PO:PD)[k],(base?off:0)+k);}).join('')+'</div>';}
+  return '<div class="as-ph"><div class="asf" role="group" aria-label="The team in formation. Tap a player for his card."><div class="ast-lab" aria-hidden="true">Defense</div>'+row([0,1])+row([2,4,3])+row([5,6,7])+row([8,9,10,11])+
+    '<div class="ast-los" aria-hidden="true"></div>'+row([0,1,2,3,4],1)+row([5],1)+row([6,7],1)+'<div class="ast-lab" aria-hidden="true">Offense</div></div></div>';}
+var sheetFrom=null;
+function openSheet(i,from){
+  var p=AS&&AS.picks[i];if(!p||!p.r)return;var r=p.r,d=AS.d,A=AS.A,isOL=r.slot==='OL',slot=p.sp[0],c=tcolor(d,r.team);
+  var dlg=$('#assheet');
+  if(!dlg){dlg=document.createElement('dialog');dlg.id='assheet';dlg.className='sheet';dlg.setAttribute('aria-labelledby','assheet-h');document.body.appendChild(dlg);
+    dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close();});
+    dlg.addEventListener('close',function(){if(sheetFrom&&document.body.contains(sheetFrom))sheetFrom.focus();sheetFrom=null;});}
+  var rank='';
+  if(!isOL){var k=-1;d.players.forEach(function(q,j){if(q[C.id]===r.pid)k=j;});var vl=k>=0?M.valueLine(d,k):null;
+    if(vl&&vl.rank)rank=M.nth(vl.rank)+' of '+vl.of+' qualified '+REG.slot_name[d.players[k][C.slot]];}
+  var head=isOL?'<span class="hs" style="width:72px;height:72px;font-size:30px;border-radius:12px;background:'+c+'">OL</span>':hs(r.pid,r.name,c,72,r.head);
+  dlg.innerHTML='<div class="in"><div class="top">'+head+'<div style="min-width:0;flex:1"><div class="lab" style="color:var(--muted)">'+esc(isOL?'Offensive line, as a unit':POSNAME[slot])+'</div><h2 id="assheet-h">'+esc(isOL?tname(d,r.team)+' line':r.name)+'</h2><p class="sc">'+logo(r.team)+esc(tname(d,r.team))+' · '+esc(tconf(d,r.team))+'</p></div><button type="button" class="btn x" data-sheetclose="1" aria-label="Close">✕</button></div>'+
+    '<dl><div><dt>Savant value</dt><dd>'+sg(r.value,1)+(slot==='AP'?' <small>with return value</small>':'')+'</dd></div><div><dt>Rank at his position</dt><dd id="assheet-rank">'+(isOL?'…':esc(rank||'below the qualifying sample'))+'</dd></div></dl>'+
+    '<a class="go" href="'+(isOL?tlink(r.team,A.season):plink(r.pid,A.season))+'">'+(isOL?'Open '+esc(tname(d,r.team))+'\'s team page':'Open his full player card')+' →</a></div>';
+  if(isOL)load('t/'+A.season+'/'+r.team+'.json').then(function(T){var e=$('#assheet-rank');if(e&&T.ol)e.textContent=M.nth(T.ol.rank)+' of '+T.ol.of+' offensive lines';}).catch(function(){var e=$('#assheet-rank');if(e)e.textContent='—';});
+  sheetFrom=from;dlg.showModal();var x=dlg.querySelector('[data-sheetclose]');if(x)x.focus();}
 
 /* ---------- leaders ---------- */
 function vLeaders(){
@@ -572,6 +647,9 @@ document.addEventListener('click',function(e){
   if(a){if(a.dataset.conf){S.tConf=a.dataset.conf;}res.hidden=true;q.value='';if(a.getAttribute('href')===location.hash)render();return;}
   if(!e.target.closest||!e.target.closest('.srch'))res.hidden=true;
   var b=e.target.closest&&e.target.closest('button');if(!b)return;var ds=b.dataset,hit=true;
+  if(ds.pick!=null){openSheet(+ds.pick,b);return;}
+  if(ds.sheetclose){var dl=$('#assheet');if(dl)dl.close();return;}
+  if(ds.asv){S.asView=ds.asv;try{localStorage.setItem('cfb-as-view',ds.asv);}catch(err){}render(true);return;}
   if(ds.pool)S.pool=ds.pool;else if(ds.adj!=null)S.adj=ds.adj==='1';else if(ds.gt!=null)S.gt=ds.gt==='1';else if(ds.set)S.set=ds.set;else if(ds.tier)S.tier=ds.tier;
   else if(ds.lbq!=null)S.lbQual=ds.lbq==='1';else if(ds.tadj!=null)S.tAdj=ds.tadj==='1';
   else if(ds.tsort){if(S.tSort===ds.tsort)S.tDir=-S.tDir;else{S.tSort=ds.tsort;var lowerFirst=['resume_rank','talent_rank','def_epa','def_sr','off_fp'];S.tDir=lowerFirst.indexOf(ds.tsort)>=0?1:-1;}}

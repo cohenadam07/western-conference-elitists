@@ -2,7 +2,7 @@
 'use strict';
 var M=window.SavantCFB,C=M.COL,T=M.TCOL,SC=M.SCOL;
 var API='/cfb/',cache={},REG,IDX,SEARCH,HON={},BYK={},TEAMK={};
-var S={season:null,pool:'pos',adj:true,gt:false,set:'national',tier:'1',conf:null,lbSlot:'QB',lbStat:null,lbQual:true,tSort:'rating',tDir:-1,tAdj:true,tConf:''};
+var S={asView:(function(){try{return localStorage.getItem('cfb-as-view')==='list'?'list':'field';}catch(e){return 'field';}})(),season:null,pool:'pos',adj:true,gt:false,set:'national',tier:'1',conf:null,lbSlot:'QB',lbStat:null,lbQual:true,tSort:'rating',tDir:-1,tAdj:true,tConf:''};
 var $=function(s,r){return (r||document).querySelector(s);};
 var HEAD='https://a.espncdn.com/i/headshots/college-football/players/full/';
 var LOGO='https://a.espncdn.com/i/teamlogos/ncaa/500/';
@@ -296,20 +296,66 @@ function vAllSavant(){
     [['national','National'],['conference','Conference'],['freshman','Freshman']].forEach(function(x){h+='<button class="btn dk" data-set="'+x[0]+'" aria-pressed="'+(S.set===x[0])+'">'+x[1]+'</button>';});
     if(S.set==='national')['1','2','3'].forEach(function(t){h+='<button class="btn dk" data-tier="'+t+'" aria-pressed="'+(S.tier===t)+'">'+['','1st','2nd','3rd'][+t]+' Team</button>';});
     if(S.set==='conference')h+='<label class="vh" for="asconf">Conference</label><select class="btn dk" id="asconf" style="background:var(--panel)">'+confs.map(function(c){return '<option'+(c===S.conf?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select>';
+    [['field','Field'],['list','List']].forEach(function(x){h+='<button class="btn dk as-mob" data-asv="'+x[0]+'" aria-pressed="'+(S.asView===x[0])+'">'+x[1]+'</button>';});
     h+='</div><p class="note lt">'+A.season+', '+esc(A.final?'final':A.standing+': a standing, not yet an award')+'. Pure individual Savant value, no credit for team success; missed games and small roles cost value. The shape follows the AP All-America team, with the offensive line picked as one unit'+(S.set==='freshman'?'. Freshmen include redshirt freshmen; no line unit is named':'')+'.</p>';
     var used={};
     function take(slot){for(var k=0;k<rows.length;k++){if(used[k])continue;if(rows[k].slot===slot){used[k]=1;return rows[k];}}return null;}
-    function card(sp,band,k){var r=take(sp[0]);if(!r)return '';var isOL=r.slot==='OL',c=tcolor(d,r.team),nm=isOL?tname(d,r.team)+' line':r.name;
+    // every pick in one list, taken in the order the field fills (defense, offense, then special teams), so the
+    // desktop field, the phone chips, the list and the bottom sheet all show the same men
+    var PD=DSPOTS.map(function(sp){return {sp:sp,r:take(sp[0]),side:'d'};}),PO=OSPOTS.map(function(sp){return {sp:sp,r:take(sp[0]),side:'o'};});
+    var PS=[['K','K'],['P','P'],['AP','AP']].map(function(x){return {sp:x,r:take(x[0]),side:'s'};});
+    AS={A:A,d:d,picks:PD.concat(PO,PS)};
+    var pi=0;
+    function card(sp,band,k){var r=AS.picks[pi++].r;if(!r)return '';var isOL=r.slot==='OL',c=tcolor(d,r.team),nm=isOL?tname(d,r.team)+' line':r.name;
       return '<div class="spot" style="left:'+sp[1]+'%;top:'+sp[2]+'px'+(sp[3]?';width:'+sp[3]+'px':'')+'"><a class="stk sm fc" data-tilt style="transform:rotate('+[-1.5,1,-.6,1.6,-1.1,.5][k%6]+'deg)" href="'+(isOL?tlink(r.team,A.season):plink(r.pid,A.season))+'"><div class="ph" style="background:'+band+'"><span>'+esc(sp[0]==='IDL'?'DL':sp[0])+'</span><i style="background:'+c+'"></i></div><div class="bd">'+(isOL?'<span class="hs" style="width:46px;height:46px;font-size:20px;border-radius:10px;border-width:0;background:'+c+'">OL</span>':hs(r.pid,r.name,c,46,r.head).replace('class="hs"','class="hs" data-s'))+'<div class="nm">'+esc(nm)+'</div><div class="sc">'+esc(isOL?'unit':tname(d,r.team))+'</div><div class="v">'+sg(r.value,1)+'</div></div></a></div>';}
     h+='<div class="fieldbox" tabindex="0" role="region" aria-label="The team in formation; scrolls sideways"><div class="turf"><div class="hash" style="left:33%"></div><div class="hash" style="left:67%"></div><div class="side" style="top:20px" aria-hidden="true">Defense</div><div class="side" style="bottom:20px" aria-hidden="true">Offense</div><div class="los" aria-hidden="true"></div><div class="losl" aria-hidden="true">LINE OF SCRIMMAGE</div>';
     DSPOTS.forEach(function(sp,k){h+=card(sp,'var(--red)',k);});OSPOTS.forEach(function(sp,k){h+=card(sp,'var(--field)',k+2);});
     h+='</div></div>';
+    h+=phoneField(PD,PO,PS);
     if(A.warning)h+=warnBox('<strong>'+A.season+' is before 2024.</strong> '+esc(A.warning));
     h+='</section><section class="sec"><div class="rule"><h2>Special teams</h2></div><div class="strow">';
-    [['K','K'],['P','P'],['AP','AP']].forEach(function(x,k){var r=take(x[0]);if(!r)return;var c=tcolor(d,r.team);
+    [['K','K'],['P','P'],['AP','AP']].forEach(function(x,k){var r=PS[k].r;if(!r)return;var c=tcolor(d,r.team);
       h+='<a class="stk sm fc '+tilt(k)+'" data-tilt href="'+plink(r.pid,A.season)+'"><div class="ph" style="background:var(--st)"><span>'+(x[1]==='AP'?'All-purpose':x[1])+'</span><i style="background:'+c+'"></i></div><div class="bd">'+hs(r.pid,r.name,c,46,r.head)+'<div class="nm">'+esc(r.name)+'</div><div class="sc">'+esc(tname(d,r.team))+(x[0]==='AP'?' · '+esc(r.pos):'')+'</div><div class="v">'+sg(r.value,1)+'</div></div></a>';});
-    h+='</div><p class="note lt">All-purpose is the best remaining back, receiver or tight end once return value is added. '+esc(A.note)+' Values are expected points above a replacement player at the position. The model\'s view, not a verdict.</p></section>';
+    h+='</div>'+(S.asView==='field'?'<div class="as-ph"><div class="asr ast-st">'+PS.map(function(p,k){return chip(p,PD.length+PO.length+k);}).join('')+'</div></div>':'')+'<p class="note lt">All-purpose is the best remaining back, receiver or tight end once return value is added. '+esc(A.note)+' Values are expected points above a replacement player at the position. The model\'s view, not a verdict.</p></section>';
     return h;});}
+
+/* ---------- All-Savant on phones (below 640px): chips in formation, a list, a bottom sheet ---------- */
+var AS=null;
+var POSNAME={QB:'Quarterback',RB:'Running back',WR:'Wide receiver',TE:'Tight end',OL:'Offensive line',EDGE:'Edge rusher',IDL:'Defensive lineman',LB:'Linebacker',CB:'Cornerback',S:'Safety',DB:'Defensive back',K:'Kicker',P:'Punter',AP:'All-purpose'};
+var BADGE={d:'var(--red)',o:'var(--field)',s:'var(--st)'};
+function lastName(n){var w=String(n||'').split(/\s+/).filter(function(x){return !/^(jr\.?|sr\.?|ii|iii|iv|v)$/i.test(x);});return w.length?w[w.length-1]:n;}
+function chip(p,i){var r=p.r;if(!r)return '';var isOL=r.slot==='OL',slot=p.sp[0],lab=slot==='IDL'?'DL':slot,nm=isOL?tname(AS.d,r.team):r.name;
+  var aria=(isOL?'Offensive line unit, '+nm:POSNAME[slot]+', '+nm+', '+tname(AS.d,r.team))+', Savant value '+sg(r.value,1);
+  return '<button type="button" class="cp'+(isOL?' w':'')+'" data-pick="'+i+'" aria-label="'+esc(aria)+'"><span class="b" style="background:'+BADGE[p.side]+'" aria-hidden="true">'+esc(lab)+'</span><span class="n" aria-hidden="true">'+esc(isOL?nm+' line':lastName(nm))+'</span><span class="v" aria-hidden="true">'+sg(r.value,1)+'</span></button>';}
+function phoneField(PD,PO,PS){
+  if(S.asView==='list'){
+    var groups=[['Quarterback',['QB']],['Running backs',['RB']],['Receivers',['WR']],['Tight end',['TE']],['Offensive line',['OL']],['Defensive line',['EDGE','IDL']],['Linebackers',['LB']],['Defensive backs',['CB','S','DB']],['Special teams',['K','P','AP']]];
+    var h='<div class="as-ph asl">';
+    groups.forEach(function(g){var ps=AS.picks.map(function(p,i){return {p:p,i:i};}).filter(function(x){return x.p.r&&g[1].indexOf(x.p.sp[0])>=0;});if(!ps.length)return;
+      h+='<h3>'+esc(g[0])+'</h3>';
+      ps.forEach(function(x){var r=x.p.r,isOL=r.slot==='OL',c=tcolor(AS.d,r.team),slot=x.p.sp[0];
+        h+='<a class="stk sm pc" href="'+(isOL?tlink(r.team,AS.A.season):plink(r.pid,AS.A.season))+'">'+(isOL?'<span class="hs" style="width:54px;height:54px;font-size:22px;border-radius:10px;background:'+c+'">OL</span>':hs(r.pid,r.name,c,54,r.head))+'<div style="min-width:0"><div class="lab" style="color:var(--muted)">'+esc(POSNAME[slot])+'</div><div class="nm">'+esc(isOL?tname(AS.d,r.team)+' offensive line':r.name)+'</div><small>'+esc(isOL?'unit':tname(AS.d,r.team))+'</small></div><span class="v">'+sg(r.value,1)+'</span></a>';});});
+    return h+'</div>';}
+  var off=PD.length;
+  function row(idx,base){return '<div class="asr">'+idx.map(function(k){return chip((base?PO:PD)[k],(base?off:0)+k);}).join('')+'</div>';}
+  return '<div class="as-ph"><div class="asf" role="group" aria-label="The team in formation. Tap a player for his card."><div class="ast-lab" aria-hidden="true">Defense</div>'+row([0,1])+row([2,4,3])+row([5,6,7])+row([8,9,10,11])+
+    '<div class="ast-los" aria-hidden="true"></div>'+row([0,1,2,3,4],1)+row([5],1)+row([6,7],1)+'<div class="ast-lab" aria-hidden="true">Offense</div></div></div>';}
+var sheetFrom=null;
+function openSheet(i,from){
+  var p=AS&&AS.picks[i];if(!p||!p.r)return;var r=p.r,d=AS.d,A=AS.A,isOL=r.slot==='OL',slot=p.sp[0],c=tcolor(d,r.team);
+  var dlg=$('#assheet');
+  if(!dlg){dlg=document.createElement('dialog');dlg.id='assheet';dlg.className='sheet';dlg.setAttribute('aria-labelledby','assheet-h');document.body.appendChild(dlg);
+    dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close();});
+    dlg.addEventListener('close',function(){if(sheetFrom&&document.body.contains(sheetFrom))sheetFrom.focus();sheetFrom=null;});}
+  var rank='';
+  if(!isOL){var k=-1;d.players.forEach(function(q,j){if(q[C.id]===r.pid)k=j;});var vl=k>=0?M.valueLine(d,k):null;
+    if(vl&&vl.rank)rank=M.nth(vl.rank)+' of '+vl.of+' qualified '+REG.slot_name[d.players[k][C.slot]];}
+  var head=isOL?'<span class="hs" style="width:72px;height:72px;font-size:30px;border-radius:12px;background:'+c+'">OL</span>':hs(r.pid,r.name,c,72,r.head);
+  dlg.innerHTML='<div class="in"><div class="top">'+head+'<div style="min-width:0;flex:1"><div class="lab" style="color:var(--muted)">'+esc(isOL?'Offensive line, as a unit':POSNAME[slot])+'</div><h2 id="assheet-h">'+esc(isOL?tname(d,r.team)+' line':r.name)+'</h2><p class="sc">'+logo(r.team)+esc(tname(d,r.team))+' · '+esc(tconf(d,r.team))+'</p></div><button type="button" class="btn x" data-sheetclose="1" aria-label="Close">✕</button></div>'+
+    '<dl><div><dt>Savant value</dt><dd>'+sg(r.value,1)+(slot==='AP'?' <small>with return value</small>':'')+'</dd></div><div><dt>Rank at his position</dt><dd id="assheet-rank">'+(isOL?'…':esc(rank||'below the qualifying sample'))+'</dd></div></dl>'+
+    '<a class="go" href="'+(isOL?tlink(r.team,A.season):plink(r.pid,A.season))+'">'+(isOL?'Open '+esc(tname(d,r.team))+'\'s team page':'Open his full player card')+' →</a></div>';
+  if(isOL)load('t/'+A.season+'/'+r.team+'.json').then(function(T){var e=$('#assheet-rank');if(e&&T.ol)e.textContent=M.nth(T.ol.rank)+' of '+T.ol.of+' offensive lines';}).catch(function(){var e=$('#assheet-rank');if(e)e.textContent='—';});
+  sheetFrom=from;dlg.showModal();var x=dlg.querySelector('[data-sheetclose]');if(x)x.focus();}
 
 /* ---------- leaders ---------- */
 function vLeaders(){
@@ -355,6 +401,9 @@ document.addEventListener('click',function(e){
   if(a){if(a.dataset.conf){S.tConf=a.dataset.conf;}res.hidden=true;q.value='';if(a.getAttribute('href')===location.hash)render();return;}
   if(!e.target.closest||!e.target.closest('.srch'))res.hidden=true;
   var b=e.target.closest&&e.target.closest('button');if(!b)return;var ds=b.dataset,hit=true;
+  if(ds.pick!=null){openSheet(+ds.pick,b);return;}
+  if(ds.sheetclose){var dl=$('#assheet');if(dl)dl.close();return;}
+  if(ds.asv){S.asView=ds.asv;try{localStorage.setItem('cfb-as-view',ds.asv);}catch(err){}render(true);return;}
   if(ds.pool)S.pool=ds.pool;else if(ds.adj!=null)S.adj=ds.adj==='1';else if(ds.gt!=null)S.gt=ds.gt==='1';else if(ds.set)S.set=ds.set;else if(ds.tier)S.tier=ds.tier;
   else if(ds.lbq!=null)S.lbQual=ds.lbq==='1';else if(ds.tadj!=null)S.tAdj=ds.tadj==='1';
   else if(ds.tsort){if(S.tSort===ds.tsort)S.tDir=-S.tDir;else{S.tSort=ds.tsort;var lowerFirst=['resume_rank','talent_rank','def_epa','def_sr','off_fp'];S.tDir=lowerFirst.indexOf(ds.tsort)>=0?1:-1;}}
