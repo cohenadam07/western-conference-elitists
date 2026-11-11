@@ -11,7 +11,7 @@ const CACHE = 'll1:';
 const $app = document.getElementById('app');
 
 const view = { tab: ['now', 'shots', 'players', 'sheet'].includes(qs.get('tab')) ? qs.get('tab') : 'now', sel: null, seg: 'lineups', scope: 'game', sheetTab: 'Stint Log', drawer: qs.get('drawer') === '1' };
-const st = { useProxy: false, unreachable: false, lastChange: Date.now(), sig: '', reconBadSince: null, g: null, A: null, S: null, ratings: null, prior: [], priorLoaded: false, priorLoading: false, missing: [],
+const st = { useProxy: false, unreachable: false, psig: '', lastPlayAt: Date.now(), clockAtLastPlay: null, clockNow: null, staleShown: false, reconBadSince: null, g: null, A: null, S: null, ratings: null, prior: [], priorLoaded: false, priorLoading: false, missing: [],
   roster: null, rosterAdded: [], info: {}, busy: false, timer: null, replay: null, lastPoll: Date.now() };
 
 // ---------------------------------------------------------------- fetching (direct, then the Vercel proxy if the browser blocks it)
@@ -153,8 +153,7 @@ function render() {
   const scroll = {}; $app.querySelectorAll('[data-scroll]').forEach(el => { scroll[el.dataset.scroll] = [el.scrollLeft, el.scrollTop]; });
   const fk = focusKey(document.activeElement);
   S.unreachable = st.unreachable;
-  const age = (Date.now() - st.lastChange) / 1000;
-  S.stale = !st.replay && S.state === 'live' && age > CONFIG.STALE_S ? fmtClock(age) : null;
+  S.stale = staleness(); st.staleShown = !!S.stale;
   S.drawer = view.drawer;
   let main;
   if (S.state === 'pre' || !A) main = R.preGame(S);
@@ -173,7 +172,17 @@ function tickAgo() {
   const el = $app.querySelector('[data-ago]'); if (!el || !st.S) return;
   if (st.S.state === 'live') el.textContent = st.replay ? `Replay at ${st.replay.speed}x` : `Live, updated ${Math.max(0, Math.round((Date.now() - st.lastPoll) / 1000))} sec ago`;
 }
-setInterval(() => { tickAgo(); if (!st.replay && st.S?.state === 'live' && (Date.now() - st.lastChange) / 1000 > CONFIG.STALE_S && !document.querySelector('.banner')) render(); }, 1000);
+// "Data delayed" means the feed is behind, not that the game is stopped. Two triggers only: no successful ESPN fetch for
+// 60+ s, or ESPN's own game clock has run 60+ s of game time with no new play. A timeout, halftime or any other
+// stoppage freezes the clock, so it never trips the second one.
+function staleness() {
+  if (st.replay || !st.S || st.S.state !== 'live') return null;
+  const now = Date.now(); const fetchAge = (now - st.lastPoll) / 1000;
+  if (fetchAge > CONFIG.STALE_S) return fmtClock(fetchAge);
+  if (st.clockNow != null && st.clockAtLastPlay != null && st.clockNow - st.clockAtLastPlay >= CONFIG.STALE_S) return fmtClock((now - st.lastPlayAt) / 1000);
+  return null;
+}
+setInterval(() => { tickAgo(); if (!!staleness() !== !!st.staleShown) render(); }, 1000);
 
 // ---------------------------------------------------------------- live
 async function poll(gid) {
@@ -183,8 +192,10 @@ async function poll(gid) {
     const raw = await fetchSummary(gid); st.unreachable = false; st.lastPoll = Date.now();
     const g = compact(raw);
     const last = g.plays[g.plays.length - 1];
-    const sig = `${g.plays.length}|${last ? last[1] + last[3] + last[11] + last[12] : ''}|${g.status.clock}|${g.status.name}`;
-    if (sig !== st.sig) { st.sig = sig; st.lastChange = Date.now(); }
+    const psig = `${g.plays.length}|${last ? last[0] + last[1] + last[3] + last[11] + last[12] : ''}`;
+    const clockNow = g.status.state === 'in' && g.status.period && g.status.clock ? elapsed(g.status.period, g.status.clock) : null;
+    if (psig !== st.psig || st.clockAtLastPlay == null) { st.psig = psig; st.lastPlayAt = Date.now(); st.clockAtLastPlay = clockNow; }
+    st.clockNow = clockNow;
     ingest(g);
     if (!st.priorLoaded) loadSeason(g);
     const s = g.status.state; if (s === 'pre') next = CONFIG.REFRESH_PRE_S; else if (s === 'post') next = 0;
@@ -224,7 +235,7 @@ function startReplay(raw, speed, at) {
         if (rp.t < 1200 && nt >= 1200) { rp.t = 1200; rp.hold = Math.max(1, Math.round(6 * (rp.speed / 10))); } else rp.t = nt;
       }
     }
-    st.lastPoll = Date.now(); st.lastChange = Date.now();
+    st.lastPoll = Date.now();
     ingest(snapshot());
     if (rp.t < endT && !rp.stopped) st.timer = setTimeout(step, rp.paused ? 1000 : (CONFIG.REFRESH_LIVE_S * 1000) / Math.max(0.1, rp.speed));
     if (rp.t >= endT) window.__llReplayDone = true;

@@ -1,0 +1,38 @@
+[
+ {
+  "phase": "media-timeout-1st-half-15-01",
+  "fakeSeconds": 150,
+  "band": "15:01 1st half",
+  "dataDelayedShown": false,
+  "expected": false,
+  "ok": true,
+  "lastBanner": "(none)"
+ },
+ {
+  "phase": "halftime",
+  "fakeSeconds": 150,
+  "band": "Halftime End of first half",
+  "dataDelayedShown": false,
+  "expected": false,
+  "ok": true,
+  "lastBanner": "(none)"
+ },
+ {
+  "phase": "control-clock-runs-66s-no-plays",
+  "fakeSeconds": 30,
+  "band": "13:55 1st half",
+  "dataDelayedShown": true,
+  "expected": true,
+  "ok": true,
+  "lastBanner": "Data delayed. Last update 0:32 ago."
+ },
+ {
+  "phase": "control-espn-unreachable",
+  "fakeSeconds": 90,
+  "band": "15:01 1st half",
+  "dataDelayedShown": true,
+  "expected": true,
+  "ok": true,
+  "lastBanner": "Can't reach ESPN's play-by-play. Retrying every 15 seconds. | Data delayed. Last update 1:33 ago."
+ }
+]

@@ -89,7 +89,7 @@ export function bottomTabs(view) {
 export function banners(A, S) {
   const b = [];
   if (S.unreachable) b.push(`<div class="banner err" role="alert"><b>Can't reach ESPN's play-by-play.</b> Retrying every 15 seconds.</div>`);
-  else if (S.stale) b.push(`<div class="banner" role="status"><b>Data delayed.</b> Last update ${E(S.stale)} ago.</div>`);
+  if (S.stale) b.push(`<div class="banner" role="status"><b>Data delayed.</b> Last update ${E(S.stale)} ago.</div>`);
   if (A && !A.lineupOk) b.push(`<div class="banner err" role="status"><b>Lineups are hidden for this game.</b> ESPN's substitutions don't add up to five players on the floor and could not be repaired, so the score, shots, players and box numbers are shown without them.</div>`);
   else if (A && A.repairs.length) { const r = A.repairs[0]; const h = r.period === 1 ? '1st half' : r.period === 2 ? '2nd half' : 'overtime'; b.push(`<div class="banner" role="status"><b>One substitution looks wrong at ${h} ${E(r.clock)}.</b> Lineups after that may be off.</div>`); }
   return b.join('');
@@ -293,7 +293,7 @@ export function sheetTab(A, S, view, SH) {
   const scope = view.scope || 'game';
   const bar = `<div class="sheetbar"><div><h2>Your lineup tracker</h2><p>The workbook we sent, filling itself in. A new row starts at every substitution. The download keeps all your tabs and formulas.</p></div>
 <div class="acts"><div class="scope" role="group" aria-label="What to include"><button type="button" data-scope="game" aria-pressed="${scope === 'game'}">This game</button><button type="button" data-scope="season" aria-pressed="${scope === 'season'}">Whole season</button></div>
-<button class="btn" type="button" data-act="xlsx"${SH.ready ? '' : ' disabled'}>${SH.busy ? 'Preparing…' : 'Download for Excel'}</button><button class="btn ghost" type="button" data-act="csv">CSV</button></div></div>`;
+<button class="btn" type="button" data-act="xlsx"${SH.ready ? '' : ' disabled'}>${SH.busy ? 'Preparing…' : 'Download for Excel'}</button><button class="btn ghost" type="button" data-act="csv">CSV</button><p class="opens">Opens in Excel or Google Sheets.</p></div></div>`;
   if (!A.lineupOk) return bar + `<p class="empty">The Stint Log can't be filled for this game: ESPN's substitutions don't add up to five players on the floor.</p>`;
   const tab = view.sheetTab || 'Stint Log';
   const games = scope === 'season' ? SH.games : SH.games.filter(g => g.current);

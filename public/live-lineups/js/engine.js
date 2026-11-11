@@ -9,7 +9,7 @@ export const CONFIG = {
   SD: 1.167,            // per-possession points SD, for the 95% band
   K_LINEUP: 1000,       // lineup Trust = n / (n + 1000)
   K_PLAYER: 2000,       // player on/off Trust = n_eff / (n_eff + 2000)
-  MIN_RATED_POSS: 300,  // RAPM ratings count only with 300+ possessions
+  MIN_RATED_POSS: 300,  // only for the "N of the 10 have little college data" count; the matchup uses every rating (ridge already shrinks small samples; backtest calibration slope 0.93)
   D1_TOV_FORCED: 17,    // D1 average turnovers forced per 100
   FAST_BREAK_S: 6,      // field goal within 6 s of a live-ball start
   BONUS: 7, DOUBLE_BONUS: 10, // NCAA men: one-and-one on the 7th team foul of the half, double bonus on the 10th
@@ -488,7 +488,7 @@ export function analyze(g, team, { prior = [], ratings = null, replay = false, r
   // on paper
   const RP = ratings?.players || {};
   const rated = pid => (RP[pid]?.[2] || 0) >= CONFIG.MIN_RATED_POSS;
-  const o = pid => (rated(pid) ? RP[pid][0] : 0), d = pid => (rated(pid) ? RP[pid][1] : 0);
+  const o = pid => (RP[pid] ? RP[pid][0] : 0), d = pid => (RP[pid] ? RP[pid][1] : 0); // every rating; players with none count as average
   let expNow = null, expUnrated = null;
   if (usNowKey && oppNowKey) {
     const us = usNowKey.split('|'), th = oppNowKey.split('|'); const sum = (a, f) => a.reduce((x, y) => x + f(y), 0);

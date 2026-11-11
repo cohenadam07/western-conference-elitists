@@ -364,3 +364,7 @@ table.xl{border-collapse:separate;border-spacing:0;font:400 12.5px/1.2 "Libre Fr
 /* grid children must be allowed to shrink so the chip row scrolls inside itself */
 .pick,.courtwrap{min-width:0}
 @media (max-width:1024px){.opt{max-width:220px}.opt .o2{white-space:nowrap}}
+.sheetbar .acts{flex-wrap:wrap}
+.acts{justify-content:flex-end}
+.opens{flex-basis:100%;font-size:12.5px;color:var(--muted);text-align:right;margin-top:-4px}
+@media (max-width:700px){.acts{justify-content:flex-start}.opens{text-align:left}}
