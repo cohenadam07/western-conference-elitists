@@ -1,6 +1,6 @@
 {
-"fetched": "2026-11-09",
-"released": "2026-10-31",
+"fetched": "2026-11-11",
+"released": "2026-11-07",
 "lists": {
 "HW": {
 "champion": "Ciryl Gane",
@@ -11,16 +11,16 @@
 "Sergei Pavlovich",
 "Josh Hokit",
 "Curtis Blaydes",
-"Waldo Cortes-Acosta",
 "Rizvan Kuniev",
+"Johnny Walker",
+"Waldo Cortes-Acosta",
 "Vitor Petrino",
 "Serghei Spivac",
 "Ante Delija",
 "Valter Walker",
 "Tyrell Fortune",
 "Derrick Lewis",
-"Aleksandar Rakić",
-"Mario Pinto"
+"Aleksandar Rakić"
 ]
 },
 "LHW": {
@@ -35,9 +35,9 @@
 "Paulo Costa",
 "Dominick Reyes",
 "Bogdan Guskov",
-"Jan Błachowicz",
 "Azamat Murzakanov",
 "Robert Whittaker",
+"Jan Błachowicz",
 "Abdul-Rakhman Yakhyaev",
 "Alonzo Menifield",
 "Reinier de Ridder",
@@ -77,8 +77,10 @@
 "Sean Brady",
 "Belal Muhammad",
 "Leon Edwards",
-"Yaroslav Amosov",
+"Mike Malott",
+"Kamaru Usman",
 "Uroš Medić",
+"Yaroslav Amosov",
 "Joaquin Buckley",
 "Daniel Rodriguez",
 "Kevin Holland"
@@ -102,7 +104,7 @@
 "Renato Moicano",
 "Tom Nolan",
 "Dan Hooker",
-"Beneil Dariush"
+"Grant Dawson"
 ]
 },
 "FW": {
@@ -114,8 +116,8 @@
 "Lerone Murphy",
 "Aljamain Sterling",
 "Jean Silva",
-"Yair Rodríguez",
 "Arnold Allen",
+"Yair Rodríguez",
 "Youssef Zalal",
 "Kevin Vallejos",
 "Steve Garcia",
@@ -162,29 +164,27 @@
 "Amir Albazi",
 "Ramazan Temirov",
 "Tim Elliott",
-"Steve Erceg",
-"Su Mudaerji",
-"Tagir Ulanbekov",
-"Alex Perez"
+"Charles Johnson",
+"Tagir Ulanbekov"
 ]
 },
 "WBW": {
 "champion": "Kayla Harrison",
 "interim": null,
 "ranked": [
-"Julianna Peña",
-"Joselyne Edwards",
 "Ailín Pérez",
 "Norma Dumont",
+"Luana Santos",
 "Yana Santos",
+"Raquel Pennington",
 "Jacqueline Cavalcanti",
-"Macy Chiasson",
 "Karol Rosa",
+"Macy Chiasson",
 "Beatriz Mesquita",
 "Michelle Montague",
 "Nora Cornolle",
-"Chelsea Chandler",
-"Alice Pereira"
+"Alice Pereira",
+"Chelsea Chandler"
 ]
 },
 "WFLW": {
@@ -217,16 +217,16 @@
 "Virna Jandiroba",
 "Denise Gomes",
 "Gillian Robertson",
-"Yan Xiaonan",
 "Fatima Kline",
+"Yan Xiaonan",
 "Loopy Godínez",
 "Alexia Thainara",
 "Tabatha Ricci",
-"Jéssica Andrade",
 "Amanda Lemos",
+"Jéssica Andrade",
 "Amanda Ribas",
-"Angela Hill",
-"Mizuki Inoue"
+"Piera Rodríguez",
+"Angela Hill"
 ]
 },
 "P4P_M": {
@@ -243,6 +243,8 @@
 "Tom Aspinall",
 "Merab Dvalishvili",
 "Alex Pereira",
+"Khamzat Chimaev",
+"Ciryl Gane",
 "Arman Tsarukyan",
 "Alexandre Pantoja",
 "Carlos Ulberg"
@@ -265,8 +267,8 @@
 "Julianna Peña",
 "Virna Jandiroba",
 "Rose Namajunas",
-"Raquel Pennington",
-"Denise Gomes"
+"Denise Gomes",
+"Raquel Pennington"
 ]
 }
 }
