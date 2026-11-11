@@ -436,6 +436,9 @@ export function analyze(g, team, { prior = [], ratings = null, replay = false, r
   }
   const lineupOk = !!(res && W.ok);
   const poss = res ? res.poss : [];
+  // ESPN posts a substitution group a few lines at a time. Live, a group at the feed's last clock can be half-posted
+  // (DART at UALB, 1st half 13:26: five out, four in, completed 15 s later), so repairs there are provisional.
+  const repairsAtTail = repairs.length > 0 && !!lastPlay && repairs.every(r => r.period === lastPlay[0] && r.clock === lastPlay[1]);
   const firstRepair = repairs[0];
   const repairT = firstRepair ? elapsed(firstRepair.period, firstRepair.clock) : null;
 
@@ -544,7 +547,7 @@ export function analyze(g, team, { prior = [], ratings = null, replay = false, r
   return { team, opp, N, names, jersey, teamOf, cut, period: curPer, score: { OU: usScore, OPP: oppScore }, teamFouls: tf, teamFoulsFirst: tfFirst, fouls, minutes,
     usNow: usNowKey ? usNowKey.split('|') : [], oppNow: oppNowKey ? oppNowKey.split('|') : [], usNowKey, oppNowKey, together,
     stints, rows, poss, T, P, teamS, units, onoff, expNow, expUnrated, shots, events: SR.events, srcGame, bestRun: SR.best, currentRun: SR.current,
-    runFor: SR.runFor, drought, impact, timeline, parsed, lineupOk, parseStatus: status, repairs, repairT, ouPlayers, oppPlayers, prior: prior.filter(d => d.ok).length, B };
+    runFor: SR.runFor, drought, impact, timeline, parsed, lineupOk, parseStatus: status, repairs, repairsAtTail, repairT, ouPlayers, oppPlayers, prior: prior.filter(d => d.ok).length, B };
 }
 
 // ---------------------------------------------------------------- takeaways (reference/mock3.py takeaways(), plus runs and droughts)

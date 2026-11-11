@@ -91,7 +91,7 @@ export function banners(A, S) {
   if (S.unreachable) b.push(`<div class="banner err" role="alert"><b>Can't reach ESPN's play-by-play.</b> Retrying every 15 seconds.</div>`);
   if (S.stale) b.push(`<div class="banner" role="status"><b>Data delayed.</b> Last update ${E(S.stale)} ago.</div>`);
   if (A && !A.lineupOk) b.push(`<div class="banner err" role="status"><b>Lineups are hidden for this game.</b> ESPN's substitutions don't add up to five players on the floor and could not be repaired, so the score, shots, players and box numbers are shown without them.</div>`);
-  else if (A && A.repairs.length) { const r = A.repairs[0]; const h = r.period === 1 ? '1st half' : r.period === 2 ? '2nd half' : 'overtime'; b.push(`<div class="banner" role="status"><b>One substitution looks wrong at ${h} ${E(r.clock)}.</b> Lineups after that may be off.</div>`); }
+  else if (A && A.repairs.length && !(A.repairsAtTail && S.state === 'live')) { const r = A.repairs[0]; const h = r.period === 1 ? '1st half' : r.period === 2 ? '2nd half' : 'overtime'; b.push(`<div class="banner" role="status"><b>One substitution looks wrong at ${h} ${E(r.clock)}.</b> Lineups after that may be off.</div>`); }
   return b.join('');
 }
 export function footer(A, S) {
