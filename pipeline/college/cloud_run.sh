@@ -58,7 +58,25 @@ once() {
   fi
   python3 -W ignore $CC/cloud_cbb.py refresh . || return 1
   coaching
-  publish
+  publish; local rc=$?
+  private_page
+  return $rc
+}
+
+# A private page's nightly step, from a private repository (read-only deploy key). It reads this
+# run's tables and uploads through the page's own endpoint; it commits nothing here and never fails
+# the run.
+private_page() {
+  [ -n "${WCE_DOWNHILL_DEPLOY_KEY:-}" ] && [ -n "${SCOUTING_UPLOAD_TOKEN:-}" ] || { echo "private page step: not configured, skipped"; return 0; }
+  local d="$RUNNER_TEMP/wce-downhill" k="$RUNNER_TEMP/wce-downhill.key"
+  ( umask 077; printf '%s\n' "$WCE_DOWNHILL_DEPLOY_KEY" > "$k" )
+  rm -rf "$d"
+  if GIT_SSH_COMMAND="ssh -i $k -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" git clone -q --depth 1 git@github.com:cohenadam07/wce-downhill.git "$d"; then
+    CBB_PIPELINE="$GITHUB_WORKSPACE/$CC" python3 -W ignore "$d/downhill_cloud.py" || echo "::warning::the private page step failed; College Basketball Savant is unaffected"
+  else
+    echo "::warning::the private page step could not fetch its code; College Basketball Savant is unaffected"
+  fi
+  rm -f "$k"
 }
 
 # College Basketball Coaching Savant rides along, continue-on-error: its failure is a warning, and
