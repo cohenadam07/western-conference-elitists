@@ -44,6 +44,7 @@
     "check:exam": "node tools/savant-mcp/exam/exam.mjs check"
   },
   "dependencies": {
+    "@duckdb/node-api": "2.0.0-r.1",
     "@modelcontextprotocol/sdk": "^1.31.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/og": "0.8.6",

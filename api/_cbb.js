@@ -606,3 +606,6 @@ export const tools = [
   tool('cbb_shot_chart', 'A college shot chart', 'Where a player or team shoots (or allows shots) and how well, by court area against D1, plus the 2-ft bins. 2025-26 on.', { player: who.optional(), team: school.optional(), season, side: z.enum(['own', 'allowed']).default('own').describe('For a team: its shots or opponents\'.') }, { who: z.string(), season: z.string(), fga: z.number(), areas: z.array(open), bins: z.array(z.array(z.number())), bin_feet: z.number(), bin_origin: open, hoop: open, url: z.string() }, shotChart),
   tool('cbb_rotation', 'A D1 team\'s rotation map', 'Who is on the floor in each minute of regulation, as a share of games, with each player\'s usual windows. 2023-24 on.', { team: school, season }, { team: z.string(), season: z.string(), games: z.number().nullable(), windows_settled: z.boolean().optional(), players: z.array(open) }, rotationMap),
 ]
+
+// Every team as [id, name] (pipeline/dataroom/parquet.mjs reads each team-season's tables).
+export const teamList = async () => (await search()).teams.map((t) => [t[0], t[1]])

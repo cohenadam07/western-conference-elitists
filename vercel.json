@@ -1027,7 +1027,7 @@
     },
     "api/mcp.js": {
       "maxDuration": 30,
-      "includeFiles": "public/dataroom/{catalog,dictionary}.json.gz"
+      "includeFiles": "{public/dataroom/{catalog,dictionary,parquet}.json.gz,node_modules/@duckdb/node-bindings-linux-x64/**}"
     },
     "api/dynasty.js": {
       "includeFiles": "public/dynasty/players.json"

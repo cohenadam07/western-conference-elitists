@@ -270,6 +270,8 @@ export default async function handler(req, res) {
   cors(res)
   res.setHeader('Cache-Control', 'no-store')
   if (req.method === 'OPTIONS') { res.statusCode = 204; return res.end() }
+  // The analysis engine's speed check (api/_bench.js): fixed queries, preview deployments only.
+  if (req.method === 'GET' && process.env.VERCEL_ENV === 'preview' && /[?&]bench=1/.test(req.url || '')) return (await import('./_bench.js')).bench(req, res)
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST, OPTIONS')
     return send(res, 405, rpcError(-32000, 'This is the Western Conference Elitists MCP server. It answers JSON-RPC over POST; add this URL to an MCP client such as Claude as a custom connector.'))
