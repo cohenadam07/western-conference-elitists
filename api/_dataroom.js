@@ -26,6 +26,8 @@
 //
 // Not a function itself: Vercel skips api files that start with an underscore.
 
+import { existsSync, readFileSync } from 'node:fs'
+import path from 'node:path'
 import { gunzipSync } from 'node:zlib'
 import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, day, makeLoader } from './_core.js'
@@ -59,8 +61,15 @@ const STAT_DICTS = {
 const room = makeLoader('dataroom', { what: 'The Data Room', maxCached: 12, shape: (b) => b && typeof b === 'object' && (b.sports || b.columns) })
 const bcs = makeLoader('bcs', { what: 'Basketball Coaching Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.columns || b.tables) })
 const cbcs = makeLoader('cbcs', { what: 'College Basketball Coaching Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.cols || b.tables) })
-const catalog = () => room.load('catalog.json')
-const dictionary = () => room.load('dictionary.json')
+// The catalog and the dictionary, off the site; the deployment's own copy (vercel.json includeFiles)
+// when the site's can't be read: a preview before its merge, or the site's CDN having a bad minute.
+function bundled(name) {
+  const p = path.join(process.cwd(), 'public', 'dataroom', `${name}.gz`)
+  return existsSync(p) ? JSON.parse(gunzipSync(readFileSync(p)).toString('utf8')) : null
+}
+const orBundled = (name) => room.load(name).catch((e) => { const b = bundled(name); if (b) return b; throw e })
+const catalog = () => orBundled('catalog.json')
+const dictionary = () => orBundled('dictionary.json')
 
 // ---- the release-asset tables ---------------------------------------------------------------
 // GitHub serves a release asset as gzip bytes (application/octet-stream, no Content-Encoding):

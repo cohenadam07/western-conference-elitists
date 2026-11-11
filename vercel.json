@@ -1026,7 +1026,8 @@
       "maxDuration": 30
     },
     "api/mcp.js": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "includeFiles": "public/dataroom/{catalog,dictionary}.json.gz"
     },
     "api/dynasty.js": {
       "includeFiles": "public/dynasty/players.json"
