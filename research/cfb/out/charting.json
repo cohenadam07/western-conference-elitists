@@ -1,0 +1,50 @@
+{
+ "air_plus_yac_2025": {
+  "completions_with_both": 0.981929347826087,
+  "n": 14454,
+  "within1": 0.9954337899543378
+ },
+ "air_plus_yac_2026": {
+  "completions_with_both": 0.986590219863533,
+  "n": 20821,
+  "within1": 0.9951010998511118
+ },
+ "air_vs_release_2025": {
+  "median_abs": 0.0,
+  "n": 23058,
+  "within1": 0.9999132622083442
+ },
+ "air_vs_release_2026": {
+  "median_abs": 0.0,
+  "n": 32726,
+  "within1": 0.9980749251359775
+ },
+ "games_2025": {
+  "charted": 393,
+  "games": 807,
+  "under": 414
+ },
+ "games_2026": {
+  "charted": 560,
+  "games": 562,
+  "under": 2
+ },
+ "resolve_2025": {
+  "named": 54261,
+  "rate": 0.9913197324044895,
+  "resolved": 53790
+ },
+ "resolve_2026": {
+  "named": 77612,
+  "rate": 0.9905298149770654,
+  "resolved": 76877
+ },
+ "tackler_vs_participants_2025": {
+  "first_tackler_in_espn_set": 0.9829222558776864,
+  "n": 34665
+ },
+ "tackler_vs_participants_2026": {
+  "first_tackler_in_espn_set": 0.9915145855747954,
+  "n": 49261
+ }
+}

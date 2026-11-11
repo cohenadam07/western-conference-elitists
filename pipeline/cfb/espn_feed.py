@@ -46,8 +46,11 @@ CORE = "https://sports.core.api.espn.com/v2/sports/football/leagues/college-foot
 SB_WEEK = SITE + "/scoreboard?groups=80&limit=400&seasontype={t}&week={w}&dates={s}"
 SUMMARY = SITE + "/summary?event={e}"
 PLAYS = CORE + "/events/{e}/competitions/{e}/plays?limit=300&page={p}"
-ROSTER = SITE + "/teams/{t}/roster"
+ROSTER = SITE + "/teams/{t}/roster?limit=300"
 REG_WEEKS = 16
+# the side table every play also gets (xtext.py): the stat crew's text and the ids ESPN attaches as
+# "penalized" and "returner", which the slim play table does not carry
+XTRA_COLS = ("game_id", "play_id", "text", "pen1", "pen2", "ret1")
 BATCH = 24          # games fetched and parsed at a time (memory, not speed: see build_season)
 
 # ESPN's raw play types -> the names the release files (and plays.py) use
@@ -266,6 +269,7 @@ def base_rows(eid, items, home, away, season, week, season_type, summary=None, f
             "tk1": r("tackler"), "tk2": r("tackler", 1), "ast1": r("assistedBy"), "ast2": r("assistedBy", 1),
             "pdef1": r("passDefender"), "pdef2": r("passDefender", 1), "skby1": r("sackedBy"), "skby2": r("sackedBy", 1),
             "ffby1": r("forcedBy"), "ffby2": r("forcedBy", 1), "recby1": r("recoverer"), "recby2": r("recoverer", 1),
+            "pen1": r("penalized"), "pen2": r("penalized", 1), "ret1": r("returner"),
             "has_part": bool(roles), "_yl": st.get("yardLine"), "_st": st_team,
         })
     d = pd.DataFrame(rows)
@@ -412,6 +416,19 @@ def spread_of(summary, home_abbr=None):
     return np.nan
 
 
+def fetch_rosters(season, fbs, current, refetch):
+    """Every FBS roster. ESPN's roster endpoint returns 100 players unless asked for more (measured Nov 10 2026:
+    Auburn 100 by default, 113 with a limit), which in 1.0.0 left 201 FBS defenders with 20+ tackles off the 2026
+    rosters and so without a position. The cache key changed with the fix, so no capped response is reused."""
+    teams = sorted(fbs.index)
+    docs = pmap(lambda t: get_json(ROSTER.format(t=t) + (f"&season={season}" if not current else ""),
+                                   f"rosterfull_{season}_{t}", fresh=refetch, max_age_days=6 if refetch else None), teams)
+    rr = []
+    for t, doc in zip(teams, docs):
+        rr += roster_rows(season, t, doc)
+    return pd.DataFrame(rr)
+
+
 def roster_rows(season, team, doc):
     out = []
     for grp in doc.get("athletes") or []:
@@ -493,18 +510,13 @@ def build_season(season, only=None, fresh_days=3, rosters=True, write=True):
         allp = pd.concat(plays, ignore_index=True)
         end = allp.groupby("game_id")[["end_home", "end_away"]].first()
         out["score_check"] = end
-        d = finish(allp.drop(columns=["scoring", "end_home", "end_away"]))
+        out["xtra"] = allp[list(XTRA_COLS)].copy()
+        d = finish(allp.drop(columns=["scoring", "end_home", "end_away"] + list(XTRA_COLS[2:])))
         out["plays"] = d
     out["player_box"] = pd.DataFrame(pbox)
     out["team_box"] = pd.DataFrame(tbox)
     if rosters and only is None:
-        teams = sorted(fbs.index)
-        docs = pmap(lambda t: get_json(ROSTER.format(t=t) + (f"?season={season}" if not current else ""),
-                                       f"roster_{season}_{t}", fresh=refetch, max_age_days=6 if refetch else None), teams)
-        rr = []
-        for t, doc in zip(teams, docs):
-            rr += roster_rows(season, t, doc)
-        out["rosters"] = pd.DataFrame(rr)
+        out["rosters"] = fetch_rosters(season, fbs, current, refetch)
     if write:
         write_season(season, out, replace=only is None)
     return out
@@ -546,7 +558,7 @@ def backfill(season):
             tbox += b
     rep = pd.DataFrame(report)
     if new:
-        add = finish(pd.concat(new, ignore_index=True).drop(columns=["scoring", "end_home", "end_away"]))
+        add = finish(pd.concat(new, ignore_index=True).drop(columns=["scoring", "end_home", "end_away"] + list(XTRA_COLS[2:])))
         d = d[~d.game_id.isin(add.game_id)]
         for c in d.columns:
             if c not in add.columns:
@@ -601,6 +613,9 @@ def write_season(season, out, replace=True):
                              and c not in ("game_id", "season", "team_id")}).to_parquet(RAW / fam / name, index=False)
     if "plays" in out and replace:
         out["plays"].to_parquet(WORK / f"plays_{season}.parquet", index=False)
+    if "xtra" in out and replace:
+        from .xtext import write_xtra
+        write_xtra(season, out["xtra"])
     (WORK / f"espn_sources_{season}.json").write_text(json.dumps(out["sources"], sort_keys=True))
 
 
