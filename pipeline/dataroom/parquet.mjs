@@ -127,10 +127,10 @@ function fits(kind, v) {
   return false
 }
 
-export async function writeSeason(con, { sport, table, season, columns, rows, kinds, out }) {
+export async function writeSeason(con, { sport, table, season, columns, rows, kinds, out, prepend = true }) {
   const key = `${sport}.${table}`
-  const all = ['season', ...columns]
-  const k = ['VARCHAR', ...columns.map((c) => kinds[c])]
+  const all = prepend ? ['season', ...columns] : columns.slice()
+  const k = prepend ? ['VARCHAR', ...columns.map((c) => kinds[c])] : columns.map((c) => kinds[c])
   for (let j = 0; j < columns.length; j++) {
     const kind = kinds[columns[j]]
     for (let i = 0; i < rows.length; i++) if (!fits(kind || 'VARCHAR', rows[i][j])) throw new Error(`${key} ${season}: column ${columns[j]} holds ${JSON.stringify(rows[i][j])}, which is not ${kind}. Widen the stored schema (--all) on purpose.`)
@@ -139,9 +139,10 @@ export async function writeSeason(con, { sport, table, season, columns, rows, ki
   // Staging columns: DATE goes in as text and is cast when copied out.
   await con.run(`CREATE TABLE stage (${all.map((c, j) => `${q(c)} ${k[j] === 'DATE' ? 'VARCHAR' : sqlType(k[j])}`).join(', ')})`)
   const ap = await con.createAppender('stage')
+  const o = prepend ? 1 : 0
   for (const r of rows) {
-    ap.appendVarchar(season)
-    for (let j = 0; j < columns.length; j++) append(ap, k[j + 1], r[j])
+    if (prepend) ap.appendVarchar(season)
+    for (let j = 0; j < columns.length; j++) append(ap, k[j + o], r[j])
     ap.endRow()
   }
   ap.closeSync()
@@ -155,7 +156,7 @@ export async function writeSeason(con, { sport, table, season, columns, rows, ki
   // Read it back and hold it to the JSON.
   const back = await con.runAndReadAll(`SELECT * FROM read_parquet('${tmp.replace(/'/g, "''")}')`)
   const got = back.getRows()
-  const want = rows.map((r) => [season, ...r])
+  const want = prepend ? rows.map((r) => [season, ...r]) : rows
   if (got.length !== want.length) { rmSync(tmp); throw new Error(`${key} ${season}: ${got.length} rows read back, ${want.length} in the JSON`) }
   const toJs = (v) => (v && typeof v === 'object' && typeof v.toString === 'function' && !(Array.isArray(v)) ? v.toString() : v)
   const a = checksum(k, want), b = checksum(k, got.map((r) => r.map(toJs)))
@@ -205,7 +206,19 @@ async function main() {
       const local = inferKinds(t.columns, t.rows)
       for (const [c, v] of Object.entries(local)) kinds[c] = widen(kinds[c] || null, v)
     }
-    entry = { columns: columns.map((c) => [c, kinds[c] || null]), sort: (SORT[key] || DEFAULT_SORT).filter((c) => columns.includes(c)), seasons: all ? {} : (entry?.seasons || {}) }
+    // A table with its own season column: where it always equals the file's season it is dropped (the
+    // added `season` is the same value); where it varies (coaching_programs, one file of every season)
+    // it is kept as the season and nothing is added.
+    let ownSeason = false
+    if (columns.includes('season')) {
+      for (const s of await src.seasons()) {
+        const t = await src.read(s); const i = t.columns.indexOf('season')
+        if (t.rows.some((r) => String(r[i]) !== s)) { ownSeason = true; break }
+      }
+      if (!ownSeason) columns = columns.filter((c) => c !== 'season')
+      else kinds.season = 'VARCHAR'
+    }
+    entry = { columns: columns.map((c) => [c, kinds[c] || null]), own_season: ownSeason, sort: (SORT[key] || DEFAULT_SORT).filter((c) => columns.includes(c)), seasons: all ? {} : (entry?.seasons || {}) }
     manifest.tables[key] = entry
   }
   const kinds = Object.fromEntries(entry.columns)
@@ -215,11 +228,13 @@ async function main() {
     const t = await src.read(s)
     // Same columns, in the stored order (a column a season lacks is null there).
     const ix = names.map((c) => t.columns.indexOf(c))
-    const extra = t.columns.filter((c) => !names.includes(c))
+    const extra = t.columns.filter((c) => !names.includes(c) && !(c === 'season' && !entry.own_season))
     if (extra.length) { console.error(`::warning::${key} ${s}: columns not in the stored schema: ${extra.join(', ')} (run with --all)`); bad++; continue }
+    const si = t.columns.indexOf('season')
+    if (!entry.own_season && si >= 0 && t.rows.some((r) => String(r[si]) !== s)) { console.error(`::warning::${key} ${s}: its season column no longer always equals ${s} (run with --all)`); bad++; continue }
     const rows = t.rows.map((r) => ix.map((i) => (i < 0 ? null : r[i] === undefined ? null : r[i])))
     try {
-      const r = await writeSeason(con, { sport, table, season: s, columns: names, rows, kinds, out: path.join(out, parquetName(sport, table, s)) })
+      const r = await writeSeason(con, { sport, table, season: s, columns: names, rows, kinds, out: path.join(out, parquetName(sport, table, s)), prepend: !entry.own_season })
       let through = null
       const di = names.indexOf('date')
       if (di >= 0) for (const row of rows) if (row[di] && (!through || row[di] > through)) through = row[di]

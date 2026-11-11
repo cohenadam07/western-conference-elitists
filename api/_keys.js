@@ -15,7 +15,9 @@
 // The connector is read-only with or without one.
 //
 // WHAT IS STORED (Upstash, the site's store)
-//   wce:mcp:keys           hash  <id> -> { h, email, created, newsletter, source }
+//   wce:mcp:keys           hash  <id> -> { h, email, created, newsletter, source, tier? }
+// `tier` is absent for everyone but the founders ("founder": Adam and his co-founder), set only by
+// tools/keys/tier.mjs. It opens WCE Pro analysis (savant_sql, savant_analyze; api/_analysis.js).
 //   wce:mcp:keys:pending   hash  <id> -> { email, key, ts }   a key waiting to be emailed
 // The key itself is never stored once it has been emailed: only its SHA-256 (`h`). The id is
 // the first 12 hex characters of that hash; it is what the usage log counts under (k:<id>)
@@ -82,7 +84,7 @@ export function resetKeys() { cache.clear() }
 
 // What the connector should make of the key in its address.
 //   { state: 'none' }                no key in the address
-//   { state: 'valid', id }           a real key
+//   { state: 'valid', id, tier }     a real key; tier is 'founder' or null
 //   { state: 'unknown' }             shaped like a key, but there is no such key
 //   { state: 'unchecked' }           the store could not be asked; treated as no key
 // Never throws, and never waits longer than TIMEOUT_MS.
@@ -92,7 +94,7 @@ export async function checkKey(raw, now = Date.now()) {
   if (!isKey(key)) return { state: 'unknown' }
   const h = hashOf(key)
   const seen = cache.get(h)
-  if (seen && seen.until > now) return seen.id ? { state: 'valid', id: seen.id } : { state: 'unknown' }
+  if (seen && seen.until > now) return seen.id ? { state: 'valid', id: seen.id, tier: seen.tier || null } : { state: 'unknown' }
   const db = store()
   if (!db) return { state: 'unchecked' }
   try {
@@ -102,8 +104,9 @@ export async function checkKey(raw, now = Date.now()) {
     const ok = Boolean(rec && typeof rec.h === 'string' && rec.h.length === h.length &&
       timingSafeEqual(Buffer.from(rec.h), Buffer.from(h)))
     if (cache.size >= MAX_CACHED) cache.delete(cache.keys().next().value)
-    cache.set(h, ok ? { id: h.slice(0, 12), until: now + GOOD_FOR_MS } : { id: null, until: now + BAD_FOR_MS })
-    return ok ? { state: 'valid', id: h.slice(0, 12) } : { state: 'unknown' }
+    const tier = ok && rec.tier === 'founder' ? 'founder' : null
+    cache.set(h, ok ? { id: h.slice(0, 12), tier, until: now + GOOD_FOR_MS } : { id: null, until: now + BAD_FOR_MS })
+    return ok ? { state: 'valid', id: h.slice(0, 12), tier } : { state: 'unknown' }
   } catch (err) {
     console.error('[mcp keys] could not check a key:', err?.message || err)
     return { state: 'unchecked' }

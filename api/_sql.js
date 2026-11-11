@@ -37,7 +37,7 @@ export const LIMITS = {
   wallMs: Number(process.env.SQL_WALL_MS) || 22000,       // the function's limit is 30 s (vercel.json)
   memory: process.env.SQL_MEMORY || '1GB',                // the function has 2 GB
   threads: Number(process.env.SQL_THREADS) || 4,          // I/O-bound over HTTP: more threads than cores pays
-  scanBytes: Number(process.env.SQL_SCAN_BYTES) || 400e6, // compressed Parquet bytes a query may plan to read
+  scanBytes: Number(process.env.SQL_SCAN_BYTES) || 25e6,  // compressed column bytes a scan may plan to read: SELECT * over every season of NFL plays (39 MB), CFB plays (40), NFL player-games (28) or NBA shots (57) is past it; a handful of columns league-wide is well inside
   engineTtlMs: 10 * 60 * 1000,                            // a fresh engine every 10 minutes: replaced files, new seasons
 }
 const TABLE_FUNCTIONS = new Set(['range', 'generate_series', 'unnest'])
@@ -95,7 +95,9 @@ async function setup() {
     const list = seasons.map((s) => parquetUrl(sport, table, s))
     urls.push(...list)
     // Every season is written to one stored schema (parquet.mjs), so the first file's columns are every file's.
-    await con.run(`CREATE VIEW ${sport}.${ident(table)} AS SELECT * FROM read_parquet([${list.map(sqlStr).join(', ')}], hive_partitioning = true, hive_types = {'season': VARCHAR})`)
+    // A table that carries its own season column (coaching_programs: one file, every season) is read as it is.
+    const hive = t.own_season ? '' : ", hive_partitioning = true, hive_types = {'season': VARCHAR}"
+    await con.run(`CREATE VIEW ${sport}.${ident(table)} AS SELECT * FROM read_parquet([${list.map(sqlStr).join(', ')}]${hive})`)
     tables[key] = { sport, table, seasons, columns: t.columns.map(([c, k]) => [c, k === 'JSON' || !k ? 'VARCHAR' : k]), through: Object.fromEntries(seasons.map((s) => [s, t.seasons[s].through || null])), rows: Object.fromEntries(seasons.map((s) => [s, t.seasons[s].rows])), bytes: Object.fromEntries(seasons.map((s) => [s, t.seasons[s].bytes])), colBytes: Object.fromEntries(seasons.map((s) => [s, t.seasons[s].col_bytes || null])) }
   }
   for (const s of [
@@ -197,9 +199,12 @@ async function planBytes(e, sql, used) {
     const m = String(info['Scanning Files'] || '').match(/(\d+)\s*\/\s*(\d+)/)
     // Which table this scan is: one the query names, with that many seasons, holding those columns.
     const fits = used.map((k) => e.tables[k]).filter((t) => (!m || t.seasons.length === +m[2]) && proj.every((c) => c === 'season' || t.columns.some(([n]) => n === c)))
+    // The columns the scan reads (its projections and filters), at their compressed size in the files
+    // it does not skip. DuckDB fetches in larger ranges than one column chunk, so the bytes it really
+    // reads run higher on a narrow scan (ANALYSIS.md); the budget is about wide scans, where this is close.
     let most = 0
     for (const t of fits) {
-      const cols = t.columns.map(([n]) => n).filter((c) => proj.includes(c) || filt.includes(c))
+      const cols = t.columns.map(([n]) => n).filter((c) => proj.includes(c) || new RegExp(`\\b${c}\\b`).test(filt))
       let total = 0
       for (const s of t.seasons) { const cb = t.colBytes[s]; total += cb ? (cols.length ? cols : Object.keys(cb)).reduce((n, c) => n + (cb[c] || 0), 0) : t.bytes[s] || 0 }
       most = Math.max(most, m ? (total * +m[1]) / +m[2] : total)
@@ -260,17 +265,66 @@ export async function runSql(sql, { maxRows = MAX_ROWS, wallMs = LIMITS.wallMs, 
       }
     } catch (err) {
       clearTimeout(timer)
-      if (err instanceof SavantError) throw err
-      const msg = String(err && err.message || err)
-      if (timedOut || /interrupt/i.test(msg)) throw new SavantError(`That query ran past this tool's ${(wallMs / 1000).toFixed(0)}-second limit and was stopped. Narrow it: filter on season or a few seasons, on a team or player, fewer columns, or aggregate first (GROUP BY) instead of returning rows.`)
-      if (/out of memory|memory limit|could not allocate/i.test(msg)) throw new SavantError(`That query needed more than this tool's ${LIMITS.memory} of memory and was stopped. Narrow it: fewer seasons, fewer columns, aggregate before joining, or avoid joining two large tables row by row.`)
-      if (/permission|disabled by configuration|cannot access|locked/i.test(msg)) throw new SavantError('Not allowed: this tool reads only the Data Room tables, and its settings cannot be changed.')
-      if (/Binder Error|Catalog Error|Parser Error|Conversion Error|Invalid Input|Not implemented|Out of Range/i.test(msg)) throw new SavantError(`DuckDB could not run that: ${clean(msg)}`)
-      console.error('[sql] query failed:', msg)
-      throw new SavantError(`The query failed: ${clean(msg)}`)
+      throw failure(err, timedOut, wallMs)
     }
   })
 }
+
+// What a failed query tells the caller: the engine's own words for a mistake in the SQL, a way to
+// narrow it for the limits, and never a path or URL.
+function failure(err, timedOut, wallMs) {
+  if (err instanceof SavantError) return err
+  const msg = String(err && err.message || err)
+  if (timedOut || /interrupt/i.test(msg)) return new SavantError(`That query ran past this tool's ${(wallMs / 1000).toFixed(0)}-second limit and was stopped. Narrow it: filter on season or a few seasons, on a team or player, fewer columns, or aggregate first (GROUP BY) instead of returning rows.`)
+  if (/out of memory|memory limit|could not allocate|failed to allocate/i.test(msg)) return new SavantError(`That query needed more than this tool's ${LIMITS.memory} of memory and was stopped. Narrow it: fewer seasons, fewer columns, aggregate before joining, or avoid joining two large tables row by row.`)
+  if (/permission|disabled by configuration|cannot access|locked/i.test(msg)) return new SavantError('Not allowed: this tool reads only the Data Room tables, and its settings cannot be changed.')
+  if (/Binder Error|Catalog Error|Parser Error|Conversion Error|Invalid Input|Not implemented|Out of Range|Type Error/i.test(msg)) return new SavantError(`DuckDB could not run that: ${clean(msg)}`)
+  console.error('[sql] query failed:', msg)
+  return new SavantError(`The query failed: ${clean(msg)}`)
+}
+
+// ---- the studies' way in (api/_analyze.js) ----------------------------------------------------
+// The caller's SELECT goes through every lock above, then lands in a temporary in-memory table the
+// study reads with its own SQL (sums and products for a regression, cluster totals for a bootstrap),
+// so millions of rows never have to cross into JavaScript. Column names the caller gives are checked
+// against that table and quoted; nothing the caller wrote is ever pasted into the study's SQL.
+let seq = 0
+export async function withObservations(sql, fn, { wallMs = LIMITS.wallMs, budget = LIMITS.scanBytes, maxRows = 3e6 } = {}) {
+  const t0 = Date.now()
+  const e = await engine()
+  return serial(async () => {
+    const used = await checkSql(e.con, sql, e.tables)
+    const { JsonDuckDBValueConverter } = await import('@duckdb/node-api')
+    let timer = null, timedOut = false
+    timer = setTimeout(() => { timedOut = true; try { e.con.interrupt() } catch { /* done */ } }, Math.max(1, wallMs - (Date.now() - t0)))
+    const name = `obs_${++seq}`
+    try {
+      const plan = await planBytes(e, sql, used).catch((err) => { if (timedOut) throw err; throw new SavantError(`That SQL could not be planned: ${clean(err.message)}`) })
+      if (plan.bytes > budget) throw new SavantError(`That study would read about ${(plan.bytes / 1e6).toFixed(0)} MB of compressed data, past the ${(budget / 1e6).toFixed(0)} MB budget. Narrow its SQL: filter on season, name only the columns the study uses.`)
+      try { rmSync(e.profile, { force: true }) } catch { /* fine */ }
+      await e.con.run(`CREATE TEMP TABLE ${name} AS SELECT * FROM (${sql}) AS q`)
+      let prof = null
+      try { prof = JSON.parse(readFileSync(e.profile, 'utf8')) } catch { prof = null }
+      const n = Number((await e.con.runAndReadAll(`SELECT count(*) FROM ${name}`)).getRows()[0][0])
+      if (n > maxRows) throw new SavantError(`That SQL returns ${n.toLocaleString('en-US')} rows; a study takes at most ${maxRows.toLocaleString('en-US')}. Aggregate in the SQL first (one row per game or per player-game) or filter it.`)
+      const cols = (await e.con.runAndReadAll(`DESCRIBE ${name}`)).getRows().map((r) => [String(r[0]), String(r[1]).toUpperCase()])
+      const q = async (internal) => {
+        const r = await e.con.runAndReadAll(internal.replaceAll('$T', name))
+        const types = r.columnTypes().map((t) => String(t.toString()).toUpperCase())
+        return { columns: r.columnNames(), rows: r.convertRowsSync ? r.convertRowsSync(JsonDuckDBValueConverter) : r.getRows().map((row) => row.map((v, j) => toJson(jsonish(v), types[j]))) }
+      }
+      const out = await fn({ name, cols, n, q, ident, deadline: t0 + wallMs })
+      clearTimeout(timer)
+      return { ...out, tables: used, through: Object.fromEntries(used.map((k) => [k, newest(e.tables[k])])), observations: n, bytes_read: prof?.io?.total_bytes_read ?? null, ms: Date.now() - t0 }
+    } catch (err) {
+      clearTimeout(timer)
+      throw failure(err, timedOut, wallMs)
+    } finally {
+      try { await e.con.run(`DROP TABLE IF EXISTS ${name}`) } catch { /* the engine is gone */ }
+    }
+  })
+}
+const jsonish = (v) => (typeof v === 'bigint' ? (Number.isSafeInteger(Number(v)) ? Number(v) : String(v)) : v && typeof v === 'object' && !Array.isArray(v) && typeof v.toDouble === 'function' ? v.toDouble() : v && typeof v === 'object' && !Array.isArray(v) ? String(v) : v)
 
 const newest = (t) => { let best = null; for (const s of t.seasons) { const d = t.through[s]; if (d && (!best || d > best)) best = d } return best ? day(best) : null }
 
