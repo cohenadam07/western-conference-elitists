@@ -453,3 +453,58 @@ test('the morning email: its template never holds a passcode, and it can only re
   assert.doesNotMatch(t, /edge-arm|edge-answer|edge-queue/)
   assert.match(t, /x-edge-digest/)
 })
+
+test('resting orders: price at the bid, strict fill on a trade past it, settled at its own price', () => {
+  const at = '2026-11-10T22:00:00Z', tip = Date.parse('2026-11-11T00:00:00Z')
+  const no = { side: 'no', price: 0.62, fee: M.takerFee(0.62), bid: 0.36, ask: 0.38, at }
+  const yes = { side: 'yes', price: 0.38, fee: M.takerFee(0.38), bid: 0.36, ask: 0.38, at }
+  // The NO ask is 1 - YES bid = 0.64; the NO bid is 1 - YES ask = 0.62.
+  const noBet = { ...no, price: 0.64 }
+  assert.equal(M.makerPrice(noBet), 0.62)
+  assert.equal(M.makerPrice(yes), 0.36)
+  assert.equal(M.makerPrice({ ...yes, bid: 0 }), null)
+  const c = (min, lo, hi, vol = 5) => ({ end: Date.parse(at) + min * 60e3, lo, hi, vol, bid: null, ask: null })
+  // A YES trade at 0.38 is exactly the NO order's level (YES 1 - 0.62): a touch, not a fill.
+  let f = M.makerFill(noBet, [c(5, 0.38, 0.38)], tip)
+  assert.equal(f.filled, false); assert.equal(f.touched, true)
+  // A trade at 0.39 is past it: filled. A trade in the minute of the bet itself never counts.
+  f = M.makerFill(noBet, [c(0.5, 0.40, 0.40), c(30, 0.37, 0.39)], tip)
+  assert.equal(f.filled, true); close(f.price, 0.62); close(f.fee, M.makerFee(0.62))
+  // After tip never counts; a minute with no trades never counts.
+  assert.equal(M.makerFill(noBet, [c(200, 0.5, 0.5), c(10, 0.5, 0.5, 0)], tip).filled, false)
+  // YES order at 0.36 fills on a trade at 0.35.
+  assert.equal(M.makerFill(yes, [c(10, 0.35, 0.36)], tip).filled, true)
+  // Settled: a filled NO at 0.62 that wins, close mid 0.30 (NO fair 0.70): CLV +8c, cost negative.
+  const s = M.settleMaker({ ...noBet, maker: { price: 0.62, fee: M.makerFee(0.62), filled: true } }, 0, { bid: 0.29, ask: 0.31 })
+  close(s.clv, 0.08); assert.ok(s.cost < 0); assert.equal(s.outcome, 'win')
+  assert.equal(M.settleMaker({ ...noBet, maker: { filled: false } }, 0, null), null)
+  // Per-order CLV counts unfilled orders as zero.
+  const a = M.emptyBetAgg(); M.addBet(a, s)
+  const d = M.describeMaker(4, 2, a)
+  close(d.fillRate, 0.25); close(d.perOrderClv, 0.02); close(d.touchRate, 0.5)
+})
+
+test('Claude arms: the Opus run is chosen by EDGE_CLAUDE_ARMS and reads the Sonnet prompts', () => {
+  assert.deepEqual(M.liveClaudeArms({}), ['claude_wce', 'claude_box', 'claude_rc'])
+  assert.deepEqual(M.liveClaudeArms({ EDGE_RC: 'off' }), ['claude_wce', 'claude_box'])
+  assert.deepEqual(M.liveClaudeArms({ EDGE_CLAUDE_ARMS: 'claude_opus_wce, claude_opus_box, nonsense' }), ['claude_opus_wce', 'claude_opus_box'])
+  assert.equal(M.PROMPT_OF.claude_opus_wce, 'claude_wce')
+  assert.equal(M.PROMPT_OF.claude_opus_box, 'claude_box')
+  for (const a of M.CLAUDE_FORECASTERS) assert.ok(M.ARM_LABEL[a] && M.PROMPT_OF[a])
+  assert.equal(M.FORECASTER_EXPERIMENTS.claude_opus_wce.control, 'model')
+  const probs = { claude_opus_wce: new Map([['A', 0.6]]), claude_opus_box: new Map([['A', 0.4]]) }
+  close(M.sourceProb('opus_avg', probs, 'A'), 0.5)
+})
+
+test('rule arms: lead-time limits', () => {
+  const base = { name: 'Early NOs', hypothesis: 'The NO drift lives two hours or more before tip.', success: 'CLV t past the bar over 300 bets.', source: 'model', side: 'no' }
+  assert.deepEqual(M.validateRule({ ...base, minLead: 120 }), [])
+  assert.ok(M.validateRule({ ...base, minLead: 120, maxLead: 60 }).length)
+  assert.ok(M.validateRule({ ...base, minLead: -5 }).length)
+  const m = { ticker: 'A', playerKey: 'p', stat: 'pts', bid: 0.40, ask: 0.42, noAsk: 0.60 }
+  const probs = { model: new Map([['A', 0.2]]) }
+  assert.equal(M.pickRuleBets({ ...base, minLead: 120 }, [m], probs, null, M.BET_RULES, 150).length, 1)
+  assert.equal(M.pickRuleBets({ ...base, minLead: 120 }, [m], probs, null, M.BET_RULES, 60).length, 0)
+  assert.equal(M.pickRuleBets({ ...base, maxLead: 90 }, [m], probs, null, M.BET_RULES, 60).length, 1)
+  assert.equal(M.pickRuleBets({ ...base, minLead: 120 }, [m], probs, null, M.BET_RULES, null).length, 0)
+})
