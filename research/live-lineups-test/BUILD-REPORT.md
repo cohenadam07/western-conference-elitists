@@ -172,3 +172,104 @@ After the fixes: parser parity 3/3 and 300/300 identical, and the expected workb
 **Not exercised live:** the 2nd half to the final, overtime, and the drawer on a phone mid-game. Friday's dry run on 401906804 covers a full game. The page still says "Oklahoma" for any `team=`, by design (the `team` parameter is a test hook).
 
 Logs: `research/live-lineups-test/live/<game>/refresh-log.txt` (one line per refresh), `refresh-log.jsonl`, `monitor.out`; `live/summary.json`.
+
+# Full-game rehearsal: Marquette at Michigan, live, Nov 11, 2026, 7:00 pm ET. PASS, with one fix
+
+**The game.** 401909524 on FS1, with Michigan (130) as "us", followed from pre-game through the final: Michigan 84, Marquette 70, no overtime.
+
+**Code under test.** The run used the **Vercel preview** for `fd406e9`, the commit that holds all four test-6 fixes. The preview is `western-conference-elitists-jmzc728b0-…`, opened through a Vercel share link. Its four JS files are byte-identical to the branch. Its HTML differs only by Vercel's injected toolbar script.
+
+**Two companion runs.** A local mirror of the same game ran on the same code. A backup game also ran on the preview: James Madison at Delaware (401920903), with JMU (256) as "us". It was there in case ESPN's feed for the main game was unusable.
+
+**How it was watched.** `tools/live-lineups/full-game.mjs` is test 6's logger extended to a whole game. It logs every ESPN response: status, clock, last play, the reconciliation light, banners and repairs. A 1-second sampler logs every banner change between refreshes.
+- **Screenshots.** It shoots all four tabs plus the drawer (Lineups, Players, Shooting, Opponent) at 1440×900 and again at phone size (390×844), four times: once in each half (at 12:00), at halftime, and at the final.
+- **Download.** After the final, it downloads "This game" as .xlsx and .csv.
+- **The check.** `tools/live-lineups/final_check.py` recalculates the download in LibreOffice and checks it against ESPN's official box score.
+
+## Refreshes, light, banners, repairs
+
+| run | refreshes | live refreshes, span | gap median / max | light | "Data delayed" | banners | repairs | errors |
+|---|---|---|---|---|---|---|---|---|
+| MARQ at MICH, **preview** | 754 (255 pre-game, 498 live, 1 final) | 498 live, 124.9 min, 1st 19:56 → end of 2nd | 15.1 s / 15.5 s | **498 of 498 green** | never | one 15 s false banner at tip-off (fixed below) | one, at 2nd 0:40, for one refresh, silent | 0 |
+| MARQ at MICH, local mirror | 754 | same | 15.1 s / 16.0 s | 498 of 498 green | never | same | same | 0 |
+| JMU at DEL, preview (backup) | 707 | 449 live, 112.5 min | 15.1 s / 15.3 s | 449 of 449 green | never | none | none | 0 |
+
+- **Pre-game.** The page sat on the pre-game card for 4 hours 15 minutes (255 polls, 60 s apart, from 2:46 pm ET). It switched to live by itself, with no reload.
+- **ESPN direct.** Every request went straight to ESPN. The `/api/espn-summary` fallback was never needed.
+
+**Stoppages on the main game: 14 timeouts and 16 stretches of 90 s or more with a frozen clock. Green throughout, and no banners in any of them.**
+
+| stoppage (ESPN play) | ESPN clock frozen | refreshes | light | banners |
+|---|---|---|---|---|
+| Official TV timeout, 1st 15:32 | ~196 s | 13 | green | none |
+| Official TV timeouts, 1st 10:24 / 7:39 / 3:31 | ~226 s each | 15 each | green | none |
+| Short timeouts, 1st 12:52 / 9:14 / 6:54 / 1:31 | 60–90 s | 4–6 | green | none |
+| Halftime | ~17 min | 67 | green | none |
+| Official TV timeouts, 2nd 15:36 / 11:55 / 7:48 | 181–226 s | 12–15 | green | none |
+| Short timeout, 2nd 12:16 | ~257 s | 17 | green | none |
+| Coach's challenge, stands (2nd 7:48, with the TV timeout) and overturned (2nd 4:19) | 181 s / 242 s | 12 / 16 | green | none |
+| Short timeout, 2nd 0:40 | ~121 s | 8 | green | none |
+| Free-throw and foul stoppages without a timeout play (2nd 16:26, 10:41, 8:46, 6:08) | 90–135 s | 6–9 | green | none |
+
+The backup game had 11 timeouts, halftime and 13 long stoppages. All were green with no banners.
+
+**The one repair.** At 2nd half 0:40, ESPN posted "Trey McKenney subbing out" one pull before the player coming in.
+- The page repaired the lineup for that one refresh (21:03:56) and kept it showing. It stayed quiet because the repair sat at the feed's last clock (test-6 fix 4).
+- On the next pull ESPN completed the group, and the repair dropped by itself.
+- Both feeds are saved: `live/feeds/401909524-2-0-40.json.gz` and `401909524-final.json.gz`.
+
+## Phone drawer, once per half
+
+The drawer opened at 390×844, on all four segments, at **1st half 12:00, halftime, 2nd half 12:00 and the final**, and at 1440×900 at the same moments. Horizontal overflow was 0 in all 32 drawer screenshots and 32 tab screenshots of the preview run. All are in `live/marq-mich/` (`<moment>-phone-drawer-<segment>.png`). The two companion runs keep only their phone drawer shots.
+
+What was read on screen:
+- **1st half 12:00.** "Marquette has 6 team fouls. Their next foul puts you in the bonus." The bonus chip matched ESPN's 6 Marquette fouls.
+- **Halftime.** Up 35–27. "Without shooting luck you would be up about 11." That checks out: Marquette's 4-for-14 from three helped by about 2, Michigan's 2-for-11 cost about 5, so the net luck is −3.
+- **Drawer Players at 2nd half 12:00.** Points sum to the score shown.
+
+On the preview, Vercel's toolbar button (a dark circle on the right edge) floats over the page and the drawer. On the 1st-half phone drawer it covers one "Too early" cell. It comes from Vercel's injected `vercel.live` script, so the local mirror doesn't show it and production won't. Anyone opening a preview link will see it, though; it can be hidden from the toolbar's own menu.
+
+## Download vs ESPN's official box score: PASS
+
+The "This game" download for the main game is `live/marq-mich/OU Lineup Tracker - Marquette 11-11.xlsx` plus its CSV. It was recalculated in LibreOffice (`recalc/`) and checked with `final_check.py`:
+
+| check | result |
+|---|---|
+| ESPN status | STATUS_FINAL, no overtime |
+| Final score | Stint Log 84-70 = ESPN 84-70 |
+| Each team's points | Michigan 84 = sum of ESPN box-score player points; Marquette 70 = sum of ESPN box-score player points |
+| Minutes | 26 stints sum to **40.0000**. 1st half 9 stints, 20:00 → 0:00; 2nd half 17 stints, 20:00 → 0:00. Contiguous, no gaps, no zero-length stints |
+| Red flags after recalculating | **0**. Duplicate player in P1–P5: 0. Players with no Lineup Key: 0. Key over a repeated player: 0. Rows without five players: 0 |
+| Error values in any sheet | 0 |
+| Game Summary | Marquette 11/11, 26 stints, 40 minutes, 84-70, possessions 74/76 |
+| CSV vs Stint Log | 26 rows, 30 columns, 0 differences |
+| Template round trip (`xlsx_compare.py`) | 0 differences. Every dropdown, red-flag format, note, width and formula is kept. Michigan's players were added to the Roster tab |
+| Player minutes vs ESPN | 9 players, largest gap 0.42 min (ESPN rounds to whole minutes): Cadeau 34/34.13, McKenney 36/35.67, Estrella 31/31.10, Thiam 27/27.05, Gayle 25/25.33, Costello 25/24.60, Liburd 13/12.83, Noland 6/5.87, Goodman 3/3.42 |
+
+- **Local mirror.** Its download is identical on every check.
+- **Backup game.** It also passes. JMU 71-61, 32 stints summing to 40:00, 0 red flags, CSV identical, template round trip with 0 differences, and player minutes within 0.45 min of ESPN.
+
+## Found by watching, fixed: a false "Lineups are hidden" for 15 s at tip-off
+
+**What happened.** At 19:02:06 ESPN marked the game live (1st 19:56) with **zero plays** in the feed. The page had nothing to parse and read that as broken substitutions. Both runs showed "Lineups are hidden for this game…" until the next pull, 15 s later, brought the jump ball. After that the banner never returned.
+
+**The fix.** Until ESPN's first play arrives, the page keeps the pre-game card, marked "Tipped off. Waiting for ESPN's first play," on the 15-second live refresh. It opens the live view as soon as a play arrives (commit `69da0af`).
+
+**Tests.**
+- `tools/live-lineups/tip-test.mjs` replays the real tip feed (`live/feeds/401909524-tip-3plays.json`), first with its plays removed and then complete, on the same page with no reload: **3/3** (pre-game card with no banner; live view with lineups; 0 console errors).
+- Unchanged: `half-lag-test` 2/2, `tail-repair-test` 6/6, `stale-test` 4/4.
+
+**Deployment.** The preview for `69da0af` (`western-conference-elitists-21qzt1oat-…`) is READY, and its JS is byte-identical to the branch.
+
+**Status.** Apart from those 15 seconds, the main game ran clean from tip to final, and the download matches ESPN's box score. The tip-off case is covered by the test above. It has not yet been seen at a live tip-off on the fixed code; Friday's dry run will be the first.
+
+## Still open
+- A real iPhone and iPad pass on the preview. Everything so far has been headless Chromium.
+- Friday's dry run on 401906804, OU vs FDU.
+- Overtime in a live game. Tonight's games were decided in regulation; the overtime download path has only been checked on finished 2025-26 games.
+
+Files are in `research/live-lineups-test/live/`:
+- `marq-mich/`: the preview run. Refresh logs, 65 screenshots, the download, the recalculated copy.
+- `marq-mich-local/`, `jmu-del/`: logs, downloads and phone drawer shots.
+- `summary-full-game.json`: from `live_summary.py --out=`.
+- `feeds/`: the saved ESPN feeds.
