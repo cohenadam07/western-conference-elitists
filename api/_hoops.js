@@ -20,6 +20,9 @@
 // it. Flaps and time come from the server's own replay of the run's taps with the game's rules
 // (public/flappy-hoops/server/sim.mjs, written by the game's build next to the game), never from the
 // game's say-so. Race runs replay with the ghost-hole doors shut, as they were in the race.
+// Knockout runs (2.11) never count: balls hit each other there, so a run isn't one ball's taps any more.
+// rec.submit refuses one whatever the game says: a run marked Knockout (mode/ko), a run from a party
+// whose race is Knockout (pc: the party's code), and any run with an item in it (U) all come back 403.
 //
 //   fhrec        hash  <hole>|<b> → "<flaps>|<steps>|<entry JSON>" (the prefix lets Lua compare
 //                      without cjson); entry { n, u, f, k, at, r? }
@@ -465,6 +468,7 @@ async function acctAdmin(body, req) {
 async function submit(body) {
   const me = await whoIs(body.t)
   if (!submits.take(me.id, SUBMITS_A_MINUTE).ok) bad(429, 'Slow down a little.')
+  await notKnockout(body)
   const h = String(body.h || '')
   if (!HOLE_RE.test(h)) bad(400, 'That isn’t a hole.')
   const inputs = cleanInputs(body.in)
@@ -488,6 +492,27 @@ async function submit(body) {
   return { ok: true, f, k, boards: { f: board(res[0]), s: board(res[1]) } }
 }
 const submits = makeLimiter()
+
+// A Knockout run doesn't go on the board (see the top of this file).
+const KO_NO = 'Knockout runs don’t count for the all-time records.'
+export const KO_PARTY_RE = /^[BCDFGHJKLMNPQRSTVWXZ]{4}$/
+export function koMarked(body) {
+  if (!body || typeof body !== 'object') return false
+  if (body.mode === 'knockout' || body.ko === true || body.ko === 1) return true
+  // (an item in the taps: only Knockout has those)
+  if (Array.isArray(body.in) && body.in.some((x) => Array.isArray(x) && x[1] === 'U')) return true
+  return false
+}
+async function notKnockout(body) {
+  if (koMarked(body)) bad(403, KO_NO, { ko: true })
+  // (a race run says which party it was in: if that party's race is Knockout, it doesn't count either)
+  const pc = typeof body.pc === 'string' ? body.pc.toUpperCase() : ''
+  if (body.race === true && KO_PARTY_RE.test(pc)) {
+    let mode = ''
+    try { const j = await redis(['HGET', 'fhr:' + pc, 'j']); mode = j ? JSON.parse(j).mode || '' : '' } catch { /* no party: nothing to refuse */ }
+    if (mode === 'knockout') bad(403, KO_NO, { ko: true })
+  }
+}
 
 async function recAdmin(body, req) {
   if (!adminTries.take(ipOf(req), 20).ok) bad(429, 'Too many tries. Wait a few minutes.')

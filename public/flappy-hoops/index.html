@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="/flappy-hoops/assets/index-DLqm0MEW.js"></script>
-  <link rel="stylesheet" crossorigin href="/flappy-hoops/assets/index-COfJMHp7.css">
+  <script type="module" crossorigin src="/flappy-hoops/assets/index-DDyfwzPg.js"></script>
+  <link rel="stylesheet" crossorigin href="/flappy-hoops/assets/index-DmVxZ82P.css">
 </head>
 <body>
 <div id="app">
@@ -31,6 +31,7 @@
     <div id="ghostTag" class="ghost-tag hidden">GHOST · YOUR BEST</div>
     <div class="pad pad-l" id="padL"><svg viewBox="0 0 64 64"><path d="M40 44 20 24M20 24h15M20 24v15" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M46 20c3 3 4 7 3 11M52 16c5 5 6 12 4 18" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" opacity=".7"/></svg></div>
     <div class="pad pad-r" id="padR"><svg viewBox="0 0 64 64"><path d="M24 44 44 24M44 24H29M44 24v15" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 20c-3 3-4 7-3 11M12 16c-5 5-6 12-4 18" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" opacity=".7"/></svg></div>
+    <button class="ko-item hidden empty" id="koItem" aria-label="Use your item" title="Use your item (S)"><span class="ko-ic" id="koIc"></span><span class="ko-nm" id="koNm">NO ITEM</span><small class="kb">S</small></button>
     <div id="hint" class="hint hidden"><span class="hint-l">Tap left to flap ↖<small class="kb">or press A / ←</small></span><span class="hint-r">↗ Tap right to flap<small class="kb">or press D / →</small></span></div>
   </div>
 
@@ -46,6 +47,7 @@
 
   <div id="popup" class="popup hidden"><b id="popT">SWISH!</b><span id="popS"></span></div>
   <div id="toast" class="toast hidden"></div>
+  <div id="koCall" class="ko-call hidden" aria-live="polite"></div>
   <div id="edgeGlow" class="edge-glow hidden" aria-live="polite"><div class="eg-chip"><b id="egName"></b><span id="egWhat"></span></div></div>
   <div id="shotClock" class="shotclock hidden"><span>SHOT CLOCK</span><b id="scN">4</b></div>
 

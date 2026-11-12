@@ -158,12 +158,60 @@ if (process.argv[2] !== 'live') {
     ok(room.phase === 'board' && room.results[0][3].dnf === 1, 'someone who’s gone quiet doesn’t hold the hole up')
   }
   {
-    const { room, t0 } = play('speed')
+    const { room, live, t0 } = play('speed')
     ok(!R.plausible({ k: 2400, f: 3, at: t0 + 5000 }, room) && R.plausible({ k: 590, f: 3, at: t0 + 5000 }, room) && !R.plausible({ k: 100, f: 1, at: t0 - 500 }, room),
       'a finish in more steps than the clock has had, or before the start, doesn’t count')
     ok(R.finValue({ k: 812, f: 7 }, 99) === '812:7:99' && R.finValue({ dnf: 1 }, 99) === 'x:0:99' && R.finValue({ k: -4, f: 1 }, 9) === null && R.parseFin('812:7:99').k === 812 && R.parseFin('x:0:99').dnf === 1, 'finishes pack and unpack')
     const lv = R.cleanLive({ m: 1, h: 0, k: 300, f: 2, in: '12:1,80:-1,150:R,200:0' }, 5)
     ok(lv.in === '12:1,80:-1,150:R,200:0' && R.cleanLive({ in: '12:1;DROP' }, 5).in === '' && R.cleanLive({ in: '1:1,'.repeat(5000) }, 5).in === '', 'flaps travel as "step:side"; anything else is dropped')
+    live[id(0)] = R.cleanLive({ m: 1, h: 0, k: 300, f: 2, in: '12:1' }, t0 + 1000)
+    ok(!('in' in R.view(room, live, {}, id(0), t0 + 1000).players[0]) && R.view(room, live, {}, id(1), t0 + 1000).players[0].in === '12:1', 'in speed and flaps your own flaps aren’t sent back to you (only the others’)')
+  }
+  // ---- Knockout (2.11): speed with live balls hitting each other
+  const playKO = (kv = [1, 1, 1, 1], votes = ['knockout', 'knockout', 'knockout', 'speed']) => {
+    const { room, live } = party(['A', 'B', 'C', 'D'], 1000)
+    R.startVote(room, live, WORLDS, 1000)
+    for (let i = 0; i < 4; i++) live[id(i)] = R.cleanLive({ m: 1, vw: room.opts[0].id, vm: votes[i], kv: kv[i] }, 2000)
+    R.advance(room, live, {}, 2000, seq(0.5))
+    for (let i = 0; i < 4; i++) live[id(i)].t = 2000 + R.REVEAL_MS
+    R.advance(room, live, {}, 2000 + R.REVEAL_MS, seq(0.25, 0.75))
+    return { room, live, t0: room.startAt }
+  }
+  {
+    ok(R.MODES.includes('knockout') && R.cleanLive({ vm: 'knockout' }, 1).vm === 'knockout', 'Knockout is a mode on the vote, next to speed and flaps')
+    const { room, live, t0 } = playKO()
+    ok(room.mode === 'knockout' && room.phase === 'hole' && room.tally.mode.knockout === 3, 'the most votes wins: Knockout')
+    ok(room.seed > 0 && Number.isInteger(room.seed) && R.view(room, live, {}, id(0), t0).seed === room.seed, 'each Knockout hole gets a seed, handed to every game with the party')
+    const s1 = room.seed
+    const fins = { [id(0)]: { k: 1500, f: 9, at: t0 + 13000 }, [id(1)]: { k: 1500, f: 7, at: t0 + 13500 }, [id(2)]: { k: 1400, f: 11, at: t0 + 12000 }, [id(3)]: { dnf: 1, at: t0 + 13000 } }
+    for (let i = 0; i < 4; i++) live[id(i)] = { ...R.cleanLive({ m: 1, h: 0, kv: 1, in: '12:1,40:U,80:-1,150:R', kt: i === 1 ? `${id(0)}:2,${id(2)}:1` : i === 2 ? `${id(0)}:1,${id(2)}:1,${id(1)}:1` : '' }, t0 + 30000) }
+    ok(live[id(0)].in === '12:1,40:U,80:-1,150:R', 'item use travels as "step:U" with the flaps')
+    { const me = R.view(room, live, {}, id(0), t0 + 30000).players.find((p) => p.id === id(0))
+      ok(me.in === '12:1,40:U,80:-1,150:R', 'in Knockout your own inputs come back to you too (a reload mid-hole puts them back: the same world as everyone’s)') }
+    ok(JSON.stringify(R.cleanTally(`${id(0)}:2,junk,${id(1)}:x,ZZ:3`)) === JSON.stringify({ [id(0)]: 2 }) && JSON.stringify(R.cleanTally('x'.repeat(500))) === '{}', 'a KO tally is cleaned (ids and counts only)')
+    R.advance(room, live, fins, t0 + 30000)
+    const rows = room.results[0]
+    ok(rows.map((r) => r.id).join() === [id(2), id(1), id(0), id(3)].join(), 'Knockout is won as speed is: fastest time; tied on time, fewer flaps')
+    ok(rows.find((r) => r.id === id(0)).ko === 2 && rows.find((r) => r.id === id(2)).ko === 1 && rows.find((r) => r.id === id(1)).ko === 1 && rows.find((r) => r.id === id(3)).ko === 0,
+      'KOs on the hole board: the most any game reported for each player')
+    ok(rows.map((r) => r.tix).join() === '8,6,5,1' && rows.map((r) => r.pts).join() === '10,8,6,0', 'tickets and match points the way race tickets work now')
+    ok(rows[0].place === 1 && rows.find((r) => r.id === id(0)).place === 3, 'KOs are a stat, not a tiebreaker (most KOs, third)')
+    ok(room.phase === 'board' && R.view(room, live, {}, id(1), t0 + 30000).players[0].in === '12:1,40:U,80:-1,150:R', 'during the hole’s board the flaps are still handed out (the last ones in, for a game hearing through the server)')
+    R.advance(room, live, {}, room.until)
+    ok(room.phase === 'hole' && room.hole === 1 && room.seed > 0 && room.seed !== s1, 'the next hole gets a seed of its own')
+    // the match: KOs add up in the standings
+    for (let i = 0; i < 4; i++) live[id(i)] = R.cleanLive({ m: 1, h: 1, kv: 1, kt: `${id(3)}:3` }, room.startAt + 9000)
+    R.advance(room, live, { [id(3)]: { k: 900, f: 4, at: room.startAt + 9000 } }, room.startAt + R.CAP_MS + R.GRACE_MS)
+    ok(room.totals[id(0)].ko === 2 && room.totals[id(3)].ko === 3, 'and add up over the match', JSON.stringify(Object.fromEntries(Object.entries(room.totals).map(([k, t]) => [k, t.ko]))))
+    ok(R.finalOrder(room).every((r) => typeof r.ko === 'number') && R.finalOrder(room).find((r) => r.id === id(3)).ko === 3, 'the final standings carry each player’s KOs')
+  }
+  {
+    // someone here is on a game from before Knockout: it's speed or flaps instead
+    const { room } = playKO([1, 1, 0, 1], ['knockout', 'knockout', 'flaps', 'speed'])
+    ok(room.mode !== 'knockout' && ['speed', 'flaps'].includes(room.mode) && room.tally.koOff && room.tally.mode.knockout === 2, `Knockout needs every game here to know it: with one from before it, it’s ${room.mode} (the tally still shows the votes)`)
+    ok(room.seed === 0, 'and no seed')
+    const { room: r2 } = playKO([1, 1, 1, 1], ['speed', 'speed', 'flaps', 'knockout'])
+    ok(r2.mode === 'speed' && !r2.seed, 'speed with the most votes is still speed (no seed)')
   }
   // ---- a whole match
   {

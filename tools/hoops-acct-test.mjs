@@ -133,7 +133,9 @@ ok(sB.j.save.bests.cage && sB.j.save.bests.rucker && sB.j.save.wallet.balls.incl
 
 /* ---------------------------------------------------------------- records: find the runs */
 const SIM = await import(pathToFileURL(path.join(ROOT, 'public/flappy-hoops/server/sim.mjs')).href)
-const LINES = JSON.parse(fs.readFileSync('/home/claude/fh/game/src/levels/lines.json', 'utf8'))
+// (the game's Savant lines: FH_LINES, or the game's repo where it usually is)
+const LINES_AT = [process.env.FH_LINES, '/home/claude/fh/game/src/levels/lines.json', path.join(process.env.HOME || '', 'flappy-hoops-build/flappy-hoops-v2/src/levels/lines.json')].filter((f) => f && fs.existsSync(f))
+const LINES = JSON.parse(fs.readFileSync(LINES_AT[0], 'utf8'))
 const H = 'cage', L0 = LINES[H]
 let seed = 7; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648
 const replay = (id, inp, race) => { const w = SIM.compileLevel(SIM.HOLES[id]); if (race) w.portals = []; const { state } = SIM.simulate(w, inp, 36000, { stopOnScore: true }); return state.scored >= 0 ? { f: state.flaps, k: state.scored } : null }
@@ -189,6 +191,33 @@ const solo = await post({ a: 'rec.submit', t: T, h: GR, in: GIN })
 const raced = await post({ a: 'rec.submit', t: T, h: GR, in: GIN, race: true })
 ok(solo.status === 422 && raced.status === 200 && raced.j.f === 3 && raced.j.k === 1015 && raced.j.boards.f.cur.r === 1,
   'race runs replay with the ghost-hole doors shut: through Golden State’s door it’s a warp solo (422), a make in a race (3 flaps, 1015 steps, marked r)')
+
+// Knockout runs (2.11) never count, whatever the game says
+{
+  const ko1 = await sub(W.inp, { mode: 'knockout', race: true })
+  const ko2 = await sub(W.inp, { ko: true })
+  const ko3 = await sub([...W.inp.slice(0, 1), [W.inp[0][0] + 1, 'U'], ...W.inp.slice(1)])
+  ok(ko1.status === 403 && ko1.j.ko === true && /Knockout/.test(ko1.j.error) && ko2.status === 403 && ko3.status === 403,
+    `a Knockout run is refused (403: “${ko1.j.error}”), marked as one, or with an item in its taps`)
+  // a race run from a party whose race is Knockout: refused even when the game doesn't say it was Knockout
+  const party = async (mode) => {
+    const a1 = await post({ a: 'create', name: 'KoA' }), code = a1.j.code
+    const b1 = await post({ a: 'join', code, name: 'KoB' })
+    const P = [{ id: a1.j.you, key: a1.j.key }, { id: b1.j.you, key: b1.j.key }]
+    await post({ a: 'start', code, id: P[0].id, key: P[0].key, worlds: [{ id: 'newyork', n: 9 }, { id: 'sanantonio', n: 9 }, { id: 'okc', n: 9 }, { id: 'cleveland', n: 9 }] })
+    let v = null
+    for (let i = 0; i < 4; i++) for (const p of P) v = (await post({ a: 'poll', code, id: p.id, key: p.key, me: { m: 1, h: -1, vw: 'newyork', vm: mode, kv: 1 } })).j
+    return { code, mode: v.mode }
+  }
+  const K = await party('knockout'), S = await party('speed')
+  const before = (await get('?rec=all')).j.records[H + '|s']
+  const ko4 = await sub(W.inp, { race: true, pc: K.code })
+  const sp = await sub(W.inp, { race: true, pc: S.code })
+  ok(K.mode === 'knockout' && ko4.status === 403 && ko4.j.ko === true, `a race run from a Knockout party (${K.code}) is refused, even unmarked`)
+  ok(S.mode === 'speed' && sp.status === 200, `a race run from a speed party (${S.code}) still counts as before`)
+  const afterKo = (await get('?rec=all')).j.records[H + '|s']
+  ok(JSON.stringify(before) === JSON.stringify(afterKo), 'and the boards are as they were')
+}
 
 const [all, getCost] = await cost(() => get('?rec=all'))
 ok(all.status === 200 && all.j.build === SIM.BUILD && all.j.records[H + '|f'].f === W.f && all.j.records[H + '|f'].k === W.k && all.j.records[GR + '|s'] && !('i' in all.j.records[H + '|f']),

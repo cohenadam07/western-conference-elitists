@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-11-11",
+    "product": "Flappy Hoops",
+    "version": "2.11.0",
+    "text": "Knockout, a third race mode: first one in wins, but once your ball's live (its third flap) you can knock friends off course and KO them into trouble, and sneaker boxes hand out six items",
+    "to": "/hoops"
+  },
+  {
+    "date": "2026-11-11",
     "product": "WCE connector",
     "version": "3.7.0",
     "text": "The WCE connector's Data Room now covers every sport: NFL and college football plays, NBA player-games and shots, UFC fights",

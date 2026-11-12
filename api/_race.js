@@ -4,8 +4,10 @@
 // A PARTY, START TO FINISH
 //   lobby   friends join with the four-letter code (up to eight). The host starts the vote.
 //   vote    everyone gets 15 seconds: four worlds drawn at random from every city in the game, and
-//           the mode (speed: first one in wins; flaps: fewest flaps wins). The most votes wins;
-//           a tie is settled at random among the tied; no votes at all is a random pick.
+//           the mode (speed: first one in wins; flaps: fewest flaps wins; knockout, 2.11: speed, but
+//           live balls can hit each other). The most votes wins; a tie is settled at random among the
+//           tied; no votes at all is a random pick. Knockout needs every game here to know it (2.11 on):
+//           if one doesn't, it's speed or flaps, whichever of those had more votes.
 //   reveal  the winning world and mode, for a moment.
 //   hole    all nine holes of that world, one after another. Everyone starts together on the same
 //           clock. A hole ends when everyone still here has sunk it or given up, or at the cap.
@@ -17,6 +19,12 @@
 // balls. A finish is what that player's game reports (steps and flaps); this file checks it's
 // plausible against the clock, it does not replay it. This is a party with a code between friends,
 // and the tickets live in each player's own browser.
+//
+// KNOCKOUT (2.11). Every game simulates every ball from everyone's inputs (the game's
+// src/game/knockout.js), so each hole gets a seed here (for the item rolls and the box respawns, the
+// same on every game). The inputs gain `U` (use the item you hold). A finish is reported and checked as
+// in speed, and ranked as speed is. KOs are a stat, not a tiebreaker: each game reports the KOs it has
+// settled for everyone (`kt`), and the board takes the most any game reported for each player.
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity'
 
 export const MAX_PLAYERS = 8
@@ -37,7 +45,8 @@ export const RACER_MS = 60000         // heard from this recently: still dealt i
 export const GONE_MS = 150000         // in the lobby, not heard from for this long: off the list
 export const TTL = 3 * 3600           // seconds a party outlives its last request
 export const HZ = 120
-export const MODES = ['speed', 'flaps']
+export const MODES = ['speed', 'flaps', 'knockout']
+export const KO_VERSION = 1           // a game that knows Knockout says so (kv) with every poll
 // Tickets by place on each hole, and the match bonus (the way Flappy Golf 2 pays out a race).
 export const TIX = [8, 6, 5, 4, 3, 3, 3, 3]
 export const TIX_DNF = 1
@@ -50,7 +59,7 @@ export const OPTIONS = 4              // Adam: "you should be shown 4 of the wor
 export const ALPHABET = 'BCDFGHJKLMNPQRSTVWXZ'
 export const CODE_RE = /^[BCDFGHJKLMNPQRSTVWXZ]{4}$/
 export const ID_RE = /^[a-z0-9]{6,10}$/
-const INPUTS_RE = /^(\d{1,6}:(-1|0|1|R)(,\d{1,6}:(-1|0|1|R)){0,699})?$/
+const INPUTS_RE = /^(\d{1,6}:(-1|0|1|R|U)(,\d{1,6}:(-1|0|1|R|U)){0,699})?$/
 const NONCE_RE = /^[a-z0-9]{4,10}$/
 const WORLD_RE = /^[a-z0-9-]{2,24}$/
 // what a player has on: "<ball>:<trail>", ids out of the game's shop catalog
@@ -71,7 +80,7 @@ const int = (v, lo, hi) => { const n = Math.floor(Number(v)); return Number.isFi
 
 export function newRoom(code, now) {
   return { code, host: '', created: now, players: [], phase: 'lobby', until: 0, match: 0,
-    opts: [], tally: null, world: '', mode: '', holes: 9, hole: -1, startAt: 0, capAt: 0, racers: [], results: [], totals: {}, final: null }
+    opts: [], tally: null, world: '', mode: '', holes: 9, hole: -1, startAt: 0, capAt: 0, racers: [], results: [], totals: {}, final: null, seed: 0 }
 }
 
 // Add a player (or find them again by id). Returns { player } or { error }.
@@ -109,9 +118,22 @@ export function cleanLive(me, now) {
     lk: typeof m.lk === 'string' && LOOK_RE.test(m.lk) ? m.lk : '',
     // (ex: their goal explosion, Flappy Hoops 2.10, so it goes off when their ball goes in on everyone's screen)
     ex: typeof m.ex === 'string' && /^[a-z0-9]{1,16}$/.test(m.ex) ? m.ex : '',
+    // (Knockout, 2.11: kv, this game knows it; kt, the KOs it has settled this hole, "<id>:<n>,...")
+    kv: int(m.kv, 0, 9), kt: cleanTally(m.kt),
     // (d: how this game's links to the others are doing, in its own words: only ever read back by
     // someone asking after the party by its code, to find out why two games didn't connect)
     d: typeof m.d === 'string' ? m.d.replace(/[^\x20-\x7e]/g, '').slice(0, 600) : '' }
+}
+
+// A game's KO tally for the hole: "<id>:<n>,..." → { id: n }, at most eight players, each count bounded.
+export function cleanTally(raw) {
+  const out = {}
+  if (typeof raw !== 'string' || raw.length > 200) return out
+  for (const part of raw.split(',').slice(0, MAX_PLAYERS)) {
+    const [pid, n] = part.split(':')
+    if (ID_RE.test(pid || '') && /^\d{1,3}$/.test(n || '')) out[pid] = Number(n)
+  }
+  return out
 }
 
 // What a party's games say about their links to each other (GET /api/race?diag=CODE).
@@ -197,18 +219,30 @@ export function startVote(room, live, worlds, now, rnd = Math.random) {
   return { ok: true }
 }
 
+// Can this party play Knockout? Only if every game that's here knows it (a page from before 2.11 would
+// be lost in it).
+export const koReady = (room, live, now) => room.players.filter((p) => isHere(room, live, p.id, now)).every((p) => live[p.id] && live[p.id].kv >= KO_VERSION)
+
 function endVote(room, live, now, rnd) {
   const mine = room.players.map((p) => live[p.id]).filter((l) => l && l.m === room.match)
   const w = pick(room.opts.map((o) => o.id), mine.map((l) => l.vw), rnd)
-  const m = pick(MODES, mine.map((l) => l.vm), rnd)
+  let m = pick(MODES, mine.map((l) => l.vm), rnd), koOff = false
+  if (m.winner === 'knockout' && !koReady(room, live, now)) {
+    // (someone here is on a game from before Knockout: it's whichever of the other two had more votes)
+    const count = m.count
+    m = pick(['speed', 'flaps'], mine.map((l) => l.vm), rnd)
+    m.count = count; koOff = true
+  }
   room.world = w.winner; room.mode = m.winner
   room.holes = (room.opts.find((o) => o.id === w.winner) || { n: 9 }).n
-  room.tally = { world: w.count, mode: m.count, tieWorld: w.tied, tieMode: m.tied }
+  room.tally = { world: w.count, mode: m.count, tieWorld: w.tied, tieMode: m.tied, ...(koOff ? { koOff: true } : {}) }
   room.phase = 'reveal'; room.until = now + REVEAL_MS
 }
 
-function startHole(room, live, i, now) {
+function startHole(room, live, i, now, rnd = Math.random) {
   room.phase = 'hole'; room.hole = i; room.until = 0
+  // (Knockout: the hole's seed, for everything random in it, the same on every game)
+  room.seed = room.mode === 'knockout' ? 1 + Math.floor(rnd() * 2147483646) : 0
   room.startAt = now + LEAD_MS; room.capAt = room.startAt + CAP_MS
   room.racers = room.players.filter((p) => now - seenAt(room, live, p.id) < RACER_MS).map((p) => p.id)
 }
@@ -222,13 +256,27 @@ export function plausible(fin, room) {
   return fin.k <= (fin.at - room.startAt) / 1000 * HZ * 1.15 + 3 * HZ
 }
 
-// Rank a finished hole. Speed: fewest steps (then flaps). Flaps: fewest flaps (then steps).
-export function scoreHole(room, fins) {
+// The KOs on a hole: for each player, the most that any game in the party reported for them (every game
+// settles the same ones; the one that heard the most, latest, has them all).
+export function koCounts(room, live) {
+  const out = {}
+  for (const p of room.players) {
+    const l = live && live[p.id]
+    if (!l || l.m !== room.match || l.h !== room.hole || !l.kt) continue
+    for (const [id, n] of Object.entries(l.kt)) if (n > (out[id] || 0)) out[id] = n
+  }
+  return out
+}
+
+// Rank a finished hole. Speed and Knockout: fewest steps (then flaps). Flaps: fewest flaps (then steps).
+export function scoreHole(room, fins, live) {
   const inParty = new Set(room.players.map((p) => p.id))
   const rows = room.racers.filter((id) => inParty.has(id)).map((id) => {
     const f = fins[id]
     return plausible(f, room) ? { id, k: f.k, f: f.f, at: f.at } : { id, dnf: 1 }
   })
+  const ko = room.mode === 'knockout' ? koCounts(room, live) : null
+  if (ko) for (const r of rows) r.ko = ko[r.id] || 0
   const done = rows.filter((r) => !r.dnf)
   done.sort(room.mode === 'flaps' ? (a, b) => a.f - b.f || a.k - b.k || a.at - b.at : (a, b) => a.k - b.k || a.f - b.f || a.at - b.at)
   done.forEach((r, i) => { r.place = i + 1; r.pts = PTS[i] ?? 0; r.tix = TIX[i] ?? TIX[TIX.length - 1]; delete r.at })
@@ -236,6 +284,7 @@ export function scoreHole(room, fins) {
   for (const r of out) {
     const t = room.totals[r.id] || (room.totals[r.id] = { pts: 0, wins: 0, k: 0, f: 0, dnf: 0, tix: 0, holes: 0 })
     t.pts += r.pts; t.tix += r.tix; t.holes++
+    if (ko) t.ko = (t.ko || 0) + r.ko
     if (r.dnf) t.dnf++; else { t.k += r.k; t.f += r.f; if (r.place === 1) t.wins++ }
   }
   room.results.push(out)
@@ -248,7 +297,8 @@ export function finalOrder(room) {
   const rows = room.players.map((p, i) => ({ id: p.id, i, ...(room.totals[p.id] || zero) })).filter((r) => r.holes > 0)
   rows.sort((a, b) => b.pts - a.pts || b.wins - a.wins || a.dnf - b.dnf
     || (room.mode === 'flaps' ? a.f - b.f || a.k - b.k : a.k - b.k || a.f - b.f) || a.i - b.i)
-  return rows.map((r, i) => ({ id: r.id, place: i + 1, pts: r.pts, wins: r.wins, k: r.k, f: r.f, dnf: r.dnf, tix: r.tix, bonus: BONUS[i] || 0 }))
+  return rows.map((r, i) => ({ id: r.id, place: i + 1, pts: r.pts, wins: r.wins, k: r.k, f: r.f, dnf: r.dnf, tix: r.tix, bonus: BONUS[i] || 0,
+    ...(room.mode === 'knockout' ? { ko: r.ko || 0 } : {}) }))
 }
 
 export function toLobby(room) {
@@ -284,18 +334,18 @@ export function advance(room, live, fins, now, rnd = Math.random) {
       })
       if (now >= room.until || all) endVote(room, live, now, rnd)
     } else if (room.phase === 'reveal') {
-      if (now >= room.until) startHole(room, live, 0, now)
+      if (now >= room.until) startHole(room, live, 0, now, rnd)
     } else if (room.phase === 'hole') {
       const inParty = new Set(room.players.map((p) => p.id))
       const racers = room.racers.filter((id) => inParty.has(id))
       const allDone = racers.every((id) => fins[id] || !here(id))
       if (now >= room.capAt + GRACE_MS || (now >= room.startAt && allDone)) {
-        scoreHole(room, fins)
+        scoreHole(room, fins, live)
         room.phase = 'board'; room.until = now + BOARD_MS
       }
     } else if (room.phase === 'board') {
       if (now >= room.until) {
-        if (room.hole + 1 < room.holes) { startHole(room, live, room.hole + 1, now); fins = {} }
+        if (room.hole + 1 < room.holes) { startHole(room, live, room.hole + 1, now, rnd); fins = {} }
         else { room.final = finalOrder(room); room.phase = 'final'; room.until = now + FINAL_MS }
       }
     } else if (room.phase === 'final') {
@@ -309,7 +359,9 @@ export function advance(room, live, fins, now, rnd = Math.random) {
 
 // What a player's game gets back on every request.
 export function view(room, live, fins, you, now) {
-  const racing = room.phase === 'hole'
+  // (and during the hole's board: a game hearing through the server still gets the last flaps of whoever finished
+  // last, and, in Knockout, plays them into its world: the hole ended on that finish, in the same request)
+  const racing = room.phase === 'hole' || room.phase === 'board'
   const players = room.players.map((p) => {
     const l = live[p.id], cur = l && l.m === room.match
     const o = { id: p.id, name: p.name, color: p.color, here: isHere(room, live, p.id, now) }
@@ -317,12 +369,13 @@ export function view(room, live, fins, you, now) {
     if (l && l.lk) o.lk = l.lk
     if (l && l.ex) o.ex = l.ex
     if (room.phase === 'vote' && cur) { o.vw = l.vw; o.vm = l.vm }
-    if (racing && cur && l.h === room.hole) { o.k = l.k; o.f = l.f; if (p.id !== you) o.in = l.in }
+    // (Knockout: your own inputs too, so a game reloaded mid-hole can put them back and stay in the same world)
+    if (racing && cur && l.h === room.hole) { o.k = l.k; o.f = l.f; if (p.id !== you || room.mode === 'knockout') o.in = l.in }
     if (racing && fins[p.id]) o.fin = fins[p.id].dnf ? { dnf: 1 } : { k: fins[p.id].k, f: fins[p.id].f }
     return o
   })
   return { ok: true, now, you, code: room.code, host: room.host, phase: room.phase, until: room.until, match: room.match,
     opts: room.opts, tally: room.tally, world: room.world, mode: room.mode, holes: room.holes, hole: room.hole,
-    startAt: room.startAt, capAt: room.capAt, racers: room.racers, players,
+    startAt: room.startAt, capAt: room.capAt, racers: room.racers, players, seed: room.seed || 0,
     results: room.results, totals: room.totals, final: room.final }
 }
