@@ -412,6 +412,6 @@ export function drawer(A, S, view) {
 }
 
 export function preGame(S) {
-  return `<main class="pre"><h1>Oklahoma vs ${E(S.oppFull)}</h1><p>${E(S.when || '')}${S.tip ? `, tip-off ${E(S.tip)}` : ''}.</p><p>This page goes live at tip-off and refreshes itself every 15 seconds. Leave it open.</p>${S.lastFinal ? `<p><a href="?game=${E(S.lastFinal.id)}">See the last game against ${E(S.lastFinal.opp)}</a>, or <a href="?replay=${E(S.lastFinal.id)}&amp;speed=10">replay it at 10x</a>.</p>` : ''}</main>`;
+  return `<main class="pre"><h1>Oklahoma vs ${E(S.oppFull)}</h1><p>${E(S.when || '')}${S.tip ? `, tip-off ${E(S.tip)}` : ''}.</p><p>${S.tipped ? 'Tipped off. Waiting for ESPN\'s first play; the live view opens as soon as it arrives.' : 'This page goes live at tip-off and refreshes itself every 15 seconds. Leave it open.'}</p>${S.lastFinal ? `<p><a href="?game=${E(S.lastFinal.id)}">See the last game against ${E(S.lastFinal.opp)}</a>, or <a href="?replay=${E(S.lastFinal.id)}&amp;speed=10">replay it at 10x</a>.</p>` : ''}</main>`;
 }
 export { summarize, emptyCounter, addCounter, fmtClock };

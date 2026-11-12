@@ -136,7 +136,11 @@ function ingest(g, quiet = false) {
   for (const a of g.box[TEAM] || []) st.info[a[0]] = { name: a[1], jersey: a[5], pos: a[4] };
   const prior = st.prior.filter(d => new Date(d.iso).getTime() < new Date(g.date).getTime());
   const S0 = statusOf(g, null);
-  if (S0.state === 'pre') { st.A = null; st.S = { ...S0, replay: !!st.replay }; render(); return; }
+  // ESPN can flip a game to live before it posts any play (MARQ at MICH, Nov 11: one 15 s pull at 19:56 with 0 plays).
+  // With nothing to parse, the lineup check read that as broken substitutions and showed "Lineups are hidden" until the
+  // jump ball arrived. Until the first play, keep the pre-game card (marked as tipped off) on the 15 s live refresh.
+  const waiting = S0.state !== 'pre' && S0.state !== 'final' && !(g.plays && g.plays.length);
+  if (S0.state === 'pre' || waiting) { st.A = null; st.S = { ...S0, state: 'pre', tipped: waiting, replay: !!st.replay }; render(); return; }
   st.A = analyze(g, TEAM, { prior, ratings: st.ratings, replay: !!st.replay });
   const S = statusOf(g, st.A);
   const ok = st.A.parsed.OU === st.A.score.OU && st.A.parsed.OPP === st.A.score.OPP;

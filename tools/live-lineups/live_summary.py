@@ -1,6 +1,6 @@
 """Summarise test 6 logs (research/live-lineups-test/live/<label>/refresh-log.jsonl) into numbers for BUILD-REPORT.
 
-usage: python3 tools/live-lineups/live_summary.py fdu-etam=401919759 kc-famu=401921005 dart-ualb=401920234
+usage: python3 tools/live-lineups/live_summary.py fdu-etam=401919759 kc-famu=401921005 dart-ualb=401920234 [--out=<file>]
 Timeouts come from ESPN's own play list (fetched now): each is matched to the refreshes where ESPN's clock sat at that
 time in that period, so a timeout followed by substitutions at the same clock still counts.
 """
@@ -97,8 +97,10 @@ def summary(label, gid=None):
 
 
 if __name__ == '__main__':
-    out = [summary(*a.split('=')) for a in sys.argv[1:]]
-    json.dump(out, open(f'{ROOT}/summary.json', 'w'), indent=1, default=list)
+    # --out=<file> keeps an earlier test's summary.json (test 6) from being overwritten
+    dest = next((a.split('=', 1)[1] for a in sys.argv[1:] if a.startswith('--out=')), f'{ROOT}/summary.json')
+    out = [summary(*a.split('=')) for a in sys.argv[1:] if not a.startswith('--out=')]
+    json.dump(out, open(dest, 'w'), indent=1, default=list)
     for s in out:
         print(f"\n== {s['label']}: {s['refreshes']} refreshes ({s['live_refreshes']} live) over {s['live_span_min']} min, {s['from']} -> {s['to']}; gap median {s['gap_median_s'] and round(s['gap_median_s'], 1)}s max {s['gap_max_s']}s")
         print(f"   lights {s['lights']}; repairs {s['repairs'] or 'none'}; lineups hidden {s['lineups_hidden']}; errors {len(s['errors'])}; Data delayed {len(s['data_delayed'])}")
