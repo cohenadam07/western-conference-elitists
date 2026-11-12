@@ -124,6 +124,16 @@ The three arms above stay the head-to-head scoreboard. Everything tried since is
   record is the bar to beat. `EDGE_CLAUDE_ARMS` (a comma list) picks the Claude arms that get
   prompts; `claude_opus_wce,claude_opus_box` with the scheduled task switched to Opus replaces
   Sonnet. Rule arms can read them (`claude_opus_wce`, `claude_opus_box`, or `opus_avg`).
+- **The headline restarted on Opus (Nov 12, 2026).** Adam's call: the page's portfolios,
+  scoreboard, head to head, running chart and calibration now show the **Opus run**: the WCE
+  model against `claude_opus_wce` and `claude_opus_box`, scored only on games dated Nov 12 on,
+  every portfolio from a fresh $1,000 (the WCE model's too). The **Sonnet run** (Oct 21 to
+  Nov 10, the model against `claude_wce` and `claude_box`) is closed and kept whole in its own
+  section on the page, never pooled with the Opus run. Nov 11, the changeover night (partly
+  priced by each model), counts toward neither headline. `RUNS` in `_edge-model.js` holds both;
+  the next restart is one more entry there. The Opus pair still shows as experiments O1/O2
+  against the bar, scored from their own first game. The review's `base` now carries `run` and
+  `archive`. The bar still counts the three original arms once.
 - **Resting orders (the maker test, Nov 2026).** Every bet has a paper twin: the same side of
   the same market resting at that side's bid (YES at the YES bid, NO at 1 − YES ask) from the
   moment of the bet until tip, paying Kalshi's maker fee (0.0175 × P × (1 − P), charged on

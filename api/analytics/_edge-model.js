@@ -11,9 +11,22 @@
 //
 // Not a function itself: Vercel skips api files that start with an underscore.
 
-// The three arms the test started with. They are the head-to-head scoreboard; everything added
-// since is an experiment (below), scored only from the day it started.
-export const ARMS = ['model', 'claude_wce', 'claude_box']
+// The headline runs. Each puts three arms side by side (the page's portfolios, scoreboard and
+// running chart), scored only on games dated inside the run, each portfolio from a fresh start.
+// The Sonnet run is the test as it began (Oct 21, 2026). On Nov 12, 2026 Adam restarted the
+// headline on Opus: the WCE model against the two Opus arms, from that night's slate. Games of
+// Nov 11 (the changeover night, partly priced by each model) count toward neither headline.
+// Everything else is an experiment (below), scored from its own first game as before.
+export const RUNS = [
+  { id: 'sonnet', label: 'Sonnet run', model: 'Claude Sonnet 5.5', from: null, to: '2026-11-10', arms: ['model', 'claude_wce', 'claude_box'] },
+  { id: 'opus', label: 'Opus run', model: 'Claude Opus 5.5', from: '2026-11-12', to: null, arms: ['model', 'claude_opus_wce', 'claude_opus_box'] },
+]
+export const CURRENT_RUN = RUNS[RUNS.length - 1]
+export const inRun = (run, date) => Boolean(date) && (!run.from || date >= run.from) && (!run.to || date <= run.to)
+// The three arms the test started with (the bar counts them once, whatever the headline is).
+export const BASE_ARMS = RUNS[0].arms
+// The headline's three arms.
+export const ARMS = CURRENT_RUN.arms
 // Every forecaster: the three above plus Claude arms added as experiments. Each prices every
 // market, so each has forecasts to score.
 // The Opus pair (Nov 2026) is a fresh run of the two original Claude arms on Claude Opus: the
@@ -546,7 +559,7 @@ export function ledgerRow(b) {
 //          had (games decided before it was stored fall back to the night's decided games)
 //   marks  Map(ticker -> YES value now) for open bets; an open bet without a mark is held at
 //          what it cost
-export function buildPortfolios(games, marks = null, cfg = PORTFOLIO, armIds = ARMS) {
+export function buildPortfolios(games, marks = null, cfg = PORTFOLIO, armIds = BASE_ARMS) {
   const ARMS = armIds // the base three unless experiments are asked for too; each starts at cfg.start
   const realized = Object.fromEntries(ARMS.map((a) => [a, cfg.start]))
   const unreal = Object.fromEntries(ARMS.map((a) => [a, 0]))

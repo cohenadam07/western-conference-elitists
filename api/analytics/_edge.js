@@ -477,7 +477,7 @@ async function finalizeGame(packet, answers, quotes) {
   const arms = { model: { fc: probs.model.size } }
   const notes = {}
   // The Claude arms this game was prepared for (older packets have two, newer ones three).
-  const expected = packetArms(packet).length ? packetArms(packet) : M.ARMS.filter((a) => a !== 'model')
+  const expected = packetArms(packet).length ? packetArms(packet) : M.BASE_ARMS.filter((a) => a !== 'model')
   for (const arm of expected) {
     const a = answers?.[arm]
     if (!a) {
@@ -1077,11 +1077,24 @@ export async function readPortfolios({ record = false, force = false, deadline =
   const openTickers = [...new Set(ledger.flatMap((g) => g.bets.filter((r) => r[5] == null).map((r) => r[1])))]
   const live = openTickers.length ? await liveMarks(openTickers, deadline) : { marks: new Map(), at: null }
   const reg = await loadRegistry().catch(() => [])
-  const armIds = [...M.ARMS, ...Object.keys(M.FORECASTER_EXPERIMENTS), ...reg.map((r) => r.id)]
-  const pf = M.buildPortfolios(ledger, live.marks, M.PORTFOLIO, armIds)
+  // The headline arms start fresh with the current run: their own build over its games only.
+  // Every other arm (the Sonnet arms, the experiments, the rules) keeps its whole history; the
+  // WCE model's whole-history portfolio is replaced by its run portfolio.
+  const run = M.CURRENT_RUN
+  const others = [...new Set([...M.BASE_ARMS, ...Object.keys(M.FORECASTER_EXPERIMENTS), ...reg.map((r) => r.id)])].filter((a) => !M.ARMS.includes(a))
+  const full = M.buildPortfolios(ledger, live.marks, M.PORTFOLIO, others)
+  const head = M.buildPortfolios(ledger.filter((g) => M.inRun(run, g.date)), live.marks, M.PORTFOLIO, M.ARMS)
+  const pf = {
+    config: head.config,
+    arms: { ...full.arms, ...head.arms },
+    closes: head.closes,
+    opens: head.opens,
+    stakes: { ...full.stakes, ...head.stakes },
+  }
+  const armIds = [...M.ARMS, ...others]
 
-  // The night on show: the latest one with bets still open, else the latest one with bets.
-  const withBets = ledger.filter((g) => g.bets.length)
+  // The night on show: the run's latest night with bets still open, else its latest with bets.
+  const withBets = ledger.filter((g) => g.bets.length && M.inRun(run, g.date))
   const openDates = withBets.filter((g) => g.bets.some((r) => r[5] == null)).map((g) => g.date).sort()
   const night = openDates.at(-1) || withBets.map((g) => g.date).sort().at(-1) || null
   const equity = Object.fromEntries(armIds.map((a) => [a, pf.arms[a].equity]))
@@ -1091,15 +1104,16 @@ export async function readPortfolios({ record = false, force = false, deadline =
       const go = force || (await redis(['SET', KEY.tickGate, '1', 'NX', 'EX', String(TICK_EVERY)]).catch(() => null))
       if (go) {
         await redisPipeline([
-          ['RPUSH', KEY.ticks(night), JSON.stringify({ t: new Date().toISOString(), e: equity, v: M.PORTFOLIO.version })],
+          ['RPUSH', KEY.ticks(night), JSON.stringify({ t: new Date().toISOString(), e: equity, v: M.PORTFOLIO.version, r: run.id })],
           ['LTRIM', KEY.ticks(night), '-1500', '-1'],
           ['EXPIRE', KEY.ticks(night), String(60 * 86400)],
         ]).catch(() => {})
       }
     }
-    // Points recorded under another sizing would jump to different numbers, so they are left out.
+    // Points recorded under another sizing or another headline run would jump to different
+    // numbers, so they are left out (points from before runs existed belong to the Sonnet run).
     ticks = ((await redis(['LRANGE', KEY.ticks(night), '0', '-1']).catch(() => null)) || []).map((r) => parseJSONSafe(r, null))
-      .filter((t) => t && (t.v || 1) === M.PORTFOLIO.version)
+      .filter((t) => t && (t.v || 1) === M.PORTFOLIO.version && (t.r || M.RUNS[0].id) === run.id)
   }
 
   // Dollar stakes for the game cards of the last few nights.
@@ -1110,11 +1124,12 @@ export async function readPortfolios({ record = false, force = false, deadline =
 
   return {
     at: new Date().toISOString(),
+    run: { id: run.id, label: run.label, model: run.model, from: run.from, arms: M.ARMS },
     config: pf.config,
     arms: pf.arms,
     closes: pf.closes,
     night,
-    nightOpen: night ? pf.opens[night] : null,
+    nightOpen: night ? pf.opens[night] || null : null,
     nightStart: nightGames.map((g) => g.decidedAt).filter(Boolean).sort()[0] || null,
     nightEnd: nightGames.every((g) => g.status === 'settled') ? nightGames.map((g) => g.settledAt).filter(Boolean).sort().at(-1) || null : null,
     live: openTickers.length > 0,
@@ -1199,7 +1214,7 @@ async function liveRules(date) {
 async function readExperiments(games) {
   const reg = await loadRegistry()
   const settled = games.filter((g) => g.status === 'settled')
-  const armsTried = M.ARMS.length + Object.keys(M.FORECASTER_EXPERIMENTS).length + reg.length
+  const armsTried = M.BASE_ARMS.length + Object.keys(M.FORECASTER_EXPERIMENTS).length + reg.length
   const bar = M.graduationBar(armsTried)
   // Each arm's resting-order twin (see makerFill), over the bets whose fill is known.
   const makerOf = (id) => { const m = M.emptyMakerAgg(); for (const g of settled) M.mergeMakerAgg(m, g.agg?.[id]?.maker); return M.summarizeMaker(m) }
@@ -1274,7 +1289,7 @@ async function readNights(games, nights, stakes) {
           actual: b.result?.actual ?? null, outcome: b.result?.outcome || 'open', dollars: st ? r2(st.pnl) : null, clv: b.result?.clv ?? null }
       }
       const extremes = {}
-      for (const arm of [...M.ARMS, 'claude_opus_wce', 'claude_opus_box']) {
+      for (const arm of [...new Set([...M.BASE_ARMS, ...M.ARMS])]) {
         const xs = (bb.bets || []).filter((b) => b.arm === arm && stakes[`${g.key}|${arm}|${b.ticker}`])
           .sort((x, y) => stakes[`${g.key}|${arm}|${y.ticker}`].pnl - stakes[`${g.key}|${arm}|${x.ticker}`].pnl)
         if (xs.length) extremes[arm] = { best: xs.slice(0, 2).map(line), worst: xs.slice(-2).reverse().map(line) }
@@ -1333,7 +1348,8 @@ export async function runReview({ nights = 0 } = {}) {
   return {
     ok: true, job: 'edge-review', asOf: new Date().toISOString(),
     ...extra,
-    base: { arms: edge.arms, headToHead: edge.armsCommon, status: edge.status, daily: edge.daily },
+    // The headline run's three arms (the Opus run from Nov 12, 2026), and earlier runs whole.
+    base: { run: edge.run, arms: edge.arms, headToHead: edge.armsCommon, status: edge.status, daily: edge.daily, archive: edge.archive },
     experiments: exp,
     breakdownSince: since, breakdown,
     rules: {
@@ -1398,42 +1414,15 @@ export async function readEdge({ from = null, recentDays = 10 } = {}) {
   const runs = (runsRaw.result || []).map((r) => parseJSONSafe(r, null)).filter(Boolean)
   await refreshAggregates(games).catch(() => 0)
 
-  const inRange = (g) => !from || g.date >= from
-  // Head to head: only games every arm priced, so no arm is scored on an easier set of nights
-  // (the Claude arms miss a game when the scheduled task didn't answer it before tip).
-  const allPriced = (g) => M.ARMS.every((a) => (g.arms?.[a]?.fc || 0) > 0)
-  const empty = () => Object.fromEntries(M.ARMS.map((a) => [a, { bets: M.emptyBetAgg(), fc: M.emptyFcAgg(), maker: M.emptyMakerAgg() }]))
-  const totals = empty(), common = empty()
-  let commonGames = 0
-  const byDate = new Map()
-  for (const g of games) {
-    if (g.status !== 'settled' || !inRange(g)) continue
-    const both = allPriced(g)
-    if (both) commonGames += 1
-    for (const a of M.ARMS) {
-      M.mergeBetAgg(totals[a].bets, g.agg?.[a]?.bets)
-      M.mergeFcAgg(totals[a].fc, g.agg?.[a]?.fc)
-      M.mergeMakerAgg(totals[a].maker, g.agg?.[a]?.maker)
-      if (both) { M.mergeBetAgg(common[a].bets, g.agg?.[a]?.bets); M.mergeFcAgg(common[a].fc, g.agg?.[a]?.fc); M.mergeMakerAgg(common[a].maker, g.agg?.[a]?.maker) }
-      if (!byDate.has(g.date)) byDate.set(g.date, Object.fromEntries(M.ARMS.map((x) => [x, M.emptyBetAgg()])))
-      M.mergeBetAgg(byDate.get(g.date)[a], g.agg?.[a]?.bets)
-    }
-  }
-  const describe = (t) => M.ARMS.map((a) => ({ arm: a, label: M.ARM_LABEL[a], ...M.describeBets(t[a].bets), ...M.describeForecasts(t[a].fc), maker: M.summarizeMaker(t[a].maker) }))
-  const arms = describe(totals)
-  const armsCommon = describe(common)
-
-  // Running totals by night, for the chart.
-  const run = Object.fromEntries(M.ARMS.map((a) => [a, { pnl: 0, clv: 0, n: 0 }]))
-  const daily = [...byDate.keys()].sort().map((date) => {
-    const row = { date }
-    for (const a of M.ARMS) {
-      const d = byDate.get(date)[a]
-      run[a].pnl += d.pnl; run[a].clv += d.clvSum; run[a].n += d.n
-      row[a] = { bets: d.n, pnl: d.pnl, cumPnl: run[a].pnl, cumClv: run[a].clv, cumBets: run[a].n }
-    }
-    return row
+  const run = M.CURRENT_RUN
+  const head = scoreArms(games, M.ARMS, (g) => M.inRun(run, g.date) && (!from || g.date >= from))
+  // The earlier headline runs, kept whole for the record (never pooled with the current one).
+  const archive = M.RUNS.slice(0, -1).map((r) => {
+    const sc = scoreArms(games, r.arms, (g) => M.inRun(r, g.date))
+    const ds = games.filter((g) => g.status === 'settled' && M.inRun(r, g.date) && r.arms.some((a) => a !== 'model' && (g.arms?.[a]?.fc || 0) > 0)).map((g) => g.date).sort()
+    return { id: r.id, label: r.label, model: r.model, from: ds[0] || r.from, to: ds.at(-1) || r.to, armIds: r.arms, arms: sc.arms, armsCommon: sc.armsCommon, commonGames: sc.commonGames, settledGames: sc.settledGames }
   })
+  const { arms, armsCommon, daily, commonGames } = head
 
   // The last few nights in full: bets, results, Claude's notes.
   const dates = recentDays > 0 ? [...new Set(games.map((g) => g.date))].sort().slice(-recentDays) : []
@@ -1454,12 +1443,51 @@ export async function readEdge({ from = null, recentDays = 10 } = {}) {
       minEdge: EDGE_MIN(), rules: M.BET_RULES,
       gamesDecided: games.filter((g) => g.status === 'decided' || g.status === 'settled').length,
       gamesPending: games.filter((g) => g.status === 'pending').length,
-      gamesSettled: games.filter((g) => g.status === 'settled').length, commonGames,
+      gamesSettled: games.filter((g) => g.status === 'settled').length, commonGames, runSettled: head.settledGames,
     },
+    run: { id: run.id, label: run.label, model: run.model, from: run.from, arms: M.ARMS },
     arms,
     armsCommon,
     daily,
+    archive,
     recent,
     runs,
   }
+}
+
+// One headline run's scoreboard: every game each arm priced, the head to head (only games all
+// three priced, so none is scored on an easier set of nights; a Claude arm misses a game when
+// the scheduled task didn't answer it before tip), and running totals by night for the chart.
+function scoreArms(games, armIds, keep) {
+  const allPriced = (g) => armIds.every((a) => (g.arms?.[a]?.fc || 0) > 0)
+  const empty = () => Object.fromEntries(armIds.map((a) => [a, { bets: M.emptyBetAgg(), fc: M.emptyFcAgg(), maker: M.emptyMakerAgg() }]))
+  const totals = empty(), common = empty()
+  let commonGames = 0, settledGames = 0
+  const byDate = new Map()
+  for (const g of games) {
+    if (g.status !== 'settled' || !keep(g)) continue
+    settledGames += 1
+    const both = allPriced(g)
+    if (both) commonGames += 1
+    for (const a of armIds) {
+      M.mergeBetAgg(totals[a].bets, g.agg?.[a]?.bets)
+      M.mergeFcAgg(totals[a].fc, g.agg?.[a]?.fc)
+      M.mergeMakerAgg(totals[a].maker, g.agg?.[a]?.maker)
+      if (both) { M.mergeBetAgg(common[a].bets, g.agg?.[a]?.bets); M.mergeFcAgg(common[a].fc, g.agg?.[a]?.fc); M.mergeMakerAgg(common[a].maker, g.agg?.[a]?.maker) }
+      if (!byDate.has(g.date)) byDate.set(g.date, Object.fromEntries(armIds.map((x) => [x, M.emptyBetAgg()])))
+      M.mergeBetAgg(byDate.get(g.date)[a], g.agg?.[a]?.bets)
+    }
+  }
+  const describe = (t) => armIds.map((a) => ({ arm: a, label: M.ARM_LABEL[a], ...M.describeBets(t[a].bets), ...M.describeForecasts(t[a].fc), maker: M.summarizeMaker(t[a].maker) }))
+  const run = Object.fromEntries(armIds.map((a) => [a, { pnl: 0, clv: 0, n: 0 }]))
+  const daily = [...byDate.keys()].sort().map((date) => {
+    const row = { date }
+    for (const a of armIds) {
+      const d = byDate.get(date)[a]
+      run[a].pnl += d.pnl; run[a].clv += d.clvSum; run[a].n += d.n
+      row[a] = { bets: d.n, pnl: d.pnl, cumPnl: run[a].pnl, cumClv: run[a].clv, cumBets: run[a].n }
+    }
+    return row
+  })
+  return { arms: describe(totals), armsCommon: describe(common), daily, commonGames, settledGames }
 }

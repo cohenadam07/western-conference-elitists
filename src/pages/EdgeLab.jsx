@@ -17,10 +17,15 @@ const LIVE = '/api/analytics/history?section=edge-live'
 const POLL_MS = 30000 // while bets are open
 const JOB = '/api/analytics/snapshot'
 
-const ARMS = ['model', 'claude_wce', 'claude_box']
-const ARM_SHORT = { model: 'WCE model', claude_wce: 'Claude + WCE', claude_box: 'Claude, box only', claude_rc: 'Claude + report card', claude_opus_wce: 'Opus + WCE', claude_opus_box: 'Opus, box only' }
-const isBase = (arm) => ARMS.includes(arm)
-const TICK_NAME = { model: 'WCE model', claude_wce: 'Claude + WCE', claude_box: 'Claude, box' }
+// The headline: the Opus run since Nov 12, 2026 (api/analytics/_edge-model.js RUNS). The Sonnet
+// run before it (Oct 21 to Nov 10) is kept whole in its own section further down.
+const ARMS = ['model', 'claude_opus_wce', 'claude_opus_box']
+const SONNET_ARMS = ['model', 'claude_wce', 'claude_box']
+const ARM_SHORT = { model: 'WCE model', claude_wce: 'Sonnet + WCE', claude_box: 'Sonnet, box only', claude_rc: 'Claude + report card', claude_opus_wce: 'Opus + WCE', claude_opus_box: 'Opus, box only' }
+// An arm drawn with a colour swatch (the headline three, and the Sonnet pair on older games).
+const HEAD_ANY = [...ARMS, ...SONNET_ARMS.filter((a) => !ARMS.includes(a))]
+const isBase = (arm) => HEAD_ANY.includes(arm)
+const TICK_NAME = { model: 'WCE model', claude_wce: 'Sonnet + WCE', claude_box: 'Sonnet, box', claude_opus_wce: 'Opus + WCE', claude_opus_box: 'Opus, box' }
 const STAT = { pts: 'PTS', reb: 'REB', ast: 'AST', fg3m: '3PM', pra: 'PRA' }
 const FIRST_READ = 300 // bets per arm before CLV says much
 
@@ -457,7 +462,7 @@ function BetRow({ b, st }) {
 
 function armSummary(bets, settled, stOf) {
   const out = []
-  for (const arm of [...ARMS, ...[...new Set(bets.map((b) => b.arm))].filter((a) => !isBase(a))]) {
+  for (const arm of [...HEAD_ANY, ...[...new Set(bets.map((b) => b.arm))].filter((a) => !isBase(a))]) {
     const bs = bets.filter((b) => b.arm === arm)
     if (!bs.length) continue
     const sts = bs.map(stOf).filter(Boolean)
@@ -534,6 +539,24 @@ function GameCard({ g, armFilter, stakes }) {
     </section>
   )
 }
+
+// An earlier headline run, closed and kept whole: its scoreboard as it stood when it ended.
+function ArchivedRun({ r }) {
+  const [open, setOpen] = useState(false)
+  const [scope, setScope] = useState(r.commonGames ? 'common' : 'all')
+  return (
+    <section className="el-panel">
+      <header className="el-panel-head">
+        <h3>{r.label}, {runDay(r.from)} to {runDay(r.to)}</h3>
+        <button className="el-link" onClick={() => setOpen((v) => !v)}>{open ? 'Hide' : 'Show'} its scoreboard</button>
+      </header>
+      <p className="el-muted el-small">The WCE model against {ARM_SHORT[r.armIds[1]]} and {ARM_SHORT[r.armIds[2]]} ({r.model}), over {r.settledGames} settled games. Closed when the headline restarted on Opus; nothing here counts toward the run above.</p>
+      {open && <Scoreboard arms={scope === 'common' ? r.armsCommon : r.arms} scope={scope} setScope={setScope} commonGames={r.commonGames} settledGames={r.settledGames} />}
+    </section>
+  )
+}
+
+const runDay = (d) => (d ? new Date(`${d}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' }) : '—')
 
 /* ---------------------------------------------------------------- page */
 
@@ -698,6 +721,13 @@ export default function EdgeLab() {
 
         {data && (
           <>
+            {data.run && (
+              <p className="el-run">
+                <b>{data.run.label}</b> since {runDay(data.run.from)}: the WCE model against {ARM_SHORT[ARMS[1]]} and {ARM_SHORT[ARMS[2]]} ({data.run.model}), every portfolio from a fresh {usd0(pf?.config?.start ?? 1000)}.
+                {' '}The Sonnet run before it is kept whole below and never pooled with this one.
+              </p>
+            )}
+
             <Portfolios pf={pf} error={pfError} now={now} />
 
             <Scoreboard
@@ -705,7 +735,7 @@ export default function EdgeLab() {
               scope={scope || (s.commonGames ? 'common' : 'all')}
               setScope={setScope}
               commonGames={s.commonGames}
-              settledGames={s.gamesSettled}
+              settledGames={s.runSettled ?? s.gamesSettled}
             />
 
             <Experiments exp={data.experiments} pf={pf} />
@@ -721,6 +751,8 @@ export default function EdgeLab() {
               {data.daily.length ? <RunningChart daily={data.daily} metric={metric} /> : <p className="el-muted">Fills in after the first night settles.</p>}
               <div className="el-legend">{ARMS.map((a) => <span key={a}><i className={`el-sw el-${a}`} />{ARM_SHORT[a]}</span>)}</div>
             </section>
+
+            {(data.archive || []).map((r) => <ArchivedRun key={r.id} r={r} />)}
 
             <section className="el-panel el-row">
               <Calibration arms={data.arms} />
@@ -766,7 +798,7 @@ export default function EdgeLab() {
             </div>
 
             <p className="el-foot">
-              Three arms price the same markets without seeing a price: the WCE projection alone, Claude with WCE's analytics, and Claude with box scores only.
+              Three arms price the same markets without seeing a price: the WCE projection alone, Claude Opus with WCE's analytics, and Claude Opus with box scores only (Claude Sonnet until Nov 10).
               Each takes at most one bet per player per game, at the ask, when its edge clears the threshold after Kalshi's fee. CLV is the closing mid at tip-off minus the price paid.
               The portfolios size the same bets by edge in dollars; the table counts every bet as one unit. Paper only: nothing here places an order.
             </p>
@@ -813,7 +845,7 @@ const CSS = `
 .el-board { margin: 14px 0 12px; padding: 8px 10px 12px; }
 .el-board-head { display: flex; align-items: center; gap: 4px 12px; flex-wrap: wrap; margin: 4px 2px 8px; }
 .el-root .el-score th { font-size: 12px; white-space: normal; color: var(--ink); font-weight: 600; white-space: normal; vertical-align: bottom; border-bottom: 2px solid var(--hair); }
-.el-th-model { box-shadow: inset 0 3px 0 var(--a-model); } .el-th-claude_wce { box-shadow: inset 0 3px 0 var(--a-claude_wce); } .el-th-claude_box { box-shadow: inset 0 3px 0 var(--a-claude_box); }
+.el-th-model { box-shadow: inset 0 3px 0 var(--a-model); } .el-th-claude_wce, .el-th-claude_opus_wce { box-shadow: inset 0 3px 0 var(--a-claude_wce); } .el-th-claude_box, .el-th-claude_opus_box { box-shadow: inset 0 3px 0 var(--a-claude_box); }
 .el-score { table-layout: fixed; }
 .el-score td, .el-score th { padding: 7px 8px; }
 .el-score th:first-child, .el-score td:first-child { width: 30%; }
@@ -825,7 +857,7 @@ const CSS = `
 .el-toggles { display: flex; gap: 16px; }
 .el-small { font-size: 13px; margin: 0; }
 .el-sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; margin-right: 6px; vertical-align: -1px; }
-.el-sw.el-model { background: var(--a-model); } .el-sw.el-claude_wce { background: var(--a-claude_wce); } .el-sw.el-claude_box { background: var(--a-claude_box); }
+.el-sw.el-model { background: var(--a-model); } .el-sw.el-claude_wce, .el-sw.el-claude_opus_wce { background: var(--a-claude_wce); } .el-sw.el-claude_box, .el-sw.el-claude_opus_box { background: var(--a-claude_box); }
 
 .el-panel { background: var(--surface); border: 1px solid var(--hair); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
 .el-panel-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -836,10 +868,10 @@ const CSS = `
 .el-grid { stroke: var(--grid); } .el-zero { stroke: var(--muted); stroke-dasharray: 3 3; }
 .el-axis { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
 .el-line { fill: none; stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
-.el-line.el-model { stroke: var(--a-model); } .el-line.el-claude_wce { stroke: var(--a-claude_wce); } .el-line.el-claude_box { stroke: var(--a-claude_box); }
+.el-line.el-model { stroke: var(--a-model); } .el-line.el-claude_wce, .el-line.el-claude_opus_wce { stroke: var(--a-claude_wce); } .el-line.el-claude_box, .el-line.el-claude_opus_box { stroke: var(--a-claude_box); }
 .el-calbox { fill: none; stroke: var(--grid); } .el-diag { stroke: var(--muted); stroke-dasharray: 3 3; }
 .el-dot { fill-opacity: .8; stroke: var(--surface); stroke-width: 1; }
-.el-dot.el-model { fill: var(--a-model); } .el-dot.el-claude_wce { fill: var(--a-claude_wce); } .el-dot.el-claude_box { fill: var(--a-claude_box); }
+.el-dot.el-model { fill: var(--a-model); } .el-dot.el-claude_wce, .el-dot.el-claude_opus_wce { fill: var(--a-claude_wce); } .el-dot.el-claude_box, .el-dot.el-claude_opus_box { fill: var(--a-claude_box); }
 
 .el-seg { display: inline-flex; background: var(--surface); border: 1px solid var(--hair); border-radius: 9px; padding: 3px; gap: 2px; flex-wrap: wrap; }
 .el-seg button { border: 0; background: transparent; padding: 4px 10px; border-radius: 6px; font-size: 13px; }
@@ -862,6 +894,7 @@ tr.el-void td { color: var(--muted); }
 .el-link { border: 0 !important; background: none !important; padding: 8px 0 0 !important; color: var(--a-model) !important; font-size: 13px; }
 .el-note { font-size: 13px; color: var(--ink-2); margin: 6px 0 0; }
 .el-foot { color: var(--muted); font-size: 12px; margin-top: 26px; max-width: 80ch; }
+.el-run { font-size: 13px; margin: 0 0 12px; max-width: 80ch; }
 
 .el-gate { display: grid; place-items: center; min-height: 70vh; }
 .el-gate form { background: var(--surface); border: 1px solid var(--hair); border-radius: 14px; padding: 28px; width: min(340px, 100%); display: grid; gap: 10px; box-sizing: border-box; }
@@ -876,7 +909,7 @@ tr.el-void td { color: var(--muted); }
 @keyframes el-blink { 50% { opacity: .25; } }
 .el-tickers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 8px; }
 .el-tick { border: 1px solid var(--hair); border-radius: 10px; padding: 9px 10px; display: grid; gap: 1px; min-width: 0; }
-.el-tick-model { box-shadow: inset 0 3px 0 var(--a-model); } .el-tick-claude_wce { box-shadow: inset 0 3px 0 var(--a-claude_wce); } .el-tick-claude_box { box-shadow: inset 0 3px 0 var(--a-claude_box); }
+.el-tick-model { box-shadow: inset 0 3px 0 var(--a-model); } .el-tick-claude_wce, .el-tick-claude_opus_wce { box-shadow: inset 0 3px 0 var(--a-claude_wce); } .el-tick-claude_box, .el-tick-claude_opus_box { box-shadow: inset 0 3px 0 var(--a-claude_box); }
 .el-tick-name { font-size: 12px; color: var(--ink-2); display: flex; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .el-tick-val { font-size: 22px; font-weight: 650; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .el-tick-chg { font-size: 13px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -886,7 +919,7 @@ tr.el-void td { color: var(--muted); }
 .el-pf-note { margin-top: 8px; }
 .el-chart-empty { padding: 30px 0; text-align: center; }
 .el-end { stroke: var(--surface); stroke-width: 1.5; }
-.el-end.el-model, .el-pulse.el-model { fill: var(--a-model); } .el-end.el-claude_wce, .el-pulse.el-claude_wce { fill: var(--a-claude_wce); } .el-end.el-claude_box, .el-pulse.el-claude_box { fill: var(--a-claude_box); }
+.el-end.el-model, .el-pulse.el-model { fill: var(--a-model); } .el-end.el-claude_wce, .el-end.el-claude_opus_wce, .el-pulse.el-claude_wce, .el-pulse.el-claude_opus_wce { fill: var(--a-claude_wce); } .el-end.el-claude_box, .el-end.el-claude_opus_box, .el-pulse.el-claude_box, .el-pulse.el-claude_opus_box { fill: var(--a-claude_box); }
 .el-pulse { transform-box: fill-box; transform-origin: center; animation: el-ping 1.8s ease-out infinite; }
 @keyframes el-ping { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(3.2); opacity: 0; } }
 .el-scrub { stroke: var(--muted); stroke-width: 1; }

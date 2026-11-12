@@ -496,6 +496,21 @@ test('Claude arms: the Opus run is chosen by EDGE_CLAUDE_ARMS and reads the Sonn
   close(M.sourceProb('opus_avg', probs, 'A'), 0.5)
 })
 
+test('headline runs: Sonnet through Nov 10, Opus from Nov 12, the changeover night in neither', () => {
+  const [sonnet, opus] = M.RUNS
+  assert.equal(M.CURRENT_RUN, opus)
+  assert.deepEqual(M.ARMS, ['model', 'claude_opus_wce', 'claude_opus_box'])
+  assert.deepEqual(M.BASE_ARMS, ['model', 'claude_wce', 'claude_box'])
+  assert.ok(M.inRun(sonnet, '2026-10-21') && M.inRun(sonnet, '2026-11-10'))
+  assert.ok(!M.inRun(sonnet, '2026-11-11') && !M.inRun(opus, '2026-11-11'))
+  assert.ok(M.inRun(opus, '2026-11-12') && M.inRun(opus, '2027-03-01') && !M.inRun(sonnet, '2026-11-12'))
+  assert.ok(!M.inRun(opus, null))
+  for (const r of M.RUNS) for (const a of r.arms) assert.ok(M.FORECASTERS.includes(a) && M.ARM_LABEL[a])
+  // A fresh portfolio: the run's arms start at the bankroll whatever came before.
+  const pf = M.buildPortfolios([], null, M.PORTFOLIO, M.ARMS)
+  for (const a of M.ARMS) assert.equal(pf.arms[a].equity, M.PORTFOLIO.start)
+})
+
 test('rule arms: lead-time limits', () => {
   const base = { name: 'Early NOs', hypothesis: 'The NO drift lives two hours or more before tip.', success: 'CLV t past the bar over 300 bets.', source: 'model', side: 'no' }
   assert.deepEqual(M.validateRule({ ...base, minLead: 120 }), [])
