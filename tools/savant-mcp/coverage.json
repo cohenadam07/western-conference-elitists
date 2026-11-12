@@ -558,6 +558,9 @@
     "api:mcp.js": {
       "excluded": "The connector itself."
     },
+    "api:scouting.js": {
+      "excluded": "Private page with its own logins, not public data (Adam, Nov 12 2026)."
+    },
     "api:dynasty.js": {
       "tools": [
         "wce_get_dynasty_rankings"
