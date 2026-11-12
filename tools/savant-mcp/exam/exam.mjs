@@ -200,6 +200,24 @@ const FIELDS = {
 }
 
 // ---- the connector: local (an in-process server on this repo's files) or the live address ---------
+// The live connector allows 300 requests a minute per address (api/mcp.js RATE_PER_MINUTE); the exam
+// makes a few hundred calls, so on the live address it keeps under that (one call every 250 ms) and,
+// if still told to wait ("Too many requests ... Wait N seconds"), waits as told and asks again.
+const MIN_GAP_MS = 250
+let lastCall = 0
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+async function paced(fn) {
+  for (let tries = 0; ; tries++) {
+    const gap = lastCall + MIN_GAP_MS - Date.now()
+    if (gap > 0) await sleep(gap)
+    lastCall = Date.now()
+    try { return await fn() } catch (err) {
+      const m = /Too many requests[^]*?Wait (\d+) seconds/i.exec(String(err?.message || err))
+      if (!m || tries >= 5) throw err
+      await sleep((Number(m[1]) + 1) * 1000)
+    }
+  }
+}
 async function connector() {
   const { Client } = await import('@modelcontextprotocol/sdk/client/index.js')
   const client = new Client({ name: 'wce-exam', version: '1' })
@@ -209,8 +227,8 @@ async function connector() {
     // The analysis questions need a founder-tier key's address (WCE_EXAM_KEY); without one they are skipped.
     const key = process.env.WCE_EXAM_KEY
     let founder = null, fc = null
-    if (key) { fc = new Client({ name: 'wce-exam', version: '1' }); await fc.connect(new StreamableHTTPClientTransport(new URL(`${SITE}/mcp/${key}`))); founder = (name, a) => fc.callTool({ name, arguments: a }) }
-    return { call: (name, a) => client.callTool({ name, arguments: a }), founder, whyNoFounder: 'skipped: the analysis questions need a founder-tier key (WCE_EXAM_KEY)', close: async () => { await client.close(); if (fc) await fc.close() } }
+    if (key) { fc = new Client({ name: 'wce-exam', version: '1' }); await fc.connect(new StreamableHTTPClientTransport(new URL(`${SITE}/mcp/${key}`))); founder = (name, a) => paced(() => fc.callTool({ name, arguments: a })) }
+    return { call: (name, a) => paced(() => client.callTool({ name, arguments: a })), founder, whyNoFounder: 'skipped: the analysis questions need a founder-tier key (WCE_EXAM_KEY)', close: async () => { await client.close(); if (fc) await fc.close() } }
   }
   // the site's files as Vercel serves them: dist (the build's savant-api files), then public/, then the
   // release-asset tables from out/dataroom

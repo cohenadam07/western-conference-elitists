@@ -80,7 +80,9 @@ jobs:
       # The analyst exam's self-check on the live address (research/data-room/BUILD.md §4): every
       # answerable question asked through the connector as an assistant would, its answer held to
       # the gold computed from the live files. A failure here fails the run (and the light).
+      # Weekly (and on demand), not on every push: it makes a few hundred calls to the live connector.
       - name: The analyst exam, self-check on the live connector
+        if: github.event_name != 'push'
         run: node tools/savant-mcp/exam/exam.mjs check --site https://wcehoops.com --out exam.json
 
       # Tells the WCE Control Room (/wce) how the run went; a failure pushes to Adam's phone.
