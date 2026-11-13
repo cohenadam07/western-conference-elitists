@@ -2,6 +2,13 @@
   {
     "date": "2026-11-12",
     "product": "Flappy Hoops",
+    "version": "2.12.0",
+    "text": "Knockout, round two: everyone starts somewhere different, your hoop stays locked until you've been in a bonk, bonks right up to the rim, and Knockout's own records",
+    "to": "/hoops"
+  },
+  {
+    "date": "2026-11-12",
+    "product": "Flappy Hoops",
     "version": "2.11.1",
     "text": "on a phone, tapping Knockout's item button now uses your item (it used to just flap), and the button is easier to hit and clear of the flap pads",
     "to": "/hoops"

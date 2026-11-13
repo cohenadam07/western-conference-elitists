@@ -20,6 +20,15 @@
 // it. Flaps and time come from the server's own replay of the run's taps with the game's rules
 // (public/flappy-hoops/server/sim.mjs, written by the game's build next to the game), never from the
 // game's say-so. Race runs replay with the ghost-hole doors shut, as they were in the race.
+// KNOCKOUT RECORDS (2.12), kept apart from all of the above (they never touch fhrec, the bests or par tickets):
+//   fhko         hash  <hole> → "<steps>|<flaps>|<entry JSON>": Fastest in Knockout (level on time, fewer flaps wins;
+//                      level on both, the holder keeps it); entry { n, u, k, f, at }
+//   fhko:log:<hole>, fhko:c   every holder (oldest first, 500 kept), and "<breaks>|<hands>", as for the normal boards
+//   fhko:run     hash  <hole> → the run that set it: { seed, inputs } (every player's: the hole, played again)
+//   fhkom        hash  <world> → "<kos>|<entry JSON>": Most KOs in a match (level, the holder keeps it); entry { n, u, ko, at }
+//   fhkom:log:<world>, fhkom:c
+// Nothing goes up from what a game says: the race server replays the hole (or the match's every hole) itself with the
+// game's own rules (server/sim.mjs, koReplay) and these take its numbers (api/_race.js koVerify).
 // Knockout runs (2.11) never count: balls hit each other there, so a run isn't one ball's taps any more.
 // rec.submit refuses one whatever the game says: a run marked Knockout (mode/ko), a run from a party
 // whose race is Knockout (pc: the party's code), and any run with an item in it (U) all come back 403.
@@ -493,6 +502,69 @@ async function submit(body) {
 }
 const submits = makeLimiter()
 
+/* ------------------------------------------------------------ Knockout records (2.12) */
+
+// KEYS board, log, counts; ARGV field, value, a (primary), b (secondary), user id, better = 'lt' (fewer wins) or 'gt'
+// → { 1 if it's theirs now, 1 if level, what was there }. The holder keeps it when level (on both, for Fastest).
+const KO_SUBMIT = `local cur = redis.call('HGET', KEYS[1], ARGV[1])
+local a, b = tonumber(ARGV[3]), tonumber(ARGV[4])
+local better, tied = 0, 0
+if not cur then better = 1 else
+  local ca, cb = string.match(cur, '^(%d+)|(%d+)|')
+  if not ca then ca = string.match(cur, '^(%d+)|'); cb = '0' end
+  ca, cb = tonumber(ca), tonumber(cb)
+  if a == ca and b == cb then tied = 1
+  elseif ARGV[6] == 'lt' then if a < ca or (a == ca and b < cb) then better = 1 end
+  else if a > ca then better = 1 end end
+end
+if better == 1 then
+  redis.call('HSET', KEYS[1], ARGV[1], ARGV[2])
+  redis.call('RPUSH', KEYS[2], ARGV[2])
+  redis.call('LTRIM', KEYS[2], -${LOG}, -1)
+  local c = redis.call('HGET', KEYS[3], ARGV[1]) or '0|0'
+  local br, ha = string.match(c, '^(%d+)|(%d+)$')
+  br, ha = tonumber(br or '0'), tonumber(ha or '0')
+  if cur then
+    br = br + 1
+    if not string.find(cur, '"u":"' .. ARGV[5] .. '"', 1, true) then ha = ha + 1 end
+  end
+  redis.call('HSET', KEYS[3], ARGV[1], br .. '|' .. ha)
+end
+return { better, tied, cur or '' }`
+const KO = 'fhko', KO_C = 'fhko:c', KO_RUN = 'fhko:run', koLog = (h) => 'fhko:log:' + h
+const KOM = 'fhkom', KOM_C = 'fhkom:c', komLog = (w) => 'fhkom:log:' + w
+const unpackKO = (v) => { if (!v) return null; const m = /^\d+\|(?:\d+\|)?(\{.*\})$/.exec(v); try { return m ? JSON.parse(m[1]) : null } catch { return null } }
+
+// A Knockout hole's verified finishes (from the server's own replay): each one that beats the board takes it.
+// cands [{ hole, u, n, k, f }], run { seed, inputs } (kept with a record that's set). Returns what happened to each.
+export async function koSubmitHole(cands, run) {
+  const out = []
+  for (const c of cands || []) {
+    if (!HOLE_RE.test(c.hole) || !c.u) continue
+    const entry = { n: c.n, u: c.u, k: c.k, f: c.f, at: Date.now() }
+    const value = `${c.k}|${c.f}|${JSON.stringify(entry)}`
+    const [set, tied, was] = await redis(['EVAL', KO_SUBMIT, 3, KO, koLog(c.hole), KO_C, c.hole, value, String(c.k), String(c.f), c.u, 'lt'])
+    if (Number(set) === 1 && run) await redis(['HSET', KO_RUN, c.hole, JSON.stringify(run).slice(0, 200000)])
+    out.push({ hole: c.hole, u: c.u, set: Number(set) === 1, tied: Number(tied) === 1, prev: unpackKO(was) })
+  }
+  return out
+}
+// A Knockout match's verified KOs: the world's Most KOs board. cands [{ world, u, n, ko }]
+export async function koSubmitMatch(cands) {
+  const out = []
+  for (const c of cands || []) {
+    if (!/^[a-z0-9-]{2,24}$/.test(c.world) || !c.u || !(c.ko > 0)) continue
+    const entry = { n: c.n, u: c.u, ko: c.ko, at: Date.now() }
+    const [set, tied, was] = await redis(['EVAL', KO_SUBMIT, 3, KOM, komLog(c.world), KOM_C, c.world, `${c.ko}|${JSON.stringify(entry)}`, String(c.ko), '0', c.u, 'gt'])
+    out.push({ world: c.world, u: c.u, set: Number(set) === 1, tied: Number(tied) === 1, prev: unpackKO(was) })
+  }
+  return out
+}
+// The account on a race player (a token checked once, when they join), or null.
+export async function acctOf(t) { try { return await whoIs(t) } catch { return null } }
+// The game's rules, for the race server's replays.
+export const loadSim = () => sim()
+
 // A Knockout run doesn't go on the board (see the top of this file).
 const KO_NO = 'Knockout runs don’t count for the all-time records.'
 export const KO_PARTY_RE = /^[BCDFGHJKLMNPQRSTVWXZ]{4}$/
@@ -571,6 +643,23 @@ export async function hoopsGet(req, res) {
       res.setHeader('Cache-Control', 'public, s-maxage=5, stale-while-revalidate=10')
       return send(res, 200, { ok: true, build, records, counts })
     }
+    if (q.rec === 'ko') {
+      // (Knockout's own boards: Fastest per hole, Most KOs per world, and how often each has been broken)
+      const [a, ac, m, mc] = await Promise.all([redis(['HGETALL', KO]), redis(['HGETALL', KO_C]), redis(['HGETALL', KOM]), redis(['HGETALL', KOM_C])])
+      const pairs = (x, f) => { const o = {}; for (let i = 0; i + 1 < (x || []).length; i += 2) { const v = f(x[i + 1]); if (v) o[x[i]] = v } return o }
+      const cnt = (v) => { const z = /^(\d+)\|(\d+)$/.exec(v); return z ? [Number(z[1]), Number(z[2])] : null }
+      res.setHeader('Cache-Control', 'public, s-maxage=5, stale-while-revalidate=10')
+      return send(res, 200, { ok: true, holes: pairs(a, unpackKO), counts: pairs(ac, cnt), worlds: pairs(m, unpackKO), wcounts: pairs(mc, cnt) })
+    }
+    if (q.rec === 'kohistory') {
+      const h = String(q.h || ''), w = String(q.w || '')
+      if (!HOLE_RE.test(h) && !/^[a-z0-9-]{2,24}$/.test(w)) bad(400, 'Say which hole (h) or world (w).')
+      const items = (await redis(['LRANGE', h ? koLog(h) : komLog(w), 0, -1])) || []
+      const entries = items.map(unpackKO).filter(Boolean)
+      const [breaks, hands] = countLog(entries)
+      res.setHeader('Cache-Control', 'public, s-maxage=5, stale-while-revalidate=10')
+      return send(res, 200, { ok: true, entries, breaks, hands })
+    }
     if (q.rec === 'history') {
       // every holder the board has had, oldest first, and how many times it's been broken / changed hands
       const h = String(q.h || ''), b = String(q.b || '')
@@ -613,6 +702,8 @@ export async function hoopsPost(body, req, res) {
     else if (a === 'acct.admin') out = await acctAdmin(body, req)
     else if (a === 'rec.submit') out = await submit(body)
     else if (a === 'rec.admin') out = await recAdmin(body, req)
+    // (the site's tests only, never on a deployment: the Most KOs board's own rules, given a match the replay counted)
+    else if (a === 'rec.kotest' && process.env.RACE_TEST === '1') out = { ok: true, res: await koSubmitMatch(body.cands) }
     else bad(400, 'Unknown request.')
     return send(res, 200, out)
   } catch (e) { return fail(res, e) }

@@ -18,7 +18,7 @@ const ADMIN_KEY = 'test-admin-key-' + Math.random().toString(36).slice(2)
 let n = 0, failed = 0
 const ok = (cond, what) => { n++; if (!cond) { failed++; console.log('FAIL', what) } else console.log('PASS', what) }
 
-const dev = spawn(process.execPath, [path.join(ROOT, 'tools/race-dev.mjs'), String(PORT)], { cwd: ROOT, env: { ...process.env, WCE_STATUS_KEY: ADMIN_KEY }, stdio: ['ignore', 'pipe', 'inherit'] })
+const dev = spawn(process.execPath, [path.join(ROOT, 'tools/race-dev.mjs'), String(PORT)], { cwd: ROOT, env: { ...process.env, WCE_STATUS_KEY: ADMIN_KEY, RACE_TEST: '1', RACE_LEAD_MS: '300', RACE_REVEAL_MS: '200', RACE_BOARD_MS: '400' }, stdio: ['ignore', 'pipe', 'inherit'] })
 process.on('exit', () => dev.kill())
 await new Promise((resolve, reject) => {
   const t = setTimeout(() => reject(new Error('race-dev did not start')), 15000)
@@ -206,7 +206,7 @@ ok(solo.status === 422 && raced.status === 200 && raced.j.f === 3 && raced.j.k =
     const P = [{ id: a1.j.you, key: a1.j.key }, { id: b1.j.you, key: b1.j.key }]
     await post({ a: 'start', code, id: P[0].id, key: P[0].key, worlds: [{ id: 'newyork', n: 9 }, { id: 'sanantonio', n: 9 }, { id: 'okc', n: 9 }, { id: 'cleveland', n: 9 }] })
     let v = null
-    for (let i = 0; i < 4; i++) for (const p of P) v = (await post({ a: 'poll', code, id: p.id, key: p.key, me: { m: 1, h: -1, vw: 'newyork', vm: mode, kv: 1 } })).j
+    for (let i = 0; i < 4; i++) for (const p of P) v = (await post({ a: 'poll', code, id: p.id, key: p.key, me: { m: 1, h: -1, vw: 'newyork', vm: mode, kv: 2 } })).j
     return { code, mode: v.mode }
   }
   const K = await party('knockout'), S = await party('speed')
@@ -217,6 +217,87 @@ ok(solo.status === 422 && raced.status === 200 && raced.j.f === 3 && raced.j.k =
   ok(S.mode === 'speed' && sp.status === 200, `a race run from a speed party (${S.code}) still counts as before`)
   const afterKo = (await get('?rec=all')).j.records[H + '|s']
   ok(JSON.stringify(before) === JSON.stringify(afterKo), 'and the boards are as they were')
+}
+
+// ---------------------------------------------------------------- Knockout's own records (2.12)
+// A one-hole Knockout match on The Cage between two signed-in players, through the real endpoint: whoever the seed puts
+// on the tee flies the Savant line in (the other gives up straight away, so the runner is the last ball: K), and the
+// server replays the hole with the game's own rules (server/sim.mjs) for the record.
+{
+  const recsBefore = (await get('?rec=all&fresh=1')).j
+  const koEmpty = (await get('?rec=ko&fresh=1')).j
+  ok(koEmpty.ok && Object.keys(koEmpty.holes).length === 0 && Object.keys(koEmpty.worlds).length === 0, 'the Knockout boards start empty (nothing backfilled)')
+  const accts = {}
+  for (const nm of ['Koa Runner', 'Kob Runner']) accts[nm] = (await post({ a: 'acct.create', name: nm, pin: '2468' })).j.t
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+  const enc = (list) => list.map(([t, d]) => t + ':' + d).join(',')
+  // runner: whose account should fly; delay: steps on the tee before the line; claim: what its game says (k)
+  async function koMatch(runner, delay, claim = null, scoreIt = true) {
+    for (let tries = 0; tries < 40; tries++) {
+      const names = Object.keys(accts), other = names.find((n) => n !== runner)
+      const a1 = await post({ a: 'create', name: 'R1', t: accts[runner] }), code = a1.j.code
+      const b1 = await post({ a: 'join', code, name: 'R2', t: accts[other] })
+      const P = { run: { id: a1.j.you, key: a1.j.key }, out: { id: b1.j.you, key: b1.j.key } }
+      await post({ a: 'start', code, id: P.run.id, key: P.run.key, worlds: [{ id: 'newyork', n: 1 }] })
+      let v = null
+      for (let i = 0; i < 60 && !(v && v.phase === 'hole'); i++) { for (const p of [P.run, P.out]) v = (await post({ a: 'poll', code, id: p.id, key: p.key, me: { m: 1, h: -1, vw: 'newyork', vm: 'knockout', kv: 2 } })).j; await sleep(60) }
+      if (!v || v.phase !== 'hole' || v.mode !== 'knockout') continue
+      const ids = v.racers.slice().sort(), pick = SIM.spotOrder(v.seed, ids.length, SIM.SPOTS.cage.length)
+      if (pick[ids.indexOf(P.run.id)] !== 0) { await post({ a: 'leave', code, id: P.out.id, key: P.out.key }); await post({ a: 'leave', code, id: P.run.id, key: P.run.key }); continue }   // (not on the tee: again)
+      const line = scoreIt ? SIM.LINES.cage.inputs.map(([t, d]) => [t + delay, d]) : [[delay, 1]]
+      const ins = [[2, 'K'], ...line]
+      // what every game computes (the same world, played with everything known)
+      const w = SIM.compileLevel(SIM.HOLES.cage); w.portals = []
+      const K = SIM.createKnockout({ world: w, line: SIM.LINES.cage, ids: v.racers, seed: v.seed, starts: SIM.SPOTS.cage })
+      K.feed(P.run.id, ins, 9000); K.feed(P.out.id, [[1, 'G']], 9000); K.advance(2400)
+      const real = K.finOf(P.run.id)
+      while (Date.now() < v.startAt + 1500) await sleep(100)
+      await post({ a: 'poll', code, id: P.out.id, key: P.out.key, me: { m: 1, h: 0, k: 10, f: 0, in: '1:G', kv: 2 }, fin: { dnf: 1 } })   // (gives up straight away: G)
+      const fin = { k: claim != null ? claim : (real ? real.k : 300), f: real ? real.f : 3 }
+      v = (await post({ a: 'poll', code, id: P.run.id, key: P.run.key, me: { m: 1, h: 0, k: fin.k, f: fin.f, in: enc(ins), kv: 2 }, fin })).j
+      for (let i = 0; i < 40 && v.phase === 'hole'; i++) { await sleep(80); v = (await post({ a: 'poll', code, id: P.run.id, key: P.run.key, me: { m: 1, h: 0, kv: 2 } })).j }
+      // the server's replay, and this side's: the same world (to the same tick)
+      const kv = v.kov && v.kov[0]
+      const L = SIM.createKnockout({ world: w, line: SIM.LINES.cage, ids: v.racers, seed: v.seed, starts: SIM.SPOTS.cage })
+      L.feed(P.run.id, ins, 9000); L.feed(P.out.id, [[1, 'G']], 9000); if (kv) L.advance(kv.T)
+      const res = { v, real, claim: fin, kov: kv, same: !!kv && L.hash() === kv.hash, code, P }
+      for (let i = 0; i < 30 && res.v.phase !== 'final'; i++) { await sleep(100); res.v = (await post({ a: 'poll', code, id: P.run.id, key: P.run.key, me: { m: 1, h: 0, kv: 2 } })).j }
+      return res
+    }
+    return null
+  }
+  const ko = async () => (await get('?rec=ko&fresh=' + Date.now())).j
+  const m1 = await koMatch('Koa Runner', 60, 120)               // (slow, and its game claims 120 steps: a lie)
+  const r1 = await ko()
+  ok(m1 && m1.v.mode === 'knockout' && m1.real && m1.kov, 'a Knockout hole with everyone’s inputs in: the server replays it', m1 && JSON.stringify({ real: m1.real, kov: m1.kov }))
+  ok(m1 && m1.same, 'the server’s replay is the same world every game has (the same fingerprint, to the same tick)')
+  ok(r1.holes.cage && r1.holes.cage.n === 'Koa Runner' && r1.holes.cage.k === m1.real.k && r1.holes.cage.f === m1.real.f,
+    `the Knockout record is the replay’s ${m1 && m1.real.k} steps, not the 120 its game claimed (a tampered claim doesn’t count)`, JSON.stringify(r1.holes.cage))
+  ok(!r1.worlds.newyork, 'no KOs in the match: no Most KOs record')
+  const m2 = await koMatch('Kob Runner', 60)                    // (the same run, the other account: level on both)
+  const r2 = await ko()
+  ok(m2 && r2.holes.cage.n === 'Koa Runner' && !(r2.counts.cage && r2.counts.cage[0]), 'level on time and flaps: the holder keeps it')
+  const m3 = await koMatch('Kob Runner', 10)                    // (50 steps sooner)
+  const r3 = await ko()
+  ok(m3 && r3.holes.cage.n === 'Kob Runner' && r3.holes.cage.k === m3.real.k && m3.real.k < m1.real.k && JSON.stringify(r3.counts.cage) === '[1,1]', 'faster: it changes hands (broken once, changed hands once)', JSON.stringify(r3.counts.cage))
+  const m4 = await koMatch('Koa Runner', 10, null, false)       // (a finish claimed, but its inputs never go in)
+  const r4 = await ko()
+  ok(m4 && !m4.real && r4.holes.cage.n === 'Kob Runner' && r4.holes.cage.k === m3.real.k, 'a claimed finish the replay doesn’t see go in sets nothing')
+  const hist = (await get('?rec=kohistory&h=cage&fresh=1')).j
+  ok(hist.entries.length === 2 && hist.entries[0].n === 'Koa Runner' && hist.entries[1].n === 'Kob Runner' && hist.breaks === 1 && hist.hands === 1, 'its history: every holder, oldest first, with how often it was broken and changed hands')
+  // Most KOs in a match, per world: the board's own rules (the match counted by the server's replays; see race-test.mjs)
+  const ka = (await post({ a: 'acct.me', t: accts['Koa Runner'] })).j, u = (n) => 'u-' + n
+  const kt = (ko2, who) => post({ a: 'rec.kotest', cands: [{ world: 'denver', u: u(who), n: who, ko: ko2 }] })
+  await kt(2, 'Koa Runner'); await kt(2, 'Kob Runner')
+  let w = (await ko()).worlds.denver
+  ok(ka.ok && w && w.n === 'Koa Runner' && w.ko === 2, 'Most KOs: the first match with KOs takes the world’s record; level, the holder keeps it')
+  await kt(3, 'Kob Runner'); w = (await ko()).worlds.denver
+  const wh = (await get('?rec=kohistory&w=denver&fresh=1')).j
+  ok(w.n === 'Kob Runner' && w.ko === 3 && JSON.stringify((await ko()).wcounts.denver) === '[1,1]' && wh.entries.length === 2, 'more KOs: it changes hands, with its history and counts')
+  ok((await post({ a: 'rec.kotest', cands: [{ world: 'atlanta', u: 'x', n: 'Nobody', ko: 0 }] })).j.res.length === 0, 'a match with no KOs isn’t a record')
+  // and the all-time records didn't move
+  const recsAfter = (await get('?rec=all&fresh=2')).j
+  ok(JSON.stringify(recsAfter.records) === JSON.stringify(recsBefore.records) && JSON.stringify(recsAfter.counts) === JSON.stringify(recsBefore.counts), 'none of it touches the all-time records (or their counts)')
 }
 
 const [all, getCost] = await cost(() => get('?rec=all'))

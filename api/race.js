@@ -21,7 +21,24 @@ import {
   CODE_RE, ID_RE, TTL, makeCode, newRoom, addPlayer, removePlayer, cleanLive, finValue, parseFin, finField,
   startVote, toLobby, advance, view, cleanNotes, iceServers, diag,
 } from './_race.js'
-import { hoopsGet, hoopsPost } from './_hoops.js'
+import { hoopsGet, hoopsPost, koSubmitHole, koSubmitMatch, acctOf, loadSim } from './_hoops.js'
+
+// Knockout (2.12): the game's rules, to replay a Knockout hole on the server (server/sim.mjs's koReplay), and which
+// hole of which world is which. Loaded once, when the first Knockout hole ends here.
+async function koReplayer() {
+  try {
+    const S = await loadSim()
+    if (!S.koReplay) return null
+    return { holeOf: (w, h) => { const c = (S.CITIES || []).find((x) => x.id === w); return c ? c.holes[h] : null }, replay: (a) => S.koReplay(a) }
+  } catch (e) { console.error('race: no Knockout replay', String((e && e.message) || e)); return null }
+}
+// A Knockout hole's (or match's) records, once the request that moved the party on has saved it
+async function koRecords(room, scored, finalNow, run) {
+  try {
+    if (scored && room.koRec && room.koRec.length) await koSubmitHole(room.koRec, run)
+    if (finalNow && room.koMatch && room.koMatch.length) await koSubmitMatch(room.koMatch)
+  } catch (e) { console.error('race: Knockout records', String((e && e.message) || e)) }
+}
 
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
@@ -176,6 +193,8 @@ export default async function handler(req, res) {
         const code = makeCode()
         const room = newRoom(code, now)
         addPlayer(room, id, body.name, now)
+        const ac = body.t ? await acctOf(body.t) : null      // (signed in: can hold a Knockout record)
+        if (ac) room.players[0].acct = { u: ac.id, n: ac.name }
         if (Number(await redis(['EVAL', CREATE, 1, K(code), JSON.stringify(room), String(TTL)])) === 1) {
           res.status(200).json({ ...view(room, {}, {}, id, now), key: keyFor(code, id), ice: await iceFor() })
           return
@@ -191,10 +210,12 @@ export default async function handler(req, res) {
     if (a === 'join') {
       const back = ID_RE.test(String(body.id || '')) && body.key === keyFor(code, body.id)
       const id = back ? body.id : newId()
+      const ac = body.t ? await acctOf(body.t) : null
       // (someone coming back keeps what their game last said: a reload mid-hole still has its flaps)
       const r = await mutate(code, (S, now) => {
         const add = addPlayer(S.room, id, body.name, now)
         if (add.error) return add
+        if (ac) add.player.acct = { u: ac.id, n: ac.name }
       })
       if (r.error) return fail(r.status || 400, r.status === 404 ? 'No party has that code.' : r.error)
       res.status(200).json({ ...view(r.S.room, r.S.live, r.S.fins, id, r.now), key: keyFor(code, id), ice: await iceFor() })
@@ -239,7 +260,7 @@ export default async function handler(req, res) {
     // ---- poll: say where I am, hear where everyone is --------------------------
     const now = Date.now()
     const mine = body.me ? cleanLive(body.me, now) : null
-    const fv = mine && body.fin ? finValue(body.fin, now) : null
+    const fv = mine && body.fin ? finValue(body.fin, now, mine.in) : null      // (2.12: the inputs, sealed with the finish)
     // (notes for the other games: a few at a time, each bounded)
     const notes = cleanNotes(body.sig, id)
     const got = await redis(['EVAL', POLL, 1, K(code), mine ? 'p:' + id : '', mine ? JSON.stringify(mine) : '',
@@ -249,13 +270,26 @@ export default async function handler(req, res) {
     const sig = S.sig
     if (!S.room.players.some((p) => p.id === id)) return fail(410, 'You’re not in that party any more.')
     const was = S.room.match + ':' + S.room.hole
-    const step = advance(S.room, S.live, S.fins, now)
+    // (a Knockout hole that may end now: the rules to replay it with)
+    const kor = S.room.mode === 'knockout' && S.room.phase === 'hole' ? await koReplayer() : null
+    const scored0 = S.room.results.length, final0 = !!S.room.final
+    const step = advance(S.room, S.live, S.fins, now, Math.random, kor)
+    const run = S.room.koRunTmp; delete S.room.koRunTmp
     if (step.changed) {
       const drop = step.clear ? S.fields.filter((f) => f.startsWith('d:')) : S.old
       if (Number(await cas(code, S.v, S.room, drop)) !== 1) {
         S = await read(code)                 // someone else moved it along first: theirs stands
         if (!S) return fail(404, 'That party is gone.')
-      } else if (S.room.match + ':' + S.room.hole !== was) S.fins = {}   // (a new hole: nobody's in yet)
+      } else {
+        // (this request moved it on: the Knockout records it made, once)
+        if (S.room.mode === 'knockout') await koRecords(S.room, S.room.results.length > scored0, !final0 && !!S.room.final, run)
+        if (S.room.match + ':' + S.room.hole !== was) S.fins = {}   // (a new hole: nobody's in yet)
+      }
+    }
+    // (signed in after joining: the account goes on the player, once)
+    if (body.t && S.room.players.some((p) => p.id === id && !p.acct)) {
+      const ac = await acctOf(body.t)
+      if (ac) { const r = await mutate(code, (Q) => { const p = Q.room.players.find((x) => x.id === id); if (p) p.acct = { u: ac.id, n: ac.name } }); if (r.S) S.room = r.S.room }
     }
     const out = view(S.room, S.live, S.fins, id, now)
     if (sig.length) out.sig = sig

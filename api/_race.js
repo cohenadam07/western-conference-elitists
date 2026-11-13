@@ -46,7 +46,7 @@ export const GONE_MS = 150000         // in the lobby, not heard from for this l
 export const TTL = 3 * 3600           // seconds a party outlives its last request
 export const HZ = 120
 export const MODES = ['speed', 'flaps', 'knockout']
-export const KO_VERSION = 1           // a game that knows Knockout says so (kv) with every poll
+export const KO_VERSION = 2           // a game that knows Knockout says so (kv) with every poll (2: 2.12's rules)
 // Tickets by place on each hole, and the match bonus (the way Flappy Golf 2 pays out a race).
 export const TIX = [8, 6, 5, 4, 3, 3, 3, 3]
 export const TIX_DNF = 1
@@ -59,7 +59,9 @@ export const OPTIONS = 4              // Adam: "you should be shown 4 of the wor
 export const ALPHABET = 'BCDFGHJKLMNPQRSTVWXZ'
 export const CODE_RE = /^[BCDFGHJKLMNPQRSTVWXZ]{4}$/
 export const ID_RE = /^[a-z0-9]{6,10}$/
-const INPUTS_RE = /^(\d{1,6}:(-1|0|1|R|U)(,\d{1,6}:(-1|0|1|R|U)){0,699})?$/
+// (2.12: up to 3,000 a hole: a two-minute Knockout brawl can run to hundreds of taps)
+const INPUTS_RE = /^(\d{1,6}:(-1|0|1|R|U|K|L|G)(,\d{1,6}:(-1|0|1|R|U|K|L|G)){0,2999})?$/
+const INPUTS_MAX = 30000
 const NONCE_RE = /^[a-z0-9]{4,10}$/
 const WORLD_RE = /^[a-z0-9-]{2,24}$/
 // what a player has on: "<ball>:<trail>", ids out of the game's shop catalog
@@ -108,7 +110,8 @@ export function removePlayer(room, id) {
 // What a player's game says about itself on every poll, cleaned. `t` is ours (the server's clock).
 export function cleanLive(me, now) {
   const m = me && typeof me === 'object' ? me : {}
-  const inp = typeof m.in === 'string' && m.in.length <= 9000 && INPUTS_RE.test(m.in) ? m.in : ''
+  // (null: inputs came that don't fit; they can't be sealed with a finish, so a Knockout hole with them isn't replayed)
+  const inp = typeof m.in === 'string' && m.in.length <= INPUTS_MAX && INPUTS_RE.test(m.in) ? m.in : typeof m.in === 'string' && m.in ? null : ''
   // (n: a name for this load of the page, new on every reload: the other games connect to it directly,
   // and a new one tells them to connect again)
   return { t: now, m: int(m.m, 0, 1e6), h: int(m.h, -1, 64), k: int(m.k, 0, 1e6), f: int(m.f, 0, 9999), in: inp,
@@ -164,22 +167,29 @@ export function iceServers() {
   return [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] }]
 }
 
-// A finish, as stored: "steps:flaps:when" (a give-up is "x:0:when").
-export function finValue(fin, now) {
+// A finish, as stored: "steps:flaps:when" (a give-up is "x:0:when"). From 2.12, "|inputs" after it: that player's
+// inputs for the hole as they were when they finished or gave up (all of them: nothing they do after counts), so a
+// Knockout hole can be replayed by the server once everyone's are in.
+export function finValue(fin, now, ins = '') {
   if (!fin || typeof fin !== 'object') return null
-  if (fin.dnf) return `x:0:${now}`
+  // (inputs that don't fit, null: no seal at all, so the hole isn't replayed; none at all: sealed empty)
+  const tail = ins === null ? '' : typeof ins === 'string' && ins && INPUTS_RE.test(ins) ? '|' + ins : '|'
+  if (fin.dnf) return `x:0:${now}` + tail
   const k = Math.floor(Number(fin.k)), f = Math.floor(Number(fin.f))
   if (!Number.isFinite(k) || !Number.isFinite(f) || k < 1 || k > 1e6 || f < 0 || f > 9999) return null
-  return `${k}:${f}:${now}`
+  return `${k}:${f}:${now}` + tail
 }
 export function parseFin(str) {
-  const [a, b, c] = String(str || '').split(':')
+  const raw = String(str || ''), bar = raw.indexOf('|')
+  const [a, b, c] = (bar < 0 ? raw : raw.slice(0, bar)).split(':')
   const at = Number(c)
   if (!Number.isFinite(at)) return null
-  if (a === 'x') return { dnf: 1, at }
+  const ins = bar < 0 ? undefined : raw.slice(bar + 1)          // (undefined: a finish from before 2.12, no inputs with it)
+  if (a === 'x') return { dnf: 1, at, ...(ins !== undefined ? { in: ins } : {}) }
   const k = Number(a), f = Number(b)
-  return Number.isInteger(k) && Number.isInteger(f) ? { k, f, at } : null
+  return Number.isInteger(k) && Number.isInteger(f) ? { k, f, at, ...(ins !== undefined ? { in: ins } : {}) } : null
 }
+const parseInputs = (str) => (str ? str.split(',').map((x) => { const [t, d] = x.split(':'); return [Number(t), /^[RUKLG]$/.test(d) ? d : Number(d)] }) : [])
 export const finField = (match, hole, id) => `d:${match}:${hole}:${id}`
 
 // The worlds the host's game knows (so this file never has to be told about a new city).
@@ -215,7 +225,7 @@ export function startVote(room, live, worlds, now, rnd = Math.random) {
   const opts = []
   while (opts.length < OPTIONS && pool.length) opts.push(pool.splice(Math.floor(rnd() * pool.length), 1)[0])
   Object.assign(room, { phase: 'vote', until: now + VOTE_MS, match: room.match + 1, opts, tally: null, world: '', mode: '',
-    hole: -1, startAt: 0, capAt: 0, racers: [], results: [], totals: {}, final: null })
+    hole: -1, startAt: 0, capAt: 0, racers: [], results: [], totals: {}, final: null, kov: [], koV: {}, koVbad: 0, koRec: [], koMatch: [] })
   return { ok: true }
 }
 
@@ -227,15 +237,18 @@ function endVote(room, live, now, rnd) {
   const mine = room.players.map((p) => live[p.id]).filter((l) => l && l.m === room.match)
   const w = pick(room.opts.map((o) => o.id), mine.map((l) => l.vw), rnd)
   let m = pick(MODES, mine.map((l) => l.vm), rnd), koOff = false
+  let koOld = null
   if (m.winner === 'knockout' && !koReady(room, live, now)) {
-    // (someone here is on a game from before Knockout: it's whichever of the other two had more votes)
+    // (someone here is on a game from before this Knockout: it's whichever of the other two had more votes, and the
+    // reveal names who should reload)
     const count = m.count
     m = pick(['speed', 'flaps'], mine.map((l) => l.vm), rnd)
     m.count = count; koOff = true
+    koOld = room.players.filter((p) => isHere(room, live, p.id, now) && !(live[p.id] && live[p.id].kv >= KO_VERSION)).map((p) => p.name)
   }
   room.world = w.winner; room.mode = m.winner
   room.holes = (room.opts.find((o) => o.id === w.winner) || { n: 9 }).n
-  room.tally = { world: w.count, mode: m.count, tieWorld: w.tied, tieMode: m.tied, ...(koOff ? { koOff: true } : {}) }
+  room.tally = { world: w.count, mode: m.count, tieWorld: w.tied, tieMode: m.tied, ...(koOff ? { koOff: true, koOld } : {}) }
   room.phase = 'reveal'; room.until = now + REVEAL_MS
 }
 
@@ -269,14 +282,53 @@ export function koCounts(room, live) {
 }
 
 // Rank a finished hole. Speed and Knockout: fewest steps (then flaps). Flaps: fewest flaps (then steps).
-export function scoreHole(room, fins, live) {
+// Knockout (2.12): the server plays the hole again itself, once it has every racer's inputs (each sealed with their
+// finish or give-up), with the game's own rules (kor.replay: server/sim.mjs's koReplay). What comes back, the tick each
+// ball went in, its flaps and the KOs, is what the Knockout records are made of; never what a game says.
+// Returns null (nothing verified) when someone's inputs are missing: a racer who left, or went quiet without finishing.
+export function koVerify(room, fins, kor) {
+  if (!kor || room.mode !== 'knockout') return null
+  const inParty = new Set(room.players.map((p) => p.id))
+  const ids = room.racers
+  if (!ids.length || ids.some((id) => !inParty.has(id) || !fins[id] || fins[id].in === undefined)) return null
+  const inputs = {}
+  let last = 0
+  for (const id of ids) {
+    inputs[id] = parseInputs(fins[id].in)
+    // (a last ball opened because someone left without a word, L: not a hole anyone's record can come from)
+    if (inputs[id].some((x) => x[1] === 'L')) return null
+    for (const [t] of inputs[id]) if (t > last) last = t
+    if (!fins[id].dnf && fins[id].k > last) last = fins[id].k
+  }
+  const until = Math.min(Math.ceil(CAP_MS / 1000 * HZ), last + 600)
+  const hole = kor.holeOf(room.world, room.hole)
+  if (!hole) return null
+  const res = kor.replay({ hole, seed: room.seed, inputs, until })
+  if (res) room.koRunTmp = { seed: room.seed, inputs }     // (kept with a record it sets; never saved with the party)
+  return res ? { hole, ...res } : null
+}
+
+export function scoreHole(room, fins, live, kor) {
   const inParty = new Set(room.players.map((p) => p.id))
   const rows = room.racers.filter((id) => inParty.has(id)).map((id) => {
     const f = fins[id]
     return plausible(f, room) ? { id, k: f.k, f: f.f, at: f.at } : { id, dnf: 1 }
   })
   const ko = room.mode === 'knockout' ? koCounts(room, live) : null
-  if (ko) for (const r of rows) r.ko = ko[r.id] || 0
+  const vr = koVerify(room, fins, kor)
+  if (ko) for (const r of rows) r.ko = vr ? vr.kos[r.id] || 0 : ko[r.id] || 0     // (verified: the server's own count)
+  if (room.mode === 'knockout') {
+    room.kov = room.kov || []
+    room.kov[room.hole] = vr ? { T: vr.T, hash: vr.hash } : null
+    room.koV = room.koV || {}
+    if (vr) for (const id of Object.keys(vr.kos)) room.koV[id] = (room.koV[id] || 0) + vr.kos[id]
+    else room.koVbad = 1
+    // the Knockout record candidates from this hole: everyone the replay saw go in, who has an account to hold it
+    room.koRec = vr ? Object.entries(vr.fins).filter(([, f]) => f).map(([id, f]) => {
+      const p = room.players.find((q) => q.id === id)
+      return p && p.acct ? { hole: vr.hole, u: p.acct.u, n: p.acct.n, k: f.k, f: f.f } : null
+    }).filter(Boolean) : []
+  }
   const done = rows.filter((r) => !r.dnf)
   done.sort(room.mode === 'flaps' ? (a, b) => a.f - b.f || a.k - b.k || a.at - b.at : (a, b) => a.k - b.k || a.f - b.f || a.at - b.at)
   done.forEach((r, i) => { r.place = i + 1; r.pts = PTS[i] ?? 0; r.tix = TIX[i] ?? TIX[TIX.length - 1]; delete r.at })
@@ -308,7 +360,7 @@ export function toLobby(room) {
 // Move the party along as far as the clock says. Serverless has no timers: whichever request
 // arrives first past a deadline does this (clients poll about once a second while they're in).
 // Returns { changed, clear } (clear: the finishes from the match just ended can be dropped).
-export function advance(room, live, fins, now, rnd = Math.random) {
+export function advance(room, live, fins, now, rnd = Math.random, kor = null) {
   let changed = false, clear = false
   const here = (id) => isHere(room, live, id, now)
   // the host has gone quiet: the next one who's here takes over
@@ -340,13 +392,18 @@ export function advance(room, live, fins, now, rnd = Math.random) {
       const racers = room.racers.filter((id) => inParty.has(id))
       const allDone = racers.every((id) => fins[id] || !here(id))
       if (now >= room.capAt + GRACE_MS || (now >= room.startAt && allDone)) {
-        scoreHole(room, fins, live)
+        scoreHole(room, fins, live, kor)
         room.phase = 'board'; room.until = now + BOARD_MS
       }
     } else if (room.phase === 'board') {
       if (now >= room.until) {
         if (room.hole + 1 < room.holes) { startHole(room, live, room.hole + 1, now, rnd); fins = {} }
-        else { room.final = finalOrder(room); room.phase = 'final'; room.until = now + FINAL_MS }
+        else {
+          room.final = finalOrder(room); room.phase = 'final'; room.until = now + FINAL_MS
+          // (Knockout: the most KOs in the match, for the world's record: only when every hole was replayed by the server)
+          room.koMatch = room.mode === 'knockout' && !room.koVbad ? room.players.filter((p) => p.acct && (room.koV || {})[p.id] > 0)
+            .map((p) => ({ world: room.world, u: p.acct.u, n: p.acct.n, ko: room.koV[p.id] })) : []
+        }
       }
     } else if (room.phase === 'final') {
       if (now >= room.until) { toLobby(room); clear = true }
@@ -365,17 +422,21 @@ export function view(room, live, fins, you, now) {
   const players = room.players.map((p) => {
     const l = live[p.id], cur = l && l.m === room.match
     const o = { id: p.id, name: p.name, color: p.color, here: isHere(room, live, p.id, now) }
+    if (p.acct) o.ac = 1                  // (signed in: can hold a Knockout record)
     if (l && l.n) o.n = l.n
     if (l && l.lk) o.lk = l.lk
     if (l && l.ex) o.ex = l.ex
     if (room.phase === 'vote' && cur) { o.vw = l.vw; o.vm = l.vm }
     // (Knockout: your own inputs too, so a game reloaded mid-hole can put them back and stay in the same world)
     if (racing && cur && l.h === room.hole) { o.k = l.k; o.f = l.f; if (p.id !== you || room.mode === 'knockout') o.in = l.in }
+    // (Knockout: once someone's inputs are sealed with their finish or give-up, those are what every game gets, during
+    // the hole and its board: exactly what the server replays, and never a later poll's that no longer carries them)
+    if (racing && room.mode === 'knockout' && fins[p.id] && typeof fins[p.id].in === 'string') o.in = fins[p.id].in
     if (racing && fins[p.id]) o.fin = fins[p.id].dnf ? { dnf: 1 } : { k: fins[p.id].k, f: fins[p.id].f }
     return o
   })
   return { ok: true, now, you, code: room.code, host: room.host, phase: room.phase, until: room.until, match: room.match,
     opts: room.opts, tally: room.tally, world: room.world, mode: room.mode, holes: room.holes, hole: room.hole,
-    startAt: room.startAt, capAt: room.capAt, racers: room.racers, players, seed: room.seed || 0,
+    startAt: room.startAt, capAt: room.capAt, racers: room.racers, players, seed: room.seed || 0, kov: room.kov || [],
     results: room.results, totals: room.totals, final: room.final }
 }
