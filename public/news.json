@@ -1,40 +1,21 @@
 {
-  "generated_at": "2026-11-14T11:39:08.993072+00:00",
+  "generated_at": "2026-11-14T21:32:03.500363+00:00",
   "headlines": [
     {
-      "id": "9646e9954391727d",
-      "title": "Stephen Curry Leaves Warriors' Loss To Rockets With Abdominal Injury",
-      "url": "https://basketball.realgm.com/wiretap/288105/Stephen-Curry-Leaves-Warriors-Loss-To-Rockets-With-Abdominal-Injury",
+      "id": "6275877851a2a466",
+      "title": "Austin Reaves Leaves Lakers' Win With Heel Injury, X-Rays Return Negative",
+      "url": "https://basketball.realgm.com/wiretap/288109/Austin-Reaves-Leaves-Lakers-Win-With-Heel-Injury-X-Rays-Return-Negative",
       "outlet": "RealGM",
-      "published": "2026-11-12T06:16:46+00:00",
-      "also_covered_by": [
-        "CBS Sports NBA",
-        "Yahoo Sports NBA",
-        "ESPN NBA"
-      ],
-      "wce_line": null,
-      "players": [
-        {
-          "name": "Stephen Curry",
-          "savant_url": "/basketball-savant.html?p=201939"
-        }
-      ]
-    },
-    {
-      "id": "9b57eb33ed6aa3ba",
-      "title": "Dejounte Murray, Pelicans Working On Trade",
-      "url": "https://basketball.realgm.com/wiretap/288129/Dejounte-Murray-Pelicans-Working-On-Trade",
-      "outlet": "RealGM",
-      "published": "2026-11-13T19:54:42+00:00",
+      "published": "2026-11-12T06:41:24+00:00",
       "also_covered_by": [
         "Yahoo Sports NBA",
         "ESPN NBA"
       ],
-      "wce_line": null,
+      "wce_line": "Reaves' initial return to the game after an awkward landing on a missed dunk attempt was short-lived before he left with a heel injury.",
       "players": [
         {
-          "name": "Dejounte Murray",
-          "savant_url": "/basketball-savant.html?p=1627749"
+          "name": "Austin Reaves",
+          "savant_url": "/basketball-savant.html?p=1630559"
         }
       ]
     },
@@ -48,7 +29,7 @@
         "CBS Sports NBA",
         "RealGM"
       ],
-      "wce_line": null,
+      "wce_line": "Smart's three-game suspension covers upcoming matchups against the Utah Jazz, Washington Wizards, and Miami Heat.",
       "players": [
         {
           "name": "Marcus Smart",
@@ -57,36 +38,36 @@
       ]
     },
     {
-      "id": "9970736cdd515460",
-      "title": "Lakers' Austin Reaves considered day-to-day with heel injury",
-      "url": "https://sports.yahoo.com/articles/lakers-austin-reaves-considered-day-213953199.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-13T21:39:53+00:00",
+      "id": "9b57eb33ed6aa3ba",
+      "title": "Dejounte Murray, Pelicans Working On Trade",
+      "url": "https://basketball.realgm.com/wiretap/288129/Dejounte-Murray-Pelicans-Working-On-Trade",
+      "outlet": "RealGM",
+      "published": "2026-11-13T19:54:42+00:00",
       "also_covered_by": [
         "ESPN NBA"
       ],
-      "wce_line": null,
+      "wce_line": "Dejounte Murray's trade from the Pelicans could impact the Western Conference standings, with the Pelicans currently at 4-8 this season.",
       "players": [
         {
-          "name": "Austin Reaves",
-          "savant_url": "/basketball-savant.html?p=1630559"
+          "name": "Dejounte Murray",
+          "savant_url": "/basketball-savant.html?p=1627749"
         }
       ]
     },
     {
-      "id": "6275877851a2a466",
-      "title": "Austin Reaves Leaves Lakers' Win With Heel Injury, X-Rays Return Negative",
-      "url": "https://basketball.realgm.com/wiretap/288109/Austin-Reaves-Leaves-Lakers-Win-With-Heel-Injury-X-Rays-Return-Negative",
+      "id": "7b22fb5b696b4fba",
+      "title": "Stephen Curry Out At Least Two Weeks With Oblique Abdominal Tear",
+      "url": "https://basketball.realgm.com/wiretap/288115/Stephen-Curry-Out-At-Least-Two-Weeks-With-Oblique-Abdominal-Tear",
       "outlet": "RealGM",
-      "published": "2026-11-12T06:41:24+00:00",
+      "published": "2026-11-12T17:09:12+00:00",
       "also_covered_by": [
-        "Yahoo Sports NBA"
+        "CBS Sports NBA"
       ],
-      "wce_line": "Reaves' injury occurred after he missed a dunk attempt in the third quarter and did not return to the game.",
+      "wce_line": "Curry's injury could impact the Warriors' already strong season, with the team performing above expectations despite his All-NBA play.",
       "players": [
         {
-          "name": "Austin Reaves",
-          "savant_url": "/basketball-savant.html?p=1630559"
+          "name": "Stephen Curry",
+          "savant_url": "/basketball-savant.html?p=201939"
         }
       ]
     },
@@ -99,13 +80,37 @@
       "also_covered_by": [
         "CBS Sports NBA"
       ],
-      "wce_line": "The Pelicans have allowed at least 138 points in three straight games, including a franchise-record 51-point loss to the Golden State Warriors.",
+      "wce_line": "The Pelicans have allowed at least 138 points in three straight games, struggling defensively while Zion Williamson calls recent performances 'unacceptable.'",
       "players": [
         {
           "name": "Zion Williamson",
           "savant_url": "/basketball-savant.html?p=1629627"
         }
       ]
+    },
+    {
+      "id": "369b86621a24089b",
+      "title": "Wemby, Spurs land early KO with 18-0 run, rout Warriors for 11th straight win",
+      "url": "https://www.espn.com/nba/story/_/id/50478136/victor-wembanyama-spurs-rout-warriors-11th-straight-win",
+      "outlet": "ESPN NBA",
+      "published": "2026-11-14T06:59:25+00:00",
+      "also_covered_by": [
+        "Yahoo Sports NBA"
+      ],
+      "wce_line": "Castle's hot shooting and Wembanyama's dominance led the Spurs to an overwhelming victory over the injured Golden State Warriors.",
+      "players": []
+    },
+    {
+      "id": "2165cdd6164b3459",
+      "title": "Warriors vs. Spurs injury report: Steph Curry’s absence begins",
+      "url": "https://sports.yahoo.com/articles/warriors-vs-spurs-injury-report-223116850.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-13T22:31:16+00:00",
+      "also_covered_by": [
+        "ESPN NBA"
+      ],
+      "wce_line": "The Warriors' quest for a win without Curry becomes even tougher as Brandon Williams joins the injury list.",
+      "players": []
     },
     {
       "id": "ff2fc27e8b875ff7",
@@ -116,7 +121,7 @@
       "also_covered_by": [
         "ESPN NBA"
       ],
-      "wce_line": "The Florida Gators have seamlessly integrated their starting lineup, playing five of the same players in every game so far this season.",
+      "wce_line": "The Florida Gators have seamlessly integrated their new rotation, playing eight players in each of their first three games under coach Todd Golden.",
       "players": []
     },
     {
@@ -132,13 +137,137 @@
       "players": []
     },
     {
+      "id": "35bc5278364758da",
+      "title": "Josh Hart Says He's 'Not In A Good Headspace' After Knicks' Loss To Pacers",
+      "url": "https://basketball.realgm.com/wiretap/288132/Josh-Hart-Says-Hes-Not-In-A-Good-Headspace-After-Knicks-Loss-To-Pacers",
+      "outlet": "RealGM",
+      "published": "2026-11-14T13:11:49+00:00",
+      "also_covered_by": [],
+      "wce_line": "Hart's shooting percentage is below the league average at 36 percent, contributing to the Knicks' close losses.",
+      "players": [
+        {
+          "name": "Josh Hart",
+          "savant_url": "/basketball-savant.html?p=1628404"
+        }
+      ]
+    },
+    {
+      "id": "747dfffb97154a2a",
+      "title": "Warriors vs. Spurs player grades: LJ Cryer shines, Yaxel Lendeborg struggles",
+      "url": "https://sports.yahoo.com/articles/warriors-vs-spurs-player-grades-070454677.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-14T07:04:54+00:00",
+      "also_covered_by": [],
+      "wce_line": "LJ Cryer performed above the league average with a Box Plus/Minute at 53rd percentile, while Yaxel Lendeborg struggled significantly, earning D- and D grades respectively.",
+      "players": [
+        {
+          "name": "LJ Cryer",
+          "savant_url": "/basketball-savant.html?p=1643018"
+        },
+        {
+          "name": "Yaxel Lendeborg",
+          "savant_url": "/basketball-savant.html?p=1642865"
+        }
+      ]
+    },
+    {
+      "id": "3b0e6fa5c11dbd2d",
+      "title": "Back in Philadelphia with Celtics, Paul George looks forward to ‘a regular game'",
+      "url": "https://sports.yahoo.com/articles/back-philadelphia-celtics-paul-george-111819903.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-14T07:00:00+00:00",
+      "also_covered_by": [],
+      "wce_line": "Paul George's return to Philadelphia feels like \"a regular game\" for the Celtics, who benefit from his 97th percentile points per 75 and 94th percentile usage%.",
+      "players": [
+        {
+          "name": "Paul George",
+          "savant_url": "/basketball-savant.html?p=202331"
+        }
+      ]
+    },
+    {
+      "id": "cfa21908b2d558c1",
+      "title": "Paul George flips the script — and the bird — in Philadelphia return",
+      "url": "https://sports.yahoo.com/articles/paul-george-flips-script-bird-023500511.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-14T07:00:00+00:00",
+      "also_covered_by": [],
+      "wce_line": "George's return showcased his elite scoring and shooting, contributing 36 points and making nine consecutive three-pointers in the fourth quarter.",
+      "players": [
+        {
+          "name": "Paul George",
+          "savant_url": "/basketball-savant.html?p=202331"
+        }
+      ]
+    },
+    {
+      "id": "3c306bcc47e0a5b9",
+      "title": "Warriors get demolished by Stephon Castle, Spurs",
+      "url": "https://sports.yahoo.com/articles/warriors-demolished-stephon-castle-spurs-051855296.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-14T05:18:55+00:00",
+      "also_covered_by": [],
+      "wce_line": "Stephon Castle's dominant performance, scoring above average for the season and using球团percentile, helped the Spurs to their best start in over a decade against the Warriors.",
+      "players": [
+        {
+          "name": "Stephon Castle",
+          "savant_url": "/basketball-savant.html?p=1642264"
+        }
+      ]
+    },
+    {
+      "id": "e07a6db0c448f53e",
+      "title": "Day’Ron Sharpe is making another leap in rare Nets bright spot",
+      "url": "https://sports.yahoo.com/articles/day-ron-sharpe-making-another-051800041.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-14T05:18:00+00:00",
+      "also_covered_by": [],
+      "wce_line": "Day'Ron Sharpe's assist percentage of 82nd percentile shows his increased playmaking as a full-time starter for the Nets.",
+      "players": [
+        {
+          "name": "Day'Ron Sharpe",
+          "savant_url": "/basketball-savant.html?p=1630549"
+        }
+      ]
+    },
+    {
+      "id": "3a1c7aae0b9f9892",
+      "title": "Mikal Bridges follows through in first game after promise to ‘be better’ for Knicks",
+      "url": "https://sports.yahoo.com/articles/mikal-bridges-follows-first-game-043114460.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-14T04:31:14+00:00",
+      "also_covered_by": [],
+      "wce_line": "Mikal Bridges improved his shooting, reaching a season-high 18 points on 9-of-12 shooting in the Knicks' loss to the Pacers.",
+      "players": [
+        {
+          "name": "Mikal Bridges",
+          "savant_url": "/basketball-savant.html?p=1628969"
+        }
+      ]
+    },
+    {
+      "id": "614e13441ec4b471",
+      "title": "Nets are learning the hard way that their offense can’t rely only on Julius Randle",
+      "url": "https://sports.yahoo.com/articles/nets-learning-hard-way-offense-040601096.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-14T04:06:01+00:00",
+      "also_covered_by": [],
+      "wce_line": "Brooklyn's Offensive Rating has improved from 104.8 to 113.4, showing better ball movement and player involvement beyond Julius Randle's iso plays.",
+      "players": [
+        {
+          "name": "Julius Randle",
+          "savant_url": "/basketball-savant.html?p=203944"
+        }
+      ]
+    },
+    {
       "id": "1b57db3a25674d4c",
       "title": "Giannis Antetokounmpo and Bam Adebayo dominate Cavaliers in 133-121 loss in Miami",
       "url": "https://sports.yahoo.com/articles/giannis-antetokounmpo-bam-adebayo-dominate-035535069.html",
       "outlet": "Yahoo Sports NBA",
       "published": "2026-11-14T03:55:35+00:00",
       "also_covered_by": [],
-      "wce_line": "Giannis Antetokounmpo and Bam Adebayo each scored 37 points, dominating inside play with 54 points in the paint against the Cavaliers.",
+      "wce_line": "Giannis Antetokounmpo and Bam Adebayo each scored 37 points, accounting for half of Miami's paint points.",
       "players": [
         {
           "name": "Giannis Antetokounmpo",
@@ -157,7 +286,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-11-14T02:00:00+00:00",
       "also_covered_by": [],
-      "wce_line": "Devin Booker's clutch shooting continues to dominate, with a scorching 66.7% field goal percentage in key moments this season.",
+      "wce_line": "Devin Booker's clutch scoring continues, with a 66.7% field goal and 50% three-point shooting in four recent appearances.",
       "players": [
         {
           "name": "Devin Booker",
@@ -172,7 +301,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-11-14T00:00:00+00:00",
       "also_covered_by": [],
-      "wce_line": null,
+      "wce_line": "Murray's historical reliance on mobility and quickness, compromised by an Achilles injury in February 2025, raises significant concerns for his future effectiveness.",
       "players": [
         {
           "name": "Jalen Green",
@@ -191,7 +320,7 @@
       "outlet": "Hoops Rumors",
       "published": "2026-11-13T23:58:00+00:00",
       "also_covered_by": [],
-      "wce_line": "Jalen Suggs, returning Friday, brings the Magic a 28th percentile Box Plus/Minus despite initial struggles.",
+      "wce_line": "Jalen Suggs, returning from a right knee bone bruise, brings an improved defensive presence at the 28th percentile in Box Plus/Minus to Orlando's lineup.",
       "players": [
         {
           "name": "Jalen Suggs",
@@ -206,7 +335,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-11-13T23:55:02+00:00",
       "also_covered_by": [],
-      "wce_line": "Luka Doncic and Austin Reaves' statuses for the upcoming game against the Suns are day-to-day, with both expected to play based on recent developments.",
+      "wce_line": "Luka Doncic and Austin Reaves' statuses for the upcoming game against the Suns are day-to-day, with both expected to play despite recent injuries.",
       "players": [
         {
           "name": "Luka Doncic",
@@ -225,7 +354,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-11-13T23:07:14+00:00",
       "also_covered_by": [],
-      "wce_line": "Dejounte Murray's trade request comes as he ranks below the league average in points, assists, and rebounds this season.",
+      "wce_line": "Dejounte Murray's trade request comes as he ranks below the league average in points, usage, assists, rebounds, and box plus/minus this season.",
       "players": [
         {
           "name": "Dejounte Murray",
@@ -240,7 +369,7 @@
       "outlet": "Hoops Rumors",
       "published": "2026-11-13T20:05:30+00:00",
       "also_covered_by": [],
-      "wce_line": "Dejounte Murray's trade request reflects his desire for a more significant role, despite performing at above-average assist and box plus/minus percentages this season.",
+      "wce_line": "Murray's trade request reflects his desire for a more significant role, as he aims to play a meaningful key role on his new team.",
       "players": [
         {
           "name": "Dejounte Murray",
@@ -255,7 +384,7 @@
       "outlet": "CBS Sports NBA",
       "published": "2026-11-13T22:39:42+00:00",
       "also_covered_by": [],
-      "wce_line": "Phoenix Suns, with their struggling point guard position and recent poor performance, could be a potential destination for Dejounte Murray.",
+      "wce_line": "The Suns' struggles with Jalen Green and their need for a point guard make them one of three potential destinations for Dejounte Murray.",
       "players": [
         {
           "name": "Dejounte Murray",
@@ -270,11 +399,45 @@
       "outlet": "CBS Sports NBA",
       "published": "2026-11-13T22:38:10+00:00",
       "also_covered_by": [],
-      "wce_line": "Murray's box plus/minus ranks 39th percentile, indicating below-average contributions to his team this season.",
+      "wce_line": "Murray's trade request follows his lowest scoring season since his third year in the league, averaging just 13.4 points.",
       "players": [
         {
           "name": "Dejounte Murray",
           "savant_url": "/basketball-savant.html?p=1627749"
+        }
+      ]
+    },
+    {
+      "id": "d3d9bca8d99cd31f",
+      "title": "Victor Wembanyama gives blunt three-word response to Draymond Green's shove",
+      "url": "https://sports.yahoo.com/articles/victor-wembanyama-gives-blunt-three-221544926.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-13T22:15:44+00:00",
+      "also_covered_by": [],
+      "wce_line": "Wembanyama's response highlighted Green's history of physical play in the NBA.",
+      "players": [
+        {
+          "name": "Victor Wembanyama",
+          "savant_url": "/basketball-savant.html?p=1641705"
+        },
+        {
+          "name": "Draymond Green",
+          "savant_url": "/basketball-savant.html?p=203110"
+        }
+      ]
+    },
+    {
+      "id": "416da7b8257d7257",
+      "title": "What we learned as Darius Acuff Jr. cools off in Kings' loss to Trail Blazers",
+      "url": "https://sports.yahoo.com/articles/learned-darius-acuff-jr-cools-220449351.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-13T22:04:49+00:00",
+      "also_covered_by": [],
+      "wce_line": "Darius Acuff Jr.'s 3-pointer cut the lead to nine, but his true shooting percentage remains at a low 9th percentile this season.",
+      "players": [
+        {
+          "name": "Darius Acuff Jr.",
+          "savant_url": "/basketball-savant.html?p=1643411"
         }
       ]
     },
@@ -298,190 +461,17 @@
       ]
     },
     {
-      "id": "12c3295fa8efb84e",
-      "title": "Lakers provide Austin Reaves injury update. Will star guard miss games?",
-      "url": "https://sports.yahoo.com/articles/lakers-austin-reaves-injury-star-215653201.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-13T21:56:53+00:00",
-      "also_covered_by": [],
-      "wce_line": "Reaves, averaging 24.7 points and shooting 51.3% from the field, will be day-to-day after a bruised heel injury.",
-      "players": [
-        {
-          "name": "Austin Reaves",
-          "savant_url": "/basketball-savant.html?p=1630559"
-        }
-      ]
-    },
-    {
-      "id": "700e10e667f6dc16",
-      "title": "Dejounte Murray’s trade request creates an opportunity for the Suns",
-      "url": "https://sports.yahoo.com/articles/dejounte-murray-trade-request-creates-205042203.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-13T20:50:42+00:00",
-      "also_covered_by": [],
-      "wce_line": "Dejounte Murray's trade request aligns with the Suns' need for a boost, as his current value is lower than expected across multiple metrics.",
-      "players": [
-        {
-          "name": "Dejounte Murray",
-          "savant_url": "/basketball-savant.html?p=1627749"
-        }
-      ]
-    },
-    {
-      "id": "e51077f31895385e",
-      "title": "James Harden is foundational to the Cavs’ success",
-      "url": "https://sports.yahoo.com/articles/james-harden-foundational-cavs-success-201126513.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-13T20:11:26+00:00",
-      "also_covered_by": [],
-      "wce_line": null,
-      "players": [
-        {
-          "name": "James Harden",
-          "savant_url": "/basketball-savant.html?p=201935"
-        }
-      ]
-    },
-    {
-      "id": "f82736b88a40a0ae",
-      "title": "Pelicans evaluating possibilities after trade request from Dejounte Murray, who recently rebutted criticism on social media",
-      "url": "https://sports.yahoo.com/nba/breaking-news/article/pelicans-evaluating-possibilities-after-trade-request-from-dejounte-murray-who-recently-rebutted-criticism-on-social-media-224025724.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-13T20:01:03+00:00",
-      "also_covered_by": [],
-      "wce_line": "The New Orleans Pelicans are exploring trade options for Dejounte Murray, who is currently at 39th percentile in Box Plus/Minute this season.",
-      "players": [
-        {
-          "name": "Dejounte Murray",
-          "savant_url": "/basketball-savant.html?p=1627749"
-        }
-      ]
-    },
-    {
-      "id": "01cca703ead92a7e",
-      "title": "Draymond Green shoves Victor Wembanyama, earns Flagrant 1 in Warriors-Spurs game",
-      "url": "https://sports.yahoo.com/articles/draymond-green-shoves-victor-wembanyama-195933806.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-13T19:59:33+00:00",
-      "also_covered_by": [],
-      "wce_line": "Draymond Green's Flagrant 1 foul against Victor Wembanyama is his 21st in NBA career, including playoffs.",
-      "players": [
-        {
-          "name": "Draymond Green",
-          "savant_url": "/basketball-savant.html?p=203110"
-        },
-        {
-          "name": "Victor Wembanyama",
-          "savant_url": "/basketball-savant.html?p=1641705"
-        }
-      ]
-    },
-    {
       "id": "00de7b24e7a8f3b2",
       "title": "Rival Executives Monitoring Anthony Black's Potential Availability",
       "url": "https://basketball.realgm.com/wiretap/288128/Rival-Executives-Monitoring-Anthony-Blacks-Potential-Availability",
       "outlet": "RealGM",
       "published": "2026-11-13T19:46:26+00:00",
       "also_covered_by": [],
-      "wce_line": "Rival executives are closely observing Anthony Black's performance, which includes league percentiles of 71st in points and 86th in assists, as his potential availability could impact Orlando's roster decisions.",
+      "wce_line": "Rival executives are closely watching Anthony Black's performance, which includes league percentiles of 71st in points per 75 possessions and 87th in assist percentage.",
       "players": [
         {
           "name": "Anthony Black",
           "savant_url": "/basketball-savant.html?p=1641710"
-        }
-      ]
-    },
-    {
-      "id": "c012bb1050c21ace",
-      "title": "LaMelo Ball sure looks like the difference: Timberwolves and Hornets trending in opposite directions after trade",
-      "url": "https://sports.yahoo.com/nba/article/lamelo-ball-sure-looks-like-the-difference-timberwolves-and-hornets-trending-in-opposite-directions-after-trade-193822007.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-13T19:38:22+00:00",
-      "also_covered_by": [],
-      "wce_line": "LaMelo Ball's high usage and assists, at 93rd and 91st percentiles respectively, contribute significantly to the Timberwolves' success.",
-      "players": [
-        {
-          "name": "LaMelo Ball",
-          "savant_url": "/basketball-savant.html?p=1630163"
-        }
-      ]
-    },
-    {
-      "id": "d9a61d1ca2732d68",
-      "title": "Kyrie Irving Tops Rival Teams' Trade Lists As Mavericks Signal No Interest",
-      "url": "https://basketball.realgm.com/wiretap/288127/Kyrie-Irving-Tops-Rival-Teams-Trade-Lists-As-Mavericks-Signal-No-Interest",
-      "outlet": "RealGM",
-      "published": "2026-11-13T19:32:03+00:00",
-      "also_covered_by": [],
-      "wce_line": "Kyrie Irving ranks in the 94th percentile for points per 75 possessions this season.",
-      "players": [
-        {
-          "name": "Kyrie Irving",
-          "savant_url": "/basketball-savant.html?p=202681"
-        }
-      ]
-    },
-    {
-      "id": "7f0fef5d66f0da1e",
-      "title": "Josh Hart knows how sluggish Knicks can speed up their slow start",
-      "url": "https://sports.yahoo.com/articles/josh-hart-knows-sluggish-knicks-192227126.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-13T19:22:27+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Knicks' slow pace negatively impacts players like Josh Hart, Mikal Bridges, and OG Anunoby's performance, with Hart citing issues sealing at the rim due to fewer breakaways.",
-      "players": [
-        {
-          "name": "Josh Hart",
-          "savant_url": "/basketball-savant.html?p=1628404"
-        }
-      ]
-    },
-    {
-      "id": "4e3925ec7a15d6ad",
-      "title": "Suns Believed To Be Open To Trading Jalen Green For Point Guard",
-      "url": "https://basketball.realgm.com/wiretap/288126/Suns-Believed-To-Be-Open-To-Trading-Jalen-Green-For-Point-Guard",
-      "outlet": "RealGM",
-      "published": "2026-11-13T19:07:42+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Suns aim to trade Jalen Green for a point guard despite his significant scoring ability, reflecting their strategic depth needs and the limitations in his assist and rebounding roles.",
-      "players": [
-        {
-          "name": "Jalen Green",
-          "savant_url": "/basketball-savant.html?p=1630224"
-        }
-      ]
-    },
-    {
-      "id": "3334ed14b5d47546",
-      "title": "Grading the Mavericks: Cooper Flagg is awesome, and he is only going to get better",
-      "url": "https://sports.yahoo.com/articles/grading-mavericks-cooper-flagg-awesome-190511123.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-13T19:05:11+00:00",
-      "also_covered_by": [],
-      "wce_line": "Cooper Flagg's recent performances have him in the 94th percentile for points and assists, showcasing his impact on the Mavericks' offense.",
-      "players": [
-        {
-          "name": "Cooper Flagg",
-          "savant_url": "/basketball-savant.html?p=1642843"
-        }
-      ]
-    },
-    {
-      "id": "ae9b34db771d1040",
-      "title": "How can Warriors survive Stephen Curry's absence? Yaxel Lendeborg has to step up, but that's not all",
-      "url": "https://www.cbssports.com/nba/news/warriors-survive-stephen-curry-absence-yaxel-lendeborg/",
-      "outlet": "CBS Sports NBA",
-      "published": "2026-11-13T18:39:01+00:00",
-      "also_covered_by": [],
-      "wce_line": "Yaxel Lendeborg must maintain his All-Star level play, posting at least 25 points and 10 rebounds per game to fill the void left by Curry's absence.",
-      "players": [
-        {
-          "name": "Stephen Curry",
-          "savant_url": "/basketball-savant.html?p=201939"
-        },
-        {
-          "name": "Yaxel Lendeborg",
-          "savant_url": "/basketball-savant.html?p=1642865"
         }
       ]
     }
@@ -496,7 +486,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article explores seven key stats beyond points per game, such as true shooting percentage and usage rate, to provide deeper insights into player performance and impact.",
+      "wce_line": "The article examines seven NBA player stats including true shooting percentage, usage rate, and effective field goal percentage to provide deeper insights into player performance beyond just points per game.",
       "source_type": "article"
     },
     {
@@ -508,7 +498,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Five players are shouldering more of the load for Oklahoma City Thunder than initially anticipated due to significant injuries.",
+      "wce_line": "The Thunder's rotation players are stepping up despite multiple key injuries and shifting playoff odds.",
       "source_type": "article"
     },
     {
@@ -520,7 +510,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "This article requires membership in Ben Taylor's $1+ Patreon for access.",
+      "wce_line": "This article is behind a Patreon paywall for members who support Ben Taylor.",
       "source_type": "article"
     },
     {
@@ -532,7 +522,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes Luka Doncic's ball-handling skills and their impact on defenders.",
+      "wce_line": "The article analyzes Luka Doncic's ball handling and dribbling skills, showing how he creates scoring opportunities for teammates.",
       "source_type": "article"
     },
     {
@@ -544,7 +534,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses the development of a new stats application for basketball analysis.",
+      "wce_line": "This article tests user engagement with a new TB stats app but requires patrons to support via Patreon.",
       "source_type": "article"
     },
     {
@@ -556,7 +546,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Scoring efficiency and defensive dominance are key factors shaping MVP discussions for Victor Wembanyama and Shai Gilgeous-Alexander.",
+      "wce_line": "Scoring efficiency and defensive impact shape MVP discussions, with Victor Wembanyama's two-way dominance and Shai Gilgeous-Alexander's high-field-goal percentage key factors.",
       "source_type": "article"
     },
     {
@@ -568,7 +558,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The study analyzed 1,230 games and found that only three teams won after trailing by at least 20 points at halftime during the 2025–26 regular season.",
+      "wce_line": null,
       "source_type": "article"
     },
     {
@@ -592,7 +582,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article shows how analysts can turn subjective gut feelings into quantifiable probabilities using team efficiency ratings and comparing them to prediction market contract prices.",
+      "wce_line": "The article shows that turning gut feelings into probabilities allows analysts to compare team strength using pace-adjusted efficiency metrics like net rating, then validate those predictions against real-world betting markets.",
       "source_type": "article"
     },
     {
@@ -604,7 +594,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article discusses how in 2018, 2K stopped selling packs for premium currency in Belgium due to gambling regulations, while keeping point purchases available.",
+      "wce_line": "The article explains how 2K restricted paid MyTEAM packs in Belgium and shut down the Auction House there, while leaving it open for Dutch players but removing real-money access.",
       "source_type": "article"
     },
     {
@@ -616,7 +606,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article analyzes rest days patterns like 4IN5-B2B and 3IN4-B2B to understand their impact on team performance metrics.",
+      "wce_line": "The study found that teams with at least one day of rest between games showed improved Adjusted Efficiency Differential.",
       "source_type": "article"
     },
     {
@@ -628,7 +618,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article provides an Excel spreadsheet with up-to-date NBA stats and odds, updating within 2 to 4 hours after each game.",
+      "wce_line": "The article provides an Excel spreadsheet for accessing up-to-date NBA season stats and rankings, updating within 2 to 4 hours post-game.",
       "source_type": "article"
     },
     {
@@ -640,7 +630,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article provides detailed Excel-based game-by-game NBA referee stats, updating them every 2 to 4 hours post-game.",
+      "wce_line": "The study analyzed game-by-game referee stats for the 2026-2027 NBA season, providing detailed foul data and performance metrics.",
       "source_type": "article"
     },
     {
@@ -652,7 +642,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses Philadelphia's new strategy but requires membership to read full details.",
+      "wce_line": "The article discusses Philadelphia's new basketball strategy but requires membership to read further details.",
       "source_type": "article"
     },
     {
@@ -664,7 +654,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how LaMelo Ball's presence impacts both on and off the court for the Minnesota Timberwolves.",
+      "wce_line": "The article analyzes how LaMelo Ball's presence impacts both on and off the court for the Minnesota Wolves.",
       "source_type": "article"
     },
     {
@@ -676,8 +666,76 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how Boston's defensive strategy impacts their performance.",
+      "wce_line": "The article examines how Boston's defensive strategy impacts team performance.",
       "source_type": "article"
+    },
+    {
+      "id": "8c2de0ad79ef639a",
+      "title": "Concave Processes for Multi-Task Career Trajectories: Evaluating Aging Across Multiple Measures of NBA Performance",
+      "url": "https://arxiv.org/abs/2609.33752v2",
+      "outlet": "arXiv",
+      "published": "2026-09-27T16:51:59+00:00",
+      "authors": [
+        "Abhijit Brahme",
+        "Alexander Franks"
+      ],
+      "wce_line": "The study found that athleticism-related metrics like blocks and rebounds peak earlier than skill-based shooting metrics for NBA players.",
+      "source_type": "paper"
+    },
+    {
+      "id": "758e3c268eff904c",
+      "title": "From Metrics to Decisions in NBA Analytics: A Critical Integrative Review and Decision-Readiness Framework",
+      "url": "https://arxiv.org/abs/2609.27245v1",
+      "outlet": "arXiv",
+      "published": "2026-09-23T02:30:07+00:00",
+      "authors": [
+        "Yang Zhou",
+        "Tianyu Guan"
+      ],
+      "wce_line": "The review identifies gaps in NBA analytics, particularly at interfaces combining individual component predictions into actionable decisions across different contexts.",
+      "source_type": "paper"
+    },
+    {
+      "id": "646031f65baf40a5",
+      "title": "Dummy RAPM: Representing Low-Minute Players in Regularized Adjusted Plus-Minus",
+      "url": "https://arxiv.org/abs/2608.19454v2",
+      "outlet": "arXiv",
+      "published": "2026-08-19T21:14:45+00:00",
+      "authors": [
+        "Kenny Watts",
+        "Jonathan Pipping-Gamón",
+        "Abraham J. Wyner"
+      ],
+      "wce_line": "Dummy RAPM improves game-margin RMSE by an average of 0.042 points across 16 NBA seasons.",
+      "source_type": "paper"
+    },
+    {
+      "id": "7da56bb094dce610",
+      "title": "Longitudinal Bayesian networks for assessing team performance in the National Basketball Association",
+      "url": "https://arxiv.org/abs/2608.09824v1",
+      "outlet": "arXiv",
+      "published": "2026-08-10T16:40:39+00:00",
+      "authors": [
+        "Gabriel Calvo",
+        "Francisco Palmí-Perales",
+        "Carmen Armero",
+        "Virgilio Gómez-Rubio"
+      ],
+      "wce_line": "The study uses Bayesian networks to analyze the performance of the Philadelphia 76ers over the 2005-06 NBA season, considering factors like player participation and shooting statistics.",
+      "source_type": "paper"
+    },
+    {
+      "id": "222cd8340a00db72",
+      "title": "Efficient Frontier Optimization of NBA Shot Selection Using Markov Reward Processes",
+      "url": "https://arxiv.org/abs/2607.02933v1",
+      "outlet": "arXiv",
+      "published": "2026-07-03T04:00:33+00:00",
+      "authors": [
+        "Nirek Duma",
+        "Leo Benaharon"
+      ],
+      "wce_line": "The study found that increasing rim attempts while decreasing midrange and perimeter shots could improve overall team performance according to a dynamic model.",
+      "source_type": "paper"
     },
     {
       "id": "4a2ffd2d37f2f897",
@@ -688,7 +746,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how the Spurs exploited the Knicks' defensive weaknesses.",
+      "wce_line": "The article analyzes how the Spurs exploited weaknesses in the Knicks' defensive strategy.",
       "source_type": "article"
     },
     {
@@ -700,7 +758,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how New York's defensive strategy has improved KAT's performance.",
+      "wce_line": "The article analyzes how New York's defensive strategies have improved Karl-Anthony Towns' performance.",
       "source_type": "article"
     },
     {
@@ -724,8 +782,33 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes Oklahoma City's strategy to counter Wemby's strengths.",
+      "wce_line": "The article analyzes Oklahoma City's strategic approach to defend against a specific player named Wemby.",
       "source_type": "article"
+    },
+    {
+      "id": "d39f89b6d7110f43",
+      "title": "Possession-Level Player Impact in the Pre-Play-by-Play NBA Era: A Video-Reconstructed RAPM Database, 1984--1996",
+      "url": "https://arxiv.org/abs/2605.24056v1",
+      "outlet": "arXiv",
+      "published": "2026-05-22T01:08:28+00:00",
+      "authors": [
+        "Justin Jacobs"
+      ],
+      "wce_line": null,
+      "source_type": "paper"
+    },
+    {
+      "id": "6c5e73591df6d3f2",
+      "title": "Quantifying Officiating Impact in the NBA: A Referee Impact Metric Analysis Using ESPN Win-Probability Data",
+      "url": "https://arxiv.org/abs/2605.17845v1",
+      "outlet": "arXiv",
+      "published": "2026-05-18T04:36:56+00:00",
+      "authors": [
+        "Nirek Duma",
+        "Leo Benaharon"
+      ],
+      "wce_line": "The study introduces RIM, a metric that quantifies officiating impact by aggregating win-probability changes from foul events in NBA games.",
+      "source_type": "paper"
     }
   ]
 }
