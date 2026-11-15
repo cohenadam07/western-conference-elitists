@@ -17,10 +17,25 @@ TAG=dataroom
 REPO="${GITHUB_REPOSITORY:-cohenadam07/western-conference-elitists}"
 OUT=$(mktemp -d)
 MAN=public/dataroom/parquet.json.gz
-trap 'rm -rf "$OUT"' EXIT
+# Run on its own (college basketball's cloud_run.sh), it checks in as dataroom-<sport> itself; under
+# publish.sh (DATAROOM_PARENT set) its warnings go into publish.sh's one check-in instead.
+. pipeline/dataroom/report.sh
+WARN=(); UP=0
+warn() { echo "::warning::$*"; WARN+=("$*"); }
+finish() {
+  if [ ${#WARN[@]} -gt 0 ]; then
+    m="${#WARN[@]} problem$([ ${#WARN[@]} = 1 ] || echo s): $(printf '%s; ' "${WARN[@]}")"
+    dr_report "$SPORT" failure "${m%; }"
+  else
+    dr_report "$SPORT" success "$([ $UP = 0 ] && echo "Nothing new to upload; the $SPORT Parquet copies are current" || echo "Uploaded $UP Parquet cop$([ $UP = 1 ] && echo y || echo ies)${ONLY:+ for $ONLY}")"
+  fi
+  rm -rf "$OUT"
+}
+trap finish EXIT
+dr_token_ok || { warn "Parquet: $DR_NO_TOKEN"; exit 0; }
 
 { [ -d node_modules/@duckdb/node-api ] && [ -d node_modules/zod ]; } || npm ci --no-audit --no-fund >/dev/null 2>&1 \
-  || { echo "::warning::Parquet: could not install DuckDB; the $SPORT copies were not refreshed"; exit 0; }
+  || { warn "Parquet: could not install DuckDB; the $SPORT copies were not refreshed"; exit 0; }
 cp "$MAN" "$OUT/manifest.before" 2>/dev/null || true
 
 # table and season pairs: every table of the sport, at the season given (or its newest)
@@ -43,18 +58,18 @@ while read -r t s; do
   [ -n "$t" ] || continue
   before=$(node --input-type=module -e "import { readManifest } from './pipeline/dataroom/parquet.mjs'; const e = readManifest().tables['$SPORT.$t']; console.log((e && e.seasons['$s'] && e.seasons['$s'].file_sha256) || '')" 2>/dev/null)
   if ! node pipeline/dataroom/parquet.mjs "$SPORT" "$t" "$s" --out "$OUT" >/dev/null 2>"$OUT/err"; then
-    echo "::warning::Parquet: $SPORT $t $s was not rewritten: $(grep -v '^\[savant\]' "$OUT/err" | tail -1 | cut -c1-300)"; continue
+    warn "Parquet: $SPORT $t $s was not rewritten: $(grep -v '^\[savant\]' "$OUT/err" | tail -1 | cut -c1-300)"; continue
   fi
   f="$OUT/$SPORT-$t-$s.parquet"
   after=$(node --input-type=module -e "import { readManifest } from './pipeline/dataroom/parquet.mjs'; console.log(readManifest().tables['$SPORT.$t'].seasons['$s'].file_sha256 || '')" 2>/dev/null)
   if [ -n "$before" ] && [ "$before" = "$after" ]; then continue; fi
   for try in 1 2 3; do
-    if gh release upload "$TAG" "$f" -R "$REPO" --clobber >/dev/null 2>&1; then echo "Parquet: uploaded $(basename "$f") ($(wc -c <"$f" | tr -d ' ') bytes)"; break; fi
-    [ $try = 3 ] && { echo "::warning::Parquet: upload of $(basename "$f") failed"; ok=0; }
+    if gh release upload "$TAG" "$f" -R "$REPO" --clobber >/dev/null 2>&1; then echo "Parquet: uploaded $(basename "$f") ($(wc -c <"$f" | tr -d ' ') bytes)"; UP=$((UP+1)); break; fi
+    [ $try = 3 ] && { warn "Parquet: upload of $(basename "$f") failed"; ok=0; }
     sleep 5
   done
 done <<< "$PAIRS"
 if [ $ok = 0 ] && [ -f "$OUT/manifest.before" ]; then
-  cp "$OUT/manifest.before" "$MAN"; echo "::warning::Parquet: the manifest was put back (an upload failed)"
+  cp "$OUT/manifest.before" "$MAN"; warn "Parquet: the manifest was put back (an upload failed)"
 fi
 exit 0

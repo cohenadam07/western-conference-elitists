@@ -95,47 +95,62 @@ const SRC_X = 24, SRC_W = 150, ENG_X = 268, ENG_W = 208, SITE_X = 560, SITE_W = 
 export const SOURCES = [
     node('src-nba', SRC_X, 82, SRC_W, 32, 'stats.nba.com'),
     node('src-feeds', SRC_X, 138, SRC_W, 32, 'News feeds'),
-    node('src-espn', SRC_X, 300, SRC_W, 32, 'ESPN'),
-    node('src-nflverse', SRC_X, 352, SRC_W, 32, 'nflverse'),
-    node('src-sleeper', SRC_X, 414, SRC_W, 32, 'Sleeper'),
-    node('src-ufc', SRC_X, 470, SRC_W, 32, 'UFCStats'),
+    node('src-espn', SRC_X, 374, SRC_W, 32, 'ESPN'),
+    node('src-nflverse', SRC_X, 486, SRC_W, 32, 'nflverse'),
+    node('src-sleeper', SRC_X, 542, SRC_W, 32, 'Sleeper'),
+    node('src-ufc', SRC_X, 598, SRC_W, 32, 'UFCStats'),
 ];
 // The engines: one node per job that moves data. `from` names its sources.
 export const ENGINES = [
     { ...node('basketball-tracking', ENG_X, 82, ENG_W, 46, 'NBA tracking upload'), from: ['src-nba'], pushes: false },
     { ...node('news', ENG_X, 138, ENG_W, 46, 'News feed'), from: ['src-feeds'], pushes: true },
-    { ...node('basketball-savant', ENG_X, 232, ENG_W, 46, 'Basketball Savant'), from: ['src-espn'], pushes: true },
-    { ...node('basketball-history', ENG_X, 288, ENG_W, 46, 'History additions'), from: [], pushes: true },
-    { ...node('football-savant', ENG_X, 352, ENG_W, 46, 'Football Savant'), from: ['src-nflverse'], pushes: true },
-    { ...node('football-injuries', ENG_X, 408, ENG_W, 46, 'Football injuries'), from: ['src-espn', 'src-sleeper'], pushes: true },
-    { ...node('ufc-savant', ENG_X, 464, ENG_W, 46, 'UFC Savant'), from: ['src-ufc'], pushes: true },
-    { ...node('weekly-snapshot', ENG_X, 520, ENG_W, 46, 'Weekly snapshot'), from: [], pushes: true },
+    { ...node('basketball-savant', ENG_X, 262, ENG_W, 46, 'Basketball Savant'), from: ['src-espn'], pushes: true },
+    { ...node('basketball-history', ENG_X, 318, ENG_W, 46, 'History additions'), from: [], pushes: true },
+    { ...node('college-savant', ENG_X, 374, ENG_W, 46, 'College Basketball Savant'), from: ['src-espn'], pushes: true },
+    { ...node('college-football-savant', ENG_X, 430, ENG_W, 46, 'College Football Savant'), from: ['src-espn'], pushes: true },
+    { ...node('football-savant', ENG_X, 486, ENG_W, 46, 'Football Savant'), from: ['src-nflverse'], pushes: true },
+    { ...node('football-injuries', ENG_X, 542, ENG_W, 46, 'Football injuries'), from: ['src-espn', 'src-sleeper'], pushes: true },
+    { ...node('ufc-savant', ENG_X, 598, ENG_W, 46, 'UFC Savant'), from: ['src-ufc'], pushes: true },
+    { ...node('weekly-snapshot', ENG_X, 654, ENG_W, 46, 'Weekly snapshot'), from: [], pushes: true },
 ];
-// Small watchers along the bottom of the GitHub group: they check, they don't publish.
-export const WATCHERS = [
-    node('basketball-freshness', ENG_X, 574, 100, 22, 'Freshness'),
-    node('connector-coverage', ENG_X + 108, 574, 100, 22, 'Coverage'),
-    node('football-rebuild', ENG_X, 602, 100, 22, 'Rebuild'),
-    node('site-watch', ENG_X + 108, 602, 100, 22, 'Site watch'),
+// The Mac's quiet jobs: private raw archives, nothing they do reaches the site (except the college
+// basketball pull's rescue push when the cloud is blocked from ESPN).
+export const MAC_CHIPS = [
+    node('cbb-mac-pull', ENG_X, 186, 100, 22, 'CBB pull'),
+    node('cfb-mac-archive', ENG_X + 108, 186, 100, 22, 'CFB archive'),
 ];
+// Checks and alarms: every job that watches rather than publishes, in one band across the bottom,
+// a column per sport. A green refresh with a red check under it is the case this band exists for.
+const CHECK_Y = 716, CHECK_X = 40, CHECK_COL = 153, CHECK_W = 145, CHECK_H = 24;
+export const CHECK_COLUMNS = [
+    { head: 'NBA', chips: [['basketball-freshness', 'Freshness alarm'], ['connector-freshness-nba', 'Connector tables'], ['dataroom-nba', 'Data Room upload']] },
+    { head: 'COLLEGE HOOPS', chips: [['college-savant-freshness', 'Freshness alarm'], ['connector-freshness-cbb', 'Connector tables'], ['dataroom-cbb', 'Data Room upload']] },
+    { head: 'NFL', chips: [['football-rebuild', 'Full rebuild'], ['connector-freshness-nfl', 'Connector tables'], ['dataroom-nfl', 'Data Room upload']] },
+    { head: 'COLLEGE FOOTBALL', chips: [['college-football-savant-freshness', 'Freshness alarm'], ['connector-freshness-cfb', 'Connector tables'], ['dataroom-cfb', 'Data Room upload']] },
+    { head: 'UFC', chips: [['connector-freshness-ufc', 'Connector tables'], ['dataroom-ufc', 'Data Room upload']] },
+    { head: 'SITE', chips: [['site-watch', 'Site watch'], ['deploy-batch', 'Deploy batch'], ['connector-coverage', 'Coverage test']] },
+];
+export const WATCHERS = CHECK_COLUMNS.flatMap((c, i) => c.chips.map(([id, label], r) => node(id, CHECK_X + i * CHECK_COL, CHECK_Y + 46 + r * 30, CHECK_W, CHECK_H, label)));
+// Every job id that has a light on the map (page.ts uses it to decide which events flash).
+export const MAP_JOB_IDS = [...ENGINES.map((e) => e.id), ...MAC_CHIPS.map((b) => b.id), ...WATCHERS.map((b) => b.id)];
 export const SITE = [
-    node('deploy', SITE_X, 300, SITE_W, 56, 'Vercel deploy'),
-    node('site', SITE_X, 420, SITE_W, 56, 'wcehoops.com'),
-    node('store', SITE_X, 540, SITE_W, 44, 'Data store'),
+    node('deploy', SITE_X, 360, SITE_W, 56, 'Vercel deploy'),
+    node('site', SITE_X, 480, SITE_W, 56, 'wcehoops.com'),
+    node('store', SITE_X, 600, SITE_W, 44, 'Data store'),
 ];
 export const REACH = [
-    { ...node('visitors', REACH_X, 150, REACH_W, 46, 'Visitors'), from: 'site', live: true },
-    { ...node('connector', REACH_X, 210, REACH_W, 46, 'AI connector'), from: 'site', live: true },
-    { ...node('founding', REACH_X, 270, REACH_W, 46, 'Founding members'), from: 'store', live: true },
-    { ...node('newsletter', REACH_X, 330, REACH_W, 46, 'Newsletter'), from: 'site', live: true },
-    { ...node('dynasty', REACH_X, 390, REACH_W, 46, 'Dynasty ballots'), from: 'store', live: true },
-    { ...node('youtube', REACH_X, 466, REACH_W, 40, 'YouTube'), from: 'site', live: false },
-    { ...node('social', REACH_X, 516, REACH_W, 40, 'X · Bluesky'), from: 'site', live: false },
-    { ...node('google', REACH_X, 566, REACH_W, 40, 'Google search'), from: 'site', live: false },
+    { ...node('visitors', REACH_X, 190, REACH_W, 46, 'Visitors'), from: 'site', live: true },
+    { ...node('connector', REACH_X, 250, REACH_W, 46, 'AI connector'), from: 'site', live: true },
+    { ...node('founding', REACH_X, 310, REACH_W, 46, 'Founding members'), from: 'store', live: true },
+    { ...node('newsletter', REACH_X, 370, REACH_W, 46, 'Newsletter'), from: 'site', live: true },
+    { ...node('dynasty', REACH_X, 430, REACH_W, 46, 'Dynasty ballots'), from: 'store', live: true },
+    { ...node('youtube', REACH_X, 506, REACH_W, 40, 'YouTube'), from: 'site', live: false },
+    { ...node('social', REACH_X, 556, REACH_W, 40, 'X · Bluesky'), from: 'site', live: false },
+    { ...node('google', REACH_X, 606, REACH_W, 40, 'Google search'), from: 'site', live: false },
 ];
 export const MAP_W = 1000;
-export const MAP_H = 700;
-const all = () => [...SOURCES, ...ENGINES, ...WATCHERS, ...SITE, ...REACH];
+export const MAP_H = 920;
+const all = () => [...SOURCES, ...ENGINES, ...MAC_CHIPS, ...WATCHERS, ...SITE, ...REACH];
 const byId = (id) => all().find((b) => b.id === id);
 const right = (b) => ({ x: b.x + b.w, y: b.y + b.h / 2 });
 const left = (b) => ({ x: b.x, y: b.y + b.h / 2 });
@@ -150,6 +165,12 @@ function trackingWire() {
     const a = byId('basketball-tracking'), b = byId('basketball-savant');
     const x = ENG_X - 8;
     return `M${a.x},${a.y + a.h / 2 + 8} C${x},${a.y + a.h / 2 + 8} ${x},${a.y + a.h / 2 + 8} ${x},${a.y + a.h + 10} L${x},${b.y - 10} C${x},${b.y + b.h / 2 - 6} ${x},${b.y + b.h / 2 - 6} ${b.x},${b.y + b.h / 2 - 6}`;
+}
+// Site watch sits in the checks band: up the channel between the site and reach columns, into the site.
+function watchWire() {
+    const w = byId('site-watch'), site = byId('site');
+    const cx = w.x + w.w - 18, top = w.y, ch = site.x + site.w + 26, my = site.y + site.h / 2;
+    return `M${cx},${top} C${cx},${top - 24} ${ch},${top - 18} ${ch},${top - 44} L${ch},${my + 12} C${ch},${my} ${ch - 10},${my} ${site.x + site.w},${my}`;
 }
 // Every route a light can take, by lane name.
 export function lanePath(lane) {
@@ -174,7 +195,7 @@ export function lanePath(lane) {
     if (kind === 'deploy')
         return `M${mid},${deploy.y + deploy.h} L${mid},${site.y}`;
     if (kind === 'watch')
-        return wire(byId('site-watch'), site);
+        return watchWire();
     if (kind === 'reach') {
         const r = REACH.find((x) => x.id === id);
         if (!r)
@@ -213,7 +234,7 @@ function nodeBox(b, opts) {
     }
     else if (opts.sub) {
         const fit = Math.floor((b.w - 34) / 6.2);
-        s += `<text x="${dotX + 12}" y="${cy - (opts.sub2 ? 7 : 2)}" font-size="12.5" font-weight="600" fill="${C.cream}" font-family="IBM Plex Sans, system-ui, sans-serif">${esc(cut(b.label, Math.floor((b.w - 34) / 7.2)))}</text>`;
+        s += `<text x="${dotX + 12}" y="${cy - (opts.sub2 ? 7 : 2)}" font-size="12.5" font-weight="600" fill="${C.cream}" font-family="IBM Plex Sans, system-ui, sans-serif">${esc(cut(b.label, Math.floor((b.w - 34) / 6.9)))}</text>`;
         s += `<text x="${dotX + 12}" y="${cy + (opts.sub2 ? 7 : 11)}" font-size="10" fill="${C.dim}" font-family="IBM Plex Mono, ui-monospace, Menlo, monospace">${esc(cut(opts.sub, fit))}</text>`;
         if (opts.sub2)
             s += `<text x="${dotX + 12}" y="${cy + 19}" font-size="10" fill="${C.faint}" font-family="IBM Plex Mono, ui-monospace, Menlo, monospace">${esc(cut(opts.sub2, fit))}</text>`;
@@ -309,7 +330,14 @@ export function drawMap(feed, reach, pulses, now, selected) {
     s += head(SRC_X, 'SOURCES') + head(ENG_X, 'ENGINES') + head(SITE_X, 'THE SITE') + head(REACH_X, 'REACH');
     // Group labels sit in the box's bottom corner, clear of the nodes.
     const groupBox = (y, h, label) => `<rect x="${ENG_X - 14}" y="${y + TOP}" width="${ENG_W + 28}" height="${h}" rx="12" fill="${C.group}" stroke="${C.wireDim}" stroke-dasharray="3 4"/><text x="${ENG_X + ENG_W + 8}" y="${y + TOP + h - 6}" text-anchor="end" font-size="8.5" letter-spacing="1.6" fill="${C.faint}" font-family="IBM Plex Mono, ui-monospace, Menlo, monospace">${label}</text>`;
-    s += groupBox(46, 137, 'YOUR MAC') + groupBox(197, 446, 'GITHUB ACTIONS');
+    s += groupBox(46, 167, 'YOUR MAC') + groupBox(227, 470, 'GITHUB ACTIONS');
+    // The checks band, full width, a column per sport
+    s += `<rect x="24" y="${CHECK_Y + TOP}" width="${MAP_W - 48}" height="146" rx="12" fill="${C.group}" stroke="${C.wireDim}" stroke-dasharray="3 4"/>`;
+    s += `<text x="${MAP_W - 32}" y="${CHECK_Y + TOP + 140}" text-anchor="end" font-size="8.5" letter-spacing="1.6" fill="${C.faint}" font-family="IBM Plex Mono, ui-monospace, Menlo, monospace">CHECKS · THEY WATCH, THEY DON'T PUBLISH</text>`;
+    CHECK_COLUMNS.forEach((c, i) => {
+        const bad = c.chips.filter(([id]) => jobs.get(id)?.status === 'failed').length;
+        s += `<text x="${CHECK_X + i * CHECK_COL + 2}" y="${CHECK_Y + TOP + 22}" font-size="9" letter-spacing="1.5" fill="${bad ? STATUS_COLOR.failed : C.goldSoft}" font-family="IBM Plex Mono, ui-monospace, Menlo, monospace">${esc(c.head)}${bad ? ` · ${bad}` : ''}</text>`;
+    });
     // Wires (under everything)
     const W = (d, active, dashed = false, dim = false) => {
         let w = `<path d="${d}" fill="none" stroke="${dim ? C.wireDim : C.wire}" stroke-width="1.4"${dashed ? ' stroke-dasharray="3 5"' : ''}/>`;
@@ -342,7 +370,7 @@ export function drawMap(feed, reach, pulses, now, selected) {
         const st = j?.status || 'waiting';
         s += nodeBox(e, { color: color(e.id), status: st, ...jobSub(j, now), selected: selected === e.id, title: j ? `${j.name}: ${STATUS_WORD[st]}` : e.label });
     }
-    for (const w of WATCHERS) {
+    for (const w of [...MAC_CHIPS, ...WATCHERS]) {
         const j = jobs.get(w.id);
         s += nodeBox(w, { color: color(w.id), status: j?.status, small: true, selected: selected === w.id, title: j ? `${j.name}: ${STATUS_WORD[j.status]}` : w.label });
     }
@@ -383,8 +411,13 @@ export function drawMap(feed, reach, pulses, now, selected) {
  * The timeline: the last 24 hours and the next 12, a row per job
  * ------------------------------------------------------------------ */
 export const TIMELINE_ORDER = [
-    'basketball-tracking', 'news', 'basketball-savant', 'basketball-history', 'football-savant', 'football-injuries',
-    'ufc-savant', 'weekly-snapshot', 'basketball-freshness', 'connector-coverage', 'football-rebuild', 'site-watch',
+    'basketball-tracking', 'news', 'cbb-mac-pull', 'cfb-mac-archive',
+    'basketball-savant', 'basketball-history', 'college-savant', 'college-football-savant', 'football-savant', 'football-injuries',
+    'ufc-savant', 'weekly-snapshot', 'football-rebuild',
+    'basketball-freshness', 'college-savant-freshness', 'college-football-savant-freshness',
+    'dataroom-nba', 'dataroom-cbb', 'dataroom-nfl', 'dataroom-cfb', 'dataroom-ufc',
+    'connector-freshness-nba', 'connector-freshness-cbb', 'connector-freshness-nfl', 'connector-freshness-cfb', 'connector-freshness-ufc',
+    'connector-coverage', 'deploy-batch', 'site-watch',
 ];
 function segments(events, now) {
     const bars = [], dots = [];
@@ -411,7 +444,7 @@ export function drawTimeline(feed, now) {
     for (const j of feed?.jobs || [])
         if (!TIMELINE_ORDER.includes(j.id))
             rows.push(j);
-    const RH = 30, TOPH = 54, LABEL = 214, X1 = 976;
+    const RH = 30, TOPH = 54, LABEL = 262, X1 = 976;
     const H = TOPH + (rows.length + 1) * RH + 30;
     const from = now - DAY, to = now + 12 * HOUR;
     const x = (t) => LABEL + ((t - from) / (to - from)) * (X1 - LABEL);
@@ -437,7 +470,7 @@ export function drawTimeline(feed, now) {
         s += `<circle cx="32" cy="${y}" r="4" fill="${STATUS_COLOR[j.status]}"/>`;
         if (j.status === 'running')
             s += glow(32, y, STATUS_COLOR.running);
-        s += `<text x="44" y="${y + 4}" font-size="11.5" fill="${C.cream}">${esc(cut(j.name, 27))}</text>`;
+        s += `<text x="44" y="${y + 4}" font-size="11.5" fill="${C.cream}">${esc(cut(j.name, 34))}</text>`;
         const mine = events.filter((e) => e.job === j.id && e.t >= from - 7 * HOUR).sort((a, b) => a.t - b.t);
         const { bars, dots } = segments(mine, now);
         for (const b of bars) {

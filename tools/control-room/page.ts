@@ -10,7 +10,7 @@
 
 import type { Feed, Job, Pulse, Reach, Tab } from './types'
 import {
-  C, ENGINES, STATUS_COLOR, STATUS_WORD, ago, clock, deployStatus, drawMap, drawTimeline,
+  C, ENGINES, MAP_JOB_IDS, STATUS_COLOR, STATUS_WORD, ago, clock, deployStatus, drawMap, drawTimeline,
   latestProduction, laneSeconds, num, span, summary, until, when,
 } from './draw.js'
 
@@ -58,7 +58,7 @@ function saveKey(k: string | null) {
 
 const PUSHES = new Set(ENGINES.filter((e) => e.pushes).map((e) => e.id))
 const HAS_SOURCE = new Set(ENGINES.filter((e) => e.from.length).map((e) => e.id))
-const NODE_IDS = new Set([...ENGINES.map((e) => e.id), 'basketball-freshness', 'connector-coverage', 'football-rebuild', 'site-watch', 'deploy', 'site'])
+const NODE_IDS = new Set([...MAP_JOB_IDS, 'deploy', 'site'])
 
 function pulsesForJobs(prev: Feed | null, next: Feed, now: number): { pulses: Pulse[]; failed: Job[] } {
   const out: Pulse[] = []

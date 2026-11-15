@@ -13,6 +13,15 @@ LOG="$HOME/College-Football-Savant/logs/cfb-mac.log"
 mkdir -p "$(dirname "$LOG")"
 [ -t 1 ] || exec >> "$LOG" 2>&1
 echo "=== $(date '+%Y-%m-%d %H:%M:%S') ==="
+
+# The Control Room (/control): cfb-mac-archive. Red when the run exits non-zero or any step above logs
+# that a pull, pack or push failed (they keep going on purpose, so their exit code alone would read green).
+[ -f "$HOME/.config/wce/control-room.env" ] && . "$HOME/.config/wce/control-room.env"
+CR="$SITE/.worktrees/savant-bot/.github/scripts/control-room.sh"
+checkin() { [ -n "${WCE_STATUS_KEY:-}" ] && [ -f "$CR" ] && WCE_STATUS_KEY="$WCE_STATUS_KEY" WCE_NTFY_TOPIC="${WCE_NTFY_TOPIC:-}" WCE_SOURCE=mac PYTHON="${PY:-python3}" bash "$CR" cfb-mac-archive "$@" >/dev/null 2>&1 || true; }
+RUNLOG=$(mktemp); exec > >(tee -a "$RUNLOG") 2>&1
+checkin start "Started on the Mac"
+trap 'rc=$?; sleep 0.2; bad=$(grep -E "(pull|pack|push|verify) failed|Traceback|^fatal:" "$RUNLOG" | tail -1 | cut -c1-280); last=$(grep -v "^===" "$RUNLOG" | tail -1 | cut -c1-280); if [ $rc -eq 0 ] && [ -z "$bad" ]; then checkin success "${last:-Ran clean}"; else checkin failure "${bad:-${last:-exit $rc}}"; fi; rm -f "$RUNLOG"' EXIT
 cd "$CODE" || { echo "no code at $CODE"; exit 1; }
 [ -f pipeline/cfb/archive.py ] || { echo "pipeline/cfb is not on main yet: nothing to do"; exit 0; }
 free=$(df -k "$HOME" | tail -1 | awk '{print int($4/1048576)}')

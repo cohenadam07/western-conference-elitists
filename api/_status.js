@@ -61,6 +61,16 @@ export const JOBS = [
     cadence: '8am, 2pm and 11:30pm on the Mac. Runs only while the Mac is awake.',
   },
   {
+    id: 'cbb-mac-pull', name: 'CBB Mac pull', lane: 'mac', product: 'basketball',
+    cron: ['7 5 * * *'], tz: 'America/New_York', maxAgeH: 30,
+    cadence: '5:07am on the Mac. Keeps the private raw ESPN archive, sends ages on Mondays, and pushes finals only when the cloud is blocked.',
+  },
+  {
+    id: 'cfb-mac-archive', name: 'CFB Mac archive', lane: 'mac', product: 'football',
+    cron: ['23 5 * * *'], tz: 'America/New_York', maxAgeH: 30,
+    cadence: '5:23am on the Mac. Keeps the private raw ESPN archive of the season; packs last month on the 1st.',
+  },
+  {
     id: 'basketball-savant', name: 'Basketball Savant refresh', lane: 'github', product: 'basketball',
     workflow: 'basketball-savant-cloud.yml', maxAgeH: 30, tz: 'UTC',
     cron: ['17 16 * * *', '41 22 * * *', '41 1 * * *', '11 3 * * *', '41 9 * * *', '13 15 * * *'],
@@ -73,7 +83,7 @@ export const JOBS = [
     cadence: 'Game days: watches from about noon ET until every game is final. Rebuilds daily at about 5:29am ET.',
   },
   {
-    id: 'college-savant-freshness', name: 'College freshness alarm', lane: 'github', product: 'basketball',
+    id: 'college-savant-freshness', name: 'CBB freshness alarm', lane: 'github', product: 'basketball',
     workflow: 'college-basketball-savant-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['37 17 * * *'],
     cadence: 'Daily. Fails if College Basketball Savant goes 30 hours without a refresh, or the cloud is blocked from ESPN.',
   },
@@ -83,7 +93,7 @@ export const JOBS = [
     cadence: 'Daily at about 5am ET, late August to the title game, plus Sunday at about 3am ET. Commits only when a file changed.',
   },
   {
-    id: 'college-football-savant-freshness', name: 'College football freshness alarm', lane: 'github', product: 'football',
+    id: 'college-football-savant-freshness', name: 'CFB freshness alarm', lane: 'github', product: 'football',
     workflow: 'college-football-savant-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['41 15 * 8-12,1 *'],
     cadence: 'Daily in season. Fails if College Football Savant goes 36 hours without a refresh, or its newest final is more than four days old.',
   },
@@ -93,7 +103,7 @@ export const JOBS = [
     cadence: 'Every 2 hours. Publishes only when the Mac has sent a new seed.',
   },
   {
-    id: 'basketball-freshness', name: 'Freshness alarm', lane: 'github', product: 'basketball',
+    id: 'basketball-freshness', name: 'NBA freshness alarm', lane: 'github', product: 'basketball',
     workflow: 'basketball-savant-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['7 16 * * *'],
     cadence: 'Daily. Fails if Basketball Savant goes 30 hours without a refresh.',
   },
@@ -134,12 +144,12 @@ export const JOBS = [
     cadence: 'After every refresh and daily. Red when a NFL Data Room table or connector tool lags its source; names which.',
   },
   {
-    id: 'connector-freshness-cfb', name: 'Connector freshness — college football', lane: 'github', product: 'connector',
+    id: 'connector-freshness-cfb', name: 'Connector freshness — CFB', lane: 'github', product: 'connector',
     workflow: 'connector-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['47 13 * * *'],
     cadence: 'After every refresh and daily. Red when a college football Data Room table or connector tool lags its source; names which.',
   },
   {
-    id: 'connector-freshness-cbb', name: 'Connector freshness — college basketball', lane: 'github', product: 'connector',
+    id: 'connector-freshness-cbb', name: 'Connector freshness — CBB', lane: 'github', product: 'connector',
     workflow: 'connector-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['47 13 * * *'],
     cadence: 'After every refresh and daily. Red when a college basketball Data Room table or connector tool lags its source; names which.',
   },
@@ -147,6 +157,26 @@ export const JOBS = [
     id: 'connector-freshness-ufc', name: 'Connector freshness — UFC', lane: 'github', product: 'connector',
     workflow: 'connector-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['47 13 * * *'],
     cadence: 'After every refresh and daily. Red when a UFC Data Room table or connector tool lags its source; names which.',
+  },
+  {
+    id: 'dataroom-nba', name: 'Data Room upload — NBA', lane: 'github', product: 'basketball', workflow: 'basketball-savant-cloud.yml', maxAgeH: 30, tz: 'UTC', cron: [],
+    cadence: 'After every Basketball Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
+  },
+  {
+    id: 'dataroom-nfl', name: 'Data Room upload — NFL', lane: 'github', product: 'football', workflow: 'football-savant-refresh.yml', maxAgeH: 30, tz: 'UTC', cron: [],
+    cadence: 'After every Football Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
+  },
+  {
+    id: 'dataroom-cfb', name: 'Data Room upload — CFB', lane: 'github', product: 'football', workflow: 'college-football-savant-refresh.yml', maxAgeH: 30, tz: 'UTC', cron: [],
+    cadence: 'After every College Football Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
+  },
+  {
+    id: 'dataroom-cbb', name: 'Data Room upload — CBB', lane: 'github', product: 'basketball', workflow: 'college-basketball-savant-cloud.yml', maxAgeH: 30, tz: 'UTC', cron: [],
+    cadence: 'After every College Basketball Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
+  },
+  {
+    id: 'dataroom-ufc', name: 'Data Room upload — UFC', lane: 'github', product: 'ufc', workflow: 'ufc-savant-refresh.yml', maxAgeH: 132, tz: 'UTC', cron: [],
+    cadence: 'After every UFC Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
   },
   {
     id: 'connector-coverage', name: 'Connector coverage test', lane: 'github', product: 'connector',

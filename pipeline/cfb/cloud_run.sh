@@ -17,8 +17,12 @@ dataroom() {
   # refresh just wrote (pipeline/dataroom/cfb.py), uploaded by publish.sh. Never fails the run.
   local y; y=$(python3 -c "from pipeline.cfb import config as C; print(C.CURRENT)") || return 0
   export DATAROOM_HOSTED="${RUNNER_TEMP:-/tmp}/dataroom"
-  python3 -W ignore pipeline/dataroom/cfb.py plays "$y" && python3 -W ignore pipeline/dataroom/cfb.py games "$y" \
-    && bash pipeline/dataroom/publish.sh cfb "$y" || echo "::warning::the Data Room's college football tables failed"
+  if python3 -W ignore pipeline/dataroom/cfb.py plays "$y" && python3 -W ignore pipeline/dataroom/cfb.py games "$y"; then
+    bash pipeline/dataroom/publish.sh cfb "$y"   # checks in as dataroom-cfb on /control, red or green
+  else
+    echo "::warning::the Data Room's college football tables failed"
+    bash .github/scripts/control-room.sh dataroom-cfb failure "The plays and games tables could not be built (pipeline/dataroom/cfb.py)" || true
+  fi
   return 0
 }
 

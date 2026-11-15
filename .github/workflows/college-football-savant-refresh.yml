@@ -60,7 +60,11 @@ jobs:
           restore-keys: espn-cfb-
       - name: Install
         run: pip install --quiet -r pipeline/cfb/requirements-cloud.txt
+      # GH_TOKEN: the Data Room upload at the end of the run (pipeline/dataroom/publish.sh) uses gh, which has no
+      # login of its own on a runner. Missing from Nov 10 to 15, 2026: every upload failed while the run stayed green.
       - name: Refresh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [ "${{ github.event_name }}" = "push" ] || [ "${{ github.event.inputs.mode }}" = "dry" ]; then
             exec bash pipeline/cfb/cloud_run.sh dry

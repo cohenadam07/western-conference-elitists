@@ -57,7 +57,11 @@ jobs:
       # block UFC Savant (research/data-room/BUILD.md).
       - name: Data Room
         continue-on-error: true
-        run: python3 pipeline/dataroom/ufc.py && bash pipeline/dataroom/publish.sh ufc
+        env:
+          GH_TOKEN: ${{ github.token }}   # publish.sh uploads with gh, which has no login of its own on a runner
+        run: |
+          python3 pipeline/dataroom/ufc.py || { bash .github/scripts/control-room.sh dataroom-ufc failure "The fights and rounds tables could not be built (pipeline/dataroom/ufc.py)"; exit 1; }
+          bash pipeline/dataroom/publish.sh ufc
       - name: Commit if changed
         run: |
           git config user.name "ufc-savant-bot"

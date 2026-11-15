@@ -14,6 +14,15 @@ PY="${PYTHON:-/Library/Frameworks/Python.framework/Versions/3.13/bin/python3}"
 OUT="$SAVANT/out/cbb/mac-push"
 [ -t 1 ] || exec >> "$SAVANT/logs/cbb-mac.log" 2>&1
 echo "=== $(date '+%Y-%m-%d %H:%M:%S') ==="
+
+# The Control Room (/control): cbb-mac-pull. Red when the run exits non-zero or any step above logs
+# that a pull, pack or push failed (they keep going on purpose, so their exit code alone would read green).
+[ -f "$HOME/.config/wce/control-room.env" ] && . "$HOME/.config/wce/control-room.env"
+CR="$SITE/.worktrees/savant-bot/.github/scripts/control-room.sh"
+checkin() { [ -n "${WCE_STATUS_KEY:-}" ] && [ -f "$CR" ] && WCE_STATUS_KEY="$WCE_STATUS_KEY" WCE_NTFY_TOPIC="${WCE_NTFY_TOPIC:-}" WCE_SOURCE=mac PYTHON="${PY:-python3}" bash "$CR" cbb-mac-pull "$@" >/dev/null 2>&1 || true; }
+RUNLOG=$(mktemp); exec > >(tee -a "$RUNLOG") 2>&1
+checkin start "Started on the Mac"
+trap 'rc=$?; sleep 0.2; bad=$(grep -E "(pull|pack|push|verify) failed|Traceback|^fatal:" "$RUNLOG" | tail -1 | cut -c1-280); last=$(grep -v "^===" "$RUNLOG" | tail -1 | cut -c1-280); if [ $rc -eq 0 ] && [ -z "$bad" ]; then checkin success "${last:-Ran clean}"; else checkin failure "${bad:-${last:-exit $rc}}"; fi; rm -f "$RUNLOG"' EXIT
 export SSL_CERT_FILE="$("$PY" -c 'import certifi;print(certifi.where())')"
 # Mondays: this season's ages, onto cbb-bundles. T-Rank refuses GitHub's runners, and a birthdate may
 # not go on a public branch, so the Mac works out the age and sends only that.

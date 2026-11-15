@@ -22,6 +22,22 @@ import path from 'node:path'
 import { gunzipSync } from 'node:zlib'
 import { ROOT, agrees, answer, keep, makeFiles, measure as baseMeasure, needed, round, tableRows } from './lib.mjs'
 
+// The live connector's brake (api/mcp.js, per network address) answers a burst of exam calls with
+// "Too many requests ... Wait N seconds". That is the brake working, not a wrong answer: wait as told
+// and ask again (Nov 15, 2026: 22 of 68 questions failed this way and kept the coverage light red).
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+function paced(fn) {
+  return async (...args) => {
+    for (let attempt = 1; ; attempt++) {
+      try { return await fn(...args) } catch (e) {
+        const m = /Too many requests[^]*?Wait (\d+) second/.exec(String(e?.message || e))
+        if (!m || attempt >= 6) throw e
+        await sleep((Number(m[1]) + 0.5) * 1000 * attempt)
+      }
+    }
+  }
+}
+
 const HERE = path.join(ROOT, 'tools', 'savant-mcp', 'exam')
 const args = process.argv.slice(2)
 const cmd = args[0] || 'check'
@@ -210,7 +226,7 @@ async function connector() {
     const key = process.env.WCE_EXAM_KEY
     let founder = null, fc = null
     if (key) { fc = new Client({ name: 'wce-exam', version: '1' }); await fc.connect(new StreamableHTTPClientTransport(new URL(`${SITE}/mcp/${key}`))); founder = (name, a) => fc.callTool({ name, arguments: a }) }
-    return { call: (name, a) => client.callTool({ name, arguments: a }), founder, whyNoFounder: 'skipped: the analysis questions need a founder-tier key (WCE_EXAM_KEY)', close: async () => { await client.close(); if (fc) await fc.close() } }
+    return { call: paced((name, a) => client.callTool({ name, arguments: a })), founder: founder && paced(founder), whyNoFounder: 'skipped: the analysis questions need a founder-tier key (WCE_EXAM_KEY)', close: async () => { await client.close(); if (fc) await fc.close() } }
   }
   // the site's files as Vercel serves them: dist (the build's savant-api files), then public/, then the
   // release-asset tables from out/dataroom

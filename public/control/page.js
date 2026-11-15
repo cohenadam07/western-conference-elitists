@@ -7,7 +7,7 @@
 // for once and keeps in this browser's localStorage. Jobs every 20 seconds, the reach every 2
 // minutes, both paused while the tab is hidden. Every new event since the last read sends a light
 // down its wire on the map; nothing moves that didn't happen.
-import { C, ENGINES, STATUS_COLOR, STATUS_WORD, ago, clock, deployStatus, drawMap, drawTimeline, latestProduction, laneSeconds, num, span, summary, until, when, } from './draw.js';
+import { C, ENGINES, MAP_JOB_IDS, STATUS_COLOR, STATUS_WORD, ago, clock, deployStatus, drawMap, drawTimeline, latestProduction, laneSeconds, num, span, summary, until, when, } from './draw.js';
 const FEED = '/api/status';
 const JOBS_EVERY = 20000;
 const REACH_EVERY = 120000;
@@ -49,7 +49,7 @@ function saveKey(k) {
  * ------------------------------------------------------------------ */
 const PUSHES = new Set(ENGINES.filter((e) => e.pushes).map((e) => e.id));
 const HAS_SOURCE = new Set(ENGINES.filter((e) => e.from.length).map((e) => e.id));
-const NODE_IDS = new Set([...ENGINES.map((e) => e.id), 'basketball-freshness', 'connector-coverage', 'football-rebuild', 'site-watch', 'deploy', 'site']);
+const NODE_IDS = new Set([...MAP_JOB_IDS, 'deploy', 'site']);
 function pulsesForJobs(prev, next, now) {
     const out = [];
     const failed = [];
