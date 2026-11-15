@@ -7,6 +7,7 @@
 //   p:<id>       what that player's game last said about itself (overwritten on every poll; only
 //                that player writes it, so it never contends): its vote, its flaps so far
 //   d:<m>:<h>:<id>   that player's finish on hole h of match m, "steps:flaps:when" (first one stands)
+//   e:<m>:<h>:<id>   Knockout (2.13): that player's inputs for the hole, sealed once it's over, "when|inputs" (first stands)
 //   s:<to>:<from>    a note from one player's game to another's: the handshake that lets the two connect
 //                to each other directly (WebRTC: an offer, an answer). Handed over on the addressee's
 //                next poll and deleted as it's handed over. Once two games are connected, flaps go
@@ -18,7 +19,7 @@
 // roughly 800 commands; on the fallback (polling about once a second), roughly 2,000.
 import { createHmac, randomBytes } from 'node:crypto'
 import {
-  CODE_RE, ID_RE, TTL, makeCode, newRoom, addPlayer, removePlayer, cleanLive, finValue, parseFin, finField,
+  CODE_RE, ID_RE, TTL, makeCode, newRoom, addPlayer, removePlayer, cleanLive, finValue, parseFin, finField, sealValue, parseSeal, sealField,
   startVote, toLobby, advance, view, cleanNotes, iceServers, diag,
 } from './_race.js'
 import { hoopsGet, hoopsPost, koSubmitHole, koSubmitMatch, acctOf, loadSim } from './_hoops.js'
@@ -33,9 +34,9 @@ async function koReplayer() {
   } catch (e) { console.error('race: no Knockout replay', String((e && e.message) || e)); return null }
 }
 // A Knockout hole's (or match's) records, once the request that moved the party on has saved it
-async function koRecords(room, scored, finalNow, run) {
+async function koRecords(room, replayed, finalNow, run) {
   try {
-    if (scored && room.koRec && room.koRec.length) await koSubmitHole(room.koRec, run)
+    if (replayed && room.koRec && room.koRec.length) await koSubmitHole(room.koRec, run)
     if (finalNow && room.koMatch && room.koMatch.length) await koSubmitMatch(room.koMatch)
   } catch (e) { console.error('race: Knockout records', String((e && e.message) || e)) }
 }
@@ -55,16 +56,16 @@ async function redis(cmd) {
 }
 
 const K = (code) => 'fhr:' + code
-// store my blob (ARGV 1,2), my finish if I have one and none is stored (ARGV 3,4), leave my notes for
-// the other games (ARGV 7.. in pairs; only for someone who's in the party, so the hash can't be
-// filled with notes to nobody), read it all, and take the notes addressed to me out of it
-// (ARGV 6 is "s:<me>:")
+// store my blob (ARGV 1,2), my finish if I have one and none is stored (ARGV 3,4), my Knockout seal likewise (ARGV
+// 7,8), leave my notes for the other games (ARGV 9.. in pairs; only for someone who's in the party, so the hash can't
+// be filled with notes to nobody), read it all, and take the notes addressed to me out of it (ARGV 6 is "s:<me>:")
 const POLL = `local k = KEYS[1]
 if redis.call('EXISTS', k) == 0 then return false end
 if ARGV[1] ~= '' then redis.call('HSET', k, ARGV[1], ARGV[2]) end
 if ARGV[3] ~= '' then redis.call('HSETNX', k, ARGV[3], ARGV[4]) end
+if ARGV[7] ~= '' then redis.call('HSETNX', k, ARGV[7], ARGV[8]) end
 local j = redis.call('HGET', k, 'j') or ''
-for i = 7, #ARGV, 2 do
+for i = 9, #ARGV, 2 do
   local c = string.find(ARGV[i], ':', 3, true)
   if c and string.find(j, '"id":"' .. string.sub(ARGV[i], 3, c - 1) .. '"', 1, true) then redis.call('HSET', k, ARGV[i], ARGV[i + 1]) end
 end
@@ -129,21 +130,24 @@ function unpack(flat, me) {
   let room = null
   try { room = JSON.parse(h.j) } catch { /* a party with no body is no party */ }
   if (!room) return null
-  const live = {}, fins = {}, old = [], sig = []
-  const mine = `d:${room.match}:${room.hole}:`
+  const live = {}, fins = {}, seals = {}, old = [], sig = []
+  const mine = `d:${room.match}:${room.hole}:`, mineE = `e:${room.match}:${room.hole}:`
   const inParty = new Set(room.players.map((p) => p.id))
   for (const f in h) {
     if (f.startsWith('p:')) { try { live[f.slice(2)] = JSON.parse(h[f]) } catch { /* skip */ } }
     else if (f.startsWith('d:')) {
       if (f.startsWith(mine)) { const v = parseFin(h[f]); if (v) fins[f.slice(mine.length)] = v }
       if (!f.startsWith(`d:${room.match}:`)) old.push(f)
+    } else if (f.startsWith('e:')) {
+      if (f.startsWith(mineE)) { const v = parseSeal(h[f]); if (v) seals[f.slice(mineE.length)] = v }
+      if (!f.startsWith(mineE)) old.push(f)                // (a hole that's over and replayed: not needed)
     } else if (f.startsWith('s:')) {
       const [, to, from] = f.split(':')
       if (to === me) sig.push({ from, v: h[f] })
       else if (!inParty.has(to) || !inParty.has(from)) old.push(f)     // (a note to or from someone who's gone)
     }
   }
-  return { v: h.v, room, live, fins, old, sig, fields: Object.keys(h) }
+  return { v: h.v, room, live, fins, seals, old, sig, fields: Object.keys(h) }
 }
 
 const read = async (code) => unpack(await redis(['HGETALL', K(code)]))
@@ -250,7 +254,7 @@ export default async function handler(req, res) {
           toLobby(S.room)
         }
         // the last match's finishes aren't needed any more
-        return { drop: S.fields.filter((f) => f.startsWith('d:')) }
+        return { drop: S.fields.filter((f) => f.startsWith('d:') || f.startsWith('e:')) }
       })
       if (r.error) return fail(r.status || 400, r.error)
       res.status(200).json(view(r.S.room, r.S.live, {}, id, r.now))
@@ -261,29 +265,31 @@ export default async function handler(req, res) {
     const now = Date.now()
     const mine = body.me ? cleanLive(body.me, now) : null
     const fv = mine && body.fin ? finValue(body.fin, now, mine.in) : null      // (2.12: the inputs, sealed with the finish)
+    const ev = mine && body.end && mine.in !== null ? sealValue(mine.in, now) : null   // (2.13: …and with the hole's end)
     // (notes for the other games: a few at a time, each bounded)
     const notes = cleanNotes(body.sig, id)
     const got = await redis(['EVAL', POLL, 1, K(code), mine ? 'p:' + id : '', mine ? JSON.stringify(mine) : '',
-      fv ? finField(mine.m, mine.h, id) : '', fv || '', String(TTL), 's:' + id + ':', ...notes.flatMap((n) => ['s:' + n.to + ':' + id, n.v])])
+      fv ? finField(mine.m, mine.h, id) : '', fv || '', String(TTL), 's:' + id + ':', ev ? sealField(mine.m, mine.h, id) : '', ev || '',
+      ...notes.flatMap((n) => ['s:' + n.to + ':' + id, n.v])])
     let S = got ? unpack(got, id) : null
     if (!S) return fail(404, 'That party is gone.')
     const sig = S.sig
     if (!S.room.players.some((p) => p.id === id)) return fail(410, 'You’re not in that party any more.')
     const was = S.room.match + ':' + S.room.hole
     // (a Knockout hole that may end now: the rules to replay it with)
-    const kor = S.room.mode === 'knockout' && S.room.phase === 'hole' ? await koReplayer() : null
-    const scored0 = S.room.results.length, final0 = !!S.room.final
-    const step = advance(S.room, S.live, S.fins, now, Math.random, kor)
-    const run = S.room.koRunTmp; delete S.room.koRunTmp
+    const kor = S.room.mode === 'knockout' && (S.room.phase === 'hole' || S.room.phase === 'board') ? await koReplayer() : null
+    const final0 = !!S.room.final
+    const step = advance(S.room, S.live, S.fins, now, Math.random, kor, S.seals)
+    const run = S.room.koRunTmp, replayed = !!S.room.koRecTmp; delete S.room.koRunTmp; delete S.room.koRecTmp
     if (step.changed) {
-      const drop = step.clear ? S.fields.filter((f) => f.startsWith('d:')) : S.old
+      const drop = step.clear ? S.fields.filter((f) => f.startsWith('d:') || f.startsWith('e:')) : S.old
       if (Number(await cas(code, S.v, S.room, drop)) !== 1) {
         S = await read(code)                 // someone else moved it along first: theirs stands
         if (!S) return fail(404, 'That party is gone.')
       } else {
         // (this request moved it on: the Knockout records it made, once)
-        if (S.room.mode === 'knockout') await koRecords(S.room, S.room.results.length > scored0, !final0 && !!S.room.final, run)
-        if (S.room.match + ':' + S.room.hole !== was) S.fins = {}   // (a new hole: nobody's in yet)
+        if (S.room.mode === 'knockout') await koRecords(S.room, replayed, !final0 && !!S.room.final, run)
+        if (S.room.match + ':' + S.room.hole !== was) { S.fins = {}; S.seals = {} }   // (a new hole: nobody's in yet)
       }
     }
     // (signed in after joining: the account goes on the player, once)
@@ -291,7 +297,7 @@ export default async function handler(req, res) {
       const ac = await acctOf(body.t)
       if (ac) { const r = await mutate(code, (Q) => { const p = Q.room.players.find((x) => x.id === id); if (p) p.acct = { u: ac.id, n: ac.name } }); if (r.S) S.room = r.S.room }
     }
-    const out = view(S.room, S.live, S.fins, id, now)
+    const out = view(S.room, S.live, S.fins, id, now, S.seals)
     if (sig.length) out.sig = sig
     res.status(200).json(out)
   } catch (e) {

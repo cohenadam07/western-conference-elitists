@@ -18,7 +18,7 @@ const ADMIN_KEY = 'test-admin-key-' + Math.random().toString(36).slice(2)
 let n = 0, failed = 0
 const ok = (cond, what) => { n++; if (!cond) { failed++; console.log('FAIL', what) } else console.log('PASS', what) }
 
-const dev = spawn(process.execPath, [path.join(ROOT, 'tools/race-dev.mjs'), String(PORT)], { cwd: ROOT, env: { ...process.env, WCE_STATUS_KEY: ADMIN_KEY, RACE_TEST: '1', RACE_LEAD_MS: '300', RACE_REVEAL_MS: '200', RACE_BOARD_MS: '400' }, stdio: ['ignore', 'pipe', 'inherit'] })
+const dev = spawn(process.execPath, [path.join(ROOT, 'tools/race-dev.mjs'), String(PORT)], { cwd: ROOT, env: { ...process.env, WCE_STATUS_KEY: ADMIN_KEY, RACE_TEST: '1', RACE_LEAD_MS: '300', RACE_REVEAL_MS: '200', RACE_BOARD_MS: '3000' }, stdio: ['ignore', 'pipe', 'inherit'] })
 process.on('exit', () => dev.kill())
 await new Promise((resolve, reject) => {
   const t = setTimeout(() => reject(new Error('race-dev did not start')), 15000)
@@ -206,7 +206,7 @@ ok(solo.status === 422 && raced.status === 200 && raced.j.f === 3 && raced.j.k =
     const P = [{ id: a1.j.you, key: a1.j.key }, { id: b1.j.you, key: b1.j.key }]
     await post({ a: 'start', code, id: P[0].id, key: P[0].key, worlds: [{ id: 'newyork', n: 9 }, { id: 'sanantonio', n: 9 }, { id: 'okc', n: 9 }, { id: 'cleveland', n: 9 }] })
     let v = null
-    for (let i = 0; i < 4; i++) for (const p of P) v = (await post({ a: 'poll', code, id: p.id, key: p.key, me: { m: 1, h: -1, vw: 'newyork', vm: mode, kv: 2 } })).j
+    for (let i = 0; i < 4; i++) for (const p of P) v = (await post({ a: 'poll', code, id: p.id, key: p.key, me: { m: 1, h: -1, vw: 'newyork', vm: mode, kv: 3 } })).j
     return { code, mode: v.mode }
   }
   const K = await party('knockout'), S = await party('speed')
@@ -219,7 +219,7 @@ ok(solo.status === 422 && raced.status === 200 && raced.j.f === 3 && raced.j.k =
   ok(JSON.stringify(before) === JSON.stringify(afterKo), 'and the boards are as they were')
 }
 
-// ---------------------------------------------------------------- Knockout's own records (2.12)
+// ---------------------------------------------------------------- Knockout's own records (2.12; 2.13: sealed when the hole's over)
 // A one-hole Knockout match on The Cage between two signed-in players, through the real endpoint: whoever the seed puts
 // on the tee flies the Savant line in (the other gives up straight away, so the runner is the last ball: K), and the
 // server replays the hole with the game's own rules (server/sim.mjs) for the record.
@@ -240,7 +240,7 @@ ok(solo.status === 422 && raced.status === 200 && raced.j.f === 3 && raced.j.k =
       const P = { run: { id: a1.j.you, key: a1.j.key }, out: { id: b1.j.you, key: b1.j.key } }
       await post({ a: 'start', code, id: P.run.id, key: P.run.key, worlds: [{ id: 'newyork', n: 1 }] })
       let v = null
-      for (let i = 0; i < 60 && !(v && v.phase === 'hole'); i++) { for (const p of [P.run, P.out]) v = (await post({ a: 'poll', code, id: p.id, key: p.key, me: { m: 1, h: -1, vw: 'newyork', vm: 'knockout', kv: 2 } })).j; await sleep(60) }
+      for (let i = 0; i < 60 && !(v && v.phase === 'hole'); i++) { for (const p of [P.run, P.out]) v = (await post({ a: 'poll', code, id: p.id, key: p.key, me: { m: 1, h: -1, vw: 'newyork', vm: 'knockout', kv: 3 } })).j; await sleep(60) }
       if (!v || v.phase !== 'hole' || v.mode !== 'knockout') continue
       const ids = v.racers.slice().sort(), pick = SIM.spotOrder(v.seed, ids.length, SIM.SPOTS.cage.length)
       if (pick[ids.indexOf(P.run.id)] !== 0) { await post({ a: 'leave', code, id: P.out.id, key: P.out.key }); await post({ a: 'leave', code, id: P.run.id, key: P.run.key }); continue }   // (not on the tee: again)
@@ -252,16 +252,18 @@ ok(solo.status === 422 && raced.status === 200 && raced.j.f === 3 && raced.j.k =
       K.feed(P.run.id, ins, 9000); K.feed(P.out.id, [[1, 'G']], 9000); K.advance(2400)
       const real = K.finOf(P.run.id)
       while (Date.now() < v.startAt + 1500) await sleep(100)
-      await post({ a: 'poll', code, id: P.out.id, key: P.out.key, me: { m: 1, h: 0, k: 10, f: 0, in: '1:G', kv: 2 }, fin: { dnf: 1 } })   // (gives up straight away: G)
+      await post({ a: 'poll', code, id: P.out.id, key: P.out.key, me: { m: 1, h: 0, k: 10, f: 0, in: '1:G', kv: 3 }, fin: { dnf: 1 } })   // (gives up straight away: G)
       const fin = { k: claim != null ? claim : (real ? real.k : 300), f: real ? real.f : 3 }
-      v = (await post({ a: 'poll', code, id: P.run.id, key: P.run.key, me: { m: 1, h: 0, k: fin.k, f: fin.f, in: enc(ins), kv: 2 }, fin })).j
-      for (let i = 0; i < 40 && v.phase === 'hole'; i++) { await sleep(80); v = (await post({ a: 'poll', code, id: P.run.id, key: P.run.key, me: { m: 1, h: 0, kv: 2 } })).j }
+      v = (await post({ a: 'poll', code, id: P.run.id, key: P.run.key, me: { m: 1, h: 0, k: fin.k, f: fin.f, in: enc(ins), kv: 3 }, fin })).j
+      for (let i = 0; i < 40 && v.phase === 'hole'; i++) { await sleep(80); v = (await post({ a: 'poll', code, id: P.run.id, key: P.run.key, me: { m: 1, h: 0, k: fin.k, f: fin.f, in: enc(ins), kv: 3 } })).j }
+      // (2.13: the hole's over: the runner's game seals its inputs with the board, and the server replays once they're in)
+      for (let i = 0; i < 40 && v.phase === 'board' && !(v.kov && v.kov[0]); i++) { v = (await post({ a: 'poll', code, id: P.run.id, key: P.run.key, me: { m: 1, h: 0, k: fin.k, f: fin.f, in: enc(ins), kv: 3 }, end: 1 })).j; if (!(v.kov && v.kov[0])) await sleep(80) }
       // the server's replay, and this side's: the same world (to the same tick)
       const kv = v.kov && v.kov[0]
       const L = SIM.createKnockout({ world: w, line: SIM.LINES.cage, ids: v.racers, seed: v.seed, starts: SIM.SPOTS.cage })
       L.feed(P.run.id, ins, 9000); L.feed(P.out.id, [[1, 'G']], 9000); if (kv) L.advance(kv.T)
       const res = { v, real, claim: fin, kov: kv, same: !!kv && L.hash() === kv.hash, code, P }
-      for (let i = 0; i < 30 && res.v.phase !== 'final'; i++) { await sleep(100); res.v = (await post({ a: 'poll', code, id: P.run.id, key: P.run.key, me: { m: 1, h: 0, kv: 2 } })).j }
+      for (let i = 0; i < 30 && res.v.phase !== 'final'; i++) { await sleep(100); res.v = (await post({ a: 'poll', code, id: P.run.id, key: P.run.key, me: { m: 1, h: 0, kv: 3 } })).j }
       return res
     }
     return null

@@ -171,7 +171,7 @@ if (process.argv[2] !== 'live') {
     ok(!('in' in R.view(room, live, {}, id(0), t0 + 1000).players[0]) && R.view(room, live, {}, id(1), t0 + 1000).players[0].in === '12:1', 'in speed and flaps your own flaps aren’t sent back to you (only the others’)')
   }
   // ---- Knockout (2.11): speed with live balls hitting each other
-  const playKO = (kv = [2, 2, 2, 2], votes = ['knockout', 'knockout', 'knockout', 'speed']) => {
+  const playKO = (kv = [3, 3, 3, 3], votes = ['knockout', 'knockout', 'knockout', 'speed']) => {
     const { room, live } = party(['A', 'B', 'C', 'D'], 1000)
     R.startVote(room, live, WORLDS, 1000)
     for (let i = 0; i < 4; i++) live[id(i)] = R.cleanLive({ m: 1, vw: room.opts[0].id, vm: votes[i], kv: kv[i] }, 2000)
@@ -187,7 +187,7 @@ if (process.argv[2] !== 'live') {
     ok(room.seed > 0 && Number.isInteger(room.seed) && R.view(room, live, {}, id(0), t0).seed === room.seed, 'each Knockout hole gets a seed, handed to every game with the party')
     const s1 = room.seed
     const fins = { [id(0)]: { k: 1500, f: 9, at: t0 + 13000 }, [id(1)]: { k: 1500, f: 7, at: t0 + 13500 }, [id(2)]: { k: 1400, f: 11, at: t0 + 12000 }, [id(3)]: { dnf: 1, at: t0 + 13000 } }
-    for (let i = 0; i < 4; i++) live[id(i)] = { ...R.cleanLive({ m: 1, h: 0, kv: 2, in: '12:1,40:U,80:-1,150:R', kt: i === 1 ? `${id(0)}:2,${id(2)}:1` : i === 2 ? `${id(0)}:1,${id(2)}:1,${id(1)}:1` : '' }, t0 + 30000) }
+    for (let i = 0; i < 4; i++) live[id(i)] = { ...R.cleanLive({ m: 1, h: 0, kv: 3, in: '12:1,40:U,80:-1,150:R', kt: i === 1 ? `${id(0)}:2,${id(2)}:1` : i === 2 ? `${id(0)}:1,${id(2)}:1,${id(1)}:1` : '' }, t0 + 30000) }
     ok(live[id(0)].in === '12:1,40:U,80:-1,150:R', 'item use travels as "step:U" with the flaps')
     { const me = R.view(room, live, {}, id(0), t0 + 30000).players.find((p) => p.id === id(0))
       ok(me.in === '12:1,40:U,80:-1,150:R', 'in Knockout your own inputs come back to you too (a reload mid-hole puts them back: the same world as everyone’s)') }
@@ -197,68 +197,120 @@ if (process.argv[2] !== 'live') {
     ok(rows.map((r) => r.id).join() === [id(2), id(1), id(0), id(3)].join(), 'Knockout is won as speed is: fastest time; tied on time, fewer flaps')
     ok(rows.find((r) => r.id === id(0)).ko === 2 && rows.find((r) => r.id === id(2)).ko === 1 && rows.find((r) => r.id === id(1)).ko === 1 && rows.find((r) => r.id === id(3)).ko === 0,
       'KOs on the hole board: the most any game reported for each player')
-    ok(rows.map((r) => r.tix).join() === '8,6,5,1' && rows.map((r) => r.pts).join() === '10,8,6,0', 'tickets and match points the way race tickets work now')
+    ok(rows.map((r) => r.tix).join() === '10,6,5,1' && rows.map((r) => r.pts).join() === '10,8,6,0', 'tickets and match points the way race tickets work now (and C’s stop of D, who gave up after C was in: +2)')
     ok(rows[0].place === 1 && rows.find((r) => r.id === id(0)).place === 3, 'KOs are a stat, not a tiebreaker (most KOs, third)')
     ok(room.phase === 'board' && R.view(room, live, {}, id(1), t0 + 30000).players[0].in === '12:1,40:U,80:-1,150:R', 'during the hole’s board the flaps are still handed out (the last ones in, for a game hearing through the server)')
     R.advance(room, live, {}, room.until)
     ok(room.phase === 'hole' && room.hole === 1 && room.seed > 0 && room.seed !== s1, 'the next hole gets a seed of its own')
     // the match: KOs add up in the standings
-    for (let i = 0; i < 4; i++) live[id(i)] = R.cleanLive({ m: 1, h: 1, kv: 2, kt: `${id(3)}:3` }, room.startAt + 9000)
+    for (let i = 0; i < 4; i++) live[id(i)] = R.cleanLive({ m: 1, h: 1, kv: 3, kt: `${id(3)}:3` }, room.startAt + 9000)
     R.advance(room, live, { [id(3)]: { k: 900, f: 4, at: room.startAt + 9000 } }, room.startAt + R.CAP_MS + R.GRACE_MS)
     ok(room.totals[id(0)].ko === 2 && room.totals[id(3)].ko === 3, 'and add up over the match', JSON.stringify(Object.fromEntries(Object.entries(room.totals).map(([k, t]) => [k, t.ko]))))
     ok(R.finalOrder(room).every((r) => typeof r.ko === 'number') && R.finalOrder(room).find((r) => r.id === id(3)).ko === 3, 'the final standings carry each player’s KOs')
   }
   {
     // someone here is on a game from before Knockout: it's speed or flaps instead
-    const { room } = playKO([2, 2, 1, 2], ['knockout', 'knockout', 'flaps', 'speed'])
+    const { room } = playKO([3, 3, 1, 3], ['knockout', 'knockout', 'flaps', 'speed'])
     ok(room.mode !== 'knockout' && ['speed', 'flaps'].includes(room.mode) && room.tally.koOff && room.tally.mode.knockout === 2, `Knockout needs every game here to know it: with one from before it, it’s ${room.mode} (the tally still shows the votes)`)
     ok(room.seed === 0, 'and no seed')
-    const { room: r2 } = playKO([2, 2, 2, 2], ['speed', 'speed', 'flaps', 'knockout'])
+    const { room: r2 } = playKO([3, 3, 3, 3], ['speed', 'speed', 'flaps', 'knockout'])
     ok(r2.mode === 'speed' && !r2.seed, 'speed with the most votes is still speed (no seed)')
   }
-  // ---- Knockout 2.12: the server's own replay, the records' candidates, the mixed-version fallback
+  // ---- Knockout 2.13: defense, the 45 s clock, stops, the seals and the server's own replay, the mixed-version fallback
   {
-    ok(R.cleanLive({ in: '12:1,40:K,90:U,95:G,99:L' }, 1).in === '12:1,40:K,90:U,95:G,99:L', 'the last-ball unlock (K, or L), and giving up (G), travel with the inputs')
-    const { room } = playKO([2, 1, 2, 2], ['knockout', 'knockout', 'knockout', 'speed'])
-    ok(room.mode !== 'knockout' && room.tally.koOff && JSON.stringify(room.tally.koOld) === JSON.stringify(['B']), 'a 2.11 game in the party: no Knockout, and the reveal names who should reload', JSON.stringify(room.tally.koOld))
+    ok(R.cleanLive({ in: '12:1,40:K,90:U,95:G,99:L' }, 1).in === '12:1,40:K,90:U,95:G,99:L', 'the last-ball unlock (K, or L), giving up (G) and the item (U, a fireball too) travel with the inputs')
+    const { room } = playKO([3, 2, 3, 3], ['knockout', 'knockout', 'knockout', 'speed'])
+    ok(R.KO_VERSION === 3 && room.mode !== 'knockout' && room.tally.koOff && JSON.stringify(room.tally.koOld) === JSON.stringify(['B']), 'a 2.12 game in the party (kv 2): no Knockout (2.12 and 2.13 can’t play it together), and the reveal names who should reload', JSON.stringify(room.tally.koOld))
+    const { room: r3 } = playKO([3, 3, 3, 3], ['knockout', 'knockout', 'knockout', 'speed'])
+    ok(r3.mode === 'knockout' && R.view(r3, {}, {}, id(0), r3.startAt).capMs === R.CAP_MS, 'everyone on 2.13: Knockout, and every game is told the hole’s clock (for the world’s own 45 s)')
   }
   {
+    // the clock: the first make drops it to 45 s, if more than that was left
+    const { room, live, t0 } = playKO()
+    for (let i = 0; i < 4; i++) live[id(i)].t = t0 + 20000
+    const cap0 = room.capAt
+    R.advance(room, live, { [id(1)]: { k: 1200, f: 6, at: t0 + 10500 } }, t0 + 20000)
+    ok(room.phase === 'hole' && room.capAt === t0 + 1200 / R.HZ * 1000 + R.CLOCK_MS, `the first make (at 10 s) drops the clock to 45 s from then (${((room.capAt - t0) / 1000).toFixed(1)} s, not ${((cap0 - t0) / 1000).toFixed(0)})`)
+    const c1 = room.capAt
+    R.advance(room, live, { [id(1)]: { k: 1200, f: 6, at: t0 + 10500 }, [id(0)]: { k: 2400, f: 9, at: t0 + 20500 } }, t0 + 21000)
+    ok(room.capAt === c1, 'a second make doesn’t move it again')
+    const { room: q, live: ql, t0: q0 } = playKO()
+    for (let i = 0; i < 4; i++) ql[id(i)].t = q0 + 100000
+    const late = Math.round((R.CAP_MS - R.CLOCK_MS + 5000) / 1000 * R.HZ)
+    R.advance(q, ql, { [id(2)]: { k: late, f: 6, at: q0 + late / R.HZ * 1000 + 200 } }, q0 + late / R.HZ * 1000 + 300)
+    ok(q.capAt === q0 + R.CAP_MS, 'a first make with 45 s or less left leaves the clock as it was')
+    for (let i = 0; i < 4; i++) live[id(i)].t = c1 + R.GRACE_MS
+    R.advance(room, live, { [id(1)]: { k: 1200, f: 6, at: t0 + 10500 }, [id(0)]: { k: 2400, f: 9, at: t0 + 20500 } }, c1 + R.GRACE_MS)
+    ok(room.phase === 'board', 'and the hole ends on it (C and D still out: they didn’t score)')
+    const rows = room.results[0]
+    ok(rows.filter((r) => r.dnf).every((r) => r.pts === 0 && r.tix === R.TIX_DNF), 'a player who doesn’t score gets no points for the hole, the same as ever')
+    ok(rows.find((r) => r.id === id(1)).stops === 2 && rows.find((r) => r.id === id(0)).stops === 2, 'stops: every defender is credited with each player who failed to score while they were defending (C and D, for both)')
+    ok(rows.find((r) => r.id === id(1)).tix === R.TIX[0] + 2 * R.STOP_TIX && rows.find((r) => r.id === id(1)).stopTix === 2 * R.STOP_TIX && R.STOP_TIX === 2, `+${R.STOP_TIX} tickets per stop, per defender (B: ${R.TIX[0]} + 2 stops = ${R.TIX[0] + 4})`)
+    ok(room.totals[id(1)].stops === 2, 'and the stops add up over the match')
+  }
+  {
+    // who counts as stopped: someone who gave up before you scored wasn't; nor someone who went away
+    const room = { racers: [0, 1, 2, 3].map(id), players: [0, 1, 2, 3].map((i) => ({ id: id(i), joined: 0 })) }
+    const live = { [id(0)]: { t: 50000 }, [id(1)]: { t: 50000 }, [id(2)]: { t: 50000 }, [id(3)]: { t: 100 } }
+    const rows = [{ id: id(0), k: 900, at: 2000 }, { id: id(1), dnf: 1 }, { id: id(2), dnf: 1 }, { id: id(3), dnf: 1 }]
+    const st = R.stopsOf(room, rows, { [id(1)]: { dnf: 1, at: 1500 }, [id(2)]: { dnf: 1, at: 2500 } }, live, 50000)
+    ok(st[id(0)] === 1, 'a give-up after your make is a stop; one before it isn’t; nor is someone who went away', JSON.stringify(st))
+  }
+  {
+    // the seals and the replay: in 2.13 a make isn't the end of a player's inputs (they defend), so every game seals its
+    // inputs when the hole's over, and the server replays once they're all in
     const { room, live, t0 } = playKO()
     room.players[0].acct = { u: 'uA', n: 'Adam' }; room.players[1].acct = { u: 'uB', n: 'Sam' }; room.players[2].acct = { u: 'uC', n: 'Kat' }
     const calls = []
-    const kor = { holeOf: (w, h) => `${w}#${h}`, replay: (a) => { calls.push(a); return { T: 2000, hash: 'h1', fins: { [id(0)]: { k: 1400, f: 9 }, [id(1)]: { k: 1500, f: 7 }, [id(2)]: null, [id(3)]: null }, kos: { [id(0)]: 0, [id(1)]: 2, [id(2)]: 1, [id(3)]: 0 } } } }
+    const kor = { holeOf: (w, h) => `${w}#${h}`, replay: (a) => { calls.push(a); return { T: 6800, hash: 'h1', over: 6800, end: 6800, fins: { [id(0)]: { k: 1400, f: 9 }, [id(1)]: { k: 1500, f: 7 }, [id(2)]: null, [id(3)]: null }, kos: { [id(0)]: 1, [id(1)]: 2, [id(2)]: 1, [id(3)]: 0 } } } }
     for (let i = 0; i < 4; i++) live[id(i)].t = t0 + 30000
     // (A claims a far better time than it had: 300 steps)
     const fins = { [id(0)]: { k: 300, f: 1, at: t0 + 13000, in: '2:1,9:1,40:1' }, [id(1)]: { k: 1500, f: 7, at: t0 + 13500, in: '3:1,500:1' },
-      [id(2)]: { dnf: 1, at: t0 + 14000, in: '5:-1' }, [id(3)]: { dnf: 1, at: t0 + 15000, in: '' } }
-    R.advance(room, live, fins, t0 + 30000, Math.random, kor)
+      [id(2)]: { dnf: 1, at: t0 + 14000, in: '5:-1,30:G' }, [id(3)]: { dnf: 1, at: t0 + 15000, in: '7:G' } }
+    R.advance(room, live, fins, t0 + 30000, Math.random, kor, {})
+    ok(room.phase === 'board' && calls.length === 0 && room.kov[0] === 0, 'the hole’s over, but the defenders’ inputs aren’t all in: the replay waits for them (a finish isn’t the end of them now)')
+    ok(R.view(room, live, fins, id(1), t0 + 30000).kov[0] === null, '(the games are told there’s no replay yet)')
+    const seals = { [id(0)]: R.parseSeal(R.sealValue('2:1,9:1,40:1,1600:1,1700:U', t0 + 30500)) }
+    R.advance(room, live, fins, t0 + 30500, Math.random, kor, seals)
+    ok(calls.length === 0 && room.kov[0] === 0, 'one seal in, one to go (C and D gave up: theirs came with it)')
+    seals[id(1)] = R.parseSeal(R.sealValue('3:1,500:1,1520:-1,1800:U', t0 + 31000))
+    R.advance(room, live, fins, t0 + 31000, Math.random, kor, seals)
     const c = calls[0]
-    ok(calls.length === 1 && c.hole === `${room.world}#0` && c.seed === room.seed && c.inputs[id(0)].length === 3 && c.inputs[id(1)][1][0] === 500,
-      'with every racer’s inputs in (each sealed with their finish or give-up), the server replays the hole: everyone’s inputs and the seed')
-    ok(c.until >= 1500 + 600 && c.until <= R.CAP_MS / 1000 * R.HZ, 'it plays as far as the last finish or input and a little more (never past the cap)', String(c.until))
+    ok(calls.length === 1 && c.hole === `${room.world}#0` && c.seed === room.seed && c.inputs[id(0)].length === 5 && c.inputs[id(0)][3][0] === 1600 && c.inputs[id(2)][1][1] === 'G',
+      'with every seal in, the server replays the hole: everyone’s inputs to the end (a defender’s after its make too), the seed')
+    ok(c.cap === R.capTicks() && c.until > c.cap, 'with the hole’s clock (the world ends itself: 45 s after the first make, or once everyone’s in or gave up)')
     const recA = room.koRec.find((r) => r.u === 'uA'), recB = room.koRec.find((r) => r.u === 'uB')
     ok(recA && recA.k === 1400 && recA.f === 9, 'a tampered claim doesn’t count: the record candidate is the replay’s 1400 steps, not the claimed 300')
     ok(recB && recB.k === 1500 && room.koRec.length === 2 && !room.koRec.some((r) => r.u === 'uC'), 'only balls the replay saw go in are candidates')
-    ok(room.results[0].find((r) => r.id === id(1)).ko === 2 && room.results[0].find((r) => r.id === id(2)).ko === 1, 'the board’s KOs are the server’s own count once it’s replayed')
-    ok(room.kov[0].hash === 'h1' && R.view(room, live, {}, id(1), t0 + 30000).kov[0].T === 2000, 'the replay’s fingerprint goes out with the party (every game can check its own against it)')
-    live[id(1)] = R.cleanLive({ m: 1, h: -1 }, t0 + 31000)          // (B's game on the board: its poll no longer carries the hole's inputs)
-    ok(R.view(room, live, fins, id(0), t0 + 31000).players[1].in === '3:1,500:1', 'during the board every game is handed each player’s sealed inputs (what the server replayed), not their latest poll')
+    ok(room.results[0].find((r) => r.id === id(1)).ko === 2 && room.results[0].find((r) => r.id === id(0)).ko === 1 && room.totals[id(1)].ko === 2, 'the board’s KOs become the server’s own count once it’s replayed (a defender’s KOs too), and the match’s with them')
+    ok(room.kov[0].hash === 'h1' && R.view(room, live, {}, id(1), t0 + 31000).kov[0].T === 6800 && room.koRecTmp === 1, 'the replay’s fingerprint goes out with the party, and the records are written by the request that ran it')
+    live[id(1)] = R.cleanLive({ m: 1, h: -1 }, t0 + 31000)
+    ok(R.view(room, live, fins, id(0), t0 + 31000, seals).players[1].in === '3:1,500:1,1520:-1,1800:U', 'every game is handed each player’s sealed inputs (what the server replayed), not their latest poll, nor their finish’s')
+    delete room.koRecTmp
+    const n0 = calls.length
+    R.advance(room, live, fins, t0 + 31500, Math.random, kor, seals)
+    ok(calls.length === n0, 'and it’s replayed once')
+    ok(R.sealValue('1:1,'.repeat(3001) + '9:1', 1) === null && R.sealValue('', 5) === '5|', 'inputs that don’t fit can’t be sealed (no replay); none at all is a seal')
   }
   {
-    // a racer whose inputs never came in (left without finishing): nothing is replayed, no records, no match record
+    // a racer whose inputs never come in (left): nothing is replayed, no records, no match record
     const { room, live, t0 } = playKO()
     room.players.forEach((p, i) => { p.acct = { u: 'u' + i, n: p.name } })
     const kor = { holeOf: () => 'x', replay: () => { throw new Error('should not replay') } }
     for (let i = 0; i < 4; i++) live[id(i)].t = t0 + 30000
     live[id(3)].t = t0 - 60000                          // (D went quiet: away)
     const fins = { [id(0)]: { k: 1400, f: 9, at: t0 + 13000, in: '2:1' }, [id(1)]: { k: 1500, f: 7, at: t0 + 13500, in: '3:1' }, [id(2)]: { dnf: 1, at: t0 + 14000, in: '' } }
-    R.advance(room, live, fins, t0 + 30000, Math.random, kor)
-    ok(room.phase === 'board' && room.kov[0] === null && room.koRec.length === 0 && room.koVbad === 1, 'missing anyone’s inputs (someone went quiet without finishing): no replay, no record candidates')
-    // …and a finish from before 2.12 (no inputs with it) can't be replayed either
-    ok(R.koVerify({ ...room, hole: 0 }, { [id(0)]: { k: 9, f: 1, at: 1 } }, kor) === null, 'nor a finish with no inputs sealed to it')
+    const seals = { [id(0)]: { at: 1, in: '2:1' }, [id(1)]: { at: 1, in: '3:1' } }
+    R.advance(room, live, fins, t0 + 30000, Math.random, kor, seals)
+    ok(room.phase === 'board' && room.kov[0] === 0, 'someone’s seal still to come: nothing yet')
+    R.advance(room, live, fins, room.until, Math.random, kor, seals)
+    ok(room.kov[0] === null && room.koVbad === 1 && room.koRec.length === 0, 'never came by the end of the board: no replay, no record candidates, and the match’s Most KOs can’t count')
     const kor2 = { holeOf: () => 'x', replay: () => { throw new Error('should not replay') } }
-    const all4 = Object.fromEntries([0, 1, 2, 3].map((i) => [id(i), { k: 900, f: 4, at: 1, in: i === 2 ? '5:1,600:L' : '5:1' }]))
-    ok(R.koVerify({ ...room, phase: 'hole', hole: 0, racers: [0, 1, 2, 3].map(id) }, all4, kor2) === null, 'nor a hole where a last ball was opened because someone left (L)')
+    const r4 = { ...room, phase: 'board', hole: 0, racers: [0, 1, 2, 3].map(id) }
+    const s4 = Object.fromEntries([0, 1, 2, 3].map((i) => [id(i), { at: 1, in: i === 2 ? '5:1,600:L' : '5:1' }]))
+    ok(R.koVerify(r4, {}, s4, kor2) === null, 'nor a hole where a last ball was opened because someone left (L)')
+    const r5 = { ...r4, players: r4.players.slice(0, 3) }
+    ok(R.koVerify(r5, {}, s4, kor2) === null, 'nor one a racer left')
   }
   {
     // the most KOs in a match: only when every hole was replayed; signed in; at least one
@@ -268,10 +320,12 @@ if (process.argv[2] !== 'live') {
     const kor = { holeOf: () => 'h', replay: () => ({ T: 900, hash: 'z', fins: { [id(0)]: { k: 800, f: 5 }, [id(1)]: null, [id(2)]: null, [id(3)]: null }, kos: { [id(0)]: 0, [id(1)]: 3, [id(2)]: 2, [id(3)]: 0 } }) }
     for (let i = 0; i < 4; i++) live[id(i)].t = t0 + 30000
     const fins = { [id(0)]: { k: 800, f: 5, at: t0 + 9000, in: '1:1' }, [id(1)]: { dnf: 1, at: t0 + 9000, in: '' }, [id(2)]: { dnf: 1, at: t0 + 9000, in: '' }, [id(3)]: { dnf: 1, at: t0 + 9000, in: '' } }
-    R.advance(room, live, fins, t0 + 30000, Math.random, kor)
-    R.advance(room, live, {}, room.until, Math.random, kor)
+    R.advance(room, live, fins, t0 + 30000, Math.random, kor, {})
+    R.advance(room, live, fins, t0 + 30500, Math.random, kor, { [id(0)]: { at: 1, in: '1:1,900:1' } })
+    R.advance(room, live, {}, room.until, Math.random, kor, {})
     ok(room.phase === 'final' && room.koMatch.length === 1 && room.koMatch[0].u === 'uB' && room.koMatch[0].ko === 3 && room.koMatch[0].world === room.world,
       'the match’s KOs, counted by the server, go up for the world’s Most KOs record (signed in, at least one; Kat had 2 but no account)', JSON.stringify(room.koMatch))
+    ok(R.finalOrder(room).every((r) => typeof r.stops === 'number'), 'the final standings carry each player’s stops')
   }
   // ---- a whole match
   {
