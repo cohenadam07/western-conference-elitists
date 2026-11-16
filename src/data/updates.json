@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-11-16",
+    "product": "Flappy Hoops",
+    "version": "2.13.2",
+    "text": "In a race, the SCORED callout no longer covers a friend's make on a phone: it sits just under it",
+    "to": "/hoops"
+  },
+  {
     "date": "2026-11-15",
     "product": "Flappy Hoops",
     "version": "2.13.1",
