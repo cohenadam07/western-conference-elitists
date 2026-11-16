@@ -1,0 +1,29 @@
+{
+ "season": "2013-14",
+ "d1_games": 5503,
+ "box_gate_raw": 0.9973,
+ "box_gate": 0.9984,
+ "filled_lines": 6,
+ "pbp_games": 4837,
+ "pbp_rate": 0.879,
+ "score_rate": 0.9824,
+ "pbp_ok_games": 4614,
+ "pbp_ok_rate": 0.9539,
+ "coord_rate": 0.2448,
+ "box_rate_raw": 0.9784,
+ "box_rate": 0.9919,
+ "lineup_games": 0,
+ "lineup_ok_games": 0,
+ "lineup_ok_rate_of_d1": 0.0,
+ "five_rate": null,
+ "firm_rate": null,
+ "minutes_within_1": null,
+ "team_minutes_ok": null,
+ "team_box_minutes_ok": null,
+ "poss_team_seasons_within_2pct": 0.8743,
+ "poss_bias": -0.012,
+ "sources": {
+  "none": 5503
+ },
+ "line_games": 3915
+}

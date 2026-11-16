@@ -1,0 +1,29 @@
+{
+ "season": "2010-11",
+ "d1_games": 5390,
+ "box_gate_raw": 0.9865,
+ "box_gate": 0.9865,
+ "filled_lines": 0,
+ "pbp_games": 3335,
+ "pbp_rate": 0.6187,
+ "score_rate": 0.9343,
+ "pbp_ok_games": 0,
+ "pbp_ok_rate": 0.0,
+ "coord_rate": 0.0,
+ "box_rate_raw": 0.4295,
+ "box_rate": null,
+ "lineup_games": 0,
+ "lineup_ok_games": 0,
+ "lineup_ok_rate_of_d1": 0.0,
+ "five_rate": null,
+ "firm_rate": null,
+ "minutes_within_1": null,
+ "team_minutes_ok": null,
+ "team_box_minutes_ok": null,
+ "poss_team_seasons_within_2pct": NaN,
+ "poss_bias": NaN,
+ "sources": {
+  "none": 5390
+ },
+ "line_games": 0
+}
