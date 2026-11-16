@@ -36,7 +36,7 @@ import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'o
 export const MAX_PLAYERS = 8
 export const MIN_START = 2
 // (the clocks can be set from the environment: RACE_LEAD_MS and so on; the tests on a slow machine do)
-const envList = (k) => { const v = typeof process !== 'undefined' && process.env ? process.env[k] : ''; return v && /^\d(,\d){0,40}$/.test(v) ? v.split(',').map(Number) : null }
+const envList = (k) => { const v = typeof process !== 'undefined' && process.env ? process.env[k] : ''; return v && /^\d{1,2}(,\d{1,2}){0,40}$/.test(v) ? v.split(',').map(Number) : null }   // (2.13.1: item 10, Meatxplosion)
 const KO_DEAL = envList('RACE_KO_DEAL')
 const env = (k, d) => { const n = Number(typeof process !== 'undefined' && process.env ? process.env[k] : 0); return n > 0 ? n : d }
 export const VOTE_MS = env('RACE_VOTE_MS', 15000)     // Adam: "every person in the lobby has 15 seconds to vote"
@@ -54,7 +54,7 @@ export const GONE_MS = 150000         // in the lobby, not heard from for this l
 export const TTL = 3 * 3600           // seconds a party outlives its last request
 export const HZ = 120
 export const MODES = ['speed', 'flaps', 'knockout']
-export const KO_VERSION = 3           // a game that knows Knockout says so (kv) with every poll (3: 2.13's rules)
+export const KO_VERSION = 4           // a game that knows Knockout says so (kv) with every poll (3: 2.13's rules; 4: 2.13.1's, a different world)
 export const CLOCK_MS = 45000         // Knockout (2.13): once someone's in, at most this long left
 export const STOP_TIX = 2             // …and a defender's tickets for each player who fails to score while they're defending
 // Tickets by place on each hole, and the match bonus (the way Flappy Golf 2 pays out a race).

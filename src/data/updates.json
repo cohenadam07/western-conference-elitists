@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-11-15",
+    "product": "Flappy Hoops",
+    "version": "2.13.1",
+    "text": "Knockout fixes and a new item: the last one out can always score with a defender on the course, a KO now sits you out for 3 seconds, demolitions happen without Fast Break, bigger fireballs that bend toward their target, and Meatxplosion: 5 seconds where anything you touch blows up",
+    "to": "/hoops"
+  },
+  {
     "date": "2026-11-14",
     "product": "Flappy Hoops",
     "version": "2.13.0",
