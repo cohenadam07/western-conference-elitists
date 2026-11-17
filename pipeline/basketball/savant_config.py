@@ -137,7 +137,7 @@ AGING = {
 # tier:     era tier (1-4) — see TIER_SINCE above. Every bar must carry one.
 # since:    optional, later than the tier's first season when the source starts later. The
 #           NBA's LeagueSeasonMatchups is a stub for 2016-17 (17,186 matchup possessions league-wide
-#           against ~1.2M in a full season, nobody past 162), so mtch and oppfg start in 2017-18.
+#           against ~1.2M in a full season, nobody past 162), so mtch, oppfg and ddiff start in 2017-18.
 # ----------------------------------------------------------------------------
 METRICS = [
   dict(key="mpg",      label="Minutes / game",        group="ctx", sub="",                       layer="context",    unit="num1", thr=0,    lower=False, kind="box",      windowed=True,  tier=1),
@@ -174,7 +174,7 @@ METRICS = [
   dict(key="uast",     label="Unassisted makes %",     group="off", sub="Creation & playmaking",  layer="ingredient", unit="pct1", thr=100,  lower=False, kind="scoring",  windowed=True,  tier=2),
   dict(key="uast3",    label="Unassisted 3s %",        group="off", sub="Creation & playmaking",  layer="ingredient", unit="pct1", thr=50,   lower=False, kind="scoring",  windowed=True,  tier=2),
   dict(key="syn",      label="Shot-making (PPP %ile)", group="off", sub="Creation & playmaking",  layer="expected",   unit="num0", thr=100,  lower=False, kind="synergy",  windowed=False, tier=4),
-  dict(key="ddiff",    label="Defender difficulty",    group="off", sub="Creation & playmaking",  layer="ingredient", unit="wsgn", thr=200,  lower=False, kind="matchups", windowed=False, tier=4),
+  dict(key="ddiff",    label="Defender difficulty",    group="off", sub="Creation & playmaking",  layer="ingredient", unit="wsgn", thr=200,  lower=False, kind="matchups", windowed=False, tier=4, since="2017-18"),
 
   dict(key="onoff",    label="On/Off net",             group="off", sub="Impact",                 layer="context",    unit="num1", thr=0,    lower=False, kind="onoff",    windowed=False, tier=2),
   dict(key="onoffadj", label="On/Off net (luck-adjusted)", group="off", sub="Impact",             layer="context",    unit="num1", thr=0,    lower=False, kind="onoffadj", windowed=False, tier=2),

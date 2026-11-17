@@ -5,7 +5,8 @@ Defender difficulty = the PARTIAL_POSS-weighted average season DBPM of the
 defenders who guarded a player (the offensive mirror of `mtch`, which averages
 the PPG of players a defender guarded). Uses the same cached LeagueSeasonMatchups
 table + the DBPM already merged into players.json, so no engine rerun is needed.
-Matchup tracking is tier 4 only (2016-17+); earlier seasons are skipped.
+Matchup tracking starts in 2017-18 (the NBA's 2016-17 table is a stub: savant_config
+since); earlier seasons are skipped.
 
     python3 inject_ddiff.py
 """
@@ -32,6 +33,8 @@ def season_dbpm(players):
 def apply_season(season, players):
     """Defender difficulty for one tier-4 season, onto `players` in place (needs dbpm
     already on them). Shared by main() (full rebuild) and refresh_current.py."""
+    if season < C.since_of(next(m for m in C.METRICS if m["key"] == "ddiff")):
+        return 0
     dbpm = season_dbpm(players)
     if not dbpm:
         return 0
@@ -62,8 +65,6 @@ def main():
     d = json.load(open(OUT))
     total = 0
     for season in d["seasons"]:
-        if C.season_tier(season) < 4:                 # matchup tracking is tier 4 (2016-17+)
-            continue
         players = d["data"][season]["players"]
         n = apply_season(season, players)
         total += n
