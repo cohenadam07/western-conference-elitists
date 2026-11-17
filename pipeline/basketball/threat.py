@@ -3,10 +3,16 @@ threat.py — the offensive threat score behind mtchc (Matchup difficulty, creat
 
     T = threat_table(rows, season, pool_min, k)      # one season, every offensive player
 
-`rows` is {pid: {"min": minutes, "pos": "Guard"|"Wing"|"Big", "v": {key: value}}}, the season's
-own card values (Basketball Savant's player-season numbers, never re-derived here). Three parts:
+`rows` is {pid: {"min": minutes, "pos": "Guard"|"Wing"|"Big", "tsa": true-shooting attempts,
+"v": {key: value}}}, the season's own card values (Basketball Savant's player-season numbers,
+never re-derived here; tsa is the sample the card's ts carries). Three parts:
 
-    Scoring   pts (Points / 75), ts (True shooting %)
+    Scoring   pts (Points / 75) and pae, points above average efficiency: pts x (ts - the
+              season's league TS%). League TS% is attempt-weighted over every player, the way
+              Savant value (tools/savant-value/value.py) takes it: sum of points / (2 x sum of
+              attempts). Raw TS% let a low-usage big with a .700 TS reach the top of Scoring on
+              efficiency alone (77 player-seasons, 2017-18 to 2025-26, in a season's top 60
+              with below-average Points / 75); pae weighs the efficiency by the volume it was on.
     Creation  ast (Assist %), potast (Potential assists / 75), astpts75 (Assist points
               created / 75), top75 (Time of possession / 75; left out in 2024-25, when the
               NBA's time of possession runs ~40% long: ext_config.BROKEN_SEASONS)
@@ -14,7 +20,6 @@ own card values (Basketball Savant's player-season numbers, never re-derived her
               gravoni (on-ball perimeter and interior). Off-ball gravity is spacing, not
               creating, and stays out. A player the NBA publishes no gravity for is OBPM alone.
 
-ts is published raw; subtracting the season's league TS% would change no z-score, so it isn't.
 
 Steps, within one season:
   1. Each input is z-scored with the mean and SD of the players with pool_min+ minutes (500,
@@ -27,6 +32,11 @@ Steps, within one season:
      is scaled to unit spread around its own pool mean, so its level is kept, and the part
      is then centred and scaled once over the whole pool. A recipe with fewer than
      MIN_RECIPE pool players is not rescaled.
+  3b. Overall is then taken net of Scoring (overall_mode "resid", the default): within the
+     season Overall is regressed on Scoring over the pool, and the residual, re-standardised,
+     is Overall. OBPM is mostly a scoring measure (Overall and Scoring correlated 0.81-0.87
+     every season), so the equal-weight version counted scoring about twice. Adam's call,
+     Nov 17, 2026, made on that basis rather than on a test. "equal" keeps the old part.
   4. Each part is pulled toward the league mean (0) by minutes / (minutes + k[part]).
   5. threat = the equal-weight average of the three shrunk parts. A part with no input at
      all counts as 0, the league mean.
@@ -36,7 +46,7 @@ import statistics
 
 PARTS = ("score", "create", "overall")
 INPUTS = {
-    "score": ("pts", "ts"),
+    "score": ("pts", "pae"),
     "create": ("ast", "potast", "astpts75", "top75"),
     "overall": ("obpm", "gravonp", "gravoni"),
 }
@@ -47,12 +57,16 @@ MIN_RECIPE = 30
 # other stat uses (tools/savant-settle/measure.py season_to_season, then its calibration):
 # each qualified player's part, shrunk by n / (n + k), predicting his part next season,
 # 2013-14 to 2025-26 (2,748 season pairs, median 1,788 minutes). The fitted season-to-season
-# k (score 562, create 188, overall 473) times the possession family's factor (1.259) is the
-# k_last the page would show; times the family's mean share (0.355) it is k_mean, the k for a
-# prior at the mean, which is what this shrinkage is. Nov 17, 2026. k = 500 for every part
-# was the fallback and is not needed: against these, the 500+ minute ranking is the same
-# (Spearman 0.998) and players under 500 minutes are shrunk about twice as hard.
-K = {"score": 251, "create": 84, "overall": 211}
+# k (score 562, create 188, overall net of scoring 708) times the possession family's factor
+# (1.259) is the k_last the page would show; times the family's mean share (0.355) it is
+# k_mean, the k for a prior at the mean, which is what this shrinkage is. Nov 17, 2026.
+# Scoring with pae in place of ts fits the same k as with ts (562, a grid point). The
+# equal-weight Overall (overall_mode "equal", kept for comparison) fits 473 -> k_mean 211.
+# k = 500 for every part was the fallback and is not needed: against the first fit the 500+
+# minute ranking was the same (Spearman 0.998) and players under 500 minutes were shrunk
+# about twice as hard.
+K = {"score": 251, "create": 84, "overall": 316}
+K_EQUAL = {"score": 251, "create": 84, "overall": 211}
 LEFT_OUT = {"top75": {"2024-25"}}        # = ext_config.BROKEN_SEASONS["top75"]
 
 
@@ -73,6 +87,29 @@ def _mean_sd(xs):
     m = statistics.fmean(xs)
     sd = statistics.pstdev(xs)
     return (m, sd) if sd > 0 else None
+
+
+def league_ts(rows):
+    """Attempt-weighted league TS%: sum(ts x tsa) / sum(tsa) = points / (2 x attempts)."""
+    num = den = 0.0
+    for r in rows.values():
+        ts, n = r["v"].get("ts"), r.get("tsa")
+        if _ok(ts) and _ok(n) and n > 0:
+            num += ts * n
+            den += n
+    return num / den if den else None
+
+
+def with_pae(rows):
+    """rows with v["pae"] = pts x (ts - league TS%) where both exist (a copy; rows untouched)."""
+    lg = league_ts(rows)
+    out = {}
+    for pid, r in rows.items():
+        v = dict(r["v"])
+        pts, ts = v.get("pts"), v.get("ts")
+        v["pae"] = pts * (ts - lg) if lg is not None and _ok(pts) and _ok(ts) else None
+        out[pid] = dict(r, v=v)
+    return out
 
 
 def zscores(rows, season, pool_min, keys):
@@ -106,8 +143,26 @@ def _raw_part(part, pid, Z, gravity=True):
     return sum(comps) / len(comps), tuple(recipe)
 
 
-def parts_table(rows, season, pool_min, gravity=True):
+def _resid(P, rows, pool_min):
+    """Overall net of Scoring: OLS over the pool, residual for everyone, re-standardised."""
+    pool = [pid for pid in rows if rows[pid]["min"] >= pool_min
+            and P[pid]["overall"] is not None and P[pid]["score"] is not None]
+    xs = [P[pid]["score"] for pid in pool]
+    ys = [P[pid]["overall"] for pid in pool]
+    mx, my = statistics.fmean(xs), statistics.fmean(ys)
+    b = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / sum((x - mx) ** 2 for x in xs)
+    a = my - b * mx
+    res = {pid: P[pid]["overall"] - (a + b * (P[pid]["score"] or 0.0))
+           for pid in rows if P[pid]["overall"] is not None}
+    ms = _mean_sd([res[pid] for pid in pool])
+    for pid in rows:
+        P[pid]["overall"] = (res[pid] - ms[0]) / ms[1] if pid in res else None
+    return b
+
+
+def parts_table(rows, season, pool_min, gravity=True, overall_mode="resid"):
     """{pid: {part: standardised value or None}} plus {part: {recipe: pool size}}."""
+    rows = with_pae(rows)
     Z = zscores(rows, season, pool_min, [k for p in PARTS for k in INPUTS[p]])
     out = {pid: {} for pid in rows}
     recipes = {}
@@ -131,6 +186,8 @@ def parts_table(rows, season, pool_min, gravity=True):
         for pid in rows:
             out[pid][part] = (adj[pid] - ms[0]) / ms[1] if pid in adj else None
         recipes[part] = sizes
+    if overall_mode == "resid":
+        recipes["overall_on_score"] = _resid(out, rows, pool_min)
     return out, recipes
 
 
@@ -138,9 +195,9 @@ def shrink(value, minutes, k):
     return value * minutes / (minutes + k) if value is not None else 0.0
 
 
-def threat_table(rows, season, pool_min, k=K, gravity=True):
+def threat_table(rows, season, pool_min, k=K, gravity=True, overall_mode="resid"):
     """{pid: {"score", "create", "overall" (shrunk), "raw": {part: unshrunk}, "threat"}}."""
-    P, recipes = parts_table(rows, season, pool_min, gravity)
+    P, recipes = parts_table(rows, season, pool_min, gravity, overall_mode)
     out = {}
     for pid, r in rows.items():
         s = {part: shrink(P[pid][part], r["min"], k[part]) for part in PARTS}
