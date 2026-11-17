@@ -147,6 +147,8 @@ def _resid(P, rows, pool_min):
     """Overall net of Scoring: OLS over the pool, residual for everyone, re-standardised."""
     pool = [pid for pid in rows if rows[pid]["min"] >= pool_min
             and P[pid]["overall"] is not None and P[pid]["score"] is not None]
+    if len(pool) < MIN_RECIPE:                                # nothing to regress on: leave it
+        return None
     xs = [P[pid]["score"] for pid in pool]
     ys = [P[pid]["overall"] for pid in pool]
     mx, my = statistics.fmean(xs), statistics.fmean(ys)
@@ -181,6 +183,11 @@ def parts_table(rows, season, pool_min, gravity=True, overall_mode="resid"):
             ms = _mean_sd([raw[pid] for pid in inpool if rec[pid] == r]) if n >= MIN_RECIPE else None
             scale[r] = ms[1] if ms else None
         base = _mean_sd([raw[pid] for pid in inpool])
+        if base is None:                                      # no pool to scale it by: no part
+            for pid in rows:
+                out[pid][part] = None
+            recipes[part] = sizes
+            continue
         adj = {pid: v / (scale.get(rec[pid]) or base[1]) for pid, v in raw.items()}
         ms = _mean_sd([adj[pid] for pid in inpool])
         for pid in rows:
@@ -205,3 +212,24 @@ def threat_table(rows, season, pool_min, k=K, gravity=True, overall_mode="resid"
         s["threat"] = sum(s[part] for part in PARTS) / len(PARTS)
         out[pid] = s
     return out, recipes
+
+
+def defender_table(pairs, T):
+    """mtchc and its parts for every defender, from (def_id, off_id, partial possessions).
+
+    The partial-possession-weighted average of the threat (and of each shrunk part) of the
+    offensive players he guarded, the same weights mtch uses. An offensive player with no row
+    in T counts at the league mean (0) and still counts toward the sample. Because threat is
+    the average of the three parts, mtchc = (mtchc_score + mtchc_create + mtchc_overall) / 3
+    exactly. n is his matchup possessions."""
+    acc = {}
+    for d, o, w in pairs:
+        if not w or w <= 0:
+            continue
+        t = T.get(o)
+        a = acc.setdefault(d, [0.0, 0.0, 0.0, 0.0, 0.0])
+        if t is not None:
+            a[0] += w * t["threat"]; a[1] += w * t["score"]; a[2] += w * t["create"]; a[3] += w * t["overall"]
+        a[4] += w
+    return {d: {"mtchc": a[0] / a[4], "mtchc_score": a[1] / a[4], "mtchc_create": a[2] / a[4],
+                "mtchc_overall": a[3] / a[4], "n": a[4]} for d, a in acc.items() if a[4] > 0}
