@@ -35,7 +35,7 @@ MIN_AGE = 30
 MIN_AGE_POS = 50
 MIN_STAT = 20      # a stat tracked for only part of the history can run thin inside a good pool
 POS = ["Guard", "Wing", "Big"]
-SINCE = {m["key"]: C.TIER_SINCE[m.get("tier", 1)] for m in C.METRICS}
+SINCE = {m["key"]: C.since_of(m) for m in C.METRICS}
 
 
 def age_of(p, season):

@@ -135,6 +135,9 @@ AGING = {
 # windowed: True if the metric is recomputed per rolling window (LastNGames).
 # lower:    True if a lower raw value is better (page inverts for percentile).
 # tier:     era tier (1-4) — see TIER_SINCE above. Every bar must carry one.
+# since:    optional, later than the tier's first season when the source starts later. The
+#           NBA's LeagueSeasonMatchups is a stub for 2016-17 (17,186 matchup possessions league-wide
+#           against ~1.2M in a full season, nobody past 162), so mtch and oppfg start in 2017-18.
 # ----------------------------------------------------------------------------
 METRICS = [
   dict(key="mpg",      label="Minutes / game",        group="ctx", sub="",                       layer="context",    unit="num1", thr=0,    lower=False, kind="box",      windowed=True,  tier=1),
@@ -185,8 +188,8 @@ METRICS = [
   dict(key="stlpct",   label="Steal %",                group="def", sub="Activity & outcomes",    layer="ingredient", unit="pct1", thr=1000, lower=False, kind="derived",  windowed=True,  tier=1),
   dict(key="blkpct",   label="Block %",                group="def", sub="Activity & outcomes",    layer="ingredient", unit="pct1", thr=1000, lower=False, kind="derived",  windowed=True,  tier=1),
   dict(key="rim",      label="Rim FG% def. diff",      group="def", sub="Activity & outcomes",    layer="output",     unit="sgn",  thr=75,   lower=True,  kind="ptdefend", windowed=True,  tier=3),
-  dict(key="mtch",     label="Matchup difficulty",     group="def", sub="Activity & outcomes",    layer="ingredient", unit="wnum", thr=200,  lower=False, kind="matchups", windowed=False, tier=4),
-  dict(key="oppfg",    label="Opp FG% on matchups",    group="def", sub="Activity & outcomes",    layer="output",     unit="sgn",  thr=100,  lower=True,  kind="matchups", windowed=False, tier=4),
+  dict(key="mtch",     label="Matchup difficulty",     group="def", sub="Activity & outcomes",    layer="ingredient", unit="wnum", thr=200,  lower=False, kind="matchups", windowed=False, tier=4, since="2017-18"),
+  dict(key="oppfg",    label="Opp FG% on matchups",    group="def", sub="Activity & outcomes",    layer="output",     unit="sgn",  thr=100,  lower=True,  kind="matchups", windowed=False, tier=4, since="2017-18"),
   dict(key="defl",     label="Deflections / 75",       group="def", sub="Activity & outcomes",    layer="ingredient", unit="num1", thr=300,  lower=False, kind="hustle",   windowed=True,  tier=4),
 
   dict(key="length",   label="Length (wingspan)",      group="def", sub="Physical ingredients",   layer="ingredient", unit="ftin", thr=0,    lower=False, kind="combine",  windowed=False, tier=1),
@@ -303,3 +306,8 @@ FIELD_MAP = {
   # first/last are joined in build(), age comes from bio (LeagueDashPlayerBioStats).
   "index": {"id":"PERSON_ID","first":"PLAYER_FIRST_NAME","last":"PLAYER_LAST_NAME","pos":"POSITION","team":"TEAM_ABBREVIATION"},
 }
+
+
+def since_of(m):
+    """First season a metric is published: its own `since` if it has one, else its tier's."""
+    return m.get("since") or TIER_SINCE[m.get("tier", 1)]

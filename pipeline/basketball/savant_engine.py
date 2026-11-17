@@ -822,6 +822,8 @@ def build_one_season(season, current=None, qualify=None):
     #   mtch  = "matchup difficulty" proxy = PARTIAL_POSS-weighted average season PPG of the
     #           offensive players guarded (no direct difficulty column exists on this endpoint).
     try:
+        if season < C.since_of(next(m for m in C.METRICS if m["key"] == "mtch")):
+            raise LookupError("LeagueSeasonMatchups is a stub before 2017-18")
         fm = C.FIELD_MAP["matchups"]
         mdf = load_matchups(season)
         league_fgm = mdf[fm["matchup_fgm"]].astype(float).sum()
@@ -994,7 +996,7 @@ def write_metrics_config():
         season=C.SEASON, windows=list(C.WINDOWS.keys()), qualify=C.QUALIFY,
         tier_since=C.TIER_SINCE,
         metrics=[dict({k: m[k] for k in ("key","label","group","sub","layer","unit","thr","lower")},
-                      tier=m.get("tier", 1), since=C.TIER_SINCE[m.get("tier", 1)]) for m in C.METRICS],
+                      tier=m.get("tier", 1), since=C.since_of(m)) for m in C.METRICS],
         # Weakness comps: the page needs the flaw labels to render `wflaws`, and the
         # low_match threshold to decide when to warn that a match isn't really a match.
         # Everything else in C.WEAKNESS is generator-side tuning and stays out of the page.
