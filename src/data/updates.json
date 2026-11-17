@@ -1,9 +1,9 @@
 [
   {
-    "date": "2026-11-16",
+    "date": "2026-11-17",
     "product": "Flappy Hoops",
-    "version": "2.13.2",
-    "text": "In a race, the SCORED callout no longer covers a friend's make on a phone: it sits just under it",
+    "version": "2.13.3",
+    "text": "Knockout fixes: a second player's make always counts now (it could be lost once the hole ended), the clock never ends a hole early, no more starting inside a block or getting stuck in one, and Technical freezes everyone else for a second (Flop sends it back). On a phone, the SCORED callout no longer covers a friend's make",
     "to": "/hoops"
   },
   {
