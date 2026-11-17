@@ -8,6 +8,10 @@
 //                that player writes it, so it never contends): its vote, its flaps so far
 //   d:<m>:<h>:<id>   that player's finish on hole h of match m, "steps:flaps:when" (first one stands)
 //   e:<m>:<h>:<id>   Knockout (2.13): that player's inputs for the hole, sealed once it's over, "when|inputs" (first stands)
+// And outside any party (2.13.3), for 7 days (KO_FLAG_TTL), a Knockout hole worth playing again: its replay had a make that
+// was never reported, or it ended while a game still had time on its own clock (_race.js koFlag):
+//   fhko:flag:<CODE>:<m>:<h>   the hole's inputs and a short summary, JSON (first stands)
+//   fhko:flags                 the keys, newest first (the last 1,000); tools/koflags.mjs reads them back and replays them
 //   s:<to>:<from>    a note from one player's game to another's: the handshake that lets the two connect
 //                to each other directly (WebRTC: an offer, an answer). Handed over on the addressee's
 //                next poll and deleted as it's handed over. Once two games are connected, flaps go
@@ -20,7 +24,7 @@
 import { createHmac, randomBytes } from 'node:crypto'
 import {
   CODE_RE, ID_RE, TTL, makeCode, newRoom, addPlayer, removePlayer, cleanLive, finValue, parseFin, finField, sealValue, parseSeal, sealField,
-  startVote, toLobby, advance, view, cleanNotes, iceServers, diag,
+  startVote, toLobby, advance, view, cleanNotes, iceServers, diag, KO_FLAG_TTL,
 } from './_race.js'
 import { hoopsGet, hoopsPost, koSubmitHole, koSubmitMatch, acctOf, loadSim } from './_hoops.js'
 
@@ -39,6 +43,17 @@ async function koRecords(room, replayed, finalNow, run) {
     if (replayed && room.koRec && room.koRec.length) await koSubmitHole(room.koRec, run)
     if (finalNow && room.koMatch && room.koMatch.length) await koSubmitMatch(room.koMatch)
   } catch (e) { console.error('race: Knockout records', String((e && e.message) || e)) }
+}
+
+// (2.13.3) A Knockout hole worth playing again, kept 7 days: once, by the request whose write stood
+async function koFlagKeep(fl) {
+  try {
+    const key = `fhko:flag:${fl.code}:${fl.match}:${fl.hole}`
+    const set = await redis(['SET', key, JSON.stringify(fl), 'EX', String(KO_FLAG_TTL), 'NX'])
+    if (set !== 'OK') return
+    await redis(['LPUSH', 'fhko:flags', key]); await redis(['LTRIM', 'fhko:flags', '0', '999']); await redis(['EXPIRE', 'fhko:flags', String(KO_FLAG_TTL)])
+    console.warn('race: Knockout hole kept for a look', key, fl.unreported.length ? `${fl.unreported.length} make(s) never reported` : '', fl.early.length ? `ended with ${fl.early.length} game(s) still on the clock` : '')
+  } catch (e) { console.error('race: Knockout flag', String((e && e.message) || e)) }
 }
 
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
@@ -280,7 +295,7 @@ export default async function handler(req, res) {
     const kor = S.room.mode === 'knockout' && (S.room.phase === 'hole' || S.room.phase === 'board') ? await koReplayer() : null
     const final0 = !!S.room.final
     const step = advance(S.room, S.live, S.fins, now, Math.random, kor, S.seals)
-    const run = S.room.koRunTmp, replayed = !!S.room.koRecTmp; delete S.room.koRunTmp; delete S.room.koRecTmp
+    const run = S.room.koRunTmp, replayed = !!S.room.koRecTmp, flag = S.room.koFlagTmp; delete S.room.koRunTmp; delete S.room.koRecTmp; delete S.room.koFlagTmp
     if (step.changed) {
       const drop = step.clear ? S.fields.filter((f) => f.startsWith('d:') || f.startsWith('e:')) : S.old
       if (Number(await cas(code, S.v, S.room, drop)) !== 1) {
@@ -289,6 +304,7 @@ export default async function handler(req, res) {
       } else {
         // (this request moved it on: the Knockout records it made, once)
         if (S.room.mode === 'knockout') await koRecords(S.room, replayed, !final0 && !!S.room.final, run)
+        if (flag) await koFlagKeep(flag)
         if (S.room.match + ':' + S.room.hole !== was) { S.fins = {}; S.seals = {} }   // (a new hole: nobody's in yet)
       }
     }
