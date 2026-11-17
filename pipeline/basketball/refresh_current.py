@@ -85,7 +85,7 @@ def prorated_qualifier(games, first_date=None, through=None):
 
 def attach_value_bars(season, players):
     """PER / WS48 / BPM / OBPM / DBPM / VORP from Basketball Reference (nba_api has none),
-    joined on normalized name exactly as br_value_modern does. The cached page is moved aside
+    joined on name by br_value_modern.attach, the same join as the history. The cached page is moved aside
     so it is fetched fresh; if the fetch fails the old copy goes back and is used."""
     import br_fetch as BR
     import br_crosswalk as X
@@ -106,23 +106,8 @@ def attach_value_bars(season, players):
         else:
             print(f"  value bars: unavailable ({repr(e)[:70]})")
             return 0
-    br_by = {}
-    for r in badv.values():
-        br_by.setdefault(X._norm(r["name"]), []).append(r)
-    nb_by = {}
-    for p in players:
-        nb_by.setdefault(X._norm(p["name"]), []).append(p)
-    n = 0
-    for name, brs in br_by.items():
-        nbs = nb_by.get(name)
-        if not nbs or len(brs) != 1 or len(nbs) != 1:
-            continue
-        r, p = brs[0], nbs[0]
-        for k in ("per", "ws48", "bpm", "obpm", "dbpm", "vorp"):
-            if r.get(k) is not None:
-                p["m"].setdefault(k, {})["season"] = {"v": r[k], "n": None}
-        n += 1
-    return n
+    import br_value_modern as BV
+    return BV.attach(players, badv)
 
 
 def strict_json(obj):
