@@ -1,6 +1,6 @@
 {
-"fetched": "2026-11-16",
-"released": "2026-11-07",
+"fetched": "2026-11-18",
+"released": "2026-11-14",
 "lists": {
 "HW": {
 "champion": "Ciryl Gane",
@@ -11,8 +11,8 @@
 "Sergei Pavlovich",
 "Josh Hokit",
 "Curtis Blaydes",
-"Rizvan Kuniev",
 "Johnny Walker",
+"Rizvan Kuniev",
 "Waldo Cortes-Acosta",
 "Vitor Petrino",
 "Serghei Spivac",
@@ -79,11 +79,11 @@
 "Leon Edwards",
 "Mike Malott",
 "Kamaru Usman",
-"Uroš Medić",
 "Yaroslav Amosov",
+"Uroš Medić",
 "Joaquin Buckley",
-"Daniel Rodriguez",
-"Kevin Holland"
+"Kevin Holland",
+"Daniel Rodriguez"
 ]
 },
 "LW": {
@@ -122,10 +122,10 @@
 "Kevin Vallejos",
 "Steve Garcia",
 "Aaron Pico",
-"Melquizael Costa",
-"Brian Ortega",
 "Patrício Pitbull",
-"David Onama"
+"Brian Ortega",
+"David Onama",
+"Pat Sabatini"
 ]
 },
 "BW": {
@@ -172,16 +172,16 @@
 "champion": "Kayla Harrison",
 "interim": null,
 "ranked": [
+"Amanda Nunes",
 "Ailín Pérez",
-"Norma Dumont",
 "Luana Santos",
 "Yana Santos",
 "Raquel Pennington",
+"Beatriz Mesquita",
 "Jacqueline Cavalcanti",
 "Karol Rosa",
-"Macy Chiasson",
-"Beatriz Mesquita",
 "Michelle Montague",
+"Macy Chiasson",
 "Nora Cornolle",
 "Alice Pereira",
 "Chelsea Chandler"
@@ -240,11 +240,11 @@
 "Ilia Topuria",
 "Joshua Van",
 "Sean Strickland",
+"Ciryl Gane",
 "Tom Aspinall",
 "Merab Dvalishvili",
 "Alex Pereira",
 "Khamzat Chimaev",
-"Ciryl Gane",
 "Arman Tsarukyan",
 "Alexandre Pantoja",
 "Carlos Ulberg"
@@ -254,8 +254,8 @@
 "champion": null,
 "interim": null,
 "ranked": [
-"Valentina Shevchenko",
 "Kayla Harrison",
+"Valentina Shevchenko",
 "Zhang Weili",
 "Natália Silva",
 "Mackenzie Dern",
@@ -263,12 +263,12 @@
 "Manon Fiorot",
 "Tatiana Suarez",
 "Jasmine Jasudavicius",
+"Amanda Nunes",
 "Erin Blanchfield",
 "Julianna Peña",
 "Virna Jandiroba",
 "Rose Namajunas",
-"Denise Gomes",
-"Raquel Pennington"
+"Denise Gomes"
 ]
 }
 }
