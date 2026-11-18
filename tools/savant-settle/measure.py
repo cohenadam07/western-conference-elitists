@@ -154,7 +154,12 @@ def main():
                  p90_error=round(math.exp(loo[int(0.9 * len(loo))]) - 1, 3))
     print(f"calibration: factor {FACTOR}, mean share {MEAN_SHARE}; left-one-out error {check}", flush=True)
 
-    # 2. season to season, calibrated
+    # 2. season to season, calibrated. Plus the ext stats kept off the page (ext_config scope
+    # "data", e.g. mtchc_overall): the Data Room states their sample too.
+    import ext_config as XC
+    on_page = {m["key"] for m in metrics}
+    metrics = metrics + [dict(key=m["key"], unit=m["unit"], ext=True) for m in XC.EXT_METRICS
+                         if m.get("scope") == "data" and m["key"] not in on_page]
     for m in metrics:
         key = m["key"]
         if key in out or key in SKIP or m["unit"] in ("inch", "ftin", "lb", "word"):
