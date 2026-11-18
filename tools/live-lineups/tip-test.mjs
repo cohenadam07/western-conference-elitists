@@ -7,6 +7,8 @@ const tip = JSON.parse(fs.readFileSync('research/live-lineups-test/live/feeds/40
 const empty = structuredClone(tip); empty.plays = []; for (const c of empty.header.competitions[0].competitors) delete c.score;
 const b = await chromium.launch({ executablePath: process.env.LL_CHROME });
 const p = await (await b.newContext({ viewport: { width: 390, height: 844 } })).newPage(); const errs = [];
+// config.json only lists OU (201); this harness follows other teams, so it serves the switch as on for its own team
+await p.route('**/live-lineups/config.json*', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ enabled: true, teams: [String('130')], message: '' }) }));
 p.on('pageerror', e => errs.push(String(e))); p.on('console', m => m.type() === 'error' && errs.push(m.text()));
 let body = JSON.stringify(empty);
 await p.route('**/summary?event=401909524*', r => r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body }));

@@ -25,6 +25,35 @@ async function getJSON(url, proxy) {
 const summaryURL = gid => [`${ESPN}/summary?event=${gid}`, `/api/espn-summary?event=${gid}`];
 const fetchSummary = gid => getJSON(...summaryURL(gid));
 const fetchSchedule = () => getJSON(`${ESPN}/teams/${TEAM}/schedule`, `/api/espn-summary?schedule=${TEAM}`);
+// ---------------------------------------------------------------- kill switch: /live-lineups/config.json, read with no-store on
+// load, before every ESPN pull, and every 10 s on screens that do not poll (pre-game polls every 60 s, a final not at all).
+// Off when enabled is false or this team is not in teams: polling stops and only the message shows. If the file can't be
+// fetched or parsed, the page keeps running on its last answer (or on, if it never had one).
+const KILL_CHECK_S = 10;
+const kill = { off: false, msg: '', at: 0 };
+let killP = null;
+const checkConfig = () => (killP ||= readConfig().finally(() => { killP = null; }));
+async function readConfig() {
+  let cfg; kill.at = Date.now();
+  try {
+    const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 5000);
+    try { const r = await fetch(`/live-lineups/config.json?t=${Date.now()}`, { cache: 'no-store', signal: ctl.signal }); if (!r.ok) throw new Error('HTTP ' + r.status); cfg = await r.json(); }
+    finally { clearTimeout(to); }
+  } catch { kill.at = Date.now(); return !kill.off; }
+  kill.at = Date.now();
+  const off = !cfg || typeof cfg !== 'object' ? false : cfg.enabled === false || (Array.isArray(cfg.teams) && !cfg.teams.map(String).includes(TEAM));
+  if (off) { kill.msg = typeof cfg.message === 'string' && cfg.message.trim() ? cfg.message : 'This page is no longer available.'; shutDown(); }
+  else if (kill.off) location.reload(); // switched back on: start clean
+  return !off;
+}
+function shutDown() {
+  const first = !kill.off; kill.off = true; clearTimeout(st.timer); if (st.replay) st.replay.stopped = true; view.drawer = false;
+  const p = document.createElement('p'); p.className = 'empty'; p.dataset.killed = '1'; p.textContent = kill.msg;
+  if (first || $app.textContent !== kill.msg) { $app.replaceChildren(p); document.title = 'Live lineups'; }
+  window.__llKilled = true;
+}
+setInterval(() => { if (Date.now() - kill.at >= KILL_CHECK_S * 1000 - 250) checkConfig(); }, 1000);
+
 const store = { get(k) { try { const v = localStorage.getItem(CACHE + k); return v ? JSON.parse(v) : null; } catch { return null; } }, set(k, v) { try { localStorage.setItem(CACHE + k, JSON.stringify(v)); } catch { /* storage off or full: fine */ } } };
 
 // ---------------------------------------------------------------- status from a compact game
@@ -128,10 +157,11 @@ function downloadCsv() {
   const dt = chicagoDate(st.g.date);
   downloadBlob(lines.join('\r\n') + '\r\n', view.scope === 'season' ? `OU Stint Log - season to ${dt.m}-${dt.d}.csv` : `OU Stint Log - ${st.A.N.oppShort} ${dt.m}-${dt.d}.csv`, 'text/csv');
 }
-function alertLine(msg) { const b = document.createElement('div'); b.className = 'banner err'; b.setAttribute('role', 'alert'); b.textContent = msg; $app.prepend(b); setTimeout(() => b.remove(), 6000); }
+function alertLine(msg) { if (kill.off) return; const b = document.createElement('div'); b.className = 'banner err'; b.setAttribute('role', 'alert'); b.textContent = msg; $app.prepend(b); setTimeout(() => b.remove(), 6000); }
 
 // ---------------------------------------------------------------- the one pipeline: compact game in, screens out
 function ingest(g, quiet = false) {
+  if (kill.off) return;
   st.g = g;
   for (const a of g.box[TEAM] || []) st.info[a[0]] = { name: a[1], jersey: a[5], pos: a[4] };
   const prior = st.prior.filter(d => new Date(d.iso).getTime() < new Date(g.date).getTime());
@@ -157,7 +187,7 @@ function ingest(g, quiet = false) {
 // ---------------------------------------------------------------- rendering, keeping scroll and focus
 function focusKey(el) { if (!el || !el.dataset) return null; for (const k of ['tab', 'sel', 'five', 'seg', 'sheet', 'scope', 'act']) if (el.dataset[k] !== undefined) return [k, el.dataset[k], el.closest('.bottomtabs') ? 'b' : '']; return null; }
 function render() {
-  const A = st.A, S = st.S; if (!S) return;
+  const A = st.A, S = st.S; if (!S || kill.off) return;
   const scroll = {}; $app.querySelectorAll('[data-scroll]').forEach(el => { scroll[el.dataset.scroll] = [el.scrollLeft, el.scrollTop]; });
   const fk = focusKey(document.activeElement);
   S.unreachable = st.unreachable;
@@ -195,6 +225,7 @@ setInterval(() => { tickAgo(); if (!!staleness() !== !!st.staleShown) render(); 
 // ---------------------------------------------------------------- live
 async function poll(gid) {
   clearTimeout(st.timer);
+  if (kill.off || !(await checkConfig())) return;
   let next = CONFIG.REFRESH_LIVE_S;
   try {
     const raw = await fetchSummary(gid); st.unreachable = false; st.lastPoll = Date.now();
@@ -208,9 +239,10 @@ async function poll(gid) {
     if (!st.priorLoaded) loadSeason(g);
     const s = g.status.state; if (s === 'pre') next = CONFIG.REFRESH_PRE_S; else if (s === 'post') next = 0;
   } catch (e) {
+    if (kill.off) return;
     console.warn('[live-lineups] fetch failed', e); st.unreachable = true; if (st.S) render(); else $app.innerHTML = `<div class="banner err" role="alert"><b>Can't reach ESPN's play-by-play.</b> Retrying every 15 seconds.</div>`;
   }
-  if (next) st.timer = setTimeout(() => poll(gid), next * 1000);
+  if (next && !kill.off) st.timer = setTimeout(() => poll(gid), next * 1000);
 }
 
 // ---------------------------------------------------------------- replay: the same pipeline, plays revealed up to a moving clock
@@ -236,6 +268,8 @@ function startReplay(raw, speed, at) {
     return g;
   };
   const step = () => {
+    // a replay refreshes every 1.5 s at 10x; the 10 s config watcher covers it, plus a read on load
+    if (kill.off || rp.stopped) return;
     if (!rp.paused) {
       if (rp.hold > 0) rp.hold--;
       else {
@@ -285,6 +319,7 @@ async function pickGame() {
   return (next || finals[0])?.id;
 }
 (async function main() {
+  if (kill.off || !(await checkConfig())) return;
   fetch('/live-lineups/ratings-2025-26.json').then(r => r.json()).then(j => { st.ratings = j; if (st.g) ingest(st.g, true); }).catch(() => {});
   loadRoster();
   try {
@@ -294,6 +329,7 @@ async function pickGame() {
     if (!gid) { $app.innerHTML = '<p class="empty">No Oklahoma game found on ESPN\'s schedule.</p>'; return; }
     poll(gid);
   } catch (e) {
+    if (kill.off) return;
     console.warn('[live-lineups] start failed', e); st.unreachable = true;
     $app.innerHTML = `<div class="banner err" role="alert"><b>Can't reach ESPN's play-by-play.</b> Retrying every 15 seconds.</div>`;
     setTimeout(main, CONFIG.REFRESH_LIVE_S * 1000);

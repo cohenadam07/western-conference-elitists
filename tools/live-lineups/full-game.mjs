@@ -14,6 +14,8 @@ const say = (o, line) => { jl.write(JSON.stringify({ wall: new Date().toISOStrin
 
 const b = await chromium.launch({ executablePath: process.env.LL_CHROME });
 const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, userAgent: UA, acceptDownloads: true }); const p = await ctx.newPage();
+// config.json only lists OU (201); this harness follows other teams, so it serves the switch as on for its own team
+await p.route('**/live-lineups/config.json*', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ enabled: true, teams: [String(team)], message: '' }) }));
 const errors = []; p.on('console', m => { if (m.type() === 'error') { errors.push(m.text()); say({ kind: 'console-error', text: m.text() }, `CONSOLE ERROR ${m.text()}`); } });
 p.on('pageerror', e => { errors.push(String(e)); say({ kind: 'pageerror', text: String(e) }, `PAGE ERROR ${e}`); });
 
