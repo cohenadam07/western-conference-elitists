@@ -1,0 +1,1733 @@
+{
+ "team_prior": {
+  "op": 67,
+  "dp": 65,
+  "pm": -4,
+  "net": -9.1,
+  "lnet": 7.4,
+  "pm_opp3_luck": -5.5,
+  "pm_own3_luck": -5.3,
+  "opp3": "11-27",
+  "own3": "5-20",
+  "pm95": 40,
+  "n": 66.0,
+  "rim": 51.92307692307692,
+  "rim_allowed": 43.85964912280702,
+  "tpa": 38.46153846153846,
+  "tpa_allowed": 47.36842105263158,
+  "tov_forced": 23.076923076923077
+ },
+ "timeline": [
+  [
+   0,
+   0
+  ],
+  [
+   161.0,
+   2
+  ],
+  [
+   308.0,
+   0
+  ],
+  [
+   326.0,
+   2
+  ],
+  [
+   354.0,
+   4
+  ],
+  [
+   397.0,
+   2
+  ],
+  [
+   426.0,
+   5
+  ],
+  [
+   501.0,
+   8
+  ],
+  [
+   550.0,
+   11
+  ],
+  [
+   646.0,
+   10
+  ],
+  [
+   659.0,
+   12
+  ],
+  [
+   720.0,
+   14
+  ],
+  [
+   811.0,
+   17
+  ],
+  [
+   831.0,
+   15
+  ],
+  [
+   884.0,
+   13
+  ],
+  [
+   884.0,
+   12
+  ],
+  [
+   945.0,
+   14
+  ],
+  [
+   990.0,
+   16
+  ],
+  [
+   1003.0,
+   15
+  ],
+  [
+   1003.0,
+   14
+  ],
+  [
+   1018.0,
+   16
+  ],
+  [
+   1046.0,
+   14
+  ],
+  [
+   1063.0,
+   16
+  ],
+  [
+   1092.0,
+   19
+  ],
+  [
+   1116.0,
+   17
+  ],
+  [
+   1130.0,
+   20
+  ],
+  [
+   1147.0,
+   17
+  ],
+  [
+   1178.0,
+   19
+  ],
+  [
+   1200.0,
+   16
+  ],
+  [
+   1200.0,
+   16
+  ]
+ ],
+ "stints": [
+  {
+   "t0": 13.0,
+   "pm": 2,
+   "poss": 10,
+   "t1": 195.0,
+   "players": [
+    "Duke Brennan",
+    "Khani Rooths",
+    "Derrion Reid",
+    "Pop Isaacs",
+    "Xzayvier Brown"
+   ]
+  },
+  {
+   "t0": 195.0,
+   "pm": 0,
+   "poss": 2,
+   "t1": 240.0,
+   "players": [
+    "Duke Brennan",
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Pop Isaacs",
+    "Xzayvier Brown"
+   ]
+  },
+  {
+   "t0": 240.0,
+   "pm": 0,
+   "poss": 2,
+   "t1": 284.0,
+   "players": [
+    "Derrion Reid",
+    "Kai Rogers",
+    "B.J. Edwards",
+    "Pop Isaacs",
+    "Xzayvier Brown"
+   ]
+  },
+  {
+   "t0": 284.0,
+   "pm": 0,
+   "poss": 9,
+   "t1": 421.0,
+   "players": [
+    "Derrion Reid",
+    "Kai Rogers",
+    "B.J. Edwards",
+    "Xzayvier Brown",
+    "Dayton Forsythe"
+   ]
+  },
+  {
+   "t0": 421.0,
+   "pm": 9,
+   "poss": 12,
+   "t1": 646.0,
+   "players": [
+    "Khani Rooths",
+    "B.J. Edwards",
+    "Pop Isaacs",
+    "Dayton Forsythe",
+    "Gage Mayfield"
+   ]
+  },
+  {
+   "t0": 646.0,
+   "pm": 3,
+   "poss": 7,
+   "t1": 758.0,
+   "players": [
+    "Duke Brennan",
+    "Derrion Reid",
+    "Pop Isaacs",
+    "Quincy Wadley",
+    "Xzayvier Brown"
+   ]
+  },
+  {
+   "t0": 758.0,
+   "pm": 0,
+   "poss": 1,
+   "t1": 801.0,
+   "players": [
+    "Duke Brennan",
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Quincy Wadley",
+    "Xzayvier Brown"
+   ]
+  },
+  {
+   "t0": 801.0,
+   "pm": 1,
+   "poss": 5,
+   "t1": 875.0,
+   "players": [
+    "Duke Brennan",
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Xzayvier Brown",
+    "Dayton Forsythe"
+   ]
+  },
+  {
+   "t0": 875.0,
+   "pm": -3,
+   "poss": 2,
+   "t1": 901.0,
+   "players": [
+    "Duke Brennan",
+    "Derrion Reid",
+    "Pop Isaacs",
+    "Xzayvier Brown",
+    "Dayton Forsythe"
+   ]
+  },
+  {
+   "t0": 901.0,
+   "pm": 0,
+   "poss": 3,
+   "t1": 942.0,
+   "players": [
+    "Khani Rooths",
+    "Pop Isaacs",
+    "Quincy Wadley",
+    "Dayton Forsythe",
+    "Gage Mayfield"
+   ]
+  },
+  {
+   "t0": 942.0,
+   "pm": 4,
+   "poss": 4,
+   "t1": 1003.0,
+   "players": [
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Pop Isaacs",
+    "Dayton Forsythe",
+    "Gage Mayfield"
+   ]
+  },
+  {
+   "t0": 1003.0,
+   "pm": 3,
+   "poss": 6,
+   "t1": 1116.0,
+   "players": [
+    "Derrion Reid",
+    "Kai Rogers",
+    "B.J. Edwards",
+    "Pop Isaacs",
+    "Xzayvier Brown"
+   ]
+  },
+  {
+   "t0": 1116.0,
+   "pm": -2,
+   "poss": 3,
+   "t1": 1165.0,
+   "players": [
+    "Duke Brennan",
+    "Khani Rooths",
+    "B.J. Edwards",
+    "Xzayvier Brown",
+    "Dayton Forsythe"
+   ]
+  },
+  {
+   "t0": 1165.0,
+   "pm": -1,
+   "poss": 2,
+   "t1": 1200.0,
+   "players": [
+    "Duke Brennan",
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Xzayvier Brown",
+    "Dayton Forsythe"
+   ]
+  }
+ ],
+ "team_fouls": {
+  "OPP": 2,
+  "OU": 4
+ },
+ "cut": 1200.0,
+ "game": "Oklahoma vs Mississippi Valley State",
+ "date": "Nov 6, 2026",
+ "period": 1,
+ "clock": "0:00",
+ "score": {
+  "OU": 38,
+  "OPP": 22
+ },
+ "final": "84-57",
+ "ou_now": [
+  "Duke Brennan",
+  "Derrion Reid",
+  "B.J. Edwards",
+  "Xzayvier Brown",
+  "Dayton Forsythe"
+ ],
+ "opp_now": [
+  {
+   "name": "Tory James Jr.",
+   "min": 12.5,
+   "fouls": 0,
+   "on": true,
+   "o": null,
+   "d": null,
+   "prior_poss": 60
+  },
+  {
+   "name": "Matt Anglo",
+   "min": 13.6,
+   "fouls": 0,
+   "on": true,
+   "o": null,
+   "d": null,
+   "prior_poss": 83
+  },
+  {
+   "name": "Tymias Williams",
+   "min": 18.6,
+   "fouls": 1,
+   "on": true,
+   "o": null,
+   "d": null,
+   "prior_poss": 105
+  },
+  {
+   "name": "Caleb Cameron",
+   "min": 13.7,
+   "fouls": 1,
+   "on": true,
+   "o": null,
+   "d": null,
+   "prior_poss": 76
+  },
+  {
+   "name": "Tianhao Wu",
+   "min": 5.1,
+   "fouls": 0,
+   "on": true,
+   "o": null,
+   "d": null,
+   "prior_poss": 31
+  }
+ ],
+ "ou_now_rows": [
+  {
+   "name": "Duke Brennan",
+   "min": 9.4,
+   "fouls": 1,
+   "on": true,
+   "o": 1.7,
+   "d": 2.6,
+   "prior_poss": 1534
+  },
+  {
+   "name": "Derrion Reid",
+   "min": 14.5,
+   "fouls": 1,
+   "on": true,
+   "o": 1.1,
+   "d": -1.0,
+   "prior_poss": 1469
+  },
+  {
+   "name": "B.J. Edwards",
+   "min": 13.8,
+   "fouls": 1,
+   "on": true,
+   "o": 2.4,
+   "d": 1.1,
+   "prior_poss": 1650
+  },
+  {
+   "name": "Xzayvier Brown",
+   "min": 14.3,
+   "fouls": 0,
+   "on": true,
+   "o": 1.0,
+   "d": -0.2,
+   "prior_poss": 1662
+  },
+  {
+   "name": "Dayton Forsythe",
+   "min": 10.8,
+   "fouls": 0,
+   "on": true,
+   "o": 0.2,
+   "d": 0.8,
+   "prior_poss": 746
+  }
+ ],
+ "stint_min": 0.6,
+ "exp_now": 12.2,
+ "exp_unrated": 5,
+ "team_tonight": {
+  "op": 34,
+  "dp": 34,
+  "pm": 16,
+  "net": 47.1,
+  "lnet": 50.7,
+  "pm_opp3_luck": 4.2,
+  "pm_own3_luck": -5.4,
+  "opp3": "2-10",
+  "own3": "6-23",
+  "pm95": 55,
+  "n": 34.0,
+  "rim": 41.02564102564103,
+  "rim_allowed": 37.03703703703704,
+  "tpa": 58.97435897435897,
+  "tpa_allowed": 37.03703703703704,
+  "tov_forced": 29.41176470588235
+ },
+ "team_season": {
+  "op": 101,
+  "dp": 99,
+  "pm": 12,
+  "net": 10.1,
+  "lnet": 22.1,
+  "pm_opp3_luck": -1.4,
+  "pm_own3_luck": -10.7,
+  "opp3": "13-37",
+  "own3": "11-43",
+  "pm95": 32,
+  "n": 100.0,
+  "rim": 47.252747252747255,
+  "rim_allowed": 41.666666666666664,
+  "tpa": 47.252747252747255,
+  "tpa_allowed": 44.04761904761905,
+  "tov_forced": 25.252525252525253
+ },
+ "units": [
+  {
+   "players": [
+    "Khani Rooths",
+    "B.J. Edwards",
+    "Pop Isaacs",
+    "Dayton Forsythe",
+    "Gage Mayfield"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 6,
+    "dp": 6,
+    "pm": 9,
+    "net": 150.0,
+    "lnet": 118.7,
+    "pm_opp3_luck": 1.0,
+    "pm_own3_luck": 0.9,
+    "opp3": "0-1",
+    "own3": "3-8",
+    "pm95": 132,
+    "n": 6.0,
+    "rim": 11.11111111111111,
+    "rim_allowed": 20.0,
+    "tpa": 88.88888888888889,
+    "tpa_allowed": 20.0,
+    "tov_forced": 33.333333333333336,
+    "trust": 0.005964214711729622,
+    "best": 0.6
+   },
+   "tonight": {
+    "op": 6,
+    "dp": 6,
+    "pm": 9,
+    "net": 150.0,
+    "lnet": 118.7,
+    "pm_opp3_luck": 1.0,
+    "pm_own3_luck": 0.9,
+    "opp3": "0-1",
+    "own3": "3-8",
+    "pm95": 132,
+    "n": 6.0,
+    "rim": 11.11111111111111,
+    "rim_allowed": 20.0,
+    "tpa": 88.88888888888889,
+    "tpa_allowed": 20.0,
+    "tov_forced": 33.333333333333336
+   },
+   "exp_vs_now": 8.9
+  },
+  {
+   "players": [
+    "Duke Brennan",
+    "Khani Rooths",
+    "Derrion Reid",
+    "Pop Isaacs",
+    "Xzayvier Brown"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 5,
+    "dp": 5,
+    "pm": 2,
+    "net": 40.0,
+    "lnet": 80.7,
+    "pm_opp3_luck": 2.0,
+    "pm_own3_luck": -4.1,
+    "opp3": "0-2",
+    "own3": "0-4",
+    "pm95": 145,
+    "n": 5.0,
+    "rim": 20.0,
+    "rim_allowed": 0.0,
+    "tpa": 80.0,
+    "tpa_allowed": 66.66666666666667,
+    "tov_forced": 40.0,
+    "trust": 0.004975124378109453,
+    "best": 0.3
+   },
+   "tonight": {
+    "op": 5,
+    "dp": 5,
+    "pm": 2,
+    "net": 40.0,
+    "lnet": 80.7,
+    "pm_opp3_luck": 2.0,
+    "pm_own3_luck": -4.1,
+    "opp3": "0-2",
+    "own3": "0-4",
+    "pm95": 145,
+    "n": 5.0,
+    "rim": 20.0,
+    "rim_allowed": 0.0,
+    "tpa": 80.0,
+    "tpa_allowed": 66.66666666666667,
+    "tov_forced": 40.0
+   },
+   "exp_vs_now": 9.1
+  },
+  {
+   "players": [
+    "Derrion Reid",
+    "Kai Rogers",
+    "B.J. Edwards",
+    "Xzayvier Brown",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 5,
+    "dp": 4,
+    "pm": 0,
+    "net": -20.0,
+    "lnet": -70.9,
+    "pm_opp3_luck": 2.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-2",
+    "own3": "0-0",
+    "pm95": 153,
+    "n": 4.5,
+    "rim": 100.0,
+    "rim_allowed": 40.0,
+    "tpa": 0.0,
+    "tpa_allowed": 40.0,
+    "tov_forced": 0.0,
+    "trust": 0.004479840716774514,
+    "best": -0.4
+   },
+   "tonight": {
+    "op": 5,
+    "dp": 4,
+    "pm": 0,
+    "net": -20.0,
+    "lnet": -70.9,
+    "pm_opp3_luck": 2.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-2",
+    "own3": "0-0",
+    "pm95": 153,
+    "n": 4.5,
+    "rim": 100.0,
+    "rim_allowed": 40.0,
+    "tpa": 0.0,
+    "tpa_allowed": 40.0,
+    "tov_forced": 0.0
+   },
+   "exp_vs_now": 8.1
+  },
+  {
+   "players": [
+    "Derrion Reid",
+    "Kai Rogers",
+    "B.J. Edwards",
+    "Pop Isaacs",
+    "Xzayvier Brown"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 4,
+    "dp": 4,
+    "pm": 3,
+    "net": 75.0,
+    "lnet": 76.3,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": -0.1,
+    "opp3": "0-0",
+    "own3": "1-3",
+    "pm95": 162,
+    "n": 4.0,
+    "rim": 40.0,
+    "rim_allowed": 66.66666666666667,
+    "tpa": 60.0,
+    "tpa_allowed": 0.0,
+    "tov_forced": 25.0,
+    "trust": 0.00398406374501992,
+    "best": 0.2
+   },
+   "tonight": {
+    "op": 4,
+    "dp": 4,
+    "pm": 3,
+    "net": 75.0,
+    "lnet": 76.3,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": -0.1,
+    "opp3": "0-0",
+    "own3": "1-3",
+    "pm95": 162,
+    "n": 4.0,
+    "rim": 40.0,
+    "rim_allowed": 66.66666666666667,
+    "tpa": 60.0,
+    "tpa_allowed": 0.0,
+    "tov_forced": 25.0
+   },
+   "exp_vs_now": 6.6
+  },
+  {
+   "players": [
+    "Duke Brennan",
+    "Derrion Reid",
+    "Pop Isaacs",
+    "Quincy Wadley",
+    "Xzayvier Brown"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 3,
+    "dp": 4,
+    "pm": 3,
+    "net": 108.3,
+    "lnet": 125.3,
+    "pm_opp3_luck": 2.0,
+    "pm_own3_luck": -2.0,
+    "opp3": "0-2",
+    "own3": "0-2",
+    "pm95": 175,
+    "n": 3.5,
+    "rim": 50.0,
+    "rim_allowed": 0.0,
+    "tpa": 50.0,
+    "tpa_allowed": 100.0,
+    "tov_forced": 25.0,
+    "trust": 0.003487792725460887,
+    "best": 0.4
+   },
+   "tonight": {
+    "op": 3,
+    "dp": 4,
+    "pm": 3,
+    "net": 108.3,
+    "lnet": 125.3,
+    "pm_opp3_luck": 2.0,
+    "pm_own3_luck": -2.0,
+    "opp3": "0-2",
+    "own3": "0-2",
+    "pm95": 175,
+    "n": 3.5,
+    "rim": 50.0,
+    "rim_allowed": 0.0,
+    "tpa": 50.0,
+    "tpa_allowed": 100.0,
+    "tov_forced": 25.0
+   },
+   "exp_vs_now": 6.6
+  },
+  {
+   "players": [
+    "Duke Brennan",
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Xzayvier Brown",
+    "Dayton Forsythe"
+   ],
+   "on_now": true,
+   "season": {
+    "op": 3,
+    "dp": 4,
+    "pm": 0,
+    "net": 41.7,
+    "lnet": 59.0,
+    "pm_opp3_luck": -2.0,
+    "pm_own3_luck": 1.0,
+    "opp3": "1-1",
+    "own3": "1-2",
+    "pm95": 175,
+    "n": 3.5,
+    "rim": 50.0,
+    "rim_allowed": 66.66666666666667,
+    "tpa": 50.0,
+    "tpa_allowed": 33.333333333333336,
+    "tov_forced": 50.0,
+    "trust": 0.003487792725460887,
+    "best": 0.1
+   },
+   "tonight": {
+    "op": 3,
+    "dp": 4,
+    "pm": 0,
+    "net": 41.7,
+    "lnet": 59.0,
+    "pm_opp3_luck": -2.0,
+    "pm_own3_luck": 1.0,
+    "opp3": "1-1",
+    "own3": "1-2",
+    "pm95": 175,
+    "n": 3.5,
+    "rim": 50.0,
+    "rim_allowed": 66.66666666666667,
+    "tpa": 50.0,
+    "tpa_allowed": 33.333333333333336,
+    "tov_forced": 50.0
+   },
+   "exp_vs_now": 12.2
+  },
+  {
+   "players": [
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Pop Isaacs",
+    "Dayton Forsythe",
+    "Gage Mayfield"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 2,
+    "dp": 2,
+    "pm": 4,
+    "net": 200.0,
+    "lnet": 200.0,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-0",
+    "own3": "0-0",
+    "pm95": 229,
+    "n": 2.0,
+    "rim": 100.0,
+    "rim_allowed": 100.0,
+    "tpa": 0.0,
+    "tpa_allowed": 0.0,
+    "tov_forced": 50.0,
+    "trust": 0.001996007984031936,
+    "best": 0.4
+   },
+   "tonight": {
+    "op": 2,
+    "dp": 2,
+    "pm": 4,
+    "net": 200.0,
+    "lnet": 200.0,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-0",
+    "own3": "0-0",
+    "pm95": 229,
+    "n": 2.0,
+    "rim": 100.0,
+    "rim_allowed": 100.0,
+    "tpa": 0.0,
+    "tpa_allowed": 0.0,
+    "tov_forced": 50.0
+   },
+   "exp_vs_now": 7.1
+  },
+  {
+   "players": [
+    "Khani Rooths",
+    "Pop Isaacs",
+    "Quincy Wadley",
+    "Dayton Forsythe",
+    "Gage Mayfield"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 2,
+    "dp": 1,
+    "pm": 0,
+    "net": 0.0,
+    "lnet": 50.9,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": -1.0,
+    "opp3": "0-0",
+    "own3": "0-1",
+    "pm95": 280,
+    "n": 1.5,
+    "rim": 50.0,
+    "rim_allowed": 0.0,
+    "tpa": 50.0,
+    "tpa_allowed": 0.0,
+    "tov_forced": 0.0,
+    "trust": 0.0014977533699450823,
+    "best": 0.0
+   },
+   "tonight": {
+    "op": 2,
+    "dp": 1,
+    "pm": 0,
+    "net": 0.0,
+    "lnet": 50.9,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": -1.0,
+    "opp3": "0-0",
+    "own3": "0-1",
+    "pm95": 280,
+    "n": 1.5,
+    "rim": 50.0,
+    "rim_allowed": 0.0,
+    "tpa": 50.0,
+    "tpa_allowed": 0.0,
+    "tov_forced": 0.0
+   },
+   "exp_vs_now": 4.9
+  },
+  {
+   "players": [
+    "Duke Brennan",
+    "Khani Rooths",
+    "B.J. Edwards",
+    "Xzayvier Brown",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 1,
+    "dp": 2,
+    "pm": -2,
+    "net": 50.0,
+    "lnet": -49.2,
+    "pm_opp3_luck": -2.0,
+    "pm_own3_luck": 2.0,
+    "opp3": "1-1",
+    "own3": "1-1",
+    "pm95": 280,
+    "n": 1.5,
+    "rim": 0.0,
+    "rim_allowed": 50.0,
+    "tpa": 100.0,
+    "tpa_allowed": 50.0,
+    "tov_forced": 0.0,
+    "trust": 0.0014977533699450823,
+    "best": -0.1
+   },
+   "tonight": {
+    "op": 1,
+    "dp": 2,
+    "pm": -2,
+    "net": 50.0,
+    "lnet": -49.2,
+    "pm_opp3_luck": -2.0,
+    "pm_own3_luck": 2.0,
+    "opp3": "1-1",
+    "own3": "1-1",
+    "pm95": 280,
+    "n": 1.5,
+    "rim": 0.0,
+    "rim_allowed": 50.0,
+    "tpa": 100.0,
+    "tpa_allowed": 50.0,
+    "tov_forced": 0.0
+   },
+   "exp_vs_now": 14.0
+  },
+  {
+   "players": [
+    "Duke Brennan",
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Pop Isaacs",
+    "Xzayvier Brown"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 1,
+    "dp": 1,
+    "pm": 0,
+    "net": 0.0,
+    "lnet": 0.0,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-0",
+    "own3": "0-0",
+    "pm95": 323,
+    "n": 1.0,
+    "rim": null,
+    "rim_allowed": null,
+    "tpa": null,
+    "tpa_allowed": null,
+    "tov_forced": 100.0,
+    "trust": 0.000999000999000999,
+    "best": -0.0
+   },
+   "tonight": {
+    "op": 1,
+    "dp": 1,
+    "pm": 0,
+    "net": 0.0,
+    "lnet": 0.0,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-0",
+    "own3": "0-0",
+    "pm95": 323,
+    "n": 1.0,
+    "rim": null,
+    "rim_allowed": null,
+    "tpa": null,
+    "tpa_allowed": null,
+    "tov_forced": 100.0
+   },
+   "exp_vs_now": 10.7
+  },
+  {
+   "players": [
+    "Duke Brennan",
+    "Derrion Reid",
+    "Pop Isaacs",
+    "Xzayvier Brown",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 1,
+    "dp": 1,
+    "pm": -3,
+    "net": -300.0,
+    "lnet": -401.7,
+    "pm_opp3_luck": 1.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-1",
+    "own3": "0-0",
+    "pm95": 323,
+    "n": 1.0,
+    "rim": null,
+    "rim_allowed": 50.0,
+    "tpa": null,
+    "tpa_allowed": 50.0,
+    "tov_forced": 0.0,
+    "trust": 0.000999000999000999,
+    "best": -0.4
+   },
+   "tonight": {
+    "op": 1,
+    "dp": 1,
+    "pm": -3,
+    "net": -300.0,
+    "lnet": -401.7,
+    "pm_opp3_luck": 1.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-1",
+    "own3": "0-0",
+    "pm95": 323,
+    "n": 1.0,
+    "rim": null,
+    "rim_allowed": 50.0,
+    "tpa": null,
+    "tpa_allowed": 50.0,
+    "tov_forced": 0.0
+   },
+   "exp_vs_now": 8.1
+  },
+  {
+   "players": [
+    "Duke Brennan",
+    "Khani Rooths",
+    "Derrion Reid",
+    "Pop Isaacs",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 11,
+    "dp": 11,
+    "pm": -7,
+    "net": -63.6,
+    "lnet": -0.3,
+    "pm_opp3_luck": -6.9,
+    "pm_own3_luck": -0.1,
+    "opp3": "5-8",
+    "own3": "2-6",
+    "pm95": 98,
+    "n": 11.0,
+    "rim": 22.22222222222222,
+    "rim_allowed": 42.857142857142854,
+    "tpa": 66.66666666666667,
+    "tpa_allowed": 57.142857142857146,
+    "tov_forced": 18.181818181818183,
+    "trust": 0.010880316518298714,
+    "best": -0.2
+   },
+   "tonight": null,
+   "exp_vs_now": 9.3
+  },
+  {
+   "players": [
+    "Tyler Hendricks",
+    "Derrion Reid",
+    "Kai Rogers",
+    "B.J. Edwards",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 1,
+    "dp": 2,
+    "pm": 2,
+    "net": 200.0,
+    "lnet": 200.0,
+    "pm_opp3_luck": 2.0,
+    "pm_own3_luck": -1.0,
+    "opp3": "0-2",
+    "own3": "0-1",
+    "pm95": 280,
+    "n": 1.5,
+    "rim": 50.0,
+    "rim_allowed": 33.333333333333336,
+    "tpa": 50.0,
+    "tpa_allowed": 66.66666666666667,
+    "tov_forced": 0.0,
+    "trust": 0.0014977533699450823,
+    "best": 0.3
+   },
+   "tonight": null,
+   "exp_vs_now": 11.7
+  },
+  {
+   "players": [
+    "Tyler Hendricks",
+    "Derrion Reid",
+    "Kai Rogers",
+    "B.J. Edwards",
+    "Pop Isaacs"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 4,
+    "dp": 5,
+    "pm": 2,
+    "net": 65.0,
+    "lnet": 34.7,
+    "pm_opp3_luck": -1.0,
+    "pm_own3_luck": 2.0,
+    "opp3": "1-2",
+    "own3": "1-1",
+    "pm95": 153,
+    "n": 4.5,
+    "rim": 50.0,
+    "rim_allowed": 33.333333333333336,
+    "tpa": 50.0,
+    "tpa_allowed": 66.66666666666667,
+    "tov_forced": 40.0,
+    "trust": 0.004479840716774514,
+    "best": 0.1
+   },
+   "tonight": null,
+   "exp_vs_now": 10.2
+  },
+  {
+   "players": [
+    "Tyler Hendricks",
+    "Khani Rooths",
+    "Kai Rogers",
+    "B.J. Edwards",
+    "Pop Isaacs"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 2,
+    "dp": 3,
+    "pm": 0,
+    "net": 50.0,
+    "lnet": -17.0,
+    "pm_opp3_luck": -1.0,
+    "pm_own3_luck": 2.0,
+    "opp3": "1-2",
+    "own3": "1-1",
+    "pm95": 209,
+    "n": 2.5,
+    "rim": 50.0,
+    "rim_allowed": 0.0,
+    "tpa": 50.0,
+    "tpa_allowed": 100.0,
+    "tov_forced": 33.333333333333336,
+    "trust": 0.0024937655860349127,
+    "best": -0.1
+   },
+   "tonight": null,
+   "exp_vs_now": 12.1
+  },
+  {
+   "players": [
+    "Tyler Hendricks",
+    "Khani Rooths",
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Pop Isaacs"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 6,
+    "dp": 6,
+    "pm": 0,
+    "net": 0.0,
+    "lnet": -33.9,
+    "pm_opp3_luck": 2.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-2",
+    "own3": "0-0",
+    "pm95": 132,
+    "n": 6.0,
+    "rim": 100.0,
+    "rim_allowed": 60.0,
+    "tpa": 0.0,
+    "tpa_allowed": 40.0,
+    "tov_forced": 16.666666666666668,
+    "trust": 0.005964214711729622,
+    "best": -0.3
+   },
+   "tonight": null,
+   "exp_vs_now": 12.0
+  },
+  {
+   "players": [
+    "Duke Brennan",
+    "Khani Rooths",
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 8,
+    "dp": 8,
+    "pm": -4,
+    "net": -50.0,
+    "lnet": -0.4,
+    "pm_opp3_luck": -2.9,
+    "pm_own3_luck": -1.0,
+    "opp3": "2-3",
+    "own3": "0-1",
+    "pm95": 114,
+    "n": 8.0,
+    "rim": 75.0,
+    "rim_allowed": 50.0,
+    "tpa": 25.0,
+    "tpa_allowed": 37.5,
+    "tov_forced": 12.5,
+    "trust": 0.007936507936507936,
+    "best": -0.2
+   },
+   "tonight": null,
+   "exp_vs_now": 13.3
+  },
+  {
+   "players": [
+    "Khani Rooths",
+    "Derrion Reid",
+    "Kai Rogers",
+    "Pop Isaacs",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 1,
+    "dp": 1,
+    "pm": -3,
+    "net": -300.0,
+    "lnet": -101.7,
+    "pm_opp3_luck": -2.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "1-1",
+    "own3": "0-0",
+    "pm95": 323,
+    "n": 1.0,
+    "rim": 0.0,
+    "rim_allowed": 0.0,
+    "tpa": 0.0,
+    "tpa_allowed": 100.0,
+    "tov_forced": 0.0,
+    "trust": 0.000999000999000999,
+    "best": -0.1
+   },
+   "tonight": null,
+   "exp_vs_now": 5.2
+  },
+  {
+   "players": [
+    "Tyler Hendricks",
+    "Kai Rogers",
+    "Pop Isaacs",
+    "Dayton Forsythe",
+    "Gage Mayfield"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 1,
+    "dp": 2,
+    "pm": 2,
+    "net": 200.0,
+    "lnet": 200.0,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-0",
+    "own3": "0-0",
+    "pm95": 280,
+    "n": 1.5,
+    "rim": 100.0,
+    "rim_allowed": 0.0,
+    "tpa": 0.0,
+    "tpa_allowed": 0.0,
+    "tov_forced": 50.0,
+    "trust": 0.0014977533699450823,
+    "best": 0.3
+   },
+   "tonight": null,
+   "exp_vs_now": 8.1
+  },
+  {
+   "players": [
+    "Tyler Hendricks",
+    "Kai Rogers",
+    "B.J. Edwards",
+    "Pop Isaacs",
+    "Gage Mayfield"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 4,
+    "dp": 3,
+    "pm": -1,
+    "net": -41.7,
+    "lnet": -58.6,
+    "pm_opp3_luck": 2.0,
+    "pm_own3_luck": -2.0,
+    "opp3": "0-2",
+    "own3": "0-2",
+    "pm95": 175,
+    "n": 3.5,
+    "rim": 60.0,
+    "rim_allowed": 33.333333333333336,
+    "tpa": 40.0,
+    "tpa_allowed": 33.333333333333336,
+    "tov_forced": 0.0,
+    "trust": 0.003487792725460887,
+    "best": -0.3
+   },
+   "tonight": null,
+   "exp_vs_now": 10.6
+  },
+  {
+   "players": [
+    "Duke Brennan",
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Quincy Wadley",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 3,
+    "dp": 2,
+    "pm": 0,
+    "net": 0.0,
+    "lnet": -50.9,
+    "pm_opp3_luck": 1.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-1",
+    "own3": "0-0",
+    "pm95": 209,
+    "n": 2.5,
+    "rim": 100.0,
+    "rim_allowed": 0.0,
+    "tpa": 0.0,
+    "tpa_allowed": 100.0,
+    "tov_forced": 50.0,
+    "trust": 0.0024937655860349127,
+    "best": -0.2
+   },
+   "tonight": null,
+   "exp_vs_now": 10.9
+  },
+  {
+   "players": [
+    "Khani Rooths",
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Pop Isaacs",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 6,
+    "dp": 6,
+    "pm": -4,
+    "net": -66.7,
+    "lnet": -16.7,
+    "pm_opp3_luck": 0.1,
+    "pm_own3_luck": -3.1,
+    "opp3": "1-3",
+    "own3": "0-3",
+    "pm95": 132,
+    "n": 6.0,
+    "rim": 20.0,
+    "rim_allowed": 62.5,
+    "tpa": 60.0,
+    "tpa_allowed": 37.5,
+    "tov_forced": 0.0,
+    "trust": 0.005964214711729622,
+    "best": -0.2
+   },
+   "tonight": null,
+   "exp_vs_now": 8.5
+  },
+  {
+   "players": [
+    "Duke Brennan",
+    "Khani Rooths",
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Pop Isaacs"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 2,
+    "dp": 1,
+    "pm": 5,
+    "net": 250.0,
+    "lnet": 250.0,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-0",
+    "own3": "0-0",
+    "pm95": 280,
+    "n": 1.5,
+    "rim": 100.0,
+    "rim_allowed": 0.0,
+    "tpa": 0.0,
+    "tpa_allowed": 0.0,
+    "tov_forced": 0.0,
+    "trust": 0.0014977533699450823,
+    "best": 0.3
+   },
+   "tonight": null,
+   "exp_vs_now": 11.8
+  },
+  {
+   "players": [
+    "Tyler Hendricks",
+    "Duke Brennan",
+    "Khani Rooths",
+    "B.J. Edwards",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 4,
+    "dp": 4,
+    "pm": -2,
+    "net": -50.0,
+    "lnet": -75.4,
+    "pm_opp3_luck": 1.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-1",
+    "own3": "0-0",
+    "pm95": 162,
+    "n": 4.0,
+    "rim": 100.0,
+    "rim_allowed": 50.0,
+    "tpa": 0.0,
+    "tpa_allowed": 50.0,
+    "tov_forced": 50.0,
+    "trust": 0.00398406374501992,
+    "best": -0.4
+   },
+   "tonight": null,
+   "exp_vs_now": 17.6
+  },
+  {
+   "players": [
+    "Tyler Hendricks",
+    "Duke Brennan",
+    "Derrion Reid",
+    "Pop Isaacs",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 2,
+    "dp": 2,
+    "pm": 0,
+    "net": 0.0,
+    "lnet": 50.9,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": -1.0,
+    "opp3": "0-0",
+    "own3": "0-1",
+    "pm95": 229,
+    "n": 2.0,
+    "rim": 50.0,
+    "rim_allowed": 100.0,
+    "tpa": 50.0,
+    "tpa_allowed": 0.0,
+    "tov_forced": 0.0,
+    "trust": 0.001996007984031936,
+    "best": 0.1
+   },
+   "tonight": null,
+   "exp_vs_now": 11.7
+  },
+  {
+   "players": [
+    "Khani Rooths",
+    "Derrion Reid",
+    "Kai Rogers",
+    "B.J. Edwards",
+    "Pop Isaacs"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 6,
+    "dp": 5,
+    "pm": 4,
+    "net": 56.7,
+    "lnet": 23.6,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": 2.0,
+    "opp3": "0-0",
+    "own3": "1-1",
+    "pm95": 139,
+    "n": 5.5,
+    "rim": 25.0,
+    "rim_allowed": 100.0,
+    "tpa": 25.0,
+    "tpa_allowed": 0.0,
+    "tov_forced": 60.0,
+    "trust": 0.005469915464942815,
+    "best": 0.0
+   },
+   "tonight": null,
+   "exp_vs_now": 7.8
+  },
+  {
+   "players": [
+    "Tyler Hendricks",
+    "Khani Rooths",
+    "Derrion Reid",
+    "Pop Isaacs",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 4,
+    "dp": 3,
+    "pm": -1,
+    "net": -41.7,
+    "lnet": 34.6,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": -3.1,
+    "opp3": "0-0",
+    "own3": "0-3",
+    "pm95": 175,
+    "n": 3.5,
+    "rim": 25.0,
+    "rim_allowed": null,
+    "tpa": 75.0,
+    "tpa_allowed": null,
+    "tov_forced": 0.0,
+    "trust": 0.003487792725460887,
+    "best": 0.0
+   },
+   "tonight": null,
+   "exp_vs_now": 9.4
+  },
+  {
+   "players": [
+    "Tyler Hendricks",
+    "Khani Rooths",
+    "Derrion Reid",
+    "B.J. Edwards",
+    "Dayton Forsythe"
+   ],
+   "on_now": false,
+   "season": {
+    "op": 2,
+    "dp": 1,
+    "pm": 3,
+    "net": 150.0,
+    "lnet": 150.0,
+    "pm_opp3_luck": -0.0,
+    "pm_own3_luck": 0.0,
+    "opp3": "0-0",
+    "own3": "0-0",
+    "pm95": 280,
+    "n": 1.5,
+    "rim": 100.0,
+    "rim_allowed": null,
+    "tpa": 0.0,
+    "tpa_allowed": null,
+    "tov_forced": 100.0,
+    "trust": 0.0014977533699450823,
+    "best": 0.2
+   },
+   "tonight": null,
+   "exp_vs_now": 13.5
+  }
+ ],
+ "ou_players": [
+  {
+   "name": "Derrion Reid",
+   "min": 14.5,
+   "fouls": 1,
+   "on": true,
+   "o": 1.1,
+   "d": -1.0,
+   "prior_poss": 1469
+  },
+  {
+   "name": "Xzayvier Brown",
+   "min": 14.3,
+   "fouls": 0,
+   "on": true,
+   "o": 1.0,
+   "d": -0.2,
+   "prior_poss": 1662
+  },
+  {
+   "name": "Pop Isaacs",
+   "min": 14.2,
+   "fouls": 0,
+   "on": false,
+   "o": 0.7,
+   "d": -1.3,
+   "prior_poss": 944
+  },
+  {
+   "name": "B.J. Edwards",
+   "min": 13.8,
+   "fouls": 1,
+   "on": true,
+   "o": 2.4,
+   "d": 1.1,
+   "prior_poss": 1650
+  },
+  {
+   "name": "Dayton Forsythe",
+   "min": 10.8,
+   "fouls": 0,
+   "on": true,
+   "o": 0.2,
+   "d": 0.8,
+   "prior_poss": 746
+  },
+  {
+   "name": "Duke Brennan",
+   "min": 9.4,
+   "fouls": 1,
+   "on": true,
+   "o": 1.7,
+   "d": 2.6,
+   "prior_poss": 1534
+  },
+  {
+   "name": "Khani Rooths",
+   "min": 8.3,
+   "fouls": 0,
+   "on": false,
+   "o": 0.3,
+   "d": 1.6,
+   "prior_poss": 787
+  },
+  {
+   "name": "Gage Mayfield",
+   "min": 5.4,
+   "fouls": 0,
+   "on": false,
+   "o": null,
+   "d": null,
+   "prior_poss": 27
+  },
+  {
+   "name": "Kai Rogers",
+   "min": 4.9,
+   "fouls": 0,
+   "on": false,
+   "o": null,
+   "d": null,
+   "prior_poss": 286
+  },
+  {
+   "name": "Quincy Wadley",
+   "min": 3.3,
+   "fouls": 1,
+   "on": false,
+   "o": null,
+   "d": null,
+   "prior_poss": 20
+  }
+ ],
+ "opp_players": [
+  {
+   "name": "Tymias Williams",
+   "min": 18.6,
+   "fouls": 1,
+   "on": true,
+   "o": null,
+   "d": null,
+   "prior_poss": 105
+  },
+  {
+   "name": "Gabriel Martinez",
+   "min": 15.8,
+   "fouls": 0,
+   "on": false,
+   "o": null,
+   "d": null,
+   "prior_poss": 99
+  },
+  {
+   "name": "Caleb Cameron",
+   "min": 13.7,
+   "fouls": 1,
+   "on": true,
+   "o": null,
+   "d": null,
+   "prior_poss": 76
+  },
+  {
+   "name": "Matt Anglo",
+   "min": 13.6,
+   "fouls": 0,
+   "on": true,
+   "o": null,
+   "d": null,
+   "prior_poss": 83
+  },
+  {
+   "name": "Tory James Jr.",
+   "min": 12.5,
+   "fouls": 0,
+   "on": true,
+   "o": null,
+   "d": null,
+   "prior_poss": 60
+  },
+  {
+   "name": "Eli Pippins",
+   "min": 11.1,
+   "fouls": 0,
+   "on": false,
+   "o": null,
+   "d": null,
+   "prior_poss": 69
+  },
+  {
+   "name": "AJ Abrams",
+   "min": 8.5,
+   "fouls": 0,
+   "on": false,
+   "o": null,
+   "d": null,
+   "prior_poss": 70
+  },
+  {
+   "name": "Tianhao Wu",
+   "min": 5.1,
+   "fouls": 0,
+   "on": true,
+   "o": null,
+   "d": null,
+   "prior_poss": 31
+  }
+ ],
+ "n_units_tonight": 11,
+ "opp_name": "MVSU"
+}

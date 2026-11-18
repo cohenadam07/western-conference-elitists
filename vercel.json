@@ -58,6 +58,10 @@
       "destination": "/api/analytics/history?section=status"
     },
     {
+      "source": "/api/espn-summary",
+      "destination": "/api/analytics/history?section=espn-summary"
+    },
+    {
       "source": "/mcp/:key",
       "destination": "/api/mcp?key=:key"
     },
@@ -187,6 +191,19 @@
     }
   ],
   "headers": [
+    {
+      "source": "/live-lineups/config.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0"
+        },
+        {
+          "key": "CDN-Cache-Control",
+          "value": "max-age=10"
+        }
+      ]
+    },
     {
       "source": "/dataroom/:f(.*\\.json)",
       "headers": [

@@ -1,0 +1,715 @@
+14:46:52 START https://western-conference-elitists-jmzc728b0-cohenadam07s-projects.vercel.app/live-lineups.html?game=401920903&team=256
+14:46:53 #1 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:47:53 #2 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:48:53 #3 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:49:53 #4 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:50:53 #5 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:51:53 #6 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:52:53 #7 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:53:53 #8 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:54:53 #9 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:55:53 #10 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:56:53 #11 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:57:53 #12 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:58:53 #13 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+14:59:53 #14 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:00:53 #15 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:01:53 #16 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:02:53 #17 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:03:53 #18 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:04:53 #19 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:05:54 #20 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:06:54 #21 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:07:54 #22 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:08:54 #23 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:09:54 #24 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:10:54 #25 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:11:54 #26 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:12:54 #27 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:13:54 #28 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:14:54 #29 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:15:54 #30 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:16:54 #31 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:17:54 #32 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:18:54 #33 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:19:54 #34 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:20:54 #35 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:21:54 #36 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:22:54 #37 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:23:54 #38 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:24:54 #39 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:25:54 #40 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:26:54 #41 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:27:55 #42 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:28:55 #43 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:29:55 #44 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:30:55 #45 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:31:55 #46 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:32:55 #47 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:33:55 #48 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:34:55 #49 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:35:55 #50 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:36:55 #51 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:37:55 #52 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:38:55 #53 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:39:55 #54 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:40:55 #55 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:41:55 #56 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:42:55 #57 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:43:55 #58 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:44:55 #59 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:45:55 #60 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:46:55 #61 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:47:55 #62 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:48:56 #63 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:49:56 #64 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:50:56 #65 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:51:56 #66 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:52:56 #67 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:53:56 #68 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:54:56 #69 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:55:56 #70 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:56:56 #71 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:57:56 #72 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:58:56 #73 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+15:59:56 #74 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:00:56 #75 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:01:56 #76 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:02:56 #77 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:03:56 #78 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:04:56 #79 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:05:56 #80 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:06:56 #81 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:07:56 #82 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:08:56 #83 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:09:56 #84 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:10:56 #85 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:11:57 #86 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:12:57 #87 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:13:57 #88 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:14:57 #89 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:15:57 #90 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:16:57 #91 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:17:57 #92 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:18:57 #93 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:19:57 #94 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:20:57 #95 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:21:57 #96 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:22:57 #97 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:23:57 #98 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:24:57 #99 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:25:57 #100 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:26:57 #101 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:27:57 #102 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:28:58 #103 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:29:58 #104 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:30:58 #105 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:31:58 #106 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:32:58 #107 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:33:58 #108 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:34:58 #109 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:35:58 #110 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:36:58 #111 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:37:58 #112 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:38:58 #113 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:39:58 #114 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:40:58 #115 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:41:58 #116 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:42:58 #117 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:43:59 #118 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:44:59 #119 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:45:59 #120 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:46:59 #121 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:47:59 #122 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:48:59 #123 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:49:59 #124 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:50:59 #125 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:51:59 #126 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:52:59 #127 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:53:59 #128 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:54:59 #129 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:55:59 #130 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:56:59 #131 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:57:59 #132 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:58:59 #133 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+16:59:59 #134 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:00:59 #135 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:01:59 #136 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:03:00 #137 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:04:00 #138 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:05:00 #139 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:06:00 #140 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:07:00 #141 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:08:00 #142 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:09:00 #143 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:10:00 #144 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:11:00 #145 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:12:00 #146 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:12:58 #147 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:13:58 #148 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:14:58 #149 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:15:58 #150 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:16:58 #151 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:17:58 #152 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:18:59 #153 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:19:59 #154 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:20:59 #155 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:21:59 #156 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:22:59 #157 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:23:59 #158 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:24:59 #159 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:25:59 #160 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:26:59 #161 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:27:59 #162 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:29:01 #163 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:30:01 #164 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:31:01 #165 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:32:01 #166 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:33:01 #167 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:34:02 #168 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:35:02 #169 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:36:02 #170 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:37:02 #171 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:38:02 #172 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:39:02 #173 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:40:02 #174 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:41:02 #175 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:42:02 #176 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:43:02 #177 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:44:02 #178 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:45:02 #179 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:46:02 #180 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:47:02 #181 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:48:02 #182 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:49:02 #183 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:50:02 #184 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:51:02 #185 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:52:02 #186 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:53:02 #187 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:54:02 #188 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:55:03 #189 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:56:03 #190 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:57:03 #191 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:58:03 #192 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+17:59:03 #193 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:00:03 #194 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:01:03 #195 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:02:03 #196 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:03:03 #197 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:04:03 #198 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:05:03 #199 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:06:03 #200 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:07:04 #201 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:08:04 #202 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:09:04 #203 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:10:04 #204 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:11:04 #205 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:12:04 #206 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:13:04 #207 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:14:04 #208 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:15:04 #209 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:16:04 #210 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:17:04 #211 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:18:04 #212 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:19:04 #213 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:20:04 #214 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:21:04 #215 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:22:04 #216 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:23:04 #217 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:24:04 #218 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:25:04 #219 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:26:04 #220 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:27:04 #221 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:28:05 #222 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:29:05 #223 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:30:05 #224 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:31:05 #225 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:32:05 #226 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:33:05 #227 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:34:05 #228 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:35:05 #229 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:36:05 #230 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:37:05 #231 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:38:05 #232 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:39:05 #233 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:40:05 #234 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:41:05 #235 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:42:05 #236 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:43:05 #237 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:44:05 #238 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:45:05 #239 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:46:05 #240 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:47:05 #241 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:48:05 #242 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:49:05 #243 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:50:06 #244 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:51:06 #245 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:52:06 #246 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:53:06 #247 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:54:06 #248 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:55:06 #249 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:56:06 #250 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:57:06 #251 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:58:06 #252 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+18:59:06 #253 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+19:00:06 #254 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+19:01:06 #255 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+19:02:06 #256 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+19:03:06 #257 espn ESPN pre 11/11 - 7:00 PM EST [DEL undefined JMU undefined] (0 plays, last null ) | light -: - | Wednesday, Nov 11 | banners: none | repairs: none
+19:04:06 #258 espn ESPN in 19:49 - 1st [DEL 0 JMU 0] (5 plays, last 1-19:49 Steal) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:04:21 #259 espn ESPN in 19:28 - 1st [DEL 2 JMU 0] (8 plays, last 1-19:30 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:04:37 #260 espn ESPN in 19:15 - 1st [DEL 2 JMU 0] (9 plays, last 1-19:17 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:04:52 #261 espn ESPN in 19:11 - 1st [DEL 2 JMU 0] (10 plays, last 1-19:11 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:05:07 #262 espn ESPN in 19:11 - 1st [DEL 2 JMU 0] (10 plays, last 1-19:11 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:05:22 #263 espn ESPN in 18:47 - 1st [DEL 2 JMU 0] (14 plays, last 1-18:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:05:37 #264 espn ESPN in 18:47 - 1st [DEL 2 JMU 0] (14 plays, last 1-18:47 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:05:52 #265 espn ESPN in 18:15 - 1st [DEL 4 JMU 0] (17 plays, last 1-18:16 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:06:07 #266 espn ESPN in 17:57 - 1st [DEL 4 JMU 0] (20 plays, last 1-18:06 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:06:22 #267 espn ESPN in 17:41 - 1st [DEL 6 JMU 2] (23 plays, last 1-17:46 LayUpShot) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+19:06:37 #268 espn ESPN in 17:41 - 1st [DEL 6 JMU 2] (26 plays, last 1-17:41 Substitution) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:06:52 #269 espn ESPN in 17:41 - 1st [DEL 6 JMU 2] (26 plays, last 1-17:41 Substitution) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:07:07 #270 espn ESPN in 17:33 - 1st [DEL 4 JMU 2] (25 plays, last 1-17:41 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:07:22 #271 espn ESPN in 17:22 - 1st [DEL 6 JMU 2] (26 plays, last 1-17:23 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:07:37 #272 espn ESPN in 17:22 - 1st [DEL 6 JMU 2] (26 plays, last 1-17:23 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:07:52 #273 espn ESPN in 16:49 - 1st [DEL 6 JMU 2] (26 plays, last 1-17:23 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:08:07 #274 espn ESPN in 16:49 - 1st [DEL 6 JMU 2] (27 plays, last 1-16:49 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:08:22 #275 espn ESPN in 16:49 - 1st [DEL 6 JMU 3] (29 plays, last 1-16:49 Dead Ball Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:08:37 #276 espn ESPN in 16:46 - 1st [DEL 6 JMU 3] (32 plays, last 1-16:49 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:08:52 #277 espn ESPN in 16:16 - 1st [DEL 6 JMU 3] (36 plays, last 1-16:32 Steal) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:09:07 #278 espn ESPN in 16:16 - 1st [DEL 6 JMU 3] (36 plays, last 1-16:32 Steal) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:09:22 #279 espn ESPN in 16:05 - 1st [DEL 6 JMU 6] (39 plays, last 1-16:06 Shot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:09:37 #280 espn ESPN in 16:05 - 1st [DEL 6 JMU 6] (39 plays, last 1-16:06 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:09:52 #281 espn ESPN in 15:26 - 1st [DEL 6 JMU 8] (42 plays, last 1-15:47 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:10:08 #282 espn ESPN in 15:15 - 1st [DEL 6 JMU 8] (43 plays, last 1-15:26 Shot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:10:23 #283 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (45 plays, last 1-15:11 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:10:38 #284 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (45 plays, last 1-15:11 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:10:53 #285 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (46 plays, last 1-15:03 Shot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:11:08 #286 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (46 plays, last 1-15:03 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:11:23 #287 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (47 plays, last 1-15:03 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:11:38 #288 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (47 plays, last 1-15:03 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:11:53 #289 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (47 plays, last 1-15:03 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:12:08 #290 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (47 plays, last 1-15:03 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:12:23 #291 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (47 plays, last 1-15:03 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:12:38 #292 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (47 plays, last 1-15:03 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:12:53 #293 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (47 plays, last 1-15:03 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:13:08 #294 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (47 plays, last 1-15:03 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:13:23 #295 espn ESPN in 15:03 - 1st [DEL 9 JMU 8] (53 plays, last 1-15:03 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:13:38 #296 espn ESPN in 14:54 - 1st [DEL 9 JMU 8] (53 plays, last 1-15:03 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:13:53 #297 espn ESPN in 14:54 - 1st [DEL 9 JMU 8] (54 plays, last 1-14:54 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:14:09 #298 espn ESPN in 14:38 - 1st [DEL 9 JMU 8] (56 plays, last 1-14:38 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:14:24 #299 espn ESPN in 14:20 - 1st [DEL 9 JMU 8] (56 plays, last 1-14:38 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:14:39 #300 espn ESPN in 14:20 - 1st [DEL 9 JMU 8] (57 plays, last 1-14:20 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:14:54 #301 espn ESPN in 14:20 - 1st [DEL 11 JMU 8] (58 plays, last 1-14:20 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:15:09 #302 espn ESPN in 14:20 - 1st [DEL 11 JMU 8] (63 plays, last 1-14:20 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:15:24 #303 espn ESPN in 14:20 - 1st [DEL 11 JMU 8] (63 plays, last 1-14:20 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:15:39 #304 espn ESPN in 13:59 - 1st [DEL 11 JMU 8] (65 plays, last 1-14:05 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+19:15:54 #305 espn ESPN in 13:48 - 1st [DEL 11 JMU 10] (67 plays, last 1-13:59 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+19:16:09 #306 espn ESPN in 13:48 - 1st [DEL 11 JMU 10] (68 plays, last 1-13:48 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:16:24 #307 espn ESPN in 13:15 - 1st [DEL 11 JMU 10] (70 plays, last 1-13:21 Steal) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:16:39 #308 espn ESPN in 13:15 - 1st [DEL 11 JMU 10] (70 plays, last 1-13:21 Steal) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:16:54 #309 espn ESPN in 13:13 - 1st [DEL 11 JMU 10] (78 plays, last 1-13:15 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:17:09 #310 espn ESPN in 12:50 - 1st [DEL 11 JMU 12] (79 plays, last 1-13:14 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:17:24 #311 espn ESPN in 12:50 - 1st [DEL 11 JMU 12] (80 plays, last 1-12:50 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:17:39 #312 espn ESPN in 12:50 - 1st [DEL 11 JMU 12] (80 plays, last 1-12:50 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:17:54 #313 espn ESPN in 12:43 - 1st [DEL 11 JMU 12] (82 plays, last 1-12:50 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:18:09 #314 espn ESPN in 12:23 - 1st [DEL 11 JMU 15] (85 plays, last 1-12:36 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:18:24 #315 espn ESPN in 12:23 - 1st [DEL 11 JMU 15] (87 plays, last 1-12:23 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:18:39 #316 espn ESPN in 12:17 - 1st [DEL 11 JMU 15] (87 plays, last 1-12:23 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:18:55 #317 espn ESPN in 11:53 - 1st [DEL 11 JMU 15] (91 plays, last 1-11:53 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:19:05 SCREENSHOTS 1st-half: 4 tabs + drawer (4 segments) at 1440x900 and phone 390x844 | no overflow
+19:19:10 #318 espn ESPN in 11:34 - 1st [DEL 11 JMU 15] (91 plays, last 1-11:53 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:19:25 #319 espn ESPN in 11:34 - 1st [DEL 11 JMU 15] (91 plays, last 1-11:53 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:19:40 #320 espn ESPN in 11:34 - 1st [DEL 11 JMU 15] (92 plays, last 1-11:34 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:19:55 #321 espn ESPN in 11:34 - 1st [DEL 11 JMU 15] (93 plays, last 1-11:34 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:20:10 #322 espn ESPN in 11:34 - 1st [DEL 11 JMU 15] (93 plays, last 1-11:34 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:20:25 #323 espn ESPN in 11:34 - 1st [DEL 11 JMU 15] (93 plays, last 1-11:34 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:20:40 #324 espn ESPN in 11:34 - 1st [DEL 11 JMU 15] (93 plays, last 1-11:34 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:20:55 #325 espn ESPN in 11:34 - 1st [DEL 11 JMU 15] (93 plays, last 1-11:34 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:21:10 #326 espn ESPN in 11:34 - 1st [DEL 11 JMU 15] (93 plays, last 1-11:34 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:21:25 #327 espn ESPN in 11:34 - 1st [DEL 11 JMU 15] (93 plays, last 1-11:34 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:21:40 #328 espn ESPN in 11:34 - 1st [DEL 11 JMU 15] (93 plays, last 1-11:34 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:21:55 #329 espn ESPN in 11:34 - 1st [DEL 11 JMU 15] (93 plays, last 1-11:34 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:22:10 #330 espn ESPN in 11:21 - 1st [DEL 11 JMU 15] (99 plays, last 1-11:34 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:22:25 #331 espn ESPN in 11:21 - 1st [DEL 11 JMU 15] (100 plays, last 1-11:21 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:22:40 #332 espn ESPN in 11:21 - 1st [DEL 11 JMU 15] (100 plays, last 1-11:21 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:22:55 #333 espn ESPN in 10:55 - 1st [DEL 11 JMU 15] (100 plays, last 1-11:21 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:23:10 #334 espn ESPN in 10:55 - 1st [DEL 11 JMU 15] (101 plays, last 1-10:55 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:23:25 #335 espn ESPN in 10:55 - 1st [DEL 11 JMU 16] (102 plays, last 1-10:55 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:23:40 #336 espn ESPN in 10:55 - 1st [DEL 11 JMU 16] (102 plays, last 1-10:55 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:23:56 #337 espn ESPN in 10:55 - 1st [DEL 11 JMU 16] (110 plays, last 1-10:55 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:24:11 #338 espn ESPN in 10:37 - 1st [DEL 11 JMU 17] (112 plays, last 1-10:37 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:24:26 #339 espn ESPN in 10:37 - 1st [DEL 11 JMU 17] (112 plays, last 1-10:37 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:24:41 #340 espn ESPN in 10:37 - 1st [DEL 12 JMU 17] (113 plays, last 1-10:37 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:24:56 #341 espn ESPN in 10:37 - 1st [DEL 13 JMU 17] (113 plays, last 1-10:37 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:25:11 #342 espn ESPN in 10:37 - 1st [DEL 13 JMU 17] (114 plays, last 1-10:37 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:25:26 #343 espn ESPN in 10:17 - 1st [DEL 13 JMU 17] (116 plays, last 1-10:17 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+19:25:41 #344 espn ESPN in 9:56 - 1st [DEL 13 JMU 17] (119 plays, last 1-9:56 Shot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:25:56 #345 espn ESPN in 9:54 - 1st [DEL 13 JMU 17] (120 plays, last 1-9:54 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:26:11 #346 espn ESPN in 9:54 - 1st [DEL 13 JMU 17] (123 plays, last 1-9:54 Dead Ball Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:26:26 #347 espn ESPN in 9:54 - 1st [DEL 13 JMU 18] (125 plays, last 1-9:54 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:26:41 #348 espn ESPN in 9:34 - 1st [DEL 13 JMU 18] (128 plays, last 1-9:34 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:26:56 #349 espn ESPN in 9:34 - 1st [DEL 13 JMU 18] (128 plays, last 1-9:34 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:27:11 #350 espn ESPN in 9:22 - 1st [DEL 13 JMU 18] (130 plays, last 1-9:22 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:27:27 #351 espn ESPN in 9:04 - 1st [DEL 13 JMU 18] (132 plays, last 1-9:04 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:27:42 #352 espn ESPN in 8:53 - 1st [DEL 13 JMU 18] (135 plays, last 1-8:53 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:27:57 #353 espn ESPN in 8:53 - 1st [DEL 13 JMU 18] (135 plays, last 1-8:53 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:28:12 #354 espn ESPN in 8:53 - 1st [DEL 13 JMU 18] (143 plays, last 1-8:53 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:28:27 #355 espn ESPN in 8:53 - 1st [DEL 13 JMU 18] (143 plays, last 1-8:53 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:28:42 #356 espn ESPN in 8:25 - 1st [DEL 13 JMU 18] (148 plays, last 1-8:28 Shot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:28:57 #357 espn ESPN in 8:13 - 1st [DEL 13 JMU 18] (149 plays, last 1-8:25 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+19:29:12 #358 espn ESPN in 7:56 - 1st [DEL 13 JMU 20] (152 plays, last 1-7:56 LayUpShot) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+19:29:27 #359 espn ESPN in 7:40 - 1st [DEL 15 JMU 20] (153 plays, last 1-7:41 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:29:42 #360 espn ESPN in 7:40 - 1st [DEL 15 JMU 20] (153 plays, last 1-7:41 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:29:57 #361 espn ESPN in 7:19 - 1st [DEL 15 JMU 22] (154 plays, last 1-7:19 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:30:12 #362 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (154 plays, last 1-7:19 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:30:27 #363 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (156 plays, last 1-6:59 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:30:42 #364 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (156 plays, last 1-6:59 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:30:57 #365 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (156 plays, last 1-6:59 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:31:12 #366 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (156 plays, last 1-6:59 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:31:27 #367 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (156 plays, last 1-6:59 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:31:43 #368 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (156 plays, last 1-6:59 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:31:58 #369 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (156 plays, last 1-6:59 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:32:13 #370 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (156 plays, last 1-6:59 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:32:28 #371 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (156 plays, last 1-6:59 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:32:43 #372 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (156 plays, last 1-6:59 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:32:58 #373 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (156 plays, last 1-6:59 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:33:13 #374 espn ESPN in 6:59 - 1st [DEL 15 JMU 22] (156 plays, last 1-6:59 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:33:28 #375 espn ESPN in 6:35 - 1st [DEL 15 JMU 22] (158 plays, last 1-6:38 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+19:33:43 #376 espn ESPN in 6:37 - 1st [DEL 15 JMU 22] (162 plays, last 1-6:37 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:33:58 #377 espn ESPN in 6:24 - 1st [DEL 15 JMU 22] (162 plays, last 1-6:37 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:34:13 #378 espn ESPN in 6:26 - 1st [DEL 15 JMU 22] (163 plays, last 1-6:26 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:34:28 #379 espn ESPN in 6:10 - 1st [DEL 18 JMU 22] (163 plays, last 1-6:26 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:34:43 #380 espn ESPN in 6:04 - 1st [DEL 18 JMU 22] (166 plays, last 1-6:04 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:34:58 #381 espn ESPN in 6:04 - 1st [DEL 18 JMU 22] (166 plays, last 1-6:04 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:35:14 #382 espn ESPN in 5:25 - 1st [DEL 18 JMU 22] (168 plays, last 1-5:25 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:35:29 #383 espn ESPN in 5:13 - 1st [DEL 18 JMU 24] (170 plays, last 1-5:13 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:35:44 #384 espn ESPN in 5:11 - 1st [DEL 18 JMU 24] (171 plays, last 1-5:12 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:35:59 #385 espn ESPN in 4:44 - 1st [DEL 18 JMU 24] (172 plays, last 1-4:46 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:36:14 #386 espn ESPN in 4:37 - 1st [DEL 18 JMU 24] (173 plays, last 1-4:37 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:36:29 #387 espn ESPN in 4:37 - 1st [DEL 18 JMU 24] (177 plays, last 1-4:37 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:36:44 #388 espn ESPN in 4:30 - 1st [DEL 18 JMU 24] (178 plays, last 1-4:30 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:36:59 #389 espn ESPN in 4:12 - 1st [DEL 18 JMU 24] (180 plays, last 1-4:12 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+19:37:14 #390 espn ESPN in 4:12 - 1st [DEL 18 JMU 24] (180 plays, last 1-4:12 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:37:29 #391 espn ESPN in 3:50 - 1st [DEL 18 JMU 26] (181 plays, last 1-3:50 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:37:44 #392 espn ESPN in 3:38 - 1st [DEL 18 JMU 26] (183 plays, last 1-3:39 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:37:59 #393 espn ESPN in 3:32 - 1st [DEL 18 JMU 29] (186 plays, last 1-3:32 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:38:14 #394 espn ESPN in 3:32 - 1st [DEL 18 JMU 29] (186 plays, last 1-3:32 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:38:29 #395 espn ESPN in 3:32 - 1st [DEL 18 JMU 29] (186 plays, last 1-3:32 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:38:44 #396 espn ESPN in 3:32 - 1st [DEL 18 JMU 29] (186 plays, last 1-3:32 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:38:59 #397 espn ESPN in 3:32 - 1st [DEL 18 JMU 29] (186 plays, last 1-3:32 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:39:14 #398 espn ESPN in 3:32 - 1st [DEL 18 JMU 29] (186 plays, last 1-3:32 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:39:30 #399 espn ESPN in 3:32 - 1st [DEL 18 JMU 29] (186 plays, last 1-3:32 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:39:45 #400 espn ESPN in 3:32 - 1st [DEL 18 JMU 29] (186 plays, last 1-3:32 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:40:00 #401 espn ESPN in 3:32 - 1st [DEL 18 JMU 29] (186 plays, last 1-3:32 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:40:15 #402 espn ESPN in 3:32 - 1st [DEL 18 JMU 29] (186 plays, last 1-3:32 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:40:30 #403 espn ESPN in 3:32 - 1st [DEL 18 JMU 29] (186 plays, last 1-3:32 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:40:45 #404 espn ESPN in 3:32 - 1st [DEL 18 JMU 29] (186 plays, last 1-3:32 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+19:41:00 #405 espn ESPN in 3:09 - 1st [DEL 20 JMU 29] (187 plays, last 1-3:10 JumpShot) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+19:41:15 #406 espn ESPN in 2:46 - 1st [DEL 20 JMU 29] (188 plays, last 1-2:47 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:41:30 #407 espn ESPN in 2:25 - 1st [DEL 20 JMU 29] (190 plays, last 1-2:36 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:41:45 #408 espn ESPN in 2:20 - 1st [DEL 20 JMU 31] (192 plays, last 1-2:26 Shot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:42:00 #409 espn ESPN in 2:20 - 1st [DEL 20 JMU 31] (195 plays, last 1-2:20 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:42:15 #410 espn ESPN in 2:20 - 1st [DEL 20 JMU 32] (197 plays, last 1-2:20 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:42:30 #411 espn ESPN in 2:00 - 1st [DEL 20 JMU 32] (198 plays, last 1-2:20 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:42:46 #412 espn ESPN in 1:51 - 1st [DEL 20 JMU 32] (201 plays, last 1-1:52 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:43:01 #413 espn ESPN in 1:46 - 1st [DEL 20 JMU 32] (204 plays, last 1-1:46 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:43:16 #414 espn ESPN in 1:46 - 1st [DEL 20 JMU 32] (204 plays, last 1-1:46 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:43:31 #415 espn ESPN in 1:31 - 1st [DEL 20 JMU 32] (204 plays, last 1-1:46 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:43:46 #416 espn ESPN in 1:31 - 1st [DEL 20 JMU 32] (204 plays, last 1-1:46 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:44:01 #417 espn ESPN in 1:31 - 1st [DEL 20 JMU 33] (206 plays, last 1-1:31 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:44:16 #418 espn ESPN in 1:28 - 1st [DEL 20 JMU 33] (208 plays, last 1-1:31 Substitution) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+19:44:31 #419 espn ESPN in 1:11 - 1st [DEL 20 JMU 33] (210 plays, last 1-1:28 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+19:44:46 #420 espn ESPN in 0:56 - 1st [DEL 20 JMU 33] (210 plays, last 1-1:28 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:45:01 #421 espn ESPN in 1:19 - 1st [DEL 21 JMU 33] (212 plays, last 1-1:11 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:45:16 #422 espn ESPN in 1:17 - 1st [DEL 21 JMU 33] (214 plays, last 1-1:11 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:45:31 #423 espn ESPN in 1:03 - 1st [DEL 21 JMU 33] (215 plays, last 1-1:08 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:45:46 #424 espn ESPN in 0:59 - 1st [DEL 23 JMU 33] (215 plays, last 1-1:08 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:46:01 #425 espn ESPN in 0:41 - 1st [DEL 23 JMU 35] (217 plays, last 1-0:47 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:46:16 #426 espn ESPN in 0:41 - 1st [DEL 23 JMU 35] (217 plays, last 1-0:47 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:46:32 #427 espn ESPN in 0:18 - 1st [DEL 26 JMU 35] (217 plays, last 1-0:47 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+19:46:47 #428 espn ESPN in 0:18 - 1st [DEL 26 JMU 35] (218 plays, last 1-0:25 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+19:47:02 #429 espn ESPN in 0:18 - 1st [DEL 26 JMU 35] (219 plays, last 1-0:18 ShortTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: ShortTimeOut
+19:47:17 #430 espn ESPN in 0:18 - 1st [DEL 26 JMU 35] (219 plays, last 1-0:18 ShortTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: ShortTimeOut
+19:47:32 #431 espn ESPN in 0:18 - 1st [DEL 26 JMU 35] (219 plays, last 1-0:18 ShortTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: ShortTimeOut
+19:47:47 #432 espn ESPN in 0:18 - 1st [DEL 26 JMU 35] (219 plays, last 1-0:18 ShortTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: ShortTimeOut
+19:48:02 #433 espn ESPN in 0:00 - 1st [DEL 26 JMU 35] (223 plays, last 1-0:18 Substitution) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+19:48:17 #434 espn ESPN in Halftime [DEL 26 JMU 35] (225 plays, last 1-0:00 Defensive Rebound) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:48:27 SCREENSHOTS halftime: 4 tabs + drawer (4 segments) at 1440x900 and phone 390x844 | no overflow
+19:48:32 #435 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:48:47 #436 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:49:02 #437 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:49:17 #438 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:49:32 #439 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:49:47 #440 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:50:02 #441 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:50:17 #442 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:50:33 #443 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:50:48 #444 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:51:03 #445 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:51:18 #446 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:51:33 #447 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:51:48 #448 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:52:03 #449 espn ESPN in Halftime [DEL 26 JMU 35] (226 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:52:18 #450 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:52:33 #451 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:52:48 #452 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:53:03 #453 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:53:18 #454 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:53:33 #455 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:53:48 #456 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:54:03 #457 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:54:18 #458 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:54:34 #459 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:54:49 #460 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:55:04 #461 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:55:19 #462 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:55:34 #463 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:55:49 #464 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:56:04 #465 espn ESPN in Halftime [DEL 26 JMU 35] (228 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:56:19 #466 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:56:34 #467 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:56:49 #468 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:57:04 #469 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:57:19 #470 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:57:34 #471 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:57:49 #472 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:58:05 #473 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:58:20 #474 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:58:35 #475 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:58:50 #476 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:59:05 #477 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:59:20 #478 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:59:35 #479 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+19:59:50 #480 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:00:05 #481 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:00:20 #482 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:00:35 #483 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:00:50 #484 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:01:05 #485 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:01:20 #486 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:01:35 #487 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:01:50 #488 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:02:05 #489 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:02:21 #490 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:02:36 #491 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:02:51 #492 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:03:06 #493 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:03:21 #494 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:03:36 #495 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:03:51 #496 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:04:06 #497 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:04:21 #498 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:04:36 #499 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:04:51 #500 espn ESPN in Halftime [DEL 26 JMU 35] (230 plays, last 1-0:00 End Period) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:05:07 #501 espn ESPN in Halftime [DEL 26 JMU 35] (234 plays, last 2-20:00 Substitution) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:05:22 #502 espn ESPN in Halftime [DEL 26 JMU 35] (234 plays, last 2-20:00 Substitution) | light green: Play-by-play matches the score | End of first half | banners: none | repairs: none | STOPPAGE: clock stopped
+20:05:37 #503 espn ESPN in 19:38 - 2nd [DEL 26 JMU 35] (236 plays, last 2-19:43 Steal) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:05:52 #504 espn ESPN in 19:38 - 2nd [DEL 26 JMU 35] (237 plays, last 2-19:38 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:06:07 #505 espn ESPN in 19:38 - 2nd [DEL 26 JMU 35] (239 plays, last 2-19:38 Dead Ball Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:06:22 #506 espn ESPN in 19:38 - 2nd [DEL 27 JMU 35] (240 plays, last 2-19:38 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:06:37 #507 espn ESPN in 19:18 - 2nd [DEL 27 JMU 37] (243 plays, last 2-19:19 LayUpShot) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:06:52 #508 espn ESPN in 19:18 - 2nd [DEL 27 JMU 37] (243 plays, last 2-19:19 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:07:07 #509 espn ESPN in 19:18 - 2nd [DEL 27 JMU 37] (243 plays, last 2-19:19 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:07:22 #510 espn ESPN in 18:45 - 2nd [DEL 27 JMU 37] (243 plays, last 2-19:19 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:07:37 #511 espn ESPN in 18:48 - 2nd [DEL 27 JMU 37] (244 plays, last 2-18:48 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:07:52 #512 espn ESPN in 18:48 - 2nd [DEL 27 JMU 37] (244 plays, last 2-18:48 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:08:08 #513 espn ESPN in 18:04 - 2nd [DEL 30 JMU 37] (247 plays, last 2-18:15 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:08:23 #514 espn ESPN in 17:42 - 2nd [DEL 30 JMU 37] (250 plays, last 2-18:05 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:08:38 #515 espn ESPN in 17:42 - 2nd [DEL 30 JMU 37] (251 plays, last 2-17:42 Shot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:08:53 #516 espn ESPN in 17:23 - 2nd [DEL 32 JMU 37] (253 plays, last 2-17:23 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:09:08 #517 espn ESPN in 17:23 - 2nd [DEL 32 JMU 37] (253 plays, last 2-17:23 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:09:23 #518 espn ESPN in 16:58 - 2nd [DEL 32 JMU 37] (253 plays, last 2-17:23 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:09:38 #519 espn ESPN in 16:58 - 2nd [DEL 32 JMU 39] (254 plays, last 2-16:58 LayUpShot) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:09:53 #520 espn ESPN in 16:29 - 2nd [DEL 32 JMU 42] (256 plays, last 2-16:35 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:10:08 #521 espn ESPN in 16:29 - 2nd [DEL 32 JMU 42] (257 plays, last 2-16:29 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:10:23 #522 espn ESPN in 15:57 - 2nd [DEL 32 JMU 42] (258 plays, last 2-16:01 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:10:38 #523 espn ESPN in 15:50 - 2nd [DEL 32 JMU 44] (260 plays, last 2-15:50 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:10:53 #524 espn ESPN in 15:13 - 2nd [DEL 32 JMU 44] (262 plays, last 2-15:24 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:11:08 #525 espn ESPN in 15:21 - 2nd [DEL 32 JMU 47] (263 plays, last 2-15:21 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:11:23 #526 espn ESPN in 15:21 - 2nd [DEL 32 JMU 47] (264 plays, last 2-15:21 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:11:38 #527 espn ESPN in 15:21 - 2nd [DEL 32 JMU 47] (264 plays, last 2-15:21 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:11:54 #528 espn ESPN in 15:21 - 2nd [DEL 32 JMU 47] (264 plays, last 2-15:21 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:12:09 #529 espn ESPN in 15:21 - 2nd [DEL 32 JMU 47] (264 plays, last 2-15:21 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:12:24 #530 espn ESPN in 15:21 - 2nd [DEL 32 JMU 47] (264 plays, last 2-15:21 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:12:39 #531 espn ESPN in 15:21 - 2nd [DEL 32 JMU 47] (264 plays, last 2-15:21 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:12:54 #532 espn ESPN in 15:21 - 2nd [DEL 32 JMU 47] (264 plays, last 2-15:21 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:13:09 #533 espn ESPN in 15:21 - 2nd [DEL 32 JMU 47] (264 plays, last 2-15:21 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:13:24 #534 espn ESPN in 15:21 - 2nd [DEL 32 JMU 47] (264 plays, last 2-15:21 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:13:39 #535 espn ESPN in 15:21 - 2nd [DEL 32 JMU 47] (274 plays, last 2-15:21 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:13:54 #536 espn ESPN in 14:57 - 2nd [DEL 32 JMU 47] (274 plays, last 2-15:21 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:14:09 #537 espn ESPN in 14:50 - 2nd [DEL 32 JMU 47] (275 plays, last 2-14:58 Shot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:14:24 #538 espn ESPN in 14:43 - 2nd [DEL 34 JMU 47] (277 plays, last 2-14:51 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:14:39 #539 espn ESPN in 14:43 - 2nd [DEL 34 JMU 47] (277 plays, last 2-14:51 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:14:54 #540 espn ESPN in 14:43 - 2nd [DEL 34 JMU 47] (280 plays, last 2-14:43 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:15:09 #541 espn ESPN in 14:43 - 2nd [DEL 34 JMU 47] (280 plays, last 2-14:43 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:15:25 #542 espn ESPN in 14:43 - 2nd [DEL 34 JMU 47] (280 plays, last 2-14:43 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:15:40 #543 espn ESPN in 14:43 - 2nd [DEL 34 JMU 47] (280 plays, last 2-14:43 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:15:55 #544 espn ESPN in 14:43 - 2nd [DEL 34 JMU 47] (280 plays, last 2-14:43 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:16:10 #545 espn ESPN in 14:43 - 2nd [DEL 34 JMU 47] (280 plays, last 2-14:43 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:16:25 #546 espn ESPN in 14:43 - 2nd [DEL 34 JMU 47] (280 plays, last 2-14:43 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:16:40 #547 espn ESPN in 14:43 - 2nd [DEL 34 JMU 47] (280 plays, last 2-14:43 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:16:55 #548 espn ESPN in 14:43 - 2nd [DEL 34 JMU 47] (280 plays, last 2-14:43 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:17:10 #549 espn ESPN in 14:24 - 2nd [DEL 34 JMU 47] (280 plays, last 2-14:43 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:17:25 #550 espn ESPN in 14:24 - 2nd [DEL 34 JMU 47] (281 plays, last 2-14:24 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:17:41 #551 espn ESPN in 14:24 - 2nd [DEL 34 JMU 48] (282 plays, last 2-14:24 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:17:56 #552 espn ESPN in 14:24 - 2nd [DEL 34 JMU 49] (285 plays, last 2-14:24 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:18:11 #553 espn ESPN in 14:06 - 2nd [DEL 34 JMU 49] (285 plays, last 2-14:24 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:18:26 #554 espn ESPN in 13:45 - 2nd [DEL 34 JMU 49] (286 plays, last 2-14:07 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:18:41 #555 espn ESPN in 13:35 - 2nd [DEL 34 JMU 49] (285 plays, last 2-14:24 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:18:56 #556 espn ESPN in 13:28 - 2nd [DEL 34 JMU 49] (290 plays, last 2-13:30 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:19:11 #557 espn ESPN in 13:28 - 2nd [DEL 34 JMU 49] (290 plays, last 2-13:30 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:19:26 #558 espn ESPN in 13:28 - 2nd [DEL 35 JMU 49] (294 plays, last 2-13:28 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:19:42 #559 espn ESPN in 13:28 - 2nd [DEL 35 JMU 49] (294 plays, last 2-13:28 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:19:57 #560 espn ESPN in 13:11 - 2nd [DEL 35 JMU 49] (297 plays, last 2-13:12 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:20:12 #561 espn ESPN in 13:12 - 2nd [DEL 35 JMU 49] (298 plays, last 2-13:12 Steal) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:20:27 #562 espn ESPN in 12:49 - 2nd [DEL 38 JMU 49] (299 plays, last 2-12:49 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:20:42 #563 espn ESPN in 12:49 - 2nd [DEL 38 JMU 49] (299 plays, last 2-12:49 JumpShot) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:20:57 #564 espn ESPN in 12:20 - 2nd [DEL 38 JMU 49] (299 plays, last 2-12:49 JumpShot) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:21:12 #565 espn ESPN in 12:20 - 2nd [DEL 38 JMU 50] (300 plays, last 2-12:20 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:21:27 #566 espn ESPN in 12:20 - 2nd [DEL 38 JMU 50] (301 plays, last 2-12:20 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:21:42 #567 espn ESPN in 12:17 - 2nd [DEL 38 JMU 50] (309 plays, last 2-12:17 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:21:57 #568 espn ESPN in 12:17 - 2nd [DEL 38 JMU 50] (309 plays, last 2-12:17 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:22:12 #569 espn ESPN in 11:59 - 2nd [DEL 40 JMU 50] (310 plays, last 2-11:59 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:22:23 SCREENSHOTS 2nd-half: 4 tabs + drawer (4 segments) at 1440x900 and phone 390x844 | no overflow
+20:22:27 #570 espn ESPN in 11:59 - 2nd [DEL 40 JMU 50] (310 plays, last 2-11:59 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:22:43 #571 espn ESPN in 11:37 - 2nd [DEL 40 JMU 50] (311 plays, last 2-11:35 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:22:58 #572 espn ESPN in 11:35 - 2nd [DEL 40 JMU 50] (312 plays, last 2-11:35 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:23:13 #573 espn ESPN in 11:35 - 2nd [DEL 40 JMU 50] (312 plays, last 2-11:35 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:23:28 #574 espn ESPN in 11:35 - 2nd [DEL 40 JMU 50] (312 plays, last 2-11:35 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:23:43 #575 espn ESPN in 11:35 - 2nd [DEL 40 JMU 50] (312 plays, last 2-11:35 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:23:58 #576 espn ESPN in 11:35 - 2nd [DEL 40 JMU 50] (312 plays, last 2-11:35 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:24:13 #577 espn ESPN in 11:35 - 2nd [DEL 40 JMU 50] (312 plays, last 2-11:35 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:24:28 #578 espn ESPN in 11:35 - 2nd [DEL 40 JMU 50] (312 plays, last 2-11:35 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:24:43 #579 espn ESPN in 11:35 - 2nd [DEL 40 JMU 50] (312 plays, last 2-11:35 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:24:58 #580 espn ESPN in 11:35 - 2nd [DEL 40 JMU 50] (312 plays, last 2-11:35 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:25:13 #581 espn ESPN in 11:35 - 2nd [DEL 40 JMU 50] (312 plays, last 2-11:35 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:25:29 #582 espn ESPN in 11:35 - 2nd [DEL 40 JMU 51] (314 plays, last 2-11:35 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:25:44 #583 espn ESPN in 11:35 - 2nd [DEL 40 JMU 52] (316 plays, last 2-11:35 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:25:59 #584 espn ESPN in 11:23 - 2nd [DEL 42 JMU 52] (316 plays, last 2-11:35 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:26:14 #585 espn ESPN in 11:23 - 2nd [DEL 42 JMU 52] (317 plays, last 2-11:23 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:26:29 #586 espn ESPN in 10:54 - 2nd [DEL 42 JMU 52] (317 plays, last 2-11:23 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:26:44 #587 espn ESPN in 10:56 - 2nd [DEL 42 JMU 52] (321 plays, last 2-10:56 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:26:59 #588 espn ESPN in 10:36 - 2nd [DEL 42 JMU 52] (323 plays, last 2-10:42 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:27:14 #589 espn ESPN in 10:14 - 2nd [DEL 45 JMU 52] (324 plays, last 2-10:36 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:27:30 #590 espn ESPN in 10:14 - 2nd [DEL 45 JMU 52] (326 plays, last 2-10:14 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:27:45 #591 espn ESPN in 9:49 - 2nd [DEL 45 JMU 52] (328 plays, last 2-9:57 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:28:00 #592 espn ESPN in 9:49 - 2nd [DEL 45 JMU 52] (328 plays, last 2-9:57 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:28:15 #593 espn ESPN in 9:49 - 2nd [DEL 45 JMU 52] (329 plays, last 2-9:49 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:28:30 #594 espn ESPN in 9:49 - 2nd [DEL 45 JMU 53] (330 plays, last 2-9:49 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:28:45 #595 espn ESPN in 9:49 - 2nd [DEL 45 JMU 53] (330 plays, last 2-9:49 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:29:00 #596 espn ESPN in 9:48 - 2nd [DEL 45 JMU 53] (334 plays, last 2-9:49 Substitution) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:29:15 #597 espn ESPN in 9:21 - 2nd [DEL 45 JMU 53] (338 plays, last 2-9:26 Offensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:29:30 #598 espn ESPN in 9:17 - 2nd [DEL 45 JMU 53] (340 plays, last 2-9:18 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:29:45 #599 espn ESPN in 8:58 - 2nd [DEL 45 JMU 56] (341 plays, last 2-8:58 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:30:00 #600 espn ESPN in 8:34 - 2nd [DEL 48 JMU 56] (341 plays, last 2-8:58 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:30:15 #601 espn ESPN in 8:34 - 2nd [DEL 48 JMU 56] (343 plays, last 2-8:34 ShortTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: ShortTimeOut
+20:30:30 #602 espn ESPN in 8:34 - 2nd [DEL 48 JMU 56] (343 plays, last 2-8:34 ShortTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: ShortTimeOut
+20:30:45 #603 espn ESPN in 8:34 - 2nd [DEL 48 JMU 56] (343 plays, last 2-8:34 ShortTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: ShortTimeOut
+20:31:01 #604 espn ESPN in 8:34 - 2nd [DEL 48 JMU 56] (343 plays, last 2-8:34 ShortTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: ShortTimeOut
+20:31:16 #605 espn ESPN in 8:34 - 2nd [DEL 48 JMU 56] (343 plays, last 2-8:34 ShortTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: ShortTimeOut
+20:31:31 #606 espn ESPN in 8:34 - 2nd [DEL 48 JMU 56] (343 plays, last 2-8:34 ShortTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: ShortTimeOut
+20:31:46 #607 espn ESPN in 8:26 - 2nd [DEL 48 JMU 56] (345 plays, last 2-8:26 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:32:01 #608 espn ESPN in 8:06 - 2nd [DEL 48 JMU 56] (347 plays, last 2-8:06 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:32:16 #609 espn ESPN in 7:48 - 2nd [DEL 50 JMU 56] (348 plays, last 2-7:48 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:32:31 #610 espn ESPN in 7:24 - 2nd [DEL 50 JMU 56] (348 plays, last 2-7:48 LayUpShot) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:32:46 #611 espn ESPN in 7:18 - 2nd [DEL 50 JMU 56] (352 plays, last 2-7:18 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:33:01 #612 espn ESPN in 6:59 - 2nd [DEL 50 JMU 59] (352 plays, last 2-7:18 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:33:16 #613 espn ESPN in 6:33 - 2nd [DEL 50 JMU 59] (354 plays, last 2-6:33 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:33:31 #614 espn ESPN in 6:24 - 2nd [DEL 50 JMU 61] (356 plays, last 2-6:27 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:33:46 #615 espn ESPN in 6:27 - 2nd [DEL 50 JMU 61] (357 plays, last 2-6:27 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:34:01 #616 espn ESPN in 6:27 - 2nd [DEL 50 JMU 61] (358 plays, last 2-6:27 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:34:17 #617 espn ESPN in 6:27 - 2nd [DEL 50 JMU 61] (359 plays, last 2-6:27 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:34:32 #618 espn ESPN in 6:27 - 2nd [DEL 50 JMU 61] (359 plays, last 2-6:27 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:34:47 #619 espn ESPN in 6:27 - 2nd [DEL 50 JMU 61] (359 plays, last 2-6:27 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:35:02 #620 espn ESPN in 6:27 - 2nd [DEL 50 JMU 61] (359 plays, last 2-6:27 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:35:17 #621 espn ESPN in 6:27 - 2nd [DEL 50 JMU 61] (359 plays, last 2-6:27 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:35:32 #622 espn ESPN in 6:27 - 2nd [DEL 50 JMU 61] (359 plays, last 2-6:27 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:35:47 #623 espn ESPN in 6:27 - 2nd [DEL 50 JMU 61] (359 plays, last 2-6:27 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:36:02 #624 espn ESPN in 6:27 - 2nd [DEL 50 JMU 61] (359 plays, last 2-6:27 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:36:17 #625 espn ESPN in 6:27 - 2nd [DEL 50 JMU 61] (365 plays, last 2-6:27 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:36:32 #626 espn ESPN in 6:27 - 2nd [DEL 50 JMU 61] (365 plays, last 2-6:27 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:36:47 #627 espn ESPN in 6:27 - 2nd [DEL 53 JMU 61] (365 plays, last 2-6:27 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:37:02 #628 espn ESPN in 6:07 - 2nd [DEL 53 JMU 61] (366 plays, last 2-6:07 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:37:17 #629 espn ESPN in 5:31 - 2nd [DEL 55 JMU 61] (367 plays, last 2-5:42 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:37:33 #630 espn ESPN in 5:31 - 2nd [DEL 55 JMU 61] (371 plays, last 2-5:32 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:37:48 #631 espn ESPN in 5:02 - 2nd [DEL 55 JMU 63] (371 plays, last 2-5:32 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:38:03 #632 espn ESPN in 4:41 - 2nd [DEL 55 JMU 63] (372 plays, last 2-5:03 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:38:18 #633 espn ESPN in 4:41 - 2nd [DEL 55 JMU 63] (375 plays, last 2-4:41 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:38:33 #634 espn ESPN in 4:41 - 2nd [DEL 55 JMU 63] (379 plays, last 2-4:41 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:38:48 #635 espn ESPN in 4:41 - 2nd [DEL 55 JMU 63] (379 plays, last 2-4:41 Substitution) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:39:03 #636 espn ESPN in 4:41 - 2nd [DEL 55 JMU 63] (379 plays, last 2-4:41 Substitution) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:39:18 #637 espn ESPN in 4:10 - 2nd [DEL 57 JMU 63] (382 plays, last 2-4:12 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:39:33 #638 espn ESPN in 3:49 - 2nd [DEL 57 JMU 63] (383 plays, last 2-3:51 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:39:48 #639 espn ESPN in 3:49 - 2nd [DEL 57 JMU 63] (384 plays, last 2-3:49 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:40:04 #640 espn ESPN in 3:49 - 2nd [DEL 57 JMU 63] (386 plays, last 2-3:49 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:40:19 #641 espn ESPN in 3:49 - 2nd [DEL 57 JMU 63] (386 plays, last 2-3:49 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:40:34 #642 espn ESPN in 3:49 - 2nd [DEL 57 JMU 63] (386 plays, last 2-3:49 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:40:49 #643 espn ESPN in 3:49 - 2nd [DEL 57 JMU 63] (386 plays, last 2-3:49 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:41:04 #644 espn ESPN in 3:49 - 2nd [DEL 57 JMU 63] (386 plays, last 2-3:49 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:41:19 #645 espn ESPN in 3:49 - 2nd [DEL 57 JMU 63] (386 plays, last 2-3:49 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:41:34 #646 espn ESPN in 3:49 - 2nd [DEL 57 JMU 63] (386 plays, last 2-3:49 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:41:49 #647 espn ESPN in 3:49 - 2nd [DEL 57 JMU 63] (386 plays, last 2-3:49 OfficialTVTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: OfficialTVTimeOut
+20:42:04 #648 espn ESPN in 3:49 - 2nd [DEL 57 JMU 63] (388 plays, last 2-3:49 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:42:19 #649 espn ESPN in 3:49 - 2nd [DEL 57 JMU 63] (388 plays, last 2-3:49 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:42:34 #650 espn ESPN in 3:30 - 2nd [DEL 57 JMU 63] (388 plays, last 2-3:49 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:42:49 #651 espn ESPN in 3:17 - 2nd [DEL 60 JMU 63] (389 plays, last 2-3:30 JumpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:43:05 #652 espn ESPN in 3:17 - 2nd [DEL 60 JMU 63] (390 plays, last 2-3:17 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:43:20 #653 espn ESPN in 3:17 - 2nd [DEL 60 JMU 63] (392 plays, last 2-3:17 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:43:35 #654 espn ESPN in 3:01 - 2nd [DEL 60 JMU 63] (392 plays, last 2-3:17 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:43:50 #655 espn ESPN in 3:01 - 2nd [DEL 60 JMU 63] (392 plays, last 2-3:17 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:44:05 #656 espn ESPN in 3:01 - 2nd [DEL 60 JMU 64] (393 plays, last 2-3:01 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:44:20 #657 espn ESPN in 3:01 - 2nd [DEL 60 JMU 65] (395 plays, last 2-3:01 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:44:35 #658 espn ESPN in 2:40 - 2nd [DEL 60 JMU 65] (397 plays, last 2-3:01 Substitution) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:44:50 #659 espn ESPN in 2:40 - 2nd [DEL 60 JMU 65] (399 plays, last 2-2:40 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:45:05 #660 espn ESPN in 2:19 - 2nd [DEL 60 JMU 65] (400 plays, last 2-2:21 Shot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:45:20 #661 espn ESPN in 2:19 - 2nd [DEL 60 JMU 65] (401 plays, last 2-2:19 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:45:35 #662 espn ESPN in 2:20 - 2nd [DEL 60 JMU 65] (402 plays, last 2-2:19 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:45:50 #663 espn ESPN in 2:05 - 2nd [DEL 60 JMU 65] (402 plays, last 2-2:19 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:46:05 #664 espn ESPN in 2:05 - 2nd [DEL 60 JMU 65] (402 plays, last 2-2:19 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:46:20 #665 espn ESPN in 2:05 - 2nd [DEL 60 JMU 65] (402 plays, last 2-2:19 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:46:36 #666 espn ESPN in 2:05 - 2nd [DEL 60 JMU 65] (403 plays, last 2-2:05 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:46:51 #667 espn ESPN in 2:05 - 2nd [DEL 60 JMU 65] (403 plays, last 2-2:05 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:47:06 #668 espn ESPN in 2:05 - 2nd [DEL 60 JMU 65] (403 plays, last 2-2:05 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:47:21 #669 espn ESPN in 2:05 - 2nd [DEL 60 JMU 65] (403 plays, last 2-2:05 RegularTimeOut) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: RegularTimeOut
+20:47:36 #670 espn ESPN in 2:05 - 2nd [DEL 60 JMU 65] (405 plays, last 2-2:05 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:47:51 #671 espn ESPN in 1:51 - 2nd [DEL 60 JMU 65] (405 plays, last 2-2:05 Substitution) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:48:06 #672 espn ESPN in 1:53 - 2nd [DEL 60 JMU 65] (405 plays, last 2-2:05 Substitution) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:48:21 #673 espn ESPN in 1:53 - 2nd [DEL 60 JMU 65] (406 plays, last 2-1:53 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:48:36 #674 espn ESPN in 1:53 - 2nd [DEL 61 JMU 65] (407 plays, last 2-1:53 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:48:51 #675 espn ESPN in 1:53 - 2nd [DEL 61 JMU 65] (409 plays, last 2-1:53 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:49:06 #676 espn ESPN in 1:53 - 2nd [DEL 61 JMU 65] (409 plays, last 2-1:53 Substitution) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:49:21 #677 espn ESPN in 1:43 - 2nd [DEL 61 JMU 65] (411 plays, last 2-1:51 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:49:36 #678 espn ESPN in 1:28 - 2nd [DEL 61 JMU 65] (411 plays, last 2-1:51 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:49:51 #679 espn ESPN in 1:28 - 2nd [DEL 61 JMU 65] (412 plays, last 2-1:28 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:50:06 #680 espn ESPN in 1:28 - 2nd [DEL 61 JMU 66] (413 plays, last 2-1:28 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:50:22 #681 espn ESPN in 1:28 - 2nd [DEL 61 JMU 67] (413 plays, last 2-1:28 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:50:37 #682 espn ESPN in 1:28 - 2nd [DEL 61 JMU 67] (414 plays, last 2-1:28 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:50:52 #683 espn ESPN in 1:13 - 2nd [DEL 61 JMU 67] (416 plays, last 2-1:13 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:51:07 #684 espn ESPN in 0:49 - 2nd [DEL 61 JMU 67] (417 plays, last 2-0:49 LayUpShot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:51:22 #685 espn ESPN in 0:43 - 2nd [DEL 61 JMU 67] (419 plays, last 2-0:44 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:51:37 #686 espn ESPN in 0:44 - 2nd [DEL 61 JMU 67] (419 plays, last 2-0:44 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none
+20:51:52 #687 espn ESPN in 0:44 - 2nd [DEL 61 JMU 67] (419 plays, last 2-0:44 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:52:07 #688 espn ESPN in 0:44 - 2nd [DEL 61 JMU 67] (419 plays, last 2-0:44 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:52:22 #689 espn ESPN in 0:44 - 2nd [DEL 61 JMU 67] (419 plays, last 2-0:44 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:52:37 #690 espn ESPN in 0:44 - 2nd [DEL 61 JMU 67] (419 plays, last 2-0:44 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:52:53 #691 espn ESPN in 0:44 - 2nd [DEL 61 JMU 67] (419 plays, last 2-0:44 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:53:08 #692 espn ESPN in 0:44 - 2nd [DEL 61 JMU 67] (419 plays, last 2-0:44 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:53:23 #693 espn ESPN in 0:45 - 2nd [DEL 61 JMU 67] (419 plays, last 2-0:44 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:53:38 #694 espn ESPN in 0:45 - 2nd [DEL 61 JMU 67] (419 plays, last 2-0:44 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:53:53 #695 espn ESPN in 0:37 - 2nd [DEL 61 JMU 67] (420 plays, last 2-0:37 Shot) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:54:08 #696 espn ESPN in 0:34 - 2nd [DEL 61 JMU 67] (421 plays, last 2-0:34 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:54:23 #697 espn ESPN in 0:34 - 2nd [DEL 61 JMU 67] (422 plays, last 2-0:34 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:54:38 #698 espn ESPN in 0:34 - 2nd [DEL 61 JMU 67] (422 plays, last 2-0:34 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 1 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:54:53 #699 espn ESPN in 0:34 - 2nd [DEL 61 JMU 69] (424 plays, last 2-0:34 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:55:08 #700 espn ESPN in 0:34 - 2nd [DEL 61 JMU 69] (425 plays, last 2-0:34 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:55:23 #701 espn ESPN in 0:30 - 2nd [DEL 61 JMU 69] (425 plays, last 2-0:34 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:55:38 #702 espn ESPN in 0:30 - 2nd [DEL 61 JMU 69] (425 plays, last 2-0:34 Lost Ball Turnover) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:55:53 #703 espn ESPN in 0:29 - 2nd [DEL 61 JMU 69] (426 plays, last 2-0:29 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:56:09 #704 espn ESPN in 0:29 - 2nd [DEL 61 JMU 70] (426 plays, last 2-0:29 PersonalFoul) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none | STOPPAGE: clock stopped
+20:56:24 #705 espn ESPN in 0:20 - 2nd [DEL 61 JMU 71] (428 plays, last 2-0:29 MadeFreeThrow) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:56:39 #706 espn ESPN in 0:18 - 2nd [DEL 61 JMU 71] (430 plays, last 2-0:18 Defensive Rebound) | light green: Play-by-play matches the score | Live, updated 0 sec ago | banners: none | repairs: none
+20:56:54 #707 espn ESPN post Final [DEL 61 JMU 71] (432 plays, last 2-0:00 End Game) | light green: Play-by-play matches the score | Final | banners: none | repairs: none
+20:56:59 FINAL STATE light green: Play-by-play matches the score | banners: none | stints 32 | repairs none
+20:57:10 SCREENSHOTS final: 4 tabs + drawer (4 segments) at 1440x900 and phone 390x844 | no overflow
+20:57:12 DOWNLOADED research/live-lineups-test/live/jmu-del/OU Lineup Tracker - Delaware 11-11.xlsx | research/live-lineups-test/live/jmu-del/OU Stint Log - Delaware 11-11.csv
+20:57:12 END 707 refreshes, 0 errors, 113.1 live minutes
