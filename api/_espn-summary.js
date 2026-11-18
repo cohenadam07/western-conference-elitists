@@ -1,9 +1,11 @@
 // Fallback for Live Lineups (public/live-lineups.html): proxies ESPN's men's college basketball summary or a team
 // schedule when a browser blocks the direct request. ESPN normally sends access-control-allow-origin: *, so the page
 // only switches here after a direct fetch fails. Only numeric ids are accepted; nothing else is forwarded.
+// Served at /api/espn-summary through a rewrite to /api/analytics/history?section=espn-summary, so it costs no function
+// slot (the Hobby plan allows 12 per deployment; a 13th failed the build on Nov 18, 2026).
 const BASE = 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball';
 
-export default async function handler(req, res) {
+export async function espnSummaryHandler(req, res) {
   const { event, schedule } = req.query || {};
   let url;
   if (event && /^\d{6,12}$/.test(String(event))) url = `${BASE}/summary?event=${event}`;

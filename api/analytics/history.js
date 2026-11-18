@@ -24,6 +24,7 @@ import { readUsage } from '../_usage.js';
 import { readKeySummary } from '../_keys.js';
 import { readEdge, readPortfolios } from './_edge.js';
 import { statusHandler } from '../_status.js';
+import { espnSummaryHandler } from '../_espn-summary.js';
 
 export const config = { maxDuration: 30 };
 
@@ -34,6 +35,10 @@ export default async function handler(req, res) {
   // key of its own, WCE_STATUS_KEY, so the jobs that write to it never hold the analytics password.
   if (new URL(req.url, 'http://localhost').searchParams.get('section') === 'status') {
     return statusHandler(req, res);
+  }
+  // Live Lineups' ESPN fallback (/api/espn-summary, rewritten here for the same reason). Public, like ESPN itself.
+  if (new URL(req.url, 'http://localhost').searchParams.get('section') === 'espn-summary') {
+    return espnSummaryHandler(req, res);
   }
 
   const password = process.env.ANALYTICS_DASHBOARD_PASSWORD;
