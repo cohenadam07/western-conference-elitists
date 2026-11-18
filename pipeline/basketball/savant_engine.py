@@ -291,6 +291,45 @@ def load_matchups(season):
         season=season, season_type_playoffs=C.SEASON_TYPE, per_mode_simple="Totals"))
     return df
 
+def matchup_stats(mdf, box_season):
+    """mtch and oppfg for every defender in one season's LeagueSeasonMatchups frame:
+    {def_pid: {"mtch": (v, n), "oppfg": (v, n)}}. Shared by build_one_season and the rebuild of
+    a season whose matchup table the NBA has since revised (tools/savant-mtchc/rebuild_mtch.py).
+      oppfg = matchup FG% allowed vs league-average matchup FG% (signed pct-point diff).
+      mtch  = "matchup difficulty" proxy = PARTIAL_POSS-weighted average season PPG of the
+              offensive players guarded (no direct difficulty column exists on this endpoint)."""
+    fm = C.FIELD_MAP["matchups"]
+    league_fgm = mdf[fm["matchup_fgm"]].astype(float).sum()
+    league_fga = mdf[fm["matchup_fga"]].astype(float).sum()
+    league_fgpct = league_fgm / league_fga if league_fga else 0
+    ppg_map = {}
+    if box_season is not None:
+        for pid, r in box_season.iterrows():
+            gp = r.get("gp", 0) or 0
+            if gp > 0:
+                ppg_map[pid] = (r.get("pts", 0) or 0) / gp
+    agg = {}  # def_pid -> [wpts_sum, wposs_sum, fgm_sum, fga_sum]
+    for _, r in mdf.iterrows():
+        def_pid, off_pid = int(r[fm["def_id"]]), int(r[fm["off_id"]])
+        w = float(r.get(fm["partial_poss"], 0) or 0)
+        fgm, fga = float(r.get(fm["matchup_fgm"], 0) or 0), float(r.get(fm["matchup_fga"], 0) or 0)
+        a = agg.setdefault(def_pid, [0.0, 0.0, 0.0, 0.0])
+        a[2] += fgm; a[3] += fga
+        ppg = ppg_map.get(off_pid)
+        if ppg is not None and w > 0:
+            a[0] += w*ppg; a[1] += w
+    out = {}
+    for pid, (wpts, wposs, fgm, fga) in agg.items():
+        cells = {}
+        if wposs > 0:
+            cells["mtch"] = (round(wpts/wposs, 1), round(wposs))
+        if fga > 0:
+            cells["oppfg"] = (round(100*(fgm/fga - league_fgpct), 1), round(fga))
+        if cells:
+            out[pid] = cells
+    return out
+
+
 def load_onoff(season):
     """TeamPlayerOnOffSummary (Advanced), one call per team -> {pid: (onoff_net, on_court_min)}.
     onoff = team NET_RATING with the player ON court minus NET_RATING with the player OFF court.
@@ -824,33 +863,10 @@ def build_one_season(season, current=None, qualify=None):
     try:
         if season < C.since_of(next(m for m in C.METRICS if m["key"] == "mtch")):
             raise LookupError("LeagueSeasonMatchups is a stub before 2017-18")
-        fm = C.FIELD_MAP["matchups"]
-        mdf = load_matchups(season)
-        league_fgm = mdf[fm["matchup_fgm"]].astype(float).sum()
-        league_fga = mdf[fm["matchup_fga"]].astype(float).sum()
-        league_fgpct = league_fgm / league_fga if league_fga else 0
-        ppg_map = {}
-        if box_season is not None:
-            for pid, r in box_season.iterrows():
-                gp = r.get("gp", 0) or 0
-                if gp > 0:
-                    ppg_map[pid] = (r.get("pts", 0) or 0) / gp
-        agg = {}  # def_pid -> [wpts_sum, wposs_sum, fgm_sum, fga_sum]
-        for _, r in mdf.iterrows():
-            def_pid, off_pid = int(r[fm["def_id"]]), int(r[fm["off_id"]])
-            w = float(r.get(fm["partial_poss"], 0) or 0)
-            fgm, fga = float(r.get(fm["matchup_fgm"], 0) or 0), float(r.get(fm["matchup_fga"], 0) or 0)
-            a = agg.setdefault(def_pid, [0.0, 0.0, 0.0, 0.0])
-            a[2] += fgm; a[3] += fga
-            ppg = ppg_map.get(off_pid)
-            if ppg is not None and w > 0:
-                a[0] += w*ppg; a[1] += w
-        for pid, (wpts, wposs, fgm, fga) in agg.items():
-            if pid not in universe: continue
-            if wposs > 0:
-                _put_static_vn(universe[pid], "mtch", round(wpts/wposs, 1), round(wposs))
-            if fga > 0:
-                _put_static_vn(universe[pid], "oppfg", round(100*(fgm/fga - league_fgpct), 1), round(fga))
+        for pid, cells in matchup_stats(load_matchups(season), box_season).items():
+            if pid in universe:
+                for key, (v, n) in cells.items():
+                    _put_static_vn(universe[pid], key, v, n)
     except Exception:
         unavailable.add("mtch"); unavailable.add("oppfg")
 
