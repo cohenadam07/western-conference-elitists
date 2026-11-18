@@ -1180,6 +1180,12 @@
         "savant_dictionary"
       ],
       "note": "one row per fighter-round"
+    },
+    "page:live-lineups.html": {
+      "excluded": "Live Lineups is private to OU by design (Adam, Nov 2026): it must never be reachable through the connector."
+    },
+    "data:live-lineups": {
+      "excluded": "Live Lineups is private to OU by design (Adam, Nov 2026): it must never be reachable through the connector."
     }
   },
   "switches": {
