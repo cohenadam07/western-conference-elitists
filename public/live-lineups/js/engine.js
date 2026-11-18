@@ -4,7 +4,8 @@
 
 // All constants in one place. Source: project doc claude/ou-lineup-backtests.md (WCE backtests, 2025-26 D1).
 export const CONFIG = {
-  version: '1.0',
+  version: '1.0', // also the season cache's version: bump only when parsing changes
+  release: '1.0.1', // the footer's version
   P3: 0.339,            // D1 three-point percentage, for luck-adjusted points
   SD: 1.167,            // per-possession points SD, for the 95% band
   K_LINEUP: 1000,       // lineup Trust = n / (n + 1000)

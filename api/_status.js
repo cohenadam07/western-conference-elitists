@@ -7,6 +7,7 @@
 //
 // READ   GET /api/status?key=<WCE_STATUS_KEY>&part=jobs    every job, the last day of runs, deploys
 //        GET /api/status?key=<WCE_STATUS_KEY>&part=reach   visits, connector calls, keys, newsletter, Dynasty
+//        GET /api/status?key=<WCE_STATUS_KEY>&part=ll      Live Lineups usage (api/_ll-usage.js)
 // The key is in the address on purpose: answers are cached at Vercel's edge for a few seconds
 // (jobs 15 s, reach 2 min), and the cache is keyed on the full address, so a request without
 // the key can never be handed a cached answer.
@@ -34,6 +35,7 @@ import { parseJSONSafe, queryVisits, redisPipeline, timingSafeEqual, toHash, toI
 import { readUsage } from './_usage.js'
 import { K_KEYS } from './_keys.js'
 import { buttondown, buttondownConfigured } from './_forms.js'
+import { readLlUsage } from './_ll-usage.js'
 
 const K_JOBS = 'wce:status:jobs'
 const K_EVENTS = 'wce:status:events'
@@ -588,6 +590,10 @@ export async function statusHandler(req, res) {
     // (site watch's GitHub token) is never cached: its address alone would open the cache.
     const cacheable = Boolean(params.get('key'))
     const cache = (s) => res.setHeader('Cache-Control', cacheable ? `public, s-maxage=${s}, stale-while-revalidate=${s}` : 'private, no-store')
+    if (part === 'll') {
+      cache(60)
+      return res.status(200).json(await readLlUsage())
+    }
     if (part === 'reach') {
       cache(120)
       return res.status(200).json(await readReach())

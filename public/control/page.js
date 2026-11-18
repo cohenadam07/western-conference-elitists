@@ -10,6 +10,7 @@
 import { C, ENGINES, MAP_JOB_IDS, STATUS_COLOR, STATUS_WORD, ago, clock, deployStatus, drawMap, drawTimeline, latestProduction, laneSeconds, num, span, summary, until, when, } from './draw.js';
 const FEED = '/api/status';
 const JOBS_EVERY = 20000;
+const LL_EVERY = 60000;
 const REACH_EVERY = 120000;
 const KEY_RE = /^wcs_[a-f0-9]{48}$/;
 const STORE = 'wce-control-key';
@@ -25,6 +26,9 @@ let selected = null;
 let problem = null;
 let lastJobs = 0;
 let lastReach = 0;
+let ll = null;
+let lastLl = 0;
+let llOpen = null;
 const $ = (id) => document.getElementById(id);
 function savedKey() {
     try {
@@ -184,6 +188,13 @@ async function pullReach() {
     }
     render();
 }
+async function pullLl() {
+    lastLl = Date.now();
+    const next = await getJSON('ll');
+    if (next)
+        ll = next;
+    render();
+}
 function tick(force = false) {
     if (!key || (document.hidden && !force))
         return;
@@ -193,6 +204,8 @@ function tick(force = false) {
         void pullJobs();
     if (force || now - lastReach >= REACH_EVERY)
         void pullReach();
+    if (tab === 'll' && (force || now - lastLl >= LL_EVERY))
+        void pullLl();
 }
 /* ------------------------------------------------------------------ *
  * Drawing the page
@@ -217,6 +230,11 @@ function render() {
             lastSvg = svg;
         }
         stage.className = 'stage drawing';
+    }
+    else if (tab === 'll') {
+        lastSvg = '';
+        stage.className = 'stage';
+        stage.innerHTML = llHtml();
     }
     else {
         lastSvg = '';
@@ -255,6 +273,78 @@ function listHtml(now) {
         h += '</div>';
     }
     return h + reachHtml();
+}
+/* ------------------------------------------------------------------ *
+ * Live Lineups usage (wcehoops.com/live-lineups.html): what Oklahoma's staff use, read from the
+ * page's own beacons (api/_ll-usage.js). Production only; previews and ?me=1 visits aren't counted.
+ * ------------------------------------------------------------------ */
+const CT = (t, o) => new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', ...o }).format(new Date(t));
+const ctTime = (t) => CT(t, { hour: 'numeric', minute: '2-digit' }).toLowerCase();
+const ctDay = (t) => CT(t, { weekday: 'short', month: 'short', day: 'numeric' });
+const TAB_NAME = { now: 'Right now', shots: 'Shots and scoring', players: 'Their key players', sheet: 'Spreadsheet' };
+const SEG_NAME = { lineups: 'Lineups', players: 'Players', shooting: 'Shooting', opp: 'Opponent' };
+const BANNER_NAME = { delayed: 'Data delayed', badsub: 'Bad substitution', hidden: 'Lineups hidden', unreachable: 'Can\'t reach ESPN', other: 'Other' };
+const KIND_COLOR = { open: C.gold, tab: '#7FB3E0', pick: '#9AD08F', drawer: '#C9A0E8', seg: '#C9A0E8', download: '#F0C060', half: '#ECEBE8', banner: '#F0583F' };
+function bars(rows, names = {}, empty = 'None yet') {
+    if (!rows.length)
+        return `<p class="muted small">${empty}</p>`;
+    const max = Math.max(...rows.map((r) => r.n));
+    return `<div class="ll-bars">${rows.map((r) => `<div class="ll-bar"><span class="ll-name">${esc(names[r.name] || r.name)}</span><span class="ll-track"><i style="width:${Math.max(3, (r.n / max) * 100)}%"></i></span><b>${num(r.n)}</b></div>`).join('')}</div>`;
+}
+function evText(e) {
+    switch (e.k) {
+        case 'open': return `opened (${[e.mode, e.dev, e.team === '201' ? '' : `team ${e.team}`].filter(Boolean).join(', ')})`;
+        case 'tab': return `tab: ${TAB_NAME[String(e.tab)] || e.tab || '?'}`;
+        case 'pick': return `lineup: ${e.label || (e.sel ? 'a five' : 'Whole game')}`;
+        case 'drawer': return 'opened All the numbers';
+        case 'seg': return `drawer: ${SEG_NAME[String(e.seg)] || e.seg}`;
+        case 'download': return `download ${e.fmt} · ${e.scope === 'season' ? 'Whole season' : 'This game'}`;
+        case 'half': return 'halftime screen shown';
+        case 'banner': return `banner: ${BANNER_NAME[String(e.kind)] || e.kind}`;
+        default: return e.k;
+    }
+}
+function sessionHtml(s) {
+    const span0 = Math.max(60000, s.last - s.first);
+    const ticks = s.events.map((e) => `<i title="${esc(ctTime(e.t) + ' · ' + evText(e))}" style="left:${((e.t - s.first) / span0) * 100}%;background:${KIND_COLOR[e.k] || C.faint}"></i>`).join('');
+    const mins = Object.entries(s.minutes).map(([k, n]) => `${esc(k)} ${n} min`).join(' · ');
+    const open = llOpen === s.id;
+    return `<div class="ll-sess">
+    <button class="ll-head" data-ll="${esc(s.id)}" aria-expanded="${open}"><span>${esc(ctDay(s.first))}, ${esc(ctTime(s.first))}–${esc(ctTime(s.last))} CT</span><span class="muted">${esc(s.dev || '?')} · ${esc(s.mode || '?')} · open ${s.openMin} min</span></button>
+    <div class="ll-strip">${ticks}</div>
+    <div class="muted small">${mins || 'no heartbeat yet (heartbeats come every minute the page is visible)'}</div>
+    ${open ? `<ol class="ll-evs">${s.events.map((e) => `<li><span class="muted">${esc(ctTime(e.t))}</span> ${esc(evText(e))}</li>`).join('')}</ol>` : ''}
+  </div>`;
+}
+function llHtml() {
+    if (!ll)
+        return '<p class="muted">Reading Live Lineups usage…</p>';
+    const max = Math.max(1, ...ll.days.map((d) => d.events));
+    const T = ll.totals;
+    const tot = (f) => ll.days.reduce((a, d) => a + d[f], 0);
+    const dls = T.downloads.reduce((a, d) => a + d.n, 0);
+    return `<h3>Live Lineups · last 14 days</h3>
+  <div class="stats">
+    <div><b>${num(tot('opens'))}</b><span>page opens</span></div>
+    <div><b>${num(tot('sessions'))}</b><span>sessions</span></div>
+    <div><b>${num(T.picks.reduce((a, d) => a + d.n, 0))}</b><span>lineup picks</span></div>
+    <div><b>${num(dls)}</b><span>downloads</span></div>
+    <div><b>${num(T.drawer)}</b><span>drawer opens</span></div>
+    <div><b>${num(T.halftime)}</b><span>halftime screens</span></div>
+  </div>
+  <h3>Events per day (Central)</h3>
+  <div class="ll-days">${ll.days.map((d) => `<div class="ll-day" title="${esc(d.day)}: ${d.events} events, ${d.sessions} sessions, ${d.opens} opens"><span class="ll-col"><i style="height:${(d.events / max) * 100}%"></i></span><b>${d.events ? num(d.events) : ''}</b><span class="muted small"><span class="ll-m">${esc(String(Number(d.day.slice(5, 7))))}/</span>${esc(String(Number(d.day.slice(8))))}</span></div>`).join('')}</div>
+  <div class="ll-grid">
+    <div><h3>Tabs viewed</h3>${bars(T.tabs, TAB_NAME)}</div>
+    <div><h3>Downloads</h3>${bars(T.downloads)}</div>
+    <div><h3>Drawer sections</h3>${bars(T.segments, SEG_NAME)}</div>
+    <div><h3>Banners shown</h3>${bars(T.banners, BANNER_NAME, 'None')}</div>
+    <div><h3>Devices (page opens)</h3>${bars(T.devices)}</div>
+    <div><h3>Lineups picked on Shots and scoring</h3>${bars(T.picks)}</div>
+  </div>
+  <h3>Sessions, newest first</h3>
+  <p class="muted small">One session per page load. Each mark is an event (hover for it); heartbeats count the minutes the page was visible, by game state. Open with ?me=1 on your own devices to leave them out.</p>
+  ${ll.sessions.length ? ll.sessions.map(sessionHtml).join('') : '<p class="muted">No sessions yet.</p>'}`;
 }
 function reachHtml() {
     const v = reach?.visits, c = reach?.connector;
@@ -327,12 +417,19 @@ function connect(k) {
     tick(true);
 }
 document.addEventListener('click', async (ev) => {
-    const el = ev.target.closest('[data-tab],[data-pick],[data-ask],.node');
+    const el = ev.target.closest('[data-tab],[data-pick],[data-ask],[data-ll],.node');
     if (!el)
         return;
     if (el.dataset.tab) {
         tab = el.dataset.tab;
         lastSvg = '';
+        render();
+        if (tab === 'll')
+            void pullLl();
+        return;
+    }
+    if (el.dataset.ll) {
+        llOpen = llOpen === el.dataset.ll ? null : el.dataset.ll;
         render();
         return;
     }
@@ -368,7 +465,7 @@ $('key-form').addEventListener('submit', (ev) => {
     $('key-error').textContent = '';
     connect(k);
 });
-$('forget').addEventListener('click', () => { saveKey(null); key = null; feed = null; reach = null; render(); });
+$('forget').addEventListener('click', () => { saveKey(null); key = null; feed = null; reach = null; ll = null; render(); });
 $('notify').addEventListener('click', async () => {
     try {
         const p = await Notification.requestPermission();

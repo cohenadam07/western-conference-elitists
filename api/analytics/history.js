@@ -25,6 +25,7 @@ import { readKeySummary } from '../_keys.js';
 import { readEdge, readPortfolios } from './_edge.js';
 import { statusHandler } from '../_status.js';
 import { espnSummaryHandler } from '../_espn-summary.js';
+import { llUsageHandler } from '../_ll-usage.js';
 
 export const config = { maxDuration: 30 };
 
@@ -39,6 +40,10 @@ export default async function handler(req, res) {
   // Live Lineups' ESPN fallback (/api/espn-summary, rewritten here for the same reason). Public, like ESPN itself.
   if (new URL(req.url, 'http://localhost').searchParams.get('section') === 'espn-summary') {
     return espnSummaryHandler(req, res);
+  }
+  // Live Lineups' usage beacons (/api/ll-usage, rewritten here too). Public; it stores only enumerated values.
+  if (new URL(req.url, 'http://localhost').searchParams.get('section') === 'll-usage') {
+    return llUsageHandler(req, res);
   }
 
   const password = process.env.ANALYTICS_DASHBOARD_PASSWORD;
