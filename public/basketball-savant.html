@@ -6784,6 +6784,16 @@ function extRefresh(){
     const html=extBlock(g);
     if(el) el.outerHTML=html; else if(html) host.insertAdjacentHTML('beforeend',html);
   });
+  // a bar filed beside a core stat (mtchc beside mtch) goes in right after that stat's row,
+  // now that its season file is in (the main card was drawn before it was)
+  Object.keys(XBESIDE).forEach(function(k){
+    XBESIDE[k].forEach(function(x){
+      document.querySelectorAll('.row[data-k="'+x.key+'"]').forEach(function(r){ if(!r.closest('.xmore')) r.remove(); });
+      const core=[...document.querySelectorAll('.row[data-k="'+k+'"]')].find(function(r){ return !r.closest('.xmore'); });
+      const html=core?barRow(x):'';
+      if(html) core.insertAdjacentHTML('afterend',html);
+    });
+  });
   const anc=function(id,sel){const el=document.getElementById(id);if(!el)return;const a=el.closest(sel);if(a)a.style.display=el.innerHTML.trim()?'':'none';};
   anc('ctx','.ctxrow'); anc('off','.col'); anc('def','.col'); anc('val','.ctxrow');
   renderXPanels(); renderPlayTypes();
