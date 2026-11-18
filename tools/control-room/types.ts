@@ -63,4 +63,15 @@ export type Reach = {
 // route it takes on the map; `n` how many it stands for (visits come in batches).
 export type Pulse = { id: string; at: number; lane: string; color: string; n?: number; burst?: boolean }
 
-export type Tab = 'map' | 'list' | 'timeline'
+export type Tab = 'map' | 'list' | 'timeline' | 'll'
+
+// Live Lineups usage (api/_ll-usage.js readLlUsage, /api/status?part=ll)
+export type LlCount = { name: string; n: number }
+export type LlEvent = { t: number; k: string; [f: string]: string | number | undefined }
+export type LlSession = { id: string; first: number; last: number; openMin: number; team?: string; mode?: string; dev?: string; minutes: Record<string, number>; events: LlEvent[] }
+export type LlUsage = {
+  now: number
+  days: { day: string; events: number; sessions: number; opens: number }[]
+  totals: { tabs: LlCount[]; picks: LlCount[]; downloads: LlCount[]; drawer: number; segments: LlCount[]; halftime: number; banners: LlCount[]; devices: LlCount[] }
+  sessions: LlSession[]
+}

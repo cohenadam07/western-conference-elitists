@@ -103,7 +103,7 @@ export function footer(A, S) {
   }
   const rp = S.replay ? `<span class="replaybar">Replay at ${S.speed}x <button type="button" data-act="replay-toggle">${S.paused ? 'Play' : 'Pause'}</button></span>` : '';
   return `<footer class="foot"><button class="btn" type="button" data-act="drawer" aria-haspopup="dialog" aria-expanded="${!!S.drawer}">See all the numbers</button>
-<span class="src">ESPN play-by-play, refreshed every 15 seconds</span>${recon}${rp}<span class="ver">Version ${CONFIG.version}</span>
+<span class="src">ESPN play-by-play, refreshed every 15 seconds</span>${recon}${rp}<span class="ver">Version ${CONFIG.release}</span>
 <a class="wce" href="https://wcehoops.com" aria-label="Powered by Western Conference Elitists"><img src="/wce-logo-512.png" alt=""><span>Powered by <b>WCE</b></span></a></footer>`;
 }
 

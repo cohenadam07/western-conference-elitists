@@ -62,6 +62,10 @@
       "destination": "/api/analytics/history?section=espn-summary"
     },
     {
+      "source": "/api/ll-usage",
+      "destination": "/api/analytics/history?section=ll-usage"
+    },
+    {
       "source": "/mcp/:key",
       "destination": "/api/mcp?key=:key"
     },

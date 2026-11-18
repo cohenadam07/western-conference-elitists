@@ -3,6 +3,7 @@
 import { CONFIG, compact, analyze, digest, elapsed, periodOf, periodEnd, fmtClock, teamNames, chicagoDate, lastName } from './engine.js';
 import * as R from './render.js';
 import { fillWorkbook, readRoster, rosterMatch } from './xlsx.js';
+import { createUsage, deviceClass } from './usage.js';
 
 const qs = new URLSearchParams(location.search);
 const TEAM = qs.get('team') || '201';
@@ -47,12 +48,38 @@ async function readConfig() {
   return !off;
 }
 function shutDown() {
-  const first = !kill.off; kill.off = true; clearTimeout(st.timer); if (st.replay) st.replay.stopped = true; view.drawer = false;
+  const first = !kill.off; kill.off = true; U.stop(); clearTimeout(st.timer); if (st.replay) st.replay.stopped = true; view.drawer = false;
   const p = document.createElement('p'); p.className = 'empty'; p.dataset.killed = '1'; p.textContent = kill.msg;
   if (first || $app.textContent !== kill.msg) { $app.replaceChildren(p); document.title = 'Live lineups'; }
   window.__llKilled = true;
 }
 setInterval(() => { if (Date.now() - kill.at >= KILL_CHECK_S * 1000 - 250) checkConfig(); }, 1000);
+
+// ---------------------------------------------------------------- usage events (usage.js): fire-and-forget, off with the kill switch or ?me=1
+const U = createUsage(qs, { isOff: () => kill.off, gameState: () => ({ st: st.S?.state, p: st.S?.state === 'live' ? String(st.S.period || '') : undefined }) });
+const gst = () => st.S?.state;
+const use = { lastState: null, banners: new Set(), firstView: false };
+function bannerKinds() {
+  const out = new Set();
+  for (const b of $app.querySelectorAll('.banner')) {
+    const t = b.textContent || '';
+    out.add(/Can't reach ESPN/.test(t) ? 'unreachable' : /Data delayed/.test(t) ? 'delayed' : /Lineups are hidden/.test(t) ? 'hidden' : /substitution looks wrong/.test(t) ? 'badsub' : 'other');
+  }
+  return out;
+}
+function noteBanners() {
+  try { const now = bannerKinds(); for (const k of now) if (!use.banners.has(k)) U.track('banner', { kind: k }); use.banners = now; } catch { /* ignore */ }
+}
+function noteView() {
+  try {
+    const S = st.S; if (!S) return;
+    if (!use.firstView) { use.firstView = true; U.track('tab', { tab: view.tab, st: S.state }); }
+    if (S.state === 'half' && use.lastState !== 'half') U.track('half');
+    use.lastState = S.state;
+  } catch { /* ignore */ }
+}
+const pickLabel = el => { try { return (el.querySelector('.five, .o1')?.firstChild?.textContent || '').trim().slice(0, 90); } catch { return ''; } };
+
 
 const store = { get(k) { try { const v = localStorage.getItem(CACHE + k); return v ? JSON.parse(v) : null; } catch { return null; } }, set(k, v) { try { localStorage.setItem(CACHE + k, JSON.stringify(v)); } catch { /* storage off or full: fine */ } } };
 
@@ -204,7 +231,7 @@ function render() {
   if (!st.pulse) $app.querySelectorAll('.dot.beat').forEach(d => d.classList.remove('beat'));
   st.pulse = false;
   if (fk) { const sel = `${fk[2] === 'b' ? '.bottomtabs ' : ''}[data-${fk[0]}="${CSS.escape(fk[1])}"]`; const el = $app.querySelector(sel); if (el) el.focus({ preventScroll: true }); }
-  tickAgo();
+  tickAgo(); noteView(); noteBanners();
 }
 function tickAgo() {
   const el = $app.querySelector('[data-ago]'); if (!el || !st.S) return;
@@ -240,7 +267,7 @@ async function poll(gid) {
     const s = g.status.state; if (s === 'pre') next = CONFIG.REFRESH_PRE_S; else if (s === 'post') next = 0;
   } catch (e) {
     if (kill.off) return;
-    console.warn('[live-lineups] fetch failed', e); st.unreachable = true; if (st.S) render(); else $app.innerHTML = `<div class="banner err" role="alert"><b>Can't reach ESPN's play-by-play.</b> Retrying every 15 seconds.</div>`;
+    console.warn('[live-lineups] fetch failed', e); st.unreachable = true; if (st.S) render(); else { $app.innerHTML = `<div class="banner err" role="alert"><b>Can't reach ESPN's play-by-play.</b> Retrying every 15 seconds.</div>`; noteBanners(); }
   }
   if (next && !kill.off) st.timer = setTimeout(() => poll(gid), next * 1000);
 }
@@ -292,6 +319,14 @@ function startReplay(raw, speed, at) {
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-tab],[data-sel],[data-five],[data-seg],[data-sheet],[data-scope],[data-act]'); if (!t) return;
   const d = t.dataset;
+  try {
+    if (d.tab !== undefined) U.track('tab', { tab: d.tab, st: gst() });
+    else if (d.five !== undefined) { U.track('pick', { sel: d.five, label: pickLabel(t), from: 'list', st: gst() }); U.track('tab', { tab: 'shots', st: gst() }); }
+    else if (d.sel !== undefined) U.track('pick', { sel: d.sel, label: d.sel ? pickLabel(t) : 'Whole game', from: 'picker', st: gst() });
+    else if (d.seg !== undefined) U.track('seg', { seg: d.seg, st: gst() });
+    else if (d.act === 'drawer') { U.track('drawer', { st: gst() }); U.track('seg', { seg: view.seg, st: gst() }); }
+    else if (d.act === 'xlsx' || d.act === 'csv') U.track('download', { fmt: d.act, scope: view.scope === 'season' ? 'season' : 'game', st: gst() });
+  } catch { /* tracking never stops a click */ }
   if (d.tab !== undefined) { view.tab = d.tab; render(); window.scrollTo({ top: 0 }); return; }
   if (d.five !== undefined) { view.tab = 'shots'; view.sel = d.five; render(); window.scrollTo({ top: 0 }); return; }
   if (d.sel !== undefined) { view.sel = d.sel || null; render(); return; }
@@ -318,8 +353,10 @@ async function pickGame() {
   if (finals[0] && (!next || isToday(finals[0]) || Date.now() - new Date(finals[0].date).getTime() < 36 * 3600e3)) return finals[0].id;
   return (next || finals[0])?.id;
 }
+let opened = false;
 (async function main() {
   if (kill.off || !(await checkConfig())) return;
+  if (!opened) { opened = true; U.track('open', { team: TEAM, mode: qs.get('replay') ? 'replay' : 'live', dev: (() => { try { return deviceClass(); } catch { return undefined; } })(), ver: CONFIG.release }); }
   fetch('/live-lineups/ratings-2025-26.json').then(r => r.json()).then(j => { st.ratings = j; if (st.g) ingest(st.g, true); }).catch(() => {});
   loadRoster();
   try {
@@ -331,7 +368,7 @@ async function pickGame() {
   } catch (e) {
     if (kill.off) return;
     console.warn('[live-lineups] start failed', e); st.unreachable = true;
-    $app.innerHTML = `<div class="banner err" role="alert"><b>Can't reach ESPN's play-by-play.</b> Retrying every 15 seconds.</div>`;
+    $app.innerHTML = `<div class="banner err" role="alert"><b>Can't reach ESPN's play-by-play.</b> Retrying every 15 seconds.</div>`; noteBanners();
     setTimeout(main, CONFIG.REFRESH_LIVE_S * 1000);
   }
 })();

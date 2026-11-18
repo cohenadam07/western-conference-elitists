@@ -72,7 +72,24 @@
     #key-error { color: var(--red); font-size: 13px; min-height: 18px; margin-top: 8px; }
     body[data-state="locked"] #live, body[data-state="live"] #lock { display: none; }
     #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--gold); border-radius: 10px; padding: 10px 16px; font-size: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.4); }
+    .ll-days { display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 6px; align-items: end; }
+    .ll-day { display: grid; gap: 4px; text-align: center; font-family: var(--mono); font-size: 12px; }
+    .ll-col { height: 110px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; display: flex; align-items: flex-end; overflow: hidden; }
+    .ll-col i { display: block; width: 100%; background: var(--gold); }
+    .ll-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 4px 20px; }
+    .ll-bars { display: grid; gap: 5px; }
+    .ll-bar { display: grid; grid-template-columns: minmax(0, 1.4fr) 1fr auto; gap: 10px; align-items: center; font-size: 13px; }
+    .ll-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ll-track { height: 8px; background: var(--panel); border-radius: 4px; overflow: hidden; }
+    .ll-track i { display: block; height: 100%; background: var(--gold-soft); }
+    .ll-bar b { font-family: var(--mono); font-weight: 500; min-width: 28px; text-align: right; }
+    .ll-sess { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; display: grid; gap: 6px; }
+    .ll-head { all: unset; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 14px; }
+    .ll-strip { position: relative; height: 14px; background: var(--bg); border-radius: 7px; }
+    .ll-strip i { position: absolute; top: 2px; width: 4px; height: 10px; border-radius: 2px; margin-left: -2px; }
+    .ll-evs { margin: 4px 0 0; padding-left: 28px; font-size: 13px; line-height: 1.6; max-height: 320px; overflow: auto; }
     @media (max-width: 640px) {
+      .ll-days { gap: 2px; } .ll-day b { font-size: 9px; } .ll-day .small { font-size: 10px; } .ll-m { display: none; } .ll-col { height: 80px; border-radius: 4px; }
       h1 { font-size: 24px; }
       #summary { margin-left: 0; width: 100%; }
       .row { grid-template-columns: auto 1fr; }
@@ -104,6 +121,7 @@
         <button data-tab="map" aria-selected="true">Map</button>
         <button data-tab="list">List</button>
         <button data-tab="timeline">Timeline</button>
+        <button data-tab="ll">Live Lineups</button>
         <span class="spacer"></span>
         <button class="ghost" id="notify" title="Alert this browser when a job fails">Browser alerts</button>
         <button class="ghost" id="forget" title="Forget the key on this device">Lock</button>

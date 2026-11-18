@@ -8,7 +8,7 @@
 // minutes, both paused while the tab is hidden. Every new event since the last read sends a light
 // down its wire on the map; nothing moves that didn't happen.
 
-import type { Feed, Job, Pulse, Reach, Tab } from './types'
+import type { Feed, Job, LlCount, LlEvent, LlSession, LlUsage, Pulse, Reach, Tab } from './types'
 import {
   C, ENGINES, MAP_JOB_IDS, STATUS_COLOR, STATUS_WORD, ago, clock, deployStatus, drawMap, drawTimeline,
   latestProduction, laneSeconds, num, span, summary, until, when,
@@ -16,6 +16,7 @@ import {
 
 const FEED = '/api/status'
 const JOBS_EVERY = 20_000
+const LL_EVERY = 60_000
 const REACH_EVERY = 120_000
 const KEY_RE = /^wcs_[a-f0-9]{48}$/
 const STORE = 'wce-control-key'
@@ -33,6 +34,9 @@ let selected: string | null = null
 let problem: string | null = null
 let lastJobs = 0
 let lastReach = 0
+let ll: LlUsage | null = null
+let lastLl = 0
+let llOpen: string | null = null
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T
 
@@ -119,7 +123,7 @@ function pulsesForReach(prev: Reach | null, next: Reach, now: number): Pulse[] {
  * Asking the feed
  * ------------------------------------------------------------------ */
 
-async function getJSON<T>(part: 'jobs' | 'reach'): Promise<T | null> {
+async function getJSON<T>(part: 'jobs' | 'reach' | 'll'): Promise<T | null> {
   if (!key) return null
   try {
     const res = await fetch(`${FEED}?part=${part}&key=${encodeURIComponent(key)}`, { cache: 'no-store' })
@@ -161,12 +165,20 @@ async function pullReach() {
   render()
 }
 
+async function pullLl() {
+  lastLl = Date.now()
+  const next = await getJSON<LlUsage>('ll')
+  if (next) ll = next
+  render()
+}
+
 function tick(force = false) {
   if (!key || (document.hidden && !force)) return
   const now = Date.now()
   pulses = pulses.filter((p) => now - p.at < (laneSeconds(p.lane) + 1) * 1000)
   if (force || now - lastJobs >= JOBS_EVERY) void pullJobs()
   if (force || now - lastReach >= REACH_EVERY) void pullReach()
+  if (tab === 'll' && (force || now - lastLl >= LL_EVERY)) void pullLl()
 }
 
 /* ------------------------------------------------------------------ *
@@ -191,6 +203,10 @@ function render() {
     // Only redraw when something changed: a redraw restarts the running glows.
     if (svg !== lastSvg) { stage.innerHTML = svg; lastSvg = svg }
     stage.className = 'stage drawing'
+  } else if (tab === 'll') {
+    lastSvg = ''
+    stage.className = 'stage'
+    stage.innerHTML = llHtml()
   } else {
     lastSvg = ''
     stage.className = 'stage'
@@ -228,6 +244,82 @@ function listHtml(now: number): string {
     h += '</div>'
   }
   return h + reachHtml()
+}
+
+/* ------------------------------------------------------------------ *
+ * Live Lineups usage (wcehoops.com/live-lineups.html): what Oklahoma's staff use, read from the
+ * page's own beacons (api/_ll-usage.js). Production only; previews and ?me=1 visits aren't counted.
+ * ------------------------------------------------------------------ */
+
+const CT = (t: number, o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', ...o }).format(new Date(t))
+const ctTime = (t: number) => CT(t, { hour: 'numeric', minute: '2-digit' }).toLowerCase()
+const ctDay = (t: number) => CT(t, { weekday: 'short', month: 'short', day: 'numeric' })
+const TAB_NAME: Record<string, string> = { now: 'Right now', shots: 'Shots and scoring', players: 'Their key players', sheet: 'Spreadsheet' }
+const SEG_NAME: Record<string, string> = { lineups: 'Lineups', players: 'Players', shooting: 'Shooting', opp: 'Opponent' }
+const BANNER_NAME: Record<string, string> = { delayed: 'Data delayed', badsub: 'Bad substitution', hidden: 'Lineups hidden', unreachable: 'Can\'t reach ESPN', other: 'Other' }
+const KIND_COLOR: Record<string, string> = { open: C.gold, tab: '#7FB3E0', pick: '#9AD08F', drawer: '#C9A0E8', seg: '#C9A0E8', download: '#F0C060', half: '#ECEBE8', banner: '#F0583F' }
+
+function bars(rows: LlCount[], names: Record<string, string> = {}, empty = 'None yet'): string {
+  if (!rows.length) return `<p class="muted small">${empty}</p>`
+  const max = Math.max(...rows.map((r) => r.n))
+  return `<div class="ll-bars">${rows.map((r) => `<div class="ll-bar"><span class="ll-name">${esc(names[r.name] || r.name)}</span><span class="ll-track"><i style="width:${Math.max(3, (r.n / max) * 100)}%"></i></span><b>${num(r.n)}</b></div>`).join('')}</div>`
+}
+
+function evText(e: LlEvent): string {
+  switch (e.k) {
+    case 'open': return `opened (${[e.mode, e.dev, e.team === '201' ? '' : `team ${e.team}`].filter(Boolean).join(', ')})`
+    case 'tab': return `tab: ${TAB_NAME[String(e.tab)] || e.tab || '?'}`
+    case 'pick': return `lineup: ${e.label || (e.sel ? 'a five' : 'Whole game')}`
+    case 'drawer': return 'opened All the numbers'
+    case 'seg': return `drawer: ${SEG_NAME[String(e.seg)] || e.seg}`
+    case 'download': return `download ${e.fmt} · ${e.scope === 'season' ? 'Whole season' : 'This game'}`
+    case 'half': return 'halftime screen shown'
+    case 'banner': return `banner: ${BANNER_NAME[String(e.kind)] || e.kind}`
+    default: return e.k
+  }
+}
+
+function sessionHtml(s: LlSession): string {
+  const span0 = Math.max(60_000, s.last - s.first)
+  const ticks = s.events.map((e) => `<i title="${esc(ctTime(e.t) + ' · ' + evText(e))}" style="left:${((e.t - s.first) / span0) * 100}%;background:${KIND_COLOR[e.k] || C.faint}"></i>`).join('')
+  const mins = Object.entries(s.minutes).map(([k, n]) => `${esc(k)} ${n} min`).join(' · ')
+  const open = llOpen === s.id
+  return `<div class="ll-sess">
+    <button class="ll-head" data-ll="${esc(s.id)}" aria-expanded="${open}"><span>${esc(ctDay(s.first))}, ${esc(ctTime(s.first))}–${esc(ctTime(s.last))} CT</span><span class="muted">${esc(s.dev || '?')} · ${esc(s.mode || '?')} · open ${s.openMin} min</span></button>
+    <div class="ll-strip">${ticks}</div>
+    <div class="muted small">${mins || 'no heartbeat yet (heartbeats come every minute the page is visible)'}</div>
+    ${open ? `<ol class="ll-evs">${s.events.map((e) => `<li><span class="muted">${esc(ctTime(e.t))}</span> ${esc(evText(e))}</li>`).join('')}</ol>` : ''}
+  </div>`
+}
+
+function llHtml(): string {
+  if (!ll) return '<p class="muted">Reading Live Lineups usage…</p>'
+  const max = Math.max(1, ...ll.days.map((d) => d.events))
+  const T = ll.totals
+  const tot = (f: 'events' | 'sessions' | 'opens') => ll!.days.reduce((a, d) => a + d[f], 0)
+  const dls = T.downloads.reduce((a, d) => a + d.n, 0)
+  return `<h3>Live Lineups · last 14 days</h3>
+  <div class="stats">
+    <div><b>${num(tot('opens'))}</b><span>page opens</span></div>
+    <div><b>${num(tot('sessions'))}</b><span>sessions</span></div>
+    <div><b>${num(T.picks.reduce((a, d) => a + d.n, 0))}</b><span>lineup picks</span></div>
+    <div><b>${num(dls)}</b><span>downloads</span></div>
+    <div><b>${num(T.drawer)}</b><span>drawer opens</span></div>
+    <div><b>${num(T.halftime)}</b><span>halftime screens</span></div>
+  </div>
+  <h3>Events per day (Central)</h3>
+  <div class="ll-days">${ll.days.map((d) => `<div class="ll-day" title="${esc(d.day)}: ${d.events} events, ${d.sessions} sessions, ${d.opens} opens"><span class="ll-col"><i style="height:${(d.events / max) * 100}%"></i></span><b>${d.events ? num(d.events) : ''}</b><span class="muted small"><span class="ll-m">${esc(String(Number(d.day.slice(5, 7))))}/</span>${esc(String(Number(d.day.slice(8))))}</span></div>`).join('')}</div>
+  <div class="ll-grid">
+    <div><h3>Tabs viewed</h3>${bars(T.tabs, TAB_NAME)}</div>
+    <div><h3>Downloads</h3>${bars(T.downloads)}</div>
+    <div><h3>Drawer sections</h3>${bars(T.segments, SEG_NAME)}</div>
+    <div><h3>Banners shown</h3>${bars(T.banners, BANNER_NAME, 'None')}</div>
+    <div><h3>Devices (page opens)</h3>${bars(T.devices)}</div>
+    <div><h3>Lineups picked on Shots and scoring</h3>${bars(T.picks)}</div>
+  </div>
+  <h3>Sessions, newest first</h3>
+  <p class="muted small">One session per page load. Each mark is an event (hover for it); heartbeats count the minutes the page was visible, by game state. Open with ?me=1 on your own devices to leave them out.</p>
+  ${ll.sessions.length ? ll.sessions.map(sessionHtml).join('') : '<p class="muted">No sessions yet.</p>'}`
 }
 
 function reachHtml(): string {
@@ -304,9 +396,10 @@ function connect(k: string) {
 }
 
 document.addEventListener('click', async (ev) => {
-  const el = (ev.target as Element).closest<HTMLElement>('[data-tab],[data-pick],[data-ask],.node')
+  const el = (ev.target as Element).closest<HTMLElement>('[data-tab],[data-pick],[data-ask],[data-ll],.node')
   if (!el) return
-  if (el.dataset.tab) { tab = el.dataset.tab as Tab; lastSvg = ''; render(); return }
+  if (el.dataset.tab) { tab = el.dataset.tab as Tab; lastSvg = ''; render(); if (tab === 'll') void pullLl(); return }
+  if (el.dataset.ll) { llOpen = llOpen === el.dataset.ll ? null : el.dataset.ll; render(); return }
   if (el.dataset.ask) {
     const j = feed?.jobs.find((x) => x.id === el.dataset.ask)
     if (!j) return
@@ -330,7 +423,7 @@ $('key-form').addEventListener('submit', (ev) => {
   connect(k)
 })
 
-$('forget').addEventListener('click', () => { saveKey(null); key = null; feed = null; reach = null; render() })
+$('forget').addEventListener('click', () => { saveKey(null); key = null; feed = null; reach = null; ll = null; render() })
 $('notify').addEventListener('click', async () => {
   try { const p = await Notification.requestPermission(); toast(p === 'granted' ? 'This browser will alert you when a job fails.' : 'Alerts not allowed here.') } catch { toast('This browser can\'t show alerts.') }
 })
