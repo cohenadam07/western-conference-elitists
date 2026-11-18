@@ -4,7 +4,7 @@
 import { chromium } from 'playwright'; import fs from 'node:fs';
 const GIDS = process.argv.slice(2).length ? process.argv.slice(2) : ['401906801', '401906802', '401906803'];
 const VIEWPORTS = [[390, 844], [430, 932], [820, 1180], [1180, 820], [1194, 834], [1440, 900]];
-const OUT = 'research/live-lineups-test'; fs.mkdirSync(OUT, { recursive: true });
+const OUT = process.env.LL_OUT || 'research/live-lineups-test'; fs.mkdirSync(OUT, { recursive: true });
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'; // ESPN's edge 403s HeadlessChrome
 const TABS = ['now', 'shots', 'players', 'sheet'];
 const FINALS = { '401906801': [64, 68, 33], '401906802': [84, 57, 25], '401906803': [81, 72, 28] };
