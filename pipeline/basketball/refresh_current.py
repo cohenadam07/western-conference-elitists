@@ -199,6 +199,15 @@ def main(season=None):
         XE.apply_live(season, players)
     except Exception as e:
         print(f"  ext stats: failed ({repr(e)[:120]})")
+    # Matchup difficulty, creation-weighted (threat.py): needs the ext pass's tracking and gravity
+    # values and the value bars' OBPM, so it runs after both, on the same matchup table as mtch.
+    try:
+        import threat as TH
+        n = TH.apply_season(season, players, TH.pairs_of(E.load_matchups(season)), team_games=games,
+                            windows=tuple(C.WINDOWS))
+        print(f"  matchup difficulty (creation-weighted) on {n}/{len(players)} players")
+    except Exception as e:
+        print(f"  matchup difficulty (creation-weighted): failed ({repr(e)[:120]})")
     kept, stats, table_missing = br_keep.keep_br_stats(players, last_good)
     if kept or stats:
         print(f"  Basketball Reference play-by-play{' missing' if table_missing else ''}: "

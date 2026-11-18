@@ -36,6 +36,7 @@ MIN_AGE_POS = 50
 MIN_STAT = 20      # a stat tracked for only part of the history can run thin inside a good pool
 POS = ["Guard", "Wing", "Big"]
 SINCE = {m["key"]: C.since_of(m) for m in C.METRICS}
+DATA_ONLY = {m["key"] for m in XC.EXT_METRICS if m.get("scope") == "data"}   # never on the page
 
 
 def age_of(p, season):
@@ -74,7 +75,7 @@ def build(public, log=print):
             row = ((ext or {}).get("players", {}).get(str(p["id"])) or {}).get("season")
             if row:
                 for k, c in zip(ext["keys"], row):
-                    if c is not None and _ok(c[0]):
+                    if c is not None and _ok(c[0]) and k not in DATA_ONLY:
                         b["v"].setdefault(k, [[], [], []])[ix].append(c[0])
 
     out = os.path.join(public, "savant-ext", "age")

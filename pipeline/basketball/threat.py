@@ -233,3 +233,53 @@ def defender_table(pairs, T):
         a[4] += w
     return {d: {"mtchc": a[0] / a[4], "mtchc_score": a[1] / a[4], "mtchc_create": a[2] / a[4],
                 "mtchc_overall": a[3] / a[4], "n": a[4]} for d, a in acc.items() if a[4] > 0}
+
+
+MAIN_INPUTS = ("pts", "ts", "ast", "potast", "obpm")
+EXT_INPUTS = ("astpts75", "top75", "gravonp", "gravoni")
+KEYS = ("mtchc", "mtchc_score", "mtchc_create", "mtchc_overall")
+FIRST = "2017-18"                    # = savant_config since for mtch: the 2016-17 table is a stub
+
+
+def rows_from(players, ext=None):
+    """threat_table rows from the engine's player dicts (p["m"][key]["season"]). `ext`, if given,
+    is {pid: {key: value}} for the stats that live in the season's savant-ext file instead."""
+    rows = {}
+    for p in players:
+        m = p.get("m") or {}
+        cell = lambda k: (m.get(k) or {}).get("season") or {}  # noqa: E731
+        v = {k: cell(k).get("v") for k in MAIN_INPUTS + EXT_INPUTS}
+        if ext is not None:
+            for k in EXT_INPUTS:
+                v[k] = (ext.get(p["id"]) or {}).get(k)
+        rows[p["id"]] = {"min": cell("minshare").get("n") or 0, "pos": p.get("pos"),
+                         "tsa": cell("ts").get("n"), "v": v}
+    return rows
+
+
+def apply_season(season, players, pairs, team_games=None, windows=("season",), ext=None):
+    """mtchc and its three parts onto every defender in `players` (p["m"][key][window]), from
+    the season's matchup pairs (def id, off id, partial possessions). Season-only, like mtch:
+    the same value in every window. team_games: the median team's games for a season in
+    progress (the pool is pro-rated), None for a finished one. Returns how many defenders."""
+    if season < FIRST:
+        return 0
+    rows = rows_from(players, ext)
+    Tt, _ = threat_table(rows, season, pool_line(team_games))
+    D = defender_table(pairs, Tt)
+    n = 0
+    for p in players:
+        d = D.get(p["id"])
+        if not d:
+            continue
+        for k in KEYS:
+            cell = {"v": round(d[k], 3), "n": round(d["n"])}
+            p.setdefault("m", {})[k] = {w: dict(cell) for w in windows}
+        n += 1
+    return n
+
+
+def pairs_of(mdf):
+    """(def id, off id, partial possessions) from a LeagueSeasonMatchups frame."""
+    return list(zip(mdf["DEF_PLAYER_ID"].astype(int), mdf["OFF_PLAYER_ID"].astype(int),
+                    mdf["PARTIAL_POSS"].astype(float)))

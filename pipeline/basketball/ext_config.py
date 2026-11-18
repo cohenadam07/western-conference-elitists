@@ -11,6 +11,12 @@ Fields (as savant_config.METRICS, plus):
   fam      the data family (decides which pass computes it and which lane refreshes it)
   win      True if recomputed for the L10 / L25 / L75 windows, False if season-only
   first    first season it exists (`since` is the era tier's first season, for the page's gate)
+  scope    "card" (default): a bar on the card's More sections, the Leaderboard Builder and the
+           connector. "board": the Leaderboard Builder and the connector, no card bar (a part
+           of a card stat, read in that stat's tooltip). "data": the season files and the Data
+           Room only; the page and the connector never list it.
+  beside   a core card stat's key: the bar is drawn on the main card right after that stat
+           instead of in the More section (mtchc beside mtch).
   ext      always True here. These stats ship beside the archive, not in it (savant-data.json
            is near GitHub's 100 MB limit): ext_files.py writes public/savant-ext/, which the
            page fetches for the season a reader opens, for finished seasons and the season in
@@ -42,7 +48,7 @@ TIER_SINCE = {1: "1979-80", 2: "1996-97", 3: "2013-14", 4: "2016-17"}   # = sava
 
 
 def M(key, label, group, sub, unit, thr, lower, fam, win, first, what, formula, source, sample,
-      layer="ingredient"):
+      layer="ingredient", scope="card", beside=None):
     """`first` is the first season the data really exists. The page gates bars by era tier and
     the connector by `since`, and the two must agree on the four existing tiers, so a stat that
     starts mid-tier (matchups in 2017-18, the AWS stats in 2025-26) is filed under the tier it
@@ -55,7 +61,8 @@ def M(key, label, group, sub, unit, thr, lower, fam, win, first, what, formula, 
         win = True                    # a measurement is the same number in every window
     return dict(key=key, label=label, group=group, sub=sub, layer=layer, unit=unit, thr=thr,
                 lower=lower, tier=tier, since=TIER_SINCE[tier], first=first, fam=fam, win=win,
-                ext=True, what=what, formula=formula, source=source, sample=sample)
+                ext=True, what=what, formula=formula, source=source, sample=sample, scope=scope,
+                beside=beside)
 
 
 EXT_METRICS = [
@@ -433,6 +440,33 @@ EXT_METRICS = [
       "How evenly his matchup time is spread across guards, forwards and centers, 0 to 100. 100 means he guarded all three equally; near 0, one position only.",
       "Versatility = 100 × entropy of his share of matchup time vs guards / forwards / centers ÷ log(3)", f"{MAT} (matchup rollup), 2017-18 on. {NBA_NOTE} {SEASON_ONLY}",
       "Hatched under 300 matchup possessions."),
+    # Matchup difficulty, creation-weighted (threat.py): the threat of the men he guards, where
+    # threat counts creating for others as well as scoring. mtchc sits beside mtch on the card;
+    # its Scoring and Creation parts are leaderboard stats read in its tooltip; the Overall part
+    # is in the files (and the Data Room) so the total can be rebuilt: mtchc = mean of the three.
+    M("mtchc", "Matchup difficulty (creation-weighted)", "def", "Activity & outcomes", "num2", 560, False, "match", False, "2017-18",
+      "How hard his assignments are, counting playmaking as well as scoring: the average threat of the players he guards, weighted by matchup possessions. "
+      "Threat blends scoring, creating for others and offensive impact beyond scoring. It describes how hard his assignments are, not how well he defends them: "
+      "context for the rest of his defense. Bigs who mostly guard scoring bigs rank lower, because bigs create less; for a big, the position percentile is the fair read.",
+      "Σ (each opponent's threat × possessions he guarded him) ÷ Σ possessions. Threat = average of three parts, each z-scored within the season against "
+      "500+ minute players and pulled toward average by minutes ÷ (minutes + k): Scoring (Points / 75; points above league-average efficiency = "
+      "Points / 75 × (TS% − league TS%)), Creation (Assist %, potential assists / 75, assist points created / 75, time of possession / 75) and "
+      "Overall (Offensive BPM and, from 2025-26, on-ball gravity, net of Scoring). Shown as a percentile; the number is an average z-score.",
+      f"{MAT} (who guarded whom, partial possessions), 2017-18 on; the threat inputs are Basketball Savant's own stats (OBPM from {BRF}). "
+      f"{NBA_NOTE} {SEASON_ONLY} Time of possession is left out of 2024-25, when the NBA published it broken.",
+      "Hatched under 560 matchup possessions.", beside="mtch"),
+    M("mtchc_score", "Matchup difficulty: scoring part", "def", "Activity & outcomes", "num2", 600, False, "match", False, "2017-18",
+      "The scoring threat of the players he guards: mtchc's Scoring part alone. High for defenders who take the other team's best scorers.",
+      "Σ (each opponent's Scoring part × possessions he guarded him) ÷ Σ possessions. Scoring = Points / 75 and points above league-average efficiency, z-scored within the season and shrunk by minutes.",
+      f"{MAT}, 2017-18 on. {NBA_NOTE} {SEASON_ONLY}", "Hatched under 600 matchup possessions.", scope="board"),
+    M("mtchc_create", "Matchup difficulty: creation part", "def", "Activity & outcomes", "num2", 500, False, "match", False, "2017-18",
+      "The creation threat of the players he guards: mtchc's Creation part alone. High for defenders who chase the other team's playmakers.",
+      "Σ (each opponent's Creation part × possessions he guarded him) ÷ Σ possessions. Creation = Assist %, potential assists / 75, assist points created / 75 and time of possession / 75, z-scored within the season and shrunk by minutes.",
+      f"{MAT}, 2017-18 on. {NBA_NOTE} {SEASON_ONLY} Time of possession is left out of 2024-25.", "Hatched under 500 matchup possessions.", scope="board"),
+    M("mtchc_overall", "Matchup difficulty: overall part", "def", "Activity & outcomes", "num2", 1200, False, "match", False, "2017-18",
+      "The overall-impact threat of the players he guards: mtchc's Overall part (Offensive BPM and on-ball gravity, net of scoring).",
+      "Σ (each opponent's Overall part × possessions he guarded him) ÷ Σ possessions; mtchc = (scoring + creation + overall) ÷ 3.",
+      f"{MAT}, 2017-18 on. {NBA_NOTE} {SEASON_ONLY}", "Hatched under 1,200 matchup possessions.", scope="data"),
     # Help blocks and help FG% were planned here (the HELP_* columns of LeagueSeasonMatchups); the
     # NBA leaves those columns empty in every season checked (2018-19 through 2026-27), so they
     # are not offered. They return as two entries if a season ever carries the data.
