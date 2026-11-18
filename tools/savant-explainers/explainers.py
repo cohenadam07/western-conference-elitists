@@ -219,6 +219,8 @@ FIELDS = ("what", "formula", "source", "sample")
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "pipeline", "basketball"))
 import ext_config as _XC  # noqa: E402
 for _m in _XC.EXT_METRICS:
+    if _m.get("scope") == "data":      # files and the Data Room only (its dictionary reads ext_config)
+        continue
     if _m["key"] in E:
         sys.exit(f"{_m['key']}: already has an explainer")
     E[_m["key"]] = {f: _m[f] for f in FIELDS}

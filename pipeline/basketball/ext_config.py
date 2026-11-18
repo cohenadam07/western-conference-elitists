@@ -17,6 +17,10 @@ Fields (as savant_config.METRICS, plus):
            Room only; the page and the connector never list it.
   beside   a core card stat's key: the bar is drawn on the main card right after that stat
            instead of in the More section (mtchc beside mtch).
+  lead     "pct": the card's value column shows the percentile, and the number goes to the tooltip
+           (for a stat whose raw value, an average z-score, means little on its own).
+  parts    keys whose value and percentile the bar's tooltip lists (mtchc: its Scoring and
+           Creation parts).
   ext      always True here. These stats ship beside the archive, not in it (savant-data.json
            is near GitHub's 100 MB limit): ext_files.py writes public/savant-ext/, which the
            page fetches for the season a reader opens, for finished seasons and the season in
@@ -48,7 +52,7 @@ TIER_SINCE = {1: "1979-80", 2: "1996-97", 3: "2013-14", 4: "2016-17"}   # = sava
 
 
 def M(key, label, group, sub, unit, thr, lower, fam, win, first, what, formula, source, sample,
-      layer="ingredient", scope="card", beside=None):
+      layer="ingredient", scope="card", beside=None, lead=None, parts=None):
     """`first` is the first season the data really exists. The page gates bars by era tier and
     the connector by `since`, and the two must agree on the four existing tiers, so a stat that
     starts mid-tier (matchups in 2017-18, the AWS stats in 2025-26) is filed under the tier it
@@ -62,7 +66,7 @@ def M(key, label, group, sub, unit, thr, lower, fam, win, first, what, formula, 
     return dict(key=key, label=label, group=group, sub=sub, layer=layer, unit=unit, thr=thr,
                 lower=lower, tier=tier, since=TIER_SINCE[tier], first=first, fam=fam, win=win,
                 ext=True, what=what, formula=formula, source=source, sample=sample, scope=scope,
-                beside=beside)
+                beside=beside, lead=lead, parts=list(parts) if parts else None)
 
 
 EXT_METRICS = [
@@ -454,7 +458,7 @@ EXT_METRICS = [
       "Overall (Offensive BPM and, from 2025-26, on-ball gravity, net of Scoring). Shown as a percentile; the number is an average z-score.",
       f"{MAT} (who guarded whom, partial possessions), 2017-18 on; the threat inputs are Basketball Savant's own stats (OBPM from {BRF}). "
       f"{NBA_NOTE} {SEASON_ONLY} Time of possession is left out of 2024-25, when the NBA published it broken.",
-      "Hatched under 560 matchup possessions.", beside="mtch"),
+      "Hatched under 560 matchup possessions.", beside="mtch", lead="pct", parts=("mtchc_score", "mtchc_create")),
     M("mtchc_score", "Matchup difficulty: scoring part", "def", "Activity & outcomes", "num2", 600, False, "match", False, "2017-18",
       "The scoring threat of the players he guards: mtchc's Scoring part alone. High for defenders who take the other team's best scorers.",
       "Σ (each opponent's Scoring part × possessions he guarded him) ÷ Σ possessions. Scoring = Points / 75 and points above league-average efficiency, z-scored within the season and shrunk by minutes.",

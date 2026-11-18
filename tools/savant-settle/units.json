@@ -150,5 +150,9 @@
  "onoffd": "minutes",
  "pf75": "possessions",
  "sfc75": "possessions",
- "ftrbl": "games"
+ "ftrbl": "games",
+ "mtchc": "matchup possessions",
+ "mtchc_score": "matchup possessions",
+ "mtchc_create": "matchup possessions",
+ "mtchc_overall": "matchup possessions"
 }

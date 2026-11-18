@@ -4531,6 +4531,77 @@ const CFG  = {
       }
     },
     {
+      "key": "mtchc",
+      "label": "Matchup difficulty (creation-weighted)",
+      "group": "def",
+      "sub": "Activity & outcomes",
+      "layer": "ingredient",
+      "unit": "num2",
+      "thr": 560,
+      "lower": false,
+      "tier": 4,
+      "since": "2016-17",
+      "first": "2017-18",
+      "win": false,
+      "ext": true,
+      "beside": "mtch",
+      "lead": "pct",
+      "parts": [
+        "mtchc_score",
+        "mtchc_create"
+      ],
+      "settle": {
+        "last": 1600,
+        "mean": 560,
+        "unit": "matchup possessions",
+        "how": "season to season"
+      }
+    },
+    {
+      "key": "mtchc_score",
+      "label": "Matchup difficulty: scoring part",
+      "group": "def",
+      "sub": "Activity & outcomes",
+      "layer": "ingredient",
+      "unit": "num2",
+      "thr": 600,
+      "lower": false,
+      "tier": 4,
+      "since": "2016-17",
+      "first": "2017-18",
+      "win": false,
+      "ext": true,
+      "scope": "board",
+      "settle": {
+        "last": 1700,
+        "mean": 600,
+        "unit": "matchup possessions",
+        "how": "season to season"
+      }
+    },
+    {
+      "key": "mtchc_create",
+      "label": "Matchup difficulty: creation part",
+      "group": "def",
+      "sub": "Activity & outcomes",
+      "layer": "ingredient",
+      "unit": "num2",
+      "thr": 500,
+      "lower": false,
+      "tier": 4,
+      "since": "2016-17",
+      "first": "2017-18",
+      "win": false,
+      "ext": true,
+      "scope": "board",
+      "settle": {
+        "last": 1400,
+        "mean": 500,
+        "unit": "matchup possessions",
+        "how": "season to season"
+      }
+    },
+    {
       "key": "pf75",
       "label": "Personal fouls / 75",
       "group": "def",
@@ -5073,6 +5144,7 @@ function settlePoolVals(key,ref,season){             // poolVals(), but of every
 function mix(a,b,u){return [0,1,2].map(i=>Math.round(a[i]+(b[i]-a[i])*u));}
 function colorAt(p){const LO=[28,78,134],MID=[194,192,182],HI=[188,58,44];const t=Math.max(0,Math.min(100,p))/100;let c;if(t<.5)c=mix(LO,MID,t/.5);else c=mix(MID,HI,(t-.5)/.5);return 'rgb('+c[0]+','+c[1]+','+c[2]+')';}
 function inFt(n){if(miss(n))return '—';const t=Math.round(n),f=Math.floor(t/12);return f+"'"+(t-f*12)+'"';}
+function ordinal(p){ const n=Math.round(p), t=n%100, u=n%10; return n+((t>=11&&t<=13)?'th':u===1?'st':u===2?'nd':u===3?'rd':'th'); }
 function word(p){return p>=82?'elite':p>=62?'high':p>=40?'avg':'low';}
 function fmt(unit,v,pct){
   if(miss(v)) return '—';
@@ -5352,6 +5424,9 @@ const EXPL={
  cont75:{"what": "Shots he contested (a hand up close) per 75: effort and closeouts.", "formula": "Contested shots ÷ POSS × 75. POSS = possessions he was on the floor for.", "source": "NBA.com stats (stats.nba.com) hustle stats, 2016-17 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 790 possessions: at that point his own record and the prior count equally (measured season to season on 10 seasons of our data, calibrated against the within-season method). Hatched under 280 possessions, where more of the number is noise than him."},
  cont3_75:{"what": "Three-point attempts he contested per 75: closeouts on shooters.", "formula": "Contested threes ÷ POSS × 75. POSS = possessions he was on the floor for.", "source": "NBA.com stats (stats.nba.com) hustle stats, 2016-17 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 2,000 possessions: at that point his own record and the prior count equally (measured season to season on 10 seasons of our data, calibrated against the within-season method). Hatched under 710 possessions, where more of the number is noise than him."},
  vers:{"what": "How evenly his matchup time is spread across guards, forwards and centers, 0 to 100. 100 means he guarded all three equally; near 0, one position only.", "formula": "Versatility = 100 × entropy of his share of matchup time vs guards / forwards / centers ÷ log(3)", "source": "NBA.com stats (stats.nba.com) matchup data (matchup rollup), 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 1,100 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 400 matchup possessions, where more of the number is noise than him."},
+ mtchc:{"what": "How hard his assignments are, counting playmaking as well as scoring: the average threat of the players he guards, weighted by matchup possessions. Threat blends scoring, creating for others and offensive impact beyond scoring. It describes how hard his assignments are, not how well he defends them: context for the rest of his defense. Bigs who mostly guard scoring bigs rank lower, because bigs create less; for a big, the position percentile is the fair read.", "formula": "Σ (each opponent's threat × possessions he guarded him) ÷ Σ possessions. Threat = average of three parts, each z-scored within the season against 500+ minute players and pulled toward average by minutes ÷ (minutes + k): Scoring (Points / 75; points above league-average efficiency = Points / 75 × (TS% − league TS%)), Creation (Assist %, potential assists / 75, assist points created / 75, time of possession / 75) and Overall (Offensive BPM and, from 2025-26, on-ball gravity, net of Scoring). Shown as a percentile; the number is an average z-score.", "source": "NBA.com stats (stats.nba.com) matchup data (who guarded whom, partial possessions), 2017-18 on; the threat inputs are Basketball Savant's own stats (OBPM from Basketball Reference). In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games. Time of possession is left out of 2024-25, when the NBA published it broken.", "sample": "Settles around 1,600 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 560 matchup possessions, where more of the number is noise than him."},
+ mtchc_score:{"what": "The scoring threat of the players he guards: mtchc's Scoring part alone. High for defenders who take the other team's best scorers.", "formula": "Σ (each opponent's Scoring part × possessions he guarded him) ÷ Σ possessions. Scoring = Points / 75 and points above league-average efficiency, z-scored within the season and shrunk by minutes.", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 1,700 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 600 matchup possessions, where more of the number is noise than him."},
+ mtchc_create:{"what": "The creation threat of the players he guards: mtchc's Creation part alone. High for defenders who chase the other team's playmakers.", "formula": "Σ (each opponent's Creation part × possessions he guarded him) ÷ Σ possessions. Creation = Assist %, potential assists / 75, assist points created / 75 and time of possession / 75, z-scored within the season and shrunk by minutes.", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games. Time of possession is left out of 2024-25.", "sample": "Settles around 1,400 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 500 matchup possessions, where more of the number is noise than him."},
  mtov:{"what": "Turnovers by the players he guarded, per 100 matchup possessions. On-ball disruption.", "formula": "Matchup TOV forced = 100 × matchup turnovers ÷ matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 2,500 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 890 matchup possessions, where more of the number is noise than him."},
  msfl:{"what": "Shooting fouls he committed on the players he guarded, per 100 matchup possessions. Lower is better: discipline.", "formula": "Matchup shooting fouls = 100 × SFL ÷ matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 1,800 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 630 matchup possessions, where more of the number is noise than him."},
  swr:{"what": "How often he switches onto a new man, per 100 matchup possessions. Scheme identity: switch-everything defenders versus stay-home ones.", "formula": "Switch rate = 100 × switches ÷ matchup possessions (summed over his defensive box scores)", "source": "NBA.com stats (stats.nba.com) defensive box scores, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Hatched under 300 matchup possessions."},
@@ -5505,14 +5580,24 @@ function barRow(m){
   const tagTxt=m.layer.toUpperCase()+(stable?(settling?' · settling':''):' · low sample');
   const numLeft=shown>88?'calc('+shown+'% - 22px)':shown+'%';
   const numTf=shown>88?'transform:translateY(-50%)':'transform:translate(6px,-50%)';
-  const title=stable?'':'Low sample (n='+n+') — below the stabilization threshold for this stat in this window.';
+  let title=stable?'':'Low sample (n='+n+') — below the stabilization threshold for this stat in this window.';
+  /* parts: the tooltip gives the number itself to two decimals and each part's value and
+     percentile in the same pool (mtchc: the average threat of the men he guarded, its Scoring
+     and Creation parts). lead "pct": the value column shows the percentile instead. */
+  if(m.parts){
+    const sg=function(x){ return (x>=0?'+':'\u2212')+Math.abs(+x).toFixed(2); };
+    const bits=m.parts.map(function(k){ const pm=byKey(k), pv=val(cur,k,win); if(!pm||miss(pv)) return null;
+      const pp=pctOf(pv,poolVals(k,win),pm.lower);
+      return pm.label.replace(/^.*: /,'').replace(/ part$/,'')+' '+sg(pv)+(pp==null?'':' ('+ordinal(pp)+')'); }).filter(Boolean);
+    title=sg(v)+' average threat of the players he guarded'+(bits.length?'. Parts: '+bits.join(', ')+'.':'.')+(title?' '+title:'');
+  }
   return '<div class="row '+(stable?'':'un')+'" data-k="'+m.key+'" title="'+title+'">'
     +'<div class="rl" title="Click for what this stat means"><div class="name">'+m.label+'</div><div class="tag">'+tagTxt+'</div></div>'
     +'<div class="track"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div>'
       +'<div class="fill" data-w="'+shown+'" style="background:'+col+'"><div class="hatch"></div></div>'
       +chMark+setMark
       +'<div class="pnum" style="left:'+numLeft+';'+numTf+'">'+(pct==null?'·':pct)+'</div></div>'
-    +'<div class="rv">'+fmt(m.unit,v,pct)+'</div>'
+    +'<div class="rv">'+(m.lead==='pct'?(pct==null?'—':ordinal(pct)):fmt(m.unit,v,pct))+'</div>'
     +statBtn(m.key,m.label)+'</div>';
 }
 /* The glyph is a three-point rising line — a chart, not a generic "more" chevron, so its
@@ -5533,6 +5618,10 @@ function groupBlocks(group){
   for(const m of METRICS){ if(m.group!==group||m.ext) continue;   // the additions: extBlock()
     if(m.sub!==curSub){ flush(); curSub=m.sub; }
     subRows+=barRow(m);
+    // an addition filed beside a core stat (mtchc beside mtch) sits right after it; until its
+    // season file is in, barRow finds no value and draws nothing, and the redraw that follows
+    // the file (extNeed) puts it in place
+    for(const x of (XBESIDE[m.key]||[])) subRows+=barRow(x);
   }
   flush();
   return html;
@@ -6606,6 +6695,10 @@ function renderWW(){
      * a stat the NBA only publishes for the full season is hidden in the Last-N views rather
        than shown under a Last-10 label. */
 const XMETRICS=METRICS.filter(function(m){return m.ext;});
+/* scope "board": a leaderboard stat with no bar of its own (a card stat's part, read in that
+   stat's tooltip). beside: drawn on the main card after that core stat, not in More. */
+const XBESIDE={}; XMETRICS.forEach(function(m){ if(m.beside) (XBESIDE[m.beside]||(XBESIDE[m.beside]=[])).push(m); });
+const XONCARD=function(m){ return !m.beside&&m.scope!=='board'; };
 const XKEYS=new Set(XMETRICS.map(function(m){return m.key;}));
 const EXT={s:{},pan:{},p:{}};        // season -> true | 'missing' | Promise ; pid -> data | 'missing' | Promise
 function extLive(season){ return !!(DATA&&DATA.current&&DATA.current.season===season); }
@@ -6703,7 +6796,7 @@ const XGROUP_WORD={ctx:'context',off:'offense',def:'defense',val:'value'};
 let XOPEN={};
 try{ XOPEN=JSON.parse(localStorage.getItem('sv-xopen')||'{}')||{}; }catch(e){ XOPEN={}; }
 function extBlock(group){
-  const ms=XMETRICS.filter(function(m){return m.group===group;});
+  const ms=XMETRICS.filter(function(m){return m.group===group&&XONCARD(m);});
   if(!ms.length||!cur) return '';
   const seasons=[curSeason].concat(cmpPlayers().map(function(c){return c.season;}));
   if(seasons.every(function(s){return EXT.s[s]==='missing';})) return '';
@@ -7212,8 +7305,13 @@ async function exportCard(){
    2.5.0 (Oct 2026): every stat's settle point measured (tools/savant-settle). 152 stats now say
    how much sample they need, from our own seasons: 29 within seasons (the last-25 split, 6 more
    than before), 123 season to season, calibrated against the within-season method. Each bar is
-   hatched until half of what it shows is the player, and 6 more card stats get the ◆. */
-var VERSION='2.6.0';
+   hatched until half of what it shows is the player, and 6 more card stats get the ◆.
+   2.7.0 (Nov 2026): Matchup difficulty (creation-weighted), mtchc, beside mtch: the threat of the
+   men he guards counting creation as well as scoring (pipeline/basketball/threat.py), percentile-
+   led with its parts in the tooltip; its Scoring and Creation parts in the Leaderboard Builder.
+   mtch, oppfg and ddiff start in 2017-18 (the NBA's 2016-17 matchup table is a stub); value bars
+   match suffixed and nicknamed players. */
+var VERSION='2.7.0';
 function build(){
   const vc=document.getElementById('verchip');
   if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }

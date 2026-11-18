@@ -26,6 +26,7 @@ SUBS = {
     "val": ["Overall value"],
 }
 FIELDS = ("key", "label", "group", "sub", "layer", "unit", "thr", "lower", "tier", "since", "first", "win")
+OPTIONAL = ("beside", "lead", "parts")       # written only where set; scope only where not "card"
 
 
 def main():
@@ -45,8 +46,15 @@ def main():
     if clash:
         sys.exit(f"ext keys already used by card stats: {sorted(clash)}")
     seq = {k: n for n, k in enumerate(XC.KEYS)}
-    ext = sorted(XC.EXT_METRICS, key=lambda m: (GROUPS.index(m["group"]), SUBS[m["group"]].index(m["sub"]), seq[m["key"]]))
-    cfg["metrics"] = core + [dict({f: (ST.thr(m["key"]) or m[f]) if f == "thr" else m[f] for f in FIELDS}, ext=True) for m in ext]
+    # scope "data" lives in the files and the Data Room only: never in the page's CFG
+    ext = sorted([m for m in XC.EXT_METRICS if m.get("scope", "card") != "data"], key=lambda m: (GROUPS.index(m["group"]), SUBS[m["group"]].index(m["sub"]), seq[m["key"]]))
+    def entry(m):
+        e = dict({f: (ST.thr(m["key"]) or m[f]) if f == "thr" else m[f] for f in FIELDS}, ext=True)
+        e.update({f: m[f] for f in OPTIONAL if m.get(f)})
+        if m.get("scope", "card") != "card":
+            e["scope"] = m["scope"]
+        return e
+    cfg["metrics"] = core + [entry(m) for m in ext]
     s = s[:i] + json.dumps(cfg, indent=2, ensure_ascii=False) + s[j + 1:]
     open(PAGE, "w", encoding="utf-8").write(s)
     print(f"CFG: {len(core)} card stats + {len(ext)} additions")

@@ -56,12 +56,27 @@ const PER_TEAM = new Set(['player_games', 'units', 'possessions'])
 //   nba.player_seasons   Basketball Savant's own player-seasons: position (Guard / Wing / Big, as the page
 //                        assigns it), the page's qualified flag, team, age, experience and the per-game line.
 //                        It is what lets a stability study take its prior within position, as
-//                        settle_points.py does, and lets SQL use the page's own qualification.
+//                        settle_points.py does, and lets SQL use the page's own qualification. Since Nov
+//                        2026 it also carries the two matchup-difficulty stats side by side (mtch and
+//                        mtchc with its three parts and its sample), so an AI can compare them; the
+//                        columns the bio line does not explain carry a dictionary entry each.
 const readJson = (rel) => JSON.parse(readFileSync(path.join(PUB, rel), 'utf8'))
+const extSeason = (season) => { try { return readJson(`savant-ext/s/${season}.json`) } catch { return null } }
+const MAT = 'NBA.com stats (stats.nba.com) matchup data (LeagueSeasonMatchups: who guarded whom, partial possessions)'
+const MTCHC_FORMULA = 'average threat of the players he guarded, weighted by matchup possessions; threat = mean of three parts (Scoring: Points / 75 and points above league-average efficiency; Creation: Assist %, potential assists / 75, assist points created / 75, time of possession / 75; Overall: Offensive BPM and, from 2025-26, on-ball gravity, net of Scoring), each z-scored within the season against 500+ minute players and shrunk toward average by minutes / (minutes + k)'
+const DICTIONARY = {
+  mtch: { definition: 'Matchup difficulty: the scoring level of the players he guarded, the possession-weighted average of their season points per game.', unit: 'points per game', source: MAT, first_season: '2017-18', caveat: 'Context for his defense, not a measure of it. 2024-25 and 2025-26 are rebuilt from the NBA\'s revised matchup tables (Nov 2026). Hatched on the page under 530 matchup possessions.' },
+  mtchc: { definition: `Matchup difficulty (creation-weighted): the ${MTCHC_FORMULA}.`, unit: 'average z-score (0 = a league-average assignment; qualified defenders run about -0.1 to +0.4)', source: `${MAT}; threat inputs are Basketball Savant's own stats`, first_season: '2017-18', caveat: 'Describes how hard his assignments are, not how well he defends them. Bigs who guard scoring bigs rank lower because bigs create less: compare bigs with bigs. Low sample under 560 matchup possessions; settles around 1,600. mtchc = (mtchc_score + mtchc_create + mtchc_overall) / 3.' },
+  mtchc_score: { definition: 'The Scoring part of mtchc: the possession-weighted average Scoring part (Points / 75 and points above league-average efficiency) of the players he guarded.', unit: 'average z-score', source: MAT, first_season: '2017-18', caveat: 'Low sample under 600 matchup possessions.' },
+  mtchc_create: { definition: 'The Creation part of mtchc: the possession-weighted average Creation part (Assist %, potential assists, assist points created, time of possession) of the players he guarded.', unit: 'average z-score', source: MAT, first_season: '2017-18', caveat: 'Time of possession is left out of 2024-25, when the NBA published it broken. Low sample under 500 matchup possessions.' },
+  mtchc_overall: { definition: 'The Overall part of mtchc: the possession-weighted average Overall part (Offensive BPM and on-ball gravity, net of Scoring) of the players he guarded. Here so the total can be rebuilt from its parts; it is not on the page.', unit: 'average z-score', source: `${MAT}; OBPM from Basketball Reference; gravity from NBA.com Inside the Game, 2025-26 on`, first_season: '2017-18', caveat: 'Settles slowly: low sample under 1,200 matchup possessions.' },
+  matchup_poss: { definition: 'Matchup possessions: the partial possessions he spent guarding someone, the sample behind mtch and mtchc.', unit: 'possessions', source: MAT, first_season: '2017-18', caveat: 'A possession is shared among the defenders who guarded the ball handler or shooter, so the partial possessions add up to five per team possession.' },
+}
 export const EXTRA = {
   'nba.player_seasons': {
     row: 'player-season (Basketball Savant)',
-    note: "Basketball Savant's player-seasons as the page holds them (public/savant-data.json and savant-current.json): pos is the page's position group (Guard, Wing, Big), qualified the page's flag (20+ games at 15+ minutes), and ppg/rpg/apg/mpg its per-game line. Join to nba.player_games on season and player_id.",
+    note: "Basketball Savant's player-seasons as the page holds them (public/savant-data.json and savant-current.json): pos is the page's position group (Guard, Wing, Big), qualified the page's flag (20+ games at 15+ minutes), and ppg/rpg/apg/mpg its per-game line. mtch, mtchc, its three parts and matchup_poss are the page's matchup-difficulty stats, 2017-18 on (null before, and for a player who guarded no one); the dictionary defines each. Join to nba.player_games on season and player_id.",
+    dictionary: DICTIONARY,
     seasons: async () => {
       const d = readJson('savant-data.json'), c = readJson('savant-current.json')
       return [...new Set([...d.seasons.filter((s) => d.data[s]), ...c.seasons.filter((s) => c.data[s])])].sort()
@@ -69,8 +84,13 @@ export const EXTRA = {
     read: async (season) => {
       const d = readJson('savant-data.json'), c = readJson('savant-current.json')
       const src = (c.data[season] || d.data[season])
-      const columns = ['player_id', 'player', 'team', 'pos', 'age', 'exp', 'qualified', 'ppg', 'rpg', 'apg', 'mpg']
-      const rows = (src.players || []).map((p) => [p.id, p.name, p.team ?? null, p.pos ?? null, p.age ?? null, p.exp ?? null, p.qualified === true, p.line?.ppg ?? null, p.line?.rpg ?? null, p.line?.apg ?? null, p.line?.mpg ?? null])
+      const ext = extSeason(season)
+      const at = ext ? Object.fromEntries(['mtchc', 'mtchc_score', 'mtchc_create', 'mtchc_overall'].map((k) => [k, ext.keys.indexOf(k)])) : {}
+      const cell = (p, k) => { const r = ext && (ext.players[String(p.id)] || {}).season; const c = r && at[k] >= 0 ? r[at[k]] : null; return c || null }
+      const columns = ['player_id', 'player', 'team', 'pos', 'age', 'exp', 'qualified', 'ppg', 'rpg', 'apg', 'mpg', 'mtch', 'mtchc', 'mtchc_score', 'mtchc_create', 'mtchc_overall', 'matchup_poss']
+      const rows = (src.players || []).map((p) => [p.id, p.name, p.team ?? null, p.pos ?? null, p.age ?? null, p.exp ?? null, p.qualified === true, p.line?.ppg ?? null, p.line?.rpg ?? null, p.line?.apg ?? null, p.line?.mpg ?? null,
+        p.m?.mtch?.season?.v ?? null, cell(p, 'mtchc')?.[0] ?? null, cell(p, 'mtchc_score')?.[0] ?? null, cell(p, 'mtchc_create')?.[0] ?? null, cell(p, 'mtchc_overall')?.[0] ?? null,
+        cell(p, 'mtchc')?.[1] ?? p.m?.mtch?.season?.n ?? null])
       return { columns, rows, through: (c.data[season] && c.through) || null }
     },
   },

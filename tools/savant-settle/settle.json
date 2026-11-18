@@ -1779,6 +1779,54 @@
    "median_n": 70.0,
    "show_mean": 27,
    "show_last": 67
+  },
+  "mtchc": {
+   "method": "season",
+   "k_mean": 562.3891073783041,
+   "k_last": 1584.9512374962908,
+   "k_season": 1258.9,
+   "family": "poss",
+   "pairs": 1831,
+   "seasons": 9,
+   "median_n": 3525.0,
+   "show_mean": 560,
+   "show_last": 1600
+  },
+  "mtchc_score": {
+   "method": "season",
+   "k_mean": 595.7152074739602,
+   "k_last": 1678.8724086117275,
+   "k_season": 1333.5,
+   "family": "poss",
+   "pairs": 1831,
+   "seasons": 9,
+   "median_n": 3525.0,
+   "show_mean": 600,
+   "show_last": 1700
+  },
+  "mtchc_create": {
+   "method": "season",
+   "k_mean": 501.2316931276965,
+   "k_last": 1412.5945575270778,
+   "k_season": 1122.0,
+   "family": "poss",
+   "pairs": 1831,
+   "seasons": 9,
+   "median_n": 3525.0,
+   "show_mean": 500,
+   "show_last": 1400
+  },
+  "mtchc_overall": {
+   "method": "season",
+   "k_mean": 1188.616012392925,
+   "k_last": 3349.813136552848,
+   "k_season": 2660.7,
+   "family": "poss",
+   "pairs": 1831,
+   "seasons": 9,
+   "median_n": 3525.0,
+   "show_mean": 1200,
+   "show_last": 3300
   }
  }
 }

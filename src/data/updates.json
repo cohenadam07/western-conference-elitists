@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-11-18",
+    "product": "Basketball Savant",
+    "version": "2.7.0",
+    "text": "Matchup difficulty (creation-weighted): how hard a defender's assignments are, counting the playmakers he chases as well as the scorers, beside Matchup difficulty on every card from 2017-18, with its scoring and creation parts in the Leaderboard Builder",
+    "href": "/basketball-savant.html"
+  },
+  {
     "date": "2026-11-17",
     "product": "Flappy Hoops",
     "version": "2.13.3",
