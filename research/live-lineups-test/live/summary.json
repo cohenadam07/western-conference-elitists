@@ -1,0 +1,548 @@
+[
+ {
+  "label": "fdu-etam",
+  "refreshes": 140,
+  "live_refreshes": 140,
+  "live_span_min": 34.9,
+  "from": "9:30 - 1st",
+  "to": "Halftime",
+  "gap_median_s": 15.055999994277954,
+  "gap_max_s": 15.9,
+  "lights": {
+   "green": 137,
+   "amber": 3
+  },
+  "non_green": [
+   {
+    "start": "2026-11-11T17:00:33.656Z",
+    "clock": "7:01 - 1st",
+    "worst": "amber",
+    "text": "Play-by-play 17-25, score 16-25, catching up",
+    "n": 3,
+    "secs": 45
+   }
+  ],
+  "timeouts": [
+   {
+    "at": "1-7:01",
+    "type": "OfficialTVTimeOut",
+    "secs": 211,
+    "refreshes": 14,
+    "espn_clock": [
+     "7:01"
+    ],
+    "banners": [],
+    "lights": [
+     "amber",
+     "green"
+    ]
+   },
+   {
+    "at": "1-2:56",
+    "type": "OfficialTVTimeOut",
+    "secs": 135,
+    "refreshes": 9,
+    "espn_clock": [
+     "2:56"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   }
+  ],
+  "stoppages": [
+   {
+    "at": "1-7:01",
+    "secs": 211,
+    "refreshes": 14,
+    "last_plays": [
+     "OfficialTVTimeOut",
+     "Steal"
+    ],
+    "banners": [],
+    "lights": [
+     "amber",
+     "green"
+    ]
+   },
+   {
+    "at": "1-4:33",
+    "secs": 211,
+    "refreshes": 14,
+    "last_plays": [
+     "Coach's Challenge (Overturned)",
+     "Steal",
+     "Substitution"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "1-2:56",
+    "secs": 135,
+    "refreshes": 9,
+    "last_plays": [
+     "MadeFreeThrow",
+     "OfficialTVTimeOut",
+     "Substitution"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "Halftime",
+    "secs": 738,
+    "refreshes": 49,
+    "last_plays": [
+     "End Period"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   }
+  ],
+  "data_delayed": [],
+  "repairs": [],
+  "lineups_hidden": false,
+  "errors": [],
+  "end": {
+   "wall": "2026-11-11T17:28:31.369Z",
+   "kind": "end",
+   "refreshes": 140,
+   "errors": 0,
+   "liveMinutes": 35.009883333333335
+  }
+ },
+ {
+  "label": "fdu-etam-2h",
+  "refreshes": 100,
+  "live_refreshes": 100,
+  "live_span_min": 24.9,
+  "from": "Halftime",
+  "to": "12:48 - 2nd",
+  "gap_median_s": 15.065000057220459,
+  "gap_max_s": 15.3,
+  "lights": {
+   "green": 100
+  },
+  "non_green": [],
+  "timeouts": [],
+  "stoppages": [
+   {
+    "at": "Halftime",
+    "secs": 377,
+    "refreshes": 25,
+    "last_plays": [
+     "End Period",
+     "JumpShot",
+     "Substitution"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "2-16:38",
+    "secs": 121,
+    "refreshes": 8,
+    "last_plays": [
+     "Defensive Rebound",
+     "MadeFreeThrow",
+     "PersonalFoul"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "2-14:47",
+    "secs": 196,
+    "refreshes": 13,
+    "last_plays": [
+     "Defensive Rebound",
+     "Offensive Rebound",
+     "Substitution"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "2-13:30",
+    "secs": 90,
+    "refreshes": 6,
+    "last_plays": [
+     "MadeFreeThrow",
+     "PersonalFoul",
+     "Substitution"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   }
+  ],
+  "data_delayed": [],
+  "repairs": [],
+  "lineups_hidden": false,
+  "errors": [],
+  "end": {
+   "wall": "2026-11-11T17:52:36.586Z",
+   "kind": "end",
+   "refreshes": 100,
+   "errors": 0,
+   "liveMinutes": 25.00375
+  }
+ },
+ {
+  "label": "kc-famu-before-fix",
+  "refreshes": 100,
+  "live_refreshes": 89,
+  "live_span_min": 22.1,
+  "from": "19:58 - 1st",
+  "to": "6:47 - 1st",
+  "gap_median_s": 15.04800009727478,
+  "gap_max_s": 15.3,
+  "lights": {
+   "green": 74,
+   "amber": 4,
+   "red": 11
+  },
+  "non_green": [
+   {
+    "start": "2026-11-11T17:23:44.730Z",
+    "clock": "8:20 - 1st",
+    "worst": "red",
+    "text": "Play-by-play 0-0, score 25-16, catching up",
+    "n": 15,
+    "secs": null
+   }
+  ],
+  "timeouts": [
+   {
+    "at": "1-11:53",
+    "type": "ShortTimeOut",
+    "secs": 150,
+    "refreshes": 10,
+    "espn_clock": [
+     "11:53"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   }
+  ],
+  "stoppages": [
+   {
+    "at": "1-14:52",
+    "secs": 150,
+    "refreshes": 10,
+    "last_plays": [
+     "MadeFreeThrow",
+     "PersonalFoul"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "1-13:34",
+    "secs": 90,
+    "refreshes": 6,
+    "last_plays": [
+     "JumpShot",
+     "MadeFreeThrow",
+     "PersonalFoul",
+     "Substitution"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "1-11:53",
+    "secs": 150,
+    "refreshes": 10,
+    "last_plays": [
+     "Defensive Rebound",
+     "ShortTimeOut",
+     "Substitution"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "1-7:47",
+    "secs": 150,
+    "refreshes": 10,
+    "last_plays": [
+     "Defensive Rebound",
+     "Lost Ball Turnover",
+     "Substitution"
+    ],
+    "banners": [
+     "Lineups are hidden for this game. ESPN's substitutions don't add up to five players on the floor and could not be repaired, so the score, shots, players and box numbers are shown without them."
+    ],
+    "lights": [
+     "amber",
+     "red"
+    ]
+   }
+  ],
+  "data_delayed": [],
+  "repairs": [],
+  "lineups_hidden": true,
+  "errors": [],
+  "end": null
+ },
+ {
+  "label": "kc-famu",
+  "refreshes": 120,
+  "live_refreshes": 120,
+  "live_span_min": 29.9,
+  "from": "6:43 - 1st",
+  "to": "Halftime",
+  "gap_median_s": 15.069999933242798,
+  "gap_max_s": 15.9,
+  "lights": {
+   "green": 120
+  },
+  "non_green": [],
+  "timeouts": [
+   {
+    "at": "1-3:59",
+    "type": "OfficialTVTimeOut",
+    "secs": 226,
+    "refreshes": 15,
+    "espn_clock": [
+     "3:59"
+    ],
+    "banners": [
+     "One substitution looks wrong at 1st half 8:27. Lineups after that may be off."
+    ],
+    "lights": [
+     "green"
+    ]
+   }
+  ],
+  "stoppages": [
+   {
+    "at": "1-3:59",
+    "secs": 226,
+    "refreshes": 15,
+    "last_plays": [
+     "LayUpShot",
+     "MadeFreeThrow",
+     "OfficialTVTimeOut",
+     "Substitution"
+    ],
+    "banners": [
+     "One substitution looks wrong at 1st half 8:27. Lineups after that may be off."
+    ],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "Halftime",
+    "secs": 951,
+    "refreshes": 63,
+    "last_plays": [
+     "End Period",
+     "LayUpShot"
+    ],
+    "banners": [
+     "One substitution looks wrong at 1st half 8:27. Lineups after that may be off."
+    ],
+    "lights": [
+     "green"
+    ]
+   }
+  ],
+  "data_delayed": [],
+  "repairs": [
+   "1-5:18",
+   "1-8:20",
+   "1-8:22",
+   "1-8:27"
+  ],
+  "lineups_hidden": false,
+  "errors": [],
+  "end": {
+   "wall": "2026-11-11T17:57:36.888Z",
+   "kind": "end",
+   "refreshes": 120,
+   "errors": 0,
+   "liveMinutes": 30.008683333333334
+  }
+ },
+ {
+  "label": "dart-ualb",
+  "refreshes": 176,
+  "live_refreshes": 140,
+  "live_span_min": 35.0,
+  "from": "19:39 - 1st",
+  "to": "6:03 - 1st",
+  "gap_median_s": 15.076000213623047,
+  "gap_max_s": 15.4,
+  "lights": {
+   "green": 140
+  },
+  "non_green": [],
+  "timeouts": [
+   {
+    "at": "1-14:29",
+    "type": "OfficialTVTimeOut",
+    "secs": 166,
+    "refreshes": 11,
+    "espn_clock": [
+     "14:29"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "1-10:32",
+    "type": "ShortTimeOut",
+    "secs": 196,
+    "refreshes": 13,
+    "espn_clock": [
+     "10:32"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "1-7:52",
+    "type": "OfficialTVTimeOut",
+    "secs": 227,
+    "refreshes": 15,
+    "espn_clock": [
+     "7:52"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   }
+  ],
+  "stoppages": [
+   {
+    "at": "1-17:51",
+    "secs": 90,
+    "refreshes": 6,
+    "last_plays": [
+     "MadeFreeThrow",
+     "PersonalFoul"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "1-14:29",
+    "secs": 166,
+    "refreshes": 11,
+    "last_plays": [
+     "Block Shot",
+     "OfficialTVTimeOut",
+     "Shot"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "1-13:26",
+    "secs": 362,
+    "refreshes": 24,
+    "last_plays": [
+     "Defensive Rebound",
+     "Lost Ball Turnover",
+     "Substitution"
+    ],
+    "banners": [
+     "One substitution looks wrong at 1st half 13:26. Lineups after that may be off."
+    ],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "1-10:32",
+    "secs": 196,
+    "refreshes": 13,
+    "last_plays": [
+     "DunkShot",
+     "OfficialTVTimeOut",
+     "Substitution"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "1-9:25",
+    "secs": 90,
+    "refreshes": 6,
+    "last_plays": [
+     "Defensive Rebound",
+     "MadeFreeThrow",
+     "PersonalFoul"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   },
+   {
+    "at": "1-7:52",
+    "secs": 227,
+    "refreshes": 15,
+    "last_plays": [
+     "MadeFreeThrow",
+     "OfficialTVTimeOut"
+    ],
+    "banners": [],
+    "lights": [
+     "green"
+    ]
+   }
+  ],
+  "data_delayed": [],
+  "repairs": [
+   "1-13:26",
+   "1-8:26"
+  ],
+  "lineups_hidden": false,
+  "errors": [],
+  "end": {
+   "wall": "2026-11-11T18:38:40.591Z",
+   "kind": "end",
+   "refreshes": 176,
+   "errors": 0,
+   "liveMinutes": 35.0135
+  }
+ }
+]

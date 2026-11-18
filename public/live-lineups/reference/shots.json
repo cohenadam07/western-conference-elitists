@@ -1,0 +1,1864 @@
+{
+ "events": [
+  {
+   "team": "OU",
+   "t": 161.0,
+   "pts": 2,
+   "tags": []
+  },
+  {
+   "team": "OPP",
+   "t": 308.0,
+   "pts": 2,
+   "tags": [
+    "Off turnovers",
+    "Second chance"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 326.0,
+   "pts": 2,
+   "tags": []
+  },
+  {
+   "team": "OU",
+   "t": 354.0,
+   "pts": 2,
+   "tags": [
+    "Fast break"
+   ]
+  },
+  {
+   "team": "OPP",
+   "t": 397.0,
+   "pts": 2,
+   "tags": []
+  },
+  {
+   "team": "OU",
+   "t": 426.0,
+   "pts": 3,
+   "tags": [
+    "Fast break"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 501.0,
+   "pts": 3,
+   "tags": [
+    "Off turnovers"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 550.0,
+   "pts": 3,
+   "tags": [
+    "Second chance"
+   ]
+  },
+  {
+   "team": "OPP",
+   "t": 646.0,
+   "pts": 1,
+   "tags": [
+    "Free throws"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 659.0,
+   "pts": 2,
+   "tags": []
+  },
+  {
+   "team": "OU",
+   "t": 720.0,
+   "pts": 2,
+   "tags": [
+    "Off turnovers",
+    "Fast break"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 811.0,
+   "pts": 3,
+   "tags": [
+    "Off turnovers"
+   ]
+  },
+  {
+   "team": "OPP",
+   "t": 831.0,
+   "pts": 2,
+   "tags": [
+    "Second chance"
+   ]
+  },
+  {
+   "team": "OPP",
+   "t": 884.0,
+   "pts": 2,
+   "tags": [
+    "Off turnovers",
+    "Second chance"
+   ]
+  },
+  {
+   "team": "OPP",
+   "t": 884.0,
+   "pts": 1,
+   "tags": [
+    "Free throws",
+    "Off turnovers",
+    "Second chance"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 945.0,
+   "pts": 2,
+   "tags": [
+    "Off turnovers",
+    "Fast break"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 990.0,
+   "pts": 2,
+   "tags": [
+    "Second chance"
+   ]
+  },
+  {
+   "team": "OPP",
+   "t": 1003.0,
+   "pts": 1,
+   "tags": [
+    "Free throws"
+   ]
+  },
+  {
+   "team": "OPP",
+   "t": 1003.0,
+   "pts": 1,
+   "tags": [
+    "Free throws"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 1018.0,
+   "pts": 2,
+   "tags": []
+  },
+  {
+   "team": "OPP",
+   "t": 1046.0,
+   "pts": 2,
+   "tags": [
+    "Second chance"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 1063.0,
+   "pts": 2,
+   "tags": []
+  },
+  {
+   "team": "OU",
+   "t": 1092.0,
+   "pts": 3,
+   "tags": [
+    "Fast break"
+   ]
+  },
+  {
+   "team": "OPP",
+   "t": 1116.0,
+   "pts": 2,
+   "tags": []
+  },
+  {
+   "team": "OU",
+   "t": 1130.0,
+   "pts": 3,
+   "tags": []
+  },
+  {
+   "team": "OPP",
+   "t": 1147.0,
+   "pts": 3,
+   "tags": []
+  },
+  {
+   "team": "OU",
+   "t": 1178.0,
+   "pts": 2,
+   "tags": [
+    "Second chance"
+   ]
+  },
+  {
+   "team": "OPP",
+   "t": 1200.0,
+   "pts": 3,
+   "tags": []
+  },
+  {
+   "team": "OPP",
+   "t": 1213.0,
+   "pts": 2,
+   "tags": []
+  },
+  {
+   "team": "OPP",
+   "t": 1254.0,
+   "pts": 2,
+   "tags": [
+    "Fast break"
+   ]
+  },
+  {
+   "team": "OPP",
+   "t": 1370.0,
+   "pts": 2,
+   "tags": [
+    "Off turnovers"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 1397.0,
+   "pts": 2,
+   "tags": []
+  },
+  {
+   "team": "OPP",
+   "t": 1414.0,
+   "pts": 1,
+   "tags": [
+    "Free throws"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 1437.0,
+   "pts": 3,
+   "tags": []
+  },
+  {
+   "team": "OPP",
+   "t": 1500.0,
+   "pts": 2,
+   "tags": []
+  },
+  {
+   "team": "OU",
+   "t": 1591.0,
+   "pts": 1,
+   "tags": [
+    "Free throws",
+    "Off turnovers",
+    "Second chance"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 1591.0,
+   "pts": 1,
+   "tags": [
+    "Free throws",
+    "Off turnovers",
+    "Second chance"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 1635.0,
+   "pts": 1,
+   "tags": [
+    "Free throws",
+    "Off turnovers"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 1635.0,
+   "pts": 1,
+   "tags": [
+    "Free throws",
+    "Off turnovers"
+   ]
+  },
+  {
+   "team": "OPP",
+   "t": 1662.0,
+   "pts": 2,
+   "tags": [
+    "Off turnovers"
+   ]
+  },
+  {
+   "team": "OPP",
+   "t": 1662.0,
+   "pts": 1,
+   "tags": [
+    "Free throws",
+    "Off turnovers"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 1668.0,
+   "pts": 2,
+   "tags": []
+  },
+  {
+   "team": "OU",
+   "t": 1716.0,
+   "pts": 3,
+   "tags": []
+  },
+  {
+   "team": "OPP",
+   "t": 1744.0,
+   "pts": 2,
+   "tags": [
+    "Second chance"
+   ]
+  },
+  {
+   "team": "OU",
+   "t": 1760.0,
+   "pts": 3,
+   "tags": []
+  },
+  {
+   "team": "OPP",
+   "t": 1846.0,
+   "pts": 2,
+   "tags": []
+  }
+ ],
+ "shots": [
+  {
+   "team": "OU",
+   "x": 48,
+   "y": 7.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Khani Rooths",
+   "sid": "4873187",
+   "three": true,
+   "rim": false,
+   "t": 13.0,
+   "dist": 23,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OPP",
+   "x": 17,
+   "y": 29.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Gabriel Martinez",
+   "sid": "5462522",
+   "three": true,
+   "rim": false,
+   "t": 32.0,
+   "dist": 25,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 48,
+   "y": 8.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Pop Isaacs",
+   "sid": "5106285",
+   "three": true,
+   "rim": false,
+   "t": 62.0,
+   "dist": 23,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OPP",
+   "x": 24,
+   "y": 16.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Eli Pippins",
+   "sid": "5462512",
+   "three": false,
+   "rim": false,
+   "t": 86.0,
+   "dist": 11,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 4,
+   "y": 16.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Xzayvier Brown",
+   "sid": "5174633",
+   "three": true,
+   "rim": false,
+   "t": 105.0,
+   "dist": 24,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 19,
+   "y": 29.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": true,
+   "rim": false,
+   "t": 120.0,
+   "dist": 25,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OPP",
+   "x": 2,
+   "y": 10.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Tory James Jr.",
+   "sid": "5312305",
+   "three": true,
+   "rim": false,
+   "t": 140.0,
+   "dist": 23,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 27,
+   "y": 6.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Duke Brennan",
+   "sid": "4870569",
+   "three": false,
+   "rim": true,
+   "t": 161.0,
+   "dist": null,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 19,
+   "y": 30.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Pop Isaacs",
+   "sid": "5106285",
+   "three": true,
+   "rim": false,
+   "t": 240.0,
+   "dist": 26,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 2,
+   "y": 6.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Pop Isaacs",
+   "sid": "5106285",
+   "three": true,
+   "rim": false,
+   "t": 248.0,
+   "dist": 23,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OPP",
+   "x": 33,
+   "y": 16.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Tymias Williams",
+   "sid": "5462515",
+   "three": false,
+   "rim": false,
+   "t": 302.0,
+   "dist": 13,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 25,
+   "y": 6.25,
+   "made": true,
+   "ast": false,
+   "shooter": "Gabriel Martinez",
+   "sid": "5462522",
+   "three": false,
+   "rim": true,
+   "t": 308.0,
+   "dist": 0,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 24,
+   "y": 6.25,
+   "made": true,
+   "ast": false,
+   "shooter": "Xzayvier Brown",
+   "sid": "5174633",
+   "three": false,
+   "rim": true,
+   "t": 326.0,
+   "dist": null,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 44,
+   "y": 20.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Gabriel Martinez",
+   "sid": "5462522",
+   "three": true,
+   "rim": false,
+   "t": 346.0,
+   "dist": 24,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 26,
+   "y": 6.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": false,
+   "rim": true,
+   "t": 354.0,
+   "dist": null,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 8,
+   "y": 22.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Tymias Williams",
+   "sid": "5462515",
+   "three": true,
+   "rim": false,
+   "t": 374.0,
+   "dist": 24,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 24,
+   "y": 7.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": false,
+   "rim": true,
+   "t": 387.0,
+   "dist": null,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 26,
+   "y": 7.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Matt Anglo",
+   "sid": "5462514",
+   "three": false,
+   "rim": true,
+   "t": 397.0,
+   "dist": null,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 34,
+   "y": 14.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Matt Anglo",
+   "sid": "5462514",
+   "three": false,
+   "rim": false,
+   "t": 421.0,
+   "dist": 13,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 48,
+   "y": 8.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Dayton Forsythe",
+   "sid": "5238221",
+   "three": true,
+   "rim": false,
+   "t": 426.0,
+   "dist": 23,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OPP",
+   "x": 24,
+   "y": 7.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Tianhao Wu",
+   "sid": "5462517",
+   "three": false,
+   "rim": true,
+   "t": 459.0,
+   "dist": null,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 40,
+   "y": 24.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Khani Rooths",
+   "sid": "4873187",
+   "three": true,
+   "rim": false,
+   "t": 480.0,
+   "dist": 24,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 10,
+   "y": 26.25,
+   "made": true,
+   "ast": true,
+   "shooter": "B.J. Edwards",
+   "sid": "5105552",
+   "three": true,
+   "rim": false,
+   "t": 501.0,
+   "dist": 25,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OPP",
+   "x": 19,
+   "y": 30.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Tory James Jr.",
+   "sid": "5312305",
+   "three": true,
+   "rim": false,
+   "t": 521.0,
+   "dist": 25,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 15,
+   "y": 27.25,
+   "made": false,
+   "ast": false,
+   "shooter": "B.J. Edwards",
+   "sid": "5105552",
+   "three": true,
+   "rim": false,
+   "t": 536.0,
+   "dist": 24,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 8,
+   "y": 26.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Dayton Forsythe",
+   "sid": "5238221",
+   "three": true,
+   "rim": false,
+   "t": 550.0,
+   "dist": 27,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OPP",
+   "x": 16,
+   "y": 9.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Caleb Cameron",
+   "sid": "5462516",
+   "three": false,
+   "rim": false,
+   "t": 572.0,
+   "dist": 10,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 2,
+   "y": 6.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Dayton Forsythe",
+   "sid": "5238221",
+   "three": true,
+   "rim": false,
+   "t": 580.0,
+   "dist": 23,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OPP",
+   "x": 25,
+   "y": 11.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Tianhao Wu",
+   "sid": "5462517",
+   "three": false,
+   "rim": false,
+   "t": 608.0,
+   "dist": 6,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 27,
+   "y": 7.25,
+   "made": false,
+   "ast": false,
+   "shooter": "B.J. Edwards",
+   "sid": "5105552",
+   "three": false,
+   "rim": true,
+   "t": 621.0,
+   "dist": null,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 48,
+   "y": 7.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Pop Isaacs",
+   "sid": "5106285",
+   "three": true,
+   "rim": false,
+   "t": 623.0,
+   "dist": 23,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 48,
+   "y": 9.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Xzayvier Brown",
+   "sid": "5174633",
+   "three": true,
+   "rim": false,
+   "t": 636.0,
+   "dist": 23,
+   "five": "Khani Rooths|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 27,
+   "y": 6.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": false,
+   "rim": true,
+   "t": 659.0,
+   "dist": null,
+   "five": "Duke Brennan|Derrion Reid|Pop Isaacs|Quincy Wadley|Xzayvier Brown"
+  },
+  {
+   "team": "OPP",
+   "x": 13,
+   "y": 27.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Tymias Williams",
+   "sid": "5462515",
+   "three": true,
+   "rim": false,
+   "t": 673.0,
+   "dist": 25,
+   "five": "Duke Brennan|Derrion Reid|Pop Isaacs|Quincy Wadley|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 9,
+   "y": 24.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Pop Isaacs",
+   "sid": "5106285",
+   "three": true,
+   "rim": false,
+   "t": 684.0,
+   "dist": 24,
+   "five": "Duke Brennan|Derrion Reid|Pop Isaacs|Quincy Wadley|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 43,
+   "y": 23.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Xzayvier Brown",
+   "sid": "5174633",
+   "three": true,
+   "rim": false,
+   "t": 697.0,
+   "dist": 25,
+   "five": "Duke Brennan|Derrion Reid|Pop Isaacs|Quincy Wadley|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 26,
+   "y": 6.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Pop Isaacs",
+   "sid": "5106285",
+   "three": false,
+   "rim": true,
+   "t": 720.0,
+   "dist": null,
+   "five": "Duke Brennan|Derrion Reid|Pop Isaacs|Quincy Wadley|Xzayvier Brown"
+  },
+  {
+   "team": "OPP",
+   "x": 9,
+   "y": 24.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Caleb Cameron",
+   "sid": "5462516",
+   "three": true,
+   "rim": false,
+   "t": 736.0,
+   "dist": 25,
+   "five": "Duke Brennan|Derrion Reid|Pop Isaacs|Quincy Wadley|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 2,
+   "y": 12.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Quincy Wadley",
+   "sid": "5144557",
+   "three": true,
+   "rim": false,
+   "t": 758.0,
+   "dist": 24,
+   "five": "Duke Brennan|Derrion Reid|B.J. Edwards|Quincy Wadley|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 48,
+   "y": 8.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": true,
+   "rim": false,
+   "t": 770.0,
+   "dist": 23,
+   "five": "Duke Brennan|Derrion Reid|B.J. Edwards|Quincy Wadley|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 10,
+   "y": 24.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": true,
+   "rim": false,
+   "t": 811.0,
+   "dist": 24,
+   "five": "Duke Brennan|Derrion Reid|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 23,
+   "y": 6.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Gabriel Martinez",
+   "sid": "5462522",
+   "three": false,
+   "rim": true,
+   "t": 827.0,
+   "dist": null,
+   "five": "Duke Brennan|Derrion Reid|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 25,
+   "y": 6.25,
+   "made": true,
+   "ast": false,
+   "shooter": "Gabriel Martinez",
+   "sid": "5462522",
+   "three": false,
+   "rim": true,
+   "t": 831.0,
+   "dist": 0,
+   "five": "Duke Brennan|Derrion Reid|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 30,
+   "y": 30.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": true,
+   "rim": false,
+   "t": 850.0,
+   "dist": 25,
+   "five": "Duke Brennan|Derrion Reid|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 5,
+   "y": 18.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Eli Pippins",
+   "sid": "5462512",
+   "three": true,
+   "rim": false,
+   "t": 881.0,
+   "dist": 24,
+   "five": "Duke Brennan|Derrion Reid|Pop Isaacs|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 25,
+   "y": 11.25,
+   "made": true,
+   "ast": false,
+   "shooter": "Tymias Williams",
+   "sid": "5462515",
+   "three": false,
+   "rim": true,
+   "t": 884.0,
+   "dist": null,
+   "five": "Duke Brennan|Derrion Reid|Pop Isaacs|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 47,
+   "y": 15.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Quincy Wadley",
+   "sid": "5144557",
+   "three": true,
+   "rim": false,
+   "t": 901.0,
+   "dist": 24,
+   "five": "Khani Rooths|Pop Isaacs|Quincy Wadley|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 23,
+   "y": 6.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Khani Rooths",
+   "sid": "4873187",
+   "three": false,
+   "rim": true,
+   "t": 906.0,
+   "dist": null,
+   "five": "Khani Rooths|Pop Isaacs|Quincy Wadley|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OPP",
+   "x": 17,
+   "y": 12.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Caleb Cameron",
+   "sid": "5462516",
+   "three": false,
+   "rim": false,
+   "t": 923.0,
+   "dist": 10,
+   "five": "Khani Rooths|Pop Isaacs|Quincy Wadley|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 26,
+   "y": 6.25,
+   "made": true,
+   "ast": false,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": false,
+   "rim": true,
+   "t": 945.0,
+   "dist": 1,
+   "five": "Derrion Reid|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OPP",
+   "x": 26,
+   "y": 9.25,
+   "made": false,
+   "ast": false,
+   "shooter": "AJ Abrams",
+   "sid": "5462513",
+   "three": false,
+   "rim": true,
+   "t": 963.0,
+   "dist": null,
+   "five": "Derrion Reid|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 26,
+   "y": 7.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": false,
+   "rim": true,
+   "t": 982.0,
+   "dist": null,
+   "five": "Derrion Reid|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 25,
+   "y": 7.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Gage Mayfield",
+   "sid": "5280903",
+   "three": false,
+   "rim": true,
+   "t": 986.0,
+   "dist": null,
+   "five": "Derrion Reid|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 25,
+   "y": 6.25,
+   "made": true,
+   "ast": false,
+   "shooter": "Gage Mayfield",
+   "sid": "5280903",
+   "three": false,
+   "rim": true,
+   "t": 990.0,
+   "dist": 0,
+   "five": "Derrion Reid|B.J. Edwards|Pop Isaacs|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 27,
+   "y": 7.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": false,
+   "rim": true,
+   "t": 1018.0,
+   "dist": null,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OPP",
+   "x": 30,
+   "y": 20.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Matt Anglo",
+   "sid": "5462514",
+   "three": false,
+   "rim": false,
+   "t": 1040.0,
+   "dist": 15,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OPP",
+   "x": 26,
+   "y": 6.25,
+   "made": true,
+   "ast": false,
+   "shooter": "Tymias Williams",
+   "sid": "5462515",
+   "three": false,
+   "rim": true,
+   "t": 1046.0,
+   "dist": null,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 23,
+   "y": 6.25,
+   "made": true,
+   "ast": false,
+   "shooter": "B.J. Edwards",
+   "sid": "5105552",
+   "three": false,
+   "rim": true,
+   "t": 1063.0,
+   "dist": null,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OPP",
+   "x": 28,
+   "y": 7.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Tymias Williams",
+   "sid": "5462515",
+   "three": false,
+   "rim": true,
+   "t": 1086.0,
+   "dist": null,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 9,
+   "y": 24.25,
+   "made": true,
+   "ast": true,
+   "shooter": "B.J. Edwards",
+   "sid": "5105552",
+   "three": true,
+   "rim": false,
+   "t": 1092.0,
+   "dist": 25,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OPP",
+   "x": 25,
+   "y": 7.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Caleb Cameron",
+   "sid": "5462516",
+   "three": false,
+   "rim": true,
+   "t": 1116.0,
+   "dist": 1,
+   "five": "Duke Brennan|Khani Rooths|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 10,
+   "y": 24.25,
+   "made": true,
+   "ast": true,
+   "shooter": "B.J. Edwards",
+   "sid": "5105552",
+   "three": true,
+   "rim": false,
+   "t": 1130.0,
+   "dist": 24,
+   "five": "Duke Brennan|Khani Rooths|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 12,
+   "y": 25.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Matt Anglo",
+   "sid": "5462514",
+   "three": true,
+   "rim": false,
+   "t": 1147.0,
+   "dist": 24,
+   "five": "Duke Brennan|Khani Rooths|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 27,
+   "y": 6.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Duke Brennan",
+   "sid": "4870569",
+   "three": false,
+   "rim": true,
+   "t": 1165.0,
+   "dist": null,
+   "five": "Duke Brennan|Derrion Reid|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 24,
+   "y": 6.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": false,
+   "rim": true,
+   "t": 1178.0,
+   "dist": 1,
+   "five": "Duke Brennan|Derrion Reid|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 5,
+   "y": 19.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Tymias Williams",
+   "sid": "5462515",
+   "three": true,
+   "rim": false,
+   "t": 1200.0,
+   "dist": 24,
+   "five": "Duke Brennan|Derrion Reid|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 26,
+   "y": 6.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Tymias Williams",
+   "sid": "5462515",
+   "three": false,
+   "rim": true,
+   "t": 1213.0,
+   "dist": null,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 23,
+   "y": 8.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Pop Isaacs",
+   "sid": "5106285",
+   "three": false,
+   "rim": true,
+   "t": 1249.0,
+   "dist": null,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OPP",
+   "x": 25,
+   "y": 6.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Caleb Cameron",
+   "sid": "5462516",
+   "three": false,
+   "rim": true,
+   "t": 1254.0,
+   "dist": null,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OPP",
+   "x": 22,
+   "y": 21.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Eli Pippins",
+   "sid": "5462512",
+   "three": false,
+   "rim": false,
+   "t": 1292.0,
+   "dist": 17,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Pop Isaacs|Xzayvier Brown"
+  },
+  {
+   "team": "OU",
+   "x": 39,
+   "y": 25.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Xzayvier Brown",
+   "sid": "5174633",
+   "three": true,
+   "rim": false,
+   "t": 1332.0,
+   "dist": 24,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 27,
+   "y": 7.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Duke Brennan",
+   "sid": "4870569",
+   "three": false,
+   "rim": true,
+   "t": 1337.0,
+   "dist": null,
+   "five": "Duke Brennan|Khani Rooths|Derrion Reid|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 17,
+   "y": 16.25,
+   "made": true,
+   "ast": false,
+   "shooter": "Eli Pippins",
+   "sid": "5462512",
+   "three": false,
+   "rim": false,
+   "t": 1370.0,
+   "dist": 13,
+   "five": "Duke Brennan|Derrion Reid|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 25,
+   "y": 6.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": false,
+   "rim": true,
+   "t": 1397.0,
+   "dist": null,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 42,
+   "y": 23.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Dayton Forsythe",
+   "sid": "5238221",
+   "three": true,
+   "rim": false,
+   "t": 1437.0,
+   "dist": 25,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 30,
+   "y": 29.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Tianhao Wu",
+   "sid": "5462517",
+   "three": true,
+   "rim": false,
+   "t": 1460.0,
+   "dist": 25,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 48,
+   "y": 8.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Derrion Reid",
+   "sid": "5095155",
+   "three": true,
+   "rim": false,
+   "t": 1469.0,
+   "dist": 23,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 29,
+   "y": 14.25,
+   "made": true,
+   "ast": false,
+   "shooter": "Matt Anglo",
+   "sid": "5462514",
+   "three": false,
+   "rim": false,
+   "t": 1500.0,
+   "dist": 9,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 11,
+   "y": 26.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Eli Pippins",
+   "sid": "5462512",
+   "three": true,
+   "rim": false,
+   "t": 1536.0,
+   "dist": 25,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 25,
+   "y": 15.25,
+   "made": false,
+   "ast": false,
+   "shooter": "B.J. Edwards",
+   "sid": "5105552",
+   "three": false,
+   "rim": false,
+   "t": 1548.0,
+   "dist": 10,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OU",
+   "x": 34,
+   "y": 29.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Dayton Forsythe",
+   "sid": "5238221",
+   "three": true,
+   "rim": false,
+   "t": 1586.0,
+   "dist": 25,
+   "five": "Derrion Reid|Kai Rogers|B.J. Edwards|Xzayvier Brown|Dayton Forsythe"
+  },
+  {
+   "team": "OPP",
+   "x": 25,
+   "y": 6.25,
+   "made": true,
+   "ast": false,
+   "shooter": "AJ Abrams",
+   "sid": "5462513",
+   "three": false,
+   "rim": true,
+   "t": 1662.0,
+   "dist": null,
+   "five": "Duke Brennan|Khani Rooths|B.J. Edwards|Pop Isaacs|Quincy Wadley"
+  },
+  {
+   "team": "OU",
+   "x": 23,
+   "y": 6.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Quincy Wadley",
+   "sid": "5144557",
+   "three": false,
+   "rim": true,
+   "t": 1668.0,
+   "dist": null,
+   "five": "Duke Brennan|Khani Rooths|B.J. Edwards|Pop Isaacs|Quincy Wadley"
+  },
+  {
+   "team": "OPP",
+   "x": 39,
+   "y": 6.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Tymias Williams",
+   "sid": "5462515",
+   "three": false,
+   "rim": false,
+   "t": 1701.0,
+   "dist": 14,
+   "five": "Duke Brennan|Khani Rooths|B.J. Edwards|Pop Isaacs|Quincy Wadley"
+  },
+  {
+   "team": "OU",
+   "x": 25,
+   "y": 31.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Khani Rooths",
+   "sid": "4873187",
+   "three": true,
+   "rim": false,
+   "t": 1716.0,
+   "dist": 26,
+   "five": "Duke Brennan|Khani Rooths|B.J. Edwards|Pop Isaacs|Quincy Wadley"
+  },
+  {
+   "team": "OPP",
+   "x": 24,
+   "y": 17.25,
+   "made": false,
+   "ast": false,
+   "shooter": "AJ Abrams",
+   "sid": "5462513",
+   "three": false,
+   "rim": false,
+   "t": 1738.0,
+   "dist": 12,
+   "five": "Duke Brennan|Khani Rooths|B.J. Edwards|Pop Isaacs|Quincy Wadley"
+  },
+  {
+   "team": "OPP",
+   "x": 24,
+   "y": 7.25,
+   "made": true,
+   "ast": false,
+   "shooter": "AJ Abrams",
+   "sid": "5462513",
+   "three": false,
+   "rim": true,
+   "t": 1744.0,
+   "dist": null,
+   "five": "Duke Brennan|Khani Rooths|B.J. Edwards|Pop Isaacs|Quincy Wadley"
+  },
+  {
+   "team": "OU",
+   "x": 2,
+   "y": 14.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Pop Isaacs",
+   "sid": "5106285",
+   "three": true,
+   "rim": false,
+   "t": 1760.0,
+   "dist": 24,
+   "five": "Duke Brennan|Khani Rooths|B.J. Edwards|Pop Isaacs|Quincy Wadley"
+  },
+  {
+   "team": "OPP",
+   "x": 34,
+   "y": 29.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Tymias Williams",
+   "sid": "5462515",
+   "three": true,
+   "rim": false,
+   "t": 1779.0,
+   "dist": 25,
+   "five": "Duke Brennan|Khani Rooths|B.J. Edwards|Pop Isaacs|Quincy Wadley"
+  },
+  {
+   "team": "OU",
+   "x": 2,
+   "y": 10.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Quincy Wadley",
+   "sid": "5144557",
+   "three": true,
+   "rim": false,
+   "t": 1788.0,
+   "dist": 23,
+   "five": "Duke Brennan|Khani Rooths|B.J. Edwards|Pop Isaacs|Quincy Wadley"
+  },
+  {
+   "team": "OPP",
+   "x": 26,
+   "y": 6.25,
+   "made": false,
+   "ast": false,
+   "shooter": "AJ Abrams",
+   "sid": "5462513",
+   "three": false,
+   "rim": true,
+   "t": 1799.0,
+   "dist": null,
+   "five": "Derrion Reid|Quincy Wadley|Xzayvier Brown|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OU",
+   "x": 39,
+   "y": 26.25,
+   "made": false,
+   "ast": false,
+   "shooter": "Quincy Wadley",
+   "sid": "5144557",
+   "three": true,
+   "rim": false,
+   "t": 1821.0,
+   "dist": 25,
+   "five": "Derrion Reid|Quincy Wadley|Xzayvier Brown|Dayton Forsythe|Gage Mayfield"
+  },
+  {
+   "team": "OPP",
+   "x": 24,
+   "y": 8.25,
+   "made": true,
+   "ast": true,
+   "shooter": "Caleb Cameron",
+   "sid": "5462516",
+   "three": false,
+   "rim": true,
+   "t": 1846.0,
+   "dist": 3,
+   "five": "Derrion Reid|Quincy Wadley|Xzayvier Brown|Dayton Forsythe|Gage Mayfield"
+  }
+ ],
+ "sources": {
+  "OU": {
+   "Fast break": 12,
+   "Off turnovers": 14,
+   "Second chance": 9,
+   "Free throws": 4
+  },
+  "OPP": {
+   "Off turnovers": 10,
+   "Second chance": 11,
+   "Free throws": 6,
+   "Fast break": 2
+  }
+ },
+ "best_run": {
+  "team": "OU",
+  "us": 20,
+  "them": 3,
+  "t0": 326.0,
+  "t1": 811.0,
+  "margin": 17
+ },
+ "current_run": {
+  "team": "OPP",
+  "pts": 2,
+  "since": 1846.0
+ },
+ "drought": {
+  "OU": 100,
+  "OPP": 14
+ },
+ "opp_impact": [
+  {
+   "pid": "5462515",
+   "name": "Tymias Williams",
+   "min": 24.8,
+   "box": {
+    "tov": 2,
+    "pf": 4,
+    "stl": 2,
+    "fga": 10,
+    "3pa": 4,
+    "drb": 3,
+    "orb": 2,
+    "rima": 4,
+    "fgm": 4,
+    "pts": 10,
+    "rimm": 3,
+    "fta": 1,
+    "ftm": 1,
+    "blk": 2,
+    "3pm": 1,
+    "ast": 2
+   },
+   "scoring": 4.6,
+   "playmaking": -0.6,
+   "glass": 2.3,
+   "defense": 1.8,
+   "gs": 8.1
+  },
+  {
+   "pid": "5462522",
+   "name": "Gabriel Martinez",
+   "min": 26.6,
+   "box": {
+    "fga": 5,
+    "3pa": 2,
+    "drb": 2,
+    "orb": 2,
+    "rima": 3,
+    "fgm": 2,
+    "pts": 4,
+    "rimm": 2,
+    "ast": 1,
+    "stl": 2,
+    "blk": 1,
+    "tov": 1
+   },
+   "scoring": 1.3,
+   "playmaking": -0.3,
+   "glass": 2.0,
+   "defense": 2.7,
+   "gs": 5.7
+  },
+  {
+   "pid": "5462514",
+   "name": "Matt Anglo",
+   "min": 21.2,
+   "box": {
+    "fga": 5,
+    "rima": 1,
+    "fgm": 3,
+    "pts": 10,
+    "rimm": 1,
+    "tov": 4,
+    "fta": 4,
+    "ftm": 3,
+    "drb": 3,
+    "ast": 2,
+    "3pa": 1,
+    "3pm": 1
+   },
+   "scoring": 7.3,
+   "playmaking": -2.6,
+   "glass": 0.9,
+   "defense": 0.0,
+   "gs": 5.6
+  },
+  {
+   "pid": "5462516",
+   "name": "Caleb Cameron",
+   "min": 24.7,
+   "box": {
+    "drb": 4,
+    "tov": 3,
+    "pf": 1,
+    "fga": 6,
+    "blk": 1,
+    "3pa": 1,
+    "rima": 3,
+    "fgm": 3,
+    "pts": 6,
+    "rimm": 3,
+    "ast": 1,
+    "stl": 1
+   },
+   "scoring": 3.0,
+   "playmaking": -2.3,
+   "glass": 1.2,
+   "defense": 1.3,
+   "gs": 3.2
+  },
+  {
+   "pid": "5462513",
+   "name": "AJ Abrams",
+   "min": 12.5,
+   "box": {
+    "drb": 1,
+    "tov": 1,
+    "fga": 5,
+    "rima": 4,
+    "fgm": 2,
+    "pts": 5,
+    "rimm": 2,
+    "fta": 1,
+    "ftm": 1,
+    "orb": 1
+   },
+   "scoring": 2.3,
+   "playmaking": -1.0,
+   "glass": 1.0,
+   "defense": 0.0,
+   "gs": 2.3
+  },
+  {
+   "pid": "5312305",
+   "name": "Tory James Jr.",
+   "min": 15.2,
+   "box": {
+    "fga": 2,
+    "3pa": 2,
+    "orb": 1
+   },
+   "scoring": -1.4,
+   "playmaking": 0.0,
+   "glass": 0.7,
+   "defense": 0.0,
+   "gs": -0.7
+  },
+  {
+   "pid": "5462512",
+   "name": "Eli Pippins",
+   "min": 18.8,
+   "box": {
+    "stl": 2,
+    "fga": 5,
+    "tov": 3,
+    "3pa": 2,
+    "ast": 1,
+    "fgm": 1,
+    "pts": 2,
+    "pf": 1
+   },
+   "scoring": -1.1,
+   "playmaking": -2.3,
+   "glass": 0.0,
+   "defense": 1.6,
+   "gs": -1.8
+  },
+  {
+   "pid": "5462517",
+   "name": "Tianhao Wu",
+   "min": 10.2,
+   "box": {
+    "fga": 3,
+    "rima": 1,
+    "tov": 1,
+    "fta": 2,
+    "ftm": 1,
+    "pts": 1,
+    "3pa": 1,
+    "pf": 2
+   },
+   "scoring": -1.5,
+   "playmaking": -1.0,
+   "glass": 0.0,
+   "defense": -0.8,
+   "gs": -3.3
+  }
+ ],
+ "cut": 1860.0
+}
