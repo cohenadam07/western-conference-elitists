@@ -2,7 +2,7 @@
 extras_engine.py — the October 2026 card additions, as passes over one season's players.
 
     apply_scoring(season, players)    uast, uast3, ppaint      (NBA "Scoring" splits, 1996-97 on)
-    apply_onoff_adj(season, players)  onoffadj                 (team on/off details, 1996-97 on)
+    apply_onoff_adj(season, players)  onoffadj                 (team on/off details; the NBA's start 2007-08, built from 2009-10)
     apply_playtypes(season, players)  p["pt"] play-type panel  (Synergy, 2015-16 on)
     apply_with_without(season, players)  p["ww"] panel         (game logs; latest season)
 

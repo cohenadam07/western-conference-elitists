@@ -348,13 +348,13 @@ EXT_METRICS = [
       f"{NBA} shot charts (shot type), 1996-97 on. {CLOUD_NOTE}", "Hatched under 300 possessions."),
 
     # ===================================================== IMPACT / VALUE
-    M("onoffo", "On/Off offensive rating", "off", "Impact", "snum", 0, False, "onoff", False, "1996-97",
+    M("onoffo", "On/Off offensive rating", "off", "Impact", "snum", 0, False, "onoff", False, "2007-08",
       "How many more points per 100 possessions his team scores with him on the floor than with him off. The offensive half of on/off.",
-      "On/off ORtg = team ORtg with him on − team ORtg with him off; traded players minutes-weighted", f"{NBA} team on/off splits, 1996-97 on. {CLOUD_NOTE}",
+      "On/off ORtg = team ORtg with him on − team ORtg with him off; traded players minutes-weighted", f"{NBA} team on/off splits, 2007-08 on (the NBA's splits are empty before that). {CLOUD_NOTE}",
       "Very noisy: needs 1,000+ minutes and still reflects teammates and lineups.", "context"),
-    M("onoffd", "On/Off defensive rating", "def", "Activity & outcomes", "snum", 0, True, "onoff", False, "1996-97",
+    M("onoffd", "On/Off defensive rating", "def", "Activity & outcomes", "snum", 0, True, "onoff", False, "2007-08",
       "How many fewer points per 100 possessions his team allows with him on the floor. Lower (more negative) is better.",
-      "On/off DRtg = team DRtg with him on − team DRtg with him off; traded players minutes-weighted", f"{NBA} team on/off splits, 1996-97 on. {CLOUD_NOTE}",
+      "On/off DRtg = team DRtg with him on − team DRtg with him off; traded players minutes-weighted", f"{NBA} team on/off splits, 2007-08 on (the NBA's splits are empty before that). {CLOUD_NOTE}",
       "Very noisy: needs 1,000+ minutes and still reflects teammates and lineups.", "context"),
     M("wpa", "Win probability added", "val", "Overall value", "snum", 0, False, "pbp", False, "2017-18",
       "How far his team's chance of winning moved while he was on the floor, summed over the season, in wins. A run in a tie game late counts far more than the same run in a blowout. ESPN's chance starts each game from the pregame odds, so a heavy favourite has less to gain: this measures beating expectations, not raw winning.",

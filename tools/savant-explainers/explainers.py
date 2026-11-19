@@ -105,7 +105,7 @@ E = {
             source=f"{NBA} matchup tracking (who guarded whom), 2017-18 on; DBPM from {BR}.", sample="Hatched under 200 matchup possessions."),
  "onoff": dict(what="On/off net rating: how much better the team's point margin per 100 possessions is with him on the floor than on the bench. The bluntest measure of team impact; noisy in small minutes.",
             formula="On/Off = team net rating with him on − team net rating with him off. Traded players: minutes-weighted across teams.",
-            source=f"{NBA} team on/off splits, 1996-97 on.", sample="Noisy below a few hundred minutes; read it next to the luck-adjusted version."),
+            source=f"{NBA} team on/off splits, 2007-08 on (the NBA's splits are empty before that).", sample="Noisy below a few hundred minutes; read it next to the luck-adjusted version."),
  # ---- defense
  "reb75": dict(what="Rebounds per 75 possessions: rebounding volume with pace taken out.",
             formula=f"Rebounds/75 = REB ÷ POSS × 75. {POSS}", source=PRE, sample=settles("reb75", "possessions")),
@@ -183,7 +183,7 @@ E = {
             source=f"{NBA} scoring splits, 1996-97 on.", sample="Hatched under 50 made threes."),
  "onoffadj": dict(what="On/off with the luck taken out: the same on-minus-off net rating, after replacing the opponents' three-point and free-throw shooting with league average. Opponents' 3P% and FT% while one player is on the floor are almost all noise, and they swing raw on/off by several points.",
             formula="For his on and off minutes separately: net rating + 100 × (3 × (opp 3PM − opp 3PA × league 3P%) + (opp FTM − opp FTA × league FT%)) ÷ possessions. Luck-adjusted on/off = adjusted on − adjusted off; traded players are minutes-weighted. His own team's shooting is left alone: a shooter raising his team's 3P% is real.",
-            source=f"{NBA} team on/off details (opponent and advanced splits), 1996-97 on.", sample="Still noisy below ~1,000 minutes; steadier than raw on/off."),
+            source=f"{NBA} team on/off details (opponent and advanced splits), 2009-10 on.", sample="Still noisy below ~1,000 minutes; steadier than raw on/off."),
  # The three numbers in this entry are extras_engine.SAMPLE_FLAG, POOL_MIN and
  # PT_NBA_MIN_POSS in ~/Basketball-Savant. Retuning them means editing this prose too.
  "pt": dict(what="Play types: how his offense is built (pick-and-roll, isolation, spot-ups and the rest) and how well each part works.",

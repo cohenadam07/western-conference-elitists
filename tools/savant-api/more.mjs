@@ -127,7 +127,7 @@ function load() {
   vm.createContext(sandbox)
   const fns = ['_norm', 'prepData', 'buildIndex', 'miss', 'poolVals', 'pctRaw', 'pctOf', 'seasonTier', 'settleLive', 'settlePrev', 'settlePos', 'settleRow', 'settleEst', 'settleVal', 'settlePoolVals',
     'rowFor', 'seasonPlayers', 'byKey', 'mix', 'colorAt', 'inFt', 'word', 'fmt', 'lbSeasonPlayers', 'lbSettling', 'lbVal', 'lbEligible', 'lbLeaguePool', 'lbPoolVals', 'lbPct', 'lbEncode', 'lbSyncURL', 'lbTextColor', 'lbRender',
-    'peakEligible', 'peakWhy', 'trendPctOf', 'careerArc', 'accolades', 'openTeam']
+    'peakEligible', 'peakWhy', 'trendPctOf', 'careerArc', 'accolades', 'openTeam', 'notYet']
   const code = `(function (DATA, CFG) {
     ${grabLine(html, 'const POS_FIX_ID')}
     ${grabLine(html, 'const POS_FIX_NAME')}
@@ -197,7 +197,7 @@ test('every basketball leaderboard is the page\'s: the same players, the same or
   const cases = []
   for (const season of [latest, meta.seasons[1], '2015-16', '2002-03', '1988-89']) {
     for (const m of meta.metrics) {
-      if (+season.slice(0, 4) < +String(m.since).slice(0, 4)) continue
+      if (+season.slice(0, 4) < +String(m.ext ? (m.first || m.since) : m.since).slice(0, 4)) continue   // an addition starts at its first season
       // an addition is ranked from its season's savant-ext file: only where one is built
       if (m.ext && !existsSync(path.join(PUBLIC, 'savant-ext', 's', `${season}.json`))) continue
       for (const pos of ['All', 'Guard', 'Big']) {
