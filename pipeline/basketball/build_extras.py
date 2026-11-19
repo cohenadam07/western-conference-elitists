@@ -7,7 +7,7 @@ Works on the site's published archive in place (strict JSON out, NaN never writt
 live file and what this adds stay one thing. Seasons each pass applies to:
 
     scoring   uast, uast3, ppaint        1996-97 on
-    onoffadj  luck-adjusted on/off       2009-10 on as built (the NBA's splits start 2007-08; ~60 calls a season, cached)
+    onoffadj  luck-adjusted on/off       2007-08 on (the NBA's splits start then; ~60 calls a season, cached)
     playtypes play-type panel            2015-16 on
     xfg       xefg, shotmk               2013-14 on   (needs out/xfg_model.joblib: python xfg_model.py train)
     ww        with/without panel         the newest season only (the card shows it for the latest)

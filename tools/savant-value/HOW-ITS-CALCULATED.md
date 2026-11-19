@@ -66,7 +66,7 @@ Every stat is turned into a per-100-possession or percentage number, then measur
 
 ### Step 5. The floor: what on/off adds
 
-Box scores miss a lot of defense and off-ball value. So wherever luck-adjusted on/off exists (2009-10 on in today's data), the rate also takes in part of what the floor says beyond the box score:
+Box scores miss a lot of defense and off-ball value. So wherever luck-adjusted on/off exists (2007-08 on: the NBA's on/off splits start that season), the rate also takes in part of what the floor says beyond the box score:
 
 `On-floor part = 1.019 × w ÷ (w + 6,400) × (his on/off − expected on/off)`
 
@@ -74,7 +74,7 @@ Box scores miss a lot of defense and off-ball value. So wherever luck-adjusted o
 - **Expected on/off** = 0.855 + Σ β × (shrunk stat − position average) + 0.0994 × (his minutes share − position average). It is what his box score and his role predict, with no credit discount. The minutes-share term is there because starters share the floor with starters, which flatters their on/off.
 - **w** is how trustworthy his on/off is: w = 1 ÷ (1/minutes on + 1/team minutes without him). An on/off is only as good as the smaller of its two samples.
 - **w ÷ (w + 6,400)** is about 13% for a full-time starter and less for anyone else. Most of a player's value still comes from his own stats.
-- **Before 2009-10** there is no on/off, so this part is zero.
+- **Before 2007-08** there is no on/off, so this part is zero. (2007-08 and 2008-09 were added in Nov 2026 with the learned model as it was; nothing was refit.)
 
 **Rate = Box rate + On-floor part.**
 
@@ -134,7 +134,7 @@ All of it is learned by `tools/savant-value/value.py fit`. It was learned on 200
 
 ## What it cannot do
 
-- **Defense before 2009-10** counts only through steals, blocks and defensive rebounding, because there is no on/off.
+- **Defense before 2007-08** counts only through steals, blocks and defensive rebounding, because there is no on/off.
 - **Positions** are inferred, and a few are odd (Shawn Marion is a guard in 2004-05).
 - **Shape** differs from the league's: the league has voted a positionless All-NBA since 2023-24, and ours is always 2-2-1.
 - **Early in a season** the team is a running total on small samples, which is why the landing waits for 10 games and the honour waits for the full season.

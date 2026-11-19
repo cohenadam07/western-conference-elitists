@@ -375,7 +375,7 @@ test('search and profile work through a real client, and results fit their decla
   // callTool validates structuredContent against the tool's output schema and throws if not.
   const s = await call('nba_search_players', { query: 'Nikola Jokic' })
   assert.ok(!s.isError)
-  assert.equal(s.structuredContent.players[0].name, 'Nikola Jokic')
+  assert.equal(s.structuredContent.players[0].name, 'Nikola Jokić')   // the accented spelling, found by an unaccented query
   assert.equal(s.structuredContent.players[0].url, 'https://wcehoops.com/basketball-savant.html?p=203999')
 
   const p = await call('nba_get_player_profile', { player: 'Nikola Jokic' })
@@ -441,7 +441,7 @@ test('names are matched the way people type them', async () => {
   assert.equal(await first('gilgeous'), 'Shai Gilgeous-Alexander')
   assert.equal(await first('Giannis Antetokounpo'), 'Giannis Antetokounmpo') // typo
   assert.equal(await first('james'), 'LeBron James')                         // surname counts as much as first name
-  assert.equal(await first('JOKIĆ'), 'Nikola Jokic')
+  assert.equal(await first('JOKIĆ'), 'Nikola Jokić')
   const many = await savant.searchPlayers({ query: 'williams', limit: 7 })
   assert.equal(many.structured.count, 7)
   assert.ok(many.structured.total > 7)
@@ -670,10 +670,13 @@ test('the usage log: counts only, one command a write, capped, and never in the 
     const ttl = await store.send(['TTL', key])
     assert.ok(ttl > 399 * 86400 && ttl <= 400 * 86400, `kept 400 days: ${ttl}s`)
 
-    // Reading it back is one command a month, and the private page's endpoint carries it.
+    // Reading it back is one command a month, from the month the log began (October 2026,
+    // FIRST_MONTH in api/_usage.js) through this one, and the private page's endpoint carries it.
+    const [fy, fm] = [2026, 10], [ty, tm] = today.slice(0, 7).split('-').map(Number)
+    const months = (ty - fy) * 12 + (tm - fm) + 1
     before = store.commands
     const log = await usage.readUsage()
-    assert.equal(store.commands - before, 1)
+    assert.equal(store.commands - before, months, `one command for each of the ${months} months since October 2026`)
     assert.deepEqual(log.totals, { calls: 2, errors: 1, connections: 4, limited: 1, days: 1 })
     assert.deepEqual(log.daily, [{ date: today, calls: 2, errors: 1, connections: 4, limited: 1, capped: false }])
     assert.deepEqual(log.clients, [{ key: 'claude', count: 2 }, { key: 'chatgpt', count: 1 }, { key: 'other', count: 1 }])
@@ -907,7 +910,7 @@ test('every tool of every section answers through the endpoint', async () => {
     assert.match(text, /wcehoops\.com/, `${name}: links to the site`)
     return r.structuredContent
   }
-  await ok('nba_search_players', { query: 'jokic' }, /Nikola Jokic/)
+  await ok('nba_search_players', { query: 'jokic' }, /Nikola Jokić/)
   await ok('nba_get_player_profile', { player: 'Nikola Jokic' }, /vs\. bigs/)
   // The All-Savant Team: the page's own savant-value.js, read off the season file
   const ast = await ok('nba_all_savant_team', { season: '2025-26' }, /All-Savant Team, 2025-26/)
@@ -1109,7 +1112,7 @@ test('a shared name lists the candidates, and a season settles it', async () => 
   // not in the data.
   const typo = await call('nba_get_player_profile', { player: 'Nikola Jokich' })
   assert.ok(typo.isError)
-  assert.match(textOf(typo), /"Nikola Jokich" is not an exact match\. Call again with one of these ids:\n- Nikola Jokic \(id 203999\)/)
+  assert.match(textOf(typo), /"Nikola Jokich" is not an exact match\. Call again with one of these ids:\n- Nikola Jokić \(id 203999\)/)
 })
 
 test('impossible questions get an answer that says what to try', async () => {

@@ -313,6 +313,16 @@ def player_season(season, gen, public, teams_cache, log):
     d = pg[pg.non_d1 == 0]
     ids = load_json(os.path.join(SZ.OUT, season, "ids.json"))
     ident = load_json(os.path.join(HOME, "identity", f"{season}.json")) or {}
+    # A name already published with accents stays accented (pipeline/accents.py); fixed here, on
+    # the identity table, so the season file, the team rosters and the comps all agree.
+    sys.path.insert(0, os.path.join(HERE, ".."))
+    import accents
+    known = accents.college_known(public, "cbb")
+    for e, rec in ident.items():
+        if isinstance(rec, dict) and rec.get("name"):
+            rec["name"] = accents.keep_accents(rec["name"], known.get(str(e), ()))
+    for e, nm in list((ids.get("names") or {}).items()):
+        ids["names"][e] = accents.keep_accents(nm, known.get(str(e), ()))
     pos = load_json(os.path.join(HOME, "positions", f"{season}.json")) or {}
     heads = load_json(os.path.join(HOME, "heads.json")) or {}
     rat = team_ratings(season)
