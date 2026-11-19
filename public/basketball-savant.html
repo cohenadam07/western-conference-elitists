@@ -7462,8 +7462,12 @@ async function exportCard(){
    he faced against what his assignments would produce, per 100 matchup possessions, with its two
    parts in the tooltip and the Leaderboard Builder. A context stat with no good or bad colour
    (neutral): stable year to year, but it does not predict better team defense (branch onball-d,
-   Module 4). Synergy's 10-isolation floor shows as "under 10 faced" with a ≤ percentile. */
-var VERSION='2.8.0';
+   Module 4). Synergy's 10-isolation floor shows as "under 10 faced" with a ≤ percentile. 
+   2.8.1 (Nov 2026): names keep their accents (pipeline/accents.py: a refresh's spelling that only
+   strips a published spelling's accents keeps the accented one; 15 players repaired); luck-adjusted
+   on/off from 2007-08 (2007-08 and 2008-09 built with the same method; Savant value applies its
+   on-floor part there with the learned model unchanged). */
+var VERSION='2.8.1';
 function build(){
   const vc=document.getElementById('verchip');
   if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }
