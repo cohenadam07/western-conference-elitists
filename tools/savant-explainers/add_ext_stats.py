@@ -26,7 +26,7 @@ SUBS = {
     "val": ["Overall value"],
 }
 FIELDS = ("key", "label", "group", "sub", "layer", "unit", "thr", "lower", "tier", "since", "first", "win")
-OPTIONAL = ("beside", "lead", "parts")       # written only where set; scope only where not "card"
+OPTIONAL = ("beside", "lead", "parts", "neutral")       # written only where set; scope only where not "card"
 
 
 def main():

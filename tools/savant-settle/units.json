@@ -1,5 +1,5 @@
 {
- "ts": "shooting attempts (FGA + 0.44 × FTA)",
+ "ts": "shooting attempts (FGA + 0.44 \u00d7 FTA)",
  "efg": "field-goal attempts",
  "pps": "field-goal attempts",
  "tp3": "three-point attempts",
@@ -154,5 +154,8 @@
  "mtchc": "matchup possessions",
  "mtchc_score": "matchup possessions",
  "mtchc_create": "matchup possessions",
- "mtchc_overall": "matchup possessions"
+ "mtchc_overall": "matchup possessions",
+ "mhunt": "matchup possessions",
+ "mhunt_faced": "matchup possessions",
+ "mhunt_exp": "matchup possessions"
 }

@@ -22,7 +22,7 @@
 
 import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, ordinal, prepare, rank, signed, thousands, tidy, topTier } from './_core.js'
-import { AGE_POOLS, agePercentile, agePoolInfo, extFor, loadAgeIndex, loadAgePool, wholeAge } from './_basketball-ext.js'
+import { AGE_POOLS, NEUTRAL_TEXT, NOTE_TEXT, agePercentile, agePoolInfo, extFor, loadAgeIndex, loadAgePool, wholeAge } from './_basketball-ext.js'
 
 // the card's ageToday(): exact years, days / 365.25
 const ageToday = (b) => tidy((Date.now() - Date.parse(`${b}T00:00:00Z`)) / 864e5 / 365.25)
@@ -231,6 +231,8 @@ export async function playerProfile({ player, season, window = 'season', group =
     const xc = m.ext ? (ext && ext.cells[m.key]) : null
     const cell = m.ext ? xc : src.m[m.key]
     if (!cell && m.ext && ext && ext.withheld && ext.withheld[m.key]) withheld.push({ key: m.key, label: m.label, reason: ext.withheld[m.key] })
+    // a player-level note with no value (hunt.py "not_tracked"): say why, as for a withheld stat
+    if (m.ext && xc && xc[0] == null) { if (xc[4]) withheld.push({ key: m.key, label: m.label, reason: NOTE_TEXT[xc[4]] || xc[4] }); continue }
     if (!cell) continue
     const inPool = ageDoc ? agePercentile(ageDoc, ageIndex, m.key, row.pos, ageMode, cell[0], m.lowerIsBetter) : null
     stats.push({
@@ -246,6 +248,8 @@ export async function playerProfile({ player, season, window = 'season', group =
       lower_is_better: m.lowerIsBetter,
       low_sample: m.ext ? (xc[3] != null && !!m.lowSampleBelow && xc[3] < m.lowSampleBelow) : low.has(m.key),
       ...(m.ext ? { added: true } : {}),
+      ...(m.neutral ? { neutral: true } : {}),
+      ...(m.ext && xc[4] === 'floor' ? { at_most: true, note: NOTE_TEXT.floor } : {}),
       ...(m.settle && (m.ext ? (xc[3] != null && !!m.lowSampleBelow && xc[3] < m.lowSampleBelow) : low.has(m.key))
         ? { settles_around: { sample: m.settle.last, unit: m.settle.unit, hatched_under: m.settle.mean, measured: m.settle.how } } : {}),
       ...(settle[m.key] ? { likely_to_settle: { value: settle[m.key][0], display: display(m.unit, settle[m.key][0], settle[m.key][1]), league_percentile: settle[m.key][1], position_percentile: settle[m.key][2] } } : {}),
@@ -348,7 +352,7 @@ export async function playerProfile({ player, season, window = 'season', group =
       const subs = [...new Set(added.filter((x) => x.group === g).map((x) => x.subgroup))]
       for (const sub of subs) {
         const xs = added.filter((x) => x.group === g && x.subgroup === sub)
-        L.push(`- ${g}, ${String(sub).toLowerCase()}: ${xs.map((x) => `${x.label} ${x.display} (${pp(x.league_percentile)}/${pp(x.position_percentile)})${x.low_sample ? '*' : ''}`).join('; ')}`)
+        L.push(`- ${g}, ${String(sub).toLowerCase()}: ${xs.map((x) => `${x.label} ${x.at_most ? 'at most ' : ''}${x.display} (${x.at_most ? '≤' : ''}${pp(x.league_percentile)}/${x.at_most ? '≤' : ''}${pp(x.position_percentile)})${x.low_sample ? '*' : ''}${x.neutral ? ' [context, no better direction]' : ''}`).join('; ')}`)
       }
     }
   }
@@ -637,6 +641,9 @@ export const tools = [
             measured: z.string().describe('"within seasons" or "season to season" (calibrated against the within-season method).'),
           }).optional().describe('Only on low-sample stats: how much sample the stat needs before it settles.'),
           added: z.boolean().optional().describe('True for the October 2026 additions (tracking, hustle, matchups, fouls, clutch, consistency, win probability), ranked the same way.'),
+          neutral: z.boolean().optional().describe('A context stat with no better direction (Isolation targeting): a higher percentile means more of it, not better.'),
+          at_most: z.boolean().optional().describe('The value is a bound (under Synergy\'s 10-isolation floor): his real number and percentile are at most these.'),
+          note: z.string().optional().describe('Why the value is a bound.'),
         })),
         not_tracked: z.array(z.object({ key: z.string(), label: z.string(), since: z.string() })).describe('Stats that season did not track.'),
         withheld: z.array(z.object({ key: z.string(), label: z.string(), reason: z.string() })).optional().describe('Stats the season should have but nobody has a value for, with the reason (e.g. the NBA published none).'),

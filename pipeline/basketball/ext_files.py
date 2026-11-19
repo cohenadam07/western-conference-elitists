@@ -66,20 +66,23 @@ def split(players):
 
 
 def _row(cells):
-    """{key: {"v","n"}} for one window -> [[v, n] | None, ...] aligned to KEYS, or None if empty."""
+    """{key: {"v","n"[, "note"]}} for one window -> [[v, n] | [v, n, note] | None, ...] aligned to
+    KEYS, or None if empty. A note travels as a third element, even with no value (mhunt:
+    "floor" = under Synergy's 10-possession floor, valued at its bound; "not_tracked" = no value)."""
     out, any_ = [], False
     for k in KEYS:
         c = cells.get(k)
         v = _clean(c.get("v")) if c else None
-        if v is None:
+        note = c.get("note") if c else None
+        if v is None and not note:
             out.append(None)
             continue
         any_ = True
-        out.append([v, c.get("n")])
+        out.append([v, c.get("n")] + ([note] if note else []))
     return out if any_ else None
 
 
-def season_doc(season, vals, windows, generated=None, through=None):
+def season_doc(season, vals, windows, generated=None, through=None, why=None):
     players = {}
     for pid, by_key in vals.items():
         wins = {}
@@ -89,8 +92,11 @@ def season_doc(season, vals, windows, generated=None, through=None):
                 wins[w] = r
         if wins:
             players[str(pid)] = wins
-    return {"schema": SCHEMA, "season": season, "generated": generated or now(), "through": through,
-            "keys": KEYS, "windows": list(windows), "players": players}
+    doc = {"schema": SCHEMA, "season": season, "generated": generated or now(), "through": through,
+           "keys": KEYS, "windows": list(windows), "players": players}
+    if why:
+        doc["why"] = dict(why)      # a writer's own reason for a stat withheld this season (hunt.py's gate)
+    return doc
 
 
 def panels_doc(season, panels, generated=None):
@@ -121,11 +127,12 @@ def withheld(doc):
         if row:
             have.update(i for i, c in enumerate(row) if c and c[0] is not None)
     live = bool(doc.get("through"))
+    why = doc.get("why") or {}
     out = {}
     for i, k in enumerate(keys):
         m = XC.BY_KEY.get(k)
         if m and m["fam"] != "combine" and season >= m["first"] and i not in have:
-            out[k] = XC.withheld_reason(k, season, live)
+            out[k] = why.get(k) or XC.withheld_reason(k, season, live)
     return out
 
 
@@ -194,8 +201,10 @@ def _pct(v, pool, lower):
 
 
 def ranked(season_players, doc):
-    """{pid: [[v, league pct, position pct] | None ...]} for the full season of one season doc.
-    `season_players` are the archive's rows for that season (id, pos, qualified)."""
+    """{pid: [[v, league pct, position pct(, note)] | None ...]} for the full season of one season doc.
+    `season_players` are the archive's rows for that season (id, pos, qualified). A cell with a
+    note (hunt.py) keeps it as a fourth element; one with a note and no value stays out of the
+    pools and is written as [None, None, None, note]."""
     meta = {p["id"]: (POS_FIX_ID.get(p["id"], p.get("pos")), bool(p.get("qualified"))) for p in season_players}
     rows = {int(pid): w.get("season") for pid, w in doc["players"].items() if w.get("season")}
     out = {pid: [None] * len(KEYS) for pid in rows}
@@ -203,7 +212,7 @@ def ranked(season_players, doc):
         league, by_pos = [], {}
         for pid, r in rows.items():
             pos, q = meta.get(pid, (None, False))
-            if not q or r[i] is None:
+            if not q or r[i] is None or r[i][0] is None:
                 continue
             league.append(r[i][0])
             by_pos.setdefault(pos, []).append(r[i][0])
@@ -214,6 +223,10 @@ def ranked(season_players, doc):
             if r[i] is None:
                 continue
             v = r[i][0]
+            note = r[i][2] if len(r[i]) > 2 else None
+            if v is None:
+                out[pid][i] = [None, None, None, note] if note else None
+                continue
             pos = meta.get(pid, (None, False))[0]
-            out[pid][i] = [v, _pct(v, league, LOWER[k]), _pct(v, by_pos.get(pos, []), LOWER[k])]
+            out[pid][i] = [v, _pct(v, league, LOWER[k]), _pct(v, by_pos.get(pos, []), LOWER[k])] + ([note] if note else [])
     return out

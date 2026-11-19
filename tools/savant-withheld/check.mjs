@@ -124,7 +124,9 @@ test('Synergy: a wrong id is matched by name; a player the feed leaves out is la
 test('the page says the reason on the card and in the builder', () => {
   const html = readFileSync(path.join(PUB, 'basketball-savant.html'), 'utf8')
   for (const s of ['function withheldRow(m,why)', 'EXT.wh[season]=j.withheld||{};', "lb-colchip'+(LB.cols.indexOf(k)>=0?' on':'')+(why?' wh':'')",
-    'var rwhy=rm?(notYet(rm,LB.season)||(rm.ext?extWithheld(rm.key,LB.season):null)):null;', 'function notYet(m,season)', 'const NIS_TEXT=', "if(pan.nis&&!pan.dpt)", "var VERSION='2.7.1';"]) {
+    'var rwhy=rm?(notYet(rm,LB.season)||(rm.ext?extWithheld(rm.key,LB.season):null)):null;', 'function notYet(m,season)', 'const NIS_TEXT=', "if(pan.nis&&!pan.dpt)"]) {
     assert.ok(html.includes(s), `page: ${s}`)
   }
+  const v = (html.match(/var VERSION='(\d+)\.(\d+)\.(\d+)'/) || []).slice(1).map(Number)
+  assert.ok(v[0] > 2 || (v[0] === 2 && (v[1] > 7 || (v[1] === 7 && v[2] >= 1))), `page version ${v.join('.')} is 2.7.1 or later`)
 })

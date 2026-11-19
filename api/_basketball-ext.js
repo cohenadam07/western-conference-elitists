@@ -35,6 +35,12 @@ export const loadExtSeason = (season) => soft(`s/${season}.json`)
 export const loadExtPanels = (season) => soft(`panels/${season}.json`)
 export const loadExtPlayer = (id) => soft(`p/${id}.json`)
 export const loadAgeIndex = () => soft('age/index.json')
+// hunt.py's per-player notes, as the connector says them
+export const NOTE_TEXT = {
+  floor: "under Synergy's 10-isolation floor, so it is shown at that bound (9 faced): his real number and percentile are at most these",
+  not_tracked: "not in Synergy's isolation table this season (the NBA's tracking leaves him out of it), so there is no number",
+}
+export const NEUTRAL_TEXT = 'A context stat with no better direction: it describes how offenses treat him, not how well he defends.'
 // Finished seasons' withheld maps ({season: {key: reason}}); the live season's is in its own file.
 export const loadExtWithheld = () => soft('withheld.json')
 // Why an addition has no value for anyone in a season (pipeline/basketball/ext_files.withheld).
@@ -119,11 +125,14 @@ export function extCells(extFile, seasonFile, window, metrics) {
     const pl = sort(league)
     const pp = { Guard: sort(byPos.Guard), Wing: sort(byPos.Wing), Big: sort(byPos.Big) }
     for (const { p, r } of rows) {
-      if (!r || !r[i] || miss(r[i][0])) continue
-      const v = r[i][0]
+      if (!r || !r[i]) continue
+      const note = r[i][2] || null          // hunt.py: "floor" (at most this) or "not_tracked" (no value)
+      if (miss(r[i][0]) && !note) continue
       let o = out.get(String(p.id))
       if (!o) { o = {}; out.set(String(p.id), o) }
-      o[m.key] = [v, pctOf(v, pl, m.lowerIsBetter), pp[p.pos] ? pctOf(v, pp[p.pos], m.lowerIsBetter) : null, r[i][1] ?? null]
+      if (miss(r[i][0])) { o[m.key] = [null, null, null, r[i][1] ?? null, note]; continue }
+      const v = r[i][0]
+      o[m.key] = [v, pctOf(v, pl, m.lowerIsBetter), pp[p.pos] ? pctOf(v, pp[p.pos], m.lowerIsBetter) : null, r[i][1] ?? null, ...(note ? [note] : [])]
     }
   }
   byWin.set(ck, out)

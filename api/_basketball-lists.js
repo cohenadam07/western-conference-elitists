@@ -25,7 +25,7 @@
 import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, norm, ordinal, thousands } from './_core.js'
 import { PEERS, WINDOW_TEXT, cardUrl, display, inSpan, loadMeta, loadSeason, parseSeason, resolvePlayer, startYear } from './_basketball.js'
-import { AGE_POOLS, PANEL_VIEWS, agePercentile, agePoolInfo, describePanel, extCells, loadAgeIndex, loadAgePool, loadExtPanels, loadExtPlayer, loadExtSeason, wholeAge, withheldReason } from './_basketball-ext.js'
+import { AGE_POOLS, NEUTRAL_TEXT, NOTE_TEXT, PANEL_VIEWS, agePercentile, agePoolInfo, describePanel, extCells, loadAgeIndex, loadAgePool, loadExtPanels, loadExtPlayer, loadExtSeason, wholeAge, withheldReason } from './_basketball-ext.js'
 
 import { nbaCode } from './_ambiguous.js'
 import '../public/savant-ww.js'
@@ -158,6 +158,7 @@ export async function leaderboard(args) {
         : ai ? agePercentile(ageDocs.get(a), ageIndex, m.key, r.pos, ageMode, x.v, m.lowerIsBetter)[0] : null,
       ...(ageMode ? { pool: ai ? ai.label : null } : {}),
       still_settling: est ? { actual: r.m[m.key][0], display: display(m.unit, r.m[m.key][0], null) } : null,
+      ...(m.ext && xcells && (xcells.get(String(r.id)) || {})[m.key] && xcells.get(String(r.id))[m.key][4] === 'floor' ? { at_most: true } : {}),
       url: cardUrl(r.id),
     }
     if (extra.length) out.columns = extra.map((c) => { const v = valOfAll(r, c.key); return { key: c.key, label: c.label, value: miss(v) ? null : v, display: display(c.unit, v, null), percentile: miss(v) ? null : percentile(v, poolOf(c.key), c.lowerIsBetter) } })
@@ -169,6 +170,8 @@ export async function leaderboard(args) {
   if (settling) notes.push('Season in progress: a number still on a small sample is ranked where it is likely to settle (his number so far blended with his position\'s average, moved toward his own last season); still_settling gives what he has actually done. estimate "raw" ranks the raw numbers.')
   if (ageMode) notes.push(`Each percentile is against that player's own age, ${ageIndex ? ageIndex.first : '1996-97'} on, finished seasons only; each row names its pool. A null percentile means the pool is too small.`)
   if (m.lowerIsBetter) notes.push('Lower is better for this stat, so the board runs low to high.')
+  if (m.neutral) notes.push(`${NEUTRAL_TEXT} The board runs from the most of it to the least.`)
+  if (players.some((p) => p.at_most)) notes.push(`at_most: ${NOTE_TEXT.floor}.`)
   const what = m.explain && (typeof m.explain === 'string' ? m.explain : m.explain.what)
   const structured = {
     season, window: windowKey, position: pos, stat: { key: m.key, label: m.label, lower_is_better: m.lowerIsBetter, what: what || null, settles_around: m.settle ? { sample: m.settle.last, unit: m.settle.unit, hatched_under: m.settle.mean, measured: m.settle.how } : null },
@@ -352,15 +355,17 @@ export async function playerCareer({ player, stats }) {
       if (cells && cells.get(String(who.id))) xlive[live.s] = cells.get(String(who.id))
     }
   }
+  const extNotes = {}
   const extCell = (m, s) => {
-    if (xlive[s]) return xlive[s][m.key] || null
-    if (!xp || !xp.seasons || !xp.seasons[s]) return null
-    const i = xp.keys.indexOf(m.key)
-    return i >= 0 ? xp.seasons[s][i] : null
+    let c = null
+    if (xlive[s]) c = xlive[s][m.key] ? [xlive[s][m.key][0], xlive[s][m.key][1], xlive[s][m.key][2], xlive[s][m.key][4]] : null
+    else if (xp && xp.seasons && xp.seasons[s]) { const i = xp.keys.indexOf(m.key); c = i >= 0 ? xp.seasons[s][i] : null }
+    if (c && c[3]) (extNotes[m.key] || (extNotes[m.key] = {}))[s] = c[3]   // hunt.py's note, [v, lg, pos, note]
+    return c && c[0] != null ? c : null
   }
   const series = asked.map((m) => {
     const cellOf = (s, r) => (m.ext ? extCell(m, s) : r.m[m.key])
-    const by = rows.filter(({ s }) => startYear(s) >= startYear(m.since)).map(({ s, r }) => { const c = cellOf(s, r); return c ? { season: s, value: c[0], display: display(m.unit, c[0], c[1]), league_percentile: c[1], position_percentile: c[2], counts: eligible(r) } : null }).filter(Boolean)
+    const by = rows.filter(({ s }) => startYear(s) >= startYear(m.since)).map(({ s, r }) => { const c = cellOf(s, r); return c ? { season: s, value: c[0], display: display(m.unit, c[0], c[1]), league_percentile: c[1], position_percentile: c[2], counts: eligible(r), ...(m.ext && c[3] === 'floor' ? { at_most: true } : {}) } : null }).filter(Boolean)
     let high = null
     for (const x of by) if (x.counts && (high == null || (m.lowerIsBetter ? x.value < high.value : x.value > high.value))) high = x
     return { key: m.key, label: m.label, lower_is_better: m.lowerIsBetter, seasons: by, career_high: high ? { season: high.season, value: high.value, display: high.display } : null }
@@ -373,7 +378,8 @@ export async function playerCareer({ player, stats }) {
     const gaps = []
     for (const { s } of rows) {
       if (have.has(s) || startYear(s) < startYear(m.since)) continue
-      const why = await withheldReason(m.key, s, xliveFile && xliveFile.season === s ? xliveFile.file : null)
+      const own = (extNotes[m.key] || {})[s]
+      const why = own ? NOTE_TEXT[own] || own : await withheldReason(m.key, s, xliveFile && xliveFile.season === s ? xliveFile.file : null)
       if (why) gaps.push({ season: s, reason: why })
     }
     if (gaps.length) sr.withheld = gaps

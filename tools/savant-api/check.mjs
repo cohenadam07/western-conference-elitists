@@ -124,7 +124,7 @@ test('the page still decides low sample and untracked stats the way the slicer a
   // season, ext_files.withheld) draws a reason row instead of nothing, which carries no value.
   assert.ok(
     html.includes("if(m.tier && seasonTier(curSeason) < m.tier) return '';")
-      && html.includes("if(miss(v)){ const why=m.ext?extWithheld(m.key,curSeason):(m.key==='syn'&&curId!=null&&nisOf(curId,curSeason)?NIS_TEXT:null); return why?withheldRow(m,why):''; }"),
+      && html.includes("if(miss(v)){ const why=m.ext?(note==='not_tracked'?MHUNT_NT:extWithheld(m.key,curSeason)):(m.key==='syn'&&curId!=null&&nisOf(curId,curSeason)?NIS_TEXT:null); return why?withheldRow(m,why):''; }"),
     'the rule that hides a stat in barRow() changed',
   )
 })

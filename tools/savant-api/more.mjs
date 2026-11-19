@@ -152,6 +152,7 @@ function load() {
     // (savant-ext/), and those numbers are held to the page in tools/savant-mcp/check.mjs.
     function extKnown() { return true; } function extLoad() { return Promise.resolve(); }
     function extWithheld() { return null; } function whEsc(t) { return String(t); }   // 2.7.1: no addition here is withheld
+    function cellNote() { return null; }   // 2.8.0: the boards here rank card stats, which carry no notes
     ${fns.map((f) => grab(html, f)).join('\n    ')}
     prepData();
     buildIndex();

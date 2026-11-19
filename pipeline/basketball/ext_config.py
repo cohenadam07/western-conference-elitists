@@ -21,6 +21,8 @@ Fields (as savant_config.METRICS, plus):
            (for a stat whose raw value, an average z-score, means little on its own).
   parts    keys whose value and percentile the bar's tooltip lists (mtchc: its Scoring and
            Creation parts).
+  neutral  True: a context stat with no good or bad end. The bar, the compare row and the
+           Leaderboard Builder draw it without the red-to-blue colouring (mhunt).
   ext      always True here. These stats ship beside the archive, not in it (savant-data.json
            is near GitHub's 100 MB limit): ext_files.py writes public/savant-ext/, which the
            page fetches for the season a reader opens, for finished seasons and the season in
@@ -52,7 +54,7 @@ TIER_SINCE = {1: "1979-80", 2: "1996-97", 3: "2013-14", 4: "2016-17"}   # = sava
 
 
 def M(key, label, group, sub, unit, thr, lower, fam, win, first, what, formula, source, sample,
-      layer="ingredient", scope="card", beside=None, lead=None, parts=None):
+      layer="ingredient", scope="card", beside=None, lead=None, parts=None, neutral=False):
     """`first` is the first season the data really exists. The page gates bars by era tier and
     the connector by `since`, and the two must agree on the four existing tiers, so a stat that
     starts mid-tier (matchups in 2017-18, the AWS stats in 2025-26) is filed under the tier it
@@ -66,7 +68,7 @@ def M(key, label, group, sub, unit, thr, lower, fam, win, first, what, formula, 
     return dict(key=key, label=label, group=group, sub=sub, layer=layer, unit=unit, thr=thr,
                 lower=lower, tier=tier, since=TIER_SINCE[tier], first=first, fam=fam, win=win,
                 ext=True, what=what, formula=formula, source=source, sample=sample, scope=scope,
-                beside=beside, lead=lead, parts=list(parts) if parts else None)
+                beside=beside, lead=lead, parts=list(parts) if parts else None, neutral=bool(neutral))
 
 
 EXT_METRICS = [
@@ -481,6 +483,32 @@ EXT_METRICS = [
     M("msfl", "Shooting fouls on matchups", "def", "Matchups & help", "num2", 300, True, "match", False, "2017-18",
       "Shooting fouls he committed on the players he guarded, per 100 matchup possessions. Lower is better: discipline.",
       "Matchup shooting fouls = 100 × SFL ÷ matchup possessions", f"{MAT}, 2017-18 on. {NBA_NOTE} {SEASON_ONLY}", "Hatched under 300 matchup possessions."),
+    # Isolation targeting vs expected (hunt.py): a context stat, no colouring. Tested on branch
+    # onball-d (Module 4, Nov 2026): stable season to season, but it does not predict better team
+    # defense, so it is described, not rated. Its parts are leaderboard stats read in its tooltip.
+    M("mhunt", "Isolation targeting vs expected", "def", "Matchups & help", "num2", 1100, False, "match", False, "2017-18",
+      "How often offenses isolated him, compared with how often the players he guarded isolate everyone they face. Positive: "
+      "isolated more than his assignments would explain (hunted); negative: avoided. It is stable from season to season, but in "
+      "our testing it does not predict better team defense (if anything, more-hunted defenders had slightly better on/off), so it "
+      "describes how offenses treat him, not how well he defends. A higher percentile means targeted more; the bar has no good or bad colour.",
+      "Isolation targeting = 100 × (isolations he defended − expected) ÷ matchup possessions. Expected = Σ over the players he "
+      "guarded of (that player's isolation possessions per partial possession over the season, pulled toward players like him by "
+      "211 possessions) × the possessions he guarded him, scaled each season so the league's expected equals its actual.",
+      f"{SYN} (isolation, offense and defense) and {MAT}, 2017-18 on, except 2023-24, when the NBA's isolation-defense table is "
+      "missing 35 regular defenders. Synergy lists no one under 10 isolations: a defender under it shows \"under 10 faced\", valued at "
+      "that bound, and one left out of the table for another reason has no value. In season it waits until the table covers 90% of "
+      f"qualified defenders. {NBA_NOTE} {SEASON_ONLY}",
+      "Hatched under 1,100 matchup possessions.", "context", parts=("mhunt_faced", "mhunt_exp"), neutral=True),
+    M("mhunt_faced", "Isolations faced / 100 matchup possessions", "def", "Matchups & help", "num2", 1400, False, "match", False, "2017-18",
+      "Synergy isolation possessions he defended per 100 matchup possessions: the first half of Isolation targeting.",
+      "100 × isolations he defended ÷ matchup possessions (under Synergy's 10-possession floor: 9)",
+      f"{SYN} (isolation defense) and {MAT}, 2017-18 on, except 2023-24. {NBA_NOTE} {SEASON_ONLY}",
+      "Hatched under 1,400 matchup possessions.", "context", scope="board", neutral=True),
+    M("mhunt_exp", "Isolations expected / 100 matchup possessions", "def", "Matchups & help", "num2", 500, False, "match", False, "2017-18",
+      "How many isolations the players he guarded would produce per 100 of his matchup possessions, from how often they isolate everyone: the other half of Isolation targeting.",
+      "100 × Σ (each opponent's isolation rate × possessions he guarded him) ÷ matchup possessions",
+      f"{SYN} (isolation offense) and {MAT}, 2017-18 on, except 2023-24. {NBA_NOTE} {SEASON_ONLY}",
+      "Hatched under 500 matchup possessions.", "context", scope="board", neutral=True),
     M("swr", "Switches / 100 matchup possessions", "def", "Matchups & help", "num1", 300, False, "defbox", False, "2017-18",
       "How often he switches onto a new man, per 100 matchup possessions. Scheme identity: switch-everything defenders versus stay-home ones.",
       "Switch rate = 100 × switches ÷ matchup possessions (summed over his defensive box scores)",
@@ -647,7 +675,13 @@ WITHHELD_DEFAULT = "The NBA published no values for this stat this season."
 WITHHELD_LIVE = "The NBA has published no values for this stat yet this season."
 
 
+SEASON_WHY = {(k, "2023-24"): ("The NBA's 2023-24 isolation-defense table is missing 35 regular defenders who appear in its "
+                                "other Synergy tables, so that season is left out.") for k in ("mhunt", "mhunt_faced", "mhunt_exp")}
+
+
 def withheld_reason(key, season, live=False):
+    if (key, season) in SEASON_WHY:
+        return SEASON_WHY[(key, season)]
     if BROKEN_SEASONS.get(key) == season:
         return (f"The NBA's {season} table carries this column broken (it fails a league-wide sanity check), "
                 "so the season is left blank.")

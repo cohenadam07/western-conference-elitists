@@ -404,6 +404,8 @@ export function buildSavantApi({ data, html, valueModel = null }) {
       // connector with the page's midrank; `first` is the first season the data exists,
       // `season_only` marks a stat the NBA publishes for the full season only.
       ...(m.ext ? { ext: true, first: m.first || m.since, season_only: !m.win } : {}),
+      // a context stat with no good or bad end (mhunt): reported without a better direction
+      ...(m.neutral ? { neutral: true } : {}),
     })),
     row: {
       id: 'Player id. Use it in playerUrl. Players from before 1996-97 without an NBA id carry a "br:" id.',
