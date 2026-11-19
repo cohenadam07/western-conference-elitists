@@ -221,6 +221,7 @@ export async function playerProfile({ player, season, window = 'season', group =
   const settle = (window === 'season' && row.settle) || {}
   const stats = []
   const notTracked = []
+  const withheld = []
   // The October 2026 additions (meta.metrics[].ext): from savant-ext/, ranked as the page ranks them.
   const wantExt = meta.metrics.some((m) => m.ext && (!groupKey || m.group === groupKey))
   const ext = wantExt ? await extFor(file, row.id, window, meta.metrics.filter((m) => m.ext)) : null
@@ -229,6 +230,7 @@ export async function playerProfile({ player, season, window = 'season', group =
     if (startYear(seasonId) < startYear(m.since)) { notTracked.push({ key: m.key, label: m.label, since: m.since }); continue }
     const xc = m.ext ? (ext && ext.cells[m.key]) : null
     const cell = m.ext ? xc : src.m[m.key]
+    if (!cell && m.ext && ext && ext.withheld && ext.withheld[m.key]) withheld.push({ key: m.key, label: m.label, reason: ext.withheld[m.key] })
     if (!cell) continue
     const inPool = ageDoc ? agePercentile(ageDoc, ageIndex, m.key, row.pos, ageMode, cell[0], m.lowerIsBetter) : null
     stats.push({
@@ -276,6 +278,7 @@ export async function playerProfile({ player, season, window = 'season', group =
     },
     stats,
     not_tracked: notTracked,
+    ...(withheld.length ? { withheld } : {}),
     notes: [],
     url: cardUrl(row.id),
     data_as_of: day(meta.through || meta.generated),
@@ -368,6 +371,7 @@ export async function playerProfile({ player, season, window = 'season', group =
     L.push('', notes[notes.length - 1])
   }
   if (notTracked.length) L.push('', `Not tracked in ${seasonId}: ${notTracked.map((m) => `${m.label} (since ${m.since})`).join(', ')}.`)
+  if (withheld.length) L.push('', `Not shown in ${seasonId}: ${withheld.map((m) => `${m.label} (${m.reason})`).join('; ')}`)
   if (sv) L.push('', savantValueText(row, sv, seasonId, peers))
   // The league's honours that season, as the card's chips show them (accolades())
   if (row.aw && row.aw.length && meta.awards) {
@@ -635,6 +639,7 @@ export const tools = [
           added: z.boolean().optional().describe('True for the October 2026 additions (tracking, hustle, matchups, fouls, clutch, consistency, win probability), ranked the same way.'),
         })),
         not_tracked: z.array(z.object({ key: z.string(), label: z.string(), since: z.string() })).describe('Stats that season did not track.'),
+        withheld: z.array(z.object({ key: z.string(), label: z.string(), reason: z.string() })).optional().describe('Stats the season should have but nobody has a value for, with the reason (e.g. the NBA published none).'),
         notes: z.array(z.string()).describe('How to read the numbers: what the pools are, and any caution that applies to this player.'),
         comps: z.array(comp).optional().describe('Closest statistical profiles, among players with 500+ minutes.'),
         weakest: z.array(z.object({ key: z.string(), label: z.string(), percentile: z.number() })).optional().describe('Where he ranks worst among players at his position with 500+ minutes.'),

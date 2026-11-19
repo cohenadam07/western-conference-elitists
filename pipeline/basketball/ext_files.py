@@ -36,6 +36,8 @@ import ext_config as XC
 SCHEMA = 1
 KEYS = XC.KEYS
 PANELS = list(XC.EXT_PANELS) + ["ptx"]
+NIS = "nis"          # a flag, not a panel: in none of the NBA's Synergy tables that season (synergy_ids.not_in_synergy)
+PANELS = list(PANELS) + [NIS]
 LOWER = {m["key"]: bool(m["lower"]) for m in XC.EXT_METRICS}
 POS_FIX_ID = {}     # = POS_FIX_ID in basketball-savant.html
 
@@ -107,7 +109,33 @@ def dumps(obj):
     return s
 
 
+def withheld(doc):
+    """{key: reason} for the stats nobody has a value for in this season's file, among the seasons
+    the stat exists (season >= its first). Season-window values only; a live season (one with a
+    "through" date) gets the "yet" wording. Combine measurements are left out: a blank there means
+    nobody in that season was measured (hand size starts with the 2010 combine), not a withheld stat."""
+    season, keys = doc["season"], doc["keys"]
+    have = set()
+    for w in doc["players"].values():
+        row = w.get("season")
+        if row:
+            have.update(i for i, c in enumerate(row) if c and c[0] is not None)
+    live = bool(doc.get("through"))
+    out = {}
+    for i, k in enumerate(keys):
+        m = XC.BY_KEY.get(k)
+        if m and m["fam"] != "combine" and season >= m["first"] and i not in have:
+            out[k] = XC.withheld_reason(k, season, live)
+    return out
+
+
+def _is_season_doc(obj):
+    return isinstance(obj, dict) and "season" in obj and "keys" in obj and "players" in obj and "windows" in obj
+
+
 def write(path, obj):
+    if _is_season_doc(obj):
+        obj["withheld"] = withheld(obj)        # every writer, so no path can forget it
     os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp = path + ".tmp"
     with open(tmp, "w") as f:
@@ -125,6 +153,26 @@ def panels_path(public, season):
 
 def player_path(public, pid):
     return os.path.join(public, "savant-ext", "p", f"{pid}.json")
+
+
+def withheld_path(public):
+    return os.path.join(public, "savant-ext", "withheld.json")
+
+
+def write_withheld(public, live=None):
+    """savant-ext/withheld.json: every finished season's withheld map, for the connector's career
+    answers (its per-player files carry values, not reasons). The live season's map is in its own
+    season file. "keys" lists every key withheld anywhere."""
+    sdir = os.path.join(public, "savant-ext", "s")
+    seasons = {}
+    for fn in sorted(os.listdir(sdir)):
+        if fn.endswith(".json") and fn[:-5] != live:
+            wh = json.load(open(os.path.join(sdir, fn))).get("withheld") or {}
+            if wh:
+                seasons[fn[:-5]] = wh
+    keys = sorted({k for wh in seasons.values() for k in wh})
+    write(withheld_path(public), {"schema": SCHEMA, "generated": now(), "keys": keys, "seasons": seasons})
+    return len(seasons)
 
 
 def index_path(public):

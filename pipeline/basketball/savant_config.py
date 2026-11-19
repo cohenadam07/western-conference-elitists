@@ -138,6 +138,9 @@ AGING = {
 # since:    optional, later than the tier's first season when the source starts later. The
 #           NBA's LeagueSeasonMatchups is a stub for 2016-17 (17,186 matchup possessions league-wide
 #           against ~1.2M in a full season, nobody past 162), so mtch, oppfg and ddiff start in 2017-18.
+#           The NBA's team on/off splits are empty before 2007-08 (checked Nov 2026), so onoff starts
+#           there; onoffadj has values from 2009-10 (the opponent splits it needs exist from
+#           2007-08, but 2007-08 and 2008-09 were never built: a gap on our side).
 # ----------------------------------------------------------------------------
 METRICS = [
   dict(key="mpg",      label="Minutes / game",        group="ctx", sub="",                       layer="context",    unit="num1", thr=0,    lower=False, kind="box",      windowed=True,  tier=1),
@@ -176,8 +179,8 @@ METRICS = [
   dict(key="syn",      label="Shot-making (PPP %ile)", group="off", sub="Creation & playmaking",  layer="expected",   unit="num0", thr=100,  lower=False, kind="synergy",  windowed=False, tier=4),
   dict(key="ddiff",    label="Defender difficulty",    group="off", sub="Creation & playmaking",  layer="ingredient", unit="wsgn", thr=200,  lower=False, kind="matchups", windowed=False, tier=4, since="2017-18"),
 
-  dict(key="onoff",    label="On/Off net",             group="off", sub="Impact",                 layer="context",    unit="num1", thr=0,    lower=False, kind="onoff",    windowed=False, tier=2),
-  dict(key="onoffadj", label="On/Off net (luck-adjusted)", group="off", sub="Impact",             layer="context",    unit="num1", thr=0,    lower=False, kind="onoffadj", windowed=False, tier=2),
+  dict(key="onoff",    label="On/Off net",             group="off", sub="Impact",                 layer="context",    unit="num1", thr=0,    lower=False, kind="onoff",    windowed=False, tier=2, since="2007-08"),
+  dict(key="onoffadj", label="On/Off net (luck-adjusted)", group="off", sub="Impact",             layer="context",    unit="num1", thr=0,    lower=False, kind="onoffadj", windowed=False, tier=2, since="2009-10"),
 
   dict(key="reb75",    label="Rebounds / 75",          group="def", sub="Rebounding",             layer="output",     unit="num1", thr=300,  lower=False, kind="derived",  windowed=True,  tier=1),
   dict(key="dreb",     label="Def. rebound %",         group="def", sub="Rebounding",             layer="output",     unit="pct1", thr=500,  lower=False, kind="adv",      windowed=True,  tier=1),

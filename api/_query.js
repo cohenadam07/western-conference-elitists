@@ -88,11 +88,12 @@ const nba = {
   async season(meta, season, metrics) {
     const file = await nbaMod.loadSeason(season)
     let ext = null
+    let withheld = {}
     if (metrics.some((m) => m.ext)) {
       const xf = await loadExtSeason(season)
-      if (xf) ext = extCells(xf, file, 'season', meta.metrics.filter((m) => m.ext))
+      if (xf) { ext = extCells(xf, file, 'season', meta.metrics.filter((m) => m.ext)); withheld = xf.withheld || {} }
     }
-    return { season, file, ext, rows: file.players, inProgress: !!file.in_progress, week: null }
+    return { season, file, ext, withheld, rows: file.players, inProgress: !!file.in_progress, week: null }
   },
   // [value, primary pct, secondary pct, low sample] for a player and a stat, or null
   cell(s, r, m) {
@@ -296,16 +297,20 @@ export async function query(args = {}) {
   // The stat list, so the assistant can plan a query.
   if (args.list_stats) {
     const pos = args.position ? ds.position(args.position, meta) : null
+    // an addition nobody has in the newest season is listed with the reason (ext_files.withheld)
+    const newest = ds.sport === 'nba' && metrics.some((m) => m.ext) ? meta.latestSeason : null
+    const xw = newest ? ((await loadExtSeason(newest)) || {}).withheld || {} : {}
     const list = metrics
       .filter((m) => !pos || !m.positions || m.positions.includes(pos.code))
-      .map((m) => ({ key: m.key, label: m.label, group: m.group, unit: m.unit, lower_is_better: m.lower, since: m.sinceText, ...(m.positions ? { positions: m.positions } : {}) }))
+      .map((m) => ({ key: m.key, label: m.label, group: m.group, unit: m.unit, lower_is_better: m.lower, since: m.sinceText, ...(m.positions ? { positions: m.positions } : {}),
+        ...(m.ext && xw[m.key] ? { withheld: { season: newest, reason: xw[m.key] } } : {}) }))
     const fields = Object.entries(ds.fields).map(([k, f]) => ({ key: k, label: f.label }))
     const text = [
       `${ds.name}: ${list.length} stats${pos ? ` tracked for ${pos.code}` : ''} for savant_query (key, label, unit; first season).`,
       `Fields you can also filter, sort and group on: ${fields.map((f) => `${f.key} (${f.label})`).join('; ')}.`,
       `Percentile pools: ${Object.entries(ds.pools).map(([k, v]) => `${k} (${v})`).join(', ')}; default ${ds.defaultPool}. Up to ${ds.maxSeasons} seasons a call.`,
       '',
-      ...list.map((m) => `- ${m.key}: ${m.label} (${m.unit}${m.lower_is_better ? ', lower is better' : ''}; from ${m.since})`),
+      ...list.map((m) => `- ${m.key}: ${m.label} (${m.unit}${m.lower_is_better ? ', lower is better' : ''}; from ${m.since})${m.withheld ? ` — not shown in ${m.withheld.season}: ${m.withheld.reason}` : ''}`),
       '',
       `Source: ${source}. Data as of ${asOf}.`,
     ].join('\n')
@@ -400,6 +405,14 @@ export async function query(args = {}) {
   const thinStats = [...new Map([...where.filter((c) => c.metric).map((c) => c.metric), ...(!group && sortSpec.metric ? [sortSpec.metric] : [])].map((m) => [m.key, m])).values()]
   if (args.exclude_low_sample) notes.push(`Left out: player-seasons below the stabilization threshold on ${thinStats.length ? thinStats.map((m) => m.label).join(', ') : 'the stats filtered or sorted on (none here, so nothing was left out)'}.`)
   const loaded = await loadAll(seasons, (season) => ds.season(meta, season, uniq))
+  // an addition withheld in a season (nobody has it; ext_files.withheld): say why, not a silent blank
+  for (const m of uniq.filter((x) => x.ext)) {
+    const wh = loaded.filter((s) => s.withheld && s.withheld[m.key])
+    if (!wh.length) continue
+    const why = [...new Set(wh.map((s) => s.withheld[m.key]))].join(' ')
+    if (wh.length === loaded.length) throw new SavantError(`${m.label} is not shown for ${seasons.length > 1 ? 'those seasons' : seasons[0]}: ${why}`)
+    notes.push(`${m.label} is not shown in ${wh.map((s) => s.season).join(', ')}: ${why}`)
+  }
   let teamSeen = false
   for (const s of loaded) {
     const season = s.season

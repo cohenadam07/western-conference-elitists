@@ -348,13 +348,13 @@ EXT_METRICS = [
       f"{NBA} shot charts (shot type), 1996-97 on. {CLOUD_NOTE}", "Hatched under 300 possessions."),
 
     # ===================================================== IMPACT / VALUE
-    M("onoffo", "On/Off offensive rating", "off", "Impact", "snum", 0, False, "onoff", False, "1996-97",
+    M("onoffo", "On/Off offensive rating", "off", "Impact", "snum", 0, False, "onoff", False, "2007-08",
       "How many more points per 100 possessions his team scores with him on the floor than with him off. The offensive half of on/off.",
-      "On/off ORtg = team ORtg with him on − team ORtg with him off; traded players minutes-weighted", f"{NBA} team on/off splits, 1996-97 on. {CLOUD_NOTE}",
+      "On/off ORtg = team ORtg with him on − team ORtg with him off; traded players minutes-weighted", f"{NBA} team on/off splits, 2007-08 on (the NBA's splits are empty before that). {CLOUD_NOTE}",
       "Very noisy: needs 1,000+ minutes and still reflects teammates and lineups.", "context"),
-    M("onoffd", "On/Off defensive rating", "def", "Activity & outcomes", "snum", 0, True, "onoff", False, "1996-97",
+    M("onoffd", "On/Off defensive rating", "def", "Activity & outcomes", "snum", 0, True, "onoff", False, "2007-08",
       "How many fewer points per 100 possessions his team allows with him on the floor. Lower (more negative) is better.",
-      "On/off DRtg = team DRtg with him on − team DRtg with him off; traded players minutes-weighted", f"{NBA} team on/off splits, 1996-97 on. {CLOUD_NOTE}",
+      "On/off DRtg = team DRtg with him on − team DRtg with him off; traded players minutes-weighted", f"{NBA} team on/off splits, 2007-08 on (the NBA's splits are empty before that). {CLOUD_NOTE}",
       "Very noisy: needs 1,000+ minutes and still reflects teammates and lineups.", "context"),
     M("wpa", "Win probability added", "val", "Overall value", "snum", 0, False, "pbp", False, "2017-18",
       "How far his team's chance of winning moved while he was on the floor, summed over the season, in wins. A run in a tie game late counts far more than the same run in a blowout. ESPN's chance starts each game from the pregame odds, so a heavy favourite has less to gain: this measures beating expectations, not raw winning.",
@@ -484,7 +484,9 @@ EXT_METRICS = [
     M("swr", "Switches / 100 matchup possessions", "def", "Matchups & help", "num1", 300, False, "defbox", False, "2017-18",
       "How often he switches onto a new man, per 100 matchup possessions. Scheme identity: switch-everything defenders versus stay-home ones.",
       "Switch rate = 100 × switches ÷ matchup possessions (summed over his defensive box scores)",
-      f"{NBA} defensive box scores, 2017-18 on. {NBA_NOTE} {SEASON_ONLY}", "Hatched under 300 matchup possessions."),
+      f"{NBA} defensive box scores, 2017-18 on. {NBA_NOTE} {SEASON_ONLY} Not shown while the NBA publishes switches as zero: "
+      "every game from 2017-18 through 2026-27 so far carries switchesOn = 0 (checked November 2026). It comes back by itself "
+      "the first season the NBA publishes real values.", "Hatched under 300 matchup possessions."),
 
     # ===================================================== DEFENSE: hustle
     M("chg75", "Charges drawn / 75", "def", "Hustle", "num2", 300, False, "hustle", False, "2016-17",
@@ -635,6 +637,22 @@ for _m in EXT_METRICS:
     if _m["key"] in BROKEN_SEASONS:
         _m["source"] += (f" The NBA's {BROKEN_SEASONS[_m['key']]} table carries this column broken (it fails a"
                          " league-wide sanity check), so that season is left blank.")
+
+# Why a stat has no value for anyone in a season it should exist (season >= its first). Every
+# season file carries {key: reason} for these as "withheld" (ext_files.withheld, stamped on every
+# write), and the card, the Leaderboard Builder and the connector say the reason instead of
+# showing a blank. Specific reasons first; otherwise the default, or LIVE while a season is on.
+WITHHELD_WHY = {"swr": "The NBA published switches as zero in every game this season, so there is nothing to show."}
+WITHHELD_DEFAULT = "The NBA published no values for this stat this season."
+WITHHELD_LIVE = "The NBA has published no values for this stat yet this season."
+
+
+def withheld_reason(key, season, live=False):
+    if BROKEN_SEASONS.get(key) == season:
+        return (f"The NBA's {season} table carries this column broken (it fails a league-wide sanity check), "
+                "so the season is left blank.")
+    return WITHHELD_WHY.get(key) or (WITHHELD_LIVE if live else WITHHELD_DEFAULT)
+
 
 KEYS = [m["key"] for m in EXT_METRICS]
 BY_KEY = {m["key"]: m for m in EXT_METRICS}

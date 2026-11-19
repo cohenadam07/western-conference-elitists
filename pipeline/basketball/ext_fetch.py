@@ -171,13 +171,14 @@ def synergy(play_type, grouping, season):
     if not has("syn", season):
         return _empty()
     from nba_api.stats.endpoints import synergyplaytypes as L
+    import synergy_ids
 
     def go():
         return E.call(L.SynergyPlayTypes, dict(
             season=season, season_type_all_star=ST, per_mode_simple="Totals",
             player_or_team_abbreviation="P", play_type_nullable=play_type,
             type_grouping_nullable=grouping))
-    return _safe(go)
+    return synergy_ids.fix(_safe(go), season)   # rows filed under an id the NBA's tables don't know
 
 
 def onoff_details(team_id, season, mt="Four Factors"):

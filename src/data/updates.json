@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-11-19",
+    "product": "Basketball Savant",
+    "version": "2.7.1",
+    "text": "Fixes: a stat the NBA published no values for in a season now says so on the card, in the Leaderboard Builder and in the connector instead of showing a blank (switches per 100 matchup possessions is withheld until the NBA publishes real switch counts again); Milos Teodosic (2017-18, 2018-19) and Mike James (2020-21) get the play types and shot-making the NBA had filed under the wrong player id; and players the NBA's Synergy feed leaves out entirely are labelled as such",
+    "href": "/basketball-savant.html"
+  },
+  {
     "date": "2026-11-18",
     "product": "Basketball Savant",
     "version": "2.7.0",

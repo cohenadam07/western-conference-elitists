@@ -463,9 +463,16 @@ def nba_pass(season, players, live=False, log=print):
                 a = sw[int(r["personId"])]
                 a[0] += _g(r, "switchesOn") or 0.0
                 a[1] += pp
-    for pid, (s_, pp) in sw.items():
-        if pp:
-            put_s(pid, "swr", 100 * s_ / pp, pp)
+    # The NBA publishes switchesOn as 0 in every game of every season checked (2017-18 to
+    # 2026-27, Nov 2026): a season with no switch anywhere is unpublished, not a league that
+    # never switched, so swr is left blank (the season file then lists it as withheld, with
+    # ext_config.WITHHELD_WHY's reason). It fills again by itself once the NBA publishes values.
+    if sum(s_ for s_, _ in sw.values()) > 0:
+        for pid, (s_, pp) in sw.items():
+            if pp:
+                put_s(pid, "swr", 100 * s_ / pp, pp)
+    elif sw:
+        log(f"  ext: the NBA's switchesOn is 0 in every defensive box score of {season}; swr left out")
 
     # on/off offense and defense (summary, Advanced): minutes-weighted across teams
     oo = defaultdict(lambda: [0.0, 0.0, 0.0])
@@ -727,6 +734,11 @@ def _panels_nba(season, by_id, live):
                                 _r(_g(r, "playerVertical"), 1), _r(_g(r, "hangTime"), 2),
                                 str(r.get("gameDate") or "").split(" ")[0], str(r.get("matchup") or "")] for r in top]}
 
+    # ---- players the NBA's Synergy feed leaves out of every table (a flag the card reads, so a
+    # blank play-type panel or Shot-making bar says why): synergy_ids.not_in_synergy
+    import synergy_ids as SI
+    for pid in SI.not_in_synergy(season, list(by_id.values())):
+        by_id[pid]["nis"] = 1
 
 def _combine(season, by_id, wins):
     """The combine numbers the card didn't show yet (standing vertical, sprint, bench, hands,

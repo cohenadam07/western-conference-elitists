@@ -25,7 +25,7 @@
 import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, norm, ordinal, thousands } from './_core.js'
 import { PEERS, WINDOW_TEXT, cardUrl, display, inSpan, loadMeta, loadSeason, parseSeason, resolvePlayer, startYear } from './_basketball.js'
-import { AGE_POOLS, PANEL_VIEWS, agePercentile, agePoolInfo, describePanel, extCells, loadAgeIndex, loadAgePool, loadExtPanels, loadExtPlayer, loadExtSeason, wholeAge } from './_basketball-ext.js'
+import { AGE_POOLS, PANEL_VIEWS, agePercentile, agePoolInfo, describePanel, extCells, loadAgeIndex, loadAgePool, loadExtPanels, loadExtPlayer, loadExtSeason, wholeAge, withheldReason } from './_basketball-ext.js'
 
 import { nbaCode } from './_ambiguous.js'
 import '../public/savant-ww.js'
@@ -95,6 +95,10 @@ export async function leaderboard(args) {
     const xf = await loadExtSeason(season)
     if (!xf) throw new SavantError(`The added stats for ${season} could not be loaded right now, or do not reach that season. Try again in a minute, or pick a stat from the card's core.`)
     if (!(xf.windows || ['season']).includes(windowKey)) throw new SavantError(`${m.label} is a full-season number for ${season}; ask for the full season.`)
+    for (const c of [m, ...extra0]) {
+      const why = c.ext && xf.withheld ? xf.withheld[c.key] : null
+      if (why) throw new SavantError(`${c.label} is not shown for ${season}: ${why}`)
+    }
     xcells = extCells(xf, file, windowKey, meta.metrics.filter((x) => x.ext))
   }
   const baseVal = valOf
@@ -337,11 +341,13 @@ export async function playerCareer({ player, stats }) {
   // percentiles ranked at build time), the season in progress from that season's file.
   let xp = null
   const xlive = {}
+  let xliveFile = null
   if (asked.some((m) => m.ext)) {
     xp = await loadExtPlayer(who.id)
     const live = rows.find(({ file }) => file.in_progress)
     if (live) {
       const xf = await loadExtSeason(live.s)
+      xliveFile = xf ? { season: live.s, file: xf } : null
       const cells = xf ? extCells(xf, live.file, 'season', meta.metrics.filter((m) => m.ext)) : null
       if (cells && cells.get(String(who.id))) xlive[live.s] = cells.get(String(who.id))
     }
@@ -359,6 +365,19 @@ export async function playerCareer({ player, stats }) {
     for (const x of by) if (x.counts && (high == null || (m.lowerIsBetter ? x.value < high.value : x.value > high.value))) high = x
     return { key: m.key, label: m.label, lower_is_better: m.lowerIsBetter, seasons: by, career_high: high ? { season: high.season, value: high.value, display: high.display } : null }
   })
+  // seasons an addition is withheld in (nobody has it, with the reason), so a gap reads as a decision
+  for (const sr of series) {
+    const m = asked.find((x) => x.key === sr.key)
+    if (!m || !m.ext) continue
+    const have = new Set(sr.seasons.map((x) => x.season))
+    const gaps = []
+    for (const { s } of rows) {
+      if (have.has(s) || startYear(s) < startYear(m.since)) continue
+      const why = await withheldReason(m.key, s, xliveFile && xliveFile.season === s ? xliveFile.file : null)
+      if (why) gaps.push({ season: s, reason: why })
+    }
+    if (gaps.length) sr.withheld = gaps
+  }
   const structured = {
     player: { id: String(who.id), name: who.name, from: who.from, to: who.to },
     arc: pts, peak: peak ? { season: peak.season, bpm: peak.bpm } : null, honours, series,
@@ -374,12 +393,15 @@ export async function playerCareer({ player, stats }) {
     L.push('', `${sr.label}, season by season (league percentile):`)
     L.push(sr.seasons.map((x) => `${x.season} ${x.display} (${x.league_percentile == null ? 'n/a' : ordinal(x.league_percentile)})${x.counts ? '' : '*'}`).join(', '))
     L.push(sr.career_high ? `Career high (seasons that count): ${sr.career_high.display} in ${sr.career_high.season}.${sr.seasons.some((x) => !x.counts) ? ' * = a season under the floor.' : ''}` : 'No season that counts has it.')
+    if (sr.withheld) L.push(`Not shown in ${sr.withheld.map((x) => x.season).join(', ')}: ${[...new Set(sr.withheld.map((x) => x.reason))].join(' ')}`)
   }
   L.push('', ...structured.notes, '', `Card: ${structured.url}`, `Source: ${SOURCE}.`)
   return { structured, text: L.join('\n') }
 }
 
 // ---- play types, with/without, by month, shots ---------------------------------------------
+// synergy_ids.not_in_synergy: a player with real minutes the NBA's Synergy feed leaves out entirely
+const NIS = "he is not in the NBA's Synergy tables this season (the NBA's play-type feed leaves him out), so there is nothing to show."
 const PT_NAME = { Isolation: 'Isolation', Transition: 'Transition', PRBallHandler: 'Pick-and-roll ball handler', PRRollman: 'Pick-and-roll roll man', Postup: 'Post-up', Spotup: 'Spot-up', Handoff: 'Handoff', Cut: 'Cut', OffScreen: 'Off screen', OffRebound: 'Putbacks', Misc: 'Misc' }
 
 // Basketball Coaching Savant's team-season files (pipeline/basketball/coaching/build.py): the
@@ -406,6 +428,7 @@ export async function playerSplits({ player, season, view = 'play_types', teamma
     const pooled = key === 'pe' && r.posx
     const pd = pooled ? r.posx.pe : d && d[key]
     if (!pd || (Array.isArray(pd) ? !pd.some(Boolean) : !Object.keys(pd).length)) {
+      if (key === 'dpt' && d && d.nis) throw new SavantError(`No ${title.toLowerCase()} for ${who.name} in ${s}: ${NIS}`)
       throw new SavantError(`No ${title.toLowerCase()} for ${who.name} in ${s}.${pf ? ` ${EXT_REACH[key] || ''}` : ' The breakdowns could not be loaded right now; try again in a minute.'}`.trim())
     }
     const { data, lines } = describePanel(key, pd)
@@ -425,6 +448,9 @@ export async function playerSplits({ player, season, view = 'play_types', teamma
     const ptm = file.play_types || null
     const floor = (ptm && ptm.nba_min_poss) || 10
     if (!r.pt) {
+      const pfx = await loadExtPanels(s)
+      const dx = pfx && pfx.players && (pfx.players[who.id] || pfx.players[String(who.id)])
+      if (dx && dx.nis) throw new SavantError(`No play-type numbers for ${who.name} in ${s}: ${NIS}`)
       throw new SavantError(`No play-type numbers for ${who.name} in ${s}. The NBA publishes a player's play type only once he has ${floor} possessions of it, so nothing he has run less than that appears${ptm ? ' — and the season is only a few games old' : ''}. Synergy play types start in 2015-16.`)
     }
     // how each play type ends (the card's More columns), from savant-ext/panels when it is there

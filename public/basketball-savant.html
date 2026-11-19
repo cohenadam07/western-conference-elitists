@@ -236,6 +236,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .anim .fill{transition:width .55s cubic-bezier(.22,.61,.36,1)}
 .fill .hatch{display:none;position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 4px,var(--hatch) 4px 6px)}
 .row.un .fill{filter:grayscale(.55) opacity(.5)}
+.row.wh .whwhy{grid-area:bar;font-size:11.5px;line-height:1.35;color:var(--muted);font-style:italic}
+.row.wh .rv{color:var(--faint)}
+.lb-colchip.wh{opacity:.45;cursor:not-allowed;text-decoration:line-through}
 .row.un .fill .hatch{display:block}
 .row.na .track{opacity:.5}
 .row.gated .track{opacity:1;background:repeating-linear-gradient(135deg,var(--track),var(--track) 6px,transparent 6px,transparent 12px);display:flex;align-items:center}
@@ -1624,7 +1627,7 @@ const CFG  = {
       "thr": 1500,
       "lower": false,
       "tier": 2,
-      "since": "1996-97",
+      "since": "2007-08",
       "settle": {
         "last": 4200,
         "mean": 1500,
@@ -1642,7 +1645,7 @@ const CFG  = {
       "thr": 1100,
       "lower": false,
       "tier": 2,
-      "since": "1996-97",
+      "since": "2009-10",
       "settle": {
         "last": 3200,
         "mean": 1100,
@@ -3917,7 +3920,7 @@ const CFG  = {
       "lower": false,
       "tier": 2,
       "since": "1996-97",
-      "first": "1996-97",
+      "first": "2007-08",
       "win": false,
       "ext": true,
       "settle": {
@@ -4520,7 +4523,7 @@ const CFG  = {
       "lower": true,
       "tier": 2,
       "since": "1996-97",
-      "first": "1996-97",
+      "first": "2007-08",
       "win": false,
       "ext": true,
       "settle": {
@@ -5196,7 +5199,7 @@ const EXPL={
  selfcr:{"what": "Self-creation: the share of his shots taken with a defender within 4 feet. Separates players who make their own shot from players who need to be set up.", "formula": "Self-creation = 100 × (share of his FGA with the closest defender 0–2 ft + share at 2–4 ft). Shown as a word from its league percentile: low, avg, high, elite.", "source": "NBA.com stats (stats.nba.com) player tracking (closest-defender shooting), 2013-14 on.", "sample": "Settles around 24 tightly guarded attempts: at that point his own record and the prior count equally (measured within seasons, on 16 seasons of our data). Hatched under 5 tightly guarded attempts, where more of the number is noise than him. While a season is live, a ◆ on the bar shows where it is likely to land."},
  syn:{"what": "Shot-making by play type: how efficiently he scores across the plays he actually runs (pick-and-roll, isolation, post-ups, spot-ups and the rest), weighted by how often he runs each.", "formula": "Σ over offensive play types of (his points-per-possession percentile in that type × his possessions in it) ÷ his total play-type possessions. The percentile is the same one the play-type panel shows: the NBA's on a finished season, and on the season in progress ours, over the play types that clear 25 possessions in a pool of 20+ players. Early in a season, before any play type clears those, the bar is absent rather than ranked against a handful of players.", "source": "NBA.com stats (stats.nba.com) Synergy play types, 2015-16 on.", "sample": "Hatched under 100 play-type possessions."},
  ddiff:{"what": "Defender difficulty: the average defensive quality of the players who guarded him. Context for his offense: strong numbers against strong defenders count for more.", "formula": "Σ (each defender's DBPM × possessions he guarded him) ÷ Σ possessions", "source": "NBA.com stats (stats.nba.com) matchup tracking (who guarded whom), 2017-18 on; DBPM from Basketball Reference.", "sample": "Settles around 2,700 matchup possessions: at that point his own record and the prior count equally (measured season to season on 10 seasons of our data, calibrated against the within-season method). Hatched under 940 matchup possessions, where more of the number is noise than him."},
- onoff:{"what": "On/off net rating: how much better the team's point margin per 100 possessions is with him on the floor than on the bench. The bluntest measure of team impact; noisy in small minutes.", "formula": "On/Off = team net rating with him on − team net rating with him off. Traded players: minutes-weighted across teams.", "source": "NBA.com stats (stats.nba.com) team on/off splits, 1996-97 on.", "sample": "Settles around 4,200 minutes: at that point his own record and the prior count equally (measured season to season on 19 seasons of our data, calibrated against the within-season method). Hatched under 1,500 minutes, where more of the number is noise than him. That is more than a typical player's full season: treat a single season of it as a lean, not a fact."},
+ onoff:{"what": "On/off net rating: how much better the team's point margin per 100 possessions is with him on the floor than on the bench. The bluntest measure of team impact; noisy in small minutes.", "formula": "On/Off = team net rating with him on − team net rating with him off. Traded players: minutes-weighted across teams.", "source": "NBA.com stats (stats.nba.com) team on/off splits, 2007-08 on (the NBA's splits are empty before that).", "sample": "Settles around 4,200 minutes: at that point his own record and the prior count equally (measured season to season on 19 seasons of our data, calibrated against the within-season method). Hatched under 1,500 minutes, where more of the number is noise than him. That is more than a typical player's full season: treat a single season of it as a lean, not a fact."},
  reb75:{"what": "Rebounds per 75 possessions: rebounding volume with pace taken out.", "formula": "Rebounds/75 = REB ÷ POSS × 75. POSS = possessions he was on the floor for (NBA tracking from 1996-97; estimated as team pace × minutes ÷ 48 before).", "source": "NBA.com stats (stats.nba.com); Basketball Reference before 1996-97.", "sample": "Settles around 670 possessions: at that point his own record and the prior count equally (measured within seasons, on 16 seasons of our data). Hatched under 220 possessions, where more of the number is noise than him. While a season is live, a ◆ on the bar shows where it is likely to land."},
  dreb:{"what": "Defensive rebound %: the share of available defensive rebounds he secures while on the floor. A stop isn't over until someone grabs it.", "formula": "DREB% = 100 × DREB × (team MP ÷ 5) ÷ (MP × (team DREB + opponent OREB))   (the NBA's DREB_PCT)", "source": "NBA.com stats (stats.nba.com) advanced stats; Basketball Reference before 1996-97.", "sample": "Settles around 840 possessions: at that point his own record and the prior count equally (measured within seasons, on 16 seasons of our data). Hatched under 320 possessions, where more of the number is noise than him. While a season is live, a ◆ on the bar shows where it is likely to land."},
  stl:{"what": "Steals per 75 possessions.", "formula": "Steals/75 = STL ÷ POSS × 75. POSS = possessions he was on the floor for (NBA tracking from 1996-97; estimated as team pace × minutes ÷ 48 before).", "source": "NBA.com stats (stats.nba.com); Basketball Reference before 1996-97.", "sample": "Settles around 1,500 possessions: at that point his own record and the prior count equally (measured within seasons, on 16 seasons of our data). Hatched under 750 possessions, where more of the number is noise than him. While a season is live, a ◆ on the bar shows where it is likely to land."},
@@ -5226,7 +5229,7 @@ const EXPL={
  shotmk:{"what": "Shot-making: how much better (or worse) he shoots than an average player would on the same shots. The part of his efficiency that is his touch, not his shot selection.", "formula": "Shot-making = 100 × (his actual eFG% − his expected eFG%), in percentage points. +5 means he scores 5 eFG points above what those shots usually produce.", "source": "NBA.com stats (stats.nba.com) shot chart, 2013-14 on, through the shot-quality model above.", "sample": "Settles around 530 field-goal attempts: at that point his own record and the prior count equally (measured season to season on 13 seasons of our data, calibrated against the within-season method). Hatched under 210 field-goal attempts, where more of the number is noise than him."},
  uast:{"what": "Unassisted makes: the share of his made field goals that nobody assisted. High means he creates his own baskets; low means he finishes what others set up.", "formula": "Unassisted makes % = 100 × unassisted FGM ÷ FGM (the NBA's PCT_UAST_FGM)", "source": "NBA.com stats (stats.nba.com) scoring splits, each make tagged assisted or not from the play-by-play, 1996-97 on.", "sample": "Settles around 42 made field goals: at that point his own record and the prior count equally (measured within seasons, on 16 seasons of our data). Hatched under 13 made field goals, where more of the number is noise than him. While a season is live, a ◆ on the bar shows where it is likely to land."},
  uast3:{"what": "Unassisted threes: the share of his made threes that nobody assisted. Separates pull-up shooters from catch-and-shoot shooters.", "formula": "Unassisted 3s % = 100 × unassisted 3PM ÷ 3PM (the NBA's PCT_UAST_3PM)", "source": "NBA.com stats (stats.nba.com) scoring splits, 1996-97 on.", "sample": "Settles around 22 made threes: at that point his own record and the prior count equally (measured within seasons, on 16 seasons of our data). Hatched under 8 made threes, where more of the number is noise than him. While a season is live, a ◆ on the bar shows where it is likely to land."},
- onoffadj:{"what": "On/off with the luck taken out: the same on-minus-off net rating, after replacing the opponents' three-point and free-throw shooting with league average. Opponents' 3P% and FT% while one player is on the floor are almost all noise, and they swing raw on/off by several points.", "formula": "For his on and off minutes separately: net rating + 100 × (3 × (opp 3PM − opp 3PA × league 3P%) + (opp FTM − opp FTA × league FT%)) ÷ possessions. Luck-adjusted on/off = adjusted on − adjusted off; traded players are minutes-weighted. His own team's shooting is left alone: a shooter raising his team's 3P% is real.", "source": "NBA.com stats (stats.nba.com) team on/off details (opponent and advanced splits), 1996-97 on.", "sample": "Settles around 3,200 minutes: at that point his own record and the prior count equally (measured season to season on 17 seasons of our data, calibrated against the within-season method). Hatched under 1,100 minutes, where more of the number is noise than him. That is more than a typical player's full season: treat a single season of it as a lean, not a fact."},
+ onoffadj:{"what": "On/off with the luck taken out: the same on-minus-off net rating, after replacing the opponents' three-point and free-throw shooting with league average. Opponents' 3P% and FT% while one player is on the floor are almost all noise, and they swing raw on/off by several points.", "formula": "For his on and off minutes separately: net rating + 100 × (3 × (opp 3PM − opp 3PA × league 3P%) + (opp FTM − opp FTA × league FT%)) ÷ possessions. Luck-adjusted on/off = adjusted on − adjusted off; traded players are minutes-weighted. His own team's shooting is left alone: a shooter raising his team's 3P% is real.", "source": "NBA.com stats (stats.nba.com) team on/off details (opponent and advanced splits), 2009-10 on.", "sample": "Settles around 3,200 minutes: at that point his own record and the prior count equally (measured season to season on 17 seasons of our data, calibrated against the within-season method). Hatched under 1,100 minutes, where more of the number is noise than him. That is more than a typical player's full season: treat a single season of it as a lean, not a fact."},
  pt:{"what": "Play types: how his offense is built (pick-and-roll, isolation, spot-ups and the rest) and how well each part works.", "formula": "For each play type: share = his possessions in it ÷ all his play-type possessions; points per possession = points ÷ possessions. Traded players are combined, possession-weighted. The percentile on a finished season is the NBA's, among every player who ran that play type. On the season in progress it is ours: his points per possession against the players with 25+ possessions of that play type, league-wide and not position-adjusted, and left blank until he has 25 of them himself and 20 players clear the same bar — the NBA's own percentile is ranked inside its 10-possession pool, which in the first week of a season is three or four players.", "source": "NBA.com stats (stats.nba.com) Synergy play types, 2015-16 on. The NBA publishes a player's play type only once he has 10 possessions of it, so early in a season a type he has run less than that is missing rather than zero. Synergy credits the finisher of a possession, not the man who set it up.", "sample": "Under 25 possessions in a play type a percentile is mostly noise, so in season it is withheld and the row is tagged small sample. The More columns view adds, per play type: eFG%, the share of possessions that scored, ended in a turnover, drew free throws, drew a shooting foul and ended in an and-one."},
  ww:{"what": "With / without: what happens to his game when teammates you pick are or aren't there, for any teammates, several at once. Two ways of asking: the minutes he played with and without them on the floor, or the games they played and missed.", "formula": "Minutes on the floor: every event and second of his season goes to the five-man unit on the floor, from the same stints as Basketball Coaching Savant, and the units with any of the picked teammates are summed against the rest. Games he missed: his whole games, split by whether any of them played. With and Without add up to his season with the team. Several teammates: Without means none of them. Rates are the card's; per-75 uses the possessions he was on the floor for. Net, offensive and defensive rating, pace and the four factors are his team's while he was on the floor.", "source": "ESPN play-by-play, 2002-03 on, with the box score keeping the totals. Regular season.", "sample": "A number is hatched when its side is under that stat's settle point. Team stats on the floor: 1,200 possessions for net rating, 660 offensive rating, 770 defensive rating, 180 pace, 700 to 1,400 for the four factors (odd games against even, 2013-14 to 2025-26)."},
  perim:{"what": "Perimeter Assignment Rate: the share of his defensive matchups spent on guards. Role, not ability: scheme drives much of it, and assignment is least reliable during switches.", "formula": "Perimeter rate = possessions guarding guards ÷ all matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup tracking, 2017-18 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
@@ -5395,8 +5398,8 @@ const EXPL={
  trfreq:{"what": "Share of his shots that came within 7 seconds of his team winning the ball on a steal or a defensive rebound. Who pushes and finishes the break.", "formula": "Transition share = 100 × FGA within 7 s of a steal or defensive rebound ÷ FGA", "source": "ESPN play-by-play, 2002-03 on. Refreshed in the cloud after every slate.", "sample": "Settles around 320 attempts: at that point his own record and the prior count equally (measured season to season on 24 seasons of our data, calibrated against the within-season method). Hatched under 130 attempts, where more of the number is noise than him."},
  trefg:{"what": "Effective field goal % on those transition shots.", "formula": "Transition eFG% = 100 × (FGM + 0.5 × 3PM) ÷ FGA, transition shots", "source": "ESPN play-by-play, 2002-03 on. Refreshed in the cloud after every slate.", "sample": "Settles around 220 transition attempts: at that point his own record and the prior count equally (measured season to season on 24 seasons of our data, calibrated against the within-season method). Hatched under 89 transition attempts, where more of the number is noise than him. That is more than a typical player's full season: treat a single season of it as a lean, not a fact."},
  pb75:{"what": "Putback and tip attempts per 75: second chances he turns into a shot right at the rim.", "formula": "Putback and tip attempts ÷ POSS × 75. POSS = possessions he was on the floor for.", "source": "NBA.com stats (stats.nba.com) shot charts (shot type), 1996-97 on. Refreshed in the cloud after every slate.", "sample": "Settles around 840 possessions: at that point his own record and the prior count equally (measured season to season on 30 seasons of our data, calibrated against the within-season method). Hatched under 300 possessions, where more of the number is noise than him."},
- onoffo:{"what": "How many more points per 100 possessions his team scores with him on the floor than with him off. The offensive half of on/off.", "formula": "On/off ORtg = team ORtg with him on − team ORtg with him off; traded players minutes-weighted", "source": "NBA.com stats (stats.nba.com) team on/off splits, 1996-97 on. Refreshed in the cloud after every slate.", "sample": "Settles around 2,800 minutes: at that point his own record and the prior count equally (measured season to season on 19 seasons of our data, calibrated against the within-season method). Hatched under 1,000 minutes, where more of the number is noise than him. That is more than a typical player's full season: treat a single season of it as a lean, not a fact."},
- onoffd:{"what": "How many fewer points per 100 possessions his team allows with him on the floor. Lower (more negative) is better.", "formula": "On/off DRtg = team DRtg with him on − team DRtg with him off; traded players minutes-weighted", "source": "NBA.com stats (stats.nba.com) team on/off splits, 1996-97 on. Refreshed in the cloud after every slate.", "sample": "Settles around 5,600 minutes: at that point his own record and the prior count equally (measured season to season on 19 seasons of our data, calibrated against the within-season method). Hatched under 2,000 minutes, where more of the number is noise than him. That is more than a typical player's full season: treat a single season of it as a lean, not a fact."},
+ onoffo:{"what": "How many more points per 100 possessions his team scores with him on the floor than with him off. The offensive half of on/off.", "formula": "On/off ORtg = team ORtg with him on − team ORtg with him off; traded players minutes-weighted", "source": "NBA.com stats (stats.nba.com) team on/off splits, 2007-08 on (the NBA's splits are empty before that). Refreshed in the cloud after every slate.", "sample": "Settles around 2,800 minutes: at that point his own record and the prior count equally (measured season to season on 19 seasons of our data, calibrated against the within-season method). Hatched under 1,000 minutes, where more of the number is noise than him. That is more than a typical player's full season: treat a single season of it as a lean, not a fact."},
+ onoffd:{"what": "How many fewer points per 100 possessions his team allows with him on the floor. Lower (more negative) is better.", "formula": "On/off DRtg = team DRtg with him on − team DRtg with him off; traded players minutes-weighted", "source": "NBA.com stats (stats.nba.com) team on/off splits, 2007-08 on (the NBA's splits are empty before that). Refreshed in the cloud after every slate.", "sample": "Settles around 5,600 minutes: at that point his own record and the prior count equally (measured season to season on 19 seasons of our data, calibrated against the within-season method). Hatched under 2,000 minutes, where more of the number is noise than him. That is more than a typical player's full season: treat a single season of it as a lean, not a fact."},
  wpa:{"what": "How far his team's chance of winning moved while he was on the floor, summed over the season, in wins. A run in a tie game late counts far more than the same run in a blowout. ESPN's chance starts each game from the pregame odds, so a heavy favourite has less to gain: this measures beating expectations, not raw winning.", "formula": "WPA = Σ over his stints (the same ten players on the floor) of the change in his team's win probability from the stint's start to its end. All five on a side share each change; 1.0 = one win.", "source": "ESPN play-by-play with ESPN's in-game win probability (published 2017-18 on). Refreshed in the cloud after every slate.", "sample": "None: a running total. Like plus-minus it credits everyone on the floor, so a reserve on a strong second unit can outscore a star."},
  lev:{"what": "The NBA's Leverage: a machine-learning win-probability model scores every event against what would have happened instead, and sums his share per game.", "formula": "Leverage per game (FULL) = offense + defense leverage", "source": "NBA.com stats (stats.nba.com) Inside the Game (NBA x AWS) Leverage, 2025-26 on. Season totals only: the NBA doesn't split this table by last N games.", "sample": "Players the NBA publishes (~230 a season)."},
  levo:{"what": "Offensive Leverage per game: shooting, creation, rebounds and turnovers on offense.", "formula": "OFFENSE", "source": "NBA.com stats (stats.nba.com) Inside the Game (NBA x AWS) Leverage, 2025-26 on. Season totals only: the NBA doesn't split this table by last N games.", "sample": "Players the NBA publishes."},
@@ -5429,7 +5432,7 @@ const EXPL={
  mtchc_create:{"what": "The creation threat of the players he guards: mtchc's Creation part alone. High for defenders who chase the other team's playmakers.", "formula": "Σ (each opponent's Creation part × possessions he guarded him) ÷ Σ possessions. Creation = Assist %, potential assists / 75, assist points created / 75 and time of possession / 75, z-scored within the season and shrunk by minutes.", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games. Time of possession is left out of 2024-25.", "sample": "Settles around 1,400 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 500 matchup possessions, where more of the number is noise than him."},
  mtov:{"what": "Turnovers by the players he guarded, per 100 matchup possessions. On-ball disruption.", "formula": "Matchup TOV forced = 100 × matchup turnovers ÷ matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 2,500 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 890 matchup possessions, where more of the number is noise than him."},
  msfl:{"what": "Shooting fouls he committed on the players he guarded, per 100 matchup possessions. Lower is better: discipline.", "formula": "Matchup shooting fouls = 100 × SFL ÷ matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 1,800 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 630 matchup possessions, where more of the number is noise than him."},
- swr:{"what": "How often he switches onto a new man, per 100 matchup possessions. Scheme identity: switch-everything defenders versus stay-home ones.", "formula": "Switch rate = 100 × switches ÷ matchup possessions (summed over his defensive box scores)", "source": "NBA.com stats (stats.nba.com) defensive box scores, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Hatched under 300 matchup possessions."},
+ swr:{"what": "How often he switches onto a new man, per 100 matchup possessions. Scheme identity: switch-everything defenders versus stay-home ones.", "formula": "Switch rate = 100 × switches ÷ matchup possessions (summed over his defensive box scores)", "source": "NBA.com stats (stats.nba.com) defensive box scores, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games. Not shown while the NBA publishes switches as zero: every game from 2017-18 through 2026-27 so far carries switchesOn = 0 (checked November 2026). It comes back by itself the first season the NBA publishes real values.", "sample": "Hatched under 300 matchup possessions."},
  chg75:{"what": "Charges taken per 75: sliding in front and absorbing contact.", "formula": "Charges drawn ÷ POSS × 75. POSS = possessions he was on the floor for.", "source": "NBA.com stats (stats.nba.com) hustle stats, 2016-17 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 1,300 possessions: at that point his own record and the prior count equally (measured season to season on 10 seasons of our data, calibrated against the within-season method). Hatched under 450 possessions, where more of the number is noise than him."},
  lbr75:{"what": "50-50 balls he came up with, per 75.", "formula": "Loose balls recovered ÷ POSS × 75. POSS = possessions he was on the floor for.", "source": "NBA.com stats (stats.nba.com) hustle stats, 2016-17 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 3,300 possessions: at that point his own record and the prior count equally (measured season to season on 10 seasons of our data, calibrated against the within-season method). Hatched under 1,200 possessions, where more of the number is noise than him."},
  stlint:{"what": "Share of his steals that were interceptions (picking off a pass) rather than strips. Passing-lane defenders read high; on-ball pickpockets low.", "formula": "Interception share = 100 × steals off bad passes ÷ steals", "source": "ESPN play-by-play, 2002-03 on. Refreshed in the cloud after every slate.", "sample": "Settles around 79 steals: at that point his own record and the prior count equally (measured season to season on 24 seasons of our data, calibrated against the within-season method). Hatched under 32 steals, where more of the number is noise than him. That is more than a typical player's full season: treat a single season of it as a lean, not a fact."},
@@ -5540,7 +5543,8 @@ function barRow(m){
   // Single-profile view: a bar the era didn't track — or that simply has no value for this
   // player-season — is hidden entirely (the page reformats around what's actually there),
   // rather than shown as a greyed row. Compare mode keeps every bar so eras line up.
-  if((m.tier && seasonTier(curSeason) < m.tier) || miss(v)) return '';
+  if(m.tier && seasonTier(curSeason) < m.tier) return '';
+  if(miss(v)){ const why=m.ext?extWithheld(m.key,curSeason):(m.key==='syn'&&curId!=null&&nisOf(curId,curSeason)?NIS_TEXT:null); return why?withheldRow(m,why):''; }
   const pool=poolVals(m.key,win);
   if(agePop()&&!pool.length) return '';                 // the stat is too thin at this age
   const pct=pctOf(v,pool,m.lower);
@@ -6563,6 +6567,14 @@ document.addEventListener('click',function(e){
 function renderPlayTypes(){
   const el=document.getElementById('ptype'); if(!el) return;
   const pt=cur&&cur.pt;
+  if(!pt&&cur&&!cmpPlayers().length){
+    const pf=EXT.pan[curSeason];
+    if(!pf){ const ws=curSeason; extPanels(ws).then(function(){ if(curSeason===ws) renderPlayTypes(); }); }
+    else if(!pf.then&&nisOf(cur.id,curSeason)){
+      el.innerHTML='<h2 class="col-h panel-h" data-k="pt" title="Click for what this is and how it’s calculated">Play types</h2><div class="pt-note">'+NIS_TEXT+'</div>';
+      el.hidden=false; return;
+    }
+  }
   if(!pt||cmpPlayers().length){ el.hidden=true; el.innerHTML=''; return; }
   /* On the season in progress the percentile is ours and can be absent: a play type under
      sample_flag possessions, or a pool too thin to rank against, shows the points per
@@ -6700,13 +6712,30 @@ const XMETRICS=METRICS.filter(function(m){return m.ext;});
 const XBESIDE={}; XMETRICS.forEach(function(m){ if(m.beside) (XBESIDE[m.beside]||(XBESIDE[m.beside]=[])).push(m); });
 const XONCARD=function(m){ return !m.beside&&m.scope!=='board'; };
 const XKEYS=new Set(XMETRICS.map(function(m){return m.key;}));
-const EXT={s:{},pan:{},p:{}};        // season -> true | 'missing' | Promise ; pid -> data | 'missing' | Promise
+const EXT={s:{},pan:{},p:{},wh:{}};        // season -> true | 'missing' | Promise ; pid -> data | 'missing' | Promise
 function extLive(season){ return !!(DATA&&DATA.current&&DATA.current.season===season); }
 function extGet(path,live){
   return fetch('savant-ext/'+path,{cache:live?'no-cache':'default'})
     .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
 }
 function extReady(season){ return EXT.s[season]===true; }
+/* A stat nobody has a value for in a season it should exist is "withheld" in that season's file,
+   with the reason (pipeline/basketball/ext_files.withheld). Say it instead of a silent blank. */
+function whEsc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function extWithheld(key,season){ const w=EXT.wh[season]; return (w&&w[key])||null; }
+/* A stat before its first season (CFG first / since, the connector's "from"): the Leaderboard
+   Builder says when it starts instead of ranking nobody. */
+function notYet(m,season){ const f=m.first||m.since; return (f&&season&&season.slice(0,4)<f.slice(0,4))?(m.label+' starts in '+f+'.'):null; }
+/* A player with real minutes whom the NBA's Synergy feed leaves out of every table that season
+   (Cedi Osman and Thaddeus Young, 2017-18 to 2021-22, and others): his panels file carries "nis",
+   and the play-type panels and Shot-making say so instead of going blank. */
+const NIS_TEXT='Not in the NBA’s Synergy tables this season: the NBA’s play-type feed leaves him out, so there is nothing to show.';
+function nisOf(id,season){ const p=extPanelsOf(id,season); return !!(p&&p.nis); }
+function withheldRow(m,why){
+  return '<div class="row wh" data-k="'+m.key+'" title="'+whEsc(why)+'">'
+    +'<div class="rl" title="Click for what this stat means"><div class="name">'+m.label+'</div><div class="tag">not shown this season</div></div>'
+    +'<div class="whwhy">'+whEsc(why)+'</div><div class="rv">—</div></div>';
+}
 function extKnown(season){ return EXT.s[season]===true||EXT.s[season]==='missing'; }
 function extLoad(season){
   const st=EXT.s[season];
@@ -6714,6 +6743,7 @@ function extLoad(season){
   if(st) return st;
   const pr=extGet('s/'+season+'.json',extLive(season)).then(function(j){
     if(!j||!Array.isArray(j.keys)||!j.players){ EXT.s[season]='missing'; return; }
+    EXT.wh[season]=j.withheld||{};
     const rows=(DATA.data[season]||{players:[]}).players, keys=j.keys;
     for(const p of rows){
       const w=j.players[p.id]; if(!w) continue;
@@ -6784,6 +6814,18 @@ function extRefresh(){
     const html=extBlock(g);
     if(el) el.outerHTML=html; else if(html) host.insertAdjacentHTML('beforeend',html);
   });
+  // Shot-making for a player the NBA's Synergy feed leaves out (2.7.1): the card was drawn before
+  // his panels file said so, so the reason row goes where the bar would be
+  const sm=byKey('syn');
+  if(sm&&cur&&!cmpPlayers().length&&!document.querySelector('.row[data-k="syn"]')){
+    const html=barRow(sm);
+    if(html){
+      const ms=METRICS.filter(function(m){return !m.ext&&m.group===sm.group;}), i=ms.indexOf(sm);
+      let at=null;
+      for(let j=i-1;j>=0&&!at;j--) at=[...document.querySelectorAll('.row[data-k="'+ms[j].key+'"]')].find(function(r){return !r.closest('.xmore');})||null;
+      if(at) at.insertAdjacentHTML('afterend',html);
+    }
+  }
   // a bar filed beside a core stat (mtchc beside mtch) goes in right after that stat's row,
   // now that its season file is in (the main card was drawn before it was)
   Object.keys(XBESIDE).forEach(function(k){
@@ -6820,7 +6862,8 @@ function extBlock(group){
     for(const m of ms){
       if(m.sub!==curSub){ flush(); curSub=m.sub; }
       // compare mode draws a row even when nobody has the stat; keep only rows someone has
-      if(who.length>1&&!who.some(function(p){return !miss(val(p,m.key,win));})) continue;
+      if(who.length>1&&!who.some(function(p){return !miss(val(p,m.key,win));})){
+        const why=extWithheld(m.key,curSeason); if(why){ n++; subRows+=withheldRow(m,why); } continue; }
       const r=barRow(m);
       if(r){ n++; subRows+=r; }
     }
@@ -6983,11 +7026,12 @@ function renderXPanels(){
   let pan=cur?extPanelsOf(cur.id,curSeason):null;
   if(cur&&cur.posx) pan=Object.assign({},pan,{pe:cur.posx.pe});   // the label's own numbers
   if(!pan||cmpPlayers().length){ el.hidden=true; el.innerHTML=''; return; }
+  if(pan.nis&&!pan.dpt) pan=Object.assign({},pan,{dpt:{nis:1}});   // say why the tab is empty
   const have=XPANELS.filter(function(t){const d=pan[t[0]]; return d&&(Array.isArray(d)?d.some(Boolean):Object.keys(d).length);});
   if(!have.length){ el.hidden=true; el.innerHTML=''; return; }
   const tab=have.some(function(t){return t[0]===XTAB;})?XTAB:have[0][0];
   let body='';
-  try{ body=XRENDER[tab](pan[tab]); }catch(err){ body='<div class="pt-note">This breakdown couldn’t be drawn.</div>'; }
+  try{ body=(tab==='dpt'&&pan.dpt&&pan.dpt.nis)?'<div class="pt-note">'+NIS_TEXT+'</div>':XRENDER[tab](pan[tab]); }catch(err){ body='<div class="pt-note">This breakdown couldn’t be drawn.</div>'; }
   el.innerHTML='<h2 class="col-h">Breakdowns</h2>'
     +'<div class="xp-tabs" role="tablist" aria-label="Breakdowns">'+have.map(function(t){
       return '<button type="button" role="tab" class="xp-tab" data-t="'+t[0]+'" aria-selected="'+(t[0]===tab)+'">'+t[1]+'</button>';}).join('')+'</div>'
@@ -7320,8 +7364,14 @@ async function exportCard(){
    men he guards counting creation as well as scoring (pipeline/basketball/threat.py), percentile-
    led with its parts in the tooltip; its Scoring and Creation parts in the Leaderboard Builder.
    mtch, oppfg and ddiff start in 2017-18 (the NBA's 2016-17 matchup table is a stub); value bars
-   match suffixed and nicknamed players. */
-var VERSION='2.7.0';
+   match suffixed and nicknamed players.
+   2.7.1 (Nov 2026): withheld stats say why. A stat nobody has a value for in a season it should
+   exist is listed in that season's file as withheld, with the reason (ext_files.withheld), and the
+   card, the Leaderboard Builder and the connector say it instead of a blank; swr is withheld while
+   the NBA publishes switchesOn as zero. Synergy rows filed under an unknown id are matched by name
+   (synergy_ids.py: Teodosic 2017-18 and 2018-19, Mike James 2020-21), and players the feed leaves
+   out entirely are labelled on the play-type panels and Shot-making. */
+var VERSION='2.7.1';
 function build(){
   const vc=document.getElementById('verchip');
   if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }
@@ -7837,11 +7887,13 @@ function lbRender(){
     extLoad(want).then(function(){ if(LB.season===want&&document.body.classList.contains('lb-open')) lbRender(); });
     return;
   }
+  var rwhy=rm?(notYet(rm,LB.season)||(rm.ext?extWithheld(rm.key,LB.season):null)):null;
+  if(rwhy){ host.innerHTML='<tr><td class="lb-empty">'+rm.label+', '+LB.season+': '+whEsc(rwhy)+'</td></tr>'; return; }
   var rows=[]; for(var i=0;i<cohort.length;i++){ var rv=lbVal(cohort[i],LB.rankKey); if(!miss(rv)) rows.push({p:cohort[i],rv:rv}); }
   rows.sort(function(a,b){ return (rm&&rm.lower)? a.rv-b.rv : b.rv-a.rv; });
   var top=rows.slice(0,LB.topN);
   var th='<tr><th class="lb-rank">#</th><th>Player</th><th class="num active" data-k="'+(rm?rm.key:'')+'" title="ranking by this">'+(rm?rm.label:'')+'</th>'+
-    cols.map(function(m){return '<th class="num" data-k="'+m.key+'" title="click to rank by this">'+m.label+'</th>';}).join('')+'</tr>';
+    cols.map(function(m){var w=notYet(m,LB.season)||(m.ext?extWithheld(m.key,LB.season):null); return '<th class="num'+(w?' wh':'')+'" data-k="'+m.key+'" title="'+(w?whEsc(w):'click to rank by this')+'">'+m.label+(w?' ⓘ':'')+'</th>';}).join('')+'</tr>';
   if(!top.length){ host.innerHTML=th+'<tr><td class="lb-empty" colspan="'+(3+cols.length)+'">No players match these filters.</td></tr>'; return; }
   var cell=function(p,m,extra){
     var v=lbVal(p,m.key), cp=lbPct(p,m.key,cohort);
@@ -7890,9 +7942,11 @@ function lbBuildControls(){
     ch.innerHTML=keys.map(function(k){var m=byKey(k); if(!m) return '';
       var sec=LB.showAllCols?lbSection(m):null, h='';
       if(sec&&sec!==lastSec){ h='<span class="lb-colsec">'+sec+'</span>'; lastSec=sec; }
-      return h+'<span class="lb-colchip'+(LB.cols.indexOf(k)>=0?' on':'')+'" data-k="'+k+'">'+m.label+'</span>';}).join('')
+      var why=notYet(m,LB.season)||(m.ext?extWithheld(k,LB.season):null);
+      return h+'<span class="lb-colchip'+(LB.cols.indexOf(k)>=0?' on':'')+(why?' wh':'')+'" data-k="'+k+'"'+(why?' title="'+whEsc(why)+'"':'')+'>'+m.label+'</span>';}).join('')
       +'<button type="button" class="lb-colmore" id="lbColMore">'+(LB.showAllCols?'− Show fewer':'+ More stats')+'</button>';
-    ch.querySelectorAll('.lb-colchip').forEach(function(el){ el.onclick=function(){ var k=el.dataset.k, i=LB.cols.indexOf(k);
+    if(!extKnown(LB.season)&&METRICS.some(function(m){return m.ext;})){ var ws=LB.season; extLoad(ws).then(function(){ if(LB.season===ws) lbBuildControls(); }); }
+    ch.querySelectorAll('.lb-colchip').forEach(function(el){ el.onclick=function(){ if(el.classList.contains('wh')&&LB.cols.indexOf(el.dataset.k)<0) return; var k=el.dataset.k, i=LB.cols.indexOf(k);
       if(i>=0) LB.cols.splice(i,1); else { if(LB.cols.length>=LB_MAXCOLS) return; LB.cols.push(k); }
       el.classList.toggle('on'); lbRender(); }; });
     var mb=document.getElementById('lbColMore'); if(mb) mb.onclick=function(){ LB.showAllCols=!LB.showAllCols; lbBuildControls(); };
