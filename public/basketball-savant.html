@@ -236,6 +236,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .anim .fill{transition:width .55s cubic-bezier(.22,.61,.36,1)}
 .fill .hatch{display:none;position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 4px,var(--hatch) 4px 6px)}
 .row.un .fill{filter:grayscale(.55) opacity(.5)}
+.row.wh .whwhy{grid-area:bar;font-size:11.5px;line-height:1.35;color:var(--muted);font-style:italic}
+.row.wh .rv{color:var(--faint)}
+.lb-colchip.wh{opacity:.45;cursor:not-allowed;text-decoration:line-through}
 .row.un .fill .hatch{display:block}
 .row.na .track{opacity:.5}
 .row.gated .track{opacity:1;background:repeating-linear-gradient(135deg,var(--track),var(--track) 6px,transparent 6px,transparent 12px);display:flex;align-items:center}
@@ -5429,7 +5432,7 @@ const EXPL={
  mtchc_create:{"what": "The creation threat of the players he guards: mtchc's Creation part alone. High for defenders who chase the other team's playmakers.", "formula": "Σ (each opponent's Creation part × possessions he guarded him) ÷ Σ possessions. Creation = Assist %, potential assists / 75, assist points created / 75 and time of possession / 75, z-scored within the season and shrunk by minutes.", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games. Time of possession is left out of 2024-25.", "sample": "Settles around 1,400 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 500 matchup possessions, where more of the number is noise than him."},
  mtov:{"what": "Turnovers by the players he guarded, per 100 matchup possessions. On-ball disruption.", "formula": "Matchup TOV forced = 100 × matchup turnovers ÷ matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 2,500 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 890 matchup possessions, where more of the number is noise than him."},
  msfl:{"what": "Shooting fouls he committed on the players he guarded, per 100 matchup possessions. Lower is better: discipline.", "formula": "Matchup shooting fouls = 100 × SFL ÷ matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 1,800 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 630 matchup possessions, where more of the number is noise than him."},
- swr:{"what": "How often he switches onto a new man, per 100 matchup possessions. Scheme identity: switch-everything defenders versus stay-home ones.", "formula": "Switch rate = 100 × switches ÷ matchup possessions (summed over his defensive box scores)", "source": "NBA.com stats (stats.nba.com) defensive box scores, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Hatched under 300 matchup possessions."},
+ swr:{"what": "How often he switches onto a new man, per 100 matchup possessions. Scheme identity: switch-everything defenders versus stay-home ones.", "formula": "Switch rate = 100 × switches ÷ matchup possessions (summed over his defensive box scores)", "source": "NBA.com stats (stats.nba.com) defensive box scores, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games. Not shown while the NBA publishes switches as zero: every game from 2017-18 through 2026-27 so far carries switchesOn = 0 (checked November 2026). It comes back by itself the first season the NBA publishes real values.", "sample": "Hatched under 300 matchup possessions."},
  chg75:{"what": "Charges taken per 75: sliding in front and absorbing contact.", "formula": "Charges drawn ÷ POSS × 75. POSS = possessions he was on the floor for.", "source": "NBA.com stats (stats.nba.com) hustle stats, 2016-17 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 1,300 possessions: at that point his own record and the prior count equally (measured season to season on 10 seasons of our data, calibrated against the within-season method). Hatched under 450 possessions, where more of the number is noise than him."},
  lbr75:{"what": "50-50 balls he came up with, per 75.", "formula": "Loose balls recovered ÷ POSS × 75. POSS = possessions he was on the floor for.", "source": "NBA.com stats (stats.nba.com) hustle stats, 2016-17 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 3,300 possessions: at that point his own record and the prior count equally (measured season to season on 10 seasons of our data, calibrated against the within-season method). Hatched under 1,200 possessions, where more of the number is noise than him."},
  stlint:{"what": "Share of his steals that were interceptions (picking off a pass) rather than strips. Passing-lane defenders read high; on-ball pickpockets low.", "formula": "Interception share = 100 × steals off bad passes ÷ steals", "source": "ESPN play-by-play, 2002-03 on. Refreshed in the cloud after every slate.", "sample": "Settles around 79 steals: at that point his own record and the prior count equally (measured season to season on 24 seasons of our data, calibrated against the within-season method). Hatched under 32 steals, where more of the number is noise than him. That is more than a typical player's full season: treat a single season of it as a lean, not a fact."},
@@ -5540,7 +5543,8 @@ function barRow(m){
   // Single-profile view: a bar the era didn't track — or that simply has no value for this
   // player-season — is hidden entirely (the page reformats around what's actually there),
   // rather than shown as a greyed row. Compare mode keeps every bar so eras line up.
-  if((m.tier && seasonTier(curSeason) < m.tier) || miss(v)) return '';
+  if(m.tier && seasonTier(curSeason) < m.tier) return '';
+  if(miss(v)){ const why=m.ext?extWithheld(m.key,curSeason):(m.key==='syn'&&curId!=null&&nisOf(curId,curSeason)?NIS_TEXT:null); return why?withheldRow(m,why):''; }
   const pool=poolVals(m.key,win);
   if(agePop()&&!pool.length) return '';                 // the stat is too thin at this age
   const pct=pctOf(v,pool,m.lower);
@@ -6563,6 +6567,14 @@ document.addEventListener('click',function(e){
 function renderPlayTypes(){
   const el=document.getElementById('ptype'); if(!el) return;
   const pt=cur&&cur.pt;
+  if(!pt&&cur&&!cmpPlayers().length){
+    const pf=EXT.pan[curSeason];
+    if(!pf){ const ws=curSeason; extPanels(ws).then(function(){ if(curSeason===ws) renderPlayTypes(); }); }
+    else if(!pf.then&&nisOf(cur.id,curSeason)){
+      el.innerHTML='<h2 class="col-h panel-h" data-k="pt" title="Click for what this is and how it’s calculated">Play types</h2><div class="pt-note">'+NIS_TEXT+'</div>';
+      el.hidden=false; return;
+    }
+  }
   if(!pt||cmpPlayers().length){ el.hidden=true; el.innerHTML=''; return; }
   /* On the season in progress the percentile is ours and can be absent: a play type under
      sample_flag possessions, or a pool too thin to rank against, shows the points per
@@ -6700,13 +6712,27 @@ const XMETRICS=METRICS.filter(function(m){return m.ext;});
 const XBESIDE={}; XMETRICS.forEach(function(m){ if(m.beside) (XBESIDE[m.beside]||(XBESIDE[m.beside]=[])).push(m); });
 const XONCARD=function(m){ return !m.beside&&m.scope!=='board'; };
 const XKEYS=new Set(XMETRICS.map(function(m){return m.key;}));
-const EXT={s:{},pan:{},p:{}};        // season -> true | 'missing' | Promise ; pid -> data | 'missing' | Promise
+const EXT={s:{},pan:{},p:{},wh:{}};        // season -> true | 'missing' | Promise ; pid -> data | 'missing' | Promise
 function extLive(season){ return !!(DATA&&DATA.current&&DATA.current.season===season); }
 function extGet(path,live){
   return fetch('savant-ext/'+path,{cache:live?'no-cache':'default'})
     .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
 }
 function extReady(season){ return EXT.s[season]===true; }
+/* A stat nobody has a value for in a season it should exist is "withheld" in that season's file,
+   with the reason (pipeline/basketball/ext_files.withheld). Say it instead of a silent blank. */
+function whEsc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function extWithheld(key,season){ const w=EXT.wh[season]; return (w&&w[key])||null; }
+/* A player with real minutes whom the NBA's Synergy feed leaves out of every table that season
+   (Cedi Osman and Thaddeus Young, 2017-18 to 2021-22, and others): his panels file carries "nis",
+   and the play-type panels and Shot-making say so instead of going blank. */
+const NIS_TEXT='Not in the NBA’s Synergy tables this season: the NBA’s play-type feed leaves him out, so there is nothing to show.';
+function nisOf(id,season){ const p=extPanelsOf(id,season); return !!(p&&p.nis); }
+function withheldRow(m,why){
+  return '<div class="row wh" data-k="'+m.key+'" title="'+whEsc(why)+'">'
+    +'<div class="rl" title="Click for what this stat means"><div class="name">'+m.label+'</div><div class="tag">not shown this season</div></div>'
+    +'<div class="whwhy">'+whEsc(why)+'</div><div class="rv">—</div></div>';
+}
 function extKnown(season){ return EXT.s[season]===true||EXT.s[season]==='missing'; }
 function extLoad(season){
   const st=EXT.s[season];
@@ -6714,6 +6740,7 @@ function extLoad(season){
   if(st) return st;
   const pr=extGet('s/'+season+'.json',extLive(season)).then(function(j){
     if(!j||!Array.isArray(j.keys)||!j.players){ EXT.s[season]='missing'; return; }
+    EXT.wh[season]=j.withheld||{};
     const rows=(DATA.data[season]||{players:[]}).players, keys=j.keys;
     for(const p of rows){
       const w=j.players[p.id]; if(!w) continue;
@@ -6784,6 +6811,18 @@ function extRefresh(){
     const html=extBlock(g);
     if(el) el.outerHTML=html; else if(html) host.insertAdjacentHTML('beforeend',html);
   });
+  // Shot-making for a player the NBA's Synergy feed leaves out (2.7.1): the card was drawn before
+  // his panels file said so, so the reason row goes where the bar would be
+  const sm=byKey('syn');
+  if(sm&&cur&&!cmpPlayers().length&&!document.querySelector('.row[data-k="syn"]')){
+    const html=barRow(sm);
+    if(html){
+      const ms=METRICS.filter(function(m){return !m.ext&&m.group===sm.group;}), i=ms.indexOf(sm);
+      let at=null;
+      for(let j=i-1;j>=0&&!at;j--) at=[...document.querySelectorAll('.row[data-k="'+ms[j].key+'"]')].find(function(r){return !r.closest('.xmore');})||null;
+      if(at) at.insertAdjacentHTML('afterend',html);
+    }
+  }
   // a bar filed beside a core stat (mtchc beside mtch) goes in right after that stat's row,
   // now that its season file is in (the main card was drawn before it was)
   Object.keys(XBESIDE).forEach(function(k){
@@ -6820,7 +6859,8 @@ function extBlock(group){
     for(const m of ms){
       if(m.sub!==curSub){ flush(); curSub=m.sub; }
       // compare mode draws a row even when nobody has the stat; keep only rows someone has
-      if(who.length>1&&!who.some(function(p){return !miss(val(p,m.key,win));})) continue;
+      if(who.length>1&&!who.some(function(p){return !miss(val(p,m.key,win));})){
+        const why=extWithheld(m.key,curSeason); if(why){ n++; subRows+=withheldRow(m,why); } continue; }
       const r=barRow(m);
       if(r){ n++; subRows+=r; }
     }
@@ -6983,11 +7023,12 @@ function renderXPanels(){
   let pan=cur?extPanelsOf(cur.id,curSeason):null;
   if(cur&&cur.posx) pan=Object.assign({},pan,{pe:cur.posx.pe});   // the label's own numbers
   if(!pan||cmpPlayers().length){ el.hidden=true; el.innerHTML=''; return; }
+  if(pan.nis&&!pan.dpt) pan=Object.assign({},pan,{dpt:{nis:1}});   // say why the tab is empty
   const have=XPANELS.filter(function(t){const d=pan[t[0]]; return d&&(Array.isArray(d)?d.some(Boolean):Object.keys(d).length);});
   if(!have.length){ el.hidden=true; el.innerHTML=''; return; }
   const tab=have.some(function(t){return t[0]===XTAB;})?XTAB:have[0][0];
   let body='';
-  try{ body=XRENDER[tab](pan[tab]); }catch(err){ body='<div class="pt-note">This breakdown couldn’t be drawn.</div>'; }
+  try{ body=(tab==='dpt'&&pan.dpt&&pan.dpt.nis)?'<div class="pt-note">'+NIS_TEXT+'</div>':XRENDER[tab](pan[tab]); }catch(err){ body='<div class="pt-note">This breakdown couldn’t be drawn.</div>'; }
   el.innerHTML='<h2 class="col-h">Breakdowns</h2>'
     +'<div class="xp-tabs" role="tablist" aria-label="Breakdowns">'+have.map(function(t){
       return '<button type="button" role="tab" class="xp-tab" data-t="'+t[0]+'" aria-selected="'+(t[0]===tab)+'">'+t[1]+'</button>';}).join('')+'</div>'
@@ -7320,8 +7361,14 @@ async function exportCard(){
    men he guards counting creation as well as scoring (pipeline/basketball/threat.py), percentile-
    led with its parts in the tooltip; its Scoring and Creation parts in the Leaderboard Builder.
    mtch, oppfg and ddiff start in 2017-18 (the NBA's 2016-17 matchup table is a stub); value bars
-   match suffixed and nicknamed players. */
-var VERSION='2.7.0';
+   match suffixed and nicknamed players.
+   2.7.1 (Nov 2026): withheld stats say why. A stat nobody has a value for in a season it should
+   exist is listed in that season's file as withheld, with the reason (ext_files.withheld), and the
+   card, the Leaderboard Builder and the connector say it instead of a blank; swr is withheld while
+   the NBA publishes switchesOn as zero. Synergy rows filed under an unknown id are matched by name
+   (synergy_ids.py: Teodosic 2017-18 and 2018-19, Mike James 2020-21), and players the feed leaves
+   out entirely are labelled on the play-type panels and Shot-making. */
+var VERSION='2.7.1';
 function build(){
   const vc=document.getElementById('verchip');
   if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }
@@ -7837,11 +7884,13 @@ function lbRender(){
     extLoad(want).then(function(){ if(LB.season===want&&document.body.classList.contains('lb-open')) lbRender(); });
     return;
   }
+  var rwhy=rm&&rm.ext?extWithheld(rm.key,LB.season):null;
+  if(rwhy){ host.innerHTML='<tr><td class="lb-empty">'+rm.label+', '+LB.season+': '+whEsc(rwhy)+'</td></tr>'; return; }
   var rows=[]; for(var i=0;i<cohort.length;i++){ var rv=lbVal(cohort[i],LB.rankKey); if(!miss(rv)) rows.push({p:cohort[i],rv:rv}); }
   rows.sort(function(a,b){ return (rm&&rm.lower)? a.rv-b.rv : b.rv-a.rv; });
   var top=rows.slice(0,LB.topN);
   var th='<tr><th class="lb-rank">#</th><th>Player</th><th class="num active" data-k="'+(rm?rm.key:'')+'" title="ranking by this">'+(rm?rm.label:'')+'</th>'+
-    cols.map(function(m){return '<th class="num" data-k="'+m.key+'" title="click to rank by this">'+m.label+'</th>';}).join('')+'</tr>';
+    cols.map(function(m){var w=m.ext?extWithheld(m.key,LB.season):null; return '<th class="num'+(w?' wh':'')+'" data-k="'+m.key+'" title="'+(w?whEsc(w):'click to rank by this')+'">'+m.label+(w?' ⓘ':'')+'</th>';}).join('')+'</tr>';
   if(!top.length){ host.innerHTML=th+'<tr><td class="lb-empty" colspan="'+(3+cols.length)+'">No players match these filters.</td></tr>'; return; }
   var cell=function(p,m,extra){
     var v=lbVal(p,m.key), cp=lbPct(p,m.key,cohort);
@@ -7890,9 +7939,11 @@ function lbBuildControls(){
     ch.innerHTML=keys.map(function(k){var m=byKey(k); if(!m) return '';
       var sec=LB.showAllCols?lbSection(m):null, h='';
       if(sec&&sec!==lastSec){ h='<span class="lb-colsec">'+sec+'</span>'; lastSec=sec; }
-      return h+'<span class="lb-colchip'+(LB.cols.indexOf(k)>=0?' on':'')+'" data-k="'+k+'">'+m.label+'</span>';}).join('')
+      var why=m.ext?extWithheld(k,LB.season):null;
+      return h+'<span class="lb-colchip'+(LB.cols.indexOf(k)>=0?' on':'')+(why?' wh':'')+'" data-k="'+k+'"'+(why?' title="'+whEsc(why)+'"':'')+'>'+m.label+'</span>';}).join('')
       +'<button type="button" class="lb-colmore" id="lbColMore">'+(LB.showAllCols?'− Show fewer':'+ More stats')+'</button>';
-    ch.querySelectorAll('.lb-colchip').forEach(function(el){ el.onclick=function(){ var k=el.dataset.k, i=LB.cols.indexOf(k);
+    if(!extKnown(LB.season)&&METRICS.some(function(m){return m.ext;})){ var ws=LB.season; extLoad(ws).then(function(){ if(LB.season===ws) lbBuildControls(); }); }
+    ch.querySelectorAll('.lb-colchip').forEach(function(el){ el.onclick=function(){ if(el.classList.contains('wh')&&LB.cols.indexOf(el.dataset.k)<0) return; var k=el.dataset.k, i=LB.cols.indexOf(k);
       if(i>=0) LB.cols.splice(i,1); else { if(LB.cols.length>=LB_MAXCOLS) return; LB.cols.push(k); }
       el.classList.toggle('on'); lbRender(); }; });
     var mb=document.getElementById('lbColMore'); if(mb) mb.onclick=function(){ LB.showAllCols=!LB.showAllCols; lbBuildControls(); };

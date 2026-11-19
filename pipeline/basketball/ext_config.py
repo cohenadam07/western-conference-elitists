@@ -484,7 +484,9 @@ EXT_METRICS = [
     M("swr", "Switches / 100 matchup possessions", "def", "Matchups & help", "num1", 300, False, "defbox", False, "2017-18",
       "How often he switches onto a new man, per 100 matchup possessions. Scheme identity: switch-everything defenders versus stay-home ones.",
       "Switch rate = 100 × switches ÷ matchup possessions (summed over his defensive box scores)",
-      f"{NBA} defensive box scores, 2017-18 on. {NBA_NOTE} {SEASON_ONLY}", "Hatched under 300 matchup possessions."),
+      f"{NBA} defensive box scores, 2017-18 on. {NBA_NOTE} {SEASON_ONLY} Not shown while the NBA publishes switches as zero: "
+      "every game from 2017-18 through 2026-27 so far carries switchesOn = 0 (checked November 2026). It comes back by itself "
+      "the first season the NBA publishes real values.", "Hatched under 300 matchup possessions."),
 
     # ===================================================== DEFENSE: hustle
     M("chg75", "Charges drawn / 75", "def", "Hustle", "num2", 300, False, "hustle", False, "2016-17",
@@ -635,6 +637,22 @@ for _m in EXT_METRICS:
     if _m["key"] in BROKEN_SEASONS:
         _m["source"] += (f" The NBA's {BROKEN_SEASONS[_m['key']]} table carries this column broken (it fails a"
                          " league-wide sanity check), so that season is left blank.")
+
+# Why a stat has no value for anyone in a season it should exist (season >= its first). Every
+# season file carries {key: reason} for these as "withheld" (ext_files.withheld, stamped on every
+# write), and the card, the Leaderboard Builder and the connector say the reason instead of
+# showing a blank. Specific reasons first; otherwise the default, or LIVE while a season is on.
+WITHHELD_WHY = {"swr": "The NBA published switches as zero in every game this season, so there is nothing to show."}
+WITHHELD_DEFAULT = "The NBA published no values for this stat this season."
+WITHHELD_LIVE = "The NBA has published no values for this stat yet this season."
+
+
+def withheld_reason(key, season, live=False):
+    if BROKEN_SEASONS.get(key) == season:
+        return (f"The NBA's {season} table carries this column broken (it fails a league-wide sanity check), "
+                "so the season is left blank.")
+    return WITHHELD_WHY.get(key) or (WITHHELD_LIVE if live else WITHHELD_DEFAULT)
+
 
 KEYS = [m["key"] for m in EXT_METRICS]
 BY_KEY = {m["key"]: m for m in EXT_METRICS}

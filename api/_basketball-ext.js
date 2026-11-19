@@ -35,6 +35,14 @@ export const loadExtSeason = (season) => soft(`s/${season}.json`)
 export const loadExtPanels = (season) => soft(`panels/${season}.json`)
 export const loadExtPlayer = (id) => soft(`p/${id}.json`)
 export const loadAgeIndex = () => soft('age/index.json')
+// Finished seasons' withheld maps ({season: {key: reason}}); the live season's is in its own file.
+export const loadExtWithheld = () => soft('withheld.json')
+// Why an addition has no value for anyone in a season (pipeline/basketball/ext_files.withheld).
+export async function withheldReason(key, season, seasonExtFile) {
+  if (seasonExtFile && seasonExtFile.withheld) return seasonExtFile.withheld[key] || null
+  const w = await loadExtWithheld()
+  return (w && w.seasons && w.seasons[season] && w.seasons[season][key]) || null
+}
 export const loadAgePool = (age) => soft(`age/${age}.json`)
 export const clearExt = () => files.clear()
 
@@ -128,7 +136,7 @@ export async function extFor(seasonFile, id, window, metrics) {
   if (!f) return { available: false, cells: {} }
   if (!(f.windows || ['season']).includes(window)) return { available: true, window_missing: true, cells: {} }
   const cells = extCells(f, seasonFile, window, metrics)
-  return { available: true, cells: cells.get(String(id)) || {}, through: f.through || null }
+  return { available: true, cells: cells.get(String(id)) || {}, through: f.through || null, withheld: f.withheld || {} }
 }
 
 // ---- the breakdown panels, as words and tables ----------------------------------------------

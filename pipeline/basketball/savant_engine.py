@@ -274,6 +274,8 @@ def load_synergy(season):
             season=season, season_type_all_star=C.SEASON_TYPE, per_mode_simple="Totals",
             player_or_team_abbreviation="P", play_type_nullable=play_type,
             type_grouping_nullable="offensive"))
+        import synergy_ids
+        df = synergy_ids.fix(df, season)     # rows filed under an id the NBA's tables don't know
         for _, r in df.iterrows():
             poss = float(r.get(f["poss"], 0) or 0)
             if poss <= 0:

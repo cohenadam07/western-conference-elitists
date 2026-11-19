@@ -120,8 +120,11 @@ test('the page still decides low sample and untracked stats the way the slicer a
     html.includes('const stable=(n==null)||(m.thr?n>=m.thr:true);'),
     'the low-sample rule in barRow() changed',
   )
+  // 2.7.1: a stat with no value still never draws a bar; a withheld one (nobody has it that
+  // season, ext_files.withheld) draws a reason row instead of nothing, which carries no value.
   assert.ok(
-    html.includes("if((m.tier && seasonTier(curSeason) < m.tier) || miss(v)) return '';"),
+    html.includes("if(m.tier && seasonTier(curSeason) < m.tier) return '';")
+      && html.includes("if(miss(v)){ const why=m.ext?extWithheld(m.key,curSeason):(m.key==='syn'&&curId!=null&&nisOf(curId,curSeason)?NIS_TEXT:null); return why?withheldRow(m,why):''; }"),
     'the rule that hides a stat in barRow() changed',
   )
 })

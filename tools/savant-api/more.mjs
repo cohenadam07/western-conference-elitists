@@ -151,6 +151,7 @@ function load() {
     // The boards here rank the card's stats; a board on an addition waits for its season file
     // (savant-ext/), and those numbers are held to the page in tools/savant-mcp/check.mjs.
     function extKnown() { return true; } function extLoad() { return Promise.resolve(); }
+    function extWithheld() { return null; } function whEsc(t) { return String(t); }   // 2.7.1: no addition here is withheld
     ${fns.map((f) => grab(html, f)).join('\n    ')}
     prepData();
     buildIndex();
@@ -211,7 +212,22 @@ test('every basketball leaderboard is the page\'s: the same players, the same or
     for (const k of ['pts', 'ts', 'ast', 'blk', 'bpm', 'usg']) cases.push({ season: meta.seasons[1], rankKey: k, pos: i % 2 ? 'Wing' : 'All', window: 'season', est: 'settled', ...f })
   }
   let rows = 0
+  // 2.7.1: an addition withheld in a season (nobody has it; ext_files.withheld) is refused with its
+  // reason instead of an empty board, and the page's builder shows the same reason
+  const whOf = {}
+  const withheldIn = (season, key) => {
+    if (!(season in whOf)) { const f = path.join(PUBLIC, 'savant-ext', 's', `${season}.json`); whOf[season] = existsSync(f) ? (JSON.parse(readFileSync(f, 'utf8')).withheld || {}) : {} }
+    return whOf[season][key] || null
+  }
+  let refused = 0
   for (const c of cases) {
+    const why = by[c.rankKey] && by[c.rankKey].ext ? withheldIn(c.season, c.rankKey) : null
+    if (why) {
+      await assert.rejects(lists.leaderboard({ stat: c.rankKey, season: c.season, window: c.window, position: c.pos, estimate: c.est, top: 25 }),
+        (e) => e.message.includes(why), `${c.rankKey} ${c.season}: refused with the reason`)
+      refused++
+      continue
+    }
     const lb = { season: c.season, window: c.window, rankKey: c.rankKey, cols: [], pos: c.pos, team: c.team || '', ageMin: null, ageMax: c.ageMax ?? null, expMin: c.expMin ?? null, expMax: null, minMpg: c.minMpg || 0, qualOnly: c.qualOnly ?? true, topN: 25, basis: c.basis || 'cohort', est: c.est }
     const v = boardRows(page.board({ ...lb, display: 'value' }))
     const p = boardRows(page.board({ ...lb, display: 'pct' }))

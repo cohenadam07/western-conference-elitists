@@ -1,0 +1,382 @@
+{
+ "remapped": [
+  {
+   "season": "2017-18",
+   "id": 1628462,
+   "name": "Milos Teodosic",
+   "synergy_id": 267634,
+   "before": {
+    "syn": null,
+    "pt": null,
+    "dpt": null,
+    "ptx": null
+   },
+   "after": {
+    "syn": {
+     "v": 57,
+     "n": 467
+    },
+    "pt": {
+     "Transition": [
+      10.5,
+      0.58,
+      2,
+      50
+     ],
+     "Isolation": [
+      2.9,
+      1.214,
+      95,
+      14
+     ],
+     "PRBallHandler": [
+      42.2,
+      0.816,
+      54,
+      201
+     ],
+     "Spotup": [
+      24.2,
+      1.287,
+      97,
+      115
+     ],
+     "Handoff": [
+      9.9,
+      0.936,
+      58,
+      47
+     ],
+     "OffScreen": [
+      2.5,
+      0.583,
+      6,
+      12
+     ],
+     "Misc": [
+      5.9,
+      0.357,
+      26,
+      28
+     ]
+    },
+    "dpt": {
+     "Isolation": [
+      8.3,
+      1.226,
+      6,
+      31
+     ],
+     "PRBallHandler": [
+      38.4,
+      1.014,
+      12,
+      144
+     ],
+     "Postup": [
+      6.1,
+      0.957,
+      32,
+      23
+     ],
+     "Spotup": [
+      30.7,
+      0.861,
+      85,
+      115
+     ],
+     "Handoff": [
+      6.1,
+      1.043,
+      20,
+      23
+     ],
+     "OffScreen": [
+      4.8,
+      1.111,
+      26,
+      18
+     ]
+    },
+    "ptx": {
+     "Transition": [
+      42.0,
+      4.0,
+      0.0,
+      0.0,
+      24.0,
+      48.1,
+      50
+     ],
+     "Isolation": [
+      7.1,
+      7.1,
+      7.1,
+      0.0,
+      42.9,
+      62.5,
+      14
+     ],
+     "PRBallHandler": [
+      20.9,
+      3.5,
+      1.5,
+      0.0,
+      35.8,
+      49.7,
+      201
+     ],
+     "Spotup": [
+      5.2,
+      5.2,
+      2.6,
+      0.0,
+      46.1,
+      67.0,
+      115
+     ],
+     "Handoff": [
+      10.6,
+      2.1,
+      0.0,
+      0.0,
+      38.3,
+      52.4,
+      47
+     ],
+     "OffScreen": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      25.0,
+      29.2,
+      12
+     ],
+     "Misc": [
+      71.4,
+      14.3,
+      3.6,
+      0.0,
+      17.9,
+      37.5,
+      28
+     ]
+    }
+   }
+  },
+  {
+   "season": "2018-19",
+   "id": 1628462,
+   "name": "Milos Teodosic",
+   "synergy_id": 267634,
+   "before": {
+    "syn": null,
+    "pt": null,
+    "dpt": null,
+    "ptx": null
+   },
+   "after": {
+    "syn": {
+     "v": 31,
+     "n": 42
+    },
+    "pt": {
+     "PRBallHandler": [
+      45.3,
+      0.724,
+      28,
+      29
+     ],
+     "Spotup": [
+      20.3,
+      0.923,
+      37,
+      13
+     ]
+    },
+    "dpt": {
+     "PRBallHandler": [
+      46.0,
+      1.037,
+      12,
+      27
+     ]
+    },
+    "ptx": {
+     "PRBallHandler": [
+      37.9,
+      6.9,
+      3.4,
+      0.0,
+      34.5,
+      56.3,
+      29
+     ],
+     "Spotup": [
+      15.4,
+      0.0,
+      0.0,
+      0.0,
+      30.8,
+      54.5,
+      13
+     ]
+    }
+   }
+  },
+  {
+   "season": "2020-21",
+   "id": 1628455,
+   "name": "Mike James",
+   "synergy_id": 2229,
+   "before": {
+    "syn": null,
+    "pt": null,
+    "dpt": null,
+    "ptx": null
+   },
+   "after": {
+    "syn": {
+     "v": 22,
+     "n": 113
+    },
+    "pt": {
+     "Transition": [
+      15.1,
+      0.895,
+      13,
+      19
+     ],
+     "Isolation": [
+      16.7,
+      0.524,
+      9,
+      21
+     ],
+     "PRBallHandler": [
+      41.3,
+      0.692,
+      19,
+      52
+     ],
+     "Spotup": [
+      16.7,
+      1.0,
+      50,
+      21
+     ]
+    },
+    "dpt": {
+     "PRBallHandler": [
+      28.4,
+      1.368,
+      2,
+      19
+     ],
+     "Spotup": [
+      38.8,
+      0.654,
+      96,
+      26
+     ]
+    },
+    "ptx": {
+     "Transition": [
+      21.1,
+      21.1,
+      21.1,
+      0.0,
+      42.1,
+      45.5,
+      19
+     ],
+     "Isolation": [
+      9.5,
+      9.5,
+      9.5,
+      0.0,
+      23.8,
+      23.5,
+      21
+     ],
+     "PRBallHandler": [
+      17.3,
+      1.9,
+      3.8,
+      0.0,
+      32.7,
+      42.7,
+      52
+     ],
+     "Spotup": [
+      9.5,
+      14.3,
+      14.3,
+      4.8,
+      42.9,
+      52.9,
+      21
+     ]
+    }
+   }
+  }
+ ],
+ "not_in_synergy": {
+  "2015-16": [
+   "Boban Marjanovic",
+   "Ian Clark",
+   "Mike Muscala"
+  ],
+  "2016-17": [
+   "Cole Aldrich",
+   "JaVale McGee",
+   "Nicolas Brussino",
+   "Shabazz Napier",
+   "Thaddeus Young",
+   "Thon Maker"
+  ],
+  "2017-18": [
+   "Brandon Paul",
+   "Cedi Osman",
+   "JaVale McGee",
+   "Joffrey Lauvergne",
+   "Malik Beasley",
+   "Malik Monk",
+   "Thaddeus Young",
+   "Thon Maker"
+  ],
+  "2018-19": [
+   "Cedi Osman",
+   "Georges Niang",
+   "T.J. Leaf",
+   "Thaddeus Young",
+   "Thon Maker"
+  ],
+  "2019-20": [
+   "Cedi Osman",
+   "Thaddeus Young",
+   "Thon Maker"
+  ],
+  "2020-21": [
+   "Cedi Osman",
+   "Miye Oni",
+   "Thaddeus Young"
+  ],
+  "2021-22": [
+   "Cedi Osman",
+   "Thaddeus Young"
+  ],
+  "2022-23": [],
+  "2023-24": [
+   "Zeke Nnaji"
+  ],
+  "2024-25": [
+   "Bismack Biyombo"
+  ],
+  "2025-26": [
+   "Jamison Battle",
+   "Mohamed Diawara"
+  ]
+ }
+}

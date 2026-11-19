@@ -194,6 +194,8 @@ def apply_playtypes(season, players, live=False):
                     type_grouping_nullable="offensive"))
         except Exception:
             continue
+        import synergy_ids
+        df = synergy_ids.fix(df, season)     # rows filed under an id the NBA's tables don't know
         for _, r in df.iterrows():
             pid = int(r["PLAYER_ID"])
             poss = float(r.get("POSS", 0) or 0)
