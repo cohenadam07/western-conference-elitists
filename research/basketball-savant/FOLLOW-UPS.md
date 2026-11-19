@@ -52,10 +52,12 @@ about 11%, so the revision is not a uniform rescale.
 
 `tools/savant-mcp/check.mjs`, test "the usage log: counts only, one command a write, capped, and
 never in the way" (line ~611): expects one store write per command and sees two (`2 !== 1`). It
-fails on a clean checkout of main, independent of any Savant data.
+fails on a clean checkout of main, independent of any Savant data. Cause found Nov 19: a time-bomb in
+the test (see PRE-EXISTING-TEST-FAILURES.md).
 
 ## 5. Football Savant's accented-name search test
 
 `tools/savant-football/check.mjs` (~line 1023), "search finds players the way people type their
 names": a search returns `Audric Estime` where the test expects `Audric Estimé`. No football file
-differs from main on the 2.7.0 branch, so it is the football data or the search itself.
+differs from main on the 2.7.0 branch, so it is the football data or the search itself. Cause found Nov 19: the 2026 in-season file spells
+him without the accent (see PRE-EXISTING-TEST-FAILURES.md).
