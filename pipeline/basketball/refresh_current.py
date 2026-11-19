@@ -236,6 +236,17 @@ def main(season=None):
     import ext_files as XFL
     ext_vals, ext_panels = XFL.split(players)
 
+    # A name the archive spells with accents stays accented (pipeline/accents.py): ESPN, the
+    # in-season source, drops diacritics the NBA's tables keep (Jokić, Dončić, Porziņģis...).
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+        import accents
+        arch = os.environ.get("SAVANT_ARCHIVE") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "public", "savant-data.json")
+        A = json.load(open(arch))["data"] if os.path.exists(arch) else {}
+        known = accents.known_by_id((p["id"], p["name"]) for v in A.values() for p in v.get("players", []))
+        print(f"  names: {accents.fix_players(players, known)} kept with the archive's accents")
+    except Exception as e:  # noqa: never block the night over a spelling
+        print(f"  names: accent check skipped ({repr(e)[:80]})")
     payload = dict(
         seasons=[season],
         generated=dt.datetime.now(dt.timezone.utc).isoformat(),

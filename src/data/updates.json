@@ -2,6 +2,13 @@
   {
     "date": "2026-11-19",
     "product": "Basketball Savant",
+    "version": "2.8.1",
+    "text": "Luka Dončić, Nikola Jokić, Kristaps Porziņģis and twelve other players get the accents back that the nightly update had dropped (also Audric Estimé on Football Savant and Ché Ojarikre on College Football Savant), and luck-adjusted on/off now starts in 2007-08, so Savant value counts what happened on the floor in 2007-08 and 2008-09 too. That changes four All-Savant honours in each: 2007-08 2nd team, Steve Nash and Dirk Nowitzki on, Manu Ginobili and Paul Pierce off; 2008-09, Rashard Lewis to the 1st team, Gerald Wallace from the 1st to the 2nd, Nene on the 2nd team, Danny Granger and Pau Gasol off",
+    "href": "/basketball-savant.html"
+  },
+  {
+    "date": "2026-11-19",
+    "product": "Basketball Savant",
     "version": "2.8.0",
     "text": "Isolation targeting: how often offenses isolated a defender compared with how often the players he guarded isolate everyone, on every card from 2017-18 and in the Leaderboard Builder. A context stat, shown without a good or bad colour: it describes how offenses treat him, not how well he defends",
     "href": "/basketball-savant.html"

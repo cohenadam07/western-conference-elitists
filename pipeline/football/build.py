@@ -2042,6 +2042,25 @@ def main():
         print('no awards.json at', awards_path, '— run awards.py to add Pro Bowls, '
               'All-Pro, Hall of Fame and the individual honours', flush=True)
 
+    # A name the archive spells with accents stays accented (pipeline/accents.py): the in-season
+    # rosters drop diacritics the archive's sources keep ("Audric Estime" for "Audric Estimé").
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+        import accents
+        arch = os.environ.get('NFL_ARCHIVE') or os.path.join(os.path.dirname(os.path.abspath(OUT)), 'football-savant-data.json')
+        known = {}
+        if os.path.exists(arch) and os.path.abspath(arch) != os.path.abspath(OUT):
+            with open(arch) as f:
+                A = json.load(f)['data']
+            known = accents.known_by_id((p['id'], p['name']) for v in A.values() for p in v.get('players', []))
+        seasons = [v.get('players', []) for v in out['data'].values()]
+        known_all = accents.known_by_id((p.get('id'), p.get('name')) for ps in seasons for p in ps)
+        for k, v in known.items():
+            known_all.setdefault(k, set()).update(v)
+        print('names kept with their accents:', sum(accents.fix_players(ps, known_all) for ps in seasons), flush=True)
+    except Exception as e:  # noqa: never block a refresh over a spelling
+        print('names: accent check skipped', repr(e)[:80], flush=True)
+
     with open(OUT, 'w') as f:
         json.dump(clean(out), f, separators=(',', ':'), allow_nan=False)
     print('wrote', OUT, os.path.getsize(OUT) // 1024, 'KB')

@@ -76,9 +76,9 @@ test('ages: every row with a birth date is exact on February 1 of its season', (
 test('ages: the spot checks, against birth dates checked by hand', () => {
   const want = [
     ['Adem Bona', '2003-03-28', '2026-27', 23.85], ['Shai Gilgeous-Alexander', '1998-07-12', '2025-26', 27.56],
-    ['Nikola Jokic', '1995-02-19', '2025-26', 30.95], ['LeBron James', '1984-12-30', '2025-26', 41.09],
+    ['Nikola Jokić', '1995-02-19', '2025-26', 30.95], ['LeBron James', '1984-12-30', '2025-26', 41.09],
     ['Stephen Curry', '1988-03-14', '2025-26', 37.89], ['Victor Wembanyama', '2004-01-04', '2025-26', 22.08],
-    ['Giannis Antetokounmpo', '1994-12-06', '2025-26', 31.16], ['Luka Doncic', '1999-02-28', '2025-26', 26.93],
+    ['Giannis Antetokounmpo', '1994-12-06', '2025-26', 31.16], ['Luka Dončić', '1999-02-28', '2025-26', 26.93],
     ['Kevin Durant', '1988-09-29', '2025-26', 37.34], ['Jayson Tatum', '1998-03-03', '2025-26', 27.92],
     ['Anthony Edwards', '2001-08-05', '2025-26', 24.49], ['Chet Holmgren', '2002-05-01', '2025-26', 23.76],
     ['Jalen Williams', '2001-04-14', '2025-26', 24.8], ['Cooper Flagg', '2006-12-21', '2025-26', 19.12],

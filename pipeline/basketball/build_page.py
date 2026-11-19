@@ -30,6 +30,16 @@ def main():
     cfg = open(CFG).read().strip()
     data = open(DATA).read().strip()
     json.loads(cfg); d = json.loads(data)               # validate before injecting/copying
+    # A player's accented spelling in one season wins over the same letters without accents in
+    # another (pipeline/accents.py), so the archive never shows him two ways.
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+    import accents
+    seasons = [v.get("players", []) for v in d.get("data", {}).values()]
+    known = accents.known_by_id((p.get("id"), p.get("name")) for ps in seasons for p in ps)
+    fixed = sum(accents.fix_players(ps, known) for ps in seasons)
+    if fixed:
+        print(f"  names: {fixed} player-seasons kept with their accented spelling")
+        data = json.dumps(d, separators=(",", ":"), allow_nan=True)
     # Season honours. Optional: the page degrades to no accolades if awards_fetch.py has not
     # been run, rather than failing the build over a file that needs a home connection.
     if os.path.exists(AWARDS):

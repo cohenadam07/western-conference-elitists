@@ -304,6 +304,13 @@ def build(y, state):
     bn = box.astype({"pid": "int64"}).drop_duplicates("pid").set_index("pid").athlete_name.astype(str)
     pl["name"] = pl["name"].where(pl["name"].notna(), pl.pid.map(bn))
     pl = pl[pl["name"].notna() & (pl["name"].astype(str).str.strip() != "")]
+    # A name already published with accents stays accented (pipeline/accents.py): the box score and
+    # the roster spell the same man differently ("Che Ojarikre" for "Ché Ojarikre", 2026).
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    import accents
+    known = accents.college_known(str(Path(__file__).resolve().parents[2] / "public"), "cfb")
+    pl["name"] = [accents.keep_accents(n, known.get(str(p), ())) for p, n in zip(pl.pid, pl["name"])]
     pl = pl.sort_values(["slot", "pid"]).reset_index(drop=True)
     idx = {p: i for i, p in enumerate(pl.pid)}
     n = len(pl)
