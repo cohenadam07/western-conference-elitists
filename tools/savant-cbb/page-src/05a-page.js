@@ -532,10 +532,11 @@ document.addEventListener('change',function(e){
   if(id==='cb'){S.cmpB=v;render();}
 });
 var q=$('#q'),res=$('#res');
+function fold(x){return String(x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}   // accent-blind: "andres" finds Andrés
 q.addEventListener('input',function(){
-  var v=q.value.trim().toLowerCase();if(!v||!SEARCH){res.hidden=true;return;}
-  var hits=SEARCH.teams.filter(function(t){return String(t[1]).toLowerCase().indexOf(v)>=0;}).slice(0,3).map(function(t){return '<li><a href="#team-'+esc(t[0])+'">'+esc(t[1])+'<small>Team · '+esc(confName(t[3]))+'</small></a></li>';})
-    .concat(SEARCH.players.filter(function(p){return String(p[1]).toLowerCase().indexOf(v)>=0;}).sort(function(a,b){return b[3].localeCompare(a[3])||b[5]-a[5];}).slice(0,7).map(function(p){return '<li><a href="#player-'+esc(p[0])+'">'+esc(p[1])+'<small>'+esc(tname(p[2])+' · '+(p[4]||'')+' · '+p[3])+'</small></a></li>';}));
+  var v=fold(q.value.trim());if(!v||!SEARCH){res.hidden=true;return;}
+  var hits=SEARCH.teams.filter(function(t){return fold(t[1]).indexOf(v)>=0;}).slice(0,3).map(function(t){return '<li><a href="#team-'+esc(t[0])+'">'+esc(t[1])+'<small>Team · '+esc(confName(t[3]))+'</small></a></li>';})
+    .concat(SEARCH.players.filter(function(p){return fold(p[1]).indexOf(v)>=0;}).sort(function(a,b){return b[3].localeCompare(a[3])||b[5]-a[5];}).slice(0,7).map(function(p){return '<li><a href="#player-'+esc(p[0])+'">'+esc(p[1])+'<small>'+esc(tname(p[2])+' · '+(p[4]||'')+' · '+p[3])+'</small></a></li>';}));
   res.innerHTML=hits.length?hits.join(''):'<li class="none">No players or teams match.</li>';res.hidden=false;
 });
 q.addEventListener('keydown',function(e){if(e.key==='Escape'){res.hidden=true;q.blur();}if(e.key==='Enter'){var a=res.querySelector('a');if(a){location.hash=a.getAttribute('href');res.hidden=true;q.value='';}}});

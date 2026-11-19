@@ -7526,11 +7526,11 @@ function build(){
   const q=document.getElementById('q'), res=document.getElementById('results');
   const closeRes=()=>{res.hidden=true;res.innerHTML='';};
   q.addEventListener('input',()=>{
-    const term=q.value.trim().toLowerCase();
+    const term=_norm(q.value.trim());                 // accent-blind: "jokic" finds Jokić (2.8.1 keeps the accents)
     if(!term){closeRes();return;}
     const seen={},hits=[];
     for(const id in PIDX){ const r=PIDX[id].ref;
-      if(r.name.toLowerCase().includes(term)&&!seen[id]){ seen[id]=1; hits.push({id:asId(id),name:r.name,pos:r.pos,team:r.team,newest:PIDX[id].newest}); }
+      if(_norm(r.name).includes(term)&&!seen[id]){ seen[id]=1; hits.push({id:asId(id),name:r.name,pos:r.pos,team:r.team,newest:PIDX[id].newest}); }
     }
     hits.sort((a,b)=>a.name.localeCompare(b.name));
     const top=hits.slice(0,8);
@@ -7564,11 +7564,11 @@ function build(){
 }
 /* ===== Home screen (branded landing) ===== */
 function searchHits(term){
-  term=(term||'').trim().toLowerCase();
+  term=_norm((term||'').trim());
   if(!term) return [];
   const seen={},hits=[];
   for(const id in PIDX){ const r=PIDX[id].ref;
-    if(r.name.toLowerCase().includes(term)&&!seen[id]){ seen[id]=1;
+    if(_norm(r.name).includes(term)&&!seen[id]){ seen[id]=1;
       hits.push({id:asId(id),name:r.name,pos:r.pos,team:r.team}); } }
   hits.sort(function(a,b){return a.name.localeCompare(b.name);});
   return hits.slice(0,8);
