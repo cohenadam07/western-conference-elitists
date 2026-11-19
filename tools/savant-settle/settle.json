@@ -1827,6 +1827,42 @@
    "median_n": 3525.0,
    "show_mean": 1200,
    "show_last": 3300
+  },
+  "mhunt": {
+   "method": "season",
+   "k_mean": 1059,
+   "k_last": 2986,
+   "k_season": 2371.7,
+   "family": "poss",
+   "pairs": 1347,
+   "seasons": 8,
+   "median_n": 3468.0,
+   "show_mean": 1100,
+   "show_last": 3000
+  },
+  "mhunt_faced": {
+   "method": "season",
+   "k_mean": 1413,
+   "k_last": 3981,
+   "k_season": 3162.0,
+   "family": "poss",
+   "pairs": 1347,
+   "seasons": 8,
+   "median_n": 3468.0,
+   "show_mean": 1400,
+   "show_last": 4000
+  },
+  "mhunt_exp": {
+   "method": "season",
+   "k_mean": 501,
+   "k_last": 1413,
+   "k_season": 1122.3,
+   "family": "poss",
+   "pairs": 1347,
+   "seasons": 8,
+   "median_n": 3468.0,
+   "show_mean": 500,
+   "show_last": 1400
   }
  }
 }

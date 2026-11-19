@@ -78,7 +78,7 @@ const nba = {
   parseSeason: (input, meta) => nbaMod.parseSeason(input, meta),
   year: nbaYear,
   metrics(meta) {
-    return meta.metrics.map((m) => ({ key: m.key, label: m.label, group: m.group, unit: m.unit, lower: !!m.lowerIsBetter, since: nbaYear(m.ext ? (m.first || m.since) : m.since), sinceText: m.ext ? (m.first || m.since) : m.since, ext: !!m.ext, lowSampleBelow: m.lowSampleBelow || null, positions: null }))
+    return meta.metrics.map((m) => ({ key: m.key, label: m.label, group: m.group, unit: m.unit, lower: !!m.lowerIsBetter, neutral: !!m.neutral, since: nbaYear(m.ext ? (m.first || m.since) : m.since), sinceText: m.ext ? (m.first || m.since) : m.since, ext: !!m.ext, lowSampleBelow: m.lowSampleBelow || null, positions: null }))
   },
   position(input) {
     const q = norm(input)
@@ -303,14 +303,14 @@ export async function query(args = {}) {
     const list = metrics
       .filter((m) => !pos || !m.positions || m.positions.includes(pos.code))
       .map((m) => ({ key: m.key, label: m.label, group: m.group, unit: m.unit, lower_is_better: m.lower, since: m.sinceText, ...(m.positions ? { positions: m.positions } : {}),
-        ...(m.ext && xw[m.key] ? { withheld: { season: newest, reason: xw[m.key] } } : {}) }))
+        ...(m.ext && xw[m.key] ? { withheld: { season: newest, reason: xw[m.key] } } : {}), ...(m.neutral ? { neutral: true } : {}) }))
     const fields = Object.entries(ds.fields).map(([k, f]) => ({ key: k, label: f.label }))
     const text = [
       `${ds.name}: ${list.length} stats${pos ? ` tracked for ${pos.code}` : ''} for savant_query (key, label, unit; first season).`,
       `Fields you can also filter, sort and group on: ${fields.map((f) => `${f.key} (${f.label})`).join('; ')}.`,
       `Percentile pools: ${Object.entries(ds.pools).map(([k, v]) => `${k} (${v})`).join(', ')}; default ${ds.defaultPool}. Up to ${ds.maxSeasons} seasons a call.`,
       '',
-      ...list.map((m) => `- ${m.key}: ${m.label} (${m.unit}${m.lower_is_better ? ', lower is better' : ''}; from ${m.since})${m.withheld ? ` — not shown in ${m.withheld.season}: ${m.withheld.reason}` : ''}`),
+      ...list.map((m) => `- ${m.key}: ${m.label} (${m.unit}${m.lower_is_better ? ', lower is better' : ''}${m.neutral ? ', context: no better direction' : ''}; from ${m.since})${m.withheld ? ` — not shown in ${m.withheld.season}: ${m.withheld.reason}` : ''}`),
       '',
       `Source: ${source}. Data as of ${asOf}.`,
     ].join('\n')

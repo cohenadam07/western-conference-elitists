@@ -2,6 +2,13 @@
   {
     "date": "2026-11-19",
     "product": "Basketball Savant",
+    "version": "2.8.0",
+    "text": "Isolation targeting: how often offenses isolated a defender compared with how often the players he guarded isolate everyone, on every card from 2017-18 and in the Leaderboard Builder. A context stat, shown without a good or bad colour: it describes how offenses treat him, not how well he defends",
+    "href": "/basketball-savant.html"
+  },
+  {
+    "date": "2026-11-19",
+    "product": "Basketball Savant",
     "version": "2.7.1",
     "text": "Fixes: a stat the NBA published no values for in a season now says so on the card, in the Leaderboard Builder and in the connector instead of showing a blank (switches per 100 matchup possessions is withheld until the NBA publishes real switch counts again); Milos Teodosic (2017-18, 2018-19) and Mike James (2020-21) get the play types and shot-making the NBA had filed under the wrong player id; and players the NBA's Synergy feed leaves out entirely are labelled as such",
     "href": "/basketball-savant.html"

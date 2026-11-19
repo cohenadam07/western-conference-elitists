@@ -4372,6 +4372,78 @@ const CFG  = {
       }
     },
     {
+      "key": "mhunt",
+      "label": "Isolation targeting vs expected",
+      "group": "def",
+      "sub": "Matchups & help",
+      "layer": "context",
+      "unit": "num2",
+      "thr": 1100,
+      "lower": false,
+      "tier": 4,
+      "since": "2016-17",
+      "first": "2017-18",
+      "win": false,
+      "ext": true,
+      "parts": [
+        "mhunt_faced",
+        "mhunt_exp"
+      ],
+      "neutral": true,
+      "settle": {
+        "last": 3000,
+        "mean": 1100,
+        "unit": "matchup possessions",
+        "how": "season to season"
+      }
+    },
+    {
+      "key": "mhunt_faced",
+      "label": "Isolations faced / 100 matchup possessions",
+      "group": "def",
+      "sub": "Matchups & help",
+      "layer": "context",
+      "unit": "num2",
+      "thr": 1400,
+      "lower": false,
+      "tier": 4,
+      "since": "2016-17",
+      "first": "2017-18",
+      "win": false,
+      "ext": true,
+      "neutral": true,
+      "scope": "board",
+      "settle": {
+        "last": 4000,
+        "mean": 1400,
+        "unit": "matchup possessions",
+        "how": "season to season"
+      }
+    },
+    {
+      "key": "mhunt_exp",
+      "label": "Isolations expected / 100 matchup possessions",
+      "group": "def",
+      "sub": "Matchups & help",
+      "layer": "context",
+      "unit": "num2",
+      "thr": 500,
+      "lower": false,
+      "tier": 4,
+      "since": "2016-17",
+      "first": "2017-18",
+      "win": false,
+      "ext": true,
+      "neutral": true,
+      "scope": "board",
+      "settle": {
+        "last": 1400,
+        "mean": 500,
+        "unit": "matchup possessions",
+        "how": "season to season"
+      }
+    },
+    {
       "key": "swr",
       "label": "Switches / 100 matchup possessions",
       "group": "def",
@@ -5432,6 +5504,9 @@ const EXPL={
  mtchc_create:{"what": "The creation threat of the players he guards: mtchc's Creation part alone. High for defenders who chase the other team's playmakers.", "formula": "Σ (each opponent's Creation part × possessions he guarded him) ÷ Σ possessions. Creation = Assist %, potential assists / 75, assist points created / 75 and time of possession / 75, z-scored within the season and shrunk by minutes.", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games. Time of possession is left out of 2024-25.", "sample": "Settles around 1,400 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 500 matchup possessions, where more of the number is noise than him."},
  mtov:{"what": "Turnovers by the players he guarded, per 100 matchup possessions. On-ball disruption.", "formula": "Matchup TOV forced = 100 × matchup turnovers ÷ matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 2,500 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 890 matchup possessions, where more of the number is noise than him."},
  msfl:{"what": "Shooting fouls he committed on the players he guarded, per 100 matchup possessions. Lower is better: discipline.", "formula": "Matchup shooting fouls = 100 × SFL ÷ matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup data, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 1,800 matchup possessions: at that point his own record and the prior count equally (measured season to season on 9 seasons of our data, calibrated against the within-season method). Hatched under 630 matchup possessions, where more of the number is noise than him."},
+ mhunt:{"what": "How often offenses isolated him, compared with how often the players he guarded isolate everyone they face. Positive: isolated more than his assignments would explain (hunted); negative: avoided. It is stable from season to season, but in our testing it does not predict better team defense (if anything, more-hunted defenders had slightly better on/off), so it describes how offenses treat him, not how well he defends. A higher percentile means targeted more; the bar has no good or bad colour.", "formula": "Isolation targeting = 100 × (isolations he defended − expected) ÷ matchup possessions. Expected = Σ over the players he guarded of (that player's isolation possessions per partial possession over the season, pulled toward players like him by 211 possessions) × the possessions he guarded him, scaled each season so the league's expected equals its actual.", "source": "NBA.com stats (stats.nba.com) Synergy play types (isolation, offense and defense) and NBA.com stats (stats.nba.com) matchup data, 2017-18 on, except 2023-24, when the NBA's isolation-defense table is missing 35 regular defenders. Synergy lists no one under 10 isolations: a defender under it shows \"under 10 faced\", valued at that bound, and one left out of the table for another reason has no value. In season it waits until the table covers 90% of qualified defenders. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 3,000 matchup possessions: at that point his own record and the prior count equally (measured season to season on 8 seasons of our data, calibrated against the within-season method). Hatched under 1,100 matchup possessions, where more of the number is noise than him."},
+ mhunt_faced:{"what": "Synergy isolation possessions he defended per 100 matchup possessions: the first half of Isolation targeting.", "formula": "100 × isolations he defended ÷ matchup possessions (under Synergy's 10-possession floor: 9)", "source": "NBA.com stats (stats.nba.com) Synergy play types (isolation defense) and NBA.com stats (stats.nba.com) matchup data, 2017-18 on, except 2023-24. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 4,000 matchup possessions: at that point his own record and the prior count equally (measured season to season on 8 seasons of our data, calibrated against the within-season method). Hatched under 1,400 matchup possessions, where more of the number is noise than him. That is more than a typical player's full season: treat a single season of it as a lean, not a fact."},
+ mhunt_exp:{"what": "How many isolations the players he guarded would produce per 100 of his matchup possessions, from how often they isolate everyone: the other half of Isolation targeting.", "formula": "100 × Σ (each opponent's isolation rate × possessions he guarded him) ÷ matchup possessions", "source": "NBA.com stats (stats.nba.com) Synergy play types (isolation offense) and NBA.com stats (stats.nba.com) matchup data, 2017-18 on, except 2023-24. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 1,400 matchup possessions: at that point his own record and the prior count equally (measured season to season on 8 seasons of our data, calibrated against the within-season method). Hatched under 500 matchup possessions, where more of the number is noise than him."},
  swr:{"what": "How often he switches onto a new man, per 100 matchup possessions. Scheme identity: switch-everything defenders versus stay-home ones.", "formula": "Switch rate = 100 × switches ÷ matchup possessions (summed over his defensive box scores)", "source": "NBA.com stats (stats.nba.com) defensive box scores, 2017-18 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games. Not shown while the NBA publishes switches as zero: every game from 2017-18 through 2026-27 so far carries switchesOn = 0 (checked November 2026). It comes back by itself the first season the NBA publishes real values.", "sample": "Hatched under 300 matchup possessions."},
  chg75:{"what": "Charges taken per 75: sliding in front and absorbing contact.", "formula": "Charges drawn ÷ POSS × 75. POSS = possessions he was on the floor for.", "source": "NBA.com stats (stats.nba.com) hustle stats, 2016-17 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 1,300 possessions: at that point his own record and the prior count equally (measured season to season on 10 seasons of our data, calibrated against the within-season method). Hatched under 450 possessions, where more of the number is noise than him."},
  lbr75:{"what": "50-50 balls he came up with, per 75.", "formula": "Loose balls recovered ÷ POSS × 75. POSS = possessions he was on the floor for.", "source": "NBA.com stats (stats.nba.com) hustle stats, 2016-17 on. In season it moves when the NBA's tables are pulled (the Mac's upload, or the public mirror of NBA tracking when the Mac is off). Season totals only: the NBA doesn't split this table by last N games.", "sample": "Settles around 3,300 possessions: at that point his own record and the prior count equally (measured season to season on 10 seasons of our data, calibrated against the within-season method). Hatched under 1,200 possessions, where more of the number is noise than him."},
@@ -5544,7 +5619,8 @@ function barRow(m){
   // player-season — is hidden entirely (the page reformats around what's actually there),
   // rather than shown as a greyed row. Compare mode keeps every bar so eras line up.
   if(m.tier && seasonTier(curSeason) < m.tier) return '';
-  if(miss(v)){ const why=m.ext?extWithheld(m.key,curSeason):(m.key==='syn'&&curId!=null&&nisOf(curId,curSeason)?NIS_TEXT:null); return why?withheldRow(m,why):''; }
+  const note=m.ext?cellNote(cur,m.key,win):null;
+  if(miss(v)){ const why=m.ext?(note==='not_tracked'?MHUNT_NT:extWithheld(m.key,curSeason)):(m.key==='syn'&&curId!=null&&nisOf(curId,curSeason)?NIS_TEXT:null); return why?withheldRow(m,why):''; }
   const pool=poolVals(m.key,win);
   if(agePop()&&!pool.length) return '';                 // the stat is too thin at this age
   const pct=pctOf(v,pool,m.lower);
@@ -5580,7 +5656,7 @@ function barRow(m){
       }
     }
   }
-  const col=colorAt(shown);
+  const col=m.neutral?colorAt(50):colorAt(shown);     // a context stat: no good or bad colour
   const tagTxt=m.layer.toUpperCase()+(stable?(settling?' · settling':''):' · low sample');
   const numLeft=shown>88?'calc('+shown+'% - 22px)':shown+'%';
   const numTf=shown>88?'transform:translateY(-50%)':'transform:translate(6px,-50%)';
@@ -5588,7 +5664,13 @@ function barRow(m){
   /* parts: the tooltip gives the number itself to two decimals and each part's value and
      percentile in the same pool (mtchc: the average threat of the men he guarded, its Scoring
      and Creation parts). lead "pct": the value column shows the percentile instead. */
-  if(m.parts){
+  if(m.key==='mhunt'){
+    const f=val(cur,'mhunt_faced',win), e=val(cur,'mhunt_exp',win);
+    title=(note==='floor'?'Under Synergy’s 10-isolation floor: shown at that bound (9 faced), so his real number is at most this and the percentile at most '+(pct==null?'—':ordinal(pct))+'. ':'')
+      +(miss(f)||miss(e)?'':'Faced '+(+f).toFixed(2)+' isolations per 100 matchup possessions; the players he guarded would produce '+(+e).toFixed(2)+'. ')
+      +(v>=0?'Isolated more than his assignments explain by ':'Isolated less than his assignments explain by ')+Math.abs(+v).toFixed(2)
+      +'. Context, not a rating: it does not predict better team defense.'+(title?' '+title:'');
+  } else if(m.parts){
     const sg=function(x){ return (x>=0?'+':'\u2212')+Math.abs(+x).toFixed(2); };
     const bits=m.parts.map(function(k){ const pm=byKey(k), pv=val(cur,k,win); if(!pm||miss(pv)) return null;
       const pp=pctOf(pv,poolVals(k,win),pm.lower);
@@ -5600,7 +5682,7 @@ function barRow(m){
     +'<div class="track"><div class="tick" style="left:25%"></div><div class="tick mid" style="left:50%"></div><div class="tick" style="left:75%"></div>'
       +'<div class="fill" data-w="'+shown+'" style="background:'+col+'"><div class="hatch"></div></div>'
       +chMark+setMark
-      +'<div class="pnum" style="left:'+numLeft+';'+numTf+'">'+(pct==null?'·':pct)+'</div></div>'
+      +'<div class="pnum" style="left:'+numLeft+';'+numTf+'">'+(pct==null?'·':(note==='floor'?'≤':'')+pct)+'</div></div>'
     +'<div class="rv">'+(m.lead==='pct'?(pct==null?'—':ordinal(pct)):fmt(m.unit,v,pct))+'</div>'
     +statBtn(m.key,m.label)+'</div>';
 }
@@ -6728,6 +6810,11 @@ function extWithheld(key,season){ const w=EXT.wh[season]; return (w&&w[key])||nu
    and the play-type panels and Shot-making say so instead of going blank. */
 const NIS_TEXT='Not in the NBA’s Synergy tables this season: the NBA’s play-type feed leaves him out, so there is nothing to show.';
 function nisOf(id,season){ const p=extPanelsOf(id,season); return !!(p&&p.nis); }
+/* Isolation targeting (hunt.py) notes on a player's cell: "floor" = under Synergy's 10-isolation
+   floor, valued at its bound (9 faced), so his true number is at most the one shown; "not_tracked"
+   = left out of Synergy's isolation table that season, no number. */
+const MHUNT_NT='Not in Synergy’s isolation table this season (the NBA’s tracking leaves him out of it), so there is no number.';
+function cellNote(p,key,w){ const c=p&&p.m&&p.m[key]&&p.m[key][w]; return (c&&c.note)||null; }
 function withheldRow(m,why){
   return '<div class="row wh" data-k="'+m.key+'" title="'+whEsc(why)+'">'
     +'<div class="rl" title="Click for what this stat means"><div class="name">'+m.label+'</div><div class="tag">not shown this season</div></div>'
@@ -6746,7 +6833,7 @@ function extLoad(season){
       const w=j.players[p.id]; if(!w) continue;
       for(const wn in w){ const r=w[wn];
         for(let i=0;i<keys.length;i++){ const c=r[i]; if(!c||!XKEYS.has(keys[i])) continue;
-          (p.m[keys[i]]||(p.m[keys[i]]={}))[wn]={v:c[0],n:c[1]}; } }
+          (p.m[keys[i]]||(p.m[keys[i]]={}))[wn]=c[2]?{v:c[0],n:c[1],note:c[2]}:{v:c[0],n:c[1]}; } }
     }
     SETTLE_CACHE={}; for(const k in CH_CACHE) if(XKEYS.has(k.split('|')[1])) delete CH_CACHE[k];
     EXT.s[season]=true;
@@ -6771,7 +6858,7 @@ function extPlayer(id){
     if(!j||!Array.isArray(j.keys)){ EXT.p[id]='missing'; return 'missing'; }
     const out={};
     for(const s in j.seasons){ const r=j.seasons[s], o={};
-      for(let i=0;i<j.keys.length;i++) if(r[i]) o[j.keys[i]]=r[i];
+      for(let i=0;i<j.keys.length;i++) if(r[i]&&r[i][0]!=null) o[j.keys[i]]=r[i];   // [null,…,note]: no value (hunt.py)
       out[s]=o; }
     EXT.p[id]=out;
     for(const k in CH_CACHE) if(k.split('|')[0]===String(id)) delete CH_CACHE[k];
@@ -7367,8 +7454,13 @@ async function exportCard(){
    card, the Leaderboard Builder and the connector say it instead of a blank; swr is withheld while
    the NBA publishes switchesOn as zero. Synergy rows filed under an unknown id are matched by name
    (synergy_ids.py: Teodosic 2017-18 and 2018-19, Mike James 2020-21), and players the feed leaves
-   out entirely are labelled on the play-type panels and Shot-making. */
-var VERSION='2.7.1';
+   out entirely are labelled on the play-type panels and Shot-making.
+   2.8.0 (Nov 2026): Isolation targeting vs expected (mhunt, pipeline/basketball/hunt.py): isolations
+   he faced against what his assignments would produce, per 100 matchup possessions, with its two
+   parts in the tooltip and the Leaderboard Builder. A context stat with no good or bad colour
+   (neutral): stable year to year, but it does not predict better team defense (branch onball-d,
+   Module 4). Synergy's 10-isolation floor shows as "under 10 faced" with a ≤ percentile. */
+var VERSION='2.8.0';
 function build(){
   const vc=document.getElementById('verchip');
   if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }
@@ -7897,7 +7989,8 @@ function lbRender(){
     if(showPct?cp==null:miss(v)) return '<td class="lb-cell'+extra+'"><span class="lb-na">—</span></td>';
     var est=lbSettling()&&settleEst(p,m.key,LB.season);
     var txt = (showPct ? cp : fmt(m.unit,v,null))+(est?'<span class="lb-est" title="Still settling: '+fmt(m.unit,val(p,m.key,'season'),null)+' so far on a small sample; shown where it is likely to land">◆</span>':'');
-    return '<td class="lb-cell'+extra+'" style="color:'+lbTextColor(cp)+';font-weight:600">'+txt+'</td>';
+    var mm=m, fl=m.ext&&cellNote(p,m.key,LB.window)==='floor'&&showPct?'≤':'';
+    return '<td class="lb-cell'+extra+'" style="color:'+(mm&&mm.neutral?'var(--ink)':lbTextColor(cp))+';font-weight:600"'+(fl?' title="Under Synergy’s 10-isolation floor: at most this"':'')+'>'+fl+txt+'</td>';
   };
   var body=top.map(function(r,idx){
     var p=r.p;

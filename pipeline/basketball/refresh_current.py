@@ -208,6 +208,19 @@ def main(season=None):
         print(f"  matchup difficulty (creation-weighted) on {n}/{len(players)} players")
     except Exception as e:
         print(f"  matchup difficulty (creation-weighted): failed ({repr(e)[:120]})")
+    # Isolation targeting vs expected (hunt.py): the matchup table and Synergy's isolation tables;
+    # withheld as a whole (with hunt's reason) until Synergy's table covers 90% of qualified defenders.
+    hunt_why = {}
+    try:
+        import hunt as HU
+        import ext_fetch as XF
+        syn = {pt: HU.synergy_poss(XF.synergy(pt, "defensive", season)) for pt in XF.SYN_DEF}
+        n, hunt_why = HU.apply_season(season, players, E.load_matchups(season),
+                                      HU.synergy_poss(XF.synergy("Isolation", "offensive", season)), syn["Isolation"],
+                                      set().union(*[set(v) for v in syn.values()]), live=True)
+        print(f"  isolation targeting on {n}/{len(players)} players" + (f"; withheld: {next(iter(hunt_why.values()))}" if hunt_why else ""))
+    except Exception as e:
+        print(f"  isolation targeting: failed ({repr(e)[:120]})")
     kept, stats, table_missing = br_keep.keep_br_stats(players, last_good)
     if kept or stats:
         print(f"  Basketball Reference play-by-play{' missing' if table_missing else ''}: "
@@ -259,7 +272,7 @@ def main(season=None):
     safe_io.write_text(OUT, strict_json(json.load(open(OUT))))
     if ext_vals:
         XFL.write(XFL.season_path("out", season),
-                  XFL.season_doc(season, ext_vals, C.WINDOWS.keys(), generated=payload["generated"], through=through))
+                  XFL.season_doc(season, ext_vals, C.WINDOWS.keys(), generated=payload["generated"], through=through, why=hunt_why))
         XFL.write(XFL.panels_path("out", season), XFL.panels_doc(season, ext_panels, generated=payload["generated"]))
         print(f"  ext stats written for {len(ext_vals)} players, panels for {len(ext_panels)}")
     q = sum(1 for p in players if p.get("qualified"))
