@@ -2,27 +2,27 @@
  "charting": {
   "alarm": false,
   "last_days": {
-   "2026-11-15": 1.0,
    "2026-11-17": 0.9914,
-   "2026-11-18": 0.9793
+   "2026-11-18": 0.9793,
+   "2026-11-19": 0.992
   },
   "low_days": [
    "2026-09-07"
   ],
   "rule": "alarm when a game day's charted share is under 90% (ESPN could switch formats back)"
  },
- "fbs_vs_fbs_finals": 634,
- "finals": 757,
- "games_with_plays": 757,
- "last_ok": "2026-11-19T18:58:44Z",
- "last_try": "2026-11-19T18:58:44Z",
- "players": 6059,
- "qualified": 4151,
+ "fbs_vs_fbs_finals": 635,
+ "finals": 758,
+ "games_with_plays": 758,
+ "last_ok": "2026-11-20T18:36:01Z",
+ "last_try": "2026-11-20T18:36:01Z",
+ "players": 6062,
+ "qualified": 4154,
  "season": 2026,
  "source_note": "Every final of the season being played comes from ESPN's summary and core play feeds (no other source is read live).",
  "sources": {
-  "espn": 757
+  "espn": 758
  },
- "through": "2026-11-18",
+ "through": "2026-11-19",
  "week": 12
 }
