@@ -3672,5 +3672,167 @@
 },
 "frame": 0,
 "key": "d9dae391b54b8e08722a5cbff2a95da7"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2000-01"
+},
+"frame": 0,
+"key": "85fbbe9396854b1da643bc3f86a52820"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2001-02"
+},
+"frame": 0,
+"key": "ed16d047e013c4a37c6fa6e5876a1b97"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2002-03"
+},
+"frame": 0,
+"key": "73890fc4bf11c9b9a5013c6ebf5c58a8"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2003-04"
+},
+"frame": 0,
+"key": "93ec2787f5af8b0c81cd208fa5dada0d"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2004-05"
+},
+"frame": 0,
+"key": "01d0a80f0bc00dba8074c9f4e538d66e"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2005-06"
+},
+"frame": 0,
+"key": "bf98dd98639342153f576eef151065fc"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2006-07"
+},
+"frame": 0,
+"key": "a151bd134f950e4a786013b013cf07b5"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2007-08"
+},
+"frame": 0,
+"key": "b430d865d04f1df9fd5b9f764756d3ce"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2008-09"
+},
+"frame": 0,
+"key": "817601f145008ba2ba929ebeddab3113"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2009-10"
+},
+"frame": 0,
+"key": "ff812e0a3b114286eef7950c540fad2f"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2010-11"
+},
+"frame": 0,
+"key": "0fab4db16f1059bbbe046977ac631062"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2011-12"
+},
+"frame": 0,
+"key": "23cb9faf90ac8955c6ceef9bc1054406"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2012-13"
+},
+"frame": 0,
+"key": "c99bf557fb33abb54ea0e033668e8927"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2013-14"
+},
+"frame": 0,
+"key": "fc9139dff02f8ed26f1b7eb466031396"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2014-15"
+},
+"frame": 0,
+"key": "ad477455b50358420e9b7d39763f9486"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2015-16"
+},
+"frame": 0,
+"key": "03656c4152f7957d5a83262d49951d2e"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2016-17"
+},
+"frame": 0,
+"key": "a6d1fa429ff0db4a6d97862e74e86e32"
+},
+{
+"name": "DraftCombineStats",
+"params": {
+"league_id": "00",
+"season_all_time": "2017-18"
+},
+"frame": 0,
+"key": "48ba1e2f4c002c5050e668d3a779379f"
 }
 ]

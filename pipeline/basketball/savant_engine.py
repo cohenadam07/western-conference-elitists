@@ -964,32 +964,50 @@ def _put_static_vn(p, key, v, n):
     for win in C.WINDOWS:
         p["m"].setdefault(key, {})[win] = {"v": v, "n": n}
 
+COMBINE_FIRST_YEAR = 2000   # the NBA's combine tables start with the 2000 class
+
 def _attach_combine(universe, season):
-    """Combine anthro+drills across recent draft classes; left null when a player never measured."""
+    """Wingspan, standing reach, max vertical and lane agility from every draft combine since
+    2000; left null when a player never measured (e.g. skipped the combine, as Franz Wagner did
+    in 2021).
+
+    One table, DraftCombineStats: it carries the anthro columns too (WINGSPAN and
+    STANDING_REACH match DraftCombinePlayerAnthro row for row, checked 2018-2026), and it is
+    the table ext_engine._combine already reads from 2000 on, so the cache and the cloud seed
+    are shared. Until Nov 2026 this loop started at 2018, which left every veteran drafted
+    before then blank (Jokic, Booker, Adebayo...).
+
+    A player measured at two combines (tested, went back to school, tested again) keeps his
+    latest measurement; a blank in a later table never wipes an earlier number."""
     try:
-        from nba_api.stats.endpoints import draftcombineplayeranthro as A, draftcombinestats as S
+        from nba_api.stats.endpoints import draftcombinestats as S
     except Exception:
         return
-    for yr in range(2018, int(season[:4]) + 1):
+    for yr in range(COMBINE_FIRST_YEAR, int(season[:4]) + 1):
         season_yr = f"{yr}-{str(yr+1)[2:]}"
         try:
-            anth = call(A.DraftCombinePlayerAnthro, dict(season_year=season_yr, league_id="00")).set_index("PLAYER_ID")
-            stat = call(S.DraftCombineStats, dict(season_all_time=season_yr, league_id="00")).set_index("PLAYER_ID")
+            stat = call(S.DraftCombineStats, dict(season_all_time=season_yr, league_id="00"))
         except Exception:
             continue
+        if stat is None or stat.empty or "PLAYER_ID" not in stat.columns:
+            continue
+        stat = stat.drop_duplicates("PLAYER_ID", keep="last").set_index("PLAYER_ID")
         for pid in universe:
-            if pid in anth.index:
-                a = anth.loc[pid]
-                _put_static(universe[pid], "length", _num(a.get("WINGSPAN")))
-                _put_static(universe[pid], "reach", _num(a.get("STANDING_REACH")))
-            if pid in stat.index:
-                s = stat.loc[pid]
-                _put_static(universe[pid], "vert", _num(s.get("MAX_VERTICAL_LEAP")))
-                _put_static(universe[pid], "lateral", _num(s.get("LANE_AGILITY_TIME")))
+            if pid not in stat.index:
+                continue
+            s = stat.loc[pid]
+            for key, col in (("length", "WINGSPAN"), ("reach", "STANDING_REACH"),
+                             ("vert", "MAX_VERTICAL_LEAP"), ("lateral", "LANE_AGILITY_TIME")):
+                v = _num(s.get(col))
+                if v:   # 0 / blank = not measured that year; keep any earlier number
+                    _put_static(universe[pid], key, v)
 
 def _num(x):
-    try: return float(x)
-    except Exception: return 0.0
+    try:
+        v = float(x)
+    except Exception:
+        return 0.0
+    return 0.0 if v != v else v   # NaN (a blank cell in a pandas frame) counts as missing
 
 _ASCII_EXTRA = str.maketrans({"đ": "d", "Đ": "D", "ø": "o", "Ø": "O", "ł": "l", "Ł": "L", "ß": "ss", "æ": "ae", "Æ": "AE"})
 
