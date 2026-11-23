@@ -54,6 +54,7 @@ export type Reach = {
   keys: { founding?: number; error?: string }
   dynasty: { ballots?: number; dailyToday?: number; error?: string }
   newsletter: { subscribers?: number; error?: string }
+  hoops?: { accounts?: number; newWeek?: number; playedWeek?: number; playedDay?: number; error?: string }
   youtube: { connected: boolean }
   social: { connected: boolean }
   search: { connected: boolean }
