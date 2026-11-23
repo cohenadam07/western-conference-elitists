@@ -52,6 +52,8 @@ export function loadPageConfig(htmlPath) {
   // The All-Savant Team's learned numbers sit next to the page (tools/savant-value/value.py).
   const vf = path.join(path.dirname(htmlPath), 'savant-value.json')
   cfg.VALUE_MODEL = existsSync(vf) ? JSON.parse(readFileSync(vf, 'utf8')) : null
+  const af = path.join(path.dirname(htmlPath), 'savant-allsavant.json')
+  cfg.AST_SLOTS = existsSync(af) ? JSON.parse(readFileSync(af, 'utf8')) : null
   return cfg
 }
 
@@ -228,6 +230,8 @@ export function createEngine(DATA, cfg) {
   // progress counts once its teams have played a full 82), from the page's savant-value.js.
   const VALUE_MODEL = cfg.VALUE_MODEL || null
   const AST_FULL = { ast1: 'All-Savant 1st Team', ast2: 'All-Savant 2nd Team' }
+  // Who can fill which slot through 2022-23 (2.9.0): savant-allsavant.json beside the page.
+  const AST_SLOTS = cfg.AST_SLOTS || null
   const astCache = new Map()
   function seasonGames(season) {
     const most = {}
@@ -241,10 +245,15 @@ export function createEngine(DATA, cfg) {
     if (!astCache.has(season)) {
       const ps = playersOf(season) // positions already corrected above
       const res = globalThis.SavantValue.season(ps, VALUE_MODEL)
-      astCache.set(season, globalThis.SavantValue.team(ps, res, VALUE_MODEL, null, 2).map((t) => new Set(t.map((x) => String(x.p.id)))))
+      astCache.set(season, globalThis.SavantValue.allSavant(ps, res, season, AST_SLOTS, 2).map((t) => new Map(t.map((x) => [String(x.p.id), x.slot]))))
     }
     const t = astCache.get(season)
     return t[0].has(String(id)) ? 'ast1' : t[1].has(String(id)) ? 'ast2' : null
+  }
+  /** The slot he filled (G, F or C) through 2022-23; null from 2023-24 or when not on a team. */
+  function astSlot(id, season) {
+    const code = astHonour(id, season)
+    return code ? astCache.get(season)[code === 'ast1' ? 0 : 1].get(String(id)) || null : null
   }
 
   /** Season honours in prestige order, as [{ code, short, full, major }]. */
@@ -255,7 +264,9 @@ export function createEngine(DATA, cfg) {
     if (ast) got.push(ast)
     if (!got.length) return []
     const codes = ACC_ORDER.filter((c) => got.includes(c)).concat(got.filter((c) => !ACC_ORDER.includes(c)))
-    return codes.map((c) => ({ code: c, short: ACC_SHORT[c] || c, full: AST_FULL[c] || (AWARDS.labels && AWARDS.labels[c]) || ACC_SHORT[c] || c, major: !!ACC_MAJOR[c] }))
+    const sl = got.includes('ast1') || got.includes('ast2') ? astSlot(id, season) : null
+    const withSlot = (c, t) => (sl && AST_FULL[c] ? `${t} · ${sl}` : t)
+    return codes.map((c) => ({ code: c, short: withSlot(c, ACC_SHORT[c] || c), full: withSlot(c, AST_FULL[c] || (AWARDS.labels && AWARDS.labels[c]) || ACC_SHORT[c] || c), major: !!ACC_MAJOR[c] }))
   }
 
   return {

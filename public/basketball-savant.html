@@ -711,7 +711,7 @@ body.home-open .wrap{display:none}
   .home-title em::after{width:100%;animation:none}
 }
 /* ===== The All-Savant Team (home) =====
-   Our All-NBA team by the numbers: 2 guards, 2 wings, 1 big, picked on Savant value
+   Our All-NBA team by the numbers, by All-NBA's rules for the era (G/G/F/F/C through 2022-23, positionless after), picked on Savant value
    (public/savant-value.js, learned by tools/savant-value/value.py). A starting-five row of
    portrait cards; on phones the row swipes. The only motion is the swap when the 1st/2nd
    team toggle is pressed. */
@@ -755,6 +755,10 @@ body.home-open .home{padding-bottom:64px}
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 158' fill='none' stroke='%23C2A263' stroke-width='1.1'%3E%3Cpath d='M14 158 A86 86 0 0 1 186 158'/%3E%3Cpath d='M72 158 V96 H128 V158'/%3E%3Cpath d='M78 96 A22 22 0 0 1 122 96'/%3E%3C/svg%3E") no-repeat center bottom/100% auto}
 .ast-por img{position:absolute;left:0;bottom:0;width:100%;height:auto;display:block}
 .ast-pos{position:absolute;top:10px;left:12px;z-index:2;font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--gold)}
+.ast-pos{font-family:var(--mono);font-size:13px}
+.ast-pos.dual{text-decoration:underline dotted;text-underline-offset:3px;cursor:help}
+.ast-also{margin-left:6px;font-size:10.5px;font-weight:500;color:var(--muted);letter-spacing:.03em}
+.ast-rank::before{content:"No. ";font-size:10.5px;font-weight:500}
 .ast-init{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
   font-family:var(--disp);font-weight:600;font-size:42px;color:rgba(236,235,232,.88);letter-spacing:.01em}
 .ast-por.noimg .ast-init{display:flex}
@@ -5307,7 +5311,7 @@ const EXPL={
  perim:{"what": "Perimeter Assignment Rate: the share of his defensive matchups spent on guards. Role, not ability: scheme drives much of it, and assignment is least reliable during switches.", "formula": "Perimeter rate = possessions guarding guards ÷ all matchup possessions", "source": "NBA.com stats (stats.nba.com) matchup tracking, 2017-18 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
  contest:{"what": "Rim Contest Rate: of the shots he defended as the closest defender, the share taken within 6 feet. High marks a back-line, rim-anchoring role.", "formula": "Contest rate = shots defended within 6 ft ÷ all shots defended", "source": "NBA.com stats (stats.nba.com) player tracking (defense), 2013-14 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
  rimpm:{"what": "Rim FG% Allowed vs Expected: how shooters at the rim finished against him versus their normal rate. Inverted, so holding shooters down ranks higher. Ranked among bigs only.", "formula": "Rim FG% vs. expected = opponents' FG% within 6 ft vs. him − their usual FG% within 6 ft", "source": "NBA.com stats (stats.nba.com) player tracking (defense), 2013-14 on.", "sample": "Bigs with 15+ MPG and 200+ contested shots."},
- allsavant:{"what": "The All-Savant Team is our All-NBA team, picked by the numbers alone: two guards, two wings and a big per team, each the highest Savant value at his position among qualified players. A player makes one team only. Savant value is the points he added to his team this season above a replacement-level player at his position, on the stats that are his own and the possessions he played.", "formula": "Value = (rate - replacement rate) x possessions / 100. Rate = points per 100 possessions vs. an average player at his position: efficiency on his own shots, usage, 3-point and free-throw rate, assist %, turnovers, rebound % at both ends, steals and blocks, each pulled toward the position average by its settle point, times what it is worth in luck-adjusted on/off, times the share of it that follows a player to a new team (0.79 for shooting efficiency to 0.96 for 3-point rate). From 2007-08 the rate also takes in part of what his luck-adjusted on/off says beyond the box score and his minutes: weight w / (w + 6,400), w = 1 / (1/minutes on + 1/team minutes without him), about 13% for a full-time starter. Replacement = the 25th-percentile qualified player at his position that season.", "source": "NBA.com stats (stats.nba.com); Basketball Reference before 1996-97. Positions as on his card. Worth learned on 6,498 player-seasons (2009-10 to 2024-25, 2025-26 held out) by tools/savant-value/value.py; the numbers are in savant-value.json.", "sample": "Missed games cost him: he adds nothing on nights he doesn't play. On the held-out 2025-26 season, a player's 2024-25 rate correlated .37 with his 2025-26 luck-adjusted on/off; BPM .35. Checked against the real All-NBA, never tuned to it: since 1988-89, 63% of our first and second teamers made the real first or second team, 75% made an All-NBA team. Before 2007-08 there is no on/off (the NBA's splits start then), so defense counts only through steals, blocks and rebounds. Early in a season the team moves a lot; it settles as possessions pile up."},
+ allsavant:{"what": "The All-Savant Team is our All-NBA team, picked by the numbers alone and by All-NBA's own rules for the era. Through 2022-23: two guards, two forwards and a center per team, the most Savant value those slots allow among qualified players; a player can fill a slot where he played at least 30% of his minutes (guard = PG + SG, forward = SF + PF, by Basketball Reference's position estimate; before 1996-97, the position it lists), so a guard-forward like Manu Ginobili can be picked at either. From 2023-24, positionless, as All-NBA is: the five highest values, then the next five. All-NBA's 65-game minimum is not applied: missed games already cost Savant value. A player makes one team only. Savant value is the points he added to his team this season above a replacement-level player at his position, on the stats that are his own and the possessions he played.", "formula": "Value = (rate - replacement rate) x possessions / 100. Rate = points per 100 possessions vs. an average player at his position: efficiency on his own shots, usage, 3-point and free-throw rate, assist %, turnovers, rebound % at both ends, steals and blocks, each pulled toward the position average by its settle point, times what it is worth in luck-adjusted on/off, times the share of it that follows a player to a new team (0.79 for shooting efficiency to 0.96 for 3-point rate). From 2007-08 the rate also takes in part of what his luck-adjusted on/off says beyond the box score and his minutes: weight w / (w + 6,400), w = 1 / (1/minutes on + 1/team minutes without him), about 13% for a full-time starter. Replacement = the 25th-percentile qualified player at his position that season.", "source": "NBA.com stats (stats.nba.com); Basketball Reference before 1996-97. Slots from Basketball Reference's 5-position estimate (1996-97 on) or its listed position (before). Value is measured against his position as on his card (Guard, Wing, Big). Worth learned on 6,498 player-seasons (2009-10 to 2024-25, 2025-26 held out) by tools/savant-value/value.py; the numbers are in savant-value.json.", "sample": "Missed games cost him: he adds nothing on nights he doesn't play. On the held-out 2025-26 season, a player's 2024-25 rate correlated .37 with his 2025-26 luck-adjusted on/off; BPM .35. Checked against the real All-NBA, never tuned to it: since 1988-89, 61% of our first and second teamers made the real first or second team and 73% made an All-NBA team (measured Nov 19, 2026, under the rules by era). Before 2007-08 there is no on/off (the NBA's splits start then), so defense counts only through steals, blocks and rebounds. Early in a season the team moves a lot; it settles as possessions pile up."},
  pj_method:{"what": "How the projections work: one model behind every Fantasy number, the projection panel on the card and the connector.", "formula": "Marcel-style: last three seasons weighted 5/4/3 by minutes, regressed to position average by each stat's measured settle point, aged with curves fitted on prior seasons only. In season: blended with this season at the same settle point; minutes from 60% last 10 games + 40% season. Rookies: recent rookies' rates by position and minutes by draft slot (1-5: 26, 6-14: 19, 15-30: 17, 31-60: 11, undrafted: 12).", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). NBA.com stats (stats.nba.com) game logs; injury designations from Sleeper's public API (api.sleeper.app), read in your browser; nothing about your league is sent to us.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
  pj_min:{"what": "Projected minutes per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute minutes rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
  pj_pts:{"what": "Projected points per game: our best estimate of what he averages over the window you picked (rest of season by default).", "formula": "Per-minute points rate x projected minutes. Rate: his last three seasons weighted 5/4/3 by minutes, pulled toward his position's average by that stat's settle point, then moved along an age curve fitted on past seasons. In season, his games this year are blended in with the same settle point. Minutes: last three seasons' MPG, aged; in season, 60% his last 10 games + 40% his season, blended with the preseason number over his first 10 games.", "source": "Our projections: ~/Basketball-Savant/projections.py, rebuilt with every refresh (after each slate in season). Inputs: NBA.com stats (stats.nba.com) game logs, 2010-11 on.", "sample": "Backtested on 4,191 player-seasons: preseason points-per-game error 2.39 vs 2.52 for 'same as last season'; after 10 games 1.90 vs 2.27 for 'season to date' (out/projections_report.txt)."},
@@ -5918,7 +5922,7 @@ function renderPeak(){
     const on=(p.s===curSeason), isPk=(p.s===pk);
     const h=p.ok?(14+86*p.h):7;
     const bg=isPk?'var(--gold)':(p.ok?goldAt(100*p.h):'var(--track)');
-    const acc=accolades(curId,p.s).map(function(c){return ACC_SHORT[c]||c;});
+    const acc=accolades(curId,p.s).map(function(c){return accLabel(c,curId,p.s,false);});
     const t=(p.ok?(p.s+' · '+(p.b>0?'+':'')+p.b.toFixed(1)+' BPM'
                   +(p.pct!=null?' · '+Math.round(p.pct)+'th at his position':'')
                   +(isPk?' · career best':'')+(p.gp!=null?' · '+p.gp+' games':''))
@@ -6459,6 +6463,18 @@ function astHonour(id,season){
   for(let k=0;k<2;k++) if((t.teams[k]||[]).some(function(x){return x.p.id===id;})) return k?'ast2':'ast1';
   return null;
 }
+/* The slot he filled on the team (G, F or C) through 2022-23; null from 2023-24 or off the team. */
+function astSlot(id,season){
+  const code=astHonour(id,season); if(!code) return null;
+  const t=astResults(season), x=(t.teams[code==='ast1'?0:1]||[]).find(function(y){return y.p.id===id;});
+  return x?x.slot:null;
+}
+/* Honour labels, the All-Savant ones with his slot: "All-Savant 1st Team · G" through 2022-23. */
+function accLabel(c,id,season,full){
+  var lab=full?(ACC_FULL[c]||(AWARDS.labels&&AWARDS.labels[c])||ACC_SHORT[c]||c):(ACC_SHORT[c]||c);
+  if(ACC_FULL[c]){ var sl=astSlot(id,season); if(sl) lab+=' · '+sl; }
+  return lab;
+}
 function accolades(id,season){
   if(id==null) return [];
   const by=AWARDS&&AWARDS.players&&AWARDS.players[String(id)];
@@ -6471,8 +6487,8 @@ function accolades(id,season){
 function accoRow(id,season){
   const got=accolades(id,season); if(!got.length) return '';
   return '<div class="accos">'+got.map(function(c){
-    const lab=ACC_SHORT[c]||c;
-    const full=ACC_FULL[c]||(AWARDS.labels&&AWARDS.labels[c])||lab;
+    const lab=accLabel(c,id,season,false);
+    const full=accLabel(c,id,season,true);
     return '<span class="acco'+(ACC_MAJOR[c]?' major':'')+'" title="'+season+' '+full.replace(/"/g,'&quot;')+'">'+lab+'</span>';
   }).join('')+'</div>';
 }
@@ -7466,8 +7482,12 @@ async function exportCard(){
    2.8.1 (Nov 2026): names keep their accents (pipeline/accents.py: a refresh's spelling that only
    strips a published spelling's accents keeps the accented one; 15 players repaired); luck-adjusted
    on/off from 2007-08 (2007-08 and 2008-09 built with the same method; Savant value applies its
-   on-floor part there with the learned model unchanged). */
-var VERSION='2.8.1';
+   on-floor part there with the learned model unchanged).
+   2.9.0 (Nov 2026): the All-Savant Team follows All-NBA's rules by era: 2 guards, 2 forwards, 1 center
+   through 2022-23 (eligible at a slot with 30%+ of his minutes there, savant-allsavant.json), the most
+   value those slots allow; positionless from 2023-24. Slot chips, era subtitles, the slot on the honour.
+   The value model is unchanged. Research: research/all-savant-positions. */
+var VERSION='2.9.0';
 function build(){
   const vc=document.getElementById('verchip');
   if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }
@@ -7645,6 +7665,11 @@ function loadTrending(){                             // real search-volume trend
    1st and 2nd team (from night one in practice); only before that does it fall back to the
    newest season that can. */
 var VALUE_MODEL=null, AST={team:0,season:null,cache:{},userSeason:false};
+/* 2.9.0: the team follows All-NBA's rules for the era. Through 2022-23, 2 guards, 2 forwards and a
+   center, a player eligible where he played 30%+ of his minutes (savant-allsavant.json, from
+   pipeline/basketball/all_savant_slots.py); from 2023-24, positionless. SavantValue.allSavant. */
+var AST_SLOTS=null;
+var AST_SLOT_WORD={G:'guard',F:'forward',C:'center'};
 function astEsc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 var AST_POS_WORD={Guard:'guard',Wing:'wing',Big:'big'};
 function astPosOf(p){ return p.pos; }                 // prepData() has already applied POS_FIX
@@ -7653,7 +7678,7 @@ function astResults(season){
   if(AST.cache[season]) return AST.cache[season];
   var ps=(DATA.data[season]||{}).players||[];
   var res=SavantValue.season(ps,VALUE_MODEL,astPosOf);
-  var teams=SavantValue.team(ps,res,VALUE_MODEL,astPosOf,2);
+  var teams=SavantValue.allSavant(ps,res,season,AST_SLOTS,2);
   return (AST.cache[season]={res:res,teams:teams});
 }
 /* Games a season has run: the median over teams of the most games any of its players has. */
@@ -7688,13 +7713,28 @@ function astInitials(n){
   var w=String(n||'').replace(/[^A-Za-zÀ-ɏ' -]/g,'').trim().split(/\s+/);
   return ((w[0]||'').charAt(0)+(w.length>1?w[w.length-1].charAt(0):'')).toUpperCase();
 }
+/* "Fills a forward slot. Eligible at G and F: 59% of his minutes at guard, 41% at forward (Basketball
+   Reference's position estimate)." Positionless seasons have no slot line. */
+function astElig(x){
+  if(!x.el||x.el.length<2) return '';
+  var at=x.el.split('').join(' and ');
+  if(x.sh) return 'Eligible at '+at+': '+x.el.split('').map(function(k){
+      return x.sh['GFC'.indexOf(k)]+'% of his minutes at '+AST_SLOT_WORD[k]; }).join(', ')
+    +' (Basketball Reference\u2019s position estimate; 30% makes a player eligible).';
+  return 'Eligible at '+at+(x.listed?': listed as '+x.listed:'')+'.';
+}
+function astSlotLine(x){
+  if(!x.slot) return '';
+  var e=astElig(x);
+  return 'Fills a '+AST_SLOT_WORD[x.slot]+' slot.'+(e?' '+e:'');
+}
 function astWhy(x,season){
   var v=x.v, pw=AST_POS_WORD[x.pos]||'player', lab={};
   (VALUE_MODEL.parts||[]).forEach(function(pt){ lab[pt.key]=pt.label.toLowerCase(); });
   var parts=Object.keys(v.parts).map(function(k){return [k,v.parts[k]];})
     .sort(function(a,b){return b[1]-a[1];})
     .map(function(a){return (lab[a[0]]||a[0])+' '+astFmt1(a[1]);});
-  return x.p.name+', '+season+': '+astFmt(v.value)+' points over a replacement '+pw
+  return x.p.name+', '+season+': '+(astSlotLine(x)?astSlotLine(x)+' ':'')+astFmt(v.value)+' points over a replacement '+pw
     +' ('+astFmt1(v.rate)+' per 100 possessions vs. an average '+pw+', on '+(v.poss||0).toLocaleString('en-US')
     +' possessions). By part, per 100: '+parts.join(', ')+'.';
 }
@@ -7704,6 +7744,14 @@ function astLong(last){
   var run=Math.max.apply(null,String(last).split(/[\s-]+/).map(function(w){return w.length;}));
   return run>=15?' xlong':run>=12?' long':'';
 }
+/* The corner chip: the slot (G, F, C) through 2022-23, a dual-eligible pick's chip carrying his
+   shares on hover; the rank by value (1-5) from 2023-24, when the team is positionless. */
+function astChip(x){
+  if(!x.slot) return '<span class="ast-pos ast-rank" aria-hidden="true">'+x.rank+'</span>';
+  var e=astElig(x);
+  return '<span class="ast-pos'+(e?' dual':'')+'"'+(e?' title="'+astEsc(e)+'"':'')+' aria-hidden="true">'+x.slot
+    +(e?'<span class="ast-also">'+astEsc(x.el.replace(x.slot,'').split('').map(function(k){return 'also '+k;}).join(' · '))+'</span>':'')+'</span>';
+}
 function astCard(x,i,season){
   var p=x.p, nm=String(p.name||''), sp=nm.indexOf(' ');
   var first=sp>0?nm.slice(0,sp):'', last=sp>0?nm.slice(sp+1):nm;
@@ -7711,7 +7759,7 @@ function astCard(x,i,season){
   var hasImg=typeof p.id==='number';
   var why=astWhy(x,season);
   return '<button type="button" class="ast-card" data-id="'+astEsc(String(p.id))+'" style="--i:'+i+'" title="'+astEsc(why)+'" aria-label="'+astEsc(why)+'">'
-    +'<span class="ast-por'+(hasImg?'':' noimg')+'"><span class="ast-pos">'+astEsc(x.pos)+'</span>'
+    +'<span class="ast-por'+(hasImg?'':' noimg')+'">'+astChip(x)
     +(hasImg?'<img '+headSrc(p.id,season,p.team)+' alt="" loading="lazy" decoding="async" onerror="if(!headRetry(this)){this.parentNode.classList.add(\'noimg\');this.remove()}">':'')
     +'<span class="ast-init" aria-hidden="true">'+astEsc(astInitials(nm))+'</span></span>'
     +'<span class="ast-body">'
@@ -7753,8 +7801,11 @@ function renderAST(swap){
   var season=AST.season, t=astResults(season), row=document.getElementById('astRow');
   var live=DATA.current&&DATA.current.season===season&&DATA.current.through;
   var when=live?' through '+new Date(DATA.current.through+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
-  document.getElementById('astSub').innerHTML='<b>'+astEsc(season+when)+'.</b> Two guards, two wings and a big per team, '
-    +'picked on Savant value: the points each added over a replacement player at his position.';
+  var free=SavantValue.positionless(season,AST_SLOTS);
+  document.getElementById('astSub').innerHTML='<b>'+astEsc(season+when)+'.</b> '
+    +(free?'The five highest Savant values, positionless, as All-NBA has been since 2023-24. No 65-game minimum: missed games already cost value. '
+          :'Two guards, two forwards and a center per team, as All-NBA was picked through 2022-23: the most Savant value those slots allow. ')
+    +'Savant value is the points each added over a replacement player at his position.';
   document.querySelectorAll('#homeAST .ast-seg button').forEach(function(b){
     b.setAttribute('aria-pressed',String(+b.dataset.t===AST.team)); });
   var five=(t&&t.teams[AST.team])||[];
@@ -7768,7 +7819,7 @@ function renderAST(swap){
     row.querySelectorAll('.ast-card').forEach(function(b){ b.onclick=function(){ astOpen(b.dataset.id,season); }; });
   }
   if(swap){ var lv=document.getElementById('astLive'); if(lv) lv.textContent=(AST.team?'2nd':'1st')+' team, '+season+': '
-    +five.map(function(x){return x.p.name;}).join(', ')+'.'; }
+    +five.map(function(x){return (x.slot?x.slot+' ':'')+x.p.name;}).join(', ')+'.'; }
   var note=document.getElementById('astNote'), cs=DATA.current&&DATA.current.season;
   if(cs&&cs!==season&&!AST.userSeason&&DATA.data[cs]&&!astFull(cs)){
     note.textContent='The '+cs+' team appears here once enough players qualify to name it. Pick '+cs+' above to see it so far.';
@@ -8143,10 +8194,12 @@ wirePanelExpl();
     const got = await Promise.all([
       fetch('savant-data.json',{cache:'default'}).then(function(r){return r.json();}),
       fetch('savant-current.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
-      fetch('savant-value.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+      fetch('savant-value.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
+      fetch('savant-allsavant.json',{cache:'default'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
     ]);
     DATA = mergeSavant(got[0], got[1]);
     VALUE_MODEL = got[2];
+    AST_SLOTS = got[3];
   }catch(err){
     if(idb) idb.innerHTML='<div class="id-name">Couldn’t load savant-data.json</div>'
       +'<div class="id-meta">Player data is fetched at runtime — open this page over http (or on the site), not directly from disk.</div>';

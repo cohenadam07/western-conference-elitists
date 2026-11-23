@@ -127,16 +127,20 @@ All of it is learned by `tools/savant-value/value.py fit`. It was learned on 200
   - **Season value** correlated .385.
   - **Over the fit seasons:** rate .44, BPM .41.
   - **One weak spot:** among the 116 held-out players who changed teams, the box-score part alone (.20) did better than the full rate (.16) and BPM (.18).
-- **The real All-NBA** (a sanity check, never a target), 1988-89 on:
-  - 56% of our 1st team made the real 1st team.
-  - 63% of our 1st and 2nd teamers made the real 1st or 2nd team.
-  - 75% made some All-NBA team.
+- **The real All-NBA** (a sanity check, never a target), 1988-89 on, measured Nov 19, 2026 under the rules by era (2.9.0):
+  - 56% of our 1st team made the real 1st team (55% under the old fixed shape).
+  - 61% of our 1st and 2nd teamers made the real 1st or 2nd team (60%).
+  - 73% made some All-NBA team (71%).
 
 ## What it cannot do
 
 - **Defense before 2007-08** counts only through steals, blocks and defensive rebounding, because there is no on/off.
 - **Positions** are inferred, and a few are odd (Shawn Marion is a guard in 2004-05).
-- **Shape** differs from the league's: the league has voted a positionless All-NBA since 2023-24, and ours is always 2-2-1.
+- **Slots** follow the league's rules by era since 2.9.0 (Nov 2026): 2 guards, 2 forwards and a center through 2022-23,
+  eligible at a slot with 30% of his minutes there (Basketball Reference's estimate from 1996-97, its listed position
+  before, which is one position per player, so nobody is dual-eligible before 1996-97); positionless from 2023-24. The value
+  itself is still measured against Guard, Wing or Big. Cutoffs from 20% to 50% were tested and land within four picks of each
+  other (research/all-savant-positions); the 65-game rule was not adopted, missed games simply cost value.
 - **Early in a season** the team is a running total on small samples, which is why the landing waits for 10 games and the honour waits for the full season.
 
 ## Files

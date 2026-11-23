@@ -336,7 +336,7 @@ export async function playerCareer({ player, stats }) {
   for (const { s, r, file } of rows) {
     for (const c of r.aw || []) honours.push({ season: s, award: word(c) })
     // the All-Savant Team, once a season is over
-    if (file.all_savant && !file.in_progress) file.all_savant.forEach((t, i) => { if (t.some((id) => String(id) === String(who.id))) honours.push({ season: s, award: `All-Savant ${i ? '2nd' : '1st'} Team` }) })
+    if (file.all_savant && !file.in_progress) file.all_savant.forEach((t, i) => { const at = t.findIndex((id) => String(id) === String(who.id)); if (at >= 0) { const sl = ((file.all_savant_slots || [])[i] || [])[at]; honours.push({ season: s, award: `All-Savant ${i ? '2nd' : '1st'} Team${sl ? ` · ${sl}` : ''}` }) } })
   }
   // any stats asked for, season by season, with his career high over seasons that count
   const asked = (stats || []).slice(0, 6).map((x) => parseStat(x, meta.metrics))
