@@ -1,0 +1,29 @@
+{
+ "season": "2016-17",
+ "d1_games": 5520,
+ "box_gate_raw": 0.99,
+ "box_gate": 0.9957,
+ "filled_lines": 31,
+ "pbp_games": 5173,
+ "pbp_rate": 0.9371,
+ "score_rate": 0.9851,
+ "pbp_ok_games": 5019,
+ "pbp_ok_rate": 0.9702,
+ "coord_rate": 0.2157,
+ "box_rate_raw": 0.9877,
+ "box_rate": 0.9939,
+ "lineup_games": 0,
+ "lineup_ok_games": 0,
+ "lineup_ok_rate_of_d1": 0.0,
+ "five_rate": null,
+ "firm_rate": null,
+ "minutes_within_1": null,
+ "team_minutes_ok": null,
+ "team_box_minutes_ok": null,
+ "poss_team_seasons_within_2pct": 0.9288,
+ "poss_bias": -0.01,
+ "sources": {
+  "none": 5520
+ },
+ "line_games": 4015
+}

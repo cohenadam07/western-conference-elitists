@@ -1,0 +1,29 @@
+{
+ "season": "2019-20",
+ "d1_games": 5330,
+ "box_gate_raw": 0.8356,
+ "box_gate": 0.9812,
+ "filled_lines": 1513,
+ "pbp_games": 5031,
+ "pbp_rate": 0.9439,
+ "score_rate": 0.9829,
+ "pbp_ok_games": 4336,
+ "pbp_ok_rate": 0.8619,
+ "coord_rate": 0.1502,
+ "box_rate_raw": 0.9507,
+ "box_rate": 0.9778,
+ "lineup_games": 0,
+ "lineup_ok_games": 0,
+ "lineup_ok_rate_of_d1": 0.0,
+ "five_rate": null,
+ "firm_rate": null,
+ "minutes_within_1": null,
+ "team_minutes_ok": null,
+ "team_box_minutes_ok": null,
+ "poss_team_seasons_within_2pct": 0.9509,
+ "poss_bias": -0.0048,
+ "sources": {
+  "none": 5330
+ },
+ "line_games": 5328
+}

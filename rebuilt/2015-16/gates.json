@@ -1,0 +1,29 @@
+{
+ "season": "2015-16",
+ "d1_games": 5514,
+ "box_gate_raw": 0.9973,
+ "box_gate": 0.9973,
+ "filled_lines": 0,
+ "pbp_games": 5097,
+ "pbp_rate": 0.9244,
+ "score_rate": 0.9833,
+ "pbp_ok_games": 4909,
+ "pbp_ok_rate": 0.9631,
+ "coord_rate": 0.2418,
+ "box_rate_raw": 0.9846,
+ "box_rate": 0.9933,
+ "lineup_games": 0,
+ "lineup_ok_games": 0,
+ "lineup_ok_rate_of_d1": 0.0,
+ "five_rate": null,
+ "firm_rate": null,
+ "minutes_within_1": null,
+ "team_minutes_ok": null,
+ "team_box_minutes_ok": null,
+ "poss_team_seasons_within_2pct": 0.9454,
+ "poss_bias": -0.0085,
+ "sources": {
+  "none": 5514
+ },
+ "line_games": 4021
+}

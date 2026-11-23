@@ -1,0 +1,31 @@
+{
+ "season": "2024-25",
+ "d1_games": 5764,
+ "box_gate_raw": 0.9977,
+ "box_gate": 0.9977,
+ "filled_lines": 0,
+ "pbp_games": 5652,
+ "pbp_rate": 0.9806,
+ "score_rate": 0.9904,
+ "pbp_ok_games": 5547,
+ "pbp_ok_rate": 0.9814,
+ "coord_rate": 0.9898,
+ "box_rate_raw": 0.9895,
+ "box_rate": 0.9945,
+ "lineup_games": 5641,
+ "lineup_ok_games": 4833,
+ "lineup_ok_rate_of_d1": 0.8385,
+ "five_rate": 0.9954,
+ "firm_rate": 0.9897,
+ "minutes_within_1": 0.9739,
+ "team_minutes_ok": 1.0,
+ "team_box_minutes_ok": 1.0,
+ "poss_team_seasons_within_2pct": 0.9725,
+ "poss_bias": -0.0066,
+ "sources": {
+  "cbbd": 4055,
+  "none": 123,
+  "subs": 1586
+ },
+ "line_games": 0
+}
