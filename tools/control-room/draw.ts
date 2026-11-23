@@ -168,9 +168,10 @@ export const REACH: (Box & { from: 'site' | 'store'; live: boolean })[] = [
   { ...node('founding', REACH_X, 310, REACH_W, 46, 'Founding members'), from: 'store', live: true },
   { ...node('newsletter', REACH_X, 370, REACH_W, 46, 'Newsletter'), from: 'site', live: true },
   { ...node('dynasty', REACH_X, 430, REACH_W, 46, 'Dynasty ballots'), from: 'store', live: true },
-  { ...node('youtube', REACH_X, 506, REACH_W, 40, 'YouTube'), from: 'site', live: false },
-  { ...node('social', REACH_X, 556, REACH_W, 40, 'X · Bluesky'), from: 'site', live: false },
-  { ...node('google', REACH_X, 606, REACH_W, 40, 'Google search'), from: 'site', live: false },
+  { ...node('hoops', REACH_X, 490, REACH_W, 46, 'Flappy Hoops'), from: 'store', live: true },
+  { ...node('youtube', REACH_X, 560, REACH_W, 38, 'YouTube'), from: 'site', live: false },
+  { ...node('social', REACH_X, 606, REACH_W, 38, 'X · Bluesky'), from: 'site', live: false },
+  { ...node('google', REACH_X, 652, REACH_W, 38, 'Google search'), from: 'site', live: false },
 ]
 
 export const MAP_W = 1000
@@ -399,13 +400,14 @@ export function drawMap(feed: Feed | null, reach: Reach | null, pulses: Pulse[],
   s += nodeBox(depBox, { color: STATUS_COLOR[depStat], status: depStat === 'deploy-building' ? 'running' : depStat === 'deploy-error' ? 'failed' : undefined, sub: depSub, sub2: dep?.message ? cut(dep.message, 30) : undefined, selected: selected === 'deploy' })
   const siteDown = watch?.status === 'failed'
   s += nodeBox(site, { color: siteDown ? STATUS_COLOR.failed : watch?.last ? STATUS_COLOR.ok : C.faint, status: siteDown ? 'failed' : undefined, sub: siteDown ? 'trouble: see Site watch' : watch?.last ? `up · checked ${ago(watch.last.t, now)}` : 'not checked yet', sub2: watch?.last?.detail ? watch.last.detail.replace(/^(All good|Trouble): /, '') : undefined, selected: selected === 'site' })
-  s += nodeBox(store, { color: reach && !reach.keys?.error ? STATUS_COLOR.ok : C.faint, sub: 'Upstash', sub2: 'keys · Dynasty · usage' })
+  s += nodeBox(store, { color: reach && !reach.keys?.error ? STATUS_COLOR.ok : C.faint, sub: 'Upstash', sub2: 'keys · Dynasty · Hoops' })
 
   // Reach column
   const v = reach?.visits, c = reach?.connector
   const reachSub2: Record<string, string | undefined> = {
     visitors: v?.today ? `${num(v.today.pageviews)} page views` : undefined,
     connector: c && c.connectionsToday != null ? `${num(c.connectionsToday)} connections` : undefined,
+    hoops: reach?.hoops?.playedWeek != null ? `${num(reach.hoops.playedWeek)} played this week` : undefined,
   }
   const reachSub: Record<string, string> = {
     visitors: v?.today ? `${num(v.today.visitors)} today` : v?.error ? 'not readable' : '…',
@@ -413,6 +415,7 @@ export function drawMap(feed: Feed | null, reach: Reach | null, pulses: Pulse[],
     founding: reach?.keys?.founding != null ? `${num(reach.keys.founding)} keys` : '…',
     newsletter: reach?.newsletter?.subscribers != null ? `${num(reach.newsletter.subscribers)} subscribers` : reach?.newsletter?.error ? 'not readable' : '…',
     dynasty: reach?.dynasty?.ballots != null ? `${num(reach.dynasty.ballots)} cast` : '…',
+    hoops: reach?.hoops?.accounts != null ? `${num(reach.hoops.accounts)} accounts` : reach?.hoops?.error ? 'not readable' : '…',
     youtube: 'not connected yet', social: 'not connected yet', google: 'not connected yet',
   }
   for (const r of REACH) s += nodeBox(r, { color: r.live ? C.gold : C.faint, sub: reachSub[r.id], sub2: reachSub2[r.id], dim: !r.live, selected: selected === r.id })

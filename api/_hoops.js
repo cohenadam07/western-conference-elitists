@@ -14,6 +14,10 @@
 //   fha:s:<id>, fha:sv:<id>   the save (JSON) and its version; writes are compare-and-set on the version
 //   fha:bad:<id>          wrong PINs in the last 15 minutes (5 locks the name for the rest of them)
 //   fha:ip:<ip>           sign-ups and sign-ins from that address in the last 10 minutes (20 at most)
+//   fha:all               zset: every account (id → when it was made, ms). Filled from fha:u:* once
+//                         (fha:all:built marks it done), then kept by acct.create and the admin delete
+//   fha:seen              zset: id → the last time that account signed in or synced (ms), kept since Nov 23, 2026
+//   (hoopsStats reads both for the Control Room: how many accounts, how many new and playing lately)
 //
 // RECORDS: two boards on every hole. f, Fewest Flaps (level on flaps: faster wins); s, Fastest (level
 // on time: fewer flaps wins). Level on both and the holder keeps it: you have to beat a record to take
@@ -210,28 +214,35 @@ export function beats(b, f, k, cf, ck) {
 const ONE_IN = `local n = redis.call('INCR', KEYS[1])
 if n == 1 then redis.call('EXPIRE', KEYS[1], tonumber(ARGV[1])) end
 return n`
-// KEYS name, user, token, tokens; ARGV id, name, salt, ph, at, tokenValue, ttl, tokenHash
+// KEYS name, user, token, tokens, all, seen; ARGV id, name, salt, ph, at, tokenValue, ttl, tokenHash
 const CREATE = `if redis.call('SET', KEYS[1], ARGV[1], 'NX') == false then return 0 end
 redis.call('HSET', KEYS[2], 'name', ARGV[2], 'salt', ARGV[3], 'ph', ARGV[4], 'at', ARGV[5])
 redis.call('SET', KEYS[3], ARGV[6], 'EX', tonumber(ARGV[7]))
 redis.call('SADD', KEYS[4], ARGV[8])
+redis.call('ZADD', KEYS[5], ARGV[5], ARGV[1])
+redis.call('ZADD', KEYS[6], ARGV[5], ARGV[1])
 return 1`
 // KEYS bad, user → { wrong PINs so far, name, salt, ph }
 const SIGNIN_READ = `local b = tonumber(redis.call('GET', KEYS[1]) or '0')
 local u = redis.call('HMGET', KEYS[2], 'name', 'salt', 'ph')
 return { b, u[1] or '', u[2] or '', u[3] or '' }`
-// KEYS bad, token, tokens, save; ARGV tokenValue, ttl, tokenHash → the save (or false)
+// KEYS bad, token, tokens, save, seen; ARGV tokenValue, ttl, tokenHash, now, id → the save (or false)
 const SIGNIN_OK = `redis.call('DEL', KEYS[1])
 redis.call('SET', KEYS[2], ARGV[1], 'EX', tonumber(ARGV[2]))
 redis.call('SADD', KEYS[3], ARGV[3])
+redis.call('ZADD', KEYS[5], ARGV[4], ARGV[5])
 return redis.call('GET', KEYS[4])`
 // KEYS save, version → { save or '', version }
 const SAVE_READ = `return { redis.call('GET', KEYS[1]) or '', redis.call('GET', KEYS[2]) or '0' }`
-// KEYS save, version; ARGV expected version, new save, new version
+// KEYS save, version, seen; ARGV expected version, new save, new version, now, id
 const SAVE_CAS = `if (redis.call('GET', KEYS[2]) or '0') ~= ARGV[1] then return 0 end
 redis.call('SET', KEYS[1], ARGV[2])
 redis.call('SET', KEYS[2], ARGV[3])
+redis.call('ZADD', KEYS[3], ARGV[4], ARGV[5])
 return 1`
+// KEYS all, seen; ARGV now, week ago, day ago → { accounts, new this week, played this week, played today }
+const STATS = `return { redis.call('ZCARD', KEYS[1]), redis.call('ZCOUNT', KEYS[1], ARGV[2], '+inf'),
+  redis.call('ZCOUNT', KEYS[2], ARGV[2], '+inf'), redis.call('ZCOUNT', KEYS[2], ARGV[3], '+inf') }`
 // KEYS fhrec, fhrec:in, hist f, hist s, log f, log s, fhrec:c; ARGV field f, field s, value, taps, flaps, steps, user id
 // → per board { 1 if it's yours now, 1 if level on both, what was there ('' if nothing) }
 const SUBMIT = `local f, k = tonumber(ARGV[5]), tonumber(ARGV[6])
@@ -288,6 +299,7 @@ return { cur, '' }`
 const K = {
   name: (key) => 'fha:n:' + key, user: (id) => 'fha:u:' + id, token: (h) => 'fha:t:' + h, tokens: (id) => 'fha:tk:' + id,
   save: (id) => 'fha:s:' + id, ver: (id) => 'fha:sv:' + id, bad: (id) => 'fha:bad:' + id, ip: (ip) => 'fha:ip:' + ip,
+  all: 'fha:all', allBuilt: 'fha:all:built', seen: 'fha:seen',
 }
 const REC = 'fhrec', REC_IN = 'fhrec:in', hist = (field) => 'fhrec:h:' + field
 const REC_C = 'fhrec:c', recLog = (field) => 'fhrec:log:' + field
@@ -358,7 +370,7 @@ async function create(body, req) {
   const id = newId(), salt = randomBytes(16).toString('hex')
   const ph = (await scrypt(body.pin, salt)).toString('hex')
   const t = newToken(), th = sha(t)
-  const ok = Number(await redis(['EVAL', CREATE, 4, K.name(nameKey(c.name)), K.user(id), K.token(th), K.tokens(id),
+  const ok = Number(await redis(['EVAL', CREATE, 6, K.name(nameKey(c.name)), K.user(id), K.token(th), K.tokens(id), K.all, K.seen,
     id, c.name, salt, ph, String(Date.now()), id + '|' + c.name, String(TOKEN_TTL), th]))
   if (ok !== 1) bad(409, 'That name is taken. Pick another, or sign in if it’s yours.')
   return { ok: true, t, name: c.name, save: emptySave() }
@@ -379,7 +391,7 @@ async function signin(body, req) {
     bad(401, NO_MATCH)
   }
   const t = newToken(), th = sha(t)
-  const raw = await redis(['EVAL', SIGNIN_OK, 4, K.bad(id), K.token(th), K.tokens(id), K.save(id), id + '|' + name, String(TOKEN_TTL), th])
+  const raw = await redis(['EVAL', SIGNIN_OK, 5, K.bad(id), K.token(th), K.tokens(id), K.save(id), K.seen, id + '|' + name, String(TOKEN_TTL), th, String(Date.now()), id])
   let save = emptySave()
   if (raw) try { save = cleanSave(JSON.parse(raw)) } catch { /* keep the empty one */ }
   return { ok: true, t, name, save }
@@ -423,7 +435,7 @@ async function sync(body) {
     if (raw) try { S = JSON.parse(raw) } catch { /* start again from empty */ }
     const merged = mergeSave(S, body.save, body.delta || {}, body.eq === true)
     const next = String(Number(ver || 0) + 1)
-    if (Number(await redis(['EVAL', SAVE_CAS, 2, K.save(me.id), K.ver(me.id), String(ver || '0'), JSON.stringify(merged), next])) === 1) {
+    if (Number(await redis(['EVAL', SAVE_CAS, 3, K.save(me.id), K.ver(me.id), K.seen, String(ver || '0'), JSON.stringify(merged), next, String(Date.now()), me.id])) === 1) {
       // (a save with every best's taps can run past 100 KB, and a game syncs every few seconds while
       // it's played: send back only what this device is missing)
       return { ok: true, name: me.name, save: { ...merged, bests: bestsFor(merged, deviceHas(body.have, sent)) } }
@@ -456,6 +468,8 @@ async function acctAdmin(body, req) {
     const name = await redis(['HGET', K.user(id), 'name'])
     await revokeAll(id)
     await redis(['DEL', K.name(nameKey(name || body.name)), K.user(id), K.save(id), K.ver(id), K.bad(id)])
+    await redis(['ZREM', K.all, id])
+    await redis(['ZREM', K.seen, id])
     const dropped = []
     const all = (await redis(['HGETALL', REC])) || []
     for (let i = 0; i + 1 < all.length; i += 2) {
@@ -560,6 +574,36 @@ export async function koSubmitMatch(cands) {
   }
   return out
 }
+/* ------------------------------------------------------------ the count (Control Room) */
+
+// fha:all starts empty: the first read fills it from the accounts already made (fha:u:<id>, with their
+// 'at'), once. ZADD is idempotent, so an account made mid-fill is still counted once.
+async function buildAll() {
+  if (await redis(['GET', K.allBuilt])) return
+  let cursor = '0', n = 0
+  do {
+    const [next, keys] = await redis(['SCAN', cursor, 'MATCH', 'fha:u:*', 'COUNT', '1000'])
+    cursor = String(next)
+    for (const key of keys || []) {
+      const id = key.slice('fha:u:'.length)
+      if (!id) continue
+      const at = Number(await redis(['HGET', key, 'at'])) || 0
+      await redis(['ZADD', K.all, String(at), id]); n++
+    }
+  } while (cursor !== '0')
+  await redis(['SET', K.allBuilt, String(n)])
+}
+
+// How many Flappy Hoops accounts there are, how many were made in the last 7 days, and how many signed
+// in or synced (played while signed in) in the last 7 days and the last 24 hours. "Played" only counts
+// from Nov 23, 2026 on: nothing was kept before it. 2 commands a read (the very first one also walks fha:u:*).
+export async function hoopsStats(now = Date.now()) {
+  await buildAll()
+  const [accounts, newWeek, playedWeek, playedDay] = await redis(['EVAL', STATS, 2, K.all, K.seen,
+    String(now), String(now - 7 * 86400000), String(now - 86400000)])
+  return { accounts: Number(accounts) || 0, newWeek: Number(newWeek) || 0, playedWeek: Number(playedWeek) || 0, playedDay: Number(playedDay) || 0 }
+}
+
 // The account on a race player (a token checked once, when they join), or null.
 export async function acctOf(t) { try { return await whoIs(t) } catch { return null } }
 // The game's rules, for the race server's replays.

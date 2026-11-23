@@ -355,6 +355,28 @@ ok(rb.status === 200 && rb.j.rebuilt.includes(H + '|f') && hR.breaks === 3 && hR
   'admin rebuildlog: a board with no log gets one from its history (same order and counts)')
 ok((await post({ a: 'acct.create', name: 'Deleter', pin: '5555' })).status === 200, 'and the name is free again')
 
+// the Control Room's count (hoopsStats): filled once from the accounts already made, then kept up
+process.env.KV_REST_API_URL = `http://127.0.0.1:${PORT + 1}`; process.env.KV_REST_API_TOKEN = 'dev-token'
+const { hoopsStats } = await import(pathToFileURL(path.join(ROOT, 'api/_hoops.js')).href)
+await rest(['DEL', 'fha:all', 'fha:all:built', 'fha:seen'])
+const users = ((await rest(['KEYS', 'fha:u:*'])) || []).length
+const st0 = await hoopsStats()
+ok(users > 3 && st0.accounts === users && st0.newWeek === users && (await rest(['GET', 'fha:all:built'])) === String(users), `stats: the first read counts the ${users} accounts already made`)
+ok(st0.playedWeek === 0, 'stats: nobody counts as played before it was kept')
+const sc = await post({ a: 'acct.create', name: 'Stat Count', pin: '2468' })
+const st1 = await hoopsStats()
+ok(sc.status === 200 && st1.accounts === users + 1 && st1.newWeek === users + 1 && st1.playedDay === 1, 'stats: a new account counts, as new and as played today')
+await rest(['ZREM', 'fha:seen', ...((await rest(['ZRANGE', 'fha:seen', 0, -1])) || [])])
+await post({ a: 'acct.sync', t: sc.j.t, save: sc.j.save })
+ok((await hoopsStats()).playedDay === 1, 'stats: a sync marks the account as played')
+await rest(['DEL', 'fha:seen'])
+await post({ a: 'acct.signin', name: 'Stat Count', pin: '2468' })
+ok((await hoopsStats()).playedWeek === 1, 'stats: so does a sign-in')
+const sd = await post({ a: 'acct.admin', key: ADMIN_KEY, name: 'Stat Count', op: 'delete' })
+const st2 = await hoopsStats()
+ok(sd.status === 200 && st2.accounts === users && st2.playedWeek === 0, 'stats: a deleted account leaves the count')
+ok((await rest(['ZCARD', 'fha:all'])) === users && (await rest(['GET', 'fha:all:built'])) === String(users), 'stats: later reads never refill it')
+
 console.log(`\nRedis commands per call: create ${(await cost(() => post({ a: 'acct.create', name: 'Counter', pin: '1234' })))[1]} · sign in ${signinCost} · sync ${syncCost} · rec.submit ${submitCost} · GET ?rec=all ${getCost} · GET ?rec=watch ${watchCost}`)
 console.log(`${n - failed} of ${n} passed`)
 dev.kill()

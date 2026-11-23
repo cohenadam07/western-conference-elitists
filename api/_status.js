@@ -6,7 +6,7 @@
 // so it costs no function slot: the Hobby plan allows 12 and the site uses 11).
 //
 // READ   GET /api/status?key=<WCE_STATUS_KEY>&part=jobs    every job, the last day of runs, deploys
-//        GET /api/status?key=<WCE_STATUS_KEY>&part=reach   visits, connector calls, keys, newsletter, Dynasty
+//        GET /api/status?key=<WCE_STATUS_KEY>&part=reach   visits, connector calls, keys, newsletter, Dynasty, Flappy Hoops accounts
 //        GET /api/status?key=<WCE_STATUS_KEY>&part=ll      Live Lineups usage (api/_ll-usage.js)
 // The key is in the address on purpose: answers are cached at Vercel's edge for a few seconds
 // (jobs 15 s, reach 2 min), and the cache is keyed on the full address, so a request without
@@ -25,13 +25,14 @@
 // WHAT IT STORES (Upstash, the site's store)
 //   wce:status:jobs     hash   <job id> -> JSON of its latest state
 //   wce:status:events   list   newest first, the last 600 check-ins
-// A check-in costs 4 commands, a read of the jobs 2, a read of the reach 3. With the edge cache,
+// A check-in costs 4 commands, a read of the jobs 2, a read of the reach 5. With the edge cache,
 // an open Control Room costs a few hundred commands an hour at most.
 //
 // Not a function itself: Vercel skips api files that start with an underscore.
 
 import { createPublicKey, verify as verifySig } from 'node:crypto'
 import { parseJSONSafe, queryVisits, redisPipeline, timingSafeEqual, toHash, toISODate } from './analytics/_lib.js'
+import { hoopsStats } from './_hoops.js'
 import { readUsage } from './_usage.js'
 import { K_KEYS } from './_keys.js'
 import { buttondown, buttondownConfigured } from './_forms.js'
@@ -493,7 +494,9 @@ export async function readReach(now = Date.now()) {
     return r.ok ? { subscribers: Number(r.json?.count) || 0 } : { error: `Buttondown answered ${r.status}` }
   })())
 
-  const [s, c, v, n] = await Promise.all([store, connector, visits, newsletter])
+  const hoops = settle(hoopsStats(now))
+
+  const [s, c, v, n, fh] = await Promise.all([store, connector, visits, newsletter, hoops])
   return {
     now,
     visits: v,
@@ -501,6 +504,7 @@ export async function readReach(now = Date.now()) {
     keys: s.error ? s : { founding: s.keys },
     dynasty: s.error ? s : { ballots: s.ballots, dailyToday: s.dailyToday },
     newsletter: n,
+    hoops: fh,
     // Step 3 of the Control Room: these need keys the site doesn't have yet.
     youtube: { connected: false },
     social: { connected: false },

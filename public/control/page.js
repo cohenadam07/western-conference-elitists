@@ -116,6 +116,7 @@ function pulsesForReach(prev, next, now) {
         ['founding', prev.keys?.founding, next.keys?.founding],
         ['newsletter', prev.newsletter?.subscribers, next.newsletter?.subscribers],
         ['dynasty', prev.dynasty?.ballots, next.dynasty?.ballots],
+        ['hoops', prev.hoops?.accounts, next.hoops?.accounts],
     ];
     for (const [lane, a, b] of lanes) {
         if (a == null || b == null || b <= a)
@@ -354,13 +355,14 @@ function reachHtml() {
     <div><b>${num(c?.today)}</b><span>connector calls</span></div>
     <div><b>${num(reach?.keys?.founding)}</b><span>founding members</span></div>
     <div><b>${num(reach?.newsletter?.subscribers)}</b><span>newsletter</span></div>
-    <div><b>${num(reach?.dynasty?.ballots)}</b><span>Dynasty ballots</span></div></div>`;
+    <div><b>${num(reach?.dynasty?.ballots)}</b><span>Dynasty ballots</span></div>
+    <div><b>${num(reach?.hoops?.accounts)}</b><span>Flappy Hoops accounts</span></div></div>`;
 }
 function cardHtml(now) {
     if (!selected || !feed)
         return '';
     if (selected === 'reach')
-        return `<div class="card" style="--c:${C.gold}">${reachHtml()}<p class="muted small">Last 7 days of visitors: ${(reach?.visits?.week || []).map((d) => num(d.visitors)).join(' · ') || '–'}. Connector calls: ${(reach?.connector?.week || []).map((d) => num(d.calls)).join(' · ') || '–'}. YouTube, X/Bluesky and Google search join once their keys are added.</p><button class="ghost" data-pick="">Close</button></div>`;
+        return `<div class="card" style="--c:${C.gold}">${reachHtml()}<p class="muted small">Last 7 days of visitors: ${(reach?.visits?.week || []).map((d) => num(d.visitors)).join(' · ') || '–'}. Connector calls: ${(reach?.connector?.week || []).map((d) => num(d.calls)).join(' · ') || '–'}. Flappy Hoops: ${num(reach?.hoops?.accounts)} accounts, ${num(reach?.hoops?.newWeek)} new in the last 7 days; ${num(reach?.hoops?.playedWeek)} played signed in this week, ${num(reach?.hoops?.playedDay)} today (counted since Nov 23, 2026). YouTube, X/Bluesky and Google search join once their keys are added.</p><button class="ghost" data-pick="">Close</button></div>`;
     if (selected === 'deploy') {
         const list = (feed.deploys?.list || []).filter((d) => d.state !== 'CANCELED').slice(0, 8);
         return `<div class="card" style="--c:${C.gold}"><h2>Vercel deploys</h2>${feed.deploys?.error ? `<p class="warn">Can't read deploys: ${esc(feed.deploys.error)}</p>` : ''}
@@ -448,7 +450,7 @@ document.addEventListener('click', async (ev) => {
     }
     const pick = el.dataset.pick ?? el.getAttribute('data-id') ?? '';
     const id = pick && (feed?.jobs.some((j) => j.id === pick) || pick === 'deploy' || pick === 'reach') ? pick
-        : ['visitors', 'connector', 'founding', 'newsletter', 'dynasty', 'site', 'store'].includes(pick) ? 'reach' : '';
+        : ['visitors', 'connector', 'founding', 'newsletter', 'dynasty', 'hoops', 'site', 'store'].includes(pick) ? 'reach' : '';
     selected = !id || selected === id ? null : id;
     lastSvg = '';
     render();
