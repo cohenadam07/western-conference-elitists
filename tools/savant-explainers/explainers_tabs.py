@@ -26,8 +26,12 @@ def proj_stat(name, unit):
 T = {
  # ---- the All-Savant Team (landing page; public/savant-value.js, numbers from tools/savant-value/value.py)
  "allsavant": dict(
-     what=("The All-Savant Team is our All-NBA team, picked by the numbers alone: two guards, two wings and a big per team, each the "
-           "highest Savant value at his position among qualified players. A player makes one team only. Savant value is the points he "
+     what=("The All-Savant Team is our All-NBA team, picked by the numbers alone and by All-NBA's own rules for the era. Through 2022-23: "
+           "two guards, two forwards and a center per team, the most Savant value those slots allow among qualified players; a player can "
+           "fill a slot where he played at least 30% of his minutes (guard = PG + SG, forward = SF + PF, by Basketball Reference's position "
+           "estimate; before 1996-97, the position it lists), so a guard-forward like Manu Ginobili can be picked at either. From 2023-24, "
+           "positionless, as All-NBA is: the five highest values, then the next five. All-NBA's 65-game minimum is not applied: missed games "
+           "already cost Savant value. A player makes one team only. Savant value is the points he "
            "added to his team this season above a replacement-level player at his position, on the stats that are his own and the "
            "possessions he played."),
      formula=("Value = (rate - replacement rate) x possessions / 100. Rate = points per 100 possessions vs. an average player at his "
@@ -37,11 +41,12 @@ T = {
               "From 2007-08 the rate also takes in part of what his luck-adjusted on/off says beyond the box score and his minutes: "
               "weight w / (w + 6,400), w = 1 / (1/minutes on + 1/team minutes without him), about 13% for a full-time starter. "
               "Replacement = the 25th-percentile qualified player at his position that season."),
-     source=(f"{NBA}; Basketball Reference before 1996-97. Positions as on his card. Worth learned on 6,498 player-seasons "
+     source=(f"{NBA}; Basketball Reference before 1996-97. Slots from Basketball Reference's 5-position estimate (1996-97 on) or its listed position (before). Value is measured against his position as on his card (Guard, Wing, Big). Worth learned on 6,498 player-seasons "
              "(2009-10 to 2024-25, 2025-26 held out) by tools/savant-value/value.py; the numbers are in savant-value.json."),
      sample=("Missed games cost him: he adds nothing on nights he doesn't play. On the held-out 2025-26 season, a player's 2024-25 rate "
              "correlated .37 with his 2025-26 luck-adjusted on/off; BPM .35. Checked against the real All-NBA, never tuned to it: "
-             "since 1988-89, 63% of our first and second teamers made the real first or second team, 75% made an All-NBA team. "
+             "since 1988-89, 61% of our first and second teamers made the real first or second team and 73% made an All-NBA team "
+             "(measured Nov 19, 2026, under the rules by era). "
              "Before 2007-08 there is no on/off (the NBA's splits start then), so defense counts only through steals, blocks and rebounds. "
              "Early in a season the team moves a lot; it settles as possessions pile up.")),
  # ---- projections

@@ -434,6 +434,9 @@ export async function playerProfile({ player, season, window = 'season', group =
 
 const ONE = { Guard: 'guard', Wing: 'wing', Big: 'big' }
 const TEAM_WORD = ['1st', '2nd']
+const SLOT_WORD = { G: 'guard', F: 'forward', C: 'center' }
+// The slot a pick filled: 'G' | 'F' | 'C' through 2022-23, null from 2023-24 (positionless).
+const slotOf = (file, t, i) => ((file.all_savant_slots || [])[t] || [])[i] ?? null
 const sgn = (v) => (v > 0 ? '+' : v < 0 ? '\u2212' : '') + Math.abs(v)
 const sgnInt = (v) => sgn(Math.round(v)).replace(/\d+/, (d) => (+d).toLocaleString('en-US'))
 const sgn1 = (v) => (v >= 0.05 ? '+' : v <= -0.05 ? '\u2212' : '') + Math.abs(v).toFixed(1)
@@ -442,6 +445,7 @@ function savantValueOf(row, file, meta) {
   const [value, rate, rank, parts] = row.sv
   const keys = meta.savant_value.parts
   const onTeam = (file.all_savant || []).findIndex((t) => t.some((id) => String(id) === String(row.id)))
+  const at = onTeam >= 0 ? file.all_savant[onTeam].findIndex((id) => String(id) === String(row.id)) : -1
   return {
     points_over_replacement: value,
     per_100_vs_average: rate,
@@ -449,6 +453,7 @@ function savantValueOf(row, file, meta) {
     qualified_at_position: (file.value_count || {})[row.pos] ?? null,
     parts_per_100: Object.fromEntries(keys.map((k, i) => [k.key, parts[i]])),
     all_savant_team: onTeam >= 0 ? TEAM_WORD[onTeam] : null,
+    all_savant_slot: onTeam >= 0 ? slotOf(file, onTeam, at) : null,
     // An honour once the season is over (the page's rule: a full 82 played); a standing before.
     all_savant_final: !(file.in_progress && seasonGames(file) < 82),
   }
@@ -462,7 +467,7 @@ function savantValueText(row, sv, season, peers) {
     + `(${sgn1(sv.per_100_vs_average)} per 100 possessions vs. an average ${one})`
     + (sv.position_rank ? `, ${ordinal(sv.position_rank)} of ${sv.qualified_at_position} qualified ${peers}` : ', not qualified')
     + (sv.all_savant_team
-      ? (sv.all_savant_final ? `. All-Savant ${sv.all_savant_team} Team.` : `. On the All-Savant ${sv.all_savant_team} Team so far; it becomes an honour when the season ends.`)
+      ? (sv.all_savant_final ? `. All-Savant ${sv.all_savant_team} Team${sv.all_savant_slot ? ` (${SLOT_WORD[sv.all_savant_slot]})` : ''}.` : `. On the All-Savant ${sv.all_savant_team} Team so far; it becomes an honour when the season ends.`)
       : '.')
     + ` By part, per 100: ${parts.join(', ')}. It counts only the possessions he played, so missed games cost him.`
 }
@@ -500,20 +505,23 @@ export async function allSavantTeam({ season, team = 'both' }) {
   const want = team === '1' ? [0] : team === '2' ? [1] : [0, 1]
   const teams = want.map((t) => ({
     team: TEAM_WORD[t],
-    players: (file.all_savant[t] || []).map((id) => {
+    players: (file.all_savant[t] || []).map((id, i) => {
       const p = byId.get(String(id))
       return {
-        id: String(id), name: p.name, team: p.team, position: p.pos, games: p.gp ?? null,
+        id: String(id), name: p.name, team: p.team, slot: slotOf(file, t, i), position: p.pos, games: p.gp ?? null,
         points_over_replacement: p.sv[0], per_100_vs_average: p.sv[1],
         url: cardUrl(id),
       }
     }),
   }))
   if (file.in_progress) notes.push(`${seasonId} is still being played${file.through ? ` (data through ${file.through})` : ''}. The value is a season total, so the team moves as games pile up.`)
-  notes.push('Two guards, two wings and a big per team: the highest Savant value at each spot among qualified players; a player makes one team only. Positions are Basketball Savant\'s (Guard, Wing, Big), so this is not the league\'s positionless All-NBA ballot.')
+  const rule = file.all_savant_rule || null
+  notes.push('A player makes one team only. Each value is measured against a replacement player at his Basketball Savant position (Guard, Wing or Big), whatever slot he fills.')
   const structured = {
     season: seasonId,
     in_progress: !!file.in_progress,
+    positionless: !(file.all_savant_slots || [[]]).flat().some(Boolean),
+    rule,
     teams,
     method: meta.savant_value.what,
     notes,
@@ -525,10 +533,10 @@ export async function allSavantTeam({ season, team = 'both' }) {
   for (const t of teams) {
     L.push('', `${t.team} team:`)
     for (const x of t.players) {
-      L.push(`- ${x.position}: ${x.name} (${x.team}${x.games ? `, ${x.games} games` : ''}), ${sgnInt(x.points_over_replacement)} points over a replacement ${ONE[x.position]} (${sgn1(x.per_100_vs_average)} per 100 vs. an average ${ONE[x.position]}). ${x.url}`)
+      L.push(`- ${x.slot ? `${x.slot}:` : `${t.players.indexOf(x) + 1}.`} ${x.name} (${x.team}${x.games ? `, ${x.games} games` : ''}), ${sgnInt(x.points_over_replacement)} points over a replacement ${ONE[x.position]} (${sgn1(x.per_100_vs_average)} per 100 vs. an average ${ONE[x.position]}). ${x.url}`)
     }
   }
-  L.push('', meta.savant_value.what, ...notes, '', `Page: ${structured.url}`, `Source: ${structured.source}. Data as of ${structured.data_as_of}.`)
+  L.push('', ...(rule ? [`Rule for ${seasonId}: ${rule}`] : []), meta.savant_value.what, ...notes, '', `Page: ${structured.url}`, `Source: ${structured.source}. Data as of ${structured.data_as_of}.`)
   return { structured, text: L.join('\n') }
 }
 
@@ -667,6 +675,7 @@ export const tools = [
           qualified_at_position: z.number().int().nullable(),
           parts_per_100: z.record(z.string(), z.number()).describe('Scoring, playmaking, rebounding, defense, on-floor impact, per 100 vs. an average player at his position.'),
           all_savant_team: z.string().nullable().describe('"1st" or "2nd" when he is on the All-Savant Team that season.'),
+          all_savant_slot: z.enum(['G', 'F', 'C']).nullable().optional().describe('The slot he filled on that team through 2022-23 (guard, forward or center, as All-NBA was picked); null from 2023-24, when the team is positionless as All-NBA is.'),
           all_savant_final: z.boolean().describe('True once the season is over, when the All-Savant Team is an honour; false while it is a standing.'),
         }).optional().describe('Full season only: Savant value, the number the All-Savant Team is picked on.'),
         url: z.string().describe('His Basketball Savant card.'),
@@ -682,7 +691,7 @@ export const tools = [
     config: {
       title: 'Get the All-Savant Team',
       description:
-        'Get Basketball Savant\'s All-Savant Team (Western Conference Elitists, wcehoops.com) for one season: an All-NBA 1st and 2nd team picked by the numbers alone, two guards, two wings and a big each. Every pick is the highest Savant value at his spot among qualified players: the points he added that season above a replacement-level player at his position, built from his own box stats and luck-adjusted on/off, counting only the possessions he played. Returns each player with his value, team, games and card link. Seasons from 1979-80 on; defaults to the newest season, or the last full one while a new season is in its first 10 games.',
+        'Get Basketball Savant\'s All-Savant Team (Western Conference Elitists, wcehoops.com) for one season: an All-NBA 1st and 2nd team picked by the numbers alone, under All-NBA\'s own rules for the era: two guards, two forwards and a center through 2022-23 (a player can fill a slot where he played at least 30% of his minutes), positionless from 2023-24 (without All-NBA\'s 65-game minimum: missed games already cost Savant value). Picks are by Savant value among qualified players: the points he added that season above a replacement-level player at his position, built from his own box stats and luck-adjusted on/off, counting only the possessions he played. Returns each player with his value, team, games and card link. Seasons from 1979-80 on; defaults to the newest season, or the last full one while a new season is in its first 10 games.',
       inputSchema: {
         season: z.string().trim().max(12).optional().describe('Season written as two years, e.g. "2025-26". Omit for the current team.'),
         team: z.enum(['1', '2', 'both']).default('both').describe('"1" for the 1st team, "2" for the 2nd, "both" (default).'),
@@ -690,13 +699,16 @@ export const tools = [
       outputSchema: {
         season: z.string(),
         in_progress: z.boolean().describe('True while that season is still being played.'),
+        positionless: z.boolean().describe('True from 2023-24, when the team (like All-NBA) has no positions.'),
+        rule: z.string().nullable().describe('The rule that season\'s team was picked under, in words.'),
         teams: z.array(z.object({
           team: z.string().describe('"1st" or "2nd".'),
           players: z.array(z.object({
             id: z.string(),
             name: z.string(),
             team: z.string(),
-            position: z.string().describe('Guard, Wing or Big.'),
+            slot: z.enum(['G', 'F', 'C']).nullable().describe('The slot he filled: guard, forward or center through 2022-23; null from 2023-24 (positionless, listed by value).'),
+            position: z.string().describe('His Basketball Savant position (Guard, Wing or Big), the one his value is measured against.'),
             games: z.number().nullable(),
             points_over_replacement: z.number(),
             per_100_vs_average: z.number(),

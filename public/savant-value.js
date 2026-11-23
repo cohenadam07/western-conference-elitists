@@ -167,5 +167,82 @@
     return teams;
   }
 
-  root.SavantValue = { season: season, team: team, pctile: pctile, POSITIONS: POSITIONS };
+  /* The All-Savant Team by All-NBA's own rules for the era (2.9.0, Nov 2026).
+       through 2022-23  2 guards, 2 forwards, 1 center. Who can fill a slot comes from
+                        savant-allsavant.json (pipeline/basketball/all_savant_slots.py): 30% or more
+                        of his minutes there by Basketball Reference's position estimate, or the
+                        position it lists for him before 1996-97. Each team is the highest total
+                        value those slots allow (exact, not greedy), the 1st team first and the 2nd
+                        from everyone left. A player can fill one slot on one team.
+       2023-24 on       positionless: the five highest values, then the next five.
+     Qualified players only, as before; missed games cost value, as before.
+     Returns [[{ p, v, pos, slot, rank, el, sh, listed }] x n]; slot is 'G' | 'F' | 'C', or null
+     when positionless; pos stays the Guard/Wing/Big that his value is measured against. */
+  var SLOTS = [['G', 2], ['F', 2], ['C', 1]];
+  var LABEL_SLOT = { Guard: 'G', Wing: 'F', Big: 'C' };   // only for a player the file lacks
+  function positionless(season, slots) {
+    return String(season) >= ((slots && slots.positionless_from) || '2023-24');
+  }
+  function eligible(season, id, pos, slots) {
+    var row = slots && slots.seasons && slots.seasons[season] && slots.seasons[season][String(id)];
+    if (!row) return { el: LABEL_SLOT[pos] || 'F', sh: null, listed: null };
+    var bar = row.indexOf('|'), el = row.slice(0, bar), rest = row.slice(bar + 1);
+    if (rest.indexOf('L:') === 0) return { el: el, sh: null, listed: rest.slice(2) || null };
+    return { el: el, sh: rest.split(',').map(Number), listed: null };
+  }
+  /* Best total over the G/G/F/F/C slots from a value-sorted list: a knapsack over how many of each
+     slot are filled (3 x 3 x 2 states). Ties keep the higher-valued player (the earlier one). */
+  function bestFive(cands) {
+    var NS = 18, key = function (g, f, c) { return (g * 3 + f) * 2 + c; };
+    var best = [new Array(NS).fill(-Infinity)], how = [];
+    best[0][0] = 0;
+    for (var i = 0; i < cands.length; i++) {
+      var prev = best[i], cur = prev.slice(), pick = new Array(NS).fill(null);
+      for (var g = 0; g <= 2; g++) for (var f = 0; f <= 2; f++) for (var c = 0; c <= 1; c++) {
+        var k = key(g, f, c); if (prev[k] === -Infinity) continue;
+        var el = cands[i].el.el, val = cands[i].v.value;
+        [['G', g < 2, key(g + 1, f, c)], ['F', f < 2, key(g, f + 1, c)], ['C', c < 1, key(g, f, c + 1)]].forEach(function (o) {
+          if (!o[1] || el.indexOf(o[0]) < 0) return;
+          if (prev[k] + val > cur[o[2]]) { cur[o[2]] = prev[k] + val; pick[o[2]] = [o[0], k]; }
+        });
+      }
+      best.push(cur); how.push(pick);
+    }
+    var full = key(2, 2, 1), out = [];
+    if (best[cands.length][full] === -Infinity) return null;
+    for (var j = cands.length - 1, st = full; j >= 0 && st !== 0; j--) {
+      var h = how[j][st];                                 // set only when taking him beat skipping him
+      if (h) { out.push({ c: cands[j], slot: h[0] }); st = h[1]; }
+    }
+    return out;
+  }
+  function allSavant(players, results, season, slots, n) {
+    var cands = (players || []).map(function (p) {
+      var v = results.get(p.id);
+      return v && v.q ? { p: p, v: v, el: null } : null;
+    }).filter(Boolean).sort(function (a, b) { return b.v.value - a.v.value; });
+    var free = !!positionless(season, slots), used = new Set(), teams = [];
+    if (!free) cands.forEach(function (x) { x.el = eligible(season, x.p.id, x.v.pos, slots); });
+    var item = function (x, slot, rank) {
+      return { p: x.p, v: x.v, pos: x.v.pos, slot: slot, rank: rank, el: x.el ? x.el.el : null,
+               sh: x.el ? x.el.sh : null, listed: x.el ? x.el.listed : null };
+    };
+    for (var t = 0; t < (n || 2); t++) {
+      var left = cands.filter(function (x) { return !used.has(x.p.id); }), five = [];
+      if (free) {
+        five = left.slice(0, 5).map(function (x, i) { return item(x, null, i + 1); });
+      } else {
+        var got = bestFive(left) || [];
+        var order = { G: 0, F: 1, C: 2 };
+        five = got.sort(function (a, b) { return order[a.slot] - order[b.slot] || b.c.v.value - a.c.v.value; })
+          .map(function (o, i) { return item(o.c, o.slot, i + 1); });
+      }
+      five.forEach(function (x) { used.add(x.p.id); });
+      teams.push(five);
+    }
+    return teams;
+  }
+
+  root.SavantValue = { season: season, team: team, allSavant: allSavant, positionless: positionless,
+                       eligible: eligible, pctile: pctile, POSITIONS: POSITIONS, SLOTS: SLOTS };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

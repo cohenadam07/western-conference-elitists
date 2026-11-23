@@ -25,7 +25,7 @@ import { gunzipSync } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
 import { BASE, POSITIONS, buildSavantApi, writeSavantApi } from '../../scripts/lib/savant-api.mjs'
 import { mergeSavantData, readSavantData } from '../../scripts/lib/savant-merge.mjs'
-import { readValueModel } from '../../scripts/lib/savant-value.mjs'
+import { readAllSavantSlots, readValueModel } from '../../scripts/lib/savant-value.mjs'
 import '../../public/savant-value.js'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
@@ -33,7 +33,8 @@ const PUBLIC = path.join(ROOT, 'public')
 const html = readFileSync(path.join(PUBLIC, 'basketball-savant.html'), 'utf8')
 const data = readSavantData(PUBLIC) // the archive with public/savant-current.json laid over it, as the build does
 const valueModel = readValueModel(PUBLIC)
-const out = buildSavantApi({ data, html, valueModel })
+const allSavantSlots = readAllSavantSlots(PUBLIC)
+const out = buildSavantApi({ data, html, valueModel, allSavantSlots })
 
 // ---- lifting the page's code ---------------------------------------------------------
 
@@ -433,9 +434,11 @@ test('every season carries the page\'s All-Savant teams and a value for every ra
   for (const season of data.seasons) {
     const players = data.data[season].players.map((p) => ({ ...p, pos: fixId[p.id] || fixName[norm(p.name)] || p.pos }))
     const res = SV.season(players, valueModel)
-    const teams = SV.team(players, res, valueModel, null, 2).map((t) => t.map((x) => x.p.id))
+    const picked = SV.allSavant(players, res, season, allSavantSlots, 2)
     const file = out.seasons[season]
-    assert.deepEqual(file.all_savant, teams, season)
+    assert.deepEqual(file.all_savant, picked.map((t) => t.map((x) => x.p.id)), season)
+    assert.deepEqual(file.all_savant_slots, picked.map((t) => t.map((x) => x.slot)), season)
+    assert.match(file.all_savant_rule, season >= '2023-24' ? /^Positionless/ : /^Two guards, two forwards and a center/, season)
     for (const row of file.players) {
       const v = res.get(row.id)
       if (!v) { assert.equal(row.sv, undefined, `${season} ${row.name}`); continue }

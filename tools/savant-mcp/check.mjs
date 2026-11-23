@@ -35,7 +35,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { buildSavantApi, writeAll } from '../../scripts/lib/savant-api.mjs'
 import { readSavantDataForChecks } from '../../scripts/lib/savant-merge.mjs'
-import { readValueModel } from '../../scripts/lib/savant-value.mjs'
+import { readAllSavantSlots, readValueModel } from '../../scripts/lib/savant-value.mjs'
 import { CONNECTOR_URL, EXAMPLE, PROMPTS } from '../../src/data/connector.js'
 import { startStore } from './redis.mjs'
 
@@ -44,7 +44,7 @@ const html = readFileSync(path.join(ROOT, 'public/basketball-savant.html'), 'utf
 const data = readSavantDataForChecks(path.join(ROOT, 'public')) // archive + season in progress once it has a pool
 // Through JSON once, because that is what gets published: the source has a few -0.0 values,
 // which are plain 0 by the time they are a file.
-const files = JSON.parse(JSON.stringify(buildSavantApi({ data, html, valueModel: readValueModel(path.join(ROOT, 'public')) })))
+const files = JSON.parse(JSON.stringify(buildSavantApi({ data, html, valueModel: readValueModel(path.join(ROOT, 'public')), allSavantSlots: readAllSavantSlots(path.join(ROOT, 'public')) })))
 const latest = files.meta.latestSeason
 // The newest finished-sized season: early in a season in progress, `latest` holds a few games,
 // no comps yet, and players who haven't played. Checks that need a full season use this one.
@@ -906,22 +906,38 @@ test('every tool of every section answers through the endpoint', async () => {
     const text = textOf(r)
     assert.ok(!r.isError, `${name} ${JSON.stringify(args)}: ${text.slice(0, 300)}`)
     assert.match(text, expect, `${name} ${JSON.stringify(args)}`)
-    assert.ok(text.length < 13000, `${name}: ${text.length} characters`)
+    // A size budget, not a measured limit. 13,000 until 2.9.0 (Nov 22, 2026): Jokić's profile was already 12,929 on
+    // main, and under the positionless rule he is on the 2026-27 team so far, which adds the standing sentence (13,007).
+    assert.ok(text.length < 14000, `${name}: ${text.length} characters`)
     assert.match(text, /wcehoops\.com/, `${name}: links to the site`)
     return r.structuredContent
   }
   await ok('nba_search_players', { query: 'jokic' }, /Nikola Jokić/)
   await ok('nba_get_player_profile', { player: 'Nikola Jokic' }, /vs\. bigs/)
-  // The All-Savant Team: the page's own savant-value.js, read off the season file
-  const ast = await ok('nba_all_savant_team', { season: '2025-26' }, /All-Savant Team, 2025-26/)
+  // The All-Savant Team (2.9.0, All-NBA's rules by era): the page's own savant-value.js, read off the season file
+  const ast = await ok('nba_all_savant_team', { season: '2025-26' }, /All-Savant Team, 2025-26.*Rule for 2025-26: Positionless/s)
   assert.equal(ast.teams.length, 2)
-  for (const t of ast.teams) assert.deepEqual(t.players.map((x) => x.position), ['Guard', 'Guard', 'Wing', 'Wing', 'Big'])
+  assert.equal(ast.positionless, true)
+  assert.match(ast.rule, /^Positionless, as All-NBA has been since 2023-24/)
+  for (const t of ast.teams) {
+    assert.deepEqual(t.players.map((x) => x.slot), [null, null, null, null, null])
+    const v = t.players.map((x) => x.points_over_replacement)
+    assert.deepEqual(v, [...v].sort((a, b) => b - a), 'positionless teams list by value')
+  }
   assert.deepEqual(ast.teams.map((t) => t.players.map((x) => x.id)), files.seasons['2025-26'].all_savant.map((t) => t.map(String)))
-  const one = await ok('nba_all_savant_team', { season: '1985-86', team: '1' }, /1st team/)
+  const one = await ok('nba_all_savant_team', { season: '1985-86', team: '1' }, /1st team:\n- G: /)
   assert.equal(one.teams.length, 1)
+  assert.equal(one.positionless, false)
+  assert.deepEqual(one.teams[0].players.map((x) => x.slot), ['G', 'G', 'F', 'F', 'C'])
+  // 2010-11: Ginobili on the 1st team at forward, and his profile says so
+  const old = await ok('nba_all_savant_team', { season: '2010-11' }, /- F: Manu Ginobili/)
+  assert.match(old.rule, /^Two guards, two forwards and a center, as All-NBA was picked through 2022-23/)
+  const manu = await ok('nba_get_player_profile', { player: 'Manu Ginobili', season: '2010-11' }, /All-Savant 1st Team \(forward\)/)
+  assert.equal(manu.savant_value.all_savant_slot, 'F')
   const first = ast.teams[0].players[0]
-  const prof = await ok('nba_get_player_profile', { player: first.id, season: '2025-26' }, /Savant value: \+[\d,]+ points over a replacement guard in 2025-26.*All-Savant 1st Team/s)
+  const prof = await ok('nba_get_player_profile', { player: first.id, season: '2025-26' }, /Savant value: \+[\d,]+ points over a replacement (guard|wing|big) in 2025-26.*All-Savant 1st Team\./s)
   assert.equal(prof.savant_value.all_savant_team, '1st')
+  assert.equal(prof.savant_value.all_savant_slot, null)
   assert.equal(prof.savant_value.points_over_replacement, first.points_over_replacement)
   // Basketball Savant's Fantasy, Teams and Lineups tabs (api/_fantasy.js)
   const fr = await ok('nba_fantasy_rankings', { limit: 5 }, /Points \(Sleeper default\)/)

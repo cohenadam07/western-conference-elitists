@@ -7,6 +7,7 @@ Our All-NBA team picked by analytics only, on the Basketball Savant landing page
 ## Adam's decisions (Oct 20)
 1. Picked on our own **Savant value** (not BPM/VORP, not a profile score).
 2. Shape: **2 guards, 2 wings, 1 big** per team, every season (positions as on the card, so Luka is a guard via POS_FIX).
+   **Replaced in 2.9.0 (Nov 19, 2026)** by All-NBA's rules by era: 2 guards / 2 forwards / 1 center through 2022-23 (30% of minutes makes a player eligible, pipeline/basketball/all_savant_slots.py), positionless from 2023-24. Tested in research/all-savant-positions: 60.8% / 73.4% vs 60.3% / 71.3%.
 3. **Missed games count against him** (value = rate x possessions played). No 65-game rule.
 4. Look: **starting-five row** of portrait cards, 1st / 2nd team toggle.
 

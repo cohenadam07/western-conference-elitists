@@ -359,6 +359,13 @@
         "nba_get_player_profile"
       ]
     },
+    "data:savant-allsavant.json": {
+      "tools": [
+        "nba_all_savant_team",
+        "nba_get_player_profile"
+      ],
+      "note": "2.9.0: who can fill which All-Savant slot (G, F, C) through 2022-23; the team tool and a profile's honours name the slot."
+    },
     "data:savant-proj.json": {
       "tools": [
         "nba_fantasy_rankings"

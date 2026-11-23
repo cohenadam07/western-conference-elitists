@@ -1,0 +1,607 @@
+{
+ "1997-98": {
+  "before": [
+   [
+    "Gary Payton",
+    "Tim Hardaway",
+    "Karl Malone",
+    "Kevin Garnett",
+    "David Robinson"
+   ],
+   [
+    "Eddie Jones",
+    "Allen Iverson",
+    "Charles Barkley",
+    "Grant Hill",
+    "Shaquille O'Neal"
+   ]
+  ],
+  "after": [
+   [
+    "Gary Payton (G)",
+    "Tim Hardaway (G)",
+    "Karl Malone (F)",
+    "Kevin Garnett (F)",
+    "David Robinson (C)"
+   ],
+   [
+    "Eddie Jones (G)",
+    "Allen Iverson (G)",
+    "Tim Duncan (F)",
+    "Charles Barkley (F)",
+    "Shaquille O'Neal (C)"
+   ]
+  ],
+  "changes": [
+   "2nd: +Tim Duncan / −Grant Hill"
+  ]
+ },
+ "1998-99": {
+  "before": [
+   [
+    "Jason Kidd",
+    "Gary Payton",
+    "Karl Malone",
+    "Grant Hill",
+    "Shaquille O'Neal"
+   ],
+   [
+    "Darrell Armstrong",
+    "Eddie Jones",
+    "Scottie Pippen",
+    "Paul Pierce",
+    "David Robinson"
+   ]
+  ],
+  "after": [
+   [
+    "Jason Kidd (G)",
+    "Gary Payton (G)",
+    "Karl Malone (F)",
+    "Eddie Jones (F)",
+    "Shaquille O'Neal (C)"
+   ],
+   [
+    "Darrell Armstrong (G)",
+    "John Stockton (G)",
+    "Grant Hill (F)",
+    "Scottie Pippen (F)",
+    "David Robinson (C)"
+   ]
+  ],
+  "changes": [
+   "1st: +Eddie Jones / −Grant Hill",
+   "2nd: +John Stockton, Grant Hill / −Eddie Jones, Paul Pierce"
+  ]
+ },
+ "1999-00": {
+  "before": [
+   [
+    "Gary Payton",
+    "Eddie Jones",
+    "Karl Malone",
+    "Kevin Garnett",
+    "Shaquille O'Neal"
+   ],
+   [
+    "John Stockton",
+    "Vince Carter",
+    "Grant Hill",
+    "Paul Pierce",
+    "Alonzo Mourning"
+   ]
+  ],
+  "after": [
+   [
+    "Gary Payton (G)",
+    "Eddie Jones (G)",
+    "Karl Malone (F)",
+    "Kevin Garnett (F)",
+    "Shaquille O'Neal (C)"
+   ],
+   [
+    "John Stockton (G)",
+    "Vince Carter (G)",
+    "Chris Webber (F)",
+    "Grant Hill (F)",
+    "Alonzo Mourning (C)"
+   ]
+  ],
+  "changes": [
+   "2nd: +Chris Webber / −Paul Pierce"
+  ]
+ },
+ "2000-01": {
+  "before": [
+   [
+    "Ray Allen",
+    "Steve Francis",
+    "Vince Carter",
+    "Dirk Nowitzki",
+    "Shaquille O'Neal"
+   ],
+   [
+    "John Stockton",
+    "Jason Kidd",
+    "Paul Pierce",
+    "Karl Malone",
+    "Kevin Garnett"
+   ]
+  ],
+  "after": [
+   [
+    "Ray Allen (G)",
+    "Paul Pierce (G)",
+    "Vince Carter (F)",
+    "Dirk Nowitzki (F)",
+    "Shaquille O'Neal (C)"
+   ],
+   [
+    "Steve Francis (G)",
+    "John Stockton (G)",
+    "Kevin Garnett (F)",
+    "Karl Malone (F)",
+    "David Robinson (C)"
+   ]
+  ],
+  "changes": [
+   "1st: +Paul Pierce / −Steve Francis",
+   "2nd: +Steve Francis, David Robinson / −Jason Kidd, Paul Pierce"
+  ]
+ },
+ "2001-02": {
+  "before": [
+   [
+    "John Stockton",
+    "Brent Barry",
+    "Elton Brand",
+    "Kevin Garnett",
+    "Tim Duncan"
+   ],
+   [
+    "Paul Pierce",
+    "Andre Miller",
+    "Andrei Kirilenko",
+    "Karl Malone",
+    "Ben Wallace"
+   ]
+  ],
+  "after": [
+   [
+    "John Stockton (G)",
+    "Brent Barry (G)",
+    "Tim Duncan (F)",
+    "Elton Brand (F)",
+    "Ben Wallace (C)"
+   ],
+   [
+    "Paul Pierce (G)",
+    "Andre Miller (G)",
+    "Kevin Garnett (F)",
+    "Andrei Kirilenko (F)",
+    "Shaquille O'Neal (C)"
+   ]
+  ],
+  "changes": [
+   "1st: +Ben Wallace / −Kevin Garnett",
+   "2nd: +Kevin Garnett, Shaquille O'Neal / −Karl Malone, Ben Wallace"
+  ]
+ },
+ "2004-05": {
+  "before": [
+   [
+    "Stephon Marbury",
+    "Gilbert Arenas",
+    "LeBron James",
+    "Shawn Marion",
+    "Kevin Garnett"
+   ],
+   [
+    "Allen Iverson",
+    "Manu Ginobili",
+    "Paul Pierce",
+    "Tracy McGrady",
+    "Amar'e Stoudemire"
+   ]
+  ],
+  "after": [
+   [
+    "Stephon Marbury (G)",
+    "Gilbert Arenas (G)",
+    "LeBron James (F)",
+    "Kevin Garnett (F)",
+    "Amar'e Stoudemire (C)"
+   ],
+   [
+    "Allen Iverson (G)",
+    "Manu Ginobili (G)",
+    "Shawn Marion (F)",
+    "Paul Pierce (F)",
+    "Dirk Nowitzki (C)"
+   ]
+  ],
+  "changes": [
+   "1st: +Amar'e Stoudemire / −Shawn Marion",
+   "2nd: +Shawn Marion, Dirk Nowitzki / −Tracy McGrady, Amar'e Stoudemire"
+  ]
+ },
+ "2006-07": {
+  "before": [
+   [
+    "Kobe Bryant",
+    "Gilbert Arenas",
+    "Shawn Marion",
+    "Dirk Nowitzki",
+    "Tim Duncan"
+   ],
+   [
+    "Steve Nash",
+    "Jason Kidd",
+    "LeBron James",
+    "Elton Brand",
+    "Amar'e Stoudemire"
+   ]
+  ],
+  "after": [
+   [
+    "Gilbert Arenas (G)",
+    "Steve Nash (G)",
+    "Shawn Marion (F)",
+    "Kobe Bryant (F)",
+    "Tim Duncan (C)"
+   ],
+   [
+    "Jason Kidd (G)",
+    "Manu Ginobili (G)",
+    "Dirk Nowitzki (F)",
+    "LeBron James (F)",
+    "Amar'e Stoudemire (C)"
+   ]
+  ],
+  "changes": [
+   "1st: +Steve Nash / −Dirk Nowitzki",
+   "2nd: +Manu Ginobili, Dirk Nowitzki / −Steve Nash, Elton Brand"
+  ]
+ },
+ "2008-09": {
+  "before": [
+   [
+    "Chris Paul",
+    "Dwyane Wade",
+    "LeBron James",
+    "Rashard Lewis",
+    "Dwight Howard"
+   ],
+   [
+    "Jason Kidd",
+    "Kobe Bryant",
+    "Andre Iguodala",
+    "Gerald Wallace",
+    "Nene"
+   ]
+  ],
+  "after": [
+   [
+    "Chris Paul (G)",
+    "Dwyane Wade (G)",
+    "LeBron James (F)",
+    "Brandon Roy (F)",
+    "Dwight Howard (C)"
+   ],
+   [
+    "Jason Kidd (G)",
+    "Kobe Bryant (G)",
+    "Rashard Lewis (F)",
+    "Andre Iguodala (F)",
+    "Nene (C)"
+   ]
+  ],
+  "changes": [
+   "1st: +Brandon Roy / −Rashard Lewis",
+   "2nd: +Rashard Lewis / −Gerald Wallace"
+  ]
+ },
+ "2009-10": {
+  "before": [
+   [
+    "Dwyane Wade",
+    "Jason Kidd",
+    "LeBron James",
+    "Kevin Durant",
+    "Dwight Howard"
+   ],
+   [
+    "Rajon Rondo",
+    "Deron Williams",
+    "Josh Smith",
+    "Dirk Nowitzki",
+    "Nene"
+   ]
+  ],
+  "after": [
+   [
+    "Dwyane Wade (G)",
+    "Jason Kidd (G)",
+    "LeBron James (F)",
+    "Kevin Durant (F)",
+    "Dwight Howard (C)"
+   ],
+   [
+    "Rajon Rondo (G)",
+    "Deron Williams (G)",
+    "Josh Smith (F)",
+    "Manu Ginobili (F)",
+    "Nene (C)"
+   ]
+  ],
+  "changes": [
+   "2nd: +Manu Ginobili / −Dirk Nowitzki"
+  ]
+ },
+ "2010-11": {
+  "before": [
+   [
+    "Chris Paul",
+    "Dwyane Wade",
+    "LeBron James",
+    "Paul Pierce",
+    "Dwight Howard"
+   ],
+   [
+    "Manu Ginobili",
+    "Steve Nash",
+    "Dirk Nowitzki",
+    "Kevin Garnett",
+    "Pau Gasol"
+   ]
+  ],
+  "after": [
+   [
+    "Chris Paul (G)",
+    "Dwyane Wade (G)",
+    "LeBron James (F)",
+    "Manu Ginobili (F)",
+    "Dwight Howard (C)"
+   ],
+   [
+    "Steve Nash (G)",
+    "Kyle Lowry (G)",
+    "Paul Pierce (F)",
+    "Kevin Love (F)",
+    "Pau Gasol (C)"
+   ]
+  ],
+  "changes": [
+   "1st: +Manu Ginobili / −Paul Pierce",
+   "2nd: +Kyle Lowry, Paul Pierce, Kevin Love / −Manu Ginobili, Dirk Nowitzki, Kevin Garnett"
+  ]
+ },
+ "2013-14": {
+  "before": [
+   [
+    "Stephen Curry",
+    "Chris Paul",
+    "Kevin Durant",
+    "LeBron James",
+    "Kevin Love"
+   ],
+   [
+    "James Harden",
+    "Kyle Lowry",
+    "Blake Griffin",
+    "Dirk Nowitzki",
+    "Andre Drummond"
+   ]
+  ],
+  "after": [
+   [
+    "Stephen Curry (G)",
+    "Chris Paul (G)",
+    "Kevin Durant (F)",
+    "LeBron James (F)",
+    "Andre Drummond (C)"
+   ],
+   [
+    "James Harden (G)",
+    "Kyle Lowry (G)",
+    "Kevin Love (F)",
+    "Blake Griffin (F)",
+    "DeAndre Jordan (C)"
+   ]
+  ],
+  "changes": [
+   "1st: +Andre Drummond / −Kevin Love",
+   "2nd: +Kevin Love, DeAndre Jordan / −Dirk Nowitzki, Andre Drummond"
+  ]
+ },
+ "2014-15": {
+  "before": [
+   [
+    "Stephen Curry",
+    "Chris Paul",
+    "LeBron James",
+    "Draymond Green",
+    "Anthony Davis"
+   ],
+   [
+    "James Harden",
+    "Russell Westbrook",
+    "Kawhi Leonard",
+    "Paul Millsap",
+    "DeAndre Jordan"
+   ]
+  ],
+  "after": [
+   [
+    "Stephen Curry (G)",
+    "Chris Paul (G)",
+    "Anthony Davis (F)",
+    "LeBron James (F)",
+    "DeAndre Jordan (C)"
+   ],
+   [
+    "James Harden (G)",
+    "Russell Westbrook (G)",
+    "Draymond Green (F)",
+    "Kawhi Leonard (F)",
+    "DeMarcus Cousins (C)"
+   ]
+  ],
+  "changes": [
+   "1st: +DeAndre Jordan / −Draymond Green",
+   "2nd: +Draymond Green, DeMarcus Cousins / −Paul Millsap, DeAndre Jordan"
+  ]
+ },
+ "2021-22": {
+  "before": [
+   [
+    "Trae Young",
+    "Stephen Curry",
+    "Kevin Durant",
+    "Jayson Tatum",
+    "Nikola Jokić"
+   ],
+   [
+    "Jrue Holiday",
+    "James Harden",
+    "Jimmy Butler III",
+    "Robert Covington",
+    "Giannis Antetokounmpo"
+   ]
+  ],
+  "after": [
+   [
+    "Trae Young (G)",
+    "Stephen Curry (G)",
+    "Giannis Antetokounmpo (F)",
+    "Kevin Durant (F)",
+    "Nikola Jokić (C)"
+   ],
+   [
+    "Jrue Holiday (G)",
+    "James Harden (G)",
+    "Jayson Tatum (F)",
+    "LeBron James (F)",
+    "Joel Embiid (C)"
+   ]
+  ],
+  "changes": [
+   "1st: +Giannis Antetokounmpo / −Jayson Tatum",
+   "2nd: +Jayson Tatum, LeBron James, Joel Embiid / −Jimmy Butler III, Robert Covington, Giannis Antetokounmpo"
+  ]
+ },
+ "2023-24": {
+  "before": [
+   [
+    "Shai Gilgeous-Alexander",
+    "Luka Dončić",
+    "LeBron James",
+    "Kawhi Leonard",
+    "Nikola Jokić"
+   ],
+   [
+    "Tyrese Haliburton",
+    "James Harden",
+    "Paul George",
+    "Jimmy Butler III",
+    "Giannis Antetokounmpo"
+   ]
+  ],
+  "after": [
+   [
+    "Nikola Jokić",
+    "Shai Gilgeous-Alexander",
+    "Luka Dončić",
+    "Giannis Antetokounmpo",
+    "LeBron James"
+   ],
+   [
+    "Kawhi Leonard",
+    "Paul George",
+    "Anthony Davis",
+    "Tyrese Haliburton",
+    "James Harden"
+   ]
+  ],
+  "changes": [
+   "1st: +Giannis Antetokounmpo / −Kawhi Leonard",
+   "2nd: +Kawhi Leonard, Anthony Davis / −Jimmy Butler III, Giannis Antetokounmpo"
+  ]
+ },
+ "2024-25": {
+  "before": [
+   [
+    "Shai Gilgeous-Alexander",
+    "Tyrese Haliburton",
+    "Giannis Antetokounmpo",
+    "Jimmy Butler III",
+    "Nikola Jokić"
+   ],
+   [
+    "Stephen Curry",
+    "Luka Dončić",
+    "Pascal Siakam",
+    "LeBron James",
+    "Ivica Zubac"
+   ]
+  ],
+  "after": [
+   [
+    "Nikola Jokić",
+    "Shai Gilgeous-Alexander",
+    "Giannis Antetokounmpo",
+    "Tyrese Haliburton",
+    "Stephen Curry"
+   ],
+   [
+    "Luka Dončić",
+    "James Harden",
+    "Jimmy Butler III",
+    "Austin Reaves",
+    "Chris Paul"
+   ]
+  ],
+  "changes": [
+   "1st: +Stephen Curry / −Jimmy Butler III",
+   "2nd: +James Harden, Jimmy Butler III, Austin Reaves, Chris Paul / −Stephen Curry, Pascal Siakam, LeBron James, Ivica Zubac"
+  ]
+ },
+ "2025-26": {
+  "before": [
+   [
+    "Shai Gilgeous-Alexander",
+    "Luka Dončić",
+    "Kawhi Leonard",
+    "Giannis Antetokounmpo",
+    "Nikola Jokić"
+   ],
+   [
+    "Donovan Mitchell",
+    "Jamal Murray",
+    "Scottie Barnes",
+    "Trey Murphy III",
+    "Victor Wembanyama"
+   ]
+  ],
+  "after": [
+   [
+    "Nikola Jokić",
+    "Shai Gilgeous-Alexander",
+    "Kawhi Leonard",
+    "Luka Dončić",
+    "Victor Wembanyama"
+   ],
+   [
+    "Donovan Mitchell",
+    "Jamal Murray",
+    "Tyrese Maxey",
+    "Giannis Antetokounmpo",
+    "Jalen Duren"
+   ]
+  ],
+  "changes": [
+   "1st: +Victor Wembanyama / −Giannis Antetokounmpo",
+   "2nd: +Tyrese Maxey, Giannis Antetokounmpo, Jalen Duren / −Scottie Barnes, Trey Murphy III, Victor Wembanyama"
+  ]
+ }
+}

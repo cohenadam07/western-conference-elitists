@@ -11,6 +11,20 @@ import '../../public/savant-value.js'
 
 const SV = globalThis.SavantValue
 
+/** Who can fill which All-Savant slot through 2022-23 (pipeline/basketball/all_savant_slots.py), or
+ *  null when missing (the teams then fall back to Guard = G, Wing = F, Big = C). */
+export function readAllSavantSlots(publicDir) {
+  const f = path.join(publicDir, 'savant-allsavant.json')
+  return existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : null
+}
+
+/** The All-Savant rule a season was picked under, in words (the connector's `rule`). */
+export function allSavantRule(season, slots) {
+  return SV.positionless(season, slots)
+    ? 'Positionless, as All-NBA has been since 2023-24: the five highest Savant values among qualified players, then the next five. All-NBA\'s 65-game minimum is not applied: missed games already cost Savant value.'
+    : `Two guards, two forwards and a center, as All-NBA was picked through 2022-23: the highest total Savant value those slots allow, among qualified players. A player can fill a slot when at least ${(slots && slots.cutoff) || 30}% of his minutes were there by Basketball Reference's position estimate (guard = PG + SG, forward = SF + PF), or, before 1996-97, at the position Basketball Reference lists.`
+}
+
 /** The learned model, or null when the file is missing (the build then goes without). */
 export function readValueModel(publicDir) {
   const f = path.join(publicDir, 'savant-value.json')
@@ -23,13 +37,14 @@ const asPageInt = (v) => Math.round(v)
 const asPage1 = (v) => (v < 0 ? -1 : 1) * Number(Math.abs(v).toFixed(1)) || 0
 
 /**
- * Value for every player of one season, and the two teams.
+ * Value for every player of one season, and the two All-Savant teams by the era's rule.
  * @param players rows with the page's positions already applied (p.pos)
- * @returns { byId: Map(id -> [value, per100, posRank|null, parts[]]), teams: [[id x5], [id x5]] }
+ * @returns { byId: Map(id -> [value, per100, posRank|null, parts[]]), teams: [[id x5], [id x5]],
+ *            slots: [['G'|'F'|'C'|null x5] x2] }
  */
-export function seasonValue(players, model) {
+export function seasonValue(players, model, season, allSavantSlots) {
   const res = SV.season(players, model)
-  const teams = SV.team(players, res, model, null, 2)
+  const teams = SV.allSavant(players, res, season, allSavantSlots, 2)
   // rank among qualified players at the position, by value
   const rankOf = new Map()
   for (const pos of SV.POSITIONS) {
@@ -44,17 +59,17 @@ export function seasonValue(players, model) {
   }
   const count = {}
   for (const pos of SV.POSITIONS) count[pos] = [...res.values()].filter((v) => v.q && v.pos === pos).length
-  return { byId, teams: teams.map((t) => t.map((x) => x.p.id)), count }
+  return { byId, teams: teams.map((t) => t.map((x) => x.p.id)), slots: teams.map((t) => t.map((x) => x.slot)), count }
 }
 
 /** What the season file's fields mean, for meta.json. */
 export function valueMeta(model) {
   return {
-    what: 'Savant value: the points a player added to his team that season above a replacement-level player at his position (Guard, Wing, Big), on the stats that are his own and the possessions he played. Missed games cost him. The All-Savant Team is the highest value at two guard, two wing and one big spot, a 1st team and a 2nd, qualified players only, one team per player.',
+    what: 'Savant value: the points a player added to his team that season above a replacement-level player at his position (Guard, Wing, Big), on the stats that are his own and the possessions he played. Missed games cost him. The All-Savant Team follows All-NBA\'s rules for the era: through 2022-23, two guards, two forwards and a center, the most value those slots allow (a player can fill a slot where he played 30% or more of his minutes); from 2023-24, positionless, the five highest values, with no 65-game minimum (missed games already cost value). A 1st team and a 2nd, qualified players only, one team per player.',
     how: 'Rate = points per 100 possessions vs. an average player at his position, from box stats (shooting efficiency, usage, 3-point and free-throw rate, assist %, turnovers, rebound % at both ends, steals, blocks), each pulled toward the position average by its settle point and weighted by what it is worth in luck-adjusted on/off (learned on 2009-10 to 2024-25) and by the share of it that follows a player to a new team. From 2007-08 the rate also takes in part of what his luck-adjusted on/off says beyond the box score: weight w / (w + K), w = 1 / (1/minutes on + 1/team minutes without him), about 13% for a full-time starter. Value = (rate - the 25th-percentile qualified rate at his position) x possessions / 100.',
-    checks: 'On the held-out 2025-26 season, a player\'s 2024-25 rate correlated .37 with his 2025-26 luck-adjusted on/off; BPM .35. Checked against the real All-NBA, never tuned to it: since 1988-89, 63% of our 1st and 2nd teamers made the real 1st or 2nd team.',
+    checks: 'On the held-out 2025-26 season, a player\'s 2024-25 rate correlated .37 with his 2025-26 luck-adjusted on/off; BPM .35. Checked against the real All-NBA, never tuned to it: since 1988-89, 61% of our 1st and 2nd teamers made the real 1st or 2nd team and 73% an All-NBA team (measured Nov 19, 2026).',
     row: 'sv: [points over replacement (whole points), points per 100 vs. an average player at his position (one decimal), rank among qualified players at his position (null if not qualified), parts per 100 in the order of parts (one decimal)]. Rounded exactly as the page prints them.',
-    season: 'all_savant: [1st team ids, 2nd team ids], each guard, guard, wing, wing, big. value_count: qualified players at each position.',
+    season: 'all_savant: [1st team ids, 2nd team ids]. all_savant_slots: the slot each filled, in the same order (G, G, F, F, C through 2022-23; null from 2023-24, positionless, ids by value). all_savant_rule: the rule in words. value_count: qualified players at each position.',
     parts: model.parts.map((p) => ({ key: p.key, label: p.label })),
     K: model.K,
     learned: model.learned,

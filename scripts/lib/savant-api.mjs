@@ -46,7 +46,7 @@ import { writeSiteApi } from './savant-api-site.mjs'
 import { writeUfcApi } from './savant-api-ufc.mjs'
 import { readSavantData } from './savant-merge.mjs'
 import { makeSettle, readSettleK } from './savant-settle.mjs'
-import { readValueModel, seasonValue, valueMeta } from './savant-value.mjs'
+import { allSavantRule, readAllSavantSlots, readValueModel, seasonValue, valueMeta } from './savant-value.mjs'
 
 export const SITE = 'https://wcehoops.com'
 export const BASE = 'savant-api/basketball/v1'
@@ -245,7 +245,7 @@ function stats(p, season, metrics, pool, w) {
 
 const sampleOf = (p, key) => { const c = cell(p, key, 'season'); return c && c.n != null ? c.n : null }
 
-export function buildSavantApi({ data, html, valueModel = null }) {
+export function buildSavantApi({ data, html, valueModel = null, allSavantSlots = null }) {
   const { cfg, posFixId, posFixName, explain, awards } = readPageConfig(html)
   if (!Array.isArray(data.seasons) || !data.data) throw new Error('savant-data.json: expected { seasons, data }')
   const metrics = cfg.metrics
@@ -268,7 +268,7 @@ export function buildSavantApi({ data, html, valueModel = null }) {
     // Position corrections first: they move players between pools.
     const players = src.map((p) => ({ ...p, pos: posOf(p) }))
     // Savant value and the All-Savant Team: the page's own savant-value.js, on the same rows.
-    const sv = valueModel ? seasonValue(players, valueModel) : null
+    const sv = valueModel ? seasonValue(players, valueModel, season, allSavantSlots) : null
     const isLatest = season === latest
     const windows = isLatest ? cfg.windows : ['season']
     const pool = {}
@@ -346,7 +346,7 @@ export function buildSavantApi({ data, html, valueModel = null }) {
       // player-level Synergy table) and pools (how many players clear sample_flag in each
       // type). A finished season has none: its percentile is the NBA's.
       ...(data.current && data.current.season === season && data.current.playtypes ? { play_types: data.current.playtypes } : {}),
-      ...(sv ? { all_savant: sv.teams, value_count: sv.count } : {}),
+      ...(sv ? { all_savant: sv.teams, all_savant_slots: sv.slots, all_savant_rule: allSavantRule(season, allSavantSlots), value_count: sv.count } : {}),
       players: rows,
     }
   }
@@ -460,6 +460,7 @@ export function writeSavantApi({ publicDir, dist }) {
     data: readSavantData(publicDir), // the archive, with the season in progress laid over it
     html: readFileSync(pageFile, 'utf8'),
     valueModel: readValueModel(publicDir),
+    allSavantSlots: readAllSavantSlots(publicDir),
   })
 
   // Build everything before touching dist, so a failure leaves nothing half-written.
