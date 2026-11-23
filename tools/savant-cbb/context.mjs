@@ -101,7 +101,10 @@ test('a rotation map adds up to five men for forty minutes', () => {
       for (const a of Object.values(d.rotation)) { assert.equal(a.length, 40); for (const v of a) assert.ok(v >= 0 && v <= 1.0001) }
       checked++
     }
-    if (teamsOf(s).some((t) => (read(`ctx/${s}/${t}.json`).games || 0) >= 8)) assert.ok(checked > 100, `${s}: ${checked} teams checked`)
+    // The 100-team floor holds for a finished season. In the season in progress teams reach 8 games a few at a
+    // time (6 of them on Nov 23, 2026, the first refresh where any had), so there every team that has is checked
+    // above and the floor waits for the season to finish.
+    if (s !== idx.current && teamsOf(s).some((t) => (read(`ctx/${s}/${t}.json`).games || 0) >= 8)) assert.ok(checked > 100, `${s}: ${checked} teams checked`)
   }
 })
 
