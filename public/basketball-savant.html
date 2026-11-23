@@ -59,6 +59,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
   border:1px solid var(--navy);color:var(--navy);background:var(--surface);
   border-radius:4px;padding:2.5px 7px;white-space:nowrap;cursor:help}
 .acco.major{background:var(--navy);color:#fff}
+/* 2.9.1: an All-Savant slot filled from his second position; the tooltip is the landing chip's */
+.acco.dual{text-decoration:underline dotted;text-underline-offset:2px}
 .arcbtn{display:inline-flex;align-items:center;gap:6px;margin-top:14px;background:var(--surface);
   border:1px solid var(--line);border-radius:16px;padding:5px 12px;cursor:pointer;
   font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
@@ -122,6 +124,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
   font-size:10px;font-weight:600;letter-spacing:.11em;padding:4px 9px;border-radius:4px}
 .export-shell .acco{border-color:#22395A;color:#22395A;background:#FFFFFF}
 .export-shell .acco.major{background:#22395A;color:#FFFFFF}
+.export-shell .acco.dual{text-decoration:none}
 .export-shell .sc-id{display:flex;align-items:center;gap:16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:13px 0;margin-bottom:14px}
 .export-shell .sc-ava{width:60px;height:60px;flex:none;border-radius:12px;background:var(--track);display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;font-size:23px;color:var(--muted)}
 .export-shell .sc-name{font-family:var(--disp);font-weight:600;font-size:34px;line-height:1.02;letter-spacing:-.01em}
@@ -5927,7 +5930,8 @@ function renderPeak(){
                   +(p.pct!=null?' · '+Math.round(p.pct)+'th at his position':'')
                   +(isPk?' · career best':'')+(p.gp!=null?' · '+p.gp+' games':''))
                 :(p.s+' · not in the running: '+p.why))
-            +(acc.length?'\n'+acc.join(' · '):'');
+            +(acc.length?'\n'+acc.join(' · '):'')
+            +(acc.length&&astSecondTip(curId,p.s)?'\n'+astSecondTip(curId,p.s):'');
     const ta=t.replace(/"/g,'&quot;');
     bars+='<button type="button" class="arc-col'+(on?' on':'')+(isPk?' pk':'')+(p.ok?'':' out')+'"'
       +' data-s="'+p.s+'" title="'+ta+'" aria-label="'+ta+'"'+(on?' aria-current="true"':'')+'>'
@@ -6469,6 +6473,15 @@ function astSlot(id,season){
   const t=astResults(season), x=(t.teams[code==='ast1'?0:1]||[]).find(function(y){return y.p.id===id;});
   return x?x.slot:null;
 }
+/* 2.9.1: the landing chip's dual-eligibility text, when the slot he filled was his second position
+   (a smaller share of his minutes than another slot he was eligible at); '' otherwise. */
+function astSecondTip(id,season){
+  const code=astHonour(id,season); if(!code) return '';
+  const t=astResults(season), x=(t.teams[code==='ast1'?0:1]||[]).find(function(y){return y.p.id===id;});
+  if(!x||!x.slot||!x.el||x.el.length<2||!x.sh) return '';
+  const at=function(k){return +x.sh['GFC'.indexOf(k)]||0;};
+  return at(x.slot)<Math.max.apply(null,x.el.split('').map(at))?astElig(x):'';
+}
 /* Honour labels, the All-Savant ones with his slot: "All-Savant 1st Team · G" through 2022-23. */
 function accLabel(c,id,season,full){
   var lab=full?(ACC_FULL[c]||(AWARDS.labels&&AWARDS.labels[c])||ACC_SHORT[c]||c):(ACC_SHORT[c]||c);
@@ -6489,7 +6502,8 @@ function accoRow(id,season){
   return '<div class="accos">'+got.map(function(c){
     const lab=accLabel(c,id,season,false);
     const full=accLabel(c,id,season,true);
-    return '<span class="acco'+(ACC_MAJOR[c]?' major':'')+'" title="'+season+' '+full.replace(/"/g,'&quot;')+'">'+lab+'</span>';
+    const tip=ACC_FULL[c]?astSecondTip(id,season):'';
+    return '<span class="acco'+(ACC_MAJOR[c]?' major':'')+(tip?' dual':'')+'" title="'+(season+' '+full+(tip?'. '+tip:'')).replace(/"/g,'&quot;')+'">'+lab+'</span>';
   }).join('')+'</div>';
 }
 
@@ -7487,7 +7501,7 @@ async function exportCard(){
    through 2022-23 (eligible at a slot with 30%+ of his minutes there, savant-allsavant.json), the most
    value those slots allow; positionless from 2023-24. Slot chips, era subtitles, the slot on the honour.
    The value model is unchanged. Research: research/all-savant-positions. */
-var VERSION='2.9.0';
+var VERSION='2.9.1';
 function build(){
   const vc=document.getElementById('verchip');
   if(vc){ vc.textContent='v'+VERSION; vc.title='Basketball Savant version '+VERSION+'. The number moves on big releases, not on the nightly data refresh.'; }
