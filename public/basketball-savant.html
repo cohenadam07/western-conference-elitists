@@ -5720,7 +5720,8 @@ function groupBlocks(group){
   return html;
 }
 function animateFills(){requestAnimationFrame(()=>{document.querySelectorAll('.fill').forEach(f=>{f.style.width=f.dataset.w+'%';});});}
-const meas=(l,v)=>'<div class="m"><div class="ml">'+l+'</div><div class="mv">'+v+'</div></div>';
+// a measurement the player doesn't have is left out (no "—" placeholder)
+const meas=(l,v)=>(v==null||v==='—'||v==='')?'':'<div class="m"><div class="ml">'+l+'</div><div class="mv">'+v+'</div></div>';
 function byKey(k){return METRICS.find(m=>m.key===k);}
 
 function headURL(id){return 'https://cdn.nba.com/headshots/nba/latest/1040x760/'+id+'.png';}
@@ -5775,6 +5776,8 @@ function render(){
           document.getElementById('arcBtn').hidden=true;
           document.getElementById('comps').hidden=true; document.getElementById('wcomps').hidden=true; document.getElementById('role').hidden=true; document.getElementById('guard').hidden=true; return; }
   const wt=val(p,'strength',S), vt=val(p,'vert',S), la=val(p,'lateral',S);
+  const measHTML=meas('Height',inFt(val(p,'height',S)))+meas('Wingspan',inFt(val(p,'length',S)))+meas('Reach',inFt(val(p,'reach',S)))
+    +meas('Max vert',miss(vt)?'':vt.toFixed(1)+'"')+meas('Weight',miss(wt)?'':Math.round(wt))+meas('Lane agility',miss(la)?'':la.toFixed(1)+'s');
   const bd=fmtBirth(p.birthdate);
   const ax=ageStr(p), now=extLive(curSeason)?ageToday(p):null;
   const meta=['<b>'+p.team+'</b>',p.pos,curSeason];
@@ -5805,10 +5808,7 @@ function render(){
      +'<img class="headshot" '+headSrc(p.id,curSeason,p.team)+' alt="" onerror="if(!headRetry(this))this.style.display=\'none\'"></div>'
      +'<div class="id-headtext"><div class="id-nameline"><div class="id-name">'+p.name+'</div>'+trendBadge()+'</div>'
        +'<div class="id-meta">'+metaHTML+'</div>'+injHTML+sl+accoRow(curId,curSeason)+ch+'</div></div>'
-    +'<div class="measur">'
-      +meas('Height',inFt(val(p,'height',S)))+meas('Wingspan',inFt(val(p,'length',S)))+meas('Reach',inFt(val(p,'reach',S)))
-      +meas('Max vert',miss(vt)?'—':vt.toFixed(1)+'"')+meas('Weight',miss(wt)?'—':Math.round(wt))+meas('Lane agility',miss(la)?'—':la.toFixed(1)+'s')
-    +'</div>';
+    +(measHTML?'<div class="measur">'+measHTML+'</div>':'');
   renderPeak();
   // the pill above was just rebuilt with aria-expanded="false", so the panel resets with it
   const tcEl=document.getElementById('trendchart');
