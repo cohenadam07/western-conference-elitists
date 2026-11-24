@@ -1,9 +1,9 @@
-"""Basketball Savant's Data Room tables: player-games and shots.
+"""NBA Savant's Data Room tables: player-games and shots.
 
     python3 pipeline/dataroom/nba.py player_games 1996-97:2025-26     the archive, from the Mac's cache
     python3 pipeline/dataroom/nba.py shots 2024-25                     pulls ShotChartDetail per team
 
-Both tables come from the same NBA tables Basketball Savant is built from, through the engine's
+Both tables come from the same NBA tables NBA Savant is built from, through the engine's
 own client (savant_engine.call), so a row here is the row the page counted:
     player_games   PlayerGameLogs (Regular Season), one row per player per game
     shots          ShotChartDetail, one call per team-season (a league-wide call stops at 102,400

@@ -6,9 +6,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
  * Whoever wins is your guy for the next card, until the run ends on your #1. Every swipe is
  * one head-to-head result that moves the board (api/_dynasty-swipe.js prices it).
  *
- * The card is a Basketball Savant summary: the per-game line for his last three seasons on
+ * The card is an NBA Savant summary: the per-game line for his last three seasons on
  * top, the Savant percentiles underneath, against the league or his position. Rookies
- * without an NBA sample show their Draft Savant card, ranked against their draft class.
+ * without an NBA sample show their NBA Draft Savant card, ranked against their draft class.
  * Every number comes from /dynasty/cards.json, which the build cuts from the same Savant
  * API files the connector serves, so a card never disagrees with the Savant page.
  *
@@ -153,7 +153,7 @@ export function SwipeCard({ id, cards, seed, base, setBase, compact = false, vs 
   }
   const curOk = c?.q?.[cards?.latest]?.gp >= (cards?.currentMinGp || 10)
   const nbaDefault = options.find((o) => (curOk ? o.s === cards.latest : o.s === cards.prevFull)) || options[0]
-  // A rookie opens on his Draft Savant card until his NBA season has enough games to read.
+  // A rookie opens on his NBA Draft Savant card until his NBA season has enough games to read.
   const draftFirst = !!c?.d && (!nbaDefault || (c?.r && !curOk))
   const [pick, setPick] = useState(null)        // null = the default above
   useEffect(() => { setPick(null) }, [id])
@@ -861,7 +861,7 @@ async function shareImage(id, name, mode, cards, n, place = 1) {
   const rows = q ? ['pts', 'ts', 'ast', 'reb75', 'stk75', 'bpm'].map((k) => [cards.nba.find((m) => m[0] === k), q.m[k]]).filter(([m, v]) => m && v)
     : c?.d ? ['usg', 'ts', 'ast', 'stl', 'blk', 'bpm'].map((k) => [cards.draft.metrics.find((m) => m[0] === k), c.d.m[k]]).filter(([m, v]) => m && v) : []
   x.fillStyle = '#5a6472'; x.font = '500 24px "IBM Plex Mono", monospace'
-  x.fillText(q ? `BASKETBALL SAVANT · ${cards.seasonsShort?.[cards.prevFull] || ''} · VS LEAGUE` : `DRAFT SAVANT · VS ${cards.draft?.year} CLASS`, 72, 640)
+  x.fillText(q ? `NBA SAVANT · ${cards.seasonsShort?.[cards.prevFull] || ''} · VS LEAGUE` : `NBA DRAFT SAVANT · VS ${cards.draft?.year} CLASS`, 72, 640)
   rows.forEach(([m, v], i) => {
     const y = 700 + i * 92, p = v[1]
     x.fillStyle = '#8d97a6'; x.font = '500 30px "IBM Plex Sans", sans-serif'; x.fillText(m[1], 72, y)

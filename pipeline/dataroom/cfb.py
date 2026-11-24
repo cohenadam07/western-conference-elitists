@@ -1,4 +1,4 @@
-"""College Football Savant's Data Room tables: plays and team-games.
+"""CFB Savant's Data Room tables: plays and team-games.
 
     python3 pipeline/dataroom/cfb.py plays 2014-2026
     python3 pipeline/dataroom/cfb.py games 2014-2026

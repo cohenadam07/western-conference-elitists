@@ -1,5 +1,5 @@
 """
-build.py — Basketball Coaching Savant, built end to end.
+build.py — NBA Coaching Savant, built end to end.
 
     python3 build.py [--seasons 1996-97,2026-27] [--public ../../../public] [--out ~/Basketball-Savant/out/bcs]
 
@@ -870,7 +870,7 @@ def main():
     reg = json.load(open(os.path.join(a.out, "registry.json")))
     odds_raw = json.load(open(os.path.join(a.out, "preseason_odds.json"))) if os.path.exists(os.path.join(a.out, "preseason_odds.json")) else {}
     odds = {s: dict(by_team={r["team"]: r["win_total"] for r in v["rows"] if r.get("team") and r.get("win_total") is not None}, source=v.get("source")) for s, v in odds_raw.items()}
-    log(f"=== Basketball Coaching Savant build {VERSION}, {seasons[0]}..{seasons[-1]} ({dt.datetime.now():%Y-%m-%d %H:%M})")
+    log(f"=== NBA Coaching Savant build {VERSION}, {seasons[0]}..{seasons[-1]} ({dt.datetime.now():%Y-%m-%d %H:%M})")
     refresh = a.refresh.split(",") if a.refresh else None
     bundles = pass_one(seasons, reg, a.public, a.out, refresh=refresh)
     res = pass_two(bundles, reg, odds, a.public, a.out, seasons)

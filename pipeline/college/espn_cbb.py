@@ -234,7 +234,7 @@ def pull_summaries(season, seen, log=print):
         return gid, True
 
     for i in range(0, len(todo), 300):
-        while os.path.exists(LOCK):           # Basketball Savant's Mac jobs come first
+        while os.path.exists(LOCK):           # NBA Savant's Mac jobs come first
             log("publish lock held; waiting")
             time.sleep(60)
         with cf.ThreadPoolExecutor(WORKERS) as ex:

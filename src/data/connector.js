@@ -2,7 +2,7 @@
 // own instructions for adding one are, and the worked example the section shows.
 //
 // The example is a real answer, not a mock-up of one. Every number in it is what the
-// connector returns for that player and season, which is what his Basketball Savant card
+// connector returns for that player and season, which is what his NBA Savant card
 // shows. It is a finished season on purpose, so it does not go stale between data pushes.
 // tools/savant-mcp/check.mjs calls the connector and fails if any of it stops being true.
 
@@ -31,7 +31,7 @@ export const EXAMPLE = {
     { key: 'ts', label: 'True shooting %', display: '.626', percentile: 83 },
     { key: 'tp3', label: '3-point %', display: '34.9%', percentile: 45 },
   ],
-  card: '/basketball-savant.html?p=1641705',
+  card: '/nba-savant?p=1641705',
 }
 
 // Questions shown as things to try. Each is one the connector has a tool for.

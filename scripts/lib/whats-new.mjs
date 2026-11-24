@@ -95,7 +95,7 @@ export function nextCard(root) {
       kind: 'event',
       date: c.date,
       text: `UFC Savant: every fighter on the ${c.name.replace(/^UFC Fight Night:\s*/, '').replace(/^(UFC \d+):\s*/, '$1, ')} card`,
-      href: '/ufc-savant.html',
+      href: '/ufc-savant',
     }))
   } catch {
     return []

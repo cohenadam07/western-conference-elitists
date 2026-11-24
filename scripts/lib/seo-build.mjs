@@ -9,7 +9,7 @@
 //                                    Open Graph / Twitter tags and article JSON-LD
 //   dist/<page>/index.html           the same for the key static pages (PAGES below)
 //   dist/404.html                    noindex shell for any URL the SPA rewrite doesn't catch
-//   dist/player/<slug>/index.html    a page per Basketball Savant player (player-pages.mjs)
+//   dist/player/<slug>/index.html    a page per NBA Savant player (player-pages.mjs)
 //   dist/sitemap.xml                 every public page, articles with their dates, every player
 //   dist/*-savant.html, game.html    favicon, Vercel Analytics, and share tags injected
 //                                    (those pages are hand-built HTML outside React, so
@@ -35,7 +35,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { buildPlayerPages } from './player-pages.mjs'
-import { ABOUT_MARK, FALLBACK_CSS, LEDES, SITE, SITE_NAME, TOOLS, fallbackHtml, homeJsonLd, pageJsonLd, toolAbout, toolJsonLd } from './seo-content.mjs'
+import { ABOUT_MARK, FALLBACK_CSS, LEDES, SITE, SITE_NAME, TOOLS, fallbackHtml, homeJsonLd, pageJsonLd, toolAbout, toolJsonLd, toolUrl } from './seo-content.mjs'
 
 export { SITE }
 const SITE_DESCRIPTION =
@@ -64,7 +64,7 @@ export const PAGES = [
   { path: '/rankings', title: 'Big Board', description: 'The WCE Big Board — every prospect ranked and tiered, analytics first, scouting always.', priority: '0.8' },
   { path: '/draft', title: 'Draft Hub', description: 'Full scouting profiles, measurements, and role projections for the NBA Draft class.', priority: '0.8' },
   { path: '/news', title: 'News', description: 'The biggest NBA and college basketball stories, plus basketball research and analytics — aggregated and annotated by Western Conference Elitists.', priority: '0.7' },
-  { path: '/comp-chain', title: 'Comp Chain', description: 'Hop from one NBA player to another through their statistical comps — a daily game built on Basketball Savant data.', priority: '0.6' },
+  { path: '/comp-chain', title: 'Comp Chain', description: 'Hop from one NBA player to another through their statistical comps — a daily game built on NBA Savant data.', priority: '0.6' },
   { path: '/dynasty', title: 'Dynasty Exchange: Crowd-Priced NBA Dynasty Rankings', name: 'Dynasty Exchange', description: 'Dynasty Exchange is a dynasty basketball trade-value board priced by the crowd. Rank four NBA players at a time and move the market, or paste your roster and see what it is worth.', priority: '0.6' },
   { path: '/hoops', title: 'Flappy Hoops', description: 'Flap it through the rim in as few taps as you can: twenty-eight cities, nine holes each, a hidden ghost hole in every one. Race up to eight friends online.', priority: '0.5', app: HOOPS_APP },
   { path: '/about', title: 'About', description: 'Who we are and how we work: film-first, data-honest NBA and draft coverage.', priority: '0.5' },
@@ -158,12 +158,22 @@ function loadArticles(root) {
     .map((f) => JSON.parse(readFileSync(path.join(dir, f), 'utf8')))
 }
 
-const VA_SNIPPET = [
-  '<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>',
-  '<script defer src="/_vercel/insights/script.js"></script>',
-]
+// The human gate (public/wce-human.js, BOT-SHIELD.md). A plain <script> in <head> so it runs before
+// the page's own scripts: it holds the page's data downloads until the visitor is confirmed human,
+// and loads Vercel Web Analytics (/_vercel/insights/script.js) only then, so bots don't count.
+export const GATE_SNIPPET = '<script src="/wce-human.js"></script>'
 
-// A Savant tool's own <title> is its name and nothing else ("Football Savant — WCE"), and its
+// Write the public Turnstile site key into dist/wce-human.js (empty = interaction-only mode).
+function keyHumanGate(dist) {
+  const file = path.join(dist, 'wce-human.js')
+  if (!existsSync(file)) return 'human gate: wce-human.js MISSING'
+  const key = String(process.env.TURNSTILE_SITE_KEY || '').trim()
+  if (!/^[A-Za-z0-9_-]*$/.test(key)) throw new Error('TURNSTILE_SITE_KEY has unexpected characters')
+  writeFileSync(file, readFileSync(file, 'utf8').replace("'__WCE_TS_KEY__'", JSON.stringify(key).replace(/"/g, "'")))
+  return key ? 'human gate: Turnstile on' : 'human gate: no TURNSTILE_SITE_KEY, interaction-only'
+}
+
+// A Savant tool's own <title> is its name and nothing else ("NFL Savant — WCE"), and its
 // landing screen is a search box. Give the page a title and description that say what the tool
 // is, structured data that names it, and the "What is X?" panel under the landing screen. This
 // runs before decorateStandalone, so the share tags it adds pick up the new title.
@@ -197,12 +207,12 @@ function decorateStandalone(html, file, meta) {
       '<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">'
     )
   }
-  if (!html.includes('/_vercel/insights/script.js')) add.push(...VA_SNIPPET)
+  if (!html.includes('/wce-human.js') && !html.includes('/_vercel/insights/script.js')) add.push(GATE_SNIPPET)
   if (meta.share !== false) {
     const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1] || SITE_NAME
     const described = /<meta\s+name="description"/i.test(html)
     const description = described ? html.match(/<meta\s+name="description"\s+content="([^"]*)"/i)[1] : meta.description
-    const url = `${SITE}/${file}`
+    const url = toolUrl(file)
     if (!described && description) add.push(`<meta name="description" content="${esc(description)}">`)
     if (!/property="og:title"/i.test(html)) {
       add.push(
@@ -228,6 +238,7 @@ function decorateStandalone(html, file, meta) {
 export function buildSeo({ root, dist }) {
   const shell = readFileSync(path.join(dist, 'index.html'), 'utf8')
   const report = []
+  report.push(keyHumanGate(dist))
 
   // Articles
   const articles = loadArticles(root)
@@ -281,7 +292,7 @@ export function buildSeo({ root, dist }) {
   notFound = notFound.replace('</head>', '    <meta name="robots" content="noindex" />\n  </head>')
   write(dist, '404.html', notFound)
 
-  // A page per Basketball Savant player. A failure here must not take the whole deploy down
+  // A page per NBA Savant player. A failure here must not take the whole deploy down
   // with it (the data bots push to main all day), so it is logged loudly and the site ships
   // without player pages instead. `npm run check:players` reproduces it locally.
   let players = null
@@ -302,7 +313,7 @@ export function buildSeo({ root, dist }) {
     if (!existsSync(p)) continue
     const before = readFileSync(p, 'utf8')
     let after = decorateStandalone(brandTool(before, file), file, meta)
-    // Basketball Savant gets the script that ties it to the player pages (player-links.client.js),
+    // NBA Savant gets the script that ties it to the player pages (player-links.client.js),
     // straight after its own script so it is in place before the data finishes loading.
     if (file === 'basketball-savant.html' && players && !after.includes(TOOL_SCRIPT_MARK)) {
       const tag = `${TOOL_SCRIPT_MARK}\n<script>\n${players.toolScript}</script>\n`
@@ -322,7 +333,7 @@ export function buildSeo({ root, dist }) {
       .map((a) => ({ loc: `${SITE}/articles/${a.slug}`, priority: '0.8', lastmod: (a.publishedAt || '').slice(0, 10) || today })),
     ...Object.entries(STANDALONE)
       .filter(([f, m]) => m.sitemap && existsSync(path.join(dist, f)))
-      .map(([f, m]) => ({ loc: `${SITE}/${f}`, priority: m.sitemap, lastmod: today })),
+      .map(([f, m]) => ({ loc: toolUrl(f), priority: m.sitemap, lastmod: today })),
     // lastmod is the day the data was generated, not the day of the build: the pages only
     // change when the numbers do, and a sitemap that says "today" on every deploy gets ignored.
     ...(players ? players.urls.map((u) => ({ ...u, lastmod: u.lastmod || today })) : []),

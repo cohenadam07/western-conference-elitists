@@ -1,4 +1,4 @@
-// Basketball Savant, cut up for machines. Runs after `vite build` writes dist/.
+// NBA Savant, cut up for machines. Runs after `vite build` writes dist/.
 //
 // The Savant page downloads one 67 MB file (public/savant-data.json) and works every
 // percentile out in the browser. That is fine for a person with the page open and useless
@@ -353,11 +353,11 @@ export function buildSavantApi({ data, html, valueModel = null, allSavantSlots =
 
   const meta = {
     schema: SCHEMA,
-    name: 'Basketball Savant',
+    name: 'NBA Savant',
     by: 'Western Conference Elitists',
     site: SITE,
-    page: `${SITE}/basketball-savant.html`,
-    playerUrl: `${SITE}/basketball-savant.html?p={id}`,
+    page: `${SITE}/nba-savant`,
+    playerUrl: `${SITE}/nba-savant?p={id}`,
     generated: data.generated || null,
     // the newest game in the data (the season in progress's last game): what "data as of" says
     through: (data.current && data.current.through) || null,

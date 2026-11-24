@@ -1,4 +1,4 @@
-// api/_coaching.js — Coaching Savant, as answers. One section of the AI connector
+// api/_coaching.js — NFL Coaching Savant, as answers. One section of the AI connector
 // (api/mcp.js): it knows NFL coaches, the connector only speaks the protocol.
 //
 // It reads the small files the build writes under /savant-api/coaching/v1/ (see
@@ -44,12 +44,12 @@
 import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, norm, ordinal, prepare, rank, thousands, topTier } from './_core.js'
 
-const files = makeLoader('savant-api/coaching/v1', { what: 'Coaching Savant' })
+const files = makeLoader('savant-api/coaching/v1', { what: 'NFL Coaching Savant' })
 
 export const GROUPS = ['all', 'career', 'fourth_downs', 'seasons', 'play_calling', 'lineage']
 const SIDE = { O: 'offence', D: 'defence' }
 const SIDE_PLURAL = { O: 'offences', D: 'defences' }
-const SOURCE = 'Coaching Savant, Western Conference Elitists (wcehoops.com)'
+const SOURCE = 'NFL Coaching Savant, Western Conference Elitists (wcehoops.com)'
 
 const loadMeta = () => files.load('meta.json')
 const loadProfiles = () => files.load('profiles/all.json')
@@ -75,7 +75,7 @@ const longer = (a, b) => (b.g || 0) - (a.g || 0)
 // ---- small formatting helpers ----------------------------------------------------------
 
 // The page routes on the hash: #c=<the name, URI-encoded>.
-export const coachUrl = (name) => `${SITE}/coaching-savant.html#c=${encodeURIComponent(name)}`
+export const coachUrl = (name) => `${SITE}/nfl-coaching-savant#c=${encodeURIComponent(name)}`
 
 // A value the way the page prints it (its fmt()).
 export function display(unit, v) {
@@ -128,7 +128,7 @@ function candidateLine(row) {
 
 // ---- finding the coach -----------------------------------------------------------------
 
-// The name is the id: Coaching Savant keys every page by it. A name has to land on one man;
+// The name is the id: NFL Coaching Savant keys every page by it. A name has to land on one man;
 // when it could be several, they are listed so the caller can pick.
 async function resolveCoach(input) {
   const rows = await loadPeople()
@@ -145,11 +145,11 @@ async function resolveCoach(input) {
   const ancestor = (meta.ancestors || []).find((a) => norm(a.name) === q)
   if (ancestor && !rows.some((r) => r.n === q)) {
     const under = ancestor.under.length ? ` The tree places these coaches directly under him: ${ancestor.under.map((k) => k[0]).join(', ')}.` : ''
-    throw new SavantError(`${ancestor.name} is named in Coaching Savant's hand-curated coaching tree but has no page of his own: he has no head-coaching record since ${meta.firstSeason}.${under}`)
+    throw new SavantError(`${ancestor.name} is named in NFL Coaching Savant's hand-curated coaching tree but has no page of his own: he has no head-coaching record since ${meta.firstSeason}.${under}`)
   }
 
   const ranked = rank(rows, raw, longer)
-  if (!ranked.length) throw new SavantError(`No head coach or play-caller matches "${raw}". Coaching Savant covers NFL head coaches since 1999 and play-callers since 2018. Check the spelling, or search with nfl_search_coaches.`)
+  if (!ranked.length) throw new SavantError(`No head coach or play-caller matches "${raw}". NFL Coaching Savant covers NFL head coaches since 1999 and play-callers since 2018. Check the spelling, or search with nfl_search_coaches.`)
 
   const top = ranked[0].score
   const best = topTier(ranked)
@@ -182,7 +182,7 @@ export async function searchCoaches({ query, limit = 10 }) {
 
   const structured = { query, total: ranked.length, count: shown.length, coaches: shown }
   if (!shown.length) {
-    return { structured, text: `No head coach or play-caller in Coaching Savant matches "${query}". It covers NFL head coaches since 1999 and play-callers since 2018. Check the spelling or try the last name alone.` }
+    return { structured, text: `No head coach or play-caller in NFL Coaching Savant matches "${query}". It covers NFL head coaches since 1999 and play-callers since 2018. Check the spelling or try the last name alone.` }
   }
   const head = ranked.length === 1 ? `1 coach matches "${query}":` : `${ranked.length} coaches match "${query}"${ranked.length > shown.length ? `, showing the first ${shown.length}` : ''}:`
   const lines = shown.map((c, i) => {
@@ -205,7 +205,7 @@ export async function searchCoaches({ query, limit = 10 }) {
 const SHARED = {
   'Jim Mora': {
     when: (rows) => rows.some((r) => r.team === 'IND') && rows.some((r) => r.team === 'ATL' || r.team === 'SEA'),
-    note: 'Coaching Savant files two different head coaches under this one name: Jim E. Mora (Indianapolis, 1999–2001 in this data) and his son Jim L. Mora (Atlanta 2004–06, Seattle 2009). The record, the rankings and the lineage here are the page\'s, and they mix the two men. The season list shows which seasons belong to which.',
+    note: 'NFL Coaching Savant files two different head coaches under this one name: Jim E. Mora (Indianapolis, 1999–2001 in this data) and his son Jim L. Mora (Atlanta 2004–06, Seattle 2009). The record, the rankings and the lineage here are the page\'s, and they mix the two men. The season list shows which seasons belong to which.',
   },
 }
 
@@ -427,7 +427,7 @@ function seasonRows(meta, p, full) {
 
 function lineage(meta, p, notes) {
   const t = p.tree
-  if (!t) return { structured: null, lines: ['Lineage', 'No lineage is recorded for him on Coaching Savant.'] }
+  if (!t) return { structured: null, lines: ['Lineage', 'No lineage is recorded for him on NFL Coaching Savant.'] }
   const structured = {
     mentor: t.chain.length ? t.chain[0][0] : null,
     role_under_mentor: t.role,
@@ -622,7 +622,7 @@ export async function coachProfile({ coach, group = 'all', season }) {
   const meta = await loadMeta()
   const who = await resolveCoach(coach)
   const p = (await loadProfiles()).people[who.name]
-  if (!p) throw new SavantError(`Coaching Savant has no page for ${who.name} right now. Try again in a minute.`)
+  if (!p) throw new SavantError(`NFL Coaching Savant has no page for ${who.name} right now. Try again in a minute.`)
 
   const rules = meta.rules
   const want = (g) => group === 'all' || group === g
@@ -633,7 +633,7 @@ export async function coachProfile({ coach, group = 'all', season }) {
   if (season != null) {
     if (!wantsUnits) throw new SavantError(`"season" picks which of his play-calling units to return, so it goes with group "play_calling" or "all", not "${group}".`)
     const years = rules.unitSeasons
-    if (!years.includes(season)) throw new SavantError(`Coaching Savant has play-calling units for ${years[0]} through ${years[years.length - 1]}, not ${season}.`)
+    if (!years.includes(season)) throw new SavantError(`NFL Coaching Savant has play-calling units for ${years[0]} through ${years[years.length - 1]}, not ${season}.`)
     const mine = p.calls ? p.calls.units : []
     unitRows = mine.filter((u) => u.season === season)
     if (!unitRows.length) {
@@ -664,7 +664,7 @@ export async function coachProfile({ coach, group = 'all', season }) {
     structured.head_coach = h.structured
     L.push(...h.lines)
   } else {
-    L.push(`No head-coaching record since ${meta.firstSeason} on Coaching Savant.`)
+    L.push(`No head-coaching record since ${meta.firstSeason} on NFL Coaching Savant.`)
   }
   if (live) {
     structured.season_in_progress = { season: live.season, through_week: live.through_week }
@@ -705,7 +705,7 @@ export async function coachProfile({ coach, group = 'all', season }) {
     for (const row of unitRows) {
       const file = await loadUnits(row.season)
       const u = file.units[row.id]
-      if (!u) throw new SavantError(`Coaching Savant's ${row.season} units could not be read right now. Try again in a minute.`)
+      if (!u) throw new SavantError(`NFL Coaching Savant's ${row.season} units could not be read right now. Try again in a minute.`)
       const d = unitDetail(meta, file, u, notes, explained)
       structured.units.push(d.structured)
       L.push('', ...d.lines)
@@ -729,7 +729,7 @@ export async function coachProfile({ coach, group = 'all', season }) {
 export async function coachingLeaders({ board = 'all', limit = 10 } = {}) {
   const [meta, file] = await Promise.all([loadMeta(), loadLeaders()])
   const boards = board === 'all' ? file.boards : file.boards.filter((b) => b.id === board)
-  if (!boards.length) throw new SavantError(`Coaching Savant has no "${board}" board right now. It has: ${file.boards.map((b) => b.id).join(', ')}.`)
+  if (!boards.length) throw new SavantError(`NFL Coaching Savant has no "${board}" board right now. It has: ${file.boards.map((b) => b.id).join(', ')}.`)
 
   const notes = []
   const L = []
@@ -748,7 +748,7 @@ export async function coachingLeaders({ board = 'all', limit = 10 } = {}) {
     if (b.note) L.push(b.note)
     return { id: b.id, title: b.title, kind: b.kind === 'unit' ? 'unit' : 'coach', season: b.season, pool: b.pool, pool_size: b.rows.length, note: b.note, rows }
   })
-  const head = boards.length === 1 ? `Coaching Savant's "${boards[0].title}" board` : `Coaching Savant's ${boards.length} Leaders boards`
+  const head = boards.length === 1 ? `NFL Coaching Savant's "${boards[0].title}" board` : `NFL Coaching Savant's ${boards.length} Leaders boards`
   const lines = [`${head}, as the page's front screen orders them (the page shows the top ${file.shown}).`]
   if (boards.some((b) => b.kind !== 'unit') && file.current && file.current.week != null) {
     notes.push(`Career figures include the ${file.current.season} season, counted through week ${file.current.week}.`)
@@ -795,7 +795,7 @@ export async function coachingTree({ coach, depth = 3 } = {}) {
       data_as_of: day(meta.through || meta.generated),
       source: SOURCE,
     }
-    const L = [`Coaching Savant's coaching tree: ${trees.reduce((n, t) => n + t[1], 0)} coaches in ${trees.length} trees, biggest first, and ${sprouts.length} head coaches with no recorded lineage.`, caveat, '']
+    const L = [`NFL Coaching Savant's coaching tree: ${trees.reduce((n, t) => n + t[1], 0)} coaches in ${trees.length} trees, biggest first, and ${sprouts.length} head coaches with no recorded lineage.`, caveat, '']
     for (const t of structured.trees) L.push(`- ${t.root} tree: ${t.size} coaches. Under him: ${t.branches.map((b) => `${b.name} (${b.size})`).join(', ')}.`)
     L.push('', `No recorded lineage: ${sprouts.join(', ')}.`, '', 'A number in brackets is the size of that coach\'s branch, himself included.', `Page: ${file.page}`, `Source: ${SOURCE}. Data as of ${structured.data_as_of}.`)
     return { structured, text: L.join('\n') }
@@ -815,8 +815,8 @@ export async function coachingTree({ coach, depth = 3 } = {}) {
   }
   if (!name) {
     const caller = rank(people, raw).find((r) => r.score >= 60)
-    if (caller) throw new SavantError(`${caller.row.name} is not in Coaching Savant's coaching tree: the tree holds head coaches and the men they learned under, and no lineage is recorded for him. His page: ${coachUrl(caller.row.name)}`)
-    throw new SavantError(`Nobody in Coaching Savant's coaching tree matches "${raw}". Call with no coach for the list of trees, or search with nfl_search_coaches.`)
+    if (caller) throw new SavantError(`${caller.row.name} is not in NFL Coaching Savant's coaching tree: the tree holds head coaches and the men they learned under, and no lineage is recorded for him. His page: ${coachUrl(caller.row.name)}`)
+    throw new SavantError(`Nobody in NFL Coaching Savant's coaching tree matches "${raw}". Call with no coach for the list of trees, or search with nfl_search_coaches.`)
   }
 
   const me = N[name]
@@ -855,7 +855,7 @@ export async function coachingTree({ coach, depth = 3 } = {}) {
     data_as_of: day(meta.through || meta.generated),
     source: SOURCE,
   }
-  const L = [`${name} in Coaching Savant's coaching tree${structured.coach.record ? ` (head coach, ${structured.coach.record})` : me.p ? '' : ' (no head-coaching record since 1999, so no page of his own)'}.`, caveat, '']
+  const L = [`${name} in NFL Coaching Savant's coaching tree${structured.coach.record ? ` (head coach, ${structured.coach.record})` : me.p ? '' : ' (no head-coaching record since 1999, so no page of his own)'}.`, caveat, '']
   if (me.m) L.push(`Learned under ${me.m}: ${me.r}.${me.a.map((a) => ` Also shaped by ${a[0]}: ${a[1]}.`).join('')}`)
   L.push(line.length ? `Line back to the root: ${[name, ...line].join(' ← ')}. Traces back to the ${root} tree.` : `He is the root of his own tree: no mentor is recorded for him, which means the lineage is missing, not that he learned it alone.`)
   if (!branch.length) L.push('', 'Nobody in the tree learned under him.')
@@ -872,7 +872,7 @@ export async function coachingTree({ coach, depth = 3 } = {}) {
 // ---- the tools -----------------------------------------------------------------------
 
 const pct = z.number().int().min(1).max(99).nullable()
-const named = z.object({ name: z.string(), has_page: z.boolean().describe('Whether Coaching Savant has a page for him.') })
+const named = z.object({ name: z.string(), has_page: z.boolean().describe('Whether NFL Coaching Savant has a page for him.') })
 const similar = z.object({ name: z.string(), closer_than_pct_of_pairs: z.number().describe('Share of play-caller pairs that sit further apart on style.') })
 const calledBy = z.array(z.object({ name: z.string(), confirmed: z.boolean(), first_week: z.number().int(), last_week: z.number().int() }))
 
@@ -944,7 +944,7 @@ export const tools = [
     config: {
       title: 'Search NFL coaches',
       description:
-        'Find NFL head coaches and play-callers in Coaching Savant (Western Conference Elitists, wcehoops.com) by name. Covers every head coach since 1999 and every offensive and defensive play-caller since 2018. Returns each match with his roles, teams, first and last season, head-coaching record if he has one, and the link to his page. The name is the id. Matching ignores accents and punctuation and tolerates small typos.',
+        'Find NFL head coaches and play-callers in NFL Coaching Savant (Western Conference Elitists, wcehoops.com) by name. Covers every head coach since 1999 and every offensive and defensive play-caller since 2018. Returns each match with his roles, teams, first and last season, head-coaching record if he has one, and the link to his page. The name is the id. Matching ignores accents and punctuation and tolerates small typos.',
       inputSchema: {
         query: z.string().trim().min(2).max(80).describe('Coach name or part of one, e.g. "Reid", "Sean McVay", "Harbaugh".'),
         limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return (1-25, default 10).'),
@@ -962,7 +962,7 @@ export const tools = [
           last_season: z.number().int().nullable(),
           head_coach_record: z.string().nullable().describe('Regular-season wins–losses(–ties) as a head coach since 1999.'),
           head_coach_seasons: z.number().int().nullable(),
-          url: z.string().describe('His Coaching Savant page.'),
+          url: z.string().describe('His NFL Coaching Savant page.'),
         })),
       },
       annotations: { title: 'Search NFL coaches', ...READ_ONLY },
@@ -974,7 +974,7 @@ export const tools = [
     config: {
       title: 'Get an NFL coach\'s Savant profile',
       description:
-        'Get one NFL head coach\'s or play-caller\'s Coaching Savant profile (Western Conference Elitists, wcehoops.com). For a head coach since 1999: regular-season and playoff record, Super Bowls, wins against what the closing betting spreads expected, his career stats each with a percentile against the head coaches with at least three seasons, his fourth-down decisions scored by the nfl4th model, his seasons one by one with who called the offence and defence, and the coach he learned under. For a play-caller since 2018: the units he called, and one unit in full, every stat with its percentile against the other offences or defences of that season. Each percentile is returned with the pool it was ranked in. Coaches and units too short to rank are returned unranked. The lineage and the play-caller attribution are hand-curated and are returned with that caveat. Includes the link to his page.',
+        'Get one NFL head coach\'s or play-caller\'s NFL Coaching Savant profile (Western Conference Elitists, wcehoops.com). For a head coach since 1999: regular-season and playoff record, Super Bowls, wins against what the closing betting spreads expected, his career stats each with a percentile against the head coaches with at least three seasons, his fourth-down decisions scored by the nfl4th model, his seasons one by one with who called the offence and defence, and the coach he learned under. For a play-caller since 2018: the units he called, and one unit in full, every stat with its percentile against the other offences or defences of that season. Each percentile is returned with the pool it was ranked in. Coaches and units too short to rank are returned unranked. The lineage and the play-caller attribution are hand-curated and are returned with that caveat. Includes the link to his page.',
       inputSchema: {
         coach: z.string().trim().min(1).max(80).describe('Coach name, e.g. "Andy Reid". If a name fits more than one coach, the error lists them.'),
         group: z.enum(GROUPS).default('all').describe('Which part to return: "all" (default), "career" (ranked career stats), "fourth_downs" (with the calls the model liked least), "seasons" (season by season, every column), "play_calling" (what he called, one unit in full with each stat explained) or "lineage".'),
@@ -1072,7 +1072,7 @@ export const tools = [
         }).nullable().optional().describe('Null when he is not credited with calling plays.'),
         units: z.array(unitShape).optional().describe('The unit or units returned in full.'),
         notes: z.array(z.string()).describe('How to read the numbers: the pools, what is hand-curated, and any caution that applies to this coach.'),
-        url: z.string().describe('His Coaching Savant page.'),
+        url: z.string().describe('His NFL Coaching Savant page.'),
         data_as_of: z.string(),
         source: z.string(),
       },
@@ -1083,9 +1083,9 @@ export const tools = [
   {
     name: 'nfl_coaching_leaders',
     config: {
-      title: 'Get Coaching Savant\'s Leaders boards',
+      title: 'Get NFL Coaching Savant\'s Leaders boards',
       description:
-        'The Leaders boards on Coaching Savant\'s front screen (Western Conference Elitists, wcehoops.com), in the page\'s order. Head coaches since 1999 with three or more seasons: most wins, wins above what the closing spreads expected, playoff rate, fourth-down aggression, pass rate over expected, fastest tempo; with 48+ games of fourth-down data: best fourth-down decisions. Play-callers, latest season: most pre-snap motion, most blitzing defence, hardest offence to read. Each board names its pool and its size. The page shows ten a board; more can be asked for.',
+        'The Leaders boards on NFL Coaching Savant\'s front screen (Western Conference Elitists, wcehoops.com), in the page\'s order. Head coaches since 1999 with three or more seasons: most wins, wins above what the closing spreads expected, playoff rate, fourth-down aggression, pass rate over expected, fastest tempo; with 48+ games of fourth-down data: best fourth-down decisions. Play-callers, latest season: most pre-snap motion, most blitzing defence, hardest offence to read. Each board names its pool and its size. The page shows ten a board; more can be asked for.',
       inputSchema: {
         board: z.enum(['all', ...BOARD_IDS]).default('all').describe(`One board, or "all" (default): ${BOARD_IDS.join(', ')}.`),
         limit: z.number().int().min(1).max(50).default(10).describe('Rows per board (1-50, default 10, as on the page).'),
@@ -1116,7 +1116,7 @@ export const tools = [
         data_as_of: z.string(),
         source: z.string(),
       },
-      annotations: { title: 'Get Coaching Savant\'s Leaders boards', ...READ_ONLY },
+      annotations: { title: 'Get NFL Coaching Savant\'s Leaders boards', ...READ_ONLY },
     },
     run: ({ board, limit }) => coachingLeaders({ board, limit }),
   },
@@ -1125,7 +1125,7 @@ export const tools = [
     config: {
       title: 'Get the NFL coaching tree',
       description:
-        'Coaching Savant\'s coaching tree (Western Conference Elitists, wcehoops.com): who learned under whom among NFL head coaches since 1999 and the men they learned from, back to roots such as Paul Brown. With a coach: his mentor and role under him, his line back to the root of his tree, and everyone beneath him to a depth, biggest branch first as the page draws it, with head-coaching records. Without one: every tree and its size. Covers men with no page of their own, such as Bill Walsh. The lineage is hand-curated, not from a dataset, and comes with the page\'s caveat.',
+        'NFL Coaching Savant\'s coaching tree (Western Conference Elitists, wcehoops.com): who learned under whom among NFL head coaches since 1999 and the men they learned from, back to roots such as Paul Brown. With a coach: his mentor and role under him, his line back to the root of his tree, and everyone beneath him to a depth, biggest branch first as the page draws it, with head-coaching records. Without one: every tree and its size. Covers men with no page of their own, such as Bill Walsh. The lineage is hand-curated, not from a dataset, and comes with the page\'s caveat.',
       inputSchema: {
         coach: z.string().trim().min(1).max(80).optional().describe('A name in the tree, e.g. "Bill Walsh" or "Andy Reid". Omit for every tree. If a name fits more than one coach, the error lists them.'),
         depth: z.number().int().min(1).max(10).default(3).describe('How many generations beneath him to list (1-10, default 3).'),

@@ -1,4 +1,4 @@
-// api/_cbcoaching.js — College Basketball Coaching Savant, as answers. One section of the AI connector
+// api/_cbcoaching.js — CBB Coaching Savant, as answers. One section of the AI connector
 // (api/mcp.js): it knows men's D1 head coaches; the connector only speaks the protocol.
 //
 // It reads the page's own files under /cbcs/ (pipeline/college/coaching/build.py writes them,
@@ -23,14 +23,14 @@ import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, ordinal, prepare, rank, topTier } from './_core.js'
 import { display, matches } from './_bcoaching.js'
 
-const files = makeLoader('cbcs', { what: 'College Basketball Coaching Savant', shape: (b) => b && typeof b === 'object' && (b.meta || b.id || b.cols || b.stats || b.coaches || b.systems || b.tables) })
-const SOURCE = 'College Basketball Coaching Savant, Western Conference Elitists (wcehoops.com)'
+const files = makeLoader('cbcs', { what: 'CBB Coaching Savant', shape: (b) => b && typeof b === 'object' && (b.meta || b.id || b.cols || b.stats || b.coaches || b.systems || b.tables) })
+const SOURCE = 'CBB Coaching Savant, Western Conference Elitists (wcehoops.com)'
 export const GROUPS = ['all', 'career', 'rotation', 'game_management', 'identity', 'development', 'roster_building', 'tournament', 'resources', 'context', 'staff', 'seasons']
 export const TABLES = ['games', 'stints', 'units', 'rotation', 'decisions', 'roster_moves', 'programs']
 const MAX_ROWS = 500
-const PAGE = `${SITE}/college-basketball-coaching-savant.html`
+const PAGE = `${SITE}/cbb-coaching-savant`
 export const coachUrl = (id, season) => `${PAGE}#c=${encodeURIComponent(id)}${season ? `&season=${season}` : ''}`
-const cbbPlayerUrl = (eid, season) => `${SITE}/college-basketball-savant.html#player-${eid}/${season}`
+const cbbPlayerUrl = (eid, season) => `${SITE}/cbb-savant#player-${eid}/${season}`
 
 const loadIndex = () => files.load('index.json')
 const loadCoach = (id) => files.load(`c/${encodeURIComponent(id)}.json`)
@@ -64,7 +64,7 @@ async function resolveCoach(input) {
   const byId = rows.find((r) => r.id === raw)
   if (byId) return byId
   const ranked = rank(rows, raw, longer)
-  if (!ranked.length) throw new SavantError(`No men's D1 head coach matches "${raw}". College Basketball Coaching Savant covers every D1 head coach on record in Wikipedia's program histories and ESPN's season coaches. Check the spelling, or search with cbb_search_coaches.`)
+  if (!ranked.length) throw new SavantError(`No men's D1 head coach matches "${raw}". CBB Coaching Savant covers every D1 head coach on record in Wikipedia's program histories and ESPN's season coaches. Check the spelling, or search with cbb_search_coaches.`)
   const best = topTier(ranked)
   if (best.length === 1 && ranked[0].score >= 60) return best[0]
   const list = (best.length > 1 ? best : ranked.slice(0, 6).map((r) => r.row)).slice(0, 8)
@@ -119,7 +119,7 @@ export async function coachProfile({ coach, group = 'all', season }) {
   const r = await resolveCoach(coach)
   const p = await loadCoach(r.id)
   const notes = []
-  const L = [`${p.name}: College Basketball Coaching Savant`, coachUrl(p.id)]
+  const L = [`${p.name}: CBB Coaching Savant`, coachUrl(p.id)]
   const at = p.career.all_time
   L.push(`Head coach ${at.first}–${at.last}: ${record(at.w, at.l)} over ${plural(at.seasons, 'season')}; ${plural(at.ncaa, 'NCAA Tournament appearance')} (2002-03 on), ${at.f4} Final Four${at.f4 === 1 ? '' : 's'}, ${plural(at.titles, 'title')}.`)
   const unconf = (p.records || []).filter((x) => !x.confirmed)
@@ -187,7 +187,7 @@ export async function coachProfile({ coach, group = 'all', season }) {
     if (p.lineage?.mentor) L.push('', `Suggested mentor (from the record, not a verdict): ${p.lineage.mentor_name}, ${p.lineage.role || ''}${p.lineage.tie ? '; a tie in the record' : ''}.`)
     else L.push('', 'No D1 staff stint on record before his first head job, so no mentor is suggested.')
     if (p.lineage?.kids?.length) L.push(`Head coaches off his staff: ${p.lineage.kids.map((k) => k[1]).join(', ')}.`)
-    if (p.bio?.nba) L.push(`Also an NBA head coach: ${SITE}/basketball-coaching-savant.html#c=${p.bio.nba}`)
+    if (p.bio?.nba) L.push(`Also an NBA head coach: ${SITE}/nba-coaching-savant#c=${p.bio.nba}`)
   }
   if (want('seasons')) out.seasons = p.records.map((x) => ({ season: x.season, team: teamName(idx, x.team), w: x.w, l: x.l, interim: x.interim, confirmed: x.confirmed, ncaa_seed: x.seed ?? null, ncaa_result: x.ncaa ?? null, source: (x.src || [])[0] || null }))
   const sc = sr && sr.season === idx.meta.current && p.scouting_season ? p.scouting_season.lines : p.scouting
@@ -261,7 +261,7 @@ export async function coachingFit({ player, coach, limit = 10 } = {}) {
       const q = norm(raw)
       const hits = Object.entries(F.players).filter(([, v]) => norm(v[4]) === q)
       const part = hits.length ? hits : Object.entries(F.players).filter(([, v]) => norm(v[4]).includes(q))
-      if (!part.length) throw new SavantError(`No College Basketball Savant player with 200+ minutes in ${Object.values(F.players)[0]?.[2] ?? 'the latest season'} or this season matches "${raw}". Use cbb_search_players for the id.`)
+      if (!part.length) throw new SavantError(`No CBB Savant player with 200+ minutes in ${Object.values(F.players)[0]?.[2] ?? 'the latest season'} or this season matches "${raw}". Use cbb_search_players for the id.`)
       if (part.length > 1 && !hits.length) throw new SavantError(`"${raw}" matches ${part.length} players: ${part.slice(0, 8).map(([e, v]) => `${v[4]} (id ${e}, ${teamName(idx, v[1])} ${v[2]})`).join('; ')}. Call again with the id.`)
       pid = part[0][0]
     }
@@ -321,7 +321,7 @@ export async function coachingDictionary({ table } = {}) {
   if (table && !dict.tables[table]) throw new SavantError(`No table "${table}". Tables: ${Object.keys(dict.tables).join(', ')}.`)
   const tables = table ? { [table]: dict.tables[table] } : dict.tables
   const stats = dict.stats.map((s) => ({ key: s.key, label: s.label, group: s.group, kind: s.kind === 'good' ? 'how good' : 'how much', unit: s.unit, lower_is_better: !!s.lower, settle_point: s.thr, since: s.first, what: s.what, formula: s.formula, source: s.source, sample: s.sample }))
-  const L = ['College Basketball Coaching Savant data dictionary.', '', 'Tables (savant_data, sport cbb, table coaching_<name>):', ...Object.entries(tables).map(([k, v]) => `- ${k}: ${v.note} Columns: ${v.cols.join(', ')}.`), '', `Stats on the coach pages (${stats.length}):`, ...(table ? [] : stats.map((s) => `- ${s.key} (${s.label}; ${s.kind}; ${s.unit}${s.lower_is_better ? '; lower is better' : ''}; from ${s.since}; settles at ${s.settle_point}): ${s.what} Formula: ${s.formula}`)), '', dict.pools, idx.meta.model_note, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`]
+  const L = ['CBB Coaching Savant data dictionary.', '', 'Tables (savant_data, sport cbb, table coaching_<name>):', ...Object.entries(tables).map(([k, v]) => `- ${k}: ${v.note} Columns: ${v.cols.join(', ')}.`), '', `Stats on the coach pages (${stats.length}):`, ...(table ? [] : stats.map((s) => `- ${s.key} (${s.label}; ${s.kind}; ${s.unit}${s.lower_is_better ? '; lower is better' : ''}; from ${s.since}; settles at ${s.settle_point}): ${s.what} Formula: ${s.formula}`)), '', dict.pools, idx.meta.model_note, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`]
   return { structured: { tables, stats: table ? [] : stats, fits: idx.meta.fits, rules: idx.meta.rules, first_seasons: idx.meta.first_seasons, note: idx.meta.model_note, credit: idx.meta.credit, data_as_of: asOf(idx), source: SOURCE }, text: L.join('\n') }
 }
 
@@ -333,7 +333,7 @@ export const tools = [
     name: 'cbb_search_coaches',
     config: {
       title: 'Search men\'s college basketball coaches',
-      description: 'Find men\'s D1 head coaches in College Basketball Coaching Savant (wcehoops.com) by name: id, record, seasons, schools, NCAA appearances and page link. Tolerates accents and small typos.',
+      description: 'Find men\'s D1 head coaches in CBB Coaching Savant (wcehoops.com) by name: id, record, seasons, schools, NCAA appearances and page link. Tolerates accents and small typos.',
       inputSchema: { query: z.string().trim().min(2).max(80).describe('Coach name or part of one, e.g. "Scheyer", "Tom Izzo".'), limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.') },
       outputSchema: { query: z.string(), total: z.number().int(), count: z.number().int(), coaches: z.array(loose) },
       annotations: { title: 'Search men\'s college basketball coaches', ...READ_ONLY },
@@ -344,7 +344,7 @@ export const tools = [
     name: 'cbb_get_coach_profile',
     config: {
       title: 'Get a college coach\'s Savant profile',
-      description: 'One men\'s D1 head coach in College Basketball Coaching Savant (wcehoops.com): record (unconfirmed and interim rows tagged); wins above the roster model, AP context and the market; the ranked career card and a season\'s card, each stat with its percentile and pool; Rotation Map (2023-24 on); game management; identity; development; roster building and the portal; NCAA Tournament vs seed and odds; spending (EADA); splits; staff and mentor; scouting report.',
+      description: 'One men\'s D1 head coach in CBB Coaching Savant (wcehoops.com): record (unconfirmed and interim rows tagged); wins above the roster model, AP context and the market; the ranked career card and a season\'s card, each stat with its percentile and pool; Rotation Map (2023-24 on); game management; identity; development; roster building and the portal; NCAA Tournament vs seed and odds; spending (EADA); splits; staff and mentor; scouting report.',
       inputSchema: { coach: z.string().trim().min(1).max(80).describe('Coach name or id.'), group: z.enum(GROUPS).default('all').describe('Which part to return.'), season: z.string().regex(/^\d{4}-\d{2}$/).optional().describe('A season (default: the current one, else his latest).') },
       outputSchema: { coach: loose, group: z.string(), bio: loose, all_time: loose, stints: z.array(loose), notes: z.array(z.string()), career_stats: z.array(loose).optional(), season: loose.optional(),
         rotation: loose.optional(), game_management: loose.optional(), identity: loose.optional(), development: loose.optional(), roster_building: loose.optional(), tournament: loose.optional(),
@@ -356,11 +356,11 @@ export const tools = [
   {
     name: 'cbb_coaching_leaders',
     config: {
-      title: 'Get College Basketball Coaching Savant\'s Leaders boards',
-      description: 'The Leaders boards of College Basketball Coaching Savant (wcehoops.com): beat the roster model, best developers, portal hit rate, March vs expectation, did more with less, wins above resources, rising assistants (context, not credit), and this season\'s. Each names its pool.',
+      title: 'Get CBB Coaching Savant\'s Leaders boards',
+      description: 'The Leaders boards of CBB Coaching Savant (wcehoops.com): beat the roster model, best developers, portal hit rate, March vs expectation, did more with less, wins above resources, rising assistants (context, not credit), and this season\'s. Each names its pool.',
       inputSchema: { board: z.string().default('all').describe('A board id, or "all".'), limit: z.number().int().min(1).max(50).default(10).describe('Rows per board.') },
       outputSchema: { board: z.string(), limit: z.number().int(), boards: z.array(loose), url: z.string(), data_as_of: z.string(), source: z.string() },
-      annotations: { title: 'Get College Basketball Coaching Savant\'s Leaders boards', ...READ_ONLY },
+      annotations: { title: 'Get CBB Coaching Savant\'s Leaders boards', ...READ_ONLY },
     },
     run: ({ board, limit }) => coachingLeaders({ board, limit }),
   },
@@ -379,7 +379,7 @@ export const tools = [
     name: 'cbb_coaching_fit',
     config: {
       title: 'Match college players and coaches\' systems',
-      description: 'College Basketball Coaching Savant (wcehoops.com): how a College Basketball Savant player\'s profile (usage, shot diet, rebounding, free throws, turnovers, tempo) matches a coach\'s system at his position. Give a player for his closest current coaches, a coach for the players most like the ones he uses, or both for one match (0-100). Labelled as similarity: the out-of-sample test on transfers did not earn a fit score.',
+      description: 'CBB Coaching Savant (wcehoops.com): how a CBB Savant player\'s profile (usage, shot diet, rebounding, free throws, turnovers, tempo) matches a coach\'s system at his position. Give a player for his closest current coaches, a coach for the players most like the ones he uses, or both for one match (0-100). Labelled as similarity: the out-of-sample test on transfers did not earn a fit score.',
       inputSchema: { player: z.string().trim().min(1).max(80).optional().describe('Player name or ESPN id.'), coach: z.string().trim().min(1).max(80).optional().describe('Coach name or id.'), limit: z.number().int().min(1).max(30).default(10).describe('Rows to return.') },
       outputSchema: { label: z.string(), caveat: z.string(), features: z.array(z.string()), pair: loose.optional(), player: loose.optional(), coaches: z.array(loose).optional(), coach: loose.optional(), players: z.array(loose).optional(), data_as_of: z.string(), source: z.string() },
       annotations: { title: 'Match college players and coaches\' systems', ...READ_ONLY },

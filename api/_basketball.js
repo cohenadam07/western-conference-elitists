@@ -1,4 +1,4 @@
-// api/_basketball.js — Basketball Savant, as answers. One section of the AI connector
+// api/_basketball.js — NBA Savant, as answers. One section of the AI connector
 // (api/mcp.js): it knows basketball, the connector only speaks the protocol.
 //
 // It reads the small files the build writes under /savant-api/basketball/v1/ (see
@@ -27,7 +27,7 @@ import { AGE_POOLS, NEUTRAL_TEXT, NOTE_TEXT, agePercentile, agePoolInfo, extFor,
 // the card's ageToday(): exact years, days / 365.25
 const ageToday = (b) => tidy((Date.now() - Date.parse(`${b}T00:00:00Z`)) / 864e5 / 365.25)
 
-const files = makeLoader('savant-api/basketball/v1', { what: 'Basketball Savant' })
+const files = makeLoader('savant-api/basketball/v1', { what: 'NBA Savant' })
 
 export const GROUPS = { context: 'ctx', offense: 'off', defense: 'def', value: 'val' }
 const GROUP_ORDER = ['ctx', 'off', 'def', 'val']
@@ -53,7 +53,7 @@ const recent = (a, b) => startYear(b.to) - startYear(a.to) || b.seasons - a.seas
 
 // ---- small formatting helpers ----------------------------------------------------------
 
-export const cardUrl = (id) => `${SITE}/basketball-savant.html?p=${encodeURIComponent(id)}`
+export const cardUrl = (id) => `${SITE}/nba-savant?p=${encodeURIComponent(id)}`
 
 const tier = (p) => (p >= 82 ? 'elite' : p >= 62 ? 'high' : p >= 40 ? 'avg' : 'low') // the page's word()
 const feetInches = (n) => { const t = Math.round(n), f = Math.floor(t / 12); return `${f}'${t - f * 12}"` }
@@ -97,7 +97,7 @@ function parseSeason(input, meta) {
     const season = `${y}-${String((y + 1) % 100).padStart(2, '0')}`
     if (+m[2] % 100 !== (y + 1) % 100) throw new SavantError(`"${input}" is not a season. A season spans two years, written like ${season}.`)
     if (!meta.seasons.includes(season)) {
-      throw new SavantError(`Basketball Savant has no ${season} season. It covers ${meta.seasons[meta.seasons.length - 1]} through ${meta.seasons[0]}.`)
+      throw new SavantError(`NBA Savant has no ${season} season. It covers ${meta.seasons[meta.seasons.length - 1]} through ${meta.seasons[0]}.`)
     }
     return season
   }
@@ -169,7 +169,7 @@ export async function searchPlayers({ query, limit = 10 }) {
 
   const structured = { query, total: ranked.length, count: shown.length, players: shown }
   if (!shown.length) {
-    return { structured, text: `No player in Basketball Savant matches "${query}". It covers every player with stats since 1979-80. Check the spelling or try the last name alone.` }
+    return { structured, text: `No player in NBA Savant matches "${query}". It covers every player with stats since 1979-80. Check the spelling or try the last name alone.` }
   }
   const head = ranked.length === 1 ? `1 player matches "${query}":` : `${ranked.length} players match "${query}"${ranked.length > shown.length ? `, showing the first ${shown.length}` : ''}:`
   const lines = shown.map((p, i) =>
@@ -196,7 +196,7 @@ export async function playerProfile({ player, season, window = 'season', group =
     const where = inSpan(who, seasonId)
       ? `${who.name} has no stats in ${seasonId}; he may not have played that season.`
       : `${who.name} was not in the league in ${seasonId}.`
-    throw new SavantError(`${where} Basketball Savant has him from ${span(who)}.`)
+    throw new SavantError(`${where} NBA Savant has him from ${span(who)}.`)
   }
 
   let src = row
@@ -286,7 +286,7 @@ export async function playerProfile({ player, season, window = 'season', group =
     notes: [],
     url: cardUrl(row.id),
     data_as_of: day(meta.through || meta.generated),
-    source: 'Basketball Savant, Western Conference Elitists (wcehoops.com)',
+    source: 'NBA Savant, Western Conference Elitists (wcehoops.com)',
   }
 
   // Savant value and the All-Savant Team (full season only; savant-value.js on the page).
@@ -484,7 +484,7 @@ function seasonGames(file) {
 
 export async function allSavantTeam({ season, team = 'both' }) {
   const meta = await loadMeta()
-  if (!meta.savant_value) throw new SavantError('The All-Savant Team is not in this build of Basketball Savant yet.')
+  if (!meta.savant_value) throw new SavantError('The All-Savant Team is not in this build of NBA Savant yet.')
   let seasonId = parseSeason(season, meta)
   let file
   const notes = []
@@ -516,7 +516,7 @@ export async function allSavantTeam({ season, team = 'both' }) {
   }))
   if (file.in_progress) notes.push(`${seasonId} is still being played${file.through ? ` (data through ${file.through})` : ''}. The value is a season total, so the team moves as games pile up.`)
   const rule = file.all_savant_rule || null
-  notes.push('A player makes one team only. Each value is measured against a replacement player at his Basketball Savant position (Guard, Wing or Big), whatever slot he fills.')
+  notes.push('A player makes one team only. Each value is measured against a replacement player at his NBA Savant position (Guard, Wing or Big), whatever slot he fills.')
   const structured = {
     season: seasonId,
     in_progress: !!file.in_progress,
@@ -525,9 +525,9 @@ export async function allSavantTeam({ season, team = 'both' }) {
     teams,
     method: meta.savant_value.what,
     notes,
-    url: `${SITE}/basketball-savant.html`,
+    url: `${SITE}/nba-savant`,
     data_as_of: day(meta.through || meta.generated),
-    source: 'Basketball Savant, Western Conference Elitists (wcehoops.com)',
+    source: 'NBA Savant, Western Conference Elitists (wcehoops.com)',
   }
   const L = [`The All-Savant Team, ${seasonId}${file.in_progress && file.through ? ` (through ${file.through})` : ''}`]
   for (const t of teams) {
@@ -552,7 +552,7 @@ export const tools = [
     config: {
       title: 'Search NBA players',
       description:
-        'Find NBA players in Basketball Savant (Western Conference Elitists, wcehoops.com) by name. Covers every player with stats from 1979-80 through the latest season. Returns each match with its id, position, most recent team, and first and last season, plus the link to his card. Matching ignores accents and punctuation and tolerates small typos. Some players whose careers began before 1996-97 appear under two ids, one for each part of the career.',
+        'Find NBA players in NBA Savant (Western Conference Elitists, wcehoops.com) by name. Covers every player with stats from 1979-80 through the latest season. Returns each match with its id, position, most recent team, and first and last season, plus the link to his card. Matching ignores accents and punctuation and tolerates small typos. Some players whose careers began before 1996-97 appear under two ids, one for each part of the career.',
       inputSchema: {
         query: z.string().trim().min(2).max(80).describe('Player name or part of one, e.g. "Jokic", "LeBron James", "Gilgeous".'),
         limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return (1-25, default 10).'),
@@ -569,7 +569,7 @@ export const tools = [
           first_season: z.string(),
           last_season: z.string(),
           seasons: z.number().int().describe('Number of seasons with stats.'),
-          url: z.string().describe('His Basketball Savant card.'),
+          url: z.string().describe('His NBA Savant card.'),
         })),
       },
       annotations: { title: 'Search NBA players', ...READ_ONLY },
@@ -581,7 +581,7 @@ export const tools = [
     config: {
       title: 'Get an NBA player\'s Savant profile',
       description:
-        'Get one NBA player\'s Basketball Savant profile (Western Conference Elitists, wcehoops.com) for one season: his per-game line and every tracked stat with its value and two percentiles, one against all qualified players that season ("league") and one against qualified players at his position ("vs. guards", "vs. wings" or "vs. bigs"). Covers ~200 stats: shooting and shot profile, creation, tracking (drives, touches, passing), hustle, matchups, fouls, rebounding, defense, measurements, consistency and value (BPM, win probability added). Defaults to his latest season; for that season it can also give his last 10, 25 or 75 games, his comps and who he guards. Seasons from 1979-80; stats a season did not track are listed as not tracked. Links his card.',
+        'Get one NBA player\'s NBA Savant profile (Western Conference Elitists, wcehoops.com) for one season: his per-game line and every tracked stat with its value and two percentiles, one against all qualified players that season ("league") and one against qualified players at his position ("vs. guards", "vs. wings" or "vs. bigs"). Covers ~200 stats: shooting and shot profile, creation, tracking (drives, touches, passing), hustle, matchups, fouls, rebounding, defense, measurements, consistency and value (BPM, win probability added). Defaults to his latest season; for that season it can also give his last 10, 25 or 75 games, his comps and who he guards. Seasons from 1979-80; stats a season did not track are listed as not tracked. Links his card.',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nba_search_players (e.g. "203999") or a full name (e.g. "Nikola Jokic"). If a name fits more than one player, the error lists their ids.'),
         season: z.string().trim().max(12).optional().describe('Season written as two years, e.g. "2025-26". Omit for his most recent season.'),
@@ -678,7 +678,7 @@ export const tools = [
           all_savant_slot: z.enum(['G', 'F', 'C']).nullable().optional().describe('The slot he filled on that team through 2022-23 (guard, forward or center, as All-NBA was picked); null from 2023-24, when the team is positionless as All-NBA is.'),
           all_savant_final: z.boolean().describe('True once the season is over, when the All-Savant Team is an honour; false while it is a standing.'),
         }).optional().describe('Full season only: Savant value, the number the All-Savant Team is picked on.'),
-        url: z.string().describe('His Basketball Savant card.'),
+        url: z.string().describe('His NBA Savant card.'),
         data_as_of: z.string(),
         source: z.string(),
       },
@@ -691,7 +691,7 @@ export const tools = [
     config: {
       title: 'Get the All-Savant Team',
       description:
-        'Get Basketball Savant\'s All-Savant Team (Western Conference Elitists, wcehoops.com) for one season: an All-NBA 1st and 2nd team picked by the numbers alone, under All-NBA\'s own rules for the era: two guards, two forwards and a center through 2022-23 (a player can fill a slot where he played at least 30% of his minutes), positionless from 2023-24 (without All-NBA\'s 65-game minimum: missed games already cost Savant value). Picks are by Savant value among qualified players: the points he added that season above a replacement-level player at his position, built from his own box stats and luck-adjusted on/off, counting only the possessions he played. Returns each player with his value, team, games and card link. Seasons from 1979-80 on; defaults to the newest season, or the last full one while a new season is in its first 10 games.',
+        'Get NBA Savant\'s All-Savant Team (Western Conference Elitists, wcehoops.com) for one season: an All-NBA 1st and 2nd team picked by the numbers alone, under All-NBA\'s own rules for the era: two guards, two forwards and a center through 2022-23 (a player can fill a slot where he played at least 30% of his minutes), positionless from 2023-24 (without All-NBA\'s 65-game minimum: missed games already cost Savant value). Picks are by Savant value among qualified players: the points he added that season above a replacement-level player at his position, built from his own box stats and luck-adjusted on/off, counting only the possessions he played. Returns each player with his value, team, games and card link. Seasons from 1979-80 on; defaults to the newest season, or the last full one while a new season is in its first 10 games.',
       inputSchema: {
         season: z.string().trim().max(12).optional().describe('Season written as two years, e.g. "2025-26". Omit for the current team.'),
         team: z.enum(['1', '2', 'both']).default('both').describe('"1" for the 1st team, "2" for the 2nd, "both" (default).'),
@@ -708,7 +708,7 @@ export const tools = [
             name: z.string(),
             team: z.string(),
             slot: z.enum(['G', 'F', 'C']).nullable().describe('The slot he filled: guard, forward or center through 2022-23; null from 2023-24 (positionless, listed by value).'),
-            position: z.string().describe('His Basketball Savant position (Guard, Wing or Big), the one his value is measured against.'),
+            position: z.string().describe('His NBA Savant position (Guard, Wing or Big), the one his value is measured against.'),
             games: z.number().nullable(),
             points_over_replacement: z.number(),
             per_100_vs_average: z.number(),

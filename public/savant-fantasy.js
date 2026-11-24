@@ -1,4 +1,4 @@
-/* Basketball Savant · the Fantasy tab, the tab bar, and the projection panel on the player card.
+/* NBA Savant · the Fantasy tab, the tab bar, and the projection panel on the player card.
  *
  * Loaded after the main page script and reads its globals (DATA, cur, EXPL, explHtml, pickHome).
  * Data: savant-proj.json (~/Basketball-Savant/projections.py, rebuilt every refresh), the crowd
@@ -458,7 +458,7 @@ var CSS=[
 function shell(){
   if($('svFx')) return;
   var st=D.createElement('style'); st.textContent=CSS; D.head.appendChild(st);
-  var tabs=D.createElement('nav'); tabs.className='sv-tabs'; tabs.id='svTabs'; tabs.setAttribute('aria-label','Basketball Savant sections');
+  var tabs=D.createElement('nav'); tabs.className='sv-tabs'; tabs.id='svTabs'; tabs.setAttribute('aria-label','NBA Savant sections');
   tabs.innerHTML='<button type="button" class="sv-tab" data-t="players">Players</button>'
     +'<button type="button" class="sv-tab" data-t="lb">Leaderboards</button>'
     +'<button type="button" class="sv-tab" data-t="fx">Fantasy<span class="new">new</span></button>'

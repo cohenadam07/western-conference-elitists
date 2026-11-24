@@ -1,5 +1,5 @@
 """
-archive.py — the Basketball Savant player archive, read for the coaching build: each player's
+archive.py — the NBA Savant player archive, read for the coaching build: each player's
 impact, role, age and archetype by season, from the same files the player cards draw.
 
     players(season) -> {nba id: {"name", "team", "pos", "age", "exp", "bpm", "obpm", "dbpm",

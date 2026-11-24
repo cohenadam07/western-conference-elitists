@@ -73,6 +73,6 @@ export function valueMeta(model) {
     parts: model.parts.map((p) => ({ key: p.key, label: p.label })),
     K: model.K,
     learned: model.learned,
-    page: 'https://wcehoops.com/basketball-savant.html',
+    page: 'https://wcehoops.com/nba-savant',
   }
 }

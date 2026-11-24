@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>College Basketball Coaching Savant — WCE Hoops</title>
+<title>CBB Coaching Savant — WCE Hoops</title>
 <meta name="description" content="Every men's Division I head coach: wins against the roster he was given, the Rotation Map, timeouts and challenges, player development, roster building and the portal, the NCAA Tournament against the seed, resources, and the coaching tree."/>
 <meta name="theme-color" content="#22395A"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600&display=swap">
 <style>
 /* ============================================================================
-   COLLEGE BASKETBALL COACHING SAVANT, in the college theme (tools/themes/): College Basketball Savant's
+   COLLEGE BASKETBALL COACHING SAVANT, in the college theme (tools/themes/): CBB Savant's
    tokens, base rules, framed sheet and collapsible sidebar, read from tools/themes/ exactly as College
    Savant's own page reads them; then this page's components (01c-coaching.css, Basketball Coaching
    Savant's component CSS for coach pages); then tools/themes/shared/coaching-skin.css, which paints those
@@ -86,7 +86,7 @@ h1,h2,h3{margin:0;text-wrap:balance}
   html.nav-collapsed .navtog .rl{opacity:0}
 }
 @media (min-width:761px) and (prefers-reduced-motion:no-preference){html .app{transition:grid-template-columns .2s ease}}
-/* The frame on a phone: College Basketball Savant's own rules, line for line (they sit inside its last
+/* The frame on a phone: CBB Savant's own rules, line for line (they sit inside its last
    @media block with the page's other phone rules, so they are copied here rather than cut out;
    tools/themes/check.mjs fails if a line here stops matching that page). */
 @media (max-width:760px){
@@ -277,7 +277,7 @@ h3.sub{font-family:var(--disp);font-weight:600;font-size:18px;margin:16px 0 2px}
 .xmore-body .col{border:0;padding:0;margin:8px 0 0;background:none;box-shadow:none;overflow:visible}
 .xmore-body .col:hover{box-shadow:none}
 .xmore-body .col .since{margin-top:0}
-/* links: a coach to his page, a player to his Basketball Savant card */
+/* links: a coach to his page, a player to his NBA Savant card */
 a.cl,a.pl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--faint)}
 a.cl:hover,a.pl:hover{color:var(--red);border-bottom-color:var(--red)}
 svg a text{cursor:pointer}svg a:hover text{fill:var(--red)}
@@ -357,7 +357,7 @@ a.tl2{color:inherit;text-decoration:none;border-bottom:1px dotted var(--faint)}a
 .matrix td.d{background:var(--track)}
 .matrix thead th{writing-mode:vertical-rl;transform:rotate(180deg);text-align:left;height:90px;padding:4px 0}
 .pairinfo{font-size:13px;margin-top:10px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-/* the tree, football Coaching Savant's zoomable forest */
+/* the tree, NFL Coaching Savant's zoomable forest */
 .treestage{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative;height:min(74vh,760px);cursor:grab;touch-action:none}
 .treestage.embed{height:min(60vh,560px);border-radius:10px;background:var(--sunk)}
 .treestage.drag{cursor:grabbing}
@@ -415,7 +415,7 @@ body.view-tree .home,body.view-tree .coach{display:none}
    and the NBA page's type; this maps the names onto the theme's tokens and restyles the components to the
    theme's frame: cards like its cards, headings in its text face, rows like its percentile rows (bar
    height, radius, track, hatching and tick from the tokens), tables like its tables. Read after the
-   component CSS, so it wins. Used by College Basketball Coaching Savant; the NBA preview reads it too.
+   component CSS, so it wins. Used by CBB Coaching Savant; the NBA preview reads it too.
    ========================================================================= */
 :root{
   --bg:var(--ground);--sunk:var(--raised);--ink:var(--text);--line:var(--border);--navy:var(--hue);--gold:var(--tend);
@@ -530,7 +530,7 @@ table.t tr.on td{background:var(--raised)}
 #tip .def{border-top-color:var(--rule);color:var(--muted)}
 #tip a{color:var(--sel);border-bottom-color:var(--sel)}
 
-/* the components hard-code Basketball Savant's gold (#C2A263) in charts and swatches; it means "a tendency"
+/* the components hard-code NBA Savant's gold (#C2A263) in charts and swatches; it means "a tendency"
    or "his peak", so it takes the theme's tendency colour */
 [fill="#C2A263"]{fill:var(--tend)}
 [stroke="#C2A263"]{stroke:var(--tend)}
@@ -555,9 +555,9 @@ table.t tr.on td{background:var(--raised)}
 <body class="view-home anim">
 <wce-nav style="display:block;min-height:60px"></wce-nav>
 <div class="app">
-  <a class="brand" href="#" aria-label="College Basketball Coaching Savant, home">
+  <a class="brand" href="#" aria-label="CBB Coaching Savant, home">
     <svg class="mark" viewBox="0 0 28 28" aria-hidden="true"><rect class="mk-bg" x="0" y="0" width="28" height="28" rx="7"/><line class="mk-tr" x1="6" y1="10" x2="22" y2="10"/><line class="mk-tr" x1="6" y1="18" x2="22" y2="18"/><circle class="mk-b" cx="10" cy="10" r="2.6"/><circle class="mk-a" cx="18.5" cy="18" r="3.2"/></svg>
-    <span class="wm">College Basketball Coaching Savant<small>Western Conference Elitists</small></span>
+    <span class="wm">CBB Coaching Savant<small>Western Conference Elitists</small></span>
   </a>
   <nav class="nav" id="nav" aria-label="Sections">
     <a href="#" data-tab="coaches" title="Coaches" aria-current="page"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="3"/><path d="M2.5 14.5c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/></svg><span>Coaches</span></a>
@@ -589,7 +589,7 @@ table.t tr.on td{background:var(--raised)}
   <section class="coach" id="coach"></section>
   <section class="treeview" id="treeview"></section>
     </div>
-    <div class="wrap"><p class="foot"><span id="srcpill">live data</span> · <span id="verchip" title="Built by pipeline/college/coaching/build.py"></span> · Data: ESPN play-by-play and box scores, CollegeBasketballData, Wikipedia, the U.S. Department of Education (EADA); player and team numbers from <a href="/college-basketball-savant.html">College Basketball Savant</a>. Model outputs are the model's view, not a verdict.</p></div>
+    <div class="wrap"><p class="foot"><span id="srcpill">live data</span> · <span id="verchip" title="Built by pipeline/college/coaching/build.py"></span> · Data: ESPN play-by-play and box scores, CollegeBasketballData, Wikipedia, the U.S. Department of Education (EADA); player and team numbers from <a href="/cbb-savant">CBB Savant</a>. Model outputs are the model's view, not a verdict.</p></div>
   </main>
 </div>
 <div id="tip" role="tooltip"></div>
@@ -597,8 +597,8 @@ table.t tr.on td{background:var(--raised)}
 'use strict';
 var $=function(s){return document.querySelector(s);};
 const BASE = '/cbcs';
-const SAVANT = '/college-basketball-savant.html#player-';
-const CBB = '/college-basketball-savant.html';
+const SAVANT = '/cbb-savant#player-';
+const CBB = '/cbb-savant';
 const Z = ['rim','paint','mid','c3','ab3'], ZL = {rim:'Rim', paint:'Paint', mid:'Mid-range', c3:'Corner 3', ab3:'Above-break 3'};
 const CAUSES = ['absence','blowout','foul','choice'], CAUSE_C = {absence:'#8B9099', blowout:'#C2C0B6', foul:'#C2A263', choice:'#BC3A2C'}, CAUSE_L = {absence:'absence', blowout:'blowout', foul:'foul trouble', choice:"the coach's choice"};
 const PT = {Isolation:'Isolation', Transition:'Transition', PRBallHandler:'P&R handler', PRRollman:'P&R roll man', Postup:'Post-up', Spotup:'Spot-up', Handoff:'Hand-off', Cut:'Cut', OffScreen:'Off screen', OffRebound:'Putback', Misc:'Misc'};
@@ -700,12 +700,12 @@ function headNote(id, year, season){
   return `<b>${src(e[1])}</b><br><span class="k">cropped to his face and framed in ${team}'s colours${season ? `, because there is no photo of him from ${season}` : ''}</span>`;
 }
 const CW = (max) => Math.max(340, Math.min(max || 1000, (document.getElementById('coach')?.clientWidth || 1000) - 40));
-// links: a coach to his page here, a player to his Basketball Savant card. An ESPN-only id ("e123")
+// links: a coach to his page here, a player to his NBA Savant card. An ESPN-only id ("e123")
 // has no card, so it stays plain text.
 const coachLink = (id, name) => id ? `<a class="cl" href="#c=${encodeURIComponent(id)}">${esc(name ?? nameOf(id))}</a>` : esc(name);
-// a player links to his College Basketball Savant card for the season in view
+// a player links to his CBB Savant card for the season in view
 const curSeason = () => (state && state.mode && state.mode !== 'career') ? state.mode : (state?.season || IDX?.meta?.current);
-const playerLink = (pid, name, season) => (pid != null && /^\d+$/.test(String(pid))) ? `<a class="pl" href="${SAVANT}${pid}/${season || curSeason()}" title="his College Basketball Savant card">${esc(name)}</a>` : esc(name);
+const playerLink = (pid, name, season) => (pid != null && /^\d+$/.test(String(pid))) ? `<a class="pl" href="${SAVANT}${pid}/${season || curSeason()}" title="his CBB Savant card">${esc(name)}</a>` : esc(name);
 const svgCoach = (id, x, y, text, attrs='') => `<a href="#c=${encodeURIComponent(id)}"><text x="${x}" y="${y}" ${attrs}>${esc(text)}</text></a>`;
 const svgPlayer = (pid, x, y, text, attrs='') => /^\d+$/.test(String(pid)) ? `<a href="${SAVANT}${pid}/${curSeason()}"><text x="${x}" y="${y}" ${attrs}>${esc(text)}</text></a>` : `<text x="${x}" y="${y}" ${attrs}>${esc(text)}</text>`;
 const tipAttr = html => ` data-tip="${String(html).replace(/"/g, '&quot;')}"`;
@@ -774,7 +774,7 @@ function route(){
   if (h.startsWith('c=')) return openCoach(h.slice(2).split('&')[0], h);
   if (h === 'tree' || h.startsWith('tree=')) return openTree(h.startsWith('tree=') ? h.slice(5) : null);
   document.body.className = 'view-home anim';
-  document.title = 'College Basketball Coaching Savant — WCE Hoops';
+  document.title = 'CBB Coaching Savant — WCE Hoops';
   syncTabs(h === 'leaders' ? 'leaders' : 'coaches');
   if (h === 'leaders') { const el = document.getElementById('leadersplate'); if (el) setTimeout(() => el.scrollIntoView({behavior:'smooth', block:'start'}), 30); }
   else window.scrollTo(0, 0);
@@ -887,7 +887,7 @@ async function openCoach(id, hash){
   state.game = null; state.kind = 'RS';
   renderCoach();
   if (!m) window.scrollTo(0, 0);
-  document.title = `${COACH.name} — College Basketball Coaching Savant`;
+  document.title = `${COACH.name} — CBB Coaching Savant`;
   document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.id === id));
 }
 function pickSeason(season){
@@ -1714,7 +1714,7 @@ async function drawFingerprint(otherId, sr){
 }
 
 // ---------------------------------------------------------------- the tree
-// Football Coaching Savant's forest, grown from IDX.tree: every root is a tree, branches thin as the
+// NFL Coaching Savant's forest, grown from IDX.tree: every root is a tree, branches thin as the
 // line thins, children fan upward. Branches take their root's colour; a node is a dot with the man's
 // record beside his name once you are close enough to read it. Search flies to a coach, hover lights
 // his line to the trunk, click opens his page. The assistants toggle adds men who were never a head
@@ -1940,7 +1940,7 @@ function mountTree(st, focus){
 function openTree(focus){
   document.body.className = 'view-tree';
   syncTabs('tree');
-  document.title = 'The coaching tree — College Basketball Coaching Savant';
+  document.title = 'The coaching tree — CBB Coaching Savant';
   const el = document.getElementById('treeview'), N = IDX.tree.nodes, roots = IDX.tree.roots;
   if (!document.getElementById('treestage')) {
     const sprouts = Object.keys(N).filter(k => !N[k].mentor && N[k].size === 1 && isHC(k)).length;
@@ -1955,7 +1955,7 @@ function openTree(focus){
 }
 
 
-// ============================================================================ College Basketball Coaching Savant
+// ============================================================================ CBB Coaching Savant
 // The NBA page's functions above stay as the shared shell; everything below redefines the ones that
 // differ in college (a later function declaration wins), and adds the four college-only sections:
 // roster building, the NCAA Tournament against the seed, resources and similar players.
@@ -1963,7 +1963,7 @@ function openTree(focus){
 
 const CUR = () => IDX.meta.current;
 const tAbbr = k => IDX.teams[k]?.abbr || IDX.teams[k]?.name || k;
-const teamLink = (k, season, label) => k ? `<a class="tl2" href="${CBB}#team-${k}/${season || curSeason()}" title="the team on College Basketball Savant">${esc(label || teamName(k))}</a>` : '—';
+const teamLink = (k, season, label) => k ? `<a class="tl2" href="${CBB}#team-${k}/${season || curSeason()}" title="the team on CBB Savant">${esc(label || teamName(k))}</a>` : '—';
 const GQ = {record: 'does he beat the roster he was given?', rotation: 'who plays, and does he stick to it?', management: 'timeouts, challenges, the clock', offense: 'what his teams hunt', defense: 'what they take away',
   development: 'do players get better under him?', roster: 'how he builds it, and do the additions hit?', tournament: 'March, measured fairly', resources: 'with money, or without it', context: 'where the margin moves'};
 const SRC_L = {returning: 'returning', transfer: 'D1 transfers', hs: 'high-school freshmen', juco: 'JUCO or non-D1', intl: 'international'};
@@ -1973,7 +1973,7 @@ const SRC_C = {returning: '#22395A', transfer: '#BC3A2C', hs: '#C2A263', juco: '
 function renderHome(){
   const m = IDX.meta, hc = IDX.coaches.filter(c => c.hc);
   document.getElementById('homeintro').innerHTML = `<h2 class="col-h">Every men's D1 head coach, judged from the floor up</h2><p class="since">${hc.length.toLocaleString()} head coaches on record · ${IDX.coaches.filter(c => c.g).length.toLocaleString()} with games since ${m.rules.stats_from} · a pool of ${m.rules.career_pool} ranked careers · data through ${m.through || m.generated.slice(0, 10)}</p>
-    <p class="small" style="max-width:760px">Wins against the roster he was handed, read from last season before he coached it. Whether players get better under him, by class year and starting level. How he builds a roster: the portal, high school, retention. When each man plays and how often he goes off script. Timeouts that stop runs, or don't. March against the seed. Spending, from the Department of Education. Records and the coaching tree as far back as the sources go. Start with a name above, or a trending coach. Paired with <a href="${CBB}">College Basketball Savant</a>.</p>`;
+    <p class="small" style="max-width:760px">Wins against the roster he was handed, read from last season before he coached it. Whether players get better under him, by class year and starting level. How he builds a roster: the portal, high school, retention. When each man plays and how often he goes off script. Timeouts that stop runs, or don't. March against the seed. Spending, from the Department of Education. Records and the coaching tree as far back as the sources go. Start with a name above, or a trending coach. Paired with <a href="${CBB}">CBB Savant</a>.</p>`;
   document.getElementById('lead-since').textContent = `career boards: head coaches with ${m.rules.min_career_seasons}+ seasons and ${m.rules.min_career_games}+ games from ${m.rules.stats_from}; this season: ${m.current}, provisional until ${m.rules.min_live_games} games`;
   renderLeaders();
   renderTrends();
@@ -1987,7 +1987,7 @@ function renderHome(){
     <p><b>The roster model is the headline.</b> Each returning player's Savant rate and role last season, each transfer's at his old school plus a level-jump term fitted on 2021-on portal moves, each freshman's recruit rank, summed into an expected net and expected wins against the schedule actually played. Out of sample it missed team net by ${t.vs_last?.ours_rmse?.toFixed(2) ?? '—'} points per 100 against ${t.vs_last?.baseline_rmse?.toFixed(2) ?? '—'} for last season's net (${(t.vs_last?.n || 0).toLocaleString()} team-seasons), and by ${t.vs_ap?.ours_rmse?.toFixed(2) ?? '—'} against ${t.vs_ap?.baseline_rmse?.toFixed(2) ?? '—'} for the preseason AP rank on ranked teams (${t.vs_ap?.n ?? '—'}): ${t.headline ? 'it beat both, so it is the baseline' : 'it did not beat both'}. The AP poll is context only. The market (the spread, 2013-14 on) is the third lens.</p>
     <p><b>The Rotation Map</b> (2023-24 on, where College Savant's lineup gate passes) shows, for every man with 60 minutes under a coach (2 a game until a season has 30), the share of games he was on the floor in each of the 40 minutes. His usual windows are where that share is 60% or better, outlined from his 8th lineup game of a season (before that about two in five outlined minutes would not hold to the season's end). Each off-script minute gets the first cause that fits: absence, blowout (College Savant's safe-lead rule), foul trouble (a 2nd foul in the first half; a 4th with 8:00 or more left), then choice. ${esc(m.model_note)}</p>
     <p><b>Lineups judged from their parts</b> use each five's Savant rates. Tested where the rates cannot see the games (last season's rates, odd games fit, even games scored), the projection's error was ${p.rmse_projection?.toFixed(2) ?? '—'} against ${p.rmse_team_net?.toFixed(2) ?? '—'} for the team's own net: ${p.validated ? 'validated' : 'not a real gain, so everything built on it is shown as unvalidated'}. <b>System fit</b> was tested on ${(f.n || 0).toLocaleString()} transfers: ${f.ships_as === 'fit score' ? 'it predicted their change, so it is a fit score' : 'it did not predict their change better than the roster model, so it is shown only as similar players under him'}.</p>
-    <p class="k">${esc(m.credit)} Spending: the U.S. Department of Education's Equity in Athletics data. Player numbers: College Basketball Savant.</p>`;
+    <p class="k">${esc(m.credit)} Spending: the U.S. Department of Education's Equity in Athletics data. Player numbers: CBB Savant.</p>`;
 }
 function renderTrends(){
   const el = document.getElementById('trends');
@@ -2030,7 +2030,7 @@ async function openCoach(id, hash){
   state.game = null; state.kind = 'RS';
   renderCoach();
   if (!m) window.scrollTo(0, 0);
-  document.title = `${COACH.name} — College Basketball Coaching Savant`;
+  document.title = `${COACH.name} — CBB Coaching Savant`;
   document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.id === id));
 }
 function pickSeason(season){
@@ -2089,7 +2089,7 @@ function renderIdentity(sr){
   if (b.born) bits.push(`born ${b.born}${b.birthplace ? ', ' + esc(b.birthplace) : ''}`);
   if (b.age_first_hc) bits.push(`first D1 head job at <b>${b.age_first_hc}</b>`);
   if (b.assistant_seasons_before) bits.push(`${b.assistant_seasons_before} season${b.assistant_seasons_before === 1 ? '' : 's'} on D1 staffs before it`);
-  if (b.nba) bits.push(`<a href="/basketball-coaching-savant.html#c=${encodeURIComponent(b.nba)}">his NBA page on Basketball Coaching Savant ↗</a>`);
+  if (b.nba) bits.push(`<a href="/nba-coaching-savant#c=${encodeURIComponent(b.nba)}">his NBA page on NBA Coaching Savant ↗</a>`);
   if (b.wiki_url) bits.push(`<a href="${esc(b.wiki_url)}" rel="noopener">Wikipedia ↗</a>`);
   const teams = [...new Set(c.stints.map(s => s.team))];
   const stat = (v, l, tip) => `<span class="st"${tip ? tipAttr(tip) : ''}><b>${v}</b> ${l}</span>`;
@@ -2570,7 +2570,7 @@ function renderStaff(sr){
       ${L.also?.length ? `<div class="small" style="margin-top:4px">Also shaped by: ${L.also.map(a => `${coachLink(a[0], a[1])} (${a[2]} season${a[2] === 1 ? '' : 's'})`).join(', ')}</div>` : ''}
       ${L.later?.length ? `<div class="small" style="margin-top:4px">On a staff after he had been a head coach (a job, not an apprenticeship): ${L.later.map(u => `${coachLink(u[0], u[1])} (${u[2]})`).join(', ')}</div>` : ''}
       ${L.kids?.length ? `<div class="small" style="margin-top:8px"><b>Head coaches off his staff:</b> ${L.kids.map(k => coachLink(k[0], k[1])).join(', ')}</div>` : ''}
-      ${COACH.bio?.nba ? `<div class="small" style="margin-top:8px">He was also an NBA head coach: <a href="/basketball-coaching-savant.html#c=${encodeURIComponent(COACH.bio.nba)}">Basketball Coaching Savant ↗</a></div>` : ''}
+      ${COACH.bio?.nba ? `<div class="small" style="margin-top:8px">He was also an NBA head coach: <a href="/nba-coaching-savant#c=${encodeURIComponent(COACH.bio.nba)}">NBA Coaching Savant ↗</a></div>` : ''}
       <div class="small" style="margin-top:8px"><a href="#tree=${COACH.id}">See him in the tree ↗</a></div>
       ${assist.length ? `<h3 class="lead-h" style="margin-top:14px">His own stints as an assistant</h3><div class="scroll"><table class="t"><thead><tr><th>season</th><th>team</th><th>head coach</th><th>source</th></tr></thead><tbody>${assist.map(a => `<tr${first && a.season >= first ? ' style="color:var(--faint)"' : ''}><td>${a.season}</td><td>${esc(tAbbr(a.team))}</td><td style="text-align:left;font-family:var(--body)">${(a.heads || []).map(h => coachLink(h, nodes[h]?.name || h)).join(', ') || '—'}</td><td>${a.src === 'infobox' ? 'team-season article' : 'biography'}</td></tr>`).join('')}</tbody></table></div>` : ''}</div>
     <div><h3 class="lead-h">Staff room</h3>${seasons.length ? seasons.slice().reverse().map(s => `<div class="staff" style="margin:4px 0"><b>${s.season} ${esc(tAbbr(s.team))}</b>: ${s.staff.map(a => a.id ? coachLink(a.id, a.name) : wl(a.name, a.wiki)).join(', ')} <span class="small"><a href="${esc(s.staff[0].src)}" rel="noopener">source ↗</a></span></div>`).join('') : '<div class="empty">no staff recorded for ' + (sr ? sr.season : 'his seasons') + '</div>'}

@@ -1,5 +1,5 @@
 """
-context.py — play context for College Basketball Savant (Nov 2026): what the box score can't say.
+context.py — play context for CBB Savant (Nov 2026): what the box score can't say.
 
 From one season's working files (rebuilt/<season>/shots.pkl, poss.pkl, stints.json.gz) it writes:
 

@@ -6,9 +6,9 @@
 
 Each check is one SQL query, written the way an assistant would write it, run through the real engine
 (tools/analysis/run.mjs: api/_sql.js, every lock on), and compared with the numbers the page itself
-publishes: Basketball Savant's season card, shot-zone bars and heat maps; Football Savant's player-seasons,
-team table and season card; College Football Savant's season and game files; UFC Savant's career totals;
-College Basketball Savant's season file; and two leaderboards. The page side is read with
+publishes: NBA Savant's season card, shot-zone bars and heat maps; NFL Savant's player-seasons,
+team table and season card; CFB Savant's season and game files; UFC Savant's career totals;
+CBB Savant's season file; and two leaderboards. The page side is read with
 tools/dataroom/reconcile.py's own loaders. Prints one line per query and writes
 tools/analysis/sql_parity.json; exits 1 if any query misses.
 """
@@ -40,7 +40,7 @@ def close(a, b, tol):
 
 CHECKS = []   # (name, sql, compare(rows) -> (n, bad, sample))
 # Where the page's two files disagree with each other, not with the SQL: reported every run, not a failure.
-KNOWN = {'cbb player_games 2018-19': 'College Basketball Savant\'s 2018-19 season file and its own team game logs differ by one or two minutes for 19 of 4,743 players (whole-minute game lines summed vs the season total); games played match for all of them.'}
+KNOWN = {'cbb player_games 2018-19': 'CBB Savant\'s 2018-19 season file and its own team game logs differ by one or two minutes for 19 of 4,743 players (whole-minute game lines summed vs the season total); games played match for all of them.'}
 
 
 def check(name, sql):
@@ -76,7 +76,7 @@ def sav():
 
 
 for S in ('2024-25', '2016-17', '2005-06', '1998-99'):
-    @check(f'nba player_games {S}: 3PA, FTA, 2PA, TS% per player vs the Basketball Savant card',
+    @check(f'nba player_games {S}: 3PA, FTA, 2PA, TS% per player vs the NBA Savant card',
            f"SELECT player_id, sum(fg3a) AS fg3a, sum(fta) AS fta, sum(fga) - sum(fg3a) AS fg2a, sum(pts) / (2 * (sum(fga) + 0.44 * sum(fta))) AS ts FROM nba.player_games WHERE season = '{S}' GROUP BY player_id")
     def _(rows, S=S):
         got = {r[0]: r for r in rows}
@@ -155,7 +155,7 @@ def fs():
 
 
 for S in ('2025', '2018', '2010', '2001'):
-    @check(f'nfl plays {S}: dropbacks, EPA per dropback, EPA per carry per player vs Football Savant',
+    @check(f'nfl plays {S}: dropbacks, EPA per dropback, EPA per carry per player vs NFL Savant',
            f"""SELECT pid, sum(db) AS db, sum(dbe) AS dbe, sum(car) AS car, sum(care) AS care FROM (
                  SELECT coalesce(passer_id, rusher_id) AS pid, 1 AS db, coalesce(qb_epa, 0) AS dbe, 0 AS car, 0.0 AS care FROM nfl.plays
                    WHERE season = '{S}' AND season_type = 'REG' AND coalesce(two_point, 0) = 0 AND qb_dropback = 1 AND coalesce(kneel, 0) = 0 AND coalesce(spike, 0) = 0 AND coalesce(passer_id, rusher_id) IS NOT NULL
@@ -211,7 +211,7 @@ for S in ('2025', '2016'):
         return tally(out)
 
 
-@check('nfl leaderboard 2024: the ten best EPA per dropback (200+ dropbacks) vs Football Savant',
+@check('nfl leaderboard 2024: the ten best EPA per dropback (200+ dropbacks) vs NFL Savant',
        """SELECT coalesce(passer_id, rusher_id) AS pid, avg(coalesce(qb_epa, 0)) AS epadb FROM nfl.plays
           WHERE season = '2024' AND season_type = 'REG' AND coalesce(two_point, 0) = 0 AND qb_dropback = 1 AND coalesce(kneel, 0) = 0 AND coalesce(spike, 0) = 0
           GROUP BY 1 HAVING count(*) >= 200 ORDER BY epadb DESC LIMIT 10""")
@@ -302,7 +302,7 @@ def _(rows):
 
 # ---------------------------------------------------------------- CBB
 for S in ('2024-25', '2018-19'):
-    @check(f'cbb player_games {S}: D1 games and minutes per player vs the College Basketball Savant season file',
+    @check(f'cbb player_games {S}: D1 games and minutes per player vs the CBB Savant season file',
            f"SELECT player_id, count(*) AS gp, sum(min) AS mins FROM cbb.player_games WHERE season = '{S}' AND NOT coalesce(non_d1::BOOLEAN, false) GROUP BY player_id")
     def _(rows, S=S):
         D = json.load(gzip.open(os.path.join(ROOT, 'public', 'cbb', 's', f'{S}.json.gz'), 'rt'))

@@ -7,7 +7,7 @@ the bracket every year; plus the NIT, CBI, CIT, Crown and conference tournaments
 
 Two sources, each doing what it is good at:
 
-  * ESPN (the College Basketball Savant cache): the games themselves, with their ESPN ids, dates
+  * ESPN (the CBB Savant cache): the games themselves, with their ESPN ids, dates
     and scores, and the seed of each team in competitors[].rank (in a tournament game ESPN's
     "rank" is the seed; confirmed per season below).
   * Wikipedia, "<year> NCAA Division I men's basketball tournament": the bracket, which is the
@@ -47,7 +47,7 @@ WIKI = os.path.join(OUT, "wiki")
 RAW = os.path.join(HOME, "espn-cache", "cbb")
 REBUILT = os.path.join(HOME, "out", "cbb", "rebuilt")
 LOG = os.path.join(HOME, "logs", "cbcs-tourney.log")
-UA = {"User-Agent": "wcehoops.com College Basketball Coaching Savant (research bot; https://wcehoops.com)"}
+UA = {"User-Agent": "wcehoops.com CBB Coaching Savant (research bot; https://wcehoops.com)"}
 ROUNDS = ["FF", "R64", "R32", "S16", "E8", "F4", "NC"]
 RESULT = {"FF": "First Four", "R64": "Round of 64", "R32": "Round of 32", "S16": "Sweet 16", "E8": "Elite Eight", "F4": "Final Four", "NC": "Runner-up", "CH": "Champion", "NOGAME": "Did not play (no contest)"}
 OTHER = re.compile(r"\bNIT\b|CBI|\bCIT\b|CROWN|BASKETBALL CLASSIC|VEGAS 16|COLLEGEINSIDER", re.I)
@@ -288,7 +288,7 @@ def match(wteams, names):
 # ---------------------------------------------------------------- one season
 def season_table(y):
     s = label(y)
-    # games.pkl is College Basketball Savant's own intermediate table, written by season.py on this
+    # games.pkl is CBB Savant's own intermediate table, written by season.py on this
     # Mac; nothing downloaded is ever unpickled.
     G = pd.read_pickle(os.path.join(REBUILT, s, "games.pkl"))
     G["note"] = G.note.fillna("").astype(str)
@@ -312,7 +312,7 @@ def season_table(y):
     wteams = sorted({k: (k, d) for k, d in wteams}.values())
     names = espn_names(s, post.gid.tolist())
     # Teams with no ESPN tournament game (games ESPN never recorded, VCU's 2021 no-contest) still
-    # need an id: College Basketball Savant's own team table for the season names every team.
+    # need an id: CBB Savant's own team table for the season names every team.
     known = set(names)
     ids = json.load(open(os.path.join(REBUILT, s, "ids.json"))).get("teams", {})
     fallback = defaultdict(set)

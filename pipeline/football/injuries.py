@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""NFL injury status for Football Savant -> public/football-injuries/current.json.
+"""NFL injury status for NFL Savant -> public/football-injuries/current.json.
 
-Football Savant's cards are built from nflverse, which says what a player did, not
+NFL Savant's cards are built from nflverse, which says what a player did, not
 whether he can play this week. This job fills that gap from two free feeds:
 
   ESPN   site.api.espn.com/.../nfl/injuries   every run (a few times a day)
@@ -9,7 +9,7 @@ whether he can play this week. This job fills that gap from two free feeds:
                                                the injured slice is cached between runs
                                                in data/football-sleeper-injuries.json
 
-Ids: ESPN ids are mapped to GSIS (Football Savant's ids) with nflverse's players.csv,
+Ids: ESPN ids are mapped to GSIS (NFL Savant's ids) with nflverse's players.csv,
 then with Sleeper's own gsis_id/espn_id pairs for anyone nflverse misses. Sleeper rows
 carry gsis_id directly. Anyone who still fails to map is logged and left out.
 
@@ -42,7 +42,7 @@ REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 # In a folder of its own: the connector-coverage check runs on every change to a top-level
 # public/*.json, and this file changes many times a day.
 OUT = os.environ.get('INJ_OUT', os.path.join(REPO, 'public', 'football-injuries', 'current.json'))
-# Outside pipeline/football/, whose changes set off the full Football Savant refresh.
+# Outside pipeline/football/, whose changes set off the full NFL Savant refresh.
 STATE = os.environ.get('INJ_STATE', os.path.join(REPO, 'data'))
 SLEEPER_CACHE = os.path.join(STATE, 'football-sleeper-injuries.json')
 SLEEPER_MAX_AGE_H = 20          # "once a day", with slack for a drifting schedule

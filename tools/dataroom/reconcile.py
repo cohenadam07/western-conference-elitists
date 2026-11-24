@@ -166,8 +166,8 @@ def nba():
             if off:
                 bad += 1
                 smp = smp or {'player': p['name'], **{c[0]: (c[1], c[2]) for c in off}}
-        record('nba', 'player_games', s, '3PA, FTA, 2PA and TS% summed over games vs the Basketball Savant season card', n, bad, smp)
-    # shots: zone counts vs Basketball Savant's shot-zone bars (savant-ext) and the heat maps' attempt counts (shots/<id>.json)
+        record('nba', 'player_games', s, '3PA, FTA, 2PA and TS% summed over games vs the NBA Savant season card', n, bad, smp)
+    # shots: zone counts vs NBA Savant's shot-zone bars (savant-ext) and the heat maps' attempt counts (shots/<id>.json)
     sdir = os.path.join(HOSTED, 'nba', 'shots')
     heat = {}
     hdir = os.path.join(ROOT, 'public', 'shots')
@@ -232,7 +232,7 @@ def nba():
                 if off:
                     bad += 1
                     smp = smp or {'player': pid, **{c[0]: (c[1], c[2]) for c in off[:3]}}
-            record('nba', 'shots', s, 'attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs Basketball Savant\'s shot-zone bars', n, bad, smp)
+            record('nba', 'shots', s, 'attempts and makes by zone (rim, paint, mid-range, corner and above-the-break 3) vs NBA Savant\'s shot-zone bars', n, bad, smp)
         n = bad = 0
         smp = None
         for (pid, season), hn in heat.items():
@@ -299,7 +299,7 @@ def nfl():
             if off:
                 bad += 1
                 smp = smp or {'player': p['name'], **{c[0]: (c[1], c[2]) for c in off}}
-        record('nfl', 'plays', s, 'dropbacks, EPA per dropback and EPA per carry summed from plays vs Football Savant player-seasons', n, bad, smp)
+        record('nfl', 'plays', s, 'dropbacks, EPA per dropback and EPA per carry summed from plays vs NFL Savant player-seasons', n, bad, smp)
         # games: the team table
         try:
             gd, gx = table('nfl', 'games', s, PUB)
@@ -330,7 +330,7 @@ def nfl():
             if off:
                 bad += 1
                 smp = smp or {'team': tm, 'off': off[:3]}
-        record('nfl', 'games', s, 'plays, EPA, dropbacks, runs and sacks summed over team-games vs the Football Savant team table, both ways', n, bad, smp)
+        record('nfl', 'games', s, 'plays, EPA, dropbacks, runs and sacks summed over team-games vs the NFL Savant team table, both ways', n, bad, smp)
         # player_games: the weekly lines add up to the season denominators
         try:
             pd_, px = table('nfl', 'player_games', s, HOSTED)
@@ -356,7 +356,7 @@ def nfl():
             if off:
                 bad += 1
                 smp = smp or {'player': p['name'], **{c[0]: (c[1], c[2]) for c in off}}
-        record('nfl', 'player_games', s, 'pass attempts, targets and receptions summed over game lines vs the Football Savant season card', n, bad, smp)
+        record('nfl', 'player_games', s, 'pass attempts, targets and receptions summed over game lines vs the NFL Savant season card', n, bad, smp)
 
 
 # ---------------------------------------------------------------- CFB
@@ -409,7 +409,7 @@ def cfb():
             if off:
                 bad += 1
                 smp = smp or {'player': p[ci['name']], **{c[0]: (c[1], c[2]) for c in off}}
-        record('cfb', 'plays', s, 'dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the College Football Savant season file', n, bad, smp)
+        record('cfb', 'plays', s, 'dropbacks (garbage time out and in), EPA per dropback, rushes and EPA per rush vs the CFB Savant season file', n, bad, smp)
         # games: each team-game's plays and EPA per play vs the page's game file
         try:
             gd, gx = table('cfb', 'games', s, PUB)
@@ -434,7 +434,7 @@ def cfb():
             if not (close(got[0], pl, 0) and close(got[1], ep, 0.00051) and close(got[2], sr, 0.051)):
                 bad += 1
                 smp = smp or {'game': k, 'data_room': got, 'page': (pl, ep, sr)}
-        record('cfb', 'games', s, 'plays, EPA per play and success rate per team-game vs the College Football Savant game file', n, bad, smp)
+        record('cfb', 'games', s, 'plays, EPA per play and success rate per team-game vs the CFB Savant game file', n, bad, smp)
 
 
 SPORT_FN = {'ufc': ufc, 'nba': nba, 'nfl': nfl, 'cfb': cfb}

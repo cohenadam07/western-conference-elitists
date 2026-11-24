@@ -1,4 +1,4 @@
-/* College Football Savant's own layout, on the cfb theme. */
+/* CFB Savant's own layout, on the cfb theme. */
 .hero{position:relative;overflow:hidden;padding:44px var(--gut) 38px;border-bottom:4px solid var(--banner)}
 .hero .bg{position:absolute;inset:-80px -40px;transform:rotate(-7deg);display:flex;flex-direction:column;gap:6px;pointer-events:none}
 .hero .bg div{white-space:nowrap;font-family:var(--disp);font-size:54px;line-height:1;letter-spacing:.02em;color:rgba(46,143,232,.09)}

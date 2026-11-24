@@ -1,5 +1,5 @@
 """
-measure.py: how much sample every Basketball Savant stat needs before it means something.
+measure.py: how much sample every NBA Savant stat needs before it means something.
 Writes tools/savant-settle/settle.json, which the page (SETTLE_K, each stat's hatching
 threshold and its "sample" explainer) and the connector take their numbers from.
 

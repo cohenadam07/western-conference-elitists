@@ -1,4 +1,4 @@
-// Check for the rest of Football Savant in the AI connector: the Leaderboard Builder, the team
+// Check for the rest of NFL Savant in the AI connector: the Leaderboard Builder, the team
 // page and team boards, career mode, the game-by-game chart and recent form, splits, field
 // maps, route trees and the postseason game pages (api/_football-lists.js and
 // api/_football-games.js, and what scripts/lib/savant-api-football.mjs writes for them).
@@ -137,7 +137,7 @@ function loadPage(archive, current) {
     getElementById: (id) => (els[id] = els[id] || makeEl(id)),
     querySelectorAll: () => [], querySelector: () => null, createElement: () => makeEl(''),
   }
-  const sandbox = { document, history: { replaceState() {} }, location: { origin: 'https://wcehoops.com', pathname: '/football-savant.html', hash: '' }, navigator: {}, console, Promise, setTimeout }
+  const sandbox = { document, history: { replaceState() {} }, location: { origin: 'https://wcehoops.com', pathname: '/nfl-savant', hash: '' }, navigator: {}, console, Promise, setTimeout }
   vm.createContext(sandbox)
   const code = `(function (ARCHIVE, CURRENT) {
   ${grabLine('var DATA=null')}

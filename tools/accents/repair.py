@@ -6,8 +6,8 @@ repair.py — put back the accents a refresh dropped, in the files already publi
 
 For every sport audit.py covers, each player id's de-accented spelling is replaced by its accented
 twin (accents.canonical), and only in that sport's own files:
-  Basketball Savant  savant-data.json, savant-current.json, savant-proj.json
-  Football Savant    football-savant-current.json (the archive already has the accents)
+  NBA Savant  savant-data.json, savant-current.json, savant-proj.json
+  NFL Savant    football-savant-current.json (the archive already has the accents)
   College Football   public/cfb/** (season, search, player and team files)
   College Basketball public/cbb/** (nothing to do today)
 Other products that show the same players (Coaching Savant, news, articles, dynasty) never had the
@@ -33,10 +33,10 @@ import accents as A  # noqa: E402
 import audit as AU  # noqa: E402
 
 PUB = os.path.join(ROOT, "public")
-FILES = {"Basketball Savant": ["savant-data.json", "savant-current.json", "savant-proj.json"],
-         "Football Savant": ["football-savant-current.json"],
-         "College Football Savant": ["cfb/**/*.json*"],
-         "College Basketball Savant": ["cbb/**/*.json*"]}
+FILES = {"NBA Savant": ["savant-data.json", "savant-current.json", "savant-proj.json"],
+         "NFL Savant": ["football-savant-current.json"],
+         "CFB Savant": ["cfb/**/*.json*"],
+         "CBB Savant": ["cbb/**/*.json*"]}
 
 
 def fixes_for(sport):

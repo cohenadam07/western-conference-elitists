@@ -1,6 +1,6 @@
 """
 common.py — the measuring instruments behind mtchc's Modules 2-4 reports: read every season's
-published Basketball Savant values, run threat.py over them, and build the defender table
+published NBA Savant values, run threat.py over them, and build the defender table
 from the cached LeagueSeasonMatchups (the same table and weights mtch uses).
 
     from common import table          # one season's defenders: mtchc, its parts, mtch, targets

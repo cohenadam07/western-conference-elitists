@@ -1,4 +1,4 @@
-// api/_draft.js — Draft Savant, as answers. One section of the AI connector (api/mcp.js): it
+// api/_draft.js — NBA Draft Savant, as answers. One section of the AI connector (api/mcp.js): it
 // knows the draft page, the connector only speaks the protocol.
 //
 // It reads the small files the build writes under /savant-api/draft/v1/ (see
@@ -8,7 +8,7 @@
 // so an answer from this file is the number on the prospect's card. Loading, caching and name
 // matching are shared with the other sections and live in api/_core.js.
 //
-// This is COLLEGE AND PRE-DRAFT data. It is a different thing from Basketball Savant
+// This is COLLEGE AND PRE-DRAFT data. It is a different thing from NBA Savant
 // (api/_basketball.js, nba_*), which is NBA seasons; the tool names here start nba_draft_.
 //
 // WHAT AN ANSWER ALWAYS SAYS
@@ -48,14 +48,14 @@ import { READ_ONLY, SavantError, makeLoader, miss, ordinal, prepare, rank, topTi
 // Every file of this section is small, and there is one per draft class. The loader keeps
 // them all, with room for classes to come, so the glossary is never pushed out by a run of
 // questions about different years.
-const files = makeLoader('savant-api/draft/v1', { what: 'Draft Savant', maxCached: 40 })
+const files = makeLoader('savant-api/draft/v1', { what: 'NBA Draft Savant', maxCached: 40 })
 
 // The tools' words for the page's two controls and three columns, and the page's own values.
 export const COMPARE = { all: 'all', position: 'pos', age: 'age' }
 export const POOL = { class: 'class', past: 'past5' }
 export const GROUPS = { context: 'ctx', offense: 'off', defense: 'def' }
 const PEERS = { Guard: 'guards', Wing: 'wings', Big: 'bigs' }
-const SOURCE = 'Draft Savant, Western Conference Elitists (wcehoops.com)'
+const SOURCE = 'NBA Draft Savant, Western Conference Elitists (wcehoops.com)'
 
 const loadMeta = () => files.load('meta.json')
 const loadClass = (year) => files.load(`classes/${year}.json`)
@@ -156,7 +156,7 @@ async function resolveProspect(input, meta) {
   const byId = rows.find((r) => r.id === raw)
   if (byId) return { row: byId, namesakes: ranked.filter((r) => r.row.id !== byId.id && r.score >= 75).map((r) => r.row) }
 
-  const scope = `Draft Savant covers ${coverage(meta)}`
+  const scope = `NBA Draft Savant covers ${coverage(meta)}`
   if (!ranked.length) {
     const what = /^[a-z0-9]+([_-][a-z0-9]+)+$/.test(raw) ? `No prospect has the id "${raw}"` : `No prospect matches "${raw}"`
     throw new SavantError(`${what}. ${scope}. Check the spelling, or search with nba_draft_search_prospects.`)
@@ -192,14 +192,14 @@ function draftBoard(meta, rows, year, limit) {
     id: r.id, name: r.name, position: r.pos, college: r.college, draft_year: r.year, pick: r.pick, team: r.team,
     projected, close_match: false, round: roundOf(r.pick), url: meta.page,
   }))
-  const notes = ['Draft Savant holds college and other pre-draft data, not NBA stats.']
+  const notes = ['NBA Draft Savant holds college and other pre-draft data, not NBA stats.']
   if (projected) notes.push(projectedNote(year))
   else if (meta.past.firstRoundOnly) notes.push(`For past drafts the page holds first-round picks only, so the ${year} board ends at pick ${cls.picks[1]}.`)
   notes.push(provenance(meta))
   const structured = { query: null, year, total: board.length, count: shown.length, prospects: shown, notes, url: meta.page, source: SOURCE }
 
   const more = board.length > shown.length ? `, showing the first ${shown.length}` : ''
-  const L = [`Draft Savant's draft board, ${projected ? `the ${year} class, the page's current class` : `the ${year} draft`}: ${plural(board.length, 'prospect')} in pick order${more}.`]
+  const L = [`NBA Draft Savant's draft board, ${projected ? `the ${year} class, the page's current class` : `the ${year} draft`}: ${plural(board.length, 'prospect')} in pick order${more}.`]
   let heading = null
   for (const p of shown) {
     if (p.round !== heading) { L.push('', p.round); heading = p.round }
@@ -213,7 +213,7 @@ export async function searchProspects({ query, year, limit }) {
   const rows = await loadProspects()
   if (!query && year == null) throw new SavantError('Give a prospect name, a draft year, or both.')
   if (year != null && !meta.classes.some((c) => c.year === year)) {
-    throw new SavantError(`Draft Savant has no ${year} class. It covers ${coverage(meta)}: ${meta.classes.map((c) => c.year).join(', ')}.`)
+    throw new SavantError(`NBA Draft Savant has no ${year} class. It covers ${coverage(meta)}: ${meta.classes.map((c) => c.year).join(', ')}.`)
   }
   if (!query) return draftBoard(meta, rows, year, limit)
   limit = limit ?? 10
@@ -233,15 +233,15 @@ export async function searchProspects({ query, year, limit }) {
   }))
 
   const close = shown.filter((p) => p.close_match).length
-  const notes = ['Draft Savant holds college and other pre-draft data, not NBA stats.']
-  if (close) notes.push(`A close spelling can be a different person. Draft Savant covers ${coverage(meta)}, so a player picked outside it is not here.`)
+  const notes = ['NBA Draft Savant holds college and other pre-draft data, not NBA stats.']
+  if (close) notes.push(`A close spelling can be a different person. NBA Draft Savant covers ${coverage(meta)}, so a player picked outside it is not here.`)
   if (shown.some((p) => p.projected)) notes.push(projectedNote(meta.currentClass))
   notes.push(provenance(meta))
   const structured = { query, year: year ?? null, total: ranked.length, count: shown.length, prospects: shown, notes, url: meta.page, source: SOURCE }
 
   const inYear = year == null ? '' : ` in the ${year} class`
   if (!shown.length) {
-    const text = `No prospect${inYear} in Draft Savant matches "${query}". It covers ${coverage(meta)}. Check the spelling or try the last name alone.\n${notes[notes.length - 1]}`
+    const text = `No prospect${inYear} in NBA Draft Savant matches "${query}". It covers ${coverage(meta)}. Check the spelling or try the last name alone.\n${notes[notes.length - 1]}`
     return { structured, text }
   }
   const more = ranked.length > shown.length ? `, showing the first ${shown.length}` : ''
@@ -309,7 +309,7 @@ export async function prospectProfile({ prospect, compare = 'all', pool = 'class
   const cls = await loadClass(who.year)
   const row = cls.players.find((p) => p.id === who.id)
   // The index and the class file come from one build; a deploy in progress can split them.
-  if (!row) throw new SavantError(`Draft Savant's files are being refreshed and disagree about ${who.name}. Try again in a few minutes.`)
+  if (!row) throw new SavantError(`NBA Draft Savant's files are being refreshed and disagree about ${who.name}. Try again in a few minutes.`)
 
   const field = POOL[pool]
   const cohort = COMPARE[compare]
@@ -385,7 +385,7 @@ export async function prospectProfile({ prospect, compare = 'all', pool = 'class
 
   // ---- the same thing in words ----
   const L = []
-  L.push(`${row.name}: Draft Savant pre-draft profile (college and combine data, not NBA stats)`)
+  L.push(`${row.name}: NBA Draft Savant pre-draft profile (college and combine data, not NBA stats)`)
   L.push(`${drafted({ ...row, year: cls.year }, cls.projected)}.`)
   const facts = [row.pos, row.conf ? `${where(row)} (${row.conf})` : where(row)]
   if (row.gp != null) facts.push(plural(row.gp, 'game'))
@@ -469,7 +469,7 @@ export const tools = [
     config: {
       title: 'Search NBA draft prospects',
       description:
-        'Find NBA draft prospects in Draft Savant (Western Conference Elitists, wcehoops.com) by name, or list one draft class in pick order as the page\'s draft board does. Covers the 2026 class as the page lists it (shown as projected) and the first-round picks of the 2010 through 2025 drafts. Each row has the id, position, college or other pre-draft team, draft year, pick and team. College and pre-draft data, not NBA stats. Matching ignores accents and punctuation; a near spelling is marked as a close match. The data is a file compiled by WCE, partly by hand, not an official feed. The page has no per-prospect link.',
+        'Find NBA draft prospects in NBA Draft Savant (Western Conference Elitists, wcehoops.com) by name, or list one draft class in pick order as the page\'s draft board does. Covers the 2026 class as the page lists it (shown as projected) and the first-round picks of the 2010 through 2025 drafts. Each row has the id, position, college or other pre-draft team, draft year, pick and team. College and pre-draft data, not NBA stats. Matching ignores accents and punctuation; a near spelling is marked as a close match. The data is a file compiled by WCE, partly by hand, not an official feed. The page has no per-prospect link.',
       inputSchema: {
         query: z.string().trim().min(2).max(80).optional().describe('Prospect name or part of one, e.g. "Dybantsa", "Cooper Flagg". Omit, and give a year, to list that class.'),
         year: z.number().int().min(2000).max(2100).optional().describe('Draft year, e.g. 2026. Alone: that class\'s draft board in pick order, by round. With a query: only that class is searched.'),
@@ -491,10 +491,10 @@ export const tools = [
           projected: z.boolean().describe('True when the page shows this class as projected: the pick is not a draft result.'),
           close_match: z.boolean().describe('True when the name matched only as a near spelling. It may be a different person.'),
           round: z.string().optional().describe('Draft board only: the page\'s heading the pick sits under.'),
-          url: z.string().describe('The Draft Savant page. It has no per-prospect link.'),
+          url: z.string().describe('The NBA Draft Savant page. It has no per-prospect link.'),
         })),
         notes: z.array(z.string()).describe('What the data is and where it comes from.'),
-        url: z.string().describe('The Draft Savant page.'),
+        url: z.string().describe('The NBA Draft Savant page.'),
         source: z.string(),
       },
       annotations: { title: 'Search NBA draft prospects', ...READ_ONLY },
@@ -504,9 +504,9 @@ export const tools = [
   {
     name: 'nba_draft_get_prospect_profile',
     config: {
-      title: 'Get an NBA draft prospect\'s Draft Savant profile',
+      title: 'Get an NBA draft prospect\'s NBA Draft Savant profile',
       description:
-        'Get one prospect\'s Draft Savant profile (Western Conference Elitists, wcehoops.com): his college or other pre-draft production and his measurements as the page shows them. This is not NBA data. Returns his per-game line, games played, measurements, the page\'s archetype label, the pick and team the page shows (shown as projected for the 2026 class; first-round picks only for 2010 through 2025), and each stat the page ranks with its value and one percentile against a named pool, with how many prospects in that pool have the stat. The pool defaults to everyone the page lists from his own draft year; it can be narrowed to his position or to prospects within a year of his age, and it can be switched to the pooled 2010-2025 first rounds. Stats cover age, strength of schedule, scoring, shooting, playmaking, steals, blocks, rebounding, BPM and physical measurements. Stats with no value for him are listed as missing, and whether his whole class lacks them. The data is a file compiled by WCE, partly by hand, not an official feed, and every result carries its provenance note. The page has no link that opens one prospect, so the result links to the page itself.',
+        'Get one prospect\'s NBA Draft Savant profile (Western Conference Elitists, wcehoops.com): his college or other pre-draft production and his measurements as the page shows them. This is not NBA data. Returns his per-game line, games played, measurements, the page\'s archetype label, the pick and team the page shows (shown as projected for the 2026 class; first-round picks only for 2010 through 2025), and each stat the page ranks with its value and one percentile against a named pool, with how many prospects in that pool have the stat. The pool defaults to everyone the page lists from his own draft year; it can be narrowed to his position or to prospects within a year of his age, and it can be switched to the pooled 2010-2025 first rounds. Stats cover age, strength of schedule, scoring, shooting, playmaking, steals, blocks, rebounding, BPM and physical measurements. Stats with no value for him are listed as missing, and whether his whole class lacks them. The data is a file compiled by WCE, partly by hand, not an official feed, and every result carries its provenance note. The page has no link that opens one prospect, so the result links to the page itself.',
       inputSchema: {
         prospect: z.string().trim().min(1).max(80).describe('Prospect id from nba_draft_search_prospects (e.g. "dybantsa") or a full name (e.g. "AJ Dybantsa"). If a name fits more than one prospect, the error lists their ids.'),
         compare: z.enum(Object.keys(COMPARE)).default('all').describe('Who within the pool he is ranked against: "all" (default), "position" for only Guards, Wings or Bigs like him, or "age" for only prospects within a year of his age. The page\'s "Compare against" control.'),
@@ -574,10 +574,10 @@ export const tools = [
         })).describe('Stats with no value for him. The page shows no bar for these; they are not zero.'),
         not_tracked: z.array(z.object({ key: z.string(), label: z.string() })).describe('Stats the page does not apply to his draft year.'),
         notes: z.array(z.string()).describe('How to read the numbers: the pool, the cautions that apply to him, what is missing, and where the data comes from.'),
-        url: z.string().describe('The Draft Savant page. It has no per-prospect link.'),
+        url: z.string().describe('The NBA Draft Savant page. It has no per-prospect link.'),
         source: z.string(),
       },
-      annotations: { title: 'Get an NBA draft prospect\'s Draft Savant profile', ...READ_ONLY },
+      annotations: { title: 'Get an NBA draft prospect\'s NBA Draft Savant profile', ...READ_ONLY },
     },
     run: ({ prospect, compare, pool, group }) => prospectProfile({ prospect, compare, pool, group }),
   },

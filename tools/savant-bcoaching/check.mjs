@@ -1,4 +1,4 @@
-// Check for Basketball Coaching Savant: the files pipeline/basketball/coaching/build.py writes
+// Check for NBA Coaching Savant: the files pipeline/basketball/coaching/build.py writes
 // under public/bcs/, the page that draws them, and the connector section (api/_bcoaching.js)
 // that quotes them.
 //

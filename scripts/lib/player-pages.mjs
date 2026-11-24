@@ -1,6 +1,6 @@
-// A real page for every player on Basketball Savant: /player/<slug>.
+// A real page for every player on NBA Savant: /player/<slug>.
 //
-// Basketball Savant is one HTML file that builds every profile in the reader's browser, so to a
+// NBA Savant is one HTML file that builds every profile in the reader's browser, so to a
 // search engine it is a single URL with no players on it, and every shared link previews as the
 // same generic card. This writes plain HTML for each player at build time:
 //
@@ -34,7 +34,7 @@ import { assignSlugs, createEngine, headSeasonURL, inFt, loadPageConfig, miss, o
 import { readSavantData } from './savant-merge.mjs'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
-const TOOL = '/basketball-savant.html'
+const TOOL = '/nba-savant'
 const SITE_NAME = 'Western Conference Elitists'
 
 /** A season needs this many qualified players before its percentiles mean anything (early in a
@@ -83,7 +83,7 @@ const HEAD_LINKS =
   '<link rel=icon type=image/svg+xml href=/favicon.svg><link rel=apple-touch-icon href=/apple-touch-icon.png>' +
   '<link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">' +
   '<link rel=stylesheet href=/player/p.css><script defer src=/wce-nav.js></script>' +
-  '<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}</script><script defer src=/_vercel/insights/script.js></script>'
+  '<script src=/wce-human.js></script>' // the human gate: holds data and Analytics until a person is confirmed (BOT-SHIELD.md)
 
 // These tags are read by other people's scrapers, some of them crude, so unlike the rest of the
 // page they keep their quotes and sit inside a real <head>. To keep ~3,800 heads small:
@@ -151,11 +151,11 @@ function describe(e, row, season, prof, usable) {
   const best = usable && row.qualified ? prof.filter(isMark).sort((a, b) => b.league - a.league).slice(0, 2) : []
   let d = `${e.name}’s ${season} percentile profile` + (line ? `: ${line}.` : '.')
   if (best.length === 2) d += ` ${ordinal(best[0].league)} percentile in ${best[0].label}, ${ordinal(best[1].league)} in ${best[1].label}.`
-  d += e.seasons.length > 1 ? ` All ${e.seasons.length} seasons on Basketball Savant.` : ' On Basketball Savant.'
+  d += e.seasons.length > 1 ? ` All ${e.seasons.length} seasons on NBA Savant.` : ' On NBA Savant.'
   return d
 }
 
-// College honours from College Basketball Savant, for NBA players it can link: {NBA id: {eid, list}}.
+// College honours from CBB Savant, for NBA players it can link: {NBA id: {eid, list}}.
 export function collegeHonours(root) {
   const read = (f) => { const p = path.join(root, 'public', 'cbb', f); return existsSync(p) ? JSON.parse(gunzipSync(readFileSync(p)).toString('utf8')) : null }
   const links = read('links.json.gz'), hon = read('honours.json.gz')
@@ -186,7 +186,7 @@ function renderPlayer(ctx, e) {
   const pos = row.pos
   const q = eng.CFG.qualify || {}
 
-  const title = `${e.name} — NBA Percentile Profile | Basketball Savant`
+  const title = `${e.name} — NBA Percentile Profile | NBA Savant`
   const description = describe(e, row, season, prof, usable)
   const image = `${site}/api/og?p=${slug}&v=${stamp}`
 
@@ -211,7 +211,7 @@ function renderPlayer(ctx, e) {
   const statline = L ? '<p class=sl>' + [['PPG', L.ppg], ['RPG', L.rpg], ['APG', L.apg], ['TPG', L.tpg], ['MPG', L.mpg]].map(([l, v]) => `<span><b>${f1(v)}</b> ${l}</span>`).join('') : ''
   const college = ctx.college && ctx.college.get(String(e.id))
   const accos = (acc.length ? '<p class=ac>' + acc.map((a) => `<span${a.major ? ' class=mj' : ''}>${esc(a.short)}</span>`).join('') : '') +
-    (college ? `<p class=ac><a href="/college-basketball-savant.html#player-${esc(college.eid)}">In college</a>: ${college.list.map((h) => `<span>${esc(h)}</span>`).join('')}` : '')
+    (college ? `<p class=ac><a href="/cbb-savant#player-${esc(college.eid)}">In college</a>: ${college.list.map((h) => `<span>${esc(h)}</span>`).join('')}` : '')
 
   const wt = val(row, 'strength'), vt = val(row, 'vert'), la = val(row, 'lateral')
   const meas = [
@@ -234,7 +234,7 @@ function renderPlayer(ctx, e) {
     : seasonShot ? `<img src=${seasonShot} data-l=${latestShot} alt="" width=88 height=88 onerror="if(this.dataset.l&&this.src!=this.dataset.l)this.src=this.dataset.l;else this.remove()">`
     : `<img src=${latestShot} alt="" width=88 height=88 onerror=this.remove()>`
 
-  let body = `${RIBBON}<div class=w><p class=bc><a href=${TOOL}>Basketball Savant</a> / <a href=/player>Players</a> / ${esc(e.name)}`
+  let body = `${RIBBON}<div class=w><p class=bc><a href=${TOOL}>NBA Savant</a> / <a href=/player>Players</a> / ${esc(e.name)}`
   body +=
     `<header class=id><div class=ih><div class=hw><span>${esc(initials(e.name))}</span>${headshot}</div><div class=it>` +
     `${peak === season ? '<div class=pk>CAREER BEST</div>' : ''}<h1>${esc(e.name)}</h1>` +
@@ -312,7 +312,7 @@ function renderPlayer(ctx, e) {
   body +=
     '<div data-nl=player-page></div>' +
     `<footer class=ft><p>Every percentile compares him with players who qualified in the same season (${q.min_gp}+ games at ${q.min_mpg}+ minutes a game). Rates are per 75 possessions.${ctx.dataDate ? ` Data through ${ctx.dataDate}.` : ''}` +
-    `<p><a href=${TOOL}>Basketball Savant</a> · <a href=/player>All players</a> · <a href="/">wcehoops.com</a> · <a href=/privacy>Privacy</a></footer>` +
+    `<p><a href=${TOOL}>NBA Savant</a> · <a href=/player>All players</a> · <a href="/">wcehoops.com</a> · <a href=/privacy>Privacy</a></footer>` +
     `</div><script type=application/json id=card>${JSON.stringify(card).replace(/</g, '\\u003c')}</script><script defer src=/player/p.js></script>`
 
   return head({ title, ogTitle: `${e.name} — NBA Percentile Profile`, description, url, image, imageAlt: `${e.name} percentile bars, ${season}`, type: 'profile' }) + body
@@ -338,17 +338,17 @@ function renderDirectory(ctx) {
 
   const n = all.length.toLocaleString('en-US')
   const span = `${eng.seasons[eng.seasons.length - 1]} to ${cur}`
-  const title = 'Every NBA Player on Basketball Savant | Western Conference Elitists'
+  const title = 'Every NBA Player on NBA Savant | Western Conference Elitists'
   const description = `Percentile profiles for ${n} NBA players across ${eng.seasons.length} seasons, ${span}: every stat ranked against the league and against the player’s position.`
   return (
-    head({ title, description, url: `${site}/player`, image: `${site}/og-card.png`, imageAlt: 'Basketball Savant by Western Conference Elitists', type: 'website' }) +
-    `${RIBBON}<div class=w><p class=bc><a href=${TOOL}>Basketball Savant</a> / Players` +
-    `<header class=id><h1>Every player on Basketball Savant</h1><p class=meta>${n} players · ${eng.seasons.length} seasons · ${span}. Each page ranks a player’s season against the league and against his position.</header>` +
+    head({ title, description, url: `${site}/player`, image: `${site}/og-card.png`, imageAlt: 'NBA Savant by Western Conference Elitists', type: 'website' }) +
+    `${RIBBON}<div class=w><p class=bc><a href=${TOOL}>NBA Savant</a> / Players` +
+    `<header class=id><h1>Every player on NBA Savant</h1><p class=meta>${n} players · ${eng.seasons.length} seasons · ${span}. Each page ranks a player’s season against the league and against his position.</header>` +
     '<input class=dq type=search data-filter placeholder="Filter by name…" aria-label="Filter players by name" autocomplete=off>' +
     `<section class=c><h2>${cur} by team</h2>${teamHtml}</section>` +
     `<section class=c><h2>All players, A–Z</h2><p class=az>${keys.map((k) => `<a href=#az-${k}>${k}</a>`).join('')}</p>${azHtml}</section>` +
     '<div data-nl=player-directory></div>' +
-    `<footer class=ft><p><a href=${TOOL}>Basketball Savant</a> · <a href="/">wcehoops.com</a> · <a href=/privacy>Privacy</a></footer></div><script defer src=/player/p.js></script>`
+    `<footer class=ft><p><a href=${TOOL}>NBA Savant</a> · <a href="/">wcehoops.com</a> · <a href=/privacy>Privacy</a></footer></div><script defer src=/player/p.js></script>`
   )
 }
 

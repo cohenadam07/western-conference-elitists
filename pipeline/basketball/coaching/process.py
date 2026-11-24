@@ -12,7 +12,7 @@ A season file:
 
 Ids: namematch.Matcher against the season's players in public/savant-data.json (the season in
 progress: public/savant-current.json), the same join espn_history.py uses, so a player here is
-the player on his Basketball Savant card. The NBA game id comes from LeagueGameLog (the engine's
+the player on his NBA Savant card. The NBA game id comes from LeagueGameLog (the engine's
 cache) by date and home franchise, with a one-day tolerance for games played abroad.
 """
 import concurrent.futures as cf
@@ -39,7 +39,7 @@ _archive = {}
 
 
 def archive_players(season):
-    """The season's players as the Basketball Savant archive has them: [{id, name, team}]."""
+    """The season's players as the NBA Savant archive has them: [{id, name, team}]."""
     if season in _archive:
         return _archive[season]
     rows = []

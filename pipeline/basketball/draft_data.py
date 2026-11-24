@@ -1,5 +1,5 @@
 """
-draft_data.py — assemble Draft Savant's v1 data files (no network).
+draft_data.py — assemble NBA Draft Savant's v1 data files (no network).
 
 Mirrors savant_engine.py's output-contract role, but for a small hardcoded
 dataset instead of a live pull. Reads draft_config.py (the single source of

@@ -1,7 +1,7 @@
 """
 modules.py — careers and pools, percentiles, fingerprints and comps, mentor suggestions, scouting lines.
 
-Basketball Coaching Savant's modules.py, function for function where the logic is the same (pct_rank,
+NBA Coaching Savant's modules.py, function for function where the logic is the same (pct_rank,
 season and career percentiles, fingerprints, comps, the scouting report), copied rather than imported
 because both import a module called `config`. What differs for college is said where it differs.
 """

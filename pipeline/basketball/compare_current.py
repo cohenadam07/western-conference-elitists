@@ -1,5 +1,5 @@
 """
-compare_current.py — check refresh_current.py against the archive, the way Football Savant's
+compare_current.py — check refresh_current.py against the archive, the way NFL Savant's
 refresh was checked: rebuild a finished season through the new path and compare it, value by
 value, with what the full pipeline published.
 

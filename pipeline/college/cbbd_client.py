@@ -104,7 +104,7 @@ def get(path, timeout=240, **params):
     url = f"{BASE}{path}" + (f"?{q}" if q else "")
     _spend(path + (f"?{q}" if q else ""))
     req = urllib.request.Request(url, headers={"Authorization": f"Bearer {_key()}", "Accept": "application/json",
-                                               "User-Agent": "wcehoops.com College Basketball Savant"})
+                                               "User-Agent": "wcehoops.com CBB Savant"})
     last = None
     for i in range(2):              # one retry: both are counted only if the first never returned
         try:

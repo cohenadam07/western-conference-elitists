@@ -1,5 +1,5 @@
 """
-savant_shots.py — shot-location heatmaps for Basketball Savant (lazy, per-player).
+savant_shots.py — shot-location heatmaps for NBA Savant (lazy, per-player).
 
 For each qualified player-season (NBA shot coords exist 1996-97+), pulls ShotChartDetail
 (x/y of every FGA) via the engine's cached client, then precomputes two grids on a fixed

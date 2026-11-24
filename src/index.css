@@ -348,6 +348,41 @@ body {
 .gw .card { grid-column: span 1; position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--color-line); background: var(--color-surface); min-height: 210px; display: flex; flex-direction: column; cursor: pointer; isolation: isolate; text-decoration: none; transition: transform 0.32s cubic-bezier(0.16,1,0.3,1), box-shadow 0.32s ease, border-color 0.25s ease; opacity: 0; transform: translateY(18px); animation: gw-rise 0.7s cubic-bezier(0.2,0.7,0.2,1) forwards; }
 .gw .card.span2 { grid-column: span 2; }
 .gw .card.span4 { grid-column: span 4; }
+
+/* ── Group headers: the tiles are sorted by sport (Gateway.jsx) ── */
+.gw .gh { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; margin: 20px 0 1px; }
+.gw .gh span { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-navy); }
+.gw .gh span::before { content: ''; width: 7px; height: 7px; border-radius: 2px; background: var(--color-gold); }
+.gw .gh i { height: 1px; flex: 1; background: var(--color-line); }
+
+/* ── The live fact on a tile: one true, current thing from the tool it opens (the Live
+   component; the facts come from scripts/lib/tile-data.mjs) ── */
+.gw .card .fact { margin-top: 12px; padding-top: 11px; border-top: 1px dashed var(--color-line); }
+.gw .fact .f-h { display: flex; align-items: baseline; gap: 8px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-faint); line-height: 1.5; }
+.gw .fact .f-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--color-red); transform: translateY(-1px); animation: gw-live 2.4s ease-out infinite; }
+@keyframes gw-live {
+  0% { box-shadow: 0 0 0 0 rgba(188,58,44,0.45); }
+  70%, 100% { box-shadow: 0 0 0 7px rgba(188,58,44,0); }
+}
+.gw .fact ol { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 5px; }
+.gw .fact li { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 12.5px; color: var(--color-ink); }
+.gw .fact li:has(.f-bar) { grid-template-columns: 14px minmax(0, 11em) minmax(36px, 1fr) auto; }
+.gw .fact .f-rk { font-family: var(--font-mono); font-size: 10px; color: var(--color-faint); }
+.gw .fact .f-nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.gw .fact .f-nm em { font-style: normal; font-weight: 400; color: var(--color-faint); margin-left: 6px; font-size: 11px; }
+.gw .fact .f-bar { height: 6px; border-radius: 3px; background: var(--color-line-soft); overflow: hidden; }
+.gw .fact .f-bar i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #1C4E86, #BC3A2C); }
+.gw .fact b { font-family: var(--font-mono); font-size: 11.5px; font-weight: 500; color: var(--color-navy); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.gw .fact .f-t { margin-top: 7px; font-size: 13.5px; font-weight: 500; color: var(--color-ink); line-height: 1.35; }
+.gw .fact .f-s { margin-top: 3px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--color-faint); }
+@media (prefers-reduced-motion: reduce) { .gw .fact .f-dot { animation: none; } }
+
+/* ── A wide tile (the odd one out in its group): the drawing on the left, the words on the right ── */
+@media (min-width: 861px) {
+  .gw .card.wide { flex-direction: row; min-height: 250px; }
+  .gw .card.wide .viz { flex: 1.25 1 0; min-height: 0; }
+  .gw .card.wide .meta { flex: 1 1 0; border-top: 0; border-left: 1px solid var(--color-line-soft); display: flex; flex-direction: column; justify-content: center; padding: 22px 26px; }
+}
 .gw .card:hover { transform: translateY(-4px); box-shadow: 0 26px 48px -28px rgba(34,57,90,0.5); }
 .gw .card .viz { position: relative; flex: 1 1 auto; min-height: 96px; overflow: hidden; }
 .gw .card .meta { position: relative; z-index: 3; flex: none; padding: 14px 20px 18px; border-top: 1px solid var(--color-line-soft); background: var(--color-surface); }
@@ -374,7 +409,7 @@ body {
 .gw.booting .card, .gw.booting .card * { animation-play-state: paused !important; }
 .gw.booting .sk::after { animation-play-state: running !important; }
 
-/* ── Basketball Savant: percentile sliders ── */
+/* ── NBA Savant: percentile sliders ── */
 .gw .c-savant .viz { background: radial-gradient(120% 90% at 80% 0%, #f7f6f3, transparent); }
 .gw .c-savant .bars { position: absolute; left: 20px; right: 20px; top: 22px; display: flex; flex-direction: column; gap: 9px; }
 .gw .c-savant .bar { height: 8px; border-radius: 5px; background: #e9e7e2; overflow: hidden; }
@@ -384,7 +419,7 @@ body {
 .gw .c-savant .bar:nth-child(3) i { animation-delay: 0.55s; --w: 79%; }
 .gw .c-savant .bar:nth-child(4) i { animation-delay: 0.65s; --w: 52%; }
 
-/* ── Football Savant: the gridiron from the sideline, the throw lattice over it ── */
+/* ── NFL Savant: the gridiron from the sideline, the throw lattice over it ── */
 .gw .c-fball .viz, .gw .c-ufc .viz, .gw .c-coach .viz, .gw .c-board .viz { min-height: 150px; }
 .gw .c-fball .viz { background: #1D6B3A; }
 .gw .c-fball .field { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -414,7 +449,7 @@ body {
 .gw .c-ufc .pcts text:nth-child(2) { animation-delay: 1.05s; }
 .gw .c-ufc .pcts text:nth-child(3) { animation-delay: 1.2s; }
 
-/* ── Coaching Savant: the whiteboard, with the tree growing out of the play ── */
+/* ── NFL Coaching Savant: the whiteboard, with the tree growing out of the play ── */
 .gw .c-coach .viz { background: #F2F7EE; }
 .gw .c-coach .board { position: absolute; inset: 0; width: 100%; height: 100%; }
 .gw .c-coach .los { stroke: #0E2A17; stroke-width: 1.4; stroke-dasharray: 6 4; opacity: 0.5; }
@@ -433,7 +468,7 @@ body {
 .gw .c-coach .tree .leaf.c { fill: #3C7EBE; animation-delay: 1.14s; }
 @keyframes gw-pop { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
 
-/* ── Draft Savant: mini board ── */
+/* ── NBA Draft Savant: mini board ── */
 .gw .c-draft .viz { background: radial-gradient(120% 90% at 20% 0%, #f7f6f3, transparent); }
 .gw .c-draft .rows { position: absolute; left: 20px; right: 22px; top: 20px; display: flex; flex-direction: column; gap: 7px; }
 .gw .c-draft .drow { display: flex; align-items: center; gap: 9px; opacity: 0; transform: translateX(-10px); animation: gw-slide 0.5s cubic-bezier(0.2,0.7,0.2,1) forwards; }
@@ -1153,7 +1188,7 @@ body {
 
 /* ============================================================================
    Dynasty Exchange — Swipe. One card at a time, built for a thumb.
-   The card is a Basketball Savant summary in miniature, so its percentile bars
+   The card is an NBA Savant summary in miniature, so its percentile bars
    keep Savant's own blue-to-red ramp (colours come from the component); only
    the market feedback around the card speaks green/red.
    ========================================================================== */

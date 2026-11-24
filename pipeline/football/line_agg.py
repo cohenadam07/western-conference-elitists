@@ -1,6 +1,6 @@
 """Depth charts -> which spot on the offensive line a man actually played.
 
-Football Savant grades every lineman in one pool, which means a left tackle and a center
+NFL Savant grades every lineman in one pool, which means a left tackle and a center
 are ranked against each other. They do not do the same job: a tackle is alone against an
 edge rusher on an island, a centre makes the protection calls and is almost never asked to
 block anybody by himself. This splits the cohort into tackle, guard and centre.

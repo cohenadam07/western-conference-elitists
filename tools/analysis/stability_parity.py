@@ -1,4 +1,4 @@
-"""tools/analysis/stability_parity.py — savant_analyze stability against Basketball Savant's published settle
+"""tools/analysis/stability_parity.py — savant_analyze stability against NBA Savant's published settle
 points (SETTLE_K in public/basketball-savant.html, from pipeline/basketball/settle_points.py).
 
     python3 tools/analysis/stability_parity.py

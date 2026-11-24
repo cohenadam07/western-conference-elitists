@@ -1,5 +1,5 @@
 
-/* the starting-five card row, as Basketball Savant draws it */
+/* the starting-five card row, as NBA Savant draws it */
 .ast{position:relative;z-index:1;width:min(1040px,100%);margin:50px auto 4px;text-align:center;
   opacity:0;animation:home-rise .85s .5s cubic-bezier(.2,.7,.2,1) forwards}
 .ast[hidden]{display:none}

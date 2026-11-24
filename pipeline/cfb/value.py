@@ -26,7 +26,7 @@ it knows whether his team won.
 Every rate is shrunk toward the position mean with its settle point before it
 is multiplied back up by volume, (n*x + k*mean) / (n + k), and replacement is
 the 25th-percentile qualified rate at the position that season (the Football
-Savant and College Basketball Savant convention).
+Savant and CBB Savant convention).
 """
 import json
 import numpy as np
@@ -328,7 +328,7 @@ def main():
     mix = (top.groupby("slot").size() / top.season.nunique()).round(1).sort_values(ascending=False)
     res["top50_mix_per_season"] = mix.to_dict()
     # How much of a player's rate travels with him when he changes schools, relative to staying:
-    # credit = r(movers) / r(stayers), College Basketball Savant's rule. Reported, and offered as an
+    # credit = r(movers) / r(stayers), CBB Savant's rule. Reported, and offered as an
     # alternative "shared-credit" value; the primary value stays as RESEARCH section 6 defines it.
     groups = {"QB": ["QB"], "RB": ["RB"], "WR/TE": ["WR", "TE"], "EDGE/IDL": ["EDGE", "IDL"], "LB": ["LB"], "CB/S": ["CB", "S"]}
     credit = {}

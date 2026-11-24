@@ -3,7 +3,7 @@
 //   node --test tools/themes/check.mjs        (npm run check:themes; in check:savant)
 //
 // 1. Every theme defines the same tokens as the college theme, so a page built against one runs on any.
-// 2. A token marked "= --x" holds the flagship's own --x (Basketball Savant for nba/, Football Savant for
+// 2. A token marked "= --x" holds the flagship's own --x (NBA Savant for nba/, NFL Savant for
 //    football/), so a theme cannot drift from the page it imitates. College's tokens are College Basketball
 //    Savant's own bytes (its assembler reads them), which tools/page-assembly/check.mjs already holds.
 // 3. Each theme's font link is its flagship's.

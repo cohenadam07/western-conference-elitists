@@ -17,6 +17,12 @@
  * ribbon can't restyle the page. If the page doesn't already load IBM Plex Sans and Mono, the
  * ribbon adds them.
  *
+ * The search box (the magnifier) finds any player, team, coach or fighter on the site and opens
+ * his card in the right tool. Its two lists are written at build time by
+ * scripts/lib/site-search.mjs (/search/core.json, then /search/college.json) and fetched the
+ * first time the box is opened, never before. It has no "/" shortcut: NFL Savant already uses
+ * that key for its own search.
+ *
  * Links marked spa: true are React routes. On a React page the ribbon fires a cancelable
  * 'wce-navigate' event first, so the router can switch pages without a reload; anywhere else
  * they are ordinary links.
@@ -34,17 +40,17 @@
         label: 'Basketball',
         items: [
           // the /player/<slug> pages are search landing pages, kept out of the menu on purpose;
-          // they count as Basketball Savant so the Basketball tab still lights up on them
-          { label: 'Basketball Savant', href: '/basketball-savant.html', match: ['/player'] },
-          { label: 'NBA Coaching Savant', href: '/basketball-coaching-savant.html' },
-          { label: 'College Basketball Savant', href: '/college-basketball-savant.html' },
-          { label: 'College Coaching Savant', href: '/college-basketball-coaching-savant.html' },
+          // they count as NBA Savant so the Basketball tab still lights up on them
+          { label: 'NBA Savant', href: '/nba-savant', match: ['/player'] },
+          { label: 'NBA Coaching Savant', href: '/nba-coaching-savant' },
+          { label: 'CBB Savant', href: '/cbb-savant' },
+          { label: 'CBB Coaching Savant', href: '/cbb-coaching-savant' },
         ],
       },
       {
         label: 'Draft',
         items: [
-          { label: 'Draft Savant', href: '/draft-savant.html' },
+          { label: 'NBA Draft Savant', href: '/nba-draft-savant' },
           { label: 'Big Board', href: '/rankings', spa: true },
           { label: 'Draft Hub', href: '/draft', spa: true },
         ],
@@ -52,12 +58,12 @@
       {
         label: 'Football',
         items: [
-          { label: 'Football Savant', href: '/football-savant.html', match: ['/game.html'] },
-          { label: 'NFL Coaching Savant', href: '/coaching-savant.html' },
-          { label: 'College Football Savant', href: '/college-football-savant.html' },
+          { label: 'NFL Savant', href: '/nfl-savant', match: ['/game.html'] },
+          { label: 'NFL Coaching Savant', href: '/nfl-coaching-savant' },
+          { label: 'CFB Savant', href: '/cfb-savant' },
         ],
       },
-      { label: 'UFC Savant', href: '/ufc-savant.html' },
+      { label: 'UFC Savant', href: '/ufc-savant' },
       { label: 'Dynasty', href: '/dynasty', spa: true },
       {
         label: 'Read',
@@ -92,12 +98,25 @@
     })
   }
 
-  // /basketball-savant and /basketball-savant.html are the same page (vercel.json redirects one
-  // to the other); /player and /player/ too.
+  // The Savant pages' old addresses, which are still their file names. vercel.json redirects
+  // each one to its new address, but a page opened straight from its file (a local preview)
+  // is still that page, so the right tab lights up either way.
+  var OLD = {
+    '/basketball-savant': '/nba-savant',
+    '/football-savant': '/nfl-savant',
+    '/coaching-savant': '/nfl-coaching-savant',
+    '/basketball-coaching-savant': '/nba-coaching-savant',
+    '/college-basketball-savant': '/cbb-savant',
+    '/college-basketball-coaching-savant': '/cbb-coaching-savant',
+    '/college-football-savant': '/cfb-savant',
+    '/draft-savant': '/nba-draft-savant',
+  }
+
+  // /ufc-savant and /ufc-savant.html are the same page; /player and /player/ too.
   function norm(p) {
     p = (p || '/').split('?')[0].split('#')[0].replace(/\.html$/, '')
     if (p.length > 1) p = p.replace(/\/+$/, '')
-    return p || '/'
+    return OLD[p] || p || '/'
   }
 
   // On this page: the item's own path, or one of its `match` paths, or anything beneath one.
@@ -186,6 +205,33 @@
     '.cta:hover{background:var(--navy-deep);transform:translateY(-1px);box-shadow:0 6px 16px -6px rgba(24,43,71,.45)}',
     '.cta:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}',
 
+    /* site search: the button, and the strip that opens under the bar */
+    '.tools{display:flex;align-items:center;gap:10px;flex:none}',
+    '.find{flex:none;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 13px;border:1px solid var(--line);border-radius:9px;',
+    'background:var(--surface);color:var(--muted);font:500 10.5px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;transition:color .15s,border-color .15s}',
+    '.find:hover,:host([data-search]) .find{color:var(--ink);border-color:var(--faint)}',
+    '.find:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}',
+    '.find svg,.sfield svg{width:15px;height:15px;flex:none}',
+    '.find b{font-weight:500}',
+    '.sbox{display:none;position:absolute;left:0;right:0;top:100%;background:var(--paper);border-bottom:1px solid var(--line);',
+    'box-shadow:0 18px 30px -20px rgba(25,27,31,.35)}',
+    ':host([data-search]) .sbox{display:block}',
+    '.sbox-in{max-width:720px;margin:0 auto;padding:14px 20px 16px}',
+    '.sfield{display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;color:var(--faint)}',
+    '.sfield:focus-within{border-color:var(--navy);box-shadow:0 0 0 3px rgba(34,57,90,.12)}',
+    '.sfield input{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font:500 16px/1.2 var(--sans);color:var(--ink);-webkit-appearance:none;appearance:none}',
+    '.sfield input::-webkit-search-cancel-button{display:none}',
+    '.sfield input::placeholder{color:var(--faint);opacity:1}',
+    '.sres{list-style:none;margin:8px 0 0;padding:0;max-height:min(58dvh,430px);overflow-y:auto}',
+    '.sres a{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:3px;align-items:center;padding:9px 12px;border-radius:8px}',
+    '.sres a:hover,.sres a.act{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}',
+    '.sres .n{font:600 15px/1.25 var(--sans);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.sres .s{grid-column:1;font:500 11px/1.3 var(--mono);color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.sres .k{grid-column:2;grid-row:1 / span 2;font:500 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--navy);',
+    'border:1px solid var(--line);border-radius:999px;padding:5px 9px;background:var(--surface);white-space:nowrap}',
+    '.snote{margin:10px 2px 0;font:500 11px/1.5 var(--mono);color:var(--faint)}',
+    '.snote:empty{display:none}',
+
     /* phones and narrow windows */
     '.burger{display:none;width:40px;height:40px;border:1px solid var(--line);border-radius:9px;background:var(--surface);',
     'align-items:center;justify-content:center;flex:none}',
@@ -197,7 +243,9 @@
     '.sheet{display:none}',
     '@media (max-width:1120px){',
     '  nav{padding:0 16px}',
-    '  .row,.desk-cta{display:none}',
+    '  .row,.desk-cta,.find b{display:none}',
+    '  .find{width:40px;height:40px;padding:0;justify-content:center}',
+    '  .sbox-in{padding:12px 16px 14px}',
     '  .burger{display:inline-flex}',
     '  .sheet{display:block;position:absolute;left:0;right:0;top:100%;max-height:0;overflow:hidden;background:var(--paper);',
     '  box-shadow:0 18px 30px -20px rgba(25,27,31,.35);transition:max-height .3s ease}',
@@ -215,6 +263,7 @@
     '@media print{:host{display:none}}',
   ].join('\n')
 
+  var GLASS = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.5"/><path d="M10.6 10.6L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
   var CARET = '<svg class="caret" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 
   function linkAttrs(i, path, cls) {
@@ -249,9 +298,17 @@
       '<a class="logo" href="/" data-spa aria-label="Western Conference Elitists, home">' +
       '<span class="badge">WCE</span><span class="word">Western Conference<span>Elitists</span></span></a>' +
       '<div class="row">' + desk + '</div>' +
+      '<div class="tools">' +
+      '<button type="button" class="find" aria-label="Search players, teams, coaches and fighters" aria-expanded="false" aria-controls="sbox">' + GLASS + '<b>Search</b></button>' +
       '<a class="cta desk-cta" href="' + esc(c.href) + '"' + (c.spa ? ' data-spa' : '') + '>' + esc(c.label) + '</a>' +
       '<button type="button" class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="sheet"><span><i></i><i></i></span></button>' +
+      '</div>' +
       '</nav>' +
+      '<div class="sbox" id="sbox"><div class="sbox-in">' +
+      '<label class="sfield">' + GLASS + '<input type="search" placeholder="Any player, team, coach or fighter" aria-label="Search the site" ' +
+      'autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-controls="sres"></label>' +
+      '<ul class="sres" id="sres" role="listbox" aria-label="Results"></ul><p class="snote" aria-live="polite"></p>' +
+      '</div></div>' +
       '<div class="sheet" id="sheet"><div class="sheet-in">' + phone +
       '<a class="cta" href="' + esc(c.href) + '"' + (c.spa ? ' data-spa' : '') + '>' + esc(c.label) + '</a>' +
       '</div></div></div>'
@@ -266,6 +323,75 @@
     l.rel = 'stylesheet'
     l.href = 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Mono:wght@500&display=swap'
     document.head.appendChild(l)
+  }
+
+  // ── Site search ─────────────────────────────────────────────────────────────────────────
+  // The lists are fetched once, the first time the box is opened, and kept for the page's life.
+  // A row is [name, kind, sub, href, year] (scripts/lib/site-search.mjs).
+  var FIND = { state: 'idle', rows: [], names: [], kinds: {}, college: 'idle', waiting: [] }
+  var ORDER = ['nba', 'nfl', 'ufc', 'nbat', 'nflt', 'nbac', 'nflc', 'cbbt', 'cfbt', 'cbb', 'cfb', 'cbbc']
+  var HINT = 'NBA, NFL, UFC and college. College players go back four seasons; each tool has its own deeper search.'
+
+  // "Dončić", "De'Aaron", "Karl-Anthony", "R.J." are typed "doncic", "deaaron", "karl anthony", "rj"
+  function fold(s) {
+    return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/-/g, ' ')
+      .replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim()
+  }
+
+  function addRows(d) {
+    for (var k in d.kinds || {}) FIND.kinds[k] = d.kinds[k]
+    ;(d.rows || []).forEach(function (r) { FIND.rows.push(r); FIND.names.push(' ' + fold(r[0])) })
+  }
+
+  function getList(name) {
+    return fetch('/search/' + name + '.json').then(function (r) {
+      if (!r.ok || (r.headers.get('content-type') || '').indexOf('json') < 0) throw new Error('no list')
+      return r.json()
+    })
+  }
+
+  function loadFind(done) {
+    FIND.waiting.push(done)
+    if (FIND.state !== 'idle') { if (FIND.state !== 'loading') done(); return }
+    FIND.state = 'loading'
+    var tell = function () { FIND.waiting.forEach(function (f) { f() }) }
+    getList('core').then(function (d) {
+      addRows(d); FIND.state = 'ready'; tell()
+      FIND.college = 'loading'
+      return getList('college').then(function (c) { addRows(c); FIND.college = 'ready'; tell() }, function () { FIND.college = 'failed'; tell() })
+    }, function () { FIND.state = 'failed'; tell() })
+  }
+
+  // Best first: the whole name, then a name that starts with what was typed, then every typed
+  // word starting a word of the name ("ant edw"), then the text anywhere in it. Within a tier,
+  // teams and whoever played most recently come first.
+  function findRows(q, limit) {
+    var want = fold(q)
+    if (!want) return []
+    var toks = want.split(' ')
+    var hits = []
+    for (var i = 0; i < FIND.names.length; i++) {
+      var n = FIND.names[i]
+      var tier
+      if (n.length === want.length + 1 && n.indexOf(want) === 1) tier = 0
+      else if (n.indexOf(want) === 1) tier = 1
+      else {
+        var all = true
+        for (var t = 0; t < toks.length; t++) if (n.indexOf(' ' + toks[t]) < 0) { all = false; break }
+        if (all) tier = 2
+        else if (want.length >= 3 && n.indexOf(want) > 0) tier = 3
+        else continue
+      }
+      hits.push([tier, i])
+    }
+    hits.sort(function (a, b) {
+      if (a[0] !== b[0]) return a[0] - b[0]
+      var x = FIND.rows[a[1]], y = FIND.rows[b[1]]
+      if (x[4] !== y[4]) return y[4] - x[4]
+      var o = ORDER.indexOf(x[1]) - ORDER.indexOf(y[1])
+      return o || (x[0] < y[0] ? -1 : x[0] > y[0] ? 1 : 0)
+    })
+    return hits.slice(0, limit).map(function (h) { return FIND.rows[h[1]] })
   }
 
   class WceNav extends HTMLElement {}
@@ -290,9 +416,22 @@
         if (willOpen) { grp.classList.add('open'); top.setAttribute('aria-expanded', 'true') }
         return
       }
-      if (t.closest('.burger')) { self._setOpen(!self.hasAttribute('data-open')); return }
+      if (t.closest('.burger')) { self._find(false); self._setOpen(!self.hasAttribute('data-open')); return }
+      if (t.closest('.find')) { self._closeAll(); self._setOpen(false); self._find(!self.hasAttribute('data-search')); return }
       var a = t.closest('a[href]')
       if (!a) return
+      if (a.closest('.sres')) {
+        // A card on the page already open is a new address on the same page. Not every tool
+        // watches its address for changes, so load it fresh and it opens the card for certain.
+        var to = new URL(a.getAttribute('href'), location.href)
+        if (to.pathname === location.pathname && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && e.button === 0) {
+          e.preventDefault()
+          location.href = to.href
+          if (to.search === location.search) location.reload()
+        }
+        self._find(false)
+        return
+      }
       if (a.hasAttribute('data-spa') && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && e.button === 0) {
         var ev = new CustomEvent('wce-navigate', { detail: { href: a.getAttribute('href') }, bubbles: true, composed: true, cancelable: true })
         if (!self.dispatchEvent(ev)) e.preventDefault()
@@ -303,8 +442,23 @@
       var g = a.closest('.grp')
       if (g) { g.classList.add('shut'); g.addEventListener('mouseleave', function () { g.classList.remove('shut') }, { once: true }) }
     })
-    this._outside = function (e) { if (e.composedPath().indexOf(self) < 0) { self._closeAll(); self._setOpen(false) } }
-    this._key = function (e) { if (e.key === 'Escape') { self._closeAll(); self._setOpen(false) } }
+    this._root.addEventListener('input', function (e) { if (e.target.matches && e.target.matches('.sfield input')) self._results() })
+    this._root.addEventListener('keydown', function (e) {
+      if (!e.target.matches || !e.target.matches('.sfield input')) return
+      var links = self._root.querySelectorAll('.sres a')
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        if (!links.length) return
+        self._at = ((self._at || 0) + (e.key === 'ArrowDown' ? 1 : -1) + links.length) % links.length
+        Array.prototype.forEach.call(links, function (l, i) { l.classList.toggle('act', i === self._at); l.setAttribute('aria-selected', String(i === self._at)) })
+        links[self._at].scrollIntoView({ block: 'nearest' })
+      } else if (e.key === 'Enter') {
+        e.preventDefault()
+        if (links.length) links[self._at || 0].click()
+      }
+    })
+    this._outside = function (e) { if (e.composedPath().indexOf(self) < 0) { self._closeAll(); self._setOpen(false); self._find(false) } }
+    this._key = function (e) { if (e.key === 'Escape') { self._closeAll(); self._setOpen(false); self._find(false) } }
     this._scroll = function () {
       if (window.scrollY > 4) self.setAttribute('data-scrolled', '')
       else self.removeAttribute('data-scrolled')
@@ -334,6 +488,41 @@
   WceNav.prototype._paint = function () {
     this._root.innerHTML = render(this.getAttribute('current') || location.pathname)
     this.removeAttribute('data-open')
+    this.removeAttribute('data-search')
+  }
+
+  // Open or close the search strip. Opening it is what fetches the lists.
+  WceNav.prototype._find = function (open) {
+    var self = this
+    var b = this._root && this._root.querySelector('.find')
+    if (!b) return
+    if (!open) { this.removeAttribute('data-search'); b.setAttribute('aria-expanded', 'false'); return }
+    this.setAttribute('data-search', '')
+    b.setAttribute('aria-expanded', 'true')
+    var input = this._root.querySelector('.sfield input')
+    input.focus()
+    this._results()
+    loadFind(function () { if (self.hasAttribute('data-search')) self._results() })
+  }
+
+  WceNav.prototype._results = function () {
+    var input = this._root.querySelector('.sfield input')
+    var list = this._root.querySelector('.sres')
+    var note = this._root.querySelector('.snote')
+    if (!input) return
+    var q = input.value
+    this._at = 0
+    if (FIND.state === 'failed') { list.innerHTML = ''; note.textContent = 'Search is not available right now. Each tool has its own search.'; return }
+    if (FIND.state !== 'ready') { list.innerHTML = ''; note.textContent = 'Loading names…'; return }
+    if (!fold(q)) { list.innerHTML = ''; note.textContent = HINT; return }
+    var rows = findRows(q, 8)
+    list.innerHTML = rows.map(function (r, i) {
+      return '<li role="presentation"><a role="option" aria-selected="' + (i === 0) + '" class="' + (i === 0 ? 'act' : '') + '" href="' + esc(r[3]) + '">' +
+        '<span class="n">' + esc(r[0]) + '</span><span class="k">' + esc(FIND.kinds[r[1]] || r[1]) + '</span>' +
+        '<span class="s">' + esc(r[2]) + '</span></a></li>'
+    }).join('')
+    note.textContent = rows.length ? (FIND.college === 'loading' ? 'Still loading college names…' : '')
+      : FIND.college === 'loading' ? 'Still loading college names…' : 'No one by that name here. Each tool has its own deeper search.'
   }
 
   WceNav.prototype._closeAll = function () {

@@ -11,9 +11,9 @@
 // repo or in the refresh bots changes: git still stores plain JSON, which also keeps the
 // daily data commits small.
 //
-// Bonus: Basketball Savant now downloads ~10 MB instead of 64.5 MB before it can render.
+// Bonus: NBA Savant now downloads ~10 MB instead of 64.5 MB before it can render.
 //
-// The same treatment goes to Football Savant's packed game lines: every finished season's
+// The same treatment goes to NFL Savant's packed game lines: every finished season's
 // week-by-week numbers, public/football-weekly/<season>/pack-NN.json, a hundred files a
 // season back to 1999. That is 57 MB as JSON and 14 MB gzipped, in every one of those forty
 // deployments. They are matched by pattern rather than listed, because a season joins them
@@ -29,7 +29,7 @@
 //
 // Those additions also made the season archive, the game lines and the connector's files
 // bigger: 27 MB more per deployment in all, which is over a gigabyte across the forty Vercel
-// keeps. Basketball Savant's shot charts pay for it. public/shots/<player id>.json is two
+// keeps. NBA Savant's shot charts pay for it. public/shots/<player id>.json is two
 // thousand files and 58 MB that were going out as plain JSON; gzipped they are 20 MB, so a
 // deployment is smaller after the additions than it was before them.
 
@@ -51,10 +51,10 @@ export const COMPRESSED = [
 const SEASON_DIR = /^\d{4}$/
 const PACK_FILE = /^(pack|form)-\d+\.json$/
 // football-splits/<season>.json, football-pace/wNN.json and shots/<player id>.json, likewise.
-// savant-ext/{s,panels}/<season>.json and savant-ext/p/<player id>.json: Basketball Savant's
+// savant-ext/{s,panels}/<season>.json and savant-ext/p/<player id>.json: NBA Savant's
 // October 2026 additions (pipeline/basketball/ext_files.py), fetched whole when a reader opens a
 // season or a player.
-// bcs/c/<coach>.json: Basketball Coaching Savant's coach pages (pipeline/basketball/coaching/build.py);
+// bcs/c/<coach>.json: NBA Coaching Savant's coach pages (pipeline/basketball/coaching/build.py);
 // its team-season and Data Room files are committed already gzipped and served by the same rewrites.
 const FLAT = [['football-splits', /^\d{4}\.json$/], ['football-pace', /^w\d{2}\.json$/], ['shots', /^\d+\.json$/],
   ['savant-ext/s', /^\d{4}-\d{2}\.json$/], ['savant-ext/panels', /^\d{4}-\d{2}\.json$/], ['savant-ext/p', /^\d+\.json$/],

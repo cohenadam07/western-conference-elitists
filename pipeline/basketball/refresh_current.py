@@ -9,7 +9,7 @@ shape so the page, the connector and the build scripts can lay it over the archi
 
     {seasons: [season], generated, source, through, qualify: {season: {...}}, data: {season: {players}}}
 
-Same split as Football Savant: the archive stays static, the season in progress is its own
+Same split as NFL Savant: the archive stays static, the season in progress is its own
 small file (public/savant-current.json, ~3 MB), and whichever copy of a season is newer wins.
 
     python refresh_current.py                 # the current season (savant_config.SEASON)
@@ -63,7 +63,7 @@ OPENING_WEEK = 7     # days from the first game during which one game is enough 
 
 def prorated_qualifier(games, first_date=None, through=None):
     """The full-season bar is 20 GP and 15 MPG. Early in the year nobody has 20 games, so the
-    games bar scales with the share of the season played (the same idea as Football Savant's
+    games bar scales with the share of the season played (the same idea as NFL Savant's
     pro-rated qualifying lines), with a floor of MIN_GP_FLOOR.
 
     Opening week is the exception: for the first OPENING_WEEK days anyone with a game at 15+

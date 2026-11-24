@@ -38,9 +38,9 @@ if code != 200 or b"<html" not in body.lower():
 else:
     notes.append(f"home {ms}ms")
 
-code, body, ms = fetch(SITE + "/basketball-savant.html")
+code, body, ms = fetch(SITE + "/nba-savant")
 if code != 200:
-    problems.append(f"Basketball Savant page answered {code}")
+    problems.append(f"NBA Savant page answered {code}")
 else:
     notes.append(f"savant {ms}ms")
 

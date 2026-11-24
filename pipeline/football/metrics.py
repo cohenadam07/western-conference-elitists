@@ -1,4 +1,4 @@
-"""The Football Savant metric table.
+"""The NFL Savant metric table.
 
 One row per bar the tool can draw. Read the fields as:
 
@@ -8,7 +8,7 @@ One row per bar the tool can draw. Read the fields as:
   label  what a reader sees
   grp    which panel it lands in
   sub    subheading inside the panel
-  layer  ingredient | output | expected | context  (same taxonomy as Basketball Savant)
+  layer  ingredient | output | expected | context  (same taxonomy as NBA Savant)
   unit   how to format the number
   lower  true when a smaller number is better; the page flips the percentile
   tier   era gate: the metric is hidden in seasons that never tracked it

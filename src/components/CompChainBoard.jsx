@@ -24,7 +24,7 @@ export default function CompChainBoard() {
           <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-stretch">
             <div className="relative flex flex-col justify-center overflow-hidden rounded-md border border-line bg-surface p-6 lg:p-8">
               <div className="absolute inset-x-0 top-0 h-[3px] bg-gold" aria-hidden="true" />
-              <span className="kicker text-faint">Built on Basketball Savant</span>
+              <span className="kicker text-faint">Built on NBA Savant</span>
               <h3 className="text-display mt-3 text-2xl text-ink">Today&rsquo;s puzzle is live</h3>
               <p className="mt-3 text-[15px] leading-relaxed text-muted">
                 Chain the start player to the target, then post your score. Fewest moves wins; hints cost you.

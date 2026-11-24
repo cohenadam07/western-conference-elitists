@@ -86,25 +86,25 @@ export default function Footer() {
           <div>
             <h4 className="kicker text-white/45">The Data Tool</h4>
             <p className="mt-5 text-sm leading-relaxed text-white/65">
-              Basketball Savant — percentile sliders, player comparisons, and
+              NBA Savant — percentile sliders, player comparisons, and
               on/off data for every NBA player.
             </p>
             <a
-              href="/basketball-savant.html"
+              href="/nba-savant"
               className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-gold transition-colors hover:text-white"
             >
-              Open Basketball Savant
+              Open NBA Savant
               <span aria-hidden="true">↗</span>
             </a>
             <a
-              href="/football-savant.html"
+              href="/nfl-savant"
               className="mt-2 flex items-center gap-2 text-sm font-semibold text-gold transition-colors hover:text-white"
             >
-              Open Football Savant
+              Open NFL Savant
               <span aria-hidden="true">↗</span>
             </a>
             <a
-              href="/ufc-savant.html"
+              href="/ufc-savant"
               className="mt-2 flex items-center gap-2 text-sm font-semibold text-gold transition-colors hover:text-white"
             >
               Open UFC Savant

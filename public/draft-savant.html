@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Draft Savant — WCE Hoops</title>
+<title>NBA Draft Savant — WCE Hoops</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -217,7 +217,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .export-shell .sc-foot{margin-top:15px;padding-top:11px;border-top:2px solid var(--gold);display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .export-shell .sc-foot b{color:var(--navy)}
 
-/* ===== Home screen (branded landing) — Draft Savant ===== */
+/* ===== Home screen (branded landing) — NBA Draft Savant ===== */
 .home{position:relative;min-height:calc(100vh - var(--wce-nav-h,60px));min-height:calc(100dvh - var(--wce-nav-h,60px));overflow:hidden;padding:30px 24px 30px;
   flex-direction:column;align-items:center;justify-content:center;display:none;
   background:radial-gradient(125% 95% at 50% -12%, #F6F5F2 0%, var(--bg) 52%, #E5E3DF 100%)}
@@ -361,8 +361,8 @@ body.home-open .wrap{display:none}
     </svg>
   </div>
   <div class="home-inner">
-    <div class="home-eyebrow"><span class="wce">WCE</span> Hoops · Draft Savant</div>
-    <h1 class="home-title">Draft <em>Savant</em></h1>
+    <div class="home-eyebrow"><span class="wce">WCE</span> Hoops · NBA Draft Savant</div>
+    <h1 class="home-title">NBA Draft <em>Savant</em></h1>
     <p class="home-tag">The 2026 class and every draft back to 2010 — measured, modeled, and ranked against his class. Start with a name.</p>
     <div class="home-search" id="homeSearch">
       <div class="home-inp">
@@ -385,14 +385,14 @@ body.home-open .wrap{display:none}
       <a class="home-board-link" id="homeBoardLink" href="#board">See the full 2026 board →</a>
     </div>
   </div>
-  <div class="home-foot">wcehoops.com · Draft Savant</div>
+  <div class="home-foot">wcehoops.com · NBA Draft Savant</div>
 </div>
 <div class="wrap">
   <div class="top">
     <div class="brandwrap">
       <a class="wce" href="/" title="Back to WCE home" style="text-decoration:none">WCE</a>
-      <div><div class="brand-word">Draft <span>Savant</span></div>
-        <div style="display:flex;gap:8px;align-items:center;margin-top:6px"><span class="eyebrow-pill" id="srcpill">preview data</span><a class="backlink" href="/" title="Back to WCE Hoops home">&larr; wcehoops</a><a class="backlink" href="basketball-savant.html">basketball savant &rarr;</a></div></div>
+      <div><div class="brand-word">NBA Draft <span>Savant</span></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:6px"><span class="eyebrow-pill" id="srcpill">preview data</span><a class="backlink" href="/" title="Back to WCE Hoops home">&larr; wcehoops</a><a class="backlink" href="/nba-savant">nba savant &rarr;</a></div></div>
     </div>
     <div class="search" id="searchWrap"><button class="exportbtn" id="exportbtn" aria-label="Share this prospect card as an image"><svg viewBox="0 0 24 24"><path d="M12 14V3"/><path d="M8.5 6.5L12 3l3.5 3.5"/><path d="M6 10H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg><span id="exportlab">Share</span></button><button class="chip" id="boardBtn" aria-pressed="false" aria-expanded="false">Draft board</button><input id="q" placeholder="Search a prospect…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Search a prospect"/><div class="results" id="results" hidden></div></div>
   </div>
@@ -997,7 +997,7 @@ function buildShareShell(){
   const shell=document.createElement('div');
   shell.className='export-shell';
   shell.innerHTML=
-    '<div class="sc-head"><span class="wce">WCE</span><div class="brand-word">Draft <span>Savant</span></div>'
+    '<div class="sc-head"><span class="wce">WCE</span><div class="brand-word">NBA Draft <span>Savant</span></div>'
      +'<span class="sc-tag">'+badge+' · vs '+poolBasis(p)+'</span></div>'
     +'<div class="sc-id"><div class="sc-ava">'+initials(p.name)+'</div>'
        +'<div><div class="sc-name">'+p.name+'</div><div class="sc-meta">'+meta.join(' · ')+'</div>'
@@ -1006,7 +1006,7 @@ function buildShareShell(){
     +(ctx?'<div class="sc-ctx">'+ctx+'</div>':'')
     +'<div class="sc-cols"><div class="sc-col"><div class="sc-coltitle">Offense</div>'+(off||'<div class="sc-val" style="text-align:left;padding-top:6px">No college data</div>')+'</div>'
        +'<div class="sc-col"><div class="sc-coltitle">Defense &amp; tools</div>'+(def||'<div class="sc-val" style="text-align:left;padding-top:6px">—</div>')+'</div></div>'
-    +'<div class="sc-foot"><span><b>wcehoops.com</b> · Draft Savant</span><span>'+p.name+' · '+(p.draft_year===2026?'2026 class':p.draft_year+' draft')+'</span></div>';
+    +'<div class="sc-foot"><span><b>wcehoops.com</b> · NBA Draft Savant</span><span>'+p.name+' · '+(p.draft_year===2026?'2026 class':p.draft_year+' draft')+'</span></div>';
   return shell;
 }
 // html2canvas can exceed mobile-Safari's ~4096px per-side canvas cap at scale 2 on a tall card,
@@ -1030,8 +1030,8 @@ async function exportCard(){
     if(!blob) throw new Error('no blob');
     const p=byId(curId), fname=slug(p.name)+'_'+p.draft_year+'_draftsavant.png';
     const file=new File([blob],fname,{type:'image/png'});
-    const shareData={files:[file],title:p.name+' — Draft Savant',
-      text:p.name+' · '+(p.draft_year===2026?'2026 class':p.draft_year+' draft')+' — Draft Savant · wcehoops.com'};
+    const shareData={files:[file],title:p.name+' — NBA Draft Savant',
+      text:p.name+' · '+(p.draft_year===2026?'2026 class':p.draft_year+' draft')+' — NBA Draft Savant · wcehoops.com'};
     // 1) Native share sheet — the mobile path. Only exists in a secure context (HTTPS/localhost).
     if(navigator.canShare && navigator.canShare({files:[file]})){
       try{ await navigator.share(shareData); return; }
@@ -1053,10 +1053,10 @@ async function exportCard(){
   finally{ if(shell)shell.remove(); btn.disabled=false; lab.textContent=prev; }
 }
 
-/* the player's College Basketball Savant card, where one exists (public/cbb/links.json) */
+/* the player's CBB Savant card, where one exists (public/cbb/links.json) */
 let cbbLinks=null,cbbHon={};
 if(typeof fetch==='function') fetch('/cbb/links.json').then(r=>r.ok?r.json():null).then(j=>{cbbLinks=j&&j.by_draft;cbbHon=(j&&j.draft_honours)||{};}).catch(()=>{});
-function cbbLink(p){const e=cbbLinks&&cbbLinks[p.id];if(!e)return '';const h=(cbbHon[p.id]||[]).map(x=>x[2]+' '+x[0]).join(', ');return '<a href="/college-basketball-savant.html#player-'+e+'">College Basketball Savant card</a>'+(h?' · '+h:'');}
+function cbbLink(p){const e=cbbLinks&&cbbLinks[p.id];if(!e)return '';const h=(cbbHon[p.id]||[]).map(x=>x[2]+' '+x[0]).join(', ');return '<a href="/cbb-savant#player-'+e+'">CBB Savant card</a>'+(h?' · '+h:'');}
 function render(){
   const p=byId(curId);
   const wt=val(p,'weight'), vt=val(p,'vert');
@@ -1202,7 +1202,7 @@ document.addEventListener('click',function(e){
 });
 document.querySelectorAll('#popseg button').forEach(b=>b.onclick=()=>{pop=b.dataset.v;setSeg('popseg',b);render();});
 document.querySelectorAll('#poolseg button').forEach(b=>b.onclick=()=>{poolPop=b.dataset.v;setSeg('poolseg',b);render();});
-/* ===== Home screen (branded landing) — Draft Savant ===== */
+/* ===== Home screen (branded landing) — NBA Draft Savant ===== */
 function homeClass(){ return (YEARS && YEARS.indexOf(2026)>=0) ? 2026 : (YEARS && YEARS.length ? YEARS[0] : 2026); }
 function homeTopProspects(){
   var y=homeClass();

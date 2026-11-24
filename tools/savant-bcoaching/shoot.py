@@ -1,4 +1,4 @@
-"""The visual pass for Basketball Coaching Savant: screenshot every section of the page at desktop and
+"""The visual pass for NBA Coaching Savant: screenshot every section of the page at desktop and
 phone width, record console errors and horizontal overflow, and exercise the hovers, the picker and
 the tree. Needs the page served locally (node tools/serve-vercel.mjs 4174 public) and Playwright's
 Python package with Chromium.
@@ -47,7 +47,7 @@ def run(pw, width, tag):
     p.route(re.compile(r'https://(cdn\.nba\.com|www\.basketball-reference\.com)/.*'), relay)
     p.on('pageerror', lambda e: errs.append('pageerror ' + str(e)))
     # a failed resource is reported by its URL (the console line never says which); the local server has no
-    # API functions, so the Basketball Savant player page's /api/ calls are expected to fail here
+    # API functions, so the NBA Savant player page's /api/ calls are expected to fail here
     p.on('console', lambda m: errs.append('console ' + m.text) if m.type == 'error' and not m.text.startswith('Failed to load resource') else None)
     p.on('response', lambda r: errs.append(f'{r.status} {r.url}') if r.status >= 400 and '/api/' not in r.url else None)
     report = {'tag': tag, 'width': width}
@@ -157,7 +157,7 @@ def run(pw, width, tag):
     p.click('#treestage .zast'); p.wait_for_timeout(2500)
     report['tree_nodes_with_assistants'] = len(p.query_selector_all('#treestage .leaf'))
     report['tree_faces'] = p.evaluate("[document.querySelectorAll('#treestage .leaf image[href]').length, document.querySelectorAll('#treestage .leaf image[data-src]').length]")
-    # the matching Basketball Savant player page, for the side-by-side
+    # the matching NBA Savant player page, for the side-by-side
     sav = BASE.replace('basketball-coaching-savant.html', 'basketball-savant.html') + '?p=203999'
     p.goto(sav, wait_until='load'); p.wait_for_timeout(2500)
     p.screenshot(path=f'{OUT}/{tag}-savant-player.png', clip={'x': 0, 'y': 0, 'width': width, 'height': 1600})

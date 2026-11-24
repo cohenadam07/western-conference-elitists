@@ -1,5 +1,5 @@
 """
-assemble.py — College Basketball Savant's page from its sources.
+assemble.py — CBB Savant's page from its sources.
 
     python3 tools/savant-cbb/assemble.py                 -> public/college-basketball-savant.html
     python3 tools/savant-cbb/assemble.py --out <file>    -> anywhere else (the check writes to a temp file)
@@ -15,7 +15,7 @@ import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # 'theme:<path>' reads tools/themes/<path>: the college theme's tokens and the shared frame and sidebar, which
-# College Basketball Coaching Savant reads too (tools/themes/README.md). The rest is this page's own.
+# CBB Coaching Savant reads too (tools/themes/README.md). The rest is this page's own.
 ORDER = ['00a-head.html', 'theme:college/fonts.html', '00b-head.html', '01a-prototype.css', 'theme:college/tokens.css', 'theme:shared/base.css', 'theme:shared/frame.css', '01c-blocks.css',
          '02-starting-five.css', '03-extra.css', '04-body.html', '05a-page.js', 'theme:shared/sidebar.js', '05b-page.js', '06-tail.html']
 THEMES = os.path.join(HERE, "..", "themes")

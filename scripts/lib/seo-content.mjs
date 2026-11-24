@@ -23,15 +23,15 @@ const ld = (obj) => `<script type="application/ld+json">${JSON.stringify(obj).re
 // Everything worth a link, in the order it is listed wherever the products are listed.
 // `blurb` is the line the homepage tile already uses for it (src/components/Gateway.jsx).
 export const PRODUCTS = [
-  { name: 'Basketball Savant', href: '/basketball-savant.html', blurb: 'Every NBA player, every season back to 1979-80: percentile sliders, shot charts, and comps.' },
-  { name: 'College Basketball Savant', href: '/college-basketball-savant.html', blurb: 'Every men\'s Division I player: opponent-adjusted percentiles by position, RAPM, shot zones, lineups and team ratings, refreshed after every night of games.' },
-  { name: 'Football Savant', href: '/football-savant.html', blurb: 'Every NFL player back to 1999, ranked against the men who play his position, with throw maps, run-gap maps and comps.' },
-  { name: 'College Football Savant', href: '/college-football-savant.html', blurb: 'Every FBS player and team since 2009: opponent-adjusted percentiles by position, an All-Savant team lined up at the snap, and an objective 12-team playoff field with odds.' },
-  { name: 'UFC Savant', href: '/ufc-savant.html', blurb: 'Every UFC fighter, ranked against the weight class: strike maps, round curves, head-to-heads and comps.' },
-  { name: 'College Basketball Coaching Savant', href: '/college-basketball-coaching-savant.html', blurb: 'Every men\'s Division I head coach: wins against the roster he was given, whether players get better under him, the portal, the Rotation Map, March against the seed, and who won without money.' },
-  { name: 'Basketball Coaching Savant', href: '/basketball-coaching-savant.html', blurb: 'Every NBA head coach: the Rotation Map, lineups judged from their parts, timeouts and challenges, wins against two expectations, and a coaching tree suggested from the record, 1946-47 to today.' },
-  { name: 'Coaching Savant', href: '/coaching-savant.html', blurb: 'Every NFL head coach since 1999: records, playoff history, what they called, and a coaching tree drawn back to Paul Brown.' },
-  { name: 'Draft Savant', href: '/draft-savant.html', blurb: 'NBA Draft prospect models and the full board, every class back to 2010.' },
+  { name: 'NBA Savant', href: '/nba-savant', blurb: 'Every NBA player, every season back to 1979-80: percentile sliders, shot charts, and comps.' },
+  { name: 'CBB Savant', href: '/cbb-savant', blurb: 'Every men\'s Division I player: opponent-adjusted percentiles by position, RAPM, shot zones, lineups and team ratings, refreshed after every night of games.' },
+  { name: 'NFL Savant', href: '/nfl-savant', blurb: 'Every NFL player back to 1999, ranked against the men who play his position, with throw maps, run-gap maps and comps.' },
+  { name: 'CFB Savant', href: '/cfb-savant', blurb: 'Every FBS player and team since 2009: opponent-adjusted percentiles by position, an All-Savant team lined up at the snap, and an objective 12-team playoff field with odds.' },
+  { name: 'UFC Savant', href: '/ufc-savant', blurb: 'Every UFC fighter, ranked against the weight class: strike maps, round curves, head-to-heads and comps.' },
+  { name: 'CBB Coaching Savant', href: '/cbb-coaching-savant', blurb: 'Every men\'s Division I head coach: wins against the roster he was given, whether players get better under him, the portal, the Rotation Map, March against the seed, and who won without money.' },
+  { name: 'NBA Coaching Savant', href: '/nba-coaching-savant', blurb: 'Every NBA head coach: the Rotation Map, lineups judged from their parts, timeouts and challenges, wins against two expectations, and a coaching tree suggested from the record, 1946-47 to today.' },
+  { name: 'NFL Coaching Savant', href: '/nfl-coaching-savant', blurb: 'Every NFL head coach since 1999: records, playoff history, what they called, and a coaching tree drawn back to Paul Brown.' },
+  { name: 'NBA Draft Savant', href: '/nba-draft-savant', blurb: 'NBA Draft prospect models and the full board, every class back to 2010.' },
   { name: 'Dynasty Exchange', href: '/dynasty', blurb: 'A dynasty basketball board priced by the people who argue about it. Rank four players and move the market, or paste your roster and see what it is worth.' },
   { name: 'Big Board', href: '/rankings', blurb: 'Every draft prospect ranked and tiered. A personal board, not a consensus mock.' },
   { name: 'Comp Chain', href: '/comp-chain', blurb: 'Hop player to player through their statistical comps in as few moves as you can. A new puzzle every day.' },
@@ -55,28 +55,28 @@ export const PRODUCTS = [
 // ---------------------------------------------------------------------------------------------
 export const TOOLS = {
   'basketball-savant.html': {
-    name: 'Basketball Savant',
-    title: 'Basketball Savant: NBA Player Percentiles, Comps & Shot Charts | WCE',
+    name: 'NBA Savant',
+    title: 'NBA Savant: Player Percentiles, Comps & Shot Charts | WCE',
     description:
-      'Basketball Savant ranks every NBA player back to 1979-80 by percentile, against the league and against his position. Shot charts, comps and on/off data. Free.',
+      'NBA Savant ranks every NBA player back to 1979-80 by percentile, against the league and against his position. Shot charts, comps and on/off data. Free.',
     look: 'soft',
-    heading: 'What is Basketball Savant?',
+    heading: 'What is NBA Savant?',
     about: [
-      'Basketball Savant is a free NBA player profiler from Western Conference Elitists, built in the style of Baseball Savant. Search any player and see where he ranks, stat by stat, as a percentile from 1 to 99: against the whole league, or against the players at his position (guards, wings or bigs).',
+      'NBA Savant (formerly Basketball Savant) is a free NBA player profiler from Western Conference Elitists, built in the style of Baseball Savant. Search any player and see where he ranks, stat by stat, as a percentile from 1 to 99: against the whole league, or against the players at his position (guards, wings or bigs).',
       'It covers every season back to 1979-80. Scoring, passing, rebounding and defensive counts are shown per 75 possessions, so a sixth man and a starter read on the same scale. A profile runs through offense, defense and overall value, with shot charts, statistical comps, on/off numbers, and views of the last 10, 25 or 75 games.',
       'Percentiles are measured against the qualified players of the same season: at least 20 games and 15 minutes a game. A stat that a season never tracked is left out, not shown as zero.',
-      { html: 'Every player also has a page of his own: <a href="/player">browse every NBA player on Basketball Savant</a>.' },
+      { html: 'Every player also has a page of his own: <a href="/player">browse every NBA player on NBA Savant</a>.' },
     ],
   },
   'football-savant.html': {
-    name: 'Football Savant',
-    title: 'Football Savant: NFL Player Percentiles by Position | WCE',
+    name: 'NFL Savant',
+    title: 'NFL Savant: Player Percentiles by Position | WCE',
     description:
-      'Football Savant ranks every NFL player back to 1999 by percentile against the men who play his position. Throw maps, run-gap maps, comps and leaderboards. Free.',
+      'NFL Savant ranks every NFL player back to 1999 by percentile against the men who play his position. Throw maps, run-gap maps, comps and leaderboards. Free.',
     look: 'hard',
-    heading: 'What is Football Savant?',
+    heading: 'What is NFL Savant?',
     about: [
-      'Football Savant is a free NFL player profiler from Western Conference Elitists. It covers every NFL player back to 1999 and ranks each one only against the men who play his position, because a cornerback and a center share no box score.',
+      'NFL Savant (formerly Football Savant) is a free NFL player profiler from Western Conference Elitists. It covers every NFL player back to 1999 and ranks each one only against the men who play his position, because a cornerback and a center share no box score.',
       'Every number is a percentile from 1 to 99 against the qualified players at that position, in the same season or all-time. Profiles come with throw maps and run-gap maps, statistical comps, a career view and a leaderboard builder. A stat below its stabilization threshold is marked as a small sample, and a stat that a season never tracked is left out, not shown as zero.',
       'The numbers are built from open nflverse data, and the current season is refreshed while it is being played.',
     ],
@@ -95,84 +95,102 @@ export const TOOLS = {
     ],
   },
   'coaching-savant.html': {
-    name: 'Coaching Savant',
-    title: 'Coaching Savant: NFL Head Coach Records, Tendencies & Coaching Tree | WCE',
+    name: 'NFL Coaching Savant',
+    title: 'NFL Coaching Savant: Head Coach Records, Tendencies & Coaching Tree | WCE',
     description:
-      'Coaching Savant covers every NFL head coach since 1999: records, playoff history, results against the spread, fourth-down decisions, play-calling and the coaching tree.',
+      'NFL Coaching Savant: every head coach since 1999. Records, playoff history, results against the spread, fourth-down decisions, play-calling and the coaching tree.',
     look: 'hard',
-    heading: 'What is Coaching Savant?',
+    heading: 'What is NFL Coaching Savant?',
     about: [
-      'Coaching Savant is a free profiler of NFL coaches from Western Conference Elitists: every head coach since 1999, and every play-caller since 2018.',
+      'NFL Coaching Savant (formerly Coaching Savant) is a free profiler of NFL coaches from Western Conference Elitists: every head coach since 1999, and every play-caller since 2018.',
       'For each coach it shows what he won, whether his teams beat what the betting market expected of them, how he handles fourth down, and what his units actually look like on each side of the ball. Its centerpiece is a coaching tree drawn back to Paul Brown, with each coach colored by career win rate.',
       'Records and play-by-play come from open nflverse data. Who coached under whom, and who called the plays, is in no open dataset: both are curated by hand from the public record, and the page says so wherever they appear.',
     ],
   },
   'basketball-coaching-savant.html': {
-    name: 'Basketball Coaching Savant',
-    title: 'Basketball Coaching Savant: NBA Head Coach Rotations, Records & Coaching Tree | WCE',
+    name: 'NBA Coaching Savant',
+    title: 'NBA Coaching Savant: Head Coach Rotations, Records & Coaching Tree | WCE',
     description:
       'Every NBA head coach: the Rotation Map, lineups judged from their parts, timeouts and challenges, wins against talent and the market, and the coaching tree.',
     look: 'dark',
-    heading: 'What is Basketball Coaching Savant?',
+    heading: 'What is NBA Coaching Savant?',
     about: [
-      'Basketball Coaching Savant is a free profiler of NBA head coaches from Western Conference Elitists: records and the coaching tree back to 1946-47, and everything a coach decides on the floor from the season its data begins.',
+      'NBA Coaching Savant (formerly Basketball Coaching Savant) is a free profiler of NBA head coaches from Western Conference Elitists: records and the coaching tree back to 1946-47, and everything a coach decides on the floor from the season its data begins.',
       'Its centerpiece is the Rotation Map: for every man with 100 minutes under a coach, when he is usually on the floor, and how often and why the coach goes off-script. Lineups are judged from their parts rather than raw lineup ratings. Timeouts are tested against the runs they were called to stop. Wins are measured against two expectations: the roster\'s prior-season talent and the sportsbooks\' preseason win total.',
       'Play-by-play comes from ESPN, team tables from NBA.com, records and staffs from Basketball-Reference. Every percentile names its pool, every section is labelled with the year its data begins, and the rotation verdicts are the model\'s view, not a verdict. The rows behind every chart are open to the AI connector as a Data Room.',
     ],
   },
   'college-basketball-coaching-savant.html': {
-    name: 'College Basketball Coaching Savant',
-    title: 'College Basketball Coaching Savant: D1 Head Coaches, Rosters, Rotations & Coaching Tree | WCE',
+    name: 'CBB Coaching Savant',
+    title: 'CBB Coaching Savant: College Basketball Coaches, Rotations & Coaching Tree | WCE',
     description:
       'Every men\'s D1 head coach: wins against the roster he was given, player development, the portal, the Rotation Map, March against the seed, the coaching tree.',
     look: 'dark',
-    heading: 'What is College Basketball Coaching Savant?',
+    heading: 'What is CBB Coaching Savant?',
     about: [
-      'College Basketball Coaching Savant is a free profiler of men\'s Division I head coaches from Western Conference Elitists: records and the coaching tree as far back as the sources go, and everything a coach decides on the floor from the season its data begins.',
+      'CBB Coaching Savant (formerly College Basketball Coaching Savant) is a free profiler of men\'s Division I head coaches from Western Conference Elitists: records and the coaching tree as far back as the sources go, and everything a coach decides on the floor from the season its data begins.',
       'Its headline is wins above the roster: what the players he was handed were worth last season, read before he coached them, against what his teams did. It also follows whether players improve under him, how he builds a roster through high school and the portal, when each man plays and how often he goes off script, whether his timeouts stop runs, how his teams do in March against their seed, and whether he won with money or without it.',
-      { html: 'Player numbers come from <a href="/college-basketball-savant.html">College Basketball Savant</a>. Coaching histories and staffs are read from Wikipedia, spending from the Department of Education. For the NBA, see <a href="/basketball-coaching-savant.html">Basketball Coaching Savant</a>.' },
+      { html: 'Player numbers come from <a href="/cbb-savant">CBB Savant</a>. Coaching histories and staffs are read from Wikipedia, spending from the Department of Education. For the NBA, see <a href="/nba-coaching-savant">NBA Coaching Savant</a>.' },
     ],
   },
   'college-basketball-savant.html': {
-    name: 'College Basketball Savant',
-    title: 'College Basketball Savant: D1 Player Percentiles by Position | WCE',
+    name: 'CBB Savant',
+    title: 'CBB Savant: College Basketball Player Percentiles by Position | WCE',
     description:
       'Every men\'s Division I player on percentile bars: adjusted for opponents, ranked by position, with RAPM, shot zones, lineups and team ratings.',
     look: 'soft',
-    heading: 'What is College Basketball Savant?',
+    heading: 'What is CBB Savant?',
     about: [
-      'College Basketball Savant is a free profiler from Western Conference Elitists for every men\'s Division I player since 2009-10, with All-Savant Teams for every season, refreshed after every night of games.',
+      'CBB Savant (formerly College Basketball Savant) is a free college basketball profiler from Western Conference Elitists for every men\'s Division I player since 2009-10, with All-Savant Teams for every season, refreshed after every night of games.',
       'By default each percentile is adjusted for opponents and ranked against D1 at the same position, per 70 possessions, and it can be switched to raw numbers, all positions, high-majors, the same conference or the same age.',
-      { html: 'For the NBA version, see <a href="/basketball-savant.html">Basketball Savant</a>, and for prospects, <a href="/draft-savant.html">Draft Savant</a>.' },
+      { html: 'For the NBA version, see <a href="/nba-savant">NBA Savant</a>, and for prospects, <a href="/nba-draft-savant">NBA Draft Savant</a>.' },
     ],
   },
   'college-football-savant.html': {
-    name: 'College Football Savant',
-    title: 'College Football Savant: FBS Player Percentiles & Playoff Field | WCE',
+    name: 'CFB Savant',
+    title: 'CFB Savant: College Football Player Percentiles & Playoff Field | WCE',
     description:
       'Every FBS player on percentile bars, opponent-adjusted by position, plus All-Savant teams and an objective 12-team playoff field with odds.',
     look: 'soft',
-    heading: 'What is College Football Savant?',
+    heading: 'What is CFB Savant?',
     about: [
-      'College Football Savant is a free profiler from Western Conference Elitists for every FBS player and team since 2009, with All-Savant teams for every season and an objective College Football Playoff field, refreshed through the season.',
+      'CFB Savant (formerly College Football Savant) is a free college football profiler from Western Conference Elitists for every FBS player and team since 2009, with All-Savant teams for every season and an objective College Football Playoff field, refreshed through the season.',
       'Each percentile is adjusted for the opponents a player faced and ranked against FBS players at his position in the same season, and it can be switched to raw numbers, Power 4 only or his own conference. The playoff field is seeded by résumé, wins and losses against the schedule, never margin.',
-      { html: 'For the NFL, see <a href="/football-savant.html">Football Savant</a>, and for college basketball, <a href="/college-basketball-savant.html">College Basketball Savant</a>.' },
+      { html: 'For the NFL, see <a href="/nfl-savant">NFL Savant</a>, and for college basketball, <a href="/cbb-savant">CBB Savant</a>.' },
     ],
   },
   'draft-savant.html': {
-    name: 'Draft Savant',
-    title: 'Draft Savant: NBA Draft Prospect Percentiles & Models | WCE',
+    name: 'NBA Draft Savant',
+    title: 'NBA Draft Savant: Prospect Percentiles & Models | WCE',
     description:
-      'Draft Savant measures NBA Draft prospects by percentile against their own class and past drafts, for the 2026 class and the first round of every draft back to 2010.',
+      'NBA Draft Savant measures draft prospects by percentile against their own class and past drafts, for the 2026 class and the first round of every draft back to 2010.',
     look: 'soft',
-    heading: 'What is Draft Savant?',
+    heading: 'What is NBA Draft Savant?',
     about: [
-      'Draft Savant is a free NBA Draft prospect profiler from Western Conference Elitists. It covers the 2026 class and the first round of every draft back to 2010.',
+      'NBA Draft Savant (formerly Draft Savant) is a free draft prospect profiler from Western Conference Elitists. It covers the 2026 class and the first round of every draft back to 2010.',
       'Each prospect is ranked by percentile against his own draft class or against past drafts, and the comparison can be narrowed to prospects at the same position or of a similar age.',
       { html: 'For the opinionated version, see the <a href="/rankings">WCE Big Board</a>.' },
     ],
   },
 }
+
+// Where each tool page lives. The files in public/ keep the names the data pipelines write
+// (basketball-savant.html and the rest); vercel.json serves each one at the address below and
+// redirects its old address there, so every old link, bookmark and video description still lands.
+// The names changed on Nov 24, 2026 (one scheme: league first). `was` is the old name, kept in
+// structured data and once in each panel so a search for the old name still finds the page.
+export const CLEAN = {
+  'basketball-savant.html': { path: '/nba-savant', was: 'Basketball Savant' },
+  'football-savant.html': { path: '/nfl-savant', was: 'Football Savant' },
+  'ufc-savant.html': { path: '/ufc-savant' },
+  'coaching-savant.html': { path: '/nfl-coaching-savant', was: 'Coaching Savant' },
+  'basketball-coaching-savant.html': { path: '/nba-coaching-savant', was: 'Basketball Coaching Savant' },
+  'college-basketball-coaching-savant.html': { path: '/cbb-coaching-savant', was: 'College Basketball Coaching Savant' },
+  'college-basketball-savant.html': { path: '/cbb-savant', was: 'College Basketball Savant' },
+  'college-football-savant.html': { path: '/cfb-savant', was: 'College Football Savant' },
+  'draft-savant.html': { path: '/nba-draft-savant', was: 'Draft Savant' },
+}
+export const toolUrl = (file) => SITE + (CLEAN[file]?.path || `/${file}`)
 
 // The same product, said in one line for structured data on the React pages that are products.
 export const APPS = {
@@ -217,10 +235,11 @@ const crumbs = (name, url) => ({
     { '@type': 'ListItem', position: 2, name, item: url },
   ],
 })
-const app = ({ name, url, description, category }) => ({
+const app = ({ name, url, description, category, was }) => ({
   '@type': 'WebApplication',
   '@id': `${url}#app`,
   name,
+  ...(was ? { alternateName: was } : {}),
   url,
   description,
   applicationCategory: category,
@@ -241,7 +260,7 @@ export function homeJsonLd() {
       {
         '@type': 'ItemList',
         name: `${SITE_NAME} tools`,
-        itemListElement: PRODUCTS.slice(0, 10).map(   // every Savant tool and the Dynasty Exchange (10 since College Football Savant)
+        itemListElement: PRODUCTS.slice(0, 10).map(   // every Savant tool and the Dynasty Exchange (10 since CFB Savant)
           (p, i) => ({ '@type': 'ListItem', position: i + 1, name: p.name, url: SITE + p.href })),
       },
     ],
@@ -250,8 +269,8 @@ export function homeJsonLd() {
 
 export function toolJsonLd(file) {
   const t = TOOLS[file]
-  const url = `${SITE}/${file}`
-  return ld({ '@context': 'https://schema.org', '@graph': [app({ name: t.name, url, description: t.description, category: 'SportsApplication' }), ORG, WEBSITE, crumbs(t.name, url)] })
+  const url = toolUrl(file)
+  return ld({ '@context': 'https://schema.org', '@graph': [app({ name: t.name, url, description: t.description, category: 'SportsApplication', was: CLEAN[file]?.was }), ORG, WEBSITE, crumbs(t.name, url)] })
 }
 
 export function pageJsonLd(route, description) {

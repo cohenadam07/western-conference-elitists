@@ -5,7 +5,7 @@
    and the NBA page's type; this maps the names onto the theme's tokens and restyles the components to the
    theme's frame: cards like its cards, headings in its text face, rows like its percentile rows (bar
    height, radius, track, hatching and tick from the tokens), tables like its tables. Read after the
-   component CSS, so it wins. Used by College Basketball Coaching Savant; the NBA preview reads it too.
+   component CSS, so it wins. Used by CBB Coaching Savant; the NBA preview reads it too.
    ========================================================================= */
 :root{
   --bg:var(--ground);--sunk:var(--raised);--ink:var(--text);--line:var(--border);--navy:var(--hue);--gold:var(--tend);
@@ -120,7 +120,7 @@ table.t tr.on td{background:var(--raised)}
 #tip .def{border-top-color:var(--rule);color:var(--muted)}
 #tip a{color:var(--sel);border-bottom-color:var(--sel)}
 
-/* the components hard-code Basketball Savant's gold (#C2A263) in charts and swatches; it means "a tendency"
+/* the components hard-code NBA Savant's gold (#C2A263) in charts and swatches; it means "a tendency"
    or "his peak", so it takes the theme's tendency colour */
 [fill="#C2A263"]{fill:var(--tend)}
 [stroke="#C2A263"]{stroke:var(--tend)}

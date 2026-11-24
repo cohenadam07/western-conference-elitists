@@ -14,7 +14,7 @@
 //   distribution   where a value sits in a pool the caller names: its percentile and the pool's summary
 //
 // Every answer leads with a plain-language reading, then the numbers; states its samples; warns when a
-// group is too small (with Basketball Savant's settle points where the stat has one); names what it
+// group is too small (with NBA Savant's settle points where the stat has one); names what it
 // cannot account for; adjusts for multiple comparisons (Holm) when it tests several at once; and says
 // "associated with", never "causes": these are observational rows.
 //
@@ -24,7 +24,7 @@ import { SavantError } from './_core.js'
 import { withObservations } from './_sql.js'
 import { coefTable, crFactorLinear, holm, invert, matVec, olsFit, pearson, quantile, rng, sandwich, seedOf, tQuantile, twoSidedP } from './_stats.js'
 
-// Basketball Savant's settle points: SETTLE_K in public/basketball-savant.html ([k against the position
+// NBA Savant's settle points: SETTLE_K in public/basketball-savant.html ([k against the position
 // mean, k with last season]), measured by pipeline/basketball/settle_points.py. A copy, held to the page
 // by tools/analysis/check.mjs so the two can never differ. Units: attempts for shooting rates,
 // possessions for per-75 and the possession-based rates, games for the per-game ones.
@@ -102,7 +102,7 @@ async function compare(args, ctx) {
   for (const gr of groups) {
     if (gr.n < MIN_N) warnings.push(`"${gr.group}" has ${gr.n} observations (under ${MIN_N}).`)
     if (c && gr.clusters < MIN_CLUSTERS) warnings.push(`"${gr.group}" comes from ${gr.clusters} ${args.cluster_label || 'clusters'} (under ${MIN_CLUSTERS}): its interval is unreliable.`)
-    if (settle && args.sample_is_settle_unit !== false && gr.n < settle) warnings.push(`"${gr.group}" holds ${gr.n} ${settleUnit(args.stat)}, under Basketball Savant's settle point for ${args.stat} (${settle}): more of its number is noise than signal.`)
+    if (settle && args.sample_is_settle_unit !== false && gr.n < settle) warnings.push(`"${gr.group}" holds ${gr.n} ${settleUnit(args.stat)}, under NBA Savant's settle point for ${args.stat} (${settle}): more of its number is noise than signal.`)
   }
   if (!c) warnings.push('No cluster column was named, so each row was resampled on its own. Rows from the same game or player are not independent; name a cluster (game_id, team) for honest intervals.')
   for (const t of tests) {
@@ -460,12 +460,12 @@ async function stability(args, ctx) {
     settle = { k: best[0], pairs: pairs.length, rmse_raw: rmse(0), rmse_settled: best[1], method: window === 'team_last_25' ? "settle_points.py: the team's last 25 games against the rest of the season" : "player_study.py: the last third of his games against the rest of his season" }
   }
   const verdict = !Number.isFinite(full) ? 'too few' : full >= 0.5 ? 'skill (a full bar on the Savant pages)' : full >= 0.3 ? 'part skill (hatched on the Savant pages)' : full >= 0.15 ? 'mostly noise (context only)' : 'noise (dropped on the Savant pages)'
-  const published = args.stat && SETTLE_K[args.stat] ? { stat: args.stat, k_mean_prior: SETTLE_K[args.stat][0], k_with_last_season: SETTLE_K[args.stat][1], unit: settleUnit(args.stat), source: 'Basketball Savant SETTLE_K (pipeline/basketball/settle_points.py)' } : null
+  const published = args.stat && SETTLE_K[args.stat] ? { stat: args.stat, k_mean_prior: SETTLE_K[args.stat][0], k_with_last_season: SETTLE_K[args.stat][1], unit: settleUnit(args.stat), source: 'NBA Savant SETTLE_K (pipeline/basketball/settle_points.py)' } : null
   const warnings = []
-  if (window === 'team_last_25' && !pool) warnings.push('No pool column (position): the prior is the qualified league mean, where the Basketball Savant fit uses the position mean, so k can differ somewhat from the published one.')
+  if (window === 'team_last_25' && !pool) warnings.push('No pool column (position): the prior is the qualified league mean, where the NBA Savant fit uses the position mean, so k can differ somewhat from the published one.')
   if (rSd > 0.1) warnings.push(`The split-half correlation varies a lot between splits (SD ${rSd.toFixed(2)}): few or small player-seasons.`)
   return {
-    interpretation: `Over a typical season (${fmt(typical, 3)} in its sample unit), this stat is ${verdict}: split-half reliability ${fmt(full, 2)} for a full season (two random halves correlate at ${fmt(r, 2)}).${settle ? ` It settles at about ${fmt(settle.k, 3)}: at that sample a player's own number and the average deserve equal weight.` : ''}${published ? ` Basketball Savant's published settle point for ${args.stat} is ${published.k_mean_prior} ${published.unit}.` : ''}`,
+    interpretation: `Over a typical season (${fmt(typical, 3)} in its sample unit), this stat is ${verdict}: split-half reliability ${fmt(full, 2)} for a full season (two random halves correlate at ${fmt(r, 2)}).${settle ? ` It settles at about ${fmt(settle.k, 3)}: at that sample a player's own number and the average deserve equal weight.` : ''}${published ? ` NBA Savant's published settle point for ${args.stat} is ${published.k_mean_prior} ${published.unit}.` : ''}`,
     player_seasons: qual.length, game_rows: rows.length, typical_sample: typical,
     split_half: { r, sd: rSd, splits: rs.length, full_season_reliability: full, half_sample: nbar }, settle, settle_k_formula: kFormula,
     verdict, published, warnings,

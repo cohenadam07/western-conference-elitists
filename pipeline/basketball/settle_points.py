@@ -1,5 +1,5 @@
 """
-settle_points.py — how much sample each Basketball Savant stat needs before it means
+settle_points.py — how much sample each NBA Savant stat needs before it means
 something, measured from our own 15 seasons. Diagnostic only: prints a report and writes
 out/settle_points.json. Nothing on the site reads it until it has been looked at.
 
@@ -25,7 +25,7 @@ record of the same player in the same year to check it against. For each stat, k
 value that makes the last-25 estimate land closest to the first-part rate, across 15
 seasons. That is fitted on predictions, out of sample, not on a variance formula.
 
-Two priors are tested, as on Football Savant:
+Two priors are tested, as on NFL Savant:
   mean   the qualified average at his position that season
   last   that average moved toward his own previous season by how much of it there was
 

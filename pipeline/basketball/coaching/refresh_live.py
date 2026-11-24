@@ -6,7 +6,7 @@ saved bundles, so the output is what a full build would write).
     python3 refresh_live.py [--season 2026-27] [--public ../../../public] [--out <out dir>] [--tracking <dir>]
 
 Runs in the cloud inside basketball-savant-cloud.yml (cloud_run.sh calls it after the
-Basketball Savant refresh, continue-on-error) and on the Mac. --tracking points at the Mac's
+NBA Savant refresh, continue-on-error) and on the Mac. --tracking points at the Mac's
 latest upload of the NBA's tables (branch tracking-data), which nbatables.py reads when a
 table is not in the local cache; without it the live season's tracking, hustle, Synergy and
 zone rows stay empty until the next upload.
@@ -109,7 +109,7 @@ def check_data_room(public, season):
         if got is None or got < (want if table == "games" else floor):
             bad.append(f"{table} through {got}")
     if bad:
-        print(f"::error::Basketball Coaching Savant Data Room {season} is behind the ESPN games it read (through {want}): {', '.join(bad)}")
+        print(f"::error::NBA Coaching Savant Data Room {season} is behind the ESPN games it read (through {want}): {', '.join(bad)}")
         return 4
     return 0
 

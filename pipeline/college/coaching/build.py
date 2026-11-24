@@ -1,5 +1,5 @@
 """
-build.py — College Basketball Coaching Savant, built end to end.
+build.py — CBB Coaching Savant, built end to end.
 
     python3 build.py [--merge 2026-27] [--public <dir>]
 
@@ -789,13 +789,13 @@ def pass_two(bundles, I, public):
     dump(os.path.join(public, "cbcs", "fit.json.gz"), dict(fit_tables, label=I["fit_test"]["ships_as"], test=I["fit_test"]), gz=True)
     dump(os.path.join(public, "cbcs", "heads.json.gz"), heads(records, names), gz=True)
     dump(os.path.join(public, "cbcs", "player-fits.json.gz"), player_fits(fit_tables, coaches), gz=True)
-    # College Basketball Savant's team pages link each team-season's head coach(es)
+    # CBB Savant's team pages link each team-season's head coach(es)
     ts_links = defaultdict(list)
     for cid, rs in records.items():
         for r in rs:
             if r["season"] >= "2009-10":
                 ts_links[f"{r['team']}|{r['season']}"].append([cid, coaches[cid]["name"], bool(r["interim"])])
-    dump(os.path.join(public, "cbcs", "links.json.gz"), dict(ts=ts_links, note="College Basketball Coaching Savant's head coach of record per team-season"), gz=True)
+    dump(os.path.join(public, "cbcs", "links.json.gz"), dict(ts=ts_links, note="CBB Coaching Savant's head coach of record per team-season"), gz=True)
     log(f"wrote {len(idx_rows)} coach files, {sum(len(B['tfiles']) for B in bundles.values())} team-season files")
     return idx
 
@@ -1057,7 +1057,7 @@ def leader_boards(careers, cpct, cpools, eligible, coaches, bundles, next_hc, I)
         career_board("w_resources", "w_resources", "Wins above resources", "Wins per 30 beyond the roster model plus the fitted effect of spending. Kept off the headline; EADA misses NIL money from 2021-22."),
         career_board("net_roster", "net_roster", "Net above the roster", "Adjusted net rating minus the roster model's expected net, per 100 possessions."),
         career_board("recruit_hit", "recruit_hit", "Recruits who outplay their ranking", "His high-school recruits' first-season rate against what their recruit rank predicts."),
-        career_board("ato", "ato", "After own timeouts", "Points per possession on the first possession after his own timeout, first action a shot or a turnover (the same count as College Basketball Savant's)."),
+        career_board("ato", "ato", "After own timeouts", "Points per possession on the first possession after his own timeout, first action a shot or a turnover (the same count as CBB Savant's)."),
         career_board("halftime", "halftime", "Halftime adjusters", "Second-half net minus first-half net, per game."),
         career_board("winpct", "winpct", "Win %", "Every game under him in the stats era."),
         career_board("stability", "stability", "Most stable rotations", "Share of scripted minutes that went to script, 2023-24 on. A tendency."),
@@ -1112,7 +1112,7 @@ def fmtv(unit, v, u=""):
 
 
 def nba_links(public):
-    """Coaches with NBA head-coaching history link to Basketball Coaching Savant (by exact name)."""
+    """Coaches with NBA head-coaching history link to NBA Coaching Savant (by exact name)."""
     try:
         d = json.load(open(os.path.join(public, "bcs", "index.json")))
     except (OSError, ValueError):

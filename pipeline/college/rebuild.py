@@ -25,7 +25,7 @@ Possessions. A team's possession runs from when it gets the ball to a made baske
 rebound, a turnover, the last made free throw of a trip, or the end of the period. Whatever the
 feed misses, one rule catches: a shot, free throw or turnover by the OTHER team closes the
 possession in progress. Each possession counts once for the team (stints.poss) and once for every
-player on the floor at any event of it (Basketball Savant's rule), so a man who subs out at a dead
+player on the floor at any event of it (NBA Savant's rule), so a man who subs out at a dead
 ball before anything happens gets no credit.
 
 Lineups. Two sources, one path. `lineups_from_subs` walks the substitutions (2025-26 on, and

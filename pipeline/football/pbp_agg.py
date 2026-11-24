@@ -1,4 +1,4 @@
-"""Play-by-play -> weekly per-player aggregates for Football Savant.
+"""Play-by-play -> weekly per-player aggregates for NFL Savant.
 
 nflverse's season/weekly player tables carry the counting stats but not the things that
 make a football number mean something: whether a play stayed on schedule (success), how

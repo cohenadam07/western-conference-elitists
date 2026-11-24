@@ -1,5 +1,5 @@
 """
-build_draft_page.py — bake Draft Savant's data into the web page.
+build_draft_page.py — bake NBA Draft Savant's data into the web page.
 
 Reads:  draft.template.html  (+ out/draft_metrics_config.json, out/draft_players.json)
 Writes: draft-savant.html  (fully self-contained — open it directly in a browser)
@@ -30,12 +30,12 @@ def main():
     if "__DATA__" in html:
         sys.exit("stale __DATA__ placeholder in template — the page should fetch data.json, not inline it.")
     open(OUT, "w").write(html)
-    # College numbers for the 2027 class on come from College Basketball Savant (draft_cbb.py)
+    # College numbers for the 2027 class on come from CBB Savant (draft_cbb.py)
     import draft_cbb
     pub = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "public")
     if os.path.exists(os.path.join(pub, "cbb", "search.json.gz")):
         n = sum(draft_cbb.overlay(p, pub) for p in d["players"])
-        print(f"{n} prospects read from College Basketball Savant")
+        print(f"{n} prospects read from CBB Savant")
         json.dump(d, open(DATA, "w"))
     shutil.copyfile(DATA, OUT_DATA)                      # publish data.json next to the page
     print(f"wrote {OUT} + {OUT_DATA}  ({len(d['players'])} prospects, source={d.get('source')})")

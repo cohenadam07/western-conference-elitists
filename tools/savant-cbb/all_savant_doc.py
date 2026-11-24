@@ -75,11 +75,11 @@ apr="\n".join(f"| {s} | {cmpd['ap_old']['by_season'][s][0]} | {apo[s]['overlap']
 drvt="\n".join(f"| {k} | {v['overlap']} of {v['of']} | {v['ap_first_on_our_first']} |" for k,v in drv.items())
 doc=f"""# College All-Savant Teams
 
-Shipped in College Basketball Savant 1.1.0; 2009-10 and 2010-11 added in 1.2.0. Pipeline: `pipeline/college/college_value.py`, `team_fit.py`, `allsavant.py`, `ap_check.py`. Check: `tools/savant-cbb/value.mjs`.
+Shipped in CBB Savant 1.1.0; 2009-10 and 2010-11 added in 1.2.0. Pipeline: `pipeline/college/college_value.py`, `team_fit.py`, `allsavant.py`, `ap_check.py`. Check: `tools/savant-cbb/value.mjs`.
 
 ## The method in one paragraph
 
-**Savant value** is the points a player added over a replacement-level player at the same position. Its shape is Basketball Savant's. Its weights are not: Adam rejected the first set before launch, and the weights here are fitted to team results.
+**Savant value** is the points a player added over a replacement-level player at the same position. Its shape is NBA Savant's. Its weights are not: Adam rejected the first set before launch, and the weights here are fitted to team results.
 
 **Value = (Rate − Replacement) × Possessions ÷ 100**
 
@@ -87,7 +87,7 @@ Shipped in College Basketball Savant 1.1.0; 2009-10 and 2010-11 added in 1.2.0. 
 2. **Luck.** Each stat is pulled toward the position's average by this site's measured settle point.
 3. **Position.** Each is centred on the position's average that season.
 4. **Worth.** One regression: each team-season's adjusted net rating on its players' minutes-weighted stats, {len(cmpd['seasons'])} seasons ({cmpd['seasons'][0]} to {cmpd['seasons'][-1]}, finished seasons on the site), {cmpd['team_seasons']:,} team-seasons.
-5. **The floor.** From 2024-25, the rate moves toward what happened on the floor, against what the box rate and minutes say on/off should be, by weight ÷ (weight + {m['K']:.0f}). Before that it is box score only, as Basketball Savant is before 2009-10.
+5. **The floor.** From 2024-25, the rate moves toward what happened on the floor, against what the box rate and minutes say on/off should be, by weight ÷ (weight + {m['K']:.0f}). Before that it is box score only, as NBA Savant is before 2009-10.
 6. **Replacement.** The 25th-percentile qualified rate at the position that season.
 
 Possessions are the ones played, so missed games cost value. Every D1 game counts, through the national championship. Before the title game a team is a standing ("so far"), not an honour.
@@ -171,7 +171,7 @@ A box-tier season needs a box score and a matching final score on at least 98% o
 
 **Recovery.** ESPN has deleted some athlete records, leaving a blank box row, while its team totals still count the player and the play-by-play still has the name. One unknown shooter: the line is the team total minus everyone listed. Several: each gets the line the play-by-play counts, accepted only if their points sum exactly to what's missing. **Five box seasons, 2017-18 to 2021-22, pass only with this,** and 2022-23 needed it too. Against CBBD's own player stats, r ≥ .989 on all eleven stats in the three seasons tested (2013-14, 2018-19, 2021-22), about 2,900 players each.
 
-**Ages.** T-Rank's files before 2022-23 have no birthdate column at all (78 columns, the last a single digit; checked for 2007-08 to 2021-22), so refetching them won't help. Those ages come from CBBD rosters, later seasons and Basketball Savant.
+**Ages.** T-Rank's files before 2022-23 have no birthdate column at all (78 columns, the last a single digit; checked for 2007-08 to 2021-22), so refetching them won't help. Those ages come from CBBD rosters, later seasons and NBA Savant.
 
 ### Seasons tried and left off (1.2.0)
 

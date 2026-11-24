@@ -1,6 +1,6 @@
-// Draft Savant, cut up for machines. The draft section of the Savant API files.
+// NBA Draft Savant, cut up for machines. The draft section of the Savant API files.
 //
-// The Draft Savant page (public/draft-savant.html) downloads public/data.json — every
+// The NBA Draft Savant page (public/draft-savant.html) downloads public/data.json — every
 // prospect on the page, each with his college line, measurements and rate stats — and works
 // out every percentile in the browser. The file holds values only, so the number a fan
 // actually reads on a card, "88th against his draft class", is nowhere in it. An AI
@@ -59,6 +59,8 @@ export const BASE = 'savant-api/draft/v1'
 export const SCHEMA = 1
 
 const PAGE = 'draft-savant.html'
+// the page's address on the site (vercel.json serves the file above there)
+const ADDRESS = 'nba-draft-savant'
 const DATA = 'data.json'
 
 // The page's two controls, by the values its buttons carry. The six pools are every pairing,
@@ -329,10 +331,10 @@ export function buildDraftApi({ data, html }) {
   const pastPlayers = summary.filter((c) => !c.projected)
   const meta = {
     schema: SCHEMA,
-    name: 'Draft Savant',
+    name: 'NBA Draft Savant',
     by: 'Western Conference Elitists',
     site: SITE,
-    page: `${SITE}/${PAGE}`,
+    page: `${SITE}/${ADDRESS}`,
     prospectUrl: null, // the page has no link that opens one prospect
     source: data.source || null,
     note: data.note || null,

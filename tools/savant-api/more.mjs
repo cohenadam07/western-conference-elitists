@@ -1,4 +1,4 @@
-// Check for the rest of Basketball Savant in the AI connector: the Leaderboard Builder, the
+// Check for the rest of NBA Savant in the AI connector: the Leaderboard Builder, the
 // career arc and honours, a team's depth chart, the Teams table, play types, with/without and
 // months (api/_basketball-lists.js, the honours on api/_basketball.js profiles, and what
 // scripts/lib/savant-api.mjs writes for them).

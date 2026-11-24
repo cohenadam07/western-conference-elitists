@@ -6,7 +6,7 @@ rosters.py — where every player-season came from, and where it went (spec §4 
 The .pkl files read here are College Savant's own intermediate tables, written by season.py on this
 Mac or in the same cloud run; nothing downloaded is ever unpickled.
 
-Membership. Who played for whom each season comes from College Basketball Savant's own player-game
+Membership. Who played for whom each season comes from CBB Savant's own player-game
 tables (`rebuilt/<season>/pg.pkl`), which exist for every season from 2006-07 even where the box
 gate fails, so a 2013-14 player's 2012-13 team is known though 2012-13 is not on the site. CBBD's
 season rosters (cached under out/cbb/ref, ESPN ids in `sourceId`) add the men who were on a roster
@@ -25,7 +25,7 @@ Every player-season gets one. Rows carry Savant value (points over replacement) 
 100 possessions, from the season files College Savant publishes, and the season's role: minutes
 ÷ (40 × the team's games), which counts availability.
 
-Next stop: stayed, transferred (and where), or left D1, with NBA games where Basketball Savant has
+Next stop: stayed, transferred (and where), or left D1, with NBA games where NBA Savant has
 the same ESPN id (ESPN uses one athlete id for college and the NBA; College Savant checked 219 of
 219 linked players by name).
 
@@ -276,7 +276,7 @@ def class_scores(rows):
 
 def nba_ids():
     """{ESPN college id: NBA id}: College Savant's own link table (links.json, built from Basketball
-    Savant's seed/espn_ids.json), so a player's NBA stop links to Basketball Savant."""
+    Savant's seed/espn_ids.json), so a player's NBA stop links to NBA Savant."""
     try:
         return json.loads(gzip.open(os.path.join(PUBLIC, "cbb", "links.json.gz")).read()).get("nba") or {}
     except (OSError, ValueError):

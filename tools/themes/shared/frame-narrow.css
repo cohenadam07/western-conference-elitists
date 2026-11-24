@@ -1,4 +1,4 @@
-/* The frame on a phone: College Basketball Savant's own rules, line for line (they sit inside its last
+/* The frame on a phone: CBB Savant's own rules, line for line (they sit inside its last
    @media block with the page's other phone rules, so they are copied here rather than cut out;
    tools/themes/check.mjs fails if a line here stops matching that page). */
 @media (max-width:760px){

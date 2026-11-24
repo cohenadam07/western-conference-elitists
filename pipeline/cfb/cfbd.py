@@ -5,7 +5,7 @@
     python -m pipeline.cfb.cfbd ledger         # what this run has spent
 
 Rules (PROMPT-1 ground rule 5):
-  * the key is College Basketball Savant's (same account, same 1,000-call month);
+  * the key is CBB Savant's (same account, same 1,000-call month);
     it is read from CFBD_API_KEY or ~/.config/wce/cbbd.key and is never printed,
     logged or written anywhere;
   * this run may make at most RUN_CAP = 60 calls, every one is written to the
@@ -27,7 +27,7 @@ from .paths import RAW, HOME
 
 BASE = "https://api.collegefootballdata.com"
 RUN_CAP = 30           # prompt 1 spent 3; the build adds about 25 (Adam, Nov 10 2026)
-FLOOR = 405            # College Basketball Savant's own guard refuses at 400 left: this run never takes it there
+FLOOR = 405            # CBB Savant's own guard refuses at 400 left: this run never takes it there
 LEDGER = HOME / "cfbd-ledger.json"
 CACHE = RAW / "cfbd"
 CACHE.mkdir(parents=True, exist_ok=True)
@@ -87,7 +87,7 @@ def get(path, **params):
     led["log"].append([datetime.now(timezone.utc).isoformat(timespec="seconds"), path + (f"?{q}" if q else "")])
     _save(led)                                   # counted before it is made
     req = urllib.request.Request(url, headers={"Authorization": f"Bearer {_key()}", "Accept": "application/json",
-                                               "User-Agent": "wcehoops.com College Football Savant research"})
+                                               "User-Agent": "wcehoops.com CFB Savant research"})
     t0 = time.time()
     try:
         with urllib.request.urlopen(req, timeout=120, context=_CTX) as r:
@@ -119,7 +119,7 @@ def pull():
     """Only what the backtest needs and the release files do not already hold.
 
     Measured on the first run (Nov 10 2026): the shared meter stood at 462, and College
-    Basketball Savant's own guard refuses once it reads 400 or less. Every call made here
+    NBA Savant's own guard refuses once it reads 400 or less. Every call made here
     comes straight out of the live basketball product's headroom for the month, so the
     ~51 calls the prompt allowed for were cut to the two that could not be avoided:
       * /teams/fbs 2024    - the key check; also verifies the release files' conference table

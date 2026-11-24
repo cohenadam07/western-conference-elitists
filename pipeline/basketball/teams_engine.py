@@ -1,5 +1,5 @@
 """
-teams_engine.py: the data behind Basketball Savant's Teams and Lineups tabs.
+teams_engine.py: the data behind NBA Savant's Teams and Lineups tabs.
 
 Teams (1996-97 on): ratings, four factors (own and allowed), shot diet by zone (own and
 allowed), luck-adjusted net rating and expected wins, team play types (2015-16 on, offense and

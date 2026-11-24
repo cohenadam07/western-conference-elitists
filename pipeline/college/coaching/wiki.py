@@ -44,7 +44,7 @@ OUT = os.path.join(os.environ.get("CBCS_OUT") or os.path.expanduser("~/Basketbal
 RAW = os.path.join(OUT, "raw")
 LOG = os.path.expanduser("~/Basketball-Savant/logs/cbcs-wiki.log")
 API = "https://en.wikipedia.org/w/api.php"
-UA = "wcehoops.com College Basketball Coaching Savant (research bot; https://wcehoops.com)"
+UA = "wcehoops.com CBB Coaching Savant (research bot; https://wcehoops.com)"
 DELAY = 1.1
 CURRENT_END = 2027          # 2026-27 is the season in progress: "present" ends here
 

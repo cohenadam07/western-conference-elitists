@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { PROMPTS } from '../data/connector.js'
+import { ARTICLES } from '../data/content.js'
+import TILE from 'virtual:tile-data'
 
 // The homepage landing gateway: one card per destination, each rendered in that
 // page's own visual identity. Styles live in index.css under the `.gw` scope;
@@ -11,6 +13,57 @@ function Skeleton() {
       <span className="sk-v" />
       <span className="sk-b sk-b1" />
       <span className="sk-b sk-b2" />
+    </div>
+  )
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+// "2026-11-23" reads "Nov 23". A plain date is a day, not an instant, so it is read as written
+// and no time zone can move it.
+function shortDay(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || '')
+  return m ? `${MONTHS[+m[2] - 1]} ${+m[3]}` : null
+}
+
+// What is true today on a tile: a real, current fact from the tool the tile opens, gathered at
+// build time by scripts/lib/tile-data.mjs from the files the tool itself reads. A fact that
+// could not be read is simply absent, and the tile shows its drawing alone.
+function Live({ k }) {
+  const latest = ARTICLES[0]
+  const f = k === 'analysis' ? latest && { label: 'Latest', text: latest.title, sub: latest.date } : TILE.tiles[k]
+  if (!f) return null
+  const label = String(f.label)
+  const bits = [
+    f.season && !label.includes(String(f.season)) ? String(f.season) : null,
+    f.through ? `through ${shortDay(f.through)}` : null,
+    f.rows && f.sub ? f.sub : null,
+  ].filter(Boolean)
+  // bars only where every row has a positive number to compare
+  const top = f.rows && f.rows.every((r) => r.value > 0) ? Math.max(...f.rows.map((r) => r.value)) : 0
+  const under = [f.sub, f.date && k !== 'analysis' ? shortDay(f.date) : null].filter(Boolean).join(' · ')
+  return (
+    <div className="fact" title={f.pool || undefined}>
+      <div className="f-h">
+        <i className="f-dot" aria-hidden="true" />
+        <span>{[label, ...bits].join(' · ')}</span>
+      </div>
+      {f.rows ? (
+        <ol>
+          {f.rows.map((r, i) => (
+            <li key={r.name}>
+              <span className="f-rk">{i + 1}</span>
+              <span className="f-nm">{r.name}{r.note && r.note !== r.show ? <em>{r.note}</em> : null}</span>
+              {top ? <span className="f-bar"><i style={{ width: `${Math.max(6, Math.round((100 * r.value) / top))}%` }} /></span> : null}
+              <b>{r.show}</b>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <>
+          <div className="f-t">{f.text}</div>
+          {under ? <div className="f-s">{under}</div> : null}
+        </>
+      )}
     </div>
   )
 }
@@ -71,15 +124,13 @@ export default function Gateway() {
               <span className="hn-foot">It looks the answer up here. <b>How to add it ↓</b></span>
             </a>
 
-            <div className="hero-rule">
-              <span className="k">Explore</span>
-              <span className="r" />
-            </div>
           </header>
 
           <div className="grid">
-            {/* Basketball Savant */}
-            <a className="card c-savant span2" href="/basketball-savant.html">
+            {/* ── NBA ── */}
+            <h2 className="gh g-nba"><span>NBA</span><i aria-hidden="true" /></h2>
+            {/* NBA Savant */}
+            <a className="card c-savant span2" href="/nba-savant">
               <Skeleton />
               <div className="viz">
                 <div className="bars">
@@ -91,14 +142,45 @@ export default function Gateway() {
               </div>
               <div className="meta">
                 <span className="ck">Tool · Analytics</span>
-                <h3>Basketball Savant</h3>
+                <h3>NBA Savant</h3>
                 <p>Every player, every season back to 1979-80 — percentile sliders, shot charts, and comps.</p>
+                <Live k="nba" />
                 <span className="go">Open ↗</span>
               </div>
             </a>
 
-            {/* Draft Savant */}
-            <a className="card c-draft span2" href="/draft-savant.html">
+            {/* NBA Coaching Savant — the Rotation Map is the thing worth showing on the card */}
+            <a className="card c-coach c-nbac span2" href="/nba-coaching-savant">
+              <Skeleton />
+              <div className="viz">
+                <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <rect width="600" height="150" fill="#22395A" />
+                  {[0, 1, 2, 3, 4, 5].map((row) => (
+                    <g key={row}>
+                      {Array.from({ length: 48 }, (_, m) => {
+                        const q = Math.floor(m / 12), inQ = m % 12
+                        const on = row < 2 ? (inQ < 7 || (q % 2 === 1 && inQ > 4)) : row < 4 ? (inQ >= 5 || (q === 3 && inQ > 8)) : (q % 2 === 0 ? inQ >= 7 : inQ < 4)
+                        const a = on ? 0.9 : 0.12 + 0.08 * ((m * 7 + row * 3) % 5)
+                        return <rect key={m} x={24 + m * 11.5} y={14 + row * 21} width="10.5" height="19" fill="#C2A263" opacity={a} />
+                      })}
+                    </g>
+                  ))}
+                  {[1, 2, 3].map((q) => <line key={q} x1={24 + q * 12 * 11.5} y1="10" x2={24 + q * 12 * 11.5} y2="142" stroke="rgba(255,255,255,.35)" />)}
+                  <rect x="24" y="14" width={7 * 11.5} height="19" fill="none" stroke="#fff" strokeWidth="1.5" />
+                  <rect x={24 + 17 * 11.5} y="35" width={7 * 11.5} height="19" fill="none" stroke="#fff" strokeWidth="1.5" />
+                </svg>
+              </div>
+              <div className="meta">
+                <span className="ck">Tool · NBA coaching</span>
+                <h3>NBA Coaching Savant</h3>
+                <p>Every NBA head coach: when each player plays and how often the coach goes off-script, lineups judged from their parts, timeouts that stop runs, and wins against two expectations.</p>
+                <Live k="nbac" />
+                <span className="go">Open ↗</span>
+              </div>
+            </a>
+
+            {/* NBA Draft Savant */}
+            <a className="card c-draft span2" href="/nba-draft-savant">
               <Skeleton />
               <div className="viz">
                 <div className="rows">
@@ -109,87 +191,30 @@ export default function Gateway() {
               </div>
               <div className="meta">
                 <span className="ck">Tool · Draft</span>
-                <h3>Draft Savant</h3>
+                <h3>NBA Draft Savant</h3>
                 <p>Prospect models and the full board, every class back to 2010.</p>
+                <Live k="draft" />
                 <span className="go">Open ↗</span>
               </div>
             </a>
 
-            {/* Football Savant — the NFL sibling of the tool above. Its own palette on
-                purpose: this card is the one place on a paper-white site that shows the
-                film-room ground the tool actually lives on. */}
-            <a className="card c-fball span2" href="/football-savant.html">
+            {/* Big Board */}
+            <a className="card c-board span2" href="/rankings">
               <Skeleton />
               <div className="viz">
-                <svg className="field" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                  <defs>
-                    <pattern id="gwMow" width="100" height="150" patternUnits="userSpaceOnUse">
-                      <rect width="50" height="150" fill="rgba(255,255,255,0.035)" />
-                    </pattern>
-                  </defs>
-                  <rect width="600" height="150" fill="url(#gwMow)" />
-                  <g className="yard">
-                    <path d="M25 0V150M75 0V150M125 0V150M175 0V150M225 0V150M275 0V150M325 0V150M375 0V150M425 0V150M475 0V150M525 0V150M575 0V150" />
-                    <path className="hash" d="M25 46h8M75 46h8M125 46h8M175 46h8M225 46h8M275 46h8M325 46h8M375 46h8M425 46h8M475 46h8M525 46h8M575 46h8M25 104h8M75 104h8M125 104h8M175 104h8M225 104h8M275 104h8M325 104h8M375 104h8M425 104h8M475 104h8M525 104h8M575 104h8" />
-                  </g>
-                  <g className="nums">
-                    <text x="100" y="140">1 0</text><text x="200" y="140">3 0</text><text x="300" y="140" className="fifty">5 0</text><text x="400" y="140">3 0</text><text x="500" y="140">1 0</text>
-                  </g>
-                  <g className="lattice">
-                    <rect x="300" y="14" width="88" height="28" /><rect x="390" y="14" width="88" height="28" /><rect x="480" y="14" width="88" height="28" />
-                    <rect x="300" y="44" width="88" height="28" /><rect x="390" y="44" width="88" height="28" className="lit" /><rect x="480" y="44" width="88" height="28" />
-                    <rect x="300" y="74" width="88" height="28" className="warm" /><rect x="390" y="74" width="88" height="28" /><rect x="480" y="74" width="88" height="28" />
-                    <rect x="300" y="104" width="88" height="28" /><rect x="390" y="104" width="88" height="28" /><rect x="480" y="104" width="88" height="28" className="cool" />
-                  </g>
-                  <path className="throw" d="M60 122 Q240 6 434 58" />
-                  <circle className="ball" cx="434" cy="58" r="3.4" />
-                </svg>
+                <div className="wall" />
+                <div className="plates">
+                  <div className="plate"><span className="pk">1</span><span className="nm"><i style={{width:'62%'}} /><i className="s" style={{width:'34%'}} /></span><span className="tm" style={{background:'#c2a263'}} /></div>
+                  <div className="plate"><span className="pk">2</span><span className="nm"><i style={{width:'54%'}} /><i className="s" style={{width:'40%'}} /></span><span className="tm" style={{background:'#22395a'}} /></div>
+                  <div className="plate"><span className="pk">3</span><span className="nm"><i style={{width:'70%'}} /><i className="s" style={{width:'28%'}} /></span><span className="tm" style={{background:'#bc3a2c'}} /></div>
+                  <div className="plate slide"><span className="pk">4</span><span className="nm"><i style={{width:'48%'}} /><i className="s" style={{width:'36%'}} /></span><span className="tm" style={{background:'#1c4e86'}} /></div>
+                </div>
               </div>
               <div className="meta">
-                <span className="ck">Tool · Analytics</span>
-                <h3>Football Savant</h3>
-                <p>Every NFL player back to 1999, ranked against the men who play his position — with throw maps, run-gap maps and comps.</p>
-                <span className="go">Open ↗</span>
-              </div>
-            </a>
-
-            {/* UFC Savant — the arena at fight time: near-black, one red, one gold. The card
-                shows the red-to-gold bar the tool is built on. */}
-            <a className="card c-ufc span2" href="/ufc-savant.html">
-              <Skeleton />
-              <div className="viz">
-                <svg className="cage" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                  <defs>
-                    <pattern id="gwMesh" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                      <path d="M0 7H14M7 0V14" stroke="rgba(245,243,236,0.16)" strokeWidth="0.8" />
-                    </pattern>
-                    <radialGradient id="gwLight" cx="0.4" cy="0" r="0.8">
-                      <stop offset="0" stopColor="#D20A11" stopOpacity="0.5" />
-                      <stop offset="0.55" stopColor="#D20A11" stopOpacity="0.08" />
-                      <stop offset="1" stopColor="#D20A11" stopOpacity="0" />
-                    </radialGradient>
-                    <clipPath id="gwOct"><polygon points="299,117 235,167 145,167 81,117 81,47 145,-3 235,-3 299,47" /></clipPath>
-                  </defs>
-                  <rect width="600" height="150" fill="url(#gwLight)" />
-                  <polygon className="mat" points="299,117 235,167 145,167 81,117 81,47 145,-3 235,-3 299,47" />
-                  <rect x="60" y="-20" width="260" height="200" fill="url(#gwMesh)" clipPath="url(#gwOct)" />
-                  <polygon className="rim" points="299,117 235,167 145,167 81,117 81,47 145,-3 235,-3 299,47" />
-                  <polygon className="rim inner" points="286,113 230,156 150,156 94,113 94,51 150,8 230,8 286,51" />
-                  <g className="body" transform="translate(392 6) scale(0.58)">
-                    <circle cx="70" cy="34" r="26" className="head" />
-                    <path d="M36 66h68l9 86H27z" className="torso" />
-                    <path d="M30 156h34l-3 84H31z M76 156h34l-1 84H79z" className="legs" />
-                  </g>
-                  <g className="pcts">
-                    <text x="492" y="30">62%</text><text x="492" y="78">18%</text><text x="492" y="126">20%</text>
-                  </g>
-                </svg>
-              </div>
-              <div className="meta">
-                <span className="ck">Tool · Analytics</span>
-                <h3>UFC Savant</h3>
-                <p>Every UFC fighter since 1993, ranked against his weight class — strike maps, round curves, head-to-heads and comps.</p>
-                <span className="go">Open ↗</span>
+                <span className="ck">Rankings</span>
+                <h3>Big Board</h3>
+                <p>Every draft prospect ranked and tiered. A personal board, not a consensus mock.</p>
+                <span className="go">View ↗</span>
               </div>
             </a>
 
@@ -239,9 +264,95 @@ export default function Gateway() {
                 <span className="go">Enter ↗</span>
               </div>
             </a>
+            {/* ── NFL ── */}
+            <h2 className="gh g-nfl"><span>NFL</span><i aria-hidden="true" /></h2>
 
-            {/* College Basketball Savant — the percentile bar is the thing worth showing on the card */}
-            <a className="card c-coach span2" href="/college-basketball-savant.html">
+            {/* NFL Savant — the NFL sibling of the tool above. Its own palette on
+                purpose: this card is the one place on a paper-white site that shows the
+                film-room ground the tool actually lives on. */}
+            <a className="card c-fball span2" href="/nfl-savant">
+              <Skeleton />
+              <div className="viz">
+                <svg className="field" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <defs>
+                    <pattern id="gwMow" width="100" height="150" patternUnits="userSpaceOnUse">
+                      <rect width="50" height="150" fill="rgba(255,255,255,0.035)" />
+                    </pattern>
+                  </defs>
+                  <rect width="600" height="150" fill="url(#gwMow)" />
+                  <g className="yard">
+                    <path d="M25 0V150M75 0V150M125 0V150M175 0V150M225 0V150M275 0V150M325 0V150M375 0V150M425 0V150M475 0V150M525 0V150M575 0V150" />
+                    <path className="hash" d="M25 46h8M75 46h8M125 46h8M175 46h8M225 46h8M275 46h8M325 46h8M375 46h8M425 46h8M475 46h8M525 46h8M575 46h8M25 104h8M75 104h8M125 104h8M175 104h8M225 104h8M275 104h8M325 104h8M375 104h8M425 104h8M475 104h8M525 104h8M575 104h8" />
+                  </g>
+                  <g className="nums">
+                    <text x="100" y="140">1 0</text><text x="200" y="140">3 0</text><text x="300" y="140" className="fifty">5 0</text><text x="400" y="140">3 0</text><text x="500" y="140">1 0</text>
+                  </g>
+                  <g className="lattice">
+                    <rect x="300" y="14" width="88" height="28" /><rect x="390" y="14" width="88" height="28" /><rect x="480" y="14" width="88" height="28" />
+                    <rect x="300" y="44" width="88" height="28" /><rect x="390" y="44" width="88" height="28" className="lit" /><rect x="480" y="44" width="88" height="28" />
+                    <rect x="300" y="74" width="88" height="28" className="warm" /><rect x="390" y="74" width="88" height="28" /><rect x="480" y="74" width="88" height="28" />
+                    <rect x="300" y="104" width="88" height="28" /><rect x="390" y="104" width="88" height="28" /><rect x="480" y="104" width="88" height="28" className="cool" />
+                  </g>
+                  <path className="throw" d="M60 122 Q240 6 434 58" />
+                  <circle className="ball" cx="434" cy="58" r="3.4" />
+                </svg>
+              </div>
+              <div className="meta">
+                <span className="ck">Tool · Analytics</span>
+                <h3>NFL Savant</h3>
+                <p>Every NFL player back to 1999, ranked against the men who play his position — with throw maps, run-gap maps and comps.</p>
+                <Live k="nfl" />
+                <span className="go">Open ↗</span>
+              </div>
+            </a>
+
+            {/* NFL Coaching Savant — the tree is the thing worth showing on the card */}
+            <a className="card c-coach c-nflc span2" href="/nfl-coaching-savant">
+              <Skeleton />
+              <div className="viz">
+                <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <defs>
+                    <pattern id="gwGridW" width="20" height="20" patternUnits="userSpaceOnUse">
+                      <path d="M20 0H0V20" fill="none" stroke="rgba(14,42,23,0.07)" strokeWidth="1" />
+                    </pattern>
+                    <marker id="gwArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M0 0L10 5L0 10z" fill="#1D6B3A" />
+                    </marker>
+                  </defs>
+                  <rect width="600" height="150" fill="url(#gwGridW)" />
+                  <line className="los" x1="0" y1="92" x2="600" y2="92" />
+                  <g className="os">
+                    <circle cx="120" cy="108" r="7" /><circle cx="144" cy="108" r="7" /><circle cx="168" cy="108" r="7" /><circle cx="192" cy="108" r="7" /><circle cx="216" cy="108" r="7" />
+                    <circle cx="168" cy="132" r="7" className="qb" /><circle cx="264" cy="108" r="7" /><circle cx="54" cy="108" r="7" />
+                  </g>
+                  <g className="xs">
+                    <path d="M112 68l12 12M124 68l-12 12M136 68l12 12M148 68l-12 12M160 68l12 12M172 68l-12 12M184 68l12 12M196 68l-12 12M254 62l12 12M266 62l-12 12M60 54l12 12M72 54l-12 12M158 26l12 12M170 26l-12 12M222 34l12 12M234 34l-12 12" />
+                  </g>
+                  <path className="route r1" d="M264 100 V58 Q264 40 282 36 L350 14" markerEnd="url(#gwArrow)" />
+                  <path className="route r2" d="M54 100 V76 L90 26" markerEnd="url(#gwArrow)" />
+                  <path className="route r3" d="M168 124 Q154 124 150 114" />
+                  <g className="tree">
+                    <rect x="440" y="70" width="60" height="14" rx="2" className="root" />
+                    <path className="branch" d="M500 77h12v-30h12M512 77h12M512 77v30h12" />
+                    <rect x="524" y="40" width="50" height="13" rx="2" className="leaf a" />
+                    <rect x="524" y="70" width="50" height="13" rx="2" className="leaf b" />
+                    <rect x="524" y="100" width="50" height="13" rx="2" className="leaf c" />
+                  </g>
+                </svg>
+              </div>
+              <div className="meta">
+                <span className="ck">Tool · Coaching</span>
+                <h3>NFL Coaching Savant</h3>
+                <p>Every head coach since 1999 — records, playoff history, what they called, and a coaching tree drawn back to Paul Brown.</p>
+                <Live k="nflc" />
+                <span className="go">Open ↗</span>
+              </div>
+            </a>
+            {/* ── College ── */}
+            <h2 className="gh g-college"><span>College</span><i aria-hidden="true" /></h2>
+
+            {/* CBB Savant — the percentile bar is the thing worth showing on the card */}
+            <a className="card c-coach c-cbb span2" href="/cbb-savant">
               <Skeleton />
               <div className="viz">
                 <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -256,40 +367,15 @@ export default function Gateway() {
               </div>
               <div className="meta">
                 <span className="ck">Tool · College basketball</span>
-                <h3>College Basketball Savant</h3>
+                <h3>CBB Savant</h3>
                 <p>Every men's Division I player on percentile bars: adjusted for opponents, ranked at their position, with RAPM, shot zones, lineups and team ratings, refreshed after every night of games.</p>
+                <Live k="cbb" />
                 <span className="go">Open ↗</span>
               </div>
             </a>
 
-            {/* College Football Savant — the sticker look: a navy field, a white card with a hard shadow, three bars */}
-            <a className="card c-coach span2" href="/college-football-savant.html">
-              <Skeleton />
-              <div className="viz">
-                <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                  <rect width="600" height="150" fill="#0B1730" />
-                  <rect x="58" y="22" width="490" height="112" fill="#030914" />
-                  <g transform="rotate(-1.2 300 75)">
-                    <rect x="48" y="14" width="490" height="112" fill="#FFFFFF" />
-                    {[[94, '#BC3A2C'], [62, '#C4A99F'], [31, '#6F8BAB']].map(([p, c], i) => (
-                      <g key={i}>
-                        <rect x="70" y={32 + i * 30} width="446" height="18" fill="#E9E8E4" />
-                        <rect x="70" y={32 + i * 30} width={4.46 * p} height="18" fill={c} />
-                      </g>
-                    ))}
-                  </g>
-                </svg>
-              </div>
-              <div className="meta">
-                <span className="ck">Tool · College football</span>
-                <h3>College Football Savant</h3>
-                <p>Every FBS player and team since 2009: opponent-adjusted percentiles by position, an All-Savant team lined up at the snap, and an objective 12-team playoff field with odds.</p>
-                <span className="go">Open ↗</span>
-              </div>
-            </a>
-
-            {/* College Basketball Coaching Savant — half of a tournament region, one coach's run to the Final Four in gold */}
-            <a className="card c-coach span2" href="/college-basketball-coaching-savant.html">
+            {/* CBB Coaching Savant — half of a tournament region, one coach's run to the Final Four in gold */}
+            <a className="card c-coach c-cbbc span2" href="/cbb-coaching-savant">
               <Skeleton />
               <div className="viz">
                 <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -328,102 +414,84 @@ export default function Gateway() {
               </div>
               <div className="meta">
                 <span className="ck">Tool · College coaching</span>
-                <h3>College Basketball Coaching Savant</h3>
+                <h3>CBB Coaching Savant</h3>
                 <p>Every men's D1 head coach: wins against the roster he was given, whether players get better under him, how he builds through the portal, the Rotation Map, March against the seed, and who won without money.</p>
+                <Live k="cbbc" />
                 <span className="go">Open ↗</span>
               </div>
             </a>
 
-            {/* Basketball Coaching Savant — the Rotation Map is the thing worth showing on the card */}
-            <a className="card c-coach span2" href="/basketball-coaching-savant.html">
+            {/* CFB Savant — the sticker look: a navy field, a white card with a hard shadow, three bars */}
+            <a className="card c-coach c-cfb span4 wide" href="/cfb-savant">
               <Skeleton />
               <div className="viz">
                 <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                  <rect width="600" height="150" fill="#22395A" />
-                  {[0, 1, 2, 3, 4, 5].map((row) => (
-                    <g key={row}>
-                      {Array.from({ length: 48 }, (_, m) => {
-                        const q = Math.floor(m / 12), inQ = m % 12
-                        const on = row < 2 ? (inQ < 7 || (q % 2 === 1 && inQ > 4)) : row < 4 ? (inQ >= 5 || (q === 3 && inQ > 8)) : (q % 2 === 0 ? inQ >= 7 : inQ < 4)
-                        const a = on ? 0.9 : 0.12 + 0.08 * ((m * 7 + row * 3) % 5)
-                        return <rect key={m} x={24 + m * 11.5} y={14 + row * 21} width="10.5" height="19" fill="#C2A263" opacity={a} />
-                      })}
-                    </g>
-                  ))}
-                  {[1, 2, 3].map((q) => <line key={q} x1={24 + q * 12 * 11.5} y1="10" x2={24 + q * 12 * 11.5} y2="142" stroke="rgba(255,255,255,.35)" />)}
-                  <rect x="24" y="14" width={7 * 11.5} height="19" fill="none" stroke="#fff" strokeWidth="1.5" />
-                  <rect x={24 + 17 * 11.5} y="35" width={7 * 11.5} height="19" fill="none" stroke="#fff" strokeWidth="1.5" />
+                  <rect width="600" height="150" fill="#0B1730" />
+                  <rect x="58" y="22" width="490" height="112" fill="#030914" />
+                  <g transform="rotate(-1.2 300 75)">
+                    <rect x="48" y="14" width="490" height="112" fill="#FFFFFF" />
+                    {[[94, '#BC3A2C'], [62, '#C4A99F'], [31, '#6F8BAB']].map(([p, c], i) => (
+                      <g key={i}>
+                        <rect x="70" y={32 + i * 30} width="446" height="18" fill="#E9E8E4" />
+                        <rect x="70" y={32 + i * 30} width={4.46 * p} height="18" fill={c} />
+                      </g>
+                    ))}
+                  </g>
                 </svg>
               </div>
               <div className="meta">
-                <span className="ck">Tool · NBA coaching</span>
-                <h3>Basketball Coaching Savant</h3>
-                <p>Every NBA head coach: when each player plays and how often the coach goes off-script, lineups judged from their parts, timeouts that stop runs, and wins against two expectations.</p>
+                <span className="ck">Tool · College football</span>
+                <h3>CFB Savant</h3>
+                <p>Every FBS player and team since 2009: opponent-adjusted percentiles by position, an All-Savant team lined up at the snap, and an objective 12-team playoff field with odds.</p>
+                <Live k="cfb" />
                 <span className="go">Open ↗</span>
               </div>
             </a>
+            {/* ── UFC ── */}
+            <h2 className="gh g-ufc"><span>UFC</span><i aria-hidden="true" /></h2>
 
-            {/* Coaching Savant — the tree is the thing worth showing on the card */}
-            <a className="card c-coach span2" href="/coaching-savant.html">
+            {/* UFC Savant — the arena at fight time: near-black, one red, one gold. The card
+                shows the red-to-gold bar the tool is built on. */}
+            <a className="card c-ufc span4 wide" href="/ufc-savant">
               <Skeleton />
               <div className="viz">
-                <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <svg className="cage" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
                   <defs>
-                    <pattern id="gwGridW" width="20" height="20" patternUnits="userSpaceOnUse">
-                      <path d="M20 0H0V20" fill="none" stroke="rgba(14,42,23,0.07)" strokeWidth="1" />
+                    <pattern id="gwMesh" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                      <path d="M0 7H14M7 0V14" stroke="rgba(245,243,236,0.16)" strokeWidth="0.8" />
                     </pattern>
-                    <marker id="gwArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                      <path d="M0 0L10 5L0 10z" fill="#1D6B3A" />
-                    </marker>
+                    <radialGradient id="gwLight" cx="0.4" cy="0" r="0.8">
+                      <stop offset="0" stopColor="#D20A11" stopOpacity="0.5" />
+                      <stop offset="0.55" stopColor="#D20A11" stopOpacity="0.08" />
+                      <stop offset="1" stopColor="#D20A11" stopOpacity="0" />
+                    </radialGradient>
+                    <clipPath id="gwOct"><polygon points="299,117 235,167 145,167 81,117 81,47 145,-3 235,-3 299,47" /></clipPath>
                   </defs>
-                  <rect width="600" height="150" fill="url(#gwGridW)" />
-                  <line className="los" x1="0" y1="92" x2="600" y2="92" />
-                  <g className="os">
-                    <circle cx="120" cy="108" r="7" /><circle cx="144" cy="108" r="7" /><circle cx="168" cy="108" r="7" /><circle cx="192" cy="108" r="7" /><circle cx="216" cy="108" r="7" />
-                    <circle cx="168" cy="132" r="7" className="qb" /><circle cx="264" cy="108" r="7" /><circle cx="54" cy="108" r="7" />
+                  <rect width="600" height="150" fill="url(#gwLight)" />
+                  <polygon className="mat" points="299,117 235,167 145,167 81,117 81,47 145,-3 235,-3 299,47" />
+                  <rect x="60" y="-20" width="260" height="200" fill="url(#gwMesh)" clipPath="url(#gwOct)" />
+                  <polygon className="rim" points="299,117 235,167 145,167 81,117 81,47 145,-3 235,-3 299,47" />
+                  <polygon className="rim inner" points="286,113 230,156 150,156 94,113 94,51 150,8 230,8 286,51" />
+                  <g className="body" transform="translate(392 6) scale(0.58)">
+                    <circle cx="70" cy="34" r="26" className="head" />
+                    <path d="M36 66h68l9 86H27z" className="torso" />
+                    <path d="M30 156h34l-3 84H31z M76 156h34l-1 84H79z" className="legs" />
                   </g>
-                  <g className="xs">
-                    <path d="M112 68l12 12M124 68l-12 12M136 68l12 12M148 68l-12 12M160 68l12 12M172 68l-12 12M184 68l12 12M196 68l-12 12M254 62l12 12M266 62l-12 12M60 54l12 12M72 54l-12 12M158 26l12 12M170 26l-12 12M222 34l12 12M234 34l-12 12" />
-                  </g>
-                  <path className="route r1" d="M264 100 V58 Q264 40 282 36 L350 14" markerEnd="url(#gwArrow)" />
-                  <path className="route r2" d="M54 100 V76 L90 26" markerEnd="url(#gwArrow)" />
-                  <path className="route r3" d="M168 124 Q154 124 150 114" />
-                  <g className="tree">
-                    <rect x="440" y="70" width="60" height="14" rx="2" className="root" />
-                    <path className="branch" d="M500 77h12v-30h12M512 77h12M512 77v30h12" />
-                    <rect x="524" y="40" width="50" height="13" rx="2" className="leaf a" />
-                    <rect x="524" y="70" width="50" height="13" rx="2" className="leaf b" />
-                    <rect x="524" y="100" width="50" height="13" rx="2" className="leaf c" />
+                  <g className="pcts">
+                    <text x="492" y="30">62%</text><text x="492" y="78">18%</text><text x="492" y="126">20%</text>
                   </g>
                 </svg>
               </div>
               <div className="meta">
-                <span className="ck">Tool · Coaching</span>
-                <h3>Coaching Savant</h3>
-                <p>Every head coach since 1999 — records, playoff history, what they called, and a coaching tree drawn back to Paul Brown.</p>
+                <span className="ck">Tool · Analytics</span>
+                <h3>UFC Savant</h3>
+                <p>Every UFC fighter since 1993, ranked against his weight class — strike maps, round curves, head-to-heads and comps.</p>
+                <Live k="ufc" />
                 <span className="go">Open ↗</span>
               </div>
             </a>
-
-            {/* Big Board */}
-            <a className="card c-board span2" href="/rankings">
-              <Skeleton />
-              <div className="viz">
-                <div className="wall" />
-                <div className="plates">
-                  <div className="plate"><span className="pk">1</span><span className="nm"><i style={{width:'62%'}} /><i className="s" style={{width:'34%'}} /></span><span className="tm" style={{background:'#c2a263'}} /></div>
-                  <div className="plate"><span className="pk">2</span><span className="nm"><i style={{width:'54%'}} /><i className="s" style={{width:'40%'}} /></span><span className="tm" style={{background:'#22395a'}} /></div>
-                  <div className="plate"><span className="pk">3</span><span className="nm"><i style={{width:'70%'}} /><i className="s" style={{width:'28%'}} /></span><span className="tm" style={{background:'#bc3a2c'}} /></div>
-                  <div className="plate slide"><span className="pk">4</span><span className="nm"><i style={{width:'48%'}} /><i className="s" style={{width:'36%'}} /></span><span className="tm" style={{background:'#1c4e86'}} /></div>
-                </div>
-              </div>
-              <div className="meta">
-                <span className="ck">Rankings</span>
-                <h3>Big Board</h3>
-                <p>Every draft prospect ranked and tiered. A personal board, not a consensus mock.</p>
-                <span className="go">View ↗</span>
-              </div>
-            </a>
+            {/* ── Games ── */}
+            <h2 className="gh g-games"><span>Games</span><i aria-hidden="true" /></h2>
 
             {/* Comp Chain */}
             <a className="card c-comp span2" href="/comp-chain">
@@ -538,6 +606,8 @@ export default function Gateway() {
                 <span className="go">Play ↗</span>
               </div>
             </a>
+            {/* ── Read ── */}
+            <h2 className="gh g-read"><span>Read</span><i aria-hidden="true" /></h2>
 
             {/* Analysis */}
             <a className="card c-analysis span2" href="/articles">
@@ -555,6 +625,7 @@ export default function Gateway() {
                 <span className="ck">Reading</span>
                 <h3>Analysis</h3>
                 <p>Breakdowns and data that earns its place.</p>
+                <Live k="analysis" />
                 <span className="go">Read ↗</span>
               </div>
             </a>
@@ -581,6 +652,7 @@ export default function Gateway() {
                 <span className="ck">Wire</span>
                 <h3>News</h3>
                 <p>The latest from around the league.</p>
+                <Live k="news" />
                 <span className="go">Catch up ↗</span>
               </div>
             </a>
@@ -602,6 +674,7 @@ export default function Gateway() {
                 <span className="go">Meet us ↗</span>
               </div>
             </a>
+          
           </div>
         </div>
       </div>

@@ -6,7 +6,7 @@
 //   POST { id, ns }  -> ZINCRBY today's sorted set for that id (records one search)
 //   GET  ?ns=        -> most-searched ids over the last 7 days, recency-weighted, + momentum
 //
-// ns namespaces the two savants: 'bs' (Basketball Savant, numeric ids) and 'dr' (Draft Savant,
+// ns namespaces the two savants: 'bs' (NBA Savant, numeric ids) and 'dr' (NBA Draft Savant,
 // slug ids). Storage: one sorted set per UTC day, <ns>:trend:<YYYYMMDD>, member = id, score =
 // count. Keys expire after 12 days. GET unions the last 7 days (recency-weighted) for ranking
 // and compares a recent vs prior window for the up/down (fire/ice) momentum.

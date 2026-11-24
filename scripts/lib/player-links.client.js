@@ -1,4 +1,4 @@
-/* Basketball Savant <-> player pages.
+/* NBA Savant <-> player pages.
    scripts/lib/seo-build.mjs adds this to basketball-savant.html at build time, right after the
    page's own script, so it survives the page being regenerated. It does three things:
 
@@ -108,7 +108,7 @@
         try {
           var u = playerUrl();
           if (u && d && d.files && inPlayerView()) {
-            var withLink = { files: d.files, title: d.title, text: cur.name + ' · ' + curSeason + ' — Basketball Savant\n' + u };
+            var withLink = { files: d.files, title: d.title, text: cur.name + ' · ' + curSeason + ' — NBA Savant\n' + u };
             if (!navigator.canShare || navigator.canShare(withLink)) d = withLink;
           }
         } catch (e) {}

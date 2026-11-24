@@ -27,33 +27,33 @@
 // one module that declares its own tools — name, description, input and output shape, and
 // the function that answers — and this file registers whatever they declare:
 //
-//   api/_basketball.js   Basketball Savant        nba_search_players, nba_get_player_profile,
+//   api/_basketball.js   NBA Savant        nba_search_players, nba_get_player_profile,
 //                                                 nba_all_savant_team
 //   api/_basketball-lists.js  its lists         nba_leaderboard, nba_team_rankings,
 //                                                 nba_player_career, nba_player_splits
 //   api/_fantasy.js      Savant Fantasy/Teams     nba_fantasy_*, nba_injury_report, nba_schedule, nba_team_profile, nba_lineups
-//   api/_bcoaching.js    Basketball Coaching Savant  nba_search_coaches, nba_get_coach_profile,
+//   api/_bcoaching.js    NBA Coaching Savant  nba_search_coaches, nba_get_coach_profile,
 //                                                 nba_coaching_leaders, nba_coaching_tree
-//   api/_football.js     Football Savant          nfl_search_players, nfl_get_player_profile,
+//   api/_football.js     NFL Savant          nfl_search_players, nfl_get_player_profile,
 //                                                 nfl_all_savant_team
 //   api/_football-lists.js  its lists            nfl_leaderboard, nfl_team_profile,
 //                                                 nfl_player_career
 //   api/_football-games.js  below the season     nfl_player_games, nfl_player_splits, nfl_game
-//   api/_coaching.js     Coaching Savant          nfl_search_coaches, nfl_get_coach_profile,
+//   api/_coaching.js     NFL Coaching Savant          nfl_search_coaches, nfl_get_coach_profile,
 //                                                 nfl_coaching_leaders, nfl_coaching_tree
 //   api/_ufc.js          UFC Savant               ufc_search_fighters, ufc_get_fighter_profile,
 //                                                 ufc_leaderboard, ufc_matchup,
 //                                                 ufc_get_upcoming_cards
-//   api/_draft.js        Draft Savant             nba_draft_search_prospects,
+//   api/_draft.js        NBA Draft Savant             nba_draft_search_prospects,
 //                                                 nba_draft_get_prospect_profile
-//   api/_cbb.js          College Basketball Savant  cbb_search_players, cbb_get_player_profile,
+//   api/_cbb.js          CBB Savant  cbb_search_players, cbb_get_player_profile,
 //                                                 cbb_player_career, cbb_player_splits, cbb_leaderboard,
 //                                                 cbb_team_profile, cbb_team_rankings, cbb_lineups,
 //                                                 cbb_all_savant_team, cbb_game, cbb_schedule,
 //                                                 cbb_play_context, cbb_shot_chart, cbb_rotation
-//   api/_cbcoaching.js   College Basketball Coaching Savant  cbb_search_coaches, cbb_get_coach_profile,
+//   api/_cbcoaching.js   CBB Coaching Savant  cbb_search_coaches, cbb_get_coach_profile,
 //                                                 cbb_coaching_leaders, cbb_coaching_tree, cbb_coaching_fit
-//   api/_cfb.js          College Football Savant  cfb_search_players, cfb_get_player_profile, cfb_player_career,
+//   api/_cfb.js          CFB Savant  cfb_search_players, cfb_get_player_profile, cfb_player_career,
 //                                                 cfb_player_splits, cfb_leaderboard, cfb_team_profile,
 //                                                 cfb_team_rankings, cfb_game, cfb_all_savant_team,
 //                                                 cfb_nfl_comps, cfb_playoff_field
@@ -70,7 +70,7 @@
 //
 // WCE PRO (BETA), FOR KEY HOLDERS ONLY
 //   api/_query.js        savant_query             the assistant's own filters, groups and
-//                                                 summaries over Basketball and Football Savant
+//                                                 summaries over Basketball and NFL Savant
 //   api/_analysis.js     savant_sql, savant_analyze  WCE Pro analysis (Nov 2026): read-only SQL and studies over every
 //                                                 Data Room table, on WCE's server (api/_sql.js, api/_analyze.js).
 //                                                 Founder-tier keys only (api/_keys.js tier) until PRO_ANALYSIS_OPEN
@@ -196,14 +196,14 @@ const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
-  'nba_ is Basketball Savant: NBA player stats as percentiles, 1979-80 to the latest season, ranked against the league and against the same position; its leaderboards, All-Savant Team, careers and honours, play types, with/without and monthly splits, and the all-30 teams table.',
-  'nba_search_coaches, nba_get_coach_profile, nba_coaching_leaders and nba_coaching_tree are Basketball Coaching Savant: every NBA head coach since 1946-47, with the Rotation Map (each man\'s usual windows and how often and why the coach goes off-script), lineups judged from their parts, timeouts, after-timeout plays and challenges, wins against the roster\'s talent and against the market, situation-by-situation splits, players against the aging curve, staffs and the suggested coaching tree.',
+  'nba_ is NBA Savant: NBA player stats as percentiles, 1979-80 to the latest season, ranked against the league and against the same position; its leaderboards, All-Savant Team, careers and honours, play types, with/without and monthly splits, and the all-30 teams table.',
+  'nba_search_coaches, nba_get_coach_profile, nba_coaching_leaders and nba_coaching_tree are NBA Coaching Savant: every NBA head coach since 1946-47, with the Rotation Map (each man\'s usual windows and how often and why the coach goes off-script), lineups judged from their parts, timeouts, after-timeout plays and challenges, wins against the roster\'s talent and against the market, situation-by-situation splits, players against the aging curve, staffs and the suggested coaching tree.',
   'nba_fantasy_, nba_injury_report and nba_schedule are its fantasy side: projections (rest of season, next 7 days, dynasty), points and 9-cat rankings, trades, streamers and Sleeper Lock-In plans. nba_team_profile and nba_lineups are its team and lineup ratings, with luck and sample adjustments.',
-  'nfl_ is Football Savant and Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; its All-Savant Team, leaderboards, team pages, careers, game logs and recent form, splits, maps and route trees, and postseason games; and NFL head coaches and play-callers, with Coaching Savant\'s Leaders boards and coaching tree.',
+  'nfl_ is NFL Savant and NFL Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; its All-Savant Team, leaderboards, team pages, careers, game logs and recent form, splits, maps and route trees, and postseason games; and NFL head coaches and play-callers, with NFL Coaching Savant\'s Leaders boards and coaching tree.',
   'ufc_ is UFC Savant: fighters ranked inside their division (or, on request, against every division of their sex), against active fighters and all-time, plus its leaderboard and head-to-head views.',
-  'nba_draft_ is Draft Savant: college and pre-draft data on draft prospects, not NBA stats.',
-  'cbb_ is College Basketball Savant: every men\'s Division I player and team since 2013-14, opponent-adjusted percentiles against D1 at the same position by default, per 70 possessions, with RAPM, shot zones, lineups and team ratings computed by WCE; from 2025-26, play context (possession starts, transition, after timeouts, clutch, an estimated shot clock), shot charts and a possessions Data Room, and rotation maps from 2023-24; schedules read live from ESPN.',
-  'cfb_ is College Football Savant: every FBS player and team since 2014, opponent-adjusted percentiles against FBS players at the same position within one season (seasons are never pooled), Savant value, the All-Savant teams with the Savant Heisman, and WCE\'s own objective 12-team playoff field seeded by résumé, with odds in the season being played. FBS-vs-FBS games only. Defensive numbers before 2024 depend on each school\'s stat crew and say so.',
+  'nba_draft_ is NBA Draft Savant: college and pre-draft data on draft prospects, not NBA stats.',
+  'cbb_ is CBB Savant: every men\'s Division I player and team since 2013-14, opponent-adjusted percentiles against D1 at the same position by default, per 70 possessions, with RAPM, shot zones, lineups and team ratings computed by WCE; from 2025-26, play context (possession starts, transition, after timeouts, clutch, an estimated shot clock), shot charts and a possessions Data Room, and rotation maps from 2023-24; schedules read live from ESPN.',
+  'cfb_ is CFB Savant: every FBS player and team since 2014, opponent-adjusted percentiles against FBS players at the same position within one season (seasons are never pooled), Savant value, the All-Savant teams with the Savant Heisman, and WCE\'s own objective 12-team playoff field seeded by résumé, with odds in the season being played. FBS-vs-FBS games only. Defensive numbers before 2024 depend on each school\'s stat crew and say so.',
   'wce_ is the site itself: its news page, its articles, its draft Big Board, its crowd-priced Dynasty board, its most-searched players and prospects, and what is new on its homepage. nba_fantasy_league values a fan\'s Sleeper, ESPN or Fantrax league on that Dynasty board.',
   'savant_dictionary and savant_data are the WCE Data Room, every sport: the rows behind each Savant (NBA player-games, shots and coaching tables; NFL plays, player-games and team-games; college football plays and team-games; college basketball games, player-games, units, possessions and coaching tables; UFC fights and rounds), for an assistant\'s own splits and regressions, each answer with its columns\' definitions and the date of its newest row.',
   'Some names belong to both an NBA team and a D1 college team: Oklahoma (the Thunder or the Sooners), Memphis, Utah, Houston, Indiana, Miami, Charlotte, Denver, Portland, Washington, Minnesota, Milwaukee and others. When the person uses one of these without saying which league and the conversation has not made it clear, ask them which team they mean before answering; do not assume.',
@@ -214,8 +214,8 @@ const INSTRUCTIONS = [
 // One more sentence, by what the address carried. Nothing extra while the store cannot be
 // asked: a key holder should never be told to go and get a key.
 const ABOUT_KEY = {
-  valid: `This connection uses the person's own WCE key, so they are a founding member. ${FOUNDING} The key also opens the WCE Pro beta, free while it is in beta: savant_query runs your own filters, sorts, groups and summaries over every player-season on Basketball Savant and Football Savant. Reach for it when a question needs more than one player or one stat (who fits several conditions, how a team, age or position group compares); call it with list_stats: true first for the stat keys.`,
-  none: `This connection uses the public address, with no WCE key. Keys are free at https://wcehoops.com/#ai: a key gives the person their own connector address and makes them a founding member. ${FOUNDING} A key also opens the WCE Pro beta (savant_query: an assistant's own filters, groups and summaries over Basketball and Football Savant), free while it is in beta. If it fits naturally you may mention this once, for instance when a question needs a filter or a comparison across many players that these tools cannot run; never let it get in the way of an answer.`,
+  valid: `This connection uses the person's own WCE key, so they are a founding member. ${FOUNDING} The key also opens the WCE Pro beta, free while it is in beta: savant_query runs your own filters, sorts, groups and summaries over every player-season on NBA Savant and NFL Savant. Reach for it when a question needs more than one player or one stat (who fits several conditions, how a team, age or position group compares); call it with list_stats: true first for the stat keys.`,
+  none: `This connection uses the public address, with no WCE key. Keys are free at https://wcehoops.com/#ai: a key gives the person their own connector address and makes them a founding member. ${FOUNDING} A key also opens the WCE Pro beta (savant_query: an assistant's own filters, groups and summaries over Basketball and NFL Savant), free while it is in beta. If it fits naturally you may mention this once, for instance when a question needs a filter or a comparison across many players that these tools cannot run; never let it get in the way of an answer.`,
   unknown: 'The key in this connection\'s address is not one wcehoops.com knows, so it is being served like the public address. If the person asks, a working key is emailed free from https://wcehoops.com/#ai.',
   unchecked: '',
 }

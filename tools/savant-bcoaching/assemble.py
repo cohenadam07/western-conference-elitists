@@ -1,5 +1,5 @@
 """
-assemble.py — Basketball Coaching Savant's page from its sources.
+assemble.py — NBA Coaching Savant's page from its sources.
 
     python3 tools/savant-bcoaching/assemble.py                 -> public/basketball-coaching-savant.html
     python3 tools/savant-bcoaching/assemble.py --out <file>    -> anywhere else (the check writes to a temp file)

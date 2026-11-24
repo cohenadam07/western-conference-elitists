@@ -769,7 +769,7 @@ def main():
 
 
 def links(seen, tn, public):
-    """Cards link to Draft Savant and Basketball Savant where the player exists there. Name and
+    """Cards link to NBA Draft Savant and NBA Savant where the player exists there. Name and
     school must both agree, so a namesake never gets the link."""
     norm = lambda x: "".join(c for c in (x or "").lower() if c.isalpha())  # noqa: E731
     out = {"draft": {}, "nba": {}, "by_draft": {}}

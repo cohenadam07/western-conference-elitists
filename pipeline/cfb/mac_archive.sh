@@ -1,5 +1,5 @@
 #!/bin/bash
-# mac_archive.sh — College Football Savant's private raw archive (launchd com.wcehoops.cfb-mac-archive, 5:23am).
+# mac_archive.sh — CFB Savant's private raw archive (launchd com.wcehoops.cfb-mac-archive, 5:23am).
 # Every night: fetches the season being played into this Mac's cache, so the Mac holds every raw ESPN response the
 # site was built from (the cloud's copy lives in the Actions cache, which expires). On the 1st: packs last month into
 # ~/College-Football-Savant/archive/cfb-raw-YYYY-MM.tar and checks every member parses. Nothing here leaves the Mac

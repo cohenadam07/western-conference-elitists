@@ -1,28 +1,28 @@
 {
  "from": "origin/main",
- "commit": "2.9.0 (Nov 22, 2026), as main will list it once merged",
+ "commit": "names standardized (Nov 24, 2026), as main will list it once merged",
  "public": {
   "tools": 80,
-  "tools_sha256": "488fd4898317b871d87753d99219fc88472d2a7b2dd97325705cfebffb31496c",
-  "instructions_sha256": "95d2f98ecccac757950bba6763c315ea4ac0b3d1656b0902d23675ecf3cf624d",
-  "upfront": 87489
+  "tools_sha256": "38621d028a81f6b693f18f6639260605fbc0cfa25c0131ef0496213672d62efd",
+  "instructions_sha256": "71cc9efe34e8e8b575afb6114ffab68ed7e7beadaa61dfbfab7356ab22de45fd",
+  "upfront": 87200
  },
  "key": {
   "tools": 81,
-  "tools_sha256": "1bf405b33a9fb7528840d228229955f61e075c0c69c82d719d6ac42b08a07f62",
-  "instructions_sha256": "8aea54e5f2f440878fc6ed0f165bb2cdfbf6ec2cee5ad38d59acb397cabfd644",
-  "upfront": 91570
+  "tools_sha256": "cfd62d28f6bf35f741fe1d4a5e465443be2afb608a89adc275d1a3ed049ef05c",
+  "instructions_sha256": "51b7f274709957843923371cc7d014e58b74cb73bd1fecc1fb50fc11ec7cf7e0",
+  "upfront": 91269
  },
  "unknown": {
   "tools": 80,
-  "tools_sha256": "488fd4898317b871d87753d99219fc88472d2a7b2dd97325705cfebffb31496c",
-  "instructions_sha256": "820748555eef76f301826a10b4a19d1167d00de4b7f82eb59edf282d393cb246",
-  "upfront": 87489
+  "tools_sha256": "38621d028a81f6b693f18f6639260605fbc0cfa25c0131ef0496213672d62efd",
+  "instructions_sha256": "8dd03c19a424bc600188df0f04b5d6a724ecad166d4e6477b2a14ec007f81d12",
+  "upfront": 87200
  },
  "unchecked": {
   "tools": 80,
-  "tools_sha256": "488fd4898317b871d87753d99219fc88472d2a7b2dd97325705cfebffb31496c",
-  "instructions_sha256": "ebad0507f6de6d95c9c283560d5d7c7065e62ae8a585b2c3fa989bada8f40c53",
-  "upfront": 87489
+  "tools_sha256": "38621d028a81f6b693f18f6639260605fbc0cfa25c0131ef0496213672d62efd",
+  "instructions_sha256": "260760ae8fa6013996776cd1094a1dbe25100cfe76bbfd3b1a462e6204b97629",
+  "upfront": 87200
  }
 }

@@ -1,9 +1,9 @@
-// Check for the Football Savant section of the AI connector: the files the build writes
+// Check for the NFL Savant section of the AI connector: the files the build writes
 // (scripts/lib/savant-api-football.mjs) and the tools that read them (api/_football.js).
 //
 //   node --test tools/savant-football/check.mjs
 //
-// The files exist so that a machine can quote the number a fan sees on a Football Savant
+// The files exist so that a machine can quote the number a fan sees on an NFL Savant
 // card. So the first question is not "does the slicer agree with itself" but "does it agree
 // with the page". This lifts the page's own code out of public/football-savant.html —
 // mergeData, prepData, poolVals, pctOf, panelWorthIt, and the functions that actually draw a
@@ -708,7 +708,7 @@ const clean = (e, args) => {
   assert.doesNotMatch(e.message, /ECONNREFUSED|127\.0\.0\.1|localhost|\.m?js\b|\bat .+:\d+|undefined|\[object/, JSON.stringify(args))
   return e.message
 }
-const cardLink = (id, season) => `https://wcehoops.com/football-savant.html#p=${id}&s=${season}`
+const cardLink = (id, season) => `https://wcehoops.com/nfl-savant#p=${id}&s=${season}`
 
 test('the section declares its three tools the way the connector expects', () => {
   load()
@@ -1064,7 +1064,7 @@ test('search finds players the way people type their names', async () => {
   assert.match(many.text, /showing the first 7/)
   const none = await find('zzzzqq')
   assert.equal(none.structured.total, 0)
-  assert.match(none.text, /No player in Football Savant matches/)
+  assert.match(none.text, /No player in NFL Savant matches/)
 })
 
 test('a shared name lists the candidates with their ids, and a season settles it where it can', async () => {
@@ -1139,8 +1139,8 @@ test('questions that cannot be answered say what to try', async () => {
     [{ player: 'Patrick Mahomes', season: '2040' }, /has no 2040 season/],
     [{ player: 'Patrick Mahomes', season: 'last year' }, /is not an NFL season\. Give the year the season began/],
     [{ player: 'Patrick Mahomes', season: '2024-26' }, /is not an NFL season/],
-    [{ player: 'Patrick Mahomes', season: String(mahomes[4] - 1) }, new RegExp(`has no stats in ${mahomes[4] - 1}; it is outside his years in the data\\. Football Savant has him in ${mahomes[4]}-`)],
-    [{ player: gap[0], season: String(gap[8][0]) }, /has no stats in \d{4}; he may not have played that season\. Football Savant has him in /],
+    [{ player: 'Patrick Mahomes', season: String(mahomes[4] - 1) }, new RegExp(`has no stats in ${mahomes[4] - 1}; it is outside his years in the data\\. NFL Savant has him in ${mahomes[4]}-`)],
+    [{ player: gap[0], season: String(gap[8][0]) }, /has no stats in \d{4}; he may not have played that season\. NFL Savant has him in /],
   ]
   for (const [args, expect] of cases) assert.match(clean(await failure(args), args), expect, JSON.stringify(args))
   // "2024-25" and "2024/25" are the 2024 season.
@@ -1166,7 +1166,7 @@ test('files are fetched once and reused; when the data is down the answer says s
     delete json.seasons['2010']
     const gone = await failure({ player: 'Peyton Manning', season: '2010' })
     json.seasons['2010'] = real
-    assert.match(clean(gone, 'missing file'), /Football Savant data could not be loaded right now/)
+    assert.match(clean(gone, 'missing file'), /NFL Savant data could not be loaded right now/)
 
     // The whole origin is unreachable.
     savant.clearCache()

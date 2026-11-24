@@ -1,6 +1,6 @@
-// Coaching Savant, cut up for machines. Runs after `vite build` writes dist/.
+// NFL Coaching Savant, cut up for machines. Runs after `vite build` writes dist/.
 //
-// The Coaching Savant page downloads two files — the archive (public/coaching-savant-data.json,
+// The NFL Coaching Savant page downloads two files — the archive (public/coaching-savant-data.json,
 // every head coach since 1999 and every play-caller since 2018) and the small in-season
 // overlay (public/coaching-savant-current.json) — lays the second over the first, and works
 // every ranking out in the browser. That is fine for a person with the page open and useless
@@ -671,7 +671,7 @@ export function buildCoachingApi({ data, current = null, html, through = null })
         : `the ${b.season} ${side} with enough snaps to rank${spec.settled && cur ? `; the season in progress is left out` : cur && b.season === cur.season ? `, as they stand through week ${cur.week}` : ''}`
     return { id: spec.id, title: b.title, kind: spec.kind, key: spec.key, side: spec.side || null, season: b.season, note: b.note, pool, rows }
   })
-  const leaders = { schema: SCHEMA, generated, current: cur, page: `${SITE}/coaching-savant.html`, shown: 10, boards }
+  const leaders = { schema: SCHEMA, generated, current: cur, page: `${SITE}/nfl-coaching-savant`, shown: 10, boards }
 
   // ---- the tree: the forest the page's #tree view grows (its own layoutForest()) ----
   // Every name the hand-curated tree holds and every head coach, each under the mentor the tree
@@ -691,7 +691,7 @@ export function buildCoachingApi({ data, current = null, html, through = null })
   const tree = {
     schema: SCHEMA,
     generated,
-    page: `${SITE}/coaching-savant.html#tree`,
+    page: `${SITE}/nfl-coaching-savant#tree`,
     note: data.treeNote || null,
     roots: grown.trees.map((t) => [t.root, t.size]),
     nodes,
@@ -699,11 +699,11 @@ export function buildCoachingApi({ data, current = null, html, through = null })
 
   const meta = {
     schema: SCHEMA,
-    name: 'Coaching Savant',
+    name: 'NFL Coaching Savant',
     by: 'Western Conference Elitists',
     site: SITE,
-    page: `${SITE}/coaching-savant.html`,
-    coachUrl: `${SITE}/coaching-savant.html#c={name}`,
+    page: `${SITE}/nfl-coaching-savant`,
+    coachUrl: `${SITE}/nfl-coaching-savant#c={name}`,
     generated,
     // the newest NFL game in the data (writeCoachingApi fills it): what "data as of" says
     through: through || null,
@@ -779,7 +779,7 @@ export function buildCoachingApi({ data, current = null, html, through = null })
     schema: SCHEMA,
     generated,
     count: index.length,
-    note: 'Everyone with a Coaching Savant page: head coaches since the first season, and play-callers since unit data begins. The name is the id. sides lists what he has called (O offence, D defence). g is games, used to order equally good name matches.',
+    note: 'Everyone with an NFL Coaching Savant page: head coaches since the first season, and play-callers since unit data begins. The name is the id. sides lists what he has called (O offence, D defence). g is games, used to order equally good name matches.',
     people: index,
   }
 

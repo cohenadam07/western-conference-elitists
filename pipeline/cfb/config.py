@@ -1,4 +1,4 @@
-"""College Football Savant: the registry. Every stat the page or the connector can show is
+"""CFB Savant: the registry. Every stat the page or the connector can show is
 declared here once, with its verdict from research/cfb/BACKTEST.md (BUILD step 1).
 
 A stat is a ratio num / den taken from one of the player-game tables

@@ -1,4 +1,4 @@
-"""Career awards for Football Savant.
+"""Career awards for NFL Savant.
 
 Two sources, because no single one covers the ground:
 

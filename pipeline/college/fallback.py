@@ -222,7 +222,7 @@ def nget(path):
     if wait > 0:
         time.sleep(wait)
     _last[0] = time.time()
-    req = urllib.request.Request(NCAA + path, headers={"User-Agent": "wcehoops.com College Basketball Savant"})
+    req = urllib.request.Request(NCAA + path, headers={"User-Agent": "wcehoops.com CBB Savant"})
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.loads(r.read().decode("utf8", "replace"), strict=False)
 

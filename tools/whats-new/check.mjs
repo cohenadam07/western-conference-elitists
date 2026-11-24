@@ -68,7 +68,7 @@ test('how each kind reads', () => {
   assert.equal(label({ kind: 'article', text: 'T' }), 'Article: T')
   assert.equal(label({ kind: 'video', text: 'T' }), 'Video: T')
   assert.equal(label({ kind: 'short', text: 'T' }), 'Short: T')
-  assert.equal(label({ kind: 'update', product: 'Football Savant', version: '2.1.0', text: 'the All-Savant Team' }), 'Football Savant 2.1.0: the All-Savant Team')
+  assert.equal(label({ kind: 'update', product: 'NFL Savant', version: '2.1.0', text: 'the All-Savant Team' }), 'NFL Savant 2.1.0: the All-Savant Team')
   assert.equal(label({ kind: 'update', product: 'Flappy Hoops', text: 'The Drop' }), 'Flappy Hoops: The Drop')
 })
 

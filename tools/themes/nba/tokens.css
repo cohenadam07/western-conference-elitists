@@ -1,4 +1,4 @@
-/* Basketball Savant (NBA). Same token names as college/tokens.css. A value marked "= --x" is Basketball Savant's
+/* NBA Savant (NBA). Same token names as college/tokens.css. A value marked "= --x" is NBA Savant's
    own --x in public/basketball-savant.html, held to it by tools/themes/check.mjs; the rest are derived from those
    (a step lighter or darker on the same warm grey), because the flagship has no frame to read them from. */
 :root{

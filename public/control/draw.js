@@ -104,11 +104,11 @@ export const SOURCES = [
 export const ENGINES = [
     { ...node('basketball-tracking', ENG_X, 82, ENG_W, 46, 'NBA tracking upload'), from: ['src-nba'], pushes: false },
     { ...node('news', ENG_X, 138, ENG_W, 46, 'News feed'), from: ['src-feeds'], pushes: true },
-    { ...node('basketball-savant', ENG_X, 262, ENG_W, 46, 'Basketball Savant'), from: ['src-espn'], pushes: true },
+    { ...node('basketball-savant', ENG_X, 262, ENG_W, 46, 'NBA Savant'), from: ['src-espn'], pushes: true },
     { ...node('basketball-history', ENG_X, 318, ENG_W, 46, 'History additions'), from: [], pushes: true },
-    { ...node('college-savant', ENG_X, 374, ENG_W, 46, 'College Basketball Savant'), from: ['src-espn'], pushes: true },
-    { ...node('college-football-savant', ENG_X, 430, ENG_W, 46, 'College Football Savant'), from: ['src-espn'], pushes: true },
-    { ...node('football-savant', ENG_X, 486, ENG_W, 46, 'Football Savant'), from: ['src-nflverse'], pushes: true },
+    { ...node('college-savant', ENG_X, 374, ENG_W, 46, 'CBB Savant'), from: ['src-espn'], pushes: true },
+    { ...node('college-football-savant', ENG_X, 430, ENG_W, 46, 'CFB Savant'), from: ['src-espn'], pushes: true },
+    { ...node('football-savant', ENG_X, 486, ENG_W, 46, 'NFL Savant'), from: ['src-nflverse'], pushes: true },
     { ...node('football-injuries', ENG_X, 542, ENG_W, 46, 'Football injuries'), from: ['src-espn', 'src-sleeper'], pushes: true },
     { ...node('ufc-savant', ENG_X, 598, ENG_W, 46, 'UFC Savant'), from: ['src-ufc'], pushes: true },
     { ...node('weekly-snapshot', ENG_X, 654, ENG_W, 46, 'Weekly snapshot'), from: [], pushes: true },
@@ -170,7 +170,7 @@ function curve(a, b) {
     return `C${a.x + dx},${a.y} ${b.x - dx},${b.y} ${b.x},${b.y}`;
 }
 const wire = (from, to) => { const a = right(from), b = left(to); return `M${a.x},${a.y} ${curve(a, b)}`; };
-// The Mac's tracking upload starts a Basketball Savant run: a bracket down the group's left side.
+// The Mac's tracking upload starts an NBA Savant run: a bracket down the group's left side.
 function trackingWire() {
     const a = byId('basketball-tracking'), b = byId('basketball-savant');
     const x = ENG_X - 8;

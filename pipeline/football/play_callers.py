@@ -25,7 +25,7 @@ standing arrangement (the coordinator with the title) where nothing contradicts 
 HEAD-COACH FIXES
 ----------------
 The nflverse schedule's coach columns stopped following in-season changes in 2024 and still
-carry three 2025 head coaches into 2026. Before these fixes, Coaching Savant credited
+carry three 2025 head coaches into 2026. Before these fixes, NFL Coaching Savant credited
 Buffalo's 2026 to Sean McDermott and Tennessee's last eleven games of 2025 to Brian
 Callahan. Each fix names the team, the first day the new man was in charge (the day after
 the firing), and the man; every game on or after that date is his. Checked against Pro

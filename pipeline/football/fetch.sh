@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Pull every nflverse source Football Savant needs into raw/ (about 750 MB for all seasons).
+# Pull every nflverse source NFL Savant needs into raw/ (about 750 MB for all seasons).
 #
 # Idempotent: a file that is already there and non-empty is skipped, so a failed run can
 # just be re-run. The exception is an in-progress season, which changes every night:
@@ -116,7 +116,7 @@ get "schedules/games.csv" "schedules.csv"
 # Fourth-down decisions (2014 on): Ben Baldwin's nfl4th model, precomputed for every fourth
 # down and republished during the season - win probability if the team goes for it, punts
 # or kicks. Lives in the nfl4th repository's releases, not nflverse-data's. coaches.py
-# reads it; without it Coaching Savant simply has no decision panel.
+# reads it; without it NFL Coaching Savant simply has no decision panel.
 if [ ! -s "$OUT/nfl4th.rds" ]; then
   code=$(curl -sSL -m 300 --retry 3 --retry-delay 5 -o "$OUT/nfl4th.rds.tmp" -w "%{http_code}" \
     "https://github.com/nflverse/nfl4th/releases/download/nfl4th_infrastructure/pre_computed_go_boost.rds")

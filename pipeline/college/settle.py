@@ -1,7 +1,7 @@
 """
 settle.py — how much sample each stat needs before it means something. §6E, step 8.
 
-Basketball Savant's method (pipeline/basketball/settle_points.py) with the split moved inside the
+NBA Savant's method (pipeline/basketball/settle_points.py) with the split moved inside the
 season: for each player-season, his last 10 games are the small sample and everything before them
 is a separate, larger record of the same man in the same year. The estimate of where he'll settle is
 

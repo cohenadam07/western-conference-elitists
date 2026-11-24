@@ -3,7 +3,7 @@ accents.py — one rule for every Savant's refresh: a name that equals a known s
 player with the accents stripped is the same name, and the accented spelling wins. A name with
 different letters is a real change and goes through. (Adam, Nov 19 2026.)
 
-Why: the in-season sources (nflverse rosters for Football Savant, ESPN for the others) often drop
+Why: the in-season sources (nflverse rosters for NFL Savant, ESPN for the others) often drop
 diacritics that the archive's sources keep, so a refresh would quietly turn "Audric Estimé" into
 "Audric Estime" on the card, in search and in the connector.
 

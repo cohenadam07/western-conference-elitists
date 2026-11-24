@@ -1,4 +1,4 @@
-/* Football Savant. Same token names as college/tokens.css. A value marked "= --x" is Football Savant's own --x in
+/* NFL Savant. Same token names as college/tokens.css. A value marked "= --x" is NFL Savant's own --x in
    public/football-savant.html (its light-sheet :root, the one that wins), held to it by tools/themes/check.mjs; the
    rest are derived. The ground is the flagship's grass, so the frame's chrome (wordmark, sidebar, top bar), which
    sits on the ground, is re-inked light below; everything inside the sheet keeps the dark ink. */

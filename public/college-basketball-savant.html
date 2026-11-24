@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>College Basketball Savant: every D1 player, on percentile bars | Western Conference Elitists</title>
+<title>CBB Savant: every D1 player, on percentile bars | Western Conference Elitists</title>
 <meta name="description" content="Baseball Savant-style profiles for every men's Division I player: opponent-adjusted percentiles, shot zones, RAPM, lineups and team ratings, refreshed after every night of games.">
-<link rel="canonical" href="https://wcehoops.com/college-basketball-savant.html">
+<link rel="canonical" href="https://wcehoops.com/cbb-savant">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600&display=swap">
 <style>
@@ -112,7 +112,7 @@ h1,h2,h3{margin:0;text-wrap:balance}
 .lgb{display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--hue);margin-right:6px;vertical-align:-1px}
 .lgc{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--cmp);margin-right:6px;vertical-align:-1px}
 
-/* percentile rows: thick bars filled to the percentile and coloured by it, as on Basketball Savant */
+/* percentile rows: thick bars filled to the percentile and coloured by it, as on NBA Savant */
 .grp{margin-top:20px}
 .grp:first-of-type{margin-top:8px}
 .grp h3{font-size:13px;font-weight:600;padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:4px}
@@ -242,7 +242,7 @@ svg text{font-family:var(--font)}
   .hide-s{display:none}
 }
 
-/* the starting-five card row, as Basketball Savant draws it */
+/* the starting-five card row, as NBA Savant draws it */
 .ast{position:relative;z-index:1;width:min(1040px,100%);margin:50px auto 4px;text-align:center;
   opacity:0;animation:home-rise .85s .5s cubic-bezier(.2,.7,.2,1) forwards}
 .ast[hidden]{display:none}
@@ -445,9 +445,9 @@ a.ast-card:hover{text-decoration:none}
 <body>
 <wce-nav style="display:block;min-height:60px"></wce-nav>
 <div class="app">
-  <a class="brand" href="#home" aria-label="College Basketball Savant, home">
+  <a class="brand" href="#home" aria-label="CBB Savant, home">
     <svg class="mark" viewBox="0 0 28 28" aria-hidden="true"><rect class="mk-bg" x="0" y="0" width="28" height="28" rx="7"/><line class="mk-tr" x1="6" y1="10" x2="22" y2="10"/><line class="mk-tr" x1="6" y1="18" x2="22" y2="18"/><circle class="mk-b" cx="10" cy="10" r="2.6"/><circle class="mk-a" cx="18.5" cy="18" r="3.2"/></svg>
-    <span class="wm">College Basketball Savant<small>Western Conference Elitists</small></span>
+    <span class="wm">CBB Savant<small>Western Conference Elitists</small></span>
   </a>
   <nav class="nav" id="nav" aria-label="Sections">
     <a href="#home" data-k="players" title="Players"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="3"/><path d="M2.5 14.5c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/></svg><span>Players</span></a>
@@ -495,7 +495,7 @@ function confName(id){return CONF[id]||'Independent';}
 function tname(id){return (TEAMS[id]&&TEAMS[id].name)||'Non-D1';}
 function teamLink(id){var t=TEAMS[id];if(!t)return '<span class="pos">Non-D1 opponent</span>';return '<a href="#team-'+id+'"><span class="sw" style="background:#'+esc(t.color||'8B9099')+'"></span>'+esc(t.name)+'</a>';}
 function loadCB(p){var k='cbcs:'+p;if(!cache[k])cache[k]=fetch('/cbcs/'+p).then(function(r){if(!r.ok)throw new Error(p+': '+r.status);return r.json();}).catch(function(e){delete cache[k];throw e;});return cache[k];}
-var CBCS='/college-basketball-coaching-savant.html#c=';
+var CBCS='/cbb-coaching-savant#c=';
 function playerLink(id,name){return '<a href="#player-'+esc(id)+'">'+esc(name)+'</a>';}
 function head(p){var id=p[C.id],n=p[C.name],t=TEAMS[p[C.team]]||{};if(p[C.head])return '<img class="hs" alt="" width="64" height="64" loading="lazy" src="https://a.espncdn.com/i/headshots/mens-college-basketball/players/full/'+esc(id)+'.png" onerror="this.remove()">';return '<span class="hs ib" style="background:#'+esc(t.color||'22395A')+';color:#'+esc(t.alt&&t.alt!=='000000'&&t.alt!==t.color?'FFFFFF':'FFFFFF')+'" aria-hidden="true">'+esc(ini(n))+'</span>';}
 function statOf(k){return BYK[k];}
@@ -505,7 +505,7 @@ function legend(){return '<div class="legend"><span>Poor<i class="grad"></i>Elit
 function empty(msg){return '<p class="empty">'+esc(msg)+'</p>';}
 function dateShort(d){var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],p=String(d).split('-');var a=p.length===3?p.slice(1):p;return m[+a[0]-1]+' '+(+a[1]);}
 
-/* ---------- bars: same as the prototype and Basketball Savant ---------- */
+/* ---------- bars: same as the prototype and NBA Savant ---------- */
 function bar(r,label,size,who){
   var a=r.pct,raw=(r.raw!=null&&r.raw!==a)?r.raw:null,lp=r.settling?r.likelyPct:null,c=col(a),s=statOf(r.key);
   var lab=(who?who+', ':'')+label+': '+ord(a)+' percentile'+(raw!=null?' after adjusting for opponents, '+ord(raw)+' before':'')+(lp!=null?'; small sample, likely to settle near the '+ord(lp):'');
@@ -533,7 +533,7 @@ function vHome(){
     var ids=d.players.map(function(p,i){return i;}).filter(function(i){return d.players[i][C.qual];});
     function leaders(k){var c=M.column(d,k,{adj:true,gt:false}),s=statOf(k);return ids.filter(function(i){return M.ok(c[i])&&(k.indexOf('rapm')<0||(d.samples.rapm_n[i]||0)>=REG.rapm_min);}).sort(function(x,y){return s.lower?c[x]-c[y]:c[y]-c[x];}).slice(0,8).map(function(i){return [d.players[i],c[i]];});}
     var keyL=M.column(d,'rapm',{adj:true})&&leaders('rapm').length?'rapm':'bi',L=leaders(keyL),st=statOf(keyL);
-    var h='<section class="trow"><div><h1>Men\'s Division I, '+esc(S.season)+'</h1><p class="sub">Every player and team, on the same percentile bars as Basketball Savant. Data through '+esc(dateShort(d.through))+'.</p></div><div class="actions">'+seasonSel('hseason',IDX.seasons.map(function(x){return x.season;}).reverse(),S.season)+'</div></section>';
+    var h='<section class="trow"><div><h1>Men\'s Division I, '+esc(S.season)+'</h1><p class="sub">Every player and team, on the same percentile bars as NBA Savant. Data through '+esc(dateShort(d.through))+'.</p></div><div class="actions">'+seasonSel('hseason',IDX.seasons.map(function(x){return x.season;}).reverse(),S.season)+'</div></section>';
     if(earlyNote(S.season))h+='<p class="pool-n">'+esc(earlyNote(S.season))+'</p>';
     h+='<p class="finding"><strong>'+esc(top[0].name)+'</strong> leads our ratings at '+sg(top[0].net)+' per 100 possessions. <strong>'+esc(L[0][0][C.name])+'</strong> leads D1 in '+esc(st.label)+' at '+esc(M.display(st,L[0][1],S.per))+'.</p>';
     h+='<div class="cols even"><section class="card"><div class="hd"><h2>Top teams</h2><a class="meta" href="#teams">All 365</a></div><div class="twrap"><table class="tbl"><thead><tr><th>Team</th><th class="r">Net</th><th class="r hide-s">Off</th><th class="r hide-s">Def</th><th class="r">Record</th></tr></thead><tbody>'+
@@ -661,7 +661,7 @@ var CTX_EX=[
   ['Shot areas','The same attempts grouped into seven areas.','each square goes to the area its centre falls in: at the rim (within 4 ft of the basket), the rest of the lane, short mid-range (twos under 16 ft), long twos, corner threes (under 8 ft up the floor; left and right as drawn) and threes above the break. The men’s line is 22 ft 1¾ in, 21 ft 7¾ in in the corners. Edges are approximate to about a foot','vs D1 is coloured from 20 attempts in an area',CTX_FROM],
   ['Shot clock (estimated)','How far into a possession the shot comes: early (0-10 s), middle (10-20 s) or late (20+ s).','seconds from the start of the possession, or from the last offensive rebound, to the shot. The feed carries no shot clock, so this is an estimate; eFG% = (FGM + 0.5 × 3PM) ÷ FGA, against all D1 attempts in the same bucket','read with care under 20 attempts in a bucket',CTX_FROM],
   ['Clutch','The last five minutes of the second half or overtime, with the score within five points.','his FG and eFG% on his own clutch shots; on-floor net = (team points per possession − opponents’ points per possession) × 100 over clutch possessions with him in the five, where the five is known','small under 20 attempts or 60 possessions each way, and noisy well past that',CTX_FROM],
-  ['After own timeouts','Possessions run out of the team’s own timeout (not a media timeout, not the opponent’s) whose first action is a shot or a turnover. Games where ESPN did not log the media timeouts on their own are left out, since there the TV breaks read as team timeouts. College Basketball Coaching Savant’s After own timeouts is the same number.','points ÷ possessions; for a player, his attempts on those possessions','teams average under three a game, so a season is still a small sample',CTX_FROM],
+  ['After own timeouts','Possessions run out of the team’s own timeout (not a media timeout, not the opponent’s) whose first action is a shot or a turnover. Games where ESPN did not log the media timeouts on their own are left out, since there the TV breaks read as team timeouts. CBB Coaching Savant’s After own timeouts is the same number.','points ÷ possessions; for a player, his attempts on those possessions','teams average under three a game, so a season is still a small sample',CTX_FROM],
   ['Possession starts','How each possession began: after a made basket, a defensive rebound, a steal, a dead-ball turnover, a made last free throw, or at the start of a period.','points ÷ possessions for each kind, own and allowed, against D1. About 1% of possessions follow an ending the feed missed; they count in the totals only','a kind with under 50 possessions moves a lot from game to game',CTX_FROM],
   ['Transition','Live-ball possessions (after a defensive rebound or a steal) whose first shot, free throw or turnover comes within 8 seconds.','share = transition possessions ÷ live-ball possessions; points per possession for and against. “How often” is CONTEXT, not quality','settles over a few hundred possessions',CTX_FROM],
   ['D1 ranks','Where the team ranks among D1 teams with at least five games or 300 possessions.','1st is best: most points per possession on offense, fewest allowed on defense, best clutch net. For the share rows (how often they run, how often they shoot early) 1st is most, which is style, not quality. The bar is the rank as a percentile of the same pool','clutch net needs 20 possessions each way',CTX_FROM],
@@ -727,10 +727,10 @@ function teamCtx(X,sn){
 function mixC(a,b,t){var x=hex(a),y=hex(b);return 'rgb('+x.map(function(c,i){return Math.round(c+(y[i]-c)*t);}).join(',')+')';}
 function spans(a,th){var out=[],s=null;a.forEach(function(v,i){if(v>=th){if(s==null)s=i;}else if(s!=null){out.push([s,i-1]);s=null;}});if(s!=null)out.push([s,a.length-1]);return out.map(function(p){return p[0]===p[1]?String(p[0]+1):(p[0]+1)+'-'+(p[1]+1);}).join(', ');}
 // The usual minutes ("3 games in 4") are named from this many games: before it about two in five would not hold
-// to the season's end (College Basketball Coaching Savant's measurement of its usual windows, Nov 6 2026).
+// to the season's end (CBB Coaching Savant's measurement of its usual windows, Nov 6 2026).
 var ROT_WIN_FROM=8;
 // The head coach's previous map (Nov 6 2026), to scout a team in November: the latest earlier season with a
-// map for this team-season's head coach of record (College Basketball Coaching Savant's links.json), at
+// map for this team-season's head coach of record (CBB Coaching Savant's links.json), at
 // whatever school he coached then.
 function prevRot(LK,id,sn){
   var hc=LK&&LK.ts?LK.ts[id+'|'+sn]:null;if(!hc||!hc.length)return null;
@@ -798,7 +798,7 @@ function vPlayer(id,season){
       });
       h+='</section><div class="stack">';
       var rec=car.b,recL=(cs[id].r.filter(function(x){return x.rec;})[0]||{}).rec;
-      h+='<section class="card"><div class="hd"><h2>Profile</h2><span class="meta">Age on Feb 1</span></div><dl class="kv"><dt>Team</dt><dd>'+teamLink(p[C.team])+'</dd><dt>Conference</dt><dd>'+esc(confName(p[C.conf]))+'</dd><dt>Position</dt><dd>'+esc(p[C.pos]||'—')+'</dd><dt>Class</dt><dd>'+esc(p[C.cls]||'—')+'</dd><dt>Age</dt><dd class="num">'+(p[C.age]?p[C.age].toFixed(1):'—')+'</dd><dt>Hometown</dt><dd>'+esc(p[C.home]||'—')+'</dd><dt>Recruiting</dt><dd>'+(p[C.rrank]?esc((p[C.stars]?p[C.stars]+'-star, ':'')+'No. '+p[C.rrank]+' in class'):'Not ranked')+'</dd><dt>Games</dt><dd class="num">'+p[C.gp]+' ('+p[C.gs]+' starts)</dd><dt>Minutes</dt><dd class="num">'+num(p[C.min]/Math.max(1,p[C.gp]))+' a game</dd>'+(LINKS.draft&&LINKS.draft[id]?'<dt>Draft Savant</dt><dd><a href="/draft-savant.html">Draft profile</a></dd>':'')+(LINKS.nba&&LINKS.nba[id]?'<dt>Basketball Savant</dt><dd><a href="/basketball-savant.html">NBA card</a></dd>':'')+'</dl><div class="hd" style="margin:18px 0 4px"><h2>Seasons</h2><span class="meta">From 2013-14</span></div><dl class="kv">'+hist+'</dl></section>';
+      h+='<section class="card"><div class="hd"><h2>Profile</h2><span class="meta">Age on Feb 1</span></div><dl class="kv"><dt>Team</dt><dd>'+teamLink(p[C.team])+'</dd><dt>Conference</dt><dd>'+esc(confName(p[C.conf]))+'</dd><dt>Position</dt><dd>'+esc(p[C.pos]||'—')+'</dd><dt>Class</dt><dd>'+esc(p[C.cls]||'—')+'</dd><dt>Age</dt><dd class="num">'+(p[C.age]?p[C.age].toFixed(1):'—')+'</dd><dt>Hometown</dt><dd>'+esc(p[C.home]||'—')+'</dd><dt>Recruiting</dt><dd>'+(p[C.rrank]?esc((p[C.stars]?p[C.stars]+'-star, ':'')+'No. '+p[C.rrank]+' in class'):'Not ranked')+'</dd><dt>Games</dt><dd class="num">'+p[C.gp]+' ('+p[C.gs]+' starts)</dd><dt>Minutes</dt><dd class="num">'+num(p[C.min]/Math.max(1,p[C.gp]))+' a game</dd>'+(LINKS.draft&&LINKS.draft[id]?'<dt>NBA Draft Savant</dt><dd><a href="/nba-draft-savant">Draft profile</a></dd>':'')+(LINKS.nba&&LINKS.nba[id]?'<dt>NBA Savant</dt><dd><a href="/nba-savant">NBA card</a></dd>':'')+'</dl><div class="hd" style="margin:18px 0 4px"><h2>Seasons</h2><span class="meta">From 2013-14</span></div><dl class="kv">'+hist+'</dl></section>';
       // zones
       var tr=IDX.seasons.filter(function(x){return x.season===sn;})[0]||{};
       var zs=ZONES.map(function(z){var n=d.samples[z[2]][i]||0,all=d.samples.n_fg[i]||0,r=R[z[3]];var vals=M.valuesFor(d,z[3],r.pool?r.pool.ids:[],{adj:false,gt:S.gt}),m=vals.length?vals.reduce(function(a,b){return a+b;},0)/vals.length:null;return {name:z[1],x:z[4],y:z[5],freq:all?Math.round(100*n/all):0,fg:r.tracked?r.value:null,pct:r.tracked&&r.pct!=null?r.pct:null,avg:m,n:n};});
@@ -824,9 +824,9 @@ function vPlayer(id,season){
       h+='<section class="card full"><div class="hd"><h2>Career</h2><span class="meta">From 2009-10 · percentile vs D1 at position, adjusted where the stat has it</span></div><div class="twrap scroll"><table class="tbl"><thead><tr><th>Season</th><th>Team</th><th>Honours</th><th class="r">G</th><th class="r">Min</th>'+CK.map(function(k){return '<th class="r">'+esc(statOf(k).label)+'</th>';}).join('')+'</tr></thead><tbody>'+rows.slice().reverse().map(function(r){return '<tr'+(r.s===sn?' class="me"':'')+'><td class="num"><a href="#player-'+esc(id)+'/'+r.s+'">'+esc(r.s)+'</a></td><td>'+teamLink(r.t)+'</td><td class="hon">'+esc((HON[id]||[]).filter(function(x){return x[0]===r.s;}).map(function(x){return x[2];}).join(', '))+'</td><td class="r">'+r.g+'</td><td class="r">'+num(r.m,0)+'</td>'+CK.map(function(k){var v=(r.v[k]||[]);return '<td class="r">'+(M.ok(v[0])?esc(M.display(statOf(k),v[0],S.per)):'—')+(v[1]!=null?' <small class="pct">'+v[1]+'</small>':'')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div></section>';
       // comps
       var cm=cr.cmp||[];h+='<section class="card full"><div class="hd"><h2>Nearest players</h2><span class="meta">Same position, within a year of age, seasons on file. The model’s view, not a verdict.</span></div>'+(cm.length?'<div class="twrap"><table class="tbl"><thead><tr><th>Player</th><th>Season</th><th>Team</th><th class="r">Match</th></tr></thead><tbody>'+cm.map(function(c){return '<tr><td><a href="#player-'+esc(c[0])+'/'+c[2]+'">'+esc(c[1])+'</a></td><td class="num">'+esc(c[2])+'</td><td>'+teamLink(c[3])+'</td><td class="r">'+Math.round(c[4]*100)+'</td></tr>';}).join('')+'</tbody></table></div>':empty('Needs a qualified season and a birthdate.'))+'</section>';
-      // College Basketball Coaching Savant: the coaches whose systems used players most like him
+      // CBB Coaching Savant: the coaches whose systems used players most like him
       var PF=a[3],pf=PF&&PF.rows?PF.rows[id]:null;
-      if(pf&&pf.length)h+='<section class="card full"><div class="hd"><h2>Coaches who used players like him</h2><span class="meta">College Basketball Coaching Savant · similarity, not a prediction</span></div><div class="twrap"><table class="tbl"><thead><tr><th>Coach</th><th class="r">Match</th></tr></thead><tbody>'+pf.map(function(c){return '<tr><td><a href="'+CBCS+encodeURIComponent(c[0])+'">'+esc(PF.names[c[0]]||c[0])+'</a></td><td class="r">'+(c[1]==null?'—':c[1])+'</td></tr>';}).join('')+'</tbody></table></div><p class="pool-n">'+esc(PF.label)+'</p></section>';
+      if(pf&&pf.length)h+='<section class="card full"><div class="hd"><h2>Coaches who used players like him</h2><span class="meta">CBB Coaching Savant · similarity, not a prediction</span></div><div class="twrap"><table class="tbl"><thead><tr><th>Coach</th><th class="r">Match</th></tr></thead><tbody>'+pf.map(function(c){return '<tr><td><a href="'+CBCS+encodeURIComponent(c[0])+'">'+esc(PF.names[c[0]]||c[0])+'</a></td><td class="r">'+(c[1]==null?'—':c[1])+'</td></tr>';}).join('')+'</tbody></table></div><p class="pool-n">'+esc(PF.label)+'</p></section>';
       // links
       h+='<section class="card full"><div class="hd"><h2>What these numbers mean</h2><span class="meta">What it is, how it is figured, where it comes from, what sample it needs</span></div><div class="exp">'+REG.groups.map(function(g){return '<details><summary>'+esc(g)+'</summary>'+REG.stats.filter(function(s){return s.group===g;}).map(function(s){return '<div class="ex"><strong>'+esc(s.label)+'.</strong> '+esc(s.what)+'<div class="meta">Formula: '+esc(s.formula)+'. Source: '+esc(s.source)+'. From '+esc(s.start)+'.'+(s.k?' Settles around '+Math.round(s.k)+' '+esc(s.sample_unit||'')+'.':'')+(s.note?' '+esc(s.note):'')+'</div></div>';}).join('')+'</details>';}).join('')+'<details><summary>Play context</summary>'+ctxExplain(['Shot chart','Shot areas','Shot clock (estimated)','Clutch','After own timeouts'])+'</details></div></section>';
       pending.push(function(){var el=$('#ptschart');if(el&&L.length)el.innerHTML=chartPts(L.filter(function(g){return g.min>0;}),Math.max(300,el.clientWidth));});

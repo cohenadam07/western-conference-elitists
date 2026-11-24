@@ -12,7 +12,7 @@ counts, per sport:
   shown    ids whose newest (displayed) name is the de-accented one
   rows     player-season rows carrying the de-accented spelling
 
-Sports and their files: Basketball Savant (savant-data.json + savant-current.json), Football Savant
+Sports and their files: NBA Savant (savant-data.json + savant-current.json), NFL Savant
 (football-savant-data.json + football-savant-current.json), College Football (public/cfb/s/*.json.gz),
 College Basketball (public/cbb/s/*.json.gz). UFC Savant is left out: its source (UFCStats) carries
 no accents at all (0 of 2,780 fighters, Nov 2026), so nothing can be dropped there.
@@ -61,8 +61,8 @@ def _college(sport):
             yield str(d["season"]), str(r[i]), r[n]
 
 
-SPORTS = {"Basketball Savant": seasons_nba, "Football Savant": seasons_nfl,
-          "College Football Savant": lambda: _college("cfb"), "College Basketball Savant": lambda: _college("cbb")}
+SPORTS = {"NBA Savant": seasons_nba, "NFL Savant": seasons_nfl,
+          "CFB Savant": lambda: _college("cfb"), "CBB Savant": lambda: _college("cbb")}
 
 
 def audit(rows):

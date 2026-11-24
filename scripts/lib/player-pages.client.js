@@ -3,7 +3,7 @@
    scripts/lib/player-pages.mjs. Lives here once instead of in ~3,800 pages. */
 (function () {
   'use strict';
-  var TOOL = '/basketball-savant.html';
+  var TOOL = '/nba-savant';
   var canon = document.querySelector('link[rel="canonical"]');
   var url = (canon && canon.href) || location.href.split('#')[0];
 
@@ -60,7 +60,7 @@
     };
     slot.className = 'nl';
     slot.innerHTML =
-      '<div><h2>The Weekly Board</h2><p>WCE’s free weekly email. During the season: the biggest percentile movers from Basketball Savant.</p></div>' +
+      '<div><h2>The Weekly Board</h2><p>WCE’s free weekly email. During the season: the biggest percentile movers from NBA Savant.</p></div>' +
       '<form novalidate><label class="hp" for="nle">Email address</label>' +
       '<input id="nle" type="email" placeholder="you@example.com" autocomplete="email" required>' +
       '<input class="hp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">' +

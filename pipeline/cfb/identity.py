@@ -15,7 +15,7 @@ This module joins to it, and logs every join with how it was made:
                    (CFBD carries it), then by the roster file's CFBD id, then by name + school
   transfers        CFBD's portal table (2021 on) names where a transfer came from when that
                    school is not in our data (FCS and below)
-  NFL              Football Savant's id (GSIS) through nflverse's players file, which lists the
+  NFL              NFL Savant's id (GSIS) through nflverse's players file, which lists the
                    ESPN id. ESPN keeps one athlete id from college to the NFL
   head coaches     one row per team-season (BUILD decision 7), from CFBD
   team talent      computed from the recruits on each roster (Adam, Nov 10 2026), see talent()
@@ -209,7 +209,7 @@ def classes(ps, rec_m):
 
 # ---------------------------------------------------------------- NFL
 def join_nfl(pl):
-    """Football Savant's id for players who reached the NFL: ESPN id first, then name + college + rookie year."""
+    """NFL Savant's id for players who reached the NFL: ESPN id first, then name + college + rookie year."""
     nf = pd.read_csv(RAW / "nflverse" / "players.csv", low_memory=False)
     nf = nf[nf.gsis_id.notna()]
     fs = json.load(open(REPO / "public" / "football-savant-data.json"))["data"]
@@ -348,7 +348,7 @@ def main():
              + ", ".join(f"{int(y)} {v:.0%}" for y, v in cov.items()) + ".",
              f"- Transfers seen as a change of team between a player's seasons: {len(tr):,}. Portal rows (2021 on): {n_port:,}, "
              f"{n_port_fbs:,} with a destination in our team table, {len(port):,} joined to a player by name, destination and season.",
-             f"- NFL: {len(nfl):,} players linked to a Football Savant id ({n_fs:,} ids on Football Savant). By method: "
+             f"- NFL: {len(nfl):,} players linked to an NFL Savant id ({n_fs:,} ids on NFL Savant). By method: "
              + "; ".join(f"{k} {v:,}" for k, v in nfl.how.value_counts().items()) + ".",
              f"- Head coaches: {len(co):,} coach-seasons for {co.groupby(['season', 'team']).ngroups:,} team-seasons; "
              f"{int((co.drop_duplicates(['season', 'team']).n > 1).sum())} team-seasons had more than one.",

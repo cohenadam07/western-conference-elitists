@@ -13,7 +13,7 @@ live ESPN feed.
 
 xgboost is what nflfastR uses; it needs a system OpenMP library this Mac and
 the cloud runner would both have to install, so the fit uses scikit-learn's
-HistGradientBoostingClassifier (already pinned for College Basketball Savant).
+HistGradientBoostingClassifier (already pinned for CBB Savant).
 
 EPA for a play = EP after - EP before, from the offence's side:
   * a scoring play ends at the points scored (TD 7, FG 3, safety 2, signed);

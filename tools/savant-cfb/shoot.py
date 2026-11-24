@@ -1,4 +1,4 @@
-"""shoot.py — open College Football Savant in Chromium at desktop and phone width, walk every view, and report
+"""shoot.py — open CFB Savant in Chromium at desktop and phone width, walk every view, and report
 console errors, horizontal page scroll, small tap targets and percentile panels that do not name their pool.
 Saves screenshots to ~/College-Football-Savant/shots. Serve public/ first: python3 tools/savant-cfb/serve.py
 
@@ -19,7 +19,7 @@ def run(p, name, w, h, mobile, reduced=False):
     errs = []
     pg.on("pageerror", lambda e: errs.append("pageerror: " + str(e)[:300]))
     pg.on("console", lambda m: errs.append("console: " + m.text[:300]) if m.type == "error" and "espncdn" not in m.text and "Failed to load resource" not in m.text else None)
-    pg.goto(BASE + "/college-football-savant.html", wait_until="networkidle")
+    pg.goto(BASE + "/cfb-savant", wait_until="networkidle")
     pg.wait_for_selector("main h2", timeout=20000)
     ids = pg.evaluate("""async()=>{const ix=await (await fetch('/cfb/index.json')).json();const d=await (await fetch('/cfb/s/'+ix.current+'.json')).json();const q=d.players.filter(p=>p[7]);const pick=s=>q.filter(p=>p[3]===s)[3];const r=d.samples.returns;let ret=null,best=0;if(r)r.v.forEach((v,k)=>{if(v>best){best=v;ret=d.players[k+r.o][0];}});return {qb:pick('QB')[0],wr:pick('WR')[0],rb:pick('RB')[0],lb:pick('LB')[0],k:pick('K')[0],team:pick('QB')[2],ret:ret}}""")
     old = pg.evaluate("""async()=>{const d=await (await fetch('/cfb/s/2019.json')).json();const q=d.players.filter(p=>p[7]&&p[3]==='EDGE');return q[5][0]}""")

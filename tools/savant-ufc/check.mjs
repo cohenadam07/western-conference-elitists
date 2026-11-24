@@ -95,7 +95,7 @@ function openPage() {
     getElementById: (id) => (els[id] = els[id] || element()),
     querySelectorAll: () => [], querySelector: () => null,
   }
-  const location = { hash: '', pathname: '/ufc-savant.html' }
+  const location = { hash: '', pathname: '/ufc-savant' }
   const written = []
   const ctx = vm.createContext({
     document, location, console,
@@ -1278,7 +1278,7 @@ test('the tools are declared the way the connector expects, and work through a r
     // callTool validates structuredContent against the tool's output schema and throws if not.
     const text = (r) => r.content.map((c) => c.text).join('\n')
     const found = await client.callTool({ name: 'ufc_search_fighters', arguments: { query: 'Makhachev' } })
-    assert.equal(found.structuredContent.fighters[0].url, 'https://wcehoops.com/ufc-savant.html#f=275aca31f61ba28c&w=career')
+    assert.equal(found.structuredContent.fighters[0].url, 'https://wcehoops.com/ufc-savant#f=275aca31f61ba28c&w=career')
     const prof = await client.callTool({ name: 'ufc_get_fighter_profile', arguments: { fighter: 'Islam Makhachev' } })
     assert.ok(!prof.isError)
     assert.match(text(prof), /Takedown defense: \d+% \(vs\. active lightweights \d+(st|nd|rd|th), vs\. all-time lightweights \d+(st|nd|rd|th)\)/)

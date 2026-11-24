@@ -1,4 +1,4 @@
-// The percentile maths behind Basketball Savant, without the browser.
+// The percentile maths behind NBA Savant, without the browser.
 //
 // public/basketball-savant.html works every number out in the reader's browser, which is why
 // search engines and link-preview bots see a page with no players on it. The player pages

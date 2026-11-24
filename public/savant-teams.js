@@ -1,4 +1,4 @@
-/* Basketball Savant · the Teams and Lineups tabs.
+/* NBA Savant · the Teams and Lineups tabs.
  *
  * Data: savant-teams.json (every finished season, 1996-97 on) + savant-teams-current.json (the
  * season in progress, rebuilt with every refresh) and lineups/<season>.json (2007-08 on), all

@@ -19,7 +19,7 @@ async function openCoach(id, hash){
   state.game = null; state.kind = 'RS';
   renderCoach();
   if (!m) window.scrollTo(0, 0);
-  document.title = `${COACH.name} — College Basketball Coaching Savant`;
+  document.title = `${COACH.name} — CBB Coaching Savant`;
   document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.id === id));
 }
 function pickSeason(season){

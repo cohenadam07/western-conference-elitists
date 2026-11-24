@@ -174,7 +174,7 @@ h3.sub{font-family:var(--disp);font-weight:600;font-size:18px;margin:16px 0 2px}
 .xmore-body .col{border:0;padding:0;margin:8px 0 0;background:none;box-shadow:none;overflow:visible}
 .xmore-body .col:hover{box-shadow:none}
 .xmore-body .col .since{margin-top:0}
-/* links: a coach to his page, a player to his Basketball Savant card */
+/* links: a coach to his page, a player to his NBA Savant card */
 a.cl,a.pl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--faint)}
 a.cl:hover,a.pl:hover{color:var(--red);border-bottom-color:var(--red)}
 svg a text{cursor:pointer}svg a:hover text{fill:var(--red)}
@@ -254,7 +254,7 @@ a.tl2{color:inherit;text-decoration:none;border-bottom:1px dotted var(--faint)}a
 .matrix td.d{background:var(--track)}
 .matrix thead th{writing-mode:vertical-rl;transform:rotate(180deg);text-align:left;height:90px;padding:4px 0}
 .pairinfo{font-size:13px;margin-top:10px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-/* the tree, football Coaching Savant's zoomable forest */
+/* the tree, NFL Coaching Savant's zoomable forest */
 .treestage{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative;height:min(74vh,760px);cursor:grab;touch-action:none}
 .treestage.embed{height:min(60vh,560px);border-radius:10px;background:var(--sunk)}
 .treestage.drag{cursor:grabbing}

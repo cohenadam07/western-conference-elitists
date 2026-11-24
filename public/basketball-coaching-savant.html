@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Basketball Coaching Savant — WCE Hoops</title>
+<title>NBA Coaching Savant — WCE Hoops</title>
 <meta name="description" content="Every NBA head coach: the Rotation Map, lineups judged from their parts, timeouts and challenges, two expectation baselines, situation-by-situation splits and the coaching tree, 1946-47 to today."/>
 <meta name="theme-color" content="#22395A"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,9 +11,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================================
-   BASKETBALL COACHING SAVANT — Basketball Savant's page, for head coaches. The shell, the
+   BASKETBALL COACHING SAVANT — NBA Savant's page, for head coaches. The shell, the
    identity card, the controls bar, the card rows (one stat per row, the percentile riding the
-   bar), the per-row chart, the compare bars and the "more" toggles are Basketball Savant's own
+   bar), the per-row chart, the compare bars and the "more" toggles are NBA Savant's own
    rules, copied so the two pages read as one tool. Every percentile names its pool; every
    section says what it answers and the year its data begins; the rotation verdicts are the
    model's view, not a verdict. Data: /bcs/index.json, /bcs/c/<coach>.json,
@@ -221,7 +221,7 @@ h3.sub{font-family:var(--disp);font-weight:600;font-size:18px;margin:16px 0 2px}
 .xmore-body .col{border:0;padding:0;margin:8px 0 0;background:none;box-shadow:none;overflow:visible}
 .xmore-body .col:hover{box-shadow:none}
 .xmore-body .col .since{margin-top:0}
-/* links: a coach to his page, a player to his Basketball Savant card */
+/* links: a coach to his page, a player to his NBA Savant card */
 a.cl,a.pl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--faint)}
 a.cl:hover,a.pl:hover{color:var(--red);border-bottom-color:var(--red)}
 svg a text{cursor:pointer}svg a:hover text{fill:var(--red)}
@@ -294,7 +294,7 @@ canvas.map{display:block;width:100%;height:auto;image-rendering:pixelated;cursor
 .matrix td.d{background:var(--track)}
 .matrix thead th{writing-mode:vertical-rl;transform:rotate(180deg);text-align:left;height:90px;padding:4px 0}
 .pairinfo{font-size:13px;margin-top:10px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-/* the tree, football Coaching Savant's zoomable forest */
+/* the tree, NFL Coaching Savant's zoomable forest */
 .treestage{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative;height:min(74vh,760px);cursor:grab;touch-action:none}
 .treestage.embed{height:min(60vh,560px);border-radius:10px;background:var(--sunk)}
 .treestage.drag{cursor:grabbing}
@@ -354,12 +354,12 @@ body.view-tree .home,body.view-tree .coach{display:none}
 </head>
 <body class="view-home anim">
 <wce-nav style="display:block;min-height:60px"></wce-nav>
-<nav class="sv-tabs" aria-label="Basketball Coaching Savant sections"><a class="sv-tab on" href="#" data-tab="coaches">Coaches</a><a class="sv-tab" href="#leaders" data-tab="leaders">Leaders</a><a class="sv-tab" href="#tree" data-tab="tree">The tree</a></nav>
+<nav class="sv-tabs" aria-label="NBA Coaching Savant sections"><a class="sv-tab on" href="#" data-tab="coaches">Coaches</a><a class="sv-tab" href="#leaders" data-tab="leaders">Leaders</a><a class="sv-tab" href="#tree" data-tab="tree">The tree</a></nav>
 <div class="wrap">
   <div class="top">
     <div class="brandwrap">
       <a class="wce" href="/" title="Back to WCE home">WCE</a>
-      <div><div class="brand-word">Basketball Coaching <span>Savant</span></div>
+      <div><div class="brand-word">NBA Coaching <span>Savant</span></div>
         <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap"><span class="eyebrow-pill" id="srcpill">live data</span><span class="vchip" id="verchip" title="Built by pipeline/basketball/coaching/build.py"></span><a class="backlink" href="/">&larr; wcehoops.com</a></div></div>
     </div>
     <div class="search"><input id="q" type="search" placeholder="Search a head coach or assistant…" autocomplete="off" aria-label="Search a coach"/><div id="results" class="results" hidden></div></div>
@@ -380,7 +380,7 @@ body.view-tree .home,body.view-tree .coach{display:none}
 <script>
 'use strict';
 const BASE = '/bcs';
-const SAVANT = '/basketball-savant.html?p=';
+const SAVANT = '/nba-savant?p=';
 const Z = ['ra','paint','mid','c3','ab3'], ZL = {ra:'Rim', paint:'Short mid', mid:'Mid-range', c3:'Corner 3', ab3:'Above-break 3'};
 const CAUSES = ['absence','blowout','foul','choice'], CAUSE_C = {absence:'#8B9099', blowout:'#C2C0B6', foul:'#C2A263', choice:'#BC3A2C'}, CAUSE_L = {absence:'absence', blowout:'blowout', foul:'foul trouble', choice:"the coach's choice"};
 const PT = {Isolation:'Isolation', Transition:'Transition', PRBallHandler:'P&R handler', PRRollman:'P&R roll man', Postup:'Post-up', Spotup:'Spot-up', Handoff:'Hand-off', Cut:'Cut', OffScreen:'Off screen', OffRebound:'Putback', Misc:'Misc'};
@@ -470,10 +470,10 @@ function headNote(id, year, season){
   return `<b>${src(e[1])}</b><br><span class="k">cropped to his face and framed in ${team}'s colours${season ? `, because there is no photo of him from ${season}` : ''}</span>`;
 }
 const CW = (max) => Math.max(340, Math.min(max || 1000, (document.getElementById('coach')?.clientWidth || 1000) - 40));
-// links: a coach to his page here, a player to his Basketball Savant card. An ESPN-only id ("e123")
+// links: a coach to his page here, a player to his NBA Savant card. An ESPN-only id ("e123")
 // has no card, so it stays plain text.
 const coachLink = (id, name) => id ? `<a class="cl" href="#c=${encodeURIComponent(id)}">${esc(name ?? nameOf(id))}</a>` : esc(name);
-const playerLink = (pid, name) => (pid != null && /^\d+$/.test(String(pid))) ? `<a class="pl" href="${SAVANT}${pid}" title="his Basketball Savant card">${esc(name)}</a>` : esc(name);
+const playerLink = (pid, name) => (pid != null && /^\d+$/.test(String(pid))) ? `<a class="pl" href="${SAVANT}${pid}" title="his NBA Savant card">${esc(name)}</a>` : esc(name);
 const svgCoach = (id, x, y, text, attrs='') => `<a href="#c=${encodeURIComponent(id)}"><text x="${x}" y="${y}" ${attrs}>${esc(text)}</text></a>`;
 const svgPlayer = (pid, x, y, text, attrs='') => /^\d+$/.test(String(pid)) ? `<a href="${SAVANT}${pid}"><text x="${x}" y="${y}" ${attrs}>${esc(text)}</text></a>` : `<text x="${x}" y="${y}" ${attrs}>${esc(text)}</text>`;
 const tipAttr = html => ` data-tip="${String(html).replace(/"/g, '&quot;')}"`;
@@ -542,7 +542,7 @@ function route(){
   if (h.startsWith('c=')) return openCoach(h.slice(2).split('&')[0], h);
   if (h === 'tree' || h.startsWith('tree=')) return openTree(h.startsWith('tree=') ? h.slice(5) : null);
   document.body.className = 'view-home anim';
-  document.title = 'Basketball Coaching Savant — WCE Hoops';
+  document.title = 'NBA Coaching Savant — WCE Hoops';
   syncTabs(h === 'leaders' ? 'leaders' : 'coaches');
   if (h === 'leaders') { const el = document.getElementById('leadersplate'); if (el) setTimeout(() => el.scrollIntoView({behavior:'smooth', block:'start'}), 30); }
   else window.scrollTo(0, 0);
@@ -655,7 +655,7 @@ async function openCoach(id, hash){
   state.game = null; state.kind = 'RS';
   renderCoach();
   if (!m) window.scrollTo(0, 0);
-  document.title = `${COACH.name} — Basketball Coaching Savant`;
+  document.title = `${COACH.name} — NBA Coaching Savant`;
   document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.id === id));
 }
 function pickSeason(season){
@@ -1476,7 +1476,7 @@ async function drawFingerprint(otherId, sr){
 }
 
 // ---------------------------------------------------------------- the tree
-// Football Coaching Savant's forest, grown from IDX.tree: every root is a tree, branches thin as the
+// NFL Coaching Savant's forest, grown from IDX.tree: every root is a tree, branches thin as the
 // line thins, children fan upward. Branches take their root's colour; a node is a dot with the man's
 // record beside his name once you are close enough to read it. Search flies to a coach, hover lights
 // his line to the trunk, click opens his page. The assistants toggle adds men who were never a head
@@ -1702,7 +1702,7 @@ function mountTree(st, focus){
 function openTree(focus){
   document.body.className = 'view-tree';
   syncTabs('tree');
-  document.title = 'The coaching tree — Basketball Coaching Savant';
+  document.title = 'The coaching tree — NBA Coaching Savant';
   const el = document.getElementById('treeview'), N = IDX.tree.nodes, roots = IDX.tree.roots;
   if (!document.getElementById('treestage')) {
     const sprouts = Object.keys(N).filter(k => !N[k].mentor && N[k].size === 1 && isHC(k)).length;

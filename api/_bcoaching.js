@@ -1,4 +1,4 @@
-// api/_bcoaching.js — Basketball Coaching Savant, as answers. One section of the AI connector
+// api/_bcoaching.js — NBA Coaching Savant, as answers. One section of the AI connector
 // (api/mcp.js): it knows NBA coaches, the connector only speaks the protocol.
 //
 // It reads the page's own files under /bcs/ (pipeline/basketball/coaching/build.py writes them):
@@ -25,8 +25,8 @@
 import { z } from 'zod'
 import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, ordinal, prepare, rank, topTier } from './_core.js'
 
-const files = makeLoader('bcs', { what: 'Basketball Coaching Savant', shape: (b) => b && typeof b === 'object' && (b.meta || b.id || b.table || b.stats || b.coaches) })
-const SOURCE = 'Basketball Coaching Savant, Western Conference Elitists (wcehoops.com)'
+const files = makeLoader('bcs', { what: 'NBA Coaching Savant', shape: (b) => b && typeof b === 'object' && (b.meta || b.id || b.table || b.stats || b.coaches) })
+const SOURCE = 'NBA Coaching Savant, Western Conference Elitists (wcehoops.com)'
 export const GROUPS = ['all', 'career', 'rotation', 'game_management', 'identity', 'context', 'development', 'staff', 'seasons', 'lineage']
 export const TABLES = ['games', 'stints', 'units', 'rotation', 'decisions']
 const MAX_ROWS = 500
@@ -53,8 +53,8 @@ export function tableAsOf(file, idx) {
   return best ? day(best) : asOf(idx)
 }
 
-export const coachUrl = (id) => `${SITE}/basketball-coaching-savant.html#c=${encodeURIComponent(id)}`
-const PAGE = `${SITE}/basketball-coaching-savant.html`
+export const coachUrl = (id) => `${SITE}/nba-coaching-savant#c=${encodeURIComponent(id)}`
+const PAGE = `${SITE}/nba-coaching-savant`
 
 export function display(unit, v) {
   if (miss(v)) return '—'
@@ -92,7 +92,7 @@ async function resolveCoach(input) {
   const byId = rows.find((r) => r.id === raw)
   if (byId) return byId
   const ranked = rank(rows, raw, longer)
-  if (!ranked.length) throw new SavantError(`No NBA coach matches "${raw}". Basketball Coaching Savant covers every head coach since 1946-47 and the assistants in its staff tables. Check the spelling, or search with nba_search_coaches.`)
+  if (!ranked.length) throw new SavantError(`No NBA coach matches "${raw}". NBA Coaching Savant covers every head coach since 1946-47 and the assistants in its staff tables. Check the spelling, or search with nba_search_coaches.`)
   const best = topTier(ranked)
   if (best.length === 1 && ranked[0].score >= 60) return best[0]
   const list = (best.length > 1 ? best : ranked.slice(0, 6).map((r) => r.row)).slice(0, 8)
@@ -107,7 +107,7 @@ export async function searchCoaches({ query, limit = 10 }) {
     record_all_time: r.hc ? record(r.all_w, r.all_l) : null, seasons: r.all_seasons ?? null, games_since_1996: r.g ?? 0, ranked_career: !!r.eligible, active: !!r.active, url: coachUrl(r.id),
   }))
   const structured = { query, total: ranked.length, count: shown.length, coaches: shown }
-  if (!shown.length) return { structured, text: `No NBA coach in Basketball Coaching Savant matches "${query}". It covers every head coach since 1946-47 and the assistants in the NBA's staff tables. Check the spelling or try the last name alone.` }
+  if (!shown.length) return { structured, text: `No NBA coach in NBA Coaching Savant matches "${query}". It covers every head coach since 1946-47 and the assistants in the NBA's staff tables. Check the spelling or try the last name alone.` }
   return { structured, text: `${ranked.length} coach${ranked.length === 1 ? '' : 'es'} match "${query}"${ranked.length > shown.length ? `, showing ${shown.length}` : ''}:\n${shown.map((c, i) => `${i + 1}. ${c.name} (id ${c.id}): ${c.head_coach ? `head coach ${c.first_season}–${c.last_season}, ${c.record_all_time}, ${plural(c.seasons, 'season')}` : 'assistant'}${c.teams.length ? `, ${c.teams.join(', ')}` : ''}. ${c.url}`).join('\n')}\nThe id is what nba_get_coach_profile takes.` }
 }
 
@@ -314,7 +314,7 @@ export async function coachingLeaders({ board = 'all', limit = 10 } = {}) {
   const boards = board === 'all' ? idx.leaders : idx.leaders.filter((b) => b.id === board)
   if (!boards.length) throw new SavantError(`No "${board}" board. Boards: ${idx.leaders.map((b) => b.id).join(', ')}.`)
   const out = boards.map((b) => ({ id: b.id, title: b.title, kind: b.kind, season: b.season, pool: b.pool, pool_size: b.rows.length, note: b.note, rows: b.rows.slice(0, limit).map((r, i) => ({ rank: i + 1, id: r.id, name: r.name, team: r.team, value: r.value, display: r.display })) }))
-  const L = [`Basketball Coaching Savant's ${out.length === 1 ? `"${out[0].title}" board` : `${out.length} Leaders boards`}, in the page's order (the page shows ten).`]
+  const L = [`NBA Coaching Savant's ${out.length === 1 ? `"${out[0].title}" board` : `${out.length} Leaders boards`}, in the page's order (the page shows ten).`]
   for (const b of out) { L.push('', `${b.title} (${b.pool}; ${b.pool_size} in all${b.pool_size > b.rows.length ? `, top ${b.rows.length} shown` : ''})`); for (const r of b.rows) L.push(`${r.rank}. ${r.name}${r.team ? ` (${r.team})` : ''}: ${r.display}`); if (b.note) L.push(b.note) }
   L.push('', `Page: ${PAGE}`, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`)
   return { structured: { board, limit, boards: out, url: PAGE, data_as_of: asOf(idx), source: SOURCE }, text: L.join('\n') }
@@ -411,7 +411,7 @@ export async function coachingDictionary({ table } = {}) {
   const stats = dict.stats.map((s) => ({ key: s.key, label: s.label, group: s.group, kind: s.kind === 'good' ? 'how good' : 'how much', unit: s.unit, lower_is_better: !!s.lower, settle_point: s.thr, since: s.first, what: s.what, formula: s.formula, source: s.source, sample: s.sample }))
   const tables = table ? { [table]: dict.tables[table] } : dict.tables
   if (table && !dict.tables[table]) throw new SavantError(`No table "${table}". Tables: ${Object.keys(dict.tables).join(', ')}.`)
-  const L = ['Basketball Coaching Savant data dictionary.', '', 'Tables (savant_data, sport nba, table coaching_<name>):', ...Object.entries(tables).map(([k, v]) => `- ${k}: ${v}`), '', `Stats on the coach pages (${stats.length}); each with its kind, unit, direction, settle point and first season:`, ...(table ? [] : stats.map((s) => `- ${s.key} (${s.label}; ${s.kind}; ${s.unit}${s.lower_is_better ? '; lower is better' : ''}; from ${s.since}): ${s.what} Formula: ${s.formula}`)), '', `Fits in this build: talent line ${JSON.stringify(idx.meta.fits.talent)}; projection from parts ${JSON.stringify(idx.meta.fits.parts)}.`, idx.meta.model_note, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`]
+  const L = ['NBA Coaching Savant data dictionary.', '', 'Tables (savant_data, sport nba, table coaching_<name>):', ...Object.entries(tables).map(([k, v]) => `- ${k}: ${v}`), '', `Stats on the coach pages (${stats.length}); each with its kind, unit, direction, settle point and first season:`, ...(table ? [] : stats.map((s) => `- ${s.key} (${s.label}; ${s.kind}; ${s.unit}${s.lower_is_better ? '; lower is better' : ''}; from ${s.since}): ${s.what} Formula: ${s.formula}`)), '', `Fits in this build: talent line ${JSON.stringify(idx.meta.fits.talent)}; projection from parts ${JSON.stringify(idx.meta.fits.parts)}.`, idx.meta.model_note, `Source: ${SOURCE}. Data as of ${asOf(idx)}.`]
   return { structured: { tables, stats: table ? [] : stats, fits: idx.meta.fits, rules: idx.meta.rules, note: idx.meta.model_note, tree_note: idx.tree.note, data_as_of: asOf(idx), source: SOURCE }, text: L.join('\n') }
 }
 
@@ -424,7 +424,7 @@ export const tools = [
     name: 'nba_search_coaches',
     config: {
       title: 'Search NBA coaches',
-      description: 'Find NBA head coaches (every one since 1946-47) and assistants in Basketball Coaching Savant (wcehoops.com) by name. Returns id, record, seasons, teams and page link. Tolerates accents, punctuation and small typos.',
+      description: 'Find NBA head coaches (every one since 1946-47) and assistants in NBA Coaching Savant (wcehoops.com) by name. Returns id, record, seasons, teams and page link. Tolerates accents, punctuation and small typos.',
       inputSchema: { query: z.string().trim().min(2).max(80).describe('Coach name or part of one, e.g. "Popovich", "Erik Spoelstra".'), limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.') },
       outputSchema: { query: z.string(), total: z.number().int(), count: z.number().int(), coaches: z.array(z.object({ id: z.string().describe('The id nba_get_coach_profile takes (his Basketball-Reference slug).'), name: z.string(), head_coach: z.boolean(), assistant: z.boolean(), teams: z.array(z.string()), first_season: z.string().nullable(), last_season: z.string().nullable(), record_all_time: z.string().nullable(), seasons: z.number().int().nullable(), games_since_1996: z.number().int(), ranked_career: z.boolean(), active: z.boolean(), url: z.string() })) },
       annotations: { title: 'Search NBA coaches', ...READ_ONLY },
@@ -435,7 +435,7 @@ export const tools = [
     name: 'nba_get_coach_profile',
     config: {
       title: 'Get an NBA coach\'s Savant profile',
-      description: 'One NBA head coach\'s Basketball Coaching Savant profile (wcehoops.com): record and bio; wins above two expectations (roster talent, the market); the ranked career card, each stat with its percentile and pool; the Rotation Map for a season (usual windows, off-script minutes and why, closing, pairs, lineups from their parts); game management (timeouts vs runs, after-timeout offense, challenges, halftime, late game); identity, comps, arrival effect; situational splits; players vs the aging curve; staffs and suggested lineage; seasons. Rotation verdicts are the model\'s view and say so.',
+      description: 'One NBA head coach\'s NBA Coaching Savant profile (wcehoops.com): record and bio; wins above two expectations (roster talent, the market); the ranked career card, each stat with its percentile and pool; the Rotation Map for a season (usual windows, off-script minutes and why, closing, pairs, lineups from their parts); game management (timeouts vs runs, after-timeout offense, challenges, halftime, late game); identity, comps, arrival effect; situational splits; players vs the aging curve; staffs and suggested lineage; seasons. Rotation verdicts are the model\'s view and say so.',
       inputSchema: { coach: z.string().trim().min(1).max(80).describe('Coach name or id, e.g. "Gregg Popovich" or "popovgr99c".'), group: z.enum(GROUPS).default('all').describe('Which part to return.'), season: z.string().regex(/^\d{4}-\d{2}$/).optional().describe('The season whose Rotation Map to return (default: his latest).') },
       outputSchema: { coach: z.object({ id: z.string(), name: z.string(), url: z.string() }), group: z.string(), bio: z.object({}).passthrough(), all_time: z.object({}).passthrough(), since_1996: z.object({}).passthrough(), stints: z.array(z.object({}).passthrough()), awards: z.array(z.array(z.string())), career_stats: z.array(statShape).optional(), rotation: z.object({}).passthrough().nullable().optional(), game_management: z.object({}).passthrough().nullable().optional(), identity: z.object({}).passthrough().nullable().optional(), context: z.object({}).passthrough().nullable().optional(), development: z.object({}).passthrough().nullable().optional(), staff: z.object({}).passthrough().nullable().optional(), seasons: z.array(z.object({}).passthrough()).optional(), scouting: z.array(z.string()).optional(), notes: z.array(z.string()), url: z.string(), data_as_of: z.string(), source: z.string() },
       annotations: { title: 'Get an NBA coach\'s Savant profile', ...READ_ONLY },
@@ -445,11 +445,11 @@ export const tools = [
   {
     name: 'nba_coaching_leaders',
     config: {
-      title: 'Get Basketball Coaching Savant\'s Leaders boards',
-      description: 'Basketball Coaching Savant\'s Leaders boards (wcehoops.com), in the page\'s order: career boards (win %, most wins, wins above talent and the market, playoff rate, rotation stability, run stopping, after-timeout bump, challenge success, halftime adjustment, aging curve, pace, 3-point rate and more) and this season\'s. Each names its pool.',
+      title: 'Get NBA Coaching Savant\'s Leaders boards',
+      description: 'NBA Coaching Savant\'s Leaders boards (wcehoops.com), in the page\'s order: career boards (win %, most wins, wins above talent and the market, playoff rate, rotation stability, run stopping, after-timeout bump, challenge success, halftime adjustment, aging curve, pace, 3-point rate and more) and this season\'s. Each names its pool.',
       inputSchema: { board: z.string().default('all').describe('A board id, or "all".'), limit: z.number().int().min(1).max(50).default(10).describe('Rows per board.') },
       outputSchema: { board: z.string(), limit: z.number().int(), boards: z.array(z.object({ id: z.string(), title: z.string(), kind: z.string(), season: z.string().nullable(), pool: z.string(), pool_size: z.number().int(), note: z.string().nullable(), rows: z.array(z.object({ rank: z.number().int(), id: z.string(), name: z.string(), team: z.string().nullable(), value: z.number().nullable(), display: z.string() })) })), url: z.string(), data_as_of: z.string(), source: z.string() },
-      annotations: { title: 'Get Basketball Coaching Savant\'s Leaders boards', ...READ_ONLY },
+      annotations: { title: 'Get NBA Coaching Savant\'s Leaders boards', ...READ_ONLY },
     },
     run: ({ board, limit }) => coachingLeaders({ board, limit }),
   },

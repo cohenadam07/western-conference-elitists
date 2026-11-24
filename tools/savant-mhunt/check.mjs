@@ -1,4 +1,4 @@
-// tools/savant-mhunt/check.mjs — Isolation targeting vs expected (mhunt), Basketball Savant 2.8.0.
+// tools/savant-mhunt/check.mjs — Isolation targeting vs expected (mhunt), NBA Savant 2.8.0.
 //
 //   node --test tools/savant-mhunt/check.mjs      (part of npm run check:savant)
 //

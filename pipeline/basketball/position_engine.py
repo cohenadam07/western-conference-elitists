@@ -1,5 +1,5 @@
 """
-position_engine.py — per-season position + role for Basketball Savant.
+position_engine.py — per-season position + role for NBA Savant.
 
 Why this exists
 ---------------

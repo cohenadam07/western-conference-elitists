@@ -21,7 +21,7 @@ async function drawFingerprint(otherId, sr){
 }
 
 // ---------------------------------------------------------------- the tree
-// Football Coaching Savant's forest, grown from IDX.tree: every root is a tree, branches thin as the
+// NFL Coaching Savant's forest, grown from IDX.tree: every root is a tree, branches thin as the
 // line thins, children fan upward. Branches take their root's colour; a node is a dot with the man's
 // record beside his name once you are close enough to read it. Search flies to a coach, hover lights
 // his line to the trunk, click opens his page. The assistants toggle adds men who were never a head
@@ -247,7 +247,7 @@ function mountTree(st, focus){
 function openTree(focus){
   document.body.className = 'view-tree';
   syncTabs('tree');
-  document.title = 'The coaching tree — College Basketball Coaching Savant';
+  document.title = 'The coaching tree — CBB Coaching Savant';
   const el = document.getElementById('treeview'), N = IDX.tree.nodes, roots = IDX.tree.roots;
   if (!document.getElementById('treestage')) {
     const sprouts = Object.keys(N).filter(k => !N[k].mentor && N[k].size === 1 && isHC(k)).length;

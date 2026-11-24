@@ -2,7 +2,7 @@
 expect.py — what each team should have been, before its coach touched it: two baselines.
 
   talent   our own. For every player who appeared for the team that season, his impact the
-           season before (BPM, as on his Basketball Savant card), weighted by the role he had
+           season before (BPM, as on his NBA Savant card), weighted by the role he had
            the season before (minutes per game x availability), never by the minutes this
            coach gave him, so the coach's own choices cannot move his baseline. A rookie gets
            the prior of his draft slot: the average rookie-season BPM of that slot's bucket

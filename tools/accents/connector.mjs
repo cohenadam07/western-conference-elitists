@@ -1,4 +1,4 @@
-// tools/accents/connector.mjs — accented names out, unaccented names in (Basketball Savant 2.8.1).
+// tools/accents/connector.mjs — accented names out, unaccented names in (NBA Savant 2.8.1).
 //
 //   node --test tools/accents/connector.mjs      (part of npm run check:savant)
 //
@@ -77,7 +77,7 @@ test('savant_query takes no name; its rows carry the accented spelling', async (
   assert.doesNotMatch(names, /Nikola Jokic\b/)
 })
 
-test('Football Savant: "Audric Estime" finds Audric Estimé', async () => {
+test('NFL Savant: "Audric Estime" finds Audric Estimé', async () => {
   const s = await call('nfl_search_players', { query: 'Audric Estime' })
   assert.equal(s.players[0].name, 'Audric Estimé')
   const p = await call('nfl_get_player_profile', { player: 'Audric Estime' })

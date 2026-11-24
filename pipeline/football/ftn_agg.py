@@ -1,4 +1,4 @@
-"""FTN charting -> weekly per-player aggregates for Football Savant.
+"""FTN charting -> weekly per-player aggregates for NFL Savant.
 
 nflverse publishes FTN Data's play charting as one file a season from 2022 on, and it
 carries the things a box score and a play-by-play row cannot see: how many men rushed,

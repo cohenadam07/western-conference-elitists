@@ -19,7 +19,7 @@ season-specific source names him (infobox or yearly record) or two sources agree
 `unconfirmed` and listed for review.
 
 Split seasons: when the sources name two coaches with W-L for each, the season's games are cut
-where the running record first equals the first man's (Basketball Coaching Savant's rule). Without
+where the running record first equals the first man's (NBA Coaching Savant's rule). Without
 both records the cut is unknown: every game goes to the infobox's coach and the season is listed,
 unconfirmed. An interim who coached the whole season (Louisville 2017-18) is that season's coach. Where none of the
 three covers a team-season, a coach biography's head-coaching stint at that program fills it, unconfirmed.

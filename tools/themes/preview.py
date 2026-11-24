@@ -3,10 +3,10 @@ preview.py — what a sport theme would look like on a coaching page that does n
 
     python3 tools/themes/preview.py <dir>      -> <dir>/_preview-nba-coaching.html, <dir>/_preview-football-coaching.html
 
-For Adam's approval (Nov 6, 2026), nothing published: Basketball Coaching Savant and football's Coaching Savant
+For Adam's approval (Nov 6, 2026), nothing published: NBA Coaching Savant and NFL Coaching Savant
 stay as they are. Each preview is the published page with the sport's theme around it: its tokens, the shared
-base rules, the framed sheet and collapsible sidebar (the frame College Basketball Savant and College Basketball
-Coaching Savant use), and for the NBA page, whose components are the coaching components, the coaching skin.
+base rules, the framed sheet and collapsible sidebar (the frame CBB Savant and College Basketball
+NFL Coaching Savant use), and for the NBA page, whose components are the coaching components, the coaching skin.
 Write <dir> inside public/ (the football page fetches its data by relative path) and delete the files after.
 """
 import os
@@ -70,7 +70,7 @@ def nba():
     pills = re.search(r'<span class="eyebrow-pill" id="srcpill">.*?</span><span class="vchip" id="verchip"[^>]*></span>', old).group(0)
     search = ('<div class="search"><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="m9.5 9.5 3.5 3.5"/></svg>'
               '<input id="q" type="search" placeholder="Search a head coach or assistant…" autocomplete="off" aria-label="Search a coach"/><div id="results" class="results" hidden></div></div>')
-    s = s[:a] + shell("Basketball Coaching Savant", [("#", "coaches", "Coaches"), ("#leaders", "leaders", "Leaders"), ("#tree", "tree", "The tree")], search, "NBA head coaches") + s[b:]
+    s = s[:a] + shell("NBA Coaching Savant", [("#", "coaches", "Coaches"), ("#leaders", "leaders", "Leaders"), ("#tree", "tree", "The tree")], search, "NBA head coaches") + s[b:]
     c = s.index('</div>\n<div id="tip"')
     s = s[:c] + CLOSE + f'<div class="wrap"><p class="foot">{pills}</p></div>\n' + s[c + len("</div>\n"):]
     return s.replace("</body>", SIDEBAR + "</body>", 1)
@@ -89,7 +89,7 @@ def football():
     body1 = s.index("<script", body0)
     content = re.sub(r'class="(top|search|results)"', r'class="f\1"', s[body0:body1])
     content = re.sub(r'class="(top|search|results) ', r'class="f\1 ', content)
-    s = s[:body0] + shell("Coaching Savant", [("#", "coaches", "Coaches"), ("#tree", "tree", "The tree")], "", "NFL head coaches and play-callers") + content + CLOSE + s[body1:]
+    s = s[:body0] + shell("NFL Coaching Savant", [("#", "coaches", "Coaches"), ("#tree", "tree", "The tree")], "", "NFL head coaches and play-callers") + content + CLOSE + s[body1:]
     return s.replace("</body>", SIDEBAR + "</body>", 1)
 
 

@@ -1,7 +1,7 @@
 // Edge Lab — the two Claude arms.
 //
 //   claude_wce  Claude with WCE's analytics: the WCE projection and the WCE model's own
-//               probability for every market, Basketball Savant percentiles, team ratings,
+//               probability for every market, NBA Savant percentiles, team ratings,
 //               who sits tonight with ESPN's news blurb, and what each player's numbers did
 //               in past games his injured teammates missed.
 //   claude_box  Claude with what any box-score reader has: per-game averages, the last five
@@ -190,7 +190,7 @@ function wceCard(p, ix) {
     const l10 = averages(log.slice(-10), ix)
     lines.push(`  Last ${l10.n}: ${avgText(l10)} | last 5: ${log.slice(-5).map((r) => lineText(r, ix)).join('; ')}`)
   }
-  if (p.savant?.length) lines.push(`  Basketball Savant ${p.savantSeason} vs ${p.peers}: ${p.savant.map((s) => `${s.label} ${s.value} (${ordinal(s.pct)})`).join(' · ')}`)
+  if (p.savant?.length) lines.push(`  NBA Savant ${p.savantSeason} vs ${p.peers}: ${p.savant.map((s) => `${s.label} ${s.value} (${ordinal(s.pct)})`).join(' · ')}`)
   for (const b of p.beneficiary || []) lines.push(`  ${b}`)
   lines.push(`  Markets: ${marketsText(p.markets, true)}`)
   return lines.join('\n')

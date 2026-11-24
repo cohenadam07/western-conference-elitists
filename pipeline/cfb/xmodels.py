@@ -84,7 +84,7 @@ def fit():
     st = {"built_from": "seasons 2014-2024 (xtd, xpass); charted 2025 week 9 to 2026 (cmp, yac)"}
     if keep:
         st["fourth"] = keep
-    rep = ["# College Football Savant 1.1.0: the expansion's models", "",
+    rep = ["# CFB Savant 1.1.0: the expansion's models", "",
            "*`python -m pipeline.cfb.xmodels fit`. Every model is WCE's, fitted once and frozen in `pipeline/cfb/state/expansion.json`.*", ""]
     # ------------------------------------------------------------ xtd, xpass, fp (2014-2024, checked on 2025)
     fr = []

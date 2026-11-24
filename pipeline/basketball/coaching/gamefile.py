@@ -7,7 +7,7 @@ betting line, win probability, garbage time).
     game(g) -> dict (see KEYS at the bottom), from a game normalized by espn_source and
                cached by espn_games (the `extra` block is this build's own)
 
-Lineups and stints come from espn_tables.parse_game, the same parser the Basketball Savant
+Lineups and stints come from espn_tables.parse_game, the same parser the NBA Savant
 cloud refresh uses, so the seconds and possessions here reconcile with the player cards.
 Possessions are counted again here on the same rules (a made shot, a defensive rebound, a
 turnover or a made final free throw ends one), because this file needs to know what STARTED

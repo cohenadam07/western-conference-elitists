@@ -1,5 +1,5 @@
 // api/_query.js — WCE Pro (beta): savant_query, the assistant's own question over every
-// player-season on Basketball Savant and Football Savant. One section of the AI connector
+// player-season on NBA Savant and NFL Savant. One section of the AI connector
 // (api/mcp.js), registered ONLY for a connection that carries a real WCE key: the public
 // address never lists it.
 //
@@ -8,7 +8,7 @@
 // stat). This one lets the assistant ask its own: filter on any stat's value or percentile,
 // choose the stats to show, sort, or group players by team, position, season, age or
 // experience and summarize each group (count, mean, median, min, max, sum, weighted mean).
-// Up to MAX_SEASONS seasons in one call (fewer for Football Savant; see below).
+// Up to MAX_SEASONS seasons in one call (fewer for NFL Savant; see below).
 //
 // THE NUMBERS RULE (Adam, 3 Nov 2026)
 // - Values and percentiles are the pages' own, read from the same Savant API files every other
@@ -25,7 +25,7 @@
 //   NFL  seasons/<season>.json  m and xm: { key: [value, season pct, all-time pct] }, low and
 //        xlow: [keys], read together the way nfl_leaderboard reads them (xm holds a player's
 //        numbers outside his position's own panels, such as a receiver's carries).
-//        Both NFL percentiles are against the same position: Football Savant never ranks a
+//        Both NFL percentiles are against the same position: NFL Savant never ranks a
 //        player league-wide.
 //
 // Not a function itself: Vercel skips api files that start with an underscore.
@@ -43,8 +43,8 @@ const MAX_ROWS = 100
 const MAX_COLS = 19 // 8 conditions + 10 shown stats + the sort stat: nothing asked for is dropped
 const TEXT_ROWS = 50 // rows written out in words; every row is in the structured result
 const SOURCES = {
-  nba: 'Basketball Savant, Western Conference Elitists (wcehoops.com)',
-  nfl: 'Football Savant, Western Conference Elitists (wcehoops.com)',
+  nba: 'NBA Savant, Western Conference Elitists (wcehoops.com)',
+  nfl: 'NFL Savant, Western Conference Elitists (wcehoops.com)',
 }
 export const COMPUTED_NOTE = 'Group numbers are computed by this query (plain arithmetic over the values and percentiles the pages store); no page shows them. Every percentile itself is the page\'s own, never recomputed.'
 
@@ -58,7 +58,7 @@ const nbaYear = (s) => +String(s).slice(0, 4)
 
 const nba = {
   sport: 'nba',
-  name: 'Basketball Savant',
+  name: 'NBA Savant',
   pools: dict({ position: 'vs. position', league: 'vs. league' }),
   defaultPool: 'position',
   maxSeasons: MAX_SEASONS,
@@ -116,14 +116,14 @@ const nba = {
   },
   onTeam: (r, code) => String(r.team || '').toUpperCase() === code,
   teamOf: (r) => r.team || '—',
-  teamNote: 'Team is the one Basketball Savant lists for him that season (a player traded during it is listed with his latest team, and his whole season counts there).',
+  teamNote: 'Team is the one NBA Savant lists for him that season (a player traded during it is listed with his latest team, and his whole season counts there).',
   // what a weighted mean weighs by: minutes, for every stat
   weightable: () => null,
   weight: (r) => (miss(r.min) ? null : +r.min),
   weightWords: () => 'weighted by minutes played',
   display: (m, v, cell) => nbaMod.display(m.unit, v, cell ? cell[1] : null),
   url: (meta, r) => String(meta.playerUrl).replace('{id}', encodeURIComponent(r.id)),
-  urlNote: (meta, seasons) => (seasons.some((s) => s !== meta.latestSeason) ? 'A Basketball Savant link opens the player\'s card on his latest season; pick the season on the card.' : null),
+  urlNote: (meta, seasons) => (seasons.some((s) => s !== meta.latestSeason) ? 'An NBA Savant link opens the player\'s card on his latest season; pick the season on the card.' : null),
   qualifyWords(meta, loaded) {
     const base = `${meta.qualify.min_mpg}+ minutes a game and ${meta.qualify.min_gp}+ games`
     const live = loaded.filter((s) => s.file.in_progress && s.file.qualify)
@@ -138,10 +138,10 @@ const OL_SPOTS = ['OL', 'OT', 'OG', 'OC']
 
 const nfl = {
   sport: 'nfl',
-  name: 'Football Savant',
+  name: 'NFL Savant',
   pools: dict({ season: 'this season', all_time: 'all-time' }),
   defaultPool: 'season',
-  // Football Savant's loader keeps 8 season files in memory (api/_football.js): an NFL call
+  // NFL Savant's loader keeps 8 season files in memory (api/_football.js): an NFL call
   // reads no more than that, so a repeat of it is served warm.
   maxSeasons: 8,
   fields: dict({
@@ -217,7 +217,7 @@ function resolve(input, ds, metrics, { fieldsOk = true } = {}) {
   const lower = raw.toLowerCase()
   if (fieldsOk && own(ds.fields, lower)) return { field: lower, label: ds.fields[lower].label }
   const q = norm(raw)
-  // A key wins over a label: Football Savant has a stat keyed "int" and another labeled "INT %".
+  // A key wins over a label: NFL Savant has a stat keyed "int" and another labeled "INT %".
   // Then the label, then the key in any case ("TS" is ts).
   const exact = metrics.find((m) => m.key === raw) || metrics.find((m) => norm(m.label) === q) || metrics.find((m) => m.key.toLowerCase() === lower)
   if (exact) return { metric: exact, label: exact.label }
@@ -385,7 +385,7 @@ export async function query(args = {}) {
     return { ...at, on, pool, order: at.field ? (order === 'best' ? 'high' : order === 'worst' ? 'low' : order) : order }
   })()
 
-  // A stat the chosen position never has (Football Savant tracks stats by position).
+  // A stat the chosen position never has (NFL Savant tracks stats by position).
   const named = [...where.filter((c) => c.metric).map((c) => c.metric), ...show, ...summarize.filter((a) => a.metric).map((a) => a.metric), ...(sortSpec.metric ? [sortSpec.metric] : [])]
   const uniq = [...new Map(named.map((m) => [m.key, m])).values()]
   if (pos) for (const m of uniq) {
@@ -604,8 +604,8 @@ export const tools = [
   {
     name: 'savant_query',
     config: {
-      title: 'WCE Pro (beta): query Basketball and Football Savant',
-      description: 'WCE Pro (beta), for WCE key holders. Your own question over every player-season on Basketball Savant (nba_players, 1979-80 on) or Football Savant (nfl_players, 1999 on): filter on any stat\'s value or percentile, choose the stats to show and the sort, or group by team, position, season, age or exp and summarize (count, mean, median, min, max, sum of counts, weighted mean). Up to 10 NBA or 8 NFL seasons a call (season through through). Call with list_stats: true first for the keys. Percentiles are the pages\' own, never recomputed: NBA vs. position (default) or league; NFL at his position, this season (default) or all-time. Group numbers are plain arithmetic over them, labeled computed. Qualified players only unless qualified_only is false. Every answer names its pools and flags low samples.',
+      title: 'WCE Pro (beta): query Basketball and NFL Savant',
+      description: 'WCE Pro (beta), for WCE key holders. Your own question over every player-season on NBA Savant (nba_players, 1979-80 on) or NFL Savant (nfl_players, 1999 on): filter on any stat\'s value or percentile, choose the stats to show and the sort, or group by team, position, season, age or exp and summarize (count, mean, median, min, max, sum of counts, weighted mean). Up to 10 NBA or 8 NFL seasons a call (season through through). Call with list_stats: true first for the keys. Percentiles are the pages\' own, never recomputed: NBA vs. position (default) or league; NFL at his position, this season (default) or all-time. Group numbers are plain arithmetic over them, labeled computed. Qualified players only unless qualified_only is false. Every answer names its pools and flags low samples.',
       inputSchema: {
         dataset: z.enum(['nba_players', 'nfl_players']).describe('Which players.'),
         list_stats: z.boolean().optional().describe('Return the stat keys instead of running a query.'),
@@ -630,7 +630,7 @@ export const tools = [
         group_by: z.string().optional(), groups_total: z.number().int().optional(), min_group_size: z.number().int().optional(), sort: open.optional(), pools: z.array(z.string()).optional(),
         computed_note: z.string().optional(), notes: z.array(z.string()).optional(), url: z.string().optional(), data_as_of: z.string(), source: z.string(),
       },
-      annotations: { title: 'WCE Pro (beta): query Basketball and Football Savant', ...READ_ONLY },
+      annotations: { title: 'WCE Pro (beta): query Basketball and NFL Savant', ...READ_ONLY },
     },
     run: query,
   },

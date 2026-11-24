@@ -12,7 +12,7 @@
 //
 // Where the rows live:
 //   site      the six older tables: the coaching pages' own files (bcs/data, cbcs/data) and College
-//             Basketball Savant's team files (cbb/), read as those pages read them
+//             NBA Savant's team files (cbb/), read as those pages read them
 //   public    small new tables (UFC fights and rounds, NFL and CFB team-games): /dataroom/<sport>/<table>/<season>.json
 //   release   large new tables (NFL plays and player-games, NBA player-games and shots, CFB plays):
 //             GitHub release assets on this repository (tag "dataroom"), fetched at run time and
@@ -41,7 +41,19 @@ const MAX_ROWS = 500
 const SOURCE = 'The WCE Data Room, Western Conference Elitists (wcehoops.com)'
 const SEASON_FORMAT = { nba: /^\d{4}-\d{2}$/, cbb: /^\d{4}-\d{2}$/, nfl: /^\d{4}$/, cfb: /^\d{4}$/, ufc: /^\d{4}$/ }
 const SEASON_EXAMPLE = { nba: '2024-25', cbb: '2025-26', nfl: '2025', cfb: '2025', ufc: '2025 (a calendar year)' }
-const SPORT_NAME = { nba: 'Basketball Savant', nfl: 'Football Savant', cfb: 'College Football Savant', cbb: 'College Basketball Savant', ufc: 'UFC Savant' }
+const SPORT_NAME = { nba: 'NBA Savant', nfl: 'NFL Savant', cfb: 'CFB Savant', cbb: 'CBB Savant', ufc: 'UFC Savant' }
+
+// Seasons missing between a table's first and last, said out loud: college basketball has no 2011-12
+// or 2012-13 (ESPN never recorded enough of their box scores), and "2009-10 to 2026-27" alone reads
+// as if it did. Works for '2024-25' and '2024' seasons alike; '' when nothing is missing.
+export function missingSeasons(ss) {
+  const year = (s) => (/^\d{4}(-\d{2})?$/.test(s) ? +s.slice(0, 4) : null)
+  const ys = ss.map(year)
+  if (ss.length < 2 || ys.some((y) => y === null)) return ''
+  const have = new Set(ys), long = ss[0].length === 7, out = []
+  for (let y = ys[0] + 1; y < ys[ys.length - 1]; y++) if (!have.has(y)) out.push(long ? `${y}-${String(y + 1).slice(2)}` : String(y))
+  return out.length ? ` (not ${out.join(', ')})` : ''
+}
 
 // The six tables that came from the per-sport tools: name here -> where their rows are.
 const LEGACY = {
@@ -59,8 +71,8 @@ const STAT_DICTS = {
 }
 
 const room = makeLoader('dataroom', { what: 'The Data Room', maxCached: 12, shape: (b) => b && typeof b === 'object' && (b.sports || b.columns) })
-const bcs = makeLoader('bcs', { what: 'Basketball Coaching Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.columns || b.tables) })
-const cbcs = makeLoader('cbcs', { what: 'College Basketball Coaching Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.cols || b.tables) })
+const bcs = makeLoader('bcs', { what: 'NBA Coaching Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.columns || b.tables) })
+const cbcs = makeLoader('cbcs', { what: 'CBB Coaching Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.cols || b.tables) })
 // The catalog and the dictionary, off the site; the deployment's own copy (vercel.json includeFiles)
 // when the site's can't be read: a preview before its merge, or the site's CDN having a bad minute.
 function bundled(name) {
@@ -158,7 +170,7 @@ export async function readTable(sport, table, season, team) {
     const through = file.through ? day(file.through) : day(idx.meta.through || idx.meta.generated)
     return { s: legacy.table === 'programs' ? null : s, columns: file.cols, rows: file.rows, through, definition: dict.tables[legacy.table]?.note || '', row: entry.row, url: pageUrl(entry.page) }
   }
-  // College Basketball Savant's own tables: built from its season and team files (needs a team but for games)
+  // CBB Savant's own tables: built from its season and team files (needs a team but for games)
   if (legacy.table !== 'games' && !team) throw new SavantError(`cbb ${table} is kept per team-season: give team (e.g. "Duke").`)
   const t = await cbbTable({ table: legacy.table, season: s, team })
   const di = t.cols.indexOf('date')
@@ -168,10 +180,10 @@ export async function readTable(sport, table, season, team) {
 }
 
 const CBB_DEFS = {
-  games: 'One row per D1 game: ids, date, home and away team (ids and names), scores, overtime, site, postseason, closing line and data-quality flags. Every number WCE-derived.',
-  player_games: 'One row per player per game for one team-season (box score): minutes, points, shooting, rebounds, assists, turnovers, steals, blocks, fouls, starter, opponent and date. Non-D1 opponents are marked.',
+  games: 'One row per D1 game: ids, date, home and away team (ids and names), scores, overtime, site, postseason, closing line and data-quality flags (box_ok, pbp_ok, lineup_ok: whether the box score, the play-by-play and the on-floor fives passed their checks). Every number WCE-derived. The closing line (home_spread, total) is there for 2013-14 to 2022-23 and from 2025-26, where ESPN carries it; 2023-24 and 2024-25 have none, and before 2013-14 there is none. Lineups exist for about half of 2023-24 games, four in five of 2024-25 and nine in ten since; before 2023-24 no source recorded substitutions.',
+  player_games: 'One row per player per game for one team-season (box score): minutes, points, shooting, rebounds, assists, turnovers, steals, blocks, fouls, starter, opponent and date. Non-D1 opponents are marked. Rebounds are the total only (no offensive/defensive split), and there is no plus-minus.',
   units: 'Five-man units for one team-season: the five, seconds together, possessions each way, points each way and opponents\' threes and free throws. 2024-25 on.',
-  possessions: 'Every possession of one team-season (2025-26 on): how it began, the timeout before it (media, own or the opponent\'s), points, clutch, and the five on the floor each way.',
+  possessions: 'Every possession of one team-season (2025-26 on): how it began, the timeout before it (media, own or the opponent\'s), points, clutch, and the five on the floor each way (five is the team\'s five as names; opp_five is how many of the opponent\'s five are known for the possession: 5, or 0 where the opponent\'s lineup is not on file, as against non-D1 teams).',
 }
 
 // ---- sort and page ---------------------------------------------------------------------------
@@ -239,7 +251,7 @@ export async function savantDictionary({ sport, table } = {}) {
         const ss = Object.keys(v.seasons || {}).sort()
         const rows = Object.values(v.seasons || {}).reduce((n, x) => n + (x.rows || 0), 0)
         out[s][t] = { row: v.row, seasons: ss.length ? `${ss[0]} to ${ss[ss.length - 1]}` : null, season_count: ss.length, rows, latest: ss.length ? { season: ss[ss.length - 1], rows: v.seasons[ss[ss.length - 1]].rows, through: v.seasons[ss[ss.length - 1]].through || null } : null, ...(v.note && sport ? { note: v.note } : {}) }
-        L.push(`- ${t}: one row per ${v.row}; ${ss.length ? `${ss[0]}${ss.length > 1 ? ` to ${ss[ss.length - 1]}` : ''}` : 'no seasons yet'}; ${rows.toLocaleString('en-US')} rows${out[s][t].latest?.through ? `, newest ${out[s][t].latest.through}` : ''}.`)
+        L.push(`- ${t}: one row per ${v.row}; ${ss.length ? `${ss[0]}${ss.length > 1 ? ` to ${ss[ss.length - 1]}` : ''}${missingSeasons(ss)}` : 'no seasons yet'}; ${rows.toLocaleString('en-US')} rows${out[s][t].latest?.through ? `, newest ${out[s][t].latest.through}` : ''}.`)
       }
       for (const k of Object.keys(STAT_DICTS).filter((k) => k.startsWith(`${s}:`))) L.push(`- ${k.split(':')[1]}: the definitions of the ${k.includes('coaching') ? 'coach-page' : 'player-page'} stats (savant_dictionary(${s}, ${k.split(':')[1]}))`)
       L.push('')
@@ -261,13 +273,13 @@ export async function savantDictionary({ sport, table } = {}) {
   const legacy = (LEGACY[sport] || {})[table]
   if (!legacy) {
     const d = (await dictionary()).sports[sport][table]
-    const L = [`${sport} ${table}: one row per ${entry.row}, ${ss[0]} to ${ss[ss.length - 1]}. ${d.note}`, '', 'Columns (name — what; unit; source; first season; caveat):',
+    const L = [`${sport} ${table}: one row per ${entry.row}, ${ss[0]} to ${ss[ss.length - 1]}${missingSeasons(ss)}. ${d.note}`, '', 'Columns (name — what; unit; source; first season; caveat):',
       ...Object.entries(d.columns).map(([c, v]) => `- ${c} — ${v.what}; ${v.unit || '—'}; ${v.source}${v.since != null ? `; from ${v.since}` : ''}${v.caveat ? `; ${v.caveat}` : ''}`), '', `Page: ${base.url}. Source: ${SOURCE}.`]
     return { structured: { ...base, note: d.note, columns: d.columns }, text: L.join('\n') }
   }
   if (legacy.src === 'cbb') {
     const r = await cbbDictionary()
-    return { structured: { ...base, definition: CBB_DEFS[legacy.table], stats_dictionary: `savant_dictionary(cbb, stats): ${r.structured.stats.length} player stats` }, text: `cbb ${table}: ${CBB_DEFS[legacy.table]} Seasons ${ss[0]} to ${ss[ss.length - 1]}. ${legacy.table === 'games' ? '' : 'Kept per team-season: savant_data needs team. '}The stat keys and definitions: savant_dictionary(cbb, stats). Source: ${SOURCE}.` }
+    return { structured: { ...base, definition: CBB_DEFS[legacy.table], stats_dictionary: `savant_dictionary(cbb, stats): ${r.structured.stats.length} player stats` }, text: `cbb ${table}: ${CBB_DEFS[legacy.table]} Seasons ${ss[0]} to ${ss[ss.length - 1]}${missingSeasons(ss)}. ${legacy.table === 'games' ? '' : 'Kept per team-season: savant_data needs team. '}The stat keys and definitions: savant_dictionary(cbb, stats). Source: ${SOURCE}.` }
   }
   const r = legacy.src === 'bcs' ? await bcsDictionary({ table: legacy.table }) : await cbcsDictionary({ table: legacy.table })
   return { structured: { ...base, ...r.structured, sport, table }, text: r.text }

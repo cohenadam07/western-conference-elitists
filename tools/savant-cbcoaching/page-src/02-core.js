@@ -1,6 +1,6 @@
 const BASE = '/cbcs';
-const SAVANT = '/college-basketball-savant.html#player-';
-const CBB = '/college-basketball-savant.html';
+const SAVANT = '/cbb-savant#player-';
+const CBB = '/cbb-savant';
 const Z = ['rim','paint','mid','c3','ab3'], ZL = {rim:'Rim', paint:'Paint', mid:'Mid-range', c3:'Corner 3', ab3:'Above-break 3'};
 const CAUSES = ['absence','blowout','foul','choice'], CAUSE_C = {absence:'#8B9099', blowout:'#C2C0B6', foul:'#C2A263', choice:'#BC3A2C'}, CAUSE_L = {absence:'absence', blowout:'blowout', foul:'foul trouble', choice:"the coach's choice"};
 const PT = {Isolation:'Isolation', Transition:'Transition', PRBallHandler:'P&R handler', PRRollman:'P&R roll man', Postup:'Post-up', Spotup:'Spot-up', Handoff:'Hand-off', Cut:'Cut', OffScreen:'Off screen', OffRebound:'Putback', Misc:'Misc'};
@@ -102,12 +102,12 @@ function headNote(id, year, season){
   return `<b>${src(e[1])}</b><br><span class="k">cropped to his face and framed in ${team}'s colours${season ? `, because there is no photo of him from ${season}` : ''}</span>`;
 }
 const CW = (max) => Math.max(340, Math.min(max || 1000, (document.getElementById('coach')?.clientWidth || 1000) - 40));
-// links: a coach to his page here, a player to his Basketball Savant card. An ESPN-only id ("e123")
+// links: a coach to his page here, a player to his NBA Savant card. An ESPN-only id ("e123")
 // has no card, so it stays plain text.
 const coachLink = (id, name) => id ? `<a class="cl" href="#c=${encodeURIComponent(id)}">${esc(name ?? nameOf(id))}</a>` : esc(name);
-// a player links to his College Basketball Savant card for the season in view
+// a player links to his CBB Savant card for the season in view
 const curSeason = () => (state && state.mode && state.mode !== 'career') ? state.mode : (state?.season || IDX?.meta?.current);
-const playerLink = (pid, name, season) => (pid != null && /^\d+$/.test(String(pid))) ? `<a class="pl" href="${SAVANT}${pid}/${season || curSeason()}" title="his College Basketball Savant card">${esc(name)}</a>` : esc(name);
+const playerLink = (pid, name, season) => (pid != null && /^\d+$/.test(String(pid))) ? `<a class="pl" href="${SAVANT}${pid}/${season || curSeason()}" title="his CBB Savant card">${esc(name)}</a>` : esc(name);
 const svgCoach = (id, x, y, text, attrs='') => `<a href="#c=${encodeURIComponent(id)}"><text x="${x}" y="${y}" ${attrs}>${esc(text)}</text></a>`;
 const svgPlayer = (pid, x, y, text, attrs='') => /^\d+$/.test(String(pid)) ? `<a href="${SAVANT}${pid}/${curSeason()}"><text x="${x}" y="${y}" ${attrs}>${esc(text)}</text></a>` : `<text x="${x}" y="${y}" ${attrs}>${esc(text)}</text>`;
 const tipAttr = html => ` data-tip="${String(html).replace(/"/g, '&quot;')}"`;
@@ -176,7 +176,7 @@ function route(){
   if (h.startsWith('c=')) return openCoach(h.slice(2).split('&')[0], h);
   if (h === 'tree' || h.startsWith('tree=')) return openTree(h.startsWith('tree=') ? h.slice(5) : null);
   document.body.className = 'view-home anim';
-  document.title = 'College Basketball Coaching Savant — WCE Hoops';
+  document.title = 'CBB Coaching Savant — WCE Hoops';
   syncTabs(h === 'leaders' ? 'leaders' : 'coaches');
   if (h === 'leaders') { const el = document.getElementById('leadersplate'); if (el) setTimeout(() => el.scrollIntoView({behavior:'smooth', block:'start'}), 30); }
   else window.scrollTo(0, 0);
