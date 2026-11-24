@@ -10,15 +10,15 @@
 //   nba.player_game_onoff  one row per player-game, 2002-03 on, summed from the stints: counted (not
 //                          estimated) possessions on the floor each way, the score while he was on, and
 //                          his team's game totals (so off-court is a subtraction).
-//   nba.player_stats       one row per player-season-stat: every stat on a Basketball Savant card with its
+//   nba.player_stats       one row per player-season-stat: every stat on an NBA Savant card with its
 //                          value, both percentiles and its low-sample flag, exactly as savant_query serves
 //                          it (the same code path: api/_query.js DATASETS.nba_players).
 //   cbb.player_seasons     one row per college player-season: team, position, class, age, size, games,
 //                          minutes, possessions, the page's qualified flag, recruiting.
 //   cbb.player_stats       one row per college player-season-stat: the raw and the opponent-adjusted
 //                          value and its sample, as public/cbb/s/<season> holds them.
-//   cbb.pro_links          one row per college player who reached the NBA: his College Basketball Savant
-//                          id and his Basketball Savant (NBA) id.
+//   cbb.pro_links          one row per college player who reached the NBA: his CBB Savant
+//                          id and his NBA Savant (NBA) id.
 //
 // Tall tables on purpose (player_stats): a new stat on a card is a new row, never a new column, so a
 // refresh can never fail the stored schema.
@@ -37,7 +37,7 @@ const seasonsIn = (dir) => (existsSync(path.join(PUB, dir)) ? readdirSync(path.j
 const tableOf = (rel) => { const d = gz(rel); const ix = Object.fromEntries(d.columns.map((c, i) => [c, i])); return { rows: d.rows, at: (r, c) => (ix[c] === undefined || r[ix[c]] === undefined ? null : r[ix[c]]) } }
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null)
 
-// The season Basketball Savant is still playing: its player_games and shots carry ESPN's game id.
+// The season NBA Savant is still playing: its player_games and shots carry ESPN's game id.
 const inProgress = () => { try { return new Set(json('savant-current.json').seasons || []) } catch { return new Set() } }
 
 // ---- nba.games ---------------------------------------------------------------------------------
@@ -208,13 +208,13 @@ function readProLinks() {
 
 // ---- definitions -------------------------------------------------------------------------------
 const def = (definition, unit, source, first_season, caveat = null) => ({ definition, unit, source, first_season, ...(caveat ? { caveat } : {}) })
-const BCSRC = 'Basketball Coaching Savant (WCE, from play-by-play: the NBA\'s through the last finished season, ESPN\'s in the season in progress)'
+const BCSRC = 'NBA Coaching Savant (WCE, from play-by-play: the NBA\'s through the last finished season, ESPN\'s in the season in progress)'
 const GAME_ID = 'The id nba.player_games and nba.shots use for this game: the NBA\'s 10-digit id in finished seasons, ESPN\'s event id in the season in progress. Null for playoff and play-in games (those two tables are regular season only).'
 
 export const MORE = (start) => ({
   'nba.games': {
     row: 'game (both ids, game type, teams, score)',
-    note: 'One row per NBA game, 1996-97 on, from Basketball Coaching Savant\'s team-games. It joins the tables that carry the NBA\'s game id (nba.player_games and nba.shots in finished seasons) to the ones that carry ESPN\'s (the coaching tables\' gid), and carries the game type the stint tables lack: type is RS (regular season), PO (playoffs) or PI (play-in). Join nba.player_games or nba.shots on season and game_id; join the coaching tables on season and gid (2002-03 on) or nba_gid. Play-in games have no nba_gid. gid is null before 2002-03.',
+    note: 'One row per NBA game, 1996-97 on, from NBA Coaching Savant\'s team-games. It joins the tables that carry the NBA\'s game id (nba.player_games and nba.shots in finished seasons) to the ones that carry ESPN\'s (the coaching tables\' gid), and carries the game type the stint tables lack: type is RS (regular season), PO (playoffs) or PI (play-in). Join nba.player_games or nba.shots on season and game_id; join the coaching tables on season and gid (2002-03 on) or nba_gid. Play-in games have no nba_gid. gid is null before 2002-03.',
     sort: ['date', 'home'],
     seasons: async () => seasonsIn(`${BCS}/games`),
     read: async (season) => readGames(season),
@@ -258,60 +258,60 @@ export const MORE = (start) => ({
     },
   },
   'nba.player_stats': {
-    row: 'player-season-stat (every Basketball Savant card stat)',
-    note: 'One row per player, season and stat: every stat on a Basketball Savant card (box, tracking, play-finishing, hustle, shot zones, impact and the Oct 2026 additions) with its value, the page\'s league and position percentiles and its low-sample flag, exactly as savant_query returns them. A stat with no row for a player-season was not tracked then or has no value for him: it is not zero. Percentiles are the page\'s (midrank among that season\'s qualified players, flipped for lower-is-better stats, so higher is always better); never average percentiles as if they were values. To put two stats side by side, join the table to itself on season and player_id, or use PIVOT. stat keys: SELECT DISTINCT stat, label, stat_group, unit FROM nba.player_stats WHERE season = \'2025-26\'.',
+    row: 'player-season-stat (every NBA Savant card stat)',
+    note: 'One row per player, season and stat: every stat on an NBA Savant card (box, tracking, play-finishing, hustle, shot zones, impact and the Oct 2026 additions) with its value, the page\'s league and position percentiles and its low-sample flag, exactly as savant_query returns them. A stat with no row for a player-season was not tracked then or has no value for him: it is not zero. Percentiles are the page\'s (midrank among that season\'s qualified players, flipped for lower-is-better stats, so higher is always better); never average percentiles as if they were values. To put two stats side by side, join the table to itself on season and player_id, or use PIVOT. stat keys: SELECT DISTINCT stat, label, stat_group, unit FROM nba.player_stats WHERE season = \'2025-26\'.',
     sort: ['stat', 'team', 'player_id'],
     seasons: async () => { const { meta } = await nbaDataset(start); return [...meta.seasons].sort() },
     read: async (season) => readNbaStats(season, start),
     dictionary: {
-      player_id: def('Basketball Savant\'s player id as text, as in nba.player_seasons: the NBA person id, or "br:<Basketball Reference id>" for the few pre-1996 players the NBA\'s index lacks.', 'id', 'Basketball Savant', '1979-80', 'Cast to join nba.player_games: CAST(g.player_id AS VARCHAR) = s.player_id.'),
-      stat: def('The stat\'s key, as savant_query and nba_leaderboard take it.', 'text', 'Basketball Savant', '1979-80'),
-      value: def('The stat\'s value for the season, in the unit column\'s unit.', 'see unit', 'Basketball Savant', '1979-80'),
-      pct_league: def('The page\'s percentile against every qualified player that season (1-99, higher is better).', 'percentile', 'Basketball Savant', '1979-80', 'Null where the page ranks no pool for it.'),
-      pct_position: def('The page\'s percentile against qualified players at his position (Guard, Wing, Big) that season.', 'percentile', 'Basketball Savant', '1979-80'),
-      low_sample: def('True when his sample is under the stat\'s stabilization threshold (the hatched bar on the page).', 'flag', 'Basketball Savant', '1979-80'),
-      lower_better: def('True when a lower value is the better mark; null for a context stat with no better direction.', 'flag', 'Basketball Savant', '1979-80'),
-      qualified: def('The page\'s qualified flag for the player-season (in the percentile pools).', 'flag', 'Basketball Savant', '1979-80'),
+      player_id: def('NBA Savant\'s player id as text, as in nba.player_seasons: the NBA person id, or "br:<Basketball Reference id>" for the few pre-1996 players the NBA\'s index lacks.', 'id', 'NBA Savant', '1979-80', 'Cast to join nba.player_games: CAST(g.player_id AS VARCHAR) = s.player_id.'),
+      stat: def('The stat\'s key, as savant_query and nba_leaderboard take it.', 'text', 'NBA Savant', '1979-80'),
+      value: def('The stat\'s value for the season, in the unit column\'s unit.', 'see unit', 'NBA Savant', '1979-80'),
+      pct_league: def('The page\'s percentile against every qualified player that season (1-99, higher is better).', 'percentile', 'NBA Savant', '1979-80', 'Null where the page ranks no pool for it.'),
+      pct_position: def('The page\'s percentile against qualified players at his position (Guard, Wing, Big) that season.', 'percentile', 'NBA Savant', '1979-80'),
+      low_sample: def('True when his sample is under the stat\'s stabilization threshold (the hatched bar on the page).', 'flag', 'NBA Savant', '1979-80'),
+      lower_better: def('True when a lower value is the better mark; null for a context stat with no better direction.', 'flag', 'NBA Savant', '1979-80'),
+      qualified: def('The page\'s qualified flag for the player-season (in the percentile pools).', 'flag', 'NBA Savant', '1979-80'),
     },
   },
   'cbb.player_seasons': {
-    row: 'college player-season (College Basketball Savant)',
-    note: 'One row per men\'s D1 player-season as College Basketball Savant holds it: team, position group, class, age, size, games, starts, minutes, possessions, the page\'s qualified flag, recruiting, and how sure his opponent adjustment is. 2009-10 on; 2011-12 and 2012-13 are not on the site (ESPN never recorded enough of their box scores to pass the 98% gate). Join cbb.player_games or cbb.player_stats on season and player_id.',
+    row: 'college player-season (CBB Savant)',
+    note: 'One row per men\'s D1 player-season as CBB Savant holds it: team, position group, class, age, size, games, starts, minutes, possessions, the page\'s qualified flag, recruiting, and how sure his opponent adjustment is. 2009-10 on; 2011-12 and 2012-13 are not on the site (ESPN never recorded enough of their box scores to pass the 98% gate). Join cbb.player_games or cbb.player_stats on season and player_id.',
     sort: ['team', 'player_id'],
     seasons: async () => cbbSeasons(),
     read: async (season) => readCbbSeasons(season, start),
     dictionary: {
-      player_id: def('ESPN athlete id, the id every cbb table uses.', 'id', 'College Basketball Savant', '2009-10'),
-      pos: def('Guard, Wing or Big, as the page assigns it.', 'text', 'College Basketball Savant', '2009-10'),
-      age: def('Age on the season\'s reference date.', 'years', 'College Basketball Savant', '2009-10', 'Null where no birthdate is known.'),
-      poss: def('Possessions he was on the floor for (the sample behind per-70 rates).', 'possessions', 'College Basketball Savant', '2009-10'),
-      qualified: def('The page\'s qualified flag (in the percentile pools).', 'flag', 'College Basketball Savant', '2009-10'),
-      adj_confidence: def('How sure his opponent adjustment is, 0-100.', 'score', 'College Basketball Savant', '2009-10'),
-      tier: def('"full" or "box": a box season has box-score stats only.', 'text', 'College Basketball Savant', '2009-10'),
+      player_id: def('ESPN athlete id, the id every cbb table uses.', 'id', 'CBB Savant', '2009-10'),
+      pos: def('Guard, Wing or Big, as the page assigns it.', 'text', 'CBB Savant', '2009-10'),
+      age: def('Age on the season\'s reference date.', 'years', 'CBB Savant', '2009-10', 'Null where no birthdate is known.'),
+      poss: def('Possessions he was on the floor for (the sample behind per-70 rates).', 'possessions', 'CBB Savant', '2009-10'),
+      qualified: def('The page\'s qualified flag (in the percentile pools).', 'flag', 'CBB Savant', '2009-10'),
+      adj_confidence: def('How sure his opponent adjustment is, 0-100.', 'score', 'CBB Savant', '2009-10'),
+      tier: def('"full" or "box": a box season has box-score stats only.', 'text', 'CBB Savant', '2009-10'),
     },
   },
   'cbb.player_stats': {
-    row: 'college player-season-stat (every College Basketball Savant card stat)',
+    row: 'college player-season-stat (every CBB Savant card stat)',
     note: 'One row per college player, season and stat: the raw value (garbage time out) and the opponent-adjusted value the page ranks by default, with the stat\'s sample. A stat whose unit is "per" is per possession: multiply by 70 for the per-70 number the page shows. No percentiles here: the cbb_ tools return the page\'s, each with its pool. A stat with no row was not tracked that season (box seasons have box stats only; lineup and shot-location stats start later) or has no value for him. stat keys: SELECT DISTINCT stat, label, stat_group, unit FROM cbb.player_stats WHERE season = \'2025-26\'.',
     sort: ['stat', 'team_id', 'player_id'],
     seasons: async () => cbbSeasons(),
     read: async (season) => readCbbStats(season),
     dictionary: {
-      raw: def('The stat before opponent adjustment, garbage time left out.', 'see unit', 'College Basketball Savant', '2009-10'),
-      adjusted: def('The stat adjusted for the opponents he faced: the value the page ranks by default.', 'see unit', 'College Basketball Savant', '2009-10', 'Null for stats that are not adjusted.'),
-      sample: def('The stat\'s sample (what sample_of names: attempts, possessions and so on).', 'count', 'College Basketball Savant', '2009-10'),
-      lower_better: def('True when lower is better; null for a context stat.', 'flag', 'College Basketball Savant', '2009-10'),
+      raw: def('The stat before opponent adjustment, garbage time left out.', 'see unit', 'CBB Savant', '2009-10'),
+      adjusted: def('The stat adjusted for the opponents he faced: the value the page ranks by default.', 'see unit', 'CBB Savant', '2009-10', 'Null for stats that are not adjusted.'),
+      sample: def('The stat\'s sample (what sample_of names: attempts, possessions and so on).', 'count', 'CBB Savant', '2009-10'),
+      lower_better: def('True when lower is better; null for a context stat.', 'flag', 'CBB Savant', '2009-10'),
     },
   },
   'cbb.pro_links': {
     row: 'college player who reached the NBA (both ids)',
-    note: 'One row per college player whose NBA identity is known: his College Basketball Savant id (cbb tables\' player_id) and his Basketball Savant id (nba tables\' player_id). One file (season = \'all\'). method "site" is the link the two sites already show; "matched" is WCE\'s match on name and age (college age against NBA birthdate), graded against the site links before it is written: 393 of 394 found, all the same player (Nov 2026). A player with no row is not known to have reached the NBA: absence is not proof.',
+    note: 'One row per college player whose NBA identity is known: his CBB Savant id (cbb tables\' player_id) and his NBA Savant id (nba tables\' player_id). One file (season = \'all\'). method "site" is the link the two sites already show; "matched" is WCE\'s match on name and age (college age against NBA birthdate), graded against the site links before it is written: 393 of 394 found, all the same player (Nov 2026). A player with no row is not known to have reached the NBA: absence is not proof.',
     sort: ['cbb_player_id'],
     seasons: async () => ['all'],
     read: async () => readProLinks(),
     dictionary: {
-      cbb_player_id: def('ESPN college athlete id (cbb.player_seasons.player_id).', 'id', 'College Basketball Savant', '2009-10'),
-      nba_player_id: def('NBA person id (nba.player_seasons.player_id).', 'id', 'Basketball Savant', '2009-10'),
+      cbb_player_id: def('ESPN college athlete id (cbb.player_seasons.player_id).', 'id', 'CBB Savant', '2009-10'),
+      nba_player_id: def('NBA person id (nba.player_seasons.player_id).', 'id', 'NBA Savant', '2009-10'),
       method: def('"site": linked on the pages; "matched": matched by WCE on name and age.', 'text', 'WCE', '2009-10'),
     },
   },

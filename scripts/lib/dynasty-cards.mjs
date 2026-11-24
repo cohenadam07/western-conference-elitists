@@ -21,7 +21,7 @@
 //       blocks. The card labels the column STK/75 rather than pretend it is per game.
 //   q   season -> { gp, low, m: { key: [value, league pct, position pct] } } for the current
 //       season and the last full one, so the card can switch between them with no fetch
-//   d   rookies with a NBA Draft Savant profile: { line, m: { key: [value, class pct, class
+//   d   rookies with an NBA Draft Savant profile: { line, m: { key: [value, class pct, class
 //       position pct] } }
 //
 // Nothing here is committed: it is rebuilt every deploy, so the nightly data push refreshes it.

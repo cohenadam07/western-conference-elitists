@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
  * Whoever wins is your guy for the next card, until the run ends on your #1. Every swipe is
  * one head-to-head result that moves the board (api/_dynasty-swipe.js prices it).
  *
- * The card is a NBA Savant summary: the per-game line for his last three seasons on
+ * The card is an NBA Savant summary: the per-game line for his last three seasons on
  * top, the Savant percentiles underneath, against the league or his position. Rookies
  * without an NBA sample show their NBA Draft Savant card, ranked against their draft class.
  * Every number comes from /dynasty/cards.json, which the build cuts from the same Savant

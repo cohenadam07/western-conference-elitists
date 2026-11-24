@@ -160,7 +160,7 @@ function curve(a, b) {
     return `C${a.x + dx},${a.y} ${b.x - dx},${b.y} ${b.x},${b.y}`;
 }
 const wire = (from, to) => { const a = right(from), b = left(to); return `M${a.x},${a.y} ${curve(a, b)}`; };
-// The Mac's tracking upload starts a NBA Savant run: a bracket down the group's left side.
+// The Mac's tracking upload starts an NBA Savant run: a bracket down the group's left side.
 function trackingWire() {
     const a = byId('basketball-tracking'), b = byId('basketball-savant');
     const x = ENG_X - 8;

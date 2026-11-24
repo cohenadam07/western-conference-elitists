@@ -495,7 +495,7 @@ test('names that are not stats, fields or positions are refused in words, never 
     await refused({ dataset: 'nba_players', season: FULL, position: bad }, /Guard, Wing or Big/)
     await refused({ dataset: 'nfl_players', season: NFL_FULL, position: bad }, /position/)
     // the free nfl_leaderboard shares the position parser
-    await assert.rejects(nflLists.leaderboard({ position: bad }), /not a NFL Savant position/)
+    await assert.rejects(nflLists.leaderboard({ position: bad }), /not an NFL Savant position/)
   }
   // a key in any case
   const out = await ask({ dataset: 'nba_players', season: FULL, show: ['TS'], limit: 1 })

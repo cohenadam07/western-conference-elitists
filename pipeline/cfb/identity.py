@@ -348,7 +348,7 @@ def main():
              + ", ".join(f"{int(y)} {v:.0%}" for y, v in cov.items()) + ".",
              f"- Transfers seen as a change of team between a player's seasons: {len(tr):,}. Portal rows (2021 on): {n_port:,}, "
              f"{n_port_fbs:,} with a destination in our team table, {len(port):,} joined to a player by name, destination and season.",
-             f"- NFL: {len(nfl):,} players linked to a NFL Savant id ({n_fs:,} ids on NFL Savant). By method: "
+             f"- NFL: {len(nfl):,} players linked to an NFL Savant id ({n_fs:,} ids on NFL Savant). By method: "
              + "; ".join(f"{k} {v:,}" for k, v in nfl.how.value_counts().items()) + ".",
              f"- Head coaches: {len(co):,} coach-seasons for {co.groupby(['season', 'team']).ngroups:,} team-seasons; "
              f"{int((co.drop_duplicates(['season', 'team']).n > 1).sum())} team-seasons had more than one.",

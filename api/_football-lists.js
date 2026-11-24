@@ -66,7 +66,7 @@ export function parsePosition(input, meta) {
   }
   if (Object.hasOwn(EXTRA_POS, q)) return EXTRA_POS[q]
   const codes = Object.entries(meta.positions).map(([c, p]) => `${c} (${p.label})`)
-  throw new SavantError(`"${input}" is not a NFL Savant position. Use one of: ${codes.join(', ')}, or "team".`)
+  throw new SavantError(`"${input}" is not an NFL Savant position. Use one of: ${codes.join(', ')}, or "team".`)
 }
 
 // A stat by its key ("epadb") or its label ("EPA / dropback"), among the stats a position's

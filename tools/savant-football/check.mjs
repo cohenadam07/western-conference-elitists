@@ -3,7 +3,7 @@
 //
 //   node --test tools/savant-football/check.mjs
 //
-// The files exist so that a machine can quote the number a fan sees on a NFL Savant
+// The files exist so that a machine can quote the number a fan sees on an NFL Savant
 // card. So the first question is not "does the slicer agree with itself" but "does it agree
 // with the page". This lifts the page's own code out of public/football-savant.html —
 // mergeData, prepData, poolVals, pctOf, panelWorthIt, and the functions that actually draw a

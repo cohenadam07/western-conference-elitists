@@ -88,7 +88,7 @@ def match_torvik(pick, tv):
 
 
 def build_player(pick, year, tv, combine):
-    """One drafted pick -> a NBA Draft Savant player dict, or a null-college shell if unmatched."""
+    """One drafted pick -> an NBA Draft Savant player dict, or a null-college shell if unmatched."""
     key = S.norm_name(pick["player"])
     row = match_torvik(pick, tv)
     st = S.torvik_stats(row) if row else {}

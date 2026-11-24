@@ -123,7 +123,7 @@ const nba = {
   weightWords: () => 'weighted by minutes played',
   display: (m, v, cell) => nbaMod.display(m.unit, v, cell ? cell[1] : null),
   url: (meta, r) => String(meta.playerUrl).replace('{id}', encodeURIComponent(r.id)),
-  urlNote: (meta, seasons) => (seasons.some((s) => s !== meta.latestSeason) ? 'A NBA Savant link opens the player\'s card on his latest season; pick the season on the card.' : null),
+  urlNote: (meta, seasons) => (seasons.some((s) => s !== meta.latestSeason) ? 'An NBA Savant link opens the player\'s card on his latest season; pick the season on the card.' : null),
   qualifyWords(meta, loaded) {
     const base = `${meta.qualify.min_mpg}+ minutes a game and ${meta.qualify.min_gp}+ games`
     const live = loaded.filter((s) => s.file.in_progress && s.file.qualify)

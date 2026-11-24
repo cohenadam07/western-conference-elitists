@@ -189,7 +189,7 @@ function curve(a: { x: number; y: number }, b: { x: number; y: number }): string
 }
 const wire = (from: Box, to: Box) => { const a = right(from), b = left(to); return `M${a.x},${a.y} ${curve(a, b)}` }
 
-// The Mac's tracking upload starts a NBA Savant run: a bracket down the group's left side.
+// The Mac's tracking upload starts an NBA Savant run: a bracket down the group's left side.
 function trackingWire(): string {
   const a = byId('basketball-tracking')!, b = byId('basketball-savant')!
   const x = ENG_X - 8

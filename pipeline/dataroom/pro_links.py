@@ -4,7 +4,7 @@
     python3 pipeline/dataroom/pro_links.py --check    prints the test against the site's own links, writes nothing
 
 The site links 409 college players to their NBA page (public/cbb/links.json.gz, built for Draft
-Savant). College Basketball Savant holds every D1 player since 2009-10 and Basketball Savant every
+Savant). CBB Savant holds every D1 player since 2009-10 and NBA Savant every
 NBA player with his college and birthdate, so most of the rest can be matched from files already in
 public/. A match needs the same name (accents, punctuation and suffixes aside) AND his college age agreeing
 with his NBA birthdate in every season on file (within AGE_TOL years, on the reference date measured

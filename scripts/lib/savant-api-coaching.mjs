@@ -779,7 +779,7 @@ export function buildCoachingApi({ data, current = null, html, through = null })
     schema: SCHEMA,
     generated,
     count: index.length,
-    note: 'Everyone with a NFL Coaching Savant page: head coaches since the first season, and play-callers since unit data begins. The name is the id. sides lists what he has called (O offence, D defence). g is games, used to order equally good name matches.',
+    note: 'Everyone with an NFL Coaching Savant page: head coaches since the first season, and play-callers since unit data begins. The name is the id. sides lists what he has called (O offence, D defence). g is games, used to order equally good name matches.',
     people: index,
   }
 
