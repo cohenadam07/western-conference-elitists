@@ -1,0 +1,45 @@
+name: Data Room health
+
+# Are the basketball Data Room's rows right (tools/dataroom/health.mjs)? Freshness asks whether the
+# newest row is new enough; this asks whether the rows add up: shots against box-score attempts, no
+# player-game twice, two teams a game, college box points against the score, and the known gaps we
+# watch (blank columns in the season in progress, games without stints, stint points short of the
+# final score, college lineups). The two newest seasons of the NBA and college basketball tables,
+# read from the Parquet copies in the "dataroom" release.
+#
+# Once a day, after the morning rebuilds. A hard failure fails the job (GitHub emails it, as the
+# freshness alarms do); a gap to watch is a warning on the run.
+on:
+  schedule:
+    - cron: '23 14 * * *'     # 10:23am ET (9:23 in winter)
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: 'Seasons to check, comma-separated (default: the two newest)'
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools/dataroom/health.mjs
+            public/dataroom/parquet.json.gz
+            package.json
+            package-lock.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: DuckDB
+        run: npm install --no-save --no-audit --no-fund "@duckdb/node-api@$(node -p "require('./package.json').dependencies['@duckdb/node-api'] || require('./package.json').devDependencies['@duckdb/node-api']")"
+      - name: Do the rows add up
+        env:
+          SEASONS: ${{ inputs.seasons }}
+        run: node tools/dataroom/health.mjs ${SEASONS:+--seasons "$SEASONS"} --out "$RUNNER_TEMP/health.json"

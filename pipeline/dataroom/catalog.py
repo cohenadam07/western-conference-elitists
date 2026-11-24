@@ -35,7 +35,7 @@ LEGACY = {
     'cbb': [('games', 'cbb', 'games', 'game'), ('player_games', 'cbb', 'player_games', 'player-game (per team)'),
             ('units', 'cbb', 'units', 'five-man unit, team-season (per team)'), ('possessions', 'cbb', 'possessions', 'possession (per team)'),
             ('coaching_games', 'cbcs', 'games', 'team-game (coaching context)'), ('coaching_stints', 'cbcs', 'stints', 'player stint'),
-            ('coaching_units', 'cbcs', 'units', 'five-man unit'), ('coaching_rotation', 'cbcs', 'rotation', 'player-game (rotation)'),
+            ('coaching_units', 'cbcs', 'units', 'five-man unit'), ('coaching_rotation', 'cbcs', 'rotation', 'player-season (rotation: games, minutes, usual windows)'),
             ('coaching_decisions', 'cbcs', 'decisions', 'coaching decision'), ('coaching_roster_moves', 'cbcs', 'roster_moves', 'roster move'),
             ('coaching_programs', 'cbcs', 'programs', 'program (every season in one table)')],
 }
