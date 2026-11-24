@@ -5,6 +5,7 @@ import compressData from './scripts/lib/compress-data.mjs'
 import savantApi from './scripts/lib/savant-api.mjs'
 import checkGameAssets from './scripts/lib/check-game-assets.mjs'
 import whatsNew from './scripts/lib/whats-new.mjs'
+import tileData from './scripts/lib/tile-data.mjs'
 import { CLEAN } from './scripts/lib/seo-content.mjs'
 
 // vercel.json serves each Savant page at its clean address (/nba-savant is
@@ -28,5 +29,6 @@ export default defineConfig({
   // savantApi: NBA Savant as small files with percentiles worked out, for AIs and scripts
   // checkGameAssets: a prebuilt game (Flappy Hoops) must not point at a file that isn't there
   // whatsNew: the homepage banner's recent articles, videos, updates and next UFC card
-  plugins: [cleanAddresses(), checkGameAssets(), whatsNew(), react(), seoBuild(), savantApi(), compressData()],
+  // tileData: one true, current fact for each homepage tile (the All-Savant team so far, the next card...)
+  plugins: [cleanAddresses(), checkGameAssets(), whatsNew(), tileData(), react(), seoBuild(), savantApi(), compressData()],
 })
