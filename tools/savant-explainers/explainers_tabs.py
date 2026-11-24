@@ -170,7 +170,7 @@ T = {
 }
 
 # ---- Teams
-TS = f"{NBA} team stats, 1996-97 on."
+TS = f"{NBA} team stats, 2018-19 on (on NBA Savant)."
 T.update({
  "tm_wl": dict(what="Wins and losses.", formula="Games won - games lost.", source=TS, sample="None: a record."),
  "tm_net": dict(what="Net rating: points scored minus points allowed per 100 possessions. The best single number for how good a team has been.",
@@ -199,9 +199,9 @@ T.update({
  "tm_fg3r": dict(what="Three-point attempt rate: share of shots from three.", formula="3PA rate = 3PA / FGA", source=TS, sample="Stable within weeks."),
  "tm_diet": dict(what="Shot diet: where a team's shots come from, and where it lets opponents shoot, by zone, with the FG% in each.",
      formula="Share = FGA in the zone / FGA in the five zones (restricted area, paint, mid-range, corner 3, above-the-break 3).",
-     source=f"{NBA} team shot locations, 1996-97 on.", sample="Diet settles fast; zone FG% takes longer."),
+     source=f"{NBA} team shot locations, 2018-19 on (on NBA Savant).", sample="Diet settles fast; zone FG% takes longer."),
  "tm_pt": dict(what="Team play types: how a team scores (pick-and-roll, transition, spot-ups...) and what it allows, with points per possession and the NBA's percentile among teams.",
-     formula="Frequency = possessions of the type / all play-type possessions; PPP = points / possessions.", source=f"{NBA} Synergy play types, 2015-16 on.", sample="Under ~100 possessions a type is mostly noise."),
+     formula="Frequency = possessions of the type / all play-type possessions; PPP = points / possessions.", source=f"{NBA} Synergy play types, 2018-19 on (on NBA Savant).", sample="Under ~100 possessions a type is mostly noise."),
  "tm_left": dict(what="Games left on the schedule (and how many at home).", formula="Remaining regular-season games from today.", source=f"{NBA} ScheduleLeagueV2.", sample="None: the schedule."),
  "tm_next7": dict(what="Games in the next seven days: the streaming number.", formula="Team games from today through 6 days out.", source=f"{NBA} ScheduleLeagueV2.", sample="None: the schedule."),
  "tm_b2b": dict(what="Back-to-backs left: second nights of consecutive days. Teams play worse and rest stars on them.", formula="Remaining games played the day after another game.", source=f"{NBA} ScheduleLeagueV2.", sample="None: the schedule."),
@@ -237,13 +237,13 @@ T.update({
  "tm_rpos": dict(what="His position on NBA Savant: Guard, Wing or Big, the pool his card's percentiles and his Savant value are measured in.", formula="From his position on the card (with NBA Savant's position estimate fixes).", source=NBA, sample="None: a label."),
  "tm_gp": dict(what="Games he played that season, for every team he played for.", formula="Games with at least one second played.", source=NBA, sample="None: a count."),
  "tm_lineups": dict(what="The team's best and most-used five-man units and two-man pairs that season, from the Lineups tab's own numbers. Best is the highest sample-adjusted net among units over the tab's default minutes floor (50 for five-man, 200 for pairs; pro-rated in the season in progress); most used is the most minutes together.",
-     formula="Sample-adjusted net = (possessions x luck-adjusted net + k x team luck-adjusted net) / (possessions + k), k measured from split-season reliability.", source=f"{NBA} lineup stats (LeagueDashLineups, per team), 2007-08 on.", sample="Most five-man units play under 100 minutes all season: lean on the sample-adjusted column."),
+     formula="Sample-adjusted net = (possessions x luck-adjusted net + k x team luck-adjusted net) / (possessions + k), k measured from split-season reliability.", source=f"{NBA} lineup stats (LeagueDashLineups, per team), 2018-19 on (on NBA Savant).", sample="Most five-man units play under 100 minutes all season: lean on the sample-adjusted column."),
  "tm_coach": dict(what="The team's head coach that season, or each of them when it changed hands, with his games and the dates of his first and last, linked to his NBA Coaching Savant page: the Rotation Map, lineups judged from their parts, timeouts, challenges and his record against the roster's talent.",
      formula="NBA Coaching Savant's team-season file (bcs/t/<team>-<season>.json): every head coach of the season in order, from the play-by-play.", source="NBA Coaching Savant (pipeline/basketball/coaching/build.py): Basketball-Reference coach records and NBA.com play-by-play, 2002-03 on.", sample="None: who coached."),
 })
 
 # ---- Lineups
-LS = f"{NBA} lineup stats (LeagueDashLineups, per team), 2007-08 on."
+LS = f"{NBA} lineup stats (LeagueDashLineups, per team), 2018-19 on (on NBA Savant)."
 T.update({
  "lu_unit": dict(what="The players in the unit: five-man lineups or two-man pairs, with every minute they shared the floor.", formula="All minutes those players were on the floor together.", source=LS, sample="Most five-man units play under 100 minutes all season."),
  "lu_gp": dict(what="Games the unit played together.", formula="Games with at least one shared possession.", source=LS, sample="None: a count."),

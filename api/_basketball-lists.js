@@ -619,7 +619,7 @@ export const tools = [
     config: {
       title: 'NBA teams table',
       description:
-        'NBA Savant\'s Teams table (wcehoops.com): all 30 NBA teams for a season from 1996-97, sorted by any column: record, net and luck-adjusted net rating, offensive and defensive rating, pace, expected wins, luck, the four factors on both ends, 3-point rate, and the schedule ahead. Give a team for its depth chart (players by position, by minutes).',
+        'NBA Savant\'s Teams table (wcehoops.com): all 30 NBA teams for a season from 2018-19, sorted by any column: record, net and luck-adjusted net rating, offensive and defensive rating, pace, expected wins, luck, the four factors on both ends, 3-point rate, and the schedule ahead. Give a team for its depth chart (players by position, by minutes).',
       inputSchema: {
         sort: z.string().trim().max(40).default('adjnet').describe('Column key or name, e.g. "adjnet", "drtg", "pace", "xw". Default luck-adjusted net.'),
         season: z.string().trim().max(12).optional().describe('e.g. "2024-25". Omit for the page\'s default.'),

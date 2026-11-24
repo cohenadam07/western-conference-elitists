@@ -1,11 +1,11 @@
 /* NBA Savant · the Teams and Lineups tabs, and one page per team (2.10.0, #team=ATL).
  *
- * Data: savant-teams.json (finished seasons) + savant-teams-current.json (the season in
- * progress, rebuilt with every refresh) and lineups/<season>.json, all from
- * ~/Basketball-Savant/teams_engine.py. The engine builds teams from 1996-97 and lineups from
- * 2007-08, but the published files start in 2018-19: the Oct 14 2026 backfill of the older
- * seasons never ran (logs/backfill.log ends at a full disk). The pages follow whatever seasons the
- * files hold. Team pages also read NBA Savant's player data (DATA, the roster and Savant value),
+ * Data, 2018-19 on (teams and lineups both): savant-teams.json (finished seasons) +
+ * savant-teams-current.json (the season in progress, rebuilt with every refresh) and
+ * lineups/<season>.json, all from ~/Basketball-Savant/teams_engine.py. Nothing before 2018-19 is
+ * published: the Oct 14 2026 backfill of the older seasons never ran (logs/backfill.log ends at a
+ * full disk). The tabs and pages list whatever seasons the files hold, so a backfill needs no
+ * code change here. Team pages also read NBA Savant's player data (DATA, the roster and Savant value),
  * bcs/t/<team>-<season>.json (the head coach) and bcs/heads.json (photos and team colours).
  * Styles and the explainer click handler come from savant-fantasy.js. Every column name opens
  * its explainer.
@@ -402,7 +402,7 @@ function renderTeamPage(){
   }
   if(t.pt&&(Object.keys(t.pt.o||{}).length)){
     var keys=Object.keys(PTN).filter(function(k){ return (t.pt.o||{})[k]||(t.pt.d||{})[k]; });
-    h+='<h3>'+xk('Play types','tm_pt')+' <span class="tp-unq">Synergy, 2015-16 on; percentiles are the NBA’s, among the 30 teams</span></h3><table class="sv-t"><tr><th class="l">Play type</th><th>Off. freq</th><th>PPP</th><th>Pctile vs 30</th><th>Def. freq</th><th>PPP allowed</th><th>Pctile vs 30</th></tr>'
+    h+='<h3>'+xk('Play types','tm_pt')+' <span class="tp-unq">Synergy; percentiles are the NBA’s, among the 30 teams</span></h3><table class="sv-t"><tr><th class="l">Play type</th><th>Off. freq</th><th>PPP</th><th>Pctile vs 30</th><th>Def. freq</th><th>PPP allowed</th><th>Pctile vs 30</th></tr>'
       +keys.map(function(k){ var o=(t.pt.o||{})[k]||[], dd=(t.pt.d||{})[k]||[];
         return '<tr><td class="l">'+PTN[k]+'</td><td>'+f1(o[0])+'%</td><td>'+(ok(o[1])?o[1].toFixed(2):'—')+'</td><td>'+f0(o[2])+'</td><td>'+f1(dd[0])+'%</td><td>'+(ok(dd[1])?dd[1].toFixed(2):'—')+'</td><td>'+f0(dd[2])+'</td></tr>'; }).join('')+'</table>';
   }

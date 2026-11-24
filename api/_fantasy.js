@@ -620,7 +620,7 @@ export const tools = [
     name: 'nba_team_profile',
     config: {
       title: 'NBA team profile',
-      description: 'NBA Savant Teams (wcehoops.com): a team\'s season: ratings and ranks, luck-adjusted net and expected wins, four factors, shot diet by zone (own and allowed), play types, and the schedule ahead (back-to-backs, strength of schedule). 1996-97 on.',
+      description: 'NBA Savant Teams (wcehoops.com): a team\'s season: ratings and ranks, luck-adjusted net and expected wins, four factors, shot diet by zone (own and allowed), play types, and the schedule ahead (back-to-backs, strength of schedule). 2018-19 on.',
       inputSchema: { team: z.string().trim().min(2).max(40).describe('Abbreviation (BOS) or name (Celtics).'), season: z.string().trim().max(12).optional().describe('Season as two years, e.g. "2025-26". Omit for the latest with 10+ games.') },
       outputSchema: { season: z.string(), team: loose, ranks: loose, url: z.string() },
       annotations: { title: 'NBA team profile', ...READ_ONLY },
@@ -631,9 +631,9 @@ export const tools = [
     name: 'nba_lineups',
     config: {
       title: 'NBA lineup ratings',
-      description: 'NBA Savant Lineups (wcehoops.com): 5-man units or 2-man pairs with minutes, ratings, luck-adjusted net, and a sample-adjusted net pulled toward the team by a measured k. Filter by team or player. 2007-08 on.',
+      description: 'NBA Savant Lineups (wcehoops.com): 5-man units or 2-man pairs with minutes, ratings, luck-adjusted net, and a sample-adjusted net pulled toward the team by a measured k. Filter by team or player. 2018-19 on.',
       inputSchema: {
-        team: z.string().trim().max(40).optional().describe('Abbreviation or name; omit for every team.'), season: z.string().trim().max(12).optional().describe('e.g. "2025-26"; 2007-08 on.'), size: z.union([z.literal(5), z.literal(2)]).default(5).describe('5 for five-man lineups (default), 2 for two-man pairs.'),
+        team: z.string().trim().max(40).optional().describe('Abbreviation or name; omit for every team.'), season: z.string().trim().max(12).optional().describe('e.g. "2025-26"; 2018-19 on.'), size: z.union([z.literal(5), z.literal(2)]).default(5).describe('5 for five-man lineups (default), 2 for two-man pairs.'),
         min_minutes: z.number().min(0).optional().describe('Minutes floor (default 50 for 5-man, 200 for 2-man; lower early in a season in progress, pro-rated to the games played).'), sort: z.enum(['sample_adjusted', 'luck_adjusted', 'raw', 'minutes']).default('sample_adjusted').describe('Sort by sample-adjusted net (default), luck-adjusted net, raw net, or minutes.'),
         player: z.string().trim().max(80).optional().describe('Only units including this player (last name is enough).'), limit: z.number().int().min(1).max(100).default(15).describe('Most units to return (default 15).'),
       },
