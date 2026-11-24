@@ -158,10 +158,20 @@ function loadArticles(root) {
     .map((f) => JSON.parse(readFileSync(path.join(dir, f), 'utf8')))
 }
 
-const VA_SNIPPET = [
-  '<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>',
-  '<script defer src="/_vercel/insights/script.js"></script>',
-]
+// The human gate (public/wce-human.js, BOT-SHIELD.md). A plain <script> in <head> so it runs before
+// the page's own scripts: it holds the page's data downloads until the visitor is confirmed human,
+// and loads Vercel Web Analytics (/_vercel/insights/script.js) only then, so bots don't count.
+export const GATE_SNIPPET = '<script src="/wce-human.js"></script>'
+
+// Write the public Turnstile site key into dist/wce-human.js (empty = interaction-only mode).
+function keyHumanGate(dist) {
+  const file = path.join(dist, 'wce-human.js')
+  if (!existsSync(file)) return 'human gate: wce-human.js MISSING'
+  const key = String(process.env.TURNSTILE_SITE_KEY || '').trim()
+  if (!/^[A-Za-z0-9_-]*$/.test(key)) throw new Error('TURNSTILE_SITE_KEY has unexpected characters')
+  writeFileSync(file, readFileSync(file, 'utf8').replace("'__WCE_TS_KEY__'", JSON.stringify(key).replace(/"/g, "'")))
+  return key ? 'human gate: Turnstile on' : 'human gate: no TURNSTILE_SITE_KEY, interaction-only'
+}
 
 // A Savant tool's own <title> is its name and nothing else ("NFL Savant — WCE"), and its
 // landing screen is a search box. Give the page a title and description that say what the tool
@@ -197,7 +207,7 @@ function decorateStandalone(html, file, meta) {
       '<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">'
     )
   }
-  if (!html.includes('/_vercel/insights/script.js')) add.push(...VA_SNIPPET)
+  if (!html.includes('/wce-human.js') && !html.includes('/_vercel/insights/script.js')) add.push(GATE_SNIPPET)
   if (meta.share !== false) {
     const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1] || SITE_NAME
     const described = /<meta\s+name="description"/i.test(html)
@@ -228,6 +238,7 @@ function decorateStandalone(html, file, meta) {
 export function buildSeo({ root, dist }) {
   const shell = readFileSync(path.join(dist, 'index.html'), 'utf8')
   const report = []
+  report.push(keyHumanGate(dist))
 
   // Articles
   const articles = loadArticles(root)

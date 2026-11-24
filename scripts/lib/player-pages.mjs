@@ -83,7 +83,7 @@ const HEAD_LINKS =
   '<link rel=icon type=image/svg+xml href=/favicon.svg><link rel=apple-touch-icon href=/apple-touch-icon.png>' +
   '<link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">' +
   '<link rel=stylesheet href=/player/p.css><script defer src=/wce-nav.js></script>' +
-  '<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}</script><script defer src=/_vercel/insights/script.js></script>'
+  '<script src=/wce-human.js></script>' // the human gate: holds data and Analytics until a person is confirmed (BOT-SHIELD.md)
 
 // These tags are read by other people's scrapers, some of them crude, so unlike the rest of the
 // page they keep their quotes and sit inside a real <head>. To keep ~3,800 heads small:

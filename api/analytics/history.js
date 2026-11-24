@@ -26,6 +26,7 @@ import { readEdge, readPortfolios } from './_edge.js';
 import { statusHandler } from '../_status.js';
 import { espnSummaryHandler } from '../_espn-summary.js';
 import { llUsageHandler } from '../_ll-usage.js';
+import { humanHandler } from '../_human.js';
 
 export const config = { maxDuration: 30 };
 
@@ -44,6 +45,10 @@ export default async function handler(req, res) {
   // Live Lineups' usage beacons (/api/ll-usage, rewritten here too). Public; it stores only enumerated values.
   if (new URL(req.url, 'http://localhost').searchParams.get('section') === 'll-usage') {
     return llUsageHandler(req, res);
+  }
+  // The human gate's Turnstile check (/api/human, rewritten here too). Public. See BOT-SHIELD.md.
+  if (new URL(req.url, 'http://localhost').searchParams.get('section') === 'human') {
+    return humanHandler(req, res);
   }
 
   const password = process.env.ANALYTICS_DASHBOARD_PASSWORD;

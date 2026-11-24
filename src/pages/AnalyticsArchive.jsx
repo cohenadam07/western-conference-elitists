@@ -11,6 +11,16 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
  */
 
 const STORAGE_KEY = 'wce-analytics-key';
+
+// Days bots inflated, left out of totals, "Best day" and the chart unless the toggle includes them.
+// Nov 22: a Singapore/China crawler walked ~2,400 player pages. Nov 23-24: an automated Chrome on
+// rotating home IPs loading NBA Savant ~100 times an hour, until the human gate went live
+// (public/wce-human.js, BOT-SHIELD.md). After the gate, pageviews only count confirmed people.
+const BOT_DAYS = {
+  '2026-11-22': 'crawler walking every player page',
+  '2026-11-23': 'automated Chrome on NBA Savant',
+  '2026-11-24': 'automated Chrome on NBA Savant, until the human gate went live',
+};
 const ENDPOINT = '/api/analytics/history';
 
 const RANGES = [
@@ -457,6 +467,7 @@ export default function AnalyticsArchive() {
   const [grain, setGrain] = useState('auto');
   const [showTable, setShowTable] = useState(false);
   const [sync, setSync] = useState('');
+  const [hideBots, setHideBots] = useState(true);
 
   useEffect(() => {
     document.title = 'Analytics archive — WCE';
@@ -515,7 +526,12 @@ export default function AnalyticsArchive() {
     setDraft('');
   };
 
-  const daily = data?.daily || [];
+  const allDaily = useMemo(() => data?.daily || [], [data]);
+  const botDaysInRange = allDaily.filter((d) => BOT_DAYS[d.date]);
+  const daily = useMemo(
+    () => (hideBots ? allDaily.filter((d) => !BOT_DAYS[d.date]) : allDaily),
+    [allDaily, hideBots]
+  );
   const effectiveGrain = useMemo(() => {
     if (grain !== 'auto') return grain;
     if (daily.length > 400) return 'month';
@@ -578,7 +594,18 @@ export default function AnalyticsArchive() {
     );
   }
 
-  const t = data?.totals;
+  // With bot days hidden, totals and "Best day" come from the days that are left.
+  const t = !hideBots || !botDaysInRange.length
+    ? data?.totals
+    : daily.reduce(
+        (acc, d) => {
+          acc.pageviews += d.pageviews;
+          acc.visits += d.visitors;
+          if (!acc.bestDay || d.pageviews > acc.bestDay.pageviews) acc.bestDay = { date: d.date, pageviews: d.pageviews };
+          return acc;
+        },
+        { pageviews: 0, visits: 0, bestDay: null }
+      );
   const archive = data?.archive;
 
   return (
@@ -638,7 +665,22 @@ export default function AnalyticsArchive() {
             </button>
           ))}
         </div>
+        <div className="wa-seg" role="group" aria-label="Bot days">
+          <button className={hideBots ? 'on' : ''} onClick={() => setHideBots(true)}>
+            Hide bot days
+          </button>
+          <button className={hideBots ? '' : 'on'} onClick={() => setHideBots(false)}>
+            Include them
+          </button>
+        </div>
       </div>
+      {botDaysInRange.length > 0 && (
+        <p className="wa-sub">
+          {hideBots ? 'Hidden' : 'Included, tagged in the table'}: {botDaysInRange.length} day
+          {botDaysInRange.length === 1 ? '' : 's'} bots inflated (
+          {botDaysInRange.map((d) => fmtDate(d.date)).join(', ')}).
+        </p>
+      )}
 
       <div className="wa-tiles">
         <StatTile label="Pageviews" value={fmtInt(t?.pageviews)} sub="in selected range" />
@@ -686,7 +728,12 @@ export default function AnalyticsArchive() {
               <tbody>
                 {[...rows].reverse().map((r) => (
                   <tr key={r.date}>
-                    <td>{r.date}</td>
+                    <td>
+                      {r.date}
+                      {effectiveGrain === 'day' && BOT_DAYS[r.date] && (
+                        <span className="wa-sub" title={BOT_DAYS[r.date]}> · bot day</span>
+                      )}
+                    </td>
                     <td>{fmtInt(r.pageviews)}</td>
                     <td>{fmtInt(r.visitors)}</td>
                   </tr>
