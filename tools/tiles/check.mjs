@@ -53,24 +53,24 @@ test('NFL Savant: the three highest Savant values among qualified players', () =
 })
 
 test('CFB Savant: seeds one to four of the playoff field, by school name and record', () => {
-  const season = json('cfb/index.json.gz').default_season
+  const season = json('cfb/index.json.gz').current
   const p = json(`cfb/playoff/${season}.json.gz`)
   assert.deepEqual(tiles.cfb.rows.map((r) => r.show), p.field.slice(0, 4).map((f) => `${f.w}-${f.l}`))
   assert.deepEqual(p.field.slice(0, 4).map((f) => f.seed), [1, 2, 3, 4])
   assert.equal(tiles.cfb.label.includes('if the season ended today'), !p.final)
 })
 
-test('CBB Savant follows the season the page opens on', () => {
+test('CBB Savant shows the season being played, not the one the page still opens on', () => {
   const idx = json('cbb/index.json.gz')
-  assert.equal(tiles.cbb.season, idx.default_season)
-  const a = json(`cbb/allsavant/${idx.default_season}.json.gz`)
+  assert.equal(tiles.cbb.season, idx.current)
+  const a = json(`cbb/allsavant/${idx.current}.json.gz`)
   assert.deepEqual(new Set(tiles.cbb.rows.map((r) => r.name)), new Set(a.national['1'].map((p) => p.name)))
 })
 
 test('the coaching tiles print the top of a Leaders board as the page prints it', () => {
-  const b = json('bcs/index.json').leaders.find((x) => x.id === 'wins_above_market')
+  const b = json('bcs/index.json').leaders.find((x) => x.id === 'season_w_talent')
   assert.deepEqual(tiles.nbac.rows.map((r) => r.name), b.rows.slice(0, 3).map((r) => r.name))
-  const c = json('cbcs/index.json.gz').leaders.find((x) => x.id === 'w_roster')
+  const c = json('cbcs/index.json.gz').leaders.find((x) => x.id === 'cur_w_roster')
   assert.deepEqual(tiles.cbbc.rows.map((r) => r.name), c.rows.slice(0, 3).map((r) => r.name))
   const d = json('coaching-savant-current.json')
   const best = Math.max(...Object.values(d.coaches).map((x) => x.seasons.find((s) => s.season === d.season)?.waa ?? -Infinity))
@@ -83,4 +83,18 @@ test('the homepage draws a fact on each of those tiles, sorted under six headers
   const heads = [...jsx.matchAll(/<h2 className="gh g-[a-z]+"><span>([^<]+)<\/span>/g)].map((m) => m[1])
   assert.deepEqual(heads, ['NBA', 'NFL', 'College', 'UFC', 'Games', 'Read'])
   assert.equal(jsx.split('<a className="card ').length - 1, 16, 'a tile went missing')
+})
+
+test('every fact with a season is about the season being played', () => {
+  const current = {
+    nba: json('savant-current.json').seasons[0],
+    nfl: json('football-savant-current.json').seasons[0],
+    cbb: json('cbb/index.json.gz').current,
+    cfb: json('cfb/index.json.gz').current,
+    nbac: json('bcs/index.json').meta.current,
+    cbbc: json('cbcs/index.json.gz').meta.current,
+  }
+  for (const [k, season] of Object.entries(current)) assert.equal(String(tiles[k].season), String(season), `the ${k} tile is not on the current season`)
+  assert.ok(tiles.nflc.label.includes(String(json('coaching-savant-current.json').season)))
+  for (const [k, f] of Object.entries(tiles)) assert.ok(!/career|all-time/i.test(`${f.label} ${f.sub || ''}`), `the ${k} tile shows a career number`)
 })

@@ -10,6 +10,9 @@
 //   - Nothing is computed here that a tool does not already compute. NBA values come from
 //     buildSavantApi (the page's own model), everything else is read straight from a file.
 //   - Every fact says what it is (`label`) and how fresh it is (`through`), the tool's own date.
+//   - Every fact is about the season being played. No career boards and no last season: a
+//     homepage that mixes this season, last season and all-time reads as if it were all one.
+//     When a tool has nothing for the current season yet, its tile shows its drawing alone.
 //   - A fact that cannot be read is left out, with a build warning. The tile then shows its
 //     drawing alone. A missing file never breaks the build and never shows a stale guess.
 //
@@ -67,9 +70,10 @@ export function ufc(root) {
   return { label: 'Next card', date: c.date, text: `${main[0].name} vs. ${main[1].name}`, sub: where }
 }
 
-// CBB Savant: the national All-Savant 1st Team as it stands.
+// CBB Savant: the national All-Savant 1st Team as it stands in the season being played. (Early
+// in a season the page itself still opens on last season; the tile does not follow it there.)
 export function cbb(root) {
-  const season = read(root, 'cbb/index.json.gz')?.default_season
+  const season = read(root, 'cbb/index.json.gz')?.current
   const a = season && read(root, `cbb/allsavant/${season}.json.gz`)
   const first = a?.national?.['1']
   if (!first?.length) return null
@@ -79,7 +83,7 @@ export function cbb(root) {
 
 // CFB Savant: the top four seeds of the objective playoff field, as the page states it.
 export function cfb(root) {
-  const season = read(root, 'cfb/index.json.gz')?.default_season
+  const season = read(root, 'cfb/index.json.gz')?.current
   const p = season && read(root, `cfb/playoff/${season}.json.gz`)
   const teams = season && read(root, `cfb/teams/${season}.json.gz`)
   if (!p?.field?.length || !teams?.cols || !teams?.teams) return null
@@ -94,14 +98,17 @@ export function cfb(root) {
 }
 
 // The two basketball coaching tools: the top three of one Leaders board, as the page prints it.
+// Only a board for the season being played will do: the board must say so itself (kind
+// 'season', and its season is the tool's current one), so when a new season starts and the
+// board has not been rebuilt yet, the tile goes quiet instead of showing last season's.
 function board(index, id, sub) {
   const b = index?.leaders?.find((x) => x.id === id)
-  if (!b?.rows?.length) return null
+  if (!b?.rows?.length || b.kind !== 'season' || !index.meta?.current || b.season !== index.meta.current) return null
   // `display` is the page's own print of the number; a bracketed aside after it is dropped for room
-  return { label: b.title, sub, pool: `${b.note} Among ${b.pool}.`, rows: b.rows.slice(0, 3).map((r) => ({ name: r.name, show: String(r.display).split(' (')[0], value: r.value })) }
+  return { label: b.title, season: b.season, through: index.meta.through || null, sub, pool: `${b.note} Among ${b.pool}.`, rows: b.rows.slice(0, 3).map((r) => ({ name: r.name, show: String(r.display).split(' (')[0], value: r.value })) }
 }
-export const nbac = (root) => board(read(root, 'bcs/index.json'), 'wins_above_market', 'career, since 1996-97')
-export const cbbc = (root) => board(read(root, 'cbcs/index.json.gz'), 'w_roster', 'career, per 30 games')
+export const nbac = (root) => board(read(root, 'bcs/index.json'), 'season_w_talent')
+export const cbbc = (root) => board(read(root, 'cbcs/index.json.gz'), 'cur_w_roster')
 
 // NFL Coaching Savant: wins above expectation this season, top three.
 export function nflc(root) {
