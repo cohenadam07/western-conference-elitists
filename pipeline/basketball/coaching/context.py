@@ -49,6 +49,12 @@ def all_star_break(dates):
     return best if gap >= 4 else None
 
 
+
+def _by_seconds(item):
+    """Sort key for (seconds, player id): seconds, then the id's kind (str after int), then the id."""
+    sec, pid = item
+    return (sec, isinstance(pid, str), pid)
+
 def build(season, logs, processed, who, impact, archive, prev_min=None, log=print):
     """logs: registry game_logs()[season] rows. processed: process.load(season) or None.
     impact: {pid: bpm}. archive: archive.players(season). prev_min: {pid: minutes last season for the team} by team."""
@@ -117,7 +123,11 @@ def build(season, logs, processed, who, impact, archive, prev_min=None, log=prin
                     a = span.setdefault((team, pid), [g["date"], g["date"]])
                     a[0], a[1] = min(a[0], g["date"]), max(a[1], g["date"])
         for team in by_team:
-            top = sorted(((s, pid) for (t, pid), s in secs.items() if t == team), reverse=True)[:8]
+            # Most seconds first. A tie falls to the player id, and ids are the NBA's ints for mapped
+            # players and ESPN's strings for the rest, which Python will not compare (Nov 24, 2026:
+            # two teammates level on seconds, one of each kind, stopped the refresh). So ties rank
+            # by kind before id; whenever the old sort worked, this one gives the same order.
+            top = sorted(((s, pid) for (t, pid), s in secs.items() if t == team), key=_by_seconds, reverse=True)[:8]
             regulars[team] = {pid: span[(team, pid)] for _, pid in top}
 
     # per-team running state
