@@ -8,6 +8,7 @@
 //             the end, or a profile or leaderboard tool), over MCP
 // and the self-check says whether the two agree within the question's tolerance.
 
+import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { gunzipSync } from 'node:zlib'
@@ -16,12 +17,25 @@ import { fileURLToPath } from 'node:url'
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..')
 
 // ---- files: local (public/, out/dataroom) or live (the site, the release assets) ----------------
-export function makeFiles({ site = null, hosted = path.join(ROOT, 'out', 'dataroom'), assets = 'https://github.com/cohenadam07/western-conference-elitists/releases/download/dataroom' } = {}) {
+//
+// `commit` (with `site`): the site's own files are read from the repo at that commit instead of over
+// HTTP: `git show <commit>:public/<file>`. The exam passes the commit production is serving
+// (exam.mjs deployedCommit), so the gold is computed from exactly the files the live connector reads,
+// without asking the site for them. Since Nov 23, 2026 the site's bot protection answers a GitHub
+// runner's file requests with HTTP 429 now and then, which failed questions that had nothing wrong
+// with them; the connector's own address (/api/, /mcp/) is not behind it.
+export function makeFiles({ site = null, commit = null, hosted = path.join(ROOT, 'out', 'dataroom'), assets = 'https://github.com/cohenadam07/western-conference-elitists/releases/download/dataroom' } = {}) {
   const memo = new Map()
+  const show = (rel) => { const r = spawnSync('git', ['show', `${commit}:public/${rel}`], { cwd: ROOT, maxBuffer: 1 << 30 }); return r.status === 0 ? r.stdout : null }
   async function json(rel) {
     if (memo.has(rel)) return memo.get(rel)
     let v
-    if (site) {
+    if (site && commit) {
+      const gz = show(`${rel}.gz`)
+      const b = gz ? gunzipSync(gz) : show(rel)
+      if (!b) throw new Error(`${rel}: not in the deployed commit ${commit.slice(0, 8)}`)
+      v = JSON.parse(b.toString('utf8'))
+    } else if (site) {
       const res = await fetch(`${site}/${rel}`, { signal: AbortSignal.timeout(60000) })
       if (!res.ok) throw new Error(`${rel}: HTTP ${res.status}`)
       v = JSON.parse(await res.text())
