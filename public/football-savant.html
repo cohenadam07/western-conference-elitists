@@ -822,6 +822,9 @@ body{background-color:#1D6B3A;color:var(--ink);
 .tm-top h2{margin:0;border:0;padding:0}
 .tm-rec{font-family:var(--pix);font-size:13px;color:var(--ink)}
 .tm-wk{color:var(--faint);white-space:nowrap}
+/* a 40px tap target without moving the line: the padding is taken back by the margin */
+#tmCoach a.tr-coach{display:inline-block;padding:13px 0;margin:-13px 0}
+#tmCoach a.tr-coach:focus-visible{outline:2px solid var(--turf);outline-offset:2px}
 .tm-x{margin-left:auto;font-family:var(--pix);font-size:10px;background:#FFF;border:2px solid var(--turf-dk);
   padding:5px 9px;cursor:pointer;color:var(--ink)}
 .tm-x:hover{background:var(--turf);color:#FFF}
