@@ -139,3 +139,61 @@ every key; the public address and its up-front text are byte-identical to 3.7.0.
 `savant_sql` also does `savant_data`'s and `savant_dictionary`'s jobs, which keeps that listing under the
 90,000-character cap. No What's New line yet: it waits until the tools open. The full write-up is
 [ANALYSIS.md](ANALYSIS.md); the brief is [research/analysis/BUILD.md](research/analysis/BUILD.md).
+
+## More analysis tables, and a health check (Nov 24, 2026)
+
+An audit of the basketball tables through `savant_sql` found the base clean (NBA shots equal box-score attempts in
+all 30 finished seasons, no player-game twice) and a list of things an analysis could not do. This adds what can be
+built from files already in `public/`, as **analysis-only tables** (`pipeline/dataroom/analysis_tables.mjs`; like
+`nba.player_seasons` they are in the Parquet manifest, not the catalog, so `savant_data`, `savant_dictionary` and the
+public address are unchanged):
+
+| table | one row per | seasons | rows | Parquet | what it is for |
+|---|---|---|---|---|---|
+| `nba.games` | game | 1996-97 on | 38,275 | 0.8 MB | both game ids (ESPN's and the NBA's), the type (RS / PO / PI), teams, score, possessions: the join between the box-score tables and the coaching tables, and the playoff flag the stints lack |
+| `nba.player_game_onoff` | player-game | 2002-03 on | 646,595 | 6.5 MB | the stints summed: counted possessions on the floor each way, the score while he was on, his team's game totals |
+| `nba.player_stats` | player-season-stat | 1979-80 on | 2.17 M | 9.2 MB | every card stat (up to 207 a season) with its value, both percentiles and its low-sample flag, read through `savant_query`'s own code |
+| `cbb.player_seasons` | college player-season | 2009-10 on | 77,241 | 1.8 MB | team, position, class, age, size, games, minutes, possessions, qualified, recruiting |
+| `cbb.player_stats` | college player-season-stat | 2009-10 on | 2.29 M | 19 MB | raw and opponent-adjusted value and sample for every card stat |
+| `cbb.pro_links` | college player who reached the NBA | one file | 1,274 | 0.02 MB | college id to NBA id: the site's 409 links plus 865 matched on name and age |
+
+The stat tables are tall on purpose: a new stat on a card is a new row, never a new column, so a refresh cannot fail
+the stored schema.
+
+**Filling themselves in.** `parquet_publish.sh` now writes, for an analysis-only table, every season the manifest does
+not hold yet as well as the season in progress, and adds a season to the manifest only once its file is uploaded. So
+after a merge the next NBA refresh and the next college refresh upload all 137 files (about 37 MB, 90 seconds of
+building) and commit the manifest; until then nothing names a file the release lacks.
+
+**Checks** (`tools/dataroom/analysis_tables.mjs`, in `check:dataroom` and `check:savant`): one row a game and a key
+that is unique in every table; every regular-season game joins `nba.player_games` (1,230 of 1,230 in 2024-25, and
+all 2,460 team scores equal the box scores' sums); five on the floor in 99%+ of team-games of the newest finished season (95% in the oldest stint seasons);
+`nba.player_stats` equals the season file's core stats cell for cell (swapping two columns on purpose fails the test);
+`cbb.player_stats` equals `public/cbb/s`; a Parquet round trip.
+
+**The college-to-NBA match** (`pipeline/dataroom/pro_links.py`, run in the college refresh) needs the same name and
+a college age that agrees with the NBA birthdate in every season on file, one player each side. The site's own links
+are held out and grade it before anything is written: 393 of the 394 in reach found, all 393 the same player. Under
+99.5% agreement it writes nothing. Only ids are written.
+
+**What the audit found in the stints** (they feed RAPM, so it is written down): the stint points of a team-game
+equal the final score in 86% of team-games in 2024-25, 84% in 2025-26, 91% so far in 2026-27 and 65% in 2010-11; the rest are short, usually
+by one point (one 2010-11 game by 79). Rebuilt plus-minus equals the box score's in about 40% of player-games and is
+within 2 points in 93%. Four 2025-26 playoff games and eight 2026-27 games have no stints.
+
+**Said out loud now** (`api/_dataroom.js`): a table's seasons name what is missing between the first and the last
+("2009-10 to 2026-27 (not 2011-12, 2012-13)"); `cbb.games` says where the closing line exists (none in 2023-24 and
+2024-25: those lines came from CollegeBasketballData, which may not be served) and how far lineups go;
+`cbb.player_games` says it has no rebound split or plus-minus; `cbb.possessions` says what `opp_five` is; the college
+rotation table is labeled player-season, which is what it holds.
+
+**Data Room health** (`tools/dataroom/health.mjs`, `dataroom-health.yml`, daily): the audit's checks on the two
+newest seasons, from the release's Parquet copies. Hard checks fail the job: shots against attempts, no player-game
+twice, two teams a game, college box points against the score. Gaps to watch are warnings with the number. Nov 24:
+30 checks, 25 ok, 5 to watch (fouls drawn and blocked attempts blank in 2026-27, `assisted` never built, 246 of 254
+games with stints), none failed.
+
+**Not in this change** (needs play-by-play the Mac holds, or a stored-schema rewrite): `assisted` on shots; fouls
+drawn and blocked attempts in the season in progress; a possession-level NBA table; playoffs in `nba.player_games`
+and `nba.shots`; the stint gaps above; ids beside the names in `cbb.possessions` and `cbb.units`; a college shots
+table; the college rebound split.
