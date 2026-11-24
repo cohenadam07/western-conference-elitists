@@ -8250,7 +8250,9 @@ wirePanelExpl();
   wireHome(); wireLB(); showHome();
   // Deep link: /nba-savant?p=<id> opens that player's card on load
   // (used by the News page player chips). No-op + guarded so it never blocks boot.
-  try{ var _dp=new URLSearchParams(location.search).get('p'); if(_dp) pickHome(asId(_dp)); }catch(e){}
+  // A tab's own address wins over a ?p= left beside it (#team=ATL, #teams, #lineups, #fantasy):
+  // opening the player first would replace that hash with "#p" before the route below reads it.
+  try{ var _dp=new URLSearchParams(location.search).get('p'); if(_dp&&!/^#(team=|teams|lineups|fantasy)/.test(location.hash)) pickHome(asId(_dp)); }catch(e){}
   try{ if(location.hash.slice(0,3)==='#lb') showLB(true); else if(window.svRoute) window.svRoute(location.hash); }catch(e){}
 })();
 </script>

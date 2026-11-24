@@ -73,7 +73,9 @@ function open(which){
 function show(which){
   if(which!=='tm'){ untitle(); renderLineups(); return; }
   var r=parseTeamHash(location.hash);
-  if(r){ T.page=r.team; T.pageSeason=r.season||T.data.seasons[0]; renderTeamPage(); }
+  if(r){ T.page=r.team; T.pageSeason=r.season||T.data.seasons[0];
+    if(location.search) try{ history.replaceState(history.state,'',location.pathname+location.hash); }catch{}   // drop a stray ?p=&s=
+    renderTeamPage(); }
   else { T.page=null; untitle(); renderTeams(); }
 }
 function parseTeamHash(h){
@@ -88,7 +90,7 @@ function teamHash(abbr,season){
   return '#team='+encodeURIComponent(abbr)+(season&&season!==newest?'&s='+encodeURIComponent(season):'');
 }
 function goTeam(abbr,season){
-  try{ history.pushState({sv:'tm'},'',location.pathname+location.search+teamHash(abbr,season)); }catch{}
+  try{ history.pushState({sv:'tm'},'',location.pathname+teamHash(abbr,season)); }catch{}   // no ?p=: a team's address is only its own
   T.page=abbr; T.pageSeason=season; renderTeamPage(); window.scrollTo(0,0);
 }
 var TITLE0=D.title;
@@ -426,7 +428,7 @@ function renderTeamPage(){
   if(M){ M.wrap(v); var ros=v.querySelector('table.tp-ros'); if(ros) M.order(ros,['tm_value','tm_posrank']); }
   wireBack(); wirePage(v);
   $('tpSeason').onchange=function(e){ T.pageSeason=e.target.value;
-    try{ history.replaceState({sv:'tm'},'',location.pathname+location.search+teamHash(abbr,T.pageSeason)); }catch{}
+    try{ history.replaceState({sv:'tm'},'',location.pathname+teamHash(abbr,T.pageSeason)); }catch{}
     renderTeamPage(); };
   v.querySelectorAll('.tp-jump button').forEach(function(bt){ bt.onclick=function(){ var el=$(bt.dataset.to); if(el) el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}); }; });
   // the parts that load on their own: lineups (2018-19 on here), the coach, the team colours

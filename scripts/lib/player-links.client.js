@@ -32,7 +32,9 @@
   }
   function inPlayerView() {
     var c = document.body.classList;
-    return !c.contains('home-open') && !c.contains('lb-open');
+    // the Fantasy, Teams and Lineups tabs (savant-fantasy.js) are not a player either: a card
+    // re-rendering behind #team=ATL must not write ?p= onto the team's address (2.10.0)
+    return !c.contains('home-open') && !c.contains('lb-open') && !c.contains('tab-fx') && !c.contains('tab-tm') && !c.contains('tab-lu');
   }
   function params() { try { return new URLSearchParams(location.search); } catch (e) { return null; } }
 
