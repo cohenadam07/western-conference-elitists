@@ -2,7 +2,7 @@
 // to an Svg element (desktop and mobile draw it in a sandboxed frame where SMIL animation runs).
 // Pure functions of the feed: no engine calls here, so the tests can draw them directly.
 
-import type { Deploy, Feed, FeedEvent, Job, JobStatus, Pulse, Reach } from './types'
+import type { Deploy, Feed, FeedEvent, Job, JobStatus, Pulse, Reach, SocialPlatform } from './types'
 
 /* ------------------------------------------------------------------ *
  * Brand and status colors
@@ -154,7 +154,9 @@ export const WATCHERS: Box[] = CHECK_COLUMNS.flatMap((c, i) =>
   c.chips.map(([id, label], r) => node(id, CHECK_X + i * CHECK_COL, CHECK_Y + 46 + r * 30, CHECK_W, CHECK_H, label)))
 
 // Every job id that has a light on the map (page.ts uses it to decide which events flash).
-export const MAP_JOB_IDS: string[] = [...ENGINES.map((e) => e.id), ...MAC_CHIPS.map((b) => b.id), ...WATCHERS.map((b) => b.id)]
+// The Muse ids are written out because SOCIAL is declared further down.
+export const MAP_JOB_IDS: string[] = [...ENGINES.map((e) => e.id), ...MAC_CHIPS.map((b) => b.id), ...WATCHERS.map((b) => b.id),
+  'muse-instagram', 'muse-threads', 'muse-facebook']
 
 export const SITE: Box[] = [
   node('deploy', SITE_X, 360, SITE_W, 56, 'Vercel deploy'),
@@ -163,20 +165,29 @@ export const SITE: Box[] = [
 ]
 
 export const REACH: (Box & { from: 'site' | 'store'; live: boolean })[] = [
-  { ...node('visitors', REACH_X, 190, REACH_W, 46, 'Visitors'), from: 'site', live: true },
-  { ...node('connector', REACH_X, 250, REACH_W, 46, 'AI connector'), from: 'site', live: true },
-  { ...node('founding', REACH_X, 310, REACH_W, 46, 'Founding members'), from: 'store', live: true },
-  { ...node('newsletter', REACH_X, 370, REACH_W, 46, 'Newsletter'), from: 'site', live: true },
-  { ...node('dynasty', REACH_X, 430, REACH_W, 46, 'Dynasty ballots'), from: 'store', live: true },
-  { ...node('youtube', REACH_X, 506, REACH_W, 40, 'YouTube'), from: 'site', live: false },
-  { ...node('social', REACH_X, 556, REACH_W, 40, 'X · Bluesky'), from: 'site', live: false },
-  { ...node('google', REACH_X, 606, REACH_W, 40, 'Google search'), from: 'site', live: false },
+  { ...node('visitors', REACH_X, 176, REACH_W, 46, 'Visitors'), from: 'site', live: true },
+  { ...node('connector', REACH_X, 228, REACH_W, 46, 'AI connector'), from: 'site', live: true },
+  { ...node('founding', REACH_X, 280, REACH_W, 46, 'Founding members'), from: 'store', live: true },
+  { ...node('newsletter', REACH_X, 332, REACH_W, 46, 'Newsletter'), from: 'site', live: true },
+  { ...node('dynasty', REACH_X, 384, REACH_W, 46, 'Dynasty ballots'), from: 'store', live: true },
+  { ...node('youtube', REACH_X, 616, REACH_W, 26, 'YouTube · not yet'), from: 'site', live: false },
+  { ...node('social', REACH_X, 648, REACH_W, 26, 'X · Bluesky · not yet'), from: 'site', live: false },
+  { ...node('google', REACH_X, 680, REACH_W, 26, 'Google · not yet'), from: 'site', live: false },
+]
+
+// Instagram, Threads and Facebook: Muse posts there and checks in (api/_status.js museCheckIn).
+// Each is a job (its light is the job's status) and shows the account's latest numbers.
+const SOCIAL_Y = 470
+export const SOCIAL: (Box & { platform: string })[] = [
+  { ...node('muse-instagram', REACH_X, SOCIAL_Y, REACH_W, 46, 'Instagram'), platform: 'instagram' },
+  { ...node('muse-threads', REACH_X, SOCIAL_Y + 52, REACH_W, 46, 'Threads'), platform: 'threads' },
+  { ...node('muse-facebook', REACH_X, SOCIAL_Y + 104, REACH_W, 46, 'Facebook'), platform: 'facebook' },
 ]
 
 export const MAP_W = 1000
 export const MAP_H = 920
 
-const all = (): Box[] => [...SOURCES, ...ENGINES, ...MAC_CHIPS, ...WATCHERS, ...SITE, ...REACH]
+const all = (): Box[] => [...SOURCES, ...ENGINES, ...MAC_CHIPS, ...WATCHERS, ...SITE, ...REACH, ...SOCIAL]
 const byId = (id: string) => all().find((b) => b.id === id)
 
 const right = (b: Box) => ({ x: b.x + b.w, y: b.y + b.h / 2 })
@@ -225,8 +236,9 @@ export function lanePath(lane: string): string | null {
   if (kind === 'watch') return watchWire()
   if (kind === 'reach') {
     const r = REACH.find((x) => x.id === id)
-    if (!r) return null
-    return wire(r.from === 'store' ? store : site, r)
+    if (r) return wire(r.from === 'store' ? store : site, r)
+    const so = SOCIAL.find((x) => x.id === id)
+    return so ? wire(site, so) : null
   }
   return null
 }
@@ -298,6 +310,17 @@ function jobSub(j: Job | undefined, now: number): { sub: string; sub2?: string }
   if (!j.last) return { sub: j.status === 'manual' ? 'by hand only' : 'no check-in yet', sub2: j.next ? `next ${until(j.next, now)}` : undefined }
   const lastWord = j.status === 'failed' ? 'failed' : j.status === 'late' ? 'late · last' : j.last.state === 'cancelled' ? 'stopped' : 'ok'
   return { sub: `${lastWord} ${when(j.last.t, now)}`, sub2: j.next ? `next ${until(j.next, now)}` : undefined }
+}
+
+// A Muse platform's two lines: how its posting stands, then the account's followers.
+export function socialSub(j: Job | undefined, p: SocialPlatform | undefined, now: number): { sub: string; sub2?: string } {
+  const f = p?.metrics?.followers
+  const ch = p?.change7?.followers
+  const sub2 = f != null ? `${num(f)} followers${ch ? ` ${ch > 0 ? '+' : '−'}${num(Math.abs(ch))}` : ''}` : p ? 'numbers in' : undefined
+  if (!j || !j.last) return { sub: 'no check-in yet', sub2 }
+  if (j.status === 'failed') return { sub: `failed ${ago(j.lastFail || j.last.t, now)}`, sub2 }
+  if (j.status === 'late') return { sub: `late · last ${ago(j.last.t, now)}`, sub2 }
+  return { sub: j.lastPost ? `posted ${ago(j.lastPost.t, now)}` : 'no posts yet', sub2 }
 }
 
 // A canceled deploy was superseded (or is a branch Vercel skips): it says nothing about the site.
@@ -378,6 +401,7 @@ export function drawMap(feed: Feed | null, reach: Reach | null, pulses: Pulse[],
   const site = byId('site')!, store = byId('store')!
   s += W(`M${site.x + site.w / 2},${site.y + site.h} L${store.x + store.w / 2},${store.y}`, null)
   for (const r of REACH) s += W(lanePath(`reach:${r.id}`)!, null, !r.live, !r.live)
+  for (const so of SOCIAL) s += W(lanePath(`reach:${so.id}`)!, null, !jobs.get(so.id)?.last, !jobs.get(so.id)?.last)
 
   // Lights in flight
   for (const p of pulses) s += pulseSvg(p, now)
@@ -413,9 +437,22 @@ export function drawMap(feed: Feed | null, reach: Reach | null, pulses: Pulse[],
     founding: reach?.keys?.founding != null ? `${num(reach.keys.founding)} keys` : '…',
     newsletter: reach?.newsletter?.subscribers != null ? `${num(reach.newsletter.subscribers)} subscribers` : reach?.newsletter?.error ? 'not readable' : '…',
     dynasty: reach?.dynasty?.ballots != null ? `${num(reach.dynasty.ballots)} cast` : '…',
-    youtube: 'not connected yet', social: 'not connected yet', google: 'not connected yet',
   }
-  for (const r of REACH) s += nodeBox(r, { color: r.live ? C.gold : C.faint, sub: reachSub[r.id], sub2: reachSub2[r.id], dim: !r.live, selected: selected === r.id })
+  for (const r of REACH) {
+    s += r.live
+      ? nodeBox(r, { color: C.gold, sub: reachSub[r.id], sub2: reachSub2[r.id], selected: selected === r.id })
+      : nodeBox(r, { color: C.faint, dim: true, small: true, title: `${r.label.replace(' · not yet', '')}: not connected yet` })
+  }
+
+  // Instagram, Threads, Facebook (Muse)
+  const first = SOCIAL[0]!
+  s += `<text x="${REACH_X + 2}" y="${first.y - 9}" font-size="8.5" letter-spacing="1.6" fill="${C.goldSoft}" font-family="IBM Plex Mono, ui-monospace, Menlo, monospace">POSTED BY MUSE</text>`
+  for (const so of SOCIAL) {
+    const j = jobs.get(so.id)
+    const st = j?.status || 'waiting'
+    const p = reach?.social?.platforms?.[so.platform]
+    s += nodeBox(so, { color: color(so.id), status: st, ...socialSub(j, p, now), selected: selected === so.id, title: j ? `${j.name}: ${STATUS_WORD[st]}` : `${so.label} (Muse)` })
+  }
 
   // Legend
   const L = [['running', 'running'], ['ok', 'green'], ['late', 'late'], ['failed', 'red'], ['waiting', 'no check-in']] as const
@@ -440,6 +477,7 @@ export const TIMELINE_ORDER = [
   'dataroom-nba', 'dataroom-cbb', 'dataroom-nfl', 'dataroom-cfb', 'dataroom-ufc',
   'connector-freshness-nba', 'connector-freshness-cbb', 'connector-freshness-nfl', 'connector-freshness-cfb', 'connector-freshness-ufc',
   'connector-coverage', 'deploy-batch', 'site-watch',
+  'muse-instagram', 'muse-threads', 'muse-facebook',
 ]
 
 type Seg = { a: number; b: number; state: string; open?: boolean }

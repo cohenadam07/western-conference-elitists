@@ -21,9 +21,12 @@ export type Job = {
   streak: number
   backfilled: boolean
   status: JobStatus
+  // Muse's jobs only: its last good post, and when its last numbers came in.
+  lastPost?: { t: number; url: string } | null
+  lastSnap?: number | null
 }
 
-export type FeedEvent = { t: number; job: string; state: string; detail?: string; run?: string; dur?: number; source?: string }
+export type FeedEvent = { t: number; job: string; state: string; detail?: string; run?: string; dur?: number; source?: string; kind?: 'post' | 'snapshot'; url?: string }
 
 export type Deploy = {
   id: string
@@ -55,8 +58,18 @@ export type Reach = {
   dynasty: { ballots?: number; dailyToday?: number; error?: string }
   newsletter: { subscribers?: number; error?: string }
   youtube: { connected: boolean }
-  social: { connected: boolean }
+  social: { connected: boolean; platforms?: Record<string, SocialPlatform>; error?: string }
   search: { connected: boolean }
+}
+
+// One platform's latest numbers from Muse (api/_status.js readSocial). `change7` is the change
+// since `since` (about a week ago); `followers` is one point a day for the last 90 days.
+export type SocialPlatform = {
+  t: number
+  metrics: Partial<Record<'followers' | 'reach_24h' | 'views_24h' | 'engagement_24h' | 'posts_24h' | 'profile_visits_24h' | 'likes_24h' | 'comments_24h' | 'shares_24h', number | null>>
+  change7: Record<string, number>
+  since: string | null
+  followers: { d: string; n: number | null }[]
 }
 
 // One light traveling a wire, for one real event. `at` is when it set off (ms); `lane` is the
