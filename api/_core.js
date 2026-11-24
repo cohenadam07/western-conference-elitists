@@ -18,6 +18,9 @@
 // Not a function itself: Vercel skips api files that start with an underscore.
 
 export const SITE = 'https://wcehoops.com'
+// One NBA team's page on NBA Savant (2.10.0). The season is left off when it is the newest one the
+// Teams tab has, which is what the page opens on (public/savant-teams.js teamHash); pass null then.
+export const nbaTeamUrl = (abbr, season) => `${SITE}/nba-savant#team=${encodeURIComponent(abbr)}${season ? `&s=${encodeURIComponent(season)}` : ''}`
 
 // Where the data files (and the site's own read-only endpoints) are fetched from. The live
 // site, unless a test or a local run points somewhere else.

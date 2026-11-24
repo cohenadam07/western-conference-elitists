@@ -23,7 +23,7 @@
 // Not a function itself: Vercel skips api files that start with an underscore.
 
 import { z } from 'zod'
-import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, norm, ordinal, thousands } from './_core.js'
+import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, nbaTeamUrl, norm, ordinal, thousands } from './_core.js'
 import { PEERS, WINDOW_TEXT, cardUrl, display, inSpan, loadMeta, loadSeason, parseSeason, resolvePlayer, startYear } from './_basketball.js'
 import { AGE_POOLS, NEUTRAL_TEXT, NOTE_TEXT, PANEL_VIEWS, agePercentile, agePoolInfo, describePanel, extCells, loadAgeIndex, loadAgePool, loadExtPanels, loadExtPlayer, loadExtSeason, wholeAge, withheldReason } from './_basketball-ext.js'
 
@@ -267,7 +267,7 @@ export async function teamRankings({ season, sort = 'adjnet', team, top }) {
   const sk = col[0]
   const lowg = LOW_GOOD[sk]
   teams.sort((a, b2) => { const x = getv(a, sk === 'w' ? 'wpct' : sk), y = getv(b2, sk === 'w' ? 'wpct' : sk); if (!ok(x)) return 1; if (!ok(y)) return -1; return lowg ? x - y : y - x })
-  const rows = teams.slice(0, top || 30).map((t, i) => ({ rank: i + 1, team: t.abbr, name: t.name || t.abbr, values: Object.fromEntries(cols.map((c) => [c[0], teamFmt(c[0], t)])) }))
+  const rows = teams.slice(0, top || 30).map((t, i) => ({ rank: i + 1, team: t.abbr, name: t.name || t.abbr, url: nbaTeamUrl(t.abbr, s === d.seasons[0] ? null : s), values: Object.fromEntries(cols.map((c) => [c[0], teamFmt(c[0], t)])) }))
   const structured = { season: s, sort: sk, columns: cols.map((c) => ({ key: c[0], label: c[1] })), teams: rows, depth_chart: null, schedule_season: up ? up.season : null, url: `${SITE}/nba-savant#teams`, source: SOURCE }
   const L = [noTable ? `The Teams table starts in ${d.seasons[d.seasons.length - 1]}, so there is no ${s} table; here is the depth chart.` : `NBA teams, ${s}, by ${col[1]}${lowg ? ' (lower is better)' : ''}${up ? ` (schedule columns are ${up.season})` : ''}:`]
   for (const r of rows) L.push(`${r.rank}. ${r.name}: ${col[1]} ${r.values[sk]}; ${cols.filter((c) => c[0] !== sk).slice(0, 6).map((c) => `${c[1]} ${r.values[c[0]]}`).join(', ')}`)
@@ -284,9 +284,11 @@ export async function teamRankings({ season, sort = 'adjnet', team, top }) {
       .filter((g) => g.players.length)
       .map((g) => ({ group: g.group, players: g.players.map((p) => ({ id: String(p.id), name: p.name, mpg: +mp(p).toFixed(1), ppg: p.line && !miss(p.line.ppg) ? +(+p.line.ppg).toFixed(1) : null, rpg: p.line ? p.line.rpg ?? null : null, apg: p.line ? p.line.apg ?? null : null, url: cardUrl(p.id) })) }))
     structured.depth_chart = { team: code, season: sf.season, groups }
+    if (!noTable) structured.team_url = nbaTeamUrl(code, s === d.seasons[0] ? null : s)
     L.push('', `${code} depth chart, ${sf.season} (by minutes per game):`)
     for (const g of groups) L.push(`${g.group === 'Other' ? 'Other' : `${g.group}s`}: ${g.players.map((p) => `${p.name} (${p.mpg.toFixed(1)} mpg${p.ppg != null ? `, ${p.ppg.toFixed(1)} ppg` : ''})`).join(', ')}`)
   }
+  if (structured.team_url) L.push('', `${structured.depth_chart.team} team page: ${structured.team_url}`)
   L.push('', 'Net and luck-adjusted net are points per 100 possessions; expected wins come from the luck-adjusted rating. nba_team_profile has one team in full: four factors, shot diet, play types and the schedule ahead.', '', `Page: ${structured.url}`, `Source: ${SOURCE}.`)
   return { structured, text: L.join('\n') }
 }
@@ -624,7 +626,7 @@ export const tools = [
         team: z.string().trim().max(40).optional().describe('A team for its depth chart, e.g. "OKC" or "Thunder".'),
         top: z.number().int().min(1).max(30).optional().describe('How many teams (default all 30).'),
       },
-      outputSchema: { season: z.string(), sort: z.string(), columns: z.array(row), teams: z.array(row), depth_chart: row.nullable(), schedule_season: z.string().nullable(), url: z.string(), source: z.string() },
+      outputSchema: { season: z.string(), sort: z.string(), columns: z.array(row), teams: z.array(row), depth_chart: row.nullable(), team_url: z.string().optional(), schedule_season: z.string().nullable(), url: z.string(), source: z.string() },
       annotations: { title: 'NBA teams table', ...READ_ONLY },
     },
     run: (args) => teamRankings(args),

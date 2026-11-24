@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-11-24",
+    "product": "NBA Savant",
+    "version": "2.10.0",
+    "text": "Every NBA team has its own page: ratings with league ranks, the roster with Savant value, the best lineups, the head coach and every team stat ranked.",
+    "href": "/nba-savant"
+  },
+  {
+    "date": "2026-11-24",
     "product": "WCE",
     "text": "Search the whole site from the top of any page: any NBA, NFL or college player, UFC fighter, coach or team, and it opens his card in the right tool.",
     "to": "/"

@@ -114,9 +114,17 @@
         "nba_team_rankings"
       ]
     },
-    "page:savant-teams.js#renderTeamDetail": {
+    "page:savant-teams.js#renderTeamPage": {
       "tools": [
-        "nba_team_profile"
+        "nba_team_profile",
+        "nba_team_rankings",
+        "nba_lineups",
+        "nba_get_coach_profile"
+      ]
+    },
+    "page:savant-teams.js#openCard": {
+      "tools": [
+        "nba_get_player_profile"
       ]
     },
     "page:savant-teams.js#renderLineups": {

@@ -211,6 +211,37 @@ T.update({
      source=f"{NBA} team stats and schedule.", sample="Early-season SOS leans on last season."),
 })
 
+# ---- One team's page (2.10.0, #team=ATL): the rest of a team's row, the roster, lineups, coach
+VAL = ("NBA Savant's own Savant value model: public/savant-value.js applying savant-value.json (learned by "
+       "tools/savant-value/value.py), the same numbers the All-Savant Team is picked on.")
+T.update({
+ "tm_rank": dict(what="Every stat the team has, each with its rank among the league's teams that season: the team's full row from the all-30 table and the rest of its team stats. The bar is the rank, full for 1st and empty for last.",
+     formula="Rank = 1 + the number of teams with a better value (ties share the better rank). Lower-is-better stats (DRtg, turnovers, opponent eFG% and FT rate, back-to-backs, SOS) are flipped so 1st is the best. Context stats (pace, possessions, 3PA rate, assisted share, opponent 3P% and FT%, shooting luck, games left) rank 1st as the most and carry no good or bad colour.",
+     source=TS, sample="Ranks among the teams that season (30). Early in a season every rank moves a lot."),
+ "tm_ts": dict(what="True shooting: points per shooting attempt, folding in twos, threes and free throws.", formula="TS% = PTS / (2 x (FGA + 0.44 x FTA))", source=TS, sample="A few weeks."),
+ "tm_fg3": dict(what="Three-point percentage.", formula="3P% = 3PM / 3PA", source=TS, sample="Noisy for a month or two: about 2,000 attempts before it means much."),
+ "tm_ft": dict(what="Free-throw percentage.", formula="FT% = FTM / FTA", source=TS, sample="A few weeks."),
+ "tm_astto": dict(what="Assists per turnover: how much of the ball movement ends in a basket rather than a giveaway.", formula="AST/TO = assists / turnovers", source=TS, sample="A few weeks."),
+ "tm_astpct": dict(what="Assisted share: the share of the team's made baskets that came off an assist. A style number, not a quality one: some great offenses run through isolation.", formula="AST% = assists / field goals made (the NBA's team AST_PCT)", source=TS, sample="Stable within weeks."),
+ "tm_adjd": dict(what="Defensive rating with the luck taken out: opponents' 3P% and FT% against the team set to league average. Lower is better.", formula="Luck-adj DRtg = DRtg - 100 x (3 x (opp 3PM - opp 3PA x lg 3P%) + (opp FTM - opp FTA x lg FT%)) / possessions", source=TS, sample="Settles faster than raw DRtg."),
+ "tm_ofg3": dict(what="Opponents' three-point percentage. Context: teams control how many threes they allow far more than how many go in, so this is mostly luck and is the part luck-adjusted net takes out.", formula="Opp 3P% = opp 3PM / opp 3PA", source=TS, sample="Mostly noise within a season."),
+ "tm_oft": dict(what="Opponents' free-throw percentage. Context: a defense has almost no say in it, which is why luck-adjusted net sets it to league average.", formula="Opp FT% = opp FTM / opp FTA", source=TS, sample="Noise: a defense has no control over it."),
+ "tm_poss": dict(what="Possessions played, the sample behind every rating on the page. Context: more games and a faster pace both raise it.", formula="The NBA's estimate: FGA + 0.44 x FTA - ORB + TOV, averaged over both teams.", source=TS, sample="None: a count."),
+ "tm_roster": dict(what="Every player NBA Savant has on the team that season, by Savant value, each linking to his card in that season. A player traded during the season is listed with the team he finished it with, and his numbers are his whole season, as on his card.",
+     formula="NBA Savant's player rows for the season whose team is this one, sorted by Savant value (players without one last, by minutes).", source=f"{NBA} (NBA Savant's player data). {VAL}", sample="Early in a season values and ranks move a lot."),
+ "tm_value": dict(what="Savant value: the points he added to his team this season above a replacement-level player at his position, on the stats that are his own and the possessions he played. Missed games cost him: he adds nothing on nights he doesn't play.",
+     formula="Value = (rate - replacement rate) x possessions / 100. Rate = points per 100 possessions vs. an average player at his position, from his box-score skills each pulled toward the position average by its settle point and, from 2007-08, part of his luck-adjusted on/off. Replacement = the 25th-percentile qualified player at his position that season. The All-Savant Team's explainer has the full method.",
+     source=VAL, sample="On the held-out 2025-26 season a player's 2024-25 rate correlated .37 with his 2025-26 luck-adjusted on/off (BPM .35). The model's view, not a verdict."),
+ "tm_posrank": dict(what="Where his Savant value ranks among every qualified player at his position that season, on all 30 teams: guards against guards, wings against wings, bigs against bigs. The pool is in the cell (4th of 98 guards).",
+     formula="Rank = 1 + the number of qualified players at his position with more Savant value. Players under the qualifier (20 games and 15 minutes a game, pro-rated in the season in progress) have a value but no rank.", source=VAL, sample="The pool is that season's qualified players; early in a season it is small."),
+ "tm_rpos": dict(what="His position on NBA Savant: Guard, Wing or Big, the pool his card's percentiles and his Savant value are measured in.", formula="From his position on the card (with NBA Savant's position estimate fixes).", source=NBA, sample="None: a label."),
+ "tm_gp": dict(what="Games he played that season, for every team he played for.", formula="Games with at least one second played.", source=NBA, sample="None: a count."),
+ "tm_lineups": dict(what="The team's best and most-used five-man units and two-man pairs that season, from the Lineups tab's own numbers. Best is the highest sample-adjusted net among units over the tab's default minutes floor (50 for five-man, 200 for pairs; pro-rated in the season in progress); most used is the most minutes together.",
+     formula="Sample-adjusted net = (possessions x luck-adjusted net + k x team luck-adjusted net) / (possessions + k), k measured from split-season reliability.", source=f"{NBA} lineup stats (LeagueDashLineups, per team), 2007-08 on.", sample="Most five-man units play under 100 minutes all season: lean on the sample-adjusted column."),
+ "tm_coach": dict(what="The team's head coach that season, or each of them when it changed hands, with his games and the dates of his first and last, linked to his NBA Coaching Savant page: the Rotation Map, lineups judged from their parts, timeouts, challenges and his record against the roster's talent.",
+     formula="NBA Coaching Savant's team-season file (bcs/t/<team>-<season>.json): every head coach of the season in order, from the play-by-play.", source="NBA Coaching Savant (pipeline/basketball/coaching/build.py): Basketball-Reference coach records and NBA.com play-by-play, 2002-03 on.", sample="None: who coached."),
+})
+
 # ---- Lineups
 LS = f"{NBA} lineup stats (LeagueDashLineups, per team), 2007-08 on."
 T.update({

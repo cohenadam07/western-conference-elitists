@@ -63,7 +63,10 @@ const hoopsCoaches = (kind, page) => (d) => d.coaches.map((c) => [c.name, kind, 
 export const nbaCoaches = hoopsCoaches('nbac', '/nba-coaching-savant')
 export const cbbCoaches = hoopsCoaches('cbbc', '/cbb-coaching-savant')
 
-export const nbaTeams = (d) => Object.entries(d.teams).map(([, t]) => [t.name, 'nbat', 'Team ratings and lineups', '/nba-savant#teams', 9999])
+// Each team opens its own page on NBA Savant (2.10.0), in the newest season: the address the
+// connector's nbaTeamUrl prints for it (api/_core.js). bcs/index.json keys its teams by the same
+// codes the Teams tab uses.
+export const nbaTeams = (d) => Object.entries(d.teams).map(([code, t]) => [t.name, 'nbat', 'Team page: ratings, roster, lineups, coach', `/nba-savant#team=${e(code)}`, 9999])
 export const nflTeams = (d) => Object.entries(d.cfg.teams).map(([code, t]) => [t[0], 'nflt', join(code, String(d.seasons[0])), `/nfl-savant#t=${e(code)}&s=${d.seasons[0]}`, 9999])
 
 // The college tools' own search files: players as [id, name, team, last season, position, ...].
