@@ -479,7 +479,7 @@ export async function teamProfile({ team, season }) {
 }
 export async function lineups({ team, season, size = 5, min_minutes, sort = 'sample_adjusted', player, limit = 15 }) {
   const T = await teamsData(), s = pickSeason(T, season)
-  if (parseInt(s, 10) < 2007) throw new SavantError('Lineup data starts in 2007-08.')
+  if (parseInt(s, 10) < 2018) throw new SavantError('Lineup data starts in 2018-19.')
   const L = await getJson(`lineups/${s}.json`, (b) => b && b.units)
   if (!L) throw new SavantError(`No lineup file for ${s}.`)
   let units = L.units[String(size)] || []
