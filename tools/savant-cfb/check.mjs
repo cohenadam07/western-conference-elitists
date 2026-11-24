@@ -404,7 +404,12 @@ test('1.1.1: team talent is left out before 2014 and where no rated recruit was 
     assert.equal(byRank[0].rank, 1, `${y}: the best talent is not 1st`)
     assert.ok(byRank[byRank.length - 1].rank <= ranked.length, `${y}: a rank past the ${ranked.length} teams with talent`)
     for (let i = 1; i < byRank.length; i++) assert.ok(byRank[i - 1].value >= byRank[i].value, `${y}: talent out of rank order`)
-    D.teams.forEach((r, i) => { if (!(r[M.TCOL.talent] > 0)) assert.equal(K[i].rank, null, `${y} ${r[M.TCOL.school]}: a 0 talent is ranked`) })
+    D.teams.forEach((r, i) => { if (r[M.TCOL.talent_rank] == null) assert.equal(K[i].value, null, `${y} ${r[M.TCOL.school]}: talent shown without a rank`) })
+    // talent is kept to two decimals and read from the rank: a tiny real talent is not "not available"
+    if (y === 2015) {
+      const af = D.teams.findIndex((r) => r[M.TCOL.school] === 'Air Force')
+      assert.deepEqual([K[af].value, K[af].rank, K[af].of], [0.03, 124, 128], '2015 Air Force reads 0.03, 124th of 128')
+    }
   }
   const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
   assert.ok(!/r\[T\.talent_rank\]\?M\.nth/.test(html), 'the team page reads the raw talent rank again')
@@ -414,13 +419,16 @@ test('1.1.1: team talent is left out before 2014 and where no rated recruit was 
   assert.match(g09._text, /Team talent: not tracked before 2014/)
   const g26 = await call('cfb_team_profile', { team: 'Georgia', season: 2026 })
   assert.equal(g26.team.talent_of, read('teams/2026.json').teams.filter((r) => r[M.TCOL.talent] > 0).length)
-  assert.match(g26._text, new RegExp(`Team talent: \\d+(st|nd|rd|th) of the ${g26.team.talent_of} FBS teams`))
+  assert.match(g26._text, new RegExp(`Team talent: ${g26.team.talent.toFixed(2)}, \\d+(st|nd|rd|th) of the ${g26.team.talent_of} FBS teams`))
   const early = await callRaw('cfb_team_rankings', { season: 2010, sort: 'talent' })
   assert.ok(early.isError && /not tracked before 2014/.test(early.content[0].text))
   if (SEASONS.includes(2015)) {
     const r15 = await call('cfb_team_rankings', { season: 2015, sort: 'talent', limit: 140 })
-    const D = read('teams/2015.json'), zero = D.teams.filter((r) => !(r[M.TCOL.talent] > 0)).map((r) => r[M.TCOL.school])
-    assert.ok(zero.length && r15.teams.every((t) => !zero.includes(t.team)), '2015: a team with no talent is ranked')
+    // every 2015 team has a rated recruit, so all 128 are ranked; a tiny talent (Air Force, 0.03) is not left out
+    const D = read('teams/2015.json'), unranked = D.teams.filter((r) => r[M.TCOL.talent_rank] == null).map((r) => r[M.TCOL.school])
+    assert.ok(r15.teams.every((t) => !unranked.includes(t.team)), '2015: a team with no talent is ranked')
+    assert.equal(r15.teams.length, D.teams.length - unranked.length, '2015: every team with a talent rank is listed')
+    assert.ok(r15.teams.some((t) => t.team === 'Air Force'), '2015: Air Force is ranked')
   }
 })
 

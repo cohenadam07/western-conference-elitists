@@ -295,11 +295,13 @@
   /* Team talent counts rated recruits on the roster. Ratings begin with the class that enrolled in 2010,
      so a whole roster is rated only from 2014 (2013 is not on the site): before that talent is not
      tracked. From 2014 a team with no rated player found has no talent, not 0, and the rank counts only
-     the teams that have one (pipeline/cfb/config.py TALENT_FROM, Adam's rule, Nov 24 2026). */
+     the teams that have one (pipeline/cfb/config.py TALENT_FROM, Adam's rule, Nov 24 2026). Whether a team
+     has talent is read from its rank, never its value: the pipeline ranks only teams with a rated recruit,
+     and a real talent can be tiny (Air Force 2015 is 0.03; rounded to one decimal it read 0). */
   const TALENT_FROM = 2014
   function talent(D, i) {
     if (+D.season < TALENT_FROM) return { tracked: false, from: TALENT_FROM, value: null, rank: null, of: 0 }
-    const has = (r) => +r[TCOL.talent] > 0
+    const has = (r) => ok(r[TCOL.talent_rank]) && ok(r[TCOL.talent])
     const of = D.teams.filter(has).length, r = D.teams[i]
     return { tracked: true, from: TALENT_FROM, value: r && has(r) ? +r[TCOL.talent] : null, rank: r && has(r) ? r[TCOL.talent_rank] : null, of }
   }

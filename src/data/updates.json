@@ -17,7 +17,7 @@
     "date": "2026-11-24",
     "product": "CFB Savant",
     "version": "1.1.1",
-    "text": "Fixes: team talent is left out before 2014, when recruit ratings cover only part of a roster; a game against an opponent not yet decided no longer shows a win chance; stat notes give each stat's real start year.",
+    "text": "Fixes: team talent is left out before 2014, when recruit ratings cover only part of a roster, and is shown to two decimals, so a small talent no longer reads as none; a game against an opponent not yet decided no longer shows a win chance; stat notes give each stat's real start year.",
     "href": "/cfb-savant"
   },
   {

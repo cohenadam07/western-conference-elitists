@@ -297,7 +297,7 @@ def teams_doc(X, res):
         tl, rt_ = tal.get(str(t)), ret.get(str(t))
         rows.append([t, f.school, f.abbreviation, f.conference, r["w"], r["l"], r["cw"], r["cl"], rnd(w.rating.get(t), 2), rnd(w.off.get(t), 2),
                      rnd(w["def"].get(t), 2), rnd(w.st.get(t), 2), rnd(rs.resume.get(t), 5), None if t not in rs.index else int(rs["rank"][t]),
-                     rnd(rs.sos.get(t), 4), None if not tl else rnd(tl[0], 1), None if not tl else tl[1], None if not rt_ else rnd(rt_[0], 3),
+                     rnd(rs.sos.get(t), 4), None if not tl else rnd(tl[0], 2), None if not tl else tl[1], None if not rt_ else rnd(rt_[0], 3),
                      None if not rt_ else rnd(rt_[1], 3), co.get(str(t)), int(games.get(t, 0) or 0), None if t not in X.rank.index else int(X.rank[t])])
     doc = {"season": X.y, "through": X.through, "final": X.final, "week": X.week, "cols": TCOLS, "teams": rows, "values": {}}
     scale = {k: N.UNIT_SCALE.get(u, 1.0) for k, _, _, _, u, _, _ in C.TEAM_STATS}
