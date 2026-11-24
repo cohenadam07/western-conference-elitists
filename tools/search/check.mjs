@@ -17,6 +17,7 @@ import { cardUrl as nbaUrl } from '../../api/_basketball.js'
 import { cardUrl as nflUrl } from '../../api/_football.js'
 import { coachUrl as nflCoachUrl } from '../../api/_coaching.js'
 import { coachUrl as nbaCoachUrl } from '../../api/_bcoaching.js'
+import { nbaTeamUrl } from '../../api/_core.js'
 import { coachUrl as cbbCoachUrl } from '../../api/_cbcoaching.js'
 import { playerUrl as cbbUrl, teamUrl as cbbTeamUrl } from '../../api/_cbb.js'
 import { playerUrl as cfbUrl, teamUrl as cfbTeamUrl } from '../../api/_cfb.js'
@@ -53,6 +54,11 @@ test('an address is the one the tool\'s own connector prints', () => {
   assert.equal(one(core, 'ufc')[3], '/ufc-savant#f=1338e2c7480bdf9e') // the page reads #f=<id>; the window defaults to career
   const pop = one(core, 'nbac', 'Gregg Popovich')
   assert.equal(SITE + pop[3], nbaCoachUrl(pop[3].split('#c=')[1]))
+  // every NBA team opens its own page, the one nba_team_profile links to (newest season, no &s=)
+  const nbat = core.filter((r) => r[1] === 'nbat')
+  assert.equal(nbat.length, 30, 'thirty NBA teams')
+  assert.equal(SITE + one(core, 'nbat', 'Los Angeles Lakers')[3], nbaTeamUrl('LAL'))
+  for (const r of nbat) assert.match(r[3], /^\/nba-savant#team=[A-Z]{3}$/, `${r[0]}: ${r[3]}`)
   const cc = one(core, 'cbbc')
   assert.equal(SITE + cc[3], cbbCoachUrl(decodeURIComponent(cc[3].split('#c=')[1])))
   const p = one(college, 'cbb')

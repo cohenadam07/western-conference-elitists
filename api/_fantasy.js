@@ -8,7 +8,7 @@
 // Not a function itself: Vercel skips api files that start with an underscore.
 
 import { z } from 'zod'
-import { READ_ONLY, SITE, SavantError, norm, origin } from './_core.js'
+import { READ_ONLY, SITE, SavantError, nbaTeamUrl, norm, origin } from './_core.js'
 import { FULL_NAME, nbaCode } from './_ambiguous.js'
 
 const TTL_MS = 10 * 60 * 1000
@@ -468,13 +468,14 @@ export async function teamProfile({ team, season }) {
   if (T.upcoming && s === T.seasons[0] && T.upcoming.sched[t.abbr]) t.sched_upcoming = { season: T.upcoming.season, ...T.upcoming.sched[t.abbr] }
   const rk = (k, low) => { const vals = teams.map((x) => x[k]).filter((v) => v != null).sort((a, b) => (low ? a - b : b - a)); return vals.indexOf(t[k]) + 1 }
   const ranks = { net: rk('net'), adjnet: rk('adjnet'), ortg: rk('ortg'), drtg: rk('drtg', true), pace: rk('pace') }
+  const url = nbaTeamUrl(t.abbr, s === T.seasons[0] ? null : s)
   const text = [`${t.name} ${s}: ${t.w}-${t.l}. Net ${t.net} (${ranks.net} of 30), luck-adjusted net ${t.adjnet} (${ranks.adjnet}); ORtg ${t.ortg} (${ranks.ortg}), DRtg ${t.drtg} (${ranks.drtg}), pace ${t.pace}.`,
     `Pythagorean wins ${t.pythw}, luck-adjusted expected wins ${t.xw}. Opponent shooting luck ${t.luck} per 100.`,
     t.ff ? `Four factors — offense eFG ${(100 * t.ff.efg).toFixed(1)}%, TOV ${(100 * t.ff.tov).toFixed(1)}%, ORB ${(100 * t.ff.orb).toFixed(1)}%, FT rate ${t.ff.ftr}; defense allowed eFG ${(100 * t.ff.oefg).toFixed(1)}%, forced TOV ${(100 * t.ff.otov).toFixed(1)}%, DRB ${(100 * (1 - t.ff.oorb)).toFixed(1)}%, opp FT rate ${t.ff.oftr}.` : '',
     t.diet ? `Shot diet (share of FGA, FG%): ${Object.entries(t.diet).map(([z, v]) => `${z} ${v[0]}% @ ${(100 * v[1]).toFixed(1)}`).join(', ')}.` : '',
     (t.sched || t.sched_upcoming) ? (() => { const sc = t.sched || t.sched_upcoming; return `Schedule ahead: ${sc.left} games left, ${sc.b2b} back-to-backs, ${sc.oppb2b} vs opponents on a B2B, SOS ${sc.sos}; next 7 days ${sc.next7} games.` })() : '',
-    `Luck adjustment: opponents' 3P% and FT% set to league average. ${SITE}/nba-savant#teams`].filter(Boolean).join('\n')
-  return { text, structured: { season: s, team: t, ranks, url: `${SITE}/nba-savant#teams` } }
+    `Luck adjustment: opponents' 3P% and FT% set to league average. ${url}`].filter(Boolean).join('\n')
+  return { text, structured: { season: s, team: t, ranks, url } }
 }
 export async function lineups({ team, season, size = 5, min_minutes, sort = 'sample_adjusted', player, limit = 15 }) {
   const T = await teamsData(), s = pickSeason(T, season)
@@ -486,15 +487,16 @@ export async function lineups({ team, season, size = 5, min_minutes, sort = 'sam
   // (teams_engine.py view_min); finished seasons use 50 / 200.
   const vm = L.view_min && L.view_min[String(size)]
   const floor = min_minutes != null ? min_minutes : (vm != null ? vm : (size === 5 ? 50 : 200))
-  if (team) { const t = findTeam(T.data[s].teams, team); units = units.filter((u) => u.t === t.abbr) }
+  let teamUrl = null
+  if (team) { const t = findTeam(T.data[s].teams, team); units = units.filter((u) => u.t === t.abbr); teamUrl = nbaTeamUrl(t.abbr, s === T.seasons[0] ? null : s) }
   if (player) { const n = norm(player).split(' ').pop(); units = units.filter((u) => u.names.some((x) => norm(x).includes(n))) }
   units = units.filter((u) => u.min >= floor)
   const key = { sample_adjusted: 'est', luck_adjusted: 'adj', raw: 'net', minutes: 'min' }[sort] || 'est'
   units = units.slice().sort((a, b) => b[key] - a[key]).slice(0, limit)
   const k = (L.k || {})[String(size)]
   const text = [`${size}-man units, ${s}${team ? `, ${team.toUpperCase()}` : ''}, ${floor}+ minutes, sorted by ${sort.replace('_', '-')} net. Sample-adjusted = luck-adjusted net pulled toward the team's by k = ${k} possessions (measured from split-season reliability).`,
-    ...units.map((u, i) => `${i + 1}. ${u.names.join(' / ')} (${u.t}): ${u.min} min, ${u.poss} poss; net ${u.net}, luck-adj ${u.adj}, sample-adj ${u.est}; ORtg ${u.ortg}, DRtg ${u.drtg}.`), `${SITE}/nba-savant#lineups`].join('\n')
-  return { text, structured: { season: s, size, k, units, url: `${SITE}/nba-savant#lineups` } }
+    ...units.map((u, i) => `${i + 1}. ${u.names.join(' / ')} (${u.t}): ${u.min} min, ${u.poss} poss; net ${u.net}, luck-adj ${u.adj}, sample-adj ${u.est}; ORtg ${u.ortg}, DRtg ${u.drtg}.`), `${SITE}/nba-savant#lineups`, teamUrl ? `Team page: ${teamUrl}` : ''].filter(Boolean).join('\n')
+  return { text, structured: { season: s, size, k, units, url: `${SITE}/nba-savant#lineups`, team_url: teamUrl } }
 }
 export async function schedule({ window = 'next7', limit = 30 }) {
   const M = await model(), out = []
@@ -618,7 +620,7 @@ export const tools = [
     name: 'nba_team_profile',
     config: {
       title: 'NBA team profile',
-      description: 'NBA Savant Teams (wcehoops.com): a team\'s season: ratings and ranks, luck-adjusted net and expected wins, four factors, shot diet by zone (own and allowed), play types, and the schedule ahead (back-to-backs, strength of schedule). 1996-97 on.',
+      description: 'NBA Savant Teams (wcehoops.com): a team\'s season: ratings and ranks, luck-adjusted net and expected wins, four factors, shot diet by zone (own and allowed), play types, and the schedule ahead (back-to-backs, strength of schedule). 2018-19 on.',
       inputSchema: { team: z.string().trim().min(2).max(40).describe('Abbreviation (BOS) or name (Celtics).'), season: z.string().trim().max(12).optional().describe('Season as two years, e.g. "2025-26". Omit for the latest with 10+ games.') },
       outputSchema: { season: z.string(), team: loose, ranks: loose, url: z.string() },
       annotations: { title: 'NBA team profile', ...READ_ONLY },
@@ -629,13 +631,13 @@ export const tools = [
     name: 'nba_lineups',
     config: {
       title: 'NBA lineup ratings',
-      description: 'NBA Savant Lineups (wcehoops.com): 5-man units or 2-man pairs with minutes, ratings, luck-adjusted net, and a sample-adjusted net pulled toward the team by a measured k. Filter by team or player. 2007-08 on.',
+      description: 'NBA Savant Lineups (wcehoops.com): 5-man units or 2-man pairs with minutes, ratings, luck-adjusted net, and a sample-adjusted net pulled toward the team by a measured k. Filter by team or player. 2018-19 on.',
       inputSchema: {
-        team: z.string().trim().max(40).optional().describe('Abbreviation or name; omit for every team.'), season: z.string().trim().max(12).optional().describe('e.g. "2025-26"; 2007-08 on.'), size: z.union([z.literal(5), z.literal(2)]).default(5).describe('5 for five-man lineups (default), 2 for two-man pairs.'),
+        team: z.string().trim().max(40).optional().describe('Abbreviation or name; omit for every team.'), season: z.string().trim().max(12).optional().describe('e.g. "2025-26"; 2018-19 on.'), size: z.union([z.literal(5), z.literal(2)]).default(5).describe('5 for five-man lineups (default), 2 for two-man pairs.'),
         min_minutes: z.number().min(0).optional().describe('Minutes floor (default 50 for 5-man, 200 for 2-man; lower early in a season in progress, pro-rated to the games played).'), sort: z.enum(['sample_adjusted', 'luck_adjusted', 'raw', 'minutes']).default('sample_adjusted').describe('Sort by sample-adjusted net (default), luck-adjusted net, raw net, or minutes.'),
         player: z.string().trim().max(80).optional().describe('Only units including this player (last name is enough).'), limit: z.number().int().min(1).max(100).default(15).describe('Most units to return (default 15).'),
       },
-      outputSchema: { season: z.string(), size: z.number(), k: z.number().nullable().optional(), units: z.array(loose), url: z.string() },
+      outputSchema: { season: z.string(), size: z.number(), k: z.number().nullable().optional(), units: z.array(loose), url: z.string(), team_url: z.string().nullable().optional() },
       annotations: { title: 'NBA lineup ratings', ...READ_ONLY },
     },
     run: (a) => lineups(a),

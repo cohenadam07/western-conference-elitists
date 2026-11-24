@@ -479,7 +479,7 @@ function syncTabs(){
   var b=D.body.classList, on=b.contains('tab-fx')?'fx':b.contains('tab-tm')?'tm':b.contains('tab-lu')?'lu':b.contains('lb-open')?'lb':'players';
   D.querySelectorAll('.sv-tab').forEach(function(t){ t.classList.toggle('on',t.dataset.t===on); });
 }
-function svClear(){ D.body.classList.remove('tab-fx','tab-tm','tab-lu'); syncTabs(); }
+function svClear(){ D.body.classList.remove('tab-fx','tab-tm','tab-lu'); syncTabs(); if(window.svTeams&&window.svTeams.untitle) window.svTeams.untitle(); }
 function go(t,noPush){
   if(t==='players'){
     svClear(); D.body.classList.remove('lb-open');
@@ -500,7 +500,7 @@ function go(t,noPush){
 function route(hash){
   hash=hash||'';
   if(hash.indexOf('#fantasy')===0){ var v=hash.split('/')[1]; if(v&&VIEWS.some(function(x){ return x[0]===v; })) FX.view=v; go('fx',true); return true; }
-  if(hash.indexOf('#teams')===0){ go('tm',true); return true; }
+  if(hash.indexOf('#teams')===0||hash.indexOf('#team=')===0){ go('tm',true); return true; }   // the table, or one team's page (savant-teams.js reads which)
   if(hash.indexOf('#lineups')===0){ go('lu',true); return true; }
   svClear(); return false;
 }

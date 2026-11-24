@@ -299,7 +299,7 @@ test('a team\'s depth chart is the page\'s, and the Teams table is savant-teams.
   const cur = existsSync(path.join(PUBLIC, 'savant-teams-current.json')) ? JSON.parse(readFileSync(path.join(PUBLIC, 'savant-teams-current.json'), 'utf8')) : null
   const tbl = vm.runInContext(`(function (A, C) {
     var D = document; function $(id) { return D.getElementById(id); }
-    ${['esc', 'ok', 'f1', 'f0', 'pc', 'sg', 'th', 'xk', 'mergeTeams', 'rankOf', 'getv', 'renderTeams'].map((f) => grab(teamsJs, f)).join('\n')}
+    ${['esc', 'ok', 'f1', 'f0', 'pc', 'sg', 'th', 'xk', 'mergeTeams', 'rankOf', 'getv', 'seasonTeams', 'teamHash', 'tmFmt', 'renderTeams'].map((f) => grab(teamsJs, f)).join('\n')}
     ${grabLine(teamsJs, 'var LOW_GOOD=')}
     var T = { data: mergeTeams(A, C), sort: 'adjnet', team: null };
     return function (season, sort) { T.season = season; T.sort = sort; renderTeams(); return $('svTm').innerHTML; };
@@ -308,9 +308,10 @@ test('a team\'s depth chart is the page\'s, and the Teams table is savant-teams.
   for (const s of [...new Set([teamFile.seasons[0], teamFile.seasons[3], teamFile.seasons[teamFile.seasons.length - 1]])]) {
     for (const sort of ['w', 'adjnet', 'net', 'drtg', 'pace', 'efg', 'tov', 'oefg', 'luck', 'xw', 'fg3r']) {
       const htmlOut = tbl(s, sort)
-      const want = [...htmlOut.matchAll(/<tr><td>(\d+)<\/td><td class="l"><span class="pl" data-team="([A-Z]+)">[^<]*<\/span><\/td>(.*?)<\/tr>/g)].map((m) => [m[2], [...m[3].matchAll(/<td[^>]*>([^<]*)<\/td>/g)].map((c) => unesc(c[1]))])
+      // 2.10.0: each team is a link to its own page, the address the connector gives the same row
+      const want = [...htmlOut.matchAll(/<tr><td>(\d+)<\/td><td class="l"><a class="pl" href="([^"]+)" data-team="([A-Z]+)">[^<]*<\/a><\/td>(.*?)<\/tr>/g)].map((m) => [m[3], unesc(m[2]), [...m[4].matchAll(/<td[^>]*>([^<]*)<\/td>/g)].map((c) => unesc(c[1]))])
       const got = await lists.teamRankings({ season: s, sort })
-      const mine = got.structured.teams.map((t) => [t.team, got.structured.columns.map((c) => t.values[c.key])])
+      const mine = got.structured.teams.map((t) => [t.team, t.url.replace('https://wcehoops.com/nba-savant', ''), got.structured.columns.map((c) => t.values[c.key])])
       assert.deepEqual(mine, want, `${s} by ${sort}: the Teams table`)
       tables++
     }
