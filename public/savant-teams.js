@@ -366,6 +366,7 @@ function renderTeamPage(){
   var v=$('svTm'), d=T.data, abbr=T.page, s=T.pageSeason;
   var back='<a class="tp-back" href="#teams" id="tpBack">← All 30 teams</a>';
   var b=d.data[s];
+  untitle();                                   // set again below once the team is found
   if(!b){
     v.innerHTML=back+'<div class="sv-head"><div><h1 class="sv-title">'+esc(abbr)+'</h1><div class="sv-sub sv-warn">NBA Savant has no team data for '+esc(s)+'. Team pages cover '+esc(d.seasons[d.seasons.length-1])+' to '+esc(d.seasons[0])+'.</div></div></div>';
     wireBack(); return;
