@@ -272,11 +272,41 @@ function checkConfig(cfg, page) {
 
 const sorted = (a) => Float64Array.from(a).sort()
 
-export function buildFootballApi({ data, current = null, html, through = null }) {
+// Every head coach of a team-season, with the weeks he coached, from NFL Coaching Savant's own files
+// (coaches[name].seasons[]: season, team, wk [first, last], g, w, l, t). A coach's row from the
+// in-season file (coaching-savant-current.json) wins over the history file's older copy. The coaching files keep the schedule's codes (OAK, SD, STL), so they go through the page's
+// alias table. One row per coach: [name, first week, last week, games, wins, losses, ties], in
+// the order the coaches took over. Before this, a team page named one coach, the last the schedule
+// listed, and never the interim who coached the rest (2024 NYJ: Saleh, weeks 1-5; Ulbrich, 6-18).
+export function teamCoaches(coaching = {}, alias = {}) {
+  const out = {}
+  const cur = coaching.current && coaching.current.coaches ? coaching.current : null
+  const add = (src, keep) => {
+    for (const [name, c] of Object.entries((src && src.coaches) || {})) {
+      for (const x of c.seasons || []) {
+        const y = String(x.season)
+        if (!keep(y) || !x.team || !Array.isArray(x.wk)) continue
+        const t = alias[x.team] || x.team
+        const list = ((out[y] ||= {})[t] ||= [])
+        if (list.some((e) => e[0] === name)) continue
+        list.push([name, x.wk[0], x.wk[1], x.g ?? null, x.w ?? null, x.l ?? null, x.t || 0])
+      }
+    }
+  }
+  // the in-season file carries only the coaches working this season, each with his whole career:
+  // its rows go first, and the history file fills in everyone else (a row is one coach's team-season)
+  add(cur, () => true)
+  add(coaching.data, () => true)
+  for (const y of Object.values(out)) for (const list of Object.values(y)) list.sort((a, b) => a[1] - b[1] || a[2] - b[2])
+  return out
+}
+
+export function buildFootballApi({ data, current = null, html, through = null, coaching = null }) {
   if (!data || !data.data || typeof data.data !== 'object') throw new Error('football-savant-data.json: expected { data, cfg }')
   const page = readPage(html)
   const merged = mergeData(data, current)
   const cfg = merged.cfg
+  const COACHES = teamCoaches(coaching || {}, cfg.alias || {})
   checkConfig(cfg, page)
 
   const metrics = cfg.metrics
@@ -659,10 +689,12 @@ export function buildFootballApi({ data, current = null, html, through = null })
       let rec = null
       let coach = null
       for (const p of ps) if (p.team === t && p.rec && !rec) { rec = p.rec; coach = p.coach || null }
+      const coaches = ((COACHES[season] || {})[t]) || null
+      if (coaches && coaches.length) coach = coaches[coaches.length - 1][0]
       const line = lines.filter((L) => L.tm === t)[0]
       const team = {
         g: stats[t] ? stats[t].g : null,
-        rec, coach,
+        rec, coach, coaches,
         stats: stats[t] ? Object.fromEntries(TEAM_METRICS.map(([k]) => [k, rankOf(k, stats[t].row[k])]).filter((x) => x[1])) : null,
         line: line ? { score: line.score, rank: 1 + lines.filter((L) => L.score > line.score).length, of: lines.length } : null,
         roster: [],
@@ -1144,7 +1176,7 @@ export function buildFootballApi({ data, current = null, html, through = null })
       schema: SCHEMA, generated: merged.generated, pos, pool: rows.filter((r) => r.qualified).length, players: rows,
     }])),
   }
-  return { meta, players, seasons, careers }
+  return { meta, players, seasons, careers, coaches: COACHES }
 }
 
 // ---- writing -------------------------------------------------------------------------
@@ -1169,6 +1201,13 @@ export function footballThrough(publicDir, current = null) {
   } catch { return null }
 }
 
+// NFL Coaching Savant's history and in-season files, when they are there; the team pages fall back to
+// the schedule's one coach without them.
+export function readCoaching(publicDir) {
+  const one = (f) => { try { return JSON.parse(readFileSync(path.join(publicDir, f), 'utf8')) } catch { return null } }
+  return { data: one('coaching-savant-data.json'), current: one('coaching-savant-current.json') }
+}
+
 export function writeFootballApi({ publicDir, dist }) {
   const dataFile = path.join(publicDir, 'football-savant-data.json')
   const currentFile = path.join(publicDir, 'football-savant-current.json')
@@ -1185,12 +1224,16 @@ export function writeFootballApi({ publicDir, dist }) {
     current,
     html: readFileSync(pageFile, 'utf8'),
     through: footballThrough(publicDir, current),
+    coaching: readCoaching(publicDir),
   })
 
   // Build everything before touching dist, so a failure leaves nothing half-written.
   const files = [
     ['meta.json', Buffer.from(JSON.stringify(out.meta))],
     ['players.json', Buffer.from(JSON.stringify(out.players))],
+    // the page's team header reads this (one small file, so a team page does not load NFL Coaching
+    // Savant's 2 MB history for a few names)
+    ['coaches.json', Buffer.from(JSON.stringify({ schema: SCHEMA, cols: ['name', 'first_week', 'last_week', 'games', 'w', 'l', 't'], seasons: out.coaches }))],
   ]
   let raw = 0
   let rows = 0

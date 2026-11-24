@@ -8,6 +8,13 @@
   'use strict'
   const COL = { id: 0, name: 1, team: 2, pos: 3, cls: 4, age: 5, ht: 6, wt: 7, gp: 8, gs: 9, min: 10, qual: 11, conf: 12, head: 13, jersey: 14, home: 15, stars: 16, rrank: 17, hs: 18 }
   const ok = (v) => v !== null && v !== undefined && Number.isFinite(+v)
+  /* The surname, never a suffix: "Patrick Ngongba II" is Ngongba, "Deron Rippey Jr." is Rippey. */
+  const SUFFIX = /^(jr|sr|ii|iii|iv|v)\.?$/i
+  function surname(name) {
+    const w = String(name || '').trim().split(/\s+/)
+    while (w.length > 1 && SUFFIX.test(w[w.length - 1])) w.pop()
+    return w[w.length - 1] || ''
+  }
 
   function pct(values, v, lower) {
     if (!ok(v) || !values.length) return null
@@ -170,5 +177,5 @@
   }
   const recompute = (l) => (l.rate - l.replacement) * (l.possessions || 0) / 100
 
-  return { schedule, confidence, valueLine, recompute, COL, ok, pct, column, hasAdj, POOLS, pool, poolLabel, valuesFor, likely, display, row, withWithout }
+  return { schedule, confidence, valueLine, recompute, surname, COL, ok, pct, column, hasAdj, POOLS, pool, poolLabel, valuesFor, likely, display, row, withWithout }
 })

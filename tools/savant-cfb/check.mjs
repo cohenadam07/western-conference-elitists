@@ -386,3 +386,69 @@ test('the refresh keeps raw ESPN off GitHub', () => {
   assert.match(y, /pipeline\/cfb\/cloud_run\.sh/)
   assert.match(readFileSync(path.join(ROOT, 'pipeline', 'cfb', 'cloud_run.sh'), 'utf8'), /pipeline\.cfb\.build refresh/)
 })
+
+// ---- 1.1.1: three bugs that must not come back -------------------------------------------
+test('1.1.1: team talent is left out before 2014 and where no rated recruit was found, and the rank counts only teams with one', async () => {
+  assert.equal(M.TALENT_FROM, 2014)
+  const cfg = readFileSync(path.join(ROOT, 'pipeline', 'cfb', 'config.py'), 'utf8')
+  assert.match(cfg, /^TALENT_FROM = 2014$/m, 'pipeline/cfb/config.py and savant-cfb.js keep the same year')
+  assert.match(readFileSync(path.join(ROOT, 'pipeline', 'cfb', 'build.py'), 'utf8'), /int\(r\.season\) < C\.TALENT_FROM or not float\(r\.talent\) > 0/)
+  for (const y of SEASONS) {
+    const D = read(`teams/${y}.json`)
+    const K = D.teams.map((_, i) => M.talent(D, i))
+    if (y < 2014) { assert.ok(K.every((k) => !k.tracked && k.rank == null), `${y}: talent shown before 2014`); continue }
+    const ranked = K.filter((k) => k.rank != null)
+    assert.ok(ranked.every((k) => k.of === ranked.length), `${y}: "of N" counts the teams with talent`)
+    // ranks as the build gives them (ties share the higher rank), in talent order, 1 to at most N
+    const byRank = ranked.slice().sort((a, b) => a.rank - b.rank)
+    assert.equal(byRank[0].rank, 1, `${y}: the best talent is not 1st`)
+    assert.ok(byRank[byRank.length - 1].rank <= ranked.length, `${y}: a rank past the ${ranked.length} teams with talent`)
+    for (let i = 1; i < byRank.length; i++) assert.ok(byRank[i - 1].value >= byRank[i].value, `${y}: talent out of rank order`)
+    D.teams.forEach((r, i) => { if (!(r[M.TCOL.talent] > 0)) assert.equal(K[i].rank, null, `${y} ${r[M.TCOL.school]}: a 0 talent is ranked`) })
+  }
+  const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
+  assert.ok(!/r\[T\.talent_rank\]\?M\.nth/.test(html), 'the team page reads the raw talent rank again')
+  assert.match(html, /if\(k==='talent_rank'\)return M\.talent\(D,x\.i\)\.rank/)
+  const g09 = await call('cfb_team_profile', { team: 'Georgia', season: 2009 })
+  assert.equal(g09.team.talent_rank, null)
+  assert.match(g09._text, /Team talent: not tracked before 2014/)
+  const g26 = await call('cfb_team_profile', { team: 'Georgia', season: 2026 })
+  assert.equal(g26.team.talent_of, read('teams/2026.json').teams.filter((r) => r[M.TCOL.talent] > 0).length)
+  assert.match(g26._text, new RegExp(`Team talent: \\d+(st|nd|rd|th) of the ${g26.team.talent_of} FBS teams`))
+  const early = await callRaw('cfb_team_rankings', { season: 2010, sort: 'talent' })
+  assert.ok(early.isError && /not tracked before 2014/.test(early.content[0].text))
+  if (SEASONS.includes(2015)) {
+    const r15 = await call('cfb_team_rankings', { season: 2015, sort: 'talent', limit: 140 })
+    const D = read('teams/2015.json'), zero = D.teams.filter((r) => !(r[M.TCOL.talent] > 0)).map((r) => r[M.TCOL.school])
+    assert.ok(zero.length && r15.teams.every((t) => !zero.includes(t.team)), '2015: a team with no talent is ranked')
+  }
+})
+
+test('1.1.1: an opponent not yet decided has no FCS tag and no win chance', async () => {
+  assert.equal(M.tbd(-2), true)
+  assert.equal(M.tbd(61), false)
+  assert.equal(M.tbd(null), false)
+  assert.match(readFileSync(path.join(ROOT, 'pipeline', 'cfb', 'site.py'), 'utf8'), /if opp < 0:\n(\s+#.*\n)+\s+wp = None/)
+  const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
+  assert.match(html, /tb=M\.tbd\(g\[SC\.opp\]\)/)
+  assert.match(html, /\(tb\?'—':M\.chance\(g\[SC\.wp\]\)\)/)
+  // every placeholder opponent the current files hold, through the connector
+  const y = idx.current, SCI = Object.fromEntries(read(`t/${y}/61.json`).sched_cols.map((c, i) => [c, i]))
+  for (const f of readdirSync(path.join(CFB, 't', String(y)))) {
+    const F = JSON.parse(gunzipSync(readFileSync(path.join(CFB, 't', String(y), f))).toString('utf8'))
+    if (!F.sched.some((g) => g[SCI.opp] < 0)) continue
+    const p = await call('cfb_team_profile', { team: String(F.team), season: y })
+    for (const g of p.schedule.filter((x) => x.opponent === 'TBD')) assert.equal(g.pregame_win_chance, null)
+    assert.ok(p.schedule.some((x) => x.opponent === 'TBD'))
+  }
+})
+
+test('1.1.1: the notes give each stat\'s real start year, 2009 on for the site', () => {
+  assert.equal(idx.first_season, 2009)
+  const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
+  assert.ok(!/From 2014\./.test(html), 'every team stat said "From 2014."')
+  assert.ok(!/since 2014/.test(html))
+  assert.ok(reg.team_stats.every((s) => s.start === 2009 || s.start === 2025))
+  const mcp = readFileSync(path.join(ROOT, 'api', 'mcp.js'), 'utf8')
+  assert.match(mcp, /cfb_ is CFB Savant: every FBS player and team from 2009 on \(2013 is not on the site\)/)
+})

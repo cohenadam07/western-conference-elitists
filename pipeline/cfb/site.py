@@ -346,6 +346,10 @@ def team_docs(X, alls):
             opp = int(r.away if home else r.home)
             wp = X.wp_home(r)
             wp = None if wp is None else (wp if home else 1 - wp)
+            if opp < 0:
+                # ESPN's placeholder for an opponent not yet known (a title game's "TBD"): no team, so no
+                # chance; read as non-FBS it was rated as an FCS side and shown as a >99% win
+                wp = None
             pf, pa = (r.home_pts, r.away_pts) if home else (r.away_pts, r.home_pts)
             gi[r.game_id] = len(sched)
             sched.append([int(r.game_id), str(r.date.tz_convert("America/New_York").date()), int(r.week), int(r.season_type), opp,
