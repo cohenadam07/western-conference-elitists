@@ -2,6 +2,12 @@
   {
     "date": "2026-11-24",
     "product": "WCE",
+    "text": "The homepage tiles are sorted by sport, and each one now shows something true today: the All-Savant 1st Team so far, the playoff field if the season ended today, the next UFC card. They update on their own.",
+    "to": "/"
+  },
+  {
+    "date": "2026-11-24",
+    "product": "WCE",
     "text": "New names on one scheme, league first. Basketball Savant is now NBA Savant, Football Savant is NFL Savant, the college tools are CBB Savant and CFB Savant, and the coaching and draft tools follow. Every old link still works.",
     "to": "/"
   },
