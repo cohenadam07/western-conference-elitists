@@ -10,7 +10,7 @@
 
 import type { Feed, Job, LlCount, LlEvent, LlSession, LlUsage, Pulse, Reach, Tab } from './types'
 import {
-  C, ENGINES, MAP_JOB_IDS, STATUS_COLOR, STATUS_WORD, ago, clock, deployStatus, drawMap, drawTimeline,
+  C, ENGINES, MAP_JOB_IDS, SOCIAL, STATUS_COLOR, STATUS_WORD, ago, clock, deployStatus, drawMap, drawTimeline,
   latestProduction, laneSeconds, num, span, summary, until, when,
 } from './draw.js'
 
@@ -63,6 +63,7 @@ function saveKey(k: string | null) {
 const PUSHES = new Set(ENGINES.filter((e) => e.pushes).map((e) => e.id))
 const HAS_SOURCE = new Set(ENGINES.filter((e) => e.from.length).map((e) => e.id))
 const NODE_IDS = new Set([...MAP_JOB_IDS, 'deploy', 'site'])
+const MUSE = new Set(SOCIAL.map((b) => b.id))
 
 function pulsesForJobs(prev: Feed | null, next: Feed, now: number): { pulses: Pulse[]; failed: Job[] } {
   const out: Pulse[] = []
@@ -79,6 +80,7 @@ function pulsesForJobs(prev: Feed | null, next: Feed, now: number): { pulses: Pu
       else if (NODE_IDS.has(id)) add(`blip:${id}`, STATUS_COLOR.running)
     } else if (e.state === 'success') {
       if (id === 'site-watch') add('watch:', STATUS_COLOR.ok)
+      else if (MUSE.has(id) && e.kind === 'post') { add(`reach:${id}`, C.gold); add(`blip:${id}`, STATUS_COLOR.ok, 1700) }
       else if (id === 'basketball-tracking') { add('blip:basketball-tracking', STATUS_COLOR.ok); add('in:basketball-savant-tracking', C.gold, 400) }
       else if (PUSHES.has(id) && /^Published/i.test(e.detail || '')) add(`out:${id}`, C.gold)
       else if (NODE_IDS.has(id)) add(`blip:${id}`, STATUS_COLOR.ok)
@@ -231,10 +233,10 @@ function chipsHtml(): string {
 
 function listHtml(now: number): string {
   if (!feed) return '<p class="muted">Waiting for the feed…</p>'
-  const groups: [string, string][] = [['mac', 'Your Mac'], ['github', 'GitHub Actions'], ['site', 'The site']]
+  const groups: [string, string][] = [['mac', 'Your Mac'], ['github', 'GitHub Actions'], ['site', 'The site'], ['muse', 'Muse (Instagram, Threads, Facebook)']]
   let h = ''
   for (const [lane, title] of groups) {
-    const rows = feed.jobs.filter((j) => j.lane === lane || (lane === 'github' && !['mac', 'site'].includes(j.lane)))
+    const rows = feed.jobs.filter((j) => j.lane === lane || (lane === 'github' && !['mac', 'site', 'muse'].includes(j.lane)))
     if (!rows.length) continue
     h += `<h3>${title}</h3><div class="rows">`
     for (const j of rows) {
@@ -335,7 +337,7 @@ function reachHtml(): string {
 
 function cardHtml(now: number): string {
   if (!selected || !feed) return ''
-  if (selected === 'reach') return `<div class="card" style="--c:${C.gold}">${reachHtml()}<p class="muted small">Last 7 days of visitors: ${(reach?.visits?.week || []).map((d) => num(d.visitors)).join(' · ') || '–'}. Connector calls: ${(reach?.connector?.week || []).map((d) => num(d.calls)).join(' · ') || '–'}. YouTube, X/Bluesky and Google search join once their keys are added.</p><button class="ghost" data-pick="">Close</button></div>`
+  if (selected === 'reach') return `<div class="card" style="--c:${C.gold}">${reachHtml()}<p class="muted small">Last 7 days of visitors: ${(reach?.visits?.week || []).map((d) => num(d.visitors)).join(' · ') || '–'}. Connector calls: ${(reach?.connector?.week || []).map((d) => num(d.calls)).join(' · ') || '–'}. Instagram, Threads and Facebook come from Muse (click their lights). YouTube, X/Bluesky and Google search join once their keys are added.</p><button class="ghost" data-pick="">Close</button></div>`
   if (selected === 'deploy') {
     const list = (feed.deploys?.list || []).filter((d) => d.state !== 'CANCELED').slice(0, 8)
     return `<div class="card" style="--c:${C.gold}"><h2>Vercel deploys</h2>${feed.deploys?.error ? `<p class="warn">Can't read deploys: ${esc(feed.deploys.error)}</p>` : ''}
@@ -357,16 +359,52 @@ function cardHtml(now: number): string {
     ${j.status === 'late' && j.maxAgeH ? `<p class="warn">No check-in for over ${j.maxAgeH} hours.</p>` : ''}
     ${j.lastOk && j.status !== 'ok' ? `<p class="muted">Last clean run: ${esc(when(j.lastOk, now))}</p>` : ''}
     ${j.next ? `<p>Next: ${esc(until(j.next, now))} (${esc(when(j.next, now))})</p>` : ''}
+    ${j.lane === 'muse' ? museHtml(j, now) : ''}
     <div class="actions">
       <button class="primary" data-ask="${esc(j.id)}">${j.status === 'failed' ? 'Copy a fix request for Claude' : 'Copy a question for Claude'}</button>
       ${run ? `<a href="${esc(run)}" target="_blank" rel="noopener">This run on GitHub</a>` : ''}
+      ${j.lastPost?.url ? `<a href="${esc(j.lastPost.url)}" target="_blank" rel="noopener">Last post</a>` : ''}
       ${j.workflow ? `<a href="${esc(j.workflow)}" target="_blank" rel="noopener">All runs</a>` : ''}
       <button class="ghost" data-pick="">Close</button>
     </div></div>`
 }
 
+const METRIC_NAME: Record<string, string> = {
+  followers: 'followers', reach_24h: 'reach, 24h', views_24h: 'views, 24h', engagement_24h: 'engagement, 24h', posts_24h: 'posts, 24h',
+  profile_visits_24h: 'profile visits, 24h', likes_24h: 'likes, 24h', comments_24h: 'comments, 24h', shares_24h: 'shares, 24h',
+}
+
+// A Muse platform's card: its last post, the latest numbers with the week's change, and a
+// followers line for up to 90 days.
+function museHtml(j: Job, now: number): string {
+  const platform = j.id.replace(/^muse-/, '')
+  const p = reach?.social?.platforms?.[platform]
+  let h = j.lastPost ? `<p>Last post: ${esc(when(j.lastPost.t, now))} (${esc(ago(j.lastPost.t, now))})</p>` : '<p class="muted">No post reported yet.</p>'
+  if (!p) return h + `<p class="muted">No numbers yet. Muse sends them once a day.</p>`
+  h += `<h3>Numbers, ${esc(when(p.t, now))}</h3><div class="stats">`
+  for (const [k, v] of Object.entries(p.metrics)) {
+    if (v == null) continue
+    const ch = p.change7[k]
+    h += `<div><b>${num(v)}</b><span>${esc(METRIC_NAME[k] || k)}${ch ? ` · ${ch > 0 ? '+' : '−'}${num(Math.abs(ch))} wk` : ''}</span></div>`
+  }
+  h += '</div>'
+  const pts = p.followers.filter((d) => d.n != null) as { d: string; n: number }[]
+  if (pts.length > 1) {
+    const lo = Math.min(...pts.map((d) => d.n)), hi = Math.max(...pts.map((d) => d.n)), W = 300, H = 48
+    const xy = pts.map((d, i) => `${((i / (pts.length - 1)) * W).toFixed(1)},${(H - 4 - ((d.n - lo) / Math.max(1, hi - lo)) * (H - 8)).toFixed(1)}`).join(' ')
+    h += `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" aria-label="followers over time"><polyline points="${xy}" fill="none" stroke="${C.gold}" stroke-width="2"/></svg>`
+    h += `<p class="muted small">Followers, ${esc(pts[0]!.d)} to ${esc(pts[pts.length - 1]!.d)}: ${num(pts[0]!.n)} → ${num(pts[pts.length - 1]!.n)}</p>`
+  }
+  return h
+}
+
 function askFor(j: Job): string {
   const now = Date.now()
+  if (j.lane === 'muse') {
+    return j.status === 'failed'
+      ? `The WCE Control Room shows Muse's "${j.name}" check-in failed ${j.lastFail ? when(j.lastFail, now) : ''}${j.streak > 1 ? ` (${j.streak} in a row)` : ''}. ${j.failDetail || j.last?.detail || ''} Help me work out what went wrong with Muse's posting and what to tell Muse.`
+      : `The WCE Control Room shows Muse's "${j.name}" as ${STATUS_WORD[j.status]}${j.last ? `, last check-in ${when(j.last.t, now)}` : ''}. ${j.last?.detail || ''} ${j.cadence} Is anything wrong?`
+  }
   return j.status === 'failed'
     ? `The WCE Control Room shows "${j.name}" failed ${j.lastFail ? when(j.lastFail, now) : ''}${j.streak > 1 ? ` (${j.streak} runs in a row)` : ''}. ${j.failDetail || j.last?.detail || ''} Run: ${j.failRun || j.last?.run || j.workflow || 'n/a'}. Find out why it broke and fix it in cohenadam07/western-conference-elitists.`
     : `The WCE Control Room shows "${j.name}" as ${STATUS_WORD[j.status]}${j.last ? `, last ${j.last.state} ${when(j.last.t, now)}` : ''}. ${j.last?.detail || ''} Its schedule: ${j.cadence} Take a look and tell me if anything is wrong.`

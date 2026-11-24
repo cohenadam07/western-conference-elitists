@@ -12,6 +12,7 @@
     "publish-rich-article": "node scripts/publish-rich-article.mjs",
     "newsletter-draft": "node scripts/newsletter-draft.mjs",
     "check:forms": "node --test tools/forms/check.mjs",
+    "check:control-room": "node --test tools/control-room/check.mjs",
     "check:dynasty-swipe": "node --test tools/dynasty-swipe/check.mjs",
     "check:savant-api": "node --test tools/savant-api/check.mjs && node --test tools/savant-api/more.mjs",
     "check:savant-mcp": "node --test tools/savant-mcp/ambiguity.mjs && node --test tools/savant-mcp/check.mjs",

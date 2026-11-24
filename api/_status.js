@@ -195,6 +195,21 @@ export const JOBS = [
     workflow: 'site-watch.yml', maxAgeH: 4, tz: 'UTC', cron: ['7,37 * * * *'],
     cadence: 'Every 30 minutes (GitHub skips some): the homepage, a Savant page, the AI connector and the latest deploy.',
   },
+  // Muse, Meta's agent, posts WCE content and reports here with its own key (WCE_MUSE_KEY, see
+  // museCheckIn below). Posting days vary, so the daily numbers snapshot is the heartbeat: no
+  // check-in of either kind for 26 hours turns the light late.
+  {
+    id: 'muse-instagram', name: 'Instagram (Muse)', lane: 'muse', product: 'social', maxAgeH: 26, tz: 'UTC', cron: [],
+    cadence: 'Muse checks in after every Instagram post, and sends the account\'s numbers once a day around 11pm ET.',
+  },
+  {
+    id: 'muse-threads', name: 'Threads (Muse)', lane: 'muse', product: 'social', maxAgeH: 26, tz: 'UTC', cron: [],
+    cadence: 'Muse checks in after every Threads post, and sends the account\'s numbers once a day around 11pm ET.',
+  },
+  {
+    id: 'muse-facebook', name: 'Facebook (Muse)', lane: 'muse', product: 'social', maxAgeH: 26, tz: 'UTC', cron: [],
+    cadence: 'Muse checks in after every Facebook post, and sends the page\'s numbers once a day around 11pm ET.',
+  },
 ]
 const JOB_IDS = new Set(JOBS.map((j) => j.id))
 const ID_RE = /^[a-z0-9][a-z0-9-]{1,39}$/
@@ -306,28 +321,40 @@ async function push({ title, message, priority = 'high', tags = 'rotating_light'
 
 const clip = (s, n) => (typeof s === 'string' ? s.replace(/\s+/g, ' ').trim().slice(0, n) : '')
 
-export async function checkIn(body, now = Date.now()) {
+// `opts` carries what only Muse's check-ins have (museCheckIn): `kind` (post or snapshot), the
+// post's `url`, and `extra` store commands (the numbers).
+export async function checkIn(body, now = Date.now(), opts = {}) {
   const job = String(body?.job || '')
   const state = String(body?.state || '')
   if (!ID_RE.test(job)) return { status: 400, json: { error: 'job must be a short lowercase id' } }
   if (!STATES.has(state)) return { status: 400, json: { error: 'state must be start, success, failure or cancelled' } }
   const run = /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/actions\/runs\/\d+$/.test(body?.run || '') ? body.run : ''
   const detail = clip(body?.detail, 300)
-  const source = ['github', 'mac', 'site', 'hand'].includes(body?.source) ? body.source : 'github'
+  const source = ['github', 'mac', 'site', 'hand', 'muse'].includes(body?.source) ? body.source : 'github'
   const at = body?.t ? Date.parse(body.t) : NaN
   const backfill = Number.isFinite(at) && at < now - 60000
+  const { kind = null, url = null, extra = [] } = opts
 
   const [prevRow] = await redisPipeline([['HGET', K_JOBS, job]])
   const prev = parseJSONSafe(prevRow?.result, null) || {}
   const t = backfill ? at : now
 
-  const event = { t, job, state, ...(detail ? { detail } : {}), ...(run ? { run } : {}), source }
+  const event = { t, job, state, ...(detail ? { detail } : {}), ...(run ? { run } : {}), source, ...(kind ? { kind } : {}), ...(url ? { url } : {}) }
   if (state !== 'start' && prev.state === 'start' && prev.run && prev.run === run) event.dur = Math.max(0, t - prev.since)
 
-  const cmds = [['LPUSH', K_EVENTS, JSON.stringify(event)], ['LTRIM', K_EVENTS, 0, MAX_EVENTS - 1]]
+  const cmds = [['LPUSH', K_EVENTS, JSON.stringify(event)], ['LTRIM', K_EVENTS, 0, MAX_EVENTS - 1], ...extra]
   let next = null
-  if (!backfill) {
+  // A good numbers snapshot keeps the light fresh but doesn't clear a failed post: the light
+  // stays red until a post goes through.
+  const quietSnapshot = !backfill && kind === 'snapshot' && state === 'success'
+  if (quietSnapshot) {
+    next = { ...prev, lastEnd: t, lastSnap: t, backfilled: false }
+    if (prev.state !== 'failure') Object.assign(next, { state, t, source, detail: detail || null, run: null, lastOk: t, streak: 0 })
+    cmds.push(['HSET', K_JOBS, job, JSON.stringify(next)])
+  } else if (!backfill) {
     next = { ...prev, state, t, source, detail: detail || null, run: run || null, backfilled: false }
+    if (kind === 'post' && state === 'success' && url) next.lastPost = { t, url }
+    if (kind === 'snapshot') next.lastSnap = t
     if (state === 'start') next.since = t
     else {
       next.lastEnd = t
@@ -354,7 +381,7 @@ export async function checkIn(body, now = Date.now()) {
 
   // Pushes: the first failure in a row, and getting better after one. Backfills never push.
   let pushed = null
-  if (!backfill) {
+  if (!backfill && !quietSnapshot) {
     const meta = JOBS.find((j) => j.id === job)
     const name = meta?.name || job
     if (state === 'failure' && (prev.streak || 0) === 0) {
@@ -363,7 +390,123 @@ export async function checkIn(body, now = Date.now()) {
       pushed = (await push({ title: `WCE: ${name} is back`, message: detail || 'It ran cleanly again.', priority: 'default', tags: 'white_check_mark', click: run || undefined })) ? 'recovered' : 'unsent'
     }
   }
-  return { status: 200, json: { ok: true, job, state, backfill, pushed, known: JOB_IDS.has(job) } }
+  return { status: 200, json: { ok: true, job, state, backfill, pushed, known: JOB_IDS.has(job), ...(kind ? { kind } : {}) } }
+}
+
+/* ------------------------------------------------------------------ *
+ * Muse's check-ins: a post, or the day's numbers
+ * ------------------------------------------------------------------ *
+ * POST /api/status   Authorization: Bearer <WCE_MUSE_KEY>
+ *   { job: muse-instagram|muse-threads|muse-facebook, state: success|failure, kind: "post",
+ *     url: "<the post's link>", detail?: "<one line; why, if it failed>" }
+ *   { job, state: "success", kind: "snapshot", metrics: { followers, reach_24h, ... } }
+ * Muse's key can do this and nothing else: no reads, no other job. Every answer that refuses says
+ * what was wrong, so Muse can fix its own call.
+ */
+
+const K_SOCIAL = 'wce:status:social'
+const kSocialHist = (p) => `wce:status:social:hist:${p}`
+const SOCIAL_HIST = 200 // newest first; read back as the latest per day, 90 days
+
+export const MUSE_JOBS = JOBS.filter((j) => j.lane === 'muse').map((j) => j.id)
+export const isMuseJob = (id) => MUSE_JOBS.includes(id)
+const POST_HOSTS = {
+  instagram: ['instagram.com', 'www.instagram.com'],
+  threads: ['threads.com', 'www.threads.com', 'threads.net', 'www.threads.net'],
+  facebook: ['facebook.com', 'www.facebook.com', 'm.facebook.com', 'web.facebook.com', 'fb.watch', 'fb.com', 'www.fb.com'],
+}
+export const METRICS = ['followers', 'reach_24h', 'views_24h', 'engagement_24h', 'posts_24h', 'profile_visits_24h', 'likes_24h', 'comments_24h', 'shares_24h']
+const MUSE_BODY_MAX = 4096
+
+const refuse = (error) => ({ status: 400, json: { ok: false, error } })
+
+export async function museCheckIn(body, now = Date.now()) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return refuse('Send a JSON object.')
+  if (JSON.stringify(body).length > MUSE_BODY_MAX) return { status: 413, json: { ok: false, error: `The body is over ${MUSE_BODY_MAX} bytes. Send one check-in at a time.` } }
+  const job = String(body.job || '')
+  if (!isMuseJob(job)) return refuse(`job must be one of ${MUSE_JOBS.join(', ')}.`)
+  const platform = job.slice('muse-'.length)
+  const kind = String(body.kind || '')
+  const state = String(body.state || '')
+  if (body.t != null) return refuse('t (backfilling) is not accepted from Muse; send check-ins as they happen.')
+
+  if (kind === 'post') {
+    if (state !== 'success' && state !== 'failure') return refuse('For a post, state must be success or failure.')
+    let url = null
+    if (body.url != null && body.url !== '') {
+      let u
+      try { u = new URL(String(body.url)) } catch { return refuse('url is not a link.') }
+      if (u.protocol !== 'https:' || !POST_HOSTS[platform].includes(u.hostname.toLowerCase())) {
+        return refuse(`url must be an https link on ${POST_HOSTS[platform].filter((h) => !h.startsWith('www.')).join(' or ')} for ${job}.`)
+      }
+      url = u.toString().slice(0, 300)
+    }
+    if (state === 'success' && !url) return refuse('A successful post needs its url.')
+    const detail = clip(body.detail, 300)
+    if (state === 'failure' && !detail) return refuse('A failed post needs a detail saying why.')
+    return checkIn({ job, state, source: 'muse', detail: detail || 'Posted.' }, now, { kind, url })
+  }
+
+  if (kind === 'snapshot') {
+    if (state !== 'success' && state !== 'failure') return refuse('For a snapshot, state must be success (or failure if you could not read the numbers).')
+    if (state === 'failure') {
+      const detail = clip(body.detail, 300)
+      if (!detail) return refuse('A failed snapshot needs a detail saying why.')
+      return checkIn({ job, state, source: 'muse', detail: `Couldn't read the numbers: ${detail}` }, now, { kind })
+    }
+    const raw = body.metrics
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return refuse(`metrics must be an object with any of: ${METRICS.join(', ')}.`)
+    const metrics = {}
+    const dropped = []
+    for (const [k, v] of Object.entries(raw)) {
+      if (!METRICS.includes(k)) { dropped.push(k); continue }
+      if (v === null) { metrics[k] = null; continue }
+      const n = typeof v === 'string' && v.trim() !== '' ? Number(v.replace(/,/g, '')) : v
+      if (typeof n !== 'number' || !Number.isFinite(n) || n < 0 || n > 1e11) return refuse(`${k} must be a number of 0 or more, or null.`)
+      metrics[k] = Math.round(n)
+    }
+    if (!Object.values(metrics).some((v) => v != null)) return refuse(`metrics had no numbers. Send at least one of: ${METRICS.join(', ')}.`)
+    const snap = { t: now, d: toISODate(now), metrics }
+    const extra = [
+      ['HSET', K_SOCIAL, platform, JSON.stringify(snap)],
+      ['LPUSH', kSocialHist(platform), JSON.stringify(snap)],
+      ['LTRIM', kSocialHist(platform), 0, SOCIAL_HIST - 1],
+    ]
+    const detail = metrics.followers != null ? `Numbers in: ${metrics.followers.toLocaleString('en-US')} followers.` : 'Numbers in.'
+    const r = await checkIn({ job, state, source: 'muse', detail }, now, { kind, extra })
+    if (dropped.length) r.json.dropped = dropped
+    return r
+  }
+
+  return refuse('kind must be post or snapshot.')
+}
+
+// The latest numbers per platform, with the change since about a week ago.
+export async function readSocial(now = Date.now()) {
+  const platforms = MUSE_JOBS.map((id) => id.slice('muse-'.length))
+  const rows = await redisPipeline([['HGETALL', K_SOCIAL], ...platforms.map((p) => ['LRANGE', kSocialHist(p), 0, SOCIAL_HIST - 1])])
+  const latest = toHash(rows[0]?.result)
+  const out = {}
+  platforms.forEach((p, i) => {
+    const cur = parseJSONSafe(latest[p], null)
+    if (!cur) return
+    // Newest first: keep the latest snapshot of each day.
+    const byDay = new Map()
+    for (const raw of rows[i + 1]?.result || []) {
+      const s = parseJSONSafe(raw, null)
+      if (s?.d && !byDay.has(s.d)) byDay.set(s.d, s)
+    }
+    const days = [...byDay.values()].filter((s) => s.t >= now - 90 * DAY).sort((a, b) => a.t - b.t)
+    const weekAgo = toISODate(now - 7 * DAY)
+    const base = byDay.get(weekAgo) || days.find((s) => s.t >= now - 8 * DAY && s.d < toISODate(now)) || null
+    const change7 = {}
+    if (base) for (const [k, v] of Object.entries(cur.metrics)) if (v != null && base.metrics?.[k] != null) change7[k] = v - base.metrics[k]
+    out[p] = {
+      t: cur.t, metrics: cur.metrics, change7, since: base ? base.d : null,
+      followers: days.map((s) => ({ d: s.d, n: s.metrics?.followers ?? null })),
+    }
+  })
+  return { connected: Object.keys(out).length > 0, platforms: out }
 }
 
 /* ------------------------------------------------------------------ *
@@ -383,6 +526,7 @@ function jobView(meta, s, now) {
     since: s?.state === 'start' ? s.since : null,
     lastOk: s?.lastOk || null, lastFail: s?.lastFail || null, failDetail: s?.failDetail || null,
     failRun: s?.failRun || null, streak: s?.streak || 0, backfilled: Boolean(s?.backfilled),
+    ...(meta.lane === 'muse' ? { lastPost: s?.lastPost || null, lastSnap: s?.lastSnap || null } : {}),
   }
   let status
   if (!s) status = meta.maxAgeH == null ? 'manual' : 'waiting'
@@ -493,7 +637,9 @@ export async function readReach(now = Date.now()) {
     return r.ok ? { subscribers: Number(r.json?.count) || 0 } : { error: `Buttondown answered ${r.status}` }
   })())
 
-  const [s, c, v, n] = await Promise.all([store, connector, visits, newsletter])
+  const social = settle(readSocial(now))
+
+  const [s, c, v, n, so] = await Promise.all([store, connector, visits, newsletter, social])
   return {
     now,
     visits: v,
@@ -503,7 +649,8 @@ export async function readReach(now = Date.now()) {
     newsletter: n,
     // Step 3 of the Control Room: these need keys the site doesn't have yet.
     youtube: { connected: false },
-    social: { connected: false },
+    // Instagram, Threads and Facebook, as Muse reports them (museCheckIn). X and Bluesky aren't in it.
+    social: so.error ? { connected: false, error: so.error } : so,
     search: { connected: false },
   }
 }
@@ -570,16 +717,29 @@ async function bodyOf(req) {
   return parseJSONSafe(Buffer.concat(chunks).toString('utf8'), {})
 }
 
+// Muse's key, only ever in the Authorization header (never the address, which can end up in logs
+// and caches). It is a separate secret from WCE_STATUS_KEY and opens one thing: museCheckIn.
+function museKeyShown(req) {
+  const museKey = process.env.WCE_MUSE_KEY
+  const auth = req.headers.authorization || ''
+  return Boolean(museKey && auth.startsWith('Bearer ') && timingSafeEqual(auth.slice(7), museKey))
+}
+
 export async function statusHandler(req, res) {
   const key = process.env.WCE_STATUS_KEY
   if (!key) return res.status(503).json({ error: 'WCE_STATUS_KEY is not set: the Control Room feed is off.' })
-  if (!(await authorized(req, key))) return res.status(401).json({ error: 'unauthorized' })
+  const muse = museKeyShown(req)
+  if (!muse && !(await authorized(req, key))) return res.status(401).json({ error: 'unauthorized' })
+  if (muse && req.method !== 'POST') return res.status(403).json({ error: 'This key can only check in (POST). It can\'t read the feed.' })
   if (!storeReady()) return res.status(503).json({ error: 'The data store is not set up.' })
 
   try {
     if (req.method === 'POST') {
       res.setHeader('Cache-Control', 'no-store')
-      const { status, json } = await checkIn(await bodyOf(req))
+      const body = await bodyOf(req)
+      if (muse && !isMuseJob(String(body?.job || ''))) return res.status(403).json({ ok: false, error: `This key can only check in for ${MUSE_JOBS.join(', ')}.` })
+      // The Muse jobs always go through Muse's checks, whichever key sends them.
+      const { status, json } = isMuseJob(String(body?.job || '')) ? await museCheckIn(body) : await checkIn(body)
       return res.status(status).json(json)
     }
     if (req.method !== 'GET') return res.status(405).json({ error: 'GET or POST' })
