@@ -1,6 +1,6 @@
 """
 all_savant_slots.py — who can fill which All-Savant slot, by the NBA's own positional rules
-(Basketball Savant 2.9.0, Adam, Nov 19 2026).
+(NBA Savant 2.9.0, Adam, Nov 19 2026).
 
 The All-Savant Team follows All-NBA's rules by era:
   through 2022-23  2 guards, 2 forwards, 1 center per team. A player can fill a slot when his share

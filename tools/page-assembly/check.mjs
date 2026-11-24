@@ -4,7 +4,7 @@
 //
 // The rule (each page-src/README.md): edit page-src, then run the assembler; never edit an assembled
 // page in public/ directly. On Nov 6, 2026 two of the three pages had drifted that way: College Basketball
-// Savant's 1.3.0 and 1.4.0, and Basketball Coaching Savant's site ribbon, went into the published page
+// Savant's 1.3.0 and 1.4.0, and NBA Coaching Savant's site ribbon, went into the published page
 // only, so running the assembler would have wiped them. This check runs each assembler to a temp file
 // (never over the published page) and fails if the output differs from the published page by one byte,
 // if a page-src folder exists without an assembler listed here, or if a page-src folder holds a file

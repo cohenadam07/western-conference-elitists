@@ -1,5 +1,5 @@
 """
-ext_config.py — the registry for the October 2026 "everything" additions to Basketball Savant.
+ext_config.py — the registry for the October 2026 "everything" additions to NBA Savant.
 
 Every new card bar is one entry in EXT_METRICS, every new panel one entry in EXT_PANELS. The
 entry carries what the page needs (label, group, sub-group, unit, hatching threshold, direction,
@@ -458,7 +458,7 @@ EXT_METRICS = [
       "500+ minute players and pulled toward average by minutes ÷ (minutes + k): Scoring (Points / 75; points above league-average efficiency = "
       "Points / 75 × (TS% − league TS%)), Creation (Assist %, potential assists / 75, assist points created / 75, time of possession / 75) and "
       "Overall (Offensive BPM and, from 2025-26, on-ball gravity, net of Scoring). Shown as a percentile; the number is an average z-score.",
-      f"{MAT} (who guarded whom, partial possessions), 2017-18 on; the threat inputs are Basketball Savant's own stats (OBPM from {BRF}). "
+      f"{MAT} (who guarded whom, partial possessions), 2017-18 on; the threat inputs are NBA Savant's own stats (OBPM from {BRF}). "
       f"{NBA_NOTE} {SEASON_ONLY} Time of possession is left out of 2024-25, when the NBA published it broken.",
       "Hatched under 560 matchup possessions.", beside="mtch", lead="pct", parts=("mtchc_score", "mtchc_create")),
     M("mtchc_score", "Matchup difficulty: scoring part", "def", "Activity & outcomes", "num2", 600, False, "match", False, "2017-18",

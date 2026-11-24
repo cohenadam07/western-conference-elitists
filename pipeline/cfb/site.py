@@ -330,7 +330,7 @@ def team_docs(X, alls):
     names = {}
     for r in g.itertuples():
         names[int(r.home)], names[int(r.away)] = r.home_team, r.away_team
-    # 1.1.0: every decision, by team, for the team page and a future College Football Coaching Savant
+    # 1.1.0: every decision, by team, for the team page and a future College NFL Coaching Savant
     from . import fourth as FD
     dec = pd.read_parquet(WORK / f"decisions_{X.y}.parquet") if (WORK / f"decisions_{X.y}.parquet").exists() else None
     try:

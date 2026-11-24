@@ -1,7 +1,7 @@
-/* savant-cfb.js — College Football Savant's arithmetic: one copy, for the page and the connector.
+/* savant-cfb.js — CFB Savant's arithmetic: one copy, for the page and the connector.
    The page loads it with a script tag; api/_cfb.js and tools/savant-cfb/check.mjs import it. Every
    percentile on the site comes from pct() over pool(), so a connector answer cannot disagree with
-   the card. Percentiles use Basketball Savant's rule: 100 × (below + half of ties) ÷ n, and are
+   the card. Percentiles use NBA Savant's rule: 100 × (below + half of ties) ÷ n, and are
    always within one season: eras are never pooled. */
 (function (root, factory) {
   root.SavantCFB = factory()
@@ -157,7 +157,7 @@
     const st = statsFor(reg, slot), order = (reg.card_groups && reg.card_groups[cardKey(slot)]) || reg.groups
     return order.map((g) => ({ group: g, stats: st.filter((s) => (s.cgroup || s.group) === g) })).filter((x) => x.stats.length)
   }
-  /* The five headline stats of a slot (Football Savant's profile score is their mean percentile). */
+  /* The five headline stats of a slot (NFL Savant's profile score is their mean percentile). */
   function headline(reg, slot) {
     const h = reg.headline || {}, n = { EDGE: 'dl', IDL: 'dl', LB: 'lb' }[slot]
     const keys = slot === 'CB' || slot === 'S' ? h.DB : n ? (h.D || []).map((k) => k.replace('{p}', n)) : h[slot]
@@ -254,7 +254,7 @@
     return out.slice(0, count).map((c) => ({ ...c, sameClass: cand === sameCls }))
   }
 
-  /* Weakness comps (Football Savant's): qualified players at his position whose percentiles on HIS five lowest bars sit closest. */
+  /* Weakness comps (NFL Savant's): qualified players at his position whose percentiles on HIS five lowest bars sit closest. */
   function weakComps(doc, reg, i, count = 5) {
     const P = doc.players, me = P[i], slot = me[COL.slot]
     if (!me[COL.qual]) return []

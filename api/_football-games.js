@@ -1,4 +1,4 @@
-// api/_football-games.js — Football Savant below the season line: a player's games week by
+// api/_football-games.js — NFL Savant below the season line: a player's games week by
 // week and his recent form, his splits, his throw / target / rushing map and route tree, and
 // the postseason game pages. One section of the AI connector (api/mcp.js), beside
 // api/_football.js, whose player index, season files and name matching it shares.
@@ -26,7 +26,7 @@ import { READ_ONLY, SITE, SavantError, day, makeLoader, miss, norm, ordinal, tho
 import { SOURCE, cardUrl, display, loadMeta, loadSeason, parseSeason, played, resolvePlayer, rowsOf, seasonsOf, teamIn } from './_football.js'
 import { parseStat, percentile } from './_football-lists.js'
 
-const page = makeLoader('', { what: 'Football Savant', maxCached: 12, shape: () => true })
+const page = makeLoader('', { what: 'NFL Savant', maxCached: 12, shape: () => true })
 const GAMES_URL = `${SITE}/game.html`
 
 const cellOf = (r, key) => (r.m && r.m[key]) || (r.xm && r.xm[key]) || null
@@ -64,7 +64,7 @@ export async function playerGames({ player, season, stats }) {
   const wanted = parseSeason(season, meta)
   const who = await resolvePlayer(player, wanted, meta)
   const s = wanted || String(who.to)
-  if (!played(who, s)) throw new SavantError(`${who.name} has no stats in ${s}. Football Savant has him in ${seasonsOf(who)}.`)
+  if (!played(who, s)) throw new SavantError(`${who.name} has no stats in ${s}. NFL Savant has him in ${seasonsOf(who)}.`)
   const [file, { idx, f }] = await Promise.all([loadSeason(s), weeklyOf(s, who.id)])
   const row = rowsOf(file).get(who.id)
   const pos = (row && row.pos) || (f && f.pos) || who.pos
@@ -408,7 +408,7 @@ export async function playerSplits({ player, season, view = 'splits', ledger }) 
   const wanted = career ? null : parseSeason(season, meta)
   const who = await resolvePlayer(player, wanted, meta)
   const s = wanted || String(who.to)
-  if (!career && !played(who, s)) throw new SavantError(`${who.name} has no stats in ${s}. Football Savant has him in ${seasonsOf(who)}.`)
+  if (!career && !played(who, s)) throw new SavantError(`${who.name} has no stats in ${s}. NFL Savant has him in ${seasonsOf(who)}.`)
   const file = career ? null : await loadSeason(s)
   const row = file ? rowsOf(file).get(who.id) : null
   const pos = (row && row.pos) || who.pos
@@ -449,7 +449,7 @@ export async function nflGame({ game, season, team, opponent }) {
     if (hits.length !== 1 || (!a && !b)) {
       const list = hits.slice(0, 25).map(([gid, g]) => ({ id: gid, season: g.s, round: g.n, date: g.d, away: g.a, away_score: g.as, home: g.h, home_score: g.hs, url: `${GAMES_URL}#${gid}` }))
       const structured = { games: list, total: hits.length, game: null, source: SOURCE }
-      if (!list.length) return { structured, text: 'No postseason game in Football Savant matches that. It has every playoff game from the 1999 season on.' }
+      if (!list.length) return { structured, text: 'No postseason game in NFL Savant matches that. It has every playoff game from the 1999 season on.' }
       return { structured, text: `${hits.length} postseason game${hits.length === 1 ? '' : 's'} match${hits.length > 25 ? ', newest 25' : ''}. Ask again with one id:\n${list.map((g) => `- ${g.id}: ${g.season} ${g.round}, ${g.away} ${g.away_score} at ${g.home} ${g.home_score} (${g.date})`).join('\n')}\n\nPostseason game pages: ${GAMES_URL}` }
     }
     id = hits[0][0]
@@ -505,7 +505,7 @@ export const tools = [
     config: {
       title: 'NFL player game log',
       description:
-        'An NFL player\'s season game by game on Football Savant (wcehoops.com), 1999 on: each week\'s opponent and his number in each stat, with where that one game would rank among the season\'s full-season lines at his position; byes and missed games; his season line, best game, last game and the position median; and, for the season being played, his last 4, 8 and 17 games ranked against everyone\'s same stretch. Defaults to his position\'s headline stats.',
+        'An NFL player\'s season game by game on NFL Savant (wcehoops.com), 1999 on: each week\'s opponent and his number in each stat, with where that one game would rank among the season\'s full-season lines at his position; byes and missed games; his season line, best game, last game and the position median; and, for the season being played, his last 4, 8 and 17 games ranked against everyone\'s same stretch. Defaults to his position\'s headline stats.',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nfl_search_players or a full name.'),
         season: z.string().trim().max(12).optional().describe('Year the season began. Omit for his latest.'),
@@ -524,7 +524,7 @@ export const tools = [
     config: {
       title: 'NFL player splits, maps and route tree',
       description:
-        'Below an NFL player\'s season line on Football Savant (wcehoops.com). view "splits" (QB, RB, WR, TE): his plays by down, distance, field position, quarter, score, home/away, roof, and from 2022 play-action, blitz, motion and formation, each headline rate ranked against everyone with a real sample in that split. "throw_map" / "target_map" / "rush_map": where his throws, targets or carries went. "route_tree": his targets by route against his position. Maps and route trees also take season "career".',
+        'Below an NFL player\'s season line on NFL Savant (wcehoops.com). view "splits" (QB, RB, WR, TE): his plays by down, distance, field position, quarter, score, home/away, roof, and from 2022 play-action, blitz, motion and formation, each headline rate ranked against everyone with a real sample in that split. "throw_map" / "target_map" / "rush_map": where his throws, targets or carries went. "route_tree": his targets by route against his position. Maps and route trees also take season "career".',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nfl_search_players or a full name.'),
         view: z.enum(['splits', 'throw_map', 'target_map', 'rush_map', 'route_tree']).default('splits').describe('Which view.'),
@@ -549,7 +549,7 @@ export const tools = [
     config: {
       title: 'NFL postseason game',
       description:
-        'Football Savant\'s postseason game pages (wcehoops.com): every NFL playoff game from the 1999 season on. Find games by season and team(s), or open one by id: score by quarter, conditions and spread, team stats, passing, rushing and receiving box score, every scoring play, the plays that moved win probability most, every drive, and the biggest win-probability swings.',
+        'NFL Savant\'s postseason game pages (wcehoops.com): every NFL playoff game from the 1999 season on. Find games by season and team(s), or open one by id: score by quarter, conditions and spread, team stats, passing, rushing and receiving box score, every scoring play, the plays that moved win probability most, every drive, and the biggest win-probability swings.',
       inputSchema: {
         game: z.string().trim().max(40).optional().describe('A game id from a previous answer, e.g. "2025_22_SEA_NE".'),
         season: z.string().trim().max(12).optional().describe('Year the season began, e.g. "2024" (its playoffs are in early 2025).'),

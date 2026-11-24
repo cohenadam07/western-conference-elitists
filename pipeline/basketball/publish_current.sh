@@ -1,5 +1,5 @@
 #!/bin/bash
-# publish_current.sh — the nightly Basketball Savant refresh, end to end.
+# publish_current.sh — the nightly NBA Savant refresh, end to end.
 #
 #   1. refresh_current.py rebuilds the season in progress into out/current.json
 #      (exit 3 = no regular-season games yet: a quiet success, nothing to publish)
@@ -123,7 +123,7 @@ if git diff --cached --quiet; then
 else
   SEASON=$("$PY" -c "import json;print(json.load(open('$SAVANT/out/current.json'))['seasons'][0])")
   THROUGH=$("$PY" -c "import json;print(json.load(open('$SAVANT/out/current.json')).get('through') or 'latest')")
-  if [ -n "$MSG" ]; then SUBJ="Basketball Savant: refresh $SEASON (through $THROUGH)"; else SUBJ="Basketball Savant: heartbeat ($SEASON, no new games)"; fi
+  if [ -n "$MSG" ]; then SUBJ="NBA Savant: refresh $SEASON (through $THROUGH)"; else SUBJ="NBA Savant: heartbeat ($SEASON, no new games)"; fi
   git -c user.name="basketball-savant-bot" -c user.email="bot@wcehoops.com" commit -q -m "$SUBJ"
   if [ -n "${DRY_RUN:-}" ]; then echo "DRY_RUN: would push: $SUBJ"; git log --oneline -1; date '+%Y-%m-%dT%H:%M:%S%z' > "$SAVANT/logs/last-ok"; exit 0; fi
   for attempt in 1 2 3; do

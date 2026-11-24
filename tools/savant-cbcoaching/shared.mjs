@@ -1,4 +1,4 @@
-// College Basketball Coaching Savant against College Basketball Savant: every stat the two pages share.
+// CBB Coaching Savant against CBB Savant: every stat the two pages share.
 //
 //   node --test tools/savant-cbcoaching/shared.mjs        (npm run check:savant-cbcoaching-shared)
 //
@@ -153,7 +153,7 @@ test('a stat College Savant measures differently has a different name and says h
     const s = stats.get(key)
     assert.ok(s, `${key} is not in the registry`)
     assert.notEqual(s.label.toLowerCase(), theirs.toLowerCase(), `${key} shares College Savant's name "${theirs}"`)
-    assert.match(s.what, /College Basketball Savant/, `${key} ("${s.label}") does not say how it differs from College Savant's ${theirs}`)
+    assert.match(s.what, /CBB Savant/, `${key} ("${s.label}") does not say how it differs from College Savant's ${theirs}`)
   }
   for (const [key] of SAME) assert.ok(stats.has(key), `${key} is not in the registry`)
 })
@@ -164,8 +164,8 @@ test('a stat both pages count the same way has the same name on both', () => {
   const page = readFileSync(path.join(ROOT, 'public', 'college-basketball-savant.html'), 'utf8')
   for (const [key, name] of SAME_NAME) {
     assert.equal(stats.get(key)?.label, name, `${key} is "${stats.get(key)?.label}" here`)
-    assert.ok(page.includes(`'${name}'`), `College Basketball Savant's page does not call it "${name}"`)
-    assert.ok(!page.includes("'After timeouts'"), 'College Basketball Savant still has a stat called "After timeouts"')
+    assert.ok(page.includes(`'${name}'`), `CBB Savant's page does not call it "${name}"`)
+    assert.ok(!page.includes("'After timeouts'"), 'CBB Savant still has a stat called "After timeouts"')
   }
 })
 

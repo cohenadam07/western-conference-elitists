@@ -1,12 +1,12 @@
 """The UFC Savant metric table.
 
-One row per bar the tool can draw, in the same shape as Football Savant's table:
+One row per bar the tool can draw, in the same shape as NFL Savant's table:
 
   key    stable id, used by the page and by shareable URLs
   label  what a reader sees
   grp    which panel it lands in
   sub    subheading inside the panel
-  layer  ingredient | output | context   (Basketball Savant's taxonomy; MMA has no
+  layer  ingredient | output | context   (NBA Savant's taxonomy; MMA has no
          public "expected" models worth shipping, so that layer is absent on purpose)
   unit   how to format the number
   lower  true when a smaller number is better; the page flips the percentile

@@ -1,4 +1,4 @@
-// api/_basketball-ext.js — the October 2026 additions to Basketball Savant, for the connector:
+// api/_basketball-ext.js — the October 2026 additions to NBA Savant, for the connector:
 // ~140 more stats (shot profile, tracking, hustle, matchups, fouls, clutch, consistency, win
 // probability...) and the breakdown panels under the card (shot menu, shot splits, touches,
 // passing network, defensive play types, clutch, splits, on/off four factors, turnover mix,
@@ -23,7 +23,7 @@
 import { makeLoader, miss } from './_core.js'
 
 const files = makeLoader('savant-ext', {
-  what: 'Basketball Savant',
+  what: 'NBA Savant',
   maxCached: 24,
   shape: (b) => !!b && typeof b === 'object' && (Array.isArray(b.keys) || (b.players && typeof b.players === 'object')),
 })

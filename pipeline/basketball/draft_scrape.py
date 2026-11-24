@@ -1,5 +1,5 @@
 """
-draft_scrape.py — cached, polite fetcher for the Draft Savant backfill (classes 2010-2020).
+draft_scrape.py — cached, polite fetcher for the NBA Draft Savant backfill (classes 2010-2020).
 
 Four sources, one on-disk cache dir (cache_draft/). A cached file is NEVER re-fetched, so
 re-runs are free and offline. Live requests carry a polite delay and a browser UA (same
@@ -122,7 +122,7 @@ def _f(row, key):
 
 
 def torvik_stats(row):
-    """Map one Torvik row -> the metric fields Draft Savant renders (page-native scales)."""
+    """Map one Torvik row -> the metric fields NBA Draft Savant renders (page-native scales)."""
     def pct100(k):                      # decimal fraction -> percentage
         v = _f(row, k)
         return round(v * 100, 1) if v is not None else None
@@ -147,7 +147,7 @@ def torvik_stats(row):
     )
 
 
-ROLE_POS = {  # Torvik role -> Draft Savant pos vocabulary {Guard, Wing, Big}
+ROLE_POS = {  # Torvik role -> NBA Draft Savant pos vocabulary {Guard, Wing, Big}
     "Pure PG": "Guard", "Scoring PG": "Guard", "Combo G": "Guard",
     "Wing G": "Wing", "Wing F": "Wing", "Stretch 4": "Big",
     "PF/C": "Big", "C": "Big", "Big": "Big",

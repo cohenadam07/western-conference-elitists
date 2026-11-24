@@ -28,7 +28,7 @@ def phone(p, w):
     errs = []
     pg.on("pageerror", lambda e: errs.append(str(e)[:200]))
     for hash_ in ("#all-savant", "#all-savant/2019"):
-        pg.goto(BASE + "/college-football-savant.html" + hash_, wait_until="networkidle")
+        pg.goto(BASE + "/cfb-savant" + hash_, wait_until="networkidle")
         pg.wait_for_selector(".asf .cp")
         o = pg.evaluate("""()=>{const de=document.documentElement;const cs=[...document.querySelectorAll('.as-ph .cp')];
           return {scroll:de.scrollWidth-de.clientWidth, n:cs.length, minH:Math.min(...cs.map(c=>c.getBoundingClientRect().height)),

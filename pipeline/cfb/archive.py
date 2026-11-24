@@ -1,5 +1,5 @@
 """The raw archive: a month's ESPN responses as one bundle, on Adam's Mac only (Adam, Nov 10 2026: raw ESPN
-stays off GitHub, as College Basketball Savant's does; BUILD's "cfb-raw release asset" is dropped).
+stays off GitHub, as CBB Savant's does; BUILD's "cfb-raw release asset" is dropped).
 
     python -m pipeline.cfb.archive pull              fetch the season being played into the Mac's cache (the cloud's
                                                      copy lives in the Actions cache, which expires)

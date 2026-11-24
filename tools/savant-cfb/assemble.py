@@ -1,5 +1,5 @@
 """
-assemble.py — College Football Savant's page from its sources.
+assemble.py — CFB Savant's page from its sources.
 
     python3 tools/savant-cfb/assemble.py                 -> public/college-football-savant.html
     python3 tools/savant-cfb/assemble.py --out <file>    -> anywhere else (the check writes to a temp file)

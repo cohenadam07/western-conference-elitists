@@ -1,4 +1,4 @@
-// Check for the Draft Savant section of the AI connector: the files the build writes
+// Check for the NBA Draft Savant section of the AI connector: the files the build writes
 // (scripts/lib/savant-api-draft.mjs) and the tools that read them (api/_draft.js).
 //
 //   node --test tools/savant-draft/check.mjs
@@ -345,7 +345,7 @@ test('the page still has no link that opens one prospect', () => {
   assert.ok(html.includes("if(location.hash==='#p'){ document.body.classList.remove('home-open'); }"), 'what "#p" means changed')
   assert.ok(html.includes('wireHome(); showHome();'), 'the page no longer always starts on its home screen')
   assert.equal(out.meta.prospectUrl, null)
-  assert.equal(out.meta.page, 'https://wcehoops.com/draft-savant.html')
+  assert.equal(out.meta.page, 'https://wcehoops.com/nba-draft-savant')
 })
 
 test('every value, percentile and pool size matches the page, for every prospect in all six pools', () => {
@@ -745,7 +745,7 @@ test('the answer reads the way a fan would need it to', async () => {
   assert.equal(s.prospect.id, top.id)
   assert.equal(s.pool.short_label, `vs. the ${cfg.currentClass} class`)
   assert.match(s.pool.label, new RegExp(`against the ${cfg.currentClass} draft class as the page lists it: ${top.sizes[0]} prospects, all positions\\. This is the page's default view\\.`))
-  assert.match(text, new RegExp(`^${top.name}: Draft Savant pre-draft profile \\(college and combine data, not NBA stats\\)\\n${cfg.currentClass} class: projected No\\. ${top.pick}, ${top.team}\\.`))
+  assert.match(text, new RegExp(`^${top.name}: NBA Draft Savant pre-draft profile \\(college and combine data, not NBA stats\\)\\n${cfg.currentClass} class: projected No\\. ${top.pick}, ${top.team}\\.`))
   assert.match(text, /Provenance: this is a fixed data file compiled by WCE, some of it transcribed by hand, not a live or official feed \(the file is tagged "hardcoded-v1"\)\. Its own note reads: "2026 top-3 prospects: /)
   assert.match(text, /it has no link that opens one prospect/)
   // Nothing the page does not show as a number: no grade, no comparison, no scouting take.
@@ -823,7 +823,7 @@ test('search finds prospects the way people type them', async () => {
   const jokic = await run(search, { query: 'Nikola Jokic' })
   assert.deepEqual(jokic.structured.prospects.map((p) => [p.name, p.close_match]), [['Nikola Jović', true]])
   assert.match(jokic.text, /^No prospect's name matches "Nikola Jokic" as typed\./)
-  assert.match(jokic.text, /A close spelling can be a different person\. Draft Savant covers the 2026 class and first-round picks of the 2010 to 2025 drafts, so a player picked outside it is not here\./)
+  assert.match(jokic.text, /A close spelling can be a different person\. NBA Draft Savant covers the 2026 class and first-round picks of the 2010 to 2025 drafts, so a player picked outside it is not here\./)
   assert.ok((await run(search, { query: 'williams' })).structured.prospects.every((p) => !p.close_match))
   // Shared names come back together, newest class first.
   const williams = await run(search, { query: 'williams', limit: 4 })
@@ -838,7 +838,7 @@ test('search finds prospects the way people type them', async () => {
   const src = data.players.find((p) => p.name === 'Cooper Flagg')
   assert.deepEqual(r.structured.prospects, [{
     id: src.id, name: src.name, position: src.pos, college: src.college, draft_year: src.draft_year, pick: src.draft_pick,
-    team: src.draft_team, projected: false, close_match: false, url: 'https://wcehoops.com/draft-savant.html',
+    team: src.draft_team, projected: false, close_match: false, url: 'https://wcehoops.com/nba-draft-savant',
   }])
   assert.match(r.text, new RegExp(`1\\. Cooper Flagg \\(id ${src.id}\\): ${src.pos}, ${src.college}\\. Drafted No\\. ${src.draft_pick} in ${src.draft_year} by ${src.draft_team}\\.`))
   assert.match(r.text, /not NBA stats/)
@@ -858,7 +858,7 @@ test('search finds prospects the way people type them', async () => {
   // Nothing found is an answer, not an error.
   const none = await run(search, { query: 'zzzzqq' })
   assert.equal(none.structured.total, 0)
-  assert.match(none.text, /No prospect in Draft Savant matches "zzzzqq"/)
+  assert.match(none.text, /No prospect in NBA Draft Savant matches "zzzzqq"/)
   // Every prospect is found by his own name and by his id.
   for (const p of out.prospects.prospects) {
     const got = await run(search, { query: p.name })
@@ -916,10 +916,10 @@ test('a year alone lists the class as the page\'s draft board does, for every cl
   assert.match(in24.text, /prospects? in the 2024 class match(es)? "williams"/)
   const none = await run(search, { query: 'Wembanyama', year: 2024 })
   assert.equal(none.structured.total, 0)
-  assert.match(none.text, /^No prospect in the 2024 class in Draft Savant matches "Wembanyama"\./)
+  assert.match(none.text, /^No prospect in the 2024 class in NBA Draft Savant matches "Wembanyama"\./)
   // Nothing to look for, or a class the page does not have.
   await fails(search, {}, /^Give a prospect name, a draft year, or both\.$/)
-  await fails(search, { year: 2009 }, /^Draft Savant has no 2009 class\. It covers the 2026 class and first-round picks of the 2010 to 2025 drafts: 2026, 2025, /)
+  await fails(search, { year: 2009 }, /^NBA Draft Savant has no 2009 class\. It covers the 2026 class and first-round picks of the 2010 to 2025 drafts: 2026, 2025, /)
   await fails(search, { query: 'flagg', year: 2031 }, /has no 2031 class/)
 })
 
@@ -953,7 +953,7 @@ test('a name that fits several prospects lists them; an id that is also a surnam
   // A near miss is never taken for a hit. Nikola Jokić was a second-round pick and is not on
   // the page; the closest spelling is another man, and he is offered, not returned.
   assert.ok(!data.players.some((p) => /Joki/.test(p.name)))
-  await fails(profile, { prospect: 'Nikola Jokic' }, /^No prospect is named "Nikola Jokic"\. The closest name is:\n- Nikola Jović \(id \S+\): .*\nCall again with an id only if that is who is meant\. Draft Savant covers the 2026 class and first-round picks of the 2010 to 2025 drafts, so a player picked outside it is not here\.$/)
+  await fails(profile, { prospect: 'Nikola Jokic' }, /^No prospect is named "Nikola Jokic"\. The closest name is:\n- Nikola Jović \(id \S+\): .*\nCall again with an id only if that is who is meant\. NBA Draft Savant covers the 2026 class and first-round picks of the 2010 to 2025 drafts, so a player picked outside it is not here\.$/)
   await fails(profile, { prospect: 'Dybansta' }, /^No prospect is named "Dybansta"\. The closest name is:\n- AJ Dybantsa \(id dybantsa\)/)
   await fails(profile, { prospect: 'Jonson' }, /^No prospect is named "Jonson"\. The closest names are:\n(- .* Johnson.*\n){11}Call again/)
   // No profile is ever returned for a name that only matched as a typo or a fragment.
@@ -966,9 +966,9 @@ test('a name that fits several prospects lists them; an id that is also a surnam
 })
 
 test('questions that cannot be answered say what to try', async () => {
-  await fails(profile, { prospect: 'zz-top-1999' }, /^No prospect has the id "zz-top-1999"\. Draft Savant covers the 2026 class and first-round picks of the 2010 to 2025 drafts\. .*nba_draft_search_prospects/)
+  await fails(profile, { prospect: 'zz-top-1999' }, /^No prospect has the id "zz-top-1999"\. NBA Draft Savant covers the 2026 class and first-round picks of the 2010 to 2025 drafts\. .*nba_draft_search_prospects/)
   await fails(profile, { prospect: 'Qwertyuiop Asdfgh' }, /^No prospect matches "Qwertyuiop Asdfgh"\./)
-  await fails(profile, { prospect: 'LeBron James' }, /^No prospect matches "LeBron James"\. Draft Savant covers the 2026 class and first-round picks of the 2010 to 2025 drafts\./)
+  await fails(profile, { prospect: 'LeBron James' }, /^No prospect matches "LeBron James"\. NBA Draft Savant covers the 2026 class and first-round picks of the 2010 to 2025 drafts\./)
   // Arguments outside what the page offers are refused by the input shape, before any lookup.
   for (const args of [{ prospect: 'dybantsa', compare: 'archetype' }, { prospect: 'dybantsa', pool: '2015' }, { prospect: 'dybantsa', pool: 'past5' }, { prospect: 'dybantsa', group: 'value' }, { prospect: '' }, { prospect: 'x'.repeat(81) }, {}]) {
     assert.ok(!z.object(profile.config.inputSchema).safeParse(args).success, JSON.stringify(args))
@@ -997,12 +997,12 @@ test('files are fetched once and reused; when the data is down the answer is hon
     core.clearCache()
     const real = out.classes[2015]
     delete out.classes[2015]
-    try { await fails(profile, { prospect: 'kristaps-porzingis-2015' }, /^Draft Savant data could not be loaded right now\. Try again in a minute\.$/) } finally { out.classes[2015] = real }
+    try { await fails(profile, { prospect: 'kristaps-porzingis-2015' }, /^NBA Draft Savant data could not be loaded right now\. Try again in a minute\.$/) } finally { out.classes[2015] = real }
 
     // The whole origin is unreachable.
     core.clearCache()
     process.env.SAVANT_API_ORIGIN = 'http://127.0.0.1:9'
-    await fails(search, { query: 'flagg' }, /^Draft Savant data could not be loaded right now\. Try again in a minute\.$/)
+    await fails(search, { query: 'flagg' }, /^NBA Draft Savant data could not be loaded right now\. Try again in a minute\.$/)
     await fails(profile, { prospect: 'flagg' }, /could not be loaded right now/)
   } finally {
     process.env.SAVANT_API_ORIGIN = origin
@@ -1021,7 +1021,7 @@ test('the two tools register, describe themselves and answer through a real MCP 
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)
     assert.deepEqual([t.annotations.readOnlyHint, t.annotations.destructiveHint, t.annotations.idempotentHint, t.annotations.openWorldHint], [true, false, true, false])
     assert.ok(t.description.length > 80, `${t.name}: description`)
-    // This is not Basketball Savant, and the description has to make that plain.
+    // This is not NBA Savant, and the description has to make that plain.
     assert.match(t.description, /not NBA (stats|data)/, `${t.name}: says it is not NBA data`)
     assert.match(t.description, /pre-draft/)
     assert.match(t.description, /compiled by WCE, partly by hand, not an official feed/)
@@ -1084,7 +1084,7 @@ test('what is written to disk is what was built, in a few small files, under bud
     assert.deepEqual([r.files, r.raw, r.bytes], [classFiles.length + 2, raw, bytes])
     assert.equal(r.summary, `${count(data.players.length)} prospects, ${classFiles.length} draft classes`)
     console.log(`      ${r.files} files, ${count(r.raw)} bytes of JSON, ${count(r.bytes)} bytes on disk (budget ${count(BUDGET)})`)
-    assert.ok(r.bytes < BUDGET, `the Draft Savant files grew to ${count(r.bytes)} bytes on disk`)
+    assert.ok(r.bytes < BUDGET, `the NBA Draft Savant files grew to ${count(r.bytes)} bytes on disk`)
     // Writing again replaces the folder rather than adding to it.
     writeDraftApi({ publicDir: PUBLIC, dist })
     assert.equal(readdirSync(path.join(root, 'classes')).length, classFiles.length)

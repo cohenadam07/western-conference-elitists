@@ -1,12 +1,12 @@
 """
-draft_cbb.py — Draft Savant's NCAA prospects read their college numbers from College Basketball
-Savant, for D1 players from the 2027 class on. Older classes keep their rows until Draft Savant 2.0.
+draft_cbb.py — NBA Draft Savant's NCAA prospects read their college numbers from College Basketball
+Savant, for D1 players from the 2027 class on. Older classes keep their rows until NBA Draft Savant 2.0.
 
     overlay(prospect, public_dir) -> the prospect with its college production replaced in place
 
 A prospect is joined by an explicit `espn_id` when it has one, else by name and school through
 public/cbb/search.json. A prospect who can't be joined keeps what it has, and the build says so:
-nothing here guesses. Raw (unadjusted) rates, because Draft Savant's own pools are built on raw rows.
+nothing here guesses. Raw (unadjusted) rates, because NBA Draft Savant's own pools are built on raw rows.
 """
 import gzip
 import json
@@ -14,7 +14,7 @@ import os
 import re
 
 FIRST_CLASS = 2027
-# Draft Savant metric key -> College Basketball Savant key, and how the values scale
+# NBA Draft Savant metric key -> CBB Savant key, and how the values scale
 MAP = {"ts": ("ts", 0.01), "efg": ("efg", 1), "usg": ("usg", 1), "ft": ("ft", 1), "tp3": ("fg3", 1), "tp3r": ("tpar", 1), "ftr": ("ftr", 1),
        "ast": ("ast_pct", 1), "tov": ("tov_pct", 1), "oreb": ("orb_pct", 1), "dreb": ("drb_pct", 1), "stl": ("stl_pct", 1), "blk": ("blk_pct", 1)}
 

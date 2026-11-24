@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""The play-level half of Coaching Savant: fourth-down decisions and scheme units.
+"""The play-level half of NFL Coaching Savant: fourth-down decisions and scheme units.
 
 Two things are built here, from one season's play-by-play at a time.
 

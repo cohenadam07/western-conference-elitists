@@ -1,9 +1,9 @@
 """
-games.py — every D1 game as College Basketball Coaching Savant reads it.
+games.py — every D1 game as CBB Coaching Savant reads it.
 
     python3 games.py 2025-26 2024-25 ...        -> <CBCS_OUT>/games/<season>.json.gz + census/<season>.json
 
-College Basketball Savant's `rebuild.py` already decides lineups, stints, possessions, garbage time
+CBB Savant's `rebuild.py` already decides lineups, stints, possessions, garbage time
 and shot zones; this module runs it unchanged (so every count here is the one College Savant
 publishes) and adds the events a coach decides, read from the same normalized play-by-play:
 

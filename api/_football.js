@@ -1,4 +1,4 @@
-// api/_football.js — Football Savant, as answers. One section of the AI connector
+// api/_football.js — NFL Savant, as answers. One section of the AI connector
 // (api/mcp.js): it knows football, the connector only speaks the protocol.
 //
 // It reads the small files the build writes under /savant-api/football/v1/ (see
@@ -37,7 +37,7 @@ import { z } from 'zod'
 import { ALSO_KNOWN, READ_ONLY, SITE, SavantError, day, makeLoader, miss, ordinal, prepare, rank, thousands, topTier } from './_core.js'
 
 // A season file is a couple of megabytes once parsed, so only a handful are held at a time.
-const files = makeLoader('savant-api/football/v1', { what: 'Football Savant', maxCached: 8 })
+const files = makeLoader('savant-api/football/v1', { what: 'NFL Savant', maxCached: 8 })
 
 // The `group` input, and the page's panel each one means (meta.groups has the labels).
 export const GROUPS = {
@@ -45,7 +45,7 @@ export const GROUPS = {
   pass_rush: 'prsh', run_defense: 'rdef', coverage: 'cov', kicking: 'kick', value: 'val', athletic: 'ath',
 }
 
-const SOURCE = 'Football Savant, Western Conference Elitists (wcehoops.com)'
+const SOURCE = 'NFL Savant, Western Conference Elitists (wcehoops.com)'
 // Counts that are worked out from snap share until a season's lineups are published.
 const EST_COUNTS = new Set(['pblk', 'rblk', 'opsnap', 'dpsnap', 'drsnap', 'gaprun'])
 const SMALL_POOL = 10 // under this many qualified players, an answer says the pool is small
@@ -89,7 +89,7 @@ function shorteningOrder(stats) {
 
 const loadMeta = () => files.load('meta.json')
 // The page's own pace files, read as published
-const paceFiles = makeLoader('', { what: 'Football Savant', maxCached: 3, shape: (b) => !!b.pools })
+const paceFiles = makeLoader('', { what: 'NFL Savant', maxCached: 3, shape: (b) => !!b.pools })
 // The page's pctRaw() then pctOf(): a midrank over an unsorted pool, rounded and held to 1..99
 function linearPct(v, pool, lower) {
   const n = pool.length
@@ -139,7 +139,7 @@ const recent = (a, b) => b.to - a.to || b.seasons - a.seasons
 // ---- small formatting helpers ----------------------------------------------------------
 
 // The page's own link (its syncURL()): the player and the season, in the hash.
-export const cardUrl = (id, season) => `${SITE}/football-savant.html#p=${encodeURIComponent(id)}&s=${season}`
+export const cardUrl = (id, season) => `${SITE}/nfl-savant#p=${encodeURIComponent(id)}&s=${season}`
 
 const feetInches = (n) => { const t = Math.round(n), f = Math.floor(t / 12); return `${f}'${t - f * 12}"` }
 
@@ -236,7 +236,7 @@ function parseSeason(input, meta) {
   if (!m || (m[2] && +m[2] % 100 !== (+m[1] + 1) % 100)) {
     throw new SavantError(`"${input}" is not an NFL season. Give the year the season began, like ${last}.`)
   }
-  if (!meta.seasons.includes(m[1])) throw new SavantError(`Football Savant has no ${m[1]} season. It covers ${first} through ${last}.`)
+  if (!meta.seasons.includes(m[1])) throw new SavantError(`NFL Savant has no ${m[1]} season. It covers ${first} through ${last}.`)
   return m[1]
 }
 
@@ -316,7 +316,7 @@ export async function searchPlayers({ query, limit = 10 }) {
   const structured = { query, total: ranked.length, count: shown.length, players: shown }
   const first = meta.seasons[meta.seasons.length - 1]
   if (!shown.length) {
-    return { structured, text: `No player in Football Savant matches "${query}". It covers NFL players with stats from ${first} through ${meta.latestSeason}. Check the spelling or try the last name alone.` }
+    return { structured, text: `No player in NFL Savant matches "${query}". It covers NFL players with stats from ${first} through ${meta.latestSeason}. Check the spelling or try the last name alone.` }
   }
   const head = ranked.length === 1 ? `1 player matches "${query}":` : `${ranked.length} players match "${query}"${ranked.length > shown.length ? `, showing the first ${shown.length}` : ''}:`
   const lines = shown.map((p, i) =>
@@ -359,12 +359,12 @@ async function profile({ player, season, group = 'all', rank_against = 'season' 
     const others = /\d{2}-\d{4,}/.test(String(player)) ? [] : rank(await loadPlayers(), String(player), recent)
       .filter((r) => r.score === ALSO_KNOWN && r.row.id !== who.id && played(r.row, seasonId)).map((r) => r.row).slice(0, 3)
     const also = others.length ? ` If you meant ${others.map((r) => `${r.name} (id ${r.id})`).join(' or ')}, call again with that id.` : ''
-    throw new SavantError(`${where} Football Savant has him in ${seasonsOf(who)}.${also}`)
+    throw new SavantError(`${where} NFL Savant has him in ${seasonsOf(who)}.${also}`)
   }
   const file = await loadSeason(seasonId)
   const rows = rowsOf(file)
   const row = rows.get(who.id)
-  if (!row) throw new SavantError(`${who.name} has no stats in ${seasonId}. Football Savant has him in ${seasonsOf(who)}.`)
+  if (!row) throw new SavantError(`${who.name} has no stats in ${seasonId}. NFL Savant has him in ${seasonsOf(who)}.`)
 
   const pos = meta.positions[row.pos] || { label: row.pos, peers: row.pos, panels: [], headline: [] }
   const peers = pos.peers
@@ -764,7 +764,7 @@ export async function allSavantTeam({ season, team = 'both' }) {
     teams,
     method,
     notes,
-    url: `${SITE}/football-savant.html`,
+    url: `${SITE}/nfl-savant`,
     data_as_of: day(meta.through || file.generated || meta.generated),
     source: SOURCE,
   }
@@ -823,7 +823,7 @@ export const tools = [
     config: {
       title: 'Search NFL players',
       description:
-        'Find NFL players in Football Savant (Western Conference Elitists, wcehoops.com) by name. Covers players with stats from 1999 through the latest season, at every position including offensive line, defense, kickers and punters. Returns each match with its id, position and team in his last season, and first and last season, plus the link to his card. Matching ignores accents and punctuation and tolerates small typos. Different players who share a name are listed separately.',
+        'Find NFL players in NFL Savant (Western Conference Elitists, wcehoops.com) by name. Covers players with stats from 1999 through the latest season, at every position including offensive line, defense, kickers and punters. Returns each match with its id, position and team in his last season, and first and last season, plus the link to his card. Matching ignores accents and punctuation and tolerates small typos. Different players who share a name are listed separately.',
       inputSchema: {
         query: z.string().trim().min(2).max(80).describe('Player name or part of one, e.g. "Mahomes", "Lamar Jackson", "St. Brown".'),
         limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return (1-25, default 10).'),
@@ -840,7 +840,7 @@ export const tools = [
           first_season: z.string(),
           last_season: z.string(),
           seasons: z.number().int().describe('Number of seasons with stats.'),
-          url: z.string().describe('His Football Savant card, at his last season.'),
+          url: z.string().describe('His NFL Savant card, at his last season.'),
         })),
       },
       annotations: { title: 'Search NFL players', ...READ_ONLY },
@@ -852,7 +852,7 @@ export const tools = [
     config: {
       title: 'Get an NFL player\'s Savant profile',
       description:
-        'Get one NFL player\'s Football Savant profile (Western Conference Elitists, wcehoops.com) for one regular season: every stat on his card for the position he played that year, each with its value and two percentiles against qualified players at that same position, one within that season and one across all seasons since 1999 ("all-time"). There is no league-wide percentile. Which stats exist depends on position: passing, rushing, receiving, returns, blocking, pass rush, run defense, coverage, kicking and punting, plus context, value (expected fantasy points, win probability added, contract) and athletic measurements. While a season is in progress, low-sample stats also carry where they are likely to settle, and rows that are estimates for now are marked. Also returns his age, college and draft pick, his team\'s record and coach, where he ranked in the NFL in counting stats, the sample sizes his rates are built on, a profile score, statistical comps and weakness comps. Defaults to his most recent season, which may still be in progress; the result then says through which week. Seasons from 1999 on. Stats a season did not track are listed as not tracked, and stats on a small sample are marked. Includes the link to his card.',
+        'Get one NFL player\'s NFL Savant profile (Western Conference Elitists, wcehoops.com) for one regular season: every stat on his card for the position he played that year, each with its value and two percentiles against qualified players at that same position, one within that season and one across all seasons since 1999 ("all-time"). There is no league-wide percentile. Which stats exist depends on position: passing, rushing, receiving, returns, blocking, pass rush, run defense, coverage, kicking and punting, plus context, value (expected fantasy points, win probability added, contract) and athletic measurements. While a season is in progress, low-sample stats also carry where they are likely to settle, and rows that are estimates for now are marked. Also returns his age, college and draft pick, his team\'s record and coach, where he ranked in the NFL in counting stats, the sample sizes his rates are built on, a profile score, statistical comps and weakness comps. Defaults to his most recent season, which may still be in progress; the result then says through which week. Seasons from 1999 on. Stats a season did not track are listed as not tracked, and stats on a small sample are marked. Includes the link to his card.',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nfl_search_players (e.g. "00-0033873") or a full name (e.g. "Patrick Mahomes"). If a name fits more than one player, the error lists their ids.'),
         season: z.string().trim().max(12).optional().describe('The year the season began, e.g. "2024". Omit for his most recent season.'),
@@ -939,7 +939,7 @@ export const tools = [
         comps: z.array(comp).optional().describe('Closest statistical profiles among qualified players at his position that season.'),
         weakest: z.array(z.object({ key: z.string(), label: z.string(), percentile: z.number() })).optional().describe('Where he ranks worst among qualified players at his position that season.'),
         weakness_comps: z.array(comp).optional().describe('Qualified players at his position who share his flaws.'),
-        url: z.string().describe('His Football Savant card for that season.'),
+        url: z.string().describe('His NFL Savant card for that season.'),
         data_as_of: z.string(),
         source: z.string(),
       },
@@ -952,7 +952,7 @@ export const tools = [
     config: {
       title: 'Get the NFL All-Savant Team',
       description:
-        'Get Football Savant\'s All-Savant Team (Western Conference Elitists, wcehoops.com) for one NFL season: an All-Pro 1st and 2nd team picked by the numbers alone, shaped like the AP\'s (QB, RB, 3 WR, TE, 2 T, 2 G, C; 2 EDGE, 2 IDL, 2 LB, 3 CB with a slot corner from 2025, 2 S; K, P, KR, PR). Each spot goes to the qualified player with the highest Savant value: expected points above a replacement-level player at his position that season, on the snaps he played. Before 2016 the offensive line is picked as a unit; returners are graded on yards and EPA per return. Returns every pick with his team, value and card link. Seasons from 1999 on; defaults to the latest, which may still be in progress (then it is a standing).',
+        'Get NFL Savant\'s All-Savant Team (Western Conference Elitists, wcehoops.com) for one NFL season: an All-Pro 1st and 2nd team picked by the numbers alone, shaped like the AP\'s (QB, RB, 3 WR, TE, 2 T, 2 G, C; 2 EDGE, 2 IDL, 2 LB, 3 CB with a slot corner from 2025, 2 S; K, P, KR, PR). Each spot goes to the qualified player with the highest Savant value: expected points above a replacement-level player at his position that season, on the snaps he played. Before 2016 the offensive line is picked as a unit; returners are graded on yards and EPA per return. Returns every pick with his team, value and card link. Seasons from 1999 on; defaults to the latest, which may still be in progress (then it is a standing).',
       inputSchema: {
         season: z.string().trim().max(12).optional().describe('The year the season began, e.g. "2024". Omit for the latest season.'),
         team: z.enum(['1', '2', 'both']).default('both').describe('"1" for the 1st team, "2" for the 2nd, "both" (default).'),

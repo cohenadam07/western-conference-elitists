@@ -1,4 +1,4 @@
-// Check for College Basketball Coaching Savant: the files pipeline/college/coaching/build.py writes under
+// Check for CBB Coaching Savant: the files pipeline/college/coaching/build.py writes under
 // public/cbcs/, the page that draws them, and the connector section (api/_cbcoaching.js) that quotes them.
 //
 //   node --test tools/savant-cbcoaching/check.mjs        (npm run check:savant-cbcoaching)
@@ -320,6 +320,6 @@ test('the page parses, reads /cbcs and starts itself; College Savant links back'
   assert.ok(/const BASE = '\/cbcs';/.test(js))
   assert.ok(/init\(\);\s*$/.test(js.trim() + '\n'))
   const cbb = readFileSync(path.join(ROOT, 'public', 'college-basketball-savant.html'), 'utf8')
-  assert.ok(cbb.includes('/college-basketball-coaching-savant.html'), 'College Savant does not link to the coaching page')
+  assert.ok(cbb.includes('/cbb-coaching-savant'), 'College Savant does not link to the coaching page')
   assert.ok(cbb.includes("loadCB('player-fits.json')") && cbb.includes("loadCB('links.json')"))
 })

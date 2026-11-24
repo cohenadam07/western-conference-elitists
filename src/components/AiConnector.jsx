@@ -12,18 +12,18 @@ import { KEY_SUCCESS, SUBSCRIBE_ERROR, getConnectorKey } from '../lib/forms.js'
 // does the scrolling).
 
 const COVERS = [
-  'Basketball Savant',
-  'College Basketball Savant',
-  'Football Savant',
-  'Coaching Savant',
+  'NBA Savant',
+  'CBB Savant',
+  'NFL Savant',
+  'NFL Coaching Savant',
   'UFC Savant',
-  'Draft Savant',
+  'NBA Draft Savant',
   'Big Board',
   'Dynasty board',
   'News & articles',
 ]
 
-// The percentile ramp Basketball Savant paints its bars with (colorAt in
+// The percentile ramp NBA Savant paints its bars with (colorAt in
 // public/basketball-savant.html): blue at the bottom, grey in the middle, red at the top.
 function colorAt(p) {
   const LO = [28, 78, 134], MID = [194, 192, 182], HI = [188, 58, 44]
@@ -182,7 +182,7 @@ function Example() {
                 <span className="line">{g.points.toFixed(1)} pts · {g.rebounds.toFixed(1)} reb · {g.assists.toFixed(1)} ast</span>
               </p>
             </div>
-            <span className="aic-src">Basketball Savant</span>
+            <span className="aic-src">NBA Savant</span>
           </div>
           <ul>
             {EXAMPLE.stats.map((s, i) => (

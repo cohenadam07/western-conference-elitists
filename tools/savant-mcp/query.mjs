@@ -1,5 +1,5 @@
 // Check for WCE Pro (beta): savant_query (api/_query.js), the assistant's own filters, groups and
-// summaries over Basketball Savant and Football Savant.
+// summaries over NBA Savant and NFL Savant.
 //
 //   npm run check:savant-query      (node --test tools/savant-mcp/query.mjs)
 //
@@ -495,7 +495,7 @@ test('names that are not stats, fields or positions are refused in words, never 
     await refused({ dataset: 'nba_players', season: FULL, position: bad }, /Guard, Wing or Big/)
     await refused({ dataset: 'nfl_players', season: NFL_FULL, position: bad }, /position/)
     // the free nfl_leaderboard shares the position parser
-    await assert.rejects(nflLists.leaderboard({ position: bad }), /not a Football Savant position/)
+    await assert.rejects(nflLists.leaderboard({ position: bad }), /not a NFL Savant position/)
   }
   // a key in any case
   const out = await ask({ dataset: 'nba_players', season: FULL, show: ['TS'], limit: 1 })

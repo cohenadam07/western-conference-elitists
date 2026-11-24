@@ -25,13 +25,13 @@ import WHATS_NEW from 'virtual:whats-new'
 const STANDING = [
   { text: 'Ask Claude about any player: add the WCE connector', href: '#ai' },
   { text: 'Flappy Hoops: 28 cities, and races with up to 8 friends', to: '/hoops' },
-  { text: 'Basketball Savant: a page for every player since 1979-80', href: '/player' },
-  { text: 'Football Savant: refreshed every day of the NFL season', href: '/football-savant.html' },
-  { text: 'UFC Savant: every fighter since 1993, updated after each card', href: '/ufc-savant.html' },
-  { text: 'Basketball Coaching Savant: every NBA head coach, and his Rotation Map', href: '/basketball-coaching-savant.html' },
-  { text: 'College Basketball Coaching Savant: every D1 head coach against the roster he was given', href: '/college-basketball-coaching-savant.html' },
-  { text: 'Coaching Savant: every NFL head coach since 1999', href: '/coaching-savant.html' },
-  { text: 'Draft Savant: every class back to 2010', href: '/draft-savant.html' },
+  { text: 'NBA Savant: a page for every player since 1979-80', href: '/player' },
+  { text: 'NFL Savant: refreshed every day of the NFL season', href: '/nfl-savant' },
+  { text: 'UFC Savant: every fighter since 1993, updated after each card', href: '/ufc-savant' },
+  { text: 'NBA Coaching Savant: every NBA head coach, and his Rotation Map', href: '/nba-coaching-savant' },
+  { text: 'CBB Coaching Savant: every D1 head coach against the roster he was given', href: '/cbb-coaching-savant' },
+  { text: 'NFL Coaching Savant: every NFL head coach since 1999', href: '/nfl-coaching-savant' },
+  { text: 'NBA Draft Savant: every class back to 2010', href: '/nba-draft-savant' },
   { text: 'Dynasty Exchange: a board priced by the crowd', to: '/dynasty' },
   { text: 'Comp Chain: a new puzzle every day', to: '/comp-chain' },
 ]
@@ -235,7 +235,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* Basketball Savant — flagship product band */}
+      {/* NBA Savant — flagship product band */}
       <section className="relative overflow-hidden bg-navy text-white">
         <CourtLines
           className="pointer-events-none absolute -right-24 -top-16 h-[520px] w-auto text-white/[0.07]"
@@ -246,7 +246,7 @@ export default function Home() {
             <span className="rule-gold" aria-hidden="true" />
             <span className="kicker mt-4 block text-gold">The Data Tool · Built In-House</span>
             <h2 className="text-display mt-3 text-4xl text-white sm:text-5xl">
-              Basketball Savant
+              NBA Savant
             </h2>
             <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/75">
               Every NBA player, sortable by percentile. Compare players across
@@ -265,8 +265,8 @@ export default function Home() {
               ))}
             </div>
             <div className="mt-8">
-              <Button href="/basketball-savant.html" variant="light">
-                Launch Basketball Savant
+              <Button href="/nba-savant" variant="light">
+                Launch NBA Savant
                 <span aria-hidden="true">↗</span>
               </Button>
             </div>

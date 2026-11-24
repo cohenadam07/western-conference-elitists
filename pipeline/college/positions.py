@@ -22,7 +22,7 @@ listing fixed nobody else and cost Darryn Peterson; see the build notes.
 The spec's team normalization (each team averaging 3.0) is gone: it lowered agreement with ESPN's
 listings (80.1% vs 81.1%) and pushed bigs down on tall rosters.
 
-Buckets: cut points solved so the shares match Basketball Savant's (`nba_shares`), rule included, so
+Buckets: cut points solved so the shares match NBA Savant's (`nba_shares`), rule included, so
 "wing" means the same on both sites. position_engine.py is not reused: it learns from
 Basketball-Reference's listed positions, which college has no equivalent of.
 """
@@ -44,7 +44,7 @@ SITE = os.path.join(HERE, "..", "..", "public")
 
 
 def nba_shares():
-    """Share of qualified Basketball Savant player-seasons in each bucket, last five seasons."""
+    """Share of qualified NBA Savant player-seasons in each bucket, last five seasons."""
     d = json.load(open(os.path.join(SITE, "savant-current.json")))
     pl = d["data"][d["seasons"][0]]["players"]
     from collections import Counter

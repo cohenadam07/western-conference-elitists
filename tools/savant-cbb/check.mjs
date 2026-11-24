@@ -1,4 +1,4 @@
-// Check for College Basketball Savant: the files pipeline/college/build.py writes under public/cbb/,
+// Check for CBB Savant: the files pipeline/college/build.py writes under public/cbb/,
 // the page, and the connector section (api/_cbb.js) that quotes them.
 //
 //   node --test tools/savant-cbb/check.mjs        (npm run check:savant-cbb)
@@ -230,7 +230,7 @@ test('every tool answers', async () => {
 })
 
 // College Savant 1.4.0 shows the head coach on a team page and "coaches who used players like him" on a player
-// card, both from College Basketball Coaching Savant's files; the connector gives the same (Nov 6 2026).
+// card, both from CBB Coaching Savant's files; the connector gives the same (Nov 6 2026).
 test('the connector gives the page\'s head coach and the coaches who used players like him', async () => {
   const cb = (p) => JSON.parse(gunzipSync(readFileSync(path.join(ROOT, 'public', 'cbcs', p + '.gz'))).toString('utf8'))
   const links = cb('links.json'), fits = cb('player-fits.json')

@@ -4,7 +4,7 @@ espn_games.py — every NBA game ESPN has, 2002-03 on, regular season and playof
     python3 espn_games.py fetch 2002-03 2025-26        # fill the cache (safe to re-run; only new games are fetched)
     python3 espn_games.py status                      # games cached per season and type
 
-Basketball Coaching Savant reads the same ESPN summaries the Basketball Savant cloud refresh
+NBA Coaching Savant reads the same ESPN summaries the NBA Savant cloud refresh
 does (espn_source.normalize, cache VERSION 3), so one parser (espn_tables.parse_game) serves
 both. Differences from espn_source.fetch_season, which only knows the regular season in
 progress:

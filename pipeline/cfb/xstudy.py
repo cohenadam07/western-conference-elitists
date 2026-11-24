@@ -230,7 +230,7 @@ def main(only=None):
 def write_md(r, t):
     f = lambda v, n=2: "" if v is None or (isinstance(v, float) and not np.isfinite(v)) else f"{v:.{n}f}"
     cnt = r.verdict.str.replace(r" \(.*\)", "", regex=True).value_counts().to_dict()
-    lines = ["# College Football Savant 1.1.0: stability of every new stat", "",
+    lines = ["# CFB Savant 1.1.0: stability of every new stat", "",
              "*`python -m pipeline.cfb.xstudy`, BUILD-1.1 section 3. Tier A: 1.0.0's method on 2014-2025. Tier B: split-half within 2025 "
              "week 9 on and 2026, stepped up to a typical starter's full season; year-to-year not measurable yet, and settle points will "
              "firm up as seasons accumulate.*", "",

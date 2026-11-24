@@ -347,13 +347,13 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   const upfront = tools.reduce((n, t) => n + JSON.stringify({ name: t.name, description: t.description, inputSchema: t.inputSchema }).length, 0)
   // 30,000 for the first 16 tools; 33,000 since the nine Fantasy / Teams / Lineups tools; 60,000
   // since the connector was made to reach everything on the site (Oct 2026, about 15,000 tokens);
-  // 63,000 since the six Basketball Coaching Savant tools (Oct 27, 2026); 72,000 since the eleven
-  // College Basketball Savant tools (Nov 2, 2026); 74,000 since cbb_all_savant_team; 75,000 since
+  // 63,000 since the six NBA Coaching Savant tools (Oct 27, 2026); 72,000 since the eleven
+  // CBB Savant tools (Nov 2, 2026); 74,000 since cbb_all_savant_team; 75,000 since
   // cbb_schedule and the college leaderboard and team filters (Nov 5, 2026); 77,000 since
   // cbb_play_context, cbb_shot_chart and cbb_rotation (Nov 5, 2026); 82,000 for the seven College Basketball
   // Coaching Savant tools (Nov 6, 2026: 81,667; approved by Adam with PR #54). 81,753 after cbb_team_profile's head
   // coach and cbb_get_player_profile's coaches who used players like him (Nov 6, 2026). 90,000 for the ten College
-  // Football Savant tools (Nov 10, 2026: 89,697; raising the cap for the cfb_ tools approved by Adam that day).
+  // NFL Savant tools (Nov 10, 2026: 89,697; raising the cap for the cfb_ tools approved by Adam that day).
   // 87,284 after the Data Room went to every sport behind savant_data and savant_dictionary, which
   // replaced the six per-sport data and dictionary tools (Nov 11, 2026: 89,998 before).
   assert.ok(upfront < 90000, `tool names, descriptions and inputs came to ${upfront} characters`)
@@ -376,7 +376,7 @@ test('search and profile work through a real client, and results fit their decla
   const s = await call('nba_search_players', { query: 'Nikola Jokic' })
   assert.ok(!s.isError)
   assert.equal(s.structuredContent.players[0].name, 'Nikola Jokić')   // the accented spelling, found by an unaccented query
-  assert.equal(s.structuredContent.players[0].url, 'https://wcehoops.com/basketball-savant.html?p=203999')
+  assert.equal(s.structuredContent.players[0].url, 'https://wcehoops.com/nba-savant?p=203999')
 
   const p = await call('nba_get_player_profile', { player: 'Nikola Jokic' })
   assert.ok(!p.isError)
@@ -939,7 +939,7 @@ test('every tool of every section answers through the endpoint', async () => {
   assert.equal(prof.savant_value.all_savant_team, '1st')
   assert.equal(prof.savant_value.all_savant_slot, null)
   assert.equal(prof.savant_value.points_over_replacement, first.points_over_replacement)
-  // Basketball Savant's Fantasy, Teams and Lineups tabs (api/_fantasy.js)
+  // NBA Savant's Fantasy, Teams and Lineups tabs (api/_fantasy.js)
   const fr = await ok('nba_fantasy_rankings', { limit: 5 }, /Points \(Sleeper default\)/)
   assert.equal(fr.players.length, 5)
   await ok('nba_fantasy_rankings', { format: 'cats', window: 'dyn', limit: 3 }, /9-cat/)
@@ -1011,7 +1011,7 @@ test('every tool of every section answers through the endpoint', async () => {
   await ok('nba_draft_search_prospects', { year: 2025 }, /Cooper Flagg/)
   await ok('wce_whats_new', {}, /./)
   // The Data Room (api/_dataroom.js; its own check is tools/dataroom/check.mjs)
-  await ok('savant_dictionary', {}, /nfl \(Football Savant\)/)
+  await ok('savant_dictionary', {}, /nfl \(NFL Savant\)/)
   await ok('savant_dictionary', { sport: 'ufc', table: 'fights' }, /fight_seconds/)
   const dr = await ok('savant_data', { sport: 'ufc', table: 'fights', season: '2024', filters: [{ column: 'finish', op: 'eq', value: 'KO' }], columns: ['date', 'fighter', 'opponent', 'round'], limit: 5 }, /Data through 2024-/)
   assert.ok(dr.total_matching > 50 && dr.rows.length === 5 && dr.definitions.round)

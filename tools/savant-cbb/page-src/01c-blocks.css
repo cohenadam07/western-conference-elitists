@@ -30,7 +30,7 @@
 .lgb{display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--hue);margin-right:6px;vertical-align:-1px}
 .lgc{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--cmp);margin-right:6px;vertical-align:-1px}
 
-/* percentile rows: thick bars filled to the percentile and coloured by it, as on Basketball Savant */
+/* percentile rows: thick bars filled to the percentile and coloured by it, as on NBA Savant */
 .grp{margin-top:20px}
 .grp:first-of-type{margin-top:8px}
 .grp h3{font-size:13px;font-weight:600;padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:4px}

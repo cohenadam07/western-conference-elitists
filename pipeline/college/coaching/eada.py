@@ -36,7 +36,7 @@ Bellarmine and Tarleton 2020-21, St. Thomas 2021-22, Queens and Stonehill 2022-2
 2024-25). The 2024-25 file is dated April 2026. The newest file is 2024-25, so 2025-26 and
 2026-27 have no EADA row yet.
 
-Coverage (build(), Nov 6, 2026): all 371 programs in College Basketball Savant's team files are
+Coverage (build(), Nov 6, 2026): all 371 programs in CBB Savant's team files are
 matched, no UNITID serves two programs in a season. Not covered: the three service academies
 (NOT_COVERED; Army only in 2003-04 and 2004-05), and St. Francis Brooklyn has no 2022-23 row
 (the college ended its athletics program after that season and filed no basketball line).
@@ -68,7 +68,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PUBLIC_TEAMS = os.path.join(HERE, "..", "..", "..", "public", "cbb", "teams")
 CBBD_TEAMS = os.path.expanduser("~/Basketball-Savant/out/cbb/ref/teams-2026.json")
 API = "https://ope.ed.gov/athletics/api/dataFiles/"
-UA = {"User-Agent": "wcehoops.com College Basketball Coaching Savant (research)"}
+UA = {"User-Agent": "wcehoops.com CBB Coaching Savant (research)"}
 FIRST = 2003   # the file for 2002-03
 
 

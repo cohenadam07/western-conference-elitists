@@ -374,7 +374,7 @@ body {
 .gw.booting .card, .gw.booting .card * { animation-play-state: paused !important; }
 .gw.booting .sk::after { animation-play-state: running !important; }
 
-/* ── Basketball Savant: percentile sliders ── */
+/* ── NBA Savant: percentile sliders ── */
 .gw .c-savant .viz { background: radial-gradient(120% 90% at 80% 0%, #f7f6f3, transparent); }
 .gw .c-savant .bars { position: absolute; left: 20px; right: 20px; top: 22px; display: flex; flex-direction: column; gap: 9px; }
 .gw .c-savant .bar { height: 8px; border-radius: 5px; background: #e9e7e2; overflow: hidden; }
@@ -384,7 +384,7 @@ body {
 .gw .c-savant .bar:nth-child(3) i { animation-delay: 0.55s; --w: 79%; }
 .gw .c-savant .bar:nth-child(4) i { animation-delay: 0.65s; --w: 52%; }
 
-/* ── Football Savant: the gridiron from the sideline, the throw lattice over it ── */
+/* ── NFL Savant: the gridiron from the sideline, the throw lattice over it ── */
 .gw .c-fball .viz, .gw .c-ufc .viz, .gw .c-coach .viz, .gw .c-board .viz { min-height: 150px; }
 .gw .c-fball .viz { background: #1D6B3A; }
 .gw .c-fball .field { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -414,7 +414,7 @@ body {
 .gw .c-ufc .pcts text:nth-child(2) { animation-delay: 1.05s; }
 .gw .c-ufc .pcts text:nth-child(3) { animation-delay: 1.2s; }
 
-/* ── Coaching Savant: the whiteboard, with the tree growing out of the play ── */
+/* ── NFL Coaching Savant: the whiteboard, with the tree growing out of the play ── */
 .gw .c-coach .viz { background: #F2F7EE; }
 .gw .c-coach .board { position: absolute; inset: 0; width: 100%; height: 100%; }
 .gw .c-coach .los { stroke: #0E2A17; stroke-width: 1.4; stroke-dasharray: 6 4; opacity: 0.5; }
@@ -433,7 +433,7 @@ body {
 .gw .c-coach .tree .leaf.c { fill: #3C7EBE; animation-delay: 1.14s; }
 @keyframes gw-pop { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
 
-/* ── Draft Savant: mini board ── */
+/* ── NBA Draft Savant: mini board ── */
 .gw .c-draft .viz { background: radial-gradient(120% 90% at 20% 0%, #f7f6f3, transparent); }
 .gw .c-draft .rows { position: absolute; left: 20px; right: 22px; top: 20px; display: flex; flex-direction: column; gap: 7px; }
 .gw .c-draft .drow { display: flex; align-items: center; gap: 9px; opacity: 0; transform: translateX(-10px); animation: gw-slide 0.5s cubic-bezier(0.2,0.7,0.2,1) forwards; }
@@ -1153,7 +1153,7 @@ body {
 
 /* ============================================================================
    Dynasty Exchange — Swipe. One card at a time, built for a thumb.
-   The card is a Basketball Savant summary in miniature, so its percentile bars
+   The card is a NBA Savant summary in miniature, so its percentile bars
    keep Savant's own blue-to-red ramp (colours come from the component); only
    the market feedback around the card speaks green/red.
    ========================================================================== */

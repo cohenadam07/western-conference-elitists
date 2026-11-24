@@ -7,48 +7,88 @@
       "permanent": false
     },
     {
+      "source": "/basketball-savant.html",
+      "destination": "/nba-savant",
+      "permanent": true
+    },
+    {
       "source": "/basketball-savant",
-      "destination": "/basketball-savant.html",
+      "destination": "/nba-savant",
+      "permanent": true
+    },
+    {
+      "source": "/football-savant.html",
+      "destination": "/nfl-savant",
       "permanent": true
     },
     {
       "source": "/football-savant",
-      "destination": "/football-savant.html",
+      "destination": "/nfl-savant",
       "permanent": true
     },
     {
-      "source": "/ufc-savant",
-      "destination": "/ufc-savant.html",
+      "source": "/ufc-savant.html",
+      "destination": "/ufc-savant",
       "permanent": true
     },
     {
-      "source": "/basketball-coaching-savant",
-      "destination": "/basketball-coaching-savant.html",
+      "source": "/coaching-savant.html",
+      "destination": "/nfl-coaching-savant",
       "permanent": true
     },
     {
       "source": "/coaching-savant",
-      "destination": "/coaching-savant.html",
+      "destination": "/nfl-coaching-savant",
       "permanent": true
     },
     {
-      "source": "/college-football-savant",
-      "destination": "/college-football-savant.html",
+      "source": "/basketball-coaching-savant.html",
+      "destination": "/nba-coaching-savant",
       "permanent": true
     },
     {
-      "source": "/college-basketball-savant",
-      "destination": "/college-basketball-savant.html",
+      "source": "/basketball-coaching-savant",
+      "destination": "/nba-coaching-savant",
+      "permanent": true
+    },
+    {
+      "source": "/college-basketball-coaching-savant.html",
+      "destination": "/cbb-coaching-savant",
       "permanent": true
     },
     {
       "source": "/college-basketball-coaching-savant",
-      "destination": "/college-basketball-coaching-savant.html",
+      "destination": "/cbb-coaching-savant",
+      "permanent": true
+    },
+    {
+      "source": "/college-basketball-savant.html",
+      "destination": "/cbb-savant",
+      "permanent": true
+    },
+    {
+      "source": "/college-basketball-savant",
+      "destination": "/cbb-savant",
+      "permanent": true
+    },
+    {
+      "source": "/college-football-savant.html",
+      "destination": "/cfb-savant",
+      "permanent": true
+    },
+    {
+      "source": "/college-football-savant",
+      "destination": "/cfb-savant",
+      "permanent": true
+    },
+    {
+      "source": "/draft-savant.html",
+      "destination": "/nba-draft-savant",
       "permanent": true
     },
     {
       "source": "/draft-savant",
-      "destination": "/draft-savant.html",
+      "destination": "/nba-draft-savant",
       "permanent": true
     }
   ],
@@ -188,6 +228,42 @@
     {
       "source": "/bcs/c/:f([a-z0-9]+\\.json)",
       "destination": "/bcs/c/:f.gz"
+    },
+    {
+      "source": "/nba-savant",
+      "destination": "/basketball-savant.html"
+    },
+    {
+      "source": "/nfl-savant",
+      "destination": "/football-savant.html"
+    },
+    {
+      "source": "/ufc-savant",
+      "destination": "/ufc-savant.html"
+    },
+    {
+      "source": "/nfl-coaching-savant",
+      "destination": "/coaching-savant.html"
+    },
+    {
+      "source": "/nba-coaching-savant",
+      "destination": "/basketball-coaching-savant.html"
+    },
+    {
+      "source": "/cbb-coaching-savant",
+      "destination": "/college-basketball-coaching-savant.html"
+    },
+    {
+      "source": "/cbb-savant",
+      "destination": "/college-basketball-savant.html"
+    },
+    {
+      "source": "/cfb-savant",
+      "destination": "/college-football-savant.html"
+    },
+    {
+      "source": "/nba-draft-savant",
+      "destination": "/draft-savant.html"
     },
     {
       "source": "/((?!api/|\\.well-known/).*)",

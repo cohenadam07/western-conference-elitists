@@ -1,4 +1,4 @@
-"""Shared paths for the College Football Savant research run.
+"""Shared paths for the CFB Savant research run.
 
 Raw downloads, caches and intermediate tables live OUTSIDE the repo
 (~/College-Football-Savant). Only code, small result tables and charts

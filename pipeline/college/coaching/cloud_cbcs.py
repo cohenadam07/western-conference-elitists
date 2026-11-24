@@ -1,5 +1,5 @@
 """
-cloud_cbcs.py — College Basketball Coaching Savant's nightly refresh, riding College Basketball Savant's.
+cloud_cbcs.py — CBB Coaching Savant's nightly refresh, riding CBB Savant's.
 
     python3 cloud_cbcs.py bundle <dir>        (the Mac) the inputs the cloud needs -> <dir>, for branch cbcs-bundles
     python3 cloud_cbcs.py refresh <repo>      (the cloud) the season in progress, merge mode -> <repo>/public/cbcs
@@ -117,7 +117,7 @@ def refresh(repo):
         os.symlink(os.path.join(public, d), os.path.join(tmp, d))
     rc = subprocess.call([sys.executable, "-W", "ignore", os.path.join(HERE, "build.py"), "--merge", CURRENT, "--public", tmp])
     if rc:
-        print("::warning::College Basketball Coaching Savant's merge build failed; College Basketball Savant is unaffected")
+        print("::warning::CBB Coaching Savant's merge build failed; CBB Savant is unaffected")
         return rc
     shutil.rmtree(os.path.join(public, "cbcs"), ignore_errors=True)
     shutil.move(os.path.join(tmp, "cbcs"), os.path.join(public, "cbcs"))

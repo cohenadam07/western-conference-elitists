@@ -1,4 +1,4 @@
-"""1.1.0: fourth-down and two-point decisions, for the team page and a future College Football Coaching Savant.
+"""1.1.0: fourth-down and two-point decisions, for the team page and a future College NFL Coaching Savant.
 
     python -m pipeline.cfb.fourth fit                # the average-coach and conversion models (2014-2024)
     python -m pipeline.cfb.fourth score 2014 ... 2026  # work/decisions_<season>.parquet

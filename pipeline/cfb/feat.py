@@ -8,8 +8,8 @@
    position among players who reached the NFL (1.0.0's college-to-NFL links): z-scores of the position's five headline
    stats (within that season and position) plus height, weight and recruiting rating (as its percentile among all rated
    recruits), Euclidean distance. Each comp
-   carries his draft slot and his NFL Savant value per season from Football Savant; a linked player's own card shows
-   his combine numbers, from Football Savant. Labelled everywhere "comparison, not a projection".
+   carries his draft slot and his NFL Savant value per season from NFL Savant; a linked player's own card shows
+   his combine numbers, from NFL Savant. Labelled everywhere "comparison, not a projection".
    The test: for college finals of 2014-2021 by players who reached the NFL, does the comp group's mean NFL value per
    season (each player left out of his own comps) rank-correlate with his own? If not positive, the outcome averages
    are not shown.
@@ -89,7 +89,7 @@ def season_profiles(y, doc=None):
 
 
 def nfl_careers():
-    """Football Savant: each NFL player's Savant value by season, and his combine numbers."""
+    """NFL Savant: each NFL player's Savant value by season, and his combine numbers."""
     d = json.load(open(FS))
     rows, comb = [], {}
     for y, s in d["data"].items():
@@ -118,7 +118,7 @@ def build_pool():
     nv = pd.read_csv(RAW / "nflverse" / "players.csv", usecols=["gsis_id", "draft_year", "draft_round", "draft_pick", "draft_team"]).set_index("gsis_id")
     linked = fin[fin.id.isin(ident.index)].copy()
     linked["gsis"] = linked.id.map(ident.gsis_id)
-    pool = {"built_from": "final qualified college seasons 2009-2025 of players linked to an NFL id (identity.py), Football Savant's NFL value",
+    pool = {"built_from": "final qualified college seasons 2009-2025 of players linked to an NFL id (identity.py), NFL Savant's NFL value",
             "cols": ["id", "name", "slot", "season", "team", "ht", "wt", "rating", "z0", "z1", "z2", "z3", "z4", "gsis", "draft", "nfl", "per_season"],
             "rows": [], "combine": {}}
     for r in linked.itertuples():

@@ -247,7 +247,7 @@ body.champ-t3 .log-table .res.W{box-shadow:0 0 8px rgba(212,175,55,.6)}
 .group-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--faint);border-bottom:1px solid var(--line);padding-bottom:5px;margin:15px 0 6px}
 /* Each row is two lines: the label with its percentile and value on the first, and the bar
-   alone on the second, running the full width of the panel — Basketball Savant's mobile
+   alone on the second, running the full width of the panel — NBA Savant's mobile
    layout, used at every size so the bar is the thing you read. */
 .row{display:grid;grid-template-columns:1fr auto auto;grid-template-areas:"lab pct val" "bar bar bar";
   align-items:center;column-gap:14px;row-gap:6px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.035)}
@@ -569,8 +569,8 @@ body.home-open .home{display:flex}
           <span class="eyebrow-pill" id="srcpill">ufcstats data</span>
           <a class="backlink" href="/">&larr; wcehoops.com</a>
           <a class="backlink" href="#" id="homeLink">Home</a>
-          <a class="backlink" href="/football-savant.html">Football Savant</a>
-          <a class="backlink" href="/basketball-savant.html">Basketball Savant</a>
+          <a class="backlink" href="/nfl-savant">NFL Savant</a>
+          <a class="backlink" href="/nba-savant">NBA Savant</a>
         </div>
       </div>
     </div>
@@ -684,7 +684,7 @@ body.home-open .home{display:flex}
 <script>
 /* ============================================================================
    UFC SAVANT
-   Same engine shape as Football Savant: fetch one dataset, index it, compute every
+   Same engine shape as NFL Savant: fetch one dataset, index it, compute every
    percentile in the browser so the reader can move the population under the bars.
    A fighter has no season, so the unit is a WINDOW (career / last 5 / last 3) and the
    cohort is his DIVISION. Round-level detail for the fight log loads on demand from

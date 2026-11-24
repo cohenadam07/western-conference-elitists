@@ -8,11 +8,11 @@
 //            week on, to prove the check catches lag: the deliberate failure)
 //
 // References, one per sport, and how far behind a table or tool may be:
-//   nba   Basketball Savant's newest game (savant-current.json through)         1 day
+//   nba   NBA Savant's newest game (savant-current.json through)         1 day
 //   nfl   the last completed NFL game day (nflverse's schedule): due by the
 //         Tuesday after its game week                                          the Tuesday after
 //   cfb   the college football refresh's through (data/cfb-refresh.json)        3 days
-//   cbb   the college basketball build's through, or Basketball Savant's newest
+//   cbb   the college basketball build's through, or NBA Savant's newest
 //         game while the college season runs, whichever is newer                3 days
 //   ufc   the last event (the newest event date in UFC Savant's fights)         2 days after it
 // Each sport is exempt, and says so, outside its season (offseason).
@@ -187,7 +187,7 @@ async function main() {
   const nba = await nbaRef()
   if (want('nba')) {
     const R = nba, tol = TOLERANCE.nba
-    console.log(`nba: Basketball Savant ${R.season} through ${R.ref}`)
+    console.log(`nba: NBA Savant ${R.season} through ${R.ref}`)
     for (const [t] of roomTables('nba')) await roomTable('nba', t, R.season, R, tol)
     for (const t of BCS_TABLES) await check('nba', 'table', `savant_data nba coaching_${t}`, R.season, R, tol, async () => {
       const f = await load(`bcs/data/${t}/${R.season}.json`); const n = newest(f)

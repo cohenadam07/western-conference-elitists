@@ -1,7 +1,7 @@
-/* savant-cbb.js — College Basketball Savant's arithmetic: one copy, for the page and the connector.
+/* savant-cbb.js — CBB Savant's arithmetic: one copy, for the page and the connector.
    The page loads it with a script tag; api/_cbb.js and tools/savant-cbb/check.mjs import it. Every
    percentile on the site comes from pct() over pool(), so a connector answer cannot disagree with
-   the card. Percentiles use Basketball Savant's rule: 100 × (below + half of ties) ÷ n. */
+   the card. Percentiles use NBA Savant's rule: 100 × (below + half of ties) ÷ n. */
 (function (root, factory) {
   root.SavantCBB = factory()
 })(typeof self !== 'undefined' ? self : globalThis, function () {

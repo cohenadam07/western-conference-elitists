@@ -528,7 +528,7 @@ def load_records():
             k = (canon(team), yr)
             e = rec[k]
             if isinstance(coach, str):
-                # the schedule misspells two coaches; Coaching Savant already corrects them,
+                # the schedule misspells two coaches; NFL Coaching Savant already corrects them,
                 # and a card's link to his coach breaks if this side does not
                 e['coach'] = NAME_FIXES.get(coach, coach)
             if r.game_type == 'REG':

@@ -1,4 +1,4 @@
-"""Football Savant's Data Room tables, from the nflverse files Football Savant already reads.
+"""NFL Savant's Data Room tables, from the nflverse files NFL Savant already reads.
 
     python3 pipeline/dataroom/nfl.py plays 2024            one season of plays
     python3 pipeline/dataroom/nfl.py plays 1999-2025       a range, one season at a time
@@ -17,7 +17,7 @@ Only derived rows are written: no play description text, no raw file is copied. 
 source only has from some season on are null before it; the dictionary (dictionary.py) names
 each one's first season.
 
-Both regular season and postseason plays are kept, marked by season_type. Football Savant's
+Both regular season and postseason plays are kept, marked by season_type. NFL Savant's
 season numbers are regular season only (pbp_agg.py), so anything reconciled against them
 filters season_type = REG first.
 """
@@ -173,7 +173,7 @@ SCHED = os.environ.get('NFL_SCHEDULES', os.path.join(RAW, 'schedules.csv'))
 
 
 def team_game_tallies(plays):
-    """Football Savant's team-week tallies (pbp_agg.agg_team) from Data Room play rows: the same
+    """NFL Savant's team-week tallies (pbp_agg.agg_team) from Data Room play rows: the same
     play filter, the same sums, so a season of them adds up to the page's team table."""
     x = plays[plays.posteam.notna() & plays.defteam.notna() & plays.play_type.isin(['pass', 'run'])
               & (plays.kneel.fillna(0) == 0) & (plays.spike.fillna(0) == 0) & (plays.two_point.fillna(0) == 0)].copy()

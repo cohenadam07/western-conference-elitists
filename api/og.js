@@ -125,7 +125,7 @@ function layout(c, slug) {
       // footer
       el({ alignItems: 'center', justifyContent: 'space-between', borderTop: `1px solid ${LINE}`, paddingTop: 16 },
         txt({ fontFamily: 'Plex Mono', fontWeight: 500, fontSize: 19, color: NAVY }, `${PROD_HOST}/player/${slug}`),
-        txt({ fontFamily: 'Plex Mono', fontWeight: 500, fontSize: 15, letterSpacing: 1, color: FAINT }, hasPct ? 'PERCENTILE VS QUALIFIED PLAYERS' : 'BASKETBALL SAVANT'),
+        txt({ fontFamily: 'Plex Mono', fontWeight: 500, fontSize: 15, letterSpacing: 1, color: FAINT }, hasPct ? 'PERCENTILE VS QUALIFIED PLAYERS' : 'NBA SAVANT'),
       ),
     ),
   )

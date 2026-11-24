@@ -11,7 +11,7 @@ OUTPUT_JSON = os.path.join(PUBLIC_DIR, "news.json")
 LOG_DIR = os.path.join(WEBSITE_DIR, "pipeline", "news", "logs")
 LOG_FILE = os.path.join(LOG_DIR, "news.log")
 
-# The Basketball Savant player universe (per-season). By default the site's own published
+# The NBA Savant player universe (per-season). By default the site's own published
 # data: public/savant-data.json (the archive) with public/savant-current.json (the season in
 # progress, refreshed after every slate) laid over it, exactly as the page does. Set
 # SAVANT_PLAYERS_JSON to read one file instead (e.g. ~/Basketball-Savant/out/players.json).
@@ -66,7 +66,7 @@ SAVANT_CONFIG_DIR = os.environ.get(
 # Public URL players' Savant page. The ?p=<id> param is honored by the deep-link
 # handler added to basketball-savant.html.
 def savant_url(player_id):
-    return f"/basketball-savant.html?p={player_id}"
+    return f"/nba-savant?p={player_id}"
 
 # --- WCE line generation (local LLM via Ollama) -----------------------------
 # Endpoint + model are config so they can change without editing pipeline code.

@@ -1,45 +1,51 @@
 [
   {
+    "date": "2026-11-24",
+    "product": "WCE",
+    "text": "New names on one scheme, league first. Basketball Savant is now NBA Savant, Football Savant is NFL Savant, the college tools are CBB Savant and CFB Savant, and the coaching and draft tools follow. Every old link still works.",
+    "to": "/"
+  },
+  {
     "date": "2026-11-22",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "version": "2.9.1",
     "text": "An All-Savant honour won at a player's second position now says so on his card, as the landing page's chip does: hover it for his minutes at each slot (Manu Ginobili, 2010-11 1st Team at forward: eligible at G and F, 58% of his minutes at guard, 42% at forward). 14 honours since 1999-00, Vince Carter's at guard to Kawhi Leonard's at forward.",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-11-22",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "version": "2.9.0",
     "text": "The All-Savant Team now follows All-NBA's own rules for the era: two guards, two forwards and a center through 2022-23, where a player can fill any slot he played at least 30% of his minutes at, and positionless from 2023-24, the five highest Savant values, with no 65-game minimum: missed games already cost value. Its 1st and 2nd teamers now match the real 1st and 2nd teams 61% of the time since 1988-89 (60% before) and make some All-NBA team 73% (71%). Cards say which slot each pick filled (All-Savant 1st Team · F). Honours that change: 1997-98: Tim Duncan onto the 2nd, Grant Hill off the 2nd; 1998-99: Eddie Jones up to the 1st, John Stockton onto the 2nd, Grant Hill from the 1st to the 2nd, Paul Pierce off the 2nd; 1999-00: Chris Webber onto the 2nd, Paul Pierce off the 2nd; 2000-01: Paul Pierce up to the 1st, Steve Francis from the 1st to the 2nd, David Robinson onto the 2nd, Jason Kidd off the 2nd; 2001-02: Ben Wallace up to the 1st, Kevin Garnett from the 1st to the 2nd, Shaquille O'Neal onto the 2nd, Karl Malone off the 2nd; 2004-05: Amar'e Stoudemire up to the 1st, Shawn Marion from the 1st to the 2nd, Dirk Nowitzki onto the 2nd, Tracy McGrady off the 2nd; 2006-07: Steve Nash up to the 1st, Manu Ginobili onto the 2nd, Dirk Nowitzki from the 1st to the 2nd, Elton Brand off the 2nd; 2008-09: Brandon Roy onto the 1st, Rashard Lewis from the 1st to the 2nd, Gerald Wallace off the 2nd; 2009-10: Manu Ginobili onto the 2nd, Dirk Nowitzki off the 2nd; 2010-11: Manu Ginobili up to the 1st, Kyle Lowry onto the 2nd, Paul Pierce from the 1st to the 2nd, Kevin Love onto the 2nd, Dirk Nowitzki off the 2nd, Kevin Garnett off the 2nd; 2013-14: Andre Drummond up to the 1st, Kevin Love from the 1st to the 2nd, DeAndre Jordan onto the 2nd, Dirk Nowitzki off the 2nd; 2014-15: DeAndre Jordan up to the 1st, Draymond Green from the 1st to the 2nd, DeMarcus Cousins onto the 2nd, Paul Millsap off the 2nd; 2021-22: Giannis Antetokounmpo up to the 1st, Jayson Tatum from the 1st to the 2nd, LeBron James onto the 2nd, Joel Embiid onto the 2nd, Jimmy Butler III off the 2nd, Robert Covington off the 2nd; 2023-24: Giannis Antetokounmpo up to the 1st, Kawhi Leonard from the 1st to the 2nd, Anthony Davis onto the 2nd, Jimmy Butler III off the 2nd; 2024-25: Stephen Curry up to the 1st, James Harden onto the 2nd, Jimmy Butler III from the 1st to the 2nd, Austin Reaves onto the 2nd, Chris Paul onto the 2nd, Pascal Siakam off the 2nd, LeBron James off the 2nd, Ivica Zubac off the 2nd; 2025-26: Victor Wembanyama up to the 1st, Tyrese Maxey onto the 2nd, Giannis Antetokounmpo from the 1st to the 2nd, Jalen Duren onto the 2nd, Scottie Barnes off the 2nd, Trey Murphy III off the 2nd.",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-11-19",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "version": "2.8.1",
-    "text": "Luka Dončić, Nikola Jokić, Kristaps Porziņģis and twelve other players get the accents back that the nightly update had dropped (also Audric Estimé on Football Savant and Ché Ojarikre on College Football Savant), and luck-adjusted on/off now starts in 2007-08, so Savant value counts what happened on the floor in 2007-08 and 2008-09 too. That changes four All-Savant honours in each: 2007-08 2nd team, Steve Nash and Dirk Nowitzki on, Manu Ginobili and Paul Pierce off; 2008-09, Rashard Lewis to the 1st team, Gerald Wallace from the 1st to the 2nd, Nene on the 2nd team, Danny Granger and Pau Gasol off",
-    "href": "/basketball-savant.html"
+    "text": "Luka Dončić, Nikola Jokić, Kristaps Porziņģis and twelve other players get the accents back that the nightly update had dropped (also Audric Estimé on NFL Savant and Ché Ojarikre on CFB Savant), and luck-adjusted on/off now starts in 2007-08, so Savant value counts what happened on the floor in 2007-08 and 2008-09 too. That changes four All-Savant honours in each: 2007-08 2nd team, Steve Nash and Dirk Nowitzki on, Manu Ginobili and Paul Pierce off; 2008-09, Rashard Lewis to the 1st team, Gerald Wallace from the 1st to the 2nd, Nene on the 2nd team, Danny Granger and Pau Gasol off",
+    "href": "/nba-savant"
   },
   {
     "date": "2026-11-19",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "version": "2.8.0",
     "text": "Isolation targeting: how often offenses isolated a defender compared with how often the players he guarded isolate everyone, on every card from 2017-18 and in the Leaderboard Builder. A context stat, shown without a good or bad colour: it describes how offenses treat him, not how well he defends",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-11-19",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "version": "2.7.1",
     "text": "Fixes: a stat the NBA published no values for in a season now says so on the card, in the Leaderboard Builder and in the connector instead of showing a blank (switches per 100 matchup possessions is withheld until the NBA publishes real switch counts again); Milos Teodosic (2017-18, 2018-19) and Mike James (2020-21) get the play types and shot-making the NBA had filed under the wrong player id; and players the NBA's Synergy feed leaves out entirely are labelled as such",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-11-18",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "version": "2.7.0",
     "text": "Matchup difficulty (creation-weighted): how hard a defender's assignments are, counting the playmakers he chases as well as the scorers, beside Matchup difficulty on every card from 2017-18, with its scoring and creation parts in the Leaderboard Builder",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-11-17",
@@ -92,38 +98,38 @@
   },
   {
     "date": "2026-11-10",
-    "product": "College Football Savant",
+    "product": "CFB Savant",
     "version": "1.1.0",
     "text": "242 new stats, the charted layer, special teams and NFL translation",
-    "href": "/college-football-savant.html"
+    "href": "/cfb-savant"
   },
   {
     "date": "2026-11-10",
-    "product": "College Football Savant",
+    "product": "CFB Savant",
     "version": "1.0.0",
     "text": "Every FBS player and team since 2009 on opponent-adjusted percentile bars, All-Savant teams lined up at the snap, and an objective 12-team playoff field with odds from 20,000 simulated seasons",
-    "href": "/college-football-savant.html"
+    "href": "/cfb-savant"
   },
   {
     "date": "2026-11-06",
-    "product": "College Basketball Coaching Savant",
+    "product": "CBB Coaching Savant",
     "version": "1.0.0",
     "text": "Every men's D1 head coach: wins against the roster he was given, player development, the portal, the Rotation Map, March against the seed, resources and the coaching tree",
-    "href": "/college-basketball-coaching-savant.html"
+    "href": "/cbb-coaching-savant"
   },
   {
     "date": "2026-11-06",
-    "product": "College Basketball Savant",
+    "product": "CBB Savant",
     "version": "1.4.0",
     "text": "Head coaches on every team page and, on every player card, the coaches whose systems used players most like him",
-    "href": "/college-basketball-savant.html"
+    "href": "/cbb-savant"
   },
   {
     "date": "2026-11-05",
-    "product": "College Basketball Savant",
+    "product": "CBB Savant",
     "version": "1.3.0",
     "text": "Shot charts, play context (possession starts, transition, after timeouts, clutch and an estimated shot clock) and rotation maps",
-    "href": "/college-basketball-savant.html"
+    "href": "/cbb-savant"
   },
   {
     "date": "2026-11-04",
@@ -162,10 +168,10 @@
   },
   {
     "date": "2026-11-03",
-    "product": "College Basketball Savant",
+    "product": "CBB Savant",
     "version": "1.2.0",
     "text": "Seasons 2009-10 and 2010-11, with their All-Savant Teams",
-    "href": "/college-basketball-savant.html#all-savant"
+    "href": "/cbb-savant#all-savant"
   },
   {
     "date": "2026-11-03",
@@ -183,31 +189,31 @@
   },
   {
     "date": "2026-11-02",
-    "product": "College Basketball Savant",
+    "product": "CBB Savant",
     "version": "1.1.0",
     "text": "Seasons back to 2013-14, schedule strength and adjustment confidence on every card, and the All-Savant Teams",
-    "href": "/college-basketball-savant.html#all-savant"
+    "href": "/cbb-savant#all-savant"
   },
   {
     "date": "2026-11-02",
-    "product": "College Basketball Savant",
+    "product": "CBB Savant",
     "version": "1.0.0",
     "text": "Every men's D1 player on percentile bars, adjusted for opponents, with RAPM, shot zones, lineups and team ratings",
-    "href": "/college-basketball-savant.html"
+    "href": "/cbb-savant"
   },
   {
     "date": "2026-11-02",
-    "product": "Draft Savant",
+    "product": "NBA Draft Savant",
     "version": "1.1.0",
-    "text": "College numbers for the 2027 class on come straight from College Basketball Savant, with links both ways",
-    "href": "/draft-savant.html"
+    "text": "College numbers for the 2027 class on come straight from CBB Savant, with links both ways",
+    "href": "/nba-draft-savant"
   },
   {
     "date": "2026-10-30",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "version": "2.6.0",
     "text": "With/Without for any teammates, same-age percentiles, and positions that follow the minutes",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-10-29",
@@ -218,38 +224,38 @@
   },
   {
     "date": "2026-10-27",
-    "product": "Basketball Coaching Savant",
+    "product": "NBA Coaching Savant",
     "version": "1.0.0",
     "text": "every NBA head coach, with the Rotation Map, lineups from their parts and a Data Room",
-    "href": "/basketball-coaching-savant.html"
+    "href": "/nba-coaching-savant"
   },
   {
     "date": "2026-10-27",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "version": "2.5.0",
     "text": "a rotation strip on every card: when he usually plays, and his off-script rate",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-10-27",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "version": "2.4.0",
     "text": "143 more stats and a Breakdowns panel on every card",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-10-24",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "version": "2.3.0",
     "text": "updates itself after every slate, around the clock",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-10-22",
-    "product": "Football Savant",
+    "product": "NFL Savant",
     "version": "2.2.0",
     "text": "live injury status and bye weeks on every card, updated through the day",
-    "href": "/football-savant.html"
+    "href": "/nfl-savant"
   },
   {
     "date": "2026-10-21",
@@ -260,16 +266,16 @@
   },
   {
     "date": "2026-10-20",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "version": "2.2.0",
     "text": "Savant value and the All-Savant Team",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-10-20",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "text": "the 2026-27 season is live",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-10-15",
@@ -285,30 +291,30 @@
   },
   {
     "date": "2026-10-14",
-    "product": "Basketball Savant",
+    "product": "NBA Savant",
     "version": "2.1.0",
     "text": "Fantasy, Teams and Lineups tabs",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-10-14",
-    "product": "Basketball Savant Fantasy",
+    "product": "NBA Savant Fantasy",
     "text": "9-cat punt builds and your Sleeper matchup, category by category",
-    "href": "/basketball-savant.html"
+    "href": "/nba-savant"
   },
   {
     "date": "2026-10-09",
-    "product": "Football Savant",
+    "product": "NFL Savant",
     "version": "2.1.0",
     "text": "the All-Savant Team, picked on Savant value",
-    "href": "/football-savant.html"
+    "href": "/nfl-savant"
   },
   {
     "date": "2026-10-09",
-    "product": "Football Savant",
+    "product": "NFL Savant",
     "version": "2.0.0",
     "text": "splits, recent form and route trees",
-    "href": "/football-savant.html"
+    "href": "/nfl-savant"
   },
   {
     "date": "2026-10-02",

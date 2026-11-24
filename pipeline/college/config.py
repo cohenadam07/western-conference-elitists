@@ -1,5 +1,5 @@
 """
-config.py — every stat on College Basketball Savant, in one registry.
+config.py — every stat on CBB Savant, in one registry.
 
 One row per stat: key, label, group, kind, unit, direction, settle key, start season, and its
 explainer (what, formula, source, sample). build.py writes it to public/cbb/registry.json, and the

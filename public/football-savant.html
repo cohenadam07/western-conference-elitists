@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Football Savant — WCE</title>
+<title>NFL Savant — WCE</title>
 <meta name="description" content="Every NFL player since 1999, scouted by position. Percentile profiles, field maps, comps and a leaderboard builder."/>
 <meta name="theme-color" content="#12151A"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,9 +12,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
 /* ============================================================================
-   FOOTBALL SAVANT — the film room, where Basketball Savant is the morning paper.
+   FOOTBALL SAVANT — the film room, where NBA Savant is the morning paper.
 
-   Basketball Savant is ink on newsprint: cream ground, navy, gold, a serif headline.
+   NBA Savant is ink on newsprint: cream ground, navy, gold, a serif headline.
    This is its successor, not its twin. The ground is slate, the rules are chalk, the
    structural motif is a yard line rather than a three-point arc, and the type is one
    variable grotesk (Archivo, width axis and all) rather than serif-plus-Plex.
@@ -28,7 +28,7 @@
      --turf    the brand green. Navigation, buttons, the wordmark.
      --flag    penalty-flag yellow. Reserved for career-best, everywhere, always.
      --ramp    poor (cold steel) -> average (graphite) -> elite (hot orange-red).
-               Same logic as Basketball Savant's blue->bone->red, re-lit for a dark ground.
+               Same logic as NBA Savant's blue->bone->red, re-lit for a dark ground.
    ========================================================================= */
 :root{
   /* The ground is a football field: deep grass, mowed into stripes, chalked with yard
@@ -111,7 +111,7 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 /* ---------------------------------------------------------------- id card */
 .id{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 22px;
   margin-bottom:14px;position:relative;overflow:hidden}
-/* The yard-line strip. Basketball Savant marks its cards with a gold rule; this marks
+/* The yard-line strip. NBA Savant marks its cards with a gold rule; this marks
    them with the field itself — five hashes at the top edge of every card. */
 .id::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;
   background:repeating-linear-gradient(90deg,var(--turf) 0 26px,transparent 26px 34px);opacity:.55}
@@ -127,7 +127,7 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 .exportbtn svg{width:13px;height:13px;stroke:#07130C;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .exportbtn:hover{filter:brightness(1.08)}
 .exportbtn[disabled]{opacity:.55;cursor:default;filter:none}
-/* Career-best flag. Same corner idiom as Basketball Savant's ribbon, in penalty-flag
+/* Career-best flag. Same corner idiom as NBA Savant's ribbon, in penalty-flag
    yellow — the one colour on this page that only ever means "his best". */
 .peakflag{position:absolute;left:-40px;top:16px;width:140px;transform:rotate(-38deg);
   background:var(--flag);color:#2A1F03;font-family:var(--mono);font-size:9px;font-weight:700;
@@ -302,7 +302,7 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 .selx-off{color:var(--faint)}
 .selx-tag{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 .selx-opt[aria-selected="true"] .selx-tag{color:rgba(7,19,12,.65)}
-/* snap-share band, the analog of Basketball Savant's minutes filter */
+/* snap-share band, the analog of NBA Savant's minutes filter */
 .band{display:flex;align-items:center;gap:12px}
 .band[hidden]{display:none}
 .dr{position:relative;width:186px;height:26px}
@@ -492,7 +492,7 @@ body.lb-open .wrap,body.lb-open .home{display:none}
 .home{position:relative;min-height:calc(100vh - var(--wce-nav-h,60px));min-height:calc(100dvh - var(--wce-nav-h,60px));overflow:hidden;padding:30px 24px 30px;
   display:flex;flex-direction:column;align-items:center;justify-content:center}
 body:not(.home-open) .home{display:none}
-/* The field. Basketball Savant breathes a half-court behind its splash; this breathes a
+/* The field. NBA Savant breathes a half-court behind its splash; this breathes a
    gridiron — yard lines, hashes, numbers and a goal line, drawn in chalk at 1px. */
 .home-field{position:absolute;inset:-6%;color:rgba(237,237,232,.075);pointer-events:none;z-index:0}
 .home-field svg{width:100%;height:100%;display:block;animation:field-breathe 22s ease-in-out infinite}
@@ -1311,8 +1311,8 @@ body{background-color:#1D6B3A;color:var(--ink);
   </div>
   <div class="home-fade" aria-hidden="true"></div>
   <div class="home-inner">
-    <div class="home-eyebrow"><span class="wce">WCE</span> Football Savant</div>
-    <h1 class="home-title">Football <em>Savant</em></h1>
+    <div class="home-eyebrow"><span class="wce">WCE</span> NFL Savant</div>
+    <h1 class="home-title">NFL <em>Savant</em></h1>
     <p class="home-tag">Every NFL player back to 1999, ranked against the men who play his position.
       Percentile profiles, field maps and comps. Start with a name.</p>
     <div class="home-search" id="homeSearch">
@@ -1349,7 +1349,7 @@ body{background-color:#1D6B3A;color:var(--ink);
     </div>
     <button class="home-lb" id="homeLbBtn" type="button">Build a Leaderboard <span aria-hidden="true">→</span></button>
   </div>
-  <div class="home-foot">wcehoops.com · Football Savant <span id="homeVer"></span></div>
+  <div class="home-foot">wcehoops.com · NFL Savant <span id="homeVer"></span></div>
 </div>
 
 <div class="wrap">
@@ -1357,13 +1357,13 @@ body{background-color:#1D6B3A;color:var(--ink);
     <div class="brandwrap">
       <a class="wce" href="/" title="Back to WCE home">WCE</a>
       <div>
-        <div class="brand-word">Football <span>Savant</span></div>
+        <div class="brand-word">NFL <span>Savant</span></div>
         <div style="display:flex;gap:9px;align-items:center;margin-top:7px;flex-wrap:wrap">
           <span class="eyebrow-pill" id="srcpill">nflverse data</span>
           <span class="vchip" id="verchip"></span>
           <a class="backlink" href="/">&larr; wcehoops.com</a>
-          <a class="backlink" href="/coaching-savant.html">Coaching Savant</a>
-          <a class="backlink" href="/basketball-savant.html">Basketball Savant</a>
+          <a class="backlink" href="/nfl-coaching-savant">NFL Coaching Savant</a>
+          <a class="backlink" href="/nba-savant">NBA Savant</a>
         </div>
       </div>
     </div>
@@ -1490,7 +1490,7 @@ body{background-color:#1D6B3A;color:var(--ink);
 /* ============================================================================
    FOOTBALL SAVANT
 
-   The engine is deliberately the same shape as Basketball Savant's: fetch one dataset,
+   The engine is deliberately the same shape as NBA Savant's: fetch one dataset,
    index it by player, and compute every percentile in the browser so the reader can move
    the population under the bars without a round trip.
 
@@ -2817,7 +2817,7 @@ function teamRecord(p){
           +'">'+inner+' <b>'+esc(g.mine+'\u2013'+g.theirs+' vs '+g.opp)+'</b> \u2197</a>';
       })():'')
     +(p.coach?'<a class="tr-coach" title="'+esc(p.coach+' — open his page in Coaching Savant')
-        +'" href="/coaching-savant.html#c='+encodeURIComponent(p.coach)+'">'+esc(p.coach)+' ↗</a>':'')
+        +'" href="/nfl-coaching-savant#c='+encodeURIComponent(p.coach)+'">'+esc(p.coach)+' ↗</a>':'')
     +'</div>';
 }
 function cmpSeasonSelect(id,season,idx,isMain){
@@ -3191,7 +3191,7 @@ function measurRow(p){
 }
 
 /* ================= FIELD MAPS ==============================================
-   Basketball Savant has a shot chart. Football's honest equivalent isn't a dot map — the
+   NBA Savant has a shot chart. Football's honest equivalent isn't a dot map — the
    ball's landing spot isn't in open data — but the *lattice* the ball travelled through is:
 
      THROW MAP   4 depth bands x 3 directions, from air yards and pass location.
@@ -5161,7 +5161,7 @@ function buildShareShell(){
   var d=document.createElement('div');
   d.className='export-shell'; d.id='exportShell';
   d.innerHTML=mow
-    +'<div class="sx-head"><div class="sx-mark">WCE</div><div class="sx-brand">Football <span>Savant</span></div>'
+    +'<div class="sx-head"><div class="sx-mark">WCE</div><div class="sx-brand">NFL <span>Savant</span></div>'
       +'<div class="sx-when">'+esc(who)+'<small>'+esc(wk?'through week '+wk:posWord+'s')+'</small></div></div>'
     +'<div class="sx-card sx-hero" style="'+esc(tv)+'"><div class="sx-band"></div>'
       +'<div class="sx-ph">'+photo+'</div>'
@@ -5182,7 +5182,7 @@ function buildShareShell(){
             +'<div class="sx-pct" style="background:'+colorAt(r.pct)+';color:'+(light?'#0E2A17':'#FFFFFF')+'">'+r.pct+'</div>'
             +'<div class="sx-val">'+esc(fmt(r.m.unit,r.v))+'</div></div>';
         }).join('')+'</div></div>'
-    +'<div class="sx-foot"><span>wcehoops.com/football-savant</span><small>'
+    +'<div class="sx-foot"><span>wcehoops.com/nfl-savant</span><small>'
       +(anyUns?'hollow blocks: not settled yet · ':'')+'bold rows: his headline stats</small></div>';
   document.body.appendChild(d);
   // a long name steps down until it fits beside the photo
@@ -5781,7 +5781,7 @@ function openTeam(t){
   var html='<div class="tm-top"><h2 class="col-h">'+esc(teamName(t,season))+'</h2>'
     +(rec?'<span class="tm-rec">'+rec[0]+'–'+rec[1]+(rec[2]?'–'+rec[2]:'')+'</span>':'')
     +'<span class="comps-cap">'+esc(season)+(wk?' · through week '+wk:'')
-    +(coach?' · <a class="tr-coach" href="/coaching-savant.html#c='+encodeURIComponent(coach)+'">'+esc(coach)+' ↗</a>':'')+'</span>'
+    +(coach?' · <a class="tr-coach" href="/nfl-coaching-savant#c='+encodeURIComponent(coach)+'">'+esc(coach)+' ↗</a>':'')+'</span>'
     +'<button type="button" class="tm-x" id="tmCopy">Copy link</button>'
     +'<button type="button" class="tm-x" id="tmClose" style="margin-left:0">Close ×</button></div>';
   var ts=teamStats(season);
@@ -5937,7 +5937,7 @@ function wire(){
   document.querySelectorAll('#winseg button').forEach(function(b){
     b.onclick=function(){ setWindow(+b.dataset.v); };
   });
-  var vt='Football Savant version '+VERSION+'. The number moves on big releases, not on the daily data refresh.';
+  var vt='NFL Savant version '+VERSION+'. The number moves on big releases, not on the daily data refresh.';
   document.getElementById('verchip').textContent='v'+VERSION;
   document.getElementById('verchip').title=vt;
   document.getElementById('homeVer').textContent='· v'+VERSION;

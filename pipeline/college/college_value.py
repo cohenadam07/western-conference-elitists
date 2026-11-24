@@ -1,14 +1,14 @@
 """
 college_value.py — Savant value for college, the number the All-Savant Teams are picked on.
 
-The method is Basketball Savant's (tools/savant-value/value.py), in the same five steps:
+The method is NBA Savant's (tools/savant-value/value.py), in the same five steps:
 
   1. The job: scoring, playmaking, rebounding, defense, from opponent-adjusted stats.
   2. Luck: every stat is pulled toward its position's average by this site's measured settle points.
   3. Worth: what a stat is worth. `test` decides where that comes from.
   4. The floor: from 2024-25, where lineups exist, the box estimate moves toward what actually
      happened with him on the floor, as far as his minutes have earned it. Before that the rate is
-     box score only, as Basketball Savant does before 2009-10.
+     box score only, as NBA Savant does before 2009-10.
   5. Value = (rate - replacement) × possessions ÷ 100. Replacement is the 25th-percentile qualified
      rate at his position that season. He earns nothing on nights he doesn't play.
 

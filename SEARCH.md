@@ -4,6 +4,34 @@ The goal: when someone searches "basketball savant", "football savant", "ufc sav
 "dynasty exchange", wcehoops.com is a result. This file says what the site does about that,
 where the words live, and what is left to people.
 
+## Names and addresses (Nov 24, 2026)
+
+Every Savant is named league first, on one scheme, and each has a clean address:
+
+| Name | Address | File in `public/` (unchanged) | Was |
+|---|---|---|---|
+| NBA Savant | `/nba-savant` | `basketball-savant.html` | Basketball Savant |
+| NFL Savant | `/nfl-savant` | `football-savant.html` | Football Savant |
+| CBB Savant | `/cbb-savant` | `college-basketball-savant.html` | College Basketball Savant |
+| CFB Savant | `/cfb-savant` | `college-football-savant.html` | College Football Savant |
+| UFC Savant | `/ufc-savant` | `ufc-savant.html` | (same) |
+| NBA Coaching Savant | `/nba-coaching-savant` | `basketball-coaching-savant.html` | Basketball Coaching Savant |
+| NFL Coaching Savant | `/nfl-coaching-savant` | `coaching-savant.html` | Coaching Savant |
+| CBB Coaching Savant | `/cbb-coaching-savant` | `college-basketball-coaching-savant.html` | College Basketball Coaching Savant |
+| NBA Draft Savant | `/nba-draft-savant` | `draft-savant.html` | Draft Savant |
+
+The files keep their names because the data pipelines write them. `vercel.json` serves each file
+at its address (a rewrite) and redirects both old addresses there for good (`/basketball-savant.html`
+and `/basketball-savant`), so old links, bookmarks and video descriptions still land. The table
+lives in code as `CLEAN` in `scripts/lib/seo-content.mjs`; `npm run check:seo` checks the redirects,
+the rewrites, the canonicals and the sitemap against it. The old name is kept once in each "What is
+X?" panel ("formerly Basketball Savant") and as `alternateName` in structured data, so a search for
+the old name still matches. Link to the address, never to the file.
+
+Left alone on purpose: file names, workflow names, and the bots' commit subjects
+("Basketball Savant: refresh ..."), which `.github/scripts/deploy_batch.py` reads. Older text
+below still uses the old names where it describes what was done at the time.
+
 ## What the site does
 
 Everything below is added when the site is built (`scripts/lib/seo-build.mjs`). Nothing in

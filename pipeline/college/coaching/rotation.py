@@ -3,7 +3,7 @@ rotation.py — the Rotation Map and what hangs off it, per coach-team-season (s
 
     build(season, games, who, rates) -> {(team, coach): rotation dict}
 
-Basketball Coaching Savant's rotation.py, rule for rule, on the college clock: 40 regulation minutes in
+NBA Coaching Savant's rotation.py, rule for rule, on the college clock: 40 regulation minutes in
 two halves (config.PERIODS, so quarters would be a config change), overtime apart. From each lineup
 game's stints (College Savant's: ESPN substitutions from 2025-26 and mid-February 2025, CBBD's fives for
 2023-24 and 2024-25, only the games its lineup gate passes) for every man with 60+ minutes under a coach

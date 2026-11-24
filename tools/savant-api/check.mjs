@@ -2,7 +2,7 @@
 //
 //   npm run check:savant-api        (node --test tools/savant-api/check.mjs)
 //
-// The files exist so that a machine can quote the number a fan sees on a Basketball Savant
+// The files exist so that a machine can quote the number a fan sees on a NBA Savant
 // card. So the test is not "does the slicer agree with itself" but "does it agree with the
 // page". It lifts the page's own functions out of public/basketball-savant.html — poolVals,
 // pctOf, the position corrections, the era rule — runs them in a sandbox over the real

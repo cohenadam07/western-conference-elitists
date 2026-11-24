@@ -70,7 +70,7 @@ const sources = {
 // Through JSON once, because that is what gets published.
 const publish = (out) => JSON.parse(JSON.stringify(out))
 const built = publish(buildSiteApi(sources))
-// Draft Savant's files, for the names of trending prospects. Basketball Savant's index is
+// NBA Draft Savant's files, for the names of trending prospects. NBA Savant's index is
 // built from a 70 MB file this check does not load; its stand-in is made from the Dynasty
 // list, whose players carry their NBA ids, in the same shape.
 const draftBuilt = publish(buildDraftApi({ data: json('public/data.json'), html: read('public/draft-savant.html') }))
@@ -472,10 +472,10 @@ test('the rules that live inline in the pages are still there', () => {
   pin(read('scripts/lib/whats-new.mjs'), 'return all.filter((it) => Date.parse(it.date) >= cutoff).sort((a, b) => Date.parse(b.date) - Date.parse(a.date))', 'the banner\'s 45-day cut and order')
 
   // The trending chips: what each page asks for, which ids it keeps, and how many it draws.
-  pin(pages.basketball, "fetch(TREND_API,{cache:'no-store'})", 'what Basketball Savant asks /api/trending for')
-  pin(pages.basketball, "items=j.top.map(function(t){var e=PIDX[asId(t.id)];return e?{p:e.ref,trend:t.trend||'flat'}:null;}).filter(Boolean);", 'the ids Basketball Savant keeps')
-  pin(pages.draft, "fetch(TREND_API+'?ns=dr',{cache:'no-store'})", 'what Draft Savant asks /api/trending for')
-  pin(pages.draft, "items=j.top.map(function(t){var p=byId(t.id);return p?{p:p,trend:t.trend||'flat'}:null;}).filter(Boolean); }", 'the ids Draft Savant keeps')
+  pin(pages.basketball, "fetch(TREND_API,{cache:'no-store'})", 'what NBA Savant asks /api/trending for')
+  pin(pages.basketball, "items=j.top.map(function(t){var e=PIDX[asId(t.id)];return e?{p:e.ref,trend:t.trend||'flat'}:null;}).filter(Boolean);", 'the ids NBA Savant keeps')
+  pin(pages.draft, "fetch(TREND_API+'?ns=dr',{cache:'no-store'})", 'what NBA Draft Savant asks /api/trending for')
+  pin(pages.draft, "items=j.top.map(function(t){var p=byId(t.id);return p?{p:p,trend:t.trend||'flat'}:null;}).filter(Boolean); }", 'the ids NBA Draft Savant keeps')
   for (const page of [pages.basketball, pages.draft]) pin(page, 'items.slice(0,6).forEach(function(it,i){', 'how many chips a page draws')
   const trendJs = read('api/trending.js')
   pin(trendJs, 'const DAYS = 7', 'the trending window')
@@ -582,7 +582,7 @@ test('every News item is the item the page renders, field for field', async () =
   // The pipeline never writes more than three players or, so far, more than four authors, so
   // the page's two cuts are held to a copy of the file that goes past both.
   const more = structuredClone(sources.news)
-  more.headlines[0].players = [1, 2, 3, 4, 5].map((i) => ({ name: `Player ${i}`, savant_url: `/basketball-savant.html?p=${i}` }))
+  more.headlines[0].players = [1, 2, 3, 4, 5].map((i) => ({ name: `Player ${i}`, savant_url: `/nba-savant?p=${i}` }))
   more.headlines[1].players = []
   more.headlines[1].also_covered_by = []
   more.analytics[0].authors = ['A One', 'B Two', 'C Three', 'D Four', 'E Five', 'F Six']
@@ -685,11 +685,11 @@ test('the slicer refuses a news file it cannot date, and drops an item it could 
   const odd = structuredClone(sources.news)
   odd.headlines[0].url = 'javascript:alert(1)'
   odd.headlines[1].title = '   '
-  odd.headlines[2].players = [{ name: 'A', savant_url: 'https://elsewhere.example/x' }, { name: 'B', savant_url: '//evil.example' }, { name: 'C', savant_url: '/basketball-savant.html?p=1' }, { name: 'D', savant_url: '/basketball-savant.html?p=2' }]
+  odd.headlines[2].players = [{ name: 'A', savant_url: 'https://elsewhere.example/x' }, { name: 'B', savant_url: '//evil.example' }, { name: 'C', savant_url: '/nba-savant?p=1' }, { name: 'D', savant_url: '/nba-savant?p=2' }]
   const out = buildSiteApi({ ...sources, news: odd })
   assert.equal(out.news.dropped, 2)
   assert.equal(out.news.headlines.length, sources.news.headlines.length - 2)
-  assert.deepEqual(out.news.headlines[0].players, [{ name: 'C', url: `${SITE}/basketball-savant.html?p=1` }], 'only links to the site itself become chips, from the first three')
+  assert.deepEqual(out.news.headlines[0].players, [{ name: 'C', url: `${SITE}/nba-savant?p=1` }], 'only links to the site itself become chips, from the first three')
 })
 
 // ---- 2. articles ---------------------------------------------------------------------
@@ -1379,13 +1379,13 @@ test('the trending lists are the chips each page draws, with the page\'s names, 
       same(list.items.filter((x) => x.on_home_screen).map((x) => x.id), kept.slice(0, 6).map((k) => String(k.id)), `round ${round} ${ns}: the chips the page draws`)
       same(list.unknown_ids, j.top.length - kept.length, `round ${round} ${ns}: ids the page cannot name`)
       for (const x of list.items) {
-        assert.equal(x.url, ns === 'bs' ? `${SITE}/basketball-savant.html?p=${x.id}` : `${SITE}/draft-savant.html`)
+        assert.equal(x.url, ns === 'bs' ? `${SITE}/nba-savant?p=${x.id}` : `${SITE}/nba-draft-savant`)
         assert.ok(text.includes(`${x.rank}. ${x.name}`), `${x.name} is in the text`)
       }
       lists++
     }
   }
-  // The card link is the Basketball Savant section's own.
+  // The card link is the NBA Savant section's own.
   const bs = await import('../../api/_basketball.js')
   assert.equal((await run('wce_get_trending', { section: 'players' })).structured.lists[0].items[0].url, bs.cardUrl((await run('wce_get_trending', { section: 'players' })).structured.lists[0].items[0].id))
   // Trends, worked through: up, down, flat, and too few picks to call.
@@ -1449,8 +1449,8 @@ test('what\'s new is the banner\'s list, uploads aside, picked by the banner\'s 
     ...Array.from({ length: 5 }, (_, i) => ({ kind: 'article', date: day(-i * 9, 3), text: `article ${i}`, to: `/articles/a-${i}` })),
     { kind: 'article', date: day(2), text: 'dated ahead', to: '/articles/later' },
     { kind: 'article', date: day(-4).slice(0, 10), text: 'tied with an update', to: '/articles/tie' },
-    { kind: 'event', date: day(3).slice(0, 10), text: 'UFC Savant: every fighter on the next card', href: '/ufc-savant.html' },
-    { kind: 'event', date: day(20).slice(0, 10), text: 'a card too far off', href: '/ufc-savant.html' },
+    { kind: 'event', date: day(3).slice(0, 10), text: 'UFC Savant: every fighter on the next card', href: '/ufc-savant' },
+    { kind: 'event', date: day(20).slice(0, 10), text: 'a card too far off', href: '/ufc-savant' },
   ]
   reset({ files: { ...built, whatsNew: publish(buildSiteApi({ ...sources, whatsNewItems: fake })).whatsNew } })
   await check(fake.filter((it) => Date.parse(it.date) >= now - KEEP_DAYS * 864e5).sort((a, b) => Date.parse(b.date) - Date.parse(a.date)))

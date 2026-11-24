@@ -28,7 +28,7 @@ import urllib.request
 OUT = os.path.join(os.environ.get("CBCS_OUT") or os.path.expanduser("~/Basketball-Savant/out/cbcs"), "ap")
 RAW = os.path.join(OUT, "raw")
 CORE = "https://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball"
-UA = {"User-Agent": "wcehoops.com College Basketball Coaching Savant (research)"}
+UA = {"User-Agent": "wcehoops.com CBB Coaching Savant (research)"}
 WORKERS = 6
 
 

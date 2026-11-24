@@ -1,6 +1,6 @@
 // node --test tools/savant-value/allsavant.mjs      (part of npm run check:savant)
 //
-// The All-Savant Team by All-NBA's rules for the era (Basketball Savant 2.9.0):
+// The All-Savant Team by All-NBA's rules for the era (NBA Savant 2.9.0):
 //   through 2022-23  2 guards, 2 forwards, 1 center, eligible at a slot with 30%+ of his minutes there
 //                    (public/savant-allsavant.json), the highest total value those slots allow
 //   2023-24 on       positionless, the five highest values, then the next five

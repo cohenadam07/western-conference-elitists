@@ -2,7 +2,7 @@
 espn_source.py — the season in progress, from ESPN's public JSON (works from cloud servers).
 
 stats.nba.com and cdn.nba.com refuse cloud IPs, so the cloud refresh can't call them. ESPN's
-site API answers from anywhere and carries everything the box-score side of Basketball Savant
+site API answers from anywhere and carries everything the box-score side of NBA Savant
 needs: every final game's box score, and play-by-play with a shot location on every shot and
 every substitution. This module only FETCHES and NORMALIZES; `espn_shim` turns the result into
 the same tables nba_api would have returned, so the engine runs unchanged.

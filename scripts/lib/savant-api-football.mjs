@@ -1,6 +1,6 @@
-// Football Savant, cut up for machines. The NFL sibling of savant-api.mjs.
+// NFL Savant, cut up for machines. The NFL sibling of savant-api.mjs.
 //
-// The Football Savant page downloads a 44 MB archive (public/football-savant-data.json) plus
+// The NFL Savant page downloads a 44 MB archive (public/football-savant-data.json) plus
 // a small file for the season in progress (public/football-savant-current.json), lays the
 // second over the first, and works every percentile out in the browser. An AI assistant or a
 // server function cannot do that to answer "where did he rank in EPA per dropback", and the
@@ -56,6 +56,8 @@ export const SITE = 'https://wcehoops.com'
 export const BASE = 'savant-api/football/v1'
 export const SCHEMA = 1
 const PAGE = 'football-savant.html'
+// the page's address on the site (vercel.json serves the file above there)
+const ADDRESS = 'nfl-savant'
 
 // How the page prints each unit (its fmt()), in words, so a reader of the raw value knows
 // what it is holding.
@@ -985,11 +987,11 @@ export function buildFootballApi({ data, current = null, html, through = null })
   const word = (k) => cfg.denoms[k] || k
   const meta = {
     schema: SCHEMA,
-    name: 'Football Savant',
+    name: 'NFL Savant',
     by: 'Western Conference Elitists',
     site: SITE,
-    page: `${SITE}/${PAGE}`,
-    playerUrl: `${SITE}/${PAGE}#p={id}&s={season}`,
+    page: `${SITE}/${ADDRESS}`,
+    playerUrl: `${SITE}/${ADDRESS}#p={id}&s={season}`,
     generated: merged.generated,
     // the newest game in the data: what "data as of" says (writeFootballApi fills it)
     through: through || null,

@@ -73,13 +73,13 @@ export const JOBS = [
     cadence: '5:23am on the Mac. Keeps the private raw ESPN archive of the season; packs last month on the 1st.',
   },
   {
-    id: 'basketball-savant', name: 'Basketball Savant refresh', lane: 'github', product: 'basketball',
+    id: 'basketball-savant', name: 'NBA Savant refresh', lane: 'github', product: 'basketball',
     workflow: 'basketball-savant-cloud.yml', maxAgeH: 30, tz: 'UTC',
     cron: ['17 16 * * *', '41 22 * * *', '41 1 * * *', '11 3 * * *', '41 9 * * *', '13 15 * * *'],
     cadence: 'Game days: watches from about 11:17am until every game is final. Rebuilds every day at about 4:41am and 10:13am.',
   },
   {
-    id: 'college-savant', name: 'College Basketball Savant refresh', lane: 'github', product: 'basketball',
+    id: 'college-savant', name: 'CBB Savant refresh', lane: 'github', product: 'basketball',
     workflow: 'college-basketball-savant-cloud.yml', maxAgeH: 30, tz: 'UTC',
     cron: ['47 16 * * *', '23 22 * * *', '19 1 * * *', '37 3 * * *', '29 10 * * *'],
     cadence: 'Game days: watches from about noon ET until every game is final. Rebuilds daily at about 5:29am ET.',
@@ -87,17 +87,17 @@ export const JOBS = [
   {
     id: 'college-savant-freshness', name: 'CBB freshness alarm', lane: 'github', product: 'basketball',
     workflow: 'college-basketball-savant-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['37 17 * * *'],
-    cadence: 'Daily. Fails if College Basketball Savant goes 30 hours without a refresh, or the cloud is blocked from ESPN.',
+    cadence: 'Daily. Fails if CBB Savant goes 30 hours without a refresh, or the cloud is blocked from ESPN.',
   },
   {
-    id: 'college-football-savant', name: 'College Football Savant refresh', lane: 'github', product: 'football',
+    id: 'college-football-savant', name: 'CFB Savant refresh', lane: 'github', product: 'football',
     workflow: 'college-football-savant-refresh.yml', maxAgeH: 30, tz: 'UTC', cron: ['7 10 * 8-12,1 *', '13 8 * 8-12,1 0'],
     cadence: 'Daily at about 5am ET, late August to the title game, plus Sunday at about 3am ET. Commits only when a file changed.',
   },
   {
     id: 'college-football-savant-freshness', name: 'CFB freshness alarm', lane: 'github', product: 'football',
     workflow: 'college-football-savant-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['41 15 * 8-12,1 *'],
-    cadence: 'Daily in season. Fails if College Football Savant goes 36 hours without a refresh, or its newest final is more than four days old.',
+    cadence: 'Daily in season. Fails if CFB Savant goes 36 hours without a refresh, or its newest final is more than four days old.',
   },
   {
     id: 'basketball-history', name: 'History additions', lane: 'github', product: 'basketball',
@@ -107,10 +107,10 @@ export const JOBS = [
   {
     id: 'basketball-freshness', name: 'NBA freshness alarm', lane: 'github', product: 'basketball',
     workflow: 'basketball-savant-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['7 16 * * *'],
-    cadence: 'Daily. Fails if Basketball Savant goes 30 hours without a refresh.',
+    cadence: 'Daily. Fails if NBA Savant goes 30 hours without a refresh.',
   },
   {
-    id: 'football-savant', name: 'Football Savant refresh', lane: 'github', product: 'football',
+    id: 'football-savant', name: 'NFL Savant refresh', lane: 'github', product: 'football',
     workflow: 'football-savant-refresh.yml', maxAgeH: 30, tz: 'UTC', cron: ['11 11 * * *', '41 4 * * 1,2,5'],
     cadence: 'Daily about 6:11am, plus late nights after Sunday, Monday and Thursday games.',
   },
@@ -162,19 +162,19 @@ export const JOBS = [
   },
   {
     id: 'dataroom-nba', name: 'Data Room upload — NBA', lane: 'github', product: 'basketball', workflow: 'basketball-savant-cloud.yml', maxAgeH: 30, tz: 'UTC', cron: [],
-    cadence: 'After every Basketball Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
+    cadence: 'After every NBA Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
   },
   {
     id: 'dataroom-nfl', name: 'Data Room upload — NFL', lane: 'github', product: 'football', workflow: 'football-savant-refresh.yml', maxAgeH: 30, tz: 'UTC', cron: [],
-    cadence: 'After every Football Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
+    cadence: 'After every NFL Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
   },
   {
     id: 'dataroom-cfb', name: 'Data Room upload — CFB', lane: 'github', product: 'football', workflow: 'college-football-savant-refresh.yml', maxAgeH: 30, tz: 'UTC', cron: [],
-    cadence: 'After every College Football Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
+    cadence: 'After every CFB Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
   },
   {
     id: 'dataroom-cbb', name: 'Data Room upload — CBB', lane: 'github', product: 'basketball', workflow: 'college-basketball-savant-cloud.yml', maxAgeH: 30, tz: 'UTC', cron: [],
-    cadence: 'After every College Basketball Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
+    cadence: 'After every CBB Savant refresh. Red the first time a Data Room table or its Parquet copy fails to upload (the refresh itself stays green), with the reason.',
   },
   {
     id: 'dataroom-ufc', name: 'Data Room upload — UFC', lane: 'github', product: 'ufc', workflow: 'ufc-savant-refresh.yml', maxAgeH: 132, tz: 'UTC', cron: [],

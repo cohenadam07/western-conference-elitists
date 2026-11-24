@@ -2,7 +2,7 @@
 
 config.py imports this and appends to STATS and TEAM_STATS. Everything a 1.0.0 stat carries, plus:
   tier     "A" (every season the data has), "B" (the charted layer, 2025 week 9 on) or "1.0" (shipped in 1.0.0)
-  cgroup   the card group, Football Savant style (BUILD-1.1 section 4)
+  cgroup   the card group, NFL Savant style (BUILD-1.1 section 4)
 
 Verdicts and settle points are not typed here. `python -m pipeline.cfb.xstudy` measures them (BUILD-1.1 section 3)
 and writes pipeline/cfb/state/verdicts_x.json, which this file reads; until it has run every new stat is CONTEXT.
@@ -31,7 +31,7 @@ CARD_GROUPS = {
     "P": ["Context", "Punting", "Placement", "Value"],
     "RET": ["Returns", "Fair catches and muffs"],
 }
-# each position's five headline stats: the profile score is their mean percentile (Football Savant's)
+# each position's five headline stats: the profile score is their mean percentile (NFL Savant's)
 HEADLINE = {
     "QB": ["qb_total_epa", "qb_epa_db", "qb_success", "qb_anya", "qb_sack_rate"],
     "RB": ["rb_epa_rush", "rb_success", "rb_opp_rate", "rb_hly_opp", "rb_expl"],

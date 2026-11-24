@@ -15,7 +15,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { PAGES, buildSeo } from '../../scripts/lib/seo-build.mjs'
-import { ABOUT_MARK, PRODUCTS, SITE, SITE_NAME, TOOLS, YOUTUBE } from '../../scripts/lib/seo-content.mjs'
+import { ABOUT_MARK, CLEAN, PRODUCTS, SITE, SITE_NAME, TOOLS, YOUTUBE, toolUrl } from '../../scripts/lib/seo-content.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const PUBLIC = path.join(ROOT, 'public')
@@ -42,7 +42,9 @@ const text = (html) => unesc(html.replace(/<style[\s\S]*?<\/style>/g, ' ').repla
 
 // Does an internal link lead somewhere? A file in public/, a page the build writes, or a route.
 const ROUTES = new Set([...PAGES.map((p) => p.path), '/player'])
-const resolves = (href) => ROUTES.has(href) || existsSync(path.join(PUBLIC, href.replace(/^\//, '')))
+// (a tool's clean address counts: vercel.json serves the file there, checked further down)
+const CLEAN_PATHS = new Set(Object.values(CLEAN).map((c) => c.path))
+const resolves = (href) => ROUTES.has(href) || CLEAN_PATHS.has(href) || existsSync(path.join(PUBLIC, href.replace(/^\//, '')))
 
 test('every Savant tool says its name and what it is', () => {
   for (const [file, t] of Object.entries(TOOLS)) {
@@ -52,14 +54,15 @@ test('every Savant tool says its name and what it is', () => {
     assert.equal(unesc(meta(html, 'description')), t.description, `${file}: description`)
     assert.ok(t.description.length <= 170, `${file}: description is ${t.description.length} characters; search results cut it near 160`)
     assert.equal((html.match(/<meta\s+name="description"/gi) || []).length, 1, `${file}: one description, not two`)
-    assert.match(html, new RegExp(`<link rel="canonical" href="${SITE}/${file}">`), `${file}: canonical`)
+    assert.match(html, new RegExp(`<link rel="canonical" href="${toolUrl(file)}">`), `${file}: canonical`)
     assert.ok(unesc(html.match(/property="og:title" content="([^"]*)"/)[1]) === t.title, `${file}: the share title follows the page title`)
 
     const g = graph(html)
     const app = g.find((n) => n['@type'] === 'WebApplication')
     assert.ok(app, `${file}: no WebApplication in the structured data`)
     assert.equal(app.name, t.name)
-    assert.equal(app.url, `${SITE}/${file}`)
+    assert.equal(app.url, toolUrl(file))
+    if (CLEAN[file].was) assert.equal(app.alternateName, CLEAN[file].was, `${file}: structured data should keep the old name`)
     assert.ok(g.some((n) => n['@type'] === 'Organization' && n.name === SITE_NAME && n.sameAs.includes(YOUTUBE)), `${file}: publisher`)
     assert.ok(g.some((n) => n['@type'] === 'BreadcrumbList'), `${file}: breadcrumbs`)
   }
@@ -77,7 +80,9 @@ test('the "What is X?" panel is on each tool, once, between the landing screen a
 
     const section = html.slice(panel, html.indexOf('</section>', panel))
     const words = text(section)
-    assert.ok(words.includes(t.heading) && words.includes(`${t.name} is a free`), `${file}: the panel does not introduce ${t.name}`)
+    const was = CLEAN[file].was
+    const intro = was ? `${t.name} (formerly ${was}) is a free` : `${t.name} is a free`
+    assert.ok(words.includes(t.heading) && words.includes(intro), `${file}: the panel does not introduce ${t.name}${was ? `, or does not say it was ${was}` : ''}`)
     assert.ok(words.includes(SITE_NAME), `${file}: the panel does not say who makes it`)
     const links = [...section.matchAll(/href="([^"]+)"/g)].map((m) => m[1])
     assert.ok(links.length >= 8, `${file}: the panel should link to the other products`)
@@ -101,7 +106,7 @@ test('the homepage has its own HTML, and unknown URLs get the bare shell', () =>
   assert.ok(site && site.name === SITE_NAME && site.url === `${SITE}/`, 'WebSite')
   assert.ok(g.some((n) => n['@type'] === 'Organization' && n.sameAs.includes(YOUTUBE)), 'Organization')
   const list = g.find((n) => n['@type'] === 'ItemList')
-  for (const name of ['Basketball Savant', 'Football Savant', 'UFC Savant', 'Coaching Savant', 'Draft Savant', 'Dynasty Exchange']) {
+  for (const name of ['NBA Savant', 'NFL Savant', 'UFC Savant', 'NFL Coaching Savant', 'NBA Draft Savant', 'Dynasty Exchange']) {
     assert.ok(list.itemListElement.some((i) => i.name === name), `${name} is missing from the homepage's product list`)
     assert.ok(text(home).includes(name), `${name} is not named in the homepage's first-paint text`)
   }
@@ -151,12 +156,21 @@ test('an article arrives with its text', () => {
 
 test('short addresses, the sitemap and the Search Console file', () => {
   for (const file of Object.keys(TOOLS)) {
+    // Each tool is served at its clean address (a rewrite to the file the pipelines write), and
+    // both of its old addresses (the file, and the old short one) redirect there for good.
+    const clean = CLEAN[file].path
     const short = `/${file.replace(/\.html$/, '')}`
-    const r = (vercel.redirects || []).find((x) => x.source === short)
-    assert.ok(r && r.destination === `/${file}` && r.permanent === true, `vercel.json: ${short} should redirect to /${file}`)
+    for (const old of new Set([`/${file}`, short])) {
+      if (old === clean) continue
+      const r = (vercel.redirects || []).find((x) => x.source === old)
+      assert.ok(r && r.destination === clean && r.permanent === true, `vercel.json: ${old} should redirect to ${clean}`)
+    }
+    const at = vercel.rewrites.findIndex((x) => x.source === clean)
+    assert.ok(at >= 0 && vercel.rewrites[at].destination === `/${file}`, `vercel.json: ${clean} should serve /${file}`)
+    assert.ok(at < vercel.rewrites.length - 1, `vercel.json: the rewrite for ${clean} must come before the catch-all`)
   }
   const xml = read(dist, 'sitemap.xml')
-  for (const file of Object.keys(TOOLS)) assert.ok(xml.includes(`<loc>${SITE}/${file}</loc>`), `sitemap: ${file}`)
+  for (const file of Object.keys(TOOLS)) assert.ok(xml.includes(`<loc>${toolUrl(file)}</loc>`), `sitemap: ${file}`)
   for (const p of PAGES) assert.ok(xml.includes(`<loc>${SITE}${p.path}</loc>`), `sitemap: ${p.path}`)
   assert.ok(!xml.includes('spa.html') && !xml.includes('google'), 'sitemap lists a file that is not a page')
   assert.match(read(PUBLIC, 'robots.txt'), /Sitemap: https:\/\/wcehoops\.com\/sitemap\.xml/)

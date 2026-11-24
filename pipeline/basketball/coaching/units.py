@@ -5,7 +5,7 @@ units.py — lineups, pairs and With/Without per coach-team-season, from the sti
 
 Observed net ratings come straight from the stint tallies (points and possessions each way
 while that five, that pair, or that man was on the floor). Two adjustments, both the ones the
-Basketball Savant Lineups tab already makes (teams_engine.py):
+NBA Savant Lineups tab already makes (teams_engine.py):
   luck    opponents' 3P% and FT% set to the season's league averages, so a unit is not
           punished for the other side making its threes
   sample  the luck-adjusted net pulled toward the team's own luck-adjusted net by k

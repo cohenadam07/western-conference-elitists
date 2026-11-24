@@ -9,7 +9,7 @@ For every player stat in RESEARCH section 3, by position:
     sample at which a player's own number and the FBS position mean carry equal
     weight, found by grid search for the k that best predicts the REST of his
     season from a small window of it, estimate = (n*x + k*mean) / (n + k);
-    and, as a cross-check, Football Savant's closed form k = n(1-r)/r;
+    and, as a cross-check, NFL Savant's closed form k = n(1-r)/r;
   * year-to-year correlation, separately for players who stayed and for
     players who changed schools (transfers come from roster team changes);
   * whether the opponent-adjusted number predicts next season better than raw.

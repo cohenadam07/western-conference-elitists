@@ -1,4 +1,4 @@
-// api/_football-lists.js — Football Savant's lists: the Leaderboard Builder, the team page and
+// api/_football-lists.js — NFL Savant's lists: the Leaderboard Builder, the team page and
 // a player's career. One section of the AI connector (api/mcp.js), beside api/_football.js,
 // whose files, loader and name matching it shares.
 //
@@ -29,7 +29,7 @@ import {
 } from './_football.js'
 
 // The page's own weekly files, read as published (they carry no schema field).
-const pageFiles = makeLoader('football-weekly', { what: 'Football Savant', maxCached: 4, shape: (b) => b.players && typeof b.players === 'object' })
+const pageFiles = makeLoader('football-weekly', { what: 'NFL Savant', maxCached: 4, shape: (b) => b.players && typeof b.players === 'object' })
 const loadCareers = (pos) => files.load(`careers/${pos}.json`)
 const loadWhere = () => files.load('careers/where.json')
 
@@ -66,7 +66,7 @@ export function parsePosition(input, meta) {
   }
   if (Object.hasOwn(EXTRA_POS, q)) return EXTRA_POS[q]
   const codes = Object.entries(meta.positions).map(([c, p]) => `${c} (${p.label})`)
-  throw new SavantError(`"${input}" is not a Football Savant position. Use one of: ${codes.join(', ')}, or "team".`)
+  throw new SavantError(`"${input}" is not a NFL Savant position. Use one of: ${codes.join(', ')}, or "team".`)
 }
 
 // A stat by its key ("epadb") or its label ("EPA / dropback"), among the stats a position's
@@ -191,7 +191,7 @@ export async function leaderboard(args) {
     total: pick.length,
     players: shown,
     notes,
-    url: `${SITE}/football-savant.html`,
+    url: `${SITE}/nfl-savant`,
     data_as_of: day(meta.through || (file && file.generated) || meta.generated),
     source: SOURCE,
   }
@@ -278,7 +278,7 @@ async function teamBoard(args, meta) {
     board: season, position: 'Teams', stat: { key: pick.key, label: pick.label, lower_is_better: pick.lowerIsBetter, what: null },
     sample: 'everyone', window: null, in_progress: live ? { through_week: live } : null, total: teams.length, players: [], teams: rows,
     notes: ['Kneel-downs and spikes are left out; a scramble counts as a pass play.', 'For the schedule stats (defenses faced, offenses faced) 1st is the hardest slate.'],
-    url: `${SITE}/football-savant.html`, data_as_of: day(meta.through || file.generated || meta.generated), source: SOURCE,
+    url: `${SITE}/nfl-savant`, data_as_of: day(meta.through || file.generated || meta.generated), source: SOURCE,
   }
   const L = [`${pick.label}${pick.lowerIsBetter ? ' (lower is better)' : ''}: all ${teams.length} teams in ${season}${live ? ` through week ${live}` : ''}`]
   for (const r of rows) L.push(`${r.rank}. ${r.name} ${r.display}${r.columns.length ? `. ${r.columns.map((c) => `${c.label} ${c.display ?? 'n/a'}${c.league_rank ? ` (${ordinal(c.league_rank)})` : ''}`).join('; ')}` : ''}`)
@@ -305,7 +305,7 @@ export async function teamProfile({ team, season }) {
   const code = parseTeam(team, meta, s)
   const file = await loadSeason(s)
   const t = (file.teams || {})[code]
-  if (!t) throw new SavantError(`${(meta.teamNames || {})[code] || code} has no ${s} season in Football Savant.`)
+  if (!t) throw new SavantError(`${(meta.teamNames || {})[code] || code} has no ${s} season in NFL Savant.`)
   const tname = teamName(meta, s)
   const live = file.week || null
   const words = Object.fromEntries(meta.teamStats.map((x) => [x.key, x]))
@@ -332,7 +332,7 @@ export async function teamProfile({ team, season }) {
       'Ranks are among all the teams with totals that season; 1st is best, except for the schedule rows, where 1st means the hardest slate. Opponents are measured by what they do in their other games.',
       `The profile score is the average percentile of a man's headline stats against his position${live ? ', with unsettled stats scored where they are likely to settle' : ''}; qualified players only.`,
     ],
-    url: `${SITE}/football-savant.html#t=${code}&s=${s}`, data_as_of: day(meta.through || file.generated || meta.generated), source: SOURCE,
+    url: `${SITE}/nfl-savant#t=${code}&s=${s}`, data_as_of: day(meta.through || file.generated || meta.generated), source: SOURCE,
   }
   const L = [`${structured.name}, ${s}${live ? ` through week ${live}` : ''}${t.rec ? `: ${t.rec[0]}-${t.rec[1]}${t.rec[2] ? `-${t.rec[2]}` : ''}` : ''}${t.coach ? `. Head coach ${t.coach}` : ''}.`]
   if (units) {
@@ -362,7 +362,7 @@ export async function playerCareer({ player, stat }) {
   const posLabel = (meta.positions[pos] || {}).label || pos
   const peers = (meta.positions[pos] || {}).peers || pos
   const byKey = Object.fromEntries(meta.metrics.map((m) => [m.key, m]))
-  const SAVANT = `${SITE}/football-savant.html#p=${encodeURIComponent(who.id)}&s=career`
+  const SAVANT = `${SITE}/nfl-savant#p=${encodeURIComponent(who.id)}&s=career`
 
   // one stat, season by season: the page's per-stat chart ("Seasons")
   let series = null
@@ -474,7 +474,7 @@ export const tools = [
     config: {
       title: 'NFL leaderboard',
       description:
-        'Football Savant\'s Leaderboard Builder (wcehoops.com): the top players at one position by any stat on their card, for a season since 1999, over whole careers ("career"), or over the last 4, 8 or 17 games of the season being played; or all 32 teams by a team stat (position "team"). Same order and percentiles as the page. Filters: team, snap share, age, years in the league. Sample: "settled" (enough of the stat\'s own sample), "likely_to_settle" (the season being played, ranked where numbers will likely finish; the default then) or "everyone".',
+        'NFL Savant\'s Leaderboard Builder (wcehoops.com): the top players at one position by any stat on their card, for a season since 1999, over whole careers ("career"), or over the last 4, 8 or 17 games of the season being played; or all 32 teams by a team stat (position "team"). Same order and percentiles as the page. Filters: team, snap share, age, years in the league. Sample: "settled" (enough of the stat\'s own sample), "likely_to_settle" (the season being played, ranked where numbers will likely finish; the default then) or "everyone".',
       inputSchema: {
         position: z.string().trim().min(1).max(30).describe('QB, RB, WR, TE, OT, OG, OC, ED (edge), DI (interior line), LB, CB, S, K, P, or "team".'),
         stat: z.string().trim().max(80).optional().describe('A stat key or label, e.g. "epadb" or "EPA / dropback". Omit for Savant value (o_epa for teams).'),
@@ -505,7 +505,7 @@ export const tools = [
     config: {
       title: 'NFL team page',
       description:
-        'One NFL team\'s season on Football Savant (wcehoops.com): how its offense and defense rank (EPA, success rate, sack and pressure rates, conversions, explosive plays, turnovers), what its defense gives up to receivers, tight ends, backs and quarterbacks, the schedule it has faced, its offensive line grade, and its roster in depth-chart order with snap shares and profile scores. Seasons from 1999.',
+        'One NFL team\'s season on NFL Savant (wcehoops.com): how its offense and defense rank (EPA, success rate, sack and pressure rates, conversions, explosive plays, turnovers), what its defense gives up to receivers, tight ends, backs and quarterbacks, the schedule it has faced, its offensive line grade, and its roster in depth-chart order with snap shares and profile scores. Seasons from 1999.',
       inputSchema: {
         team: z.string().trim().min(2).max(40).describe('Code ("BUF") or name ("Bills").'),
         season: z.string().trim().max(12).optional().describe('Year the season began. Omit for the latest.'),
@@ -524,7 +524,7 @@ export const tools = [
     config: {
       title: 'NFL player career',
       description:
-        'An NFL player\'s whole career on Football Savant (wcehoops.com): every stat pooled across his seasons and ranked among careers at his position, his team record, playoff seasons, Super Bowls, AP awards (MVP, Player and Rookie of the Year, All-Pro, Pro Bowls, Hall of Fame), the categories he led the NFL in, and his profile score season by season. Give a stat to also get it season by season with each season\'s percentile.',
+        'An NFL player\'s whole career on NFL Savant (wcehoops.com): every stat pooled across his seasons and ranked among careers at his position, his team record, playoff seasons, Super Bowls, AP awards (MVP, Player and Rookie of the Year, All-Pro, Pro Bowls, Hall of Fame), the categories he led the NFL in, and his profile score season by season. Give a stat to also get it season by season with each season\'s percentile.',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nfl_search_players or a full name.'),
         stat: z.string().trim().max(80).optional().describe('A stat key or label to follow season by season.'),

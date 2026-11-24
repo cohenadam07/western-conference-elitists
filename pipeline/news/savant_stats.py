@@ -1,6 +1,6 @@
 """Compute league percentiles for matched players from the Savant player universe.
 
-The player JSON stores raw stat values (the Basketball Savant page computes
+The player JSON stores raw stat values (the NBA Savant page computes
 percentiles client-side). For the WCE-line context we recompute a percentile
 for a curated headline set: rank each player's current-season value against
 every qualified player that season (n >= the metric's sample threshold),
@@ -68,7 +68,7 @@ class SavantStats:
         return max(1, min(99, pct))
 
     def rows_for_from_url(self, savant_url):
-        """Percentile rows for the player encoded in a /basketball-savant.html?p=<id> url."""
+        """Percentile rows for the player encoded in a /nba-savant?p=<id> url."""
         if not savant_url or "p=" not in savant_url:
             return []
         return self.rows_for(savant_url.split("p=", 1)[1])

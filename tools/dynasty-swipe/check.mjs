@@ -3,7 +3,7 @@
 //   npm run check:dynasty-swipe      (node --test tools/dynasty-swipe/check.mjs)
 //
 // 1. CARDS match Savant. Every number on a card is compared with the Savant API file it came
-//    from, so a card can never show a percentile the Basketball Savant page would not.
+//    from, so a card can never show a percentile the NBA Savant page would not.
 // 2. The DEALER only deals the mode you asked for, never repeats, honours "go again".
 // 3. A BATCH is accepted only as one unbroken chain through dealt cards.
 // 4. PRICING: a batch moves the market exactly as the same swipes would one at a time; a
@@ -73,14 +73,14 @@ test('card percentiles are the Savant API numbers, stat for stat', () => {
   assert.ok(checked > 600, `only ${checked} season summaries checked`)
 })
 
-test('rookie cards carry Draft Savant class percentiles, unchanged', () => {
+test('rookie cards carry NBA Draft Savant class percentiles, unchanged', () => {
   const dmeta = JSON.parse(readFileSync(path.join(DIST, 'savant-api/draft/v1/meta.json'), 'utf8'))
   const year = CARDS.draft.year
   assert.ok(dmeta.classes.some((c) => c.year === year))
   const cls = gz(path.join(DIST, `savant-api/draft/v1/classes/${year}.json.gz`))
   const rookies = Object.values(CARDS.players).filter((c) => c.r)
   const withDraft = rookies.filter((c) => c.d)
-  assert.equal(withDraft.length, rookies.length, 'a rookie without his Draft Savant card')
+  assert.equal(withDraft.length, rookies.length, 'a rookie without his NBA Draft Savant card')
   for (const c of withDraft) {
     const pr = cls.players.find((p) => p.pick === c.pk)
     for (const [, key] of DRAFT_SUMMARY) {

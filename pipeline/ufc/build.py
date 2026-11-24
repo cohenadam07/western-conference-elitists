@@ -5,7 +5,7 @@ UFC Savant — build public/ufc-savant-data.json (+ public/ufc-savant-fights.jso
 Reads the raw store written by scrape.py (and raw/headshots.json from headshots.py),
 walks every UFC fight in date order to compute an Elo rating, then aggregates each
 fighter's fights into three windows — career, last five, last three — and emits one
-metric row per window, in the same cfg + rows shape Football Savant's page consumes.
+metric row per window, in the same cfg + rows shape NFL Savant's page consumes.
 
 Percentiles are NOT computed here. The page computes them in the browser against whichever
 population the reader picks (division or everyone; active fighters or all-time), the same

@@ -72,6 +72,8 @@ export const SITE = 'https://wcehoops.com'
 export const BASE = 'savant-api/ufc/v1'
 export const SCHEMA = 1
 const PAGE = 'ufc-savant.html'
+// the page's address on the site (vercel.json serves the file above there)
+const ADDRESS = 'ufc-savant'
 const DATA = 'ufc-savant-data.json'
 
 // How many of a fighter's most recent fights a whole profile lists: the ones his "last 5"
@@ -523,10 +525,10 @@ export function buildUfcApi({ data, html }) {
     name: 'UFC Savant',
     by: 'Western Conference Elitists',
     site: SITE,
-    page: `${SITE}/${PAGE}`,
-    fighterUrl: `${SITE}/${PAGE}#f={id}&w={window}`,
-    matchupUrl: `${SITE}/${PAGE}#mu={a},{b}&w={window}`,
-    leaderboardUrl: `${SITE}/${PAGE}#lb=1`,
+    page: `${SITE}/${ADDRESS}`,
+    fighterUrl: `${SITE}/${ADDRESS}#f={id}&w={window}`,
+    matchupUrl: `${SITE}/${ADDRESS}#mu={a},{b}&w={window}`,
+    leaderboardUrl: `${SITE}/${ADDRESS}#lb=1`,
     matchupWindow: page.matchupWindow,
     generated: data.generated || null,
     earliest: fighters.map((e) => e.first).filter(Boolean).sort()[0] || null,

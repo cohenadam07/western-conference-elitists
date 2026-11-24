@@ -1,4 +1,4 @@
-// College Football Savant: the published files, the page and the connector, held to each other.
+// CFB Savant: the published files, the page and the connector, held to each other.
 //
 //   node --test tools/savant-cfb/check.mjs        (npm run check:savant-cfb; in check:savant)
 //
@@ -284,7 +284,7 @@ test('answers name the pool, the data date and a link; old defenders carry the w
   const edge = d.players.find((p) => p[C.slot] === 'EDGE' && p[C.qual]), qb = cur.players.find((p) => p[C.slot] === 'QB' && p[C.qual])
   const a = await call('cfb_get_player_profile', { player: String(edge[C.id]), season: 2018 })
   assert.equal(a.warning, reg.pre_box_warning)
-  assert.ok(a._text.includes(reg.pre_box_warning) && a._text.includes('college-football-savant.html#player-') && /2018 season, final/.test(a._text))
+  assert.ok(a._text.includes(reg.pre_box_warning) && a._text.includes('cfb-savant#player-') && /2018 season, final/.test(a._text))
   const hur = a.stats.find((x) => x.key === 'dl_hur')
   assert.deepEqual([hur.tracked, hur.value, hur.note], [false, null, 'not tracked before 2024'])
   const b = await call('cfb_get_player_profile', { player: String(qb[C.id]) })

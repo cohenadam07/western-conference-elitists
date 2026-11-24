@@ -34,17 +34,17 @@
         label: 'Basketball',
         items: [
           // the /player/<slug> pages are search landing pages, kept out of the menu on purpose;
-          // they count as Basketball Savant so the Basketball tab still lights up on them
-          { label: 'Basketball Savant', href: '/basketball-savant.html', match: ['/player'] },
-          { label: 'NBA Coaching Savant', href: '/basketball-coaching-savant.html' },
-          { label: 'College Basketball Savant', href: '/college-basketball-savant.html' },
-          { label: 'College Coaching Savant', href: '/college-basketball-coaching-savant.html' },
+          // they count as NBA Savant so the Basketball tab still lights up on them
+          { label: 'NBA Savant', href: '/nba-savant', match: ['/player'] },
+          { label: 'NBA Coaching Savant', href: '/nba-coaching-savant' },
+          { label: 'CBB Savant', href: '/cbb-savant' },
+          { label: 'CBB Coaching Savant', href: '/cbb-coaching-savant' },
         ],
       },
       {
         label: 'Draft',
         items: [
-          { label: 'Draft Savant', href: '/draft-savant.html' },
+          { label: 'NBA Draft Savant', href: '/nba-draft-savant' },
           { label: 'Big Board', href: '/rankings', spa: true },
           { label: 'Draft Hub', href: '/draft', spa: true },
         ],
@@ -52,12 +52,12 @@
       {
         label: 'Football',
         items: [
-          { label: 'Football Savant', href: '/football-savant.html', match: ['/game.html'] },
-          { label: 'NFL Coaching Savant', href: '/coaching-savant.html' },
-          { label: 'College Football Savant', href: '/college-football-savant.html' },
+          { label: 'NFL Savant', href: '/nfl-savant', match: ['/game.html'] },
+          { label: 'NFL Coaching Savant', href: '/nfl-coaching-savant' },
+          { label: 'CFB Savant', href: '/cfb-savant' },
         ],
       },
-      { label: 'UFC Savant', href: '/ufc-savant.html' },
+      { label: 'UFC Savant', href: '/ufc-savant' },
       { label: 'Dynasty', href: '/dynasty', spa: true },
       {
         label: 'Read',
@@ -92,12 +92,25 @@
     })
   }
 
-  // /basketball-savant and /basketball-savant.html are the same page (vercel.json redirects one
-  // to the other); /player and /player/ too.
+  // The Savant pages' old addresses, which are still their file names. vercel.json redirects
+  // each one to its new address, but a page opened straight from its file (a local preview)
+  // is still that page, so the right tab lights up either way.
+  var OLD = {
+    '/basketball-savant': '/nba-savant',
+    '/football-savant': '/nfl-savant',
+    '/coaching-savant': '/nfl-coaching-savant',
+    '/basketball-coaching-savant': '/nba-coaching-savant',
+    '/college-basketball-savant': '/cbb-savant',
+    '/college-basketball-coaching-savant': '/cbb-coaching-savant',
+    '/college-football-savant': '/cfb-savant',
+    '/draft-savant': '/nba-draft-savant',
+  }
+
+  // /ufc-savant and /ufc-savant.html are the same page; /player and /player/ too.
   function norm(p) {
     p = (p || '/').split('?')[0].split('#')[0].replace(/\.html$/, '')
     if (p.length > 1) p = p.replace(/\/+$/, '')
-    return p || '/'
+    return OLD[p] || p || '/'
   }
 
   // On this page: the item's own path, or one of its `match` paths, or anything beneath one.

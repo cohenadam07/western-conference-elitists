@@ -10,8 +10,8 @@ A hosted table (a GitHub release asset) only has the seasons a run built on its 
 rescan keeps the catalog's existing entry for any season it cannot see: a refresh of 2026
 updates 2026 and leaves 1999-2025 as they were.
 
-The six tables that were in the connector before the shared tool (Basketball Coaching Savant's,
-College Basketball Savant's and College Basketball Coaching Savant's) are counted from their own
+The six tables that were in the connector before the shared tool (NBA Coaching Savant's,
+CBB Savant's and CBB Coaching Savant's) are counted from their own
 site files, so the catalog speaks for every table savant_data can reach.
 """
 import gzip
@@ -39,9 +39,9 @@ LEGACY = {
             ('coaching_decisions', 'cbcs', 'decisions', 'coaching decision'), ('coaching_roster_moves', 'cbcs', 'roster_moves', 'roster move'),
             ('coaching_programs', 'cbcs', 'programs', 'program (every season in one table)')],
 }
-PAGES = {'nba': '/basketball-savant.html', 'nfl': '/football-savant.html', 'cfb': '/college-football-savant.html',
-         'ufc': '/ufc-savant.html', 'cbb': '/college-basketball-savant.html'}
-LEGACY_PAGES = {'bcs': '/basketball-coaching-savant.html', 'cbb': '/college-basketball-savant.html', 'cbcs': '/college-basketball-coaching-savant.html'}
+PAGES = {'nba': '/nba-savant', 'nfl': '/nfl-savant', 'cfb': '/cfb-savant',
+         'ufc': '/ufc-savant', 'cbb': '/cbb-savant'}
+LEGACY_PAGES = {'bcs': '/nba-coaching-savant', 'cbb': '/cbb-savant', 'cbcs': '/cbb-coaching-savant'}
 
 
 def _load(p):
@@ -101,7 +101,7 @@ def scan_legacy(src, t, current=None):
             if doc:
                 seasons[s] = {'rows': len(doc['rows']), 'through': _newest(doc)}
         return seasons
-    # College Basketball Savant: games by season; the rest per team-season, counted from the team files
+    # CBB Savant: games by season; the rest per team-season, counted from the team files
     idx = _load(os.path.join(SITE, 'cbb', 'index.json')) or {}
     for row in idx.get('seasons', []):
         s = row['season']

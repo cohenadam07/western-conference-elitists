@@ -1,4 +1,4 @@
-"""Base tables for the College Football Savant research run.
+"""Base tables for the CFB Savant research run.
 
     python -m pipeline.cfb.plays games        # one row per game, 2004-2026
     python -m pipeline.cfb.plays plays        # one slim row per play, per season

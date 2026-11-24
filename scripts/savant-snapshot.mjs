@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * savant-snapshot.mjs — save where every Basketball Savant player stands today.
+ * savant-snapshot.mjs — save where every NBA Savant player stands today.
  *
  *   npm run savant-snapshot              # writes data/savant-snapshots/<season>/<date>.json
  *   npm run savant-snapshot -- --force   # overwrite the snapshot for that date

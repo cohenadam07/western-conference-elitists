@@ -28,7 +28,7 @@ sys.path.insert(0, HERE)
 import cbbd_client as CC  # noqa: E402
 
 URL = "https://barttorvik.com/getadvstats.php?year={year}&csv=1"
-UA = "wcehoops.com College Basketball Savant (birthdates for age; weekly; contact keys@wcehoops.com)"
+UA = "wcehoops.com CBB Savant (birthdates for age; weekly; contact keys@wcehoops.com)"
 GAP = 10.0
 WEEK = 7 * 86400
 DIR = os.path.join(CC.HOME, "torvik")

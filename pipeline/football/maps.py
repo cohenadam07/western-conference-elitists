@@ -1,4 +1,4 @@
-"""Per-season field maps: the Football Savant answer to a shot chart.
+"""Per-season field maps: the NFL Savant answer to a shot chart.
 
 Two lattices, both straight out of the play-by-play aggregates:
 

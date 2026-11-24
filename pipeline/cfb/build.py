@@ -1,4 +1,4 @@
-"""College Football Savant: the build.
+"""CFB Savant: the build.
 
     python -m pipeline.cfb.build history      # the Mac: 2014-2025 site files, careers, search, honours, preseason extras
     python -m pipeline.cfb.build refresh      # the season being played, from ESPN (what the cloud runs every day)

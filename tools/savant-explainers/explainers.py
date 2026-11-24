@@ -1,5 +1,5 @@
 """
-The explainer behind every Basketball Savant stat: what it is, the formula, where the data
+The explainer behind every NBA Savant stat: what it is, the formula, where the data
 comes from, and how much sample it needs. Adam's rule (Oct 2026): every stat on the site,
 old and new, opens one of these when its name is clicked.
 
@@ -191,7 +191,7 @@ E = {
             source=f"{NBA} Synergy play types, 2015-16 on. The NBA publishes a player's play type only once he has 10 possessions of it, so early in a season a type he has run less than that is missing rather than zero. Synergy credits the finisher of a possession, not the man who set it up.",
             sample="Under 25 possessions in a play type a percentile is mostly noise, so in season it is withheld and the row is tagged small sample. The More columns view adds, per play type: eFG%, the share of possessions that scored, ended in a turnover, drew free throws, drew a shooting foul and ended in an and-one."),
  "ww": dict(what="With / without: what happens to his game when teammates you pick are or aren't there, for any teammates, several at once. Two ways of asking: the minutes he played with and without them on the floor, or the games they played and missed.",
-     formula="Minutes on the floor: every event and second of his season goes to the five-man unit on the floor, from the same stints as Basketball Coaching Savant, and the units with any of the picked teammates are summed against the rest. Games he missed: his whole games, split by whether any of them played. With and Without add up to his season with the team. Several teammates: Without means none of them. Rates are the card's; per-75 uses the possessions he was on the floor for. Net, offensive and defensive rating, pace and the four factors are his team's while he was on the floor.",
+     formula="Minutes on the floor: every event and second of his season goes to the five-man unit on the floor, from the same stints as NBA Coaching Savant, and the units with any of the picked teammates are summed against the rest. Games he missed: his whole games, split by whether any of them played. With and Without add up to his season with the team. Several teammates: Without means none of them. Rates are the card's; per-75 uses the possessions he was on the floor for. Net, offensive and defensive rating, pace and the four factors are his team's while he was on the floor.",
      source='ESPN play-by-play, 2002-03 on, with the box score keeping the totals. Regular season.',
      sample="A number is hatched when its side is under that stat's settle point. Team stats on the floor: 1,200 possessions for net rating, 660 offensive rating, 770 defensive rating, 180 pace, 700 to 1,400 for the four factors (odd games against even, 2013-14 to 2025-26)."),
  # ---- Inferred Defensive Role (bigs)

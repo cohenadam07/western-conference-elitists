@@ -153,7 +153,7 @@ const ALSO_KNOWN_EXACT = 90
 
 // First names people type against the first names a league files. Each line is one name
 // in its interchangeable forms, so "Patrick Surtain II" finds Pat Surtain II. Only the
-// first name is ever swapped. (The Football Savant page keeps the same list for its search
+// first name is ever swapped. (The NFL Savant page keeps the same list for its search
 // box; tools/savant-football/check.mjs holds the two together.)
 //
 // A name found this way is OFFERED, never opened. Tony Dorsett is not in the football data

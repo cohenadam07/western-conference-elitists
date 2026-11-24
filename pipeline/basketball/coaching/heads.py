@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Every coach's photo for every season he coached -> public/bcs/heads.json.
 
-Follows Football Savant's season-photo rules (pipeline/football/heads.py). What the NBA keeps
+Follows NFL Savant's season-photo rules (pipeline/football/heads.py). What the NBA keeps
 (found Oct 28, 2026):
 
   - cdn.nba.com/headshots/nba/<team id>/<start year>/<size>/<COACH_ID>.png: a photo of the

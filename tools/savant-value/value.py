@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Basketball Savant value — the number the All-Savant Team is picked on.
+"""NBA Savant value — the number the All-Savant Team is picked on.
 
 Points a player has added to his team this season above a replacement-level player at his
 position (guard, wing, big), on the stats that are his own and the possessions he played.
 
-Built in five steps, the same shape as Football Savant's award.py:
+Built in five steps, the same shape as NFL Savant's award.py:
 
   1. The job. Parts of a player's game, each measured by stats that are his:
      scoring (efficiency on his own attempts, how much of the offense he carries, where his

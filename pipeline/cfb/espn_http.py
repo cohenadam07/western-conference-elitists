@@ -48,7 +48,7 @@ PUBLISH_LOCK = os.path.expanduser("~/Basketball-Savant/logs/.publish.lock")
 
 
 def _yield_to_publish():
-    """Basketball Savant's Mac publish holds this lock directory; a pull waits for it (BUILD ground rule 8)."""
+    """NBA Savant's Mac publish holds this lock directory; a pull waits for it (BUILD ground rule 8)."""
     waited = 0
     while os.path.isdir(PUBLISH_LOCK) and waited < 3600:
         time.sleep(20)

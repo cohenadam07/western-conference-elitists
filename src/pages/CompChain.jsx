@@ -5,7 +5,7 @@ import { pickCelebration } from '../lib/celebrations.js'
 import { useLeaderboard } from '../lib/useLeaderboard.js'
 
 // Comp Chain — standalone game page (its own dark scoreboard look). Hop from a
-// random NBA player through his statistical comps (Basketball Savant) to reach the
+// random NBA player through his statistical comps (NBA Savant) to reach the
 // target in as few moves as possible. 3 comps per hop; targets drawn from the
 // start's reachable set at low par, so every round is solvable and short. Daily
 // mode is seeded by the date (same puzzle for everyone) with a shared leaderboard;
@@ -192,7 +192,7 @@ function Btn({ children, onClick, disabled, primary }) {
 
 /* ---------- page ---------- */
 export default function CompChain() {
-  usePageMeta('Comp Chain', 'Hop from one NBA player to another through their statistical comps — a daily game built on Basketball Savant data.')
+  usePageMeta('Comp Chain', 'Hop from one NBA player to another through their statistical comps — a daily game built on NBA Savant data.')
   const { adj, info, nodes } = useMemo(buildMaps, [])
   const reduceMotion = useMemo(() => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches, [])
 
@@ -345,7 +345,7 @@ export default function CompChain() {
       <div className="relative mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-14 lg:py-18" style={won && !reduceMotion ? { animation: 'cc-screenshake .5s .12s ease' } : undefined}>
         {/* header */}
         <div className="text-center">
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-[#c2a263] sm:text-[11px]">Basketball Savant · Game</span>
+          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-[#c2a263] sm:text-[11px]">NBA Savant · Game</span>
           <h1 className="mt-3 font-mono text-4xl font-bold uppercase tracking-tight text-white sm:text-6xl lg:text-7xl" style={{ textShadow: '0 0 40px rgba(194,162,99,0.35)' }}>Comp Chain</h1>
         </div>
 

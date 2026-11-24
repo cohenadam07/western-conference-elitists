@@ -1,5 +1,5 @@
 """
-Basketball Savant — data engine.
+NBA Savant — data engine.
 
 Usage:
   python savant_engine.py discover     # task zero: dump endpoint headers to verify FIELD_MAP

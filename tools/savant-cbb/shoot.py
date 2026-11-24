@@ -12,7 +12,7 @@ def run(p, name, w, h, mobile):
     errs = []
     pg.on("pageerror", lambda e: errs.append("pageerror: " + str(e)[:200]))
     pg.on("console", lambda m: errs.append("console: " + m.text[:200]) if m.type == "error" and "espncdn" not in m.text and "404" not in m.text else None)
-    pg.goto(BASE + "/college-basketball-savant.html", wait_until="networkidle")
+    pg.goto(BASE + "/cbb-savant", wait_until="networkidle")
     pg.wait_for_selector("h1")
     pid = pg.evaluate("""async()=>{const d=await (await fetch('/cbb/s/'+(await (await fetch('/cbb/index.json')).json()).default_season+'.json')).json();const a=d.players.filter(p=>p[11]);return [a[0][0],a[0][2],a[200][0]];}""")
     views = [("home", "#home"), ("player", f"#player-{pid[0]}"), ("player2", f"#player-{pid[2]}"), ("team", f"#team-{pid[1]}"), ("teams", "#teams"), ("leaders", "#leaders"), ("compare", "#compare")]

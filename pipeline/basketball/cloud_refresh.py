@@ -1,5 +1,5 @@
 """
-cloud_refresh.py — the Basketball Savant in-season refresh, run in the cloud (GitHub Actions).
+cloud_refresh.py — the NBA Savant in-season refresh, run in the cloud (GitHub Actions).
 
     python3 cloud_refresh.py [season] [--through YYYY-MM-DD] [--out DIR] [--public DIR]
 

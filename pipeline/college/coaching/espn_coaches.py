@@ -28,7 +28,7 @@ import espn_cbb as E  # noqa: E402
 
 OUT = os.environ.get("CBCS_OUT") or os.path.expanduser("~/Basketball-Savant/out/cbcs")
 ROOT = os.path.join(OUT, "espn-coaches")
-E.UA = {"User-Agent": "wcehoops.com College Basketball Coaching Savant (research)"}
+E.UA = {"User-Agent": "wcehoops.com CBB Coaching Savant (research)"}
 
 
 def _get_cached(path, url):

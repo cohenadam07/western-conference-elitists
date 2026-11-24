@@ -1,5 +1,5 @@
 """
-Basketball Savant — engine configuration.
+NBA Savant — engine configuration.
 
 This module is the single source of truth for:
   - which metrics exist and how they're displayed (METRICS),

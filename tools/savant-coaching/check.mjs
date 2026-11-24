@@ -1,4 +1,4 @@
-// Check for the Coaching Savant section of the AI connector: the files
+// Check for the NFL Coaching Savant section of the AI connector: the files
 // scripts/lib/savant-api-coaching.mjs writes, and the tools in api/_coaching.js that read them.
 //
 //   node --test tools/savant-coaching/check.mjs
@@ -811,7 +811,7 @@ test('a profile says what the files hold and what the page draws, for every coac
     const where = row.name
 
     assert.equal(s.coach.id, row.name)
-    assert.equal(s.url, `https://wcehoops.com/coaching-savant.html#c=${encodeURIComponent(row.name)}`)
+    assert.equal(s.url, `https://wcehoops.com/nfl-coaching-savant#c=${encodeURIComponent(row.name)}`)
     assert.ok(text.includes(s.url), `${where}: the text links his page`)
     for (const note of s.notes) assert.ok(text.includes(note), `${where}: a caveat is in the notes but not in the text: ${note.slice(0, 60)}`)
     assert.equal(new Set(s.notes).size, s.notes.length, `${where}: a caveat is repeated`)
@@ -1156,8 +1156,8 @@ test('the tree tool gives every coach in the forest his line and his whole branc
   // A man with no page is still in the tree; a play-caller the tree does not hold says so.
   const walsh = await run(treeTool, { coach: 'bill walsh' })
   assert.deepEqual([walsh.structured.coach.name, walsh.structured.coach.has_page, walsh.structured.coach.url], ['Bill Walsh', false, null])
-  await fails(treeTool, { coach: 'Greg Roman' }, /^Greg Roman is not in Coaching Savant's coaching tree: .*no lineage is recorded for him/)
-  await fails(treeTool, { coach: 'Qwertyuiop Asdfgh' }, /^Nobody in Coaching Savant's coaching tree matches "Qwertyuiop Asdfgh"/)
+  await fails(treeTool, { coach: 'Greg Roman' }, /^Greg Roman is not in NFL Coaching Savant's coaching tree: .*no lineage is recorded for him/)
+  await fails(treeTool, { coach: 'Qwertyuiop Asdfgh' }, /^Nobody in NFL Coaching Savant's coaching tree matches "Qwertyuiop Asdfgh"/)
   await fails(treeTool, { coach: 'Phillips' }, /^2 coaches in the tree match "Phillips"\. Call again with one of these names:\n- Bum Phillips/)
   await fails(treeTool, { coach: 'Bill Walch' }, /"Bill Walch" is not an exact match\. Call again with one of these names:\n- Bill Walsh/)
   const input = z.object(treeTool.config.inputSchema)
@@ -1220,12 +1220,12 @@ test('names are matched the way people type them', async () => {
   const h = people['Andy Reid'].hc
   assert.deepEqual(row, {
     id: 'Andy Reid', name: 'Andy Reid', roles: ['head coach', 'offence play-caller'], teams: h.teams, first_season: h.first, last_season: h.last,
-    head_coach_record: `${h.w}–${h.l}–${h.t}`, head_coach_seasons: h.seasons, url: 'https://wcehoops.com/coaching-savant.html#c=Andy%20Reid',
+    head_coach_record: `${h.w}–${h.l}–${h.t}`, head_coach_seasons: h.seasons, url: 'https://wcehoops.com/nfl-coaching-savant#c=Andy%20Reid',
   })
   const caller = (await run(search, { query: 'Greg Roman' })).structured.coaches[0]
   assert.deepEqual([caller.roles, caller.head_coach_record, caller.head_coach_seasons], [['offence play-caller'], null, null])
-  assert.equal(caller.url, 'https://wcehoops.com/coaching-savant.html#c=Greg%20Roman')
-  assert.equal((await run(search, { query: "O'Connell" })).structured.coaches[0].url, "https://wcehoops.com/coaching-savant.html#c=Kevin%20O'Connell")
+  assert.equal(caller.url, 'https://wcehoops.com/nfl-coaching-savant#c=Greg%20Roman')
+  assert.equal((await run(search, { query: "O'Connell" })).structured.coaches[0].url, "https://wcehoops.com/nfl-coaching-savant#c=Kevin%20O'Connell")
 
   const many = await run(search, { query: 'mike', limit: 5 })
   assert.equal(many.structured.count, 5)
@@ -1245,8 +1245,8 @@ test('names are matched the way people type them', async () => {
 test('impossible questions get an answer that says what to try', async () => {
   await fails(profile, { coach: 'Qwertyuiop Asdfgh' }, /No head coach or play-caller matches "Qwertyuiop Asdfgh".*nfl_search_coaches/)
   // In the tree, but with no page: said plainly, and never answered with a near namesake.
-  await fails(profile, { coach: 'Bill Walsh' }, [/Bill Walsh is named in Coaching Savant's hand-curated coaching tree but has no page of his own: he has no head-coaching record since 1999\./, /directly under him: .*Mike Holmgren/])
-  await fails(profile, { coach: 'jim johnson' }, /^Jim Johnson is named in Coaching Savant's hand-curated coaching tree but has no page/)
+  await fails(profile, { coach: 'Bill Walsh' }, [/Bill Walsh is named in NFL Coaching Savant's hand-curated coaching tree but has no page of his own: he has no head-coaching record since 1999\./, /directly under him: .*Mike Holmgren/])
+  await fails(profile, { coach: 'jim johnson' }, /^Jim Johnson is named in NFL Coaching Savant's hand-curated coaching tree but has no page/)
   assert.equal((await run(profile, { coach: 'Jimmy Johnson', group: 'lineage' })).structured.coach.name, 'Jimmy Johnson')
   await fails(profile, { coach: 'Mike' }, /coaches match "Mike"\. Call again with one of these names:\n- Mike /)
   await fails(profile, { coach: 'Andy Reid', season: 2017 }, /play-calling units for 2018 through \d{4}, not 2017/)
@@ -1295,14 +1295,14 @@ test('files are fetched once and reused; when the data is down the answer is hon
     core.clearCache()
     const real = served.units['2022']
     delete served.units['2022']
-    await fails(profile, { coach: 'Andy Reid', season: 2022 }, /Coaching Savant data could not be loaded right now\. Try again in a minute\./)
+    await fails(profile, { coach: 'Andy Reid', season: 2022 }, /NFL Coaching Savant data could not be loaded right now\. Try again in a minute\./)
     served.units['2022'] = real
 
     // The whole origin is unreachable.
     core.clearCache()
     process.env.SAVANT_API_ORIGIN = 'http://127.0.0.1:9'
-    await fails(search, { query: 'reid' }, /Coaching Savant data could not be loaded right now/)
-    await fails(profile, { coach: 'Andy Reid' }, /Coaching Savant data could not be loaded right now/)
+    await fails(search, { query: 'reid' }, /NFL Coaching Savant data could not be loaded right now/)
+    await fails(profile, { coach: 'Andy Reid' }, /NFL Coaching Savant data could not be loaded right now/)
     const down = await client.callTool({ name: 'nfl_search_coaches', arguments: { query: 'reid' } })
     assert.ok(down.isError)
     assert.doesNotMatch(textOfResult(down), /ECONNREFUSED|127\.0\.0\.1|at .*\.js/)

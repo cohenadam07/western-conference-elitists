@@ -1,5 +1,5 @@
 """
-nba_pulls.py — the Mac lane: every stats.nba.com table Basketball Coaching Savant needs that
+nba_pulls.py — the Mac lane: every stats.nba.com table NBA Coaching Savant needs that
 the cloud can't reach, pulled through the engine's own cache (savant_engine.call, cache/ under
 ~/Basketball-Savant), so a table is fetched once and reused by every build.
 

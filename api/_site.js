@@ -610,16 +610,16 @@ export async function getDynastyRankings({ limit = 25, player } = {}) {
 
 // ---- trending ------------------------------------------------------------------------
 
-// The "Trending now" chips on the Basketball Savant and Draft Savant home screens: the ids
+// The "Trending now" chips on the NBA Savant and NBA Draft Savant home screens: the ids
 // most picked from each page's home-screen search over the last seven days, read live from
 // the site's /api/trending, the same GET the pages make. The names come from those sections'
 // own files. When the counter is off the pages show their own picks instead; those are not
 // search counts, so this says the list is unavailable rather than pass them off as one.
-const bsFiles = makeLoader('savant-api/basketball/v1', { what: 'Basketball Savant', maxCached: 4 })
-const draftFiles = makeLoader('savant-api/draft/v1', { what: 'Draft Savant', maxCached: 4 })
+const bsFiles = makeLoader('savant-api/basketball/v1', { what: 'NBA Savant', maxCached: 4 })
+const draftFiles = makeLoader('savant-api/draft/v1', { what: 'NBA Draft Savant', maxCached: 4 })
 const TREND = {
-  players: { ns: 'bs', page: `${SITE}/basketball-savant.html`, what: 'Basketball Savant', who: 'players' },
-  prospects: { ns: 'dr', page: `${SITE}/draft-savant.html`, what: 'Draft Savant', who: 'prospects' },
+  players: { ns: 'bs', page: `${SITE}/nba-savant`, what: 'NBA Savant', who: 'players' },
+  prospects: { ns: 'dr', page: `${SITE}/nba-draft-savant`, what: 'NBA Draft Savant', who: 'prospects' },
 }
 // The pages draw six chips; /api/trending returns up to twelve.
 const TREND_CHIPS = 6
@@ -682,7 +682,7 @@ export async function getTrending({ section = 'both' } = {}) {
         trend: x.trend,
         weighted_searches: x.score,
         on_home_screen: i < TREND_CHIPS,
-        url: key === 'players' ? `${SITE}/basketball-savant.html?p=${encodeURIComponent(x.id)}` : t.page,
+        url: key === 'players' ? `${SITE}/nba-savant?p=${encodeURIComponent(x.id)}` : t.page,
       }
     })
     lists.push({ section: key, page: t.page, read_at: new Date(at).toISOString(), unknown_ids: top.length - known.length, items })
@@ -693,7 +693,7 @@ export async function getTrending({ section = 'both' } = {}) {
     'Trend compares the last 3 days with the 4 before, per day: rising at 30% more, cooling off at 30% less, steady otherwise or with fewer than 2 picks in the week.',
     `The home screens show the first ${TREND_CHIPS} of each list.`,
   ]
-  if (lists.some((l) => l.section === 'prospects' && l.items.length)) notes.push('Draft Savant has no link that opens one prospect, so a prospect links to the page.')
+  if (lists.some((l) => l.section === 'prospects' && l.items.length)) notes.push('NBA Draft Savant has no link that opens one prospect, so a prospect links to the page.')
   const structured = { section, lists, notes, source: SOURCE }
   const L = []
   for (const l of lists) {
@@ -983,7 +983,7 @@ export const tools = [
     config: {
       title: 'Get the WCE News page',
       description:
-        'The current items on the News page of Western Conference Elitists (wcehoops.com). It has two lists: "headlines", NBA and men\'s college basketball stories from other outlets, and "analytics", basketball research papers and long-form analytics articles. Each item has its title, the outlet that published it, the link to that outlet\'s story and its publication date. Headlines also name other outlets that covered the story and up to three players, with links to their Basketball Savant cards. Analytics items say whether they are a paper or an article and name up to four authors. The stories themselves are not included. The result states when the list was generated and how old it is: a scheduled job produces it, and it can be out of date.',
+        'The current items on the News page of Western Conference Elitists (wcehoops.com). It has two lists: "headlines", NBA and men\'s college basketball stories from other outlets, and "analytics", basketball research papers and long-form analytics articles. Each item has its title, the outlet that published it, the link to that outlet\'s story and its publication date. Headlines also name other outlets that covered the story and up to three players, with links to their NBA Savant cards. Analytics items say whether they are a paper or an article and name up to four authors. The stories themselves are not included. The result states when the list was generated and how old it is: a scheduled job produces it, and it can be out of date.',
       inputSchema: {
         section: z.enum(['headlines', 'analytics']).default('headlines').describe('"headlines" (default) for the stories list, "analytics" for the research and analytics list.'),
         start: z.number().int().min(1).max(200).default(1).describe('Position of the first item to return, counting from 1 in the page\'s order (default 1).'),
@@ -1003,7 +1003,7 @@ export const tools = [
           url: z.string().describe('Link to the story or paper at its publisher.'),
           published: z.string().nullable().describe('When the outlet published it.'),
           also_covered_by: z.array(z.string()).optional().describe('Headlines only: other outlets that ran the story.'),
-          players: z.array(z.object({ name: z.string(), url: z.string().describe('His Basketball Savant card.') })).optional().describe('Headlines only: up to three players named, as the page shows.'),
+          players: z.array(z.object({ name: z.string(), url: z.string().describe('His NBA Savant card.') })).optional().describe('Headlines only: up to three players named, as the page shows.'),
           type: z.string().optional().describe('Analytics only: Paper or Article.'),
           authors: z.array(z.string()).optional().describe('Analytics only: up to four authors, as the page shows.'),
           et_al: z.boolean().optional().describe('Analytics only: true when there are more authors than listed.'),
@@ -1169,9 +1169,9 @@ export const tools = [
     config: {
       title: 'Get the most-searched players and prospects on WCE',
       description:
-        'The most-searched players and prospects on Western Conference Elitists (wcehoops.com), read live: the ones picked most from the home-screen search of Basketball Savant (NBA players) and of Draft Savant (draft prospects) over the last seven days, recent days counting more, each with its name, link and whether it is rising, steady or cooling off. The home screens show the first six of each. It counts searches on the site, not anyone\'s play. When the site\'s counter is offline the result says so; no substitute list is given.',
+        'The most-searched players and prospects on Western Conference Elitists (wcehoops.com), read live: the ones picked most from the home-screen search of NBA Savant (NBA players) and of NBA Draft Savant (draft prospects) over the last seven days, recent days counting more, each with its name, link and whether it is rising, steady or cooling off. The home screens show the first six of each. It counts searches on the site, not anyone\'s play. When the site\'s counter is offline the result says so; no substitute list is given.',
       inputSchema: {
-        section: z.enum(['both', 'players', 'prospects']).default('both').describe('"players" (Basketball Savant), "prospects" (Draft Savant) or "both" (default).'),
+        section: z.enum(['both', 'players', 'prospects']).default('both').describe('"players" (NBA Savant), "prospects" (NBA Draft Savant) or "both" (default).'),
       },
       outputSchema: {
         section: z.string(),
@@ -1203,7 +1203,7 @@ export const tools = [
     config: {
       title: 'Get what\'s new on WCE',
       description:
-        'What is new on Western Conference Elitists (wcehoops.com), as the homepage banner shows it at the moment of asking: product updates (Basketball Savant, Football Savant, Flappy Hoops and the rest, with version numbers), new articles and the next UFC card, each with its date tag ("New" for the first three days) and link. Each kind stays up for its own number of days, as on the banner. The banner\'s YouTube uploads are not included.',
+        'What is new on Western Conference Elitists (wcehoops.com), as the homepage banner shows it at the moment of asking: product updates (NBA Savant, NFL Savant, Flappy Hoops and the rest, with version numbers), new articles and the next UFC card, each with its date tag ("New" for the first three days) and link. Each kind stays up for its own number of days, as on the banner. The banner\'s YouTube uploads are not included.',
       inputSchema: {},
       outputSchema: {
         as_of: z.string(),

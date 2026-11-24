@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """The coaching tree — hand-curated, because no open dataset records who assisted whom.
 
-Everything else in Coaching Savant is computed from nflverse. This file is not: it is
+Everything else in NFL Coaching Savant is computed from nflverse. This file is not: it is
 written down from the public record of who worked for whom, and it is the one part of the
 feature that can simply be wrong. It is deliberately a single flat, editable file so a
 correction is a one-line change.
@@ -22,7 +22,7 @@ firmly established.
 
 TREE_NOTE = (
     "Who coached under whom is not in any open dataset — this lineage is hand-curated from "
-    "the public record and is the one part of Coaching Savant that can be wrong. A tree "
+    "the public record and is the one part of NFL Coaching Savant that can be wrong. A tree "
     "allows one parent per coach, but a career has several; each man is placed under the "
     "coach he first coordinated for, with other major influences listed on his own page. "
     "A coach shown as a root is one whose mentor simply isn't recorded here."

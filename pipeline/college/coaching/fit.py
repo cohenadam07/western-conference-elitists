@@ -1,5 +1,5 @@
 """
-fit.py — system fit: the bridge to College Basketball Savant (spec §4 L, build step 9).
+fit.py — system fit: the bridge to CBB Savant (spec §4 L, build step 9).
 
     python3 fit.py              -> <CBCS_OUT>/fit-test.json, and the tables build.py publishes
 

@@ -1,5 +1,5 @@
 """
-config.py — the registry of every stat Basketball Coaching Savant ranks or shows: label, group,
+config.py — the registry of every stat NBA Coaching Savant ranks or shows: label, group,
 kind ("good": graded blue-to-red; "much": a tendency, shown neutral), unit, direction, settle
 point (the sample under which the bar is hatched), first season, and the explainer (what it
 is, how it is computed, where it comes from, what sample it needs). Nothing ships without an
@@ -21,7 +21,7 @@ TRK = "NBA.com player tracking (team tables), 2013-14 on"
 HUS = "NBA.com hustle stats (team), 2016-17 on"
 SYN = "NBA.com Synergy play types (team), 2015-16 on"
 BR = "Basketball-Reference"
-ARCH = "the Basketball Savant player archive (BPM as on each player's card)"
+ARCH = "the NBA Savant player archive (BPM as on each player's card)"
 MODEL = "The model's view, not a verdict: it cannot see fatigue, minor injuries, match-ups or development plans."
 
 
@@ -37,7 +37,7 @@ STATS = [
     S("adj_net", "Luck-adjusted net", "record", "good", "sgn1", False, 82, "2002-03", "Net rating with opponents' 3P% and FT% set to league average, the same adjustment the Teams tab makes.", "Net + 100 × (3 × (opp 3PM − opp 3PA × lg 3P%) + (opp FTM − opp FTA × lg FT%)) ÷ possessions", ESPN, "Hatched under 82 games."),
     S("w_talent", "Wins above talent", "record", "good", "sgn1", False, 82, "2003-04", "Wins per 82 games beyond what his roster's prior-season impact predicted, before he touched it.", "Actual wins − expected wins; expected from the talent line (expect.py), fitted out of sample", f"{ARCH}; the model in expect.py", "Hatched under 82 games."),
     S("w_market", "Wins above the market", "record", "good", "sgn1", False, 82, "1996-97", "Wins per 82 beyond the preseason win total the sportsbooks posted for his team.", "Actual wins (scaled to 82) − preseason over/under", f"{BR} preseason odds pages (each season's page is the source)", "Hatched under 82 games; blank where no win total was posted."),
-    S("w_spread", "Wins above the spread", "record", "good", "sgn1", False, 82, "2015-16", "Wins beyond what the closing spreads implied, game by game, added up (football Coaching Savant's method).", "Σ (won − P(win | closing spread)); P from the league's empirical curve", "ESPN's consensus closing line, 2015-16 on", "Hatched under 82 games with a line."),
+    S("w_spread", "Wins above the spread", "record", "good", "sgn1", False, 82, "2015-16", "Wins beyond what the closing spreads implied, game by game, added up (NFL Coaching Savant's method).", "Σ (won − P(win | closing spread)); P from the league's empirical curve", "ESPN's consensus closing line, 2015-16 on", "Hatched under 82 games with a line."),
     S("ats", "Against the spread", "record", "good", "pct1", False, 82, "2015-16", "How often his teams covered the closing spread.", "Covers ÷ (covers + losses against the spread)", "ESPN's consensus closing line, 2015-16 on", "Hatched under 82 games with a line."),
     S("close_pct", "Close-game win %", "record", "good", "pct1", False, 30, "1996-97", "Winning percentage in games decided by five or fewer. Mostly luck, which is why it is shown next to point differential.", "W ÷ G in games within 5", LOGS, "Hatched under 30 close games."),
     S("po_rate", "Playoff rate", "record", "good", "pct1", False, 3, "1946-47", "Share of his full seasons that reached the playoffs.", "Playoff seasons ÷ seasons", f"{BR} coach records", "Hatched under 3 seasons."),

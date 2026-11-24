@@ -1,5 +1,5 @@
 """
-freshness.py — are College Basketball Savant and College Basketball Coaching Savant as current as ESPN?
+freshness.py — are CBB Savant and CBB Coaching Savant as current as ESPN?
 
     python3 tools/savant-cbb/freshness.py --site https://wcehoops.com     the live site (the alarm)
     python3 tools/savant-cbb/freshness.py                                the repo's public/
@@ -9,11 +9,11 @@ The reference is ESPN itself, not our own heartbeat: every final of the season w
 both Division I (the core API's conference list, espn_cbb.conferences()) and that tipped more than
 --hours ago. Against it:
 
-  College Basketball Savant (cbb):   every one of those games is in cbb/games/<season>.json as a D1
+  CBB Savant (cbb):   every one of those games is in cbb/games/<season>.json as a D1
       game (non_d1 0), the newest of them is no later than the season file's `through` (the date of the
       player stats), and that file's D1 game count is ESPN's. Tolerance none: 2023-24, 2024-25 and
       2025-26 each match ESPN's D1 finals exactly (5,726, 5,764 and 5,752 games, 0 missing).
-  College Basketball Coaching Savant (cbcs):  the same games in cbcs/data/games/<season>.json and its
+  CBB Coaching Savant (cbcs):  the same games in cbcs/data/games/<season>.json and its
       `through` as new; tolerance 0.1% of the games (it lacked 3 of 5,726 in 2023-24 and 2024-25, 0 in
       2025-26: a game with no coach assigned).
 
@@ -116,12 +116,12 @@ def main():
         c = g["cols"]
         have = [r[c.index("gid")] for r in g["rows"] if not r[c.index("non_d1")]]
         through = load(f"cbb/s/{a.season}.json").get("through")
-        errs += compare("College Basketball Savant", want, have, through, 0, log)
+        errs += compare("CBB Savant", want, have, through, 0, log)
     if a.only in (None, "cbcs"):
         g = load(f"cbcs/data/games/{a.season}.json")
         c = g["cols"]
         have = {r[c.index("gid")] for r in g["rows"]}
-        errs += compare("College Basketball Coaching Savant", want, have, g.get("through"), CBCS_TOLERANCE, log)
+        errs += compare("CBB Coaching Savant", want, have, g.get("through"), CBCS_TOLERANCE, log)
     for e in errs:
         print(f"::error::{e}")
     return 1 if errs else 0

@@ -1,5 +1,5 @@
 
-// ============================================================================ College Basketball Coaching Savant
+// ============================================================================ CBB Coaching Savant
 // The NBA page's functions above stay as the shared shell; everything below redefines the ones that
 // differ in college (a later function declaration wins), and adds the four college-only sections:
 // roster building, the NCAA Tournament against the seed, resources and similar players.
@@ -7,7 +7,7 @@
 
 const CUR = () => IDX.meta.current;
 const tAbbr = k => IDX.teams[k]?.abbr || IDX.teams[k]?.name || k;
-const teamLink = (k, season, label) => k ? `<a class="tl2" href="${CBB}#team-${k}/${season || curSeason()}" title="the team on College Basketball Savant">${esc(label || teamName(k))}</a>` : '—';
+const teamLink = (k, season, label) => k ? `<a class="tl2" href="${CBB}#team-${k}/${season || curSeason()}" title="the team on CBB Savant">${esc(label || teamName(k))}</a>` : '—';
 const GQ = {record: 'does he beat the roster he was given?', rotation: 'who plays, and does he stick to it?', management: 'timeouts, challenges, the clock', offense: 'what his teams hunt', defense: 'what they take away',
   development: 'do players get better under him?', roster: 'how he builds it, and do the additions hit?', tournament: 'March, measured fairly', resources: 'with money, or without it', context: 'where the margin moves'};
 const SRC_L = {returning: 'returning', transfer: 'D1 transfers', hs: 'high-school freshmen', juco: 'JUCO or non-D1', intl: 'international'};
@@ -17,7 +17,7 @@ const SRC_C = {returning: '#22395A', transfer: '#BC3A2C', hs: '#C2A263', juco: '
 function renderHome(){
   const m = IDX.meta, hc = IDX.coaches.filter(c => c.hc);
   document.getElementById('homeintro').innerHTML = `<h2 class="col-h">Every men's D1 head coach, judged from the floor up</h2><p class="since">${hc.length.toLocaleString()} head coaches on record · ${IDX.coaches.filter(c => c.g).length.toLocaleString()} with games since ${m.rules.stats_from} · a pool of ${m.rules.career_pool} ranked careers · data through ${m.through || m.generated.slice(0, 10)}</p>
-    <p class="small" style="max-width:760px">Wins against the roster he was handed, read from last season before he coached it. Whether players get better under him, by class year and starting level. How he builds a roster: the portal, high school, retention. When each man plays and how often he goes off script. Timeouts that stop runs, or don't. March against the seed. Spending, from the Department of Education. Records and the coaching tree as far back as the sources go. Start with a name above, or a trending coach. Paired with <a href="${CBB}">College Basketball Savant</a>.</p>`;
+    <p class="small" style="max-width:760px">Wins against the roster he was handed, read from last season before he coached it. Whether players get better under him, by class year and starting level. How he builds a roster: the portal, high school, retention. When each man plays and how often he goes off script. Timeouts that stop runs, or don't. March against the seed. Spending, from the Department of Education. Records and the coaching tree as far back as the sources go. Start with a name above, or a trending coach. Paired with <a href="${CBB}">CBB Savant</a>.</p>`;
   document.getElementById('lead-since').textContent = `career boards: head coaches with ${m.rules.min_career_seasons}+ seasons and ${m.rules.min_career_games}+ games from ${m.rules.stats_from}; this season: ${m.current}, provisional until ${m.rules.min_live_games} games`;
   renderLeaders();
   renderTrends();
@@ -31,7 +31,7 @@ function renderHome(){
     <p><b>The roster model is the headline.</b> Each returning player's Savant rate and role last season, each transfer's at his old school plus a level-jump term fitted on 2021-on portal moves, each freshman's recruit rank, summed into an expected net and expected wins against the schedule actually played. Out of sample it missed team net by ${t.vs_last?.ours_rmse?.toFixed(2) ?? '—'} points per 100 against ${t.vs_last?.baseline_rmse?.toFixed(2) ?? '—'} for last season's net (${(t.vs_last?.n || 0).toLocaleString()} team-seasons), and by ${t.vs_ap?.ours_rmse?.toFixed(2) ?? '—'} against ${t.vs_ap?.baseline_rmse?.toFixed(2) ?? '—'} for the preseason AP rank on ranked teams (${t.vs_ap?.n ?? '—'}): ${t.headline ? 'it beat both, so it is the baseline' : 'it did not beat both'}. The AP poll is context only. The market (the spread, 2013-14 on) is the third lens.</p>
     <p><b>The Rotation Map</b> (2023-24 on, where College Savant's lineup gate passes) shows, for every man with 60 minutes under a coach (2 a game until a season has 30), the share of games he was on the floor in each of the 40 minutes. His usual windows are where that share is 60% or better, outlined from his 8th lineup game of a season (before that about two in five outlined minutes would not hold to the season's end). Each off-script minute gets the first cause that fits: absence, blowout (College Savant's safe-lead rule), foul trouble (a 2nd foul in the first half; a 4th with 8:00 or more left), then choice. ${esc(m.model_note)}</p>
     <p><b>Lineups judged from their parts</b> use each five's Savant rates. Tested where the rates cannot see the games (last season's rates, odd games fit, even games scored), the projection's error was ${p.rmse_projection?.toFixed(2) ?? '—'} against ${p.rmse_team_net?.toFixed(2) ?? '—'} for the team's own net: ${p.validated ? 'validated' : 'not a real gain, so everything built on it is shown as unvalidated'}. <b>System fit</b> was tested on ${(f.n || 0).toLocaleString()} transfers: ${f.ships_as === 'fit score' ? 'it predicted their change, so it is a fit score' : 'it did not predict their change better than the roster model, so it is shown only as similar players under him'}.</p>
-    <p class="k">${esc(m.credit)} Spending: the U.S. Department of Education's Equity in Athletics data. Player numbers: College Basketball Savant.</p>`;
+    <p class="k">${esc(m.credit)} Spending: the U.S. Department of Education's Equity in Athletics data. Player numbers: CBB Savant.</p>`;
 }
 function renderTrends(){
   const el = document.getElementById('trends');
@@ -74,7 +74,7 @@ async function openCoach(id, hash){
   state.game = null; state.kind = 'RS';
   renderCoach();
   if (!m) window.scrollTo(0, 0);
-  document.title = `${COACH.name} — College Basketball Coaching Savant`;
+  document.title = `${COACH.name} — CBB Coaching Savant`;
   document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.id === id));
 }
 function pickSeason(season){
@@ -133,7 +133,7 @@ function renderIdentity(sr){
   if (b.born) bits.push(`born ${b.born}${b.birthplace ? ', ' + esc(b.birthplace) : ''}`);
   if (b.age_first_hc) bits.push(`first D1 head job at <b>${b.age_first_hc}</b>`);
   if (b.assistant_seasons_before) bits.push(`${b.assistant_seasons_before} season${b.assistant_seasons_before === 1 ? '' : 's'} on D1 staffs before it`);
-  if (b.nba) bits.push(`<a href="/basketball-coaching-savant.html#c=${encodeURIComponent(b.nba)}">his NBA page on Basketball Coaching Savant ↗</a>`);
+  if (b.nba) bits.push(`<a href="/nba-coaching-savant#c=${encodeURIComponent(b.nba)}">his NBA page on NBA Coaching Savant ↗</a>`);
   if (b.wiki_url) bits.push(`<a href="${esc(b.wiki_url)}" rel="noopener">Wikipedia ↗</a>`);
   const teams = [...new Set(c.stints.map(s => s.team))];
   const stat = (v, l, tip) => `<span class="st"${tip ? tipAttr(tip) : ''}><b>${v}</b> ${l}</span>`;
@@ -614,7 +614,7 @@ function renderStaff(sr){
       ${L.also?.length ? `<div class="small" style="margin-top:4px">Also shaped by: ${L.also.map(a => `${coachLink(a[0], a[1])} (${a[2]} season${a[2] === 1 ? '' : 's'})`).join(', ')}</div>` : ''}
       ${L.later?.length ? `<div class="small" style="margin-top:4px">On a staff after he had been a head coach (a job, not an apprenticeship): ${L.later.map(u => `${coachLink(u[0], u[1])} (${u[2]})`).join(', ')}</div>` : ''}
       ${L.kids?.length ? `<div class="small" style="margin-top:8px"><b>Head coaches off his staff:</b> ${L.kids.map(k => coachLink(k[0], k[1])).join(', ')}</div>` : ''}
-      ${COACH.bio?.nba ? `<div class="small" style="margin-top:8px">He was also an NBA head coach: <a href="/basketball-coaching-savant.html#c=${encodeURIComponent(COACH.bio.nba)}">Basketball Coaching Savant ↗</a></div>` : ''}
+      ${COACH.bio?.nba ? `<div class="small" style="margin-top:8px">He was also an NBA head coach: <a href="/nba-coaching-savant#c=${encodeURIComponent(COACH.bio.nba)}">NBA Coaching Savant ↗</a></div>` : ''}
       <div class="small" style="margin-top:8px"><a href="#tree=${COACH.id}">See him in the tree ↗</a></div>
       ${assist.length ? `<h3 class="lead-h" style="margin-top:14px">His own stints as an assistant</h3><div class="scroll"><table class="t"><thead><tr><th>season</th><th>team</th><th>head coach</th><th>source</th></tr></thead><tbody>${assist.map(a => `<tr${first && a.season >= first ? ' style="color:var(--faint)"' : ''}><td>${a.season}</td><td>${esc(tAbbr(a.team))}</td><td style="text-align:left;font-family:var(--body)">${(a.heads || []).map(h => coachLink(h, nodes[h]?.name || h)).join(', ') || '—'}</td><td>${a.src === 'infobox' ? 'team-season article' : 'biography'}</td></tr>`).join('')}</tbody></table></div>` : ''}</div>
     <div><h3 class="lead-h">Staff room</h3>${seasons.length ? seasons.slice().reverse().map(s => `<div class="staff" style="margin:4px 0"><b>${s.season} ${esc(tAbbr(s.team))}</b>: ${s.staff.map(a => a.id ? coachLink(a.id, a.name) : wl(a.name, a.wiki)).join(', ')} <span class="small"><a href="${esc(s.staff[0].src)}" rel="noopener">source ↗</a></span></div>`).join('') : '<div class="empty">no staff recorded for ' + (sr ? sr.season : 'his seasons') + '</div>'}

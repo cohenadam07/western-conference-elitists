@@ -1,6 +1,6 @@
 // Weekly percentile snapshots, and the "biggest movers" newsletter draft built from two of them.
 //
-// Basketball Savant's data file only ever holds the season to date, so "who moved this week"
+// NBA Savant's data file only ever holds the season to date, so "who moved this week"
 // can't be read from it: last week's numbers are gone the moment the nightly refresh lands.
 // scripts/savant-snapshot.mjs therefore saves a small copy of where every player stands once a
 // week (data/savant-snapshots/<season>/<date>.json, in git, not deployed), and
@@ -117,10 +117,10 @@ export function moversDraft(r, { site }) {
   const lead = r.risers[0] || r.fallers[0]
   return {
     subject: `The Weekly Board: ${lead.name} ${lead.delta > 0 ? 'climbs' : 'drops'} ${Math.abs(lead.delta)} percentile points in ${lead.label}`,
-    description: `The biggest percentile movers on Basketball Savant, ${day(r.from)} to ${day(r.to)}.`,
+    description: `The biggest percentile movers on NBA Savant, ${day(r.from)} to ${day(r.to)}.`,
     body: [
       '<p>[Your intro. A sentence or two on the week, and which of these moves you believe.]</p>',
-      `<p><em>Biggest percentile moves on Basketball Savant between ${day(r.from)} and ${day(r.to)} (${r.season}). Each percentile ranks the player against every qualified player this season; each player is listed once, under his largest change.</em></p>`,
+      `<p><em>Biggest percentile moves on NBA Savant between ${day(r.from)} and ${day(r.to)} (${r.season}). Each percentile ranks the player against every qualified player this season; each player is listed once, under his largest change.</em></p>`,
       section('Risers', r.risers),
       section('Fallers', r.fallers),
       `<hr />\n<p>Every player’s full profile is at <a href="${site}/player?${UTM}">wcehoops.com/player</a>. Forwarded this? <a href="${site}/newsletter?${UTM}">Subscribe here</a>.</p>`,

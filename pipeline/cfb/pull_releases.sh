@@ -1,5 +1,5 @@
 #!/bin/bash
-# College Football Savant research: download the sportsdataverse-data release files.
+# CFB Savant research: download the sportsdataverse-data release files.
 # No key, no quota. Parquet only. Raw files live OUTSIDE the repo and never go in git.
 #   bash pipeline/cfb/pull_releases.sh            # everything the backtest reads
 set -u

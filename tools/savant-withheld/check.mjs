@@ -1,4 +1,4 @@
-// tools/savant-withheld/check.mjs — Basketball Savant 2.7.1: withheld stats say why, Synergy ids
+// tools/savant-withheld/check.mjs — NBA Savant 2.7.1: withheld stats say why, Synergy ids
 // filed wrong are matched by name, players the Synergy feed leaves out are labelled.
 //
 //   node --test tools/savant-withheld/check.mjs      (part of npm run check:savant)

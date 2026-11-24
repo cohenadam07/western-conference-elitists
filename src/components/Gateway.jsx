@@ -78,8 +78,8 @@ export default function Gateway() {
           </header>
 
           <div className="grid">
-            {/* Basketball Savant */}
-            <a className="card c-savant span2" href="/basketball-savant.html">
+            {/* NBA Savant */}
+            <a className="card c-savant span2" href="/nba-savant">
               <Skeleton />
               <div className="viz">
                 <div className="bars">
@@ -91,14 +91,14 @@ export default function Gateway() {
               </div>
               <div className="meta">
                 <span className="ck">Tool · Analytics</span>
-                <h3>Basketball Savant</h3>
+                <h3>NBA Savant</h3>
                 <p>Every player, every season back to 1979-80 — percentile sliders, shot charts, and comps.</p>
                 <span className="go">Open ↗</span>
               </div>
             </a>
 
-            {/* Draft Savant */}
-            <a className="card c-draft span2" href="/draft-savant.html">
+            {/* NBA Draft Savant */}
+            <a className="card c-draft span2" href="/nba-draft-savant">
               <Skeleton />
               <div className="viz">
                 <div className="rows">
@@ -109,16 +109,16 @@ export default function Gateway() {
               </div>
               <div className="meta">
                 <span className="ck">Tool · Draft</span>
-                <h3>Draft Savant</h3>
+                <h3>NBA Draft Savant</h3>
                 <p>Prospect models and the full board, every class back to 2010.</p>
                 <span className="go">Open ↗</span>
               </div>
             </a>
 
-            {/* Football Savant — the NFL sibling of the tool above. Its own palette on
+            {/* NFL Savant — the NFL sibling of the tool above. Its own palette on
                 purpose: this card is the one place on a paper-white site that shows the
                 film-room ground the tool actually lives on. */}
-            <a className="card c-fball span2" href="/football-savant.html">
+            <a className="card c-fball span2" href="/nfl-savant">
               <Skeleton />
               <div className="viz">
                 <svg className="field" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -147,7 +147,7 @@ export default function Gateway() {
               </div>
               <div className="meta">
                 <span className="ck">Tool · Analytics</span>
-                <h3>Football Savant</h3>
+                <h3>NFL Savant</h3>
                 <p>Every NFL player back to 1999, ranked against the men who play his position — with throw maps, run-gap maps and comps.</p>
                 <span className="go">Open ↗</span>
               </div>
@@ -155,7 +155,7 @@ export default function Gateway() {
 
             {/* UFC Savant — the arena at fight time: near-black, one red, one gold. The card
                 shows the red-to-gold bar the tool is built on. */}
-            <a className="card c-ufc span2" href="/ufc-savant.html">
+            <a className="card c-ufc span2" href="/ufc-savant">
               <Skeleton />
               <div className="viz">
                 <svg className="cage" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -240,8 +240,8 @@ export default function Gateway() {
               </div>
             </a>
 
-            {/* College Basketball Savant — the percentile bar is the thing worth showing on the card */}
-            <a className="card c-coach span2" href="/college-basketball-savant.html">
+            {/* CBB Savant — the percentile bar is the thing worth showing on the card */}
+            <a className="card c-coach span2" href="/cbb-savant">
               <Skeleton />
               <div className="viz">
                 <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -256,14 +256,14 @@ export default function Gateway() {
               </div>
               <div className="meta">
                 <span className="ck">Tool · College basketball</span>
-                <h3>College Basketball Savant</h3>
+                <h3>CBB Savant</h3>
                 <p>Every men's Division I player on percentile bars: adjusted for opponents, ranked at their position, with RAPM, shot zones, lineups and team ratings, refreshed after every night of games.</p>
                 <span className="go">Open ↗</span>
               </div>
             </a>
 
-            {/* College Football Savant — the sticker look: a navy field, a white card with a hard shadow, three bars */}
-            <a className="card c-coach span2" href="/college-football-savant.html">
+            {/* CFB Savant — the sticker look: a navy field, a white card with a hard shadow, three bars */}
+            <a className="card c-coach span2" href="/cfb-savant">
               <Skeleton />
               <div className="viz">
                 <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -282,14 +282,14 @@ export default function Gateway() {
               </div>
               <div className="meta">
                 <span className="ck">Tool · College football</span>
-                <h3>College Football Savant</h3>
+                <h3>CFB Savant</h3>
                 <p>Every FBS player and team since 2009: opponent-adjusted percentiles by position, an All-Savant team lined up at the snap, and an objective 12-team playoff field with odds.</p>
                 <span className="go">Open ↗</span>
               </div>
             </a>
 
-            {/* College Basketball Coaching Savant — half of a tournament region, one coach's run to the Final Four in gold */}
-            <a className="card c-coach span2" href="/college-basketball-coaching-savant.html">
+            {/* CBB Coaching Savant — half of a tournament region, one coach's run to the Final Four in gold */}
+            <a className="card c-coach span2" href="/cbb-coaching-savant">
               <Skeleton />
               <div className="viz">
                 <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -328,14 +328,14 @@ export default function Gateway() {
               </div>
               <div className="meta">
                 <span className="ck">Tool · College coaching</span>
-                <h3>College Basketball Coaching Savant</h3>
+                <h3>CBB Coaching Savant</h3>
                 <p>Every men's D1 head coach: wins against the roster he was given, whether players get better under him, how he builds through the portal, the Rotation Map, March against the seed, and who won without money.</p>
                 <span className="go">Open ↗</span>
               </div>
             </a>
 
-            {/* Basketball Coaching Savant — the Rotation Map is the thing worth showing on the card */}
-            <a className="card c-coach span2" href="/basketball-coaching-savant.html">
+            {/* NBA Coaching Savant — the Rotation Map is the thing worth showing on the card */}
+            <a className="card c-coach span2" href="/nba-coaching-savant">
               <Skeleton />
               <div className="viz">
                 <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -357,14 +357,14 @@ export default function Gateway() {
               </div>
               <div className="meta">
                 <span className="ck">Tool · NBA coaching</span>
-                <h3>Basketball Coaching Savant</h3>
+                <h3>NBA Coaching Savant</h3>
                 <p>Every NBA head coach: when each player plays and how often the coach goes off-script, lineups judged from their parts, timeouts that stop runs, and wins against two expectations.</p>
                 <span className="go">Open ↗</span>
               </div>
             </a>
 
-            {/* Coaching Savant — the tree is the thing worth showing on the card */}
-            <a className="card c-coach span2" href="/coaching-savant.html">
+            {/* NFL Coaching Savant — the tree is the thing worth showing on the card */}
+            <a className="card c-coach span2" href="/nfl-coaching-savant">
               <Skeleton />
               <div className="viz">
                 <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -399,7 +399,7 @@ export default function Gateway() {
               </div>
               <div className="meta">
                 <span className="ck">Tool · Coaching</span>
-                <h3>Coaching Savant</h3>
+                <h3>NFL Coaching Savant</h3>
                 <p>Every head coach since 1999 — records, playoff history, what they called, and a coaching tree drawn back to Paul Brown.</p>
                 <span className="go">Open ↗</span>
               </div>

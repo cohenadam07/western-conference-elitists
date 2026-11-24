@@ -1,4 +1,4 @@
-// api/_cfb.js — College Football Savant, as answers. One section of the AI connector (api/mcp.js).
+// api/_cfb.js — CFB Savant, as answers. One section of the AI connector (api/mcp.js).
 //
 // It reads the page's own files under /cfb/ (pipeline/cfb/site.py) and does its arithmetic with
 // public/savant-cfb.js, the same copy the page runs, so an answer is the number on the card.
@@ -17,8 +17,8 @@ import '../public/savant-cfb.js'
 
 const M = globalThis.SavantCFB
 const C = M.COL, T = M.TCOL, SC = M.SCOL
-const files = makeLoader('cfb', { what: 'College Football Savant', maxCached: 60, shape: (b) => b && typeof b === 'object' && (b.stats || b.seasons || b.players || b.teams || b.roster || b.rows || b.field || b.national || Object.keys(b).length) })
-const PAGE = `${SITE}/college-football-savant.html`
+const files = makeLoader('cfb', { what: 'CFB Savant', maxCached: 60, shape: (b) => b && typeof b === 'object' && (b.stats || b.seasons || b.players || b.teams || b.roster || b.rows || b.field || b.national || Object.keys(b).length) })
+const PAGE = `${SITE}/cfb-savant`
 export const POOLS = ['position', 'power_4', 'conference']
 const POOLKEY = { position: 'pos', power_4: 'p4', conference: 'conf' }
 export const SETS = ['first', 'second', 'third', 'conference', 'freshman']
@@ -39,7 +39,7 @@ async function pickSeason(season) {
   const idx = await index()
   const s = season || idx.current
   const row = idx.seasons.find((x) => x.season === s)
-  if (!row) throw new SavantError(`College Football Savant has ${idx.first_season} to ${idx.current} except ${Object.keys(idx.not_on_site || {}).filter((y) => +y >= idx.first_season).join(', ') || 'none'}. ${s} is not on file${(idx.not_on_site || {})[s] ? `: ${idx.not_on_site[s]}` : ''}.`)
+  if (!row) throw new SavantError(`CFB Savant has ${idx.first_season} to ${idx.current} except ${Object.keys(idx.not_on_site || {}).filter((y) => +y >= idx.first_season).join(', ') || 'none'}. ${s} is not on file${(idx.not_on_site || {})[s] ? `: ${idx.not_on_site[s]}` : ''}.`)
   return { s, idx, row }
 }
 // The warning a defender (or a list of defenders) carries in a season, or null.
@@ -99,7 +99,7 @@ function bioOf(P, S) {
     hometown: b.city ? `${b.city}${b.state ? `, ${b.state}` : ''}` : null,
     recruit: b.recruit ? { stars: b.recruit[0], class_rank: b.recruit[1], class_year: b.recruit[2], source: 'stars and national class rank from CollegeFootballData\'s composite' } : null,
     schools, transfers: schools.filter((x) => x.transferred_in).map((x) => `to ${x.team} in ${x.season}`),
-    nfl: b.nfl ? { football_savant_id: b.nfl[0], url: `${SITE}/football-savant.html#p=${encodeURIComponent(b.nfl[0])}${b.nfl[1] ? `&s=${b.nfl[1]}` : ''}` } : null,
+    nfl: b.nfl ? { football_savant_id: b.nfl[0], url: `${SITE}/nfl-savant#p=${encodeURIComponent(b.nfl[0])}${b.nfl[1] ? `&s=${b.nfl[1]}` : ''}` } : null,
   }
 }
 function standingOf(A, id) {
@@ -383,7 +383,7 @@ async function nflComps({ player }) {
   for (const c of comps) lines.push(`${c.name} (${c.final_college_season}): ${c.drafted ? (c.drafted.undrafted ? `undrafted ${c.drafted.year}` : `round ${c.drafted.round}, pick ${c.drafted.pick}, ${c.drafted.year}`) : 'undrafted'}; ${c.nfl_seasons} NFL seasons${c.nfl_value_per_season != null ? `, ${sg(c.nfl_value_per_season)} NFL Savant value per season` : ''}`)
   if (show && vals.length) lines.push(`Comp average: ${sg(vals.reduce((a, b) => a + b, 0) / vals.length)} per season. Tested on ${N.test.players} NFL players' 2014-2021 college finals: rank correlation ${N.test.spearman.toFixed(2)} with their own NFL value.`)
   else lines.push('NFL outcome averages are not shown: on 2014-2021 college finals they did not track the player\'s own at his position.')
-  if (combine) lines.push(`His NFL combine (Football Savant): ${Object.entries(combine).map(([k, v]) => `${k} ${v}`).join(', ')}.`)
+  if (combine) lines.push(`His NFL combine (NFL Savant): ${Object.entries(combine).map(([k, v]) => `${k} ${v}`).join(', ')}.`)
   return { text: lines.join('\n'), structured: { player: { id: p.id, name: p.name }, profile_season: me.season, label: 'comparison, not a projection', comps, comp_average: show && vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null, test: N.test, combine, url: playerUrl(p.id, me.season, idx.current) } }
 }
 
@@ -397,11 +397,11 @@ const opts = { pool: z.enum(POOLS).default('position').describe('Percentile pool
 const tool = (name, title, description, inputSchema, outputSchema, run) => ({ name, config: { title, description, inputSchema, outputSchema, annotations: { title, ...READ_ONLY } }, run })
 
 export const tools = [
-  tool('cfb_search_players', 'Search college football players', 'Find FBS players in College Football Savant (wcehoops.com) by name, 2009 on (2013 is not on the site). Tolerates accents and small typos.', { query: z.string().trim().min(2).max(80).describe('Player name or part of one.'), limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.') }, { query: z.string(), total: z.number(), count: z.number(), players: z.array(open) }, searchPlayers),
+  tool('cfb_search_players', 'Search college football players', 'Find FBS players in CFB Savant (wcehoops.com) by name, 2009 on (2013 is not on the site). Tolerates accents and small typos.', { query: z.string().trim().min(2).max(80).describe('Player name or part of one.'), limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.') }, { query: z.string(), total: z.number(), count: z.number(), players: z.array(open) }, searchPlayers),
   tool('cfb_get_player_profile', 'Get a college football player\'s Savant profile', 'One FBS player-season: percentile bars by card group against his position, each with pool, sample and settle estimate; profile score, Savant value, recruiting, transfers, honours, nearest and weakness comps. Seasons are never pooled.', { player: who, season, ...opts, group: z.string().max(30).default('all').describe('A card group, or all.') }, { player: open, season: z.number(), final: z.boolean(), data_through: z.string(), pool: open, stats: z.array(open), returner: open.nullable(), profile_score: z.number().nullable(), weakness_comps: z.array(open), production_vs_pedigree: open.nullable(), savant_value: open.nullable(), honours: z.array(z.string()), comparable_players: z.array(open), warning: z.string().nullable(), url: z.string() }, profile),
   tool('cfb_player_career', 'Get a college football player\'s career', 'Every season on file across schools since 2009, transfers marked, with Savant value, rank at his position each season and his totals.', { player: who }, { player: open, seasons: z.array(open), url: z.string() }, playerCareer),
   tool('cfb_player_splits', 'Get a college football player\'s splits', 'Home, road and neutral; conference and non-conference; against our top 25; by month; and the game log with opponents and results.', { player: who, season }, { player: open, season: z.number(), data_through: z.string(), splits: z.array(open), games: z.array(open), url: z.string() }, playerSplits),
-  tool('cfb_leaderboard', 'College Football Savant leaders', 'Leaders in any stat, or in Savant value, for a season: by position, pool, conference and sample. Stat keys are in each profile\'s stats (e.g. qb_epa_db); "value" is Savant value.', { stat: z.string().min(1).max(24).default('value').describe('Stat key, or "value".'), season, position: z.enum(SLOTS).optional().describe('Position. Default: the stat\'s own positions.'), ...opts, qualified_only: z.boolean().default(true).describe('Only players with the qualifying sample.'), conference: z.string().max(40).optional().describe('Only this conference, e.g. "SEC".'), limit: z.number().int().min(1).max(50).default(15).describe('Rows to return.') }, { stat: z.string(), label: z.string(), season: z.number(), tracked: z.boolean(), note: z.string().nullable(), pool: z.string().nullable(), data_through: z.string().optional(), count: z.number(), leaders: z.array(open), warning: z.string().nullable().optional() }, leaderboard),
+  tool('cfb_leaderboard', 'CFB Savant leaders', 'Leaders in any stat, or in Savant value, for a season: by position, pool, conference and sample. Stat keys are in each profile\'s stats (e.g. qb_epa_db); "value" is Savant value.', { stat: z.string().min(1).max(24).default('value').describe('Stat key, or "value".'), season, position: z.enum(SLOTS).optional().describe('Position. Default: the stat\'s own positions.'), ...opts, qualified_only: z.boolean().default(true).describe('Only players with the qualifying sample.'), conference: z.string().max(40).optional().describe('Only this conference, e.g. "SEC".'), limit: z.number().int().min(1).max(50).default(15).describe('Rows to return.') }, { stat: z.string(), label: z.string(), season: z.number(), tracked: z.boolean(), note: z.string().nullable(), pool: z.string().nullable(), data_through: z.string().optional(), count: z.number(), leaders: z.array(open), warning: z.string().nullable().optional() }, leaderboard),
   tool('cfb_team_profile', 'Get an FBS team\'s profile', 'A team-season: record, WCE power rating by unit, résumé rank, schedule strength, team stats as percentiles among FBS, head coach, talent, playoff odds in the season being played, schedule with pregame win chances, and its best players.', { team: school, season, adjusted: opts.adjusted }, { team: open, season: z.number(), final: z.boolean(), data_through: z.string(), pool: z.string(), stats: z.array(open), playoff_odds: open.nullable(), schedule: z.array(open), top_players: z.array(open), url: z.string() }, teamProfile),
   tool('cfb_team_rankings', 'Rank FBS teams', 'Rank FBS teams by power rating, offense, defense, special teams, résumé, schedule, talent or any team stat key (off_epa, def_sr, def_havoc, to_margin and so on), best first, with each row\'s FBS rank. Filter by conference.', { season, sort: z.string().min(2).max(24).default('power').describe('power, offense, defense, special_teams, resume, schedule, talent, or a team stat key.'), ascending: z.boolean().default(false).describe('Worst first.'), conference: z.string().max(40).optional().describe('Only this conference.'), adjusted: opts.adjusted, limit: z.number().int().min(1).max(140).default(25).describe('Rows to return.') }, { season: z.number(), sort: z.string(), label: z.string(), data_through: z.string(), count: z.number(), teams: z.array(open) }, teamRankings),
   tool('cfb_game', 'Get a college football game', 'One game by ESPN event id: score, site, our pregame win chance, each team\'s plays, EPA per play, success rate and turnovers, and the main players\' lines.', { game_id: z.string().regex(/^\d+$/).describe('ESPN event id (cfb_team_profile lists them).'), season }, { game: open, home: open.nullable(), away: open.nullable(), players: open, season: z.number() }, game),

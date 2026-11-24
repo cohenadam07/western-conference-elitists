@@ -4,7 +4,7 @@ threat.py — the offensive threat score behind mtchc (Matchup difficulty, creat
     T = threat_table(rows, season, pool_min, k)      # one season, every offensive player
 
 `rows` is {pid: {"min": minutes, "pos": "Guard"|"Wing"|"Big", "tsa": true-shooting attempts,
-"v": {key: value}}}, the season's own card values (Basketball Savant's player-season numbers,
+"v": {key: value}}}, the season's own card values (NBA Savant's player-season numbers,
 never re-derived here; tsa is the sample the card's ts carries). Three parts:
 
     Scoring   pts (Points / 75) and pae, points above average efficiency: pts x (ts - the

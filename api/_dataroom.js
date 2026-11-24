@@ -12,7 +12,7 @@
 //
 // Where the rows live:
 //   site      the six older tables: the coaching pages' own files (bcs/data, cbcs/data) and College
-//             Basketball Savant's team files (cbb/), read as those pages read them
+//             NBA Savant's team files (cbb/), read as those pages read them
 //   public    small new tables (UFC fights and rounds, NFL and CFB team-games): /dataroom/<sport>/<table>/<season>.json
 //   release   large new tables (NFL plays and player-games, NBA player-games and shots, CFB plays):
 //             GitHub release assets on this repository (tag "dataroom"), fetched at run time and
@@ -41,7 +41,7 @@ const MAX_ROWS = 500
 const SOURCE = 'The WCE Data Room, Western Conference Elitists (wcehoops.com)'
 const SEASON_FORMAT = { nba: /^\d{4}-\d{2}$/, cbb: /^\d{4}-\d{2}$/, nfl: /^\d{4}$/, cfb: /^\d{4}$/, ufc: /^\d{4}$/ }
 const SEASON_EXAMPLE = { nba: '2024-25', cbb: '2025-26', nfl: '2025', cfb: '2025', ufc: '2025 (a calendar year)' }
-const SPORT_NAME = { nba: 'Basketball Savant', nfl: 'Football Savant', cfb: 'College Football Savant', cbb: 'College Basketball Savant', ufc: 'UFC Savant' }
+const SPORT_NAME = { nba: 'NBA Savant', nfl: 'NFL Savant', cfb: 'CFB Savant', cbb: 'CBB Savant', ufc: 'UFC Savant' }
 
 // The six tables that came from the per-sport tools: name here -> where their rows are.
 const LEGACY = {
@@ -59,8 +59,8 @@ const STAT_DICTS = {
 }
 
 const room = makeLoader('dataroom', { what: 'The Data Room', maxCached: 12, shape: (b) => b && typeof b === 'object' && (b.sports || b.columns) })
-const bcs = makeLoader('bcs', { what: 'Basketball Coaching Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.columns || b.tables) })
-const cbcs = makeLoader('cbcs', { what: 'College Basketball Coaching Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.cols || b.tables) })
+const bcs = makeLoader('bcs', { what: 'NBA Coaching Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.columns || b.tables) })
+const cbcs = makeLoader('cbcs', { what: 'CBB Coaching Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.cols || b.tables) })
 // The catalog and the dictionary, off the site; the deployment's own copy (vercel.json includeFiles)
 // when the site's can't be read: a preview before its merge, or the site's CDN having a bad minute.
 function bundled(name) {
@@ -158,7 +158,7 @@ export async function readTable(sport, table, season, team) {
     const through = file.through ? day(file.through) : day(idx.meta.through || idx.meta.generated)
     return { s: legacy.table === 'programs' ? null : s, columns: file.cols, rows: file.rows, through, definition: dict.tables[legacy.table]?.note || '', row: entry.row, url: pageUrl(entry.page) }
   }
-  // College Basketball Savant's own tables: built from its season and team files (needs a team but for games)
+  // CBB Savant's own tables: built from its season and team files (needs a team but for games)
   if (legacy.table !== 'games' && !team) throw new SavantError(`cbb ${table} is kept per team-season: give team (e.g. "Duke").`)
   const t = await cbbTable({ table: legacy.table, season: s, team })
   const di = t.cols.indexOf('date')

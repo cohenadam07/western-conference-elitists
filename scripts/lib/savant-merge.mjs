@@ -1,4 +1,4 @@
-// Basketball Savant ships in two files, the same split Football Savant uses:
+// NBA Savant ships in two files, the same split NFL Savant uses:
 //
 //   public/savant-data.json      the archive: every finished season (1979-80 on), ~67 MB,
 //                                rebuilt by the full pipeline in ~/Basketball-Savant

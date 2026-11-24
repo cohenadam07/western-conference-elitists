@@ -1,4 +1,4 @@
-// Dynasty Exchange swipe cards, built from Basketball Savant and Draft Savant. Runs at the end
+// Dynasty Exchange swipe cards, built from NBA Savant and NBA Draft Savant. Runs at the end
 // of the Savant API step (savant-api.mjs writeAll), because it reads the files that step just
 // wrote rather than ranking anyone itself.
 //
@@ -12,7 +12,7 @@
 // savant-api/basketball/v1/seasons/<season>.json.gz (tools/savant-api/check.mjs proves they
 // match). Ranking players a second time here would be a second copy of the rules that could
 // drift. Reading the slicer's output means a card can never disagree with the Savant page.
-// Rookies who have not played enough get the same treatment from Draft Savant's class file.
+// Rookies who have not played enough get the same treatment from NBA Draft Savant's class file.
 //
 // WHAT A CARD HOLDS
 //   s   the per-game line for his three most recent seasons, newest first:
@@ -21,7 +21,7 @@
 //       blocks. The card labels the column STK/75 rather than pretend it is per game.
 //   q   season -> { gp, low, m: { key: [value, league pct, position pct] } } for the current
 //       season and the last full one, so the card can switch between them with no fetch
-//   d   rookies with a Draft Savant profile: { line, m: { key: [value, class pct, class
+//   d   rookies with a NBA Draft Savant profile: { line, m: { key: [value, class pct, class
 //       position pct] } }
 //
 // Nothing here is committed: it is rebuilt every deploy, so the nightly data push refreshes it.
@@ -70,7 +70,7 @@ export const DRAFT_SUMMARY = [
   ['val', 'wing', 'Wingspan'],
 ]
 
-// Draft Savant packs each stat as [value, then six percentiles, then six pool sizes]. The six
+// NBA Draft Savant packs each stat as [value, then six percentiles, then six pool sizes]. The six
 // pools run class-all, class-position, class-age, past-all, past-position, past-age
 // (savant-api-draft.mjs POOLS). The card uses the first two.
 const DRAFT_CLASS_ALL = 1
@@ -149,7 +149,7 @@ export function buildDynastyCards({ pool, meta, seasons, draft = null, generated
     }
     if (Object.keys(q).length) card.q = q
 
-    // ---- rookies: Draft Savant, matched by name and then by pick (the names drift:
+    // ---- rookies: NBA Draft Savant, matched by name and then by pick (the names drift:
     // "Jr.", accents, a nickname), so a rookie with no NBA minutes still has a real card
     if (p.rookie && draftRows.length) {
       const dr = draftByName.get(norm(p.name)) || (p.pick ? draftByPick.get(p.pick) : null)
@@ -210,7 +210,7 @@ export function writeDynastyCards({ publicDir, dist }) {
   const poolFile = path.join(publicDir, 'dynasty', 'players.json')
   const bball = path.join(dist, 'savant-api', 'basketball', 'v1')
   if (!existsSync(poolFile)) throw new Error('public/dynasty/players.json is missing')
-  if (!existsSync(path.join(bball, 'meta.json'))) throw new Error('Basketball Savant API files were not written')
+  if (!existsSync(path.join(bball, 'meta.json'))) throw new Error('NBA Savant API files were not written')
 
   const pool = JSON.parse(readFileSync(poolFile, 'utf8')).players.filter((p) => p.id != null)
   const meta = JSON.parse(readFileSync(path.join(bball, 'meta.json'), 'utf8'))
@@ -223,7 +223,7 @@ export function writeDynastyCards({ publicDir, dist }) {
     if (existsSync(f)) seasons[s] = readGz(f)
   }
 
-  // The draft class the board's rookies came from. Not simply the newest: Draft Savant may
+  // The draft class the board's rookies came from. Not simply the newest: NBA Draft Savant may
   // already hold next year's projected class, so take whichever of the two newest shares the
   // most names with the board's rookies.
   let draft = null
@@ -252,6 +252,6 @@ export function writeDynastyCards({ publicDir, dist }) {
   const c = out.counts
   return {
     bytes: a.length + b.length,
-    summary: `${c.players} cards (${c.withSavant} with Savant, ${c.withDraft} with Draft Savant, ${c.bare} name only)`,
+    summary: `${c.players} cards (${c.withSavant} with Savant, ${c.withDraft} with NBA Draft Savant, ${c.bare} name only)`,
   }
 }

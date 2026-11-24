@@ -1,5 +1,5 @@
 """
-Draft Savant — configuration + hardcoded v1 dataset.
+NBA Draft Savant — configuration + hardcoded v1 dataset.
 
 Companion to savant_config.py, same role: single source of truth for the metric
 registry (labels/units/grouping/thresholds) and, for this first version, the raw

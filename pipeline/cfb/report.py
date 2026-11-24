@@ -55,7 +55,7 @@ def main():
     cr = vr["credit_by_position"]
     L = []
     A = L.append
-    A("# College Football Savant: data pull and stability backtest")
+    A("# CFB Savant: data pull and stability backtest")
     A("")
     A("*Run of Nov 10, 2026, on branch `cfb-savant-research`. Research only: no page, no connector change, no workflow, nothing in `public/`. "
       "Everything here was computed by the code in `pipeline/cfb/`; the tables behind it are in `research/cfb/out/` and the charts in `research/cfb/charts/`.*")
@@ -80,7 +80,7 @@ def main():
     A(f"6. **The objective playoff field works.** Under the 2026 rules our résumé score picks, on average, {fmean:.1f} of the same 12 teams the committee's own final ranking would produce under those rules. "
       f"The simulator's odds are honest: across {sc['runs']} weekly runs of 20,000 simulations, no probability band is off by more than {sc['max_bin_gap'] * 100:.0f} points.")
     A("7. **Headshots: 97.7% of 1,147 players on ten 2026 rosters have one.** The roster feed's own headshot field predicts it, so the build needs no extra checks.")
-    A("8. **Calls: 2 CFBD calls were made, not 51.** The shared meter read 462 on this run's first call and College Basketball Savant's own guard stops at 400, so every call here came out of the live basketball product's month. "
+    A("8. **Calls: 2 CFBD calls were made, not 51.** The shared meter read 462 on this run's first call and CBB Savant's own guard stops at 400, so every call here came out of the live basketball product's month. "
       "The release files already held nearly everything the calls were for.")
     A("9. **The six things that most need your decision** are in section 9: defenders before 2024, the receiver-value definition, quarterbacks owning the Heisman, the Pac-12's status in old seasons, the CFBD quota, and the AP table.")
     A("")
@@ -162,7 +162,7 @@ def main():
     A("")
     A("**What stands out.**")
     A("")
-    A("1. The two ways of finding a settle point (the grid search `settle_points.py` uses, and Football Savant's formula) agree closely for almost every stat, which is the best evidence the numbers are right. Both are in `out/player_stability.csv`.")
+    A("1. The two ways of finding a settle point (the grid search `settle_points.py` uses, and NFL Savant's formula) agree closely for almost every stat, which is the best evidence the numbers are right. Both are in `out/player_stability.csv`.")
     A("2. **Quarterbacks:** efficiency, success rate, sack rate, yards per attempt and completion rate are full bars, settling at about 190–250 dropbacks. Interception rate needs about 1,200 attempts: it is noise in one season. Sack rate travels with the quarterback when he transfers (0.51) better than anything else he does.")
     A("3. **Running backs:** every rate is hatched (settle points of 160–270 rushes against a typical 127), and little of it survives a transfer (0.05–0.18), which says a running back's efficiency is largely his line and scheme.")
     A("4. **Receivers:** EPA per target (reliability 0.16) and catch rate (0.32) fail, partly because most games do not name incompletion targets. Yards per team pass attempt (0.79) and receiving EPA per team dropback (0.57) pass easily: earning targets is the repeatable skill.")
@@ -244,7 +244,7 @@ def main():
     A("")
     A("**This run.** CFBD: 2 calls reached CFBD (the key check and one talent check; the ledger shows 3 because a first attempt failed on a certificate before leaving the Mac and was counted anyway). The meter read 462 before and 461 after. ESPN: about 1,500 calls, of which 1,147 were headshot checks; none failed.")
     A("")
-    A("**Why 2 and not 51.** The key is the basketball key, as expected, and the shared meter was already down to 462 on Nov 10. College Basketball Savant refuses to call once the meter reads 400, so this run had about 60 calls of real headroom and each one came out of the live product. "
+    A("**Why 2 and not 51.** The key is the basketball key, as expected, and the shared meter was already down to 462 on Nov 10. CBB Savant refuses to call once the meter reads 400, so this run had about 60 calls of real headroom and each one came out of the live product. "
       "Meanwhile the release files turned out to hold conferences by season (identical to CFBD's for all 134 teams of 2024), a talent table, returning production, and the committee's weekly rankings. So the 49 other calls were not made.")
     A("")
     A("**A live season, per week (ESPN, no quota):** 7 scoreboards; about 75 games at 2 calls each (summary and plays), 3 with re-checks; 138 roster calls; about 10 standings calls. Roughly **350–400 a week, 1,600 a month,** plus a one-time 2026 backfill of about 1,900. Headshots need no calls.")
@@ -269,7 +269,7 @@ def main():
     A("1. **Defender value uses average play values, not each play's own EPA.** A sack is worth the season's average sack, and so on. The count version is more reliable (0.56 against 0.46 for linemen) and works from the box score. Run stops are in; they come from the play text even in 2024–2025 (80–88% of tacklers named).")
     A("2. **A defender's denominator is every defensive play of his team's season,** because nothing says which games he played. A missed game costs him, as the research asked.")
     A("3. **Receiver value is per team dropback, not per target,** and un-named incompletions are shared among a team's receivers in proportion to catches. Per target, a 150-target season earned nothing for its volume, and Nick Nash, an AP first-team receiver in 2024, ranked 353rd.")
-    A("4. **Replacement level is the 25th-percentile qualified player at the position** (the Football Savant and College Basketball Savant convention), not \"the 80th-best quarterback by playing time\".")
+    A("4. **Replacement level is the 25th-percentile qualified player at the position** (the NFL Savant and CBB Savant convention), not \"the 80th-best quarterback by playing time\".")
     A("5. **Quarterbacks own the Savant Heisman under this definition.** Options: accept it; rank the Heisman by value relative to position; or use the shared-credit value. I did not choose.")
     A("6. **The Pac-12 champion gets an automatic bid through 2023,** when it was a power conference, and competes for the Group of Six bid from 2024. A switch reverses it. The Group of Six bid goes to the highest-ranked team, champion or not, as the CFP's page says; that is also a switch.")
     A("7. **Which conference seasons had no title game** is a small hand-entered table (American 2014; Big 12 2014–2016; Sun Belt 2014–2017 and 2020; Pac-12 2024–2025). Title games are otherwise found as the championship-weekend game between the two best conference records.")

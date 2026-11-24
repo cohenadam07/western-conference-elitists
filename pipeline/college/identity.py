@@ -10,7 +10,7 @@ The spine is the ESPN athlete id. One source per field:
     birthdate (internal only, never written     T-Rank's public file, by name within team-season,
       to public/; only age leaves here)         carried forward by id; then CBBD's
     recruit rank, stars, high school            CBBD recruiting rows (joined on CBBD's id)
-    NBA person id                               Basketball Savant's seed/espn_ids.json
+    NBA person id                               NBA Savant's seed/espn_ids.json
 
 Name matching (T-Rank rows have no ESPN id): exact normalized name within the team-season, then
 Jaro-Winkler >= 0.92 within the team, Jr./III and initials handled by namematch.words. T-Rank's
@@ -298,7 +298,7 @@ def build(seasons, log=print):
     span = career_span()
     # T-Rank's files before 2022-23 have no birthdate column at all (78 columns, the last a single digit;
     # checked for 2007-08 to 2021-22, Nov 2, 2026), so refetching them will not help. Those
-    # seasons take a date from any later season's match, or from Basketball Savant for NBA players.
+    # seasons take a date from any later season's match, or from NBA Savant for NBA players.
     nba_dob = {}
     bd = os.path.expanduser("~/Basketball-Savant/aging_birthdates.json")
     if os.path.exists(bd):
