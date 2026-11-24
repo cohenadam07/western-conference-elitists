@@ -821,6 +821,10 @@ body{background-color:#1D6B3A;color:var(--ink);
 .tm-top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
 .tm-top h2{margin:0;border:0;padding:0}
 .tm-rec{font-family:var(--pix);font-size:13px;color:var(--ink)}
+.tm-wk{color:var(--faint);white-space:nowrap}
+/* a 40px tap target without moving the line: the padding is taken back by the margin */
+#tmCoach a.tr-coach{display:inline-block;padding:13px 0;margin:-13px 0}
+#tmCoach a.tr-coach:focus-visible{outline:2px solid var(--turf);outline-offset:2px}
 .tm-x{margin-left:auto;font-family:var(--pix);font-size:10px;background:#FFF;border:2px solid var(--turf-dk);
   padding:5px 9px;cursor:pointer;color:var(--ink)}
 .tm-x:hover{background:var(--turf);color:#FFF}
@@ -1505,7 +1509,7 @@ body{background-color:#1D6B3A;color:var(--ink);
    ========================================================================= */
 var DATA=null, CFG=null, METRICS=[], MBY={}, PIDX={}, NAMES=[];
 var cur=null, curId=null, curSeason=null;
-var VERSION='2.3.0';           // bumped on big releases only, never per deploy
+var VERSION='2.3.1';           // bumped on big releases only, never per deploy
 var baseline='season';        // 'season' | 'all' | 'pace' | 'exp' — who the bars are ranked against
 var formWin=0;                // 0 = the season; 4, 8, 17 = his last that many games
 var cohortMode='pos';         // 'pos' | 'side'
@@ -5769,6 +5773,27 @@ function teamStatRow(season,t,key,label){
   return '<div class="tm-stat"><span>'+esc(label)+'</span><b>'+esc(fmt(TEAM_MBY[key].unit,r.v))+'</b>'
     +'<span class="tm-rk'+(dk?' dk':'')+'" style="background:'+colorAt(r.pct)+'">'+ordinal(r.rank)+' of '+r.n+'</span></div>';
 }
+/* Every head coach of a team-season, with the weeks he coached (2.3.1). The site build writes
+   savant-api/football/v1/coaches.json from NFL Coaching Savant's own files, rows of
+   [name, first week, last week, games, w, l, t]. Until it loads, or if it cannot, the header names the
+   schedule's one coach as before, which was the last one listed: 2024 NYJ showed only Saleh, who
+   coached weeks 1-5, and never Ulbrich, who coached 6-18. */
+var TEAM_COACHES=null, teamCoachesAsked=false;
+function loadTeamCoaches(){
+  if(teamCoachesAsked||typeof fetch!=='function') return; teamCoachesAsked=true;
+  fetch('/savant-api/football/v1/coaches.json').then(function(r){return r.ok?r.json():null;})
+    .then(function(d){ if(!d||!d.seasons) return; TEAM_COACHES=d.seasons;
+      var el=document.getElementById('tmCoach'); if(el&&el.dataset.season) el.innerHTML=teamCoachHTML(el.dataset.season,el.dataset.team,el.dataset.fallback); })
+    .catch(function(){});
+}
+function teamCoachHTML(season,t,fallback){
+  var L=TEAM_COACHES&&TEAM_COACHES[season]&&TEAM_COACHES[season][t];
+  var a=function(n){return '<a class="tr-coach" href="/nfl-coaching-savant#c='+encodeURIComponent(n)+'">'+esc(n)+' ↗</a>';};
+  if(L&&L.length>1) return ' · '+L.map(function(c){
+    return a(c[0])+' <span class="tm-wk">weeks '+c[1]+'–'+c[2]+(c[4]!=null?', '+c[4]+'–'+c[5]+(c[6]?'–'+c[6]:''):'')+'</span>';}).join(' ');
+  var one=L&&L.length?L[0][0]:fallback;
+  return one?' · '+a(one):'';
+}
 function openTeam(t){
   var el=document.getElementById('teamPanel');
   curTeam=t||null;
@@ -5778,10 +5803,11 @@ function openTeam(t){
   var rec=null, coach=null;
   ps.forEach(function(p){ if(p.team===t&&p.rec&&!rec){ rec=p.rec; coach=p.coach; } });
   var wk=liveWeek(season);
+  loadTeamCoaches();
   var html='<div class="tm-top"><h2 class="col-h">'+esc(teamName(t,season))+'</h2>'
     +(rec?'<span class="tm-rec">'+rec[0]+'–'+rec[1]+(rec[2]?'–'+rec[2]:'')+'</span>':'')
     +'<span class="comps-cap">'+esc(season)+(wk?' · through week '+wk:'')
-    +(coach?' · <a class="tr-coach" href="/nfl-coaching-savant#c='+encodeURIComponent(coach)+'">'+esc(coach)+' ↗</a>':'')+'</span>'
+    +'<span id="tmCoach" data-season="'+esc(season)+'" data-team="'+esc(t)+'" data-fallback="'+esc(coach||'')+'">'+teamCoachHTML(season,t,coach)+'</span></span>'
     +'<button type="button" class="tm-x" id="tmCopy">Copy link</button>'
     +'<button type="button" class="tm-x" id="tmClose" style="margin-left:0">Close ×</button></div>';
   var ts=teamStats(season);

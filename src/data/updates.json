@@ -1,6 +1,27 @@
 [
   {
     "date": "2026-11-24",
+    "product": "NFL Savant",
+    "version": "2.3.1",
+    "text": "A team page now names every head coach of a season, with the weeks and record of each, so an interim coach is no longer left off.",
+    "href": "/nfl-savant"
+  },
+  {
+    "date": "2026-11-24",
+    "product": "CBB Savant",
+    "version": "1.4.1",
+    "text": "Fixes: a team with a net rating of exactly zero is ranked where it belongs, not last; lineups show surnames, not Jr. or II; the Defense row's rebounding is now opponents' offensive rebounds, and Mid is renamed Paint & mid.",
+    "href": "/cbb-savant"
+  },
+  {
+    "date": "2026-11-24",
+    "product": "CFB Savant",
+    "version": "1.1.1",
+    "text": "Fixes: team talent is left out before 2014, when recruit ratings cover only part of a roster, and is shown to two decimals, so a small talent no longer reads as none; a game against an opponent not yet decided no longer shows a win chance; stat notes give each stat's real start year.",
+    "href": "/cfb-savant"
+  },
+  {
+    "date": "2026-11-24",
     "product": "NBA Savant",
     "version": "2.10.0",
     "text": "Every NBA team has its own page: ratings with league ranks, the roster with Savant value, the best lineups, the head coach and every team stat ranked.",

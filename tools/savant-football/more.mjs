@@ -116,7 +116,7 @@ const FUNCTIONS = [
   'commas', 'profileScore', 'careerArc', 'liveWeek', 'mergeData', 'posWord', '_norm', 'nameAlts',
   'careerRow', 'buildCareers', 'careerPool',
   'lbMetrics', 'lbAllMetrics', 'lbRows', 'lbPool', 'lbPct', 'lbTextColor', 'lbRender', 'lbRenderPlayers', 'lbRenderTeams', 'lbEncode', 'lbSyncURL',
-  'tdiv', 'teamStats', 'teamRank', 'teamStatRow', 'openTeam',
+  'tdiv', 'teamStats', 'teamRank', 'teamStatRow', 'loadTeamCoaches', 'teamCoachHTML', 'openTeam',
   'spPct', 'splFmt', 'splRank', 'splLedgers', 'splLoad', 'renderSplits',
   'median', 'drawWeekly', 'wkSeasonFor', 'kpi', 'legendHtml',
   'rtPos', 'rtYears', 'rtSum', 'rtStats', 'rtLean', 'rtSide',
@@ -188,6 +188,7 @@ function loadPage(archive, current) {
   ${html.slice(html.indexOf('TEAM_METRICS.forEach(function(t){ TEAM_MBY'), html.indexOf('\n', html.indexOf('TEAM_METRICS.forEach(function(t){ TEAM_MBY')))}
   ${grabLine('var TSTAT_CACHE=')}
   ${grabVar('TEAM_UNITS')}
+  ${grabLine('var TEAM_COACHES=null')}
   ${grabVar('LINE_ORDER')}
   ${grabLine('var SPL_INDEX=')}
   ${grabVar('SPL_LEDGER')}
@@ -681,4 +682,42 @@ test('the new tools register with the MCP SDK and every answer fits its declared
     await client.close()
     await server.close()
   }
+})
+
+// ---- 2.3.1: every head coach of a season, with his weeks ----------------------------------
+test('2.3.1: a team page and its tool name every head coach of the season, with the weeks each coached', async () => {
+  const C = builtJson('savant-api/football/v1/coaches.json')
+  assert.deepEqual(C.cols, ['name', 'first_week', 'last_week', 'games', 'w', 'l', 't'])
+  // the interim coaches the page used to leave off (NFL Coaching Savant's own weeks)
+  assert.deepEqual(C.seasons['2024'].NYJ.map((c) => c.slice(0, 3)), [['Robert Saleh', 1, 5], ['Jeff Ulbrich', 6, 18]])
+  assert.deepEqual(C.seasons['2024'].NO.map((c) => c.slice(0, 3)), [['Dennis Allen', 1, 9], ['Darren Rizzi', 10, 18]])
+  assert.deepEqual(C.seasons['2023'].LV.map((c) => c[0]), ['Josh McDaniels', 'Antonio Pierce'])
+  // the schedule's codes go through the page's aliases: the 2019 Raiders are LV on NFL Savant
+  assert.ok(C.seasons['2019'].LV && !C.seasons['2019'].OAK)
+  // weeks never overlap and run in order; every split season adds up to its games
+  for (const [y, teams] of Object.entries(C.seasons)) {
+    for (const [t, list] of Object.entries(teams)) {
+      for (let i = 1; i < list.length; i++) assert.ok(list[i][1] > list[i - 1][2], `${y} ${t}: coaches' weeks overlap`)
+    }
+  }
+  const p = await lists.teamProfile({ team: 'NYJ', season: '2024' })
+  assert.deepEqual(p.structured.coaches.map((c) => [c.name, c.weeks, c.games]), [['Robert Saleh', [1, 5], 5], ['Jeff Ulbrich', [6, 18], 12]])
+  assert.equal(p.structured.coach, 'Jeff Ulbrich')
+  assert.equal(p.structured.coaches[1].url, 'https://wcehoops.com/nfl-coaching-savant#c=Jeff%20Ulbrich')
+  assert.match(p.text, /Head coaches Robert Saleh \(weeks 1-5, 2-3\), then Jeff Ulbrich \(weeks 6-18, 3-9\)/)
+  const kc = await lists.teamProfile({ team: 'KC', season: '2023' })
+  assert.deepEqual(kc.structured.coaches.map((c) => c.name), ['Andy Reid'])
+  assert.match(kc.text, /Head coach Andy Reid\./)
+  // the page's header, from its own functions, over the same file
+  const grab = (name) => { const i = html.indexOf(`function ${name}(`); assert.ok(i >= 0, name); let d = 0, j = html.indexOf('{', i); for (; j < html.length; j++) { if (html[j] === '{') d++; else if (html[j] === '}' && --d === 0) break } return html.slice(i, j + 1) }
+  const ctx = { TEAM_COACHES: C.seasons }
+  vm.createContext(ctx)
+  vm.runInContext(`${grab('esc')}\n${grab('teamCoachHTML')}`, ctx)
+  const h = ctx.teamCoachHTML('2024', 'NYJ', 'Robert Saleh')
+  assert.match(h, /Robert Saleh ↗<\/a> <span class="tm-wk">weeks 1–5, 2–3<\/span>/)
+  assert.match(h, /Jeff Ulbrich ↗<\/a> <span class="tm-wk">weeks 6–18, 3–9<\/span>/)
+  assert.equal(ctx.teamCoachHTML('2023', 'KC', 'x'), ' · <a class="tr-coach" href="/nfl-coaching-savant#c=Andy%20Reid">Andy Reid ↗</a>')
+  ctx.TEAM_COACHES = null
+  assert.match(ctx.teamCoachHTML('2024', 'NYJ', 'Jeff Ulbrich'), /Jeff Ulbrich ↗/, 'without the file the header keeps the schedule\'s coach')
+  assert.match(html, /fetch\('\/savant-api\/football\/v1\/coaches\.json'\)/)
 })

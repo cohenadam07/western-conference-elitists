@@ -299,6 +299,14 @@ function parseTeam(input, meta, season) {
   throw new SavantError(`"${input}" is not an NFL team I know. Give a code (BUF) or a name (Bills).`)
 }
 
+// "Head coach Andy Reid", or every coach of a split season with his weeks and record:
+// "Head coaches Robert Saleh (weeks 1-5, 2-3), then Jeff Ulbrich (weeks 6-18, 3-9)"
+function coachWords(coaches, fallback) {
+  if (coaches.length > 1) return `. Head coaches ${coaches.map((c) => `${c.name} (weeks ${c.weeks[0]}-${c.weeks[1]}${c.record ? `, ${c.record.wins}-${c.record.losses}${c.record.ties ? `-${c.record.ties}` : ''}` : ''})`).join(', then ')}`
+  const one = coaches.length ? coaches[0].name : fallback
+  return one ? `. Head coach ${one}` : ''
+}
+
 export async function teamProfile({ team, season }) {
   const meta = await loadMeta()
   const s = parseSeason(season, meta) || meta.latestSeason
@@ -327,6 +335,12 @@ export async function teamProfile({ team, season }) {
   const structured = {
     team: code, name: tname(code), season: s, in_progress: live ? { through_week: live } : null,
     record: t.rec ? { wins: t.rec[0], losses: t.rec[1], ties: t.rec[2] } : null, coach: t.coach,
+    // every head coach of the season, in the order they took over, with the weeks each coached
+    // (NFL Coaching Savant's own files); coach is the last of them
+    coaches: (t.coaches || []).map(([name, from, to, g, w, l, ti]) => ({
+      name, weeks: [from, to], games: g, record: w == null ? null : { wins: w, losses: l, ties: ti || 0 },
+      url: `${SITE}/nfl-coaching-savant#c=${encodeURIComponent(name)}`,
+    })),
     games: t.g, units, line: t.line, roster,
     notes: [
       'Ranks are among all the teams with totals that season; 1st is best, except for the schedule rows, where 1st means the hardest slate. Opponents are measured by what they do in their other games.',
@@ -334,7 +348,7 @@ export async function teamProfile({ team, season }) {
     ],
     url: `${SITE}/nfl-savant#t=${code}&s=${s}`, data_as_of: day(meta.through || file.generated || meta.generated), source: SOURCE,
   }
-  const L = [`${structured.name}, ${s}${live ? ` through week ${live}` : ''}${t.rec ? `: ${t.rec[0]}-${t.rec[1]}${t.rec[2] ? `-${t.rec[2]}` : ''}` : ''}${t.coach ? `. Head coach ${t.coach}` : ''}.`]
+  const L = [`${structured.name}, ${s}${live ? ` through week ${live}` : ''}${t.rec ? `: ${t.rec[0]}-${t.rec[1]}${t.rec[2] ? `-${t.rec[2]}` : ''}` : ''}${coachWords(structured.coaches, t.coach)}.`]
   if (units) {
     const line = (x) => `- ${x.label}: ${x.display} (${ordinal(x.rank)} of ${x.of})`
     L.push('', 'Offense:', ...units.offense.map(line), '', 'Defense:', ...units.defense.map(line), '', 'What this defense gives up:', ...units.gives_up.map(line), '', `${live ? 'Schedule so far' : 'Schedule'} (1st is the hardest):`, ...units.schedule.map(line))
@@ -505,13 +519,14 @@ export const tools = [
     config: {
       title: 'NFL team page',
       description:
-        'One NFL team\'s season on NFL Savant (wcehoops.com): how its offense and defense rank (EPA, success rate, sack and pressure rates, conversions, explosive plays, turnovers), what its defense gives up to receivers, tight ends, backs and quarterbacks, the schedule it has faced, its offensive line grade, and its roster in depth-chart order with snap shares and profile scores. Seasons from 1999.',
+        'One NFL team\'s season on NFL Savant (wcehoops.com): how its offense and defense rank (EPA, success rate, sack and pressure rates, conversions, explosive plays, turnovers), what its defense gives up to receivers, tight ends, backs and quarterbacks, the schedule it has faced, its offensive line grade, its head coach (every head coach of a season, with the weeks and record of each), and its roster in depth-chart order with snap shares and profile scores. Seasons from 1999.',
       inputSchema: {
         team: z.string().trim().min(2).max(40).describe('Code ("BUF") or name ("Bills").'),
         season: z.string().trim().max(12).optional().describe('Year the season began. Omit for the latest.'),
       },
       outputSchema: {
         team: z.string(), name: z.string(), season: z.string(), in_progress: row.nullable(), record: row.nullable(), coach: z.string().nullable(),
+        coaches: z.array(row),
         games: z.number().nullable(), units: row.nullable(), line: row.nullable(), roster: z.array(row), notes: z.array(z.string()),
         url: z.string(), data_as_of: z.string(), source: z.string(),
       },

@@ -154,6 +154,10 @@ def history():
     ex = {"talent": {}, "coaches": {}, "returning": {}}
     tal = pd.read_parquet(WORK / "team_talent.parquet")
     for r in tal.itertuples():
+        # not before C.TALENT_FROM, and never a 0 standing for "no rated player found": both are left out,
+        # which leaves each kept team's rank as it was (the zeros sorted last) and counts only teams with one
+        if int(r.season) < C.TALENT_FROM or not float(r.talent) > 0:
+            continue
         ex["talent"].setdefault(str(int(r.season)), {})[str(int(r.team))] = [round(float(r.talent), 2), int(r.talent_rank), int(r.blue_chips)]
     co = pd.read_parquet(WORK / "coaches.parquet").sort_values(["season", "team", "games"], ascending=[True, True, False])
     for (y, t), x in co.groupby(["season", "team"]):

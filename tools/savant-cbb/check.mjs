@@ -254,3 +254,41 @@ test('the connector gives the page\'s head coach and the coaches who used player
   const none = d.players.find((p) => !fits.rows[p[0]])
   if (none) assert.deepEqual((await call('cbb_get_player_profile', { player: none[0], season: s })).coaches_like_him.coaches, [])
 })
+
+// ---- 1.4.1: four bugs that must not come back -------------------------------------------
+test('1.4.1: every team is ranked by its net rating, and a net of exactly 0 is not sent to last', () => {
+  for (const s of idx.seasons.map((x) => x.season)) {
+    const T = read(`teams/${s}.json`).teams.slice().sort((a, b) => a.rank - b.rank)
+    T.forEach((t, i) => assert.equal(t.rank, i + 1, `${s}: ranks run 1..${T.length}`))
+    for (let i = 1; i < T.length; i++) assert.ok(T[i - 1].net >= T[i].net, `${s}: ${T[i - 1].name} (${T[i - 1].net}) is ranked above ${T[i].name} (${T[i].net})`)
+  }
+  const wku = read('teams/2025-26.json').teams.find((t) => t.name === 'Western Kentucky')
+  assert.equal(wku.net, 0)
+  assert.ok(wku.rank > 100 && wku.rank < 200, `Western Kentucky 2025-26 is ${wku.rank}th`)
+  const src = readFileSync(path.join(ROOT, 'pipeline', 'college', 'build.py'), 'utf8')
+  assert.ok(!/r\["net"\] or -99/.test(src), 'build.py ranks a net of 0.0 as missing again')
+})
+
+test('1.4.1: a lineup names the surname, never Jr. or II', () => {
+  assert.equal(M.surname('Patrick Ngongba II'), 'Ngongba')
+  assert.equal(M.surname('Deron Rippey Jr.'), 'Rippey')
+  assert.equal(M.surname('Ellis Robinson IV'), 'Robinson')
+  assert.equal(M.surname('John Blackwell'), 'Blackwell')
+  assert.equal(M.surname('Jr.'), 'Jr.')
+  const html = readFileSync(path.join(ROOT, 'public', 'college-basketball-savant.html'), 'utf8')
+  assert.ok(!/\.split\(' '\);return (esc\()?w\[w\.length-1\]/.test(html))
+  assert.ok(!/String\(name\|\|''\)\.split\(' '\)\.slice\(-1\)\[0\]/.test(html))
+})
+
+test('1.4.1: the Defense row is all opponents, and Paint & mid says what it counts', async () => {
+  const html = readFileSync(path.join(ROOT, 'public', 'college-basketball-savant.html'), 'utf8')
+  assert.match(html, /<th class="r">OReb%<\/th>/)
+  assert.match(html, /<th class="r">Paint &amp; mid<\/th>/)
+  assert.ok(!/<th class="r">(Reb%|Mid)<\/th>/.test(html))
+  assert.match(html, /num\(r\.drb==null\?null:100-r\.drb\)/, 'the Defense row shows opponents\' offensive rebound rate')
+  const r = await client.callTool({ name: 'cbb_team_profile', arguments: { team: 'Duke', season: '2025-26' } })
+  assert.ok(!r.isError, r.content?.[0]?.text)
+  const text = r.content[0].text
+  assert.match(text, /paint and mid-range/)
+  assert.ok(!/\bmidrange\b/.test(text))
+})

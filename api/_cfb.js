@@ -252,7 +252,7 @@ async function teamProfile({ team, season, adjusted }) {
   const stats = R.team_stats.map((x) => { const v = M.teamRow(D, x, ti, adjusted); return { key: x.key, label: x.label, group: x.group, luck: x.verdict === 'luck', context: x.verdict === 'context', lower_is_better: x.lower, value: v ? v.value : null, shown: v ? v.shown : null, percentile: v ? v.pct : null, rank: v ? v.rank : null, of: v ? v.of : null, adjusted: v ? v.adjusted : false } })
   const PD = s === idx.current ? await files.load(`playoff/${s}.json`).catch(() => null) : null
   const odds = PD && PD.odds && PD.odds[String(t[0])] ? { make_field: PD.odds[String(t[0])][0], bye: PD.odds[String(t[0])][1], host_first_round: PD.odds[String(t[0])][2], win_conference: PD.odds[String(t[0])][3], simulated_seasons: PD.sims } : null
-  const schedule = F.sched.map((g) => ({ game_id: g[SC.gid], date: g[SC.date], week: g[SC.week], opponent: dname(d, g[SC.opp]) || g[SC.opp_name], site: g[SC.site] === 1 ? 'home' : g[SC.site] === -1 ? 'road' : 'neutral', conference_game: !!g[SC.conf], result: g[SC.final] ? `${g[SC.pf] > g[SC.pa] ? 'W' : 'L'} ${g[SC.pf]}-${g[SC.pa]}` : null, pregame_win_chance: g[SC.wp], opponent_power_rank: g[SC.opp_rank] }))
+  const schedule = F.sched.map((g) => ({ game_id: g[SC.gid], date: g[SC.date], week: g[SC.week], opponent: M.tbd(g[SC.opp]) ? 'TBD' : dname(d, g[SC.opp]) || g[SC.opp_name], site: g[SC.site] === 1 ? 'home' : g[SC.site] === -1 ? 'road' : 'neutral', conference_game: !!g[SC.conf], result: g[SC.final] ? `${g[SC.pf] > g[SC.pa] ? 'W' : 'L'} ${g[SC.pf]}-${g[SC.pa]}` : null, pregame_win_chance: M.tbd(g[SC.opp]) ? null : g[SC.wp], opponent_power_rank: g[SC.opp_rank] }))
   const roster = F.roster.filter((p) => p[12] != null).sort((a, b) => b[12] - a[12]).slice(0, 15).map((p) => ({ id: p[0], name: p[1], position: p[3], class: p[5], savant_value: p[12], url: playerUrl(p[0], s, idx.current) }))
   const key = (k) => stats.find((x) => x.key === k)
   const lines = [`${r[T.school]} (${r[T.conf]}), ${s}: ${r[T.w]}-${r[T.l]} (${r[T.cw]}-${r[T.cl]} in conference). ${asOf(D)}.`,
@@ -261,13 +261,17 @@ async function teamProfile({ team, season, adjusted }) {
     `Percentiles vs all ${D.teams.length} FBS teams, ${adjusted ? 'opponent-adjusted where the stat has it' : 'raw'}, garbage time excluded, ${s}:`]
   for (const k of ['off_epa', 'def_epa', 'off_sr', 'def_sr', 'off_expl', 'def_havoc', 'off_ppo', 'pace']) { const x = key(k); if (x && x.percentile != null) lines.push(`${x.label}: ${x.shown}, ${ordinal(x.percentile)} percentile${x.lower_is_better ? ' (lower is better, flipped)' : ''}`) }
   const tm = key('to_margin'); if (tm && tm.value != null) lines.push(`Turnover margin per game: ${tm.shown} (luck: it barely repeats).`)
-  if (r[T.talent_rank]) lines.push(`Team talent: ${ordinal(r[T.talent_rank])}, WCE's own, computed from the recruiting stars and class ranks on the roster.${r[T.ret_off] != null ? ` Returning: ${pc(r[T.ret_off])} of last season's offensive touches, ${pc(r[T.ret_def])} of its tackles.` : ''}`)
+  const tal = M.talent(D, ti)
+  lines.push(!tal.tracked ? `Team talent: not tracked before ${tal.from}; until then recruit ratings cover only the younger classes on a roster.`
+    : tal.rank == null ? 'Team talent: not available; no rated recruit was found on the roster.'
+      : `Team talent: ${tal.value.toFixed(2)}, ${ordinal(tal.rank)} of the ${tal.of} FBS teams with a rated recruit on the roster, WCE's own, computed from the recruiting stars and class ranks on the roster.`)
+  if (r[T.ret_off] != null) lines.push(`Returning: ${pc(r[T.ret_off])} of last season's offensive touches, ${pc(r[T.ret_def])} of its tackles.`)
   if (F.coach && F.coach.length) lines.push(`Head coach: ${F.coach.join(', ')}.`)
   if (F.ol) lines.push(`Offensive line as a unit: ${sg(F.ol.value)} points (${ordinal(F.ol.rank)} of ${F.ol.of}).`)
   if (odds) lines.push(`Playoff odds from ${odds.simulated_seasons.toLocaleString('en-US')} simulated seasons: makes the field ${pc(odds.make_field)}, bye ${pc(odds.bye)}, hosts a first-round game ${pc(odds.host_first_round)}, wins its conference ${pc(odds.win_conference)}. The model's view, not a verdict.`)
   lines.push(`Top players by Savant value: ${roster.slice(0, 6).map((p) => `${p.name} (${p.position}, ${sg(p.savant_value)})`).join(', ')}.`)
   lines.push(teamUrl(t[0], s, idx.current))
-  return { text: lines.join('\n'), structured: { team: { id: t[0], name: r[T.school], conference: r[T.conf], record: `${r[T.w]}-${r[T.l]}`, conference_record: `${r[T.cw]}-${r[T.cl]}`, head_coach: F.coach || [], power_rating: r[T.rating], power_rank: r[T.rating_rank], offense: r[T.off], defense: r[T.def], special_teams: r[T.st], resume_rank: r[T.resume_rank], resume_score: r[T.resume], schedule_strength: r[T.sos], talent_rank: r[T.talent_rank], returning_offense: r[T.ret_off], returning_defense: r[T.ret_def], offensive_line: F.ol }, season: s, final: D.final, data_through: day(D.through), pool: `vs all ${D.teams.length} FBS teams, ${adjusted ? 'opponent-adjusted where the stat has it' : 'raw'}, garbage time excluded, ${s}`, stats, playoff_odds: odds, schedule, top_players: roster, url: teamUrl(t[0], s, idx.current) } }
+  return { text: lines.join('\n'), structured: { team: { id: t[0], name: r[T.school], conference: r[T.conf], record: `${r[T.w]}-${r[T.l]}`, conference_record: `${r[T.cw]}-${r[T.cl]}`, head_coach: F.coach || [], power_rating: r[T.rating], power_rank: r[T.rating_rank], offense: r[T.off], defense: r[T.def], special_teams: r[T.st], resume_rank: r[T.resume_rank], resume_score: r[T.resume], schedule_strength: r[T.sos], talent: tal.value, talent_rank: tal.rank, talent_of: tal.rank == null ? null : tal.of, talent_tracked_from: tal.from, returning_offense: r[T.ret_off], returning_defense: r[T.ret_def], offensive_line: F.ol }, season: s, final: D.final, data_through: day(D.through), pool: `vs all ${D.teams.length} FBS teams, ${adjusted ? 'opponent-adjusted where the stat has it' : 'raw'}, garbage time excluded, ${s}`, stats, playoff_odds: odds, schedule, top_players: roster, url: teamUrl(t[0], s, idx.current) } }
 }
 
 const TEAM_COLS = { power: 'rating', offense: 'off', defense: 'def', special_teams: 'st', resume: 'resume_rank', schedule: 'sos', talent: 'talent_rank' }
@@ -276,8 +280,9 @@ async function teamRankings({ season, sort, ascending, conference, adjusted, lim
   const [R, D] = await Promise.all([reg(), teamsDoc(s)])
   const st = R.team_stats.find((x) => x.key === sort)
   if (!st && !TEAM_COLS[sort]) throw new SavantError(`No team column "${sort}". Use one of ${Object.keys(TEAM_COLS).join(', ')}, or a team stat key: ${R.team_stats.map((x) => x.key).join(', ')}.`)
+  if (!st && sort === 'talent' && +s < M.TALENT_FROM) throw new SavantError(`Team talent is not tracked before ${M.TALENT_FROM}: recruit ratings begin with the class that enrolled in 2010, so earlier rosters are only partly rated.`)
   const lowerFirst = st ? st.lower : (sort === 'resume' || sort === 'talent')
-  const get = (i) => (st ? (M.teamRow(D, st, i, adjusted) || {}).value : D.teams[i][T[TEAM_COLS[sort]]])
+  const get = (i) => (st ? (M.teamRow(D, st, i, adjusted) || {}).value : sort === 'talent' ? M.talent(D, i).rank : D.teams[i][T[TEAM_COLS[sort]]])
   let rows = D.teams.map((r, i) => ({ r, i, v: get(i) })).filter((x) => x.v != null)
   rows.sort((a, b) => (lowerFirst ? a.v - b.v : b.v - a.v) || a.r[T.school].localeCompare(b.r[T.school]))
   rows.forEach((x, k) => { x.rank = k + 1 })
@@ -286,7 +291,7 @@ async function teamRankings({ season, sort, ascending, conference, adjusted, lim
   if (conference && !rows.length) throw new SavantError(`No ${s} FBS conference called "${conference}". Conferences: ${[...new Set(D.teams.map((r) => r[T.conf]))].sort().join(', ')}.`)
   const label = st ? st.label : { power: 'Power rating (points per game vs an average FBS team)', offense: 'Offense rating', defense: 'Defense rating', special_teams: 'Special-teams rating', resume: 'Résumé rank', schedule: 'Schedule strength (share of these games the bubble team would lose)', talent: 'Team talent rank (WCE\'s own, from recruiting stars)' }[sort]
   const teams = rows.slice(0, limit).map((x) => ({ fbs_rank: x.rank, id: x.r[T.id], team: x.r[T.school], conference: x.r[T.conf], record: `${x.r[T.w]}-${x.r[T.l]}`, value: x.v, shown: st ? M.display(st, x.v) : sort === 'schedule' ? pc(x.v) : (sort === 'resume' || sort === 'talent') ? ordinal(x.v) : sg(x.v), power_rating: x.r[T.rating], resume_rank: x.r[T.resume_rank], url: teamUrl(x.r[T.id], s, idx.current) }))
-  const lines = [`${label}, ${s}, ${asOf(D)}${conference ? `, ${conference}` : ''}. Ranked among all ${D.teams.length} FBS teams${st ? `, ${adjusted && st.adj ? 'opponent-adjusted' : 'raw'}, garbage time excluded` : ''}.${st && st.verdict === 'luck' ? ' Labeled luck: it barely repeats.' : ''}`]
+  const lines = [`${label}, ${s}, ${asOf(D)}${conference ? `, ${conference}` : ''}. Ranked among ${!st && sort === 'talent' ? `the ${M.talent(D, 0).of} FBS teams with a rated recruit on the roster` : `all ${D.teams.length} FBS teams`}${st ? `, ${adjusted && st.adj ? 'opponent-adjusted' : 'raw'}, garbage time excluded` : ''}.${st && st.verdict === 'luck' ? ' Labeled luck: it barely repeats.' : ''}`]
   for (const x of teams) lines.push(`${x.fbs_rank}. ${x.team} (${x.record}): ${x.shown}`)
   lines.push(`${PAGE}#teams${s !== idx.current ? `/${s}` : ''}`)
   return { text: lines.join('\n'), structured: { season: s, sort, label, data_through: day(D.through), count: teams.length, teams } }

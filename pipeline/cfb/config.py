@@ -22,10 +22,16 @@ not ("not tracked" is never shown as zero).
 """
 from collections import namedtuple
 
-VERSION = "1.1.0"
+VERSION = "1.1.1"
 FIRST_SEASON = 2009
 CURRENT = 2026
 LAUNCH_FIRST = 2014
+# Team talent is counted from rated recruits on the roster. Ratings begin with the class that enrolled
+# in 2010, so 2009 rosters are 0.1% rated, 2010 9%, 2011 24%, 2012 37%, and 2014 on 45-63%, a whole
+# roster's worth (team_talent.parquet, Nov 24 2026). Before 2014 talent counts only the younger classes,
+# so it is not published; a team from 2014 on with no rated player is "not available", not 0 (Adam,
+# Nov 24 2026). public/savant-cfb.js TALENT_FROM holds the same year for the page and the connector.
+TALENT_FROM = 2014
 # 2009-2012 were added after launch (BUILD step 16), behind prompt 1's gates (research/cfb/out/completeness.md):
 # 2013 passes only for teams (its play text names a sacker on a third of sacks), 2004-2008 have play-by-play for
 # under 97% of FBS games. Neither is on the site.

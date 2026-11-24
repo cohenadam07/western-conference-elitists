@@ -158,7 +158,8 @@ def team_rows(season, G, T, ids, rat, mk, bpi, net):
                         rim=rnd(100 * z.get("rim", 0) / tot, 1) if tot else None, mid=rnd(100 * (z.get("mid", 0) + z.get("paint", 0)) / tot, 1) if tot else None, three=rnd(100 * (z.get("c3", 0) + z.get("ab3", 0)) / tot, 1) if tot else None,
                         orim=rnd(100 * zop.get("rim", 0) / tao, 1) if tao else None, omid=rnd(100 * (zop.get("mid", 0) + zop.get("paint", 0)) / tao, 1) if tao else None, othree=rnd(100 * (zop.get("c3", 0) + zop.get("ab3", 0)) / tao, 1) if tao else None,
                         luck=rnd(w - exp, 1), sos=rnd(opp_net, 1), gp=len(g)))
-    out.sort(key=lambda r: -(r["net"] or -99))
+    # a net of exactly 0.0 is a rating, not a missing one: a plain truth test once sent it to last place
+    out.sort(key=lambda r: -(r["net"] if r["net"] is not None else -99))
     for i, r in enumerate(out):
         r["rank"] = i + 1
     return out

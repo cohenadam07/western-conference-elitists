@@ -35,7 +35,7 @@ import vm from 'node:vm'
 import { gunzipSync } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
 import { z } from 'zod'
-import { BASE, buildFootballApi, footballThrough, mergeData, writeFootballApi } from '../../scripts/lib/savant-api-football.mjs'
+import { BASE, buildFootballApi, footballThrough, mergeData, readCoaching, writeFootballApi } from '../../scripts/lib/savant-api-football.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const PUBLIC = path.join(ROOT, 'public')
@@ -68,7 +68,7 @@ function load() {
   // The slicer leaves its inputs alone, so the same parsed files then go to the page's own
   // mergeData, which does not.
   // `through` as the writer finds it (the newest game in the data, Nov 2026)
-  const built = buildFootballApi({ data: archive, current, html, through: footballThrough(PUBLIC, current) })
+  const built = buildFootballApi({ data: archive, current, html, through: footballThrough(PUBLIC, current), coaching: readCoaching(PUBLIC) })
   json = {
     meta: JSON.stringify(built.meta),
     players: JSON.stringify(built.players),
@@ -272,7 +272,7 @@ test('the files are written to disk, gzipped where they should be, under the siz
   try {
     const r = writeFootballApi({ publicDir: PUBLIC, dist })
     const root = path.join(dist, BASE)
-    assert.deepEqual(readdirSync(root).sort(), ['careers', 'meta.json', 'players.json', 'seasons'])
+    assert.deepEqual(readdirSync(root).sort(), ['careers', 'coaches.json', 'meta.json', 'players.json', 'seasons'])
     const written = readdirSync(path.join(root, 'seasons')).sort()
     for (const f of written) assert.match(f, /^\d{4}\.json\.gz$/, 'season file names must fit the rewrite pattern')
     const careers = readdirSync(path.join(root, 'careers')).sort()
@@ -285,7 +285,11 @@ test('the files are written to disk, gzipped where they should be, under the siz
     }
     assert.equal(JSON.parse(readFileSync(path.join(root, 'meta.json'), 'utf8')).schema, 1)
     assert.equal(JSON.parse(readFileSync(path.join(root, 'players.json'), 'utf8')).schema, 1)
-    assert.equal(r.files, written.length + careers.length + 2)
+    // meta.json, players.json and coaches.json (2.3.1: every head coach of a team-season, for the page)
+    assert.equal(r.files, written.length + careers.length + 3)
+    const coaches = JSON.parse(readFileSync(path.join(root, 'coaches.json'), 'utf8'))
+    assert.equal(coaches.schema, 1)
+    assert.ok(Object.keys(coaches.seasons).length >= 28)
     assert.match(r.summary, /^[\d,]+ players, [\d,]+ player-seasons, \d+ seasons/)
     console.log(`      ${r.files} files, ${(r.raw / 1048576).toFixed(1)} MB of season data, ${(r.bytes / 1048576).toFixed(2)} MB on disk (budget ${BUDGET / 1048576} MB): ${r.summary}`)
     assert.ok(r.bytes < BUDGET, `the files grew to ${(r.bytes / 1048576).toFixed(1)} MB`)
