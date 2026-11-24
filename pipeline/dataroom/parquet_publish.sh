@@ -38,36 +38,57 @@ dr_token_ok || { warn "Parquet: $DR_NO_TOKEN"; exit 0; }
   || { warn "Parquet: could not install DuckDB; the $SPORT copies were not refreshed"; exit 0; }
 cp "$MAN" "$OUT/manifest.before" 2>/dev/null || true
 
-# table and season pairs: every table of the sport, at the season given (or its newest)
+# One line per table: the table, then the seasons to write. Every table of the sport at the season
+# given (or its newest); and for an analysis-only table (pipeline/dataroom/parquet_sources.mjs EXTRA),
+# also every season the manifest does not hold yet, so a table added in a merge fills itself in on
+# the sport's next refresh and the manifest never names a file the release lacks.
 PAIRS=$(node --input-type=module -e "
 import { readManifest } from './pipeline/dataroom/parquet.mjs'
+import { EXTRA } from './pipeline/dataroom/parquet_sources.mjs'
 import { gunzipSync } from 'node:zlib'; import { readFileSync } from 'node:fs'
 const cat = JSON.parse(gunzipSync(readFileSync('public/dataroom/catalog.json.gz')))
 const man = readManifest()
 const sport = process.argv[1], only = process.argv[2]
-const tables = new Set([...Object.keys(cat.sports[sport] || {}), ...Object.keys(man.tables).filter((k) => k.startsWith(sport + '.') && man.tables[k].analysis_only).map((k) => k.split('.')[1])])
+const extra = Object.keys(EXTRA).filter((k) => k.startsWith(sport + '.')).map((k) => k.split('.')[1])
+const tables = new Set([...Object.keys(cat.sports[sport] || {}), ...extra])
 for (const t of tables) {
-  const seasons = Object.keys(((cat.sports[sport] || {})[t] || {}).seasons || man.tables[sport + '.' + t]?.seasons || {}).sort()
-  const s = t === 'coaching_programs' ? 'all' : only && (seasons.includes(only) || man.tables[sport + '.' + t]?.analysis_only) ? only : seasons[seasons.length - 1]
+  const key = sport + '.' + t
+  if (extra.includes(t)) {
+    const have = (man.tables[key] || {}).seasons || {}
+    const all = (await EXTRA[key].seasons()).sort()
+    const cur = all.length === 1 && all[0] === 'all' ? 'all' : only && all.includes(only) ? only : all[all.length - 1]
+    const list = [...new Set([...all.filter((s) => !have[s]), cur])].filter(Boolean)
+    if (list.length) console.log(t + ' ' + list.join(' '))
+    continue
+  }
+  const seasons = Object.keys(((cat.sports[sport] || {})[t] || {}).seasons || {}).sort()
+  const s = t === 'coaching_programs' ? 'all' : only && seasons.includes(only) ? only : seasons[seasons.length - 1]
   if (s) console.log(t + ' ' + s)
-}" "$SPORT" "$ONLY" 2>/dev/null)
+}
+process.exit(0)" "$SPORT" "$ONLY" 2>/dev/null)
 [ -n "$PAIRS" ] || { echo "Parquet: no $SPORT tables"; exit 0; }
 
+sha_of() { node --input-type=module -e "import { readManifest } from './pipeline/dataroom/parquet.mjs'; const e = readManifest().tables['$SPORT.$1']; console.log((e && e.seasons['$2'] && e.seasons['$2'].file_sha256) || '')" 2>/dev/null; }
 ok=1
-while read -r t s; do
+while read -r t seasons; do
   [ -n "$t" ] || continue
-  before=$(node --input-type=module -e "import { readManifest } from './pipeline/dataroom/parquet.mjs'; const e = readManifest().tables['$SPORT.$t']; console.log((e && e.seasons['$s'] && e.seasons['$s'].file_sha256) || '')" 2>/dev/null)
-  if ! node pipeline/dataroom/parquet.mjs "$SPORT" "$t" "$s" --out "$OUT" >/dev/null 2>"$OUT/err"; then
-    warn "Parquet: $SPORT $t $s was not rewritten: $(grep -v '^\[savant\]' "$OUT/err" | tail -1 | cut -c1-300)"; continue
+  for s in $seasons; do echo "$s $(sha_of "$t" "$s")"; done > "$OUT/before"
+  # shellcheck disable=SC2086
+  if ! node pipeline/dataroom/parquet.mjs "$SPORT" "$t" $seasons --out "$OUT" >/dev/null 2>"$OUT/err"; then
+    warn "Parquet: $SPORT $t was not rewritten in full: $(grep -v '^\[savant\]' "$OUT/err" | tail -1 | cut -c1-300)"
   fi
-  f="$OUT/$SPORT-$t-$s.parquet"
-  after=$(node --input-type=module -e "import { readManifest } from './pipeline/dataroom/parquet.mjs'; console.log(readManifest().tables['$SPORT.$t'].seasons['$s'].file_sha256 || '')" 2>/dev/null)
-  if [ -n "$before" ] && [ "$before" = "$after" ]; then continue; fi
-  for try in 1 2 3; do
-    if gh release upload "$TAG" "$f" -R "$REPO" --clobber >/dev/null 2>&1; then echo "Parquet: uploaded $(basename "$f") ($(wc -c <"$f" | tr -d ' ') bytes)"; UP=$((UP+1)); break; fi
-    [ $try = 3 ] && { warn "Parquet: upload of $(basename "$f") failed"; ok=0; }
-    sleep 5
-  done
+  while read -r s before; do
+    f="$OUT/$SPORT-$t-$s.parquet"
+    [ -f "$f" ] || continue
+    after=$(sha_of "$t" "$s")
+    [ -n "$after" ] || continue
+    if [ -n "$before" ] && [ "$before" = "$after" ]; then continue; fi
+    for try in 1 2 3; do
+      if gh release upload "$TAG" "$f" -R "$REPO" --clobber >/dev/null 2>&1; then echo "Parquet: uploaded $(basename "$f") ($(wc -c <"$f" | tr -d ' ') bytes)"; UP=$((UP+1)); break; fi
+      [ $try = 3 ] && { warn "Parquet: upload of $(basename "$f") failed"; ok=0; }
+      sleep 5
+    done
+  done < "$OUT/before"
 done <<< "$PAIRS"
 if [ $ok = 0 ] && [ -f "$OUT/manifest.before" ]; then
   cp "$OUT/manifest.before" "$MAN"; warn "Parquet: the manifest was put back (an upload failed)"

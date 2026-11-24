@@ -127,7 +127,7 @@ function fits(kind, v) {
   return false
 }
 
-export async function writeSeason(con, { sport, table, season, columns, rows, kinds, out, prepend = true }) {
+export async function writeSeason(con, { sport, table, season, columns, rows, kinds, out, prepend = true, sort = null }) {
   const key = `${sport}.${table}`
   const all = prepend ? ['season', ...columns] : columns.slice()
   const k = prepend ? ['VARCHAR', ...columns.map((c) => kinds[c])] : columns.map((c) => kinds[c])
@@ -146,7 +146,7 @@ export async function writeSeason(con, { sport, table, season, columns, rows, ki
     ap.endRow()
   }
   ap.closeSync()
-  const sortCols = (SORT[key] || DEFAULT_SORT).filter((c) => columns.includes(c))
+  const sortCols = (sort || SORT[key] || DEFAULT_SORT).filter((c) => columns.includes(c))
   const select = all.map((c, j) => (k[j] === 'DATE' ? `CAST(${q(c)} AS DATE) AS ${q(c)}` : q(c))).join(', ')
   mkdirSync(path.dirname(out), { recursive: true })
   const tmp = `${out}.tmp`
@@ -220,7 +220,7 @@ async function main() {
       if (!ownSeason) columns = columns.filter((c) => c !== 'season')
       else kinds.season = 'VARCHAR'
     }
-    entry = { columns: columns.map((c) => [c, kinds[c] || null]), own_season: ownSeason, ...(src.row ? { analysis_only: true, row: src.row, note: src.note, ...(src.dictionary ? { dictionary: src.dictionary } : {}) } : {}), sort: (SORT[key] || DEFAULT_SORT).filter((c) => columns.includes(c)), seasons: all ? {} : (entry?.seasons || {}) }
+    entry = { columns: columns.map((c) => [c, kinds[c] || null]), own_season: ownSeason, ...(src.row ? { analysis_only: true, row: src.row, note: src.note, ...(src.dictionary ? { dictionary: src.dictionary } : {}) } : {}), sort: (src.sort || SORT[key] || DEFAULT_SORT).filter((c) => columns.includes(c)), seasons: all ? {} : (entry?.seasons || {}) }
     manifest.tables[key] = entry
   }
   const kinds = Object.fromEntries(entry.columns)
@@ -236,7 +236,7 @@ async function main() {
     if (!entry.own_season && si >= 0 && t.rows.some((r) => String(r[si]) !== s)) { console.error(`::warning::${key} ${s}: its season column no longer always equals ${s} (run with --all)`); bad++; continue }
     const rows = t.rows.map((r) => ix.map((i) => (i < 0 ? null : r[i] === undefined ? null : r[i])))
     try {
-      const r = await writeSeason(con, { sport, table, season: s, columns: names, rows, kinds, out: path.join(out, parquetName(sport, table, s)), prepend: !entry.own_season })
+      const r = await writeSeason(con, { sport, table, season: s, columns: names, rows, kinds, out: path.join(out, parquetName(sport, table, s)), prepend: !entry.own_season, sort: src.sort || null })
       let through = null
       const di = names.indexOf('date')
       if (di >= 0) for (const row of rows) if (row[di] && (!through || row[di] > through)) through = row[di]

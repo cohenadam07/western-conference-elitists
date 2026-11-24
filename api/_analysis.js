@@ -117,7 +117,7 @@ export const tools = [
         if (t && t.analysis_only) {
           // a column the source defines (nba.player_seasons' matchup columns) carries its definition, unit, source, first season and caveat
           const cols = t.columns.map(([c, k]) => ({ column: c, type: k === 'JSON' || !k ? 'VARCHAR' : k, ...((t.dictionary || {})[c] || {}) }))
-          return { structured: { sport: args.dictionary.sport, table: args.dictionary.table, row: t.row, note: t.note, columns: cols, seasons: Object.keys(t.seasons).sort(), analysis_only: true }, text: `${key} (savant_sql only): one row per ${t.row}. ${t.note}\nColumns: ${cols.map((c) => `${c.column} (${c.type.toLowerCase()})`).join(', ')}, plus season.\nSeasons ${Object.keys(t.seasons).sort()[0]} to ${Object.keys(t.seasons).sort().slice(-1)[0]}.` }
+          return { structured: { sport: args.dictionary.sport, table: args.dictionary.table, row: t.row, note: t.note, columns: cols, seasons: Object.keys(t.seasons).sort(), analysis_only: true }, text: `${key} (savant_sql only): one row per ${t.row}. ${t.note}\nColumns: ${cols.map((c) => `${c.column} (${c.type.toLowerCase()})`).join(', ')}, plus season.\nSeasons ${Object.keys(t.seasons).sort()[0]} to ${Object.keys(t.seasons).sort().slice(-1)[0]}${(await lazyRoom()).missingSeasons(Object.keys(t.seasons).sort())}.` }
         }
         const r = await (await lazyRoom()).savantDictionary(args.dictionary)
         if (!args.dictionary.table) {

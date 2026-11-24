@@ -14,6 +14,7 @@ import http from 'node:http'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { gunzipSync } from 'node:zlib'
+import { MORE, savantApiDir } from './analysis_tables.mjs'
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..')
 const PUB = path.join(ROOT, 'public')
@@ -22,9 +23,17 @@ const HOSTED = path.resolve(ROOT, process.env.DATAROOM_HOSTED || 'out/dataroom')
 let started = null
 function start() {
   if (started) return started
-  const server = http.createServer((req, res) => {
+  const server = http.createServer(async (req, res) => {
     const url = decodeURIComponent(req.url.split('?')[0])
     const send = (code, body, type = 'application/json') => { res.writeHead(code, { 'content-type': type }); res.end(body) }
+    if (url.startsWith('/savant-api/basketball/')) {
+      // the per-season files the site build makes (scripts/lib/savant-api.mjs), built here from public/
+      let f
+      try { f = path.join(await savantApiDir(), url) } catch (e) { return send(500, String(e && e.message), 'text/plain') }
+      if (existsSync(f)) return send(200, readFileSync(f))
+      if (existsSync(f + '.gz')) return send(200, gunzipSync(readFileSync(f + '.gz')))
+      return send(404, 'Not Found', 'text/plain')
+    }
     const m = url.match(/^\/assets\/([a-z]+)-([a-z_]+)-([0-9-]+)\.json\.gz$/)
     if (m) {
       const f = path.join(HOSTED, m[1], m[2], `${m[3]}.json.gz`)
@@ -100,6 +109,8 @@ export const EXTRA = {
     },
   },
 }
+
+Object.assign(EXTRA, MORE(start))
 
 export const SOURCES = { ...Object.fromEntries(Object.entries(catalog().sports).flatMap(([s, tt]) => Object.keys(tt).map((t) => [`${s}.${t}`, true]))), ...Object.fromEntries(Object.keys(EXTRA).map((k) => [k, true])) }
 
