@@ -10,6 +10,7 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'nod
 import os from 'node:os'
 import path from 'node:path'
 import vm from 'node:vm'
+import zlib from 'node:zlib'
 import { fileURLToPath } from 'node:url'
 import * as S from '../../scripts/lib/site-search.mjs'
 import { cardUrl as nbaUrl } from '../../api/_basketball.js'
@@ -71,6 +72,16 @@ test('college players go back four seasons and no further; teams are all there',
     assert.equal(Math.max(...years) - Math.min(...years), S.COLLEGE_SEASONS - 1, `${kind}: not ${S.COLLEGE_SEASONS} seasons`)
   }
   assert.ok(college.filter((r) => r[1] === 'cbbt').length > 300 && college.filter((r) => r[1] === 'cfbt').length > 100)
+})
+
+test('CFB players of the season being played are in the list, on this season and their current team', () => {
+  const idx = JSON.parse(zlib.gunzipSync(readFileSync(path.join(ROOT, 'public/cfb/index.json.gz'))))
+  const now = JSON.parse(zlib.gunzipSync(readFileSync(path.join(ROOT, `public/cfb/s/${idx.current}.json.gz`))))
+  const rows = college.filter((r) => r[1] === 'cfb')
+  const thisSeason = rows.filter((r) => r[4] === idx.current)
+  assert.equal(thisSeason.length, now.players.length, 'the list should hold everyone in this season\'s file')
+  // this season's cards have no season in their address: the tool leaves it off for the current one
+  for (const r of thisSeason.slice(0, 200)) assert.match(r[3], /^\/cfb-savant#player-[^/]+$/, `${r[0]}: ${r[3]}`)
 })
 
 test('the ribbon has the search box, and its file still reads in Node for the player pages', () => {

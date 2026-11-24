@@ -74,15 +74,33 @@ export function cbb(d) {
     ...d.players.map((p) => [p[1], 'cbb', join(p[4], team.get(String(p[2])), p[3]), `/cbb-savant#player-${e(p[0])}/${p[3]}`, yr(p[3])]),
   ]
 }
-export function cfb(d, current) {
+// CFB Savant keeps its names in two places: search.json has everyone through last season, and
+// this season's file (s/<season>) has everyone playing now. The page reads both, so this does
+// too: a returning player moves up to this season and his current team, a newcomer is added.
+export function cfb(d, current, now) {
   const c = Object.fromEntries(d.cols.map((k, i) => [k, i]))
   const tc = Object.fromEntries(d.team_cols.map((k, i) => [k, i]))
   const team = new Map(d.teams.map((t) => [String(t[tc.id]), t[tc.school]]))
+  const byId = new Map(d.players.map((p) => [String(p[c.id]), [...p]]))
+  if (now?.players?.length) {
+    const n = Object.fromEntries(now.cols.map((k, i) => [k, i]))
+    for (const k of ['id', 'name', 'team']) if (!(k in n)) throw new Error(`this season's CFB file has no "${k}" column`)
+    const slotAt = 'slot' in n ? n.slot : n.pos
+    for (const p of now.players) {
+      const id = String(p[n.id])
+      const row = byId.get(id) || Object.assign([], { [c.id]: p[n.id], [c.name]: p[n.name], [c.first]: now.season })
+      row[c.slot] = p[slotAt] ?? row[c.slot]
+      row[c.team] = p[n.team]
+      row[c.last] = now.season
+      byId.set(id, row)
+    }
+  }
+  const players = [...byId.values()]
   // the tool's own rule: the season is left off the address when it is the current one
   const at = (s) => (s && String(s) !== String(current) ? `/${s}` : '')
   return [
     ...d.teams.map((t) => [t[tc.school], 'cfbt', join(t[tc.nick], t[tc.conf]), `/cfb-savant#team-${e(t[tc.id])}`, 9999]),
-    ...d.players.map((p) => [p[c.name], 'cfb', join(p[c.slot], team.get(String(p[c.team])), span(p[c.first], p[c.last])), `/cfb-savant#player-${e(p[c.id])}${at(p[c.last])}`, yr(p[c.last])]),
+    ...players.map((p) => [p[c.name], 'cfb', join(p[c.slot], team.get(String(p[c.team])), span(p[c.first], p[c.last])), `/cfb-savant#player-${e(p[c.id])}${at(p[c.last])}`, yr(p[c.last])]),
   ]
 }
 
@@ -121,7 +139,7 @@ export function buildSearch({ publicDir, dist, warn = console.warn }) {
   }
   const college = [
     ...recent(take('CBB players and teams', () => pub('cbb/search.json.gz'), cbb)),
-    ...recent(take('CFB players and teams', () => pub('cfb/search.json.gz'), (d) => cfb(d, cfbCurrent))),
+    ...recent(take('CFB players and teams', () => pub('cfb/search.json.gz'), (d) => cfb(d, cfbCurrent, cfbCurrent && pub(`cfb/s/${cfbCurrent}.json.gz`)))),
   ]
   return { core, college }
 }
