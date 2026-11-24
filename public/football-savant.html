@@ -850,6 +850,17 @@ body{background-color:#1D6B3A;color:var(--ink);
 .tm-pl.bench{opacity:.72}
 .tm-off{color:#8E1B14}
 .tm-note{font-family:var(--mono);font-size:9.5px;color:#7A9384;line-height:1.7;margin-top:10px}
+.tp-v{display:block;font-family:var(--mono);font-size:9.5px;color:#20402C;letter-spacing:.02em;margin-top:1px}
+.tp-v b{font-weight:600}
+.tp-v.na{color:#5F7768}
+.tm-how{margin-top:12px}
+.tm-how summary{font-family:var(--mono);font-size:11px;color:#20402C;cursor:pointer;min-height:40px;display:flex;align-items:center;gap:6px}
+.tm-how summary:focus-visible{outline:2px solid #20402C;outline-offset:2px}
+.tm-how .expl{margin-top:6px}
+.tm-how .expl .formula{margin-bottom:6px}
+.tm-how .tm-how-m{font-size:13px;margin:0 0 4px;color:#3F5A49}
+.tm-how .tm-how-m b{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;margin-right:4px}
+.tm-how .tm-how-m+h4{margin-top:14px}
 
 /* ---- splits */
 .spl-tabs{display:inline-flex;border:2px solid var(--turf-dk)}
@@ -1509,7 +1520,7 @@ body{background-color:#1D6B3A;color:var(--ink);
    ========================================================================= */
 var DATA=null, CFG=null, METRICS=[], MBY={}, PIDX={}, NAMES=[];
 var cur=null, curId=null, curSeason=null;
-var VERSION='2.3.1';           // bumped on big releases only, never per deploy
+var VERSION='2.4.0';           // bumped on big releases only, never per deploy
 var baseline='season';        // 'season' | 'all' | 'pace' | 'exp' — who the bars are ranked against
 var formWin=0;                // 0 = the season; 4, 8, 17 = his last that many games
 var cohortMode='pos';         // 'pos' | 'side'
@@ -5771,7 +5782,7 @@ function teamStatRow(season,t,key,label){
   var r=teamRank(season,t,key); if(!r) return '';
   var dk=onColorIsDark(r.pct);
   return '<div class="tm-stat"><span>'+esc(label)+'</span><b>'+esc(fmt(TEAM_MBY[key].unit,r.v))+'</b>'
-    +'<span class="tm-rk'+(dk?' dk':'')+'" style="background:'+colorAt(r.pct)+'">'+ordinal(r.rank)+' of '+r.n+'</span></div>';
+    +'<span class="tm-rk'+(dk?' dk':'')+'" style="background:'+colorAt(r.pct)+'">'+ordinal(r.rank)+' of '+r.n+' teams</span></div>';
 }
 /* Every head coach of a team-season, with the weeks he coached (2.3.1). The site build writes
    savant-api/football/v1/coaches.json from NFL Coaching Savant's own files, rows of
@@ -5793,6 +5804,50 @@ function teamCoachHTML(season,t,fallback){
     return a(c[0])+' <span class="tm-wk">weeks '+c[1]+'–'+c[2]+(c[4]!=null?', '+c[4]+'–'+c[5]+(c[6]?'–'+c[6]:''):'')+'</span>';}).join(' ');
   var one=L&&L.length?L[0][0]:fallback;
   return one?' · '+a(one):'';
+}
+/* Savant value and its rank on the roster (2.4.0). The rank is the All-Savant Team's own pool: the
+   qualified players at his exact position that season on all 32 teams (tackles, guards and centers
+   apart), 1 + the number with more value, so equal values share a place. His value is his whole
+   season, every team he played for, as on his card. Only qualified players have a value, and
+   offensive linemen only from 2016, when blocking numbers exist. */
+var TEAM_VALUE_OL_FROM=2016;
+function teamValue(p,season,cache){
+  if(!hasValue(season)) return null;
+  var peers=AST_PEERS[p.pos]||posWord(p.pos,true);
+  if(miss(p.m.sav)){
+    if(/^O[LTGC]$/.test(p.pos)&&+season<TEAM_VALUE_OL_FROM) return {v:null,why:'not tracked for linemen before '+TEAM_VALUE_OL_FROM};
+    return {v:null,why:p.qualified?'none on file':'under the qualifying line'};
+  }
+  var L=cache[p.pos]||(cache[p.pos]=rankedAt(season,p.pos).filter(function(x){ return x.value; }).map(function(x){ return x.raw; }));
+  var better=0; for(var i=0;i<L.length;i++) if(L[i]>p.m.sav) better++;
+  return {v:p.m.sav,rank:better+1,of:L.length,pool:peers};
+}
+function teamValueLine(tv){
+  if(!tv) return '';
+  if(tv.v==null) return '<span class="tp-v na">Value — '+esc(tv.why)+'</span>';
+  return '<span class="tp-v">Value <b>'+esc(fmt(MBY.sav?MBY.sav.unit:'sgn1',tv.v))+'</b> · '+ordinal(tv.rank)+' of '+tv.of+' '+esc(tv.pool)+'</span>';
+}
+function teamHow(season,wk){
+  var q=CFG.qualify||{}, ql=['QB','RB','WR','TE','OT','ED','CB','K','P'].filter(function(k){ return q[k]; })
+    .map(function(k){ return (CFG.posLabel[k]||k).toLowerCase()+' '+q[k][1]+' '+(CFG.denoms[q[k][0]]||q[k][0]); }).join(', ');
+  var src='nflverse play-by-play, participation and snap counts; NFL Savant\'s own value model (pipeline/football/award.py), the same numbers the All-Savant Team is picked on';
+  function entry(h,w,f,so,sa){
+    return '<h4>'+esc(h)+'</h4><p>'+esc(w)+'</p><div class="formula">'+esc(f)+'</div>'
+      +'<p class="tm-how-m"><b>Source</b> '+esc(so)+'</p><p class="tm-how-m"><b>Sample</b> '+esc(sa)+'</p>';
+  }
+  return '<details class="tm-how"><summary>What these numbers are</summary><div class="expl">'
+    +entry('Savant value','The points he has been worth to his team in '+season+' above a replacement-level player at his position. It is his whole season, on every team he played for, as on his card, and every game he missed counts against him.',
+      'For each part of his job: his standing in its stats, in expected points a game, times the share of it that is the player\'s; added up, less a replacement player (the 25th percentile at the position), times the games\' worth of snaps he has played.',
+      src,'Qualified players only: '+ql+' (pro-rated to his team\'s games'+(wk?' while a season is being played':'')+'). Offensive linemen have one from '+TEAM_VALUE_OL_FROM+', when blocking numbers exist. The model\'s view, not a verdict.')
+    +entry('Position rank','Where his Savant value ranks among every qualified player at his position in '+season+', on all 32 teams. The pool is in the line: "3rd of 34 quarterbacks".',
+      'Rank = 1 + the number of qualified players at his position with more Savant value, so equal values share a place. Tackles, guards and centers are ranked apart.',
+      src,'The pool is that season\'s qualified players at the position'+(wk?'; early in a season it is small and ranks move a lot':'')+'.')
+    +entry('Profile score','The number in the box on each card: the average percentile of his headline stats against qualified players at his position in '+season+'.',
+      'The mean of his headline-stat percentiles'+(wk?', with unsettled stats scored where they are likely to settle':'')+'.',
+      'nflverse play-by-play, participation and snap counts','Qualified players only; the others show a dash.')
+    +entry('Team ranks','Each team stat ranked among the 32 teams with totals that season. 1st is best, except the schedule rows, where 1st is the hardest slate. The line grade is ranked among the 32 offensive lines.',
+      'Rank = 1 + the number of teams better on the stat.','nflverse play-by-play','Early in a season a rank rests on a few games.')
+    +'</div></details>';
 }
 function openTeam(t){
   var el=document.getElementById('teamPanel');
@@ -5837,6 +5892,7 @@ function openTeam(t){
     html+='<div class="tm-note">No team totals on file for '+esc(season)+' yet.</div>';
   }
   var line=((DATA.data[season]||{}).lines||[]).filter(function(L){ return L.tm===t; })[0];
+  var vcache={};
   TEAM_UNITS.forEach(function(u){
     var list=ps.filter(function(p){ return u[1].indexOf(p.pos)>=0; });
     if(!list.length) return;
@@ -5856,19 +5912,22 @@ function openTeam(t){
     var allLines=(DATA.data[season]||{}).lines||[];
     // equal grades share a place, as the unit rows above do
     var lineRank=line?1+allLines.filter(function(L){ return L.score>line.score; }).length:0;
-    html+='<div class="tm-sec">'+u[0]+(u[0]==='Offense'&&line?' · line grade '+line.score+' ('+ordinal(lineRank)+' of '+allLines.length+')':'')+'</div>'
+    html+='<div class="tm-sec">'+u[0]+(u[0]==='Offense'&&line?' · line grade '+line.score+' ('+ordinal(lineRank)+' of '+allLines.length+' lines)':'')+'</div>'
       +'<div class="tm-roster">'+list.map(function(p){
         var sc=p.qualified?profileScore(p.id,season):null, face=faceURL(p.id,p.h), sw=faceSwap(p.id,face,p.hx,t,p.name);
+        var tv=teamValue(p,season,vcache);
         var rl=roleSpot(p)||(CFG.posLabel[p.pos]||p.pos);
         var bench=!miss(p.m.snapshr)&&p.m.snapshr<25;
         var left=p.team!==t;
         return '<button type="button" class="tm-pl'+(bench?' bench':'')+'" data-id="'+esc(p.id)+'" title="'
-          +esc(p.name+' — '+(sc==null?'no profile score yet: below the qualifying line':'profile score '+Math.round(sc)+', the average percentile of his headline stats'))+'">'
+          +esc(p.name+' — '+(sc==null?'no profile score yet: below the qualifying line':'profile score '+Math.round(sc)+', the average percentile of his headline stats')
+            +(tv&&tv.v!=null?'. Savant value '+fmt(MBY.sav?MBY.sav.unit:'sgn1',tv.v)+', '+ordinal(tv.rank)+' of '+tv.of+' qualified '+tv.pool+' in '+season:''))+'">'
           +(sw?'<span class="tmface">'+sw+'</span>':face?'<img src="'+esc(face)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'<span class="sk-a"></span>')
           +'<span><span class="tp-n">'+esc(p.name)+'</span><span class="tp-p">'+esc(rl)
           +(miss(p.m.snapshr)?'':' · '+Math.round(p.m.snapshr)+'%')
           +(p.st?' · <span class="tm-off">'+esc(p.st)+'</span>':'')
-          +(left?' · <span class="tm-off">'+(wk?'now ':'later ')+esc(teamAbbr(p.team,season))+'</span>':'')+'</span></span>'
+          +(left?' · <span class="tm-off">'+(wk?'now ':'later ')+esc(teamAbbr(p.team,season))+'</span>':'')+'</span>'
+          +teamValueLine(tv)+'</span>'
           +(sc==null?'<span class="tm-ps na">—</span>'
                     :'<span class="tm-ps'+(onColorIsDark(sc)?' dk':'')+'" style="background:'+colorAt(sc)+'">'+Math.round(sc)+'</span>')
           +'</button>';
@@ -5876,7 +5935,8 @@ function openTeam(t){
   });
   html+='<div class="tm-note">'+ps.length+' players have taken a snap or recorded a stat for this team in '+esc(season)
     +'. The number on the right is the profile score: the average percentile of a man\'s headline stats against his position'
-    +(wk?', with unsettled stats scored where they are likely to settle':'')+'. Faded cards are under a quarter of the snaps.</div>';
+    +(wk?', with unsettled stats scored where they are likely to settle':'')+'. Under each name: his Savant value and where it ranks among the qualified players at his position on all 32 teams. Faded cards are under a quarter of the snaps.</div>'
+    +teamHow(season,wk);
   el.innerHTML=html;
   el.hidden=false;
   el.querySelectorAll('.tm-pl').forEach(function(b){
