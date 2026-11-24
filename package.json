@@ -28,6 +28,7 @@
     "check:seo": "node --test tools/seo/check.mjs",
     "check:whats-new": "node --test tools/whats-new/check.mjs",
     "check:tiles": "node --test tools/tiles/check.mjs",
+    "check:search": "node --test tools/search/check.mjs",
     "check:edge": "node --test tools/edge/check.mjs",
     "savant-snapshot": "node scripts/savant-snapshot.mjs",
     "movers-draft": "node scripts/movers-draft.mjs",
