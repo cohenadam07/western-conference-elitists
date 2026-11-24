@@ -6,6 +6,10 @@
 //                                                               question through the connector (local
 //                                                               files), compare with the gold
 //   node tools/savant-mcp/exam/exam.mjs check --site https://wcehoops.com     the same, on the live address
+//   node tools/savant-mcp/exam/exam.mjs check --site https://wcehoops.com --files deployed
+//                                                               the live connector, with the site's own
+//                                                               files read from the repo at the commit
+//                                                               production is serving (deployedCommit)
 //   options: --only nba-01,x-03   --json   --out FILE
 //
 // questions.src.json holds the questions as written (a recipe and its parameters each); gold writes
@@ -44,6 +48,38 @@ const cmd = args[0] || 'check'
 const opt = (n, d) => { const i = args.indexOf(`--${n}`); return i >= 0 && args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : d }
 const SITE = args.includes('--site') ? opt('site', 'https://wcehoops.com').replace(/\/$/, '') : null
 const ONLY = opt('only', '') ? new Set(opt('only').split(',')) : null
+
+// ---- the commit production is serving ------------------------------------------------------------
+// With --files deployed, the site's own files (the catalog, the season in progress' rows) come from
+// the repo at the commit that is live, not from the site over HTTP. Why not the site: its bot
+// protection (on since Nov 23, 2026) answers a GitHub runner's file requests with HTTP 429 now and
+// then, and each one failed a question that had nothing wrong with it. Why not the checkout's HEAD:
+// the data bots' commits go live only with the next deploy batch (scripts/vercel-ignore.sh), so main
+// is often ahead of the site, and gold from main would disagree with a correct connector.
+//
+// Vercel records every production deployment on GitHub with its commit. The newest one that
+// succeeded is what the site serves; if a newer one is still building (the push that started this
+// run), wait for it, so the exam tests the code that was just pushed. The commit is fetched without
+// its files (a second or so) and each file is read with `git show` as it is needed. Needs gh with a
+// token (GH_TOKEN) and git; if any of it fails, the exam says so and reads the site as before.
+const REPO = process.env.GITHUB_REPOSITORY || 'cohenadam07/western-conference-elitists'
+const run = (bin, a) => { const r = spawnSync(bin, a, { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 26 }); if (r.status !== 0) throw new Error(`${bin} ${a.slice(0, 3).join(' ')}: ${String(r.stderr || r.error || '').trim().split('\n').pop()}`); return r.stdout }
+async function deployedCommit({ waitMs = 4 * 60 * 1000, log = console.log } = {}) {
+  const list = () => JSON.parse(run('gh', ['api', `repos/${REPO}/deployments?environment=Production&per_page=6`])).map((d) => ({ id: d.id, sha: d.sha, at: d.created_at }))
+  const stateOf = (id) => (JSON.parse(run('gh', ['api', `repos/${REPO}/deployments/${id}/statuses?per_page=1`]))[0] || {}).state || 'pending'
+  const started = Date.now()
+  for (;;) {
+    const deployments = list()
+    if (!deployments.length) throw new Error('GitHub lists no production deployment')
+    const newest = stateOf(deployments[0].id)
+    if (['pending', 'queued', 'in_progress'].includes(newest) && Date.now() - started < waitMs) { log(`files: production is deploying ${deployments[0].sha.slice(0, 8)}; waiting for it`); await sleep(15000); continue }
+    const live = newest === 'success' ? deployments[0] : deployments.slice(1).find((d) => stateOf(d.id) === 'success')
+    if (!live) throw new Error('no production deployment has succeeded')
+    run('git', ['fetch', '-q', '--depth', '1', '--filter=blob:none', 'origin', live.sha])
+    run('git', ['cat-file', '-e', `${live.sha}^{commit}`])
+    return live
+  }
+}
 
 // ---- metrics beyond lib's -------------------------------------------------------------------------
 function measure(rows, m) {
@@ -314,7 +350,11 @@ async function main() {
   // check
   const stored = JSON.parse(readFileSync(path.join(HERE, 'questions.json'), 'utf8')).questions
   const byId = new Map(stored.map((q) => [q.id, q]))
-  const F = makeFiles({ site: SITE })
+  let live = null
+  if (SITE && opt('files', '') === 'deployed') {
+    try { live = await deployedCommit(); if (!args.includes('--json')) console.log(`files: the commit production is serving, ${live.sha.slice(0, 8)} (deployed ${live.at})`) } catch (e) { console.log(`::warning::the exam could not find the deployed commit (${e.message}); reading the site's files over HTTP instead`) }
+  }
+  const F = makeFiles({ site: SITE, commit: live ? live.sha : null })
   const C = await connector()
   const results = []
   for (const q0 of qs) {
@@ -354,7 +394,7 @@ async function main() {
   const answerable = results.filter((r) => r.kind !== 'trap' && !r.skipped)
   const score = answerable.filter((r) => r.ok).length
   const an = results.filter((r) => r.kind === 'analysis')
-  const summary = { where: SITE || 'local files', answerable: answerable.length, answered: score, analysis: { asked: an.filter((r) => !r.skipped).length, answered: an.filter((r) => r.ok && !r.skipped).length, skipped: an.filter((r) => r.skipped).length }, traps: results.filter((r) => r.kind === 'trap').length, traps_proved: results.filter((r) => r.kind === 'trap' && r.ok).length, failed: results.filter((r) => !r.ok).map((r) => r.id) }
+  const summary = { where: SITE || 'local files', ...(live ? { files_from_commit: live.sha, deployed_at: live.at } : {}), answerable: answerable.length, answered: score, analysis: { asked: an.filter((r) => !r.skipped).length, answered: an.filter((r) => r.ok && !r.skipped).length, skipped: an.filter((r) => r.skipped).length }, traps: results.filter((r) => r.kind === 'trap').length, traps_proved: results.filter((r) => r.kind === 'trap' && r.ok).length, failed: results.filter((r) => !r.ok).map((r) => r.id) }
   console.log(`self-check: ${score} of ${answerable.length} answerable questions answered through the connector (${summary.traps} traps, ${summary.traps_proved} with their proof holding; analysis ${summary.analysis.answered} of ${summary.analysis.asked}${summary.analysis.skipped ? `, ${summary.analysis.skipped} skipped` : ''})`)
   if (opt('out', null)) writeFileSync(opt('out'), JSON.stringify({ summary, results }, null, 1))
   if (args.includes('--json')) console.log(JSON.stringify(summary))
