@@ -1193,6 +1193,9 @@
     },
     "data:live-lineups": {
       "excluded": "Live Lineups is private to OU by design (Adam, Nov 2026): it must never be reachable through the connector."
+    },
+    "page:wce-human.js#showCheckbox": {
+      "excluded": "The bot shield's \"confirm you are human\" checkbox (BOT-SHIELD.md): a gate in front of the pages' data, not a site feature. There is nothing in it for the connector to answer, and the connector's own address (/api/, /mcp/) is not behind it."
     }
   },
   "switches": {
