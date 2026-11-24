@@ -106,6 +106,10 @@
       "destination": "/api/analytics/history?section=ll-usage"
     },
     {
+      "source": "/api/human",
+      "destination": "/api/analytics/history?section=human"
+    },
+    {
       "source": "/mcp/:key",
       "destination": "/api/mcp?key=:key"
     },
