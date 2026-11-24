@@ -18,3 +18,15 @@ test('the analyst exam: every answerable question is answered through the connec
   console.log(`      ${tail}`)
   assert.equal(r.status, 0, (r.stdout || '').split('\n').filter((l) => l.startsWith('FAIL')).join('\n') || r.stderr)
 })
+
+// --files deployed: the site's files read from the repo at a commit (git show), not over HTTP.
+// Held to the checkout at HEAD, where the two must be the same files.
+test('a site file read from a commit is the file in that commit; a missing one is named', async () => {
+  const { makeFiles } = await import('./lib.mjs')
+  const sha = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).stdout.trim()
+  const dirty = spawnSync('git', ['status', '--porcelain', 'public/dataroom/catalog.json.gz', 'public/savant-current.json', 'public/cbb/index.json.gz'], { cwd: ROOT, encoding: 'utf8' }).stdout.trim()
+  if (!sha || dirty) return   // not a git checkout, or these files are mid-refresh
+  const at = makeFiles({ site: 'https://example.invalid', commit: sha }), here = makeFiles({})
+  for (const rel of ['dataroom/catalog.json', 'savant-current.json', 'cbb/index.json']) assert.deepEqual(await at.json(rel), await here.json(rel), rel)
+  await assert.rejects(() => at.json('no/such/file.json'), /not in the deployed commit/)
+})
