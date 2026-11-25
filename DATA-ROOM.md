@@ -176,6 +176,9 @@ numbers are at the top of the script (or `PARQUET_BACKFILL_MAX_FILES` / `PARQUET
 `PARQUET_DRY_RUN=1 bash pipeline/dataroom/parquet_publish.sh nba` prints the plan and stops; `PARQUET_DRY_RUN=build`
 also builds into a temporary folder for exact sizes and puts the manifest back, with no upload. On Nov 25 the plan was
 the three GM tables only: 142 files, 2,412,454 bytes.
+A tripped cap is a failure, not just a log line: its warning makes that sport's `dataroom-<sport>` light on
+/control red (and sends the phone push), through `publish.sh`'s one check-in or, run on its own, the script's own;
+`tools/dataroom/check.mjs` holds each link of that path.
 
 **Checks** (`tools/dataroom/analysis_tables.mjs`, in `check:dataroom` and `check:savant`): one row a game and a key
 that is unique in every table; every regular-season game joins `nba.player_games` (1,230 of 1,230 in 2024-25, and
