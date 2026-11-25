@@ -677,6 +677,18 @@ export function buildFootballApi({ data, current = null, html, through = null, c
       return [v, better + 1, a.length, a.length > 1 ? Math.round(100 * (a.length - 1 - better) / (a.length - 1)) : 50]
     }
     const lines = blk.lines || []
+    // the page's teamValue() (2.4.0): Savant value ranked among the qualified players at his exact
+    // position that season, 1 + the number with more, equal values sharing a place
+    const valuePool = {}
+    for (const p of playersOf(season)) if (p.qualified && !miss((p.m || {}).sav)) (valuePool[p.pos] = valuePool[p.pos] || []).push(p.m.sav)
+    const hasValue = Object.keys(valuePool).length > 0
+    const valueOf = (p) => {
+      if (!hasValue) return null
+      const v = (p.m || {}).sav
+      if (miss(v)) return { v: null, why: /^O[LTGC]$/.test(p.pos) && +season < 2016 ? 'ol' : p.qualified ? 'none' : 'unq' }
+      const L = valuePool[p.pos] || []
+      return { v, rank: 1 + L.filter((x) => x > v).length, of: L.length }
+    }
     // the team block's own order first (the order the page's boards keep for a tie), then
     // any club that only appears on a roster
     const extra = new Set()
@@ -722,6 +734,7 @@ export function buildFootballApi({ data, current = null, html, through = null, c
             unit, id: p.id, name: p.name, pos: p.pos, spot: roleSpot(p),
             snap: miss(mm.snapshr) ? null : Math.round(mm.snapshr),
             score: sc == null ? null : Math.round(sc),
+            value: valueOf(p),
             st: p.st || null,
             now: p.team !== t ? (p.team || null) : undefined,
           })
@@ -1142,7 +1155,7 @@ export function buildFootballApi({ data, current = null, html, through = null, c
     },
     season: {
       allSavant: 'The All-Savant Team, [1st team, 2nd team], as the page picks it: { off, def, st, line }. Each pick is { slot, id, name, team, by, v }: by "value" means picked on Savant value (v, the stat sav), "score" on the profile score (seasons with no value), "line" as one of the best line\'s five starters (before 2016; line has the unit\'s numbers), "returns" on yards and EPA per return (returns has them). Nobody is on both teams, except that a returner can also hold a position spot. While a season is being played it is a standing, not an honour.',
-      teams: 'Every team that season, by code: { g, rec, coach, stats, line, roster }. stats: by teamStats key, [value, rank (1 is best), teams ranked, percentile]; for sd and so (schedule) 1st is the hardest slate. line: the offensive line\'s grade, its rank and how many lines. roster: everyone who took a snap or recorded a stat for the team, in the page\'s order (unit, then position, the line left to right), with spot (depth-chart spot in words, where it agrees with his position), snap (snap share, %), score (profile score, qualified players only), st (roster status) and now (the team he finished with, when that is another).',
+      teams: 'Every team that season, by code: { g, rec, coach, stats, line, roster }. stats: by teamStats key, [value, rank (1 is best), teams ranked, percentile]; for sd and so (schedule) 1st is the hardest slate. line: the offensive line\'s grade, its rank and how many lines. roster: everyone who took a snap or recorded a stat for the team, in the page\'s order (unit, then position, the line left to right), with spot (depth-chart spot in words, where it agrees with his position), snap (snap share, %), score (profile score, qualified players only), value ({ v, rank, of }: Savant value for his whole season and its rank among the qualified players at his exact position that season on all 32 teams, 1 + the number with more; { v: null, why } where he has none: "unq" under the qualifying line, "ol" a lineman before 2016, "none" otherwise; null in a season with no values), st (roster status) and now (the team he finished with, when that is another).',
       week: 'Set while the season is being played: the numbers run through this week.',
       weekPlaying: 'Set when a later week is under way.',
       pools: 'Qualified players at each position that season.',
