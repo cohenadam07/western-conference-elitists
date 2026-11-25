@@ -233,3 +233,29 @@ test('parity: cbb_data and savant_data give the same rows', async () => {
   const nd = (await D.savantDictionary({ sport: 'cbb', table: 'stats' })).structured
   assert.deepEqual(strip({ ...nd, sport: undefined, table: undefined }), strip(od))
 })
+
+// ---- the Parquet backfill and its cap (Nov 25 2026) ------------------------------------------------
+// A catalog table added in a merge (NBA GM Savant's, #91) used to get only its season in progress; the
+// refresh now builds every season the manifest lacks, unless that is more than the cap, when it builds
+// none of them and says why. The dry run plans without building, uploading or reporting.
+test('the Parquet backfill plans every missing season, and a run over the cap builds none of them', async () => {
+  const { execFileSync } = await import('node:child_process')
+  const { gunzipSync: gz } = await import('node:zlib')
+  const run = (env) => execFileSync('bash', ['pipeline/dataroom/parquet_publish.sh', 'nba'], { cwd: ROOT, env: { ...process.env, PARQUET_DRY_RUN: '1', ...env }, encoding: 'utf8', timeout: 240000 })
+  const cat = JSON.parse(gz(readFileSync(path.join(ROOT, 'public/dataroom/catalog.json.gz'))))
+  const man = JSON.parse(gz(readFileSync(path.join(ROOT, 'public/dataroom/parquet.json.gz'))))
+  let missing = 0
+  for (const [t, v] of Object.entries(cat.sports.nba)) {
+    const have = (man.tables[`nba.${t}`] || {}).seasons || {}
+    const all = Object.keys(v.seasons || {}).sort()
+    missing += all.filter((s) => !have[s] && s !== all[all.length - 1]).length
+  }
+  const within = run({})
+  assert.match(within, /the cap is 200 files or 500 MB/)
+  if (missing) {
+    assert.match(within, new RegExp(`backfill: ${missing} missing files`))
+    const over = run({ PARQUET_BACKFILL_MAX_FILES: String(missing - 1) })
+    assert.match(over, /is OVER it and would build no missing season/)
+    for (const line of over.split('\n').filter((l) => /^ {2}nba\./.test(l))) assert.ok(line.trim().split(' ').length === 2, `over the cap, only the season in progress: ${line}`)
+  } else assert.doesNotMatch(within, /backfill:/)
+})

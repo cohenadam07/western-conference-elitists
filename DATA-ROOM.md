@@ -166,6 +166,17 @@ not hold yet as well as the season in progress, and adds a season to the manifes
 after a merge the next NBA refresh and the next college refresh upload all 137 files (about 37 MB, 90 seconds of
 building) and commit the manifest; until then nothing names a file the release lacks.
 
+**Catalog tables fill themselves in too, under a cap (Nov 25, 2026).** NBA GM Savant (#91) added three catalog tables
+(`nba.asset_events`, `nba.gm_decisions`, `nba.gm_seasons`) and the refresh wrote only their season in progress, so the
+manifest held 2026-27 alone and `savant_sql` saw one season. `parquet_publish.sh` now builds, for every table, each
+season it should have that the manifest lacks (a catalog table: every season the catalog lists), unless those missing
+files number more than `BACKFILL_MAX_FILES` (200) or come to more than `BACKFILL_MAX_MB` (500, estimated from the
+table's bytes per row): then it builds none of them, logs a warning, and still refreshes the seasons in progress. The
+numbers are at the top of the script (or `PARQUET_BACKFILL_MAX_FILES` / `PARQUET_BACKFILL_MAX_MB` for one run).
+`PARQUET_DRY_RUN=1 bash pipeline/dataroom/parquet_publish.sh nba` prints the plan and stops; `PARQUET_DRY_RUN=build`
+also builds into a temporary folder for exact sizes and puts the manifest back, with no upload. On Nov 25 the plan was
+the three GM tables only: 142 files, 2,412,454 bytes.
+
 **Checks** (`tools/dataroom/analysis_tables.mjs`, in `check:dataroom` and `check:savant`): one row a game and a key
 that is unique in every table; every regular-season game joins `nba.player_games` (1,230 of 1,230 in 2024-25, and
 all 2,460 team scores equal the box scores' sums); five on the floor in 99%+ of team-games of the newest finished season (95% in the oldest stint seasons);
