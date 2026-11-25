@@ -12,8 +12,18 @@ const num = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const ord = (n) => (n == null ? '—' : n + ((n % 100 >= 11 && n % 100 <= 13) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th')));
 const yr = (d) => (d ? d.slice(0, 4) : 'today');
 // titles: two decimals, three below a tenth (a single decision's share of a title is often small)
-const tt = (v) => (v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(Math.abs(v) >= 0.1 || v === 0 ? 2 : 3));
-const tn = (v) => (v == null ? '—' : Math.abs(v).toFixed(Math.abs(v) >= 0.1 || v === 0 ? 2 : 3));
+// titles, always to two decimals (expected titles, titles added, playoff luck): a sign only when the rounded value is not zero
+const tt = (v) => { if (v == null) return '—'; const r = Math.abs(v).toFixed(2); return (+r === 0 ? '' : v > 0 ? '+' : '−') + r; };
+const tn = (v) => (v == null ? '—' : Math.abs(v).toFixed(2));
+// one decision's expected titles are small (most under 0.01): the log and the moves print them to three decimals, every row the same
+const td3 = (v) => { if (v == null) return '—'; const r = Math.abs(v).toFixed(3); return (+r === 0 ? '' : v > 0 ? '+' : '−') + r; };
+// titles won: whole when whole; a title shared within a season (a co-lead, or a season he took over midway) leaves a
+// fraction, shown to one decimal with a marker whose tap says why
+const tw = (v) => {
+  if (v == null) return '—';
+  if (Math.abs(v - Math.round(v)) < 0.005) return String(Math.round(v));
+  return tip(`Shared credit: ${v.toFixed(2)} titles. At least one of his title seasons was shared (a co-lead, or a season he took over or left midway), and each GM gets his share of that title, the same split as the points.`, `${v.toFixed(1)}<sup class="shm" aria-hidden="true">*</sup>`, 'sh');
+};
 const span = (s) => `${yr(s.start)}–${s.end ? yr(s.end) : 'today'}`;
 const TEAM = { ATL: 'Atlanta', BOS: 'Boston', BRK: 'Brooklyn', CHI: 'Chicago', CHO: 'Charlotte', CLE: 'Cleveland', DAL: 'Dallas', DEN: 'Denver', DET: 'Detroit', GSW: 'Golden State',
   HOU: 'Houston', IND: 'Indiana', LAC: 'LA Clippers', LAL: 'LA Lakers', MEM: 'Memphis', MIA: 'Miami', MIL: 'Milwaukee', MIN: 'Minnesota', NOP: 'New Orleans', NYK: 'New York',
@@ -114,7 +124,7 @@ function boardTable(rows, n, which, st, pool) {
   const key = m === 'points' ? (at ? 'gva_at_time' : 'gva') : m === 'titles' ? 'titles_added' : 'blended';
   const head = `<tr><th>GM</th><th>Team</th><th>Years</th><th>${name} ${info(key)}</th>${m !== 'points' ? `<th>Points ${info(at ? 'gva_at_time' : 'gva')}</th>` : ''}${m !== 'titles' ? `<th>Expected titles added ${info('titles_added')}</th>` : ''}<th>Titles won ${info('titles_won')}</th><th>Expected titles ${info('titles_expected')}</th><th>Playoff luck ${info('playoff_luck')}</th><th>Percentile ${info('pct')}</th></tr>`;
   return head + rows.slice(0, n || rows.length).map((r) => { const v = score(r, m, p), pc = pctIn(v, xs); return `<tr class="link" data-g="${esc(r.file)}"><td>${gmLink(r.file, r.name)}</td><td>${esc(r.team_name || r.team)}</td><td>${span(r)}</td>
-    <td><b>${shown(v, m, p)}</b></td>${m !== 'points' ? `<td>${sgn(r.gva)}</td>` : ''}${m !== 'titles' ? `<td class="tn">${tt(r.titles_added)}</td>` : ''}<td class="tn">${tn(r.titles_won)}</td><td class="tn">${tn(r.titles_expected)}</td><td class="tn">${tt(r.playoff_luck)}</td><td><span class="pchip" style="background:${pctColor(pc)}">${ord(pc)}</span></td></tr>`; }).join('');
+    <td><b>${shown(v, m, p)}</b></td>${m !== 'points' ? `<td>${sgn(r.gva)}</td>` : ''}${m !== 'titles' ? `<td class="tn">${tt(r.titles_added)}</td>` : ''}<td class="tn">${tw(r.titles_won)}</td><td class="tn">${tn(r.titles_expected)}</td><td class="tn">${tt(r.playoff_luck)}</td><td><span class="pchip" style="background:${pctColor(pc)}">${ord(pc)}</span></td></tr>`; }).join('');
 }
 const poolOf = (which) => (which === 'at_time' ? IDX.meta.pool_at_time : which === 'active' ? IDX.meta.pool_active : IDX.meta.pool_all);
 function ranked(which, st) {
@@ -209,7 +219,7 @@ function card() {
   $('titleTiles').innerHTML = t('Expected titles added', tt(s.titles_added), 'above an average GM, plus left minus inherited', 'titles_added') +
     t('While he ran it', tt(s.titles_produced_above_average), 'title chances above an average team', 'titles_produced') +
     t('Left behind', tn(s.titles_left), `${s.active ? 'projected' : 'as it turned out'}, ten seasons`, 'titles_left') + t('Inherited', tn(s.titles_inherited), `${s.active ? 'projected' : 'as it turned out'}, ten seasons`, 'titles_left') +
-    t('Titles won', tn(s.titles_won), 'his share of each title season', 'titles_won') + t('Expected titles', tn(s.titles_expected), 'the same seasons, as the model rated them', 'titles_expected') +
+    t('Titles won', tw(s.titles_won), 'his share of each title season', 'titles_won') + t('Expected titles', tn(s.titles_expected), 'the same seasons, as the model rated them', 'titles_expected') +
     (s.active ? '' : t('At the time', tt(s.titles_added_at_time), `inherited ${tn(s.titles_inherited_at_time)}, left ${tn(s.titles_left_at_time)}, as projected`, 'titles_at_time'));
   const best = Object.entries(s.titles_by_season || {}).sort((a, b) => b[1] - a[1]).slice(0, 3).filter((x) => x[1] > 0);
   $('titleNote').innerHTML = best.length ? `His best title chances above an average team's: ${best.map(([y, v]) => `${+y - 1}-${String(y).slice(2)} ${tt(v)}`).join(', ')} (his share of the season).` : '';
@@ -310,7 +320,7 @@ function node(a) {
 }
 function moves(s) {
   $('moves').innerHTML = s.big_moves.length ? s.big_moves.map((m) => `<div class="move"><div class="mh"><span class="md">${esc(m.date)}</span> ${esc(m.label)}</div>
-    <div class="mg">At the time <b>${m.at_time == null ? 'not graded' : sgn(m.at_time)}</b> · how it turned out <b>${sgn(m.turned_out)}</b> · expected titles <b>${tt(m.titles_turned_out)}</b> ${info('dec_titles')} · blended <b>${sgn(m.blended)}</b>${m.weight < 1 ? ` · his share ${Math.round(m.weight * 100)}%` : ''}</div>
+    <div class="mg">At the time <b>${m.at_time == null ? 'not graded' : sgn(m.at_time)}</b> · how it turned out <b>${sgn(m.turned_out)}</b> · expected titles <b>${td3(m.titles_turned_out)}</b> ${info('dec_titles')} · blended <b>${sgn(m.blended)}</b>${m.weight < 1 ? ` · his share ${Math.round(m.weight * 100)}%` : ''}</div>
     ${m.tree ? `<div class="tree">${m.tree.gave.length ? `<div class="gave">Gave: ${m.tree.gave.map((a) => (a.player_id ? pl(a.player_id, a.label) : esc(a.label))).join(', ')}</div>` : ''}<ul>${m.tree.got.map((a) => `<li>${node(a)}</li>`).join('')}</ul></div>` : ''}</div>`).join('') : '<p class="cap">No trades or drafts credited to him.</p>';
 }
 function boardNote(d) {
@@ -328,7 +338,7 @@ function log() {
   $('logNote').hidden = !$('logNote').innerHTML;
   $('log').innerHTML = `<tr><th>Date</th><th>Team</th><th>Decision</th><th>At the time ${info('at_time')}</th><th>How it turned out ${info('turned_out')}</th><th>Titles, at the time ${info('dec_titles')}</th><th>Titles, turned out ${info('dec_titles')}</th><th>Blended ${info('dec_blended')}</th>${sal ? `<th>Cost</th><th>Cap hit</th><th>Value per $1M</th><th>Dead money</th><th>Years of control</th>` : ''}<th>His share ${info('share')}</th><th>Graded by ${info('graded_by')}</th></tr>` + rows.slice(0, 400).map((d) => `<tr>
     <td>${esc(d.date)}</td><td>${esc(d.team_name || d.team)}</td><td class="dl">${d.player_id && !d.label.includes(' traded ') ? pl(d.player_id, d.label) : esc(d.label.length > 140 ? d.label.slice(0, 137) + '…' : d.label)}${d.coach_id ? ` <a href="${COACH}${encodeURIComponent(d.coach_id)}">coach</a>` : ''}${d.type === 'left in free agency' ? ` ${info('left_fa')}` : ''}${d.type === 'draft' ? ` <span class="ts">${boardNote(d)}</span>` : ''}${d.low_confidence.length ? ` ${tip(d.low_confidence.join('; '), 'low confidence', 'lc')}${info('low_conf')}` : ''}</td>
-    <td>${tip(d.at_time_note || (d.models || []).join(', '), d.at_time == null ? '<span class="na">—</span>' : sgn(d.at_time))}</td><td>${sgn(d.turned_out)}</td><td class="tn">${tt(d.titles_at_time)}</td><td class="tn">${tt(d.titles_turned_out)}</td><td>${sgn(d.blended_turned_out)}</td>${sal ? `<td>${money(d.salary_cost)}</td><td>${money(d.cap_hit)}</td><td>${vpd(d.value_per_dollar)}</td><td>${money(d.dead_money)}</td><td>${d.years_of_control ?? '—'}</td>` : ''}<td>${d.weight < 1 ? Math.round(d.weight * 100) + '%' : ''}</td><td class="gb">${tip(`Graded by ${(d.models || []).join(', ') || 'no model'}; grade version ${d.grade_version || ''}${d.frozen_on ? `; frozen ${d.frozen_on}` : ''}`, esc((d.models || []).join(', ') || '—') + (d.frozen_on ? ` · frozen ${esc(d.frozen_on)}` : ''))}</td></tr>`).join('');
+    <td>${tip(d.at_time_note || (d.models || []).join(', '), d.at_time == null ? '<span class="na">—</span>' : sgn(d.at_time))}</td><td>${sgn(d.turned_out)}</td><td class="tn">${td3(d.titles_at_time)}</td><td class="tn">${td3(d.titles_turned_out)}</td><td>${sgn(d.blended_turned_out)}</td>${sal ? `<td>${money(d.salary_cost)}</td><td>${money(d.cap_hit)}</td><td>${vpd(d.value_per_dollar)}</td><td>${money(d.dead_money)}</td><td>${d.years_of_control ?? '—'}</td>` : ''}<td>${d.weight < 1 ? Math.round(d.weight * 100) + '%' : ''}</td><td class="gb">${tip(`Graded by ${(d.models || []).join(', ') || 'no model'}; grade version ${d.grade_version || ''}${d.frozen_on ? `; frozen ${d.frozen_on}` : ''}`, esc((d.models || []).join(', ') || '—') + (d.frozen_on ? ` · frozen ${esc(d.frozen_on)}` : ''))}</td></tr>`).join('');
   $('logMore').textContent = rows.length > 400 ? `Showing the latest 400 of ${rows.length}. Every one is in the Data Room (nba gm_decisions).` : `Grades by ${CUR.decisions[0] ? CUR.decisions[0].grade_version : ''}; tap an at-the-time grade for the model that made it.`;
 }
 

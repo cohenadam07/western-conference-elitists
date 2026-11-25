@@ -1,6 +1,6 @@
 // GM Savant on a phone-sized screen, tapped, not hovered (jsdom; `npm i --no-save jsdom` first).
 //   node tools/savant-gm/tap.mjs [public dir]
-// Loads public/gm-savant.html at 375px with its data read from public/gms, and checks that every detail opens by a tap:
+// Loads public/gm-savant.html at 375px (TAP_WIDTH=768 or 1280 for the other widths) with its data read from public/gms, and checks that every detail opens by a tap:
 // each explainer button opens its own entry (title matching the key's), a second tap closes it, tapping elsewhere
 // closes it, the tap-to-read details open, the portfolio chart answers a tap, and the card's newer lines render.
 import fs from 'node:fs';
@@ -11,6 +11,7 @@ import { JSDOM } from 'jsdom';
 const PUB = path.resolve(process.argv[2] || 'public');
 let pass = 0, fail = 0;
 const ok = (cond, msg) => { if (cond) { pass++; console.log('ok', msg); } else { fail++; console.log('not ok', msg); } };
+const W = +process.env.TAP_WIDTH || 375;
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const html = fs.readFileSync(path.join(PUB, 'gm-savant.html'), 'utf8').replace(/<script src="\/wce-nav\.js"[^>]*><\/script>/, '');
@@ -24,7 +25,7 @@ const readJson = (url) => {
 const dom = new JSDOM(html, {
   url: 'http://localhost/gm-savant.html', runScripts: 'dangerously', pretendToBeVisual: true,
   beforeParse(w) {
-    w.innerWidth = 375; w.innerHeight = 812;
+    w.innerWidth = W; w.innerHeight = W < 600 ? 812 : 900;
     w.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
     w.scrollTo = () => {}; w.Element.prototype.scrollIntoView = () => {};
     w.fetch = async (url) => { const j = readJson(url); return { ok: !!j, status: j ? 200 : 404, json: async () => j }; };
@@ -36,7 +37,7 @@ const pop = () => d.getElementById('expl');
 const EXPL = w.eval('EXPL');
 
 for (let i = 0; i < 50 && !d.querySelector('#homeBoard tr.link'); i++) await wait(50);
-ok(d.querySelector('#homeBoard tr.link'), 'the home board loads at 375px');
+ok(d.querySelector('#homeBoard tr.link'), `the home board loads at ${W}px`);
 
 // every explainer button on the home page opens its own entry, and a second tap closes it
 const ibs = [...d.querySelectorAll('.ib')];
@@ -115,6 +116,27 @@ const wrong2 = ibs2.filter((b) => { tap(b); const bad = pop().hidden || !pop().q
 ok(ibs2.length >= 6 && !wrong2.length, `every titles explainer on the card opens its own entry (${ibs2.length}; wrong: ${wrong2.join(', ') || 'none'})`);
 const wide = [...d.querySelectorAll('.blendctl input')].every((x) => x.getAttribute('aria-label'));
 ok(wide, 'the slider has a label');
+
+// number formats on the boards (1.0.1): titles won whole, or one decimal with a shared-credit marker; every other
+// titles column always to two decimals; points whole
+w.location.hash = '';
+await wait(300);
+tap(d.querySelector('#homeSeg button[data-v="all"]'));
+tap([...d.querySelectorAll('#homeMetric button')].find((b) => b.dataset.v === 'blended'));
+await wait(50);
+const col = (tbl, re) => { const i = [...tbl.querySelectorAll('tr:first-child th')].findIndex((th) => re.test(th.textContent)); return [...tbl.querySelectorAll('tr.link')].map((tr) => tr.children[i].textContent.trim()); };
+const boards = [...d.querySelectorAll('#homeBoard table.t')];
+const won = boards.flatMap((t) => col(t, /^Titles won/)), exp = boards.flatMap((t) => col(t, /^Expected titles added/)), xt = boards.flatMap((t) => col(t, /^Expected titles\b(?! added)/)), luck = boards.flatMap((t) => col(t, /^Playoff luck/)), pts = boards.flatMap((t) => col(t, /^Points/));
+ok(won.length >= 20 && won.every((v) => /^\d+$|^\d+\.\d\*$/.test(v)), `titles won are whole, or one decimal with the shared marker (${[...new Set(won)].slice(0, 8).join(' ')})`);
+ok([...exp, ...xt, ...luck].every((v) => /^[+−]?\d+\.\d{2}$/.test(v)) && exp.length >= 20, `expected titles added, expected titles and playoff luck are always two decimals (${exp.slice(0, 4).join(' ')})`);
+ok(pts.every((v) => /^[+−]?[\d,]+$/.test(v)), 'points are whole');
+const westFile = file('Jerry West');
+w.location.hash = 'g=' + westFile;
+for (let i = 0; i < 60 && !(d.querySelector('#titleTiles .tile')); i++) await wait(50);
+await wait(300);
+const sh = d.querySelector('#titleTiles .tipb.sh');
+ok(sh && /^4\.0\*$/.test(sh.textContent.trim()), `Jerry West's titles won read 4.0 with the marker (${sh ? sh.textContent.trim() : 'none'})`);
+if (sh) { tap(sh); ok(!pop().hidden && /Shared credit: 4\.01 titles/.test(pop().textContent), 'its tap explains shared credit'); tap(d.body); }
 
 // salaries (null until 1.1.0): the banner lists what they will change, every badge opens it at its own line
 const ban = d.getElementById('salaries'), keysSoon = [...d.querySelectorAll('#salList li')].map((li) => li.dataset.k);
