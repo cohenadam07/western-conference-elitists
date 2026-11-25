@@ -1,7 +1,8 @@
 // NBA GM Savant's wide tables in a real browser (Chrome through Playwright), at 375px, 768px and 1280px: every table
 // scrolls inside its own panel, its last column can be scrolled into view, the first column stays pinned while the
 // rest scrolls, and the page itself never scrolls sideways. jsdom (tap.mjs) has no layout, so this is the one check
-// that sees what a reader sees. Data is served from public/ on disk; nothing is fetched.
+// that sees what a reader sees. On the boards, the first two number columns must be in view before any scrolling
+// (Nov 25, 2026: a one-line Team column second from the left pushed every number off a 1280px board). Data is served from public/ on disk; nothing is fetched.
 //
 //   GM_CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node tools/savant-gm/layout.mjs [public] [shots-dir]
 import { chromium } from 'playwright'
@@ -45,10 +46,14 @@ for (const width of [375, 768, 1280]) {
         if (!box || !t.offsetParent) continue
         const rows = t.querySelectorAll('tr')
         const firstCell = rows[1] && rows[1].children[0]
+        const nums = [...rows[0].children].filter((th) => !/^(GM|Team|Years)\b/.test(th.textContent.trim())).slice(0, 2)
+        const box0 = box.getBoundingClientRect()
+        const numsShown = nums.map((th) => ({ name: th.textContent.trim().replace(/\s+i$/, ''), right: Math.round(th.getBoundingClientRect().right - box0.right) }))
         const before = firstCell.getBoundingClientRect().left
         box.scrollLeft = box.scrollWidth
         const after = firstCell.getBoundingClientRect().left
         const lastTh = rows[0].lastElementChild.getBoundingClientRect(), b = box.getBoundingClientRect(), c = card.getBoundingClientRect()
+        // measured at scrollLeft 0, before the scroll below: the number columns are every column but the GM, his teams and years
         out.tables.push({
           wide: t.scrollWidth > box.clientWidth + 1,
           scrolls: box.scrollWidth > box.clientWidth + 1 ? box.scrollLeft > 0 : true,
@@ -56,6 +61,7 @@ for (const width of [375, 768, 1280]) {
           insideCard: b.right <= c.right + 1 && b.left >= c.left - 1,
           pinned: Math.abs(after - before) < 1.5,
           pinnedLabel: firstCell.textContent.trim().slice(0, 30),
+          numsShown,
         })
         box.scrollLeft = 0
       }
@@ -63,16 +69,22 @@ for (const width of [375, 768, 1280]) {
     }, sel)
     ok(r.pageScroll <= 0, `${width}px, ${where}: the page never scrolls sideways (${r.pageScroll}px)`)
     ok(r.tables.length > 0, `${width}px, ${where}: ${r.tables.length} table(s) found`)
+    const board = where !== 'a GM card (Jerry Krause)'
     for (const [i, t] of r.tables.entries()) {
       const tag = `${width}px, ${where}, table ${i + 1}${t.wide ? ' (wider than its panel)' : ''}`
       ok(t.insideCard, `${tag}: its scroll panel stays inside the card`)
       ok(t.scrolls, `${tag}: scrolls sideways`)
       ok(t.lastVisible, `${tag}: the last column scrolls fully into view`)
+      if (board) ok(t.numsShown.length === 2 && t.numsShown.every((x) => x.right <= 1), `${tag}: the first two number columns are in view before scrolling (${t.numsShown.map((x) => `${x.name} ${x.right <= 1 ? 'in view' : `${x.right}px past the edge`}`).join(', ')})`)
       if (t.wide) ok(t.pinned, `${tag}: the first column stays pinned while scrolling ("${t.pinnedLabel}")`)
     }
     if (SHOTS) {
       fs.mkdirSync(SHOTS, { recursive: true })
       await page.screenshot({ path: path.join(SHOTS, `gm-${where.split(' ')[0]}-${width}.png`), fullPage: false })
+      // and one with the table's own card at the top of the screen, where a phone reader meets it
+      await page.evaluate((sel) => { const t = document.querySelector(sel); const c = t && (t.closest('.col') || t); if (c) window.scrollTo(0, c.getBoundingClientRect().top + window.scrollY - 8) }, sel)
+      await page.waitForTimeout(150)
+      await page.screenshot({ path: path.join(SHOTS, `gm-${where.split(' ')[0]}-${width}-table.png`), fullPage: false })
     }
   }
   await page.close()

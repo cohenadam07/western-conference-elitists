@@ -441,6 +441,13 @@ td.tn{font-family:'IBM Plex Mono',monospace;white-space:nowrap}
 .scroll{overflow-x:auto;overscroll-behavior-x:contain}
 .scroll table.t th:first-child,.scroll table.t td:first-child{position:sticky;left:0;z-index:1;background:var(--surface);text-align:left;box-shadow:inset -1px 0 0 var(--line)}
 .scroll table.t td:first-child{max-width:170px;overflow:hidden;text-overflow:ellipsis}
+/* on the boards the numbers come right after the GM, and his teams and years follow them (a one-line Team column
+   second from the left, up to "Seattle SuperSonics / Oklahoma City Thunder", pushed every number off a laptop screen).
+   Column headings wrap, so a long one ("Expected titles added") does not set its column's width. */
+table.t th.tm,table.t td.tm{text-align:left}
+table.t td.tm{font-family:var(--body);font-size:12.5px}
+.scroll table.t th{vertical-align:bottom}
+.scroll table.t th:not(:first-child){white-space:normal;min-width:64px}
 /* a title shared within a season: one decimal and a marker; the tap says why */
 .tipb.sh{text-decoration:none}
 .shm{font-size:.7em;color:var(--gold);margin-left:1px;font-weight:700}
@@ -1047,9 +1054,9 @@ function boardTable(rows, n, which, st, pool) {
   const xs = pool.map((r) => score(r, m, p));
   const name = m === 'points' ? `GM Value Added${at ? ', at the time' : ''}` : m === 'titles' ? `Expected titles added${at ? ', at the time' : ''}` : (p >= 100 ? 'Titles only' : p <= 0 ? 'Wins only (points)' : `Blended${at ? ', at the time' : ''}`);
   const key = m === 'points' ? (at ? 'gva_at_time' : 'gva') : m === 'titles' ? 'titles_added' : 'blended';
-  const head = `<tr><th>GM</th><th>Team</th><th>Years</th><th>${name} ${info(key)}</th>${m !== 'points' ? `<th>Points ${info(at ? 'gva_at_time' : 'gva')}</th>` : ''}${m !== 'titles' ? `<th>Expected titles added ${info('titles_added')}</th>` : ''}<th>Titles won ${info('titles_won')}</th><th>Expected titles ${info('titles_expected')}</th><th>Playoff luck ${info('playoff_luck')}</th><th>Percentile ${info('pct')}</th></tr>`;
-  return head + rows.slice(0, n || rows.length).map((r) => { const v = score(r, m, p), pc = pctIn(v, xs); return `<tr class="link" data-g="${esc(r.file)}"><td>${gmLink(r.file, r.name)}</td><td>${esc(r.team_name || r.team)}</td><td>${span(r)}</td>
-    <td><b>${shown(v, m, p)}</b></td>${m !== 'points' ? `<td>${sgn(r.gva)}</td>` : ''}${m !== 'titles' ? `<td class="tn">${tt(r.titles_added)}</td>` : ''}<td class="tn">${tw(r.titles_won)}</td><td class="tn">${tn(r.titles_expected)}</td><td class="tn">${tt(r.playoff_luck)}</td><td><span class="pchip" style="background:${pctColor(pc)}">${ord(pc)}</span></td></tr>`; }).join('');
+  const head = `<tr><th>GM</th><th>${name} ${info(key)}</th>${m !== 'points' ? `<th>Points ${info(at ? 'gva_at_time' : 'gva')}</th>` : ''}${m !== 'titles' ? `<th>Expected titles added ${info('titles_added')}</th>` : ''}<th>Titles won ${info('titles_won')}</th><th>Expected titles ${info('titles_expected')}</th><th>Playoff luck ${info('playoff_luck')}</th><th>Percentile ${info('pct')}</th><th class="tm">Team</th><th>Years</th></tr>`;
+  return head + rows.slice(0, n || rows.length).map((r) => { const v = score(r, m, p), pc = pctIn(v, xs); return `<tr class="link" data-g="${esc(r.file)}"><td>${gmLink(r.file, r.name)}</td>
+    <td><b>${shown(v, m, p)}</b></td>${m !== 'points' ? `<td>${sgn(r.gva)}</td>` : ''}${m !== 'titles' ? `<td class="tn">${tt(r.titles_added)}</td>` : ''}<td class="tn">${tw(r.titles_won)}</td><td class="tn">${tn(r.titles_expected)}</td><td class="tn">${tt(r.playoff_luck)}</td><td><span class="pchip" style="background:${pctColor(pc)}">${ord(pc)}</span></td><td class="tm">${esc(r.team_name || r.team)}</td><td>${span(r)}</td></tr>`; }).join('');
 }
 const poolOf = (which) => (which === 'at_time' ? IDX.meta.pool_at_time : which === 'active' ? IDX.meta.pool_active : IDX.meta.pool_all);
 function ranked(which, st) {
