@@ -150,13 +150,26 @@ details.ex{border-top:1px solid var(--line);padding:10px 0}details.ex summary{cu
 .aw .bd{display:flex;align-items:center;gap:18px;padding:18px}.aw .bd a{color:var(--field);text-decoration:none}
 .aw .nm{font-family:var(--disp);font-size:clamp(28px,4vw,38px);line-height:1;text-transform:uppercase;color:var(--field)}
 /* playoff */
-.brk{display:flex;flex-wrap:wrap;gap:28px}.brk .byes{flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:14px}.brk .fr{flex:2 1 520px;min-width:0;display:flex;flex-direction:column;gap:14px}
-.brk h3{font-family:var(--fig);font-size:12px;letter-spacing:.12em;color:var(--soft)}
-.bye{display:flex;align-items:center;gap:14px;padding:12px 16px}.bye .sd{font-family:var(--disp);font-size:34px;width:34px;color:var(--field)}
-.bye .nm{font-weight:700;font-size:17px}.bye small{font-size:13px;color:var(--muted);display:block}.bye .mt{margin-left:auto;font-family:var(--fig);font-size:12px;color:var(--muted);text-align:right}
-.frg{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
-.gm .lb{background:var(--field);color:var(--white);padding:6px 12px;font-family:var(--fig);font-size:11px;letter-spacing:.1em}
-.gm .tm{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}.gm .sd{font-family:var(--disp);font-size:24px;width:28px;color:var(--field)}.gm .nm{flex:1;font-weight:700}
+.bkt{--u:12px;--gap:32px;display:grid;grid-template-columns:minmax(0,1.45fr) var(--gap) minmax(0,1.45fr) var(--gap) minmax(0,1fr) var(--gap) minmax(0,1fr) var(--gap) 132px;grid-template-rows:repeat(46,var(--u)) auto;padding:4px 12px 0 4px;overflow:hidden}
+.bt{display:flex;flex-direction:column;gap:2px;min-width:0;background:var(--white);border:4px solid var(--white);box-shadow:6px 6px 0 var(--shadow);z-index:1}
+.bt1{transform:rotate(-.5deg)}.bt2{transform:rotate(.4deg)}
+.bh{flex:1 1 0;min-height:0;min-width:0;display:flex;align-items:center;gap:10px;padding:0 10px;text-decoration:none;overflow:hidden}
+.bh.em{background:var(--deep)}
+a.bh:hover .tx b{text-decoration:underline}a.bh:focus-visible{outline:3px solid var(--sticker);outline-offset:-3px}
+.bh .sd{flex:none;min-width:32px;font-family:var(--disp);font-size:30px;line-height:1;text-align:center}
+.bh .lg{flex:none;width:28px;height:28px;border-radius:50%;background:var(--white);display:grid;place-items:center}.bh .lg:empty{display:none}
+.bh .lg .logo{width:21px;height:21px;margin:0}
+.bh .tx{min-width:0;display:flex;flex-direction:column;gap:1px;line-height:1.2}
+.bh .tx b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bh .tx small{font-family:var(--fig);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bw{grid-row:1/span 46;display:block;width:100%;height:100%;overflow:visible;z-index:2}
+.bw path,.btr .stub{fill:none;stroke:var(--gold);stroke-width:2;vector-effect:non-scaling-stroke}
+.btr{grid-column:9;grid-row:17/span 16;min-width:0;z-index:2}.btr svg{display:block;width:100%;height:100%;overflow:visible}
+.tro{transform:rotate(-3deg);transform-origin:60px 90px}
+.bl{grid-row:47;min-width:0;padding-top:18px;font-family:var(--fig);font-size:11px;line-height:1.55;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}.bl .sh{display:none}
+/* a label is the round on line 1 and its date on line 2; neither line wraps (a long one runs on under the empty space to its right) */
+.bl b{display:block;font-weight:600;color:var(--softer);white-space:nowrap}.bl .l2{display:block;white-space:nowrap}.bl i{font-style:normal}
+.bkr{margin:0;font-family:var(--fig);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--sticker)}
 .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}.rules h2{grid-column:1/-1;font-size:28px}
 .rules .pnl h3{color:var(--sticker)}.rules .pnl p{margin:0;font-size:14px;line-height:1.45}
 .odds{display:flex;align-items:center;gap:8px}.odds i{display:block;width:80px;height:10px;background:var(--track)}.odds i b{display:block;height:10px}
@@ -209,7 +222,7 @@ dialog.sheet::backdrop{background:rgba(3,9,20,.62)}
 @media (prefers-reduced-motion:reduce){.sheet .in{animation:none}}
 @media (max-width:639.98px){.fieldbox,.strow{display:none}.as-ph{display:block}.as-mob{display:inline-flex;align-items:center}}
 .foot{border-top:1px solid #1E2C4A;background:var(--deep);padding:22px var(--gut) 34px;font-size:13px;line-height:1.6;color:var(--soft)}.foot p{max-width:var(--wrap);margin:0 auto}
-@media (max-width:640px){.hero .cp{display:none}.hero{padding:28px var(--gut) 24px}.hero .ttl>div{padding:10px 16px 6px}.bar1{align-items:stretch}.srch,.srch input{width:100%}.tab{padding:0 12px;font-size:16px}.who{padding:16px}.who .top{gap:12px}.ctl,.grp{padding-left:14px;padding-right:14px}.poolline,.valline{margin-left:14px;margin-right:14px}.pad{padding:14px}.bye .mt{display:none}main{gap:28px}}
+@media (max-width:640px){.hero .cp{display:none}.hero{padding:28px var(--gut) 24px}.hero .ttl>div{padding:10px 16px 6px}.bar1{align-items:stretch}.srch,.srch input{width:100%}.tab{padding:0 12px;font-size:16px}.who{padding:16px}.who .top{gap:12px}.ctl,.grp{padding-left:14px;padding-right:14px}.poolline,.valline{margin-left:14px;margin-right:14px}.pad{padding:14px}main{gap:28px}}
 
 /* 1.1.0: card groups that collapse to their headline stat */
 details.cg{border-top:2px solid var(--line);padding:6px 22px 8px}details.cg>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(90px,1fr) minmax(90px,1.4fr) 64px 24px;align-items:center;gap:10px;min-height:44px}
@@ -232,6 +245,10 @@ details.cg[open]>summary .cgh,details.cg[open]>summary .cgb,details.cg[open]>sum
 .strip a small.vr{display:block;color:var(--muted);font-size:11px;margin-top:1px}
 /* the theme's phone value column is 64px; "138th of 138" needs 80 */
 @media (max-width:640px){.prow:has(small.rk){grid-template-columns:minmax(0,1fr) 80px}}
+/* 1.3.0: the bracket narrows at 840px; at 640px each team half is its seed and logo, names go to the team page,
+   and each column's label is its short name over its short date (the full label stays for screen readers) */
+@media (max-width:840px){.bkt{--gap:16px;grid-template-columns:minmax(0,1.5fr) var(--gap) minmax(0,1.5fr) var(--gap) minmax(0,.6fr) var(--gap) minmax(0,.6fr) var(--gap) 72px}.bh .tx .btag{display:none}.bh{gap:8px;padding:0 8px}.bh .sd{min-width:26px;font-size:26px}.bl{font-size:10px;letter-spacing:.04em}}
+@media (max-width:640px){.bkt{--u:11px;grid-template-columns:minmax(0,1fr) 10px minmax(0,1fr) 10px 54px 10px 54px 8px 40px;padding:4px 8px 0 2px}.bt{border-width:3px;box-shadow:4px 4px 0 var(--shadow)}.bh{justify-content:center;gap:5px;padding:0 4px}.bh .tx{display:none}.bh .sd{min-width:0;font-size:22px}.bh .lg{width:24px;height:24px}.bh .lg .logo{width:18px;height:18px}.bl{padding-top:12px;font-size:9px;letter-spacing:.02em}.bl .lf{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.bl .sh{display:block}}
 </style>
 <script src="/wce-nav.js" defer></script>
 </head>
@@ -263,7 +280,7 @@ details.cg[open]>summary .cgh,details.cg[open]>summary .cgb,details.cg[open]>sum
 <div id="home"></div>
 <!-- the site build (scripts/lib/seo-build.mjs) puts the "What is CFB Savant?" panel straight before this wrap; it shows on the Players screen only (body.view-home) -->
 <div class="wrap"></div>
-<footer class="foot"><p><span id="ver"></span> · New in 1.2.0: every team page shows its playoff odds (its place in WCE's field for a finished season), each team stat's rank among FBS teams beside its percentile, and each roster value's rank among qualified players at the position. Data: ESPN play-by-play, box scores and rosters; recruiting stars and class ranks from CollegeFootballData's composite. Expected points, the opponent adjustment, the power rating, the résumé score and Savant value are WCE's own. FBS-vs-FBS games only. 2013 and 2004 to 2008 are not on the site: their play-by-play fails the data gates. Model outputs are the model's view, not a verdict. <a href="/#ai">Ask it in Claude with the WCE connector</a>. <a href="/">Western Conference Elitists</a></p></footer>
+<footer class="foot"><p><span id="ver"></span> · New in 1.3.0: the playoff page draws WCE's field as a bracket, left to right from the first round to the trophy, in the CFP's fixed slotting, for this season and every past field. Data: ESPN play-by-play, box scores and rosters; recruiting stars and class ranks from CollegeFootballData's composite. Expected points, the opponent adjustment, the power rating, the résumé score and Savant value are WCE's own. FBS-vs-FBS games only. 2013 and 2004 to 2008 are not on the site: their play-by-play fails the data gates. Model outputs are the model's view, not a verdict. <a href="/#ai">Ask it in Claude with the WCE connector</a>. <a href="/">Western Conference Elitists</a></p></footer>
 <script src="/savant-cfb.js"></script>
 <script>
 (function(){
@@ -606,19 +623,55 @@ function vTeam(id,want){
     return h+'</div></div>';});}
 
 /* ---------- playoff ---------- */
+/* 1.3.0: the bracket drawn left to right, the way television draws it. Order is M.bracket (the CFP's
+   fixed slotting, shared with the connector), never re-seeded. Geometry is in grid rows of --u: a tile
+   is 8 rows, two halves of 4; first-round tiles start every 12 rows; each quarterfinal sits 2 rows lower
+   so its empty top slot is level with the game that fills it. Semifinal A spans rows 8-16, B 32-40, the
+   title game 20-28, the trophy is centred on row 24. Every line's ends below come from these numbers,
+   and tools/savant-cfb/shoot.py checks on screen that each one meets its tile. Empty slots stay empty:
+   nobody is advanced by the odds. Dates are per season; past seasons are retroactive and have none. */
+var BKT_RULES=2026,BKT_DATES={2026:{long:['Dec 18–19','Dec 30 and Jan 1','Jan 14–15','Jan 25 · Las Vegas'],short:['Dec 18–19','Dec 30/Jan 1','Jan 14–15','Jan 25']}};
+var BKT_ROUNDS=[['First round','1st rd'],['Quarterfinals','QF'],['Semifinals','Semis'],['National championship','Final']];
+/* a team's tile colour is M.tileColor (public/savant-cfb.js): its primary unless that is lost against the
+   navy page, then its secondary or a white tile; the white keyline is always there */
+function bcolor(d,t){var x=d.teams&&d.teams[String(t)]||[];return M.tileColor(x[3],x[4]);}
+var TROPHY=(function(){
+  var body='<path d="M26 36H94V60C94 86 78 100 60 100C42 100 26 86 26 60Z"/><rect x="52" y="98" width="16" height="16"/><rect x="43" y="112" width="34" height="8"/><rect x="33" y="119" width="54" height="22"/>';
+  var hand='<path d="M28 48C8 48 6 82 36 84"/><path d="M92 48C112 48 114 82 84 84"/>';
+  return '<svg viewBox="0 0 120 150" preserveAspectRatio="xMinYMid meet" role="img" aria-label="The trophy"><path class="stub" d="M0 75H16"/>'
+    +'<g class="tro" data-tilt><g transform="translate(5 5)"><g fill="none" stroke="#030914" stroke-width="18" stroke-linecap="round">'+hand+'</g><g fill="#030914" stroke="#030914" stroke-width="10" stroke-linejoin="round">'+body+'</g></g>'
+    +'<g fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round">'+hand+'</g><g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="10" stroke-linejoin="round">'+body+'</g>'
+    +'<g fill="none" stroke="#FFD25A" stroke-width="8" stroke-linecap="round">'+hand+'</g><g fill="#FFD25A">'+body+'</g>'
+    +'<rect x="26" y="36" width="68" height="7" fill="#C2A263"/><path d="M80 43H94V60C94 80 85 93 72 99C80 88 84 75 84 60V43Z" fill="#C2A263"/><path d="M35 48V60C35 72 39 82 46 89" fill="none" stroke="#FFF1BF" stroke-width="4" stroke-linecap="round"/>'
+    +'<path d="M60 51l4 8.1 8.9 1.3-6.4 6.3 1.5 8.9L60 71.4l-8 4.2 1.5-8.9-6.4-6.3 8.9-1.3z" fill="#0B1730"/><rect x="42" y="125" width="36" height="10" fill="#C2A263"/><rect x="33" y="119" width="54" height="4" fill="#E8BE45"/></g>'
+    +'<g fill="none" stroke="#FFD25A" stroke-width="4" stroke-linecap="round"><path d="M60 6V20"/><path d="M33 13l7 9"/><path d="M87 13l-7 9"/></g></svg>';})();
+function bracketHtml(P,d,nm){
+  var B=M.bracket(P.field),dt=BKT_DATES[P.season]||null,retro=P.season<BKT_RULES,y=P.season;
+  function half(f,tag){var k=bcolor(d,f.team),rec=f.w+'-'+f.l;
+    return '<a class="bh" href="'+tlink(f.team,y)+'" style="background:'+k.bg+';color:'+k.fg+'" aria-label="'+f.seed+' '+nm(f.team)+', '+rec+(tag?', '+esc(f.how):'')+'"><span class="sd">'+f.seed+'</span><span class="lg">'+logo(f.team)+'</span><span class="tx"><b>'+nm(f.team)+'</b><small>'+rec+(tag?'<span class="btag"> · '+esc(f.how)+'</span>':'')+'</small></span></a>';}
+  var EMPTY='<span class="bh em"></span>';
+  function tile(col,row,k,label,inner){return '<div class="bt '+(k%2?'bt2':'bt1')+'" data-tilt role="group" aria-label="'+label+'" data-col="'+col+'" data-row="'+row+'" style="grid-column:'+col+';grid-row:'+(row+1)+' / span 8">'+inner+'</div>';}
+  function wire(col,paths){return '<svg class="bw" style="grid-column:'+col+'" viewBox="0 0 100 46" preserveAspectRatio="none" aria-hidden="true">'+paths.map(function(p){return '<path d="'+p+'"/>';}).join('')+'</svg>';}
+  function who(f){return f.seed+' '+nm(f.team);}
+  var h='<div class="bkt" role="group" aria-label="The bracket, '+y+'">',w1=[],w2=[];
+  B.forEach(function(m,k){var r=12*k,sf=m.semi?32:8;
+    h+=tile(1,r,k,'First round: '+who(m.visitor)+' at '+who(m.host)+'. The winner meets '+who(m.bye),half(m.visitor)+half(m.host));
+    h+=tile(3,r+2,k+1,'Quarterfinal: '+who(m.bye)+' meets the '+m.visitor.seed+'/'+m.host.seed+' winner',EMPTY+half(m.bye,true));
+    w1.push('M0 '+(r+4)+'H100');w2.push('M0 '+(r+6)+'H50V'+(sf+(k%2?6:2))+'H100');});
+  [8,32].forEach(function(r,k){var q=B.slice(2*k,2*k+2).map(function(m){return m.bye.seed;});h+=tile(5,r,k,'Semifinal: the winners of the '+q[0]+' and '+q[1]+' quarterfinals',EMPTY+EMPTY);});
+  h+=tile(7,20,0,'National championship: the two semifinal winners',EMPTY+EMPTY);
+  h+=wire(2,w1)+wire(4,w2)+wire(6,['M0 12H50V22H100','M0 36H50V26H100'])+wire(8,['M0 24H100'])+'<div class="btr">'+TROPHY+'</div>';
+  BKT_ROUNDS.forEach(function(r,k){var l2=(dt?['<i>'+dt.long[k]+'</i>']:[]).concat(k?[]:['<i>Higher seed hosts</i>']);
+    h+='<div class="bl" style="grid-column:'+(2*k+1)+'"><span class="lf"><b>'+r[0]+'</b>'+(l2.length?'<span class="l2">'+l2.join(' · ')+'</span>':'')+'</span><span class="sh" aria-hidden="true"><b>'+r[1]+'</b>'+(dt?'<span class="l2">'+dt.short[k]+'</span>':'')+'</span></div>';});
+  h+='</div>';
+  if(retro)h+='<p class="bkr">Retroactive field under '+BKT_RULES+' rules</p>';
+  return h;}
 function vPlayoff(){
   return Promise.all([load('playoff/'+S.season+'.json'),load('s/'+S.season+'.json')]).then(function(a){
-    var P=a[0],d=a[1],cur=!!P.odds,seed={},rowOf={};
-    P.field.forEach(function(f){seed[f.seed]=f;});P.table.forEach(function(r){rowOf[r[0]]=r;});
+    var P=a[0],d=a[1],cur=!!P.odds,rowOf={};
+    P.table.forEach(function(r){rowOf[r[0]]=r;});
     function nm(t){return esc(tname(d,t));}
-    var h='<section class="sec"><div class="rule"><h2>The Bracket</h2></div><p class="note lt">'+(cur?'If the season ended today. '+P.season+', '+esc(asof(P))+'. Until the title games are played, each conference\'s current leader holds its champion\'s place.':'The '+P.season+' season under the 2026 rules, with the conference champions that season had. This is our field, not the one that was played.')+'</p><div class="brk"><div class="byes"><h3>FIRST-ROUND BYES · SEEDS 1–4</h3>';
-    [[1,'8 / 9 winner'],[2,'7 / 10 winner'],[3,'6 / 11 winner'],[4,'5 / 12 winner']].forEach(function(x,k){var f=seed[x[0]];
-      h+='<div class="stk sm bye '+tilt(k)+'" data-tilt><span class="sd">'+f.seed+'</span><span class="chip" style="height:30px;width:14px;background:'+tcolor(d,f.team)+'"></span><div style="min-width:0"><a class="nm" style="color:var(--ink);text-decoration:none" href="'+tlink(f.team,P.season)+'">'+logo(f.team)+nm(f.team)+'</a><small>'+esc(f.how)+' · '+f.w+'-'+f.l+'</small></div><span class="mt">meets<br>'+x[1]+'</span></div>';});
-    h+='</div><div class="fr"><h3>FIRST ROUND · HIGHER SEED HOSTS</h3><div class="frg">';
-    [[5,12,4],[8,9,1],[6,11,3],[7,10,2]].forEach(function(m,k){h+='<div class="stk sm gm '+tilt(k+1)+'" data-tilt><div class="lb">AT NO. '+m[0]+' · WINNER MEETS NO. '+m[2]+'</div>';
-      [m[0],m[1]].forEach(function(s){var f=seed[s];h+='<div class="tm"><span class="sd">'+s+'</span><span class="chip" style="height:24px;width:10px;background:'+tcolor(d,f.team)+'"></span><a class="nm" style="color:var(--ink);text-decoration:none" href="'+tlink(f.team,P.season)+'">'+nm(f.team)+'</a><span class="fig" style="font-size:12px;color:var(--muted)">'+f.w+'-'+f.l+'</span></div>';});
-      h+='</div>';});
-    h+='</div></div></div>';
+    var h='<section class="sec"><div class="rule"><h2>The Bracket</h2></div><p class="note lt">'+(cur?'If the season ended today. '+P.season+', '+esc(asof(P))+'. Until the title games are played, each conference\'s current leader holds its champion\'s place.':'The '+P.season+' season under the 2026 rules, with the conference champions that season had. This is our field, not the one that was played.')+'</p>'+bracketHtml(P,d,nm);
     var low=P.field.filter(function(f){return f.rank>12;}),fo=P.first_out[0],fr=rowOf[fo];
     h+='<div class="badge red tl2" data-tilt style="display:block;max-width:760px;font-size:22px">First out: '+nm(fo)+', ranked '+M.nth(fr[1])+'<p style="margin:6px 0 0;font:400 14px/1.45 var(--font);text-transform:none;letter-spacing:0">'+(low.length?low.map(function(f){return nm(f.team)+' ('+esc(f.how)+', ranked '+M.nth(f.rank)+')';}).join(' and ')+' qualif'+(low.length>1?'y':'ies')+' automatically from outside the top 12 and drop'+(low.length>1?'':'s')+' in at the bottom. That pushes out the lowest-ranked at-large team'+(low.length>1?'s':'')+'.':'Every automatic qualifier ranks inside the top 12, so the field is simply the top 12 and '+nm(fo)+' is the next team.')+' Next out: '+P.first_out.slice(1).map(nm).join(', ')+'.</p></div></section>';
     if(cur){h+='<section class="sec"><div class="rule"><h2>Conference leaders</h2></div><p class="note lt">Who would play for each title today. The Power 4 follow their published tiebreakers; a seat that needed one is marked, and where a rulebook calls for a number that is not public (SportSource\'s ranking) our power rating stands in for it and the seat is marked as such.</p><div class="cards">';
