@@ -20,8 +20,22 @@ TOL = 0.5          # value points: rounding in the stored streams
 # (take it off the list), and, as before, if any is off by more than MAX_ONE or all of them by more than MAX_ALL.
 # (Nov 25, 2026: CHI 1999-00 was 1.6 off after a full rebuild and nothing failed: only the two limits were checked.)
 MAX_ONE, MAX_ALL = 50.0, 150.0
-KNOWN = {          # (team, season): gap, as of Nov 25, 2026, after same-day repeats in the source were skipped (ledger.py)
-    ('IND', 2003): -41.2, ('BOS', 2026): -15.5, ('SAS', 2015): -5.3, ('TOR', 2023): -1.7, ('DET', 2025): -0.7, ('WAS', 2008): 0.6,
+KNOWN = {          # (team, season): (gap, cause), as of Nov 25, 2026, after same-day repeats in the source were skipped
+    # (ledger.py). Shown on /control (the GM refresh's card) and in the page index (meta.known_gaps).
+    ('IND', 2003): (-41.2, "Greg Foster: the source has Indiana and Toronto both signing him on 2002-11-06, and no move takes him off "
+                           "Indiana's books. He played 29 games for Toronto that season and none for Indiana, so Indiana is charged "
+                           "for his Toronto season."),
+    ('BOS', 2026): (-15.5, "Ron Harper Jr.: the ledger's player (harpero02) is matched to his father's NBA id (166), so his own seasons "
+                           "(NBA id 1631199) belong to no asset: produced for the team, credited to no decision. Also TOR 2022-23 and "
+                           "DET 2024-25, and BOS 2026-27 once that season is complete."),
+    ('TOR', 2023): (-1.7, "Ron Harper Jr.: as BOS 2025-26 (matched to his father's NBA id)."),
+    ('DET', 2025): (-0.7, "Ron Harper Jr.: as BOS 2025-26 (matched to his father's NBA id)."),
+    ('SAS', 2015): (-5.3, "Malcolm Thomas: his 2013-14 stints with San Antonio (1 game) and Utah (7) are both inferred from the same "
+                          "opening day, and no move takes him off San Antonio's books, so San Antonio is charged for his 2014-15 in "
+                          "Philadelphia."),
+    ('WAS', 2008): (0.6, "Billy Thomas: the source has Washington re-signing him and New Jersey signing him on 2006-02-24, and no move "
+                         "takes him off Washington's books, so Washington is credited with part of his 2007-08 (New Jersey and "
+                         "Cleveland)."),
 }
 
 
@@ -118,7 +132,9 @@ def main():
                          'by_type': {k: round(v, 1) for k, v in credited[(t, y)].items() if abs(v) > 0.05}})
             if abs(gap) > TOL:
                 off.append(rows[-1])
-    json.dump({'tolerance': TOL, 'team_seasons': len(rows), 'off': off, 'booked_by_kind': {k: round(v, 1) for k, v in kinds.items()}, 'rows': rows},
+    now = {(r['team'], r['season']): r['gap'] for r in off}
+    known = [{'team': t, 'season': y, 'known_gap': g, 'gap': now.get((t, y)), 'cause': c} for (t, y), (g, c) in sorted(KNOWN.items(), key=lambda kv: -abs(kv[1][0]))]
+    json.dump({'tolerance': TOL, 'team_seasons': len(rows), 'known': known, 'off': off, 'booked_by_kind': {k: round(v, 1) for k, v in kinds.items()}, 'rows': rows},
               open(os.path.join(G.OUT, 'conservation.json'), 'w'))
     tot_pr = sum(r['produced'] for r in rows)
     print(f'{len(rows)} team-seasons, 1980-81 to {G.NOW_SEASON - 2}-{str(G.NOW_SEASON - 1)[2:]}: {len(rows) - len(off)} balance within {TOL} '
@@ -135,8 +151,8 @@ def main():
         k = (r['team'], r['season'])
         if k not in KNOWN:
             problems.append(f"{r['team']} {r['season']} is off by {r['gap']:+.1f}, and it is not a known case")
-        elif abs(r['gap'] - KNOWN[k]) > TOL:
-            problems.append(f"{r['team']} {r['season']}'s gap moved: {KNOWN[k]:+.1f} known, {r['gap']:+.1f} now")
+        elif abs(r['gap'] - KNOWN[k][0]) > TOL:
+            problems.append(f"{r['team']} {r['season']}'s gap moved: {KNOWN[k][0]:+.1f} known, {r['gap']:+.1f} now")
     for k in sorted(set(KNOWN) - {(r['team'], r['season']) for r in off}):
         problems.append(f'{k[0]} {k[1]} now balances: take it off KNOWN')
     for x in problems:
