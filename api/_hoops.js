@@ -69,7 +69,7 @@ const bad = (status, msg, extra) => { throw new HttpError(status, msg, extra) }
 
 /* ------------------------------------------------------------ the rules */
 
-export const MAX_STEPS = 36000          // five minutes of play (120 steps a second)
+export const MAX_STEPS = 60000          // eight minutes and change of play (120 steps a second): the Road Trip's race clock is 8 minutes (3.0.0; five before)
 export const MAX_INPUTS = 4000
 export const MAX_BODY = 900 * 1024
 const TOKEN_TTL = 400 * 86400
@@ -124,7 +124,7 @@ export function cleanInputs(raw, { required = true } = {}) {
     if (!Array.isArray(x) || x.length !== 2) return null
     const [st, d] = x
     if (!Number.isInteger(st) || st < 0 || st > MAX_STEPS || st < last) return null
-    if (d !== -1 && d !== 0 && d !== 1) return null
+    if (d !== -1 && d !== 0 && d !== 1 && d !== 9) return null   // (3.0.0: 9, the Road Trip's retry)
     out.push([st, d]); last = st
   }
   return out

@@ -34,6 +34,19 @@ if (process.argv[2] !== 'live') {
     ok(R.cleanName('  f u c k  ') === 'Player' && R.cleanName('<b>Zoë!</b>') === 'bZo!b' && R.cleanName('') === 'Player', 'names are cleaned and filtered')
     ok(R.CODE_RE.test(R.makeCode()) && !/[AEIOUY]/.test(Array.from({ length: 200 }, () => R.makeCode()).join('')), 'party codes are four consonants')
   }
+  // ---- (Flappy Hoops 3.0.0) the Road Trip: its own clock, 8 minutes (every other hole keeps 2), and its retry input
+  {
+    const { room } = party(['A', 'B'], 1000)
+    room.world = 'sacramento'; room.mode = 'speed'; room.hole = 8
+    ok(R.capMsOf(room) === 8 * 60000 && R.capTicks(room) === 8 * 60 * R.HZ, 'the Road Trip (Sacramento’s 9th): an 8-minute clock')
+    room.hole = 7; ok(R.capMsOf(room) === R.CAP_MS && R.CAP_MS === 120000, 'Sacramento’s other holes, and every other hole: 2 minutes')
+    room.world = 'milwaukee'; room.hole = 8; ok(R.capMsOf(room) === R.CAP_MS, '…the 9th hole of any other world too')
+    room.world = 'sacramento'; room.hole = 8; room.startAt = 10000
+    ok(R.plausible({ k: 7 * 60 * R.HZ, f: 70, at: 10000 + 7 * 60000 + 500 }, room) && !R.plausible({ k: 9 * 60 * R.HZ, f: 70, at: 10000 + 9 * 60000 }, room), 'a 7-minute Road Trip finish is believable; one past its 8 minutes isn’t')
+    const L = R.cleanLive({ m: 1, h: 8, in: '0:1,40:1,300:9,320:-1' }, 1000)
+    ok(L.in === '0:1,40:1,300:9,320:-1', 'the retry (9) is an input the server takes, like a flap')
+    ok(R.cleanLive({ m: 1, h: 8, in: '0:1,40:7' }, 1000).in == null, 'any other number isn’t')
+  }
   // ---- the vote
   {
     const { room, live } = party(['A'], 1000)

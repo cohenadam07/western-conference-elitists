@@ -46,6 +46,9 @@ export const VOTE_MS = env('RACE_VOTE_MS', 15000)     // Adam: "every person in 
 export const REVEAL_MS = env('RACE_REVEAL_MS', 4500)
 export const LEAD_MS = env('RACE_LEAD_MS', 6000)      // from "hole n" to step 0: time to load the hole, pan, and 3-2-1
 export const CAP_MS = env('RACE_CAP_MS', 120000)      // a hole's time limit
+// (Flappy Hoops 3.0.0) …except the Road Trip, Sacramento's 9th: 30 cities in one hole, 8 minutes on its clock
+export const ROADTRIP_CAP_MS = env('RACE_RT_CAP_MS', 480000)
+export const capMsOf = (room) => (room && room.world === 'sacramento' && room.hole === 8 ? ROADTRIP_CAP_MS : CAP_MS)
 export const GRACE_MS = 2500          // a finish just before the cap can still arrive after it
 export const BOARD_MS = env('RACE_BOARD_MS', 9000)    // the leaderboard after each hole
 export const FINAL_MS = 180000        // the final standings, before the party drops back to the lobby
@@ -80,7 +83,8 @@ export const ALPHABET = 'BCDFGHJKLMNPQRSTVWXZ'
 export const CODE_RE = /^[BCDFGHJKLMNPQRSTVWXZ]{4}$/
 export const ID_RE = /^[a-z0-9]{6,10}$/
 // (2.12: up to 3,000 a hole: a two-minute Knockout brawl can run to hundreds of taps)
-const INPUTS_RE = /^(\d{1,6}:(-1|0|1|R|U|K|L|G)(,\d{1,6}:(-1|0|1|R|U|K|L|G)){0,2999})?$/
+// (3.0.0: 9 is the Road Trip's retry, back to the last gate you went through: an input like a flap, replayed by the sim)
+const INPUTS_RE = /^(\d{1,6}:(-1|0|1|9|R|U|K|L|G)(,\d{1,6}:(-1|0|1|9|R|U|K|L|G)){0,2999})?$/
 const INPUTS_MAX = 30000
 const NONCE_RE = /^[a-z0-9]{4,10}$/
 const WORLD_RE = /^[a-z0-9-]{2,24}$/
@@ -290,8 +294,8 @@ function startHole(room, live, i, now, rnd = Math.random) {
   room.phase = 'hole'; room.hole = i; room.until = 0
   // (Knockout: the hole's seed, for everything random in it, the same on every game)
   room.seed = room.mode === 'knockout' ? 1 + Math.floor(rnd() * 2147483646) : 0
-  room.startAt = now + LEAD_MS; room.capAt = room.startAt + CAP_MS
-  room.koEnd = capTicks(); room.koEarly = null; room.koHow = ''   // (Knockout, 2.13.3: the hole's end, in ticks; how it ended)
+  room.startAt = now + LEAD_MS; room.capAt = room.startAt + capMsOf(room)
+  room.koEnd = capTicks(room); room.koEarly = null; room.koHow = ''   // (Knockout, 2.13.3: the hole's end, in ticks; how it ended)
   // (the tests only, RACE_KO_DEAL: the items the boxes give, in turn, so a playtest sees every one; the games and the
   // replay all get it with the hole)
   room.deal = room.mode === 'knockout' ? KO_DEAL : null
@@ -303,7 +307,7 @@ function startHole(room, live, i, now, rnd = Math.random) {
 export function plausible(fin, room) {
   if (!fin || fin.dnf) return false
   if (fin.at < room.startAt) return false
-  if (fin.k > CAP_MS / 1000 * HZ + HZ) return false
+  if (fin.k > capMsOf(room) / 1000 * HZ + HZ) return false
   return fin.k <= (fin.at - room.startAt) / 1000 * HZ * 1.15 + 3 * HZ
 }
 
@@ -325,7 +329,7 @@ export function koCounts(room, live) {
 // comes back, the tick each ball went in, its flaps and the KOs, is what the Knockout records are made of; never what a
 // game says. Returns null (nothing verified) when someone's inputs are missing for good (a racer who left), undefined
 // while some are still to come.
-export const capTicks = () => Math.ceil(CAP_MS / 1000 * HZ)
+export const capTicks = (room) => Math.ceil(capMsOf(room) / 1000 * HZ)
 export function koVerify(room, fins, seals, kor) {
   if (!kor || room.mode !== 'knockout') return null
   const inParty = new Set(room.players.map((p) => p.id))
@@ -342,7 +346,7 @@ export function koVerify(room, fins, seals, kor) {
   }
   const hole = kor.holeOf(room.world, room.hole)
   if (!hole) return null
-  const res = kor.replay({ hole, seed: room.seed, inputs, until: capTicks() + 2, cap: capTicks(), deal: room.deal || null })
+  const res = kor.replay({ hole, seed: room.seed, inputs, until: capTicks(room) + 2, cap: capTicks(room), deal: room.deal || null })
   if (res) room.koRunTmp = { seed: room.seed, inputs }     // (kept with a record it sets; never saved with the party)
   return res ? { hole, ...res } : null
 }
@@ -414,7 +418,7 @@ export function koFlag(room, fins, seals, vr, hole, now) {
   }
   const names = Object.fromEntries(room.players.map((p) => [p.id, p.name]))
   return { v: 1, at: now, code: room.code, match: room.match, hole: room.hole, world: room.world, holeId: hole || null,
-    seed: room.seed, deal: room.deal || null, startAt: room.startAt, capAt: room.capAt, koEnd: room.koEnd ?? capTicks(), cap: capTicks(),
+    seed: room.seed, deal: room.deal || null, startAt: room.startAt, capAt: room.capAt, koEnd: room.koEnd ?? capTicks(room), cap: capTicks(room),
     endedAt: room.koEndedAt || null, how: room.koHow || '', racers: room.racers, names,
     reported: Object.fromEntries(room.racers.map((id) => [id, fins[id] ? (fins[id].dnf ? { dnf: 1, at: fins[id].at } : { k: fins[id].k, f: fins[id].f, at: fins[id].at }) : null])),
     replay: vr ? { T: vr.T, hash: vr.hash, over: vr.over, end: vr.end, fins: vr.fins, kos: vr.kos } : null,
@@ -502,9 +506,9 @@ export function advance(room, live, fins, now, rnd = Math.random, kor = null, se
       // the end is that tick + CLOCK_T, or the two minutes, whichever's sooner; capAt is that tick's moment)
       if (room.mode === 'knockout') {
         const ks = racers.map((id) => fins[id]).filter((f) => f && !f.dnf && plausible(f, room)).map((f) => f.k)
-        const was = room.koEnd ?? capTicks()
+        const was = room.koEnd ?? capTicks(room)
         if (ks.length) {
-          const endT = Math.min(capTicks(), Math.min(...ks) + CLOCK_T)
+          const endT = Math.min(capTicks(room), Math.min(...ks) + CLOCK_T)
           if (endT < was) { room.koEnd = endT; room.capAt = room.startAt + endT / HZ * 1000; changed = true }
         }
       }
@@ -575,6 +579,6 @@ export function view(room, live, fins, you, now, seals = {}) {
   return { ok: true, now, you, code: room.code, host: room.host, phase: room.phase, until: room.until, match: room.match,
     opts: room.opts, tally: room.tally, world: room.world, mode: room.mode, holes: room.holes, hole: room.hole,
     startAt: room.startAt, capAt: room.capAt, racers: room.racers, players, seed: room.seed || 0, kov: (room.kov || []).map((x) => x || null),
-    ...(room.mode === 'knockout' ? { capMs: CAP_MS, ...(room.deal ? { deal: room.deal } : {}) } : {}),
+    ...(room.mode === 'knockout' ? { capMs: capMsOf(room), ...(room.deal ? { deal: room.deal } : {}) } : {}),
     results: room.results, totals: room.totals, final: room.final }
 }
