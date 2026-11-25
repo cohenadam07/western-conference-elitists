@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-11-24",
+    "product": "CFB Savant",
+    "version": "1.2.0",
+    "text": "Every team page shows its playoff odds while a season is played, and its place in WCE's field after; each team stat's rank among FBS teams beside its percentile; and each roster value's rank among qualified FBS players at the position.",
+    "href": "/cfb-savant"
+  },
+  {
+    "date": "2026-11-24",
     "product": "NFL Savant",
     "version": "2.3.1",
     "text": "A team page now names every head coach of a season, with the weeks and record of each, so an interim coach is no longer left off.",
