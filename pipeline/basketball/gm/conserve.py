@@ -15,9 +15,14 @@ import collections, json, os, sys
 import grade as G
 
 TOL = 0.5          # value points: rounding in the stored streams
-# What is left is a handful of ledger cases (two namesakes the ledger spells alike, one waiver chain), listed in the
-# report. The check fails the build if any team-season is off by more than MAX_ONE or all of them by more than MAX_ALL.
+# What is left is a handful of ledger cases, each named below with its gap. The check fails the build if a team-season
+# not named here is off by more than TOL, if a named one's gap moves by more than TOL, or if a named one now balances
+# (take it off the list), and, as before, if any is off by more than MAX_ONE or all of them by more than MAX_ALL.
+# (Nov 25, 2026: CHI 1999-00 was 1.6 off after a full rebuild and nothing failed: only the two limits were checked.)
 MAX_ONE, MAX_ALL = 50.0, 150.0
+KNOWN = {          # (team, season): gap, as of Nov 25, 2026, after same-day repeats in the source were skipped (ledger.py)
+    ('IND', 2003): -41.2, ('BOS', 2026): -15.5, ('SAS', 2015): -5.3, ('TOR', 2023): -1.7, ('DET', 2025): -0.7, ('WAS', 2008): 0.6,
+}
 
 
 def booked():
@@ -125,6 +130,20 @@ def main():
     total = sum(abs(r['gap']) for r in off)
     ok = worst <= MAX_ONE and total <= MAX_ALL
     print(f"{'PASS' if ok else 'FAIL'}: largest team-season gap {worst:.1f} (limit {MAX_ONE}), all gaps {total:.1f} (limit {MAX_ALL})")
+    problems = []
+    for r in off:
+        k = (r['team'], r['season'])
+        if k not in KNOWN:
+            problems.append(f"{r['team']} {r['season']} is off by {r['gap']:+.1f}, and it is not a known case")
+        elif abs(r['gap'] - KNOWN[k]) > TOL:
+            problems.append(f"{r['team']} {r['season']}'s gap moved: {KNOWN[k]:+.1f} known, {r['gap']:+.1f} now")
+    for k in sorted(set(KNOWN) - {(r['team'], r['season']) for r in off}):
+        problems.append(f'{k[0]} {k[1]} now balances: take it off KNOWN')
+    for x in problems:
+        print('FAIL:', x)
+    if not problems:
+        print(f'PASS: every team-season off by more than {TOL} is a known case, at its known gap ({len(KNOWN)})')
+    ok = ok and not problems
     return 0 if ok else 1
 
 
