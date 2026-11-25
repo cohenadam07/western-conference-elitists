@@ -215,7 +215,7 @@ test('the page parses, names its pools and carries the footer every product page
   const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
   const js = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].pop()[1]
   assert.doesNotThrow(() => new Function(js))
-  for (const re of [/poolLabel/, /POOL: /, /viewport-fit=cover/, /prefers-reduced-motion:reduce/, /Ask it in Claude with the WCE connector/, /id="ver"/, /New in 1\.1\.0/, /ESPN play-by-play/, /wce-nav\.js/, /savant-cfb\.js/, /Margin never enters the résumé score/, /not tracked/, /the model\\'s view, not a verdict|The model\\'s view, not a verdict/]) assert.match(html, re)
+  for (const re of [/poolLabel/, /POOL: /, /viewport-fit=cover/, /prefers-reduced-motion:reduce/, /Ask it in Claude with the WCE connector/, /id="ver"/, /New in 1\.2\.0/, /ESPN play-by-play/, /wce-nav\.js/, /savant-cfb\.js/, /Margin never enters the résumé score/, /not tracked/, /the model\\'s view, not a verdict|The model\\'s view, not a verdict/]) assert.match(html, re)
   assert.match(html, /family=Anton/)
   assert.doesNotMatch(html, /x-dc|support\.js|Harbor State|Marcus Delane/, 'the mockups\' runtime or invented names shipped')
   assert.match(js, /No committee ranking is used anywhere on this page/)
@@ -350,7 +350,8 @@ test('every tool answers, and says what it must', async () => {
 })
 
 test('1.1.0: charted rows, the returner pool, profile score, weakness comps, NFL comps', async () => {
-  assert.equal(reg.version.split('.').slice(0, 2).join('.'), '1.1')
+  const [maj, min] = reg.version.split('.').map(Number)
+  assert.ok(maj > 1 || (maj === 1 && min >= 1), `1.1.0's additions need 1.1 or later, not ${reg.version}`)
   const cur = read(`s/${idx.current}.json`), old = read('s/2019.json')
   // a charted stat is "not tracked" before 2025, never zero, and flagged charted in the answer
   const q19 = old.players.findIndex((p) => p[C.qual] && p[C.slot] === 'QB')
@@ -459,4 +460,66 @@ test('1.1.1: the notes give each stat\'s real start year, 2009 on for the site',
   assert.ok(reg.team_stats.every((s) => s.start === 2009 || s.start === 2025))
   const mcp = readFileSync(path.join(ROOT, 'api', 'mcp.js'), 'utf8')
   assert.match(mcp, /cfb_ is CFB Savant: every FBS player and team from 2009 on \(2013 is not on the site\)/)
+})
+
+// ---- 1.2.0: playoff odds, ranks beside percentiles, position rank on the roster ------------------
+test('1.2.0: the team page and the connector rank every team stat among FBS, and name the pool', async () => {
+  const D = read(`teams/${idx.current}.json`), R = reg
+  const ti = D.teams.findIndex((r) => r[M.TCOL.school] === 'Georgia')
+  for (const st of R.team_stats) {
+    const x = M.teamRow(D, st, ti, true)
+    if (!x) continue
+    const vals = (D.values[st.key].a || D.values[st.key].r).filter((v) => v != null && Number.isFinite(+v)).map(Number)
+    assert.equal(x.of, vals.length, `${st.key}: of`)
+    assert.ok(x.of <= D.teams.length, `${st.key}: never more than the FBS teams`)
+    assert.equal(x.rank, 1 + vals.filter((v) => (st.lower ? v < x.value : v > x.value)).length, `${st.key}: rank`)
+  }
+  const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
+  assert.match(html, /'<small class="rk">'\+M\.nth\(r\.rank\)\+' of '\+r\.of\+'<\/small>'/, 'each percentile row shows Nth of N')
+  assert.match(html, /rank:x\.rank,of:x\.of/, 'the team rows pass the rank to the row')
+  assert.match(html, /Beside each number, its rank among the FBS teams with one, of '\+D\.teams\.length\+'/, 'the pool line names the rank\'s pool')
+  const g = await call('cfb_team_profile', { team: 'Georgia', season: idx.current })
+  for (const s of g.stats.filter((x) => x.rank != null)) assert.ok(s.rank >= 1 && s.rank <= s.of && s.of <= D.teams.length, s.key)
+  assert.match(g._text, /Offense EPA per play: [^\n]*, \d+\w\w percentile, \d+\w\w of 138/)
+})
+
+test('1.2.0: playoff odds and the field are on the team page, from the playoff page\'s own file', async () => {
+  const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
+  assert.match(html, /load\('playoff\/'\+y\+'\.json'\)/, 'the team page reads the playoff file')
+  assert.match(html, /<dt>Makes the field<\/dt><dd>'\+M\.chance\(po\?po\[0\]:0\)/)
+  assert.match(html, /<summary>Playoff odds<\/summary>/, 'the odds have an explainer')
+  const P = read(`playoff/${idx.current}.json`)
+  const g = await call('cfb_team_profile', { team: 'Georgia', season: idx.current })
+  const o = P.odds['61']
+  assert.deepEqual([g.playoff_odds.make_field, g.playoff_odds.bye, g.playoff_odds.host_first_round, g.playoff_odds.win_conference], o)
+  assert.ok(!/\b100%|\b0%/.test(g._text.split('\n').find((l) => l.startsWith('Playoff odds'))), 'never 100% or 0% before it is settled')
+  const past = SEASONS.filter((y) => y < idx.current).slice(-1)[0]
+  const Q = read(`playoff/${past}.json`), seed1 = Q.field.find((f) => f.seed === 1)
+  const t = read(`teams/${past}.json`).teams.find((r) => r[M.TCOL.id] === seed1.team)
+  const p = await call('cfb_team_profile', { team: t[M.TCOL.school], season: past })
+  assert.equal(p.playoff_odds, null)
+  assert.deepEqual([p.playoff_field.in_field, p.playoff_field.seed], [true, 1])
+  assert.match(p._text, new RegExp(`In WCE's ${past} playoff field as the 1st seed`))
+})
+
+test('1.2.0: each roster value shows its rank among qualified FBS players at the position', async () => {
+  const y = idx.current, d = read(`s/${y}.json`), F = read(`t/${y}/61.json`)
+  const pix = {}
+  d.players.forEach((p, k) => { pix[p[M.COL.id]] = k })
+  let ranked = 0
+  for (const p of F.roster.filter((x) => x[12] != null)) {
+    const vl = M.valueLine(d, pix[p[0]])
+    assert.ok(vl, `${p[1]}: a value on the roster but none in the season file`)
+    assert.equal(Math.round(10 * vl.value), Math.round(10 * p[12]), `${p[1]}: the roster's value is the season file's`)
+    if (vl.rank) ranked++
+  }
+  assert.ok(ranked > 10)
+  const g = await call('cfb_team_profile', { team: 'Georgia', season: y })
+  for (const p of g.top_players) {
+    const vl = M.valueLine(d, pix[p.id])
+    assert.deepEqual(p.position_rank ? [p.position_rank.rank, p.position_rank.of] : null, vl.rank ? [vl.rank, vl.of] : null, p.name)
+  }
+  const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
+  assert.match(html, /<small class="vr">'\+\(vl&&vl\.rank\?M\.nth\(vl\.rank\)\+' of '\+vl\.of\+' '\+esc\(REG\.slot_name/)
+  assert.match(html, /<summary>Position rank on the roster<\/summary>/)
 })

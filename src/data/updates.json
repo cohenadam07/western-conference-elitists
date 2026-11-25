@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-11-24",
+    "product": "CFB Savant",
+    "version": "1.2.0",
+    "text": "Every team page shows its playoff odds while a season is played, and its place in WCE's field after; each team stat's rank among FBS teams beside its percentile; and each roster value's rank among qualified FBS players at the position.",
+    "href": "/cfb-savant"
+  },
+  {
+    "date": "2026-11-24",
     "product": "CBB Savant",
     "version": "1.5.0",
     "text": "A team page ranks every team number in D1, with the pool named: ratings, pace, the market, BPI, strength of schedule, luck and all four factors and shot shares. The roster shows each man's Savant value and its rank among qualified D1 players at his position, and a lineup with two players of one surname names them apart.",
