@@ -40,7 +40,7 @@ VERSION = '1.0.1'
 # the page's changelog (How it works); the site's What's New entry is src/data/updates.json
 CHANGELOG = [
     ('1.0.0', '2026-11-24', 'Launch: every NBA GM since 1979-80 on points (GM Value Added) and titles (expected titles added), blended with a slider; every decision graded at the time and as it turned out, with luck and shared credit kept apart; asset trees, the executive tree, the Data Room tables and five connector tools; nightly updates.'),
-    ('1.0.1', '2026-11-25', 'Fixes: wide tables scroll sideways with the GM\'s name pinned, so no column is cut off on a laptop or a phone; titles won are whole numbers, and a title shared within a season shows to one decimal with a marker that explains shared credit; expected titles to two decimals everywhere on the boards and cards.'),
+    ('1.0.1', '2026-11-25', 'Fixes: wide tables scroll sideways with the GM\'s name pinned, so no column is cut off on a laptop or a phone; titles won are whole numbers, and a title shared within a season shows to one decimal with a marker that explains shared credit; expected titles to two decimals everywhere on the boards and cards. A nightly refresh with nothing new no longer rewrites the Data Room\'s decision tables.'),
     ('1.1.0', 'coming', 'Salaries from the Contract tab: value per dollar, cap hits, dead money, tax and apron status, years of control, and a cap outlook for every active GM.'),
 ]
 K = '0.05'
@@ -583,6 +583,17 @@ def main():
            'people': people, 'boards': {'all': board(ranked), 'active': board([r for r in ranked if r['active']]),
                                         'at_time': board(ranked, key='gm_value_added_at_time', vals=vals_at)}, 'skills': skills,
            'repeatability': {k: {kk: vv for kk, vv in v.items()} for k, v in REP['results'].items()}, 'tree': TREE}
+    # `generated` is when this content was made: a rebuild that changes nothing else keeps the old stamp, so the file
+    # stays byte-identical and a refresh with no news commits nothing (Nov 25, 2026)
+    try:
+        with gzip.open(os.path.join(PUB, 'index.json.gz'), 'rt', encoding='utf8') as f:
+            old = json.load(f)
+        new = json.loads(json.dumps(idx, default=str, ensure_ascii=False))      # as it will be written
+        new['meta']['generated'] = old['meta']['generated']
+        if old['meta'].get('generated') and new == old:
+            idx['meta']['generated'] = old['meta']['generated']
+    except (OSError, ValueError, KeyError):
+        pass
     dump(idx, os.path.join(PUB, 'index.json'))
     print('people', len(people), '| through', through, flush=True)
     dataroom(dec_by)
@@ -829,7 +840,9 @@ def dataroom(dec_by):
                                                             d.get('titles_at_time'), d.get('titles_turned_out'), blend(d['at_time'], d.get('titles_at_time')),
                                                             blend(d['turned_out'], d.get('titles_turned_out'))] + [SAL.decision(d)[k] for k in SAL.DECISION_FIELDS])
     for s, rows in by.items():
-        table_file('gm_decisions', s, c, sorted(rows, key=lambda r: r[1]))
+        # agreed, then the decision's own id: moves agreed the same day used to keep whatever order grading produced,
+        # which varied run to run, so a refresh with nothing new rewrote every season file (Nov 25, 2026)
+        table_file('gm_decisions', s, c, sorted(rows, key=lambda r: (r[1], r[0])))
     c = list(DICT['gm_seasons'][1])
     by = collections.defaultdict(list)
     for r in SP:

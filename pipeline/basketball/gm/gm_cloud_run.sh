@@ -39,6 +39,20 @@ if [ -n "$DRY" ]; then
   exit $rc
 fi
 git add public/gms public/gm-savant.html public/dataroom/catalog.json.gz data/gm-refresh.json
+# A run that found nothing new changes only the heartbeat's time (last_ok). That alone is not worth a commit, unless
+# main's heartbeat is getting old: the freshness alarm (gm-savant-freshness.yml) goes off at 30 hours, so after 20 the
+# heartbeat is committed on its own. (Nov 25, 2026: three runs with no news committed 32 files each.)
+if [ "$(git diff --cached --name-only)" = "data/gm-refresh.json" ] && python3 - <<'PY'
+import datetime as dt, json, subprocess, sys
+old = json.loads(subprocess.check_output(['git', 'show', 'HEAD:data/gm-refresh.json']))
+new = json.load(open('data/gm-refresh.json'))
+age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(old['last_ok'])).total_seconds() / 3600
+sys.exit(0 if {**old, 'last_ok': None} == {**new, 'last_ok': None} and age < 20 else 1)
+PY
+then
+  git reset -q -- data/gm-refresh.json
+  echo "nothing new since the last refresh ($(git show HEAD:data/gm-refresh.json | python3 -c "import json,sys;print(json.load(sys.stdin)['last_ok'])")): no commit"
+fi
 if ! git diff --cached --quiet; then
   git commit -q -m "NBA GM Savant: refresh ($(python3 -c "import json;d=json.load(open('data/gm-refresh.json'));print(d['asof'], 'through', d['through'])"))"
   # Main moves while the run works (about 30 minutes): replay the refresh commit on main's newest and push again.

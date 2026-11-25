@@ -20,7 +20,7 @@
 import { after, before, test } from 'node:test'
 import assert from 'node:assert/strict'
 import http from 'node:http'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { gunzipSync } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
@@ -47,6 +47,22 @@ test('the index lists every GM once and every GM has a file', () => {
   assert.ok(index.people.length > 200, 'the index should hold every front-office head since 1979-80 (211 in November 2026)')
   assert.equal(index.meta.version, '1.0.1')
   assert.ok(index.meta.games_through && index.meta.through, 'the index says how current it is')
+})
+
+// Nov 25, 2026: moves agreed the same day kept whatever order grading produced, so three refreshes with no news
+// rewrote every season file. The order is now fixed (agreed, then id) and the ids are unique, so it cannot vary.
+test('the Data Room decision tables are in a fixed order: agreed, then id, ids unique', () => {
+  const dir = path.join(GMS, 'data', 'gm_decisions')
+  const seen = new Set()
+  for (const f of readdirSync(dir).filter((x) => x.endsWith('.json.gz'))) {
+    const rows = readJson(path.join(dir, f)).rows
+    for (let i = 0; i < rows.length; i++) {
+      assert.ok(!seen.has(rows[i][0]), `${f}: decision ${rows[i][0]} is listed twice`)
+      seen.add(rows[i][0])
+      if (i) assert.ok(rows[i - 1][1] < rows[i][1] || (rows[i - 1][1] === rows[i][1] && rows[i - 1][0] < rows[i][0]), `${f}: row ${i} is out of order (agreed, then id)`)
+    }
+  }
+  assert.ok(seen.size > 30000, `only ${seen.size} decisions in the Data Room tables`)
 })
 
 test('every file is valid JSON with no NaN, and every decision is whole', () => {
