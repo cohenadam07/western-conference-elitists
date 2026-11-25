@@ -49,9 +49,16 @@ const addDays = (s, n) => ymd(new Date(Date.parse(`${s}T12:00:00Z`) + n * 864000
 export const lagDays = (ref, got) => (got ? Math.round((Date.parse(ref) - Date.parse(got)) / 86400000) : Infinity)
 
 // ---- reading files: the site (or public/), the release assets (or out/dataroom), the repo ----
+// Vercel's Bot Protection challenges every scripted request to the site (HTTP 429 with
+// x-vercel-mitigated: challenge). The firewall lets requests carrying the watcher key through
+// (custom rule "WCE watchers", BOT-SHIELD.md); without it the checks can't read the site at all.
+const WATCH = process.env.WCE_WATCH_KEY ? { 'x-wce-watch': process.env.WCE_WATCH_KEY } : {}
+const challenged = (res) => res.status === 429 && /challenge/i.test(res.headers.get('x-vercel-mitigated') || '')
+
 async function load(rel) {
   if (SITE) {
-    const res = await fetch(`${SITE}/${rel}`, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(30000) })
+    const res = await fetch(`${SITE}/${rel}`, { headers: { accept: 'application/json', ...WATCH }, signal: AbortSignal.timeout(30000) })
+    if (challenged(res)) throw new Error(`${rel}: stopped by Vercel's bot challenge (${WATCH['x-wce-watch'] ? 'the watcher key was sent but the firewall rule did not let it through' : 'no WCE_WATCH_KEY in this run'}; see BOT-SHIELD.md)`)
     if (!res.ok) throw new Error(`${rel}: HTTP ${res.status}`)
     return JSON.parse(await res.text())
   }

@@ -19,12 +19,16 @@ UA = "WCE-site-watch/1.0 (+https://wcehoops.com)"
 
 
 def fetch(url, data=None, headers=None, timeout=20):
-    req = urllib.request.Request(url, data=data, headers={"User-Agent": UA, **(headers or {})})
+    # The watcher key lets this past Vercel's bot challenge (custom firewall rule, BOT-SHIELD.md).
+    watch = {"x-wce-watch": os.environ["WCE_WATCH_KEY"]} if os.environ.get("WCE_WATCH_KEY") else {}
+    req = urllib.request.Request(url, data=data, headers={"User-Agent": UA, **watch, **(headers or {})})
     t0 = time.time()
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
             return r.status, r.read(400_000), round((time.time() - t0) * 1000)
     except urllib.error.HTTPError as e:
+        if e.code == 429 and "challenge" in (e.headers.get("x-vercel-mitigated") or ""):
+            return "429 (Vercel bot challenge: watcher key " + ("not let through" if watch else "missing") + ")", b"", round((time.time() - t0) * 1000)
         return e.code, b"", round((time.time() - t0) * 1000)
     except Exception as e:  # timeout, DNS, TLS
         return None, str(e).encode()[:200], round((time.time() - t0) * 1000)

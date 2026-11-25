@@ -30,6 +30,7 @@ import json
 import os
 import sys
 import tempfile
+import urllib.error
 import urllib.request
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -44,8 +45,19 @@ CBCS_TOLERANCE = 0.001
 def loader(site, public):
     def load(rel):
         if site:
-            req = urllib.request.Request(f"{site}/{rel}", headers={"Accept": "application/json", "Accept-Encoding": "gzip", "User-Agent": "wce-freshness"})
-            with urllib.request.urlopen(req, timeout=60) as r:
+            # The watcher key lets this past Vercel's bot challenge (BOT-SHIELD.md).
+            h = {"Accept": "application/json", "Accept-Encoding": "gzip", "User-Agent": "wce-freshness"}
+            if os.environ.get("WCE_WATCH_KEY"):
+                h["x-wce-watch"] = os.environ["WCE_WATCH_KEY"]
+            req = urllib.request.Request(f"{site}/{rel}", headers=h)
+            try:
+                r = urllib.request.urlopen(req, timeout=60)
+            except urllib.error.HTTPError as e:
+                if e.code == 429 and "challenge" in (e.headers.get("x-vercel-mitigated") or ""):
+                    sys.exit(f"::error::{rel}: stopped by Vercel's bot challenge "
+                             f"({'watcher key sent but not let through' if 'x-wce-watch' in h else 'no WCE_WATCH_KEY in this run'}; see BOT-SHIELD.md)")
+                raise
+            with r:
                 raw = r.read()
                 if r.headers.get("Content-Encoding") == "gzip" or raw[:2] == b"\x1f\x8b":
                     raw = gzip.decompress(raw)

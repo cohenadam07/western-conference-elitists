@@ -32,6 +32,11 @@ permissions:
   issues: write
   deployments: read   # the exam reads the site's files at the commit production is serving
 
+# Lets this run's requests to wcehoops.com past Vercel's bot challenge (firewall rule
+# "WCE watchers" bypasses requests with this key in x-wce-watch; see BOT-SHIELD.md).
+env:
+  WCE_WATCH_KEY: ${{ secrets.WCE_WATCH_KEY }}
+
 jobs:
   coverage:
     runs-on: ubuntu-latest

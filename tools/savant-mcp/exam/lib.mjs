@@ -36,7 +36,7 @@ export function makeFiles({ site = null, commit = null, hosted = path.join(ROOT,
       if (!b) throw new Error(`${rel}: not in the deployed commit ${commit.slice(0, 8)}`)
       v = JSON.parse(b.toString('utf8'))
     } else if (site) {
-      const res = await fetch(`${site}/${rel}`, { signal: AbortSignal.timeout(60000) })
+      const res = await fetch(`${site}/${rel}`, { headers: process.env.WCE_WATCH_KEY ? { 'x-wce-watch': process.env.WCE_WATCH_KEY } : {}, signal: AbortSignal.timeout(60000) })
       if (!res.ok) throw new Error(`${rel}: HTTP ${res.status}`)
       v = JSON.parse(await res.text())
     } else {
