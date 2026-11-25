@@ -130,3 +130,4 @@ a.ast-card:hover{text-decoration:none}
 .tbl td small.rk{display:block;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
 .tbl td.val b{font-weight:600}
 .tbl td.val small{display:block;color:var(--muted);font-size:11px;white-space:nowrap}
+@media (max-width:760px){.tbl td.val small{white-space:normal;max-width:76px;margin-left:auto}}
