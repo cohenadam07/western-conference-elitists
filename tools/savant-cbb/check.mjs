@@ -337,9 +337,11 @@ test('1.5.0: the roster shows Savant value and its rank among qualified D1 playe
   assert.equal(boozer.position_rank.pool, `qualified D1 ${V.pool}, 2025-26`)
   assert.match(res.content[0].text, new RegExp(`Cameron Boozer \\(${V.value}, ${V.rank}\\w\\w of ${V.of} ${V.pool}\\)`))
   const html = readFileSync(path.join(ROOT, 'public', 'college-basketball-savant.html'), 'utf8')
-  assert.match(html, /<th class="r">Value<\/th>/)
+  assert.match(html, /<th class="r" title="Savant value: points added this season over a replacement-level player at his position">Value<\/th>/)
   assert.match(html, /M\.valueRank\(d,i\)/)
   assert.match(html, /<summary>Savant value on the roster<\/summary>/, 'the new column has an explainer')
+  assert.match(html, /tex\('Value \(Savant value\)','The Value column is points: how many points he added to his team this season over a replacement-level player at his position/, 'the explainer says what the number is')
+  assert.match(html, /Value: Savant value, the points he added over a replacement player at his position/, 'so does the roster header')
 })
 
 test('1.5.0: a lineup names two players of one surname apart', () => {

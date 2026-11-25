@@ -1,28 +1,28 @@
 {
  "from": "origin/main",
- "commit": "CBB Savant 1.5.0 team ranks and roster value (Nov 24, 2026), as main will list it once merged",
+ "commit": "NFL Savant 2.4.0 roster value (Nov 24, 2026), as main will list it once merged",
  "public": {
   "tools": 80,
-  "tools_sha256": "f7506ff3e33711a0ac49d80313740ba34994196ac7e4053bb7a3df972cbbd67e",
+  "tools_sha256": "b500c7ca293c523e2883c53e1fb88002f18cd1e423acb7da2e991dd6c749ac99",
   "instructions_sha256": "24599420ac2b3cad427f81e49b38766b1cf7b9ce3dd6a6490f5599b31ce38c18",
-  "upfront": 87412
+  "upfront": 87397
  },
  "key": {
   "tools": 81,
-  "tools_sha256": "094bbaf2423825ce0027887a38a436da5f1ab57acbb349156ed9053520604e5b",
+  "tools_sha256": "f4390b92b47950511aa76cd94d997542ad84f8352d5c64467197aa76d719507f",
   "instructions_sha256": "8a7d376343b52efba196ee8ecbd22d92476c7dfd8ad7d08e0d42de13497093f3",
-  "upfront": 91481
+  "upfront": 91466
  },
  "unknown": {
   "tools": 80,
-  "tools_sha256": "f7506ff3e33711a0ac49d80313740ba34994196ac7e4053bb7a3df972cbbd67e",
+  "tools_sha256": "b500c7ca293c523e2883c53e1fb88002f18cd1e423acb7da2e991dd6c749ac99",
   "instructions_sha256": "7f86c1f8b372c4b869007271c338e568e355b7b1b1e2961db168b7740882f0f3",
-  "upfront": 87412
+  "upfront": 87397
  },
  "unchecked": {
   "tools": 80,
-  "tools_sha256": "f7506ff3e33711a0ac49d80313740ba34994196ac7e4053bb7a3df972cbbd67e",
+  "tools_sha256": "b500c7ca293c523e2883c53e1fb88002f18cd1e423acb7da2e991dd6c749ac99",
   "instructions_sha256": "9852183b4c43788174a46bce2092b0e95637cd1f99597e2af841b94879e7cac6",
-  "upfront": 87412
+  "upfront": 87397
  }
 }

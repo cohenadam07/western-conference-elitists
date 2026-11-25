@@ -299,6 +299,9 @@ function parseTeam(input, meta, season) {
   throw new SavantError(`"${input}" is not an NFL team I know. Give a code (BUF) or a name (Bills).`)
 }
 
+// the page's AST_PEERS: each position's plural, the pool a roster rank names
+const POOL_WORDS = { QB: 'quarterbacks', RB: 'running backs', WR: 'wide receivers', TE: 'tight ends', OT: 'tackles', OG: 'guards', OC: 'centers', ED: 'edge rushers', DI: 'interior linemen', LB: 'linebackers', CB: 'cornerbacks', S: 'safeties', K: 'kickers', P: 'punters' }
+
 // "Head coach Andy Reid", or every coach of a split season with his weeks and record:
 // "Head coaches Robert Saleh (weeks 1-5, 2-3), then Jeff Ulbrich (weeks 6-18, 3-9)"
 function coachWords(coaches, fallback) {
@@ -328,10 +331,20 @@ export async function teamProfile({ team, season }) {
     gives_up: group([['d_wr', 'Yards / target to wide receivers'], ['d_te', 'Yards / target to tight ends'], ['d_rbt', 'Yards / target to backs'], ['d_rb', 'Yards / carry to backs'], ['d_qb', 'Yards / carry to quarterbacks']]),
     schedule: group([['sd', 'Defenses its offense has faced'], ['so', 'Offenses its defense has faced'], ['net', 'Net EPA / play']]),
   } : null
-  const roster = (t.roster || []).map((p) => ({
-    unit: p.unit, id: p.id, name: p.name, position: (meta.positions[p.pos] || {}).label || p.pos, spot: p.spot,
-    snap_share: p.snap, profile_score: p.score, roster_status: p.st, finished_with: p.now ? teamIn(meta, s)(p.now) : null, url: cardUrl(p.id, s),
-  }))
+  // Savant value and its rank, as the page's roster cards show them (2.4.0): the pool is named on every rank
+  const VALUE_WHY = { unq: 'under the qualifying line', ol: 'not tracked for offensive linemen before 2016', none: 'none on file' }
+  const roster = (t.roster || []).map((p) => {
+    const v = p.value
+    const pool = (POOL_WORDS[p.pos] || `${((meta.positions[p.pos] || {}).label || p.pos).toLowerCase()}s`)
+    return {
+      unit: p.unit, id: p.id, name: p.name, position: (meta.positions[p.pos] || {}).label || p.pos, spot: p.spot,
+      snap_share: p.snap, profile_score: p.score,
+      savant_value: v && v.v != null ? v.v : null,
+      position_rank: v && v.v != null ? { rank: v.rank, of: v.of, position: pool, pool: `qualified ${pool}, ${s}, all 32 teams` } : null,
+      savant_value_note: v && v.v == null ? VALUE_WHY[v.why] || null : null,
+      roster_status: p.st, finished_with: p.now ? teamIn(meta, s)(p.now) : null, url: cardUrl(p.id, s),
+    }
+  })
   const structured = {
     team: code, name: tname(code), season: s, in_progress: live ? { through_week: live } : null,
     record: t.rec ? { wins: t.rec[0], losses: t.rec[1], ties: t.rec[2] } : null, coach: t.coach,
@@ -345,20 +358,21 @@ export async function teamProfile({ team, season }) {
     notes: [
       'Ranks are among all the teams with totals that season; 1st is best, except for the schedule rows, where 1st means the hardest slate. Opponents are measured by what they do in their other games.',
       `The profile score is the average percentile of a man's headline stats against his position${live ? ', with unsettled stats scored where they are likely to settle' : ''}; qualified players only.`,
+      `Savant value is the points a player has been worth in ${s} above a replacement-level player at his position, for his whole season on every team he played for; qualified players only, and offensive linemen only from 2016. Its rank is among the qualified players at his exact position that season on all 32 teams (tackles, guards and centers apart), 1 + the number with more value. The model's view, not a verdict.`,
     ],
     url: `${SITE}/nfl-savant#t=${code}&s=${s}`, data_as_of: day(meta.through || file.generated || meta.generated), source: SOURCE,
   }
   const L = [`${structured.name}, ${s}${live ? ` through week ${live}` : ''}${t.rec ? `: ${t.rec[0]}-${t.rec[1]}${t.rec[2] ? `-${t.rec[2]}` : ''}` : ''}${coachWords(structured.coaches, t.coach)}.`]
   if (units) {
-    const line = (x) => `- ${x.label}: ${x.display} (${ordinal(x.rank)} of ${x.of})`
+    const line = (x) => `- ${x.label}: ${x.display} (${ordinal(x.rank)} of ${x.of} teams)`
     L.push('', 'Offense:', ...units.offense.map(line), '', 'Defense:', ...units.defense.map(line), '', 'What this defense gives up:', ...units.gives_up.map(line), '', `${live ? 'Schedule so far' : 'Schedule'} (1st is the hardest):`, ...units.schedule.map(line))
   } else L.push('', `No team totals on file for ${s} yet.`)
-  if (t.line) L.push('', `Offensive line grade ${t.line.score} (${ordinal(t.line.rank)} of ${t.line.of}).`)
+  if (t.line) L.push('', `Offensive line grade ${t.line.score} (${ordinal(t.line.rank)} of ${t.line.of} lines).`)
   for (const unit of ['Offense', 'Defense', 'Specialists']) {
     const ps = roster.filter((p) => p.unit === unit)
     if (!ps.length) continue
     L.push('', `${unit} roster, in depth-chart order:`)
-    L.push(ps.map((p) => `${p.name} (${p.spot || p.position}${p.snap_share != null ? `, ${p.snap_share}% of snaps` : ''}${p.profile_score != null ? `, score ${p.profile_score}` : ''}${p.roster_status ? `, ${p.roster_status}` : ''}${p.finished_with ? `, ${live ? 'now' : 'later'} ${p.finished_with}` : ''})`).join('; '))
+    L.push(ps.map((p) => `${p.name} (${p.spot || p.position}${p.snap_share != null ? `, ${p.snap_share}% of snaps` : ''}${p.profile_score != null ? `, score ${p.profile_score}` : ''}${p.savant_value != null ? `, value ${display('sgn1', p.savant_value)} (${ordinal(p.position_rank.rank)} of ${p.position_rank.of} ${p.position_rank.position})` : ''}${p.roster_status ? `, ${p.roster_status}` : ''}${p.finished_with ? `, ${live ? 'now' : 'later'} ${p.finished_with}` : ''})`).join('; '))
   }
   L.push('', ...structured.notes, '', `Page: ${structured.url}`, `Source: ${SOURCE}. Data as of ${structured.data_as_of}.`)
   return { structured, text: L.join('\n') }
@@ -519,7 +533,7 @@ export const tools = [
     config: {
       title: 'NFL team page',
       description:
-        'One NFL team\'s season on NFL Savant (wcehoops.com): how its offense and defense rank (EPA, success rate, sack and pressure rates, conversions, explosive plays, turnovers), what its defense gives up to receivers, tight ends, backs and quarterbacks, the schedule it has faced, its offensive line grade, its head coach (every head coach of a season, with the weeks and record of each), and its roster in depth-chart order with snap shares and profile scores. Seasons from 1999.',
+        'One NFL team\'s season on NFL Savant (wcehoops.com): how its offense and defense rank (EPA, success rate, sack and pressure rates, conversions, explosive plays, turnovers), what its defense gives up to receivers, tight ends, backs and quarterbacks, the schedule it has faced, its offensive line grade, its head coach (every head coach of a season, with the weeks and record of each), and its roster in depth-chart order with snap shares, profile scores, and each man\'s Savant value with its rank among the qualified players at his position (the pool named on every rank). Seasons from 1999.',
       inputSchema: {
         team: z.string().trim().min(2).max(40).describe('Code ("BUF") or name ("Bills").'),
         season: z.string().trim().max(12).optional().describe('Year the season began. Omit for the latest.'),

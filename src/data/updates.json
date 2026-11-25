@@ -16,6 +16,13 @@
   {
     "date": "2026-11-24",
     "product": "NFL Savant",
+    "version": "2.4.0",
+    "text": "A team page's roster now shows each man's Savant value and where it ranks among the qualified players at his position on all 32 teams, and every rank on the page names its pool.",
+    "href": "/nfl-savant"
+  },
+  {
+    "date": "2026-11-24",
+    "product": "NFL Savant",
     "version": "2.3.1",
     "text": "A team page now names every head coach of a season, with the weeks and record of each, so an interim coach is no longer left off.",
     "href": "/nfl-savant"
