@@ -1,6 +1,6 @@
 {
  "from": "origin/main",
- "commit": "connector trim (Nov 25, 2026), as main will list it once merged",
+ "commit": "connector trim (Nov 25, 2026) on top of CBB Coaching Savant 1.0.2 (#90), as main will list it once merged",
  "public": {
   "tools": 80,
   "tools_sha256": "e7d9e1f611c6313bc62a2c67854f3d18bfc8be573671429f16f771751366ec00",
