@@ -3,26 +3,26 @@
  "commit": "NFL 2.4.0 (#86) + CBB 1.5.0 (#87) + CFB Savant 1.2.0 (Nov 24, 2026), as main will list it once merged",
  "public": {
   "tools": 80,
-  "tools_sha256": "66ee2327ae2b5f27dd974cad056b7668f2bfaf74007bb3d1e3f144d4e6354eaf",
+  "tools_sha256": "6d64089b5ca79a63b627d0bdb3fed53698352fa712fe532aeb385b7ad52f0a21",
   "instructions_sha256": "24599420ac2b3cad427f81e49b38766b1cf7b9ce3dd6a6490f5599b31ce38c18",
-  "upfront": 87676
+  "upfront": 87570
  },
  "key": {
   "tools": 81,
-  "tools_sha256": "73e9c285721e886775ff3e4765c6c6a66855a71a44aa654a6fdee5075df77ea7",
+  "tools_sha256": "b116ef587876e4d5ae364ae0af116a1f7d602fdcf901fc9ae3725f9ddc6244d4",
   "instructions_sha256": "8a7d376343b52efba196ee8ecbd22d92476c7dfd8ad7d08e0d42de13497093f3",
-  "upfront": 91745
+  "upfront": 91639
  },
  "unknown": {
   "tools": 80,
-  "tools_sha256": "66ee2327ae2b5f27dd974cad056b7668f2bfaf74007bb3d1e3f144d4e6354eaf",
+  "tools_sha256": "6d64089b5ca79a63b627d0bdb3fed53698352fa712fe532aeb385b7ad52f0a21",
   "instructions_sha256": "7f86c1f8b372c4b869007271c338e568e355b7b1b1e2961db168b7740882f0f3",
-  "upfront": 87676
+  "upfront": 87570
  },
  "unchecked": {
   "tools": 80,
-  "tools_sha256": "66ee2327ae2b5f27dd974cad056b7668f2bfaf74007bb3d1e3f144d4e6354eaf",
+  "tools_sha256": "6d64089b5ca79a63b627d0bdb3fed53698352fa712fe532aeb385b7ad52f0a21",
   "instructions_sha256": "9852183b4c43788174a46bce2092b0e95637cd1f99597e2af841b94879e7cac6",
-  "upfront": 87676
+  "upfront": 87570
  }
 }
