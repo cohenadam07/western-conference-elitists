@@ -112,3 +112,22 @@ a.ast-card:hover{text-decoration:none}
   .rmr{grid-template-columns:112px repeat(20,15px) 8px repeat(20,15px) 52px;height:32px}
   .rmr .nm{font-size:12.5px;padding-left:8px}
 }
+/* 1.5.0: the team page's eight KPIs (4 by 2), a rank under each four-factor number, the roster's value */
+.kpis.k8{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kpis.k8 .kpi:nth-child(5){border-left:0}
+.kpis.k8 .kpi:nth-child(n+5){border-top:1px solid var(--border)}
+@media (max-width:1100px){
+  .kpis.k8{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .kpis.k8 .kpi:nth-child(4){border-left:1px solid var(--border)}
+  .kpis.k8 .kpi:nth-child(-n+4){border-top:0}
+}
+@media (max-width:760px){
+  .kpis.k8{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpis.k8 .kpi:nth-child(odd){border-left:0}
+  .kpis.k8 .kpi:nth-child(even){border-left:1px solid var(--border)}
+  .kpis.k8 .kpi:nth-child(n+3){border-top:1px solid var(--border)}
+}
+.tbl td small.rk{display:block;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.tbl td.val b{font-weight:600}
+.tbl td.val small{display:block;color:var(--muted);font-size:11px;white-space:nowrap}
+@media (max-width:760px){.tbl td.val small{white-space:normal;max-width:76px;margin-left:auto}}

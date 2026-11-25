@@ -292,3 +292,74 @@ test('1.4.1: the Defense row is all opponents, and Paint & mid says what it coun
   assert.match(text, /paint and mid-range/)
   assert.ok(!/\bmidrange\b/.test(text))
 })
+
+// ---- 1.5.0: team ranks, roster value, lineup names --------------------------------------------
+test('1.5.0: every team stat has a D1 rank from one rule, and the page and the connector both use it', async () => {
+  for (const s of idx.seasons.map((x) => x.season)) {
+    const tb = read(`teams/${s}.json`)
+    for (const r of tb.teams) {
+      const R = M.teamRanks(tb, r)
+      // the net rank agrees with the published order wherever no two teams share a net
+      if (tb.teams.filter((x) => x.net === r.net).length === 1) assert.equal(R.net.rank, r.rank, `${s} ${r.name}: net rank`)
+      for (const x of Object.values(R)) if (x.rank != null) assert.ok(x.rank >= 1 && x.rank <= x.of && x.of <= tb.teams.length, `${s} ${r.name} ${x.key}`)
+    }
+  }
+  const tb = read('teams/2025-26.json'), duke = tb.teams.find((t) => t.name === 'Duke')
+  const R = M.teamRanks(tb, duke)
+  assert.equal(R.oorb.value, 22.6, "the Defense row's opponents' OReb% is ranked as shown")
+  assert.equal(R.oorb.rank, 1 + tb.teams.filter((t) => t.drb > duke.drb).length, 'opponents\' OReb% ranks as defensive rebounding does')
+  assert.equal(R.sos.word, 'hardest')
+  const res = await client.callTool({ name: 'cbb_team_profile', arguments: { team: 'Duke', season: '2025-26' } })
+  assert.ok(!res.isError, res.content?.[0]?.text)
+  const st = res.structuredContent, text = res.content[0].text
+  for (const [k, x] of Object.entries(R)) assert.deepEqual([st.team.ranks[k].rank, st.team.ranks[k].of], [x.rank, x.of], `connector ${k}`)
+  assert.equal(st.team.sos_rank, R.sos.rank)
+  assert.equal(st.team.ranks_pool, `the ${tb.teams.length} D1 teams, 2025-26`)
+  assert.match(text, new RegExp(`Schedule: opponents' average net ${duke.sos} \\(${R.sos.rank}\\w\\w hardest of ${R.sos.of}\\)`))
+  const html = readFileSync(path.join(ROOT, 'public', 'college-basketball-savant.html'), 'utf8')
+  assert.match(html, /var RK=M\.teamRanks\(tb,r\)/, 'the page ranks with the shared rule')
+  assert.match(html, /Ranks are among the '\+nD\+' D1 teams in '\+esc\(sn\)\+'/, 'the page names the pool')
+  for (const k of ['efg', 'tov', 'orb', 'ftr', 'rim', 'mid', 'three', 'oefg', 'otov', 'oorb', 'oftr', 'orim', 'omid', 'othree']) assert.ok(html.includes(`ff('${k}')`), `four factors: ${k} has its rank`)
+})
+
+test('1.5.0: the roster shows Savant value and its rank among qualified D1 players at his position', async () => {
+  const d = read('s/2025-26.json'), P = d.players, c = d.values.value.r
+  const i = P.findIndex((p) => p[M.COL.name] === 'Cameron Boozer')
+  const V = M.valueRank(d, i), pos = P[i][M.COL.pos]
+  const pool = P.map((p, j) => j).filter((j) => P[j][M.COL.qual] && P[j][M.COL.pos] === pos && c[j] != null)
+  assert.equal(V.of, pool.length)
+  assert.equal(V.rank, 1 + pool.filter((j) => c[j] > c[i]).length)
+  const u = P.findIndex((p) => !p[M.COL.qual] && c[P.indexOf(p)] != null)
+  assert.equal(M.valueRank(d, u).rank, null, 'under the qualifier: a value but no rank')
+  const res = await client.callTool({ name: 'cbb_team_profile', arguments: { team: 'Duke', season: '2025-26' } })
+  const boozer = res.structuredContent.roster.find((x) => x.name === 'Cameron Boozer')
+  assert.deepEqual([boozer.savant_value, boozer.position_rank.rank, boozer.position_rank.of], [V.value, V.rank, V.of])
+  assert.equal(boozer.position_rank.pool, `qualified D1 ${V.pool}, 2025-26`)
+  assert.match(res.content[0].text, new RegExp(`Cameron Boozer \\(${V.value}, ${V.rank}\\w\\w of ${V.of} ${V.pool}\\)`))
+  const html = readFileSync(path.join(ROOT, 'public', 'college-basketball-savant.html'), 'utf8')
+  assert.match(html, /<th class="r" title="Savant value: points added this season over a replacement-level player at his position">Value<\/th>/)
+  assert.match(html, /M\.valueRank\(d,i\)/)
+  assert.match(html, /<summary>Savant value on the roster<\/summary>/, 'the new column has an explainer')
+  assert.match(html, /tex\('Value \(Savant value\)','The Value column is points: how many points he added to his team this season over a replacement-level player at his position/, 'the explainer says what the number is')
+  assert.match(html, /Value: Savant value, the points he added over a replacement player at his position/, 'so does the roster header')
+})
+
+test('1.5.0: a lineup names two players of one surname apart', () => {
+  assert.deepEqual(M.unitNames(['Al Boozer', 'Cayden Boozer', 'Isaiah Evans']), ['A. Boozer', 'C. Boozer', 'Evans'])
+  assert.deepEqual(M.unitNames(['Cameron Boozer', 'Cayden Boozer', 'Patrick Ngongba II']), ['Cameron Boozer', 'Cayden Boozer', 'Ngongba'])
+  assert.deepEqual(M.unitNames(['Isaiah Evans', 'Deron Rippey Jr.']), ['Evans', 'Rippey'])
+  const html = readFileSync(path.join(ROOT, 'public', 'college-basketball-savant.html'), 'utf8')
+  assert.match(html, /var u=M\.unitNames\(/, 'lineups use unitNames')
+  assert.match(html, /var top8n=M\.unitNames\(/, 'the pair matrix uses unitNames')
+  assert.ok(!/return M\.surname\(y\[1\]\);/.test(html), 'a lineup goes back to bare surnames')
+})
+
+test('1.5.0: CBB Coaching Savant shows the surname, never Jr. or II', () => {
+  const html = readFileSync(path.join(ROOT, 'public', 'college-basketball-coaching-savant.html'), 'utf8')
+  const src = html.slice(html.indexOf('const LAST_SUFFIX'), html.indexOf('\n', html.indexOf('const last =')))
+  const last = new Function(`${src}; return last`)()
+  assert.equal(last('Patrick Ngongba II'), 'Ngongba')
+  assert.equal(last('Deron Rippey Jr.'), 'Rippey')
+  assert.equal(last('Ellis Robinson IV'), 'Robinson')
+  assert.equal(last('John Blackwell'), 'Blackwell')
+})
