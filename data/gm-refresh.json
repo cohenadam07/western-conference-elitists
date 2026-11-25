@@ -1,0 +1,15 @@
+{
+ "last_ok": "2026-11-25T07:24:28+00:00",
+ "asof": "2026-11-25",
+ "through": "2026-11-18",
+ "decisions": 32492,
+ "sources": [
+  "site.api.espn.com 200"
+ ],
+ "games_through": "2026-11-24",
+ "held": 0,
+ "unconfirmed_over_48h": [],
+ "front_office_pending": [],
+ "front_office_over_48h": 0,
+ "window": null
+}
