@@ -41,7 +41,27 @@ fi
 git add public/gms public/gm-savant.html public/dataroom/catalog.json.gz data/gm-refresh.json
 if ! git diff --cached --quiet; then
   git commit -q -m "NBA GM Savant: refresh ($(python3 -c "import json;d=json.load(open('data/gm-refresh.json'));print(d['asof'], 'through', d['through'])"))"
-  for i in 1 2 3 4; do git push -q origin HEAD:main && break; git pull -q --rebase origin main || { git rebase --abort; break; }; done
+  # Main moves while the run works (about 30 minutes): replay the refresh commit on main's newest and push again.
+  # The run leaves tracked state files in pipeline/basketball/gm/out changed, so the rebase sets them aside
+  # (autostash). The Data Room catalog is the one file other refreshes also write: on a conflict there, main's
+  # catalog is kept and NBA is rescanned on top, so both refreshes' entries survive. (Nov 25, 2026: the first
+  # refresh to finish could not push, because "git pull --rebase" refused the changed state files.)
+  pushed=
+  for i in 1 2 3 4; do
+    git push -q origin HEAD:main && { pushed=1; break; }
+    git fetch -q origin main
+    git -c rebase.autoStash=true rebase -q origin/main && continue
+    if [ "$(git diff --name-only --diff-filter=U)" = "public/dataroom/catalog.json.gz" ]; then
+      git checkout -q --ours public/dataroom/catalog.json.gz    # in a rebase, "ours" is main's side
+      python3 pipeline/dataroom/catalog.py nba > /dev/null && git add public/dataroom/catalog.json.gz \
+        && GIT_EDITOR=true git rebase --continue > /dev/null && continue
+    fi
+    git rebase --abort 2> /dev/null
+    break
+  done
+  # A refresh that did not reach main fails the run and keeps the state where it was, so the state never runs
+  # ahead of the page: the next run redoes the day from the same start.
+  [ -n "$pushed" ] || { echo "::error::the refresh commit could not be pushed to main; the state was not uploaded"; exit 1; }
 fi
 python3 $GM/state_bundle.py pack "$RUNNER_TEMP/gm-state.enc" && gh release upload gm-state "$RUNNER_TEMP/gm-state.enc" --clobber
 exit $rc
