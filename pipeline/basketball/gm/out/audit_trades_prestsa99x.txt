@@ -1,0 +1,51 @@
+Sam Presti: 110 trades credited (both grades are value points, ten seasons, 5% a year).
+
+(a) Seasons summed over every team's side of every trade: the largest season total is -169.3 (as they turned out, 2023, 98 sides) and 0.3 at the time. Of 1,966 trades, 2 don't net to zero within 1 point; the largest is 169 (a three-team trade where one side's asset left the books).
+    Sam Presti's own seasons: as they turned out 2007: -421, 2008: -92, 2009: +243, 2010: -126, 2011: -749, 2012: +204, 2013: -2476, 2014: -34, 2015: -934, 2016: +2226, 2017: -177, 2018: +899, 2019: +170, 2020: +3574, 2021: -322, 2022: -662, 2023: -239, 2024: -885, 2025: -63, 2026: -260, 2027: -220
+
+(b) Picks his trades brought in that became players: 54. 29 he used himself: each is credited to the trade at exactly the slot's expectation (29 of 29 check out), and what the player made of it beyond the slot is the drafting grade of whoever held him when the next season began (usually his own team; the team he traded the rights to on draft night otherwise), so trade plus draft is the career, counted once. The other 25 he traded on before the draft: the trade gets whatever the pick turned into, and the drafting grade goes to the team that chose. 2 of those leave the books through a repair (the source shows another team trading a pick the ledger had with him; the trade that moved it is missing), so the trade gets nothing for them: 2024 1st (Dillon Jones) (0); 2026 2nd (Otega Oweh) (-3):
+    2010-06-23  2010 1st (Eric Bledsoe)            slot 18: in the trade    234 (slot value    234); drafting grade   +824 to LAC
+    2019-07-08  2020 1st (Immanuel Quickley)       slot 25: in the trade    152 (slot value    152); drafting grade   +711 to NYK
+    2017-02-23  2018 2nd (Mitchell Robinson)       slot 36: in the trade     -9 (slot value     84); drafting grade   +615 to NYK  (traded on)
+    2007-07-20  2008 1st (Serge Ibaka)             slot 24: in the trade    175 (slot value    175); drafting grade   +557 to OKC
+    2019-07-10  2022 1st (Jalen Williams)          slot 12: in the trade    185 (slot value    185); drafting grade   +397 to OKC
+    2021-06-18  2021 1st (Alperen Şengün)          slot 16: in the trade    221 (slot value    221); drafting grade   +324 to HOU
+    2012-10-27  2013 1st (Steven Adams)            slot 12: in the trade    299 (slot value    299); drafting grade   +305 to OKC
+    2009-01-07  2009 1st (Taj Gibson)              slot 26: in the trade    264 (slot value    157); drafting grade   +182 to CHI  (traded on)
+    2020-11-22  2021 2nd (Miles McBride)           slot 36: in the trade     92 (slot value     92); drafting grade   +167 to NYK
+    2020-11-22  2021 2nd (Aaron Wiggins)           slot 55: in the trade     25 (slot value     25); drafting grade   +132 to OKC
+    2015-07-14  2018 2nd (Kevin Hervey)            slot 57: in the trade     15 (slot value     15); drafting grade    +43 to OKC
+    2021-07-30  2025 1st (Joan Beringer)           slot 17: in the trade    107 (slot value    109); drafting grade    +38 to MIN  (traded on)
+
+(c) Unconveyed future picks in his trades: 19 in, 12 out, net +32. Each is the pick model as of today: the original owner's slot distribution from a lottery simulation of the seasons left before that draft, times the slot curve, minus protection where the terms are known:
+    got  2027 2nd   HOU                               131   (2021-03-13)
+    got  2027 1st   SAS                                90   (2025-06-25)
+    gave 2028 2nd   UTA                                87   (2026-11-08)
+    gave 2027 2nd   owner unknown                      55   (2026-02-04)
+    gave 2028 2nd   MIL                                51   (2026-02-04)
+    got  2027 1st   DEN                                48   (2022-06-23)
+    got  2030 2nd   MIN                                47   (2026-07-06)
+    gave 2027 2nd   MIN                                46   (2024-06-26)
+    gave 2027 2nd   owner unknown                      41   (2022-06-23)
+    got  2029 1st   owner unknown                      40   (2023-06-23)
+
+(d) Against HOU: 7 trades, -2240 as they turned out, -518 at the time:
+    2007-06-28     -115  at the time   -80.3   gave Carl Landry | got 2008 2nd (Sasha Kaun), cash
+    2012-10-27    -2599  at the time  -685.0   gave Cole Aldrich, Daequan Cook, James Harden, Lazar Hayward | got Jeremy Lamb, Kevin Martin, 2013 1st (Steven Adams), 2013 2nd (Álex Abrines), 201
+    2019-07-16     +669  at the time   -47.2   gave Russell Westbrook | got Chris Paul, 2021 1st swap, 2024 1st (Nikola Topić), 2025 1st swap, 2026 1st (Lab
+    2021-07-30     -128  at the time   -59.1   gave Alperen Şengün | got 2025 1st (Joan Beringer), 2026 2nd (Bruce Thornton), 2027 2nd
+    2022-09-30      -79  at the time  -112.3   gave Derrick Favors, Maurice Harkless, Ty Jerome, Théo Maledon, 2026 2nd (T | got Sterling Brown, Trey Burke, Marquese Chriss, David Nwaba
+    2023-07-08       +7  at the time    97.8   gave cash | got Patty Mills, 2024 2nd (KJ Simpson), 2029 2nd, 2030 2nd
+    2023-10-17       +5  at the time   367.8   gave Victor Oladipo, Jeremiah Robinson-Earl | got Kevin Porter Jr., 2027 2nd, 2028 2nd
+
+His ten biggest trades (by size as they turned out); total of all 110: -344 as they turned out, +491 at the time:
+    2019-07-10  turned out   +2708  at the time   366.4   gave Paul George, 2025 1st (Yanic Konan Niederhäuser) | got Danilo Gallinari, Shai Gilgeous-Alexander, 2021 1st (Tre Mann), 2022 1st (Jalen Williams),
+    2012-10-27  turned out   -2599  at the time  -685.0   gave Cole Aldrich, Daequan Cook, James Harden, Lazar Hayward | got Jeremy Lamb, Kevin Martin, 2013 1st (Steven Adams), 2013 2nd (Álex Abrines), 2014 1st (Mit
+    2016-06-23  turned out   +2287  at the time   733.9   gave Serge Ibaka | got Ersan İlyasova, Victor Oladipo, Domantas Sabonis
+    2017-07-06  turned out   +1157  at the time   454.3   gave Victor Oladipo, Domantas Sabonis | got Paul George
+    2019-07-16  turned out    +669  at the time   -47.2   gave Russell Westbrook | got Chris Paul, 2021 1st swap, 2024 1st (Nikola Topić), 2025 1st swap, 2026 1st (Labaron Philo
+    2007-07-20  turned out    +453  at the time   529.7   gave 2009 2nd (Emir Preldžić), tx:2007-07-20:8981:1.1 | got Kurt Thomas, 2008 1st (Serge Ibaka), 2010 1st (Quincy Pondexter)
+    2020-11-23  turned out    +438  at the time   200.5   gave Steven Adams | got 2023 1st (Nick Smith Jr.), George Hill, Zylan Cheatham, Josh Gray, Darius Miller, Kenrich 
+    2020-11-16  turned out    -436  at the time   641.9   gave Abdel Nader, Chris Paul | got Ty Jerome, Jalen Lecque, Kelly Oubre Jr., Ricky Rubio, 2022 1st (Peyton Watson)
+    2009-01-07  turned out    +425  at the time   453.6   gave Johan Petro, 2009 2nd (Sergio Llull) | got Chucky Atkins, 2009 1st (Taj Gibson)
+    2008-02-21  turned out    -418  at the time  -540.0   gave Wally Szczerbiak, Delonte West | got Adrian Griffin, Donyell Marshall, Ira Newble

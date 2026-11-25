@@ -1,0 +1,33 @@
+Is the title model too sure of the top team? Out of sample by log score (minus the log of the champion's chance;
+lower is better), every season from 1989-90 on scored with the model chosen on the seasons before it.
+
+the model so far                           log score 1.983  Brier 0.02682  latest choice (tau, sigma, w, star) tau fit on earlier series
+    0%-2%: 837 teams, 1.8 expected, 4 won | 2%-5%: 79 teams, 2.6 expected, 3 won | 5%-15%: 86 teams, 7.7 expected, 11 won | 15%-30%: 49 teams, 10.5 expected, 4 won | 30%-100%: 32 teams, 14.4 expected, 15 won
+(a) more playoff noise (tau)               log score 1.967  Brier 0.02664  latest choice (tau, sigma, w, star) (1.5, 0.0, 0.0, 0)
+    0%-2%: 813 teams, 2.0 expected, 3 won | 2%-5%: 95 teams, 3.1 expected, 4 won | 5%-15%: 96 teams, 8.7 expected, 11 won | 15%-30%: 51 teams, 10.8 expected, 5 won | 30%-100%: 28 teams, 12.3 expected, 14 won
+(a) series-level random effect (sigma)     log score 1.976  Brier 0.02671  latest choice (tau, sigma, w, star) (0.0, 3.0, 0.0, 0)
+    0%-2%: 815 teams, 1.9 expected, 3 won | 2%-5%: 90 teams, 2.9 expected, 4 won | 5%-15%: 98 teams, 8.7 expected, 11 won | 15%-30%: 51 teams, 10.7 expected, 4 won | 30%-100%: 29 teams, 12.7 expected, 15 won
+(a) both                                   log score 1.967  Brier 0.02664  latest choice (tau, sigma, w, star) (1.5, 0.0, 0.0, 0)
+    0%-2%: 813 teams, 2.0 expected, 3 won | 2%-5%: 95 teams, 3.1 expected, 4 won | 5%-15%: 96 teams, 8.7 expected, 11 won | 15%-30%: 51 teams, 10.8 expected, 5 won | 30%-100%: 28 teams, 12.3 expected, 14 won
+(b) preseason projection blend (w)         log score 1.902  Brier 0.02626  latest choice (tau, sigma, w, star) (0.0, 0.0, 0.25, 0)
+    0%-2%: 835 teams, 1.9 expected, 3 won | 2%-5%: 81 teams, 2.7 expected, 4 won | 5%-15%: 84 teams, 7.7 expected, 9 won | 15%-30%: 53 teams, 11.2 expected, 6 won | 30%-100%: 30 teams, 13.5 expected, 15 won
+(c) star share, top 2 or 3                 log score 1.992  Brier 0.02692  latest choice (tau, sigma, w, star) (0.0, 0.0, 0.0, 0)
+    0%-2%: 836 teams, 1.7 expected, 4 won | 2%-5%: 82 teams, 2.8 expected, 4 won | 5%-15%: 85 teams, 7.7 expected, 10 won | 15%-30%: 48 teams, 10.3 expected, 4 won | 30%-100%: 32 teams, 14.6 expected, 15 won
+everything (a + b + c)                     log score 1.911  Brier 0.02622  latest choice (tau, sigma, w, star) (0.0, 0.0, 0.25, 0)
+    0%-2%: 819 teams, 2.0 expected, 3 won | 2%-5%: 92 teams, 3.1 expected, 4 won | 5%-15%: 89 teams, 8.0 expected, 10 won | 15%-30%: 59 teams, 12.7 expected, 7 won | 30%-100%: 24 teams, 11.3 expected, 13 won
+(a) + (b)                                  log score 1.911  Brier 0.02622  latest choice (tau, sigma, w, star) (0.0, 0.0, 0.25, 0)
+    0%-2%: 819 teams, 2.0 expected, 3 won | 2%-5%: 92 teams, 3.1 expected, 4 won | 5%-15%: 89 teams, 8.0 expected, 10 won | 15%-30%: 59 teams, 12.7 expected, 7 won | 30%-100%: 24 teams, 11.3 expected, 13 won
+(a) + (c)                                  log score 1.967  Brier 0.02664  latest choice (tau, sigma, w, star) (1.5, 0.0, 0.0, 0)
+    0%-2%: 813 teams, 2.0 expected, 3 won | 2%-5%: 95 teams, 3.1 expected, 4 won | 5%-15%: 96 teams, 8.7 expected, 11 won | 15%-30%: 51 teams, 10.8 expected, 5 won | 30%-100%: 28 teams, 12.3 expected, 14 won
+(b) + (c)                                  log score 1.906  Brier 0.02630  latest choice (tau, sigma, w, star) (0.0, 0.0, 0.25, 0)
+    0%-2%: 834 teams, 1.9 expected, 3 won | 2%-5%: 82 teams, 2.7 expected, 4 won | 5%-15%: 84 teams, 7.7 expected, 9 won | 15%-30%: 53 teams, 11.2 expected, 6 won | 30%-100%: 30 teams, 13.6 expected, 15 won
+
+in sample (not a test): the best single grid point (0.0, 1.0, 0.25, 2), log score 1.863
+    (0.0, 1.0, 0.25, 2)  1.863
+    (0.5, 2.0, 0.25, 2)  1.863
+    (0.5, 3.0, 0.25, 2)  1.863
+    (1.0, 2.0, 0.25, 0)  1.864
+    (1.0, 2.0, 0.25, 2)  1.865
+    (1.0, 3.0, 0.25, 0)  1.865
+    (1.5, 1.0, 0.25, 2)  1.865
+    (0.0, 2.0, 0.25, 2)  1.865

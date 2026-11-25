@@ -1,0 +1,387 @@
+{
+ "gva": {
+  "title": "GM Value Added",
+  "what": "How much value a GM created for his team compared with an average GM sitting in the same chair.",
+  "how": "Three parts, added up. Produced: how much better than an average team his teams played while he ran them. Plus what he left behind, minus what he inherited: the value of every player and pick on the books on his last day and on his first, ten seasons ahead, each later season worth 5% less than the one before. For a finished tenure that value is what the team actually got: a player's production for the team, then what he was traded for, and a pick at its slot's expectation once it was used. For an active GM nothing has turned out yet, so it is our models' projection. The at-the-time version, on projection for every tenure, is shown beside it.",
+  "data": "Team scoring margins from every game since 1979-80, Savant player value, our projection and pick models, and a ledger of every transaction (Basketball-Reference, ESPN, NBA.com, press).",
+  "limits": "Production uses the team's margin, which includes the coach's work. Salaries are not in it yet, so a GM who spent heavily is not marked down for it. Spells under two seasons are shown but not ranked. Finished and active tenures rank in one pool, the finished ones with hindsight and the active ones on projection; a recently finished tenure is still partly projection. Hindsight cuts both ways: inheriting a young star who became great counts against a GM."
+ },
+ "pct": {
+  "title": "Percentile",
+  "what": "Where his GM Value Added ranks among every GM spell of two or more seasons since 1979-80 (or among active GMs, on the second bar).",
+  "how": "The share of spells with a lower number. 50th is the middle; 90th means he beat nine in ten.",
+  "data": "Every ranked spell in NBA GM Savant; the pool is named on the bar.",
+  "limits": "A spell is one person at one team, so a GM who ran two teams has two ranks. Skills have no percentile. {{repeat_sentence}} (see How it works)."
+ },
+ "per_season": {
+  "title": "Per season",
+  "what": "GM Value Added divided by the seasons he was in charge.",
+  "how": "Total GM Value Added ÷ seasons in charge (partial seasons count by the share of games he ran).",
+  "data": "As GM Value Added.",
+  "limits": "Short spells swing hard: one great or terrible roster on the way in or out moves a two-season number a lot."
+ },
+ "produced": {
+  "title": "Produced",
+  "what": "How much better than an average team his teams played while he ran them.",
+  "how": "How much his teams outscored their opponents per game, turned into Savant points. The margin has 30% of the opponents' three-point and free-throw shooting luck taken out (the share that best predicts a team's second half from its first; the rest persists, more like defense than luck). Each point of margin is worth {{value_per_margin_point}} Savant points, times the share of the season's games he ran.",
+  "data": "Every game's final score; opponents' three-point and free-throw totals from Basketball-Reference's league pages. The {{value_per_margin_point}} is measured: how much Savant value a point of margin is worth across every team-season.",
+  "limits": "Margin includes coaching, health and schedule. The season in progress counts as far as it has gone, and early-season luck adjustments are noisy."
+ },
+ "left": {
+  "title": "Left behind",
+  "what": "The value of the roster and picks he handed to the next GM (for an active GM, today's).",
+  "how": "Every player and pick on the books on his last day, ten seasons ahead (5% a year): for a finished tenure at what they went on to produce, for an active GM as projected today. A player who left in free agency before playing a game for the next GM is not counted.",
+  "data": "The transaction ledger; Savant value for seasons played; our projection and pick models for seasons not played yet.",
+  "limits": "Projections are the model's view on that day. Until salaries arrive (NBA GM Savant 1.1.0), a player is counted even for years after his contract runs out."
+ },
+ "inherited": {
+  "title": "Inherited",
+  "what": "The value of the roster and picks he was handed on his first day.",
+  "how": "As Left behind, on his first day. Subtracted, so a GM is not credited for talent that was already there. When what he took over is at least twice everything else in his number combined (his production and what he left), the card names the inherited players who made up most of it.",
+  "data": "As Left behind.",
+  "limits": "Before 1980 the ledger starts from the 1979-80 rosters, so GMs already in office then are marked early era."
+ },
+ "player_line": {
+  "title": "Player-value line",
+  "what": "GM Value Added with production measured a second way: the team's total Savant player value above the league average, instead of its margin.",
+  "how": "Same inherited and left; production is the sum of his players' Savant value above an average team, by his share of each season.",
+  "data": "Savant player value for every player-season since 1979-80.",
+  "limits": "Savant value undersells defenders (before 2007-08 it counts defense only through steals, blocks and rebounds), which is why the headline uses margin. Where the two lines disagree, defense or coaching is usually why."
+ },
+ "rates": {
+  "title": "Discount a year",
+  "what": "GM Value Added with future value weighted four ways.",
+  "how": "Each later season of projected value counts 0%, 5% (the headline), 10% or 20% less than the one before. Higher rates favor GMs who won now over GMs who stocked the future.",
+  "data": "As GM Value Added.",
+  "limits": "No rate is 'right'. Trades of one pick for a later pick in the same round imply about {{discount_implied_pct}}% a year, but that rests on only {{discount_trades}} trades."
+ },
+ "shared": {
+  "title": "Shared credit",
+  "what": "Stretches where credit is split between two people.",
+  "how": "A clear lead gets full credit and his No. 2 is shown under him but not counted. Credit is split evenly only for real co-leads, or when a handover happened on an unknown day.",
+  "data": "Team releases, ESPN's front-office lines, Hoops Rumors and Wikipedia (dated with its references), with Basketball-Reference's executive pages as the base.",
+  "limits": "Who really decides is not always public. Where sources disagree the split is 50/50 and flagged."
+ },
+ "lottery": {
+  "title": "Lottery luck",
+  "what": "How much the draft lottery helped or hurt him with his own first-round pick.",
+  "how": "The value of the slot his pick landed in, minus the average value of the slots his pre-lottery odds gave him. The windfall of landing a top pick stays here: taking the obvious player with it earns little under Drafting.",
+  "data": "The NBA's lottery odds in force each year (from 1985), our pick-value curve.",
+  "limits": "Only his own pick; picks owed to him by other teams are not counted here."
+ },
+ "games_missed": {
+  "title": "Games missed",
+  "what": "Value his teams lost to their players missing games, for any reason.",
+  "how": "Each player's value per game played, times the games he missed, by his share of the team that season.",
+  "data": "Games played from Basketball-Reference season totals.",
+  "limits": "It does not know why a game was missed: injury, rest, suspension or a coach's choice all count."
+ },
+ "grade_gap": {
+  "title": "Grade gap",
+  "what": "How far his decisions turned out from how they looked when he made them.",
+  "how": "The sum of each decision's how-it-turned-out grade minus its at-the-time grade, by his share.",
+  "data": "Every graded decision in his spell.",
+  "limits": "Positive means things broke his way more than expected, which can be luck or a judgment the model could not see."
+ },
+ "drafting": {
+  "title": "Drafting",
+  "what": "Whether he took the best player available, judged against the consensus board where one exists, else against the slot.",
+  "how": "Each pick is compared with the best player still on the board. Where two or more pre-draft big boards exist ({{board_drafts}}), that is the highest-ranked player left on their average. As it turned out: the chosen player's first ten seasons (any team, 5% a year) minus the best available's. At the time: the value expected at the chosen player's board rank minus at the best available's, from a curve fit only on earlier drafts, so a reach is a small minus. Taking the best available earns what an average GM gave up in the same spot (see Easy picks). A pick made for a trade partner on draft night counts for the team that held it when the season began.",
+  "data": "Basketball-Reference draft pages, Savant value, and archived big boards: {{board_sources}}.",
+  "limits": "Drafts without two boards are graded against the slot: no consensus board exists for this draft, so a pick is measured against what its slot usually produces, with no grade at the time. Those from 1990 on use a pick curve fit only on earlier drafts; earlier ones use the first curve, fit on the {{first_curve_drafts}} drafts, so they are judged partly against themselves. The 1979 draft is not graded. The boards rank only the players who were drafted that year: a player who went undrafted is never the best available. Landing a high pick is lottery luck, not drafting."
+ },
+ "second_round": {
+  "title": "Second-round finds",
+  "what": "Value found with picks after No. 30.",
+  "how": "For each second-round pick, its drafting grade (against the consensus board where one exists, else against the slot), counted only when positive.",
+  "data": "As Drafting.",
+  "limits": "Counts hits only, so it rewards volume as well as eye."
+ },
+ "undrafted": {
+  "title": "Undrafted finds",
+  "what": "Value found in players nobody drafted.",
+  "how": "For each signing of an undrafted player, how the signing turned out, counted only when positive.",
+  "data": "The transaction ledger, Basketball-Reference draft pages.",
+  "limits": "Counts hits only."
+ },
+ "trades_out": {
+  "title": "Trades, as they turned out",
+  "what": "Whether his trades returned more than they cost, looking back.",
+  "how": "For each trade: the value of what came in minus the value of what went out, each counted at its own production from the trade on (a player's actual seasons wherever he played them, plus his projection for seasons not yet played), ten seasons ahead at 5%. What a player was later traded for is the next trade's credit, not this one's, so no point is counted twice. A pick is worth its slot's expectation once it conveys (who was chosen there is the drafting team's grade). Draft rights traded before a player's first season also count at the slot's expectation.",
+  "data": "The transaction ledger, Savant value, our projection and pick models for seasons not yet played.",
+  "limits": "Salaries are not in it yet (they arrive in NBA GM Savant 1.1.0), so a trade that saved money is not credited for it. Unconveyed future picks are valued by our pick model as of today."
+ },
+ "trades_at": {
+  "title": "Trades, at the time",
+  "what": "Whether his trades looked good on the day, using only what was known then.",
+  "how": "Projected value in minus projected value out, from models fit only on seasons before the trade.",
+  "data": "Point-in-time projections stored for every decision, with their model version.",
+  "limits": "Pick protections before 2017 are hand-filled only for the biggest trades; elsewhere an unknown protection marks the grade low confidence. No grade before 1985."
+ },
+ "fa": {
+  "title": "Free agency",
+  "what": "How his new signings turned out.",
+  "how": "The value each signed player produced from the signing on, ten seasons ahead at 5% (if he later leaves, his departure is graded as its own decision). Salaries aren't counted yet.",
+  "data": "The transaction ledger, Savant value.",
+  "limits": "Without salaries this rewards signing good players, not signing them well. Value per dollar arrives with salaries in NBA GM Savant 1.1.0."
+ },
+ "role": {
+  "title": "Role players",
+  "what": "How his two-way, 10-day and Exhibit 10 signings and second-round picks turned out.",
+  "how": "The sum of those decisions' how-it-turned-out grades.",
+  "data": "The transaction ledger (contract types from Basketball-Reference and ESPN).",
+  "limits": "Contract types are missing for some older signings."
+ },
+ "resign": {
+  "title": "Re-signing and extensions",
+  "what": "The value of the players he kept.",
+  "how": "Each re-signed or extended player's value over the next ten seasons at 5%: the value kept by not letting him go. It is shown, not added: no player moves, so the move that brought him in already holds that value. A signing counts as a re-signing when his team held his rights just before (his previous contract or draft rights).",
+  "data": "The transaction ledger, Savant value.",
+  "limits": "This rewards having stars to re-sign. It is on its own scale here so it does not dwarf the other skills, and it gets no percentile until salaries let us test value against cost."
+ },
+ "development": {
+  "title": "Development",
+  "what": "Whether the players he brought in did better than projected once they arrived.",
+  "how": "Each season, while he was in charge, that a player he acquired spent with his team: the player's value minus the projection made when he was acquired. His successors' seasons are theirs.",
+  "data": "Point-in-time projections, Savant value.",
+  "limits": "Shared with the coach and the player himself."
+ },
+ "coach": {
+  "title": "Coach hiring and firing",
+  "what": "Whether his coaching changes helped.",
+  "how": "A hire: the new coach's wins above his roster's talent against an average replacement. A firing: what the replacement delivered against what the fired coach was projected to deliver. {{points_per_win}} points per win.",
+  "data": "NBA Coaching Savant's wins above roster talent.",
+  "limits": "Scored from 2002-03 on; earlier moves are shown, not scored. When the fired coach also ran basketball operations, the firing is the owner's and credited to no GM."
+ },
+ "windows": {
+  "title": "Trades by window, buying and selling, partners",
+  "what": "Where his trade results came from.",
+  "how": "Each season's own calendar: the deadline is the 30 days up to that season's trade deadline (the last day trades were made before its regular season ended, read from the transaction pages, so 2021's falls in March); the offseason runs from the regular season's last game to the next season's first (so 2020's ran into November). Buying means he took in more value for this season than he sent out. Partners sum the trades against each team.",
+  "data": "As Trades, as they turned out.",
+  "limits": "Three-team trades are split evenly between partners."
+ },
+ "passed": {
+  "title": "Who he passed on",
+  "what": "The best player taken within the next ten picks after one of his, when that player did better.",
+  "how": "Value over ten seasons, his pick against the best of the next ten.",
+  "data": "Draft pages, Savant value.",
+  "limits": "Hindsight. It says what happened, not that the pick was a mistake at the time."
+ },
+ "style": {
+  "title": "Style",
+  "what": "How he works, not how well.",
+  "how": "Decisions a season, and the average age of players he acquired by trade. Draft style and holding have their own entries.",
+  "data": "The transaction ledger.",
+  "limits": "Context only: more moves is neither better nor worse."
+ },
+ "portfolio": {
+  "title": "The portfolio",
+  "what": "The value of everything his team held, from his first day to his last.",
+  "how": "Every player and pick on the books, projected ten seasons ahead at 5%, measured each summer and each February. The dots are his ten biggest moves.",
+  "data": "The transaction ledger, our projection and pick models as of each date.",
+  "limits": "A projection, so it moves with every season played. It counts value, not salary."
+ },
+ "lists": {
+  "title": "Inherited and left behind, player by player",
+  "what": "The players and picks behind the Inherited and Left behind numbers.",
+  "how": "Each asset's value on that day on the headline's basis, ten seasons ahead at 5%: for a finished tenure, what the team got from it (its production for the team, then what it was traded for; a pick at its slot once used); for an active GM, our models' projection. The biggest fourteen shown.",
+  "data": "As Inherited and Left behind.",
+  "limits": "Players who left in free agency before a game for the next GM are left out. The at-the-time figures, as projected on the day, are in the At the time numbers."
+ },
+ "built": {
+  "title": "Today's minutes he built",
+  "what": "How much of this season's playing time goes to players who arrived on his watch.",
+  "how": "The share of the team's 2026-27 minutes played by players whose latest arrival (draft, trade, signing) came after his first day.",
+  "data": "Season minutes, the transaction ledger.",
+  "limits": "A re-signing of a player who was already there does not count as building."
+ },
+ "picks": {
+  "title": "Picks owned",
+  "what": "The future picks his team holds, with their projected value.",
+  "how": "Our pick model: the expected value of the slot each pick is likely to land in, given the original owner's projected strength and the lottery rules.",
+  "data": "The transaction ledger, the NBA's lottery rules (2027 as announced; later years assume the current rules).",
+  "limits": "Protections are applied where they are known; swap rights are listed separately."
+ },
+ "cap": {
+  "title": "Cap outlook",
+  "what": "His books from here: payroll, cap space, luxury tax and apron status, season by season.",
+  "how": "Coming in NBA GM Savant 1.1.0. Each season's cap hits already on the books, set against that season's cap, tax and apron lines.",
+  "data": "The Contract tab's salaries, and the cap, tax and apron lines the NBA announces.",
+  "limits": "Not on the page yet: salaries arrive in 1.1.0. Until then nothing in NBA GM Savant counts what a player cost."
+ },
+ "at_time": {
+  "title": "At the time",
+  "what": "The decision's grade with only what was known that day.",
+  "how": "Projected value gained minus projected value given up, from models fit only on seasons before the decision. Tap the number for the model version.",
+  "data": "Point-in-time snapshots stored for every decision.",
+  "limits": "Blank before 1985 (not enough earlier seasons) and for drafts without a consensus board."
+ },
+ "turned_out": {
+  "title": "How it turned out",
+  "what": "The decision's grade looking back.",
+  "how": "What the decision actually produced: what came in minus what went out, each at its own production from that day on, plus projections for seasons not yet played; ten seasons ahead at 5%. A re-signing shows the value it kept, which is not added to his totals.",
+  "data": "Savant value, the transaction ledger.",
+  "limits": "Recent decisions are mostly projection."
+ },
+ "share": {
+  "title": "His share",
+  "what": "The part of a decision credited to him when credit is shared.",
+  "how": "From the credit table (see Shared credit).",
+  "data": "As Shared credit.",
+  "limits": "Blank means full credit."
+ },
+ "low_conf": {
+  "title": "Low confidence",
+  "what": "A grade that rests on something we could not confirm.",
+  "how": "Set when the decision depends on a reconstructed transaction, an unknown pick protection before 2017, or a free agent's departure dated from his last game.",
+  "data": "The ledger's repair log and its sources.",
+  "limits": "Tap the label for the reason."
+ },
+ "repeat": {
+  "title": "Is it skill?",
+  "what": "Whether a GM who was good at something early in his career stayed good at it later.",
+  "how": "Each GM's decisions are split in half five ways (by date, alternating, big decisions only, weighted by stakes, and one team at a time), each half's average is compared across GMs, and the correlation's 95% interval is checked. 'Smallest it can detect' is the smallest real effect the test would catch four times in five.",
+  "data": "Every graded decision, each against the league average for that kind of decision that season (a draft pick against picks in the same range, since bad teams keep picking high). Holding counts each young player kept once, not each window he was kept through.",
+  "limits": "{{repeat_sentence}}, so skills are shown as what happened. A small real skill could still be hiding under the smallest size it can detect."
+ },
+ "tree": {
+  "title": "The executive tree",
+  "what": "Who worked under whom before running a team of his own.",
+  "how": "A link is drawn when a source puts one person under another in a team's front office.",
+  "data": "Team releases, ESPN, Hoops Rumors, Wikipedia; each link names its source.",
+  "limits": "Assistant roles are thinly reported before the 2000s."
+ },
+ "graded_by": {
+  "title": "Graded by",
+  "what": "The model versions that made the at-the-time grade, and the day it was frozen.",
+  "how": "Each at-the-time grade is written once, with the versions of the projection and pick models in force that day, and never changes. When the models are refit (once a year, after the Finals), old grades keep their versions and new decisions use the new ones. Tap a row's versions for the grade version and the day it was frozen.",
+  "data": "The frozen-grades store kept by the daily refresh.",
+  "limits": "Grades written before the page launched were made with the launch versions."
+ },
+ "gva_at_time": {
+  "title": "GM Value Added, at the time",
+  "what": "GM Value Added with what he inherited and left valued as our models projected them on those days, for every tenure.",
+  "how": "Produced (as in the headline), plus the projected value of what he left on his last day, minus what he inherited on his first, ten seasons ahead at 5% a year, from models fit only on seasons before each day.",
+  "data": "As GM Value Added, with the projection and pick models as of each day.",
+  "limits": "It judges what he handed on by what could be expected then, not by what it became. For active GMs it is the headline."
+ },
+ "board": {
+  "title": "The board",
+  "what": "Where the player he took stood on the consensus board, and who was the best still available.",
+  "how": "Each source's last board archived before draft day, matched to that draft's players; a player one board leaves out is ranked just past its end; the consensus orders the average rank. Players tied on the average are both the best available.",
+  "data": "{{board_sources}}, from the Internet Archive.",
+  "limits": "Boards cover {{board_drafts}}. ESPN's archived board shows its top 25, so later picks lean on the others. 2008's second source is a mock (DraftExpress's, which says team needs are not yet taken into account) because no second big board was archived before that draft."
+ },
+ "easy_picks": {
+  "title": "Easy picks",
+  "what": "Credit for taking the consensus best available, measured against what an average GM did in the same spot.",
+  "how": "How often GMs passed on the best available in comparable spots (the pick range, and how split the boards were), times the typical cost of those passes: at the time in board-rank expected value, as it turned out in what the players did. Both from earlier board drafts only. A spot's rate is pulled toward its pick range's by a weight measured from how well it predicted later drafts.",
+  "data": "The consensus boards and every earlier board draft.",
+  "limits": "Few drafts have boards, so the top of a draft has few comparable picks, and the boards' split predicts later passes only weakly once the pick range is allowed for. So even a unanimous first pick gets some credit."
+ },
+ "holding": {
+  "title": "Holding young players",
+  "what": "Credit for keeping a young player that an average GM would sometimes have traded away, and lost value doing so.",
+  "how": "A little credit each time he kept a young player whom GMs in his spot have often traded away, and lost value doing it. It counts every player 24 or younger on his books when a trade deadline or an offseason opened and still there when it closed: how often teams traded players of that age and projection in earlier seasons, times the value they lost when they did. As it turned out from those trades' turned-out grades, at the time from their at-the-time grades. The deadline is the 30 days up to each season's last in-season trade; the offseason runs from the last game to the next opener.",
+  "data": "The transaction ledger, our projections, every earlier season's trades.",
+  "limits": "A comparison with an average GM, not value that moved, so it is not part of GM Value Added. GMs rarely trade young players with high projections, so each hold earns a little; a team with more good young players has more chances. A cell with too few earlier trades falls back to players with a similar projection at any age. The season in progress has no deadline yet."
+ },
+ "deviation": {
+  "title": "Draft style: picks off the board",
+  "what": "How often and how far he passed on the consensus best available, and how those picks did against the player he passed on.",
+  "how": "Every pick in a draft with two or more boards. A pass: he took someone other than the best available; how far: the board places between them. A hit: the player he took did better over ten seasons than the one he passed on. The total is the sum of those differences.",
+  "data": "The consensus boards ({{board_drafts}}), Savant value.",
+  "limits": "Only drafts with boards, so a GM before 2008 has none. Hindsight: a pass that missed can still have been a fair bet."
+ },
+ "fit": {
+  "title": "Talent and fit",
+  "what": "Whether he took the best available (talent) or passed on him for a position his roster lacked (fit), inferred from roster needs.",
+  "how": "On draft day, his roster's minutes from the season just ended at Guard, Wing and Big, against the league's share at each that season; the position furthest below it is the one his roster lacked. A fit pick passes on the best available for a player at that position when the best available plays another. Each kind shown with how its players did over their slot and the minutes they played for his team in their first four seasons.",
+  "data": "Savant positions (each player's first NBA season), minutes, the consensus boards.",
+  "limits": "Inferred from roster needs: nothing here says what the front office intended. Positions are coarse, and a roster's need can change by trade before the season starts."
+ },
+ "blended": {
+  "title": "Blended",
+  "what": "One number for a GM that counts both the good teams he built and the titles those teams were in position to win.",
+  "how": "GM Value Added in points, plus expected titles added times {{lambda}} points. At that rate the two halves spread GMs out equally across every GM spell since 1979-80, so neither drowns out the other. The slider changes the rate, from wins only to titles only.",
+  "data": "GM Value Added and expected titles added, both from the same luck-adjusted team strength.",
+  "limits": "The rate is a choice, not a measurement: it says how much a title is worth against regular-season strength, and reasonable people differ. Move the slider to see how much the order depends on it."
+ },
+ "lambda": {
+  "title": "The blend, and the slider",
+  "what": "How many points one expected title is worth in the blend.",
+  "how": "The default, {{lambda}} points a title (about {{wins_per_title}} wins), is set so that points and titles each account for half of the spread across every GM spell. The slider runs from wins only (points alone) through the default in the middle to titles only (expected titles added alone). Each position in between is a different rate, shown beside it.",
+  "data": "Every GM spell in NBA GM Savant, finished and active.",
+  "limits": "Percentiles on the board follow the slider: they rank the number you are looking at, against the pool named above the table."
+ },
+ "titles_added": {
+  "title": "Expected titles added",
+  "what": "GM Value Added counted in titles instead of points: how many more titles his teams were in position to win than an average GM in his seat.",
+  "how": "Three parts, as in the points. While he ran the team: each season's title chance minus an average team's share (one divided by the number of teams), times his share of the season. Plus the titles of the roster he left, minus those of the roster he inherited: for each later season, those players' share of the team's player value times the team's title chance, ten seasons ahead, each 5% less than the one before. Finished tenures as it turned out, active ones on projection.",
+  "data": "Every season since 1979-80 simulated on its real schedule, seeding, play-in and bracket ({{title_seasons}}): the regular season from the luck-adjusted strength the points use; the playoffs from each team's raw scoring margin blended with its preseason projection, which beat the luck-adjusted rating and every other version tested out of sample. For seasons not yet played, a curve of title chance against projected strength fit on earlier seasons.",
+  "limits": "A title chance is the model's, not hindsight: it does not know who got hurt in May. An average team's chance is well below its share, because titles go to the best teams, so GMs of average teams come out a little below zero. Salaries are not in it yet."
+ },
+ "titles_produced": {
+  "title": "Titles while he ran it",
+  "what": "How far his teams' title chances were above an average team's, season by season, added up.",
+  "how": "For each season: the team's title chance minus one divided by the number of teams, times the share of the season he was in charge. The season in progress counts at today's projected chance for the games played so far.",
+  "data": "The title model: every season replayed thousands of times on its real schedule and bracket, the regular season from each team's margin with 30% of its opponents' shooting luck taken out (the same strength as the points), the playoffs from its raw margin blended with its preseason projection.",
+  "limits": "A bad team and a lottery team count alike (both near zero chance), so tanking well and tanking badly look the same here; the points tell them apart."
+ },
+ "titles_left": {
+  "title": "Titles left behind and inherited",
+  "what": "The titles that the roster and picks on the books were in position to win over the next ten seasons, on his last day (left behind) and his first (inherited).",
+  "how": "For each later season: those players' share of the team's player value times the team's title chance that season, each season 5% less than the one before. As it turned out for a finished tenure; on projection (the projected roster against the league that day) for an active GM and for the at-the-time version.",
+  "data": "The transaction ledger, Savant player value, our projections and the title model.",
+  "limits": "Like the points, hindsight cuts both ways: inheriting a young star who became a champion counts against a GM, and leaving one counts for him. A player who left in free agency before playing for the next GM counts for neither."
+ },
+ "titles_at_time": {
+  "title": "Expected titles added, at the time",
+  "what": "The same sum, with what he inherited and left valued as they could be seen on the day.",
+  "how": "Each roster's projected strength against the league that day, put through the title curve fit only on seasons that had finished by then.",
+  "data": "Point-in-time projections and title curves; nothing later is read (the leakage test deletes every later season and gets the same numbers).",
+  "limits": "Projections a few seasons out say little about titles, so most of the at-the-time value sits in the next two seasons."
+ },
+ "titles_won": {
+  "title": "Titles won",
+  "what": "Championships his teams won while he ran them.",
+  "how": "One for each title, times his share of that season (a title split with a co-lead, or a season he took over midway, counts in part).",
+  "data": "The NBA Finals results, 1979-80 on.",
+  "limits": "Shared credit splits a title the same way it splits points."
+ },
+ "titles_expected": {
+  "title": "Expected titles",
+  "what": "How many titles his teams should have won, given how good they were, in the seasons he ran them.",
+  "how": "Each season's title chance from the model, times his share of that season, added up. Played seasons only, the same seasons as titles won.",
+  "data": "The title model, checked out of sample: predicted and actual titles agree by bucket, and it beats \"the best record wins\" by {{title_skill}}% on Brier score.",
+  "limits": "The model rates a team by its regular season and, in the playoffs, a little of its preseason projection, so a team that got healthy, or added a star at the deadline, can be better in the playoffs than it shows. Teams the model gave a 15-30% chance won {{cal_15_30_won}} titles against {{cal_15_30_expected}} expected ({{cal_15_30_teams}} teams since 1983-84)."
+ },
+ "playoff_luck": {
+  "title": "Playoff luck",
+  "what": "Titles won minus expected titles: what the bounces, injuries and matchups of the playoffs gave him or took away.",
+  "how": "Titles won minus expected titles, over the same seasons.",
+  "data": "The title model and the Finals results.",
+  "limits": "It sits with the other luck and is not part of expected titles added. Some of it may not be luck: a team built for the playoffs could beat its regular-season rating. We tested two versions of \"built for the playoffs\", the share of value in the top seven or eight players and the share in the top two or three stars, and neither held up out of sample."
+ },
+ "dec_titles": {
+  "title": "A decision's expected titles",
+  "what": "How many titles a decision added, or cost.",
+  "how": "The team's title chances with the decision minus its chances without it, season by season. Without it the team is weaker (or stronger) by the margin the decision's points were worth to it; extra value buys less margin on a team that is already strong. Played seasons are replayed with every other team and bounce unchanged; seasons ahead, and every season at the time, use the projected title curve. Ten seasons, 5% less each. A draft pick is measured against an average pick at its slot.",
+  "data": "The decision's grade by season, and the title model.",
+  "limits": "A different question from a GM's expected titles added, which shares out his teams' chances, so decisions' titles do not add up to it. A point counts most on a contender: a star taken from one costs far more titles than the same points on a weak team."
+ },
+ "dec_blended": {
+  "title": "A decision, blended",
+  "what": "The decision's points plus its expected titles at the default rate.",
+  "how": "How it turned out, in points, plus expected titles as it turned out times {{lambda}}.",
+  "data": "The two grades beside it.",
+  "limits": "The rate is the GM-level default; a single decision is not ranked on it."
+ },
+ "left_fa": {
+  "title": "Left in free agency",
+  "what": "A player whose time with the team ended when his contract or rights ran out, and who then played somewhere else (or nowhere).",
+  "how": "The ledger dates it at the close of his last season with the team, once a whole later season passes with no games for it and no other move. The decision counts what he went on to produce, against the team, ten seasons ahead at 5% a year, like every other grade.",
+  "data": "The transaction ledger and Savant player value.",
+  "limits": "We cannot see whether the team made him an offer, or whether he would have taken one, so this is not called a choice to let him walk. It stays in the totals, because the roster did lose what he produced. With salaries (NBA GM Savant 1.1.0), contract expiry dates will date these exactly and say what keeping him would have cost."
+ }
+}

@@ -1,0 +1,87 @@
+ACTIVE TOP 10
+  Sam Presti         OKC 2007   +6858 ( +343/season)  player-value line  +6261  produced: margin  +2634 / player value  +2037  left  7752  inherited  3527
+  Brian Wright       SAS 2019   +3978 ( +497/season)  player-value line  +3125  produced: margin   +380 / player value   -473  left  6499  inherited  2901
+  Pat Riley          MIA 1995   +2460 (  +77/season)  player-value line   +151  produced: margin  +3320 / player value  +1011  left  1711  inherited  2570
+  Rob Pelinka        LAL 2019   +2426 ( +303/season)  player-value line  +2854  produced: margin   +719 / player value  +1147  left  4396  inherited  2689
+  Trajan Langdon     DET 2024   +2313 ( +771/season)  player-value line  +1890  produced: margin   +753 / player value   +330  left  5264  inherited  3704
+  Brad Stevens       BOS 2021   +1917 ( +320/season)  player-value line   +636  produced: margin  +2546 / player value  +1264  left  4130  inherited  4759
+  Kevin Pritchard    IND 2017   +1078 ( +108/season)  player-value line  +1812  produced: margin   -246 / player value   +488  left  3336  inherited  2012
+  Sean Marks         BRK 2016   +1060 (  +93/season)  player-value line  +1761  produced: margin  -1851 / player value  -1150  left  4839  inherited  1928
+  Bobby Webster      TOR 2025   +1043 ( +522/season)  player-value line   +909  produced: margin   +262 / player value   +127  left  4784  inherited  4002
+  Mike Dunleavy      GSW 2023    +876 ( +219/season)  player-value line   +878  produced: margin   +276 / player value   +279  left  2946  inherited  2347
+ACTIVE BOTTOM 10
+  Scott Perry        SAC 2025   -2177 (-1089/season)  player-value line  -1594  produced: margin  -1175 / player value   -592  left  1613  inherited  2615
+  Michael Winger     WAS 2023   -1840 ( -460/season)  player-value line  -1126  produced: margin  -2398 / player value  -1684  left  3308  inherited  2750
+  Joe Dumars         NOP 2025   -1700 ( -850/season)  player-value line  -1156  produced: margin   -798 / player value   -254  left  3007  inherited  3909
+  Jeff Weltman       ORL 2017   -1252 ( -125/season)  player-value line  -1668  produced: margin  -1419 / player value  -1835  left  3255  inherited  3088
+  Zach Kleiman       MEM 2019    -994 ( -124/season)  player-value line  -1312  produced: margin   +530 / player value   +212  left  4604  inherited  6129
+  Jon Horst          MIL 2017    -735 (  -74/season)  player-value line   +826  produced: margin  +1323 / player value  +2884  left  3293  inherited  5351
+  Lawrence Frank     LAC 2017    -605 (  -60/season)  player-value line   -410  produced: margin   +768 / player value   +963  left  2311  inherited  3684
+  Onsi Saleh         ATL 2025    -580 ( -290/season)  player-value line   -501  produced: margin   +159 / player value   +238  left  4150  inherited  4889
+  Joe Cronin         POR 2021    -188 (  -33/season)  player-value line   -223  produced: margin   -893 / player value   -928  left  4903  inherited  4198
+  Tim Connelly       MIN 2022    -178 (  -36/season)  player-value line  -1233  produced: margin  +1168 / player value   +112  left  3741  inherited  5087
+
+Pat Williams, Orlando: Pat Williams       ORL 1989   +3807 ( +543/season)  player-value line  +3697  produced: margin    -28 / player value   -138  left  3836  inherited     0
+   left out (walked in free agency before a game for the next GM): Anthony Bowie, Joe Wolf, Anthony Bonner, Shaquille O'Neal, Ivano Newbill
+
+Pat Riley, MIA: Pat Riley          MIA 1995   +2460 (  +77/season)  player-value line   +151  produced: margin  +3320 / player value  +1011  left  1711  inherited  2570
+    1995-96: share 1.00  margin  +1.4  opp. shooting luck +0.1  adjusted  +1.5 ->   +91   player value over avg  -161
+    1996-97: share 1.00  margin  +5.5  opp. shooting luck -0.1  adjusted  +5.4 ->  +326   player value over avg  +241
+    1997-98: share 1.00  margin  +4.9  opp. shooting luck -0.3  adjusted  +4.6 ->  +278   player value over avg  +335
+    1998-99: share 1.00  margin  +5.0  opp. shooting luck +0.5  adjusted  +5.5 ->  +332   player value over avg  +167
+    1999-00: share 1.00  margin  +3.1  opp. shooting luck +0.3  adjusted  +3.4 ->  +204   player value over avg  +106
+    2000-01: share 1.00  margin  +2.3  opp. shooting luck -1.1  adjusted  +1.2 ->   +70   player value over avg   -11
+    2001-02: share 1.00  margin  -1.5  opp. shooting luck -0.9  adjusted  -2.4 ->  -148   player value over avg  -532
+    2002-03: share 1.00  margin  -5.0  opp. shooting luck -0.0  adjusted  -5.1 ->  -306   player value over avg  -752
+    2003-04: share 1.00  margin  +0.5  opp. shooting luck +0.2  adjusted  +0.7 ->   +45   player value over avg  -199
+    2004-05: share 1.00  margin  +6.5  opp. shooting luck -0.3  adjusted  +6.2 ->  +376   player value over avg  +310
+    2005-06: share 1.00  margin  +3.9  opp. shooting luck -0.1  adjusted  +3.8 ->  +229   player value over avg  +293
+    2006-07: share 1.00  margin  -0.9  opp. shooting luck -0.4  adjusted  -1.3 ->   -80   player value over avg   +77
+    2007-08: share 1.00  margin  -8.6  opp. shooting luck +0.4  adjusted  -8.3 ->  -499   player value over avg  -317
+    2008-09: share 1.00  margin  +0.3  opp. shooting luck +1.3  adjusted  +1.5 ->   +91   player value over avg  +322
+    2009-10: share 1.00  margin  +2.3  opp. shooting luck -0.8  adjusted  +1.5 ->   +89   player value over avg   +99
+    2010-11: share 1.00  margin  +7.5  opp. shooting luck -1.3  adjusted  +6.2 ->  +373   player value over avg  +471
+    2011-12: share 1.00  margin  +6.0  opp. shooting luck +0.3  adjusted  +6.3 ->  +377   player value over avg  +463
+    2012-13: share 1.00  margin  +7.9  opp. shooting luck -0.3  adjusted  +7.6 ->  +457   player value over avg  +974
+    2013-14: share 1.00  margin  +4.8  opp. shooting luck +0.0  adjusted  +4.8 ->  +289   player value over avg  +739
+    2014-15: share 1.00  margin  -2.6  opp. shooting luck -0.3  adjusted  -2.9 ->  -173   player value over avg   -52
+    2015-16: share 1.00  margin  +1.6  opp. shooting luck -0.1  adjusted  +1.5 ->   +92   player value over avg  -207
+    2016-17: share 1.00  margin  +1.1  opp. shooting luck -0.8  adjusted  +0.3 ->   +19   player value over avg   -63
+    2017-18: share 1.00  margin  +0.5  opp. shooting luck +0.2  adjusted  +0.7 ->   +42   player value over avg   -34
+    2018-19: share 1.00  margin  -0.2  opp. shooting luck +0.4  adjusted  +0.1 ->    +9   player value over avg  -222
+    2019-20: share 1.00  margin  +2.9  opp. shooting luck -1.0  adjusted  +2.0 ->  +119   player value over avg   -40
+    2020-21: share 1.00  margin  +0.0  opp. shooting luck -0.1  adjusted  -0.1 ->    -4   player value over avg  -118
+    2021-22: share 1.00  margin  +4.5  opp. shooting luck -1.6  adjusted  +2.9 ->  +174   player value over avg   -60
+    2022-23: share 1.00  margin  -0.3  opp. shooting luck +0.7  adjusted  +0.4 ->   +22   player value over avg  -373
+    2023-24: share 1.00  margin  +1.8  opp. shooting luck -1.5  adjusted  +0.2 ->   +13   player value over avg  -312
+    2024-25: share 1.00  margin  +0.6  opp. shooting luck -0.1  adjusted  +0.4 ->   +25   player value over avg  -201
+    2025-26: share 1.00  margin  +2.3  opp. shooting luck +0.3  adjusted  +2.7 ->  +161   player value over avg   -24
+    2026-27: share 1.00  margin  +0.7  opp. shooting luck +3.1  adjusted  +3.8 ->  +227   player value over avg   +90
+
+Leon Rose, NYK: Leon Rose          NYK 2020     -31 (   -4/season)  player-value line  -2139  produced: margin  +1110 / player value   -998  left  3240  inherited  4381
+    2019-20: share 0.09  margin  -6.5  opp. shooting luck +1.8  adjusted  -4.7 ->   -26   player value over avg   -57
+    2020-21: share 1.00  margin  +2.3  opp. shooting luck -3.5  adjusted  -1.2 ->   -75   player value over avg  -594
+    2021-22: share 1.00  margin  -0.1  opp. shooting luck -1.5  adjusted  -1.6 ->   -97   player value over avg  -490
+    2022-23: share 1.00  margin  +2.9  opp. shooting luck -0.4  adjusted  +2.5 ->  +153   player value over avg  -273
+    2023-24: share 1.00  margin  +4.6  opp. shooting luck -0.4  adjusted  +4.2 ->  +250   player value over avg   +42
+    2024-25: share 1.00  margin  +4.1  opp. shooting luck +0.9  adjusted  +5.0 ->  +299   player value over avg  +189
+    2025-26: share 1.00  margin  +6.3  opp. shooting luck +0.1  adjusted  +6.5 ->  +390   player value over avg  +173
+    2026-27: share 1.00  margin  +5.6  opp. shooting luck -2.1  adjusted  +3.6 ->  +216   player value over avg   +11
+
+Jeff Weltman, ORL: Jeff Weltman       ORL 2017   -1252 ( -125/season)  player-value line  -1668  produced: margin  -1419 / player value  -1835  left  3255  inherited  3088
+    2017-18: share 1.00  margin  -4.8  opp. shooting luck +0.2  adjusted  -4.6 ->  -280   player value over avg  -218
+    2018-19: share 1.00  margin  +0.7  opp. shooting luck -0.5  adjusted  +0.2 ->   +12   player value over avg   -69
+    2019-20: share 1.00  margin  -1.0  opp. shooting luck +0.6  adjusted  -0.4 ->   -26   player value over avg   +36
+    2020-21: share 1.00  margin  -9.3  opp. shooting luck +0.8  adjusted  -8.5 ->  -511   player value over avg  -646
+    2021-22: share 1.00  margin  -8.0  opp. shooting luck +1.0  adjusted  -7.0 ->  -423   player value over avg  -520
+    2022-23: share 1.00  margin  -2.6  opp. shooting luck -0.7  adjusted  -3.3 ->  -199   player value over avg  -226
+    2023-24: share 1.00  margin  +2.0  opp. shooting luck -0.8  adjusted  +1.2 ->   +75   player value over avg   -13
+    2024-25: share 1.00  margin  -0.1  opp. shooting luck +0.1  adjusted  -0.0 ->    -1   player value over avg  -113
+    2025-26: share 1.00  margin  +0.6  opp. shooting luck -0.7  adjusted  -0.1 ->    -5   player value over avg   -54
+    2026-27: share 1.00  margin  -3.1  opp. shooting luck +2.1  adjusted  -1.0 ->   -61   player value over avg   -12
+
+Leon Rose, New York: where the number comes from (5%, ten seasons)
+  GM Value Added -31 = produced +1110 + left 3240 - inherited 4381
+  inherited: players 3619, picks 779   |   left today: players 2811, picks 429
+  so picks contribute -349 (left minus inherited) and players -809; production +1110
+  his trades sent out 29 picks worth 2707 at the time and brought in 32 worth 1680 (net -1027)

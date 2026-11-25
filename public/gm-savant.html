@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>NBA GM Savant — WCE Hoops</title>
+<meta name="description" content="Every NBA general manager since 1979-80, judged like a fund manager: GM Value Added, every decision graded at the time and as it turned out, luck and shared credit kept apart."/>
+<meta name="theme-color" content="#22395A"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   NBA GM SAVANT — styles copied from NBA Coaching Savant (itself NBA Savant's), so the pages read as one tool. The shell, the
+   identity card, the controls bar, the card rows (one stat per row, the percentile riding the
+   bar), the per-row chart, the compare bars and the "more" toggles are NBA Savant's own
+   rules, copied so the two pages read as one tool. Every percentile names its pool; every
+   section says what it answers and the year its data begins; the rotation verdicts are the
+   model's view, not a verdict. Data: /bcs/index.json, /bcs/c/<coach>.json,
+   /bcs/t/<team>-<season>.json (pipeline/basketball/coaching/build.py).
+   ========================================================================= */
+:root{
+  --bg:#ECEBE8; --surface:#FFFFFF; --sunk:#F6F5F2; --ink:#191B1F; --muted:#4E535B; --faint:#8B9099;
+  --line:#E1E0DC; --track:#E9E8E4;
+  --navy:#22395A; --gold:#C2A263; --red:#BC3A2C; --accent:#22395A; --cream:#ECEBE8;
+  --c-lo:#1C4E86; --c-mid:#C2C0B6; --c-hi:#BC3A2C; --hatch:rgba(20,26,32,.22);
+  --disp:'Newsreader',Georgia,serif; --body:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}button{font-family:inherit;cursor:pointer}
+/* the tab bar and the shell, as savant-fantasy.js draws them */
+.sv-tabs{display:flex;gap:4px;flex-wrap:wrap;max-width:1180px;margin:0 auto;padding:12px 18px 0}
+.sv-tab{white-space:nowrap;font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;padding:7px 13px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--navy);cursor:pointer;text-decoration:none}
+.sv-tab:hover{border-color:var(--gold)}
+.sv-tab.on{background:var(--navy);color:var(--gold);border-color:var(--navy)}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 20px 64px;min-width:0}
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;position:relative;z-index:60}
+.brandwrap{display:flex;align-items:center;gap:11px}
+.wce{width:38px;height:38px;border-radius:9px;background:var(--navy);color:#fff;font-family:var(--body);font-weight:700;font-size:13px;letter-spacing:.01em;display:flex;align-items:center;justify-content:center;flex:none;text-decoration:none}
+.brand-word{font-family:var(--body);font-weight:700;font-size:18px;letter-spacing:.03em;text-transform:uppercase;line-height:1}
+.brand-word span{color:var(--navy)}
+.eyebrow-pill{display:inline-block;background:var(--navy);color:#fff;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
+.vchip{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--navy);border:1px solid rgba(34,57,90,.35);padding:2px 6px;border-radius:4px;cursor:help}
+.backlink{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);text-decoration:none}
+.backlink:hover{color:var(--navy)}
+.search{position:relative}
+.search input{font-family:var(--body);font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;width:260px;outline:none}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,57,90,.26)}
+.search input.adding{border-color:var(--gold);box-shadow:0 0 0 3px rgba(194,162,99,.3)}
+.results{position:absolute;top:calc(100% + 6px);right:0;width:320px;max-width:calc(100vw - 32px);max-height:344px;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 28px rgba(20,26,32,.12);padding:6px;z-index:70}
+.results[hidden]{display:none}
+.res{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:9px;cursor:pointer}
+.res:hover,.res.on{background:var(--track)}
+.res .rn{font-weight:500}.res .rs{font-family:var(--mono);font-size:11px;color:var(--faint);white-space:nowrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.chips-label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-right:4px}
+.chip{font-family:var(--body);font-size:12.5px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:5px 11px;cursor:pointer;text-decoration:none}
+.chip:hover{border-color:var(--navy);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+/* the identity card */
+.id{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden}
+.id-head{display:flex;gap:18px;align-items:flex-start}
+.headwrap{position:relative;width:88px;height:88px;flex:none;border-radius:12px;overflow:hidden;background:var(--track)}
+.initials{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;font-size:28px;color:var(--muted)}
+/* ---- season photos (bcs/heads.json, pipeline/basketball/coaching/heads.py). A photo shot that season is drawn
+   as it is; a face from another season is cropped above the shirt over a collar in that season's team colours,
+   so no other team's polo shows; no photo at all is a badge in those colours with his initials. Each fills
+   whatever frame the spot draws (--fs the initials' size, --hem the badge's stripe, --collar the crop's line). */
+.face{position:relative;display:block;width:100%;height:100%;overflow:hidden;box-sizing:border-box;background:var(--tc,var(--track));color:var(--tc3,var(--muted));font-family:var(--disp);font-weight:600;letter-spacing:.02em}
+.face b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:var(--fs,28px);line-height:1}
+.face.badge{box-shadow:inset 0 calc(-1 * var(--hem,6px)) 0 var(--tc2,transparent)}
+.face.badge:has(img){box-shadow:none}.face.badge:has(img) b{display:none}  /* the NBA's photos are cut out, so the badge beneath would show through */
+.face img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block}
+.face.crop{background-color:#D8D3C6;background-repeat:no-repeat;background-size:178% auto;background-position:50% 2%}
+.face.crop.br{background-size:112% auto;background-position:50% 14%}  /* Basketball-Reference's 120x180 portraits are already tight on the face */
+.face.crop::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16%;background:var(--tc);border-top:var(--collar,2px) solid var(--tc2)}
+.hf{display:inline-block;width:22px;height:22px;border-radius:50%;overflow:hidden;flex:none;vertical-align:middle;--fs:9px;--hem:3px;--collar:1px}
+.lrow .hf{align-self:center}
+.res .hf{width:26px;height:26px;--fs:10px}.res .rn{flex:1;white-space:nowrap}.res .rs{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.chip{display:inline-flex;align-items:center;gap:7px}.chip .hf{width:20px;height:20px;margin:-4px 0 -4px -6px;--fs:8px;--hem:2px}
+.cmp-pill .hf{width:20px;height:20px;margin-left:-4px;box-sizing:border-box;border:2px solid var(--cc,transparent)}
+.tipface{float:left;width:46px;height:46px;margin:1px 9px 4px 0;border-radius:8px;overflow:hidden;--fs:14px;--hem:4px}
+.leaf image{clip-path:circle(50% at 50% 50%);pointer-events:none}
+.id-headtext{min-width:0;flex:1}
+.id-name{font-family:var(--disp);font-weight:600;font-size:42px;line-height:1.0;letter-spacing:-.01em}
+.id-meta{color:var(--muted);font-size:13.5px;margin-top:6px}
+.id-meta b{color:var(--ink);font-weight:600}
+.statline{display:flex;flex-wrap:wrap;gap:14px;margin-top:9px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.statline .st b{font-size:14px;color:var(--ink);font-weight:500;margin-right:2px}
+.accos{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.acco{font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--navy);color:var(--navy);background:var(--surface);border-radius:4px;padding:2.5px 7px;white-space:nowrap;cursor:help}
+.acco.major{background:var(--navy);color:#fff}
+.acco.gold{background:var(--gold);border-color:var(--gold);color:#2A2208}
+.note{font-size:12.5px;color:var(--muted);background:var(--bg);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:9px 12px;margin:10px 0 0;line-height:1.5}
+/* compare */
+.cmpbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+.cmp-pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:3px 9px}
+.cmp-x{border:none;background:none;color:var(--faint);font-size:13px;cursor:pointer;padding:0 0 0 2px;line-height:1}
+.cmp-x:hover{color:var(--red)}
+.cmp-add{font-family:var(--body);font-size:12px;color:var(--muted);background:var(--surface);border:1px dashed var(--faint);border-radius:14px;padding:3px 10px;cursor:pointer}
+.cmp-add:hover{color:var(--navy);border-color:var(--navy)}
+.cmp-note{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.02em;margin-top:6px}
+.cdot{display:inline-block;width:7px;height:7px;border-radius:50%;flex:none}
+.cbar{position:absolute;left:0;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}
+.cbar-lab{position:absolute;font-family:var(--mono);font-size:9px;font-weight:600;color:#fff;top:50%;transform:translateY(-50%);left:6px;text-shadow:0 1px 1px rgba(0,0,0,.35);pointer-events:none;letter-spacing:.02em}
+.cv{font-family:var(--mono);font-size:11px;line-height:1.3;white-space:nowrap;display:flex;align-items:center;justify-content:flex-end;gap:5px;color:var(--ink)}
+/* the career arc */
+.arcbtn{display:inline-flex;align-items:center;gap:6px;margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:5px 12px;cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.arcbtn:hover{border-color:var(--navy);color:var(--ink)}
+.arcbtn .caret{font-size:8px;transition:transform .18s ease}
+.arcbtn[aria-expanded="true"]{border-color:var(--navy);color:var(--ink)}
+.arcbtn[aria-expanded="true"] .caret{transform:rotate(180deg)}
+.arcbtn .cur{color:var(--ink)}
+.arcbtn .pk{color:var(--gold)}
+.arcrail{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.arcrail[hidden]{display:none}
+.arc-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:7px}
+.arc-h span{text-transform:none;letter-spacing:.02em;color:var(--faint);opacity:.85}
+.arc-ticks{display:flex;align-items:flex-end;gap:2px;height:46px}
+.arc-col{flex:1;min-width:3px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;background:none;border:0;padding:0;cursor:pointer;position:relative}
+.arc-bar{display:block;width:100%;border-radius:2px 2px 0 0;transition:filter .15s ease}
+.arc-col:hover .arc-bar{filter:brightness(.92)}
+.arc-col.on .arc-bar{box-shadow:0 0 0 2px var(--navy)}
+.arc-star{position:absolute;top:1px;left:0;right:0;text-align:center;font-size:9px;line-height:1;color:#2A2208;pointer-events:none}
+.arc-foot{display:flex;justify-content:space-between;gap:8px;margin-top:5px;font-family:var(--mono);font-size:9px;letter-spacing:.04em;color:var(--faint)}
+.arc-pklab{color:var(--gold)}
+/* the controls bar */
+.controls{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin:0 2px 14px;position:relative;z-index:50}
+.ctl{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.ctl-lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:2px;gap:2px}
+.seg button{font-family:var(--body);font-size:13px;color:var(--muted);background:none;border:none;border-radius:6px;padding:6px 11px;cursor:pointer;line-height:1}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.selx{position:relative}
+.selx-btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 11px;cursor:pointer;min-width:132px;justify-content:space-between}
+.selx-btn:hover{border-color:var(--navy)}
+.selx-caret{font-size:8px;color:var(--navy);transition:transform .18s ease}
+.selx-btn[aria-expanded="true"]{border-color:var(--navy)}
+.selx-btn[aria-expanded="true"] .selx-caret{transform:rotate(180deg)}
+.selx-star{color:var(--gold)}
+.selx-pop{position:absolute;z-index:70;top:calc(100% + 6px);left:0;min-width:100%;max-height:284px;overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:5px;box-shadow:0 10px 28px rgba(20,26,32,.16)}
+.selx-pop[hidden]{display:none}
+.selx-opt{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;font-family:var(--mono);font-size:12.5px;color:var(--ink);background:none;border:0;border-radius:6px;padding:6px 9px;cursor:pointer;text-align:left;white-space:nowrap}
+.selx-opt:hover{background:var(--track)}
+.selx-opt[aria-selected="true"]{background:var(--navy);color:#fff}
+.selx-opt[aria-selected="true"] .selx-star{color:var(--gold)}
+.selx-tag{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.selx-opt[aria-selected="true"] .selx-tag{color:rgba(255,255,255,.72)}
+.legend{margin-left:auto;display:flex;align-items:flex-end;gap:16px;font-size:11.5px;color:var(--muted)}
+.legbar{width:120px;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--c-lo),var(--c-mid),var(--c-hi))}
+.legbox .ends{display:flex;justify-content:space-between;width:120px;font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+.leg{display:flex;align-items:center;gap:7px;padding-bottom:2px;font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase}
+.hatchswatch{width:18px;height:11px;border-radius:3px;background:var(--track);position:relative;overflow:hidden}
+.hatchswatch::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 3px,var(--hatch) 3px 5px)}
+.goldswatch{width:18px;height:11px;border-radius:3px;background:var(--gold)}
+/* panels and cards */
+.ctxrow{margin:0 0 14px}
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.col{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px 18px;min-width:0;overflow:hidden}
+.col.wide{margin-bottom:14px}
+.col-h{font-family:var(--disp);font-weight:600;font-size:25px;letter-spacing:0;margin:2px 0 10px;display:inline-block;border-bottom:3px solid var(--gold);padding-bottom:3px;line-height:1}
+.col-h .q{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:500;margin-left:8px;border:0}
+.since{font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;color:var(--faint);margin:-4px 0 12px}
+.cap{font-size:12.5px;color:var(--muted);background:var(--bg);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:9px 12px;margin:2px 0 12px;line-height:1.5}
+.cap b{color:var(--ink);font-weight:600}
+h3.sub{font-family:var(--disp);font-weight:600;font-size:18px;margin:16px 0 2px}
+.group-h{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.group-h:first-of-type{margin-top:8px}
+.row{display:grid;grid-template-columns:140px 1fr 58px 22px;grid-template-areas:"lab bar val btn";align-items:center;column-gap:12px;padding:7px 0}
+.row.nochart{grid-template-columns:140px 1fr 58px;grid-template-areas:"lab bar val"}
+.rl{min-width:0;grid-area:lab;cursor:pointer}
+.rl .name{font-size:13.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rl .tag{font-family:var(--mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin-top:2px}
+.track{position:relative;height:20px;background:var(--track);border-radius:6px;overflow:hidden;grid-area:bar}
+.tick{position:absolute;top:0;bottom:0;width:1px;background:rgba(25,27,31,.12)}
+.tick.mid{background:rgba(25,27,31,.22)}
+.fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;width:0;box-shadow:inset 0 0 0 1px rgba(20,26,32,.12)}
+.anim .fill{transition:width .55s cubic-bezier(.22,.61,.36,1)}
+.fill .hatch{display:none;position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 4px,var(--hatch) 4px 6px)}
+.row.un .fill{filter:grayscale(.55) opacity(.5)}
+.row.un .fill .hatch{display:block}
+.row.na .track{opacity:.5}
+.pnum{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:11.5px;font-weight:500;color:var(--ink);pointer-events:none}
+.row.un .pnum{color:var(--muted)}
+.rv{font-family:var(--mono);font-size:13px;text-align:right;color:var(--ink);grid-area:val}
+.row.un .rv{color:var(--faint)}
+.row.un .rv::after{content:" \25F7";font-family:var(--body);font-size:10px}
+.statbtn{grid-area:btn;width:22px;height:22px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent;border-radius:6px;background:none;color:var(--faint);cursor:pointer;transition:color .12s,background .12s,border-color .12s}
+.statbtn:hover{color:var(--navy);border-color:var(--line);background:var(--surface)}
+.statbtn[aria-expanded="true"]{color:var(--surface);background:var(--navy);border-color:var(--navy)}
+.statbtn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.statchart{background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:12px 14px 10px;margin:1px 0 9px}
+.rc-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.rc-name{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.2}
+.rc-name em{font-style:normal;color:var(--faint);font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;margin-left:7px}
+.rc-x{font-family:var(--mono);font-size:14px;line-height:1;color:var(--faint);background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:5px}
+.rc-x:hover{color:var(--ink)}
+.rc-plot{display:block;width:100%;height:auto;overflow:visible}
+.rc-gl{stroke:var(--line);stroke-width:1}
+.rc-ln{fill:none;stroke:var(--navy);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.rc-med{fill:none;stroke:var(--gold);stroke-width:1.6;stroke-dasharray:4 3}
+.rc-ar{fill:var(--navy);opacity:.07}
+.rc-pt{stroke:var(--sunk);stroke-width:1.5}
+.rc-ax{font-family:var(--mono);font-size:9px;fill:var(--faint);letter-spacing:.02em}
+.rc-note{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin-top:7px}
+.rc-empty{font-size:12.5px;color:var(--muted);padding:6px 0 2px}
+.expl{background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;margin:2px 0 8px;line-height:1.5}
+.expl b{font-weight:600}
+.expl .k{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.xmore{margin-top:14px;border-top:1px solid var(--line)}
+.xmore-btn{width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;padding:11px 2px 9px;cursor:pointer;color:var(--navy);text-align:left}
+.xmore-lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.xmore-n{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--faint);border:1px solid var(--line);border-radius:10px;padding:1px 7px;background:var(--surface)}
+.xmore-btn svg{width:12px;height:12px;margin-left:auto;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s ease}
+.xmore.open .xmore-btn svg{transform:rotate(180deg)}
+.xmore-btn:hover .xmore-lab{text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:3px}
+.xmore-body{display:none}.xmore.open .xmore-body{display:block}
+.xmore-body .group-h:first-of-type{margin-top:4px}
+.xmore-body .col{border:0;padding:0;margin:8px 0 0;background:none;box-shadow:none;overflow:visible}
+.xmore-body .col:hover{box-shadow:none}
+.xmore-body .col .since{margin-top:0}
+/* links: a coach to his page, a player to his NBA Savant card */
+a.cl,a.pl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--faint)}
+a.cl:hover,a.pl:hover{color:var(--red);border-bottom-color:var(--red)}
+svg a text{cursor:pointer}svg a:hover text{fill:var(--red)}
+/* the tooltip: one box for the whole page */
+#tip{position:fixed;z-index:100;max-width:320px;background:var(--ink);color:var(--cream);font-size:12.5px;line-height:1.45;padding:9px 11px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:auto;display:none}
+#tip b{color:#fff;font-weight:600}
+#tip .k{font-family:var(--mono);font-size:10.5px;color:rgba(236,235,232,.7)}
+#tip .def{margin-top:6px;padding-top:6px;border-top:1px solid rgba(236,235,232,.2);color:rgba(236,235,232,.85)}
+#tip a{color:var(--gold);border-bottom:1px dotted var(--gold);text-decoration:none}
+#tip .pbox{display:inline-block;min-width:26px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink);border-radius:3px;padding:0 5px;margin-right:4px}
+/* lists, tables, small things */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;min-width:0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;min-width:0}
+.lead-h{font-family:var(--disp);font-weight:600;font-size:18px;margin:0 0 2px}
+.lead-p{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin:0 0 8px}
+.lrow{display:flex;align-items:baseline;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.lrow:last-child{border-bottom:none}
+.lrk{font-family:var(--mono);font-size:10px;color:var(--faint);width:18px;flex:none}.ln{flex:1;font-weight:500;min-width:0}.lv{font-family:var(--mono);font-size:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px;align-items:center}
+.tab{font-family:var(--mono);font-size:11px;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:4px 10px;color:var(--muted)}
+.tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.pill{font-family:var(--mono);font-size:10px;background:var(--navy);color:var(--gold);padding:2px 7px;border-radius:10px;letter-spacing:.04em}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+table.t{border-collapse:collapse;width:100%;font-size:13px}
+table.t th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;font-weight:500}
+table.t td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--mono);font-size:12px;white-space:nowrap}
+table.t th:first-child,table.t td:first-child{text-align:left;font-family:var(--body);font-size:13px;position:sticky;left:0;background:var(--surface)}
+table.t tr.link{cursor:pointer}table.t tr.link:hover td{color:var(--red)}
+table.t tr.on td{background:var(--sunk)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:10px}
+.tile{background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:default}
+.tile .tl{font-family:var(--mono);font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
+.tile .tv{font-family:var(--disp);font-size:24px;line-height:1.2;margin:2px 0;font-weight:600}
+.tile .ts{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.tile .pb{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:500;padding:0 5px;border-radius:3px;color:var(--ink);margin-left:4px;vertical-align:middle}
+.small{font-size:12.5px;color:var(--muted)}
+.empty{font-size:13px;color:var(--faint);font-style:italic}
+.lines{margin:0;padding-left:18px}.lines li{margin:5px 0;font-size:13.5px}
+.splits{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.split h4{margin:0 0 6px;font-family:var(--mono);font-size:10px;font-weight:500;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
+.srl{display:grid;grid-template-columns:96px 1fr 44px;gap:6px;align-items:center;font-size:12px;padding:2px 0}
+.srl .sb{height:8px;position:relative;background:var(--track);border-radius:4px}
+.srl .sb i{position:absolute;top:0;bottom:0}
+.srl .sb b{position:absolute;top:-3px;width:1px;height:14px;background:var(--ink);opacity:.5}
+.srl .sn{font-family:var(--mono);font-size:11px;text-align:right;color:var(--muted)}
+.fp{display:grid;grid-template-columns:170px 1fr;gap:4px 10px;align-items:center;font-size:12.5px}
+.fp .track{height:12px;border-radius:6px;overflow:visible}
+.fp .track i{position:absolute;top:2px;width:8px;height:8px;border-radius:50%;margin-left:-4px}
+.legend2{font-family:var(--mono);font-size:10px;letter-spacing:.02em;color:var(--faint);margin-top:8px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.sw{display:inline-block;width:12px;height:12px;vertical-align:-2px;margin-right:4px;border-radius:3px}
+svg.chart{width:100%;height:auto;display:block;max-width:100%}
+svg.chart text{font-family:'IBM Plex Mono',monospace}
+svg .hit{cursor:pointer}
+/* the Rotation Map */
+.rot{display:grid;grid-template-columns:160px 1fr;gap:0;min-width:0}
+.rotnames{display:flex;flex-direction:column;padding-top:18px}
+.rotname{height:22px;line-height:22px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px;border-bottom:1px solid var(--line)}
+.rotname small{font-family:var(--mono);color:var(--faint);font-size:10px}
+.rotaxis{display:grid;grid-template-columns:repeat(4,1fr);height:18px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.rotaxis span{border-left:1px solid var(--line);padding-left:4px;line-height:18px}
+.rotmin{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:3px}
+canvas.map{display:block;width:100%;height:auto;image-rendering:pixelated;cursor:crosshair;border-radius:4px}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:12px}
+.month h4{margin:0 0 3px;font-family:var(--mono);font-size:10px;color:var(--faint);font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.month .rotaxis{height:14px}.month .rotaxis span{line-height:14px;font-size:9px}
+.matrix{font-family:var(--mono);font-size:10.5px;border-collapse:collapse}
+.matrix td,.matrix th{width:34px;height:34px;text-align:center;border:1px solid var(--surface);padding:0}
+.matrix th{font-weight:500;color:var(--muted);font-size:10px;width:auto;padding:0 6px;text-align:right;white-space:nowrap}
+.matrix td.c{cursor:pointer;color:#fff}
+.matrix td.d{background:var(--track)}
+.matrix thead th{writing-mode:vertical-rl;transform:rotate(180deg);text-align:left;height:90px;padding:4px 0}
+.pairinfo{font-size:13px;margin-top:10px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+/* the tree, NFL Coaching Savant's zoomable forest */
+.treestage{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative;height:min(74vh,760px);cursor:grab;touch-action:none}
+.treestage.embed{height:min(60vh,560px);border-radius:10px;background:var(--sunk)}
+.treestage.drag{cursor:grabbing}
+.treestage svg{display:block;user-select:none}
+.branch{fill:none;stroke-linecap:round;opacity:.9}
+.leaf circle{cursor:pointer;stroke:#fff;stroke-width:1.4}
+.leaf.ast circle{stroke-dasharray:2 2;opacity:.8}
+.leaf:hover circle{stroke:var(--ink);stroke-width:2.2}
+.lbl{font-family:var(--body);font-size:10px;fill:var(--ink);text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:rgba(255,255,255,.92);stroke-width:3px;stroke-linejoin:round}
+.lbl .rec{font-family:var(--mono);font-size:8.5px;fill:var(--muted)}
+.lbl.minor{display:none}
+.labels.leaves-too .lbl.minor{display:inline}
+.lbl.major{font-size:11px;font-weight:500}
+.rootlbl{font-family:var(--mono);font-size:10px;fill:var(--muted);text-anchor:middle;pointer-events:none;letter-spacing:.06em}
+.leaf.dim,.branch.dim,.lbl.dim{opacity:.1}
+.leaf.hl circle{stroke:var(--ink);stroke-width:2.4}
+.branch.hl{stroke:var(--gold)!important;opacity:1}
+.lbl.hl{font-weight:700}
+.tctl{position:absolute;right:12px;bottom:12px;display:flex;gap:6px;z-index:5}
+.tctl button{min-width:34px;height:34px;padding:0 8px;background:#fff;border:1px solid var(--line);border-radius:8px;font-family:var(--mono);font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(20,26,32,.08)}
+.tctl button:hover{border-color:var(--navy)}
+.tctl button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tfind{position:absolute;left:12px;top:12px;z-index:5;font-family:var(--body);font-size:13px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 12px rgba(20,26,32,.08);padding:8px 11px;width:220px;max-width:calc(100% - 24px);outline:none}
+.treestage.pseudo{position:fixed;left:0;top:0;right:0;bottom:0;z-index:1000;margin:0;width:100vw;height:100dvh;max-width:none;border-radius:0}
+html.fslock,html.fslock body{overflow:hidden}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.anim .id{animation:rise .55s .08s cubic-bezier(.22,.61,.36,1) both}
+.anim .controls{animation:rise .5s .16s cubic-bezier(.22,.61,.36,1) both}
+.anim .ctxrow{animation:rise .5s .22s cubic-bezier(.22,.61,.36,1) both}
+.id,.col{transition:box-shadow .3s ease}
+.id:hover,.col:hover{box-shadow:0 8px 26px rgba(20,26,32,.07)}
+@media (prefers-reduced-motion:reduce){ .anim .id,.anim .controls,.anim .ctxrow{animation:none} .anim .fill{transition:none} }
+@media (max-width:840px){ .panels{grid-template-columns:1fr} .id-name{font-size:34px} .legend{margin-left:0;width:100%} }
+@media (max-width:640px){
+  .wrap{padding:16px 12px 48px}
+  .sv-tabs{padding:10px 12px 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .col{padding:14px 12px 16px}
+  .id{padding:16px 14px}
+  .row{grid-template-columns:1fr auto auto;grid-template-areas:"lab val btn" "bar bar bar";row-gap:5px;padding:9px 0}
+  .row.nochart{grid-template-columns:1fr auto;grid-template-areas:"lab val" "bar bar"}
+  .rl .name{white-space:normal}
+  .track{height:22px}
+  .search{flex-wrap:wrap}
+  .search input{width:100%;flex:1;min-width:150px}
+  .id-name{font-size:28px}
+  .headwrap{width:72px;height:72px}
+  .rot{grid-template-columns:104px 1fr}.rotname{font-size:11px;padding-right:4px}
+  .fp{grid-template-columns:110px 1fr}
+  .treestage{height:64vh}
+  .col-h .q{display:block;margin:6px 0 0}
+}
+body.view-home .coach,body.view-home .treeview{display:none}
+body.view-coach .home,body.view-coach .treeview{display:none}
+body.view-tree .home,body.view-tree .coach{display:none}
+/* ---- NBA GM Savant's own pieces, on top of NBA Coaching Savant's rules ---- */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.lede{margin:4px 0 16px}.lede .disp,h1.disp{font-family:var(--disp);font-weight:600;font-size:34px;line-height:1.1;margin:0 0 8px;letter-spacing:-.01em}
+.lede p{max-width:760px;color:var(--muted);margin:0 0 8px}.lede b{color:var(--ink)}
+.whatsnew{font-size:13px}
+.ph{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+p.sub{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+.pchip{display:inline-block;font-family:var(--mono);font-size:11px;color:#fff;border-radius:4px;padding:1px 6px;min-width:38px;text-align:center}
+.vtrack{background:var(--track)}.vtrack .zero{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--faint)}
+.vfill{position:absolute;top:3px;bottom:3px;border-radius:4px}.vfill.pos{background:var(--navy)}.vfill.neg{background:var(--gold)}
+.lrow .lv{font-family:var(--mono);font-size:12px;min-width:52px;text-align:right;color:var(--muted)}
+.lrow .sen{font-weight:600;min-width:170px}
+.lrow.tr{align-items:flex-start}
+a.pl,a.gl{color:var(--navy);text-decoration:none;border-bottom:1px solid rgba(34,57,90,.25)}a.pl:hover,a.gl:hover{color:var(--red)}
+.chartwrap{position:relative;width:100%}#port{width:100%;display:block}
+#port .grid{stroke:var(--line)}#port .ax{font-family:var(--mono);font-size:10px;fill:var(--faint)}
+#port path{fill:none;stroke-width:2}#port .lall{stroke:var(--navy);stroke-width:2.5}#port .lplayers{stroke:var(--c-mid)}#port .lpicks{stroke:var(--gold);stroke-dasharray:4 3}
+#port .mark{stroke:#fff;stroke-width:1.5;cursor:pointer}#port .mark.pos{fill:var(--navy)}#port .mark.neg{fill:var(--red)}#port .mark:focus{outline:none;stroke:var(--ink);stroke-width:2.5}
+#port .hit{fill:transparent}
+.tip{position:absolute;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:12px;box-shadow:0 6px 18px rgba(20,26,32,.12);pointer-events:none;max-width:220px}
+.legend .sw{display:inline-block;width:16px;height:3px;vertical-align:middle}.sw.all{background:var(--navy)}.sw.pl{background:var(--c-mid)}.sw.pk{background:var(--gold)}
+.legend .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:2px}.dot.pos{background:var(--navy)}.dot.neg{background:var(--red)}
+#portLegend{margin:8px 0 0;justify-content:flex-start}
+.move{border-top:1px solid var(--line);padding:10px 0}.move:first-child{border-top:none}
+.mh{font-size:13.5px}.md{font-family:var(--mono);font-size:11px;color:var(--faint);margin-right:6px}
+.mg{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:3px 0 6px}
+.tree{font-size:13px}.tree ul{list-style:none;margin:0;padding-left:16px;border-left:1px solid var(--line)}.tree li{margin:3px 0}
+.tree summary{cursor:pointer;min-height:24px}.tree summary:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+.tree .how{font-family:var(--mono);font-size:10.5px;color:var(--faint)}.gave{color:var(--muted);margin-bottom:3px}
+table.t td.dl{text-align:left;white-space:normal;font-family:var(--body);font-size:12.5px;min-width:280px}
+.lc{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--red);border:1px solid rgba(188,58,44,.4);border-radius:3px;padding:0 4px;cursor:help}
+.na{color:var(--faint)}
+.foot{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.foot a{color:var(--navy)}
+#skillSel{font-family:var(--body);font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);min-height:40px}
+.chip,.seg button,.sv-tab{min-height:34px}
+:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+@media (max-width:640px){ .search input{width:100%} .search{width:100%} .lrow .sen{min-width:110px} .lede .disp,h1.disp{font-size:27px} .id-name{font-size:32px}
+  .chip,.seg button,.sv-tab{min-height:40px} table.t td.dl{min-width:220px} }
+
+/* tap-to-open explainers */
+.ib{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;min-height:18px;padding:0;margin-left:4px;border-radius:50%;border:1px solid var(--faint);background:var(--surface);color:var(--muted);font-family:var(--disp);font-style:italic;font-weight:600;font-size:11px;line-height:1;vertical-align:middle;cursor:pointer;position:relative}
+.ib::after{content:"";position:absolute;inset:-11px}
+.ib:hover,.ib[aria-expanded="true"]{border-color:var(--navy);color:#fff;background:var(--navy)}
+.expl{position:absolute;z-index:90;background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--gold);border-radius:10px;box-shadow:0 12px 30px rgba(20,26,32,.16);padding:10px 14px 4px;font-size:13px;line-height:1.5;color:var(--ink)}
+.expl .xh{font-family:var(--disp);font-weight:600;font-size:17px;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px}
+.expl .xx{border:none;background:none;font-size:20px;color:var(--faint);width:40px;height:40px;margin:-8px -10px -8px 0;cursor:pointer}
+.expl p{margin:0 0 8px}.expl b{font-weight:600}
+/* photo slot: a file from /gm-photos/ with its credit, or the monogram in WCE colors */
+#ini{background:var(--navy)}#ini .mono{color:var(--gold);font-family:var(--disp);font-weight:600;font-size:32px;letter-spacing:.02em}
+#ini.hasphoto{background:var(--track)}#ini img{width:100%;height:100%;object-fit:cover;object-position:50% 15%;display:block}
+.photocredit{font-family:var(--mono);font-size:9.5px;color:var(--faint);margin:6px 0 0}.photocredit:empty{display:none}
+@media (max-width:640px){ .ib{width:22px;height:22px;min-height:22px} }
+table.t td.gb{font-family:var(--mono);font-size:10px;color:var(--faint);white-space:normal;min-width:140px;text-align:left}
+
+/* tap-to-read details: a button that reads as the text it wraps, with a finger-sized target on a phone */
+.tipb{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;position:relative}
+.tipb::after{content:"";position:absolute;inset:-10px -6px}
+.tipb.lc{text-decoration:none}
+.inh-note{margin-top:10px;border-left:3px solid var(--navy);padding:6px 10px;background:var(--surface)}
+/* titles: the metric switch and the blend slider (v1.1.0) */
+.ctl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:4px 0 8px}
+.blendctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font:500 12px/1.3 'IBM Plex Mono',monospace;color:var(--muted,#4E535B)}
+.blendctl input[type=range]{width:min(260px,52vw);min-height:40px;accent-color:#22395A}
+.blendctl input[type=range]:focus-visible{outline:2px solid #22395A;outline-offset:2px}
+.blendctl[hidden]{display:none}
+.bl-note{flex-basis:100%}
+td.tn{font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+/* salaries coming (v1.0.0 → v1.1.0): one slim banner, small badges that open it at the right line */
+.salbanner{margin:0 0 14px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:0 12px;font-size:13px}
+.salbanner[hidden]{display:none}
+.salbanner summary{cursor:pointer;min-height:40px;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;padding:8px 0;list-style:none}
+.salbanner summary::-webkit-details-marker{display:none}
+.salbanner summary::after{content:"+";margin-left:auto;font-family:var(--mono);color:var(--faint)}
+.salbanner[open] summary::after{content:"−"}
+.salbanner .sb-more{color:var(--muted)}
+.salbanner ul{margin:0 0 10px;padding-left:18px;color:var(--muted)}.salbanner li{margin:3px 0;padding:1px 4px;border-radius:4px}
+.salbanner li b{color:var(--ink);font-weight:600}.salbanner li.hl{background:rgba(194,162,99,.18)}
+.soon{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);background:var(--sunk);border:1px solid rgba(194,162,99,.7);border-radius:3px;padding:1px 5px;margin-left:4px;cursor:pointer;vertical-align:middle;position:relative;white-space:nowrap}
+.soon::after{content:"";position:absolute;inset:-12px -6px}
+.soon:hover{background:var(--gold);color:var(--ink)}
+.tile.soon-card{background:var(--surface);border-style:dashed}.tile.soon-card .tv{color:var(--muted);font-size:20px}
+.tile.soon-card .soon{margin:6px 0 0}
+</style>
+<script src="/wce-nav.js" defer></script>
+</head>
+<body class="view-home">
+<nav class="sv-tabs" aria-label="NBA GM Savant sections"><a class="sv-tab on" href="#" data-tab="gms">GMs</a><a class="sv-tab" href="#leaders" data-tab="leaders">Leaders</a><a class="sv-tab" href="#tree" data-tab="tree">The tree</a><a class="sv-tab" href="#method" data-tab="method">How it works</a></nav>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="brandwrap"><a class="wce" href="/" aria-label="WCE Hoops home">WCE</a><div><div class="brand-word">NBA GM <span>Savant</span></div>
+      <div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="eyebrow-pill">Every NBA GM, 1979-80 on</span><span class="vchip" id="ver" title="Version">v1.0.0</span><a class="backlink" href="/nba-savant">NBA Savant</a><a class="backlink" href="/nba-coaching-savant">NBA Coaching Savant</a></div></div></div>
+    </div>
+    <div class="search"><label for="q" class="sr">Find a GM</label><input id="q" type="search" placeholder="Find a GM — Presti, Riley, Ainge…" autocomplete="off" aria-controls="res"/><div class="results" id="res" role="listbox" hidden></div></div>
+  </header>
+  <details class="salbanner" id="salaries" hidden><summary><b>Salaries are coming in v1.1.0.</b> <span class="sb-more">Until then value is counted without what it cost. See which numbers they will change</span></summary><ul id="salList"></ul></details>
+
+  <!-- home -->
+  <section id="home">
+    <div class="lede">
+      <h1 class="disp">Every front office, judged like a fund manager.</h1>
+      <p>GM Value Added is what a GM's teams did on the floor above an average GM in his seat, plus the value of the roster and picks he handed on, minus what he was handed. Points reward good teams; the goal is titles, so every GM also gets <b>expected titles added</b>, the same sum in titles, and a <b>blend</b> of the two you can tune. Every decision gets two grades: <b>at the time</b>, with only what was known that day, and <b>how it turned out</b>. Luck is kept apart, and so is shared credit.</p>
+      <p class="whatsnew"><b>What's new (v1.0.0):</b> the launch, with points and titles for every GM since 1979-80. Salaries follow in v1.1.0. <span id="through"></span></p>
+    </div>
+    <div class="col wide"><div class="ph"><h2 class="col-h" id="homeH">Points and titles, blended</h2><div class="seg" id="homeSeg"><button aria-pressed="true" data-v="all">All-time</button><button aria-pressed="false" data-v="active">Active</button><button aria-pressed="false" data-v="at_time">At the time</button></div></div>
+      <div class="ctl"><div class="seg" id="homeMetric" aria-label="Rank by"><button aria-pressed="true" data-v="blended">Blended</button><button aria-pressed="false" data-v="points">Points</button><button aria-pressed="false" data-v="titles">Expected titles</button></div>
+      <div class="blendctl" id="homeBlendCtl"><span class="bl-end">Wins only</span><input type="range" id="homeBlend" min="0" max="100" step="1" value="50" aria-label="Weight on titles, from wins only to titles only"><span class="bl-end">Titles only</span> <button class="ib" type="button" data-x="lambda" aria-expanded="false" aria-label="What is the blend?">i</button><span class="ts bl-note" id="homeBlendNote"></span></div></div>
+      <p class="sub" id="homePool"></p>
+      <div id="homeBoard"></div>
+    </div>
+  </section>
+
+  <!-- one GM -->
+  <section id="card" hidden>
+    <div class="id">
+      <div class="id-head"><div class="headwrap"><div class="initials" id="ini"></div></div>
+        <div class="id-headtext"><div class="id-name" id="name"></div><div class="id-meta" id="meta"></div><div class="chips" id="spellChips" style="margin:10px 0 0"></div></div></div>
+      <p class="photocredit" id="photoCredit"></p>
+      <div class="note" id="report"></div>
+    </div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">GM Value Added</h2><span class="since" id="gvaSince"></span></div>
+      <div id="gva"></div>
+      <p class="cap inh-note" id="inhNote" hidden></p>
+      <div class="tiles" id="gvaTiles" style="margin-top:12px"></div>
+      <div id="rates" style="margin-top:12px"></div>
+      <div id="splits"></div>
+    </div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Titles</h2><span class="since">title chances from 1979-80</span></div><div id="tbars"></div><div class="tiles" id="titleTiles" style="margin-top:12px"></div><p class="cap" id="titleNote"></p></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Luck, kept apart</h2><span class="since">lottery from 1985, playoffs from 1979-80</span></div><div class="tiles" id="luck"></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">What happened, skill by skill</h2><span class="since">1979-80 on</span></div>
+      <p class="sub">No skill repeats as it turned out; at the time, drafting does, which says GMs keep agreeing or disagreeing with the boards, not that their picks keep beating them; holding and re-signing pass some tests but not both splits, and re-signing likely reflects having stars to re-sign (see How it works), so these are shown as what happened, in Savant points, without percentiles. Skills overlap, so they don't add up to GM Value Added.</p>
+      <div id="skills"></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Did the portfolio grow while he ran it?</h2><button class="ib" type="button" data-x="portfolio" aria-expanded="false" aria-label="What is the portfolio?">i</button><span class="since">ten seasons ahead, 5% a year</span></div>
+      <div class="chartwrap"><svg id="port" role="img" aria-label="Portfolio value over time"></svg><div class="tip" id="tip" hidden></div></div>
+      <div class="legend" id="portLegend"></div></div>
+    <div class="panels">
+      <div class="col wide"><div class="ph"><h2 class="col-h">Inherited</h2><button class="ib" type="button" data-x="lists" aria-expanded="false" aria-label="What is this list?">i</button><span id="inhSoon"></span><span class="since" id="inhDay"></span></div><div id="inh"></div></div>
+      <div class="col wide"><div class="ph"><h2 class="col-h">Left behind</h2><button class="ib" type="button" data-x="lists" aria-expanded="false" aria-label="What is this list?">i</button><span id="leftSoon"></span><span class="since" id="leftDay"></span></div><div id="left"></div></div>
+    </div>
+    <div class="col wide" id="activePanel" hidden><div class="ph"><h2 class="col-h">Today's roster</h2><span class="since">2026-27</span></div><div class="tiles" id="activeTiles"></div><div id="picks"></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">His biggest moves, and where they led</h2><span class="since">trades and drafts</span></div><div id="moves"></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Every decision</h2><span class="since" id="logSince"></span></div>
+      <div class="chips" id="logFilter"></div><p class="cap" id="logNote" hidden></p><div class="scroll"><table class="t" id="log"></table></div><p class="sub" id="logMore"></p></div>
+  </section>
+
+  <section id="leaders" hidden>
+    <div class="col wide"><div class="ph"><h2 class="col-h" id="lbH">Points and titles, blended: the board</h2><div class="seg" id="lbSeg"><button aria-pressed="true" data-v="all">All-time</button><button aria-pressed="false" data-v="active">Active</button><button aria-pressed="false" data-v="at_time">At the time</button></div></div>
+      <div class="ctl"><div class="seg" id="lbMetric" aria-label="Rank by"><button aria-pressed="true" data-v="blended">Blended</button><button aria-pressed="false" data-v="points">Points</button><button aria-pressed="false" data-v="titles">Expected titles</button></div>
+      <div class="blendctl" id="lbBlendCtl"><span class="bl-end">Wins only</span><input type="range" id="lbBlend" min="0" max="100" step="1" value="50" aria-label="Weight on titles, from wins only to titles only"><span class="bl-end">Titles only</span> <button class="ib" type="button" data-x="lambda" aria-expanded="false" aria-label="What is the blend?">i</button><span class="ts bl-note" id="lbBlendNote"></span></div></div>
+      <p class="sub" id="lbPool"></p><div class="scroll"><table class="t" id="lb"></table></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Skill boards</h2><select id="skillSel" aria-label="Skill"></select></div><p class="sub" id="skillNote"></p><div id="skillBoard"></div></div>
+  </section>
+
+  <section id="tree" hidden>
+    <div class="col wide"><div class="ph"><h2 class="col-h">The executive tree</h2><button class="ib" type="button" data-x="tree" aria-expanded="false" aria-label="What is the executive tree?">i</button><span class="since">from the record, sourced</span></div>
+      <p class="sub">Who worked under whom before running a team of his own. Each link names its source.</p><div id="treeList"></div></div>
+  </section>
+
+  <section id="method" hidden>
+    <div class="col wide"><div class="ph"><h2 class="col-h">How it works</h2></div><div id="notes"></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Changelog</h2></div><div id="changelog"></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Is it skill? The repeatability tests</h2><button class="ib" type="button" data-x="repeat" aria-expanded="false" aria-label="What is the repeatability test?">i</button></div>
+      <p class="sub">Each person's decisions are split in half five ways and the halves correlated across people. A skill repeats when the correlation's 95% interval stays above zero. "Smallest it can detect" is the smallest true correlation the test would find four times in five.</p>
+      <div class="scroll"><table class="t" id="rep"></table></div></div>
+  </section>
+
+  <div class="expl" id="expl" role="dialog" aria-label="Explainer" hidden></div>
+  <footer class="foot">
+    <p><b>NBA GM Savant</b> <span id="footVer">v1.0.0</span> · Sources: Basketball-Reference (executives, transactions, drafts, team totals), ESPN transactions, NBA.com player movement and team releases, Hoops Rumors, Wikipedia (dated with its references), press coverage for pick protections, and WCE's own Savant value and NBA Coaching Savant. Grades are the model's view, not a verdict.</p>
+    <p><a href="/#ai">Ask it through the WCE AI connector</a> (nba_search_gms, nba_get_gm_profile, nba_gm_leaders, nba_gm_decisions, nba_gm_asset_tree) · Data Room through the same connector: nba gm_tenures, assets, asset_events, gm_decisions, gm_seasons</p>
+  </footer>
+</div>
+
+<script>
+const EXPL = {
+ "gva": {
+  "title": "GM Value Added",
+  "what": "How much value a GM created for his team compared with an average GM sitting in the same chair.",
+  "how": "Three parts, added up. Produced: how much better than an average team his teams played while he ran them. Plus what he left behind, minus what he inherited: the value of every player and pick on the books on his last day and on his first, ten seasons ahead, each later season worth 5% less than the one before. For a finished tenure that value is what the team actually got: a player's production for the team, then what he was traded for, and a pick at its slot's expectation once it was used. For an active GM nothing has turned out yet, so it is our models' projection. The at-the-time version, on projection for every tenure, is shown beside it.",
+  "data": "Team scoring margins from every game since 1979-80, Savant player value, our projection and pick models, and a ledger of every transaction (Basketball-Reference, ESPN, NBA.com, press).",
+  "limits": "Production uses the team's margin, which includes the coach's work. Salaries are not in it yet, so a GM who spent heavily is not marked down for it. Spells under two seasons are shown but not ranked. Finished and active tenures rank in one pool, the finished ones with hindsight and the active ones on projection; a recently finished tenure is still partly projection. Hindsight cuts both ways: inheriting a young star who became great counts against a GM."
+ },
+ "pct": {
+  "title": "Percentile",
+  "what": "Where his GM Value Added ranks among every GM spell of two or more seasons since 1979-80 (or among active GMs, on the second bar).",
+  "how": "The share of spells with a lower number. 50th is the middle; 90th means he beat nine in ten.",
+  "data": "Every ranked spell in NBA GM Savant; the pool is named on the bar.",
+  "limits": "A spell is one person at one team, so a GM who ran two teams has two ranks. Skills have no percentile. No skill repeats as it turned out; at the time, drafting does, which says GMs keep agreeing or disagreeing with the boards, not that their picks keep beating them; holding and re-signing pass some tests but not both splits, and re-signing likely reflects having stars to re-sign (see How it works)."
+ },
+ "per_season": {
+  "title": "Per season",
+  "what": "GM Value Added divided by the seasons he was in charge.",
+  "how": "Total GM Value Added ÷ seasons in charge (partial seasons count by the share of games he ran).",
+  "data": "As GM Value Added.",
+  "limits": "Short spells swing hard: one great or terrible roster on the way in or out moves a two-season number a lot."
+ },
+ "produced": {
+  "title": "Produced",
+  "what": "How much better than an average team his teams played while he ran them.",
+  "how": "How much his teams outscored their opponents per game, turned into Savant points. The margin has 30% of the opponents' three-point and free-throw shooting luck taken out (the share that best predicts a team's second half from its first; the rest persists, more like defense than luck). Each point of margin is worth 57.1 Savant points, times the share of the season's games he ran.",
+  "data": "Every game's final score; opponents' three-point and free-throw totals from Basketball-Reference's league pages. The 57.1 is measured: how much Savant value a point of margin is worth across every team-season.",
+  "limits": "Margin includes coaching, health and schedule. The season in progress counts as far as it has gone, and early-season luck adjustments are noisy."
+ },
+ "left": {
+  "title": "Left behind",
+  "what": "The value of the roster and picks he handed to the next GM (for an active GM, today's).",
+  "how": "Every player and pick on the books on his last day, ten seasons ahead (5% a year): for a finished tenure at what they went on to produce, for an active GM as projected today. A player who left in free agency before playing a game for the next GM is not counted.",
+  "data": "The transaction ledger; Savant value for seasons played; our projection and pick models for seasons not played yet.",
+  "limits": "Projections are the model's view on that day. Until salaries arrive (NBA GM Savant 1.1.0), a player is counted even for years after his contract runs out."
+ },
+ "inherited": {
+  "title": "Inherited",
+  "what": "The value of the roster and picks he was handed on his first day.",
+  "how": "As Left behind, on his first day. Subtracted, so a GM is not credited for talent that was already there. When what he took over is at least twice everything else in his number combined (his production and what he left), the card names the inherited players who made up most of it.",
+  "data": "As Left behind.",
+  "limits": "Before 1980 the ledger starts from the 1979-80 rosters, so GMs already in office then are marked early era."
+ },
+ "player_line": {
+  "title": "Player-value line",
+  "what": "GM Value Added with production measured a second way: the team's total Savant player value above the league average, instead of its margin.",
+  "how": "Same inherited and left; production is the sum of his players' Savant value above an average team, by his share of each season.",
+  "data": "Savant player value for every player-season since 1979-80.",
+  "limits": "Savant value undersells defenders (before 2007-08 it counts defense only through steals, blocks and rebounds), which is why the headline uses margin. Where the two lines disagree, defense or coaching is usually why."
+ },
+ "rates": {
+  "title": "Discount a year",
+  "what": "GM Value Added with future value weighted four ways.",
+  "how": "Each later season of projected value counts 0%, 5% (the headline), 10% or 20% less than the one before. Higher rates favor GMs who won now over GMs who stocked the future.",
+  "data": "As GM Value Added.",
+  "limits": "No rate is 'right'. Trades of one pick for a later pick in the same round imply about 31% a year, but that rests on only 6 trades."
+ },
+ "shared": {
+  "title": "Shared credit",
+  "what": "Stretches where credit is split between two people.",
+  "how": "A clear lead gets full credit and his No. 2 is shown under him but not counted. Credit is split evenly only for real co-leads, or when a handover happened on an unknown day.",
+  "data": "Team releases, ESPN's front-office lines, Hoops Rumors and Wikipedia (dated with its references), with Basketball-Reference's executive pages as the base.",
+  "limits": "Who really decides is not always public. Where sources disagree the split is 50/50 and flagged."
+ },
+ "lottery": {
+  "title": "Lottery luck",
+  "what": "How much the draft lottery helped or hurt him with his own first-round pick.",
+  "how": "The value of the slot his pick landed in, minus the average value of the slots his pre-lottery odds gave him. The windfall of landing a top pick stays here: taking the obvious player with it earns little under Drafting.",
+  "data": "The NBA's lottery odds in force each year (from 1985), our pick-value curve.",
+  "limits": "Only his own pick; picks owed to him by other teams are not counted here."
+ },
+ "games_missed": {
+  "title": "Games missed",
+  "what": "Value his teams lost to their players missing games, for any reason.",
+  "how": "Each player's value per game played, times the games he missed, by his share of the team that season.",
+  "data": "Games played from Basketball-Reference season totals.",
+  "limits": "It does not know why a game was missed: injury, rest, suspension or a coach's choice all count."
+ },
+ "grade_gap": {
+  "title": "Grade gap",
+  "what": "How far his decisions turned out from how they looked when he made them.",
+  "how": "The sum of each decision's how-it-turned-out grade minus its at-the-time grade, by his share.",
+  "data": "Every graded decision in his spell.",
+  "limits": "Positive means things broke his way more than expected, which can be luck or a judgment the model could not see."
+ },
+ "drafting": {
+  "title": "Drafting",
+  "what": "Whether he took the best player available, judged against the consensus board where one exists, else against the slot.",
+  "how": "Each pick is compared with the best player still on the board. Where two or more pre-draft big boards exist (2008 and 2010-2026), that is the highest-ranked player left on their average. As it turned out: the chosen player's first ten seasons (any team, 5% a year) minus the best available's. At the time: the value expected at the chosen player's board rank minus at the best available's, from a curve fit only on earlier drafts, so a reach is a small minus. Taking the best available earns what an average GM gave up in the same spot (see Easy picks). A pick made for a trade partner on draft night counts for the team that held it when the season began.",
+  "data": "Basketball-Reference draft pages, Savant value, and archived big boards: NBADraft.net Big Board (17), ESPN Best Available (9), Tankathon Big Board (9), DraftExpress Top 100 (8), DraftExpress mock (1).",
+  "limits": "Drafts without two boards are graded against the slot: no consensus board exists for this draft, so a pick is measured against what its slot usually produces, with no grade at the time. Those from 1990 on use a pick curve fit only on earlier drafts; earlier ones use the first curve, fit on the 1980-85 drafts, so they are judged partly against themselves. The 1979 draft is not graded. The boards rank only the players who were drafted that year: a player who went undrafted is never the best available. Landing a high pick is lottery luck, not drafting."
+ },
+ "second_round": {
+  "title": "Second-round finds",
+  "what": "Value found with picks after No. 30.",
+  "how": "For each second-round pick, its drafting grade (against the consensus board where one exists, else against the slot), counted only when positive.",
+  "data": "As Drafting.",
+  "limits": "Counts hits only, so it rewards volume as well as eye."
+ },
+ "undrafted": {
+  "title": "Undrafted finds",
+  "what": "Value found in players nobody drafted.",
+  "how": "For each signing of an undrafted player, how the signing turned out, counted only when positive.",
+  "data": "The transaction ledger, Basketball-Reference draft pages.",
+  "limits": "Counts hits only."
+ },
+ "trades_out": {
+  "title": "Trades, as they turned out",
+  "what": "Whether his trades returned more than they cost, looking back.",
+  "how": "For each trade: the value of what came in minus the value of what went out, each counted at its own production from the trade on (a player's actual seasons wherever he played them, plus his projection for seasons not yet played), ten seasons ahead at 5%. What a player was later traded for is the next trade's credit, not this one's, so no point is counted twice. A pick is worth its slot's expectation once it conveys (who was chosen there is the drafting team's grade). Draft rights traded before a player's first season also count at the slot's expectation.",
+  "data": "The transaction ledger, Savant value, our projection and pick models for seasons not yet played.",
+  "limits": "Salaries are not in it yet (they arrive in NBA GM Savant 1.1.0), so a trade that saved money is not credited for it. Unconveyed future picks are valued by our pick model as of today."
+ },
+ "trades_at": {
+  "title": "Trades, at the time",
+  "what": "Whether his trades looked good on the day, using only what was known then.",
+  "how": "Projected value in minus projected value out, from models fit only on seasons before the trade.",
+  "data": "Point-in-time projections stored for every decision, with their model version.",
+  "limits": "Pick protections before 2017 are hand-filled only for the biggest trades; elsewhere an unknown protection marks the grade low confidence. No grade before 1985."
+ },
+ "fa": {
+  "title": "Free agency",
+  "what": "How his new signings turned out.",
+  "how": "The value each signed player produced from the signing on, ten seasons ahead at 5% (if he later leaves, his departure is graded as its own decision). Salaries aren't counted yet.",
+  "data": "The transaction ledger, Savant value.",
+  "limits": "Without salaries this rewards signing good players, not signing them well. Value per dollar arrives with salaries in NBA GM Savant 1.1.0."
+ },
+ "role": {
+  "title": "Role players",
+  "what": "How his two-way, 10-day and Exhibit 10 signings and second-round picks turned out.",
+  "how": "The sum of those decisions' how-it-turned-out grades.",
+  "data": "The transaction ledger (contract types from Basketball-Reference and ESPN).",
+  "limits": "Contract types are missing for some older signings."
+ },
+ "resign": {
+  "title": "Re-signing and extensions",
+  "what": "The value of the players he kept.",
+  "how": "Each re-signed or extended player's value over the next ten seasons at 5%: the value kept by not letting him go. It is shown, not added: no player moves, so the move that brought him in already holds that value. A signing counts as a re-signing when his team held his rights just before (his previous contract or draft rights).",
+  "data": "The transaction ledger, Savant value.",
+  "limits": "This rewards having stars to re-sign. It is on its own scale here so it does not dwarf the other skills, and it gets no percentile until salaries let us test value against cost."
+ },
+ "development": {
+  "title": "Development",
+  "what": "Whether the players he brought in did better than projected once they arrived.",
+  "how": "Each season, while he was in charge, that a player he acquired spent with his team: the player's value minus the projection made when he was acquired. His successors' seasons are theirs.",
+  "data": "Point-in-time projections, Savant value.",
+  "limits": "Shared with the coach and the player himself."
+ },
+ "coach": {
+  "title": "Coach hiring and firing",
+  "what": "Whether his coaching changes helped.",
+  "how": "A hire: the new coach's wins above his roster's talent against an average replacement. A firing: what the replacement delivered against what the fired coach was projected to deliver. 31.7 points per win.",
+  "data": "NBA Coaching Savant's wins above roster talent.",
+  "limits": "Scored from 2002-03 on; earlier moves are shown, not scored. When the fired coach also ran basketball operations, the firing is the owner's and credited to no GM."
+ },
+ "windows": {
+  "title": "Trades by window, buying and selling, partners",
+  "what": "Where his trade results came from.",
+  "how": "Each season's own calendar: the deadline is the 30 days up to that season's trade deadline (the last day trades were made before its regular season ended, read from the transaction pages, so 2021's falls in March); the offseason runs from the regular season's last game to the next season's first (so 2020's ran into November). Buying means he took in more value for this season than he sent out. Partners sum the trades against each team.",
+  "data": "As Trades, as they turned out.",
+  "limits": "Three-team trades are split evenly between partners."
+ },
+ "passed": {
+  "title": "Who he passed on",
+  "what": "The best player taken within the next ten picks after one of his, when that player did better.",
+  "how": "Value over ten seasons, his pick against the best of the next ten.",
+  "data": "Draft pages, Savant value.",
+  "limits": "Hindsight. It says what happened, not that the pick was a mistake at the time."
+ },
+ "style": {
+  "title": "Style",
+  "what": "How he works, not how well.",
+  "how": "Decisions a season, and the average age of players he acquired by trade. Draft style and holding have their own entries.",
+  "data": "The transaction ledger.",
+  "limits": "Context only: more moves is neither better nor worse."
+ },
+ "portfolio": {
+  "title": "The portfolio",
+  "what": "The value of everything his team held, from his first day to his last.",
+  "how": "Every player and pick on the books, projected ten seasons ahead at 5%, measured each summer and each February. The dots are his ten biggest moves.",
+  "data": "The transaction ledger, our projection and pick models as of each date.",
+  "limits": "A projection, so it moves with every season played. It counts value, not salary."
+ },
+ "lists": {
+  "title": "Inherited and left behind, player by player",
+  "what": "The players and picks behind the Inherited and Left behind numbers.",
+  "how": "Each asset's value on that day on the headline's basis, ten seasons ahead at 5%: for a finished tenure, what the team got from it (its production for the team, then what it was traded for; a pick at its slot once used); for an active GM, our models' projection. The biggest fourteen shown.",
+  "data": "As Inherited and Left behind.",
+  "limits": "Players who left in free agency before a game for the next GM are left out. The at-the-time figures, as projected on the day, are in the At the time numbers."
+ },
+ "built": {
+  "title": "Today's minutes he built",
+  "what": "How much of this season's playing time goes to players who arrived on his watch.",
+  "how": "The share of the team's 2026-27 minutes played by players whose latest arrival (draft, trade, signing) came after his first day.",
+  "data": "Season minutes, the transaction ledger.",
+  "limits": "A re-signing of a player who was already there does not count as building."
+ },
+ "picks": {
+  "title": "Picks owned",
+  "what": "The future picks his team holds, with their projected value.",
+  "how": "Our pick model: the expected value of the slot each pick is likely to land in, given the original owner's projected strength and the lottery rules.",
+  "data": "The transaction ledger, the NBA's lottery rules (2027 as announced; later years assume the current rules).",
+  "limits": "Protections are applied where they are known; swap rights are listed separately."
+ },
+ "cap": {
+  "title": "Cap outlook",
+  "what": "His books from here: payroll, cap space, luxury tax and apron status, season by season.",
+  "how": "Coming in NBA GM Savant 1.1.0. Each season's cap hits already on the books, set against that season's cap, tax and apron lines.",
+  "data": "The Contract tab's salaries, and the cap, tax and apron lines the NBA announces.",
+  "limits": "Not on the page yet: salaries arrive in 1.1.0. Until then nothing in NBA GM Savant counts what a player cost."
+ },
+ "at_time": {
+  "title": "At the time",
+  "what": "The decision's grade with only what was known that day.",
+  "how": "Projected value gained minus projected value given up, from models fit only on seasons before the decision. Tap the number for the model version.",
+  "data": "Point-in-time snapshots stored for every decision.",
+  "limits": "Blank before 1985 (not enough earlier seasons) and for drafts without a consensus board."
+ },
+ "turned_out": {
+  "title": "How it turned out",
+  "what": "The decision's grade looking back.",
+  "how": "What the decision actually produced: what came in minus what went out, each at its own production from that day on, plus projections for seasons not yet played; ten seasons ahead at 5%. A re-signing shows the value it kept, which is not added to his totals.",
+  "data": "Savant value, the transaction ledger.",
+  "limits": "Recent decisions are mostly projection."
+ },
+ "share": {
+  "title": "His share",
+  "what": "The part of a decision credited to him when credit is shared.",
+  "how": "From the credit table (see Shared credit).",
+  "data": "As Shared credit.",
+  "limits": "Blank means full credit."
+ },
+ "low_conf": {
+  "title": "Low confidence",
+  "what": "A grade that rests on something we could not confirm.",
+  "how": "Set when the decision depends on a reconstructed transaction, an unknown pick protection before 2017, or a free agent's departure dated from his last game.",
+  "data": "The ledger's repair log and its sources.",
+  "limits": "Tap the label for the reason."
+ },
+ "repeat": {
+  "title": "Is it skill?",
+  "what": "Whether a GM who was good at something early in his career stayed good at it later.",
+  "how": "Each GM's decisions are split in half five ways (by date, alternating, big decisions only, weighted by stakes, and one team at a time), each half's average is compared across GMs, and the correlation's 95% interval is checked. 'Smallest it can detect' is the smallest real effect the test would catch four times in five.",
+  "data": "Every graded decision, each against the league average for that kind of decision that season (a draft pick against picks in the same range, since bad teams keep picking high). Holding counts each young player kept once, not each window he was kept through.",
+  "limits": "No skill repeats as it turned out; at the time, drafting does, which says GMs keep agreeing or disagreeing with the boards, not that their picks keep beating them; holding and re-signing pass some tests but not both splits, and re-signing likely reflects having stars to re-sign, so skills are shown as what happened. A small real skill could still be hiding under the smallest size it can detect."
+ },
+ "tree": {
+  "title": "The executive tree",
+  "what": "Who worked under whom before running a team of his own.",
+  "how": "A link is drawn when a source puts one person under another in a team's front office.",
+  "data": "Team releases, ESPN, Hoops Rumors, Wikipedia; each link names its source.",
+  "limits": "Assistant roles are thinly reported before the 2000s."
+ },
+ "graded_by": {
+  "title": "Graded by",
+  "what": "The model versions that made the at-the-time grade, and the day it was frozen.",
+  "how": "Each at-the-time grade is written once, with the versions of the projection and pick models in force that day, and never changes. When the models are refit (once a year, after the Finals), old grades keep their versions and new decisions use the new ones. Tap a row's versions for the grade version and the day it was frozen.",
+  "data": "The frozen-grades store kept by the daily refresh.",
+  "limits": "Grades written before the page launched were made with the launch versions."
+ },
+ "gva_at_time": {
+  "title": "GM Value Added, at the time",
+  "what": "GM Value Added with what he inherited and left valued as our models projected them on those days, for every tenure.",
+  "how": "Produced (as in the headline), plus the projected value of what he left on his last day, minus what he inherited on his first, ten seasons ahead at 5% a year, from models fit only on seasons before each day.",
+  "data": "As GM Value Added, with the projection and pick models as of each day.",
+  "limits": "It judges what he handed on by what could be expected then, not by what it became. For active GMs it is the headline."
+ },
+ "board": {
+  "title": "The board",
+  "what": "Where the player he took stood on the consensus board, and who was the best still available.",
+  "how": "Each source's last board archived before draft day, matched to that draft's players; a player one board leaves out is ranked just past its end; the consensus orders the average rank. Players tied on the average are both the best available.",
+  "data": "NBADraft.net Big Board (17), ESPN Best Available (9), Tankathon Big Board (9), DraftExpress Top 100 (8), DraftExpress mock (1), from the Internet Archive.",
+  "limits": "Boards cover 2008 and 2010-2026. ESPN's archived board shows its top 25, so later picks lean on the others. 2008's second source is a mock (DraftExpress's, which says team needs are not yet taken into account) because no second big board was archived before that draft."
+ },
+ "easy_picks": {
+  "title": "Easy picks",
+  "what": "Credit for taking the consensus best available, measured against what an average GM did in the same spot.",
+  "how": "How often GMs passed on the best available in comparable spots (the pick range, and how split the boards were), times the typical cost of those passes: at the time in board-rank expected value, as it turned out in what the players did. Both from earlier board drafts only. A spot's rate is pulled toward its pick range's by a weight measured from how well it predicted later drafts.",
+  "data": "The consensus boards and every earlier board draft.",
+  "limits": "Few drafts have boards, so the top of a draft has few comparable picks, and the boards' split predicts later passes only weakly once the pick range is allowed for. So even a unanimous first pick gets some credit."
+ },
+ "holding": {
+  "title": "Holding young players",
+  "what": "Credit for keeping a young player that an average GM would sometimes have traded away, and lost value doing so.",
+  "how": "A little credit each time he kept a young player whom GMs in his spot have often traded away, and lost value doing it. It counts every player 24 or younger on his books when a trade deadline or an offseason opened and still there when it closed: how often teams traded players of that age and projection in earlier seasons, times the value they lost when they did. As it turned out from those trades' turned-out grades, at the time from their at-the-time grades. The deadline is the 30 days up to each season's last in-season trade; the offseason runs from the last game to the next opener.",
+  "data": "The transaction ledger, our projections, every earlier season's trades.",
+  "limits": "A comparison with an average GM, not value that moved, so it is not part of GM Value Added. GMs rarely trade young players with high projections, so each hold earns a little; a team with more good young players has more chances. A cell with too few earlier trades falls back to players with a similar projection at any age. The season in progress has no deadline yet."
+ },
+ "deviation": {
+  "title": "Draft style: picks off the board",
+  "what": "How often and how far he passed on the consensus best available, and how those picks did against the player he passed on.",
+  "how": "Every pick in a draft with two or more boards. A pass: he took someone other than the best available; how far: the board places between them. A hit: the player he took did better over ten seasons than the one he passed on. The total is the sum of those differences.",
+  "data": "The consensus boards (2008 and 2010-2026), Savant value.",
+  "limits": "Only drafts with boards, so a GM before 2008 has none. Hindsight: a pass that missed can still have been a fair bet."
+ },
+ "fit": {
+  "title": "Talent and fit",
+  "what": "Whether he took the best available (talent) or passed on him for a position his roster lacked (fit), inferred from roster needs.",
+  "how": "On draft day, his roster's minutes from the season just ended at Guard, Wing and Big, against the league's share at each that season; the position furthest below it is the one his roster lacked. A fit pick passes on the best available for a player at that position when the best available plays another. Each kind shown with how its players did over their slot and the minutes they played for his team in their first four seasons.",
+  "data": "Savant positions (each player's first NBA season), minutes, the consensus boards.",
+  "limits": "Inferred from roster needs: nothing here says what the front office intended. Positions are coarse, and a roster's need can change by trade before the season starts."
+ },
+ "blended": {
+  "title": "Blended",
+  "what": "One number for a GM that counts both the good teams he built and the titles those teams were in position to win.",
+  "how": "GM Value Added in points, plus expected titles added times 4,637 points. At that rate the two halves spread GMs out equally across every GM spell since 1979-80, so neither drowns out the other. The slider changes the rate, from wins only to titles only.",
+  "data": "GM Value Added and expected titles added, both from the same luck-adjusted team strength.",
+  "limits": "The rate is a choice, not a measurement: it says how much a title is worth against regular-season strength, and reasonable people differ. Move the slider to see how much the order depends on it."
+ },
+ "lambda": {
+  "title": "The blend, and the slider",
+  "what": "How many points one expected title is worth in the blend.",
+  "how": "The default, 4,637 points a title (about 146 wins), is set so that points and titles each account for half of the spread across every GM spell. The slider runs from wins only (points alone) through the default in the middle to titles only (expected titles added alone). Each position in between is a different rate, shown beside it.",
+  "data": "Every GM spell in NBA GM Savant, finished and active.",
+  "limits": "Percentiles on the board follow the slider: they rank the number you are looking at, against the pool named above the table."
+ },
+ "titles_added": {
+  "title": "Expected titles added",
+  "what": "GM Value Added counted in titles instead of points: how many more titles his teams were in position to win than an average GM in his seat.",
+  "how": "Three parts, as in the points. While he ran the team: each season's title chance minus an average team's share (one divided by the number of teams), times his share of the season. Plus the titles of the roster he left, minus those of the roster he inherited: for each later season, those players' share of the team's player value times the team's title chance, ten seasons ahead, each 5% less than the one before. Finished tenures as it turned out, active ones on projection.",
+  "data": "Every season since 1979-80 simulated on its real schedule, seeding, play-in and bracket (1979-80 to 2025-26): the regular season from the luck-adjusted strength the points use; the playoffs from each team's raw scoring margin blended with its preseason projection, which beat the luck-adjusted rating and every other version tested out of sample. For seasons not yet played, a curve of title chance against projected strength fit on earlier seasons.",
+  "limits": "A title chance is the model's, not hindsight: it does not know who got hurt in May. An average team's chance is well below its share, because titles go to the best teams, so GMs of average teams come out a little below zero. Salaries are not in it yet."
+ },
+ "titles_produced": {
+  "title": "Titles while he ran it",
+  "what": "How far his teams' title chances were above an average team's, season by season, added up.",
+  "how": "For each season: the team's title chance minus one divided by the number of teams, times the share of the season he was in charge. The season in progress counts at today's projected chance for the games played so far.",
+  "data": "The title model: every season replayed thousands of times on its real schedule and bracket, the regular season from each team's margin with 30% of its opponents' shooting luck taken out (the same strength as the points), the playoffs from its raw margin blended with its preseason projection.",
+  "limits": "A bad team and a lottery team count alike (both near zero chance), so tanking well and tanking badly look the same here; the points tell them apart."
+ },
+ "titles_left": {
+  "title": "Titles left behind and inherited",
+  "what": "The titles that the roster and picks on the books were in position to win over the next ten seasons, on his last day (left behind) and his first (inherited).",
+  "how": "For each later season: those players' share of the team's player value times the team's title chance that season, each season 5% less than the one before. As it turned out for a finished tenure; on projection (the projected roster against the league that day) for an active GM and for the at-the-time version.",
+  "data": "The transaction ledger, Savant player value, our projections and the title model.",
+  "limits": "Like the points, hindsight cuts both ways: inheriting a young star who became a champion counts against a GM, and leaving one counts for him. A player who left in free agency before playing for the next GM counts for neither."
+ },
+ "titles_at_time": {
+  "title": "Expected titles added, at the time",
+  "what": "The same sum, with what he inherited and left valued as they could be seen on the day.",
+  "how": "Each roster's projected strength against the league that day, put through the title curve fit only on seasons that had finished by then.",
+  "data": "Point-in-time projections and title curves; nothing later is read (the leakage test deletes every later season and gets the same numbers).",
+  "limits": "Projections a few seasons out say little about titles, so most of the at-the-time value sits in the next two seasons."
+ },
+ "titles_won": {
+  "title": "Titles won",
+  "what": "Championships his teams won while he ran them.",
+  "how": "One for each title, times his share of that season (a title split with a co-lead, or a season he took over midway, counts in part).",
+  "data": "The NBA Finals results, 1979-80 on.",
+  "limits": "Shared credit splits a title the same way it splits points."
+ },
+ "titles_expected": {
+  "title": "Expected titles",
+  "what": "How many titles his teams should have won, given how good they were, in the seasons he ran them.",
+  "how": "Each season's title chance from the model, times his share of that season, added up. Played seasons only, the same seasons as titles won.",
+  "data": "The title model, checked out of sample: predicted and actual titles agree by bucket, and it beats \"the best record wins\" by 38% on Brier score.",
+  "limits": "The model rates a team by its regular season and, in the playoffs, a little of its preseason projection, so a team that got healthy, or added a star at the deadline, can be better in the playoffs than it shows. Teams the model gave a 15-30% chance won 11 titles against 13.5 expected (59 teams since 1983-84)."
+ },
+ "playoff_luck": {
+  "title": "Playoff luck",
+  "what": "Titles won minus expected titles: what the bounces, injuries and matchups of the playoffs gave him or took away.",
+  "how": "Titles won minus expected titles, over the same seasons.",
+  "data": "The title model and the Finals results.",
+  "limits": "It sits with the other luck and is not part of expected titles added. Some of it may not be luck: a team built for the playoffs could beat its regular-season rating. We tested two versions of \"built for the playoffs\", the share of value in the top seven or eight players and the share in the top two or three stars, and neither held up out of sample."
+ },
+ "dec_titles": {
+  "title": "A decision's expected titles",
+  "what": "How many titles a decision added, or cost.",
+  "how": "The team's title chances with the decision minus its chances without it, season by season. Without it the team is weaker (or stronger) by the margin the decision's points were worth to it; extra value buys less margin on a team that is already strong. Played seasons are replayed with every other team and bounce unchanged; seasons ahead, and every season at the time, use the projected title curve. Ten seasons, 5% less each. A draft pick is measured against an average pick at its slot.",
+  "data": "The decision's grade by season, and the title model.",
+  "limits": "A different question from a GM's expected titles added, which shares out his teams' chances, so decisions' titles do not add up to it. A point counts most on a contender: a star taken from one costs far more titles than the same points on a weak team."
+ },
+ "dec_blended": {
+  "title": "A decision, blended",
+  "what": "The decision's points plus its expected titles at the default rate.",
+  "how": "How it turned out, in points, plus expected titles as it turned out times 4,637.",
+  "data": "The two grades beside it.",
+  "limits": "The rate is the GM-level default; a single decision is not ranked on it."
+ },
+ "left_fa": {
+  "title": "Left in free agency",
+  "what": "A player whose time with the team ended when his contract or rights ran out, and who then played somewhere else (or nowhere).",
+  "how": "The ledger dates it at the close of his last season with the team, once a whole later season passes with no games for it and no other move. The decision counts what he went on to produce, against the team, ten seasons ahead at 5% a year, like every other grade.",
+  "data": "The transaction ledger and Savant player value.",
+  "limits": "We cannot see whether the team made him an offer, or whether he would have taken one, so this is not called a choice to let him walk. It stays in the totals, because the roster did lose what he produced. With salaries (NBA GM Savant 1.1.0), contract expiry dates will date these exactly and say what keeping him would have cost."
+ }
+};
+'use strict';
+// NBA GM Savant — reads /gms/index.json and /gms/g/<gm>.json (pipeline/basketball/gm/build_page.py).
+// Only the headline carries a percentile, always with its pool. Skills are what happened, in Savant
+// points, with no percentile: none repeats (How it works). Grades are the model's view, not a verdict.
+const BASE = '/gms';
+const SAVANT = '/nba-savant?p=';
+const COACH = '/nba-coaching-savant#c=';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sgn = (v) => (v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(Math.round(v)).toLocaleString('en-US'));
+const num = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
+const ord = (n) => (n == null ? '—' : n + ((n % 100 >= 11 && n % 100 <= 13) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th')));
+const yr = (d) => (d ? d.slice(0, 4) : 'today');
+// titles: two decimals, three below a tenth (a single decision's share of a title is often small)
+const tt = (v) => (v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(Math.abs(v) >= 0.1 || v === 0 ? 2 : 3));
+const tn = (v) => (v == null ? '—' : Math.abs(v).toFixed(Math.abs(v) >= 0.1 || v === 0 ? 2 : 3));
+const span = (s) => `${yr(s.start)}–${s.end ? yr(s.end) : 'today'}`;
+const TEAM = { ATL: 'Atlanta', BOS: 'Boston', BRK: 'Brooklyn', CHI: 'Chicago', CHO: 'Charlotte', CLE: 'Cleveland', DAL: 'Dallas', DEN: 'Denver', DET: 'Detroit', GSW: 'Golden State',
+  HOU: 'Houston', IND: 'Indiana', LAC: 'LA Clippers', LAL: 'LA Lakers', MEM: 'Memphis', MIA: 'Miami', MIL: 'Milwaukee', MIN: 'Minnesota', NOP: 'New Orleans', NYK: 'New York',
+  OKC: 'Oklahoma City', ORL: 'Orlando', PHI: 'Philadelphia', PHO: 'Phoenix', POR: 'Portland', SAC: 'Sacramento', SAS: 'San Antonio', TOR: 'Toronto', UTA: 'Utah', WAS: 'Washington' };
+const team = (t) => TEAM[t] || t;
+function pctColor(p) {
+  const lo = [28, 78, 134], mid = [194, 192, 182], hi = [188, 58, 44];
+  const t = Math.max(0, Math.min(100, p)) / 100, [a, b, u] = t < 0.5 ? [lo, mid, t / 0.5] : [mid, hi, (t - 0.5) / 0.5];
+  return `rgb(${a.map((x, i) => Math.round(x + (b[i] - x) * u)).join(',')})`;
+}
+// a thick percentile bar, filled to the percentile and colored by it, the number on the bar
+function pbar(p, label, value, pool, k) {
+  return `<div class="row nochart"><div class="rl"><div class="name">${esc(label)} ${info(k)}</div><div class="tag">${esc(pool)}</div></div>
+    <div class="track"><div class="fill" style="width:${p}%;background:${pctColor(p)}"></div><span class="pnum" style="left:calc(${Math.max(p, 6)}% - 26px)">${ord(p)}</span></div>
+    <div class="rv">${value}</div></div>`;
+}
+// a value bar for what happened: centered on zero, scaled to the largest on the board, no percentile
+function vbar(label, v, max, tag, k, extra = '') {
+  const w = max ? Math.min(50, (Math.abs(v) / max) * 50) : 0;
+  return `<div class="row nochart vrow"><div class="rl"><div class="name">${esc(label)} ${info(k)}${extra ? ` ${extra}` : ''}</div><div class="tag">${esc(tag)}</div></div>
+    <div class="track vtrack"><div class="zero"></div><div class="vfill ${v < 0 ? 'neg' : 'pos'}" style="${v < 0 ? `right:50%` : `left:50%`};width:${w}%"></div></div>
+    <div class="rv">${sgn(v)}</div></div>`;
+}
+// tap-to-open explainers (EXPL is page/explainers.json, inlined by assemble.py)
+const info = (k) => (EXPL[k] ? `<button class="ib" type="button" data-x="${k}" aria-expanded="false" aria-label="What is ${esc(EXPL[k].title)}?">i</button>` : '');
+function openExpl(btn) {
+  const pop = $('expl'), k = btn.dataset.x, e = EXPL[k];
+  if (!pop.hidden && pop.dataset.k === k) { closeExpl(); return; }
+  document.querySelectorAll('.ib[aria-expanded="true"]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+  pop.dataset.k = k;
+  pop.innerHTML = `<div class="xh">${esc(e.title)}<button class="xx" type="button" aria-label="Close">×</button></div><p><b>What it is.</b> ${esc(e.what)}</p><p><b>How it's calculated.</b> ${esc(e.how)}</p><p><b>The data.</b> ${esc(e.data)}</p><p><b>Limits.</b> ${esc(e.limits)}</p>`;
+  pop.hidden = false; btn.setAttribute('aria-expanded', 'true');
+  const r = btn.getBoundingClientRect(), W = Math.min(360, window.innerWidth - 24);
+  pop.style.width = W + 'px';
+  pop.style.left = Math.max(12, Math.min(window.innerWidth - W - 12, r.left + window.scrollX - 20)) + 'px';
+  pop.style.top = (r.bottom + window.scrollY + 6) + 'px';
+  pop.querySelector('.xx').focus();
+}
+// tap-to-read details (a grade's model, a low-confidence reason, a frozen date): a button, so a phone can open it
+const tip = (text, inner, cls = '') => (text ? `<button class="tipb ${cls}" type="button" data-tip="${esc(text)}">${inner}</button>` : inner);
+function openTip(btn) {
+  const pop = $('expl'), k = 'tip:' + btn.dataset.tip;
+  if (!pop.hidden && pop.dataset.k === k) { closeExpl(); return; }
+  pop.dataset.k = k;
+  pop.innerHTML = `<div class="xh">Details<button class="xx" type="button" aria-label="Close">×</button></div><p>${esc(btn.dataset.tip)}</p>`;
+  pop.hidden = false;
+  const r = btn.getBoundingClientRect(), W = Math.min(320, window.innerWidth - 24);
+  pop.style.width = W + 'px';
+  pop.style.left = Math.max(12, Math.min(window.innerWidth - W - 12, r.left + window.scrollX - 20)) + 'px';
+  pop.style.top = (r.bottom + window.scrollY + 6) + 'px';
+  pop.querySelector('.xx').focus();
+}
+function closeExpl() { const pop = $('expl'); pop.hidden = true; document.querySelectorAll('.ib[aria-expanded="true"]').forEach((b) => { b.setAttribute('aria-expanded', 'false'); }); }
+const pl = (id, name) => (id ? `<a class="pl" href="${SAVANT}${encodeURIComponent(id)}">${esc(name)}</a>` : esc(name));
+const gmLink = (file, name) => `<a class="gl" href="#g=${encodeURIComponent(file)}">${esc(name)}</a>`;
+// salaries (v1.1.0): every salary field is in the data now, null until then. A number shows where one is present; where
+// none is, a "salaries coming" badge opens the banner's list at what salaries will change there (SALARY_SLOTS.md).
+const SALON = () => !!(IDX && IDX.meta.salaries && IDX.meta.salaries.available);
+const soon = (k) => (SALON() ? '' : `<button class="soon" type="button" data-soon="${k}" aria-label="Salaries coming: what they will change">salaries coming</button>`);
+const money = (v) => (v == null ? '—' : `$${(v / 1e6).toFixed(1)}M`);
+const vpd = (v) => (v == null ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}`);
+function salBanner() {
+  const S = IDX.meta.salaries, b = $('salaries');
+  if (!S || S.available) { b.hidden = true; return; }
+  $('salList').innerHTML = S.changes.map((c) => `<li data-k="${esc(c.key)}"><b>${esc(c.what)}:</b> ${esc(c.change)}.</li>`).join('');
+  b.hidden = false;
+}
+function openSoon(btn) {
+  const b = $('salaries');
+  b.open = true;
+  b.querySelectorAll('li').forEach((li) => li.classList.toggle('hl', li.dataset.k === btn.dataset.soon));
+  b.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  b.querySelector('summary').focus({ preventScroll: true });
+}
+
+let IDX = null, CUR = null, CURFILE = null, SPELL = 0, LOGTYPE = 'all';
+const cache = {};
+const load = (p) => (cache[p] = cache[p] || fetch(`${BASE}/${p}`).then((r) => { if (!r.ok) throw new Error(`${p}: ${r.status}`); return r.json(); }));
+
+// ---------------------------------------------------------------- home and leaders
+// Ranked by the blend at the default: points + lambda x expected titles added, lambda set so each accounts for half of
+// the spread across every GM spell. The slider runs from wins only (0) through the default (50) to titles only (100):
+// lambda(p) = lambda x p / (100 - p).
+const STATE = { home: { metric: 'blended', p: 50 }, lb: { metric: 'blended', p: 50 } };
+const lam = () => IDX.meta.titles.lambda;
+const lamAt = (p) => lam() * p / (100 - p);
+function score(r, metric, p) {
+  if (metric === 'points') return r.gva;
+  if (metric === 'titles' || p >= 100) return r.titles_added;
+  return r.gva + lamAt(p) * r.titles_added;
+}
+const shown = (v, metric, p) => (metric === 'titles' || (metric === 'blended' && p >= 100) ? tt(v) : sgn(v));
+function pctIn(v, xs) { const lo = xs.filter((x) => x < v).length; return Math.round(100 * lo / Math.max(1, xs.length - 1)); }
+function boardTable(rows, n, which, st, pool) {
+  const at = which === 'at_time', m = st.metric, p = st.p;
+  const xs = pool.map((r) => score(r, m, p));
+  const name = m === 'points' ? `GM Value Added${at ? ', at the time' : ''}` : m === 'titles' ? `Expected titles added${at ? ', at the time' : ''}` : (p >= 100 ? 'Titles only' : p <= 0 ? 'Wins only (points)' : `Blended${at ? ', at the time' : ''}`);
+  const key = m === 'points' ? (at ? 'gva_at_time' : 'gva') : m === 'titles' ? 'titles_added' : 'blended';
+  const head = `<tr><th>GM</th><th>Team</th><th>Years</th><th>${name} ${info(key)}</th>${m !== 'points' ? `<th>Points ${info(at ? 'gva_at_time' : 'gva')}</th>` : ''}${m !== 'titles' ? `<th>Expected titles added ${info('titles_added')}</th>` : ''}<th>Titles won ${info('titles_won')}</th><th>Expected titles ${info('titles_expected')}</th><th>Playoff luck ${info('playoff_luck')}</th><th>Percentile ${info('pct')}</th></tr>`;
+  return head + rows.slice(0, n || rows.length).map((r) => { const v = score(r, m, p), pc = pctIn(v, xs); return `<tr class="link" data-g="${esc(r.file)}"><td>${gmLink(r.file, r.name)}</td><td>${esc(r.team_name || r.team)}</td><td>${span(r)}</td>
+    <td><b>${shown(v, m, p)}</b></td>${m !== 'points' ? `<td>${sgn(r.gva)}</td>` : ''}${m !== 'titles' ? `<td class="tn">${tt(r.titles_added)}</td>` : ''}<td class="tn">${tn(r.titles_won)}</td><td class="tn">${tn(r.titles_expected)}</td><td class="tn">${tt(r.playoff_luck)}</td><td><span class="pchip" style="background:${pctColor(pc)}">${ord(pc)}</span></td></tr>`; }).join('');
+}
+const poolOf = (which) => (which === 'at_time' ? IDX.meta.pool_at_time : which === 'active' ? IDX.meta.pool_active : IDX.meta.pool_all);
+function ranked(which, st) {
+  const pool = IDX.boards[which === 'at_time' ? 'at_time' : 'all'];
+  const rows = IDX.boards[which].slice().sort((a, b) => score(b, st.metric, st.p) - score(a, st.metric, st.p));
+  return { rows, pool };
+}
+function blendNote(k) {
+  const st = STATE[k], c = $(k + 'BlendCtl');
+  c.hidden = st.metric !== 'blended';
+  const p = st.p;
+  $(k + 'BlendNote').textContent = p <= 0 ? 'Wins only: ranked by points.' : p >= 100 ? 'Titles only: ranked by expected titles added.'
+    : `One title = ${Math.round(lamAt(p)).toLocaleString('en-US')} points${p === 50 ? ' (the default: points and titles each half of the spread)' : ` (default ${Math.round(lam()).toLocaleString('en-US')})`}.`;
+}
+function poolLine(which, st) {
+  const what = st.metric === 'points' ? 'GM Value Added' : st.metric === 'titles' ? 'expected titles added' : 'the blend';
+  return `Ranked by ${what}; percentiles of ${what} against ${which === 'active' ? IDX.meta.pool_all : poolOf(which)}. Points: ${IDX.meta.points_per_win} = one win; titles: expected titles, seasons ${IDX.meta.titles.seasons}.`;
+}
+function home(which) {
+  which = which || document.querySelector('#homeSeg [aria-pressed="true"]').dataset.v;
+  const st = STATE.home, { rows, pool } = ranked(which, st);
+  blendNote('home');
+  $('homePool').textContent = poolLine(which, st);
+  const top = rows.slice(0, 15), bottom = rows.slice(-15).reverse();
+  $('homeBoard').innerHTML = `<div class="panels"><div><div class="group-h">Top 15</div><div class="scroll"><table class="t">${boardTable(top, 0, which, st, pool)}</table></div></div>
+    <div><div class="group-h">Bottom 15</div><div class="scroll"><table class="t">${boardTable(bottom, 0, which, st, pool)}</table></div></div></div>`;
+}
+function leaders(which) {
+  which = which || document.querySelector('#lbSeg [aria-pressed="true"]').dataset.v;
+  const st = STATE.lb, { rows, pool } = ranked(which, st);
+  blendNote('lb');
+  $('lbPool').textContent = `Two or more seasons in charge. ${poolLine(which, st)}`;
+  $('lb').innerHTML = boardTable(rows, 0, which, st, pool);
+  const sel = $('skillSel');
+  if (!sel.options.length) sel.innerHTML = Object.entries(IDX.skills).map(([k, s]) => `<option value="${esc(k)}">${esc(s.label)}</option>`).join('');
+  const s0 = IDX.skills[sel.value], s = { ...s0, rows: which === 'active' ? s0.rows.filter((r) => r.active) : s0.rows };
+  $('skillNote').innerHTML = `${info({ drafting: 'drafting', 'second-round finds': 'second_round', 'deviation success': 'deviation', 'fit picks': 'fit', holding: 'holding', trades: 'trades_out', 'free agency': 'fa', 'role players': 'role', 're-signing and extensions': 'resign', 'coach hiring': 'coach' }[sel.value])} ${esc(s.verdict)}. Savant points, how it turned out, weighted by his share of the credit${which === 'active' ? '; active GMs' : ''}.${{ 'free agency': ' ' + soon('fa'), 're-signing and extensions': ' ' + soon('resign'), trades: ' ' + soon('trades') }[sel.value] || ''}`;
+  const max = Math.max(...s.rows.map((r) => Math.abs(r.value)), 1);
+  const part = (rows) => rows.map((r) => vbar(`${r.name}, ${r.team_name || r.team} ${span(r)}`, r.value, max, 'what happened')).join('');
+  $('skillBoard').innerHTML = `<div class="group-h">Most</div>${part(s.rows.slice(0, 12))}<div class="group-h">Least</div>${part(s.rows.slice(-8).reverse())}`;
+}
+function controls(k, redraw) {
+  $(k + 'Metric').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; $(k + 'Metric').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b)); STATE[k].metric = b.dataset.v; redraw(); });
+  $(k + 'Blend').addEventListener('input', (e) => { STATE[k].p = +e.target.value; redraw(); });
+}
+
+// ---------------------------------------------------------------- one GM
+function show(file) {
+  load(`g/${file}.json`).then((g) => { CUR = g; CURFILE = file; SPELL = Math.max(0, g.spells.findIndex((s) => s.active)); if (SPELL < 0) SPELL = g.spells.length - 1; LOGTYPE = 'all'; card(); })
+    .catch(() => { $('name').textContent = 'Not found'; });
+}
+function card() {
+  const g = CUR, s = g.spells[SPELL];
+  view('card');
+  document.title = `${g.name} — NBA GM Savant — WCE Hoops`;
+  $('name').textContent = g.name;
+  const mono = g.name.split(' ').map((w) => w[0]).slice(0, 2).join('');
+  const ph = (IDX.people.find((p) => p.file === CURFILE) || {}).photo;
+  $('ini').innerHTML = ph ? `<img src="${esc(ph.src)}" alt="${esc(g.name)}">` : `<span class="mono">${esc(mono)}</span>`;
+  $('ini').classList.toggle('hasphoto', !!ph);
+  $('photoCredit').textContent = ph && ph.credit ? `Photo: ${ph.credit}` : '';
+  const coach = g.coach_id ? ` · also a head coach: <a href="${COACH}${encodeURIComponent(g.coach_id)}">NBA Coaching Savant</a>` : '';
+  $('meta').innerHTML = `${g.spells.map((x) => `<b>${esc(x.team_name || team(x.team))}</b> ${span(x)}`).join(' · ')}${coach}`;
+  $('spellChips').innerHTML = g.spells.length > 1 ? g.spells.map((x, i) => `<button class="chip" aria-pressed="${i === SPELL}" data-i="${i}">${esc(x.team_name || x.team)} ${span(x)}</button>`).join('') : '';
+  $('report').textContent = s.report;
+  $('gvaSince').textContent = `${span(s)}${s.early_era ? ' · early era' : ''}`;
+  const pool = s.pct_all == null ? 'under two seasons: not ranked' : `${s.active ? 'on projection (still in office)' : 'as it turned out'} · vs ${IDX.meta.pool_all}`;
+  $('gva').innerHTML = (s.pct_all == null ? `<p class="cap">Under two seasons in charge, so GM Value Added (${sgn(s.gm_value_added['0.05'])}) is shown but not ranked.</p>` :
+    pbar(s.pct_all, 'GM Value Added', sgn(s.gm_value_added['0.05']), pool, 'gva') + (s.pct_active != null ? pbar(s.pct_active, 'Among active GMs', sgn(s.gm_value_added['0.05']), `vs ${IDX.meta.pool_active}`, 'pct') : ''));
+  const t = (l, v, sub, k, cls = '') => `<div class="tile${cls}"><div class="tl">${l} ${info(k)}</div><div class="tv">${v}</div><div class="ts">${sub}</div></div>`;
+  $('inhNote').innerHTML = s.inherited_note ? `${esc(s.inherited_note)} ${info('inherited')}` : '';
+  $('inhNote').hidden = !s.inherited_note;
+  $('gvaTiles').innerHTML = t('Per season', sgn(s.gm_value_added_per_season), `${s.seasons.toFixed(1)} seasons`, 'per_season') +
+    t('Produced', sgn(s.produced_margin_adj), 'luck-adjusted margin, above average', 'produced') + t('Left behind', num(s.left['0.05']), `${s.active ? 'projected' : 'as it turned out'}, ten seasons`, 'left') +
+    t('Inherited', num(s.inherited['0.05']), `${s.active ? 'projected' : 'as it turned out'}, ten seasons`, 'inherited') + t('Player-value line', sgn(s.gm_value_added_player['0.05']), 'production as Savant player value', 'player_line') +
+    (s.active ? '' : t('At the time', sgn(s.gm_value_added_at_time['0.05']), `inherited ${num(s.inherited_at_time['0.05'])}, left ${num(s.left_at_time['0.05'])}, as projected`, 'gva_at_time')) +
+    (s.value_per_dollar == null ? '' : t('Value per dollar', vpd(s.value_per_dollar), 'points per $1M of payroll', 'fa') + t('Payroll', money(s.payroll_per_season), 'a season, his share', 'cap') +
+      t('Tax paid', money(s.tax_paid), 'his share', 'cap') + t('Dead money', money(s.dead_money), 'his share', 'cap'));
+  $('rates').innerHTML = `<table class="t"><tr><th>Discount a year ${info('rates')}</th><th>0%</th><th>5% (headline)</th><th>10%</th><th>20%</th></tr>
+    <tr><td>GM Value Added</td>${['0.0', '0.05', '0.1', '0.2'].map((k) => `<td>${sgn(s.gm_value_added[k])}</td>`).join('')}</tr>${s.active ? '' : `
+    <tr><td>At the time ${info('gva_at_time')}</td>${['0.0', '0.05', '0.1', '0.2'].map((k) => `<td>${sgn(s.gm_value_added_at_time[k])}</td>`).join('')}</tr>`}</table>`;
+  const sp = s.splits.length ? `<p class="cap"><b>Shared credit.</b> ${info('shared')} ${s.splits.slice(0, 6).map((x) => `${x.from} to ${x.to}: ${x.people.map((p) => `${esc(p[0])} ${Math.round(p[1] * 100)}%`).join(', ')} (${esc(x.why)})`).join('; ')}${s.splits.length > 6 ? `; and ${s.splits.length - 6} more` : ''}.</p>` : '';
+  const over = s.leads_over.length ? `<p class="cap">Ran the team over ${s.leads_over.map(esc).join(', ')} (shown under him, not counted).</p>` : '';
+  const und = (g.under || []).length ? `<p class="cap">Also worked under: ${g.under.map((u) => `${esc(u.under)} (${esc(u.team_name || u.team)} ${yr(u.from)}–${yr(u.to)}, ${esc(u.title || '')})`).join('; ')}.</p>` : '';
+  const walked = s.walked_before_left.length ? `<p class="cap">Not counted in what he left: ${s.walked_before_left.map(esc).join(', ')}, who left in free agency before a game for the next GM. ${soon('left_fa')}</p>` : '';
+  $('splits').innerHTML = sp + over + und + walked;
+  // titles: the blend's percentile and expected titles added, each with its pool
+  const basis = s.active ? 'on projection (still in office)' : 'as it turned out';
+  $('tbars').innerHTML = s.pct_blended == null ? `<p class="cap">Under two seasons in charge: blended ${sgn(s.blended)}, expected titles added ${tt(s.titles_added)}, not ranked.</p>` :
+    pbar(s.pct_blended, 'Blended', sgn(s.blended), `${basis} · one title = ${Math.round(IDX.meta.titles.lambda).toLocaleString('en-US')} points · vs ${IDX.meta.pool_all}`, 'blended') +
+    pbar(s.pct_titles, 'Expected titles added', tt(s.titles_added), `${basis} · vs ${IDX.meta.pool_all}`, 'titles_added');
+  $('titleTiles').innerHTML = t('Expected titles added', tt(s.titles_added), 'above an average GM, plus left minus inherited', 'titles_added') +
+    t('While he ran it', tt(s.titles_produced_above_average), 'title chances above an average team', 'titles_produced') +
+    t('Left behind', tn(s.titles_left), `${s.active ? 'projected' : 'as it turned out'}, ten seasons`, 'titles_left') + t('Inherited', tn(s.titles_inherited), `${s.active ? 'projected' : 'as it turned out'}, ten seasons`, 'titles_left') +
+    t('Titles won', tn(s.titles_won), 'his share of each title season', 'titles_won') + t('Expected titles', tn(s.titles_expected), 'the same seasons, as the model rated them', 'titles_expected') +
+    (s.active ? '' : t('At the time', tt(s.titles_added_at_time), `inherited ${tn(s.titles_inherited_at_time)}, left ${tn(s.titles_left_at_time)}, as projected`, 'titles_at_time'));
+  const best = Object.entries(s.titles_by_season || {}).sort((a, b) => b[1] - a[1]).slice(0, 3).filter((x) => x[1] > 0);
+  $('titleNote').innerHTML = best.length ? `His best title chances above an average team's: ${best.map(([y, v]) => `${+y - 1}-${String(y).slice(2)} ${tt(v)}`).join(', ')} (his share of the season).` : '';
+  const L = s.detail.luck || {};
+  $('luck').innerHTML = t('Playoff luck', tt(s.playoff_luck), 'titles won minus expected titles', 'playoff_luck') + t('Lottery', sgn(L.lottery), 'his own pick against its odds', 'lottery') + t('Games missed', num(L.games_missed_value), "value lost to his players' absences", 'games_missed') +
+    t('Grade gap', sgn(L.grade_gap), 'how it turned out minus at the time', 'grade_gap');
+  skills(s);
+  portfolio(s);
+  const lst = (rows) => rows.length ? rows.map((a) => `<div class="lrow"><span class="lv">${num(a.value)}</span><span>${a.player_id ? pl(a.player_id, a.label) : esc(a.label)}${a.years_of_control == null ? '' : ` <span class="ts">${a.years_of_control} yr${a.years_of_control === 1 ? '' : 's'} of control</span>`}</span></div>`).join('') : '<p class="cap">Nothing of value on the books.</p>';
+  $('inhSoon').innerHTML = $('leftSoon').innerHTML = soon('lists');
+  $('inhDay').textContent = `on ${s.start}`; $('leftDay').textContent = s.end ? `on ${s.end}` : 'today';
+  $('inh').innerHTML = lst(s.inherited_list); $('left').innerHTML = lst(s.left_list);
+  $('activePanel').hidden = !s.active;
+  if (s.active) {
+    $('activeTiles').innerHTML = t("Today's minutes he built", s.roster_built == null ? '—' : Math.round(s.roster_built * 100) + '%', 'players who came in on his watch, 2026-27 minutes', 'built') +
+      t('Picks owned', (s.picks_owned || []).length, 'future picks on the books', 'picks') +
+      (s.cap_outlook ? t('Cap outlook', money(s.cap_outlook.payroll), `${esc(s.cap_outlook.apron_status || '')}${s.cap_outlook.cap_space != null ? `, ${money(s.cap_outlook.cap_space)} of space` : ''}`, 'cap')
+        : `<div class="tile soon-card"><div class="tl">Cap outlook ${info('cap')}</div><div class="tv">Coming soon</div><div class="ts">payroll, cap space, tax and aprons arrive with salaries in v${esc(IDX.meta.salaries.arrives)}</div>${soon('cap')}</div>`);
+    $('picks').innerHTML = (s.picks_owned || []).map((a) => `<div class="lrow"><span class="lv">${num(a.value)}</span><span>${esc(a.label)}</span></div>`).join('');
+  }
+  moves(s);
+  log();
+  window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}
+function skills(s) {
+  const d = s.detail;
+  if (!d || !d.drafting) { $('skills').innerHTML = '<p class="cap">No graded decisions credited to him in this spell.</p>'; return; }
+  const rows = [
+    ['Drafting', d.drafting.over_slot, `${d.drafting.picks} picks: ${d.drafting.board_picks || 0} against the consensus board, ${d.drafting.picks - (d.drafting.board_picks || 0)} against the slot`, 'drafting'],
+    ['Second-round finds', d.drafting.second_round_finds, 'value found after pick 30', 'second_round'],
+    ['Undrafted finds', d.undrafted_finds, 'undrafted signings that worked', 'undrafted'],
+    ['Trades, as they turned out', d.trades.turned_out, `${d.trades.n} trades`, 'trades_out', 'trades'],
+    ['Trades, at the time', d.trades.at_time, 'with only what was known that day', 'trades_at'],
+    ['Free agency', d.free_agency.stars + d.free_agency.role, 'new signings', 'fa', 'fa'],
+    ['Role players', d.role_players, 'two-ways, 10-days, Exhibit 10s, second-rounders', 'role'],
+    ['Development', d.development.value_over_projection, 'beating the projection after he got them; shared with the coach', 'development'],
+    ['Holding young players', (d.holding || {}).turned_out, `${(d.holding || {}).holds || 0} windows he kept a young player through; against an average GM, not added to GM Value Added`, 'holding'],
+    ['Coach hiring and firing', d.coach_hiring, 'scored from 2002-03', 'coach'],
+  ];
+  const re = ['Re-signing and extensions', d.re_signing, 'its own scale: the value of players kept; may reflect the stars he had', 'resign', 'resign'];
+  const max = Math.max(...rows.map((r) => Math.abs(r[1] || 0)), 1);
+  const pass = (d.drafting.passed_on || []).map((x) => `${x.year}: took ${esc(x.took)} at ${x.slot}; ${esc(x.passed_on)} went ${x.their_slot}th (${sgn(x.by)})`).join(' · ');
+  const tw = d.trades.by_window || {}, bs = d.trades.buying_vs_selling || {};
+  $('skills').innerHTML = rows.map((r) => vbar(r[0], r[1] || 0, max, r[2], r[3], r[4] ? soon(r[4]) : '')).join('') +
+    `<div class="group-h">On its own scale</div>` + vbar(re[0], re[1] || 0, Math.max(Math.abs(re[1] || 0), 1) * 1.25, re[2], re[3], soon(re[4])) +
+    `<div class="cap">${info('windows')} Trades by window: deadline ${sgn(tw.deadline)}, offseason ${sgn(tw.offseason)}, other ${sgn(tw.other)} · buying ${sgn(bs.buying)}, selling ${sgn(bs.selling)}` +
+    `${d.trades.best_partner ? ` · best against ${esc(d.trades.best_partner[0])} (${sgn(d.trades.best_partner[1])}), worst against ${esc(d.trades.worst_partner[0])} (${sgn(d.trades.worst_partner[1])})` : ''}` +
+    `${pass ? `<br><b>Who he passed on</b> ${info('passed')}: ${pass}` : ''}` +
+    `${draftStyle(d.draft_style)}` +
+    `${(d.holding && d.holding.biggest.length) ? `<br><b>Holding</b> ${info('holding')}: ${d.holding.biggest.map((x) => `${esc(x.player)} ${sgn(x.turned_out)} (${x.windows} windows)`).join(' · ')}` : ''}` +
+    `<br><b>Style</b> ${info('style')}: ${d.style.decisions_per_season} decisions a season${d.style.age_acquired ? `, players acquired by trade averaged ${d.style.age_acquired}` : ''}. Value per dollar and cap management arrive with salaries.</div>`;
+}
+function draftStyle(ds) {
+  if (!ds) return '';
+  const c = (k, x) => `${k} ${x.n}${x.n ? ` (${sgn(x.value_over_slot)} over the slot on average, ${x.minutes_per_season_for_team == null ? 'no minutes yet' : num(x.minutes_per_season_for_team) + ' minutes a season for his team'})` : ''}`;
+  return `<br><b>Draft style</b> ${info('deviation')}: off the consensus board on ${Math.round(100 * ds.deviation_rate)}% of ${ds.board_picks} board picks` +
+    (ds.deviations ? `, ${ds.mean_reach > 0 ? 'reaching' : 'falling'} ${Math.abs(ds.mean_reach)} board places on average; those picks beat the player he passed on ${Math.round(100 * ds.hit_rate)}% of the time, ${sgn(ds.deviation_value)} in all` : '') +
+    `. ${info('fit')} Talent and fit, ${esc(ds.fit_label)}: ${c('talent picks', ds.talent)}; ${c('fit picks', ds.fit)}; ${c('other passes', ds.other)}.`;
+}
+function portfolio(s) {
+  const P = s.portfolio, svg = $('port'), W = svg.clientWidth || 860, Hh = 220, m = { l: 44, r: 12, t: 12, b: 26 };
+  if (!P.length) { svg.innerHTML = ''; return; }
+  const t0 = Date.parse(P[0].date), t1 = Date.parse(P[P.length - 1].date) || t0 + 1;
+  const vmax = Math.max(...P.map((p) => p.value), 1);
+  const x = (d) => m.l + ((Date.parse(d) - t0) / Math.max(1, t1 - t0)) * (W - m.l - m.r);
+  const y = (v) => Hh - m.b - (v / vmax) * (Hh - m.t - m.b);
+  const line = (k, cls) => `<path class="${cls}" d="${P.map((p, i) => `${i ? 'L' : 'M'}${x(p.date).toFixed(1)},${y(p[k]).toFixed(1)}`).join('')}"/>`;
+  const ticks = [0, 0.5, 1].map((f) => `<g><line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${y(vmax * f)}" y2="${y(vmax * f)}"/><text class="ax" x="${m.l - 6}" y="${y(vmax * f) + 3}" text-anchor="end">${num(vmax * f)}</text></g>`).join('');
+  const years = [...new Set(P.map((p) => p.date.slice(0, 4)))].filter((_, i, a) => a.length < 12 || i % Math.ceil(a.length / 10) === 0)
+    .map((yy) => `<text class="ax" x="${x(yy + '-07-01')}" y="${Hh - 8}" text-anchor="middle">${yy}</text>`).join('');
+  const marks = s.marks.filter((k) => k.date >= P[0].date && k.date <= P[P.length - 1].date).map((k, i) => {
+    const near = P.reduce((a, b) => (Math.abs(Date.parse(b.date) - Date.parse(k.date)) < Math.abs(Date.parse(a.date) - Date.parse(k.date)) ? b : a));
+    return `<circle class="mark ${k.turned_out < 0 ? 'neg' : 'pos'}" cx="${x(k.date)}" cy="${y(near.value)}" r="5" tabindex="0" data-i="${i}"><title>${esc(k.date)}: ${esc(k.label)} (${sgn(k.turned_out)})</title></circle>`;
+  }).join('');
+  svg.setAttribute('viewBox', `0 0 ${W} ${Hh}`); svg.setAttribute('height', Hh);
+  svg.innerHTML = ticks + years + line('picks', 'lpicks') + line('players', 'lplayers') + line('value', 'lall') + marks +
+    P.map((p, i) => `<rect class="hit" x="${x(p.date) - 6}" y="${m.t}" width="12" height="${Hh - m.t - m.b}" data-p="${i}"/>`).join('');
+  const tip = $('tip');
+  const MOVES = s.marks.filter((k) => k.date >= P[0].date && k.date <= P[P.length - 1].date);
+  const show = (r) => {
+    const p = P[+r.dataset.p], i = +r.dataset.p;
+    const lo = i ? P[i - 1].date : '0000', hi = P[i + 1] ? P[i + 1].date : '9999';
+    const near = MOVES.filter((k) => k.date > lo && k.date <= hi);         // his big moves since the point before
+    tip.hidden = false; tip.style.left = Math.min(W - 220, x(p.date) + 8) + 'px'; tip.style.top = '10px';
+    tip.innerHTML = `<b>${p.date}</b><br>All ${num(p.value)} · players ${num(p.players)} · picks ${num(p.picks)}<br><span class="ts">${p.top.map(esc).join(', ')}</span>` +
+      near.map((k) => `<br><span class="ts">${esc(k.date)}: ${esc(k.label)} (${sgn(k.turned_out)})</span>`).join('');
+  };
+  // a tap (phone) or a hover (mouse) on a point shows it; a tap elsewhere on the chart, or leaving it, hides it
+  svg.querySelectorAll('.hit').forEach((r) => { r.addEventListener('mouseenter', () => show(r)); r.addEventListener('click', (e) => { e.stopPropagation(); show(r); }); });
+  svg.addEventListener('mouseleave', () => { tip.hidden = true; });
+  if (!window.__portTap) { window.__portTap = true; document.addEventListener('click', (e) => { if (!e.target.closest('#port')) $('tip').hidden = true; }); }
+  $('portLegend').innerHTML = '<span class="leg"><i class="sw all"></i>everything</span><span class="leg"><i class="sw pl"></i>players</span><span class="leg"><i class="sw pk"></i>picks</span><span class="leg"><i class="dot pos"></i><i class="dot neg"></i>his biggest moves (tap or hover the line)</span>';
+}
+function node(a) {
+  const name = a.player_id ? pl(a.player_id, a.label) : (a.became_id ? `${esc(a.label.split(' -> ')[0])} → ${pl(a.became_id, (a.label.split(' -> ')[1] || '').split(' (#')[0])}` : esc(a.label));
+  const kids = (a.then || []).map((st) => `<li><span class="how">${st.how === 'became' ? 'became' : `traded to ${esc(st.to)}`} on ${esc(st.date)}${st.sent_with.length ? `, with ${st.sent_with.map((x) => esc(x.label)).join('; ')}` : ''}</span><ul>${st.got.map((g) => `<li>${node(g)}</li>`).join('')}</ul></li>`).join('');
+  return kids ? `<details><summary>${name}</summary><ul>${kids}</ul></details>` : `<span class="leafname">${name}</span>`;
+}
+function moves(s) {
+  $('moves').innerHTML = s.big_moves.length ? s.big_moves.map((m) => `<div class="move"><div class="mh"><span class="md">${esc(m.date)}</span> ${esc(m.label)}</div>
+    <div class="mg">At the time <b>${m.at_time == null ? 'not graded' : sgn(m.at_time)}</b> · how it turned out <b>${sgn(m.turned_out)}</b> · expected titles <b>${tt(m.titles_turned_out)}</b> ${info('dec_titles')} · blended <b>${sgn(m.blended)}</b>${m.weight < 1 ? ` · his share ${Math.round(m.weight * 100)}%` : ''}</div>
+    ${m.tree ? `<div class="tree">${m.tree.gave.length ? `<div class="gave">Gave: ${m.tree.gave.map((a) => (a.player_id ? pl(a.player_id, a.label) : esc(a.label))).join(', ')}</div>` : ''}<ul>${m.tree.got.map((a) => `<li>${node(a)}</li>`).join('')}</ul></div>` : ''}</div>`).join('') : '<p class="cap">No trades or drafts credited to him.</p>';
+}
+function boardNote(d) {
+  if (d.best_available == null) return `${esc(d.grade_label || '')} ${info('board')}`;
+  return d.easy_pick ? `took the consensus best available (No. ${d.consensus_rank} on the board) ${info('easy_picks')}`
+    : `consensus No. ${d.consensus_rank}; the best available was ${esc(d.best_available)} (No. ${d.best_available_rank}) ${info('board')}`;
+}
+function log() {
+  const D = CUR.decisions, types = ['all', ...new Set(D.map((d) => d.type))];
+  $('logFilter').innerHTML = types.map((k) => `<button class="chip" aria-pressed="${k === LOGTYPE}" data-t="${esc(k)}">${esc(k)} ${k === 'all' ? D.length : D.filter((d) => d.type === k).length}</button>`).join('');
+  const rows = D.filter((d) => LOGTYPE === 'all' || d.type === LOGTYPE).slice().reverse();
+  $('logSince').textContent = `${D.length} decisions`;
+  const sal = D.some((d) => d.salary_cost != null);
+  $('logNote').innerHTML = LOGTYPE === 'left in free agency' ? `Players whose rights ended and who signed elsewhere ${info('left_fa')}. What keeping each would have cost, and whether it fit under the cap and aprons, arrives with salaries. ${soon('left_fa')}` : '';
+  $('logNote').hidden = !$('logNote').innerHTML;
+  $('log').innerHTML = `<tr><th>Date</th><th>Team</th><th>Decision</th><th>At the time ${info('at_time')}</th><th>How it turned out ${info('turned_out')}</th><th>Titles, at the time ${info('dec_titles')}</th><th>Titles, turned out ${info('dec_titles')}</th><th>Blended ${info('dec_blended')}</th>${sal ? `<th>Cost</th><th>Cap hit</th><th>Value per $1M</th><th>Dead money</th><th>Years of control</th>` : ''}<th>His share ${info('share')}</th><th>Graded by ${info('graded_by')}</th></tr>` + rows.slice(0, 400).map((d) => `<tr>
+    <td>${esc(d.date)}</td><td>${esc(d.team_name || d.team)}</td><td class="dl">${d.player_id && !d.label.includes(' traded ') ? pl(d.player_id, d.label) : esc(d.label.length > 140 ? d.label.slice(0, 137) + '…' : d.label)}${d.coach_id ? ` <a href="${COACH}${encodeURIComponent(d.coach_id)}">coach</a>` : ''}${d.type === 'left in free agency' ? ` ${info('left_fa')}` : ''}${d.type === 'draft' ? ` <span class="ts">${boardNote(d)}</span>` : ''}${d.low_confidence.length ? ` ${tip(d.low_confidence.join('; '), 'low confidence', 'lc')}${info('low_conf')}` : ''}</td>
+    <td>${tip(d.at_time_note || (d.models || []).join(', '), d.at_time == null ? '<span class="na">—</span>' : sgn(d.at_time))}</td><td>${sgn(d.turned_out)}</td><td class="tn">${tt(d.titles_at_time)}</td><td class="tn">${tt(d.titles_turned_out)}</td><td>${sgn(d.blended_turned_out)}</td>${sal ? `<td>${money(d.salary_cost)}</td><td>${money(d.cap_hit)}</td><td>${vpd(d.value_per_dollar)}</td><td>${money(d.dead_money)}</td><td>${d.years_of_control ?? '—'}</td>` : ''}<td>${d.weight < 1 ? Math.round(d.weight * 100) + '%' : ''}</td><td class="gb">${tip(`Graded by ${(d.models || []).join(', ') || 'no model'}; grade version ${d.grade_version || ''}${d.frozen_on ? `; frozen ${d.frozen_on}` : ''}`, esc((d.models || []).join(', ') || '—') + (d.frozen_on ? ` · frozen ${esc(d.frozen_on)}` : ''))}</td></tr>`).join('');
+  $('logMore').textContent = rows.length > 400 ? `Showing the latest 400 of ${rows.length}. Every one is in the Data Room (nba gm_decisions).` : `Grades by ${CUR.decisions[0] ? CUR.decisions[0].grade_version : ''}; tap an at-the-time grade for the model that made it.`;
+}
+
+// ---------------------------------------------------------------- tree, method
+function treeTab() {
+  const by = {};
+  IDX.tree.forEach((e) => { (by[e.senior] = by[e.senior] || []).push(e); });
+  const file = (n) => (IDX.people.find((p) => p.name === n) || {}).file;
+  $('treeList').innerHTML = Object.keys(by).sort().map((s) => `<div class="lrow tr"><span class="sen">${file(s) ? gmLink(file(s), s) : esc(s)}</span><span>${by[s].map((e) => `${file(e.junior) ? gmLink(file(e.junior), e.junior) : esc(e.junior)} <span class="ts">(${esc(e.team)} ${yr(e.from)}, ${esc(e.how)}, <a href="${esc(e.source)}">source</a>)</span>`).join('; ')}</span></div>`).join('');
+}
+function method() {
+  $('notes').innerHTML = IDX.meta.notes.map(([k, v]) => `<div class="lrow"><span class="sen">${esc(k)}</span><span>${esc(v)}</span></div>`).join('');
+  $('changelog').innerHTML = (IDX.meta.changelog || []).map(([v, d, t]) => `<div class="lrow"><span class="sen">v${esc(v)} <span class="ts">${d === 'coming' ? 'coming' : esc(d)}</span></span><span>${esc(t)}</span></div>`).join('');
+  const T = ['date', 'oddeven', 'stakes', 'stake-weighted', 'spell'];
+  $('rep').innerHTML = `<tr><th>Skill</th><th>Grade</th>${T.map((t) => `<th>${t}</th>`).join('')}<th>Verdict</th></tr>` + Object.entries(IDX.repeatability).map(([k, r]) => {
+    const [sk, g] = k.split('|');
+    return `<tr><td>${esc(sk)}</td><td>${g === 'at_time' ? 'at the time' : 'turned out'}</td>${T.map((t) => { const v = r[t] || {}; return `<td>${v.r == null ? '—' : tip(`95% ${v.lo.toFixed(2)} to ${v.hi.toFixed(2)}, ${v.people} people, smallest it can detect ${v.mde.toFixed(2)}`, (v.lo > 0 ? '<b>' : '') + v.r.toFixed(2) + (v.lo > 0 ? '</b>' : ''))}</td>`; }).join('')}<td class="dl">${esc(r.verdict)}</td></tr>`;
+  }).join('');
+}
+
+// ---------------------------------------------------------------- shell
+function view(v) {
+  ['home', 'card', 'leaders', 'tree', 'method'].forEach((k) => { $(k).hidden = k !== v; });
+  const tab = { home: 'gms', card: 'gms' }[v] || v;
+  document.querySelectorAll('.sv-tab').forEach((a) => a.classList.toggle('on', a.dataset.tab === tab));
+}
+function route() {
+  const h = location.hash.slice(1);
+  if (h.startsWith('g=')) return show(decodeURIComponent(h.slice(2)));
+  document.title = 'NBA GM Savant — WCE Hoops';
+  if (h === 'leaders') { view('leaders'); return leaders(document.querySelector('#lbSeg [aria-pressed="true"]').dataset.v); }
+  if (h === 'tree') { view('tree'); return treeTab(); }
+  if (h === 'method') { view('method'); return method(); }
+  view('home'); home(document.querySelector('#homeSeg [aria-pressed="true"]').dataset.v);
+}
+function seg(id, fn) {
+  $(id).addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; $(id).querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b)); fn(b.dataset.v); });
+}
+function search() {
+  const q = $('q'), res = $('res');
+  let on = -1;
+  const draw = () => {
+    const s = q.value.trim().toLowerCase();
+    if (!s) { res.hidden = true; return; }
+    const hits = IDX.people.filter((p) => p.name.toLowerCase().includes(s)).slice(0, 12);
+    res.innerHTML = hits.map((p, i) => `<div class="res${i === on ? ' on' : ''}" role="option" data-g="${esc(p.file)}"><span class="rn">${esc(p.name)}</span><span class="rs">${p.spells.map((x) => `${x.team_name || x.team} ${span(x)}`).join(', ')}</span></div>`).join('') || '<div class="res"><span class="rs">No GM by that name.</span></div>';
+    res.hidden = false;
+  };
+  q.addEventListener('input', () => { on = -1; draw(); });
+  q.addEventListener('keydown', (e) => {
+    const items = res.querySelectorAll('.res[data-g]');
+    if (e.key === 'ArrowDown') { on = Math.min(items.length - 1, on + 1); draw(); e.preventDefault(); }
+    else if (e.key === 'ArrowUp') { on = Math.max(0, on - 1); draw(); e.preventDefault(); }
+    else if (e.key === 'Enter' && items[Math.max(0, on)]) { location.hash = 'g=' + items[Math.max(0, on)].dataset.g; res.hidden = true; q.value = ''; }
+    else if (e.key === 'Escape') res.hidden = true;
+  });
+  res.addEventListener('click', (e) => { const r = e.target.closest('[data-g]'); if (r) { location.hash = 'g=' + r.dataset.g; res.hidden = true; q.value = ''; } });
+  document.addEventListener('click', (e) => { if (!e.target.closest('.search')) res.hidden = true; });
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('expl').hidden) closeExpl(); });
+document.addEventListener('click', (e) => {
+  const ib = e.target.closest('.ib');
+  if (ib) { e.preventDefault(); e.stopPropagation(); openExpl(ib); return; }
+  const sb = e.target.closest('.soon');
+  if (sb) { e.preventDefault(); e.stopPropagation(); openSoon(sb); return; }
+  const tb = e.target.closest('.tipb');
+  if (tb) { e.preventDefault(); e.stopPropagation(); openTip(tb); return; }
+  if (e.target.closest('.xx') || (!$('expl').hidden && !e.target.closest('#expl'))) closeExpl();
+  const r = e.target.closest('tr.link[data-g]');
+  if (r && !e.target.closest('a')) location.hash = 'g=' + r.dataset.g;
+  const c = e.target.closest('#spellChips .chip');
+  if (c) { SPELL = +c.dataset.i; card(); }
+  const f = e.target.closest('#logFilter .chip');
+  if (f) { LOGTYPE = f.dataset.t; log(); }
+});
+load('index.json').then((idx) => {
+  IDX = idx;
+  $('ver').textContent = $('footVer').textContent = 'v' + idx.meta.version;
+  $('through').textContent = `Decisions through ${idx.meta.through}.`;
+  salBanner();
+  seg('homeSeg', home); seg('lbSeg', leaders);
+  controls('home', () => home()); controls('lb', () => leaders());
+  $('skillSel').addEventListener('change', () => leaders(document.querySelector('#lbSeg [aria-pressed="true"]').dataset.v));
+  search();
+  window.addEventListener('hashchange', route);
+  route();
+}).catch((e) => { $('homeBoard').innerHTML = `<p class="cap">NBA GM Savant's data could not be loaded (${esc(e.message)}). Try again in a minute.</p>`; });
+</script>
+</body>
+</html>

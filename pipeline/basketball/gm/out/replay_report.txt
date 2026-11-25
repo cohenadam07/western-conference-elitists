@@ -1,0 +1,58 @@
+Replay of 2026-02-01 to 2026-02-07, fed day by day through gm_update.py, each night incremental (sandbox /private/tmp/claude-501/-Users-adamcohen-western-conference-elitists/224feffe-e8a3-4ddf-b654-c5c2492f2548/scratchpad/gm-replay); the reference is one full build as of 2026-02-07, run first and alone.
+
+reference (full, as of 2026-02-07): exit 0 | largest step build_page.py 715 MB; 140s in steps
+2026-02-01: exit 0; transactions: 0 held for a second source, 0 newly confirmed | front office: 0 change(s) pending confirmation | rebuild: incremental incremental: {'at the time computed': 27995, 'turned out computed': 27979} | basis new (nothing carried over) | largest step build_page.py 748 MB; 136s in steps
+2026-02-02: exit 0; transactions: 0 held for a second source, 0 newly confirmed | front office: 0 change(s) pending confirmation | rebuild: incremental incremental: {'at the time frozen': 27995, 'turned out carried over': 25529, 'turned out computed': 2450} | basis unchanged | largest step build_page.py 741 MB; 106s in steps
+2026-02-03: exit 0; transactions: 0 held for a second source, 0 newly confirmed | front office: 0 change(s) pending confirmation | rebuild: incremental incremental: {'at the time frozen': 27995, 'turned out computed': 27985, 'at the time computed': 6} | basis new (nothing carried over) | largest step build_page.py 739 MB; 106s in steps
+2026-02-04: exit 0; transactions: 2 held for a second source, 0 newly confirmed | front office: 0 change(s) pending confirmation | rebuild: incremental incremental: {'at the time frozen': 28001, 'turned out computed': 27997, 'at the time computed': 12} | basis new (nothing carried over) | largest step build_page.py 751 MB; 106s in steps
+    held: 2026-02-04 The Oklahoma City Thunder traded cash to the Utah Jazz for Balsa Koprivica.; 2026-02-04 Jaxson Hayes was suspended by the league. (1-game suspension)
+2026-02-05: exit 0; transactions: 2 held for a second source, 0 newly confirmed | front office: 0 change(s) pending confirmation | rebuild: incremental incremental: {'at the time frozen': 28011, 'turned out computed': 28048, 'at the time computed': 53} | basis new (nothing carried over) | largest step build_page.py 747 MB; 107s in steps
+    held: 2026-02-04 The Oklahoma City Thunder traded cash to the Utah Jazz for Balsa Koprivica.; 2026-02-04 Jaxson Hayes was suspended by the league. (1-game suspension)
+2026-02-06: exit 0; transactions: 2 held for a second source, 0 newly confirmed | front office: 0 change(s) pending confirmation | rebuild: incremental incremental: {'at the time frozen': 28064, 'turned out computed': 28058, 'at the time computed': 10} | basis new (nothing carried over) | largest step build_page.py 754 MB; 107s in steps
+    held: 2026-02-04 The Oklahoma City Thunder traded cash to the Utah Jazz for Balsa Koprivica.; 2026-02-04 Jaxson Hayes was suspended by the league. (1-game suspension)
+2026-02-07: exit 2; transactions: 2 held for a second source, 0 newly confirmed | front office: 0 change(s) pending confirmation | rebuild: incremental incremental: {'at the time frozen': 28074, 'turned out computed': 28060, 'at the time computed': 2} | basis new (nothing carried over) | largest step build_page.py 743 MB; 107s in steps
+    held: 2026-02-04 The Oklahoma City Thunder traded cash to the Utah Jazz for Balsa Koprivica.; 2026-02-04 Jaxson Hayes was suspended by the league. (1-game suspension)
+
+== Every output file, day by day (incremental) against the one full build: 303 of 508 byte-identical; 205 differ only in frozen_on (the day each grade was frozen: the day it appeared, against the reference's one day); 0 differ in anything else
+
+== The replay against the one-shot build of the same history as of 2026-02-07
+Ledger: 40019 events dated up to 2026-02-07 in the replay, 40019 in the real build; the week itself 192 vs 192; only in the replay 0, only in the real build 0.
+Decisions in the replay dated after 2026-02-07: 0 (an as-of build must know nothing later).
+Decisions dated up to 2026-02-07: replay 31288, real 31288, in both 31288; at-the-time grades identical 31288 of 31288; the week: 90 vs 90.
+Page: the decision logs (ids and at-the-time grades up to 2026-02-07) of the 30 active GMs whose teams moved that week: 30 of 30 identical to the real page.
+How-it-turned-out grades identical: 31288 of 31288 (they move with every game played after the decision).
+
+== The replay against the full build (which also knows what happened after 2026-02-07)
+Ledger: 40019 events dated up to 2026-02-07 in the replay, 39959 in the real build; the week itself 192 vs 170; only in the replay 80, only in the real build 20.
+    only real:   ('2025-06-30', 'player:fultzma01', 'SAC', 'POOL', 'lapsed (inferred)')
+    only real:   ('2025-06-30', 'player:gibsota01', 'CHO', 'POOL', 'lapsed (inferred)')
+    only real:   ('2026-02-04', 'cash:tx:2026-02-04:28761:0.0', 'OKC', 'UTA', 'trade')
+    only real:   ('2026-02-04', 'cash:tx:2026-02-04:28765:0.0', 'CHO', 'ORL', 'trade')
+    only real:   ('2026-02-04', 'player:kopriba01', 'UTA', 'OKC', 'trade')
+    only real:   ('2026-02-05', 'cash:tx:2026-02-05:28770:0.0', 'ATL', 'UTA', 'trade')
+    only real:   ('2026-02-05', 'cash:tx:2026-02-05:28772:1.0', 'LAC', 'BRK', 'trade')
+    only real:   ('2026-02-05', 'cash:tx:2026-02-05:28772:3.2', 'TOR', 'BRK', 'trade')
+    only replay: ('2022-06-30', 'player:labeylo01', 'LAL', 'POOL', 'lapsed (inferred)')
+    only replay: ('2024-06-30', 'player:ajincme01', 'DAL', 'POOL', 'lapsed (inferred)')
+    only replay: ('2024-06-30', 'player:kamagis01', 'LAC', 'POOL', 'lapsed (inferred)')
+    only replay: ('2025-06-30', 'player:johnsja01', 'IND', 'POOL', 'lapsed (inferred)')
+    only replay: ('2025-06-30', 'player:kabaal01', 'ATL', 'POOL', 'lapsed (inferred)')
+    only replay: ('2025-06-30', 'player:kopriba01', 'UTA', 'POOL', 'lapsed (inferred)')
+    only replay: ('2025-06-30', 'player:roziete01', 'MIA', 'POOL', 'lapsed (inferred)')
+    only replay: ('2025-10-21', 'player:bassech01', 'POOL', 'GSW', 'repair')
+Decisions in the replay dated after 2026-02-07: 0 (an as-of build must know nothing later).
+Decisions dated up to 2026-02-07: replay 31288, real 31280, in both 31253; at-the-time grades identical 31253 of 31253; the week: 90 vs 90.
+    only real:   2025-06-30 let walk SAC Markelle Fultz
+    only real:   2025-06-30 let walk CHO Taj Gibson
+    only real:   2026-02-04 trade UTA The Oklahoma City Thunder traded cash to the Utah Jazz for Balsa Koprivica.
+    only real:   2026-02-04 trade CHO The Charlotte Hornets traded cash to the Orlando Magic for Tyus Jones, a 2027 2nd round dr
+    only real:   2026-02-04 trade ORL The Charlotte Hornets traded cash to the Orlando Magic for Tyus Jones, a 2027 2nd round dr
+    only real:   2026-02-04 trade OKC The Oklahoma City Thunder traded cash to the Utah Jazz for Balsa Koprivica.
+    only replay: 2022-06-30 let walk LAL Louis Labeyrie
+    only replay: 2024-06-30 let walk DAL Melvin Ajinça
+    only replay: 2024-06-30 let walk LAC Ismael Kamagate
+    only replay: 2025-06-30 let walk UTA Balša Koprivica
+    only replay: 2025-06-30 let walk IND James Johnson
+    only replay: 2025-06-30 let walk MIA Terry Rozier
+Page: the decision logs (ids and at-the-time grades up to 2026-02-07) of the 24 active GMs whose teams moved that week: 10 of 24 identical to the real page.
+How-it-turned-out grades identical: 28408 of 31253 (they move with every game played after the decision).

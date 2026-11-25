@@ -1,0 +1,49 @@
+name: NBA GM Savant model refit
+
+# Once a year after the Finals (Module 8): the projection and pick-value models refit on the season just finished,
+# as new versions, with the out-of-sample test rerun and logged (pipeline/basketball/gm/gm_refit.py). A refit that
+# does worse than the version before doesn't ship and lights the Control Room. Old at-the-time grades keep their
+# model versions (they are frozen); decisions from now on use the new ones.
+on:
+  schedule:
+    - cron: '29 15 2 7 *'      # July 2, after the Finals and the draft
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  refit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main, fetch-depth: 1 }
+      - name: Control Room check-in (start)
+        continue-on-error: true
+        timeout-minutes: 1
+        run: bash .github/scripts/control-room.sh gm-savant-refit start
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.13', cache: pip, cache-dependency-path: pipeline/basketball/gm/requirements.txt }
+      - run: pip install --quiet -r pipeline/basketball/gm/requirements.txt
+      - name: Refit
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          gh release download gm-state -p gm-state.tar.gz -D /tmp && tar -xzf /tmp/gm-state.tar.gz -C pipeline/basketball/gm
+          export GM_CACHE="$PWD/pipeline/basketball/gm/.gm-cache"
+          python3 pipeline/basketball/gm/gm_refit.py
+      - name: Keep the new versions
+        if: success()
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          cd pipeline/basketball/gm && tar -czf /tmp/gm-state.tar.gz out .gm-cache && gh release upload gm-state /tmp/gm-state.tar.gz --clobber
+          cd - && git config user.name gm-savant-bot && git config user.email bot@wcehoops.com
+          git add pipeline/basketball/gm/out/models/refit_log.json && git commit -q -m "NBA GM Savant: model refit logged" && git push -q origin HEAD:main || true
+      - name: Control Room check-in
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+        run: bash .github/scripts/control-room.sh gm-savant-refit "${{ job.status }}"

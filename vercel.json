@@ -52,6 +52,16 @@
       "permanent": true
     },
     {
+      "source": "/gm-savant.html",
+      "destination": "/nba-gm-savant",
+      "permanent": true
+    },
+    {
+      "source": "/gm-savant",
+      "destination": "/nba-gm-savant",
+      "permanent": true
+    },
+    {
       "source": "/college-basketball-coaching-savant.html",
       "destination": "/cbb-coaching-savant",
       "permanent": true
@@ -206,6 +216,10 @@
       "destination": "/cbcs/:f.gz"
     },
     {
+      "source": "/gms/:f(.*\\.json)",
+      "destination": "/gms/:f.gz"
+    },
+    {
       "source": "/cbb/:f(.*\\.json)",
       "destination": "/cbb/:f.gz"
     },
@@ -252,6 +266,10 @@
     {
       "source": "/nba-coaching-savant",
       "destination": "/basketball-coaching-savant.html"
+    },
+    {
+      "source": "/nba-gm-savant",
+      "destination": "/gm-savant.html"
     },
     {
       "source": "/cbb-coaching-savant",
@@ -307,6 +325,40 @@
     },
     {
       "source": "/cbcs/:f(.*\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/gms/:f(.*\\.json)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "gzip"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/gms/:f(.*\\.json\\.gz)",
       "headers": [
         {
           "key": "Content-Encoding",

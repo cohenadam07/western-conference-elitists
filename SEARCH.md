@@ -19,6 +19,7 @@ Every Savant is named league first, on one scheme, and each has a clean address:
 | NFL Coaching Savant | `/nfl-coaching-savant` | `coaching-savant.html` | Coaching Savant |
 | CBB Coaching Savant | `/cbb-coaching-savant` | `college-basketball-coaching-savant.html` | College Basketball Coaching Savant |
 | NBA Draft Savant | `/nba-draft-savant` | `draft-savant.html` | Draft Savant |
+| NBA GM Savant | `/nba-gm-savant` | `gm-savant.html` | (new; `/gm-savant` redirects) |
 
 The files keep their names because the data pipelines write them. `vercel.json` serves each file
 at its address (a rewrite) and redirects both old addresses there for good (`/basketball-savant.html`

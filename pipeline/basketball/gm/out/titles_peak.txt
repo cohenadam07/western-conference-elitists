@@ -1,0 +1,17 @@
+peak titles.py 521 MB 34s rc=0
+peak titles.py 479 MB 37s rc=0
+peak titles_ref.py 461 MB 32s rc=0
+peak titles_ref.py 532 MB 39s rc=0
+peak titles.py 479 MB 38s rc=0
+peak grade.py 448 MB 48s rc=0
+peak titles_dec.py 502 MB 41s rc=0
+peak gm5.py 486 MB 40s rc=0
+peak gm5.py 559 MB 40s rc=0
+peak titles.py leakage 676 MB 14s rc=0
+peak titles_study.py 327 MB 237s rc=0
+peak titles.py 627 MB 432s rc=0
+peak titles_dec.py 521 MB 44s rc=0
+peak titles_study2.py 491 MB 7s rc=0
+peak /Users/adamcohen/western-conference-elitists/.claude/worktrees/gm-savant/pipeline/basketball/gm/luck_study.py 196 MB 3s rc=1
+peak /Users/adamcohen/western-conference-elitists/.claude/worktrees/gm-savant/pipeline/basketball/gm/luck_study.py 809 MB 23s rc=0
+peak /Users/adamcohen/western-conference-elitists/.claude/worktrees/gm-savant/pipeline/basketball/gm/luck_study.py 831 MB 23s rc=0

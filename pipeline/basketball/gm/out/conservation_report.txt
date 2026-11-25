@@ -1,0 +1,37 @@
+GM Savant: the conservation check (conserve.py), Nov 23 2026
+
+1292 team-seasons, 1980-81 to 2025-26: 1282 balance within 0.5 points; 10 do not (total gap 80 of 836,721 produced)
+booked, credited to no GM: {'drafted': 599149, 'own picks': 599149, 'opening': 55832, 'held before 1979-80': 5663, 'repair': 5292, 'expansion': 0, 'swap exercised': 0, 'retired': -1294, 'conveyed': -599149} | drafts not graded: 14440
+   IND 2003: produced 920, decisions 647, booked 232, gap -41  {'trade': 593.5, 'draft': -11.5, 'let walk': -2.6, 'signing': 26.6, 'waiver': 41.2}
+   BOS 2026: produced 711, decisions 389, booked 307, gap -16  {'trade': 112.7, 'sign-and-trade': -12.5, 'draft': -107.5, 'signing': 661.9, 'let walk': -132.8, 'waiver': -132.7}
+   SAS 2015: produced 974, decisions 770, booked 199, gap -5  {'trade': -163.4, 'draft': 693.7, 'let walk': 33.5, 'signing': 324.1, 'waiver': -394.9, 're-signing': 276.6}
+   BOS 2015: produced 406, decisions 112, booked 299, gap +5  {'trade': -40.2, 'draft': 193.3, 'signing': 95.9, 'waiver': -12.5, 'let walk': -124.3}
+   LAC 1987: produced 217, decisions -536, booked 748, gap -4  {'trade': -227.0, 'draft': -24.7, 'signing': -91.6, 'let walk': -188.4, 'waiver': -0.1, 're-signing': -4.3}
+   CHI 2002: produced 199, decisions -261, booked 456, gap -4  {'trade': -885.3, 'draft': 123.3, 'let walk': -46.3, 'signing': 543.3, 'waiver': -1.0, 'release': 12.5, 're-signing': -7.3}
+   TOR 2023: produced 710, decisions 440, booked 268, gap -2  {'trade': -135.7, 'draft': 491.0, 'waiver': -165.8, 'let walk': -317.3, 'signing': 567.8}
+   CHI 2000: produced 137, decisions -160, booked 298, gap +2  {'trade': -72.5, 'draft': -15.3, 'signing': 59.9, 'release': -159.6, 'let walk': 13.9, 'waiver': 2.5, 're-signing': 11.5}
+   DET 2025: produced 506, decisions -89, booked 594, gap -1  {'trade': -98.2, 'draft': -115.8, 'waiver': -73.3, 'signing': 158.6, 'let walk': -86.1, 're-signing': 80.0, 'waiver claim': 46.0}
+   WAS 2008: produced 717, decisions 56, booked 662, gap +1  {'trade': 208.7, 'draft': -130.2, 'signing': 146.0, 'let walk': -102.5, 'release': -45.0, 'waiver': -20.2, 're-signing': -0.8}
+PASS: largest team-season gap 41.2 (limit 50.0), all gaps 79.8 (limit 150.0)
+
+== Leaderboards BEFORE the conservation fixes
+TRADES (10+ trades, as they turned out)
+  top:    Carl Scheer DEN 1979 +6,132; Carroll Dawson HOU 1996 +5,498; Koby Altman CLE 2017 +5,032; Daryl Morey HOU 2007 +4,659; Bob Whitsitt OKC 1986 +4,636; Elgin Baylor LAC 1986 +3,760; Don Nelson DAL 1997 +3,368; Sean Marks BRK 2016 +3,035; Del Harris MIL 1987 +2,946; Donnie Walsh IND 1986 +2,862
+  bottom: Bryan Colangelo PHO 1994 -5,080; Dell Demps NOP 2010 -4,627; Jerry Krause CHI 1985 -4,265; Glen Grunwald TOR 1997 -3,230; David Griffin NOP 2019 -3,220; Norm Sonju DAL 1980 -3,180; Monte McNair SAC 2020 -3,156; Brian Wright SAS 2019 -2,705; John Gabriel ORL 1996 -2,438; Bill Sharman LAL 1979 -1,978
+DRAFTING (10+ picks, over slot)
+  top:    Jerry West LAL 1982 +6,414; Bob Whitsitt OKC 1986 +5,492; Gregg Popovich SAS 1994 +4,900; Stu Inman POR 1981 +4,744; Wayne Embry CLE 1986 +4,106; Bryan Colangelo PHO 1994 +4,086; Sam Presti OKC 2007 +3,736; Frank Layden UTA 1979 +3,676; Jerry Colangelo PHO 1979 +3,453; Masai Ujiri TOR 2013 +3,301
+  bottom: Elgin Baylor LAC 1986 -8,482; Bob Ferry WAS 1979 -3,096; Rich Cho CHO 2011 -2,650; Pete Babcock ATL 1990 -2,472; Michael Winger WAS 2023 -2,418; Bryan Colangelo TOR 2006 -2,360; Robert Salyers IND 1981 -2,260; John Paxson CHI 2003 -1,972; Vlade Divac SAC 2015 -1,950; Norm Sonju DAL 1980 -1,920
+
+== Leaderboards AFTER
+TRADES (10+ trades, as they turned out)
+  top:    Danny Ainge BOS 2003 +6,020; Carl Scheer DEN 1979 +4,632; Donnie Walsh IND 1986 +4,594; Elgin Baylor LAC 1986 +4,143; Daryl Morey HOU 2007 +3,856; Kevin Pritchard IND 2017 +3,589; Carroll Dawson HOU 1996 +3,510; Kevin O'Connor UTA 1999 +3,096; Jerry Colangelo PHO 1979 +2,745; Don Nelson DAL 1997 +2,588
+  bottom: Jerry Krause CHI 1985 -5,449; Glen Grunwald TOR 1997 -4,094; Dell Demps NOP 2010 -3,645; David Griffin NOP 2019 -3,410; Bryan Colangelo PHO 1994 -3,373; Jerry West LAL 1982 -2,763; Jim Paxson CLE 1999 -2,688; Dan Issel DEN 1998 -2,326; Bill Sharman LAL 1979 -2,272; John Nash PHI 1986 -2,203
+DRAFTING (10+ picks, over slot)
+  top:    Jerry West LAL 1982 +6,485; Bob Whitsitt OKC 1986 +5,492; Gregg Popovich SAS 1994 +4,874; Stu Inman POR 1981 +4,744; Wayne Embry CLE 1986 +4,106; Bryan Colangelo PHO 1994 +4,086; Frank Layden UTA 1979 +3,676; Sam Presti OKC 2007 +3,589; Jerry Colangelo PHO 1979 +3,453; Masai Ujiri TOR 2013 +3,190
+  bottom: Elgin Baylor LAC 1986 -8,482; Bob Ferry WAS 1979 -3,096; Pete Babcock ATL 1990 -2,472; Rich Cho CHO 2011 -2,433; Michael Winger WAS 2023 -2,418; Bryan Colangelo TOR 2006 -2,360; Robert Salyers IND 1981 -2,307; Vlade Divac SAC 2015 -1,996; John Paxson CHI 2003 -1,975; Ryan McDonough PHO 2013 -1,924
+
+== Headline GM Value Added (5%)
+Not unchanged: 270 of 291 spells moved, median 3 points, sum of |changes| 5,413. The credit rules never enter it; it moved because
+(1) the ledger's holdings were corrected (players kept on a team's books after they had left): 4,929 of it, largest Ted Podleski LAC 1981 -395,
+Danny Ferry NOP 2019 -255, Don Nelson DAL 1997 -247; and (2) the margin-to-value scale, fit on team value, moved from 60.3 to 60.1 with the
+minute shares corrected (regular season only).

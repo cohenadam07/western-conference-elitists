@@ -1,0 +1,9 @@
+instream-1.0: decisions during the season, 1996-97 to 2025-26, players who played the season before. Out of sample, split by player.
+RMSE in Savant points (era footing). "this season" = the season the decision is made in (k=1 from the last completed season).
+
+as of 12-15, this season    : without season-to-date   54.7, with   49.5  (+10%)   n=14398
+as of 12-15, next season    : without season-to-date   58.2, with   56.9  (+2%)   n=13829
+as of 12-15, two seasons on : without season-to-date   58.4, with   57.1  (+2%)   n=13257
+as of 02-01, this season    : without season-to-date   54.7, with   47.5  (+13%)   n=14398
+as of 02-01, next season    : without season-to-date   58.2, with   56.3  (+3%)   n=13829
+as of 02-01, two seasons on : without season-to-date   58.4, with   56.8  (+3%)   n=13257

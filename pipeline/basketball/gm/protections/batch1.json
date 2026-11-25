@@ -1,0 +1,12 @@
+[
+{"id":"pick:1983:1:p=mccraro01","terms":"not found"},
+{"id":"pick:1999:1:p=szczewa02","terms":"Minnesota's option: the Nets' 1999 first unconditionally, or only outside the top 3 (then 2000 and 2003 firsts)","top_n":0,"url":"https://www.thehrr.com/nba/trade_archive/%2798-%2799season/0311Marbury%3B4_other_deals.html","quote":"Minnesota has until April 1 to decide between taking the Nets' 1999 first-round pick unconditionally or only if the Nets do not receive one of the top three picks.","published":"1999-03-11","notes":"secondary archive; valued as unprotected because the holder could take it unconditionally"},
+{"id":"pick:2000:1:p=mihmch01","terms":"top-3 protected (else an unprotected 2001 first)","top_n":3,"url":"https://africa.espn.com/nba/news/2000/0216/360681.html","quote":"If it's in the top three picks this year, the Bulls have to wait for an unprotected No. 1 pick in 2001.","published":"2000-02-16"},
+{"id":"pick:1987:1:p=pippesc01","terms":"a swap right: Seattle could exchange either of its 1987 firsts for the Knicks' 1987 first, except if the Knicks' pick was in the top 3","top_n":3,"url":"https://www.upi.com/Archives/1986/11/12/The-New-York-Knicks-seeking-to-strengthen-their-backcourt/9700532155600/","quote":"if New York's draft choice that year is among the first three selections, the Knicks do not have to switch","published":"1986-11-12","notes":"modelled as a top-3 protected pick; the deal was a swap right"},
+{"id":"pick:1999:1:p=bendejo01","terms":"unprotected","top_n":0,"url":"https://www.thehrr.com/nba/trade_archive/'98-'99season/0121Sprewell_5more.html","quote":"none of the draft picks are lottery protected","published":"1999-01-21","notes":"secondary archive"},
+{"id":"pick:2011:1:p=kanteen01","terms":"unprotected","top_n":0,"url":"https://www.espn.ph/nba/news/story?id=6150419","quote":"The Jazz will get New Jersey's first-round pick this year, which is not lottery protected.","published":"2011-02-23"},
+{"id":"pick:1994:1:p=wrighsh01","terms":"not found","notes":"a swap option; mapping to the pick uncertain"},
+{"id":"pick:1997:1:p=catoke01","terms":"not found","notes":"two conditional picks; which became Cato not stated"},
+{"id":"pick:2016:1:GSW","terms":"not found","notes":"a swap right; no protection stated"},
+{"id":"pick:2000:1:p=doolike01","terms":"not found"}
+]

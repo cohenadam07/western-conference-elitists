@@ -1,0 +1,15 @@
+lottery-1.0. Team strength k seasons ahead (rho, sd of win%, n):
+   k=1: rho 0.64, sd 0.117, n 1284
+   k=2: rho 0.43, sd 0.137, n 1254
+   k=3: rho 0.24, sd 0.147, n 1224
+   k=4: rho 0.15, sd 0.150, n 1194
+   k=5: rho 0.09, sd 0.151, n 1164
+   k=6: rho 0.06, sd 0.152, n 1134
+   k=7: rho 0.04, sd 0.152, n 1104
+In-season prior weight m = 20 games
+
+Own first-round pick: mean absolute error of the expected slot (actual slot from Wikipedia's draft tables), drafts 1990-2026:
+   a season ahead (Oct 1, a year before)    MAE  6.49 slots   (latest complete season's order as the guess:  7.23)   mean log-likelihood  -3.33   n=988
+   season start (Oct 1)                     MAE  5.47 slots   (latest complete season's order as the guess:  5.77)   mean log-likelihood  -3.19   n=988
+   midseason (Feb 1)                        MAE  2.69 slots   (latest complete season's order as the guess:  5.77)   mean log-likelihood  -2.51   n=988
+   after the regular season (Apr 30)        MAE  1.02 slots   (latest complete season's order as the guess:  1.53)   mean log-likelihood  -1.74   n=988

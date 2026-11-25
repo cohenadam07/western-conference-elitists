@@ -57,7 +57,11 @@ export function missingSeasons(ss) {
 
 // The six tables that came from the per-sport tools: name here -> where their rows are.
 const LEGACY = {
-  nba: Object.fromEntries(['games', 'stints', 'units', 'rotation', 'decisions'].map((t) => [`coaching_${t}`, { src: 'bcs', table: t }])),
+  nba: {
+    ...Object.fromEntries(['games', 'stints', 'units', 'rotation', 'decisions'].map((t) => [`coaching_${t}`, { src: 'bcs', table: t }])),
+    // NBA GM Savant's tables, from its own page files (/gms/data, pipeline/basketball/gm/build_page.py)
+    ...Object.fromEntries(['gm_tenures', 'assets', 'asset_events', 'gm_decisions', 'gm_seasons'].map((t) => [t, { src: 'gms', table: t }])),
+  },
   cbb: {
     ...Object.fromEntries(CBB_TABLES.map((t) => [t, { src: 'cbb', table: t }])),
     ...Object.fromEntries(['games', 'stints', 'units', 'rotation', 'decisions', 'roster_moves', 'programs'].map((t) => [`coaching_${t}`, { src: 'cbcs', table: t }])),
@@ -72,6 +76,7 @@ const STAT_DICTS = {
 
 const room = makeLoader('dataroom', { what: 'The Data Room', maxCached: 12, shape: (b) => b && typeof b === 'object' && (b.sports || b.columns) })
 const bcs = makeLoader('bcs', { what: 'NBA Coaching Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.columns || b.tables) })
+const gms = makeLoader('gms', { what: 'NBA GM Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.columns || b.tables) })
 const cbcs = makeLoader('cbcs', { what: 'CBB Coaching Savant', maxCached: 4, shape: (b) => b && typeof b === 'object' && (b.meta || b.cols || b.tables) })
 // The catalog and the dictionary, off the site; the deployment's own copy (vercel.json includeFiles)
 // when the site's can't be read: a preview before its merge, or the site's CDN having a bad minute.
@@ -139,7 +144,7 @@ function checkSeason(sport, table, season, seasons) {
     if (!list.length) throw new SavantError(`${sport} ${table} has no seasons on file yet.`)
     return list[list.length - 1]
   }
-  if (table === 'coaching_programs') return 'all'
+  if (table === 'coaching_programs' || (list.length === 1 && list[0] === 'all')) return 'all'
   if (!SEASON_FORMAT[sport].test(season)) throw new SavantError(`Give a ${sport} season as ${SEASON_EXAMPLE[sport]}.`)
   if (list.length && !list.includes(season)) throw new SavantError(`No ${sport} ${table} for ${season}. It covers ${list[0]} to ${list[list.length - 1]}${list.length < (+list[list.length - 1].slice(0, 4) - +list[0].slice(0, 4) + 1) ? ` (seasons on file: ${list.join(', ')})` : ''}.`)
   return season
@@ -163,6 +168,11 @@ export async function readTable(sport, table, season, team) {
   if (legacy.src === 'bcs') {
     const [file, idx, dict] = await Promise.all([bcs.load(`data/${legacy.table}/${s}.json`), bcs.load('index.json'), bcs.load('data/dictionary.json')])
     return { s, columns: file.columns, rows: file.rows, through: bcsTableAsOf(file, idx), definition: dict.tables[legacy.table], legend: file.legend || null, row: entry.row, url: pageUrl(entry.page) }
+  }
+  if (legacy.src === 'gms') {
+    const [file, dict] = await Promise.all([gms.load(`data/${legacy.table}/${s}.json`), gms.load('data/dictionary.json')])
+    const d = dict.tables[legacy.table]
+    return { s, columns: file.columns, rows: file.rows, through: file.through ? day(file.through) : null, defs: Object.fromEntries(Object.entries(d.columns).map(([k, v]) => [k, { what: v.what, unit: v.unit, source: v.source }])), note: dict.notes.map((n) => n.join(': ')).join(' '), row: entry.row, url: pageUrl(entry.page) }
   }
   if (legacy.src === 'cbcs') {
     const path = legacy.table === 'programs' ? 'data/programs.json' : `data/${legacy.table}/${s}.json`
@@ -280,6 +290,11 @@ export async function savantDictionary({ sport, table } = {}) {
   if (legacy.src === 'cbb') {
     const r = await cbbDictionary()
     return { structured: { ...base, definition: CBB_DEFS[legacy.table], stats_dictionary: `savant_dictionary(cbb, stats): ${r.structured.stats.length} player stats` }, text: `cbb ${table}: ${CBB_DEFS[legacy.table]} Seasons ${ss[0]} to ${ss[ss.length - 1]}${missingSeasons(ss)}. ${legacy.table === 'games' ? '' : 'Kept per team-season: savant_data needs team. '}The stat keys and definitions: savant_dictionary(cbb, stats). Source: ${SOURCE}.` }
+  }
+  if (legacy.src === 'gms') {
+    const d = (await gms.load('data/dictionary.json')).tables[legacy.table]
+    const L = [`${sport} ${table}: one row per ${d.row}. Seasons: ${ss.join(', ')}.`, '', 'Columns (name — what; unit; source):', ...Object.entries(d.columns).map(([c, v]) => `- ${c} — ${v.what}; ${v.unit || '—'}; ${v.source || 'NBA GM Savant'}`), '', `Page: ${base.url}. Source: ${SOURCE}.`]
+    return { structured: { ...base, note: d.row, columns: d.columns }, text: L.join('\n') }
   }
   const r = legacy.src === 'bcs' ? await bcsDictionary({ table: legacy.table }) : await cbcsDictionary({ table: legacy.table })
   return { structured: { ...base, ...r.structured, sport, table }, text: r.text }

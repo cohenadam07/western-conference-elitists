@@ -189,6 +189,7 @@ export const CLEAN = {
   'college-basketball-savant.html': { path: '/cbb-savant', was: 'College Basketball Savant' },
   'college-football-savant.html': { path: '/cfb-savant', was: 'College Football Savant' },
   'draft-savant.html': { path: '/nba-draft-savant', was: 'Draft Savant' },
+  'gm-savant.html': { path: '/nba-gm-savant' },
 }
 export const toolUrl = (file) => SITE + (CLEAN[file]?.path || `/${file}`)
 

@@ -1,0 +1,5 @@
+# GM Savant's cloud refresh (gm_cloud_run.sh)
+numpy==2.1.3
+scipy==1.14.1
+scikit-learn==1.5.2
+certifi==2024.8.30

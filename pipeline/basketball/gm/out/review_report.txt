@@ -1,0 +1,294 @@
+GM SAVANT, MODULE 6: REVIEW REPORT
+291 spells (a person credited at one team); 207 ranked (two or more seasons in charge). Headline: GM Value Added = value produced above an average GM in his seat (the league average team that season taken off) + what he left - what he inherited; ten seasons, 5% a year. Points: 31.7 = one win. The spec formula (no average taken off) stays in the Data Room only.
+
+== 1. ALL-TIME: top 15
+ 1. Sam Presti             OKC 2007-now    +7089  ( +354/season, 20.0 seasons)  produced (adj. margin)  +2802, left  7759, inherited  3472  | player-value line   +6930
+      draft +4065 over slot (53 picks); trades -505 turned out / +618 at the time (113); FA +2825; re-sign +24517; develop +4783; coach +2332; luck: lottery -9, grade gap +10573
+ 2. Gregg Popovich         SAS 1994-2019   +6372  ( +255/season, 25.0 seasons)  produced (adj. margin)  +4912, left  4163, inherited  2704  | player-value line   +4468  [shared]
+      draft +4165 over slot (44 picks); trades -1071 turned out / -1973 at the time (37); FA +4434; re-sign +6725; develop +5373; coach +0; luck: lottery +172, grade gap +4808
+ 3. Frank Layden           UTA 1979-1987   +4677  ( +584/season, 8.0 seasons)  produced (adj. margin)  -1180, left  6752, inherited   895  | player-value line   +5610  [early era]
+      draft +3676 over slot (13 picks); trades -255 turned out / -4 at the time (20); FA +506; re-sign +1354; develop +2916; coach +0; luck: lottery -22, grade gap -329
+ 4. Bob Whitsitt           OKC 1986-1994   +4385  ( +546/season, 8.0 seasons)  produced (adj. margin)  +1484, left  7636, inherited  4735  | player-value line   +4856  [early era]
+      draft +5492 over slot (16 picks); trades +468 turned out / +23 at the time (31); FA +440; re-sign -18; develop +1163; coach +0; luck: lottery +52, grade gap -409
+ 5. Tim Connelly           DEN 2013-2022   +4258  ( +473/season, 9.0 seasons)  produced (adj. margin)   +360, left  5902, inherited  2004  | player-value line   +5105
+      draft +4442 over slot (21 picks); trades -329 turned out / -1641 at the time (33); FA +1336; re-sign +16140; develop +4095; coach +506; luck: lottery -29, grade gap +12480
+ 6. Red Auerbach           BOS 1979-1984   +4154  ( +829/season, 5.0 seasons)  produced (adj. margin)  +1861, left  6733, inherited  4440  | player-value line   +3745  [early era]
+      draft +510 over slot (12 picks); trades +2234 turned out / +0 at the time (7); FA +74; re-sign +83; develop +418; coach +0; luck: lottery +0, grade gap +0
+ 7. Brian Wright           SAS 2019-now    +3650  ( +456/season, 8.0 seasons)  produced (adj. margin)    +37, left  6514, inherited  2901  | player-value line   +3141
+      draft -2388 over slot (18 picks); trades -1649 turned out / -1066 at the time (29); FA +1248; re-sign +11263; develop +786; coach +752; luck: lottery +220, grade gap +722
+ 8. Larry Riley            GSW 2009-2012   +3544  (+1187/season, 3.0 seasons)  produced (adj. margin)   -487, left  5334, inherited  1303  | player-value line   +4347
+      draft +3160 over slot (5 picks); trades +253 turned out / -910 at the time (12); FA +1968; re-sign +0; develop +484; coach +320; luck: lottery -101, grade gap +4215
+ 9. Bryan Colangelo        PHO 1994-2006   +3329  ( +276/season, 12.1 seasons)  produced (adj. margin)  +1629, left  5184, inherited  3484  | player-value line   +4773
+      draft +4086 over slot (22 picks); trades -3373 turned out / -1286 at the time (42); FA +5668; re-sign -9; develop +1617; coach +750; luck: lottery -84, grade gap +3597
+10. Don Nelson             DAL 1997-2005   +2962  ( +359/season, 8.3 seasons)  produced (adj. margin)   +204, left  4852, inherited  2095  | player-value line   +3432  [shared]
+      draft +1053 over slot (17 picks); trades +2588 turned out / +672 at the time (33); FA +827; re-sign +1623; develop +2755; coach +308; luck: lottery -125, grade gap +2512
+11. Stu Inman              POR 1981-1986   +2957  ( +664/season, 4.5 seasons)  produced (adj. margin)   +607, left  6115, inherited  3764  | player-value line   +3476  [early era]
+      draft +4744 over slot (16 picks); trades -836 turned out / +0 at the time (14); FA -55; re-sign +0; develop -164; coach +0; luck: lottery -7, grade gap +19
+12. Don Nelson             MIL 1979-1987   +2945  ( +368/season, 8.0 seasons)  produced (adj. margin)  +2496, left  4108, inherited  3659  | player-value line   +2640  [early era]
+      draft +841 over slot (12 picks); trades +1630 turned out / +0 at the time (21); FA +760; re-sign -17; develop +966; coach +0; luck: lottery -19, grade gap +369
+13. Jerry West             LAL 1982-2000   +2874  ( +159/season, 18.0 seasons)  produced (adj. margin)  +4489, left  5639, inherited  7255  | player-value line   +5453  [early era]
+      draft +6485 over slot (30 picks); trades -2763 turned out / -2076 at the time (33); FA +6568; re-sign +1426; develop +2142; coach +0; luck: lottery -145, grade gap +444
+14. Pat Williams           ORL 1989-1996   +2706  ( +386/season, 7.0 seasons)  produced (adj. margin)    -88, left  2794, inherited     0  | player-value line   +2650
+      draft +2447 over slot (15 picks); trades -274 turned out / -27 at the time (16); FA +1274; re-sign -1; develop +30; coach +0; luck: lottery +612, grade gap -592
+15. John Hammond           MIL 2008-2017   +2656  ( +293/season, 9.1 seasons)  produced (adj. margin)   -788, left  4838, inherited  1394  | player-value line   +2239
+      draft -292 over slot (21 picks); trades +594 turned out / +1017 at the time (41); FA +1010; re-sign +7090; develop +1383; coach +506; luck: lottery -85, grade gap +4203
+== ALL-TIME: bottom 15
+ 1. Elgin Baylor           LAC 1986-2008   -6776  ( -308/season, 22.0 seasons)  produced (adj. margin)  -5900, left  1775, inherited  2651  | player-value line   -6329  [early era]
+      draft -9159 over slot (53 picks); trades +4143 turned out / +3741 at the time (45); FA +3527; re-sign +1112; develop +935; coach -1058; luck: lottery +728, grade gap +254
+ 2. Mitch Kupchak          LAL 2000-2017   -4647  ( -278/season, 16.7 seasons)  produced (adj. margin)   +873, left   702, inherited  6222  | player-value line   -3155
+      draft -113 over slot (32 picks); trades +1608 turned out / -1199 at the time (29); FA +4482; re-sign +2533; develop +590; coach -1110; luck: lottery +41, grade gap +1318
+ 3. Rick Sund              OKC 2001-2007   -3008  ( -501/season, 6.0 seasons)  produced (adj. margin)    -70, left  1277, inherited  4215  | player-value line   -1779
+      draft -657 over slot (13 picks); trades +2017 turned out / +1223 at the time (13); FA +927; re-sign +0; develop +529; coach -659; luck: lottery -24, grade gap +1122
+ 4. Jerry Krause           CHI 1985-2003   -2746  ( -152/season, 18.1 seasons)  produced (adj. margin)  +1500, left   411, inherited  4657  | player-value line   -2354  [early era]
+      draft -1914 over slot (48 picks); trades -5449 turned out / -523 at the time (51); FA +4969; re-sign +207; develop +1512; coach +0; luck: lottery -188, grade gap -773
+ 5. Wally Walker           OKC 1994-2001   -2640  ( -376/season, 7.0 seasons)  produced (adj. margin)  +1688, left  3555, inherited  7882  | player-value line    -325
+      draft +499 over slot (16 picks); trades +616 turned out / -1764 at the time (18); FA +2056; re-sign -154; develop +487; coach +0; luck: lottery +4, grade gap +2300
+ 6. Jan Volk               BOS 1984-1990   -2628  ( -437/season, 6.0 seasons)  produced (adj. margin)  +1918, left  1946, inherited  6492  | player-value line   -2639  [early era]
+      draft -834 over slot (8 picks); trades -741 turned out / -143 at the time (12); FA +559; re-sign +330; develop +51; coach +0; luck: lottery -68, grade gap -331
+ 7. Jerry West             MEM 2002-2007   -2624  ( -525/season, 5.0 seasons)  produced (adj. margin)    +33, left  2061, inherited  4718  | player-value line   -1476
+      draft -147 over slot (13 picks); trades -596 turned out / -1 at the time (15); FA +1436; re-sign +277; develop -185; coach -952; luck: lottery -58, grade gap -584
+ 8. Ernie Grunfeld         WAS 2003-2019   -2609  ( -164/season, 15.9 seasons)  produced (adj. margin)  -1642, left  1689, inherited  2656  | player-value line   -2343
+      draft -1400 over slot (22 picks); trades +1632 turned out / +175 at the time (40); FA +2392; re-sign +5496; develop +1232; coach -755; luck: lottery +5, grade gap +2110
+ 9. John Gabriel           ORL 1996-2004   -2281  ( -291/season, 7.8 seasons)  produced (adj. margin)   -124, left   840, inherited  2998  | player-value line   -2624
+      draft -1439 over slot (17 picks); trades +1740 turned out / +1302 at the time (39); FA +941; re-sign -4; develop -988; coach -729; luck: lottery -24, grade gap -3146
+10. Scott Perry            SAC 2025-now    -2225  (-1113/season, 2.0 seasons)  produced (adj. margin)  -1223, left  1613, inherited  2615  | player-value line   -1598
+      draft -66 over slot (5 picks); trades -568 turned out / -446 at the time (7); FA +450; re-sign +1156; develop +32; coach +0; luck: lottery -34, grade gap +38
+11. Doc Rivers             LAC 2013-2017   -2013  ( -503/season, 4.0 seasons)  produced (adj. margin)  +1192, left  3019, inherited  6224  | player-value line    -580
+      draft -1225 over slot (8 picks); trades -757 turned out / -144 at the time (17); FA +1567; re-sign +2864; develop -416; coach +403; luck: lottery +4, grade gap -2457
+12. Rich Cho               CHO 2011-2018   -1996  ( -286/season, 7.0 seasons)  produced (adj. margin)  -1217, left  1114, inherited  1893  | player-value line   -2544
+      draft -2102 over slot (11 picks); trades +1176 turned out / +368 at the time (24); FA +1490; re-sign +4320; develop -1470; coach +265; luck: lottery -64, grade gap -1499
+13. Dave Twardzik          GSW 1995-1997   -1908  ( -942/season, 2.0 seasons)  produced (adj. margin)   -336, left   657, inherited  2229  | player-value line   -1573
+      draft -990 over slot (6 picks); trades -1576 turned out / -928 at the time (7); FA +676; re-sign -6; develop -82; coach +0; luck: lottery +227, grade gap -1260
+14. Del Harris             MIL 1987-1992   -1890  ( -383/season, 4.9 seasons)  produced (adj. margin)   +266, left  2048, inherited  4204  | player-value line   -1336  [early era]
+      draft -933 over slot (9 picks); trades +1534 turned out / +108 at the time (15); FA +563; re-sign +302; develop +1206; coach +0; luck: lottery -46, grade gap +17
+15. Jeff Bower             NOP 2005-2010   -1868  ( -373/season, 5.0 seasons)  produced (adj. margin)    -10, left  1849, inherited  3708  | player-value line   -2056
+      draft +561 over slot (10 picks); trades +183 turned out / +503 at the time (22); FA +119; re-sign +0; develop -658; coach -307; luck: lottery -67, grade gap -1701
+
+== 1. ACTIVE: top 14
+ 1. Sam Presti             OKC 2007-now    +7089  ( +354/season, 20.0 seasons)  produced (adj. margin)  +2802, left  7759, inherited  3472  | player-value line   +6930
+      draft +4065 over slot (53 picks); trades -505 turned out / +618 at the time (113); FA +2825; re-sign +24517; develop +4783; coach +2332; luck: lottery -9, grade gap +10573
+ 2. Brian Wright           SAS 2019-now    +3650  ( +456/season, 8.0 seasons)  produced (adj. margin)    +37, left  6514, inherited  2901  | player-value line   +3141
+      draft -2388 over slot (18 picks); trades -1649 turned out / -1066 at the time (29); FA +1248; re-sign +11263; develop +786; coach +752; luck: lottery +220, grade gap +722
+ 3. Rob Pelinka            LAL 2019-now    +2545  ( +318/season, 8.0 seasons)  produced (adj. margin)   +838, left  4396, inherited  2689  | player-value line   +2802
+      draft -191 over slot (8 picks); trades +398 turned out / +253 at the time (24); FA +5064; re-sign +11912; develop +909; coach +367; luck: lottery +72, grade gap +3625
+ 4. Trajan Langdon         DET 2024-now    +2413  ( +804/season, 3.0 seasons)  produced (adj. margin)   +847, left  5271, inherited  3705  | player-value line   +1890
+      draft -770 over slot (5 picks); trades +685 turned out / +960 at the time (11); FA +483; re-sign +3668; develop +267; coach +493; luck: lottery +0, grade gap +69
+ 5. Pat Riley              MIA 1995-now    +2396  (  +75/season, 32.0 seasons)  produced (adj. margin)  +3275, left  1715, inherited  2595  | player-value line     -23
+      draft +1161 over slot (42 picks); trades +2351 turned out / -642 at the time (81); FA +11336; re-sign +15378; develop +6907; coach +789; luck: lottery -67, grade gap +6927
+ 6. Brad Stevens           BOS 2021-now    +2162  ( +360/season, 6.0 seasons)  produced (adj. margin)  +2788, left  4130, inherited  4756  | player-value line    +620
+      draft +881 over slot (10 picks); trades +851 turned out / -135 at the time (31); FA +2363; re-sign +5754; develop +1479; coach +478; luck: lottery -4, grade gap +2494
+ 7. Kevin Pritchard        IND 2017-now    +1000  ( +100/season, 10.0 seasons)  produced (adj. margin)   -324, left  3337, inherited  2012  | player-value line   +1753
+      draft -832 over slot (22 picks); trades +3589 turned out / +1333 at the time (37); FA +2061; re-sign +9572; develop +2356; coach -762; luck: lottery -118, grade gap +2561
+ 8. Sean Marks             BRK 2016-now     +985  (  +87/season, 11.3 seasons)  produced (adj. margin)  -1941, left  4853, inherited  1926  | player-value line   +1787
+      draft -1309 over slot (24 picks); trades +2058 turned out / +4020 at the time (49); FA +3897; re-sign +8733; develop +762; coach -354; luck: lottery +39, grade gap -395
+ 9. Bobby Webster          TOR 2025-now     +976  ( +488/season, 2.0 seasons)  produced (adj. margin)   +194, left  4784, inherited  4002  | player-value line    +905
+      draft +0 over slot (2 picks); trades +455 turned out / +540 at the time (3); FA +102; re-sign +910; develop -1; coach +0; luck: lottery +2, grade gap -238
+10. Mike Dunleavy          GSW 2023-now     +854  ( +214/season, 4.0 seasons)  produced (adj. margin)   +255, left  2946, inherited  2347  | player-value line    +870
+      draft +1032 over slot (7 picks); trades -1162 turned out / -1231 at the time (11); FA +966; re-sign +2919; develop +669; coach +13; luck: lottery -16, grade gap -279
+11. Brian Gregory          PHO 2025-now     +578  ( +289/season, 2.0 seasons)  produced (adj. margin)    +22, left  2728, inherited  2172  | player-value line    +514
+      draft +575 over slot (4 picks); trades -366 turned out / -410 at the time (5); FA +387; re-sign +2870; develop +297; coach +388; luck: lottery -16, grade gap +2064
+12. Ben Tenzer             DEN 2025-now     +182  (  +91/season, 2.0 seasons)  produced (adj. margin)   +175, left  2277, inherited  2270  | player-value line    +268  [shared]
+      draft +0 over slot (2 picks); trades -117 turned out / -13 at the time (6); FA +149; re-sign +415; develop -64; coach +0; luck: lottery +0, grade gap -411
+13. Jonathan Wallace       DEN 2025-now     +182  (  +91/season, 2.0 seasons)  produced (adj. margin)   +175, left  2277, inherited  2270  | player-value line    +268  [shared]
+      draft +0 over slot (2 picks); trades -117 turned out / -13 at the time (6); FA +149; re-sign +415; develop -64; coach +0; luck: lottery +0, grade gap -411
+14. Rafael Stone           HOU 2020-now     +135  (  +19/season, 7.0 seasons)  produced (adj. margin)   -399, left  4398, inherited  3864  | player-value line    -759
+      draft +576 over slot (12 picks); trades -116 turned out / -1370 at the time (31); FA +1831; re-sign +7439; develop +363; coach -37; luck: lottery +31, grade gap +1306
+== ACTIVE: bottom 14
+ 1. Scott Perry            SAC 2025-now    -2225  (-1113/season, 2.0 seasons)  produced (adj. margin)  -1223, left  1613, inherited  2615  | player-value line   -1598
+      draft -66 over slot (5 picks); trades -568 turned out / -446 at the time (7); FA +450; re-sign +1156; develop +32; coach +0; luck: lottery -34, grade gap +38
+ 2. Michael Winger         WAS 2023-now    -1738  ( -434/season, 4.0 seasons)  produced (adj. margin)  -2289, left  3302, inherited  2751  | player-value line   -1088
+      draft +279 over slot (10 picks); trades -243 turned out / +506 at the time (26); FA +1578; re-sign +4303; develop -790; coach -441; luck: lottery +84, grade gap +502
+ 3. Joe Dumars             NOP 2025-now    -1697  ( -848/season, 2.0 seasons)  produced (adj. margin)   -734, left  3007, inherited  3970  | player-value line   -1216
+      draft +220 over slot (4 picks); trades -28 turned out / +84 at the time (5); FA +171; re-sign +824; develop -152; coach -140; luck: lottery -80, grade gap -243
+ 4. Jeff Weltman           ORL 2017-now    -1296  ( -130/season, 10.0 seasons)  produced (adj. margin)  -1423, left  3255, inherited  3128  | player-value line   -1740
+      draft -1038 over slot (17 picks); trades -490 turned out / -1399 at the time (25); FA +1180; re-sign +9639; develop -2029; coach +393; luck: lottery +2, grade gap -2057
+ 5. Zach Kleiman           MEM 2019-now     -966  ( -121/season, 8.0 seasons)  produced (adj. margin)   +570, left  4577, inherited  6113  | player-value line   -1320
+      draft +3024 over slot (21 picks); trades -638 turned out / +728 at the time (43); FA +2274; re-sign +8319; develop +1364; coach +735; luck: lottery +107, grade gap +3649
+ 6. Jon Horst              MIL 2017-now     -927  (  -93/season, 10.0 seasons)  produced (adj. margin)  +1098, left  3295, inherited  5320  | player-value line    +958
+      draft +580 over slot (17 picks); trades +1070 turned out / -205 at the time (30); FA +3361; re-sign +12254; develop +4204; coach +1427; luck: lottery -20, grade gap +7454
+ 7. Onsi Saleh             ATL 2025-now     -556  ( -278/season, 2.0 seasons)  produced (adj. margin)   +249, left  4153, inherited  4959  | player-value line    -565
+      draft +70 over slot (4 picks); trades -49 turned out / -932 at the time (15); FA +292; re-sign +2388; develop +103; coach +0; luck: lottery -1, grade gap +349
+ 8. Lawrence Frank         LAC 2017-now     -492  (  -49/season, 10.0 seasons)  produced (adj. margin)   +884, left  2311, inherited  3686  | player-value line    -434
+      draft +439 over slot (18 picks); trades -668 turned out / -385 at the time (48); FA +4406; re-sign +11322; develop +2189; coach +724; luck: lottery -18, grade gap +5280
+ 9. Joe Cronin             POR 2021-now     -221  (  -39/season, 5.7 seasons)  produced (adj. margin)   -928, left  4908, inherited  4201  | player-value line    -201
+      draft +304 over slot (8 picks); trades +547 turned out / +1006 at the time (18); FA +1667; re-sign +4898; develop -400; coach +249; luck: lottery -112, grade gap -544
+10. Jeff Peterson          CHO 2024-now     -150  (  -45/season, 3.4 seasons)  produced (adj. margin)   -936, left  5361, inherited  4575  | player-value line     -86
+      draft -346 over slot (8 picks); trades +403 turned out / +545 at the time (21); FA +536; re-sign +2497; develop -17; coach +163; luck: lottery -44, grade gap -61
+11. Austin Ainge           UTA 2025-now     -102  (  -51/season, 2.0 seasons)  produced (adj. margin)   -876, left  3448, inherited  2673  | player-value line    +487
+      draft -980 over slot (4 picks); trades +162 turned out / +181 at the time (11); FA +498; re-sign +1840; develop -5; coach +0; luck: lottery +54, grade gap -1207
+12. Koby Altman            CLE 2017-now      -39  (   -4/season, 10.0 seasons)  produced (adj. margin)   +208, left  3907, inherited  4154  | player-value line    -904
+      draft +105 over slot (14 picks); trades +1513 turned out / +2320 at the time (36); FA +2233; re-sign +11111; develop +160; coach +619; luck: lottery -22, grade gap +910
+13. Tim Connelly           MIN 2022-now       -8  (   -2/season, 5.0 seasons)  produced (adj. margin)  +1310, left  3741, inherited  5059  | player-value line   -1222
+      draft -718 over slot (12 picks); trades +870 turned out / -496 at the time (17); FA +1210; re-sign +6055; develop +278; coach +0; luck: lottery -3, grade gap +1560
+14. Leon Rose              NYK 2020-now     +118  (  +17/season, 7.1 seasons)  produced (adj. margin)  +1321, left  3240, inherited  4443  | player-value line   -2240
+      draft +788 over slot (14 picks); trades -1037 turned out / -1062 at the time (35); FA +2662; re-sign +4967; develop +795; coach +972; luck: lottery -60, grade gap +2560
+
+== Discount sensitivity: rank at 0%, 5%, 10%, 20% (top and bottom 10 at 5%)
+  top    Sam Presti             OKC 2007-now   rank   1 /   1 /   1 /   2   value  +7897 /  +7089 /  +6510 /  +5764
+  top    Gregg Popovich         SAS 1994-2019  rank   2 /   2 /   2 /   1   value  +6710 /  +6372 /  +6136 /  +5845
+  top    Frank Layden           UTA 1979-1987  rank   3 /   3 /   6 /  18   value  +6356 /  +4677 /  +3484 /  +1966
+  top    Bob Whitsitt           OKC 1986-1994  rank   5 /   4 /   4 /   4   value  +4964 /  +4385 /  +3931 /  +3270
+  top    Tim Connelly           DEN 2013-2022  rank   4 /   5 /   5 /   8   value  +5140 /  +4258 /  +3603 /  +2718
+  top    Red Auerbach           BOS 1979-1984  rank   8 /   6 /   3 /   3   value  +4374 /  +4154 /  +3958 /  +3633
+  top    Brian Wright           SAS 2019-now   rank   7 /   7 /   8 /  13   value  +4487 /  +3650 /  +3051 /  +2279
+  top    Larry Riley            GSW 2009-2012  rank   6 /   8 /  10 /  21   value  +4527 /  +3544 /  +2818 /  +1844
+  top    Bryan Colangelo        PHO 1994-2006  rank   9 /   9 /   7 /   7   value  +3650 /  +3329 /  +3082 /  +2736
+  top    Don Nelson             DAL 1997-2005  rank  12 /  10 /  12 /  15   value  +3482 /  +2962 /  +2598 /  +2138
+  bottom Elgin Baylor           LAC 1986-2008  rank 207 / 207 / 207 / 207   value  -7032 /  -6776 /  -6593 /  -6359
+  bottom Mitch Kupchak          LAL 2000-2017  rank 206 / 206 / 206 / 206   value  -5655 /  -4647 /  -3911 /  -2932
+  bottom Rick Sund              OKC 2001-2007  rank 202 / 205 / 205 / 205   value  -3220 /  -3008 /  -2826 /  -2533
+  bottom Jerry Krause           CHI 1985-2003  rank 205 / 204 / 198 / 142   value  -3868 /  -2746 /  -1927 /   -850
+  bottom Wally Walker           OKC 1994-2001  rank 203 / 203 / 202 / 196   value  -3274 /  -2640 /  -2183 /  -1583
+  bottom Jan Volk               BOS 1984-1990  rank 204 / 202 / 199 / 165   value  -3508 /  -2628 /  -1976 /  -1102
+  bottom Jerry West             MEM 2002-2007  rank 201 / 201 / 203 / 203   value  -2900 /  -2624 /  -2414 /  -2114
+  bottom Ernie Grunfeld         WAS 2003-2019  rank 200 / 200 / 204 / 204   value  -2652 /  -2609 /  -2560 /  -2464
+  bottom John Gabriel           ORL 1996-2004  rank 199 / 199 / 200 / 198   value  -2636 /  -2281 /  -2013 /  -1641
+  bottom Scott Perry            SAC 2025-now   rank 196 / 198 / 201 / 202   value  -2306 /  -2225 /  -2158 /  -2054
+  across all 207 ranked spells, 5% to 20% moves the median spell 12 places, the largest move 88 places
+
+== Headline (luck-adjusted margin) vs the player-value line: the biggest rank changes
+  John Paxson            CHI 2003-2020  rank  75 (player-value line 204)   produced: adj. margin   -268, player value  -3468
+  Ernie Grunfeld         NYK 1991-1999  rank  81 (player-value line 201)   produced: adj. margin  +1553, player value  -1290
+  Jack McCloskey         DET 1979-1992  rank  84 (player-value line 202)   produced: adj. margin  +1102, player value  -1740
+  Leon Rose              NYK 2020-now   rank  79 (player-value line 192)   produced: adj. margin  +1321, player value  -1038
+  Wally Walker           OKC 1994-2001  rank 203 (player-value line  98)   produced: adj. margin  +1688, player value  +4003
+  Gar Forman             CHI 2009-2020  rank  77 (player-value line 179)   produced: adj. margin    -72, player value  -1937
+  Jon Horst              MIL 2017-now   rank 140 (player-value line  41)   produced: adj. margin  +1098, player value  +2983
+  Kevin O'Connor         UTA 1999-2012  rank 188 (player-value line  97)   produced: adj. margin  +1272, player value  +2700
+  Doc Rivers             LAC 2013-2017  rank 197 (player-value line 112)   produced: adj. margin  +1192, player value  +2626
+  Bob Whitsitt           POR 1994-2003  rank 103 (player-value line 188)   produced: adj. margin  +1910, player value   +295
+  Pat Williams           PHI 1979-1986  rank 133 (player-value line  49)   produced: adj. margin  +1918, player value  +3537
+  Don Nelson             GSW 1987-1995  rank 153 (player-value line  75)   produced: adj. margin   -327, player value  +1033
+  correlation of the two production measures across ranked spells: 0.82
+
+== 2. Is it skill? (out/gm_repeatability.txt has every line)
+  drafting (turned out): describes what happened
+      date -0.18 [-0.34,-0.00] n131 mde0.24 | oddeven -0.14 [-0.31,+0.03] n131 mde0.24 | stakes +0.01 [-0.22,+0.23] n77 mde0.31 | stake-weighted -0.19 [-0.35,-0.02] n131 mde0.24 | spell -0.14 [-0.29,+0.02] n151 mde0.23
+  drafting (at time): skill: repeats
+      date +0.31 [+0.07,+0.52] n61 mde0.35 | oddeven +0.35 [+0.10,+0.55] n61 mde0.35 | stakes +0.27 [-0.09,+0.57] n31 mde0.48 | stake-weighted +0.06 [-0.19,+0.31] n61 mde0.35 | spell +0.27 [+0.02,+0.49] n61 mde0.35
+  second-round finds (turned out): describes what happened
+      date +0.08 [-0.16,+0.31] n69 mde0.33 | oddeven -0.14 [-0.36,+0.10] n69 mde0.33 | stakes n/a (0) | stake-weighted +0.13 [-0.12,+0.35] n69 mde0.33 | spell +0.16 [-0.09,+0.39] n63 mde0.35
+  second-round finds (at time): describes what happened
+      date -0.25 [-0.58,+0.14] n27 mde0.52 | oddeven -0.33 [-0.63,+0.06] n27 mde0.52 | stakes n/a (0) | stake-weighted -0.24 [-0.57,+0.15] n27 mde0.52 | spell -0.20 [-0.54,+0.20] n26 mde0.53
+  deviation success (turned out): describes what happened
+      date -0.03 [-0.32,+0.25] n47 mde0.40 | oddeven -0.07 [-0.35,+0.23] n47 mde0.40 | stakes +0.21 [-0.28,+0.62] n18 mde0.62 | stake-weighted -0.03 [-0.31,+0.26] n47 mde0.40 | spell +0.18 [-0.12,+0.44] n46 mde0.40
+  deviation success (at time): unclear: repeats only in oddeven, stakes
+      date +0.16 [-0.14,+0.42] n47 mde0.40 | oddeven +0.34 [+0.06,+0.57] n47 mde0.40 | stakes +0.53 [+0.09,+0.80] n18 mde0.62 | stake-weighted +0.06 [-0.23,+0.34] n47 mde0.40 | spell +0.06 [-0.24,+0.34] n46 mde0.40
+  fit picks (turned out): not testable (too few people with 8+ graded decisions)
+      date n/a (2) | oddeven n/a (2) | stakes n/a (0) | stake-weighted n/a (2) | spell n/a (0)
+  fit picks (at time): not testable (too few people with 8+ graded decisions)
+      date n/a (2) | oddeven n/a (2) | stakes n/a (0) | stake-weighted n/a (2) | spell n/a (0)
+  holding (turned out): unclear: repeats only in oddeven, stake-weighted
+      date +0.02 [-0.14,+0.18] n148 mde0.23 | oddeven +0.24 [+0.08,+0.39] n148 mde0.23 | stakes -0.01 [-0.24,+0.22] n72 mde0.32 | stake-weighted +0.17 [+0.01,+0.32] n148 mde0.23 | spell -0.01 [-0.15,+0.13] n187 mde0.20
+  holding (at time): unclear: repeats only in oddeven, stakes, stake-weighted
+      date +0.15 [-0.01,+0.31] n147 mde0.23 | oddeven +0.32 [+0.16,+0.46] n147 mde0.23 | stakes +0.24 [+0.00,+0.44] n72 mde0.32 | stake-weighted +0.27 [+0.12,+0.42] n147 mde0.23 | spell +0.01 [-0.13,+0.15] n184 mde0.21
+  trades (turned out): describes what happened
+      date -0.08 [-0.24,+0.08] n149 mde0.23 | oddeven -0.05 [-0.21,+0.12] n149 mde0.23 | stakes -0.04 [-0.24,+0.17] n90 mde0.29 | stake-weighted -0.10 [-0.26,+0.06] n149 mde0.23 | spell -0.03 [-0.17,+0.12] n182 mde0.21
+  trades (at time): describes what happened
+      date -0.05 [-0.23,+0.12] n127 mde0.25 | oddeven -0.02 [-0.19,+0.16] n127 mde0.25 | stakes +0.11 [-0.11,+0.32] n82 mde0.31 | stake-weighted -0.08 [-0.25,+0.10] n127 mde0.25 | spell -0.04 [-0.20,+0.12] n152 mde0.23
+  free agency (turned out): describes what happened
+      date +0.07 [-0.08,+0.22] n172 mde0.21 | oddeven +0.01 [-0.14,+0.16] n172 mde0.21 | stakes n/a (0) | stake-weighted +0.03 [-0.12,+0.17] n172 mde0.21 | spell +0.06 [-0.07,+0.19] n225 mde0.19
+  free agency (at time): describes what happened
+      date -0.08 [-0.24,+0.07] n161 mde0.22 | oddeven -0.20 [-0.35,-0.05] n161 mde0.22 | stakes n/a (0) | stake-weighted +0.02 [-0.13,+0.18] n161 mde0.22 | spell +0.11 [-0.03,+0.24] n209 mde0.19
+  role players (turned out): describes what happened
+      date -0.12 [-0.31,+0.09] n94 mde0.29 | oddeven +0.14 [-0.07,+0.33] n94 mde0.29 | stakes n/a (0) | stake-weighted -0.11 [-0.30,+0.10] n94 mde0.29 | spell -0.03 [-0.23,+0.18] n94 mde0.29
+  role players (at time): describes what happened
+      date +0.12 [-0.09,+0.32] n89 mde0.29 | oddeven +0.15 [-0.06,+0.35] n89 mde0.29 | stakes n/a (0) | stake-weighted -0.06 [-0.27,+0.15] n89 mde0.29 | spell +0.19 [-0.02,+0.38] n88 mde0.29
+  re-signing and extensions (turned out): unclear: repeats only in stake-weighted
+      date +0.13 [-0.06,+0.30] n114 mde0.26 | oddeven +0.03 [-0.16,+0.21] n114 mde0.26 | stakes +0.33 [-0.08,+0.65] n24 mde0.54 | stake-weighted +0.21 [+0.02,+0.38] n114 mde0.26 | spell +0.11 [-0.08,+0.28] n117 mde0.26
+  re-signing and extensions (at time): describes what happened
+      date +0.02 [-0.17,+0.21] n105 mde0.27 | oddeven +0.18 [-0.02,+0.36] n105 mde0.27 | stakes +0.28 [-0.14,+0.61] n24 mde0.54 | stake-weighted +0.12 [-0.08,+0.30] n105 mde0.27 | spell +0.02 [-0.18,+0.21] n106 mde0.27
+  coach hiring (turned out): not testable (too few people with 8+ graded decisions)
+      date n/a (8) | oddeven n/a (8) | stakes n/a (8) | stake-weighted n/a (8) | spell n/a (5)
+  coach hiring (at time): not testable (too few people with 8+ graded decisions)
+      date n/a (8) | oddeven n/a (8) | stakes n/a (8) | stake-weighted n/a (8) | spell n/a (5)
+
+== 3. Ten GMs to check by hand: the five biggest decisions of each, both grades (at the time | how it turned out)
+-- Sam Presti (OKC 2007-now): GM Value Added +7089, 666 decisions
+     2021-08-06   +726 |  +3379  extension: Shai Gilgeous-Alexander
+     2012-10-27   -685 |  -2935  The Houston Rockets traded Jeremy Lamb, Kevin Martin, a 2013 1st round draft pick (Steven Adams was later selected), a 2013 2nd round draft pick (Álex [low confidence]
+     2025-07-07  +2394 |  +2888  extension: Shai Gilgeous-Alexander
+     2019-07-10   +366 |  +2586  The Los Angeles Clippers traded Danilo Gallinari, Shai Gilgeous-Alexander, a 2021 1st round draft pick (Tre Mann was later selected), a 2022 1st round [low confidence]
+     2009-06-25    n/a |  +2502  drafted James Harden at 3
+-- Gregg Popovich (SAS 1994-2019): GM Value Added +6372, 561 decisions
+     1997-06-25    n/a |  +1470  drafted Tim Duncan at 1
+     1999-06-30    n/a |  +1328  drafted Manu Ginóbili at 57
+     2011-06-23    -28 |  +2184  (credit 0.50)  drafted Kawhi Leonard at 15
+     2004-07-15   +757 |  +2155  (credit 0.50)  re-signing: Manu Ginóbili
+     2015-07-16  +1822 |  +2135  (credit 0.50)  re-signing: Kawhi Leonard
+-- Elgin Baylor (LAC 1986-2008): GM Value Added -6776, 482 decisions
+     1998-06-24    n/a |  -1553  drafted Michael Olowokandi at 1
+     2002-07-30  +1073 |  +1263  The Cleveland Cavaliers traded Andre Miller and Bryant Stith to the Los Angeles Clippers for Harold Jamison and Darius Miles.
+     1998-02-19   +243 |  -1180  The Los Angeles Clippers traded Brent Barry to the Miami Heat for Isaac Austin, Charles Smith and a 1998 1st round draft pick (Brian Skinner was later [low confidence]
+     2003-06-30   -647 |  -1076  left in free agency: Andre Miller
+     1994-02-14    -16 |  +1053  signing: Bo Outlaw
+-- Mitch Kupchak (LAL 2000-2017): GM Value Added -4647, 311 decisions
+     2011-06-23    -16 |  -1126  drafted Ater Majok at 58
+     2007-11-20   +584 |   +976  The Los Angeles Lakers traded Brian Cook and Maurice Evans to the Orlando Magic for Trevor Ariza.
+     2004-07-14   -387 |   +958  The Los Angeles Lakers traded Shaquille O'Neal to the Miami Heat for Caron Butler, Brian Grant, Lamar Odom, a 2006 1st round draft pick (Jordan Farmar [low confidence]
+     2009-06-30   -764 |   -935  left in free agency: Trevor Ariza
+     2005-08-02   -228 |   -909  The Los Angeles Lakers traded Chucky Atkins and Caron Butler to the Washington Wizards for Kwame Brown and Laron Profit.
+-- Sam Presti (OKC 2007-now): GM Value Added +7089, 666 decisions
+     2021-08-06   +726 |  +3379  extension: Shai Gilgeous-Alexander
+     2012-10-27   -685 |  -2935  The Houston Rockets traded Jeremy Lamb, Kevin Martin, a 2013 1st round draft pick (Steven Adams was later selected), a 2013 2nd round draft pick (Álex [low confidence]
+     2025-07-07  +2394 |  +2888  extension: Shai Gilgeous-Alexander
+     2019-07-10   +366 |  +2586  The Los Angeles Clippers traded Danilo Gallinari, Shai Gilgeous-Alexander, a 2021 1st round draft pick (Tre Mann was later selected), a 2022 1st round [low confidence]
+     2009-06-25    n/a |  +2502  drafted James Harden at 3
+-- Scott Perry (SAC 2025-now): GM Value Added -2225, 92 decisions
+     2026-07-01   +351 |   +351  re-signing: Darius Acuff Jr.
+     2026-02-01   -292 |   -308  In a 3-team trade, the Chicago Bulls traded Emanuel Miller to the Cleveland Cavaliers; the Cleveland Cavaliers traded a 2027 2nd round draft pick to t
+     2025-06-30   -281 |   -473  (credit 0.50)  left in free agency: Jake LaRavia
+     2025-10-16   +430 |   +451  (credit 0.50)  extension: Keegan Murray
+     2025-11-04    -35 |   +187  signing: Precious Achiuwa
+-- Gregg Popovich (SAS 1994-2019): GM Value Added +6372, 561 decisions
+     1997-06-25    n/a |  +1470  drafted Tim Duncan at 1
+     1999-06-30    n/a |  +1328  drafted Manu Ginóbili at 57
+     2011-06-23    -28 |  +2184  (credit 0.50)  drafted Kawhi Leonard at 15
+     2004-07-15   +757 |  +2155  (credit 0.50)  re-signing: Manu Ginóbili
+     2015-07-16  +1822 |  +2135  (credit 0.50)  re-signing: Kawhi Leonard
+-- Frank Layden (UTA 1979-1987): GM Value Added +4677, 103 decisions
+     1984-06-19    n/a |  +3258  drafted John Stockton at 16
+     1979-09-13    n/a |  +2299  The Los Angeles Lakers traded Adrian Dantley to the Utah Jazz for Spencer Haywood. [low confidence]
+     1985-06-18    n/a |  +2122  drafted Karl Malone at 13
+     1980-08-12    n/a |  +1345  waiver claim: Rickey Green
+     1980-12-02    n/a |  +1345  re-signing: Rickey Green
+-- Tim Connelly (DEN 2013-2022): GM Value Added +4258, 255 decisions
+     2018-07-09  +1961 |  +4076  re-signing: Nikola Jokić
+     2015-07-12    +74 |  +3431  re-signing: Nikola Jokić
+     2014-06-26   -104 |  +2776  drafted Nikola Jokić at 41
+     2019-07-24   +966 |  +1194  re-signing: Jamal Murray
+     2015-10-28   -108 |  +1054  coach hire: Michael Malone
+-- Koby Altman (CLE 2017-now): GM Value Added -39, 414 decisions
+     2018-06-30  -1419 |  -1851  left in free agency: LeBron James
+     2024-07-07   +943 |  +1306  extension: Donovan Mitchell
+     2021-08-06   +448 |   +903  re-signing: Jarrett Allen
+     2026-07-08   +861 |   +891  extension: Donovan Mitchell
+     2018-06-21   -121 |   -743  drafted Collin Sexton at 8
+
+== 4. What is missing, by era (counts of decisions)
+                               1979-89   1990-99   2000-09   2010-19   2020-26
+  decisions                       3796      5304      5472      8992      8928
+  no at-the-time grade            2811       830       553         0         0
+  pick protections unknown         492       343       424       331         0
+  repaired ledger                  266        53       113       200       167
+  draft picks                      594       559       589       600       413
+  salary pending                  1526      2680      2828      5076      5282
+
+  The page wording for each gap:
+   - Before 1985 (models): "There were not enough earlier seasons to grade this at the time. How it turned out is shown."
+   - Drafts before 1990: "Graded on how it turned out only: no pick curve could be fit on earlier drafts."
+   - Pick protections before 2017: "The protections on this pick are not in our sources, so its at-the-time grade is low confidence."
+   - Transactions before 2000: "Moves before 2000 come from Basketball-Reference, checked against who actually played for each team."
+   - Defense before 2007-08: "Savant value before 2007-08 counts defense only through steals, blocks and rebounds."
+   - In-season inputs before 1996-97: "Deadline moves before 1996-97 are graded without the season so far."
+   - Coach moves before 2002-03: "Shown, not scored: coach moves are scored from 2002-03 on."
+   - Boards (every era for now): "Drafts are graded against the slot. A consensus board is used only where two independent boards exist (2005 on); until it is built, slot only."
+   - Salaries (every era): "Value is counted without what he was paid. Value per dollar, cap management and minimum signings arrive with the Contract tab."
+   - Departures (every era): "When a player leaves with no transaction, the date is inferred from his last game for the team."
+   - Repaired ledger: "This decision depends on a move we reconstructed, so its grades are low confidence."
+   - Shared credit: "Credit is split where two people ran the team at once or the handover date is not known."
+   - Headline production: "Production is the team's scoring margin, with opponents' three-point and free-throw shooting set to the league average. Margin includes coaching."
+   - Decision grades: "Decision grades use Savant player value, which undersells defenders, until RAPM is part of Savant value."
+   - Re-signing: "Re-signings are credited with the value of the player kept, so this may reflect the stars he had. A percentile waits until salaries let us test value against cost."
+   - Free-agency departures: "A player who left in free agency before playing a game for the next GM counts in neither what one GM left nor what the other inherited."
+   - 2027 lottery: "The 2027 lottery follows the NBA's announced format; later years assume the current rules."
