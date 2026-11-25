@@ -259,3 +259,23 @@ test('the Parquet backfill plans every missing season, and a run over the cap bu
     for (const line of over.split('\n').filter((l) => /^ {2}nba\./.test(l))) assert.ok(line.trim().split(' ').length === 2, `over the cap, only the season in progress: ${line}`)
   } else assert.doesNotMatch(within, /backfill:/)
 })
+
+// A tripped backfill cap must turn the sport's Control Room light red, not only leave a line in the job
+// log (Adam, Nov 25 2026). The path: the cap's message goes through warn(), which prints a ::warning::
+// line; run under publish.sh (every sport's nightly refresh) each ::warning:: from the Parquet step joins
+// publish.sh's warnings, and any warning makes its one check-in a failure (dataroom-<sport>, red on
+// /control, with the phone push); run on its own (college basketball), parquet_publish.sh's finish()
+// checks in a failure itself. This holds each link, so none of them can quietly become an echo.
+test('a tripped backfill cap turns the dataroom light red on /control', () => {
+  const pp = readFileSync(path.join(ROOT, 'pipeline/dataroom/parquet_publish.sh'), 'utf8')
+  const pub = readFileSync(path.join(ROOT, 'pipeline/dataroom/publish.sh'), 'utf8')
+  const status = readFileSync(path.join(ROOT, 'api/_status.js'), 'utf8')
+  assert.match(pp, /^\[ "\$\{BF_OVER:-0\}" = 1 \] && warn "Parquet: \$SPORT backfill skipped/m, 'the cap goes through warn()')
+  assert.match(pp, /^warn\(\) \{ echo "::warning::\$\*"; WARN\+=\("\$\*"\); \}$/m, 'warn() prints a ::warning:: line and counts it')
+  assert.match(pp, /if \[ \$\{#WARN\[@\]\} -gt 0 \]; then[\s\S]{0,200}dr_report "\$SPORT" failure/, 'on its own, a warning checks in a failure')
+  assert.match(pp, /\[ -n "\$DRY_RUN" \] \|\| trap finish EXIT/, 'every real run checks in')
+  assert.match(pub, /pout=\$\(DATAROOM_PARENT=1 bash pipeline\/dataroom\/parquet_publish\.sh/, 'publish.sh runs the Parquet step')
+  assert.match(pub, /while IFS= read -r l; do WARN\+=\("\$\{l#::warning::\}"\); done < <\(printf '%s\\n' "\$pout" \| grep '\^::warning::'\)/, 'publish.sh takes in its ::warning:: lines')
+  assert.match(pub, /if \[ \$\{#WARN\[@\]\} -gt 0 \]; then[\s\S]{0,200}dr_report "\$SPORT" failure/, 'and any warning makes its check-in a failure')
+  for (const s of ['nba', 'nfl', 'cfb', 'cbb', 'ufc']) assert.ok(status.includes(`id: 'dataroom-${s}'`), `/control has the dataroom-${s} light`)
+})
