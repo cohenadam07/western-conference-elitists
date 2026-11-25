@@ -288,3 +288,16 @@ test('the comparison behind the range ops orders numbers as numbers and ISO date
   assert.ok(compare(9, '10') < 0 && compare('9', 10) < 0 && compare(-3.5, -3) < 0)
   assert.equal(compare(null, 1), null); assert.equal(compare([1], 1), null)
 })
+
+test('1.0.1: a chart names the surname, never Jr. or II', () => {
+  const html = readFileSync(path.join(ROOT, 'public', 'basketball-coaching-savant.html'), 'utf8')
+  const src = html.slice(html.indexOf('const LAST_SUFFIX'), html.indexOf('\n', html.indexOf('const last =')))
+  const last = new Function(`${src}; return last`)()
+  assert.equal(last('Jaren Jackson Jr.'), 'Jackson')
+  assert.equal(last('Robert Williams III'), 'Williams')
+  assert.equal(last('Gary Payton II'), 'Payton')
+  assert.equal(last('Michael Porter Jr'), 'Porter')
+  assert.equal(last('Nikola Jokić'), 'Jokić')
+  assert.equal(last('Jr.'), 'Jr.')
+  assert.ok(!/const last = n => String\(n \|\| ''\)\.split\(' '\)\.slice\(-1\)\[0\];/.test(html), 'the old last() is back')
+})

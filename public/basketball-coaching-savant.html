@@ -425,7 +425,9 @@ const teamName = (k) => IDX.teams[k]?.name || k;
 const teamColor = k => IDX.teams[k]?.color || '#22395A';
 const fetchJSON = async (p) => { const r = await fetch(p, {cache:'no-cache'}); if (!r.ok) throw new Error(p + ' ' + r.status); return r.json(); };
 const nameOf = id => (IDX.tree.nodes[id]?.name) || (IDX.coaches.find(c => c.id === id)?.name) || id;
-const last = n => String(n || '').split(' ').slice(-1)[0];
+// the surname, never a suffix (as CBB Savant's surname() and CBB Coaching Savant): "Jaren Jackson Jr." is Jackson, not Jr.
+const LAST_SUFFIX = /^(jr|sr|ii|iii|iv|v)\.?$/i;
+const last = n => { const w = String(n || '').trim().split(/\s+/); while (w.length > 1 && LAST_SUFFIX.test(w[w.length - 1])) w.pop(); return w[w.length - 1] || ''; };
 const initials = nm => String(nm || '').split(' ').map(s => s[0] || '').slice(0, 2).join('').toUpperCase();
 
 // ---------------------------------------------------------------- season photos
