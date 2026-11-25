@@ -1,8 +1,8 @@
 {
- "last_ok": "2026-11-25T10:26:47+00:00",
+ "last_ok": "2026-11-25T11:12:06+00:00",
  "asof": "2026-11-25",
- "through": "2026-11-18",
- "decisions": 32492,
+ "through": "2026-11-23",
+ "decisions": 32495,
  "sources": [
   "site.api.espn.com 200"
  ],
