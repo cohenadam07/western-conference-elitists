@@ -5815,7 +5815,7 @@ function teamValue(p,season,cache){
   if(!hasValue(season)) return null;
   var peers=AST_PEERS[p.pos]||posWord(p.pos,true);
   if(miss(p.m.sav)){
-    if(/^O[LTGC]$/.test(p.pos)&&+season<TEAM_VALUE_OL_FROM) return {v:null,why:'not tracked for linemen before '+TEAM_VALUE_OL_FROM};
+    if(/^O[LTGC]$/.test(p.pos)&&+season<TEAM_VALUE_OL_FROM) return {v:null,why:'not tracked for offensive linemen before '+TEAM_VALUE_OL_FROM};
     return {v:null,why:p.qualified?'none on file':'under the qualifying line'};
   }
   var L=cache[p.pos]||(cache[p.pos]=rankedAt(season,p.pos).filter(function(x){ return x.value; }).map(function(x){ return x.raw; }));

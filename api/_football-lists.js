@@ -533,7 +533,7 @@ export const tools = [
     config: {
       title: 'NFL team page',
       description:
-        'One NFL team\'s season on NFL Savant (wcehoops.com): how its offense and defense rank (EPA, success rate, sack and pressure rates, conversions, explosive plays, turnovers), what its defense gives up to receivers, tight ends, backs and quarterbacks, the schedule it has faced, its offensive line grade, its head coach (every head coach of a season, with the weeks and record of each), and its roster in depth-chart order with snap shares, profile scores, and each man's Savant value with its rank among the qualified players at his position (the pool named on every rank). Seasons from 1999.',
+        'One NFL team\'s season on NFL Savant (wcehoops.com): how its offense and defense rank (EPA, success rate, sack and pressure rates, conversions, explosive plays, turnovers), what its defense gives up to receivers, tight ends, backs and quarterbacks, the schedule it has faced, its offensive line grade, its head coach (every head coach of a season, with the weeks and record of each), and its roster in depth-chart order with snap shares, profile scores, and each man\'s Savant value with its rank among the qualified players at his position (the pool named on every rank). Seasons from 1999.',
       inputSchema: {
         team: z.string().trim().min(2).max(40).describe('Code ("BUF") or name ("Bills").'),
         season: z.string().trim().max(12).optional().describe('Year the season began. Omit for the latest.'),

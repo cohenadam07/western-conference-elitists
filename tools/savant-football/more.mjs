@@ -117,6 +117,7 @@ const FUNCTIONS = [
   'careerRow', 'buildCareers', 'careerPool',
   'lbMetrics', 'lbAllMetrics', 'lbRows', 'lbPool', 'lbPct', 'lbTextColor', 'lbRender', 'lbRenderPlayers', 'lbRenderTeams', 'lbEncode', 'lbSyncURL',
   'tdiv', 'teamStats', 'teamRank', 'teamStatRow', 'loadTeamCoaches', 'teamCoachHTML', 'openTeam',
+  'teamGamesOf', 'heavyUse', 'hasValue', 'rankedAt', 'teamValue', 'teamValueLine', 'teamHow',
   'spPct', 'splFmt', 'splRank', 'splLedgers', 'splLoad', 'renderSplits',
   'median', 'drawWeekly', 'wkSeasonFor', 'kpi', 'legendHtml',
   'rtPos', 'rtYears', 'rtSum', 'rtStats', 'rtLean', 'rtSide',
@@ -189,6 +190,8 @@ function loadPage(archive, current) {
   ${grabLine('var TSTAT_CACHE=')}
   ${grabVar('TEAM_UNITS')}
   ${grabLine('var TEAM_COACHES=null')}
+  ${grabLine('var TEAM_VALUE_OL_FROM=')}
+  ${grabVar('AST_PEERS')}
   ${grabVar('LINE_ORDER')}
   ${grabLine('var SPL_INDEX=')}
   ${grabVar('SPL_LEDGER')}
@@ -230,6 +233,7 @@ function loadPage(archive, current) {
       baseline = keep; POOL_CACHE = {};
       return r;
     },
+    fmt: function (u, v) { return fmt(u, v); },
     team: function (season, t) { curSeason = season; openTeam(t); return document.getElementById('teamPanel').innerHTML; },
     career: function (id) { return careerRow(id); },
     careerPct: function (v, key, pos, lower) { return pctOf(v, careerPool(key, pos), lower); },
@@ -405,7 +409,8 @@ test('"same point" ranks every stat against past seasons through the same week, 
 
 test('team boards and team pages are the page\'s: every stat, every rank, the line grade and the roster in order', async () => {
   load()
-  let teams = 0, statsCompared = 0, men = 0
+  let teams = 0, statsCompared = 0, men = 0, valued = 0
+  const fmtSgn1 = (v) => page.fmt('sgn1', v)
   for (const season of [latest, '2025', '2016', '2003']) {
     // boards: every team stat, all 32
     for (const st of meta.teamStats) {
@@ -421,20 +426,32 @@ test('team boards and team pages are the page\'s: every stat, every rank, the li
     for (const t of Object.keys(file.teams)) {
       const panel = page.team(season, t)
       const prof = await lists.teamProfile({ team: t, season })
-      const rows = [...panel.matchAll(/<div class="tm-stat"><span>([^<]*)<\/span><b>([^<]*)<\/b><span[^>]*>(\d+)\w\w of (\d+)<\/span><\/div>/g)].map((m) => [unesc(m[1]), unesc(m[2]), +m[3], +m[4]])
+      const rows = [...panel.matchAll(/<div class="tm-stat"><span>([^<]*)<\/span><b>([^<]*)<\/b><span[^>]*>(\d+)\w\w of (\d+) teams<\/span><\/div>/g)].map((m) => [unesc(m[1]), unesc(m[2]), +m[3], +m[4]])
       const mine = prof.structured.units ? [...prof.structured.units.offense, ...prof.structured.units.defense, ...prof.structured.units.gives_up, ...prof.structured.units.schedule].map((x) => [x.label, x.display, x.rank, x.of]) : []
       assert.deepEqual(mine, rows, `${season} ${t}: unit ranks`)
       const roster = [...panel.matchAll(/<button type="button" class="tm-pl[^"]*" data-id="([^"]+)"/g)].map((m) => unesc(m[1]))
       assert.deepEqual(prof.structured.roster.map((p) => p.id), roster, `${season} ${t}: roster order`)
       const scores = [...panel.matchAll(/<span class="tm-ps[^"]*"[^>]*>([^<]*)<\/span>/g)].map((m) => (m[1] === '—' ? null : +m[1]))
       assert.deepEqual(prof.structured.roster.map((p) => p.profile_score), scores, `${season} ${t}: profile scores`)
-      const line = panel.match(/line grade (\d+(?:\.\d+)?) \((\d+)\w\w of (\d+)\)/)
+      // 2.4.0: each card's value line, and the connector's savant_value and position_rank, the same
+      const cards = [...panel.matchAll(/<button type="button" class="tm-pl[^"]*" data-id="[^"]+"[\s\S]*?<\/button>/g)].map((m) => {
+        const v = m[0].match(/<span class="tp-v">Value <b>([^<]*)<\/b> · (\d+)\w\w of (\d+) ([^<]+)<\/span>/)
+        const na = m[0].match(/<span class="tp-v na">Value — ([^<]+)<\/span>/)
+        return v ? [unesc(v[1]), +v[2], +v[3], unesc(v[4])] : na ? ['—', unesc(na[1])] : null
+      })
+      const theirs = prof.structured.roster.map((p) => (p.savant_value != null ? [fmtSgn1(p.savant_value), p.position_rank.rank, p.position_rank.of, p.position_rank.position]
+        : p.savant_value_note ? ['—', p.savant_value_note] : null))
+      assert.deepEqual(theirs, cards, `${season} ${t}: Savant value and position rank on the roster`)
+      for (const p of prof.structured.roster) if (p.position_rank) assert.match(p.position_rank.pool, new RegExp(`^qualified .+, ${season}, all 32 teams$`), `${season} ${t}: the pool is named`)
+      valued += cards.filter((c) => c && c[0] !== '—').length
+      const line = panel.match(/line grade (\d+(?:\.\d+)?) \((\d+)\w\w of (\d+) lines\)/)
       assert.deepEqual(prof.structured.line ? [prof.structured.line.score, prof.structured.line.rank, prof.structured.line.of] : null, line ? [+line[1], +line[2], +line[3]] : null, `${season} ${t}: line grade`)
       teams++
       men += roster.length
     }
   }
-  console.log(`      ${statsCompared} team boards, ${teams} team pages and ${commas(men)} roster places compared`)
+  assert.ok(valued > 1000, `only ${valued} roster values compared`)
+  console.log(`      ${statsCompared} team boards, ${teams} team pages, ${commas(men)} roster places and ${commas(valued)} values compared`)
   assert.ok(teams > 120)
 })
 
