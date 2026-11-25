@@ -56,3 +56,25 @@ The Turnstile widget lives in Cloudflare → Turnstile, hostname `wcehoops.com`,
   happens, add Routing Middleware on the bulk data paths that requires a valid `wce_h`
   (`checkHuman` in `api/_human.js`). It must exempt `/api/`, `/mcp/`, `/.well-known/`,
   `/savant-api/` and anything the connector or nightly jobs read over HTTP.
+
+## The watchers' key (Nov 25, 2026)
+
+Vercel Bot Protection in **Challenge** mode answers every scripted request to the site's pages
+and static files with `HTTP 429` + `x-vercel-mitigated: challenge` (the "Vercel Security
+Checkpoint" page). From Nov 23 at about 5pm ET that silently broke every GitHub Actions check
+that reads wcehoops.com: Site watch, Connector freshness (all five sports), NBA, CBB and GM
+freshness, and the connector coverage exam in `--site` mode. `/api/*` and the connector's own
+reads were never challenged.
+
+Fix: those checks send `x-wce-watch: <WCE_WATCH_KEY>`, and a custom firewall rule lets that
+header through. Vercel runs custom rules before the Bot Protection ruleset, so the bot is still
+challenged and only requests carrying the key skip it.
+
+| Piece | Where |
+|---|---|
+| `WCE_WATCH_KEY` | GitHub → repo → Settings → Secrets → Actions. A long random string. |
+| Firewall rule **"WCE watchers"** | Vercel → Project → Firewall → Custom rule: *If* Request Header `x-wce-watch` *equals* the same key, *then* **Bypass**. |
+| Senders | `.github/scripts/site_watch.py`, `tools/savant-mcp/freshness.mjs`, `tools/savant-cbb/freshness.py`, `tools/savant-mcp/exam/lib.mjs`; the workflows pass the secret in a top-level `env:`. |
+
+If the key leaks, change it in both places. A check that is challenged now says so
+("stopped by Vercel's bot challenge … watcher key missing / not let through") instead of a bare 429.

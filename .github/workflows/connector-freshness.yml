@@ -34,6 +34,11 @@ permissions:
   id-token: write   # Control Room check-ins prove they come from this repo (no secret needed)
   contents: read
 
+# Lets this run's requests to wcehoops.com past Vercel's bot challenge (firewall rule
+# "WCE watchers" bypasses requests with this key in x-wce-watch; see BOT-SHIELD.md).
+env:
+  WCE_WATCH_KEY: ${{ secrets.WCE_WATCH_KEY }}
+
 jobs:
   check:
     runs-on: ubuntu-latest

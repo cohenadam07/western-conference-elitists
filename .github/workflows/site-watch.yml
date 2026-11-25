@@ -21,6 +21,11 @@ concurrency:
   group: site-watch
   cancel-in-progress: true
 
+# Lets this run's requests to wcehoops.com past Vercel's bot challenge (firewall rule
+# "WCE watchers" bypasses requests with this key in x-wce-watch; see BOT-SHIELD.md).
+env:
+  WCE_WATCH_KEY: ${{ secrets.WCE_WATCH_KEY }}
+
 jobs:
   watch:
     runs-on: ubuntu-latest
