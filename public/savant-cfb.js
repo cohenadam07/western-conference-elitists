@@ -307,5 +307,41 @@
   }
   const nth = (n) => { const v = n % 100; return n + (['th', 'st', 'nd', 'rd'][(v - 20) % 10] || ['th', 'st', 'nd', 'rd'][v] || 'th') }
 
-  return { COL, TCOL, SCOL, SLOT_TABLE, ok, pct, val, retPool, isRet, cardGroups, cardKey, headline, profile, weakComps, hasAdj, sample, confOf, tracked, pool, poolLabel, valuesFor, likely, display, row, statsFor, valueLine, recompute, total, line, splits, comps, teamRow, talent, TALENT_FROM, tbd, nth, chance, MONTHS }
+  /* The 12-team bracket's fixed slotting, the CFP's own: never re-seeded after the first round. Top to
+     bottom, [host, visitor, bye seed waiting in the quarterfinal]; the first two quarterfinals meet in
+     one semifinal, the last two in the other. The page draws its bracket from this and the connector
+     describes it from this, so the two cannot disagree (tools/savant-cfb/check.mjs holds them to it). */
+  const BRACKET = [[5, 12, 4], [8, 9, 1], [6, 11, 3], [7, 10, 2]]
+  function bracket(field) {
+    const by = {}
+    for (const f of field) by[f.seed] = f
+    return BRACKET.map(([h, v, b], k) => ({ host: by[h], visitor: by[v], bye: by[b], semi: k < 2 ? 0 : 1 }))
+  }
+  /* A team's bracket tile: its primary colour (its secondary when the primary is white), unless that is
+     lost against the page's navy (#0B1730), measured as WCAG contrast under TILE_MIN. Then its secondary,
+     white included, if that clears it, else a white tile. Every field team's colour since 2009, measured
+     Nov 25 2026: the near-navy and near-black ones sit at 1.00-1.53 (Penn State #061440 1.00, Michigan
+     1.18, Auburn 1.27, Michigan State 1.53) and the first above are royal blues that read (Pittsburgh
+     1.64, Boise State 1.68), so 1.6 separates them. The first version kept a dark primary whenever the
+     secondary was white, which left Penn State's navy on navy. Text on a swapped tile is the team's own
+     primary when that reaches 4.5:1, else white or ink, whichever contrasts more, and black where neither
+     reaches 4.5:1 (a mid-tone such as Oregon's green). */
+  const FIELD_BG = '#0b1730', TILE_MIN = 1.6
+  const lumi = (h) => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4) }).reduce((s, v, k) => s + v * [0.2126, 0.7152, 0.0722][k], 0) }
+  const contrast = (a, b) => { const x = lumi(a), y = lumi(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05) }
+  function tileColor(pri, sec) {
+    const hex = (c) => (c && /^[0-9a-fA-F]{6}$/.test(c) ? '#' + c.toLowerCase() : null)
+    const W = '#ffffff', INK = '#191b1f', p = hex(pri), s = hex(sec)
+    const base = p && p !== W ? p : s || '#3a4763'
+    let bg = base
+    if (contrast(base, FIELD_BG) < TILE_MIN) bg = s && s !== base && contrast(s, FIELD_BG) >= TILE_MIN ? s : W
+    const swapped = bg !== base
+    let fg = swapped && contrast(base, bg) >= 4.5 ? base : (contrast(W, bg) >= contrast(INK, bg) ? W : INK)
+    if (contrast(fg, bg) < 4.5 && contrast('#000000', bg) > contrast(fg, bg)) fg = '#000000'   // Oregon's #00934b: ink 4.33, black 5.3
+    return { bg, fg, swapped, base }
+  }
+
+  const bracketText = () => `Quarterfinals: ${BRACKET.map(([h, v, b], k) => `${b} vs ${v}/${h}${k ? '' : ' winner'}`).join(', ')}. Semifinals: the ${BRACKET[0][2]} and ${BRACKET[1][2]} quarterfinals meet; the ${BRACKET[2][2]} and ${BRACKET[3][2]} quarterfinals meet.`
+
+  return { COL, TCOL, SCOL, SLOT_TABLE, ok, pct, val, retPool, isRet, cardGroups, cardKey, headline, profile, weakComps, hasAdj, sample, confOf, tracked, pool, poolLabel, valuesFor, likely, display, row, statsFor, valueLine, recompute, total, line, splits, comps, teamRow, talent, TALENT_FROM, tbd, nth, chance, MONTHS, BRACKET, bracket, bracketText, FIELD_BG, TILE_MIN, contrast, tileColor }
 })

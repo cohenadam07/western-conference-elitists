@@ -12,6 +12,20 @@ os.makedirs(OUT, exist_ok=True)
 PROBE = """()=>{const de=document.documentElement;const small=[...document.querySelectorAll('main button, main select, .tabs a, .srch input, #season')].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&(r.height<40)}).length;
 const pools=[...document.querySelectorAll('.bar .n')].length, lines=[...document.querySelectorAll('.poolline')].map(e=>e.textContent).join(' ');
 return {scroll:de.scrollWidth-de.clientWidth,h:(document.querySelector('main h2')||{}).textContent,small,bars:pools,pool:/vs |Ranked against|Percentiles|Savant value/.test(lines)||pools===0,empty:!!document.querySelector('main .empty'),broken:[...document.images].filter(i=>i.complete&&i.naturalWidth===0&&i.offsetParent).length}}"""
+# 1.3.0: the bracket. Each line starts at a tile's middle and ends on a slot's middle (or the trophy),
+# the first round reads 12 at 5, 9 at 8, 11 at 6, 10 at 7 with the bye seeds 4, 1, 3, 2 beside them; each round's
+# label line stays on one line and clear of the next column's
+BRACKET = """()=>{const bk=document.querySelector('.bkt');if(!bk)return ['no bracket'];const R=e=>e.getBoundingClientRect(),mid=r=>(r.top+r.bottom)/2,tiles=[...bk.querySelectorAll('.bt')],bad=[],w=[...bk.querySelectorAll('.bw')];let n=0;
+ for(const svg of w){const m=svg.getScreenCTM();for(const p of svg.querySelectorAll('path')){n++;const L=p.getTotalLength(),pt=t=>{const q=p.getPointAtLength(t);return new DOMPoint(q.x,q.y).matrixTransform(m)},a=pt(0),z=pt(L);
+  const src=tiles.some(t=>Math.abs(R(t).right-a.x)<=4&&Math.abs(mid(R(t))-a.y)<=4),dst=tiles.some(t=>Math.abs(R(t).left-z.x)<=4&&[...t.querySelectorAll('.bh')].some(h=>Math.abs(mid(R(h))-z.y)<=4))||(svg===w[3]&&Math.abs(R(bk.querySelector('.btr')).left-z.x)<=2);
+  if(!src||!dst)bad.push('line '+p.getAttribute('d')+' does not meet its tile');}}
+ if(n!==11)bad.push(n+' lines, want 11');
+ const col=c=>tiles.filter(t=>t.dataset.col===c).sort((x,y)=>R(x).top-R(y).top),fr=col('1').map(t=>[...t.querySelectorAll('.sd')].map(s=>+s.textContent).join(' at ')),qf=col('3').map(t=>t.querySelector('.sd').textContent);
+ if(fr.join()!=='12 at 5,9 at 8,11 at 6,10 at 7'||qf.join()!=='4,1,3,2')bad.push('order '+fr+' / '+qf);
+ if([...bk.querySelectorAll('a.bh')].some(a=>R(a).height<39.5))bad.push('a team under 40px tall');
+ const lab=[...bk.querySelectorAll('.bl')].map(l=>[...[...l.children].find(x=>getComputedStyle(x).display!=='none'&&x.offsetWidth>1).children].map(c=>{const g=document.createRange();g.selectNodeContents(c);return {t:c.textContent,r:g.getBoundingClientRect(),h:R(c).height,lh:parseFloat(getComputedStyle(c).lineHeight)}}));
+ lab.forEach((rows,k)=>{rows.forEach(x=>{if(x.h>x.lh*1.4)bad.push('label wraps: '+x.t);if(x.r.right>R(bk).right+1)bad.push('label past the edge: '+x.t)});if(k<lab.length-1&&Math.max(...rows.map(x=>x.r.right))>Math.min(...lab[k+1].map(x=>x.r.left))-12)bad.push('label runs into the next: '+rows[0].t)});
+ return bad}"""
 def run(p, name, w, h, mobile, reduced=False):
     b = p.chromium.launch()
     ctx = b.new_context(viewport={"width": w, "height": h}, device_scale_factor=1, is_mobile=mobile, has_touch=mobile, reduced_motion="reduce" if reduced else "no-preference")
@@ -40,6 +54,7 @@ def run(p, name, w, h, mobile, reduced=False):
         if o["small"]: bad.append(f"{label}: {o['small']} controls under 40px tall")
         if not o["pool"]: bad.append(f"{label}: bars without a pool line")
         if o["broken"]: bad.append(f"{label}: {o['broken']} broken images")
+        if label.startswith("playoff"): bad += [f"{label}: {x}" for x in pg.evaluate(BRACKET)]
         pg.screenshot(path=os.path.join(OUT, f"{name}-{label}.png"), full_page=True)
     # every value on the QB card equals the shared arithmetic over the data files (pool: FBS at his position, adjusted, garbage time out)
     pg.evaluate(f"location.hash='#player-{ids['qb']}'"); pg.wait_for_timeout(1500)

@@ -22,7 +22,7 @@ not ("not tracked" is never shown as zero).
 """
 from collections import namedtuple
 
-VERSION = "1.2.0"
+VERSION = "1.3.0"
 FIRST_SEASON = 2009
 CURRENT = 2026
 LAUNCH_FIRST = 2014

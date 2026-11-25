@@ -215,7 +215,7 @@ test('the page parses, names its pools and carries the footer every product page
   const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
   const js = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].pop()[1]
   assert.doesNotThrow(() => new Function(js))
-  for (const re of [/poolLabel/, /POOL: /, /viewport-fit=cover/, /prefers-reduced-motion:reduce/, /Ask it in Claude with the WCE connector/, /id="ver"/, /New in 1\.2\.0/, /ESPN play-by-play/, /wce-nav\.js/, /savant-cfb\.js/, /Margin never enters the résumé score/, /not tracked/, /the model\\'s view, not a verdict|The model\\'s view, not a verdict/]) assert.match(html, re)
+  for (const re of [/poolLabel/, /POOL: /, /viewport-fit=cover/, /prefers-reduced-motion:reduce/, /Ask it in Claude with the WCE connector/, /id="ver"/, /New in 1\.3\.0/, /ESPN play-by-play/, /wce-nav\.js/, /savant-cfb\.js/, /Margin never enters the résumé score/, /not tracked/, /the model\\'s view, not a verdict|The model\\'s view, not a verdict/]) assert.match(html, re)
   assert.match(html, /family=Anton/)
   assert.doesNotMatch(html, /x-dc|support\.js|Harbor State|Marcus Delane/, 'the mockups\' runtime or invented names shipped')
   assert.match(js, /No committee ranking is used anywhere on this page/)
@@ -522,4 +522,51 @@ test('1.2.0: each roster value shows its rank among qualified FBS players at the
   const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
   assert.match(html, /<small class="vr">'\+\(vl&&vl\.rank\?M\.nth\(vl\.rank\)\+' of '\+vl\.of\+' '\+esc\(REG\.slot_name/)
   assert.match(html, /<summary>Position rank on the roster<\/summary>/)
+})
+
+// ---- 1.3.0: the bracket drawn left to right, the CFP's fixed slotting ----------------------------
+test('1.3.0: every season\'s bracket follows the CFP slotting, and the page and the connector read the same copy', async () => {
+  // top to bottom: visitor at host, then the bye seed waiting in that quarterfinal; never re-seeded
+  const want = [[12, 5, 4], [9, 8, 1], [11, 6, 3], [10, 7, 2]]
+  assert.deepEqual(M.BRACKET.map(([h, v, b]) => [v, h, b]), want)
+  for (const s of SEASONS) {
+    const P = read(`playoff/${s}.json`), by = Object.fromEntries(P.field.map((f) => [f.seed, f.team]))
+    const B = M.bracket(P.field)
+    assert.deepEqual(B.map((m) => [m.visitor.seed, m.host.seed, m.bye.seed]), want, `${s}: bracket order`)
+    assert.deepEqual(B.map((m) => m.semi), [0, 0, 1, 1], `${s}: the 4 and 1 quarterfinals meet, then the 3 and 2`)
+    for (const m of B) for (const f of [m.visitor, m.host, m.bye]) assert.equal(f.team, by[f.seed], `${s}: seed ${f.seed}`)
+    assert.equal(new Set(B.flatMap((m) => [m.visitor.team, m.host.team, m.bye.team])).size, 12, `${s}: every team once`)
+  }
+  const text = 'Quarterfinals: 4 vs 12/5 winner, 1 vs 9/8, 3 vs 11/6, 2 vs 10/7. Semifinals: the 4 and 1 quarterfinals meet; the 3 and 2 quarterfinals meet.'
+  assert.equal(M.bracketText(), text)
+  const html = readFileSync(path.join(ROOT, 'public', 'college-football-savant.html'), 'utf8')
+  assert.match(html, /var B=M\.bracket\(P\.field\)/, 'the page draws its bracket from the shared slotting')
+  assert.doesNotMatch(html, /\[\[5,12,4\],\[8,9,1\]/, 'no second copy of the slotting on the page')
+  assert.match(html, /BKT_RULES=2026,BKT_DATES=\{2026:\{long:\[/, 'round dates come from a per-season table, long and short')
+  assert.doesNotMatch(html, /class="bkl"/, 'no legend list on phones: each column carries its own two-line label')
+  assert.match(html, /Retroactive field under '\+BKT_RULES\+' rules/)
+  for (const season of [undefined, SEASONS[0]]) {
+    const po = await call('cfb_playoff_field', season ? { season } : {})
+    const lines = po._text.split('\n'), k = lines.findIndex((l) => l.startsWith('First round at the higher seed'))
+    assert.equal(lines[k + 1], text, `${season || 'current'}: the bracket sentence follows the first-round sentence`)
+    const fr = lines[k].match(/First round at the higher seed: ([^.]+)\./)[1].split(', ').map((x) => x.split(' at ').map(Number))
+    assert.deepEqual(fr.map(([v, h]) => `${h}-${v}`).sort(), M.BRACKET.map(([h, v]) => `${h}-${v}`).sort(), 'the first-round pairs are the bracket\'s')
+  }
+})
+
+test('1.3.0: every bracket tile reads against the navy page, and its text against the tile', () => {
+  // the swap list, all seasons (Nov 25 2026): 21 teams; Penn State's #061440 is the one the first rule missed
+  const swapped = new Set()
+  for (const s of SEASONS) {
+    const P = read(`playoff/${s}.json`), d = read(`s/${s}.json`)
+    for (const f of P.field) {
+      const x = d.teams[String(f.team)], c = M.tileColor(x[3], x[4])
+      assert.ok(M.contrast(c.bg, M.FIELD_BG) >= M.TILE_MIN, `${s} ${x[0]}: tile ${c.bg} is lost against the page`)
+      assert.ok(M.contrast(c.fg, c.bg) >= 4.5, `${s} ${x[0]}: text ${c.fg} on ${c.bg}`)
+      if (c.swapped) swapped.add(x[0])
+    }
+  }
+  for (const t of ['Penn State', 'Notre Dame', 'Michigan', 'Utah State']) assert.ok(swapped.has(t), `${t} is near navy and must swap`)
+  for (const t of ['Boise State', 'Pittsburgh', 'Alabama', 'Georgia']) assert.ok(!swapped.has(t), `${t} reads on navy and keeps its colour`)
+  assert.deepEqual(M.tileColor('061440', 'ffffff'), { bg: '#ffffff', fg: '#061440', swapped: true, base: '#061440' })
 })

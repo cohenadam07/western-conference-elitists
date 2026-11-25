@@ -338,19 +338,55 @@ function vTeam(id,want){
     return h+'</div></div>';});}
 
 /* ---------- playoff ---------- */
+/* 1.3.0: the bracket drawn left to right, the way television draws it. Order is M.bracket (the CFP's
+   fixed slotting, shared with the connector), never re-seeded. Geometry is in grid rows of --u: a tile
+   is 8 rows, two halves of 4; first-round tiles start every 12 rows; each quarterfinal sits 2 rows lower
+   so its empty top slot is level with the game that fills it. Semifinal A spans rows 8-16, B 32-40, the
+   title game 20-28, the trophy is centred on row 24. Every line's ends below come from these numbers,
+   and tools/savant-cfb/shoot.py checks on screen that each one meets its tile. Empty slots stay empty:
+   nobody is advanced by the odds. Dates are per season; past seasons are retroactive and have none. */
+var BKT_RULES=2026,BKT_DATES={2026:{long:['Dec 18–19','Dec 30 and Jan 1','Jan 14–15','Jan 25 · Las Vegas'],short:['Dec 18–19','Dec 30/Jan 1','Jan 14–15','Jan 25']}};
+var BKT_ROUNDS=[['First round','1st rd'],['Quarterfinals','QF'],['Semifinals','Semis'],['National championship','Final']];
+/* a team's tile colour is M.tileColor (public/savant-cfb.js): its primary unless that is lost against the
+   navy page, then its secondary or a white tile; the white keyline is always there */
+function bcolor(d,t){var x=d.teams&&d.teams[String(t)]||[];return M.tileColor(x[3],x[4]);}
+var TROPHY=(function(){
+  var body='<path d="M26 36H94V60C94 86 78 100 60 100C42 100 26 86 26 60Z"/><rect x="52" y="98" width="16" height="16"/><rect x="43" y="112" width="34" height="8"/><rect x="33" y="119" width="54" height="22"/>';
+  var hand='<path d="M28 48C8 48 6 82 36 84"/><path d="M92 48C112 48 114 82 84 84"/>';
+  return '<svg viewBox="0 0 120 150" preserveAspectRatio="xMinYMid meet" role="img" aria-label="The trophy"><path class="stub" d="M0 75H16"/>'
+    +'<g class="tro" data-tilt><g transform="translate(5 5)"><g fill="none" stroke="#030914" stroke-width="18" stroke-linecap="round">'+hand+'</g><g fill="#030914" stroke="#030914" stroke-width="10" stroke-linejoin="round">'+body+'</g></g>'
+    +'<g fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round">'+hand+'</g><g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="10" stroke-linejoin="round">'+body+'</g>'
+    +'<g fill="none" stroke="#FFD25A" stroke-width="8" stroke-linecap="round">'+hand+'</g><g fill="#FFD25A">'+body+'</g>'
+    +'<rect x="26" y="36" width="68" height="7" fill="#C2A263"/><path d="M80 43H94V60C94 80 85 93 72 99C80 88 84 75 84 60V43Z" fill="#C2A263"/><path d="M35 48V60C35 72 39 82 46 89" fill="none" stroke="#FFF1BF" stroke-width="4" stroke-linecap="round"/>'
+    +'<path d="M60 51l4 8.1 8.9 1.3-6.4 6.3 1.5 8.9L60 71.4l-8 4.2 1.5-8.9-6.4-6.3 8.9-1.3z" fill="#0B1730"/><rect x="42" y="125" width="36" height="10" fill="#C2A263"/><rect x="33" y="119" width="54" height="4" fill="#E8BE45"/></g>'
+    +'<g fill="none" stroke="#FFD25A" stroke-width="4" stroke-linecap="round"><path d="M60 6V20"/><path d="M33 13l7 9"/><path d="M87 13l-7 9"/></g></svg>';})();
+function bracketHtml(P,d,nm){
+  var B=M.bracket(P.field),dt=BKT_DATES[P.season]||null,retro=P.season<BKT_RULES,y=P.season;
+  function half(f,tag){var k=bcolor(d,f.team),rec=f.w+'-'+f.l;
+    return '<a class="bh" href="'+tlink(f.team,y)+'" style="background:'+k.bg+';color:'+k.fg+'" aria-label="'+f.seed+' '+nm(f.team)+', '+rec+(tag?', '+esc(f.how):'')+'"><span class="sd">'+f.seed+'</span><span class="lg">'+logo(f.team)+'</span><span class="tx"><b>'+nm(f.team)+'</b><small>'+rec+(tag?'<span class="btag"> · '+esc(f.how)+'</span>':'')+'</small></span></a>';}
+  var EMPTY='<span class="bh em"></span>';
+  function tile(col,row,k,label,inner){return '<div class="bt '+(k%2?'bt2':'bt1')+'" data-tilt role="group" aria-label="'+label+'" data-col="'+col+'" data-row="'+row+'" style="grid-column:'+col+';grid-row:'+(row+1)+' / span 8">'+inner+'</div>';}
+  function wire(col,paths){return '<svg class="bw" style="grid-column:'+col+'" viewBox="0 0 100 46" preserveAspectRatio="none" aria-hidden="true">'+paths.map(function(p){return '<path d="'+p+'"/>';}).join('')+'</svg>';}
+  function who(f){return f.seed+' '+nm(f.team);}
+  var h='<div class="bkt" role="group" aria-label="The bracket, '+y+'">',w1=[],w2=[];
+  B.forEach(function(m,k){var r=12*k,sf=m.semi?32:8;
+    h+=tile(1,r,k,'First round: '+who(m.visitor)+' at '+who(m.host)+'. The winner meets '+who(m.bye),half(m.visitor)+half(m.host));
+    h+=tile(3,r+2,k+1,'Quarterfinal: '+who(m.bye)+' meets the '+m.visitor.seed+'/'+m.host.seed+' winner',EMPTY+half(m.bye,true));
+    w1.push('M0 '+(r+4)+'H100');w2.push('M0 '+(r+6)+'H50V'+(sf+(k%2?6:2))+'H100');});
+  [8,32].forEach(function(r,k){var q=B.slice(2*k,2*k+2).map(function(m){return m.bye.seed;});h+=tile(5,r,k,'Semifinal: the winners of the '+q[0]+' and '+q[1]+' quarterfinals',EMPTY+EMPTY);});
+  h+=tile(7,20,0,'National championship: the two semifinal winners',EMPTY+EMPTY);
+  h+=wire(2,w1)+wire(4,w2)+wire(6,['M0 12H50V22H100','M0 36H50V26H100'])+wire(8,['M0 24H100'])+'<div class="btr">'+TROPHY+'</div>';
+  BKT_ROUNDS.forEach(function(r,k){var l2=(dt?['<i>'+dt.long[k]+'</i>']:[]).concat(k?[]:['<i>Higher seed hosts</i>']);
+    h+='<div class="bl" style="grid-column:'+(2*k+1)+'"><span class="lf"><b>'+r[0]+'</b>'+(l2.length?'<span class="l2">'+l2.join(' · ')+'</span>':'')+'</span><span class="sh" aria-hidden="true"><b>'+r[1]+'</b>'+(dt?'<span class="l2">'+dt.short[k]+'</span>':'')+'</span></div>';});
+  h+='</div>';
+  if(retro)h+='<p class="bkr">Retroactive field under '+BKT_RULES+' rules</p>';
+  return h;}
 function vPlayoff(){
   return Promise.all([load('playoff/'+S.season+'.json'),load('s/'+S.season+'.json')]).then(function(a){
-    var P=a[0],d=a[1],cur=!!P.odds,seed={},rowOf={};
-    P.field.forEach(function(f){seed[f.seed]=f;});P.table.forEach(function(r){rowOf[r[0]]=r;});
+    var P=a[0],d=a[1],cur=!!P.odds,rowOf={};
+    P.table.forEach(function(r){rowOf[r[0]]=r;});
     function nm(t){return esc(tname(d,t));}
-    var h='<section class="sec"><div class="rule"><h2>The Bracket</h2></div><p class="note lt">'+(cur?'If the season ended today. '+P.season+', '+esc(asof(P))+'. Until the title games are played, each conference\'s current leader holds its champion\'s place.':'The '+P.season+' season under the 2026 rules, with the conference champions that season had. This is our field, not the one that was played.')+'</p><div class="brk"><div class="byes"><h3>FIRST-ROUND BYES · SEEDS 1–4</h3>';
-    [[1,'8 / 9 winner'],[2,'7 / 10 winner'],[3,'6 / 11 winner'],[4,'5 / 12 winner']].forEach(function(x,k){var f=seed[x[0]];
-      h+='<div class="stk sm bye '+tilt(k)+'" data-tilt><span class="sd">'+f.seed+'</span><span class="chip" style="height:30px;width:14px;background:'+tcolor(d,f.team)+'"></span><div style="min-width:0"><a class="nm" style="color:var(--ink);text-decoration:none" href="'+tlink(f.team,P.season)+'">'+logo(f.team)+nm(f.team)+'</a><small>'+esc(f.how)+' · '+f.w+'-'+f.l+'</small></div><span class="mt">meets<br>'+x[1]+'</span></div>';});
-    h+='</div><div class="fr"><h3>FIRST ROUND · HIGHER SEED HOSTS</h3><div class="frg">';
-    [[5,12,4],[8,9,1],[6,11,3],[7,10,2]].forEach(function(m,k){h+='<div class="stk sm gm '+tilt(k+1)+'" data-tilt><div class="lb">AT NO. '+m[0]+' · WINNER MEETS NO. '+m[2]+'</div>';
-      [m[0],m[1]].forEach(function(s){var f=seed[s];h+='<div class="tm"><span class="sd">'+s+'</span><span class="chip" style="height:24px;width:10px;background:'+tcolor(d,f.team)+'"></span><a class="nm" style="color:var(--ink);text-decoration:none" href="'+tlink(f.team,P.season)+'">'+nm(f.team)+'</a><span class="fig" style="font-size:12px;color:var(--muted)">'+f.w+'-'+f.l+'</span></div>';});
-      h+='</div>';});
-    h+='</div></div></div>';
+    var h='<section class="sec"><div class="rule"><h2>The Bracket</h2></div><p class="note lt">'+(cur?'If the season ended today. '+P.season+', '+esc(asof(P))+'. Until the title games are played, each conference\'s current leader holds its champion\'s place.':'The '+P.season+' season under the 2026 rules, with the conference champions that season had. This is our field, not the one that was played.')+'</p>'+bracketHtml(P,d,nm);
     var low=P.field.filter(function(f){return f.rank>12;}),fo=P.first_out[0],fr=rowOf[fo];
     h+='<div class="badge red tl2" data-tilt style="display:block;max-width:760px;font-size:22px">First out: '+nm(fo)+', ranked '+M.nth(fr[1])+'<p style="margin:6px 0 0;font:400 14px/1.45 var(--font);text-transform:none;letter-spacing:0">'+(low.length?low.map(function(f){return nm(f.team)+' ('+esc(f.how)+', ranked '+M.nth(f.rank)+')';}).join(' and ')+' qualif'+(low.length>1?'y':'ies')+' automatically from outside the top 12 and drop'+(low.length>1?'':'s')+' in at the bottom. That pushes out the lowest-ranked at-large team'+(low.length>1?'s':'')+'.':'Every automatic qualifier ranks inside the top 12, so the field is simply the top 12 and '+nm(fo)+' is the next team.')+' Next out: '+P.first_out.slice(1).map(nm).join(', ')+'.</p></div></section>';
     if(cur){h+='<section class="sec"><div class="rule"><h2>Conference leaders</h2></div><p class="note lt">Who would play for each title today. The Power 4 follow their published tiebreakers; a seat that needed one is marked, and where a rulebook calls for a number that is not public (SportSource\'s ranking) our power rating stands in for it and the seat is marked as such.</p><div class="cards">';
