@@ -323,3 +323,20 @@ test('the page parses, reads /cbcs and starts itself; College Savant links back'
   assert.ok(cbb.includes('/cbb-coaching-savant'), 'College Savant does not link to the coaching page')
   assert.ok(cbb.includes("loadCB('player-fits.json')") && cbb.includes("loadCB('links.json')"))
 })
+
+test('1.0.2: two players of one surname on a chart are named apart, as in CBB Savant\'s lineups', () => {
+  const html = readFileSync(path.join(ROOT, 'public', 'college-basketball-coaching-savant.html'), 'utf8')
+  const from = html.indexOf('const LAST_SUFFIX'), to = html.indexOf('\n', html.indexOf('const labeler ='))
+  const { shortNames, labeler } = new Function(`${html.slice(from, to)}; return { shortNames, labeler }`)()
+  assert.deepEqual(shortNames(['Al Boozer', 'Cayden Boozer', 'Isaiah Evans']), ['A. Boozer', 'C. Boozer', 'Evans'])
+  assert.deepEqual(shortNames(['Cameron Boozer', 'Cayden Boozer', 'Patrick Ngongba II']), ['Cameron Boozer', 'Cayden Boozer', 'Ngongba'])
+  // Duke 2025-26's pairs chart: both Boozers are among its men
+  const T = readGz(path.join(ROOT, 'public', 'cbcs', 't', '150-2025-26.json.gz')), e = T.coaches[0]
+  const men = e.men.slice(0, 12).map((m) => T.names[String(m)])
+  const nl = labeler(men)
+  assert.equal(nl('Cameron Boozer'), 'Cameron Boozer')
+  assert.equal(nl('Cayden Boozer'), 'Cayden Boozer')
+  assert.equal(nl('Isaiah Evans'), 'Evans')
+  assert.equal(new Set(men.map(nl)).size, men.length, 'every label on the chart is different')
+  for (const re of [/const nl = labeler\(men\.map\(pname\)\), name = p => nl\(pname\(p\)\);/, /const unames = ids => shortNames\(ids\.map\(pname\)\);/, /const mvl = labeler\(/, /const dvl = labeler\(all\.map\(r => r\[2\]\)\);/]) assert.match(html, re)
+})
