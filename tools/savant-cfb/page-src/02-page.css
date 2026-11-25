@@ -140,3 +140,5 @@ details.cg[open]>summary .cgh,details.cg[open]>summary .cgb,details.cg[open]>sum
 .podds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin:0;font-size:14px}
 .podds dt{color:var(--muted);font-size:12px}.podds dd{margin:2px 0 0;font-family:var(--fig);font-weight:600;font-size:18px}
 .strip a small.vr{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+/* the theme's phone value column is 64px; "138th of 138" needs 80 */
+@media (max-width:640px){.prow:has(small.rk){grid-template-columns:minmax(0,1fr) 80px}}
