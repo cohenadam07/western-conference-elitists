@@ -832,10 +832,10 @@ body{background-color:#1D6B3A;color:var(--ink);
 @media(max-width:860px){.tm-units{grid-template-columns:1fr}}
 .tm-unit h3{font-family:var(--pix);font-weight:400;font-size:11px;margin:0 0 6px;color:var(--ink);
   border-bottom:2px solid var(--line);padding-bottom:5px}
-.tm-stat{display:grid;grid-template-columns:1fr 64px 86px;gap:8px;align-items:center;
+.tm-stat{display:grid;grid-template-columns:1fr 64px minmax(86px,auto);gap:8px;align-items:center;
   font-family:var(--mono);font-size:10.5px;padding:4px 0;border-bottom:1px dotted var(--line)}
 .tm-stat b{font-family:var(--pix);font-weight:400;font-size:11px;text-align:right;color:var(--ink)}
-.tm-rk{font-family:var(--pix);font-size:10px;text-align:center;padding:3px 0;color:#FFF}
+.tm-rk{font-family:var(--pix);font-size:10px;text-align:center;padding:3px 6px;color:#FFF;white-space:nowrap}
 .tm-rk.dk{color:#0E2A17}
 .tm-sec{font-family:var(--pix);font-size:10px;color:#5A7A66;margin:16px 0 6px;letter-spacing:.04em}
 .tm-roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:6px}
