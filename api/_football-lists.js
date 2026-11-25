@@ -502,7 +502,7 @@ export const tools = [
     config: {
       title: 'NFL leaderboard',
       description:
-        'NFL Savant\'s Leaderboard Builder (wcehoops.com): the top players at one position by any stat on their card, for a season since 1999, over whole careers ("career"), or over the last 4, 8 or 17 games of the season being played; or all 32 teams by a team stat (position "team"). Same order and percentiles as the page. Filters: team, snap share, age, years in the league. Sample: "settled" (enough of the stat\'s own sample), "likely_to_settle" (the season being played, ranked where numbers will likely finish; the default then) or "everyone".',
+        'NFL Savant\'s Leaderboard Builder: the top players at one position by any card stat for a season (1999 on), whole careers ("career"), or the last 4, 8 or 17 games of the season being played; or all 32 teams by a team stat (position "team"). The page\'s order and percentiles. Filters: team, snap share, age, years in the league. Sample: "settled", "likely_to_settle" (live season, ranked where numbers will likely finish; its default) or "everyone".',
       inputSchema: {
         position: z.string().trim().min(1).max(30).describe('QB, RB, WR, TE, OT, OG, OC, ED (edge), DI (interior line), LB, CB, S, K, P, or "team".'),
         stat: z.string().trim().max(80).optional().describe('A stat key or label, e.g. "epadb" or "EPA / dropback". Omit for Savant value (o_epa for teams).'),
@@ -513,8 +513,8 @@ export const tools = [
         min_snap_share: z.number().min(0).max(100).optional().describe('Only players on at least this share of snaps, %.'),
         age_min: z.number().optional().describe('Minimum age.'),
         age_max: z.number().optional().describe('Maximum age.'),
-        exp_min: z.number().int().optional().describe('Minimum years in the league (seasons, for careers).'),
-        exp_max: z.number().int().optional().describe('Maximum years in the league.'),
+        exp_min: z.number().int().min(0).max(30).optional().describe('Minimum years in the league (seasons, for careers).'),
+        exp_max: z.number().int().min(0).max(30).optional().describe('Maximum years in the league.'),
         basis: z.enum(['season', 'all_time']).optional().describe('Percentile against that season (default) or every season.'),
         columns: z.array(z.string().max(80)).max(5).optional().describe('Up to 5 more stats to show beside the one ranked.'),
         top: z.number().int().min(1).max(100).default(25).describe('How many (default 25).'),
@@ -533,7 +533,7 @@ export const tools = [
     config: {
       title: 'NFL team page',
       description:
-        'One NFL team\'s season on NFL Savant (wcehoops.com): how its offense and defense rank (EPA, success rate, sack and pressure rates, conversions, explosive plays, turnovers), what its defense gives up to receivers, tight ends, backs and quarterbacks, the schedule it has faced, its offensive line grade, its head coach (every head coach of a season, with the weeks and record of each), and its roster in depth-chart order with snap shares, profile scores, and each man\'s Savant value with its rank among the qualified players at his position (the pool named on every rank). Seasons from 1999.',
+        'One NFL team\'s season, 1999 on: how its offense and defense rank (EPA, success rate, sack and pressure rates, conversions, explosive plays, turnovers), what its defense gives up by position, the schedule faced, its line grade, every head coach of the season with his weeks and record, and its depth-chart roster with snap shares, profile scores, and each man\'s Savant value and its rank among qualified players at his position (every rank names its pool).',
       inputSchema: {
         team: z.string().trim().min(2).max(40).describe('Code ("BUF") or name ("Bills").'),
         season: z.string().trim().max(12).optional().describe('Year the season began. Omit for the latest.'),
@@ -553,7 +553,7 @@ export const tools = [
     config: {
       title: 'NFL player career',
       description:
-        'An NFL player\'s whole career on NFL Savant (wcehoops.com): every stat pooled across his seasons and ranked among careers at his position, his team record, playoff seasons, Super Bowls, AP awards (MVP, Player and Rookie of the Year, All-Pro, Pro Bowls, Hall of Fame), the categories he led the NFL in, and his profile score season by season. Give a stat to also get it season by season with each season\'s percentile.',
+        'An NFL player\'s whole career: every stat pooled across his seasons and ranked among careers at his position, team record, playoff seasons, Super Bowls, AP awards (MVP, Player and Rookie of the Year, All-Pro, Pro Bowls, Hall of Fame), NFL categories he led, and his profile score by season. With a stat, also that stat by season with each season\'s percentile.',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nfl_search_players or a full name.'),
         stat: z.string().trim().max(80).optional().describe('A stat key or label to follow season by season.'),

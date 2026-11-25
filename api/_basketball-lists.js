@@ -591,7 +591,7 @@ export const tools = [
     config: {
       title: 'NBA leaderboard',
       description:
-        'NBA Savant\'s Leaderboard Builder (wcehoops.com): the top NBA players by any of its ~200 stats, for a season from 1979-80 or the latest season\'s last 10, 25 or 75 games. Filters: position, team, age, years in the league, minutes per game, qualified only. While a season is young it ranks where numbers are likely to settle. The percentile is against the filtered group (the page\'s default) or the whole league.',
+        'NBA Savant\'s Leaderboard Builder: the top NBA players by any of ~200 stats for a season (1979-80 on) or the latest season\'s last 10, 25 or 75 games. Filters: position, team, age, years in the league, minutes per game, qualified only. Early in a season it ranks where numbers will likely settle. Percentile vs the filtered group (default) or the whole league.',
       inputSchema: {
         stat: z.string().trim().max(80).optional().describe('Stat key or label, e.g. "ts" or "True shooting %". Omit for points.'),
         season: z.string().trim().max(12).optional().describe('e.g. "2025-26". Omit for the page\'s default season.'),
@@ -600,11 +600,11 @@ export const tools = [
         team: z.string().trim().max(40).optional().describe('Team, e.g. "BOS" or "Celtics".'),
         age_min: z.number().optional().describe('Minimum age.'),
         age_max: z.number().optional().describe('Maximum age.'),
-        exp_min: z.number().int().optional().describe('Minimum years in the league.'),
-        exp_max: z.number().int().optional().describe('Maximum years in the league.'),
+        exp_min: z.number().int().min(0).max(30).optional().describe('Minimum years in the league.'),
+        exp_max: z.number().int().min(0).max(30).optional().describe('Maximum years in the league.'),
         min_mpg: z.number().min(0).max(48).optional().describe('Minimum minutes per game.'),
         qualified_only: z.boolean().optional().describe('Default true.'),
-        basis: z.enum(['cohort', 'league', 'same_age', 'same_age_position']).optional().describe('Percentile against the filtered group (default), every qualified player, or each player\'s own age: every qualified player-season at his whole-year age on February 1, 1996-97 on ("same_age"), at his position too ("same_age_position"). Each row then names its pool.'),
+        basis: z.enum(['cohort', 'league', 'same_age', 'same_age_position']).optional().describe('Percentile vs the filtered group (default), every qualified player, or players of his age on February 1, 1996-97 on ("same_age"; "same_age_position" also at his position). Rows name their pool.'),
         estimate: z.enum(['settled', 'raw']).optional().describe('Season in progress: rank where numbers are likely to settle (default) or the raw numbers.'),
         columns: z.array(z.string().max(80)).max(5).optional().describe('Up to 5 more stats to show.'),
         top: z.number().int().min(1).max(100).default(25).describe('How many (default 25).'),
@@ -619,7 +619,7 @@ export const tools = [
     config: {
       title: 'NBA teams table',
       description:
-        'NBA Savant\'s Teams table (wcehoops.com): all 30 NBA teams for a season from 2018-19, sorted by any column: record, net and luck-adjusted net rating, offensive and defensive rating, pace, expected wins, luck, the four factors on both ends, 3-point rate, and the schedule ahead. Give a team for its depth chart (players by position, by minutes).',
+        'NBA Savant\'s Teams table: all 30 teams for a season (2018-19 on), sorted by any column: record, net and luck-adjusted net, offensive and defensive rating, pace, expected wins, luck, four factors both ends, 3-point rate, schedule ahead. With a team, its depth chart by position and minutes.',
       inputSchema: {
         sort: z.string().trim().max(40).default('adjnet').describe('Column key or name, e.g. "adjnet", "drtg", "pace", "xw". Default luck-adjusted net.'),
         season: z.string().trim().max(12).optional().describe('e.g. "2024-25". Omit for the page\'s default.'),
@@ -636,7 +636,7 @@ export const tools = [
     config: {
       title: 'NBA player career',
       description:
-        'An NBA player\'s career on NBA Savant (wcehoops.com): his Box Plus/Minus season by season with each season\'s percentile against his position, his peak season (58+ games), and his honours (MVP, All-NBA, All-Star, champion, All-Savant Team and the rest). Give up to 6 stats to follow them season by season with his career high.',
+        'An NBA player\'s career on NBA Savant: his Box Plus/Minus season by season with each season\'s percentile against his position, his peak season (58+ games), and his honours (MVP, All-NBA, All-Star, champion, All-Savant Team and the rest). Give up to 6 stats to follow them season by season with his career high.',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nba_search_players or a full name.'),
         stats: z.array(z.string().max(80)).max(6).optional().describe('Stat keys or labels to follow season by season.'),
@@ -651,10 +651,10 @@ export const tools = [
     config: {
       title: 'NBA player play types and splits',
       description:
-        'Below a player\'s card on NBA Savant (wcehoops.com). "play_types": Synergy play types (share, points per possession, percentile, how each ends). "with_without": every splittable stat with and without any teammates, on the floor or by games. "months": month by month. "shots": whether his shot chart exists. "rotation": his row of his coach\'s Rotation Map (NBA Coaching Savant): when he usually plays and how often his minutes go off script. Breakdowns: shot_menu, shot_splits (dribbles, touch time, shot clock, defender), touches, passing, defensive_play_types, clutch, game_splits (home/away, wins, rest), on_off_four_factors, turnover_mix, handle_score, dunk_score, position_estimate.',
+        'The sections below a player\'s NBA Savant card. play_types: Synergy play types (share, points per possession, percentile, how each ends). with_without: every splittable stat with and without any teammates, on the floor or by games. months. shots: whether his shot chart exists. rotation: his row of his coach\'s Rotation Map (when he usually plays, how often off script). Also shot_menu, shot_splits (dribbles, touch time, shot clock, defender), touches, passing, defensive_play_types, clutch, game_splits (home/away, wins, rest), on_off_four_factors, turnover_mix, handle_score, dunk_score, position_estimate.',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nba_search_players or a full name.'),
-        view: z.enum(['play_types', 'with_without', 'months', 'shots', 'rotation', ...Object.keys(PANEL_VIEWS)]).default('play_types').describe('Which view: play_types, with_without, months, shots, rotation (his row of the coach\'s Rotation Map: usual windows, on-floor share by minute, on-script rate; 2002-03 on), or a breakdown: shot_menu, shot_splits, touches, passing, defensive_play_types, clutch, game_splits, on_off_four_factors, turnover_mix, handle_score, dunk_score, position_estimate.'),
+        view: z.enum(['play_types', 'with_without', 'months', 'shots', 'rotation', ...Object.keys(PANEL_VIEWS)]).default('play_types').describe('Which view (the tool description says what each holds). rotation: 2002-03 on.'),
         season: z.string().trim().max(12).optional().describe('e.g. "2025-26". Omit for his latest.'),
         teammates: z.array(z.string().trim().min(1).max(80)).max(4).optional().describe('with_without only: teammates by name or id, 2002-03 on. Several means without all of them. Omit for the one he played most with.'),
         mode: z.enum(['floor', 'games']).optional().describe('with_without only: "floor" (default) splits the minutes they shared the floor; "games" the games they missed.'),

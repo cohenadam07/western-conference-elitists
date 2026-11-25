@@ -823,10 +823,10 @@ export const tools = [
     config: {
       title: 'Search NFL players',
       description:
-        'Find NFL players in NFL Savant (Western Conference Elitists, wcehoops.com) by name. Covers players with stats from 1999 through the latest season, at every position including offensive line, defense, kickers and punters. Returns each match with its id, position and team in his last season, and first and last season, plus the link to his card. Matching ignores accents and punctuation and tolerates small typos. Different players who share a name are listed separately.',
+        'Find NFL players in NFL Savant by name: everyone with stats from 1999 to the latest season, every position including line, defense, kickers and punters. Each match: id, position and team in his last season, first and last season, card link. Namesakes are listed separately.',
       inputSchema: {
         query: z.string().trim().min(2).max(80).describe('Player name or part of one, e.g. "Mahomes", "Lamar Jackson", "St. Brown".'),
-        limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return (1-25, default 10).'),
+        limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.'),
       },
       outputSchema: {
         query: z.string(),
@@ -852,11 +852,11 @@ export const tools = [
     config: {
       title: 'Get an NFL player\'s Savant profile',
       description:
-        'Get one NFL player\'s NFL Savant profile (Western Conference Elitists, wcehoops.com) for one regular season: every stat on his card for the position he played that year, each with its value and two percentiles against qualified players at that same position, one within that season and one across all seasons since 1999 ("all-time"). There is no league-wide percentile. Which stats exist depends on position: passing, rushing, receiving, returns, blocking, pass rush, run defense, coverage, kicking and punting, plus context, value (expected fantasy points, win probability added, contract) and athletic measurements. While a season is in progress, low-sample stats also carry where they are likely to settle, and rows that are estimates for now are marked. Also returns his age, college and draft pick, his team\'s record and coach, where he ranked in the NFL in counting stats, the sample sizes his rates are built on, a profile score, statistical comps and weakness comps. Defaults to his most recent season, which may still be in progress; the result then says through which week. Seasons from 1999 on. Stats a season did not track are listed as not tracked, and stats on a small sample are marked. Includes the link to his card.',
+        'One NFL player\'s NFL Savant card for one regular season, 1999 on (default: his latest, which may be in progress; the result says through which week). Every stat for the position he played that year, each with two percentiles against qualified players at that position: that season and all seasons since 1999 ("all-time"); no league-wide percentile. Stats by position: passing, rushing, receiving, returns, blocking, pass rush, run defense, coverage, kicking, punting, context, value (expected fantasy points, win probability added, contract) and athletic measurements. In a live season, low-sample stats also carry where they are likely to settle and estimates are marked. Also his age, college, draft pick, team record and coach, NFL ranks in counting stats, samples, a profile score, comps and weakness comps, and his card link. Untracked stats are listed as not tracked; small samples are marked.',
       inputSchema: {
-        player: z.string().trim().min(1).max(80).describe('Player id from nfl_search_players (e.g. "00-0033873") or a full name (e.g. "Patrick Mahomes"). If a name fits more than one player, the error lists their ids.'),
+        player: z.string().trim().min(1).max(80).describe('Player id from nfl_search_players (e.g. "00-0033873") or a full name.'),
         season: z.string().trim().max(12).optional().describe('The year the season began, e.g. "2024". Omit for his most recent season.'),
-        group: z.enum(['all', ...Object.keys(GROUPS)]).default('all').describe('Which panel of stats to return: "all" (default), "context" (games, snaps, penalties), "passing", "rushing", "receiving", "returns" (kick and punt returns), "blocking", "pass_rush", "run_defense", "coverage", "kicking" (kicking and punting), "value" (total EPA, fantasy points, win probability added, contract) or "athletic" (size and combine).'),
+        group: z.enum(['all', ...Object.keys(GROUPS)]).default('all').describe('One panel, or "all" (default). context: games, snaps, penalties; kicking includes punting; value: total EPA, fantasy points, win probability added, contract; athletic: size and combine.'),
         rank_against: z.enum(['season', 'same_point']).optional().describe('Season in progress only: "same_point" also ranks each stat against past seasons as they stood through the same week.'),
       },
       outputSchema: {
@@ -952,7 +952,7 @@ export const tools = [
     config: {
       title: 'Get the NFL All-Savant Team',
       description:
-        'Get NFL Savant\'s All-Savant Team (Western Conference Elitists, wcehoops.com) for one NFL season: an All-Pro 1st and 2nd team picked by the numbers alone, shaped like the AP\'s (QB, RB, 3 WR, TE, 2 T, 2 G, C; 2 EDGE, 2 IDL, 2 LB, 3 CB with a slot corner from 2025, 2 S; K, P, KR, PR). Each spot goes to the qualified player with the highest Savant value: expected points above a replacement-level player at his position that season, on the snaps he played. Before 2016 the offensive line is picked as a unit; returners are graded on yards and EPA per return. Returns every pick with his team, value and card link. Seasons from 1999 on; defaults to the latest, which may still be in progress (then it is a standing).',
+        'NFL Savant\'s All-Savant Team for one season, 1999 on (default: the latest, a standing while it is in progress): an All-Pro 1st and 2nd team by the numbers alone, shaped like the AP\'s (QB, RB, 3 WR, TE, 2 T, 2 G, C; 2 EDGE, 2 IDL, 2 LB, 3 CB with a slot corner from 2025, 2 S; K, P, KR, PR). Each spot goes to the qualified player with the most Savant value: expected points above a replacement-level player at his position, on his snaps. Before 2016 the line is picked as a unit; returners are graded on yards and EPA per return. Each pick with team, value and card link.',
       inputSchema: {
         season: z.string().trim().max(12).optional().describe('The year the season began, e.g. "2024". Omit for the latest season.'),
         team: z.enum(['1', '2', 'both']).default('both').describe('"1" for the 1st team, "2" for the 2nd, "both" (default).'),

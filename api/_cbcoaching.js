@@ -333,7 +333,7 @@ export const tools = [
     name: 'cbb_search_coaches',
     config: {
       title: 'Search men\'s college basketball coaches',
-      description: 'Find men\'s D1 head coaches in CBB Coaching Savant (wcehoops.com) by name: id, record, seasons, schools, NCAA appearances and page link. Tolerates accents and small typos.',
+      description: 'Find men\'s D1 head coaches in CBB Coaching Savant by name: id, record, seasons, schools, NCAA appearances and page link. Tolerates accents and small typos.',
       inputSchema: { query: z.string().trim().min(2).max(80).describe('Coach name or part of one, e.g. "Scheyer", "Tom Izzo".'), limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.') },
       outputSchema: { query: z.string(), total: z.number().int(), count: z.number().int(), coaches: z.array(loose) },
       annotations: { title: 'Search men\'s college basketball coaches', ...READ_ONLY },
@@ -344,7 +344,7 @@ export const tools = [
     name: 'cbb_get_coach_profile',
     config: {
       title: 'Get a college coach\'s Savant profile',
-      description: 'One men\'s D1 head coach in CBB Coaching Savant (wcehoops.com): record (unconfirmed and interim rows tagged); wins above the roster model, AP context and the market; the ranked career card and a season\'s card, each stat with its percentile and pool; Rotation Map (2023-24 on); game management; identity; development; roster building and the portal; NCAA Tournament vs seed and odds; spending (EADA); splits; staff and mentor; scouting report.',
+      description: 'One men\'s D1 head coach in CBB Coaching Savant: record (unconfirmed and interim rows tagged); wins above the roster model, AP context and the market; ranked career and season cards (each stat\'s percentile and pool); Rotation Map (2023-24 on); game management; identity; development; roster building and the portal; NCAA Tournament vs seed and odds; spending (EADA); splits; staff and mentor; scouting report.',
       inputSchema: { coach: z.string().trim().min(1).max(80).describe('Coach name or id.'), group: z.enum(GROUPS).default('all').describe('Which part to return.'), season: z.string().regex(/^\d{4}-\d{2}$/).optional().describe('A season (default: the current one, else his latest).') },
       outputSchema: { coach: loose, group: z.string(), bio: loose, all_time: loose, stints: z.array(loose), notes: z.array(z.string()), career_stats: z.array(loose).optional(), season: loose.optional(),
         rotation: loose.optional(), game_management: loose.optional(), identity: loose.optional(), development: loose.optional(), roster_building: loose.optional(), tournament: loose.optional(),
@@ -357,7 +357,7 @@ export const tools = [
     name: 'cbb_coaching_leaders',
     config: {
       title: 'Get CBB Coaching Savant\'s Leaders boards',
-      description: 'The Leaders boards of CBB Coaching Savant (wcehoops.com): beat the roster model, best developers, portal hit rate, March vs expectation, did more with less, wins above resources, rising assistants (context, not credit), and this season\'s. Each names its pool.',
+      description: 'The Leaders boards of CBB Coaching Savant: beat the roster model, best developers, portal hit rate, March vs expectation, did more with less, wins above resources, rising assistants (context, not credit), and this season\'s. Each names its pool.',
       inputSchema: { board: z.string().default('all').describe('A board id, or "all".'), limit: z.number().int().min(1).max(50).default(10).describe('Rows per board.') },
       outputSchema: { board: z.string(), limit: z.number().int(), boards: z.array(loose), url: z.string(), data_as_of: z.string(), source: z.string() },
       annotations: { title: 'Get CBB Coaching Savant\'s Leaders boards', ...READ_ONLY },
@@ -368,7 +368,7 @@ export const tools = [
     name: 'cbb_coaching_tree',
     config: {
       title: 'Get the college coaching tree',
-      description: 'The men\'s D1 coaching tree (wcehoops.com): each coach\'s mentor suggested from Wikipedia\'s staffs (the D1 head coach he served under most before his first head job), ties flagged. With a coach: mentor, line to the root, everyone beneath him. Without one: every tree and its size.',
+      description: 'The men\'s D1 coaching tree: each coach\'s mentor suggested from Wikipedia\'s staffs (the D1 head coach he served under most before his first head job), ties flagged. With a coach: mentor, line to the root, everyone beneath him. Without one: every tree and its size.',
       inputSchema: { coach: z.string().trim().min(1).max(80).optional().describe('A coach name or id; omit for every tree.'), depth: z.number().int().min(1).max(10).default(3).describe('Generations beneath him.') },
       outputSchema: { coach: loose.nullable().optional(), depth: z.number().int().optional(), branch: z.array(loose).optional(), trees: z.array(loose).optional(), note: z.string(), url: z.string(), data_as_of: z.string(), source: z.string() },
       annotations: { title: 'Get the college coaching tree', ...READ_ONLY },
@@ -379,7 +379,7 @@ export const tools = [
     name: 'cbb_coaching_fit',
     config: {
       title: 'Match college players and coaches\' systems',
-      description: 'CBB Coaching Savant (wcehoops.com): how a CBB Savant player\'s profile (usage, shot diet, rebounding, free throws, turnovers, tempo) matches a coach\'s system at his position. Give a player for his closest current coaches, a coach for the players most like the ones he uses, or both for one match (0-100). Labelled as similarity: the out-of-sample test on transfers did not earn a fit score.',
+      description: 'How a CBB Savant player\'s profile (usage, shot diet, rebounding, free throws, turnovers, tempo) matches a coach\'s system at his position: a player for his closest current coaches, a coach for the players most like the ones he uses, or both for one match (0-100). Similarity, not a fit score: the out-of-sample test on transfers did not earn one.',
       inputSchema: { player: z.string().trim().min(1).max(80).optional().describe('Player name or ESPN id.'), coach: z.string().trim().min(1).max(80).optional().describe('Coach name or id.'), limit: z.number().int().min(1).max(30).default(10).describe('Rows to return.') },
       outputSchema: { label: z.string(), caveat: z.string(), features: z.array(z.string()), pair: loose.optional(), player: loose.optional(), coaches: z.array(loose).optional(), coach: loose.optional(), players: z.array(loose).optional(), data_as_of: z.string(), source: z.string() },
       annotations: { title: 'Match college players and coaches\' systems', ...READ_ONLY },

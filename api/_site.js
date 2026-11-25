@@ -983,7 +983,7 @@ export const tools = [
     config: {
       title: 'Get the WCE News page',
       description:
-        'The current items on the News page of Western Conference Elitists (wcehoops.com). It has two lists: "headlines", NBA and men\'s college basketball stories from other outlets, and "analytics", basketball research papers and long-form analytics articles. Each item has its title, the outlet that published it, the link to that outlet\'s story and its publication date. Headlines also name other outlets that covered the story and up to three players, with links to their NBA Savant cards. Analytics items say whether they are a paper or an article and name up to four authors. The stories themselves are not included. The result states when the list was generated and how old it is: a scheduled job produces it, and it can be out of date.',
+        'The News page\'s current items: "headlines" (NBA and men\'s college basketball stories from other outlets, with other outlets covering them and up to three players linked to NBA Savant) and "analytics" (research papers and long-form articles, up to four authors). Each item has title, outlet, link and date; the stories themselves are not included. A scheduled job builds the list, so the result says when and how old it is.',
       inputSchema: {
         section: z.enum(['headlines', 'analytics']).default('headlines').describe('"headlines" (default) for the stories list, "analytics" for the research and analytics list.'),
         start: z.number().int().min(1).max(200).default(1).describe('Position of the first item to return, counting from 1 in the page\'s order (default 1).'),
@@ -1021,7 +1021,7 @@ export const tools = [
     config: {
       title: 'Search WCE articles',
       description:
-        'Articles published by Western Conference Elitists (wcehoops.com) on its Analysis page: WCE\'s own writing, not the outlet stories on its News page. Returns each article\'s title, category, summary (the opening of the article, as on its card), author, date, reading time and link, newest first. With a query, only the articles whose title, summary, author or category match it; matching ignores accents and punctuation and tolerates small typos. Without one, every published article. The article text is not included.',
+        'WCE\'s own articles from its Analysis page (not the outlet stories on News): title, category, summary (the card\'s opening), author, date, reading time and link, newest first. With a query, those whose title, summary, author or category match; without, all. No article text.',
       inputSchema: {
         query: z.string().trim().min(2).max(80).optional().describe('Words to look for in the title, summary, author or category, e.g. "Jaylen Brown". Omit to list every article.'),
         category: z.string().trim().min(2).max(40).optional().describe('Only articles in this site category, e.g. "Analytics" or "Draft".'),
@@ -1056,9 +1056,9 @@ export const tools = [
     config: {
       title: 'Get a WCE article',
       description:
-        `One article published by Western Conference Elitists (wcehoops.com): its title, author, category, date, reading time and its text as plain paragraphs, with "[image]" marking where a picture sits on the page. An article longer than about ${thousands(ARTICLE_CAP)} characters is cut at a paragraph break, and the result says how much was left out. Includes the link to the full article.`,
+        `One WCE article: title, author, category, date, reading time and text as plain paragraphs ("[image]" where a picture sits). Over about ${thousands(ARTICLE_CAP)} characters it is cut at a paragraph break and says how much was left out. Links the full article.`,
       inputSchema: {
-        article: z.string().trim().min(1).max(200).describe('The article\'s slug from wce_search_articles, its wcehoops.com link, or its title. If a title fits more than one article, or is only a near spelling of one, the error lists the slugs to choose from.'),
+        article: z.string().trim().min(1).max(200).describe('The article\'s slug from wce_search_articles, its link, or its title.'),
       },
       outputSchema: {
         slug: z.string(),
@@ -1086,10 +1086,10 @@ export const tools = [
     config: {
       title: 'Get the WCE draft Big Board',
       description:
-        'The Big Board on Western Conference Elitists (wcehoops.com): WCE\'s personal ranking of NBA draft prospects for one draft class, grouped into tiers. It is an evaluation, not a consensus mock draft and not a prediction of draft slot, and it holds no draft results. Without a prospect, returns every prospect on that class\'s board with rank, tier, school, position, height, wingspan and letter grade. With a prospect, returns his full write-up: summary, strengths, weaknesses, measurements, archetype, projection and WCE\'s take. Defaults to the class the page opens on. A measurement the board does not list is null.',
+        'WCE\'s Big Board: its own ranking of one draft class\'s NBA prospects, in tiers. An evaluation, not a consensus mock or a slot prediction, and no draft results. Without a prospect: every one on the board with rank, tier, school, position, height, wingspan and grade. With one: his full write-up (summary, strengths, weaknesses, measurements, archetype, projection, WCE\'s take). Default: the class the page opens on. Unlisted measurements are null.',
       inputSchema: {
         year: z.number().int().min(1947).max(2100).optional().describe('Draft year, e.g. 2026. Omit for the class the page opens on.'),
-        prospect: z.string().trim().min(1).max(80).optional().describe('A prospect\'s name (e.g. "Keaton Wagler") or his rank on the board (e.g. "5") for his full write-up. Omit for the whole board. With no year, the default class is searched first, then the others. If a name fits more than one prospect, or is only a near spelling of one, the error lists the names to choose from.'),
+        prospect: z.string().trim().min(1).max(80).optional().describe('A prospect\'s name or board rank (e.g. "5") for his write-up; omit for the whole board. With no year, the default class is searched first, then the others.'),
       },
       outputSchema: {
         year: z.number().int(),
@@ -1134,10 +1134,10 @@ export const tools = [
     config: {
       title: 'Get the WCE Dynasty Exchange board',
       description:
-        `The Dynasty Exchange board on Western Conference Elitists (wcehoops.com), read live: NBA players ordered by a dynasty-league value that visitors set by ranking four players at a time. Returns each player's rank, his value (the top of the board is 10,000) and how many submitted rankings he has appeared in, marks the values the site still treats as provisional, and gives the number of rankings submitted in all. A value is a crowd price, not a WCE projection and not advice. Returns the top of the board (the page lists ${BOARD_ROWS}) or the listed players whose names match. It only reads the board: it cannot submit a ranking.`,
+        `The Dynasty Exchange board, read live: NBA players ordered by a dynasty-league value that visitors set by ranking four at a time. Each player's rank, value (the top of the board is 10,000) and how many rankings he has appeared in, provisional values marked, and the total rankings submitted. A crowd price, not a WCE projection or advice. The top of the board (the page lists ${BOARD_ROWS}) or the players whose names match. Read-only: it cannot submit a ranking.`,
       inputSchema: {
         limit: z.number().int().min(1).max(BOARD_ROWS).default(25).describe(`Most players to return (1-${BOARD_ROWS}, default 25), from the top of the board.`),
-        player: z.string().trim().min(2).max(80).optional().describe('Only the listed players whose names match, e.g. "Cooper Flagg" or "Brown". Omit for the top of the board. A name that is only a near spelling of a listed player is not priced: the error lists the names to choose from.'),
+        player: z.string().trim().min(2).max(80).optional().describe('Only listed players whose names match, e.g. "Brown"; omit for the top of the board. A near spelling is not priced: the error lists the names.'),
       },
       outputSchema: {
         as_of: z.string().describe('When the live board was read.'),
@@ -1169,7 +1169,7 @@ export const tools = [
     config: {
       title: 'Get the most-searched players and prospects on WCE',
       description:
-        'The most-searched players and prospects on Western Conference Elitists (wcehoops.com), read live: the ones picked most from the home-screen search of NBA Savant (NBA players) and of NBA Draft Savant (draft prospects) over the last seven days, recent days counting more, each with its name, link and whether it is rising, steady or cooling off. The home screens show the first six of each. It counts searches on the site, not anyone\'s play. When the site\'s counter is offline the result says so; no substitute list is given.',
+        'The site\'s most-searched players and prospects, read live: picks from the NBA Savant and NBA Draft Savant home searches over 7 days, recent days weighted more, each with name, link and rising, steady or cooling (the home screens show six of each). Site searches, not play. If the counter is offline the result says so.',
       inputSchema: {
         section: z.enum(['both', 'players', 'prospects']).default('both').describe('"players" (NBA Savant), "prospects" (NBA Draft Savant) or "both" (default).'),
       },
@@ -1203,7 +1203,7 @@ export const tools = [
     config: {
       title: 'Get what\'s new on WCE',
       description:
-        'What is new on Western Conference Elitists (wcehoops.com), as the homepage banner shows it at the moment of asking: product updates (NBA Savant, NFL Savant, Flappy Hoops and the rest, with version numbers), new articles and the next UFC card, each with its date tag ("New" for the first three days) and link. Each kind stays up for its own number of days, as on the banner. The banner\'s YouTube uploads are not included.',
+        'What is new on the site, as the homepage banner shows it now: product updates (NBA Savant, NFL Savant, Flappy Hoops and the rest, with versions), new articles and the next UFC card, each with its date tag ("New" for three days) and link; each kind stays up its own number of days. Not the banner\'s YouTube uploads.',
       inputSchema: {},
       outputSchema: {
         as_of: z.string(),
@@ -1229,7 +1229,7 @@ export const tools = [
     config: {
       title: 'Value a fantasy basketball league on the WCE Dynasty Exchange',
       description:
-        'Values a fan\'s own fantasy basketball league on the Dynasty Exchange of Western Conference Elitists (wcehoops.com), the way its Dynasty page does: every team\'s optimal starting lineup for the league\'s slots and its whole roster, each priced on the live crowd board and ranked, with any name the board does not list reported. Reads a public Sleeper (username or league id), ESPN (league id) or Fantrax (league id) league through the site\'s own league reader; nothing is stored and no sign-in is asked for. With a team, that roster player by player. Values are crowd prices, not projections.',
+        'Values a fan\'s own fantasy basketball league on the Dynasty Exchange, as its Dynasty page does: each team\'s optimal lineup for the league\'s slots and whole roster, priced on the live crowd board and ranked, with names the board lacks reported. Reads a public Sleeper (username or league id), ESPN or Fantrax (league id) league; nothing stored, no sign-in. With a team, that roster player by player. Crowd prices, not projections.',
       inputSchema: {
         platform: z.enum(['sleeper', 'espn', 'fantrax']).describe('Where the league is.'),
         code: z.string().trim().regex(/^[A-Za-z0-9_.-]{1,64}$/).describe('Sleeper username or league id; the ESPN or Fantrax league id from the league\'s address.'),

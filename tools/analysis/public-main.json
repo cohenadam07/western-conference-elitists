@@ -1,28 +1,28 @@
 {
  "from": "origin/main",
- "commit": "NFL 2.4.0 (#86) + CBB 1.5.0 (#87) + CFB Savant 1.2.0 (Nov 24, 2026), as main will list it once merged",
+ "commit": "connector trim (Nov 25, 2026) on top of CBB Coaching Savant 1.0.2 (#90), as main will list it once merged",
  "public": {
   "tools": 80,
-  "tools_sha256": "6d64089b5ca79a63b627d0bdb3fed53698352fa712fe532aeb385b7ad52f0a21",
-  "instructions_sha256": "24599420ac2b3cad427f81e49b38766b1cf7b9ce3dd6a6490f5599b31ce38c18",
-  "upfront": 87570
+  "tools_sha256": "e7d9e1f611c6313bc62a2c67854f3d18bfc8be573671429f16f771751366ec00",
+  "instructions_sha256": "f1db8a03483f04c39fd3932ca334e469d7ad87aa9417d1f014f76b537d6b8665",
+  "upfront": 78747
  },
  "key": {
   "tools": 81,
-  "tools_sha256": "b116ef587876e4d5ae364ae0af116a1f7d602fdcf901fc9ae3725f9ddc6244d4",
-  "instructions_sha256": "8a7d376343b52efba196ee8ecbd22d92476c7dfd8ad7d08e0d42de13497093f3",
-  "upfront": 91639
+  "tools_sha256": "497307ebf301dc9646f7d8999ffc177f5feb3815bc37938d8d8cc2812e7ccadc",
+  "instructions_sha256": "a4050e36cfca7c78b266ba5e46b80227a37d23ae3d66be6f220510f901fa7df5",
+  "upfront": 82733
  },
  "unknown": {
   "tools": 80,
-  "tools_sha256": "6d64089b5ca79a63b627d0bdb3fed53698352fa712fe532aeb385b7ad52f0a21",
-  "instructions_sha256": "7f86c1f8b372c4b869007271c338e568e355b7b1b1e2961db168b7740882f0f3",
-  "upfront": 87570
+  "tools_sha256": "e7d9e1f611c6313bc62a2c67854f3d18bfc8be573671429f16f771751366ec00",
+  "instructions_sha256": "71c2038ab00ffd660970c22a7b313cd61f0e702d2fcb904fa6a1f48a0bcfc520",
+  "upfront": 78747
  },
  "unchecked": {
   "tools": 80,
-  "tools_sha256": "6d64089b5ca79a63b627d0bdb3fed53698352fa712fe532aeb385b7ad52f0a21",
-  "instructions_sha256": "9852183b4c43788174a46bce2092b0e95637cd1f99597e2af841b94879e7cac6",
-  "upfront": 87570
+  "tools_sha256": "e7d9e1f611c6313bc62a2c67854f3d18bfc8be573671429f16f771751366ec00",
+  "instructions_sha256": "3e212f080285c5de160acc9aaeae72b08db410dc8d3c80e596db915b4f8eaa84",
+  "upfront": 78747
  }
 }
