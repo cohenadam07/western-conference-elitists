@@ -138,7 +138,7 @@ const LINES_AT = [process.env.FH_LINES, '/home/claude/fh/game/src/levels/lines.j
 const LINES = JSON.parse(fs.readFileSync(LINES_AT[0], 'utf8'))
 const H = 'cage', L0 = LINES[H]
 let seed = 7; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648
-const replay = (id, inp, race) => { const w = SIM.compileLevel(SIM.HOLES[id]); if (race) w.portals = []; const { state } = SIM.simulate(w, inp, 36000, { stopOnScore: true }); return state.scored >= 0 ? { f: state.flaps, k: state.scored } : null }
+const replay = (id, inp, race) => { const w = SIM.compileLevel(SIM.HOLES[id]); if (race) w.portals = []; const { state } = SIM.simulate(w, inp, 60000, { stopOnScore: true }); return state.scored >= 0 ? { f: state.flaps, k: state.scored } : null }
 const pool = []
 for (let t = 0; t < 3000; t++) {
   let inp = L0.inputs.map(([s, d]) => [Math.max(0, s + Math.round((rnd() - 0.5) * 12)), d])
@@ -179,11 +179,12 @@ const nope = await sub([[0, 1]])
 ok(nope.status === 422 && /doesn’t sink/.test(nope.j.error), 'a run that doesn’t score → 422')
 const unk = await post({ a: 'rec.submit', t: T, h: 'zz-nope', in: L0.inputs })
 ok(unk.status === 400 && unk.j.stale === true, 'a hole the server doesn’t know → 400, stale (reload for the new version)')
-for (const [inp, why] of [['nope', 'not a list'], [[[0, 2]], 'dir 2'], [[[50, 1], [10, 1]], 'steps going back'], [[[0.5, 1]], 'a fractional step'], [[[40000, 1]], 'past five minutes'], [Array.from({ length: 4001 }, (_, i) => [i, 1]), '4,001 taps']]) {
+for (const [inp, why] of [['nope', 'not a list'], [[[0, 2]], 'dir 2'], [[[50, 1], [10, 1]], 'steps going back'], [[[0.5, 1]], 'a fractional step'], [[[61000, 1]], 'past eight minutes and change (3.0.0: the Road Trip\'s clock)'], [[[0, 7]], 'dir 7 (9, the Road Trip\'s retry, is the only new one)'], [Array.from({ length: 4001 }, (_, i) => [i, 1]), '4,001 taps']]) {
   const r = await sub(inp)
   ok(r.status === 400, `malformed taps refused (${why})`)
 }
 ok((await post({ a: 'rec.submit', t: 'z'.repeat(30), h: H, in: L0.inputs })).status === 401, 'submit with a bad token → 401')
+
 
 // a race run that goes through Golden State's ghost door and still sinks it: solo it warps, in a race the door's shut
 const GR = 'gsw-granny', GIN = [[0, 1], [198, 1], [904, 0]]
@@ -354,6 +355,45 @@ const hR = (await get(`?rec=history&h=${H}&b=f&x=4`)).j, aR = (await get('?rec=a
 ok(rb.status === 200 && rb.j.rebuilt.includes(H + '|f') && hR.breaks === 3 && hR.hands === 1 && hR.entries.map((e) => e.n).join() === 'Adam Test,Adam Test,Adam Test,Taker' && JSON.stringify(aR.counts[H + '|f']) === '[3,1]',
   'admin rebuildlog: a board with no log gets one from its history (same order and counts)')
 ok((await post({ a: 'acct.create', name: 'Deleter', pin: '5555' })).status === 200, 'and the name is free again')
+
+// (Flappy Hoops 3.0.0) the new holes: every Milwaukee and Sacramento hole's Savant line is taken, worked out by the
+// server's own rules to the line's flaps and time; the Road Trip with a retry (9) in it is taken and replayed with it;
+// and tampered runs are refused
+{
+  const T3 = (await post({ a: 'acct.create', name: 'Three Oh', pin: '3030' })).j.t
+  const post3 = async (body) => { await new Promise((r) => setTimeout(r, 2100)); return post({ ...body, t: T3 }) }   // (under the 30-a-minute limit)
+  const NEWH = Object.keys(SIM.HOLES).filter((h) => /^(mil|sac)-/.test(h))
+  let good = 0
+  for (const h of NEWH) {
+    const L = SIM.LINES[h]; if (!L) continue
+    const r = await post3({ a: 'rec.submit', h, in: L.inputs, b: SIM.BUILD })
+    if (r.status === 200 && r.j.f === L.flaps && r.j.k === L.step) good++
+    else console.log('   ', h, r.status, r.j && (r.j.error || `${r.j.f}:${r.j.k}`))
+  }
+  ok(NEWH.length === 20 && good === NEWH.length, `all ${NEWH.length} new holes (Milwaukee, Sacramento, their ghosts, the Road Trip): the Savant line is a record, at its own flaps and time`)
+  // the Road Trip with a retry: back to the last gate (flaps kept), then the rest of the line from there in a fresh go.
+  // The server replays it with the retry: it takes as long as it does with it
+  const RL = SIM.LINES['sac-roadtrip'].inputs, cut = RL.findIndex(([t]) => t > 9000)
+  const withRetry = [...RL.slice(0, cut), [RL[cut][0] - 30, 9]]
+  const w = SIM.compileLevel(SIM.HOLES['sac-roadtrip']), st = SIM.simulate(w, withRetry, RL[cut][0] + 400).state
+  ok(st.hz === 'gate' || Math.abs(st.x - w.rtGates[st.rtG].x - 80) < 400, 'the Road Trip: a retry (9) sends the run back to its last gate on the server too', `x ${Math.round(st.x)}`)
+  // (a run with a retry in it that still sinks it, from the game: tools/fixtures/rt-retry.json, tools/rtretry.mjs)
+  const RT_AT = [process.env.FH_RETRY, path.join(process.env.HOME || '', 'flappy-hoops-build/fh-final/tools/fixtures/rt-retry.json')].filter((f) => f && fs.existsSync(f))
+  if (RT_AT.length) {
+    const R9 = JSON.parse(fs.readFileSync(RT_AT[0], 'utf8')), r = await post3({ a: 'rec.submit', h: 'sac-roadtrip', in: R9.inputs, b: SIM.BUILD })
+    ok(R9.inputs.some(([, d]) => d === 9) && r.status === 200 && r.j.f === R9.flaps && r.j.k === R9.step, `the Road Trip with a retry (9) in the run: taken, and replayed with the retry (${r.j.f} flaps, ${r.j.k} steps)`, JSON.stringify(r.j).slice(0, 120))
+  } else console.log('   (no tools/fixtures/rt-retry.json from the game: the retry record isn\'t checked)')
+  const rt9 = await post3({ a: 'rec.submit', h: 'sac-roadtrip', in: [...RL.slice(0, 3), [RL[3][0] - 1, 9], ...RL.slice(3)], b: SIM.BUILD })
+  const rp = replay('sac-roadtrip', [...RL.slice(0, 3), [RL[3][0] - 1, 9], ...RL.slice(3)])
+  ok(rt9.status === (rp ? 200 : 422) && (!rp || (rt9.j.f === rp.f && rt9.j.k === rp.k)), `a Road Trip run with a retry in it is taken as the server replays it (${rp ? `${rp.f} flaps, ${rp.k} steps` : 'it doesn’t sink: 422'})`)
+  // tampered: the Savant line with one tap moved, or one dropped: the server's own replay decides, so it either doesn't
+  // sink (422) or counts what it really does, never the line's numbers
+  const L = SIM.LINES['mil-wings'], moved = L.inputs.map(([t, d], i) => [i === 1 ? t + 9 : t, d]), dropped = L.inputs.slice(0, -1)
+  const tm = await post3({ a: 'rec.submit', h: 'mil-wings', in: moved, b: SIM.BUILD }), td = await post3({ a: 'rec.submit', h: 'mil-wings', in: dropped, b: SIM.BUILD })
+  const tmR = replay('mil-wings', moved), tdR = replay('mil-wings', dropped)
+  ok((tmR ? tm.status === 200 && tm.j.f === tmR.f && tm.j.k === tmR.k : tm.status === 422) && (tdR ? td.status === 200 && td.j.f === tdR.f : td.status === 422) && !(td.status === 200 && td.j.k === L.step && td.j.f === L.flaps),
+    `tampered runs on a new hole: a tap moved (${tm.status}), a tap dropped (${td.status}): the server counts only what its own replay does`)
+}
 
 console.log(`\nRedis commands per call: create ${(await cost(() => post({ a: 'acct.create', name: 'Counter', pin: '1234' })))[1]} · sign in ${signinCost} · sync ${syncCost} · rec.submit ${submitCost} · GET ?rec=all ${getCost} · GET ?rec=watch ${watchCost}`)
 console.log(`${n - failed} of ${n} passed`)
