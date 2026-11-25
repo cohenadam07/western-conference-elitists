@@ -436,7 +436,7 @@ Each stat on the page has an "i" button that opens one of these (tap or click; E
 
 **What it is.** One number for a GM that counts both the good teams he built and the titles those teams were in position to win.
 
-**How it's calculated.** GM Value Added in points, plus expected titles added times 4,637 points. At that rate the two halves spread GMs out equally across every GM spell since 1979-80, so neither drowns out the other. The slider changes the rate, from wins only to titles only.
+**How it's calculated.** GM Value Added in points, plus expected titles added times 4,642 points. At that rate the two halves spread GMs out equally across every GM spell since 1979-80, so neither drowns out the other. The slider changes the rate, from wins only to titles only.
 
 **The data.** GM Value Added and expected titles added, both from the same luck-adjusted team strength.
 
@@ -446,7 +446,7 @@ Each stat on the page has an "i" button that opens one of these (tap or click; E
 
 **What it is.** How many points one expected title is worth in the blend.
 
-**How it's calculated.** The default, 4,637 points a title (about 146 wins), is set so that points and titles each account for half of the spread across every GM spell. The slider runs from wins only (points alone) through the default in the middle to titles only (expected titles added alone). Each position in between is a different rate, shown beside it.
+**How it's calculated.** The default, 4,642 points a title (about 146 wins), is set so that points and titles each account for half of the spread across every GM spell. The slider runs from wins only (points alone) through the default in the middle to titles only (expected titles added alone). Each position in between is a different rate, shown beside it.
 
 **The data.** Every GM spell in NBA GM Savant, finished and active.
 
@@ -536,7 +536,7 @@ Each stat on the page has an "i" button that opens one of these (tap or click; E
 
 **What it is.** The decision's points plus its expected titles at the default rate.
 
-**How it's calculated.** How it turned out, in points, plus expected titles as it turned out times 4,637.
+**How it's calculated.** How it turned out, in points, plus expected titles as it turned out times 4,642.
 
 **The data.** The two grades beside it.
 

@@ -432,6 +432,18 @@ td.tn{font-family:'IBM Plex Mono',monospace;white-space:nowrap}
 .soon:hover{background:var(--gold);color:var(--ink)}
 .tile.soon-card{background:var(--surface);border-style:dashed}.tile.soon-card .tv{color:var(--muted);font-size:20px}
 .tile.soon-card .soon{margin:6px 0 0}
+/* wide tables (1.0.1): a grid column may shrink below its table, so the table scrolls inside its own panel instead of
+   stretching the card past its edge, where overflow:hidden cut off the last columns; the first column (the GM, the
+   date, the skill) stays pinned while the rest scrolls under it */
+.panels{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.panels>*{min-width:0}
+@media (max-width:840px){ .panels{grid-template-columns:minmax(0,1fr)} }
+.scroll{overflow-x:auto;overscroll-behavior-x:contain}
+.scroll table.t th:first-child,.scroll table.t td:first-child{position:sticky;left:0;z-index:1;background:var(--surface);text-align:left;box-shadow:inset -1px 0 0 var(--line)}
+.scroll table.t td:first-child{max-width:170px;overflow:hidden;text-overflow:ellipsis}
+/* a title shared within a season: one decimal and a marker; the tap says why */
+.tipb.sh{text-decoration:none}
+.shm{font-size:.7em;color:var(--gold);margin-left:1px;font-weight:700}
 </style>
 <script src="/wce-nav.js" defer></script>
 </head>
@@ -441,7 +453,7 @@ td.tn{font-family:'IBM Plex Mono',monospace;white-space:nowrap}
   <header class="top">
     <div>
       <div class="brandwrap"><a class="wce" href="/" aria-label="WCE Hoops home">WCE</a><div><div class="brand-word">NBA GM <span>Savant</span></div>
-      <div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="eyebrow-pill">Every NBA GM, 1979-80 on</span><span class="vchip" id="ver" title="Version">v1.0.0</span><a class="backlink" href="/nba-savant">NBA Savant</a><a class="backlink" href="/nba-coaching-savant">NBA Coaching Savant</a></div></div></div>
+      <div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="eyebrow-pill">Every NBA GM, 1979-80 on</span><span class="vchip" id="ver" title="Version">v1.0.1</span><a class="backlink" href="/nba-savant">NBA Savant</a><a class="backlink" href="/nba-coaching-savant">NBA Coaching Savant</a></div></div></div>
     </div>
     <div class="search"><label for="q" class="sr">Find a GM</label><input id="q" type="search" placeholder="Find a GM — Presti, Riley, Ainge…" autocomplete="off" aria-controls="res"/><div class="results" id="res" role="listbox" hidden></div></div>
   </header>
@@ -452,7 +464,7 @@ td.tn{font-family:'IBM Plex Mono',monospace;white-space:nowrap}
     <div class="lede">
       <h1 class="disp">Every front office, judged like a fund manager.</h1>
       <p>GM Value Added is what a GM's teams did on the floor above an average GM in his seat, plus the value of the roster and picks he handed on, minus what he was handed. Points reward good teams; the goal is titles, so every GM also gets <b>expected titles added</b>, the same sum in titles, and a <b>blend</b> of the two you can tune. Every decision gets two grades: <b>at the time</b>, with only what was known that day, and <b>how it turned out</b>. Luck is kept apart, and so is shared credit.</p>
-      <p class="whatsnew"><b>What's new (v1.0.0):</b> the launch, with points and titles for every GM since 1979-80. Salaries follow in v1.1.0. <span id="through"></span></p>
+      <p class="whatsnew"><b>What's new (v1.0.1):</b> the boards scroll sideways with the GM's name pinned, titles won read as whole numbers (a shared title is marked), and expected titles are always two decimals. Salaries follow in v1.1.0. <span id="through"></span></p>
     </div>
     <div class="col wide"><div class="ph"><h2 class="col-h" id="homeH">Points and titles, blended</h2><div class="seg" id="homeSeg"><button aria-pressed="true" data-v="all">All-time</button><button aria-pressed="false" data-v="active">Active</button><button aria-pressed="false" data-v="at_time">At the time</button></div></div>
       <div class="ctl"><div class="seg" id="homeMetric" aria-label="Rank by"><button aria-pressed="true" data-v="blended">Blended</button><button aria-pressed="false" data-v="points">Points</button><button aria-pressed="false" data-v="titles">Expected titles</button></div>
@@ -518,7 +530,7 @@ td.tn{font-family:'IBM Plex Mono',monospace;white-space:nowrap}
 
   <div class="expl" id="expl" role="dialog" aria-label="Explainer" hidden></div>
   <footer class="foot">
-    <p><b>NBA GM Savant</b> <span id="footVer">v1.0.0</span> · Sources: Basketball-Reference (executives, transactions, drafts, team totals), ESPN transactions, NBA.com player movement and team releases, Hoops Rumors, Wikipedia (dated with its references), press coverage for pick protections, and WCE's own Savant value and NBA Coaching Savant. Grades are the model's view, not a verdict.</p>
+    <p><b>NBA GM Savant</b> <span id="footVer">v1.0.1</span> · Sources: Basketball-Reference (executives, transactions, drafts, team totals), ESPN transactions, NBA.com player movement and team releases, Hoops Rumors, Wikipedia (dated with its references), press coverage for pick protections, and WCE's own Savant value and NBA Coaching Savant. Grades are the model's view, not a verdict.</p>
     <p><a href="/#ai">Ask it through the WCE AI connector</a> (nba_search_gms, nba_get_gm_profile, nba_gm_leaders, nba_gm_decisions, nba_gm_asset_tree) · Data Room through the same connector: nba gm_tenures, assets, asset_events, gm_decisions, gm_seasons</p>
   </footer>
 </div>
@@ -925,8 +937,18 @@ const num = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const ord = (n) => (n == null ? '—' : n + ((n % 100 >= 11 && n % 100 <= 13) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th')));
 const yr = (d) => (d ? d.slice(0, 4) : 'today');
 // titles: two decimals, three below a tenth (a single decision's share of a title is often small)
-const tt = (v) => (v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(Math.abs(v) >= 0.1 || v === 0 ? 2 : 3));
-const tn = (v) => (v == null ? '—' : Math.abs(v).toFixed(Math.abs(v) >= 0.1 || v === 0 ? 2 : 3));
+// titles, always to two decimals (expected titles, titles added, playoff luck): a sign only when the rounded value is not zero
+const tt = (v) => { if (v == null) return '—'; const r = Math.abs(v).toFixed(2); return (+r === 0 ? '' : v > 0 ? '+' : '−') + r; };
+const tn = (v) => (v == null ? '—' : Math.abs(v).toFixed(2));
+// one decision's expected titles are small (most under 0.01): the log and the moves print them to three decimals, every row the same
+const td3 = (v) => { if (v == null) return '—'; const r = Math.abs(v).toFixed(3); return (+r === 0 ? '' : v > 0 ? '+' : '−') + r; };
+// titles won: whole when whole; a title shared within a season (a co-lead, or a season he took over midway) leaves a
+// fraction, shown to one decimal with a marker whose tap says why
+const tw = (v) => {
+  if (v == null) return '—';
+  if (Math.abs(v - Math.round(v)) < 0.005) return String(Math.round(v));
+  return tip(`Shared credit: ${v.toFixed(2)} titles. At least one of his title seasons was shared (a co-lead, or a season he took over or left midway), and each GM gets his share of that title, the same split as the points.`, `${v.toFixed(1)}<sup class="shm" aria-hidden="true">*</sup>`, 'sh');
+};
 const span = (s) => `${yr(s.start)}–${s.end ? yr(s.end) : 'today'}`;
 const TEAM = { ATL: 'Atlanta', BOS: 'Boston', BRK: 'Brooklyn', CHI: 'Chicago', CHO: 'Charlotte', CLE: 'Cleveland', DAL: 'Dallas', DEN: 'Denver', DET: 'Detroit', GSW: 'Golden State',
   HOU: 'Houston', IND: 'Indiana', LAC: 'LA Clippers', LAL: 'LA Lakers', MEM: 'Memphis', MIA: 'Miami', MIL: 'Milwaukee', MIN: 'Minnesota', NOP: 'New Orleans', NYK: 'New York',
@@ -1027,7 +1049,7 @@ function boardTable(rows, n, which, st, pool) {
   const key = m === 'points' ? (at ? 'gva_at_time' : 'gva') : m === 'titles' ? 'titles_added' : 'blended';
   const head = `<tr><th>GM</th><th>Team</th><th>Years</th><th>${name} ${info(key)}</th>${m !== 'points' ? `<th>Points ${info(at ? 'gva_at_time' : 'gva')}</th>` : ''}${m !== 'titles' ? `<th>Expected titles added ${info('titles_added')}</th>` : ''}<th>Titles won ${info('titles_won')}</th><th>Expected titles ${info('titles_expected')}</th><th>Playoff luck ${info('playoff_luck')}</th><th>Percentile ${info('pct')}</th></tr>`;
   return head + rows.slice(0, n || rows.length).map((r) => { const v = score(r, m, p), pc = pctIn(v, xs); return `<tr class="link" data-g="${esc(r.file)}"><td>${gmLink(r.file, r.name)}</td><td>${esc(r.team_name || r.team)}</td><td>${span(r)}</td>
-    <td><b>${shown(v, m, p)}</b></td>${m !== 'points' ? `<td>${sgn(r.gva)}</td>` : ''}${m !== 'titles' ? `<td class="tn">${tt(r.titles_added)}</td>` : ''}<td class="tn">${tn(r.titles_won)}</td><td class="tn">${tn(r.titles_expected)}</td><td class="tn">${tt(r.playoff_luck)}</td><td><span class="pchip" style="background:${pctColor(pc)}">${ord(pc)}</span></td></tr>`; }).join('');
+    <td><b>${shown(v, m, p)}</b></td>${m !== 'points' ? `<td>${sgn(r.gva)}</td>` : ''}${m !== 'titles' ? `<td class="tn">${tt(r.titles_added)}</td>` : ''}<td class="tn">${tw(r.titles_won)}</td><td class="tn">${tn(r.titles_expected)}</td><td class="tn">${tt(r.playoff_luck)}</td><td><span class="pchip" style="background:${pctColor(pc)}">${ord(pc)}</span></td></tr>`; }).join('');
 }
 const poolOf = (which) => (which === 'at_time' ? IDX.meta.pool_at_time : which === 'active' ? IDX.meta.pool_active : IDX.meta.pool_all);
 function ranked(which, st) {
@@ -1122,7 +1144,7 @@ function card() {
   $('titleTiles').innerHTML = t('Expected titles added', tt(s.titles_added), 'above an average GM, plus left minus inherited', 'titles_added') +
     t('While he ran it', tt(s.titles_produced_above_average), 'title chances above an average team', 'titles_produced') +
     t('Left behind', tn(s.titles_left), `${s.active ? 'projected' : 'as it turned out'}, ten seasons`, 'titles_left') + t('Inherited', tn(s.titles_inherited), `${s.active ? 'projected' : 'as it turned out'}, ten seasons`, 'titles_left') +
-    t('Titles won', tn(s.titles_won), 'his share of each title season', 'titles_won') + t('Expected titles', tn(s.titles_expected), 'the same seasons, as the model rated them', 'titles_expected') +
+    t('Titles won', tw(s.titles_won), 'his share of each title season', 'titles_won') + t('Expected titles', tn(s.titles_expected), 'the same seasons, as the model rated them', 'titles_expected') +
     (s.active ? '' : t('At the time', tt(s.titles_added_at_time), `inherited ${tn(s.titles_inherited_at_time)}, left ${tn(s.titles_left_at_time)}, as projected`, 'titles_at_time'));
   const best = Object.entries(s.titles_by_season || {}).sort((a, b) => b[1] - a[1]).slice(0, 3).filter((x) => x[1] > 0);
   $('titleNote').innerHTML = best.length ? `His best title chances above an average team's: ${best.map(([y, v]) => `${+y - 1}-${String(y).slice(2)} ${tt(v)}`).join(', ')} (his share of the season).` : '';
@@ -1223,7 +1245,7 @@ function node(a) {
 }
 function moves(s) {
   $('moves').innerHTML = s.big_moves.length ? s.big_moves.map((m) => `<div class="move"><div class="mh"><span class="md">${esc(m.date)}</span> ${esc(m.label)}</div>
-    <div class="mg">At the time <b>${m.at_time == null ? 'not graded' : sgn(m.at_time)}</b> · how it turned out <b>${sgn(m.turned_out)}</b> · expected titles <b>${tt(m.titles_turned_out)}</b> ${info('dec_titles')} · blended <b>${sgn(m.blended)}</b>${m.weight < 1 ? ` · his share ${Math.round(m.weight * 100)}%` : ''}</div>
+    <div class="mg">At the time <b>${m.at_time == null ? 'not graded' : sgn(m.at_time)}</b> · how it turned out <b>${sgn(m.turned_out)}</b> · expected titles <b>${td3(m.titles_turned_out)}</b> ${info('dec_titles')} · blended <b>${sgn(m.blended)}</b>${m.weight < 1 ? ` · his share ${Math.round(m.weight * 100)}%` : ''}</div>
     ${m.tree ? `<div class="tree">${m.tree.gave.length ? `<div class="gave">Gave: ${m.tree.gave.map((a) => (a.player_id ? pl(a.player_id, a.label) : esc(a.label))).join(', ')}</div>` : ''}<ul>${m.tree.got.map((a) => `<li>${node(a)}</li>`).join('')}</ul></div>` : ''}</div>`).join('') : '<p class="cap">No trades or drafts credited to him.</p>';
 }
 function boardNote(d) {
@@ -1241,7 +1263,7 @@ function log() {
   $('logNote').hidden = !$('logNote').innerHTML;
   $('log').innerHTML = `<tr><th>Date</th><th>Team</th><th>Decision</th><th>At the time ${info('at_time')}</th><th>How it turned out ${info('turned_out')}</th><th>Titles, at the time ${info('dec_titles')}</th><th>Titles, turned out ${info('dec_titles')}</th><th>Blended ${info('dec_blended')}</th>${sal ? `<th>Cost</th><th>Cap hit</th><th>Value per $1M</th><th>Dead money</th><th>Years of control</th>` : ''}<th>His share ${info('share')}</th><th>Graded by ${info('graded_by')}</th></tr>` + rows.slice(0, 400).map((d) => `<tr>
     <td>${esc(d.date)}</td><td>${esc(d.team_name || d.team)}</td><td class="dl">${d.player_id && !d.label.includes(' traded ') ? pl(d.player_id, d.label) : esc(d.label.length > 140 ? d.label.slice(0, 137) + '…' : d.label)}${d.coach_id ? ` <a href="${COACH}${encodeURIComponent(d.coach_id)}">coach</a>` : ''}${d.type === 'left in free agency' ? ` ${info('left_fa')}` : ''}${d.type === 'draft' ? ` <span class="ts">${boardNote(d)}</span>` : ''}${d.low_confidence.length ? ` ${tip(d.low_confidence.join('; '), 'low confidence', 'lc')}${info('low_conf')}` : ''}</td>
-    <td>${tip(d.at_time_note || (d.models || []).join(', '), d.at_time == null ? '<span class="na">—</span>' : sgn(d.at_time))}</td><td>${sgn(d.turned_out)}</td><td class="tn">${tt(d.titles_at_time)}</td><td class="tn">${tt(d.titles_turned_out)}</td><td>${sgn(d.blended_turned_out)}</td>${sal ? `<td>${money(d.salary_cost)}</td><td>${money(d.cap_hit)}</td><td>${vpd(d.value_per_dollar)}</td><td>${money(d.dead_money)}</td><td>${d.years_of_control ?? '—'}</td>` : ''}<td>${d.weight < 1 ? Math.round(d.weight * 100) + '%' : ''}</td><td class="gb">${tip(`Graded by ${(d.models || []).join(', ') || 'no model'}; grade version ${d.grade_version || ''}${d.frozen_on ? `; frozen ${d.frozen_on}` : ''}`, esc((d.models || []).join(', ') || '—') + (d.frozen_on ? ` · frozen ${esc(d.frozen_on)}` : ''))}</td></tr>`).join('');
+    <td>${tip(d.at_time_note || (d.models || []).join(', '), d.at_time == null ? '<span class="na">—</span>' : sgn(d.at_time))}</td><td>${sgn(d.turned_out)}</td><td class="tn">${td3(d.titles_at_time)}</td><td class="tn">${td3(d.titles_turned_out)}</td><td>${sgn(d.blended_turned_out)}</td>${sal ? `<td>${money(d.salary_cost)}</td><td>${money(d.cap_hit)}</td><td>${vpd(d.value_per_dollar)}</td><td>${money(d.dead_money)}</td><td>${d.years_of_control ?? '—'}</td>` : ''}<td>${d.weight < 1 ? Math.round(d.weight * 100) + '%' : ''}</td><td class="gb">${tip(`Graded by ${(d.models || []).join(', ') || 'no model'}; grade version ${d.grade_version || ''}${d.frozen_on ? `; frozen ${d.frozen_on}` : ''}`, esc((d.models || []).join(', ') || '—') + (d.frozen_on ? ` · frozen ${esc(d.frozen_on)}` : ''))}</td></tr>`).join('');
   $('logMore').textContent = rows.length > 400 ? `Showing the latest 400 of ${rows.length}. Every one is in the Data Room (nba gm_decisions).` : `Grades by ${CUR.decisions[0] ? CUR.decisions[0].grade_version : ''}; tap an at-the-time grade for the model that made it.`;
 }
 
