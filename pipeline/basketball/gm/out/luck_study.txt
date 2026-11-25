@@ -1,0 +1,18 @@
+Is the luck adjustment too strong? (report only: the points are unchanged)
+
+game-log luck against luck.py's: correlation 0.530 over 1314 team-seasons; the logs' shooting counts are wrong in 1979-80 to 1984-85 (6 seasons, game-log luck off by up to 33 points), so the second-half test uses only the 41 seasons that match (correlation 0.99 or more)
+next season (raw margin, squared error per team): chosen out of sample (latest f 0.5) against the full adjustment -0.0740 pts^2 a season [95% -0.1772, +0.0270]; best fixed f over the same seasons 0.5
+    by f (mean pts^2): 0.0:13.3966 0.1:13.3706 0.2:13.3502 0.3:13.3357 0.4:13.3275 0.5:13.3258 0.6:13.3309 0.7:13.3430 0.8:13.3625 0.9:13.3896 1.0:13.4244
+second half from the first (raw margin, squared error per team): chosen out of sample (latest f 0.2) against the full adjustment -0.4717 pts^2 a season [95% -0.7634, -0.1885]; best fixed f over the same seasons 0.3
+    by f (mean pts^2): 0.0:10.8967 0.1:10.8568 0.2:10.8342 0.3:10.8297 0.4:10.8443 0.5:10.8788 0.6:10.9341 0.7:11.0106 0.8:11.1089 0.9:11.2294 1.0:11.3722
+playoff games (log loss per game): chosen out of sample (latest f 0.0) against the full adjustment -0.0048 nats a season [95% -0.0079, -0.0017]; best fixed f over the same seasons 0.0
+    by f (mean nats): 0.0:0.6184 0.1:0.6186 0.2:0.6189 0.3:0.6193 0.4:0.6197 0.5:0.6202 0.6:0.6208 0.7:0.6214 0.8:0.6222 0.9:0.6229 1.0:0.6238
+title log score by f (no preseason blend | with the best fixed preseason weight): 1.00: 1.979 | 1.870 0.75: 1.926 | 1.838 0.50: 1.888 | 1.809 0.25: 1.858 | 1.787 0.00: 1.850 | 1.771
+
+GM Value Added (5%) for the showcase GMs if production used margin + f x luck (value per margin point refit):
+  f      Kupchak     Krause     Presti      Riley      Myers   Popovich   value per margin point
+  0.0     -4,579     -2,714     +7,134     +2,352       +113     +6,378   55.4
+  0.2     -4,623     -2,734     +7,106     +2,383        +88     +6,377   56.6
+  0.3     -4,647     -2,746     +7,089     +2,396        +72     +6,371   57.1
+  0.5     -4,698     -2,774     +7,049     +2,415        +34     +6,352   58.1
+  1.0     -4,841     -2,864     +6,912     +2,429        -97     +6,242   60.1

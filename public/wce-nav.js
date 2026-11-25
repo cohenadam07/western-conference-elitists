@@ -43,6 +43,7 @@
           // they count as NBA Savant so the Basketball tab still lights up on them
           { label: 'NBA Savant', href: '/nba-savant', match: ['/player'] },
           { label: 'NBA Coaching Savant', href: '/nba-coaching-savant' },
+          { label: 'NBA GM Savant', href: '/nba-gm-savant' },
           { label: 'CBB Savant', href: '/cbb-savant' },
           { label: 'CBB Coaching Savant', href: '/cbb-coaching-savant' },
         ],
@@ -110,6 +111,7 @@
     '/college-basketball-coaching-savant': '/cbb-coaching-savant',
     '/college-football-savant': '/cfb-savant',
     '/draft-savant': '/nba-draft-savant',
+    '/gm-savant': '/nba-gm-savant',
   }
 
   // /ufc-savant and /ufc-savant.html are the same page; /player and /player/ too.

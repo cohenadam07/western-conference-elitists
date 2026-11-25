@@ -1,0 +1,614 @@
+[
+{
+"tenure_id": "espn:gerssonrosas:DAL:2013:co",
+"person": "Gersson Rosas",
+"person_id": "espn:gerssonrosas",
+"team": "DAL",
+"from": "2013-07-22",
+"to": "2013-10-29",
+"under": "Donn Nelson",
+"title": "general manager",
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2013&limit=1000",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2013&limit=1000",
+"https://www.hoopsrumors.com/2013/10/mavericks-gersson-rosas.html"
+]
+},
+{
+"tenure_id": "espn:arturaskarnisovas:DEN:2017:co",
+"person": "Arturas Karnisovas",
+"person_id": "espn:arturaskarnisovas",
+"team": "DEN",
+"from": "2017-06-15",
+"to": "2020-04-12",
+"under": "Tim Connelly",
+"title": "general manager",
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2017&limit=1000",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2017&limit=1000"
+]
+},
+{
+"tenure_id": "stjeaga99x:GSW:1997",
+"person": "Garry St. Jean",
+"person_id": "stjeaga99x",
+"team": "GSW",
+"from": "2004-05-20",
+"to": "2004-11-03",
+"under": "Chris Mullin",
+"title": null,
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2004&limit=1000",
+"tenure_sources": [
+"https://www.basketball-reference.com/executives/stjeaga99x.html"
+]
+},
+{
+"tenure_id": "espn:rodhiggins:GSW:2004:co",
+"person": "Rod Higgins",
+"person_id": "espn:rodhiggins",
+"team": "GSW",
+"from": "2004-05-20",
+"to": "2007-05-30",
+"under": "Chris Mullin",
+"title": "general manager",
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2004&limit=1000",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2004&limit=1000"
+]
+},
+{
+"tenure_id": "espn:lawrencefrank:LAC:2016:co",
+"person": "Lawrence Frank",
+"person_id": "espn:lawrencefrank",
+"team": "LAC",
+"from": "2016-06-30",
+"to": "2017-08-03",
+"under": "Doc Rivers",
+"title": "executive vice president of basketball operations",
+"basis": "reports to",
+"source": "https://www.nba.com/clippers/news/press-release-executive-vp-basketball-operations-lawrence-frank",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2016&limit=1000"
+]
+},
+{
+"tenure_id": "espn:robpelinka:LAL:2017:co",
+"person": "Rob Pelinka",
+"person_id": "espn:robpelinka",
+"team": "LAL",
+"from": "2017-03-07",
+"to": "2019-04-07",
+"under": "Magic Johnson",
+"title": "general manager",
+"basis": "reports to",
+"source": "https://www.nba.com/news/lakers-sign-rob-pelinka-to-contract-extension",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2017&limit=1000"
+]
+},
+{
+"tenure_id": "pelinro99x:LAL:2018",
+"person": "Rob Pelinka",
+"person_id": "pelinro99x",
+"team": "LAL",
+"from": "2019-04-08",
+"to": "2019-04-10",
+"under": "Magic Johnson",
+"title": "general manager",
+"basis": "reports to",
+"source": "https://www.nba.com/news/lakers-sign-rob-pelinka-to-contract-extension",
+"tenure_sources": [
+"https://www.basketball-reference.com/executives/pelinro99x.html"
+]
+},
+{
+"tenure_id": "wohlda01x:MIA:1994",
+"person": "Dave Wohl",
+"person_id": "wohlda01x",
+"team": "MIA",
+"from": "1995-09-01",
+"to": "1996-11-16",
+"under": "Pat Riley",
+"title": null,
+"basis": "source: primary basketball executive",
+"source": "https://www.hoopsrumors.com/2015/09/longest-tenured-primary-basketball-executives.html",
+"tenure_sources": [
+"https://www.basketball-reference.com/executives/wohlda01x.html"
+]
+},
+{
+"tenure_id": "pfundra99x:MIA:1996",
+"person": "Randy Pfund",
+"person_id": "pfundra99x",
+"team": "MIA",
+"from": "1996-11-17",
+"to": "1996-11-18",
+"under": "Pat Riley",
+"title": null,
+"basis": "source: primary basketball executive",
+"source": "https://www.hoopsrumors.com/2015/09/longest-tenured-primary-basketball-executives.html",
+"tenure_sources": [
+"https://www.basketball-reference.com/executives/pfundra99x.html"
+]
+},
+{
+"tenure_id": "wohlda01x:MIA:1994",
+"person": "Dave Wohl",
+"person_id": "wohlda01x",
+"team": "MIA",
+"from": "1996-11-17",
+"to": "1996-11-18",
+"under": "Pat Riley",
+"title": null,
+"basis": "source: primary basketball executive",
+"source": "https://www.hoopsrumors.com/2015/09/longest-tenured-primary-basketball-executives.html",
+"tenure_sources": [
+"https://www.basketball-reference.com/executives/wohlda01x.html"
+]
+},
+{
+"tenure_id": "pfundra99x:MIA:1996",
+"person": "Randy Pfund",
+"person_id": "pfundra99x",
+"team": "MIA",
+"from": "1996-11-19",
+"to": "2008-10-29",
+"under": "Pat Riley",
+"title": null,
+"basis": "source: primary basketball executive",
+"source": "https://www.hoopsrumors.com/2015/09/longest-tenured-primary-basketball-executives.html",
+"tenure_sources": [
+"https://www.basketball-reference.com/executives/pfundra99x.html"
+]
+},
+{
+"tenure_id": "espn:jimstack:MIN:2004:co",
+"person": "Jim Stack",
+"person_id": "espn:jimstack",
+"team": "MIN",
+"from": "2004-07-09",
+"to": "2008-12-06",
+"under": "Kevin McHale",
+"title": "general manager",
+"basis": "reports to",
+"source": "https://www.nba.com/timberwolves/news/timberwolves_re-sign_stack.html",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2004&limit=1000"
+]
+},
+{
+"tenure_id": "espn:miltnewton:MIN:2013:co",
+"person": "Milt Newton",
+"person_id": "espn:miltnewton",
+"team": "MIN",
+"from": "2013-09-06",
+"to": "2013-10-30",
+"under": "David Kahn / Flip Saunders",
+"title": "general manager",
+"basis": "equal titles",
+"source": null,
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2013&limit=1000"
+]
+},
+{
+"tenure_id": "espn:miltnewton:MIN:2013:co",
+"person": "Milt Newton",
+"person_id": "espn:miltnewton",
+"team": "MIN",
+"from": "2013-10-31",
+"to": "2015-04-14",
+"under": "Flip Saunders",
+"title": "general manager",
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2013&limit=1000",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2013&limit=1000"
+]
+},
+{
+"tenure_id": "newtomi01x:MIN:2015",
+"person": "Milt Newton",
+"person_id": "newtomi01x",
+"team": "MIN",
+"from": "2015-04-15",
+"to": "2015-10-28",
+"under": "Flip Saunders",
+"title": "general manager",
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2013&limit=1000",
+"tenure_sources": [
+"http://www.espn.com/nba/story/_/id/15634003/minnesota-timberwolves-let-ex-gm-milt-newton-go-sweeping-changes",
+"https://andscape.com/features/milt-newton-nba-black-gms/",
+"https://en.wikipedia.org/w/index.php?title=Milt_Newton&oldid=1385746105",
+"https://www.basketball-reference.com/executives/newtomi01x.html"
+]
+},
+{
+"tenure_id": "newtomi01x:MIN:2015",
+"person": "Milt Newton",
+"person_id": "newtomi01x",
+"team": "MIN",
+"from": "2016-04-20",
+"to": "2016-05-28",
+"under": "Tom Thibodeau",
+"title": "general manager",
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2016&limit=1000",
+"tenure_sources": [
+"http://www.espn.com/nba/story/_/id/15634003/minnesota-timberwolves-let-ex-gm-milt-newton-go-sweeping-changes",
+"https://andscape.com/features/milt-newton-nba-black-gms/",
+"https://en.wikipedia.org/w/index.php?title=Milt_Newton&oldid=1385746105",
+"https://www.basketball-reference.com/executives/newtomi01x.html"
+]
+},
+{
+"tenure_id": "espn:mattlloyd:MIN:2024:co",
+"person": "Matt Lloyd",
+"person_id": "espn:mattlloyd",
+"team": "MIN",
+"from": "2024-07-10",
+"to": "2026-11-23",
+"under": "Tim Connelly",
+"title": "general manager",
+"basis": "title",
+"source": "https://www.nba.com/timberwolves/news/minnesota-timberwolves-promote-matt-lloyd-to-general-manager",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2024&limit=1000"
+]
+},
+{
+"tenure_id": "espn:jeffbower:NOP:2001:co",
+"person": "Jeff Bower",
+"person_id": "espn:jeffbower",
+"team": "NOP",
+"from": "2001-06-04",
+"to": "2003-05-07",
+"under": "Bob Bass",
+"title": "general manager",
+"basis": "title",
+"source": "https://www.cbc.ca/sports/basketball/bower-steps-down-as-hornets-gm-1.407059",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2001&limit=1000"
+]
+},
+{
+"tenure_id": "espn:scottperry:NYK:2017:co",
+"person": "Scott Perry",
+"person_id": "espn:scottperry",
+"team": "NYK",
+"from": "2017-07-14",
+"to": "2020-02-03",
+"under": "Steve Mills",
+"title": "general manager",
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2017&limit=1000",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2017&limit=1000"
+]
+},
+{
+"tenure_id": "brandel99x:PHI:2018",
+"person": "Elton Brand",
+"person_id": "brandel99x",
+"team": "PHI",
+"from": "2020-11-02",
+"to": "2020-12-23",
+"under": "Daryl Morey",
+"title": null,
+"basis": "title",
+"source": "https://www.nba.com/sixers/news/team-names-morey-president-basketball-operations",
+"tenure_sources": [
+"https://en.wikipedia.org/w/index.php?title=Elton_Brand&oldid=1386521514",
+"https://www.basketball-reference.com/executives/brandel99x.html",
+"https://www.nba.com/sixers/news/elton-brand-named-general-manager"
+]
+},
+{
+"tenure_id": "kerrst01x:PHO:2007",
+"person": "Steve Kerr",
+"person_id": "kerrst01x",
+"team": "PHO",
+"from": "2010-07-20",
+"to": "2010-08-04",
+"under": "Lon Babby",
+"title": null,
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2010&limit=1000",
+"tenure_sources": [
+"https://en.wikipedia.org/w/index.php?title=Steve_Kerr&oldid=1386561147",
+"https://www.basketball-reference.com/executives/kerrst01x.html"
+]
+},
+{
+"tenure_id": "blankla01x:PHO:2010",
+"person": "Lance Blanks",
+"person_id": "blankla01x",
+"team": "PHO",
+"from": "2010-08-05",
+"to": "2010-10-26",
+"under": "Lon Babby",
+"title": "general manager",
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2010&limit=1000",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2010&limit=1000",
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2013&limit=1000",
+"https://www.basketball-reference.com/executives/blankla01x.html"
+]
+},
+{
+"tenure_id": "kerrst01x:PHO:2007",
+"person": "Steve Kerr",
+"person_id": "kerrst01x",
+"team": "PHO",
+"from": "2010-08-05",
+"to": "2010-10-26",
+"under": "Lon Babby",
+"title": null,
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2010&limit=1000",
+"tenure_sources": [
+"https://en.wikipedia.org/w/index.php?title=Steve_Kerr&oldid=1386561147",
+"https://www.basketball-reference.com/executives/kerrst01x.html"
+]
+},
+{
+"tenure_id": "blankla01x:PHO:2010",
+"person": "Lance Blanks",
+"person_id": "blankla01x",
+"team": "PHO",
+"from": "2010-10-27",
+"to": "2013-04-22",
+"under": "Lon Babby",
+"title": "general manager",
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2010&limit=1000",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2010&limit=1000",
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2013&limit=1000",
+"https://www.basketball-reference.com/executives/blankla01x.html"
+]
+},
+{
+"tenure_id": "espn:scottperry:SAC:2017:co",
+"person": "Scott Perry",
+"person_id": "espn:scottperry",
+"team": "SAC",
+"from": "2017-04-21",
+"to": "2017-07-13",
+"under": "Vlade Divac",
+"title": "executive vice president of basketball operations",
+"basis": "reports to",
+"source": "https://www.nba.com/kings/news/kings-name-scott-perry-executive-vice-president-basketball-ops",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2017&limit=1000"
+]
+},
+{
+"tenure_id": "popovgr99x:SAS:1994",
+"person": "Gregg Popovich",
+"person_id": "popovgr99x",
+"team": "SAS",
+"from": "2019-07-23",
+"to": "2026-11-23",
+"under": "Brian Wright",
+"title": null,
+"basis": "decides",
+"source": "https://www.hoopsrumors.com/2026/09/longest-tenured-nba-gms-presidents-4.html",
+"tenure_sources": [
+"https://www.basketball-reference.com/executives/popovgr99x.html",
+"https://www.hoopsrumors.com/2018/08/longest-tenured-nba-gmspresidents-2.html",
+"https://www.hoopsrumors.com/2026/09/longest-tenured-nba-gms-presidents-4.html"
+]
+},
+{
+"tenure_id": "espn:edstefanski:TOR:2011:co",
+"person": "Ed Stefanski",
+"person_id": "espn:edstefanski",
+"team": "TOR",
+"from": "2011-10-26",
+"to": "2013-05-30",
+"under": "Bryan Colangelo",
+"title": "executive vice president of basketball operations",
+"basis": "title",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2011&limit=1000",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2011&limit=1000"
+]
+},
+{
+"tenure_id": "espn:edstefanski:TOR:2011:co",
+"person": "Ed Stefanski",
+"person_id": "espn:edstefanski",
+"team": "TOR",
+"from": "2013-05-31",
+"to": "2013-06-02",
+"under": "Masai Ujiri",
+"title": "executive vice president of basketball operations",
+"basis": "reports to",
+"source": "https://thescore.com/nba/news/1091744",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2011&limit=1000"
+]
+},
+{
+"tenure_id": "espn:jeffweltman:TOR:2013:co",
+"person": "Jeff Weltman",
+"person_id": "espn:jeffweltman",
+"team": "TOR",
+"from": "2013-07-02",
+"to": "2017-05-22",
+"under": "Masai Ujiri",
+"title": "executive vice president of basketball operations",
+"basis": "reports to",
+"source": "https://thescore.com/nba/news/1091744",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2013&limit=1000"
+]
+},
+{
+"tenure_id": "espn:bobbywebster:TOR:2017:co",
+"person": "Bobby Webster",
+"person_id": "espn:bobbywebster",
+"team": "TOR",
+"from": "2017-06-28",
+"to": "2025-08-17",
+"under": "Masai Ujiri",
+"title": "general manager",
+"basis": "title",
+"source": "https://thescore.com/nba/news/1091744",
+"tenure_sources": [
+"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2017&limit=1000"
+]
+},
+{
+"tenure_id": "aingeda01x:UTA:2021",
+"person": "Danny Ainge",
+"person_id": "aingeda01x",
+"team": "UTA",
+"from": "2025-06-02",
+"to": "2026-11-23",
+"under": "Austin Ainge",
+"title": "CEO of Utah Jazz Basketball and alternate governor",
+"basis": "final say",
+"source": "https://www.hoopsrumors.com/2025/06/jazz-owner-austin-ainge-will-run-show.html",
+"tenure_sources": [
+"https://www.basketball-reference.com/executives/aingeda01x.html"
+]
+},
+{
+"tenure_id": null,
+"person": "Jeff Bower",
+"person_id": null,
+"team": "DET",
+"from": "2014-06-03",
+"to": "2018-05-07",
+"under": "Stan Van Gundy",
+"title": "general manager",
+"basis": "source",
+"source": "http://www.nba.com/pistons/news/detroit-pistons-name-jeff-bower-general-manager",
+"says": "Wikipedia (Jeff Bower): \"On June 3, 2014, Bower was named the general manager of the Detroit Pistons\", citing the Pistons release; ESPN 2014-05-14 \"Named Stan Van Gundy coach and president of basketball operations\""
+},
+{
+"tenure_id": null,
+"person": "Gersson Rosas",
+"person_id": null,
+"team": "HOU",
+"from": "2013-12-26",
+"to": "2019-05-02",
+"under": "Daryl Morey",
+"title": "executive vice president of basketball operations",
+"basis": "source",
+"source": "https://www.nba.com/rockets/news/gersson-rosas-returning-rockets",
+"says": "Houston Rockets General Manager Daryl Morey announced today that the team has re-hired Gersson Rosas ... He returns as Executive Vice President of Basketball Operations (published 2013-12-27T01:01Z); ends the day before his Minnesota tenure"
+},
+{
+"tenure_id": null,
+"person": "Chad Buchanan",
+"person_id": null,
+"team": "IND",
+"from": "2017-07-01",
+"to": "2026-11-23",
+"under": "Kevin Pritchard",
+"title": "general manager",
+"basis": "source",
+"source": "https://www.nba.com/pacers/news/pacers-name-buchanan-general-manager-promote-dinwiddie",
+"says": "published 2017-07-01; 2025-26 media guide lists Pritchard President, Buchanan General Manager"
+},
+{
+"tenure_id": null,
+"person": "Mike Gansey",
+"person_id": null,
+"team": "CLE",
+"from": "2022-02-23",
+"to": "2026-06-03",
+"under": "Koby Altman",
+"title": "general manager",
+"basis": "source",
+"source": "https://www.nba.com/cavaliers/mike-gansey-elevated-cavaliers-general-manager",
+"says": "\"Gansey will continue assisting Altman in scouting and personnel decisions\" (2022-02-23); left for Philadelphia June 4, 2026"
+},
+{
+"tenure_id": null,
+"person": "Michael Winger",
+"person_id": null,
+"team": "LAC",
+"from": "2017-08-23",
+"to": "2023-05-23",
+"under": "Lawrence Frank",
+"title": "general manager",
+"basis": "source",
+"source": "https://nba.com/article/2017/08/23/los-angeles-clippers-close-deal-michael-winger-new-gm",
+"says": "\"Winger and Redden will report to Lawrence Frank\" (2017-08-23); ends the day before his Washington tenure"
+},
+{
+"tenure_id": null,
+"person": "Andy Elisburg",
+"person_id": null,
+"team": "MIA",
+"from": "2013-09-28",
+"to": "2026-11-23",
+"under": "Pat Riley",
+"title": "senior vice president of basketball operations and general manager",
+"basis": "source",
+"source": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2013&limit=1000",
+"says": "2013-09-28 \"Promoted Andy Elisburg to senior vice president of basketball operations and general manager\"; nba.com bio: assists \"President Pat Riley in running the basketball operation\""
+},
+{
+"tenure_id": null,
+"person": "Anthony Parker",
+"person_id": null,
+"team": "ORL",
+"from": "2023-07-05",
+"to": "2026-11-23",
+"under": "Jeff Weltman",
+"title": "general manager",
+"basis": "source",
+"source": "https://www.nba.com/news/anthony-parker-new-gm-orlando-magic",
+"says": "July 5, 2023: Magic \"promoting Anthony Parker to general manager\"; Weltman President of Basketball Operations"
+},
+{
+"tenure_id": null,
+"person": "Will Dawkins",
+"person_id": null,
+"team": "WAS",
+"from": "2023-06-08",
+"to": "2026-11-23",
+"under": "Michael Winger",
+"title": "general manager",
+"basis": "source",
+"source": "https://www.hoopsrumors.com/2023/06/wizards-notes-winger-dawkins-schlenk-draft.html",
+"says": "\"Winger made it clear he would be accountable as the team's primary decision-maker, Dawkins will run the day-to-day operations\""
+},
+{
+"tenure_id": null,
+"person": "Mike Schmitz",
+"person_id": null,
+"team": "DAL",
+"from": "2026-05-08",
+"to": "2026-11-23",
+"under": "Masai Ujiri",
+"title": "general manager",
+"basis": "source",
+"source": "https://www.nba.com/mavs/news/dallas-mavericks-name-mike-schmitz-general-manager",
+"says": "\"Schmitz will report to President Masai Ujiri\" (2026-05-08)"
+},
+{
+"tenure_id": null,
+"person": "Justin Zanik",
+"person_id": null,
+"team": "UTA",
+"from": "2021-12-15",
+"to": "2026-11-23",
+"under": "Danny Ainge",
+"title": "general manager",
+"basis": "source",
+"source": "https://www.nba.com/jazz/news/danny-ainge-appointed-alternate-governor-and-ceo-utah-jazz-basketball",
+"says": "Dec 15, 2021: Ainge CEO of Utah Jazz Basketball; \"the incredible leadership of General Manager Justin Zanik\""
+}
+]

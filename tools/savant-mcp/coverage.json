@@ -615,6 +615,24 @@
       ],
       "note": "This week's injury status, on the profile (injury) for the season in progress."
     },
+    "page:gm-savant.html#openExpl": {
+      "excluded": "The stat explainers: the page's help text. nba_get_gm_profile returns the same notes on how every number is made."
+    },
+    "page:gm-savant.html#openSoon": {
+      "excluded": "A \"salaries coming\" badge opening the page's banner at its line: nba_get_gm_profile returns the same list (salaries.changes) and says salaries are not in yet."
+    },
+    "page:gm-savant.html#openTip": {
+      "excluded": "Tap-to-read details on the page (a grade's model version, a low-confidence reason, a frozen date): nba_gm_decisions returns the same fields."
+    },
+    "page:gm-savant.html": {
+      "tools": [
+        "nba_search_gms",
+        "nba_get_gm_profile",
+        "nba_gm_leaders",
+        "nba_gm_decisions",
+        "nba_gm_asset_tree"
+      ]
+    },
     "page:basketball-coaching-savant.html": {
       "tools": [
         "nba_search_coaches",
@@ -760,6 +778,20 @@
     },
     "page:basketball-coaching-savant.html#showTip": {
       "excluded": "The hover box: it shows the explainer and the percentile already in every tool's answer and in nba_coaching_dictionary."
+    },
+    "data:gms": {
+      "tools": [
+        "nba_search_gms",
+        "nba_get_gm_profile",
+        "nba_gm_leaders",
+        "nba_gm_decisions",
+        "nba_gm_asset_tree",
+        "savant_data",
+        "savant_dictionary"
+      ]
+    },
+    "data:gm-photos": {
+      "excluded": "GM photos Adam adds by hand, with their credit lines: pictures, not numbers."
     },
     "data:bcs": {
       "tools": [
@@ -1034,6 +1066,41 @@
         "savant_dictionary"
       ],
       "note": "one row per shot"
+    },
+    "dataroom:nba/gm_tenures": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per GM tenure"
+    },
+    "dataroom:nba/assets": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per asset: player, pick, swap, cash, exception"
+    },
+    "dataroom:nba/asset_events": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per asset move"
+    },
+    "dataroom:nba/gm_decisions": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per front-office decision, both grades"
+    },
+    "dataroom:nba/gm_seasons": {
+      "tools": [
+        "savant_data",
+        "savant_dictionary"
+      ],
+      "note": "one row per GM-team-season"
     },
     "dataroom:nba/coaching_games": {
       "tools": [

@@ -23,6 +23,7 @@ Connector 3.7.0 (3.8.0 adds WCE Pro analysis on top; see below). Up-front tool t
 | ufc | fights | fighter-fight | 1994–2026 | 17,976 | 1.4 MB | 0.08 MB | public |
 | ufc | rounds | fighter-round | 1994–2026 | 42,190 | 1.8 MB | 0.11 MB | public |
 | nba | coaching_games, _stints, _units, _rotation, _decisions | (unchanged) | 1996-97 / 2002-03 on | 3.0 M | — | — | site (bcs/data) |
+| nba | gm_tenures, assets, asset_events, gm_decisions, gm_seasons | tenure; asset; asset move; front-office decision (both grades); GM-team-season | all / 1978-79 on | 85,166 | 2.0 MB | — | site (gms/data) |
 | cbb | games, player_games, units, possessions | (unchanged) | 2009-10 / 2024-25 / 2025-26 on | 2.8 M | — | — | site (cbb/) |
 | cbb | coaching_games … coaching_programs (7) | (unchanged) | 2009-10 / 2013-14 / 2023-24 on | 1.7 M | — | — | site (cbcs/data) |
 

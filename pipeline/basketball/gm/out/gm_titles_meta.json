@@ -1,0 +1,10 @@
+{
+ "lambda": 4637.3,
+ "spells": 291,
+ "sd_points": 1457.1,
+ "sd_titles": 0.3142,
+ "corr_points_titles": 0.624,
+ "lambda_ranked_spells_only": 4567.6,
+ "rule": "lambda = sd(points) / sd(expected titles added) across all GM spells: each accounts for half of the blend's spread",
+ "points_per_win": 31.7
+}

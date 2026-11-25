@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-11-24",
+    "product": "NBA GM Savant",
+    "version": "1.0.0",
+    "text": "NBA GM Savant: every NBA front-office head since 1979-80, judged like a fund manager. GM Value Added is what his teams produced above an average GM (from game margin) plus the value he left minus what he inherited; expected titles added does the same sum in titles, from every season simulated on its real schedule and bracket, and a slider blends the two. Every trade, pick, signing, waiver and coach hire is graded twice: with only what was known that day and as it turned out, with shared credit and luck kept apart. Each GM's biggest moves come with their asset trees, every number has an explainer, it updates nightly, and the AI connector answers it with five new tools. Salaries follow in 1.1.0",
+    "href": "/nba-gm-savant"
+  },
+  {
+    "date": "2026-11-24",
     "product": "CBB Coaching Savant",
     "version": "1.0.2",
     "text": "Fix: two players with the same surname on one chart are named apart, with a first initial, or the whole first name when that matches too: Duke's Cameron Boozer and Cayden Boozer.",

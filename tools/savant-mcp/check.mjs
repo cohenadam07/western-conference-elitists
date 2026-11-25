@@ -334,8 +334,8 @@ test('the handshake and tool list are what a directory reviewer expects', async 
     'nba_all_savant_team', 'nba_coaching_leaders', 'nba_coaching_tree',
     'nba_draft_get_prospect_profile', 'nba_draft_search_prospects', 'nba_fantasy_league',
     'nba_fantasy_lock_in', 'nba_fantasy_player', 'nba_fantasy_rankings', 'nba_fantasy_streamers', 'nba_fantasy_trade',
-    'nba_get_coach_profile', 'nba_get_player_profile', 'nba_injury_report', 'nba_leaderboard', 'nba_lineups', 'nba_player_career', 'nba_player_splits',
-    'nba_schedule', 'nba_search_coaches', 'nba_search_players', 'nba_team_profile', 'nba_team_rankings',
+    'nba_get_coach_profile', 'nba_get_gm_profile', 'nba_get_player_profile', 'nba_gm_asset_tree', 'nba_gm_decisions', 'nba_gm_leaders', 'nba_injury_report', 'nba_leaderboard', 'nba_lineups', 'nba_player_career', 'nba_player_splits',
+    'nba_schedule', 'nba_search_coaches', 'nba_search_gms', 'nba_search_players', 'nba_team_profile', 'nba_team_rankings',
     'nfl_all_savant_team', 'nfl_coaching_leaders', 'nfl_coaching_tree', 'nfl_game', 'nfl_get_coach_profile', 'nfl_get_player_profile', 'nfl_leaderboard', 'nfl_player_career',
     'nfl_player_games', 'nfl_player_splits', 'nfl_search_coaches', 'nfl_search_players', 'nfl_team_profile',
     'savant_data', 'savant_dictionary',
@@ -355,8 +355,10 @@ test('the handshake and tool list are what a directory reviewer expects', async 
   // coach and cbb_get_player_profile's coaches who used players like him (Nov 6, 2026). 90,000 for the ten College
   // NFL Savant tools (Nov 10, 2026: 89,697; raising the cap for the cfb_ tools approved by Adam that day).
   // 87,284 after the Data Room went to every sport behind savant_data and savant_dictionary, which
-  // replaced the six per-sport data and dictionary tools (Nov 11, 2026: 89,998 before).
-  assert.ok(upfront < 90000, `tool names, descriptions and inputs came to ${upfront} characters`)
+  // replaced the six per-sport data and dictionary tools (Nov 11, 2026: 89,998 before). 89,881 with GM Savant's five
+  // tools (Nov 23, 2026), written to fit under the cap. 91,000 when NBA GM Savant launched (Nov 25, 2026: 90,203, main having
+  // grown to 88,002 without it; raising the cap approved by Adam that day).
+  assert.ok(upfront < 91000, `tool names, descriptions and inputs came to ${upfront} characters`)
   for (const t of tools) {
     assert.ok(t.name.length <= 64)
     assert.ok(t.title && t.annotations.title, `${t.name}: title`)

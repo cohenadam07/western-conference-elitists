@@ -1,0 +1,65 @@
+name: NBA GM Savant freshness
+
+# The alarm for NBA GM Savant's refresh (gm-savant-cloud.yml), like Basketball Savant's: once a day it reads the heartbeat,
+# data/gm-refresh.json, and fails (GitHub emails the failure; the Control Room light goes red) when
+#   - no refresh has landed for 30 hours, or
+#   - the page's games lag Basketball Savant's newest game by more than a day (the nightly re-mark missed), or
+#   - a transaction or front-office change has waited more than 48 hours for a second source.
+# Then the connector check: tools/savant-mcp/freshness.mjs --only gm against the live site (the GM tools and the five
+# Data Room tables). Quiet in the offseason weeks with no games, but transactions are still checked.
+on:
+  schedule:
+    - cron: '37 17 * * *'      # 1:37pm ET, after the daily pass
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            data/gm-refresh.json
+            data/savant-refresh.json
+            .github/scripts/control-room.sh
+            tools/savant-mcp/freshness.mjs
+          sparse-checkout-cone-mode: false
+      - name: Control Room check-in (start)
+        continue-on-error: true
+        timeout-minutes: 1
+        run: bash .github/scripts/control-room.sh gm-savant-freshness start
+      - name: Check the refresh has landed
+        run: |
+          python3 - <<'PY'
+          import datetime as dt, json, os, sys
+          p = 'data/gm-refresh.json'
+          if not os.path.exists(p):
+              print(f'::error::{p} is missing: NBA GM Savant has not refreshed in the cloud yet (gm-savant-cloud.yml)'); sys.exit(1)
+          b = json.load(open(p))
+          age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(b['last_ok'])).total_seconds() / 3600
+          print(f"last refresh {b['last_ok']} ({age:.0f}h ago), games through {b.get('games_through')}, {b['held']} held, {len(b['unconfirmed_over_48h'])} unconfirmed over 48h")
+          bad = []
+          if age > 30: bad.append(f'the NBA GM Savant refresh last ran {age:.0f} hours ago')
+          if b['unconfirmed_over_48h']: bad.append(f"{len(b['unconfirmed_over_48h'])} transaction(s) unconfirmed for over 48 hours")
+          if b.get('front_office_over_48h'): bad.append(f"{b['front_office_over_48h']} front-office change(s) unconfirmed for over 48 hours")
+          if os.path.exists('data/savant-refresh.json') and b.get('games_through'):
+              bs = json.load(open('data/savant-refresh.json')).get('through')
+              if bs and (dt.date.fromisoformat(bs) - dt.date.fromisoformat(b['games_through'])).days > 1:
+                  bad.append(f"NBA GM Savant's games end {b['games_through']}, NBA Savant's {bs}")
+          for x in bad: print(f'::error::{x}')
+          sys.exit(1 if bad else 0)
+          PY
+      - name: Check the connector's GM tools and tables
+        run: node tools/savant-mcp/freshness.mjs --site https://wcehoops.com --only gm
+      - name: Control Room check-in
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+        run: bash .github/scripts/control-room.sh gm-savant-freshness "${{ job.status }}"

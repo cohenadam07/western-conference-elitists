@@ -1,0 +1,3 @@
+peak build_page.py 607 MB 99s rc=0
+peak page/assemble.py 22 MB 0s rc=0
+peak ../../dataroom/catalog.py nba 375 MB 7s rc=0

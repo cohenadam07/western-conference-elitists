@@ -1,0 +1,30 @@
+seeding rules against the real first-round matchups: 47 of 47 seasons reproduced
+home court: the better record hosted Game 1 in 655 of 655 series whose records differed
+Playoff strength, out of sample (log score of the champion, every season from 1989-90; lower is better; each season's weights chosen on the seasons before it):
+  luck-adjusted + preseason      1.810  against luck-adjusted alone -0.042 [95% -0.128, +0.036]  latest (share raw, preseason weight) (0.0, 0.25)
+  mix + preseason                1.820  against luck-adjusted alone -0.033 [95% -0.127, +0.054]  latest (share raw, preseason weight) (1.0, 0.25)
+  raw + preseason                1.827  against luck-adjusted alone -0.025 [95% -0.125, +0.069]  latest (share raw, preseason weight) (1.0, 0.25)  <- used
+  raw                            1.846  against luck-adjusted alone -0.007 [95% -0.053, +0.045]  latest (share raw, preseason weight) (1.0, 0.0)
+  luck-adjusted                  1.853  against luck-adjusted alone +0.000 [95% +0.000, +0.000]  latest (share raw, preseason weight) (0.0, 0.0)
+  mix of raw and luck-adjusted   1.861  against luck-adjusted alone +0.008 [95% -0.024, +0.042]  latest (share raw, preseason weight) (0.75, 0.0)
+
+Calibration (each season from game fits on earlier seasons only; the first four seasons are in sample and left out):
+     predicted team-seasons  expected titles titles won
+    0% to   2%          963              1.8          2
+    2% to   5%           68              2.2          4
+    5% to  15%           97              8.7          9
+   15% to  30%           59             13.5         11
+   30% to 100%           36             16.8         17
+Brier score: 0.0251 | best record wins: 0.0401 | every team alike (1/N): 0.0339 | skill against best record: +37.5%
+mean log score of the champion: 1.732 (43 seasons); champion was the favourite in 18 of 43
+chances add up to 1 in every season: min 1.000000 max 1.000000
+
+Title chance from projected strength (each reference date scored by the version fit before its season):
+  summer  h=0: r with the simulated chance 0.53, mean 0.041 v 0.035 | h=1: r with the simulated chance 0.33, mean 0.039 v 0.035 | h=3: r with the simulated chance 0.12, mean 0.040 v 0.035 | h=5: r with the simulated chance 0.03, mean 0.040 v 0.034 | h=9: r with the simulated chance -0.01, mean 0.040 v 0.034
+  open    h=0: r with the simulated chance 0.50, mean 0.046 v 0.035 | h=1: r with the simulated chance 0.32, mean 0.037 v 0.035 | h=3: r with the simulated chance 0.12, mean 0.039 v 0.035 | h=5: r with the simulated chance 0.03, mean 0.040 v 0.034 | h=9: r with the simulated chance 0.04, mean 0.040 v 0.034
+  today   h=0: r with the simulated chance 0.66, mean 0.042 v 0.035 | h=1: r with the simulated chance 0.39, mean 0.038 v 0.035 | h=3: r with the simulated chance 0.14, mean 0.039 v 0.035 | h=5: r with the simulated chance 0.05, mean 0.041 v 0.034 | h=9: r with the simulated chance 0.02, mean 0.040 v 0.034
+  mid     h=0: r with the simulated chance 0.83, mean 0.042 v 0.035 | h=1: r with the simulated chance 0.48, mean 0.041 v 0.035 | h=3: r with the simulated chance 0.13, mean 0.040 v 0.035 | h=5: r with the simulated chance 0.10, mean 0.041 v 0.034 | h=9: r with the simulated chance 0.03, mean 0.040 v 0.034
+
+Do playoffs reward top-heavy rosters? (out of sample, each season from 1990 on fit on the seasons before it)
+  top 8 players' share of team value: log-likelihood gain -2.62 over 37 seasons [95% -7.18, +0.89], 3603 games; coefficient -0.091 (se 0.135) -> does not hold up: not used
+  top 7 players' share of team value: log-likelihood gain -2.75 over 37 seasons [95% -7.91, +1.16], 3603 games; coefficient -0.063 (se 0.135) -> does not hold up: not used

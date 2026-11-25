@@ -1,0 +1,7 @@
+traded players, seasons after the trade: 7086; gap = value that season - at-the-time projection for it
+  mean gap -0.8 value points (players who stayed, re-signed: +3.2, n 6107)
+  gap on (new team rating - old team rating) and the projection: per margin point +0.70 (se 0.10); per projected point -0.212 (se 0.013)
+  new team -20 to -3 margin points against the old: n 2482, mean gap -2.9 [-5.2, -0.9]
+  new team -3 to +0 margin points against the old: n 1273, mean gap -3.4 [-6.7, -0.1]
+  new team +0 to +3 margin points against the old: n 1187, mean gap -0.9 [-4.3, +2.6]
+  new team +3 to +20 margin points against the old: n 2139, mean gap +3.2 [+0.5, +5.7]

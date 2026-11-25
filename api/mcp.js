@@ -51,6 +51,8 @@
 //                                                 cbb_team_profile, cbb_team_rankings, cbb_lineups,
 //                                                 cbb_all_savant_team, cbb_game, cbb_schedule,
 //                                                 cbb_play_context, cbb_shot_chart, cbb_rotation
+//   api/_gm.js           NBA GM Savant        nba_search_gms, nba_get_gm_profile, nba_gm_leaders,
+//                                             nba_gm_decisions, nba_gm_asset_tree
 //   api/_cbcoaching.js   CBB Coaching Savant  cbb_search_coaches, cbb_get_coach_profile,
 //                                                 cbb_coaching_leaders, cbb_coaching_tree, cbb_coaching_fit
 //   api/_cfb.js          CFB Savant  cfb_search_players, cfb_get_player_profile, cfb_player_career,
@@ -132,6 +134,7 @@ import { tools as coaching } from './_coaching.js'
 import { tools as draft } from './_draft.js'
 import { tools as cbb } from './_cbb.js'
 import { tools as cbcoaching } from './_cbcoaching.js'
+import { tools as gm } from './_gm.js'
 import { tools as cfb } from './_cfb.js'
 import { tools as dataroom } from './_dataroom.js'
 import { tools as fantasy } from './_fantasy.js'
@@ -144,7 +147,7 @@ import { tools as pro } from './_query.js'
 import { tools as analysis, ANALYSIS_TOOLS, REPLACED } from './_analysis.js'
 import { nbaOnly, teamNote, notFoundNote } from './_ambiguous.js'
 
-const SECTIONS = [basketball, basketballLists, fantasy, bcoaching, football, footballLists, footballGames, coaching, ufc, draft, cbb, cbcoaching, cfb, dataroom, site]
+const SECTIONS = [basketball, basketballLists, fantasy, bcoaching, gm, football, footballLists, footballGames, coaching, ufc, draft, cbb, cbcoaching, cfb, dataroom, site]
 const PRO_SECTIONS = [pro]
 export const PRO_TOOLS = PRO_SECTIONS.flat().map((t) => t.name)
 export { ANALYSIS_TOOLS }
@@ -192,12 +195,13 @@ function keyIn(req) {
   }
 }
 
-const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.8.0' }
+const SERVER = { name: 'wcehoops', title: 'Western Conference Elitists (wcehoops.com)', version: '3.9.0' }
 
 const INSTRUCTIONS = [
   'Western Conference Elitists (wcehoops.com): sports analytics in the style of Baseball Savant, plus the site\'s own news, articles and rankings. Tools are grouped by prefix.',
   'nba_ is NBA Savant: NBA player stats as percentiles, 1979-80 to the latest season, ranked against the league and against the same position; its leaderboards, All-Savant Team, careers and honours, play types, with/without and monthly splits, and the all-30 teams table.',
   'nba_search_coaches, nba_get_coach_profile, nba_coaching_leaders and nba_coaching_tree are NBA Coaching Savant: every NBA head coach since 1946-47, with the Rotation Map (each man\'s usual windows and how often and why the coach goes off-script), lineups judged from their parts, timeouts, after-timeout plays and challenges, wins against the roster\'s talent and against the market, situation-by-situation splits, players against the aging curve, staffs and the suggested coaching tree.',
+  'nba_search_gms, nba_get_gm_profile, nba_gm_leaders, nba_gm_decisions and nba_gm_asset_tree are NBA GM Savant: every NBA front-office head since 1979-80, GM Value Added (production above an average GM plus what he left minus what he inherited), every decision graded at the time and as it turned out, luck and shared credit apart, and the asset trees of his biggest moves.',
   'nba_fantasy_, nba_injury_report and nba_schedule are its fantasy side: projections (rest of season, next 7 days, dynasty), points and 9-cat rankings, trades, streamers and Sleeper Lock-In plans. nba_team_profile and nba_lineups are its team and lineup ratings, with luck and sample adjustments.',
   'nfl_ is NFL Savant and NFL Coaching Savant: NFL players since 1999, ranked only against the same position, within a season and all-time; its All-Savant Team, leaderboards, team pages, careers, game logs and recent form, splits, maps and route trees, and postseason games; and NFL head coaches and play-callers, with NFL Coaching Savant\'s Leaders boards and coaching tree.',
   'ufc_ is UFC Savant: fighters ranked inside their division (or, on request, against every division of their sex), against active fighters and all-time, plus its leaderboard and head-to-head views.',

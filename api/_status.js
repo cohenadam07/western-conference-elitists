@@ -58,6 +58,11 @@ export const JOBS = [
     cadence: '4:30 and 10:30am on the Mac, and on wake. Sends the NBA tables the cloud can\'t reach, then starts a cloud refresh.',
   },
   {
+    id: 'gm-mac-pull', name: 'NBA GM Savant Mac pull', lane: 'mac', product: 'basketball',
+    cron: ['10 6,16 * * *'], tz: 'America/New_York', maxAgeH: 20,
+    cadence: '6:10am and 4:10pm on the Mac, and on wake. Parses this season\'s Basketball-Reference and NBA.com pages (which refuse the cloud) into encrypted facts, then starts an NBA GM Savant refresh.',
+  },
+  {
     id: 'news', name: 'News feed', lane: 'mac', product: 'news',
     cron: ['0 8,14 * * *', '30 23 * * *'], tz: 'America/New_York', maxAgeH: 10,
     cadence: '8am, 2pm and 11:30pm on the Mac. Runs only while the Mac is awake.',
@@ -108,6 +113,21 @@ export const JOBS = [
     id: 'basketball-freshness', name: 'NBA freshness alarm', lane: 'github', product: 'basketball',
     workflow: 'basketball-savant-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['7 16 * * *'],
     cadence: 'Daily. Fails if NBA Savant goes 30 hours without a refresh.',
+  },
+  {
+    id: 'gm-savant', name: 'NBA GM Savant refresh', lane: 'github', product: 'basketball',
+    workflow: 'gm-savant-cloud.yml', maxAgeH: 30, tz: 'UTC', cron: ['23 14 * * *'],
+    cadence: 'After every NBA Savant refresh, daily, and every 2 hours around the draft, free agency and the deadline. Amber when a transaction waits 48 hours for a second source.',
+  },
+  {
+    id: 'gm-savant-freshness', name: 'NBA GM Savant freshness alarm', lane: 'github', product: 'basketball',
+    workflow: 'gm-savant-freshness.yml', maxAgeH: 30, tz: 'UTC', cron: ['37 17 * * *'],
+    cadence: 'Daily. Fails if NBA GM Savant is a day behind NBA Savant, 30 hours without a refresh, or holds anything unconfirmed for 48 hours.',
+  },
+  {
+    id: 'gm-savant-refit', name: 'NBA GM Savant model refit', lane: 'github', product: 'basketball',
+    workflow: 'gm-savant-refit.yml', maxAgeH: 24 * 370, tz: 'UTC', cron: ['29 15 2 7 *'],
+    cadence: 'Once a year after the Finals. A refit worse than the last version does not ship and stays red.',
   },
   {
     id: 'football-savant', name: 'NFL Savant refresh', lane: 'github', product: 'football',

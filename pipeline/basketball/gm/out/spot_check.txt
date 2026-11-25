@@ -1,0 +1,127 @@
+Sam Presti, OKC 2007-06-07 to now (20.0 seasons)
+  tenure source: https://www.basketball-reference.com/executives/prestsa99x.html, https://www.spokesman.com/stories/2007/jul/07/another-link-cut; start: "the Sonics hired Sam Presti as their general manager on June 7 ... Presti held authority on all basketball-rel"
+  GM Value Added +6,912 (+346 a season; 100th percentile, rank 1 of 207 ranked): produced +2,625 + left 7,759 - inherited 3,472; player-value line +6,930
+  trades 113: -505 as they turned out, +618 at the time | drafting 53 picks +3,589 over slot | free agency +2,825 | re-signing (value kept, not added) +24,517
+    2012-10-27 trade: -2,935 as it turned out, -685.0 at the time - The Houston Rockets traded Jeremy Lamb, Kevin Martin, a 2013 1st round draft pick (Steven Adams was later sele
+    2019-07-10 trade: +2,586 as it turned out, 366.4 at the time - The Los Angeles Clippers traded Danilo Gallinari, Shai Gilgeous-Alexander, a 2021 1st round draft pick (Tre Ma
+    2009-06-25 draft: +2,502 as it turned out, n/a at the time - James Harden
+  conservation: every team-season he ran balances
+  flagged low confidence: 130 of 574 decisions
+
+Daryl Morey, HOU 2007-05-10 to 2020-11-01 (13.0 seasons)
+  tenure source: https://en.wikipedia.org/w/index.php?title=Daryl_Morey&oldid=1386890612, https://www.basketball-reference.com/executives/moreyda99x.html, https://www.thestar.com/article/345327; start: "Then-Houston Rockets owner Leslie Alexander named Morey the team's assistant general manager on April 3, 2006."
+  GM Value Added +1,209 (+93 a season; 75th percentile, rank 52 of 207 ranked): produced +2,249 + left 3,864 - inherited 4,904; player-value line +4,054
+  trades 72: +3,856 as they turned out, +3,174 at the time | drafting 25 picks -258 over slot | free agency +7,930 | re-signing (value kept, not added) +8,715
+    2012-10-27 trade: +2,935 as it turned out, 685.0 at the time - The Houston Rockets traded Jeremy Lamb, Kevin Martin, a 2013 1st round draft pick (Steven Adams was later sele
+    2009-02-19 trade: +1,876 as it turned out, 930.5 at the time - In a 3-team trade, the Houston Rockets traded Rafer Alston to the Orlando Magic; the Memphis Grizzlies traded 
+    2012-07-11 trade: -1,864 as it turned out, -527.7 at the time - The Houston Rockets traded Kyle Lowry to the Toronto Raptors for Gary Forbes and a 2013 1st round draft pick (
+  conservation: every team-season he ran balances
+  flagged low confidence: 95 of 407 decisions
+Daryl Morey, PHI 2020-11-02 to 2026-10-20 (6.06 seasons)
+  tenure source: https://en.wikipedia.org/w/index.php?title=Daryl_Morey&oldid=1386890612, https://www.basketball-reference.com/executives/moreyda99x.html, https://www.nba.com/sixers/news/team-names-morey-president-basketball-operations; start: "On November 2, 2020, the Philadelphia 76ers named Morey as president of basketball operations"
+  GM Value Added -614 (-101 a season; 34th percentile, rank 136 of 207 ranked): produced +406 + left 3,771 - inherited 4,791; player-value line +295
+  trades 20: +146 as they turned out, +964 at the time | drafting 11 picks +1,873 over slot | free agency +3,170 | re-signing (value kept, not added) +7,374
+    2020-11-18 draft: +1,024 as it turned out, n/a at the time - Tyrese Maxey
+    2022-02-10 trade: +866 as it turned out, 269.4 at the time - The Brooklyn Nets traded James Harden and Paul Millsap to the Philadelphia 76ers for Seth Curry, Andre Drummon
+    2022-07-02 signing: +775 as it turned out, 45.0 at the time - Julian Champagnie
+  conservation: every team-season he ran balances
+  flagged low confidence: 56 of 268 decisions
+
+Pat Riley, MIA 1995-09-01 to now (32.0 seasons)
+  tenure source: https://www.basketball-reference.com/executives/rileypa01x.html, https://www.hoopsrumors.com/2015/09/longest-tenured-primary-basketball-executives.html; start: "Hoops Rumors, longest-tenured primary basketball executives (Sept 2015): "Pat Riley, Heat: September 1995" (mo"
+  GM Value Added +2,429 (+76 a season; 90th percentile, rank 21 of 207 ranked): produced +3,309 + left 1,715 - inherited 2,595; player-value line -23
+  trades 81: +2,351 as they turned out, -642 at the time | drafting 42 picks +968 over slot | free agency +11,336 | re-signing (value kept, not added) +15,378
+    2010-07-10 sign-and-trade: +3,478 as it turned out, 3374.8 at the time - The Cleveland Cavaliers traded LeBron James to the Miami Heat for a 2011 2nd round draft pick (Milan Mačvan wa
+    2014-06-30 let walk: -2,681 as it turned out, -2428.3 at the time - LeBron James
+    2003-06-26 draft: +2,234 as it turned out, n/a at the time - Dwyane Wade
+  conservation: every team-season he ran balances
+  flagged low confidence: 205 of 764 decisions
+
+Danny Ainge, BOS 2003-05-09 to 2021-10-20 (18.01 seasons)
+  tenure source: https://www.basketball-reference.com/executives/aingeda01x.html, https://www.basketball-reference.com/leagues/NBA_2003_transactions.html; start: "The Boston Celtics hired Danny Ainge as Executive Director of Basketball Operations."
+  GM Value Added -129 (-7 a season; 48th percentile, rank 108 of 207 ranked): produced +1,350 + left 3,873 - inherited 5,352; player-value line +80
+  trades 71: +6,020 as they turned out, +823 at the time | drafting 53 picks +227 over slot | free agency +3,070 | re-signing (value kept, not added) +7,735
+    2017-08-22 trade: +1,328 as it turned out, -874.9 at the time - BOS received Kyrie Irving from CLE; CLE received Ante Zizic, Jae Crowder, Isaiah Thomas from BOS
+    2006-06-28 draft: +1,163 as it turned out, n/a at the time - Rajon Rondo
+    2019-06-30 let walk: -1,144 as it turned out, -1200.3 at the time - Kyrie Irving
+  conservation: off: 2015 +5.2
+  flagged low confidence: 110 of 411 decisions
+Danny Ainge, UTA 2021-12-12 to 2025-06-01 (3.68 seasons)
+  tenure source: https://www.basketball-reference.com/executives/aingeda01x.html (start game)
+  GM Value Added -1,424 (-387 a season; 17th percentile, rank 173 of 207 ranked): produced -549 + left 2,673 - inherited 3,548; player-value line -1,727
+  trades 17: -1,322 as they turned out, +726 at the time | drafting 8 picks -500 over slot | free agency +869 | re-signing (value kept, not added) +3,378
+    2023-02-09 trade: -1,424 as it turned out, -972.0 at the time - In a 3-team trade, the Los Angeles Lakers traded a 2024 2nd round draft pick (Bobi Klintman was later selected
+    2022-10-19 coach hire: -734 as it turned out, 0.0 at the time - Will Hardy
+    2023-02-22 signing: +583 as it turned out, 6.0 at the time - Kris Dunn
+  conservation: every team-season he ran balances
+  flagged low confidence: 25 of 136 decisions
+
+Jerry Krause, CHI 1985-03-25 to 2003-04-07 (18.06 seasons)
+  tenure source: https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2003&limit=1000, https://www.basketball-reference.com/executives/krausje99x.html (start game)
+  GM Value Added +2,380 (+132 a season; 88th percentile, rank 25 of 207 ranked): produced +1,382 + left 2,878 - inherited 1,879; player-value line +2,890
+  trades 51: -5,449 as they turned out, -523 at the time | drafting 48 picks -1,914 over slot | free agency +4,969 | re-signing (value kept, not added) +207
+    2002-02-19 trade: -2,169 as it turned out, -460.7 at the time - The Chicago Bulls traded Metta World Peace, Ron Mercer, Brad Miller and Kevin Ollie to the Indiana Pacers for 
+    1987-06-22 draft: +1,693 as it turned out, n/a at the time - Scottie Pippen
+    1999-01-25 signing: +1,452 as it turned out, 263.0 at the time - Brent Barry
+  conservation: off: 2000 +1.6, 2002 -3.7
+  flagged low confidence: 103 of 337 decisions
+
+Jerry West, LAL 1982-04-18 to 2000-10-31 (18.02 seasons)
+  tenure source: https://www.basketball-reference.com/executives/westje01x.html (start offseason)
+  GM Value Added +5,071 (+281 a season; 100th percentile, rank 2 of 207 ranked): produced +4,341 + left 4,686 - inherited 3,956; player-value line +7,798
+  trades 33: -2,763 as they turned out, -2,076 at the time | drafting 30 picks +6,485 over slot | free agency +6,568 | re-signing (value kept, not added) +1,426
+    1996-07-18 signing: +3,074 as it turned out, 1813.9 at the time - Shaquille O'Neal
+    1999-03-10 trade: -1,913 as it turned out, -976.5 at the time - The Charlotte Hornets traded B.J. Armstrong, J.R. Reid and Glen Rice to the Los Angeles Lakers for Elden Campb
+    1996-06-26 draft: +1,658 as it turned out, n/a at the time - Kobe Bryant
+  conservation: every team-season he ran balances
+  flagged low confidence: 68 of 259 decisions
+Jerry West, MEM 2002-04-17 to 2007-04-17 (5.0 seasons)
+  tenure source: https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?season=2007&limit=1000, https://www.basketball-reference.com/executives/westje01x.html (start offseason)
+  GM Value Added -136 (-27 a season; 46th percentile, rank 112 of 207 ranked): produced +105 + left 3,041 - inherited 3,282; player-value line +940
+  trades 15: -596 as they turned out, -1 at the time | drafting 13 picks -147 over slot | free agency +1,436 | re-signing (value kept, not added) +277
+    2006-06-28 draft: +1,310 as it turned out, n/a at the time - Kyle Lowry
+    2003-08-09 signing: +725 as it turned out, 294.8 at the time - James Posey
+    2003-02-19 trade: +687 as it turned out, 617.5 at the time - The Memphis Grizzlies traded Gordan Giriček and Drew Gooden to the Orlando Magic for Ryan Humphrey, Mike Mille
+  conservation: every team-season he ran balances
+  flagged low confidence: 22 of 79 decisions
+
+R.C. Buford, SAS 2002-07-01 to 2019-07-22 (17.0 seasons, shared)
+  tenure source: https://www.basketball-reference.com/executives/buforrc99x.html, https://www.hoopsrumors.com/2015/09/longest-tenured-primary-basketball-executives.html, https://www.nba.com/news/spurs-promote-buford-wright-gm; start: "R.C. Buford , Spurs: July 2002 (month only)"
+  GM Value Added +2,362 (+139 a season; 88th percentile, rank 26 of 207 ranked): produced +2,973 + left 1,450 - inherited 2,061; player-value line +1,178
+  trades 27: -800 as they turned out, -454 at the time | drafting 34 picks +1,471 over slot | free agency +2,087 | re-signing (value kept, not added) +6,700
+    2011-06-23 draft: +1,876 as it turned out, n/a at the time - Kawhi Leonard
+    2018-07-18 trade: -1,093 as it turned out, 412.7 at the time - The San Antonio Spurs traded Danny Green, Kawhi Leonard and cash to the Toronto Raptors for DeMar DeRozan, Jak
+    2010-11-17 signing: +970 as it turned out, 75.0 at the time - Danny Green
+  conservation: off: 2015 -5.3
+  flagged low confidence: 103 of 375 decisions
+
+Leon Rose, NYK 2020-03-01 to now (7.09 seasons)
+  tenure source: https://www.basketball-reference.com/executives/rosele99x.html (start game)
+  GM Value Added -97 (-14 a season; 50th percentile, rank 104 of 207 ranked): produced +1,106 + left 3,240 - inherited 4,443; player-value line -2,240
+  trades 35: -1,037 as they turned out, -1,062 at the time | drafting 14 picks +484 over slot | free agency +2,662 | re-signing (value kept, not added) +4,967
+    2022-07-12 signing: +951 as it turned out, 419.5 at the time - Jalen Brunson
+    2023-07-08 signing: +764 as it turned out, 419.4 at the time - Donte DiVincenzo
+    2020-11-18 draft: +711 as it turned out, n/a at the time - Immanuel Quickley
+  conservation: every team-season he ran balances
+  flagged low confidence: 81 of 326 decisions
+
+Rob Pelinka, LAL 2019-04-11 to now (8.0 seasons)
+  tenure source: https://www.basketball-reference.com/executives/pelinro99x.html (start game)
+  GM Value Added +2,424 (+303 a season; 90th percentile, rank 22 of 207 ranked): produced +717 + left 4,396 - inherited 2,689; player-value line +2,802
+  trades 24: +398 as they turned out, +253 at the time | drafting 8 picks -733 over slot | free agency +5,064 | re-signing (value kept, not added) +11,912
+    2025-02-02 trade: +2,013 as it turned out, 949.3 at the time - In a 3-team trade, the Dallas Mavericks traded Luka Doncic, Maxi Kleber and Markieff Morris to the Los Angeles
+    2019-07-06 trade: -1,672 as it turned out, -980.3 at the time - In a 3-team trade, the Los Angeles Lakers traded Lonzo Ball, Josh Hart, De'Andre Hunter, Brandon Ingram, cash,
+    2021-08-03 signing: +1,016 as it turned out, 45.2 at the time - Austin Reaves
+  conservation: every team-season he ran balances
+  flagged low confidence: 72 of 322 decisions
+
+Ted Podleski, LAC 1981-01-28 to 1982-10-29 (1.38 seasons)
+  tenure source: https://www.basketball-reference.com/executives/podlete99x.html (start game)
+  GM Value Added -115 (-84 a season; not ranked: under two seasons): produced -478 + left 1,788 - inherited 1,425; player-value line +89
+  trades 6: +29 as they turned out, +0 at the time | drafting 5 picks +305 over slot | free agency +136 | re-signing (value kept, not added) +0
+    1982-06-29 draft: +526 as it turned out, n/a at the time - Terry Cummings
+    1982-10-27 trade: -144 as it turned out, n/a at the time - The Philadelphia 76ers traded Lionel Hollins to the San Diego Clippers for a 1983 4th round draft pick (Kalpat
+    1982-06-28 trade: +115 as it turned out, n/a at the time - The San Diego Clippers traded Joe Bryant and a 1982 2nd round draft pick (Jeff Taylor was later selected) to t
+  conservation: every team-season he ran balances
+  flagged low confidence: 13 of 29 decisions
+

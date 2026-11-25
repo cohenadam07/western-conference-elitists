@@ -1,0 +1,124 @@
+Is it skill? Grades taken against the league average for that decision type that season; credit-weighted. Decisions that matter: first-round picks; trades and signings with 300+ points at stake at the time (everything moving, both ways, ten seasons at 5%); every coach move.
+kept by the stake rule: trade 42%, signing 2%, re-signing 10%, extension 54%; median stake among trades and signings 45 points
+mde = the smallest true correlation the test would find four times in five.
+
+drafting (turned out): describes what happened
+    date            r -0.18 [-0.34, -0.00]  people 131  mde 0.24
+    oddeven         r -0.14 [-0.31, +0.03]  people 131  mde 0.24
+    stakes          r +0.01 [-0.22, +0.23]  people  77  mde 0.31
+    stake-weighted  r -0.19 [-0.35, -0.02]  people 131  mde 0.24
+    spell           r -0.14 [-0.29, +0.02]  people 151  mde 0.23
+drafting (at time): skill: repeats
+    date            r +0.31 [+0.07, +0.52]  people  61  mde 0.35
+    oddeven         r +0.35 [+0.10, +0.55]  people  61  mde 0.35
+    stakes          r +0.27 [-0.09, +0.57]  people  31  mde 0.48
+    stake-weighted  r +0.06 [-0.19, +0.31]  people  61  mde 0.35
+    spell           r +0.27 [+0.02, +0.49]  people  61  mde 0.35
+second-round finds (turned out): describes what happened
+    date            r +0.08 [-0.16, +0.31]  people  69  mde 0.33
+    oddeven         r -0.14 [-0.36, +0.10]  people  69  mde 0.33
+    stakes          too few people (0)
+    stake-weighted  r +0.13 [-0.12, +0.35]  people  69  mde 0.33
+    spell           r +0.16 [-0.09, +0.39]  people  63  mde 0.35
+second-round finds (at time): describes what happened
+    date            r -0.25 [-0.58, +0.14]  people  27  mde 0.52
+    oddeven         r -0.33 [-0.63, +0.06]  people  27  mde 0.52
+    stakes          too few people (0)
+    stake-weighted  r -0.24 [-0.57, +0.15]  people  27  mde 0.52
+    spell           r -0.20 [-0.54, +0.20]  people  26  mde 0.53
+deviation success (turned out): describes what happened
+    date            r -0.03 [-0.32, +0.25]  people  47  mde 0.40
+    oddeven         r -0.07 [-0.35, +0.23]  people  47  mde 0.40
+    stakes          r +0.21 [-0.28, +0.62]  people  18  mde 0.62
+    stake-weighted  r -0.03 [-0.31, +0.26]  people  47  mde 0.40
+    spell           r +0.18 [-0.12, +0.44]  people  46  mde 0.40
+deviation success (at time): unclear: repeats only in oddeven, stakes
+    date            r +0.16 [-0.14, +0.42]  people  47  mde 0.40
+    oddeven         r +0.34 [+0.06, +0.57]  people  47  mde 0.40
+    stakes          r +0.53 [+0.09, +0.80]  people  18  mde 0.62
+    stake-weighted  r +0.06 [-0.23, +0.34]  people  47  mde 0.40
+    spell           r +0.06 [-0.24, +0.34]  people  46  mde 0.40
+fit picks (turned out): not testable (too few people with 8+ graded decisions)
+    date            too few people (2)
+    oddeven         too few people (2)
+    stakes          too few people (0)
+    stake-weighted  too few people (2)
+    spell           too few people (0)
+fit picks (at time): not testable (too few people with 8+ graded decisions)
+    date            too few people (2)
+    oddeven         too few people (2)
+    stakes          too few people (0)
+    stake-weighted  too few people (2)
+    spell           too few people (0)
+holding (turned out): unclear: repeats only in oddeven, stake-weighted
+    date            r +0.02 [-0.14, +0.18]  people 148  mde 0.23
+    oddeven         r +0.24 [+0.08, +0.39]  people 148  mde 0.23
+    stakes          r -0.01 [-0.24, +0.22]  people  72  mde 0.32
+    stake-weighted  r +0.17 [+0.01, +0.32]  people 148  mde 0.23
+    spell           r -0.01 [-0.15, +0.13]  people 187  mde 0.20
+holding (at time): unclear: repeats only in oddeven, stakes, stake-weighted
+    date            r +0.15 [-0.01, +0.31]  people 147  mde 0.23
+    oddeven         r +0.32 [+0.16, +0.46]  people 147  mde 0.23
+    stakes          r +0.24 [+0.00, +0.44]  people  72  mde 0.32
+    stake-weighted  r +0.27 [+0.12, +0.42]  people 147  mde 0.23
+    spell           r +0.01 [-0.13, +0.15]  people 184  mde 0.21
+trades (turned out): describes what happened
+    date            r -0.08 [-0.24, +0.08]  people 149  mde 0.23
+    oddeven         r -0.05 [-0.21, +0.12]  people 149  mde 0.23
+    stakes          r -0.04 [-0.24, +0.17]  people  90  mde 0.29
+    stake-weighted  r -0.10 [-0.26, +0.06]  people 149  mde 0.23
+    spell           r -0.03 [-0.17, +0.12]  people 182  mde 0.21
+trades (at time): describes what happened
+    date            r -0.05 [-0.23, +0.12]  people 127  mde 0.25
+    oddeven         r -0.02 [-0.19, +0.16]  people 127  mde 0.25
+    stakes          r +0.11 [-0.11, +0.32]  people  82  mde 0.31
+    stake-weighted  r -0.08 [-0.25, +0.10]  people 127  mde 0.25
+    spell           r -0.04 [-0.20, +0.12]  people 152  mde 0.23
+free agency (turned out): describes what happened
+    date            r +0.07 [-0.08, +0.22]  people 172  mde 0.21
+    oddeven         r +0.01 [-0.14, +0.16]  people 172  mde 0.21
+    stakes          too few people (0)
+    stake-weighted  r +0.03 [-0.12, +0.17]  people 172  mde 0.21
+    spell           r +0.06 [-0.07, +0.19]  people 225  mde 0.19
+free agency (at time): describes what happened
+    date            r -0.08 [-0.24, +0.07]  people 161  mde 0.22
+    oddeven         r -0.20 [-0.35, -0.05]  people 161  mde 0.22
+    stakes          too few people (0)
+    stake-weighted  r +0.02 [-0.13, +0.18]  people 161  mde 0.22
+    spell           r +0.11 [-0.03, +0.24]  people 209  mde 0.19
+role players (turned out): describes what happened
+    date            r -0.12 [-0.31, +0.09]  people  94  mde 0.29
+    oddeven         r +0.14 [-0.07, +0.33]  people  94  mde 0.29
+    stakes          too few people (0)
+    stake-weighted  r -0.11 [-0.30, +0.10]  people  94  mde 0.29
+    spell           r -0.03 [-0.23, +0.18]  people  94  mde 0.29
+role players (at time): describes what happened
+    date            r +0.12 [-0.09, +0.32]  people  89  mde 0.29
+    oddeven         r +0.15 [-0.06, +0.35]  people  89  mde 0.29
+    stakes          too few people (0)
+    stake-weighted  r -0.06 [-0.27, +0.15]  people  89  mde 0.29
+    spell           r +0.19 [-0.02, +0.38]  people  88  mde 0.29
+re-signing and extensions (turned out): unclear: repeats only in stake-weighted
+    date            r +0.13 [-0.06, +0.30]  people 114  mde 0.26
+    oddeven         r +0.03 [-0.16, +0.21]  people 114  mde 0.26
+    stakes          r +0.33 [-0.08, +0.65]  people  24  mde 0.54
+    stake-weighted  r +0.21 [+0.02, +0.38]  people 114  mde 0.26
+    spell           r +0.11 [-0.08, +0.28]  people 117  mde 0.26
+re-signing and extensions (at time): describes what happened
+    date            r +0.02 [-0.17, +0.21]  people 105  mde 0.27
+    oddeven         r +0.18 [-0.02, +0.36]  people 105  mde 0.27
+    stakes          r +0.28 [-0.14, +0.61]  people  24  mde 0.54
+    stake-weighted  r +0.12 [-0.08, +0.30]  people 105  mde 0.27
+    spell           r +0.02 [-0.18, +0.21]  people 106  mde 0.27
+coach hiring (turned out): not testable (too few people with 8+ graded decisions)
+    date            too few people (8)
+    oddeven         too few people (8)
+    stakes          too few people (8)
+    stake-weighted  too few people (8)
+    spell           too few people (5)
+coach hiring (at time): not testable (too few people with 8+ graded decisions)
+    date            too few people (8)
+    oddeven         too few people (8)
+    stakes          too few people (8)
+    stake-weighted  too few people (8)
+    spell           too few people (5)

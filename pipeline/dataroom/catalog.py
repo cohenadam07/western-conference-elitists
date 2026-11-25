@@ -31,7 +31,10 @@ ASSETS = 'https://github.com/cohenadam07/western-conference-elitists/releases/do
 LEGACY = {
     'nba': [('coaching_games', 'bcs', 'games', 'team-game (coaching context)'), ('coaching_stints', 'bcs', 'stints', 'player stint'),
             ('coaching_units', 'bcs', 'units', 'five-man unit, team-season'), ('coaching_rotation', 'bcs', 'rotation', 'player-game (rotation)'),
-            ('coaching_decisions', 'bcs', 'decisions', 'coaching decision')],
+            ('coaching_decisions', 'bcs', 'decisions', 'coaching decision'),
+            ('gm_tenures', 'gms', 'gm_tenures', 'GM tenure (every season in one table)'), ('assets', 'gms', 'assets', 'asset: player, pick, swap, cash, exception (one table)'),
+            ('asset_events', 'gms', 'asset_events', 'asset move'), ('gm_decisions', 'gms', 'gm_decisions', 'front-office decision, both grades'),
+            ('gm_seasons', 'gms', 'gm_seasons', 'GM-team-season')],
     'cbb': [('games', 'cbb', 'games', 'game'), ('player_games', 'cbb', 'player_games', 'player-game (per team)'),
             ('units', 'cbb', 'units', 'five-man unit, team-season (per team)'), ('possessions', 'cbb', 'possessions', 'possession (per team)'),
             ('coaching_games', 'cbcs', 'games', 'team-game (coaching context)'), ('coaching_stints', 'cbcs', 'stints', 'player stint'),
@@ -41,7 +44,7 @@ LEGACY = {
 }
 PAGES = {'nba': '/nba-savant', 'nfl': '/nfl-savant', 'cfb': '/cfb-savant',
          'ufc': '/ufc-savant', 'cbb': '/cbb-savant'}
-LEGACY_PAGES = {'bcs': '/nba-coaching-savant', 'cbb': '/cbb-savant', 'cbcs': '/cbb-coaching-savant'}
+LEGACY_PAGES = {'gms': '/nba-gm-savant', 'bcs': '/nba-coaching-savant', 'cbb': '/cbb-savant', 'cbcs': '/cbb-coaching-savant'}
 
 
 def _load(p):
@@ -86,7 +89,7 @@ def scan_new(sport, table, spec, prev):
 
 def scan_legacy(src, t, current=None):
     seasons = {}
-    if src in ('bcs', 'cbcs'):
+    if src in ('bcs', 'cbcs', 'gms'):
         if t == 'programs':
             doc = _load(os.path.join(SITE, 'cbcs', 'data', 'programs.json'))
             if doc:

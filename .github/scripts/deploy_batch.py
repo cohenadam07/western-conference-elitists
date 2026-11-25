@@ -49,6 +49,8 @@ KINDS = [
     ("Football Savant: full archive", "Football Savant archive"),
     ("College Football Savant: refresh", "College Football Savant"),
     ("UFC Savant", "UFC Savant"),
+    ("NBA GM Savant: refresh", "NBA GM Savant"),
+    ("NBA GM Savant: model refit", "NBA GM Savant refit"),
     ("news:", "news"),
 ]
 

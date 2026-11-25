@@ -1,0 +1,87 @@
+<body class="view-home">
+<nav class="sv-tabs" aria-label="NBA GM Savant sections"><a class="sv-tab on" href="#" data-tab="gms">GMs</a><a class="sv-tab" href="#leaders" data-tab="leaders">Leaders</a><a class="sv-tab" href="#tree" data-tab="tree">The tree</a><a class="sv-tab" href="#method" data-tab="method">How it works</a></nav>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="brandwrap"><a class="wce" href="/" aria-label="WCE Hoops home">WCE</a><div><div class="brand-word">NBA GM <span>Savant</span></div>
+      <div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="eyebrow-pill">Every NBA GM, 1979-80 on</span><span class="vchip" id="ver" title="Version">v1.0.0</span><a class="backlink" href="/nba-savant">NBA Savant</a><a class="backlink" href="/nba-coaching-savant">NBA Coaching Savant</a></div></div></div>
+    </div>
+    <div class="search"><label for="q" class="sr">Find a GM</label><input id="q" type="search" placeholder="Find a GM — Presti, Riley, Ainge…" autocomplete="off" aria-controls="res"/><div class="results" id="res" role="listbox" hidden></div></div>
+  </header>
+  <details class="salbanner" id="salaries" hidden><summary><b>Salaries are coming in v1.1.0.</b> <span class="sb-more">Until then value is counted without what it cost. See which numbers they will change</span></summary><ul id="salList"></ul></details>
+
+  <!-- home -->
+  <section id="home">
+    <div class="lede">
+      <h1 class="disp">Every front office, judged like a fund manager.</h1>
+      <p>GM Value Added is what a GM's teams did on the floor above an average GM in his seat, plus the value of the roster and picks he handed on, minus what he was handed. Points reward good teams; the goal is titles, so every GM also gets <b>expected titles added</b>, the same sum in titles, and a <b>blend</b> of the two you can tune. Every decision gets two grades: <b>at the time</b>, with only what was known that day, and <b>how it turned out</b>. Luck is kept apart, and so is shared credit.</p>
+      <p class="whatsnew"><b>What's new (v1.0.0):</b> the launch, with points and titles for every GM since 1979-80. Salaries follow in v1.1.0. <span id="through"></span></p>
+    </div>
+    <div class="col wide"><div class="ph"><h2 class="col-h" id="homeH">Points and titles, blended</h2><div class="seg" id="homeSeg"><button aria-pressed="true" data-v="all">All-time</button><button aria-pressed="false" data-v="active">Active</button><button aria-pressed="false" data-v="at_time">At the time</button></div></div>
+      <div class="ctl"><div class="seg" id="homeMetric" aria-label="Rank by"><button aria-pressed="true" data-v="blended">Blended</button><button aria-pressed="false" data-v="points">Points</button><button aria-pressed="false" data-v="titles">Expected titles</button></div>
+      <div class="blendctl" id="homeBlendCtl"><span class="bl-end">Wins only</span><input type="range" id="homeBlend" min="0" max="100" step="1" value="50" aria-label="Weight on titles, from wins only to titles only"><span class="bl-end">Titles only</span> <button class="ib" type="button" data-x="lambda" aria-expanded="false" aria-label="What is the blend?">i</button><span class="ts bl-note" id="homeBlendNote"></span></div></div>
+      <p class="sub" id="homePool"></p>
+      <div id="homeBoard"></div>
+    </div>
+  </section>
+
+  <!-- one GM -->
+  <section id="card" hidden>
+    <div class="id">
+      <div class="id-head"><div class="headwrap"><div class="initials" id="ini"></div></div>
+        <div class="id-headtext"><div class="id-name" id="name"></div><div class="id-meta" id="meta"></div><div class="chips" id="spellChips" style="margin:10px 0 0"></div></div></div>
+      <p class="photocredit" id="photoCredit"></p>
+      <div class="note" id="report"></div>
+    </div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">GM Value Added</h2><span class="since" id="gvaSince"></span></div>
+      <div id="gva"></div>
+      <p class="cap inh-note" id="inhNote" hidden></p>
+      <div class="tiles" id="gvaTiles" style="margin-top:12px"></div>
+      <div id="rates" style="margin-top:12px"></div>
+      <div id="splits"></div>
+    </div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Titles</h2><span class="since">title chances from 1979-80</span></div><div id="tbars"></div><div class="tiles" id="titleTiles" style="margin-top:12px"></div><p class="cap" id="titleNote"></p></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Luck, kept apart</h2><span class="since">lottery from 1985, playoffs from 1979-80</span></div><div class="tiles" id="luck"></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">What happened, skill by skill</h2><span class="since">1979-80 on</span></div>
+      <p class="sub">{{repeat_sentence}} (see How it works), so these are shown as what happened, in Savant points, without percentiles. Skills overlap, so they don't add up to GM Value Added.</p>
+      <div id="skills"></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Did the portfolio grow while he ran it?</h2><button class="ib" type="button" data-x="portfolio" aria-expanded="false" aria-label="What is the portfolio?">i</button><span class="since">ten seasons ahead, 5% a year</span></div>
+      <div class="chartwrap"><svg id="port" role="img" aria-label="Portfolio value over time"></svg><div class="tip" id="tip" hidden></div></div>
+      <div class="legend" id="portLegend"></div></div>
+    <div class="panels">
+      <div class="col wide"><div class="ph"><h2 class="col-h">Inherited</h2><button class="ib" type="button" data-x="lists" aria-expanded="false" aria-label="What is this list?">i</button><span id="inhSoon"></span><span class="since" id="inhDay"></span></div><div id="inh"></div></div>
+      <div class="col wide"><div class="ph"><h2 class="col-h">Left behind</h2><button class="ib" type="button" data-x="lists" aria-expanded="false" aria-label="What is this list?">i</button><span id="leftSoon"></span><span class="since" id="leftDay"></span></div><div id="left"></div></div>
+    </div>
+    <div class="col wide" id="activePanel" hidden><div class="ph"><h2 class="col-h">Today's roster</h2><span class="since">2026-27</span></div><div class="tiles" id="activeTiles"></div><div id="picks"></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">His biggest moves, and where they led</h2><span class="since">trades and drafts</span></div><div id="moves"></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Every decision</h2><span class="since" id="logSince"></span></div>
+      <div class="chips" id="logFilter"></div><p class="cap" id="logNote" hidden></p><div class="scroll"><table class="t" id="log"></table></div><p class="sub" id="logMore"></p></div>
+  </section>
+
+  <section id="leaders" hidden>
+    <div class="col wide"><div class="ph"><h2 class="col-h" id="lbH">Points and titles, blended: the board</h2><div class="seg" id="lbSeg"><button aria-pressed="true" data-v="all">All-time</button><button aria-pressed="false" data-v="active">Active</button><button aria-pressed="false" data-v="at_time">At the time</button></div></div>
+      <div class="ctl"><div class="seg" id="lbMetric" aria-label="Rank by"><button aria-pressed="true" data-v="blended">Blended</button><button aria-pressed="false" data-v="points">Points</button><button aria-pressed="false" data-v="titles">Expected titles</button></div>
+      <div class="blendctl" id="lbBlendCtl"><span class="bl-end">Wins only</span><input type="range" id="lbBlend" min="0" max="100" step="1" value="50" aria-label="Weight on titles, from wins only to titles only"><span class="bl-end">Titles only</span> <button class="ib" type="button" data-x="lambda" aria-expanded="false" aria-label="What is the blend?">i</button><span class="ts bl-note" id="lbBlendNote"></span></div></div>
+      <p class="sub" id="lbPool"></p><div class="scroll"><table class="t" id="lb"></table></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Skill boards</h2><select id="skillSel" aria-label="Skill"></select></div><p class="sub" id="skillNote"></p><div id="skillBoard"></div></div>
+  </section>
+
+  <section id="tree" hidden>
+    <div class="col wide"><div class="ph"><h2 class="col-h">The executive tree</h2><button class="ib" type="button" data-x="tree" aria-expanded="false" aria-label="What is the executive tree?">i</button><span class="since">from the record, sourced</span></div>
+      <p class="sub">Who worked under whom before running a team of his own. Each link names its source.</p><div id="treeList"></div></div>
+  </section>
+
+  <section id="method" hidden>
+    <div class="col wide"><div class="ph"><h2 class="col-h">How it works</h2></div><div id="notes"></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Changelog</h2></div><div id="changelog"></div></div>
+    <div class="col wide"><div class="ph"><h2 class="col-h">Is it skill? The repeatability tests</h2><button class="ib" type="button" data-x="repeat" aria-expanded="false" aria-label="What is the repeatability test?">i</button></div>
+      <p class="sub">Each person's decisions are split in half five ways and the halves correlated across people. A skill repeats when the correlation's 95% interval stays above zero. "Smallest it can detect" is the smallest true correlation the test would find four times in five.</p>
+      <div class="scroll"><table class="t" id="rep"></table></div></div>
+  </section>
+
+  <div class="expl" id="expl" role="dialog" aria-label="Explainer" hidden></div>
+  <footer class="foot">
+    <p><b>NBA GM Savant</b> <span id="footVer">v1.0.0</span> · Sources: Basketball-Reference (executives, transactions, drafts, team totals), ESPN transactions, NBA.com player movement and team releases, Hoops Rumors, Wikipedia (dated with its references), press coverage for pick protections, and WCE's own Savant value and NBA Coaching Savant. Grades are the model's view, not a verdict.</p>
+    <p><a href="/#ai">Ask it through the WCE AI connector</a> (nba_search_gms, nba_get_gm_profile, nba_gm_leaders, nba_gm_decisions, nba_gm_asset_tree) · Data Room through the same connector: nba gm_tenures, assets, asset_events, gm_decisions, gm_seasons</p>
+  </footer>
+</div>

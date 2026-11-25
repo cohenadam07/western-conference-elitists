@@ -1,0 +1,69 @@
+== 1. Trades
+trades 1966; every item recorded with one giver and one receiver (double entry): 7649 item moves
+legs with nothing in them (text says "for" but no item parsed): 5
+    2013-06-25 The Boston Celtics traded Doc Rivers to the Los Angeles Clippers for a 2015 1st round draft pick (R.J. Hunter was later selected).
+    2018-10-15 The Milwaukee Bucks traded to the Washington Wizards for Jodie Meeks, cash and . $1.5MM modification of protections on pick previously traded from WAS
+    2019-02-07 The Atlanta Hawks traded to the Boston Celtics for Jabari Bird and cash. (Pick is top-55 protected.)
+    2021-03-25 The Sacramento Kings traded a 2021 2nd round draft pick (Dalano Banton was later selected) to the Toronto Raptors for Terence Davis. 2021 2nd-rd pick 
+    2026-02-05 The Boston Celtics traded Chris Boucher, cash and a 2027 2nd round draft pick to the Utah Jazz for John Tonje. 2027 2nd-rd pick is DEN own Boston rece
+one-way trades (a team gave without receiving anything named): 26
+NBA.com (July 2015 on): 1287 of 1293 traded players reach the same team in the ledger within 7 days
+    NBA.com only: 2026-02-05 MIL Nigel Hayes-Davis
+    NBA.com only: 2021-03-25 SAC Terence Davis
+    NBA.com only: 2021-01-14 HOU Caris LeVert
+    NBA.com only: 2020-02-05 ATL Nene Hilario
+    NBA.com only: 2018-02-01 CHI Omer Asik
+    NBA.com only: 2016-08-26 PHI Tibor Pleiss
+
+== 2. Rosters today (ESPN, 2026-11-22)
+ESPN players 528; held by the same team in the ledger 523 (99.1%)
+    on CLE per ESPN, ledger has ['POOL']: riley minix
+    on DET per ESPN, ledger has never seen: elijah harkless
+    on DET per ESPN, ledger has never seen: ronald holland
+    on LAL per ESPN, ledger has ['POOL']: ak okereke
+    on SAS per ESPN, ledger has never seen: david jones garcia
+ledger holds 1477 players ESPN does not list; of all holdings, 1492 are unsigned draft rights (stashes). Most per team: [('POR', 73), ('WAS', 73), ('BOS', 71), ('PHI', 69), ('PHO', 69)]
+
+== 3. Past rosters: did the team hold everyone who played for it?
+player-team-seasons 23523; reconciled 23415 (99.5%)
+   1980s: 3485/3515 (99.1%)
+   1990s: 4511/4527 (99.6%)
+   2000s: 4965/4968 (99.9%)
+   2010s: 5489/5518 (99.5%)
+   2020s: 4965/4995 (99.4%)
+   most unreconciled seasons: [('2013-14', 18), ('2019-20', 13), ('1979-80', 13), ('2020-21', 11), ('1998-99', 6)]
+   examples: [('MIA', 'James Jones'), ('LAC', 'Hedo Türkoğlu'), ('LAC', 'Darius Morris'), ('HOU', 'Chandler Parsons'), ('HOU', 'Troy Daniels'), ('IND', 'Rasual Butler'), ('CHO', 'James Southerland'), ('PHO', 'Dionte Christmas')]
+
+== 4. Pick chains
+{'selected': 4093, 'pending (future draft)': 184, 'unresolved': 7, 'documented end (note)': 16}
+   unresolved by era: {1980: 1, 2000: 2, 2020: 4}
+   (pre-2017 picks that left no player and no note: protection unknown, graded low confidence per Adam, never guessed)
+
+== 5. Events by type and season
+season      trade     sign    waive  release    claim expansion     sale    draft   extend  convert   retire
+1979-80        43       70       70        4        0       22        3        1        0        0        1
+1984-85        26       87       73        0        1        0        0        1        0        0        1
+1989-90        37      164      101        6        3        0        2        1        1        0        0
+1994-95        27      186      105       17        0       27        1        1        0        0        3
+1999-00        33      194      109       18        1        0        0        1        0        0        3
+2004-05        47      209      115        7        3        0        0        1        0        0        3
+2009-10        50      144       84       15        3        0        3        1        0        0        0
+2014-15        64      419      234        5       16        0        0        1        7        0        4
+2019-20        45      541      273        0       12        0        0        0        1       14        8
+2023-24        63      595      326        1        3        0        0        1       30       28        3
+2024-25        53      578      330        0        7        0        0        1       38       26        3
+2025-26        65      617      378        0        2        0        0        1       29       31        3
+2026-27        26      504      320        0        4        0        0        0       21        1        2
+
+Gaps (the history before an event is missing, so the ledger repairs the holder and logs it):
+   waive    held elsewhere       122
+   trade    held elsewhere       108
+   trade    never seen before    98
+   draft    held elsewhere       95
+   waive    never seen before    59
+   expansion never seen before    10
+   release  held elsewhere       8
+   trade not parsed never seen before    7
+   sale     never seen before    6
+   sale     held elsewhere       3
+   by decade: {1970: 48, 1980: 143, 1990: 37, 2000: 60, 2010: 130, 2020: 98}

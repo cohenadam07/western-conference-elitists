@@ -1,0 +1,30 @@
+__pycache__/
+out_*.log
+# rebuilt from the cache (~/Basketball-Savant/cache_gm) by the fetch scripts
+out/br_tx.json
+out/espn_tx.json
+out/games.json
+out/br_execs.json
+out/gm_tenures_draft.json
+out/ledger_events.json
+out/ledger_assets.json
+out/ledger_edges.json
+out_wd.log
+out/model_seasons.json
+out/snapshots.json
+out/results.json
+out/gm_decisions.json
+out/gm_detail.json
+out_gm5.log
+out_repeat6.log
+
+# parsed page facts (pagefacts.py): they travel only inside the encrypted state bundle, never in the public repo
+out/facts/
+# parsed transaction text from the fetched pages: kept out of the public repo (it travels in the encrypted state bundle)
+out/ledger_trades.json
+out/fo_events.json
+out/wiki_events.json
+# the parsed pre-draft board ranks (boards.py): the same rule
+out/boards.json
+# the title model's standings, schedules and playoff series (titles_data.py): parsed from fetched pages, same rule
+out/playoff_data.json

@@ -1,0 +1,75 @@
+name: NBA GM Savant cloud refresh
+
+# NBA GM Savant keeps itself current (Module 8; pipeline/basketball/gm/gm_update.py, gm_cloud_run.sh):
+#   - after every Basketball Savant refresh (workflow_run): re-mark every current asset with the night's Savant value,
+#     so how-it-turned-out grades, portfolios and active GMs' GM Value Added move nightly
+#   - once a day regardless, for transactions (Basketball-Reference, ESPN, NBA.com; each new one counts only when a
+#     second source agrees, and anything unconfirmed for 48 hours turns this run's Control Room light amber)
+#   - every two hours around the draft and free agency (June 20 to July 10) and the trade deadline (Jan 25 to Feb 12)
+# At-the-time grades are frozen once written (GM_FREEZE=1). No fetched page is ever stored here: the state travels
+# encrypted (GM_STATE_KEY), and the pages the cloud is refused come from the Mac lane as parsed facts (mac_pull.sh).
+# Odd minutes on purpose: GitHub delays scheduled runs badly at :00 and :30.
+on:
+  workflow_run:
+    workflows: ['Basketball Savant cloud refresh']
+    types: [completed]
+  schedule:
+    - cron: '23 14 * * *'          # daily, 10:23am ET (9:23 in winter)
+    - cron: '17 */2 20-30 6 *'     # the draft and the start of free agency
+    - cron: '17 */2 1-10 7 *'
+    - cron: '*/20 23 22-28 6 *'    # draft nights: picks become players as they are made
+    - cron: '*/20 0-4 23-29 6 *'
+    - cron: '17 */2 25-31 1 *'     # the trade deadline
+    - cron: '17 */2 1-12 2 *'
+  workflow_dispatch:
+    inputs:
+      light: { description: 'only what changed (uncheck: rebuild everything and rerun the repeatability test)', type: boolean, default: true }
+
+concurrency: { group: gm-savant-cloud, cancel-in-progress: false }
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  refresh:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main, fetch-depth: 1 }
+      - name: Control Room check-in (start)
+        continue-on-error: true
+        timeout-minutes: 1
+        run: bash .github/scripts/control-room.sh gm-savant start
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.13', cache: pip, cache-dependency-path: pipeline/basketball/gm/requirements.txt }
+      - name: Install
+        run: pip install --quiet -r pipeline/basketball/gm/requirements.txt
+      - name: Refresh
+        id: refresh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GM_STATE_KEY: ${{ secrets.GM_STATE_KEY }}     # decrypts and re-encrypts the state bundle (state_bundle.py)
+        run: |
+          # every pass updates only what changed (gm_update.py rebuild); Mondays' daily pass rebuilds everything and
+          # reruns the repeatability test, so anything an incremental night could have missed is caught within a week
+          MODE=--light
+          if [ "${{ github.event.schedule }}" = "23 14 * * *" ] && [ "$(date -u +%u)" = "1" ]; then MODE=--full; fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.light }}" = "false" ]; then MODE=--full; fi
+          rc=0; bash pipeline/basketball/gm/gm_cloud_run.sh $MODE || rc=$?
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          [ $rc -eq 0 ] || [ $rc -eq 2 ]
+      - name: Control Room check-in
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          WCE_NTFY_TOPIC: ${{ secrets.WCE_NTFY_TOPIC }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          STATE="${{ job.status }}"
+          DETAIL="$(cat pipeline/basketball/gm/out/control_detail.txt 2>/dev/null)"
+          if [ "${{ steps.refresh.outputs.rc }}" = "2" ]; then STATE=failure; DETAIL="unconfirmed for 48 hours: $DETAIL"; fi
+          bash .github/scripts/control-room.sh gm-savant "$STATE" "${DETAIL:-}"

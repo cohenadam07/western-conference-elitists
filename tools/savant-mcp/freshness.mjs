@@ -203,6 +203,17 @@ async function main() {
     await check('nba', 'tool', 'nba_*_coach*, nba_coaching_* (bcs/index.json)', R.season, R, tol, async () => { const i = await load('bcs/index.json'); return dayOf(i.meta.through || i.meta.generated) })
     await parquetTables('nba', R, tol)
   }
+  // GM Savant (Module 8): re-marked after every Basketball Savant refresh, so its games must reach Basketball Savant's
+  // newest game within a day. Its five Data Room tables are the page's own files (gms/data); the three kept by
+  // season must have this season's file. Checked with nba, and alone with --only gm (gm-savant-freshness.yml).
+  if (want('gm') || want('nba')) {
+    const R = nba, tol = TOLERANCE.nba
+    const games = async () => { const i = await load('gms/index.json'); return dayOf(i.meta.games_through || i.meta.generated) }
+    await check('nba', 'tool', 'nba_search_gms, nba_get_gm_profile, nba_gm_* (gms/index.json)', R.season, R, tol, games)
+    for (const t of ['gm_decisions', 'asset_events', 'gm_seasons']) {
+      await check('nba', 'table', `savant_data nba ${t}`, R.season, R, tol, async () => { await load(`gms/data/${t}/${R.season}.json`); return games() })
+    }
+  }
   if (want('nfl')) {
     const R = await nflRef()
     console.log(`nfl: last completed regular-season game ${R.played}; due through ${R.ref} (the Tuesday after its week has passed)`)
