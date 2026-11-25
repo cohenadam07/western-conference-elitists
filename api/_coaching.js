@@ -944,10 +944,10 @@ export const tools = [
     config: {
       title: 'Search NFL coaches',
       description:
-        'Find NFL head coaches and play-callers in NFL Coaching Savant (Western Conference Elitists, wcehoops.com) by name. Covers every head coach since 1999 and every offensive and defensive play-caller since 2018. Returns each match with his roles, teams, first and last season, head-coaching record if he has one, and the link to his page. The name is the id. Matching ignores accents and punctuation and tolerates small typos.',
+        'Find NFL head coaches (1999 on) and offensive and defensive play-callers (2018 on) in NFL Coaching Savant by name. Each match: roles, teams, first and last season, head-coaching record, page link. The name is the id.',
       inputSchema: {
         query: z.string().trim().min(2).max(80).describe('Coach name or part of one, e.g. "Reid", "Sean McVay", "Harbaugh".'),
-        limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return (1-25, default 10).'),
+        limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.'),
       },
       outputSchema: {
         query: z.string(),
@@ -974,11 +974,11 @@ export const tools = [
     config: {
       title: 'Get an NFL coach\'s Savant profile',
       description:
-        'Get one NFL head coach\'s or play-caller\'s NFL Coaching Savant profile (Western Conference Elitists, wcehoops.com). For a head coach since 1999: regular-season and playoff record, Super Bowls, wins against what the closing betting spreads expected, his career stats each with a percentile against the head coaches with at least three seasons, his fourth-down decisions scored by the nfl4th model, his seasons one by one with who called the offence and defence, and the coach he learned under. For a play-caller since 2018: the units he called, and one unit in full, every stat with its percentile against the other offences or defences of that season. Each percentile is returned with the pool it was ranked in. Coaches and units too short to rank are returned unranked. The lineage and the play-caller attribution are hand-curated and are returned with that caveat. Includes the link to his page.',
+        'One NFL head coach\'s or play-caller\'s NFL Coaching Savant profile, with his page link. Head coach (1999 on): regular-season and playoff record, Super Bowls, wins against the closing spreads, career stats each with a percentile against head coaches with 3+ seasons, fourth-down decisions scored by the nfl4th model, each season with who called the offence and defence, and his mentor. Play-caller (2018 on): the units he called, and one in full, every stat ranked against that season\'s offences or defences. Every percentile names its pool; coaches and units too short to rank come unranked. Lineage and play-caller attribution are hand-curated and say so.',
       inputSchema: {
-        coach: z.string().trim().min(1).max(80).describe('Coach name, e.g. "Andy Reid". If a name fits more than one coach, the error lists them.'),
-        group: z.enum(GROUPS).default('all').describe('Which part to return: "all" (default), "career" (ranked career stats), "fourth_downs" (with the calls the model liked least), "seasons" (season by season, every column), "play_calling" (what he called, one unit in full with each stat explained) or "lineage".'),
-        season: z.number().int().min(1990).max(2100).optional().describe('With "play_calling" or "all": the season whose unit to return in full, e.g. 2024. Omit for the unit his page opens on, his most recent one with enough snaps to rank.'),
+        coach: z.string().trim().min(1).max(80).describe('Coach name, e.g. "Andy Reid".'),
+        group: z.enum(GROUPS).default('all').describe('One part, or "all" (default). fourth_downs includes the calls the model liked least; play_calling gives one unit in full, each stat explained.'),
+        season: z.number().int().min(1990).max(2100).optional().describe('With "play_calling" or "all": the season whose unit to return in full. Default: his latest unit with enough snaps to rank.'),
       },
       outputSchema: {
         coach: z.object({ id: z.string(), name: z.string(), roles: z.array(z.string()), url: z.string() }),
@@ -1085,9 +1085,9 @@ export const tools = [
     config: {
       title: 'Get NFL Coaching Savant\'s Leaders boards',
       description:
-        'The Leaders boards on NFL Coaching Savant\'s front screen (Western Conference Elitists, wcehoops.com), in the page\'s order. Head coaches since 1999 with three or more seasons: most wins, wins above what the closing spreads expected, playoff rate, fourth-down aggression, pass rate over expected, fastest tempo; with 48+ games of fourth-down data: best fourth-down decisions. Play-callers, latest season: most pre-snap motion, most blitzing defence, hardest offence to read. Each board names its pool and its size. The page shows ten a board; more can be asked for.',
+        'NFL Coaching Savant\'s Leaders boards, in the page\'s order. Head coaches since 1999 with 3+ seasons: most wins, wins above the closing spreads, playoff rate, fourth-down aggression, pass rate over expected, fastest tempo; with 48+ games of fourth-down data, best fourth-down decisions. Play-callers, latest season: most motion, most blitzing defence, hardest offence to read. Each board names its pool and size; ten a board unless more are asked for.',
       inputSchema: {
-        board: z.enum(['all', ...BOARD_IDS]).default('all').describe(`One board, or "all" (default): ${BOARD_IDS.join(', ')}.`),
+        board: z.enum(['all', ...BOARD_IDS]).default('all').describe('One board, or "all" (default).'),
         limit: z.number().int().min(1).max(50).default(10).describe('Rows per board (1-50, default 10, as on the page).'),
       },
       outputSchema: {
@@ -1125,9 +1125,9 @@ export const tools = [
     config: {
       title: 'Get the NFL coaching tree',
       description:
-        'NFL Coaching Savant\'s coaching tree (Western Conference Elitists, wcehoops.com): who learned under whom among NFL head coaches since 1999 and the men they learned from, back to roots such as Paul Brown. With a coach: his mentor and role under him, his line back to the root of his tree, and everyone beneath him to a depth, biggest branch first as the page draws it, with head-coaching records. Without one: every tree and its size. Covers men with no page of their own, such as Bill Walsh. The lineage is hand-curated, not from a dataset, and comes with the page\'s caveat.',
+        'NFL Coaching Savant\'s coaching tree: who learned under whom among head coaches since 1999 and their mentors, back to roots such as Paul Brown, including men with no page (Bill Walsh). With a coach: his mentor and role, his line to the root, and everyone beneath him to a depth, biggest branch first, with records. Without: every tree and its size. Hand-curated lineage, with the page\'s caveat.',
       inputSchema: {
-        coach: z.string().trim().min(1).max(80).optional().describe('A name in the tree, e.g. "Bill Walsh" or "Andy Reid". Omit for every tree. If a name fits more than one coach, the error lists them.'),
+        coach: z.string().trim().min(1).max(80).optional().describe('A name in the tree, e.g. "Bill Walsh". Omit for every tree.'),
         depth: z.number().int().min(1).max(10).default(3).describe('How many generations beneath him to list (1-10, default 3).'),
       },
       outputSchema: {

@@ -1030,10 +1030,10 @@ export const tools = [
     config: {
       title: 'Search UFC fighters',
       description:
-        'Find UFC fighters in UFC Savant (Western Conference Elitists, wcehoops.com) by name or nickname. Covers every fighter with a UFC fight in the site data, which runs from UFC 2 in March 1994 to the latest event. Returns each match with its id, nickname, division (the weight class fought at most over the UFC career), whether the fighter is active, number of UFC fights with first and last dates, professional record, and the link to the fighter\'s page. Matching ignores accents and punctuation and tolerates small typos in names. Each fighter is listed under one name, so a former name is not found.',
+        'Find UFC fighters in UFC Savant by name or nickname: everyone with a UFC fight from UFC 2 (March 1994) to the latest event. Each match: id, nickname, division (the weight class fought at most), active or not, UFC fights with first and last dates, pro record and page link. Each fighter is under one name, so a former name is not found.',
       inputSchema: {
         query: z.string().trim().min(2).max(80).describe('Fighter name, part of one, or a nickname, e.g. "Makhachev", "Jon Jones", "Rampage".'),
-        limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return (1-25, default 10).'),
+        limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.'),
       },
       outputSchema: {
         query: z.string(),
@@ -1064,12 +1064,12 @@ export const tools = [
     config: {
       title: 'Get a UFC fighter\'s Savant profile',
       description:
-        'Get one UFC fighter\'s UFC Savant profile (wcehoops.com) over a window of UFC fights: career, last 5 or last 3. Returns records, measurements, official ranking, and every stat the page draws with its value and two percentiles (active fighters, and all of UFC history), inside the fighter\'s division for that window or, with cohort "everyone", across every division of that sex. Also the 5 latest fights and title reigns. Group "style" gives Fights like, Where he can be beaten, the strike map and the round curve; group "fights" the whole fight log. Low samples, untracked stats and unqualified fighters are flagged. Includes the page link and the data date.',
+        'One UFC fighter\'s UFC Savant profile over career, last 5 or last 3 UFC fights: records, measurements, official ranking, every stat with two percentiles (active fighters, and all of UFC history) inside his division or, with cohort "everyone", every division of that sex; the 5 latest fights and title reigns. Group "style": Fights like, Where he can be beaten, strike map, round curve; group "fights": the whole log. Low samples, untracked stats and unqualified fighters are flagged. Page link and data date.',
       inputSchema: {
-        fighter: z.string().trim().min(1).max(80).describe('Fighter id from ufc_search_fighters (16 hex characters) or a name or nickname (e.g. "Islam Makhachev"). If a name fits more than one fighter, the error lists their ids.'),
+        fighter: z.string().trim().min(1).max(80).describe('Fighter id from ufc_search_fighters (16 hex characters), or a name or nickname.'),
         window: z.enum(WINDOWS).default('career').describe('"career" for the whole UFC career (default), "l5" for the last 5 UFC fights, "l3" for the last 3.'),
-        group: z.enum(['all', ...Object.keys(GROUPS), ...EXTRA_GROUPS]).default('all').describe('"all" (default: every stat, recent fights, title reigns); one panel with each stat explained: "context", "striking", "grappling", "finishing" or "rounds"; "style" (comps, weaknesses, strike map, round curve); or "fights" (every UFC fight).'),
-        cohort: z.enum(Object.keys(COHORT)).default('division').describe('Who the percentiles are against: "division" (default, the page\'s opening view) or "everyone" (every division of the fighter\'s sex, the page\'s Everyone cohort).'),
+        group: z.enum(['all', ...Object.keys(GROUPS), ...EXTRA_GROUPS]).default('all').describe('"all" (default: every stat, recent fights, title reigns), one panel with each stat explained, "style" (comps, weaknesses, strike map, round curve) or "fights" (every UFC fight).'),
+        cohort: z.enum(Object.keys(COHORT)).default('division').describe('Percentiles vs his "division" (default) or "everyone" (every division of his sex).'),
       },
       outputSchema: {
         fighter: z.object({
@@ -1164,7 +1164,7 @@ export const tools = [
     config: {
       title: 'UFC Savant leaderboard',
       description:
-        'Rank UFC fighters as the UFC Savant leaderboard (wcehoops.com) does: one division, or all men or all women, over a window (career, last 5, last 3), by the official UFC ranking (pound-for-pound for all men or women) or by any stat, with the page\'s presets and filters (cage minutes, fights, stance, age), active or all-time fighters, settled samples or everyone. Returns up to 6 stat columns per fighter with values as the page prints them and the percentile the page colours each by (own division, or every division of that sex), thin samples flagged, how many pass, the page link and the data date.',
+        'UFC Savant\'s leaderboard: one division, or all men or all women, over career, last 5 or last 3, by the official ranking (pound-for-pound for all men or women) or any stat, with the page\'s presets and filters (cage minutes, fights, stance, age), active or all-time, settled samples or everyone. Up to 6 stat columns per fighter as the page prints them, each with the percentile the page colours it by (own division, or every division of that sex); thin samples flagged, how many pass, page link and data date.',
       inputSchema: {
         preset: z.enum(PRESETS).optional().describe('One of the page\'s presets, which sets rank_by and columns.'),
         window: z.enum(WINDOWS).optional().describe('"career" (default), "l5" (last 5 fights) or "l3" (last 3).'),
@@ -1220,7 +1220,7 @@ export const tools = [
     config: {
       title: 'UFC Savant head-to-head',
       description:
-        'Compare two UFC fighters as UFC Savant\'s head-to-head view does (wcehoops.com): the tale of the tape (record, official rank, time as champion, Savant rating, age, height, reach, stance), the win probability implied by the two Savant (Elo) ratings, and every stat side by side with values as the page prints them and each fighter\'s percentile inside his own division over the window, against active or all-time fighters, the better percentile marked and thin samples flagged. Includes the page link and the data date.',
+        'UFC Savant\'s head-to-head view of two fighters: the tale of the tape (record, official rank, time as champion, Savant rating, age, height, reach, stance), the win probability from the two Savant (Elo) ratings, and every stat side by side as the page prints it, each with the fighter\'s percentile in his own division over the window, active or all-time, better one marked, thin samples flagged. Page link and data date.',
       inputSchema: {
         fighter_a: z.string().trim().min(1).max(80).describe('First fighter: id from ufc_search_fighters or a name. A name that fits several fighters returns their ids.'),
         fighter_b: z.string().trim().min(1).max(80).describe('Second fighter, the same way.'),
@@ -1274,7 +1274,7 @@ export const tools = [
     config: {
       title: 'Get upcoming UFC cards',
       description:
-        'Get the upcoming UFC cards listed in UFC Savant (Western Conference Elitists, wcehoops.com): each event\'s name, date and location, and its bouts with weight class and both fighters. Fighters who have a UFC Savant page come with their id and link, and a bout between two of them comes with the link to the page\'s head-to-head view. The list is as scraped from ufcstats.com when the data was last built, and that date is returned.',
+        'The upcoming UFC cards in UFC Savant: each event\'s name, date, location and bouts with weight class and fighters; fighters with a page come with id and link, and a bout between two of them with its head-to-head link. Scraped from ufcstats.com at the last build; that date is returned.',
       inputSchema: {},
       outputSchema: {
         count: z.number().int(),

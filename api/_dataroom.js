@@ -294,7 +294,7 @@ export const tools = [
     name: 'savant_dictionary',
     config: {
       title: 'Read the WCE Data Room catalog and column definitions',
-      description: 'The catalog of the WCE Data Room (wcehoops.com): every sport\'s tables (NBA player-games, shots and coaching tables; NFL plays, player-games and team-games; college football plays and team-games; college basketball games, player-games, units, possessions and coaching tables; UFC fights and rounds), what one row is, the seasons covered and row counts. With a sport and table: every column\'s definition, unit, source, first season and caveat. Also the page-stat dictionaries: cbb stats (the keys cbb_leaderboard takes), nba and cbb coaching_stats. Read before savant_data.',
+      description: 'The catalog of the WCE Data Room: every sport\'s tables (NBA player-games, shots and coaching tables; NFL plays, player-games and team-games; college football plays and team-games; college basketball games, player-games, units, possessions and coaching tables; UFC fights and rounds), what one row is, the seasons covered and row counts. With a sport and table: every column\'s definition, unit, source, first season and caveat. Also the page-stat dictionaries: cbb stats (the keys cbb_leaderboard takes), nba and cbb coaching_stats. Read before savant_data.',
       inputSchema: {
         sport: z.enum(SPORTS).optional().describe('nba, nfl, cfb, cbb or ufc; omit for every sport.'),
         table: z.string().trim().min(1).max(40).optional().describe('A table from the catalog, or stats / coaching_stats.'),

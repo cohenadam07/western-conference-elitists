@@ -208,6 +208,7 @@ const INSTRUCTIONS = [
   'savant_dictionary and savant_data are the WCE Data Room, every sport: the rows behind each Savant (NBA player-games, shots and coaching tables; NFL plays, player-games and team-games; college football plays and team-games; college basketball games, player-games, units, possessions and coaching tables; UFC fights and rounds), for an assistant\'s own splits and regressions, each answer with its columns\' definitions and the date of its newest row.',
   'Some names belong to both an NBA team and a D1 college team: Oklahoma (the Thunder or the Sooners), Memphis, Utah, Houston, Indiana, Miami, Charlotte, Denver, Portland, Washington, Minnesota, Milwaukee and others. When the person uses one of these without saying which league and the conversation has not made it clear, ask them which team they mean before answering; do not assume.',
   'Every percentile belongs to a pool, and each result names it. A percentile is only meaningful with its pool.',
+  'Every name search ignores accents and punctuation and tolerates small typos.',
   'A stat marked low sample is below its stabilization threshold. A stat a season did not track is listed as not tracked rather than shown as zero. Results state the date of their data and link to the matching page on wcehoops.com.',
 ].join(' ')
 

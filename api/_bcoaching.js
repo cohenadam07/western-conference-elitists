@@ -424,7 +424,7 @@ export const tools = [
     name: 'nba_search_coaches',
     config: {
       title: 'Search NBA coaches',
-      description: 'Find NBA head coaches (every one since 1946-47) and assistants in NBA Coaching Savant (wcehoops.com) by name. Returns id, record, seasons, teams and page link. Tolerates accents, punctuation and small typos.',
+      description: 'Find NBA head coaches (every one since 1946-47) and assistants in NBA Coaching Savant by name. Returns id, record, seasons, teams and page link. Tolerates accents, punctuation and small typos.',
       inputSchema: { query: z.string().trim().min(2).max(80).describe('Coach name or part of one, e.g. "Popovich", "Erik Spoelstra".'), limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.') },
       outputSchema: { query: z.string(), total: z.number().int(), count: z.number().int(), coaches: z.array(z.object({ id: z.string().describe('The id nba_get_coach_profile takes (his Basketball-Reference slug).'), name: z.string(), head_coach: z.boolean(), assistant: z.boolean(), teams: z.array(z.string()), first_season: z.string().nullable(), last_season: z.string().nullable(), record_all_time: z.string().nullable(), seasons: z.number().int().nullable(), games_since_1996: z.number().int(), ranked_career: z.boolean(), active: z.boolean(), url: z.string() })) },
       annotations: { title: 'Search NBA coaches', ...READ_ONLY },
@@ -435,7 +435,7 @@ export const tools = [
     name: 'nba_get_coach_profile',
     config: {
       title: 'Get an NBA coach\'s Savant profile',
-      description: 'One NBA head coach\'s NBA Coaching Savant profile (wcehoops.com): record and bio; wins above two expectations (roster talent, the market); the ranked career card, each stat with its percentile and pool; the Rotation Map for a season (usual windows, off-script minutes and why, closing, pairs, lineups from their parts); game management (timeouts vs runs, after-timeout offense, challenges, halftime, late game); identity, comps, arrival effect; situational splits; players vs the aging curve; staffs and suggested lineage; seasons. Rotation verdicts are the model\'s view and say so.',
+      description: 'One NBA head coach\'s NBA Coaching Savant profile: record and bio; wins above roster talent and the market; the ranked career card (each stat\'s percentile and pool); a season\'s Rotation Map (usual windows, off-script minutes and why, closing, pairs, lineups from their parts); game management (timeouts vs runs, after-timeout offense, challenges, halftime, late game); identity, comps, arrival effect; splits; players vs the aging curve; staffs, suggested lineage and seasons. Rotation verdicts are the model\'s view.',
       inputSchema: { coach: z.string().trim().min(1).max(80).describe('Coach name or id, e.g. "Gregg Popovich" or "popovgr99c".'), group: z.enum(GROUPS).default('all').describe('Which part to return.'), season: z.string().regex(/^\d{4}-\d{2}$/).optional().describe('The season whose Rotation Map to return (default: his latest).') },
       outputSchema: { coach: z.object({ id: z.string(), name: z.string(), url: z.string() }), group: z.string(), bio: z.object({}).passthrough(), all_time: z.object({}).passthrough(), since_1996: z.object({}).passthrough(), stints: z.array(z.object({}).passthrough()), awards: z.array(z.array(z.string())), career_stats: z.array(statShape).optional(), rotation: z.object({}).passthrough().nullable().optional(), game_management: z.object({}).passthrough().nullable().optional(), identity: z.object({}).passthrough().nullable().optional(), context: z.object({}).passthrough().nullable().optional(), development: z.object({}).passthrough().nullable().optional(), staff: z.object({}).passthrough().nullable().optional(), seasons: z.array(z.object({}).passthrough()).optional(), scouting: z.array(z.string()).optional(), notes: z.array(z.string()), url: z.string(), data_as_of: z.string(), source: z.string() },
       annotations: { title: 'Get an NBA coach\'s Savant profile', ...READ_ONLY },
@@ -446,7 +446,7 @@ export const tools = [
     name: 'nba_coaching_leaders',
     config: {
       title: 'Get NBA Coaching Savant\'s Leaders boards',
-      description: 'NBA Coaching Savant\'s Leaders boards (wcehoops.com), in the page\'s order: career boards (win %, most wins, wins above talent and the market, playoff rate, rotation stability, run stopping, after-timeout bump, challenge success, halftime adjustment, aging curve, pace, 3-point rate and more) and this season\'s. Each names its pool.',
+      description: 'NBA Coaching Savant\'s Leaders boards, in the page\'s order, each naming its pool: career (win %, most wins, wins above talent and the market, playoff rate, rotation stability, run stopping, after-timeout bump, challenges, halftime adjustment, aging curve, pace, 3-point rate and more) and this season\'s.',
       inputSchema: { board: z.string().default('all').describe('A board id, or "all".'), limit: z.number().int().min(1).max(50).default(10).describe('Rows per board.') },
       outputSchema: { board: z.string(), limit: z.number().int(), boards: z.array(z.object({ id: z.string(), title: z.string(), kind: z.string(), season: z.string().nullable(), pool: z.string(), pool_size: z.number().int(), note: z.string().nullable(), rows: z.array(z.object({ rank: z.number().int(), id: z.string(), name: z.string(), team: z.string().nullable(), value: z.number().nullable(), display: z.string() })) })), url: z.string(), data_as_of: z.string(), source: z.string() },
       annotations: { title: 'Get NBA Coaching Savant\'s Leaders boards', ...READ_ONLY },
@@ -457,7 +457,7 @@ export const tools = [
     name: 'nba_coaching_tree',
     config: {
       title: 'Get the NBA coaching tree',
-      description: 'The NBA coaching tree (wcehoops.com): each coach\'s mentor suggested from the record (the head coach he served under most), hand corrections marked. With a coach: mentor, line to the root, everyone beneath him. Without one: every tree and its size.',
+      description: 'The NBA coaching tree: each coach\'s mentor suggested from the record (the head coach he served under most), hand corrections marked. With a coach: mentor, line to the root, everyone beneath him. Without one: every tree and its size.',
       inputSchema: { coach: z.string().trim().min(1).max(80).optional().describe('A coach name or id; omit for every tree.'), depth: z.number().int().min(1).max(10).default(3).describe('Generations beneath him to list.') },
       outputSchema: { coach: z.object({}).passthrough().nullable().optional(), depth: z.number().int().optional(), branch: z.array(z.object({}).passthrough()).optional(), not_shown: z.number().int().optional(), trees: z.array(z.object({}).passthrough()).optional(), note: z.string(), url: z.string(), data_as_of: z.string(), source: z.string() },
       annotations: { title: 'Get the NBA coaching tree', ...READ_ONLY },

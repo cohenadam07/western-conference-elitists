@@ -552,10 +552,10 @@ export const tools = [
     config: {
       title: 'Search NBA players',
       description:
-        'Find NBA players in NBA Savant (Western Conference Elitists, wcehoops.com) by name. Covers every player with stats from 1979-80 through the latest season. Returns each match with its id, position, most recent team, and first and last season, plus the link to his card. Matching ignores accents and punctuation and tolerates small typos. Some players whose careers began before 1996-97 appear under two ids, one for each part of the career.',
+        'Find NBA players in NBA Savant by name: everyone with stats from 1979-80 to the latest season. Each match: id, position, latest team, first and last season, card link. Some careers that began before 1996-97 appear under two ids, one per part.',
       inputSchema: {
         query: z.string().trim().min(2).max(80).describe('Player name or part of one, e.g. "Jokic", "LeBron James", "Gilgeous".'),
-        limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return (1-25, default 10).'),
+        limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.'),
       },
       outputSchema: {
         query: z.string(),
@@ -581,13 +581,13 @@ export const tools = [
     config: {
       title: 'Get an NBA player\'s Savant profile',
       description:
-        'Get one NBA player\'s NBA Savant profile (Western Conference Elitists, wcehoops.com) for one season: his per-game line and every tracked stat with its value and two percentiles, one against all qualified players that season ("league") and one against qualified players at his position ("vs. guards", "vs. wings" or "vs. bigs"). Covers ~200 stats: shooting and shot profile, creation, tracking (drives, touches, passing), hustle, matchups, fouls, rebounding, defense, measurements, consistency and value (BPM, win probability added). Defaults to his latest season; for that season it can also give his last 10, 25 or 75 games, his comps and who he guards. Seasons from 1979-80; stats a season did not track are listed as not tracked. Links his card.',
+        'One NBA player\'s NBA Savant card for one season, 1979-80 on (default: his latest): per-game line and ~200 stats, each with two percentiles, vs qualified players league-wide and at his position (guards, wings or bigs): shooting and shot profile, creation, tracking (drives, touches, passing), hustle, matchups, fouls, rebounding, defense, measurements, consistency and value (BPM, win probability added). For his latest season also his last 10, 25 or 75 games, comps and who he guards. Untracked stats are listed as not tracked. Links his card.',
       inputSchema: {
-        player: z.string().trim().min(1).max(80).describe('Player id from nba_search_players (e.g. "203999") or a full name (e.g. "Nikola Jokic"). If a name fits more than one player, the error lists their ids.'),
+        player: z.string().trim().min(1).max(80).describe('Player id from nba_search_players (e.g. "203999") or a full name.'),
         season: z.string().trim().max(12).optional().describe('Season written as two years, e.g. "2025-26". Omit for his most recent season.'),
-        window: z.enum(['season', 'l10', 'l25', 'l75']).default('season').describe('"season" for the full season (default). "l10", "l25" or "l75" for his last 10, 25 or 75 games, latest season only.'),
-        group: z.enum(['all', ...Object.keys(GROUPS)]).default('all').describe('Which stats to return: "all" (default), "context" (minutes, availability), "offense", "defense" or "value" (BPM, win shares, VORP and similar).'),
-        pool: z.enum(['standard', 'same_age', 'same_age_position']).default('standard').describe('"same_age" adds a third percentile: against every qualified player-season at his whole-year age on February 1, 1996-97 on, finished seasons only. "same_age_position": the same at his position. The result names the pool.'),
+        window: z.enum(['season', 'l10', 'l25', 'l75']).default('season').describe('"season" (default) or his last 10, 25 or 75 games (latest season only).'),
+        group: z.enum(['all', ...Object.keys(GROUPS)]).default('all').describe('"all" (default) or one group. context: minutes, availability; value: BPM, win shares, VORP and similar.'),
+        pool: z.enum(['standard', 'same_age', 'same_age_position']).default('standard').describe('"same_age" adds a third percentile, vs every qualified player-season at his age on February 1 (1996-97 on, finished seasons); "same_age_position" also at his position.'),
       },
       outputSchema: {
         player: z.object({
@@ -691,7 +691,7 @@ export const tools = [
     config: {
       title: 'Get the All-Savant Team',
       description:
-        'Get NBA Savant\'s All-Savant Team (Western Conference Elitists, wcehoops.com) for one season: an All-NBA 1st and 2nd team picked by the numbers alone, under All-NBA\'s own rules for the era: two guards, two forwards and a center through 2022-23 (a player can fill a slot where he played at least 30% of his minutes), positionless from 2023-24 (without All-NBA\'s 65-game minimum: missed games already cost Savant value). Picks are by Savant value among qualified players: the points he added that season above a replacement-level player at his position, built from his own box stats and luck-adjusted on/off, counting only the possessions he played. Returns each player with his value, team, games and card link. Seasons from 1979-80 on; defaults to the newest season, or the last full one while a new season is in its first 10 games.',
+        'NBA Savant\'s All-Savant Team for one season, 1979-80 on: an All-NBA 1st and 2nd team by the numbers alone, under the era\'s All-NBA rules (2 guards, 2 forwards, a center through 2022-23, a slot open to anyone with 30% of his minutes there; positionless from 2023-24, with no 65-game minimum since missed games already cost value). Picked by Savant value among qualified players: points added above a replacement-level player at his position, from his own box stats and luck-adjusted on/off, over the possessions he played. Each pick with value, team, games and card link. Default: the newest season, or the last full one during a new season\'s first 10 games.',
       inputSchema: {
         season: z.string().trim().max(12).optional().describe('Season written as two years, e.g. "2025-26". Omit for the current team.'),
         team: z.enum(['1', '2', 'both']).default('both').describe('"1" for the 1st team, "2" for the 2nd, "both" (default).'),

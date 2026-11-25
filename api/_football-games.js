@@ -505,7 +505,7 @@ export const tools = [
     config: {
       title: 'NFL player game log',
       description:
-        'An NFL player\'s season game by game on NFL Savant (wcehoops.com), 1999 on: each week\'s opponent and his number in each stat, with where that one game would rank among the season\'s full-season lines at his position; byes and missed games; his season line, best game, last game and the position median; and, for the season being played, his last 4, 8 and 17 games ranked against everyone\'s same stretch. Defaults to his position\'s headline stats.',
+        'An NFL player\'s season game by game, 1999 on: each opponent and his number in each stat, with where that game would rank among full-season lines at his position; byes and missed games; season line, best and last game, position median; in a live season, his last 4, 8 and 17 games ranked against everyone\'s same stretch. Default: his position\'s headline stats.',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nfl_search_players or a full name.'),
         season: z.string().trim().max(12).optional().describe('Year the season began. Omit for his latest.'),
@@ -524,7 +524,7 @@ export const tools = [
     config: {
       title: 'NFL player splits, maps and route tree',
       description:
-        'Below an NFL player\'s season line on NFL Savant (wcehoops.com). view "splits" (QB, RB, WR, TE): his plays by down, distance, field position, quarter, score, home/away, roof, and from 2022 play-action, blitz, motion and formation, each headline rate ranked against everyone with a real sample in that split. "throw_map" / "target_map" / "rush_map": where his throws, targets or carries went. "route_tree": his targets by route against his position. Maps and route trees also take season "career".',
+        'Below an NFL player\'s season line. "splits" (QB, RB, WR, TE): his plays by down, distance, field position, quarter, score, home/away, roof, and from 2022 play-action, blitz, motion and formation, each headline rate ranked among everyone with a real sample in that split. "throw_map", "target_map", "rush_map": where his throws, targets or carries went. "route_tree": targets by route vs his position. Maps and route trees also take season "career".',
       inputSchema: {
         player: z.string().trim().min(1).max(80).describe('Player id from nfl_search_players or a full name.'),
         view: z.enum(['splits', 'throw_map', 'target_map', 'rush_map', 'route_tree']).default('splits').describe('Which view.'),
@@ -549,7 +549,7 @@ export const tools = [
     config: {
       title: 'NFL postseason game',
       description:
-        'NFL Savant\'s postseason game pages (wcehoops.com): every NFL playoff game from the 1999 season on. Find games by season and team(s), or open one by id: score by quarter, conditions and spread, team stats, passing, rushing and receiving box score, every scoring play, the plays that moved win probability most, every drive, and the biggest win-probability swings.',
+        'NFL Savant\'s postseason game pages, every playoff game from the 1999 season on. Find games by season and team(s), or open one by id: score by quarter, conditions and spread, team stats, passing, rushing and receiving box score, scoring plays, every drive, and the plays that moved win probability most.',
       inputSchema: {
         game: z.string().trim().max(40).optional().describe('A game id from a previous answer, e.g. "2025_22_SEA_NE".'),
         season: z.string().trim().max(12).optional().describe('Year the season began, e.g. "2024" (its playoffs are in early 2025).'),

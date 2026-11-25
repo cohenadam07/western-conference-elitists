@@ -407,7 +407,7 @@ async function nflComps({ player }) {
 }
 
 // ---- the tools ------------------------------------------------------------------------
-const season = z.number().int().min(2004).max(2100).optional().describe('Season year, e.g. 2025. Default: the season being played.')
+const season = z.number().int().min(2004).max(2100).optional().describe('Season year. Default: the season being played.')
 const open = z.object({}).passthrough()
 const who = z.string().trim().min(2).max(80).describe('Player name or ESPN athlete id, e.g. "Jeremiah Smith".')
 const school = z.string().trim().min(2).max(60).describe('Team name or ESPN team id, e.g. "Ohio State".')
@@ -416,7 +416,7 @@ const opts = { pool: z.enum(POOLS).default('position').describe('Percentile pool
 const tool = (name, title, description, inputSchema, outputSchema, run) => ({ name, config: { title, description, inputSchema, outputSchema, annotations: { title, ...READ_ONLY } }, run })
 
 export const tools = [
-  tool('cfb_search_players', 'Search college football players', 'Find FBS players in CFB Savant (wcehoops.com) by name, 2009 on (2013 is not on the site). Tolerates accents and small typos.', { query: z.string().trim().min(2).max(80).describe('Player name or part of one.'), limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.') }, { query: z.string(), total: z.number(), count: z.number(), players: z.array(open) }, searchPlayers),
+  tool('cfb_search_players', 'Search college football players', 'Find FBS players in CFB Savant by name, 2009 on (2013 is not on the site). Tolerates accents and small typos.', { query: z.string().trim().min(2).max(80).describe('Player name or part of one.'), limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.') }, { query: z.string(), total: z.number(), count: z.number(), players: z.array(open) }, searchPlayers),
   tool('cfb_get_player_profile', 'Get a college football player\'s Savant profile', 'One FBS player-season: percentile bars by card group against his position, each with pool, sample and settle estimate; profile score, Savant value, recruiting, transfers, honours, nearest and weakness comps. Seasons are never pooled.', { player: who, season, ...opts, group: z.string().max(30).default('all').describe('A card group, or all.') }, { player: open, season: z.number(), final: z.boolean(), data_through: z.string(), pool: open, stats: z.array(open), returner: open.nullable(), profile_score: z.number().nullable(), weakness_comps: z.array(open), production_vs_pedigree: open.nullable(), savant_value: open.nullable(), honours: z.array(z.string()), comparable_players: z.array(open), warning: z.string().nullable(), url: z.string() }, profile),
   tool('cfb_player_career', 'Get a college football player\'s career', 'Every season on file across schools since 2009, transfers marked, with Savant value, rank at his position each season and his totals.', { player: who }, { player: open, seasons: z.array(open), url: z.string() }, playerCareer),
   tool('cfb_player_splits', 'Get a college football player\'s splits', 'Home, road and neutral; conference and non-conference; against our top 25; by month; and the game log with opponents and results.', { player: who, season }, { player: open, season: z.number(), data_through: z.string(), splits: z.array(open), games: z.array(open), url: z.string() }, playerSplits),
