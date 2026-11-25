@@ -470,10 +470,10 @@ export function drawMap(feed: Feed | null, reach: Reach | null, pulses: Pulse[],
  * ------------------------------------------------------------------ */
 
 export const TIMELINE_ORDER = [
-  'basketball-tracking', 'news', 'cbb-mac-pull', 'cfb-mac-archive',
-  'basketball-savant', 'basketball-history', 'college-savant', 'college-football-savant', 'football-savant', 'football-injuries',
+  'basketball-tracking', 'news', 'cbb-mac-pull', 'cfb-mac-archive', 'gm-mac-pull',
+  'basketball-savant', 'basketball-history', 'gm-savant', 'college-savant', 'college-football-savant', 'football-savant', 'football-injuries',
   'ufc-savant', 'weekly-snapshot', 'football-rebuild',
-  'basketball-freshness', 'college-savant-freshness', 'college-football-savant-freshness',
+  'basketball-freshness', 'gm-savant-freshness', 'gm-savant-refit', 'college-savant-freshness', 'college-football-savant-freshness',
   'dataroom-nba', 'dataroom-cbb', 'dataroom-nfl', 'dataroom-cfb', 'dataroom-ufc',
   'connector-freshness-nba', 'connector-freshness-cbb', 'connector-freshness-nfl', 'connector-freshness-cfb', 'connector-freshness-ufc',
   'connector-coverage', 'deploy-batch', 'site-watch',
