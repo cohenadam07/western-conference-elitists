@@ -49,7 +49,7 @@ import units as UN  # noqa: E402
 import coach_tree_nba as TREE  # noqa: E402
 import savant_config as SC  # noqa: E402
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 OUT = os.environ.get("BCS_OUT") or os.path.expanduser("~/Basketball-Savant/out/bcs")
 PUBLIC = os.path.join(HERE, "..", "..", "..", "public")
 MD.AGING = SC.AGING

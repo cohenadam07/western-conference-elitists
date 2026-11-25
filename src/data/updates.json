@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-11-24",
+    "product": "NBA Coaching Savant",
+    "version": "1.0.1",
+    "text": "Fix: player names in charts show the surname, not a suffix: Jaren Jackson Jr. is Jackson, not Jr.",
+    "href": "/nba-coaching-savant"
+  },
+  {
+    "date": "2026-11-24",
     "product": "CFB Savant",
     "version": "1.2.0",
     "text": "Every team page shows its playoff odds while a season is played, and its place in WCE's field after; each team stat's rank among FBS teams beside its percentile; and each roster value's rank among qualified FBS players at the position.",
