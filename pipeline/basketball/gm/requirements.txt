@@ -3,3 +3,8 @@ numpy==2.1.3
 scipy==1.14.1
 scikit-learn==1.5.2
 certifi==2024.8.30
+# br_crosswalk.py matches names against nba_api's offline static player list (no network); nba_api brings pandas
+# and requests, which pipeline/dataroom/common.py (the catalog step) also imports. The Mac runs these versions.
+nba_api==1.11.4
+pandas==3.0.3
+requests==2.34.2
