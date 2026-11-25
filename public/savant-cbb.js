@@ -166,6 +166,53 @@
     return { score: v, label, games, links, text: `${label}: ${games} game${games === 1 ? '' : 's'}, ${links === null ? 'no' : links.toFixed(1)} non-conference D1 games per conference team` }
   }
 
+  /* Team ranks (1.5.0): a D1 rank for every team stat, the page and the connector from this one rule.
+     Rank = 1 + the number of D1 teams that season with a better value, so equal values share a place;
+     "of N" counts the teams with one. dir: high (1st is the highest, which is best), low (1st is the
+     lowest, which is best), most (1st is the most: style and luck, not quality). sos is the average net
+     rating of the D1 opponents faced, so 1st is the hardest schedule. oorb, opponents' offensive rebound
+     rate, is 100 minus this team's defensive rebound rate, as the Defense row shows it. */
+  const TEAM_RANKS = { net: 'high', adjo: 'high', adjd: 'low', tempo: 'most', market: 'high', bpi: 'high', sos: 'high', luck: 'most',
+    efg: 'high', tov: 'low', orb: 'high', ftr: 'high', oefg: 'low', otov: 'high', oorb: 'low', oftr: 'low',
+    rim: 'most', mid: 'most', three: 'most', orim: 'most', omid: 'most', othree: 'most' }
+  const RANK_WORD = { sos: 'hardest', tempo: 'fastest', luck: 'luckiest' }
+  const teamStat = (r, k) => (k === 'oorb' ? (ok(r.drb) ? Math.round(10 * (100 - r.drb)) / 10 : null) : ok(r[k]) ? +r[k] : null)
+  function teamRank(tb, r, k) {
+    const dir = TEAM_RANKS[k], v = teamStat(r, k)
+    const vals = tb.teams.map((x) => teamStat(x, k)).filter((x) => x !== null)
+    const word = RANK_WORD[k] || (dir === 'most' ? 'most' : '')
+    if (v === null) return { key: k, value: null, rank: null, of: vals.length, dir, word }
+    return { key: k, value: v, rank: 1 + vals.filter((x) => (dir === 'low' ? x < v : x > v)).length, of: vals.length, dir, word }
+  }
+  const teamRanks = (tb, r) => Object.fromEntries(Object.keys(TEAM_RANKS).map((k) => [k, teamRank(tb, r, k)]))
+
+  /* Savant value's rank on a roster (1.5.0): among the qualified players at his position (Guard, Wing,
+     Big) that season, all of D1, 1 + the number with more value. Everyone has a value; only a qualified
+     player has a rank, as only he has a percentile. */
+  const POS_WORD = { Guard: 'guards', Wing: 'wings', Big: 'bigs' }
+  function valueRank(doc, i) {
+    const c = doc.values.value && doc.values.value.r, P = doc.players
+    if (!c || !ok(c[i])) return null
+    const pos = P[i][COL.pos], v = +c[i], vals = []
+    for (let j = 0; j < P.length; j++) if (P[j][COL.qual] && P[j][COL.pos] === pos && ok(c[j])) vals.push(+c[j])
+    const pool = POS_WORD[pos] || String(pos || '').toLowerCase()
+    if (!P[i][COL.qual]) return { value: v, rank: null, of: vals.length, pool, qualified: false }
+    return { value: v, rank: 1 + vals.filter((x) => x > v).length, of: vals.length, pool, qualified: true }
+  }
+
+  /* A lineup's names (1.5.0): surnames, with a first initial where two in the same unit share one
+     ("A. Boozer, C. Boozer"), and the whole first name where the initials match too (Duke 2025-26 has
+     Cameron and Cayden Boozer: "Cameron Boozer, Cayden Boozer"). */
+  function unitNames(names) {
+    const last = names.map(surname), first = names.map((n) => String(n || '').trim().split(/\s+/)[0] || '')
+    const key = (i) => last[i].toLowerCase(), count = (f) => { const c = {}; names.forEach((_, i) => { const k = f(i); c[k] = (c[k] || 0) + 1 }); return c }
+    const bySur = count(key), byIni = count((i) => `${key(i)}|${(first[i][0] || '').toLowerCase()}`)
+    return names.map((n, i) => {
+      if (bySur[key(i)] < 2 || !first[i] || first[i] === last[i]) return last[i]
+      return byIni[`${key(i)}|${(first[i][0] || '').toLowerCase()}`] < 2 ? `${first[i][0]}. ${last[i]}` : `${first[i]} ${last[i]}`
+    })
+  }
+
   /* Part 3. value = (rate - replacement) × possessions ÷ 100, from the stored rate. */
   function valueLine(doc, i) {
     const v = doc.values.value && doc.values.value.r[i]
@@ -177,5 +224,5 @@
   }
   const recompute = (l) => (l.rate - l.replacement) * (l.possessions || 0) / 100
 
-  return { schedule, confidence, valueLine, recompute, surname, COL, ok, pct, column, hasAdj, POOLS, pool, poolLabel, valuesFor, likely, display, row, withWithout }
+  return { schedule, confidence, valueLine, recompute, surname, unitNames, TEAM_RANKS, teamRank, teamRanks, valueRank, POS_WORD, COL, ok, pct, column, hasAdj, POOLS, pool, poolLabel, valuesFor, likely, display, row, withWithout }
 })

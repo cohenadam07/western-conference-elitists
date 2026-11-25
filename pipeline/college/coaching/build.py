@@ -55,7 +55,7 @@ import rosters as RS  # noqa: E402
 import rotation as RT  # noqa: E402
 import units as UN  # noqa: E402
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 OUT = RS.OUT
 PUBLIC = os.path.join(HERE, "..", "..", "..", "public")
 CURRENT = "2026-27"
