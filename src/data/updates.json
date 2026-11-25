@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-11-24",
+    "product": "CBB Coaching Savant",
+    "version": "1.0.2",
+    "text": "Fix: two players with the same surname on one chart are named apart, with a first initial, or the whole first name when that matches too: Duke's Cameron Boozer and Cayden Boozer.",
+    "href": "/cbb-coaching-savant"
+  },
+  {
+    "date": "2026-11-24",
     "product": "NBA Coaching Savant",
     "version": "1.0.1",
     "text": "Fix: player names in charts show the surname, not a suffix: Jaren Jackson Jr. is Jackson, not Jr.",

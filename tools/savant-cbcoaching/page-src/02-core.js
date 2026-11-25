@@ -60,6 +60,17 @@ const nameOf = id => (IDX.tree.nodes[id]?.name) || (IDX.coaches.find(c => c.id =
 // the surname, never a suffix (CBB Savant's surname(), savant-cbb.js): "Patrick Ngongba II" is Ngongba, not II
 const LAST_SUFFIX = /^(jr|sr|ii|iii|iv|v)\.?$/i;
 const last = n => { const w = String(n || '').trim().split(/\s+/); while (w.length > 1 && LAST_SUFFIX.test(w[w.length - 1])) w.pop(); return w[w.length - 1] || ''; };
+// a chart's or a unit's labels: surnames, with a first initial where two in the same set share one, and the
+// whole first name where the initials match too (CBB Savant's unitNames, savant-cbb.js): Duke 2025-26 has
+// Cameron and Cayden Boozer, so "Cameron Boozer, Cayden Boozer", never "Boozer, Boozer"
+const shortNames = names => {
+  const ln = names.map(last), fn = names.map(n => String(n || '').trim().split(/\s+/)[0] || '');
+  const k = i => ln[i].toLowerCase(), ki = i => k(i) + '|' + (fn[i][0] || '').toLowerCase(), cnt = f => { const c = {}; names.forEach((_, i) => { c[f(i)] = (c[f(i)] || 0) + 1; }); return c; };
+  const bs = cnt(k), bi = cnt(ki);
+  return names.map((n, i) => bs[k(i)] < 2 || !fn[i] || fn[i] === ln[i] ? ln[i] : bi[ki(i)] < 2 ? fn[i][0] + '. ' + ln[i] : fn[i] + ' ' + ln[i]);
+};
+// a label function for one chart: each name shortened against every other name on it
+const labeler = names => { const s = shortNames(names), m = new Map(); names.forEach((n, i) => m.set(n, s[i])); return n => m.has(n) ? m.get(n) : last(n); };
 const initials = nm => String(nm || '').split(' ').map(s => s[0] || '').slice(0, 2).join('').toUpperCase();
 
 // ---------------------------------------------------------------- season photos

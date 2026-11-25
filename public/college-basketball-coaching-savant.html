@@ -658,6 +658,17 @@ const nameOf = id => (IDX.tree.nodes[id]?.name) || (IDX.coaches.find(c => c.id =
 // the surname, never a suffix (CBB Savant's surname(), savant-cbb.js): "Patrick Ngongba II" is Ngongba, not II
 const LAST_SUFFIX = /^(jr|sr|ii|iii|iv|v)\.?$/i;
 const last = n => { const w = String(n || '').trim().split(/\s+/); while (w.length > 1 && LAST_SUFFIX.test(w[w.length - 1])) w.pop(); return w[w.length - 1] || ''; };
+// a chart's or a unit's labels: surnames, with a first initial where two in the same set share one, and the
+// whole first name where the initials match too (CBB Savant's unitNames, savant-cbb.js): Duke 2025-26 has
+// Cameron and Cayden Boozer, so "Cameron Boozer, Cayden Boozer", never "Boozer, Boozer"
+const shortNames = names => {
+  const ln = names.map(last), fn = names.map(n => String(n || '').trim().split(/\s+/)[0] || '');
+  const k = i => ln[i].toLowerCase(), ki = i => k(i) + '|' + (fn[i][0] || '').toLowerCase(), cnt = f => { const c = {}; names.forEach((_, i) => { c[f(i)] = (c[f(i)] || 0) + 1; }); return c; };
+  const bs = cnt(k), bi = cnt(ki);
+  return names.map((n, i) => bs[k(i)] < 2 || !fn[i] || fn[i] === ln[i] ? ln[i] : bi[ki(i)] < 2 ? fn[i][0] + '. ' + ln[i] : fn[i] + ' ' + ln[i]);
+};
+// a label function for one chart: each name shortened against every other name on it
+const labeler = names => { const s = shortNames(names), m = new Map(); names.forEach((n, i) => m.set(n, s[i])); return n => m.has(n) ? m.get(n) : last(n); };
 const initials = nm => String(nm || '').split(' ').map(s => s[0] || '').slice(0, 2).join('').toUpperCase();
 
 // ---------------------------------------------------------------- season photos
@@ -2333,7 +2344,7 @@ function renderPairs(srow){
   const t = TFILE, pb = document.getElementById('pairbody');
   const men = (t.men || []).slice(0, 12); if (men.length < 2) { pb.innerHTML = seasonTabs() + '<div class="empty">not enough men with 60 minutes</div>'; wireSeasonTabs(pb); return; }
   const pair = {}; for (const [a, b, min, est, raw, poss] of t.matrix) { pair[a + '|' + b] = pair[b + '|' + a] = {min, est, raw, poss}; }
-  const name = p => last(pname(p));
+  const nl = labeler(men.map(pname)), name = p => nl(pname(p));
   const minOf = p => t.onoff?.[p]?.on?.min || 1;
   const vals = t.matrix.map(x => x[3]).filter(v => !miss(v)); const lo = Math.min(...vals, -5), hi = Math.max(...vals, 5);
   let html = '<div class="scroll"><table class="matrix"><thead><tr><th></th>' + men.map(p => `<th>${esc(name(p))}</th>`).join('') + '</tr></thead><tbody>';
@@ -2356,7 +2367,7 @@ function renderQuadrant(srow){
   const t = TFILE, qb = document.getElementById('quadbody');
   const units = (t.units5 || []).filter(u => !miss(u.proj));
   if (!units.length) { qb.innerHTML = seasonTabs() + '<div class="empty">no projections for this season (a man without a Savant rate has no number)</div>'; wireSeasonTabs(qb); return; }
-  const name = p => last(pname(p));
+  const unames = ids => shortNames(ids.map(pname));
   const W = CW(760) > 660 ? 560 : CW(760), H = W < 600 ? 320 : 380, mins = units.map(u => u.min), projs = units.map(u => u.proj);
   const xmax = Math.max(...mins) * 1.05, ylo = Math.min(...projs) - 2, yhi = Math.max(...projs) + 2;
   const x = v => 50 + (W - 70) * v / xmax, y = v => 20 + (H - 60) * (1 - (v - ylo) / (yhi - ylo));
@@ -2366,13 +2377,13 @@ function renderQuadrant(srow){
   svg += lab(W - 22, 32, 'rode it, the parts like it', 'end') + lab(W - 22, H - 46, 'rode it, the parts say no', 'end') + lab(54, 32, 'left on the table', 'start') + lab(54, H - 46, 'rightly benched', 'start');
   for (const u of units) {
     const r = 3 + Math.sqrt(u.poss) / 5;
-    const tip = `<b>${u.ids.map(p => esc(name(p))).join(' · ')}</b><br>${Math.round(u.min)} minutes, ${u.poss.toLocaleString()} possessions<br>projected <b>${signed(u.proj)}</b> from the parts (mean Savant rate ${signed(u.sum_rate)})<br>played <b>${signed(u.adj)}</b> sample-adjusted (raw ${signed(u.net)})<br><span class="k">${IDX.meta.fits.parts?.validated ? '' : 'the projection is unvalidated'}</span>`;
+    const tip = `<b>${unames(u.ids).map(esc).join(' · ')}</b><br>${Math.round(u.min)} minutes, ${u.poss.toLocaleString()} possessions<br>projected <b>${signed(u.proj)}</b> from the parts (mean Savant rate ${signed(u.sum_rate)})<br>played <b>${signed(u.adj)}</b> sample-adjusted (raw ${signed(u.net)})<br><span class="k">${IDX.meta.fits.parts?.validated ? '' : 'the projection is unvalidated'}</span>`;
     svg += `<circle class="hit" cx="${x(u.min)}" cy="${y(u.proj)}" r="${r}" fill="${u.adj > u.proj ? '#BC3A2C' : '#22395A'}" opacity=".7"${tipAttr(tip)}></circle>`;
   }
   svg += lab(W / 2, H - 8, 'minutes together', 'middle') + `<text transform="translate(14 ${H/2}) rotate(-90)" font-size="10" fill="#8A95A3" text-anchor="middle">projected net, from the parts</text></svg>`;
   const left = units.filter(u => u.min < midm && u.proj > midp).sort((a, b) => b.proj - a.proj).slice(0, 5);
   const rode = units.filter(u => u.min >= midm && u.proj < midp).sort((a, b) => b.min - a.min).slice(0, 5);
-  const list = (arr, title) => `<div><h4 style="margin:0 0 4px;font-family:var(--mono);font-size:10.5px;color:var(--faint);text-transform:uppercase">${title}</h4>${arr.map(u => `<div class="small">${u.ids.map(p => playerLink(p, name(p), srow.season)).join(', ')} — ${Math.round(u.min)} min, projected ${signed(u.proj)}, played ${signed(u.adj)}</div>`).join('') || '<div class="empty">none</div>'}</div>`;
+  const list = (arr, title) => `<div><h4 style="margin:0 0 4px;font-family:var(--mono);font-size:10.5px;color:var(--faint);text-transform:uppercase">${title}</h4>${arr.map(u => { const un = unames(u.ids); return `<div class="small">${u.ids.map((p, k) => playerLink(p, un[k], srow.season)).join(', ')} — ${Math.round(u.min)} min, projected ${signed(u.proj)}, played ${signed(u.adj)}</div>`; }).join('') || '<div class="empty">none</div>'}</div>`;
   const lt = srow.values?.left_table?.[0];
   qb.innerHTML = seasonTabs() + `<div class="grid2"><div>${svg}</div><div>${list(left, 'Projected strong, barely played')}<br>${list(rode, 'Kept riding, the parts say no')}<div class="small" style="margin-top:10px"${tipAttr(statTip('left_table', {v: lt, pct: seasonPct(srow).left_table, pool: seasonPools(srow).left_table, season: srow.season}))}>Lineups left on the table: <b>${miss(lt) ? '—' : lt.toFixed(1)}</b> minutes a game. Red: played better than projected; navy: worse. ${IDX.meta.fits.parts?.validated ? '' : '<b>Unvalidated</b>: out of sample the projection barely beat the team\'s own net, so read this as a description, not a judgment. '}${esc(IDX.meta.model_note)}</div></div></div>`;
   wireSeasonTabs(qb);
@@ -2387,11 +2398,12 @@ function renderMVI(srow){
   if (t.fair) { const pts = t.fair.filter(([b]) => b >= xlo && b <= xhi); if (pts.length) { const d = pts.map(([b, m], i) => `${i ? 'L' : 'M'}${x(b)},${y(m)}`).join(' '); svg += `<path d="${d}" fill="none" stroke="#C2A263" stroke-width="2" stroke-dasharray="5 3"${tipAttr(`<b>Fair minutes, D1 ${srow.season}</b><br>mean minutes per game at each whole point of Savant rate over players with 10+ games, made monotone`)}/>`; } }
   for (const g of [10, 20, 30]) svg += `<line x1="50" x2="${W-20}" y1="${y(g)}" y2="${y(g)}" stroke="#ECEBE8"/><text x="44" y="${y(g)+3}" font-size="9" text-anchor="end" fill="#8A95A3">${g}</text>`;
   svg += `<line x1="${x(0)}" x2="${x(0)}" y1="20" y2="${H-40}" stroke="#ECEBE8"/>`;
+  const mvl = labeler(pl.filter(p => p.mpg >= 22).map(p => p.name));
   for (const p of pl) {
     const col = SRC_C[p.src] || '#22395A', r = 3 + Math.sqrt(p.gp) / 2;
     const tip = `<b>${playerLink(p.id, p.name, srow.season)}</b><br>${p.mpg} minutes a game over ${p.gp} games · Savant rate ${signed(p.rate)}<br><span class="k">${esc(p.cls || '')} · ${SRC_L[p.src] || p.src}</span>`;
     svg += `<circle class="hit" cx="${x(p.rate)}" cy="${y(p.mpg)}" r="${r}" fill="${col}" opacity=".78"${tipAttr(tip)}></circle>`;
-    if (p.mpg >= 22) svg += svgPlayer(p.id, x(p.rate) + r + 2, y(p.mpg) + 3, last(p.name), 'font-size="9.5" fill="#5B6878" font-family="IBM Plex Sans"');
+    if (p.mpg >= 22) svg += svgPlayer(p.id, x(p.rate) + r + 2, y(p.mpg) + 3, mvl(p.name), 'font-size="9.5" fill="#5B6878" font-family="IBM Plex Sans"');
   }
   svg += `<text x="${W/2}" y="${H-8}" font-size="10" fill="#8A95A3" text-anchor="middle">Savant rate (points per 100 over his possessions)</text><text transform="translate(14 ${H/2}) rotate(-90)" font-size="10" fill="#8A95A3" text-anchor="middle">minutes per game</text></svg>`;
   const ov = srow.values?.overplay?.[0];
@@ -2488,9 +2500,10 @@ function renderDevelopment(sr){
   const x = v => L + (W - L - 20) * (v - lo) / (hi - lo);
   let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}"><line x1="${x(0)}" x2="${x(0)}" y1="10" y2="${H - 10}" stroke="#D9D6CF"/>`;
   let i = 0;
+  const dvl = labeler(all.map(r => r[2]));
   for (const r of all) { if (i === top.length) i++; const y = 18 + 20 * i++; const act = r[5] - r[4], nm = r[2];
     const tip = `<b>${playerLink(r[1], nm, r[0])}</b>, ${r[0]} (${esc(r[3])})<br>Savant rate ${signed(r[4])} → ${signed(r[5])} (<b>${signed(act)}</b>) over ${Math.round(r[8]).toLocaleString()} weighted minutes<br>D1 expected ${signed(r[6], 2)} for his class step and level<br><span class="k">${act >= r[6] ? 'beat it by' : 'fell short by'} ${Math.abs(r[7]).toFixed(1)} · arrived ${SRC_L[r[9]] || r[9]}${r[10] ? `, from ${esc(teamName(r[10]))}` : ''}</span>`;
-    svg += svgPlayer(r[1], L - 10, y + 4, W < 600 ? last(nm) : nm, 'font-size="11" text-anchor="end" fill="#1A2332" font-family="IBM Plex Sans"') + `<g class="hit"${tipAttr(tip)}><line x1="${x(r[6])}" x2="${x(act)}" y1="${y}" y2="${y}" stroke="#C4C0B6" stroke-width="2"/><circle cx="${x(r[6])}" cy="${y}" r="4" fill="#C2A263"></circle><circle cx="${x(act)}" cy="${y}" r="5" fill="${act >= r[6] ? '#BC3A2C' : '#1C4E86'}"></circle></g>`; }
+    svg += svgPlayer(r[1], L - 10, y + 4, W < 600 ? dvl(nm) : nm, 'font-size="11" text-anchor="end" fill="#1A2332" font-family="IBM Plex Sans"') + `<g class="hit"${tipAttr(tip)}><line x1="${x(r[6])}" x2="${x(act)}" y1="${y}" y2="${y}" stroke="#C4C0B6" stroke-width="2"/><circle cx="${x(r[6])}" cy="${y}" r="4" fill="#C2A263"></circle><circle cx="${x(act)}" cy="${y}" r="5" fill="${act >= r[6] ? '#BC3A2C' : '#1C4E86'}"></circle></g>`; }
   svg += `<text x="${x(0)}" y="${H - 2}" font-size="9" text-anchor="middle" fill="#8A95A3">no change</text></svg>`;
   return `<div class="col wide" id="dev"><h2 class="col-h">Do players get better under him?</h2><p class="since">2010-11 on · change in Savant rate from the season before against D1's expected change for the same class step (Fr→So, So→Jr …) and the same starting level, with each season's league-wide shift taken out · ${sr ? sr.season : 'his career'}: the ten who beat it most${bottom.length ? ' and the six who fell shortest' : ''} · hover a row; a name opens his card</p>${svg}
     <div class="legend2"><span><span class="sw" style="background:#C2A263;border-radius:50%"></span>expected for his class and level</span><span><span class="sw" style="background:#BC3A2C;border-radius:50%"></span>beat it</span><span><span class="sw" style="background:#1C4E86;border-radius:50%"></span>fell short</span><span>Selection (he plays the men who improve), regression to the mean and the strength staff all live in this number.</span></div></div>`;
