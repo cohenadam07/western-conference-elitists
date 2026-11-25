@@ -458,8 +458,10 @@ test('1.1.1: the notes give each stat\'s real start year, 2009 on for the site',
   assert.ok(!/From 2014\./.test(html), 'every team stat said "From 2014."')
   assert.ok(!/since 2014/.test(html))
   assert.ok(reg.team_stats.every((s) => s.start === 2009 || s.start === 2025))
-  const mcp = readFileSync(path.join(ROOT, 'api', 'mcp.js'), 'utf8')
-  assert.match(mcp, /cfb_ is CFB Savant: every FBS player and team from 2009 on \(2013 is not on the site\)/)
+  // the server instructions lost this line when they were cut to Claude's 4,096 characters (#93, d94442c379);
+  // the search tool's description carries it now
+  const cfb = readFileSync(path.join(ROOT, 'api', '_cfb.js'), 'utf8')
+  assert.match(cfb, /Find FBS players in CFB Savant by name, 2009 on \(2013 is not on the site\)/)
 })
 
 // ---- 1.2.0: playoff odds, ranks beside percentiles, position rank on the roster ------------------
