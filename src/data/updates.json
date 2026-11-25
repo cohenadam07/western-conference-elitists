@@ -3,7 +3,7 @@
     "date": "2026-11-25",
     "product": "NBA GM Savant",
     "version": "1.0.1",
-    "text": "Fixes: the boards scroll sideways with the GM's name pinned, so no column is cut off on a laptop or a phone; titles won read as whole numbers, a title shared within a season shows to one decimal with a marker that explains it; expected titles are always two decimals. NBA GM Savant is also on the homepage now.",
+    "text": "Fixes: the boards scroll sideways with the GM's name pinned, so no column is cut off on a laptop or a phone; titles won read as whole numbers, a title shared within a season shows to one decimal with a marker that explains it; expected titles are always two decimals. Three trades the source listed twice are now counted once. NBA GM Savant is also on the homepage now.",
     "href": "/nba-gm-savant"
   },
   {

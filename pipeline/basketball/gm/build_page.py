@@ -40,7 +40,7 @@ VERSION = '1.0.1'
 # the page's changelog (How it works); the site's What's New entry is src/data/updates.json
 CHANGELOG = [
     ('1.0.0', '2026-11-24', 'Launch: every NBA GM since 1979-80 on points (GM Value Added) and titles (expected titles added), blended with a slider; every decision graded at the time and as it turned out, with luck and shared credit kept apart; asset trees, the executive tree, the Data Room tables and five connector tools; nightly updates.'),
-    ('1.0.1', '2026-11-25', 'Fixes: wide tables scroll sideways with the GM\'s name pinned, so no column is cut off on a laptop or a phone; titles won are whole numbers, and a title shared within a season shows to one decimal with a marker that explains shared credit; expected titles to two decimals everywhere on the boards and cards. A nightly refresh with nothing new no longer rewrites the Data Room\'s decision tables.'),
+    ('1.0.1', '2026-11-25', 'Fixes: wide tables scroll sideways with the GM\'s name pinned, so no column is cut off on a laptop or a phone; titles won are whole numbers, and a title shared within a season shows to one decimal with a marker that explains shared credit; expected titles to two decimals everywhere on the boards and cards. A nightly refresh with nothing new no longer rewrites the Data Room\'s decision tables. Three trades the source listed twice are counted once (the 2011 Perkins trade, the 2024 Grimes trade, the 2025 Huff trade), and a 1999 waiver is credited to the right season.'),
     ('1.1.0', 'coming', 'Salaries from the Contract tab: value per dollar, cap hits, dead money, tax and apron status, years of control, and a cap outlook for every active GM.'),
 ]
 K = '0.05'
