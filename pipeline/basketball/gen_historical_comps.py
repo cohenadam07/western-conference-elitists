@@ -12,6 +12,8 @@ import json, os, math
 import br_fetch as BR
 import br_normalize as N
 import br_crosswalk as X
+from remap_moved_ids import moved as _moved
+MOVED = _moved()
 import savant_engine as E
 
 OUT = os.path.join("out", "players.json")
@@ -81,7 +83,8 @@ def build():
     idcache = {}
     def id_of(bid, name):
         if bid not in idcache:
-            idcache[bid] = X.canonical_id(bid, name)
+            c = X.canonical_id(bid, name)
+            idcache[bid] = MOVED.get(c, c)       # a split career's NBA id (moved_player_ids.json), as in the archive
         return idcache[bid]
 
     attached = 0

@@ -116,9 +116,9 @@ const candidateLine = (row) => `${row.name} (id ${row.id}): ${row.pos}, ${span(r
 
 // ---- finding the player ----------------------------------------------------------------
 
-// An id ("203999", "br:ewingpa01") or a name. A name has to land on one player; when it
-// lands on several, the season is used to choose (a few careers are split across two ids),
-// and failing that the candidates are listed so the caller can pick by id.
+// An id ("203999", "br:anderjj01") or a name. An id that moved (meta.moved_ids: a career once split at 1996-97,
+// "br:ewingpa01" now 121) finds the player under his id. A name has to land on one player; when it lands on several
+// (namesakes), the season is used to choose, and failing that the candidates are listed so the caller can pick by id.
 async function resolvePlayer(input, season) {
   const rows = await loadPlayers()
   const raw = String(input || '').trim()
@@ -126,6 +126,9 @@ async function resolvePlayer(input, season) {
 
   const byId = rows.find((r) => String(r.id) === raw)
   if (byId) return byId
+  const moved = ((await loadMeta()).moved_ids || {})[raw.toLowerCase()]
+  const movedTo = moved != null && rows.find((r) => String(r.id) === String(moved))
+  if (movedTo) return movedTo
   if (/^-?\d+$/.test(raw) || /^br:/i.test(raw)) {
     throw new SavantError(`No player has the id "${raw}". Search by name with nba_search_players.`)
   }
@@ -178,7 +181,7 @@ export async function searchPlayers({ query, limit = 10 }) {
   const names = shown.map((p) => p.name)
   const twice = names.some((n, i) => names.indexOf(n) !== i)
   const note = twice
-    ? '\nThe same name can be two different players, or one player listed twice: some careers that began before 1996-97 are split across two ids, the earlier seasons under an id that starts "br:".'
+    ? '\nThe same name can be two different players: each has his own id.'
     : ''
   return { structured, text: `${head}\n${lines.join('\n')}${note}` }
 }
@@ -552,7 +555,7 @@ export const tools = [
     config: {
       title: 'Search NBA players',
       description:
-        'Find NBA players in NBA Savant by name: everyone with stats from 1979-80 to the latest season. Each match: id, position, latest team, first and last season, card link. Some careers that began before 1996-97 appear under two ids, one per part.',
+        'Find NBA players in NBA Savant by name: everyone with stats from 1979-80 to the latest season. Each match: id, position, latest team, first and last season, card link. One id per player for his whole career.',
       inputSchema: {
         query: z.string().trim().min(2).max(80).describe('Player name or part of one, e.g. "Jokic", "LeBron James", "Gilgeous".'),
         limit: z.number().int().min(1).max(25).default(10).describe('Most matches to return.'),

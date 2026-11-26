@@ -1,0 +1,38 @@
+{
+ "about": "Player ids that moved in NBA Savant (1.0 of this file, Nov 26 2026): each old id (a Basketball-Reference \"br:\" id) and the NBA id that now holds the same player. remap_moved_ids.py applies it to the archive (savant-data.json: rows, comps and the top-level moved_ids the page, the site's API and the connector read to redirect an old id), the All-Savant slots and the page's awards; build_historical.py and gen_historical_comps.py apply it on a rebuild. Add a line whenever a player's id changes; never remove one. old_slugs: the player-page addresses (/player/<slug>) the split careers had that no longer exist, each with the page of the whole career; vercel.json redirects them.",
+ "moved": {
+  "br:ewingpa01": {"to": 121, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Patrick Ewing (ewingpa01, 1985-86 to 1995-96, last with NYK, age 33 in 1995-96) is NBA.com's Patrick Ewing (id 121: born 1962-08-05, so 33.5 that season; 1996-97 his first season in the NBA.com data, 12 years of experience)"},
+  "br:ricegl01": {"to": 779, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Glen Rice (ricegl01, 1989-90 to 1995-96, last with CHH, age 28 in 1995-96) is NBA.com's Glen Rice (id 779: born 1967-05-28, so 28.7 that season; 1996-97 his first season in the NBA.com data, 8 years of experience)"},
+  "br:johnsla02": {"to": 913, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Larry Johnson (johnsla02, 1991-92 to 1995-96, last with CHH, age 26 in 1995-96) is NBA.com's Larry Johnson (id 913: born 1969-03-14, so 26.9 that season; 1996-97 his first season in the NBA.com data, 6 years of experience)"},
+  "br:brownde01": {"to": 244, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Dee Brown (brownde01, 1990-91 to 1995-96, last with BOS, age 27 in 1995-96) is NBA.com's Dee Brown (id 244: born 1968-11-29, so 27.2 that season; 1996-97 his first season in the NBA.com data, 7 years of experience)"},
+  "br:smithch01": {"to": 293, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Charles Smith (smithch01, 1988-89 to 1995-96, last with NYK, age 30 in 1995-96) is NBA.com's Charles Smith (id 293: born 1965-07-16, so 30.5 that season; 1996-97 his first season in the NBA.com data, 9 years of experience)"},
+  "br:johnsed03": {"to": 698, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Eddie Johnson (johnsed03, 1981-82 to 1995-96, last with IND, age 36 in 1995-96) is NBA.com's Eddie Johnson (id 698: born 1959-05-01, so 36.8 that season; 1996-97 his first season in the NBA.com data, 16 years of experience)"},
+  "br:smithmi02": {"to": 63, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Michael Smith (smithmi02, 1994-95 to 1995-96, last with SAC, age 23 in 1995-96) is NBA.com's Michael Smith (id 63: born 1972-03-28, so 23.8 that season; 1996-97 his first season in the NBA.com data, 3 years of experience)"},
+  "br:willire01": {"to": 199, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Reggie Williams (willire01, 1987-88 to 1995-96, last with DEN, age 31 in 1995-96) is NBA.com's Reggie Williams (id 199: born 1964-03-05, so 31.9 that season; 1996-97 his first season in the NBA.com data, 10 years of experience)"},
+  "br:davisma02": {"to": 707, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Mark Davis (davisma02, 1995-96 to 1995-96, last with MIN, age 22 in 1995-96) is NBA.com's Mark Davis (id 707: born 1973-04-26, so 22.8 that season; 1996-97 his first season in the NBA.com data, 2 years of experience)"},
+  "br:jonesch01": {"to": 279, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Charles Jones (jonesch01, 1983-84 to 1995-96, last with HOU, age 38 in 1995-96) is NBA.com's Charles Jones (id 279: born 1957-04-03, so 38.8 that season; 1996-97 his first season in the NBA.com data, 14 years of experience)"},
+  "br:smithst01": {"to": 120, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Steve Smith (smithst01, 1991-92 to 1995-96, last with ATL, age 26 in 1995-96) is NBA.com's Steven Smith (id 120: born 1969-03-31, so 26.8 that season; 1996-97 his first season in the NBA.com data, 6 years of experience)"},
+  "br:weathcl01": {"to": 221, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Clarence Weatherspoon (weathcl01, 1992-93 to 1995-96, last with PHI, age 25 in 1995-96) is NBA.com's Clar. Weatherspoon (id 221: born 1970-09-08, so 25.4 that season; 1996-97 his first season in the NBA.com data, 5 years of experience)"},
+  "br:manniri01": {"to": 316, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Rich Manning (manniri01, 1995-96 to 1995-96, last with VAN, age 25 in 1995-96) is NBA.com's Richard Manning (id 316: born 1970-06-23, so 25.6 that season; 1996-97 his first season in the NBA.com data, 2 years of experience)"},
+  "br:schayda01": {"to": 7, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Danny Schayes (schayda01, 1981-82 to 1995-96, last with MIA, age 36 in 1995-96) is NBA.com's Dan Schayes (id 7: born 1959-05-10, so 36.7 that season; 1996-97 his first season in the NBA.com data, 16 years of experience)"},
+  "br:austiis01": {"to": 1134, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Isaac Austin (austiis01, 1991-92 to 1993-94, last with PHI, age 24 in 1993-94) is NBA.com's Ike Austin (id 1134: born 1969-08-18, so 24.5 that season; 1996-97 his first season in the NBA.com data, 6 years of experience)"},
+  "br:richami01": {"to": 77952, "since": "2026-11-26", "why": "Basketball-Reference's season totals spell him Michael Ray Richardson (richami01); its transaction pages and nba_api's player list spell him Micheal Ray Richardson, NBA id 77952, the only player of that name"}
+ },
+ "old_slugs": {
+  "charles-jones-1996": "charles-jones",
+  "charles-smith-1996": "charles-smith",
+  "clarence-weatherspoon": "clar-weatherspoon",
+  "danny-schayes": "dan-schayes",
+  "dee-brown-1996": "dee-brown",
+  "eddie-johnson-1996": "eddie-johnson-1981",
+  "glen-rice-1996": "glen-rice",
+  "isaac-austin": "ike-austin",
+  "larry-johnson-1996": "larry-johnson",
+  "mark-davis-1996": "mark-davis-1995",
+  "michael-smith-1996": "michael-smith-1994",
+  "patrick-ewing-1996": "patrick-ewing",
+  "reggie-williams-1996": "reggie-williams",
+  "rich-manning": "richard-manning",
+  "steve-smith": "steven-smith"
+ }
+}

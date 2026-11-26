@@ -159,16 +159,26 @@ test('a page’s numbers are the tool’s numbers (spot check through the render
   assert.ok(page.includes(`${(+row.line.ppg).toFixed(1)} points`), 'stat line in the summary')
 })
 
-test('retired players open on their best season; split careers point at each other', () => {
+test('retired players open on their best season; no career is split, and the old split pages redirect', () => {
   const recent = new Set(eng.seasons.slice(0, 2))
   const retired = [...eng.index.values()].find((e) => !recent.has(e.newest) && eng.peakSeason(e.id) && eng.peakSeason(e.id) !== e.newest)
   const page = renderPlayer(ctx, retired)
   assert.ok(page.includes(` · ${eng.peakSeason(retired.id)}`), `${retired.name}: leads with his peak season`)
   assert.ok(page.includes('CAREER BEST'))
-  const split = findSplits(eng)
-  for (const [a, b] of split) {
-    assert.equal(split.get(b), a, 'split links go both ways')
-    assert.ok(renderPlayer(ctx, eng.index.get(a)).includes(`href=/player/${slugs.get(b)}>`), `${slugs.get(a)} links to ${slugs.get(b)}`)
+  // the careers once split at 1996-97 are one player each (pipeline/basketball/moved_player_ids.json)
+  assert.equal(findSplits(eng).size, 0, `split careers: ${[...findSplits(eng).keys()].join(', ')}`)
+  const moved = JSON.parse(readFileSync(path.join(ROOT, 'pipeline/basketball/moved_player_ids.json'), 'utf8'))
+  for (const [old, to] of Object.entries(moved.moved)) {
+    assert.ok(!eng.index.has(old), `${old} is gone`)
+    assert.ok(eng.index.has(to.to), `${old} -> ${to.to} exists`)
+  }
+  // every address the split careers had redirects, permanently, to a page that exists
+  const redirects = JSON.parse(readFileSync(path.join(ROOT, 'vercel.json'), 'utf8')).redirects
+  const live = new Set(slugs.values())
+  for (const [old, to] of Object.entries(moved.old_slugs)) {
+    assert.ok(!live.has(old), `/player/${old} is not a page any more`)
+    assert.ok(live.has(to), `/player/${to} exists`)
+    assert.ok(redirects.some((r) => r.source === `/player/${old}` && r.destination === `/player/${to}` && r.permanent), `/player/${old} redirects to /player/${to}`)
   }
 })
 

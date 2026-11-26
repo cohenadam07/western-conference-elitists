@@ -1,28 +1,28 @@
 {
  "from": "origin/main",
- "commit": "connector instructions under 4,096 (Nov 25, 2026), on top of NBA GM Savant (#91) and the trim (#92), as main will list it once merged",
+ "commit": "nba_search_players no longer says some careers appear under two ids (Nov 26, 2026: NBA Savant gives each player one id), on top of the connector instructions under 4,096 (Nov 25), as main will list it once merged",
  "public": {
   "tools": 85,
-  "tools_sha256": "c378742844a65ca6502cfc156523749baa98d83bdb2702aac295df1d08b70cd7",
+  "tools_sha256": "7820507f2a9a8eda8bb7b3c99c956b46d0630a2604da4874f00293c57ef53915",
   "instructions_sha256": "6854db2c6a86375d764521f8e32b0e7cbc0c994f2c6e58e85e6d98356283f20f",
-  "upfront": 81380
+  "upfront": 81345
  },
  "key": {
   "tools": 86,
-  "tools_sha256": "ed11290e79e3707df491c118abbfe1a3962d6e678c9e326e45b830b0519e212d",
+  "tools_sha256": "fd2a5ac983d31dcd6889a5e9937bf495eb5683505a8f3798842ec3acdc506591",
   "instructions_sha256": "668eb20a7a9ab74a23f05f730cc507f1e338944c732c0248f7150a45dd2ae3fa",
-  "upfront": 85366
+  "upfront": 85331
  },
  "unknown": {
   "tools": 85,
-  "tools_sha256": "c378742844a65ca6502cfc156523749baa98d83bdb2702aac295df1d08b70cd7",
+  "tools_sha256": "7820507f2a9a8eda8bb7b3c99c956b46d0630a2604da4874f00293c57ef53915",
   "instructions_sha256": "ce37d235c50d5df07f5e245ce74e1fbafff861928eac661e5755624424ebf021",
-  "upfront": 81380
+  "upfront": 81345
  },
  "unchecked": {
   "tools": 85,
-  "tools_sha256": "c378742844a65ca6502cfc156523749baa98d83bdb2702aac295df1d08b70cd7",
+  "tools_sha256": "7820507f2a9a8eda8bb7b3c99c956b46d0630a2604da4874f00293c57ef53915",
   "instructions_sha256": "3e02329920fe113205c611d17357cb25672ac33b2a807a7cdac09c285e9c52c0",
-  "upfront": 81380
+  "upfront": 81345
  }
 }

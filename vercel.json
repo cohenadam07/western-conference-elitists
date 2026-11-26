@@ -100,6 +100,81 @@
       "source": "/draft-savant",
       "destination": "/nba-draft-savant",
       "permanent": true
+    },
+    {
+      "source": "/player/charles-jones-1996",
+      "destination": "/player/charles-jones",
+      "permanent": true
+    },
+    {
+      "source": "/player/charles-smith-1996",
+      "destination": "/player/charles-smith",
+      "permanent": true
+    },
+    {
+      "source": "/player/clarence-weatherspoon",
+      "destination": "/player/clar-weatherspoon",
+      "permanent": true
+    },
+    {
+      "source": "/player/danny-schayes",
+      "destination": "/player/dan-schayes",
+      "permanent": true
+    },
+    {
+      "source": "/player/dee-brown-1996",
+      "destination": "/player/dee-brown",
+      "permanent": true
+    },
+    {
+      "source": "/player/eddie-johnson-1996",
+      "destination": "/player/eddie-johnson-1981",
+      "permanent": true
+    },
+    {
+      "source": "/player/glen-rice-1996",
+      "destination": "/player/glen-rice",
+      "permanent": true
+    },
+    {
+      "source": "/player/isaac-austin",
+      "destination": "/player/ike-austin",
+      "permanent": true
+    },
+    {
+      "source": "/player/larry-johnson-1996",
+      "destination": "/player/larry-johnson",
+      "permanent": true
+    },
+    {
+      "source": "/player/mark-davis-1996",
+      "destination": "/player/mark-davis-1995",
+      "permanent": true
+    },
+    {
+      "source": "/player/michael-smith-1996",
+      "destination": "/player/michael-smith-1994",
+      "permanent": true
+    },
+    {
+      "source": "/player/patrick-ewing-1996",
+      "destination": "/player/patrick-ewing",
+      "permanent": true
+    },
+    {
+      "source": "/player/reggie-williams-1996",
+      "destination": "/player/reggie-williams",
+      "permanent": true
+    },
+    {
+      "source": "/player/rich-manning",
+      "destination": "/player/richard-manning",
+      "permanent": true
+    },
+    {
+      "source": "/player/steve-smith",
+      "destination": "/player/steven-smith",
+      "permanent": true
     }
   ],
   "rewrites": [

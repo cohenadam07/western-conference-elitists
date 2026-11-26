@@ -16,6 +16,8 @@ import json, os, sys
 import br_fetch as BR
 import br_normalize as N
 import br_crosswalk as X
+from remap_moved_ids import moved as _moved
+MOVED = _moved()
 import savant_engine as E
 import savant_config as C
 
@@ -54,6 +56,9 @@ def build():
         by_brid = N.normalize_season(ey)
         entries, st = X.apply_crosswalk(by_brid)
         collisions += _dedupe_ids(entries)
+        # careers the name alone could not match, joined to their NBA id (moved_player_ids.json, remap_moved_ids.py)
+        for e in entries:
+            e["id"] = MOVED.get(e["id"], e["id"])
         for k in stats_tot: stats_tot[k] += st[k]
         payload["data"][season] = {"players": entries}
         br_seasons.append(season)

@@ -364,6 +364,10 @@ export function buildSavantApi({ data, html, valueModel = null, allSavantSlots =
     source: data.source || null,
     latestSeason: latest,
     seasons: data.seasons,
+    // ids that moved: {old id: the id that now holds the same player}. Fifteen careers that NBA Savant once split at
+    // 1996-97 (the seasons before it under a Basketball-Reference "br:" id) and Micheal Ray Richardson are one player
+    // under their NBA id (pipeline/basketball/moved_player_ids.json); an old id still finds him through this.
+    moved_ids: data.moved_ids || {},
     files: {
       players: `${SITE}/${BASE}/players.json`,
       season: `${SITE}/${BASE}/seasons/{season}.json`,
@@ -408,7 +412,7 @@ export function buildSavantApi({ data, html, valueModel = null, allSavantSlots =
       ...(m.neutral ? { neutral: true } : {}),
     })),
     row: {
-      id: 'Player id. Use it in playerUrl. Players from before 1996-97 without an NBA id carry a "br:" id.',
+      id: 'Player id. Use it in playerUrl. Every season of a career carries the same id; a player from before 1996-97 whom no NBA id fits carries a "br:" id. An id in meta.moved_ids moved to the id it names.',
       pos: 'Guard, Wing or Big, for that season.',
       qualified: 'Whether he is in the percentile pools that season.',
       gp: 'Games played.',

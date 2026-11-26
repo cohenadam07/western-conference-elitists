@@ -1109,15 +1109,35 @@ test('what the homepage says about the connector is true', async () => {
 
 // ---- 3. when it cannot answer --------------------------------------------------------
 
+test('a career NBA Savant once split at 1996-97 is one player; its old id still finds him', async () => {
+  const career = await call('nba_player_career', { player: 'br:ewingpa01' })
+  assert.ok(!career.isError, textOf(career))
+  const c = career.structuredContent
+  assert.equal(c.player.id, '121')
+  assert.equal(c.player.from, '1985-86')
+  assert.equal(c.player.to, '2001-02')
+  assert.ok(+c.peak.season.slice(0, 4) < 1996, `his peak is in his Knicks prime, not ${c.peak.season}`)
+  // Micheal Ray Richardson: never matched before, now under his NBA id
+  const mrr = await call('nba_player_career', { player: 'br:richami01' })
+  assert.ok(!mrr.isError, textOf(mrr))
+  assert.equal(mrr.structuredContent.player.id, '77952')
+  const search = await call('nba_search_players', { query: 'Glen Rice' })
+  assert.equal(search.structuredContent.players.filter((p) => p.id === '779').length, 1)
+  assert.ok(search.structuredContent.players.every((p) => !p.id.startsWith('br:ricegl')), 'no second Glen Rice')
+  assert.doesNotMatch(textOf(search), /split across two ids/)
+})
+
 test('a shared name lists the candidates, and a season settles it', async () => {
+  // Patrick Ewing and his son: two players, each with one id for his whole career
   const shared = await call('nba_get_player_profile', { player: 'Patrick Ewing' })
   assert.ok(shared.isError)
-  assert.match(textOf(shared), /br:ewingpa01/)
   assert.match(textOf(shared), /id 121/)
-  // The Hall of Famer's Knicks years live under the "br:" id; 1989-90 can only be him.
+  assert.match(textOf(shared), /id 201607/)
+  assert.doesNotMatch(textOf(shared), /br:ewingpa01/)
+  // 1989-90 can only be the Hall of Famer, under the id his whole career carries
   const knick = await call('nba_get_player_profile', { player: 'Patrick Ewing', season: '1989-90', group: 'value' })
   assert.ok(!knick.isError)
-  assert.equal(knick.structuredContent.player.id, 'br:ewingpa01')
+  assert.equal(knick.structuredContent.player.id, '121')
   assert.equal(knick.structuredContent.player.team, 'NYK')
   // "Jaren Jackson" could be the father or the son: never quietly the father.
   const jj = await call('nba_get_player_profile', { player: 'Jaren Jackson' })
