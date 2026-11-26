@@ -3,7 +3,11 @@ remap_moved_ids.py — give a player one id everywhere NBA Savant stores him (mo
 
 Fifteen careers were split at 1996-97: the seasons before it under a Basketball-Reference id ("br:ewingpa01"), the
 rest under the NBA id (121), because the name alone could not be matched (two NBA ids share it, or NBA.com spells it
-another way). Micheal Ray Richardson was never matched at all. The archive is edited in place in the repo (accents,
+another way). Micheal Ray Richardson was never matched at all, nor were 58 more players who left before 1996-97
+(Tiny Archibald, Fat Lever, World B. Free...): those are matched by season, team and minutes against NBA.com's career
+totals, as GM Savant 1.0.2 matches players, each with its evidence in moved_player_ids.json. One player is left under
+his "br:" id, Mark Jones (br:jonesma02, 16 minutes in 1983-84): NBA.com has no career totals for its only Mark Jones of
+the time, so nothing could be checked. The archive is edited in place in the repo (accents,
 value bars, Synergy ids, positions...), so this is an in-place pass too, like those, rather than a rebuild:
 
   public/savant-data.json       every row's id (and display name, where NBA.com abbreviates it); and moved_ids {old id: new id} at the top, which the page, the site's
@@ -19,7 +23,7 @@ build_historical.py and gen_historical_comps.py apply the same file when the arc
 
 The audit: a player whose first NBA.com season in the archive already counts years of NBA experience (exp 2 or
 more) must have his earlier seasons under the same id; where they sit under another id (same last name, his age
-continuing across the gap), that is a split. On Nov 26, 2026 it found exactly the fifteen fixed here.
+continuing across the gap), that is a split. On Nov 26, 2026 it found exactly the fifteen fixed here, and none since.
 """
 import json
 import os

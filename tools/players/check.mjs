@@ -180,6 +180,11 @@ test('retired players open on their best season; no career is split, and the old
     assert.ok(live.has(to), `/player/${to} exists`)
     assert.ok(redirects.some((r) => r.source === `/player/${old}` && r.destination === `/player/${to}` && r.permanent), `/player/${old} redirects to /player/${to}`)
   }
+  // a moved id keeps its page: namesakes who debuted the same season are ordered by the id each had before it moved.
+  // The two George Johnsons of 1979-80 took NBA ids in the reverse order of their Basketball-Reference ones, and
+  // ordering by the new ids swapped their pages (Nov 26, 2026), which no redirect can undo
+  assert.equal(slugs.get(77149), 'george-johnson', 'George Johnson (johnsge02, NBA id 77149) keeps /player/george-johnson')
+  assert.equal(slugs.get(77148), 'george-johnson-1979', 'George Johnson (johnsge03, NBA id 77148) keeps /player/george-johnson-1979')
 })
 
 test('a new season with no comparison pool yet: pages hold on last season and say why', () => {

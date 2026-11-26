@@ -63,11 +63,23 @@ def build(current_only=False):
                 for pl in blk['players']:
                     ages[(s, pl['id'])] = (pl.get('age'), pl.get('birthdate'))
     games = {s: statistics.median(len(v) for v in teams.values()) for s, teams in G.items()}
-    draft = {}
+    # NBA Savant gave each player one id (pipeline/basketball/moved_player_ids.json, Nov 26 2026): the 15 careers it
+    # split at 1996-97, and 59 players before it that no name matched, now carry an NBA id where canonical_id still
+    # gives "br:<id>". A season before 1996-97 reads the draft through the moved ids, as it did under its "br:" id;
+    # without that, 237 rows lose their pick and 20 players join the undrafted rookies (the T=1995 baseline 17 -> 37).
+    # A season from 1996-97 on reads it as before: under the NBA id the crosswalk never found these 15 players' picks,
+    # so those seasons have no draft slot and their projections treat them as undrafted. Kept as it was so the merge
+    # moves no GM number; giving them their slot changes 15 how-it-turned-out trade values, up to 186 points (Glen
+    # Rice and Muggsy Bogues, New York 2001), and is GM Savant's own change to make.
+    mp = os.path.join(REPO, 'pipeline', 'basketball', 'moved_player_ids.json')
+    moved = {k: v['to'] for k, v in json.load(open(mp))['moved'].items()} if os.path.exists(mp) else {}
+    draft, draft_moved = {}, {}
     for y, d in D.items():
         for rnd, ov, team, pid, name in d['picks']:
             if pid:
-                draft.setdefault(canonical_id(pid, name), (y, ov, rnd, team, pid))
+                k = canonical_id(pid, name)
+                draft.setdefault(k, (y, ov, rnd, team, pid))
+                draft_moved.setdefault(moved.get(k, k), (y, ov, rnd, team, pid))
     out = []
     for s in sorted(S):
         rs = S[s]
@@ -78,7 +90,7 @@ def build(current_only=False):
             if r.get('value') is None:
                 continue
             age, bd = ages.get((s, r['id']), (None, None))
-            dr = draft.get(r['id'])
+            dr = (draft_moved if int(s[:4]) + 1 < 1997 else draft).get(r['id'])
             out.append({'season': s, 'y': int(s[:4]) + 1, 'id': r['id'], 'name': r['name'], 'team': r['team'], 'pos': r['pos'],
                         'age': age, 'value': round(r['value'], 2), 'value82': round(r['value'] * 82 / g, 2), 'poss': r['poss'],
                         'poss82': round(r['poss'] * 82 / g), 'gp': r['gp'], 'min': r['min'], 'team_games': g,

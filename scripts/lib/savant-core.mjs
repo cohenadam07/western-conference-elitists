@@ -296,8 +296,18 @@ export function slugify(name) {
  * id -> slug for every player. When two players share a name, the one who debuted first keeps
  * the plain slug and the others get their debut year (glen-rice, glen-rice-2013), so a URL that
  * exists today keeps pointing at the same man when a namesake enters the league later.
+ * Namesakes who debuted the same season are ordered by id, and a player whose id moved
+ * (DATA.moved_ids) is ordered by the id he had before: the two George Johnsons of 1979-80 took
+ * NBA ids in the reverse order of their Basketball-Reference ones (Nov 26, 2026), and ordering by
+ * the new ids would have swapped their pages, which no redirect can undo.
  */
 export function assignSlugs(engine) {
+  const was = new Map()
+  for (const [old, to] of Object.entries((engine.DATA && engine.DATA.moved_ids) || {})) {
+    const k = String(to)
+    if (!was.has(k) || String(old).localeCompare(was.get(k), 'en', { numeric: true }) < 0) was.set(k, String(old))
+  }
+  const tie = (e) => was.get(String(e.id)) || String(e.id)
   const groups = new Map()
   for (const e of engine.index.values()) {
     const s = slugify(e.name)
@@ -308,7 +318,7 @@ export function assignSlugs(engine) {
   const taken = new Set()
   const debut = (e) => +String(e.oldest).slice(0, 4)
   for (const [base, list] of groups) {
-    list.sort((a, b) => debut(a) - debut(b) || String(a.id).localeCompare(String(b.id), 'en', { numeric: true }))
+    list.sort((a, b) => debut(a) - debut(b) || tie(a).localeCompare(tie(b), 'en', { numeric: true }))
     list.forEach((e, i) => {
       let s = i === 0 ? base : `${base}-${debut(e)}`
       if (taken.has(s) || groups.has(s) && s !== base) s = `${base}-${String(e.id).replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`
