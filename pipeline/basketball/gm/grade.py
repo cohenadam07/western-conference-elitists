@@ -20,7 +20,7 @@ firing (Coaching Savant's wins against roster talent, 2002-03 on, at 31.7 points
     python3 grade.py            # -> out/gm_decisions.json, a summary
     python3 grade.py leakage    # recompute a sample of at-the-time grades with every later season deleted
 """
-import bisect, collections, datetime as dt, json, math, os, re, sys
+import bisect, collections, datetime as dt, json, math, os, re, sys, unicodedata
 from functools import lru_cache
 import numpy as np
 
@@ -81,7 +81,8 @@ def w(y, y0):
 
 # ---------------------------------------------------------------- realized value by team
 def team_shares():
-    """{(canonical id, season end year): {franchise: share of his minutes}} from the season totals."""
+    """{(Basketball-Reference id, season end year): {franchise: share of his minutes}} from the season totals (keyed by
+    NBA id below, once nba_id can read every player's seasons)."""
     import pagefacts
     out = collections.defaultdict(dict)
     for y in range(1980, NOW_SEASON + 1):
@@ -100,19 +101,13 @@ def team_shares():
             tot = sum(teams.values()) or 1
             BR_MIN[(br, y)] = (tot, {f: v / tot for f, v in teams.items()})
             BR_NAME.setdefault(br, names.get(br, ''))
-            c = canonical_id(br, names.get(br, ''))
-            if isinstance(c, str):              # the totals page spells him differently ("A.J." / "AJ"): the ledger's name
-                c2 = canonical_id(br, A.get(f'player:{br}', {}).get('name') or '')
-                c = c2 if not isinstance(c2, str) else c
-            out[(c, y)] = {f: v / tot for f, v in teams.items()}
+            out[(br, y)] = {f: v / tot for f, v in teams.items()}
     return out
 
 
 BR_MIN, BR_NAME = {}, {}
-SHARE = team_shares()
+_SHARE_BR = team_shares()
 VAL = {}
-for r in proj.ROWS if hasattr(proj, 'ROWS') else []:
-    pass
 ROWS = json.load(open(os.path.join(OUT, 'model_seasons.json')))
 ERA_LAST = ERA['reference_total_per_team_season'] / ERA['per_team_season']['2025-26']
 for r in ROWS:
@@ -120,8 +115,143 @@ for r in ROWS:
     VAL[(r['id'], r['y'])] = r['valuer'] if r['y'] < NOW_SEASON else r['value'] * ERA_LAST
 
 
+# ---------------------------------------------------------------- which NBA id a Basketball-Reference id is
+# The crosswalk (br_crosswalk.canonical_id) matches a name alone, and goes wrong two ways (the 1.0.2 audit, Nov 25,
+# 2026): a son the ledger spells without his suffix gets his father's id ("Ron Harper" for Ron Harper Jr., harpero02:
+# 166, not 1631199), and a name two NBA ids share gets none ("Mike Dunleavy", "Patrick Ewing", "Mike James": 38 players),
+# so his NBA Savant seasons from 1996-97 on (kept under his NBA id) reached no grade. Here the candidates are every NBA
+# id whose name is his with or without a suffix (Jr., Sr., II, III, IV, V), and his is the one whose NBA Savant seasons
+# overlap his own seasons the most (the season totals, by Basketball-Reference id). No overlap, or a tie, keeps the
+# crosswalk's answer. NBA Savant keeps a name it could not match under "br:<id>" for the seasons before 1996-97: those
+# join the NBA id's (Patrick Ewing 1985-86 to 1995-96 and 1996-97 on are one career).
+# Where his name finds no NBA id whose seasons are his (a nickname or another spelling: "Ronald Murray" is NBA.com's
+# "Flip Murray", "Isaac Austin" its "Ike Austin"; a rookie the offline list does not have yet), his seasons are matched
+# to NBA Savant's rows by season, team and minutes: in each completed season, the one row on one of his teams within
+# 10 minutes or 2% of his total (where two rows are that close, the one within a minute), taken by no player his name
+# already finds. Every season that matches must name the same NBA id (the last 33 players, Nov 25, 2026).
+_SUFFIX = re.compile(r'[\s,]+(jr|sr|ii|iii|iv|v)\.?$')
+
+
+def _base(name):
+    s = ''.join(c for c in unicodedata.normalize('NFD', (name or '').lower()) if unicodedata.category(c) != 'Mn')
+    return _SUFFIX.sub('', s.strip()).replace('.', '').strip()
+
+
+def _family():
+    from nba_api.stats.static import players as SP
+    fam = collections.defaultdict(set)
+    for p in SP.get_players():
+        fam[_base(p['full_name'])].add(p['id'])
+    return fam
+
+
+FAMILY = _family()
+NBA_YEARS = collections.defaultdict(set)          # NBA id -> the seasons NBA Savant has for him
+for r in ROWS:
+    if isinstance(r['id'], int):
+        NBA_YEARS[r['id']].add(r['y'])
+BR_YEARS = collections.defaultdict(set)           # Basketball-Reference id -> his seasons
+for (_b, _y) in BR_MIN:
+    BR_YEARS[_b].add(_y)
+
+
+ROWS_AT = collections.defaultdict(list)          # (season, franchise) -> [(minutes, NBA id)] from NBA Savant's rows
+for r in ROWS:
+    if isinstance(r['id'], int) and r['y'] < NOW_SEASON and r.get('min') is not None:
+        f = franchise(r['team'])
+        if f:
+            ROWS_AT[(r['y'], f)].append((r['min'], r['id']))
+
+
+@lru_cache(maxsize=None)
+def _by_family(br, *names):
+    """The NBA id among his name's family (with or without a suffix) whose seasons overlap his the most, or None."""
+    fam = set().union(*(FAMILY.get(_base(n), set()) for n in names)) if names else set()
+    mine = BR_YEARS.get(br, set())
+    if fam and mine:
+        ov = {i: len(NBA_YEARS.get(i, set()) & mine) for i in fam}
+        best = max(ov.values())
+        top = [i for i, v in ov.items() if v == best]
+        if best > 0 and len(top) == 1:
+            return top[0]
+    return None
+
+
+_CLAIMED = None
+
+
+def _by_minutes(br):
+    """The NBA id whose rows match his completed seasons by team and minutes, or None."""
+    global _CLAIMED
+    if _CLAIMED is None:              # every id a name already finds (by family, or the crosswalk's exact name)
+        _CLAIMED = set()
+        for b in BR_YEARS:
+            nm = [n for n in (BR_NAME.get(b, ''), A.get(f'player:{b}', {}).get('name') or '') if n]
+            c = _by_family(b, *nm)
+            if c is None:
+                c = next((x for x in (canonical_id(b, n) for n in nm) if not isinstance(x, str)), None)
+            if c is not None:
+                _CLAIMED.add(c)
+    votes = set()
+    for y in sorted(BR_YEARS.get(br, ())):
+        if y >= NOW_SEASON:
+            continue
+        tot, sh = BR_MIN[(br, y)]
+        near = {(abs(m - tot), i) for f in sh for m, i in ROWS_AT.get((y, f), ()) if abs(m - tot) <= max(10, 0.02 * tot) and i not in _CLAIMED}
+        hit = {i for d, i in near}
+        if len(hit) > 1:                       # two rows close to his minutes: only an exact one (within a minute) tells
+            hit = {i for d, i in near if d <= 1}
+            if len(hit) != 1:
+                return None
+        votes |= hit
+    return votes.pop() if len(votes) == 1 else None
+
+
+@lru_cache(maxsize=None)
+def nba_id(br, *names):
+    """His NBA id (int), or "br:<id>" where none can be told: by seasons among his name's family; else by the first name
+    the crosswalk matches, if that id has seasons of his; else by season, team and minutes; else the crosswalk's id."""
+    names = tuple(n for n in names if n)
+    c = _by_family(br, *names)
+    if c is not None:
+        return c
+    mine = BR_YEARS.get(br, set())
+    named = next((x for x in (canonical_id(br, n) for n in names) if not isinstance(x, str)), None)
+    if named is not None and (NBA_YEARS.get(named, set()) & mine or not mine):
+        return named
+    m = _by_minutes(br) if mine else None
+    if m is not None:
+        return m
+    return named if named is not None else f'br:{br}'
+
+
+def _nba_id_any(br):
+    """By the totals page's spelling, then the ledger's (the totals page and the ledger can spell him differently)."""
+    return nba_id(br, BR_NAME.get(br, ''), A.get(f'player:{br}', {}).get('name') or '')
+
+
+SHARE = {}
+for (_b, _y), _sh in _SHARE_BR.items():
+    SHARE[(_nba_id_any(_b), _y)] = _sh
+# a career NBA Savant splits (seasons before 1996-97 under "br:<id>", later ones under the NBA id): one career here, in
+# realized value and in the history a projection reads (snapshots.BY: without it, a projection made before 1996-97 of
+# a player now known by his NBA id saw no seasons at all, Glen Rice in 1995; and Micheal Ray Richardson, whose name
+# found his NBA id while NBA Savant keeps all his seasons under "br:richami01", was always projected with none)
+for _b in sorted(BR_YEARS):
+    _c = _nba_id_any(_b)
+    if isinstance(_c, int):
+        for _y in sorted(BR_YEARS[_b]):
+            if (f'br:{_b}', _y) in VAL and (_c, _y) not in VAL:
+                VAL[(_c, _y)] = VAL[(f'br:{_b}', _y)]
+        # moved, not copied: anything that reads every player's history (the undrafted rookies' average) must see one
+        # career, not two (before 1.0.2 it saw a second "rookie" starting in 1996-97 for each of these players)
+        for _y, _r in sorted(SN.BY.pop(f'br:{_b}', {}).items()):
+            if _y not in SN.BY.get(_c, {}):
+                SN.BY[_c][_y] = _r
+
+
 def pid_of(aid):
-    return canonical_id(aid.split(':', 1)[1], A.get(aid, {}).get('name') or '')
+    return nba_id(aid.split(':', 1)[1], A.get(aid, {}).get('name') or '')
 
 
 # Namesakes: the crosswalk maps a Basketball-Reference id to an NBA id by name alone, so two players with one name
@@ -133,9 +263,9 @@ _groups = collections.defaultdict(set)
 for _aid, _a in A.items():
     if _aid.startswith('player:'):
         _br = _aid.split(':', 1)[1]
-        _groups[canonical_id(_br, _a.get('name') or '')].add(_br)
+        _groups[nba_id(_br, _a.get('name') or '')].add(_br)
 for (_br, _y) in BR_MIN:
-    _groups[canonical_id(_br, BR_NAME.get(_br, ''))].add(_br)
+    _groups[nba_id(_br, BR_NAME.get(_br, ''))].add(_br)
 for _c, _brs in _groups.items():
     if len(_brs) < 2 or isinstance(_c, str):
         continue
@@ -162,7 +292,7 @@ def vid_of(aid):
         return VID[br]
     c = pid_of(aid)
     if isinstance(c, str) and BR_NAME.get(br):
-        c2 = canonical_id(br, BR_NAME[br])
+        c2 = nba_id(br, BR_NAME[br])
         return c2 if not isinstance(c2, str) else c
     return c
 
@@ -369,8 +499,21 @@ def basis():
 BASIS = basis() if INCR else None
 _st = json.load(open(STATE)) if INCR and os.path.exists(STATE) else {}
 PREV = _st.get('settled', {}) if _st.get('basis') == BASIS else {}           # yesterday's settled turned-out grades
-FROZ = (json.load(open(os.path.join(OUT, 'frozen_at_time.json'))) if os.path.exists(os.path.join(OUT, 'frozen_at_time.json')) else {}) \
-    if INCR and os.environ.get('GM_FREEZE') == '1' else {}
+# one-time re-grades (at_time_regrade.json): each batch is applied once, in the first production run that has it, to
+# every stored grade it covers; out/regrade_applied.json records which batches this state has had
+BATCHES = json.load(open(os.path.join(HERE, 'at_time_regrade.json')))['batches']
+APPLIED = os.path.join(OUT, 'regrade_applied.json')
+PENDING = [b for b in BATCHES if b not in (json.load(open(APPLIED)) if os.path.exists(APPLIED) else {}).get('points', {})] \
+    if os.environ.get('GM_FREEZE') == '1' else []
+
+
+def regrade_due(did):
+    """The pending batch that re-grades this stored at-the-time grade, or None."""
+    return next((b for b in PENDING if BATCHES[b].get('all') or did in BATCHES[b].get('ids', ())), None)
+
+
+FROZ = {k: v for k, v in json.load(open(os.path.join(OUT, 'frozen_at_time.json'))).items() if not regrade_due(k)} \
+    if INCR and os.environ.get('GM_FREEZE') == '1' and os.path.exists(os.path.join(OUT, 'frozen_at_time.json')) else {}
 SETTLED = {}
 CARRIED = collections.Counter()
 
@@ -769,7 +912,7 @@ def drafts():
         for rnd, ov, team, br, name in d['picks']:
             if not br or ov > 60:
                 continue
-            pid = canonical_id(br, name)
+            pid = nba_id(br, name)
             vid = VID.get(br) or pid
             cm, early = SN.cmodel(SN.origin(d['date']) or 1985)
             # the slot's expectation as of the draft (point in time), ten seasons, discounted
@@ -1021,6 +1164,7 @@ def leakage(sample=300, seed=11):
 
 
 FROZEN = os.path.join(OUT, 'frozen_at_time.json')
+REGRADED = []          # (decision id, stored grade, new grade, batch) re-graded this run
 
 
 def stable_id(d):
@@ -1045,8 +1189,18 @@ def freeze(D):
     drift = 0
     for d in D:
         f = F.get(d['decision_id'])
-        if f:
-            if f['at_time'] != d['at_time']:
+        b = regrade_due(d['decision_id']) if f else None
+        if b:
+            # re-graded once (at_time_regrade.json): the same point-in-time models on corrected inputs; a grade that changes
+            # keeps its old value beside the new one
+            REGRADED.append((d['decision_id'], f['at_time'], d['at_time'], b))
+            if (d['at_time'], d.get('at_time_note')) != (f['at_time'], f['at_time_note']):
+                F[d['decision_id']] = {'at_time': d['at_time'], 'at_time_note': d.get('at_time_note'), 'models': d.get('models'), 'on': TODAY,
+                                       'regraded': f.get('regraded', []) + [b], 'was': f['at_time'], 'was_note': f['at_time_note'], 'was_on': f['on']}
+            f = F[d['decision_id']]
+            d['at_time'], d['at_time_note'], d['models'], d['frozen_on'] = f['at_time'], f['at_time_note'], f['models'], f['on']
+        elif f:
+            if f['at_time'] != d['at_time'] and d['decision_id'] not in FROZ:     # (an incremental night computes none of them)
                 drift += 1
             d['at_time'], d['at_time_note'], d['models'], d['frozen_on'] = f['at_time'], f['at_time_note'], f['models'], f['on']
         else:
@@ -1055,6 +1209,10 @@ def freeze(D):
     tmp = FROZEN + '.tmp'
     json.dump(F, open(tmp, 'w'), separators=(',', ':'))
     os.replace(tmp, FROZEN)
+    if PENDING:
+        ap = json.load(open(APPLIED)) if os.path.exists(APPLIED) else {}
+        ap.setdefault('points', {}).update({b: TODAY for b in PENDING})
+        json.dump(ap, open(APPLIED, 'w'), indent=1)
     return drift
 
 
@@ -1086,6 +1244,12 @@ if __name__ == '__main__':
     drift = freeze(D)
     if drift:
         print(f'frozen: {drift} stored at-the-time grades differ from what the current models say (kept as stored)')
+    if REGRADED:
+        moved = [r for r in REGRADED if r[1] != r[2]]
+        print(f're-graded once (at_time_regrade.json): {len(REGRADED)} stored at-the-time grades, {len(moved)} changed')
+        log = os.path.join(OUT, 'at_time_regraded.json')
+        old = json.load(open(log)) if os.path.exists(log) else []
+        json.dump(old + [{'id': i, 'batch': bt, 'was': a, 'now': b, 'on': TODAY} for i, a, b, bt in moved], open(log, 'w'), indent=0)
     tmp = os.path.join(OUT, 'gm_decisions.json.tmp')
     json.dump(D, open(tmp, 'w'))
     os.replace(tmp, os.path.join(OUT, 'gm_decisions.json'))     # never a half-written file

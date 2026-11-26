@@ -1,0 +1,10 @@
+{
+ "about": "At-the-time grades are written once and kept (grade.freeze, titles_dec). A batch here re-grades stored at-the-time grades once, in the first production run that has it, with the same point-in-time models (projections and pick curves as of each move's date) and today's corrected inputs; a grade that changes keeps its old value beside the new one (frozen_at_time.json 'was', 'was_on'; out/at_time_regraded.json lists every change), and all are frozen again. Which batches a state has had: out/regrade_applied.json. Add a batch only for a fix to what grades were computed from, never for a model change; never remove one.",
+ "batches": {
+  "1.0.2": {
+   "since": "2026-11-26",
+   "all": true,
+   "why": "NBA GM Savant 1.0.2 fixed player matching: a player's NBA id is now told by his seasons (and, where his name finds none, by season, team and minutes), not by his name alone. A son had been graded with his father's history (Ron Harper Jr.), and 140 players whose name was spelled differently or shared had none (Jimmy Butler, Mike Dunleavy, Flip Murray); the pick curves fitted on earlier drafts also lacked those players' value. No model changed, so every stored grade is re-graded once: those the fix does not touch come out the same."
+  }
+ }
+}

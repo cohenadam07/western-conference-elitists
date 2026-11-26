@@ -2,7 +2,9 @@
 // scrolls inside its own panel, its last column can be scrolled into view, the first column stays pinned while the
 // rest scrolls, and the page itself never scrolls sideways. jsdom (tap.mjs) has no layout, so this is the one check
 // that sees what a reader sees. On the boards, the first two number columns must be in view before any scrolling
-// (Nov 25, 2026: a one-line Team column second from the left pushed every number off a 1280px board). Data is served from public/ on disk; nothing is fetched.
+// (Nov 25, 2026: a one-line Team column second from the left pushed every number off a 1280px board). The home board's
+// two tables (top 15, bottom 15) are stacked, each the board's full width, at every width; side by side fails (1.0.2).
+// Data is served from public/ on disk; nothing is fetched.
 //
 //   GM_CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node tools/savant-gm/layout.mjs [public] [shots-dir]
 import { chromium } from 'playwright'
@@ -40,7 +42,8 @@ for (const width of [375, 768, 1280]) {
     await page.waitForTimeout(400)
     const r = await page.evaluate((sel) => {
       const doc = document.scrollingElement
-      const out = { pageScroll: doc.scrollWidth - window.innerWidth, tables: [] }
+      const hb = document.getElementById('homeBoard')
+      const out = { pageScroll: doc.scrollWidth - window.innerWidth, tables: [], boardWidth: hb && hb.offsetParent ? hb.getBoundingClientRect().width : null }
       for (const t of document.querySelectorAll(sel)) {
         const box = t.closest('.scroll'), card = t.closest('.col')
         if (!box || !t.offsetParent) continue
@@ -50,6 +53,8 @@ for (const width of [375, 768, 1280]) {
         const box0 = box.getBoundingClientRect()
         const numsShown = nums.map((th) => ({ name: th.textContent.trim().replace(/\s+i$/, ''), right: Math.round(th.getBoundingClientRect().right - box0.right) }))
         const before = firstCell.getBoundingClientRect().left
+        const at = box.getBoundingClientRect()
+        const placed = { top: Math.round(at.top), bottom: Math.round(at.bottom), left: Math.round(at.left), width: Math.round(at.width) }
         box.scrollLeft = box.scrollWidth
         const after = firstCell.getBoundingClientRect().left
         const lastTh = rows[0].lastElementChild.getBoundingClientRect(), b = box.getBoundingClientRect(), c = card.getBoundingClientRect()
@@ -62,6 +67,7 @@ for (const width of [375, 768, 1280]) {
           pinned: Math.abs(after - before) < 1.5,
           pinnedLabel: firstCell.textContent.trim().slice(0, 30),
           numsShown,
+          placed,
         })
         box.scrollLeft = 0
       }
@@ -70,6 +76,13 @@ for (const width of [375, 768, 1280]) {
     ok(r.pageScroll <= 0, `${width}px, ${where}: the page never scrolls sideways (${r.pageScroll}px)`)
     ok(r.tables.length > 0, `${width}px, ${where}: ${r.tables.length} table(s) found`)
     const board = where !== 'a GM card (Jerry Krause)'
+    if (where === 'home') {
+      const [a, b] = r.tables.map((t) => t.placed)
+      ok(r.tables.length === 2 && b.top >= a.bottom && Math.abs(a.left - b.left) <= 1,
+        `${width}px, home: the top 15 and bottom 15 are stacked, not side by side (${a && b ? `tops ${a.top} and ${b.top}, lefts ${a.left} and ${b.left}` : 'not found'})`)
+      ok(r.tables.length === 2 && r.tables.every((t) => t.placed.width >= r.boardWidth - 2),
+        `${width}px, home: each board table is the board's full width (${r.tables.map((t) => t.placed.width).join(' and ')} of ${Math.round(r.boardWidth)}px)`)
+    }
     for (const [i, t] of r.tables.entries()) {
       const tag = `${width}px, ${where}, table ${i + 1}${t.wide ? ' (wider than its panel)' : ''}`
       ok(t.insideCard, `${tag}: its scroll panel stays inside the card`)

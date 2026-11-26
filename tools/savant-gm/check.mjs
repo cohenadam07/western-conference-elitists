@@ -45,7 +45,7 @@ test('the index lists every GM once and every GM has a file', () => {
   assert.equal(new Set(ids).size, ids.length, 'a GM is listed twice')
   for (const p of index.people) assert.ok(pages[p.file], `no file for ${p.name}`)
   assert.ok(index.people.length > 200, 'the index should hold every front-office head since 1979-80 (211 in November 2026)')
-  assert.equal(index.meta.version, '1.0.1')
+  assert.equal(index.meta.version, '1.0.2')
   assert.ok(index.meta.games_through && index.meta.through, 'the index says how current it is')
 })
 
@@ -245,7 +245,10 @@ test('a decision id that moved leads to its new id: the index, the Data Room dic
 
 test('the conservation check\'s known gaps are published, each with its cause (shown on /control)', () => {
   const g = index.meta.known_gaps
-  assert.ok(Array.isArray(g) && g.length > 0, 'no known gaps in the index')
+  assert.ok(Array.isArray(g), 'no known_gaps list in the index (an empty list means every team-season balances)')
+  // the list is exactly conserve.py's (out/conservation.json), never more or fewer
+  const cons = path.join(ROOT, 'pipeline/basketball/gm/out/conservation.json')
+  if (existsSync(cons)) assert.deepEqual(g.map((x) => `${x.team} ${x.season}`), JSON.parse(readFileSync(cons, 'utf8')).known.map((x) => `${x.team} ${x.season}`))
   for (const x of g) {
     assert.ok(/^[A-Z]{3}$/.test(x.team) && x.season > 1980, `a gap without its team-season: ${JSON.stringify(x)}`)
     assert.ok(typeof x.cause === 'string' && x.cause.length > 40, `${x.team} ${x.season}: no cause`)

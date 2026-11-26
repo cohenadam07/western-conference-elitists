@@ -95,24 +95,37 @@ const SRC_X = 24, SRC_W = 150, ENG_X = 268, ENG_W = 208, SITE_X = 560, SITE_W = 
 export const SOURCES = [
     node('src-nba', SRC_X, 82, SRC_W, 32, 'stats.nba.com'),
     node('src-feeds', SRC_X, 138, SRC_W, 32, 'News feeds'),
-    node('src-espn', SRC_X, 374, SRC_W, 32, 'ESPN'),
-    node('src-nflverse', SRC_X, 486, SRC_W, 32, 'nflverse'),
-    node('src-sleeper', SRC_X, 542, SRC_W, 32, 'Sleeper'),
-    node('src-ufc', SRC_X, 598, SRC_W, 32, 'UFCStats'),
+    node('src-espn', SRC_X, 430, SRC_W, 32, 'ESPN'),
+    node('src-nflverse', SRC_X, 542, SRC_W, 32, 'nflverse'),
+    node('src-sleeper', SRC_X, 598, SRC_W, 32, 'Sleeper'),
+    node('src-ufc', SRC_X, 654, SRC_W, 32, 'UFCStats'),
 ];
-// The engines: one node per job that moves data. `from` names its sources.
+// A box that stands for several jobs: its light is the worst of theirs, and clicking it opens a card
+// listing every one (each opens its own card). The first job is the one that moves data (its lights travel the wires).
+export const GROUPS = { 'gm-group': ['gm-savant', 'gm-mac-pull', 'gm-savant-freshness', 'gm-savant-refit'] };
+// The engines: one node per job that moves data (or per group of jobs). `from` names its sources.
 export const ENGINES = [
     { ...node('basketball-tracking', ENG_X, 82, ENG_W, 46, 'NBA tracking upload'), from: ['src-nba'], pushes: false },
     { ...node('news', ENG_X, 138, ENG_W, 46, 'News feed'), from: ['src-feeds'], pushes: true },
     { ...node('basketball-savant', ENG_X, 262, ENG_W, 46, 'NBA Savant'), from: ['src-espn'], pushes: true },
     { ...node('basketball-history', ENG_X, 318, ENG_W, 46, 'History additions'), from: [], pushes: true },
-    { ...node('college-savant', ENG_X, 374, ENG_W, 46, 'CBB Savant'), from: ['src-espn'], pushes: true },
-    { ...node('college-football-savant', ENG_X, 430, ENG_W, 46, 'CFB Savant'), from: ['src-espn'], pushes: true },
-    { ...node('football-savant', ENG_X, 486, ENG_W, 46, 'NFL Savant'), from: ['src-nflverse'], pushes: true },
-    { ...node('football-injuries', ENG_X, 542, ENG_W, 46, 'Football injuries'), from: ['src-espn', 'src-sleeper'], pushes: true },
-    { ...node('ufc-savant', ENG_X, 598, ENG_W, 46, 'UFC Savant'), from: ['src-ufc'], pushes: true },
-    { ...node('weekly-snapshot', ENG_X, 654, ENG_W, 46, 'Weekly snapshot'), from: [], pushes: true },
+    { ...node('gm-group', ENG_X, 374, ENG_W, 46, 'GM Savant'), from: ['src-espn'], pushes: true },
+    { ...node('college-savant', ENG_X, 430, ENG_W, 46, 'CBB Savant'), from: ['src-espn'], pushes: true },
+    { ...node('college-football-savant', ENG_X, 486, ENG_W, 46, 'CFB Savant'), from: ['src-espn'], pushes: true },
+    { ...node('football-savant', ENG_X, 542, ENG_W, 46, 'NFL Savant'), from: ['src-nflverse'], pushes: true },
+    { ...node('football-injuries', ENG_X, 598, ENG_W, 46, 'Football injuries'), from: ['src-espn', 'src-sleeper'], pushes: true },
+    { ...node('ufc-savant', ENG_X, 654, ENG_W, 46, 'UFC Savant'), from: ['src-ufc'], pushes: true },
+    { ...node('weekly-snapshot', ENG_X, 710, ENG_W, 46, 'Weekly snapshot'), from: [], pushes: true },
 ];
+// The job a group's light stands in for on the wires, and the box a job's light shows on.
+export const leadJob = (id) => GROUPS[id]?.[0] ?? id;
+export const boxOf = (job) => Object.keys(GROUPS).find((g) => GROUPS[g].includes(job)) ?? job;
+// A group's status: the worst of its jobs' (red, then late, then running, then green; waiting only if all wait).
+const RANK = ['failed', 'stalled', 'late', 'running', 'ok', 'manual', 'cancelled', 'waiting'];
+export function groupStatus(id, jobs) {
+    const st = (GROUPS[id] || [id]).map((j) => jobs.get(j)?.status).filter(Boolean);
+    return st.length ? RANK.find((r) => st.includes(r)) : 'waiting';
+}
 // The Mac's quiet jobs: private raw archives, nothing they do reaches the site (except the college
 // basketball pull's rescue push when the cloud is blocked from ESPN).
 export const MAC_CHIPS = [
@@ -121,7 +134,7 @@ export const MAC_CHIPS = [
 ];
 // Checks and alarms: every job that watches rather than publishes, in one band across the bottom,
 // a column per sport. A green refresh with a red check under it is the case this band exists for.
-const CHECK_Y = 716, CHECK_X = 40, CHECK_COL = 153, CHECK_W = 145, CHECK_H = 24;
+const CHECK_Y = 772, CHECK_X = 40, CHECK_COL = 153, CHECK_W = 145, CHECK_H = 24;
 export const CHECK_COLUMNS = [
     { head: 'NBA', chips: [['basketball-freshness', 'Freshness alarm'], ['connector-freshness-nba', 'Connector tables'], ['dataroom-nba', 'Data Room upload']] },
     { head: 'COLLEGE HOOPS', chips: [['college-savant-freshness', 'Freshness alarm'], ['connector-freshness-cbb', 'Connector tables'], ['dataroom-cbb', 'Data Room upload']] },
@@ -133,7 +146,7 @@ export const CHECK_COLUMNS = [
 export const WATCHERS = CHECK_COLUMNS.flatMap((c, i) => c.chips.map(([id, label], r) => node(id, CHECK_X + i * CHECK_COL, CHECK_Y + 46 + r * 30, CHECK_W, CHECK_H, label)));
 // Every job id that has a light on the map (page.ts uses it to decide which events flash).
 // The Muse ids are written out because SOCIAL is declared further down.
-export const MAP_JOB_IDS = [...ENGINES.map((e) => e.id), ...MAC_CHIPS.map((b) => b.id), ...WATCHERS.map((b) => b.id),
+export const MAP_JOB_IDS = [...ENGINES.flatMap((e) => GROUPS[e.id] ?? [e.id]), ...MAC_CHIPS.map((b) => b.id), ...WATCHERS.map((b) => b.id),
     'muse-instagram', 'muse-threads', 'muse-facebook'];
 export const SITE = [
     node('deploy', SITE_X, 360, SITE_W, 56, 'Vercel deploy'),
@@ -159,9 +172,9 @@ export const SOCIAL = [
     { ...node('muse-facebook', REACH_X, SOCIAL_Y + 104, REACH_W, 46, 'Facebook'), platform: 'facebook' },
 ];
 export const MAP_W = 1000;
-export const MAP_H = 920;
+export const MAP_H = 976;
 const all = () => [...SOURCES, ...ENGINES, ...MAC_CHIPS, ...WATCHERS, ...SITE, ...REACH, ...SOCIAL];
-const byId = (id) => all().find((b) => b.id === id);
+const byId = (id) => all().find((b) => b.id === boxOf(id));
 const right = (b) => ({ x: b.x + b.w, y: b.y + b.h / 2 });
 const left = (b) => ({ x: b.x, y: b.y + b.h / 2 });
 // A wire from one box's right edge to another's left edge, as an S-curve.
@@ -189,14 +202,14 @@ export function lanePath(lane) {
     if (kind === 'in') {
         if (id === 'basketball-savant-tracking')
             return trackingWire();
-        const eng = ENGINES.find((e) => e.id === id);
+        const eng = ENGINES.find((e) => e.id === boxOf(id ?? ''));
         const src = eng?.from[0] ? byId(eng.from[0]) : null;
         return eng && src ? wire(src, eng) : null;
     }
     // The deploy sits above the site, so a publish runs into the deploy, then straight down.
     const mid = deploy.x + deploy.w / 2;
     if (kind === 'out') {
-        const eng = ENGINES.find((e) => e.id === id);
+        const eng = ENGINES.find((e) => e.id === boxOf(id ?? ''));
         if (!eng)
             return null;
         const a = right(eng), d1 = left(deploy);
@@ -290,6 +303,16 @@ function jobSub(j, now) {
     const lastWord = j.status === 'failed' ? 'failed' : j.status === 'late' ? 'late · last' : j.last.state === 'cancelled' ? 'stopped' : 'ok';
     return { sub: `${lastWord} ${when(j.last.t, now)}`, sub2: j.next ? `next ${until(j.next, now)}` : undefined };
 }
+// A group's two lines: how many of its jobs are off, then its lead job's last run.
+export function groupSub(id, jobs, now) {
+    const list = (GROUPS[id] || []).map((j) => jobs.get(j)).filter(Boolean);
+    const red = list.filter((j) => j.status === 'failed').length;
+    const late = list.filter((j) => j.status === 'late' || j.status === 'stalled').length;
+    const lead = jobSub(jobs.get(leadJob(id)), now);
+    const n = (GROUPS[id] || []).length;
+    const sub = red ? `${red} of ${n} jobs red` : late ? `${late} of ${n} jobs late` : `${n} jobs · ${lead.sub}`;
+    return { sub, sub2: lead.sub2 };
+}
 // A Muse platform's two lines: how its posting stands, then the account's followers.
 export function socialSub(j, p, now) {
     const f = p?.metrics?.followers;
@@ -354,7 +377,7 @@ export function drawMap(feed, reach, pulses, now, selected) {
     s += head(SRC_X, 'SOURCES') + head(ENG_X, 'ENGINES') + head(SITE_X, 'THE SITE') + head(REACH_X, 'REACH');
     // Group labels sit in the box's bottom corner, clear of the nodes.
     const groupBox = (y, h, label) => `<rect x="${ENG_X - 14}" y="${y + TOP}" width="${ENG_W + 28}" height="${h}" rx="12" fill="${C.group}" stroke="${C.wireDim}" stroke-dasharray="3 4"/><text x="${ENG_X + ENG_W + 8}" y="${y + TOP + h - 6}" text-anchor="end" font-size="8.5" letter-spacing="1.6" fill="${C.faint}" font-family="IBM Plex Mono, ui-monospace, Menlo, monospace">${label}</text>`;
-    s += groupBox(46, 167, 'YOUR MAC') + groupBox(227, 470, 'GITHUB ACTIONS');
+    s += groupBox(46, 167, 'YOUR MAC') + groupBox(227, 526, 'GITHUB ACTIONS');
     // The checks band, full width, a column per sport
     s += `<rect x="24" y="${CHECK_Y + TOP}" width="${MAP_W - 48}" height="146" rx="12" fill="${C.group}" stroke="${C.wireDim}" stroke-dasharray="3 4"/>`;
     s += `<text x="${MAP_W - 32}" y="${CHECK_Y + TOP + 140}" text-anchor="end" font-size="8.5" letter-spacing="1.6" fill="${C.faint}" font-family="IBM Plex Mono, ui-monospace, Menlo, monospace">CHECKS · THEY WATCH, THEY DON'T PUBLISH</text>`;
@@ -370,7 +393,7 @@ export function drawMap(feed, reach, pulses, now, selected) {
         return w;
     };
     for (const e of ENGINES) {
-        const running = jobs.get(e.id)?.status === 'running';
+        const running = jobs.get(leadJob(e.id))?.status === 'running';
         for (const f of e.from)
             s += W(wire(byId(f), e), running ? STATUS_COLOR.running : null);
         if (e.pushes)
@@ -392,6 +415,11 @@ export function drawMap(feed, reach, pulses, now, selected) {
     for (const b of SOURCES)
         s += nodeBox(b, { color: C.goldSoft, title: `${b.label}: where the data comes from` });
     for (const e of ENGINES) {
+        if (GROUPS[e.id]) {
+            const st = groupStatus(e.id, jobs);
+            s += nodeBox(e, { color: STATUS_COLOR[st], status: st, ...groupSub(e.id, jobs, now), selected: selected === e.id || GROUPS[e.id].includes(selected || ''), title: `${e.label}: ${GROUPS[e.id].length} jobs, ${STATUS_WORD[st]} (click to open)` });
+            continue;
+        }
         const j = jobs.get(e.id);
         const st = j?.status || 'waiting';
         s += nodeBox(e, { color: color(e.id), status: st, ...jobSub(j, now), selected: selected === e.id, title: j ? `${j.name}: ${STATUS_WORD[st]}` : e.label });

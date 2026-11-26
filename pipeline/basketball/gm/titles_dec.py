@@ -151,11 +151,32 @@ def main():
     if os.environ.get('GM_FREEZE') == '1':          # at-the-time titles are written once, like the at-the-time points
         fp = os.path.join(OUT, 'frozen_titles_at_time.json')
         F = json.load(open(fp)) if os.path.exists(fp) else {}
+        # a one-time re-grade batch (at_time_regrade.json) re-grades the stored at-the-time titles too, once (which batches
+        # this state has had: out/regrade_applied.json, 'titles')
+        ap_p = os.path.join(OUT, 'regrade_applied.json')
+        ap = json.load(open(ap_p)) if os.path.exists(ap_p) else {}
+        batches = json.load(open(os.path.join(GR.HERE, 'at_time_regrade.json')))['batches']
+        pending = [b for b in batches if b not in ap.get('titles', {})]
+        covered = lambda did: any(batches[b].get('all') or did in batches[b].get('ids', ()) for b in pending)
+        changed = []
         for did, rec in out.items():
-            if did in F:
+            if did in F and covered(did):
+                if rec['titles_at_time'] != F[did]:
+                    changed.append({'id': did, 'was': F[did], 'now': rec['titles_at_time']})
+                if rec['titles_at_time'] is None:
+                    F.pop(did, None)
+                else:
+                    F[did] = rec['titles_at_time']
+            elif did in F:
                 rec['titles_at_time'] = F[did]
             elif rec['titles_at_time'] is not None:
                 F[did] = rec['titles_at_time']
+        if pending:
+            ap.setdefault('titles', {}).update({b: GR.TODAY for b in pending})
+            json.dump(ap, open(ap_p, 'w'), indent=1)
+            lp = os.path.join(OUT, 'titles_at_time_regraded.json')
+            json.dump((json.load(open(lp)) if os.path.exists(lp) else []) + changed, open(lp, 'w'), indent=0)
+            print(f're-graded once (at_time_regrade.json): {len(changed)} stored at-the-time titles changed', flush=True)
         json.dump(F, open(fp + '.tmp', 'w'), separators=(',', ':'))
         os.replace(fp + '.tmp', fp)
     tmp = os.path.join(OUT, 'gm_decision_titles.json.tmp')

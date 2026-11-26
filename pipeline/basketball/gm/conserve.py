@@ -20,22 +20,12 @@ TOL = 0.5          # value points: rounding in the stored streams
 # (take it off the list), and, as before, if any is off by more than MAX_ONE or all of them by more than MAX_ALL.
 # (Nov 25, 2026: CHI 1999-00 was 1.6 off after a full rebuild and nothing failed: only the two limits were checked.)
 MAX_ONE, MAX_ALL = 50.0, 150.0
-KNOWN = {          # (team, season): (gap, cause), as of Nov 25, 2026, after same-day repeats in the source were skipped
-    # (ledger.py). Shown on /control (the GM refresh's card) and in the page index (meta.known_gaps).
-    ('IND', 2003): (-41.2, "Greg Foster: the source has Indiana and Toronto both signing him on 2002-11-06, and no move takes him off "
-                           "Indiana's books. He played 29 games for Toronto that season and none for Indiana, so Indiana is charged "
-                           "for his Toronto season."),
-    ('BOS', 2026): (-15.5, "Ron Harper Jr.: the ledger's player (harpero02) is matched to his father's NBA id (166), so his own seasons "
-                           "(NBA id 1631199) belong to no asset: produced for the team, credited to no decision. Also TOR 2022-23 and "
-                           "DET 2024-25, and BOS 2026-27 once that season is complete."),
-    ('TOR', 2023): (-1.7, "Ron Harper Jr.: as BOS 2025-26 (matched to his father's NBA id)."),
-    ('DET', 2025): (-0.7, "Ron Harper Jr.: as BOS 2025-26 (matched to his father's NBA id)."),
-    ('SAS', 2015): (-5.3, "Malcolm Thomas: his 2013-14 stints with San Antonio (1 game) and Utah (7) are both inferred from the same "
-                          "opening day, and no move takes him off San Antonio's books, so San Antonio is charged for his 2014-15 in "
-                          "Philadelphia."),
-    ('WAS', 2008): (0.6, "Billy Thomas: the source has Washington re-signing him and New Jersey signing him on 2006-02-24, and no move "
-                         "takes him off Washington's books, so Washington is credited with part of his 2007-08 (New Jersey and "
-                         "Cleveland)."),
+KNOWN = {          # (team, season): (gap, cause). Shown on /control (the GM refresh's card) and in the page index
+    # (meta.known_gaps). Empty since 1.0.2 (Nov 25, 2026), when the last six balanced: IND 2002-03 (-41.2, Greg Foster),
+    # SAS 2014-15 (-5.3, Malcolm Thomas) and WAS 2007-08 (+0.6, Billy Thomas), two teams taking him on one day, now that
+    # the first lets him go when the second takes him (ledger.py); BOS 2025-26 (-15.5), TOR 2022-23 (-1.7) and DET
+    # 2024-25 (-0.7), Ron Harper Jr. matched to his father's NBA id, now that ids are told apart by seasons (grade.py
+    # nba_id). A new gap goes here only with its cause found.
 }
 
 
