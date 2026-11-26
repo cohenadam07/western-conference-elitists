@@ -243,7 +243,9 @@ for _b in sorted(BR_YEARS):
         for _y in sorted(BR_YEARS[_b]):
             if (f'br:{_b}', _y) in VAL and (_c, _y) not in VAL:
                 VAL[(_c, _y)] = VAL[(f'br:{_b}', _y)]
-        for _y, _r in sorted(SN.BY.get(f'br:{_b}', {}).items()):
+        # moved, not copied: anything that reads every player's history (the undrafted rookies' average) must see one
+        # career, not two (before 1.0.2 it saw a second "rookie" starting in 1996-97 for each of these players)
+        for _y, _r in sorted(SN.BY.pop(f'br:{_b}', {}).items()):
             if _y not in SN.BY.get(_c, {}):
                 SN.BY[_c][_y] = _r
 
