@@ -108,6 +108,8 @@ class Ids(unittest.TestCase):
         self.assertEqual(G.vid_of('player:ewingpa01'), 121)
         ys = {y for (i, y) in G.VAL if i == 121}
         self.assertTrue({1986, 1996, 1997, 2002} <= ys, sorted(ys))
+        # and a projection made before 1996-97 reads the whole history: Glen Rice in 1995, as under his old "br:" id
+        self.assertEqual(G.SN.project(G.pid_of('player:ricegl01'), '1995-09-01')['expected'], G.SN.project('br:ricegl01', '1995-09-01')['expected'])
 
 
 class Grades(unittest.TestCase):

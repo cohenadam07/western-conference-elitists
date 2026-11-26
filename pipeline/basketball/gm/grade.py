@@ -233,13 +233,19 @@ def _nba_id_any(br):
 SHARE = {}
 for (_b, _y), _sh in _SHARE_BR.items():
     SHARE[(_nba_id_any(_b), _y)] = _sh
-# a career NBA Savant splits (seasons before 1996-97 under "br:<id>", later ones under the NBA id): one career here
+# a career NBA Savant splits (seasons before 1996-97 under "br:<id>", later ones under the NBA id): one career here, in
+# realized value and in the history a projection reads (snapshots.BY: without it, a projection made before 1996-97 of
+# a player now known by his NBA id saw no seasons at all, Glen Rice in 1995; and Micheal Ray Richardson, whose name
+# found his NBA id while NBA Savant keeps all his seasons under "br:richami01", was always projected with none)
 for _b in sorted(BR_YEARS):
     _c = _nba_id_any(_b)
     if isinstance(_c, int):
         for _y in sorted(BR_YEARS[_b]):
             if (f'br:{_b}', _y) in VAL and (_c, _y) not in VAL:
                 VAL[(_c, _y)] = VAL[(f'br:{_b}', _y)]
+        for _y, _r in sorted(SN.BY.get(f'br:{_b}', {}).items()):
+            if _y not in SN.BY.get(_c, {}):
+                SN.BY[_c][_y] = _r
 
 
 def pid_of(aid):
