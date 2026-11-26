@@ -491,8 +491,17 @@ def basis():
 BASIS = basis() if INCR else None
 _st = json.load(open(STATE)) if INCR and os.path.exists(STATE) else {}
 PREV = _st.get('settled', {}) if _st.get('basis') == BASIS else {}           # yesterday's settled turned-out grades
-FROZ = (json.load(open(os.path.join(OUT, 'frozen_at_time.json'))) if os.path.exists(os.path.join(OUT, 'frozen_at_time.json')) else {}) \
-    if INCR and os.environ.get('GM_FREEZE') == '1' else {}
+# a one-time re-grade (at_time_regrade.json): {decision id: batch}; a decision is re-graded once per batch, then frozen again
+REGRADE = {d: b for b, x in json.load(open(os.path.join(HERE, 'at_time_regrade.json')))['batches'].items() for d in x['ids']}
+
+
+def regrade_due(did, f):
+    """True when a stored at-the-time grade is in a re-grade batch it has not had yet."""
+    return did in REGRADE and REGRADE[did] not in (f or {}).get('regraded', [])
+
+
+FROZ = {k: v for k, v in json.load(open(os.path.join(OUT, 'frozen_at_time.json'))).items() if not regrade_due(k, v)} \
+    if INCR and os.environ.get('GM_FREEZE') == '1' and os.path.exists(os.path.join(OUT, 'frozen_at_time.json')) else {}
 SETTLED = {}
 CARRIED = collections.Counter()
 
@@ -1143,6 +1152,7 @@ def leakage(sample=300, seed=11):
 
 
 FROZEN = os.path.join(OUT, 'frozen_at_time.json')
+REGRADED = []          # (decision id, stored grade, new grade) re-graded this run
 
 
 def stable_id(d):
@@ -1167,8 +1177,14 @@ def freeze(D):
     drift = 0
     for d in D:
         f = F.get(d['decision_id'])
-        if f:
-            if f['at_time'] != d['at_time']:
+        if f and regrade_due(d['decision_id'], f):
+            # re-graded once (at_time_regrade.json): today's grade, from the same point-in-time models, replaces the stored one
+            F[d['decision_id']] = {'at_time': d['at_time'], 'at_time_note': d.get('at_time_note'), 'models': d.get('models'), 'on': TODAY,
+                                   'regraded': f.get('regraded', []) + [REGRADE[d['decision_id']]], 'was': f['at_time']}
+            d['frozen_on'] = TODAY
+            REGRADED.append((d['decision_id'], f['at_time'], d['at_time']))
+        elif f:
+            if f['at_time'] != d['at_time'] and d['decision_id'] not in FROZ:     # (an incremental night computes none of them)
                 drift += 1
             d['at_time'], d['at_time_note'], d['models'], d['frozen_on'] = f['at_time'], f['at_time_note'], f['models'], f['on']
         else:
@@ -1208,6 +1224,12 @@ if __name__ == '__main__':
     drift = freeze(D)
     if drift:
         print(f'frozen: {drift} stored at-the-time grades differ from what the current models say (kept as stored)')
+    if REGRADED:
+        moved = [r for r in REGRADED if r[1] != r[2]]
+        print(f're-graded once (at_time_regrade.json): {len(REGRADED)} stored at-the-time grades, {len(moved)} changed')
+        log = os.path.join(OUT, 'at_time_regraded.json')
+        old = json.load(open(log)) if os.path.exists(log) else []
+        json.dump(old + [{'id': i, 'was': a, 'now': b, 'on': TODAY} for i, a, b in REGRADED], open(log, 'w'), indent=0)
     tmp = os.path.join(OUT, 'gm_decisions.json.tmp')
     json.dump(D, open(tmp, 'w'))
     os.replace(tmp, os.path.join(OUT, 'gm_decisions.json'))     # never a half-written file

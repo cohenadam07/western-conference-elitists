@@ -151,13 +151,27 @@ def main():
     if os.environ.get('GM_FREEZE') == '1':          # at-the-time titles are written once, like the at-the-time points
         fp = os.path.join(OUT, 'frozen_titles_at_time.json')
         F = json.load(open(fp)) if os.path.exists(fp) else {}
+        # a one-time re-grade batch (at_time_regrade.json) re-grades the titles too, once (which ones have had it:
+        # out/frozen_titles_regraded.json, {batch: [decision ids]})
+        rp = os.path.join(OUT, 'frozen_titles_regraded.json')
+        done = json.load(open(rp)) if os.path.exists(rp) else {}
+        batches = json.load(open(os.path.join(GR.HERE, 'at_time_regrade.json')))['batches']
+        due = {d: b for b, x in batches.items() for d in x['ids'] if d not in set(done.get(b, []))}
         for did, rec in out.items():
-            if did in F:
+            if did in due:
+                if rec['titles_at_time'] is None:
+                    F.pop(did, None)
+                else:
+                    F[did] = rec['titles_at_time']
+                done.setdefault(due[did], []).append(did)
+            elif did in F:
                 rec['titles_at_time'] = F[did]
             elif rec['titles_at_time'] is not None:
                 F[did] = rec['titles_at_time']
         json.dump(F, open(fp + '.tmp', 'w'), separators=(',', ':'))
         os.replace(fp + '.tmp', fp)
+        json.dump({b: sorted(v) for b, v in done.items()}, open(rp + '.tmp', 'w'))
+        os.replace(rp + '.tmp', rp)
     tmp = os.path.join(OUT, 'gm_decision_titles.json.tmp')
     json.dump(out, open(tmp, 'w'), separators=(',', ':'))
     os.replace(tmp, os.path.join(OUT, 'gm_decision_titles.json'))
