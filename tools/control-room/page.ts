@@ -37,6 +37,27 @@ let lastReach = 0
 let ll: LlUsage | null = null
 let lastLl = 0
 let llOpen: string | null = null
+// NBA GM Savant's conservation check lets six known team-season gaps through (pipeline/basketball/gm/conserve.py,
+// KNOWN); the GM refresh's card lists them with their causes, read from the page's own index when the card opens
+type KnownGap = { team: string; season: number; known_gap: number; gap: number | null; cause: string }
+let gmGaps: KnownGap[] | 'loading' | 'failed' | null = null
+async function pullGmGaps() {
+  gmGaps = 'loading'
+  try {
+    const res = await fetch('/gms/index.json', { cache: 'no-store' })
+    const idx = res.ok ? await res.json() : null
+    gmGaps = Array.isArray(idx?.meta?.known_gaps) ? idx.meta.known_gaps : 'failed'
+  } catch { gmGaps = 'failed' }
+  render()
+}
+function gmGapsHtml() {
+  if (gmGaps === null || gmGaps === 'loading') return '<h3>Known gaps</h3><p class="muted small">Loading…</p>'
+  if (gmGaps === 'failed') return '<h3>Known gaps</h3><p class="warn small">Couldn\'t read /gms/index.json.</p>'
+  const season = (y: number) => `${y - 1}-${String(y).slice(2)}`
+  return `<h3>Known gaps (${gmGaps.length})</h3>
+    <p class="muted small">Team-seasons whose credited value misses what the players produced by more than 0.5 points. The nightly check lets exactly these through at these sizes; any other gap, or one of these moving, fails the refresh.</p>
+    ${gmGaps.map((g) => `<p>${dot(g.gap == null ? C.faint : Math.abs(g.gap - g.known_gap) > 0.5 ? STATUS_COLOR.failed : STATUS_COLOR.late)}<b>${esc(g.team)} ${esc(season(g.season))}</b> <span class="muted">${g.known_gap > 0 ? '+' : ''}${g.known_gap.toFixed(1)} points${g.gap == null ? ', now balanced' : Math.abs(g.gap - g.known_gap) > 0.5 ? `, now ${g.gap.toFixed(1)}` : ''}</span><br><span class="small">${esc(g.cause)}</span></p>`).join('')}`
+}
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T
 
@@ -360,6 +381,7 @@ function cardHtml(now: number): string {
     ${j.lastOk && j.status !== 'ok' ? `<p class="muted">Last clean run: ${esc(when(j.lastOk, now))}</p>` : ''}
     ${j.next ? `<p>Next: ${esc(until(j.next, now))} (${esc(when(j.next, now))})</p>` : ''}
     ${j.lane === 'muse' ? museHtml(j, now) : ''}
+    ${j.id === 'gm-savant' ? gmGapsHtml() : ''}
     <div class="actions">
       <button class="primary" data-ask="${esc(j.id)}">${j.status === 'failed' ? 'Copy a fix request for Claude' : 'Copy a question for Claude'}</button>
       ${run ? `<a href="${esc(run)}" target="_blank" rel="noopener">This run on GitHub</a>` : ''}
@@ -449,6 +471,7 @@ document.addEventListener('click', async (ev) => {
     : ['visitors', 'connector', 'founding', 'newsletter', 'dynasty', 'site', 'store'].includes(pick) ? 'reach' : ''
   selected = !id || selected === id ? null : id
   lastSvg = ''
+  if (selected === 'gm-savant' && gmGaps === null) void pullGmGaps()
   render()
   if (selected) $('card').scrollIntoView({ behavior: 'smooth', block: 'nearest' })
 })

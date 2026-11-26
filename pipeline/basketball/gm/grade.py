@@ -715,7 +715,7 @@ def trades():
                 parts += [(-1, R(e['asset'], pos_of(e['asset'], tx, e['kind'], e['from'], e['to'], e['date']))) for e in moves if e['from'] == team and e['asset'] in {a for a, _ in outs}]
                 return stream_sum(parts)
             st = turned_out(sid, conserved)
-            STREAMS[sid] = st
+            STREAMS.setdefault(sid, st)       # a decision listed twice: the first, as the duplicates rule keeps
             to = horizon(st, y0)
             lc = low_conf(tx, ins + [a for a, _ in outs], t['date'])
             if t['date'] < '2017-01-01' and any(a.startswith('pick:') and not (A.get(a, {}).get('notes')) and A.get(a, {}).get('year')
@@ -850,7 +850,9 @@ def roster_moves():
             else:
                 st = turned_out(sid, lambda: stream_sum([(-1, R(aid, pos))])) if before == team else ()
             if additive:
-                STREAMS[sid] = st
+                # a decision listed twice: the first copy's stream, the one the duplicates rule keeps and an incremental
+                # night carries over (the last copy's, before Nov 25, 2026, so a full rebuild could disagree with it)
+                STREAMS.setdefault(sid, st)
             to = retained if retained is not None else horizon(st, y0)
             lc = low_conf(e.get('tx'), [aid], d)
             if k == 'lapsed (inferred)':
@@ -894,7 +896,7 @@ def roster_moves():
 def coaches():
     import glob
     out = []
-    for f in glob.glob(os.path.join(REPO, 'public', 'bcs', 'c', '*.json')):
+    for f in sorted(glob.glob(os.path.join(REPO, 'public', 'bcs', 'c', '*.json'))):   # sorted: directory order differs by machine and checkout, and it set the coach decisions' order (Nov 25, 2026)
         c = json.load(open(f))
         rate, games = {}, {}
         for s in c.get('seasons', []):
@@ -934,7 +936,7 @@ def coach_firings():
     import glob
     from tenures import team_by_name
     coaches = {}
-    for f in glob.glob(os.path.join(REPO, 'public', 'bcs', 'c', '*.json')):
+    for f in sorted(glob.glob(os.path.join(REPO, 'public', 'bcs', 'c', '*.json'))):   # sorted: directory order differs by machine and checkout, and it set the coach decisions' order (Nov 25, 2026)
         c = json.load(open(f))
         seas = {}
         for s_ in c.get('seasons', []):

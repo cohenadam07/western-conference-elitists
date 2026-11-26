@@ -20,7 +20,7 @@
 import { after, before, test } from 'node:test'
 import assert from 'node:assert/strict'
 import http from 'node:http'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { gunzipSync } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
@@ -45,8 +45,24 @@ test('the index lists every GM once and every GM has a file', () => {
   assert.equal(new Set(ids).size, ids.length, 'a GM is listed twice')
   for (const p of index.people) assert.ok(pages[p.file], `no file for ${p.name}`)
   assert.ok(index.people.length > 200, 'the index should hold every front-office head since 1979-80 (211 in November 2026)')
-  assert.equal(index.meta.version, '1.0.0')
+  assert.equal(index.meta.version, '1.0.1')
   assert.ok(index.meta.games_through && index.meta.through, 'the index says how current it is')
+})
+
+// Nov 25, 2026: moves agreed the same day kept whatever order grading produced, so three refreshes with no news
+// rewrote every season file. The order is now fixed (agreed, then id) and the ids are unique, so it cannot vary.
+test('the Data Room decision tables are in a fixed order: agreed, then id, ids unique', () => {
+  const dir = path.join(GMS, 'data', 'gm_decisions')
+  const seen = new Set()
+  for (const f of readdirSync(dir).filter((x) => x.endsWith('.json.gz'))) {
+    const rows = readJson(path.join(dir, f)).rows
+    for (let i = 0; i < rows.length; i++) {
+      assert.ok(!seen.has(rows[i][0]), `${f}: decision ${rows[i][0]} is listed twice`)
+      seen.add(rows[i][0])
+      if (i) assert.ok(rows[i - 1][1] < rows[i][1] || (rows[i - 1][1] === rows[i][1] && rows[i - 1][0] < rows[i][0]), `${f}: row ${i} is out of order (agreed, then id)`)
+    }
+  }
+  assert.ok(seen.size > 30000, `only ${seen.size} decisions in the Data Room tables`)
 })
 
 test('every file is valid JSON with no NaN, and every decision is whole', () => {
@@ -200,4 +216,39 @@ test('search finds a GM by part of his name, and the asset tree answers', async 
   assert.ok(s.text.includes('Sam Presti'))
   const t = await call('nba_gm_asset_tree', { gm: 'Sam Presti' })
   assert.ok(t.text.length > 200, 'the asset tree is empty')
+})
+
+// Nov 25, 2026: duplicate listings removed (the Perkins, Huff and Grimes trades) took six decision ids away. Each
+// leads to the id now holding the same move (pipeline/basketball/gm/decision_ids_moved.json).
+test('a decision id that moved leads to its new id: the index, the Data Room dictionary and the connector', async () => {
+  const moved = index.meta.moved_ids
+  assert.ok(moved && Object.keys(moved).length >= 6, 'the index has no moved ids')
+  assert.deepEqual(readJson(path.join(GMS, 'data', 'dictionary.json.gz')).moved_ids.ids, moved, 'the Data Room dictionary and the index disagree')
+  const dir = path.join(GMS, 'data', 'gm_decisions')
+  const live = new Set(readdirSync(dir).filter((f) => f.endsWith('.json.gz')).flatMap((f) => readJson(path.join(dir, f)).rows.map((r) => r[0])))
+  for (const [o, n] of Object.entries(moved)) {
+    assert.ok(!live.has(o), `${o} moved but is a live decision id again`)
+    assert.ok(live.has(n), `${o} moves to ${n}, which is not a decision`)
+  }
+  // an old id names its new one (the Grimes trade, Detroit's side, is not a big move: it has no tree to show)
+  const r = await client.callTool({ name: 'nba_gm_asset_tree', arguments: { gm: 'Troy Weaver', move: '0c0c2239b27b43af' } })
+  assert.ok(r.isError && r.content[0].text.includes('now eb4a7c78de92d8c7'), `an old id should name its new one: ${r.content?.[0]?.text}`)
+  // an id that is not a move with a tree is an error, never another move's tree
+  const bogus = await client.callTool({ name: 'nba_gm_asset_tree', arguments: { gm: 'Sam Presti', move: 'ffffffffffffffff' } })
+  assert.ok(bogus.isError, 'an unknown id returned a tree')
+  // a live id still answers with its own tree
+  const first = pages[index.people.find((p) => p.name === 'Sam Presti').file].spells.flatMap((s) => s.big_moves).find((m) => m.tree)
+  const t = await call('nba_gm_asset_tree', { gm: 'Sam Presti', move: first.id })
+  assert.equal(t.structuredContent.move.decision_id, first.id)
+  assert.equal(t.structuredContent.move.moved_from, undefined)
+})
+
+test('the conservation check\'s known gaps are published, each with its cause (shown on /control)', () => {
+  const g = index.meta.known_gaps
+  assert.ok(Array.isArray(g) && g.length > 0, 'no known gaps in the index')
+  for (const x of g) {
+    assert.ok(/^[A-Z]{3}$/.test(x.team) && x.season > 1980, `a gap without its team-season: ${JSON.stringify(x)}`)
+    assert.ok(typeof x.cause === 'string' && x.cause.length > 40, `${x.team} ${x.season}: no cause`)
+    assert.ok(x.gap === null || Math.abs(x.gap - x.known_gap) <= 0.5, `${x.team} ${x.season} moved: ${x.known_gap} known, ${x.gap} now`)
+  }
 })

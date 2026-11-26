@@ -239,6 +239,7 @@ class Ledger:
         self.gap_rows = []
         self.picks_by = collections.defaultdict(list)    # (year, round) -> [asset ids]
         self.repairs = []
+        self.repeats = []         # a source listing the same move twice: skipped (move())
         self.last_team, self.last_kind = {}, {}
 
     def asset(self, aid, **kw):
@@ -249,6 +250,14 @@ class Ledger:
     def move(self, aid, frm, to, date, tx, kind, src, check=True):
         held = self.holder.get(aid)
         if check and frm not in (POOL, DRAFT) and held != frm:
+            prev = next((e for e in reversed(self.events) if e['asset'] == aid and e['kind'] != 'repair'), None)
+            if held == to and prev and (prev['date'], prev['kind'], prev['from'], prev['to']) == (date, kind, frm, to):
+                # the same move listed twice by a source (under two transaction numbers, or twice in one): the books
+                # already show it, so it is skipped. A repair here put the player back only to move him again, and
+                # booked his season to the giver twice; a waiver's season split then depended on which copy was
+                # graded (Rusty LaRue, CHI, 1999-12-29: a daily refresh and a full rebuild disagreed, Nov 25, 2026)
+                self.repeats.append({'asset': aid, 'date': date, 'kind': kind, 'from': frm, 'to': to, 'tx': tx, 'first_tx': prev['tx']})
+                return
             # the giver did not hold it on our books: a gap in the history before this event
             why = 'never seen' if held is None else f'held by {held}'
             self.gaps[(kind, why)] += 1
@@ -564,6 +573,7 @@ def build():
                 L.gap_rows.append({'tx': tx, 'kind': 'trade not parsed', 'date': date, 'text': p['text'][:200]})
                 continue
             sent = collections.defaultdict(list); got = collections.defaultdict(list)
+            rep0, ev0, made = len(L.repeats), len(L.events), []
             for j, lg in enumerate(legs):
                 for n, it in enumerate(lg['items']):
                     if it['kind'] == 'player':
@@ -594,8 +604,19 @@ def build():
                         aid = f'{it["kind"]}:{tx}:{j}.{n}'
                         L.asset(aid, kind=it['kind'], amount=it.get('amount'), what=it.get('what'))
                         L.holder[aid] = lg['from']
+                        made.append(aid)
                     L.move(aid, lg['from'], lg['to'], date, tx, 'trade', p['source'])
                     sent[lg['from']].append(aid); got[lg['to']].append(aid)
+            if len(L.repeats) > rep0 and not any(e['asset'] not in made for e in L.events[ev0:] if e['tx'] == tx):
+                # every player and pick in this listing was a repeat of an earlier one (the Perkins trade is on the
+                # source's 2010-11 page and again on its 2011-12 page): its cash or considerations are the same ones,
+                # and the trade is not linked again
+                first = L.repeats[-1]['first_tx']
+                for aid in made:
+                    L.events = [e for e in L.events if e['asset'] != aid]
+                    L.holder.pop(aid, None); L.assets.pop(aid, None)
+                    L.repeats.append({'asset': aid, 'date': date, 'kind': 'trade', 'from': None, 'to': None, 'tx': tx, 'first_tx': first})
+                continue
             for team in got:
                 for a in sent.get(team, []):
                     for b in got[team]:
@@ -896,5 +917,7 @@ if __name__ == '__main__':
     json.dump(tx_rows, open(os.path.join(OUT, 'ledger_trades.json'), 'w'))
     json.dump(L.gap_rows, open(os.path.join(OUT, 'ledger_gaps.json'), 'w'))
     json.dump(L.repairs, open(os.path.join(OUT, 'ledger_repairs.json'), 'w'), indent=0)
+    json.dump(L.repeats, open(os.path.join(OUT, 'ledger_repeats.json'), 'w'), indent=0)
+    print('moves a source listed twice, skipped:', len(L.repeats), flush=True)
     print('repairs written for Module 4 (decisions touching them grade low confidence):', len(L.repairs), 'in', len({r['tx'] for r in L.repairs}), 'transactions')
     json.dump({f'{k[0]}|{k[1]}': v for k, v in counts.items()}, open(os.path.join(OUT, 'ledger_counts.json'), 'w'))

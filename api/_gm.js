@@ -148,10 +148,13 @@ export async function gmAssetTree({ gm, move }) {
   const r = await find(gm)
   const g = await loadGm(r.file)
   const moves = g.spells.flatMap((s) => s.big_moves.map((m) => ({ ...m, team: s.team })))
+  // an id that moved (decision_ids_moved.json: a source's duplicate listing removed, Nov 25, 2026) resolves to its new id
+  const id = idx.meta.moved_ids?.[move] || move
   const q = (move || '').toLowerCase()
-  const m = moves.find((x) => x.id === move) || moves.find((x) => q && x.label.toLowerCase().includes(q)) || moves[0]
-  if (!m || !m.tree) throw new SavantError(`${g.name} has no traded or drafted asset tree on file${move ? ` matching "${move}"` : ''}.`)
-  const structured = { gm: { id: r.file, name: g.name, url: gmUrl(r.file) }, move: { decision_id: m.id, date: m.date, what: m.label, at_time: m.at_time, turned_out: m.turned_out }, tree: m.tree,
+  const isId = /^[0-9a-f]{12,16}$/.test(move || '')
+  const m = moves.find((x) => x.id === id) || (!isId && moves.find((x) => q && x.label.toLowerCase().includes(q))) || (move ? null : moves[0])
+  if (!m || !m.tree) throw new SavantError(`${g.name} has no traded or drafted asset tree on file${move ? ` matching "${move}"${id !== move ? ` (now ${id})` : ''}. His moves with one: ${moves.filter((x) => x.tree).map((x) => `${x.id} (${x.date}, ${x.label})`).slice(0, 8).join('; ')}` : ''}.`)
+  const structured = { gm: { id: r.file, name: g.name, url: gmUrl(r.file) }, move: { decision_id: m.id, ...(id !== move ? { moved_from: move } : {}), date: m.date, what: m.label, at_time: m.at_time, turned_out: m.turned_out }, tree: m.tree,
     other_moves: moves.filter((x) => x !== m).map((x) => ({ decision_id: x.id, date: x.date, what: x.label })), data_as_of: day(idx.meta.games_through || idx.meta.through), source: SOURCE }
   const lines = m.tree.got.flatMap((a) => flat(a))
   return { structured, text: `${g.name}, ${m.date}: ${m.label}\nAt the time ${m.at_time == null ? 'not graded' : sgn(m.at_time)}, as it turned out ${sgn(m.turned_out)}.\n${m.tree.gave.length ? `Gave: ${m.tree.gave.map((x) => x.label).join('; ')}\n` : ''}Got, and what became of it:\n${lines.join('\n')}` }
