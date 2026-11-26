@@ -20,7 +20,7 @@ firing (Coaching Savant's wins against roster talent, 2002-03 on, at 31.7 points
     python3 grade.py            # -> out/gm_decisions.json, a summary
     python3 grade.py leakage    # recompute a sample of at-the-time grades with every later season deleted
 """
-import bisect, collections, datetime as dt, json, math, os, re, sys
+import bisect, collections, datetime as dt, json, math, os, re, sys, unicodedata
 from functools import lru_cache
 import numpy as np
 
@@ -81,7 +81,8 @@ def w(y, y0):
 
 # ---------------------------------------------------------------- realized value by team
 def team_shares():
-    """{(canonical id, season end year): {franchise: share of his minutes}} from the season totals."""
+    """{(Basketball-Reference id, season end year): {franchise: share of his minutes}} from the season totals (keyed by
+    NBA id below, once nba_id can read every player's seasons)."""
     import pagefacts
     out = collections.defaultdict(dict)
     for y in range(1980, NOW_SEASON + 1):
@@ -100,19 +101,13 @@ def team_shares():
             tot = sum(teams.values()) or 1
             BR_MIN[(br, y)] = (tot, {f: v / tot for f, v in teams.items()})
             BR_NAME.setdefault(br, names.get(br, ''))
-            c = canonical_id(br, names.get(br, ''))
-            if isinstance(c, str):              # the totals page spells him differently ("A.J." / "AJ"): the ledger's name
-                c2 = canonical_id(br, A.get(f'player:{br}', {}).get('name') or '')
-                c = c2 if not isinstance(c2, str) else c
-            out[(c, y)] = {f: v / tot for f, v in teams.items()}
+            out[(br, y)] = {f: v / tot for f, v in teams.items()}
     return out
 
 
 BR_MIN, BR_NAME = {}, {}
-SHARE = team_shares()
+_SHARE_BR = team_shares()
 VAL = {}
-for r in proj.ROWS if hasattr(proj, 'ROWS') else []:
-    pass
 ROWS = json.load(open(os.path.join(OUT, 'model_seasons.json')))
 ERA_LAST = ERA['reference_total_per_team_season'] / ERA['per_team_season']['2025-26']
 for r in ROWS:
@@ -120,8 +115,80 @@ for r in ROWS:
     VAL[(r['id'], r['y'])] = r['valuer'] if r['y'] < NOW_SEASON else r['value'] * ERA_LAST
 
 
+# ---------------------------------------------------------------- which NBA id a Basketball-Reference id is
+# The crosswalk (br_crosswalk.canonical_id) matches a name alone, and goes wrong two ways (the 1.0.2 audit, Nov 25,
+# 2026): a son the ledger spells without his suffix gets his father's id ("Ron Harper" for Ron Harper Jr., harpero02:
+# 166, not 1631199), and a name two NBA ids share gets none ("Mike Dunleavy", "Patrick Ewing", "Mike James": 38 players),
+# so his NBA Savant seasons from 1996-97 on (kept under his NBA id) reached no grade. Here the candidates are every NBA
+# id whose name is his with or without a suffix (Jr., Sr., II, III, IV, V), and his is the one whose NBA Savant seasons
+# overlap his own seasons the most (the season totals, by Basketball-Reference id). No overlap, or a tie, keeps the
+# crosswalk's answer. NBA Savant keeps a name it could not match under "br:<id>" for the seasons before 1996-97: those
+# join the NBA id's (Patrick Ewing 1985-86 to 1995-96 and 1996-97 on are one career).
+_SUFFIX = re.compile(r'[\s,]+(jr|sr|ii|iii|iv|v)\.?$')
+
+
+def _base(name):
+    s = ''.join(c for c in unicodedata.normalize('NFD', (name or '').lower()) if unicodedata.category(c) != 'Mn')
+    return _SUFFIX.sub('', s.strip()).replace('.', '').strip()
+
+
+def _family():
+    from nba_api.stats.static import players as SP
+    fam = collections.defaultdict(set)
+    for p in SP.get_players():
+        fam[_base(p['full_name'])].add(p['id'])
+    return fam
+
+
+FAMILY = _family()
+NBA_YEARS = collections.defaultdict(set)          # NBA id -> the seasons NBA Savant has for him
+for r in ROWS:
+    if isinstance(r['id'], int):
+        NBA_YEARS[r['id']].add(r['y'])
+BR_YEARS = collections.defaultdict(set)           # Basketball-Reference id -> his seasons
+for (_b, _y) in BR_MIN:
+    BR_YEARS[_b].add(_y)
+
+
+@lru_cache(maxsize=None)
+def nba_id(br, *names):
+    """His NBA id (int), or "br:<id>" where none can be told: by seasons among his name's family, else by the first name
+    the crosswalk matches."""
+    names = [n for n in names if n]
+    fam = set().union(*(FAMILY.get(_base(n), set()) for n in names)) if names else set()
+    mine = BR_YEARS.get(br, set())
+    if fam and mine:
+        ov = {i: len(NBA_YEARS.get(i, set()) & mine) for i in fam}
+        best = max(ov.values())
+        top = [i for i, v in ov.items() if v == best]
+        if best > 0 and len(top) == 1:
+            return top[0]
+    for n in names:
+        c = canonical_id(br, n)
+        if not isinstance(c, str):
+            return c
+    return f'br:{br}'
+
+
+def _nba_id_any(br):
+    """By the totals page's spelling, then the ledger's (the totals page and the ledger can spell him differently)."""
+    return nba_id(br, BR_NAME.get(br, ''), A.get(f'player:{br}', {}).get('name') or '')
+
+
+SHARE = {}
+for (_b, _y), _sh in _SHARE_BR.items():
+    SHARE[(_nba_id_any(_b), _y)] = _sh
+# a career NBA Savant splits (seasons before 1996-97 under "br:<id>", later ones under the NBA id): one career here
+for _b in sorted(BR_YEARS):
+    _c = _nba_id_any(_b)
+    if isinstance(_c, int):
+        for _y in sorted(BR_YEARS[_b]):
+            if (f'br:{_b}', _y) in VAL and (_c, _y) not in VAL:
+                VAL[(_c, _y)] = VAL[(f'br:{_b}', _y)]
+
+
 def pid_of(aid):
-    return canonical_id(aid.split(':', 1)[1], A.get(aid, {}).get('name') or '')
+    return nba_id(aid.split(':', 1)[1], A.get(aid, {}).get('name') or '')
 
 
 # Namesakes: the crosswalk maps a Basketball-Reference id to an NBA id by name alone, so two players with one name
@@ -133,9 +200,9 @@ _groups = collections.defaultdict(set)
 for _aid, _a in A.items():
     if _aid.startswith('player:'):
         _br = _aid.split(':', 1)[1]
-        _groups[canonical_id(_br, _a.get('name') or '')].add(_br)
+        _groups[nba_id(_br, _a.get('name') or '')].add(_br)
 for (_br, _y) in BR_MIN:
-    _groups[canonical_id(_br, BR_NAME.get(_br, ''))].add(_br)
+    _groups[nba_id(_br, BR_NAME.get(_br, ''))].add(_br)
 for _c, _brs in _groups.items():
     if len(_brs) < 2 or isinstance(_c, str):
         continue
@@ -162,7 +229,7 @@ def vid_of(aid):
         return VID[br]
     c = pid_of(aid)
     if isinstance(c, str) and BR_NAME.get(br):
-        c2 = canonical_id(br, BR_NAME[br])
+        c2 = nba_id(br, BR_NAME[br])
         return c2 if not isinstance(c2, str) else c
     return c
 
@@ -769,7 +836,7 @@ def drafts():
         for rnd, ov, team, br, name in d['picks']:
             if not br or ov > 60:
                 continue
-            pid = canonical_id(br, name)
+            pid = nba_id(br, name)
             vid = VID.get(br) or pid
             cm, early = SN.cmodel(SN.origin(d['date']) or 1985)
             # the slot's expectation as of the draft (point in time), ten seasons, discounted

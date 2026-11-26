@@ -54,6 +54,7 @@ function gmGapsHtml() {
   if (gmGaps === null || gmGaps === 'loading') return '<h3>Known gaps</h3><p class="muted small">Loading…</p>'
   if (gmGaps === 'failed') return '<h3>Known gaps</h3><p class="warn small">Couldn\'t read /gms/index.json.</p>'
   const season = (y: number) => `${y - 1}-${String(y).slice(2)}`
+  if (!gmGaps.length) return '<h3>Known gaps (0)</h3><p class="muted small">Every team-season balances within 0.5 points: any gap fails the refresh.</p>'
   return `<h3>Known gaps (${gmGaps.length})</h3>
     <p class="muted small">Team-seasons whose credited value misses what the players produced by more than 0.5 points. The nightly check lets exactly these through at these sizes; any other gap, or one of these moving, fails the refresh.</p>
     ${gmGaps.map((g) => `<p>${dot(g.gap == null ? C.faint : Math.abs(g.gap - g.known_gap) > 0.5 ? STATUS_COLOR.failed : STATUS_COLOR.late)}<b>${esc(g.team)} ${esc(season(g.season))}</b> <span class="muted">${g.known_gap > 0 ? '+' : ''}${g.known_gap.toFixed(1)} points${g.gap == null ? ', now balanced' : Math.abs(g.gap - g.known_gap) > 0.5 ? `, now ${g.gap.toFixed(1)}` : ''}</span><br><span class="small">${esc(g.cause)}</span></p>`).join('')}`

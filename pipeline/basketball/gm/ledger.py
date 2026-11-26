@@ -865,24 +865,53 @@ def build():
     # a signing from the pool while the books still have him at another team: that team let him go (the move that
     # ended it is missing). Inferred the day before, so the other team's books stop holding him and its GM is
     # charged the departure, as with any lapse (the conservation check found 1983's Donaldson twice on the books).
+    #
+    # Two teams taking him from the pool on one day (Greg Foster: IND and TOR, 2002-11-06; Billy Thomas: WAS and NJN,
+    # 2006-02-24; Malcolm Thomas: SAS and UTA inferred on one opening day, 2013-10-30) is the same case with no day
+    # between: the first team lets him go when the second takes him, so its books stop there. Its games for him that
+    # season stay credited to it (a move's season is split by minutes). Only where he goes on to play for the second
+    # team (by his next move) and never again for the first after that season; any other same-day pair is left as the
+    # source has it and listed (out/ledger_same_day.json). (1.0.2, Nov 25, 2026: the three were 41.2, 5.3 and 0.6
+    # points of the known conservation gaps.)
     import datetime as _dt
     by_a = collections.defaultdict(list)
     for e in L.events:
         by_a[e['asset']].append(e)
-    gone = []
+    gone, same_day_gone, same_day_rows = [], {}, []
     for aid, ev in by_a.items():
         if not aid.startswith('player:'):
             continue
+        pid = aid.split(':', 1)[1]
         ev.sort(key=same_day)
-        holder = None
-        for e in ev:
-            if e['from'] in (POOL, DRAFT) and e['kind'] in ('sign', 'claim', 're-sign', 'drafted') and holder not in (None, POOL, RETIRED, DRAFT, 'OPENING') \
-                    and holder != e['to'] and franchise(holder):
-                gone.append({'asset': aid, 'date': (_dt.date.fromisoformat(e['date']) - _dt.timedelta(days=1)).isoformat(), 'from': holder, 'to': POOL,
-                             'kind': 'lapsed (inferred)', 'tx': None,
-                             'source': f"inferred: {'drafted again by' if e['kind'] == 'drafted' else 'signed with'} {e['to']} on {e['date']} while still on {holder}'s books"})
-            holder = e['to']
+        holder, prev = None, None
+        for k, e in enumerate(ev):
+            arriving = e['from'] in (POOL, DRAFT) and (e['kind'] in ('sign', 'claim', 're-sign', 'drafted')
+                                                       or (e['kind'] == 'repair' and str(e.get('source') or '').startswith('inferred: played')))
+            if arriving and holder not in (None, POOL, RETIRED, DRAFT, 'OPENING') and holder != e['to'] and franchise(holder):
+                if prev is not None and prev['date'] == e['date'] and prev['to'] == holder:
+                    y0 = se(e['date'])
+                    nxt = next((x for x in ev[k + 1:] if x['date'] > e['date']), None)
+                    y1 = se(nxt['date']) if nxt else 10 ** 4
+                    plays_new = any(y0 <= y <= y1 for y in seasons_with[pid].get(e['to'], []))
+                    plays_old_after = any(y > y0 for y in seasons_with[pid].get(holder, []))
+                    row = {'asset': aid, 'date': e['date'], 'first': holder, 'second': e['to'], 'plays_for_second': plays_new,
+                           'plays_for_first_after_the_season': plays_old_after}
+                    if plays_new and not plays_old_after:
+                        same_day_gone[id(e)] = {'asset': aid, 'date': e['date'], 'from': holder, 'to': POOL, 'kind': 'lapsed (inferred)', 'tx': None,
+                                                'source': f"inferred: {'drafted by' if e['kind'] == 'drafted' else 'on the books of' if e['kind'] == 'repair' else 'signed with'} "
+                                                          f"{e['to']} on {e['date']}, the day {holder} took him too; he went on to play for {e['to']}, "
+                                                          f"and for {holder} in no later season"}
+                        row['taken_off'] = holder
+                    same_day_rows.append(row)
+                else:
+                    gone.append({'asset': aid, 'date': (_dt.date.fromisoformat(e['date']) - _dt.timedelta(days=1)).isoformat(), 'from': holder, 'to': POOL,
+                                 'kind': 'lapsed (inferred)', 'tx': None,
+                                 'source': f"inferred: {'drafted again by' if e['kind'] == 'drafted' else 'signed with'} {e['to']} on {e['date']} while still on {holder}'s books"})
+            holder, prev = e['to'], e
+    # a same-day departure goes just before the arrival it makes room for (the books are read in this order)
+    L.events = [x for e in L.events for x in ((same_day_gone[id(e)], e) if id(e) in same_day_gone else (e,))]
     L.events += gone
+    json.dump(same_day_rows, open(os.path.join(OUT, 'ledger_same_day.json'), 'w'), indent=0)
     # the repairs written while the history was being read assumed the books as they stood then; with the moves
     # inferred since (departures, roster repairs), recompute them: wherever a giver did not hold what it gives,
     # the repair moves it from whoever did (a stale one would move it twice)

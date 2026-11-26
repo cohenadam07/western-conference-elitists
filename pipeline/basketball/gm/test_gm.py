@@ -15,6 +15,9 @@ test_gm.py — GM Savant's pipeline invariants (Module 9), on the working files 
                      team's history is credited once
   sources            every tenure, decision and press-filled trade has a source link
   replay             the last deadline-week replay matched its one full build (out/replay_report.txt)
+  same-day signings  when two teams take a player on one day, the first lets him go when the second takes him
+  player ids         a Basketball-Reference id is the NBA id whose seasons are his (a son is not his father; a name two
+                     NBA ids share still finds one), and a career NBA Savant splits across two ids is one career
 The page files and the connector are tools/savant-gm/check.mjs.
 """
 import collections, json, os, shutil, sys, tempfile, unittest
@@ -53,6 +56,43 @@ class Ledger(unittest.TestCase):
         E = load('ledger_events.json')
         missing = [e for e in E if (e['asset'].startswith('player:') or e['asset'].startswith('pick:')) and not e.get('source')]
         self.assertEqual(missing, [], f'{len(missing)} moves without a source, e.g. {missing[:2]}')
+
+
+    def test_same_day_signings(self):
+        # Greg Foster (IND and TOR, 2002-11-06), Billy Thomas (WAS and NJN, 2006-02-24), Malcolm Thomas (SAS and UTA
+        # inferred on 2013-10-30): the first team's books stop when the second takes him, that same day
+        E = load('ledger_events.json')
+        for aid, date, first, second in [('player:fostegr01', '2002-11-06', 'IND', 'TOR'), ('player:thomabi01', '2006-02-24', 'WAS', 'BRK'),
+                                         ('player:thomama01', '2013-10-30', 'SAS', 'UTA')]:
+            day = [(e['kind'], e['from'], e['to']) for e in E if e['asset'] == aid and e['date'] == date]
+            self.assertEqual([x[1:] for x in day], [('POOL', first), (first, 'POOL'), ('POOL', second)], f'{aid} {date}: {day}')
+        rows = load('ledger_same_day.json')
+        self.assertTrue(all(r.get('taken_off') for r in rows), f'a same-day pair left on two books: {[r for r in rows if not r.get("taken_off")]}')
+
+
+class Ids(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import grade
+        cls.G = grade
+
+    def test_son_is_not_his_father(self):
+        G = self.G
+        self.assertEqual(G.pid_of('player:harpero02'), 1631199)     # Ron Harper Jr., spelled "Ron Harper" by the ledger
+        self.assertEqual(G.pid_of('player:harpero01'), 166)         # Ron Harper
+        self.assertEqual(G.pid_of('player:jacksja01'), 1114)        # Jaren Jackson (the father)
+
+    def test_shared_name_finds_its_id(self):
+        G = self.G
+        for br, nba in [('dunlemi02', 2399), ('jamesmi01', 2229), ('jamesmi02', 1628455), ('butleji01', 202710), ('smithjr01', 2747)]:
+            self.assertEqual(G.vid_of(f'player:{br}'), nba, br)
+
+    def test_split_career_is_one(self):
+        # Patrick Ewing: NBA Savant keeps 1985-86 to 1995-96 under "br:ewingpa01" and 1996-97 on under 121
+        G = self.G
+        self.assertEqual(G.vid_of('player:ewingpa01'), 121)
+        ys = {y for (i, y) in G.VAL if i == 121}
+        self.assertTrue({1986, 1996, 1997, 2002} <= ys, sorted(ys))
 
 
 class Grades(unittest.TestCase):
