@@ -124,6 +124,11 @@ for r in ROWS:
 # overlap his own seasons the most (the season totals, by Basketball-Reference id). No overlap, or a tie, keeps the
 # crosswalk's answer. NBA Savant keeps a name it could not match under "br:<id>" for the seasons before 1996-97: those
 # join the NBA id's (Patrick Ewing 1985-86 to 1995-96 and 1996-97 on are one career).
+# Where his name finds no NBA id whose seasons are his (a nickname or another spelling: "Ronald Murray" is NBA.com's
+# "Flip Murray", "Isaac Austin" its "Ike Austin"; a rookie the offline list does not have yet), his seasons are matched
+# to NBA Savant's rows by season, team and minutes: in each completed season, the one row on one of his teams within
+# 10 minutes or 2% of his total (where two rows are that close, the one within a minute), taken by no player his name
+# already finds. Every season that matches must name the same NBA id (the last 33 players, Nov 25, 2026).
 _SUFFIX = re.compile(r'[\s,]+(jr|sr|ii|iii|iv|v)\.?$')
 
 
@@ -150,11 +155,17 @@ for (_b, _y) in BR_MIN:
     BR_YEARS[_b].add(_y)
 
 
+ROWS_AT = collections.defaultdict(list)          # (season, franchise) -> [(minutes, NBA id)] from NBA Savant's rows
+for r in ROWS:
+    if isinstance(r['id'], int) and r['y'] < NOW_SEASON and r.get('min') is not None:
+        f = franchise(r['team'])
+        if f:
+            ROWS_AT[(r['y'], f)].append((r['min'], r['id']))
+
+
 @lru_cache(maxsize=None)
-def nba_id(br, *names):
-    """His NBA id (int), or "br:<id>" where none can be told: by seasons among his name's family, else by the first name
-    the crosswalk matches."""
-    names = [n for n in names if n]
+def _by_family(br, *names):
+    """The NBA id among his name's family (with or without a suffix) whose seasons overlap his the most, or None."""
     fam = set().union(*(FAMILY.get(_base(n), set()) for n in names)) if names else set()
     mine = BR_YEARS.get(br, set())
     if fam and mine:
@@ -163,11 +174,55 @@ def nba_id(br, *names):
         top = [i for i, v in ov.items() if v == best]
         if best > 0 and len(top) == 1:
             return top[0]
-    for n in names:
-        c = canonical_id(br, n)
-        if not isinstance(c, str):
-            return c
-    return f'br:{br}'
+    return None
+
+
+_CLAIMED = None
+
+
+def _by_minutes(br):
+    """The NBA id whose rows match his completed seasons by team and minutes, or None."""
+    global _CLAIMED
+    if _CLAIMED is None:              # every id a name already finds (by family, or the crosswalk's exact name)
+        _CLAIMED = set()
+        for b in BR_YEARS:
+            nm = [n for n in (BR_NAME.get(b, ''), A.get(f'player:{b}', {}).get('name') or '') if n]
+            c = _by_family(b, *nm)
+            if c is None:
+                c = next((x for x in (canonical_id(b, n) for n in nm) if not isinstance(x, str)), None)
+            if c is not None:
+                _CLAIMED.add(c)
+    votes = set()
+    for y in sorted(BR_YEARS.get(br, ())):
+        if y >= NOW_SEASON:
+            continue
+        tot, sh = BR_MIN[(br, y)]
+        near = {(abs(m - tot), i) for f in sh for m, i in ROWS_AT.get((y, f), ()) if abs(m - tot) <= max(10, 0.02 * tot) and i not in _CLAIMED}
+        hit = {i for d, i in near}
+        if len(hit) > 1:                       # two rows close to his minutes: only an exact one (within a minute) tells
+            hit = {i for d, i in near if d <= 1}
+            if len(hit) != 1:
+                return None
+        votes |= hit
+    return votes.pop() if len(votes) == 1 else None
+
+
+@lru_cache(maxsize=None)
+def nba_id(br, *names):
+    """His NBA id (int), or "br:<id>" where none can be told: by seasons among his name's family; else by the first name
+    the crosswalk matches, if that id has seasons of his; else by season, team and minutes; else the crosswalk's id."""
+    names = tuple(n for n in names if n)
+    c = _by_family(br, *names)
+    if c is not None:
+        return c
+    mine = BR_YEARS.get(br, set())
+    named = next((x for x in (canonical_id(br, n) for n in names) if not isinstance(x, str)), None)
+    if named is not None and (NBA_YEARS.get(named, set()) & mine or not mine):
+        return named
+    m = _by_minutes(br) if mine else None
+    if m is not None:
+        return m
+    return named if named is not None else f'br:{br}'
 
 
 def _nba_id_any(br):

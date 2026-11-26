@@ -17,7 +17,8 @@ test_gm.py — GM Savant's pipeline invariants (Module 9), on the working files 
   replay             the last deadline-week replay matched its one full build (out/replay_report.txt)
   same-day signings  when two teams take a player on one day, the first lets him go when the second takes him
   player ids         a Basketball-Reference id is the NBA id whose seasons are his (a son is not his father; a name two
-                     NBA ids share still finds one), and a career NBA Savant splits across two ids is one career
+                     NBA ids share still finds one; another spelling is found by season, team and minutes), a career
+                     NBA Savant splits across two ids is one career, and every season of 100+ minutes has its value
 The page files and the connector are tools/savant-gm/check.mjs.
 """
 import collections, json, os, shutil, sys, tempfile, unittest
@@ -86,6 +87,20 @@ class Ids(unittest.TestCase):
         G = self.G
         for br, nba in [('dunlemi02', 2399), ('jamesmi01', 2229), ('jamesmi02', 1628455), ('butleji01', 202710), ('smithjr01', 2747)]:
             self.assertEqual(G.vid_of(f'player:{br}'), nba, br)
+
+    def test_other_spellings_by_minutes(self):
+        # names NBA.com spells otherwise ("Flip Murray", "Ike Austin", "Clar. Weatherspoon") and rookies the offline
+        # list lacks: found by season, team and minutes (Toby Okani and Lucas Williamson, MEM 2025-26: 217 and 224)
+        G = self.G
+        for br, nba in [('murraro01', 2436), ('austiis01', 1134), ('weathcl01', 221), ('okanito01', 1643253), ('willilu01', 1631351)]:
+            self.assertEqual(G.vid_of(f'player:{br}'), nba, br)
+
+    def test_every_season_has_its_value(self):
+        # every ledger player's completed season of 100+ minutes has a value under the id he is graded by
+        G = self.G
+        miss = [(aid, y) for aid in G.A if aid.startswith('player:') for y in G.BR_YEARS.get(aid[7:], ())
+                if y < G.NOW_SEASON and G.BR_MIN[(aid[7:], y)][0] >= 100 and (G.vid_of(aid), y) not in G.VAL]
+        self.assertEqual(miss, [], f'{len(miss)} seasons with no value, e.g. {miss[:5]}')
 
     def test_split_career_is_one(self):
         # Patrick Ewing: NBA Savant keeps 1985-86 to 1995-96 under "br:ewingpa01" and 1996-97 on under 121
