@@ -112,8 +112,8 @@
       "permanent": true
     },
     {
-      "source": "/player/clarence-weatherspoon",
-      "destination": "/player/clar-weatherspoon",
+      "source": "/player/clar-weatherspoon",
+      "destination": "/player/clarence-weatherspoon",
       "permanent": true
     },
     {

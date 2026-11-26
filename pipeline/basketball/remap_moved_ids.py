@@ -6,7 +6,7 @@ rest under the NBA id (121), because the name alone could not be matched (two NB
 another way). Micheal Ray Richardson was never matched at all. The archive is edited in place in the repo (accents,
 value bars, Synergy ids, positions...), so this is an in-place pass too, like those, rather than a rebuild:
 
-  public/savant-data.json       every row's id; and moved_ids {old id: new id} at the top, which the page, the site's
+  public/savant-data.json       every row's id (and display name, where NBA.com abbreviates it); and moved_ids {old id: new id} at the top, which the page, the site's
                                 API files (scripts/lib/savant-api.mjs) and the connector read to redirect an old id
   public/savant-allsavant.json  the All-Savant slots, keyed by id
   public/basketball-savant.html the awards block (AWARDS.players, keyed by id; AWARDS.unresolved)
@@ -36,6 +36,14 @@ def moved():
     return {k: v['to'] for k, v in json.load(open(os.path.join(HERE, 'moved_player_ids.json')))['moved'].items()}
 
 
+def names():
+    """{player id: display name} where NBA.com's is abbreviated (moved_player_ids.json "names")."""
+    out = {}
+    for k, v in json.load(open(os.path.join(HERE, 'moved_player_ids.json'))).get('names', {}).items():
+        out[int(k) if k.isdigit() else k] = v['name']
+    return out
+
+
 def remap_archive(d, M):
     n = 0
     for season, v in d['data'].items():
@@ -48,6 +56,12 @@ def remap_archive(d, M):
                 raise SystemExit(f'{season}: id {p["id"]} would appear twice; nothing written')
             seen.add(p['id'])
     d['moved_ids'] = {k: v for k, v in sorted(M.items())}
+    N = names()
+    for v in d['data'].values():
+        for p in v.get('players', []):
+            if p['id'] in N and p['name'] != N[p['id']]:
+                p['name'] = N[p['id']]
+                n += 1
     return n
 
 
@@ -145,7 +159,7 @@ def main():
     fh = os.path.join(PUB, 'basketball-savant.html')
     html = open(fh, encoding='utf-8').read()
     html2, n3 = remap_awards(html, M)
-    print(f'{len(M)} moved ids: {n1} archive rows, {n2} All-Savant slots, {n3} awards entries')
+    print(f'{len(M)} moved ids and {len(names())} display names: {n1} archive rows, {n2} All-Savant slots, {n3} awards entries')
     if check:
         return
     # the files keep their own formats: the archive compact with ASCII escapes (as the passes before this wrote

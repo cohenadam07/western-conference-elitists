@@ -1,5 +1,5 @@
 {
- "about": "Player ids that moved in NBA Savant (1.0 of this file, Nov 26 2026): each old id (a Basketball-Reference \"br:\" id) and the NBA id that now holds the same player. remap_moved_ids.py applies it to the archive (savant-data.json: rows, comps and the top-level moved_ids the page, the site's API and the connector read to redirect an old id), the All-Savant slots and the page's awards; build_historical.py and gen_historical_comps.py apply it on a rebuild. Add a line whenever a player's id changes; never remove one. old_slugs: the player-page addresses (/player/<slug>) the split careers had that no longer exist, each with the page of the whole career; vercel.json redirects them.",
+ "about": "Player ids that moved in NBA Savant (1.0 of this file, Nov 26 2026): each old id (a Basketball-Reference \"br:\" id) and the NBA id that now holds the same player. remap_moved_ids.py applies it to the archive (savant-data.json: rows, comps and the top-level moved_ids the page, the site's API and the connector read to redirect an old id), the All-Savant slots and the page's awards; build_historical.py and gen_historical_comps.py apply it on a rebuild. Add a line whenever a player's id changes; never remove one. old_slugs: the player-page addresses (/player/<slug>) the split careers had that no longer exist, each with the page of the whole career; vercel.json redirects them. names: a display name to use on every one of a player's rows where NBA.com's is abbreviated.",
  "moved": {
   "br:ewingpa01": {"to": 121, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Patrick Ewing (ewingpa01, 1985-86 to 1995-96, last with NYK, age 33 in 1995-96) is NBA.com's Patrick Ewing (id 121: born 1962-08-05, so 33.5 that season; 1996-97 his first season in the NBA.com data, 12 years of experience)"},
   "br:ricegl01": {"to": 779, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Glen Rice (ricegl01, 1989-90 to 1995-96, last with CHH, age 28 in 1995-96) is NBA.com's Glen Rice (id 779: born 1967-05-28, so 28.7 that season; 1996-97 his first season in the NBA.com data, 8 years of experience)"},
@@ -18,10 +18,13 @@
   "br:austiis01": {"to": 1134, "since": "2026-11-26", "why": "one career split at 1996-97: Basketball-Reference's Isaac Austin (austiis01, 1991-92 to 1993-94, last with PHI, age 24 in 1993-94) is NBA.com's Ike Austin (id 1134: born 1969-08-18, so 24.5 that season; 1996-97 his first season in the NBA.com data, 6 years of experience)"},
   "br:richami01": {"to": 77952, "since": "2026-11-26", "why": "Basketball-Reference's season totals spell him Michael Ray Richardson (richami01); its transaction pages and nba_api's player list spell him Micheal Ray Richardson, NBA id 77952, the only player of that name"}
  },
+ "names": {
+  "221": {"name": "Clarence Weatherspoon", "why": "NBA.com shows him as Clar. Weatherspoon (1996-97 to 2004-05); Basketball-Reference and his seasons before 1996-97 spell out Clarence. The only abbreviated display name in the archive (checked Nov 26, 2026)."}
+ },
  "old_slugs": {
   "charles-jones-1996": "charles-jones",
   "charles-smith-1996": "charles-smith",
-  "clarence-weatherspoon": "clar-weatherspoon",
+  "clar-weatherspoon": "clarence-weatherspoon",
   "danny-schayes": "dan-schayes",
   "dee-brown-1996": "dee-brown",
   "eddie-johnson-1996": "eddie-johnson-1981",
