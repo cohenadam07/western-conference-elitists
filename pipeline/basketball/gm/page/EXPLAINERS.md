@@ -36,9 +36,9 @@ Each stat on the page has an "i" button that opens one of these (tap or click; E
 
 **What it is.** How much better than an average team his teams played while he ran them.
 
-**How it's calculated.** How much his teams outscored their opponents per game, turned into Savant points. The margin has 30% of the opponents' three-point and free-throw shooting luck taken out (the share that best predicts a team's second half from its first; the rest persists, more like defense than luck). Each point of margin is worth 57.1 Savant points, times the share of the season's games he ran.
+**How it's calculated.** How much his teams outscored their opponents per game, turned into Savant points. The margin has 30% of the opponents' three-point and free-throw shooting luck taken out (the share that best predicts a team's second half from its first; the rest persists, more like defense than luck). Each point of margin is worth 57.5 Savant points, times the share of the season's games he ran.
 
-**The data.** Every game's final score; opponents' three-point and free-throw totals from Basketball-Reference's league pages. The 57.1 is measured: how much Savant value a point of margin is worth across every team-season.
+**The data.** Every game's final score; opponents' three-point and free-throw totals from Basketball-Reference's league pages. The 57.5 is measured: how much Savant value a point of margin is worth across every team-season.
 
 **Limits.** Margin includes coaching, health and schedule. The season in progress counts as far as it has gone, and early-season luck adjustments are noisy.
 
@@ -436,7 +436,7 @@ Each stat on the page has an "i" button that opens one of these (tap or click; E
 
 **What it is.** One number for a GM that counts both the good teams he built and the titles those teams were in position to win.
 
-**How it's calculated.** GM Value Added in points, plus expected titles added times 4,642 points. At that rate the two halves spread GMs out equally across every GM spell since 1979-80, so neither drowns out the other. The slider changes the rate, from wins only to titles only.
+**How it's calculated.** GM Value Added in points, plus expected titles added times 4,684 points. At that rate the two halves spread GMs out equally across every GM spell since 1979-80, so neither drowns out the other. The slider changes the rate, from wins only to titles only.
 
 **The data.** GM Value Added and expected titles added, both from the same luck-adjusted team strength.
 
@@ -446,7 +446,7 @@ Each stat on the page has an "i" button that opens one of these (tap or click; E
 
 **What it is.** How many points one expected title is worth in the blend.
 
-**How it's calculated.** The default, 4,642 points a title (about 146 wins), is set so that points and titles each account for half of the spread across every GM spell. The slider runs from wins only (points alone) through the default in the middle to titles only (expected titles added alone). Each position in between is a different rate, shown beside it.
+**How it's calculated.** The default, 4,684 points a title (about 148 wins), is set so that points and titles each account for half of the spread across every GM spell. The slider runs from wins only (points alone) through the default in the middle to titles only (expected titles added alone). Each position in between is a different rate, shown beside it.
 
 **The data.** Every GM spell in NBA GM Savant, finished and active.
 
@@ -508,9 +508,9 @@ Each stat on the page has an "i" button that opens one of these (tap or click; E
 
 **How it's calculated.** Each season's title chance from the model, times his share of that season, added up. Played seasons only, the same seasons as titles won.
 
-**The data.** The title model, checked out of sample: predicted and actual titles agree by bucket, and it beats "the best record wins" by 38% on Brier score.
+**The data.** The title model, checked out of sample: predicted and actual titles agree by bucket, and it beats "the best record wins" by 37% on Brier score.
 
-**Limits.** The model rates a team by its regular season and, in the playoffs, a little of its preseason projection, so a team that got healthy, or added a star at the deadline, can be better in the playoffs than it shows. Teams the model gave a 15-30% chance won 11 titles against 13.5 expected (59 teams since 1983-84).
+**Limits.** The model rates a team by its regular season and, in the playoffs, a little of its preseason projection, so a team that got healthy, or added a star at the deadline, can be better in the playoffs than it shows. Teams the model gave a 15-30% chance won 11 titles against 13.2 expected (58 teams since 1983-84).
 
 ## Playoff luck
 
@@ -536,7 +536,7 @@ Each stat on the page has an "i" button that opens one of these (tap or click; E
 
 **What it is.** The decision's points plus its expected titles at the default rate.
 
-**How it's calculated.** How it turned out, in points, plus expected titles as it turned out times 4,642.
+**How it's calculated.** How it turned out, in points, plus expected titles as it turned out times 4,684.
 
 **The data.** The two grades beside it.
 

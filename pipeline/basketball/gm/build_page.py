@@ -47,11 +47,15 @@ CHANGELOG = [
     ('1.0.2', '2026-11-26', 'Player matching: a player\'s NBA id is now told by his seasons, not by his name alone. A son the source spells without his suffix had taken his father\'s id (Ron Harper Jr.); '
      'players whose name NBA.com spells differently or shares with another player counted no value at all (Jimmy Butler, J.R. Smith, Mike Dunleavy, Flip Murray, Ike Austin, this season\'s rookies), and where no name fits, a player is matched by season, team and minutes; '
      'careers NBA Savant splits at 1996-97 are one career here (Patrick Ewing, Glen Rice), in value and in the history a projection reads. About 140 players\' ids changed. '
-     'Frozen at-the-time grades were re-graded once to fix player matching, with old grades kept: 5,723 changed, 1,078 of them about a re-matched player and 4,645 others, almost all by under 6 points, '
-     'from pick curves and the undrafted-rookie baseline that had missed or double-counted those players; at-the-time titles moved by under 0.01 for all but 145. At-the-time grades are frozen again from here. '
+     'Frozen at-the-time grades were re-graded once to fix player matching, with old grades kept beside the new ones: 5,723 points grades changed, 1,078 of them about a re-matched player. '
+     'The other 4,645, almost all by under 6 points, changed because the undrafted-rookie baseline (what an undrafted player with no NBA season is projected to produce) was inflated by the split careers: '
+     'each one\'s seasons from 1996-97 on had counted as a second, undrafted rookie (Jimmie Hunter\'s 2006 re-signing at the time, 49.5 to 42.0); the pick curves also gain the value they had missed. '
+     'All 23,289 at-the-time titles grades were re-graded with them (all but 145 by under 0.01). Every at-the-time grade is frozen again from here. '
      'Same-day signings: when two teams take a player on one day (Greg Foster, Billy Thomas, Malcolm Thomas), the first lets him go when the second takes him. Every team-season from 1980-81 now balances within half a point: the six known gaps are closed. '
-     'What changes: Jimmy Butler\'s trades flip (Chicago\'s 2017 trade to Minnesota, as it turned out, +1,179 to -896); 24 trade sides flip sign as they turned out and 32 at the time; '
-     'Eddie Donovan (Knicks 1979-82) -940 GM Value Added, Leon Rose (Knicks) +906, Brad Stevens (Celtics) -640 and out of the points top 20, Kiki Vandeweghe (Nuggets) +624 and into it; Sam Presti and Gregg Popovich still lead both boards.'),
+     'What changes: Jimmy Butler\'s trades flip: as they turned out, Chicago\'s 2017 trade to Minnesota +1,179 to -896, Minnesota\'s 2018 trade to Philadelphia +733 to -1,318, and Miami\'s side of the 2019 sign-and-trade -520 to +1,450; '
+     '24 trade sides flip sign as they turned out and 32 at the time. Brad Stevens (Celtics) -640 GM Value Added and out of the points top 20 (Robert Williams III had been valued as a 27th pick); '
+     'Leon Rose (Knicks) +906 (Kevin Knox had been valued as a 9th pick); Eddie Donovan (Knicks 1979-82) -940 (Micheal Ray Richardson\'s seasons now count); Kiki Vandeweghe (Nuggets) +624 and into the top 20. '
+     'Sam Presti and Gregg Popovich still lead both boards.'),
     ('1.1.0', 'coming', 'Salaries from the Contract tab: value per dollar, cap hits, dead money, tax and apron status, years of control, and a cap outlook for every active GM.'),
 ]
 K = '0.05'
