@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-11-26",
+    "product": "NBA GM Savant",
+    "version": "1.0.2",
+    "text": "Players are now matched by their seasons, not their names alone. Jimmy Butler, J.R. Smith, Mike Dunleavy, Flip Murray and others whose names NBA.com spells differently had counted no value, and Ron Harper Jr. had taken his father's id; about 140 players' ids changed, so Butler's trades flip (Chicago's 2017 trade to Minnesota, as it turned out, +1,179 to -896). Frozen at-the-time grades were re-graded once to fix player matching, with old grades kept (5,723 changed). When two teams sign a player the same day, the first now lets him go, and every team-season balances. Leon Rose +906 GM Value Added, Eddie Donovan -940, Brad Stevens -640; Presti and Popovich still lead.",
+    "href": "/nba-gm-savant"
+  },
+  {
     "date": "2026-11-25",
     "product": "NBA GM Savant",
     "version": "1.0.1",

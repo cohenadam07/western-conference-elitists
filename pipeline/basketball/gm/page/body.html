@@ -4,7 +4,7 @@
   <header class="top">
     <div>
       <div class="brandwrap"><a class="wce" href="/" aria-label="WCE Hoops home">WCE</a><div><div class="brand-word">NBA GM <span>Savant</span></div>
-      <div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="eyebrow-pill">Every NBA GM, 1979-80 on</span><span class="vchip" id="ver" title="Version">v1.0.1</span><a class="backlink" href="/nba-savant">NBA Savant</a><a class="backlink" href="/nba-coaching-savant">NBA Coaching Savant</a></div></div></div>
+      <div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="eyebrow-pill">Every NBA GM, 1979-80 on</span><span class="vchip" id="ver" title="Version">v1.0.2</span><a class="backlink" href="/nba-savant">NBA Savant</a><a class="backlink" href="/nba-coaching-savant">NBA Coaching Savant</a></div></div></div>
     </div>
     <div class="search"><label for="q" class="sr">Find a GM</label><input id="q" type="search" placeholder="Find a GM — Presti, Riley, Ainge…" autocomplete="off" aria-controls="res"/><div class="results" id="res" role="listbox" hidden></div></div>
   </header>
@@ -15,7 +15,7 @@
     <div class="lede">
       <h1 class="disp">Every front office, judged like a fund manager.</h1>
       <p>GM Value Added is what a GM's teams did on the floor above an average GM in his seat, plus the value of the roster and picks he handed on, minus what he was handed. Points reward good teams; the goal is titles, so every GM also gets <b>expected titles added</b>, the same sum in titles, and a <b>blend</b> of the two you can tune. Every decision gets two grades: <b>at the time</b>, with only what was known that day, and <b>how it turned out</b>. Luck is kept apart, and so is shared credit.</p>
-      <p class="whatsnew"><b>What's new (v1.0.1):</b> the boards scroll sideways with the GM's name pinned, titles won read as whole numbers (a shared title is marked), expected titles are always two decimals, and three trades the source listed twice are counted once (Troy Weaver's GM Value Added -5.1; no top-20 rank changes; the full list is in How it works). Salaries follow in v1.1.0. <span id="through"></span></p>
+      <p class="whatsnew"><b>What's new (v1.0.2):</b> players are matched by their seasons, not their names alone, so Jimmy Butler, J.R. Smith, Mike Dunleavy, Ron Harper Jr. and about 140 others now count as themselves (Butler's trades flip). Frozen at-the-time grades were re-graded once to fix player matching, with old grades kept. Every team-season now balances. The full list is in How it works. Salaries follow in v1.1.0. <span id="through"></span></p>
     </div>
     <div class="col wide"><div class="ph"><h2 class="col-h" id="homeH">Points and titles, blended</h2><div class="seg" id="homeSeg"><button aria-pressed="true" data-v="all">All-time</button><button aria-pressed="false" data-v="active">Active</button><button aria-pressed="false" data-v="at_time">At the time</button></div></div>
       <div class="ctl"><div class="seg" id="homeMetric" aria-label="Rank by"><button aria-pressed="true" data-v="blended">Blended</button><button aria-pressed="false" data-v="points">Points</button><button aria-pressed="false" data-v="titles">Expected titles</button></div>
@@ -81,7 +81,7 @@
 
   <div class="expl" id="expl" role="dialog" aria-label="Explainer" hidden></div>
   <footer class="foot">
-    <p><b>NBA GM Savant</b> <span id="footVer">v1.0.1</span> · Sources: Basketball-Reference (executives, transactions, drafts, team totals), ESPN transactions, NBA.com player movement and team releases, Hoops Rumors, Wikipedia (dated with its references), press coverage for pick protections, and WCE's own Savant value and NBA Coaching Savant. Grades are the model's view, not a verdict.</p>
+    <p><b>NBA GM Savant</b> <span id="footVer">v1.0.2</span> · Sources: Basketball-Reference (executives, transactions, drafts, team totals), ESPN transactions, NBA.com player movement and team releases, Hoops Rumors, Wikipedia (dated with its references), press coverage for pick protections, and WCE's own Savant value and NBA Coaching Savant. Grades are the model's view, not a verdict.</p>
     <p><a href="/#ai">Ask it through the WCE AI connector</a> (nba_search_gms, nba_get_gm_profile, nba_gm_leaders, nba_gm_decisions, nba_gm_asset_tree) · Data Room through the same connector: nba gm_tenures, assets, asset_events, gm_decisions, gm_seasons</p>
   </footer>
 </div>

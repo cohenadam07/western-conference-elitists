@@ -460,7 +460,7 @@ table.t td.tm{font-family:var(--body);font-size:12.5px}
   <header class="top">
     <div>
       <div class="brandwrap"><a class="wce" href="/" aria-label="WCE Hoops home">WCE</a><div><div class="brand-word">NBA GM <span>Savant</span></div>
-      <div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="eyebrow-pill">Every NBA GM, 1979-80 on</span><span class="vchip" id="ver" title="Version">v1.0.1</span><a class="backlink" href="/nba-savant">NBA Savant</a><a class="backlink" href="/nba-coaching-savant">NBA Coaching Savant</a></div></div></div>
+      <div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="eyebrow-pill">Every NBA GM, 1979-80 on</span><span class="vchip" id="ver" title="Version">v1.0.2</span><a class="backlink" href="/nba-savant">NBA Savant</a><a class="backlink" href="/nba-coaching-savant">NBA Coaching Savant</a></div></div></div>
     </div>
     <div class="search"><label for="q" class="sr">Find a GM</label><input id="q" type="search" placeholder="Find a GM — Presti, Riley, Ainge…" autocomplete="off" aria-controls="res"/><div class="results" id="res" role="listbox" hidden></div></div>
   </header>
@@ -471,7 +471,7 @@ table.t td.tm{font-family:var(--body);font-size:12.5px}
     <div class="lede">
       <h1 class="disp">Every front office, judged like a fund manager.</h1>
       <p>GM Value Added is what a GM's teams did on the floor above an average GM in his seat, plus the value of the roster and picks he handed on, minus what he was handed. Points reward good teams; the goal is titles, so every GM also gets <b>expected titles added</b>, the same sum in titles, and a <b>blend</b> of the two you can tune. Every decision gets two grades: <b>at the time</b>, with only what was known that day, and <b>how it turned out</b>. Luck is kept apart, and so is shared credit.</p>
-      <p class="whatsnew"><b>What's new (v1.0.1):</b> the boards scroll sideways with the GM's name pinned, titles won read as whole numbers (a shared title is marked), expected titles are always two decimals, and three trades the source listed twice are counted once (Troy Weaver's GM Value Added -5.1; no top-20 rank changes; the full list is in How it works). Salaries follow in v1.1.0. <span id="through"></span></p>
+      <p class="whatsnew"><b>What's new (v1.0.2):</b> players are matched by their seasons, not their names alone, so Jimmy Butler, J.R. Smith, Mike Dunleavy, Ron Harper Jr. and about 140 others now count as themselves (Butler's trades flip). Frozen at-the-time grades were re-graded once to fix player matching, with old grades kept. Every team-season now balances. The full list is in How it works. Salaries follow in v1.1.0. <span id="through"></span></p>
     </div>
     <div class="col wide"><div class="ph"><h2 class="col-h" id="homeH">Points and titles, blended</h2><div class="seg" id="homeSeg"><button aria-pressed="true" data-v="all">All-time</button><button aria-pressed="false" data-v="active">Active</button><button aria-pressed="false" data-v="at_time">At the time</button></div></div>
       <div class="ctl"><div class="seg" id="homeMetric" aria-label="Rank by"><button aria-pressed="true" data-v="blended">Blended</button><button aria-pressed="false" data-v="points">Points</button><button aria-pressed="false" data-v="titles">Expected titles</button></div>
@@ -537,7 +537,7 @@ table.t td.tm{font-family:var(--body);font-size:12.5px}
 
   <div class="expl" id="expl" role="dialog" aria-label="Explainer" hidden></div>
   <footer class="foot">
-    <p><b>NBA GM Savant</b> <span id="footVer">v1.0.1</span> · Sources: Basketball-Reference (executives, transactions, drafts, team totals), ESPN transactions, NBA.com player movement and team releases, Hoops Rumors, Wikipedia (dated with its references), press coverage for pick protections, and WCE's own Savant value and NBA Coaching Savant. Grades are the model's view, not a verdict.</p>
+    <p><b>NBA GM Savant</b> <span id="footVer">v1.0.2</span> · Sources: Basketball-Reference (executives, transactions, drafts, team totals), ESPN transactions, NBA.com player movement and team releases, Hoops Rumors, Wikipedia (dated with its references), press coverage for pick protections, and WCE's own Savant value and NBA Coaching Savant. Grades are the model's view, not a verdict.</p>
     <p><a href="/#ai">Ask it through the WCE AI connector</a> (nba_search_gms, nba_get_gm_profile, nba_gm_leaders, nba_gm_decisions, nba_gm_asset_tree) · Data Room through the same connector: nba gm_tenures, assets, asset_events, gm_decisions, gm_seasons</p>
   </footer>
 </div>
@@ -568,8 +568,8 @@ const EXPL = {
  "produced": {
   "title": "Produced",
   "what": "How much better than an average team his teams played while he ran them.",
-  "how": "How much his teams outscored their opponents per game, turned into Savant points. The margin has 30% of the opponents' three-point and free-throw shooting luck taken out (the share that best predicts a team's second half from its first; the rest persists, more like defense than luck). Each point of margin is worth 57.1 Savant points, times the share of the season's games he ran.",
-  "data": "Every game's final score; opponents' three-point and free-throw totals from Basketball-Reference's league pages. The 57.1 is measured: how much Savant value a point of margin is worth across every team-season.",
+  "how": "How much his teams outscored their opponents per game, turned into Savant points. The margin has 30% of the opponents' three-point and free-throw shooting luck taken out (the share that best predicts a team's second half from its first; the rest persists, more like defense than luck). Each point of margin is worth 57.5 Savant points, times the share of the season's games he ran.",
+  "data": "Every game's final score; opponents' three-point and free-throw totals from Basketball-Reference's league pages. The 57.5 is measured: how much Savant value a point of margin is worth across every team-season.",
   "limits": "Margin includes coaching, health and schedule. The season in progress counts as far as it has gone, and early-season luck adjustments are noisy."
  },
  "left": {
@@ -848,14 +848,14 @@ const EXPL = {
  "blended": {
   "title": "Blended",
   "what": "One number for a GM that counts both the good teams he built and the titles those teams were in position to win.",
-  "how": "GM Value Added in points, plus expected titles added times 4,642 points. At that rate the two halves spread GMs out equally across every GM spell since 1979-80, so neither drowns out the other. The slider changes the rate, from wins only to titles only.",
+  "how": "GM Value Added in points, plus expected titles added times 4,684 points. At that rate the two halves spread GMs out equally across every GM spell since 1979-80, so neither drowns out the other. The slider changes the rate, from wins only to titles only.",
   "data": "GM Value Added and expected titles added, both from the same luck-adjusted team strength.",
   "limits": "The rate is a choice, not a measurement: it says how much a title is worth against regular-season strength, and reasonable people differ. Move the slider to see how much the order depends on it."
  },
  "lambda": {
   "title": "The blend, and the slider",
   "what": "How many points one expected title is worth in the blend.",
-  "how": "The default, 4,642 points a title (about 146 wins), is set so that points and titles each account for half of the spread across every GM spell. The slider runs from wins only (points alone) through the default in the middle to titles only (expected titles added alone). Each position in between is a different rate, shown beside it.",
+  "how": "The default, 4,684 points a title (about 148 wins), is set so that points and titles each account for half of the spread across every GM spell. The slider runs from wins only (points alone) through the default in the middle to titles only (expected titles added alone). Each position in between is a different rate, shown beside it.",
   "data": "Every GM spell in NBA GM Savant, finished and active.",
   "limits": "Percentiles on the board follow the slider: they rank the number you are looking at, against the pool named above the table."
  },
@@ -898,8 +898,8 @@ const EXPL = {
   "title": "Expected titles",
   "what": "How many titles his teams should have won, given how good they were, in the seasons he ran them.",
   "how": "Each season's title chance from the model, times his share of that season, added up. Played seasons only, the same seasons as titles won.",
-  "data": "The title model, checked out of sample: predicted and actual titles agree by bucket, and it beats \"the best record wins\" by 38% on Brier score.",
-  "limits": "The model rates a team by its regular season and, in the playoffs, a little of its preseason projection, so a team that got healthy, or added a star at the deadline, can be better in the playoffs than it shows. Teams the model gave a 15-30% chance won 11 titles against 13.5 expected (59 teams since 1983-84)."
+  "data": "The title model, checked out of sample: predicted and actual titles agree by bucket, and it beats \"the best record wins\" by 37% on Brier score.",
+  "limits": "The model rates a team by its regular season and, in the playoffs, a little of its preseason projection, so a team that got healthy, or added a star at the deadline, can be better in the playoffs than it shows. Teams the model gave a 15-30% chance won 11 titles against 13.2 expected (58 teams since 1983-84)."
  },
  "playoff_luck": {
   "title": "Playoff luck",
@@ -918,7 +918,7 @@ const EXPL = {
  "dec_blended": {
   "title": "A decision, blended",
   "what": "The decision's points plus its expected titles at the default rate.",
-  "how": "How it turned out, in points, plus expected titles as it turned out times 4,642.",
+  "how": "How it turned out, in points, plus expected titles as it turned out times 4,684.",
   "data": "The two grades beside it.",
   "limits": "The rate is the GM-level default; a single decision is not ranked on it."
  },

@@ -108,8 +108,11 @@ class Ids(unittest.TestCase):
         self.assertEqual(G.vid_of('player:ewingpa01'), 121)
         ys = {y for (i, y) in G.VAL if i == 121}
         self.assertTrue({1986, 1996, 1997, 2002} <= ys, sorted(ys))
-        # and a projection made before 1996-97 reads the whole history: Glen Rice in 1995, as under his old "br:" id
-        self.assertEqual(G.SN.project(G.pid_of('player:ricegl01'), '1995-09-01')['expected'], G.SN.project('br:ricegl01', '1995-09-01')['expected'])
+        # and a projection made before 1996-97 reads the whole history (moved off the old "br:" id): Glen Rice in 1995
+        # is projected from his 1994-95 season, not as a player with no NBA season
+        snap = G.SN.project(G.pid_of('player:ricegl01'), '1995-09-01')
+        self.assertEqual((snap['basis'], snap['origin_season']), ('projection', 1995), snap.get('basis'))
+        self.assertNotIn('br:ricegl01', G.SN.BY)
 
 
 class Grades(unittest.TestCase):

@@ -36,7 +36,7 @@ def dump(obj, path):
     raw = json.dumps(obj, separators=(',', ':'), default=str, ensure_ascii=False, allow_nan=False).encode('utf8')   # NaN is not JSON: a browser would refuse the file
     with open(path + '.gz', 'wb') as f:
         f.write(gzip.compress(raw, 9, mtime=0))
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 # the page's changelog (How it works); the site's What's New entry is src/data/updates.json
 CHANGELOG = [
     ('1.0.0', '2026-11-24', 'Launch: every NBA GM since 1979-80 on points (GM Value Added) and titles (expected titles added), blended with a slider; every decision graded at the time and as it turned out, with luck and shared credit kept apart; asset trees, the executive tree, the Data Room tables and five connector tools; nightly updates.'),
@@ -44,6 +44,14 @@ CHANGELOG = [
      'Data: moves the source listed twice are counted once. The 2011 Perkins trade (Boston and Oklahoma City) and the 2025 Huff trade (Memphis and Indiana) each appeared twice in the decision log; the 2024 Grimes trade (Dallas and Detroit) counted Miami\'s 2028 second-round pick twice; and eight waivers listed twice put the player back on the books to be waived again (only one grade changes: Rusty LaRue\'s 1999 waiver by Chicago). 32,495 decisions become 32,491. '
      'What changes: Troy Weaver\'s GM Value Added, 1,820.2 to 1,815.1 (-5.1); the Grimes trade at the time, Detroit -9.8 to -46.3 and Dallas +9.8 to +46.3, and as it turned out Detroit -84.0 to -120.1; the Perkins trade as it turned out, Boston +150.7 to +159.8 and Oklahoma City -150.7 to -159.8; LaRue\'s waiver, 1.4 to 3.0; blended values by 0.2 or less (the default blend rate moved 0.1); no top-20 rank. The old ids of the removed and renumbered decisions lead to the new ones. '
      'A daily refresh and a full rebuild now give identical numbers, and a nightly refresh with nothing new writes nothing.'),
+    ('1.0.2', '2026-11-26', 'Player matching: a player\'s NBA id is now told by his seasons, not by his name alone. A son the source spells without his suffix had taken his father\'s id (Ron Harper Jr.); '
+     'players whose name NBA.com spells differently or shares with another player counted no value at all (Jimmy Butler, J.R. Smith, Mike Dunleavy, Flip Murray, Ike Austin, this season\'s rookies), and where no name fits, a player is matched by season, team and minutes; '
+     'careers NBA Savant splits at 1996-97 are one career here (Patrick Ewing, Glen Rice), in value and in the history a projection reads. About 140 players\' ids changed. '
+     'Frozen at-the-time grades were re-graded once to fix player matching, with old grades kept: 5,723 changed, 1,078 of them about a re-matched player and 4,645 others, almost all by under 6 points, '
+     'from pick curves and the undrafted-rookie baseline that had missed or double-counted those players; at-the-time titles moved by under 0.01 for all but 145. At-the-time grades are frozen again from here. '
+     'Same-day signings: when two teams take a player on one day (Greg Foster, Billy Thomas, Malcolm Thomas), the first lets him go when the second takes him. Every team-season from 1980-81 now balances within half a point: the six known gaps are closed. '
+     'What changes: Jimmy Butler\'s trades flip (Chicago\'s 2017 trade to Minnesota, as it turned out, +1,179 to -896); 24 trade sides flip sign as they turned out and 32 at the time; '
+     'Eddie Donovan (Knicks 1979-82) -940 GM Value Added, Leon Rose (Knicks) +906, Brad Stevens (Celtics) -640 and out of the points top 20, Kiki Vandeweghe (Nuggets) +624 and into it; Sam Presti and Gregg Popovich still lead both boards.'),
     ('1.1.0', 'coming', 'Salaries from the Contract tab: value per dollar, cap hits, dead money, tax and apron status, years of control, and a cap outlook for every active GM.'),
 ]
 K = '0.05'

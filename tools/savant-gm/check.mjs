@@ -45,7 +45,7 @@ test('the index lists every GM once and every GM has a file', () => {
   assert.equal(new Set(ids).size, ids.length, 'a GM is listed twice')
   for (const p of index.people) assert.ok(pages[p.file], `no file for ${p.name}`)
   assert.ok(index.people.length > 200, 'the index should hold every front-office head since 1979-80 (211 in November 2026)')
-  assert.equal(index.meta.version, '1.0.1')
+  assert.equal(index.meta.version, '1.0.2')
   assert.ok(index.meta.games_through && index.meta.through, 'the index says how current it is')
 })
 
