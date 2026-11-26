@@ -149,7 +149,7 @@ function home(which) {
   blendNote('home');
   $('homePool').textContent = poolLine(which, st);
   const top = rows.slice(0, 15), bottom = rows.slice(-15).reverse();
-  $('homeBoard').innerHTML = `<div class="panels"><div><div class="group-h">Top 15</div><div class="scroll"><table class="t">${boardTable(top, 0, which, st, pool)}</table></div></div>
+  $('homeBoard').innerHTML = `<div class="panels stack"><div><div class="group-h">Top 15</div><div class="scroll"><table class="t">${boardTable(top, 0, which, st, pool)}</table></div></div>
     <div><div class="group-h">Bottom 15</div><div class="scroll"><table class="t">${boardTable(bottom, 0, which, st, pool)}</table></div></div></div>`;
 }
 function leaders(which) {

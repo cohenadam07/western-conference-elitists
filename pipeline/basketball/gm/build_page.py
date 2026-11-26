@@ -55,7 +55,8 @@ CHANGELOG = [
      'What changes: Jimmy Butler\'s trades flip: as they turned out, Chicago\'s 2017 trade to Minnesota +1,179 to -896, Minnesota\'s 2018 trade to Philadelphia +733 to -1,318, and Miami\'s side of the 2019 sign-and-trade -520 to +1,450; '
      '24 trade sides flip sign as they turned out and 32 at the time. Brad Stevens (Celtics) -640 GM Value Added and out of the points top 20 (Robert Williams III had been valued as a 27th pick); '
      'Leon Rose (Knicks) +906 (Kevin Knox had been valued as a 9th pick); Eddie Donovan (Knicks 1979-82) -940 (Micheal Ray Richardson\'s seasons now count); Kiki Vandeweghe (Nuggets) +624 and into the top 20. '
-     'Sam Presti and Gregg Popovich still lead both boards.'),
+     'Sam Presti and Gregg Popovich still lead both boards. '
+     'Display: the board\'s top 15 and bottom 15 are stacked, one above the other at the board\'s full width, at every screen width.'),
     ('1.1.0', 'coming', 'Salaries from the Contract tab: value per dollar, cap hits, dead money, tax and apron status, years of control, and a cap outlook for every active GM.'),
 ]
 K = '0.05'

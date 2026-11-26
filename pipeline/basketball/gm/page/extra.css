@@ -87,6 +87,8 @@ td.tn{font-family:'IBM Plex Mono',monospace;white-space:nowrap}
 .panels{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .panels>*{min-width:0}
 @media (max-width:840px){ .panels{grid-template-columns:minmax(0,1fr)} }
+/* the board's top 15 and bottom 15: one above the other, each the board's full width, at every width (1.0.2) */
+.panels.stack{grid-template-columns:minmax(0,1fr);gap:22px}
 .scroll{overflow-x:auto;overscroll-behavior-x:contain}
 .scroll table.t th:first-child,.scroll table.t td:first-child{position:sticky;left:0;z-index:1;background:var(--surface);text-align:left;box-shadow:inset -1px 0 0 var(--line)}
 .scroll table.t td:first-child{max-width:170px;overflow:hidden;text-overflow:ellipsis}
