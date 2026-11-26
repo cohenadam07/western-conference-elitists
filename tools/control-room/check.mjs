@@ -275,3 +275,32 @@ test('the map and timeline show all three Muse lights', async () => {
   for (let i = 1; i < boxes.length; i++) assert.ok(boxes[i].y >= boxes[i - 1].y + boxes[i - 1].h, `${boxes[i].id} overlaps ${boxes[i - 1].id}`)
   assert.ok(boxes.at(-1).y + boxes.at(-1).h < 740, 'clear of the checks band')
 })
+
+test('GM Savant\'s four jobs share one box: worst light, wires for the refresh, a card that lists all four', async () => {
+  const D = await import('../../public/control/draw.js')
+  const four = ['gm-savant', 'gm-mac-pull', 'gm-savant-freshness', 'gm-savant-refit']
+  assert.deepEqual(D.GROUPS['gm-group'], four)
+  for (const id of four) {
+    assert.ok(S.JOBS.some((j) => j.id === id), `${id} is a feed job`)
+    assert.ok(D.MAP_JOB_IDS.includes(id), `${id} lights the map`)
+    assert.equal(D.boxOf(id), 'gm-group')
+  }
+  assert.ok(D.lanePath('in:gm-savant') && D.lanePath('out:gm-savant'), 'the refresh travels the wires')
+  // nothing overlaps in the engines column, and it stays inside its group box and above the checks band
+  const eng = [...D.ENGINES].sort((a, b) => a.y - b.y)
+  for (let i = 1; i < eng.length; i++) assert.ok(eng[i].y >= eng[i - 1].y + eng[i - 1].h, `${eng[i].id} overlaps ${eng[i - 1].id}`)
+  assert.ok(eng.at(-1).y + eng.at(-1).h < Math.min(...D.WATCHERS.map((w) => w.y)) - 40, 'engines clear the checks band')
+  assert.ok(Math.max(...D.WATCHERS.map((w) => w.y + w.h)) < D.MAP_H - 30, 'checks clear the legend')
+  const job = (id, status) => ({ id, name: id, lane: 'github', status, last: null, next: null, since: null })
+  const feed = { now: Date.now(), jobs: [job('gm-savant', 'ok'), job('gm-mac-pull', 'failed'), job('gm-savant-freshness', 'ok'), job('gm-savant-refit', 'late')], events: [], upcoming: [], deploys: {}, counts: {} }
+  const jobs = new Map(feed.jobs.map((j) => [j.id, j]))
+  assert.equal(D.groupStatus('gm-group', jobs), 'failed')
+  const svg = D.drawMap(feed, null, [], feed.now, null)
+  assert.match(svg, /data-id="gm-group"/)
+  assert.match(svg, />GM Savant</)
+  assert.match(svg, /1 of 4 jobs red/)
+  jobs.get('gm-mac-pull').status = 'ok'
+  assert.equal(D.groupStatus('gm-group', jobs), 'late')
+  assert.match(D.drawMap({ ...feed, jobs: [...jobs.values()] }, null, [], feed.now, null), /1 of 4 jobs late/)
+  for (const id of four) assert.doesNotMatch(svg, new RegExp(`data-id="${id}"`), `${id} has no box of its own`)
+})
