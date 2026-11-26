@@ -26,11 +26,20 @@ _last = {}
 # The Basketball-Reference hold (Adam, Nov 23 2026: no BR fetches while the Contract tab's pull runs). While this file
 # exists, every Basketball-Reference request is answered from the cache only, at any age; nothing goes to BR. The Mac
 # lane keeps running on its cached pages and NBA.com. Delete the file to lift the hold.
+# The Contract tab's refresh writes its own hold file when Basketball-Reference blocks it (contracts-br-hold, its
+# fetch_current.py), and reads this one: either file holds both jobs, so neither asks Basketball-Reference while the
+# other is blocked (1.0.2, Nov 25, 2026).
 BR_HOLD = os.environ.get('GM_BR_HOLD') or os.path.expanduser('~/.config/wce/gm-br-hold')
+BR_HOLDS = [BR_HOLD, os.path.expanduser(os.environ.get('CT_BR_HOLD') or '~/.config/wce/contracts-br-hold')]
+
+
+def br_hold():
+    """The first hold file that exists, or None."""
+    return next((h for h in BR_HOLDS if os.path.exists(h)), None)
 
 
 def br_held(url):
-    return 'basketball-reference.com' in url and os.path.exists(BR_HOLD)
+    return 'basketball-reference.com' in url and br_hold() is not None
 
 
 def path_of(url):

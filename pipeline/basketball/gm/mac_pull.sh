@@ -20,8 +20,11 @@ if [ "${GM_SYNC_STATE:-}" = "1" ] && [ "${1:-}" != "--seed" ]; then
   if gh release download gm-state -p gm-state.enc -D "$T0" --clobber; then "$PY" state_bundle.py unpack "$T0/gm-state.enc" || rc=1; else echo "no gm-state.enc to start from"; rc=1; fi
   rm -rf "$T0"
 fi
-# while ~/.config/wce/gm-br-hold exists, Basketball-Reference is read from the cache only (fetch.py): see the note there
-[ -e "${GM_BR_HOLD:-$HOME/.config/wce/gm-br-hold}" ] && echo "$(date '+%F %T') Basketball-Reference held: cached pages only ($(cat "${GM_BR_HOLD:-$HOME/.config/wce/gm-br-hold}" 2>/dev/null | head -1))"
+# while ~/.config/wce/gm-br-hold or the Contract tab's contracts-br-hold exists, Basketball-Reference is read from the
+# cache only (fetch.py): see the note there
+for h in "${GM_BR_HOLD:-$HOME/.config/wce/gm-br-hold}" "${CT_BR_HOLD:-$HOME/.config/wce/contracts-br-hold}"; do
+  [ -e "$h" ] && echo "$(date '+%F %T') Basketball-Reference held ($(basename "$h")): cached pages only ($(head -1 "$h" 2>/dev/null))"
+done
 "$PY" - <<'PY' || rc=1
 import datetime as dt, sys
 sys.path.insert(0, '.')
