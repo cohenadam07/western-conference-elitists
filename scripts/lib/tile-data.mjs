@@ -110,6 +110,25 @@ function board(index, id, sub) {
 export const nbac = (root) => board(read(root, 'bcs/index.json'), 'season_w_talent')
 export const cbbc = (root) => board(read(root, 'cbcs/index.json.gz'), 'cur_w_roster')
 
+// NBA GM Savant: the top three sitting GMs on the page's own board, the blend of points and titles at its default
+// weight (the stored `blended`, which is what the page ranks by when it opens), printed the way the page prints it;
+// and the season being played in one number, the decisions graded so far, counted from the Data Room table the page
+// writes for that season (gms/data/gm_decisions). The page rebuilds after every nightly refresh, so both keep up.
+export function gm(root) {
+  const idx = read(root, 'gms/index.json.gz')
+  const act = idx?.boards?.active
+  if (!act?.length || !idx.meta?.through) return null
+  const dir = path.join(root, 'public', 'gms', 'data', 'gm_decisions')
+  const season = fs.existsSync(dir) ? fs.readdirSync(dir).map((f) => f.split('.')[0]).filter((x) => /^\d{4}-\d{2}$/.test(x)).sort().at(-1) : null
+  const dec = season && read(root, `gms/data/gm_decisions/${season}.json.gz`)
+  if (!dec?.rows?.length) return null
+  const sgn = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(Math.round(v)).toLocaleString('en-US')
+  const rows = act.filter((r) => Number.isFinite(r.blended)).sort((a, b) => b.blended - a.blended).slice(0, 3)
+    .map((r) => ({ name: r.name, note: r.team, value: r.blended, show: sgn(r.blended) }))
+  if (rows.length < 3) return null
+  return { label: 'Sitting GMs, points and titles blended', through: idx.meta.through, sub: `${dec.rows.length.toLocaleString('en-US')} moves graded in ${season}`, pool: `Blended: GM Value Added plus expected titles added at the page's default weight; ${idx.meta.pool_active}, on projection.`, rows }
+}
+
 // NFL Coaching Savant: wins above expectation this season, top three.
 export function nflc(root) {
   const d = read(root, 'coaching-savant-current.json')
@@ -142,7 +161,7 @@ export function news(root) {
   return { label: 'Latest', text: h.title, sub: h.outlet || null, date: h.published || null }
 }
 
-const GATHER = { nba, nfl, ufc, cbb, cfb, nbac, cbbc, nflc, draft, news }
+const GATHER = { nba, nfl, ufc, cbb, cfb, nbac, cbbc, nflc, gm, draft, news }
 
 export function gather(root, warn = console.warn) {
   const tiles = {}

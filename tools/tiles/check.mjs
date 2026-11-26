@@ -21,7 +21,7 @@ const json = (rel) => {
 }
 const warnings = []
 const tiles = gather(ROOT, (m) => warnings.push(m))
-const KEYS = ['nba', 'nfl', 'ufc', 'cbb', 'cfb', 'nbac', 'cbbc', 'nflc', 'draft', 'news']
+const KEYS = ['nba', 'nfl', 'ufc', 'cbb', 'cfb', 'nbac', 'cbbc', 'nflc', 'gm', 'draft', 'news']
 
 test('every tile that should have a fact has one, read without a warning', () => {
   assert.deepEqual(warnings, [])
@@ -43,6 +43,17 @@ test('NBA Savant: the tile is the page\'s own All-Savant 1st Team, with the page
   const want = s.all_savant[0].map((id) => [by.get(id).name, by.get(id).sv[0]]).sort((a, b) => b[1] - a[1])
   assert.deepEqual(tiles.nba.rows.map((r) => [r.name, r.value]), want)
   assert.equal(tiles.nba.through, cur.through)
+})
+
+test('NBA GM Savant: the page\'s Active board at its default blend, top three, and this season\'s graded moves', () => {
+  const idx = json('gms/index.json.gz')
+  const want = idx.boards.active.slice().sort((a, b) => b.blended - a.blended).slice(0, 3)
+  assert.deepEqual(tiles.gm.rows.map((r) => [r.name, r.value]), want.map((r) => [r.name, r.blended]))
+  // the stored blend is the page's own score at the default (p = 50: points + lambda x expected titles added)
+  for (const r of want) assert.ok(Math.abs(r.gva + idx.meta.titles.lambda * r.titles_added - r.blended) < 0.5, `${r.name}: blended`)
+  assert.equal(tiles.gm.through, idx.meta.through)
+  const season = tiles.gm.sub.match(/in (\d{4}-\d{2})$/)[1]
+  assert.equal(tiles.gm.sub, `${json(`gms/data/gm_decisions/${season}.json.gz`).rows.length.toLocaleString('en-US')} moves graded in ${season}`)
 })
 
 test('NFL Savant: the three highest Savant values among qualified players', () => {
@@ -82,7 +93,7 @@ test('the homepage draws a fact on each of those tiles, sorted under six headers
   for (const k of [...KEYS, 'analysis']) assert.equal(jsx.split(`<Live k="${k}" />`).length - 1, 1, `the ${k} tile should draw its fact once`)
   const heads = [...jsx.matchAll(/<h2 className="gh g-[a-z]+"><span>([^<]+)<\/span>/g)].map((m) => m[1])
   assert.deepEqual(heads, ['NBA', 'NFL', 'College', 'UFC', 'Games', 'Read'])
-  assert.equal(jsx.split('<a className="card ').length - 1, 16, 'a tile went missing')
+  assert.equal(jsx.split('<a className="card ').length - 1, 17, 'a tile went missing') // 17 with NBA GM Savant (Nov 25, 2026)
 })
 
 test('every fact with a season is about the season being played', () => {

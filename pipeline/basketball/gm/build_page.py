@@ -36,10 +36,14 @@ def dump(obj, path):
     raw = json.dumps(obj, separators=(',', ':'), default=str, ensure_ascii=False, allow_nan=False).encode('utf8')   # NaN is not JSON: a browser would refuse the file
     with open(path + '.gz', 'wb') as f:
         f.write(gzip.compress(raw, 9, mtime=0))
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 # the page's changelog (How it works); the site's What's New entry is src/data/updates.json
 CHANGELOG = [
     ('1.0.0', '2026-11-24', 'Launch: every NBA GM since 1979-80 on points (GM Value Added) and titles (expected titles added), blended with a slider; every decision graded at the time and as it turned out, with luck and shared credit kept apart; asset trees, the executive tree, the Data Room tables and five connector tools; nightly updates.'),
+    ('1.0.1', '2026-11-25', 'Display: wide tables scroll sideways with the GM\'s name pinned and open on their numbers (his teams and years follow them), so no column is cut off on a laptop or a phone; titles won are whole numbers, and a title shared within a season shows to one decimal with a marker that explains shared credit; expected titles to two decimals everywhere on the boards and cards. '
+     'Data: moves the source listed twice are counted once. The 2011 Perkins trade (Boston and Oklahoma City) and the 2025 Huff trade (Memphis and Indiana) each appeared twice in the decision log; the 2024 Grimes trade (Dallas and Detroit) counted Miami\'s 2028 second-round pick twice; and eight waivers listed twice put the player back on the books to be waived again (only one grade changes: Rusty LaRue\'s 1999 waiver by Chicago). 32,495 decisions become 32,491. '
+     'What changes: Troy Weaver\'s GM Value Added, 1,820.2 to 1,815.1 (-5.1); the Grimes trade at the time, Detroit -9.8 to -46.3 and Dallas +9.8 to +46.3, and as it turned out Detroit -84.0 to -120.1; the Perkins trade as it turned out, Boston +150.7 to +159.8 and Oklahoma City -150.7 to -159.8; LaRue\'s waiver, 1.4 to 3.0; blended values by 0.2 or less (the default blend rate moved 0.1); no top-20 rank. The old ids of the removed and renumbered decisions lead to the new ones. '
+     'A daily refresh and a full rebuild now give identical numbers, and a nightly refresh with nothing new writes nothing.'),
     ('1.1.0', 'coming', 'Salaries from the Contract tab: value per dollar, cap hits, dead money, tax and apron status, years of control, and a cap outlook for every active GM.'),
 ]
 K = '0.05'
@@ -51,6 +55,9 @@ CRED = json.load(open(os.path.join(OUT, 'gm_credit.json')))
 UNDER = json.load(open(os.path.join(OUT, 'gm_under.json')))
 TREE = json.load(open(os.path.join(OUT, 'gm_tree.json')))
 D = gm5.D
+# decision ids that no longer exist, with the id now holding the same move (decision_ids_moved.json): a saved link or
+# query that names an old id keeps working. A target that is missing, or an old id in use again, stops the build.
+MOVED = {k: v['to'] for k, v in json.load(open(os.path.join(HERE, 'decision_ids_moved.json')))['moved'].items()}
 TID = gm5.TID
 # titles (titles.py, titles_dec.py, gm5.blend): each decision's expected titles both ways, and the default exchange rate
 TITLES = json.load(open(os.path.join(OUT, 'gm_decision_titles.json')))
@@ -563,10 +570,14 @@ def main():
                 rows.append({'id': r['person_id'], 'file': safe(r['person_id']), 'name': r['person'], 'team': r['team'], 'team_name': spell_team_name(r['team'], r['start'], r['end']), 'start': r['start'], 'end': r['end'], 'active': r['active'], 'value': v})
         skills[sk] = {'label': label, 'verdict': verdict(sk), 'rows': sorted(rows, key=lambda x: -x['value'])}
     passes, repeating = REPEAT_PASSES, REPEATING
+    live = {did(d) for d in D}
+    bad = [f'{o} -> {n}' for o, n in MOVED.items() if n not in live] + [f'{o} is a live id again' for o in MOVED if o in live]
+    if bad:
+        raise SystemExit('decision_ids_moved.json: ' + '; '.join(bad))
     through = max(d['date'] for d in D)
     games_through = max(d for v in gm5.G.values() for ds in v.values() for d in ds if d <= GR.TODAY)
     idx = {'meta': {'version': VERSION, 'generated': dt.datetime.utcnow().isoformat(timespec='seconds') + 'Z', 'through': through, 'games_through': games_through,
-                    'grade_version': GR.VERSION, 'value_per_margin_point': round(gm5.ADJ_TO_VALUE, 1), 'points_per_win': GR.POINTS_PER_WIN,
+                    'grade_version': GR.VERSION, 'moved_ids': MOVED, 'known_gaps': json.load(open(os.path.join(OUT, 'conservation.json'))).get('known', []), 'value_per_margin_point': round(gm5.ADJ_TO_VALUE, 1), 'points_per_win': GR.POINTS_PER_WIN,
                     'pool_all': f'every GM spell of two or more seasons in charge, 1979-80 to {season_label(GR.NOW_SEASON)} ({len(vals_all)} spells; finished ones as they turned out, active ones on projection)',
                     'pool_active': f'active GMs with two or more seasons in charge ({len(vals_act)})',
                     'pool_at_time': f'every GM spell of two or more seasons in charge, all on projection ({len(vals_at)} spells)',
@@ -582,6 +593,17 @@ def main():
            'people': people, 'boards': {'all': board(ranked), 'active': board([r for r in ranked if r['active']]),
                                         'at_time': board(ranked, key='gm_value_added_at_time', vals=vals_at)}, 'skills': skills,
            'repeatability': {k: {kk: vv for kk, vv in v.items()} for k, v in REP['results'].items()}, 'tree': TREE}
+    # `generated` is when this content was made: a rebuild that changes nothing else keeps the old stamp, so the file
+    # stays byte-identical and a refresh with no news commits nothing (Nov 25, 2026)
+    try:
+        with gzip.open(os.path.join(PUB, 'index.json.gz'), 'rt', encoding='utf8') as f:
+            old = json.load(f)
+        new = json.loads(json.dumps(idx, default=str, ensure_ascii=False))      # as it will be written
+        new['meta']['generated'] = old['meta']['generated']
+        if old['meta'].get('generated') and new == old:
+            idx['meta']['generated'] = old['meta']['generated']
+    except (OSError, ValueError, KeyError):
+        pass
     dump(idx, os.path.join(PUB, 'index.json'))
     print('people', len(people), '| through', through, flush=True)
     dataroom(dec_by)
@@ -828,7 +850,9 @@ def dataroom(dec_by):
                                                             d.get('titles_at_time'), d.get('titles_turned_out'), blend(d['at_time'], d.get('titles_at_time')),
                                                             blend(d['turned_out'], d.get('titles_turned_out'))] + [SAL.decision(d)[k] for k in SAL.DECISION_FIELDS])
     for s, rows in by.items():
-        table_file('gm_decisions', s, c, sorted(rows, key=lambda r: r[1]))
+        # agreed, then the decision's own id: moves agreed the same day used to keep whatever order grading produced,
+        # which varied run to run, so a refresh with nothing new rewrote every season file (Nov 25, 2026)
+        table_file('gm_decisions', s, c, sorted(rows, key=lambda r: (r[1], r[0])))
     c = list(DICT['gm_seasons'][1])
     by = collections.defaultdict(list)
     for r in SP:
@@ -853,7 +877,8 @@ def dataroom(dec_by):
     for s, rows in by.items():
         table_file('gm_seasons', s, c, rows)
     dic = {'tables': {t: {'row': row, 'columns': {k: {'unit': u, 'what': w, 'source': src} for k, (u, w, src) in cols.items()}} for t, (row, cols) in DICT.items()},
-           'notes': NOTES, 'version': VERSION, 'lambda_points_per_title': LAM}
+           'notes': NOTES, 'version': VERSION, 'lambda_points_per_title': LAM,
+           'moved_ids': {'about': 'decision ids that no longer exist (gm_decisions.decision_id): old id -> the id now holding the same move', 'ids': MOVED}}
     dump(dic, os.path.join(PUB, 'data', 'dictionary.json'))
     print('data room written', flush=True)
 
