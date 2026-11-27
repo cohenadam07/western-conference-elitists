@@ -28,7 +28,7 @@
 //
 // KNOCKOUT (2.13). A ball that scores comes back out of the net as a defender and plays on, so a finish is no longer
 // the end of a player's inputs: each game seals its inputs when the hole's over (the board), `end` on its poll, kept as
-// e:<m>:<h>:<id>. The first make drops the hole's clock to 45 s (if more was left). Once every racer's seal is in, the
+// e:<m>:<h>:<id>. The first make drops the hole's clock to 45 s (if more was left; 3.0.1: 4 minutes on the Road Trip). Once every racer's seal is in, the
 // server replays the hole (server/sim.mjs's koReplay: defenders, the clock, demolitions and every item) for the KOs and
 // the Knockout records. A defender earns STOP_TIX tickets for every player who fails to score while they're defending.
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity'
@@ -38,6 +38,9 @@ export const MIN_START = 2
 // (the clocks can be set from the environment: RACE_LEAD_MS and so on; the tests on a slow machine do)
 const envList = (k) => { const v = typeof process !== 'undefined' && process.env ? process.env[k] : ''; return v && /^\d{1,2}(,\d{1,2}){0,40}$/.test(v) ? v.split(',').map(Number) : null }   // (2.13.1: item 10, Meatxplosion)
 const KO_DEAL = envList('RACE_KO_DEAL')
+// (the tests only, RACE_KO_STARTS: Knockout's starting spots, [[x, y], ...] as JSON, in place of the hole's own, so a
+// playtest can start balls by a gate or the hoop; the games and the replay all get them with the hole. Never set on the site)
+const KO_STARTS = (() => { try { const v = typeof process !== 'undefined' && process.env ? process.env.RACE_KO_STARTS : ''; const a = v ? JSON.parse(v) : null; return Array.isArray(a) && a.length && a.length <= 8 && a.every((q) => Array.isArray(q) && q.length >= 2 && q.slice(0, 2).every((n) => Number.isFinite(n) && Math.abs(n) < 1e5)) ? a.map((q) => [q[0], q[1]]) : null } catch { return null } })()
 // (the tests only, RACE_FIRST_HOLE: "<world>:<hole>,...", the hole a match on that world starts on: a playtest gets to
 // Clippers' 4th in one hole. Never set on the site)
 const FIRST = (() => { const v = typeof process !== 'undefined' && process.env ? process.env.RACE_FIRST_HOLE : ''; const o = {}; for (const x of String(v || '').split(',')) { const m = /^([a-z0-9-]{2,24}):(\d{1,2})$/.exec(x); if (m) o[m[1]] = Number(m[2]) } return o })()
@@ -48,7 +51,7 @@ export const LEAD_MS = env('RACE_LEAD_MS', 6000)      // from "hole n" to step 0
 export const CAP_MS = env('RACE_CAP_MS', 120000)      // a hole's time limit
 // (Flappy Hoops 3.0.0) …except the Road Trip, Sacramento's 9th: 30 cities in one hole, 8 minutes on its clock
 export const ROADTRIP_CAP_MS = env('RACE_RT_CAP_MS', 480000)
-export const capMsOf = (room) => (room && room.world === 'sacramento' && room.hole === 8 ? ROADTRIP_CAP_MS : CAP_MS)
+export const capMsOf = (room) => (room && room.world === 'sacramento' && room.hole === 8 ? ROADTRIP_CAP_MS : CAP_MS)   // (isRoadTrip, below)
 export const GRACE_MS = 2500          // a finish just before the cap can still arrive after it
 export const BOARD_MS = env('RACE_BOARD_MS', 9000)    // the leaderboard after each hole
 export const FINAL_MS = 180000        // the final standings, before the party drops back to the lobby
@@ -60,9 +63,13 @@ export const GONE_MS = 150000         // in the lobby, not heard from for this l
 export const TTL = 3 * 3600           // seconds a party outlives its last request
 export const HZ = 120
 export const MODES = ['speed', 'flaps', 'knockout']
-export const KO_VERSION = 5           // a game that knows Knockout says so (kv) with every poll (3: 2.13's rules; 4: 2.13.1's; 5: 2.13.3's, each a different world)
+export const KO_VERSION = 6           // a game that knows Knockout says so (kv) with every poll (3: 2.13's rules; 4: 2.13.1's; 5: 2.13.3's; 6: 3.0.1's, each a different world)
 export const CLOCK_MS = 45000         // Knockout (2.13): once someone's in, at most this long left…
 export const CLOCK_T = CLOCK_MS / 1000 * 120   // …counted in the world's ticks from the first make's tick (2.13.3: the games' KO.CLOCK, 5400)
+// (Flappy Hoops 3.0.1) …except the Road Trip: 4 minutes after the first make (the games' KO.CLOCK_RT, 28800), if more was left
+export const ROADTRIP_CLOCK_MS = env('RACE_RT_CLOCK_MS', 240000)
+export const isRoadTrip = (room) => !!(room && room.world === 'sacramento' && room.hole === 8)
+export const clockTicks = (room) => (isRoadTrip(room) ? ROADTRIP_CLOCK_MS : CLOCK_MS) / 1000 * HZ
 // (2.13.3) A Knockout hole ends on its clock only once every game still out has said its own world is over (ov): never
 // before a game's own clock has. One that never says so (gone quiet, stuck) holds it this long past the clock and grace.
 export const KO_WAIT_MS = env('RACE_KO_WAIT_MS', 8000)
@@ -299,6 +306,7 @@ function startHole(room, live, i, now, rnd = Math.random) {
   // (the tests only, RACE_KO_DEAL: the items the boxes give, in turn, so a playtest sees every one; the games and the
   // replay all get it with the hole)
   room.deal = room.mode === 'knockout' ? KO_DEAL : null
+  room.starts = room.mode === 'knockout' ? KO_STARTS : null
   room.racers = room.players.filter((p) => now - seenAt(room, live, p.id) < RACER_MS).map((p) => p.id)
 }
 
@@ -346,7 +354,7 @@ export function koVerify(room, fins, seals, kor) {
   }
   const hole = kor.holeOf(room.world, room.hole)
   if (!hole) return null
-  const res = kor.replay({ hole, seed: room.seed, inputs, until: capTicks(room) + 2, cap: capTicks(room), deal: room.deal || null })
+  const res = kor.replay({ hole, seed: room.seed, inputs, until: capTicks(room) + 2, cap: capTicks(room), deal: room.deal || null, ...(room.starts ? { starts: room.starts } : {}) })
   if (res) room.koRunTmp = { seed: room.seed, inputs }     // (kept with a record it sets; never saved with the party)
   return res ? { hole, ...res } : null
 }
@@ -418,7 +426,7 @@ export function koFlag(room, fins, seals, vr, hole, now) {
   }
   const names = Object.fromEntries(room.players.map((p) => [p.id, p.name]))
   return { v: 1, at: now, code: room.code, match: room.match, hole: room.hole, world: room.world, holeId: hole || null,
-    seed: room.seed, deal: room.deal || null, startAt: room.startAt, capAt: room.capAt, koEnd: room.koEnd ?? capTicks(room), cap: capTicks(room),
+    seed: room.seed, deal: room.deal || null, starts: room.starts || null, startAt: room.startAt, capAt: room.capAt, koEnd: room.koEnd ?? capTicks(room), cap: capTicks(room),
     endedAt: room.koEndedAt || null, how: room.koHow || '', racers: room.racers, names,
     reported: Object.fromEntries(room.racers.map((id) => [id, fins[id] ? (fins[id].dnf ? { dnf: 1, at: fins[id].at } : { k: fins[id].k, f: fins[id].f, at: fins[id].at }) : null])),
     replay: vr ? { T: vr.T, hash: vr.hash, over: vr.over, end: vr.end, fins: vr.fins, kos: vr.kos } : null,
@@ -501,14 +509,14 @@ export function advance(room, live, fins, now, rnd = Math.random, kor = null, se
       const inParty = new Set(room.players.map((p) => p.id))
       const racers = room.racers.filter((id) => inParty.has(id))
       const allDone = racers.every((id) => fins[id] || !here(id))
-      // (Knockout, 2.13: the first make drops the clock to 45 s, if more than that was left. 2.13.3: counted the way every
+      // (Knockout, 2.13: the first make drops the clock to 45 s (3.0.1: the Road Trip, 4 minutes), if more than that was left. 2.13.3: counted the way every
       // game and the replay count it, in ticks from the first make's own tick (never from when the server heard of it):
       // the end is that tick + CLOCK_T, or the two minutes, whichever's sooner; capAt is that tick's moment)
       if (room.mode === 'knockout') {
         const ks = racers.map((id) => fins[id]).filter((f) => f && !f.dnf && plausible(f, room)).map((f) => f.k)
         const was = room.koEnd ?? capTicks(room)
         if (ks.length) {
-          const endT = Math.min(capTicks(room), Math.min(...ks) + CLOCK_T)
+          const endT = Math.min(capTicks(room), Math.min(...ks) + clockTicks(room))
           if (endT < was) { room.koEnd = endT; room.capAt = room.startAt + endT / HZ * 1000; changed = true }
         }
       }
@@ -579,6 +587,6 @@ export function view(room, live, fins, you, now, seals = {}) {
   return { ok: true, now, you, code: room.code, host: room.host, phase: room.phase, until: room.until, match: room.match,
     opts: room.opts, tally: room.tally, world: room.world, mode: room.mode, holes: room.holes, hole: room.hole,
     startAt: room.startAt, capAt: room.capAt, racers: room.racers, players, seed: room.seed || 0, kov: (room.kov || []).map((x) => x || null),
-    ...(room.mode === 'knockout' ? { capMs: capMsOf(room), ...(room.deal ? { deal: room.deal } : {}) } : {}),
+    ...(room.mode === 'knockout' ? { capMs: capMsOf(room), clockMs: clockTicks(room) / HZ * 1000, ...(room.deal ? { deal: room.deal } : {}), ...(room.starts ? { starts: room.starts } : {}) } : {}),
     results: room.results, totals: room.totals, final: room.final }
 }
