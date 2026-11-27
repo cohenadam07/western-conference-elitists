@@ -1,5 +1,19 @@
 [
   {
+    "date": "2026-11-26",
+    "product": "NBA GM Savant",
+    "version": "1.0.2",
+    "text": "Players are now matched by their seasons, not their names alone. Jimmy Butler, J.R. Smith, Mike Dunleavy, Flip Murray and others whose names NBA.com spells differently had counted no value, and Ron Harper Jr. had taken his father's id; about 140 players' ids changed. Butler's trades flip (Chicago's 2017 trade to Minnesota, as it turned out, +1,179 to -896); Brad Stevens -640 GM Value Added, Leon Rose +906, Eddie Donovan -940; Presti and Popovich still lead. Frozen at-the-time grades were re-graded once to fix player matching, with old grades kept: 5,742 changed, most of them slightly, because the undrafted-rookie baseline had been inflated by careers split at 1996-97. When two teams sign a player the same day, the first now lets him go, and every team-season balances.",
+    "href": "/nba-gm-savant"
+  },
+  {
+    "date": "2026-11-25",
+    "product": "NBA GM Savant",
+    "version": "1.0.1",
+    "text": "Fixes: the boards scroll sideways with the GM's name pinned, so no column is cut off on a laptop or a phone; titles won read as whole numbers, a title shared within a season shows to one decimal with a marker that explains it; expected titles are always two decimals. Data: three trades the source listed twice (Perkins 2011, Grimes 2024, Huff 2025) are counted once, so Troy Weaver's GM Value Added moves -5.1 and Detroit's Grimes trade at the time -9.8 to -46.3; no top-20 rank changes. NBA GM Savant is also on the homepage now.",
+    "href": "/nba-gm-savant"
+  },
+  {
     "date": "2026-11-25",
     "product": "Flappy Hoops",
     "version": "3.0.0",

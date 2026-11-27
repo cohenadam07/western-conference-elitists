@@ -179,6 +179,29 @@ export default function Gateway() {
               </div>
             </a>
 
+            {/* NBA GM Savant — the portfolio chart its card opens with: one front office's value season by season,
+                its biggest moves marked, on the page's own cream, navy and gold */}
+            <a className="card c-coach c-gm span4 wide" href="/nba-gm-savant">
+              <Skeleton />
+              <div className="viz">
+                <svg className="board" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <rect width="600" height="150" fill="#ECEBE8" />
+                  {[40, 72, 104].map((y) => <line key={y} x1="30" x2="570" y1={y} y2={y} stroke="#E1E0DC" />)}
+                  <path className="area" d="M30,112 L80,106 L130,110 L180,96 L230,99 L280,82 L330,86 L380,64 L430,70 L480,48 L530,52 L570,34 L570,132 L30,132 Z" />
+                  <path className="port" d="M30,112 L80,106 L130,110 L180,96 L230,99 L280,82 L330,86 L380,64 L430,70 L480,48 L530,52 L570,34" />
+                  {[[180, 96], [380, 64], [480, 48]].map(([x, y], i) => <circle key={i} className={`mv m${i}`} cx={x} cy={y} r="5.5" />)}
+                  <line className="rule" x1="30" x2="570" y1="132" y2="132" />
+                </svg>
+              </div>
+              <div className="meta">
+                <span className="ck">Tool · NBA front offices</span>
+                <h3>NBA GM Savant</h3>
+                <p>Every NBA front office since 1979-80, judged like a fund manager: what each GM's teams produced, what he left and inherited, expected titles added, and every move graded at the time and as it turned out.</p>
+                <Live k="gm" />
+                <span className="go">Open ↗</span>
+              </div>
+            </a>
+
             {/* NBA Draft Savant */}
             <a className="card c-draft span2" href="/nba-draft-savant">
               <Skeleton />

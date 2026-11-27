@@ -15,9 +15,18 @@ import collections, json, os, sys
 import grade as G
 
 TOL = 0.5          # value points: rounding in the stored streams
-# What is left is a handful of ledger cases (two namesakes the ledger spells alike, one waiver chain), listed in the
-# report. The check fails the build if any team-season is off by more than MAX_ONE or all of them by more than MAX_ALL.
+# What is left is a handful of ledger cases, each named below with its gap. The check fails the build if a team-season
+# not named here is off by more than TOL, if a named one's gap moves by more than TOL, or if a named one now balances
+# (take it off the list), and, as before, if any is off by more than MAX_ONE or all of them by more than MAX_ALL.
+# (Nov 25, 2026: CHI 1999-00 was 1.6 off after a full rebuild and nothing failed: only the two limits were checked.)
 MAX_ONE, MAX_ALL = 50.0, 150.0
+KNOWN = {          # (team, season): (gap, cause). Shown on /control (the GM refresh's card) and in the page index
+    # (meta.known_gaps). Empty since 1.0.2 (Nov 25, 2026), when the last six balanced: IND 2002-03 (-41.2, Greg Foster),
+    # SAS 2014-15 (-5.3, Malcolm Thomas) and WAS 2007-08 (+0.6, Billy Thomas), two teams taking him on one day, now that
+    # the first lets him go when the second takes him (ledger.py); BOS 2025-26 (-15.5), TOR 2022-23 (-1.7) and DET
+    # 2024-25 (-0.7), Ron Harper Jr. matched to his father's NBA id, now that ids are told apart by seasons (grade.py
+    # nba_id). A new gap goes here only with its cause found.
+}
 
 
 def booked():
@@ -113,7 +122,9 @@ def main():
                          'by_type': {k: round(v, 1) for k, v in credited[(t, y)].items() if abs(v) > 0.05}})
             if abs(gap) > TOL:
                 off.append(rows[-1])
-    json.dump({'tolerance': TOL, 'team_seasons': len(rows), 'off': off, 'booked_by_kind': {k: round(v, 1) for k, v in kinds.items()}, 'rows': rows},
+    now = {(r['team'], r['season']): r['gap'] for r in off}
+    known = [{'team': t, 'season': y, 'known_gap': g, 'gap': now.get((t, y)), 'cause': c} for (t, y), (g, c) in sorted(KNOWN.items(), key=lambda kv: -abs(kv[1][0]))]
+    json.dump({'tolerance': TOL, 'team_seasons': len(rows), 'known': known, 'off': off, 'booked_by_kind': {k: round(v, 1) for k, v in kinds.items()}, 'rows': rows},
               open(os.path.join(G.OUT, 'conservation.json'), 'w'))
     tot_pr = sum(r['produced'] for r in rows)
     print(f'{len(rows)} team-seasons, 1980-81 to {G.NOW_SEASON - 2}-{str(G.NOW_SEASON - 1)[2:]}: {len(rows) - len(off)} balance within {TOL} '
@@ -125,6 +136,20 @@ def main():
     total = sum(abs(r['gap']) for r in off)
     ok = worst <= MAX_ONE and total <= MAX_ALL
     print(f"{'PASS' if ok else 'FAIL'}: largest team-season gap {worst:.1f} (limit {MAX_ONE}), all gaps {total:.1f} (limit {MAX_ALL})")
+    problems = []
+    for r in off:
+        k = (r['team'], r['season'])
+        if k not in KNOWN:
+            problems.append(f"{r['team']} {r['season']} is off by {r['gap']:+.1f}, and it is not a known case")
+        elif abs(r['gap'] - KNOWN[k][0]) > TOL:
+            problems.append(f"{r['team']} {r['season']}'s gap moved: {KNOWN[k][0]:+.1f} known, {r['gap']:+.1f} now")
+    for k in sorted(set(KNOWN) - {(r['team'], r['season']) for r in off}):
+        problems.append(f'{k[0]} {k[1]} now balances: take it off KNOWN')
+    for x in problems:
+        print('FAIL:', x)
+    if not problems:
+        print(f'PASS: every team-season off by more than {TOL} is a known case, at its known gap ({len(KNOWN)})')
+    ok = ok and not problems
     return 0 if ok else 1
 
 

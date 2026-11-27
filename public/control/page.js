@@ -7,7 +7,7 @@
 // for once and keeps in this browser's localStorage. Jobs every 20 seconds, the reach every 2
 // minutes, both paused while the tab is hidden. Every new event since the last read sends a light
 // down its wire on the map; nothing moves that didn't happen.
-import { C, ENGINES, MAP_JOB_IDS, SOCIAL, STATUS_COLOR, STATUS_WORD, ago, clock, deployStatus, drawMap, drawTimeline, latestProduction, laneSeconds, num, span, summary, until, when, } from './draw.js';
+import { C, ENGINES, GROUPS, MAP_JOB_IDS, SOCIAL, STATUS_COLOR, STATUS_WORD, ago, clock, deployStatus, drawMap, drawTimeline, groupStatus, latestProduction, laneSeconds, leadJob, num, span, summary, until, when, } from './draw.js';
 const FEED = '/api/status';
 const JOBS_EVERY = 20000;
 const LL_EVERY = 60000;
@@ -29,6 +29,31 @@ let lastReach = 0;
 let ll = null;
 let lastLl = 0;
 let llOpen = null;
+let gmGaps = null;
+async function pullGmGaps() {
+    gmGaps = 'loading';
+    try {
+        const res = await fetch('/gms/index.json', { cache: 'no-store' });
+        const idx = res.ok ? await res.json() : null;
+        gmGaps = Array.isArray(idx?.meta?.known_gaps) ? idx.meta.known_gaps : 'failed';
+    }
+    catch {
+        gmGaps = 'failed';
+    }
+    render();
+}
+function gmGapsHtml() {
+    if (gmGaps === null || gmGaps === 'loading')
+        return '<h3>Known gaps</h3><p class="muted small">Loading…</p>';
+    if (gmGaps === 'failed')
+        return '<h3>Known gaps</h3><p class="warn small">Couldn\'t read /gms/index.json.</p>';
+    const season = (y) => `${y - 1}-${String(y).slice(2)}`;
+    if (!gmGaps.length)
+        return '<h3>Known gaps (0)</h3><p class="muted small">Every team-season balances within 0.5 points: any gap fails the refresh.</p>';
+    return `<h3>Known gaps (${gmGaps.length})</h3>
+    <p class="muted small">Team-seasons whose credited value misses what the players produced by more than 0.5 points. The nightly check lets exactly these through at these sizes; any other gap, or one of these moving, fails the refresh.</p>
+    ${gmGaps.map((g) => `<p>${dot(g.gap == null ? C.faint : Math.abs(g.gap - g.known_gap) > 0.5 ? STATUS_COLOR.failed : STATUS_COLOR.late)}<b>${esc(g.team)} ${esc(season(g.season))}</b> <span class="muted">${g.known_gap > 0 ? '+' : ''}${g.known_gap.toFixed(1)} points${g.gap == null ? ', now balanced' : Math.abs(g.gap - g.known_gap) > 0.5 ? `, now ${g.gap.toFixed(1)}` : ''}</span><br><span class="small">${esc(g.cause)}</span></p>`).join('')}`;
+}
 const $ = (id) => document.getElementById(id);
 function savedKey() {
     try {
@@ -51,8 +76,9 @@ function saveKey(k) {
 /* ------------------------------------------------------------------ *
  * Turning what changed into lights (the same rules as the /wce mod)
  * ------------------------------------------------------------------ */
-const PUSHES = new Set(ENGINES.filter((e) => e.pushes).map((e) => e.id));
-const HAS_SOURCE = new Set(ENGINES.filter((e) => e.from.length).map((e) => e.id));
+// a group's lights travel the wires for its lead job (GM Savant's refresh); its other jobs blink on the box
+const PUSHES = new Set(ENGINES.filter((e) => e.pushes).map((e) => leadJob(e.id)));
+const HAS_SOURCE = new Set(ENGINES.filter((e) => e.from.length).map((e) => leadJob(e.id)));
 const NODE_IDS = new Set([...MAP_JOB_IDS, 'deploy', 'site']);
 const MUSE = new Set(SOCIAL.map((b) => b.id));
 function pulsesForJobs(prev, next, now) {
@@ -372,6 +398,8 @@ function cardHtml(now) {
       ${list.map((d) => `<p>${dot(STATUS_COLOR[deployStatus(d)] || C.faint)}<b>${esc(d.state.toLowerCase())}</b> ${d.created ? esc(when(d.created, now)) : ''} <span class="muted">${d.target === 'production' ? '' : '(preview) '}${esc(d.message || d.sha || '')}</span></p>`).join('')}
       <div class="actions">${list[0]?.inspect ? `<a href="${esc(list[0].inspect)}" target="_blank" rel="noopener">Latest on Vercel</a>` : ''}<button class="ghost" data-pick="">Close</button></div></div>`;
     }
+    if (GROUPS[selected])
+        return groupCardHtml(selected, now);
     const j = feed.jobs.find((x) => x.id === selected);
     if (!j)
         return '';
@@ -389,6 +417,7 @@ function cardHtml(now) {
     ${j.lastOk && j.status !== 'ok' ? `<p class="muted">Last clean run: ${esc(when(j.lastOk, now))}</p>` : ''}
     ${j.next ? `<p>Next: ${esc(until(j.next, now))} (${esc(when(j.next, now))})</p>` : ''}
     ${j.lane === 'muse' ? museHtml(j, now) : ''}
+    ${j.id === 'gm-savant' ? gmGapsHtml() : ''}
     <div class="actions">
       <button class="primary" data-ask="${esc(j.id)}">${j.status === 'failed' ? 'Copy a fix request for Claude' : 'Copy a question for Claude'}</button>
       ${run ? `<a href="${esc(run)}" target="_blank" rel="noopener">This run on GitHub</a>` : ''}
@@ -396,6 +425,28 @@ function cardHtml(now) {
       ${j.workflow ? `<a href="${esc(j.workflow)}" target="_blank" rel="noopener">All runs</a>` : ''}
       <button class="ghost" data-pick="">Close</button>
     </div></div>`;
+}
+// A group's card (GM Savant's four jobs): one row per job, each opening its own card, and the known gaps.
+function groupCardHtml(id, now) {
+    if (!feed)
+        return '';
+    const jobs = new Map(feed.jobs.map((x) => [x.id, x]));
+    const st = groupStatus(id, jobs);
+    const col = STATUS_COLOR[st];
+    const box = ENGINES.find((e) => e.id === id);
+    const rows = GROUPS[id].map((jid) => {
+        const j = jobs.get(jid);
+        if (!j)
+            return `<p class="muted">${dot(C.faint)}${esc(jid)}: not reporting yet</p>`;
+        const last = j.status === 'running' && j.since ? `running ${span(now - j.since)}` : j.last ? `${j.last.state === 'failure' ? 'failed' : 'last'} ${ago(j.last.t, now)}` : STATUS_WORD[j.status];
+        return `<button class="row" data-pick="${esc(j.id)}">${dot(STATUS_COLOR[j.status])}<span class="name">${esc(j.name)}</span><span class="muted">${esc(last)}</span><span class="muted next">${j.next ? `next ${esc(until(j.next, now))}` : ''}</span></button>`;
+    }).join('');
+    return `<div class="card" style="--c:${col}">
+    <h2>${dot(col)}${esc(box?.label || id)} <span style="color:${col}">${esc(STATUS_WORD[st])}</span></h2>
+    <p class="muted">${GROUPS[id].length} jobs. Pick one for its runs.</p>
+    <div class="rows">${rows}</div>
+    ${leadJob(id) === 'gm-savant' ? gmGapsHtml() : ''}
+    <div class="actions"><button class="ghost" data-pick="">Close</button></div></div>`;
 }
 const METRIC_NAME = {
     followers: 'followers', reach_24h: 'reach, 24h', views_24h: 'views, 24h', engagement_24h: 'engagement, 24h', posts_24h: 'posts, 24h',
@@ -488,10 +539,12 @@ document.addEventListener('click', async (ev) => {
         return;
     }
     const pick = el.dataset.pick ?? el.getAttribute('data-id') ?? '';
-    const id = pick && (feed?.jobs.some((j) => j.id === pick) || pick === 'deploy' || pick === 'reach') ? pick
+    const id = pick && (feed?.jobs.some((j) => j.id === pick) || pick === 'deploy' || pick === 'reach' || GROUPS[pick]) ? pick
         : ['visitors', 'connector', 'founding', 'newsletter', 'dynasty', 'site', 'store'].includes(pick) ? 'reach' : '';
     selected = !id || selected === id ? null : id;
     lastSvg = '';
+    if ((selected === 'gm-savant' || selected === 'gm-group') && gmGaps === null)
+        void pullGmGaps();
     render();
     if (selected)
         $('card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });

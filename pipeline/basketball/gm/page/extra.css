@@ -81,3 +81,24 @@ td.tn{font-family:'IBM Plex Mono',monospace;white-space:nowrap}
 .soon:hover{background:var(--gold);color:var(--ink)}
 .tile.soon-card{background:var(--surface);border-style:dashed}.tile.soon-card .tv{color:var(--muted);font-size:20px}
 .tile.soon-card .soon{margin:6px 0 0}
+/* wide tables (1.0.1): a grid column may shrink below its table, so the table scrolls inside its own panel instead of
+   stretching the card past its edge, where overflow:hidden cut off the last columns; the first column (the GM, the
+   date, the skill) stays pinned while the rest scrolls under it */
+.panels{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.panels>*{min-width:0}
+@media (max-width:840px){ .panels{grid-template-columns:minmax(0,1fr)} }
+/* the board's top 15 and bottom 15: one above the other, each the board's full width, at every width (1.0.2) */
+.panels.stack{grid-template-columns:minmax(0,1fr);gap:22px}
+.scroll{overflow-x:auto;overscroll-behavior-x:contain}
+.scroll table.t th:first-child,.scroll table.t td:first-child{position:sticky;left:0;z-index:1;background:var(--surface);text-align:left;box-shadow:inset -1px 0 0 var(--line)}
+.scroll table.t td:first-child{max-width:170px;overflow:hidden;text-overflow:ellipsis}
+/* on the boards the numbers come right after the GM, and his teams and years follow them (a one-line Team column
+   second from the left, up to "Seattle SuperSonics / Oklahoma City Thunder", pushed every number off a laptop screen).
+   Column headings wrap, so a long one ("Expected titles added") does not set its column's width. */
+table.t th.tm,table.t td.tm{text-align:left}
+table.t td.tm{font-family:var(--body);font-size:12.5px}
+.scroll table.t th{vertical-align:bottom}
+.scroll table.t th:not(:first-child){white-space:normal;min-width:64px}
+/* a title shared within a season: one decimal and a marker; the tap says why */
+.tipb.sh{text-decoration:none}
+.shm{font-size:.7em;color:var(--gold);margin-left:1px;font-weight:700}

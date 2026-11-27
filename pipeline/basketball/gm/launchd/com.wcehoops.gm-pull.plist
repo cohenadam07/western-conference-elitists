@@ -5,7 +5,7 @@
 
      It runs from .worktrees/savant-bot, the clean checkout of main the other Mac jobs use, and does nothing (one log
      line) until GM Savant is on main there. It starts each run from the cloud's latest state (GM_SYNC_STATE=1).
-     While ~/.config/wce/gm-br-hold exists, Basketball-Reference is read from the cache only (fetch.py).
+     While ~/.config/wce/gm-br-hold or ~/.config/wce/contracts-br-hold exists, Basketball-Reference is read from the cache only (fetch.py).
 
      Every variable the job uses is set below, so it runs the same whatever the login shell has (launchd starts it
      with almost nothing). No secret is in this file (the repo is public): the state key and the Control Room key are

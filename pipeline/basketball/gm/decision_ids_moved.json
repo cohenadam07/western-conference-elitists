@@ -1,0 +1,13 @@
+{
+ "about": "Decision ids that no longer exist, each with the id that now holds the same move. build_page.py writes this to the page index (meta.moved_ids) and the Data Room dictionary (moved_ids), and the connector's nba_gm_asset_tree resolves an old id through it, so a saved link or query keeps working. build_page.py stops if a target is missing or an old id is in use again. Add to it whenever a move's id changes; never remove a line.",
+ "moved": {
+  "0c0c2239b27b43af": {"to": "eb4a7c78de92d8c7", "since": "2026-11-25", "why": "DET's side of the 2024-07-06 Grimes trade: the source listed MIA's 2028 2nd-round pick twice, and with it counted once the move has a new id"},
+  "976a02e73a7c9535": {"to": "1aba6110faee79f5", "since": "2026-11-25", "why": "DAL's side of the 2024-07-06 Grimes trade: the source listed MIA's 2028 2nd-round pick twice, and with it counted once the move has a new id"},
+  "bda998caecb30c20": {"to": "9b05ad4041899642", "since": "2026-11-25", "why": "BOS's side of the 2011-02-24 Perkins trade, a second listing of it (Basketball-Reference's 2011-12 page): counted once now, under the first listing"},
+  "f4d95bd058dc3c47": {"to": "9eb761df4b2a74cc", "since": "2026-11-25", "why": "OKC's side of the 2011-02-24 Perkins trade, a second listing of it (Basketball-Reference's 2011-12 page): counted once now, under the first listing"},
+  "226b5b9ba68cfc4a": {"to": "71fc4b2779e0ed88", "since": "2026-11-25", "why": "IND's side of the 2025-07-06 Huff trade, a second listing of it: counted once now, under the first listing"},
+  "d9cec9d69c2cf3b8": {"to": "0f7132e9d73037cc", "since": "2026-11-25", "why": "MEM's side of the 2025-07-06 Huff trade, a second listing of it: counted once now, under the first listing"},
+  "a9afcea026df1791": {"to": "4749d925ca06b649", "since": "2026-11-25", "why": "IND letting Greg Foster go: Indiana and Toronto both signed him on 2002-11-06, and the departure is now that day (when Toronto took him), not the day before"},
+  "f1d08e2d320d93b4": {"to": "4f913202840ce214", "since": "2026-11-25", "why": "WAS letting Billy Thomas go: Washington re-signed him and New Jersey signed him on 2006-02-24, and the departure is now that day (when New Jersey took him), not the day before"}
+ }
+}

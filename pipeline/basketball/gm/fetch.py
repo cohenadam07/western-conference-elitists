@@ -4,7 +4,8 @@ fetch.py — GM Savant's one door to the outside: polite, cached, never retried 
 Every response is kept under ~/Basketball-Savant/cache_gm/ as <sha1 of the URL> plus a .url
 file naming it, so a rebuild reads the cache and asks nothing. Requests to one host are spaced
 (4 s by default, Basketball-Reference asks for under 20 a minute). A 403 or 429 is returned,
-not retried: a site that refuses us is a site we stop asking (the ground rules).
+not retried: a site that refuses us is a site we stop asking (the ground rules). A 403 or 429 from
+Basketball-Reference also writes the hold file (~/.config/wce/gm-br-hold), which the Contract tab's refresh reads too.
 
     from fetch import get
     code, body = get(url)              # body is bytes; code -1 means a network error
@@ -26,11 +27,32 @@ _last = {}
 # The Basketball-Reference hold (Adam, Nov 23 2026: no BR fetches while the Contract tab's pull runs). While this file
 # exists, every Basketball-Reference request is answered from the cache only, at any age; nothing goes to BR. The Mac
 # lane keeps running on its cached pages and NBA.com. Delete the file to lift the hold.
+# The Contract tab's refresh writes its own hold file when Basketball-Reference blocks it (contracts-br-hold, its
+# fetch_current.py), and reads this one: either file holds both jobs, so neither asks Basketball-Reference while the
+# other is blocked (1.0.2, Nov 25, 2026).
 BR_HOLD = os.environ.get('GM_BR_HOLD') or os.path.expanduser('~/.config/wce/gm-br-hold')
+BR_HOLDS = [BR_HOLD, os.path.expanduser(os.environ.get('CT_BR_HOLD') or '~/.config/wce/contracts-br-hold')]
+
+
+def br_hold():
+    """The first hold file that exists, or None."""
+    return next((h for h in BR_HOLDS if os.path.exists(h)), None)
 
 
 def br_held(url):
-    return 'basketball-reference.com' in url and os.path.exists(BR_HOLD)
+    return 'basketball-reference.com' in url and br_hold() is not None
+
+
+def hold_br(code, url):
+    """Basketball-Reference refused us (403 or 429): write this job's hold file, so neither this job nor the Contract
+    tab's refresh asks it again until someone deletes the file (1.0.2, Nov 25, 2026)."""
+    if os.path.exists(BR_HOLD):
+        return
+    os.makedirs(os.path.dirname(BR_HOLD), exist_ok=True)
+    with open(BR_HOLD, 'w') as f:
+        f.write(f'Basketball-Reference answered {code} on {url} at {time.strftime("%Y-%m-%d %H:%M:%S")} '
+                f'(GM Savant fetch.py; delete this file to allow Basketball-Reference again)\n')
+    print(f'Basketball-Reference answered {code}: hold written to {BR_HOLD}', file=sys.stderr)
 
 
 def path_of(url):
@@ -63,6 +85,8 @@ def get(url, delay=4.0, headers=None, offline=False, max_age_h=None):
         r = urllib.request.urlopen(urllib.request.Request(url, headers=h), timeout=30, context=_CTX)
         body, code = r.read(), r.status
     except urllib.error.HTTPError as e:
+        if e.code in (403, 429) and 'basketball-reference.com' in url:
+            hold_br(e.code, url)
         return (200, stale) if stale is not None else (e.code, e.read())
     except Exception as e:  # noqa: BLE001 - a network error is a result, not a crash
         return (200, stale) if stale is not None else (-1, str(e).encode())
