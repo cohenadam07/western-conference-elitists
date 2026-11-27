@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-27T12:50:54.903286+00:00",
+  "generated_at": "2026-11-27T19:15:37.936682+00:00",
   "headlines": [
     {
       "id": "5d86fb04de023712",
@@ -8,9 +8,10 @@
       "outlet": "RealGM",
       "published": "2026-11-26T06:46:44+00:00",
       "also_covered_by": [
+        "Yahoo Sports NBA",
         "ESPN NBA"
       ],
-      "wce_line": "Reaves, averaging league-competitive stats, remains questionable for Friday's game despite a strong practice session.",
+      "wce_line": "Reaves, averaging at a 94th percentile in points per 75 possessions, is cautiously moving forward with his return.",
       "players": [
         {
           "name": "Austin Reaves",
@@ -19,32 +20,86 @@
       ]
     },
     {
-      "id": "b23ce5ba736775c0",
-      "title": "Jaylen Brown To Undergo Imaging After Leaving Game With Hamstring Tightness",
-      "url": "https://www.hoopsrumors.com/2026/11/jaylen-brown-to-undergo-imaging-after-leaving-game-with-hamstring-tightness.html",
-      "outlet": "Hoops Rumors",
-      "published": "2026-11-26T02:32:01+00:00",
+      "id": "bec24bbefabc7091",
+      "title": "Luka Doncic Says He Asked Lakers To Acquire Walker Kessler",
+      "url": "https://basketball.realgm.com/wiretap/288263/Luka-Doncic-Says-He-Asked-Lakers-To-Acquire-Walker-Kessler",
+      "outlet": "RealGM",
+      "published": "2026-11-27T16:41:53+00:00",
       "also_covered_by": [
-        "RealGM"
+        "Yahoo Sports NBA"
       ],
-      "wce_line": "Brown's hamstring tightness began in a game where he reached a season-high 31 points but had to sit out the next two contests.",
+      "wce_line": "Walker Kessler, known for his defensive prowess (99th percentile in blocks), was acquired by the Lakers through a trade with Utah Jazz despite facing salary cap challenges.",
       "players": [
         {
-          "name": "Jaylen Brown",
-          "savant_url": "/nba-savant?p=1627759"
+          "name": "Luka Dončić",
+          "savant_url": "/nba-savant?p=1629029"
+        },
+        {
+          "name": "Walker Kessler",
+          "savant_url": "/nba-savant?p=1631117"
         }
       ]
     },
     {
-      "id": "c3eeab08deee8429",
-      "title": "76ers' Brown (hamstring) out Friday against Pacers",
-      "url": "https://www.espn.com/nba/story/_/id/50606614/76ers-jaylen-brown-hamstring-friday-pacers",
-      "outlet": "ESPN NBA",
-      "published": "2026-11-26T22:28:39+00:00",
+      "id": "172787d85a216f2b",
+      "title": "LeBron James Says He Can 'Dust Off The Cape' After Triple Double",
+      "url": "https://basketball.realgm.com/wiretap/288256/LeBron-James-Says-He-Can-Dust-Off-The-Cape-After-Triple-Double",
+      "outlet": "RealGM",
+      "published": "2026-11-26T15:50:49+00:00",
       "also_covered_by": [
         "Yahoo Sports NBA"
       ],
-      "wce_line": "Brown's hamstring injury has forced his absence in Friday's crucial game against the Pacers.",
+      "wce_line": "LeBron James' recent performance includes an 8-for-11 shooting streak from beyond the arc over his last two games, improving his season true shooting percentage to 42th percentile.",
+      "players": [
+        {
+          "name": "LeBron James",
+          "savant_url": "/nba-savant?p=2544"
+        }
+      ]
+    },
+    {
+      "id": "867be25578ae3b91",
+      "title": "76ers rule out Jaylen Brown (hamstring), list Joel Embiid (illness) as questionable for Friday's game vs. Pacers",
+      "url": "https://sports.yahoo.com/nba/article/76ers-rule-out-jaylen-brown-hamstring-list-joel-embiid-illness-as-questionable-for-fridays-game-vs-pacers-225906822.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-26T22:59:06+00:00",
+      "also_covered_by": [
+        "ESPN NBA"
+      ],
+      "wce_line": "Without Jaylen Brown and Joel Embiid, the 76ers rely on LeBron James and Tyrese Maxey to secure a win against the Pacers.",
+      "players": [
+        {
+          "name": "Jaylen Brown",
+          "savant_url": "/nba-savant?p=1627759"
+        },
+        {
+          "name": "Joel Embiid",
+          "savant_url": "/nba-savant?p=203954"
+        }
+      ]
+    },
+    {
+      "id": "a7423a802b3be9d7",
+      "title": "Lawson Lovering, Grizzlies Signing 10 Day Hardship Contract",
+      "url": "https://basketball.realgm.com/wiretap/288262/Lawson-Lovering-Grizzlies-Signing-10-Day-Hardship-Contract",
+      "outlet": "RealGM",
+      "published": "2026-11-27T14:59:44+00:00",
+      "also_covered_by": [
+        "Hoops Rumors"
+      ],
+      "wce_line": "Lovering's signing addresses the Grizzlies' frontcourt depth issues while managing multiple player absences due to injuries.",
+      "players": []
+    },
+    {
+      "id": "b941fd7a76d236c9",
+      "title": "Canada Qualifies For 2027 FIBA World Cup",
+      "url": "https://www.hoopsrumors.com/2026/11/canada-qualifies-for-2027-fiba-world-cup.html",
+      "outlet": "Hoops Rumors",
+      "published": "2026-11-27T03:07:46+00:00",
+      "also_covered_by": [
+        "RealGM"
+      ],
+      "wce_line": "Canada secured its spot in the 2027 FIBA World Cup despite an unexpected loss to Uruguay, joining Qatar and Türkiye as qualified teams for the tournament.",
       "players": []
     },
     {
@@ -60,28 +115,133 @@
       "players": []
     },
     {
-      "id": "1affe53cbc0cac95",
-      "title": "Magic, Nuggets Interested In Kevin Porter Jr.",
-      "url": "https://basketball.realgm.com/wiretap/288230/Magic-Nuggets-Interested-In-Kevin-Porter-Jr",
+      "id": "4bc40e6b1fde6a4e",
+      "title": "Kevin Porter Jr., Magic Agree To Two-Year Deal",
+      "url": "https://basketball.realgm.com/wiretap/288250/Kevin-Porter-Jr-Magic-Agree-To-Two-Year-Deal",
       "outlet": "RealGM",
-      "published": "2026-11-24T06:38:29+00:00",
+      "published": "2026-11-25T19:13:03+00:00",
       "also_covered_by": [
         "Hoops Rumors"
       ],
-      "wce_line": "Both the Orlando Magic and Denver Nuggets have expressed interest in acquiring Kevin Porter Jr., who was recently waived by the Milwaukee Bucks.",
+      "wce_line": "Porter's addition aims to strengthen Orlando's backcourt depth after recent losses.",
       "players": []
     },
     {
-      "id": "5828ab1685f71224",
-      "title": "Observations after James posts triple-double, Sixers beat Heat in NBA Cup",
-      "url": "https://sports.yahoo.com/nba/articles/observations-james-posts-triple-double-152000904.html",
+      "id": "2eed39fd3e3ee1f4",
+      "title": "Luka Doncic versus Victor Wembanyama: Buckle up for the MVP race",
+      "url": "https://sports.yahoo.com/nba/articles/luka-doncic-versus-victor-wembanyama-180852006.html",
       "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-26T14:09:35+00:00",
-      "also_covered_by": [
-        "RealGM"
-      ],
-      "wce_line": "James stayed hot despite early defensive struggles against Antetokounmpo.",
-      "players": []
+      "published": "2026-11-27T18:08:52+00:00",
+      "also_covered_by": [],
+      "wce_line": "Both players' unique skills and high percentiles make their head-to-head matchup crucial for MVP considerations.",
+      "players": [
+        {
+          "name": "Luka Dončić",
+          "savant_url": "/nba-savant?p=1629029"
+        },
+        {
+          "name": "Victor Wembanyama",
+          "savant_url": "/nba-savant?p=1641705"
+        }
+      ]
+    },
+    {
+      "id": "698cc4860f10d3e6",
+      "title": "Luka Dončić reveals he 'wanted Walker' Kessler, helped push Lakers GM Rob Pelinka for big trade",
+      "url": "https://www.cbssports.com/nba/news/luka-doncic-walker-kessler-lakers-rob-pelinka-trade/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-11-27T17:46:57+00:00",
+      "also_covered_by": [],
+      "wce_line": "Luka Dončić's request for Walker Kessler contributed to a trade that improved the Lakers' standing to first place in the Western Conference, despite initial skepticism about the deal's value.",
+      "players": [
+        {
+          "name": "Luka Dončić",
+          "savant_url": "/nba-savant?p=1629029"
+        },
+        {
+          "name": "Walker Kessler",
+          "savant_url": "/nba-savant?p=1631117"
+        }
+      ]
+    },
+    {
+      "id": "b4d2aecbc92cf730",
+      "title": "Scoring each round of the Draymond Green vs. Eddie Johnson beef, which goes back further than you think",
+      "url": "https://www.cbssports.com/nba/news/draymond-green-eddie-johnson-beef-scoring-each-round/",
+      "outlet": "CBS Sports NBA",
+      "published": "2026-11-27T16:11:36+00:00",
+      "also_covered_by": [],
+      "wce_line": "Green's defensive impact, though significant, has occasionally been overshadowed by his team's need for him to manage conflicts and tensions on the court.",
+      "players": [
+        {
+          "name": "Draymond Green",
+          "savant_url": "/nba-savant?p=203110"
+        }
+      ]
+    },
+    {
+      "id": "c11dc2aa9aadee98",
+      "title": "'I wanted Walker': Why the new Lakers center is the X factor for the Luka Doncic era",
+      "url": "https://www.espn.com/nba/story/_/id/50599642/los-angeles-lakers-luka-doncic-walker-kessler-nba",
+      "outlet": "ESPN NBA",
+      "published": "2026-11-27T15:16:14+00:00",
+      "also_covered_by": [],
+      "wce_line": "Walker Kessler's 66.9% shooting percentage so far in Los Angeles exceeds Wilt Chamberlain's performance in four of his five seasons with the Lakers.",
+      "players": [
+        {
+          "name": "Luka Dončić",
+          "savant_url": "/nba-savant?p=1629029"
+        }
+      ]
+    },
+    {
+      "id": "09c21e7565a3992c",
+      "title": "Austin Reaves Questionable For Friday's Game At Spurs",
+      "url": "https://basketball.realgm.com/wiretap/288259/Austin-Reaves-Questionable-For-Fridays-Game-At-Spurs",
+      "outlet": "RealGM",
+      "published": "2026-11-27T14:20:59+00:00",
+      "also_covered_by": [],
+      "wce_line": null,
+      "players": [
+        {
+          "name": "Austin Reaves",
+          "savant_url": "/nba-savant?p=1630559"
+        }
+      ]
+    },
+    {
+      "id": "82696ceec00eaca6",
+      "title": "De'Aaron Fox, Dylan Harper Upgraded To Questionable For Friday's Game Against Lakers",
+      "url": "https://basketball.realgm.com/wiretap/288258/DeAaron-Fox-Dylan-Harper-Upgraded-To-Questionable-For-Fridays-Game-Against-Lakers",
+      "outlet": "RealGM",
+      "published": "2026-11-27T14:13:44+00:00",
+      "also_covered_by": [],
+      "wce_line": "De'Aaron Fox and Dylan Harper being questionable could significantly impact the Spurs' chances in their key Western Conference matchup against the Lakers.",
+      "players": [
+        {
+          "name": "De'Aaron Fox",
+          "savant_url": "/nba-savant?p=1628368"
+        },
+        {
+          "name": "Dylan Harper",
+          "savant_url": "/nba-savant?p=1642844"
+        }
+      ]
+    },
+    {
+      "id": "e44d8c62e617658a",
+      "title": "Egor Demin’s standout outing leaves Nets wanting more",
+      "url": "https://sports.yahoo.com/nba/articles/egor-demin-standout-outing-leaves-043153002.html",
+      "outlet": "Yahoo Sports NBA",
+      "published": "2026-11-27T04:31:53+00:00",
+      "also_covered_by": [],
+      "wce_line": "Egor Demin improved his box plus/minus to a season-high +15 against the Bucks, showing promise in multiple facets of the game.",
+      "players": [
+        {
+          "name": "Egor Demin",
+          "savant_url": "/nba-savant?p=1642856"
+        }
+      ]
     },
     {
       "id": "52ca662fdac041bb",
@@ -90,7 +250,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-11-27T00:15:53+00:00",
       "also_covered_by": [],
-      "wce_line": "Reaves, who was sidelined for five games due to a bruised heel, saw the Lakers' offensive rating drop from No. 1 to tied for No. 18 in his absence.",
+      "wce_line": "Reaves, who was sidelined for five games due to a bruised heel, showed improvement by participating fully in practice and being upgraded to questionable for the Spurs game.",
       "players": [
         {
           "name": "Austin Reaves",
@@ -105,7 +265,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-11-26T20:32:28+00:00",
       "also_covered_by": [],
-      "wce_line": "Jordan Clarkson's consistent effort and leadership kept the Knicks' experimental bench approach viable, even when he wasn't playing.",
+      "wce_line": "Jordan Clarkson's consistent effort and role as a team player opened opportunities for underutilized benchmates in the Knicks' rotation.",
       "players": [
         {
           "name": "Jordan Clarkson",
@@ -120,7 +280,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-11-26T18:58:40+00:00",
       "also_covered_by": [],
-      "wce_line": "Dillon Brooks' ejection came after he and Kevin Durant exchanged words during a play with only four players on the court.",
+      "wce_line": "Dillon Brooks' ejection came after he and Kevin Durant exchanged words during a play with only four defenders on the court.",
       "players": [
         {
           "name": "Dillon Brooks",
@@ -139,7 +299,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-11-26T17:38:25+00:00",
       "also_covered_by": [],
-      "wce_line": "LeBron James scored 14 consecutive points in the second quarter, leading the 76ers to a victory despite facing a strong Miami team.",
+      "wce_line": "LeBron James scored 14 consecutive points in the second quarter, contributing to his first triple-double as a 76er and securing their victory.",
       "players": [
         {
           "name": "LeBron James",
@@ -154,7 +314,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-11-26T16:41:31+00:00",
       "also_covered_by": [],
-      "wce_line": "Wembanyama's performance showcased his dominance with 44 points and 16 rebounds, solidifying his MVP campaign.",
+      "wce_line": "Wembanyama's highlight reel included a behind-the-back dribble and scoop layup, showcasing his unique skills on the court.",
       "players": [
         {
           "name": "Victor Wembanyama",
@@ -169,7 +329,7 @@
       "outlet": "RealGM",
       "published": "2026-11-26T16:34:28+00:00",
       "also_covered_by": [],
-      "wce_line": "Kevin Durant's defensive presence raised his steals percentile to just 3rd, despite not recording any against Dillon Brooks.",
+      "wce_line": "Kevin Durant's milestone night included a verbal altercation with Dillon Brooks, who was ejected after trading words with Rockets center Alperen Sengun.",
       "players": [
         {
           "name": "Kevin Durant",
@@ -188,7 +348,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-11-26T16:17:54+00:00",
       "also_covered_by": [],
-      "wce_line": "Wagner and Wolf have exceeded expectations offensively, with Wagner showing a 70.7% effective field-goal percentage in 16 games.",
+      "wce_line": null,
       "players": [
         {
           "name": "Danny Wolf",
@@ -203,7 +363,7 @@
       "outlet": "Yahoo Sports NBA",
       "published": "2026-11-26T14:00:46+00:00",
       "also_covered_by": [],
-      "wce_line": "Ben Simmons's NBA career has been significantly impacted by injuries, though he remains a former three-time All-Star for the Philadelphia 76ers and Brooklyn Nets.",
+      "wce_line": "Ben Simmons, the first Montverde Academy product selected No. 1 overall in 2016, has not been an established NBA roster player due to injuries.",
       "players": [
         {
           "name": "Cooper Flagg",
@@ -212,77 +372,17 @@
       ]
     },
     {
-      "id": "6b9a736a1e61906e",
-      "title": "Lakers, behind Luka Doncic, must crack Wemby code, exploit these areas to beat Spurs",
-      "url": "https://sports.yahoo.com/nba/articles/lakers-behind-luka-doncic-must-130000607.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-26T13:00:00+00:00",
+      "id": "85e01c00606332c1",
+      "title": "Jaylen Brown Leaves Win Over Heat With Hamstring Tightness, Will Undergo Imaging",
+      "url": "https://basketball.realgm.com/wiretap/288255/Jaylen-Brown-Leaves-Win-Over-Heat-With-Hamstring-Tightness-Will-Undergo-Imaging",
+      "outlet": "RealGM",
+      "published": "2026-11-26T07:00:07+00:00",
       "also_covered_by": [],
-      "wce_line": "Dončić's high usage and scoring efficiency force the Spurs to adjust their defense, creating opportunities for Lakers' shots when Wembanyama is drawn out.",
+      "wce_line": "Brown, averaging 22.4 points and 6.3 rebounds, will have imaging for his hamstring tightness after leaving the game early.",
       "players": [
         {
-          "name": "Luka Dončić",
-          "savant_url": "/nba-savant?p=1629029"
-        }
-      ]
-    },
-    {
-      "id": "96d48fe78b0eb2ac",
-      "title": "'All about giving': Why the Lakers' Ziaire Williams enjoys giving back",
-      "url": "https://sports.yahoo.com/nba/articles/giving-why-lakers-ziaire-williams-120000392.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-26T12:00:00+00:00",
-      "also_covered_by": [],
-      "wce_line": "Williams has been organizing Thanksgiving events for kids from the Boys & Girls Clubs of Metro Los Angeles every year since his NBA debut.",
-      "players": [
-        {
-          "name": "Ziaire Williams",
-          "savant_url": "/nba-savant?p=1630533"
-        }
-      ]
-    },
-    {
-      "id": "38d786c4b81d0d12",
-      "title": "Open Thread: Giving thanks for Carter Bryant",
-      "url": "https://sports.yahoo.com/nba/articles/open-thread-giving-thanks-carter-120000014.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-26T12:00:00+00:00",
-      "also_covered_by": [],
-      "wce_line": null,
-      "players": [
-        {
-          "name": "Carter Bryant",
-          "savant_url": "/nba-savant?p=1642868"
-        }
-      ]
-    },
-    {
-      "id": "ab5d7032e2cf0456",
-      "title": "Knicks’ Pacome Dadiet has big night after Mike Brown calls him out",
-      "url": "https://sports.yahoo.com/nba/articles/knicks-pacome-dadiet-big-night-105522188.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-26T10:55:22+00:00",
-      "also_covered_by": [],
-      "wce_line": "Pacôme Dadiet played 14 minutes and scored seven points in his best game of the season after being called out by Mike Brown.",
-      "players": [
-        {
-          "name": "Pacome Dadiet",
-          "savant_url": "/nba-savant?p=1642359"
-        }
-      ]
-    },
-    {
-      "id": "fd136eecbc61cb69",
-      "title": "De’Anthony Melton stuffs the box score in Warriors’ pre-Thanksgiving win",
-      "url": "https://sports.yahoo.com/nba/articles/anthony-melton-stuffs-box-score-090141371.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-26T09:01:41+00:00",
-      "also_covered_by": [],
-      "wce_line": "De'Anthony Melton outperformed his season averages with eight three-pointers and seven assists, contributing significantly to the Warriors' bench dominance.",
-      "players": [
-        {
-          "name": "De'Anthony Melton",
-          "savant_url": "/nba-savant?p=1629001"
+          "name": "Jaylen Brown",
+          "savant_url": "/nba-savant?p=1627759"
         }
       ]
     },
@@ -293,41 +393,7 @@
       "outlet": "RealGM",
       "published": "2026-11-26T06:29:45+00:00",
       "also_covered_by": [],
-      "wce_line": "Ball's departure in the fourth quarter could impact the Wolves' offensive efficiency, ranking at the 94th percentile in assist percentage this season.",
-      "players": [
-        {
-          "name": "LaMelo Ball",
-          "savant_url": "/nba-savant?p=1630163"
-        }
-      ]
-    },
-    {
-      "id": "2ca7a22af10512c6",
-      "title": "Dillon Brooks gets ejected with 23 seconds left vs. Rockets after getting into it with Kevin Durant",
-      "url": "https://sports.yahoo.com/nba/breaking-news/article/dillon-brooks-gets-ejected-with-23-seconds-left-vs-rockets-after-getting-into-it-with-kevin-durant-044033904.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-26T04:40:33+00:00",
-      "also_covered_by": [],
-      "wce_line": "Dillon Brooks was ejected for the second time this season, reaching his technical foul threshold with 4:32 left in the quarter.",
-      "players": [
-        {
-          "name": "Dillon Brooks",
-          "savant_url": "/nba-savant?p=1628415"
-        },
-        {
-          "name": "Kevin Durant",
-          "savant_url": "/nba-savant?p=201142"
-        }
-      ]
-    },
-    {
-      "id": "dbc3e47533533341",
-      "title": "LaMelo Ball injury update: Timberwolves star hurt late in win vs. Thunder",
-      "url": "https://sports.yahoo.com/nba/articles/lamelo-ball-injury-timberwolves-star-032503462.html",
-      "outlet": "Yahoo Sports NBA",
-      "published": "2026-11-26T03:25:03+00:00",
-      "also_covered_by": [],
-      "wce_line": "Ball's injury could significantly impact the Timberwolves' already thin backcourt, with Ayo Dosunmu and Jaden McDaniels shouldering more responsibility.",
+      "wce_line": "Ball's departure drops the Wolves' chances in key categories like assists and three-point shooting, already struggling this season.",
       "players": [
         {
           "name": "LaMelo Ball",
@@ -342,7 +408,7 @@
       "outlet": "CBS Sports NBA",
       "published": "2026-11-25T20:26:50+00:00",
       "also_covered_by": [],
-      "wce_line": "Karl-Anthony Towns leads the league with 13.9 rebounds per game, placing him in the 99th percentile for rebounds.",
+      "wce_line": "Karl-Anthony Towns leads the league with 13.9 rebounds per game, ranking at the 99th percentile in rebounding efficiency.",
       "players": [
         {
           "name": "Karl-Anthony Towns",
@@ -372,7 +438,7 @@
       "outlet": "CBS Sports NBA",
       "published": "2026-11-25T16:20:22+00:00",
       "also_covered_by": [],
-      "wce_line": null,
+      "wce_line": "Yaxel Lendeborg is performing at an 86th percentile pace in points per 75 possessions, showcasing his offensive prowess.",
       "players": [
         {
           "name": "Yaxel Lendeborg",
@@ -387,7 +453,7 @@
       "outlet": "CBS Sports NBA",
       "published": "2026-11-25T14:11:04+00:00",
       "also_covered_by": [],
-      "wce_line": "Giannis Antetokounmpo, despite sitting out Sunday's game with a groin strain, is expected to play against the 76ers due to the importance of the matchup.",
+      "wce_line": "Giannis Antetokounmpo, despite a groin strain, is likely to play against the 76ers due to the importance of the matchup.",
       "players": [
         {
           "name": "Giannis Antetokounmpo",
@@ -417,54 +483,21 @@
           "savant_url": "/nba-savant?p=203076"
         }
       ]
-    },
-    {
-      "id": "ae16a7dec4cbf34c",
-      "title": "Michael Porter Jr Says Season 'Is Really Hard Right Now'",
-      "url": "https://basketball.realgm.com/wiretap/288247/Michael-Porter-Jr-Says-Season-Is-Really-Hard-Right-Now",
-      "outlet": "RealGM",
-      "published": "2026-11-25T13:27:37+00:00",
-      "also_covered_by": [],
-      "wce_line": "Michael Porter Jr.'s true shooting percentage is below the league average at 55th percentile, impacting his scoring efficiency this season.",
-      "players": [
-        {
-          "name": "Michael Porter Jr.",
-          "savant_url": "/nba-savant?p=1629008"
-        }
-      ]
-    },
-    {
-      "id": "4c161df50bad2357",
-      "title": "Karabell's notebook: Was Paul George this season's biggest draft-day steal?",
-      "url": "https://www.espn.com/fantasy/basketball/story/_/id/50584319/fantasy-basketball-trends-nba-2026-2027",
-      "outlet": "ESPN NBA",
-      "published": "2026-11-25T12:49:22+00:00",
-      "also_covered_by": [],
-      "wce_line": "Paul George ranks in the 94th percentile for points per 75 possessions and 92nd for 3-point percentage this season.",
-      "players": [
-        {
-          "name": "Paul George",
-          "savant_url": "/nba-savant?p=202331"
-        }
-      ]
-    },
-    {
-      "id": "36f4b3bba2c4ec0c",
-      "title": "Raptors, Warriors, Hawks Seen As Teams To Watch If Wizards Make Anthony Davis Available",
-      "url": "https://basketball.realgm.com/wiretap/288242/Raptors-Warriors-Hawks-Seen-As-Teams-To-Watch-If-Wizards-Make-Anthony-Davis-Available",
-      "outlet": "RealGM",
-      "published": "2026-11-25T03:30:04+00:00",
-      "also_covered_by": [],
-      "wce_line": "The Toronto Raptors, Golden State Warriors, and Atlanta Hawks are seen as potential suitors if Anthony Davis becomes available, despite the Washington Wizards having no imminent plans to trade him.",
-      "players": [
-        {
-          "name": "Anthony Davis",
-          "savant_url": "/nba-savant?p=203076"
-        }
-      ]
     }
   ],
   "analytics": [
+    {
+      "id": "9e32231ae6379f57",
+      "title": "NBA Overtime Rules: Length, Fouls, Timeouts",
+      "url": "https://www.nbastuffer.com/nba-overtime-rules-length-fouls-timeouts-and-how-ot-affects-your-bets/",
+      "outlet": "NBAstuffer",
+      "published": "2026-11-27T05:46:31+00:00",
+      "authors": [
+        "nbastuffer.com"
+      ],
+      "wce_line": "Each overtime period lasts five minutes but feels longer due to frequent timeouts and intentional fouls.",
+      "source_type": "article"
+    },
     {
       "id": "d40d401096ae3bc1",
       "title": "Who Fills the Gap? Role Similarity and Teammates' Minutes When NBA Players Are Ruled Out",
@@ -475,7 +508,7 @@
         "Tianyu Guan",
         "Yang Zhou"
       ],
-      "wce_line": "A greater statistical role similarity among teammates correlates with an additional 0.63 minutes played when a core player is ruled out for a medical reason.",
+      "wce_line": "Similar teammates replace a ruled-out player's minutes by about 0.63 more per game when they share similar roles in terms of three-point attempts, assists, and rebounds.",
       "source_type": "paper"
     },
     {
@@ -487,7 +520,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Modern indoor training facilities help NBA teams maintain consistent routines and allow for targeted feedback, enhancing athlete performance through advanced analytics and video analysis.",
+      "wce_line": "The study found that modern indoor training facilities help maintain consistent practice routines and allow for targeted feedback, enhancing overall athlete performance in the NBA.",
       "source_type": "article"
     },
     {
@@ -499,7 +532,7 @@
       "authors": [
         "Paola Zuccolotto Marica Manisera"
       ],
-      "wce_line": "The book covers advanced statistical methods, machine learning, and computer-vision techniques to provide readers with reproducible workflows and real-world case studies for enhancing basketball analytics.",
+      "wce_line": "The book covers advanced statistical methods, machine learning, and computer-vision techniques applied to basketball analytics, offering fully reproducible workflows with datasets and R code.",
       "source_type": "article"
     },
     {
@@ -511,7 +544,7 @@
       "authors": [
         "Lawrence Feldman"
       ],
-      "wce_line": "The study compares nine NCAA sports settings to highlight how different factors like schedule density and head-to-head meetings influence ranking methodologies.",
+      "wce_line": "The paper identifies four main tasks in sports ranking—prediction, retrospective evaluation, championship selection, and seeding—and argues that no single methodology can be considered universally superior.",
       "source_type": "paper"
     },
     {
@@ -523,7 +556,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": null,
+      "wce_line": "Advanced metrics like Offensive and Defensive Ratings provide deeper insights into team performance beyond traditional scoring averages.",
       "source_type": "article"
     },
     {
@@ -535,7 +568,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article examines seven key stats beyond points per game, including true shooting percentage and usage rate, to provide a fuller understanding of player performance and impact.",
+      "wce_line": "The article explores seven NBA stats beyond points per game, including true shooting percentage and usage rate, to provide a fuller understanding of player contributions.",
       "source_type": "article"
     },
     {
@@ -559,7 +592,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "This article appears behind a paywall requiring patrons to contribute at least $1 via Ben Taylor’s Patreon.",
+      "wce_line": "This article is behind a Patreon paywall for members who donate at least $1.",
       "source_type": "article"
     },
     {
@@ -571,7 +604,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes Luka Doncic's ball handling and dribbling skills, showcasing how he outmaneuvers defenders.",
+      "wce_line": "The article analyzes Luka Doncic's ball handling and dribbling skills, showing how he creates scoring opportunities for himself and teammates.",
       "source_type": "article"
     },
     {
@@ -583,7 +616,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article tests user engagement with different designs of a new TB stats app.",
+      "wce_line": "The article discusses the development and features of a new TB Stats app.",
       "source_type": "article"
     },
     {
@@ -595,7 +628,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "Scoring efficiency and defensive impact shape MVP discussions, with Victor Wembanyama's two-way dominance and Shai Gilgeous-Alexander's high-scoring consistency leading early debates.",
+      "wce_line": "Scoring efficiency and defensive impact shape MVP discussions, with Victor Wembanyama's two-way dominance and Shai Gilgeous-Alexander's high-scoring consistency key factors early in the season.",
       "source_type": "article"
     },
     {
@@ -631,19 +664,7 @@
       "authors": [
         "nbastuffer.com"
       ],
-      "wce_line": "The article shows how analysts can turn subjective opinions into quantifiable probabilities using team efficiency metrics and market pricing mechanisms.",
-      "source_type": "article"
-    },
-    {
-      "id": "8409c13c131a4c29",
-      "title": "Why NBA Lines Are Softest in the First Three Weeks",
-      "url": "https://www.nbastuffer.com/early-season-nba-line-mispricing/",
-      "outlet": "NBAstuffer",
-      "published": "2026-10-23T11:35:17+00:00",
-      "authors": [
-        "nbastuffer.com"
-      ],
-      "wce_line": "The first three weeks feature unstable numbers due to small sample sizes and shifting rules affecting team ratings.",
+      "wce_line": null,
       "source_type": "article"
     },
     {
@@ -655,7 +676,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article discusses Philadelphia's new strategy but requires membership to read full details.",
+      "wce_line": "The article discusses Philadelphia's new coaching strategy but requires membership to read further details.",
       "source_type": "article"
     },
     {
@@ -667,7 +688,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how LaMelo Ball's presence impacts both on and off the court for the Minnesota Wolves.",
+      "wce_line": "The article analyzes how LaMelo Ball's presence impacts the Minnesota Timberwolves both on and off the ball.",
       "source_type": "article"
     },
     {
@@ -679,7 +700,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how Boston's defensive strategy impacts team performance.",
+      "wce_line": "The article analyzes how Boston's defensive strategy impacts their performance.",
       "source_type": "article"
     },
     {
@@ -692,7 +713,7 @@
         "Abhijit Brahme",
         "Alexander Franks"
       ],
-      "wce_line": "The study found that athleticism-related metrics like blocks and rebounds peak earlier than skill-based shooting metrics, which peak later in a player's career.",
+      "wce_line": "The study found that athleticism-related skills like blocks and rebounds peak earlier than shooting abilities, which reach their peaks in the mid-twenties.",
       "source_type": "paper"
     },
     {
@@ -705,7 +726,7 @@
         "Yang Zhou",
         "Tianyu Guan"
       ],
-      "wce_line": "The review identifies six key \"decision-readiness gates\" that NBA teams must navigate when using analytics, highlighting gaps in combining and transferring data across different contexts.",
+      "wce_line": "The review identifies gaps in NBA analytics where individual metrics fail to effectively combine or transfer across different decision-making contexts.",
       "source_type": "paper"
     },
     {
@@ -734,7 +755,7 @@
         "Carmen Armero",
         "Virgilio Gómez-Rubio"
       ],
-      "wce_line": "The study uses Bayesian networks to analyze the performance of the Philadelphia 76ers over the 2005-06 NBA season, considering factors like player participation and shot attempts.",
+      "wce_line": "The study uses Bayesian networks to analyze the performance of the Philadelphia 76ers over the 2005-06 NBA season by considering player statistics like minutes played and shot attempts.",
       "source_type": "paper"
     },
     {
@@ -747,7 +768,7 @@
         "Nirek Duma",
         "Leo Benaharon"
       ],
-      "wce_line": "The study found that increasing rim attempts while decreasing mid-range and perimeter shots could improve overall team performance according to an optimized model.",
+      "wce_line": "The study found that increasing rim attempts while decreasing mid-range and perimeter shots could improve overall team performance according to an optimized shot selection model.",
       "source_type": "paper"
     },
     {
@@ -759,7 +780,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how San Antonio effectively exploited New York's defensive weaknesses.",
+      "wce_line": "The article analyzes how the San Antonio Spurs exploited New York Knicks defensive weaknesses.",
       "source_type": "article"
     },
     {
@@ -771,7 +792,7 @@
       "authors": [
         "ElGee"
       ],
-      "wce_line": "The article analyzes how New York's defensive strategies have improved Karl-Anthony Towns' performance.",
+      "wce_line": "The article analyzes how New York's defensive strategy has improved Karl-Anthony Towns' performance.",
       "source_type": "article"
     },
     {
@@ -784,18 +805,6 @@
         "ElGee"
       ],
       "wce_line": "This article explores how regular-season performance correlates with NBA Finals success.",
-      "source_type": "article"
-    },
-    {
-      "id": "09a7e0d149cf0ce9",
-      "title": "OKC’s clever play to neutralize Wemby",
-      "url": "https://thinkingbasketball.net/2026/05/28/okcs-clever-play-to-neutralize-wemby/",
-      "outlet": "Thinking Basketball",
-      "published": "2026-05-28T08:04:03+00:00",
-      "authors": [
-        "ElGee"
-      ],
-      "wce_line": null,
       "source_type": "article"
     }
   ]
