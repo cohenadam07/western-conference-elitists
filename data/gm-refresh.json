@@ -1,12 +1,12 @@
 {
- "last_ok": "2026-11-27T10:07:49+00:00",
- "asof": "2026-11-27",
+ "last_ok": "2026-11-28T05:39:19+00:00",
+ "asof": "2026-11-28",
  "through": "2026-11-23",
  "decisions": 32492,
  "sources": [
   "site.api.espn.com 200"
  ],
- "games_through": "2026-11-25",
+ "games_through": "2026-11-27",
  "held": 0,
  "unconfirmed_over_48h": [],
  "front_office_pending": [],
